@@ -1,0 +1,7 @@
+*.o
+*.d
+
+CMakeLists.txt
+build/*
+dependencies/*
+

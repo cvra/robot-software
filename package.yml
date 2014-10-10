@@ -1,0 +1,9 @@
+depends:
+    - test-runner
+
+source:
+    - serial_datagram.c
+
+tests:
+    - tests/serial_datagram_test.cpp
+
