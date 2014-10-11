@@ -1,6 +1,11 @@
 #include "CppUTest/TestHarness.h"
 #include "../serial_datagram.h"
 
+#define END         '\xC0'
+#define ESC         '\xDB'
+#define ESC_END     '\xDC'
+#define ESC_ESC     '\xDD'
+
 char sendbuffer[100];
 int send_index;
 
@@ -42,18 +47,20 @@ TEST(SerialDatagramTestGroup, SendFrame)
 
 TEST(SerialDatagramTestGroup, SendFrameEscape)
 {
-    char d[] = {0xc0, 0xdb};
+    char d[] = {ESC, 0x0a, END, 0x0b};
     serial_datagram_send(d, sizeof(d), send_fn);
-    BYTES_EQUAL(0xdb, sendbuffer[0]);
-    BYTES_EQUAL(0xdc, sendbuffer[1]);
-    BYTES_EQUAL(0xdb, sendbuffer[2]);
-    BYTES_EQUAL(0xdd, sendbuffer[3]);
+    BYTES_EQUAL(ESC, sendbuffer[0]);
+    BYTES_EQUAL(ESC_ESC, sendbuffer[1]);
+    BYTES_EQUAL(0x0a, sendbuffer[2]);
+    BYTES_EQUAL(ESC, sendbuffer[3]);
+    BYTES_EQUAL(ESC_END, sendbuffer[4]);
+    BYTES_EQUAL(0x0b, sendbuffer[5]);
     // CRC
-    BYTES_EQUAL(0x00, sendbuffer[4]);
-    BYTES_EQUAL(0x00, sendbuffer[5]);
     BYTES_EQUAL(0x00, sendbuffer[6]);
     BYTES_EQUAL(0x00, sendbuffer[7]);
+    BYTES_EQUAL(0x00, sendbuffer[8]);
+    BYTES_EQUAL(0x00, sendbuffer[9]);
     // STOP
-    BYTES_EQUAL(0xC0, sendbuffer[8]);
-    CHECK_EQUAL(2*2+4+1, send_index);
+    BYTES_EQUAL(0xC0, sendbuffer[10]);
+    CHECK_EQUAL(2*2+2+4+1, send_index);
 }
