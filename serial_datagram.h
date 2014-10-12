@@ -2,6 +2,7 @@
 #define SERIAL_DATAGRAM_H
 
 #include <stdlib.h>
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
