@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdbool.h>
 // #include <crc/crc32.h>
 #include "serial_datagram.h"
 
@@ -10,7 +11,7 @@
 
 uint32_t compute_crc(const char *buf, size_t len)
 {
-    return 0;
+    return 0x11223344;
 }
 
 void serial_datagram_send(const char *dtgrm, size_t len,
@@ -104,6 +105,7 @@ int serial_datagram_receive(serial_datagram_rcv_handler_t *h, const char *in,
                 error_code = SERIAL_DATAGRAM_RCV_PROTOCOL_ERROR;
                 h->error_flag = true;
             }
+            h->esc_flag = false;
         } else if (*in == ESC) {
             h->esc_flag = true;
         } else {
