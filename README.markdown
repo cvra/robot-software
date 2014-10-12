@@ -15,7 +15,7 @@ A datagram frame looks like this:
 
     [data][CRC32][END]
 
-The CRC32 is the CRC32 (polynomial 0x04C11DB7, initialized to 0xFFFFFFFF)
+The CRC32 is the "Ethernet" CRC32 (polynomial 0x104C11DB7, inverted, initialized to 0)
 checksum of the (unescaped) data bytes transmitted MSByte first (big-endian).
 
 The data and CRC32 fields are escaped such that an END byte is replaced by
