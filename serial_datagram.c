@@ -82,15 +82,19 @@ int serial_datagram_receive(serial_datagram_rcv_handler_t *h, const char *in,
             }
         } else if (*in == END) {
             int datagram_len = h->write_index - 4;
-            uint32_t crc = compute_crc(h->buffer, datagram_len);
-            uint32_t received_crc = ( h->buffer[h->write_index - 4] << 3*8 |
-                                      h->buffer[h->write_index - 3] << 2*8 |
-                                      h->buffer[h->write_index - 2] << 1*8 |
-                                      h->buffer[h->write_index - 1] );
-            if (crc != received_crc) {
-                error_code = SERIAL_DATAGRAM_RCV_CRC_MISMATCH;
+            if (datagram_len > 0) {
+                uint32_t crc = compute_crc(h->buffer, datagram_len);
+                uint32_t received_crc = ( h->buffer[h->write_index - 4] << 3*8 |
+                                          h->buffer[h->write_index - 3] << 2*8 |
+                                          h->buffer[h->write_index - 2] << 1*8 |
+                                          h->buffer[h->write_index - 1] );
+                if (crc != received_crc) {
+                    error_code = SERIAL_DATAGRAM_RCV_CRC_MISMATCH;
+                } else {
+                    h->callback_fn(h->buffer, datagram_len);
+                }
             } else {
-                h->callback_fn(h->buffer, datagram_len);
+                error_code = SERIAL_DATAGRAM_RCV_PROTOCOL_ERROR;
             }
             rcv_handler_reset(h);
         } else if (h->write_index == h->size) {

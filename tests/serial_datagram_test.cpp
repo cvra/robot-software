@@ -110,6 +110,13 @@ TEST(SerialDatagramRcvTestGroup, RcvFrameTooLong)
     CHECK_EQUAL(SERIAL_DATAGRAM_RCV_DATAGRAM_TOO_LONG, ret);
 }
 
+TEST(SerialDatagramRcvTestGroup, RcvFrameTooShort)
+{
+    char frame[] = {END};
+    int ret = serial_datagram_receive(&h, frame, sizeof(frame));
+    CHECK_EQUAL(SERIAL_DATAGRAM_RCV_PROTOCOL_ERROR, ret);
+}
+
 TEST(SerialDatagramRcvTestGroup, RcvCRCError)
 {
     char frame[] = {'a', 0xff, 0xff, 0xff, 0xff, END};
