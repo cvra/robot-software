@@ -1,0 +1,8 @@
+depends:
+    - test-runner
+
+source:
+    - crc32.c
+
+tests:
+    - test/crc32_test.cpp
