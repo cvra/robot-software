@@ -84,10 +84,11 @@ int serial_datagram_receive(serial_datagram_rcv_handler_t *h, const char *in,
             int datagram_len = h->write_index - 4;
             if (datagram_len > 0) {
                 uint32_t crc = compute_crc(h->buffer, datagram_len);
-                uint32_t received_crc = ( h->buffer[h->write_index - 4] << 3*8 |
-                                          h->buffer[h->write_index - 3] << 2*8 |
-                                          h->buffer[h->write_index - 2] << 1*8 |
-                                          h->buffer[h->write_index - 1] );
+                uint32_t received_crc = (
+                    ((uint32_t)h->buffer[h->write_index - 4] & 0xff) << 3*8 |
+                    ((uint32_t)h->buffer[h->write_index - 3] & 0xff) << 2*8 |
+                    ((uint32_t)h->buffer[h->write_index - 2] & 0xff) << 1*8 |
+                    ((uint32_t)h->buffer[h->write_index - 1] & 0xff) );
                 if (crc != received_crc) {
                     error_code = SERIAL_DATAGRAM_RCV_CRC_MISMATCH;
                 } else {
