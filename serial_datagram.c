@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include <stdbool.h>
-// #include <crc/crc32.h>
+#include <crc/crc32.h>
 #include "serial_datagram.h"
 
 #define END         '\xC0'
@@ -9,9 +9,9 @@
 #define ESC_ESC     '\xDD'
 
 
-uint32_t compute_crc(const char *buf, size_t len)
+static uint32_t compute_crc(const char *buf, size_t len)
 {
-    return 0x11223344;
+    return crc32(0x00000000, buf, len);
 }
 
 void serial_datagram_send(const char *dtgrm, size_t len,
