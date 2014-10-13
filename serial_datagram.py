@@ -1,8 +1,12 @@
+import struct
+import binascii
 import sys
 import os
 
+
 def crc32(data):
-    return b'\x11\x22\x33\x44'
+    struct.pack('>I', binascii.crc32(data))
+
 
 class SerialDatagram:
 
