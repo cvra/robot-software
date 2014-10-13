@@ -1,5 +1,5 @@
 #include "CppUTest/TestHarness.h"
-#include "crc32.h"
+#include "../crc32.h"
 
 TEST_GROUP(CRC32TestGroup)
 {
