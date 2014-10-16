@@ -4,7 +4,7 @@
 
 #define CRC32MASK 0xEDB88320
 
-uint32_t crc32(uint32_t init, const void *data, size_t len)
+uint32_t crc32(uint32_t init, const uint8_t *data, size_t len)
 {
     uint8_t *d = (uint8_t *)data;
     uint32_t i, crc = ~init;
