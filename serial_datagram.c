@@ -15,7 +15,7 @@ static uint32_t compute_crc(const char *buf, size_t len)
 }
 
 void serial_datagram_send(const char *dtgrm, size_t len,
-        void (*send_fn)(const char *p, size_t len))
+        void (*send_fn)(void *arg, const char *p, size_t len), void *sendarg)
 {
     const static char esc_end[] = {ESC, ESC_END};
     const static char esc_esc[] = {ESC, ESC_ESC};
@@ -23,23 +23,23 @@ void serial_datagram_send(const char *dtgrm, size_t len,
     int a = 0, b = 0;
     while (b < len) {
         if (dtgrm[b] == END) {
-            send_fn(&dtgrm[a], b - a);
-            send_fn(esc_end, 2);
+            send_fn(sendarg, &dtgrm[a], b - a);
+            send_fn(sendarg, esc_end, 2);
             a = b + 1;
         } else if (dtgrm[b] == ESC) {
-            send_fn(&dtgrm[a], b - a);
-            send_fn(esc_esc, 2);
+            send_fn(sendarg, &dtgrm[a], b - a);
+            send_fn(sendarg, esc_esc, 2);
             a = b + 1;
         }
         b++;
     }
-    send_fn(&dtgrm[a], b - a);
+    send_fn(sendarg, &dtgrm[a], b - a);
 
     // send CRC32 + END
     char crc_and_end[2*4 + 1]; // escaped CRC32 + END
-    int i = 0;
+    uint32_t i = 0;
     uint32_t crc = compute_crc(dtgrm, len);
-    int j;
+    int32_t j;
     for (j = 3*8; j >= 0; j -= 8) {
         if (((crc >> j) & 0xFF) == ESC) {
             crc_and_end[i++] = esc_esc[0];
@@ -52,7 +52,7 @@ void serial_datagram_send(const char *dtgrm, size_t len,
         }
     }
     crc_and_end[i++] = END;
-    send_fn(crc_and_end, i);
+    send_fn(sendarg, crc_and_end, i);
 }
 
 static void rcv_handler_reset(serial_datagram_rcv_handler_t *h)

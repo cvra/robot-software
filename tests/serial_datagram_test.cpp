@@ -9,8 +9,9 @@
 char sendbuffer[100];
 int send_index;
 
-extern "C" void send_fn(const char *p, size_t len)
+extern "C" void send_fn(void *arg, const char *p, size_t len)
 {
+    (void)arg;
     // printf("[");
     while (len-- > 0) {
         // unsigned int c = (unsigned char)*p;
@@ -31,7 +32,7 @@ TEST_GROUP(SerialDatagramSendTestGroup)
 TEST(SerialDatagramSendTestGroup, SendFrame)
 {
     char d[] = {0x0a, 0x0b, 0x0c}; // crc 1894c924
-    serial_datagram_send(d, sizeof(d), send_fn);
+    serial_datagram_send(d, sizeof(d), send_fn, NULL);
     BYTES_EQUAL(0x0a, sendbuffer[0]);
     BYTES_EQUAL(0x0b, sendbuffer[1]);
     BYTES_EQUAL(0x0c, sendbuffer[2]);
@@ -48,7 +49,7 @@ TEST(SerialDatagramSendTestGroup, SendFrame)
 TEST(SerialDatagramSendTestGroup, SendFrameEscape)
 {
     char d[] = {ESC, 0x0a, END, 0x0b}; // crc 81ae6a94
-    serial_datagram_send(d, sizeof(d), send_fn);
+    serial_datagram_send(d, sizeof(d), send_fn, NULL);
     BYTES_EQUAL(ESC, sendbuffer[0]);
     BYTES_EQUAL(ESC_ESC, sendbuffer[1]);
     BYTES_EQUAL(0x0a, sendbuffer[2]);

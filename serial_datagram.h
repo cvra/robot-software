@@ -26,7 +26,7 @@ typedef struct {
  * Send a datagram
  */
 void serial_datagram_send(const char *dtgrm, size_t len,
-        void (*send_fn)(const char *p, size_t len));
+        void (*send_fn)(void *arg, const char *p, size_t len), void *sendarg);
 
 /**
  * Setup datagram receive handler
