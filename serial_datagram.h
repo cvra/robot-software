@@ -15,8 +15,8 @@ extern "C" {
 typedef struct {
     char *buffer;
     size_t size;
-    int write_index;
-    void (*callback_fn)(const char *dtgrm, size_t len);
+    uint32_t write_index;
+    void (*callback_fn)(const void *dtgrm, size_t len);
     bool error_flag;
     bool esc_flag;
 } serial_datagram_rcv_handler_t;
@@ -25,8 +25,8 @@ typedef struct {
 /**
  * Send a datagram
  */
-void serial_datagram_send(const char *dtgrm, size_t len,
-        void (*send_fn)(void *arg, const char *p, size_t len), void *sendarg);
+void serial_datagram_send(const void *dtgrm, size_t len,
+        void (*send_fn)(void *arg, const void *p, size_t len), void *sendarg);
 
 /**
  * Setup datagram receive handler
@@ -37,7 +37,7 @@ void serial_datagram_send(const char *dtgrm, size_t len,
  *  with a pointer to it.
  */
 void serial_datagram_rcv_handler_init(serial_datagram_rcv_handler_t *h,
-        char *buffer, size_t size, void (*cb)(const char *dtgrm, size_t len));
+        void *buffer, size_t size, void (*cb)(const void *dtgrm, size_t len));
 
 /**
  * Receive bytes of a datagram
@@ -47,7 +47,7 @@ void serial_datagram_rcv_handler_init(serial_datagram_rcv_handler_t *h,
  * If there is a reception error, an error code is returned once and all bytes
  * until the start of the next datagram are ignored without further error codes.
  */
-int serial_datagram_receive(serial_datagram_rcv_handler_t *h, const char *in,
+int serial_datagram_receive(serial_datagram_rcv_handler_t *h, const void *in,
         size_t len);
 
 /** Error codes for serial_datagram_receive */

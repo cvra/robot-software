@@ -9,14 +9,15 @@
 char sendbuffer[100];
 int send_index;
 
-extern "C" void send_fn(void *arg, const char *p, size_t len)
+extern "C" void send_fn(void *arg, const void *p, size_t len)
 {
     (void)arg;
+    const char *byte = (const char*)p;
     // printf("[");
     while (len-- > 0) {
         // unsigned int c = (unsigned char)*p;
         // printf("0x%x ", c);
-        sendbuffer[send_index++] = *p++;
+        sendbuffer[send_index++] = *byte++;
     }
     // printf("]\n");
 }
@@ -71,11 +72,12 @@ TEST(SerialDatagramSendTestGroup, SendFrameEscape)
 char *expected_dtgrm;
 size_t expected_dtgrm_len;
 int rcv_nb_calls;
-extern "C" void rcv_cb(const char *dtgrm, size_t len)
+extern "C" void rcv_cb(const void *dtgrm, size_t len)
 {
+    const char *dtgrm_byte = (const char*)dtgrm;
     CHECK_EQUAL(expected_dtgrm_len, len);
     for (int i = 0; i < len; i++) {
-        BYTES_EQUAL(expected_dtgrm[i], dtgrm[i]);
+        BYTES_EQUAL(expected_dtgrm[i], dtgrm_byte[i]);
     }
     rcv_nb_calls++;
 }

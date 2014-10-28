@@ -9,36 +9,37 @@
 #define ESC_ESC     '\xDD'
 
 
-static uint32_t compute_crc(const char *buf, size_t len)
+static uint32_t compute_crc(const void *buf, size_t len)
 {
     return crc32(0x00000000, buf, len);
 }
 
-void serial_datagram_send(const char *dtgrm, size_t len,
-        void (*send_fn)(void *arg, const char *p, size_t len), void *sendarg)
+void serial_datagram_send(const void *dtgrm, size_t len,
+        void (*send_fn)(void *arg, const void *p, size_t len), void *sendarg)
 {
-    const static char esc_end[] = {ESC, ESC_END};
-    const static char esc_esc[] = {ESC, ESC_ESC};
+    static const char esc_end[] = {ESC, ESC_END};
+    static const char esc_esc[] = {ESC, ESC_ESC};
+    const char *dtgrm_byte = (const char*)dtgrm;
     // send escaped data
-    int a = 0, b = 0;
+    uint32_t a = 0, b = 0;
     while (b < len) {
-        if (dtgrm[b] == END) {
-            send_fn(sendarg, &dtgrm[a], b - a);
+        if (dtgrm_byte[b] == END) {
+            send_fn(sendarg, &dtgrm_byte[a], b - a);
             send_fn(sendarg, esc_end, 2);
             a = b + 1;
-        } else if (dtgrm[b] == ESC) {
-            send_fn(sendarg, &dtgrm[a], b - a);
+        } else if (dtgrm_byte[b] == ESC) {
+            send_fn(sendarg, &dtgrm_byte[a], b - a);
             send_fn(sendarg, esc_esc, 2);
             a = b + 1;
         }
         b++;
     }
-    send_fn(sendarg, &dtgrm[a], b - a);
+    send_fn(sendarg, &dtgrm_byte[a], b - a);
 
     // send CRC32 + END
     char crc_and_end[2*4 + 1]; // escaped CRC32 + END
     uint32_t i = 0;
-    uint32_t crc = compute_crc(dtgrm, len);
+    uint32_t crc = compute_crc(dtgrm_byte, len);
     int32_t j;
     for (j = 3*8; j >= 0; j -= 8) {
         if (((crc >> j) & 0xFF) == ESC) {
@@ -63,24 +64,25 @@ static void rcv_handler_reset(serial_datagram_rcv_handler_t *h)
 }
 
 void serial_datagram_rcv_handler_init(serial_datagram_rcv_handler_t *h,
-        char *buffer, size_t size, void (*cb)(const char *dtgrm, size_t len))
+        void *buffer, size_t size, void (*cb)(const void *dtgrm, size_t len))
 {
-    h->buffer = buffer;
+    h->buffer = (char*)buffer;
     h->size = size;
     h->callback_fn = cb;
     rcv_handler_reset(h);
 }
 
-int serial_datagram_receive(serial_datagram_rcv_handler_t *h, const char *in,
+int serial_datagram_receive(serial_datagram_rcv_handler_t *h, const void *in,
         size_t len)
 {
+    const char *read = (const char *)in;
     int error_code = SERIAL_DATAGRAM_RCV_NO_ERROR;
     while (len--) {
         if (h->error_flag) {
-            if (*in == END) {
+            if (*read == END) {
                 rcv_handler_reset(h);
             }
-        } else if (*in == END) {
+        } else if (*read == END) {
             int datagram_len = h->write_index - 4;
             if (datagram_len > 0) {
                 uint32_t crc = compute_crc(h->buffer, datagram_len);
@@ -102,21 +104,21 @@ int serial_datagram_receive(serial_datagram_rcv_handler_t *h, const char *in,
             h->error_flag = true;
             error_code = SERIAL_DATAGRAM_RCV_DATAGRAM_TOO_LONG;
         } else if (h->esc_flag) {
-            if (*in == ESC_ESC) {
+            if (*read == ESC_ESC) {
                 h->buffer[h->write_index++] = ESC; // write data byte ESC
-            } else if (*in == ESC_END) {
+            } else if (*read == ESC_END) {
                 h->buffer[h->write_index++] = END; // write data byte END
             } else { // invalid escape sequence
                 error_code = SERIAL_DATAGRAM_RCV_PROTOCOL_ERROR;
                 h->error_flag = true;
             }
             h->esc_flag = false;
-        } else if (*in == ESC) {
+        } else if (*read == ESC) {
             h->esc_flag = true;
         } else {
-             h->buffer[h->write_index++] = *in; // write data byte *in
+             h->buffer[h->write_index++] = *read; // write data byte *read
         }
-        in++;
+        read++;
     }
     return error_code;
 }
