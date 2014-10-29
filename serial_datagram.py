@@ -3,11 +3,6 @@ import binascii
 import sys
 import os
 
-
-def crc32(data):
-    struct.pack('>I', binascii.crc32(data))
-
-
 class SerialDatagram:
 
     END = b'\xC0'
@@ -15,54 +10,83 @@ class SerialDatagram:
     ESC_END = b'\xDC'
     ESC_ESC = b'\xDD'
 
+    class DecodeError(Exception):
+        pass
+
+    @staticmethod
+    def crc32(data):
+        return struct.pack('>i', binascii.crc32(data))
+
+    @classmethod
+    def decode(cls, buf):
+
+        buf = buf.replace(cls.ESC + cls.ESC_END,  # replace order matters !
+                          cls.END)
+        buf = buf.replace(cls.ESC + cls.ESC_ESC,
+                          cls.ESC)
+        frame = b''+buf[:-4]
+        print(binascii.hexlify(frame))
+        print(binascii.hexlify(buf))
+        print(binascii.hexlify(SerialDatagram.crc32(frame)))
+        if len(buf) < 4:
+            raise cls.DecodeError('frame error')
+        elif SerialDatagram.crc32(frame) != buf[-4:]:
+            raise cls.DecodeError('crc error')
+        else:
+            return frame
+
+    @classmethod
+    def encode(cls, dtgrm):
+        crc = SerialDatagram.crc32(dtgrm)
+        frame = dtgrm + crc
+        frame = frame.replace(cls.ESC,  # replace order matters !
+                              cls.ESC + cls.ESC_ESC)
+        frame = frame.replace(cls.END,
+                              cls.ESC + cls.ESC_END)
+        return frame + cls.END
+
     def __init__(self, file_desc):
         self.file_desc = file_desc
 
     def send(self, dtgrm):
-        crc = crc32(dtgrm)
-        frame = dtgrm + crc
-        frame = frame.replace(SerialDatagram.END,
-                              SerialDatagram.ESC + SerialDatagram.ESC_END)
-        frame = frame.replace(SerialDatagram.ESC,
-                              SerialDatagram.ESC + SerialDatagram.ESC_ESC)
-        self.file_desc.write(frame + SerialDatagram.END)
+        self.file_desc.write(SerialDatagram.encode(dtgrm))
 
     def receive(self):
-        buf = b''
+        def getframe(fdesc):
+            buf = b''
+            while True:
+                b = fdesc.read(1)
+                if b == SerialDatagram.END:
+                    break
+                buf += b
+            print(binascii.hexlify(buf))
+            return buf
         while True:
-            b = self.file_desc.read(1)
-            if b == SerialDatagram.END:
-                break
-            buf += b
-        buf = buf.replace(SerialDatagram.ESC + SerialDatagram.ESC_END,
-                          SerialDatagram.END)
-        buf = buf.replace(SerialDatagram.ESC + SerialDatagram.ESC_ESC,
-                          SerialDatagram.ESC)
-        frame = buf[:-4]
-        if crc32(frame) != buf[-4:]:
-            print("crc error")
-        else:
-            return frame
+            try:
+                yield SerialDatagram.decode(getframe(self.file_desc))
+            except SerialDatagram.DecodeError as e:
+                print(e)
 
 
 if __name__ == "__main__":
+    import argparse
 
-    def w():
-        sys.stdout = os.fdopen(1, "wb")
+    def w(fdesc):
         for line in sys.stdin:
-            SerialDatagram(sys.stdout).send(line.encode('ascii', 'ignore'))
-            sys.stdout.flush()
+            SerialDatagram(fdesc).send(line.encode('ascii', 'ignore'))
+            fdesc.flush()
 
-    def r():
-        sys.stdin = os.fdopen(0, "rb")
-        while True:
-            print(SerialDatagram(sys.stdin).receive())
+    def r(fdesc):
+        for dtgrm in SerialDatagram(fdesc).receive():
+            print(dtgrm)
 
-    if len(sys.argv) == 2:
+    if len(sys.argv) in [2, 3]:
         if sys.argv[1] == 'r':
-            r()
+            fd = os.fdopen(0, "rb")
+            r(fd)
         if sys.argv[1] == 'w':
-            w()
+            fd = os.fdopen(1, "wb")
+            w(fd)
     else:
         print("usage: {} r # to read".format(sys.argv[0]))
         print("usage: {} w # to write".format(sys.argv[0]))
