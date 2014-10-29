@@ -67,6 +67,26 @@ TEST(SerialDatagramSendTestGroup, SendFrameEscape)
     CHECK_EQUAL(2*2+2+4+1, send_index);
 }
 
+TEST(SerialDatagramSendTestGroup, SendFrameEscapedCRC)
+{
+    char d[] = {'s', 'd', 'a', 'f', '\n', 0}; // crc 65e9c03f
+    serial_datagram_send(d, sizeof(d), send_fn, NULL);
+    BYTES_EQUAL('s', sendbuffer[0]);
+    BYTES_EQUAL('d', sendbuffer[1]);
+    BYTES_EQUAL('a', sendbuffer[2]);
+    BYTES_EQUAL('f', sendbuffer[3]);
+    BYTES_EQUAL('\n', sendbuffer[4]);
+    BYTES_EQUAL(0, sendbuffer[5]);
+    // CRC (escaped 65e9dbdc3fc0)
+    BYTES_EQUAL(0x65, sendbuffer[6]);
+    BYTES_EQUAL(0xe9, sendbuffer[7]);
+    BYTES_EQUAL(0xdb, sendbuffer[8]);
+    BYTES_EQUAL(0xdc, sendbuffer[9]);
+    BYTES_EQUAL(0x3f, sendbuffer[10]);
+    // STOP
+    BYTES_EQUAL(0xC0, sendbuffer[11]);
+    CHECK_EQUAL(3+4+1, send_index);
+}
 
 
 char *expected_dtgrm;
