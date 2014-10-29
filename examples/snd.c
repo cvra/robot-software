@@ -3,8 +3,9 @@
 #include <string.h>
 #include "serial_datagram.h"
 
-void sendfn(const char *buf, size_t len)
+void sendfn(void *arg, const void *buf, size_t len)
 {
+    (void)arg;
 #if 0 /* print frame in hex to stderr */
     int i;
     for (i = 0; i < len ; i++)
@@ -19,7 +20,7 @@ int main(void)
     char msg[1000];
     while (1) {
         fgets(msg, sizeof(msg), stdin);
-        serial_datagram_send(msg, strlen(msg)+1, sendfn);
+        serial_datagram_send(msg, strlen(msg)+1, sendfn, NULL);
     }
     getc(stdin);
     return 0;

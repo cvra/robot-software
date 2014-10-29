@@ -1,13 +1,13 @@
 #include <stdio.h>
 #include "serial_datagram.h"
 
-void callback_fn(const char *dtgrm, size_t len)
+void callback_fn(const void *dtgrm, size_t len)
 {
     printf("len %ld ", len);
     printf("[");
     int i;
     for (i = 0; i < len ; i++)
-        printf("%02hhx ", dtgrm[i]);
+        printf("%02hhx ", ((const char*)dtgrm)[i]);
     printf("] '%s'\n", dtgrm);
     fflush(stdout);
 }
