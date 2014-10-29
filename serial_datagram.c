@@ -3,10 +3,10 @@
 #include <crc/crc32.h>
 #include "serial_datagram.h"
 
-#define END         '\xC0'
-#define ESC         '\xDB'
-#define ESC_END     '\xDC'
-#define ESC_ESC     '\xDD'
+#define END         (uint8_t)'\xC0'
+#define ESC         (uint8_t)'\xDB'
+#define ESC_END     (uint8_t)'\xDC'
+#define ESC_ESC     (uint8_t)'\xDD'
 
 
 static uint32_t compute_crc(const void *buf, size_t len)
@@ -17,9 +17,9 @@ static uint32_t compute_crc(const void *buf, size_t len)
 void serial_datagram_send(const void *dtgrm, size_t len,
         void (*send_fn)(void *arg, const void *p, size_t len), void *sendarg)
 {
-    static const char esc_end[] = {ESC, ESC_END};
-    static const char esc_esc[] = {ESC, ESC_ESC};
-    const char *dtgrm_byte = (const char*)dtgrm;
+    static const uint8_t esc_end[] = {ESC, ESC_END};
+    static const uint8_t esc_esc[] = {ESC, ESC_ESC};
+    const uint8_t *dtgrm_byte = (const uint8_t*)dtgrm;
     // send escaped data
     uint32_t a = 0, b = 0;
     while (b < len) {
@@ -37,9 +37,9 @@ void serial_datagram_send(const void *dtgrm, size_t len,
     send_fn(sendarg, &dtgrm_byte[a], b - a);
 
     // send CRC32 + END
-    char crc_and_end[2*4 + 1]; // escaped CRC32 + END
+    uint8_t crc_and_end[2*4 + 1]; // escaped CRC32 + END
     uint32_t i = 0;
-    uint32_t crc = compute_crc(dtgrm_byte, len);
+    uint32_t crc = compute_crc(dtgrm, len);
     int32_t j;
     for (j = 3*8; j >= 0; j -= 8) {
         if (((crc >> j) & 0xFF) == ESC) {
@@ -66,7 +66,7 @@ static void rcv_handler_reset(serial_datagram_rcv_handler_t *h)
 void serial_datagram_rcv_handler_init(serial_datagram_rcv_handler_t *h,
         void *buffer, size_t size, void (*cb)(const void *dtgrm, size_t len))
 {
-    h->buffer = (char*)buffer;
+    h->buffer = (uint8_t*)buffer;
     h->size = size;
     h->callback_fn = cb;
     rcv_handler_reset(h);
@@ -75,7 +75,7 @@ void serial_datagram_rcv_handler_init(serial_datagram_rcv_handler_t *h,
 int serial_datagram_receive(serial_datagram_rcv_handler_t *h, const void *in,
         size_t len)
 {
-    const char *read = (const char *)in;
+    const uint8_t *read = (const uint8_t *)in;
     int error_code = SERIAL_DATAGRAM_RCV_NO_ERROR;
     while (len--) {
         if (h->error_flag) {

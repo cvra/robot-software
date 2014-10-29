@@ -85,7 +85,7 @@ TEST(SerialDatagramSendTestGroup, SendFrameEscapedCRC)
     BYTES_EQUAL(0x3f, sendbuffer[10]);
     // STOP
     BYTES_EQUAL(0xC0, sendbuffer[11]);
-    CHECK_EQUAL(3+4+1, send_index);
+    CHECK_EQUAL(6+5+1, send_index);
 }
 
 
@@ -117,7 +117,7 @@ TEST_GROUP(SerialDatagramRcvTestGroup)
 
 TEST(SerialDatagramRcvTestGroup, RcvHandlerInit)
 {
-    CHECK_EQUAL(buffer, h.buffer);
+    CHECK_EQUAL((void*)buffer, (void*)h.buffer);
     CHECK_EQUAL(sizeof(buffer), h.size);
     CHECK_EQUAL(0, h.write_index);
     CHECK_EQUAL(&rcv_cb, h.callback_fn);

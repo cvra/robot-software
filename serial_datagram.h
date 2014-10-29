@@ -13,7 +13,7 @@ extern "C" {
  * Stores datagram assembly buffer, handling callback and protocol state.
  */
 typedef struct {
-    char *buffer;
+    uint8_t *buffer;
     size_t size;
     uint32_t write_index;
     void (*callback_fn)(const void *dtgrm, size_t len);
