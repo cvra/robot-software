@@ -1,6 +1,11 @@
 #include "CppUTest/TestHarness.h"
 #include "../serial_datagram.h"
 
+
+/* CRC checksums can be calculated with python using:
+ * binascii.hexlify(struct.pack('>i', binascii.crc32('msg')))
+ */
+
 #define END         '\xC0'
 #define ESC         '\xDB'
 #define ESC_END     '\xDC'
@@ -45,6 +50,20 @@ TEST(SerialDatagramSendTestGroup, SendFrame)
     // STOP
     BYTES_EQUAL(0xC0, sendbuffer[7]);
     CHECK_EQUAL(3+4+1, send_index);
+}
+
+TEST(SerialDatagramSendTestGroup, SendEmptyFrame)
+{
+    char d[] = {}; // crc 00000000
+    serial_datagram_send(d, sizeof(d), send_fn, NULL);
+    // CRC
+    BYTES_EQUAL(0x00, sendbuffer[0]);
+    BYTES_EQUAL(0x00, sendbuffer[1]);
+    BYTES_EQUAL(0x00, sendbuffer[2]);
+    BYTES_EQUAL(0x00, sendbuffer[3]);
+    // STOP
+    BYTES_EQUAL(0xC0, sendbuffer[4]);
+    CHECK_EQUAL(4+1, send_index);
 }
 
 TEST(SerialDatagramSendTestGroup, SendFrameEscape)
@@ -161,6 +180,18 @@ TEST(SerialDatagramRcvTestGroup, RcvValidFrame)
     expected_dtgrm_len = 1;
 
     char frame[] = {'a', 0xe8, 0xb7, 0xbe, 0x43, END}; // crc e8b7be43
+    int ret = serial_datagram_receive(&h, frame, sizeof(frame));
+    CHECK_EQUAL(SERIAL_DATAGRAM_RCV_NO_ERROR, ret);
+    CHECK_EQUAL(1, rcv_nb_calls);
+}
+
+TEST(SerialDatagramRcvTestGroup, RcvEmptyFrame)
+{
+    char d[] = {};
+    expected_dtgrm = d;
+    expected_dtgrm_len = 0;
+
+    char frame[] = {0, 0, 0, 0, END}; // crc e8b7be43
     int ret = serial_datagram_receive(&h, frame, sizeof(frame));
     CHECK_EQUAL(SERIAL_DATAGRAM_RCV_NO_ERROR, ret);
     CHECK_EQUAL(1, rcv_nb_calls);

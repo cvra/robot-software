@@ -84,7 +84,7 @@ int serial_datagram_receive(serial_datagram_rcv_handler_t *h, const void *in,
             }
         } else if (*read == END) {
             int datagram_len = h->write_index - 4;
-            if (datagram_len > 0) {
+            if (datagram_len >= 0) {
                 uint32_t crc = compute_crc(h->buffer, datagram_len);
                 uint32_t received_crc = (
                     ((uint32_t)h->buffer[h->write_index - 4] & 0xff) << 3*8 |
