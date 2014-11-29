@@ -1,0 +1,5 @@
+source:
+    - cmp_mem_access.c
+
+tests:
+    - cmp_mem_access_test.cpp
