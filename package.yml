@@ -1,0 +1,8 @@
+depends:
+    - test-runner
+
+source:
+    - timestamp.c
+
+tests:
+    - timestamp_test.cpp
