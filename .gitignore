@@ -27,3 +27,10 @@
 *.i*86
 *.x86_64
 *.hex
+
+# ChibiOS build files
+.dep/*
+build/
+
+# Vim swap
+*.swp
