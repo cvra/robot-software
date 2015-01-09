@@ -18,14 +18,14 @@
 #define _BOARD_H_
 
 /*
- * Setup for STMicroelectronics STM32F3-Discovery board.
+ * Setup for CVRA motor control board.
  */
 
 /*
  * Board identifier.
  */
-#define BOARD_ST_STM32F3_DISCOVERY
-#define BOARD_NAME                  "STMicroelectronics STM32F3-Discovery"
+#define BOARD_CVRA_MOTOR_CONTROL
+#define BOARD_NAME                  "CVRA motor control"
 
 /*
  * Board oscillators-related settings.
