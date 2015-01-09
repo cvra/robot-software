@@ -30,7 +30,7 @@ endif
 
 # Enable this if you want link time optimizations (LTO)
 ifeq ($(USE_LTO),)
-  USE_LTO = yes
+  USE_LTO = no
 endif
 
 # If enabled, this option allows to compile the application in THUMB mode.
@@ -77,20 +77,22 @@ endif
 #
 
 # Define project name here
-PROJECT = ch
+PROJECT = motor-control-firmware
 
 # Imported source files and paths
-CHIBIOS = ../../..
+CHIBIOS = ChibiOS
 include $(CHIBIOS)/os/hal/hal.mk
-include $(CHIBIOS)/os/hal/boards/ST_STM32F3_DISCOVERY/board.mk
 include $(CHIBIOS)/os/hal/ports/STM32/STM32F3xx/platform.mk
 include $(CHIBIOS)/os/hal/osal/rt/osal.mk
 include $(CHIBIOS)/os/rt/rt.mk
 include $(CHIBIOS)/os/rt/ports/ARMCMx/compilers/GCC/mk/port_stm32f3xx.mk
 include $(CHIBIOS)/test/rt/test.mk
 
+include board/board.mk
+include src/src.mk
+
 # Define linker script file here
-LDSCRIPT= $(PORTLD)/STM32F303xC.ld
+LDSCRIPT = board/board.ld
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -101,7 +103,7 @@ CSRC = $(PORTSRC) \
        $(OSALSRC) \
        $(PLATFORMSRC) \
        $(BOARDSRC) \
-       main.c
+       $(PROJSRC)
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -132,7 +134,7 @@ ASMSRC = $(PORTASM)
 
 INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
          $(HALINC) $(OSALINC) $(PLATFORMINC) $(BOARDINC) \
-         $(CHIBIOS)/os/various
+         $(CHIBIOS)/os/various ./src
 
 #
 # Project, sources and paths

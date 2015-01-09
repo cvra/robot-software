@@ -1,0 +1,2 @@
+
+PROJSRC  = src/main.c
