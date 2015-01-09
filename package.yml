@@ -1,0 +1,5 @@
+target.arm:
+    - main.c
+
+templates:
+    app_src.mk.jinja: app_src.mk

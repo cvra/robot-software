@@ -32,5 +32,9 @@
 .dep/*
 build/
 
+# Packager build files
+app_src.mk
+
 # Vim swap
 *.swp
+
