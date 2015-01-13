@@ -96,3 +96,6 @@ DLIBS =
 
 RULESPATH = $(CHIBIOS)/os/ports/GCC/ARMCMx
 include $(RULESPATH)/rules.mk
+
+flash: all
+	openocd -f oocd.cfg -c "program build/$(PROJECT).elf verify reset"
