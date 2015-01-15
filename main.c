@@ -8,6 +8,8 @@
 #include "chprintf.h"
 #include "shell.h"
 
+#include <lwip/netif.h>
+
 #include "lwipthread.h"
 
 /*===========================================================================*/
@@ -375,9 +377,27 @@ static void cmd_test(BaseSequentialStream *chp, int argc, char *argv[]) {
   chThdWait(tp);
 }
 
+static void cmd_ip(BaseSequentialStream *chp, int argc, char **argv) {
+    (void) argv;
+    (void) argc;
+
+    struct netif *n; /* used for iteration. */
+
+    for (n = netif_list; n != NULL; n = n->next) {
+        /* Converts the IP adress to a human readable format. */
+        char ip[17], gw[17], nm[17];
+        ipaddr_ntoa_r(&n->ip_addr, ip, 17);
+        ipaddr_ntoa_r(&n->netmask, nm, 17);
+        ipaddr_ntoa_r(&n->gw, gw, 17);
+
+        chprintf(chp, "%s%d: %s, nm: %s, gw:%s\r\n", n->name, n->num, ip, nm, gw);
+    }
+}
+
 
 static const ShellCommand commands[] = {
   {"mem", cmd_mem},
+  {"ip", cmd_ip},
   {"threads", cmd_threads},
   {"test", cmd_test},
   {NULL, NULL}
