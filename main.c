@@ -448,7 +448,6 @@ int main(void) {
   sdStart(&SD6, NULL);
   sdcStart(&SDCD1, NULL);
 
-
   /*
    * Creates the blinker thread.
    */
@@ -459,12 +458,6 @@ int main(void) {
    */
   chThdCreateStatic(wa_lwip_thread, LWIP_THREAD_STACK_SIZE, NORMALPRIO + 2,
                     lwip_thread, NULL);
-
-  /*
-   * Creates the HTTP thread (it changes priority internally).
-   */
-//  chThdCreateStatic(wa_http_server, sizeof(wa_http_server), NORMALPRIO + 1,
-//                    http_server, NULL);
 
   /*
    * Normal main() thread activity, in this demo it does nothing except
