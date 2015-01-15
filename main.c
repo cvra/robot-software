@@ -11,6 +11,9 @@
 #include "lwipthread.h"
 
 /*===========================================================================*/
+
+
+/*===========================================================================*/
 /* USB related stuff.                                                        */
 /*===========================================================================*/
 
@@ -154,7 +157,7 @@ static const uint8_t vcom_string1[] = {
   USB_DESC_BYTE(USB_DESCRIPTOR_STRING), /* bDescriptorType.                 */
   'S', 0, 'T', 0, 'M', 0, 'i', 0, 'c', 0, 'r', 0, 'o', 0, 'e', 0,
   'l', 0, 'e', 0, 'c', 0, 't', 0, 'r', 0, 'o', 0, 'n', 0, 'i', 0,
-  'c', 0, 's', 0
+  'P', 0, 'D', 0
 };
 
 /*
@@ -385,10 +388,6 @@ static const ShellConfig shell_cfg1 = {
   commands
 };
 
-/*===========================================================================*/
-/* Main and generic code.                                                    */
-/*===========================================================================*/
-
 /*
  * Green LED blinker thread, times are in milliseconds.
  */
@@ -408,6 +407,8 @@ static msg_t Thread1(void *arg) {
  */
 int main(void) {
   static Thread *shelltp = NULL;
+  static const evhandler_t evhndl[] = {
+  };
 
   /*
    * System initializations.
@@ -447,6 +448,7 @@ int main(void) {
   sdStart(&SD6, NULL);
   sdcStart(&SDCD1, NULL);
 
+
   /*
    * Creates the blinker thread.
    */
@@ -459,6 +461,12 @@ int main(void) {
                     lwip_thread, NULL);
 
   /*
+   * Creates the HTTP thread (it changes priority internally).
+   */
+//  chThdCreateStatic(wa_http_server, sizeof(wa_http_server), NORMALPRIO + 1,
+//                    http_server, NULL);
+
+  /*
    * Normal main() thread activity, in this demo it does nothing except
    * sleeping in a loop and listen for events.
    */
@@ -469,5 +477,7 @@ int main(void) {
       chThdRelease(shelltp);    /* Recovers memory of the previous shell.   */
       shelltp = NULL;           /* Triggers spawning of a new shell.        */
     }
+chEvtDispatch(evhndl, chEvtWaitOneTimeout(ALL_EVENTS, MS2ST(500)));
+
   }
 }
