@@ -91,8 +91,9 @@ CSRC = $(PORTSRC) \
        $(FATFSSRC) \
        $(CHIBIOS)/os/various/evtimer.c \
        $(CHIBIOS)/os/various/chprintf.c \
-       $(CHIBIOS)/os/various/shell.c \
-       main.c
+       $(CHIBIOS)/os/various/shell.c
+
+include app_src.mk
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
