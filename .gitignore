@@ -38,3 +38,4 @@ app_src.mk
 # Vim swap
 *.swp
 
+CMakeLists.txt
