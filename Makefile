@@ -123,10 +123,10 @@ TCPPSRC =
 # List ASM source files here
 ASMSRC = $(PORTASM)
 
-INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
-         $(HALINC) $(PLATFORMINC) $(BOARDINC) $(LWINC) \
-         $(OSALINC) \
-         $(CHIBIOS)/os/various
+INCDIR += $(PORTINC) $(KERNINC) $(TESTINC) \
+          $(HALINC) $(PLATFORMINC) $(BOARDINC) $(LWINC) \
+          $(OSALINC) \
+          $(CHIBIOS)/os/various
 
 #
 # Project, sources and paths

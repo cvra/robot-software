@@ -394,11 +394,27 @@ static void cmd_ip(BaseSequentialStream *chp, int argc, char **argv) {
     }
 }
 
-static void cmd_panic(BaseSequentialStream *chp, int argc, char **argv) {
+static void cmd_crashme(BaseSequentialStream *chp, int argc, char **argv) {
     (void) argv;
     (void) argc;
+    (void) chp;
 
     chSysHalt(__FUNCTION__);
+}
+
+static void cmd_panic_log(BaseSequentialStream *chp, int argc, char **argv) {
+    (void) argv;
+    (void) argc;
+    const char *message;
+
+    message = panic_log_read();
+
+    if (message == NULL) {
+        chprintf(chp, "Did not reboot after a panic.");
+    } else {
+        chprintf(chp, "%s", message);
+    }
+    chprintf(chp, "\r\n");
 }
 
 
@@ -407,7 +423,8 @@ static const ShellCommand commands[] = {
   {"ip", cmd_ip},
   {"threads", cmd_threads},
   {"test", cmd_test},
-  {"panic", cmd_panic},
+  {"panic_log", cmd_panic_log},
+  {"crashme", cmd_crashme},
   {NULL, NULL}
 };
 
@@ -421,10 +438,10 @@ static const ShellConfig shell_cfg1 = {
  */
 void panic_hook(const char *reason)
 {
-    // Turn LED on
-    palClearPad(GPIOC, GPIOC_LED);
-
     panic_log_write(reason);
+
+    // reboot
+    NVIC_SystemReset();
 }
 
 /*
@@ -465,6 +482,12 @@ int main(void) {
    * Shell manager initialization.
    */
   shellInit();
+
+  // Checks if there is any log message from a previous boot
+  if (panic_log_read() != NULL) {
+      // Turns on the user LED if yes
+      palClearPad(GPIOC, GPIOC_LED);
+  }
 
   /*
    * Creates the LWIP threads (it changes priority internally).

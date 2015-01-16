@@ -1,3 +1,6 @@
+depends:
+    - crc
+
 target.arm:
     - main.c
     - panic_log.c
