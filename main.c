@@ -393,12 +393,20 @@ static void cmd_ip(BaseSequentialStream *chp, int argc, char **argv) {
     }
 }
 
+static void cmd_panic(BaseSequentialStream *chp, int argc, char **argv) {
+    (void) argv;
+    (void) argc;
+
+    chSysHalt(__FUNCTION__);
+}
+
 
 static const ShellCommand commands[] = {
   {"mem", cmd_mem},
   {"ip", cmd_ip},
   {"threads", cmd_threads},
   {"test", cmd_test},
+  {"panic", cmd_panic},
   {NULL, NULL}
 };
 
@@ -407,19 +415,13 @@ static const ShellConfig shell_cfg1 = {
   commands
 };
 
-/*
- * Green LED blinker thread, times are in milliseconds.
+/** Function called on a kernel panic.
+ * @param [in] reaon Kernel panic message.
  */
-static THD_WORKING_AREA(waThread1, 128);
-static msg_t Thread1(void *arg) {
-
-  (void)arg;
-  chRegSetThreadName("blinker");
-  while (TRUE) {
-    palTogglePad(GPIOC, GPIOC_LED);
-    chThdSleepMilliseconds(500);
-  }
-  return 0;
+void panic_hook(const char *reason)
+{
+    // Turn LED on
+    palClearPad(GPIOC, GPIOC_LED);
 }
 
 /*
@@ -460,12 +462,6 @@ int main(void) {
    * Shell manager initialization.
    */
   shellInit();
-
-
-  /*
-   * Creates the blinker thread.
-   */
-  chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO, Thread1, NULL);
 
   /*
    * Creates the LWIP threads (it changes priority internally).

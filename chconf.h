@@ -482,8 +482,10 @@
  * @details This hook is invoked in case to a system halting error before
  *          the system is halted.
  */
-#define CH_CFG_SYSTEM_HALT_HOOK(reason) {                                   \
-  /* System halt code here.*/                                               \
+
+#define CH_CFG_SYSTEM_HALT_HOOK(reason) { \
+    void panic_hook(const char *); \
+    panic_hook(reason); \
 }
 
 /** @} */
