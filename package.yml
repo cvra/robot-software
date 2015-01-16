@@ -1,5 +1,6 @@
 target.arm:
     - main.c
+    - panic_log.c
 
 templates:
     app_src.mk.jinja: app_src.mk

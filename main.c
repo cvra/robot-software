@@ -10,6 +10,7 @@
 #include <lwip/netif.h>
 
 #include "lwipthread.h"
+#include "panic_log.h"
 
 /*===========================================================================*/
 
@@ -422,6 +423,8 @@ void panic_hook(const char *reason)
 {
     // Turn LED on
     palClearPad(GPIOC, GPIOC_LED);
+
+    panic_log_write(reason);
 }
 
 /*

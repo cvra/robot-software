@@ -78,7 +78,7 @@ include ${CHIBIOS}/os/hal/osal/rt/osal.mk
 include lwip.mk
 include $(CHIBIOS)/test/rt/test.mk
 
-LDSCRIPT= $(PORTLD)/STM32F407xG.ld
+LDSCRIPT= STM32F407xG.ld
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
