@@ -419,6 +419,7 @@ static msg_t Thread1(void *arg) {
     palTogglePad(GPIOC, GPIOC_LED);
     chThdSleepMilliseconds(500);
   }
+  return 0;
 }
 
 /*
