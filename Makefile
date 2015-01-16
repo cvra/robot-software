@@ -216,4 +216,5 @@ ULIBS =
 # End of user defines
 ##############################################################################
 
-include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/rules.mk
+RULESPATH = $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC
+include $(RULESPATH)/rules.mk
