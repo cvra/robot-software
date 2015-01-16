@@ -218,3 +218,6 @@ ULIBS =
 
 RULESPATH = $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC
 include $(RULESPATH)/rules.mk
+
+flash:
+	openocd -f oocd.cfg -f flash_script.cfg
