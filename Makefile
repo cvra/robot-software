@@ -69,13 +69,14 @@ PROJECT = ch
 
 # Imported source files and paths
 CHIBIOS = ChibiOS/
-include $(CHIBIOS)/boards/OLIMEX_STM32_E407_REV_D/board.mk
-include $(CHIBIOS)/os/hal/platforms/STM32F4xx/platform.mk
+include $(CHIBIOS)/os/hal/boards/OLIMEX_STM32_E407_REV_D/board.mk
+include $(CHIBIOS)/os/hal/ports/STM32/STM32F4xx/platform.mk
 include $(CHIBIOS)/os/hal/hal.mk
-include $(CHIBIOS)/os/ports/GCC/ARMCMx/STM32F4xx/port.mk
-include $(CHIBIOS)/os/kernel/kernel.mk
+include $(CHIBIOS)/os/rt/ports/ARMCMx/compilers/GCC/mk/port_stm32f4xx.mk
+include $(CHIBIOS)/os/rt/rt.mk
+include ${CHIBIOS}/os/hal/osal/rt/osal.mk
 include lwip.mk
-include $(CHIBIOS)/test/test.mk
+include $(CHIBIOS)/test/rt/test.mk
 
 LDSCRIPT= $(PORTLD)/STM32F407xG.ld
 
@@ -124,7 +125,7 @@ ASMSRC = $(PORTASM)
 
 INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
          $(HALINC) $(PLATFORMINC) $(BOARDINC) $(LWINC) \
-         $(FATFSINC) \
+         $(OSALINC) \
          $(CHIBIOS)/os/various
 
 #
@@ -215,5 +216,4 @@ ULIBS =
 # End of user defines
 ##############################################################################
 
-RULESPATH = $(CHIBIOS)/os/ports/GCC/ARMCMx
-include $(RULESPATH)/rules.mk
+include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/rules.mk
