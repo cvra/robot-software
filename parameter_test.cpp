@@ -29,10 +29,10 @@ TEST(ParameterNamespaceInit, NamespaceCreate)
     STRCMP_EQUAL("test", ns.id);
     CHECK_EQUAL(&rootns, ns.parent);
     CHECK_EQUAL(NULL, ns.subspaces);
-    CHECK_EQUAL(NULL, ns.next);
     CHECK_EQUAL(NULL, ns.parameter_list);
     CHECK_EQUAL(0, ns.changed_cnt);
     // check if correctly linked in parent
+    CHECK_EQUAL(NULL, ns.next);
     CHECK_EQUAL(&ns, rootns.subspaces);
 }
 
@@ -67,9 +67,25 @@ TEST(ParameterInit, ParameterCreate)
     _parameter_declare(&p, &ns, "test");
     STRCMP_EQUAL("test", p.id);
     CHECK_EQUAL(&ns, p.ns);
-    CHECK_EQUAL(NULL, p.next);
     CHECK_EQUAL(false, p.changed);
     CHECK_EQUAL(false, p.set);
+    // check if correctly linked in parent
+    CHECK_EQUAL(NULL, p.next);
+    CHECK_EQUAL(&p, ns.parameter_list);
+}
+
+TEST(ParameterInit, ParameterCreateMulitple)
+{
+    parameter_t p1;
+    parameter_t p2;
+    _parameter_declare(&p1, &ns, "test1");
+    _parameter_declare(&p2, &ns, "test2");
+    CHECK_EQUAL(&ns, p1.ns);
+    CHECK_EQUAL(&ns, p2.ns);
+    // check if correctly linked in parent
+    CHECK_EQUAL(NULL, p1.next);
+    CHECK_EQUAL(&p1, p2.next);
+    CHECK_EQUAL(&p2, ns.parameter_list);
 }
 
 
