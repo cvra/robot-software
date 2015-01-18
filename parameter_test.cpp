@@ -125,6 +125,11 @@ TEST(ParameterTree, ParameterFind)
     CHECK_EQUAL(NULL, parameter_find(&rootns, "test"));
     CHECK_EQUAL(NULL, parameter_find(&b1ii, "test"));
     CHECK_EQUAL(NULL, parameter_find(&b1ii, "x"));
+    CHECK_EQUAL(&p_a2_x, parameter_find(&rootns, "test_a/zwei/x"));
+    CHECK_EQUAL(&p_a2_y, parameter_find(&rootns, "test_a/zwei/y"));
+    CHECK_EQUAL(&p_a2_z, parameter_find(&rootns, "test_a/zwei/z"));
+    CHECK_EQUAL(&p_root_x, parameter_find(&rootns, "/x"));
+    CHECK_EQUAL(&p_b1i_x, parameter_find(&rootns, "test_b/eins/I/x"));
 }
 
 

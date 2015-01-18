@@ -34,17 +34,17 @@ static void _param_link_to_parent(parameter_t *p)
 }
 
 static parameter_namespace_t *get_subnamespace(parameter_namespace_t *ns,
-                                               const char *ns_name,
-                                               size_t ns_name_len)
+                                               const char *ns_id,
+                                               size_t ns_id_len)
 {
-    if (ns_name_len == 0) {
+    if (ns_id_len == 0) {
         return ns; // this allows to start with a '/' or have '//' instead of '/'
     }
     parameter_namespace_t *i = ns->subspaces;
     while (i != NULL) {
-        if (strncmp(ns_name, i->id, ns_name_len) == 0 && i->id[ns_name_len] == '\0') {
-            // if the first ns_name_len bytes of ns_name match with i->ns_nameid
-            // and i->id is only ns_name_len bytes long, we've found the namespace
+        if (strncmp(ns_id, i->id, ns_id_len) == 0 && i->id[ns_id_len] == '\0') {
+            // if the first ns_id_len bytes of ns_id match with i->id and
+            // i->id is only ns_id_len bytes long, we've found the namespace
             break;
         }
         i = i->next;
@@ -52,6 +52,23 @@ static parameter_namespace_t *get_subnamespace(parameter_namespace_t *ns,
     return i;
 }
 
+static parameter_t *get_param(parameter_namespace_t *ns, const char *id,
+                              size_t param_id_len)
+{
+    if (param_id_len == 0) {
+        return NULL;
+    }
+    parameter_t *i = ns->parameter_list;
+    while (i != NULL) {
+        if (strncmp(id, i->id, param_id_len) == 0 && i->id[param_id_len] == '\0') {
+            // if the first param_id_len bytes of id match with i->id and
+            // i->id is only param_id_len bytes long, we've found the parameter
+            break;
+        }
+        i = i->next;
+    }
+    return i;
+}
 
 void parameter_namespace_declare(parameter_namespace_t *ns,
                                  parameter_namespace_t *parent,
@@ -87,13 +104,24 @@ parameter_namespace_t *parameter_namespace_find(parameter_namespace_t *ns,
     return _parameter_namespace_find_w_id_len(ns, id, strlen(id));
 }
 
-parameter_t *_parameter_find_w_id_len(const parameter_namespace_t *ns,
+parameter_t *_parameter_find_w_id_len(parameter_namespace_t *ns,
                                       const char *id, size_t id_len)
 {
+    parameter_namespace_t *pns = ns;
+    int i = 0;
+    while(pns != NULL) {
+        int id_elem_len = id_split(&id[i], id_len - i);
+        if (id_elem_len + i < id_len) {
+            pns = get_subnamespace(pns, &id[i], id_elem_len);
+        } else {
+            return get_param(pns, &id[i], id_elem_len);
+        }
+        i += id_elem_len + 1;
+    }
     return NULL;
 }
 
-parameter_t *parameter_find(const parameter_namespace_t *ns, const char *id)
+parameter_t *parameter_find(parameter_namespace_t *ns, const char *id)
 {
     return _parameter_find_w_id_len(ns, id, strlen(id));
 }

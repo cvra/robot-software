@@ -82,12 +82,12 @@ bool parameter_namespace_contains_changed(const parameter_namespace_t *ns);
  * The id is relative to the namespace.
  * Returns NULL if the parameter doesn't exist
  */
-parameter_t *parameter_find(const parameter_namespace_t *ns, const char *id);
+parameter_t *parameter_find(parameter_namespace_t *ns, const char *id);
 /*
  * [internal API]
  * id is a char buffer with explicit length instead of a null terminated string.
  */
-parameter_t *_parameter_find_w_id_len(const parameter_namespace_t *ns,
+parameter_t *_parameter_find_w_id_len(parameter_namespace_t *ns,
                                       const char *id, size_t id_len);
 
 /*
