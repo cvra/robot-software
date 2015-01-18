@@ -19,29 +19,23 @@ static int id_split(const char *id, int id_len)
 }
 
 
-void _ns_link_to_parent(parameter_namespace_t *ns)
+static void _ns_link_to_parent(parameter_namespace_t *ns)
 {
     // todo make atomic
-    if (ns->parent == NULL) {
-        return;
-    }
     ns->next = ns->parent->subspaces;
     ns->parent->subspaces = ns;
 }
 
-void _param_link_to_parent(parameter_t *p)
+static void _param_link_to_parent(parameter_t *p)
 {
     // todo make atomic
-    if (p->ns == NULL) {
-        return;
-    }
     p->next = p->ns->parameter_list;
     p->ns->parameter_list = p;
 }
 
-static parameter_namespace_t *get_namespace(parameter_namespace_t *ns,
-                                             const char *ns_name,
-                                             size_t ns_name_len)
+static parameter_namespace_t *get_subnamespace(parameter_namespace_t *ns,
+                                               const char *ns_name,
+                                               size_t ns_name_len)
 {
     if (ns_name_len == 0) {
         return ns; // this allows to start with a '/' or have '//' instead of '/'
@@ -67,14 +61,13 @@ void parameter_namespace_declare(parameter_namespace_t *ns,
     ns->changed_cnt = 0;
     ns->parent = parent;
     ns->subspaces = NULL;
-    ns->next = NULL;
     ns->parameter_list = NULL;
-    _ns_link_to_parent(ns);
+    if (parent != NULL) {
+        _ns_link_to_parent(ns);
+    }
 }
 
 
-/* [internal API]
- */
 parameter_namespace_t *_parameter_namespace_find_w_id_len(parameter_namespace_t *ns,
                                                 const char *id, size_t id_len)
 {
@@ -82,7 +75,7 @@ parameter_namespace_t *_parameter_namespace_find_w_id_len(parameter_namespace_t 
     int i = 0;
     while(nret != NULL && i < id_len) {
         int id_elem_len = id_split(&id[i], id_len - i);
-        nret = get_namespace(nret, &id[i], id_elem_len);
+        nret = get_subnamespace(nret, &id[i], id_elem_len);
         i += id_elem_len + 1;
     }
     return nret;
@@ -94,3 +87,23 @@ parameter_namespace_t *parameter_namespace_find(parameter_namespace_t *ns,
     return _parameter_namespace_find_w_id_len(ns, id, strlen(id));
 }
 
+parameter_t *_parameter_find_w_id_len(const parameter_namespace_t *ns,
+                                      const char *id, size_t id_len)
+{
+    return NULL;
+}
+
+parameter_t *parameter_find(const parameter_namespace_t *ns, const char *id)
+{
+    return _parameter_find_w_id_len(ns, id, strlen(id));
+}
+
+void _parameter_declare(parameter_t *p, parameter_namespace_t *ns,
+                        const char *id)
+{
+    p->id = id;
+    p->ns = ns;
+    p->changed = false;
+    p->set = false;
+    _param_link_to_parent(p);
+}

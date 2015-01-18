@@ -69,6 +69,11 @@ void parameter_namespace_declare(parameter_namespace_t *ns,
 
 parameter_namespace_t *parameter_namespace_find(parameter_namespace_t *ns,
                                                 const char *id);
+/* [internal API]
+ * id is a char buffer with explicit length instead of a null terminated string.
+ */
+parameter_namespace_t *_parameter_namespace_find_w_id_len(parameter_namespace_t *ns,
+                                                const char *id, size_t id_len);
 
 bool parameter_namespace_contains_changed(const parameter_namespace_t *ns);
 
@@ -78,35 +83,51 @@ bool parameter_namespace_contains_changed(const parameter_namespace_t *ns);
  * Returns NULL if the parameter doesn't exist
  */
 parameter_t *parameter_find(const parameter_namespace_t *ns, const char *id);
+/*
+ * [internal API]
+ * id is a char buffer with explicit length instead of a null terminated string.
+ */
+parameter_t *_parameter_find_w_id_len(const parameter_namespace_t *ns,
+                                      const char *id, size_t id_len);
 
 /*
  * Test whether the parameter has been set.
  * Returns true if the parameter has been set, false otherwise.
- * Returns false if param if a NULL pointer.
+ * Returns false if p if a NULL pointer.
  */
-bool parameter_defined(const parameter_t *param);
+bool parameter_defined(const parameter_t *p);
 
 /*
  * Test whether the parameter was updated.
  * Returns true if the parameter has been updated since the last get call for
  * this parameter, false otherwise.
- * Returns false if param is a NULL pointer.
+ * Returns false if p is a NULL pointer.
  */
-bool parameter_changed(const parameter_t *param);
+bool parameter_changed(const parameter_t *p);
+
+
+
+/* [internal API]
+ * initialize the parameter without the type specific fields.
+ */
+void _parameter_declare(parameter_t *p, parameter_namespace_t *ns,
+                        const char *id);
+
 
 /*
  * Scalar type parameter
  */
 
-parameter_t *parameter_scalar_declare(parameter_namespace_t *ns,
-                                      const char *id);
+void parameter_scalar_declare(parameter_t *p, parameter_namespace_t *ns,
+                              const char *id);
 
-parameter_t *parameter_scalar_declare_with_default(parameter_namespace_t *ns,
-                                                   const char *id,
-                                                   float default_val);
-float parameter_scalar_get(parameter_t *param);
-float parameter_scalar_read(parameter_t *param);
-void parameter_scalar_set(parameter_t *param, float value);
+void parameter_scalar_declare_with_default(parameter_t *p,
+                                           parameter_namespace_t *ns,
+                                           const char *id,
+                                           float default_val);
+float parameter_scalar_get(parameter_t *p);
+float parameter_scalar_read(parameter_t *p);
+void parameter_scalar_set(parameter_t *p, float value);
 
 
 #ifdef __cplusplus

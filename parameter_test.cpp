@@ -1,7 +1,7 @@
 #include "CppUTest/TestHarness.h"
 #include "parameter.h"
 
-TEST_GROUP(ParamNamespaceInit)
+TEST_GROUP(ParameterNamespaceInit)
 {
     parameter_namespace_t rootns;
     void setup(void)
@@ -10,7 +10,7 @@ TEST_GROUP(ParamNamespaceInit)
     }
 };
 
-TEST(ParamNamespaceInit, NamespaceCreateRoot)
+TEST(ParameterNamespaceInit, NamespaceCreateRoot)
 {
     parameter_namespace_t ns;
     parameter_namespace_declare(&ns, NULL, NULL);
@@ -22,7 +22,7 @@ TEST(ParamNamespaceInit, NamespaceCreateRoot)
     CHECK_EQUAL(0, ns.changed_cnt);
 }
 
-TEST(ParamNamespaceInit, NamespaceCreateNoParam)
+TEST(ParameterNamespaceInit, NamespaceCreate)
 {
     parameter_namespace_t ns;
     parameter_namespace_declare(&ns, &rootns, "test");
@@ -36,21 +36,8 @@ TEST(ParamNamespaceInit, NamespaceCreateNoParam)
     CHECK_EQUAL(&ns, rootns.subspaces);
 }
 
-TEST(ParamNamespaceInit, NamespaceCreateParam)
-{
-    parameter_namespace_t ns;
-    parameter_namespace_declare(&ns, &rootns, "test");
-    STRCMP_EQUAL("test", ns.id);
-    CHECK_EQUAL(&rootns, ns.parent);
-    CHECK_EQUAL(NULL, ns.subspaces);
-    CHECK_EQUAL(NULL, ns.next);
-    CHECK_EQUAL(NULL, ns.parameter_list);
-    CHECK_EQUAL(0, ns.changed_cnt);
-    // check if correctly linked in parent
-    CHECK_EQUAL(&ns, rootns.subspaces);
-}
 
-TEST(ParamNamespaceInit, NamespaceCreateMultiple)
+TEST(ParameterNamespaceInit, NamespaceCreateMultiple)
 {
     parameter_namespace_t ns1;
     parameter_namespace_t ns2;
@@ -65,7 +52,28 @@ TEST(ParamNamespaceInit, NamespaceCreateMultiple)
 }
 
 
-TEST_GROUP(ParamNamespace)
+TEST_GROUP(ParameterInit)
+{
+    parameter_namespace_t ns;
+    void setup(void)
+    {
+        parameter_namespace_declare(&ns, NULL, NULL);
+    }
+};
+
+TEST(ParameterInit, ParameterCreate)
+{
+    parameter_t p;
+    _parameter_declare(&p, &ns, "test");
+    STRCMP_EQUAL("test", p.id);
+    CHECK_EQUAL(&ns, p.ns);
+    CHECK_EQUAL(NULL, p.next);
+    CHECK_EQUAL(false, p.changed);
+    CHECK_EQUAL(false, p.set);
+}
+
+
+TEST_GROUP(ParameterTree)
 {
     parameter_namespace_t rootns;
     parameter_namespace_t a;
@@ -75,6 +83,11 @@ TEST_GROUP(ParamNamespace)
     parameter_namespace_t b1;
     parameter_namespace_t b1i;
     parameter_namespace_t b1ii;
+    parameter_t p_a2_x;
+    parameter_t p_a2_y;
+    parameter_t p_a2_z;
+    parameter_t p_root_x;
+    parameter_t p_b1i_x;
     void setup(void)
     {
         parameter_namespace_declare(&rootns, NULL, NULL);
@@ -85,10 +98,15 @@ TEST_GROUP(ParamNamespace)
         parameter_namespace_declare(&b1, &b, "eins");
         parameter_namespace_declare(&b1i, &b1, "I");
         parameter_namespace_declare(&b1ii, &b1, "II");
+        _parameter_declare(&p_a2_x, &a2, "x");
+        _parameter_declare(&p_a2_y, &a2, "y");
+        _parameter_declare(&p_a2_z, &a2, "z");
+        _parameter_declare(&p_root_x, &rootns, "x");
+        _parameter_declare(&p_b1i_x, &b1i, "x");
     }
 };
 
-TEST(ParamNamespace, NamespaceGet)
+TEST(ParameterTree, NamespaceFind)
 {
     CHECK_EQUAL(NULL, parameter_namespace_find(&rootns, "does/not/exist"));
     CHECK_EQUAL(NULL, parameter_namespace_find(&rootns, "test"));
@@ -102,6 +120,12 @@ TEST(ParamNamespace, NamespaceGet)
     CHECK_EQUAL(&b1ii, parameter_namespace_find(&b, "eins/II"));
 }
 
+TEST(ParameterTree, ParameterFind)
+{
+    CHECK_EQUAL(NULL, parameter_find(&rootns, "test"));
+    CHECK_EQUAL(NULL, parameter_find(&b1ii, "test"));
+    CHECK_EQUAL(NULL, parameter_find(&b1ii, "x"));
+}
 
 
 #include "CppUTest/CommandLineTestRunner.h"
