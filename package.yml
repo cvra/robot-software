@@ -4,6 +4,7 @@ depends:
 target.arm:
     - main.c
     - panic_log.c
+    - sntp/sntp.c
 
 templates:
     app_src.mk.jinja: app_src.mk
