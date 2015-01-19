@@ -18,6 +18,11 @@ unix_timestamp_t timestamp_local_us_to_unix(int32_t ts)
     result.s = ts / 1000 + unix_reference.s;
     result.us = ts % 1000 + unix_reference.us;
 
+    if (result.us >= 1000) {
+        result.s += 1;
+        result.us -= 1000;
+    }
+
     return result;
 }
 

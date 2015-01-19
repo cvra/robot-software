@@ -62,3 +62,13 @@ TEST(UnixTimeStampTestGroup, CanConvertToUnixTimeStampUsingReference)
     CHECK_EQUAL(101, r.s);
     CHECK_EQUAL(10, r.us);
 }
+
+TEST(UnixTimeStampTestGroup, OverflowsGracefully)
+{
+    unix_timestamp_t r;
+    timestamp_set_reference({.s=100, .us=999}, 2000);
+
+    r = timestamp_local_us_to_unix(2001);
+    CHECK_EQUAL(101, r.s);
+    CHECK_EQUAL(0, r.us);
+}
