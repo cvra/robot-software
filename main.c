@@ -375,7 +375,11 @@ static void cmd_time(BaseSequentialStream *chp, int argc, char **argv)
     int h, m;
 
     /* Get current time */
-    ts = timestamp_local_us_to_unix(ST2US(chVTGetSystemTime()));
+    int now = ST2US(chVTGetSystemTime());
+    ts = timestamp_local_us_to_unix(now);
+    chprintf(chp, "Current scheduler tick: %12ld\r\n", now);
+    chprintf(chp, "Current UNIX timestamp: %12ld\r\n", ts.s);
+    chprintf(chp, "current time (ms):      %12ld\r\n", ST2MS(chVTGetSystemTime()));
 
     /* Get time since start of day */
     ts.s = ts.s % (24 * 60 * 60);
