@@ -8,6 +8,7 @@
 #include "shell.h"
 
 #include <lwip/netif.h>
+#include "sntp/sntp.h"
 
 #include "lwipthread.h"
 #include "panic_log.h"
@@ -433,6 +434,8 @@ int main(void) {
     /* Creates the LWIP threads (it changes priority internally).  */
     chThdCreateStatic(wa_lwip_thread, LWIP_THREAD_STACK_SIZE, NORMALPRIO + 2,
             lwip_thread, NULL);
+
+    sntp_init();
 
     /*
      * Normal main() thread activity, in this demo it does nothing except
