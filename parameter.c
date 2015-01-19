@@ -37,6 +37,7 @@ static parameter_namespace_t *get_subnamespace(parameter_namespace_t *ns,
                                                const char *ns_id,
                                                size_t ns_id_len)
 {
+    // todo make atomic
     if (ns_id_len == 0) {
         return ns; // this allows to start with a '/' or have '//' instead of '/'
     }
@@ -55,6 +56,7 @@ static parameter_namespace_t *get_subnamespace(parameter_namespace_t *ns,
 static parameter_t *get_param(parameter_namespace_t *ns, const char *id,
                               size_t param_id_len)
 {
+    // todo make atomic
     if (param_id_len == 0) {
         return NULL;
     }
@@ -134,4 +136,55 @@ void _parameter_declare(parameter_t *p, parameter_namespace_t *ns,
     p->changed = false;
     p->set = false;
     _param_link_to_parent(p);
+}
+
+bool parameter_namespace_contains_changed(const parameter_namespace_t *ns)
+{
+    // todo make atomic
+    if (ns->changed_cnt > 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool parameter_changed(parameter_t *p)
+{
+    // todo make atomic
+    return p->changed;
+}
+
+bool parameter_defined(parameter_t *p)
+{
+    // todo make atomic
+    return p->set;
+}
+
+void _parameter_changed_set(parameter_t *p)
+{
+    // todo make atomic
+    if (p->changed) {
+        return;
+    }
+    p->changed = true;
+    parameter_namespace_t *ns = p->ns;
+    while (ns != NULL) {
+        ns->changed_cnt++;
+        ns = ns->parent;
+    }
+    p->set = true;
+}
+
+void _parameter_changed_clear(parameter_t *p)
+{
+    // todo make atomic
+    if (!p->changed) {
+        return;
+    }
+    p->changed = false;
+    parameter_namespace_t *ns = p->ns;
+    while (ns != NULL) {
+        ns->changed_cnt--;
+        ns = ns->parent;
+    }
 }
