@@ -6,5 +6,11 @@ target.arm:
     - panic_log.c
     - sntp/sntp.c
 
+source:
+    - timestamp.c
+
+tests:
+    - tests/unix-timestamp.cpp
+
 templates:
     app_src.mk.jinja: app_src.mk
