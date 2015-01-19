@@ -19,13 +19,13 @@ TEST(UnixTimeStampTestGroup, CanConvertZero)
 TEST(UnixTimeStampTestGroup, CanConvertSeconds)
 {
     int timestamp = timestamp_unix_to_local_us({.s = 100, .us=0});
-    CHECK_EQUAL(100*1000, timestamp);
+    CHECK_EQUAL(100*1000000, timestamp);
 }
 
 TEST(UnixTimeStampTestGroup, CanConvertMicroSeconds)
 {
     int timestamp = timestamp_unix_to_local_us({.s = 100, .us=42});
-    CHECK_EQUAL(100 * 1000 + 42, timestamp);
+    CHECK_EQUAL(100 * 1000000 + 42, timestamp);
 }
 
 TEST(UnixTimeStampTestGroup, CanSetReferenceTime)
@@ -36,12 +36,12 @@ TEST(UnixTimeStampTestGroup, CanSetReferenceTime)
     CHECK_EQUAL(2000, timestamp_unix_to_local_us({.s=100, .us=0}));
 
     // tests converting another point
-    CHECK_EQUAL(3012, timestamp_unix_to_local_us({.s=101, .us=12}));
+    CHECK_EQUAL(1002012, timestamp_unix_to_local_us({.s=101, .us=12}));
 }
 
 TEST(UnixTimeStampTestGroup, CanConvertToUnixTimeStamp)
 {
-    unix_timestamp_t ts = timestamp_local_us_to_unix(1050);
+    unix_timestamp_t ts = timestamp_local_us_to_unix(1000050);
     CHECK_EQUAL(1, ts.s);
     CHECK_EQUAL(50, ts.us);
 }
@@ -58,7 +58,7 @@ TEST(UnixTimeStampTestGroup, CanConvertToUnixTimeStampUsingReference)
 
 
     // Convert another point for sanity checking
-    r = timestamp_local_us_to_unix(3010);
+    r = timestamp_local_us_to_unix(1002010);
     CHECK_EQUAL(101, r.s);
     CHECK_EQUAL(10, r.us);
 }
@@ -66,7 +66,7 @@ TEST(UnixTimeStampTestGroup, CanConvertToUnixTimeStampUsingReference)
 TEST(UnixTimeStampTestGroup, OverflowsGracefully)
 {
     unix_timestamp_t r;
-    timestamp_set_reference({.s=100, .us=999}, 2000);
+    timestamp_set_reference({.s=100, .us=999999}, 2000);
 
     r = timestamp_local_us_to_unix(2001);
     CHECK_EQUAL(101, r.s);

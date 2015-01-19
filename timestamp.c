@@ -7,7 +7,7 @@ int32_t timestamp_unix_to_local_us(unix_timestamp_t ts)
 {
     ts.s -= unix_reference.s;
     ts.us -= unix_reference.us;
-    return ts.s * 1000 + ts.us + local_reference;
+    return ts.s * 1000000 + ts.us + local_reference;
 }
 
 unix_timestamp_t timestamp_local_us_to_unix(int32_t ts)
@@ -15,12 +15,12 @@ unix_timestamp_t timestamp_local_us_to_unix(int32_t ts)
     unix_timestamp_t result;
 
     ts -= local_reference;
-    result.s = ts / 1000 + unix_reference.s;
-    result.us = ts % 1000 + unix_reference.us;
+    result.s = ts / 1000000 + unix_reference.s;
+    result.us = ts % 1000000 + unix_reference.us;
 
-    if (result.us >= 1000) {
+    if (result.us >= 1000000) {
         result.s += 1;
-        result.us -= 1000;
+        result.us -= 1000000;
     }
 
     return result;
