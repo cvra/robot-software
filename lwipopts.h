@@ -38,4 +38,11 @@
     timestamp_set_reference(ts, ST2US(chVTGetSystemTime())); \
     } while(0)
 
+/** Address of the SNTP server. Currently resovles to pool.ntp.org for
+ * Switzerland. */
+#define SNTP_SERVER_ADDRESS "212.51.144.44"
+
+/** SNTP update delay - in milliseconds */
+#define SNTP_UPDATE_DELAY (20 * 1000)
+
 #endif /* __LWIPOPT_H__ */
