@@ -10,6 +10,7 @@
 #include <lwip/netif.h>
 #include "sntp/sntp.h"
 
+#include "timestamp.h"
 #include "lwipthread.h"
 #include "panic_log.h"
 
@@ -365,6 +366,29 @@ static void cmd_panic_log(BaseSequentialStream *chp, int argc, char **argv) {
     chprintf(chp, "\r\n");
 }
 
+static void cmd_time(BaseSequentialStream *chp, int argc, char **argv)
+{
+    (void) argv;
+    (void) argc;
+
+    unix_timestamp_t ts;
+    int h, m;
+
+    /* Get current time */
+    ts = timestamp_local_us_to_unix(ST2US(chVTGetSystemTime()));
+
+    /* Get time since start of day */
+    ts.s = ts.s % (24 * 60 * 60);
+
+    h = ts.s / 3600;
+    ts.s = ts.s % 3600;
+
+    m = ts.s / 60;
+    ts.s = ts.s % 60;
+
+    chprintf(chp, "Current time: %02d:%02d:%02d\r\n", h, m, ts.s);
+}
+
 
 static const ShellCommand commands[] = {
     {"mem", cmd_mem},
@@ -373,6 +397,7 @@ static const ShellCommand commands[] = {
     {"test", cmd_test},
     {"panic_log", cmd_panic_log},
     {"crashme", cmd_crashme},
+    {"time", cmd_time},
     {NULL, NULL}
 };
 
