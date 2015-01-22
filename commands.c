@@ -127,8 +127,6 @@ static void cmd_time(BaseSequentialStream *chp, int argc, char **argv)
     ts.s = ts.s % 60;
 
     chprintf(chp, "Current time: %02d:%02d:%02d\r\n", h, m, ts.s);
-    chprintf(chp, "sizeof(UL): %d\r\n", sizeof(10UL));
-    chprintf(chp, "sizeof(ULL): %d\r\n", sizeof(10ULL));
 }
 
 
