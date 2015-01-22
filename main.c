@@ -1,17 +1,14 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "hal.h"
-#include "test.h"
-
-#include "chprintf.h"
-#include "commands.h"
-
+#include <hal.h>
+#include <chprintf.h>
+#include <lwipthread.h>
 #include <lwip/netif.h>
-#include "sntp/sntp.h"
 
+#include "commands.h"
+#include "sntp/sntp.h"
 #include "timestamp.h"
-#include "lwipthread.h"
 #include "panic_log.h"
 #include "usb_shell.h"
 

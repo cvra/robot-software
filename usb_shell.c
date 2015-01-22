@@ -287,10 +287,10 @@ msg_t usb_shell_thread(void *dummy)
     usbStart(serusbcfg.usbp, &usbcfg);
     usbConnectBus(serusbcfg.usbp);
 
-    while (TRUE) {
-        if (!shelltp && (SDU1.config->usbp->state == USB_ACTIVE))
+    while (1) {
+        if (!shelltp && (SDU1.config->usbp->state == USB_ACTIVE)) {
             shelltp = shellCreate(&shell_cfg1, SHELL_WA_SIZE, NORMALPRIO);
-        else if (chThdTerminatedX(shelltp)) {
+        } else if (chThdTerminatedX(shelltp)) {
             chThdRelease(shelltp);    /* Recovers memory of the previous shell.   */
             shelltp = NULL;           /* Triggers spawning of a new shell.        */
         }
