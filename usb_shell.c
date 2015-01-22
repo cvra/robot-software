@@ -1,6 +1,7 @@
 #include <hal.h>
 #include "commands.h"
 #include "usb_shell.h"
+#include "priorities.h"
 
 /*Endpoints to be used for USBD1.  */
 #define USBD1_DATA_REQUEST_EP           1
@@ -289,7 +290,7 @@ msg_t usb_shell_thread(void *dummy)
 
     while (1) {
         if (!shelltp && (SDU1.config->usbp->state == USB_ACTIVE)) {
-            shelltp = shellCreate(&shell_cfg1, SHELL_WA_SIZE, NORMALPRIO);
+            shelltp = shellCreate(&shell_cfg1, SHELL_WA_SIZE, USB_SHELL_PRIO);
         } else if (chThdTerminatedX(shelltp)) {
             chThdRelease(shelltp);    /* Recovers memory of the previous shell.   */
             shelltp = NULL;           /* Triggers spawning of a new shell.        */

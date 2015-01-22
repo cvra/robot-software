@@ -56,7 +56,7 @@ int main(void) {
     sntp_init();
 
     /* Creates the USB shell thread */
-    chThdCreateStatic(stack_usb_shell, USB_SHELL_STACK_SIZE, NORMALPRIO + 2,
+    chThdCreateStatic(stack_usb_shell, USB_SHELL_STACK_SIZE, USB_SHELL_PRIO,
             usb_shell_thread, NULL);
 
     while (1) {
