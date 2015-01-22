@@ -5,6 +5,7 @@ target.arm:
     - main.c
     - panic_log.c
     - sntp/sntp.c
+    - commands.c
 
 source:
     - timestamp.c
