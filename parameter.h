@@ -113,6 +113,15 @@ bool parameter_changed(const parameter_t *p);
 void _parameter_declare(parameter_t *p, parameter_namespace_t *ns,
                         const char *id);
 
+/* [internal API]
+ * set the changed flag for the parameter and it's namespaces.
+ */
+void _parameter_changed_set(parameter_t *p);
+/* [internal API]
+ * clear the changed flag for the parameter and it's namespaces.
+ */
+void _parameter_changed_clear(parameter_t *p);
+
 
 /*
  * Scalar type parameter

@@ -148,6 +148,63 @@ TEST(ParameterTree, ParameterFind)
     CHECK_EQUAL(&p_b1i_x, parameter_find(&rootns, "test_b/eins/I/x"));
 }
 
+TEST(ParameterTree, ParameterSetClear)
+{
+    CHECK_FALSE(parameter_changed(&p_root_x));
+    CHECK_FALSE(parameter_namespace_contains_changed(&rootns));
+    _parameter_changed_set(&p_root_x);
+    CHECK_TRUE(parameter_changed(&p_root_x));
+    CHECK_TRUE(parameter_namespace_contains_changed(&rootns));
+    _parameter_changed_clear(&p_root_x);
+    CHECK_FALSE(parameter_changed(&p_root_x));
+    CHECK_FALSE(parameter_namespace_contains_changed(&rootns));
+}
+
+TEST(ParameterTree, ParameterSetClearHierarchical)
+{
+    CHECK_FALSE(parameter_changed(&p_a2_x));
+    CHECK_FALSE(parameter_namespace_contains_changed(&a2));
+    CHECK_FALSE(parameter_namespace_contains_changed(&a));
+    CHECK_FALSE(parameter_namespace_contains_changed(&rootns));
+    _parameter_changed_set(&p_a2_x);
+    CHECK_FALSE(parameter_changed(&p_a2_y));
+    CHECK_TRUE(parameter_changed(&p_a2_x));
+    CHECK_TRUE(parameter_namespace_contains_changed(&a2));
+    CHECK_TRUE(parameter_namespace_contains_changed(&a));
+    CHECK_TRUE(parameter_namespace_contains_changed(&rootns));
+    _parameter_changed_set(&p_a2_y);
+    CHECK_TRUE(parameter_changed(&p_a2_x));
+    CHECK_TRUE(parameter_changed(&p_a2_y));
+    CHECK_TRUE(parameter_namespace_contains_changed(&a2));
+    CHECK_TRUE(parameter_namespace_contains_changed(&a));
+    CHECK_TRUE(parameter_namespace_contains_changed(&rootns));
+    _parameter_changed_clear(&p_a2_x);
+    CHECK_FALSE(parameter_changed(&p_a2_x));
+    CHECK_TRUE(parameter_changed(&p_a2_y));
+    CHECK_TRUE(parameter_namespace_contains_changed(&a2));
+    CHECK_TRUE(parameter_namespace_contains_changed(&a));
+    CHECK_TRUE(parameter_namespace_contains_changed(&rootns));
+    _parameter_changed_clear(&p_a2_y);
+    _parameter_changed_set(&p_root_x);
+    CHECK_FALSE(parameter_changed(&p_a2_x));
+    CHECK_FALSE(parameter_changed(&p_a2_y));
+    CHECK_FALSE(parameter_namespace_contains_changed(&a2));
+    CHECK_FALSE(parameter_namespace_contains_changed(&a));
+    CHECK_TRUE(parameter_namespace_contains_changed(&rootns));
+    _parameter_changed_clear(&p_root_x);
+    CHECK_FALSE(parameter_namespace_contains_changed(&rootns));
+    CHECK_FALSE(parameter_namespace_contains_changed(&a));
+}
+
+TEST(ParameterTree, ParameterDefined)
+{
+    CHECK_FALSE(parameter_defined(&p_a2_z));
+    _parameter_changed_set(&p_a2_z);
+    CHECK_TRUE(parameter_defined(&p_a2_z));
+    _parameter_changed_clear(&p_a2_z);
+    CHECK_TRUE(parameter_defined(&p_a2_z));
+}
+
 
 #include "CppUTest/CommandLineTestRunner.h"
 

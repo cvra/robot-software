@@ -148,13 +148,13 @@ bool parameter_namespace_contains_changed(const parameter_namespace_t *ns)
     }
 }
 
-bool parameter_changed(parameter_t *p)
+bool parameter_changed(const parameter_t *p)
 {
     // todo make atomic
     return p->changed;
 }
 
-bool parameter_defined(parameter_t *p)
+bool parameter_defined(const parameter_t *p)
 {
     // todo make atomic
     return p->set;
