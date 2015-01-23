@@ -68,7 +68,7 @@ TEST(ParameterInit, ParameterCreate)
     STRCMP_EQUAL("test", p.id);
     CHECK_EQUAL(&ns, p.ns);
     CHECK_EQUAL(false, p.changed);
-    CHECK_EQUAL(false, p.set);
+    CHECK_EQUAL(false, p.defined);
     // check if correctly linked in parent
     CHECK_EQUAL(NULL, p.next);
     CHECK_EQUAL(&p, ns.parameter_list);

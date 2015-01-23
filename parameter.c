@@ -134,7 +134,7 @@ void _parameter_declare(parameter_t *p, parameter_namespace_t *ns,
     p->id = id;
     p->ns = ns;
     p->changed = false;
-    p->set = false;
+    p->defined = false;
     _param_link_to_parent(p);
 }
 
@@ -157,7 +157,7 @@ bool parameter_changed(const parameter_t *p)
 bool parameter_defined(const parameter_t *p)
 {
     // todo make atomic
-    return p->set;
+    return p->defined;
 }
 
 void _parameter_changed_set(parameter_t *p)
@@ -172,7 +172,7 @@ void _parameter_changed_set(parameter_t *p)
         ns->changed_cnt++;
         ns = ns->parent;
     }
-    p->set = true;
+    p->defined = true;
 }
 
 void _parameter_changed_clear(parameter_t *p)
@@ -187,4 +187,58 @@ void _parameter_changed_clear(parameter_t *p)
         ns->changed_cnt--;
         ns = ns->parent;
     }
+}
+
+/*
+ * parameter types
+ */
+
+void parameter_scalar_declare(parameter_t *p, parameter_namespace_t *ns,
+                              const char *id)
+{
+    _parameter_declare(p, ns, id);
+    p->type = _PARAM_TYPE_SCALAR;
+}
+
+void parameter_scalar_declare_with_default(parameter_t *p,
+                                           parameter_namespace_t *ns,
+                                           const char *id,
+                                           float default_val)
+{
+    _parameter_declare(p, ns, id);
+    p->type = _PARAM_TYPE_SCALAR;
+    // todo make atomic
+    p->value.s = default_val;
+    _parameter_changed_set(p);
+}
+
+float parameter_scalar_get(parameter_t *p)
+{
+#if PARAMETER_CHECKS_EN
+    _parameter_assert(p->type == _PARAM_TYPE_SCALAR);
+#endif
+    _parameter_changed_clear(p);
+    // todo make atomic
+    float ret = p->value.s;
+    return ret;
+}
+
+float parameter_scalar_read(parameter_t *p)
+{
+#if PARAMETER_CHECKS_EN
+    _parameter_assert(p->type == _PARAM_TYPE_SCALAR);
+#endif
+    // todo make atomic
+    float ret = p->value.s;
+    return ret;
+}
+
+void parameter_scalar_set(parameter_t *p, float value)
+{
+#if PARAMETER_CHECKS_EN
+    _parameter_assert(p->type == _PARAM_TYPE_SCALAR);
+#endif
+    // todo make atomic
+    p->value.s = value;
+    _parameter_changed_set(p);
 }

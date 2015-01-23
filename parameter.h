@@ -33,19 +33,19 @@ struct _param_val_matrix_s {
     uint16_t m;
 };
 
-#define _PARAM_TYPE_BOOL        1
-#define _PARAM_TYPE_SCALAR      2
-#define _PARAM_TYPE_INTEGER     3
-#define _PARAM_TYPE_STRING      4
-#define _PARAM_TYPE_VECTOR      5
-#define _PARAM_TYPE_MATRIX      6
+#define _PARAM_TYPE_SCALAR      1
+// #define _PARAM_TYPE_BOOL        2
+// #define _PARAM_TYPE_INTEGER     3
+// #define _PARAM_TYPE_STRING      4
+// #define _PARAM_TYPE_VECTOR      5
+// #define _PARAM_TYPE_MATRIX      6
 
 struct parameter_s {
     const char *id;
     parameter_namespace_t *ns;
     parameter_t *next;
     bool changed;
-    bool set;
+    bool defined;
     uint8_t type;
     union {
         bool b;
@@ -115,6 +115,7 @@ void _parameter_declare(parameter_t *p, parameter_namespace_t *ns,
 
 /* [internal API]
  * set the changed flag for the parameter and it's namespaces.
+ * (also sets the defined flag)
  */
 void _parameter_changed_set(parameter_t *p);
 /* [internal API]
@@ -129,7 +130,6 @@ void _parameter_changed_clear(parameter_t *p);
 
 void parameter_scalar_declare(parameter_t *p, parameter_namespace_t *ns,
                               const char *id);
-
 void parameter_scalar_declare_with_default(parameter_t *p,
                                            parameter_namespace_t *ns,
                                            const char *id,
