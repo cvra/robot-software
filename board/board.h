@@ -43,7 +43,7 @@
 #define GPIOA_MOTOR_PWM_B           9
 #define GPIOA_MOTOR_EN_A            10
 #define GPIOA_MOTOR_EN_B            11
-#define GPIOA_QUAD_ENC_I            12
+#define GPIOA_GPIO_I                12
 #define GPIOA_SWDIO                 13
 #define GPIOA_SWCLK                 14
 #define GPIOA_NC_15                 15
@@ -98,18 +98,18 @@
  * GPIOA setup:
  *
  * PA0  - GPIOA_GPIO_ADC            (input floating).
- * PA1  - GPIOA_LED                 (output pushpull, high). // timer alternate function?
+ * PA1  - GPIOA_LED                 (output pushpull, high).
  * PA2  - GPIOA_NC_2                (input pulldown).
  * PA3  - GPIOA_NC_3                (input pulldown).
  * PA4  - GPIOA_CAN_SPEED           (output pushpull, high).
  * PA5  - GPIOA_ADC_I_MOT           (analog).
  * PA6  - GPIOA_ADC_V_BAT           (analog).
  * PA7  - GPIOA_NC_7                (input pulldown).
- * PA8  - GPIOA_MOTOR_PWM_A         (alternate 6).
- * PA9  - GPIOA_MOTOR_PWM_B         (alternate 6).
- * PA10 - GPIOA_MOTOR_EN_A          (alternate 6).
- * PA11 - GPIOA_MOTOR_EN_B          (alternate 11).
- * PA12 - GPIOA_QUAD_ENC_I          (input floating).
+ * PA8  - GPIOA_MOTOR_PWM_A         (alternate 6 (TIM1_CH1)).
+ * PA9  - GPIOA_MOTOR_PWM_B         (alternate 6 (TIM1_CH2)).
+ * PA10 - GPIOA_MOTOR_EN_A          (output pushpull, low).
+ * PA11 - GPIOA_MOTOR_EN_B          (output pushpull, low).
+ * PA12 - GPIOA_GPIO_I              (input floating).
  * PA13 - GPIOA_SWDIO               (alternate 0).
  * PA14 - GPIOA_SWCLK               (alternate 0).
  * PA15 - GPIOA_NC_15               (input pulldown). // alternate 0?
@@ -124,9 +124,9 @@
                                      PIN_MODE_INPUT(GPIOA_NC_7) |           \
                                      PIN_MODE_ALTERNATE(GPIOA_MOTOR_PWM_A) |\
                                      PIN_MODE_ALTERNATE(GPIOA_MOTOR_PWM_B) |\
-                                     PIN_MODE_ALTERNATE(GPIOA_MOTOR_EN_A) | \
-                                     PIN_MODE_ALTERNATE(GPIOA_MOTOR_EN_B) | \
-                                     PIN_MODE_INPUT(GPIOA_QUAD_ENC_I) |     \
+                                     PIN_MODE_OUTPUT(GPIOA_MOTOR_EN_A) |    \
+                                     PIN_MODE_OUTPUT(GPIOA_MOTOR_EN_B) |    \
+                                     PIN_MODE_INPUT(GPIOA_GPIO_I) |         \
                                      PIN_MODE_ALTERNATE(GPIOA_SWDIO) |      \
                                      PIN_MODE_ALTERNATE(GPIOA_SWCLK) |      \
                                      PIN_MODE_INPUT(GPIOA_NC_15))
@@ -142,7 +142,7 @@
                                      PIN_OTYPE_PUSHPULL(GPIOA_MOTOR_PWM_B) |\
                                      PIN_OTYPE_PUSHPULL(GPIOA_MOTOR_EN_A) | \
                                      PIN_OTYPE_PUSHPULL(GPIOA_MOTOR_EN_B) | \
-                                     PIN_OTYPE_PUSHPULL(GPIOA_QUAD_ENC_I) | \
+                                     PIN_OTYPE_PUSHPULL(GPIOA_GPIO_I) |     \
                                      PIN_OTYPE_PUSHPULL(GPIOA_SWDIO) |      \
                                      PIN_OTYPE_PUSHPULL(GPIOA_SWCLK) |      \
                                      PIN_OTYPE_PUSHPULL(GPIOA_NC_15))
@@ -158,7 +158,7 @@
                                      PIN_OSPEED_50M(GPIOA_MOTOR_PWM_B) |    \
                                      PIN_OSPEED_50M(GPIOA_MOTOR_EN_A) |     \
                                      PIN_OSPEED_50M(GPIOA_MOTOR_EN_B) |     \
-                                     PIN_OSPEED_50M(GPIOA_QUAD_ENC_I) |     \
+                                     PIN_OSPEED_50M(GPIOA_GPIO_I) |         \
                                      PIN_OSPEED_50M(GPIOA_SWDIO) |          \
                                      PIN_OSPEED_50M(GPIOA_SWCLK) |          \
                                      PIN_OSPEED_50M(GPIOA_NC_15))
@@ -174,7 +174,7 @@
                                      PIN_PUPDR_FLOATING(GPIOA_MOTOR_PWM_B) |\
                                      PIN_PUPDR_FLOATING(GPIOA_MOTOR_EN_A) | \
                                      PIN_PUPDR_FLOATING(GPIOA_MOTOR_EN_B) | \
-                                     PIN_PUPDR_FLOATING(GPIOA_QUAD_ENC_I) | \
+                                     PIN_PUPDR_FLOATING(GPIOA_GPIO_I) |     \
                                      PIN_PUPDR_PULLUP(GPIOA_SWDIO) |        \
                                      PIN_PUPDR_PULLDOWN(GPIOA_SWCLK) |      \
                                      PIN_PUPDR_PULLDOWN(GPIOA_NC_15))
@@ -190,7 +190,7 @@
                                      PIN_ODR_LOW(GPIOA_MOTOR_PWM_B) |       \
                                      PIN_ODR_LOW(GPIOA_MOTOR_EN_A) |        \
                                      PIN_ODR_LOW(GPIOA_MOTOR_EN_B) |        \
-                                     PIN_ODR_LOW(GPIOA_QUAD_ENC_I) |        \
+                                     PIN_ODR_LOW(GPIOA_GPIO_I) |            \
                                      PIN_ODR_LOW(GPIOA_SWDIO) |             \
                                      PIN_ODR_LOW(GPIOA_SWCLK) |             \
                                      PIN_ODR_LOW(GPIOA_NC_15))
@@ -204,9 +204,9 @@
                                      PIN_AFIO_AF(GPIOA_NC_7, 0))
 #define VAL_GPIOA_AFRH              (PIN_AFIO_AF(GPIOA_MOTOR_PWM_A, 6) |    \
                                      PIN_AFIO_AF(GPIOA_MOTOR_PWM_B, 6) |    \
-                                     PIN_AFIO_AF(GPIOA_MOTOR_EN_A, 6) |     \
-                                     PIN_AFIO_AF(GPIOA_MOTOR_EN_B, 11) |    \
-                                     PIN_AFIO_AF(GPIOA_QUAD_ENC_I, 0) |     \
+                                     PIN_AFIO_AF(GPIOA_MOTOR_EN_A, 0) |     \
+                                     PIN_AFIO_AF(GPIOA_MOTOR_EN_B, 0) |     \
+                                     PIN_AFIO_AF(GPIOA_GPIO_I, 0) |         \
                                      PIN_AFIO_AF(GPIOA_SWDIO, 0) |          \
                                      PIN_AFIO_AF(GPIOA_SWCLK, 0) |          \
                                      PIN_AFIO_AF(GPIOA_NC_15, 0))
@@ -220,12 +220,12 @@
  * PB3  - GPIOB_NC_3                (input pulldown).
  * PB4  - GPIOB_GPIO_A              (input floating). // alternate 2?
  * PB5  - GPIOB_GPIO_B              (input floating). // alternate 2?
- * PB6  - GPIOB_QUAD_ENC_A          (alternate 2).
- * PB7  - GPIOB_QUAD_ENC_B          (alternate 2).
- * PB8  - GPIOB_CAN_RX              (alternate 9).
- * PB9  - GPIOB_CAN_TX              (alternate 9).
- * PB10 - GPIOB_USART3_TX           (alternate 7).
- * PB11 - GPIOB_USART3_RX           (alternate 7).
+ * PB6  - GPIOB_QUAD_ENC_A          (alternate 2 (TIM4_CH1)).
+ * PB7  - GPIOB_QUAD_ENC_B          (alternate 2 (TIM4_CH2)).
+ * PB8  - GPIOB_CAN_RX              (alternate 9 (CAN_RX)).
+ * PB9  - GPIOB_CAN_TX              (alternate 9 (CAN_TX)).
+ * PB10 - GPIOB_USART3_TX           (alternate 7 (USART3_TX)).
+ * PB11 - GPIOB_USART3_RX           (alternate 7 (USART3_RX)).
  * PB12 - GPIOB_NC_12               (input pulldown).
  * PB13 - GPIOB_NC_13               (input pulldown).
  * PB14 - GPIOB_NC_14               (input pulldown).
@@ -402,7 +402,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void boardInit(void);
+    void boardInit(void);
 #ifdef __cplusplus
 }
 #endif

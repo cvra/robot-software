@@ -6,6 +6,9 @@ int main(void) {
     chSysInit();
 
     while (1) {
-        chThdSleepMilliseconds(1000);
+        palSetPad(GPIOA, GPIOA_LED);
+        chThdSleepMilliseconds(500);
+        palClearPad(GPIOA, GPIOA_LED);
+        chThdSleepMilliseconds(500);
     }
 }
