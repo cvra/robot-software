@@ -102,6 +102,9 @@ CSRC = $(PORTSRC) \
        $(HALSRC) \
        $(OSALSRC) \
        $(PLATFORMSRC) \
+       $(CHIBIOS)/os/various/chprintf.c \
+       $(CHIBIOS)/os/various/memstreams.c \
+       $(CHIBIOS)/os/various/shell.c \
        $(BOARDSRC) \
        $(PROJSRC)
 
