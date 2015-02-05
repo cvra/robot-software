@@ -35,6 +35,9 @@ int main(void) {
     pwmEnableChannel(&PWMD1, 0, 0.1 * PWM_PERIOD);
     pwmEnableChannel(&PWMD1, 1, 0.0 * PWM_PERIOD);
 
+    palSetPad(GPIOA, GPIOA_MOTOR_EN_A);
+    palSetPad(GPIOA, GPIOA_MOTOR_EN_B);
+
     sdStart(&SD3, NULL);
     stdout = (BaseSequentialStream*)&SD3;
 
