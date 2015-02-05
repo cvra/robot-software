@@ -21,7 +21,7 @@
 
 #define STM32_LSEDRV                (3 << 3)
 
-#define STM32_HSECLK                8000000
+#define STM32_HSECLK                16000000
 
 /*
  * MCU type as defined in the ST header.
