@@ -97,13 +97,13 @@
 /*
  * GPIOA setup:
  *
- * PA0  - GPIOA_GPIO_ADC            (input floating).
+ * PA0  - GPIOA_GPIO_ADC            (input floating). (ADC1_IN1)
  * PA1  - GPIOA_LED                 (output pushpull, high).
  * PA2  - GPIOA_NC_2                (input pulldown).
  * PA3  - GPIOA_NC_3                (input pulldown).
  * PA4  - GPIOA_CAN_SPEED           (output pushpull, high).
- * PA5  - GPIOA_ADC_I_MOT           (analog).
- * PA6  - GPIOA_ADC_V_BAT           (analog).
+ * PA5  - GPIOA_ADC_I_MOT           (analog (ADC2_IN2)).
+ * PA6  - GPIOA_ADC_V_BAT           (analog (ADC2_IN3)).
  * PA7  - GPIOA_NC_7                (input pulldown).
  * PA8  - GPIOA_MOTOR_PWM_A         (alternate 6 (TIM1_CH1)).
  * PA9  - GPIOA_MOTOR_PWM_B         (alternate 6 (TIM1_CH2)).
