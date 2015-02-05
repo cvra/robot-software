@@ -16,6 +16,7 @@ endif
 # C++ specific options here (added to USE_OPT).
 ifeq ($(USE_CPPOPT),)
   USE_CPPOPT = -fno-rtti
+  USE_CPPOPT +=  -std=gnu++11
 endif
 
 # Enable this if you want the linker to remove unused code and data
@@ -87,6 +88,7 @@ include $(CHIBIOS)/os/hal/osal/rt/osal.mk
 include $(CHIBIOS)/os/rt/rt.mk
 include $(CHIBIOS)/os/rt/ports/ARMCMx/compilers/GCC/mk/port_stm32f3xx.mk
 include $(CHIBIOS)/test/rt/test.mk
+include $(CHIBIOS)/os/various/cpp_wrappers/chcpp.mk
 
 # must be defined before board.mk include
 USE_BOOTLOADER = yes
@@ -107,12 +109,13 @@ CSRC = $(PORTSRC) \
        $(CHIBIOS)/os/hal/lib/streams/chprintf.c \
        $(CHIBIOS)/os/hal/lib/streams/memstreams.c \
        $(CHIBIOS)/os/various/shell.c \
+       $(CHIBIOS)/os/various/syscalls.c \
        $(BOARDSRC) \
        $(PROJCSRC)
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
-CPPSRC =
+CPPSRC = $(CHCPPSRC) $(PROJCPPSRC)
 
 # C sources to be compiled in ARM mode regardless of the global setting.
 # NOTE: Mixing ARM and THUMB mode enables the -mthumb-interwork compiler
@@ -139,7 +142,8 @@ ASMSRC = $(PORTASM)
 
 INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
          $(HALINC) $(OSALINC) $(PLATFORMINC) $(BOARDINC) \
-         $(CHIBIOS)/os/various $(CHIBIOS)/os/hal/lib/streams ./src
+         $(CHIBIOS)/os/various $(CHIBIOS)/os/hal/lib/streams ./src \
+         $(CHCPPINC)
 
 #
 # Project, sources and paths
@@ -158,8 +162,8 @@ CPPC = $(TRGT)g++
 # Enable loading with g++ only if you need C++ runtime support.
 # NOTE: You can use C++ even without C++ support if you are careful. C++
 #       runtime support makes code size explode.
-LD   = $(TRGT)gcc
-#LD   = $(TRGT)g++
+# LD   = $(TRGT)gcc
+LD   = $(TRGT)g++
 CP   = $(TRGT)objcopy
 AS   = $(TRGT)gcc -x assembler-with-cpp
 AR   = $(TRGT)ar
@@ -190,18 +194,33 @@ CPPWARN = -Wall -Wextra
 
 # List all user C define here, like -D_DEBUG=1
 UDEFS = $(BOARDDEFS)
+UDEFS += -DUAVCAN_STM32_CHIBIOS=1 \
+		 -DUAVCAN_STM32_TIMER_NUMBER=7 \
+		 -DUAVCAN_STM32_NUM_IFACES=1
 
 # Define ASM defines here
 UADEFS =
 
 # List all user directories here
-UINCDIR =
+UINCDIR = ./src
 
 # List the user directory to look for the libraries here
 ULIBDIR =
 
 # List all user libraries here
 ULIBS =
+
+#
+# UAVCAN
+#
+include uavcan/libuavcan/include.mk
+include uavcan/libuavcan_drivers/stm32/driver/include.mk
+
+CPPSRC += $(LIBUAVCAN_SRC) $(LIBUAVCAN_STM32_SRC)
+UINCDIR += $(LIBUAVCAN_INC) $(LIBUAVCAN_STM32_INC) ./dsdlc_generated
+
+# run uavcan dsdl compiler
+$(info $(shell $(LIBUAVCAN_DSDLC) $(UAVCAN_DSDL_DIR)))
 
 #
 # End of user defines
