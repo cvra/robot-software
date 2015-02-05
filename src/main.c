@@ -50,7 +50,8 @@ static THD_FUNCTION(adc_task, arg)
 
     while (1) {
         adcConvert(&ADCD1, &adcgrpcfg1, adc_samples, 1);
-        chprintf(stdout, "%d %d %d %d\n", adc_samples[0], adc_samples[1], adc_samples[2], adc_samples[3]);
+        //chprintf(stdout, "%d %d %d %d\n", adc_samples[0], adc_samples[1], adc_samples[2], adc_samples[3]);
+        chprintf(stdout, "%f A, %f V\n", (adc_samples[1]-2048)*0.001611328125f, adc_samples[3]*0.005283043033f);
         // chThdSleepMilliseconds(80);
     }
     return 0;
