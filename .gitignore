@@ -1,2 +1,4 @@
 build/*
 .dep/*
+
+*sw[po]
