@@ -165,6 +165,9 @@ int main(void) {
     chThdCreateStatic(parameter_listener_wa, sizeof(parameter_listener_wa), LOWPRIO, parameter_listener, &SD3);
     chThdCreateStatic(led_thread_wa, sizeof(led_thread_wa), LOWPRIO, led_thread, NULL);
 
+    can_transceiver_activate();
+    uavcan_node_start(NULL);
+
     while (1) {
         palSetPad(GPIOA, GPIOA_LED);
         chThdSleepMilliseconds(1000);
