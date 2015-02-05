@@ -403,6 +403,8 @@
 extern "C" {
 #endif
     void boardInit(void);
+    void can_transceiver_activate(void);
+    void can_transceiver_standby(void);
 #ifdef __cplusplus
 }
 #endif

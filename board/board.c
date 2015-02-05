@@ -34,3 +34,15 @@ void __early_init(void) {
  * @todo    Add your board-specific code, if any.
  */
 void boardInit(void) {}
+
+// set CAN transceiver to high speed mode.
+void can_transceiver_activate(void)
+{
+    palClearPad(GPIOA, GPIOA_CAN_SPEED);
+}
+
+// set CAN transceiver to standby mode.
+void can_transceiver_standby(void)
+{
+    palSetPad(GPIOA, GPIOA_CAN_SPEED);
+}
