@@ -273,7 +273,7 @@
  *          default configuration.
  */
 #if !defined(SERIAL_DEFAULT_BITRATE) || defined(__DOXYGEN__)
-#define SERIAL_DEFAULT_BITRATE      (115200/2)  // this works for 115200 buad
+#define SERIAL_DEFAULT_BITRATE      115200
 #endif
 
 /**
