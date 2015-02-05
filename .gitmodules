@@ -31,3 +31,6 @@
 [submodule "src/filter"]
 	path = src/filter
 	url = https://github.com/froj/filter
+[submodule "uavcan"]
+	path = uavcan
+	url = https://github.com/cvra/uavcan.git
