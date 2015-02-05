@@ -65,7 +65,7 @@ endif
 
 # Enables the use of FPU on Cortex-M4 (no, softfp, hard).
 ifeq ($(USE_FPU),)
-  USE_FPU = no
+  USE_FPU = hard
 endif
 
 #
@@ -102,6 +102,9 @@ CSRC = $(PORTSRC) \
        $(HALSRC) \
        $(OSALSRC) \
        $(PLATFORMSRC) \
+       $(CHIBIOS)/os/various/chprintf.c \
+       $(CHIBIOS)/os/various/memstreams.c \
+       $(CHIBIOS)/os/various/shell.c \
        $(BOARDSRC) \
        $(PROJSRC)
 

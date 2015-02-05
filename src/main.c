@@ -1,5 +1,8 @@
-#include "ch.h"
-#include "hal.h"
+#include <ch.h>
+#include <hal.h>
+#include <chprintf.h>
+
+BaseSequentialStream* stdout;
 
 #define PWM_PERIOD      2880
 
@@ -31,6 +34,11 @@ int main(void) {
 
     pwmEnableChannel(&PWMD1, 0, 0.1 * PWM_PERIOD);
     pwmEnableChannel(&PWMD1, 1, 0.0 * PWM_PERIOD);
+
+    sdStart(&SD3, NULL);
+    stdout = (BaseSequentialStream*)&SD3;
+
+    chprintf(stdout, "boot\n");
 
     while (1) {
         palSetPad(GPIOA, GPIOA_LED);
