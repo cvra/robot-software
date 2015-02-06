@@ -10,7 +10,7 @@ BaseSequentialStream* stdout;
 #define ADC_TO_AMPS     0.001611328125f
 #define ADC_TO_VOLTS    0.005283043033f
 
-static PWMConfig pwm_cfg = {
+static const PWMConfig pwm_cfg = {
     72000000/10,
     PWM_PERIOD,           // 2.5kHz
     NULL,
@@ -30,6 +30,31 @@ static void pwm_setup(void)
     pwmStart(&PWMD1, &pwm_cfg);
 }
 
+
+static THD_WORKING_AREA(quad_task_wa, 128);
+static THD_FUNCTION(quad_task, arg)
+{
+    (void)arg;
+    chRegSetThreadName("encoder read");
+    rccEnableTIM4(FALSE);           // enable timer 4
+    rccResetTIM4();
+    STM32_TIM4->CR2    = 0;
+    STM32_TIM4->PSC    = 0;                         // Prescaler value.
+    STM32_TIM4->SR     = 0;                         // Clear pending IRQs.
+    STM32_TIM4->DIER   = 0;                         // DMA-related DIER bits.
+    STM32_TIM4->SMCR   = STM32_TIM_SMCR_SMS(3);     // count on both edges
+    STM32_TIM4->CCMR1  = STM32_TIM_CCMR1_CC1S(1);   // CC1 channel is input, IC1 is mapped on TI1
+    STM32_TIM4->CCMR1 |= STM32_TIM_CCMR1_CC2S(1);   // CC2 channel is input, IC2 is mapped on TI2
+    STM32_TIM4->CCER   = 0;
+    STM32_TIM4->ARR    = 0xFFFF;
+    STM32_TIM4->CR1    = 1;                         // start
+
+    while(42){
+        chprintf(stdout, "ENC1: %d\n", STM32_TIM4->CNT);
+        chThdSleepMilliseconds(100);
+    }
+    return 0;
+}
 
 
 static THD_WORKING_AREA(adc_task_wa, 256);
@@ -62,7 +87,7 @@ static THD_FUNCTION(adc_task, arg)
         }
         mean_current /= 1000;
 
-        chprintf(stdout, "%f A, %f V\n", mean_current, adc_samples[3]*ADC_TO_VOLTS);
+        //chprintf(stdout, "%f A, %f V\n", mean_current, adc_samples[3]*ADC_TO_VOLTS);
         chThdSleepMilliseconds(100);
     }
     return 0;
@@ -89,6 +114,7 @@ int main(void) {
     chprintf(stdout, "boot\n");
 
     chThdCreateStatic(adc_task_wa, sizeof(adc_task_wa), LOWPRIO, adc_task, NULL);
+    chThdCreateStatic(quad_task_wa, sizeof(quad_task_wa), LOWPRIO, quad_task, NULL);
 
     while (1) {
         palSetPad(GPIOA, GPIOA_LED);
