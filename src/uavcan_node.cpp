@@ -1,8 +1,11 @@
+#include <ch.h>
+#include <hal.h>
 #include <uavcan/uavcan.hpp>
 #include <uavcan_stm32/uavcan_stm32.hpp>
 #include <uavcan/protocol/NodeStatus.hpp>
 
-#define NODE_ID 42
+
+#define NODE_ID 43
 #define NODE_NAME "motor-board"
 
 #define CAN_BITRATE 1000000
@@ -26,16 +29,30 @@ static THD_FUNCTION(uavcan_node, arg)
 {
     (void)arg;
     if (can.init(CAN_BITRATE) != 0) {
-        return 0;
+        return -1;
     }
 
     Node& node = get_node();
 
     node.setNodeID(NODE_ID);
+
     node.setName(NODE_NAME);
 
+
     if (node.start() != 0) {
-        return 0;
+        return -1;
+    }
+
+    uavcan::Subscriber<uavcan::protocol::NodeStatus> ns_sub(node);
+
+    const int ns_sub_start_res =
+        ns_sub.start([&](const uavcan::protocol::NodeStatus& msg) {
+            palTogglePad(GPIOA, GPIOA_LED);
+        });
+
+    if (ns_sub_start_res < 0)
+    {
+        return -1;
     }
 
     node.setStatusOk();
