@@ -12,6 +12,7 @@
 #include "parameter/parameter_msgpack.h"
 #include <string.h>
 #include "bootloader_config.h"
+#include "uavcan_node.h"
 
 BaseSequentialStream* stdout;
 parameter_namespace_t parameter_root_ns;

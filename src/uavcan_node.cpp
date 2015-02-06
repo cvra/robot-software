@@ -24,6 +24,7 @@ Node& get_node()
 static THD_WORKING_AREA(uavcan_node_wa, 1000);
 static THD_FUNCTION(uavcan_node, arg)
 {
+    (void)arg;
     if (can.init(CAN_BITRATE) != 0) {
         return 0;
     }
