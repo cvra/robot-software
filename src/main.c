@@ -6,9 +6,13 @@ BaseSequentialStream* stdout;
 
 #define PWM_PERIOD      2880
 
+#define ADC_MAX         4096
+#define ADC_TO_AMPS     0.001611328125f
+#define ADC_TO_VOLTS    0.005283043033f
+
 static PWMConfig pwm_cfg = {
-    72000000,
-    PWM_PERIOD,           // 25kHz
+    72000000/10,
+    PWM_PERIOD,           // 2.5kHz
     NULL,
     // activate channel 1 and 2
     {
@@ -28,7 +32,7 @@ static void pwm_setup(void)
 
 
 
-static THD_WORKING_AREA(adc_task_wa, 128);
+static THD_WORKING_AREA(adc_task_wa, 256);
 static THD_FUNCTION(adc_task, arg)
 {
     (void)arg;
@@ -42,17 +46,24 @@ static THD_FUNCTION(adc_task, arg)
         0,                      // CFGR
         0,                      // TR1
         6,                      // CCR : DUAL=regualar,simultaneous
-        {0, 0},                 // SMPRx : sample time minimum
+        {ADC_SMPR1_SMP_AN1(0), 0},                          // SMPRx : sample time minimum
         {ADC_SQR1_NUM_CH(2) | ADC_SQR1_SQ1_N(1) | ADC_SQR1_SQ2_N(1), 0, 0, 0}, // SQRx : ADC1_CH1 2x
-        {0, 0},                 // SSMPRx : sample time minimum
+        {ADC_SMPR1_SMP_AN2(0) | ADC_SMPR1_SMP_AN3(0), 0},   // SSMPRx : sample time minimum
         {ADC_SQR1_NUM_CH(2) | ADC_SQR1_SQ1_N(2) | ADC_SQR1_SQ2_N(3), 0, 0, 0}, // SSQRx : ADC2_CH2, ADC2_CH3
     };
 
     while (1) {
-        adcConvert(&ADCD1, &adcgrpcfg1, adc_samples, 1);
         //chprintf(stdout, "%d %d %d %d\n", adc_samples[0], adc_samples[1], adc_samples[2], adc_samples[3]);
-        chprintf(stdout, "%f A, %f V\n", (adc_samples[1]-2048)*0.001611328125f, adc_samples[3]*0.005283043033f);
-        // chThdSleepMilliseconds(80);
+        int i;
+        float mean_current = 0.0f;
+        for(i = 0; i < 1000; i++){
+            adcConvert(&ADCD1, &adcgrpcfg1, adc_samples, 1);
+            mean_current += (adc_samples[1]-ADC_MAX/2)*ADC_TO_AMPS;
+        }
+        mean_current /= 1000;
+
+        chprintf(stdout, "%f A, %f V\n", mean_current, adc_samples[3]*ADC_TO_VOLTS);
+        chThdSleepMilliseconds(100);
     }
     return 0;
 }
@@ -64,7 +75,7 @@ int main(void) {
 
     pwm_setup();
 
-    pwmEnableChannel(&PWMD1, 0, 0.1 * PWM_PERIOD);
+    pwmEnableChannel(&PWMD1, 0, 0.0 * PWM_PERIOD);
     pwmEnableChannel(&PWMD1, 1, 0.0 * PWM_PERIOD);
 
     palSetPad(GPIOA, GPIOA_MOTOR_EN_A);
