@@ -1,5 +1,6 @@
 #include <string.h>
 #include "parameter.h"
+#include "parameter_port.h"
 
 
 
@@ -21,27 +22,30 @@ static int id_split(const char *id, int id_len)
 
 static void _ns_link_to_parent(parameter_namespace_t *ns)
 {
-    // todo make atomic
+    PARAMETER_LOCK();
     ns->next = ns->parent->subspaces;
     ns->parent->subspaces = ns;
+    PARAMETER_UNLOCK();
 }
 
 static void _param_link_to_parent(parameter_t *p)
 {
-    // todo make atomic
+    PARAMETER_LOCK();
     p->next = p->ns->parameter_list;
     p->ns->parameter_list = p;
+    PARAMETER_UNLOCK();
 }
 
 static parameter_namespace_t *get_subnamespace(parameter_namespace_t *ns,
                                                const char *ns_id,
                                                size_t ns_id_len)
 {
-    // todo make atomic
     if (ns_id_len == 0) {
         return ns; // this allows to start with a '/' or have '//' instead of '/'
     }
+    PARAMETER_LOCK();
     parameter_namespace_t *i = ns->subspaces;
+    PARAMETER_UNLOCK();
     while (i != NULL) {
         if (strncmp(ns_id, i->id, ns_id_len) == 0 && i->id[ns_id_len] == '\0') {
             // if the first ns_id_len bytes of ns_id match with i->id and
@@ -53,14 +57,15 @@ static parameter_namespace_t *get_subnamespace(parameter_namespace_t *ns,
     return i;
 }
 
-static parameter_t *get_param(parameter_namespace_t *ns, const char *id,
+static parameter_t *get_parameter(parameter_namespace_t *ns, const char *id,
                               size_t param_id_len)
 {
-    // todo make atomic
     if (param_id_len == 0) {
         return NULL;
     }
+    PARAMETER_LOCK();
     parameter_t *i = ns->parameter_list;
+    PARAMETER_UNLOCK();
     while (i != NULL) {
         if (strncmp(id, i->id, param_id_len) == 0 && i->id[param_id_len] == '\0') {
             // if the first param_id_len bytes of id match with i->id and
@@ -116,7 +121,7 @@ parameter_t *_parameter_find_w_id_len(parameter_namespace_t *ns,
         if (id_elem_len + i < id_len) {
             pns = get_subnamespace(pns, &id[i], id_elem_len);
         } else {
-            return get_param(pns, &id[i], id_elem_len);
+            return get_parameter(pns, &id[i], id_elem_len);
         }
         i += id_elem_len + 1;
     }
@@ -140,36 +145,42 @@ void _parameter_declare(parameter_t *p, parameter_namespace_t *ns,
 
 bool parameter_namespace_contains_changed(const parameter_namespace_t *ns)
 {
-    // todo make atomic
-    if (ns->changed_cnt > 0) {
-        return true;
-    } else {
-        return false;
-    }
+    PARAMETER_LOCK();
+    uint32_t changed_cnt = ns->changed_cnt;
+    PARAMETER_UNLOCK();
+    return (changed_cnt > 0);
 }
 
 bool parameter_changed(const parameter_t *p)
 {
-    // todo make atomic
-    return p->changed;
+    PARAMETER_LOCK();
+    bool changed = p->changed;
+    PARAMETER_UNLOCK();
+    return changed;
 }
 
 bool parameter_defined(const parameter_t *p)
 {
-    // todo make atomic
-    return p->defined;
+    PARAMETER_LOCK();
+    bool defined = p->defined;
+    PARAMETER_UNLOCK();
+    return defined;
 }
 
 void _parameter_changed_set(parameter_t *p)
 {
-    // todo make atomic
-    if (p->changed) {
+    PARAMETER_LOCK();
+    bool changed_was_set = p->changed;
+    p->changed = true;
+    PARAMETER_UNLOCK();
+    if (changed_was_set) {
         return;
     }
-    p->changed = true;
     parameter_namespace_t *ns = p->ns;
     while (ns != NULL) {
+        PARAMETER_LOCK();
         ns->changed_cnt++;
+        PARAMETER_UNLOCK();
         ns = ns->parent;
     }
     p->defined = true;
@@ -177,14 +188,18 @@ void _parameter_changed_set(parameter_t *p)
 
 void _parameter_changed_clear(parameter_t *p)
 {
-    // todo make atomic
-    if (!p->changed) {
+    PARAMETER_LOCK();
+    bool changed_was_set = p->changed;
+    p->changed = false;
+    PARAMETER_UNLOCK();
+    if (!changed_was_set) {
         return;
     }
-    p->changed = false;
     parameter_namespace_t *ns = p->ns;
     while (ns != NULL) {
+        PARAMETER_LOCK();
         ns->changed_cnt--;
+        PARAMETER_UNLOCK();
         ns = ns->parent;
     }
 }
@@ -196,8 +211,8 @@ void _parameter_changed_clear(parameter_t *p)
 void parameter_scalar_declare(parameter_t *p, parameter_namespace_t *ns,
                               const char *id)
 {
-    _parameter_declare(p, ns, id);
     p->type = _PARAM_TYPE_SCALAR;
+    _parameter_declare(p, ns, id);
 }
 
 void parameter_scalar_declare_with_default(parameter_t *p,
@@ -205,10 +220,9 @@ void parameter_scalar_declare_with_default(parameter_t *p,
                                            const char *id,
                                            float default_val)
 {
-    _parameter_declare(p, ns, id);
-    p->type = _PARAM_TYPE_SCALAR;
-    // todo make atomic
     p->value.s = default_val;
+    p->type = _PARAM_TYPE_SCALAR;
+    _parameter_declare(p, ns, id);
     _parameter_changed_set(p);
 }
 
@@ -218,8 +232,9 @@ float parameter_scalar_get(parameter_t *p)
     _parameter_assert(p->type == _PARAM_TYPE_SCALAR);
 #endif
     _parameter_changed_clear(p);
-    // todo make atomic
+    PARAMETER_LOCK();
     float ret = p->value.s;
+    PARAMETER_UNLOCK();
     return ret;
 }
 
@@ -228,8 +243,9 @@ float parameter_scalar_read(parameter_t *p)
 #if PARAMETER_CHECKS_EN
     _parameter_assert(p->type == _PARAM_TYPE_SCALAR);
 #endif
-    // todo make atomic
+    PARAMETER_LOCK();
     float ret = p->value.s;
+    PARAMETER_UNLOCK();
     return ret;
 }
 
@@ -238,7 +254,8 @@ void parameter_scalar_set(parameter_t *p, float value)
 #if PARAMETER_CHECKS_EN
     _parameter_assert(p->type == _PARAM_TYPE_SCALAR);
 #endif
-    // todo make atomic
+    PARAMETER_LOCK();
     p->value.s = value;
+    PARAMETER_UNLOCK();
     _parameter_changed_set(p);
 }
