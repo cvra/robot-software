@@ -127,6 +127,34 @@ static THD_FUNCTION(quad_task, arg)
     return 0;
 }
 
+static THD_WORKING_AREA(ext_quad_task_wa, 128);
+static THD_FUNCTION(ext_quad_task, arg)
+{
+    (void)arg;
+    chRegSetThreadName("external encoder read");
+    palSetPadMode(GPIOB, GPIOB_GPIO_A, PAL_MODE_ALTERNATE(2));
+    palSetPadMode(GPIOB, GPIOB_GPIO_B, PAL_MODE_ALTERNATE(2));
+
+    rccEnableTIM3(FALSE);           // enable timer 3
+    rccResetTIM3();
+    STM32_TIM3->CR2    = 0;
+    STM32_TIM3->PSC    = 0;                         // Prescaler value.
+    STM32_TIM3->SR     = 0;                         // Clear pending IRQs.
+    STM32_TIM3->DIER   = 0;                         // DMA-related DIER bits.
+    STM32_TIM3->SMCR   = STM32_TIM_SMCR_SMS(3);     // count on both edges
+    STM32_TIM3->CCMR1  = STM32_TIM_CCMR1_CC1S(1);   // CC1 channel is input, IC1 is mapped on TI1
+    STM32_TIM3->CCMR1 |= STM32_TIM_CCMR1_CC2S(1);   // CC2 channel is input, IC2 is mapped on TI2
+    STM32_TIM3->CCER   = 0;
+    STM32_TIM3->ARR    = 0xFFFF;
+    STM32_TIM3->CR1    = 1;                         // start
+
+    while(42){
+        chprintf(stdout, "ENC2: %d\n", STM32_TIM3->CNT);
+        chThdSleepMilliseconds(100);
+    }
+    return 0;
+}
+
 
 static THD_WORKING_AREA(adc_task_wa, 256);
 static THD_FUNCTION(adc_task, arg)
@@ -158,7 +186,7 @@ static THD_FUNCTION(adc_task, arg)
         }
         mean_current /= 1000;
 
-        chprintf(stdout, "%f A, %f V\n", mean_current, adc_samples[3]*ADC_TO_VOLTS);
+        //chprintf(stdout, "%f A, %f V\n", mean_current, adc_samples[3]*ADC_TO_VOLTS);
         chThdSleepMilliseconds(100);
     }
     return 0;
@@ -185,6 +213,7 @@ int main(void) {
 
     chThdCreateStatic(adc_task_wa, sizeof(adc_task_wa), LOWPRIO, adc_task, NULL);
     chThdCreateStatic(quad_task_wa, sizeof(quad_task_wa), LOWPRIO, quad_task, NULL);
+    chThdCreateStatic(ext_quad_task_wa, sizeof(ext_quad_task_wa), LOWPRIO, ext_quad_task, NULL);
 
     while (1) {
         palSetPad(GPIOA, GPIOA_LED);
