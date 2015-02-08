@@ -138,10 +138,10 @@
                                      PIN_OTYPE_PUSHPULL(GPIOA_ADC_I_MOT) |  \
                                      PIN_OTYPE_PUSHPULL(GPIOA_ADC_V_BAT) |  \
                                      PIN_OTYPE_PUSHPULL(GPIOA_NC_7) |       \
-                                     PIN_OTYPE_PUSHPULL(GPIOA_MOTOR_PWM_A) |\
-                                     PIN_OTYPE_PUSHPULL(GPIOA_MOTOR_PWM_B) |\
-                                     PIN_OTYPE_PUSHPULL(GPIOA_MOTOR_EN_A) | \
-                                     PIN_OTYPE_PUSHPULL(GPIOA_MOTOR_EN_B) | \
+                                     PIN_OTYPE_OPENDRAIN(GPIOA_MOTOR_PWM_A) |\
+                                     PIN_OTYPE_OPENDRAIN(GPIOA_MOTOR_PWM_B) |\
+                                     PIN_OTYPE_OPENDRAIN(GPIOA_MOTOR_EN_A) | \
+                                     PIN_OTYPE_OPENDRAIN(GPIOA_MOTOR_EN_B) | \
                                      PIN_OTYPE_PUSHPULL(GPIOA_GPIO_I) |     \
                                      PIN_OTYPE_PUSHPULL(GPIOA_SWDIO) |      \
                                      PIN_OTYPE_PUSHPULL(GPIOA_SWCLK) |      \
@@ -170,10 +170,10 @@
                                      PIN_PUPDR_FLOATING(GPIOA_ADC_I_MOT) |  \
                                      PIN_PUPDR_FLOATING(GPIOA_ADC_V_BAT) |  \
                                      PIN_PUPDR_PULLDOWN(GPIOA_NC_7) |       \
-                                     PIN_PUPDR_FLOATING(GPIOA_MOTOR_PWM_A) |\
-                                     PIN_PUPDR_FLOATING(GPIOA_MOTOR_PWM_B) |\
-                                     PIN_PUPDR_FLOATING(GPIOA_MOTOR_EN_A) | \
-                                     PIN_PUPDR_FLOATING(GPIOA_MOTOR_EN_B) | \
+                                     PIN_PUPDR_PULLUP(GPIOA_MOTOR_PWM_A) |\
+                                     PIN_PUPDR_PULLUP(GPIOA_MOTOR_PWM_B) |\
+                                     PIN_PUPDR_PULLUP(GPIOA_MOTOR_EN_A) | \
+                                     PIN_PUPDR_PULLUP(GPIOA_MOTOR_EN_B) | \
                                      PIN_PUPDR_FLOATING(GPIOA_GPIO_I) |     \
                                      PIN_PUPDR_PULLUP(GPIOA_SWDIO) |        \
                                      PIN_PUPDR_PULLDOWN(GPIOA_SWCLK) |      \
