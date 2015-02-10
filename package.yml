@@ -2,17 +2,19 @@ depends:
     - crc
 
 target.arm:
-    - main.c
-    - panic_log.c
-    - sntp/sntp.c
-    - commands.c
-    - board/board.c
-
-include_directories:
-    - board/
+    - src/main.c
+    - src/panic_log.c
+    - src/sntp/sntp.c
+    - src/commands.c
+    - src/board/board.c
 
 source:
-    - timestamp.c
+    - src/timestamp.c
+
+include_directories:
+    - src/
+    - src/board/
+
 
 tests:
     - tests/unix-timestamp.cpp
