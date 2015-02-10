@@ -45,4 +45,10 @@
 /** SNTP update delay - in milliseconds */
 #define SNTP_UPDATE_DELAY (20 * 1000)
 
+/** Use newlib malloc() instead of memory pools. */
+#include <stdlib.h>
+#define MEM_LIBC_MALLOC 1
+#define MEMP_MEM_MALLOC 1
+
+
 #endif /* __LWIPOPT_H__ */
