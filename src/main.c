@@ -192,6 +192,11 @@ static THD_FUNCTION(adc_task, arg)
     return 0;
 }
 
+void panic_hook(const char* reason)
+{
+    palClearPad(GPIOA, GPIOA_LED);      // turn on LED (active low)
+}
+
 
 int main(void) {
     halInit();
