@@ -7,6 +7,10 @@ target.arm:
     - sntp/sntp.c
     - commands.c
     - usb_shell.c
+    - board/board.c
+
+include_directories:
+    - board/
 
 source:
     - timestamp.c

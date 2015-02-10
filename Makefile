@@ -69,7 +69,6 @@ PROJECT = ch
 
 # Imported source files and paths
 CHIBIOS = ChibiOS/
-include $(CHIBIOS)/os/hal/boards/OLIMEX_STM32_E407_REV_D/board.mk
 include $(CHIBIOS)/os/hal/ports/STM32/STM32F4xx/platform.mk
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/rt/ports/ARMCMx/compilers/GCC/mk/port_stm32f4xx.mk
@@ -87,7 +86,6 @@ CSRC = $(PORTSRC) \
        $(TESTSRC) \
        $(HALSRC) \
        $(PLATFORMSRC) \
-       $(BOARDSRC) \
        $(LWSRC) \
        $(FATFSSRC) \
        $(CHIBIOS)/os/various/evtimer.c \
@@ -124,7 +122,7 @@ TCPPSRC =
 ASMSRC = $(PORTASM)
 
 INCDIR += $(PORTINC) $(KERNINC) $(TESTINC) \
-          $(HALINC) $(PLATFORMINC) $(BOARDINC) $(LWINC) \
+          $(HALINC) $(PLATFORMINC) $(LWINC) \
           $(OSALINC) \
           $(CHIBIOS)/os/various
 
@@ -219,5 +217,8 @@ ULIBS =
 RULESPATH = $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC
 include $(RULESPATH)/rules.mk
 
-flash: build/$(PROJECT).elf
+flash_audio:
+	mplayer flash.ogg > /dev/null &
+
+flash: flash_audio build/$(PROJECT).elf
 	openocd -f oocd.cfg -f flash_script.cfg
