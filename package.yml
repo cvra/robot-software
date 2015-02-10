@@ -6,7 +6,6 @@ target.arm:
     - panic_log.c
     - sntp/sntp.c
     - commands.c
-    - usb_shell.c
     - board/board.c
 
 include_directories:
