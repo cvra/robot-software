@@ -219,5 +219,8 @@ ULIBS =
 RULESPATH = $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC
 include $(RULESPATH)/rules.mk
 
-flash: build/$(PROJECT).elf
+flash_audio:
+	mplayer flash.ogg > /dev/null &
+
+flash: flash_audio build/$(PROJECT).elf
 	openocd -f oocd.cfg -f flash_script.cfg
