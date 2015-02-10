@@ -1,8 +1,11 @@
 #include <ch.h>
 #include <hal.h>
 #include <chprintf.h>
+#include <blocking_uart_driver.h>
 
-BaseSequentialStream* stdout;
+BlockingUARTDriver blocking_uart_stream;
+BaseSequentialStream* stderr = (BaseSequentialStream*)&blocking_uart_stream;
+
 
 #define PWM_PERIOD                  2880
 #define PWM_DIRECTION_CHANNEL       0
@@ -121,7 +124,6 @@ static THD_FUNCTION(quad_task, arg)
     STM32_TIM4->CR1    = 1;                         // start
 
     while(42){
-        //chprintf(stdout, "ENC1: %d\n", STM32_TIM4->CNT);
         chThdSleepMilliseconds(100);
     }
     return 0;
@@ -149,7 +151,6 @@ static THD_FUNCTION(ext_quad_task, arg)
     STM32_TIM3->CR1    = 1;                         // start
 
     while(42){
-        chprintf(stdout, "ENC2: %d\n", STM32_TIM3->CNT);
         chThdSleepMilliseconds(100);
     }
     return 0;
@@ -177,7 +178,6 @@ static THD_FUNCTION(adc_task, arg)
     };
 
     while (1) {
-        //chprintf(stdout, "%d %d %d %d\n", adc_samples[0], adc_samples[1], adc_samples[2], adc_samples[3]);
         int i;
         float mean_current = 0.0f;
         for(i = 0; i < 1000; i++){
@@ -186,7 +186,6 @@ static THD_FUNCTION(adc_task, arg)
         }
         mean_current /= 1000;
 
-        //chprintf(stdout, "%f A, %f V\n", mean_current, adc_samples[3]*ADC_TO_VOLTS);
         chThdSleepMilliseconds(100);
     }
     return 0;
@@ -195,6 +194,7 @@ static THD_FUNCTION(adc_task, arg)
 void panic_hook(const char* reason)
 {
     palClearPad(GPIOA, GPIOA_LED);      // turn on LED (active low)
+    chprintf(stderr, "%s\n", reason);
 }
 
 
@@ -211,10 +211,9 @@ int main(void) {
 
     adcStart(&ADCD1, NULL);
 
-    sdStart(&SD3, NULL);
-    stdout = (BaseSequentialStream*)&SD3;
+    blocking_uart_init(&blocking_uart_stream, USART3, 115200);
 
-    chprintf(stdout, "boot\n");
+    chprintf(stderr, "boot\n");
 
     chThdCreateStatic(adc_task_wa, sizeof(adc_task_wa), LOWPRIO, adc_task, NULL);
     chThdCreateStatic(quad_task_wa, sizeof(quad_task_wa), LOWPRIO, quad_task, NULL);
