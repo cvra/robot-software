@@ -10,6 +10,7 @@
 #include "sntp/sntp.h"
 #include "timestamp.h"
 #include "panic_log.h"
+#include "can_bridge.h"
 
 /*Endpoints to be used for USBD1.  */
 #define USBD1_DATA_REQUEST_EP           1
@@ -331,6 +332,7 @@ int main(void) {
             lwip_thread, NULL);
 
     sntp_init();
+    can_bridge_init();
 
     /*
      * Normal main() thread activity, in this demo it does nothing except

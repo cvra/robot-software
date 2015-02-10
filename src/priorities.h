@@ -6,5 +6,6 @@
 #define DEFAULT_THREAD_PRIO (LOWPRIO + 1)
 
 #define USB_SHELL_PRIO (NORMALPRIO + 2)
+#define CAN_BRIDGE_PRIO (NORMALPRIO - 1)
 
 #endif
