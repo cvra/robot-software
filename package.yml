@@ -6,6 +6,10 @@ target.arm:
     - panic_log.c
     - sntp/sntp.c
     - commands.c
+    - board/board.c
+
+include_directories:
+    - board/
 
 source:
     - timestamp.c
