@@ -1,5 +1,10 @@
 depends:
     - crc
+    - serial-datagram:
+        fork: Stapelzeiger
+    - serial-can-bridge:
+        fork: nuft
+
 
 target.arm:
     - src/main.c

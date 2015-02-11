@@ -1,5 +1,8 @@
 #include <lwip/api.h>
 #include <string.h>
+#include <serial-can-bridge/can_frame_cmp.h>
+#include <serial-datagram/serial_datagram.h>
+#include <serial-can-bridge/serial_can_bridge.h>
 
 #define CAN_BRIDGE_STACKSIZE 2048
 THD_WORKING_AREA(wa_can_bridge, CAN_BRIDGE_STACKSIZE);
@@ -11,16 +14,28 @@ THD_WORKING_AREA(wa_can_bridge, CAN_BRIDGE_STACKSIZE);
 msg_t can_bridge_thread(void *p);
 msg_t can_bridge_rx_thread(void *p);
 msg_t can_bridge_tx_thread(void *p);
+bool can_interface_receive(struct can_bridge_frame *frame);
 
 struct can_bridge_instance_t {
     struct netconn *conn;
     binary_semaphore_t tx_finished;
 };
 
-const char *data = "Hello, world\n";
+static const CANConfig can1_config = {
+    .mcr = (1 << 6)  /* Automatic bus-off management enabled. */
+         | (1 << 2), /* Message are prioritized by order of arrival. */
+
+    /* APB Clock is 42 Mhz, bitrate 1Mhz */
+    .btr = (1 << 0)  /* Baudrate prescaler (10 bits) */
+         | (11 << 16)/* Time segment 1 (3 bits) */
+         | (7 << 20) /* Time segment 2 (3 bits) */
+         | (0 << 24) /* Resync jump width (2 bits) */
+         | (1 << 30) /* Loopback mode enabled */
+};
 
 void can_bridge_init(void)
 {
+    canStart(&CAND1, &can1_config);
     chThdCreateStatic(wa_can_bridge,
                       CAN_BRIDGE_STACKSIZE,
                       CAN_BRIDGE_PRIO,
@@ -81,7 +96,15 @@ msg_t can_bridge_tx_thread(void *p)
     u16_t len;
     err_t err;
 
-    int i;
+    serial_datagram_rcv_handler_t rcv;
+
+    static char datagram_buf[32];
+
+    serial_datagram_rcv_handler_init(
+        &rcv,
+        datagram_buf,
+        sizeof(datagram_buf),
+        can_bridge_datagram_rcv_cb);
 
     while (1) {
         /* Tries to receive something from the connection. */
@@ -94,17 +117,7 @@ msg_t can_bridge_tx_thread(void *p)
 
         do {
             netbuf_data(buf, (void **)&data, &len);
-            for (i = 0; i < len; i ++) {
-                /* TODO: Send data on CAN  */
-                /* For now simple processing. */
-
-                if (data[i] == '1') {
-                    palClearPad(GPIOC, GPIOC_LED);
-                } else if (data[i] == '0') {
-                    palSetPad(GPIOC, GPIOC_LED);
-                }
-
-            }
+            err = serial_datagram_receive(&rcv, data, len);
         } while (netbuf_next(buf) >= 0);
         netbuf_delete(buf);
     }
@@ -114,16 +127,35 @@ msg_t can_bridge_tx_thread(void *p)
     return MSG_OK;
 }
 
+void serial_write(void *arg, const void *p, size_t len)
+{
+    struct can_bridge_instance_t *instance = (struct can_bridge_instance_t *)arg;
+    if (len != 0) {
+        netconn_write(instance->conn, p, len, NETCONN_COPY);
+    }
+}
+
 msg_t can_bridge_rx_thread(void *p)
 {
     chRegSetThreadName("can_bridge_rx");
     struct can_bridge_instance_t *instance = (struct can_bridge_instance_t *)p;
 
-    /* Do something with the conn */
-    netconn_write(instance->conn, data, strlen(data), NETCONN_NOCOPY);
+    struct can_bridge_frame frame;
 
-    /* Do not delete connection before tx thread is finished too. */
-    chBSemWait(&instance->tx_finished);
+    static uint8_t outbuf[32];
+    size_t outlen;
+
+    /* Wait as long as the thread is not finished (semaphore not taken) */
+    while (chBSemWaitTimeout(&instance->tx_finished, TIME_IMMEDIATE) == MSG_TIMEOUT) {
+        if (!can_interface_receive(&frame)) {
+            continue;
+        }
+
+        outlen = sizeof(outbuf);
+        if (can_bridge_frame_write(&frame, outbuf, &outlen)) {
+            serial_datagram_send(outbuf, outlen, serial_write, instance);
+        }
+    }
 
     netconn_close(instance->conn);
     netconn_delete(instance->conn);
@@ -132,3 +164,60 @@ msg_t can_bridge_rx_thread(void *p)
     return MSG_OK;
 }
 
+void can_interface_send(bool ext, bool rtr, uint32_t id, void *data, uint8_t len)
+{
+    canmbx_t mailbox = 0;
+    systime_t timeout = TIME_INFINITE;
+
+    CANTxFrame ctf;
+
+    ctf.DLC = len;
+
+    if (rtr) {
+        ctf.RTR = 1;
+    } else {
+        ctf.RTR = 0;
+    }
+
+    if (ext) {
+        ctf.IDE = 1;
+        ctf.EID = id;
+    } else {
+        ctf.IDE = 0;
+        ctf.SID = id;
+    }
+
+    memcpy(ctf.data8, data, len);
+
+    canTransmit(&CAND1, mailbox, &ctf, timeout);
+}
+
+bool can_interface_receive(struct can_bridge_frame *frame)
+{
+    CANRxFrame crf;
+    canmbx_t mailbox = 0;
+    systime_t timeout = 1;
+
+    msg_t retval;
+
+    retval = canReceive(&CAND1, mailbox, &crf, timeout);
+
+    if (retval != MSG_OK) {
+        return false;
+    }
+
+    frame->rtr = crf.RTR;
+    frame->ext = crf.IDE;
+    frame->dlc = crf.DLC;
+
+    if (crf.IDE == 1) {
+        frame->id.ext = crf.EID;
+    } else {
+        frame->id.std = crf.SID;
+    }
+
+    frame->data.u32[0] = crf.data32[0];
+    frame->data.u32[1] = crf.data32[1];
+
+    return true;
+}
