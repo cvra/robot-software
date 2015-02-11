@@ -15,7 +15,6 @@ msg_t can_bridge_tx_thread(void *p);
 struct can_bridge_instance_t {
     struct netconn *conn;
     binary_semaphore_t tx_finished;
-    mutex_t lock;
 };
 
 const char *data = "Hello, world\n";
@@ -56,8 +55,6 @@ msg_t can_bridge_thread(void *p)
         instance->conn = client_conn;
 
         chBSemObjectInit(&instance->tx_finished, true);
-        chMtxObjectInit(&instance->lock);
-
 
         chThdCreateFromHeap(NULL, /* Use system heap */
                             CAN_BRIDGE_RX_STACKSIZE,
@@ -92,9 +89,7 @@ msg_t can_bridge_rx_thread(void *p)
     struct can_bridge_instance_t *instance = (struct can_bridge_instance_t *)p;
 
     /* Do something with the conn */
-    chMtxLock(&instance->lock);
     netconn_write(instance->conn, data, strlen(data), NETCONN_NOCOPY);
-    chMtxUnlock(&instance->lock);
 
     /* Do not delete connection before tx thread is finished too. */
     chBSemWait(&instance->tx_finished);
