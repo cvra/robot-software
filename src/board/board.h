@@ -109,8 +109,8 @@
 #define GPIOC_OSC32_IN              14
 #define GPIOC_OSC32_OUT             15
 
-#define GPIOD_PIN0                  0
-#define GPIOD_PIN1                  1
+#define GPIOD_CAN1_RX               0
+#define GPIOD_CAN1_TX               1
 #define GPIOD_SD_CMD                2
 #define GPIOD_PIN3                  3
 #define GPIOD_PIN4                  4
@@ -587,8 +587,8 @@
 /*
  * GPIOD setup:
  *
- * PD0  - PIN0                      (input pullup).
- * PD1  - PIN1                      (input pullup).
+ * PD0  - CAN1RX                    (alternate 9).
+ * PD1  - CAN1TX                    (alternate 9).
  * PD2  - SD_CMD                    (alternate 12).
  * PD3  - PIN3                      (input pullup).
  * PD4  - PIN4                      (input pullup).
@@ -604,8 +604,8 @@
  * PD14 - PIN14                     (input pullup).
  * PD15 - PIN15                     (input pullup).
  */
-#define VAL_GPIOD_MODER             (PIN_MODE_INPUT(GPIOD_PIN0) |           \
-                                     PIN_MODE_INPUT(GPIOD_PIN1) |           \
+#define VAL_GPIOD_MODER             (PIN_MODE_ALTERNATE(GPIOD_CAN1_RX) |           \
+                                     PIN_MODE_ALTERNATE(GPIOD_CAN1_TX) |           \
                                      PIN_MODE_ALTERNATE(GPIOD_SD_CMD) |     \
                                      PIN_MODE_INPUT(GPIOD_PIN3) |           \
                                      PIN_MODE_INPUT(GPIOD_PIN4) |           \
@@ -620,8 +620,8 @@
                                      PIN_MODE_INPUT(GPIOD_PIN13) |          \
                                      PIN_MODE_INPUT(GPIOD_PIN14) |          \
                                      PIN_MODE_INPUT(GPIOD_PIN15))
-#define VAL_GPIOD_OTYPER            (PIN_OTYPE_PUSHPULL(GPIOD_PIN0) |       \
-                                     PIN_OTYPE_PUSHPULL(GPIOD_PIN1) |       \
+#define VAL_GPIOD_OTYPER            (PIN_OTYPE_PUSHPULL(GPIOD_CAN1_RX) |       \
+                                     PIN_OTYPE_PUSHPULL(GPIOD_CAN1_TX) |       \
                                      PIN_OTYPE_PUSHPULL(GPIOD_SD_CMD) |     \
                                      PIN_OTYPE_PUSHPULL(GPIOD_PIN3) |       \
                                      PIN_OTYPE_PUSHPULL(GPIOD_PIN4) |       \
@@ -636,8 +636,8 @@
                                      PIN_OTYPE_PUSHPULL(GPIOD_PIN13) |      \
                                      PIN_OTYPE_PUSHPULL(GPIOD_PIN14) |      \
                                      PIN_OTYPE_PUSHPULL(GPIOD_PIN15))
-#define VAL_GPIOD_OSPEEDR           (PIN_OSPEED_100M(GPIOD_PIN0) |          \
-                                     PIN_OSPEED_100M(GPIOD_PIN1) |          \
+#define VAL_GPIOD_OSPEEDR           (PIN_OSPEED_100M(GPIOD_CAN1_RX) |          \
+                                     PIN_OSPEED_100M(GPIOD_CAN1_TX) |          \
                                      PIN_OSPEED_100M(GPIOD_SD_CMD) |        \
                                      PIN_OSPEED_100M(GPIOD_PIN3) |          \
                                      PIN_OSPEED_100M(GPIOD_PIN4) |          \
@@ -652,8 +652,8 @@
                                      PIN_OSPEED_100M(GPIOD_PIN13) |         \
                                      PIN_OSPEED_100M(GPIOD_PIN14) |         \
                                      PIN_OSPEED_100M(GPIOD_PIN15))
-#define VAL_GPIOD_PUPDR             (PIN_PUPDR_PULLUP(GPIOD_PIN0) |         \
-                                     PIN_PUPDR_PULLUP(GPIOD_PIN1) |         \
+#define VAL_GPIOD_PUPDR             (PIN_PUPDR_FLOATING(GPIOD_CAN1_RX) |         \
+                                     PIN_PUPDR_PULLUP(GPIOD_CAN1_TX) |         \
                                      PIN_PUPDR_FLOATING(GPIOD_SD_CMD) |     \
                                      PIN_PUPDR_PULLUP(GPIOD_PIN3) |         \
                                      PIN_PUPDR_PULLUP(GPIOD_PIN4) |         \
@@ -668,8 +668,8 @@
                                      PIN_PUPDR_PULLUP(GPIOD_PIN13) |        \
                                      PIN_PUPDR_PULLUP(GPIOD_PIN14) |        \
                                      PIN_PUPDR_PULLUP(GPIOD_PIN15))
-#define VAL_GPIOD_ODR               (PIN_ODR_HIGH(GPIOD_PIN0) |             \
-                                     PIN_ODR_HIGH(GPIOD_PIN1) |             \
+#define VAL_GPIOD_ODR               (PIN_ODR_HIGH(GPIOD_CAN1_RX) |             \
+                                     PIN_ODR_HIGH(GPIOD_CAN1_TX) |             \
                                      PIN_ODR_HIGH(GPIOD_SD_CMD) |           \
                                      PIN_ODR_HIGH(GPIOD_PIN3) |             \
                                      PIN_ODR_HIGH(GPIOD_PIN4) |             \
@@ -684,8 +684,8 @@
                                      PIN_ODR_HIGH(GPIOD_PIN13) |            \
                                      PIN_ODR_HIGH(GPIOD_PIN14) |            \
                                      PIN_ODR_HIGH(GPIOD_PIN15))
-#define VAL_GPIOD_AFRL              (PIN_AFIO_AF(GPIOD_PIN0, 0) |           \
-                                     PIN_AFIO_AF(GPIOD_PIN1, 0) |           \
+#define VAL_GPIOD_AFRL              (PIN_AFIO_AF(GPIOD_CAN1_RX, 9) |           \
+                                     PIN_AFIO_AF(GPIOD_CAN1_TX, 9) |           \
                                      PIN_AFIO_AF(GPIOD_SD_CMD, 12) |        \
                                      PIN_AFIO_AF(GPIOD_PIN3, 0) |           \
                                      PIN_AFIO_AF(GPIOD_PIN4, 0) |           \
