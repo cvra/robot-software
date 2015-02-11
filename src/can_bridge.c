@@ -96,6 +96,7 @@ msg_t can_bridge_rx_thread(void *p)
 
     netconn_close(instance->conn);
     netconn_delete(instance->conn);
+    free(instance);
 
     return MSG_OK;
 }
