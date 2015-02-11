@@ -61,43 +61,44 @@ void blocking_uart_init(BlockingUARTDriver *driver, USART_TypeDef *uart, uint32_
     driver->dev = uart;
     driver->vmt = &blocking_uart_put_vmt;
 
+    uint32_t clock = STM32_PCLK1;
+
+    chSysLock();
+
 #if defined(USART1)
     if (uart == USART1) {
         rccEnableUSART1(FALSE); // FALSE = disable low power flag
+        clock = STM32_PCLK2;
     }
-#elif defined(USART2)
+#endif
+#if defined(USART2)
     if (uart == USART2) {
         rccEnableUSART2(FALSE);
     }
-#elif defined(USART3)
+#endif
+#if defined(USART3)
     if (uart == USART3) {
         rccEnableUSART3(FALSE);
     }
-#elif defined(USART4)
+#endif
+#if defined(USART4)
     if (uart == USART4) {
         rccEnableUSART4(FALSE);
     }
-#elif defined(USART5)
+#endif
+#if defined(USART5)
     if (uart == USART5) {
         rccEnableUSART5(FALSE);
     }
-#elif defined(USART6)
+#endif
+#if defined(USART6)
     if (uart == USART6) {
+        clock = STM32_PCLK2;
         rccEnableUSART6(FALSE);
     }
 #endif
 
-    // baud rate
-    uint32_t clock = STM32_PCLK1;
-#if defined(USART1)
-    if (uart == USART1) {
-        clock = STM32_PCLK2;
-    }
-#elif defined(USART6)
-    if (uart == USART6) {
-        clock = STM32_PCLK2;
-    }
-#endif
+    // baud rate, (with rounding)
     uart->BRR = ((2 * clock) + baud) / (2 * baud);
 
     // 1 stop bit
@@ -107,5 +108,10 @@ void blocking_uart_init(BlockingUARTDriver *driver, USART_TypeDef *uart, uint32_
     uart->CR3 = 0;
 
     // tx/rx, 8bits, no parity & enable uart
-    uart->CR1 |= USART_CR1_UE | USART_CR1_RE | USART_CR1_TE;
+    uart->CR1 = USART_CR1_UE | USART_CR1_RE | USART_CR1_TE;
+
+    // clear all flags
+    uart->ICR = 0xFFFFFFFF;
+
+    chSysUnlock();
 }
