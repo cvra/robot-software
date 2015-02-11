@@ -4,8 +4,19 @@
 #define CAN_BRIDGE_STACKSIZE 2048
 THD_WORKING_AREA(wa_can_bridge, CAN_BRIDGE_STACKSIZE);
 
+/** Thread running the CAN bridge. */
+msg_t can_bridge_thread(void *p);
+
 const char *data = "Hello, world\n";
 
+void can_bridge_init(void)
+{
+    chThdCreateStatic(wa_can_bridge,
+                      CAN_BRIDGE_STACKSIZE,
+                      CAN_BRIDGE_PRIO,
+                      can_bridge_thread,
+                      NULL);
+}
 
 msg_t can_bridge_thread(void *p)
 {
@@ -36,11 +47,3 @@ msg_t can_bridge_thread(void *p)
     return MSG_OK;
 }
 
-void can_bridge_init(void)
-{
-    chThdCreateStatic(wa_can_bridge,
-                      CAN_BRIDGE_STACKSIZE,
-                      CAN_BRIDGE_PRIO,
-                      can_bridge_thread,
-                      NULL);
-}
