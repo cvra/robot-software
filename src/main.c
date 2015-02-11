@@ -194,7 +194,13 @@ static THD_FUNCTION(adc_task, arg)
 void panic_hook(const char* reason)
 {
     palClearPad(GPIOA, GPIOA_LED);      // turn on LED (active low)
-    chprintf(stderr, "%s\n", reason);
+    int i;
+    while(42){
+        for(i = 10000000; i>0; i--){
+            __asm__ volatile ("nop");
+        }
+        chprintf(stderr, "%s\n", reason);
+    }
 }
 
 
