@@ -65,7 +65,7 @@ msg_t can_bridge_thread(void *p)
         chThdCreateFromHeap(NULL, /* Use system heap */
                             CAN_BRIDGE_TX_STACKSIZE,
                             CAN_BRIDGE_PRIO,
-                            can_bridge_rx_thread,
+                            can_bridge_tx_thread,
                             (void *)instance);
     }
     return MSG_OK;
