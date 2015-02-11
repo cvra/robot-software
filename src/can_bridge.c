@@ -76,7 +76,38 @@ msg_t can_bridge_tx_thread(void *p)
     chRegSetThreadName("can_bridge_tx");
     struct can_bridge_instance_t *instance = (struct can_bridge_instance_t *)p;
 
-    /* XXX Do something */
+    struct netbuf *buf;
+    char *data;
+    u16_t len;
+    err_t err;
+
+    int i;
+
+    while (1) {
+        /* Tries to receive something from the connection. */
+        err = netconn_recv(instance->conn, &buf);
+
+        /* If connection closed, exit the thread. */
+        if (err != ERR_OK) {
+            break;
+        }
+
+        do {
+            netbuf_data(buf, (void **)&data, &len);
+            for (i = 0; i < len; i ++) {
+                /* TODO: Send data on CAN  */
+                /* For now simple processing. */
+
+                if (data[i] == '1') {
+                    palClearPad(GPIOC, GPIOC_LED);
+                } else if (data[i] == '0') {
+                    palSetPad(GPIOC, GPIOC_LED);
+                }
+
+            }
+        } while (netbuf_next(buf) >= 0);
+        netbuf_delete(buf);
+    }
 
     chBSemSignal(&instance->tx_finished);
 
