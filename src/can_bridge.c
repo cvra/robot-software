@@ -30,7 +30,10 @@ static const CANConfig can1_config = {
          | (11 << 16)/* Time segment 1 (3 bits) */
          | (7 << 20) /* Time segment 2 (3 bits) */
          | (0 << 24) /* Resync jump width (2 bits) */
+
+#if 1
          | (1 << 30) /* Loopback mode enabled */
+#endif
 };
 
 void can_bridge_init(void)

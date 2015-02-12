@@ -653,7 +653,7 @@
                                      PIN_OSPEED_100M(GPIOD_PIN14) |         \
                                      PIN_OSPEED_100M(GPIOD_PIN15))
 #define VAL_GPIOD_PUPDR             (PIN_PUPDR_FLOATING(GPIOD_CAN1_RX) |         \
-                                     PIN_PUPDR_PULLUP(GPIOD_CAN1_TX) |         \
+                                     PIN_PUPDR_FLOATING(GPIOD_CAN1_TX) |         \
                                      PIN_PUPDR_FLOATING(GPIOD_SD_CMD) |     \
                                      PIN_PUPDR_PULLUP(GPIOD_PIN3) |         \
                                      PIN_PUPDR_PULLUP(GPIOD_PIN4) |         \
