@@ -45,7 +45,11 @@ void pwm_counter_reset(PWMDriver *pwmd)
     }
 
     if (recharge_countdown == 0) {
+#ifdef WHITENOISE_RECHARGE
         recharge_countdown = RECHARGE_COUNTDOWN_RELOAD - rand() % (RECHARGE_COUNTDOWN_RELOAD/2);
+#else
+        recharge_countdown = RECHARGE_COUNTDOWN_RELOAD;
+#endif
         pwmd->tim->CCR[PWM_DIRECTION_CHANNEL] = DIRECTION_DC_RECHARGE;
         if (power_pwm < POWR_DC_RECHARGE_CORRECTION) {
             pwmd->tim->CCR[PWM_POWER_CHANNEL] = 0;
