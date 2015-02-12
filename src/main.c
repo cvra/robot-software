@@ -6,6 +6,7 @@
 
 BlockingUARTDriver blocking_uart_stream;
 BaseSequentialStream* stderr = (BaseSequentialStream*)&blocking_uart_stream;
+BaseSequentialStream* stdout;
 
 
 #define ADC_MAX         4096
@@ -93,6 +94,7 @@ static THD_FUNCTION(adc_task, arg)
         }
         mean_current /= 1000;
 
+        chprintf(stdout, "%f A\n", mean_current);
         chThdSleepMilliseconds(100);
     }
     return 0;
@@ -101,6 +103,7 @@ static THD_FUNCTION(adc_task, arg)
 void panic_hook(const char* reason)
 {
     palClearPad(GPIOA, GPIOA_LED);      // turn on LED (active low)
+    blocking_uart_init(&blocking_uart_stream, USART3, 115200);
     int i;
     while(42){
         for(i = 10000000; i>0; i--){
@@ -115,6 +118,10 @@ int main(void) {
     halInit();
     chSysInit();
 
+
+    sdStart(&SD3, NULL);
+    stdout = (BaseSequentialStream*)&SD3;
+
     motor_pwm_setup();
 
     motor_pwm_set(0.0);
@@ -124,9 +131,7 @@ int main(void) {
 
     adcStart(&ADCD1, NULL);
 
-    blocking_uart_init(&blocking_uart_stream, USART3, 115200);
-
-    chprintf(stderr, "boot\n");
+    chprintf(stdout, "boot\n");
 
     chThdCreateStatic(adc_task_wa, sizeof(adc_task_wa), LOWPRIO, adc_task, NULL);
     chThdCreateStatic(quad_task_wa, sizeof(quad_task_wa), LOWPRIO, quad_task, NULL);
