@@ -2,6 +2,7 @@
 #include <hal.h>
 #include <chprintf.h>
 #include <blocking_uart_driver.h>
+#include <stdlib.h>
 
 BlockingUARTDriver blocking_uart_stream;
 BaseSequentialStream* stderr = (BaseSequentialStream*)&blocking_uart_stream;
@@ -52,7 +53,7 @@ void pwm_counter_reset(PWMDriver *pwmd)
     }
 
     if (recharge_countdown == 0) {
-        recharge_countdown = RECHARGE_COUNTDOWN_RELOAD;
+        recharge_countdown = RECHARGE_COUNTDOWN_RELOAD - rand() % (RECHARGE_COUNTDOWN_RELOAD/2);
         pwmd->tim->CCR[PWM_DIRECTION_CHANNEL] = DIRECTION_DC_RECHARGE;
         if (power_pwm < POWR_DC_RECHARGE_CORRECTION) {
             pwmd->tim->CCR[PWM_POWER_CHANNEL] = 0;
