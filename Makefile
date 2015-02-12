@@ -88,11 +88,13 @@ include $(CHIBIOS)/os/rt/rt.mk
 include $(CHIBIOS)/os/rt/ports/ARMCMx/compilers/GCC/mk/port_stm32f3xx.mk
 include $(CHIBIOS)/test/rt/test.mk
 
+# must be defined before board.mk include
+# USE_BOOTLOADER = yes
 include board/board.mk
 include src/src.mk
 
 # Define linker script file here
-LDSCRIPT = board/board.ld
+LDSCRIPT = $(BOARDLDSCRIPT)
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -164,7 +166,7 @@ AR   = $(TRGT)ar
 OD   = $(TRGT)objdump
 SZ   = $(TRGT)size
 HEX  = $(CP) -O ihex
-BIN  = $(CP) -O binary
+BIN  = $(CP) -O binary -j startup -j constructors -j destructors -j .text -j .ARM.extab -j .ARM.exidx -j .eh_frame_hdr -j .eh_frame -j .textalign -j .data
 
 # ARM-specific options here
 AOPT =
@@ -187,7 +189,7 @@ CPPWARN = -Wall -Wextra
 #
 
 # List all user C define here, like -D_DEBUG=1
-UDEFS =
+UDEFS = $(BOARDDEFS)
 
 # Define ASM defines here
 UADEFS =
