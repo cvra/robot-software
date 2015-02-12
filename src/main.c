@@ -123,11 +123,8 @@ int main(void) {
     stdout = (BaseSequentialStream*)&SD3;
 
     motor_pwm_setup();
-
+    motor_pwm_enable();
     motor_pwm_set(0.0);
-
-    palSetPad(GPIOA, GPIOA_MOTOR_EN_A);
-    palSetPad(GPIOA, GPIOA_MOTOR_EN_B);
 
     adcStart(&ADCD1, NULL);
 

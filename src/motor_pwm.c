@@ -96,3 +96,16 @@ void motor_pwm_set(float dc)
         power_pwm = dc * PWM_PERIOD;
     }
 }
+
+void motor_pwm_enable(void)
+{
+    palSetPad(GPIOA, GPIOA_MOTOR_EN_A);
+    palSetPad(GPIOA, GPIOA_MOTOR_EN_B);
+}
+
+void motor_pwm_disable(void)
+{
+    motor_pwm_set(0);
+    palClearPad(GPIOA, GPIOA_MOTOR_EN_A);
+    palClearPad(GPIOA, GPIOA_MOTOR_EN_B);
+}
