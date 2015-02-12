@@ -16,7 +16,7 @@ static THD_FUNCTION(stream_task, arg)
     (void)arg;
     chRegSetThreadName("print data");
     while(42){
-        chprintf(stdout, "%2.3f V_bat\n", control_get_battery_voltage());
+        chprintf(stdout, "%2.3f A    %2.3f V\n", control_get_motor_current(), control_get_motor_voltage());
         chThdSleepMilliseconds(300);
     }
     return 0;
@@ -111,10 +111,8 @@ int main(void) {
 
     while (1) {
         palSetPad(GPIOA, GPIOA_LED);
-        motor_pwm_set(-0.2);
         chThdSleepMilliseconds(1000);
         palClearPad(GPIOA, GPIOA_LED);
-        motor_pwm_set(0.2);
         chThdSleepMilliseconds(1000);
     }
 }

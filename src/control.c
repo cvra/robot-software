@@ -2,6 +2,7 @@
 #include "control.h"
 #include <ch.h>
 #include <hal.h>
+#include <pid/pid.h>
 
 #define LOW_BATT_TH 9.0f // [V]
 
@@ -11,9 +12,11 @@
 
 static float motor_current;
 static float u_batt;
+static float motor_voltage;
 
 static void motor_set_voltage(float u)
 {
+    motor_voltage = u;
     if (u_batt > LOW_BATT_TH) {
         motor_pwm_enable();
         motor_pwm_set(u / u_batt);
@@ -30,6 +33,11 @@ float control_get_battery_voltage(void)
 float control_get_motor_current(void)
 {
     return motor_current;
+}
+
+float control_get_motor_voltage(void)
+{
+    return motor_voltage;
 }
 
 static THD_FUNCTION(adc_task, arg)
@@ -55,16 +63,41 @@ static THD_FUNCTION(adc_task, arg)
 
     while (1) {
         adcConvert(&ADCD1, &adcgrpcfg1, adc_samples, 1);
-        motor_current = (adc_samples[1] - ADC_MAX / 2) * ADC_TO_AMPS;
+        motor_current = motor_current * 0.99
+            + (- (adc_samples[1] - ADC_MAX / 2) * ADC_TO_AMPS) * 0.01;
         u_batt = adc_samples[3] * ADC_TO_VOLTS;
     }
+    return 0;
+}
+
+static THD_FUNCTION(control_loop, arg)
+{
+    (void)arg;
+    chRegSetThreadName("Control Loop");
+
+    static pid_filter_t current_pid;
+    pid_init(&current_pid);
+    pid_set_gains(&current_pid, 20.f, 15.f, 0.0f);
+    pid_set_frequency(&current_pid, 1000.f);
+
+    while (42) {
+        float current_setpt = -0.150;     // Amps
+        if (u_batt < LOW_BATT_TH) {
+            pid_reset_integral(&current_pid);
+        }
+        motor_set_voltage(pid_process(&current_pid, current_setpt - motor_current));
+        chThdSleepMicroseconds(1000000.f / pid_get_frequency(&current_pid));
+    }
+
     return 0;
 }
 
 void control_start(void)
 {
     static THD_WORKING_AREA(adc_task_wa, 256);
+    static THD_WORKING_AREA(control_loop_wa, 256);
 
     chThdCreateStatic(adc_task_wa, sizeof(adc_task_wa), LOWPRIO, adc_task, NULL);
+    chThdCreateStatic(control_loop_wa, sizeof(control_loop_wa), LOWPRIO, control_loop, NULL);
 }
 
