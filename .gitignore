@@ -1,4 +1,7 @@
 build/*
 .dep/*
+CMakeLists.txt
+src/src.mk
+.tags*
 
 *sw[po]

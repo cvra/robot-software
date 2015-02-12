@@ -106,7 +106,7 @@ CSRC = $(PORTSRC) \
        $(CHIBIOS)/os/various/memstreams.c \
        $(CHIBIOS)/os/various/shell.c \
        $(BOARDSRC) \
-       $(PROJSRC)
+       $(PROJCSRC)
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -208,3 +208,21 @@ ULIBS =
 RULESPATH = $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC
 include $(RULESPATH)/rules.mk
 -include tools.mk
+
+.PHONY: packager
+packager:
+	python packager/packager.py
+
+CMakeLists.txt: package.yml
+	python packager/packager.py
+
+src/src.mk: package.yml
+	python packager/packager.py
+
+.PHONY: tests
+tests: CMakeLists.txt
+	@mkdir -p build/tests
+	@cd build/tests; \
+	cmake ../..; \
+	make ; \
+	./tests;

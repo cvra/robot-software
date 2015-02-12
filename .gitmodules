@@ -1,3 +1,12 @@
 [submodule "ChibiOS"]
 	path = ChibiOS
 	url = https://github.com/ChibiOS/ChibiOS.git
+[submodule "packager"]
+	path = packager
+	url = https://github.com/cvra/packager.git
+[submodule "src/test-runner"]
+	path = src/test-runner
+	url = https://github.com/cvra/test-runner
+[submodule "src/pid"]
+	path = src/pid
+	url = https://github.com/cvra/pid

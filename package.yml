@@ -1,0 +1,15 @@
+dependency-dir: ./src/
+
+target.arm:
+    - src/main.c
+    - src/blocking_uart_driver.c
+    - src/control.c
+    - src/motor_pwm.c
+
+depends:
+    - pid
+
+#tests:
+
+templates:
+    Makefile.include.jinja: src/src.mk
