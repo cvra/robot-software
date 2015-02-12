@@ -3,15 +3,24 @@
 #include <chprintf.h>
 #include <blocking_uart_driver.h>
 #include "motor_pwm.h"
+#include "control.h"
 
 BlockingUARTDriver blocking_uart_stream;
 BaseSequentialStream* stderr = (BaseSequentialStream*)&blocking_uart_stream;
 BaseSequentialStream* stdout;
 
 
-#define ADC_MAX         4096
-#define ADC_TO_AMPS     0.001611328125f
-#define ADC_TO_VOLTS    0.005283043033f
+static THD_WORKING_AREA(stream_task_wa, 256);
+static THD_FUNCTION(stream_task, arg)
+{
+    (void)arg;
+    chRegSetThreadName("print data");
+    while(42){
+        chprintf(stdout, "%2.3f V_bat\n", control_get_battery_voltage());
+        chThdSleepMilliseconds(300);
+    }
+    return 0;
+}
 
 static THD_WORKING_AREA(quad_task_wa, 128);
 static THD_FUNCTION(quad_task, arg)
@@ -65,40 +74,6 @@ static THD_FUNCTION(ext_quad_task, arg)
 }
 
 
-static THD_WORKING_AREA(adc_task_wa, 256);
-static THD_FUNCTION(adc_task, arg)
-{
-    (void)arg;
-    chRegSetThreadName("adc read");
-    static adcsample_t adc_samples[4];
-    static const ADCConversionGroup adcgrpcfg1 = {
-        FALSE,                  // circular?
-        4,                      // nb channels
-        NULL,                   // callback fn
-        NULL,                   // error callback fn
-        0,                      // CFGR
-        0,                      // TR1
-        6,                      // CCR : DUAL=regualar,simultaneous
-        {ADC_SMPR1_SMP_AN1(0), 0},                          // SMPRx : sample time minimum
-        {ADC_SQR1_NUM_CH(2) | ADC_SQR1_SQ1_N(1) | ADC_SQR1_SQ2_N(1), 0, 0, 0}, // SQRx : ADC1_CH1 2x
-        {ADC_SMPR1_SMP_AN2(0) | ADC_SMPR1_SMP_AN3(0), 0},   // SSMPRx : sample time minimum
-        {ADC_SQR1_NUM_CH(2) | ADC_SQR1_SQ1_N(2) | ADC_SQR1_SQ2_N(3), 0, 0, 0}, // SSQRx : ADC2_CH2, ADC2_CH3
-    };
-
-    while (1) {
-        int i;
-        float mean_current = 0.0f;
-        for(i = 0; i < 1000; i++){
-            adcConvert(&ADCD1, &adcgrpcfg1, adc_samples, 1);
-            mean_current += (adc_samples[1]-ADC_MAX/2)*ADC_TO_AMPS;
-        }
-        mean_current /= 1000;
-
-        chprintf(stdout, "%f A\n", mean_current);
-        chThdSleepMilliseconds(100);
-    }
-    return 0;
-}
 
 void panic_hook(const char* reason)
 {
@@ -126,11 +101,11 @@ int main(void) {
     motor_pwm_enable();
     motor_pwm_set(0.0);
 
-    adcStart(&ADCD1, NULL);
+    control_start();
 
     chprintf(stdout, "boot\n");
 
-    chThdCreateStatic(adc_task_wa, sizeof(adc_task_wa), LOWPRIO, adc_task, NULL);
+    chThdCreateStatic(stream_task_wa, sizeof(stream_task_wa), LOWPRIO, stream_task, NULL);
     chThdCreateStatic(quad_task_wa, sizeof(quad_task_wa), LOWPRIO, quad_task, NULL);
     chThdCreateStatic(ext_quad_task_wa, sizeof(ext_quad_task_wa), LOWPRIO, ext_quad_task, NULL);
 
