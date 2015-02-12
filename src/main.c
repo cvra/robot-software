@@ -1,8 +1,13 @@
 #include <ch.h>
 #include <hal.h>
 #include <chprintf.h>
+#include <blocking_uart_driver.h>
+#include <stdlib.h>
 
+BlockingUARTDriver blocking_uart_stream;
+BaseSequentialStream* stderr = (BaseSequentialStream*)&blocking_uart_stream;
 BaseSequentialStream* stdout;
+
 
 #define PWM_PERIOD                  2880
 #define PWM_DIRECTION_CHANNEL       0
@@ -49,7 +54,7 @@ void pwm_counter_reset(PWMDriver *pwmd)
     }
 
     if (recharge_countdown == 0) {
-        recharge_countdown = RECHARGE_COUNTDOWN_RELOAD;
+        recharge_countdown = RECHARGE_COUNTDOWN_RELOAD - rand() % (RECHARGE_COUNTDOWN_RELOAD/2);
         pwmd->tim->CCR[PWM_DIRECTION_CHANNEL] = DIRECTION_DC_RECHARGE;
         if (power_pwm < POWR_DC_RECHARGE_CORRECTION) {
             pwmd->tim->CCR[PWM_POWER_CHANNEL] = 0;
@@ -121,7 +126,6 @@ static THD_FUNCTION(quad_task, arg)
     STM32_TIM4->CR1    = 1;                         // start
 
     while(42){
-        //chprintf(stdout, "ENC1: %d\n", STM32_TIM4->CNT);
         chThdSleepMilliseconds(100);
     }
     return 0;
@@ -149,7 +153,6 @@ static THD_FUNCTION(ext_quad_task, arg)
     STM32_TIM3->CR1    = 1;                         // start
 
     while(42){
-        chprintf(stdout, "ENC2: %d\n", STM32_TIM3->CNT);
         chThdSleepMilliseconds(100);
     }
     return 0;
@@ -177,7 +180,6 @@ static THD_FUNCTION(adc_task, arg)
     };
 
     while (1) {
-        //chprintf(stdout, "%d %d %d %d\n", adc_samples[0], adc_samples[1], adc_samples[2], adc_samples[3]);
         int i;
         float mean_current = 0.0f;
         for(i = 0; i < 1000; i++){
@@ -186,7 +188,7 @@ static THD_FUNCTION(adc_task, arg)
         }
         mean_current /= 1000;
 
-        //chprintf(stdout, "%f A, %f V\n", mean_current, adc_samples[3]*ADC_TO_VOLTS);
+        chprintf(stdout, "%f A\n", mean_current);
         chThdSleepMilliseconds(100);
     }
     return 0;
@@ -195,12 +197,23 @@ static THD_FUNCTION(adc_task, arg)
 void panic_hook(const char* reason)
 {
     palClearPad(GPIOA, GPIOA_LED);      // turn on LED (active low)
+    blocking_uart_init(&blocking_uart_stream, USART3, 115200);
+    int i;
+    while(42){
+        for(i = 10000000; i>0; i--){
+            __asm__ volatile ("nop");
+        }
+        chprintf(stderr, "%s\n", reason);
+    }
 }
 
 
 int main(void) {
     halInit();
     chSysInit();
+
+    sdStart(&SD3, NULL);
+    stdout = (BaseSequentialStream*)&SD3;
 
     pwm_setup();
 
@@ -210,9 +223,6 @@ int main(void) {
     palSetPad(GPIOA, GPIOA_MOTOR_EN_B);
 
     adcStart(&ADCD1, NULL);
-
-    sdStart(&SD3, NULL);
-    stdout = (BaseSequentialStream*)&SD3;
 
     chprintf(stdout, "boot\n");
 
