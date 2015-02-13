@@ -5,8 +5,6 @@
 #include "motor_pwm.h"
 #include "control.h"
 
-BlockingUARTDriver blocking_uart_stream;
-BaseSequentialStream* stderr = (BaseSequentialStream*)&blocking_uart_stream;
 BaseSequentialStream* stdout;
 
 
@@ -78,13 +76,15 @@ static THD_FUNCTION(ext_quad_task, arg)
 void panic_hook(const char* reason)
 {
     palClearPad(GPIOA, GPIOA_LED);      // turn on LED (active low)
+    static BlockingUARTDriver blocking_uart_stream;
     blocking_uart_init(&blocking_uart_stream, USART3, 115200);
+    BaseSequentialStream* uart = (BaseSequentialStream*)&blocking_uart_stream;
     int i;
     while(42){
         for(i = 10000000; i>0; i--){
             __asm__ volatile ("nop");
         }
-        chprintf(stderr, "%s\n", reason);
+        chprintf(uart, "Panic: %s\n", reason);
     }
 }
 
