@@ -6,6 +6,7 @@ target.arm:
     - src/control.c
     - src/encoder.c
     - src/motor_pwm.c
+    - src/analog.c
 
 depends:
     - pid

@@ -4,6 +4,7 @@
 #include <blocking_uart_driver.h>
 #include "motor_pwm.h"
 #include "control.h"
+#include "analog.h"
 
 BaseSequentialStream* stdout;
 
@@ -14,7 +15,7 @@ static THD_FUNCTION(stream_task, arg)
     (void)arg;
     chRegSetThreadName("print data");
     while(42){
-        chprintf(stdout, "%2.3f A    %2.3f V\n", control_get_motor_current(), control_get_motor_voltage());
+        chprintf(stdout, "%2.3f A    %2.3f V\n", analog_get_motor_current(), control_get_motor_voltage());
         chThdSleepMilliseconds(300);
     }
     return 0;

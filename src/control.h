@@ -8,8 +8,6 @@ extern "C" {
 
 void control_start(void);
 
-float control_get_battery_voltage(void);
-float control_get_motor_current(void);
 float control_get_motor_voltage(void);
 
 #ifdef __cplusplus
