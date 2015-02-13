@@ -4,7 +4,7 @@ BOARDSRC = board/board.c
 # Required include directories
 BOARDINC = board/
 
-ifeq (USE_BOOTLOADER, yes)
+ifeq ($(USE_BOOTLOADER), yes)
   BOARDDEFS = -DCORTEX_VTOR_INIT=0x08003800
   BOARDLDSCRIPT = board/board_with_bootloader.ld
 else
