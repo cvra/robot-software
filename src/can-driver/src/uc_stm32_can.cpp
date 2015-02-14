@@ -18,17 +18,10 @@
 # error "Unknown OS"
 #endif
 
-#if !UAVCAN_STM32_NUTTX
-# if !(defined(STM32F10X_CL) || defined(STM32F2XX) || defined(STM32F4XX))
-// IRQ numbers
-#  define CAN1_RX0_IRQn USB_LP_CAN1_RX0_IRQn
-#  define CAN1_TX_IRQn USB_HP_CAN1_TX_IRQn
-// IRQ vectors
-#  if !defined(CAN1_RX0_IRQHandler) || !defined(CAN1_TX_IRQHandler)
-#   define CAN1_TX_IRQHandler   USB_HP_CAN1_TX_IRQHandler
-#   define CAN1_RX0_IRQHandler  USB_LP_CAN1_RX0_IRQHandler
-#  endif
-# endif
+// STM32F3 name conflict
+#if defined(STM32F3XX)
+#define RCC_APB1ENR_CAN1EN     RCC_APB1ENR_CANEN
+#define RCC_APB1RSTR_CAN1RST   RCC_APB1RSTR_CANRST
 #endif
 
 #if UAVCAN_STM32_NUTTX
@@ -717,13 +710,13 @@ int CanDriver::init(uavcan::uint32_t bitrate)
 #else
     {
         CriticalSectionLocker lock;
-        nvicEnableVector(CAN1_TX_IRQn,  UAVCAN_STM32_IRQ_PRIORITY_MASK);
-        nvicEnableVector(CAN1_RX0_IRQn, UAVCAN_STM32_IRQ_PRIORITY_MASK);
-        nvicEnableVector(CAN1_RX1_IRQn, UAVCAN_STM32_IRQ_PRIORITY_MASK);
+        nvicEnableVector(STM32_CAN1_TX_NUMBER,  UAVCAN_STM32_IRQ_PRIORITY_MASK);
+        nvicEnableVector(STM32_CAN1_RX0_NUMBER, UAVCAN_STM32_IRQ_PRIORITY_MASK);
+        nvicEnableVector(STM32_CAN1_RX1_NUMBER, UAVCAN_STM32_IRQ_PRIORITY_MASK);
 # if UAVCAN_STM32_NUM_IFACES > 1
-        nvicEnableVector(CAN2_TX_IRQn,  UAVCAN_STM32_IRQ_PRIORITY_MASK);
-        nvicEnableVector(CAN2_RX0_IRQn, UAVCAN_STM32_IRQ_PRIORITY_MASK);
-        nvicEnableVector(CAN2_RX1_IRQn, UAVCAN_STM32_IRQ_PRIORITY_MASK);
+        nvicEnableVector(STM32_CAN2_TX_NUMBER,  UAVCAN_STM32_IRQ_PRIORITY_MASK);
+        nvicEnableVector(STM32_CAN2_RX0_NUMBER, UAVCAN_STM32_IRQ_PRIORITY_MASK);
+        nvicEnableVector(STM32_CAN2_RX1_NUMBER, UAVCAN_STM32_IRQ_PRIORITY_MASK);
 # endif
     }
 #endif
@@ -828,21 +821,21 @@ static int can2_irq(const int irq, void*)
 # endif
 #else // UAVCAN_STM32_NUTTX
 
-UAVCAN_STM32_IRQ_HANDLER(CAN1_TX_IRQHandler)
+UAVCAN_STM32_IRQ_HANDLER(STM32_CAN1_TX_HANDLER)
 {
     UAVCAN_STM32_IRQ_PROLOGUE();
     uavcan_stm32::handleTxInterrupt(0);
     UAVCAN_STM32_IRQ_EPILOGUE();
 }
 
-UAVCAN_STM32_IRQ_HANDLER(CAN1_RX0_IRQHandler)
+UAVCAN_STM32_IRQ_HANDLER(STM32_CAN1_RX0_HANDLER)
 {
     UAVCAN_STM32_IRQ_PROLOGUE();
     uavcan_stm32::handleRxInterrupt(0, 0);
     UAVCAN_STM32_IRQ_EPILOGUE();
 }
 
-UAVCAN_STM32_IRQ_HANDLER(CAN1_RX1_IRQHandler)
+UAVCAN_STM32_IRQ_HANDLER(STM32_CAN1_RX1_HANDLER)
 {
     UAVCAN_STM32_IRQ_PROLOGUE();
     uavcan_stm32::handleRxInterrupt(0, 1);
@@ -851,21 +844,21 @@ UAVCAN_STM32_IRQ_HANDLER(CAN1_RX1_IRQHandler)
 
 # if UAVCAN_STM32_NUM_IFACES > 1
 
-UAVCAN_STM32_IRQ_HANDLER(CAN2_TX_IRQHandler)
+UAVCAN_STM32_IRQ_HANDLER(STM32_CAN2_TX_HANDLER)
 {
     UAVCAN_STM32_IRQ_PROLOGUE();
     uavcan_stm32::handleTxInterrupt(1);
     UAVCAN_STM32_IRQ_EPILOGUE();
 }
 
-UAVCAN_STM32_IRQ_HANDLER(CAN2_RX0_IRQHandler)
+UAVCAN_STM32_IRQ_HANDLER(STM32_CAN2_RX0_HANDLER)
 {
     UAVCAN_STM32_IRQ_PROLOGUE();
     uavcan_stm32::handleRxInterrupt(1, 0);
     UAVCAN_STM32_IRQ_EPILOGUE();
 }
 
-UAVCAN_STM32_IRQ_HANDLER(CAN2_RX1_IRQHandler)
+UAVCAN_STM32_IRQ_HANDLER(STM32_CAN2_RX1_HANDLER)
 {
     UAVCAN_STM32_IRQ_PROLOGUE();
     uavcan_stm32::handleRxInterrupt(1, 1);
