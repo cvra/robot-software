@@ -50,6 +50,7 @@ int main(void) {
     motor_pwm_enable();
     motor_pwm_set(0.0);
 
+    analog_init();
     control_start();
 
     chprintf(stdout, "boot\n");
