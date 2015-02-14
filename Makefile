@@ -217,7 +217,7 @@ ULIBS =
 # UAVCAN
 #
 include uavcan/libuavcan/include.mk
-include uavcan/libuavcan_drivers/stm32/driver/include.mk
+include src/can-driver/include.mk
 
 CPPSRC += $(LIBUAVCAN_SRC) $(LIBUAVCAN_STM32_SRC)
 UINCDIR += $(LIBUAVCAN_INC) $(LIBUAVCAN_STM32_INC) ./dsdlc_generated
