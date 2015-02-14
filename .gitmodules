@@ -15,10 +15,10 @@
 	url = https://github.com/cvra/test-runner
 [submodule "src/serial-can-bridge"]
 	path = src/serial-can-bridge
-	url = https://github.com/nuft/serial-can-bridge
+	url = https://github.com/cvra/serial-can-bridge
 [submodule "src/serial-datagram"]
 	path = src/serial-datagram
-	url = https://github.com/Stapelzeiger/serial-datagram
+	url = https://github.com/cvra/serial-datagram
 [submodule "src/serializer"]
 	path = src/serializer
 	url = https://github.com/cvra/serializer
