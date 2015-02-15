@@ -6,21 +6,13 @@
 
 #include <uavcan_stm32/build_config.hpp>
 
-#if UAVCAN_STM32_CHIBIOS
 # include <hal.h>
-#elif UAVCAN_STM32_NUTTX
-# include <nuttx/arch.h>
-# include <syslog.h>
-#else
-# error "Unknown OS"
-#endif
 
 /**
  * Debug output
  */
 #ifndef UAVCAN_STM32_LOG
 // lowsyslog() crashes the system in this context
-//# if UAVCAN_STM32_NUTTX && CONFIG_ARCH_LOWPUTC
 # if 0
 #  define UAVCAN_STM32_LOG(fmt, ...)  lowsyslog("uavcan_stm32: " fmt "\n", ##__VA_ARGS__)
 # else
@@ -31,27 +23,15 @@
 /**
  * IRQ handler macros
  */
-#if UAVCAN_STM32_CHIBIOS
-
 # define UAVCAN_STM32_IRQ_HANDLER(id)  CH_IRQ_HANDLER(id)
 # define UAVCAN_STM32_IRQ_PROLOGUE()    CH_IRQ_PROLOGUE()
 # define UAVCAN_STM32_IRQ_EPILOGUE()    CH_IRQ_EPILOGUE()
 
-#else
-
-# define UAVCAN_STM32_IRQ_HANDLER(id)  void id(void)
-# define UAVCAN_STM32_IRQ_PROLOGUE()
-# define UAVCAN_STM32_IRQ_EPILOGUE()
-
-#endif
-
-#if UAVCAN_STM32_CHIBIOS
 /**
  * Priority mask for timer and CAN interrupts.
  */
-# ifndef UAVCAN_STM32_IRQ_PRIORITY_MASK
-#  define UAVCAN_STM32_IRQ_PRIORITY_MASK  CORTEX_PRIO_MASK(CORTEX_MAX_KERNEL_PRIORITY)
-# endif
+#ifndef UAVCAN_STM32_IRQ_PRIORITY_MASK
+# define UAVCAN_STM32_IRQ_PRIORITY_MASK  CORTEX_PRIO_MASK(CORTEX_MAX_KERNEL_PRIORITY)
 #endif
 
 /**
@@ -66,31 +46,11 @@
 namespace uavcan_stm32
 {
 
-#if UAVCAN_STM32_CHIBIOS
-
 struct CriticalSectionLocker
 {
     CriticalSectionLocker() { chSysSuspend(); }
     ~CriticalSectionLocker() { chSysEnable(); }
 };
-
-#elif UAVCAN_STM32_NUTTX
-
-struct CriticalSectionLocker
-{
-    const irqstate_t flags_;
-
-    CriticalSectionLocker()
-        : flags_(irqsave())
-    { }
-
-    ~CriticalSectionLocker()
-    {
-        irqrestore(flags_);
-    }
-};
-
-#endif
 
 namespace clock
 {

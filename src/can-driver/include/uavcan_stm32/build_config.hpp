@@ -7,12 +7,8 @@
 /**
  * OS detection
  */
-#ifndef UAVCAN_STM32_CHIBIOS
-# define UAVCAN_STM32_CHIBIOS 0
-#endif
-
-#ifndef UAVCAN_STM32_NUTTX
-# define UAVCAN_STM32_NUTTX 0
+#if !(UAVCAN_STM32_CHIBIOS)
+# error "CAN driver depends on ChibiOS"
 #endif
 
 /**
