@@ -5,6 +5,7 @@
 #include "motor_pwm.h"
 #include "control.h"
 #include "analog.h"
+#include "encoder.h"
 #include "cmp_mem_access/cmp_mem_access.h"
 #include "serial-datagram/serial_datagram.h"
 #include <string.h>
@@ -79,6 +80,7 @@ int main(void) {
     motor_pwm_set(0.0);
 
     analog_init();
+    encoder_init_primary();
     control_start();
 
     chprintf(stdout, "boot\n");

@@ -1,6 +1,11 @@
 #include <ch.h>
 #include <hal.h>
 
+#define ENCODER_SPEED_FREQUENCY     1000.f
+
+static float encoder_speed;
+
+
 uint32_t encoder_get_primary(void)
 {
     return STM32_TIM4->CNT;
@@ -9,6 +14,33 @@ uint32_t encoder_get_primary(void)
 uint32_t encoder_get_secondary(void)
 {
     return STM32_TIM3->CNT;
+}
+
+float encoder_get_speed(void)
+{
+    return encoder_speed;
+}
+
+static THD_FUNCTION(encoder_speed_task, arg)
+{
+    (void)arg;
+    chRegSetThreadName("Encoder speed");
+
+    uint32_t encoder_old;
+    uint32_t encoder_new;
+
+    encoder_new = encoder_get_primary();
+
+    while (42) {
+        encoder_old = encoder_new;
+        encoder_new = encoder_get_primary();
+        encoder_speed = encoder_speed * 0.9f
+            + (int32_t)(encoder_new - encoder_old) / ENCODER_SPEED_FREQUENCY * 0.1f;
+
+        chThdSleepMicroseconds(1000000.f / ENCODER_SPEED_FREQUENCY);
+    }
+
+    return 0;
 }
 
 void encoder_init_primary(void)
@@ -25,6 +57,9 @@ void encoder_init_primary(void)
     STM32_TIM4->CCER   = 0;
     STM32_TIM4->ARR    = 0xFFFF;
     STM32_TIM4->CR1    = 1;                         // start
+
+    static THD_WORKING_AREA(encoder_speed_wa, 256);
+    chThdCreateStatic(encoder_speed_wa, sizeof(encoder_speed_wa), LOWPRIO, encoder_speed_task, NULL);
 }
 
 void encoder_init_secondary(void)
