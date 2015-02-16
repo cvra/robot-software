@@ -46,6 +46,7 @@ static THD_FUNCTION(stream_task, arg)
         }
         chThdSleepMilliseconds(10);
     }
+    return 0;
 }
 
 
