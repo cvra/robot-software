@@ -22,3 +22,6 @@
 [submodule "src/serial-datagram"]
 	path = src/serial-datagram
 	url = https://github.com/Stapelzeiger/serial-datagram.git
+[submodule "src/crc"]
+	path = src/crc
+	url = https://github.com/cvra/crc
