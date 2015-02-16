@@ -7,9 +7,12 @@ target.arm:
     - src/encoder.c
     - src/motor_pwm.c
     - src/analog.c
+    - src/cmp/cmp.c
 
 depends:
     - pid
+    - serial-datagram
+    - cmp_mem_access
 
 #tests:
 
