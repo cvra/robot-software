@@ -5,6 +5,7 @@
 #include "motor_pwm.h"
 #include "control.h"
 #include "analog.h"
+#include "encoder.h"
 
 BaseSequentialStream* stdout;
 
@@ -15,7 +16,7 @@ static THD_FUNCTION(stream_task, arg)
     (void)arg;
     chRegSetThreadName("print data");
     while(42){
-        chprintf(stdout, "%2.3f A    %2.3f V\n", analog_get_motor_current(), control_get_motor_voltage());
+        chprintf(stdout, "%2.3f A    %2.3f V    %f\n", analog_get_motor_current(), control_get_motor_voltage(), encoder_get_speed());
         chThdSleepMilliseconds(300);
     }
     return 0;
@@ -51,6 +52,7 @@ int main(void) {
     motor_pwm_set(0.0);
 
     analog_init();
+    encoder_init_primary();
     control_start();
 
     chprintf(stdout, "boot\n");

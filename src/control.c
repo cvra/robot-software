@@ -3,6 +3,7 @@
 #include <pid/pid.h>
 #include "motor_pwm.h"
 #include "analog.h"
+#include "encoder.h"
 
 #include "control.h"
 
