@@ -89,7 +89,7 @@ include $(CHIBIOS)/os/rt/ports/ARMCMx/compilers/GCC/mk/port_stm32f3xx.mk
 include $(CHIBIOS)/test/rt/test.mk
 
 # must be defined before board.mk include
-# USE_BOOTLOADER = yes
+USE_BOOTLOADER = yes
 include board/board.mk
 include src/src.mk
 
