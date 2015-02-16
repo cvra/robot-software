@@ -1,6 +1,7 @@
 #include <ch.h>
 #include <hal.h>
 #include <stdlib.h>
+#include <math.h>
 
 
 #define PWM_PERIOD                  2880
@@ -86,13 +87,19 @@ void motor_pwm_setup(void)
 
 void motor_pwm_set(float dc)
 {
+    static int sign = 1;
+
     if (dc > 0.95) {
         dc = 0.95;
     } else if (dc < -0.95){
         dc = -0.95;
     }
 
-    if (dc < 0) {
+    if (dc != 0.0f) {
+        sign = (int)copysignf(1.0, dc);
+    }
+
+    if (sign < 0) {
         pwmEnableChannel(&PWMD1, PWM_DIRECTION_CHANNEL, DIRECTION_DC_HIGH);
         power_pwm = (1 + dc) * PWM_PERIOD;
     } else {
