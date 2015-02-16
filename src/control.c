@@ -28,6 +28,46 @@ float control_get_motor_voltage(void)
     return motor_voltage;
 }
 
+typedef struct zero_crossing_filter_s {
+    int sign;
+    int zero_crossing_countdown;
+    int zero_crossing_limit;
+} zero_crossing_filter_t;
+
+static int float_sign(float f)
+{
+    if (f >= 0) {
+        return 1;
+    } else {
+        return -1;
+    }
+}
+
+void zero_crossing_filter_init(zero_crossing_filter_t *f, int limit)
+{
+    f->sign = 1;
+    f->zero_crossing_countdown = 0;
+    f->zero_crossing_limit = limit;
+}
+
+float zero_crossing_filter_apply(zero_crossing_filter_t *f, float in)
+{
+    if (f->zero_crossing_countdown > 0) {
+        f->zero_crossing_countdown--;
+    }
+    if (f->sign == float_sign(in)) { // sign didn't change
+        return in;
+    }
+    // sign changed
+    if (f->zero_crossing_countdown == 0) {
+        f->zero_crossing_countdown = f->zero_crossing_limit;
+        f->sign = - f->sign;
+        return in;
+    } else {
+        return 0;
+    }
+}
+
 static THD_FUNCTION(control_loop, arg)
 {
     (void)arg;
