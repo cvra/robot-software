@@ -5,20 +5,47 @@
 #include "motor_pwm.h"
 #include "control.h"
 #include "analog.h"
+#include "cmp_mem_access/cmp_mem_access.h"
+#include "serial-datagram/serial_datagram.h"
+#include <string.h>
 
 BaseSequentialStream* stdout;
 
+
+
+static void _stream_sndfn(void *arg, const void *p, size_t len)
+{
+    if (len > 0) {
+        chSequentialStreamWrite((BaseSequentialStream*)arg, (const uint8_t*)p, len);
+    }
+}
 
 static THD_WORKING_AREA(stream_task_wa, 256);
 static THD_FUNCTION(stream_task, arg)
 {
     (void)arg;
     chRegSetThreadName("print data");
-    while(42){
-        chprintf(stdout, "%2.3f A    %2.3f V\n", analog_get_motor_current(), control_get_motor_voltage());
-        chThdSleepMilliseconds(300);
+    static char dtgrm[200];
+    static cmp_mem_access_t mem;
+    static cmp_ctx_t cmp;
+    while (1) {
+        cmp_mem_access_init(&cmp, &mem, dtgrm, sizeof(dtgrm));
+        bool err = false;
+        err = err || !cmp_write_map(&cmp, 3);
+        const char *current_id = "motor_current";
+        err = err || !cmp_write_str(&cmp, current_id, strlen(current_id));
+        err = err || !cmp_write_float(&cmp, analog_get_motor_current());
+        const char *motor_voltage_id = "motor_voltage";
+        err = err || !cmp_write_str(&cmp, motor_voltage_id, strlen(motor_voltage_id));
+        err = err || !cmp_write_float(&cmp, control_get_motor_voltage());
+        const char *batt_voltage_id = "batt_voltage";
+        err = err || !cmp_write_str(&cmp, batt_voltage_id, strlen(batt_voltage_id));
+        err = err || !cmp_write_float(&cmp, analog_get_battery_voltage());
+        if (!err) {
+            serial_datagram_send(dtgrm, cmp_mem_access_get_pos(&mem), _stream_sndfn, stdout);
+        }
+        chThdSleepMilliseconds(10);
     }
-    return 0;
 }
 
 
