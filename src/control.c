@@ -78,12 +78,16 @@ static THD_FUNCTION(control_loop, arg)
     pid_set_gains(&current_pid, 20.f, 15.f, 0.0f);
     pid_set_frequency(&current_pid, 1000.f);
 
+    static zero_crossing_filter_t zero_crossing_filter;
+    zero_crossing_filter_init(&zero_crossing_filter, 10);
+
     while (42) {
         float current_setpt = -0.150;     // Amps
         if (analog_get_battery_voltage() < LOW_BATT_TH) {
             pid_reset_integral(&current_pid);
         }
-        motor_set_voltage(pid_process(&current_pid, current_setpt - analog_get_motor_current()));
+        float pid_out = pid_process(&current_pid, current_setpt - analog_get_motor_current());
+        motor_set_voltage(zero_crossing_filter_apply(&zero_crossing_filter, pid_out));
         chThdSleepMicroseconds(1000000.f / pid_get_frequency(&current_pid));
     }
 
