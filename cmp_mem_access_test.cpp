@@ -10,7 +10,7 @@ TEST_GROUP(CMPMemAccess)
 
 TEST(CMPMemAccess, Read)
 {
-    static char testbuf[] = {0x93, 0x01, 0x02, 0x03}; // [1, 2, 3]
+    static char testbuf[] = {'\x93', 0x01, 0x02, 0x03}; // [1, 2, 3]
     cmp_mem_access_init(&cmp, &ma, &testbuf, sizeof(testbuf));
     bool err = false;
     uint32_t arr_size;
@@ -31,7 +31,7 @@ TEST(CMPMemAccess, Read)
 
 TEST(CMPMemAccess, ReadOverBufferEnd)
 {
-    static char testbuf[] = {0x93, 0x01, 0x02, 0x03}; // [1, 2, 3]
+    static char testbuf[] = {'\x93', 0x01, 0x02, 0x03}; // [1, 2, 3]
     cmp_mem_access_init(&cmp, &ma, &testbuf, sizeof(testbuf)-1);
     bool err = false;
     uint32_t arr_size;
@@ -62,7 +62,7 @@ TEST(CMPMemAccess, Write)
     CHECK(!err);
     err = !cmp_write_sint(&cmp, 3);
     CHECK(!err);
-    CHECK_EQUAL((char)0x93, testbuf[0]);
+    CHECK_EQUAL((char)'\x93', testbuf[0]);
     CHECK_EQUAL(1, testbuf[1]);
     CHECK_EQUAL(2, testbuf[2]);
     CHECK_EQUAL(3, testbuf[3]);
