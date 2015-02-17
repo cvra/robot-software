@@ -31,7 +31,7 @@ static const CANConfig can1_config = {
          | (7 << 20) /* Time segment 2 (3 bits) */
          | (0 << 24) /* Resync jump width (2 bits) */
 
-#if 1
+#if 0
          | (1 << 30) /* Loopback mode enabled */
 #endif
 };
