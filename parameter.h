@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-
+#include <stdbool.h>
 
 typedef struct parameter_namespace_s parameter_namespace_t;
 typedef struct parameter_s parameter_t;
