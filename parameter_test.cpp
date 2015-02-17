@@ -14,11 +14,11 @@ TEST(ParameterNamespaceInit, NamespaceCreateRoot)
 {
     parameter_namespace_t ns;
     parameter_namespace_declare(&ns, NULL, NULL);
-    CHECK_EQUAL(NULL, ns.id);
-    CHECK_EQUAL(NULL, ns.parent);
-    CHECK_EQUAL(NULL, ns.subspaces);
-    CHECK_EQUAL(NULL, ns.next);
-    CHECK_EQUAL(NULL, ns.parameter_list);
+    POINTERS_EQUAL(NULL, ns.id);
+    POINTERS_EQUAL(NULL, ns.parent);
+    POINTERS_EQUAL(NULL, ns.subspaces);
+    POINTERS_EQUAL(NULL, ns.next);
+    POINTERS_EQUAL(NULL, ns.parameter_list);
     CHECK_EQUAL(0, ns.changed_cnt);
 }
 
@@ -28,11 +28,11 @@ TEST(ParameterNamespaceInit, NamespaceCreate)
     parameter_namespace_declare(&ns, &rootns, "test");
     STRCMP_EQUAL("test", ns.id);
     CHECK_EQUAL(&rootns, ns.parent);
-    CHECK_EQUAL(NULL, ns.subspaces);
-    CHECK_EQUAL(NULL, ns.parameter_list);
+    POINTERS_EQUAL(NULL, ns.subspaces);
+    POINTERS_EQUAL(NULL, ns.parameter_list);
     CHECK_EQUAL(0, ns.changed_cnt);
     // check if correctly linked in parent
-    CHECK_EQUAL(NULL, ns.next);
+    POINTERS_EQUAL(NULL, ns.next);
     CHECK_EQUAL(&ns, rootns.subspaces);
 }
 
@@ -46,7 +46,7 @@ TEST(ParameterNamespaceInit, NamespaceCreateMultiple)
     CHECK_EQUAL(&rootns, ns1.parent);
     CHECK_EQUAL(&rootns, ns2.parent);
     // check if correctly linked in parent
-    CHECK_EQUAL(NULL, ns1.next);
+    POINTERS_EQUAL(NULL, ns1.next);
     CHECK_EQUAL(&ns1, ns2.next);
     CHECK_EQUAL(&ns2, rootns.subspaces);
 }
@@ -70,7 +70,7 @@ TEST(ParameterInit, ParameterCreate)
     CHECK_EQUAL(false, p.changed);
     CHECK_EQUAL(false, p.defined);
     // check if correctly linked in parent
-    CHECK_EQUAL(NULL, p.next);
+    POINTERS_EQUAL(NULL, p.next);
     CHECK_EQUAL(&p, ns.parameter_list);
 }
 
@@ -83,7 +83,7 @@ TEST(ParameterInit, ParameterCreateMulitple)
     CHECK_EQUAL(&ns, p1.ns);
     CHECK_EQUAL(&ns, p2.ns);
     // check if correctly linked in parent
-    CHECK_EQUAL(NULL, p1.next);
+    POINTERS_EQUAL(NULL, p1.next);
     CHECK_EQUAL(&p1, p2.next);
     CHECK_EQUAL(&p2, ns.parameter_list);
 }
@@ -124,8 +124,8 @@ TEST_GROUP(ParameterTree)
 
 TEST(ParameterTree, NamespaceFind)
 {
-    CHECK_EQUAL(NULL, parameter_namespace_find(&rootns, "does/not/exist"));
-    CHECK_EQUAL(NULL, parameter_namespace_find(&rootns, "test"));
+    POINTERS_EQUAL(NULL, parameter_namespace_find(&rootns, "does/not/exist"));
+    POINTERS_EQUAL(NULL, parameter_namespace_find(&rootns, "test"));
     CHECK_EQUAL(&a, parameter_namespace_find(&rootns, "test_a"));
     CHECK_EQUAL(&a, parameter_namespace_find(&rootns, "test_a/"));
     CHECK_EQUAL(&a, parameter_namespace_find(&rootns, "/test_a/"));
@@ -138,9 +138,9 @@ TEST(ParameterTree, NamespaceFind)
 
 TEST(ParameterTree, ParameterFind)
 {
-    CHECK_EQUAL(NULL, parameter_find(&rootns, "test"));
-    CHECK_EQUAL(NULL, parameter_find(&b1ii, "test"));
-    CHECK_EQUAL(NULL, parameter_find(&b1ii, "x"));
+    POINTERS_EQUAL(NULL, parameter_find(&rootns, "test"));
+    POINTERS_EQUAL(NULL, parameter_find(&b1ii, "test"));
+    POINTERS_EQUAL(NULL, parameter_find(&b1ii, "x"));
     CHECK_EQUAL(&p_a2_x, parameter_find(&rootns, "test_a/zwei/x"));
     CHECK_EQUAL(&p_a2_y, parameter_find(&rootns, "test_a/zwei/y"));
     CHECK_EQUAL(&p_a2_z, parameter_find(&rootns, "test_a/zwei/z"));
