@@ -24,9 +24,11 @@ Node& get_node()
     return *node_;
 }
 
-static THD_WORKING_AREA(uavcan_node_wa, 1000);
+static THD_WORKING_AREA(uavcan_node_wa, 4000);
 static THD_FUNCTION(uavcan_node, arg)
 {
+    chRegSetThreadName("uavcan node");
+
     (void)arg;
     if (can.init(CAN_BITRATE) != 0) {
         return -1;
@@ -47,6 +49,7 @@ static THD_FUNCTION(uavcan_node, arg)
 
     const int ns_sub_start_res =
         ns_sub.start([&](const uavcan::protocol::NodeStatus& msg) {
+            (void) msg;
             palTogglePad(GPIOA, GPIOA_LED);
         });
 
@@ -61,7 +64,7 @@ static THD_FUNCTION(uavcan_node, arg)
         int res = node.spin(uavcan::MonotonicDuration::fromMSec(1000));
 
         if (res < 0) {
-            // std::printf("Spin failure: %i\n", spin_res);
+            // debug("Spin failure: %i\n", res);
         }
     }
 }
