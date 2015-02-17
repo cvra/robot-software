@@ -204,11 +204,3 @@ TEST(ParameterTree, ParameterDefined)
     _parameter_changed_clear(&p_a2_z);
     CHECK_TRUE(parameter_defined(&p_a2_z));
 }
-
-
-#include "CppUTest/CommandLineTestRunner.h"
-
-int main(int ac, char** av)
-{
-    return CommandLineTestRunner::RunAllTests(ac, av);
-}
