@@ -36,11 +36,11 @@ TEST(IIRFilter, ApplyStep)
     float y1, y2, y3;
 
     y1 = filter_iir_apply(&iir_filter, x);
-    DOUBLES_EQUAL(b[0] * x, y1, 1.0e-9);
+    DOUBLES_EQUAL(b[0] * x, y1, 1.0e-7);
     y2 = filter_iir_apply(&iir_filter, x);
-    DOUBLES_EQUAL(b[0] * x + b[1] * x - a[0] * y1, y2, 1.0e-9);
+    DOUBLES_EQUAL(b[0] * x + b[1] * x - a[0] * y1, y2, 1.0e-7);
     y3 = filter_iir_apply(&iir_filter, x);
-    DOUBLES_EQUAL(b[0]*x + b[1]*x + b[2]*x - a[0]*y2 - a[1]*y1, y3, 1.0e-9);
+    DOUBLES_EQUAL(b[0]*x + b[1]*x + b[2]*x - a[0]*y2 - a[1]*y1, y3, 1.0e-7);
 
 }
 
