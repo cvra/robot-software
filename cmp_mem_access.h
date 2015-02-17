@@ -30,6 +30,10 @@ void cmp_mem_access_ro_init(cmp_ctx_t *cmp, cmp_mem_access_t *m, const void *buf
 // the buffer written by MessagePack
 size_t cmp_mem_access_get_pos(cmp_mem_access_t *m);
 
+// set current read/write position.
+// use cmp_mem_access_get_pos to obtain position.
+void cmp_mem_access_set_pos(cmp_mem_access_t *m, size_t pos);
+
 #ifdef __cplusplus
 }
 #endif

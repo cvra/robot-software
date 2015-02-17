@@ -53,3 +53,8 @@ size_t cmp_mem_access_get_pos(cmp_mem_access_t *m)
 {
     return m->index;
 }
+
+void cmp_mem_access_set_pos(cmp_mem_access_t *m, size_t pos)
+{
+    m->index = pos;
+}

@@ -91,3 +91,11 @@ TEST(CMPMemAccess, WriteROFails)
     err = !cmp_write_array(&cmp, 3);
     CHECK(err);
 }
+
+TEST(CMPMemAccess, SetPos)
+{
+    static char testbuf[4] = {0, 0, 0, 0};
+    cmp_mem_access_init(&cmp, &ma, &testbuf, sizeof(testbuf));
+    cmp_mem_access_set_pos(&ma, 1);
+    CHECK_EQUAL(1, ma.index);
+}
