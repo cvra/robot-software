@@ -198,7 +198,7 @@ CPPWARN = -Wall -Wextra
 # List all user C define here, like -D_DEBUG=1
 UDEFS = $(BOARDDEFS)
 UDEFS += -DUAVCAN_STM32_CHIBIOS=1 \
-		 -DUAVCAN_STM32_TIMER_NUMBER=7 \
+		 -DUAVCAN_TOSTRING=0 \
 		 -DUAVCAN_STM32_NUM_IFACES=1
 
 # Define ASM defines here

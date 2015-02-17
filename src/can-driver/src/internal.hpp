@@ -6,7 +6,7 @@
 
 #include <uavcan_stm32/build_config.hpp>
 
-# include <hal.h>
+#include <hal.h>
 
 /**
  * Debug output

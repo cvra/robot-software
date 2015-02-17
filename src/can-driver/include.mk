@@ -1,6 +1,8 @@
 
-LIBUAVCAN_STM32_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
+LIBUAVCAN_STM32_DIR = src/can-driver
 
-LIBUAVCAN_STM32_SRC := $(shell find $(LIBUAVCAN_STM32_DIR)src -type f -name '*.cpp')
+LIBUAVCAN_STM32_SRC  = $(LIBUAVCAN_STM32_DIR)/src/uc_stm32_can.cpp
+LIBUAVCAN_STM32_SRC += $(LIBUAVCAN_STM32_DIR)/src/uc_stm32_clock.cpp
+LIBUAVCAN_STM32_SRC += $(LIBUAVCAN_STM32_DIR)/src/uc_stm32_thread.cpp
 
-LIBUAVCAN_STM32_INC := $(LIBUAVCAN_STM32_DIR)include/
+LIBUAVCAN_STM32_INC := $(LIBUAVCAN_STM32_DIR)/include/
