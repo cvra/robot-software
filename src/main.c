@@ -92,6 +92,16 @@ void panic_hook(const char* reason)
     }
 }
 
+void __assert_func(const char *_file, int _line, const char *_func, const char *_expr )
+{
+    (void)_file;
+    (void)_line;
+    (void)_func;
+    (void)_expr;
+
+    panic_hook("assertion failed");
+    while(1);
+}
 
 static int error_level = 0;
 
