@@ -4,9 +4,9 @@
 TEST_GROUP(IIRFilter)
 {
     filter_iir_t iir_filter;
+    const float b[4] = {0.1, 0.2, 0.3, 0.4};
+    const float a[3] = {0.1, 0.1, 0.1};
     float buffer[3];
-    const float b[4] = {7.f, 6.f, 5.f, 4.f};
-    const float a[3] = {3.f, 2.f, 1.f};
 
     void setup(void)
     {
@@ -42,4 +42,30 @@ TEST(IIRFilter, ApplyStep)
     y3 = filter_iir_apply(&iir_filter, x);
     DOUBLES_EQUAL(b[0]*x + b[1]*x + b[2]*x - a[0]*y2 - a[1]*y1, y3, 1.0e-9);
 
+}
+
+TEST(IIRFilter, StepResponse)
+{
+    // in matlab: y=step(filt([0.1, 0.2, 0.3, 0.4], [1, 0.1, 0.1, 0.1]), [0:20])
+    DOUBLES_EQUAL(0.1000, filter_iir_apply(&iir_filter, 1), 1.0e-4);
+    DOUBLES_EQUAL(0.2900, filter_iir_apply(&iir_filter, 1), 1.0e-4);
+    DOUBLES_EQUAL(0.5610, filter_iir_apply(&iir_filter, 1), 1.0e-4);
+    DOUBLES_EQUAL(0.9049, filter_iir_apply(&iir_filter, 1), 1.0e-4);
+    DOUBLES_EQUAL(0.8244, filter_iir_apply(&iir_filter, 1), 1.0e-4);
+    DOUBLES_EQUAL(0.7710, filter_iir_apply(&iir_filter, 1), 1.0e-4);
+    DOUBLES_EQUAL(0.7500, filter_iir_apply(&iir_filter, 1), 1.0e-4);
+    DOUBLES_EQUAL(0.7655, filter_iir_apply(&iir_filter, 1), 1.0e-4);
+    DOUBLES_EQUAL(0.7714, filter_iir_apply(&iir_filter, 1), 1.0e-4);
+    DOUBLES_EQUAL(0.7713, filter_iir_apply(&iir_filter, 1), 1.0e-4);
+    DOUBLES_EQUAL(0.7692, filter_iir_apply(&iir_filter, 1), 1.0e-4);
+    DOUBLES_EQUAL(0.7688, filter_iir_apply(&iir_filter, 1), 1.0e-4);
+    DOUBLES_EQUAL(0.7691, filter_iir_apply(&iir_filter, 1), 1.0e-4);
+    DOUBLES_EQUAL(0.7693, filter_iir_apply(&iir_filter, 1), 1.0e-4);
+    DOUBLES_EQUAL(0.7693, filter_iir_apply(&iir_filter, 1), 1.0e-4);
+    DOUBLES_EQUAL(0.7692, filter_iir_apply(&iir_filter, 1), 1.0e-4);
+    DOUBLES_EQUAL(0.7692, filter_iir_apply(&iir_filter, 1), 1.0e-4);
+    DOUBLES_EQUAL(0.7692, filter_iir_apply(&iir_filter, 1), 1.0e-4);
+    DOUBLES_EQUAL(0.7692, filter_iir_apply(&iir_filter, 1), 1.0e-4);
+    DOUBLES_EQUAL(0.7692, filter_iir_apply(&iir_filter, 1), 1.0e-4);
+    DOUBLES_EQUAL(0.7692, filter_iir_apply(&iir_filter, 1), 1.0e-4);
 }
