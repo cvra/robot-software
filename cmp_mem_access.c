@@ -58,3 +58,8 @@ void cmp_mem_access_set_pos(cmp_mem_access_t *m, size_t pos)
 {
     m->index = pos;
 }
+
+void *cmp_mem_access_get_ptr_at_pos(cmp_mem_access_t *m, size_t pos)
+{
+    return m->buf + pos;
+}

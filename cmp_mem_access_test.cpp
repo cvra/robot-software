@@ -99,3 +99,10 @@ TEST(CMPMemAccess, SetPos)
     cmp_mem_access_set_pos(&ma, 1);
     CHECK_EQUAL(1, ma.index);
 }
+
+TEST(CMPMemAccess, GetPtr)
+{
+    static char testbuf[4] = {0, 0, 0, 0};
+    cmp_mem_access_init(&cmp, &ma, &testbuf, sizeof(testbuf));
+    POINTERS_EQUAL(&testbuf[1], cmp_mem_access_get_ptr_at_pos(&ma, 1));
+}
