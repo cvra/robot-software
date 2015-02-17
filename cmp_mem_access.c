@@ -63,3 +63,12 @@ void *cmp_mem_access_get_ptr_at_pos(cmp_mem_access_t *m, size_t pos)
 {
     return m->buf + pos;
 }
+
+bool cmp_mem_access_pos_is_valid(cmp_mem_access_t *m, size_t pos)
+{
+    if (pos >= m->size) {
+        return false;
+    } else {
+        return true;
+    }
+}

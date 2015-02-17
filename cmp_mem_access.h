@@ -37,6 +37,9 @@ void cmp_mem_access_set_pos(cmp_mem_access_t *m, size_t pos);
 // get a pointer into the buffer at the position pos
 void *cmp_mem_access_get_ptr_at_pos(cmp_mem_access_t *m, size_t pos);
 
+// check if the position is inside the buffer
+bool cmp_mem_access_pos_is_valid(cmp_mem_access_t *m, size_t pos);
+
 #ifdef __cplusplus
 }
 #endif

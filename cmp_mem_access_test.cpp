@@ -106,3 +106,12 @@ TEST(CMPMemAccess, GetPtr)
     cmp_mem_access_init(&cmp, &ma, &testbuf, sizeof(testbuf));
     POINTERS_EQUAL(&testbuf[1], cmp_mem_access_get_ptr_at_pos(&ma, 1));
 }
+
+TEST(CMPMemAccess, PosValid)
+{
+    static char testbuf[4] = {0, 0, 0, 0};
+    cmp_mem_access_init(&cmp, &ma, &testbuf, sizeof(testbuf));
+    CHECK_TRUE(cmp_mem_access_pos_is_valid(&ma, 0))
+    CHECK_TRUE(cmp_mem_access_pos_is_valid(&ma, 3))
+    CHECK_FALSE(cmp_mem_access_pos_is_valid(&ma, 4))
+}
