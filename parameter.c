@@ -58,7 +58,7 @@ static parameter_namespace_t *get_subnamespace(parameter_namespace_t *ns,
 }
 
 static parameter_t *get_parameter(parameter_namespace_t *ns, const char *id,
-                              size_t param_id_len)
+                                  size_t param_id_len)
 {
     if (param_id_len == 0) {
         return NULL;
@@ -88,6 +88,8 @@ void parameter_namespace_declare(parameter_namespace_t *ns,
     ns->parameter_list = NULL;
     if (parent != NULL) {
         _ns_link_to_parent(ns);
+    } else {
+        ns->next = NULL;
     }
 }
 
