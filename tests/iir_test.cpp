@@ -47,25 +47,25 @@ TEST(IIRFilter, ApplyStep)
 TEST(IIRFilter, StepResponse)
 {
     // in matlab: y=step(filt([0.1, 0.2, 0.3, 0.4], [1, 0.1, 0.1, 0.1]), [0:20])
-    DOUBLES_EQUAL(0.1000, filter_iir_apply(&iir_filter, 1), 1.0e-4);
-    DOUBLES_EQUAL(0.2900, filter_iir_apply(&iir_filter, 1), 1.0e-4);
-    DOUBLES_EQUAL(0.5610, filter_iir_apply(&iir_filter, 1), 1.0e-4);
-    DOUBLES_EQUAL(0.9049, filter_iir_apply(&iir_filter, 1), 1.0e-4);
-    DOUBLES_EQUAL(0.8244, filter_iir_apply(&iir_filter, 1), 1.0e-4);
-    DOUBLES_EQUAL(0.7710, filter_iir_apply(&iir_filter, 1), 1.0e-4);
-    DOUBLES_EQUAL(0.7500, filter_iir_apply(&iir_filter, 1), 1.0e-4);
-    DOUBLES_EQUAL(0.7655, filter_iir_apply(&iir_filter, 1), 1.0e-4);
-    DOUBLES_EQUAL(0.7714, filter_iir_apply(&iir_filter, 1), 1.0e-4);
-    DOUBLES_EQUAL(0.7713, filter_iir_apply(&iir_filter, 1), 1.0e-4);
-    DOUBLES_EQUAL(0.7692, filter_iir_apply(&iir_filter, 1), 1.0e-4);
-    DOUBLES_EQUAL(0.7688, filter_iir_apply(&iir_filter, 1), 1.0e-4);
-    DOUBLES_EQUAL(0.7691, filter_iir_apply(&iir_filter, 1), 1.0e-4);
-    DOUBLES_EQUAL(0.7693, filter_iir_apply(&iir_filter, 1), 1.0e-4);
-    DOUBLES_EQUAL(0.7693, filter_iir_apply(&iir_filter, 1), 1.0e-4);
-    DOUBLES_EQUAL(0.7692, filter_iir_apply(&iir_filter, 1), 1.0e-4);
-    DOUBLES_EQUAL(0.7692, filter_iir_apply(&iir_filter, 1), 1.0e-4);
-    DOUBLES_EQUAL(0.7692, filter_iir_apply(&iir_filter, 1), 1.0e-4);
-    DOUBLES_EQUAL(0.7692, filter_iir_apply(&iir_filter, 1), 1.0e-4);
-    DOUBLES_EQUAL(0.7692, filter_iir_apply(&iir_filter, 1), 1.0e-4);
-    DOUBLES_EQUAL(0.7692, filter_iir_apply(&iir_filter, 1), 1.0e-4);
+    DOUBLES_EQUAL(0.100000000000000, filter_iir_apply(&iir_filter, 1), 1.0e-7);
+    DOUBLES_EQUAL(0.290000000000000, filter_iir_apply(&iir_filter, 1), 1.0e-7);
+    DOUBLES_EQUAL(0.561000000000000, filter_iir_apply(&iir_filter, 1), 1.0e-7);
+    DOUBLES_EQUAL(0.904900000000000, filter_iir_apply(&iir_filter, 1), 1.0e-7);
+    DOUBLES_EQUAL(0.824410000000000, filter_iir_apply(&iir_filter, 1), 1.0e-7);
+    DOUBLES_EQUAL(0.770969000000000, filter_iir_apply(&iir_filter, 1), 1.0e-7);
+    DOUBLES_EQUAL(0.749972100000000, filter_iir_apply(&iir_filter, 1), 1.0e-7);
+    DOUBLES_EQUAL(0.765464890000000, filter_iir_apply(&iir_filter, 1), 1.0e-7);
+    DOUBLES_EQUAL(0.771359401000000, filter_iir_apply(&iir_filter, 1), 1.0e-7);
+    DOUBLES_EQUAL(0.771320360900000, filter_iir_apply(&iir_filter, 1), 1.0e-7);
+    DOUBLES_EQUAL(0.769185534810000, filter_iir_apply(&iir_filter, 1), 1.0e-7);
+    DOUBLES_EQUAL(0.768813470329000, filter_iir_apply(&iir_filter, 1), 1.0e-7);
+    DOUBLES_EQUAL(0.769068063396100, filter_iir_apply(&iir_filter, 1), 1.0e-7);
+    DOUBLES_EQUAL(0.769293293146490, filter_iir_apply(&iir_filter, 1), 1.0e-7);
+    DOUBLES_EQUAL(0.769282517312841, filter_iir_apply(&iir_filter, 1), 1.0e-7);
+    DOUBLES_EQUAL(0.769235612614457, filter_iir_apply(&iir_filter, 1), 1.0e-7);
+    DOUBLES_EQUAL(0.769218857692621, filter_iir_apply(&iir_filter, 1), 1.0e-7);
+    DOUBLES_EQUAL(0.769226301238008, filter_iir_apply(&iir_filter, 1), 1.0e-7);
+    DOUBLES_EQUAL(0.769231922845491, filter_iir_apply(&iir_filter, 1), 1.0e-7);
+    DOUBLES_EQUAL(0.769232291822388, filter_iir_apply(&iir_filter, 1), 1.0e-7);
+    DOUBLES_EQUAL(0.769230948409411, filter_iir_apply(&iir_filter, 1), 1.0e-7);
 }
