@@ -9,6 +9,12 @@
 
 #define LOW_BATT_TH 9.0f // [V]
 
+static float current_setpt;
+
+void control_set_current(float c)
+{
+    current_setpt = c;
+}
 
 static float motor_voltage;
 
@@ -80,15 +86,16 @@ static THD_FUNCTION(control_loop, arg)
     pid_set_frequency(&current_pid, 1000.f);
 
     static zero_crossing_filter_t zero_crossing_filter;
-    zero_crossing_filter_init(&zero_crossing_filter, 10);
+    zero_crossing_filter_init(&zero_crossing_filter, 300);
 
+    control_set_current(0);
     while (42) {
-        float current_setpt = -0.150;     // Amps
         if (analog_get_battery_voltage() < LOW_BATT_TH) {
             pid_reset_integral(&current_pid);
         }
         float pid_out = pid_process(&current_pid, current_setpt - analog_get_motor_current());
-        motor_set_voltage(zero_crossing_filter_apply(&zero_crossing_filter, pid_out));
+        motor_set_voltage(pid_out); // zero_crossing_filter_apply(&zero_crossing_filter, pid_out)
+
         chThdSleepMicroseconds(1000000.f / pid_get_frequency(&current_pid));
     }
 
