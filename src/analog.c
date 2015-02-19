@@ -1,5 +1,6 @@
 #include <ch.h>
 #include <hal.h>
+#include <filter/iir.h>
 
 #define ADC_MAX         4096
 #define ADC_TO_AMPS     0.001611328125f // 3.3/4096/(0.01*50)
@@ -43,12 +44,22 @@ static THD_FUNCTION(adc_task, arg)
         {ADC_SQR1_NUM_CH(2) | ADC_SQR1_SQ1_N(2) | ADC_SQR1_SQ2_N(3), 0, 0, 0}, // SSQRx : ADC2_CH2, ADC2_CH3
     };
 
+    filter_iir_t current_filter;
+    // scipy.signal.butter(3, 0.1)
+
+    const float b[] = {0.00289819,  0.00869458,  0.00869458,  0.00289819};
+    const float a[] = {-2.37409474,  1.92935567, -0.53207537};
+    float current_filter_buffer[3];
+
+    filter_iir_init(&current_filter, b, a, 3, current_filter_buffer);
+
     adcStart(&ADCD1, NULL);
 
     while (1) {
         adcConvert(&ADCD1, &adcgrpcfg1, adc_samples, 1);
-        motor_current = motor_current * 0.99
-            + (- (adc_samples[1] - ADC_MAX / 2) * ADC_TO_AMPS) * 0.01;
+        motor_current = filter_iir_apply(&current_filter,
+                (- (adc_samples[1] - ADC_MAX / 2) * ADC_TO_AMPS));
+
         battery_voltage = adc_samples[3] * ADC_TO_VOLTS;
         aux_in = (float)(adc_samples[0] + adc_samples[2])/(ADC_MAX*2);
     }
