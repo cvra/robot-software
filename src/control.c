@@ -98,6 +98,6 @@ static THD_FUNCTION(control_loop, arg)
 void control_start(void)
 {
     static THD_WORKING_AREA(control_loop_wa, 256);
-    chThdCreateStatic(control_loop_wa, sizeof(control_loop_wa), LOWPRIO, control_loop, NULL);
+    chThdCreateStatic(control_loop_wa, sizeof(control_loop_wa), HIGHPRIO, control_loop, NULL);
 }
 
