@@ -1,7 +1,8 @@
 #include <ch.h>
 #include <hal.h>
+#include <filter/iir.h>
 
-#define ENCODER_SPEED_FREQUENCY     1000.f
+#define ENCODER_SPEED_FREQUENCY     500.f
 
 static float encoder_speed;
 
@@ -26,16 +27,30 @@ static THD_FUNCTION(encoder_speed_task, arg)
     (void)arg;
     chRegSetThreadName("Encoder speed");
 
-    uint32_t encoder_old;
-    uint32_t encoder_new;
+    filter_iir_t speed_filter;
+    // scipy.signal.iirdesign(0.15, 0.25, 10, 40)
+    const float b[] = {0.00963341, -0.00442803, -0.00442803, 0.00963341};
+    const float a[] = {-2.72497916,  2.63867989, -0.90328997};
+    float speed_filter_buffer[3];
+
+    filter_iir_init(&speed_filter, b, a, 3, speed_filter_buffer);
+
+    uint16_t encoder_old;
+    uint16_t encoder_new;
+    systime_t delta_time = 0;       // in 0.1 ms steps :(
+    systime_t time = chVTGetSystemTimeX();
 
     encoder_new = encoder_get_primary();
 
     while (42) {
         encoder_old = encoder_new;
         encoder_new = encoder_get_primary();
-        encoder_speed = encoder_speed * 0.9f
-            + (int32_t)(encoder_new - encoder_old) / ENCODER_SPEED_FREQUENCY * 0.1f;
+        delta_time = chVTGetSystemTimeX() - time;
+        time += delta_time;
+
+        encoder_speed = filter_iir_apply(&speed_filter,
+                    (float)((int16_t)(encoder_new - encoder_old))
+                    * 10000 / (uint32_t)delta_time);
 
         chThdSleepMicroseconds(1000000.f / ENCODER_SPEED_FREQUENCY);
     }

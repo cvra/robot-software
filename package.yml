@@ -13,6 +13,8 @@ depends:
     - pid
     - serial-datagram
     - cmp_mem_access
+    - filter:
+        fork: froj
 
 #tests:
 
