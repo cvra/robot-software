@@ -58,5 +58,5 @@ static THD_FUNCTION(adc_task, arg)
 void analog_init(void)
 {
     static THD_WORKING_AREA(adc_task_wa, 256);
-    chThdCreateStatic(adc_task_wa, sizeof(adc_task_wa), LOWPRIO, adc_task, NULL);
+    chThdCreateStatic(adc_task_wa, sizeof(adc_task_wa), HIGHPRIO, adc_task, NULL);
 }
