@@ -82,7 +82,7 @@ static THD_FUNCTION(control_loop, arg)
 
     static pid_filter_t current_pid;
     pid_init(&current_pid);
-    pid_set_gains(&current_pid, 20.f, 15.f, 0.0f);
+    pid_set_gains(&current_pid, 60.f, 65.f, 0.0f);
     pid_set_frequency(&current_pid, 1000.f);
 
     static zero_crossing_filter_t zero_crossing_filter;
