@@ -47,7 +47,7 @@ void pwm_counter_reset(PWMDriver *pwmd)
 
     } else { // reverse direction (charge pump recharge)
 
-        int32_t rev_power_pwm = PWM_PERIOD - power_pwm;
+        int32_t rev_power_pwm = PWM_PERIOD + power_pwm;
 
         if (recharge_countdown == 0) { // recharge cycle
 #if (WHITENOISE_RECHARGE == 1)
