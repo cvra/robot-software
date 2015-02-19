@@ -32,36 +32,44 @@
  */
 
 
-static uint32_t power_pwm;
+static int32_t power_pwm;
 
 void pwm_counter_reset(PWMDriver *pwmd)
 {
     static uint8_t recharge_countdown = RECHARGE_COUNTDOWN_RELOAD;
-    uint32_t direction_dc = pwmd->tim->CCR[PWM_DIRECTION_CHANNEL];
 
-    if (direction_dc == DIRECTION_DC_LOW) {
-        recharge_countdown = RECHARGE_COUNTDOWN_RELOAD;
-    } else if (direction_dc == DIRECTION_DC_RECHARGE) {
-        pwmd->tim->CCR[PWM_DIRECTION_CHANNEL] = DIRECTION_DC_HIGH;
-    }
-
-    if (recharge_countdown == 0) {
-#ifdef WHITENOISE_RECHARGE
-        recharge_countdown = RECHARGE_COUNTDOWN_RELOAD - rand() % (RECHARGE_COUNTDOWN_RELOAD/2);
-#else
-        recharge_countdown = RECHARGE_COUNTDOWN_RELOAD;
-#endif
-        pwmd->tim->CCR[PWM_DIRECTION_CHANNEL] = DIRECTION_DC_RECHARGE;
-        if (power_pwm < POWR_DC_RECHARGE_CORRECTION) {
-            pwmd->tim->CCR[PWM_POWER_CHANNEL] = 0;
-        } else {
-            pwmd->tim->CCR[PWM_POWER_CHANNEL] = power_pwm - POWR_DC_RECHARGE_CORRECTION;
-        }
-    } else {
+    if (power_pwm >= 0) { // forward direction (no magic)
+        pwmd->tim->CCR[PWM_DIRECTION_CHANNEL] = DIRECTION_DC_LOW;
         pwmd->tim->CCR[PWM_POWER_CHANNEL] = power_pwm;
-    }
+        recharge_countdown = RECHARGE_COUNTDOWN_RELOAD;
 
-    recharge_countdown--;       // don't forget this
+    } else { // reverse direction (charge pump recharge)
+
+        int32_t rev_power_pwm = PWM_PERIOD - power_pwm;
+
+        if (recharge_countdown == 0) { // recharge cycle
+#ifdef WHITENOISE_RECHARGE
+            recharge_countdown = RECHARGE_COUNTDOWN_RELOAD - rand() % (RECHARGE_COUNTDOWN_RELOAD/2);
+#else
+            recharge_countdown = RECHARGE_COUNTDOWN_RELOAD;
+#endif
+
+            pwmd->tim->CCR[PWM_DIRECTION_CHANNEL] = DIRECTION_DC_RECHARGE; // recharge cycle
+            // correct power duty cycle to compensate for recharge
+            rev_power_pwm -= POWR_DC_RECHARGE_CORRECTION;
+            if (rev_power_pwm < 0) {
+                pwmd->tim->CCR[PWM_POWER_CHANNEL] = 0;
+            } else {
+                pwmd->tim->CCR[PWM_POWER_CHANNEL] = rev_power_pwm;
+            }
+
+        } else { // no recharge cycle
+            pwmd->tim->CCR[PWM_DIRECTION_CHANNEL] = DIRECTION_DC_HIGH;
+            pwmd->tim->CCR[PWM_POWER_CHANNEL] = rev_power_pwm;
+        }
+
+        recharge_countdown--;       // don't forget this
+    }
 }
 
 static const PWMConfig pwm_cfg = {
@@ -87,25 +95,13 @@ void motor_pwm_setup(void)
 
 void motor_pwm_set(float dc)
 {
-    static int sign = 1;
-
     if (dc > 0.95) {
         dc = 0.95;
     } else if (dc < -0.95){
         dc = -0.95;
     }
 
-    if (dc != 0.0f) {
-        sign = (int)copysignf(1.0, dc);
-    }
-
-    if (sign < 0) {
-        pwmEnableChannel(&PWMD1, PWM_DIRECTION_CHANNEL, DIRECTION_DC_HIGH);
-        power_pwm = (1 + dc) * PWM_PERIOD;
-    } else {
-        pwmEnableChannel(&PWMD1, PWM_DIRECTION_CHANNEL, DIRECTION_DC_LOW);
-        power_pwm = dc * PWM_PERIOD;
-    }
+    power_pwm = dc * PWM_PERIOD;
 }
 
 void motor_pwm_enable(void)
