@@ -8,6 +8,8 @@
 #define PWM_DIRECTION_CHANNEL       0
 #define PWM_POWER_CHANNEL           1
 
+#define WHITENOISE_RECHARGE         1
+
 #define DIRECTION_DC_LOW            0
 #define DIRECTION_DC_HIGH           PWM_PERIOD
 #define DIRECTION_DC_RECHARGE       (0.75 * PWM_PERIOD)     // 10us
@@ -48,7 +50,8 @@ void pwm_counter_reset(PWMDriver *pwmd)
         int32_t rev_power_pwm = PWM_PERIOD - power_pwm;
 
         if (recharge_countdown == 0) { // recharge cycle
-#ifdef WHITENOISE_RECHARGE
+#if (WHITENOISE_RECHARGE == 1)
+
             recharge_countdown = RECHARGE_COUNTDOWN_RELOAD - rand() % (RECHARGE_COUNTDOWN_RELOAD/2);
 #else
             recharge_countdown = RECHARGE_COUNTDOWN_RELOAD;
