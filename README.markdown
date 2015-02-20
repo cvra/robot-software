@@ -28,6 +28,7 @@ We decided that each service call would involve opening a TCP connection to the 
 This allows to keep the protocol relatively simple and stateless.
 
 Issuing a request to a service is done as follows:
+
 1. Open a TCP connection to the server on port 20001.
 2. The server accepts the connection and forks a handler.
 3. The client writes the request, formatted as a message (see above).
