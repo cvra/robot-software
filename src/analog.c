@@ -47,21 +47,31 @@ static THD_FUNCTION(adc_task, arg)
     filter_iir_t current_filter;
     // scipy.signal.butter(3, 0.1)
 
-    const float b[] = {0.00289819,  0.00869458,  0.00869458,  0.00289819};
-    const float a[] = {-2.37409474,  1.92935567, -0.53207537};
-    float current_filter_buffer[3];
 
-    filter_iir_init(&current_filter, b, a, 3, current_filter_buffer);
+    const float b[] = {0.01, 0.0};
+    const float a[] = {-0.99};
+
+    float current_filter_buffer[1];
+
+    filter_iir_init(&current_filter, b, a, 1, current_filter_buffer);
 
     adcStart(&ADCD1, NULL);
 
     while (1) {
         adcConvert(&ADCD1, &adcgrpcfg1, adc_samples, 1);
+
         motor_current = filter_iir_apply(&current_filter,
                 (- (adc_samples[1] - ADC_MAX / 2) * ADC_TO_AMPS));
 
+        // motor_current = - (adc_samples[1] - ADC_MAX / 2) * ADC_TO_AMPS;
+
+        // float filter_alpha = 0.02;
+        // motor_current = motor_current * (1-filter_alpha)
+        //     + (- (adc_samples[1] - ADC_MAX / 2) * ADC_TO_AMPS) * filter_alpha;
+
         battery_voltage = adc_samples[3] * ADC_TO_VOLTS;
         aux_in = (float)(adc_samples[0] + adc_samples[2])/(ADC_MAX*2);
+        chThdSleepMicroseconds(100);
     }
     return 0;
 }
