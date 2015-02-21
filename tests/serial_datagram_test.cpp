@@ -37,18 +37,18 @@ TEST_GROUP(SerialDatagramSendTestGroup)
 
 TEST(SerialDatagramSendTestGroup, SendFrame)
 {
-    char d[] = {0x0a, 0x0b, 0x0c}; // crc 1894c924
+    char d[] = {'\x0a', '\x0b', '\x0c'}; // crc 1894c924
     serial_datagram_send(d, sizeof(d), send_fn, NULL);
-    BYTES_EQUAL(0x0a, sendbuffer[0]);
-    BYTES_EQUAL(0x0b, sendbuffer[1]);
-    BYTES_EQUAL(0x0c, sendbuffer[2]);
+    BYTES_EQUAL('\x0a', sendbuffer[0]);
+    BYTES_EQUAL('\x0b', sendbuffer[1]);
+    BYTES_EQUAL('\x0c', sendbuffer[2]);
     // CRC
-    BYTES_EQUAL(0x18, sendbuffer[3]);
-    BYTES_EQUAL(0x94, sendbuffer[4]);
-    BYTES_EQUAL(0xc9, sendbuffer[5]);
-    BYTES_EQUAL(0x24, sendbuffer[6]);
+    BYTES_EQUAL('\x18', sendbuffer[3]);
+    BYTES_EQUAL('\x94', sendbuffer[4]);
+    BYTES_EQUAL('\xc9', sendbuffer[5]);
+    BYTES_EQUAL('\x24', sendbuffer[6]);
     // STOP
-    BYTES_EQUAL(0xC0, sendbuffer[7]);
+    BYTES_EQUAL('\xC0', sendbuffer[7]);
     CHECK_EQUAL(3+4+1, send_index);
 }
 
@@ -57,32 +57,32 @@ TEST(SerialDatagramSendTestGroup, SendEmptyFrame)
     char d[] = {}; // crc 00000000
     serial_datagram_send(d, sizeof(d), send_fn, NULL);
     // CRC
-    BYTES_EQUAL(0x00, sendbuffer[0]);
-    BYTES_EQUAL(0x00, sendbuffer[1]);
-    BYTES_EQUAL(0x00, sendbuffer[2]);
-    BYTES_EQUAL(0x00, sendbuffer[3]);
+    BYTES_EQUAL('\x00', sendbuffer[0]);
+    BYTES_EQUAL('\x00', sendbuffer[1]);
+    BYTES_EQUAL('\x00', sendbuffer[2]);
+    BYTES_EQUAL('\x00', sendbuffer[3]);
     // STOP
-    BYTES_EQUAL(0xC0, sendbuffer[4]);
+    BYTES_EQUAL('\xC0', sendbuffer[4]);
     CHECK_EQUAL(4+1, send_index);
 }
 
 TEST(SerialDatagramSendTestGroup, SendFrameEscape)
 {
-    char d[] = {ESC, 0x0a, END, 0x0b}; // crc 81ae6a94
+    char d[] = {ESC, '\x0a', END, '\x0b'}; // crc 81ae6a94
     serial_datagram_send(d, sizeof(d), send_fn, NULL);
     BYTES_EQUAL(ESC, sendbuffer[0]);
     BYTES_EQUAL(ESC_ESC, sendbuffer[1]);
-    BYTES_EQUAL(0x0a, sendbuffer[2]);
+    BYTES_EQUAL('\x0a', sendbuffer[2]);
     BYTES_EQUAL(ESC, sendbuffer[3]);
     BYTES_EQUAL(ESC_END, sendbuffer[4]);
-    BYTES_EQUAL(0x0b, sendbuffer[5]);
+    BYTES_EQUAL('\x0b', sendbuffer[5]);
     // CRC
-    BYTES_EQUAL(0x81, sendbuffer[6]);
-    BYTES_EQUAL(0xae, sendbuffer[7]);
-    BYTES_EQUAL(0x6a, sendbuffer[8]);
-    BYTES_EQUAL(0x94, sendbuffer[9]);
+    BYTES_EQUAL('\x81', sendbuffer[6]);
+    BYTES_EQUAL('\xae', sendbuffer[7]);
+    BYTES_EQUAL('\x6a', sendbuffer[8]);
+    BYTES_EQUAL('\x94', sendbuffer[9]);
     // STOP
-    BYTES_EQUAL(0xC0, sendbuffer[10]);
+    BYTES_EQUAL('\xC0', sendbuffer[10]);
     CHECK_EQUAL(2*2+2+4+1, send_index);
 }
 
@@ -97,13 +97,13 @@ TEST(SerialDatagramSendTestGroup, SendFrameEscapedCRC)
     BYTES_EQUAL('\n', sendbuffer[4]);
     BYTES_EQUAL(0, sendbuffer[5]);
     // CRC (escaped 65e9dbdc3fc0)
-    BYTES_EQUAL(0x65, sendbuffer[6]);
-    BYTES_EQUAL(0xe9, sendbuffer[7]);
-    BYTES_EQUAL(0xdb, sendbuffer[8]);
-    BYTES_EQUAL(0xdc, sendbuffer[9]);
-    BYTES_EQUAL(0x3f, sendbuffer[10]);
+    BYTES_EQUAL('\x65', sendbuffer[6]);
+    BYTES_EQUAL('\xe9', sendbuffer[7]);
+    BYTES_EQUAL('\xdb', sendbuffer[8]);
+    BYTES_EQUAL('\xdc', sendbuffer[9]);
+    BYTES_EQUAL('\x3f', sendbuffer[10]);
     // STOP
-    BYTES_EQUAL(0xC0, sendbuffer[11]);
+    BYTES_EQUAL('\xC0', sendbuffer[11]);
     CHECK_EQUAL(6+5+1, send_index);
 }
 
@@ -147,7 +147,7 @@ TEST(SerialDatagramRcvTestGroup, RcvHandlerInit)
 TEST(SerialDatagramRcvTestGroup, RcvFrameTooLong)
 {
     serial_datagram_rcv_handler_init(&h, buffer, 4, rcv_cb);
-    char frame[] = {'a', 0xe8, 0xb7, 0xbe, 0x43, END}; // crc e8b7be43
+    char frame[] = {'a', '\xe8', '\xb7', '\xbe', '\x43', END}; // crc e8b7be43
     int ret = serial_datagram_receive(&h, frame, sizeof(frame));
     CHECK_EQUAL(SERIAL_DATAGRAM_RCV_DATAGRAM_TOO_LONG, ret);
 }
@@ -161,14 +161,14 @@ TEST(SerialDatagramRcvTestGroup, RcvFrameTooShort)
 
 TEST(SerialDatagramRcvTestGroup, RcvCRCError)
 {
-    char frame[] = {'a', 0xff, 0xff, 0xff, 0xff, END}; // crc e8b7be43
+    char frame[] = {'a', '\xff', '\xff', '\xff', '\xff', END}; // crc e8b7be43
     int ret = serial_datagram_receive(&h, frame, sizeof(frame));
     CHECK_EQUAL(SERIAL_DATAGRAM_RCV_CRC_MISMATCH, ret);
 }
 
 TEST(SerialDatagramRcvTestGroup, RcvProtocolError)
 {
-    char frame[] = {ESC, 0xff, END}; // bad escape sequence
+    char frame[] = {ESC, '\xff', END}; // bad escape sequence
     int ret = serial_datagram_receive(&h, frame, sizeof(frame));
     CHECK_EQUAL(SERIAL_DATAGRAM_RCV_PROTOCOL_ERROR, ret);
 }
@@ -179,7 +179,7 @@ TEST(SerialDatagramRcvTestGroup, RcvValidFrame)
     expected_dtgrm = d;
     expected_dtgrm_len = 1;
 
-    char frame[] = {'a', 0xe8, 0xb7, 0xbe, 0x43, END}; // crc e8b7be43
+    char frame[] = {'a', '\xe8', '\xb7', '\xbe', '\x43', END}; // crc e8b7be43
     int ret = serial_datagram_receive(&h, frame, sizeof(frame));
     CHECK_EQUAL(SERIAL_DATAGRAM_RCV_NO_ERROR, ret);
     CHECK_EQUAL(1, rcv_nb_calls);
@@ -203,7 +203,7 @@ TEST(SerialDatagramRcvTestGroup, RcvValidEscapedFrame)
     expected_dtgrm = d;
     expected_dtgrm_len = 4;
 
-    char frame[] = {'a', ESC, ESC_ESC, 'b', ESC, ESC_END, 0xef, 0xad, 0x5e, 0x3e, END};
+    char frame[] = {'a', ESC, ESC_ESC, 'b', ESC, ESC_END, '\xef', '\xad', '\x5e', '\x3e', END};
     int ret = serial_datagram_receive(&h, frame, sizeof(frame));
     CHECK_EQUAL(SERIAL_DATAGRAM_RCV_NO_ERROR, ret);
     CHECK_EQUAL(1, rcv_nb_calls);
@@ -215,7 +215,7 @@ TEST(SerialDatagramRcvTestGroup, RcvValidEscapedFrameMultiCall)
     expected_dtgrm = d;
     expected_dtgrm_len = 4;
 
-    char frame[] = {'a', ESC, ESC_ESC, 'b', ESC, ESC_END, 0xef, 0xad, 0x5e, 0x3e, END};
+    char frame[] = {'a', ESC, ESC_ESC, 'b', ESC, ESC_END, '\xef', '\xad', '\x5e', '\x3e', END};
     CHECK_EQUAL(SERIAL_DATAGRAM_RCV_NO_ERROR, serial_datagram_receive(&h, &frame[0], 2));
     CHECK_EQUAL(SERIAL_DATAGRAM_RCV_NO_ERROR, serial_datagram_receive(&h, &frame[2], 1));
     CHECK_EQUAL(SERIAL_DATAGRAM_RCV_NO_ERROR, serial_datagram_receive(&h, &frame[3], 1));
@@ -230,7 +230,7 @@ TEST(SerialDatagramRcvTestGroup, RcvMultiValidFrames)
     char d[] = {'a', 'b'}; // crc 9e83486d
     expected_dtgrm = d;
     expected_dtgrm_len = 2;
-    char frame[] = {'a', 'b', 0x9e, 0x83, 0x48, 0x6d, END, 'a', 'b', 0x9e, 0x83, 0x48, 0x6d, END};
+    char frame[] = {'a', 'b', '\x9e', '\x83', '\x48', '\x6d', END, 'a', 'b', '\x9e', '\x83', '\x48', '\x6d', END};
     int ret = serial_datagram_receive(&h, frame, sizeof(frame));
     CHECK_EQUAL(SERIAL_DATAGRAM_RCV_NO_ERROR, ret);
     CHECK_EQUAL(2, rcv_nb_calls);
@@ -243,7 +243,7 @@ TEST(SerialDatagramRcvTestGroup, RcvMaxSizeValidFrame)
     expected_dtgrm_len = 1;
 
     serial_datagram_rcv_handler_init(&h, buffer, 5, rcv_cb);
-    char frame[] = {ESC, ESC_ESC, 0xc3, 0x03, 0xe4, 0xd1, END};
+    char frame[] = {ESC, ESC_ESC, '\xc3', '\x03', '\xe4', '\xd1', END};
     int ret = serial_datagram_receive(&h, frame, sizeof(frame));
     CHECK_EQUAL(SERIAL_DATAGRAM_RCV_NO_ERROR, ret);
     CHECK_EQUAL(1, rcv_nb_calls);
