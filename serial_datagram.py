@@ -1,5 +1,5 @@
 import struct
-import binascii
+from zlib import crc32
 import sys
 import os
 
@@ -15,7 +15,7 @@ class SerialDatagram:
 
     @staticmethod
     def crc32(data):
-        return struct.pack('>i', binascii.crc32(data))
+        return struct.pack('>I', crc32(data) & 0xffffffff)
 
     @classmethod
     def decode(cls, buf):
