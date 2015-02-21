@@ -16,7 +16,8 @@ depends:
     - filter:
         fork: froj
 
-#tests:
+tests:
+    - src/cmp/cmp.c
 
 templates:
     Makefile.include.jinja: src/src.mk
