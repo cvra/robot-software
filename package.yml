@@ -1,6 +1,6 @@
 source:
     - parameter.c
-    - dependencies/cmp/cmp.c
+    - parameter_msgpack.c
 
 depends:
     - cmp_mem_access:
