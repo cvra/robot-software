@@ -7,7 +7,7 @@ static int read_with_cmp_mem_access(parameter_namespace_t *ns, cmp_ctx_t *cmp, c
     if (!cmp_read_map(cmp, &map_size)) {
         return -1;
     }
-    int i;
+    uint32_t i;
     for (i = 0; i < map_size; i++) {
         uint32_t id_size;
         if (!cmp_read_str_size(cmp, &id_size)) {

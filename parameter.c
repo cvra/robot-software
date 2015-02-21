@@ -98,7 +98,7 @@ parameter_namespace_t *_parameter_namespace_find_w_id_len(parameter_namespace_t 
                                                 const char *id, size_t id_len)
 {
     parameter_namespace_t *nret = ns;
-    int i = 0;
+    uint32_t i = 0;
     while(nret != NULL && i < id_len) {
         int id_elem_len = id_split(&id[i], id_len - i);
         nret = get_subnamespace(nret, &id[i], id_elem_len);
@@ -117,7 +117,7 @@ parameter_t *_parameter_find_w_id_len(parameter_namespace_t *ns,
                                       const char *id, size_t id_len)
 {
     parameter_namespace_t *pns = ns;
-    int i = 0;
+    uint32_t i = 0;
     while(pns != NULL) {
         int id_elem_len = id_split(&id[i], id_len - i);
         if (id_elem_len + i < id_len) {
