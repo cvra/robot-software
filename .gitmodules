@@ -25,3 +25,6 @@
 [submodule "src/crc"]
 	path = src/crc
 	url = https://github.com/cvra/crc
+[submodule "src/parameter"]
+	path = src/parameter
+	url = https://github.com/Stapelzeiger/parameter

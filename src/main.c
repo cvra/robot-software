@@ -8,10 +8,12 @@
 #include "encoder.h"
 #include "cmp_mem_access/cmp_mem_access.h"
 #include "serial-datagram/serial_datagram.h"
+#include "parameter/parameter.h"
+#include "parameter/parameter_msgpack.h"
 #include <string.h>
 
 BaseSequentialStream* stdout;
-
+parameter_namespace_t parameter_root_ns;
 
 
 static void _stream_sndfn(void *arg, const void *p, size_t len)
@@ -46,6 +48,26 @@ static THD_FUNCTION(stream_task, arg)
             serial_datagram_send(dtgrm, cmp_mem_access_get_pos(&mem), _stream_sndfn, stdout);
         }
         chThdSleepMilliseconds(10);
+    }
+    return 0;
+}
+
+
+static void parameter_decode_cb(const void *dtgrm, size_t len)
+{
+    parameter_msgpack_read(&parameter_root_ns, (char*)dtgrm, len);
+}
+
+static THD_WORKING_AREA(parameter_listener_wa, 256);
+static THD_FUNCTION(parameter_listener, arg)
+{
+    static char rcv_buf[100];
+    static serial_datagram_rcv_handler_t rcv_handler;
+    serial_datagram_rcv_handler_init(&rcv_handler, &rcv_buf, sizeof(rcv_buf), parameter_decode_cb);
+    while (1) {
+        char c = chSequentialStreamGet((BaseSequentialStream*)arg);
+        int ret = serial_datagram_receive(&rcv_handler, &c, 1);
+        (void)ret; // ingore errors
     }
     return 0;
 }
@@ -86,6 +108,7 @@ int main(void) {
     chprintf(stdout, "boot\n");
 
     chThdCreateStatic(stream_task_wa, sizeof(stream_task_wa), LOWPRIO, stream_task, NULL);
+    chThdCreateStatic(parameter_listener_wa, sizeof(parameter_listener_wa), LOWPRIO, parameter_listener, &SD3);
 
     while (1) {
         palSetPad(GPIOA, GPIOA_LED);
