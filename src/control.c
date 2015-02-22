@@ -66,6 +66,7 @@ static void pid_param_update(struct pid_param_s *p, pid_ctrl_t *ctrl)
         pid_set_gains(ctrl, parameter_scalar_get(&p->kp),
                             parameter_scalar_get(&p->ki),
                             parameter_scalar_get(&p->kd));
+        pid_reset_integral(ctrl);
     }
 }
 
