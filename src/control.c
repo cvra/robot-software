@@ -53,9 +53,9 @@ struct pid_param_s {
 
 static void pid_param_declare(struct pid_param_s *p, parameter_namespace_t *ns)
 {
-    parameter_scalar_declare(&p->kp, ns, "kp");
-    parameter_scalar_declare(&p->ki, ns, "ki");
-    parameter_scalar_declare(&p->kd, ns, "kd");
+    parameter_scalar_declare_with_default(&p->kp, ns, "kp", 0);
+    parameter_scalar_declare_with_default(&p->ki, ns, "ki", 0);
+    parameter_scalar_declare_with_default(&p->kd, ns, "kd", 0);
 }
 
 static void pid_param_update(struct pid_param_s *p, pid_ctrl_t *ctrl)
