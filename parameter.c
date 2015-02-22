@@ -178,6 +178,8 @@ void _parameter_changed_set(parameter_t *p)
     if (changed_was_set) {
         return;
     }
+    // if the above "compare and set" passes, the changed count can safely
+    // be incremented for the namespaces
     parameter_namespace_t *ns = p->ns;
     while (ns != NULL) {
         PARAMETER_LOCK();
@@ -197,10 +199,12 @@ void _parameter_changed_clear(parameter_t *p)
     if (!changed_was_set) {
         return;
     }
+    // if the above "compare and set" passes, the changed count can safely
+    // be decremented for the namespaces
     parameter_namespace_t *ns = p->ns;
     while (ns != NULL) {
         PARAMETER_LOCK();
-        ns->changed_cnt--; // change counts can temporarily become negative
+        ns->changed_cnt--; // here change counts can temporarily become negative
         PARAMETER_UNLOCK();
         ns = ns->parent;
     }
