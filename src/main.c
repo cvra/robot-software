@@ -55,13 +55,15 @@ static THD_FUNCTION(stream_task, arg)
 
 static void parameter_decode_cb(const void *dtgrm, size_t len)
 {
-    parameter_msgpack_read(&parameter_root_ns, (char*)dtgrm, len);
+    int ret = parameter_msgpack_read(&parameter_root_ns, (char*)dtgrm, len);
+    chprintf(stdout, "ok %d\n", ret);
+    // parameter_print(&parameter_root_ns);
 }
 
-static THD_WORKING_AREA(parameter_listener_wa, 256);
+static THD_WORKING_AREA(parameter_listener_wa, 512);
 static THD_FUNCTION(parameter_listener, arg)
 {
-    static char rcv_buf[100];
+    static char rcv_buf[200];
     static serial_datagram_rcv_handler_t rcv_handler;
     serial_datagram_rcv_handler_init(&rcv_handler, &rcv_buf, sizeof(rcv_buf), parameter_decode_cb);
     while (1) {
@@ -107,7 +109,7 @@ int main(void) {
 
     chprintf(stdout, "boot\n");
 
-    chThdCreateStatic(stream_task_wa, sizeof(stream_task_wa), LOWPRIO, stream_task, NULL);
+    // chThdCreateStatic(stream_task_wa, sizeof(stream_task_wa), LOWPRIO, stream_task, NULL);
     chThdCreateStatic(parameter_listener_wa, sizeof(parameter_listener_wa), LOWPRIO, parameter_listener, &SD3);
 
     while (1) {
