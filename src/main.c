@@ -91,6 +91,51 @@ void panic_hook(const char* reason)
 }
 
 
+static int error_level = 0;
+
+static THD_WORKING_AREA(led_thread_wa, 128);
+static THD_FUNCTION(led_thread, arg)
+{
+    while (1) {
+        if (analog_get_battery_voltage() < 12.f) {
+            palClearPad(GPIOA, GPIOA_LED);
+            chThdSleepMilliseconds(40);
+            palSetPad(GPIOA, GPIOA_LED);
+            chThdSleepMilliseconds(40);
+
+            palClearPad(GPIOA, GPIOA_LED);
+            chThdSleepMilliseconds(40);
+            palSetPad(GPIOA, GPIOA_LED);
+            chThdSleepMilliseconds(40);
+
+            palClearPad(GPIOA, GPIOA_LED);
+            chThdSleepMilliseconds(40);
+            palSetPad(GPIOA, GPIOA_LED);
+            chThdSleepMilliseconds(40);
+
+            palClearPad(GPIOA, GPIOA_LED);
+            chThdSleepMilliseconds(40);
+            palSetPad(GPIOA, GPIOA_LED);
+
+            chThdSleepMilliseconds(720);
+        } else if (error_level) {
+            palClearPad(GPIOA, GPIOA_LED);
+            chThdSleepMilliseconds(80);
+            palSetPad(GPIOA, GPIOA_LED);
+            chThdSleepMilliseconds(80);
+        } else {
+            palClearPad(GPIOA, GPIOA_LED);
+            chThdSleepMilliseconds(80);
+            palSetPad(GPIOA, GPIOA_LED);
+            chThdSleepMilliseconds(80);
+            palClearPad(GPIOA, GPIOA_LED);
+            chThdSleepMilliseconds(80);
+            palSetPad(GPIOA, GPIOA_LED);
+            chThdSleepMilliseconds(760);
+        }
+    }
+}
+
 int main(void) {
     halInit();
     chSysInit();
@@ -111,6 +156,7 @@ int main(void) {
 
     // chThdCreateStatic(stream_task_wa, sizeof(stream_task_wa), LOWPRIO, stream_task, NULL);
     chThdCreateStatic(parameter_listener_wa, sizeof(parameter_listener_wa), LOWPRIO, parameter_listener, &SD3);
+    chThdCreateStatic(led_thread_wa, sizeof(led_thread_wa), LOWPRIO, led_thread, NULL);
 
     while (1) {
         palSetPad(GPIOA, GPIOA_LED);
