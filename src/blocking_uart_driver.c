@@ -63,8 +63,6 @@ void blocking_uart_init(BlockingUARTDriver *driver, USART_TypeDef *uart, uint32_
 
     uint32_t clock = STM32_PCLK1;
 
-    chSysLock();
-
 #if defined(USART1)
     if (uart == USART1) {
         rccEnableUSART1(FALSE); // FALSE = disable low power flag
@@ -112,6 +110,4 @@ void blocking_uart_init(BlockingUARTDriver *driver, USART_TypeDef *uart, uint32_
 
     // clear all flags
     uart->ICR = 0xFFFFFFFF;
-
-    chSysUnlock();
 }
