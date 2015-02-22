@@ -10,7 +10,7 @@ typedef struct parameter_s parameter_t;
 
 struct parameter_namespace_s {
     const char *id;
-    uint32_t changed_cnt;
+    int32_t changed_cnt;
     parameter_namespace_t *parent;
     parameter_namespace_t *subspaces;
     parameter_namespace_t *next;

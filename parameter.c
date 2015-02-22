@@ -200,7 +200,7 @@ void _parameter_changed_clear(parameter_t *p)
     parameter_namespace_t *ns = p->ns;
     while (ns != NULL) {
         PARAMETER_LOCK();
-        ns->changed_cnt--;
+        ns->changed_cnt--; // change counts can temporarily become negative
         PARAMETER_UNLOCK();
         ns = ns->parent;
     }
