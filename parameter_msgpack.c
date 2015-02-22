@@ -31,6 +31,8 @@ static int read_with_cmp_mem_access(parameter_namespace_t *ns, cmp_ctx_t *cmp, c
                 if (ret != 0) {
                     return ret;
                 }
+            } else {
+                return -4; // namespace not found
             }
         } else {
             parameter_t *p = _parameter_find_w_id_len(ns, id , id_size);
@@ -48,6 +50,8 @@ static int read_with_cmp_mem_access(parameter_namespace_t *ns, cmp_ctx_t *cmp, c
                 } else {
                     return -3; // not implemented yet
                 }
+            } else {
+                return -5; // parameter not found
             }
         }
     }
