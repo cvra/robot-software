@@ -32,19 +32,21 @@ class ServiceCallEncodingTestCase(unittest.TestCase):
         self.assertEqual(name, "foo")
         self.assertDictEqual({'bar':42}, params)
 
+class ServiceCallServerTestCase(unittest.TestCase):
+    def test_factory(self):
+        """
+        Checks that the class factory works as expected.
+        """
+        callbacks = {'foo':Mock()}
+        RequestHandler = service_call.create_request_handler(callbacks)
+        self.assertEqual(callbacks, RequestHandler.callbacks)
+
+
 class ServiceCallHandlerTestCase(unittest.TestCase):
     def setUp(self):
         self.handlers = {
-                'foo':Mock(),
-                'bar':Mock()
+                'bar':Mock(return_value=None)
                 }
-
-    def test_callback_called(self):
-        socket = Mock()
-        socket.recv = Mock(return_value=service_call.encode_call('foo', {}))
-
-        service_call.handle_connection(self.handlers, socket)
-        self.handlers['foo'].assert_any_call({})
 
     def test_correct_callback_called(self):
         socket = Mock()
@@ -54,5 +56,14 @@ class ServiceCallHandlerTestCase(unittest.TestCase):
         service_call.handle_connection(self.handlers, socket)
         self.handlers['bar'].assert_any_call({'x':10})
 
+    def test_callback_writeback(self):
+        socket = Mock()
+        self.handlers['bar'].return_value = 1
+        data = service_call.encode_call('bar', {'x':10})
+        socket.recv = Mock(return_value=data)
 
+        service_call.handle_connection(self.handlers, socket)
+
+        expected_data = msgpack.packb(1)
+        socket.send.assert_any_call(expected_data)
 

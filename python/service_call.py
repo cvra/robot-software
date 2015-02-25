@@ -1,4 +1,15 @@
 import msgpack
+import socketserver
+
+def create_request_handler(callbacks_dict):
+
+    class Server(socketserver.BaseRequestHandler):
+        callbacks = callbacks_dict
+
+        def handle(self):
+            handle_connection(self.callbacks, self.request)
+
+    return Server
 
 
 def encode_call(method_name, params):
@@ -20,10 +31,12 @@ def decode_call(data):
 
 def handle_connection(handlers, socket):
     """
-    Correctly handles a connection by looking up the correct callback by name in the handlers dict.
+    Correctly handles a connection by looking up the correct callback by name
+    in the handlers dict.
     """
     data = socket.recv(1024)
     name, params = decode_call(data)
-    handlers[name](params)
+    retval = handlers[name](params)
 
-
+    if retval is not None:
+        socket.send(msgpack.packb(retval))
