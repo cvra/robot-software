@@ -20,6 +20,9 @@ static int id_split(const char *id, int id_len)
 }
 
 
+/*
+ * get a sub-namespace of a namespace by id. search depth is only one level
+ */
 static parameter_namespace_t *get_subnamespace(parameter_namespace_t *ns,
                                                const char *ns_id,
                                                size_t ns_id_len)
@@ -41,6 +44,9 @@ static parameter_namespace_t *get_subnamespace(parameter_namespace_t *ns,
     return i;
 }
 
+/*
+ * get a parameter of a namespace by id. search depth is only one level
+ */
 static parameter_t *get_parameter(parameter_namespace_t *ns, const char *id,
                                   size_t param_id_len)
 {
