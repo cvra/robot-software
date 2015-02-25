@@ -2,6 +2,26 @@
 #include "parameter.h"
 #include <parameter_port.h>
 
+/*
+ * Synchronization is implemented using the PARAMETER_LOCK() and
+ * PARAMETER_UNLOCK() macros provided in the parameter_port.h.
+ * Synchronization is required in the following places:
+ *  - linked-list head pointer of the parameter list in a namespace
+ *  - linked-list head pointer of the sub-namespace list in a namespace
+ *  - the changed count of a namespace
+ *  - the changed flag of a parameter
+ *  - the parameter value
+ * All other values are read-only once the parameter/namespace has been linked
+ * into the parameter tree and therefore require no synchronization.
+ * Access to the above values can be synchronized independently except for the
+ * update of the changed flag, which has to be checked inside the critical
+ * section to know whether the changed count has to be updated for the
+ * containing namespaces. (The thread that succeeds in modifying the flag is
+ * responsible for updating the counters. Note that the counters could
+ * temporarily become negative in case the increment is interrupted by a
+ * get_parameter() which decreases the counter. This poses no problem since the
+ * check for the changed count correctly handles the signed integer counter)
+ */
 
 
 /* find the length of the next element in hierarchical id
