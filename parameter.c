@@ -20,22 +20,6 @@ static int id_split(const char *id, int id_len)
 }
 
 
-static void _ns_link_to_parent(parameter_namespace_t *ns)
-{
-    PARAMETER_LOCK();
-    ns->next = ns->parent->subspaces;
-    ns->parent->subspaces = ns;
-    PARAMETER_UNLOCK();
-}
-
-static void _param_link_to_parent(parameter_t *p)
-{
-    PARAMETER_LOCK();
-    p->next = p->ns->parameter_list;
-    p->ns->parameter_list = p;
-    PARAMETER_UNLOCK();
-}
-
 static parameter_namespace_t *get_subnamespace(parameter_namespace_t *ns,
                                                const char *ns_id,
                                                size_t ns_id_len)
@@ -87,7 +71,11 @@ void parameter_namespace_declare(parameter_namespace_t *ns,
     ns->subspaces = NULL;
     ns->parameter_list = NULL;
     if (parent != NULL) {
-        _ns_link_to_parent(ns);
+        PARAMETER_LOCK();
+        // link into parent namespace
+        ns->next = ns->parent->subspaces;
+        ns->parent->subspaces = ns;
+        PARAMETER_UNLOCK();
     } else {
         ns->next = NULL;
     }
@@ -142,7 +130,11 @@ void _parameter_declare(parameter_t *p, parameter_namespace_t *ns,
     p->ns = ns;
     p->changed = false;
     p->defined = false;
-    _param_link_to_parent(p);
+    PARAMETER_LOCK();
+    // link into namespace
+    p->next = p->ns->parameter_list;
+    p->ns->parameter_list = p;
+    PARAMETER_UNLOCK();
 }
 
 bool parameter_namespace_contains_changed(const parameter_namespace_t *ns)
