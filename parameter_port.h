@@ -9,7 +9,7 @@ extern "C" {
 
 #define PARAMETER_UNLOCK() {}
 
-#define _parameter_assert(check) {}
+#define PARAMETER_ASSERT(check) {}
 
 #ifdef __cplusplus
 }

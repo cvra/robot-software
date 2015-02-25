@@ -232,9 +232,7 @@ void parameter_scalar_declare_with_default(parameter_t *p,
 
 float parameter_scalar_get(parameter_t *p)
 {
-#if PARAMETER_CHECKS_EN
-    _parameter_assert(p->type == _PARAM_TYPE_SCALAR);
-#endif
+    PARAMETER_ASSERT(p->type == _PARAM_TYPE_SCALAR);
     _parameter_changed_clear(p);
     PARAMETER_LOCK();
     float ret = p->value.s;
@@ -244,9 +242,7 @@ float parameter_scalar_get(parameter_t *p)
 
 float parameter_scalar_read(parameter_t *p)
 {
-#if PARAMETER_CHECKS_EN
-    _parameter_assert(p->type == _PARAM_TYPE_SCALAR);
-#endif
+    PARAMETER_ASSERT(p->type == _PARAM_TYPE_SCALAR);
     PARAMETER_LOCK();
     float ret = p->value.s;
     PARAMETER_UNLOCK();
@@ -255,9 +251,7 @@ float parameter_scalar_read(parameter_t *p)
 
 void parameter_scalar_set(parameter_t *p, float value)
 {
-#if PARAMETER_CHECKS_EN
-    _parameter_assert(p->type == _PARAM_TYPE_SCALAR);
-#endif
+    PARAMETER_ASSERT(p->type == _PARAM_TYPE_SCALAR);
     PARAMETER_LOCK();
     p->value.s = value;
     PARAMETER_UNLOCK();
