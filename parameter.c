@@ -229,7 +229,7 @@ void _parameter_changed_clear(parameter_t *p)
 }
 
 /*
- * parameter types
+ * Scalar type parameter
  */
 
 void parameter_scalar_declare(parameter_t *p, parameter_namespace_t *ns,
@@ -274,6 +274,135 @@ void parameter_scalar_set(parameter_t *p, float value)
     PARAMETER_ASSERT(p->type == _PARAM_TYPE_SCALAR);
     PARAMETER_LOCK();
     p->value.s = value;
+    PARAMETER_UNLOCK();
+    _parameter_changed_set(p);
+}
+
+
+/*
+ * Vector type parameter
+ */
+
+void parameter_vector_declare(parameter_t *p, parameter_namespace_t *ns,
+                              const char *id, float *buf, uint8_t dim)
+{
+    p->type = _PARAM_TYPE_VECTOR;
+    p->value.vect.buf = buf;
+    p->value.vect.dim = dim;
+    _parameter_declare(p, ns, id);
+}
+
+void parameter_vector_declare_with_default(parameter_t *p,
+                                           parameter_namespace_t *ns,
+                                           const char *id,
+                                           float *buf,
+                                           uint8_t dim)
+{
+    parameter_vector_declare(p, ns, id, buf, dim);
+    _parameter_changed_set(p);
+}
+
+void parameter_vector_get(parameter_t *p, float *out)
+{
+    PARAMETER_ASSERT(p->type == _PARAM_TYPE_VECTOR);
+    _parameter_changed_clear(p);
+    PARAMETER_LOCK();
+    int i;
+    for (i = 0; i < p->value.vect.dim; i++) {
+        out[i] = p->value.vect.buf[i];
+    }
+    PARAMETER_UNLOCK();
+}
+
+void parameter_vector_read(parameter_t *p, float *out)
+{
+    PARAMETER_ASSERT(p->type == _PARAM_TYPE_VECTOR);
+    PARAMETER_LOCK();
+    int i;
+    for (i = 0; i < p->value.vect.dim; i++) {
+        out[i] = p->value.vect.buf[i];
+    }
+    PARAMETER_UNLOCK();
+}
+
+void parameter_vector_set(parameter_t *p, float *v)
+{
+    PARAMETER_ASSERT(p->type == _PARAM_TYPE_VECTOR);
+    PARAMETER_LOCK();
+    int i;
+    for (i = 0; i < p->value.vect.dim; i++) {
+        p->value.vect.buf[i] = v[i];
+    }
+    PARAMETER_UNLOCK();
+    _parameter_changed_set(p);
+}
+
+
+/*
+ * Variable size vector type parameter
+ */
+
+void parameter_variable_vector_declare(parameter_t *p,
+                                       parameter_namespace_t *ns,
+                                       const char *id,
+                                       float *buf,
+                                       uint8_t buf_size)
+{
+    p->type = _PARAM_TYPE_VAR_VECTOR;
+    p->value.vect.buf = buf;
+    p->value.vect.buf_dim = buf_size;
+    _parameter_declare(p, ns, id);
+}
+
+void parameter_variable_vector_declare_with_default(parameter_t *p,
+                                                    parameter_namespace_t *ns,
+                                                    const char *id,
+                                                    float *buf,
+                                                    uint8_t buf_size,
+                                                    uint8_t init_size)
+{
+    parameter_variable_vector_declare(p, ns, id , buf, buf_size);
+    p->value.vect.dim = buf_size;
+    _parameter_changed_set(p);
+}
+
+uint8_t parameter_variable_vector_get(parameter_t *p, float *out)
+{
+    PARAMETER_ASSERT(p->type == _PARAM_TYPE_VAR_VECTOR);
+    _parameter_changed_clear(p);
+    PARAMETER_LOCK();
+    int i;
+    for (i = 0; i < p->value.vect.dim; i++) {
+        out[i] = p->value.vect.buf[i];
+    }
+    uint8_t ret = p->value.vect.dim;
+    PARAMETER_UNLOCK();
+    return ret;
+}
+
+uint8_t parameter_variable_vector_read(parameter_t *p, float *out)
+{
+    PARAMETER_ASSERT(p->type == _PARAM_TYPE_VAR_VECTOR);
+    PARAMETER_LOCK();
+    int i;
+    for (i = 0; i < p->value.vect.dim; i++) {
+        out[i] = p->value.vect.buf[i];
+    }
+    uint8_t ret = p->value.vect.dim;
+    PARAMETER_UNLOCK();
+    return ret;
+}
+
+void parameter_variable_vector_set(parameter_t *p, float *v, uint8_t dim)
+{
+    PARAMETER_ASSERT(p->type == _PARAM_TYPE_VAR_VECTOR);
+    PARAMETER_ASSERT(dim <= p->value.vect.buf_dim);
+    PARAMETER_LOCK();
+    int i;
+    for (i = 0; i < dim; i++) {
+        p->value.vect.buf[i] = v[i];
+    }
+    p->value.vect.dim = dim;
     PARAMETER_UNLOCK();
     _parameter_changed_set(p);
 }

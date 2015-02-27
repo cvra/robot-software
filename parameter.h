@@ -24,7 +24,8 @@ struct _param_val_str_s {
 
 struct _param_val_vector_s {
     float *buf;
-    uint16_t len;
+    uint8_t buf_dim;
+    uint8_t dim;
 };
 
 struct _param_val_matrix_s {
@@ -37,8 +38,9 @@ struct _param_val_matrix_s {
 // #define _PARAM_TYPE_BOOL        2
 // #define _PARAM_TYPE_INTEGER     3
 // #define _PARAM_TYPE_STRING      4
-// #define _PARAM_TYPE_VECTOR      5
-// #define _PARAM_TYPE_MATRIX      6
+#define _PARAM_TYPE_VECTOR      5
+#define _PARAM_TYPE_VAR_VECTOR  6
+// #define _PARAM_TYPE_MATRIX      7
 
 struct parameter_s {
     const char *id;
@@ -137,6 +139,40 @@ void parameter_scalar_declare_with_default(parameter_t *p,
 float parameter_scalar_get(parameter_t *p);
 float parameter_scalar_read(parameter_t *p);
 void parameter_scalar_set(parameter_t *p, float value);
+
+/*
+ * Vector type parameter
+ */
+
+void parameter_vector_declare(parameter_t *p, parameter_namespace_t *ns,
+                              const char *id, float *buf, uint8_t dim);
+void parameter_vector_declare_with_default(parameter_t *p,
+                                           parameter_namespace_t *ns,
+                                           const char *id,
+                                           float *buf,
+                                           uint8_t dim);
+void parameter_vector_get(parameter_t *p, float *out);
+void parameter_vector_read(parameter_t *p, float *out);
+void parameter_vector_set(parameter_t *p, float *v);
+
+/*
+ * Variable size vector type parameter
+ */
+
+void parameter_variable_vector_declare(parameter_t *p,
+                                       parameter_namespace_t *ns,
+                                       const char *id,
+                                       float *buf,
+                                       uint8_t buf_size);
+void parameter_variable_vector_declare_with_default(parameter_t *p,
+                                                    parameter_namespace_t *ns,
+                                                    const char *id,
+                                                    float *buf,
+                                                    uint8_t buf_size,
+                                                    uint8_t init_size);
+uint8_t parameter_variable_vector_get(parameter_t *p, float *out);
+uint8_t parameter_variable_vector_read(parameter_t *p, float *out);
+void parameter_variable_vector_set(parameter_t *p, float *v, uint8_t dim);
 
 
 #ifdef __cplusplus
