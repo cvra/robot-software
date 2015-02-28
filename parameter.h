@@ -96,7 +96,7 @@ parameter_t *_parameter_find_w_id_len(parameter_namespace_t *ns,
 /*
  * Test whether the parameter has been set.
  * Returns true if the parameter has been set, false otherwise.
- * Returns false if p if a NULL pointer.
+ * Returns false if p is a NULL pointer.
  */
 bool parameter_defined(const parameter_t *p);
 
@@ -104,7 +104,6 @@ bool parameter_defined(const parameter_t *p);
  * Test whether the parameter was updated.
  * Returns true if the parameter has been updated since the last get call for
  * this parameter, false otherwise.
- * Returns false if p is a NULL pointer.
  */
 bool parameter_changed(const parameter_t *p);
 

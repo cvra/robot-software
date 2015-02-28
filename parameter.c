@@ -181,6 +181,9 @@ bool parameter_changed(const parameter_t *p)
 
 bool parameter_defined(const parameter_t *p)
 {
+    if (p == NULL) {
+        return false;
+    }
     PARAMETER_LOCK();
     bool defined = p->defined;
     PARAMETER_UNLOCK();
