@@ -252,12 +252,8 @@ void parameter_scalar_declare_with_default(parameter_t *p,
 
 float parameter_scalar_get(parameter_t *p)
 {
-    PARAMETER_ASSERT(p->type == _PARAM_TYPE_SCALAR);
     _parameter_changed_clear(p);
-    PARAMETER_LOCK();
-    float ret = p->value.s;
-    PARAMETER_UNLOCK();
-    return ret;
+    return parameter_scalar_read(p);
 }
 
 float parameter_scalar_read(parameter_t *p)
@@ -304,14 +300,8 @@ void parameter_vector_declare_with_default(parameter_t *p,
 
 void parameter_vector_get(parameter_t *p, float *out)
 {
-    PARAMETER_ASSERT(p->type == _PARAM_TYPE_VECTOR);
     _parameter_changed_clear(p);
-    PARAMETER_LOCK();
-    int i;
-    for (i = 0; i < p->value.vect.dim; i++) {
-        out[i] = p->value.vect.buf[i];
-    }
-    PARAMETER_UNLOCK();
+    parameter_vector_read(p, out);
 }
 
 void parameter_vector_read(parameter_t *p, float *out)
@@ -368,16 +358,8 @@ void parameter_variable_vector_declare_with_default(parameter_t *p,
 
 uint16_t parameter_variable_vector_get(parameter_t *p, float *out)
 {
-    PARAMETER_ASSERT(p->type == _PARAM_TYPE_VAR_VECTOR);
     _parameter_changed_clear(p);
-    PARAMETER_LOCK();
-    int i;
-    for (i = 0; i < p->value.vect.dim; i++) {
-        out[i] = p->value.vect.buf[i];
-    }
-    uint16_t ret = p->value.vect.dim;
-    PARAMETER_UNLOCK();
-    return ret;
+    return parameter_variable_vector_read(p, out);
 }
 
 uint16_t parameter_variable_vector_read(parameter_t *p, float *out)
