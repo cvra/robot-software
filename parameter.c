@@ -325,7 +325,7 @@ void parameter_vector_read(parameter_t *p, float *out)
     PARAMETER_UNLOCK();
 }
 
-void parameter_vector_set(parameter_t *p, float *v)
+void parameter_vector_set(parameter_t *p, const float *v)
 {
     PARAMETER_ASSERT(p->type == _PARAM_TYPE_VECTOR);
     PARAMETER_LOCK();
@@ -393,7 +393,7 @@ uint16_t parameter_variable_vector_read(parameter_t *p, float *out)
     return ret;
 }
 
-void parameter_variable_vector_set(parameter_t *p, float *v, uint16_t dim)
+void parameter_variable_vector_set(parameter_t *p, const float *v, uint16_t dim)
 {
     PARAMETER_ASSERT(p->type == _PARAM_TYPE_VAR_VECTOR);
     PARAMETER_ASSERT(dim <= p->value.vect.buf_dim);

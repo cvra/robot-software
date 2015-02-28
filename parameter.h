@@ -154,7 +154,7 @@ void parameter_vector_declare_with_default(parameter_t *p,
                                            uint16_t dim);
 void parameter_vector_get(parameter_t *p, float *out);
 void parameter_vector_read(parameter_t *p, float *out);
-void parameter_vector_set(parameter_t *p, float *v);
+void parameter_vector_set(parameter_t *p, const float *v);
 
 /*
  * Variable size vector type parameter
@@ -173,7 +173,7 @@ void parameter_variable_vector_declare_with_default(parameter_t *p,
                                                     uint16_t init_size);
 uint16_t parameter_variable_vector_get(parameter_t *p, float *out);
 uint16_t parameter_variable_vector_read(parameter_t *p, float *out);
-void parameter_variable_vector_set(parameter_t *p, float *v, uint16_t dim);
+void parameter_variable_vector_set(parameter_t *p, const float *v, uint16_t dim);
 
 
 #ifdef __cplusplus
