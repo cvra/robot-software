@@ -1,5 +1,6 @@
 import msgpack
 import socketserver
+import socket
 
 def create_request_handler(callbacks_dict):
 
@@ -40,3 +41,16 @@ def handle_connection(handlers, socket):
 
     if retval is not None:
         socket.send(msgpack.packb(retval))
+
+def call(adress, method_name, method_args={}):
+    """
+    Calls the given method on the given adress (a tuple containing hostname and port),
+    With the given parameters (dict object).
+    """
+    connection = socket.create_connection(adress)
+    data = encode_call(method_name, method_args)
+    connection.sendall(data)
+
+    data = connection.recv(1024)
+
+    return decode_call(data)

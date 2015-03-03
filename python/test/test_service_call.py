@@ -32,6 +32,40 @@ class ServiceCallEncodingTestCase(unittest.TestCase):
         self.assertEqual(name, "foo")
         self.assertDictEqual({'bar':42}, params)
 
+    @patch('socket.create_connection')
+    def test_service_call(self, create_connection):
+        """
+        Check that we correctly send the call.
+        """
+        create_connection.return_value = Mock()
+        create_connection.return_value.recv = Mock(return_value=b'')
+
+        adress = ('127.0.0.1', 20001)
+        method_name = 'foo'
+        method_params = {'bar': 12}
+        expected_data = service_call.encode_call(method_name, method_params)
+
+        service_call.call(adress, method_name, method_params)
+
+        create_connection.assert_any_call(adress)
+        create_connection.return_value.sendall.assert_any_call(expected_data)
+
+    @patch('socket.create_connection')
+    def test_service_call_answer(self, create_connection):
+        """
+        Check that the service call is correctly answered.
+        """
+        create_connection.return_value = Mock()
+        adress = ('127.0.0.1', 20001)
+        return_data = msgpack.packb(1)+msgpack.packb('bar')
+
+        create_connection.return_value.recv = Mock(return_value=return_data)
+
+        result = service_call.call(adress, 'foo')
+        self.assertEqual(result, (1, 'bar'))
+
+
+
 class ServiceCallServerTestCase(unittest.TestCase):
     def test_factory(self):
         """
@@ -40,6 +74,7 @@ class ServiceCallServerTestCase(unittest.TestCase):
         callbacks = {'foo':Mock()}
         RequestHandler = service_call.create_request_handler(callbacks)
         self.assertEqual(callbacks, RequestHandler.callbacks)
+
 
 
 class ServiceCallHandlerTestCase(unittest.TestCase):
