@@ -28,3 +28,6 @@
 [submodule "src/parameter"]
 	path = src/parameter
 	url = https://github.com/Stapelzeiger/parameter
+[submodule "src/filter"]
+	path = src/filter
+	url = https://github.com/froj/filter

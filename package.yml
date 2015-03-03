@@ -8,6 +8,7 @@ target.arm:
     - src/motor_pwm.c
     - src/analog.c
     - src/cmp/cmp.c
+    - src/pid_cascade.c
 
 depends:
     - pid
