@@ -8,6 +8,7 @@
 #include "parameter/parameter.h"
 #include "main.h"
 #include "pid_cascade.h"
+#include "timestamp/timestamp.h"
 
 #include "control.h"
 
@@ -15,24 +16,52 @@
 
 
 
-
 static struct pid_cascade_s ctrl;
 
+#define SETPT_MODE_POS  0
+#define SETPT_MODE_VEL  1
+#define SETPT_MODE_TRAJ 2
+static int setpt_mode;
+static float target_pos; // valid only in position control mode
+static float target_vel; // valid only in velocity control mode
+static float setpt_pos;
+static float setpt_vel;
+static float traj_acc; // acceleration of the trajectory mode
+static float setpt_torque;
+static timestamp_t setpt_ts; // timestamp of the last setpoint update (traj. mode)
+
+
+static float pos_setpt_interpolation(float pos, float vel, float acc, float delta_t)
+{
+    return pos + vel * delta_t + acc / 2 * delta_t * delta_t;
+}
+
+static float vel_setpt_interpolation(float pos, float vel, float acc, float delta_t)
+{
+    return vel + acc * delta_t;
+}
 
 
 void control_update_position_setpoint(float pos)
 {
-
+    setpt_mode = SETPT_MODE_POS;
+    setpt_pos = pos;
 }
 
 void control_update_velocity_setpoint(float vel)
 {
-
+    setpt_mode = SETPT_MODE_VEL;
+    setpt_vel = vel;
 }
 
-void control_update_trajectory_setpoint(float pos, float vel, float acc, float torque)
+void control_update_trajectory_setpoint(float pos, float vel, float acc, float torque, timestamp_t ts)
 {
-
+    setpt_mode = SETPT_MODE_TRAJ;
+    setpt_pos = pos;
+    setpt_vel = vel;
+    traj_acc = acc;
+    setpt_torque = torque;
+    setpt_ts = ts;
 }
 
 float control_get_motor_voltage(void)
@@ -149,6 +178,8 @@ static THD_FUNCTION(control_loop, arg)
     ctrl.torque_limit = INFINITY;
     ctrl.current_limit = INFINITY;
 
+    acc_max = INFINITY; // acceleration limit in speed / position control
+
     uint32_t control_period_us = 0;
     while (true) {
         // update parameters if they changed
@@ -176,15 +207,36 @@ static THD_FUNCTION(control_loop, arg)
             pid_reset_integral(&ctrl.velocity_pid);
             pid_reset_integral(&ctrl.position_pid);
         } else {
-            ctrl.position = 0;
-            ctrl.velocity = 0;
-            ctrl.current = 0;
-            ctrl.position_control_enabled = false;
-            ctrl.position_setpt = 0;
-            ctrl.velocity_setpt = 0;
-            ctrl.feedforward_torque = 0;
 
+            // sensor feedback
+            ctrl.position = 0; // todo
+            ctrl.velocity = 0; // todo
+            ctrl.current = analog_get_motor_current();
+
+            // setpoints
+            if (setpt_mode == SETPT_MODE_TRAJ) {
+                timestamp_t now = timestamp_get();
+                float delta_t = timestamp_duration_s(setpt_ts, now);
+                ctrl.position_control_enabled = true;
+                ctrl.position_setpt = pos_setpt_interpolation(setpt_pos, setpt_vel, traj_acc, delta_t);
+                ctrl.velocity_setpt = vel_setpt_interpolation(setpt_pos, setpt_vel, traj_acc, delta_t);
+                ctrl.feedforward_torque = setpt_torque;
+            } else if (setpt_mode == SETPT_MODE_VEL) {
+                ctrl.position_control_enabled = false;
+                float delta_vel = target_vel - setpt_vel;
+                float delta_t = control_period_us * 1000000;
+                ctrl.velocity_setpt = filter_limit_sym(delta_vel, delta_t * acc_max);
+                ctrl.feedforward_torque = 0;
+            } else { // SETPT_MODE_POS
+                ctrl.position_control_enabled = true;
+                ctrl.position_setpt = 0; // TODO!!!!!
+                ctrl.velocity_setpt = 0;
+                ctrl.feedforward_torque = 0;
+            }
+
+            // run control step
             pid_cascade_control(&ctrl);
+
             motor_set_voltage(ctrl.motor_voltage);
         }
 
