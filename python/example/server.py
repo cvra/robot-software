@@ -1,4 +1,4 @@
-from service_call import *
+from cvra_rpc.service_call import *
 import socketserver
 
 def demo_callback(params):
