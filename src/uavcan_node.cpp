@@ -4,8 +4,7 @@
 #include <uavcan_stm32/uavcan_stm32.hpp>
 #include <uavcan/protocol/NodeStatus.hpp>
 
-
-#define NODE_ID 43
+#define NODE_ID 42
 #define NODE_NAME "motor-board"
 
 #define CAN_BITRATE 1000000
@@ -24,6 +23,11 @@ Node& get_node()
     return *node_;
 }
 
+void uavcan_failure(const char *reason)
+{
+    chSysHalt(reason);
+}
+
 static THD_WORKING_AREA(uavcan_node_wa, 4000);
 static THD_FUNCTION(uavcan_node, arg)
 {
@@ -31,40 +35,25 @@ static THD_FUNCTION(uavcan_node, arg)
 
     (void)arg;
     if (can.init(CAN_BITRATE) != 0) {
-        return -1;
+        uavcan_failure("CAN driver");
     }
 
     Node& node = get_node();
 
     node.setNodeID(NODE_ID);
-
     node.setName(NODE_NAME);
 
-
     if (node.start() != 0) {
-        return -1;
-    }
-
-    uavcan::Subscriber<uavcan::protocol::NodeStatus> ns_sub(node);
-
-    const int ns_sub_start_res =
-        ns_sub.start([&](const uavcan::protocol::NodeStatus& msg) {
-            (void) msg;
-            palTogglePad(GPIOA, GPIOA_LED);
-        });
-
-    if (ns_sub_start_res < 0)
-    {
-        return -1;
+        uavcan_failure("UAVCAN node start");
     }
 
     node.setStatusOk();
 
     while (true) {
-        int res = node.spin(uavcan::MonotonicDuration::fromMSec(1000));
+        int res = node.spin(uavcan::MonotonicDuration::fromMSec(100));
 
         if (res < 0) {
-            // debug("Spin failure: %i\n", res);
+            uavcan_failure("UAVCAN spin");
         }
     }
 }
