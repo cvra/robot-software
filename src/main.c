@@ -96,6 +96,7 @@ static int error_level = 0;
 static THD_WORKING_AREA(led_thread_wa, 128);
 static THD_FUNCTION(led_thread, arg)
 {
+    (void)arg;
     while (1) {
         if (analog_get_battery_voltage() < 12.f) {
             palClearPad(GPIOA, GPIOA_LED);
@@ -134,6 +135,7 @@ static THD_FUNCTION(led_thread, arg)
             chThdSleepMilliseconds(760);
         }
     }
+    return 0;
 }
 
 int main(void) {
