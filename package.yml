@@ -3,6 +3,8 @@ depends:
 
 source:
     - iir.c
+    - basic.c
 
 tests:
     - tests/iir_test.cpp
+    - tests/basic_test.cpp
