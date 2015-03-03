@@ -21,20 +21,6 @@
 #endif
 
 /**
- * IRQ handler macros
- */
-# define UAVCAN_STM32_IRQ_HANDLER(id)  CH_IRQ_HANDLER(id)
-# define UAVCAN_STM32_IRQ_PROLOGUE()    CH_IRQ_PROLOGUE()
-# define UAVCAN_STM32_IRQ_EPILOGUE()    CH_IRQ_EPILOGUE()
-
-/**
- * Priority mask for timer and CAN interrupts.
- */
-#ifndef UAVCAN_STM32_IRQ_PRIORITY_MASK
-# define UAVCAN_STM32_IRQ_PRIORITY_MASK  CORTEX_MAX_KERNEL_PRIORITY
-#endif
-
-/**
  * Glue macros
  */
 #define UAVCAN_STM32_GLUE2_(A, B)       A##B

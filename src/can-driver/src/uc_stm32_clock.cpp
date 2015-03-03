@@ -37,18 +37,6 @@ static void fail()
     chSysHalt("uavcan timer fail");
 }
 
-// static int systick_config(uint32_t ticks)
-// {
-//     if ((ticks - 1) > SysTick_LOAD_RELOAD_Msk) {
-//         return 1;
-//     }
-//     SysTick->LOAD = ticks - 1;
-//     nvicEnableVector(SysTick_IRQn, (1<<__NVIC_PRIO_BITS) - 1);
-//     SysTick->VAL = 0;
-//     SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_TICKINT_Msk | SysTick_CTRL_ENABLE_Msk;
-//     return 0;
-// }
-
 void init()
 {
     CriticalSectionLocker lock;
