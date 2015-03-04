@@ -18,6 +18,8 @@ depends:
         fork: froj
     - parameter:
         fork: Stapelzeiger
+    - timestamp:
+        fork: Stapelzeiger
 
 tests:
     - src/cmp/cmp.c

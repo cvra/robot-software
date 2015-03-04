@@ -31,3 +31,6 @@
 [submodule "src/filter"]
 	path = src/filter
 	url = https://github.com/froj/filter
+[submodule "src/timestamp"]
+	path = src/timestamp
+	url = https://github.com/Stapelzeiger/timestamp.git
