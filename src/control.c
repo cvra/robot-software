@@ -127,12 +127,7 @@ float control_get_position_error(void)
 static void motor_set_voltage(float u)
 {
     float u_batt = analog_get_battery_voltage();
-    if (u_batt > LOW_BATT_TH) {
-        motor_pwm_enable();
-        motor_pwm_set(u / u_batt);
-    } else {
-        motor_pwm_disable();
-    }
+    motor_pwm_set(u / u_batt);
 }
 
 
@@ -198,6 +193,7 @@ static THD_FUNCTION(control_loop, arg)
     ctrl.current_limit = INFINITY;
 
     float acc_max = INFINITY; // acceleration limit in speed / position control
+    bool motor_enable = true;
 
     uint32_t control_period_us = 0;
     while (true) {
@@ -221,15 +217,16 @@ static THD_FUNCTION(control_loop, arg)
             }
         }
 
-        if (analog_get_battery_voltage() < LOW_BATT_TH) {
+        if (!motor_enable || analog_get_battery_voltage() < LOW_BATT_TH) {
             pid_reset_integral(&ctrl.current_pid);
             pid_reset_integral(&ctrl.velocity_pid);
             pid_reset_integral(&ctrl.position_pid);
+            motor_pwm_disable();
         } else {
 
             // sensor feedback
-            ctrl.position = 0; // todo
-            ctrl.velocity = 0; // todo
+            ctrl.position = encoder_get_primary(); // todo
+            ctrl.velocity = encoder_get_speed();
             ctrl.current = analog_get_motor_current();
 
             // setpoints
@@ -255,7 +252,7 @@ static THD_FUNCTION(control_loop, arg)
                 ctrl.velocity_setpt = filter_limit_sym(delta_vel, delta_t * acc_max);
                 ctrl.feedforward_torque = 0;
 
-            } else { // SETPT_MODE_POS
+            } else { // setpt_mode == SETPT_MODE_POS
                 ctrl.position_control_enabled = true;
                 ctrl.velocity_control_enabled = true;
                 float delta_t = control_period_us * 1000000;
@@ -271,6 +268,7 @@ static THD_FUNCTION(control_loop, arg)
             pid_cascade_control(&ctrl);
 
             motor_set_voltage(ctrl.motor_voltage);
+            motor_pwm_enable();
         }
 
         chThdSleepMicroseconds(control_period_us);
