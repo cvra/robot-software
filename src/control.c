@@ -18,9 +18,10 @@
 
 static struct pid_cascade_s ctrl;
 
-#define SETPT_MODE_POS  0
-#define SETPT_MODE_VEL  1
-#define SETPT_MODE_TRAJ 2
+#define SETPT_MODE_POS      0
+#define SETPT_MODE_VEL      1
+#define SETPT_MODE_TORQUE   2
+#define SETPT_MODE_TRAJ     3
 static int setpt_mode;
 static float target_pos; // valid only in position control mode
 static float target_vel; // valid only in velocity control mode
@@ -41,17 +42,28 @@ static float vel_setpt_interpolation(float pos, float vel, float acc, float delt
     return vel + acc * delta_t;
 }
 
+// returns acceleration to be applied for the next delta_t
+static float vel_ramp(float pos, float vel, float target_pos, float delta_t, float max_vel, float max_acc)
+{
+    return 0; // todo
+}
 
 void control_update_position_setpoint(float pos)
 {
     setpt_mode = SETPT_MODE_POS;
-    setpt_pos = pos;
+    target_pos = pos;
 }
 
 void control_update_velocity_setpoint(float vel)
 {
     setpt_mode = SETPT_MODE_VEL;
-    setpt_vel = vel;
+    target_vel = vel;
+}
+
+void control_update_torque_setpoint(float torque)
+{
+    setpt_mode = SETPT_MODE_TORQUE;
+    setpt_torque = torque;
 }
 
 void control_update_trajectory_setpoint(float pos, float vel, float acc, float torque, timestamp_t ts)
@@ -218,19 +230,33 @@ static THD_FUNCTION(control_loop, arg)
                 timestamp_t now = timestamp_get();
                 float delta_t = timestamp_duration_s(setpt_ts, now);
                 ctrl.position_control_enabled = true;
+                ctrl.velocity_control_enabled = true;
                 ctrl.position_setpt = pos_setpt_interpolation(setpt_pos, setpt_vel, traj_acc, delta_t);
                 ctrl.velocity_setpt = vel_setpt_interpolation(setpt_pos, setpt_vel, traj_acc, delta_t);
                 ctrl.feedforward_torque = setpt_torque;
+
+            } else if (setpt_mode == SETPT_MODE_TORQUE) {
+                ctrl.position_control_enabled = false;
+                ctrl.velocity_control_enabled = false;
+                ctrl.feedforward_torque = setpt_torque;
+
             } else if (setpt_mode == SETPT_MODE_VEL) {
                 ctrl.position_control_enabled = false;
+                ctrl.velocity_control_enabled = true;
                 float delta_vel = target_vel - setpt_vel;
                 float delta_t = control_period_us * 1000000;
                 ctrl.velocity_setpt = filter_limit_sym(delta_vel, delta_t * acc_max);
                 ctrl.feedforward_torque = 0;
+
             } else { // SETPT_MODE_POS
                 ctrl.position_control_enabled = true;
-                ctrl.position_setpt = 0; // TODO!!!!!
-                ctrl.velocity_setpt = 0;
+                ctrl.velocity_control_enabled = true;
+                float delta_t = control_period_us * 1000000;
+                float acc = vel_ramp(setpt_pos, setpt_vel, target_pos, delta_t, ctrl.velocity_limit, acc_max);
+                float pos = pos_setpt_interpolation(setpt_pos, setpt_vel, acc, delta_t);
+                float vel = vel_setpt_interpolation(setpt_pos, setpt_vel, acc, delta_t);
+                ctrl.position_setpt = setpt_pos = pos;;
+                ctrl.velocity_setpt = setpt_vel = vel;
                 ctrl.feedforward_torque = 0;
             }
 

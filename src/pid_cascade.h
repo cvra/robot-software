@@ -20,6 +20,7 @@ struct pid_cascade_s {
     float current_limit;
     // setpoints:
     bool position_control_enabled;
+    bool velocity_control_enabled;
     float position_setpt;
     float velocity_setpt;
     float feedforward_torque;

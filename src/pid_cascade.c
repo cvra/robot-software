@@ -15,11 +15,17 @@ void pid_cascade_control(struct pid_cascade_s *ctrl)
     }
 
     // velocity control
-    float velocity_setpt = ctrl->velocity_setpt + pos_ctrl_vel;
-    velocity_setpt = filter_limit_sym(velocity_setpt, ctrl->velocity_limit);
-    ctrl->velocity_error = ctrl->velocity - velocity_setpt;
-    float vel_ctrl_torque = pid_process(&ctrl->velocity_pid, ctrl->velocity_error);
-    ctrl->velocity_ctrl_out = vel_ctrl_torque;
+    float vel_ctrl_torque;
+    if (ctrl->velocity_control_enabled) {
+        float velocity_setpt = ctrl->velocity_setpt + pos_ctrl_vel;
+        velocity_setpt = filter_limit_sym(velocity_setpt, ctrl->velocity_limit);
+        ctrl->velocity_error = ctrl->velocity - velocity_setpt;
+        vel_ctrl_torque = pid_process(&ctrl->velocity_pid, ctrl->velocity_error);
+        ctrl->velocity_ctrl_out = vel_ctrl_torque;
+    } else {
+        pid_reset_integral(&ctrl->velocity_pid);
+        vel_ctrl_torque = 0;
+    }
 
     // torque control
     float torque_setpt = vel_ctrl_torque + ctrl->feedforward_torque;
