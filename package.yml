@@ -1,0 +1,12 @@
+depends:
+    - cmp
+    - cmp_mem_access:
+        fork: Stapelzeiger
+    - test-runner
+
+source:
+    - service_call.c
+
+tests:
+    - tests/test_service_call.cpp
+
