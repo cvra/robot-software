@@ -55,17 +55,14 @@ static float vel_ramp(float pos, float vel, float target_pos, float delta_t, flo
         if (fabs(next_error) <= breaking_dist) {
             // too close to break (or just close enough)
             return next_error_sign * max_acc;
-        }
-        else if (fabs(vel) >= max_vel) {
+        } else if (fabs(vel) >= max_vel) {
             // maximal velocity reched -> just cruise
             return 0;
-        }
-        else {
+        } else {
             // we can go faster
             return - next_error_sign * max_acc;
         }
-    }
-    else {
+    } else {
         // driving away from target position -> turn around
         return - next_error_sign * max_acc;
     }
