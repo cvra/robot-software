@@ -47,13 +47,28 @@ static float vel_setpt_interpolation(float vel, float acc, float delta_t)
 // returns acceleration to be applied for the next delta_t
 static float vel_ramp(float pos, float vel, float target_pos, float delta_t, float max_vel, float max_acc)
 {
-    (void)pos;
-    (void)vel;
-    (void)target_pos;
-    (void)delta_t;
-    (void)max_vel;
-    (void)max_acc;
-    return 0; // todo
+    float breaking_dist = vel * vel / 2 / max_acc;  // distance needed to break with max_acc
+    float next_error = pos + vel * delta_t + max_acc / 2 / delta_t / delta_t - target_pos;
+    float next_error_sign = copysignf(1.0, next_error);
+
+    if (next_error_sign == copysignf(1.0, vel)) {
+        if (fabs(next_error) <= breaking_dist) {
+            // too close to break (or just close enough)
+            return next_error_sign * max_acc;
+        }
+        else if (fabs(vel) >= max_vel) {
+            // maximal velocity reched -> just cruise
+            return 0;
+        }
+        else {
+            // we can go faster
+            return - next_error_sign * max_acc;
+        }
+    }
+    else {
+        // driving away from target position -> turn around
+        return - next_error_sign * max_acc;
+    }
 }
 
 void control_update_position_setpoint(float pos)
