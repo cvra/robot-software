@@ -9,6 +9,7 @@ target.arm:
     - src/analog.c
     - src/cmp/cmp.c
     - src/pid_cascade.c
+    - src/motor_protection.c
 
 depends:
     - pid

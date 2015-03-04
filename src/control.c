@@ -10,6 +10,7 @@
 #include "pid_cascade.h"
 #include "timestamp/timestamp.h"
 #include "filter/basic.h"
+#include "motor_protection.h"
 
 #include "control.h"
 
@@ -195,6 +196,13 @@ static THD_FUNCTION(control_loop, arg)
     float acc_max = INFINITY; // acceleration limit in speed / position control
     bool motor_enable = true;
 
+    motor_protection_t motor_prot;
+    float t_max = 0; // todo
+    float r_th = 0;
+    float c_th = 0;
+    float current_gain = 0;
+    motor_protection_init(&motor_prot, t_max, r_th, c_th, current_gain);
+
     uint32_t control_period_us = 0;
     while (true) {
         // update parameters if they changed
@@ -223,11 +231,14 @@ static THD_FUNCTION(control_loop, arg)
             pid_reset_integral(&ctrl.position_pid);
             motor_pwm_disable();
         } else {
+            float delta_t = control_period_us * 1000000;
 
             // sensor feedback
             ctrl.position = encoder_get_primary(); // todo
             ctrl.velocity = encoder_get_speed();
             ctrl.current = analog_get_motor_current();
+
+            ctrl.current_limit = motor_protection_update(&motor_prot, ctrl.current, delta_t);
 
             // setpoints
             if (setpt_mode == SETPT_MODE_TRAJ) {
@@ -248,14 +259,12 @@ static THD_FUNCTION(control_loop, arg)
                 ctrl.position_control_enabled = false;
                 ctrl.velocity_control_enabled = true;
                 float delta_vel = target_vel - setpt_vel;
-                float delta_t = control_period_us * 1000000;
                 ctrl.velocity_setpt = filter_limit_sym(delta_vel, delta_t * acc_max);
                 ctrl.feedforward_torque = 0;
 
             } else { // setpt_mode == SETPT_MODE_POS
                 ctrl.position_control_enabled = true;
                 ctrl.velocity_control_enabled = true;
-                float delta_t = control_period_us * 1000000;
                 float acc = vel_ramp(setpt_pos, setpt_vel, target_pos, delta_t, ctrl.velocity_limit, acc_max);
                 float pos = pos_setpt_interpolation(setpt_pos, setpt_vel, acc, delta_t);
                 float vel = vel_setpt_interpolation(setpt_vel, acc, delta_t);
