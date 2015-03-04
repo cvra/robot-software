@@ -160,23 +160,46 @@ static void pid_param_update(struct pid_param_s *p, pid_ctrl_t *ctrl)
 // control loop parameters
 static parameter_namespace_t param_ns_control;
 static parameter_t param_loop_freq;
+static parameter_t param_low_batt_th;
+static parameter_t param_vel_limit;
+static parameter_t param_torque_limit;
+static parameter_t param_acc_limit;
 static parameter_namespace_t param_ns_pos_ctrl;
 static parameter_namespace_t param_ns_vel_ctrl;
 static parameter_namespace_t param_ns_cur_ctrl;
 static struct pid_param_s pos_pid_params;
 static struct pid_param_s vel_pid_params;
 static struct pid_param_s cur_pid_params;
+static parameter_namespace_t param_ns_motor;
+static parameter_t param_torque_cst;
+static parameter_namespace_t param_ns_thermal;
+static parameter_t param_current_gain;
+static parameter_t param_max_temp;
+static parameter_t param_Rth;
+static parameter_t param_Cth;
 
 static void control_declare_parameters(void)
 {
     parameter_namespace_declare(&param_ns_control, &parameter_root_ns, "control");
     parameter_scalar_declare_with_default(&param_loop_freq, &param_ns_control, "loop_freq", 1000);
+    parameter_scalar_declare_with_default(&param_low_batt_th, &param_ns_control, "low_batt_th", LOW_BATT_TH);
+    parameter_scalar_declare(&param_vel_limit, &param_ns_control, "velocity_limit");
+    parameter_scalar_declare(&param_torque_limit, &param_ns_control, "torque_limit");
+    parameter_scalar_declare(&param_acc_limit, &param_ns_control, "acc_limit");
     parameter_namespace_declare(&param_ns_pos_ctrl, &param_ns_control, "position");
-    parameter_namespace_declare(&param_ns_vel_ctrl, &param_ns_control, "velocity");
-    parameter_namespace_declare(&param_ns_cur_ctrl, &param_ns_control, "current");
     pid_param_declare(&pos_pid_params, &param_ns_pos_ctrl);
+    parameter_namespace_declare(&param_ns_vel_ctrl, &param_ns_control, "velocity");
     pid_param_declare(&vel_pid_params, &param_ns_vel_ctrl);
+    parameter_namespace_declare(&param_ns_cur_ctrl, &param_ns_control, "current");
     pid_param_declare(&cur_pid_params, &param_ns_cur_ctrl);
+
+    parameter_namespace_declare(&param_ns_motor, &parameter_root_ns, "motor");
+    parameter_scalar_declare(&param_torque_cst, &param_ns_motor, "torque_cst");
+    parameter_namespace_declare(&param_ns_thermal, &parameter_root_ns, "thermal");
+    parameter_scalar_declare(&param_current_gain, &param_ns_thermal, "current_gain");
+    parameter_scalar_declare(&param_max_temp, &param_ns_thermal, "max_temp");
+    parameter_scalar_declare(&param_Rth, &param_ns_thermal, "Rth");
+    parameter_scalar_declare(&param_Cth, &param_ns_thermal, "Cth");
 }
 
 
@@ -194,6 +217,7 @@ static THD_FUNCTION(control_loop, arg)
     ctrl.current_limit = INFINITY;
 
     float acc_max = INFINITY; // acceleration limit in speed / position control
+    float low_batt_th = LOW_BATT_TH;
     bool motor_enable = true;
 
     motor_protection_t motor_prot;
@@ -223,9 +247,38 @@ static THD_FUNCTION(control_loop, arg)
                 pid_set_frequency(&ctrl.velocity_pid, freq);
                 pid_set_frequency(&ctrl.position_pid, freq);
             }
+            if (parameter_changed(&param_low_batt_th)) {
+                low_batt_th = parameter_scalar_get(&param_low_batt_th);
+            }
+            if (parameter_changed(&param_vel_limit)) {
+                ctrl.velocity_limit = parameter_scalar_get(&param_vel_limit);
+            }
+            if (parameter_changed(&param_torque_limit)) {
+                ctrl.torque_limit = parameter_scalar_get(&param_torque_limit);
+            }
+            if (parameter_changed(&param_acc_limit)) {
+                acc_max = parameter_scalar_get(&param_acc_limit);
+            }
+            if (parameter_namespace_contains_changed(&param_ns_motor)) {
+                if (parameter_changed(&param_torque_cst)) {
+                    ctrl.motor_current_constant = parameter_scalar_get(&param_torque_cst);
+                }
+                if (parameter_changed(&param_current_gain)) {
+                    current_gain = parameter_scalar_get(&param_current_gain);
+                }
+                if (parameter_changed(&param_max_temp)) {
+                    t_max = parameter_scalar_get(&param_max_temp);
+                }
+                if (parameter_changed(&param_Rth)) {
+                    r_th = parameter_scalar_get(&param_Rth);
+                }
+                if (parameter_changed(&param_Cth)) {
+                    c_th = parameter_scalar_get(&param_Cth);
+                }
+            }
         }
 
-        if (!motor_enable || analog_get_battery_voltage() < LOW_BATT_TH) {
+        if (!motor_enable || analog_get_battery_voltage() < low_batt_th) {
             pid_reset_integral(&ctrl.current_pid);
             pid_reset_integral(&ctrl.velocity_pid);
             pid_reset_integral(&ctrl.position_pid);
