@@ -9,6 +9,7 @@
 #include "main.h"
 #include "pid_cascade.h"
 #include "timestamp/timestamp.h"
+#include "filter/basic.h"
 
 #include "control.h"
 
@@ -37,7 +38,7 @@ static float pos_setpt_interpolation(float pos, float vel, float acc, float delt
     return pos + vel * delta_t + acc / 2 * delta_t * delta_t;
 }
 
-static float vel_setpt_interpolation(float pos, float vel, float acc, float delta_t)
+static float vel_setpt_interpolation(float vel, float acc, float delta_t)
 {
     return vel + acc * delta_t;
 }
@@ -45,6 +46,12 @@ static float vel_setpt_interpolation(float pos, float vel, float acc, float delt
 // returns acceleration to be applied for the next delta_t
 static float vel_ramp(float pos, float vel, float target_pos, float delta_t, float max_vel, float max_acc)
 {
+    (void)pos;
+    (void)vel;
+    (void)target_pos;
+    (void)delta_t;
+    (void)max_vel;
+    (void)max_acc;
     return 0; // todo
 }
 
@@ -190,7 +197,7 @@ static THD_FUNCTION(control_loop, arg)
     ctrl.torque_limit = INFINITY;
     ctrl.current_limit = INFINITY;
 
-    acc_max = INFINITY; // acceleration limit in speed / position control
+    float acc_max = INFINITY; // acceleration limit in speed / position control
 
     uint32_t control_period_us = 0;
     while (true) {
@@ -232,7 +239,7 @@ static THD_FUNCTION(control_loop, arg)
                 ctrl.position_control_enabled = true;
                 ctrl.velocity_control_enabled = true;
                 ctrl.position_setpt = pos_setpt_interpolation(setpt_pos, setpt_vel, traj_acc, delta_t);
-                ctrl.velocity_setpt = vel_setpt_interpolation(setpt_pos, setpt_vel, traj_acc, delta_t);
+                ctrl.velocity_setpt = vel_setpt_interpolation(setpt_vel, traj_acc, delta_t);
                 ctrl.feedforward_torque = setpt_torque;
 
             } else if (setpt_mode == SETPT_MODE_TORQUE) {
@@ -254,7 +261,7 @@ static THD_FUNCTION(control_loop, arg)
                 float delta_t = control_period_us * 1000000;
                 float acc = vel_ramp(setpt_pos, setpt_vel, target_pos, delta_t, ctrl.velocity_limit, acc_max);
                 float pos = pos_setpt_interpolation(setpt_pos, setpt_vel, acc, delta_t);
-                float vel = vel_setpt_interpolation(setpt_pos, setpt_vel, acc, delta_t);
+                float vel = vel_setpt_interpolation(setpt_vel, acc, delta_t);
                 ctrl.position_setpt = setpt_pos = pos;;
                 ctrl.velocity_setpt = setpt_vel = vel;
                 ctrl.feedforward_torque = 0;
