@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdint.h>
 
 static volatile uint32_t time_us_low;
 static volatile uint32_t time_us_high;
@@ -21,7 +22,7 @@ static volatile uint32_t time_us_high;
 #define INTERRUPT_PRIO  5
 
 
-static inline uint32_t timer_read()
+static inline uint32_t timer_read(void)
 {
     uint32_t tim_reg = TIMER_REG->CNT;
     while (TIMER_REG->SR & STM32_TIM_SR_UIF); // make sure there is no interrupt pending TODO won't work in interrupts
