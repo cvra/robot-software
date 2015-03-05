@@ -8,4 +8,4 @@ depends:
     - test-runner
 
 tests:
-    - parameter_test.cpp
+    - tests/parameter_test.cpp

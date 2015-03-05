@@ -1,5 +1,5 @@
 #include "CppUTest/TestHarness.h"
-#include "parameter.h"
+#include <parameter/parameter.h>
 
 TEST_GROUP(ParameterNamespaceInit)
 {
