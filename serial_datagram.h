@@ -8,6 +8,9 @@
 extern "C" {
 #endif
 
+/* datagram receive callback function type */
+typedef void (*serial_datagram_cb_t)(const void *dtgrm, size_t len, void *arg);
+
 /**
  * Datagram reception handler
  * Stores datagram assembly buffer, handling callback and protocol state.
@@ -16,7 +19,8 @@ typedef struct {
     uint8_t *buffer;
     size_t size;
     uint32_t write_index;
-    void (*callback_fn)(const void *dtgrm, size_t len);
+    serial_datagram_cb_t callback_fn;
+    void *callback_arg;
     bool error_flag;
     bool esc_flag;
 } serial_datagram_rcv_handler_t;
@@ -37,7 +41,7 @@ void serial_datagram_send(const void *dtgrm, size_t len,
  *  with a pointer to it.
  */
 void serial_datagram_rcv_handler_init(serial_datagram_rcv_handler_t *h,
-        void *buffer, size_t size, void (*cb)(const void *dtgrm, size_t len));
+        void *buffer, size_t size, serial_datagram_cb_t cb_fn, void *cb_arg);
 
 /**
  * Receive bytes of a datagram

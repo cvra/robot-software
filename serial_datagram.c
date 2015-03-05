@@ -64,11 +64,12 @@ static void rcv_handler_reset(serial_datagram_rcv_handler_t *h)
 }
 
 void serial_datagram_rcv_handler_init(serial_datagram_rcv_handler_t *h,
-        void *buffer, size_t size, void (*cb)(const void *dtgrm, size_t len))
+        void *buffer, size_t size, serial_datagram_cb_t cb_fn, void *cb_arg)
 {
     h->buffer = (uint8_t*)buffer;
     h->size = size;
-    h->callback_fn = cb;
+    h->callback_fn = cb_fn;
+    h->callback_arg = cb_arg;
     rcv_handler_reset(h);
 }
 
@@ -94,7 +95,7 @@ int serial_datagram_receive(serial_datagram_rcv_handler_t *h, const void *in,
                 if (crc != received_crc) {
                     error_code = SERIAL_DATAGRAM_RCV_CRC_MISMATCH;
                 } else {
-                    h->callback_fn(h->buffer, datagram_len);
+                    h->callback_fn(h->buffer, datagram_len, h->callback_arg);
                 }
             } else {
                 error_code = SERIAL_DATAGRAM_RCV_PROTOCOL_ERROR;

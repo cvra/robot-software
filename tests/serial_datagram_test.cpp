@@ -110,9 +110,11 @@ TEST(SerialDatagramSendTestGroup, SendFrameEscapedCRC)
 
 char *expected_dtgrm;
 size_t expected_dtgrm_len;
+void *expected_arg;
 int rcv_nb_calls;
-extern "C" void rcv_cb(const void *dtgrm, size_t len)
+extern "C" void rcv_cb(const void *dtgrm, size_t len, void *arg)
 {
+    POINTERS_EQUAL(expected_arg, arg);
     const char *dtgrm_byte = (const char*)dtgrm;
     CHECK_EQUAL(expected_dtgrm_len, len);
     for (int i = 0; i < len; i++) {
@@ -128,8 +130,9 @@ TEST_GROUP(SerialDatagramRcvTestGroup)
 
     void setup(void)
     {
-        serial_datagram_rcv_handler_init(&h, buffer, sizeof(buffer), rcv_cb);
+        serial_datagram_rcv_handler_init(&h, buffer, sizeof(buffer), rcv_cb, NULL);
         rcv_nb_calls = 0;
+        expected_arg = NULL;
     }
 };
 
@@ -146,7 +149,7 @@ TEST(SerialDatagramRcvTestGroup, RcvHandlerInit)
 
 TEST(SerialDatagramRcvTestGroup, RcvFrameTooLong)
 {
-    serial_datagram_rcv_handler_init(&h, buffer, 4, rcv_cb);
+    serial_datagram_rcv_handler_init(&h, buffer, 4, rcv_cb, NULL);
     char frame[] = {'a', '\xe8', '\xb7', '\xbe', '\x43', END}; // crc e8b7be43
     int ret = serial_datagram_receive(&h, frame, sizeof(frame));
     CHECK_EQUAL(SERIAL_DATAGRAM_RCV_DATAGRAM_TOO_LONG, ret);
@@ -242,8 +245,22 @@ TEST(SerialDatagramRcvTestGroup, RcvMaxSizeValidFrame)
     expected_dtgrm = d;
     expected_dtgrm_len = 1;
 
-    serial_datagram_rcv_handler_init(&h, buffer, 5, rcv_cb);
+    serial_datagram_rcv_handler_init(&h, buffer, 5, rcv_cb, NULL);
     char frame[] = {ESC, ESC_ESC, '\xc3', '\x03', '\xe4', '\xd1', END};
+    int ret = serial_datagram_receive(&h, frame, sizeof(frame));
+    CHECK_EQUAL(SERIAL_DATAGRAM_RCV_NO_ERROR, ret);
+    CHECK_EQUAL(1, rcv_nb_calls);
+}
+
+TEST(SerialDatagramRcvTestGroup, RcvCallbackArg)
+{
+    serial_datagram_rcv_handler_init(&h, buffer, sizeof(buffer), rcv_cb, (void*)0x1234);
+    char d[] = {};
+    expected_dtgrm = d;
+    expected_dtgrm_len = 0;
+    expected_arg = (void*)0x1234;
+
+    char frame[] = {0, 0, 0, 0, END}; // crc e8b7be43
     int ret = serial_datagram_receive(&h, frame, sizeof(frame));
     CHECK_EQUAL(SERIAL_DATAGRAM_RCV_NO_ERROR, ret);
     CHECK_EQUAL(1, rcv_nb_calls);
