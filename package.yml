@@ -6,6 +6,7 @@ depends:
         fork: Stapelzeiger
     - serial-can-bridge:
         fork: nuft
+    - simplerpc
 
 
 target.arm:
@@ -15,6 +16,7 @@ target.arm:
     - src/commands.c
     - src/board/board.c
     - src/can_bridge.c
+    - src/rpc_server.c
 
 source:
     - src/timestamp.c

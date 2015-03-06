@@ -25,3 +25,9 @@
 [submodule "src/cmp"]
 	path = src/cmp
 	url = https://github.com/cvra/cmp
+[submodule "src/simplerpc"]
+	path = src/simplerpc
+	url = https://github.com/cvra/simplerpc
+[submodule "src/cmp_mem_access"]
+	path = src/cmp_mem_access
+	url = https://github.com/Stapelzeiger/cmp_mem_access
