@@ -30,6 +30,7 @@
                     "ChibiOS/os/rt/ports/ARMCMx/compilers/GCC",
                     "ChibiOS/test/rt",
                     "ChibiOS/os/various",
+                    "ChibiOS/os/hal/lib/streams",
                     "./src",
                     "./board"
                 ]
