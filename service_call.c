@@ -16,7 +16,8 @@ void service_call_process(uint8_t *buffer, size_t buffer_size,
     cmp_mem_access_t mem, out_mem;
     char method_name[64];
     uint32_t method_name_len = sizeof method_name;
-    unsigned int argc, i;
+    uint32_t argc;
+    int i;
 
     cmp_mem_access_ro_init(&cmp, &mem, buffer, buffer_size);
 
