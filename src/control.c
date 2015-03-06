@@ -26,13 +26,13 @@ static bool motor_enable = true;
 #define SETPT_MODE_VEL      1
 #define SETPT_MODE_TORQUE   2
 #define SETPT_MODE_TRAJ     3
-static int setpt_mode;
-static float target_pos; // valid only in position control mode
-static float target_vel; // valid only in velocity control mode
-static float setpt_pos;
-static float setpt_vel;
-static float traj_acc; // acceleration of the trajectory mode
-static float setpt_torque;
+static int setpt_mode = SETPT_MODE_TORQUE;
+static float target_pos = 0; // valid only in position control mode
+static float target_vel = 0; // valid only in velocity control mode
+static float setpt_pos = 0;
+static float setpt_vel = 0;
+static float traj_acc = 0; // acceleration of the trajectory mode
+static float setpt_torque = 0;
 static timestamp_t setpt_ts; // timestamp of the last setpoint update (traj. mode)
 
 
