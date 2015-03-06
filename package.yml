@@ -3,6 +3,8 @@ depends:
     - cmp_mem_access:
         fork: Stapelzeiger
     - test-runner
+    - serial-datagram:
+        fork: Stapelzeiger
 
 source:
     - service_call.c

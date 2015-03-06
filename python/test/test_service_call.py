@@ -1,4 +1,5 @@
 import service_call
+from serial_datagrams import *
 
 import unittest
 try:
@@ -14,6 +15,7 @@ class ServiceCallEncodingTestCase(unittest.TestCase):
         Checks that encoding method works as expected.
         """
         data = service_call.encode_call("foo", {'bar':42})
+        data = datagram_decode(data)
 
         u = msgpack.Unpacker(encoding='ascii')
         u.feed(data)
@@ -43,6 +45,7 @@ class ServiceCallEncodingTestCase(unittest.TestCase):
         adress = ('127.0.0.1', 20001)
         method_name = 'foo'
         method_params = {'bar': 12}
+
         expected_data = service_call.encode_call(method_name, method_params)
 
         service_call.call(adress, method_name, method_params)
