@@ -25,13 +25,14 @@ service_call_method service_call_callbacks[] = {
 
 
 /* Callback fired when a serial datagram is received via TCP. */
-static void serial_datagram_recv_cb(const void *data, size_t len)
+static void serial_datagram_recv_cb(const void *data, size_t len, void *arg)
 {
+    (void) arg;
     method_called = true;
 
     output_bytes_written = service_call_process(data, len, output_buffer, sizeof output_buffer,
                                                 service_call_callbacks,
-                                                sizeof(serial_datagram_rcv_handler_init) / sizeof (service_call_method));
+                                                sizeof(service_call_callbacks) / sizeof (service_call_callbacks[0]));
 
 }
 
@@ -59,7 +60,8 @@ msg_t rpc_server_thread(void *p)
     while (1) {
         serial_datagram_rcv_handler_init(&handler,
                                          input_buffer, sizeof input_buffer,
-                                         serial_datagram_recv_cb);
+                                         serial_datagram_recv_cb,
+                                         NULL);
 
         error = netconn_accept(conn, &client_conn);
 
