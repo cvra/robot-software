@@ -96,3 +96,12 @@ msg_t rpc_server_thread(void *p)
 
     return MSG_OK;
 }
+
+void rpc_server_init(void)
+{
+    chThdCreateStatic(wa_rpc_server,
+                      RPC_SERVER_STACKSIZE,
+                      RPC_SERVER_PRIO,
+                      rpc_server_thread,
+                      NULL);
+}

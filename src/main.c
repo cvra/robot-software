@@ -11,6 +11,7 @@
 #include "timestamp.h"
 #include "panic_log.h"
 #include "can_bridge.h"
+#include "rpc_server.h"
 
 /*Endpoints to be used for USBD1.  */
 #define USBD1_DATA_REQUEST_EP           1
@@ -333,6 +334,7 @@ int main(void) {
 
     sntp_init();
     can_bridge_init();
+    rpc_server_init();
 
     /*
      * Normal main() thread activity, in this demo it does nothing except
