@@ -10,6 +10,8 @@ extern "C" {
 
 void control_start(void);
 
+void control_enable(bool en);
+
 void control_update_position_setpoint(float pos);
 void control_update_velocity_setpoint(float vel);
 void control_update_torque_setpoint(float torque);

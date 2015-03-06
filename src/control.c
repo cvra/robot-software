@@ -20,6 +20,8 @@
 
 static struct pid_cascade_s ctrl;
 
+static bool motor_enable = true;
+
 #define SETPT_MODE_POS      0
 #define SETPT_MODE_VEL      1
 #define SETPT_MODE_TORQUE   2
@@ -66,6 +68,11 @@ static float vel_ramp(float pos, float vel, float target_pos, float delta_t, flo
         // driving away from target position -> turn around
         return - next_error_sign * max_acc;
     }
+}
+
+void control_enable(bool en)
+{
+    motor_enable = en;
 }
 
 void control_update_position_setpoint(float pos)
@@ -230,7 +237,6 @@ static THD_FUNCTION(control_loop, arg)
 
     float acc_max = INFINITY; // acceleration limit in speed / position control
     float low_batt_th = LOW_BATT_TH;
-    bool motor_enable = true;
 
     motor_protection_t motor_prot;
     float t_max = 0; // todo
