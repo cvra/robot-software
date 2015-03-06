@@ -49,7 +49,7 @@ void service_call_encode(cmp_ctx_t *cmp, cmp_mem_access_t *mem,
  * @param [in] callbacks Array of possible callbacks.
  * @param [in] callbacks
  */
-void service_call_process(uint8_t *buffer, size_t buffer_size,
+void service_call_process(const uint8_t *buffer, size_t buffer_size,
                           uint8_t *output_buffer, size_t output_buffer_size,
                           service_call_method *callbacks, int callbacks_len);
 

@@ -8,7 +8,7 @@ void service_call_encode(cmp_ctx_t *cmp, cmp_mem_access_t *mem, uint8_t *buffer,
     cmp_write_map(cmp, param_count);
 }
 
-void service_call_process(uint8_t *buffer, size_t buffer_size,
+void service_call_process(const uint8_t *buffer, size_t buffer_size,
                           uint8_t *output_buffer, size_t output_buffer_size,
                           service_call_method *callbacks, int callbacks_len)
 {
