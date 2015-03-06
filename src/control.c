@@ -250,7 +250,7 @@ static THD_FUNCTION(control_loop, arg)
     pid_init(&ctrl.current_pid);
     pid_init(&ctrl.velocity_pid);
     pid_init(&ctrl.position_pid);
-    ctrl.motor_current_constant = 0;
+    ctrl.motor_current_constant = 1;
     ctrl.velocity_limit = INFINITY;
     ctrl.torque_limit = INFINITY;
     ctrl.current_limit = INFINITY;
