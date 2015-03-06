@@ -296,20 +296,21 @@ static THD_FUNCTION(control_loop, arg)
             }
         }
 
+        float delta_t = control_period_us * 1000000;
         if (!motor_enable || analog_get_battery_voltage() < low_batt_th) {
             pid_reset_integral(&ctrl.current_pid);
             pid_reset_integral(&ctrl.velocity_pid);
             pid_reset_integral(&ctrl.position_pid);
             motor_pwm_disable();
+            motor_protection_update(&motor_prot, analog_get_motor_current(), delta_t);
         } else {
-            float delta_t = control_period_us * 1000000;
 
             // sensor feedback
             ctrl.position = encoder_get_primary(); // todo
             ctrl.velocity = encoder_get_speed();
             ctrl.current = analog_get_motor_current();
 
-            ctrl.current_limit = motor_protection_update(&motor_prot, ctrl.current, delta_t);
+            // ctrl.current_limit = motor_protection_update(&motor_prot, ctrl.current, delta_t);
 
             // setpoints
             if (setpt_mode == SETPT_MODE_TRAJ) {
