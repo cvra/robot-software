@@ -69,6 +69,9 @@ static THD_FUNCTION(parameter_listener, arg)
     while (1) {
         char c = chSequentialStreamGet((BaseSequentialStream*)arg);
         int ret = serial_datagram_receive(&rcv_handler, &c, 1);
+        if (ret != SERIAL_DATAGRAM_RCV_NO_ERROR) {
+            chprintf(stdout, "serial datagram error %d\n", ret);
+        }
         (void)ret; // ingore errors
     }
     return 0;
