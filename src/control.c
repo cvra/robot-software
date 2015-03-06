@@ -118,6 +118,16 @@ float control_get_motor_voltage(void)
     return ctrl.motor_voltage;
 }
 
+float control_get_vel_ctrl_out(void)
+{
+    return ctrl.velocity_ctrl_out;
+}
+
+float control_get_pos_ctrl_out(void)
+{
+    return ctrl.position_ctrl_out;
+}
+
 float control_get_current(void)
 {
     return ctrl.current;

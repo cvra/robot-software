@@ -19,6 +19,8 @@ void control_update_trajectory_setpoint(float pos, float vel, float acc,
                                         float torque, timestamp_t ts);
 
 float control_get_motor_voltage(void);
+float control_get_vel_ctrl_out(void);
+float control_get_pos_ctrl_out(void);
 float control_get_current(void);
 float control_get_torque(void);
 float control_get_velocity(void);
