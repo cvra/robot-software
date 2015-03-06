@@ -41,10 +41,17 @@ void arg_read_cb(int argc, cmp_ctx_t *args_ctx, cmp_ctx_t *output_ctx)
     }
 }
 
+void output_test_cb(int argc, cmp_ctx_t *args_ctx, cmp_ctx_t *output_ctx)
+{
+    cmp_write_str(output_ctx, "hello", 5);
+}
+
+
 service_call_method callbacks[] = {
     {.name = (char *)"foo", .cb = foo_cb},
     {.name = (char *)"bar", .cb = bar_cb},
-    {.name = (char *)"arg_read", .cb = arg_read_cb}
+    {.name = (char *)"arg_read", .cb = arg_read_cb},
+    {.name = (char *)"output_test_cb", .cb = output_test_cb}
 };
 
 
@@ -131,8 +138,20 @@ TEST(ServiceCallTestGroup, OutputTest)
     const int argc = 0;
     uint8_t output_buffer[64];
 
+    char str[10];
+    unsigned int str_len = sizeof str;
+    bool result;
+
     // Writes header
     service_call_encode(&ctx, &mem, buffer, sizeof buffer, "output_test_cb", argc);
 
-    service_call_process(buffer, sizeof buffer, output_buffer, sizeof output_buffer, callbacks, LEN(callbacks));
+    service_call_process(buffer, sizeof buffer,
+                         output_buffer, sizeof output_buffer,
+                         callbacks, LEN(callbacks));
+
+    cmp_mem_access_ro_init(&ctx, &mem, output_buffer, sizeof output_buffer);
+    result = cmp_read_str(&ctx, str, &str_len);
+
+    CHECK_TRUE(result);
+    STRCMP_EQUAL(str, "hello");
 }
