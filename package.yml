@@ -4,7 +4,9 @@ depends:
 
 source:
     - serial_datagram.c
+    - serial_datagram_buffer_writer.c
 
 tests:
     - tests/serial_datagram_test.cpp
+    - tests/serial_datagram_buffer_writer_tests.cpp
 
