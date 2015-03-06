@@ -34,16 +34,22 @@ static THD_FUNCTION(stream_task, arg)
     while (1) {
         cmp_mem_access_init(&cmp, &mem, dtgrm, sizeof(dtgrm));
         bool err = false;
-        err = err || !cmp_write_map(&cmp, 3);
+        err = err || !cmp_write_map(&cmp, 4);
         const char *current_id = "motor_current";
         err = err || !cmp_write_str(&cmp, current_id, strlen(current_id));
         err = err || !cmp_write_float(&cmp, analog_get_motor_current());
         const char *motor_voltage_id = "motor_voltage";
         err = err || !cmp_write_str(&cmp, motor_voltage_id, strlen(motor_voltage_id));
         err = err || !cmp_write_float(&cmp, control_get_motor_voltage());
-        const char *batt_voltage_id = "batt_voltage";
-        err = err || !cmp_write_str(&cmp, batt_voltage_id, strlen(batt_voltage_id));
-        err = err || !cmp_write_float(&cmp, analog_get_battery_voltage());
+        // const char *batt_voltage_id = "batt_voltage";
+        // err = err || !cmp_write_str(&cmp, batt_voltage_id, strlen(batt_voltage_id));
+        // err = err || !cmp_write_float(&cmp, analog_get_battery_voltage());
+        const char *velocity_id = "velocity";
+        err = err || !cmp_write_str(&cmp, velocity_id, strlen(velocity_id));
+        err = err || !cmp_write_float(&cmp, control_get_velocity());
+        const char *vel_ctrl_id = "vel_ctrl";
+        err = err || !cmp_write_str(&cmp, vel_ctrl_id, strlen(vel_ctrl_id));
+        err = err || !cmp_write_float(&cmp, control_get_vel_ctrl_out());
         if (!err) {
             serial_datagram_send(dtgrm, cmp_mem_access_get_pos(&mem), _stream_sndfn, stdout);
         }
