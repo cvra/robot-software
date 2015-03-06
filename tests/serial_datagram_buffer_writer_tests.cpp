@@ -11,6 +11,7 @@ TEST_GROUP(SerialDatagramBuffferWriterTestCase)
 
     void setup(void)
     {
+        memset(&buffer, 0, sizeof buffer);
         serial_datagram_buffer_writer_init(&writer, buffer, sizeof buffer);
     }
 };
@@ -43,6 +44,17 @@ TEST(SerialDatagramBuffferWriterTestCase, DoesntOverflow)
     BYTES_EQUAL('h', smallbuf[0]);
     BYTES_EQUAL('e', smallbuf[1]);
     BYTES_EQUAL(0x55, smallbuf[2]);
+}
+
+TEST(SerialDatagramBuffferWriterTestCase, CanWrapBuffer)
+{
+    uint8_t data[] = "hello";
+    size_t ret;
+
+    ret = serial_datagram_buffer_wrap(data, sizeof data, buffer, sizeof buffer);
+
+    BYTES_EQUAL(0xc0, buffer[10]);
+    CHECK_EQUAL(sizeof data + sizeof(uint32_t) + 1, ret); // data + crc32 + end
 }
 
 

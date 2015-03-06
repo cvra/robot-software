@@ -17,7 +17,14 @@ typedef struct {
 
 void serial_datagram_buffer_writer_init(serial_datagram_buffer_writer_t *writer, uint8_t *buffer, size_t buffer_size);
 
-void serial_datagram_buffer_writer_cb(void *arg, void *buffer, size_t len);
+void serial_datagram_buffer_writer_cb(void *arg, const void *buffer, size_t len);
+
+/** @brief Wraps a buffer in a datagram.
+ *
+ * @return Length of the datagram
+ */
+size_t serial_datagram_buffer_wrap(uint8_t *input_buffer, size_t input_buffer_len,
+                                   uint8_t *output_buffer, size_t output_buffer_len);
 
 #ifdef __cplusplus
 }
