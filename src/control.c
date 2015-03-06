@@ -351,7 +351,8 @@ static THD_FUNCTION(control_loop, arg)
                 ctrl.position_control_enabled = false;
                 ctrl.velocity_control_enabled = true;
                 float delta_vel = target_vel - setpt_vel;
-                ctrl.velocity_setpt = filter_limit_sym(delta_vel, delta_t * acc_max);
+                setpt_vel += filter_limit_sym(delta_vel, delta_t * acc_max);
+                ctrl.velocity_setpt = setpt_vel;
                 ctrl.feedforward_torque = 0;
 
             } else { // setpt_mode == SETPT_MODE_POS
