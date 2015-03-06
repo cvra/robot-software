@@ -29,11 +29,13 @@ static THD_FUNCTION(encoder_speed_task, arg)
 
     filter_iir_t speed_filter;
     // scipy.signal.iirdesign(0.15, 0.25, 10, 40)
-    const float b[] = {0.00963341, -0.00442803, -0.00442803, 0.00963341};
-    const float a[] = {-2.72497916,  2.63867989, -0.90328997};
+    // const float b[] = {0.00963341, -0.00442803, -0.00442803, 0.00963341};
+    // const float a[] = {-2.72497916,  2.63867989, -0.90328997};
+    const float b[] = {0.01, 0.0};
+    const float a[] = {-0.99};
     float speed_filter_buffer[3];
 
-    filter_iir_init(&speed_filter, b, a, 3, speed_filter_buffer);
+    filter_iir_init(&speed_filter, b, a, 1, speed_filter_buffer);
 
     uint16_t encoder_old;
     uint16_t encoder_new;
@@ -46,11 +48,14 @@ static THD_FUNCTION(encoder_speed_task, arg)
         encoder_old = encoder_new;
         encoder_new = encoder_get_primary();
         delta_time = chVTGetSystemTimeX() - time;
+        delta_time = 20;
         time += delta_time;
 
-        encoder_speed = filter_iir_apply(&speed_filter,
-                    (float)((int16_t)(encoder_new - encoder_old))
-                    * 10000 / (uint32_t)delta_time);
+        // encoder_speed = filter_iir_apply(&speed_filter,
+        //             (float)((int16_t)(encoder_new - encoder_old))
+        //             * 10000 / (uint32_t)delta_time);
+        encoder_speed = (float)((int16_t)(encoder_new - encoder_old))
+                        * 10000 / (uint32_t)delta_time;
 
         chThdSleepMicroseconds(1000000.f / ENCODER_SPEED_FREQUENCY);
     }
