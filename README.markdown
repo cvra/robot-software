@@ -4,6 +4,9 @@ It is an alternative to rosbridge or rosserial, tailored for the needs of the CV
 
 The bridge makes an heavy use of MessagePack and IP networking in order to avoid reinventing the wheel.
 
+# Dependencies
+This repository depends on `serial_datagrams` python module, which must be installed.
+
 # Messages
 ROS messages are one way communication with no flow control or guarantee of arrival.
 They can be thought as a way to stream data.
@@ -31,7 +34,7 @@ Issuing a request to a service is done as follows:
 
 1. Open a TCP connection to the server on port 20001.
 2. The server accepts the connection and forks a handler.
-3. The client writes the request, formatted as a message (see above).
+3. The client writes the request, formatted as a message wrapped in a serial datagram (see above).
 4. The server reads the message type and parameters and executes whatever action is appropriate.
 5. (Optional) the server writes answer data to the client, MessagePack encoded.
 6. The server closes the connection.
