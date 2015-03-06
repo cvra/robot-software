@@ -2,14 +2,15 @@
 #include <simplerpc/service_call.h>
 #include <serial-datagram/serial_datagram.h>
 
-uint8_t input_buffer[1024];
-uint8_t output_buffer[1024];
-
 #define RPC_SERVER_STACKSIZE 2048
 #define RPC_SERVER_PORT 20001
 THD_WORKING_AREA(wa_rpc_server, RPC_SERVER_STACKSIZE);
 
+uint8_t input_buffer[1024];
+uint8_t output_buffer[1024];
+
 bool method_called;
+size_t output_bytes_written;
 
 static void ping_cb(int argc, cmp_ctx_t *input, cmp_ctx_t *output)
 {
@@ -28,9 +29,9 @@ static void serial_datagram_recv_cb(const void *data, size_t len)
 {
     method_called = true;
 
-    service_call_process(data, len, output_buffer, sizeof output_buffer,
-                         service_call_callbacks,
-                         sizeof(serial_datagram_rcv_handler_init) / sizeof (service_call_method));
+    output_bytes_written = service_call_process(data, len, output_buffer, sizeof output_buffer,
+                                                service_call_callbacks,
+                                                sizeof(serial_datagram_rcv_handler_init) / sizeof (service_call_method));
 
 }
 
@@ -68,6 +69,7 @@ msg_t rpc_server_thread(void *p)
 
         /* method_called will be set to true once a callback is fired. */
         method_called = false;
+        output_bytes_written = 0;
 
         while (!method_called) {
             /* Tries to receive something from the connection. */
@@ -83,6 +85,12 @@ msg_t rpc_server_thread(void *p)
                 err = serial_datagram_receive(&handler, data, len);
             } while (netbuf_next(buf) >= 0);
             netbuf_delete(buf);
+        }
+
+        if (output_bytes_written > 0) {
+            netconn_write(client_conn, output_buffer, output_bytes_written, NETCONN_COPY);
+            netconn_close(client_conn);
+            netconn_delete(client_conn);
         }
     }
 
