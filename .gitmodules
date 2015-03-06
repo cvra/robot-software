@@ -22,3 +22,6 @@
 [submodule "src/serializer"]
 	path = src/serializer
 	url = https://github.com/cvra/serializer
+[submodule "src/cmp"]
+	path = src/cmp
+	url = https://github.com/cvra/cmp
