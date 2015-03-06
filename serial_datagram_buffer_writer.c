@@ -1,3 +1,4 @@
+#include "serial_datagram.h"
 #include "serial_datagram_buffer_writer.h"
 
 
@@ -8,7 +9,7 @@ void serial_datagram_buffer_writer_init(serial_datagram_buffer_writer_t *writer,
     writer->write_index = 0;
 }
 
-void serial_datagram_buffer_writer_cb(void *arg, void *buffer, size_t len)
+void serial_datagram_buffer_writer_cb(void *arg, const void *buffer, size_t len)
 {
     size_t i;
     serial_datagram_buffer_writer_t *writer = (serial_datagram_buffer_writer_t *)arg;
@@ -22,3 +23,14 @@ void serial_datagram_buffer_writer_cb(void *arg, void *buffer, size_t len)
     }
 }
 
+size_t serial_datagram_buffer_wrap(uint8_t *input_buffer, size_t input_buffer_len,
+                                   uint8_t *output_buffer, size_t output_buffer_len)
+{
+    serial_datagram_buffer_writer_t writer;
+    serial_datagram_buffer_writer_init(&writer, output_buffer, output_buffer_len);
+
+    serial_datagram_send((void *)input_buffer, input_buffer_len,
+                         serial_datagram_buffer_writer_cb, (void *)&writer);
+
+    return writer.write_index;
+}
