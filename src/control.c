@@ -77,12 +77,22 @@ void control_enable(bool en)
 
 void control_update_position_setpoint(float pos)
 {
+    if (setpt_mode == SETPT_MODE_TORQUE) {
+        setpt_pos = pos; // todo replace by current position
+        setpt_vel = 0; // todo replace by current velocity
+    }
+    if (setpt_mode == SETPT_MODE_VEL) {
+        setpt_pos = pos; // todo see above
+    }
     setpt_mode = SETPT_MODE_POS;
     target_pos = pos;
 }
 
 void control_update_velocity_setpoint(float vel)
 {
+    if (setpt_mode == SETPT_MODE_TORQUE) {
+        setpt_vel = 0; // todo see above
+    }
     setpt_mode = SETPT_MODE_VEL;
     target_vel = vel;
 }
