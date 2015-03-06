@@ -58,6 +58,7 @@ service_call_method callbacks[] = {
 TEST_GROUP(ServiceCallTestGroup)
 {
     uint8_t buffer[1024];
+    uint8_t output_buffer[64];
     cmp_ctx_t ctx;
     cmp_mem_access_t mem;
 
@@ -136,7 +137,6 @@ TEST(ServiceCallTestGroup, PassesArgcCorrectly)
 TEST(ServiceCallTestGroup, OutputTest)
 {
     const int argc = 0;
-    uint8_t output_buffer[64];
 
     char str[10];
     unsigned int str_len = sizeof str;
@@ -154,4 +154,16 @@ TEST(ServiceCallTestGroup, OutputTest)
 
     CHECK_TRUE(result);
     STRCMP_EQUAL(str, "hello");
+}
+
+TEST(ServiceCallTestGroup, OutputLenIsReturned)
+{
+    size_t output_len;
+    service_call_encode(&ctx, &mem, buffer, sizeof buffer, "output_test_cb", 0);
+
+    output_len = service_call_process(buffer, sizeof buffer,
+                                      output_buffer, sizeof output_buffer,
+                                      callbacks, LEN(callbacks));
+
+    CHECK_EQUAL(6, output_len);
 }

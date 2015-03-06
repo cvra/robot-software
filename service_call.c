@@ -8,9 +8,9 @@ void service_call_encode(cmp_ctx_t *cmp, cmp_mem_access_t *mem, uint8_t *buffer,
     cmp_write_map(cmp, param_count);
 }
 
-void service_call_process(const uint8_t *buffer, size_t buffer_size,
-                          uint8_t *output_buffer, size_t output_buffer_size,
-                          service_call_method *callbacks, int callbacks_len)
+size_t service_call_process(const uint8_t *buffer, size_t buffer_size,
+                            uint8_t *output_buffer, size_t output_buffer_size,
+                            service_call_method *callbacks, int callbacks_len)
 {
     cmp_ctx_t cmp, out_cmp;
     cmp_mem_access_t mem, out_mem;
@@ -31,4 +31,6 @@ void service_call_process(const uint8_t *buffer, size_t buffer_size,
             callbacks[i].cb(argc, &cmp, &out_cmp);
         }
     }
+
+    return out_mem.index;
 }
