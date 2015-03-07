@@ -48,10 +48,10 @@ void output_test_cb(int argc, cmp_ctx_t *args_ctx, cmp_ctx_t *output_ctx)
 
 
 service_call_method callbacks[] = {
-    {.name = (char *)"foo", .cb = foo_cb},
-    {.name = (char *)"bar", .cb = bar_cb},
-    {.name = (char *)"arg_read", .cb = arg_read_cb},
-    {.name = (char *)"output_test_cb", .cb = output_test_cb}
+    {.name = "foo", .cb = foo_cb},
+    {.name = "bar", .cb = bar_cb},
+    {.name = "arg_read", .cb = arg_read_cb},
+    {.name = "output_test_cb", .cb = output_test_cb}
 };
 
 
