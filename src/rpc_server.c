@@ -6,11 +6,11 @@
 #define RPC_SERVER_PORT 20001
 THD_WORKING_AREA(wa_rpc_server, RPC_SERVER_STACKSIZE);
 
-uint8_t input_buffer[1024];
-uint8_t output_buffer[1024];
+static uint8_t input_buffer[1024];
+static uint8_t output_buffer[1024];
 
-bool method_called;
-size_t output_bytes_written;
+static bool method_called;
+static size_t output_bytes_written;
 
 static void ping_cb(int argc, cmp_ctx_t *input, cmp_ctx_t *output)
 {
