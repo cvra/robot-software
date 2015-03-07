@@ -77,7 +77,7 @@ msg_t rpc_server_thread(void *p)
             /* Tries to receive something from the connection. */
             err = netconn_recv(client_conn, &buf);
 
-            /* If connection closed early, exit the thread. */
+            /* If connection closed early */
             if (err != ERR_OK) {
                 break;
             }
@@ -91,9 +91,10 @@ msg_t rpc_server_thread(void *p)
 
         if (output_bytes_written > 0) {
             netconn_write(client_conn, output_buffer, output_bytes_written, NETCONN_COPY);
-            netconn_close(client_conn);
-            netconn_delete(client_conn);
         }
+
+        netconn_close(client_conn);
+        netconn_delete(client_conn);
     }
 
     return MSG_OK;
