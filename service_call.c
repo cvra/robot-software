@@ -14,8 +14,8 @@ size_t service_call_process(const uint8_t *buffer, size_t buffer_size,
 {
     cmp_ctx_t cmp, out_cmp;
     cmp_mem_access_t mem, out_mem;
-    char method_name[64];
-    uint32_t method_name_len = sizeof method_name;
+    char *method_name;
+    uint32_t method_name_len;
     uint32_t argc;
     int i;
 
@@ -23,11 +23,14 @@ size_t service_call_process(const uint8_t *buffer, size_t buffer_size,
 
     cmp_mem_access_init(&out_cmp, &out_mem, output_buffer, output_buffer_size);
 
-    cmp_read_str(&cmp, method_name, &method_name_len);
+    cmp_read_str_size(&cmp, &method_name_len);
+    size_t name_pos = cmp_mem_access_get_pos(&mem);
+    cmp_mem_access_set_pos(&mem, name_pos + method_name_len); // jump name string
+    method_name = cmp_mem_access_get_ptr_at_pos(&mem, name_pos);
     cmp_read_map(&cmp, &argc);
 
     for (i = 0; i < callbacks_len; ++i) {
-        if (!strcmp(method_name, callbacks[i].name)) {
+        if (!strncmp(method_name, callbacks[i].name, method_name_len)) {
             callbacks[i].cb(argc, &cmp, &out_cmp);
         }
     }
