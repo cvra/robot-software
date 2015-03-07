@@ -12,7 +12,7 @@ extern "C" {
 
 /** @brief A single RPC method. */
 typedef struct {
-    char *name; /**< Method name (eg: "goto_point") */
+    const char *name; /**< Method name (eg: "goto_point") */
     /** Method handler.
      * First argument is number of args.
      * Second argument is a pointer to a MessagePack context containing the args.
