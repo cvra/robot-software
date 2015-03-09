@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 args = dict(
     name='cvra_rpc',
-    version='0.1',
+    version='0.2',
     description='Simple RPC protocol for CVRA robots',
     packages=['.'],
     install_requires=['msgpack-python'],
