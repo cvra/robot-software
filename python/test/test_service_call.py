@@ -1,4 +1,4 @@
-import service_call
+from cvra_rpc import service_call
 from serial_datagrams import *
 
 import unittest
