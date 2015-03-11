@@ -107,7 +107,8 @@ msg_t can_bridge_tx_thread(void *p)
         &rcv,
         datagram_buf,
         sizeof(datagram_buf),
-        can_bridge_datagram_rcv_cb);
+        can_bridge_datagram_rcv_cb,
+        NULL);
 
     while (1) {
         /* Tries to receive something from the connection. */

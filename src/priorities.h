@@ -7,5 +7,6 @@
 
 #define USB_SHELL_PRIO (NORMALPRIO + 2)
 #define CAN_BRIDGE_PRIO (NORMALPRIO - 1)
+#define RPC_SERVER_PRIO (NORMALPRIO - 1)
 
 #endif
