@@ -14,6 +14,8 @@
 #ifndef FEEDBACK_H
 #define FEEDBACK_H
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -38,8 +40,6 @@ struct encoder_s {
 };
 
 struct potentiometer_s {
-    float min;
-    float max;
     float zero;
     float gain;     // pos = gain * input
 };
@@ -61,6 +61,7 @@ struct feedback_s {
         uint16_t primary_encoder;
         uint16_t secondary_encoder;
         uint32_t revolution_counter;
+        float delta_t;
     } input;
 
     struct encoder_s primary_encoder;
