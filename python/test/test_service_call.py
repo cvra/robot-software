@@ -105,3 +105,16 @@ class ServiceCallHandlerTestCase(unittest.TestCase):
         expected_data = msgpack.packb(1)
         socket.send.assert_any_call(expected_data)
 
+    def test_multiple_segments(self):
+        """
+        This tests checks what happens if the data is split between several TCP
+        MSS (recv does not return all data in one piece.
+        """
+        socket = Mock()
+        data = service_call.encode_call('bar', [10])
+        socket.recv = Mock()
+        socket.recv.side_effect = [data[:3], data[3:]]
+
+        service_call.handle_connection(self.handlers, socket)
+        self.handlers['bar'].assert_any_call([10])
+

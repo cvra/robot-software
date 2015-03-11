@@ -41,7 +41,12 @@ def handle_connection(handlers, socket):
     Correctly handles a connection by looking up the correct callback by name
     in the handlers dict.
     """
+
+    # Read the full serial datagram
     data = socket.recv(1024)
+    while data[-1:] != serial_datagrams.END:
+        data = data + socket.recv(1024)
+
     name, params = decode_call(data)
     retval = handlers[name](params)
 
