@@ -18,7 +18,7 @@ def encode_call(method_name, params):
     """
     Encode a call to the given method with the given parameters.
     """
-    data = msgpack.packb(method_name) + msgpack.packb(params)
+    data = msgpack.packb([method_name] + params)
     return serial_datagrams.datagram_encode(data)
 
 def decode_call(data):
@@ -31,7 +31,10 @@ def decode_call(data):
     u = msgpack.Unpacker(encoding='ascii')
     u.feed(data)
 
-    return tuple(u)
+    command = next(u)
+
+    return  command[0], command[1:]
+
 
 def handle_connection(handlers, socket):
     """
@@ -45,11 +48,13 @@ def handle_connection(handlers, socket):
     if retval is not None:
         socket.send(msgpack.packb(retval))
 
-def call(adress, method_name, method_args={}):
+def call(adress, method_name, method_args=None):
     """
     Calls the given method on the given adress (a tuple containing hostname and port),
     With the given parameters (dict object).
     """
+    if method_args is None:
+        method_args = []
     connection = socket.create_connection(adress)
     data = encode_call(method_name, method_args)
     connection.sendall(data)

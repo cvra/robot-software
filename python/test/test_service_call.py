@@ -14,25 +14,25 @@ class ServiceCallEncodingTestCase(unittest.TestCase):
         """
         Checks that encoding method works as expected.
         """
-        data = service_call.encode_call("foo", {'bar':42})
+        data = service_call.encode_call("foo", [1,2,3])
         data = datagram_decode(data)
 
         u = msgpack.Unpacker(encoding='ascii')
         u.feed(data)
-        command = list(u)
+        command = next(u)
 
-        self.assertEqual(command[0], "foo")
-        self.assertEqual(command[1]['bar'], 42)
+        self.assertEqual(command, ['foo', 1, 2, 3])
+
 
     def test_decoding_method(self):
         """
         Checks that we can decode a method.
         """
-        data = service_call.encode_call("foo", {'bar':42})
+        data = service_call.encode_call("foo", [42])
         name, params = service_call.decode_call(data)
 
         self.assertEqual(name, "foo")
-        self.assertDictEqual({'bar':42}, params)
+        self.assertEqual(params, [42])
 
     @patch('socket.create_connection')
     def test_service_call(self, create_connection):
@@ -44,7 +44,7 @@ class ServiceCallEncodingTestCase(unittest.TestCase):
 
         adress = ('127.0.0.1', 20001)
         method_name = 'foo'
-        method_params = {'bar': 12}
+        method_params = [12]
 
         expected_data = service_call.encode_call(method_name, method_params)
 
@@ -88,16 +88,16 @@ class ServiceCallHandlerTestCase(unittest.TestCase):
 
     def test_correct_callback_called(self):
         socket = Mock()
-        data = service_call.encode_call('bar', {'x':10})
+        data = service_call.encode_call('bar', [10])
         socket.recv = Mock(return_value=data)
 
         service_call.handle_connection(self.handlers, socket)
-        self.handlers['bar'].assert_any_call({'x':10})
+        self.handlers['bar'].assert_any_call([10])
 
     def test_callback_writeback(self):
         socket = Mock()
         self.handlers['bar'].return_value = 1
-        data = service_call.encode_call('bar', {'x':10})
+        data = service_call.encode_call('bar', [10])
         socket.recv = Mock(return_value=data)
 
         service_call.handle_connection(self.handlers, socket)
