@@ -29,14 +29,15 @@ enum feedback_input_selection {
 };
 
 
+// note: enocders always overflow at 2**16
 struct encoder_s {
-    uint32_t accumulator;
-    uint16_t previous;      // previous input
+    int32_t accumulator;        // accumulates encoder * p (except for bounded)
+    uint16_t previous;          // previous input
 
     uint16_t transmission_p;    // transmission factor from motor to output
-    uint16_t transmission_q;    // is p / q
+    uint16_t transmission_q;    // is p / q (i.e. working_end_pos = accumulator / q)
 
-    uint32_t ticks_per_rev;
+    uint32_t ticks_per_rev;     // one physical revolution of the encoder (datasheet)
 };
 
 struct potentiometer_s {
