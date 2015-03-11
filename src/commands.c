@@ -1,7 +1,10 @@
+#include <lwip/api.h>
+#include <simplerpc/service_call.h>
 #include <lwip/netif.h>
 #include <hal.h>
 #include <test.h>
 #include <chprintf.h>
+#include "rpc_server.h"
 
 #include "commands.h"
 #include "panic_log.h"
@@ -129,6 +132,32 @@ static void cmd_time(BaseSequentialStream *chp, int argc, char **argv)
     chprintf(chp, "Current time: %02d:%02d:%02d\r\n", h, m, ts.s);
 }
 
+static void cmd_rpc_client_test(BaseSequentialStream *chp, int argc, char **argv)
+{
+    uint8_t request[30];
+    uint8_t output[30];
+
+    cmp_ctx_t ctx;
+    cmp_mem_access_t mem;
+    ip_addr_t server;
+
+    int ret;
+
+    (void) chp;
+    (void) argc;
+    (void) argv;
+
+    const int port = 20001;
+
+    IP4_ADDR(&server, 192, 168, 2, 1);
+
+    service_call_encode(&ctx, &mem, request, sizeof request, "demo", 0);
+
+    rpc_transmit(request, cmp_mem_access_get_pos(&mem), output, sizeof output,
+                 &server, port);
+}
+
+
 
 const ShellCommand commands[] = {
     {"mem", cmd_mem},
@@ -138,5 +167,6 @@ const ShellCommand commands[] = {
     {"panic_log", cmd_panic_log},
     {"crashme", cmd_crashme},
     {"time", cmd_time},
+    {"rpc_client_demo", cmd_rpc_client_test},
     {NULL, NULL}
 };
