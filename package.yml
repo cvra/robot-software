@@ -24,6 +24,7 @@ depends:
 
 tests:
     - src/cmp/cmp.c
+    - tests/feedback_test.cpp
 
 templates:
     Makefile.include.jinja: src/src.mk
