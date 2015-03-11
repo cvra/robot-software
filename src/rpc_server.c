@@ -23,6 +23,19 @@ service_call_method service_call_callbacks[] = {
     {.name = "ping", .cb = ping_cb}
 };
 
+/** Adapts the serial datagram send callback API to the netconn one.
+ *
+ * @param [in] arg Pointer to the struct netconn instance to use, cast to void *.
+ * @param [in] buffer Buffer to transmit, cast to (void *).
+ * @param [in] buffer_len Length of the input buffer, in bytes.
+ */
+static void netconn_serial_datagram_tx_adapter(void *arg, const void *buffer, size_t buffer_len)
+{
+    struct netconn *conn = (struct netconn *)arg;
+
+    /* We don't know the lifetime of buffer so we must use NETCONN_COPY. */
+    netconn_write(conn, buffer, buffer_len, NETCONN_COPY);
+}
 
 /* Callback fired when a serial datagram is received via TCP. */
 static void serial_datagram_recv_cb(const void *data, size_t len, void *arg)
@@ -107,4 +120,63 @@ void rpc_server_init(void)
                       RPC_SERVER_PRIO,
                       rpc_server_thread,
                       NULL);
+}
+
+
+size_t rpc_transmit(uint8_t *input_buffer, size_t input_buffer_size,
+                    uint8_t *output_buffer, size_t output_buffer_size,
+                    ip_addr_t *addr, uint16_t port)
+{
+    struct netconn *conn;
+    int err;
+
+    cmp_ctx_t ctx; /* For cmp_mem_access. */
+    cmp_mem_access_t mem;
+    struct netbuf *buf;
+
+    u16_t len;
+    char *data;
+
+
+    conn = netconn_new(NETCONN_TCP);
+
+    if (conn == NULL) {
+        return -1;
+    }
+
+    err = netconn_connect(conn, addr, port);
+
+    if (err != ERR_OK) {
+        goto fail;
+    }
+
+    serial_datagram_send((void *)input_buffer, input_buffer_size,
+                         netconn_serial_datagram_tx_adapter, (void *)conn);
+
+    cmp_mem_access_init(&ctx, &mem, output_buffer, output_buffer_size);
+
+    while (1) {
+        err = netconn_recv(conn, &buf);
+
+        /* If connection was closed by server, abort */
+        if (err != ERR_OK) {
+            break;
+        }
+
+        do {
+            netbuf_data(buf, (void **)&data, &len);
+
+            /* Append data to buffer. */
+            ctx.write(&ctx, data, len);
+
+        } while (netbuf_next(buf) >= 0);
+        netbuf_delete(buf);
+    }
+
+    netconn_delete(conn);
+    return cmp_mem_access_get_pos(&mem);
+
+fail:
+    netconn_delete(conn);
+    return -1;
 }
