@@ -32,7 +32,7 @@ static float compute_encoder_position_periodic(int32_t accumulator,
                                                uint32_t ticks_per_rev,
                                                uint16_t q)
 {
-    return (float)accumulator / ticks_per_rev / q * M_2_PI;
+    return (float)accumulator / ticks_per_rev / q * 2 * M_PI;
 }
 
 static float compute_encoder_position_bounded(int32_t accumulator,
@@ -40,7 +40,7 @@ static float compute_encoder_position_bounded(int32_t accumulator,
                                               uint16_t p,
                                               uint16_t q)
 {
-    return (float)accumulator / ticks_per_rev * p / q * M_2_PI;
+    return (float)accumulator / ticks_per_rev * p / q * 2 * M_PI;
 }
 
 static float compute_encoder_velocity_periodic(int32_t delta_accumulator,
@@ -48,7 +48,7 @@ static float compute_encoder_velocity_periodic(int32_t delta_accumulator,
                                                uint16_t q,
                                                float delta_t)
 {
-    return (float)delta_accumulator / ticks_per_rev / q * M_2_PI / delta_t;
+    return (float)delta_accumulator / ticks_per_rev / q * 2 * M_PI / delta_t;
 }
 
 static float compute_encoder_velocity_bounded(int32_t delta_accumulator,
@@ -57,7 +57,7 @@ static float compute_encoder_velocity_bounded(int32_t delta_accumulator,
                                                uint16_t q,
                                                float delta_t)
 {
-    return (float)delta_accumulator / ticks_per_rev * p / q * M_2_PI / delta_t;
+    return (float)delta_accumulator / ticks_per_rev * p / q * 2 * M_PI / delta_t;
 }
 
 
