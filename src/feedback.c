@@ -21,7 +21,7 @@ static void periodic_accumulator_overflow(int32_t *accumulator,
 {
     /* adjust accumulator so it overflows on every revolution of the
      * working end */
-    if (*accumulator >= ticks_per_rev * q) {
+    if (*accumulator >= (int32_t)ticks_per_rev * q) {
         *accumulator -= ticks_per_rev * q;
     } else if (*accumulator < 0) {
         *accumulator += ticks_per_rev * q;
