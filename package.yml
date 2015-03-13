@@ -8,7 +8,9 @@ depends:
 
 source:
     - service_call.c
+    - message.c
 
 tests:
     - tests/test_service_call.cpp
+    - tests/test_messages.cpp
 
