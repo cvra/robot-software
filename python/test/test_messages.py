@@ -1,5 +1,8 @@
 from cvra_rpc import message
 import msgpack
+import threading
+import socketserver
+import socket
 
 import unittest
 try:
@@ -40,3 +43,51 @@ class MessageDecodingTestCase(unittest.TestCase):
         self.assertEqual('foo', name)
         self.assertEqual([1, 2, 3], args)
 
+class MessageRequestHandlerTestCase(unittest.TestCase):
+    def test_factory(self):
+        callbacks = {'foo':Mock()}
+        RequestHandler = message.create_request_handler(callbacks)
+        self.assertEqual(callbacks, RequestHandler.callbacks)
+
+    def test_correct_callback_called(self):
+        callbacks = {'foo':Mock(), 'bar':Mock()}
+
+        data = message.encode('bar')
+        message.handle_message(data, callbacks)
+        callbacks['bar'].assert_any_call([])
+
+    def test_args_forwarded(self):
+        callbacks = {'foo':Mock()}
+        data = message.encode('foo', [1, 2, 3])
+
+        message.handle_message(data, callbacks)
+        callbacks['foo'].assert_any_call([1, 2, 3])
+
+    def test_integration(self):
+        """
+        Simple integration testing.
+
+        Start one thread for the server, then sends a message to it and checks
+        that the callback was correctly installed.
+        """
+        TARGET = ('localhost', 9999)
+        callbacks = {'foo': Mock(), 'bar': Mock()}
+
+        # Creates the server
+        RequestHandler = message.create_request_handler(callbacks)
+        server = socketserver.UDPServer(TARGET, RequestHandler)
+
+        # Starts the server in another thread
+        server_thread = threading.Thread(target=server.serve_forever)
+        server_thread.start()
+
+        # Sends the messages
+        message.send(TARGET, 'foo', [1, 2, 3])
+        message.send(TARGET, 'bar')
+
+        # Terminates the server thread
+        server.shutdown()
+
+        # Checks that the callbacks were called
+        callbacks['foo'].assert_any_call([1, 2, 3])
+        callbacks['bar'].assert_any_call([])
