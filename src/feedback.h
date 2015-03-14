@@ -46,7 +46,7 @@ struct potentiometer_s {
 };
 
 struct rpm_s {
-    float phase;
+    float phase;    // angle in rad from zero to light barrier
 };
 
 struct feedback_s {
