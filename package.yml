@@ -9,6 +9,8 @@ target.arm:
     - src/analog.c
     - src/cmp/cmp.c
     - src/pid_cascade.c
+    - src/bootloader_config.c
+    - can-bootloader/config.c
 
 depends:
     - pid
