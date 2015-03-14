@@ -82,3 +82,32 @@ TEST(MessageTestGroup, CanUseArguments)
 
     message_process(buffer, sizeof buffer, callbacks, sizeof(callbacks) / sizeof(callbacks[0]));
 }
+
+static void first_cb(int argc, cmp_ctx_t *ctx)
+{
+    (void) argc;
+    (void) ctx;
+    mock().actualCall("first");
+}
+
+static void second_cb(int argc, cmp_ctx_t *ctx)
+{
+    (void) argc;
+    (void) ctx;
+    mock().actualCall("second");
+}
+
+TEST(MessageTestGroup, ExitAfterCallbackFound)
+{
+    /* This test checks that only the first callback is called. */
+    static message_method_t callbacks[] = {
+        {.name="foo", .cb=first_cb},
+        {.name="foo", .cb=second_cb},
+    };
+
+    mock().expectOneCall("first");
+    // No call to second callback is expected
+
+    message_encode(&ctx, &mem, buffer, sizeof buffer, "foo", 0);
+    message_process(buffer, sizeof buffer, callbacks, 2);
+}

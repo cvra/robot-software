@@ -37,6 +37,7 @@ void message_process(uint8_t *buffer, size_t buffer_size,
     for (i = 0; i < callbacks_len; ++i) {
         if (!strncmp(method_name, callbacks[i].name, method_name_len)) {
             callbacks[i].cb(argc, &cmp);
+            break;
         }
     }
 }
