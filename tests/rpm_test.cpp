@@ -6,9 +6,9 @@ extern "C" {
     static timestamp_t delta_t = 100000;
     timestamp_t timestamp_get(void)
     {
-        static timestamp_t time = 0;
-        time += delta_t;
-        return time;
+        static timestamp_t timestamp = 0;
+        timestamp += delta_t;
+        return timestamp;
     }
 }
 
