@@ -12,37 +12,35 @@ static int read_vector(cmp_ctx_t *cmp, float *buf, int len)
     return -1;
 }
 
-static int read_namespace(parameter_namespace_t *ns, cmp_ctx_t *cmp, cmp_mem_access_t *mem)
+static int read_namespace(parameter_namespace_t *ns, uint32_t map_size, cmp_ctx_t *cmp)
 {
-    uint32_t map_size;
-    if (!cmp_read_map(cmp, &map_size)) {
-        return -1;
-    }
     uint32_t i;
     for (i = 0; i < map_size; i++) {
-        // the map entry is  id: value
-        // id_size is the lenght of the id string, pos_id the buffer position
-        // of the id string, pos_value is the buffer position of the value
         uint32_t id_size;
         if (!cmp_read_str_size(cmp, &id_size)) {
             return -1; // read error or id was not a string
         }
-        size_t pos_id = cmp_mem_access_get_pos(mem);
-        size_t pos_value = pos_id + id_size;
-        cmp_mem_access_set_pos(mem, pos_value); // jump id-string
-        if (!cmp_mem_access_pos_is_valid(mem, pos_value - 1)) {
-            return -1; // buffer ends in id string
+        char *id = malloc(id_size);
+        if (id == NULL) {
+            return -20;
         }
-        char *id = cmp_mem_access_get_ptr_at_pos(mem, pos_id);
+        // read id string
+        if (!cmp->read(cmp, id, id_size)) {
+            free(id);
+            return -1;
+        }
         cmp_object_t obj;
         if (!cmp_read_object(cmp, &obj)) {
+            free(id);
             return -1;
         }
         if (cmp_object_is_map(&obj)) {
             parameter_namespace_t *sub = _parameter_namespace_find_w_id_len(ns, id , id_size);
+            free(id);
             if (sub != NULL) {
-                cmp_mem_access_set_pos(mem, pos_value); // reset to value
-                int ret = read_namespace(sub, cmp, mem);
+                uint32_t map_size;
+                cmp_object_as_map(&obj, &map_size);
+                int ret = read_namespace(sub, map_size, cmp);
                 if (ret != 0) {
                     return ret;
                 }
@@ -54,7 +52,7 @@ static int read_namespace(parameter_namespace_t *ns, cmp_ctx_t *cmp, cmp_mem_acc
             }
         } else {
             parameter_t *p = _parameter_find_w_id_len(ns, id , id_size);
-
+            free(id);
             if (p != NULL) {
                 if (p->type == _PARAM_TYPE_SCALAR) {
                     float valf;
@@ -123,10 +121,19 @@ static int read_namespace(parameter_namespace_t *ns, cmp_ctx_t *cmp, cmp_mem_acc
     return 0;
 }
 
+int parameter_msgpack_read_cmp(parameter_namespace_t *ns, cmp_ctx_t *cmp)
+{
+    uint32_t map_size;
+    if (!cmp_read_map(cmp, &map_size)) {
+        return -1;
+    }
+    return read_namespace(ns, map_size, cmp);
+}
+
 int parameter_msgpack_read(parameter_namespace_t *ns, const char *buf, size_t size)
 {
     cmp_ctx_t cmp;
     cmp_mem_access_t mem;
     cmp_mem_access_ro_init(&cmp, &mem, buf, size);
-    return read_namespace(ns, &cmp, &mem);
+    return parameter_msgpack_read_cmp(ns, &cmp);
 }
