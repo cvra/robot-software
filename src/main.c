@@ -11,6 +11,7 @@
 #include "parameter/parameter.h"
 #include "parameter/parameter_msgpack.h"
 #include <string.h>
+#include "bootloader_config.h"
 
 BaseSequentialStream* stdout;
 parameter_namespace_t parameter_root_ns;
@@ -142,6 +143,10 @@ int main(void) {
     halInit();
     chSysInit();
 
+    bootloader_config_t config;
+    if (!config_get(&config)) {
+        chSysHalt("invalid config");
+    }
 
     sdStart(&SD3, NULL);
     stdout = (BaseSequentialStream*)&SD3;
