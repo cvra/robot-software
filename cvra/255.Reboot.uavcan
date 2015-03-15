@@ -1,0 +1,9 @@
+#
+# Reboot the device.
+#
+
+uint8 REBOOT = 0
+uint8 BOOTLOADER_TIMEOUT = 1
+uint8 BOOTLOADER_NO_TIMEOUT = 2
+
+uint8 bootmode
