@@ -61,7 +61,6 @@ struct feedback_s {
         float potentiometer;
         uint16_t primary_encoder;
         uint16_t secondary_encoder;
-        uint32_t revolution_counter;
         float delta_t;
     } input;
 

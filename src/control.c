@@ -11,12 +11,14 @@
 #include "timestamp/timestamp.h"
 #include "filter/basic.h"
 #include "motor_protection.h"
+#include "feedback.h"
 
 #include "control.h"
 
 #define LOW_BATT_TH 12.f // [V]
 
 
+struct feedback_s control_feedback;
 
 static struct pid_cascade_s ctrl;
 
@@ -217,7 +219,7 @@ static parameter_t param_max_temp;
 static parameter_t param_Rth;
 static parameter_t param_Cth;
 
-static void control_declare_parameters(void)
+void control_declare_parameters(void)
 {
     parameter_namespace_declare(&param_ns_control, &parameter_root_ns, "control");
     parameter_scalar_declare_with_default(&param_loop_freq, &param_ns_control, "loop_freq", 1000);
@@ -326,8 +328,15 @@ static THD_FUNCTION(control_loop, arg)
         } else {
 
             // sensor feedback
-            ctrl.position = encoder_get_primary(); // todo
-            ctrl.velocity = encoder_get_speed();
+            control_feedback.input.potentiometer = analog_get_auxiliary();
+            control_feedback.input.primary_encoder = encoder_get_primary();
+            control_feedback.input.secondary_encoder = encoder_get_secondary();
+            control_feedback.input.delta_t = delta_t;
+
+            feedback_compute(&control_feedback);
+
+            ctrl.position = control_feedback.output.position;
+            ctrl.velocity = control_feedback.output.velocity;
             ctrl.current = analog_get_motor_current();
 
             // ctrl.current_limit = motor_protection_update(&motor_prot, ctrl.current, delta_t);
@@ -378,10 +387,8 @@ static THD_FUNCTION(control_loop, arg)
     return 0;
 }
 
-void control_start(void)
+void control_start()
 {
-    control_declare_parameters();
-
     static THD_WORKING_AREA(control_loop_wa, 256);
     chThdCreateStatic(control_loop_wa, sizeof(control_loop_wa), HIGHPRIO, control_loop, NULL);
 }

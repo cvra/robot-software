@@ -10,6 +10,8 @@ target.arm:
     - src/cmp/cmp.c
     - src/pid_cascade.c
     - src/motor_protection.c
+    - src/feedback.c
+    - src/rpm.c
 
 depends:
     - pid

@@ -7,7 +7,11 @@ extern "C" {
 #endif
 
 #include "timestamp/timestamp.h"
+#include "feedback.h"
 
+extern struct feedback_s control_feedback;
+
+void control_declare_parameters(void);
 void control_start(void);
 
 void control_enable(bool en);

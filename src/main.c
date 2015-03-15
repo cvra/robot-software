@@ -161,9 +161,37 @@ int main(void) {
 
     analog_init();
     encoder_init_primary();
-    control_start();
 
     chprintf(stdout, "boot\n");
+
+
+    control_declare_parameters();
+
+
+    control_feedback.input_selection = FEEDBACK_PRIMARY_ENCODER_BOUNDED;
+    control_feedback.output.position = 0;
+    control_feedback.output.velocity = 0;
+
+    control_feedback.primary_encoder.accumulator = 0;
+    control_feedback.primary_encoder.previous = encoder_get_primary();
+    control_feedback.primary_encoder.transmission_p = 1;
+    control_feedback.primary_encoder.transmission_q = 30;
+    control_feedback.primary_encoder.ticks_per_rev = (1<<12);
+
+    control_feedback.secondary_encoder.accumulator = 0;
+    control_feedback.secondary_encoder.previous = encoder_get_secondary();
+    control_feedback.secondary_encoder.transmission_p = 1;
+    control_feedback.secondary_encoder.transmission_q = 1;
+    control_feedback.secondary_encoder.ticks_per_rev = (1<<14);
+
+    control_feedback.potentiometer.gain = 1;
+    control_feedback.potentiometer.zero = 0;
+
+    control_feedback.rpm.phase = 0;
+
+    control_start();
+
+
 
     // chThdCreateStatic(stream_task_wa, sizeof(stream_task_wa), LOWPRIO, stream_task, NULL);
     chThdCreateStatic(parameter_listener_wa, sizeof(parameter_listener_wa), LOWPRIO, parameter_listener, &SD3);
