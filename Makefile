@@ -221,9 +221,6 @@ include uavcan/libuavcan/include.mk
 CPPSRC += $(LIBUAVCAN_SRC)
 UINCDIR += $(LIBUAVCAN_INC) ./dsdlc_generated
 
-# run uavcan dsdl compiler
-$(info $(shell $(LIBUAVCAN_DSDLC) $(UAVCAN_DSDL_DIR)))
-
 #
 # End of user defines
 ##############################################################################
@@ -241,6 +238,11 @@ CMakeLists.txt: package.yml
 
 src/src.mk: package.yml
 	python packager/packager.py
+
+# run uavcan dsdl compiler
+.PHONY: dsdlc
+dsdlc:
+	$(LIBUAVCAN_DSDLC) cvra $(UAVCAN_DSDL_DIR)
 
 .PHONY: tests
 tests: CMakeLists.txt
