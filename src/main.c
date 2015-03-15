@@ -154,7 +154,7 @@ int main(void) {
     halInit();
     chSysInit();
 
-    bootloader_config_t config;
+    static bootloader_config_t config;
     if (!config_get(&config)) {
         chSysHalt("invalid config");
     }
@@ -171,13 +171,17 @@ int main(void) {
     control_start();
 
     chprintf(stdout, "boot\n");
+    chprintf(stdout, "%s: %d\n", config.board_name, config.ID);
 
     // chThdCreateStatic(stream_task_wa, sizeof(stream_task_wa), LOWPRIO, stream_task, NULL);
     chThdCreateStatic(parameter_listener_wa, sizeof(parameter_listener_wa), LOWPRIO, parameter_listener, &SD3);
     chThdCreateStatic(led_thread_wa, sizeof(led_thread_wa), LOWPRIO, led_thread, NULL);
 
+    static struct uavcan_node_arg node_arg;
+    node_arg.node_id = config.ID;
+    node_arg.node_name = config.board_name;
     can_transceiver_activate();
-    uavcan_node_start(NULL);
+    uavcan_node_start(&node_arg);
 
     while (1) {
         palSetPad(GPIOA, GPIOA_LED);

@@ -3,9 +3,7 @@
 #include <uavcan/uavcan.hpp>
 #include <uavcan_stm32/uavcan_stm32.hpp>
 #include <uavcan/protocol/NodeStatus.hpp>
-
-#define NODE_ID 42
-#define NODE_NAME "motor-board"
+#include "uavcan_node.h"
 
 #define CAN_BITRATE 1000000
 
@@ -31,17 +29,19 @@ void uavcan_failure(const char *reason)
 static THD_WORKING_AREA(uavcan_node_wa, 4000);
 static THD_FUNCTION(uavcan_node, arg)
 {
+    struct uavcan_node_arg *node_arg;
+    node_arg = (struct uavcan_node_arg *)arg;
+
     chRegSetThreadName("uavcan node");
 
-    (void)arg;
     if (can.init(CAN_BITRATE) != 0) {
         uavcan_failure("CAN driver");
     }
 
     Node& node = get_node();
 
-    node.setNodeID(NODE_ID);
-    node.setName(NODE_NAME);
+    node.setNodeID(node_arg->node_id);
+    node.setName(node_arg->node_name);
 
     if (node.start() != 0) {
         uavcan_failure("UAVCAN node start");
@@ -56,6 +56,7 @@ static THD_FUNCTION(uavcan_node, arg)
             uavcan_failure("UAVCAN spin");
         }
     }
+    return 0;
 }
 
 extern "C"
