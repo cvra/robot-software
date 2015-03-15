@@ -19,6 +19,8 @@
 
 
 struct feedback_s control_feedback;
+motor_protection_t control_motor_protection;
+
 
 static struct pid_cascade_s ctrl;
 
@@ -265,12 +267,12 @@ static THD_FUNCTION(control_loop, arg)
     float acc_max = INFINITY; // acceleration limit in speed / position control
     float low_batt_th = LOW_BATT_TH;
 
-    motor_protection_t motor_prot;
     float t_max = 0; // todo
     float r_th = 0;
     float c_th = 0;
     float current_gain = 0;
-    motor_protection_init(&motor_prot, t_max, r_th, c_th, current_gain);
+    motor_protection_init(&control_motor_protection, t_max, r_th, c_th, current_gain);
+
 
     uint32_t control_period_us = 0;
     while (true) {
@@ -329,7 +331,7 @@ static THD_FUNCTION(control_loop, arg)
             pid_reset_integral(&ctrl.velocity_pid);
             pid_reset_integral(&ctrl.position_pid);
             motor_pwm_disable();
-            motor_protection_update(&motor_prot, analog_get_motor_current(), delta_t);
+            motor_protection_update(&control_motor_protection, analog_get_motor_current(), delta_t);
         } else {
 
             // sensor feedback
@@ -344,7 +346,7 @@ static THD_FUNCTION(control_loop, arg)
             ctrl.velocity = control_feedback.output.velocity;
             ctrl.current = analog_get_motor_current();
 
-            // ctrl.current_limit = motor_protection_update(&motor_prot, ctrl.current, delta_t);
+            // ctrl.current_limit = motor_protection_update(&control_motor_protection, ctrl.current, delta_t);
 
             // setpoints
             if (setpt_mode == SETPT_MODE_TRAJ) {

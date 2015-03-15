@@ -7,9 +7,12 @@ extern "C" {
 #endif
 
 #include "timestamp/timestamp.h"
+#include "motor_protection.h"
 #include "feedback.h"
 
 extern struct feedback_s control_feedback;
+extern motor_protection_t control_motor_protection;
+
 
 void control_declare_parameters(void);
 void control_start(void);
