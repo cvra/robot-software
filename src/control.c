@@ -177,6 +177,7 @@ struct pid_param_s {
     parameter_t kp;
     parameter_t ki;
     parameter_t kd;
+    parameter_t i_limit;
 };
 
 static void pid_param_declare(struct pid_param_s *p, parameter_namespace_t *ns)
@@ -184,6 +185,7 @@ static void pid_param_declare(struct pid_param_s *p, parameter_namespace_t *ns)
     parameter_scalar_declare_with_default(&p->kp, ns, "kp", 0);
     parameter_scalar_declare_with_default(&p->ki, ns, "ki", 0);
     parameter_scalar_declare_with_default(&p->kd, ns, "kd", 0);
+    parameter_scalar_declare_with_default(&p->i_limit, ns, "i_limit", INFINITY);
 }
 
 static void pid_param_update(struct pid_param_s *p, pid_ctrl_t *ctrl)
@@ -195,6 +197,9 @@ static void pid_param_update(struct pid_param_s *p, pid_ctrl_t *ctrl)
                             parameter_scalar_get(&p->ki),
                             parameter_scalar_get(&p->kd));
         pid_reset_integral(ctrl);
+    }
+    if (parameter_changed(&p->i_limit)) {
+        pid_set_integral_limit(ctrl, parameter_scalar_get(&p->i_limit));
     }
 }
 
