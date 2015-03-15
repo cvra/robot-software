@@ -205,7 +205,7 @@ UDEFS += -DUAVCAN_STM32_CHIBIOS=1 \
 UADEFS =
 
 # List all user directories here
-UINCDIR = ./src
+UINCDIR = $(PROJINC) ./src
 
 # List the user directory to look for the libraries here
 ULIBDIR =
@@ -217,10 +217,9 @@ ULIBS =
 # UAVCAN
 #
 include uavcan/libuavcan/include.mk
-include src/can-driver/include.mk
 
-CPPSRC += $(LIBUAVCAN_SRC) $(LIBUAVCAN_STM32_SRC)
-UINCDIR += $(LIBUAVCAN_INC) $(LIBUAVCAN_STM32_INC) ./dsdlc_generated
+CPPSRC += $(LIBUAVCAN_SRC)
+UINCDIR += $(LIBUAVCAN_INC) ./dsdlc_generated
 
 # run uavcan dsdl compiler
 $(info $(shell $(LIBUAVCAN_DSDLC) $(UAVCAN_DSDL_DIR)))
