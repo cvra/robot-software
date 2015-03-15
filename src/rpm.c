@@ -1,6 +1,7 @@
 
 #include <math.h>
 #include "rpm.h"
+#include <rpm_port.h>
 
 static timestamp_t last_last_crossing;
 static timestamp_t last_crossing;
@@ -21,13 +22,14 @@ static float get_period(void)
 
 float rpm_get_position(void)
 {
-    timestamp_t t1 = last_crossing;
-    timestamp_t t2 = timestamp_get();
-    float delta_t = timestamp_duration_s(t1, t2);
+    RPM_LOCK();
+    float delta_t = timestamp_duration_s(last_crossing, timestamp_get());
+    float period = get_period();
+    RPM_UNLOCK();
 
-    if (delta_t < get_period()) {
+    if (delta_t < period) {
         // calculate position assuming constant velocity
-        return delta_t / get_period() * 2 * M_PI;
+        return delta_t / period * 2 * M_PI;
     } else {
         // can't handle non-constant speed -> return 0 'till next barrier crossing
         return 0;
@@ -37,13 +39,14 @@ float rpm_get_position(void)
 
 float rpm_get_velocity(void)
 {
-    timestamp_t t1 = last_crossing;
-    timestamp_t t2 = timestamp_get();
-    float delta_t = timestamp_duration_s(t1, t2);
+    RPM_LOCK();
+    float delta_t = timestamp_duration_s(last_crossing, timestamp_get());
+    float period = get_period();
+    RPM_UNLOCK();
 
-    if (delta_t < get_period()) {
+    if (delta_t < period) {
         // assuming constant velocity could still be true -> return it
-        return 1 / get_period() * 2 * M_PI;
+        return 1 / period * 2 * M_PI;
     } else {
         // definitely decelerating -> return maximal possible velocity
         return 1 / delta_t * 2 * M_PI;
@@ -52,14 +55,15 @@ float rpm_get_velocity(void)
 
 void rpm_get_velocity_and_position(float *velocity, float *position)
 {
-    timestamp_t t1 = last_crossing;
-    timestamp_t t2 = timestamp_get();
-    float delta_t = timestamp_duration_s(t1, t2);
+    RPM_LOCK();
+    float delta_t = timestamp_duration_s(last_crossing, timestamp_get());
+    float period = get_period();
+    RPM_UNLOCK();
 
-    if (delta_t < get_period()) {
+    if (delta_t < period) {
         // assuming constant velocity
-        *velocity = 1 / get_period() * 2 * M_PI;
-        *position = delta_t / get_period() * 2 * M_PI;
+        *velocity = 1 / period * 2 * M_PI;
+        *position = delta_t / period * 2 * M_PI;
     } else {
         // definitely decelerating
         *velocity = 1 / delta_t * 2 * M_PI;
