@@ -40,12 +40,12 @@ TEST(MessageTestGroup, CanEncodeMessage)
     STRCMP_EQUAL("foo", method_name);
 }
 
-static void argc_cb(int argc, cmp_ctx_t *ctx)
+static void argc_cb(void *p, int argc, cmp_ctx_t *ctx)
 {
     mock().actualCall("argc").withIntParameter("argc", argc);
 }
 
-static void bar_cb(int argc, cmp_ctx_t *ctx)
+static void bar_cb(void *p, int argc, cmp_ctx_t *ctx)
 {
     int x, y;
     bool result;
@@ -59,8 +59,8 @@ static void bar_cb(int argc, cmp_ctx_t *ctx)
 }
 
 static message_method_t callbacks[] = {
-    {.name="argc", .cb=argc_cb},
-    {.name="bar", .cb=bar_cb},
+    {.name="argc", .cb=argc_cb, .arg=NULL},
+    {.name="bar", .cb=bar_cb, .arg=NULL},
 };
 
 TEST(MessageTestGroup, CanCallCallback)
@@ -83,14 +83,14 @@ TEST(MessageTestGroup, CanUseArguments)
     message_process(buffer, sizeof buffer, callbacks, sizeof(callbacks) / sizeof(callbacks[0]));
 }
 
-static void first_cb(int argc, cmp_ctx_t *ctx)
+static void first_cb(void *p, int argc, cmp_ctx_t *ctx)
 {
     (void) argc;
     (void) ctx;
     mock().actualCall("first");
 }
 
-static void second_cb(int argc, cmp_ctx_t *ctx)
+static void second_cb(void *p, int argc, cmp_ctx_t *ctx)
 {
     (void) argc;
     (void) ctx;
@@ -101,8 +101,8 @@ TEST(MessageTestGroup, ExitAfterCallbackFound)
 {
     /* This test checks that only the first callback is called. */
     static message_method_t callbacks[] = {
-        {.name="foo", .cb=first_cb},
-        {.name="foo", .cb=second_cb},
+        {.name="foo", .cb=first_cb, .arg=NULL},
+        {.name="foo", .cb=second_cb, .arg=NULL},
     };
 
     mock().expectOneCall("first");
@@ -110,4 +110,23 @@ TEST(MessageTestGroup, ExitAfterCallbackFound)
 
     message_encode(&ctx, &mem, buffer, sizeof buffer, "foo", 0);
     message_process(buffer, sizeof buffer, callbacks, 2);
+}
+
+static void arg_cb(void *arg, int argc, cmp_ctx_t *ctx)
+{
+    (void) argc;
+    (void) ctx;
+    mock().actualCall("cb").withPointerParameter("arg", arg);
+}
+
+TEST(MessageTestGroup, ArgIsForwarded)
+{
+    int foo;
+    message_method_t callbacks[] = {
+        {.name="cb", .cb=arg_cb, .arg=&foo}
+    };
+    mock().expectOneCall("cb").withPointerParameter("arg", &foo);
+
+    message_encode(&ctx, &mem, buffer, sizeof buffer, "cb", 0);
+    message_process(buffer, sizeof buffer, callbacks, 1);
 }
