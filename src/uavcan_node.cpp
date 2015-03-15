@@ -3,7 +3,9 @@
 #include <uavcan/uavcan.hpp>
 #include <uavcan_stm32/uavcan_stm32.hpp>
 #include <uavcan/protocol/NodeStatus.hpp>
+#include <cvra/Reboot.hpp>
 #include "uavcan_node.h"
+#include <can-bootloader/boot_arg.h>
 
 #define CAN_BITRATE 1000000
 
@@ -45,6 +47,27 @@ static THD_FUNCTION(uavcan_node, arg)
 
     if (node.start() != 0) {
         uavcan_failure("UAVCAN node start");
+    }
+
+    uavcan::Subscriber<cvra::Reboot> reboot_sub(node);
+    int ret = reboot_sub.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::Reboot>& msg)
+        {
+            switch (msg.bootmode) {
+            case msg.REBOOT:
+                reboot(BOOT_ARG_START_APPLICATION);
+                break;
+            case msg.BOOTLOADER_TIMEOUT:
+                reboot(BOOT_ARG_START_BOOTLOADER);
+                break;
+            case msg.BOOTLOADER_NO_TIMEOUT:
+                reboot(BOOT_ARG_START_BOOTLOADER_NO_TIMEOUT);
+                break;
+            }
+        }
+    );
+    if (ret != 0) {
+        uavcan_failure("cvra::Reboot subscriber");
     }
 
     node.setStatusOk();
