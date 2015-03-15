@@ -1,5 +1,6 @@
 #include "feedback.h"
 #include <math.h>
+#include <rpm.h>
 
 
 static int32_t compute_delta_accumulator_periodic(uint16_t encoder,
@@ -75,6 +76,8 @@ void feedback_compute(struct feedback_s *feedback)
              * possible speed (1 / [time since last interrupt]) and the
              * position stops moving (SBB clock style).
              */
+            rpm_get_velocity_and_position(&feedback->output.velocity,
+                                          &feedback->output.position);
             break;
         case FEEDBACK_PRIMARY_ENCODER_PERIODIC : {
             // accumulate
