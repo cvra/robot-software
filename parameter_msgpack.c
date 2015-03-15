@@ -8,8 +8,27 @@ static int discard_msgpack_element(cmp_object_t *obj,
                                    void *err_arg,
                                    const char *err_id)
 {
-    err_cb(err_arg, err_id, "discarding failed");
-    return -5; // could not discard element
+    switch (obj->type) {
+    case CMP_TYPE_POSITIVE_FIXNUM:
+    case CMP_TYPE_NIL:
+    case CMP_TYPE_BOOLEAN:
+    case CMP_TYPE_FLOAT:
+    case CMP_TYPE_DOUBLE:
+    case CMP_TYPE_UINT8:
+    case CMP_TYPE_UINT16:
+    case CMP_TYPE_UINT32:
+    case CMP_TYPE_UINT64:
+    case CMP_TYPE_SINT8:
+    case CMP_TYPE_SINT16:
+    case CMP_TYPE_SINT32:
+    case CMP_TYPE_SINT64:
+    case CMP_TYPE_NEGATIVE_FIXNUM:
+        return true;
+    default:
+        // todo discarding namespaces / vectors won't work
+        err_cb(err_arg, err_id, "discarding failed");
+        return false;
+  }
 }
 
 
