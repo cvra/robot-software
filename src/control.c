@@ -297,22 +297,22 @@ static THD_FUNCTION(control_loop, arg)
             if (parameter_changed(&param_acc_limit)) {
                 acc_max = parameter_scalar_get(&param_acc_limit);
             }
-            if (parameter_namespace_contains_changed(&param_ns_motor)) {
-                if (parameter_changed(&param_torque_cst)) {
-                    ctrl.motor_current_constant = parameter_scalar_get(&param_torque_cst);
-                }
-                if (parameter_changed(&param_current_gain)) {
-                    current_gain = parameter_scalar_get(&param_current_gain);
-                }
-                if (parameter_changed(&param_max_temp)) {
-                    t_max = parameter_scalar_get(&param_max_temp);
-                }
-                if (parameter_changed(&param_Rth)) {
-                    r_th = parameter_scalar_get(&param_Rth);
-                }
-                if (parameter_changed(&param_Cth)) {
-                    c_th = parameter_scalar_get(&param_Cth);
-                }
+        }
+        if (parameter_namespace_contains_changed(&param_ns_motor)) {
+            if (parameter_changed(&param_torque_cst)) {
+                ctrl.motor_current_constant = parameter_scalar_get(&param_torque_cst);
+            }
+            if (parameter_changed(&param_current_gain)) {
+                current_gain = parameter_scalar_get(&param_current_gain);
+            }
+            if (parameter_changed(&param_max_temp)) {
+                t_max = parameter_scalar_get(&param_max_temp);
+            }
+            if (parameter_changed(&param_Rth)) {
+                r_th = parameter_scalar_get(&param_Rth);
+            }
+            if (parameter_changed(&param_Cth)) {
+                c_th = parameter_scalar_get(&param_Cth);
             }
         }
 
