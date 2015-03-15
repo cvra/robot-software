@@ -65,7 +65,7 @@ static float compute_encoder_velocity_bounded(int32_t delta_accumulator,
 void feedback_compute(struct feedback_s *feedback)
 {
     switch (feedback->input_selection) {
-        case FEEDBACK_RPM :
+        case FEEDBACK_RPM : {
             /* Call other module that updates the period on each interrupt
              * (light barrier crossing) and integrates the position assuming
              * constant velocity.
@@ -76,9 +76,12 @@ void feedback_compute(struct feedback_s *feedback)
              * possible speed (1 / [time since last interrupt]) and the
              * position stops moving (SBB clock style).
              */
+            float position;
             rpm_get_velocity_and_position(&feedback->output.velocity,
-                                          &feedback->output.position);
+                                          &position);
+            feedback->output.position = position - feedback->rpm.phase;
             break;
+        }
         case FEEDBACK_PRIMARY_ENCODER_PERIODIC : {
             // accumulate
             int32_t delta_accumulator = compute_delta_accumulator_periodic(
