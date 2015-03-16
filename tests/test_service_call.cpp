@@ -5,18 +5,18 @@
 
 #define LEN(a) (sizeof (a) / sizeof(a[0]))
 
-void foo_cb(int argc, cmp_ctx_t *args_ctx, cmp_ctx_t *output_ctx)
+void foo_cb(void *p, int argc, cmp_ctx_t *args_ctx, cmp_ctx_t *output_ctx)
 {
     mock().actualCall("foo").withIntParameter("argc", argc);
 }
 
-void bar_cb(int argc, cmp_ctx_t *args_ctx, cmp_ctx_t *output_ctx)
+void bar_cb(void *p, int argc, cmp_ctx_t *args_ctx, cmp_ctx_t *output_ctx)
 {
     mock().actualCall("bar");
 }
 
 /** This callback shows how to read the several arguments. */
-void arg_read_cb(int argc, cmp_ctx_t *args_ctx, cmp_ctx_t *output_ctx)
+void arg_read_cb(void *p, int argc, cmp_ctx_t *args_ctx, cmp_ctx_t *output_ctx)
 {
     bool result;
     int arg;
@@ -34,7 +34,7 @@ void arg_read_cb(int argc, cmp_ctx_t *args_ctx, cmp_ctx_t *output_ctx)
     state = state.withIntParameter("y", arg);
 }
 
-void output_test_cb(int argc, cmp_ctx_t *args_ctx, cmp_ctx_t *output_ctx)
+void output_test_cb(void *p, int argc, cmp_ctx_t *args_ctx, cmp_ctx_t *output_ctx)
 {
     cmp_write_str(output_ctx, "hello", 5);
 }
@@ -122,6 +122,27 @@ TEST(ServiceCallTestGroup, PassesArgcCorrectly)
     // Parses the buffer
     service_call_process(buffer, sizeof buffer, NULL, 0, callbacks, LEN(callbacks));
 }
+
+static void pointer_arg_cb(void *p, int argc, cmp_ctx_t *args_ctx, cmp_ctx_t *output_ctx)
+{
+    mock().actualCall("cb").withPointerParameter("p", p);
+}
+
+TEST(ServiceCallTestGroup, PassesPointerCorrectly)
+{
+    int foo;
+    service_call_method callbacks[] = {
+        {.name = "cb", .cb = pointer_arg_cb, .arg=&foo},
+    };
+
+    mock().expectOneCall("cb").withPointerParameter("p", &foo);
+
+    service_call_encode(&ctx, &mem, buffer, sizeof buffer, "cb", 0);
+
+    // Parses the buffer
+    service_call_process(buffer, sizeof buffer, NULL, 0, callbacks, LEN(callbacks));
+}
+
 
 TEST(ServiceCallTestGroup, OutputTest)
 {

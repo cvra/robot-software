@@ -14,11 +14,17 @@ extern "C" {
 typedef struct {
     const char *name; /**< Method name (eg: "goto_point") */
     /** Method handler.
-     * First argument is number of args.
-     * Second argument is a pointer to a MessagePack context containing the args.
-     * Third argument is a pointer to a MessagePack context for output.
+     *
+     * First argument is a general purpose parameter, provided by the user.
+     * Second argument is number of args.
+     * Third argument is a pointer to a MessagePack context containing the args.
+     * Last argument is a pointer to a MessagePack context for output.
+     *
      */
-    void (*cb)(int, cmp_ctx_t*, cmp_ctx_t *);
+    void (*cb)(void *, int, cmp_ctx_t*, cmp_ctx_t *);
+
+    /** Arg that will be passed to cb. */
+    void *arg;
 } service_call_method;
 
 /** @brief Prepares a service call.
