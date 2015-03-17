@@ -1,10 +1,11 @@
 #include <math.h>
+#include "filter/basic.h"
 #include "setpoint.h"
 
-#define CTRL_MODE_POS      0
-#define CTRL_MODE_VEL      1
-#define CTRL_MODE_TORQUE   2
-#define CTRL_MODE_TRAJ     3
+#define SETPT_MODE_POS      0
+#define SETPT_MODE_VEL      1
+#define SETPT_MODE_TORQUE   2
+#define SETPT_MODE_TRAJ     3
 
 
 static float pos_setpt_interpolation(float pos, float vel, float acc, float delta_t)
@@ -42,14 +43,19 @@ static float vel_ramp(float pos, float vel, float target_pos, float delta_t, flo
 }
 
 
-void setpoint_init(setpoint_interpolator_t *ip)
+void setpoint_init(setpoint_interpolator_t *ip,
+                   float acc_limit,
+                   float vel_limit)
 {
-    ip->ctrl_mode = SETPT_MODE_TORQUE
+    ip->setpt_mode = SETPT_MODE_TORQUE;
+    ip->setpt_torque = 0;
+    ip->acc_limit = acc_limit;
+    ip->vel_limit = vel_limit;
 }
 
 
 void setpoint_update_position(setpoint_interpolator_t *ip,
-                              float pos
+                              float pos,
                               float current_pos,
                               float current_vel)
 {
@@ -98,7 +104,7 @@ void setpoint_update_trajectory(setpoint_interpolator_t *ip,
 
 
 void setpoint_compute(setpoint_interpolator_t *ip,
-                      struct setpoint_s setpts,
+                      struct setpoint_s *setpts,
                       float delta_t)
 {
     if (ip->setpt_mode == SETPT_MODE_TRAJ) {

@@ -1,6 +1,7 @@
 #ifndef SETPOINT_H
 #define SETPOINT_H
 
+#include <stdbool.h>
 #include "timestamp/timestamp.h"
 
 #ifdef __cplusplus
@@ -31,7 +32,9 @@ struct setpoint_s {
 };
 
 
-void setpoint_init(setpoint_interpolator_t *ip);
+void setpoint_init(setpoint_interpolator_t *ip,
+                   float acc_limit,
+                   float vel_limit);
 
 void setpoint_update_position(setpoint_interpolator_t *ip,
                               float pos,
@@ -52,7 +55,7 @@ void setpoint_update_trajectory(setpoint_interpolator_t *ip,
                                 timestamp_t ts);
 
 void setpoint_compute(setpoint_interpolator_t *ip,
-                      struct setpoint_s setpts,
+                      struct setpoint_s *setpts,
                       float delta_t);
 
 

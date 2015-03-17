@@ -198,12 +198,11 @@ int main(void) {
     chThdCreateStatic(parameter_listener_wa, sizeof(parameter_listener_wa), LOWPRIO, parameter_listener, &SD3);
     chThdCreateStatic(led_thread_wa, sizeof(led_thread_wa), LOWPRIO, led_thread, NULL);
 
-    setpoint_update_torque(0);
     control_enable(true);
     while (1) {
-        setpoint_update_torque(0.1);
+        control_update_torque_setpoint(0.1);
         chThdSleepMilliseconds(1000);
-        setpoint_update_torque(-0.1);
+        control_update_torque_setpoint(-0.1);
         chThdSleepMilliseconds(1000);
     }
 }
