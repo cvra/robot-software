@@ -6,8 +6,8 @@
 # Compiler options here.
 ifeq ($(USE_OPT),)
   USE_OPT = -O2 -ggdb -fomit-frame-pointer -falign-functions=16
-  USE_OPT += -fno-stack-protector -ftracer -ftree-loop-distribute-patterns
-  USE_OPT += -frename-registers -freorder-blocks -fconserve-stack -g3
+  USE_OPT += -fno-stack-protector -ftree-loop-distribute-patterns
+  USE_OPT += -frename-registers -freorder-blocks -fconserve-stack
 endif
 
 # C specific options here (added to USE_OPT).
