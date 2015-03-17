@@ -42,80 +42,111 @@ static float vel_ramp(float pos, float vel, float target_pos, float delta_t, flo
 }
 
 
-void setpoint_init(setpoint_t *spt)
+void setpoint_init(setpoint_interpolator_t *ip)
 {
-    spt->ctrl_mode = SETPT_MODE_TORQUE
+    ip->ctrl_mode = SETPT_MODE_TORQUE
 }
 
 
-void control_update_position_setpoint(float pos)
+void setpoint_update_position(setpoint_interpolator_t *ip,
+                              float pos
+                              float current_pos,
+                              float current_vel)
 {
-    if (setpt_mode == SETPT_MODE_TORQUE) {
-        setpt_pos = pos; // todo replace by current position
-        setpt_vel = 0; // todo replace by current velocity
+    if (ip->setpt_mode == SETPT_MODE_TORQUE) {
+        ip->setpt_pos = current_pos;
+        ip->setpt_vel = current_vel;
     }
-    if (setpt_mode == SETPT_MODE_VEL) {
-        setpt_pos = pos; // todo see above
+    if (ip->setpt_mode == SETPT_MODE_VEL) {
+        ip->setpt_pos = current_pos;
     }
-    setpt_mode = SETPT_MODE_POS;
-    target_pos = pos;
+    ip->setpt_mode = SETPT_MODE_POS;
+    ip->target_pos = pos;
 }
 
-void control_update_velocity_setpoint(float vel)
+void setpoint_update_velocity(setpoint_interpolator_t *ip,
+                              float vel,
+                              float current_vel)
 {
-    if (setpt_mode == SETPT_MODE_TORQUE) {
-        setpt_vel = 0; // todo see above
+    if (ip->setpt_mode == SETPT_MODE_TORQUE) {
+        ip->setpt_vel = current_vel;
     }
-    setpt_mode = SETPT_MODE_VEL;
-    target_vel = vel;
+    ip->setpt_mode = SETPT_MODE_VEL;
+    ip->target_vel = vel;
 }
 
-void control_update_torque_setpoint(float torque)
+void setpoint_update_torque(setpoint_interpolator_t *ip, float torque)
 {
-    setpt_mode = SETPT_MODE_TORQUE;
-    setpt_torque = torque;
+    ip->setpt_mode = SETPT_MODE_TORQUE;
+    ip->setpt_torque = torque;
 }
 
-void control_update_trajectory_setpoint(float pos, float vel, float acc, float torque, timestamp_t ts)
+void setpoint_update_trajectory(setpoint_interpolator_t *ip,
+                                float pos,
+                                float vel,
+                                float acc,
+                                float torque,
+                                timestamp_t ts)
 {
-    setpt_mode = SETPT_MODE_TRAJ;
-    setpt_pos = pos;
-    setpt_vel = vel;
-    traj_acc = acc;
-    setpt_torque = torque;
-    setpt_ts = ts;
+    ip->setpt_mode = SETPT_MODE_TRAJ;
+    ip->setpt_pos = pos;
+    ip->setpt_vel = vel;
+    ip->traj_acc = acc;
+    ip->setpt_torque = torque;
+    ip->setpt_ts = ts;
 }
 
 
-    if (setpt_mode == SETPT_MODE_TRAJ) {
+void setpoint_compute(setpoint_interpolator_t *ip,
+                      struct setpoint_s setpts,
+                      float delta_t)
+{
+    if (ip->setpt_mode == SETPT_MODE_TRAJ) {
         timestamp_t now = timestamp_get();
-        float delta_t = timestamp_duration_s(setpt_ts, now);
-        ctrl.position_control_enabled = true;
-        ctrl.velocity_control_enabled = true;
-        ctrl.position_setpt = pos_setpt_interpolation(setpt_pos, setpt_vel, traj_acc, delta_t);
-        ctrl.velocity_setpt = vel_setpt_interpolation(setpt_vel, traj_acc, delta_t);
-        ctrl.feedforward_torque = setpt_torque;
+        float ip_delta_t = timestamp_duration_s(ip->setpt_ts, now); // interpolation delta_t
+        setpts->position_control_enabled = true;
+        setpts->velocity_control_enabled = true;
+        setpts->position_setpt = pos_setpt_interpolation(ip->setpt_pos,
+                                                         ip->setpt_vel,
+                                                         ip->traj_acc,
+                                                         ip_delta_t);
 
-    } else if (setpt_mode == SETPT_MODE_TORQUE) {
-        ctrl.position_control_enabled = false;
-        ctrl.velocity_control_enabled = false;
-        ctrl.feedforward_torque = setpt_torque;
+        setpts->velocity_setpt = vel_setpt_interpolation(ip->setpt_vel,
+                                                         ip->traj_acc,
+                                                         ip_delta_t);
+        setpts->feedforward_torque = ip->setpt_torque;
 
-    } else if (setpt_mode == SETPT_MODE_VEL) {
-        ctrl.position_control_enabled = false;
-        ctrl.velocity_control_enabled = true;
-        float delta_vel = target_vel - setpt_vel;
-        setpt_vel += filter_limit_sym(delta_vel, delta_t * acc_max);
-        ctrl.velocity_setpt = setpt_vel;
-        ctrl.feedforward_torque = 0;
+    } else if (ip->setpt_mode == SETPT_MODE_TORQUE) {
+        setpts->position_control_enabled = false;
+        setpts->velocity_control_enabled = false;
+        setpts->feedforward_torque = ip->setpt_torque;
+
+    } else if (ip->setpt_mode == SETPT_MODE_VEL) {
+        setpts->position_control_enabled = false;
+        setpts->velocity_control_enabled = true;
+        float delta_vel = ip->target_vel - ip->setpt_vel;
+        ip->setpt_vel += filter_limit_sym(delta_vel, delta_t * ip->acc_limit);
+        setpts->velocity_setpt = ip->setpt_vel;
+        setpts->feedforward_torque = 0;
 
     } else { // setpt_mode == SETPT_MODE_POS
-        ctrl.position_control_enabled = true;
-        ctrl.velocity_control_enabled = true;
-        float acc = vel_ramp(setpt_pos, setpt_vel, target_pos, delta_t, ctrl.velocity_limit, acc_max);
-        float pos = pos_setpt_interpolation(setpt_pos, setpt_vel, acc, delta_t);
-        float vel = vel_setpt_interpolation(setpt_vel, acc, delta_t);
-        ctrl.position_setpt = setpt_pos = pos;
-        ctrl.velocity_setpt = setpt_vel = vel;
-        ctrl.feedforward_torque = 0;
+        setpts->position_control_enabled = true;
+        setpts->velocity_control_enabled = true;
+        float acc = vel_ramp(ip->setpt_pos,
+                             ip->setpt_vel,
+                             ip->target_pos,
+                             delta_t,
+                             ip->vel_limit,
+                             ip->acc_limit);
+
+        float pos = pos_setpt_interpolation(ip->setpt_pos,
+                                            ip->setpt_vel,
+                                            acc,
+                                            delta_t);
+
+        float vel = vel_setpt_interpolation(ip->setpt_vel, acc, delta_t);
+        setpts->position_setpt = ip->setpt_pos = pos;
+        setpts->velocity_setpt = ip->setpt_vel = vel;
+        setpts->feedforward_torque = 0;
     }
+}
