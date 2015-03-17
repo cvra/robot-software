@@ -34,7 +34,7 @@ struct setpoint_s {
 void setpoint_init(setpoint_interpolator_t *ip);
 
 void setpoint_update_position(setpoint_interpolator_t *ip,
-                              float pos
+                              float pos,
                               float current_pos,
                               float current_vel);
 
