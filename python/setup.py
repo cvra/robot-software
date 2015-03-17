@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 args = dict(
     name='serial_datagram',
-    version='0.1',
+    version='0.2',
     description='Transmit datagrams over stream oriented transports',
     packages=['.'],
     author='CVRA',
