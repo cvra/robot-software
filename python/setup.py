@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 args = dict(
-    name='serial_datagrams',
+    name='serial_datagram',
     version='0.1',
     description='Transmit datagrams over stream oriented transports',
     packages=['.'],

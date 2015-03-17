@@ -17,7 +17,7 @@ ESC = b'\xDB'
 ESC_END = b'\xDC'
 ESC_ESC = b'\xDD'
 
-def datagram_encode(data):
+def encode(data):
     """
     Encodes the given datagram (bytes object) by adding a CRC at the end then an end marker.
     It also escapes the end marker correctly.
@@ -29,9 +29,9 @@ def datagram_encode(data):
     data = data.replace(END, ESC + ESC_END)
     return data + END
 
-def datagram_decode(data):
+def decode(data):
     """
-    Decodes a datagram. Exact inverse of datagram_encode()
+    Decodes a datagram. Exact inverse of encode()
     """
 
     # Checks if the data is at least long enough for the CRC and the END marker
@@ -50,7 +50,7 @@ def datagram_decode(data):
 
     return data[:-4]
 
-def read_datagram(fd):
+def read(fd):
     """
     Reads a datagram from fd (which is supposed to have one file-like read()
     method).
@@ -66,4 +66,4 @@ def read_datagram(fd):
             return None
 
         if b == END:
-            return datagram_decode(buf)
+            return decode(buf)
