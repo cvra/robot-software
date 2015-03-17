@@ -1,7 +1,7 @@
 import msgpack
 import socketserver
 import socket
-import serial_datagrams
+import serial_datagram
 
 def create_request_handler(callbacks_dict):
 
@@ -19,7 +19,7 @@ def encode_call(method_name, params):
     Encode a call to the given method with the given parameters.
     """
     data = msgpack.packb([method_name] + params)
-    return serial_datagrams.datagram_encode(data)
+    return serial_datagram.encode(data)
 
 def decode_call(data):
     """
@@ -27,7 +27,7 @@ def decode_call(data):
 
     Returns a tuple containing the method name and the parameters.
     """
-    data = serial_datagrams.datagram_decode(data)
+    data = serial_datagram.decode(data)
     u = msgpack.Unpacker(encoding='ascii')
     u.feed(data)
 
@@ -44,7 +44,7 @@ def handle_connection(handlers, socket):
 
     # Read the full serial datagram
     data = socket.recv(1024)
-    while data[-1:] != serial_datagrams.END:
+    while data[-1:] != serial_datagram.END:
         data = data + socket.recv(1024)
 
     name, params = decode_call(data)

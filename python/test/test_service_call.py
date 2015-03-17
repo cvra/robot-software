@@ -1,5 +1,5 @@
 from cvra_rpc import service_call
-from serial_datagrams import *
+import serial_datagram
 
 import unittest
 try:
@@ -15,7 +15,7 @@ class ServiceCallEncodingTestCase(unittest.TestCase):
         Checks that encoding method works as expected.
         """
         data = service_call.encode_call("foo", [1,2,3])
-        data = datagram_decode(data)
+        data = serial_datagram.decode(data)
 
         u = msgpack.Unpacker(encoding='ascii')
         u.feed(data)
