@@ -30,6 +30,7 @@ tests:
     - tests/feedback_test.cpp
     - src/rpm.c
     - tests/rpm_test.cpp
+    - tests/setpoint_test.cpp
 
 templates:
     Makefile.include.jinja: src/src.mk
