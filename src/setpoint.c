@@ -22,23 +22,27 @@ static float vel_setpt_interpolation(float vel, float acc, float delta_t)
 static float vel_ramp(float pos, float vel, float target_pos, float delta_t, float max_vel, float max_acc)
 {
     float breaking_dist = vel * vel / 2 / max_acc;  // distance needed to break with max_acc
-    float next_error = pos + vel * delta_t + max_acc / 2 / delta_t / delta_t - target_pos;
-    float next_error_sign = copysignf(1.0, next_error);
+    float error = pos - target_pos;
+    float error_sign = copysignf(1.0, error);
 
-    if (next_error_sign == copysignf(1.0, vel)) {
-        if (fabs(next_error) <= breaking_dist) {
+    if (error_sign != copysignf(1.0, vel)) {        // decreasing error with current vel
+        if (fabs(error) <= breaking_dist || fabs(error) <= max_acc * delta_t * delta_t / 2) {
             // too close to break (or just close enough)
-            return next_error_sign * max_acc;
+            return - filter_limit_sym(vel / delta_t, max_acc);
         } else if (fabs(vel) >= max_vel) {
-            // maximal velocity reched -> just cruise
+            // maximal velocity reached -> just cruise
             return 0;
         } else {
             // we can go faster
-            return - next_error_sign * max_acc;
+            return - error_sign * max_acc;
         }
     } else {
         // driving away from target position -> turn around
-        return - next_error_sign * max_acc;
+        if (fabs(error) <= max_acc * delta_t * delta_t / 2) {
+            return - filter_limit_sym(vel / delta_t, max_acc);
+        } else {
+            return - error_sign * max_acc;
+        }
     }
 }
 
