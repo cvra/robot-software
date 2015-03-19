@@ -1,9 +1,12 @@
 #include <lwip/api.h>
 #include <simplerpc/service_call.h>
+#include <simplerpc/message.h>
 #include <serial-datagram/serial_datagram.h>
 
 #define RPC_SERVER_STACKSIZE 2048
 #define RPC_SERVER_PORT 20001
+#define MSG_SERVER_PORT 20000
+
 THD_WORKING_AREA(wa_rpc_server, RPC_SERVER_STACKSIZE);
 
 static uint8_t input_buffer[1024];
@@ -36,6 +39,18 @@ static void netconn_serial_datagram_tx_adapter(void *arg, const void *buffer, si
     /* We don't know the lifetime of buffer so we must use NETCONN_COPY. */
     netconn_write(conn, buffer, buffer_len, NETCONN_COPY);
 }
+
+static void message_cb(int argc, cmp_ctx_t *input)
+{
+    (void) argc;
+    (void) input;
+    palTogglePad(GPIOC, GPIOC_LED);
+}
+
+static message_method_t message_callbacks[] = {
+    {.name = "test", .cb = message_cb}
+};
+
 
 /* Callback fired when a serial datagram is received via TCP. */
 static void serial_datagram_recv_cb(const void *data, size_t len, void *arg)
@@ -179,4 +194,46 @@ size_t rpc_transmit(uint8_t *input_buffer, size_t input_buffer_size,
 fail:
     netconn_delete(conn);
     return -1;
+}
+
+
+msg_t message_server_thread(void *p)
+{
+    static uint8_t msg_buffer[1024];
+    struct netconn *conn;
+    int error;
+    size_t len;
+    struct netbuf *buf;
+
+    (void) p;
+
+    conn = netconn_new(NETCONN_TCP);
+
+    netconn_bind(conn, IP_ADDR_ANY, MSG_SERVER_PORT);
+
+    while (1) {
+        /* Tries to receive something from the connection. */
+        error = netconn_recv(conn, &buf);
+
+        if (error != ERR_OK) {
+            continue;
+        }
+
+        len = netbuf_copy(buf, msg_buffer, sizeof msg_buffer);
+        message_process(msg_buffer, len, message_callbacks, 1);
+
+        netbuf_delete(buf);
+    }
+}
+
+void message_server_init(void)
+{
+    static THD_WORKING_AREA(wa_msg_server, 2048);
+
+    chThdCreateStatic(wa_msg_server,
+                      2048,
+                      RPC_SERVER_PRIO,
+                      message_server_thread,
+                      NULL);
+
 }

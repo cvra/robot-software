@@ -335,6 +335,7 @@ int main(void) {
     sntp_init();
     can_bridge_init();
     rpc_server_init();
+    message_server_init();
 
     /*
      * Normal main() thread activity, in this demo it does nothing except
