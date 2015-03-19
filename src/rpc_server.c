@@ -43,8 +43,14 @@ static void netconn_serial_datagram_tx_adapter(void *arg, const void *buffer, si
 static void message_cb(int argc, cmp_ctx_t *input)
 {
     (void) argc;
-    (void) input;
-    palTogglePad(GPIOC, GPIOC_LED);
+    bool res;
+    cmp_read_bool(input, &res);
+
+    if (res) {
+        palClearPad(GPIOC, GPIOC_LED);
+    } else {
+        palSetPad(GPIOC, GPIOC_LED);
+    }
 }
 
 static message_method_t message_callbacks[] = {
@@ -196,34 +202,26 @@ fail:
     return -1;
 }
 
-
-msg_t message_server_thread(void *p)
+void message_server_thread(void *arg)
 {
-    static uint8_t msg_buffer[1024];
-    struct netconn *conn;
-    int error;
-    size_t len;
-    struct netbuf *buf;
+  struct netconn *conn;
+  struct netbuf *buf;
+  static char buffer[4096];
+  err_t err;
+  LWIP_UNUSED_ARG(arg);
 
-    (void) p;
+  conn = netconn_new(NETCONN_UDP);
+  netconn_bind(conn, NULL, 20000);
 
-    conn = netconn_new(NETCONN_TCP);
+  while (1) {
+    err = netconn_recv(conn, &buf);
 
-    netconn_bind(conn, IP_ADDR_ANY, MSG_SERVER_PORT);
-
-    while (1) {
-        /* Tries to receive something from the connection. */
-        error = netconn_recv(conn, &buf);
-
-        if (error != ERR_OK) {
-            continue;
-        }
-
-        len = netbuf_copy(buf, msg_buffer, sizeof msg_buffer);
-        message_process(msg_buffer, len, message_callbacks, 1);
-
-        netbuf_delete(buf);
+    if (err == ERR_OK) {
+        netbuf_copy(buf, buffer, buf->p->tot_len);
+        message_process(buffer, buf->p->tot_len, message_callbacks, 1);
     }
+    netbuf_delete(buf);
+  }
 }
 
 void message_server_init(void)
