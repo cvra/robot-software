@@ -2,6 +2,7 @@
 #include <simplerpc/service_call.h>
 #include <simplerpc/message.h>
 #include <serial-datagram/serial_datagram.h>
+#include "rpc_server.h"
 
 #define RPC_SERVER_STACKSIZE 2048
 #define RPC_SERVER_PORT 20001
@@ -51,6 +52,18 @@ static void message_cb(int argc, cmp_ctx_t *input)
     } else {
         palSetPad(GPIOC, GPIOC_LED);
     }
+
+    char request[100];
+    cmp_ctx_t ctx;
+    cmp_mem_access_t mem;
+    ip_addr_t server;
+    const int port = 20000;
+
+    message_encode(&ctx, &mem, request, sizeof request, "demo", 1);
+    cmp_write_str(&ctx, "heil", 4);
+    IP4_ADDR(&server, 192, 168, 2, 1);
+
+    message_transmit(request, cmp_mem_access_get_pos(&mem), &server, port);
 }
 
 static message_method_t message_callbacks[] = {
@@ -234,4 +247,20 @@ void message_server_init(void)
                       message_server_thread,
                       NULL);
 
+}
+
+void message_transmit(uint8_t *input_buffer, size_t input_buffer_size, ip_addr_t *addr, uint16_t port)
+{
+    struct netconn *conn;
+    struct netbuf *buf;
+
+    conn = netconn_new(NETCONN_UDP);
+    buf = netbuf_new();
+
+    netbuf_ref(buf, input_buffer, input_buffer_size);
+
+    netconn_sendto(conn, buf, addr, port);
+
+    netbuf_delete(buf);
+    netconn_delete(conn);
 }

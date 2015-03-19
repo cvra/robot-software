@@ -17,9 +17,11 @@ void rpc_server_init(void);
  *
  * @return Number of bytes written to output_buffer or -1 in case of error.
  */
-int rpc_transmit(uint8_t *input_buffer, size_t input_buffer_size,
+size_t rpc_transmit(uint8_t *input_buffer, size_t input_buffer_size,
                     uint8_t *output_buffer, size_t output_buffer_size,
                     ip_addr_t *addr, uint16_t port);
+
+void message_transmit(uint8_t *input_buffer, size_t input_buffer_size, ip_addr_t *addr, uint16_t port);
 
 
 
