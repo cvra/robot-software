@@ -14,13 +14,13 @@ void message_process(uint8_t *buffer, size_t buffer_size,
                      message_method_t *callbacks, unsigned int callbacks_len)
 {
     unsigned int i;
-    unsigned int argc;
+    uint32_t argc;
 
     cmp_ctx_t cmp;
     cmp_mem_access_t mem;
 
     char *method_name;
-    unsigned int method_name_len;
+    uint32_t method_name_len;
 
     cmp_mem_access_ro_init(&cmp, &mem, buffer, buffer_size);
     cmp_read_array(&cmp, &argc);
