@@ -53,7 +53,7 @@ static void message_cb(int argc, cmp_ctx_t *input)
         palSetPad(GPIOC, GPIOC_LED);
     }
 
-    char request[100];
+    uint8_t request[100];
     cmp_ctx_t ctx;
     cmp_mem_access_t mem;
     ip_addr_t server;
@@ -215,11 +215,11 @@ fail:
     return -1;
 }
 
-void message_server_thread(void *arg)
+msg_t message_server_thread(void *arg)
 {
   struct netconn *conn;
   struct netbuf *buf;
-  static char buffer[4096];
+  static uint8_t buffer[4096];
   err_t err;
   LWIP_UNUSED_ARG(arg);
 

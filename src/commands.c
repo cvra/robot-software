@@ -141,8 +141,6 @@ static void cmd_rpc_client_test(BaseSequentialStream *chp, int argc, char **argv
     cmp_mem_access_t mem;
     ip_addr_t server;
 
-    int ret;
-
     (void) chp;
     (void) argc;
     (void) argv;
