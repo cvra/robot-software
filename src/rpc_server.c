@@ -3,6 +3,7 @@
 #include <simplerpc/message.h>
 #include <serial-datagram/serial_datagram.h>
 #include "rpc_server.h"
+#include "rpc_callbacks.h"
 
 #define RPC_SERVER_STACKSIZE 2048
 #define RPC_SERVER_PORT 20001
@@ -16,23 +17,6 @@ static uint8_t output_buffer[1024];
 static bool method_called;
 static size_t output_bytes_written;
 
-static void ping_cb(int argc, cmp_ctx_t *input, cmp_ctx_t *output)
-{
-    (void) argc;
-    (void) input;
-    cmp_write_str(output, "pong", 4);
-}
-
-service_call_method service_call_callbacks[] = {
-    {.name = "ping", .cb = ping_cb}
-};
-
-/** Adapts the serial datagram send callback API to the netconn one.
- *
- * @param [in] arg Pointer to the struct netconn instance to use, cast to void *.
- * @param [in] buffer Buffer to transmit, cast to (void *).
- * @param [in] buffer_len Length of the input buffer, in bytes.
- */
 static void netconn_serial_datagram_tx_adapter(void *arg, const void *buffer, size_t buffer_len)
 {
     struct netconn *conn = (struct netconn *)arg;
@@ -77,9 +61,10 @@ static void serial_datagram_recv_cb(const void *data, size_t len, void *arg)
     (void) arg;
     method_called = true;
 
-    output_bytes_written = service_call_process(data, len, output_buffer, sizeof output_buffer,
+    output_bytes_written = service_call_process(data, len, output_buffer,
+                                                sizeof output_buffer,
                                                 service_call_callbacks,
-                                                sizeof(service_call_callbacks) / sizeof (service_call_callbacks[0]));
+                                                service_call_callbacks_len);
 
 }
 

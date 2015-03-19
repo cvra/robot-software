@@ -23,6 +23,8 @@ size_t rpc_transmit(uint8_t *input_buffer, size_t input_buffer_size,
 
 void message_transmit(uint8_t *input_buffer, size_t input_buffer_size, ip_addr_t *addr, uint16_t port);
 
+void message_server_init(void);
+
 
 
 
