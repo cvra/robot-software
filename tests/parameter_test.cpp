@@ -27,13 +27,13 @@ TEST(ParameterNamespaceInit, NamespaceCreate)
     parameter_namespace_t ns;
     parameter_namespace_declare(&ns, &rootns, "test");
     STRCMP_EQUAL("test", ns.id);
-    CHECK_EQUAL(&rootns, ns.parent);
+    POINTERS_EQUAL(&rootns, ns.parent);
     POINTERS_EQUAL(NULL, ns.subspaces);
     POINTERS_EQUAL(NULL, ns.parameter_list);
     CHECK_EQUAL(0, ns.changed_cnt);
     // check if correctly linked in parent
     POINTERS_EQUAL(NULL, ns.next);
-    CHECK_EQUAL(&ns, rootns.subspaces);
+    POINTERS_EQUAL(&ns, rootns.subspaces);
 }
 
 
@@ -43,12 +43,12 @@ TEST(ParameterNamespaceInit, NamespaceCreateMultiple)
     parameter_namespace_t ns2;
     parameter_namespace_declare(&ns1, &rootns, "test1");
     parameter_namespace_declare(&ns2, &rootns, "test2");
-    CHECK_EQUAL(&rootns, ns1.parent);
-    CHECK_EQUAL(&rootns, ns2.parent);
+    POINTERS_EQUAL(&rootns, ns1.parent);
+    POINTERS_EQUAL(&rootns, ns2.parent);
     // check if correctly linked in parent
     POINTERS_EQUAL(NULL, ns1.next);
-    CHECK_EQUAL(&ns1, ns2.next);
-    CHECK_EQUAL(&ns2, rootns.subspaces);
+    POINTERS_EQUAL(&ns1, ns2.next);
+    POINTERS_EQUAL(&ns2, rootns.subspaces);
 }
 
 
@@ -66,12 +66,12 @@ TEST(ParameterInit, ParameterCreate)
     parameter_t p;
     _parameter_declare(&p, &ns, "test");
     STRCMP_EQUAL("test", p.id);
-    CHECK_EQUAL(&ns, p.ns);
-    CHECK_EQUAL(false, p.changed);
-    CHECK_EQUAL(false, p.defined);
+    POINTERS_EQUAL(&ns, p.ns);
+    CHECK_FALSE(p.changed);
+    CHECK_FALSE(p.defined);
     // check if correctly linked in parent
     POINTERS_EQUAL(NULL, p.next);
-    CHECK_EQUAL(&p, ns.parameter_list);
+    POINTERS_EQUAL(&p, ns.parameter_list);
 }
 
 TEST(ParameterInit, ParameterCreateMulitple)
@@ -80,12 +80,12 @@ TEST(ParameterInit, ParameterCreateMulitple)
     parameter_t p2;
     _parameter_declare(&p1, &ns, "test1");
     _parameter_declare(&p2, &ns, "test2");
-    CHECK_EQUAL(&ns, p1.ns);
-    CHECK_EQUAL(&ns, p2.ns);
+    POINTERS_EQUAL(&ns, p1.ns);
+    POINTERS_EQUAL(&ns, p2.ns);
     // check if correctly linked in parent
     POINTERS_EQUAL(NULL, p1.next);
-    CHECK_EQUAL(&p1, p2.next);
-    CHECK_EQUAL(&p2, ns.parameter_list);
+    POINTERS_EQUAL(&p1, p2.next);
+    POINTERS_EQUAL(&p2, ns.parameter_list);
 }
 
 
@@ -126,14 +126,14 @@ TEST(ParameterTree, NamespaceFind)
 {
     POINTERS_EQUAL(NULL, parameter_namespace_find(&rootns, "does/not/exist"));
     POINTERS_EQUAL(NULL, parameter_namespace_find(&rootns, "test"));
-    CHECK_EQUAL(&a, parameter_namespace_find(&rootns, "test_a"));
-    CHECK_EQUAL(&a, parameter_namespace_find(&rootns, "test_a/"));
-    CHECK_EQUAL(&a, parameter_namespace_find(&rootns, "/test_a/"));
-    CHECK_EQUAL(&a1, parameter_namespace_find(&rootns, "/test_a//eins/"));
-    CHECK_EQUAL(&a2, parameter_namespace_find(&rootns, "test_a/zwei"));
-    CHECK_EQUAL(&b1i, parameter_namespace_find(&rootns, "test_b/eins/I"));
-    CHECK_EQUAL(&b1ii, parameter_namespace_find(&rootns, "test_b/eins/II"));
-    CHECK_EQUAL(&b1ii, parameter_namespace_find(&b, "eins/II"));
+    POINTERS_EQUAL(&a, parameter_namespace_find(&rootns, "test_a"));
+    POINTERS_EQUAL(&a, parameter_namespace_find(&rootns, "test_a/"));
+    POINTERS_EQUAL(&a, parameter_namespace_find(&rootns, "/test_a/"));
+    POINTERS_EQUAL(&a1, parameter_namespace_find(&rootns, "/test_a//eins/"));
+    POINTERS_EQUAL(&a2, parameter_namespace_find(&rootns, "test_a/zwei"));
+    POINTERS_EQUAL(&b1i, parameter_namespace_find(&rootns, "test_b/eins/I"));
+    POINTERS_EQUAL(&b1ii, parameter_namespace_find(&rootns, "test_b/eins/II"));
+    POINTERS_EQUAL(&b1ii, parameter_namespace_find(&b, "eins/II"));
 }
 
 TEST(ParameterTree, ParameterFind)
@@ -141,11 +141,11 @@ TEST(ParameterTree, ParameterFind)
     POINTERS_EQUAL(NULL, parameter_find(&rootns, "test"));
     POINTERS_EQUAL(NULL, parameter_find(&b1ii, "test"));
     POINTERS_EQUAL(NULL, parameter_find(&b1ii, "x"));
-    CHECK_EQUAL(&p_a2_x, parameter_find(&rootns, "test_a/zwei/x"));
-    CHECK_EQUAL(&p_a2_y, parameter_find(&rootns, "test_a/zwei/y"));
-    CHECK_EQUAL(&p_a2_z, parameter_find(&rootns, "test_a/zwei/z"));
-    CHECK_EQUAL(&p_root_x, parameter_find(&rootns, "/x"));
-    CHECK_EQUAL(&p_b1i_x, parameter_find(&rootns, "test_b/eins/I/x"));
+    POINTERS_EQUAL(&p_a2_x, parameter_find(&rootns, "test_a/zwei/x"));
+    POINTERS_EQUAL(&p_a2_y, parameter_find(&rootns, "test_a/zwei/y"));
+    POINTERS_EQUAL(&p_a2_z, parameter_find(&rootns, "test_a/zwei/z"));
+    POINTERS_EQUAL(&p_root_x, parameter_find(&rootns, "/x"));
+    POINTERS_EQUAL(&p_b1i_x, parameter_find(&rootns, "test_b/eins/I/x"));
 }
 
 TEST(ParameterTree, ParameterSetClear)
