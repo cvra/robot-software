@@ -335,14 +335,11 @@ int main(void) {
     rpc_server_init();
     message_server_init();
 
-    /*
-     * Normal main() thread activity, in this demo it does nothing except
-     * sleeping in a loop and listen for events.
-     */
-    while (TRUE) {
-        if (!shelltp && (SDU1.config->usbp->state == USB_ACTIVE))
+    /* main thread, spawns a shell on USB connection. */
+    while (1) {
+        if (!shelltp && (SDU1.config->usbp->state == USB_ACTIVE)) {
             shelltp = shellCreate(&shell_cfg1, SHELL_WA_SIZE, NORMALPRIO);
-        else if (chThdTerminatedX(shelltp)) {
+        } else if (chThdTerminatedX(shelltp)) {
             chThdRelease(shelltp);    /* Recovers memory of the previous shell.   */
             shelltp = NULL;           /* Triggers spawning of a new shell.        */
         }
