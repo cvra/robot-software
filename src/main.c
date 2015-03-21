@@ -292,8 +292,6 @@ void panic_hook(const char *reason)
 /** Application entry point.  */
 int main(void) {
     static thread_t *shelltp = NULL;
-    static const evhandler_t evhndl[] = {
-    };
 
     /*
      * System initializations.
@@ -349,7 +347,6 @@ int main(void) {
             shelltp = NULL;           /* Triggers spawning of a new shell.        */
         }
 
-        // XXX I don't know what it does
-        chEvtDispatch(evhndl, chEvtWaitOneTimeout(ALL_EVENTS, MS2ST(500)));
+        chThdSleepMilliseconds(500);
     }
 }
