@@ -34,3 +34,6 @@
 [submodule "uavcan"]
 	path = uavcan
 	url = https://github.com/cvra/uavcan.git
+[submodule "cvra/motor"]
+	path = cvra/motor
+	url = https://github.com/cvra/motor-control-uavcan-dsdl.git
