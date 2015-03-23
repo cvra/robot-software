@@ -18,6 +18,7 @@ target.arm:
     - src/can_bridge.c
     - src/rpc_server.c
     - src/rpc_callbacks.c
+    - src/msg_callbacks.c
 
 source:
     - src/timestamp.c

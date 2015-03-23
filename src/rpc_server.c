@@ -4,6 +4,7 @@
 #include <serial-datagram/serial_datagram.h>
 #include "rpc_server.h"
 #include "rpc_callbacks.h"
+#include "msg_callbacks.h"
 
 #define RPC_SERVER_STACKSIZE 2048
 #define RPC_SERVER_PORT 20001
@@ -25,34 +26,6 @@ static void netconn_serial_datagram_tx_adapter(void *arg, const void *buffer, si
     netconn_write(conn, buffer, buffer_len, NETCONN_COPY);
 }
 
-static void message_cb(int argc, cmp_ctx_t *input)
-{
-    (void) argc;
-    bool res;
-    cmp_read_bool(input, &res);
-
-    if (res) {
-        palClearPad(GPIOC, GPIOC_LED);
-    } else {
-        palSetPad(GPIOC, GPIOC_LED);
-    }
-
-    uint8_t request[100];
-    cmp_ctx_t ctx;
-    cmp_mem_access_t mem;
-    ip_addr_t server;
-    const int port = 20000;
-
-    message_encode(&ctx, &mem, request, sizeof request, "demo", 1);
-    cmp_write_str(&ctx, "heil", 4);
-    IP4_ADDR(&server, 192, 168, 2, 1);
-
-    message_transmit(request, cmp_mem_access_get_pos(&mem), &server, port);
-}
-
-static message_method_t message_callbacks[] = {
-    {.name = "test", .cb = message_cb}
-};
 
 
 /* Callback fired when a serial datagram is received via TCP. */
