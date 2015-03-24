@@ -9,7 +9,8 @@ extern "C" {
 
 typedef struct {
     const char *name;
-    void (*cb)(int, cmp_ctx_t *);
+    void (*cb)(void *, int, cmp_ctx_t *);
+    void *arg;
 } message_method_t;
 
 /** @brief Prepares a message

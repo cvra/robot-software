@@ -3,6 +3,7 @@ import socketserver
 import socket
 import serial_datagram
 
+
 def create_request_handler(callbacks_dict):
 
     class Server(socketserver.BaseRequestHandler):
@@ -21,6 +22,7 @@ def encode_call(method_name, params):
     data = msgpack.packb([method_name] + params)
     return serial_datagram.encode(data)
 
+
 def decode_call(data):
     """
     Decodes the given method call.
@@ -33,7 +35,7 @@ def decode_call(data):
 
     command = next(u)
 
-    return  command[0], command[1:]
+    return command[0], command[1:]
 
 
 def handle_connection(handlers, socket):
@@ -42,7 +44,8 @@ def handle_connection(handlers, socket):
     in the handlers dict.
     """
 
-    # Read the full serial datagram
+    # Read the full serial datagram
+
     data = socket.recv(1024)
     while data[-1:] != serial_datagram.END:
         data = data + socket.recv(1024)
@@ -53,10 +56,11 @@ def handle_connection(handlers, socket):
     if retval is not None:
         socket.send(msgpack.packb(retval))
 
+
 def call(adress, method_name, method_args=None):
     """
-    Calls the given method on the given adress (a tuple containing hostname and port),
-    With the given parameters (dict object).
+    Calls the given method on the given adress (a tuple containing hostname
+    and port), with the given parameters (dict object).
     """
     if method_args is None:
         method_args = []

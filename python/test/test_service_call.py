@@ -1,20 +1,21 @@
 from cvra_rpc import service_call
 import serial_datagram
-
 import unittest
+
 try:
-    from unittest.mock import *
+    from unittest.mock import Mock, patch
 except ImportError:
-    from mock import *
+    from mock import Mock, patch
 
 import msgpack
+
 
 class ServiceCallEncodingTestCase(unittest.TestCase):
     def test_encoding_method_name(self):
         """
         Checks that encoding method works as expected.
         """
-        data = service_call.encode_call("foo", [1,2,3])
+        data = service_call.encode_call("foo", [1, 2, 3])
         data = serial_datagram.decode(data)
 
         u = msgpack.Unpacker(encoding='ascii')
@@ -22,7 +23,6 @@ class ServiceCallEncodingTestCase(unittest.TestCase):
         command = next(u)
 
         self.assertEqual(command, ['foo', 1, 2, 3])
-
 
     def test_decoding_method(self):
         """
@@ -68,23 +68,21 @@ class ServiceCallEncodingTestCase(unittest.TestCase):
         self.assertEqual(result, (1, 'bar'))
 
 
-
 class ServiceCallServerTestCase(unittest.TestCase):
     def test_factory(self):
         """
         Checks that the class factory works as expected.
         """
-        callbacks = {'foo':Mock()}
+        callbacks = {'foo': Mock()}
         RequestHandler = service_call.create_request_handler(callbacks)
         self.assertEqual(callbacks, RequestHandler.callbacks)
-
 
 
 class ServiceCallHandlerTestCase(unittest.TestCase):
     def setUp(self):
         self.handlers = {
-                'bar':Mock(return_value=None)
-                }
+            'bar': Mock(return_value=None)
+            }
 
     def test_correct_callback_called(self):
         socket = Mock()
@@ -117,4 +115,3 @@ class ServiceCallHandlerTestCase(unittest.TestCase):
 
         service_call.handle_connection(self.handlers, socket)
         self.handlers['bar'].assert_any_call([10])
-
