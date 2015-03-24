@@ -12,7 +12,7 @@ static volatile uint32_t time_us_high;
 // settings
 #define TIMESTAMP_TIMER TIM7
 #define TIMER_REG       STM32_TIM7
-#define TIMER_IRQ_NAME  STM32_TIM7_UP_HANDLE
+#define TIMER_IRQ_NAME  STM32_TIM7_HANDLER
 #define RCC_EN()        rccEnableTIM7(FALSE)
 #define RCC_RESET()     rccResetTIM7()
 #define NVIC_NB         STM32_TIM7_NUMBER
