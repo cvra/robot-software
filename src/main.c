@@ -12,6 +12,7 @@
 #include "panic_log.h"
 #include "can_bridge.h"
 #include "rpc_server.h"
+#include "uavcan_node.h"
 
 /*Endpoints to be used for USBD1.  */
 #define USBD1_DATA_REQUEST_EP           1
@@ -331,7 +332,8 @@ int main(void) {
             lwip_thread, NULL);
 
     sntp_init();
-    can_bridge_init();
+    uavcan_node_start(1); // start uavcan node with id 1
+    // can_bridge_init();
     rpc_server_init();
     message_server_init();
 

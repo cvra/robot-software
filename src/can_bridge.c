@@ -21,24 +21,8 @@ struct can_bridge_instance_t {
     binary_semaphore_t tx_finished;
 };
 
-static const CANConfig can1_config = {
-    .mcr = (1 << 6)  /* Automatic bus-off management enabled. */
-         | (1 << 2), /* Message are prioritized by order of arrival. */
-
-    /* APB Clock is 42 Mhz, bitrate 1Mhz */
-    .btr = (1 << 0)  /* Baudrate prescaler (10 bits) */
-         | (11 << 16)/* Time segment 1 (3 bits) */
-         | (7 << 20) /* Time segment 2 (3 bits) */
-         | (0 << 24) /* Resync jump width (2 bits) */
-
-#if 0
-         | (1 << 30) /* Loopback mode enabled */
-#endif
-};
-
 void can_bridge_init(void)
 {
-    canStart(&CAND1, &can1_config);
     chThdCreateStatic(wa_can_bridge,
                       CAN_BRIDGE_STACKSIZE,
                       CAN_BRIDGE_PRIO,
@@ -166,65 +150,4 @@ msg_t can_bridge_rx_thread(void *p)
     free(instance);
 
     return MSG_OK;
-}
-
-void can_interface_send(struct can_frame *frame)
-{
-    canmbx_t mailbox = 0;
-    systime_t timeout = TIME_INFINITE;
-
-    CANTxFrame ctf;
-
-    ctf.DLC = frame->dlc;
-
-    if (frame->id & CAN_FRAME_RTR_FLAG) {
-        ctf.RTR = 1;
-    } else {
-        ctf.RTR = 0;
-    }
-
-    if (frame->id & CAN_FRAME_EXT_FLAG) {
-        ctf.IDE = 1;
-        ctf.EID = frame->id & CAN_FRAME_EXT_ID_MASK;
-    } else {
-        ctf.IDE = 0;
-        ctf.SID = frame->id & CAN_FRAME_STD_ID_MASK;
-    }
-
-    ctf.data32[0] = frame->data.u32[0];
-    ctf.data32[1] = frame->data.u32[1];
-
-    canTransmit(&CAND1, mailbox, &ctf, timeout);
-}
-
-bool can_interface_receive(struct can_frame *frame)
-{
-    CANRxFrame crf;
-    canmbx_t mailbox = 0;
-    systime_t timeout = 1;
-
-    msg_t retval;
-
-    retval = canReceive(&CAND1, mailbox, &crf, timeout);
-
-    if (retval != MSG_OK || !can_bridge_id_passes_filter(frame->id)) {
-        return false;
-    }
-
-    frame->dlc = crf.DLC;
-
-    if (crf.IDE == 1) {
-        frame->id = crf.EID | CAN_FRAME_EXT_FLAG;
-    } else {
-        frame->id = crf.SID;
-    }
-
-    if (crf.RTR) {
-        frame->id |= CAN_FRAME_RTR_FLAG;
-    }
-
-    frame->data.u32[0] = crf.data32[0];
-    frame->data.u32[1] = crf.data32[1];
-
-    return true;
 }
