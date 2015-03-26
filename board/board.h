@@ -21,7 +21,7 @@
 
 #define STM32_LSEDRV                (3 << 3)
 
-#define STM32_HSECLK                8000000
+#define STM32_HSECLK                16000000
 
 /*
  * MCU type as defined in the ST header.
@@ -97,13 +97,13 @@
 /*
  * GPIOA setup:
  *
- * PA0  - GPIOA_GPIO_ADC            (input floating).
+ * PA0  - GPIOA_GPIO_ADC            (input floating). (ADC1_IN1)
  * PA1  - GPIOA_LED                 (output pushpull, high).
  * PA2  - GPIOA_NC_2                (input pulldown).
  * PA3  - GPIOA_NC_3                (input pulldown).
  * PA4  - GPIOA_CAN_SPEED           (output pushpull, high).
- * PA5  - GPIOA_ADC_I_MOT           (analog).
- * PA6  - GPIOA_ADC_V_BAT           (analog).
+ * PA5  - GPIOA_ADC_I_MOT           (analog (ADC2_IN2)).
+ * PA6  - GPIOA_ADC_V_BAT           (analog (ADC2_IN3)).
  * PA7  - GPIOA_NC_7                (input pulldown).
  * PA8  - GPIOA_MOTOR_PWM_A         (alternate 6 (TIM1_CH1)).
  * PA9  - GPIOA_MOTOR_PWM_B         (alternate 6 (TIM1_CH2)).
@@ -138,10 +138,10 @@
                                      PIN_OTYPE_PUSHPULL(GPIOA_ADC_I_MOT) |  \
                                      PIN_OTYPE_PUSHPULL(GPIOA_ADC_V_BAT) |  \
                                      PIN_OTYPE_PUSHPULL(GPIOA_NC_7) |       \
-                                     PIN_OTYPE_PUSHPULL(GPIOA_MOTOR_PWM_A) |\
-                                     PIN_OTYPE_PUSHPULL(GPIOA_MOTOR_PWM_B) |\
-                                     PIN_OTYPE_PUSHPULL(GPIOA_MOTOR_EN_A) | \
-                                     PIN_OTYPE_PUSHPULL(GPIOA_MOTOR_EN_B) | \
+                                     PIN_OTYPE_OPENDRAIN(GPIOA_MOTOR_PWM_A) |\
+                                     PIN_OTYPE_OPENDRAIN(GPIOA_MOTOR_PWM_B) |\
+                                     PIN_OTYPE_OPENDRAIN(GPIOA_MOTOR_EN_A) | \
+                                     PIN_OTYPE_OPENDRAIN(GPIOA_MOTOR_EN_B) | \
                                      PIN_OTYPE_PUSHPULL(GPIOA_GPIO_I) |     \
                                      PIN_OTYPE_PUSHPULL(GPIOA_SWDIO) |      \
                                      PIN_OTYPE_PUSHPULL(GPIOA_SWCLK) |      \
@@ -170,10 +170,10 @@
                                      PIN_PUPDR_FLOATING(GPIOA_ADC_I_MOT) |  \
                                      PIN_PUPDR_FLOATING(GPIOA_ADC_V_BAT) |  \
                                      PIN_PUPDR_PULLDOWN(GPIOA_NC_7) |       \
-                                     PIN_PUPDR_FLOATING(GPIOA_MOTOR_PWM_A) |\
-                                     PIN_PUPDR_FLOATING(GPIOA_MOTOR_PWM_B) |\
-                                     PIN_PUPDR_FLOATING(GPIOA_MOTOR_EN_A) | \
-                                     PIN_PUPDR_FLOATING(GPIOA_MOTOR_EN_B) | \
+                                     PIN_PUPDR_PULLUP(GPIOA_MOTOR_PWM_A) |\
+                                     PIN_PUPDR_PULLUP(GPIOA_MOTOR_PWM_B) |\
+                                     PIN_PUPDR_PULLUP(GPIOA_MOTOR_EN_A) | \
+                                     PIN_PUPDR_PULLUP(GPIOA_MOTOR_EN_B) | \
                                      PIN_PUPDR_FLOATING(GPIOA_GPIO_I) |     \
                                      PIN_PUPDR_PULLUP(GPIOA_SWDIO) |        \
                                      PIN_PUPDR_PULLDOWN(GPIOA_SWCLK) |      \

@@ -1,3 +1,36 @@
 [submodule "ChibiOS"]
 	path = ChibiOS
-	url = https://github.com/ChibiOS/ChibiOS.git
+	url = https://github.com/cvra/ChibiOS.git
+[submodule "packager"]
+	path = packager
+	url = https://github.com/cvra/packager.git
+[submodule "src/test-runner"]
+	path = src/test-runner
+	url = https://github.com/cvra/test-runner
+[submodule "src/pid"]
+	path = src/pid
+	url = https://github.com/cvra/pid
+[submodule "can-bootloader"]
+	path = can-bootloader
+	url = https://github.com/cvra/can-bootloader.git
+[submodule "src/cmp"]
+	path = src/cmp
+	url = https://github.com/camgunz/cmp.git
+[submodule "src/cmp_mem_access"]
+	path = src/cmp_mem_access
+	url = https://github.com/Stapelzeiger/cmp_mem_access.git
+[submodule "src/serial-datagram"]
+	path = src/serial-datagram
+	url = https://github.com/Stapelzeiger/serial-datagram.git
+[submodule "src/crc"]
+	path = src/crc
+	url = https://github.com/cvra/crc
+[submodule "src/parameter"]
+	path = src/parameter
+	url = https://github.com/Stapelzeiger/parameter
+[submodule "src/filter"]
+	path = src/filter
+	url = https://github.com/froj/filter
+[submodule "src/timestamp"]
+	path = src/timestamp
+	url = https://github.com/Stapelzeiger/timestamp.git

@@ -1,0 +1,34 @@
+dependency-dir: ./src/
+
+target.arm:
+    - src/main.c
+    - src/blocking_uart_driver.c
+    - src/control.c
+    - src/encoder.c
+    - src/motor_pwm.c
+    - src/analog.c
+    - src/cmp/cmp.c
+    - src/pid_cascade.c
+    - src/motor_protection.c
+    - src/feedback.c
+    - src/rpm.c
+
+depends:
+    - pid
+    - serial-datagram
+    - cmp_mem_access
+    - filter:
+        fork: froj
+    - parameter:
+        fork: Stapelzeiger
+    - timestamp:
+        fork: Stapelzeiger
+
+tests:
+    - src/cmp/cmp.c
+    - tests/feedback_test.cpp
+    - src/rpm.c
+    - tests/rpm_test.cpp
+
+templates:
+    Makefile.include.jinja: src/src.mk
