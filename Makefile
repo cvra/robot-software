@@ -223,4 +223,4 @@ flash_audio:
 	mplayer flash.ogg > /dev/null &
 
 flash: build/$(PROJECT).elf
-	openocd -f oocd.cfg -c "program build/ch.elf verify reset exit"
+	openocd -f oocd.cfg -c "program build/ch.elf verify reset"
