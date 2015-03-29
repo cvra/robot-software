@@ -222,5 +222,5 @@ include $(RULESPATH)/rules.mk
 flash_audio:
 	mplayer flash.ogg > /dev/null &
 
-flash: flash_audio build/$(PROJECT).elf
+flash: build/$(PROJECT).elf
 	openocd -f oocd.cfg -c "program build/ch.elf verify reset exit"
