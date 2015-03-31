@@ -6,6 +6,8 @@
 # Compiler options here.
 ifeq ($(USE_OPT),)
   USE_OPT = -O2 -ggdb -fomit-frame-pointer -falign-functions=16
+  USE_OPT += -fno-stack-protector -ftree-loop-distribute-patterns
+  USE_OPT += -frename-registers -freorder-blocks -fconserve-stack
 endif
 
 # C specific options here (added to USE_OPT).
@@ -16,6 +18,8 @@ endif
 # C++ specific options here (added to USE_OPT).
 ifeq ($(USE_CPPOPT),)
   USE_CPPOPT = -fno-rtti
+  USE_CPPOPT += -std=gnu++11
+  USE_CPPOPT += -fno-exceptions -fno-unwind-tables -fno-threadsafe-statics
 endif
 
 # Enable this if you want the linker to remove unused code and data
@@ -76,6 +80,7 @@ include $(CHIBIOS)/os/rt/rt.mk
 include ${CHIBIOS}/os/hal/osal/rt/osal.mk
 include lwip.mk
 include $(CHIBIOS)/test/rt/test.mk
+include $(CHIBIOS)/os/various/cpp_wrappers/chcpp.mk
 
 LDSCRIPT= STM32F407xG.ld
 
@@ -97,7 +102,7 @@ include app_src.mk
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
-CPPSRC =
+CPPSRC += $(CHCPPSRC)
 
 # C sources to be compiled in ARM mode regardless of the global setting.
 # NOTE: Mixing ARM and THUMB mode enables the -mthumb-interwork compiler
@@ -125,6 +130,7 @@ ASMSRC = $(PORTASM)
 INCDIR += $(PORTINC) $(KERNINC) $(TESTINC) \
           $(HALINC) $(PLATFORMINC) $(LWINC) \
           $(OSALINC) \
+          $(CHCPPINC) \
           $(CHIBIOS)/os/various \
 		  $(CHIBIOS)/os/hal/lib/streams
 
@@ -145,8 +151,8 @@ CPPC = $(TRGT)g++
 # Enable loading with g++ only if you need C++ runtime support.
 # NOTE: You can use C++ even without C++ support if you are careful. C++
 #       runtime support makes code size explode.
-LD   = $(TRGT)gcc
-#LD   = $(TRGT)g++
+# LD   = $(TRGT)gcc
+LD   = $(TRGT)g++
 CP   = $(TRGT)objcopy
 AS   = $(TRGT)gcc -x assembler-with-cpp
 OD   = $(TRGT)objdump
@@ -199,6 +205,10 @@ DLIBS =
 
 # List all user C define here, like -D_DEBUG=1
 UDEFS =
+UDEFS += -DUAVCAN_TOSTRING=0 \
+		 -DUAVCAN_STM32_NUM_IFACES=1 \
+		 -DUAVCAN_STM32_TIMER_NUMBER=3 \
+		 -DUAVCAN_TINY=0
 
 # Define ASM defines here
 UADEFS =
@@ -207,10 +217,18 @@ UADEFS =
 UINCDIR =
 
 # List the user directory to look for the libraries here
-ULIBDIR =
+UINCDIR =
 
 # List all user libraries here
 ULIBS =
+
+#
+# UAVCAN
+##############################################################################
+include uavcan/libuavcan/include.mk
+
+CPPSRC += $(LIBUAVCAN_SRC)
+UINCDIR += $(LIBUAVCAN_INC) src/can-driver/include ./dsdlc_generated
 
 #
 # End of user defines
@@ -221,3 +239,8 @@ include $(RULESPATH)/rules.mk
 
 flash: build/$(PROJECT).elf
 	openocd -f oocd.cfg -c "program build/ch.elf verify reset"
+
+# run uavcan dsdl compiler
+.PHONY: dsdlc
+dsdlc:
+	$(LIBUAVCAN_DSDLC) cvra $(UAVCAN_DSDL_DIR)

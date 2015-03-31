@@ -19,6 +19,10 @@ target.arm:
     - src/rpc_server.c
     - src/rpc_callbacks.c
     - src/msg_callbacks.c
+    - src/uavcan_node.cpp
+    - src/can-driver/src/uc_stm32_can.cpp
+    - src/can-driver/src/uc_stm32_clock.cpp
+    - src/can-driver/src/uc_stm32_thread.cpp
 
 source:
     - src/timestamp.c
