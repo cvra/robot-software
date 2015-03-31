@@ -24,6 +24,7 @@ target.arm:
     - src/can-driver/src/uc_stm32_clock.cpp
     - src/can-driver/src/uc_stm32_thread.cpp
     - src/blocking_uart_driver.c
+    - src/usbconf.c
 
 source:
     - src/timestamp.c
