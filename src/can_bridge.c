@@ -1,6 +1,6 @@
 #include <lwip/api.h>
 #include <string.h>
-#include <serial-can-bridge/can_frame_cmp.h>
+#include <serial-can-bridge/can_frame.h>
 #include <serial-datagram/serial_datagram.h>
 #include <serial-can-bridge/serial_can_bridge.h>
 
@@ -14,7 +14,7 @@ THD_WORKING_AREA(wa_can_bridge, CAN_BRIDGE_STACKSIZE);
 msg_t can_bridge_thread(void *p);
 msg_t can_bridge_rx_thread(void *p);
 msg_t can_bridge_tx_thread(void *p);
-bool can_interface_receive(struct can_bridge_frame *frame);
+bool can_interface_receive(struct can_frame *frame);
 
 struct can_bridge_instance_t {
     struct netconn *conn;
@@ -144,7 +144,7 @@ msg_t can_bridge_rx_thread(void *p)
     chRegSetThreadName("can_bridge_rx");
     struct can_bridge_instance_t *instance = (struct can_bridge_instance_t *)p;
 
-    struct can_bridge_frame frame;
+    struct can_frame frame;
 
     static uint8_t outbuf[32];
     size_t outlen;
@@ -168,35 +168,36 @@ msg_t can_bridge_rx_thread(void *p)
     return MSG_OK;
 }
 
-void can_interface_send(bool ext, bool rtr, uint32_t id, void *data, uint8_t len)
+void can_interface_send(struct can_frame *frame)
 {
     canmbx_t mailbox = 0;
     systime_t timeout = TIME_INFINITE;
 
     CANTxFrame ctf;
 
-    ctf.DLC = len;
+    ctf.DLC = frame->dlc;
 
-    if (rtr) {
+    if (frame->id & CAN_FRAME_RTR_FLAG) {
         ctf.RTR = 1;
     } else {
         ctf.RTR = 0;
     }
 
-    if (ext) {
+    if (frame->id & CAN_FRAME_EXT_FLAG) {
         ctf.IDE = 1;
-        ctf.EID = id;
+        ctf.EID = frame->id & CAN_FRAME_EXT_ID_MASK;
     } else {
         ctf.IDE = 0;
-        ctf.SID = id;
+        ctf.SID = frame->id & CAN_FRAME_STD_ID_MASK;
     }
 
-    memcpy(ctf.data8, data, len);
+    ctf.data32[0] = frame->data.u32[0];
+    ctf.data32[1] = frame->data.u32[1];
 
     canTransmit(&CAND1, mailbox, &ctf, timeout);
 }
 
-bool can_interface_receive(struct can_bridge_frame *frame)
+bool can_interface_receive(struct can_frame *frame)
 {
     CANRxFrame crf;
     canmbx_t mailbox = 0;
@@ -206,18 +207,20 @@ bool can_interface_receive(struct can_bridge_frame *frame)
 
     retval = canReceive(&CAND1, mailbox, &crf, timeout);
 
-    if (retval != MSG_OK) {
+    if (retval != MSG_OK || !can_bridge_id_passes_filter(frame->id)) {
         return false;
     }
 
-    frame->rtr = crf.RTR;
-    frame->ext = crf.IDE;
     frame->dlc = crf.DLC;
 
     if (crf.IDE == 1) {
-        frame->id.ext = crf.EID;
+        frame->id = crf.EID | CAN_FRAME_EXT_FLAG;
     } else {
-        frame->id.std = crf.SID;
+        frame->id = crf.SID;
+    }
+
+    if (crf.RTR) {
+        frame->id |= CAN_FRAME_RTR_FLAG;
     }
 
     frame->data.u32[0] = crf.data32[0];
