@@ -4,6 +4,8 @@
 #include <uavcan_stm32/uavcan_stm32.hpp>
 #include <uavcan/protocol/NodeStatus.hpp>
 #include <cvra/Reboot.hpp>
+#include <cvra/motor/control/Velocity.hpp>
+#include <control.h>
 #include "uavcan_node.h"
 #include <can-bootloader/boot_arg.h>
 
@@ -68,6 +70,17 @@ static THD_FUNCTION(uavcan_node, arg)
     );
     if (ret != 0) {
         uavcan_failure("cvra::Reboot subscriber");
+    }
+
+    uavcan::Subscriber<cvra::motor::control::Velocity> vel_ctrl_sub(node);
+    ret = vel_ctrl_sub.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::motor::control::Velocity>& msg)
+        {
+            control_update_velocity_setpoint(msg.velocity);
+        }
+    );
+    if (ret != 0) {
+        uavcan_failure("cvra::motor::control::Velocity subscriber");
     }
 
     node.setStatusOk();
