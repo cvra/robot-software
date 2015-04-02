@@ -10,6 +10,21 @@ THD_WORKING_AREA(wa_can_bridge, CAN_BRIDGE_STACKSIZE);
 #define CAN_BRIDGE_RX_STACKSIZE 1024
 #define CAN_BRIDGE_TX_STACKSIZE 1024
 
+#define CAN_BRIDGE_RX_QUEUE_SIZE    32
+#define CAN_BRIDGE_TX_QUEUE_SIZE    32
+
+memory_pool_t can_bridge_rx_pool;
+memory_pool_t can_bridge_tx_pool;
+mailbox_t can_bridge_rx_queue;
+mailbox_t can_bridge_tx_queue;
+bool can_bridge_is_initialized = false;
+
+msg_t rx_mbox_buf[CAN_BRIDGE_RX_QUEUE_SIZE];
+struct can_frame rx_pool_buf[CAN_BRIDGE_RX_QUEUE_SIZE];
+msg_t tx_mbox_buf[CAN_BRIDGE_TX_QUEUE_SIZE];
+// tx pool size is +1 to be able to block
+struct can_frame tx_pool_buf[CAN_BRIDGE_TX_QUEUE_SIZE + 1];
+
 /** Thread running the CAN bridge. */
 msg_t can_bridge_thread(void *p);
 msg_t can_bridge_rx_thread(void *p);
@@ -23,6 +38,16 @@ struct can_bridge_instance_t {
 
 void can_bridge_init(void)
 {
+    // rx queue
+    chMBObjectInit(&can_bridge_rx_queue, rx_mbox_buf, CAN_BRIDGE_RX_QUEUE_SIZE);
+    chPoolObjectInit(&can_bridge_rx_pool, sizeof(struct can_frame), NULL);
+    chPoolLoadArray(&can_bridge_rx_pool, rx_pool_buf, sizeof(rx_pool_buf)/sizeof(struct can_frame));
+
+    // tx queue
+    chMBObjectInit(&can_bridge_tx_queue, tx_mbox_buf, CAN_BRIDGE_TX_QUEUE_SIZE);
+    chPoolObjectInit(&can_bridge_tx_pool, sizeof(struct can_frame), NULL);
+    chPoolLoadArray(&can_bridge_tx_pool, tx_pool_buf, sizeof(tx_pool_buf)/sizeof(struct can_frame));
+
     chThdCreateStatic(wa_can_bridge,
                       CAN_BRIDGE_STACKSIZE,
                       CAN_BRIDGE_PRIO,
@@ -128,21 +153,24 @@ msg_t can_bridge_rx_thread(void *p)
     chRegSetThreadName("can_bridge_rx");
     struct can_bridge_instance_t *instance = (struct can_bridge_instance_t *)p;
 
-    struct can_frame frame;
+    struct can_frame *framep;
 
     static uint8_t outbuf[32];
     size_t outlen;
 
     /* Wait as long as the thread is not finished (semaphore not taken) */
     while (chBSemWaitTimeout(&instance->tx_finished, TIME_IMMEDIATE) == MSG_TIMEOUT) {
-        if (!can_interface_receive(&frame)) {
+        msg_t m = chMBFetch(&can_bridge_rx_queue, (msg_t *)&framep, MS2ST(100));
+        if (m != MSG_OK) {
             continue;
         }
 
         outlen = sizeof(outbuf);
-        if (can_bridge_frame_write(&frame, outbuf, &outlen)) {
+        if (can_bridge_frame_write(framep, outbuf, &outlen)) {
             serial_datagram_send(outbuf, outlen, serial_write, instance);
         }
+
+        chPoolFree(&can_bridge_rx_pool, framep);
     }
 
     netconn_close(instance->conn);
@@ -150,4 +178,21 @@ msg_t can_bridge_rx_thread(void *p)
     free(instance);
 
     return MSG_OK;
+}
+
+void can_interface_send(struct can_frame *frame)
+{
+    struct can_frame *tx = (struct can_frame *)chPoolAlloc(&can_bridge_tx_pool);
+    if (tx == NULL) {
+        return;
+    }
+    tx->id = frame->id;
+    tx->dlc = frame->dlc;
+    tx->data.u32[0] = frame->data.u32[0];
+    tx->data.u32[1] = frame->data.u32[1];
+    if (chMBPost(&can_bridge_tx_queue, (msg_t)tx, MS2ST(100)) != MSG_OK) {
+        // couldn't post, free memory
+        chPoolFree(&can_bridge_tx_pool, tx);
+    }
+    return;
 }
