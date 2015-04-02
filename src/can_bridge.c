@@ -48,6 +48,8 @@ void can_bridge_init(void)
     chPoolObjectInit(&can_bridge_tx_pool, sizeof(struct can_frame), NULL);
     chPoolLoadArray(&can_bridge_tx_pool, tx_pool_buf, sizeof(tx_pool_buf)/sizeof(struct can_frame));
 
+    can_bridge_is_initialized = true;
+
     chThdCreateStatic(wa_can_bridge,
                       CAN_BRIDGE_STACKSIZE,
                       CAN_BRIDGE_PRIO,
