@@ -171,7 +171,7 @@ msg_t main(void *arg)
 
     while (true)
     {
-        res = node.spin(uavcan::MonotonicDuration::fromMSec(10));
+        res = node.spin(uavcan::MonotonicDuration::fromMSec(100));
         if (res < 0) {
             // log warning
         }
