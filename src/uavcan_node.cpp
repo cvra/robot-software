@@ -8,6 +8,7 @@
 #include <uavcan_stm32/uavcan_stm32.hpp>
 #include <uavcan/protocol/NodeStatus.hpp>
 #include <src/can_bridge.h>
+#include <cvra/Reboot.hpp>
 
 #include <errno.h>
 
@@ -150,11 +151,26 @@ msg_t main(void *arg)
 
     node.setStatusOk();
 
+
+    uavcan::Publisher<cvra::Reboot> reboot_pub(node);
+    const int reboot_pub_init_res = reboot_pub.init();
+    if (reboot_pub_init_res < 0)
+    {
+        node_fail("cvra::Reboot publisher");
+    }
+
+
     while (true)
     {
         res = node.spin(uavcan::MonotonicDuration::fromMSec(10));
         if (res < 0) {
             // log warning
+        }
+
+        if (palReadPad(GPIOA, GPIOA_BUTTON_WKUP)) {
+            cvra::Reboot reboot_msg;
+            reboot_msg.bootmode = reboot_msg.BOOTLOADER_TIMEOUT;
+            reboot_pub.broadcast(reboot_msg);
         }
 
         can_bridge_send_frames(node);
