@@ -10,8 +10,20 @@ target.arm:
     - src/cmp/cmp.c
     - src/pid_cascade.c
     - src/motor_protection.c
+    - src/setpoint.c
     - src/feedback.c
     - src/rpm.c
+    - src/bootloader_config.c
+    - can-bootloader/config.c
+    - src/reboot.c
+    - src/uavcan_node.cpp
+    - src/can-driver/src/uc_stm32_can.cpp
+    - src/can-driver/src/uc_stm32_clock.cpp
+    - src/can-driver/src/uc_stm32_thread.cpp
+    - src/libstubs.cpp
+
+include_directories:
+    - src/can-driver/include
 
 depends:
     - pid
@@ -29,6 +41,7 @@ tests:
     - tests/feedback_test.cpp
     - src/rpm.c
     - tests/rpm_test.cpp
+    - tests/setpoint_test.cpp
 
 templates:
     Makefile.include.jinja: src/src.mk

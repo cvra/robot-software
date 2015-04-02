@@ -4,6 +4,7 @@
 #include <blocking_uart_driver.h>
 #include "motor_pwm.h"
 #include "control.h"
+#include "setpoint.h"
 #include "analog.h"
 #include "encoder.h"
 #include "cmp_mem_access/cmp_mem_access.h"
@@ -11,6 +12,8 @@
 #include "parameter/parameter.h"
 #include "parameter/parameter_msgpack.h"
 #include <string.h>
+#include "bootloader_config.h"
+#include "uavcan_node.h"
 
 BaseSequentialStream* stdout;
 parameter_namespace_t parameter_root_ns;
@@ -99,6 +102,16 @@ void panic_hook(const char* reason)
     }
 }
 
+void __assert_func(const char *_file, int _line, const char *_func, const char *_expr )
+{
+    (void)_file;
+    (void)_line;
+    (void)_func;
+    (void)_expr;
+
+    panic_hook("assertion failed");
+    while(1);
+}
 
 static int error_level = 0;
 
@@ -151,6 +164,10 @@ int main(void) {
     halInit();
     chSysInit();
 
+    static bootloader_config_t config;
+    if (!config_get(&config)) {
+        chSysHalt("invalid config");
+    }
 
     sdStart(&SD3, NULL);
     stdout = (BaseSequentialStream*)&SD3;
@@ -163,6 +180,7 @@ int main(void) {
     encoder_init_primary();
 
     chprintf(stdout, "boot\n");
+    chprintf(stdout, "%s: %d\n", config.board_name, config.ID);
 
 
     control_declare_parameters();
@@ -197,8 +215,14 @@ int main(void) {
     chThdCreateStatic(parameter_listener_wa, sizeof(parameter_listener_wa), LOWPRIO, parameter_listener, &SD3);
     chThdCreateStatic(led_thread_wa, sizeof(led_thread_wa), LOWPRIO, led_thread, NULL);
 
-    control_update_torque_setpoint(0);
     control_enable(true);
+
+    static struct uavcan_node_arg node_arg;
+    node_arg.node_id = config.ID;
+    node_arg.node_name = config.board_name;
+    can_transceiver_activate();
+    uavcan_node_start(&node_arg);
+
     while (1) {
         control_update_torque_setpoint(0.1);
         chThdSleepMilliseconds(1000);
