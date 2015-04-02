@@ -332,8 +332,8 @@ int main(void) {
             lwip_thread, NULL);
 
     sntp_init();
+    can_bridge_init();
     uavcan_node_start(1); // start uavcan node with id 1
-    // can_bridge_init();
     rpc_server_init();
     message_server_init();
 
