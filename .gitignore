@@ -5,3 +5,4 @@ src/src.mk
 .tags*
 
 *sw[po]
+dsdlc_generated/*

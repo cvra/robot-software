@@ -7,6 +7,8 @@ extern "C" {
 
 #include <stdbool.h>
 #include "pid/pid.h"
+#include "setpoint.h"
+
 
 struct pid_cascade_s {
     // contorllers:
@@ -19,11 +21,7 @@ struct pid_cascade_s {
     float torque_limit;
     float current_limit;
     // setpoints:
-    bool position_control_enabled;
-    bool velocity_control_enabled;
-    float position_setpt;
-    float velocity_setpt;
-    float feedforward_torque;
+    struct setpoint_s setpts;
     // inputs:
     float position;
     float velocity;

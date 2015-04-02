@@ -12,6 +12,7 @@
 #include "filter/basic.h"
 #include "motor_protection.h"
 #include "feedback.h"
+#include "setpoint.h"
 
 #include "control.h"
 
@@ -21,58 +22,12 @@
 struct feedback_s control_feedback;
 motor_protection_t control_motor_protection;
 
-
+binary_semaphore_t setpoint_interpolation_lock;
+static setpoint_interpolator_t setpoint_interpolation;
 static struct pid_cascade_s ctrl;
 
 static bool motor_enable = true;
 
-#define SETPT_MODE_POS      0
-#define SETPT_MODE_VEL      1
-#define SETPT_MODE_TORQUE   2
-#define SETPT_MODE_TRAJ     3
-static int setpt_mode = SETPT_MODE_TORQUE;
-static float target_pos = 0; // valid only in position control mode
-static float target_vel = 0; // valid only in velocity control mode
-static float setpt_pos = 0;
-static float setpt_vel = 0;
-static float traj_acc = 0; // acceleration of the trajectory mode
-static float setpt_torque = 0;
-static timestamp_t setpt_ts; // timestamp of the last setpoint update (traj. mode)
-
-
-static float pos_setpt_interpolation(float pos, float vel, float acc, float delta_t)
-{
-    return pos + vel * delta_t + acc / 2 * delta_t * delta_t;
-}
-
-static float vel_setpt_interpolation(float vel, float acc, float delta_t)
-{
-    return vel + acc * delta_t;
-}
-
-// returns acceleration to be applied for the next delta_t
-static float vel_ramp(float pos, float vel, float target_pos, float delta_t, float max_vel, float max_acc)
-{
-    float breaking_dist = vel * vel / 2 / max_acc;  // distance needed to break with max_acc
-    float next_error = pos + vel * delta_t + max_acc / 2 / delta_t / delta_t - target_pos;
-    float next_error_sign = copysignf(1.0, next_error);
-
-    if (next_error_sign == copysignf(1.0, vel)) {
-        if (fabs(next_error) <= breaking_dist) {
-            // too close to break (or just close enough)
-            return next_error_sign * max_acc;
-        } else if (fabs(vel) >= max_vel) {
-            // maximal velocity reched -> just cruise
-            return 0;
-        } else {
-            // we can go faster
-            return - next_error_sign * max_acc;
-        }
-    } else {
-        // driving away from target position -> turn around
-        return - next_error_sign * max_acc;
-    }
-}
 
 void control_enable(bool en)
 {
@@ -81,41 +36,36 @@ void control_enable(bool en)
 
 void control_update_position_setpoint(float pos)
 {
-    if (setpt_mode == SETPT_MODE_TORQUE) {
-        setpt_pos = pos; // todo replace by current position
-        setpt_vel = 0; // todo replace by current velocity
-    }
-    if (setpt_mode == SETPT_MODE_VEL) {
-        setpt_pos = pos; // todo see above
-    }
-    setpt_mode = SETPT_MODE_POS;
-    target_pos = pos;
+    float current_pos = 0; // todo
+    float current_vel = 0; // todo
+    chBSemWait(&setpoint_interpolation_lock);
+    setpoint_update_position(&setpoint_interpolation, pos, current_pos, current_vel);
+    chBSemSignal(&setpoint_interpolation_lock);
 }
 
 void control_update_velocity_setpoint(float vel)
 {
-    if (setpt_mode == SETPT_MODE_TORQUE) {
-        setpt_vel = 0; // todo see above
-    }
-    setpt_mode = SETPT_MODE_VEL;
-    target_vel = vel;
+    float current_vel = 0; // todo
+    chBSemWait(&setpoint_interpolation_lock);
+    setpoint_update_velocity(&setpoint_interpolation, vel, current_vel);
+    chBSemSignal(&setpoint_interpolation_lock);
 }
 
 void control_update_torque_setpoint(float torque)
 {
-    setpt_mode = SETPT_MODE_TORQUE;
-    setpt_torque = torque;
+    chBSemWait(&setpoint_interpolation_lock);
+    setpoint_update_torque(&setpoint_interpolation, torque);
+    chBSemSignal(&setpoint_interpolation_lock);
 }
 
-void control_update_trajectory_setpoint(float pos, float vel, float acc, float torque, timestamp_t ts)
+void control_update_trajectory_setpoint(float pos, float vel, float acc,
+                                        float torque, timestamp_t ts)
 {
-    setpt_mode = SETPT_MODE_TRAJ;
-    setpt_pos = pos;
-    setpt_vel = vel;
-    traj_acc = acc;
-    setpt_torque = torque;
-    setpt_ts = ts;
+    chBSemWait(&setpoint_interpolation_lock);
+    setpoint_update_trajectory(&setpoint_interpolation, pos, vel, acc, torque, ts);
+    chBSemSignal(&setpoint_interpolation_lock);
 }
+
 
 float control_get_motor_voltage(void)
 {
@@ -259,15 +209,10 @@ static THD_FUNCTION(control_loop, arg)
     pid_init(&ctrl.current_pid);
     pid_init(&ctrl.velocity_pid);
     pid_init(&ctrl.position_pid);
-    ctrl.motor_current_constant = 1;
-    ctrl.velocity_limit = INFINITY;
-    ctrl.torque_limit = INFINITY;
-    ctrl.current_limit = INFINITY;
 
-    float acc_max = INFINITY; // acceleration limit in speed / position control
     float low_batt_th = LOW_BATT_TH;
 
-    float t_max = 0; // todo
+    float t_max = 0; // todo this code will move to config init function
     float r_th = 0;
     float c_th = 0;
     float current_gain = 0;
@@ -299,12 +244,17 @@ static THD_FUNCTION(control_loop, arg)
             }
             if (parameter_changed(&param_vel_limit)) {
                 ctrl.velocity_limit = parameter_scalar_get(&param_vel_limit);
+                chBSemWait(&setpoint_interpolation_lock);
+                setpoint_interpolation.vel_limit = ctrl.velocity_limit;
+                chBSemSignal(&setpoint_interpolation_lock);
             }
             if (parameter_changed(&param_torque_limit)) {
                 ctrl.torque_limit = parameter_scalar_get(&param_torque_limit);
             }
             if (parameter_changed(&param_acc_limit)) {
-                acc_max = parameter_scalar_get(&param_acc_limit);
+                chBSemWait(&setpoint_interpolation_lock);
+                setpoint_interpolation.acc_limit = parameter_scalar_get(&param_acc_limit);
+                chBSemSignal(&setpoint_interpolation_lock);
             }
         }
         if (parameter_namespace_contains_changed(&param_ns_motor)) {
@@ -349,38 +299,9 @@ static THD_FUNCTION(control_loop, arg)
             // ctrl.current_limit = motor_protection_update(&control_motor_protection, ctrl.current, delta_t);
 
             // setpoints
-            if (setpt_mode == SETPT_MODE_TRAJ) {
-                timestamp_t now = timestamp_get();
-                float delta_t = timestamp_duration_s(setpt_ts, now);
-                ctrl.position_control_enabled = true;
-                ctrl.velocity_control_enabled = true;
-                ctrl.position_setpt = pos_setpt_interpolation(setpt_pos, setpt_vel, traj_acc, delta_t);
-                ctrl.velocity_setpt = vel_setpt_interpolation(setpt_vel, traj_acc, delta_t);
-                ctrl.feedforward_torque = setpt_torque;
-
-            } else if (setpt_mode == SETPT_MODE_TORQUE) {
-                ctrl.position_control_enabled = false;
-                ctrl.velocity_control_enabled = false;
-                ctrl.feedforward_torque = setpt_torque;
-
-            } else if (setpt_mode == SETPT_MODE_VEL) {
-                ctrl.position_control_enabled = false;
-                ctrl.velocity_control_enabled = true;
-                float delta_vel = target_vel - setpt_vel;
-                setpt_vel += filter_limit_sym(delta_vel, delta_t * acc_max);
-                ctrl.velocity_setpt = setpt_vel;
-                ctrl.feedforward_torque = 0;
-
-            } else { // setpt_mode == SETPT_MODE_POS
-                ctrl.position_control_enabled = true;
-                ctrl.velocity_control_enabled = true;
-                float acc = vel_ramp(setpt_pos, setpt_vel, target_pos, delta_t, ctrl.velocity_limit, acc_max);
-                float pos = pos_setpt_interpolation(setpt_pos, setpt_vel, acc, delta_t);
-                float vel = vel_setpt_interpolation(setpt_vel, acc, delta_t);
-                ctrl.position_setpt = setpt_pos = pos;;
-                ctrl.velocity_setpt = setpt_vel = vel;
-                ctrl.feedforward_torque = 0;
-            }
+            chBSemWait(&setpoint_interpolation_lock);
+            setpoint_compute(&setpoint_interpolation, &ctrl.setpts, delta_t);
+            chBSemSignal(&setpoint_interpolation_lock);
 
             // run control step
             pid_cascade_control(&ctrl);
@@ -396,6 +317,17 @@ static THD_FUNCTION(control_loop, arg)
 
 void control_start()
 {
+    ctrl.motor_current_constant = 1;
+    ctrl.velocity_limit = parameter_scalar_get(&param_vel_limit);
+    ctrl.torque_limit = INFINITY;
+    ctrl.current_limit = INFINITY;
+
+    chBSemObjectInit(&setpoint_interpolation_lock, false);
+
+    setpoint_init(&setpoint_interpolation,
+                  parameter_scalar_get(&param_acc_limit),
+                  ctrl.velocity_limit);
+
     static THD_WORKING_AREA(control_loop_wa, 256);
     chThdCreateStatic(control_loop_wa, sizeof(control_loop_wa), HIGHPRIO, control_loop, NULL);
 }
