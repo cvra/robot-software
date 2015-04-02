@@ -3,7 +3,7 @@
  */
 
 #include <unistd.h>
-#include <ch.hpp>
+#include <ch.h>
 #include <hal.h>
 #include <uavcan_stm32/uavcan_stm32.hpp>
 #include <uavcan/protocol/NodeStatus.hpp>
