@@ -337,7 +337,7 @@ int main(void) {
 
         sntp_init();
         can_bridge_init();
-        uavcan_node_start(1); // start uavcan node with id 1
+        uavcan_node_start(42);
         rpc_server_init();
         message_server_init();
     }
