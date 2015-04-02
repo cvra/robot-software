@@ -5,6 +5,7 @@
 #include <test.h>
 #include <chprintf.h>
 #include "rpc_server.h"
+#include "motor_control.h"
 
 #include "commands.h"
 #include "panic_log.h"
@@ -155,7 +156,16 @@ static void cmd_rpc_client_test(BaseSequentialStream *chp, int argc, char **argv
                  &server, port);
 }
 
-
+static void cmd_fwd(BaseSequentialStream *chp, int argc, char **argv)
+{
+    if (argc != 1) {
+        chprintf(chp, "usage: fwd <speed>\n");
+        return;
+    }
+    float cmd = strtof(argv[0], NULL);
+    m1_vel_setpt = cmd;
+    m2_vel_setpt = -cmd;
+}
 
 const ShellCommand commands[] = {
     {"mem", cmd_mem},
@@ -166,5 +176,6 @@ const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"time", cmd_time},
     {"rpc_client_demo", cmd_rpc_client_test},
+    {"fwd", cmd_fwd},
     {NULL, NULL}
 };

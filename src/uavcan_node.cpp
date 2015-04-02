@@ -9,6 +9,9 @@
 #include <uavcan/protocol/NodeStatus.hpp>
 #include <src/can_bridge.h>
 #include <cvra/Reboot.hpp>
+#include <cvra/motor/control/Velocity.hpp>
+#include <cvra/Reboot.hpp>
+#include "motor_control.h"
 
 #include <errno.h>
 
@@ -159,6 +162,12 @@ msg_t main(void *arg)
         node_fail("cvra::Reboot publisher");
     }
 
+    uavcan::Publisher<cvra::motor::control::Velocity> velocity_ctrl_setpt_pub(node);
+    const int velocity_ctrl_setpt_pub_init_res = velocity_ctrl_setpt_pub.init();
+    if (velocity_ctrl_setpt_pub_init_res < 0)
+    {
+        node_fail("cvra::motor::control::Velocity publisher");
+    }
 
     while (true)
     {
@@ -172,6 +181,12 @@ msg_t main(void *arg)
             reboot_msg.bootmode = reboot_msg.BOOTLOADER_TIMEOUT;
             reboot_pub.broadcast(reboot_msg);
         }
+
+        cvra::motor::control::Velocity vel_ctrl_setpt;
+        vel_ctrl_setpt.velocity = m1_vel_setpt;
+        velocity_ctrl_setpt_pub.unicast(vel_ctrl_setpt, 1);
+        vel_ctrl_setpt.velocity = m2_vel_setpt;
+        velocity_ctrl_setpt_pub.unicast(vel_ctrl_setpt, 10);
 
         can_bridge_send_frames(node);
 
