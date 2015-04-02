@@ -224,9 +224,6 @@ int main(void) {
     uavcan_node_start(&node_arg);
 
     while (1) {
-        control_update_torque_setpoint(0.1);
-        chThdSleepMilliseconds(1000);
-        control_update_torque_setpoint(-0.1);
         chThdSleepMilliseconds(1000);
     }
 }
