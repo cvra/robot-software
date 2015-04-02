@@ -307,6 +307,9 @@ int main(void) {
     sduObjectInit(&SDU1);
     sduStart(&SDU1, &serusbcfg);
 
+    sdStart(&SD3, NULL);
+    chprintf((BaseSequentialStream *)&SD3 , "\n> boot\n");
+
     /*
      * Activates the USB driver and then the USB bus pull-up on D+.
      * Note, a delay is inserted in order to not have to disconnect the cable

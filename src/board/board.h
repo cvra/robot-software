@@ -85,8 +85,8 @@
 #define GPIOB_PIN7                  7
 #define GPIOB_I2C1_SCL              8
 #define GPIOB_I2C1_SDA              9
-#define GPIOB_SPI2_SCK              10
-#define GPIOB_PIN11                 11
+#define GPIOB_UART3_TX              10
+#define GPIOB_UART3_RX              11
 #define GPIOB_OTG_HS_ID             12
 #define GPIOB_OTG_HS_VBUS           13
 #define GPIOB_OTG_HS_DM             14
@@ -363,8 +363,8 @@
  * PB7  - PIN7                      (input pullup).
  * PB8  - I2C1_SCL                  (alternate 4).
  * PB9  - I2C1_SDA                  (alternate 4).
- * PB10 - SPI2_SCK                  (alternate 5).
- * PB11 - PIN11                     (input pullup).
+ * PB10 - UART3_TX                  (alternate 7).
+ * PB11 - UART3_RX                  (alternate 7).
  * PB12 - OTG_HS_ID                 (alternate 12).
  * PB13 - OTG_HS_VBUS               (input pulldown).
  * PB14 - OTG_HS_DM                 (alternate 12).
@@ -380,8 +380,8 @@
                                      PIN_MODE_INPUT(GPIOB_PIN7) |           \
                                      PIN_MODE_ALTERNATE(GPIOB_I2C1_SCL) |   \
                                      PIN_MODE_ALTERNATE(GPIOB_I2C1_SDA) |   \
-                                     PIN_MODE_ALTERNATE(GPIOB_SPI2_SCK) |   \
-                                     PIN_MODE_INPUT(GPIOB_PIN11) |          \
+                                     PIN_MODE_ALTERNATE(GPIOB_UART3_TX) |   \
+                                     PIN_MODE_ALTERNATE(GPIOB_UART3_RX) |   \
                                      PIN_MODE_ALTERNATE(GPIOB_OTG_HS_ID) |  \
                                      PIN_MODE_INPUT(GPIOB_OTG_HS_VBUS) |    \
                                      PIN_MODE_ALTERNATE(GPIOB_OTG_HS_DM) |  \
@@ -396,8 +396,8 @@
                                      PIN_OTYPE_PUSHPULL(GPIOB_PIN7) |       \
                                      PIN_OTYPE_OPENDRAIN(GPIOB_I2C1_SCL) |  \
                                      PIN_OTYPE_OPENDRAIN(GPIOB_I2C1_SDA) |  \
-                                     PIN_OTYPE_PUSHPULL(GPIOB_SPI2_SCK) |   \
-                                     PIN_OTYPE_PUSHPULL(GPIOB_PIN11) |      \
+                                     PIN_OTYPE_PUSHPULL(GPIOB_UART3_TX) |   \
+                                     PIN_OTYPE_PUSHPULL(GPIOB_UART3_RX) |   \
                                      PIN_OTYPE_PUSHPULL(GPIOB_OTG_HS_ID) |  \
                                      PIN_OTYPE_PUSHPULL(GPIOB_OTG_HS_VBUS) |\
                                      PIN_OTYPE_PUSHPULL(GPIOB_OTG_HS_DM) |  \
@@ -412,8 +412,8 @@
                                      PIN_OSPEED_100M(GPIOB_PIN7) |          \
                                      PIN_OSPEED_100M(GPIOB_I2C1_SCL) |      \
                                      PIN_OSPEED_100M(GPIOB_I2C1_SDA) |      \
-                                     PIN_OSPEED_100M(GPIOB_SPI2_SCK) |      \
-                                     PIN_OSPEED_100M(GPIOB_PIN11) |         \
+                                     PIN_OSPEED_100M(GPIOB_UART3_TX) |      \
+                                     PIN_OSPEED_100M(GPIOB_UART3_RX) |      \
                                      PIN_OSPEED_100M(GPIOB_OTG_HS_ID) |     \
                                      PIN_OSPEED_100M(GPIOB_OTG_HS_VBUS) |   \
                                      PIN_OSPEED_100M(GPIOB_OTG_HS_DM) |     \
@@ -422,14 +422,14 @@
                                      PIN_PUPDR_FLOATING(GPIOB_USB_FS_FAULT) |\
                                      PIN_PUPDR_FLOATING(GPIOB_BOOT1) |      \
                                      PIN_PUPDR_FLOATING(GPIOB_JTAG_TDO) |   \
-                                     PIN_PUPDR_PULLUP(GPIOB_JTAG_TRST) |  \
+                                     PIN_PUPDR_PULLUP(GPIOB_JTAG_TRST) |    \
                                      PIN_PUPDR_PULLUP(GPIOB_PIN5) |         \
                                      PIN_PUPDR_PULLUP(GPIOB_PIN6) |         \
                                      PIN_PUPDR_PULLUP(GPIOB_PIN7) |         \
                                      PIN_PUPDR_FLOATING(GPIOB_I2C1_SCL) |   \
                                      PIN_PUPDR_FLOATING(GPIOB_I2C1_SDA) |   \
-                                     PIN_PUPDR_FLOATING(GPIOB_SPI2_SCK) |   \
-                                     PIN_PUPDR_PULLUP(GPIOB_PIN11) |        \
+                                     PIN_PUPDR_FLOATING(GPIOB_UART3_TX) |   \
+                                     PIN_PUPDR_PULLUP(GPIOB_UART3_RX) |     \
                                      PIN_PUPDR_FLOATING(GPIOB_OTG_HS_ID) |  \
                                      PIN_PUPDR_PULLDOWN(GPIOB_OTG_HS_VBUS) |\
                                      PIN_PUPDR_FLOATING(GPIOB_OTG_HS_DM) |  \
@@ -444,8 +444,8 @@
                                      PIN_ODR_HIGH(GPIOB_PIN7) |             \
                                      PIN_ODR_HIGH(GPIOB_I2C1_SCL) |         \
                                      PIN_ODR_HIGH(GPIOB_I2C1_SDA) |         \
-                                     PIN_ODR_HIGH(GPIOB_SPI2_SCK) |         \
-                                     PIN_ODR_HIGH(GPIOB_PIN11) |            \
+                                     PIN_ODR_HIGH(GPIOB_UART3_TX) |         \
+                                     PIN_ODR_HIGH(GPIOB_UART3_RX) |         \
                                      PIN_ODR_HIGH(GPIOB_OTG_HS_ID) |        \
                                      PIN_ODR_HIGH(GPIOB_OTG_HS_VBUS) |      \
                                      PIN_ODR_HIGH(GPIOB_OTG_HS_DM) |        \
@@ -460,8 +460,8 @@
                                      PIN_AFIO_AF(GPIOB_PIN7, 0))
 #define VAL_GPIOB_AFRH              (PIN_AFIO_AF(GPIOB_I2C1_SCL, 4) |       \
                                      PIN_AFIO_AF(GPIOB_I2C1_SDA, 4) |       \
-                                     PIN_AFIO_AF(GPIOB_SPI2_SCK, 5) |       \
-                                     PIN_AFIO_AF(GPIOB_PIN11, 0) |          \
+                                     PIN_AFIO_AF(GPIOB_UART3_TX, 7) |       \
+                                     PIN_AFIO_AF(GPIOB_UART3_RX, 7) |       \
                                      PIN_AFIO_AF(GPIOB_OTG_HS_ID, 12) |     \
                                      PIN_AFIO_AF(GPIOB_OTG_HS_VBUS, 0) |    \
                                      PIN_AFIO_AF(GPIOB_OTG_HS_DM, 12) |     \
