@@ -330,15 +330,17 @@ int main(void) {
         palClearPad(GPIOC, GPIOC_LED);
     }
 
-    /* Creates the LWIP threads (it changes priority internally).  */
-    chThdCreateStatic(wa_lwip_thread, LWIP_THREAD_STACK_SIZE, NORMALPRIO + 2,
+    if (panic_log_read() == NULL) {
+        /* Creates the LWIP threads (it changes priority internally).  */
+        chThdCreateStatic(wa_lwip_thread, LWIP_THREAD_STACK_SIZE, NORMALPRIO + 2,
             lwip_thread, NULL);
 
-    sntp_init();
-    can_bridge_init();
-    uavcan_node_start(1); // start uavcan node with id 1
-    rpc_server_init();
-    message_server_init();
+        sntp_init();
+        can_bridge_init();
+        uavcan_node_start(1); // start uavcan node with id 1
+        rpc_server_init();
+        message_server_init();
+    }
 
     /* main thread, spawns a shell on USB connection. */
     while (1) {
