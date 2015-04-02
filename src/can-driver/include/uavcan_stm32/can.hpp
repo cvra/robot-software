@@ -189,9 +189,9 @@ class CanDriver : public uavcan::ICanDriver, uavcan::Noncopyable
     CanIface if1_;
 #endif
 
+public:
     virtual uavcan::int16_t select(uavcan::CanSelectMasks& inout_masks, uavcan::MonotonicTime blocking_deadline);
 
-public:
     template <unsigned RxQueueCapacity>
     CanDriver(CanRxItem (&rx_queue_storage)[UAVCAN_STM32_NUM_IFACES][RxQueueCapacity])
         : update_event_(*this)

@@ -8,6 +8,7 @@
 #include <uavcan_stm32/clock.hpp>
 #include <hal.h>
 #include "internal.hpp"
+#include <src/can_bridge.h>
 
 #if !(defined(STM32F10X_CL) || defined(STM32F2XX) || defined(STM32F4XX))
 // IRQ numbers
@@ -459,22 +460,30 @@ void CanIface::handleRxInterrupt(uavcan::uint8_t fifo_index, uavcan::uint64_t ut
     uavcan::CanFrame frame;
     const bxcan::RxMailboxType& rf = can_->RxMailbox[fifo_index];
 
+    // copy values
+    uint32_t id;
+    uint8_t len;
+
     if ((rf.RIR & bxcan::RIR_IDE) == 0)
     {
         frame.id = uavcan::CanFrame::MaskStdID & (rf.RIR >> 21);
+        id = frame.id;
     }
     else
     {
         frame.id = uavcan::CanFrame::MaskExtID & (rf.RIR >> 3);
+        id = frame.id | CAN_FRAME_EXT_FLAG;
         frame.id |= uavcan::CanFrame::FlagEFF;
     }
 
     if ((rf.RIR & bxcan::RIR_RTR) != 0)
     {
+        id |= CAN_FRAME_RTR_FLAG;
         frame.id |= uavcan::CanFrame::FlagRTR;
     }
 
     frame.dlc = rf.RDTR & 15;
+    len = frame.dlc;
 
     frame.data[0] = uavcan::uint8_t(0xFF & (rf.RDLR >> 0));
     frame.data[1] = uavcan::uint8_t(0xFF & (rf.RDLR >> 8));
@@ -484,6 +493,23 @@ void CanIface::handleRxInterrupt(uavcan::uint8_t fifo_index, uavcan::uint64_t ut
     frame.data[5] = uavcan::uint8_t(0xFF & (rf.RDHR >> 8));
     frame.data[6] = uavcan::uint8_t(0xFF & (rf.RDHR >> 16));
     frame.data[7] = uavcan::uint8_t(0xFF & (rf.RDHR >> 24));
+
+    // copy frames for CAN bridge
+    if (can_bridge_id_passes_filter(id)) {
+        chSysLockFromISR();
+        struct can_frame *copy = (struct can_frame *)chPoolAllocI(&can_bridge_rx_pool);
+        if (copy != NULL) {
+            copy->id = id;
+            copy->dlc = len;
+            copy->data.u32[0] = rf.RDLR;
+            copy->data.u32[1] = rf.RDHR;
+            if (chMBPostI(&can_bridge_rx_queue, (msg_t)copy) != MSG_OK) {
+                // couldn't post message: drop data & free the memory
+                chPoolFreeI(&can_bridge_rx_pool, copy);
+            }
+        }
+        chSysUnlockFromISR();
+    }
 
     *rfr_reg = bxcan::RFR_RFOM | bxcan::RFR_FOVR | bxcan::RFR_FULL;  // Release FIFO entry we just read
 
