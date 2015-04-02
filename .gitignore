@@ -39,3 +39,6 @@ app_src.mk
 *.swp
 
 CMakeLists.txt
+
+# uavcan dsdl compiler output
+dsdlc_generated/
