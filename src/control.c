@@ -327,10 +327,10 @@ void control_start()
     parameter_scalar_set(&param_vel_limit, 1);
     parameter_scalar_set(&param_torque_limit, INFINITY);
     parameter_scalar_set(&cur_pid_params.kp, 20);
-    parameter_scalar_set(&cur_pid_params.kd, 20);
+    parameter_scalar_set(&cur_pid_params.ki, 20);
     parameter_scalar_set(&cur_pid_params.i_limit, 10);
     parameter_scalar_set(&vel_pid_params.kp, 0.5);
-    parameter_scalar_set(&vel_pid_params.kd, 0.3);
+    parameter_scalar_set(&vel_pid_params.ki, 0.3);
     parameter_scalar_set(&vel_pid_params.i_limit, 10);
 
 
