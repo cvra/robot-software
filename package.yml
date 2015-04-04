@@ -26,7 +26,7 @@ target.arm:
     - src/can-driver/src/uc_stm32_thread.cpp
 
 source:
-    - src/timestamp.c
+    - src/unix_timestamp.c
 
 include_directories:
     - src/

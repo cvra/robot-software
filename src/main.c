@@ -8,7 +8,7 @@
 
 #include "commands.h"
 #include "sntp/sntp.h"
-#include "timestamp.h"
+#include "unix_timestamp.h"
 #include "panic_log.h"
 #include "can_bridge.h"
 #include "rpc_server.h"
