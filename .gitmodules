@@ -37,3 +37,6 @@
 [submodule "cvra/motor"]
 	path = cvra/motor
 	url = https://github.com/cvra/motor-control-uavcan-dsdl.git
+[submodule "src/odometry"]
+	path = src/odometry
+	url = https://github.com/cvra/odometry.git
