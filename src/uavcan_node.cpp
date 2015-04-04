@@ -155,14 +155,14 @@ msg_t main(void *arg)
 
 
     uavcan::Subscriber<cvra::motor::feedback::MotorEncoderPosition> enc_pos_sub(node);
-    ret = enc_pos_sub.start(
+    res = enc_pos_sub.start(
         [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::MotorEncoderPosition>& msg)
         {
             // call odometry submodule
         }
     );
-    if (ret != 0) {
-        uavcan_failure("cvra::motor::feedback::MotorEncoderPosition subscriber");
+    if (res != 0) {
+        node_fail("cvra::motor::feedback::MotorEncoderPosition subscriber");
     }
 
     node.setStatusOk();
