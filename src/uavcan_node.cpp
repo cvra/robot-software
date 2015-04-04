@@ -1,7 +1,3 @@
-/*
- * Copyright (C) 2014 Pavel Kirienko <pavel.kirienko@gmail.com>
- */
-
 #include <unistd.h>
 #include <ch.h>
 #include <hal.h>
