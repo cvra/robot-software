@@ -1,5 +1,5 @@
-#ifndef TIMESTAMP_H
-#define TIMESTAMP_H
+#ifndef UNIX_TIMESTAMP_H
+#define UNIX_TIMESTAMP_H
 
 #include <stdint.h>
 
