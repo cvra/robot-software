@@ -7,12 +7,15 @@
 #include <hal.h>
 #include <uavcan_stm32/uavcan_stm32.hpp>
 #include <uavcan/protocol/NodeStatus.hpp>
+#include <lwip/api.h>
 #include <src/can_bridge.h>
 #include <cvra/Reboot.hpp>
 #include <cvra/motor/control/Velocity.hpp>
 #include <cvra/Reboot.hpp>
 #include <cvra/motor/feedback/MotorEncoderPosition.hpp>
 #include "motor_control.h"
+#include <simplerpc/message.h>
+#include "src/rpc_server.h"
 
 #include <errno.h>
 
@@ -158,6 +161,16 @@ msg_t main(void *arg)
     res = enc_pos_sub.start(
         [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::MotorEncoderPosition>& msg)
         {
+            static uint8_t buffer[512];
+            cmp_ctx_t ctx;
+            cmp_mem_access_t mem;
+            ip_addr_t server;
+            IP4_ADDR(&server, 192, 168, 2, 1);
+
+            message_encode(&ctx, &mem, buffer, sizeof buffer, "odometry_raw", 2);
+            cmp_write_sint(&ctx, msg.raw_encoder_position);
+            cmp_write_sint(&ctx, msg.getSrcNodeID().get());
+            message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, 20000);
             // call odometry submodule
         }
     );
