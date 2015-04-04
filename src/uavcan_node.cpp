@@ -184,9 +184,9 @@ msg_t main(void *arg)
 
         cvra::motor::control::Velocity vel_ctrl_setpt;
         vel_ctrl_setpt.velocity = m1_vel_setpt;
-        velocity_ctrl_setpt_pub.unicast(vel_ctrl_setpt, 1);
-        vel_ctrl_setpt.velocity = m2_vel_setpt;
         velocity_ctrl_setpt_pub.unicast(vel_ctrl_setpt, 10);
+        vel_ctrl_setpt.velocity = m2_vel_setpt;
+        velocity_ctrl_setpt_pub.unicast(vel_ctrl_setpt, 11);
 
         can_bridge_send_frames(node);
 
