@@ -8,11 +8,12 @@
 
 #include "commands.h"
 #include "sntp/sntp.h"
-#include "timestamp.h"
+#include "unix_timestamp.h"
 #include "panic_log.h"
 #include "can_bridge.h"
 #include "rpc_server.h"
 #include "uavcan_node.h"
+#include "timestamp/timestamp_stm32.h"
 
 /*Endpoints to be used for USBD1.  */
 #define USBD1_DATA_REQUEST_EP           1
@@ -323,6 +324,9 @@ int main(void) {
 
     /* Shell manager initialization.  */
     shellInit();
+
+    /* Initialise timestamp module */
+    timestamp_stm32_init();
 
     /* Checks if there is any log message from a previous boot */
     if (panic_log_read() != NULL) {
