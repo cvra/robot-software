@@ -9,10 +9,17 @@
 #include <cvra/Reboot.hpp>
 #include <cvra/motor/feedback/MotorEncoderPosition.hpp>
 #include "motor_control.h"
+#include "robot_parameters.h"
+#include "timestamp/timestamp.h"
+#include "odometry/robot_base.h"
+#include "odometry/odometry.h"
 
 #include <errno.h>
 
 #include <uavcan/protocol/global_time_sync_master.hpp>
+
+#define RIGHT_WHEEL_ID  11
+#define LEFT_WHEEL_ID   10
 
 #define UAVCAN_NODE_STACK_SIZE 4096
 
@@ -109,6 +116,25 @@ msg_t main(void *arg)
     node.setName("cvra.master");
 
     /*
+     * Initialising odometry
+     */
+    static odometry_differential_base_t robot_base;
+    struct robot_base_pose_2d_s init_pose = {0.0f, 0.0f, 0.0f};
+    odometry_base_init(&robot_base,
+                       init_pose,
+                       ROBOT_RIGHT_WHEEL_RADIUS,
+                       ROBOT_LEFT_WHEEL_RADIUS,
+                       ROBOT_WHEELBASE,
+                       timestamp_get());
+
+    static odometry_encoder_sample_t enc_right[2];
+    static odometry_encoder_sample_t enc_left[2];
+    odometry_encoder_record_sample(&enc_right[0], 0, 0);
+    odometry_encoder_record_sample(&enc_right[1], 0, 0);
+    odometry_encoder_record_sample(&enc_left[0], 0, 0);
+    odometry_encoder_record_sample(&enc_left[1], 0, 0);
+
+    /*
      * Initializing the UAVCAN node - this may take a while
      */
     while (true) {
@@ -154,7 +180,21 @@ msg_t main(void *arg)
     res = enc_pos_sub.start(
         [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::MotorEncoderPosition>& msg)
         {
-            // call odometry submodule
+            if(msg.getSrcNodeID() == RIGHT_WHEEL_ID) {
+                odometry_encoder_record_sample(&enc_right[0], enc_right[1].timestamp, enc_right[1].value);
+                odometry_encoder_record_sample(&enc_right[1], timestamp_get(), msg.raw_encoder_position);
+            } else if(msg.getSrcNodeID() == LEFT_WHEEL_ID) {
+                odometry_encoder_record_sample(&enc_left[0], enc_left[1].timestamp, enc_left[1].value);
+                odometry_encoder_record_sample(&enc_left[1], timestamp_get(), msg.raw_encoder_position);
+            }
+
+            /*
+             * Only call odometry update when an encoder value has been registered for each wheel
+             * ie when the last timestamp recorded is different from the previous one
+             */
+            if(enc_right[1].timestamp != enc_right[0].timestamp && enc_left[1].timestamp != enc_left[0].timestamp) {
+                odometry_base_update(&robot_base, enc_right[1], enc_left[1]);
+            }
         }
     );
     if (res != 0) {
