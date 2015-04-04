@@ -17,7 +17,7 @@ memory_pool_t can_bridge_rx_pool;
 memory_pool_t can_bridge_tx_pool;
 mailbox_t can_bridge_rx_queue;
 mailbox_t can_bridge_tx_queue;
-bool can_bridge_is_initialized = false;
+SEMAPHORE_DECL(can_bridge_is_initialized, 0);
 
 msg_t rx_mbox_buf[CAN_BRIDGE_RX_QUEUE_SIZE];
 struct can_frame rx_pool_buf[CAN_BRIDGE_RX_QUEUE_SIZE];
@@ -47,6 +47,9 @@ void can_bridge_init(void)
     chMBObjectInit(&can_bridge_tx_queue, tx_mbox_buf, CAN_BRIDGE_TX_QUEUE_SIZE);
     chPoolObjectInit(&can_bridge_tx_pool, sizeof(struct can_frame), NULL);
     chPoolLoadArray(&can_bridge_tx_pool, tx_pool_buf, sizeof(tx_pool_buf)/sizeof(struct can_frame));
+
+    // signal to uavcan thread that bridge is initialized.
+    chSemSignal(&can_bridge_is_initialized);
 
     chThdCreateStatic(wa_can_bridge,
                       CAN_BRIDGE_STACKSIZE,
