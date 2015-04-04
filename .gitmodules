@@ -40,3 +40,6 @@
 [submodule "src/odometry"]
 	path = src/odometry
 	url = https://github.com/cvra/odometry.git
+[submodule "src/timestamp"]
+	path = src/timestamp
+	url = https://github.com/cvra/timestamp.git
