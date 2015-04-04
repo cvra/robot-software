@@ -5,7 +5,9 @@
 #include <uavcan/protocol/NodeStatus.hpp>
 #include <cvra/Reboot.hpp>
 #include <cvra/motor/control/Velocity.hpp>
+#include <cvra/motor/feedback/MotorEncoderPosition.hpp>
 #include <control.h>
+#include <encoder.h>
 #include "uavcan_node.h"
 #include <can-bootloader/boot_arg.h>
 
@@ -51,6 +53,7 @@ static THD_FUNCTION(uavcan_node, arg)
         uavcan_failure("UAVCAN node start");
     }
 
+    /* Subscribers */
     uavcan::Subscriber<cvra::Reboot> reboot_sub(node);
     int ret = reboot_sub.start(
         [&](const uavcan::ReceivedDataStructure<cvra::Reboot>& msg)
@@ -83,6 +86,15 @@ static THD_FUNCTION(uavcan_node, arg)
         uavcan_failure("cvra::motor::control::Velocity subscriber");
     }
 
+    /* Publishers */
+    uavcan::Publisher<cvra::motor::feedback::MotorEncoderPosition> enc_pos_pub(node);
+    const int enc_pos_pub_init_res = enc_pos_pub.init();
+    if (enc_pos_pub_init_res < 0)
+    {
+        uavcan_failure("cvra::motor::feedback::MotorEncoderPosition publisher");
+    }
+
+
     node.setStatusOk();
 
     while (true) {
@@ -91,6 +103,11 @@ static THD_FUNCTION(uavcan_node, arg)
         if (res < 0) {
             uavcan_failure("UAVCAN spin");
         }
+
+        cvra::motor::feedback::MotorEncoderPosition enc_pos;
+        enc_pos.raw_encoder_position = encoder_get_secondary();
+        enc_pos_pub.broadcast(enc_pos);
+
     }
     return 0;
 }

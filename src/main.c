@@ -178,6 +178,7 @@ int main(void) {
 
     analog_init();
     encoder_init_primary();
+    encoder_init_secondary();
 
     chprintf(stdout, "boot\n");
     chprintf(stdout, "%s: %d\n", config.board_name, config.ID);
