@@ -9,7 +9,7 @@
 
 #include "commands.h"
 #include "panic_log.h"
-#include "timestamp.h"
+#include "unix_timestamp.h"
 
 /** Stack size for the unit test thread. */
 #define TEST_WA_SIZE    THD_WORKING_AREA_SIZE(256)
