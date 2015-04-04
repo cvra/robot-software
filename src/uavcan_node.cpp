@@ -11,6 +11,7 @@
 #include <cvra/Reboot.hpp>
 #include <cvra/motor/control/Velocity.hpp>
 #include <cvra/Reboot.hpp>
+#include <cvra/motor/feedback/MotorEncoderPosition.hpp>
 #include "motor_control.h"
 
 #include <errno.h>
@@ -152,6 +153,18 @@ msg_t main(void *arg)
         node_fail("NodeStatus subscribe");
     }
 
+
+    uavcan::Subscriber<cvra::motor::feedback::MotorEncoderPosition> enc_pos_sub(node);
+    ret = enc_pos_sub.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::MotorEncoderPosition>& msg)
+        {
+            // call odometry submodule
+        }
+    );
+    if (ret != 0) {
+        uavcan_failure("cvra::motor::feedback::MotorEncoderPosition subscriber");
+    }
+
     node.setStatusOk();
 
 
@@ -181,6 +194,8 @@ msg_t main(void *arg)
             reboot_msg.bootmode = reboot_msg.BOOTLOADER_TIMEOUT;
             reboot_pub.broadcast(reboot_msg);
         }
+
+
 
         cvra::motor::control::Velocity vel_ctrl_setpt;
         vel_ctrl_setpt.velocity = m1_vel_setpt;
