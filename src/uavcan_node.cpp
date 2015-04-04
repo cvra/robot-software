@@ -127,6 +127,8 @@ msg_t main(void *arg)
                        init_pose,
                        ROBOT_RIGHT_WHEEL_RADIUS,
                        ROBOT_LEFT_WHEEL_RADIUS,
+                       ROBOT_RIGHT_WHEEL_DIRECTION,
+                       ROBOT_LEFT_WHEEL_DIRECTION,
                        ROBOT_WHEELBASE,
                        timestamp_get());
 
