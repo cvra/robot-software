@@ -322,6 +322,18 @@ void control_start()
     ctrl.torque_limit = INFINITY;
     ctrl.current_limit = INFINITY;
 
+    // todo move this to init code
+    parameter_scalar_set(&param_acc_limit, 10);
+    parameter_scalar_set(&param_vel_limit, 1);
+    parameter_scalar_set(&param_torque_limit, INFINITY);
+    parameter_scalar_set(&cur_pid_params.kp, 20);
+    parameter_scalar_set(&cur_pid_params.kd, 20);
+    parameter_scalar_set(&cur_pid_params.i_limit, 10);
+    parameter_scalar_set(&vel_pid_params.kp, 0.5);
+    parameter_scalar_set(&vel_pid_params.kd, 0.3);
+    parameter_scalar_set(&vel_pid_params.i_limit, 10);
+
+
     chBSemObjectInit(&setpoint_interpolation_lock, false);
 
     setpoint_init(&setpoint_interpolation,
