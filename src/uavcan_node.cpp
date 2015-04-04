@@ -208,9 +208,10 @@ msg_t main(void *arg)
             struct robot_base_pose_2d_s pose;
             odometry_base_get_pose(&robot_base, &pose);
 
-            message_encode(&ctx, &mem, buffer, sizeof buffer, "odometry_raw", 2);
+            message_encode(&ctx, &mem, buffer, sizeof buffer, "odometry_raw", 3);
             cmp_write_float(&ctx, pose.x);
             cmp_write_float(&ctx, pose.y);
+            cmp_write_float(&ctx, pose.theta);
             message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, 20000);
 
         }
