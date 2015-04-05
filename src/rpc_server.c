@@ -189,7 +189,7 @@ msg_t message_server_thread(void *arg)
 
     if (err == ERR_OK) {
         netbuf_copy(buf, buffer, buf->p->tot_len);
-        message_process(buffer, buf->p->tot_len, message_callbacks, 1);
+        message_process(buffer, buf->p->tot_len, message_callbacks, message_callbacks_len);
     }
     netbuf_delete(buf);
   }
