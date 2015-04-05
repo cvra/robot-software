@@ -167,6 +167,19 @@ static void cmd_fwd(BaseSequentialStream *chp, int argc, char **argv)
     m2_vel_setpt = -cmd;
 }
 
+static void cmd_vel_setpt(BaseSequentialStream *chp, int argc, char **argv)
+{
+    (void)argv;
+    if (argc > 0) {
+        chprintf(chp, "usage: vel_setpt\n");
+        return;
+    }
+    int m1_vel_setpt_int = (int) 1000 * m1_vel_setpt;
+    int m2_vel_setpt_int = (int) 1000 * m2_vel_setpt;
+    chprintf(chp, "m1_vel_setpt: %d\n", m1_vel_setpt_int);
+    chprintf(chp, "m2_vel_setpt: %d\n", m2_vel_setpt_int);
+}
+
 const ShellCommand commands[] = {
     {"mem", cmd_mem},
     {"ip", cmd_ip},
@@ -177,5 +190,6 @@ const ShellCommand commands[] = {
     {"time", cmd_time},
     {"rpc_client_demo", cmd_rpc_client_test},
     {"fwd", cmd_fwd},
+    {"vel_setpt", cmd_vel_setpt},
     {NULL, NULL}
 };
