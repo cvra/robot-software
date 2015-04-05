@@ -15,7 +15,7 @@ extern memory_pool_t can_bridge_tx_pool;
 extern mailbox_t can_bridge_rx_queue;
 extern mailbox_t can_bridge_tx_queue;
 
-extern bool can_bridge_is_initialized;
+extern semaphore_t can_bridge_is_initialized;
 
 void can_bridge_init(void);
 

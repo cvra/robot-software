@@ -59,9 +59,6 @@ static void node_fail(const char *reason)
 
 void can_bridge_send_frames(Node& node)
 {
-    if (!can_bridge_is_initialized) {
-        return;
-    }
     while (1) {
         struct can_frame *framep;
         msg_t m = chMBFetch(&can_bridge_tx_queue, (msg_t *)&framep, TIME_IMMEDIATE);
@@ -105,6 +102,9 @@ THD_WORKING_AREA(thread_wa, UAVCAN_NODE_STACK_SIZE);
 
 msg_t main(void *arg)
 {
+    // bridge has to be initialized first
+    chSemWait(&can_bridge_is_initialized);
+
     uint8_t id = *(uint8_t *)arg;
 
     int res;
