@@ -18,12 +18,12 @@ void message_cb(int argc, cmp_ctx_t *input)
 
 void message_fwd_callback(int argc, cmp_ctx_t *input)
 {
-    int res;
+    float res;
     if (argc != 1) {
         return;
     }
 
-    cmp_read_int(input, &res);
+    cmp_read_float(input, &res);
     m1_vel_setpt = res;
     m2_vel_setpt = -res;
 }
