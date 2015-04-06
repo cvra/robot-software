@@ -3,9 +3,10 @@
 
 #include "motor_control.h"
 
-void message_cb(int argc, cmp_ctx_t *input)
+void message_cb(void *p, int argc, cmp_ctx_t *input)
 {
     (void) argc;
+    (void) p;
     bool res;
     cmp_read_bool(input, &res);
 
@@ -16,16 +17,17 @@ void message_cb(int argc, cmp_ctx_t *input)
     }
 }
 
-void message_fwd_callback(int argc, cmp_ctx_t *input)
+void message_fwd_callback(void *p, int argc, cmp_ctx_t *input)
 {
-    float res;
+    (void) p;
+    int32_t res;
     if (argc != 1) {
         return;
     }
 
-    cmp_read_float(input, &res);
-    m1_vel_setpt = res;
-    m2_vel_setpt = -res;
+    cmp_read_int(input, &res);
+    m1_vel_setpt = (float) res / 1000.0f;
+    m2_vel_setpt = - (float) res / 1000.0f;
 }
 
 message_method_t message_callbacks[] = {
