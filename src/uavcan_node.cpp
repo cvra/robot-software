@@ -125,11 +125,11 @@ msg_t main(void *arg)
     struct robot_base_pose_2d_s init_pose = {0.0f, 0.0f, 0.0f};
     odometry_base_init(&robot_base,
                        init_pose,
-                       ROBOT_RIGHT_WHEEL_RADIUS,
-                       ROBOT_LEFT_WHEEL_RADIUS,
+                       ROBOT_RIGHT_EXTERNAL_WHEEL_RADIUS,
+                       ROBOT_LEFT_EXTERNAL_WHEEL_RADIUS,
                        ROBOT_RIGHT_WHEEL_DIRECTION,
                        ROBOT_LEFT_WHEEL_DIRECTION,
-                       ROBOT_WHEELBASE,
+                       ROBOT_EXTERNAL_WHEELBASE,
                        timestamp_get());
 
     static odometry_encoder_sample_t enc_right[2];
