@@ -275,7 +275,7 @@ static THD_FUNCTION(control_loop, arg)
             }
         }
 
-        float delta_t = control_period_us * 1000000;
+        float delta_t = (float)control_period_us / 1000000;
         if (!motor_enable || analog_get_battery_voltage() < low_batt_th) {
             pid_reset_integral(&ctrl.current_pid);
             pid_reset_integral(&ctrl.velocity_pid);
