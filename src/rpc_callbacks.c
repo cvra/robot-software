@@ -1,9 +1,10 @@
 #include "rpc_callbacks.h"
 
-static void ping_cb(int argc, cmp_ctx_t *input, cmp_ctx_t *output)
+static void ping_cb(void *p, int argc, cmp_ctx_t *input, cmp_ctx_t *output)
 {
     (void) argc;
     (void) input;
+    (void) p;
     cmp_write_str(output, "pong", 4);
 }
 

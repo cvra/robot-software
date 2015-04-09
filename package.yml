@@ -7,6 +7,7 @@ depends:
     - serial-can-bridge:
         fork: nuft
     - simplerpc
+    - odometry
 
 
 target.arm:
@@ -19,14 +20,16 @@ target.arm:
     - src/rpc_server.c
     - src/rpc_callbacks.c
     - src/msg_callbacks.c
+    - src/motor_control.c
     - src/uavcan_node.cpp
     - src/can-driver/src/uc_stm32_can.cpp
     - src/can-driver/src/uc_stm32_clock.cpp
     - src/can-driver/src/uc_stm32_thread.cpp
     - src/blocking_uart_driver.c
+    - src/usbconf.c
 
 source:
-    - src/timestamp.c
+    - src/unix_timestamp.c
 
 include_directories:
     - src/

@@ -26,7 +26,7 @@
 #define LWIP_GATEWAY(p) IP4_ADDR(p, 192, 168, 2, 1)
 #define LWIP_NETMASK(p) IP4_ADDR(p, 255, 255, 255, 0)
 
-#include "timestamp.h"
+#include "unix_timestamp.h"
 
 /* This macro is called everytime the NTP service wants to update the system time.
  * We use it to synchronize the unix time reference rather than changing

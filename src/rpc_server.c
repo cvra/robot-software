@@ -182,14 +182,14 @@ msg_t message_server_thread(void *arg)
   LWIP_UNUSED_ARG(arg);
 
   conn = netconn_new(NETCONN_UDP);
-  netconn_bind(conn, NULL, 20000);
+  netconn_bind(conn, NULL, MSG_SERVER_PORT);
 
   while (1) {
     err = netconn_recv(conn, &buf);
 
     if (err == ERR_OK) {
         netbuf_copy(buf, buffer, buf->p->tot_len);
-        message_process(buffer, buf->p->tot_len, message_callbacks, 1);
+        message_process(buffer, buf->p->tot_len, message_callbacks, message_callbacks_len);
     }
     netbuf_delete(buf);
   }

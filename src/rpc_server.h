@@ -2,6 +2,11 @@
 #define RPC_SERVER_H
 
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** Starts the Remote Procedure Call server. */
 void rpc_server_init(void);
 
@@ -26,6 +31,9 @@ void message_transmit(uint8_t *input_buffer, size_t input_buffer_size, ip_addr_t
 void message_server_init(void);
 
 
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif
