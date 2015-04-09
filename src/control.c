@@ -275,7 +275,7 @@ static THD_FUNCTION(control_loop, arg)
             }
         }
 
-        float delta_t = control_period_us * 1000000;
+        float delta_t = (float)control_period_us / 1000000;
         if (!motor_enable || analog_get_battery_voltage() < low_batt_th) {
             pid_reset_integral(&ctrl.current_pid);
             pid_reset_integral(&ctrl.velocity_pid);
@@ -329,8 +329,8 @@ void control_start()
     parameter_scalar_set(&cur_pid_params.kp, 20);
     parameter_scalar_set(&cur_pid_params.ki, 20);
     parameter_scalar_set(&cur_pid_params.i_limit, 10);
-    parameter_scalar_set(&vel_pid_params.kp, 0.5);
-    parameter_scalar_set(&vel_pid_params.ki, 0.3);
+    parameter_scalar_set(&vel_pid_params.kp, 0.1);
+    parameter_scalar_set(&vel_pid_params.ki, 0.05);
     parameter_scalar_set(&vel_pid_params.i_limit, 10);
 
 
