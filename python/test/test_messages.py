@@ -5,7 +5,7 @@ import socketserver
 
 import unittest
 try:
-    from unittest.mock import Mock
+    from unittest.mock import Mock, patch
 except ImportError:
     from mock import Mock
 
@@ -43,6 +43,14 @@ class MessageDecodingTestCase(unittest.TestCase):
 
         self.assertEqual('foo', name)
         self.assertEqual([1, 2, 3], args)
+
+
+class MessageSendTestCase(unittest.TestCase):
+    @patch('socket.socket')
+    def test_socket_is_closed(self, socket):
+        socket.return_value = Mock()
+        message.send(('localhost', 1234), 'foo', [1, 2, 3])
+        socket.return_value.close.assert_any_call()
 
 
 class MessageRequestHandlerTestCase(unittest.TestCase):

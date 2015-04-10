@@ -51,6 +51,7 @@ def send(target, name, args=None):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     data = encode(name, args)
     sock.sendto(data, target)
+    sock.close()
 
 
 def handle_message(data, callbacks):
