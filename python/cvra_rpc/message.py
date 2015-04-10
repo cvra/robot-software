@@ -59,4 +59,5 @@ def handle_message(data, callbacks):
     Handles a single datagram and calls the correct callback.
     """
     name, args = decode(data)
-    callbacks[name](args)
+    if name in callbacks:
+        callbacks[name](args)

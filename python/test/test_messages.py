@@ -66,6 +66,14 @@ class MessageRequestHandlerTestCase(unittest.TestCase):
         message.handle_message(data, callbacks)
         callbacks['bar'].assert_any_call([])
 
+    def test_unknown_callbacks_are_ignored(self):
+        """
+        Checks that unkown callbacks are silently ignored.
+        """
+        callbacks = {'foo': Mock()}
+        data = message.encode('bar')
+        message.handle_message(data, callbacks)
+
     def test_args_forwarded(self):
         callbacks = {'foo': Mock()}
         data = message.encode('foo', [1, 2, 3])
