@@ -5,7 +5,7 @@ import socketserver
 
 import unittest
 try:
-    from unittest.mock import Mock
+    from unittest.mock import Mock, patch
 except ImportError:
     from mock import Mock
 
@@ -45,6 +45,14 @@ class MessageDecodingTestCase(unittest.TestCase):
         self.assertEqual([1, 2, 3], args)
 
 
+class MessageSendTestCase(unittest.TestCase):
+    @patch('socket.socket')
+    def test_socket_is_closed(self, socket):
+        socket.return_value = Mock()
+        message.send(('localhost', 1234), 'foo', [1, 2, 3])
+        socket.return_value.close.assert_any_call()
+
+
 class MessageRequestHandlerTestCase(unittest.TestCase):
     def test_factory(self):
         callbacks = {'foo': Mock()}
@@ -57,6 +65,14 @@ class MessageRequestHandlerTestCase(unittest.TestCase):
         data = message.encode('bar')
         message.handle_message(data, callbacks)
         callbacks['bar'].assert_any_call([])
+
+    def test_unknown_callbacks_are_ignored(self):
+        """
+        Checks that unkown callbacks are silently ignored.
+        """
+        callbacks = {'foo': Mock()}
+        data = message.encode('bar')
+        message.handle_message(data, callbacks)
 
     def test_args_forwarded(self):
         callbacks = {'foo': Mock()}

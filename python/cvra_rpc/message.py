@@ -51,6 +51,7 @@ def send(target, name, args=None):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     data = encode(name, args)
     sock.sendto(data, target)
+    sock.close()
 
 
 def handle_message(data, callbacks):
@@ -58,4 +59,5 @@ def handle_message(data, callbacks):
     Handles a single datagram and calls the correct callback.
     """
     name, args = decode(data)
-    callbacks[name](args)
+    if name in callbacks:
+        callbacks[name](args)
