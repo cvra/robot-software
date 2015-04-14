@@ -12,6 +12,7 @@ You can change this in oocd.cfg.
     git submodule update
 
     ./packager/packager.py
+    make dsdlc
     make
     make flash
 ```
