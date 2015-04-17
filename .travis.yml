@@ -1,0 +1,39 @@
+language: cpp
+
+before_install:
+    # Install packager dependencies
+    - sudo pip install pyaml jinja2
+
+    # Install cpputest
+    - pushd ..
+    - wget "https://github.com/cpputest/cpputest.github.io/blob/master/releases/cpputest-3.6.tar.gz?raw=true" -O cpputest.tar.gz
+    - tar -xzf cpputest.tar.gz
+    - cd cpputest-3.6/
+    - ./configure
+    - make
+    - sudo make install
+    - popd
+
+    # Install ARM toolchain
+    - sudo add-apt-repository -y ppa:terry.guo/gcc-arm-embedded
+    - sudo apt-get update -y
+    - sudo apt-get install -y gcc-arm-none-eabi
+
+
+before_script:
+    - packager/packager.py
+    - mkdir build/
+    - pushd build/
+    - cmake ..
+    - popd
+
+
+script:
+    # Unit test build
+    - pushd build/
+    - make
+    - ./tests
+    - popd
+
+    # Real build
+    - make
