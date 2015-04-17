@@ -11,16 +11,15 @@ TEST_GROUP(TrajectoriesTestGroup)
     void setup(void)
     {
         memset(traj, 0, sizeof traj);
+        for (int i = 0; i < LEN(traj); ++i) {
+            traj[i].date.s = i;
+            traj[i].val = (float)i;
+        }
     }
 };
 
 TEST(TrajectoriesTestGroup, SimpleMergeTest)
 {
-    for (int i = 0; i < LEN(traj); ++i) {
-        traj[i].date.s = i;
-        traj[i].val = (float)i;
-    }
-
     trajectory_frame_t newtraj[2];
     memset(newtraj, 0, sizeof newtraj);
 
@@ -34,4 +33,44 @@ TEST(TrajectoriesTestGroup, SimpleMergeTest)
 
     CHECK_EQUAL(30., traj[2].val);
     CHECK_EQUAL(40., traj[3].val);
+}
+
+TEST(TrajectoriesTestGroup, WrapAroundMergeTest)
+{
+    trajectory_frame_t newtraj[2];
+    memset(newtraj, 0, sizeof newtraj);
+
+    // Create a new trajectory overlapping past the end of the first one
+    newtraj[0].date.s = 3;
+    newtraj[0].val = 30.;
+    newtraj[1].date.s = 4;
+    newtraj[1].val = 40.;
+
+    trajectory_merge(traj, LEN(traj), newtraj, LEN(newtraj));
+
+    // The buffer should be written in a circular buffer fashion
+    CHECK_EQUAL(30., traj[3].val);
+    CHECK_EQUAL(40., traj[0].val);
+}
+
+TEST(TrajectoriesTestGroup, WriteInACircularBuffer)
+{
+    traj[0].date.s = 4;
+
+    trajectory_frame_t newtraj[2];
+    memset(newtraj, 0, sizeof newtraj);
+
+    // Create a new trajectory overlapping past the end of the first one
+    newtraj[0].date.s = 3;
+    newtraj[0].val = 30.;
+    newtraj[1].date.s = 4;
+    newtraj[1].val = 40.;
+
+    trajectory_merge(traj, LEN(traj), newtraj, LEN(newtraj));
+
+    // The buffer should be written in a circular buffer fashion
+    CHECK_EQUAL(1., traj[1].val);
+    CHECK_EQUAL(2., traj[2].val);
+    CHECK_EQUAL(30., traj[3].val);
+    CHECK_EQUAL(40., traj[0].val);
 }
