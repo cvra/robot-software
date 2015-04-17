@@ -72,3 +72,34 @@ TEST(UnixTimeStampTestGroup, OverflowsGracefully)
     CHECK_EQUAL(101, r.s);
     CHECK_EQUAL(0, r.us);
 }
+
+TEST_GROUP(UnixTimeStampCompareTestGroup)
+{
+    unix_timestamp_t a, b;
+
+    void setup(void)
+    {
+        a.s = a.us = 0;
+        b.s = b.us = 0;
+    }
+};
+
+TEST(UnixTimeStampCompareTestGroup, CanCompareSeconds)
+{
+    a.s = 1;
+    b.s = 3;
+
+    CHECK_EQUAL(-1, timestamp_unix_compare(a, b));
+    CHECK_EQUAL(1, timestamp_unix_compare(b, a));
+    CHECK_EQUAL(0, timestamp_unix_compare(b, b));
+}
+
+TEST(UnixTimeStampCompareTestGroup, CanCompareMicroSeconds)
+{
+    a.us = 10;
+    b.us = 20;
+
+    CHECK_EQUAL(-1, timestamp_unix_compare(a, b));
+    CHECK_EQUAL(1, timestamp_unix_compare(b, a));
+    CHECK_EQUAL(0, timestamp_unix_compare(b, b));
+}
