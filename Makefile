@@ -242,6 +242,11 @@ flash: build/$(PROJECT).elf
 	openocd -f oocd.cfg -c "program build/ch.elf verify reset" -c "shutdown"
 
 # run uavcan dsdl compiler
-.PHONY: dsdlc
+.PHONY: dsdlc ctags
 dsdlc:
 	$(LIBUAVCAN_DSDLC) cvra $(UAVCAN_DSDL_DIR)
+
+# Generates a ctags file containing the correct definition for the build
+ctags:
+	@echo "Generating ctags file..."
+	@cat .dep/*.d | grep ":$$" | sed "s/://" | sort | uniq | xargs ctags --file-scope=no --extra=+q $(CSRC) $(CPPSRC)
