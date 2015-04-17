@@ -1,6 +1,6 @@
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
-#include <../service_call.h>
+#include "../service_call.h"
 #include <cstring>
 
 #define LEN(a) (sizeof (a) / sizeof(a[0]))
