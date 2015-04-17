@@ -74,3 +74,17 @@ TEST(TrajectoriesTestGroup, WriteInACircularBuffer)
     CHECK_EQUAL(30., traj[3].val);
     CHECK_EQUAL(40., traj[0].val);
 }
+
+TEST(TrajectoriesTestGroup, DatesAreCopiedAsWell)
+{
+    trajectory_frame_t newtraj[1];
+    memset(newtraj, 0, sizeof newtraj);
+
+    newtraj[0].date.s = 2;
+    newtraj[0].date.us = 100;
+
+    trajectory_merge(traj, LEN(traj), newtraj, LEN(newtraj));
+
+    CHECK_EQUAL(2, traj[3].date.s);
+    CHECK_EQUAL(100, traj[3].date.us)
+}

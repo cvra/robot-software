@@ -17,5 +17,7 @@ void trajectory_merge(trajectory_frame_t *traj, int traj_len,
 
     for (int i = 0; i < newtraj_len; ++i) {
         traj[(write_index + i) % traj_len].val = newtraj[i].val;
+        traj[(write_index + i) % traj_len].date.s = newtraj[i].date.s;
+        traj[(write_index + i) % traj_len].date.us = newtraj[i].date.us;
     }
 }
