@@ -1,5 +1,5 @@
 #include "CppUTest/TestHarness.h"
-#include "../timestamp.h"
+#include "../src/unix_timestamp.h"
 
 TEST_GROUP(UnixTimeStampTestGroup)
 {
