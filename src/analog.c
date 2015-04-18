@@ -1,6 +1,7 @@
 #include <ch.h>
 #include <hal.h>
 #include <filter/iir.h>
+#include "analog.h"
 
 #define ADC_MAX         4096
 #define ADC_TO_AMPS     0.001611328125f // 3.3/4096/(0.01*50)
@@ -9,6 +10,8 @@
 #define ADC_NB_CHANNELS 4
 #define DMA_BUFFER_SIZE (128*2)         // expected DMA-callback with 3800Hz
 #define CURRENT_PRE_FILTER_WINDOW_SIZE  1
+
+event_source_t analog_event;
 
 static int32_t motor_current;
 static int32_t battery_voltage;
@@ -44,6 +47,8 @@ static void adc_callback(ADCDriver *adcp, adcsample_t *adc_samples, size_t n)
 
     battery_voltage = adc_samples[3];
     aux_in = adc_samples[0] + adc_samples[2];
+
+    chEvtBroadcastFlagsI(&analog_event, ANALOG_EVENT_CONVERSION_DONE);
 }
 
 static THD_FUNCTION(adc_task, arg)
@@ -78,5 +83,6 @@ static THD_FUNCTION(adc_task, arg)
 void analog_init(void)
 {
     static THD_WORKING_AREA(adc_task_wa, 256);
+    chEvtObjectInit(&analog_event);
     chThdCreateStatic(adc_task_wa, sizeof(adc_task_wa), HIGHPRIO, adc_task, NULL);
 }
