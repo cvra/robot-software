@@ -124,7 +124,7 @@ float control_get_position_error(void)
 }
 
 
-static void motor_set_voltage(float u)
+static void set_motor_voltage(float u)
 {
     float u_batt = analog_get_battery_voltage();
     motor_pwm_set(u / u_batt);
@@ -312,7 +312,7 @@ static THD_FUNCTION(control_loop, arg)
             // run control step
             pid_cascade_control(&ctrl);
 
-            motor_set_voltage(ctrl.motor_voltage);
+            set_motor_voltage(ctrl.motor_voltage);
         }
 
         chEvtWaitAny(CONTROL_WAKEUP_EVENT);
