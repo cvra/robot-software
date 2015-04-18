@@ -5,11 +5,11 @@
 void trajectory_merge(trajectory_frame_t *traj, int traj_len,
                       trajectory_frame_t *newtraj, int newtraj_len)
 {
-    int write_index;
+    int write_index, i;
 
     write_index = trajectory_find_point_after(traj, traj_len, newtraj[0].date);
 
-    for (int i = 0; i < newtraj_len; ++i) {
+    for (i = 0; i < newtraj_len; ++i) {
         traj[(write_index + i) % traj_len].val = newtraj[i].val;
         traj[(write_index + i) % traj_len].date.s = newtraj[i].date.s;
         traj[(write_index + i) % traj_len].date.us = newtraj[i].date.us;

@@ -17,9 +17,14 @@
 #include "usbconf.h"
 #include "config.h"
 #include "interface_panel.h"
+#include "motor_control.h"
 
 /* Command line related.                                                     */
 #define SHELL_WA_SIZE   THD_WORKING_AREA_SIZE(2048)
+
+#define TRAJECTORY_STACKSIZE 2048
+
+THD_WORKING_AREA(wa_trajectory, TRAJECTORY_STACKSIZE);
 
 static const ShellConfig shell_cfg1 = {
     (BaseSequentialStream *)&SDU1,
@@ -37,6 +42,33 @@ void panic_hook(const char *reason)
     NVIC_SystemReset();
 }
 
+msg_t trajectory_thread(void *p)
+{
+    (void) p;
+
+    while (1) {
+        int index = 0;
+        int i;
+        unix_timestamp_t now;
+        now = timestamp_local_us_to_unix(timestamp_get());
+
+        chMtxLock(&demo_traj_lock);
+
+        for (i = 0; i < DEMO_TRAJ_LEN; ++i) {
+            chprintf((BaseSequentialStream *)&SDU1 , "%d ", demo_traj[i].date.s);
+        }
+
+        index = trajectory_find_point_after(demo_traj, DEMO_TRAJ_LEN, now);
+        chMtxUnlock(&demo_traj_lock);
+
+        chprintf((BaseSequentialStream *)&SDU1 , "%d %d\n\r", now.s, index);
+
+        chThdSleepMilliseconds(500);
+    }
+
+    return MSG_OK;
+}
+
 /** Application entry point.  */
 int main(void) {
     static thread_t *shelltp = NULL;
@@ -50,6 +82,13 @@ int main(void) {
      */
     halInit();
     chSysInit();
+
+    chMtxObjectInit(&demo_traj_lock);
+
+    int i;
+    for (i = 0; i < DEMO_TRAJ_LEN; ++i) {
+        demo_traj[i].date.s = i * 10;
+    }
 
     /* Initializes a serial-over-USB CDC driver.  */
     sduObjectInit(&SDU1);
@@ -88,6 +127,13 @@ int main(void) {
         /* Creates the LWIP threads (it changes priority internally).  */
         chThdCreateStatic(wa_lwip_thread, LWIP_THREAD_STACK_SIZE, NORMALPRIO + 2,
             lwip_thread, NULL);
+
+        chThdCreateStatic(wa_trajectory,
+                      TRAJECTORY_STACKSIZE,
+                      RPC_SERVER_PRIO,
+                      trajectory_thread,
+                      NULL);
+
 
         sntp_init();
         can_bridge_init();

@@ -1,6 +1,7 @@
 #include "msg_callbacks.h"
 #include <hal.h>
 #include <math.h>
+#include <string.h>
 
 #include "robot_parameters.h"
 #include "motor_control.h"
@@ -49,10 +50,26 @@ void message_vel_callback(void *p, int argc, cmp_ctx_t *input)
     m2_vel_setpt = (0.5f * ROBOT_LEFT_WHEEL_DIRECTION / ROBOT_LEFT_MOTOR_WHEEL_RADIUS) * (fwd_f / M_PI - ROBOT_MOTOR_WHEELBASE * rot_f);
 }
 
+void message_traj_callback(void *p, int argc, cmp_ctx_t *input)
+{
+    int i;
+    trajectory_frame_t newtraj[DEMO_TRAJ_LEN];
+    memset(newtraj, 0, sizeof(newtraj));
+
+    for (i = 0; i < argc; ++i) {
+        cmp_read_int(input, &newtraj[i].date.s);
+    }
+
+    chMtxLock(&demo_traj_lock);
+    trajectory_merge(demo_traj, DEMO_TRAJ_LEN, newtraj, argc);
+    chMtxUnlock(&demo_traj_lock);
+}
+
 message_method_t message_callbacks[] = {
     {.name = "test", .cb = message_cb},
     {.name = "fwd", .cb = message_fwd_callback},
     {.name = "vel", .cb = message_vel_callback},
+    {.name = "traj", .cb = message_traj_callback},
 };
 
 int message_callbacks_len = sizeof message_callbacks / sizeof(message_callbacks[0]);
