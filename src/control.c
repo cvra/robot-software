@@ -26,7 +26,7 @@ binary_semaphore_t setpoint_interpolation_lock;
 static setpoint_interpolator_t setpoint_interpolation;
 static struct pid_cascade_s ctrl;
 
-static bool control_en = true;
+static bool control_en = false;
 
 
 void control_enable(bool en)
