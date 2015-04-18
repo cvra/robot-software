@@ -26,12 +26,18 @@ binary_semaphore_t setpoint_interpolation_lock;
 static setpoint_interpolator_t setpoint_interpolation;
 static struct pid_cascade_s ctrl;
 
-static bool motor_enable = true;
+static bool control_en = true;
 
 
 void control_enable(bool en)
 {
-    motor_enable = en;
+    control_en = en;
+    if (en) {
+        motor_pwm_set(0);
+        motor_pwm_enable();
+    } else {
+        motor_pwm_disable();
+    }
 }
 
 void control_update_position_setpoint(float pos)
@@ -277,11 +283,10 @@ static THD_FUNCTION(control_loop, arg)
         }
 
         float delta_t = control_period_s;
-        if (!motor_enable || analog_get_battery_voltage() < low_batt_th) {
+        if (!control_en || analog_get_battery_voltage() < low_batt_th) {
             pid_reset_integral(&ctrl.current_pid);
             pid_reset_integral(&ctrl.velocity_pid);
             pid_reset_integral(&ctrl.position_pid);
-            motor_pwm_disable();
             motor_protection_update(&control_motor_protection, analog_get_motor_current(), delta_t);
         } else {
 
@@ -308,7 +313,6 @@ static THD_FUNCTION(control_loop, arg)
             pid_cascade_control(&ctrl);
 
             motor_set_voltage(ctrl.motor_voltage);
-            motor_pwm_enable();
         }
 
         chEvtWaitAny(CONTROL_WAKEUP_EVENT);
