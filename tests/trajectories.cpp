@@ -88,3 +88,34 @@ TEST(TrajectoriesTestGroup, DatesAreCopiedAsWell)
     CHECK_EQUAL(2, traj[3].date.s);
     CHECK_EQUAL(100, traj[3].date.us)
 }
+
+TEST(TrajectoriesTestGroup, CanFindNextIndex)
+{
+    unix_timestamp_t current = {.s = 2};
+    int index;
+
+    for (int i = 0; i < LEN(traj); ++i) {
+        traj[i].date.s = i;
+    }
+
+    index = trajectory_find_point_after(traj, LEN(traj), current);
+    CHECK_EQUAL(2, index);
+
+    current.us = 500;
+
+    index = trajectory_find_point_after(traj, LEN(traj), current);
+    CHECK_EQUAL(3, index);
+}
+
+TEST(TrajectoriesTestGroup, CannotFindIndexWhenDateIsTooEarly)
+{
+    unix_timestamp_t current = {.s = 2};
+    int index;
+
+    for (int i = 0; i < LEN(traj); ++i) {
+        traj[i].date.s = 100 + i;
+    }
+
+    index = trajectory_find_point_after(traj, LEN(traj), current);
+    CHECK_EQUAL(-1, index);
+}
