@@ -35,6 +35,13 @@ class MessageEncodingTestCase(unittest.TestCase):
         data = message.encode("foo", [1, 2, 3])
         self.assertEqual(msgpack_decode(data), ['foo', 1, 2, 3])
 
+    def test_encoding_float_single_precision(self):
+        """
+        Checks that we can encode float as single precision.
+        """
+        data = message.encode("foo", [1.])
+        self.assertEqual(data[1 + 3 + 1], 0xca)
+
 
 class MessageDecodingTestCase(unittest.TestCase):
     def test_decoding_message(self):
