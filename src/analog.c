@@ -59,7 +59,7 @@ static void adc_callback(ADCDriver *adcp, adcsample_t *adc_samples, size_t n)
 
     int i, nb_samples;
     if (ignore_first_samples) {
-        i = IGNORE_NB_SAMPLES_WHEN_RECHARGING;
+        i = IGNORE_NB_SAMPLES_WHEN_RECHARGING * ADC_NB_CHANNELS;
         nb_samples = n - IGNORE_NB_SAMPLES_WHEN_RECHARGING;
     } else {
         i = 0;
