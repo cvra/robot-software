@@ -15,6 +15,7 @@
 #include "uavcan_node.h"
 #include "timestamp/timestamp_stm32.h"
 #include "usbconf.h"
+#include "config.h"
 
 /* Command line related.                                                     */
 #define SHELL_WA_SIZE   THD_WORKING_AREA_SIZE(2048)
@@ -68,6 +69,10 @@ int main(void) {
 
     /* Shell manager initialization.  */
     shellInit();
+
+    /* Initialize global objects. */
+    config_init();
+
 
     /* Initialise timestamp module */
     timestamp_stm32_init();
