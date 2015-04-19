@@ -38,6 +38,11 @@ static int32_t power_pwm;
 
 void pwm_counter_reset(PWMDriver *pwmd)
 {
+    chSysLockFromISR();
+    bool recharge_flag_was_set = recharge_flag;
+    recharge_flag = false;
+    chSysUnlockFromISR();
+
     if (power_pwm >= 0) { // forward direction (no magic)
         pwmd->tim->CCR[PWM_DIRECTION_CHANNEL] = DIRECTION_DC_LOW;
         pwmd->tim->CCR[PWM_POWER_CHANNEL] = power_pwm;
@@ -45,7 +50,7 @@ void pwm_counter_reset(PWMDriver *pwmd)
     } else { // reverse direction (charge pump recharge)
         int32_t rev_power_pwm = PWM_PERIOD + power_pwm;
 
-        if (recharge_flag) { // recharge cycle
+        if (recharge_flag_was_set) { // recharge cycle
             pwmd->tim->CCR[PWM_DIRECTION_CHANNEL] = DIRECTION_DC_RECHARGE; // recharge cycle
             // correct power duty cycle to compensate for recharge
             rev_power_pwm -= POWR_DC_RECHARGE_CORRECTION;
@@ -61,8 +66,6 @@ void pwm_counter_reset(PWMDriver *pwmd)
         }
 
     }
-
-    recharge_flag = false;
 }
 
 static const PWMConfig pwm_cfg = {
@@ -110,7 +113,9 @@ void motor_pwm_disable(void)
     palClearPad(GPIOA, GPIOA_MOTOR_EN_B);
 }
 
-void motor_pwm_trigger_recharge_cycle(void)
+void motor_pwm_trigger_recharge_cycle_from_isr(void)
 {
+    chSysLockFromISR();
     recharge_flag = true;
+    chSysUnlockFromISR();
 }
