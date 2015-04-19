@@ -37,13 +37,13 @@ static THD_FUNCTION(stream_task, arg)
     while (1) {
         cmp_mem_access_init(&cmp, &mem, dtgrm, sizeof(dtgrm));
         bool err = false;
-        err = err || !cmp_write_map(&cmp, 2);
-        const char *current_id = "motor_current";
-        err = err || !cmp_write_str(&cmp, current_id, strlen(current_id));
+        //err = err || !cmp_write_map(&cmp, 2);
+        //const char *current_id = "motor_current";
+        //err = err || !cmp_write_str(&cmp, current_id, strlen(current_id));
         err = err || !cmp_write_float(&cmp, analog_get_motor_current());
-        const char *motor_voltage_id = "motor_voltage";
-        err = err || !cmp_write_str(&cmp, motor_voltage_id, strlen(motor_voltage_id));
-        err = err || !cmp_write_float(&cmp, control_get_motor_voltage());
+        //const char *motor_voltage_id = "motor_voltage";
+        //err = err || !cmp_write_str(&cmp, motor_voltage_id, strlen(motor_voltage_id));
+        //err = err || !cmp_write_float(&cmp, control_get_motor_voltage());
         // const char *batt_voltage_id = "batt_voltage";
         // err = err || !cmp_write_str(&cmp, batt_voltage_id, strlen(batt_voltage_id));
         // err = err || !cmp_write_float(&cmp, analog_get_battery_voltage());
@@ -56,7 +56,7 @@ static THD_FUNCTION(stream_task, arg)
         if (!err) {
             serial_datagram_send(dtgrm, cmp_mem_access_get_pos(&mem), _stream_sndfn, stdout);
         }
-        chThdSleepMilliseconds(10);
+        //chThdSleepMilliseconds(10);
     }
     return 0;
 }
@@ -216,7 +216,7 @@ int main(void) {
     chThdCreateStatic(parameter_listener_wa, sizeof(parameter_listener_wa), LOWPRIO, parameter_listener, &SD3);
     chThdCreateStatic(led_thread_wa, sizeof(led_thread_wa), LOWPRIO, led_thread, NULL);
 
-    control_enable(true);
+    control_enable(false);
 
     static struct uavcan_node_arg node_arg;
     node_arg.node_id = config.ID;
@@ -224,7 +224,8 @@ int main(void) {
     can_transceiver_activate();
     //uavcan_node_start(&node_arg);
 
-    motor_pwm_set(0.1);
+    motor_pwm_enable();
+    motor_pwm_set(-0.2);
 
     while (1) {
         chThdSleepMilliseconds(1000);
