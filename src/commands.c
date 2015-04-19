@@ -200,10 +200,63 @@ static void cmd_config_get(BaseSequentialStream *chp, int argc, char **argv)
     chprintf(chp, "Value: %d\r\n", (int)parameter_scalar_get(param));
 }
 
+static void tree_indent(BaseSequentialStream *out, int indent)
+{
+    int i;
+    for (i = 0; i < indent; ++i) {
+        chprintf(out, "  ");
+    }
+}
+
+static void show_config_tree(BaseSequentialStream *out, parameter_namespace_t *ns, int indent)
+{
+    parameter_t *p;
+
+    tree_indent(out, indent);
+    chprintf(out, "%s\r\n", ns->id);
+
+    for (p=ns->parameter_list; p!=NULL; p=p->next) {
+        tree_indent(out, indent + 1);
+        chprintf(out, "%s: %f\r\n", p->id, parameter_scalar_get(p));
+    }
+
+    if (ns->subspaces) {
+        show_config_tree(out, ns->subspaces, indent + 1);
+    }
+
+    if (ns->next) {
+        show_config_tree(out, ns->next, indent);
+    }
+}
+
+static void cmd_config_tree(BaseSequentialStream *chp, int argc, char **argv)
+{
+    parameter_namespace_t *ns;
+    if (argc != 1) {
+        ns = &global_config;
+    } else {
+        ns = parameter_namespace_find(&global_config, argv[0]);
+        if (ns == NULL) {
+            chprintf(chp, "Cannot find subtree.\r\n");
+            return;
+        }
+
+        ns = ns->subspaces;
+
+        if (ns == NULL) {
+            chprintf(chp, "This tree is empty.\r\n");
+            return;
+        }
+    }
+
+    show_config_tree(chp, ns, 0);
+}
+
 const ShellCommand commands[] = {
     {"mem", cmd_mem},
     {"ip", cmd_ip},
     {"config_get", cmd_config_get},
+    {"config_tree", cmd_config_tree},
     {"threads", cmd_threads},
     {"test", cmd_test},
     {"panic_log", cmd_panic_log},
