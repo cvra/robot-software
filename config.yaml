@@ -1,0 +1,8 @@
+master:
+    foo: 10.
+
+slaves:
+    0:
+        pid:
+            speed:
+                kp: 4.

@@ -6,6 +6,8 @@ depends:
         fork: Stapelzeiger
     - serial-can-bridge:
         fork: nuft
+    - parameter:
+        fork: Stapelzeiger
     - simplerpc
     - odometry
 
@@ -30,6 +32,7 @@ target.arm:
 
 source:
     - src/unix_timestamp.c
+    - src/config.c
 
 include_directories:
     - src/

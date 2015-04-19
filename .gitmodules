@@ -43,3 +43,6 @@
 [submodule "src/timestamp"]
 	path = src/timestamp
 	url = https://github.com/cvra/timestamp.git
+[submodule "src/parameter"]
+	path = src/parameter
+	url = https://github.com/Stapelzeiger/parameter
