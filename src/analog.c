@@ -78,7 +78,9 @@ static void adc_callback(ADCDriver *adcp, adcsample_t *adc_samples, size_t n)
     battery_voltage = adc_samples[3];
     aux_in = adc_samples[0] + adc_samples[2];
 
+    chSysLockFromISR();
     chEvtBroadcastFlagsI(&analog_event, ANALOG_EVENT_CONVERSION_DONE);
+    chSysUnlockFromISR();
 }
 
 static THD_FUNCTION(adc_task, arg)
