@@ -14,6 +14,8 @@ static void ping_cb(void *p, int argc, cmp_ctx_t *input, cmp_ctx_t *output)
 static void msgpack_error_cb(void *arg, const char *id, const char *err)
 {
     cmp_ctx_t *output = (cmp_ctx_t *)arg;
+    cmp_write_array(output, 2);
+    cmp_write_str(output, id, strlen(id));
     cmp_write_str(output, err, strlen(err));
 }
 
