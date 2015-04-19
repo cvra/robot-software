@@ -40,7 +40,8 @@ void config_init(void)
                                     &slave_configs[i].root, "pid");
 
         pid_register(&slave_configs[i].speed_pid, &slave_configs[i].pid_root, "speed");
-
+        pid_register(&slave_configs[i].position_pid, &slave_configs[i].pid_root, "position");
+        pid_register(&slave_configs[i].current_pid, &slave_configs[i].pid_root, "current");
     }
 
     parameter_scalar_declare(&foo, &master_config, "foo");

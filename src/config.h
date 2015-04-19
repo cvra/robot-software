@@ -16,6 +16,8 @@ struct slave_config_s {
     parameter_namespace_t pid_root;
     char name[4]; // "0"..."127"
     struct pid_parameter_s speed_pid;
+    struct pid_parameter_s position_pid;
+    struct pid_parameter_s current_pid;
 };
 
 extern parameter_namespace_t global_config;
