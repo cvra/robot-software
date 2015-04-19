@@ -61,6 +61,8 @@ msg_t trajectory_thread(void *p)
 
         if (index >= 0) {
             chprintf((BaseSequentialStream *)&SDU1 , "%d %d %d\n\r", now.s, index, (int)val*1000);
+            m1_vel_setpt = val;
+            m2_vel_setpt = val;
         }
 
         chThdSleepMilliseconds(100);
