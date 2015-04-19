@@ -1,6 +1,6 @@
 #include <ch.h>
 #include <hal.h>
-#include <filter/iir.h>
+#include "motor_pwm.h" // to trigger charge pump recharge cycle
 #include "analog.h"
 
 #define ADC_MAX         4096
@@ -8,12 +8,15 @@
 #define ADC_TO_VOLTS    0.005281575521f // 3.3/4096/(18/(100+18))
 
 #define ADC_NB_CHANNELS 4
-#define DMA_BUFFER_SIZE (128*2)         // expected DMA-callback with 3800Hz
-#define CURRENT_PRE_FILTER_WINDOW_SIZE  1
+#define DMA_BUFFER_SIZE (243*2)         // dual buffer of 243 (see adc timing below)
+
+#define PWM_RECHARGE_COUNTDOWN_RELOAD 4 // 2kHz / 500Hz (500Hz = recharge freq.)
+#define IGNORE_NB_SAMPLES_WHEN_RECHARGING 60 // 486kHz sampling freq -> 19.5 samples / pwm period -> ignore first 3 periods
 
 event_source_t analog_event;
 
-static int32_t motor_current;
+static int32_t motor_current_accumulator=0;
+static int32_t motor_current_nb_samples=1;
 static int32_t battery_voltage;
 static int32_t aux_in;
 
@@ -25,7 +28,11 @@ float analog_get_battery_voltage(void)
 
 float analog_get_motor_current(void)
 {
-    return -((float)motor_current * 2 / DMA_BUFFER_SIZE - ADC_MAX / 2) * ADC_TO_AMPS;
+    chSysLock();
+    int32_t accu = motor_current_accumulator;
+    int32_t nb = motor_current_nb_samples;
+    chSysUnlock();
+    return -(((float)accu / nb) - ADC_MAX / 2) * ADC_TO_AMPS;
 }
 
 float analog_get_auxiliary(void)
@@ -36,14 +43,37 @@ float analog_get_auxiliary(void)
 static void adc_callback(ADCDriver *adcp, adcsample_t *adc_samples, size_t n)
 {
     (void)adcp;
-    uint32_t accumulator = 0;
 
-    int i;
-    for (i = 0; i < (int)(n * ADC_NB_CHANNELS); i += ADC_NB_CHANNELS) {
-        accumulator += adc_samples[i + 1];
+    static int pwm_charge_pump_recharge_countdown = 0;
+    bool ignore_first_samples = false;
+
+    if (pwm_charge_pump_recharge_countdown == 0) {
+        pwm_charge_pump_recharge_countdown = PWM_RECHARGE_COUNTDOWN_RELOAD;
+        motor_pwm_trigger_recharge_cycle();
+    }
+    if (pwm_charge_pump_recharge_countdown == PWM_RECHARGE_COUNTDOWN_RELOAD - 1) {
+        // previous call triggered a recharge, ignore first samples
+        ignore_first_samples = true;
+    }
+    pwm_charge_pump_recharge_countdown--;
+
+    int i, nb_samples;
+    if (ignore_first_samples) {
+        i = IGNORE_NB_SAMPLES_WHEN_RECHARGING;
+        nb_samples = n - IGNORE_NB_SAMPLES_WHEN_RECHARGING;
+    } else {
+        i = 0;
+        nb_samples = n;
     }
 
-    motor_current = accumulator;
+    uint32_t accumulator = 0;
+    for (; i < (int)(n * ADC_NB_CHANNELS); i += ADC_NB_CHANNELS) {
+        accumulator += adc_samples[i + 1];
+    }
+    chSysLockFromISR();
+    motor_current_accumulator = accumulator;
+    motor_current_nb_samples = nb_samples;
+    chSysUnlockFromISR();
 
     battery_voltage = adc_samples[3];
     aux_in = adc_samples[0] + adc_samples[2];
@@ -64,7 +94,13 @@ static THD_FUNCTION(adc_task, arg)
         ADC_CFGR_CONT,          // CFGR
         0,                      // TR1
         6,                      // CCR : DUAL=regular,simultaneous
-        {ADC_SMPR1_SMP_AN1(5), 0},                          // SMPRx : sample time -> ~973kHz
+        /* ADC timing
+         * 61.5 sampling + 12.5 conversion ADC cycles (72MHz)
+         * sample frequency -> ~973kHz
+         * with 2 samples per conversion -> 486kHz sample frequency
+         *  243 samples per buffer -> 2.002kHz
+         */
+        {ADC_SMPR1_SMP_AN1(5), 0}, // SMPRx : 61.5 sampling cycles
         {ADC_SQR1_NUM_CH(2) | ADC_SQR1_SQ1_N(1) | ADC_SQR1_SQ2_N(1), 0, 0, 0}, // SQRx : ADC1_CH1 2x
         {ADC_SMPR1_SMP_AN2(5) | ADC_SMPR1_SMP_AN3(5), 0},   // SSMPRx : sample time maximum -> ~973kHz
         {ADC_SQR1_NUM_CH(2) | ADC_SQR1_SQ1_N(2) | ADC_SQR1_SQ2_N(3), 0, 0, 0}, // SSQRx : ADC2_CH2, ADC2_CH3
@@ -72,8 +108,6 @@ static THD_FUNCTION(adc_task, arg)
     };
 
     adcStart(&ADCD1, NULL);
-
-    motor_current = 0;
 
     adcConvert(&ADCD1, &adcgrpcfg1, adc_samples, DMA_BUFFER_SIZE); // should never return
 
