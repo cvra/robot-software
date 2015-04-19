@@ -48,22 +48,22 @@ msg_t trajectory_thread(void *p)
 
     while (1) {
         int index = 0;
+        float val;
         int i;
         unix_timestamp_t now;
-        now = timestamp_local_us_to_unix(timestamp_get());
+
+        now = timestamp_local_us_to_unix(ST2US(chVTGetSystemTime()));
 
         chMtxLock(&demo_traj_lock);
-
-        for (i = 0; i < DEMO_TRAJ_LEN; ++i) {
-            chprintf((BaseSequentialStream *)&SDU1 , "%d ", demo_traj[i].date.s);
-        }
-
-        index = trajectory_find_point_after(demo_traj, DEMO_TRAJ_LEN, now);
+            index = trajectory_find_point_after(demo_traj, DEMO_TRAJ_LEN, now);
+            val = demo_traj[index].val;
         chMtxUnlock(&demo_traj_lock);
 
-        chprintf((BaseSequentialStream *)&SDU1 , "%d %d\n\r", now.s, index);
+        if (index >= 0) {
+            chprintf((BaseSequentialStream *)&SDU1 , "%d %d %d\n\r", now.s, index, (int)val*1000);
+        }
 
-        chThdSleepMilliseconds(500);
+        chThdSleepMilliseconds(100);
     }
 
     return MSG_OK;

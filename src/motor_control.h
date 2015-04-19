@@ -4,7 +4,7 @@
 #include <ch.h>
 #include "trajectories.h"
 
-#define DEMO_TRAJ_LEN 10
+#define DEMO_TRAJ_LEN 100
 
 #ifdef __cplusplus
 extern "C" {

@@ -52,12 +52,19 @@ void message_vel_callback(void *p, int argc, cmp_ctx_t *input)
 
 void message_traj_callback(void *p, int argc, cmp_ctx_t *input)
 {
+    (void) p;
     int i;
+    uint32_t point_size;
+    double val;
     trajectory_frame_t newtraj[DEMO_TRAJ_LEN];
     memset(newtraj, 0, sizeof(newtraj));
 
     for (i = 0; i < argc; ++i) {
+        cmp_read_array(input, &point_size);
         cmp_read_int(input, &newtraj[i].date.s);
+        cmp_read_int(input, &newtraj[i].date.us);
+        cmp_read_double(input, &val);
+        newtraj[i].val = (float)val;
     }
 
     chMtxLock(&demo_traj_lock);
