@@ -6,6 +6,7 @@
 #include <chprintf.h>
 #include "rpc_server.h"
 #include "motor_control.h"
+#include "config.h"
 
 #include "commands.h"
 #include "panic_log.h"
@@ -180,9 +181,29 @@ static void cmd_vel_setpt(BaseSequentialStream *chp, int argc, char **argv)
     chprintf(chp, "m2_vel_setpt: %d\n", m2_vel_setpt_int);
 }
 
+static void cmd_config_get(BaseSequentialStream *chp, int argc, char **argv)
+{
+    parameter_t *param;
+
+    if (argc != 1) {
+        chprintf(chp, "Usage: config_get key\r\n");
+        return;
+    }
+
+    param = parameter_find(&global_config, argv[0]);
+
+    if (param == NULL) {
+        chprintf(chp, "Cannot find key: \"%s\"\r\n", argv[0]);
+        return;
+    }
+
+    chprintf(chp, "Value: %d\r\n", (int)parameter_scalar_get(param));
+}
+
 const ShellCommand commands[] = {
     {"mem", cmd_mem},
     {"ip", cmd_ip},
+    {"config_get", cmd_config_get},
     {"threads", cmd_threads},
     {"test", cmd_test},
     {"panic_log", cmd_panic_log},
