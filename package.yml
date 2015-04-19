@@ -6,6 +6,8 @@ depends:
         fork: Stapelzeiger
     - serial-can-bridge:
         fork: nuft
+    - parameter:
+        fork: Stapelzeiger
     - simplerpc
     - odometry
 
