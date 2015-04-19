@@ -10,3 +10,4 @@ depends:
 
 tests:
     - tests/parameter_test.cpp
+    - tests/msgpack_test.cpp
