@@ -13,7 +13,7 @@ def encode(message_name, args=None):
     if args is None:
         args = []
 
-    return msgpack.packb([message_name] + args)
+    return msgpack.packb([message_name] + args, use_single_float=True)
 
 
 def decode(data):
