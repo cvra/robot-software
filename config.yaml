@@ -1,5 +1,9 @@
 master:
     foo: 10.
+    odometry:
+        wheelbase: 0.194
+        radius_left: 0.016
+        radius_right: 0.016
 
 slaves:
     0:

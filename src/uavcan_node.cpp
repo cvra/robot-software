@@ -16,6 +16,7 @@
 #include "timestamp/timestamp.h"
 #include "odometry/robot_base.h"
 #include "odometry/odometry.h"
+#include "config.h"
 
 #include <errno.h>
 
@@ -125,11 +126,11 @@ msg_t main(void *arg)
     struct robot_base_pose_2d_s init_pose = {0.0f, 0.0f, 0.0f};
     odometry_base_init(&robot_base,
                        init_pose,
-                       ROBOT_RIGHT_EXTERNAL_WHEEL_RADIUS,
-                       ROBOT_LEFT_EXTERNAL_WHEEL_RADIUS,
+                       config_get_scalar("/master/odometry/radius_right"),
+                       config_get_scalar("/master/odometry/radius_left"),
                        ROBOT_RIGHT_WHEEL_DIRECTION,
                        ROBOT_LEFT_WHEEL_DIRECTION,
-                       ROBOT_EXTERNAL_WHEELBASE,
+                       config_get_scalar("/master/odometry/wheelbase"),
                        timestamp_get());
 
     static odometry_encoder_sample_t enc_right[2];
@@ -197,6 +198,15 @@ msg_t main(void *arg)
             } else if(msg.getSrcNodeID() == LEFT_WHEEL_ID) {
                 odometry_encoder_record_sample(&enc_left[0], enc_left[1].timestamp, enc_left[1].value);
                 odometry_encoder_record_sample(&enc_left[1], timestamp_get(), msg.raw_encoder_position);
+            }
+
+            parameter_namespace_t *odometry_ns;
+            odometry_ns = parameter_namespace_find(&global_config, "/master/odometry");
+            if (parameter_namespace_contains_changed(odometry_ns)) {
+                odometry_base_set_parameters(&robot_base,
+                                             config_get_scalar("/master/odometry/wheelbase"),
+                                             config_get_scalar("/master/odometry/radius_right"),
+                                             config_get_scalar("/master/odometry/radius_left"));
             }
 
             /*

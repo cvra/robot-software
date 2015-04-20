@@ -1,4 +1,6 @@
+#include <ch.h>
 #include <stdio.h>
+#include "robot_parameters.h"
 #include "config.h"
 
 parameter_namespace_t global_config;
@@ -8,6 +10,11 @@ static parameter_namespace_t master_config;
 static parameter_namespace_t slave_config_root;
 
 static parameter_t foo;
+
+static parameter_namespace_t odometry_config;
+static parameter_t odometry_wheel_base;
+static parameter_t odometry_left_radius;
+static parameter_t odometry_right_radius;
 
 static void pid_register(struct pid_parameter_s *pid,
                          parameter_namespace_t *parent, const char *name)
@@ -27,6 +34,22 @@ void config_init(void)
     parameter_namespace_declare(&global_config, NULL, NULL);
     parameter_namespace_declare(&master_config, &global_config, "master");
 
+    parameter_namespace_declare(&odometry_config, &master_config, "odometry");
+    parameter_scalar_declare_with_default(&odometry_wheel_base,
+                                          &odometry_config,
+                                          "wheelbase",
+                                          ROBOT_EXTERNAL_WHEELBASE);
+
+    parameter_scalar_declare_with_default(&odometry_right_radius,
+                                          &odometry_config,
+                                          "radius_right",
+                                          ROBOT_RIGHT_EXTERNAL_WHEEL_RADIUS);
+
+    parameter_scalar_declare_with_default(&odometry_left_radius,
+                                          &odometry_config,
+                                          "radius_left",
+                                          ROBOT_LEFT_EXTERNAL_WHEEL_RADIUS);
+
     parameter_namespace_declare(&slave_config_root, &global_config, "slaves");
 
     for (i = 0; i < SLAVE_CONFIG_COUNT; ++i) {
@@ -45,4 +68,19 @@ void config_init(void)
     }
 
     parameter_scalar_declare(&foo, &master_config, "foo");
+}
+
+float config_get_scalar(const char *id)
+{
+    parameter_t *p;
+
+    p = parameter_find(&global_config, id);
+
+    if (p == NULL) {
+        char err_msg[64];
+        snprintf(err_msg, sizeof err_msg, "Unknown param %s", id);
+        chSysHalt(err_msg);
+    }
+
+    return parameter_scalar_get(p);
 }

@@ -2,6 +2,9 @@
 
 #define SLAVE_CONFIG_COUNT 5
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct pid_parameter_s {
     parameter_namespace_t root;
@@ -25,3 +28,13 @@ extern struct slave_config_s slave_configs[SLAVE_CONFIG_COUNT];
 
 /* Inits all the globally available objects. */
 void config_init(void);
+
+/** Shorthand to get a parameter via its name.
+ *
+ * @note Panics if the ID is unknown.
+ */
+float config_get_scalar(const char *id);
+
+#ifdef __cplusplus
+}
+#endif
