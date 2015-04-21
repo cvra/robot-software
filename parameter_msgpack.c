@@ -8,6 +8,7 @@ static int discard_msgpack_element(cmp_object_t *obj,
                                    void *err_arg,
                                    const char *err_id)
 {
+    (void)cmp; // ignore unused variable warning. todo
     switch (obj->type) {
     case CMP_TYPE_POSITIVE_FIXNUM:
     case CMP_TYPE_NIL:
