@@ -10,6 +10,7 @@
 #include <cvra/Reboot.hpp>
 #include <cvra/motor/feedback/MotorEncoderPosition.hpp>
 #include <cvra/motor/config/SpeedPID.hpp>
+#include <cvra/motor/config/PositionPID.hpp>
 #include "motor_control.h"
 #include <simplerpc/message.h>
 #include "src/rpc_server.h"
@@ -263,6 +264,18 @@ msg_t main(void *arg)
         }
     });
 
+    uavcan::ServiceClient<cvra::motor::config::PositionPID> position_pid_client(node);
+    if (position_pid_client.init() < 0) {
+        node_fail("cvra::motor::config::PositionPID client");
+    }
+
+    position_pid_client.setCallback([](const uavcan::ServiceCallResult<cvra::motor::config::PositionPID>& call_result)
+    {
+        if (call_result.isSuccessful() == false) {
+            // TODO: error handling.
+        }
+    });
+
     while (true)
     {
         res = node.spin(uavcan::MonotonicDuration::fromMSec(100));
@@ -284,6 +297,14 @@ msg_t main(void *arg)
                     request.pid.ki = parameter_scalar_get(&slave_configs[i].speed_pid.ki);
                     request.pid.kd = parameter_scalar_get(&slave_configs[i].speed_pid.kd);
                     speed_pid_client.call(i, request);
+                }
+
+                if (parameter_namespace_contains_changed(&slave_configs[i].position_pid.root)) {
+                    cvra::motor::config::PositionPID::Request request;
+                    request.pid.kp = parameter_scalar_get(&slave_configs[i].position_pid.kp);
+                    request.pid.ki = parameter_scalar_get(&slave_configs[i].position_pid.ki);
+                    request.pid.kd = parameter_scalar_get(&slave_configs[i].position_pid.kd);
+                    position_pid_client.call(i, request);
                 }
             }
         }
