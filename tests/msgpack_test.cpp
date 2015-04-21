@@ -73,3 +73,23 @@ TEST(MessagePackTestGroup, CanChangeParameter)
     // /a/bar wasn't changed
     CHECK_EQUAL(60., parameter_scalar_get(&a_bar));
 }
+
+TEST(MessagePackTestGroup, CanChangeMultipleParameters)
+{
+    cmp_write_map(&ctx, 1);
+    cmp_write_str(&ctx, "a", 1);
+    cmp_write_map(&ctx, 2);
+    cmp_write_str(&ctx, "bar", 3);
+    cmp_write_float(&ctx, 24.);
+    cmp_write_str(&ctx, "foo", 3);
+    cmp_write_float(&ctx, 12.);
+
+    // Seek back to the beginning of the buffer
+    cmp_mem_access_set_pos(&mem, 0);
+
+    // Update the parameter namespace
+    parameter_msgpack_read_cmp(&rootns, &ctx, msgpack_error_cb, NULL);
+
+    CHECK_EQUAL(12., parameter_scalar_get(&a_foo));
+    CHECK_EQUAL(24., parameter_scalar_get(&a_bar));
+}
