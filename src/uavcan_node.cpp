@@ -1,12 +1,15 @@
 #include <ch.h>
 #include <hal.h>
+#include <main.h>
 #include <uavcan/uavcan.hpp>
 #include <uavcan_stm32/uavcan_stm32.hpp>
 #include <uavcan/protocol/NodeStatus.hpp>
 #include <cvra/Reboot.hpp>
 #include <cvra/motor/control/Velocity.hpp>
 #include <cvra/motor/feedback/MotorEncoderPosition.hpp>
+#include <cvra/motor/config/SpeedPID.hpp>
 #include <control.h>
+#include <parameter/parameter.h>
 #include <encoder.h>
 #include "uavcan_node.h"
 #include <can-bootloader/boot_arg.h>
@@ -94,6 +97,21 @@ static THD_FUNCTION(uavcan_node, arg)
         uavcan_failure("cvra::motor::feedback::MotorEncoderPosition publisher");
     }
 
+    /* Servers */
+
+    /** Speed PID config */
+    uavcan::ServiceServer<cvra::motor::config::SpeedPID> velocity_pid_srv(node);
+    const int velocity_pid_srv_res = velocity_pid_srv.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::motor::config::SpeedPID::Request>& req,
+            cvra::motor::config::SpeedPID::Response& rsp)
+        {
+            parameter_scalar_set(parameter_find(&parameter_root_ns, "/control/velocity/kp"), req.pid.kp);
+            rsp.dummy = 1;
+        });
+
+    if (velocity_pid_srv_res < 0) {
+        uavcan_failure("cvra::motor::config::SpeedPID server");
+    }
 
     node.setStatusOk();
 
