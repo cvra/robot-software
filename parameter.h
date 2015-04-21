@@ -37,7 +37,7 @@ struct _param_val_matrix_s {
 
 #define _PARAM_TYPE_SCALAR      1
 // #define _PARAM_TYPE_BOOL        2
-// #define _PARAM_TYPE_INTEGER     3
+#define _PARAM_TYPE_INTEGER     3
 // #define _PARAM_TYPE_STRING      4
 #define _PARAM_TYPE_VECTOR      5
 #define _PARAM_TYPE_VAR_VECTOR  6
@@ -139,6 +139,20 @@ void parameter_scalar_declare_with_default(parameter_t *p,
 float parameter_scalar_get(parameter_t *p);
 float parameter_scalar_read(parameter_t *p);
 void parameter_scalar_set(parameter_t *p, float value);
+
+/*
+ * Integer type parameter
+ */
+
+void parameter_integer_declare(parameter_t *p, parameter_namespace_t *ns,
+                              const char *id);
+void parameter_integer_declare_with_default(parameter_t *p,
+                                           parameter_namespace_t *ns,
+                                           const char *id,
+                                           int32_t default_val);
+int32_t parameter_integer_get(parameter_t *p);
+int32_t parameter_integer_read(parameter_t *p);
+void parameter_integer_set(parameter_t *p, int32_t value);
 
 /*
  * Vector type parameter
