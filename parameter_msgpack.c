@@ -175,6 +175,7 @@ static int read_parameter(parameter_t *p,
             return ret;
         }
     }
+    return 0;
 }
 
 
