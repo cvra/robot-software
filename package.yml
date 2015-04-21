@@ -6,6 +6,8 @@ depends:
     - cmp_mem_access:
         fork: stapelzeiger
     - test-runner
+    - cmp
 
 tests:
     - tests/parameter_test.cpp
+    - tests/msgpack_test.cpp
