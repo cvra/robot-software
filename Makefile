@@ -94,7 +94,7 @@ include $(CHIBIOS)/test/rt/test.mk
 include $(CHIBIOS)/os/various/cpp_wrappers/chcpp.mk
 
 # must be defined before board.mk include
-USE_BOOTLOADER = no
+USE_BOOTLOADER = yes
 include board/board.mk
 include src/src.mk
 
