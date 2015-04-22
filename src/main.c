@@ -216,7 +216,7 @@ int main(void) {
     chThdCreateStatic(parameter_listener_wa, sizeof(parameter_listener_wa), LOWPRIO, parameter_listener, &SD3);
     chThdCreateStatic(led_thread_wa, sizeof(led_thread_wa), LOWPRIO, led_thread, NULL);
 
-    control_enable(false);
+    control_enable(true);
 
     static struct uavcan_node_arg node_arg;
     node_arg.node_id = config.ID;
@@ -224,8 +224,6 @@ int main(void) {
     can_transceiver_activate();
     //uavcan_node_start(&node_arg);
 
-    motor_pwm_enable();
-    motor_pwm_set(-0.2);
 
     while (1) {
         chThdSleepMilliseconds(1000);
