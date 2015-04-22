@@ -11,7 +11,7 @@
 #define DMA_BUFFER_SIZE (243*2)         // dual buffer of 243 (see adc timing below)
 
 #define PWM_RECHARGE_COUNTDOWN_RELOAD 4 // 2kHz / 500Hz (500Hz = recharge freq.)
-#define IGNORE_NB_SAMPLES_WHEN_RECHARGING 60 // 486kHz sampling freq -> 19.5 samples / pwm period -> ignore first 3 periods
+#define IGNORE_NB_SAMPLES_WHEN_RECHARGING 111 // 486kHz sampling freq -> 19.5 samples / pwm period -> ignore first 3 periods + something because of LP
 
 event_source_t analog_event;
 
