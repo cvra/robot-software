@@ -309,6 +309,7 @@ msg_t main(void *arg)
                     request.pid.kp = parameter_scalar_get(&slave_configs[i].speed_pid.kp);
                     request.pid.ki = parameter_scalar_get(&slave_configs[i].speed_pid.ki);
                     request.pid.kd = parameter_scalar_get(&slave_configs[i].speed_pid.kd);
+                    request.pid.ilimit = parameter_scalar_get(&slave_configs[i].speed_pid.ilimit);
                     speed_pid_client.call(i, request);
                 }
 
@@ -317,6 +318,7 @@ msg_t main(void *arg)
                     request.pid.kp = parameter_scalar_get(&slave_configs[i].position_pid.kp);
                     request.pid.ki = parameter_scalar_get(&slave_configs[i].position_pid.ki);
                     request.pid.kd = parameter_scalar_get(&slave_configs[i].position_pid.kd);
+                    request.pid.ilimit = parameter_scalar_get(&slave_configs[i].position_pid.ilimit);
                     position_pid_client.call(i, request);
                 }
 
@@ -325,6 +327,7 @@ msg_t main(void *arg)
                     request.pid.kp = parameter_scalar_get(&slave_configs[i].current_pid.kp);
                     request.pid.ki = parameter_scalar_get(&slave_configs[i].current_pid.ki);
                     request.pid.kd = parameter_scalar_get(&slave_configs[i].current_pid.kd);
+                    request.pid.ilimit = parameter_scalar_get(&slave_configs[i].current_pid.ilimit);
                     current_pid_client.call(i, request);
                 }
             }
