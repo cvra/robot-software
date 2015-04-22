@@ -56,7 +56,7 @@ static THD_FUNCTION(stream_task, arg)
         if (!err) {
             serial_datagram_send(dtgrm, cmp_mem_access_get_pos(&mem), _stream_sndfn, stdout);
         }
-        //chThdSleepMilliseconds(10);
+        chThdSleepMilliseconds(10);
     }
     return 0;
 }
