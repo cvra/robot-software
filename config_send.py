@@ -1,6 +1,7 @@
 import cvra_rpc.service_call
-import sys
 import yaml
+import argparse
+
 
 def keys_to_str(to_convert):
     """
@@ -13,10 +14,23 @@ def keys_to_str(to_convert):
     return {str(k): keys_to_str(v) for k, v in to_convert.items()}
 
 
+def main():
+    parser = argparse.ArgumentParser("Sends the robot config to the master board.")
+    parser.add_argument("config", help="YAML file containing robot config.")
+    parser.add_argument("master_ip", help="IP address and port of the master board (host:port format).")
+    args = parser.parse_args()
 
-ROBOT = ('192.168.2.20', 20001)
-config = yaml.load(open(sys.argv[1]))
-config = keys_to_str(config)
-print(config)
-result = cvra_rpc.service_call.call(ROBOT, 'config_update', [config])
-print(result)
+    try:
+        host, port = args.master_ip.split(":")
+    except ValueError:
+        host, port = args.master_ip, 20001
+
+    config = yaml.load(open(args.config))
+    config = keys_to_str(config)
+    print(config)
+    result = cvra_rpc.service_call.call((host, port), 'config_update',
+                                        [config])
+    print(result)
+
+if __name__ == "__main__":
+    main()
