@@ -15,6 +15,13 @@ def keys_to_str(to_convert):
     return {str(k): keys_to_str(v) for k, v in to_convert.items()}
 
 
+def send_config_file(destination, config_file):
+    config = yaml.load(config_file)
+    config = keys_to_str(config)
+    errors = cvra_rpc.service_call.call(destination, 'config_update', [config])
+    return errors
+
+
 def main():
     parser = argparse.ArgumentParser("Sends the robot config to the master board.")
     parser.add_argument("config", help="YAML file containing robot config.")
@@ -26,11 +33,7 @@ def main():
     except ValueError:
         host, port = args.master_ip, 20001
 
-    config = yaml.load(open(args.config))
-    config = keys_to_str(config)
-    print(config)
-    errors = cvra_rpc.service_call.call((host, port), 'config_update',
-                                        [config])
+    errors = send_config_file((host, port), open(args.config))
 
     for key, error in errors:
         logging.warning("Error for key '{}': {}".format(key, error))
