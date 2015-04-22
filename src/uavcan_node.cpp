@@ -87,8 +87,10 @@ void can_bridge_send_frames(Node& node)
             timeout += uavcan::MonotonicDuration::fromMSec(100);
 
             uavcan::CanSelectMasks masks;
-            masks.write = 1;
-            can.driver.select(masks, timeout);
+            do {
+                masks.write = 1;
+                can.driver.select(masks, timeout);
+            } while (!masks.write & 1 && node.getMonotonicTime() < timeout);
             if (masks.write & 1) {
                 uavcan::MonotonicTime tx_timeout = node.getMonotonicTime();
                 tx_timeout += uavcan::MonotonicDuration::fromMSec(100);
