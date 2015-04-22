@@ -1,6 +1,7 @@
 import cvra_rpc.service_call
 import yaml
 import argparse
+import logging
 
 
 def keys_to_str(to_convert):
@@ -28,9 +29,11 @@ def main():
     config = yaml.load(open(args.config))
     config = keys_to_str(config)
     print(config)
-    result = cvra_rpc.service_call.call((host, port), 'config_update',
+    errors = cvra_rpc.service_call.call((host, port), 'config_update',
                                         [config])
-    print(result)
+
+    for key, error in errors:
+        logging.warning("Error for key '{}': {}".format(key, error))
 
 if __name__ == "__main__":
     main()
