@@ -222,7 +222,7 @@ int main(void) {
     node_arg.node_id = config.ID;
     node_arg.node_name = config.board_name;
     can_transceiver_activate();
-    //uavcan_node_start(&node_arg);
+    uavcan_node_start(&node_arg);
 
 
     while (1) {
