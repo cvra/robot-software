@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import cvra_rpc.service_call
 import yaml
 import argparse
