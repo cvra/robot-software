@@ -29,13 +29,13 @@ int trajectory_find_point_after(trajectory_frame_t *traj, int traj_len,
         }
     }
 
-    while (timestamp_unix_compare(traj[index].date, date) < 0) {
+    while (timestamp_unix_compare(traj[index % traj_len].date, date) < 0) {
         index ++;
-        if (index >= traj_len) {
+        if (index >= traj_len+1) {
             /* Given date is before the earliest point in trajectory. */
             return -2;
         }
     }
 
-    return index;
+    return index % traj_len;
 }

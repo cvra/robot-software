@@ -119,3 +119,20 @@ TEST(TrajectoriesTestGroup, CannotFindIndexWhenDateIsTooEarly)
     index = trajectory_find_point_after(traj, LEN(traj), current);
     CHECK_EQUAL(-1, index);
 }
+
+TEST(TrajectoriesTestGroup, CanFindIndexAtEndOfArray)
+{
+    for (int i = 0; i < LEN(traj); ++i) {
+        traj[i].date.s = i;
+    }
+    traj[0].date.s = LEN(traj);
+
+    // Set timestamp to the one at the end of the traj
+    unix_timestamp_t current = {
+        .s = traj[LEN(traj) - 1].date.s,
+        .us = 100,
+    } ;
+
+    int index = trajectory_find_point_after(traj, LEN(traj), current);
+    CHECK_EQUAL(0, index);
+}
