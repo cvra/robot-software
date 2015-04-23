@@ -1,6 +1,6 @@
 #include <parameter/parameter.h>
 
-#define SLAVE_CONFIG_COUNT 5
+#define SLAVE_CONFIG_COUNT 20
 
 #ifdef __cplusplus
 extern "C" {

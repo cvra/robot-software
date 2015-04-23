@@ -9,6 +9,9 @@
 #include <cvra/motor/control/Velocity.hpp>
 #include <cvra/Reboot.hpp>
 #include <cvra/motor/feedback/MotorEncoderPosition.hpp>
+#include <cvra/motor/config/SpeedPID.hpp>
+#include <cvra/motor/config/PositionPID.hpp>
+#include <cvra/motor/config/CurrentPID.hpp>
 #include "motor_control.h"
 #include <simplerpc/message.h>
 #include "src/rpc_server.h"
@@ -249,6 +252,43 @@ msg_t main(void *arg)
         node_fail("cvra::motor::control::Velocity publisher");
     }
 
+    /* Config client. */
+    uavcan::ServiceClient<cvra::motor::config::SpeedPID> speed_pid_client(node);
+    if (speed_pid_client.init() < 0) {
+        node_fail("cvra::motor::config::SpeedPID client");
+    }
+
+    speed_pid_client.setCallback([](const uavcan::ServiceCallResult<cvra::motor::config::SpeedPID>& call_result)
+    {
+        if (call_result.isSuccessful() == false) {
+            // TODO: error handling.
+        }
+    });
+
+    uavcan::ServiceClient<cvra::motor::config::PositionPID> position_pid_client(node);
+    if (position_pid_client.init() < 0) {
+        node_fail("cvra::motor::config::PositionPID client");
+    }
+
+    position_pid_client.setCallback([](const uavcan::ServiceCallResult<cvra::motor::config::PositionPID>& call_result)
+    {
+        if (call_result.isSuccessful() == false) {
+            // TODO: error handling.
+        }
+    });
+
+    uavcan::ServiceClient<cvra::motor::config::CurrentPID> current_pid_client(node);
+    if (current_pid_client.init() < 0) {
+        node_fail("cvra::motor::config::CurrentPID client");
+    }
+
+    current_pid_client.setCallback([](const uavcan::ServiceCallResult<cvra::motor::config::CurrentPID>& call_result)
+    {
+        if (call_result.isSuccessful() == false) {
+            // TODO: error handling.
+        }
+    });
+
     while (true)
     {
         res = node.spin(uavcan::MonotonicDuration::fromMSec(100));
@@ -262,7 +302,36 @@ msg_t main(void *arg)
             reboot_pub.broadcast(reboot_msg);
         }
 
+        for (int i = 0; i < SLAVE_CONFIG_COUNT; ++i) {
+            if (parameter_namespace_contains_changed(&slave_configs[i].root)) {
+                if (parameter_namespace_contains_changed(&slave_configs[i].speed_pid.root)) {
+                    cvra::motor::config::SpeedPID::Request request;
+                    request.pid.kp = parameter_scalar_get(&slave_configs[i].speed_pid.kp);
+                    request.pid.ki = parameter_scalar_get(&slave_configs[i].speed_pid.ki);
+                    request.pid.kd = parameter_scalar_get(&slave_configs[i].speed_pid.kd);
+                    request.pid.ilimit = parameter_scalar_get(&slave_configs[i].speed_pid.ilimit);
+                    speed_pid_client.call(i, request);
+                }
 
+                if (parameter_namespace_contains_changed(&slave_configs[i].position_pid.root)) {
+                    cvra::motor::config::PositionPID::Request request;
+                    request.pid.kp = parameter_scalar_get(&slave_configs[i].position_pid.kp);
+                    request.pid.ki = parameter_scalar_get(&slave_configs[i].position_pid.ki);
+                    request.pid.kd = parameter_scalar_get(&slave_configs[i].position_pid.kd);
+                    request.pid.ilimit = parameter_scalar_get(&slave_configs[i].position_pid.ilimit);
+                    position_pid_client.call(i, request);
+                }
+
+                if (parameter_namespace_contains_changed(&slave_configs[i].current_pid.root)) {
+                    cvra::motor::config::CurrentPID::Request request;
+                    request.pid.kp = parameter_scalar_get(&slave_configs[i].current_pid.kp);
+                    request.pid.ki = parameter_scalar_get(&slave_configs[i].current_pid.ki);
+                    request.pid.kd = parameter_scalar_get(&slave_configs[i].current_pid.kd);
+                    request.pid.ilimit = parameter_scalar_get(&slave_configs[i].current_pid.ilimit);
+                    current_pid_client.call(i, request);
+                }
+            }
+        }
 
         cvra::motor::control::Velocity vel_ctrl_setpt;
         vel_ctrl_setpt.velocity = m1_vel_setpt;
