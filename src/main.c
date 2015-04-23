@@ -37,13 +37,16 @@ static THD_FUNCTION(stream_task, arg)
     while (1) {
         cmp_mem_access_init(&cmp, &mem, dtgrm, sizeof(dtgrm));
         bool err = false;
-        //err = err || !cmp_write_map(&cmp, 2);
-        //const char *current_id = "motor_current";
-        //err = err || !cmp_write_str(&cmp, current_id, strlen(current_id));
-        err = err || !cmp_write_float(&cmp, analog_get_motor_current());
-        //const char *motor_voltage_id = "motor_voltage";
-        //err = err || !cmp_write_str(&cmp, motor_voltage_id, strlen(motor_voltage_id));
-        //err = err || !cmp_write_float(&cmp, control_get_motor_voltage());
+        err = err || !cmp_write_map(&cmp, 3);
+        const char *enc_id = "enc";
+        err = err || !cmp_write_str(&cmp, enc_id, strlen(enc_id));
+        err = err || !cmp_write_u32(&cmp, encoder_get_primary());
+        const char *pos_id = "pos";
+        err = err || !cmp_write_str(&cmp, pos_id, strlen(pos_id));
+        err = err || !cmp_write_float(&cmp, control_get_position());
+        const char *vel_id = "vel";
+        err = err || !cmp_write_str(&cmp, vel_id, strlen(vel_id));
+        err = err || !cmp_write_float(&cmp, control_get_velocity());
         // const char *batt_voltage_id = "batt_voltage";
         // err = err || !cmp_write_str(&cmp, batt_voltage_id, strlen(batt_voltage_id));
         // err = err || !cmp_write_float(&cmp, analog_get_battery_voltage());
