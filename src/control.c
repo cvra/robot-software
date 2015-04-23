@@ -233,7 +233,7 @@ static THD_FUNCTION(control_loop, arg)
                                (eventflags_t)ANALOG_EVENT_CONVERSION_DONE);
 
 
-    float control_period_s = 1/ANALOG_CONVERSION_FREQUNECY;
+    float control_period_s = 1/(float)ANALOG_CONVERSION_FREQUNECY;
     while (true) {
         // update parameters if they changed
         if (parameter_namespace_contains_changed(&param_ns_control)) {
