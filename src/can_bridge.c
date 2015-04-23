@@ -86,17 +86,20 @@ msg_t can_bridge_thread(void *p)
 
         chBSemObjectInit(&instance->tx_finished, true);
 
-        chThdCreateFromHeap(NULL, /* Use system heap */
+        thread_t *tx, *rx;
+        rx = chThdCreateFromHeap(NULL, /* Use system heap */
                             CAN_BRIDGE_RX_STACKSIZE,
                             CAN_BRIDGE_PRIO,
                             can_bridge_rx_thread,
                             (void *)instance);
 
-        chThdCreateFromHeap(NULL, /* Use system heap */
+        tx = chThdCreateFromHeap(NULL, /* Use system heap */
                             CAN_BRIDGE_TX_STACKSIZE,
                             CAN_BRIDGE_PRIO,
                             can_bridge_tx_thread,
                             (void *)instance);
+        chThdWait(tx);
+        chThdWait(rx);
     }
     return MSG_OK;
 }
