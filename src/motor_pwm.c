@@ -30,18 +30,12 @@
  * samples taken during the recharge cycle)
  */
 
-// flag to trigger the charge pump recharge cycle
-// this is set by the ADC dma and cleared by the pwm interrupt
-volatile bool recharge_flag = false;
 
 static int32_t power_pwm;
 
 void pwm_counter_reset(PWMDriver *pwmd)
 {
-    chSysLockFromISR();
-    bool recharge_flag_was_set = recharge_flag;
-    recharge_flag = false;
-    chSysUnlockFromISR();
+    static bool recharge_flag = false;
 
     if (power_pwm >= 0) { // forward direction (no magic)
         pwmd->tim->CCR[PWM_DIRECTION_CHANNEL] = DIRECTION_DC_LOW;
@@ -50,7 +44,7 @@ void pwm_counter_reset(PWMDriver *pwmd)
     } else { // reverse direction (charge pump recharge)
         int32_t rev_power_pwm = PWM_PERIOD + power_pwm;
 
-        if (recharge_flag_was_set) { // recharge cycle
+        if (!recharge_flag) { // no recharge cycle has happened in the last interrupt
             pwmd->tim->CCR[PWM_DIRECTION_CHANNEL] = DIRECTION_DC_RECHARGE; // recharge cycle
             // correct power duty cycle to compensate for recharge
             rev_power_pwm -= POWR_DC_RECHARGE_CORRECTION;
@@ -60,9 +54,15 @@ void pwm_counter_reset(PWMDriver *pwmd)
                 pwmd->tim->CCR[PWM_POWER_CHANNEL] = rev_power_pwm;
             }
 
+            recharge_flag = true;   // no recharge in the next interrupt (next timer overflow)
+
         } else { // no recharge cycle
             pwmd->tim->CCR[PWM_DIRECTION_CHANNEL] = DIRECTION_DC_HIGH;
             pwmd->tim->CCR[PWM_POWER_CHANNEL] = rev_power_pwm;
+            recharge_flag = false;
+            chSysLockFromISR();
+            pwmDisablePeriodicNotificationI(&PWMD1);    // no more interrupts 'till next trigger
+            chSysUnlockFromISR();
         }
 
     }
@@ -86,7 +86,6 @@ static const PWMConfig pwm_cfg = {
 void motor_pwm_setup(void)
 {
     pwmStart(&PWMD1, &pwm_cfg);
-    pwmEnablePeriodicNotification(&PWMD1);
 }
 
 void motor_pwm_set(float dc)
@@ -116,6 +115,6 @@ void motor_pwm_disable(void)
 void motor_pwm_trigger_recharge_cycle_from_isr(void)
 {
     chSysLockFromISR();
-    recharge_flag = true;
+    pwmEnablePeriodicNotificationI(&PWMD1);
     chSysUnlockFromISR();
 }
