@@ -6,6 +6,7 @@
 #include <uavcan/protocol/NodeStatus.hpp>
 #include <cvra/Reboot.hpp>
 #include <cvra/motor/control/Velocity.hpp>
+#include <cvra/motor/control/Position.hpp>
 #include <cvra/motor/feedback/MotorEncoderPosition.hpp>
 #include <control.h>
 #include <parameter/parameter.h>
@@ -92,6 +93,17 @@ static THD_FUNCTION(uavcan_node, arg)
     );
     if (ret != 0) {
         uavcan_failure("cvra::motor::control::Velocity subscriber");
+    }
+
+    uavcan::Subscriber<cvra::motor::control::Position> pos_ctrl_sub(node);
+    ret = pos_ctrl_sub.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::motor::control::Position>& msg)
+        {
+            control_update_position_setpoint(msg.position);
+        }
+    );
+    if (ret != 0) {
+        uavcan_failure("cvra::motor::control::Position subscriber");
     }
 
     /* Publishers */
