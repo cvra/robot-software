@@ -2,6 +2,8 @@ import cvra_rpc.service_call
 import yaml
 import argparse
 import logging
+import os.path
+import time
 
 
 def keys_to_str(to_convert):
@@ -19,13 +21,17 @@ def send_config_file(destination, config_file):
     config = yaml.load(config_file)
     config = keys_to_str(config)
     errors = cvra_rpc.service_call.call(destination, 'config_update', [config])
-    return errors
+    for key, error in errors:
+        logging.warning("Error for key '{}': {}".format(key, error))
 
 
 def main():
     parser = argparse.ArgumentParser("Sends the robot config to the master board.")
     parser.add_argument("config", help="YAML file containing robot config.")
     parser.add_argument("master_ip", help="IP address and port of the master board (host:port format).")
+    parser.add_argument("-w", "--watch",
+                        help="Watch config file for changes.",
+                        action="store_true")
     args = parser.parse_args()
 
     try:
@@ -33,10 +39,27 @@ def main():
     except ValueError:
         host, port = args.master_ip, 20001
 
-    errors = send_config_file((host, port), open(args.config))
+    send_config_file((host, port), open(args.config))
 
-    for key, error in errors:
-        logging.warning("Error for key '{}': {}".format(key, error))
+    if args.watch:
+        old_mtime = os.path.getmtime(args.config)
+        while True:
+            try:
+                try:
+                    mtime = os.path.getmtime(args.config)
+                # Some editors delete the file before writing to it
+                except FileNotFoundError:
+                    pass
+
+                if mtime != old_mtime:
+                    old_mtime = mtime
+                    send_config_file((host, port), open(args.config))
+
+                time.sleep(0.1)
+            except KeyboardInterrupt:
+                break
+            except:
+                logging.exception("Unexpected error occured.")
 
 if __name__ == "__main__":
     main()
