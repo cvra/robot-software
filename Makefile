@@ -235,18 +235,23 @@ UINCDIR += $(LIBUAVCAN_INC) src/can-driver/include ./dsdlc_generated
 # End of user defines
 ##############################################################################
 
+GLOBAL_SRC_DEP = app_src.mk
+
 RULESPATH = $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC
 include $(RULESPATH)/rules.mk
 
+.PHONY: flash
 flash: build/$(PROJECT).elf
 	openocd -f oocd.cfg -c "program build/ch.elf verify reset" -c "shutdown"
 
 # run uavcan dsdl compiler
-.PHONY: dsdlc ctags
+.PHONY: dsdlc
 dsdlc:
+	@$(COLOR_PRINTF) "Running uavcan dsdl compiler"
 	$(LIBUAVCAN_DSDLC) cvra $(UAVCAN_DSDL_DIR)
 
 # Generates a ctags file containing the correct definition for the build
+.PHONY: ctags
 ctags:
 	@echo "Generating ctags file..."
 	@cat .dep/*.d | grep ":$$" | sed "s/://" | sort | uniq | xargs ctags --file-scope=no --extra=+q $(CSRC) $(CPPSRC)
