@@ -49,7 +49,9 @@ static void adc_callback(ADCDriver *adcp, adcsample_t *adc_samples, size_t n)
 
     if (pwm_charge_pump_recharge_countdown == 0) {
         pwm_charge_pump_recharge_countdown = PWM_RECHARGE_COUNTDOWN_RELOAD;
-        motor_pwm_trigger_recharge_cycle_from_isr();
+        motor_pwm_trigger_update_from_isr(true);
+    } else {
+        motor_pwm_trigger_update_from_isr(false);
     }
     if (pwm_charge_pump_recharge_countdown == PWM_RECHARGE_COUNTDOWN_RELOAD - 1) {
         // previous call triggered a recharge, ignore first samples

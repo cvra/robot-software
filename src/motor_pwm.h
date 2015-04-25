@@ -26,7 +26,7 @@ void motor_pwm_disable(void);
 /*
  * trigger charge pump recharge cycle (must be called every 2ms)
  */
-void motor_pwm_trigger_recharge_cycle_from_isr(void);
+void motor_pwm_trigger_update_from_isr(bool recharge);
 
 #ifdef __cplusplus
 }
