@@ -4,7 +4,7 @@
 #include <ch.h>
 #include "trajectories.h"
 
-#define DEMO_TRAJ_LEN 100
+#define ROBOT_TRAJ_LEN 100
 
 #ifdef __cplusplus
 extern "C" {
@@ -14,8 +14,26 @@ extern "C" {
 extern float m1_vel_setpt;
 extern float m2_vel_setpt;
 
-extern trajectory_frame_t demo_traj[];
-extern mutex_t demo_traj_lock;
+struct robot_traj_s {
+    /** x position */
+    trajectory_frame_t x[ROBOT_TRAJ_LEN];
+    /** y position */
+    trajectory_frame_t y[ROBOT_TRAJ_LEN];
+
+    /** Heading */
+    trajectory_frame_t theta[ROBOT_TRAJ_LEN];
+
+    /** Linear speed */
+    trajectory_frame_t speed[ROBOT_TRAJ_LEN];
+    /** Angular speed */
+    trajectory_frame_t omega[ROBOT_TRAJ_LEN];
+
+    /** Guarantees exclusive access to the structure. */
+    mutex_t lock;
+};
+
+extern struct robot_traj_s robot_traj;
+
 
 #ifdef __cplusplus
 }

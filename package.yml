@@ -10,6 +10,7 @@ depends:
         fork: Stapelzeiger
     - simplerpc
     - odometry
+    - tracy-the-trajectory-tracker
 
 
 target.arm:

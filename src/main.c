@@ -18,6 +18,7 @@
 #include "config.h"
 #include "interface_panel.h"
 #include "motor_control.h"
+#include "tracy-the-trajectory-tracker/src/trajectory_tracking.h"
 
 /* Command line related.                                                     */
 #define SHELL_WA_SIZE   THD_WORKING_AREA_SIZE(2048)
@@ -46,23 +47,45 @@ msg_t trajectory_thread(void *p)
 {
     (void) p;
 
+    memset(&robot_traj, 0, sizeof robot_traj);
+    chMtxObjectInit(&robot_traj.lock);
+
     while (1) {
         int index = 0;
-        float val;
-        int i;
+        float x, y, theta, speed, omega;
         unix_timestamp_t now;
 
         now = timestamp_local_us_to_unix(ST2US(chVTGetSystemTime()));
 
-        chMtxLock(&demo_traj_lock);
-            index = trajectory_find_point_after(demo_traj, DEMO_TRAJ_LEN, now);
-            val = demo_traj[index].val;
-        chMtxUnlock(&demo_traj_lock);
+        chMtxLock(&robot_traj.lock);
+            index = trajectory_find_point_after(robot_traj.x, ROBOT_TRAJ_LEN,
+                                                now);
+            if (index >= 0) {
+                x = robot_traj.x[index].val;
+                y = robot_traj.y[index].val;
+                theta = robot_traj.theta[index].val;
+                speed = robot_traj.speed[index].val;
+                omega = robot_traj.omega[index].val;
+            }
+        chMtxUnlock(&robot_traj.lock);
 
         if (index >= 0) {
-            chprintf((BaseSequentialStream *)&SDU1 , "%d %d %d\n\r", now.s, index, (int)val*1000);
-            m1_vel_setpt = val;
-            m2_vel_setpt = val;
+            struct tracking_error error;
+            struct robot_velocity input, output;
+
+            /* TODO: Replace this with delta from odometry. */
+            error.x_error = error.y_error = error.theta_error = 0.;
+            (void) x;
+            (void) y;
+            (void) theta;
+
+            input.tangential_velocity = speed;
+            input.angular_velocity = omega;
+
+            tracy_linear_controller(&error, &input, &output);
+            chprintf((BaseSequentialStream *)&SDU1 , "%d %.2f %.2f\n\r",
+                     now.s, output.tangential_velocity, output.angular_velocity);
+
         }
 
         chThdSleepMilliseconds(100);
@@ -85,12 +108,6 @@ int main(void) {
     halInit();
     chSysInit();
 
-    chMtxObjectInit(&demo_traj_lock);
-
-    int i;
-    for (i = 0; i < DEMO_TRAJ_LEN; ++i) {
-        demo_traj[i].date.s = i * 10;
-    }
 
     /* Initializes a serial-over-USB CDC driver.  */
     sduObjectInit(&SDU1);
