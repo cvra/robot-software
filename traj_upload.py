@@ -1,20 +1,25 @@
-from cvra_rpc.message import send
-import time
+import cvra_rpc.message
 
-SAMPLE_INTERVAL = 0.1
-speed = 0.
-while True:
-    trajectory = []
-    date = int(time.time())
-    print(date)
-    for i in range(30):
-        us = int(1e6 * (date - int(date)))
-        s = int(date)
-        args = [s, us, speed]
-        trajectory.append(args)
-        speed += 0.2
-        date += SAMPLE_INTERVAL
+from collections import namedtuple
 
-    send(('192.168.2.20', 20000), 'traj', trajectory)
-    time.sleep(0.3)
+TrajectoryPoint = namedtuple("TrajectoryPoint",
+                             ['x', 'y', 'theta', 'speed', 'omega', 'timestamp']
+                             )
+
+
+def prepare_for_sending(traj):
+    s = [int(a.timestamp) for a in traj]
+    us = [int((a.timestamp - int(a.timestamp))*1e6) for a in traj]
+
+    x = list(zip(s, us, (a.x for a in traj)))
+    y = list(zip(s, us, (a.y for a in traj)))
+    theta = list(zip(s, us, (a.theta for a in traj)))
+    speed = list(zip(s, us, (a.speed for a in traj)))
+    omega = list(zip(s, us, (a.omega for a in traj)))
+
+    return [x, y, theta, speed, omega]
+
+
+def send_traj(host, traj):
+    cvra_rpc.message.send(host, 'traj', prepare_for_sending(traj))
 
