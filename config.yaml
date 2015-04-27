@@ -6,7 +6,30 @@ master:
         radius_right: 0.016
 
 slaves:
-    0:
+    10:
         pid:
+            current:
+                kp: 5.
+                ki: 1000.
+                kd: 0.
+                ilimit: 50.
+
             speed:
-                kp: 4.
+                kp: 0.4
+                ki: 40.
+                kd: 0.
+                ilimit: 100.
+
+    11:
+        pid:
+            current:
+                kp: 5.
+                ki: 1000.
+                kd: 0.
+                ilimit: 50.
+
+            speed:
+                kp: 0.4
+                ki: 40.
+                kd: 0.
+                ilimit: 100.
