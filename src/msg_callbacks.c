@@ -2,6 +2,7 @@
 #include <hal.h>
 #include <math.h>
 #include <string.h>
+#include <cmp/cmp.h>
 
 #include "robot_parameters.h"
 #include "motor_control.h"
@@ -66,7 +67,9 @@ static void read_traj(trajectory_frame_t *traj, int traj_len, cmp_ctx_t *input)
         cmp_read_float(input, &newtraj[i].val);
     }
 
-    trajectory_merge(traj, traj_len, newtraj, ROBOT_TRAJ_LEN);
+    /* TODO: Use smarter merging algorithm. */
+    memset(traj, 0, traj_len * sizeof(trajectory_frame_t));
+    memcpy(traj, newtraj, point_count * sizeof(trajectory_frame_t));
 }
 
 void message_traj_callback(void *p, int argc, cmp_ctx_t *input)
