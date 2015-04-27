@@ -23,3 +23,13 @@ def prepare_for_sending(traj):
 def send_traj(host, traj):
     cvra_rpc.message.send(host, 'traj', prepare_for_sending(traj))
 
+
+if __name__ == '__main__':
+    import time
+    now = time.time()
+    p1 = TrajectoryPoint(x=1., y=2., theta=3., speed=10., omega=4., timestamp=now+10)
+    p2 = TrajectoryPoint(x=1., y=2., theta=3., speed=11., omega=4., timestamp=now+1000)
+
+    traj = [p1, p2]
+
+    send_traj(('192.168.2.20', 20000), traj)
