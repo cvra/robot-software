@@ -2,6 +2,7 @@
 #define MOTOR_CONTROL_H
 
 #include <ch.h>
+#include <odometry/robot_base.h>
 #include "trajectories.h"
 
 #define ROBOT_TRAJ_LEN 100
@@ -33,6 +34,9 @@ struct robot_traj_s {
 };
 
 extern struct robot_traj_s robot_traj;
+
+extern struct robot_base_pose_2d_s robot_pose;
+extern mutex_t robot_pose_lock;
 
 
 #ifdef __cplusplus

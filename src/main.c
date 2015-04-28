@@ -131,6 +131,7 @@ int main(void) {
 
     /* Initialize global objects. */
     config_init();
+    chMtxObjectInit(&robot_pose_lock);
 
 
     /* Initialise timestamp module */

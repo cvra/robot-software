@@ -214,13 +214,15 @@ msg_t main(void *arg)
                 odometry_base_update(&robot_base, enc_right[1], enc_left[1]);
             }
 
-            struct robot_base_pose_2d_s pose;
-            odometry_base_get_pose(&robot_base, &pose);
-
             message_encode(&ctx, &mem, buffer, sizeof buffer, "odometry_raw", 3);
-            cmp_write_float(&ctx, pose.x);
-            cmp_write_float(&ctx, pose.y);
-            cmp_write_float(&ctx, pose.theta);
+
+            chMtxLock(&robot_pose_lock);
+                odometry_base_get_pose(&robot_base, &robot_pose);
+                cmp_write_float(&ctx, robot_pose.x);
+                cmp_write_float(&ctx, robot_pose.y);
+                cmp_write_float(&ctx, robot_pose.theta);
+            chMtxUnlock(&robot_pose_lock);
+
             message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, 20000);
 
         }
