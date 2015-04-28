@@ -24,6 +24,7 @@ def prepare_for_sending(traj):
 def send_traj(host, traj):
     cvra_rpc.message.send(host, 'traj', prepare_for_sending(traj))
 
+
 def convert_from_molly(traj, start_timestamp):
     res = []
     for t in traj:
@@ -32,17 +33,18 @@ def convert_from_molly(traj, start_timestamp):
         # Equation 8 of tracy's paper
         speed = math.sqrt(spd.pos_x ** 2 + spd.pos_y ** 2)
         if speed > 1e-3:
-            omega = (spd.pos_x * acc.pos_y - spd.pos_y * acc.pos_x) / speed ** 2
+            omega = (spd.pos_x * acc.pos_y - spd.pos_y * acc.pos_x)
+            omega = omega / speed ** 2
         else:
             omega = 0
 
         res.append(TrajectoryPoint(x=pos.pos_x,
-                        y=pos.pos_y,
-                        theta=math.atan2(spd.pos_y, spd.pos_x),
-                        speed=speed,
-                        omega=omega,
-                        timestamp=start_timestamp + ts
-                        ))
+                                   y=pos.pos_y,
+                                   theta=math.atan2(spd.pos_y, spd.pos_x),
+                                   speed=speed,
+                                   omega=omega,
+                                   timestamp=start_timestamp + ts
+                                   ))
 
     return res
 
