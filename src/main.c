@@ -57,6 +57,7 @@ msg_t trajectory_thread(void *p)
 
         now = timestamp_local_us_to_unix(ST2US(chVTGetSystemTime()));
 
+        /* Copy current trajectory point. */
         chMtxLock(&robot_traj.lock);
             index = trajectory_find_point_after(robot_traj.x, ROBOT_TRAJ_LEN,
                                                 now);
@@ -73,16 +74,25 @@ msg_t trajectory_thread(void *p)
             struct tracking_error error;
             struct robot_velocity input, output;
 
+            /* Get data from odometry. */
             chMtxLock(&robot_pose_lock);
                 error.x_error = x - robot_pose.x;
                 error.y_error = y - robot_pose.y;
                 error.theta_error = theta - robot_pose.theta;
+
+                theta = robot_pose.theta;
             chMtxUnlock(&robot_pose_lock);
 
             input.tangential_velocity = speed;
             input.angular_velocity = omega;
 
+            /* Transform error to local frame. */
+            tracy_global_error_to_local(&error, theta);
+
+            /* Perform controller iteration */
             tracy_linear_controller(&error, &input, &output);
+
+            /* TODO: Apply speed to wheels. */
             chprintf((BaseSequentialStream *)&SDU1 , "%d %.2f %.2f\n\r",
                      now.s, output.tangential_velocity, output.angular_velocity);
 
