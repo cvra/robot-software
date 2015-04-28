@@ -52,9 +52,10 @@ def convert_from_molly(traj, start_timestamp):
 if __name__ == '__main__':
     import time
     now = time.time()
-    p1 = TrajectoryPoint(x=1., y=2., theta=3., speed=10., omega=4., timestamp=now+10)
-    p2 = TrajectoryPoint(x=1., y=2., theta=3., speed=11., omega=4., timestamp=now+1000)
+    SAMPLE_INTERVAL = 0.1
 
-    traj = [p1, p2]
+    traj = [TrajectoryPoint(x=0., y=0., theta=0., speed=i*0.02, omega=i*0.4,
+                            timestamp=now + i * SAMPLE_INTERVAL)
+            for i in range(10)]
 
     send_traj(('192.168.2.20', 20000), traj)
