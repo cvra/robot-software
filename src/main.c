@@ -73,11 +73,11 @@ msg_t trajectory_thread(void *p)
             struct tracking_error error;
             struct robot_velocity input, output;
 
-            /* TODO: Replace this with delta from odometry. */
-            error.x_error = error.y_error = error.theta_error = 0.;
-            (void) x;
-            (void) y;
-            (void) theta;
+            chMtxLock(&robot_pose_lock);
+                error.x_error = x - robot_pose.x;
+                error.y_error = y - robot_pose.y;
+                error.theta_error = theta - robot_pose.theta;
+            chMtxUnlock(&robot_pose_lock);
 
             input.tangential_velocity = speed;
             input.angular_velocity = omega;
