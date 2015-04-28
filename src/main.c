@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 #include <hal.h>
 #include <chprintf.h>
@@ -19,6 +20,8 @@
 #include "interface_panel.h"
 #include "motor_control.h"
 #include "tracy-the-trajectory-tracker/src/trajectory_tracking.h"
+#include "robot_parameters.h"
+
 
 /* Command line related.                                                     */
 #define SHELL_WA_SIZE   THD_WORKING_AREA_SIZE(2048)
@@ -92,9 +95,14 @@ msg_t trajectory_thread(void *p)
             /* Perform controller iteration */
             tracy_linear_controller(&error, &input, &output);
 
-            /* TODO: Apply speed to wheels. */
+            /* Apply speed to wheels. */
             chprintf((BaseSequentialStream *)&SDU1 , "%d %.2f %.2f\n\r",
                      now.s, output.tangential_velocity, output.angular_velocity);
+
+
+            /* TODO: Refactor this */
+            m1_vel_setpt = (0.5f * ROBOT_RIGHT_WHEEL_DIRECTION / ROBOT_RIGHT_MOTOR_WHEEL_RADIUS) * (output.tangential_velocity / M_PI + ROBOT_MOTOR_WHEELBASE * output.angular_velocity);
+            m2_vel_setpt = (0.5f * ROBOT_LEFT_WHEEL_DIRECTION / ROBOT_LEFT_MOTOR_WHEEL_RADIUS) * (output.tangential_velocity / M_PI - ROBOT_MOTOR_WHEELBASE * output.angular_velocity);
 
         }
 
