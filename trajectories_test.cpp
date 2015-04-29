@@ -156,3 +156,53 @@ TEST(TrajectoriesReadTestGroup, ReadReturnsPointerToCorrectZone)
     POINTERS_EQUAL(res, &traj.buffer[4]);
 }
 
+TEST_GROUP(TrajectoriesMultipleDimensionTestGroup)
+{
+    const uint64_t dt = 100;
+
+    trajectory_t traj;
+    float traj_buffer[100][3];
+
+    trajectory_chunk_t chunk;
+    float chunk_buffer[10][3];
+
+    void setup()
+    {
+        memset(traj_buffer, 0, sizeof traj_buffer);
+        trajectory_init(&traj, (float *)traj_buffer, 100, 3, dt);
+
+        memset(chunk_buffer, 0, sizeof chunk_buffer);
+        trajectory_chunk_init(&chunk, (float *)chunk_buffer, 10, 3, 0, dt);
+    }
+};
+
+TEST(TrajectoriesMultipleDimensionTestGroup, CanMerge)
+{
+    chunk.start_time_us = 20 * dt;
+
+    for (int i = 0; i < 10; ++i) {
+        chunk_buffer[i][0] = (float)i;
+        chunk_buffer[i][1] = (float)10 * i;
+        chunk_buffer[i][2] = (float)100 * i;
+    }
+
+    trajectory_apply_chunk(&traj, &chunk);
+
+    CHECK_EQUAL(1., traj_buffer[21][0]);
+    CHECK_EQUAL(10., traj_buffer[21][1]);
+    CHECK_EQUAL(100., traj_buffer[21][2]);
+
+    CHECK_EQUAL(2., traj_buffer[22][0]);
+    CHECK_EQUAL(20., traj_buffer[22][1]);
+    CHECK_EQUAL(200., traj_buffer[22][2]);
+
+    CHECK_EQUAL(9., traj_buffer[29][0]);
+    CHECK_EQUAL(90., traj_buffer[29][1]);
+    CHECK_EQUAL(900., traj_buffer[29][2]);
+}
+
+TEST(TrajectoriesMultipleDimensionTestGroup, CanRead)
+{
+    float *res = trajectory_read(&traj, traj.read_time_us + 2 * dt);
+    POINTERS_EQUAL(&traj_buffer[2][0], res);
+}
