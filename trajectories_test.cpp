@@ -79,3 +79,22 @@ TEST(TrajectoriesMergingTestGroup, MergeWrapAround)
     CHECK_EQUAL(7., traj_buffer[1])
 }
 
+TEST(TrajectoriesMergingTestGroup, MergeWithNonZeroStartTime)
+{
+    traj.read_time_us = 100;
+    chunk.start_time_us = 100 + 2 * dt;
+    trajectory_apply_chunk(&traj, &chunk);
+    CHECK_EQUAL(1., traj_buffer[2]);
+}
+
+TEST(TrajectoriesMergingTestGroup, MergeWithNonZeroReadPointer)
+{
+    traj.read_pointer = 4;
+    traj.read_time_us = 100;
+    chunk.start_time_us = 100 + 2 * dt;
+
+    trajectory_apply_chunk(&traj, &chunk);
+
+    CHECK_EQUAL(1., traj_buffer[2 + 4]);
+}
+

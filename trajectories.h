@@ -12,7 +12,8 @@ typedef struct {
     int length;
     int dimension;
     uint64_t sampling_time_us;
-    uint64_t read_pointer;
+    int read_pointer;
+    uint64_t read_time_us;
 } trajectory_t;
 
 typedef struct {
