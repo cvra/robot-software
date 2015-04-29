@@ -40,43 +40,36 @@ TEST_GROUP(TrajectoriesMergingTestGroup)
     trajectory_chunk_t chunk;
     float chunk_buffer[10];
 
+
+    const uint64_t dt = 100;
     void setup(void)
     {
         memset(traj_buffer, 0, sizeof traj_buffer);
         memset(chunk_buffer, 0, sizeof chunk_buffer);
+
+        for (int i = 0; i < 10; ++i) {
+            chunk_buffer[i] = (float)i + 1;
+        }
+
+        trajectory_init(&traj, (float *)traj_buffer, 100, 1, dt);
+        trajectory_chunk_init(&chunk, (float *)chunk_buffer, 10, 1, 0, dt);
     }
 };
 
 TEST(TrajectoriesMergingTestGroup, SimpleMerge)
 {
-    const uint64_t dt = 100;
-    const uint64_t start_time = 20 * dt;
-
-    for (int i = 0; i < 10; ++i) {
-        chunk_buffer[i] = (float)i;
-    }
-
-    trajectory_init(&traj, (float *)traj_buffer, 100, 1, dt);
-    trajectory_chunk_init(&chunk, (float *)chunk_buffer, 10, 1, start_time, dt);
+    chunk.start_time_us = 20 * dt;
 
     trajectory_apply_chunk(&traj, &chunk);
 
-    for (int i = 0; i < 10; ++i) {
-        CHECK_EQUAL((float)i, traj_buffer[20 + i]);
-    }
+    CHECK_EQUAL(traj_buffer[20], 1.);
+    CHECK_EQUAL(traj_buffer[21], 2.);
+    CHECK_EQUAL(traj_buffer[29], 10.);
 }
 
 TEST(TrajectoriesMergingTestGroup, MergeWrapAround)
 {
-    const uint64_t dt = 100;
-    const uint64_t start_time = 95 * dt;
-
-    for (int i = 0; i < 10; ++i) {
-        chunk_buffer[i] = (float)i + 1;
-    }
-
-    trajectory_init(&traj, (float *)traj_buffer, 100, 1, dt);
-    trajectory_chunk_init(&chunk, (float *)chunk_buffer, 10, 1, start_time, dt);
+    chunk.start_time_us = 95 * dt;
 
     trajectory_apply_chunk(&traj, &chunk);
 
