@@ -98,3 +98,17 @@ TEST(TrajectoriesMergingTestGroup, MergeWithNonZeroReadPointer)
     CHECK_EQUAL(1., traj_buffer[2 + 4]);
 }
 
+TEST(TrajectoriesMergingTestGroup, MergeFromPast)
+{
+    traj.read_time_us = 100;
+    traj.read_pointer = 10;
+    chunk.start_time_us = 100 - 2 * dt;
+
+    trajectory_apply_chunk(&traj, &chunk);
+
+    CHECK_EQUAL(4., traj_buffer[11]);
+
+    // Check that we did not touch the points before the read pointer
+    CHECK_EQUAL(0., traj_buffer[10]);
+}
+

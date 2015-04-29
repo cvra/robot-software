@@ -24,13 +24,26 @@ void trajectory_chunk_init(trajectory_chunk_t *chunk, float *buffer, int length,
 
 void trajectory_apply_chunk(trajectory_t *traj, trajectory_chunk_t *chunk)
 {
-    int start_index, i, write_index;
+    int start_index, i = 0, write_index;
+    int64_t start_time_us;
+
 
     start_index = (chunk->start_time_us - traj->read_time_us) / (traj->sampling_time_us);
     start_index += traj -> read_pointer;
 
-    for (i = 0; i < chunk->length; ++i) {
+    start_time_us = chunk->start_time_us;
+
+    /* If the beginning of the chunk is before the read time, skip the first
+     * points. */
+    while (start_time_us <= traj->read_time_us) {
+        start_time_us += traj->sampling_time_us;
+        i ++;
+    }
+
+    while (i < chunk->length) {
         write_index = (i + start_index) % traj->length;
         traj->buffer[write_index] = chunk->buffer[i];
+
+        i ++;
     }
 }

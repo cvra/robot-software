@@ -11,17 +11,17 @@ typedef struct {
     float *buffer;
     int length;
     int dimension;
-    uint64_t sampling_time_us;
+    int64_t sampling_time_us;
     int read_pointer;
-    uint64_t read_time_us;
+    int64_t read_time_us;
 } trajectory_t;
 
 typedef struct {
     float *buffer;
     int length;
     int dimension;
-    uint64_t sampling_time_us;
-    uint64_t start_time_us;
+    int64_t sampling_time_us;
+    int64_t start_time_us;
 
 } trajectory_chunk_t;
 
