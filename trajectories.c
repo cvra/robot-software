@@ -47,3 +47,14 @@ void trajectory_apply_chunk(trajectory_t *traj, trajectory_chunk_t *chunk)
         i ++;
     }
 }
+
+float* trajectory_read(trajectory_t *traj, int64_t time)
+{
+    while (traj->read_time_us < time) {
+        traj->read_time_us += traj->sampling_time_us;
+        traj->read_pointer ++;
+    }
+
+    traj->read_pointer = traj->read_pointer % traj->length;
+    return &traj->buffer[traj->read_pointer];
+}

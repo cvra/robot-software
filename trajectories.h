@@ -55,6 +55,12 @@ void trajectory_chunk_init(trajectory_chunk_t *chunk, float *buffer, int length,
 
 void trajectory_apply_chunk(trajectory_t *traj, trajectory_chunk_t *chunk);
 
+/** Reads the current point of the trajectory.
+ *
+ * @returns A pointer to the first field of the current point.
+ */
+float* trajectory_read(trajectory_t *traj, int64_t time);
+
 
 #ifdef __cplusplus
 }

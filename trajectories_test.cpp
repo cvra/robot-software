@@ -112,3 +112,47 @@ TEST(TrajectoriesMergingTestGroup, MergeFromPast)
     CHECK_EQUAL(0., traj_buffer[10]);
 }
 
+TEST_GROUP(TrajectoriesReadTestGroup)
+{
+    trajectory_t traj;
+    const uint64_t dt = 100;
+
+    void setup()
+    {
+        trajectory_init(&traj, NULL, 100, 1, dt);
+    }
+};
+
+TEST(TrajectoriesReadTestGroup, ReadChangesTheReadPointer)
+{
+    int64_t time = traj.read_time_us + 4 * dt;
+
+    CHECK_EQUAL(0, traj.read_pointer);
+
+    trajectory_read(&traj, time);
+
+    CHECK_EQUAL(4, traj.read_pointer);
+    LONGS_EQUAL(time, traj.read_time_us);
+}
+
+TEST(TrajectoriesReadTestGroup, ReadWrapsAround)
+{
+    // Wrap around 3 times
+    int64_t time = traj.read_time_us + 4 * dt + 3 * 100 * dt;
+
+    trajectory_read(&traj, time);
+
+    CHECK_EQUAL(4, traj.read_pointer);
+    LONGS_EQUAL(time, traj.read_time_us);
+}
+
+TEST(TrajectoriesReadTestGroup, ReadReturnsPointerToCorrectZone)
+{
+    int64_t time = traj.read_time_us + 4 * dt;
+    float *res;
+
+    res = trajectory_read(&traj, time);
+
+    POINTERS_EQUAL(res, &traj.buffer[4]);
+}
+
