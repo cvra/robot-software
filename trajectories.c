@@ -1,3 +1,4 @@
+#include <string.h>
 #include "trajectories.h"
 
 void trajectory_init(trajectory_t *traj,
@@ -24,7 +25,7 @@ void trajectory_chunk_init(trajectory_chunk_t *chunk, float *buffer, int length,
 
 void trajectory_apply_chunk(trajectory_t *traj, trajectory_chunk_t *chunk)
 {
-    int start_index, i = 0, write_index, j;
+    int start_index, i = 0, write_index;
     int64_t start_time_us;
 
 
@@ -37,12 +38,13 @@ void trajectory_apply_chunk(trajectory_t *traj, trajectory_chunk_t *chunk)
     i = 1 + ((traj->read_time_us - chunk->start_time_us) / traj->sampling_time_us);
 
     while (i < chunk->length) {
+        float *src, *dst;
         write_index = (i + start_index) % traj->length;
 
-        for (j = 0; j < traj->dimension; ++j) {
-            traj->buffer[write_index * traj->dimension + j] =
-                chunk->buffer[i * traj->dimension + j];
-        }
+        dst = &traj->buffer[write_index * traj->dimension];
+        src = &chunk->buffer[i * traj->dimension];
+
+        memcpy(dst, src, traj->dimension * sizeof(float));
 
         i ++;
     }
