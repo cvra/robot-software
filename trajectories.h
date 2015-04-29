@@ -7,6 +7,9 @@ extern "C" {
 
 #include <stdint.h>
 
+#define TRAJECTORY_ERROR_TIMESTEP_MISMATCH -1
+#define TRAJECTORY_ERROR_CHUNK_TOO_LONG -2
+
 typedef struct {
     float *buffer;
     int length;
@@ -24,6 +27,7 @@ typedef struct {
     int64_t start_time_us;
 
 } trajectory_chunk_t;
+
 
 /** Inits a trajectory structure.
  *
@@ -53,7 +57,17 @@ void trajectory_chunk_init(trajectory_chunk_t *chunk, float *buffer, int length,
                            uint64_t sampling_time_us);
 
 
-void trajectory_apply_chunk(trajectory_t *traj, trajectory_chunk_t *chunk);
+/** Merges the given trajectory with the given chunk.
+ *
+ * @returns 0 if everything was OK.
+ * @returns TRAJECTORY_ERROR_TIMESTEP_MISMATCH If the timestep from the
+ * trajectory is not the same as the chunk's one.
+ * @returns TRAJECTORY_ERROR_CHUNK_TOO_LONG if the chunk is too long or too far
+ * in the future to be applied.
+ *
+ * @note If an error occurs, the trajectory is left unchanged.
+ */
+int trajectory_apply_chunk(trajectory_t *traj, trajectory_chunk_t *chunk);
 
 /** Reads the current point of the trajectory.
  *

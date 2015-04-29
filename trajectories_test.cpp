@@ -67,8 +67,22 @@ TEST(TrajectoriesMergingTestGroup, SimpleMerge)
     CHECK_EQUAL(traj_buffer[29], 10.);
 }
 
+TEST(TrajectoriesMergingTestGroup, ReturnCode)
+{
+    int ret;
+    chunk.start_time_us = 20 * dt;
+
+    ret = trajectory_apply_chunk(&traj, &chunk);
+    CHECK_EQUAL(0, ret);
+}
+
 TEST(TrajectoriesMergingTestGroup, MergeWrapAround)
 {
+    // Leave enough room to wrap around
+    traj.read_pointer = 50;
+    traj.read_time_us = 50 * dt;
+
+    // The chunk arrives at the end of the buffer
     chunk.start_time_us = 95 * dt;
 
     trajectory_apply_chunk(&traj, &chunk);
@@ -205,4 +219,42 @@ TEST(TrajectoriesMultipleDimensionTestGroup, CanRead)
 {
     float *res = trajectory_read(&traj, traj.read_time_us + 2 * dt);
     POINTERS_EQUAL(&traj_buffer[2][0], res);
+}
+
+TEST_GROUP(TrajectoriesErrorTestGroup)
+{
+    trajectory_t traj;
+    float traj_buffer[100];
+
+    trajectory_chunk_t chunk;
+    float chunk_buffer[10];
+
+    const uint64_t dt = 100;
+    int ret;
+    void setup(void)
+    {
+        memset(traj_buffer, 0, sizeof traj_buffer);
+        memset(chunk_buffer, 0, sizeof chunk_buffer);
+
+        trajectory_init(&traj, (float *)traj_buffer, 100, 1, dt);
+        trajectory_chunk_init(&chunk, (float *)chunk_buffer, 10, 1, 0, dt);
+    }
+};
+
+TEST(TrajectoriesErrorTestGroup, CheckSampleRate)
+{
+    // Sample rates don't match
+    chunk.sampling_time_us = traj.sampling_time_us + 10;
+
+    ret = trajectory_apply_chunk(&traj, &chunk);
+    CHECK_EQUAL(TRAJECTORY_ERROR_TIMESTEP_MISMATCH, ret);
+}
+
+TEST(TrajectoriesErrorTestGroup, CheckTooFarInTheFuture)
+{
+    // Last point of chunk will override the trajectory
+    chunk.start_time_us = 90 * dt;
+
+    ret = trajectory_apply_chunk(&traj, &chunk);
+    CHECK_EQUAL(TRAJECTORY_ERROR_CHUNK_TOO_LONG, ret);
 }
