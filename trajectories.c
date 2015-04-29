@@ -21,3 +21,15 @@ void trajectory_chunk_init(trajectory_chunk_t *chunk, float *buffer, int length,
     chunk->sampling_time_us = sampling_time_us;
     chunk->start_time_us = start_time_us;
 }
+
+void trajectory_apply_chunk(trajectory_t *traj, trajectory_chunk_t *chunk)
+{
+    int start_index, i, write_index;
+
+    start_index = (chunk->start_time_us - traj->read_pointer) / (traj->sampling_time_us);
+
+    for (i = 0; i < chunk->length; ++i) {
+        write_index = (i + start_index) % traj->length;
+        traj->buffer[write_index] = chunk->buffer[i];
+    }
+}

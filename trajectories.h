@@ -52,6 +52,9 @@ void trajectory_chunk_init(trajectory_chunk_t *chunk, float *buffer, int length,
                            uint64_t sampling_time_us);
 
 
+void trajectory_apply_chunk(trajectory_t *traj, trajectory_chunk_t *chunk);
+
+
 #ifdef __cplusplus
 }
 #endif
