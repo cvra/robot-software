@@ -33,6 +33,10 @@ int trajectory_apply_chunk(trajectory_t *traj, trajectory_chunk_t *chunk)
         return TRAJECTORY_ERROR_TIMESTEP_MISMATCH;
     }
 
+    if (chunk->dimension != traj->dimension) {
+        return TRAJECTORY_ERROR_DIMENSION_MISMATCH;
+    }
+
     /* Check if the end of the chunk is past the end of the trajectory. */
     if (chunk->start_time_us + chunk->length * chunk->sampling_time_us >=
         traj->read_time_us + traj->length * traj->sampling_time_us) {

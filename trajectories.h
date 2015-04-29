@@ -9,6 +9,7 @@ extern "C" {
 
 #define TRAJECTORY_ERROR_TIMESTEP_MISMATCH -1
 #define TRAJECTORY_ERROR_CHUNK_TOO_LONG -2
+#define TRAJECTORY_ERROR_DIMENSION_MISMATCH -3
 
 typedef struct {
     float *buffer;
@@ -64,6 +65,8 @@ void trajectory_chunk_init(trajectory_chunk_t *chunk, float *buffer, int length,
  * trajectory is not the same as the chunk's one.
  * @returns TRAJECTORY_ERROR_CHUNK_TOO_LONG if the chunk is too long or too far
  * in the future to be applied.
+ * @returns TRAJECTORY_ERROR_DIMENSION_MISMATCH if the chunk's points do not
+ * have the same dimesnion as the trajectory's ones.
  *
  * @note If an error occurs, the trajectory is left unchanged.
  */

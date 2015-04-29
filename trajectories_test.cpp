@@ -258,3 +258,10 @@ TEST(TrajectoriesErrorTestGroup, CheckTooFarInTheFuture)
     ret = trajectory_apply_chunk(&traj, &chunk);
     CHECK_EQUAL(TRAJECTORY_ERROR_CHUNK_TOO_LONG, ret);
 }
+
+TEST(TrajectoriesErrorTestGroup, CheckDimension)
+{
+    chunk.dimension = traj.dimension - 1;
+    ret = trajectory_apply_chunk(&traj, &chunk);
+    CHECK_EQUAL(TRAJECTORY_ERROR_DIMENSION_MISMATCH, ret);
+}
