@@ -322,6 +322,7 @@ static THD_FUNCTION(control_loop, arg)
         chEvtGetAndClearFlags(&analog_event_listener);
     }
 
+    motor_pwm_disable();
     chEvtUnregister(&analog_event, &analog_event_listener);
     control_running = false;
     return 0;
