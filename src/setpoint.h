@@ -32,9 +32,12 @@ struct setpoint_s {
 };
 
 
-void setpoint_init(setpoint_interpolator_t *ip,
-                   float acc_limit,
-                   float vel_limit);
+void setpoint_init(setpoint_interpolator_t *ip);
+
+void setpoint_set_acceleration_limit(setpoint_interpolator_t *ip,
+                                     float acc_limit);
+
+void setpoint_set_velocity_limit(setpoint_interpolator_t *ip, float vel_limit);
 
 void setpoint_update_position(setpoint_interpolator_t *ip,
                               float pos,

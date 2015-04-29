@@ -227,6 +227,8 @@ static THD_FUNCTION(control_loop, arg)
     pid_set_frequency(&ctrl.velocity_pid, ANALOG_CONVERSION_FREQUNECY);
     pid_set_frequency(&ctrl.position_pid, ANALOG_CONVERSION_FREQUNECY);
 
+    setpoint_init(&setpoint_interpolation);
+
     control_feedback.output.position = 0;
     control_feedback.output.velocity = 0;
     control_feedback.primary_encoder.accumulator = 0;
@@ -260,7 +262,7 @@ static THD_FUNCTION(control_loop, arg)
             if (parameter_changed(&param_vel_limit)) {
                 ctrl.velocity_limit = parameter_scalar_get(&param_vel_limit);
                 chBSemWait(&setpoint_interpolation_lock);
-                setpoint_interpolation.vel_limit = ctrl.velocity_limit;
+                setpoint_set_velocity_limit(&setpoint_interpolation, ctrl.velocity_limit);
                 chBSemSignal(&setpoint_interpolation_lock);
             }
             if (parameter_changed(&param_torque_limit)) {
@@ -268,7 +270,7 @@ static THD_FUNCTION(control_loop, arg)
             }
             if (parameter_changed(&param_acc_limit)) {
                 chBSemWait(&setpoint_interpolation_lock);
-                setpoint_interpolation.acc_limit = parameter_scalar_get(&param_acc_limit);
+                setpoint_set_acceleration_limit(&setpoint_interpolation, parameter_scalar_get(&param_acc_limit));
                 chBSemSignal(&setpoint_interpolation_lock);
             }
         }
@@ -346,9 +348,6 @@ void control_start(void)
     parameter_scalar_set(&vel_pid_params.ki, 0.05);
     parameter_scalar_set(&vel_pid_params.i_limit, 10);
 
-    setpoint_init(&setpoint_interpolation,
-                  parameter_scalar_get(&param_acc_limit),
-                  ctrl.velocity_limit);
 
     control_running = true;
     static THD_WORKING_AREA(control_loop_wa, 256);

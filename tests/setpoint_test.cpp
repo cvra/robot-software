@@ -16,16 +16,28 @@ TEST_GROUP(Setpoint)
 
     void setup(void)
     {
-        setpoint_init(&interpolator, acc_limit, vel_limit);
+        setpoint_init(&interpolator);
+        setpoint_set_acceleration_limit(&interpolator, acc_limit);
+        setpoint_set_velocity_limit(&interpolator, vel_limit);
     }
 };
 
 TEST(Setpoint, Init)
 {
-
+    setpoint_init(&interpolator);
     CHECK_EQUAL(SETPT_MODE_TORQUE, interpolator.setpt_mode);
     DOUBLES_EQUAL(0, interpolator.setpt_torque, FLOAT_TOLERANCE);
+    DOUBLES_EQUAL(0, interpolator.acc_limit, FLOAT_TOLERANCE);
+    DOUBLES_EQUAL(0, interpolator.vel_limit, FLOAT_TOLERANCE);
+}
+
+TEST(Setpoint, AccLimit)
+{
     DOUBLES_EQUAL(acc_limit, interpolator.acc_limit, FLOAT_TOLERANCE);
+}
+
+TEST(Setpoint, VelLimit)
+{
     DOUBLES_EQUAL(vel_limit, interpolator.vel_limit, FLOAT_TOLERANCE);
 }
 
