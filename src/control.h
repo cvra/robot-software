@@ -14,8 +14,9 @@ extern struct feedback_s control_feedback;
 extern motor_protection_t control_motor_protection;
 
 
-void control_declare_parameters(void);
+void control_init(void);
 void control_start(void);
+void control_stop(void);
 
 void control_enable(bool en);
 

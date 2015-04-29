@@ -27,7 +27,8 @@ static setpoint_interpolator_t setpoint_interpolation;
 static struct pid_cascade_s ctrl;
 
 static bool control_en = false;
-
+static bool control_request_termination = false;
+static bool control_running = false;
 
 void control_enable(bool en)
 {
@@ -181,8 +182,10 @@ static parameter_t param_max_temp;
 static parameter_t param_Rth;
 static parameter_t param_Cth;
 
-void control_declare_parameters(void)
+void control_init(void)
 {
+    chBSemObjectInit(&setpoint_interpolation_lock, false);
+
     parameter_namespace_declare(&param_ns_control, &parameter_root_ns, "control");
     parameter_scalar_declare_with_default(&param_low_batt_th, &param_ns_control, "low_batt_th", LOW_BATT_TH);
     parameter_scalar_declare(&param_vel_limit, &param_ns_control, "velocity_limit");
@@ -237,9 +240,9 @@ static THD_FUNCTION(control_loop, arg)
                                (eventflags_t)ANALOG_EVENT_CONVERSION_DONE);
 
 
-    float low_batt_th;
+    float low_batt_th = LOW_BATT_TH;
     float control_period_s = 1/(float)ANALOG_CONVERSION_FREQUNECY;
-    while (true) {
+    while (!control_request_termination) {
         // update parameters if they changed
         if (parameter_namespace_contains_changed(&param_ns_control)) {
             if (parameter_namespace_contains_changed(&param_ns_pos_ctrl)) {
@@ -318,10 +321,13 @@ static THD_FUNCTION(control_loop, arg)
         chEvtWaitAny(CONTROL_WAKEUP_EVENT);
         chEvtGetAndClearFlags(&analog_event_listener);
     }
+
+    chEvtUnregister(&analog_event, &analog_event_listener);
+    control_running = false;
     return 0;
 }
 
-void control_start()
+void control_start(void)
 {
     ctrl.motor_current_constant = 1;
     ctrl.velocity_limit = parameter_scalar_get(&param_vel_limit);
@@ -339,14 +345,20 @@ void control_start()
     parameter_scalar_set(&vel_pid_params.ki, 0.05);
     parameter_scalar_set(&vel_pid_params.i_limit, 10);
 
-
-    chBSemObjectInit(&setpoint_interpolation_lock, false);
-
     setpoint_init(&setpoint_interpolation,
                   parameter_scalar_get(&param_acc_limit),
                   ctrl.velocity_limit);
 
+    control_running = true;
     static THD_WORKING_AREA(control_loop_wa, 256);
     chThdCreateStatic(control_loop_wa, sizeof(control_loop_wa), HIGHPRIO, control_loop, NULL);
 }
 
+void control_stop(void)
+{
+    control_request_termination = true;
+    while (control_running) {
+        chThdSleepMilliseconds(1);
+    }
+    control_request_termination = false;
+}

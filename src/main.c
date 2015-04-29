@@ -187,7 +187,7 @@ int main(void) {
     chprintf(stdout, "%s: %d\n", config.board_name, config.ID);
 
 
-    control_declare_parameters();
+    control_init();
 
 
     control_feedback.input_selection = FEEDBACK_PRIMARY_ENCODER_BOUNDED;
