@@ -48,8 +48,6 @@ void trajectory_apply_chunk(trajectory_t *traj, trajectory_chunk_t *chunk)
                 chunk->buffer[i * traj->dimension + j];
         }
 
-        traj->buffer[write_index * traj->dimension] = chunk->buffer[i * traj->dimension];
-
         i ++;
     }
 }
