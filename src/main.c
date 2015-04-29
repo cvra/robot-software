@@ -191,17 +191,11 @@ int main(void) {
 
 
     control_feedback.input_selection = FEEDBACK_PRIMARY_ENCODER_BOUNDED;
-    control_feedback.output.position = 0;
-    control_feedback.output.velocity = 0;
 
-    control_feedback.primary_encoder.accumulator = 0;
-    control_feedback.primary_encoder.previous = encoder_get_primary();
     control_feedback.primary_encoder.transmission_p = 49; // debra base
     control_feedback.primary_encoder.transmission_q = 676;
     control_feedback.primary_encoder.ticks_per_rev = (1<<12);
 
-    control_feedback.secondary_encoder.accumulator = 0;
-    control_feedback.secondary_encoder.previous = encoder_get_secondary();
     control_feedback.secondary_encoder.transmission_p = 1;
     control_feedback.secondary_encoder.transmission_q = 1;
     control_feedback.secondary_encoder.ticks_per_rev = (1<<14);

@@ -188,15 +188,20 @@ void control_declare_parameters(void)
     parameter_scalar_declare(&param_vel_limit, &param_ns_control, "velocity_limit");
     parameter_scalar_declare(&param_torque_limit, &param_ns_control, "torque_limit");
     parameter_scalar_declare(&param_acc_limit, &param_ns_control, "acc_limit");
+
     parameter_namespace_declare(&param_ns_pos_ctrl, &param_ns_control, "position");
     pid_param_declare(&pos_pid_params, &param_ns_pos_ctrl);
+
     parameter_namespace_declare(&param_ns_vel_ctrl, &param_ns_control, "velocity");
     pid_param_declare(&vel_pid_params, &param_ns_vel_ctrl);
+
     parameter_namespace_declare(&param_ns_cur_ctrl, &param_ns_control, "current");
     pid_param_declare(&cur_pid_params, &param_ns_cur_ctrl);
 
+
     parameter_namespace_declare(&param_ns_motor, &parameter_root_ns, "motor");
     parameter_scalar_declare(&param_torque_cst, &param_ns_motor, "torque_cst");
+
     parameter_namespace_declare(&param_ns_thermal, &parameter_root_ns, "thermal");
     parameter_scalar_declare(&param_current_gain, &param_ns_thermal, "current_gain");
     parameter_scalar_declare(&param_max_temp, &param_ns_thermal, "max_temp");
@@ -219,13 +224,12 @@ static THD_FUNCTION(control_loop, arg)
     pid_set_frequency(&ctrl.velocity_pid, ANALOG_CONVERSION_FREQUNECY);
     pid_set_frequency(&ctrl.position_pid, ANALOG_CONVERSION_FREQUNECY);
 
-    float low_batt_th = LOW_BATT_TH;
-
-    float t_max = 0; // todo this code will move to config init function
-    float r_th = 0;
-    float c_th = 0;
-    float current_gain = 0;
-    motor_protection_init(&control_motor_protection, t_max, r_th, c_th, current_gain);
+    control_feedback.output.position = 0;
+    control_feedback.output.velocity = 0;
+    control_feedback.primary_encoder.accumulator = 0;
+    control_feedback.primary_encoder.previous = encoder_get_primary();
+    control_feedback.secondary_encoder.accumulator = 0;
+    control_feedback.secondary_encoder.previous = encoder_get_secondary();
 
     static event_listener_t analog_event_listener;
     chEvtRegisterMaskWithFlags(&analog_event, &analog_event_listener,
@@ -233,6 +237,7 @@ static THD_FUNCTION(control_loop, arg)
                                (eventflags_t)ANALOG_EVENT_CONVERSION_DONE);
 
 
+    float low_batt_th;
     float control_period_s = 1/(float)ANALOG_CONVERSION_FREQUNECY;
     while (true) {
         // update parameters if they changed
@@ -268,18 +273,13 @@ static THD_FUNCTION(control_loop, arg)
             if (parameter_changed(&param_torque_cst)) {
                 ctrl.motor_current_constant = parameter_scalar_get(&param_torque_cst);
             }
-            if (parameter_changed(&param_current_gain)) {
-                current_gain = parameter_scalar_get(&param_current_gain);
-            }
-            if (parameter_changed(&param_max_temp)) {
-                t_max = parameter_scalar_get(&param_max_temp);
-            }
-            if (parameter_changed(&param_Rth)) {
-                r_th = parameter_scalar_get(&param_Rth);
-            }
-            if (parameter_changed(&param_Cth)) {
-                c_th = parameter_scalar_get(&param_Cth);
-            }
+        }
+        if (parameter_namespace_contains_changed(&param_ns_thermal)) {
+            motor_protection_init(&control_motor_protection,
+                                  parameter_scalar_get(&param_max_temp),
+                                  parameter_scalar_get(&param_Rth),
+                                  parameter_scalar_get(&param_Cth),
+                                  parameter_scalar_get(&param_current_gain));
         }
 
         float delta_t = control_period_s;
