@@ -33,12 +33,8 @@ void trajectory_apply_chunk(trajectory_t *traj, trajectory_chunk_t *chunk)
 
     start_time_us = chunk->start_time_us;
 
-    /* If the beginning of the chunk is before the read time, skip the first
-     * points. */
-    while (start_time_us <= traj->read_time_us) {
-        start_time_us += traj->sampling_time_us;
-        i ++;
-    }
+    /* Do not copy points before the read pointer. */
+    i = 1 + ((traj->read_time_us - chunk->start_time_us) / traj->sampling_time_us);
 
     while (i < chunk->length) {
         write_index = (i + start_index) % traj->length;
