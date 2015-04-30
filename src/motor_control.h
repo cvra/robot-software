@@ -10,13 +10,8 @@
 extern "C" {
 #endif
 
-
 extern float m1_vel_setpt;
 extern float m2_vel_setpt;
-
-extern struct robot_base_pose_2d_s robot_pose;
-extern mutex_t robot_pose_lock;
-
 
 #ifdef __cplusplus
 }

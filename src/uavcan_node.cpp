@@ -13,6 +13,7 @@
 #include <cvra/motor/config/PositionPID.hpp>
 #include <cvra/motor/config/CurrentPID.hpp>
 #include "motor_control.h"
+#include "robot_pose.h"
 #include <simplerpc/message.h>
 #include "src/rpc_server.h"
 #include "robot_parameters.h"

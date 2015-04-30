@@ -19,6 +19,7 @@
 #include "config.h"
 #include "interface_panel.h"
 #include "motor_control.h"
+#include "robot_pose.h"
 #include "tracy-the-trajectory-tracker/src/trajectory_tracking.h"
 #include "robot_parameters.h"
 
