@@ -1,5 +1,5 @@
 #include <iostream>
-#include "trajectories.h"
+#include "../src/trajectories.h"
 #include "CppUTest/TestHarness.h"
 
 TEST_GROUP(TrajectoryInitTestGroup)
