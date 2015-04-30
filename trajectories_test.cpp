@@ -141,6 +141,10 @@ TEST(TrajectoriesReadTestGroup, ReadChangesTheReadPointer)
 {
     int64_t time = traj.read_time_us + 4 * dt;
 
+    // Trajectory is defined up to this point
+    traj.last_defined_time_us = time;
+
+
     CHECK_EQUAL(0, traj.read_pointer);
 
     trajectory_read(&traj, time);
@@ -154,6 +158,9 @@ TEST(TrajectoriesReadTestGroup, ReadWrapsAround)
     // Wrap around 3 times
     int64_t time = traj.read_time_us + 4 * dt + 3 * 100 * dt;
 
+    // Trajectory is defined up to this point
+    traj.last_defined_time_us = time;
+
     trajectory_read(&traj, time);
 
     CHECK_EQUAL(4, traj.read_pointer);
@@ -163,6 +170,10 @@ TEST(TrajectoriesReadTestGroup, ReadWrapsAround)
 TEST(TrajectoriesReadTestGroup, ReadReturnsPointerToCorrectZone)
 {
     int64_t time = traj.read_time_us + 4 * dt;
+
+    // Trajectory is defined at this point
+    traj.last_defined_time_us = time;
+
     float *res;
 
     res = trajectory_read(&traj, time);
@@ -217,6 +228,7 @@ TEST(TrajectoriesMultipleDimensionTestGroup, CanMerge)
 
 TEST(TrajectoriesMultipleDimensionTestGroup, CanRead)
 {
+    traj.last_defined_time_us = traj.read_time_us + 2 * dt;
     float *res = trajectory_read(&traj, traj.read_time_us + 2 * dt);
     POINTERS_EQUAL(&traj_buffer[2][0], res);
 }
@@ -264,4 +276,16 @@ TEST(TrajectoriesErrorTestGroup, CheckDimension)
     chunk.dimension = traj.dimension - 1;
     ret = trajectory_apply_chunk(&traj, &chunk);
     CHECK_EQUAL(TRAJECTORY_ERROR_DIMENSION_MISMATCH, ret);
+}
+
+TEST(TrajectoriesErrorTestGroup, ReadAfterBufferEnd)
+{
+    float *res;
+
+    chunk.start_time_us = 20 * dt;
+
+    trajectory_apply_chunk(&traj, &chunk);
+
+    res = trajectory_read(&traj, 30 * dt);
+    POINTERS_EQUAL(NULL, res);
 }

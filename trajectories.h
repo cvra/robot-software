@@ -18,6 +18,7 @@ typedef struct {
     int64_t sampling_time_us;
     int read_pointer;
     int64_t read_time_us;
+    int64_t last_defined_time_us;
 } trajectory_t;
 
 typedef struct {

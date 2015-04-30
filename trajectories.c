@@ -10,6 +10,7 @@ void trajectory_init(trajectory_t *traj,
     traj->dimension = dimension;
     traj->sampling_time_us = sampling_time_us;
     traj->read_pointer = 0;
+    traj->read_time_us = traj->last_defined_time_us = 0;
 }
 
 void trajectory_chunk_init(trajectory_chunk_t *chunk, float *buffer, int length,
@@ -60,11 +61,16 @@ int trajectory_apply_chunk(trajectory_t *traj, trajectory_chunk_t *chunk)
 
         i ++;
     }
+    traj->last_defined_time_us = chunk->start_time_us +
+                          (chunk->length - 1) * chunk->sampling_time_us;
     return 0;
 }
 
 float* trajectory_read(trajectory_t *traj, int64_t time)
 {
+    if (time > traj->last_defined_time_us) {
+        return NULL;
+    }
     traj->read_pointer += (time - traj->read_time_us) / traj->sampling_time_us;
     traj->read_pointer = traj->read_pointer % traj->length;
 
