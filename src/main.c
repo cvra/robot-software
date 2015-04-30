@@ -50,9 +50,6 @@ msg_t trajectory_thread(void *p)
 {
     (void) p;
 
-    memset(&robot_traj, 0, sizeof robot_traj);
-    chMtxObjectInit(&robot_traj.lock);
-
     while (1) {
         int index = 0;
         float x, y, theta, speed, omega;
@@ -60,18 +57,9 @@ msg_t trajectory_thread(void *p)
 
         now = timestamp_local_us_to_unix(ST2US(chVTGetSystemTime()));
 
-        /* Copy current trajectory point. */
-        chMtxLock(&robot_traj.lock);
-            index = trajectory_find_point_after(robot_traj.x, ROBOT_TRAJ_LEN,
-                                                now);
-            if (index >= 0) {
-                x = robot_traj.x[index].val;
-                y = robot_traj.y[index].val;
-                theta = robot_traj.theta[index].val;
-                speed = robot_traj.speed[index].val;
-                omega = robot_traj.omega[index].val;
-            }
-        chMtxUnlock(&robot_traj.lock);
+        /* TODO: New trajectory module */
+        x = y = theta = speed = omega = 0.;
+
 
         if (index >= 0) {
             struct tracking_error error;

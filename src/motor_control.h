@@ -3,7 +3,6 @@
 
 #include <ch.h>
 #include <odometry/robot_base.h>
-#include "trajectories.h"
 
 #define ROBOT_TRAJ_LEN 100
 
@@ -14,26 +13,6 @@ extern "C" {
 
 extern float m1_vel_setpt;
 extern float m2_vel_setpt;
-
-struct robot_traj_s {
-    /** x position */
-    trajectory_frame_t x[ROBOT_TRAJ_LEN];
-    /** y position */
-    trajectory_frame_t y[ROBOT_TRAJ_LEN];
-
-    /** Heading */
-    trajectory_frame_t theta[ROBOT_TRAJ_LEN];
-
-    /** Linear speed */
-    trajectory_frame_t speed[ROBOT_TRAJ_LEN];
-    /** Angular speed */
-    trajectory_frame_t omega[ROBOT_TRAJ_LEN];
-
-    /** Guarantees exclusive access to the structure. */
-    mutex_t lock;
-};
-
-extern struct robot_traj_s robot_traj;
 
 extern struct robot_base_pose_2d_s robot_pose;
 extern mutex_t robot_pose_lock;
