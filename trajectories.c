@@ -71,6 +71,10 @@ float* trajectory_read(trajectory_t *traj, int64_t time)
     if (time > traj->last_defined_time_us) {
         return NULL;
     }
+
+    if (time < traj->read_time_us) {
+        return NULL;
+    }
     traj->read_pointer += (time - traj->read_time_us) / traj->sampling_time_us;
     traj->read_pointer = traj->read_pointer % traj->length;
 

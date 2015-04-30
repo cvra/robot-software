@@ -289,3 +289,19 @@ TEST(TrajectoriesErrorTestGroup, ReadAfterBufferEnd)
     res = trajectory_read(&traj, 30 * dt);
     POINTERS_EQUAL(NULL, res);
 }
+
+TEST(TrajectoriesErrorTestGroup, ReadBeforeReadPointer)
+{
+    // Reading before read pointer is undefined, as data may have been
+    // overwritten
+    float *res;
+
+    chunk.start_time_us = 20 * dt;
+    trajectory_apply_chunk(&traj, &chunk);
+    res = trajectory_read(&traj, 10 * dt);
+    CHECK_TRUE(res != NULL);
+
+    // Now check before the read pointer
+    res = trajectory_read(&traj, 5 * dt);
+    CHECK_TRUE(res == NULL);
+}
