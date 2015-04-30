@@ -45,7 +45,7 @@ include_directories:
 tests:
     - tests/unix-timestamp.cpp
     - tests/bus_enumerator.cpp
-    - tests/trajectories.cpp
+    - tests/trajectories_test.cpp
 
 templates:
     app_src.mk.jinja: app_src.mk
