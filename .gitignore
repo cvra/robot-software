@@ -7,3 +7,7 @@ tags
 
 *sw[po]
 dsdlc_generated/*
+
+# uavcan dsdl compiler output
+dsdlc_generated/
+tags
