@@ -175,6 +175,8 @@ public:
      * This is designed for use with iface activity LEDs.
      */
     bool hadActivity();
+
+    bool tx_mb0_is_empty(void);
 };
 
 /**
@@ -223,6 +225,10 @@ public:
      * This is designed for use with iface activity LEDs.
      */
     bool hadActivity();
+
+    // wait for TX mailbox 0 to be empty.
+    // returns true if empty.
+    bool wait_tx_mb0(systime_t timeout);
 };
 
 /**

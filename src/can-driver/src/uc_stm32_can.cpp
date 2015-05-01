@@ -34,6 +34,8 @@ CanIface* ifaces[UAVCAN_STM32_NUM_IFACES] =
 #endif
 };
 
+binary_semaphore_t tx_mb0_sem;
+
 inline void handleTxInterrupt(uavcan::uint8_t iface_index)
 {
     UAVCAN_ASSERT(iface_index < UAVCAN_STM32_NUM_IFACES);
@@ -377,6 +379,8 @@ int CanIface::init(uavcan::uint32_t bitrate)
         can_->FMR &= ~bxcan::FMR_FINIT;
     }
 
+    chBSemObjectInit(&tx_mb0_sem, 0);
+
 leave:
     return res;
 }
@@ -418,6 +422,10 @@ void CanIface::handleTxInterrupt(const uavcan::uint64_t utc_usec)
         const bool txok = can_->TSR & bxcan::TSR_TXOK0;
         can_->TSR = bxcan::TSR_RQCP0;
         handleTxMailboxInterrupt(0, txok, utc_usec);
+
+        chSysLockFromISR();
+        chBSemSignalI(&tx_mb0_sem);
+        chSysUnlockFromISR();
     }
     if (can_->TSR & bxcan::TSR_RQCP1)
     {
@@ -598,6 +606,28 @@ uavcan::CanSelectMasks CanDriver::makeSelectMasks() const
     }
 #endif
     return msk;
+}
+
+bool CanIface::tx_mb0_is_empty(void)
+{
+    if (can_->TSR & bxcan::TSR_TME0) {
+        return true;
+    }
+    return false;
+}
+
+bool CanDriver::wait_tx_mb0(systime_t timeout)
+{
+    if (if0_.tx_mb0_is_empty()) {
+        return true;
+    }
+
+    chBSemWaitTimeout(&tx_mb0_sem, timeout);
+
+    if (if0_.tx_mb0_is_empty()) {
+        return true;
+    }
+    return false;
 }
 
 uavcan::int16_t CanDriver::select(uavcan::CanSelectMasks& inout_masks, const uavcan::MonotonicTime blocking_deadline)
