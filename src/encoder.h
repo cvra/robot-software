@@ -9,7 +9,6 @@ extern "C" {
 
 uint32_t encoder_get_primary(void);
 uint32_t encoder_get_secondary(void);
-float encoder_get_speed(void);
 void encoder_init_primary(void);
 void encoder_init_secondary(void);
 

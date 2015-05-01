@@ -26,12 +26,18 @@ binary_semaphore_t setpoint_interpolation_lock;
 static setpoint_interpolator_t setpoint_interpolation;
 static struct pid_cascade_s ctrl;
 
-static bool motor_enable = true;
+static bool control_en = false;
 
 
 void control_enable(bool en)
 {
-    motor_enable = en;
+    control_en = en;
+    if (en) {
+        motor_pwm_set(0);
+        motor_pwm_enable();
+    } else {
+        motor_pwm_disable();
+    }
 }
 
 void control_update_position_setpoint(float pos)
@@ -118,7 +124,7 @@ float control_get_position_error(void)
 }
 
 
-static void motor_set_voltage(float u)
+static void set_motor_voltage(float u)
 {
     float u_batt = analog_get_battery_voltage();
     motor_pwm_set(u / u_batt);
@@ -157,7 +163,6 @@ static void pid_param_update(struct pid_param_s *p, pid_ctrl_t *ctrl)
 
 // control loop parameters
 static parameter_namespace_t param_ns_control;
-static parameter_t param_loop_freq;
 static parameter_t param_low_batt_th;
 static parameter_t param_vel_limit;
 static parameter_t param_torque_limit;
@@ -179,7 +184,6 @@ static parameter_t param_Cth;
 void control_declare_parameters(void)
 {
     parameter_namespace_declare(&param_ns_control, &parameter_root_ns, "control");
-    parameter_scalar_declare_with_default(&param_loop_freq, &param_ns_control, "loop_freq", 1000);
     parameter_scalar_declare_with_default(&param_low_batt_th, &param_ns_control, "low_batt_th", LOW_BATT_TH);
     parameter_scalar_declare(&param_vel_limit, &param_ns_control, "velocity_limit");
     parameter_scalar_declare(&param_torque_limit, &param_ns_control, "torque_limit");
@@ -201,6 +205,8 @@ void control_declare_parameters(void)
 }
 
 
+#define CONTROL_WAKEUP_EVENT 1
+
 static THD_FUNCTION(control_loop, arg)
 {
     (void)arg;
@@ -209,6 +215,9 @@ static THD_FUNCTION(control_loop, arg)
     pid_init(&ctrl.current_pid);
     pid_init(&ctrl.velocity_pid);
     pid_init(&ctrl.position_pid);
+    pid_set_frequency(&ctrl.current_pid, ANALOG_CONVERSION_FREQUNECY);
+    pid_set_frequency(&ctrl.velocity_pid, ANALOG_CONVERSION_FREQUNECY);
+    pid_set_frequency(&ctrl.position_pid, ANALOG_CONVERSION_FREQUNECY);
 
     float low_batt_th = LOW_BATT_TH;
 
@@ -218,8 +227,13 @@ static THD_FUNCTION(control_loop, arg)
     float current_gain = 0;
     motor_protection_init(&control_motor_protection, t_max, r_th, c_th, current_gain);
 
+    static event_listener_t analog_event_listener;
+    chEvtRegisterMaskWithFlags(&analog_event, &analog_event_listener,
+                               (eventmask_t)CONTROL_WAKEUP_EVENT,
+                               (eventflags_t)ANALOG_EVENT_CONVERSION_DONE);
 
-    uint32_t control_period_us = 0;
+
+    float control_period_s = 1/(float)ANALOG_CONVERSION_FREQUNECY;
     while (true) {
         // update parameters if they changed
         if (parameter_namespace_contains_changed(&param_ns_control)) {
@@ -231,13 +245,6 @@ static THD_FUNCTION(control_loop, arg)
             }
             if (parameter_namespace_contains_changed(&param_ns_cur_ctrl)) {
                 pid_param_update(&cur_pid_params, &ctrl.current_pid);
-            }
-            if (parameter_changed(&param_loop_freq)) {
-                float freq = parameter_scalar_get(&param_loop_freq);
-                control_period_us = 1000000.f/freq;
-                pid_set_frequency(&ctrl.current_pid, freq);
-                pid_set_frequency(&ctrl.velocity_pid, freq);
-                pid_set_frequency(&ctrl.position_pid, freq);
             }
             if (parameter_changed(&param_low_batt_th)) {
                 low_batt_th = parameter_scalar_get(&param_low_batt_th);
@@ -275,12 +282,11 @@ static THD_FUNCTION(control_loop, arg)
             }
         }
 
-        float delta_t = (float)control_period_us / 1000000;
-        if (!motor_enable || analog_get_battery_voltage() < low_batt_th) {
+        float delta_t = control_period_s;
+        if (!control_en || analog_get_battery_voltage() < low_batt_th) {
             pid_reset_integral(&ctrl.current_pid);
             pid_reset_integral(&ctrl.velocity_pid);
             pid_reset_integral(&ctrl.position_pid);
-            motor_pwm_disable();
             motor_protection_update(&control_motor_protection, analog_get_motor_current(), delta_t);
         } else {
 
@@ -293,7 +299,7 @@ static THD_FUNCTION(control_loop, arg)
             feedback_compute(&control_feedback);
 
             ctrl.position = control_feedback.output.position;
-            ctrl.velocity = control_feedback.output.velocity;
+            ctrl.velocity = ctrl.velocity * 0.9 + control_feedback.output.velocity * 0.1;
             ctrl.current = analog_get_motor_current();
 
             // ctrl.current_limit = motor_protection_update(&control_motor_protection, ctrl.current, delta_t);
@@ -306,11 +312,11 @@ static THD_FUNCTION(control_loop, arg)
             // run control step
             pid_cascade_control(&ctrl);
 
-            motor_set_voltage(ctrl.motor_voltage);
-            motor_pwm_enable();
+            set_motor_voltage(ctrl.motor_voltage);
         }
 
-        chThdSleepMicroseconds(control_period_us);
+        chEvtWaitAny(CONTROL_WAKEUP_EVENT);
+        chEvtGetAndClearFlags(&analog_event_listener);
     }
     return 0;
 }
@@ -324,11 +330,11 @@ void control_start()
 
     // todo move this to init code
     parameter_scalar_set(&param_acc_limit, 10);
-    parameter_scalar_set(&param_vel_limit, 1);
+    parameter_scalar_set(&param_vel_limit, 4 * M_PI);
     parameter_scalar_set(&param_torque_limit, INFINITY);
-    parameter_scalar_set(&cur_pid_params.kp, 20);
-    parameter_scalar_set(&cur_pid_params.ki, 20);
-    parameter_scalar_set(&cur_pid_params.i_limit, 10);
+    parameter_scalar_set(&cur_pid_params.kp, 5);
+    parameter_scalar_set(&cur_pid_params.ki, 1000);
+    parameter_scalar_set(&cur_pid_params.i_limit, 50);
     parameter_scalar_set(&vel_pid_params.kp, 0.1);
     parameter_scalar_set(&vel_pid_params.ki, 0.05);
     parameter_scalar_set(&vel_pid_params.i_limit, 10);
