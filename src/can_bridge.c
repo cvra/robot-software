@@ -38,6 +38,10 @@ struct can_bridge_instance_t {
 
 void can_bridge_init(void)
 {
+    // default: only standard frames pass the filter
+    can_bridge_filter_id = 0;
+    can_bridge_filter_mask = CAN_FRAME_EXT_FLAG;
+
     // rx queue
     chMBObjectInit(&can_bridge_rx_queue, rx_mbox_buf, CAN_BRIDGE_RX_QUEUE_SIZE);
     chPoolObjectInit(&can_bridge_rx_pool, sizeof(struct can_frame), NULL);
