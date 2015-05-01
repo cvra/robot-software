@@ -52,7 +52,7 @@ msg_t trajectory_thread(void *p)
     (void) p;
 
     static float trajectory_buffer[100][5];
-    trajectory_init(&robot_trajectory, (float *)trajectory_buffer, 100, 5, 100);
+    trajectory_init(&robot_trajectory, (float *)trajectory_buffer, 100, 5, 100*1000);
 
     chMtxObjectInit(&robot_trajectory_lock);
 
