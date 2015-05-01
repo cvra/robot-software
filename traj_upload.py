@@ -4,29 +4,30 @@ import math
 from collections import namedtuple
 
 TrajectoryPoint = namedtuple("TrajectoryPoint",
-                             ['x', 'y', 'theta', 'speed', 'omega', 'timestamp']
+                             ['x', 'y', 'theta', 'speed', 'omega']
                              )
+
+Trajectory = namedtuple("Trajectory", ["start_time", "sampling_time",
+                                       "points"])
 
 
 def prepare_for_sending(traj):
-    s = [int(a.timestamp) for a in traj]
-    us = [int((a.timestamp - int(a.timestamp))*1e6) for a in traj]
-
-    x = list(zip(s, us, (float(a.x) for a in traj)))
-    y = list(zip(s, us, (float(a.y) for a in traj)))
-    theta = list(zip(s, us, (float(a.theta) for a in traj)))
-    speed = list(zip(s, us, (float(a.speed) for a in traj)))
-    omega = list(zip(s, us, (float(a.omega) for a in traj)))
-
-    return [x, y, theta, speed, omega]
+    res = [int(traj.start_time),
+           int(1e6 * (traj.start_time - int(traj.start_time))),
+           int(1e6 * traj.sampling_time),
+           [[p.x, p.y, p.theta, p.speed, p.omega] for p in traj.points]
+           ]
+    return res
 
 
 def send_traj(host, traj):
     cvra_rpc.message.send(host, 'traj', prepare_for_sending(traj))
 
 
-def convert_from_molly(traj, start_timestamp):
-    res = []
+def convert_from_molly(traj, start_time, sampling_time):
+    res = Trajectory(start_time=start_time,
+                     sampling_time=sampling_time,
+                     points=[])
     for t in traj:
         pos, spd, acc, ts = t
 
@@ -38,13 +39,14 @@ def convert_from_molly(traj, start_timestamp):
         else:
             omega = 0
 
-        res.append(TrajectoryPoint(x=pos.pos_x,
-                                   y=pos.pos_y,
-                                   theta=math.atan2(spd.pos_y, spd.pos_x),
-                                   speed=speed,
-                                   omega=omega,
-                                   timestamp=start_timestamp + ts
-                                   ))
+        point = TrajectoryPoint(x=pos.pos_x,
+                                y=pos.pos_y,
+                                theta=math.atan2(spd.pos_y, spd.pos_x),
+                                speed=speed,
+                                omega=omega,
+                                )
+
+        res.points.append(point)
 
     return res
 

@@ -11,26 +11,33 @@ from math import pi
 
 class TrajectoryTestCase(unittest.TestCase):
     def test_can_create_traj_point(self):
-        TrajectoryPoint(x=0., y=0., theta=0., speed=1., omega=0.,
-                        timestamp=1.4)
+        TrajectoryPoint(x=1., y=2., theta=3., speed=4., omega=5.)
+
+    def test_can_create_traj(self):
+        Trajectory(start_time=12., sampling_time=0.1,
+                   points=[TrajectoryPoint(x=1., y=2., theta=3., speed=4.,
+                                           omega=5.)])
 
     def test_can_prepare_trajectory(self):
-        traj = [TrajectoryPoint(x=1., y=2., theta=3., speed=4.,
-                                omega=5., timestamp=float(i))
-                for i in range(10)]
+        points = [TrajectoryPoint(x=1., y=2., theta=3., speed=4.,
+                                  omega=float(i)) for i in range(10)]
 
-        traj_transformed = prepare_for_sending(traj)
+        traj = Trajectory(start_time=10.5, sampling_time=0.1, points=points)
 
-        self.assertEqual(traj_transformed[0], [(i, 0, 1.) for i in range(10)])
-        self.assertEqual(traj_transformed[1], [(i, 0, 2.) for i in range(10)])
-        self.assertEqual(traj_transformed[2], [(i, 0, 3.) for i in range(10)])
-        self.assertEqual(traj_transformed[3], [(i, 0, 4.) for i in range(10)])
-        self.assertEqual(traj_transformed[4], [(i, 0, 5.) for i in range(10)])
+        traj = prepare_for_sending(traj)
+
+        self.assertEqual(traj[0], 10)  # Starting s
+        self.assertEqual(traj[1], 500000)  # Starting us
+        self.assertEqual(traj[2], 100000)  # Sampling time us
+
+        for i, point in enumerate(traj[3]):
+            self.assertEqual(point, [1., 2., 3., 4., float(i)])
 
     def test_can_send(self):
-        traj = [TrajectoryPoint(x=1., y=2., theta=3., speed=4.,
-                                omega=5., timestamp=float(i))
-                for i in range(10)]
+        points = [TrajectoryPoint(x=1., y=2., theta=3., speed=4.,
+                                  omega=5.) for i in range(10)]
+
+        traj = Trajectory(start_time=10.5, sampling_time=0.1, points=points)
 
         preprocessed_traj = prepare_for_sending(traj)
 
@@ -43,17 +50,21 @@ class TrajectoryTestCase(unittest.TestCase):
 class MollyAdapterTestCase(unittest.TestCase):
     def test_can_transform_position_timestamp(self):
         traj = [(Vec2D(1., 2.), Vec2D(), Vec2D(), 0.3)]
-        traj = convert_from_molly(traj, start_timestamp=10.)
+        traj = convert_from_molly(traj, start_time=10., sampling_time=0.1)
 
-        t = traj[0]
+        self.assertEqual(traj.start_time, 10.)
+        self.assertEqual(traj.sampling_time, .1)
+
+        t = traj.points[0]
 
         self.assertEqual(t.x, 1.)
         self.assertEqual(t.y, 2.)
-        self.assertAlmostEqual(t.timestamp, 10.3, 5)
 
     def test_can_transform_speed(self):
         traj = [(Vec2D(), Vec2D(0., 1.), Vec2D(), 0.3)]
-        t = convert_from_molly(traj, start_timestamp=10.)[0]
+        t = convert_from_molly(traj, start_time=10., sampling_time=0.1)
+        t = t.points[0]
+
         self.assertAlmostEqual(t.speed, 1., 5)
         self.assertAlmostEqual(t.theta, pi / 2, 3)
 
@@ -61,7 +72,8 @@ class MollyAdapterTestCase(unittest.TestCase):
         # Circular trajectory, a = v ** 2 / r, v = 2, r = 1
         # -> a = 4 m / s^2, omega = 2 rad / s
         traj = [(Vec2D(), Vec2D(2., 0.), Vec2D(0., 4), 0.3)]
-        t = convert_from_molly(traj, start_timestamp=10.)[0]
+        t = convert_from_molly(traj, start_time=10., sampling_time=0.1)
+        t = t.points[0]
         self.assertAlmostEqual(t.omega, 2., 3)
 
 
