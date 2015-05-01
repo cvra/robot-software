@@ -36,8 +36,6 @@ static bool recharge_flag = false;
 
 void pwm_counter_reset(PWMDriver *pwmd)
 {
-    static bool recharge_flag = false;
-
     if (power_pwm >= 0) { // forward direction (no magic)
         pwmd->tim->CCR[PWM_DIRECTION_CHANNEL] = DIRECTION_DC_LOW;
         pwmd->tim->CCR[PWM_POWER_CHANNEL] = power_pwm;
