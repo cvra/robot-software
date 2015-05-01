@@ -182,10 +182,8 @@ static parameter_t param_max_temp;
 static parameter_t param_Rth;
 static parameter_t param_Cth;
 
-void control_init(void)
+static void declare_parameters(void)
 {
-    chBSemObjectInit(&setpoint_interpolation_lock, false);
-
     parameter_namespace_declare(&param_ns_control, &parameter_root_ns, "control");
     parameter_scalar_declare_with_default(&param_low_batt_th, &param_ns_control, "low_batt_th", LOW_BATT_TH);
     parameter_scalar_declare(&param_vel_limit, &param_ns_control, "velocity_limit");
@@ -213,12 +211,9 @@ void control_init(void)
 }
 
 
-#define CONTROL_WAKEUP_EVENT 1
-
-static THD_FUNCTION(control_loop, arg)
+void control_init(void)
 {
-    (void)arg;
-    chRegSetThreadName("Control Loop");
+    declare_parameters();
 
     pid_init(&ctrl.current_pid);
     pid_init(&ctrl.velocity_pid);
@@ -228,12 +223,24 @@ static THD_FUNCTION(control_loop, arg)
     pid_set_frequency(&ctrl.position_pid, ANALOG_CONVERSION_FREQUNECY);
 
     setpoint_init(&setpoint_interpolation);
+    chBSemObjectInit(&setpoint_interpolation_lock, false);
 
     control_feedback.output.position = 0;
     control_feedback.output.velocity = 0;
     control_feedback.primary_encoder.accumulator = 0;
-    control_feedback.primary_encoder.previous = encoder_get_primary();
     control_feedback.secondary_encoder.accumulator = 0;
+}
+
+
+
+#define CONTROL_WAKEUP_EVENT 1
+
+static THD_FUNCTION(control_loop, arg)
+{
+    (void)arg;
+    chRegSetThreadName("Control Loop");
+
+    control_feedback.primary_encoder.previous = encoder_get_primary();
     control_feedback.secondary_encoder.previous = encoder_get_secondary();
 
     static event_listener_t analog_event_listener;
