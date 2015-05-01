@@ -244,12 +244,6 @@ src/src.mk: package.yml
 dsdlc:
 	$(LIBUAVCAN_DSDLC) cvra $(UAVCAN_DSDL_DIR)
 
-.PHONY: ctags
-# Generates a ctags file containing the correct definition for the build
-ctags:
-	@echo "Generating ctags file..."
-	@cat .dep/*.d | grep ":$$" | sed "s/://" | sort | uniq | xargs ctags --file-scope=no --extra=+q $(CSRC) $(CPPSRC)
-
 .PHONY: tests
 tests: CMakeLists.txt
 	@mkdir -p build/tests
