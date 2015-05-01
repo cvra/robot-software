@@ -26,9 +26,12 @@ binary_semaphore_t setpoint_interpolation_lock;
 static setpoint_interpolator_t setpoint_interpolation;
 static struct pid_cascade_s ctrl;
 
+static float low_batt_th = LOW_BATT_TH;
+
 static bool control_en = false;
 static bool control_request_termination = false;
 static bool control_running = false;
+
 
 void control_enable(bool en)
 {
@@ -233,6 +236,51 @@ void control_init(void)
 
 
 
+static void update_parameters(void)
+{
+    if (parameter_namespace_contains_changed(&param_ns_control)) {
+        if (parameter_namespace_contains_changed(&param_ns_pos_ctrl)) {
+            pid_param_update(&pos_pid_params, &ctrl.position_pid);
+        }
+        if (parameter_namespace_contains_changed(&param_ns_vel_ctrl)) {
+            pid_param_update(&vel_pid_params, &ctrl.velocity_pid);
+        }
+        if (parameter_namespace_contains_changed(&param_ns_cur_ctrl)) {
+            pid_param_update(&cur_pid_params, &ctrl.current_pid);
+        }
+        if (parameter_changed(&param_low_batt_th)) {
+            low_batt_th = parameter_scalar_get(&param_low_batt_th);
+        }
+        if (parameter_changed(&param_vel_limit)) {
+            ctrl.velocity_limit = parameter_scalar_get(&param_vel_limit);
+            chBSemWait(&setpoint_interpolation_lock);
+            setpoint_set_velocity_limit(&setpoint_interpolation, ctrl.velocity_limit);
+            chBSemSignal(&setpoint_interpolation_lock);
+        }
+        if (parameter_changed(&param_torque_limit)) {
+            ctrl.torque_limit = parameter_scalar_get(&param_torque_limit);
+        }
+        if (parameter_changed(&param_acc_limit)) {
+            chBSemWait(&setpoint_interpolation_lock);
+            setpoint_set_acceleration_limit(&setpoint_interpolation, parameter_scalar_get(&param_acc_limit));
+            chBSemSignal(&setpoint_interpolation_lock);
+        }
+    }
+    if (parameter_namespace_contains_changed(&param_ns_motor)) {
+        if (parameter_changed(&param_torque_cst)) {
+            ctrl.motor_current_constant = parameter_scalar_get(&param_torque_cst);
+        }
+    }
+    if (parameter_namespace_contains_changed(&param_ns_thermal)) {
+        motor_protection_init(&control_motor_protection,
+                              parameter_scalar_get(&param_max_temp),
+                              parameter_scalar_get(&param_Rth),
+                              parameter_scalar_get(&param_Cth),
+                              parameter_scalar_get(&param_current_gain));
+    }
+}
+
+
 #define CONTROL_WAKEUP_EVENT 1
 
 static THD_FUNCTION(control_loop, arg)
@@ -249,50 +297,10 @@ static THD_FUNCTION(control_loop, arg)
                                (eventflags_t)ANALOG_EVENT_CONVERSION_DONE);
 
 
-    float low_batt_th = LOW_BATT_TH;
     float control_period_s = 1/(float)ANALOG_CONVERSION_FREQUNECY;
     while (!control_request_termination) {
-        // update parameters if they changed
-        if (parameter_namespace_contains_changed(&param_ns_control)) {
-            if (parameter_namespace_contains_changed(&param_ns_pos_ctrl)) {
-                pid_param_update(&pos_pid_params, &ctrl.position_pid);
-            }
-            if (parameter_namespace_contains_changed(&param_ns_vel_ctrl)) {
-                pid_param_update(&vel_pid_params, &ctrl.velocity_pid);
-            }
-            if (parameter_namespace_contains_changed(&param_ns_cur_ctrl)) {
-                pid_param_update(&cur_pid_params, &ctrl.current_pid);
-            }
-            if (parameter_changed(&param_low_batt_th)) {
-                low_batt_th = parameter_scalar_get(&param_low_batt_th);
-            }
-            if (parameter_changed(&param_vel_limit)) {
-                ctrl.velocity_limit = parameter_scalar_get(&param_vel_limit);
-                chBSemWait(&setpoint_interpolation_lock);
-                setpoint_set_velocity_limit(&setpoint_interpolation, ctrl.velocity_limit);
-                chBSemSignal(&setpoint_interpolation_lock);
-            }
-            if (parameter_changed(&param_torque_limit)) {
-                ctrl.torque_limit = parameter_scalar_get(&param_torque_limit);
-            }
-            if (parameter_changed(&param_acc_limit)) {
-                chBSemWait(&setpoint_interpolation_lock);
-                setpoint_set_acceleration_limit(&setpoint_interpolation, parameter_scalar_get(&param_acc_limit));
-                chBSemSignal(&setpoint_interpolation_lock);
-            }
-        }
-        if (parameter_namespace_contains_changed(&param_ns_motor)) {
-            if (parameter_changed(&param_torque_cst)) {
-                ctrl.motor_current_constant = parameter_scalar_get(&param_torque_cst);
-            }
-        }
-        if (parameter_namespace_contains_changed(&param_ns_thermal)) {
-            motor_protection_init(&control_motor_protection,
-                                  parameter_scalar_get(&param_max_temp),
-                                  parameter_scalar_get(&param_Rth),
-                                  parameter_scalar_get(&param_Cth),
-                                  parameter_scalar_get(&param_current_gain));
-        }
+
+        update_parameters();
 
         float delta_t = control_period_s;
         if (!control_en || analog_get_battery_voltage() < low_batt_th) {
