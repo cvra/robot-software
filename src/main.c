@@ -51,20 +51,31 @@ msg_t trajectory_thread(void *p)
 {
     (void) p;
 
+    static float trajectory_buffer[100][5];
+    trajectory_init(&robot_trajectory, (float *)trajectory_buffer, 100, 5, 100);
+
+    chMtxObjectInit(&robot_trajectory_lock);
+
     while (1) {
-        int index = 0;
+        float *point;
         float x, y, theta, speed, omega;
-        unix_timestamp_t now;
+        uint64_t now;
 
-        now = timestamp_local_us_to_unix(ST2US(chVTGetSystemTime()));
+        now = ST2US(chVTGetSystemTime());
 
-        /* TODO: New trajectory module */
-        x = y = theta = speed = omega = 0.;
+        chMtxLock(&robot_trajectory_lock);
+        point = trajectory_read(&robot_trajectory, now);
+        chMtxUnlock(&robot_trajectory_lock);
 
-
-        if (index >= 0) {
+        if (point) {
             struct tracking_error error;
             struct robot_velocity input, output;
+
+            x = point[0];
+            y = point[1];
+            theta = point[2];
+            speed = point[3];
+            omega = point[4];
 
             /* Get data from odometry. */
             chMtxLock(&robot_pose_lock);
@@ -85,8 +96,7 @@ msg_t trajectory_thread(void *p)
             tracy_linear_controller(&error, &input, &output);
 
             /* Apply speed to wheels. */
-            chprintf((BaseSequentialStream *)&SDU1 , "%d %.2f %.2f\n\r",
-                     now.s, output.tangential_velocity, output.angular_velocity);
+            chprintf((BaseSequentialStream *)&SDU1 , "%d %.2f %.2f\n\r", now, output.tangential_velocity, output.angular_velocity);
 
 
             /* TODO: Refactor this */
