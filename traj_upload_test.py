@@ -77,5 +77,21 @@ class MollyAdapterTestCase(unittest.TestCase):
         self.assertAlmostEqual(t.omega, 2., 3)
 
 
+class TrajectorySlicerTestCase(unittest.TestCase):
+    def test_can_slice(self):
+        points = [TrajectoryPoint(x=i, y=2., theta=3., speed=4.,
+                                  omega=5.) for i in range(96)]
+
+        traj = Trajectory(start_time=0., sampling_time=0.1, points=points)
+        sliced = list(trajectory_slice(traj, 10))
+        self.assertEqual(10, len(sliced))
+
+        self.assertEqual(10, len(sliced[0].points))
+        self.assertEqual(10., sliced[1].points[0].x)
+
+        self.assertEqual(6, len(sliced[-1].points))
+        self.assertEqual(95, sliced[-1].points[5].x)
+
+
 if __name__ == "__main__":
     unittest.main()

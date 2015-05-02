@@ -51,6 +51,19 @@ def convert_from_molly(traj, start_time, sampling_time):
     return res
 
 
+def trajectory_slice(trajectory, points_per_slice):
+    current_index = 0
+    while current_index < len(trajectory.points):
+        points = trajectory.points[current_index:
+                                   current_index+points_per_slice]
+        s = Trajectory(start_time=trajectory.start_time,
+                       sampling_time=trajectory.sampling_time,
+                       points=points)
+
+        yield s
+        current_index += points_per_slice
+
+
 if __name__ == '__main__':
     import time
     SAMPLE_INTERVAL = 0.1
