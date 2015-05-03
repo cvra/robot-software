@@ -32,7 +32,8 @@
                     "ChibiOS/os/various",
                     "ChibiOS/os/hal/lib/streams",
                     "./src",
-                    "./board"
+                    "./board",
+                    "./"
                 ]
             }
         }
