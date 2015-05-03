@@ -175,6 +175,8 @@ int main(void) {
     sdStart(&SD3, NULL);
     stdout = (BaseSequentialStream*)&SD3;
 
+    parameter_namespace_declare(&parameter_root_ns, NULL, NULL);
+
     motor_pwm_setup();
     motor_pwm_enable();
     motor_pwm_set(0.0);
