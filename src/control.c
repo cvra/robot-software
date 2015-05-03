@@ -19,12 +19,42 @@
 #define LOW_BATT_TH 12.f // [V]
 
 
+struct pid_param_s {
+    parameter_t kp;
+    parameter_t ki;
+    parameter_t kd;
+    parameter_t i_limit;
+};
+
+
+
 struct feedback_s control_feedback;
 motor_protection_t control_motor_protection;
 
 binary_semaphore_t setpoint_interpolation_lock;
 static setpoint_interpolator_t setpoint_interpolation;
 static struct pid_cascade_s ctrl;
+
+// control loop parameters
+static parameter_namespace_t param_ns_control;
+static parameter_t param_low_batt_th;
+static parameter_t param_vel_limit;
+static parameter_t param_torque_limit;
+static parameter_t param_acc_limit;
+static parameter_namespace_t param_ns_pos_ctrl;
+static parameter_namespace_t param_ns_vel_ctrl;
+static parameter_namespace_t param_ns_cur_ctrl;
+static struct pid_param_s pos_pid_params;
+static struct pid_param_s vel_pid_params;
+static struct pid_param_s cur_pid_params;
+static parameter_namespace_t param_ns_motor;
+static parameter_t param_torque_cst;
+static parameter_namespace_t param_ns_thermal;
+static parameter_t param_current_gain;
+static parameter_t param_max_temp;
+static parameter_t param_Rth;
+static parameter_t param_Cth;
+
 
 static float low_batt_th = LOW_BATT_TH;
 
@@ -135,13 +165,6 @@ static void set_motor_voltage(float u)
 }
 
 
-struct pid_param_s {
-    parameter_t kp;
-    parameter_t ki;
-    parameter_t kd;
-    parameter_t i_limit;
-};
-
 static void pid_param_declare(struct pid_param_s *p, parameter_namespace_t *ns)
 {
     parameter_scalar_declare_with_default(&p->kp, ns, "kp", 0);
@@ -165,25 +188,6 @@ static void pid_param_update(struct pid_param_s *p, pid_ctrl_t *ctrl)
     }
 }
 
-// control loop parameters
-static parameter_namespace_t param_ns_control;
-static parameter_t param_low_batt_th;
-static parameter_t param_vel_limit;
-static parameter_t param_torque_limit;
-static parameter_t param_acc_limit;
-static parameter_namespace_t param_ns_pos_ctrl;
-static parameter_namespace_t param_ns_vel_ctrl;
-static parameter_namespace_t param_ns_cur_ctrl;
-static struct pid_param_s pos_pid_params;
-static struct pid_param_s vel_pid_params;
-static struct pid_param_s cur_pid_params;
-static parameter_namespace_t param_ns_motor;
-static parameter_t param_torque_cst;
-static parameter_namespace_t param_ns_thermal;
-static parameter_t param_current_gain;
-static parameter_t param_max_temp;
-static parameter_t param_Rth;
-static parameter_t param_Cth;
 
 static void declare_parameters(void)
 {
