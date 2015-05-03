@@ -76,8 +76,8 @@ void control_enable(bool en)
 
 void control_update_position_setpoint(float pos)
 {
-    float current_pos = 0; // todo
-    float current_vel = 0; // todo
+    float current_pos = ctrl.position;
+    float current_vel = ctrl.velocity;
     chBSemWait(&setpoint_interpolation_lock);
     setpoint_update_position(&setpoint_interpolation, pos, current_pos, current_vel);
     chBSemSignal(&setpoint_interpolation_lock);
@@ -85,7 +85,7 @@ void control_update_position_setpoint(float pos)
 
 void control_update_velocity_setpoint(float vel)
 {
-    float current_vel = 0; // todo
+    float current_vel = ctrl.velocity;
     chBSemWait(&setpoint_interpolation_lock);
     setpoint_update_velocity(&setpoint_interpolation, vel, current_vel);
     chBSemSignal(&setpoint_interpolation_lock);
