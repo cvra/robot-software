@@ -12,6 +12,7 @@
 #include "parameter/parameter.h"
 #include "parameter/parameter_msgpack.h"
 #include <string.h>
+#include <math.h>
 #include "bootloader_config.h"
 #include "uavcan_node.h"
 
@@ -192,6 +193,23 @@ int main(void) {
     control_init();
 
 
+
+
+
+    // todo move this to CAN init message
+    parameter_scalar_set(parameter_find(&parameter_root_ns, "control/acceleration_limit"), 10);
+    parameter_scalar_set(parameter_find(&parameter_root_ns, "control/velocity_limit"), 4 * 3.14);
+    parameter_scalar_set(parameter_find(&parameter_root_ns, "control/torque_limit"), INFINITY);
+    parameter_scalar_set(parameter_find(&parameter_root_ns, "control/current/kp"), 5);
+    parameter_scalar_set(parameter_find(&parameter_root_ns, "control/current/ki"), 1000);
+    parameter_scalar_set(parameter_find(&parameter_root_ns, "control/current/ki_limit"), 50);
+    parameter_scalar_set(parameter_find(&parameter_root_ns, "control/velocity/kp"), 0.1);
+    parameter_scalar_set(parameter_find(&parameter_root_ns, "control/velocity/ki"), 0.05);
+    parameter_scalar_set(parameter_find(&parameter_root_ns, "control/velocity/ki_limit"), 10);
+    parameter_scalar_set(parameter_find(&parameter_root_ns, "control/position/kp"), 0);
+    parameter_scalar_set(parameter_find(&parameter_root_ns, "control/position/ki"), 0);
+    parameter_scalar_set(parameter_find(&parameter_root_ns, "control/position/ki_limit"), 0);
+
     control_feedback.input_selection = FEEDBACK_PRIMARY_ENCODER_BOUNDED;
 
     control_feedback.primary_encoder.transmission_p = 49; // debra base
@@ -207,9 +225,12 @@ int main(void) {
 
     control_feedback.rpm.phase = 0;
 
+
+
+
+
+
     control_start();
-
-
 
     chThdCreateStatic(stream_task_wa, sizeof(stream_task_wa), LOWPRIO, stream_task, NULL);
     chThdCreateStatic(parameter_listener_wa, sizeof(parameter_listener_wa), LOWPRIO, parameter_listener, &SD3);

@@ -191,7 +191,7 @@ static void declare_parameters(void)
     parameter_scalar_declare_with_default(&param_low_batt_th, &param_ns_control, "low_batt_th", LOW_BATT_TH);
     parameter_scalar_declare(&param_vel_limit, &param_ns_control, "velocity_limit");
     parameter_scalar_declare(&param_torque_limit, &param_ns_control, "torque_limit");
-    parameter_scalar_declare(&param_acc_limit, &param_ns_control, "acc_limit");
+    parameter_scalar_declare(&param_acc_limit, &param_ns_control, "acceleration_limit");
 
     parameter_namespace_declare(&param_ns_pos_ctrl, &param_ns_control, "position");
     pid_param_declare(&pos_pid_params, &param_ns_pos_ctrl);
@@ -218,6 +218,10 @@ void control_init(void)
 {
     declare_parameters();
 
+    ctrl.motor_current_constant = 1;
+    ctrl.velocity_limit = 0;
+    ctrl.torque_limit = 0;
+    ctrl.current_limit = 0;
     pid_init(&ctrl.current_pid);
     pid_init(&ctrl.velocity_pid);
     pid_init(&ctrl.position_pid);
@@ -347,23 +351,6 @@ static THD_FUNCTION(control_loop, arg)
 
 void control_start(void)
 {
-    ctrl.motor_current_constant = 1;
-    ctrl.velocity_limit = parameter_scalar_get(&param_vel_limit);
-    ctrl.torque_limit = INFINITY;
-    ctrl.current_limit = INFINITY;
-
-    // todo move this to init code
-    parameter_scalar_set(&param_acc_limit, 10);
-    parameter_scalar_set(&param_vel_limit, 4 * M_PI);
-    parameter_scalar_set(&param_torque_limit, INFINITY);
-    parameter_scalar_set(&cur_pid_params.kp, 5);
-    parameter_scalar_set(&cur_pid_params.ki, 1000);
-    parameter_scalar_set(&cur_pid_params.i_limit, 50);
-    parameter_scalar_set(&vel_pid_params.kp, 0.1);
-    parameter_scalar_set(&vel_pid_params.ki, 0.05);
-    parameter_scalar_set(&vel_pid_params.i_limit, 10);
-
-
     control_running = true;
     static THD_WORKING_AREA(control_loop_wa, 256);
     chThdCreateStatic(control_loop_wa, sizeof(control_loop_wa), HIGHPRIO, control_loop, NULL);
