@@ -30,6 +30,7 @@ target.arm:
     - src/blocking_uart_driver.c
     - src/usbconf.c
     - src/config.c
+    - src/interface_panel.c
 
 source:
     - src/unix_timestamp.c

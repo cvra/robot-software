@@ -143,20 +143,20 @@
 #define GPIOE_PIN14                 14
 #define GPIOE_PIN15                 15
 
-#define GPIOF_PIN0                  0
-#define GPIOF_PIN1                  1
-#define GPIOF_PIN2                  2
-#define GPIOF_PIN3                  3
-#define GPIOF_PIN4                  4
-#define GPIOF_PIN5                  5
-#define GPIOF_PIN6                  6
-#define GPIOF_PIN7                  7
-#define GPIOF_PIN8                  8
-#define GPIOF_PIN9                  9
-#define GPIOF_PIN10                 10
+#define GPIOF_LED_READY             0
+#define GPIOF_LED_DEBUG             1
+#define GPIOF_LED_ERROR             2
+#define GPIOF_LED_POWER_ERROR       3
+#define GPIOF_LED_PC_ERROR          4
+#define GPIOF_LED_BUS_ERROR         5
+#define GPIOF_LED_YELLOW_1          6
+#define GPIOF_LED_YELLOW_2          7
+#define GPIOF_LED_GREEN_1           8
+#define GPIOF_LED_GREEN_2           9
+#define GPIOF_BTN_YELLOW            10
 #define GPIOF_USB_HS_FAULT          11
-#define GPIOF_PIN12                 12
-#define GPIOF_PIN13                 13
+#define GPIOF_START                 12
+#define GPIOF_BTN_GREEN             13
 #define GPIOF_PIN14                 14
 #define GPIOF_PIN15                 15
 
@@ -821,117 +821,117 @@
 /*
  * GPIOF setup:
  *
- * PF0  - PIN0                      (input pullup).
- * PF1  - PIN1                      (input pullup).
- * PF2  - PIN2                      (input pullup).
- * PF3  - PIN3                      (input pullup).
- * PF4  - PIN4                      (input pullup).
- * PF5  - PIN5                      (input pullup).
- * PF6  - PIN6                      (input pullup).
- * PF7  - PIN7                      (input pullup).
- * PF8  - PIN8                      (input pullup).
- * PF9  - PIN9                      (input pullup).
- * PF10 - PIN10                     (input pullup).
+ * PF0  - LED ready                 (output).
+ * PF1  - LED debug                 (output).
+ * PF2  - LED error                 (output).
+ * PF3  - LED power error           (output).
+ * PF4  - LED pc error              (output).
+ * PF5  - LED bus error             (output).
+ * PF6  - LED yellow 1              (output).
+ * PF7  - LED yellow 2              (output).
+ * PF8  - LED green 1               (output).
+ * PF9  - LED green 2               (output).
+ * PF10 - button yellow             (input pullup).
  * PF11 - USB_HS_FAULT              (input floating).
- * PF12 - PIN12                     (input pullup).
- * PF13 - PIN13                     (input pullup).
+ * PF12 - start                     (input pullup).
+ * PF13 - button green              (input pullup).
  * PF14 - PIN14                     (input pullup).
  * PF15 - PIN15                     (input pullup).
  */
-#define VAL_GPIOF_MODER             (PIN_MODE_INPUT(GPIOF_PIN0) |           \
-                                     PIN_MODE_INPUT(GPIOF_PIN1) |           \
-                                     PIN_MODE_INPUT(GPIOF_PIN2) |           \
-                                     PIN_MODE_INPUT(GPIOF_PIN3) |           \
-                                     PIN_MODE_INPUT(GPIOF_PIN4) |           \
-                                     PIN_MODE_INPUT(GPIOF_PIN5) |           \
-                                     PIN_MODE_INPUT(GPIOF_PIN6) |           \
-                                     PIN_MODE_INPUT(GPIOF_PIN7) |           \
-                                     PIN_MODE_INPUT(GPIOF_PIN8) |           \
-                                     PIN_MODE_INPUT(GPIOF_PIN9) |           \
-                                     PIN_MODE_INPUT(GPIOF_PIN10) |          \
+#define VAL_GPIOF_MODER             (PIN_MODE_OUTPUT(GPIOF_LED_READY) |          \
+                                     PIN_MODE_OUTPUT(GPIOF_LED_DEBUG) |          \
+                                     PIN_MODE_OUTPUT(GPIOF_LED_ERROR) |          \
+                                     PIN_MODE_OUTPUT(GPIOF_LED_POWER_ERROR) |          \
+                                     PIN_MODE_OUTPUT(GPIOF_LED_PC_ERROR) |          \
+                                     PIN_MODE_OUTPUT(GPIOF_LED_BUS_ERROR) |          \
+                                     PIN_MODE_OUTPUT(GPIOF_LED_YELLOW_1) |          \
+                                     PIN_MODE_OUTPUT(GPIOF_LED_YELLOW_2) |          \
+                                     PIN_MODE_OUTPUT(GPIOF_LED_GREEN_1) |          \
+                                     PIN_MODE_OUTPUT(GPIOF_LED_GREEN_2) |          \
+                                     PIN_MODE_INPUT(GPIOF_BTN_YELLOW) |          \
                                      PIN_MODE_INPUT(GPIOF_USB_HS_FAULT) |   \
-                                     PIN_MODE_INPUT(GPIOF_PIN12) |          \
-                                     PIN_MODE_INPUT(GPIOF_PIN13) |          \
+                                     PIN_MODE_INPUT(GPIOF_START) |          \
+                                     PIN_MODE_INPUT(GPIOF_BTN_GREEN) |          \
                                      PIN_MODE_INPUT(GPIOF_PIN14) |          \
                                      PIN_MODE_INPUT(GPIOF_PIN15))
-#define VAL_GPIOF_OTYPER            (PIN_OTYPE_PUSHPULL(GPIOF_PIN0) |       \
-                                     PIN_OTYPE_PUSHPULL(GPIOF_PIN1) |       \
-                                     PIN_OTYPE_PUSHPULL(GPIOF_PIN2) |       \
-                                     PIN_OTYPE_PUSHPULL(GPIOF_PIN3) |       \
-                                     PIN_OTYPE_PUSHPULL(GPIOF_PIN4) |       \
-                                     PIN_OTYPE_PUSHPULL(GPIOF_PIN5) |       \
-                                     PIN_OTYPE_PUSHPULL(GPIOF_PIN6) |       \
-                                     PIN_OTYPE_PUSHPULL(GPIOF_PIN7) |       \
-                                     PIN_OTYPE_PUSHPULL(GPIOF_PIN8) |       \
-                                     PIN_OTYPE_PUSHPULL(GPIOF_PIN9) |       \
-                                     PIN_OTYPE_PUSHPULL(GPIOF_PIN10) |      \
+#define VAL_GPIOF_OTYPER            (PIN_OTYPE_PUSHPULL(GPIOF_LED_READY) |       \
+                                     PIN_OTYPE_PUSHPULL(GPIOF_LED_DEBUG) |       \
+                                     PIN_OTYPE_PUSHPULL(GPIOF_LED_ERROR) |       \
+                                     PIN_OTYPE_PUSHPULL(GPIOF_LED_POWER_ERROR) |       \
+                                     PIN_OTYPE_PUSHPULL(GPIOF_LED_PC_ERROR) |       \
+                                     PIN_OTYPE_PUSHPULL(GPIOF_LED_BUS_ERROR) |       \
+                                     PIN_OTYPE_PUSHPULL(GPIOF_LED_YELLOW_1) |       \
+                                     PIN_OTYPE_PUSHPULL(GPIOF_LED_YELLOW_2) |       \
+                                     PIN_OTYPE_PUSHPULL(GPIOF_LED_GREEN_1) |       \
+                                     PIN_OTYPE_PUSHPULL(GPIOF_LED_GREEN_2) |       \
+                                     PIN_OTYPE_PUSHPULL(GPIOF_BTN_YELLOW) |      \
                                      PIN_OTYPE_PUSHPULL(GPIOF_USB_HS_FAULT) |\
-                                     PIN_OTYPE_PUSHPULL(GPIOF_PIN12) |      \
-                                     PIN_OTYPE_PUSHPULL(GPIOF_PIN13) |      \
+                                     PIN_OTYPE_PUSHPULL(GPIOF_START) |      \
+                                     PIN_OTYPE_PUSHPULL(GPIOF_BTN_GREEN) |      \
                                      PIN_OTYPE_PUSHPULL(GPIOF_PIN14) |      \
                                      PIN_OTYPE_PUSHPULL(GPIOF_PIN15))
-#define VAL_GPIOF_OSPEEDR           (PIN_OSPEED_100M(GPIOF_PIN0) |          \
-                                     PIN_OSPEED_100M(GPIOF_PIN1) |          \
-                                     PIN_OSPEED_100M(GPIOF_PIN2) |          \
-                                     PIN_OSPEED_100M(GPIOF_PIN3) |          \
-                                     PIN_OSPEED_100M(GPIOF_PIN4) |          \
-                                     PIN_OSPEED_100M(GPIOF_PIN5) |          \
-                                     PIN_OSPEED_100M(GPIOF_PIN6) |          \
-                                     PIN_OSPEED_100M(GPIOF_PIN7) |          \
-                                     PIN_OSPEED_100M(GPIOF_PIN8) |          \
-                                     PIN_OSPEED_100M(GPIOF_PIN9) |          \
-                                     PIN_OSPEED_100M(GPIOF_PIN10) |         \
+#define VAL_GPIOF_OSPEEDR           (PIN_OSPEED_100M(GPIOF_LED_READY) |          \
+                                     PIN_OSPEED_100M(GPIOF_LED_DEBUG) |          \
+                                     PIN_OSPEED_100M(GPIOF_LED_ERROR) |          \
+                                     PIN_OSPEED_100M(GPIOF_LED_POWER_ERROR) |          \
+                                     PIN_OSPEED_100M(GPIOF_LED_PC_ERROR) |          \
+                                     PIN_OSPEED_100M(GPIOF_LED_BUS_ERROR) |          \
+                                     PIN_OSPEED_100M(GPIOF_LED_YELLOW_1) |          \
+                                     PIN_OSPEED_100M(GPIOF_LED_YELLOW_2) |          \
+                                     PIN_OSPEED_100M(GPIOF_LED_GREEN_1) |          \
+                                     PIN_OSPEED_100M(GPIOF_LED_GREEN_2) |          \
+                                     PIN_OSPEED_100M(GPIOF_BTN_YELLOW) |         \
                                      PIN_OSPEED_100M(GPIOF_USB_HS_FAULT) |  \
-                                     PIN_OSPEED_100M(GPIOF_PIN12) |         \
-                                     PIN_OSPEED_100M(GPIOF_PIN13) |         \
+                                     PIN_OSPEED_100M(GPIOF_START) |         \
+                                     PIN_OSPEED_100M(GPIOF_BTN_GREEN) |         \
                                      PIN_OSPEED_100M(GPIOF_PIN14) |         \
                                      PIN_OSPEED_100M(GPIOF_PIN15))
-#define VAL_GPIOF_PUPDR             (PIN_PUPDR_PULLUP(GPIOF_PIN0) |         \
-                                     PIN_PUPDR_PULLUP(GPIOF_PIN1) |         \
-                                     PIN_PUPDR_PULLUP(GPIOF_PIN2) |         \
-                                     PIN_PUPDR_PULLUP(GPIOF_PIN3) |         \
-                                     PIN_PUPDR_PULLUP(GPIOF_PIN4) |         \
-                                     PIN_PUPDR_PULLUP(GPIOF_PIN5) |         \
-                                     PIN_PUPDR_PULLUP(GPIOF_PIN6) |         \
-                                     PIN_PUPDR_PULLUP(GPIOF_PIN7) |         \
-                                     PIN_PUPDR_PULLUP(GPIOF_PIN8) |         \
-                                     PIN_PUPDR_PULLUP(GPIOF_PIN9) |         \
-                                     PIN_PUPDR_PULLUP(GPIOF_PIN10) |        \
+#define VAL_GPIOF_PUPDR             (PIN_PUPDR_FLOATING(GPIOF_LED_READY) |           \
+                                     PIN_PUPDR_FLOATING(GPIOF_LED_DEBUG) |           \
+                                     PIN_PUPDR_FLOATING(GPIOF_LED_ERROR) |           \
+                                     PIN_PUPDR_FLOATING(GPIOF_LED_POWER_ERROR) |           \
+                                     PIN_PUPDR_FLOATING(GPIOF_LED_PC_ERROR) |           \
+                                     PIN_PUPDR_FLOATING(GPIOF_LED_BUS_ERROR) |           \
+                                     PIN_PUPDR_FLOATING(GPIOF_LED_YELLOW_1) |           \
+                                     PIN_PUPDR_FLOATING(GPIOF_LED_YELLOW_2) |           \
+                                     PIN_PUPDR_FLOATING(GPIOF_LED_GREEN_1) |           \
+                                     PIN_PUPDR_FLOATING(GPIOF_LED_GREEN_2) |           \
+                                     PIN_PUPDR_PULLUP(GPIOF_BTN_YELLOW) |        \
                                      PIN_PUPDR_FLOATING(GPIOF_USB_HS_FAULT) |\
-                                     PIN_PUPDR_PULLUP(GPIOF_PIN12) |        \
-                                     PIN_PUPDR_PULLUP(GPIOF_PIN13) |        \
+                                     PIN_PUPDR_PULLUP(GPIOF_START) |        \
+                                     PIN_PUPDR_PULLUP(GPIOF_BTN_GREEN) |        \
                                      PIN_PUPDR_PULLUP(GPIOF_PIN14) |        \
                                      PIN_PUPDR_PULLUP(GPIOF_PIN15))
-#define VAL_GPIOF_ODR               (PIN_ODR_HIGH(GPIOF_PIN0) |             \
-                                     PIN_ODR_HIGH(GPIOF_PIN1) |             \
-                                     PIN_ODR_HIGH(GPIOF_PIN2) |             \
-                                     PIN_ODR_HIGH(GPIOF_PIN3) |             \
-                                     PIN_ODR_HIGH(GPIOF_PIN4) |             \
-                                     PIN_ODR_HIGH(GPIOF_PIN5) |             \
-                                     PIN_ODR_HIGH(GPIOF_PIN6) |             \
-                                     PIN_ODR_HIGH(GPIOF_PIN7) |             \
-                                     PIN_ODR_HIGH(GPIOF_PIN8) |             \
-                                     PIN_ODR_HIGH(GPIOF_PIN9) |             \
-                                     PIN_ODR_HIGH(GPIOF_PIN10) |            \
+#define VAL_GPIOF_ODR               (PIN_ODR_LOW(GPIOF_LED_READY) |             \
+                                     PIN_ODR_LOW(GPIOF_LED_DEBUG) |             \
+                                     PIN_ODR_LOW(GPIOF_LED_ERROR) |             \
+                                     PIN_ODR_LOW(GPIOF_LED_POWER_ERROR) |             \
+                                     PIN_ODR_LOW(GPIOF_LED_PC_ERROR) |             \
+                                     PIN_ODR_LOW(GPIOF_LED_BUS_ERROR) |             \
+                                     PIN_ODR_LOW(GPIOF_LED_YELLOW_1) |             \
+                                     PIN_ODR_LOW(GPIOF_LED_YELLOW_2) |             \
+                                     PIN_ODR_LOW(GPIOF_LED_GREEN_1) |             \
+                                     PIN_ODR_LOW(GPIOF_LED_GREEN_2) |             \
+                                     PIN_ODR_HIGH(GPIOF_BTN_YELLOW) |            \
                                      PIN_ODR_HIGH(GPIOF_USB_HS_FAULT) |     \
-                                     PIN_ODR_HIGH(GPIOF_PIN12) |            \
-                                     PIN_ODR_HIGH(GPIOF_PIN13) |            \
+                                     PIN_ODR_HIGH(GPIOF_START) |            \
+                                     PIN_ODR_HIGH(GPIOF_BTN_GREEN) |            \
                                      PIN_ODR_HIGH(GPIOF_PIN14) |            \
                                      PIN_ODR_HIGH(GPIOF_PIN15))
-#define VAL_GPIOF_AFRL              (PIN_AFIO_AF(GPIOF_PIN0, 0) |           \
-                                     PIN_AFIO_AF(GPIOF_PIN1, 0) |           \
-                                     PIN_AFIO_AF(GPIOF_PIN2, 0) |           \
-                                     PIN_AFIO_AF(GPIOF_PIN3, 0) |           \
-                                     PIN_AFIO_AF(GPIOF_PIN4, 0) |           \
-                                     PIN_AFIO_AF(GPIOF_PIN5, 0) |           \
-                                     PIN_AFIO_AF(GPIOF_PIN6, 0) |           \
-                                     PIN_AFIO_AF(GPIOF_PIN7, 0))
-#define VAL_GPIOF_AFRH              (PIN_AFIO_AF(GPIOF_PIN8, 0) |           \
-                                     PIN_AFIO_AF(GPIOF_PIN9, 0) |           \
-                                     PIN_AFIO_AF(GPIOF_PIN10, 0) |          \
+#define VAL_GPIOF_AFRL              (PIN_AFIO_AF(GPIOF_LED_READY, 0) |           \
+                                     PIN_AFIO_AF(GPIOF_LED_DEBUG, 0) |           \
+                                     PIN_AFIO_AF(GPIOF_LED_ERROR, 0) |           \
+                                     PIN_AFIO_AF(GPIOF_LED_POWER_ERROR, 0) |           \
+                                     PIN_AFIO_AF(GPIOF_LED_PC_ERROR, 0) |           \
+                                     PIN_AFIO_AF(GPIOF_LED_BUS_ERROR, 0) |           \
+                                     PIN_AFIO_AF(GPIOF_LED_YELLOW_1, 0) |           \
+                                     PIN_AFIO_AF(GPIOF_LED_YELLOW_2, 0))
+#define VAL_GPIOF_AFRH              (PIN_AFIO_AF(GPIOF_LED_GREEN_1, 0) |           \
+                                     PIN_AFIO_AF(GPIOF_LED_GREEN_2, 0) |           \
+                                     PIN_AFIO_AF(GPIOF_BTN_YELLOW, 0) |          \
                                      PIN_AFIO_AF(GPIOF_USB_HS_FAULT, 0) |   \
-                                     PIN_AFIO_AF(GPIOF_PIN12, 0) |          \
-                                     PIN_AFIO_AF(GPIOF_PIN13, 0) |          \
+                                     PIN_AFIO_AF(GPIOF_START, 0) |          \
+                                     PIN_AFIO_AF(GPIOF_BTN_GREEN, 0) |          \
                                      PIN_AFIO_AF(GPIOF_PIN14, 0) |          \
                                      PIN_AFIO_AF(GPIOF_PIN15, 0))
 
