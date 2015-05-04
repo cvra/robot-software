@@ -327,7 +327,7 @@ int CanIface::init(uavcan::uint32_t bitrate)
         goto leave;
     }
 
-    can_->MCR = bxcan::MCR_ABOM | bxcan::MCR_AWUM | bxcan::MCR_INRQ;  // RM page 648
+    can_->MCR = bxcan::MCR_ABOM | bxcan::MCR_AWUM | bxcan::MCR_INRQ | bxcan::MCR_TXFP;  // RM page 648
 
     can_->BTR = ((timings.sjw & 3U)  << 24) |
                 ((timings.bs1 & 15U) << 16) |

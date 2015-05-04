@@ -11,7 +11,7 @@ THD_WORKING_AREA(wa_can_bridge, CAN_BRIDGE_STACKSIZE);
 #define CAN_BRIDGE_TX_STACKSIZE 1024
 
 #define CAN_BRIDGE_RX_QUEUE_SIZE    32
-#define CAN_BRIDGE_TX_QUEUE_SIZE    32
+#define CAN_BRIDGE_TX_QUEUE_SIZE    512
 
 memory_pool_t can_bridge_rx_pool;
 memory_pool_t can_bridge_tx_pool;
@@ -22,8 +22,7 @@ SEMAPHORE_DECL(can_bridge_is_initialized, 0);
 msg_t rx_mbox_buf[CAN_BRIDGE_RX_QUEUE_SIZE];
 struct can_frame rx_pool_buf[CAN_BRIDGE_RX_QUEUE_SIZE];
 msg_t tx_mbox_buf[CAN_BRIDGE_TX_QUEUE_SIZE];
-// tx pool size is +1 to be able to block
-struct can_frame tx_pool_buf[CAN_BRIDGE_TX_QUEUE_SIZE + 1];
+struct can_frame tx_pool_buf[CAN_BRIDGE_TX_QUEUE_SIZE];
 
 /** Thread running the CAN bridge. */
 msg_t can_bridge_thread(void *p);
@@ -38,6 +37,10 @@ struct can_bridge_instance_t {
 
 void can_bridge_init(void)
 {
+    // default: only standard frames pass the filter
+    can_bridge_filter_id = 0;
+    can_bridge_filter_mask = CAN_FRAME_EXT_FLAG;
+
     // rx queue
     chMBObjectInit(&can_bridge_rx_queue, rx_mbox_buf, CAN_BRIDGE_RX_QUEUE_SIZE);
     chPoolObjectInit(&can_bridge_rx_pool, sizeof(struct can_frame), NULL);
