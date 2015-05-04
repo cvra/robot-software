@@ -379,7 +379,7 @@ int CanIface::init(uavcan::uint32_t bitrate)
         can_->FMR &= ~bxcan::FMR_FINIT;
     }
 
-    chBSemObjectInit(&tx_mb0_sem, 0);
+    chBSemObjectInit(&tx_mb0_sem, true);
 
 leave:
     return res;
@@ -618,6 +618,7 @@ bool CanIface::tx_mb0_is_empty(void)
 
 bool CanDriver::wait_tx_mb0(systime_t timeout)
 {
+    chBSemReset(&tx_mb0_sem, true);
     if (if0_.tx_mb0_is_empty()) {
         return true;
     }
