@@ -6,6 +6,7 @@
 #include <chprintf.h>
 #include <lwipthread.h>
 #include <lwip/netif.h>
+#include <lwip/dhcp.h>
 
 #include "commands.h"
 #include "sntp/sntp.h"
@@ -185,6 +186,7 @@ int main(void) {
         palSetPad(GPIOF, GPIOF_LED_GREEN_1);
         palSetPad(GPIOF, GPIOF_LED_GREEN_2);
     } else {
+        struct netif *ethernet_if;
         /* Creates the LWIP threads (it changes priority internally).  */
         chThdCreateStatic(wa_lwip_thread, LWIP_THREAD_STACK_SIZE, NORMALPRIO + 2,
             lwip_thread, NULL);
@@ -195,6 +197,10 @@ int main(void) {
                       trajectory_thread,
                       NULL);
 
+        ethernet_if = netif_find("ms0");
+        if (ethernet_if) {
+            dhcp_start(ethernet_if);
+        }
 
         sntp_init();
         can_bridge_init();

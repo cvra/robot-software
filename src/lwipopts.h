@@ -16,6 +16,8 @@
 #define TCPIP_THREAD_STACKSIZE          1024
 #define TCPIP_MBOX_SIZE                 MEMP_NUM_PBUF
 
+#define LWIP_DHCP 1
+
 #define DEFAULT_THREAD_STACKSIZE        1024
 #define DEFAULT_RAW_RECVMBOX_SIZE       4
 #define DEFAULT_UDP_RECVMBOX_SIZE       4
