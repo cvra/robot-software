@@ -22,6 +22,7 @@
 #include "robot_pose.h"
 #include "tracy-the-trajectory-tracker/src/trajectory_tracking.h"
 #include "robot_parameters.h"
+#include "odometry_publisher.h"
 
 
 /* Command line related.                                                     */
@@ -178,6 +179,7 @@ int main(void) {
         rpc_server_init();
         message_server_init();
         interface_panel_init();
+        odometry_publisher_init();
     }
 
     /* main thread, spawns a shell on USB connection. */

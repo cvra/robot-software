@@ -33,6 +33,7 @@ target.arm:
     - src/config.c
     - src/interface_panel.c
     - src/robot_pose.c
+    - src/odometry_publisher.c
 
 source:
     - src/unix_timestamp.c
