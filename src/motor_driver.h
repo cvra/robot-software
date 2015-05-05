@@ -24,7 +24,7 @@ typedef struct {
 
     int control_mode;
     union {
-        float postition;
+        float position;
         float velocity;
         float torque;
         float voltage;

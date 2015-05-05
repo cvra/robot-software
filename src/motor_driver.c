@@ -37,7 +37,7 @@ void motor_driver_set_position(motor_driver_t *d, float position)
     chBSemWait(&d->lock);
     free_trajectory_buffer(d);
     d->control_mode = MOTOR_CONTROL_MODE_POSITION;
-    d->setpt.postition = position;
+    d->setpt.position = position;
     chBSemSignal(&d->lock);
 }
 
@@ -103,4 +103,55 @@ void motor_driver_lock(motor_driver_t *d)
 void motor_driver_unlock(motor_driver_t *d)
 {
     chBSemSignal(&d->lock);
+}
+
+
+int motor_driver_get_control_mode(motor_driver_t *d)
+{
+    return d->control_mode;
+}
+
+float motor_driver_get_position_setpt(motor_driver_t *d)
+{
+    if (d->control_mode != MOTOR_CONTROL_MODE_POSITION) {
+        chSysHalt("motor driver get position wrong setpt mode");
+    }
+    return d->setpt.position;
+}
+
+float motor_driver_get_velocity_setpt(motor_driver_t *d)
+{
+    if (d->control_mode != MOTOR_CONTROL_MODE_VELOCITY) {
+        chSysHalt("motor driver get velocity wrong setpt mode");
+    }
+    return d->setpt.velocity;
+}
+
+float motor_driver_get_torque_setpt(motor_driver_t *d)
+{
+    if (d->control_mode != MOTOR_CONTROL_MODE_TORQUE) {
+        chSysHalt("motor driver get torque wrong setpt mode");
+    }
+    return d->setpt.torque;
+}
+
+float motor_driver_get_voltage_setpt(motor_driver_t *d)
+{
+    if (d->control_mode != MOTOR_CONTROL_MODE_VOLTAGE) {
+        chSysHalt("motor driver get voltage wrong setpt mode");
+    }
+    return d->setpt.voltage;
+}
+
+void motor_driver_get_trajectory_point(motor_driver_t *d,
+                                       unix_timestamp_t timestamp,
+                                       float *position,
+                                       float *velocity,
+                                       float *acceleration,
+                                       float *torque)
+{
+    if (d->control_mode != MOTOR_CONTROL_MODE_TRAJECTORY) {
+        chSysHalt("motor driver get trajectory wrong setpt mode");
+    }
+    // todo copy pt
 }
