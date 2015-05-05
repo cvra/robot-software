@@ -1,6 +1,7 @@
 #include <hal.h>
 #include <simplerpc/service_call.h>
 #include <lwip/api.h>
+#include <string.h>
 #include "interface_panel.h"
 #include "priorities.h"
 #include "usbconf.h"
@@ -11,6 +12,41 @@
 #define BTN_CNT_RESET_VALUE 10
 
 typedef enum {UP, DOWN} btn_state_t;
+
+static void debounce(int *count, bool pressed)
+{
+    if (pressed) {
+        *count = *count - 1;
+    } else {
+        *count = BTN_CNT_RESET_VALUE;
+    }
+}
+
+static void notify_event(const char *event_name, const char *button_name)
+{
+    static uint8_t rpc_output[32];
+    cmp_ctx_t cmp;
+    cmp_mem_access_t mem;
+    ip_addr_t server;
+    LWIP_GATEWAY(&server);
+
+    service_call_encode(&cmp, &mem, rpc_output, sizeof rpc_output,
+                        event_name, 1);
+    cmp_write_str(&cmp, button_name, strlen(button_name));
+    rpc_transmit(rpc_output, cmp_mem_access_get_pos(&mem),
+            NULL, 0, &server, RPC_SERVER_PORT);
+}
+
+static void handle_state_change(int count, btn_state_t *state, const char *name)
+{
+    if (*state == UP && count == 0) {
+        *state = DOWN;
+        notify_event("button_pressed", name);
+    } else if (*state == DOWN && count > 0) {
+        *state = UP;
+    }
+
+}
 
 THD_WORKING_AREA(wa_interface_panel, INTERFACE_PANEL_STACKSIZE);
 msg_t interface_panel_thread(void *p)
@@ -25,68 +61,15 @@ msg_t interface_panel_thread(void *p)
     btn_state_t green_state = UP;
     btn_state_t start_state = UP;
 
-    static uint8_t rpc_output[32];
-    static cmp_ctx_t cmp;
-    static cmp_mem_access_t mem;
-    ip_addr_t server;
-
-    LWIP_GATEWAY(&server);
 
     while (1) {
-        if (!palReadPad(GPIOF, GPIOF_BTN_YELLOW)) {
-            yellow_btn_cnt --;
-        } else {
-            yellow_btn_cnt = BTN_CNT_RESET_VALUE;
-        }
+        debounce(&yellow_btn_cnt, !palReadPad(GPIOF, GPIOF_BTN_YELLOW));
+        debounce(&green_btn_cnt, !palReadPad(GPIOF, GPIOF_BTN_GREEN));
+        debounce(&start_cnt, !palReadPad(GPIOF, GPIOF_START));
 
-        if (!palReadPad(GPIOF, GPIOF_BTN_GREEN)) {
-            green_btn_cnt --;
-        } else {
-            green_btn_cnt = BTN_CNT_RESET_VALUE;
-        }
-
-        if (!palReadPad(GPIOF, GPIOF_START)) {
-            start_cnt --;
-        } else {
-            start_cnt = BTN_CNT_RESET_VALUE;
-        }
-
-        if (yellow_state == UP && yellow_btn_cnt == 0) {
-            yellow_state = DOWN;
-
-            service_call_encode(&cmp, &mem,
-                                rpc_output, sizeof rpc_output,
-                                "button_pressed", 1);
-            cmp_write_str(&cmp, "yellow", 6);
-            rpc_transmit(rpc_output, cmp_mem_access_get_pos(&mem),
-                         NULL, 0, &server, RPC_SERVER_PORT);
-        } else if (yellow_state == DOWN && yellow_btn_cnt > 0) {
-            yellow_state = UP;
-        }
-
-        if (green_state == UP && green_btn_cnt == 0) {
-            green_state = DOWN;
-            service_call_encode(&cmp, &mem,
-                                rpc_output, sizeof rpc_output,
-                                "button_pressed", 1);
-            cmp_write_str(&cmp, "green", 6);
-            rpc_transmit(rpc_output, cmp_mem_access_get_pos(&mem),
-                         NULL, 0, &server, RPC_SERVER_PORT);
-        } else if (green_state == DOWN && green_btn_cnt > 0) {
-            green_state = UP;
-        }
-
-        if (start_state == UP && start_cnt == 0) {
-            start_state = DOWN;
-            service_call_encode(&cmp, &mem,
-                                rpc_output, sizeof rpc_output,
-                                "button_pressed", 1);
-            cmp_write_str(&cmp, "start", 6);
-            rpc_transmit(rpc_output, cmp_mem_access_get_pos(&mem),
-                         NULL, 0, &server, RPC_SERVER_PORT);
-        } else if (start_state == DOWN && start_cnt > 0) {
-            start_state = UP;
-        }
+        handle_state_change(yellow_btn_cnt, &yellow_state, "yellow");
+        handle_state_change(green_btn_cnt, &green_state, "green");
+        handle_state_change(start_cnt, &start_state, "start");
 
         if (green_state == DOWN) {
             palWritePad(GPIOF, GPIOF_LED_GREEN_2, 1);
