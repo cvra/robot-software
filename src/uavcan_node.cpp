@@ -83,15 +83,7 @@ void can_bridge_send_frames(Node& node)
             ucframe.dlc = framep->dlc;
             memcpy(ucframe.data, framep->data.u8, framep->dlc);
 
-            uavcan::MonotonicTime timeout = node.getMonotonicTime();
-            timeout += uavcan::MonotonicDuration::fromMSec(100);
-
-            uavcan::CanSelectMasks masks;
-            do {
-                masks.write = 1;
-                can.driver.select(masks, timeout);
-            } while (!masks.write & 1 && node.getMonotonicTime() < timeout);
-            if (masks.write & 1) {
+            if (can.driver.wait_tx_mb0(MS2ST(100))) {
                 uavcan::MonotonicTime tx_timeout = node.getMonotonicTime();
                 tx_timeout += uavcan::MonotonicDuration::fromMSec(100);
                 uavcan::ICanIface* const iface = can.driver.getIface(0);
