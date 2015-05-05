@@ -27,8 +27,6 @@ void trajectory_chunk_init(trajectory_chunk_t *chunk, float *buffer, int length,
 int trajectory_apply_chunk(trajectory_t *traj, trajectory_chunk_t *chunk)
 {
     int start_index, i = 0, write_index;
-    int64_t start_time_us;
-    float *src, *dst;
 
     if (chunk->sampling_time_us != traj->sampling_time_us) {
         return TRAJECTORY_ERROR_TIMESTEP_MISMATCH;
@@ -46,8 +44,6 @@ int trajectory_apply_chunk(trajectory_t *traj, trajectory_chunk_t *chunk)
 
     start_index = (chunk->start_time_us - traj->read_time_us) / (traj->sampling_time_us);
     start_index += traj -> read_pointer;
-
-    start_time_us = chunk->start_time_us;
 
     /* Do not copy points before the read pointer. */
     i = 1 + ((traj->read_time_us - chunk->start_time_us) / traj->sampling_time_us);
