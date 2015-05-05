@@ -7,6 +7,9 @@
 #define BUTTON_PRESS_CALLBACK_PORT 20002
 #define BUTTON_PRESS_CALLBACK_HOST(addr) LWIP_GATEWAY(addr)
 
+/** Standard slow blink rate, in Hz. */
+#define SLOW_BLINK_RATE 2
+
 #ifdef __cplusplus
 extern "C" {
 #endif

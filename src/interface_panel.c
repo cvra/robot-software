@@ -7,8 +7,10 @@
 #include "usbconf.h"
 #include "chprintf.h"
 #include "rpc_server.h"
+#include "unix_timestamp.h"
 
 #define INTERFACE_PANEL_STACKSIZE 1024
+#define PC_ERROR_STACKSIZE 512
 #define BTN_CNT_RESET_VALUE 10
 
 typedef enum {UP, DOWN} btn_state_t;
@@ -74,12 +76,41 @@ msg_t interface_panel_thread(void *p)
     }
 }
 
+
+THD_WORKING_AREA(wa_pc_error_thread, PC_ERROR_STACKSIZE);
+msg_t pc_error_led_thread(void *p)
+{
+    (void) p;
+    while (1) {
+        /* First error condition: time not synced. */
+        unix_timestamp_t origin;
+        origin = timestamp_local_us_to_unix(0);
+        if (origin.s == 0) {
+            palWritePad(GPIOF, GPIOF_LED_PC_ERROR, 1);
+            chThdSleepMilliseconds(500 / SLOW_BLINK_RATE);
+            palWritePad(GPIOF, GPIOF_LED_PC_ERROR, 0);
+            chThdSleepMilliseconds(500 / SLOW_BLINK_RATE);
+
+            /* Skip checking less critical errors. */
+            continue;
+        }
+    }
+
+    return MSG_OK;
+}
+
 void interface_panel_init(void)
 {
     chThdCreateStatic(wa_interface_panel,
                       INTERFACE_PANEL_STACKSIZE,
                       INTERFACE_PANEL_PRIO,
                       interface_panel_thread,
+                      NULL);
+
+    chThdCreateStatic(wa_pc_error_thread,
+                      PC_ERROR_STACKSIZE,
+                      INTERFACE_PANEL_PRIO,
+                      pc_error_led_thread,
                       NULL);
 }
 
