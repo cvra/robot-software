@@ -83,6 +83,14 @@ void motor_driver_update_trajectory(motor_driver_t *d, trajectory_t *traj)
     chBSemSignal(&d->lock);
 }
 
+void motor_driver_disable(motor_driver_t *d)
+{
+    chBSemWait(&d->lock);
+    free_trajectory_buffer(d);
+    d->control_mode = MOTOR_CONTROL_MODE_DISABLED;
+    chBSemSignal(&d->lock);
+}
+
 
 void motor_driver_set_can_id(motor_driver_t *d, int can_id)
 {

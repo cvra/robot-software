@@ -54,6 +54,7 @@ void motor_driver_set_velocity(motor_driver_t *d, float velocity);
 void motor_driver_set_torque(motor_driver_t *d, float torque);
 void motor_driver_set_voltage(motor_driver_t *d, float voltage);
 void motor_driver_update_trajectory(motor_driver_t *d, trajectory_t *traj);
+void motor_driver_disable(motor_driver_t *d);
 
 void motor_driver_set_can_id(motor_driver_t *d, int can_id);
 
