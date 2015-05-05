@@ -252,15 +252,6 @@ static void cmd_config_tree(BaseSequentialStream *chp, int argc, char **argv)
     show_config_tree(chp, ns, 0);
 }
 
-static void cmd_interface_panel_test(BaseSequentialStream *chp, int argc, char **argv)
-{
-    (void)argc;
-    (void)argv;
-    chprintf(chp, "testing interface panel...\n");
-    chprintf(chp, "press both buttons to exit\n");
-    interface_panel_test();
-}
-
 const ShellCommand commands[] = {
     {"mem", cmd_mem},
     {"ip", cmd_ip},
@@ -274,6 +265,5 @@ const ShellCommand commands[] = {
     {"rpc_client_demo", cmd_rpc_client_test},
     {"fwd", cmd_fwd},
     {"vel_setpt", cmd_vel_setpt},
-    {"interface_panel_test", cmd_interface_panel_test},
     {NULL, NULL}
 };

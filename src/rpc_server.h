@@ -2,6 +2,8 @@
 #define RPC_SERVER_H
 
 
+#define RPC_SERVER_PORT 20001
+#define MSG_SERVER_PORT 20000
 
 #ifdef __cplusplus
 extern "C" {

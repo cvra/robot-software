@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-void interface_panel_test(void);
+void interface_panel_init(void);
 
 #ifdef __cplusplus
 }

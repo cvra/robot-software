@@ -16,6 +16,7 @@
 #include "timestamp/timestamp_stm32.h"
 #include "usbconf.h"
 #include "config.h"
+#include "interface_panel.h"
 
 /* Command line related.                                                     */
 #define SHELL_WA_SIZE   THD_WORKING_AREA_SIZE(2048)
@@ -93,6 +94,7 @@ int main(void) {
         uavcan_node_start(42);
         rpc_server_init();
         message_server_init();
+        interface_panel_init();
     }
 
     /* main thread, spawns a shell on USB connection. */
