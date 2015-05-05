@@ -61,7 +61,6 @@ msg_t interface_panel_thread(void *p)
     btn_state_t green_state = UP;
     btn_state_t start_state = UP;
 
-
     while (1) {
         debounce(&yellow_btn_cnt, !palReadPad(GPIOF, GPIOF_BTN_YELLOW));
         debounce(&green_btn_cnt, !palReadPad(GPIOF, GPIOF_BTN_GREEN));
@@ -70,24 +69,6 @@ msg_t interface_panel_thread(void *p)
         handle_state_change(yellow_btn_cnt, &yellow_state, "yellow");
         handle_state_change(green_btn_cnt, &green_state, "green");
         handle_state_change(start_cnt, &start_state, "start");
-
-        if (green_state == DOWN) {
-            palWritePad(GPIOF, GPIOF_LED_GREEN_2, 1);
-        } else {
-            palWritePad(GPIOF, GPIOF_LED_GREEN_2, 0);
-        }
-
-        if (start_state == DOWN) {
-            palWritePad(GPIOF, GPIOF_LED_READY, 1);
-        } else {
-            palWritePad(GPIOF, GPIOF_LED_READY, 0);
-        }
-
-        if (yellow_state == DOWN) {
-            palWritePad(GPIOF, GPIOF_LED_YELLOW_2, 1);
-        } else {
-            palWritePad(GPIOF, GPIOF_LED_YELLOW_2, 0);
-        }
 
         chThdSleepMilliseconds(10);
     }
