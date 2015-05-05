@@ -44,8 +44,8 @@ static void handle_state_change(int count, btn_state_t *state, const char *name)
         notify_event("button_pressed", name);
     } else if (*state == DOWN && count > 0) {
         *state = UP;
+        notify_event("button_released", name);
     }
-
 }
 
 THD_WORKING_AREA(wa_interface_panel, INTERFACE_PANEL_STACKSIZE);
