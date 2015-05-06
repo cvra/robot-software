@@ -9,8 +9,6 @@
 #define MEDIUM_CAN_ID   13
 #define LARGE_CAN_ID    42
 
-#define STR_ID_MAX_LEN  24
-
 #define DRIVER_POINTER (void*)42
 
 TEST_GROUP(BusEnumeratorTestGroup)
@@ -18,32 +16,31 @@ TEST_GROUP(BusEnumeratorTestGroup)
     bus_enumerator_t en;
 
     static const uint16_t buffer_len = 21;
-    bus_enumerator_entry_t *buffer = NULL;
+    bus_enumerator_entry_allocator *buffer = NULL;
 
     void setup(void)
     {
         // allocate the list of bus enumerators
-        buffer = (bus_enumerator_entry_t*)
+        buffer = (struct bus_enumerator_entry_allocator*)
                  malloc(buffer_len * sizeof(struct bus_enumerator_entry_allocator));
     }
 };
 
 TEST(BusEnumeratorTestGroup, Init)
 {
-    bus_enumerator_init(&en, buffer, buffer_len, STR_ID_MAX_LEN);
+    bus_enumerator_init(&en, buffer, buffer_len);
 
     POINTERS_EQUAL(buffer, en.str_to_can);
-    POINTERS_EQUAL(buffer + buffer_len, en.can_to_str);
+    POINTERS_EQUAL((bus_enumerator_entry_t*)buffer + buffer_len, en.can_to_str);
     CHECK_EQUAL(buffer_len, en.buffer_len);
     CHECK_EQUAL(0, en.nb_entries_str_to_can);
     CHECK_EQUAL(0, en.nb_entries_can_to_str);
-    CHECK_EQUAL(STR_ID_MAX_LEN, en.str_id_max_len);
 }
 
 
 TEST(BusEnumeratorTestGroup, AddNode)
 {
-    bus_enumerator_init(&en, buffer, buffer_len, STR_ID_MAX_LEN);
+    bus_enumerator_init(&en, buffer, buffer_len);
 
     bus_enumerator_add_node(&en, SMALL_STR_ID, DRIVER_POINTER);
 
@@ -56,7 +53,7 @@ TEST(BusEnumeratorTestGroup, AddNode)
 
 TEST(BusEnumeratorTestGroup, AddTwoNodes)
 {
-    bus_enumerator_init(&en, buffer, buffer_len, STR_ID_MAX_LEN);
+    bus_enumerator_init(&en, buffer, buffer_len);
 
     bus_enumerator_add_node(&en, SMALL_STR_ID, DRIVER_POINTER);
     bus_enumerator_add_node(&en, LARGE_STR_ID, DRIVER_POINTER);
@@ -76,7 +73,7 @@ TEST(BusEnumeratorTestGroup, AddTwoNodes)
 
 TEST(BusEnumeratorTestGroup, AddTwoNodesWithFlip)
 {
-    bus_enumerator_init(&en, buffer, buffer_len, STR_ID_MAX_LEN);
+    bus_enumerator_init(&en, buffer, buffer_len);
 
     bus_enumerator_add_node(&en, LARGE_STR_ID, DRIVER_POINTER);
     bus_enumerator_add_node(&en, SMALL_STR_ID, DRIVER_POINTER);
@@ -89,7 +86,7 @@ TEST(BusEnumeratorTestGroup, AddTwoNodesWithFlip)
 
 TEST(BusEnumeratorTestGroup, AddThreeNodes)
 {
-    bus_enumerator_init(&en, buffer, buffer_len, STR_ID_MAX_LEN);
+    bus_enumerator_init(&en, buffer, buffer_len);
 
     bus_enumerator_add_node(&en, LARGE_STR_ID, DRIVER_POINTER);
     bus_enumerator_add_node(&en, SMALL_STR_ID, DRIVER_POINTER);
@@ -104,7 +101,7 @@ TEST(BusEnumeratorTestGroup, AddThreeNodes)
 
 TEST(BusEnumeratorTestGroup, UpdateNodeInfo)
 {
-    bus_enumerator_init(&en, buffer, buffer_len, STR_ID_MAX_LEN);
+    bus_enumerator_init(&en, buffer, buffer_len);
 
     bus_enumerator_add_node(&en, SMALL_STR_ID, DRIVER_POINTER);
 
@@ -123,7 +120,7 @@ TEST(BusEnumeratorTestGroup, UpdateNodeInfo)
 
 TEST(BusEnumeratorTestGroup, UpdateNodeInfoForTwo)
 {
-    bus_enumerator_init(&en, buffer, buffer_len, STR_ID_MAX_LEN);
+    bus_enumerator_init(&en, buffer, buffer_len);
 
     bus_enumerator_add_node(&en, LARGE_STR_ID, DRIVER_POINTER);
     bus_enumerator_add_node(&en, SMALL_STR_ID, DRIVER_POINTER);
@@ -147,9 +144,25 @@ TEST(BusEnumeratorTestGroup, UpdateNodeInfoForTwo)
     STRCMP_EQUAL(SMALL_STR_ID, en.can_to_str[1].str_id);
 }
 
+TEST(BusEnumeratorTestGroup, UpdateNodeInfoWorksOnlyOnce)
+{
+    bus_enumerator_init(&en, buffer, buffer_len);
+
+    bus_enumerator_add_node(&en, SMALL_STR_ID, DRIVER_POINTER);
+
+    bus_enumerator_update_node_info(&en, SMALL_STR_ID, LARGE_CAN_ID);
+    bus_enumerator_update_node_info(&en, SMALL_STR_ID, SMALL_CAN_ID);
+
+    STRCMP_EQUAL(SMALL_STR_ID, en.str_to_can[0].str_id);
+    CHECK_EQUAL(LARGE_CAN_ID, en.str_to_can[0].can_id);
+
+    STRCMP_EQUAL(SMALL_STR_ID, en.can_to_str[0].str_id);
+    CHECK_EQUAL(LARGE_CAN_ID, en.can_to_str[0].can_id);
+}
+
 TEST(BusEnumeratorTestGroup, GetNumberOfEntries)
 {
-    bus_enumerator_init(&en, buffer, buffer_len, STR_ID_MAX_LEN);
+    bus_enumerator_init(&en, buffer, buffer_len);
 
     bus_enumerator_add_node(&en, LARGE_STR_ID, DRIVER_POINTER);
     bus_enumerator_add_node(&en, SMALL_STR_ID, DRIVER_POINTER);
@@ -159,7 +172,7 @@ TEST(BusEnumeratorTestGroup, GetNumberOfEntries)
 
 TEST(BusEnumeratorTestGroup, GetCanId)
 {
-    bus_enumerator_init(&en, buffer, buffer_len, STR_ID_MAX_LEN);
+    bus_enumerator_init(&en, buffer, buffer_len);
 
     bus_enumerator_add_node(&en, SMALL_STR_ID, DRIVER_POINTER);
 
@@ -168,7 +181,7 @@ TEST(BusEnumeratorTestGroup, GetCanId)
 
 TEST(BusEnumeratorTestGroup, GetCanIdWithSeveralEntries)
 {
-    bus_enumerator_init(&en, buffer, buffer_len, STR_ID_MAX_LEN);
+    bus_enumerator_init(&en, buffer, buffer_len);
 
     bus_enumerator_add_node(&en, LARGE_STR_ID, DRIVER_POINTER);
     bus_enumerator_add_node(&en, MEDIUM_STR_ID, DRIVER_POINTER);
@@ -185,7 +198,7 @@ TEST(BusEnumeratorTestGroup, GetCanIdWithSeveralEntries)
 
 TEST(BusEnumeratorTestGroup, GetDriver)
 {
-    bus_enumerator_init(&en, buffer, buffer_len, STR_ID_MAX_LEN);
+    bus_enumerator_init(&en, buffer, buffer_len);
 
     bus_enumerator_add_node(&en, LARGE_STR_ID, NULL);
     bus_enumerator_add_node(&en, MEDIUM_STR_ID, DRIVER_POINTER);
@@ -196,7 +209,7 @@ TEST(BusEnumeratorTestGroup, GetDriver)
 
 TEST(BusEnumeratorTestGroup, GetStringId)
 {
-    bus_enumerator_init(&en, buffer, buffer_len, STR_ID_MAX_LEN);
+    bus_enumerator_init(&en, buffer, buffer_len);
 
     bus_enumerator_add_node(&en, LARGE_STR_ID, DRIVER_POINTER);
     bus_enumerator_add_node(&en, MEDIUM_STR_ID, DRIVER_POINTER);
@@ -207,4 +220,38 @@ TEST(BusEnumeratorTestGroup, GetStringId)
     bus_enumerator_update_node_info(&en, LARGE_STR_ID, SMALL_CAN_ID);
 
     STRCMP_EQUAL(MEDIUM_STR_ID, bus_enumerator_get_str_id(&en, MEDIUM_CAN_ID));
+}
+
+TEST_GROUP(BusEnumeratorBufferLengthTestGroup)
+{
+    bus_enumerator_t en;
+
+    static const uint16_t buffer_len = 2;
+    bus_enumerator_entry_allocator *buffer = NULL;
+
+    void setup(void)
+    {
+        // allocate the list of bus enumerators
+        buffer = (struct bus_enumerator_entry_allocator*)
+                 malloc(buffer_len * sizeof(struct bus_enumerator_entry_allocator));
+    }
+};
+
+TEST(BusEnumeratorBufferLengthTestGroup, NoBufferOverflow)
+{
+    bus_enumerator_init(&en, buffer, buffer_len);
+
+    bus_enumerator_add_node(&en, SMALL_STR_ID, DRIVER_POINTER);
+    bus_enumerator_add_node(&en, MEDIUM_STR_ID, DRIVER_POINTER);
+    // this node shouldn't be added
+    bus_enumerator_add_node(&en, LARGE_STR_ID, DRIVER_POINTER);
+
+    bus_enumerator_update_node_info(&en, SMALL_STR_ID, SMALL_CAN_ID);
+    bus_enumerator_update_node_info(&en, MEDIUM_STR_ID, MEDIUM_CAN_ID);
+    // should be NOP
+    bus_enumerator_update_node_info(&en, LARGE_STR_ID, SMALL_CAN_ID);
+
+    CHECK_EQUAL(2, bus_enumerator_get_number_of_entries(&en));
+
+    STRCMP_EQUAL(SMALL_STR_ID, en.can_to_str[0].str_id);
 }
