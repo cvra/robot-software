@@ -11,6 +11,7 @@ void trajectory_init(trajectory_t *traj,
     traj->sampling_time_us = sampling_time_us;
     traj->read_pointer = 0;
     traj->read_time_us = traj->last_defined_time_us = 0;
+    traj->last_chunk_start_time_us = 0;
 }
 
 void trajectory_chunk_init(trajectory_chunk_t *chunk, float *buffer, int length,
@@ -36,11 +37,17 @@ int trajectory_apply_chunk(trajectory_t *traj, trajectory_chunk_t *chunk)
         return TRAJECTORY_ERROR_DIMENSION_MISMATCH;
     }
 
+    if (chunk->start_time_us < traj->last_chunk_start_time_us) {
+        return TRAJECTORY_ERROR_CHUNK_OUT_OF_ORER;
+    }
+
     /* Check if the end of the chunk is past the end of the trajectory. */
     if (chunk->start_time_us + chunk->length * chunk->sampling_time_us >=
         traj->read_time_us + traj->length * traj->sampling_time_us) {
         return TRAJECTORY_ERROR_CHUNK_TOO_LONG;
     }
+
+    traj->last_chunk_start_time_us = chunk->start_time_us;
 
     start_index = (chunk->start_time_us - traj->read_time_us) / (traj->sampling_time_us);
     start_index += traj -> read_pointer;

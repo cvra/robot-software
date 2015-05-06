@@ -41,7 +41,7 @@ TEST_GROUP(TrajectoriesMergingTestGroup)
     float chunk_buffer[10];
 
 
-    const uint64_t dt = 100;
+    const uint64_t dt = 10;
     void setup(void)
     {
         memset(traj_buffer, 0, sizeof traj_buffer);
@@ -326,4 +326,19 @@ TEST(TrajectoriesErrorTestGroup, ReadBeforeReadPointer)
     // Now check before the read pointer
     res = trajectory_read(&traj, 5 * dt);
     CHECK_TRUE(res == NULL);
+}
+
+TEST(TrajectoriesErrorTestGroup, OutOfOrderArrival)
+{
+    int ret;
+    traj.read_pointer = traj.read_time_us = 0;
+    chunk.start_time_us = traj.read_time_us + 2 * dt;
+
+    trajectory_apply_chunk(&traj, &chunk);
+
+    // Chunk arrived out of order
+    chunk.start_time_us = chunk.start_time_us - 1 * dt;
+
+    ret = trajectory_apply_chunk(&traj, &chunk);
+    CHECK_EQUAL(TRAJECTORY_ERROR_CHUNK_OUT_OF_ORER, ret);
 }

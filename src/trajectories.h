@@ -10,6 +10,7 @@ extern "C" {
 #define TRAJECTORY_ERROR_TIMESTEP_MISMATCH -1
 #define TRAJECTORY_ERROR_CHUNK_TOO_LONG -2
 #define TRAJECTORY_ERROR_DIMENSION_MISMATCH -3
+#define TRAJECTORY_ERROR_CHUNK_OUT_OF_ORER -4
 
 typedef struct {
     float *buffer;
@@ -19,6 +20,7 @@ typedef struct {
     int read_pointer;
     int64_t read_time_us;
     int64_t last_defined_time_us;
+    int64_t last_chunk_start_time_us; /**< For out of order arrival detection. */
 } trajectory_t;
 
 typedef struct {
