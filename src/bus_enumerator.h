@@ -46,13 +46,11 @@ typedef struct {
     uint16_t buffer_len;
     uint16_t nb_entries_str_to_can;
     uint16_t nb_entries_can_to_str;
-    uint8_t str_id_max_len;
 } bus_enumerator_t;
 
 void bus_enumerator_init(bus_enumerator_t *en,
-                         bus_enumerator_entry_t *buffer,
-                         uint16_t buffer_len,
-                         uint8_t str_id_max_len);
+                         struct bus_enumerator_entry_allocator *buffer,
+                         uint16_t buffer_len);
 
 // only a reference of str_id is stored
 void bus_enumerator_add_node(bus_enumerator_t *en, const char *str_id, void *driver);
