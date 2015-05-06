@@ -40,7 +40,7 @@
 
 /** Address of the SNTP server. Currently resovles to pool.ntp.org for
  * Switzerland. */
-#define SNTP_SERVER_ADDRESS "212.51.144.44"
+#define SNTP_SERVER_ADDRESS "192.168.2.1"
 
 /** SNTP update delay - in milliseconds */
 #define SNTP_UPDATE_DELAY (20 * 1000)
