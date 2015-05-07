@@ -73,17 +73,9 @@ void motor_driver_set_voltage(motor_driver_t *d, float voltage);
 void motor_driver_update_trajectory(motor_driver_t *d, trajectory_chunk_t *traj);
 void motor_driver_disable(motor_driver_t *d);
 
-void motor_driver_set_can_id(motor_driver_t *d, int can_id);
-
 #define CAN_ID_NOT_SET  0xFFFF
 int motor_driver_get_can_id(motor_driver_t *d);
-
-parameter_namespace_t *motor_driver_get_parameter_namespace(motor_driver_t *d);
-
-motor_driver_t* motor_driver_list_get_next(motor_driver_t *d);
-// returns new head pointer
-motor_driver_t* motor_driver_list_add(motor_driver_t *head, motor_driver_t *new_driver);
-
+void motor_driver_set_can_id(motor_driver_t *d, int can_id);
 
 void motor_driver_lock(motor_driver_t *d);
 void motor_driver_unlock(motor_driver_t *d);
@@ -104,7 +96,6 @@ void motor_driver_get_trajectory_point(motor_driver_t *d,
                                        float *torque);
 
 /*
- * - Drivers are a linked list allocated by the motor_manager
  * - The setpoints are exclusively changed by the motor_manager as well
  * - The control module iterates over the linked list and sends the setpoints to
  *   the corresponding node via UAVCAN

@@ -41,12 +41,6 @@ const char *motor_driver_get_id(motor_driver_t *d)
     return d->id;
 }
 
-parameter_namespace_t *motor_driver_get_parameter_namespace(motor_driver_t *d)
-{
-    return &d->config.root;
-}
-
-
 // must be called with the locked driver
 static void free_trajectory_buffer(motor_driver_t *d)
 {
