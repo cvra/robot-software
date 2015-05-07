@@ -4,8 +4,7 @@
 #include <ch.h>
 #include <parameter/parameter.h>
 #include "unix_timestamp.h"
-typedef void trajectory_buffer_t;// todo
-typedef void trajectory_t;// todo
+#include "trajectories.h"
 
 #define MOTOR_ID_MAX_LEN 24
 
@@ -37,7 +36,7 @@ typedef struct {
         float velocity;
         float torque;
         float voltage;
-        trajectory_buffer_t *trajectory;
+        trajectory_t *trajectory;
     } setpt;
 
     struct {
@@ -71,7 +70,7 @@ void motor_driver_set_position(motor_driver_t *d, float position);
 void motor_driver_set_velocity(motor_driver_t *d, float velocity);
 void motor_driver_set_torque(motor_driver_t *d, float torque);
 void motor_driver_set_voltage(motor_driver_t *d, float voltage);
-void motor_driver_update_trajectory(motor_driver_t *d, trajectory_t *traj);
+void motor_driver_update_trajectory(motor_driver_t *d, trajectory_chunk_t *traj);
 void motor_driver_disable(motor_driver_t *d);
 
 void motor_driver_set_can_id(motor_driver_t *d, int can_id);

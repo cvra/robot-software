@@ -93,11 +93,12 @@ void motor_driver_set_voltage(motor_driver_t *d, float voltage)
     chBSemSignal(&d->lock);
 }
 
-void motor_driver_update_trajectory(motor_driver_t *d, trajectory_t *traj)
+void motor_driver_update_trajectory(motor_driver_t *d, trajectory_chunk_t *traj)
 {
     chBSemWait(&d->lock);
     if (d->control_mode != MOTOR_CONTROL_MODE_TRAJECTORY) {
         d->setpt.trajectory = chPoolAlloc(d->traj_buffer_pool);
+        // todo init
         d->control_mode = MOTOR_CONTROL_MODE_TRAJECTORY;
     }
     if (d->setpt.trajectory != NULL) {
