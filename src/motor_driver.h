@@ -41,12 +41,16 @@ typedef struct {
 extern "C" {
 #endif
 
+// initialize a new motor driver
+// - creates a parameter namespace actuator_id for the new driver in the
+//   namespace ns
+// - the actuator id is stored internally (copied)
 void motor_driver_init(motor_driver_t *d,
                        const char *actuator_id,
                        parameter_namespace_t *ns,
                        memory_pool_t *traj_buffer_pool);
 
-// returns a pointer to the stored id
+// returns a pointer to the stored id string
 const char *motor_driver_get_id(motor_driver_t *d);
 
 void motor_driver_set_position(motor_driver_t *d, float position);

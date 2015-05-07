@@ -34,6 +34,7 @@ target.arm:
     - src/interface_panel.c
     - src/robot_pose.c
     - src/odometry_publisher.c
+    - src/motor_driver.c
 
 source:
     - src/unix_timestamp.c
