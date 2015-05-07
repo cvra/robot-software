@@ -203,6 +203,16 @@ TEST(TrajectoriesReadTestGroup, ReadReturnsPointerToCorrectZone)
     POINTERS_EQUAL(res, &traj.buffer[4]);
 }
 
+TEST(TrajectoriesReadTestGroup, ReadRoundsToNearest)
+{
+    int64_t time = 4.7 * dt;
+    traj.last_defined_time_us = 10 * dt;
+
+    float *res = trajectory_read(&traj, time);
+    POINTERS_EQUAL(res, &traj.buffer[5]);
+    LONGS_EQUAL(5 * dt, traj.read_time_us);
+}
+
 TEST_GROUP(TrajectoriesMultipleDimensionTestGroup)
 {
     const uint64_t dt = 100;

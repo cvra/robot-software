@@ -77,8 +77,7 @@ int trajectory_apply_chunk(trajectory_t *traj, trajectory_chunk_t *chunk)
 float* trajectory_read(trajectory_t *traj, int64_t time)
 {
     int64_t read_time = traj->read_time_us;
-
-    traj->read_time_us = time;
+    int offset = (time - read_time + 0.5 * traj->sampling_time_us) / traj->sampling_time_us;
 
     if (time > traj->last_defined_time_us) {
         return NULL;
@@ -88,7 +87,9 @@ float* trajectory_read(trajectory_t *traj, int64_t time)
         return NULL;
     }
 
-    traj->read_pointer += (time - read_time) / traj->sampling_time_us;
+    traj->read_time_us += offset * traj->sampling_time_us;
+
+    traj->read_pointer += offset;
     traj->read_pointer = traj->read_pointer % traj->length;
 
 
