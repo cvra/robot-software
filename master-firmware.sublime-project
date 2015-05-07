@@ -32,6 +32,7 @@
 					"ChibiOS/os/various",
 					"ChibiOS/os/hal/lib/streams",
 					"./src",
+					"./src/can-driver/include/",
 					"./src/board",
 					"./dsdlc_generated/"
 				]
