@@ -2,6 +2,17 @@
 #include <string.h>
 #include "motor_driver.h"
 
+static void pid_register(struct pid_parameter_s *pid,
+                         parameter_namespace_t *parent,
+                         const char *name)
+{
+
+    parameter_namespace_declare(&pid->root, parent, name);
+    parameter_scalar_declare(&pid->kp, &pid->root, "kp");
+    parameter_scalar_declare(&pid->ki, &pid->root, "ki");
+    parameter_scalar_declare(&pid->kd, &pid->root, "kd");
+    parameter_scalar_declare(&pid->ilimit, &pid->root, "ilimit");
+}
 
 void motor_driver_init(motor_driver_t *d,
                        const char *actuator_id,
@@ -10,11 +21,19 @@ void motor_driver_init(motor_driver_t *d,
 {
     chBSemObjectInit(&d->lock, false);
     d->traj_buffer_pool = traj_buffer_pool;
+
     strncpy(d->id, actuator_id, MOTOR_ID_MAX_LEN);
     d->id[MOTOR_ID_MAX_LEN] = '\0';
+
     d->can_id = CAN_ID_NOT_SET;
+
     d->control_mode = MOTOR_CONTROL_MODE_DISABLED;
-    parameter_namespace_declare(&d->motor_ns, ns, d->id);
+
+    parameter_namespace_declare(&d->config.root, ns, d->id);
+    parameter_namespace_declare(&d->config.pid_root,&d->config.root, "pid");
+    pid_register(&d->config.position_pid, &d->config.pid_root, "position");
+    pid_register(&d->config.velocity_pid, &d->config.pid_root, "velocity");
+    pid_register(&d->config.current_pid, &d->config.pid_root, "current");
 }
 
 const char *motor_driver_get_id(motor_driver_t *d)
@@ -24,7 +43,7 @@ const char *motor_driver_get_id(motor_driver_t *d)
 
 parameter_namespace_t *motor_driver_get_parameter_namespace(motor_driver_t *d)
 {
-    return &d->motor_ns;
+    return &d->config.root;
 }
 
 

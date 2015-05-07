@@ -16,6 +16,15 @@ typedef void trajectory_t;// todo
 #define MOTOR_CONTROL_MODE_VOLTAGE      4
 #define MOTOR_CONTROL_MODE_TRAJECTORY   5
 
+
+struct pid_parameter_s {
+    parameter_namespace_t root;
+    parameter_t kp;
+    parameter_t ki;
+    parameter_t kd;
+    parameter_t ilimit;
+};
+
 typedef struct {
     char id[MOTOR_ID_MAX_LEN+1];
     int can_id;
@@ -31,9 +40,14 @@ typedef struct {
         trajectory_buffer_t *trajectory;
     } setpt;
 
+    struct {
+        parameter_namespace_t root;
+        parameter_namespace_t pid_root;
+        struct pid_parameter_s position_pid;
+        struct pid_parameter_s velocity_pid;
+        struct pid_parameter_s current_pid;
+    } config;
 
-
-    parameter_namespace_t motor_ns;
 } motor_driver_t;
 
 
