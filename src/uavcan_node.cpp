@@ -13,6 +13,7 @@
 #include <cvra/motor/config/PositionPID.hpp>
 #include <cvra/motor/config/CurrentPID.hpp>
 #include "motor_control.h"
+#include "robot_pose.h"
 #include <simplerpc/message.h>
 #include "src/rpc_server.h"
 #include "robot_parameters.h"
@@ -183,12 +184,6 @@ msg_t main(void *arg)
     res = enc_pos_sub.start(
         [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::MotorEncoderPosition>& msg)
         {
-            static uint8_t buffer[512];
-            cmp_ctx_t ctx;
-            cmp_mem_access_t mem;
-            ip_addr_t server;
-            IP4_ADDR(&server, 192, 168, 2, 1);
-
             if(msg.getSrcNodeID() == RIGHT_WHEEL_ID) {
                 odometry_encoder_record_sample(&enc_right[0], enc_right[1].timestamp, enc_right[1].value);
                 odometry_encoder_record_sample(&enc_right[1], timestamp_get(), msg.raw_encoder_position);
@@ -212,17 +207,11 @@ msg_t main(void *arg)
              */
             if(enc_right[1].timestamp != enc_right[0].timestamp && enc_left[1].timestamp != enc_left[0].timestamp) {
                 odometry_base_update(&robot_base, enc_right[1], enc_left[1]);
+
+                chMtxLock(&robot_pose_lock);
+                    odometry_base_get_pose(&robot_base, &robot_pose);
+                chMtxUnlock(&robot_pose_lock);
             }
-
-            struct robot_base_pose_2d_s pose;
-            odometry_base_get_pose(&robot_base, &pose);
-
-            message_encode(&ctx, &mem, buffer, sizeof buffer, "odometry_raw", 3);
-            cmp_write_float(&ctx, pose.x);
-            cmp_write_float(&ctx, pose.y);
-            cmp_write_float(&ctx, pose.theta);
-            message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, 20000);
-
         }
     );
     if (res != 0) {

@@ -31,3 +31,20 @@ void timestamp_set_reference(unix_timestamp_t unix_ts, int32_t local_ts)
     unix_reference = unix_ts;
     local_reference = local_ts;
 }
+
+int timestamp_unix_compare(unix_timestamp_t a, unix_timestamp_t b)
+{
+    if (a.s < b.s) {
+        return -1;
+    } else if (a.s == b.s) {
+        if (a.us < b.us) {
+            return -1;
+        } else if (a.us == b.us) {
+            return 0;
+        } else {
+            return 1;
+        }
+    } else {
+        return 1;
+    }
+}

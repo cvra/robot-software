@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 #include <hal.h>
 #include <chprintf.h>
@@ -17,9 +18,19 @@
 #include "usbconf.h"
 #include "config.h"
 #include "interface_panel.h"
+#include "motor_control.h"
+#include "robot_pose.h"
+#include "tracy-the-trajectory-tracker/src/trajectory_tracking.h"
+#include "robot_parameters.h"
+#include "odometry_publisher.h"
+
 
 /* Command line related.                                                     */
 #define SHELL_WA_SIZE   THD_WORKING_AREA_SIZE(2048)
+
+#define TRAJECTORY_STACKSIZE 2048
+
+THD_WORKING_AREA(wa_trajectory, TRAJECTORY_STACKSIZE);
 
 static const ShellConfig shell_cfg1 = {
     (BaseSequentialStream *)&SDU1,
@@ -37,6 +48,70 @@ void panic_hook(const char *reason)
     NVIC_SystemReset();
 }
 
+msg_t trajectory_thread(void *p)
+{
+    (void) p;
+
+    static float trajectory_buffer[100][5];
+    trajectory_init(&robot_trajectory, (float *)trajectory_buffer, 100, 5, 100*1000);
+
+    chMtxObjectInit(&robot_trajectory_lock);
+
+    while (1) {
+        float *point;
+        float x, y, theta, speed, omega;
+        uint64_t now;
+
+        now = ST2US(chVTGetSystemTime());
+
+        chMtxLock(&robot_trajectory_lock);
+        point = trajectory_read(&robot_trajectory, now);
+        chMtxUnlock(&robot_trajectory_lock);
+
+        if (point) {
+            struct tracking_error error;
+            struct robot_velocity input, output;
+
+            x = point[0];
+            y = point[1];
+            theta = point[2];
+            speed = point[3];
+            omega = point[4];
+
+            /* Get data from odometry. */
+            chMtxLock(&robot_pose_lock);
+                error.x_error = x - robot_pose.x;
+                error.y_error = y - robot_pose.y;
+                error.theta_error = theta - robot_pose.theta;
+
+                theta = robot_pose.theta;
+            chMtxUnlock(&robot_pose_lock);
+
+            input.tangential_velocity = speed;
+            input.angular_velocity = omega;
+
+            /* Transform error to local frame. */
+            tracy_global_error_to_local(&error, theta);
+
+            /* Perform controller iteration */
+            tracy_linear_controller(&error, &input, &output);
+
+            /* Apply speed to wheels. */
+            chprintf((BaseSequentialStream *)&SDU1 , "%d %.2f %.2f\n\r", now, output.tangential_velocity, output.angular_velocity);
+
+
+            /* TODO: Refactor this */
+            m1_vel_setpt = (0.5f * ROBOT_RIGHT_WHEEL_DIRECTION / ROBOT_RIGHT_MOTOR_WHEEL_RADIUS) * (output.tangential_velocity / M_PI + ROBOT_MOTOR_WHEELBASE * output.angular_velocity);
+            m2_vel_setpt = (0.5f * ROBOT_LEFT_WHEEL_DIRECTION / ROBOT_LEFT_MOTOR_WHEEL_RADIUS) * (output.tangential_velocity / M_PI - ROBOT_MOTOR_WHEELBASE * output.angular_velocity);
+
+        }
+
+        chThdSleepMilliseconds(100);
+    }
+
+    return MSG_OK;
+}
+
 /** Application entry point.  */
 int main(void) {
     static thread_t *shelltp = NULL;
@@ -50,6 +125,7 @@ int main(void) {
      */
     halInit();
     chSysInit();
+
 
     /* Initializes a serial-over-USB CDC driver.  */
     sduObjectInit(&SDU1);
@@ -73,6 +149,7 @@ int main(void) {
 
     /* Initialize global objects. */
     config_init();
+    chMtxObjectInit(&robot_pose_lock);
 
 
     /* Initialise timestamp module */
@@ -89,12 +166,20 @@ int main(void) {
         chThdCreateStatic(wa_lwip_thread, LWIP_THREAD_STACK_SIZE, NORMALPRIO + 2,
             lwip_thread, NULL);
 
+        chThdCreateStatic(wa_trajectory,
+                      TRAJECTORY_STACKSIZE,
+                      RPC_SERVER_PRIO,
+                      trajectory_thread,
+                      NULL);
+
+
         sntp_init();
         can_bridge_init();
         uavcan_node_start(42);
         rpc_server_init();
         message_server_init();
         interface_panel_init();
+        odometry_publisher_init();
     }
 
     /* main thread, spawns a shell on USB connection. */

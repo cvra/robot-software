@@ -30,6 +30,17 @@ unix_timestamp_t timestamp_local_us_to_unix(int32_t ts);
 /** Sets a reference point for synchronization. */
 void timestamp_set_reference(unix_timestamp_t unix_ts, int32_t local_ts);
 
+/** Compares two UNIX timestamps.
+ *
+ * @return -1 If a < b
+ * @return 0 If a == b
+ * @return 1 If a > b
+ *
+ * @note The return value convention is the same as used for libc's qsort
+ * function.
+ */
+int timestamp_unix_compare(unix_timestamp_t a, unix_timestamp_t b);
+
 
 #ifdef __cplusplus
 }

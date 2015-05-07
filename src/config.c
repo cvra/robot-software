@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "robot_parameters.h"
 #include "config.h"
+#include "tracy-the-trajectory-tracker/src/trajectory_tracking.h"
 
 parameter_namespace_t global_config;
 struct slave_config_s slave_configs[SLAVE_CONFIG_COUNT];
@@ -15,6 +16,10 @@ static parameter_namespace_t odometry_config;
 static parameter_t odometry_wheel_base;
 static parameter_t odometry_left_radius;
 static parameter_t odometry_right_radius;
+
+static parameter_namespace_t tracy_config;
+static parameter_t tracy_g;
+static parameter_t tracy_damping_coef;
 
 static void pid_register(struct pid_parameter_s *pid,
                          parameter_namespace_t *parent, const char *name)
@@ -49,6 +54,13 @@ void config_init(void)
                                           &odometry_config,
                                           "radius_left",
                                           ROBOT_LEFT_EXTERNAL_WHEEL_RADIUS);
+
+    parameter_namespace_declare(&tracy_config, &master_config, "tracy");
+    parameter_scalar_declare_with_default(&tracy_g, &tracy_config, "g",
+                                          DEFAULT_PARAM_G);
+
+    parameter_scalar_declare_with_default(&tracy_damping_coef, &tracy_config, "damping",
+                                          DEFAULT_PARAM_DAMPING_COEFF);
 
     parameter_namespace_declare(&slave_config_root, &global_config, "slaves");
 
