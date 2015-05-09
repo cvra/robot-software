@@ -240,6 +240,11 @@ GLOBAL_SRC_DEP = app_src.mk
 RULESPATH = $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC
 include $(RULESPATH)/rules.mk
 
+.PHONY: mem_info
+mem_info: build/$(PROJECT).elf
+	arm-none-eabi-nm --size-sort --print-size build/$(PROJECT).elf > build/memory_size.txt
+	arm-none-eabi-nm --numeric-sort --print-size build/$(PROJECT).elf > build/memory_layout.txt
+
 .PHONY: flash
 flash: build/$(PROJECT).elf
 	openocd -f oocd.cfg -c "program build/ch.elf verify reset" -c "shutdown"
