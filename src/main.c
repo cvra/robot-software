@@ -42,6 +42,7 @@ static const ShellConfig shell_cfg1 = {
  * @param [in] reaon Kernel panic message.  */
 void panic_hook(const char *reason)
 {
+    palClearPad(GPIOC, GPIOC_LED);
     panic_log_write(reason);
 
     // reboot
