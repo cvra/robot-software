@@ -10,7 +10,7 @@
 #include "robot_pose.h"
 #include "odometry_publisher.h"
 
-#define ODOMETRY_PUBLISHER_STACKSIZE 512
+#define ODOMETRY_PUBLISHER_STACKSIZE 1024
 
 THD_WORKING_AREA(wa_odometry_publisher, ODOMETRY_PUBLISHER_STACKSIZE);
 

@@ -93,6 +93,8 @@ msg_t pc_error_led_thread(void *p)
 
             /* Skip checking less critical errors. */
             continue;
+        } else {
+            chThdSleepMilliseconds(1000);
         }
     }
 
