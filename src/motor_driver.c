@@ -29,6 +29,8 @@ void motor_driver_init(motor_driver_t *d,
 
     d->control_mode = MOTOR_CONTROL_MODE_DISABLED;
 
+    d->can_driver = NULL;
+
     parameter_namespace_declare(&d->config.root, ns, d->id);
     parameter_namespace_declare(&d->config.pid_root,&d->config.root, "pid");
     pid_register(&d->config.position_pid, &d->config.pid_root, "position");

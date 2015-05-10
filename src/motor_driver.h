@@ -47,6 +47,8 @@ typedef struct {
         struct pid_parameter_s current_pid;
     } config;
 
+    void *can_driver;
+
 } motor_driver_t;
 
 
