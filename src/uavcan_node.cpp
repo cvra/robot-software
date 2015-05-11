@@ -187,6 +187,7 @@ static THD_FUNCTION(uavcan_node, arg)
 
             control_start();
 
+            node.setStatusOk();
         });
 
     if (load_config_srv_res < 0) {
@@ -271,8 +272,6 @@ static THD_FUNCTION(uavcan_node, arg)
     if (enable_motor_srv_res < 0) {
         uavcan_failure("cvra::motor::config::EnableMotor server");
     }
-
-    node.setStatusOk();
 
     while (true) {
         int res = node.spin(uavcan::MonotonicDuration::fromMSec(100));
