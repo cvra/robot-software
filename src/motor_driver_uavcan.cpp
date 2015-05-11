@@ -6,6 +6,8 @@
 #include <cvra/motor/config/CurrentPID.hpp>
 #include <cvra/motor/control/Velocity.hpp>
 #include <cvra/motor/control/Position.hpp>
+#include <cvra/motor/control/Torque.hpp>
+#include <cvra/motor/control/Voltage.hpp>
 #include "motor_driver.h"
 #include "motor_driver_uavcan.h"
 #include "uavcan_node_private.hpp"
@@ -16,13 +18,17 @@ struct can_driver_s {
     uavcan::ServiceClient<cvra::motor::config::CurrentPID> current_pid_client;
     uavcan::Publisher<cvra::motor::control::Velocity> velocity_pub;
     uavcan::Publisher<cvra::motor::control::Position> position_pub;
+    uavcan::Publisher<cvra::motor::control::Torque> torque_pub;
+    uavcan::Publisher<cvra::motor::control::Voltage> voltage_pub;
 
     can_driver_s():
         speed_pid_client(getNode()),
         position_pid_client(getNode()),
         current_pid_client(getNode()),
         velocity_pub(getNode()),
-        position_pub(getNode())
+        position_pub(getNode()),
+        torque_pub(getNode()),
+        voltage_pub(getNode())
     {
 
     }
@@ -82,6 +88,8 @@ void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
 {
     cvra::motor::control::Position position_setpoint;
     cvra::motor::control::Velocity velocity_setpoint;
+    cvra::motor::control::Torque torque_setpoint;
+    cvra::motor::control::Voltage voltage_setpoint;
 
     int node_id = motor_driver_get_can_id(d);
     if (node_id == CAN_ID_NOT_SET) {
@@ -102,7 +110,15 @@ void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
             break;
 
         case MOTOR_CONTROL_MODE_TORQUE:
+            torque_setpoint.torque = d->setpt.torque;
+            can_drv->torque_pub.unicast(torque_setpoint, node_id);
+            break;
+
         case MOTOR_CONTROL_MODE_VOLTAGE:
+            voltage_setpoint.voltage = d->setpt.voltage;
+            can_drv->voltage_pub.unicast(voltage_setpoint, node_id);
+            break;
+
         case MOTOR_CONTROL_MODE_TRAJECTORY:
             /* TODO */
         case MOTOR_CONTROL_MODE_DISABLED:
