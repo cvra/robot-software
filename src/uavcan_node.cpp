@@ -2,17 +2,15 @@
 #include <hal.h>
 #include <main.h>
 #include <uavcan/uavcan.hpp>
-#include <uavcan_stm32/uavcan_stm32.hpp>
-#include <uavcan/protocol/NodeStatus.hpp>
 #include <cvra/Reboot.hpp>
-#include <cvra/motor/control/Velocity.hpp>
-#include <cvra/motor/control/Position.hpp>
-#include <cvra/motor/feedback/MotorEncoderPosition.hpp>
 #include <control.h>
 #include <parameter/parameter.h>
 #include <encoder.h>
+#include "timestamp/timestamp.h"
 #include "uavcan_node.h"
 #include <can-bootloader/boot_arg.h>
+#include <uavcan_stm32/uavcan_stm32.hpp>
+#include <uavcan/protocol/NodeStatus.hpp>
 
 #include <cvra/motor/config/LoadConfiguration.hpp>
 #include <cvra/motor/config/CurrentPID.hpp>
@@ -20,6 +18,12 @@
 #include <cvra/motor/config/PositionPID.hpp>
 #include <cvra/motor/config/TorqueLimit.hpp>
 #include <cvra/motor/config/EnableMotor.hpp>
+#include <cvra/motor/feedback/MotorEncoderPosition.hpp>
+#include <cvra/motor/control/Velocity.hpp>
+#include <cvra/motor/control/Position.hpp>
+#include <cvra/motor/control/Trajectory.hpp>
+#include <cvra/motor/control/Torque.hpp>
+#include <cvra/motor/control/Voltage.hpp>
 
 #define CAN_BITRATE 1000000
 
@@ -85,6 +89,22 @@ static THD_FUNCTION(uavcan_node, arg)
         uavcan_failure("cvra::Reboot subscriber");
     }
 
+    uavcan::Subscriber<cvra::motor::control::Trajectory> traj_ctrl_sub(node);
+    ret = traj_ctrl_sub.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::motor::control::Trajectory>& msg)
+        {
+            timestamp_t timestamp = timestamp_get();
+            control_update_trajectory_setpoint(msg.position,
+                                               msg.velocity,
+                                               msg.acceleration,
+                                               msg.torque,
+                                               timestamp);
+        }
+    );
+    if (ret != 0) {
+        uavcan_failure("cvra::motor::control::Trajectory subscriber");
+    }
+
     uavcan::Subscriber<cvra::motor::control::Velocity> vel_ctrl_sub(node);
     ret = vel_ctrl_sub.start(
         [&](const uavcan::ReceivedDataStructure<cvra::motor::control::Velocity>& msg)
@@ -105,6 +125,29 @@ static THD_FUNCTION(uavcan_node, arg)
     );
     if (ret != 0) {
         uavcan_failure("cvra::motor::control::Position subscriber");
+    }
+
+    uavcan::Subscriber<cvra::motor::control::Torque> torque_ctrl_sub(node);
+    ret = torque_ctrl_sub.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::motor::control::Torque>& msg)
+        {
+            control_update_torque_setpoint(msg.torque);
+        }
+    );
+    if (ret != 0) {
+        uavcan_failure("cvra::motor::control::Torque subscriber");
+    }
+
+    uavcan::Subscriber<cvra::motor::control::Voltage> voltage_ctrl_sub(node);
+    ret = voltage_ctrl_sub.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::motor::control::Voltage>& msg)
+        {
+            (void)msg;
+            chSysHalt("voltage control not implemented yet");
+        }
+    );
+    if (ret != 0) {
+        uavcan_failure("cvra::motor::control::Voltage subscriber");
     }
 
     /* Publishers */
