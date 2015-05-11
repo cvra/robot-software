@@ -192,51 +192,9 @@ int main(void) {
 
     control_init();
 
-
-
-
-
-    // todo move this to CAN init message
-    parameter_scalar_set(parameter_find(&parameter_root_ns, "control/acceleration_limit"), 10);
-    parameter_scalar_set(parameter_find(&parameter_root_ns, "control/velocity_limit"), 4 * 3.14);
-    parameter_scalar_set(parameter_find(&parameter_root_ns, "control/torque_limit"), INFINITY);
-    parameter_scalar_set(parameter_find(&parameter_root_ns, "control/current/kp"), 5);
-    parameter_scalar_set(parameter_find(&parameter_root_ns, "control/current/ki"), 1000);
-    parameter_scalar_set(parameter_find(&parameter_root_ns, "control/current/ki_limit"), 50);
-    parameter_scalar_set(parameter_find(&parameter_root_ns, "control/velocity/kp"), 0.1);
-    parameter_scalar_set(parameter_find(&parameter_root_ns, "control/velocity/ki"), 0.05);
-    parameter_scalar_set(parameter_find(&parameter_root_ns, "control/velocity/ki_limit"), 10);
-    parameter_scalar_set(parameter_find(&parameter_root_ns, "control/position/kp"), 0);
-    parameter_scalar_set(parameter_find(&parameter_root_ns, "control/position/ki"), 0);
-    parameter_scalar_set(parameter_find(&parameter_root_ns, "control/position/ki_limit"), 0);
-
-    control_feedback.input_selection = FEEDBACK_PRIMARY_ENCODER_BOUNDED;
-
-    control_feedback.primary_encoder.transmission_p = 49; // debra base
-    control_feedback.primary_encoder.transmission_q = 676;
-    control_feedback.primary_encoder.ticks_per_rev = (1<<12);
-
-    control_feedback.secondary_encoder.transmission_p = 1;
-    control_feedback.secondary_encoder.transmission_q = 1;
-    control_feedback.secondary_encoder.ticks_per_rev = (1<<14);
-
-    control_feedback.potentiometer.gain = 1;
-    control_feedback.potentiometer.zero = 0;
-
-    control_feedback.rpm.phase = 0;
-
-
-
-
-
-
-    control_start();
-
     chThdCreateStatic(stream_task_wa, sizeof(stream_task_wa), LOWPRIO, stream_task, NULL);
     chThdCreateStatic(parameter_listener_wa, sizeof(parameter_listener_wa), LOWPRIO, parameter_listener, &SD3);
     chThdCreateStatic(led_thread_wa, sizeof(led_thread_wa), LOWPRIO, led_thread, NULL);
-
-    control_enable(true);
 
     static struct uavcan_node_arg node_arg;
     node_arg.node_id = config.ID;

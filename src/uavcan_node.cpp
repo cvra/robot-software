@@ -14,8 +14,9 @@
 #include "uavcan_node.h"
 #include <can-bootloader/boot_arg.h>
 
+#include <cvra/motor/config/LoadConfiguration.hpp>
 #include <cvra/motor/config/CurrentPID.hpp>
-#include <cvra/motor/config/SpeedPID.hpp>
+#include <cvra/motor/config/VelocityPID.hpp>
 #include <cvra/motor/config/PositionPID.hpp>
 #include <cvra/motor/config/TorqueLimit.hpp>
 #include <cvra/motor/config/EnableMotor.hpp>
@@ -116,6 +117,82 @@ static THD_FUNCTION(uavcan_node, arg)
 
 
     /* Servers */
+    /** initial config */
+    uavcan::ServiceServer<cvra::motor::config::LoadConfiguration> load_config_srv(node);
+    const int load_config_srv_res = load_config_srv.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::motor::config::LoadConfiguration::Request>& req,
+            cvra::motor::config::LoadConfiguration::Response& rsp)
+        {
+            control_stop();
+
+            parameter_scalar_set(parameter_find(&parameter_root_ns, "control/acceleration_limit"), req.acceleration_limit);
+            parameter_scalar_set(parameter_find(&parameter_root_ns, "control/velocity_limit"), req.velocity_limit);
+            parameter_scalar_set(parameter_find(&parameter_root_ns, "control/torque_limit"), req.torque_limit);
+            parameter_scalar_set(parameter_find(&parameter_root_ns, "control/low_batt_th"), req.low_batt_th);
+
+            parameter_scalar_set(parameter_find(&parameter_root_ns, "control/current/kp"), req.current_pid.kp);
+            parameter_scalar_set(parameter_find(&parameter_root_ns, "control/current/ki"), req.current_pid.ki);
+            parameter_scalar_set(parameter_find(&parameter_root_ns, "control/current/kd"), req.current_pid.kd);
+            parameter_scalar_set(parameter_find(&parameter_root_ns, "control/current/i_limit"), req.current_pid.ilimit);
+            parameter_scalar_set(parameter_find(&parameter_root_ns, "control/velocity/kp"), req.velocity_pid.kp);
+            parameter_scalar_set(parameter_find(&parameter_root_ns, "control/velocity/ki"), req.velocity_pid.ki);
+            parameter_scalar_set(parameter_find(&parameter_root_ns, "control/velocity/kd"), req.velocity_pid.kd);
+            parameter_scalar_set(parameter_find(&parameter_root_ns, "control/velocity/i_limit"), req.velocity_pid.ilimit);
+            parameter_scalar_set(parameter_find(&parameter_root_ns, "control/position/kp"), req.position_pid.kp);
+            parameter_scalar_set(parameter_find(&parameter_root_ns, "control/position/ki"), req.position_pid.ki);
+            parameter_scalar_set(parameter_find(&parameter_root_ns, "control/position/kd"), req.position_pid.kd);
+            parameter_scalar_set(parameter_find(&parameter_root_ns, "control/position/i_limit"), req.position_pid.ilimit);
+
+            parameter_scalar_set(parameter_find(&parameter_root_ns, "motor/torque_cst"), req.torque_constant);
+
+            parameter_scalar_set(parameter_find(&parameter_root_ns, "thermal/current_gain"), req.thermal_current_gain);
+            parameter_scalar_set(parameter_find(&parameter_root_ns, "thermal/max_temp"), req.max_temperature);
+            parameter_scalar_set(parameter_find(&parameter_root_ns, "thermal/Rth"), req.thermal_resistance);
+            parameter_scalar_set(parameter_find(&parameter_root_ns, "thermal/Cth"), req.thermal_capacity);
+
+            rsp.error_message = "";
+
+            if (req.mode == cvra::motor::config::LoadConfiguration::Request::MODE_OPEN_LOOP) {
+                rsp.error_message = "not implemented yet";
+            }
+            if (req.mode == cvra::motor::config::LoadConfiguration::Request::MODE_INDEX) {
+                control_feedback.input_selection = FEEDBACK_RPM;
+            }
+            if (req.mode == cvra::motor::config::LoadConfiguration::Request::MODE_ENC_PERIODIC) {
+                control_feedback.input_selection = FEEDBACK_PRIMARY_ENCODER_PERIODIC;
+            }
+            if (req.mode == cvra::motor::config::LoadConfiguration::Request::MODE_ENC_BOUNDED) {
+                control_feedback.input_selection = FEEDBACK_PRIMARY_ENCODER_BOUNDED;
+            }
+            if (req.mode == cvra::motor::config::LoadConfiguration::Request::MODE_2_ENC_PERIODIC) {
+                control_feedback.input_selection = FEEDBACK_TWO_ENCODERS_PERIODIC;
+            }
+            if (req.mode == cvra::motor::config::LoadConfiguration::Request::MODE_MOTOR_POT) {
+                control_feedback.input_selection = FEEDBACK_POTENTIOMETER;
+            }
+
+
+            control_feedback.primary_encoder.transmission_p = req.transmission_ratio_p;
+            control_feedback.primary_encoder.transmission_q = req.transmission_ratio_q;
+            control_feedback.primary_encoder.ticks_per_rev = req.motor_encoder_steps_per_revolution;
+
+            control_feedback.secondary_encoder.transmission_p = 1;
+            control_feedback.secondary_encoder.transmission_q = 1;
+            control_feedback.secondary_encoder.ticks_per_rev = req.second_encoder_steps_per_revolution;
+
+            control_feedback.potentiometer.gain = 1;
+            control_feedback.potentiometer.zero = 0;
+
+            control_feedback.rpm.phase = 0;
+
+            control_start();
+
+        });
+
+    if (load_config_srv_res < 0) {
+        uavcan_failure("cvra::motor::config::LoadConfiguration server");
+    }
+
     /** Current PID config */
     uavcan::ServiceServer<cvra::motor::config::CurrentPID> current_pid_srv(node);
     const int current_pid_srv_res = current_pid_srv.start(
@@ -133,11 +210,11 @@ static THD_FUNCTION(uavcan_node, arg)
         uavcan_failure("cvra::motor::config::CurrentPID server");
     }
 
-    /** Speed PID config */
-    uavcan::ServiceServer<cvra::motor::config::SpeedPID> velocity_pid_srv(node);
+    /** Velocity PID config */
+    uavcan::ServiceServer<cvra::motor::config::VelocityPID> velocity_pid_srv(node);
     const int velocity_pid_srv_res = velocity_pid_srv.start(
-        [&](const uavcan::ReceivedDataStructure<cvra::motor::config::SpeedPID::Request>& req,
-            cvra::motor::config::SpeedPID::Response& rsp)
+        [&](const uavcan::ReceivedDataStructure<cvra::motor::config::VelocityPID::Request>& req,
+            cvra::motor::config::VelocityPID::Response& rsp)
         {
             parameter_scalar_set(parameter_find(&parameter_root_ns, "/control/velocity/kp"), req.pid.kp);
             parameter_scalar_set(parameter_find(&parameter_root_ns, "/control/velocity/ki"), req.pid.ki);
@@ -147,7 +224,7 @@ static THD_FUNCTION(uavcan_node, arg)
         });
 
     if (velocity_pid_srv_res < 0) {
-        uavcan_failure("cvra::motor::config::SpeedPID server");
+        uavcan_failure("cvra::motor::config::VelocityPID server");
     }
 
     /** Position PID config */
