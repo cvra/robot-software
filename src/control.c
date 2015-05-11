@@ -305,12 +305,11 @@ static THD_FUNCTION(control_loop, arg)
                                (eventflags_t)ANALOG_EVENT_CONVERSION_DONE);
 
 
-    float control_period_s = 1/(float)ANALOG_CONVERSION_FREQUNECY;
+    const float delta_t = 1/(float)ANALOG_CONVERSION_FREQUNECY;
     while (!control_request_termination) {
 
         update_parameters();
 
-        float delta_t = control_period_s;
         if (!control_en || analog_get_battery_voltage() < low_batt_th) {
             pid_reset_integral(&ctrl.current_pid);
             pid_reset_integral(&ctrl.velocity_pid);
