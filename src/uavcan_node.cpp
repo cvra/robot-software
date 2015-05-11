@@ -9,7 +9,7 @@
 #include <cvra/motor/control/Velocity.hpp>
 #include <cvra/Reboot.hpp>
 #include <cvra/motor/feedback/MotorEncoderPosition.hpp>
-#include <cvra/motor/config/SpeedPID.hpp>
+#include <cvra/motor/config/VelocityPID.hpp>
 #include <cvra/motor/config/PositionPID.hpp>
 #include <cvra/motor/config/CurrentPID.hpp>
 #include "motor_control.h"
@@ -235,12 +235,12 @@ msg_t main(void *arg)
     }
 
     /* Config client. */
-    uavcan::ServiceClient<cvra::motor::config::SpeedPID> speed_pid_client(node);
+    uavcan::ServiceClient<cvra::motor::config::VelocityPID> speed_pid_client(node);
     if (speed_pid_client.init() < 0) {
-        node_fail("cvra::motor::config::SpeedPID client");
+        node_fail("cvra::motor::config::VelocityPID client");
     }
 
-    speed_pid_client.setCallback([](const uavcan::ServiceCallResult<cvra::motor::config::SpeedPID>& call_result)
+    speed_pid_client.setCallback([](const uavcan::ServiceCallResult<cvra::motor::config::VelocityPID>& call_result)
     {
         if (call_result.isSuccessful() == false) {
             // TODO: error handling.

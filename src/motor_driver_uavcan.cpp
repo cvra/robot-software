@@ -1,7 +1,7 @@
 
 #include <uavcan/uavcan.hpp>
 #include <uavcan/protocol/NodeStatus.hpp>
-#include <cvra/motor/config/SpeedPID.hpp>
+#include <cvra/motor/config/VelocityPID.hpp>
 #include <cvra/motor/config/PositionPID.hpp>
 #include <cvra/motor/config/CurrentPID.hpp>
 #include <cvra/motor/control/Velocity.hpp>
@@ -11,7 +11,7 @@
 #include "uavcan_node_private.hpp"
 
 struct can_driver_s {
-    uavcan::ServiceClient<cvra::motor::config::SpeedPID> speed_pid_client;
+    uavcan::ServiceClient<cvra::motor::config::VelocityPID> speed_pid_client;
     uavcan::ServiceClient<cvra::motor::config::PositionPID> position_pid_client;
     uavcan::ServiceClient<cvra::motor::config::CurrentPID> current_pid_client;
     uavcan::Publisher<cvra::motor::control::Velocity> velocity_pub;
@@ -59,7 +59,7 @@ void motor_driver_uavcan_update_config(motor_driver_t *d)
         }
 
         if (parameter_namespace_contains_changed(&d->config.velocity_pid.root)) {
-            cvra::motor::config::SpeedPID::Request request;
+            cvra::motor::config::VelocityPID::Request request;
             request.pid.kp = parameter_scalar_get(&d->config.velocity_pid.kp);
             request.pid.ki = parameter_scalar_get(&d->config.velocity_pid.ki);
             request.pid.kd = parameter_scalar_get(&d->config.velocity_pid.kd);
