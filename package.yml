@@ -35,6 +35,7 @@ target.arm:
     - src/robot_pose.c
     - src/odometry_publisher.c
     - src/motor_driver.c
+    - src/motor_driver_uavcan.cpp
 
 source:
     - src/unix_timestamp.c

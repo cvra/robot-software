@@ -1,13 +1,25 @@
 
 #include <uavcan/uavcan.hpp>
+#include <uavcan/protocol/NodeStatus.hpp>
 #include <cvra/motor/config/SpeedPID.hpp>
 #include <cvra/motor/config/PositionPID.hpp>
 #include <cvra/motor/config/CurrentPID.hpp>
 #include "motor_driver.h"
 #include "motor_driver_uavcan.h"
+#include "uavcan_node_private.hpp"
 
 struct can_driver_s {
     uavcan::ServiceClient<cvra::motor::config::SpeedPID> speed_pid_client;
+    uavcan::ServiceClient<cvra::motor::config::PositionPID> position_pid_client;
+    uavcan::ServiceClient<cvra::motor::config::CurrentPID> current_pid_client;
+
+    can_driver_s():
+        speed_pid_client(getNode()),
+        position_pid_client(getNode()),
+        current_pid_client(getNode())
+    {
+
+    }
 };
 
 
@@ -39,7 +51,7 @@ void motor_driver_uavcan_update_config(motor_driver_t *d)
             request.pid.ki = parameter_scalar_get(&d->config.position_pid.ki);
             request.pid.kd = parameter_scalar_get(&d->config.position_pid.kd);
             request.pid.ilimit = parameter_scalar_get(&d->config.position_pid.ilimit);
-            position_pid_client.call(node_id, request);
+            can_drv->position_pid_client.call(node_id, request);
         }
 
         if (parameter_namespace_contains_changed(&d->config.velocity_pid.root)) {
@@ -57,7 +69,7 @@ void motor_driver_uavcan_update_config(motor_driver_t *d)
             request.pid.ki = parameter_scalar_get(&d->config.current_pid.ki);
             request.pid.kd = parameter_scalar_get(&d->config.current_pid.kd);
             request.pid.ilimit = parameter_scalar_get(&d->config.current_pid.ilimit);
-            current_pid_client.call(node_id, request);
+            can_drv->current_pid_client.call(node_id, request);
         }
     }
 }

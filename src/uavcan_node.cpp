@@ -21,6 +21,7 @@
 #include "odometry/robot_base.h"
 #include "odometry/odometry.h"
 #include "config.h"
+#include "uavcan_node_private.hpp"
 
 #include <errno.h>
 
@@ -35,8 +36,6 @@ namespace uavcan_node
 {
 
 uavcan_stm32::CanInitHelper<128> can;
-
-typedef uavcan::Node<16384> Node;
 
 uavcan::LazyConstructor<Node> node_;
 
