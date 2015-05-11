@@ -23,3 +23,10 @@ Now the board should be pingable at 192.168.0.20.
 If there is a kernel panic, the board will reboot and turn on a green led.
 The panic reason is available via the USB shell or via API.
 
+# Deploying on the robots
+To deploy on the robots we use Fabric which allows to remotely flash the binary.
+The script will build the firmware, copy it to the robot and flash the board using the embedded JTAG probe.
+
+To deploy to a robot run : `fab debra deploy`.
+To deploy to several robot and a local virtual machine: `fab debra caprica vm deploy`.
+
