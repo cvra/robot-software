@@ -255,6 +255,12 @@ dsdlc:
 	@$(COLOR_PRINTF) "Running uavcan dsdl compiler"
 	$(LIBUAVCAN_DSDLC) cvra $(UAVCAN_DSDL_DIR)
 
+.PHONY: dsdlc
+heap_size: build/$(PROJECT).elf
+	@python/heap_size.py build/$(PROJECT).elf
+
+all: heap_size
+
 # Generates a ctags file containing the correct definition for the build
 .PHONY: ctags
 ctags:
