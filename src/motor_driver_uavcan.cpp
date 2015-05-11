@@ -4,6 +4,8 @@
 #include <cvra/motor/config/SpeedPID.hpp>
 #include <cvra/motor/config/PositionPID.hpp>
 #include <cvra/motor/config/CurrentPID.hpp>
+#include <cvra/motor/control/Velocity.hpp>
+#include <cvra/motor/control/Position.hpp>
 #include "motor_driver.h"
 #include "motor_driver_uavcan.h"
 #include "uavcan_node_private.hpp"
@@ -12,11 +14,15 @@ struct can_driver_s {
     uavcan::ServiceClient<cvra::motor::config::SpeedPID> speed_pid_client;
     uavcan::ServiceClient<cvra::motor::config::PositionPID> position_pid_client;
     uavcan::ServiceClient<cvra::motor::config::CurrentPID> current_pid_client;
+    uavcan::Publisher<cvra::motor::control::Velocity> velocity_pub;
+    uavcan::Publisher<cvra::motor::control::Position> position_pub;
 
     can_driver_s():
         speed_pid_client(getNode()),
         position_pid_client(getNode()),
-        current_pid_client(getNode())
+        current_pid_client(getNode()),
+        velocity_pub(getNode()),
+        position_pub(getNode())
     {
 
     }
@@ -74,5 +80,39 @@ void motor_driver_uavcan_update_config(motor_driver_t *d)
 
 void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
 {
+    cvra::motor::control::Position position_setpoint;
+    cvra::motor::control::Velocity velocity_setpoint;
 
+    int node_id = motor_driver_get_can_id(d);
+    if (node_id == CAN_ID_NOT_SET) {
+        return;
+    }
+    driver_allocation(d);
+    can_driver_s *can_drv = (can_driver_s*)d->can_driver;
+
+    switch(d->control_mode) {
+        case MOTOR_CONTROL_MODE_VELOCITY:
+            velocity_setpoint.velocity = d->setpt.velocity;
+            can_drv->velocity_pub.unicast(velocity_setpoint, node_id);
+            break;
+
+        case MOTOR_CONTROL_MODE_POSITION:
+            position_setpoint.position = d->setpt.position;
+            can_drv->position_pub.unicast(position_setpoint, node_id);
+            break;
+
+        case MOTOR_CONTROL_MODE_TORQUE:
+        case MOTOR_CONTROL_MODE_VOLTAGE:
+        case MOTOR_CONTROL_MODE_TRAJECTORY:
+            /* TODO */
+        case MOTOR_CONTROL_MODE_DISABLED:
+        default:
+            /* TODO */
+            break;
+
+
+
+            break;
+
+    }
 }
