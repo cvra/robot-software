@@ -24,6 +24,7 @@
 #include "odometry/odometry.h"
 #include "config.h"
 #include "uavcan_node_private.hpp"
+#include "uavcan_node.h"
 
 #include <errno.h>
 
@@ -33,6 +34,10 @@
 #define LEFT_WHEEL_ID   10
 
 #define UAVCAN_NODE_STACK_SIZE 4096
+
+
+bus_enumerator_t bus_enumerator;
+
 
 namespace uavcan_node
 {
