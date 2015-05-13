@@ -259,7 +259,7 @@ dsdlc:
 heap_size: build/$(PROJECT).elf
 	@python/heap_size.py build/$(PROJECT).elf
 
-all: heap_size
+all: heap_size mem_info
 
 # Generates a ctags file containing the correct definition for the build
 .PHONY: ctags
