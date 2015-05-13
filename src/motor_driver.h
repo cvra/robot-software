@@ -97,14 +97,6 @@ void motor_driver_get_trajectory_point(motor_driver_t *d,
                                        float *acceleration,
                                        float *torque);
 
-/*
- * - The setpoints are exclusively changed by the motor_manager as well
- * - The control module iterates over the linked list and sends the setpoints to
- *   the corresponding node via UAVCAN
- * - Parameter
- * - C++ with direct uavcan calls?
- */
-
 #ifdef __cplusplus
 }
 #endif
