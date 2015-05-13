@@ -48,11 +48,10 @@ static void driver_allocation(motor_driver_t *d)
 
 void motor_driver_uavcan_update_config(motor_driver_t *d)
 {
-    motor_driver_lock(&d);
 
     int node_id = motor_driver_get_can_id(d);
     if (node_id == CAN_ID_NOT_SET) {
-        goto end;
+        return;
     }
     driver_allocation(d);
     struct can_driver_s *can_drv = (struct can_driver_s*)d->can_driver;
@@ -85,9 +84,6 @@ void motor_driver_uavcan_update_config(motor_driver_t *d)
             can_drv->current_pid_client.call(node_id, request);
         }
     }
-
-end:
-    motor_driver_unlock(&d);
 }
 
 void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
@@ -97,15 +93,15 @@ void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
     cvra::motor::control::Torque torque_setpoint;
     cvra::motor::control::Voltage voltage_setpoint;
 
-    motor_driver_lock(&d);
 
     int node_id = motor_driver_get_can_id(d);
     if (node_id == CAN_ID_NOT_SET) {
-        goto end;
+        return;
     }
     driver_allocation(d);
     can_driver_s *can_drv = (can_driver_s*)d->can_driver;
 
+    motor_driver_lock(d);
     switch(d->control_mode) {
         case MOTOR_CONTROL_MODE_VELOCITY:
             velocity_setpoint.velocity = d->setpt.velocity;
@@ -139,6 +135,5 @@ void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
             break;
 
     }
-end:
-    motor_driver_unlock(&d);
+    motor_driver_unlock(d);
 }
