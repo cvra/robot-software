@@ -48,7 +48,7 @@ static void driver_allocation(motor_driver_t *d)
     }
 }
 
-
+extern "C"
 void motor_driver_uavcan_update_config(motor_driver_t *d)
 {
 
@@ -89,6 +89,7 @@ void motor_driver_uavcan_update_config(motor_driver_t *d)
     }
 }
 
+extern "C"
 void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
 {
     cvra::motor::control::Position position_setpoint;
