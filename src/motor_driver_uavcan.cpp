@@ -8,6 +8,7 @@
 #include <cvra/motor/control/Position.hpp>
 #include <cvra/motor/control/Torque.hpp>
 #include <cvra/motor/control/Voltage.hpp>
+#include <cvra/motor/control/Trajectory.hpp>
 #include "motor_driver.h"
 #include "motor_driver_uavcan.h"
 #include "uavcan_node_private.hpp"
@@ -20,6 +21,7 @@ struct can_driver_s {
     uavcan::Publisher<cvra::motor::control::Position> position_pub;
     uavcan::Publisher<cvra::motor::control::Torque> torque_pub;
     uavcan::Publisher<cvra::motor::control::Voltage> voltage_pub;
+    uavcan::Publisher<cvra::motor::control::Trajectory> trajectory_pub;
 
     can_driver_s():
         speed_pid_client(getNode()),
@@ -28,7 +30,8 @@ struct can_driver_s {
         velocity_pub(getNode()),
         position_pub(getNode()),
         torque_pub(getNode()),
-        voltage_pub(getNode())
+        voltage_pub(getNode()),
+        trajectory_pub(getNode())
     {
 
     }
@@ -92,7 +95,7 @@ void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
     cvra::motor::control::Velocity velocity_setpoint;
     cvra::motor::control::Torque torque_setpoint;
     cvra::motor::control::Voltage voltage_setpoint;
-
+    cvra::motor::control::Trajectory trajectory_setpoint;
 
     int node_id = motor_driver_get_can_id(d);
     if (node_id == CAN_ID_NOT_SET) {
@@ -103,37 +106,49 @@ void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
 
     motor_driver_lock(d);
     switch(d->control_mode) {
-        case MOTOR_CONTROL_MODE_VELOCITY:
-            velocity_setpoint.velocity = d->setpt.velocity;
+        case MOTOR_CONTROL_MODE_VELOCITY: {
+            velocity_setpoint.velocity = motor_driver_get_velocity_setpt(d);
             can_drv->velocity_pub.unicast(velocity_setpoint, node_id);
-            break;
+        } break;
 
-        case MOTOR_CONTROL_MODE_POSITION:
-            position_setpoint.position = d->setpt.position;
+        case MOTOR_CONTROL_MODE_POSITION: {
+            position_setpoint.position = motor_driver_get_position_setpt(d);
             can_drv->position_pub.unicast(position_setpoint, node_id);
-            break;
+        } break;
 
-        case MOTOR_CONTROL_MODE_TORQUE:
-            torque_setpoint.torque = d->setpt.torque;
+        case MOTOR_CONTROL_MODE_TORQUE: {
+            torque_setpoint.torque = motor_driver_get_torque_setpt(d);
             can_drv->torque_pub.unicast(torque_setpoint, node_id);
-            break;
+        } break;
 
-        case MOTOR_CONTROL_MODE_VOLTAGE:
-            voltage_setpoint.voltage = d->setpt.voltage;
+        case MOTOR_CONTROL_MODE_VOLTAGE: {
+            voltage_setpoint.voltage = motor_driver_get_voltage_setpt(d);
             can_drv->voltage_pub.unicast(voltage_setpoint, node_id);
-            break;
+        } break;
 
-        case MOTOR_CONTROL_MODE_TRAJECTORY:
-            /* TODO */
-        case MOTOR_CONTROL_MODE_DISABLED:
+        case MOTOR_CONTROL_MODE_TRAJECTORY: {
+            uint64_t timestamp_us = ST2US(chVTGetSystemTime());
+            float position, velocity, acceleration, torque;
+            motor_driver_get_trajectory_point(d,
+                                              timestamp_us,
+                                              &position,
+                                              &velocity,
+                                              &acceleration,
+                                              &torque);
+            trajectory_setpoint.position = position;
+            trajectory_setpoint.velocity = velocity;
+            trajectory_setpoint.acceleration = acceleration;
+            trajectory_setpoint.torque = torque;
+            can_drv->trajectory_pub.unicast(trajectory_setpoint, node_id);
+        } break;
+
+        case MOTOR_CONTROL_MODE_DISABLED: {
+
+        } break;
+
         default:
             /* TODO */
             break;
-
-
-
-            break;
-
     }
     motor_driver_unlock(d);
 }

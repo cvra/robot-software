@@ -91,7 +91,7 @@ float motor_driver_get_velocity_setpt(motor_driver_t *d);
 float motor_driver_get_torque_setpt(motor_driver_t *d);
 float motor_driver_get_voltage_setpt(motor_driver_t *d);
 void motor_driver_get_trajectory_point(motor_driver_t *d,
-                                       unix_timestamp_t timestamp,
+                                       int64_t timestamp_us,
                                        float *position,
                                        float *velocity,
                                        float *acceleration,

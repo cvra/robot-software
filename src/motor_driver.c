@@ -174,7 +174,7 @@ float motor_driver_get_voltage_setpt(motor_driver_t *d)
 }
 
 void motor_driver_get_trajectory_point(motor_driver_t *d,
-                                       unix_timestamp_t timestamp,
+                                       int64_t timestamp_us,
                                        float *position,
                                        float *velocity,
                                        float *acceleration,
@@ -183,5 +183,9 @@ void motor_driver_get_trajectory_point(motor_driver_t *d,
     if (d->control_mode != MOTOR_CONTROL_MODE_TRAJECTORY) {
         chSysHalt("motor driver get trajectory wrong setpt mode");
     }
-    // todo copy pt
+    float *t = trajectory_read(d->setpt.trajectory, timestamp_us);
+    *position = t[0];
+    *velocity = t[1];
+    *acceleration = t[2];
+    *torque = t[3];
 }
