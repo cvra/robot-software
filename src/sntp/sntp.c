@@ -51,6 +51,7 @@
 #include "lwip/dns.h"
 #include "lwip/ip_addr.h"
 #include "lwip/pbuf.h"
+#include "lwip/netif.h"
 
 #include <string.h>
 #include <time.h>
@@ -555,8 +556,18 @@ sntp_request(void *arg)
     return;
   }
 #else /* SNTP_SERVER_DNS */
-  err = ipaddr_aton(sntp_server_addresses[sntp_current_server], &sntp_server_address)
-    ? ERR_OK : ERR_ARG;
+
+  struct netif *ethernetif;
+  ethernetif = netif_find("ms0");
+
+  if (ethernetif) {
+      err = ERR_OK;
+      sntp_server_address = ethernetif->gw;
+  } else {
+      err = ipaddr_aton(sntp_server_addresses[sntp_current_server], &sntp_server_address)
+        ? ERR_OK : ERR_ARG;
+  }
+
 
 #endif /* SNTP_SERVER_DNS */
 

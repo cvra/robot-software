@@ -24,8 +24,8 @@
 #define DEFAULT_TCP_RECVMBOX_SIZE       40
 #define DEFAULT_ACCEPTMBOX_SIZE         4
 
-#define LWIP_IPADDR(p)  IP4_ADDR(p, 192, 168, 2, 20)
-#define LWIP_GATEWAY(p) IP4_ADDR(p, 192, 168, 2, 1)
+#define LWIP_IPADDR(p)  IP4_ADDR(p, 192, 168, 3, 20)
+#define LWIP_GATEWAY(p) IP4_ADDR(p, 192, 168, 3, 1)
 #define LWIP_NETMASK(p) IP4_ADDR(p, 255, 255, 255, 0)
 
 #include "unix_timestamp.h"
