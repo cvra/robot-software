@@ -17,10 +17,14 @@ static void pid_register(struct pid_parameter_s *pid,
 void motor_driver_init(motor_driver_t *d,
                        const char *actuator_id,
                        parameter_namespace_t *ns,
-                       memory_pool_t *traj_buffer_pool)
+                       memory_pool_t *traj_buffer_pool,
+                       memory_pool_t *traj_buffer_points_pool,
+                       int traj_buffer_nb_points)
 {
     chBSemObjectInit(&d->lock, false);
     d->traj_buffer_pool = traj_buffer_pool;
+    d->traj_buffer_points_pool = traj_buffer_points_pool;
+    d->traj_buffer_nb_points = traj_buffer_nb_points;
 
     strncpy(d->id, actuator_id, MOTOR_ID_MAX_LEN);
     d->id[MOTOR_ID_MAX_LEN] = '\0';
@@ -113,13 +117,15 @@ void motor_driver_update_trajectory(motor_driver_t *d, trajectory_chunk_t *traj)
     chBSemWait(&d->lock);
     if (d->control_mode != MOTOR_CONTROL_MODE_TRAJECTORY) {
         d->setpt.trajectory = chPoolAlloc(d->traj_buffer_pool);
-        // todo init
+        float *traj_mem = chPoolAlloc(d->traj_buffer_points_pool);
+        if (d->setpt.trajectory == NULL || traj_mem == NULL) {
+            chSysHalt("motor driver out of memory (trajectory buffer allocation)");
+        }
+        trajectory_init(d->setpt.trajectory, traj_mem, d->traj_buffer_nb_points, 4, traj->sampling_time_us);
         d->control_mode = MOTOR_CONTROL_MODE_TRAJECTORY;
     }
-    if (d->setpt.trajectory != NULL) {
-        // todo trajecory merge ...
-    } else {
-        chSysHalt("motor driver out of memory (trajectory buffer allocation)");
+    if (trajectory_apply_chunk(d->setpt.trajectory, traj) != 0) {
+        chSysHalt("trajectory apply chunk failed");
     }
     chBSemSignal(&d->lock);
 }
@@ -203,6 +209,9 @@ void motor_driver_get_trajectory_point(motor_driver_t *d,
         chSysHalt("motor driver get trajectory wrong setpt mode");
     }
     float *t = trajectory_read(d->setpt.trajectory, timestamp_us);
+    if (t == NULL) {
+        chSysHalt("control error"); // todo
+    }
     *position = t[0];
     *velocity = t[1];
     *acceleration = t[2];

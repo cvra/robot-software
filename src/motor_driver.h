@@ -29,6 +29,8 @@ typedef struct {
     int can_id;
     binary_semaphore_t lock;
     memory_pool_t *traj_buffer_pool;
+    memory_pool_t *traj_buffer_points_pool;
+    int traj_buffer_nb_points;
 
     int control_mode;
     union {
@@ -83,7 +85,9 @@ extern "C" {
 void motor_driver_init(motor_driver_t *d,
                        const char *actuator_id,
                        parameter_namespace_t *ns,
-                       memory_pool_t *traj_buffer_pool);
+                       memory_pool_t *traj_buffer_pool,
+                       memory_pool_t *traj_buffer_points_pool,
+                       int traj_buffer_nb_points);
 
 // returns a pointer to the stored id string
 const char *motor_driver_get_id(motor_driver_t *d);
@@ -92,6 +96,7 @@ void motor_driver_set_position(motor_driver_t *d, float position);
 void motor_driver_set_velocity(motor_driver_t *d, float velocity);
 void motor_driver_set_torque(motor_driver_t *d, float torque);
 void motor_driver_set_voltage(motor_driver_t *d, float voltage);
+// trajectory format: [position, velocity, acceleration, torque]
 void motor_driver_update_trajectory(motor_driver_t *d, trajectory_chunk_t *traj);
 void motor_driver_disable(motor_driver_t *d);
 
