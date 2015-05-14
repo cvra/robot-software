@@ -49,6 +49,12 @@ static void driver_allocation(motor_driver_t *d)
 }
 
 extern "C"
+void motor_driver_send_initial_config(motor_driver_t *d)
+{
+    driver_allocation(d);
+}
+
+extern "C"
 void motor_driver_uavcan_update_config(motor_driver_t *d)
 {
 
@@ -59,7 +65,7 @@ void motor_driver_uavcan_update_config(motor_driver_t *d)
     driver_allocation(d);
     struct can_driver_s *can_drv = (struct can_driver_s*)d->can_driver;
 
-    if (parameter_namespace_contains_changed(&d->config.pid_root)) {
+    if (parameter_namespace_contains_changed(&d->config.control)) {
         if (parameter_namespace_contains_changed(&d->config.position_pid.root)) {
             cvra::motor::config::PositionPID::Request request;
             request.pid.kp = parameter_scalar_get(&d->config.position_pid.kp);
@@ -86,6 +92,10 @@ void motor_driver_uavcan_update_config(motor_driver_t *d)
             request.pid.ilimit = parameter_scalar_get(&d->config.current_pid.ilimit);
             can_drv->current_pid_client.call(node_id, request);
         }
+    }
+    if (parameter_namespace_contains_changed(&d->config.root)) {
+        // still some changed parameters: need to resend full config
+        motor_driver_send_initial_config(d);
     }
 }
 
