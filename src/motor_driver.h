@@ -45,6 +45,7 @@ typedef struct {
         struct pid_parameter_s position_pid;
         struct pid_parameter_s velocity_pid;
         struct pid_parameter_s current_pid;
+        parameter_t torque_limit;
         parameter_t velocity_limit;
         parameter_t acceleration_limit;
         parameter_t low_batt_th;

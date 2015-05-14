@@ -36,6 +36,7 @@ void motor_driver_init(motor_driver_t *d,
     pid_register(&d->config.position_pid, &d->config.control, "position");
     pid_register(&d->config.velocity_pid, &d->config.control, "velocity");
     pid_register(&d->config.current_pid, &d->config.control, "current");
+    parameter_scalar_declare(&d->config.torque_limit, &d->config.control, "torque_limit");
     parameter_scalar_declare(&d->config.velocity_limit, &d->config.control, "velocity_limit");
     parameter_scalar_declare(&d->config.acceleration_limit, &d->config.control, "acceleration_limit");
     parameter_scalar_declare(&d->config.low_batt_th, &d->config.control, "low_batt_th");

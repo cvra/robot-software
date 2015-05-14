@@ -4,6 +4,7 @@
 #include <cvra/motor/config/VelocityPID.hpp>
 #include <cvra/motor/config/PositionPID.hpp>
 #include <cvra/motor/config/CurrentPID.hpp>
+#include <cvra/motor/config/LoadConfiguration.hpp>
 #include <cvra/motor/control/Velocity.hpp>
 #include <cvra/motor/control/Position.hpp>
 #include <cvra/motor/control/Torque.hpp>
@@ -17,6 +18,7 @@ struct can_driver_s {
     uavcan::ServiceClient<cvra::motor::config::VelocityPID> speed_pid_client;
     uavcan::ServiceClient<cvra::motor::config::PositionPID> position_pid_client;
     uavcan::ServiceClient<cvra::motor::config::CurrentPID> current_pid_client;
+    uavcan::ServiceClient<cvra::motor::config::LoadConfiguration> config_client;
     uavcan::Publisher<cvra::motor::control::Velocity> velocity_pub;
     uavcan::Publisher<cvra::motor::control::Position> position_pub;
     uavcan::Publisher<cvra::motor::control::Torque> torque_pub;
@@ -27,6 +29,7 @@ struct can_driver_s {
         speed_pid_client(getNode()),
         position_pid_client(getNode()),
         current_pid_client(getNode()),
+        config_client(getNode()),
         velocity_pub(getNode()),
         position_pub(getNode()),
         torque_pub(getNode()),
@@ -51,7 +54,49 @@ static void driver_allocation(motor_driver_t *d)
 extern "C"
 void motor_driver_send_initial_config(motor_driver_t *d)
 {
+    cvra::motor::config::LoadConfiguration::Request config_msg;
+
+    int node_id = motor_driver_get_can_id(d);
+    if (node_id == CAN_ID_NOT_SET) {
+        return;
+    }
     driver_allocation(d);
+    struct can_driver_s *can_drv = (struct can_driver_s*)d->can_driver;
+
+    config_msg.position_pid.kp = parameter_scalar_get(&d->config.position_pid.kp);
+    config_msg.position_pid.ki = parameter_scalar_get(&d->config.position_pid.ki);
+    config_msg.position_pid.kd = parameter_scalar_get(&d->config.position_pid.kd);
+    config_msg.position_pid.ilimit = parameter_scalar_get(&d->config.position_pid.ilimit);
+    config_msg.velocity_pid.kp = parameter_scalar_get(&d->config.velocity_pid.kp);
+    config_msg.velocity_pid.ki = parameter_scalar_get(&d->config.velocity_pid.ki);
+    config_msg.velocity_pid.kd = parameter_scalar_get(&d->config.velocity_pid.kd);
+    config_msg.velocity_pid.ilimit = parameter_scalar_get(&d->config.velocity_pid.ilimit);
+    config_msg.current_pid.kp = parameter_scalar_get(&d->config.current_pid.kp);
+    config_msg.current_pid.ki = parameter_scalar_get(&d->config.current_pid.ki);
+    config_msg.current_pid.kd = parameter_scalar_get(&d->config.current_pid.kd);
+    config_msg.current_pid.ilimit = parameter_scalar_get(&d->config.current_pid.ilimit);
+
+    config_msg.torque_limit = parameter_scalar_get(&d->config.torque_limit);
+    config_msg.velocity_limit = parameter_scalar_get(&d->config.velocity_limit);
+    config_msg.acceleration_limit = parameter_scalar_get(&d->config.acceleration_limit);
+    config_msg.low_batt_th = parameter_scalar_get(&d->config.low_batt_th);
+
+    config_msg.thermal_capacity = parameter_scalar_get(&d->config.thermal_capacity);
+    config_msg.thermal_resistance = parameter_scalar_get(&d->config.thermal_resistance);
+    config_msg.thermal_current_gain = parameter_scalar_get(&d->config.thermal_current_gain);
+    config_msg.max_temperature = parameter_scalar_get(&d->config.max_temperature);
+
+    config_msg.torque_constant = parameter_scalar_get(&d->config.torque_constant);
+    config_msg.transmission_ratio_p = parameter_integer_get(&d->config.transmission_ratio_p);
+    config_msg.transmission_ratio_q = parameter_integer_get(&d->config.transmission_ratio_q);
+    config_msg.motor_encoder_steps_per_revolution = parameter_integer_get(&d->config.motor_encoder_steps_per_revolution);
+    config_msg.second_encoder_steps_per_revolution = parameter_integer_get(&d->config.second_encoder_steps_per_revolution);
+    config_msg.potentiometer_gain = parameter_scalar_get(&d->config.potentiometer_gain);
+
+    parameter_integer_get(&d->config.mode);
+    config_msg.mode = cvra::motor::config::LoadConfiguration::Request::MODE_ENC_BOUNDED;
+
+    can_drv->config_client.call(node_id, config_msg);
 }
 
 extern "C"
