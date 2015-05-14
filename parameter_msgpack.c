@@ -47,6 +47,13 @@ static bool get_float(cmp_object_t *obj, float *out)
     return false;
 }
 
+static bool get_int(cmp_object_t *obj, int32_t *out)
+{
+    if (cmp_object_as_int(obj, out)) {
+        return true;
+    }
+    return false;
+}
 
 static int get_vector(cmp_ctx_t *cmp,
                       float *buf,
@@ -102,7 +109,17 @@ static int read_parameter(parameter_t *p,
                 return ret;
             }
         }
-
+    } else if (p->type == _PARAM_TYPE_INTEGER) {
+        int32_t v;
+        if (get_int(obj, &v)) {
+            parameter_integer_set(p, v);
+        } else {
+            err_cb(err_arg, p->id, "warning: type mismatch");
+            int ret = discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
+            if (ret != 0) {
+                return ret;
+            }
+        }
     } else if (p->type == _PARAM_TYPE_VECTOR) {
         uint32_t array_size;
         if (cmp_object_as_array(obj, &array_size)) {
