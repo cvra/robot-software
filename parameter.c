@@ -285,7 +285,8 @@ void parameter_scalar_set(parameter_t *p, float value)
 void parameter_integer_declare(parameter_t *p, parameter_namespace_t *ns,
                               const char *id)
 {
-    
+    p->type = _PARAM_TYPE_INTEGER;
+    _parameter_declare(p, ns, id);
 }
 
 void parameter_integer_declare_with_default(parameter_t *p,
@@ -293,22 +294,34 @@ void parameter_integer_declare_with_default(parameter_t *p,
                                            const char *id,
                                            int32_t default_val)
 {
-
+    p->value.i = default_val;
+    p->type = _PARAM_TYPE_INTEGER;
+    _parameter_declare(p, ns, id);
+    _parameter_changed_set(p);
 }
 
 int32_t parameter_integer_get(parameter_t *p)
 {
-    return 0; // todo
+    _parameter_changed_clear(p);
+    return parameter_integer_read(p);
 }
 
 int32_t parameter_integer_read(parameter_t *p)
 {
-    return 0; // todo
+    PARAMETER_ASSERT(p->type == _PARAM_TYPE_INTEGER);
+    PARAMETER_LOCK();
+    int32_t ret = p->value.i;
+    PARAMETER_UNLOCK();
+    return ret;
 }
 
 void parameter_integer_set(parameter_t *p, int32_t value)
 {
-
+    PARAMETER_ASSERT(p->type == _PARAM_TYPE_INTEGER);
+    PARAMETER_LOCK();
+    p->value.i = value;
+    PARAMETER_UNLOCK();
+    _parameter_changed_set(p);
 }
 
 
