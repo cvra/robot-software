@@ -279,6 +279,40 @@ void parameter_scalar_set(parameter_t *p, float value)
 
 
 /*
+ * Integer type parameter
+ */
+
+void parameter_integer_declare(parameter_t *p, parameter_namespace_t *ns,
+                              const char *id)
+{
+    
+}
+
+void parameter_integer_declare_with_default(parameter_t *p,
+                                           parameter_namespace_t *ns,
+                                           const char *id,
+                                           int32_t default_val)
+{
+
+}
+
+int32_t parameter_integer_get(parameter_t *p)
+{
+    return 0; // todo
+}
+
+int32_t parameter_integer_read(parameter_t *p)
+{
+    return 0; // todo
+}
+
+void parameter_integer_set(parameter_t *p, int32_t value)
+{
+
+}
+
+
+/*
  * Vector type parameter
  */
 
