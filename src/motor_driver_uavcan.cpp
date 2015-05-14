@@ -93,8 +93,7 @@ void motor_driver_send_initial_config(motor_driver_t *d)
     config_msg.second_encoder_steps_per_revolution = parameter_integer_get(&d->config.second_encoder_steps_per_revolution);
     config_msg.potentiometer_gain = parameter_scalar_get(&d->config.potentiometer_gain);
 
-    parameter_integer_get(&d->config.mode);
-    config_msg.mode = cvra::motor::config::LoadConfiguration::Request::MODE_ENC_BOUNDED;
+    config_msg.mode = parameter_integer_get(&d->config.mode); // todo !
 
     can_drv->config_client.call(node_id, config_msg);
 }
