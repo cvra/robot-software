@@ -41,10 +41,29 @@ typedef struct {
 
     struct {
         parameter_namespace_t root;
-        parameter_namespace_t pid_root;
+        parameter_namespace_t control;
         struct pid_parameter_s position_pid;
         struct pid_parameter_s velocity_pid;
         struct pid_parameter_s current_pid;
+        parameter_t velocity_limit;
+        parameter_t acceleration_limit;
+        parameter_t low_batt_th;
+
+        parameter_namespace_t thermal;
+        parameter_t thermal_capacity;
+        parameter_t thermal_resistance;
+        parameter_t thermal_current_gain;
+        parameter_t max_temperature;
+
+        parameter_namespace_t motor;
+        parameter_t torque_constant;
+        parameter_t transmission_ratio_p;
+        parameter_t transmission_ratio_q;
+        parameter_t motor_encoder_steps_per_revolution;
+        parameter_t second_encoder_steps_per_revolution;
+        parameter_t potentiometer_gain;
+        parameter_t mode; // one of "pot-servo", "enc-servo", "enc-periodic", "dual-enc-periodic"
+        char mode_str_buf[18];
     } config;
 
     void *can_driver;
