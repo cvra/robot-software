@@ -4,9 +4,12 @@
 #include <string.h>
 #include <cmp/cmp.h>
 
+#include "main.h"
 #include "robot_parameters.h"
-#include "motor_control.h"
+#include "motor_manager.h"
 #include "unix_timestamp.h"
+
+#define TRAJ_CHUNK_BUFFER_LEN   100
 
 void message_cb(void *p, int argc, cmp_ctx_t *input)
 {
@@ -22,77 +25,84 @@ void message_cb(void *p, int argc, cmp_ctx_t *input)
     }
 }
 
-void message_fwd_callback(void *p, int argc, cmp_ctx_t *input)
+void message_actuator_position_callback(void *p, int argc, cmp_ctx_t *input)
 {
     (void) p;
-    int32_t res;
-    if (argc != 1) {
-        return;
-    }
+    char actuator_id[25];
+    uint32_t actuator_id_size = 25;
+    float setpoint;
 
-    cmp_read_int(input, &res);
-    m1_vel_setpt = (float) res / 1000.0f;
-    m2_vel_setpt = - (float) res / 1000.0f;
-}
-
-void message_vel_callback(void *p, int argc, cmp_ctx_t *input)
-{
-    (void) p;
-    int32_t fwd, rot;
-    float fwd_f, rot_f;
     if (argc != 2) {
         return;
     }
 
-    cmp_read_int(input, &fwd);
-    cmp_read_int(input, &rot);
-    fwd_f = (float) fwd / 1000.0f;
-    rot_f = (float) rot / 1000.0f;
-    m1_vel_setpt = (0.5f * ROBOT_RIGHT_WHEEL_DIRECTION / ROBOT_RIGHT_MOTOR_WHEEL_RADIUS) * (fwd_f / M_PI + ROBOT_MOTOR_WHEELBASE * rot_f);
-    m2_vel_setpt = (0.5f * ROBOT_LEFT_WHEEL_DIRECTION / ROBOT_LEFT_MOTOR_WHEEL_RADIUS) * (fwd_f / M_PI - ROBOT_MOTOR_WHEELBASE * rot_f);
+    cmp_read_str(input, actuator_id, &actuator_id_size);
+    cmp_read_float(input, &setpoint);
+
+    motor_manager_set_position(&motor_manager, actuator_id, setpoint);
 }
 
-void message_traj_callback(void *p, int argc, cmp_ctx_t *input)
+void message_actuator_velocity_callback(void *p, int argc, cmp_ctx_t *input)
 {
-    unix_timestamp_t start;
-    static float chunk_buffer[100][5];
-    uint32_t point_count, i, point_dimension, j;
-    int32_t dt, start_time;
-    trajectory_chunk_t chunk;
+    (void) p;
+    char actuator_id[25];
+    uint32_t actuator_id_size = 25;
+    float setpoint;
 
+    if (argc != 2) {
+        return;
+    }
+
+    cmp_read_str(input, actuator_id, &actuator_id_size);
+    cmp_read_float(input, &setpoint);
+
+    motor_manager_set_velocity(&motor_manager, actuator_id, setpoint);
+}
+
+void message_actuator_trajectory_callback(void *p, int argc, cmp_ctx_t *input)
+{
     (void) p;
     (void) argc;
 
+    unix_timestamp_t start;
+    static float chunk_buffer[TRAJ_CHUNK_BUFFER_LEN][4]; // pos, vel, acc, torque
+    uint32_t point_count, i, point_dimension, j;
+    int32_t delta_t, start_time;
+    char actuator_id[25];
+    uint32_t actuator_id_size = 25;
+    trajectory_chunk_t chunk;
+
+    if (argc < 5) {
+        return;
+    }
+
+    cmp_read_str(input, actuator_id, &actuator_id_size);
 
     cmp_read_int(input, &start.s);
     cmp_read_int(input, &start.us);
-    cmp_read_int(input, &dt);
-
+    cmp_read_int(input, &delta_t);
 
     cmp_read_array(input, &point_count);
-    for (i = 0; i < point_count; ++i) {
+    for (i = 0; i < point_count; i++) {
         cmp_read_array(input, &point_dimension);
-        for (j = 0; j < point_dimension; ++j) {
+        for (j = 0; j < point_dimension; j++) {
             cmp_read_float(input, &chunk_buffer[i][j]);
         }
     }
 
     start_time = timestamp_unix_to_local_us(start);
+    trajectory_chunk_init(&chunk, (float*)chunk_buffer, point_count, 4, start_time, delta_t);
 
-    trajectory_chunk_init(&chunk, (float *)chunk_buffer, point_count, 5, start_time, dt);
-
-    chMtxLock(&robot_trajectory_lock);
-        trajectory_apply_chunk(&robot_trajectory, &chunk);
-    chMtxUnlock(&robot_trajectory_lock);
+    motor_manager_execute_trajecory(&motor_manager, actuator_id, &chunk);
 }
 
 
 
 message_method_t message_callbacks[] = {
     {.name = "test", .cb = message_cb},
-    {.name = "fwd", .cb = message_fwd_callback},
-    {.name = "vel", .cb = message_vel_callback},
-    {.name = "traj", .cb = message_traj_callback},
+    {.name = "actuator_position", .cb = message_actuator_position_callback},
+    {.name = "actuator_velocity", .cb = message_actuator_velocity_callback},
+    {.name = "actuator_trajectory", .cb = message_actuator_trajectory_callback},
 };
 
 int message_callbacks_len = sizeof message_callbacks / sizeof(message_callbacks[0]);

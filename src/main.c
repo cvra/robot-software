@@ -7,6 +7,7 @@
 #include <lwipthread.h>
 #include <lwip/netif.h>
 
+#include "main.h"
 #include "commands.h"
 #include "sntp/sntp.h"
 #include "unix_timestamp.h"
@@ -29,6 +30,10 @@
 #define SHELL_WA_SIZE   THD_WORKING_AREA_SIZE(2048)
 
 #define TRAJECTORY_STACKSIZE 2048
+
+
+motor_manager_t motor_manager;
+
 
 THD_WORKING_AREA(wa_trajectory, TRAJECTORY_STACKSIZE);
 

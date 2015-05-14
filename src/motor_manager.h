@@ -17,6 +17,7 @@
 #include <stdint.h>
 #include "motor_driver.h"
 #include "trajectories.h"
+#include "bus_enumerator.h"
 
 
 #define MOTOR_MANAGER_ALLOCATED_TRAJECTORY_LENGTH   100
@@ -32,6 +33,7 @@ typedef struct {
     motor_driver_t *motor_driver_buffer;
     uint16_t motor_driver_buffer_len;
     uint16_t motor_driver_buffer_nb_elements;
+    bus_enumerator_t bus_enumerator;
 } motor_manager_t;
 
 
@@ -39,8 +41,12 @@ void motor_manager_init(motor_manager_t *m,
                         float *trajectory_buffer,
                         uint16_t trajectory_buffer_len,
                         motor_driver_t *motor_driver_buffer,
-                        uint16_t motor_driver_buffer_len);
+                        uint16_t motor_driver_buffer_len,
+                        bus_enumerator_t bus_enumerator);
 
+
+motor_driver_t *motor_manager_create_driver(motor_manager_t *m,
+                                            const char *actuator_id);
 
 // motor_driver_t elements form an array
 void motor_manager_get_list(motor_manager_t *m, motor_driver_t **buffer, uint16_t *length);
