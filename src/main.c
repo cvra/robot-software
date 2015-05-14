@@ -197,6 +197,8 @@ int main(void) {
                       trajectory_thread,
                       NULL);
 
+
+        chThdSleepMilliseconds(1000);
         ethernet_if = netif_find("ms0");
         if (ethernet_if) {
             dhcp_start(ethernet_if);
