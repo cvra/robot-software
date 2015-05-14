@@ -223,7 +223,7 @@ static THD_FUNCTION(uavcan_node, arg)
             control_feedback.secondary_encoder.transmission_q = 1;
             control_feedback.secondary_encoder.ticks_per_rev = req.second_encoder_steps_per_revolution;
 
-            control_feedback.potentiometer.gain = 1;
+            control_feedback.potentiometer.gain = req.potentiometer_gain;
             control_feedback.potentiometer.zero = 0;
 
             control_feedback.rpm.phase = 0;
