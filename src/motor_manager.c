@@ -4,25 +4,33 @@
 
 
 void motor_manager_init(motor_manager_t *m,
-                        float *trajectory_buffer,
+                        trajectory_t *trajectory_buffer,
                         uint16_t trajectory_buffer_len,
+                        float *trajectory_points_buffer,
+                        uint16_t trajectory_points_buffer_len,
                         motor_driver_t *motor_driver_buffer,
                         uint16_t motor_driver_buffer_len,
                         bus_enumerator_t bus_enumerator)
 {
     m->trajectory_buffer = trajectory_buffer;
     m->trajectory_buffer_len = trajectory_buffer_len;
+    m->trajectory_points_buffer = trajectory_points_buffer;
+    m->trajectory_points_buffer_len = trajectory_points_buffer_len;
     m->motor_driver_buffer = motor_driver_buffer;
     m->motor_driver_buffer_len = motor_driver_buffer_len;
     m->bus_enumerator = bus_enumerator;
 
     m->motor_driver_buffer_nb_elements = 0;
 
-    chPoolObjectInit(&m->traj_buffer_pool,
+    chPoolObjectInit(&m->traj_buffer_pool, sizeof(trajectory_t), NULL);
+    chPoolObjectInit(&m->traj_points_buffer_pool,
                      sizeof(float) * MOTOR_MANAGER_ALLOCATED_TRAJECTORY_LENGTH,
                      NULL);
 
     chPoolLoadArray(&m->traj_buffer_pool, m->trajectory_buffer, m->trajectory_buffer_len);
+    chPoolLoadArray(&m->traj_points_buffer_pool,
+                    m->trajectory_points_buffer,
+                    m->trajectory_points_buffer_len);
 }
 
 motor_driver_t *motor_manager_create_driver(motor_manager_t *m,
@@ -34,7 +42,9 @@ motor_driver_t *motor_manager_create_driver(motor_manager_t *m,
         motor_driver_init(driver,
                           actuator_id,
                           &actuator_config,
-                          &m->traj_buffer_pool);
+                          &m->traj_buffer_pool,
+                          &m->traj_points_buffer_pool,
+                          MOTOR_MANAGER_ALLOCATED_TRAJECTORY_LENGTH);
 
         m->motor_driver_buffer_nb_elements++;
 
