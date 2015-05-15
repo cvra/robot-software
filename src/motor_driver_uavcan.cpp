@@ -15,6 +15,8 @@
 #include "motor_driver_uavcan.h"
 #include "uavcan_node_private.hpp"
 
+using namespace uavcan_node;
+
 struct can_driver_s {
     uavcan::ServiceClient<cvra::motor::config::VelocityPID> speed_pid_client;
     uavcan::ServiceClient<cvra::motor::config::PositionPID> position_pid_client;
@@ -40,6 +42,26 @@ struct can_driver_s {
         trajectory_pub(getNode())
     {
         enabled = false;
+
+        speed_pid_client.setCallback([](const uavcan::ServiceCallResult<cvra::motor::config::VelocityPID>& call_result)
+                {
+                (void) call_result;
+                });
+
+        position_pid_client.setCallback([](const uavcan::ServiceCallResult<cvra::motor::config::PositionPID>& call_result)
+                {
+                (void) call_result;
+                });
+
+        current_pid_client.setCallback([](const uavcan::ServiceCallResult<cvra::motor::config::CurrentPID>& call_result)
+                {
+                (void) call_result;
+                });
+
+        config_client.setCallback([](const uavcan::ServiceCallResult<cvra::motor::config::LoadConfiguration>& call_result)
+                {
+                (void) call_result;
+                });
     }
 };
 
