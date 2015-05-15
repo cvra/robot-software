@@ -211,6 +211,36 @@ static int read_parameter_var_vector(parameter_t *p,
 }
 
 
+static int read_parameter_string(parameter_t *p,
+                                 cmp_object_t *obj,
+                                 cmp_ctx_t *cmp,
+                                 parameter_msgpack_err_cb err_cb,
+                                 void *err_arg)
+{
+    uint32_t str_len;
+    if (!cmp_object_as_str(obj, &str_len)) {
+        err_cb(err_arg, p->id, "warning: type mismatch");
+        return discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
+    }
+    if (str_len >= p->value.str.buf_len) {
+        err_cb(err_arg, p->id, "warning: string is too long");
+        return discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
+    }
+    char *str_buf = PARAMETER_MSGPACK_MALLOC(str_len);
+    if (str_buf == NULL) {
+        err_cb(err_arg, p->id, "warning: allocation failed");
+        return discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
+    }
+    if (!cmp->read(cmp, str_buf, str_len)) {
+        err_cb(err_arg, p->id, "read error");
+        PARAMETER_MSGPACK_FREE(str_buf);
+        return -1;
+    }
+    parameter_string_set_w_len(p, str_buf, str_len);
+    PARAMETER_MSGPACK_FREE(str_buf);
+    return 0;
+}
+
 static int read_parameter(parameter_t *p,
                           cmp_object_t *obj,
                           cmp_ctx_t *cmp,
@@ -226,6 +256,8 @@ static int read_parameter(parameter_t *p,
         return read_parameter_vector(p, obj, cmp, err_cb, err_arg);
     case _PARAM_TYPE_VAR_VECTOR:
         return read_parameter_var_vector(p, obj, cmp, err_cb, err_arg);
+    case _PARAM_TYPE_STRING:
+        return read_parameter_string(p, obj, cmp, err_cb, err_arg);
     default:
         err_cb(err_arg, p->id, "TODO not implemented yet");
         return discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
