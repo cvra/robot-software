@@ -12,7 +12,7 @@
 #include <cvra/motor/config/VelocityPID.hpp>
 #include <cvra/motor/config/PositionPID.hpp>
 #include <cvra/motor/config/CurrentPID.hpp>
-#include <cvra/motor/config/StringID.hpp>
+#include <cvra/StringID.hpp>
 #include "motor_control.h"
 #include "robot_pose.h"
 #include <simplerpc/message.h>
@@ -186,9 +186,9 @@ msg_t main(void *arg)
         node_fail("NodeStatus subscribe");
     }
 
-    uavcan::Subscriber<cvra::motor::config::StringID> string_id_sub(node);
+    uavcan::Subscriber<cvra::StringID> string_id_sub(node);
     res = string_id_sub.start(
-        [&](const uavcan::ReceivedDataStructure<cvra::motor::config::StringID>& msg)
+        [&](const uavcan::ReceivedDataStructure<cvra::StringID>& msg)
         {
             uint8_t can_id = msg.getSrcNodeID().get();
 
@@ -198,7 +198,7 @@ msg_t main(void *arg)
         }
     );
     if (res != 0) {
-        node_fail("cvra::motor::config::StringID subscriber");
+        node_fail("cvra::StringID subscriber");
     }
 
     uavcan::Subscriber<cvra::motor::feedback::MotorEncoderPosition> enc_pos_sub(node);
