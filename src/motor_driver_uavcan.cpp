@@ -45,22 +45,37 @@ struct can_driver_s {
 
         speed_pid_client.setCallback([](const uavcan::ServiceCallResult<cvra::motor::config::VelocityPID>& call_result)
                 {
-                (void) call_result;
+                if (call_result.status != uavcan::ServiceCallResult<cvra::motor::config::VelocityPID>::Success) {
+                    chSysHalt("Service call failed !\r\n");
+                }
                 });
 
         position_pid_client.setCallback([](const uavcan::ServiceCallResult<cvra::motor::config::PositionPID>& call_result)
                 {
-                (void) call_result;
+                if (call_result.status != uavcan::ServiceCallResult<cvra::motor::config::PositionPID>::Success) {
+                    chSysHalt("Service call failed !\r\n");
+                }
                 });
 
         current_pid_client.setCallback([](const uavcan::ServiceCallResult<cvra::motor::config::CurrentPID>& call_result)
                 {
-                (void) call_result;
+                if (call_result.status != uavcan::ServiceCallResult<cvra::motor::config::CurrentPID>::Success) {
+                    chSysHalt("Service call failed !\r\n");
+                }
                 });
 
         config_client.setCallback([](const uavcan::ServiceCallResult<cvra::motor::config::LoadConfiguration>& call_result)
                 {
-                (void) call_result;
+                if (call_result.status != uavcan::ServiceCallResult<cvra::motor::config::LoadConfiguration>::Success) {
+                    chSysHalt("Service call failed !\r\n");
+                }
+                });
+
+        enable_client.setCallback([](const uavcan::ServiceCallResult<cvra::motor::config::EnableMotor>& call_result)
+                {
+                if (call_result.status != uavcan::ServiceCallResult<cvra::motor::config::EnableMotor>::Success) {
+                    chSysHalt("Service call failed !\r\n");
+                }
                 });
     }
 };
