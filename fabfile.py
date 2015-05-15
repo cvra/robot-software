@@ -6,7 +6,7 @@ def debra():
     env.user = 'cvra'
 
 
-def nastya():
+def caprica():
     env.hosts += ['192.168.2.20']
     env.user = 'cvra'
 

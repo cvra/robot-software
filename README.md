@@ -25,8 +25,10 @@ The panic reason is available via the USB shell or via API.
 
 # Deploying on the robots
 To deploy on the robots we use Fabric which allows to remotely flash the binary.
+You can install it by running `sudo pip install fabric`.
 The script will build the firmware, copy it to the robot and flash the board using the embedded JTAG probe.
 
 To deploy to a robot run : `fab debra deploy`.
 To deploy to several robot and a local virtual machine: `fab debra caprica vm deploy`.
+To list all available commands: `fab -l`
 
