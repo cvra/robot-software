@@ -1,0 +1,61 @@
+from fabric.api import *
+
+MASTER_BOARD = {
+    'debra': '10.0.10.2',
+    'caprica': '10.0.20.2',
+}
+
+MOTOR_BOARDS = {
+    'debra': [29, 31, 32],
+    'caprica': [],
+}
+
+
+def debra():
+    env.hosts += ['debra']
+    env.user = 'cvra'
+
+
+def nastya():
+    env.hosts += ['nastya']
+    env.user = 'cvra'
+
+
+def localhost():
+    env.hosts += ['localhost']
+
+
+def build():
+    """
+    Compiles the project.
+    """
+    local('make dsdlc')
+    local('packager/packager.py')
+    local('make -j')
+
+
+def rebuild():
+    """
+    Makes a clean build of the project from scratch.
+    """
+    local('make clean')
+    local('make dsdlc')
+    local('packager/packager.py')
+    local('make -B -j')
+
+
+def deploy():
+    """
+    Uploads the binary to the robot.
+    """
+    build()
+
+    flash_command = "can-bootloader/client/bootloader_flash.py"
+    # Base adress
+    flash_command += " -a 0x08003800"
+    flash_command += " --tcp {}".format(MASTER_BOARD[env.host])
+    flash_command += " --device-class motor-board-v1"
+    flash_command += " -b build/motor-control-firmware.bin"
+    flash_command += " --run"
+    flash_command += " " + " ".join(str(i) for i in MOTOR_BOARDS[env.host])
+    local(flash_command)
