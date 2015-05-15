@@ -1,5 +1,6 @@
 #include <ch.h>
 #include <hal.h>
+#include <chprintf.h>
 #include <main.h>
 #include <uavcan/uavcan.hpp>
 #include <cvra/Reboot.hpp>
@@ -229,6 +230,8 @@ static THD_FUNCTION(uavcan_node, arg)
             control_feedback.rpm.phase = 0;
 
             control_start();
+
+            chprintf(ch_stdout, "LoadConfiguration received\n");
 
             node.setStatusOk();
         });
