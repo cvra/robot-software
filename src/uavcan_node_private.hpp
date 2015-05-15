@@ -2,6 +2,8 @@
 #define UAVCAN_NODE_PRIVATE_HPP
 
 typedef uavcan::Node<16384> Node;
-Node& getNode();
+namespace uavcan_node {
+    Node& getNode();
+}
 
 #endif

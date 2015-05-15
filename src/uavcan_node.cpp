@@ -19,6 +19,8 @@
 #include "robot_parameters.h"
 #include "timestamp/timestamp.h"
 #include "odometry/robot_base.h"
+#include "motor_driver.h"
+#include "motor_driver_uavcan.h"
 #include "odometry/odometry.h"
 #include "config.h"
 #include "uavcan_node_private.hpp"
