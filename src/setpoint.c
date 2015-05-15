@@ -47,13 +47,22 @@ static float vel_ramp(float pos, float vel, float target_pos, float delta_t, flo
 }
 
 
-void setpoint_init(setpoint_interpolator_t *ip,
-                   float acc_limit,
-                   float vel_limit)
+void setpoint_init(setpoint_interpolator_t *ip)
 {
     ip->setpt_mode = SETPT_MODE_TORQUE;
     ip->setpt_torque = 0;
+    ip->acc_limit = 0;
+    ip->vel_limit = 0;
+}
+
+void setpoint_set_acceleration_limit(setpoint_interpolator_t *ip,
+                                     float acc_limit)
+{
     ip->acc_limit = acc_limit;
+}
+
+void setpoint_set_velocity_limit(setpoint_interpolator_t *ip, float vel_limit)
+{
     ip->vel_limit = vel_limit;
 }
 

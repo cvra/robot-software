@@ -12,10 +12,11 @@
 #include "parameter/parameter.h"
 #include "parameter/parameter_msgpack.h"
 #include <string.h>
+#include <math.h>
 #include "bootloader_config.h"
 #include "uavcan_node.h"
 
-BaseSequentialStream* stdout;
+BaseSequentialStream* ch_stdout;
 parameter_namespace_t parameter_root_ns;
 
 
@@ -26,8 +27,8 @@ static void _stream_sndfn(void *arg, const void *p, size_t len)
     }
 }
 
-static THD_WORKING_AREA(stream_task_wa, 256);
-static THD_FUNCTION(stream_task, arg)
+THD_WORKING_AREA(stream_task_wa, 256);
+THD_FUNCTION(stream_task, arg)
 {
     (void)arg;
     chRegSetThreadName("print data");
@@ -57,7 +58,7 @@ static THD_FUNCTION(stream_task, arg)
         //err = err || !cmp_write_str(&cmp, vel_ctrl_id, strlen(vel_ctrl_id));
         //err = err || !cmp_write_float(&cmp, control_get_vel_ctrl_out());
         if (!err) {
-            serial_datagram_send(dtgrm, cmp_mem_access_get_pos(&mem), _stream_sndfn, stdout);
+            serial_datagram_send(dtgrm, cmp_mem_access_get_pos(&mem), _stream_sndfn, ch_stdout);
         }
         chThdSleepMilliseconds(10);
     }
@@ -68,7 +69,7 @@ static THD_FUNCTION(stream_task, arg)
 static void parameter_decode_cb(const void *dtgrm, size_t len)
 {
     int ret = parameter_msgpack_read(&parameter_root_ns, (char*)dtgrm, len);
-    chprintf(stdout, "ok %d\n", ret);
+    chprintf(ch_stdout, "ok %d\n", ret);
     // parameter_print(&parameter_root_ns);
 }
 
@@ -82,7 +83,7 @@ static THD_FUNCTION(parameter_listener, arg)
         char c = chSequentialStreamGet((BaseSequentialStream*)arg);
         int ret = serial_datagram_receive(&rcv_handler, &c, 1);
         if (ret != SERIAL_DATAGRAM_RCV_NO_ERROR) {
-            chprintf(stdout, "serial datagram error %d\n", ret);
+            chprintf(ch_stdout, "serial datagram error %d\n", ret);
         }
         (void)ret; // ingore errors
     }
@@ -173,7 +174,9 @@ int main(void) {
     }
 
     sdStart(&SD3, NULL);
-    stdout = (BaseSequentialStream*)&SD3;
+    ch_stdout = (BaseSequentialStream*)&SD3;
+
+    parameter_namespace_declare(&parameter_root_ns, NULL, NULL);
 
     motor_pwm_setup();
     motor_pwm_enable();
@@ -183,43 +186,15 @@ int main(void) {
     encoder_init_primary();
     encoder_init_secondary();
 
-    chprintf(stdout, "boot\n");
-    chprintf(stdout, "%s: %d\n", config.board_name, config.ID);
+    chprintf(ch_stdout, "boot\n");
+    chprintf(ch_stdout, "%s: %d\n", config.board_name, config.ID);
 
 
-    control_declare_parameters();
+    control_init();
 
-
-    control_feedback.input_selection = FEEDBACK_PRIMARY_ENCODER_BOUNDED;
-    control_feedback.output.position = 0;
-    control_feedback.output.velocity = 0;
-
-    control_feedback.primary_encoder.accumulator = 0;
-    control_feedback.primary_encoder.previous = encoder_get_primary();
-    control_feedback.primary_encoder.transmission_p = 49; // debra base
-    control_feedback.primary_encoder.transmission_q = 676;
-    control_feedback.primary_encoder.ticks_per_rev = (1<<12);
-
-    control_feedback.secondary_encoder.accumulator = 0;
-    control_feedback.secondary_encoder.previous = encoder_get_secondary();
-    control_feedback.secondary_encoder.transmission_p = 1;
-    control_feedback.secondary_encoder.transmission_q = 1;
-    control_feedback.secondary_encoder.ticks_per_rev = (1<<14);
-
-    control_feedback.potentiometer.gain = 1;
-    control_feedback.potentiometer.zero = 0;
-
-    control_feedback.rpm.phase = 0;
-
-    control_start();
-
-
-
-    chThdCreateStatic(stream_task_wa, sizeof(stream_task_wa), LOWPRIO, stream_task, NULL);
+    // chThdCreateStatic(stream_task_wa, sizeof(stream_task_wa), LOWPRIO, stream_task, NULL);
     chThdCreateStatic(parameter_listener_wa, sizeof(parameter_listener_wa), LOWPRIO, parameter_listener, &SD3);
     chThdCreateStatic(led_thread_wa, sizeof(led_thread_wa), LOWPRIO, led_thread, NULL);
-
-    control_enable(true);
 
     static struct uavcan_node_arg node_arg;
     node_arg.node_id = config.ID;

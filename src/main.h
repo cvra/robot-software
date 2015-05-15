@@ -8,7 +8,7 @@ extern "C" {
 #include <hal.h>
 #include "parameter/parameter.h"
 
-extern BaseSequentialStream* stdout;
+extern BaseSequentialStream* ch_stdout;
 extern parameter_namespace_t parameter_root_ns;
 
 #ifdef __cplusplus
