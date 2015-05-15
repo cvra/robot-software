@@ -38,7 +38,7 @@ struct _param_val_matrix_s {
 #define _PARAM_TYPE_SCALAR      1
 // #define _PARAM_TYPE_BOOL        2
 #define _PARAM_TYPE_INTEGER     3
-// #define _PARAM_TYPE_STRING      4
+#define _PARAM_TYPE_STRING      4
 #define _PARAM_TYPE_VECTOR      5
 #define _PARAM_TYPE_VAR_VECTOR  6
 // #define _PARAM_TYPE_MATRIX      7
@@ -188,6 +188,27 @@ uint16_t parameter_variable_vector_get(parameter_t *p, float *out);
 uint16_t parameter_variable_vector_read(parameter_t *p, float *out);
 void parameter_variable_vector_set(parameter_t *p, const float *v, uint16_t dim);
 
+
+/*
+ * String type parameter
+ */
+
+void parameter_string_declare(parameter_t *p,
+                              parameter_namespace_t *ns,
+                              const char *id,
+                              char *buf,
+                              uint16_t buf_size);
+void parameter_string_declare_with_default(parameter_t *p,
+                                           parameter_namespace_t *ns,
+                                           const char *id,
+                                           char *buf,
+                                           uint16_t buf_size,
+                                           const char *default_str);
+// writes a NULL terminated string to out, returns the length of the string
+uint16_t parameter_string_get(parameter_t *p, char *out, uint16_t out_size);
+uint16_t parameter_string_read(parameter_t *p, char *out, uint16_t out_size);
+void parameter_string_set(parameter_t *p, const char *str);
+void parameter_string_set_w_len(parameter_t *p, const char *str, uint16_t len);
 
 #ifdef __cplusplus
 }
