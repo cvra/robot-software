@@ -92,6 +92,124 @@ static int get_vector(cmp_ctx_t *cmp,
     }
 }
 
+static int read_parameter_scalar(parameter_t *p,
+                                 cmp_object_t *obj,
+                                 cmp_ctx_t *cmp,
+                                 parameter_msgpack_err_cb err_cb,
+                                 void *err_arg)
+{
+    float v;
+    if (get_float(obj, &v)) {
+        parameter_scalar_set(p, v);
+    } else {
+        err_cb(err_arg, p->id, "warning: type mismatch");
+        int ret = discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
+        if (ret != 0) {
+            return ret;
+        }
+    }
+    return 0;
+}
+
+static int read_parameter_integer(parameter_t *p,
+                                  cmp_object_t *obj,
+                                  cmp_ctx_t *cmp,
+                                  parameter_msgpack_err_cb err_cb,
+                                  void *err_arg)
+{
+    int32_t v;
+    if (get_int(obj, &v)) {
+        parameter_integer_set(p, v);
+    } else {
+        err_cb(err_arg, p->id, "warning: type mismatch");
+        int ret = discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
+        if (ret != 0) {
+            return ret;
+        }
+    }
+    return 0;
+}
+
+static int read_parameter_vector(parameter_t *p,
+                                 cmp_object_t *obj,
+                                 cmp_ctx_t *cmp,
+                                 parameter_msgpack_err_cb err_cb,
+                                 void *err_arg)
+{
+    uint32_t array_size;
+    if (cmp_object_as_array(obj, &array_size)) {
+        if (array_size != p->value.vect.dim) {
+            err_cb(err_arg, p->id, "warning: wrong vector dimension");
+            int ret = discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
+            if (ret != 0) {
+                return ret;
+            }
+        }
+        float *buf = PARAMETER_MSGPACK_MALLOC(array_size * sizeof(float));
+        if (buf == NULL) {
+            err_cb(err_arg, p->id, "warning: allocation failed");
+            int ret = discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
+            if (ret != 0) {
+                return ret;
+            }
+        }
+        int ret = get_vector(cmp, buf, array_size, err_cb, err_arg, p->id);
+        if (ret != 0) {
+            PARAMETER_MSGPACK_FREE(buf);
+            return ret;
+        }
+        parameter_vector_set(p, buf);
+        PARAMETER_MSGPACK_FREE(buf);
+    } else {
+        err_cb(err_arg, p->id, "warning: type mismatch");
+        int ret = discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
+        if (ret != 0) {
+            return ret;
+        }
+    }
+    return 0;
+}
+
+static int read_parameter_var_vector(parameter_t *p,
+                                     cmp_object_t *obj,
+                                     cmp_ctx_t *cmp,
+                                     parameter_msgpack_err_cb err_cb,
+                                     void *err_arg)
+{
+    uint32_t array_size;
+    if (cmp_object_as_array(obj, &array_size)) {
+        if (array_size > p->value.vect.buf_dim) {
+            err_cb(err_arg, p->id, "warning: vector dimension too big");
+            int ret = discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
+            if (ret != 0) {
+                return ret;
+            }
+        }
+        float *buf = PARAMETER_MSGPACK_MALLOC(array_size * sizeof(float));
+        if (buf == NULL) {
+            err_cb(err_arg, p->id, "warning: allocation failed");
+            int ret = discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
+            if (ret != 0) {
+                return ret;
+            }
+        }
+        int ret = get_vector(cmp, buf, array_size, err_cb, err_arg, p->id);
+        if (ret != 0) {
+            PARAMETER_MSGPACK_FREE(buf);
+            return ret;
+        }
+        parameter_variable_vector_set(p, buf, array_size);
+        PARAMETER_MSGPACK_FREE(buf);
+    } else {
+        err_cb(err_arg, p->id, "warning: type mismatch");
+        int ret = discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
+        if (ret != 0) {
+            return ret;
+        }
+    }
+    return 0;
+}
+
 
 static int read_parameter(parameter_t *p,
                           cmp_object_t *obj,
@@ -99,102 +217,19 @@ static int read_parameter(parameter_t *p,
                           parameter_msgpack_err_cb err_cb,
                           void *err_arg)
 {
-    if (p->type == _PARAM_TYPE_SCALAR) {
-        float v;
-        if (get_float(obj, &v)) {
-            parameter_scalar_set(p, v);
-        } else {
-            err_cb(err_arg, p->id, "warning: type mismatch");
-            int ret = discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
-            if (ret != 0) {
-                return ret;
-            }
-        }
-    } else if (p->type == _PARAM_TYPE_INTEGER) {
-        int32_t v;
-        if (get_int(obj, &v)) {
-            parameter_integer_set(p, v);
-        } else {
-            err_cb(err_arg, p->id, "warning: type mismatch");
-            int ret = discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
-            if (ret != 0) {
-                return ret;
-            }
-        }
-    } else if (p->type == _PARAM_TYPE_VECTOR) {
-        uint32_t array_size;
-        if (cmp_object_as_array(obj, &array_size)) {
-            if (array_size != p->value.vect.dim) {
-                err_cb(err_arg, p->id, "warning: wrong vector dimension");
-                int ret = discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
-                if (ret != 0) {
-                    return ret;
-                }
-            }
-            float *buf = PARAMETER_MSGPACK_MALLOC(array_size * sizeof(float));
-            if (buf == NULL) {
-                err_cb(err_arg, p->id, "warning: allocation failed");
-                int ret = discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
-                if (ret != 0) {
-                    return ret;
-                }
-            }
-            int ret = get_vector(cmp, buf, array_size, err_cb, err_arg, p->id);
-            if (ret != 0) {
-                PARAMETER_MSGPACK_FREE(buf);
-                return ret;
-            }
-            parameter_vector_set(p, buf);
-            PARAMETER_MSGPACK_FREE(buf);
-        } else {
-            err_cb(err_arg, p->id, "warning: type mismatch");
-            int ret = discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
-            if (ret != 0) {
-                return ret;
-            }
-        }
-
-    } else if (p->type == _PARAM_TYPE_VAR_VECTOR) {
-        uint32_t array_size;
-        if (cmp_object_as_array(obj, &array_size)) {
-            if (array_size > p->value.vect.buf_dim) {
-                err_cb(err_arg, p->id, "warning: vector dimension too big");
-                int ret = discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
-                if (ret != 0) {
-                    return ret;
-                }
-            }
-            float *buf = PARAMETER_MSGPACK_MALLOC(array_size * sizeof(float));
-            if (buf == NULL) {
-                err_cb(err_arg, p->id, "warning: allocation failed");
-                int ret = discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
-                if (ret != 0) {
-                    return ret;
-                }
-            }
-            int ret = get_vector(cmp, buf, array_size, err_cb, err_arg, p->id);
-            if (ret != 0) {
-                PARAMETER_MSGPACK_FREE(buf);
-                return ret;
-            }
-            parameter_variable_vector_set(p, buf, array_size);
-            PARAMETER_MSGPACK_FREE(buf);
-        } else {
-            err_cb(err_arg, p->id, "warning: type mismatch");
-            int ret = discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
-            if (ret != 0) {
-                return ret;
-            }
-        }
-
-    } else {
+    switch (p->type) {
+    case _PARAM_TYPE_SCALAR:
+        return read_parameter_scalar(p, obj, cmp, err_cb, err_arg);
+    case _PARAM_TYPE_INTEGER:
+        return read_parameter_integer(p, obj, cmp, err_cb, err_arg);
+    case _PARAM_TYPE_VECTOR:
+        return read_parameter_vector(p, obj, cmp, err_cb, err_arg);
+    case _PARAM_TYPE_VAR_VECTOR:
+        return read_parameter_var_vector(p, obj, cmp, err_cb, err_arg);
+    default:
         err_cb(err_arg, p->id, "TODO not implemented yet");
-        int ret = discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
-        if (ret != 0) {
-            return ret;
-        }
+        return discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
     }
-    return 0;
 }
 
 
