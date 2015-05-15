@@ -43,10 +43,22 @@ static const ShellConfig shell_cfg1 = {
 void panic_hook(const char *reason)
 {
     palClearPad(GPIOC, GPIOC_LED);
+    palSetPad(GPIOF, GPIOF_LED_READY);
+    palSetPad(GPIOF, GPIOF_LED_DEBUG);
+    palSetPad(GPIOF, GPIOF_LED_ERROR);
+    palSetPad(GPIOF, GPIOF_LED_POWER_ERROR);
+    palSetPad(GPIOF, GPIOF_LED_PC_ERROR);
+    palSetPad(GPIOF, GPIOF_LED_BUS_ERROR);
+    palSetPad(GPIOF, GPIOF_LED_YELLOW_1);
+    palSetPad(GPIOF, GPIOF_LED_YELLOW_2);
+    palSetPad(GPIOF, GPIOF_LED_GREEN_1);
+    palSetPad(GPIOF, GPIOF_LED_GREEN_2);
+
     panic_log_write(reason);
 
     // reboot
-    NVIC_SystemReset();
+    //NVIC_SystemReset();
+    while(1);
 }
 
 msg_t trajectory_thread(void *p)
