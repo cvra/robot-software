@@ -136,6 +136,9 @@ void motor_driver_send_initial_config(motor_driver_t *d)
     config_msg.mode = parameter_integer_get(&d->config.mode); // todo !
 
     can_drv->config_client.call(node_id, config_msg);
+
+    can_drv->enabled = false;
+
 }
 
 extern "C"
