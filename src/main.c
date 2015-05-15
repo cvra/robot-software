@@ -160,9 +160,19 @@ int main(void) {
     if (panic_log_read() != NULL) {
         /* Turns on the user LED if yes */
         palClearPad(GPIOC, GPIOC_LED);
-    }
 
-    if (panic_log_read() == NULL) {
+        /* Turn on all LEDs on the front panel. */
+        palSetPad(GPIOF, GPIOF_LED_READY);
+        palSetPad(GPIOF, GPIOF_LED_DEBUG);
+        palSetPad(GPIOF, GPIOF_LED_ERROR);
+        palSetPad(GPIOF, GPIOF_LED_POWER_ERROR);
+        palSetPad(GPIOF, GPIOF_LED_PC_ERROR);
+        palSetPad(GPIOF, GPIOF_LED_BUS_ERROR);
+        palSetPad(GPIOF, GPIOF_LED_YELLOW_1);
+        palSetPad(GPIOF, GPIOF_LED_YELLOW_2);
+        palSetPad(GPIOF, GPIOF_LED_GREEN_1);
+        palSetPad(GPIOF, GPIOF_LED_GREEN_2);
+    } else {
         /* Creates the LWIP threads (it changes priority internally).  */
         chThdCreateStatic(wa_lwip_thread, LWIP_THREAD_STACK_SIZE, NORMALPRIO + 2,
             lwip_thread, NULL);
