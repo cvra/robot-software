@@ -46,7 +46,7 @@ void uavcan_failure(const char *reason)
     chSysHalt(reason);
 }
 
-static THD_WORKING_AREA(uavcan_node_wa, 4000);
+static THD_WORKING_AREA(uavcan_node_wa, 8000);
 static THD_FUNCTION(uavcan_node, arg)
 {
     struct uavcan_node_arg *node_arg;
