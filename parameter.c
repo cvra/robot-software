@@ -402,6 +402,7 @@ void parameter_variable_vector_declare_with_default(parameter_t *p,
                                                     uint16_t init_size)
 {
     parameter_variable_vector_declare(p, ns, id , buf, buf_size);
+    PARAMETER_ASSERT(init_size <= buf_size);
     p->value.vect.dim = init_size;
     _parameter_changed_set(p);
 }
