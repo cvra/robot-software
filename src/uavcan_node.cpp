@@ -9,7 +9,7 @@
 #include <cvra/motor/control/Velocity.hpp>
 #include <cvra/Reboot.hpp>
 #include <cvra/motor/feedback/MotorEncoderPosition.hpp>
-#include <cvra/motor/config/SpeedPID.hpp>
+#include <cvra/motor/config/VelocityPID.hpp>
 #include <cvra/motor/config/PositionPID.hpp>
 #include <cvra/motor/config/CurrentPID.hpp>
 #include "motor_control.h"
@@ -19,8 +19,11 @@
 #include "robot_parameters.h"
 #include "timestamp/timestamp.h"
 #include "odometry/robot_base.h"
+#include "motor_driver.h"
+#include "motor_driver_uavcan.h"
 #include "odometry/odometry.h"
 #include "config.h"
+#include "uavcan_node_private.hpp"
 
 #include <errno.h>
 
@@ -35,8 +38,6 @@ namespace uavcan_node
 {
 
 uavcan_stm32::CanInitHelper<128> can;
-
-typedef uavcan::Node<16384> Node;
 
 uavcan::LazyConstructor<Node> node_;
 
@@ -236,12 +237,12 @@ msg_t main(void *arg)
     }
 
     /* Config client. */
-    uavcan::ServiceClient<cvra::motor::config::SpeedPID> speed_pid_client(node);
+    uavcan::ServiceClient<cvra::motor::config::VelocityPID> speed_pid_client(node);
     if (speed_pid_client.init() < 0) {
-        node_fail("cvra::motor::config::SpeedPID client");
+        node_fail("cvra::motor::config::VelocityPID client");
     }
 
-    speed_pid_client.setCallback([](const uavcan::ServiceCallResult<cvra::motor::config::SpeedPID>& call_result)
+    speed_pid_client.setCallback([](const uavcan::ServiceCallResult<cvra::motor::config::VelocityPID>& call_result)
     {
         if (call_result.isSuccessful() == false) {
             // TODO: error handling.
@@ -283,37 +284,6 @@ msg_t main(void *arg)
             cvra::Reboot reboot_msg;
             reboot_msg.bootmode = reboot_msg.BOOTLOADER_TIMEOUT;
             reboot_pub.broadcast(reboot_msg);
-        }
-
-        for (int i = 0; i < SLAVE_CONFIG_COUNT; ++i) {
-            if (parameter_namespace_contains_changed(&slave_configs[i].root)) {
-                if (parameter_namespace_contains_changed(&slave_configs[i].speed_pid.root)) {
-                    cvra::motor::config::SpeedPID::Request request;
-                    request.pid.kp = parameter_scalar_get(&slave_configs[i].speed_pid.kp);
-                    request.pid.ki = parameter_scalar_get(&slave_configs[i].speed_pid.ki);
-                    request.pid.kd = parameter_scalar_get(&slave_configs[i].speed_pid.kd);
-                    request.pid.ilimit = parameter_scalar_get(&slave_configs[i].speed_pid.ilimit);
-                    speed_pid_client.call(i, request);
-                }
-
-                if (parameter_namespace_contains_changed(&slave_configs[i].position_pid.root)) {
-                    cvra::motor::config::PositionPID::Request request;
-                    request.pid.kp = parameter_scalar_get(&slave_configs[i].position_pid.kp);
-                    request.pid.ki = parameter_scalar_get(&slave_configs[i].position_pid.ki);
-                    request.pid.kd = parameter_scalar_get(&slave_configs[i].position_pid.kd);
-                    request.pid.ilimit = parameter_scalar_get(&slave_configs[i].position_pid.ilimit);
-                    position_pid_client.call(i, request);
-                }
-
-                if (parameter_namespace_contains_changed(&slave_configs[i].current_pid.root)) {
-                    cvra::motor::config::CurrentPID::Request request;
-                    request.pid.kp = parameter_scalar_get(&slave_configs[i].current_pid.kp);
-                    request.pid.ki = parameter_scalar_get(&slave_configs[i].current_pid.ki);
-                    request.pid.kd = parameter_scalar_get(&slave_configs[i].current_pid.kd);
-                    request.pid.ilimit = parameter_scalar_get(&slave_configs[i].current_pid.ilimit);
-                    current_pid_client.call(i, request);
-                }
-            }
         }
 
         cvra::motor::control::Velocity vel_ctrl_setpt;
