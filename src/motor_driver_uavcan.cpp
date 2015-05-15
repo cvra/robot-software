@@ -11,6 +11,7 @@
 #include <cvra/motor/control/Torque.hpp>
 #include <cvra/motor/control/Voltage.hpp>
 #include <cvra/motor/control/Trajectory.hpp>
+#include "uavcan_node.h"
 #include "motor_driver.h"
 #include "motor_driver_uavcan.h"
 #include "uavcan_node_private.hpp"
@@ -91,11 +92,25 @@ static void driver_allocation(motor_driver_t *d)
     }
 }
 
+
+static void update_motor_can_id(motor_driver_t *d)
+{
+    int node_id = motor_driver_get_can_id(d);
+    if (node_id == CAN_ID_NOT_SET) {
+        node_id = bus_enumerator_get_can_id(&bus_enumerator, motor_driver_get_id(d));
+        if (node_id != BUS_ENUMERATOR_CAN_ID_NOT_SET) {
+            motor_driver_set_can_id(d, node_id);
+        }
+    }
+}
+
+
 extern "C"
 void motor_driver_send_initial_config(motor_driver_t *d)
 {
     cvra::motor::config::LoadConfiguration::Request config_msg;
 
+    update_motor_can_id(d);
     int node_id = motor_driver_get_can_id(d);
     if (node_id == CAN_ID_NOT_SET) {
         return;
@@ -145,6 +160,7 @@ extern "C"
 void motor_driver_uavcan_update_config(motor_driver_t *d)
 {
 
+    update_motor_can_id(d);
     int node_id = motor_driver_get_can_id(d);
     if (node_id == CAN_ID_NOT_SET) {
         return;
@@ -215,6 +231,7 @@ void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
     cvra::motor::control::Voltage voltage_setpoint;
     cvra::motor::control::Trajectory trajectory_setpoint;
 
+    update_motor_can_id(d);
     int node_id = motor_driver_get_can_id(d);
     if (node_id == CAN_ID_NOT_SET) {
         return;
