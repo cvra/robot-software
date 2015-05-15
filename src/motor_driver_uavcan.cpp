@@ -5,6 +5,7 @@
 #include <cvra/motor/config/PositionPID.hpp>
 #include <cvra/motor/config/CurrentPID.hpp>
 #include <cvra/motor/config/LoadConfiguration.hpp>
+#include <cvra/motor/config/EnableMotor.hpp>
 #include <cvra/motor/control/Velocity.hpp>
 #include <cvra/motor/control/Position.hpp>
 #include <cvra/motor/control/Torque.hpp>
@@ -19,24 +20,26 @@ struct can_driver_s {
     uavcan::ServiceClient<cvra::motor::config::PositionPID> position_pid_client;
     uavcan::ServiceClient<cvra::motor::config::CurrentPID> current_pid_client;
     uavcan::ServiceClient<cvra::motor::config::LoadConfiguration> config_client;
+    uavcan::ServiceClient<cvra::motor::config::EnableMotor> enable_client;
     uavcan::Publisher<cvra::motor::control::Velocity> velocity_pub;
     uavcan::Publisher<cvra::motor::control::Position> position_pub;
     uavcan::Publisher<cvra::motor::control::Torque> torque_pub;
     uavcan::Publisher<cvra::motor::control::Voltage> voltage_pub;
     uavcan::Publisher<cvra::motor::control::Trajectory> trajectory_pub;
-
+    bool enabled; // state of the motor board
     can_driver_s():
         speed_pid_client(getNode()),
         position_pid_client(getNode()),
         current_pid_client(getNode()),
         config_client(getNode()),
+        enable_client(getNode()),
         velocity_pub(getNode()),
         position_pub(getNode()),
         torque_pub(getNode()),
         voltage_pub(getNode()),
         trajectory_pub(getNode())
     {
-
+        enabled = false;
     }
 };
 
@@ -143,6 +146,26 @@ void motor_driver_uavcan_update_config(motor_driver_t *d)
     }
 }
 
+void motor_enable(can_driver_s *d, int node_id)
+{
+    cvra::motor::config::EnableMotor::Request enable_msg;
+    if (!d->enabled) {
+        d->enabled = true;
+        enable_msg.enable = true;
+        d->enable_client.call(node_id, enable_msg);
+    }
+}
+
+void motor_disable(can_driver_s *d, int node_id)
+{
+    cvra::motor::config::EnableMotor::Request enable_msg;
+    if (d->enabled) {
+        d->enabled = false;
+        enable_msg.enable = false;
+        d->enable_client.call(node_id, enable_msg);
+    }
+}
+
 extern "C"
 void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
 {
@@ -162,26 +185,31 @@ void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
     motor_driver_lock(d);
     switch(d->control_mode) {
         case MOTOR_CONTROL_MODE_VELOCITY: {
+            motor_enable(can_drv, node_id);
             velocity_setpoint.velocity = motor_driver_get_velocity_setpt(d);
             can_drv->velocity_pub.unicast(velocity_setpoint, node_id);
         } break;
 
         case MOTOR_CONTROL_MODE_POSITION: {
+            motor_enable(can_drv, node_id);
             position_setpoint.position = motor_driver_get_position_setpt(d);
             can_drv->position_pub.unicast(position_setpoint, node_id);
         } break;
 
         case MOTOR_CONTROL_MODE_TORQUE: {
+            motor_enable(can_drv, node_id);
             torque_setpoint.torque = motor_driver_get_torque_setpt(d);
             can_drv->torque_pub.unicast(torque_setpoint, node_id);
         } break;
 
         case MOTOR_CONTROL_MODE_VOLTAGE: {
+            motor_enable(can_drv, node_id);
             voltage_setpoint.voltage = motor_driver_get_voltage_setpt(d);
             can_drv->voltage_pub.unicast(voltage_setpoint, node_id);
         } break;
 
         case MOTOR_CONTROL_MODE_TRAJECTORY: {
+            motor_enable(can_drv, node_id);
             uint64_t timestamp_us = ST2US(chVTGetSystemTime());
             float position, velocity, acceleration, torque;
             motor_driver_get_trajectory_point(d,
@@ -198,7 +226,7 @@ void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
         } break;
 
         case MOTOR_CONTROL_MODE_DISABLED: {
-
+            motor_disable(can_drv, node_id);
         } break;
 
         default:
