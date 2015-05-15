@@ -19,7 +19,7 @@
 #include <cvra/motor/config/PositionPID.hpp>
 #include <cvra/motor/config/TorqueLimit.hpp>
 #include <cvra/motor/config/EnableMotor.hpp>
-#include <cvra/motor/config/StringID.hpp>
+#include <cvra/StringID.hpp>
 #include <cvra/motor/feedback/MotorEncoderPosition.hpp>
 #include <cvra/motor/control/Velocity.hpp>
 #include <cvra/motor/control/Position.hpp>
@@ -160,11 +160,11 @@ static THD_FUNCTION(uavcan_node, arg)
         uavcan_failure("cvra::motor::feedback::MotorEncoderPosition publisher");
     }
 
-    uavcan::Publisher<cvra::motor::config::StringID> string_id_pub(node);
+    uavcan::Publisher<cvra::StringID> string_id_pub(node);
     const int string_id_pub_init_res = string_id_pub.init();
     if (string_id_pub_init_res < 0)
     {
-        uavcan_failure("cvra::motor::config::StringID publisher");
+        uavcan_failure("cvra::StringID publisher");
     }
 
 
@@ -338,7 +338,7 @@ static THD_FUNCTION(uavcan_node, arg)
         enc_pos.raw_encoder_position = encoder_get_secondary();
         enc_pos_pub.broadcast(enc_pos);
 
-        cvra::motor::config::StringID string_id;
+        cvra::StringID string_id;
         string_id.id = node_arg->node_name;
         string_id_pub.broadcast(string_id);
 
