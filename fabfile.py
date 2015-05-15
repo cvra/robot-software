@@ -33,6 +33,9 @@ def copy_files():
     put('build/ch.elf', '~/deploy_master/ch.elf')
     put('oocd_busblaster_v3.cfg', '~/deploy_master/oocd.cfg')
 
+def serial():
+    sudo('python -m serial.tools.miniterm /dev/ttyACM0')
+
 
 def flash():
     sudo('openocd -f ~cvra/deploy_master/oocd.cfg -c "program /home/cvra/deploy_master/ch.elf verify reset" -c "shutdown"')
