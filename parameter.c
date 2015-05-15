@@ -439,3 +439,65 @@ void parameter_variable_vector_set(parameter_t *p, const float *v, uint16_t dim)
     PARAMETER_UNLOCK();
     _parameter_changed_set(p);
 }
+
+
+/*
+ * String type parameter
+ */
+
+void parameter_string_declare(parameter_t *p,
+                              parameter_namespace_t *ns,
+                              const char *id,
+                              char *buf,
+                              uint16_t buf_size)
+{
+    p->type = _PARAM_TYPE_STRING;
+    p->value.str.buf = buf;
+    p->value.str.buf_len = buf_size;
+    _parameter_declare(p, ns, id);
+}
+
+void parameter_string_declare_with_default(parameter_t *p,
+                                           parameter_namespace_t *ns,
+                                           const char *id,
+                                           char *buf,
+                                           uint16_t buf_size,
+                                           const char *default_str)
+{
+    parameter_string_declare(p, ns, id , buf, buf_size);
+    p->value.str.len = strlen(default_str);
+    PARAMETER_ASSERT(p->value.str.len < buf_size); // leave space for '\0'
+    strncpy(p->value.str.buf, default_str, buf_size);
+    _parameter_changed_set(p);
+}
+
+uint16_t parameter_string_get(parameter_t *p, char *out, uint16_t out_size)
+{
+    _parameter_changed_clear(p);
+    return parameter_string_read(p, out, out_size);
+}
+
+uint16_t parameter_string_read(parameter_t *p, char *out, uint16_t out_size)
+{
+    PARAMETER_ASSERT(p->type == _PARAM_TYPE_STRING);
+    PARAMETER_LOCK();
+    strncpy(out, p->value.str.buf, out_size);
+    uint16_t ret = p->value.str.len;
+    PARAMETER_UNLOCK();
+    return ret;
+}
+
+void parameter_string_set(parameter_t *p, const char *str)
+{
+    parameter_string_set_w_len(p, str, strlen(str));
+}
+
+void parameter_string_set_w_len(parameter_t *p, const char *str, uint16_t len)
+{
+    PARAMETER_ASSERT(p->type == _PARAM_TYPE_STRING);
+    PARAMETER_LOCK();
+    PARAMETER_ASSERT(len < p->value.str.buf_len); // leave space for '\0'
+    strncpy(p->value.str.buf, str, p->value.str.buf_len); // so dest is '\0' terminated
+    PARAMETER_UNLOCK();
+    _parameter_changed_set(p);
+}
