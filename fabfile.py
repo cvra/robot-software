@@ -43,6 +43,15 @@ def rebuild():
     local('packager/packager.py')
     local('make -B -j')
 
+def read_config():
+    """
+    Reads the config of all connected boards.
+    """
+    command = "can-bootloader/client/bootloader_read_config.py"
+    command += " --tcp {}".format(MASTER_BOARD[env.host])
+    command += " --all"
+    local(command)
+
 
 def deploy():
     """
