@@ -12,6 +12,7 @@
 #include <cvra/motor/config/VelocityPID.hpp>
 #include <cvra/motor/config/PositionPID.hpp>
 #include <cvra/motor/config/CurrentPID.hpp>
+#include <cvra/StringID.hpp>
 #include "motor_control.h"
 #include "robot_pose.h"
 #include <simplerpc/message.h>
@@ -24,6 +25,7 @@
 #include "odometry/odometry.h"
 #include "config.h"
 #include "uavcan_node_private.hpp"
+#include "uavcan_node.h"
 
 #include <errno.h>
 
@@ -33,6 +35,10 @@
 #define LEFT_WHEEL_ID   10
 
 #define UAVCAN_NODE_STACK_SIZE 4096
+
+
+bus_enumerator_t bus_enumerator;
+
 
 namespace uavcan_node
 {
@@ -180,6 +186,20 @@ msg_t main(void *arg)
         node_fail("NodeStatus subscribe");
     }
 
+    uavcan::Subscriber<cvra::StringID> string_id_sub(node);
+    res = string_id_sub.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::StringID>& msg)
+        {
+            uint8_t can_id = msg.getSrcNodeID().get();
+
+            if (bus_enumerator_get_str_id(&bus_enumerator, can_id) == NULL) {
+                bus_enumerator_update_node_info(&bus_enumerator, msg.id.c_str(), can_id);
+            }
+        }
+    );
+    if (res != 0) {
+        node_fail("cvra::StringID subscriber");
+    }
 
     uavcan::Subscriber<cvra::motor::feedback::MotorEncoderPosition> enc_pos_sub(node);
     res = enc_pos_sub.start(

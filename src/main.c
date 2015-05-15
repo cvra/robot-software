@@ -8,6 +8,7 @@
 #include <lwip/netif.h>
 #include <lwip/dhcp.h>
 
+#include "main.h"
 #include "commands.h"
 #include "sntp/sntp.h"
 #include "unix_timestamp.h"
@@ -24,12 +25,21 @@
 #include "tracy-the-trajectory-tracker/src/trajectory_tracking.h"
 #include "robot_parameters.h"
 #include "odometry_publisher.h"
+#include "motor_manager.h"
 
 
 /* Command line related.                                                     */
 #define SHELL_WA_SIZE   THD_WORKING_AREA_SIZE(2048)
 
 #define TRAJECTORY_STACKSIZE 2048
+
+#define TRAJECTORY_BUFFER_LEN   15
+#define MOTOR_DRIVER_BUFFER_LEN 20
+#define BUS_ENUMERATOR_ALLOCATOR_NB_ENTRIES 21
+
+
+motor_manager_t motor_manager;
+
 
 THD_WORKING_AREA(wa_trajectory, TRAJECTORY_STACKSIZE);
 
@@ -168,6 +178,32 @@ int main(void) {
 
     /* Initialise timestamp module */
     timestamp_stm32_init();
+
+
+    /* bus enumerator init */
+    struct bus_enumerator_entry_allocator
+                    bus_enum_entries_alloc[BUS_ENUMERATOR_ALLOCATOR_NB_ENTRIES];
+
+    bus_enumerator_init(&bus_enumerator,
+                        bus_enum_entries_alloc,
+                        sizeof(bus_enum_entries_alloc));
+
+
+    /* allocate and init motor manager */
+    trajectory_t trajectory_buffer[TRAJECTORY_BUFFER_LEN];
+    float trajectory_points_buffer[MOTOR_MANAGER_ALLOCATED_TRAJECTORY_LENGTH
+                                   * MOTOR_MANAGER_TRAJECTORY_POINTS_DIMENSION
+                                   * TRAJECTORY_BUFFER_LEN];
+
+    motor_driver_t motor_driver_buffer[MOTOR_DRIVER_BUFFER_LEN];
+    motor_manager_init(&motor_manager,
+                       trajectory_buffer,
+                       sizeof(trajectory_buffer),
+                       trajectory_points_buffer,
+                       sizeof(trajectory_points_buffer),
+                       motor_driver_buffer,
+                       sizeof(motor_driver_buffer),
+                       bus_enumerator);
 
     /* Checks if there is any log message from a previous boot */
     if (panic_log_read() != NULL) {

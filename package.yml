@@ -36,6 +36,7 @@ target.arm:
     - src/odometry_publisher.c
     - src/motor_driver.c
     - src/motor_driver_uavcan.cpp
+    - src/motor_manager.c
 
 source:
     - src/unix_timestamp.c
