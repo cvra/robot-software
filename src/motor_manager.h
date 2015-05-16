@@ -20,8 +20,6 @@
 #include "bus_enumerator.h"
 
 
-#define MOTOR_MANAGER_ALLOCATED_TRAJECTORY_LENGTH   100
-#define MOTOR_MANAGER_TRAJECTORY_POINTS_DIMENSION   4
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,15 +27,11 @@ extern "C" {
 
 typedef struct {
     memory_pool_t traj_buffer_pool;
-    trajectory_t *trajectory_buffer;
-    uint16_t trajectory_buffer_len;
     memory_pool_t traj_points_buffer_pool;
-    float *trajectory_points_buffer;
-    uint16_t trajectory_points_buffer_len;
     motor_driver_t *motor_driver_buffer;
     uint16_t motor_driver_buffer_len;
     uint16_t motor_driver_buffer_nb_elements;
-    bus_enumerator_t bus_enumerator;
+    bus_enumerator_t *bus_enumerator;
 } motor_manager_t;
 
 
@@ -48,7 +42,7 @@ void motor_manager_init(motor_manager_t *m,
                         uint16_t trajectory_points_buffer_len,
                         motor_driver_t *motor_driver_buffer,
                         uint16_t motor_driver_buffer_len,
-                        bus_enumerator_t bus_enumerator);
+                        bus_enumerator_t *bus_enumerator);
 
 
 motor_driver_t *motor_manager_create_driver(motor_manager_t *m,

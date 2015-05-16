@@ -33,10 +33,6 @@
 
 #define TRAJECTORY_STACKSIZE 2048
 
-#define TRAJECTORY_BUFFER_LEN   15
-#define MOTOR_DRIVER_BUFFER_LEN 20
-#define BUS_ENUMERATOR_ALLOCATOR_NB_ENTRIES 21
-
 
 motor_manager_t motor_manager;
 
@@ -182,29 +178,29 @@ int main(void) {
 
     /* bus enumerator init */
     static __attribute__((section(".ccm"))) struct bus_enumerator_entry_allocator
-                    bus_enum_entries_alloc[BUS_ENUMERATOR_ALLOCATOR_NB_ENTRIES];
+                    bus_enum_entries_alloc[MAX_NB_BUS_ENUMERATOR_ENTRIES];
 
     bus_enumerator_init(&bus_enumerator,
                         bus_enum_entries_alloc,
-                        sizeof(bus_enum_entries_alloc));
+                        MAX_NB_BUS_ENUMERATOR_ENTRIES);
 
 
     /* allocate and init motor manager */
-    static __attribute__((section(".ccm"))) trajectory_t trajectory_buffer[TRAJECTORY_BUFFER_LEN];
-    static __attribute__((section(".ccm"))) float trajectory_points_buffer[MOTOR_MANAGER_ALLOCATED_TRAJECTORY_LENGTH
-                                   * MOTOR_MANAGER_TRAJECTORY_POINTS_DIMENSION
-                                   * TRAJECTORY_BUFFER_LEN];
+    static __attribute__((section(".ccm"))) trajectory_t trajectory_buffer[MAX_NB_TRAJECTORY_BUFFERS];
+    static __attribute__((section(".ccm"))) float trajectory_points_buffer[ACTUATOR_TRAJECTORY_NB_POINTS
+                                                                           * ACTUATOR_TRAJECTORY_POINT_DIMENSION
+                                                                           * MAX_NB_TRAJECTORY_BUFFERS];
 
-    static __attribute__((section(".ccm"))) motor_driver_t motor_driver_buffer[MOTOR_DRIVER_BUFFER_LEN];
+    static __attribute__((section(".ccm"))) motor_driver_t motor_driver_buffer[MAX_NB_MOTOR_DRIVERS];
 
     motor_manager_init(&motor_manager,
                        trajectory_buffer,
-                       TRAJECTORY_BUFFER_LEN,
+                       MAX_NB_TRAJECTORY_BUFFERS,
                        trajectory_points_buffer,
-                       MOTOR_MANAGER_TRAJECTORY_POINTS_DIMENSION * TRAJECTORY_BUFFER_LEN,
+                       MAX_NB_TRAJECTORY_BUFFERS,
                        motor_driver_buffer,
-                       MOTOR_DRIVER_BUFFER_LEN,
-                       bus_enumerator);
+                       MAX_NB_MOTOR_DRIVERS,
+                       &bus_enumerator);
 
     /* Checks if there is any log message from a previous boot */
     if (panic_log_read() != NULL) {

@@ -1,7 +1,7 @@
 #include <ch.h>
 #include "motor_manager.h"
 #include "config.h"
-
+#include "main.h"
 
 void motor_manager_init(motor_manager_t *m,
                         trajectory_t *trajectory_buffer,
@@ -10,12 +10,8 @@ void motor_manager_init(motor_manager_t *m,
                         uint16_t trajectory_points_buffer_len,
                         motor_driver_t *motor_driver_buffer,
                         uint16_t motor_driver_buffer_len,
-                        bus_enumerator_t bus_enumerator)
+                        bus_enumerator_t *bus_enumerator)
 {
-    m->trajectory_buffer = trajectory_buffer;
-    m->trajectory_buffer_len = trajectory_buffer_len;
-    m->trajectory_points_buffer = trajectory_points_buffer;
-    m->trajectory_points_buffer_len = trajectory_points_buffer_len;
     m->motor_driver_buffer = motor_driver_buffer;
     m->motor_driver_buffer_len = motor_driver_buffer_len;
     m->bus_enumerator = bus_enumerator;
@@ -24,13 +20,13 @@ void motor_manager_init(motor_manager_t *m,
 
     chPoolObjectInit(&m->traj_buffer_pool, sizeof(trajectory_t), NULL);
     chPoolObjectInit(&m->traj_points_buffer_pool,
-                     sizeof(float) * MOTOR_MANAGER_ALLOCATED_TRAJECTORY_LENGTH,
+                     sizeof(float) * ACTUATOR_TRAJECTORY_NB_POINTS * ACTUATOR_TRAJECTORY_POINT_DIMENSION,
                      NULL);
 
-    chPoolLoadArray(&m->traj_buffer_pool, m->trajectory_buffer, m->trajectory_buffer_len);
+    chPoolLoadArray(&m->traj_buffer_pool, trajectory_buffer, trajectory_buffer_len);
     chPoolLoadArray(&m->traj_points_buffer_pool,
-                    m->trajectory_points_buffer,
-                    m->trajectory_points_buffer_len);
+                    trajectory_points_buffer,
+                    trajectory_points_buffer_len);
 }
 
 motor_driver_t *motor_manager_create_driver(motor_manager_t *m,
@@ -44,7 +40,7 @@ motor_driver_t *motor_manager_create_driver(motor_manager_t *m,
                           &actuator_config,
                           &m->traj_buffer_pool,
                           &m->traj_points_buffer_pool,
-                          MOTOR_MANAGER_ALLOCATED_TRAJECTORY_LENGTH);
+                          ACTUATOR_TRAJECTORY_NB_POINTS);
 
         m->motor_driver_buffer_nb_elements++;
 
