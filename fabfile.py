@@ -59,7 +59,7 @@ def deploy():
     """
     build()
 
-    flash_command = "can-bootloader/client/bootloader_flash.py"
+    flash_command = "python3 can-bootloader/client/bootloader_flash.py"
     # Base adress
     flash_command += " -a 0x08003800"
     flash_command += " --tcp {}".format(MASTER_BOARD[env.host])
