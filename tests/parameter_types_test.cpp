@@ -48,3 +48,76 @@ TEST(IntegerParamter, CanDeclareWithDefault)
 }
 
 
+
+TEST_GROUP(StringParamter)
+{
+    parameter_namespace_t ns;
+    parameter_t p;
+    char str_buffer[8];
+
+    void setup(void)
+    {
+        parameter_namespace_declare(&ns, NULL, NULL);
+        parameter_string_declare(&p, &ns, "str", str_buffer, sizeof(str_buffer));
+    }
+};
+
+TEST(StringParamter, TypeFlag)
+{
+    CHECK_EQUAL(_PARAM_TYPE_STRING, p.type);
+}
+
+TEST(StringParamter, BufLen)
+{
+    CHECK_EQUAL(sizeof(str_buffer), p.value.str.buf_len);
+}
+
+TEST(StringParamter, CanSet)
+{
+    parameter_string_set(&p, "hello");
+    CHECK_TRUE(parameter_changed(&p));
+    BYTES_EQUAL('h', p.value.str.buf[0]);
+    BYTES_EQUAL('e', p.value.str.buf[1]);
+    BYTES_EQUAL('l', p.value.str.buf[2]);
+    BYTES_EQUAL('l', p.value.str.buf[3]);
+    BYTES_EQUAL('o', p.value.str.buf[4]);
+    CHECK_EQUAL(5, p.value.str.len);
+}
+
+TEST(StringParamter, CanGet)
+{
+    parameter_string_set(&p, "hello");
+    char buf[9];
+    parameter_string_get(&p, buf, sizeof(buf));
+    STRCMP_EQUAL("hello", buf);
+    CHECK_FALSE(parameter_changed(&p));
+}
+
+TEST(StringParamter, CanRead)
+{
+    parameter_string_set(&p, "hello");
+    char buf[9];
+    parameter_string_read(&p, buf, sizeof(buf));
+    STRCMP_EQUAL("hello", buf);
+    CHECK_TRUE(parameter_changed(&p));
+}
+
+TEST(StringParamter, CanGetSmallBuf)
+{
+    parameter_string_set(&p, "hello");
+    char buf[3]; // "he"+'\0'
+    parameter_string_get(&p, buf, sizeof(buf));
+    STRCMP_EQUAL("he", buf);
+    CHECK_FALSE(parameter_changed(&p));
+}
+
+TEST(StringParamter, CanDeclareWithDefault)
+{
+    parameter_t p_default;
+    parameter_string_declare_with_default(&p_default, &ns, "defaultstr",
+            str_buffer, sizeof(str_buffer), "#default");
+    char buf[9];
+    parameter_string_read(&p_default, buf, sizeof(buf));
+    STRCMP_EQUAL("#default", buf);
+    CHECK_TRUE(parameter_changed(&p_default));
+}
