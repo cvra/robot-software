@@ -33,7 +33,7 @@ static uint16_t index_by_str_id(const bus_enumerator_t *en, const char *str_id)
 
 static uint16_t index_by_can_id(const bus_enumerator_t *en, uint8_t can_id)
 {
-    uint16_t imin = 0, imax = en->nb_entries_str_to_can, imid;
+    uint16_t imin = 0, imax = en->nb_entries_can_to_str, imid;
 
     while (imax > imin) {
         imid = midpoint(imin, imax);
