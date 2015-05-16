@@ -98,7 +98,8 @@ static void update_motor_can_id(motor_driver_t *d)
     int node_id = motor_driver_get_can_id(d);
     if (node_id == CAN_ID_NOT_SET) {
         node_id = bus_enumerator_get_can_id(&bus_enumerator, motor_driver_get_id(d));
-        if (node_id != BUS_ENUMERATOR_CAN_ID_NOT_SET) {
+        if (node_id != BUS_ENUMERATOR_CAN_ID_NOT_SET
+            && node_id != BUS_ENUMERATOR_STRING_ID_NOT_FOUND) {
             motor_driver_set_can_id(d, node_id);
         }
     }
