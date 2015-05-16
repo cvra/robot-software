@@ -2,12 +2,13 @@
 #include "math.h"
 #include <filter/basic.h>
 
-float periodic_error(float err) {
+float periodic_error(float err)
+{
     err = fmodf(err, 2*M_PI);
     if (err > M_PI) {
         return err - 2*M_PI;
     }
-    if (err < M_PI) {
+    if (err < -M_PI) {
         return err + 2*M_PI;
     }
     return err;
