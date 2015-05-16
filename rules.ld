@@ -128,7 +128,10 @@ SECTIONS
         PROVIDE(_bss_end = .);
     } > ram
 
-    .ccm :
+    PROVIDE(end = .);
+    _end            = .;
+
+    .ccm (NOLOAD) :
     {
         . = ALIGN(4);
         *(.ccm)
@@ -137,8 +140,6 @@ SECTIONS
     } > ccmram
 }
 
-PROVIDE(end = .);
-_end            = .;
 
 __heap_base__   = _end;
 __heap_end__    = __ram_end__;
