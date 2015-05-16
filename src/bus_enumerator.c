@@ -138,7 +138,7 @@ uint8_t bus_enumerator_get_can_id(bus_enumerator_t *en, const char *str_id)
     if (index != BUS_ENUMERATOR_INDEX_NOT_FOUND) {
         return en->str_to_can[index].can_id;
     } else {
-        return BUS_ENUMERATOR_CAN_ID_NOT_SET;
+        return BUS_ENUMERATOR_STRING_ID_NOT_FOUND;
     }
 }
 

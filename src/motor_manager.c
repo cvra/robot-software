@@ -32,6 +32,10 @@ void motor_manager_init(motor_manager_t *m,
 motor_driver_t *motor_manager_create_driver(motor_manager_t *m,
                                             const char *actuator_id)
 {
+    if (bus_enumerator_get_can_id(m->bus_enumerator, actuator_id) == BUS_ENUMERATOR_STRING_ID_NOT_FOUND) {
+        return NULL;
+    }
+
     if (m->motor_driver_buffer_nb_elements < m->motor_driver_buffer_len) {
         motor_driver_t *driver = &m->motor_driver_buffer[m->motor_driver_buffer_nb_elements];
 

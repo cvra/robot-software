@@ -23,8 +23,9 @@ associates the ID.
 extern "C" {
 #endif
 
-#define BUS_ENUMERATOR_CAN_ID_NOT_SET   0xFF
-#define BUS_ENUMERATOR_INDEX_NOT_FOUND  0xFFFF
+#define BUS_ENUMERATOR_CAN_ID_NOT_SET       0xFF
+#define BUS_ENUMERATOR_STRING_ID_NOT_FOUND  0xFE
+#define BUS_ENUMERATOR_INDEX_NOT_FOUND      0xFFFF
 
 
 typedef struct {
