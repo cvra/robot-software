@@ -85,6 +85,9 @@ msg_t can_bridge_thread(void *p)
         }
 
         instance = malloc(sizeof(struct can_bridge_instance_t));
+        if (instance == NULL) {
+            chSysHalt("malloc() failed.");
+        }
         instance->conn = client_conn;
 
         chBSemObjectInit(&instance->tx_finished, true);
