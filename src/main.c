@@ -181,7 +181,7 @@ int main(void) {
 
 
     /* bus enumerator init */
-    struct bus_enumerator_entry_allocator
+    static __attribute__((section(".ccm"))) struct bus_enumerator_entry_allocator
                     bus_enum_entries_alloc[BUS_ENUMERATOR_ALLOCATOR_NB_ENTRIES];
 
     bus_enumerator_init(&bus_enumerator,
@@ -190,12 +190,13 @@ int main(void) {
 
 
     /* allocate and init motor manager */
-    trajectory_t trajectory_buffer[TRAJECTORY_BUFFER_LEN];
-    float trajectory_points_buffer[MOTOR_MANAGER_ALLOCATED_TRAJECTORY_LENGTH
+    static __attribute__((section(".ccm"))) trajectory_t trajectory_buffer[TRAJECTORY_BUFFER_LEN];
+    static __attribute__((section(".ccm"))) float trajectory_points_buffer[MOTOR_MANAGER_ALLOCATED_TRAJECTORY_LENGTH
                                    * MOTOR_MANAGER_TRAJECTORY_POINTS_DIMENSION
                                    * TRAJECTORY_BUFFER_LEN];
 
-    motor_driver_t motor_driver_buffer[MOTOR_DRIVER_BUFFER_LEN];
+    static __attribute__((section(".ccm"))) motor_driver_t motor_driver_buffer[MOTOR_DRIVER_BUFFER_LEN];
+
     motor_manager_init(&motor_manager,
                        trajectory_buffer,
                        sizeof(trajectory_buffer),
