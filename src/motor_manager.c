@@ -44,7 +44,7 @@ motor_driver_t *motor_manager_create_driver(motor_manager_t *m,
 
         m->motor_driver_buffer_nb_elements++;
 
-        bus_enumerator_add_node(&m->bus_enumerator, motor_driver_get_id(driver), (void*)driver);
+        bus_enumerator_add_node(m->bus_enumerator, motor_driver_get_id(driver), (void*)driver);
 
         return driver;
     } else {
@@ -55,7 +55,7 @@ motor_driver_t *motor_manager_create_driver(motor_manager_t *m,
 
 static motor_driver_t *get_driver(motor_manager_t *m, const char *actuator_id)
 {
-    return (motor_driver_t*)bus_enumerator_get_driver(&m->bus_enumerator, actuator_id);
+    return (motor_driver_t*)bus_enumerator_get_driver(m->bus_enumerator, actuator_id);
 }
 
 void motor_manager_get_list(motor_manager_t *m, motor_driver_t **buffer, uint16_t *length)
