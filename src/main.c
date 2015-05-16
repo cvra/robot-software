@@ -199,11 +199,11 @@ int main(void) {
 
     motor_manager_init(&motor_manager,
                        trajectory_buffer,
-                       sizeof(trajectory_buffer),
+                       TRAJECTORY_BUFFER_LEN,
                        trajectory_points_buffer,
-                       sizeof(trajectory_points_buffer),
+                       MOTOR_MANAGER_TRAJECTORY_POINTS_DIMENSION * TRAJECTORY_BUFFER_LEN,
                        motor_driver_buffer,
-                       sizeof(motor_driver_buffer),
+                       MOTOR_DRIVER_BUFFER_LEN,
                        bus_enumerator);
 
     /* Checks if there is any log message from a previous boot */
