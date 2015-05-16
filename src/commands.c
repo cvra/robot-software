@@ -252,6 +252,19 @@ static void cmd_config_tree(BaseSequentialStream *chp, int argc, char **argv)
     show_config_tree(chp, ns, 0);
 }
 
+static void cmd_node(BaseSequentialStream *chp, int argc, char **argv)
+{
+    if (argc != 1) {
+            chprintf(chp, "usage: node node_name.\r\n");
+            return;
+    }
+    uint8_t id =  bus_enumerator_get_can_id(&bus_enumerator, argv[0]);
+    chprintf(chp, "Node ID: %s = %d.\r\n", argv[0],id);
+    chprintf(chp, "%s %d\r\n", bus_enumerator.str_to_can->str_id, bus_enumerator.str_to_can->can_id);
+    chprintf(chp, "%s %d\r\n", bus_enumerator.can_to_str->str_id, bus_enumerator.can_to_str->can_id);
+
+}
+
 const ShellCommand commands[] = {
     {"mem", cmd_mem},
     {"ip", cmd_ip},
@@ -264,6 +277,7 @@ const ShellCommand commands[] = {
     {"time", cmd_time},
     {"rpc_client_demo", cmd_rpc_client_test},
     {"fwd", cmd_fwd},
+    {"node", cmd_node},
     {"vel_setpt", cmd_vel_setpt},
     {NULL, NULL}
 };
