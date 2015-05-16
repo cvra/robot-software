@@ -11,6 +11,8 @@
 #include "commands.h"
 #include "panic_log.h"
 #include "unix_timestamp.h"
+#include "bus_enumerator.h"
+#include "uavcan_node.h"
 
 /** Stack size for the unit test thread. */
 #define TEST_WA_SIZE    THD_WORKING_AREA_SIZE(256)
