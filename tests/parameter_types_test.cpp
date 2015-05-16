@@ -97,7 +97,8 @@ TEST(StringParamter, CanRead)
 {
     parameter_string_set(&p, "hello");
     char buf[9];
-    parameter_string_read(&p, buf, sizeof(buf));
+    int len = parameter_string_read(&p, buf, sizeof(buf));
+    CHECK_EQUAL(5, len);
     STRCMP_EQUAL("hello", buf);
     CHECK_TRUE(parameter_changed(&p));
 }
@@ -106,7 +107,8 @@ TEST(StringParamter, CanGetSmallBuf)
 {
     parameter_string_set(&p, "hello");
     char buf[3]; // "he"+'\0'
-    parameter_string_get(&p, buf, sizeof(buf));
+    int len = parameter_string_get(&p, buf, sizeof(buf));
+    CHECK_EQUAL(5, len);
     STRCMP_EQUAL("he", buf);
     CHECK_FALSE(parameter_changed(&p));
 }
