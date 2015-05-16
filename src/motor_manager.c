@@ -32,7 +32,7 @@ void motor_manager_init(motor_manager_t *m,
 motor_driver_t *motor_manager_create_driver(motor_manager_t *m,
                                             const char *actuator_id)
 {
-    if (bus_enumerator_get_can_id(m->bus_enumerator, actuator_id) == BUS_ENUMERATOR_STRING_ID_NOT_FOUND) {
+    if (bus_enumerator_get_can_id(m->bus_enumerator, actuator_id) != BUS_ENUMERATOR_STRING_ID_NOT_FOUND) {
         return NULL;
     }
 
