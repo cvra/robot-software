@@ -23,6 +23,7 @@ struct pid_cascade_s {
     // setpoints:
     struct setpoint_s setpts;
     // inputs:
+    bool periodic_actuator;
     float position;
     float velocity;
     float current;

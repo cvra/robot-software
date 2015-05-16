@@ -80,6 +80,7 @@ void feedback_compute(struct feedback_s *feedback)
             rpm_get_velocity_and_position(&feedback->output.velocity,
                                           &position);
             feedback->output.position = position - feedback->rpm.phase;
+            feedback->output.actuator_is_periodic = true;
             break;
         }
         case FEEDBACK_PRIMARY_ENCODER_PERIODIC : {
@@ -111,6 +112,8 @@ void feedback_compute(struct feedback_s *feedback)
                     feedback->primary_encoder.transmission_q,
                     feedback->input.delta_t
                     );
+
+            feedback->output.actuator_is_periodic = true;
             break;
          }
         case FEEDBACK_PRIMARY_ENCODER_BOUNDED : {
@@ -138,6 +141,8 @@ void feedback_compute(struct feedback_s *feedback)
                     feedback->primary_encoder.transmission_q,
                     feedback->input.delta_t
                     );
+
+            feedback->output.actuator_is_periodic = false;
             break;
         }
         case FEEDBACK_TWO_ENCODERS_PERIODIC : {
@@ -181,6 +186,8 @@ void feedback_compute(struct feedback_s *feedback)
                     feedback->primary_encoder.transmission_q,
                     feedback->input.delta_t
                     );
+
+            feedback->output.actuator_is_periodic = true;
             break;
         }
         case FEEDBACK_POTENTIOMETER : {
@@ -193,6 +200,7 @@ void feedback_compute(struct feedback_s *feedback)
                 / feedback->input.delta_t;
 
             feedback->output.position = position;
+            feedback->output.actuator_is_periodic = false;
             break;
         }
     }

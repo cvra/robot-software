@@ -15,6 +15,7 @@
 #define FEEDBACK_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,8 +54,9 @@ struct feedback_s {
     enum feedback_input_selection input_selection;
 
     struct {
-        float position;
+        float position; // between 0 and 2*PI for periodic actuators
         float velocity;
+        bool actuator_is_periodic;
     } output;
 
     struct {
