@@ -1,12 +1,29 @@
 #include "pid_cascade.h"
+#include "math.h"
 #include <filter/basic.h>
+
+float periodic_error(float err)
+{
+    err = fmodf(err, 2*M_PI);
+    if (err > M_PI) {
+        return err - 2*M_PI;
+    }
+    if (err < -M_PI) {
+        return err + 2*M_PI;
+    }
+    return err;
+}
 
 void pid_cascade_control(struct pid_cascade_s *ctrl)
 {
     // position control
     float pos_ctrl_vel;
     if (ctrl->setpts.position_control_enabled) {
-        ctrl->position_error = ctrl->position - ctrl->setpts.position_setpt;
+        float position_error = ctrl->position - ctrl->setpts.position_setpt;
+        if (ctrl->periodic_actuator) {
+            position_error = periodic_error(position_error);
+        }
+        ctrl->position_error = position_error;
         pos_ctrl_vel = pid_process(&ctrl->position_pid, ctrl->position_error);
         ctrl->position_ctrl_out = pos_ctrl_vel;
     } else {

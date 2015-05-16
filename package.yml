@@ -42,6 +42,7 @@ tests:
     - src/rpm.c
     - tests/rpm_test.cpp
     - tests/setpoint_test.cpp
+    - tests/pid_cascade_test.cpp
 
 templates:
     Makefile.include.jinja: src/src.mk

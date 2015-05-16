@@ -325,6 +325,7 @@ static THD_FUNCTION(control_loop, arg)
 
             feedback_compute(&control_feedback);
 
+            ctrl.periodic_actuator = control_feedback.output.actuator_is_periodic;
             ctrl.position = control_feedback.output.position;
             ctrl.velocity = ctrl.velocity * 0.9 + control_feedback.output.velocity * 0.1;
             ctrl.current = analog_get_motor_current();
