@@ -466,7 +466,7 @@ void parameter_string_declare_with_default(parameter_t *p,
 {
     parameter_string_declare(p, ns, id , buf, buf_size);
     p->value.str.len = strlen(default_str);
-    PARAMETER_ASSERT(p->value.str.len < buf_size); // leave space for '\0'
+    PARAMETER_ASSERT(p->value.str.len <= buf_size);
     strncpy(p->value.str.buf, default_str, buf_size);
     _parameter_changed_set(p);
 }
@@ -481,10 +481,16 @@ uint16_t parameter_string_read(parameter_t *p, char *out, uint16_t out_size)
 {
     PARAMETER_ASSERT(p->type == _PARAM_TYPE_STRING);
     PARAMETER_LOCK();
-    strncpy(out, p->value.str.buf, out_size);
-    uint16_t ret = p->value.str.len;
+    uint16_t len = p->value.str.len;
+    if (out_size > len) {
+        memcpy(out, p->value.str.buf, len);
+        out[len] = '\0';
+    } else {
+        memcpy(out, p->value.str.buf, out_size-1);
+        out[out_size-1] = '\0';
+    }
     PARAMETER_UNLOCK();
-    return ret;
+    return len;
 }
 
 void parameter_string_set(parameter_t *p, const char *str)
@@ -496,8 +502,9 @@ void parameter_string_set_w_len(parameter_t *p, const char *str, uint16_t len)
 {
     PARAMETER_ASSERT(p->type == _PARAM_TYPE_STRING);
     PARAMETER_LOCK();
-    PARAMETER_ASSERT(len < p->value.str.buf_len); // leave space for '\0'
-    strncpy(p->value.str.buf, str, p->value.str.buf_len); // so dest is '\0' terminated
+    PARAMETER_ASSERT(len <= p->value.str.buf_len);
+    memcpy(p->value.str.buf, str, len);
+    p->value.str.len = len;
     PARAMETER_UNLOCK();
     _parameter_changed_set(p);
 }
