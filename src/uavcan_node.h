@@ -10,6 +10,8 @@ extern "C" {
 
 void uavcan_node_start(uint8_t id);
 
+void uavcan_reboot_nodes(void);
+
 extern bus_enumerator_t bus_enumerator;
 
 #ifdef __cplusplus

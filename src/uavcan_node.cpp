@@ -247,12 +247,6 @@ msg_t main(void *arg)
     node.setStatusOk();
 
 
-    uavcan::Publisher<cvra::Reboot> reboot_pub(node);
-    const int reboot_pub_init_res = reboot_pub.init();
-    if (reboot_pub_init_res < 0)
-    {
-        node_fail("cvra::Reboot publisher");
-    }
 
     uavcan::Publisher<cvra::motor::control::Velocity> velocity_ctrl_setpt_pub(node);
     const int velocity_ctrl_setpt_pub_init_res = velocity_ctrl_setpt_pub.init();
@@ -305,11 +299,6 @@ msg_t main(void *arg)
             // log warning
         }
 
-        if (palReadPad(GPIOA, GPIOA_BUTTON_WKUP)) {
-            cvra::Reboot reboot_msg;
-            reboot_msg.bootmode = reboot_msg.BOOTLOADER_TIMEOUT;
-            reboot_pub.broadcast(reboot_msg);
-        }
 
         motor_driver_t *drv_list;
         uint16_t drv_list_len;
@@ -339,3 +328,16 @@ void uavcan_node_start(uint8_t id)
 }
 
 } // extern "C"
+
+void uavcan_reboot_nodes(void)
+{
+    uavcan::Publisher<cvra::Reboot> reboot_pub(uavcan_node::getNode());
+    const int reboot_pub_init_res = reboot_pub.init();
+    if (reboot_pub_init_res < 0)
+    {
+        uavcan_node::node_fail("cvra::Reboot publisher");
+    }
+    cvra::Reboot reboot_msg;
+    reboot_msg.bootmode = reboot_msg.BOOTLOADER_TIMEOUT;
+    reboot_pub.broadcast(reboot_msg);
+}
