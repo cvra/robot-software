@@ -8,7 +8,7 @@
 #include "robot_parameters.h"
 #include "motor_manager.h"
 #include "unix_timestamp.h"
-#include "motor_control.h"
+#include "differential_base.h"
 
 #define TRAJ_CHUNK_BUFFER_LEN   100
 
@@ -126,9 +126,9 @@ void wheelbase_trajectory_callback(void *p, int argc, cmp_ctx_t *input)
 
     trajectory_chunk_init(&chunk, (float *)chunk_buffer, point_count, 5, start_time, dt);
 
-    chMtxLock(&robot_trajectory_lock);
-        trajectory_apply_chunk(&robot_trajectory, &chunk);
-    chMtxUnlock(&robot_trajectory_lock);
+    chMtxLock(&diff_base_trajectory_lock);
+        trajectory_apply_chunk(&diff_base_trajectory, &chunk);
+    chMtxUnlock(&diff_base_trajectory_lock);
 }
 
 
