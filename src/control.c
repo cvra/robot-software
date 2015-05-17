@@ -225,7 +225,7 @@ void control_init(void)
     ctrl.motor_current_constant = 1;
     ctrl.velocity_limit = 0;
     ctrl.torque_limit = 0;
-    ctrl.current_limit = 0;
+    ctrl.current_limit = INFINITY;
     pid_init(&ctrl.current_pid);
     pid_init(&ctrl.velocity_pid);
     pid_init(&ctrl.position_pid);
