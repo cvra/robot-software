@@ -229,9 +229,9 @@ void control_init(void)
     pid_init(&ctrl.current_pid);
     pid_init(&ctrl.velocity_pid);
     pid_init(&ctrl.position_pid);
-    pid_set_frequency(&ctrl.current_pid, ANALOG_CONVERSION_FREQUNECY);
-    pid_set_frequency(&ctrl.velocity_pid, ANALOG_CONVERSION_FREQUNECY);
-    pid_set_frequency(&ctrl.position_pid, ANALOG_CONVERSION_FREQUNECY);
+    pid_set_frequency(&ctrl.current_pid, ANALOG_CONVERSION_FREQUENCY);
+    pid_set_frequency(&ctrl.velocity_pid, ANALOG_CONVERSION_FREQUENCY);
+    pid_set_frequency(&ctrl.position_pid, ANALOG_CONVERSION_FREQUENCY);
 
     setpoint_init(&setpoint_interpolation);
     chBSemObjectInit(&setpoint_interpolation_lock, false);
@@ -305,7 +305,7 @@ static THD_FUNCTION(control_loop, arg)
                                (eventflags_t)ANALOG_EVENT_CONVERSION_DONE);
 
 
-    const float delta_t = 1/(float)ANALOG_CONVERSION_FREQUNECY;
+    const float delta_t = 1/(float)ANALOG_CONVERSION_FREQUENCY;
     while (!control_request_termination) {
 
         update_parameters();
