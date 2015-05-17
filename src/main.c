@@ -61,7 +61,7 @@ void panic_hook(const char *reason)
     palSetPad(GPIOF, GPIOF_LED_GREEN_1);
     palSetPad(GPIOF, GPIOF_LED_GREEN_2);
 
-    panic_log_write(reason);
+//    panic_log_write(reason);
 
     // reboot
     //NVIC_SystemReset();
