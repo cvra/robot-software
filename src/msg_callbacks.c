@@ -8,6 +8,7 @@
 #include "robot_parameters.h"
 #include "motor_manager.h"
 #include "unix_timestamp.h"
+#include "motor_control.h"
 
 #define TRAJ_CHUNK_BUFFER_LEN   100
 
@@ -96,6 +97,41 @@ void message_actuator_trajectory_callback(void *p, int argc, cmp_ctx_t *input)
     motor_manager_execute_trajecory(&motor_manager, actuator_id, &chunk);
 }
 
+void wheelbase_trajectory_callback(void *p, int argc, cmp_ctx_t *input)
+{
+    unix_timestamp_t start;
+    static float chunk_buffer[TRAJ_CHUNK_BUFFER_LEN][5];
+    uint32_t point_count, i, point_dimension, j;
+    int32_t dt, start_time;
+    trajectory_chunk_t chunk;
+
+    (void) p;
+    (void) argc;
+
+
+    cmp_read_int(input, &start.s);
+    cmp_read_int(input, &start.us);
+    cmp_read_int(input, &dt);
+
+
+    cmp_read_array(input, &point_count);
+    for (i = 0; i < point_count; ++i) {
+        cmp_read_array(input, &point_dimension);
+        for (j = 0; j < point_dimension; ++j) {
+            cmp_read_float(input, &chunk_buffer[i][j]);
+        }
+    }
+
+    start_time = timestamp_unix_to_local_us(start);
+
+    trajectory_chunk_init(&chunk, (float *)chunk_buffer, point_count, 5, start_time, dt);
+
+    chMtxLock(&robot_trajectory_lock);
+        trajectory_apply_chunk(&robot_trajectory, &chunk);
+    chMtxUnlock(&robot_trajectory_lock);
+}
+
+
 
 
 message_method_t message_callbacks[] = {
@@ -103,6 +139,7 @@ message_method_t message_callbacks[] = {
     {.name = "actuator_position", .cb = message_actuator_position_callback},
     {.name = "actuator_velocity", .cb = message_actuator_velocity_callback},
     {.name = "actuator_trajectory", .cb = message_actuator_trajectory_callback},
+    {.name = "wheelbase_trajectory", .cb = wheelbase_trajectory_callback},
 };
 
 int message_callbacks_len = sizeof message_callbacks / sizeof(message_callbacks[0]);
