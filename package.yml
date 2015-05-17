@@ -12,6 +12,7 @@ target.arm:
     - src/motor_protection.c
     - src/setpoint.c
     - src/feedback.c
+    - src/index.c
     - src/rpm.c
     - src/bootloader_config.c
     - can-bootloader/config.c
