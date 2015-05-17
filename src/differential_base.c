@@ -94,6 +94,10 @@ msg_t differential_base_tracking_thread(void *p)
                 (0.5f * ROBOT_LEFT_WHEEL_DIRECTION / radius_left)
                 * (output.tangential_velocity / M_PI + motor_base * output.angular_velocity));
 
+        } else {
+            // todo control error here
+            motor_manager_set_velocity(&motor_manager, "right-wheel", 0);
+            motor_manager_set_velocity(&motor_manager, "left-wheel", 0);
         }
 
         chThdSleepMilliseconds(50);
