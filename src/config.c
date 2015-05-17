@@ -17,6 +17,11 @@ static parameter_t odometry_wheel_base;
 static parameter_t odometry_left_radius;
 static parameter_t odometry_right_radius;
 
+static parameter_namespace_t differential_base_config;
+static parameter_t differential_base_wheel_base;
+static parameter_t differential_base_left_radius;
+static parameter_t differential_base_right_radius;
+
 static parameter_namespace_t tracy_config;
 static parameter_t tracy_g;
 static parameter_t tracy_damping_coef;
@@ -43,6 +48,22 @@ void config_init(void)
                                           &odometry_config,
                                           "radius_left",
                                           ROBOT_LEFT_EXTERNAL_WHEEL_RADIUS);
+
+    parameter_namespace_declare(&differential_base_config, &master_config, "differential_base");
+    parameter_scalar_declare_with_default(&differential_base_wheel_base,
+                                          &differential_base_config,
+                                          "wheelbase",
+                                          ROBOT_EXTERNAL_WHEELBASE);
+
+    parameter_scalar_declare_with_default(&differential_base_right_radius,
+                                          &differential_base_config,
+                                          "radius_right",
+                                          ROBOT_RIGHT_MOTOR_WHEEL_RADIUS);
+
+    parameter_scalar_declare_with_default(&differential_base_left_radius,
+                                          &differential_base_config,
+                                          "radius_left",
+                                          ROBOT_LEFT_MOTOR_WHEEL_RADIUS);
 
     parameter_namespace_declare(&tracy_config, &master_config, "tracy");
     parameter_scalar_declare_with_default(&tracy_g, &tracy_config, "g",
