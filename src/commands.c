@@ -219,7 +219,21 @@ static void show_config_tree(BaseSequentialStream *out, parameter_namespace_t *n
 
     for (p=ns->parameter_list; p!=NULL; p=p->next) {
         tree_indent(out, indent + 1);
-        chprintf(out, "%s: %f\r\n", p->id, parameter_scalar_get(p));
+        switch (p->type) {
+            case _PARAM_TYPE_SCALAR:
+                chprintf(out, "%s: %f\r\n", p->id, parameter_scalar_get(p));
+                break;
+
+            case _PARAM_TYPE_INTEGER:
+                chprintf(out, "%s: %d\r\n", p->id, parameter_integer_get(p));
+                break;
+
+            default:
+                chprintf(out, "%s: unknown type %d\r\n", p->id, p->type);
+                break;
+
+
+        }
     }
 
     if (ns->subspaces) {
