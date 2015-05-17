@@ -26,6 +26,7 @@
 #include "config.h"
 #include "uavcan_node_private.hpp"
 #include "uavcan_node.h"
+#include "main.h"
 
 #include <errno.h>
 
@@ -59,6 +60,10 @@ Node& getNode()
 void node_status_cb(const uavcan::ReceivedDataStructure<uavcan::protocol::NodeStatus>& msg)
 {
     (void) msg;
+    // TODO !!!
+    // int can_id = msg.getSrcNodeID().get();
+    // bus_enumerator_get_driver()
+    // motor_driver_send_initial_config()
 }
 
 static void node_fail(const char *reason)
@@ -306,6 +311,14 @@ msg_t main(void *arg)
             reboot_pub.broadcast(reboot_msg);
         }
 
+        motor_driver_t *drv_list;
+        uint16_t drv_list_len;
+        motor_manager_get_list(&motor_manager, &drv_list, &drv_list_len);
+        int i;
+        for (i = 0; i < drv_list_len; i++) {
+            motor_driver_uavcan_update_config(&drv_list[i]);
+            motor_driver_uavcan_send_setpoint(&drv_list[i]);
+        }
 
         can_bridge_send_frames(node);
 
