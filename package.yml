@@ -23,7 +23,6 @@ target.arm:
     - src/rpc_server.c
     - src/rpc_callbacks.c
     - src/msg_callbacks.c
-    - src/motor_control.c
     - src/uavcan_node.cpp
     - src/can-driver/src/uc_stm32_can.cpp
     - src/can-driver/src/uc_stm32_clock.cpp
@@ -37,6 +36,7 @@ target.arm:
     - src/motor_driver.c
     - src/motor_driver_uavcan.cpp
     - src/motor_manager.c
+    - src/differential_base.c
 
 source:
     - src/unix_timestamp.c

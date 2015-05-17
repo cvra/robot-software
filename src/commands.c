@@ -5,7 +5,6 @@
 #include <test.h>
 #include <chprintf.h>
 #include "rpc_server.h"
-#include "motor_control.h"
 #include "config.h"
 #include "interface_panel.h"
 #include "commands.h"
@@ -159,30 +158,6 @@ static void cmd_rpc_client_test(BaseSequentialStream *chp, int argc, char **argv
                  &server, port);
 }
 
-static void cmd_fwd(BaseSequentialStream *chp, int argc, char **argv)
-{
-    if (argc != 1) {
-        chprintf(chp, "usage: fwd <speed>\n");
-        return;
-    }
-    float cmd = strtof(argv[0], NULL);
-    m1_vel_setpt = cmd;
-    m2_vel_setpt = -cmd;
-}
-
-static void cmd_vel_setpt(BaseSequentialStream *chp, int argc, char **argv)
-{
-    (void)argv;
-    if (argc > 0) {
-        chprintf(chp, "usage: vel_setpt\n");
-        return;
-    }
-    int m1_vel_setpt_int = (int) 1000 * m1_vel_setpt;
-    int m2_vel_setpt_int = (int) 1000 * m2_vel_setpt;
-    chprintf(chp, "m1_vel_setpt: %d\n", m1_vel_setpt_int);
-    chprintf(chp, "m2_vel_setpt: %d\n", m2_vel_setpt_int);
-}
-
 static void cmd_config_get(BaseSequentialStream *chp, int argc, char **argv)
 {
     parameter_t *param;
@@ -292,8 +267,6 @@ const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"time", cmd_time},
     {"rpc_client_demo", cmd_rpc_client_test},
-    {"fwd", cmd_fwd},
     {"node", cmd_node},
-    {"vel_setpt", cmd_vel_setpt},
     {NULL, NULL}
 };
