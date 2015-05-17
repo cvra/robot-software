@@ -18,9 +18,21 @@ def keys_to_str(to_convert):
     return {str(k): keys_to_str(v) for k, v in to_convert.items()}
 
 
+def create_actuator(target, name):
+    """
+    Creates the actuator to receive the config.
+    """
+    return cvra_rpc.service_call.call(target, 'actuator_create_driver', [name])
+
+
 def send_config_file(destination, config_file):
     config = yaml.load(config_file)
     config = keys_to_str(config)
+    if "actuator" in config:
+        for name in config["actuator"].keys():
+            print("Creating actuator {}".format(name))
+            create_actuator(destination, name)
+
     errors = cvra_rpc.service_call.call(destination, 'config_update', [config])
     for key, error in errors:
         logging.warning("Error for key '{}': {}".format(key, error))
