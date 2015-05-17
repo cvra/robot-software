@@ -14,14 +14,14 @@ actuator:
            torque_constant: 1.
        control:
            current:
-               kp: 500.
+               kp: 1.
                ki: 1000.
                kd: 0.
                ilimit: 50.
 
            velocity:
-               kp: 400.
-               ki: 40.
+               kp: 0.4
+               ki: 0.
                kd: 0.
                ilimit: 100.
            position:
@@ -42,14 +42,14 @@ actuator:
            torque_constant: 1.
        control:
            current:
-               kp: 100.
+               kp: 1.
                ki: 1000.
                kd: 0.
                ilimit: 50.
 
            velocity:
-               kp: 40.
-               ki: 40.
+               kp: .4
+               ki: 0.
                kd: 0.
                ilimit: 100.
 
