@@ -15,6 +15,7 @@
 #include <math.h>
 #include "bootloader_config.h"
 #include "uavcan_node.h"
+#include "timestamp/timestamp_stm32.h"
 
 BaseSequentialStream* ch_stdout;
 parameter_namespace_t parameter_root_ns;
@@ -172,6 +173,8 @@ int main(void) {
     if (!config_get(&config)) {
         chSysHalt("invalid config");
     }
+
+    timestamp_stm32_init();
 
     sdStart(&SD3, NULL);
     ch_stdout = (BaseSequentialStream*)&SD3;
