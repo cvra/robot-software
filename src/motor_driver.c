@@ -68,6 +68,8 @@ void motor_driver_init(motor_driver_t *d,
     parameter_scalar_declare(&d->config.encoder_pos_stream, &d->config.stream, "encoder_pos");
     parameter_scalar_declare(&d->config.motor_pos_stream, &d->config.stream, "motor_pos");
     parameter_scalar_declare(&d->config.motor_torque_stream, &d->config.stream, "motor_torque");
+
+    d->stream.change_status = 0;
 }
 
 const char *motor_driver_get_id(motor_driver_t *d)
@@ -225,4 +227,41 @@ void motor_driver_get_trajectory_point(motor_driver_t *d,
     *velocity = t[1];
     *acceleration = t[2];
     *torque = t[3];
+}
+
+void motor_driver_set_stream_value(motor_driver_t *d, uint32_t stream, float value)
+{
+
+    if (stream < MOTOR_STREAMS_NB_VALUES) {
+        motor_driver_lock(d);
+
+        d->stream.values[stream] = value;
+        d->stream.change_status |= (1 << stream);
+
+        motor_driver_unlock(d);
+    }
+}
+
+uint32_t motor_driver_get_stream_change_status(motor_driver_t *d)
+{
+    return d->stream.change_status;
+}
+
+float motor_driver_get_and_clear_stream_value(motor_driver_t *d, uint32_t stream)
+{
+    float return_value;
+
+    if (stream < MOTOR_STREAMS_NB_VALUES) {
+        motor_driver_lock(d);
+
+        d->stream.change_status &= ~(1 << stream);
+        return_value = d->stream.values[stream];
+
+        motor_driver_unlock(d);
+
+        return return_value;
+    } else {
+        return 0.;
+    }
+
 }

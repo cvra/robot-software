@@ -215,7 +215,12 @@ msg_t main(void *arg)
     res = current_pid_sub.start(
         [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::CurrentPID>& msg)
         {
-            (void)msg;
+            motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
+            if (driver != NULL) {
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_CURRENT, msg.current);
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_CURRENT_SETPT, msg.current_setpoint);
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_MOTOR_VOLTAGE, msg.motor_voltage);
+            }
         }
     );
     if (res != 0) {
@@ -226,7 +231,11 @@ msg_t main(void *arg)
     res = velocity_pid_sub.start(
         [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::VelocityPID>& msg)
         {
-            (void)msg;
+            motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
+            if (driver != NULL) {
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_VELOCITY, msg.velocity);
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_VELOCITY_SETPT, msg.velocity_setpoint);
+            }
         }
     );
     if (res != 0) {
@@ -237,7 +246,11 @@ msg_t main(void *arg)
     res = position_pid_sub.start(
         [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::PositionPID>& msg)
         {
-            (void)msg;
+            motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
+            if (driver != NULL) {
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_POSITION, msg.position);
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_POSITION_SETPT, msg.position_setpoint);
+            }
         }
     );
     if (res != 0) {
@@ -248,7 +261,10 @@ msg_t main(void *arg)
     res = index_sub.start(
         [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::Index>& msg)
         {
-            (void)msg;
+            motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
+            if (driver != NULL) {
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_INDEX, msg.position);
+            }
         }
     );
     if (res != 0) {
@@ -259,7 +275,11 @@ msg_t main(void *arg)
     res = motor_pos_sub.start(
         [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::MotorPosition>& msg)
         {
-            (void)msg;
+            motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
+            if (driver != NULL) {
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_POSITION, msg.position);
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_VELOCITY, msg.velocity);
+            }
         }
     );
     if (res != 0) {
@@ -270,7 +290,11 @@ msg_t main(void *arg)
     res = motor_torque_sub.start(
         [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::MotorTorque>& msg)
         {
-            (void)msg;
+            motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
+            if (driver != NULL) {
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_MOTOR_TORQUE, msg.torque);
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_POSITION, msg.position);
+            }
         }
     );
     if (res != 0) {

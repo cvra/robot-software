@@ -37,6 +37,7 @@ target.arm:
     - src/motor_driver_uavcan.cpp
     - src/motor_manager.c
     - src/differential_base.c
+    - src/stream.c
 
 source:
     - src/unix_timestamp.c

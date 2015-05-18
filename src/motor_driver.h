@@ -16,6 +16,19 @@
 #define MOTOR_CONTROL_MODE_TRAJECTORY   5
 
 
+#define MOTOR_STREAMS_NB_VALUES        10
+#define MOTOR_STREAM_CURRENT            0
+#define MOTOR_STREAM_CURRENT_SETPT      1
+#define MOTOR_STREAM_MOTOR_VOLTAGE      2
+#define MOTOR_STREAM_VELOCITY           3
+#define MOTOR_STREAM_VELOCITY_SETPT     4
+#define MOTOR_STREAM_POSITION           5
+#define MOTOR_STREAM_POSITION_SETPT     6
+#define MOTOR_STREAM_INDEX              7
+#define MOTOR_STREAM_MOTOR_ENCODER      8
+#define MOTOR_STREAM_MOTOR_TORQUE       9
+
+
 struct pid_parameter_s {
     parameter_namespace_t root;
     parameter_t kp;
@@ -78,6 +91,11 @@ typedef struct {
         parameter_t motor_torque_stream;
     } config;
 
+    struct {
+        uint32_t change_status;
+        float values[MOTOR_STREAMS_NB_VALUES];
+    } stream;
+
     void *can_driver;
 
 } motor_driver_t;
@@ -130,6 +148,10 @@ void motor_driver_get_trajectory_point(motor_driver_t *d,
                                        float *velocity,
                                        float *acceleration,
                                        float *torque);
+
+void motor_driver_set_stream_value(motor_driver_t *d, uint32_t stream, float value);
+uint32_t motor_driver_get_stream_change_status(motor_driver_t *d);
+float motor_driver_get_and_clear_stream_value(motor_driver_t *d, uint32_t stream);
 
 #ifdef __cplusplus
 }
