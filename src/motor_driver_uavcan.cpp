@@ -6,6 +6,7 @@
 #include <cvra/motor/config/CurrentPID.hpp>
 #include <cvra/motor/config/LoadConfiguration.hpp>
 #include <cvra/motor/config/EnableMotor.hpp>
+#include <cvra/motor/config/FeedbackStream.hpp>
 #include <cvra/motor/control/Velocity.hpp>
 #include <cvra/motor/control/Position.hpp>
 #include <cvra/motor/control/Torque.hpp>
@@ -24,6 +25,7 @@ struct can_driver_s {
     uavcan::Publisher<cvra::motor::config::CurrentPID> current_pid_client;
     uavcan::Publisher<cvra::motor::config::LoadConfiguration> config_client;
     uavcan::Publisher<cvra::motor::config::EnableMotor> enable_client;
+    uavcan::Publisher<cvra::motor::config::FeedbackStream> feedback_stream_pub;
     uavcan::Publisher<cvra::motor::control::Velocity> velocity_pub;
     uavcan::Publisher<cvra::motor::control::Position> position_pub;
     uavcan::Publisher<cvra::motor::control::Torque> torque_pub;
@@ -36,6 +38,7 @@ struct can_driver_s {
         current_pid_client(getNode()),
         config_client(getNode()),
         enable_client(getNode()),
+        feedback_stream_pub(getNode()),
         velocity_pub(getNode()),
         position_pub(getNode()),
         torque_pub(getNode()),
@@ -68,6 +71,21 @@ static void update_motor_can_id(motor_driver_t *d)
             motor_driver_set_can_id(d, node_id);
         }
     }
+}
+
+static void send_stream_config(struct can_driver_s *can_drv, int node_id, uint8_t stream, float frequency)
+{
+    cvra::motor::config::FeedbackStream feedback_stream_config;
+
+    feedback_stream_config.stream = stream;
+    if (frequency == 0) {
+        feedback_stream_config.enabled = false;
+    } else {
+        feedback_stream_config.enabled = true;
+    }
+    feedback_stream_config.frequency = frequency;
+
+    can_drv->feedback_stream_pub.unicast(feedback_stream_config, node_id);
 }
 
 
@@ -160,6 +178,50 @@ void motor_driver_uavcan_update_config(motor_driver_t *d)
             request.pid.kd = parameter_scalar_get(&d->config.current_pid.kd);
             request.pid.ilimit = parameter_scalar_get(&d->config.current_pid.ilimit);
             can_drv->current_pid_client.unicast(request, node_id);
+        }
+    }
+    if (parameter_namespace_contains_changed(&d->config.stream)) {
+        if (parameter_changed(&d->config.current_pid_stream)) {
+            send_stream_config(can_drv,
+                               node_id,
+                               cvra::motor::config::FeedbackStream::STREAM_CURRENT_PID,
+                               parameter_scalar_get(&d->config.current_pid_stream));
+        }
+        if (parameter_changed(&d->config.velocity_pid_stream)) {
+            send_stream_config(can_drv,
+                               node_id,
+                               cvra::motor::config::FeedbackStream::STREAM_VELOCITY_PID,
+                               parameter_scalar_get(&d->config.velocity_pid_stream));
+        }
+        if (parameter_changed(&d->config.position_pid_stream)) {
+            send_stream_config(can_drv,
+                               node_id,
+                               cvra::motor::config::FeedbackStream::STREAM_POSITION_PID,
+                               parameter_scalar_get(&d->config.position_pid_stream));
+        }
+        if (parameter_changed(&d->config.index_stream)) {
+            send_stream_config(can_drv,
+                               node_id,
+                               cvra::motor::config::FeedbackStream::STREAM_INDEX,
+                               parameter_scalar_get(&d->config.index_stream));
+        }
+        if (parameter_changed(&d->config.encoder_pos_stream)) {
+            send_stream_config(can_drv,
+                               node_id,
+                               cvra::motor::config::FeedbackStream::STREAM_MOTOR_ENCODER,
+                               parameter_scalar_get(&d->config.encoder_pos_stream));
+        }
+        if (parameter_changed(&d->config.motor_pos_stream)) {
+            send_stream_config(can_drv,
+                               node_id,
+                               cvra::motor::config::FeedbackStream::STREAM_MOTOR_POSITION,
+                               parameter_scalar_get(&d->config.motor_pos_stream));
+        }
+        if (parameter_changed(&d->config.motor_torque_stream)) {
+            send_stream_config(can_drv,
+                               node_id,
+                               cvra::motor::config::FeedbackStream::STREAM_MOTOR_TORQUE,
+                               parameter_scalar_get(&d->config.motor_torque_stream));
         }
     }
     if (parameter_namespace_contains_changed(&d->config.root)) {

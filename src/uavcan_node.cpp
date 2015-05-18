@@ -8,10 +8,16 @@
 #include <cvra/Reboot.hpp>
 #include <cvra/motor/control/Velocity.hpp>
 #include <cvra/Reboot.hpp>
-#include <cvra/motor/feedback/MotorEncoderPosition.hpp>
 #include <cvra/motor/config/VelocityPID.hpp>
 #include <cvra/motor/config/PositionPID.hpp>
 #include <cvra/motor/config/CurrentPID.hpp>
+#include <cvra/motor/feedback/CurrentPID.hpp>
+#include <cvra/motor/feedback/VelocityPID.hpp>
+#include <cvra/motor/feedback/PositionPID.hpp>
+#include <cvra/motor/feedback/Index.hpp>
+#include <cvra/motor/feedback/MotorEncoderPosition.hpp>
+#include <cvra/motor/feedback/MotorPosition.hpp>
+#include <cvra/motor/feedback/MotorTorque.hpp>
 #include <cvra/StringID.hpp>
 #include "robot_pose.h"
 #include <simplerpc/message.h>
@@ -203,6 +209,72 @@ msg_t main(void *arg)
     );
     if (res != 0) {
         node_fail("cvra::StringID subscriber");
+    }
+
+    uavcan::Subscriber<cvra::motor::feedback::CurrentPID> current_pid_sub(node);
+    res = current_pid_sub.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::CurrentPID>& msg)
+        {
+            (void)msg;
+        }
+    );
+    if (res != 0) {
+        node_fail("cvra::motor::feedback::CurrentPID subscriber");
+    }
+
+    uavcan::Subscriber<cvra::motor::feedback::VelocityPID> velocity_pid_sub(node);
+    res = velocity_pid_sub.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::VelocityPID>& msg)
+        {
+            (void)msg;
+        }
+    );
+    if (res != 0) {
+        node_fail("cvra::motor::feedback::VelocityPID subscriber");
+    }
+
+    uavcan::Subscriber<cvra::motor::feedback::PositionPID> position_pid_sub(node);
+    res = position_pid_sub.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::PositionPID>& msg)
+        {
+            (void)msg;
+        }
+    );
+    if (res != 0) {
+        node_fail("cvra::motor::feedback::PositionPID subscriber");
+    }
+
+    uavcan::Subscriber<cvra::motor::feedback::Index> index_sub(node);
+    res = index_sub.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::Index>& msg)
+        {
+            (void)msg;
+        }
+    );
+    if (res != 0) {
+        node_fail("cvra::motor::feedback::Index subscriber");
+    }
+
+    uavcan::Subscriber<cvra::motor::feedback::MotorPosition> motor_pos_sub(node);
+    res = motor_pos_sub.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::MotorPosition>& msg)
+        {
+            (void)msg;
+        }
+    );
+    if (res != 0) {
+        node_fail("cvra::motor::feedback::MotorPosition subscriber");
+    }
+
+    uavcan::Subscriber<cvra::motor::feedback::MotorTorque> motor_torque_sub(node);
+    res = motor_torque_sub.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::MotorTorque>& msg)
+        {
+            (void)msg;
+        }
+    );
+    if (res != 0) {
+        node_fail("cvra::motor::feedback::MotorTorque subscriber");
     }
 
     uavcan::Subscriber<cvra::motor::feedback::MotorEncoderPosition> enc_pos_sub(node);

@@ -59,6 +59,15 @@ void motor_driver_init(motor_driver_t *d,
     parameter_integer_declare(&d->config.second_encoder_steps_per_revolution, &d->config.motor, "second_encoder_steps_per_revolution");
     parameter_scalar_declare(&d->config.potentiometer_gain, &d->config.motor, "potentiometer_gain");
     parameter_integer_declare(&d->config.mode, &d->config.motor, "mode"); // todo
+
+    parameter_namespace_declare(&d->config.stream, &d->config.root, "stream");
+    parameter_scalar_declare(&d->config.current_pid_stream, &d->config.stream, "current_pid");
+    parameter_scalar_declare(&d->config.velocity_pid_stream, &d->config.stream, "velocity_pid");
+    parameter_scalar_declare(&d->config.position_pid_stream, &d->config.stream, "position_pid");
+    parameter_scalar_declare(&d->config.index_stream, &d->config.stream, "index");
+    parameter_scalar_declare(&d->config.encoder_pos_stream, &d->config.stream, "encoder_pos");
+    parameter_scalar_declare(&d->config.motor_pos_stream, &d->config.stream, "motor_pos");
+    parameter_scalar_declare(&d->config.motor_torque_stream, &d->config.stream, "motor_torque");
 }
 
 const char *motor_driver_get_id(motor_driver_t *d)

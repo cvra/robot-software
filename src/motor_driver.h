@@ -67,6 +67,15 @@ typedef struct {
         parameter_t potentiometer_gain;
         parameter_t mode; // one of "pot-servo", "enc-servo", "enc-periodic", "dual-enc-periodic"
         char mode_str_buf[18];
+
+        parameter_namespace_t stream;   // frequencies of the streams
+        parameter_t current_pid_stream;
+        parameter_t velocity_pid_stream;
+        parameter_t position_pid_stream;
+        parameter_t index_stream;
+        parameter_t encoder_pos_stream;
+        parameter_t motor_pos_stream;
+        parameter_t motor_torque_stream;
     } config;
 
     void *can_driver;
