@@ -22,6 +22,7 @@ target.arm:
     - src/can-driver/src/uc_stm32_clock.cpp
     - src/can-driver/src/uc_stm32_thread.cpp
     - src/libstubs.cpp
+    - src/stream.c
 
 include_directories:
     - src/can-driver/include
