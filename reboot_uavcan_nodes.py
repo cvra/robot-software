@@ -6,7 +6,9 @@ parser.add_argument("master", help="IP of the master board.")
 parser.add_argument("--port", "-p", type=int,
                     help="SimpleRPC port to use.", default=20001)
 
+parser.add_argument("--node", "-n", type=int, help="ID of the node to reboot (default: all).", default=255)
+
 args = parser.parse_args()
 
-call((args.master, args.port), "uavcan_reboot_nodes", [])
+call((args.master, args.port), "reboot_node", [args.node])
 
