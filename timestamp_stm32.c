@@ -10,7 +10,7 @@ static volatile uint32_t time_us_high;
 #include "timestamp.h"
 
 // settings
-#include "timestamp_stm32_settings.h"
+#include <timestamp_stm32_settings.h>
 
 static inline uint32_t timer_read(void)
 {
