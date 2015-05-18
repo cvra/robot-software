@@ -52,5 +52,8 @@
 #define MEM_LIBC_MALLOC 1
 #define MEMP_MEM_MALLOC 1
 
+/* Settings for the UDP odometry publisher. */
+#define ODOMETRY_PUBLISHER_PORT 20000
+#define ODOMETRY_PUBLISHER_HOST(server) LWIP_GATEWAY(server)
 
 #endif /* __LWIPOPT_H__ */
