@@ -5,6 +5,7 @@
 #include "hal.h"
 #include "main.h"
 #include "motor_manager.h"
+#include "uavcan_node.h"
 
 const char *error_msg_bad_argc = "Error: invalid argument count.";
 const char *error_msg_bad_format = "Error: invalid argument format.";
@@ -101,11 +102,31 @@ static void led_cb(void *p, int argc, cmp_ctx_t *input, cmp_ctx_t *output)
     }
 }
 
+static void reboot_node(void *p, int argc, cmp_ctx_t *input, cmp_ctx_t *output)
+{
+    uint8_t id;
+    (void) p;
+
+    if (argc != 1) {
+        cmp_write_str(output, error_msg_bad_argc, strlen(error_msg_bad_argc));
+        return;
+    }
+
+    if(cmp_read_u8(input, &id) == false) {
+        cmp_write_str(output, error_msg_bad_format,
+                strlen(error_msg_bad_format));
+        return;
+    }
+
+   uavcan_node_send_reboot(id);
+}
+
 service_call_method service_call_callbacks[] = {
     {.name="ping", .cb=ping_cb},
     {.name="config_update", .cb=config_update_cb},
     {.name="led_set", .cb=led_cb},
     {.name="actuator_create_driver", .cb=create_motor_driver},
+    {.name="reboot_node", .cb=reboot_node},
 };
 
 const unsigned int service_call_callbacks_len =
