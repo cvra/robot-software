@@ -53,6 +53,14 @@ void motor_manager_get_list(motor_manager_t *m, motor_driver_t **buffer, uint16_
 
 // setters: get driver, allocate driver if it doesn't exist, panic if allocation fails,
 // use setter for driver, (allocate trajectory_buffer for driver if needed)
+void motor_manager_set_voltage(motor_manager_t *m,
+                                const char *actuator_id,
+                                float voltage);
+
+void motor_manager_set_torque(motor_manager_t *m,
+                                const char *actuator_id,
+                                float torque);
+
 void motor_manager_set_velocity(motor_manager_t *m,
                                 const char *actuator_id,
                                 float velocity);

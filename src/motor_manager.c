@@ -68,6 +68,34 @@ void motor_manager_get_list(motor_manager_t *m, motor_driver_t **buffer, uint16_
     *length = m->motor_driver_buffer_nb_elements;
 }
 
+void motor_manager_set_voltage(motor_manager_t *m,
+                              const char *actuator_id,
+                              float voltage)
+{
+    motor_driver_t *driver;
+    driver = get_driver(m, actuator_id);
+
+    if (driver == NULL) {
+        // control error
+        return;
+    }
+    motor_driver_set_voltage(driver, voltage);
+}
+
+void motor_manager_set_torque(motor_manager_t *m,
+                              const char *actuator_id,
+                              float torque)
+{
+    motor_driver_t *driver;
+    driver = get_driver(m, actuator_id);
+
+    if (driver == NULL) {
+        // control error
+        return;
+    }
+    motor_driver_set_torque(driver, torque);
+}
+
 void motor_manager_set_velocity(motor_manager_t *m,
                                 const char *actuator_id,
                                 float velocity)

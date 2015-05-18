@@ -63,6 +63,7 @@ uint16_t bus_enumerator_get_number_of_entries(bus_enumerator_t *en);
 
 uint8_t bus_enumerator_get_can_id(bus_enumerator_t *en, const char *str_id);
 void *bus_enumerator_get_driver(bus_enumerator_t *en, const char *str_id);
+void *bus_enumerator_get_driver_by_can_id(bus_enumerator_t *en, uint8_t can_id);
 const char *bus_enumerator_get_str_id(bus_enumerator_t *en, uint8_t can_id);
 
 

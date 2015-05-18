@@ -39,6 +39,7 @@ msg_t differential_base_tracking_thread(void *p)
     float radius_right;
     float radius_left;
     bool first_run = true;
+    bool tracy_active = false;
     while (1) {
         if (parameter_namespace_contains_changed(base_config) || first_run) {
             motor_base = parameter_scalar_get(parameter_find(base_config, "wheelbase"));
@@ -58,6 +59,7 @@ msg_t differential_base_tracking_thread(void *p)
         chMtxUnlock(&diff_base_trajectory_lock);
 
         if (point) {
+            tracy_active = true;
             struct tracking_error error;
             struct robot_velocity input, output;
 
@@ -95,9 +97,12 @@ msg_t differential_base_tracking_thread(void *p)
                 * (output.tangential_velocity / M_PI + motor_base * output.angular_velocity));
 
         } else {
-            // todo control error here
-            motor_manager_set_velocity(&motor_manager, "right-wheel", 0);
-            motor_manager_set_velocity(&motor_manager, "left-wheel", 0);
+            if (tracy_active) {
+                tracy_active = false;
+                // todo control error here
+                motor_manager_set_velocity(&motor_manager, "right-wheel", 0);
+                motor_manager_set_velocity(&motor_manager, "left-wheel", 0);
+            }
         }
 
         chThdSleepMilliseconds(50);

@@ -154,6 +154,18 @@ void *bus_enumerator_get_driver(bus_enumerator_t *en, const char *str_id)
     }
 }
 
+void *bus_enumerator_get_driver_by_can_id(bus_enumerator_t *en, uint8_t can_id)
+{
+    uint16_t index;
+    index = index_by_can_id(en, can_id);
+
+    if (index != BUS_ENUMERATOR_INDEX_NOT_FOUND) {
+        return en->can_to_str[index].driver;
+    } else {
+        return NULL;
+    }
+}
+
 const char *bus_enumerator_get_str_id(bus_enumerator_t *en, uint8_t can_id)
 {
     uint16_t index;

@@ -8,10 +8,16 @@
 #include <cvra/Reboot.hpp>
 #include <cvra/motor/control/Velocity.hpp>
 #include <cvra/Reboot.hpp>
-#include <cvra/motor/feedback/MotorEncoderPosition.hpp>
 #include <cvra/motor/config/VelocityPID.hpp>
 #include <cvra/motor/config/PositionPID.hpp>
 #include <cvra/motor/config/CurrentPID.hpp>
+#include <cvra/motor/feedback/CurrentPID.hpp>
+#include <cvra/motor/feedback/VelocityPID.hpp>
+#include <cvra/motor/feedback/PositionPID.hpp>
+#include <cvra/motor/feedback/Index.hpp>
+#include <cvra/motor/feedback/MotorEncoderPosition.hpp>
+#include <cvra/motor/feedback/MotorPosition.hpp>
+#include <cvra/motor/feedback/MotorTorque.hpp>
 #include <cvra/StringID.hpp>
 #include "robot_pose.h"
 #include <simplerpc/message.h>
@@ -203,6 +209,96 @@ msg_t main(void *arg)
     );
     if (res != 0) {
         node_fail("cvra::StringID subscriber");
+    }
+
+    uavcan::Subscriber<cvra::motor::feedback::CurrentPID> current_pid_sub(node);
+    res = current_pid_sub.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::CurrentPID>& msg)
+        {
+            motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
+            if (driver != NULL) {
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_CURRENT, msg.current);
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_CURRENT_SETPT, msg.current_setpoint);
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_MOTOR_VOLTAGE, msg.motor_voltage);
+            }
+        }
+    );
+    if (res != 0) {
+        node_fail("cvra::motor::feedback::CurrentPID subscriber");
+    }
+
+    uavcan::Subscriber<cvra::motor::feedback::VelocityPID> velocity_pid_sub(node);
+    res = velocity_pid_sub.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::VelocityPID>& msg)
+        {
+            motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
+            if (driver != NULL) {
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_VELOCITY, msg.velocity);
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_VELOCITY_SETPT, msg.velocity_setpoint);
+            }
+        }
+    );
+    if (res != 0) {
+        node_fail("cvra::motor::feedback::VelocityPID subscriber");
+    }
+
+    uavcan::Subscriber<cvra::motor::feedback::PositionPID> position_pid_sub(node);
+    res = position_pid_sub.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::PositionPID>& msg)
+        {
+            motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
+            if (driver != NULL) {
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_POSITION, msg.position);
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_POSITION_SETPT, msg.position_setpoint);
+            }
+        }
+    );
+    if (res != 0) {
+        node_fail("cvra::motor::feedback::PositionPID subscriber");
+    }
+
+    uavcan::Subscriber<cvra::motor::feedback::Index> index_sub(node);
+    res = index_sub.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::Index>& msg)
+        {
+            motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
+            if (driver != NULL) {
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_INDEX, msg.position);
+            }
+        }
+    );
+    if (res != 0) {
+        node_fail("cvra::motor::feedback::Index subscriber");
+    }
+
+    uavcan::Subscriber<cvra::motor::feedback::MotorPosition> motor_pos_sub(node);
+    res = motor_pos_sub.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::MotorPosition>& msg)
+        {
+            motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
+            if (driver != NULL) {
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_POSITION, msg.position);
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_VELOCITY, msg.velocity);
+            }
+        }
+    );
+    if (res != 0) {
+        node_fail("cvra::motor::feedback::MotorPosition subscriber");
+    }
+
+    uavcan::Subscriber<cvra::motor::feedback::MotorTorque> motor_torque_sub(node);
+    res = motor_torque_sub.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::MotorTorque>& msg)
+        {
+            motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
+            if (driver != NULL) {
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_MOTOR_TORQUE, msg.torque);
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_POSITION, msg.position);
+            }
+        }
+    );
+    if (res != 0) {
+        node_fail("cvra::motor::feedback::MotorTorque subscriber");
     }
 
     uavcan::Subscriber<cvra::motor::feedback::MotorEncoderPosition> enc_pos_sub(node);

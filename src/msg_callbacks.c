@@ -26,7 +26,7 @@ void message_cb(void *p, int argc, cmp_ctx_t *input)
     }
 }
 
-void message_actuator_position_callback(void *p, int argc, cmp_ctx_t *input)
+void message_actuator_voltage_callback(void *p, int argc, cmp_ctx_t *input)
 {
     (void) p;
     char actuator_id[25];
@@ -40,7 +40,24 @@ void message_actuator_position_callback(void *p, int argc, cmp_ctx_t *input)
     cmp_read_str(input, actuator_id, &actuator_id_size);
     cmp_read_float(input, &setpoint);
 
-    motor_manager_set_position(&motor_manager, actuator_id, setpoint);
+    motor_manager_set_voltage(&motor_manager, actuator_id, setpoint);
+}
+
+void message_actuator_torque_callback(void *p, int argc, cmp_ctx_t *input)
+{
+    (void) p;
+    char actuator_id[25];
+    uint32_t actuator_id_size = 25;
+    float setpoint;
+
+    if (argc != 2) {
+        return;
+    }
+
+    cmp_read_str(input, actuator_id, &actuator_id_size);
+    cmp_read_float(input, &setpoint);
+
+    motor_manager_set_torque(&motor_manager, actuator_id, setpoint);
 }
 
 void message_actuator_velocity_callback(void *p, int argc, cmp_ctx_t *input)
@@ -58,6 +75,23 @@ void message_actuator_velocity_callback(void *p, int argc, cmp_ctx_t *input)
     cmp_read_float(input, &setpoint);
 
     motor_manager_set_velocity(&motor_manager, actuator_id, setpoint);
+}
+
+void message_actuator_position_callback(void *p, int argc, cmp_ctx_t *input)
+{
+    (void) p;
+    char actuator_id[25];
+    uint32_t actuator_id_size = 25;
+    float setpoint;
+
+    if (argc != 2) {
+        return;
+    }
+
+    cmp_read_str(input, actuator_id, &actuator_id_size);
+    cmp_read_float(input, &setpoint);
+
+    motor_manager_set_position(&motor_manager, actuator_id, setpoint);
 }
 
 void message_actuator_trajectory_callback(void *p, int argc, cmp_ctx_t *input)
@@ -136,8 +170,10 @@ void wheelbase_trajectory_callback(void *p, int argc, cmp_ctx_t *input)
 
 message_method_t message_callbacks[] = {
     {.name = "test", .cb = message_cb},
-    {.name = "actuator_position", .cb = message_actuator_position_callback},
+    {.name = "actuator_voltage", .cb = message_actuator_voltage_callback},
+    {.name = "actuator_torque", .cb = message_actuator_torque_callback},
     {.name = "actuator_velocity", .cb = message_actuator_velocity_callback},
+    {.name = "actuator_position", .cb = message_actuator_position_callback},
     {.name = "actuator_trajectory", .cb = message_actuator_trajectory_callback},
     {.name = "wheelbase_trajectory", .cb = wheelbase_trajectory_callback},
 };

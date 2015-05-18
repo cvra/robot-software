@@ -175,6 +175,7 @@ int main(void) {
         message_server_init();
         interface_panel_init();
         odometry_publisher_init();
+        stream_init();
     }
 
     /* main thread, spawns a shell on USB connection. */
