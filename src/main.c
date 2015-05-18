@@ -113,7 +113,7 @@ void __assert_func(const char *_file, int _line, const char *_func, const char *
     (void)_func;
     (void)_expr;
 
-    panic_hook("assertion failed");
+    chSysHalt("assertion failed");
     while(1);
 }
 
