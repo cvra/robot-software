@@ -174,7 +174,9 @@ int main(void) {
         chSysHalt("invalid config");
     }
 
+    chSysLock();
     timestamp_stm32_init();
+    chSysUnlock();
 
     sdStart(&SD3, NULL);
     ch_stdout = (BaseSequentialStream*)&SD3;
