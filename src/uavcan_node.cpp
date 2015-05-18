@@ -47,6 +47,8 @@ uavcan_stm32::CanInitHelper<128> can;
 
 uavcan::LazyConstructor<Node> node_;
 
+uint8_t reboot_node_id = 0;
+
 Node& getNode()
 {
     if (!node_.isConstructed())
@@ -304,10 +306,17 @@ msg_t main(void *arg)
             // log warning
         }
 
-        if (palReadPad(GPIOA, GPIOA_BUTTON_WKUP)) {
+        // reboot command
+        int button = palReadPad(GPIOA, GPIOA_BUTTON_WKUP);
+        if (button || reboot_node_id) {
             cvra::Reboot reboot_msg;
             reboot_msg.bootmode = reboot_msg.BOOTLOADER_TIMEOUT;
-            reboot_pub.broadcast(reboot_msg);
+            if (button || reboot_node_id > 127) {
+                reboot_pub.broadcast(reboot_msg);
+            } else {
+                reboot_pub.unicast(reboot_msg, uavcan::NodeID(reboot_node_id));
+            }
+            reboot_node_id = 0;
         }
 
         motor_driver_t *drv_list;
@@ -335,6 +344,11 @@ void uavcan_node_start(uint8_t id)
 {
     static uint8_t node_id = id;
     chThdCreateStatic(uavcan_node::thread_wa, UAVCAN_NODE_STACK_SIZE, NORMALPRIO, uavcan_node::main, &node_id);
+}
+
+void uavcan_node_send_reboot(uint8_t id)
+{
+    uavcan_node::reboot_node_id = id;
 }
 
 } // extern "C"
