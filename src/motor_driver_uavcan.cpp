@@ -19,11 +19,11 @@
 using namespace uavcan_node;
 
 struct can_driver_s {
-    uavcan::ServiceClient<cvra::motor::config::VelocityPID> speed_pid_client;
-    uavcan::ServiceClient<cvra::motor::config::PositionPID> position_pid_client;
-    uavcan::ServiceClient<cvra::motor::config::CurrentPID> current_pid_client;
-    uavcan::ServiceClient<cvra::motor::config::LoadConfiguration> config_client;
-    uavcan::ServiceClient<cvra::motor::config::EnableMotor> enable_client;
+    uavcan::Publisher<cvra::motor::config::VelocityPID> speed_pid_client;
+    uavcan::Publisher<cvra::motor::config::PositionPID> position_pid_client;
+    uavcan::Publisher<cvra::motor::config::CurrentPID> current_pid_client;
+    uavcan::Publisher<cvra::motor::config::LoadConfiguration> config_client;
+    uavcan::Publisher<cvra::motor::config::EnableMotor> enable_client;
     uavcan::Publisher<cvra::motor::control::Velocity> velocity_pub;
     uavcan::Publisher<cvra::motor::control::Position> position_pub;
     uavcan::Publisher<cvra::motor::control::Torque> torque_pub;
@@ -43,41 +43,6 @@ struct can_driver_s {
         trajectory_pub(getNode())
     {
         enabled = false;
-
-        speed_pid_client.setCallback([](const uavcan::ServiceCallResult<cvra::motor::config::VelocityPID>& call_result)
-                {
-                if (call_result.status != uavcan::ServiceCallResult<cvra::motor::config::VelocityPID>::Success) {
-                    chSysHalt("Service call failed !\r\n");
-                }
-                });
-
-        position_pid_client.setCallback([](const uavcan::ServiceCallResult<cvra::motor::config::PositionPID>& call_result)
-                {
-                if (call_result.status != uavcan::ServiceCallResult<cvra::motor::config::PositionPID>::Success) {
-                    chSysHalt("Service call failed !\r\n");
-                }
-                });
-
-        current_pid_client.setCallback([](const uavcan::ServiceCallResult<cvra::motor::config::CurrentPID>& call_result)
-                {
-                if (call_result.status != uavcan::ServiceCallResult<cvra::motor::config::CurrentPID>::Success) {
-                    chSysHalt("Service call failed !\r\n");
-                }
-                });
-
-        config_client.setCallback([](const uavcan::ServiceCallResult<cvra::motor::config::LoadConfiguration>& call_result)
-                {
-                if (call_result.status != uavcan::ServiceCallResult<cvra::motor::config::LoadConfiguration>::Success) {
-                    chSysHalt("Service call failed !\r\n");
-                }
-                });
-
-        enable_client.setCallback([](const uavcan::ServiceCallResult<cvra::motor::config::EnableMotor>& call_result)
-                {
-                if (call_result.status != uavcan::ServiceCallResult<cvra::motor::config::EnableMotor>::Success) {
-                    chSysHalt("Service call failed !\r\n");
-                }
-                });
     }
 };
 
@@ -109,7 +74,7 @@ static void update_motor_can_id(motor_driver_t *d)
 extern "C"
 void motor_driver_send_initial_config(motor_driver_t *d)
 {
-    cvra::motor::config::LoadConfiguration::Request config_msg;
+    cvra::motor::config::LoadConfiguration config_msg;
 
     update_motor_can_id(d);
     int node_id = motor_driver_get_can_id(d);
@@ -151,7 +116,7 @@ void motor_driver_send_initial_config(motor_driver_t *d)
 
     config_msg.mode = parameter_integer_get(&d->config.mode); // todo !
 
-    can_drv->config_client.call(node_id, config_msg);
+    can_drv->config_client.unicast(config_msg, node_id);
 
     can_drv->enabled = false;
 
@@ -171,30 +136,30 @@ void motor_driver_uavcan_update_config(motor_driver_t *d)
 
     if (parameter_namespace_contains_changed(&d->config.control)) {
         if (parameter_namespace_contains_changed(&d->config.position_pid.root)) {
-            cvra::motor::config::PositionPID::Request request;
+            cvra::motor::config::PositionPID request;
             request.pid.kp = parameter_scalar_get(&d->config.position_pid.kp);
             request.pid.ki = parameter_scalar_get(&d->config.position_pid.ki);
             request.pid.kd = parameter_scalar_get(&d->config.position_pid.kd);
             request.pid.ilimit = parameter_scalar_get(&d->config.position_pid.ilimit);
-            can_drv->position_pid_client.call(node_id, request);
+            can_drv->position_pid_client.unicast(request, node_id);
         }
 
         if (parameter_namespace_contains_changed(&d->config.velocity_pid.root)) {
-            cvra::motor::config::VelocityPID::Request request;
+            cvra::motor::config::VelocityPID request;
             request.pid.kp = parameter_scalar_get(&d->config.velocity_pid.kp);
             request.pid.ki = parameter_scalar_get(&d->config.velocity_pid.ki);
             request.pid.kd = parameter_scalar_get(&d->config.velocity_pid.kd);
             request.pid.ilimit = parameter_scalar_get(&d->config.velocity_pid.ilimit);
-            can_drv->speed_pid_client.call(node_id, request);
+            can_drv->speed_pid_client.unicast(request, node_id);
         }
 
         if (parameter_namespace_contains_changed(&d->config.current_pid.root)) {
-            cvra::motor::config::CurrentPID::Request request;
+            cvra::motor::config::CurrentPID request;
             request.pid.kp = parameter_scalar_get(&d->config.current_pid.kp);
             request.pid.ki = parameter_scalar_get(&d->config.current_pid.ki);
             request.pid.kd = parameter_scalar_get(&d->config.current_pid.kd);
             request.pid.ilimit = parameter_scalar_get(&d->config.current_pid.ilimit);
-            can_drv->current_pid_client.call(node_id, request);
+            can_drv->current_pid_client.unicast(request, node_id);
         }
     }
     if (parameter_namespace_contains_changed(&d->config.root)) {
@@ -205,21 +170,21 @@ void motor_driver_uavcan_update_config(motor_driver_t *d)
 
 void motor_enable(can_driver_s *d, int node_id)
 {
-    cvra::motor::config::EnableMotor::Request enable_msg;
+    cvra::motor::config::EnableMotor enable_msg;
     if (!d->enabled) {
         d->enabled = true;
         enable_msg.enable = true;
-        d->enable_client.call(node_id, enable_msg);
+        d->enable_client.unicast(enable_msg, node_id);
     }
 }
 
 void motor_disable(can_driver_s *d, int node_id)
 {
-    cvra::motor::config::EnableMotor::Request enable_msg;
+    cvra::motor::config::EnableMotor enable_msg;
     if (d->enabled) {
         d->enabled = false;
         enable_msg.enable = false;
-        d->enable_client.call(node_id, enable_msg);
+        d->enable_client.unicast(enable_msg, node_id);
     }
 }
 
