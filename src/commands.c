@@ -4,6 +4,7 @@
 #include <hal.h>
 #include <test.h>
 #include <chprintf.h>
+#include <string.h>
 #include "rpc_server.h"
 #include "config.h"
 #include "interface_panel.h"
@@ -256,6 +257,19 @@ static void cmd_node(BaseSequentialStream *chp, int argc, char **argv)
 
 }
 
+static void cmd_uavcan_node_reboot(BaseSequentialStream *chp, int argc, char **argv)
+{
+    int id = 0xff;
+    if (argc == 1) {
+        id = atoi(argv[0]);
+    }
+    if (argc > 1 || id < 1 || id > 0xff) {
+        chprintf(chp, "usage: node_reboot [1-127|255]\r\n");
+        return;
+    }
+    uavcan_node_send_reboot(id);
+}
+
 const ShellCommand commands[] = {
     {"mem", cmd_mem},
     {"ip", cmd_ip},
@@ -268,5 +282,6 @@ const ShellCommand commands[] = {
     {"time", cmd_time},
     {"rpc_client_demo", cmd_rpc_client_test},
     {"node", cmd_node},
+    {"node_reboot", cmd_uavcan_node_reboot},
     {NULL, NULL}
 };
