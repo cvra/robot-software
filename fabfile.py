@@ -50,7 +50,7 @@ def serial():
     """
     Opens a serial terminal to the master board.
     """
-    sudo('python -m serial.tools.miniterm /dev/ttyACM0')
+    sudo('python -m serial.tools.miniterm /dev/ttyACM*')
 
 
 def _flash():
