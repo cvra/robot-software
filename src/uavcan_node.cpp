@@ -260,42 +260,6 @@ msg_t main(void *arg)
         node_fail("cvra::motor::control::Velocity publisher");
     }
 
-    /* Config client. */
-    uavcan::ServiceClient<cvra::motor::config::VelocityPID> speed_pid_client(node);
-    if (speed_pid_client.init() < 0) {
-        node_fail("cvra::motor::config::VelocityPID client");
-    }
-
-    speed_pid_client.setCallback([](const uavcan::ServiceCallResult<cvra::motor::config::VelocityPID>& call_result)
-    {
-        if (call_result.isSuccessful() == false) {
-            // TODO: error handling.
-        }
-    });
-
-    uavcan::ServiceClient<cvra::motor::config::PositionPID> position_pid_client(node);
-    if (position_pid_client.init() < 0) {
-        node_fail("cvra::motor::config::PositionPID client");
-    }
-
-    position_pid_client.setCallback([](const uavcan::ServiceCallResult<cvra::motor::config::PositionPID>& call_result)
-    {
-        if (call_result.isSuccessful() == false) {
-            // TODO: error handling.
-        }
-    });
-
-    uavcan::ServiceClient<cvra::motor::config::CurrentPID> current_pid_client(node);
-    if (current_pid_client.init() < 0) {
-        node_fail("cvra::motor::config::CurrentPID client");
-    }
-
-    current_pid_client.setCallback([](const uavcan::ServiceCallResult<cvra::motor::config::CurrentPID>& call_result)
-    {
-        if (call_result.isSuccessful() == false) {
-            // TODO: error handling.
-        }
-    });
 
     while (true)
     {
