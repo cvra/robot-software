@@ -30,10 +30,13 @@ struct pid_cascade_s {
     // outputs:
     float motor_voltage;
     // PID tuning outputs:
+    float position_setpoint;
     float position_error;
     float position_ctrl_out;
+    float velocity_setpoint;
     float velocity_error;
     float velocity_ctrl_out;
+    float current_setpoint;
     float current_error;
     float torque;
 };

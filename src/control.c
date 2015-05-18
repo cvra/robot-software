@@ -159,17 +159,17 @@ float control_get_position_error(void)
 
 float control_get_current_setpoint(void)
 {
-    return ctrl.setpts.feedforward_torque / ctrl.motor_current_constant;
+    return ctrl.current_setpoint;
 }
 
 float control_get_velocity_setpoint(void)
 {
-    return ctrl.setpts.velocity_setpt;
+    return ctrl.velocity_setpoint;
 }
 
 float control_get_position_setpoint(void)
 {
-    return ctrl.setpts.position_setpt;
+    return ctrl.position_setpoint;
 }
 
 
