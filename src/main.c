@@ -13,6 +13,7 @@
 #include "parameter/parameter_msgpack.h"
 #include <string.h>
 #include <math.h>
+#include "timestamp/timestamp_stm32.h"
 #include "bootloader_config.h"
 #include "uavcan_node.h"
 
@@ -172,6 +173,10 @@ int main(void) {
     if (!config_get(&config)) {
         chSysHalt("invalid config");
     }
+
+    chSysLock();
+    timestamp_stm32_init();
+    chSysUnlock();
 
     sdStart(&SD3, NULL);
     ch_stdout = (BaseSequentialStream*)&SD3;
