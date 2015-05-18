@@ -24,8 +24,6 @@ actuator:
                ki: 0.
                kd: 0.
                ilimit: 100.
-           position:
-               kp: 10.
 
            low_batt_th: 5.
            acceleration_limit: 10.
