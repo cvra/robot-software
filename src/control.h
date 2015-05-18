@@ -36,6 +36,9 @@ float control_get_position(void);
 float control_get_current_error(void);
 float control_get_velocity_error(void);
 float control_get_position_error(void);
+float control_get_current_setpoint(void);
+float control_get_velocity_setpoint(void);
+float control_get_position_setpoint(void);
 
 #ifdef __cplusplus
 }

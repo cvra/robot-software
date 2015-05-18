@@ -157,6 +157,21 @@ float control_get_position_error(void)
     return ctrl.position_error;
 }
 
+float control_get_current_setpoint(void)
+{
+    return ctrl.current_setpoint;
+}
+
+float control_get_velocity_setpoint(void)
+{
+    return ctrl.velocity_setpoint;
+}
+
+float control_get_position_setpoint(void)
+{
+    return ctrl.position_setpoint;
+}
+
 
 static void set_motor_voltage(float u)
 {
