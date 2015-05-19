@@ -159,25 +159,6 @@ static void cmd_rpc_client_test(BaseSequentialStream *chp, int argc, char **argv
                  &server, port);
 }
 
-static void cmd_config_get(BaseSequentialStream *chp, int argc, char **argv)
-{
-    parameter_t *param;
-
-    if (argc != 1) {
-        chprintf(chp, "Usage: config_get key\r\n");
-        return;
-    }
-
-    param = parameter_find(&global_config, argv[0]);
-
-    if (param == NULL) {
-        chprintf(chp, "Cannot find key: \"%s\"\r\n", argv[0]);
-        return;
-    }
-
-    chprintf(chp, "Value: %d\r\n", (int)parameter_scalar_get(param));
-}
-
 static void tree_indent(BaseSequentialStream *out, int indent)
 {
     int i;
@@ -275,7 +256,6 @@ static void cmd_uavcan_node_reboot(BaseSequentialStream *chp, int argc, char **a
 const ShellCommand commands[] = {
     {"mem", cmd_mem},
     {"ip", cmd_ip},
-    {"config_get", cmd_config_get},
     {"config_tree", cmd_config_tree},
     {"threads", cmd_threads},
     {"test", cmd_test},
