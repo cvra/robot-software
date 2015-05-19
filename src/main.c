@@ -25,6 +25,7 @@
 #include "odometry_publisher.h"
 #include "motor_manager.h"
 #include "differential_base.h"
+#include "stream.h"
 
 
 /* Command line related.                                                     */
@@ -46,6 +47,7 @@ static const ShellConfig shell_cfg1 = {
  * @param [in] reaon Kernel panic message.  */
 void panic_hook(const char *reason)
 {
+    (void) reason;
     palClearPad(GPIOC, GPIOC_LED);
     palSetPad(GPIOF, GPIOF_LED_READY);
     palSetPad(GPIOF, GPIOF_LED_DEBUG);
