@@ -291,8 +291,8 @@ static void update_parameters(void)
     }
     if (parameter_namespace_contains_changed(&param_ns_motor)) {
         if (parameter_changed(&param_torque_cst)) {
-            float transmission = control_feedback.primary_encoder.transmission_p / control_feedback.primary_encoder.transmission_q;
-            ctrl.motor_current_constant = 1/(parameter_scalar_get(&param_torque_cst) * transmission);
+            float transmission = (float)control_feedback.primary_encoder.transmission_p / control_feedback.primary_encoder.transmission_q;
+            ctrl.motor_current_constant = 1/(parameter_scalar_get(&param_torque_cst) / transmission);
         }
     }
     if (parameter_namespace_contains_changed(&param_ns_thermal)) {
