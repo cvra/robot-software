@@ -16,6 +16,7 @@
 #include "bootloader_config.h"
 #include "uavcan_node.h"
 #include "timestamp/timestamp_stm32.h"
+#include "index.h"
 
 BaseSequentialStream* ch_stdout;
 parameter_namespace_t parameter_root_ns;
@@ -196,6 +197,8 @@ int main(void) {
 
 
     control_init();
+
+    index_init();
 
     // chThdCreateStatic(stream_task_wa, sizeof(stream_task_wa), LOWPRIO, stream_task, NULL);
     chThdCreateStatic(parameter_listener_wa, sizeof(parameter_listener_wa), LOWPRIO, parameter_listener, &SD3);
