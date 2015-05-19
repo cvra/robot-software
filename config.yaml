@@ -38,7 +38,7 @@ actuator:
             velocity_limit: 10.
             torque_limit: 14.
 
-   right-wheel:
+    right-wheel:
        stream:
            velocity_pid: 100
        motor:
@@ -49,7 +49,7 @@ actuator:
            transmission_ratio_q: 676
            torque_constant: 1.
        control:
-           current:
+            current:
                kp: 4.
                ki: 1500.
                kd: 0.
