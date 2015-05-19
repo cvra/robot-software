@@ -1,4 +1,5 @@
 from fabric.api import *
+import time
 
 
 def debra():
@@ -64,3 +65,11 @@ def deploy():
     build()
     _copy_files()
     _flash()
+
+def test():
+    i = 0
+    while True:
+        print("Test {}".format(i))
+        i = i + 1
+        local("python config_send.py  config.yaml debra-master")
+        time.sleep(1.)

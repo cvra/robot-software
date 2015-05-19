@@ -52,6 +52,10 @@
 #define MEM_LIBC_MALLOC 1
 #define MEMP_MEM_MALLOC 1
 
+#define MEMP_OVERFLOW_CHECK  1
+#define SYS_LIGHTWEIGHT_PROT 1
+#define MEMP_NUM_UDP_PCB 4
+
 /* Robot settings. */
 #if 1
 

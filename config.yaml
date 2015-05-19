@@ -38,23 +38,22 @@ actuator:
             velocity_limit: 10.
             torque_limit: 14.
 
-    right-wheel:
-        stream:
-            velocity_pid: 100
-        motor:
-            mode: 3
-            motor_encoder_steps_per_revolution: 4096
-            second_encoder_steps_per_revolution: 16384
-            transmission_ratio_p: 49
-            transmission_ratio_q: 676
-            torque_constant: 1.
-        control:
-            current:
-                kp: 4.
-                ki: 1500.
-                kd: 0.
-                ilimit: 50.
-
+   right-wheel:
+       stream:
+           velocity_pid: 100
+       motor:
+           mode: 3
+           motor_encoder_steps_per_revolution: 4096
+           second_encoder_steps_per_revolution: 16384
+           transmission_ratio_p: 49
+           transmission_ratio_q: 676
+           torque_constant: 1.
+       control:
+           current:
+               kp: 4.
+               ki: 1500.
+               kd: 0.
+               ilimit: 50.
             velocity:
                 kp: 14.
                 ki: 110.
