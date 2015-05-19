@@ -8,10 +8,10 @@ static void pid_register(struct pid_parameter_s *pid,
 {
 
     parameter_namespace_declare(&pid->root, parent, name);
-    parameter_scalar_declare(&pid->kp, &pid->root, "kp");
-    parameter_scalar_declare(&pid->ki, &pid->root, "ki");
-    parameter_scalar_declare(&pid->kd, &pid->root, "kd");
-    parameter_scalar_declare(&pid->ilimit, &pid->root, "ilimit");
+    parameter_scalar_declare_with_default(&pid->kp, &pid->root, "kp", 0);
+    parameter_scalar_declare_with_default(&pid->ki, &pid->root, "ki", 0);
+    parameter_scalar_declare_with_default(&pid->kd, &pid->root, "kd", 0);
+    parameter_scalar_declare_with_default(&pid->ilimit, &pid->root, "ilimit", 0);
 }
 
 void motor_driver_init(motor_driver_t *d,
@@ -40,10 +40,10 @@ void motor_driver_init(motor_driver_t *d,
     pid_register(&d->config.position_pid, &d->config.control, "position");
     pid_register(&d->config.velocity_pid, &d->config.control, "velocity");
     pid_register(&d->config.current_pid, &d->config.control, "current");
-    parameter_scalar_declare(&d->config.torque_limit, &d->config.control, "torque_limit");
-    parameter_scalar_declare(&d->config.velocity_limit, &d->config.control, "velocity_limit");
-    parameter_scalar_declare(&d->config.acceleration_limit, &d->config.control, "acceleration_limit");
-    parameter_scalar_declare(&d->config.low_batt_th, &d->config.control, "low_batt_th");
+    parameter_scalar_declare_with_default(&d->config.torque_limit, &d->config.control, "torque_limit", 0);
+    parameter_scalar_declare_with_default(&d->config.velocity_limit, &d->config.control, "velocity_limit", 0);
+    parameter_scalar_declare_with_default(&d->config.acceleration_limit, &d->config.control, "acceleration_limit", 0);
+    parameter_scalar_declare_with_default(&d->config.low_batt_th, &d->config.control, "low_batt_th", 12);
 
     parameter_namespace_declare(&d->config.thermal, &d->config.root, "thermal");
     parameter_scalar_declare(&d->config.thermal_capacity, &d->config.thermal, "capacity");
@@ -52,13 +52,13 @@ void motor_driver_init(motor_driver_t *d,
     parameter_scalar_declare(&d->config.max_temperature, &d->config.thermal, "max_temperature");
 
     parameter_namespace_declare(&d->config.motor, &d->config.root, "motor");
-    parameter_scalar_declare(&d->config.torque_constant, &d->config.motor, "torque_constant");
-    parameter_integer_declare(&d->config.transmission_ratio_p, &d->config.motor, "transmission_ratio_p");
-    parameter_integer_declare(&d->config.transmission_ratio_q, &d->config.motor, "transmission_ratio_q");
-    parameter_integer_declare(&d->config.motor_encoder_steps_per_revolution, &d->config.motor, "motor_encoder_steps_per_revolution");
-    parameter_integer_declare(&d->config.second_encoder_steps_per_revolution, &d->config.motor, "second_encoder_steps_per_revolution");
-    parameter_scalar_declare(&d->config.potentiometer_gain, &d->config.motor, "potentiometer_gain");
-    parameter_integer_declare(&d->config.mode, &d->config.motor, "mode"); // todo
+    parameter_scalar_declare_with_default(&d->config.torque_constant, &d->config.motor, "torque_constant", 1);
+    parameter_integer_declare_with_default(&d->config.transmission_ratio_p, &d->config.motor, "transmission_ratio_p", 1);
+    parameter_integer_declare_with_default(&d->config.transmission_ratio_q, &d->config.motor, "transmission_ratio_q", 1);
+    parameter_integer_declare_with_default(&d->config.motor_encoder_steps_per_revolution, &d->config.motor, "motor_encoder_steps_per_revolution", 4096);
+    parameter_integer_declare_with_default(&d->config.second_encoder_steps_per_revolution, &d->config.motor, "second_encoder_steps_per_revolution", 4096);
+    parameter_scalar_declare_with_default(&d->config.potentiometer_gain, &d->config.motor, "potentiometer_gain", 1);
+    parameter_integer_declare_with_default(&d->config.mode, &d->config.motor, "mode", 4); // todo
 
     parameter_namespace_declare(&d->config.stream, &d->config.root, "stream");
     parameter_scalar_declare(&d->config.current_pid_stream, &d->config.stream, "current_pid");
