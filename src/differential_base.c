@@ -1,5 +1,8 @@
 #include <ch.h>
+#include <hal.h>
 #include <math.h>
+#include <chprintf.h>
+#include "usbconf.h"
 #include "priorities.h"
 #include "main.h"
 #include "parameter/parameter.h"
@@ -19,7 +22,7 @@ mutex_t diff_base_trajectory_lock;
 void differential_base_init(void)
 {
     static float trajectory_buffer[100][5];
-    trajectory_init(&diff_base_trajectory, (float *)trajectory_buffer, 100, 5, 100*1000);
+    trajectory_init(&diff_base_trajectory, (float *)trajectory_buffer, 100, 5, 10*1000);
 
     chMtxObjectInit(&diff_base_trajectory_lock);
 }
@@ -60,18 +63,22 @@ msg_t differential_base_tracking_thread(void *p)
 
         chMtxLock(&diff_base_trajectory_lock);
         point = trajectory_read(&diff_base_trajectory, now);
+        if (point) {
+            x = point[0];
+            y = point[1];
+            speed = point[2];
+            theta = point[3];
+            omega = point[4];
+        }
         chMtxUnlock(&diff_base_trajectory_lock);
+
+        palTogglePad(GPIOF, GPIOF_LED_GREEN_1);
 
         if (point) {
             tracy_active = true;
             struct tracking_error error;
             struct robot_velocity input, output;
 
-            x = point[0];
-            y = point[1];
-            theta = point[2];
-            speed = point[3];
-            omega = point[4];
 
             /* Get data from odometry. */
             chMtxLock(&robot_pose_lock);
@@ -90,6 +97,7 @@ msg_t differential_base_tracking_thread(void *p)
                     parameter_scalar_get(parameter_find(tracy_config, "damping")),
                     parameter_scalar_get(parameter_find(tracy_config, "g")));
             }
+            palSetPad(GPIOF, GPIOF_LED_DEBUG);
 
             /* Transform error to local frame. */
             tracy_global_error_to_local(&error, theta);
@@ -98,7 +106,8 @@ msg_t differential_base_tracking_thread(void *p)
             tracy_linear_controller(&error, &input, &output);
 
             /* Apply speed to wheels. */
-            // chprintf((BaseSequentialStream *)&SDU1 , "%d %.2f %.2f\n\r", now, output.tangential_velocity, output.angular_velocity);
+            //chprintf((BaseSequentialStream *)&SDU1 , "%d %.2f %.2f %.2f %.2f %.2f\n\r", now, x, y, theta, speed, omega);
+            chprintf((BaseSequentialStream *)&SDU1 , "setpoint: %.2f output: %.2f\r\n", speed, output.tangential_velocity);
             motor_manager_set_velocity(&motor_manager, "right-wheel",
                 (0.5f * ROBOT_RIGHT_WHEEL_DIRECTION / radius_right)
                 * (output.tangential_velocity / M_PI + motor_base * output.angular_velocity));
@@ -113,6 +122,7 @@ msg_t differential_base_tracking_thread(void *p)
                 motor_manager_set_velocity(&motor_manager, "right-wheel", 0);
                 motor_manager_set_velocity(&motor_manager, "left-wheel", 0);
             }
+            palClearPad(GPIOF, GPIOF_LED_DEBUG);
         }
 
         chThdSleepMilliseconds(50);

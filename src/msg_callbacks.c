@@ -3,6 +3,8 @@
 #include <math.h>
 #include <string.h>
 #include <cmp/cmp.h>
+#include <chprintf.h>
+#include "usbconf.h"
 
 #include "main.h"
 #include "robot_parameters.h"
@@ -158,11 +160,20 @@ void wheelbase_trajectory_callback(void *p, int argc, cmp_ctx_t *input)
 
     start_time = timestamp_unix_to_local_us(start);
 
-    trajectory_chunk_init(&chunk, (float *)chunk_buffer, point_count, 5, start_time, dt);
+    trajectory_chunk_init(&chunk, (float *)chunk_buffer, point_count,
+                                    point_dimension, start_time, dt);
 
     chMtxLock(&diff_base_trajectory_lock);
-        trajectory_apply_chunk(&diff_base_trajectory, &chunk);
+        int ret = trajectory_apply_chunk(&diff_base_trajectory, &chunk);
     chMtxUnlock(&diff_base_trajectory_lock);
+
+    if (ret == 0) {
+        palTogglePad(GPIOF, GPIOF_LED_READY);
+    }
+
+    chprintf((BaseSequentialStream *)&SDU1, "retcode %d ts: %d expected ts %d\r\n", ret, dt, diff_base_trajectory.sampling_time_us);
+    chprintf((BaseSequentialStream *)&SDU1, "chunk start: %ld trajectory last: %ld\r\n", chunk.start_time_us, diff_base_trajectory.last_chunk_start_time_us);
+    chprintf((BaseSequentialStream *)&SDU1, "traj read time %d\r\n", diff_base_trajectory.read_time_us);
 }
 
 
