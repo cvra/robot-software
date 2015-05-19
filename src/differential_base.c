@@ -34,6 +34,10 @@ msg_t differential_base_tracking_thread(void *p)
     if (base_config == NULL) {
         chSysHalt("base parameter not found");
     }
+    parameter_namespace_t *tracy_config = parameter_namespace_find(&global_config, "/master/tracy");
+    if (tracy_config == NULL) {
+        chSysHalt("tracy parameter not found");
+    }
 
     float motor_base;
     float radius_right;
@@ -80,6 +84,12 @@ msg_t differential_base_tracking_thread(void *p)
 
             input.tangential_velocity = speed;
             input.angular_velocity = omega;
+
+            if (parameter_namespace_contains_changed(tracy_config)) {
+                tracy_set_controller_params(
+                    parameter_scalar_get(parameter_find(tracy_config, "damping")),
+                    parameter_scalar_get(parameter_find(tracy_config, "g")));
+            }
 
             /* Transform error to local frame. */
             tracy_global_error_to_local(&error, theta);
