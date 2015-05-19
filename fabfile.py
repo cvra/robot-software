@@ -27,6 +27,8 @@ def build():
     """
     Compiles the project.
     """
+    local('make dsdlc')
+    local('packager/packager.py')
     local('make -j')
 
 
