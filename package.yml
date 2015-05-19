@@ -38,6 +38,7 @@ target.arm:
     - src/motor_manager.c
     - src/differential_base.c
     - src/stream.c
+    - src/fault_debug.c
 
 source:
     - src/unix_timestamp.c

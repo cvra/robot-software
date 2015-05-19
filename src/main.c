@@ -64,7 +64,6 @@ void panic_hook(const char *reason)
 
     // reboot
     //NVIC_SystemReset();
-    while(1);
 }
 
 
@@ -192,3 +191,4 @@ int main(void) {
         chThdSleepMilliseconds(500);
     }
 }
+

@@ -73,5 +73,5 @@ def test():
     while True:
         print("Test {}".format(i))
         i = i + 1
-        local("python config_send.py  config.yaml debra-master")
+        local("python config_send.py  config.yaml 10.0.10.2")
         time.sleep(1.)
