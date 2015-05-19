@@ -73,6 +73,11 @@ msg_t can_bridge_thread(void *p)
 
     /* Creates a TCP server on port 1337 */
     conn = netconn_new(NETCONN_TCP);
+
+    if (conn == NULL) {
+        chSysHalt("Cannot create CAN bridge connection: out of memory.");
+    }
+
     netconn_bind(conn, IP_ADDR_ANY, 1337);
     netconn_listen(conn);
 

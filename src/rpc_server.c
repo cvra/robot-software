@@ -59,6 +59,10 @@ msg_t rpc_server_thread(void *p)
 
     /* Creates a TCP server */
     conn = netconn_new(NETCONN_TCP);
+    if (conn == NULL) {
+        chSysHalt("Cannot create SimpleRPC service call server connection (out of memory).");
+    }
+
     netconn_bind(conn, IP_ADDR_ANY, RPC_SERVER_PORT);
     netconn_listen(conn);
 
@@ -182,6 +186,9 @@ msg_t message_server_thread(void *arg)
   LWIP_UNUSED_ARG(arg);
 
   conn = netconn_new(NETCONN_UDP);
+  if (conn == NULL) {
+      chSysHalt("Cannot create SimpleRPC message server connection (out of memory).");
+  }
   netconn_bind(conn, NULL, MSG_SERVER_PORT);
 
   while (1) {
@@ -213,7 +220,18 @@ void message_transmit(uint8_t *input_buffer, size_t input_buffer_size, ip_addr_t
     struct netbuf *buf;
 
     conn = netconn_new(NETCONN_UDP);
+
+    if (conn == NULL) {
+        // TODO: Do something useful
+        return;
+    }
+
     buf = netbuf_new();
+
+    if (buf == NULL) {
+        // TODO: Do something useful
+        return;
+    }
 
     netbuf_ref(buf, input_buffer, input_buffer_size);
 
