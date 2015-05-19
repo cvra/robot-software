@@ -52,8 +52,26 @@
 #define MEM_LIBC_MALLOC 1
 #define MEMP_MEM_MALLOC 1
 
-/* Settings for the UDP odometry publisher. */
+/* Robot settings. */
+#if 1
+
 #define ODOMETRY_PUBLISHER_PORT 20000
-#define ODOMETRY_PUBLISHER_HOST(server) LWIP_GATEWAY(server)
+#define ODOMETRY_PUBLISHER_HOST(server) ip_addr_set(server, IP_ADDR_BROADCAST)
+
+#define STREAM_PORT            20042
+#define STREAM_HOST(server)    ip_addr_set(server, IP_ADDR_BROADCAST)
+
+#else
+/* Laptop debug settings. We cannot use a broadcast address to debug over wifi
+ * because routers don't forward broadcast packets. */
+
+#define LAPTOP_IP(p) IP4_ADDR(p, 192, 168, 2, 101)
+
+#define ODOMETRY_PUBLISHER_PORT 20000
+#define ODOMETRY_PUBLISHER_HOST(server) LAPTOP_IP(server)
+
+#define STREAM_PORT            20042
+#define STREAM_HOST(server)    LAPTOP_IP(server)
+#endif
 
 #endif /* __LWIPOPT_H__ */

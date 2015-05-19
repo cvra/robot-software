@@ -26,8 +26,8 @@ static msg_t stream_thread(void *p)
 
     (void) p;
 
-    //LWIP_GATEWAY(&server);
-    IP4_ADDR(&server, 10, 0, 10, 255);
+    STREAM_HOST(&server);
+
 
     while (1) {
         motor_driver_t *drv_list;
