@@ -6,7 +6,9 @@ master:
 actuator:
     left-wheel:
         stream:
+            position_pid: 100
             velocity_pid: 100
+            current_pid: 100
         motor:
             mode: 3
             motor_encoder_steps_per_revolution: 4096
@@ -22,10 +24,10 @@ actuator:
                 ilimit: 50.
 
             velocity:
-                kp: 1.
-                ki: 8.
+                kp: 14.
+                ki: 110.
                 kd: 0.
-                ilimit: 100.
+                ilimit: 1400.
             position:
                 kp: 0.1
                 ki: 0.5
@@ -34,7 +36,7 @@ actuator:
             low_batt_th: 5.
             acceleration_limit: 100.
             velocity_limit: 10.
-            torque_limit: 1.
+            torque_limit: 14.
 
     right-wheel:
         stream:
@@ -54,10 +56,10 @@ actuator:
                 ilimit: 50.
 
             velocity:
-                kp: 1.
-                ki: 8.
+                kp: 14.
+                ki: 110.
                 kd: 0.
-                ilimit: 100.
+                ilimit: 1400.
             position:
                 kp: 0.1
                 ki: 0.5
@@ -66,4 +68,4 @@ actuator:
             low_batt_th: 5.
             acceleration_limit: 100.
             velocity_limit: 10.
-            torque_limit: 1.
+            torque_limit: 14.
