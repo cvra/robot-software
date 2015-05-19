@@ -6,7 +6,7 @@ MASTER_BOARD = {
 }
 
 MOTOR_BOARDS = {
-    'debra': [20, 21, 29, 31, 32],
+    'debra': [20, 21, 29, 31, 32, 22, 23, 24],  # right: 25, 27, 28
     'caprica': [],
 }
 
