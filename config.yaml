@@ -6,9 +6,8 @@ master:
 actuator:
     left-wheel:
         stream:
-            position_pid: 100
-            velocity_pid: 100
-            current_pid: 100
+            # Encoder position is needed for odometry
+            encoder_pos: 100
         motor:
             mode: 3
             motor_encoder_steps_per_revolution: 4096
@@ -40,7 +39,9 @@ actuator:
 
     right-wheel:
        stream:
-           velocity_pid: 100
+           # Encoder position is needed for odometry
+           encoder_pos: 100
+
        motor:
            mode: 3
            motor_encoder_steps_per_revolution: 4096
