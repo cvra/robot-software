@@ -55,6 +55,7 @@ def main():
     send_config_file((host, port), open(args.config))
 
     if args.watch:
+        print("> watching for file changes...")
         old_mtime = os.path.getmtime(args.config)
         while True:
             try:
