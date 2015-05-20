@@ -39,6 +39,7 @@ target.arm:
     - src/differential_base.c
     - src/stream.c
     - src/fault_debug.c
+    - src/node_tracker.c
 
 source:
     - src/unix_timestamp.c
