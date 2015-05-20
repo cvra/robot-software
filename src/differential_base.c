@@ -106,14 +106,16 @@ msg_t differential_base_tracking_thread(void *p)
             tracy_linear_controller(&error, &input, &output);
 
             /* Apply speed to wheels. */
-            //chprintf((BaseSequentialStream *)&SDU1 , "%d %.2f %.2f %.2f %.2f %.2f\n\r", now, x, y, theta, speed, omega);
             chprintf((BaseSequentialStream *)&SDU1 , "setpoint: %.2f output: %.2f\r\n", speed, output.tangential_velocity);
-            motor_manager_set_velocity(&motor_manager, "right-wheel",
-                (0.5f * ROBOT_RIGHT_WHEEL_DIRECTION / radius_right)
-                * (output.tangential_velocity / M_PI + motor_base * output.angular_velocity));
-            motor_manager_set_velocity(&motor_manager, "left-wheel",
-                (0.5f * ROBOT_LEFT_WHEEL_DIRECTION / radius_left)
-                * (output.tangential_velocity / M_PI + motor_base * output.angular_velocity));
+
+            float right_spd = ROBOT_RIGHT_WHEEL_DIRECTION * output.tangential_velocity / (radius_left * M_PI);
+
+            float left_spd = ROBOT_LEFT_WHEEL_DIRECTION * output.tangential_velocity / (radius_left * M_PI);
+
+            motor_manager_set_velocity(&motor_manager, "right-wheel", right_spd);
+            motor_manager_set_velocity(&motor_manager, "left-wheel", left_spd);
+            chprintf((BaseSequentialStream *)&SDU1 , "wheels %.4f %.4f\r\n", left_spd, right_spd);
+
 
         } else {
             if (tracy_active) {

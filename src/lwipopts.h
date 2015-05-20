@@ -13,7 +13,7 @@
 
 #define MEM_ALIGNMENT                   4
 
-#define TCPIP_THREAD_STACKSIZE          1024
+#define TCPIP_THREAD_STACKSIZE          4096
 #define TCPIP_MBOX_SIZE                 MEMP_NUM_PBUF
 
 #define LWIP_DHCP 1
@@ -56,8 +56,10 @@
 #define SYS_LIGHTWEIGHT_PROT 1
 #define MEMP_NUM_UDP_PCB 4
 
+#define MEMP_NUM_TCPIP_MSG_API  80
+
 /* Robot settings. */
-#if 1
+#if 0
 
 #define ODOMETRY_PUBLISHER_PORT 20000
 #define ODOMETRY_PUBLISHER_HOST(server) ip_addr_set(server, IP_ADDR_BROADCAST)
@@ -71,11 +73,13 @@
 
 #define LAPTOP_IP(p) IP4_ADDR(p, 192, 168, 2, 101)
 
+
 #define ODOMETRY_PUBLISHER_PORT 20000
 #define ODOMETRY_PUBLISHER_HOST(server) LAPTOP_IP(server)
 
 #define STREAM_PORT            20042
 #define STREAM_HOST(server)    LAPTOP_IP(server)
+//#define ENABLE_STREAM
 #endif
 
 #endif /* __LWIPOPT_H__ */

@@ -307,10 +307,11 @@ msg_t main(void *arg)
     res = enc_pos_sub.start(
         [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::MotorEncoderPosition>& msg)
         {
-                chMtxLock(&robot_pose_lock);
+            chMtxLock(&robot_pose_lock);
             if(msg.getSrcNodeID().get() == 29) {
                 odometry_encoder_record_sample(&enc_right[0], enc_right[1].timestamp, enc_right[1].value);
                 odometry_encoder_record_sample(&enc_right[1], timestamp_get(), msg.raw_encoder_position);
+                palTogglePad(GPIOF, GPIOF_LED_YELLOW_1);
             } else if(msg.getSrcNodeID().get() == 31) {
                 odometry_encoder_record_sample(&enc_left[0], enc_left[1].timestamp, enc_left[1].value);
                 odometry_encoder_record_sample(&enc_left[1], timestamp_get(), msg.raw_encoder_position);
@@ -323,6 +324,8 @@ msg_t main(void *arg)
                                              config_get_scalar("/master/odometry/wheelbase"),
                                              config_get_scalar("/master/odometry/radius_right"),
                                              config_get_scalar("/master/odometry/radius_left"));
+
+                palTogglePad(GPIOF, GPIOF_LED_YELLOW_2);
             }
 
             /*
@@ -331,10 +334,9 @@ msg_t main(void *arg)
              */
             if(enc_right[1].timestamp != enc_right[0].timestamp && enc_left[1].timestamp != enc_left[0].timestamp) {
                 odometry_base_update(&robot_base, enc_right[1], enc_left[1]);
-
-                    odometry_base_get_pose(&robot_base, &robot_pose);
+                odometry_base_get_pose(&robot_base, &robot_pose);
             }
-                chMtxUnlock(&robot_pose_lock);
+            chMtxUnlock(&robot_pose_lock);
         }
     );
     if (res != 0) {

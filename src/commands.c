@@ -266,7 +266,7 @@ static void cmd_pos(BaseSequentialStream *chp, int argc, char **argv)
     theta = robot_pose.theta;
     chMtxUnlock(&robot_pose_lock);
 
-    chprintf(chp, "%.3f;%.3f%.3f\r\n", x, y, theta);
+    chprintf(chp, "%.3f;%.3f;%.3f\r\n", x, y, theta);
 
 
 }
