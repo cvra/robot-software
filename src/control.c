@@ -17,7 +17,7 @@
 #include "control.h"
 
 #define LOW_BATT_TH 12.f // [V]
-
+#define DEFAULT_CTRL_TIMEOUT 0.1f // [s]
 
 struct pid_param_s {
     parameter_t kp;
@@ -55,8 +55,10 @@ static parameter_t param_max_temp;
 static parameter_t param_Rth;
 static parameter_t param_Cth;
 
+static timestamp_t last_setpoint_update;
 
 static float low_batt_th = LOW_BATT_TH;
+static float ctrl_timeout = DEFAULT_CTRL_TIMEOUT;
 
 static bool control_en = false;
 static bool control_request_termination = false;
@@ -81,6 +83,7 @@ void control_update_position_setpoint(float pos)
     chBSemWait(&setpoint_interpolation_lock);
     setpoint_update_position(&setpoint_interpolation, pos, current_pos, current_vel);
     chBSemSignal(&setpoint_interpolation_lock);
+    last_setpoint_update = timestamp_get();
 }
 
 void control_update_velocity_setpoint(float vel)
@@ -89,6 +92,7 @@ void control_update_velocity_setpoint(float vel)
     chBSemWait(&setpoint_interpolation_lock);
     setpoint_update_velocity(&setpoint_interpolation, vel, current_vel);
     chBSemSignal(&setpoint_interpolation_lock);
+    last_setpoint_update = timestamp_get();
 }
 
 void control_update_torque_setpoint(float torque)
@@ -96,6 +100,7 @@ void control_update_torque_setpoint(float torque)
     chBSemWait(&setpoint_interpolation_lock);
     setpoint_update_torque(&setpoint_interpolation, torque);
     chBSemSignal(&setpoint_interpolation_lock);
+    last_setpoint_update = timestamp_get();
 }
 
 void control_update_trajectory_setpoint(float pos, float vel, float acc,
@@ -104,6 +109,7 @@ void control_update_trajectory_setpoint(float pos, float vel, float acc,
     chBSemWait(&setpoint_interpolation_lock);
     setpoint_update_trajectory(&setpoint_interpolation, pos, vel, acc, torque, ts);
     chBSemSignal(&setpoint_interpolation_lock);
+    last_setpoint_update = timestamp_get();
 }
 
 
@@ -255,6 +261,8 @@ void control_init(void)
     control_feedback.output.velocity = 0;
     control_feedback.primary_encoder.accumulator = 0;
     control_feedback.secondary_encoder.accumulator = 0;
+
+    last_setpoint_update = timestamp_get();
 }
 
 
@@ -326,28 +334,30 @@ static THD_FUNCTION(control_loop, arg)
 
         update_parameters();
 
-        if (!control_en || analog_get_battery_voltage() < low_batt_th) {
+        // sensor feedback
+        control_feedback.input.potentiometer = analog_get_auxiliary();
+        control_feedback.input.primary_encoder = encoder_get_primary();
+        control_feedback.input.secondary_encoder = encoder_get_secondary();
+        control_feedback.input.delta_t = delta_t;
+
+        feedback_compute(&control_feedback);
+
+        ctrl.periodic_actuator = control_feedback.output.actuator_is_periodic;
+        ctrl.position = control_feedback.output.position;
+        ctrl.velocity = ctrl.velocity * 0.9 + control_feedback.output.velocity * 0.1;
+        ctrl.current = analog_get_motor_current();
+        // ctrl.current_limit = motor_protection_update(&control_motor_protection, ctrl.current, delta_t);
+
+
+        timestamp_t now = timestamp_get();
+        if (!control_en
+            || analog_get_battery_voltage() < low_batt_th
+            || timestamp_duration_s(last_setpoint_update, now) > ctrl_timeout) {
             pid_reset_integral(&ctrl.current_pid);
             pid_reset_integral(&ctrl.velocity_pid);
             pid_reset_integral(&ctrl.position_pid);
-            motor_protection_update(&control_motor_protection, analog_get_motor_current(), delta_t);
+            set_motor_voltage(0);
         } else {
-
-            // sensor feedback
-            control_feedback.input.potentiometer = analog_get_auxiliary();
-            control_feedback.input.primary_encoder = encoder_get_primary();
-            control_feedback.input.secondary_encoder = encoder_get_secondary();
-            control_feedback.input.delta_t = delta_t;
-
-            feedback_compute(&control_feedback);
-
-            ctrl.periodic_actuator = control_feedback.output.actuator_is_periodic;
-            ctrl.position = control_feedback.output.position;
-            ctrl.velocity = ctrl.velocity * 0.9 + control_feedback.output.velocity * 0.1;
-            ctrl.current = analog_get_motor_current();
-
-            // ctrl.current_limit = motor_protection_update(&control_motor_protection, ctrl.current, delta_t);
-
             // setpoints
             chBSemWait(&setpoint_interpolation_lock);
             setpoint_compute(&setpoint_interpolation, &ctrl.setpts, delta_t);
