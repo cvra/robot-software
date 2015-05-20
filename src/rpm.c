@@ -22,8 +22,9 @@ static float get_period(void)
 
 float rpm_get_position(void)
 {
+    timestamp_t t = timestamp_get();
     RPM_LOCK();
-    float delta_t = timestamp_duration_s(last_crossing, timestamp_get());
+    float delta_t = timestamp_duration_s(last_crossing, t);
     float period = get_period();
     RPM_UNLOCK();
 
@@ -39,8 +40,9 @@ float rpm_get_position(void)
 
 float rpm_get_velocity(void)
 {
+    timestamp_t t = timestamp_get();
     RPM_LOCK();
-    float delta_t = timestamp_duration_s(last_crossing, timestamp_get());
+    float delta_t = timestamp_duration_s(last_crossing, t);
     float period = get_period();
     RPM_UNLOCK();
 
@@ -55,8 +57,9 @@ float rpm_get_velocity(void)
 
 void rpm_get_velocity_and_position(float *velocity, float *position)
 {
+    timestamp_t t = timestamp_get();
     RPM_LOCK();
-    float delta_t = timestamp_duration_s(last_crossing, timestamp_get());
+    float delta_t = timestamp_duration_s(last_crossing, t);
     float period = get_period();
     RPM_UNLOCK();
 
