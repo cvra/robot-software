@@ -47,7 +47,10 @@ def reboot():
     """
     Reboots all motor boards connected to the bus.
     """
-    local("python3 reboot_uavcan_nodes.py {}".format(MASTER_BOARD[env.host]))
+    command = "python3 reboot_uavcan_nodes.py "
+    command += MASTER_BOARD[env.host] + " "
+    command += " ".join(map(str, MOTOR_BOARDS[env.host]))
+    local(command)
 
 def run():
     """
