@@ -134,7 +134,7 @@ static THD_FUNCTION(uavcan_node, arg)
         [&](const uavcan::ReceivedDataStructure<cvra::motor::EmergencyStop>& msg)
         {
             (void)msg;
-            chSysHalt("Emergency Stop");
+            reboot(BOOT_ARG_START_BOOTLOADER_NO_TIMEOUT);
         }
     );
     if (ret != 0) {
