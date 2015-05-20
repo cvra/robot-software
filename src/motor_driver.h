@@ -45,6 +45,7 @@ typedef struct {
     memory_pool_t *traj_buffer_points_pool;
     int traj_buffer_nb_points;
 
+    float update_period;
     int control_mode;
     union {
         float position;

@@ -16,6 +16,7 @@
 #include "motor_driver.h"
 #include "motor_driver_uavcan.h"
 #include "uavcan_node_private.hpp"
+#include "timestamp/timestamp.h"
 
 using namespace uavcan_node;
 
@@ -32,6 +33,7 @@ struct can_driver_s {
     uavcan::Publisher<cvra::motor::control::Voltage> voltage_pub;
     uavcan::Publisher<cvra::motor::control::Trajectory> trajectory_pub;
     bool enabled; // state of the motor board
+    timestamp_t last_setpoint_update;
     can_driver_s():
         speed_pid_client(getNode()),
         position_pid_client(getNode()),
@@ -46,6 +48,7 @@ struct can_driver_s {
         trajectory_pub(getNode())
     {
         enabled = false;
+        last_setpoint_update = timestamp_get();
     }
 };
 
@@ -267,6 +270,11 @@ void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
     driver_allocation(d);
     can_driver_s *can_drv = (can_driver_s*)d->can_driver;
 
+    timestamp_t now = timestamp_get();
+    if (timestamp_duration_s(can_drv->last_setpoint_update, now) < d->update_period) {
+        return;
+    }
+
     motor_driver_lock(d);
     switch(d->control_mode) {
         case MOTOR_CONTROL_MODE_VELOCITY: {
@@ -318,5 +326,6 @@ void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
             /* TODO */
             break;
     }
+    can_drv->last_setpoint_update = timestamp_get();
     motor_driver_unlock(d);
 }

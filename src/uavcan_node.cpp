@@ -38,6 +38,8 @@
 #include <uavcan/protocol/global_time_sync_master.hpp>
 
 
+#define UAVCAN_SPIN_FREQ    500 // [Hz]
+
 #define UAVCAN_NODE_STACK_SIZE 8192
 
 
@@ -359,7 +361,7 @@ msg_t main(void *arg)
 
     while (true)
     {
-        res = node.spin(uavcan::MonotonicDuration::fromMSec(100));
+        res = node.spin(uavcan::MonotonicDuration::fromMSec(1000/UAVCAN_SPIN_FREQ));
         if (res < 0) {
             // log warning
         }
