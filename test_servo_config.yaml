@@ -4,32 +4,33 @@ master:
         radius_left: 0.016
         radius_right: 0.016
 actuator:
-    left-hand-2:
+    left-hand-3:
         stream:
-            current_pid: 50
-            velocity_pid: 50
-            position_pid: 50
+            current_pid: 0
+            velocity_pid: 100
+            position_pid: 100
         motor:
             mode: 5
             potentiometer_gain: 3.5             
             torque_constant: 1.
         control:
             current:
-                kp: 3. 
-                ki: 100.
+                kp: 2. 
+                ki: 200.
                 kd: 0.
-                ilimit: 10.
+                ilimit: 50.
             velocity:
-                kp: 2.
+                kp: 0.5
                 ki: 20.
                 kd: 0.
-                ilimit: 100.
+                ilimit: 50.
             position:
-                kp: 0.3
-                ki: 1
-                kd: 0.
+                kp: 10.
+                ki: 0
+                kd: 0.1
+                ilimit: 100
 
             low_batt_th: 5.
             acceleration_limit: 10.
             velocity_limit: 10.
-            torque_limit: 0.5
+            torque_limit: 0.7
