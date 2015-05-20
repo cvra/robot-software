@@ -1,6 +1,7 @@
 #include <math.h>
 #include "filter/basic.h"
 #include "setpoint.h"
+#include "pid_cascade.h"
 
 #define SETPT_MODE_POS      0
 #define SETPT_MODE_VEL      1
@@ -19,10 +20,13 @@ static float vel_setpt_interpolation(float vel, float acc, float delta_t)
 }
 
 // returns acceleration to be applied for the next delta_t
-static float vel_ramp(float pos, float vel, float target_pos, float delta_t, float max_vel, float max_acc)
+static float vel_ramp(float pos, float vel, float target_pos, float delta_t, float max_vel, float max_acc, bool periodic)
 {
     float breaking_dist = vel * vel / 2 / max_acc;  // distance needed to break with max_acc
     float error = pos - target_pos;
+    if (periodic) {
+        error = periodic_error(error);
+    }
     float error_sign = copysignf(1.0, error);
 
     if (error_sign != copysignf(1.0, vel)) {        // decreasing error with current vel
@@ -70,7 +74,8 @@ void setpoint_set_velocity_limit(setpoint_interpolator_t *ip, float vel_limit)
 void setpoint_update_position(setpoint_interpolator_t *ip,
                               float pos,
                               float current_pos,
-                              float current_vel)
+                              float current_vel,
+                              bool periodic)
 {
     if (ip->setpt_mode == SETPT_MODE_TORQUE) {
         ip->setpt_pos = current_pos;
@@ -81,6 +86,7 @@ void setpoint_update_position(setpoint_interpolator_t *ip,
     }
     ip->setpt_mode = SETPT_MODE_POS;
     ip->target_pos = pos;
+    ip->periodic_actuator = periodic;
 }
 
 void setpoint_update_velocity(setpoint_interpolator_t *ip,
@@ -156,7 +162,8 @@ void setpoint_compute(setpoint_interpolator_t *ip,
                              ip->target_pos,
                              delta_t,
                              ip->vel_limit,
-                             ip->acc_limit);
+                             ip->acc_limit,
+                             ip->periodic_actuator);
 
         float pos = pos_setpt_interpolation(ip->setpt_pos,
                                             ip->setpt_vel,

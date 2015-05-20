@@ -20,6 +20,7 @@ typedef struct {
     timestamp_t setpt_ts; // timestamp of the last setpoint update (traj. mode)
     float acc_limit;    // acceleration limit
     float vel_limit;    // velocity limit
+    bool periodic_actuator;
 } setpoint_interpolator_t;
 
 
@@ -42,7 +43,8 @@ void setpoint_set_velocity_limit(setpoint_interpolator_t *ip, float vel_limit);
 void setpoint_update_position(setpoint_interpolator_t *ip,
                               float pos,
                               float current_pos,
-                              float current_vel);
+                              float current_vel,
+                              bool periodic);
 
 void setpoint_update_velocity(setpoint_interpolator_t *ip,
                               float vel,

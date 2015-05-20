@@ -81,7 +81,7 @@ void control_update_position_setpoint(float pos)
     float current_pos = ctrl.position;
     float current_vel = ctrl.velocity;
     chBSemWait(&setpoint_interpolation_lock);
-    setpoint_update_position(&setpoint_interpolation, pos, current_pos, current_vel);
+    setpoint_update_position(&setpoint_interpolation, pos, current_pos, current_vel, ctrl.periodic_actuator);
     chBSemSignal(&setpoint_interpolation_lock);
     last_setpoint_update = timestamp_get();
 }

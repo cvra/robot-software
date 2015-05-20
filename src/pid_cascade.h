@@ -42,6 +42,9 @@ struct pid_cascade_s {
 };
 
 
+// todo this should not be here
+float periodic_error(float err);
+
 void pid_cascade_control(struct pid_cascade_s *ctrl);
 
 
