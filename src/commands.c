@@ -11,6 +11,7 @@
 #include "commands.h"
 #include "panic_log.h"
 #include "unix_timestamp.h"
+#include "timestamp/timestamp.h"
 #include "bus_enumerator.h"
 #include "uavcan_node.h"
 
@@ -120,9 +121,10 @@ static void cmd_time(BaseSequentialStream *chp, int argc, char **argv)
     /* Get current time */
     int now = ST2US(chVTGetSystemTime());
     ts = timestamp_local_us_to_unix(now);
-    chprintf(chp, "Current scheduler tick: %12ld\r\n", now);
-    chprintf(chp, "Current UNIX timestamp: %12ld\r\n", ts.s);
-    chprintf(chp, "current time (ms):      %12ld\r\n", ST2MS(chVTGetSystemTime()));
+    chprintf(chp, "Current scheduler tick:      %12ld\r\n", now);
+    chprintf(chp, "Current UNIX timestamp:      %12ld\r\n", ts.s);
+    chprintf(chp, "current ChibiOS time (ms):   %12ld\r\n", ST2MS(chVTGetSystemTime()));
+    chprintf(chp, "current timestamp time (us): %12ld\r\n", timestamp_get());
 
     /* Get time since start of day */
     ts.s = ts.s % (24 * 60 * 60);
