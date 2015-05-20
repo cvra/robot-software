@@ -49,6 +49,15 @@ def reboot():
     """
     local("python3 reboot_uavcan_nodes.py {}".format(MASTER_BOARD[env.host]))
 
+def run():
+    """
+    Reads the config of all connected boards.
+    """
+    command = "python3 can-bootloader/client/bootloader_run_application.py"
+    command += " --tcp {}".format(MASTER_BOARD[env.host])
+    command += " --all"
+    local(command)
+
 def read_config():
     """
     Reads the config of all connected boards.
