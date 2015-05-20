@@ -1,0 +1,35 @@
+master:
+    odometry:
+        wheelbase: 0.194
+        radius_left: 0.016
+        radius_right: 0.016
+actuator:
+    left-hand-2:
+        stream:
+            current_pid: 50
+            velocity_pid: 50
+            position_pid: 50
+        motor:
+            mode: 5
+            potentiometer_gain: 3.5             
+            torque_constant: 1.
+        control:
+            current:
+                kp: 3. 
+                ki: 100.
+                kd: 0.
+                ilimit: 10.
+            velocity:
+                kp: 2.
+                ki: 20.
+                kd: 0.
+                ilimit: 100.
+            position:
+                kp: 0.3
+                ki: 1
+                kd: 0.
+
+            low_batt_th: 5.
+            acceleration_limit: 10.
+            velocity_limit: 10.
+            torque_limit: 0.5
