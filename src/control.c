@@ -346,6 +346,7 @@ static THD_FUNCTION(control_loop, arg)
         ctrl.position = control_feedback.output.position;
         ctrl.velocity = ctrl.velocity * 0.9 + control_feedback.output.velocity * 0.1;
         ctrl.current = analog_get_motor_current();
+        ctrl.torque = ctrl.current / ctrl.motor_current_constant;
         // ctrl.current_limit = motor_protection_update(&control_motor_protection, ctrl.current, delta_t);
 
 
