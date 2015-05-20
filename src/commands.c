@@ -14,6 +14,7 @@
 #include "timestamp/timestamp.h"
 #include "bus_enumerator.h"
 #include "uavcan_node.h"
+#include "node_tracker.h"
 
 /** Stack size for the unit test thread. */
 #define TEST_WA_SIZE    THD_WORKING_AREA_SIZE(256)
@@ -255,6 +256,34 @@ static void cmd_uavcan_node_reboot(BaseSequentialStream *chp, int argc, char **a
     uavcan_node_send_reboot(id);
 }
 
+static void cmd_node_tracker(BaseSequentialStream *chp, int argc, char **argv)
+{
+    (void)argc;
+    (void)argv;
+    uint64_t d, hi;
+    node_tracker_get_and_clear(&d, &hi);
+    chprintf(chp, "UAVCAN: tracking active nodes...\n");
+    chThdSleepMilliseconds(2000);
+    node_tracker_get_and_clear(&d, &hi);
+    chprintf(chp, "present nodes: ");
+    int id;
+    for (id = 0; id < 128; id++) {
+        if (d & 1) {
+            chprintf(chp, "%u ", id);
+        }
+        d >>= 1;
+        if (d == 0) {
+            if (id < 64) {
+                id = 63;
+                d = hi;
+            } else {
+                break;
+            }
+        }
+    }
+    chprintf(chp, "\r\n");
+}
+
 const ShellCommand commands[] = {
     {"mem", cmd_mem},
     {"ip", cmd_ip},
@@ -267,5 +296,6 @@ const ShellCommand commands[] = {
     {"rpc_client_demo", cmd_rpc_client_test},
     {"node", cmd_node},
     {"node_reboot", cmd_uavcan_node_reboot},
+    {"node_tracker", cmd_node_tracker},
     {NULL, NULL}
 };
