@@ -23,6 +23,7 @@
 #include <cvra/motor/config/EnableMotor.hpp>
 #include <cvra/motor/config/FeedbackStream.hpp>
 #include <cvra/StringID.hpp>
+#include <cvra/motor/EmergencyStop.hpp>
 #include <cvra/motor/feedback/CurrentPID.hpp>
 #include <cvra/motor/feedback/VelocityPID.hpp>
 #include <cvra/motor/feedback/PositionPID.hpp>
@@ -126,6 +127,18 @@ static THD_FUNCTION(uavcan_node, arg)
     );
     if (ret != 0) {
         uavcan_failure("cvra::Reboot subscriber");
+    }
+
+    uavcan::Subscriber<cvra::motor::EmergencyStop> emergency_stop_sub(node);
+    ret = emergency_stop_sub.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::motor::EmergencyStop>& msg)
+        {
+            (void)msg;
+            chSysHalt("Emergency Stop");
+        }
+    );
+    if (ret != 0) {
+        uavcan_failure("cvra::motor::EmergencyStop subscriber");
     }
 
     uavcan::Subscriber<cvra::motor::control::Trajectory> traj_ctrl_sub(node);
