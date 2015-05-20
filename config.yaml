@@ -1,7 +1,7 @@
 master:
     odometry:
         wheelbase: 0.194
-        radius_left: 0.016
+        radius_left: -0.016
         radius_right: 0.016
 actuator:
     left-wheel:
