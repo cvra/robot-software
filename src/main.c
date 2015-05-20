@@ -96,6 +96,7 @@ static THD_FUNCTION(parameter_listener, arg)
 void panic_hook(const char* reason)
 {
     palClearPad(GPIOA, GPIOA_LED);      // turn on LED (active low)
+    motor_pwm_disable();
     static BlockingUARTDriver blocking_uart_stream;
     blocking_uart_init(&blocking_uart_stream, USART3, 115200);
     BaseSequentialStream* uart = (BaseSequentialStream*)&blocking_uart_stream;
