@@ -94,6 +94,9 @@ void rpc_server_thread(void *p)
             do {
                 netbuf_data(buf, (void **)&data, &len);
                 err = serial_datagram_receive(&handler, data, len);
+                if (err != SERIAL_DATAGRAM_RCV_NO_ERROR) {
+                    chSysHalt("rpc buffer too small");
+                }
             } while (netbuf_next(buf) >= 0);
             netbuf_delete(buf);
         }
@@ -164,7 +167,10 @@ size_t rpc_transmit(uint8_t *input_buffer, size_t input_buffer_size,
             netbuf_data(buf, (void **)&data, &len);
 
             /* Append data to buffer. */
-            ctx.write(&ctx, data, len);
+            int wlen = ctx.write(&ctx, data, len);
+            if (wlen != len) {
+                chSysHalt("rpc too long");
+            }
 
         } while (netbuf_next(buf) >= 0);
         netbuf_delete(buf);
@@ -198,7 +204,9 @@ void message_server_thread(void *arg)
         err = netconn_recv(conn, &buf);
 
         if (err == ERR_OK) {
-            netbuf_copy(buf, buffer, buf->p->tot_len);
+            if (netbuf_copy(buf, buffer, buf->p->tot_len) == 0) {
+                chSysHalt("udp message buffer too small");
+            }
             message_process(buffer, buf->p->tot_len, message_callbacks, message_callbacks_len);
         }
         netbuf_delete(buf);
