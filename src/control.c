@@ -112,6 +112,14 @@ void control_update_trajectory_setpoint(float pos, float vel, float acc,
     last_setpoint_update = timestamp_get();
 }
 
+void control_update_voltage_setpoint(float voltage)
+{
+    chBSemWait(&setpoint_interpolation_lock);
+    setpoint_update_voltage(&setpoint_interpolation, voltage);
+    chBSemSignal(&setpoint_interpolation_lock);
+    last_setpoint_update = timestamp_get();
+}
+
 
 float control_get_motor_voltage(void)
 {
@@ -367,7 +375,11 @@ static THD_FUNCTION(control_loop, arg)
             // run control step
             pid_cascade_control(&ctrl);
 
-            set_motor_voltage(ctrl.motor_voltage);
+            if (setpoint_interpolation.setpt_mode == SETPT_MODE_VOLT) {
+                set_motor_voltage(setpoint_interpolation.setpt_voltage);
+            } else {
+                set_motor_voltage(ctrl.motor_voltage);
+            }
         }
 
         chEvtWaitAny(CONTROL_WAKEUP_EVENT);

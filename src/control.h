@@ -25,6 +25,7 @@ void control_update_velocity_setpoint(float vel);
 void control_update_torque_setpoint(float torque);
 void control_update_trajectory_setpoint(float pos, float vel, float acc,
                                         float torque, timestamp_t ts);
+void control_update_voltage_setpoint(float voltage);
 
 float control_get_motor_voltage(void);
 float control_get_vel_ctrl_out(void);

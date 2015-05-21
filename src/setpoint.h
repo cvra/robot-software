@@ -9,10 +9,18 @@ extern "C" {
 #endif
 
 
+#define SETPT_MODE_POS      0
+#define SETPT_MODE_VEL      1
+#define SETPT_MODE_TORQUE   2
+#define SETPT_MODE_TRAJ     3
+#define SETPT_MODE_VOLT     4
+
+
 typedef struct {
     int setpt_mode;
     float target_pos;   // valid only in position control mode
     float target_vel;   // valid only in velocity control mode
+    float setpt_voltage;// valid only in voltage control mode
     float setpt_torque; // torque control setpoint / feedforward torque
     float setpt_pos;    // actual position setpoint
     float setpt_vel;    // actual velocity setpoint
@@ -58,6 +66,8 @@ void setpoint_update_trajectory(setpoint_interpolator_t *ip,
                                 float acc,
                                 float torque,
                                 timestamp_t ts);
+
+void setpoint_update_voltage(setpoint_interpolator_t *ip, float voltage);
 
 void setpoint_compute(setpoint_interpolator_t *ip,
                       struct setpoint_s *setpts,

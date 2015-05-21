@@ -3,11 +3,6 @@
 #include "setpoint.h"
 #include "pid_cascade.h"
 
-#define SETPT_MODE_POS      0
-#define SETPT_MODE_VEL      1
-#define SETPT_MODE_TORQUE   2
-#define SETPT_MODE_TRAJ     3
-
 
 static float pos_setpt_interpolation(float pos, float vel, float acc, float delta_t)
 {
@@ -121,6 +116,12 @@ void setpoint_update_trajectory(setpoint_interpolator_t *ip,
     ip->setpt_ts = ts;
 }
 
+void setpoint_update_voltage(setpoint_interpolator_t *ip, float voltage)
+{
+    ip->setpt_mode = SETPT_MODE_VOLT;
+    ip->setpt_voltage = voltage;
+}
+
 
 void setpoint_compute(setpoint_interpolator_t *ip,
                       struct setpoint_s *setpts,
@@ -154,7 +155,7 @@ void setpoint_compute(setpoint_interpolator_t *ip,
         setpts->velocity_setpt = ip->setpt_vel;
         setpts->feedforward_torque = 0;
 
-    } else { // setpt_mode == SETPT_MODE_POS
+    } else if (ip->setpt_mode == SETPT_MODE_POS) {
         setpts->position_control_enabled = true;
         setpts->velocity_control_enabled = true;
         float acc = vel_ramp(ip->setpt_pos,
@@ -174,5 +175,7 @@ void setpoint_compute(setpoint_interpolator_t *ip,
         setpts->position_setpt = ip->setpt_pos = pos;
         setpts->velocity_setpt = ip->setpt_vel = vel;
         setpts->feedforward_torque = 0;
+    } else {
+        // setpt mode voltage
     }
 }

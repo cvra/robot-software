@@ -194,8 +194,7 @@ static THD_FUNCTION(uavcan_node, arg)
     ret = voltage_ctrl_sub.start(
         [&](const uavcan::ReceivedDataStructure<cvra::motor::control::Voltage>& msg)
         {
-            (void)msg;
-            chSysHalt("voltage control not implemented yet");
+            control_update_voltage_setpoint(msg.voltage);
         }
     );
     if (ret != 0) {
