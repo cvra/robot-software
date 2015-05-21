@@ -15,6 +15,7 @@
 
 #define STREAM_STACKSIZE 1024
 
+__attribute__((section(".ccm")))
 THD_WORKING_AREA(wa_stream, STREAM_STACKSIZE);
 
 static msg_t stream_thread(void *p)
