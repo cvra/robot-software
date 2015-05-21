@@ -2,15 +2,20 @@ master:
     odometry:
         wheelbase: 0.194
         radius_left: 0.016
-        radius_right: 0.016
+        radius_right: -0.016
+
+    tracy:
+        damping: 0.7
+        g: 60.
+
 actuator:
     left-wheel:
         stream:
+            # Encoder position is needed for odometry
+            encoder_pos: 100
             position_pid: 100
-            velocity_pid: 100
-            current_pid: 100
         motor:
-            mode: 3
+            mode: 2
             motor_encoder_steps_per_revolution: 4096
             second_encoder_steps_per_revolution: 16384
             transmission_ratio_p: 49
@@ -35,14 +40,17 @@ actuator:
 
             low_batt_th: 5.
             acceleration_limit: 100.
-            velocity_limit: 10.
+            velocity_limit: 50.
             torque_limit: 14.
 
     right-wheel:
        stream:
-           velocity_pid: 100
+           # Encoder position is needed for odometry
+           encoder_pos: 100
+           position_pid: 100
+
        motor:
-           mode: 3
+           mode: 2
            motor_encoder_steps_per_revolution: 4096
            second_encoder_steps_per_revolution: 16384
            transmission_ratio_p: 49
@@ -66,5 +74,5 @@ actuator:
 
             low_batt_th: 5.
             acceleration_limit: 100.
-            velocity_limit: 10.
+            velocity_limit: 50.
             torque_limit: 14.

@@ -55,6 +55,8 @@ def serial():
     """
     sudo('python -m serial.tools.miniterm /dev/ttyACM*')
 
+def reset():
+    sudo('openocd -f ~cvra/deploy_master/oocd.cfg -c "init" -c "reset" -c "shutdown"')
 
 def _flash():
     sudo('openocd -f ~cvra/deploy_master/oocd.cfg -c "program /home/cvra/deploy_master/ch.elf verify reset" -c "shutdown"')

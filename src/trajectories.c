@@ -1,5 +1,9 @@
+#include <ch.h>
 #include <string.h>
 #include "trajectories.h"
+#include "usbconf.h"
+#include <chprintf.h>
+#include <hal.h>
 
 void trajectory_init(trajectory_t *traj,
                      float *buffer, int len, int dimension,
@@ -79,6 +83,7 @@ float* trajectory_read(trajectory_t *traj, int64_t time)
     int64_t read_time = traj->read_time_us;
     int offset = (time - read_time + 0.5 * traj->sampling_time_us) / traj->sampling_time_us;
 
+    traj->read_time_us = time;
     if (time > traj->last_defined_time_us) {
         return NULL;
     }
@@ -87,7 +92,8 @@ float* trajectory_read(trajectory_t *traj, int64_t time)
         return NULL;
     }
 
-    traj->read_time_us += offset * traj->sampling_time_us;
+    //traj->read_time_us += offset * traj->sampling_time_us;
+    //
 
     traj->read_pointer += offset;
     traj->read_pointer = traj->read_pointer % traj->length;
