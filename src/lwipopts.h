@@ -49,8 +49,8 @@
 
 /** Use newlib malloc() instead of memory pools. */
 #include <stdlib.h>
-#define MEM_LIBC_MALLOC 0
-#define MEMP_MEM_MALLOC 0
+#define MEM_LIBC_MALLOC 1
+#define MEMP_MEM_MALLOC 1
 
 #define LWIP_ALLOW_MEM_FREE_FROM_OTHER_CONTEXT 1
 

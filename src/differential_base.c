@@ -27,7 +27,7 @@ void differential_base_init(void)
     chMtxObjectInit(&diff_base_trajectory_lock);
 }
 
-__attribute__((section(".ccm")))
+
 THD_WORKING_AREA(differential_base_tracking_thread_wa, DIFFERENTIAL_BASE_TRACKING_THREAD_STACK_SZ);
 msg_t differential_base_tracking_thread(void *p)
 {

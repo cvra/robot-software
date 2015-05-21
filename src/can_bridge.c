@@ -5,7 +5,6 @@
 #include <serial-can-bridge/serial_can_bridge.h>
 
 #define CAN_BRIDGE_STACKSIZE 2048
-__attribute__((section(".ccm")))
 THD_WORKING_AREA(wa_can_bridge, CAN_BRIDGE_STACKSIZE);
 
 #define CAN_BRIDGE_RX_STACKSIZE 1024
@@ -18,19 +17,11 @@ memory_pool_t can_bridge_rx_pool;
 memory_pool_t can_bridge_tx_pool;
 mailbox_t can_bridge_rx_queue;
 mailbox_t can_bridge_tx_queue;
-
 SEMAPHORE_DECL(can_bridge_is_initialized, 0);
 
-__attribute__((section(".ccm")))
 msg_t rx_mbox_buf[CAN_BRIDGE_RX_QUEUE_SIZE];
-
-__attribute__((section(".ccm")))
 struct can_frame rx_pool_buf[CAN_BRIDGE_RX_QUEUE_SIZE];
-
-__attribute__((section(".ccm")))
 msg_t tx_mbox_buf[CAN_BRIDGE_TX_QUEUE_SIZE];
-
-__attribute__((section(".ccm")))
 struct can_frame tx_pool_buf[CAN_BRIDGE_TX_QUEUE_SIZE];
 
 /** Thread running the CAN bridge. */
