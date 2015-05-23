@@ -54,6 +54,7 @@ err_t sys_mbox_new(sys_mbox_t *mbox, int size)
 {
     LWIP_ASSERT("Mailbox too big", size <= SYS_ARCH_Q_SIZE);
     chMBObjectInit(&mbox->mb, mbox->buf, size);
+    mbox->is_valid = true;
     return ERR_OK;
 }
 
