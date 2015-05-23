@@ -5,6 +5,9 @@
 #include <lwip/sys.h>
 #include <stdbool.h>
 
+/* Number of items stored in a message queue. */
+#define SYS_ARCH_Q_SIZE 10
+
 typedef struct {
     semaphore_t sem;
     bool is_valid;
@@ -13,6 +16,9 @@ typedef struct {
 #define SYS_SEM_NULL NULL
 
 typedef struct {
+    mailbox_t mb;
+    msg_t buf[SYS_ARCH_Q_SIZE];
+    bool is_valid;
 } sys_mbox_t;
 
 #define SYS_MBOX_NULL NULL

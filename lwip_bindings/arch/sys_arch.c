@@ -52,51 +52,76 @@ void sys_sem_free (sys_sem_t *sem)
 
 err_t sys_mbox_new(sys_mbox_t *mbox, int size)
 {
-    (void) mbox;
-    (void) size;
+    LWIP_ASSERT("Mailbox too big", size <= SYS_ARCH_Q_SIZE);
+    chMBObjectInit(&mbox->mb, mbox->buf, size);
     return ERR_OK;
 }
 
 void sys_mbox_post(sys_mbox_t *mbox, void *msg)
 {
-    (void) msg;
-    (void) mbox;
+    LWIP_ASSERT("Message box is invalid", mbox->is_valid);
+    chMBPost(&mbox->mb, (msg_t)msg, TIME_INFINITE);
 }
 
 err_t sys_mbox_trypost(sys_mbox_t *mbox, void *msg)
 {
-    (void) mbox;
-    (void) msg;
+    msg_t ret;
+    LWIP_ASSERT("Message box is invalid", mbox->is_valid);
+    ret = chMBPost(&mbox->mb, (msg_t)msg, TIME_IMMEDIATE);
+
+    if (ret == MSG_TIMEOUT) {
+        /* No space left in queue. */
+        return ERR_MEM;
+    }
     return ERR_OK;
 }
 
 u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeout)
 {
-    (void) msg;
-    (void) mbox;
-    (void) timeout;
-    return SYS_ARCH_TIMEOUT;
-}
+    systime_t timeout_chibios;
+    msg_t ret;
+    LWIP_ASSERT("Message box is invalid", mbox->is_valid);
 
-int sys_mbox_valid(sys_mbox_t *mbox)
-{
-    (void) mbox;
+    if (timeout <= 0) {
+        timeout_chibios = TIME_INFINITE;
+    } else {
+        timeout_chibios = timeout;
+    }
+
+    ret = chMBFetch(&mbox->mb, (msg_t *)msg, timeout_chibios);
+
+    if (ret == MSG_TIMEOUT) {
+        return SYS_ARCH_TIMEOUT;
+    }
+
+    /* TODO: Correctly compute waited time. */
     return 1;
-}
-
-void sys_mbox_set_invalid(sys_mbox_t *mbox)
-{
-    (void) mbox;
 }
 
 u32_t sys_arch_mbox_tryfetch(sys_mbox_t *mbox, void **msg)
 {
-    (void) mbox;
-    (void) msg;
-    return SYS_MBOX_EMPTY;
+    msg_t ret;
+    LWIP_ASSERT("Message box is invalid", mbox->is_valid);
+
+    ret = chMBFetch(&mbox->mb, (msg_t *)msg, TIME_IMMEDIATE);
+    if (ret == MSG_TIMEOUT) {
+        return SYS_MBOX_EMPTY;
+    }
+    return 0;
+}
+
+int sys_mbox_valid(sys_mbox_t *mbox)
+{
+    return mbox->is_valid;
+}
+
+void sys_mbox_set_invalid(sys_mbox_t *mbox)
+{
+    mbox->is_valid = false;
 }
 
 void sys_mbox_free(sys_mbox_t *mbox)
 {
+    /* Stack allocated, nothing special is needed to free it. */
     (void) mbox;
 }
