@@ -4,36 +4,49 @@
 
 err_t sys_sem_new(sys_sem_t *pSem, u8_t count)
 {
-    (void) pSem;
-    (void) count;
+    chSemObjectInit(&pSem->sem, count);
+    pSem->is_valid = true;
     return ERR_OK;
 }
 
 u32_t sys_arch_sem_wait(sys_sem_t *sem, u32_t timeout)
 {
-    (void) sem;
-    (void) timeout;
-    return 0;
+    systime_t timeout_chibios;
+    LWIP_ASSERT("semaphore is invalid", sem->is_valid);
+
+    if (timeout <= 0) {
+        timeout_chibios = TIME_INFINITE;
+    } else {
+        timeout_chibios = timeout;
+    }
+
+    if (chSemWaitTimeout(&sem->sem, timeout_chibios) == MSG_TIMEOUT) {
+        return SYS_ARCH_TIMEOUT;
+    }
+
+    /* TODO: Compute the correct wait time. */
+    return 1;
 }
 
 void sys_sem_signal(sys_sem_t *sem)
 {
-    (void) sem;
+    LWIP_ASSERT("semaphore is invalid", sem->is_valid);
+    chSemSignal(&sem->sem);
 }
 
 int sys_sem_valid(sys_sem_t *sem)
 {
-    (void) sem;
-    return 1;
+    return (int)sem->is_valid;
 }
 
 void sys_sem_set_invalid(sys_sem_t *sem)
 {
-    (void) sem;
+    sem->is_valid = false;
 }
 
 void sys_sem_free (sys_sem_t *sem)
 {
+    /* Semaphores are stack allocated, so no need to do anything to free them. */
     (void) sem;
 }
 

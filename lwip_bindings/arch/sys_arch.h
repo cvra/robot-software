@@ -3,8 +3,11 @@
 
 #include <ch.h>
 #include <lwip/sys.h>
+#include <stdbool.h>
 
 typedef struct {
+    semaphore_t sem;
+    bool is_valid;
 } sys_sem_t;
 
 #define SYS_SEM_NULL NULL
