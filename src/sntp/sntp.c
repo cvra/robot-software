@@ -398,7 +398,7 @@ sntp_try_next_server(void* arg)
 
 /** UDP recv callback for the sntp pcb */
 static void
-sntp_recv(void *arg, struct udp_pcb* pcb, struct pbuf *p, ip_addr_t *addr, u16_t port)
+sntp_recv(void *arg, struct udp_pcb* pcb, struct pbuf *p, const ip_addr_t *addr, u16_t port)
 {
   u8_t mode;
   u8_t stratum;
