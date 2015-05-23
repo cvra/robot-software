@@ -18,6 +18,8 @@
 
 #define LWIP_DHCP 1
 
+#define LWIP_SOCKET 0
+
 #define DEFAULT_THREAD_STACK_SIZE       4096
 #define DEFAULT_RAW_RECVMBOX_SIZE       4
 #define DEFAULT_UDP_RECVMBOX_SIZE       4
@@ -52,13 +54,7 @@
 #define MEM_LIBC_MALLOC 1
 #define MEMP_MEM_MALLOC 1
 
-#define LWIP_ALLOW_MEM_FREE_FROM_OTHER_CONTEXT 1
 
-#define MEMP_OVERFLOW_CHECK  1
-#define SYS_LIGHTWEIGHT_PROT 1
-#define MEMP_NUM_UDP_PCB 4
-
-#define MEMP_NUM_TCPIP_MSG_API  80
 
 /* Robot settings. */
 #if 0

@@ -4,7 +4,6 @@
 
 #include <hal.h>
 #include <chprintf.h>
-#include <lwipthread.h>
 #include <lwip/netif.h>
 #include <lwip/dhcp.h>
 
@@ -158,8 +157,8 @@ int main(void) {
     } else {
         struct netif *ethernet_if;
         /* Creates the LWIP threads (it changes priority internally).  */
-        chThdCreateStatic(wa_lwip_thread, LWIP_THREAD_STACK_SIZE, NORMALPRIO + 2,
-            lwip_thread, NULL);
+//        chThdCreateStatic(wa_lwip_thread, LWIP_THREAD_STACK_SIZE, NORMALPRIO + 2,
+//            lwip_thread, NULL);
 
         differential_base_tracking_start(); // tracy
 
