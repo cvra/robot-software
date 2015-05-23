@@ -17,7 +17,7 @@ u32_t sys_arch_sem_wait(sys_sem_t *sem, u32_t timeout)
     if (timeout <= 0) {
         timeout_chibios = TIME_INFINITE;
     } else {
-        timeout_chibios = timeout;
+        timeout_chibios = MS2ST(timeout);
     }
 
     if (chSemWaitTimeout(&sem->sem, timeout_chibios) == MSG_TIMEOUT) {
@@ -85,7 +85,7 @@ u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeout)
     if (timeout <= 0) {
         timeout_chibios = TIME_INFINITE;
     } else {
-        timeout_chibios = timeout;
+        timeout_chibios = MS2ST(timeout);
     }
 
     ret = chMBFetch(&mbox->mb, (msg_t *)msg, timeout_chibios);
