@@ -26,8 +26,7 @@ typedef struct {
 typedef struct {
 } sys_mutex_t;
 
-typedef struct {
-} sys_thread_t;
+typedef thread_t *sys_thread_t;
 
 /* Macros needed for atomicity. */
 #define SYS_ARCH_DECL_PROTECT(x)

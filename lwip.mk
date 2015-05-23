@@ -16,9 +16,12 @@ LWAPISRC = \
         ${LWIP}/src/api/sockets.c \
         ${LWIP}/src/api/tcpip.c
 
-LWSRC = $(LWNETIFSRC) $(LWCORESRC) $(LWAPISRC) lwip_bindings/arch/sys_arch.c
+LWIP_BINDINGS_SRC = lwip_bindings/arch/sys_arch.c lwip_bindings/lwipthread.c
+
+LWSRC = $(LWNETIFSRC) $(LWCORESRC) $(LWAPISRC) $(LWIP_BINDINGS_SRC)
 
 LWINC = \
         lwip_bindings \
         ${LWIP}/src/include \
         ${LWIP}/src/include/ipv4
+

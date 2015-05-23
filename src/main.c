@@ -25,6 +25,7 @@
 #include "motor_manager.h"
 #include "differential_base.h"
 #include "stream.h"
+#include <lwipthread.h>
 
 
 /* Command line related.                                                     */
@@ -156,11 +157,9 @@ int main(void) {
         palSetPad(GPIOF, GPIOF_LED_GREEN_2);
     } else {
         struct netif *ethernet_if;
-        /* Creates the LWIP threads (it changes priority internally).  */
-//        chThdCreateStatic(wa_lwip_thread, LWIP_THREAD_STACK_SIZE, NORMALPRIO + 2,
-//            lwip_thread, NULL);
 
         differential_base_tracking_start(); // tracy
+        ip_thread_init();
 
         chThdSleepMilliseconds(1000);
         ethernet_if = netif_find("ms0");

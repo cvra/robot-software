@@ -125,3 +125,16 @@ void sys_mbox_free(sys_mbox_t *mbox)
     /* Stack allocated, nothing special is needed to free it. */
     (void) mbox;
 }
+
+sys_thread_t sys_thread_new(const char *name, lwip_thread_fn thread,
+        void *arg, int stacksize, int prio)
+{
+    (void) name;
+    return chThdCreateFromHeap(NULL, stacksize, prio, (tfunc_t)thread, arg);
+}
+
+
+
+void sys_init(void)
+{
+}
