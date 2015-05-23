@@ -6,7 +6,7 @@
 #include <stdbool.h>
 
 /* Number of items stored in a message queue. */
-#define SYS_ARCH_Q_SIZE 10
+#define SYS_ARCH_Q_SIZE TCPIP_MBOX_SIZE
 
 typedef struct {
     semaphore_t sem;
