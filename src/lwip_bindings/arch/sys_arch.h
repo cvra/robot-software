@@ -23,8 +23,8 @@ typedef struct {
 
 #define SYS_MBOX_NULL NULL
 
-typedef struct {
-} sys_mutex_t;
+/* Use semaphores as mutexes */
+#define LWIP_COMPAT_MUTEX 1
 
 typedef thread_t *sys_thread_t;
 
