@@ -11,8 +11,10 @@ err_t sys_sem_new(sys_sem_t *pSem, u8_t count)
 
 u32_t sys_arch_sem_wait(sys_sem_t *sem, u32_t timeout)
 {
-    systime_t timeout_chibios;
+    systime_t timeout_chibios, time;
     LWIP_ASSERT("semaphore is invalid", sem->is_valid);
+
+    time = chVTGetSystemTimeX();
 
     if (timeout <= 0) {
         timeout_chibios = TIME_INFINITE;
@@ -24,8 +26,9 @@ u32_t sys_arch_sem_wait(sys_sem_t *sem, u32_t timeout)
         return SYS_ARCH_TIMEOUT;
     }
 
-    /* TODO: Compute the correct wait time. */
-    return 1;
+    time = chVTGetSystemTimeX() - time;
+
+    return ST2MS(time);
 }
 
 void sys_sem_signal(sys_sem_t *sem)
@@ -79,9 +82,11 @@ err_t sys_mbox_trypost(sys_mbox_t *mbox, void *msg)
 
 u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeout)
 {
-    systime_t timeout_chibios;
+    systime_t timeout_chibios, time;
     msg_t ret;
     LWIP_ASSERT("Message box is invalid", mbox->is_valid);
+
+    time = chVTGetSystemTimeX();
 
     if (timeout <= 0) {
         timeout_chibios = TIME_INFINITE;
@@ -95,8 +100,9 @@ u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeout)
         return SYS_ARCH_TIMEOUT;
     }
 
-    /* TODO: Correctly compute waited time. */
-    return 1;
+    time = chVTGetSystemTimeX() - time;
+
+    return ST2MS(time);
 }
 
 u32_t sys_arch_mbox_tryfetch(sys_mbox_t *mbox, void **msg)
