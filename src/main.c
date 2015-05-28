@@ -25,6 +25,7 @@
 #include "motor_manager.h"
 #include "differential_base.h"
 #include "stream.h"
+#include "malloc_lock.h"
 #include <lwipthread.h>
 
 
@@ -81,6 +82,8 @@ int main(void) {
     halInit();
     chSysInit();
 
+    /* Must be called after chSysInit(). */
+    malloc_lock_init();
 
     /* Initializes a serial-over-USB CDC driver.  */
     sduObjectInit(&SDU1);
