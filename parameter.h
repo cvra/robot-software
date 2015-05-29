@@ -165,6 +165,7 @@ void parameter_vector_declare_with_default(parameter_t *p,
                                            const char *id,
                                            float *buf,
                                            uint16_t dim);
+uint16_t parameter_vector_dim(parameter_t *p);
 void parameter_vector_get(parameter_t *p, float *out);
 void parameter_vector_read(parameter_t *p, float *out);
 void parameter_vector_set(parameter_t *p, const float *v);
@@ -184,6 +185,7 @@ void parameter_variable_vector_declare_with_default(parameter_t *p,
                                                     float *buf,
                                                     uint16_t buf_size,
                                                     uint16_t init_size);
+uint16_t parameter_variable_vector_max_dim(parameter_t *p);
 uint16_t parameter_variable_vector_get(parameter_t *p, float *out);
 uint16_t parameter_variable_vector_read(parameter_t *p, float *out);
 void parameter_variable_vector_set(parameter_t *p, const float *v, uint16_t dim);
@@ -204,7 +206,9 @@ void parameter_string_declare_with_default(parameter_t *p,
                                            char *buf,
                                            uint16_t buf_size,
                                            const char *default_str);
-// writes a NULL terminated string to out, returns the length of the string
+// returns the maximum length of the string including the '\0' terminator
+uint16_t parameter_string_max_len(parameter_t *p);
+// writes a '\0' terminated string to out, returns the length of the string
 uint16_t parameter_string_get(parameter_t *p, char *out, uint16_t out_size);
 uint16_t parameter_string_read(parameter_t *p, char *out, uint16_t out_size);
 void parameter_string_set(parameter_t *p, const char *str);

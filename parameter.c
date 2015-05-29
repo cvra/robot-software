@@ -348,6 +348,12 @@ void parameter_vector_declare_with_default(parameter_t *p,
     _parameter_changed_set(p);
 }
 
+uint16_t parameter_vector_dim(parameter_t *p)
+{
+    PARAMETER_ASSERT(p->type == _PARAM_TYPE_VECTOR);
+    return p->value.vect.dim;
+}
+
 void parameter_vector_get(parameter_t *p, float *out)
 {
     _parameter_changed_clear(p);
@@ -405,6 +411,12 @@ void parameter_variable_vector_declare_with_default(parameter_t *p,
     PARAMETER_ASSERT(init_size <= buf_size);
     p->value.vect.dim = init_size;
     _parameter_changed_set(p);
+}
+
+uint16_t parameter_variable_vector_max_dim(parameter_t *p)
+{
+    PARAMETER_ASSERT(p->type == _PARAM_TYPE_VAR_VECTOR);
+    return p->value.vect.buf_dim;
 }
 
 uint16_t parameter_variable_vector_get(parameter_t *p, float *out)
@@ -469,6 +481,12 @@ void parameter_string_declare_with_default(parameter_t *p,
     PARAMETER_ASSERT(p->value.str.len <= buf_size);
     strncpy(p->value.str.buf, default_str, buf_size);
     _parameter_changed_set(p);
+}
+
+uint16_t parameter_string_max_len(parameter_t *p)
+{
+    PARAMETER_ASSERT(p->type == _PARAM_TYPE_STRING);
+    return p->value.str.buf_len + 1; // +1 for '\0' terminator
 }
 
 uint16_t parameter_string_get(parameter_t *p, char *out, uint16_t out_size)
