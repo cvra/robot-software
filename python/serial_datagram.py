@@ -43,7 +43,7 @@ def decode(data):
     data = data.replace(ESC + ESC_ESC, ESC)
 
     expected_crc = struct.unpack('>I', data[-4:])[0]
-    actual_crc = crc32(data[:-4])
+    actual_crc = crc32(data[:-4]) & 0xffffffff
 
     if expected_crc != actual_crc:
         raise CRCMismatchError
