@@ -67,23 +67,19 @@ void panic_hook(const char *reason)
     //NVIC_SystemReset();
 }
 
+/** Late init hook, called before c++ static constructors. */
+void __late_init(void)
+{
+    /* C++ Static initializer requires working chibios. */
+    halInit();
+    chSysInit();
+    malloc_lock_init();
+}
 
 /** Application entry point.  */
 int main(void) {
     static thread_t *shelltp = NULL;
 
-    /*
-     * System initializations.
-     * - HAL initialization, this also initializes the configured device drivers
-     *   and performs the board-specific initializations.
-     * - Kernel initialization, the main() function becomes a thread and the
-     *   RTOS is active.
-     */
-    halInit();
-    chSysInit();
-
-    /* Must be called after chSysInit(). */
-    malloc_lock_init();
 
     /* Initializes a serial-over-USB CDC driver.  */
     sduObjectInit(&SDU1);
