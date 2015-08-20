@@ -109,6 +109,9 @@ msg_t can_bridge_thread(void *p)
                             CAN_BRIDGE_PRIO,
                             can_bridge_tx_thread,
                             (void *)instance);
+        if (tx == NULL || rx == NULL) {
+            chSysHalt("malloc() failed.");
+        }
         chThdWait(tx);
         chThdWait(rx);
     }
