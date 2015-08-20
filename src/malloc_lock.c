@@ -1,7 +1,7 @@
 #include <ch.h>
 #include <malloc.h>
 
-static bool lock_initialized;
+static bool lock_initialized = false;
 static mutex_t lock;
 
 #if !CH_CFG_USE_MUTEXES_RECURSIVE
