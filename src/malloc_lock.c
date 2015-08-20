@@ -19,6 +19,8 @@ void __malloc_lock (struct _reent *reent)
     (void) reent;
     if (lock_initialized) {
         chMtxLock(&lock);
+    } else {
+        chSysHalt("use of malloc before init");
     }
 }
 
