@@ -183,7 +183,7 @@ int main(void) {
     /* main thread, spawns a shell on USB connection. */
     while (1) {
         if (!shelltp && (SDU1.config->usbp->state == USB_ACTIVE)) {
-            shelltp = shellCreate(&shell_cfg1, SHELL_WA_SIZE, NORMALPRIO);
+            shelltp = shellCreate(&shell_cfg1, SHELL_WA_SIZE, USB_SHELL_PRIO);
         } else if (chThdTerminatedX(shelltp)) {
             chThdRelease(shelltp);    /* Recovers memory of the previous shell.   */
             shelltp = NULL;           /* Triggers spawning of a new shell.        */
