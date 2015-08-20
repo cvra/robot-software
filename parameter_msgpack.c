@@ -278,7 +278,7 @@ static int read_namespace(parameter_namespace_t *ns,
             err_cb(err_arg, NULL, "could not read id");
             return -1;
         }
-        char *id = PARAMETER_MSGPACK_MALLOC(id_size);
+        char *id = PARAMETER_MSGPACK_MALLOC(id_size + 1); // +1 for nul term.
         if (id == NULL) {
             err_cb(err_arg, NULL, "allocation failed");
             return -1;
@@ -289,6 +289,7 @@ static int read_namespace(parameter_namespace_t *ns,
             PARAMETER_MSGPACK_FREE(id);
             return -1;
         }
+        id[id_size] = '\0'; // nul termination for error printing
         cmp_object_t obj;
         if (!cmp_read_object(cmp, &obj)) {
             err_cb(err_arg, id, "could not read value");
