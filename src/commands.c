@@ -2,7 +2,6 @@
 #include <simplerpc/service_call.h>
 #include <lwip/netif.h>
 #include <hal.h>
-#include <test.h>
 #include <chprintf.h>
 #include <string.h>
 #include "rpc_server.h"
@@ -17,8 +16,6 @@
 #include "node_tracker.h"
 #include "robot_pose.h"
 
-/** Stack size for the unit test thread. */
-#define TEST_WA_SIZE    THD_WORKING_AREA_SIZE(256)
 
 
 static void cmd_mem(BaseSequentialStream *chp, int argc, char *argv[]) {
@@ -53,23 +50,6 @@ static void cmd_threads(BaseSequentialStream *chp, int argc, char *argv[]) {
                 states[tp->p_state], (uint32_t)tp->p_time, tp->p_name);
         tp = chRegNextThread(tp);
     } while (tp != NULL);
-}
-
-static void cmd_test(BaseSequentialStream *chp, int argc, char *argv[]) {
-    thread_t *tp;
-
-    (void)argv;
-    if (argc > 0) {
-        chprintf(chp, "Usage: test\r\n");
-        return;
-    }
-    tp = chThdCreateFromHeap(NULL, TEST_WA_SIZE, chThdGetPriorityX(),
-            TestThread, chp);
-    if (tp == NULL) {
-        chprintf(chp, "out of memory\r\n");
-        return;
-    }
-    chThdWait(tp);
 }
 
 static void cmd_ip(BaseSequentialStream *chp, int argc, char **argv) {
@@ -303,7 +283,6 @@ const ShellCommand commands[] = {
     {"ip", cmd_ip},
     {"config_tree", cmd_config_tree},
     {"threads", cmd_threads},
-    {"test", cmd_test},
     {"panic_log", cmd_panic_log},
     {"crashme", cmd_crashme},
     {"time", cmd_time},
