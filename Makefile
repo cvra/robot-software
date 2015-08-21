@@ -73,14 +73,29 @@ PROJECT = ch
 
 # Imported source files and paths
 CHIBIOS = ChibiOS
-include $(CHIBIOS)/os/hal/ports/STM32/STM32F4xx/platform.mk
+
+# Startup files.
+include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/startup_stm32f4xx.mk
+
+# HAL-OSAL files (optional).
 include $(CHIBIOS)/os/hal/hal.mk
-include $(CHIBIOS)/os/rt/ports/ARMCMx/compilers/GCC/mk/port_stm32f4xx.mk
-include $(CHIBIOS)/os/rt/rt.mk
+include $(CHIBIOS)/os/hal/ports/STM32/STM32F4xx/platform.mk
 include $(CHIBIOS)/os/hal/osal/rt/osal.mk
-include lwip.mk
+
+# RTOS files (optional).
+include $(CHIBIOS)/os/rt/rt.mk
+include $(CHIBIOS)/os/rt/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
+
+# Other files (optional).
 include $(CHIBIOS)/test/rt/test.mk
+
+# lwIP files
+include lwip.mk
+
+# ChibiOS C++ bindings
 include $(CHIBIOS)/os/various/cpp_wrappers/chcpp.mk
+
+
 
 LDSCRIPT= STM32F407xG.ld
 
@@ -108,6 +123,7 @@ CPPSRC += $(CHCPPSRC)
 ASMSRC = $(PORTASM)
 
 INCDIR += $(PORTINC) $(KERNINC) $(TESTINC) \
+		  $(STARTUPINC) \
           $(HALINC) $(PLATFORMINC) $(LWINC) \
           $(OSALINC) \
           $(CHCPPINC) \
