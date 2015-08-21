@@ -33,6 +33,8 @@ msg_t differential_base_tracking_thread(void *p)
 {
     (void) p;
 
+    chRegSetThreadName("differential_base_tracker");
+
     parameter_namespace_t *base_config = parameter_namespace_find(&global_config, "/master/differential_base");
     if (base_config == NULL) {
         chSysHalt("base parameter not found");

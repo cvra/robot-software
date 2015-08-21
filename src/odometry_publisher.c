@@ -23,6 +23,8 @@ static msg_t odometry_publisher_thread(void *p)
 
     (void) p;
 
+    chRegSetThreadName("odometry_publisher");
+
     ODOMETRY_PUBLISHER_HOST(&server);
 
     while (1) {

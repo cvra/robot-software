@@ -55,7 +55,7 @@ msg_t rpc_server_thread(void *p)
 
     serial_datagram_rcv_handler_t handler;
 
-    chRegSetThreadName("rpc_server");
+    chRegSetThreadName("rpc_service_call");
 
     /* Creates a TCP server */
     conn = netconn_new(NETCONN_TCP);
@@ -179,27 +179,29 @@ fail:
 
 msg_t message_server_thread(void *arg)
 {
-  struct netconn *conn;
-  struct netbuf *buf;
-  static uint8_t buffer[4096];
-  err_t err;
-  LWIP_UNUSED_ARG(arg);
+    struct netconn *conn;
+    struct netbuf *buf;
+    static uint8_t buffer[4096];
+    err_t err;
+    LWIP_UNUSED_ARG(arg);
 
-  conn = netconn_new(NETCONN_UDP);
-  if (conn == NULL) {
-      chSysHalt("Cannot create SimpleRPC message server connection (out of memory).");
-  }
-  netconn_bind(conn, NULL, MSG_SERVER_PORT);
+    chRegSetThreadName("rpc_message");
 
-  while (1) {
-    err = netconn_recv(conn, &buf);
-
-    if (err == ERR_OK) {
-        netbuf_copy(buf, buffer, buf->p->tot_len);
-        message_process(buffer, buf->p->tot_len, message_callbacks, message_callbacks_len);
+    conn = netconn_new(NETCONN_UDP);
+    if (conn == NULL) {
+        chSysHalt("Cannot create SimpleRPC message server connection (out of memory).");
     }
-    netbuf_delete(buf);
-  }
+    netconn_bind(conn, NULL, MSG_SERVER_PORT);
+
+    while (1) {
+        err = netconn_recv(conn, &buf);
+
+        if (err == ERR_OK) {
+            netbuf_copy(buf, buffer, buf->p->tot_len);
+            message_process(buffer, buf->p->tot_len, message_callbacks, message_callbacks_len);
+        }
+        netbuf_delete(buf);
+    }
 }
 
 void message_server_init(void)

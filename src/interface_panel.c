@@ -54,6 +54,7 @@ THD_WORKING_AREA(wa_interface_panel, INTERFACE_PANEL_STACKSIZE);
 msg_t interface_panel_thread(void *p)
 
 {
+    chRegSetThreadName("interface_panel");
     (void) p;
     int yellow_btn_cnt = BTN_CNT_RESET_VALUE;
     int green_btn_cnt = BTN_CNT_RESET_VALUE;
@@ -80,6 +81,7 @@ msg_t interface_panel_thread(void *p)
 THD_WORKING_AREA(wa_pc_error_thread, PC_ERROR_STACKSIZE);
 msg_t pc_error_led_thread(void *p)
 {
+    chRegSetThreadName("pc_error");
     (void) p;
     while (1) {
         /* First error condition: time not synced. */

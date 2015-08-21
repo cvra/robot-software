@@ -122,6 +122,8 @@ THD_WORKING_AREA(thread_wa, UAVCAN_NODE_STACK_SIZE);
 
 msg_t main(void *arg)
 {
+    chRegSetThreadName("uavcan");
+
     // bridge has to be initialized first
     chSemWait(&can_bridge_is_initialized);
 
