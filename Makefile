@@ -106,6 +106,7 @@ CSRC = $(PORTSRC) \
        $(TESTSRC) \
        $(HALSRC) \
        $(PLATFORMSRC) \
+	   $(STARTUPSRC) \
        $(LWSRC) \
        $(FATFSSRC) \
        $(CHIBIOS)/os/various/evtimer.c \
@@ -120,7 +121,7 @@ include app_src.mk
 CPPSRC += $(CHCPPSRC)
 
 # List ASM source files here
-ASMSRC = $(PORTASM)
+ASMSRC = $(STARTUPASM) $(PORTASM) $(OSALASM)
 
 INCDIR += $(PORTINC) $(KERNINC) $(TESTINC) \
 		  $(STARTUPINC) \
