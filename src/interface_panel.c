@@ -51,7 +51,7 @@ static void handle_state_change(int count, btn_state_t *state, const char *name)
 }
 
 THD_WORKING_AREA(wa_interface_panel, INTERFACE_PANEL_STACKSIZE);
-msg_t interface_panel_thread(void *p)
+void interface_panel_thread(void *p)
 
 {
     chRegSetThreadName("interface_panel");
@@ -79,7 +79,7 @@ msg_t interface_panel_thread(void *p)
 
 
 THD_WORKING_AREA(wa_pc_error_thread, PC_ERROR_STACKSIZE);
-msg_t pc_error_led_thread(void *p)
+void pc_error_led_thread(void *p)
 {
     chRegSetThreadName("pc_error");
     (void) p;
@@ -99,8 +99,6 @@ msg_t pc_error_led_thread(void *p)
             chThdSleepMilliseconds(1000);
         }
     }
-
-    return MSG_OK;
 }
 
 void interface_panel_init(void)

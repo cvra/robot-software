@@ -41,7 +41,7 @@ static void serial_datagram_recv_cb(const void *data, size_t len, void *arg)
 
 }
 
-msg_t rpc_server_thread(void *p)
+void rpc_server_thread(void *p)
 {
     struct netconn *conn, *client_conn;
     int error;
@@ -105,8 +105,6 @@ msg_t rpc_server_thread(void *p)
         netconn_close(client_conn);
         netconn_delete(client_conn);
     }
-
-    return MSG_OK;
 }
 
 void rpc_server_init(void)
@@ -177,7 +175,7 @@ fail:
     return -1;
 }
 
-msg_t message_server_thread(void *arg)
+void message_server_thread(void *arg)
 {
     struct netconn *conn;
     struct netbuf *buf;

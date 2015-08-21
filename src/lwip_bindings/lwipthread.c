@@ -217,7 +217,7 @@ void ipinit_done_cb(void *a)
  * @param[in] p pointer to a @p lwipthread_opts structure or @p NULL
  * @return The function does not return.
  */
-msg_t lwip_thread(void *p) {
+void lwip_thread(void *p) {
     event_timer_t evt;
     event_listener_t el0, el1;
     ip_addr_t ip, gateway, netmask;
@@ -298,7 +298,6 @@ msg_t lwip_thread(void *p) {
             }
         }
     }
-    return 0;
 }
 
 void ip_thread_init(void)

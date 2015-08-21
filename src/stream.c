@@ -17,7 +17,7 @@
 
 THD_WORKING_AREA(wa_stream, STREAM_STACKSIZE);
 
-static msg_t stream_thread(void *p)
+static void stream_thread(void *p)
 {
     static uint8_t buffer[64];
     cmp_ctx_t ctx;
@@ -95,8 +95,6 @@ static msg_t stream_thread(void *p)
 
         chThdSleepMilliseconds(STREAM_TIMESTEP_MS);
     }
-
-    return MSG_OK;
 }
 
 void stream_init(void)
