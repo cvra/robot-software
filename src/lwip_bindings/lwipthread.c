@@ -226,7 +226,7 @@ msg_t lwip_thread(void *p) {
 
     (void) p;
 
-    chRegSetThreadName("lwipthread");
+    chRegSetThreadName("lwip");
 
     sys_sem_new(&lwip_init_done, 0);
 
