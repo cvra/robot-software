@@ -389,7 +389,6 @@ static THD_FUNCTION(control_loop, arg)
     set_motor_voltage(0);
     chEvtUnregister(&analog_event, &analog_event_listener);
     control_running = false;
-    return 0;
 }
 
 void control_start(void)

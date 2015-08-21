@@ -508,7 +508,6 @@ static THD_FUNCTION(uavcan_node, arg)
 
 
     }
-    return 0;
 }
 
 extern "C"
