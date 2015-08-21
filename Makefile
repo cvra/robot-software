@@ -72,12 +72,12 @@ endif
 PROJECT = ch
 
 # Imported source files and paths
-CHIBIOS = ChibiOS/
+CHIBIOS = ChibiOS
 include $(CHIBIOS)/os/hal/ports/STM32/STM32F4xx/platform.mk
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/rt/ports/ARMCMx/compilers/GCC/mk/port_stm32f4xx.mk
 include $(CHIBIOS)/os/rt/rt.mk
-include ${CHIBIOS}/os/hal/osal/rt/osal.mk
+include $(CHIBIOS)/os/hal/osal/rt/osal.mk
 include lwip.mk
 include $(CHIBIOS)/test/rt/test.mk
 include $(CHIBIOS)/os/various/cpp_wrappers/chcpp.mk
@@ -104,26 +104,6 @@ include app_src.mk
 # setting.
 CPPSRC += $(CHCPPSRC)
 
-# C sources to be compiled in ARM mode regardless of the global setting.
-# NOTE: Mixing ARM and THUMB mode enables the -mthumb-interwork compiler
-#       option that results in lower performance and larger code size.
-ACSRC =
-
-# C++ sources to be compiled in ARM mode regardless of the global setting.
-# NOTE: Mixing ARM and THUMB mode enables the -mthumb-interwork compiler
-#       option that results in lower performance and larger code size.
-ACPPSRC =
-
-# C sources to be compiled in THUMB mode regardless of the global setting.
-# NOTE: Mixing ARM and THUMB mode enables the -mthumb-interwork compiler
-#       option that results in lower performance and larger code size.
-TCSRC =
-
-# C sources to be compiled in THUMB mode regardless of the global setting.
-# NOTE: Mixing ARM and THUMB mode enables the -mthumb-interwork compiler
-#       option that results in lower performance and larger code size.
-TCPPSRC =
-
 # List ASM source files here
 ASMSRC = $(PORTASM)
 
@@ -144,7 +124,6 @@ INCDIR += $(PORTINC) $(KERNINC) $(TESTINC) \
 
 MCU  = cortex-m4
 
-#TRGT = arm-elf-
 TRGT = arm-none-eabi-
 CC   = $(TRGT)gcc
 CPPC = $(TRGT)g++
@@ -153,15 +132,13 @@ CPPC = $(TRGT)g++
 #       runtime support makes code size explode.
 # LD   = $(TRGT)gcc
 LD   = $(TRGT)g++
-CP   = $(TRGT)objcopy -j startup -j constructors -j destructors -j .text -j .ARM.extab -j .ARM.exidx -j .eh_frame_hdr -j .eh_frame -j .textalign -j .data
+CP   = $(TRGT)objcopy -j startup -j constructors -j destructors -j .text \
+		-j .ARM.extab -j .ARM.exidx -j .eh_frame_hdr -j .eh_frame -j .textalign -j .data
 AS   = $(TRGT)gcc -x assembler-with-cpp
 OD   = $(TRGT)objdump
 SZ   = $(TRGT)size
 HEX  = $(CP) -O ihex
 BIN  = $(CP) -O binary
-
-# ARM-specific options here
-AOPT =
 
 # THUMB-specific options here
 TOPT = -mthumb -DTHUMB
@@ -181,7 +158,10 @@ CPPWARN = -Wall -Wextra
 #
 
 # List all default C defines here, like -D_DEBUG=1
-DDEFS =
+DDEFS += -DUAVCAN_TOSTRING=0 \
+		 -DUAVCAN_STM32_NUM_IFACES=1 \
+		 -DUAVCAN_STM32_TIMER_NUMBER=3 \
+		 -DUAVCAN_TINY=0
 
 # List all default ASM defines here, like -D_DEBUG=1
 DADEFS =
@@ -204,12 +184,7 @@ DLIBS =
 #
 
 # List all user C define here, like -D_DEBUG=1
-UDEFS =
-UDEFS += -DUAVCAN_TOSTRING=0 \
-		 -DUAVCAN_STM32_NUM_IFACES=1 \
-		 -DUAVCAN_STM32_TIMER_NUMBER=3 \
-		 -DUAVCAN_TINY=0 \
-		 -DDEBRA=1
+UDEFS = -DDEBRA=1
 
 # Define ASM defines here
 UADEFS =
