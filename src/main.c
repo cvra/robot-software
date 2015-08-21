@@ -64,7 +64,6 @@ THD_FUNCTION(stream_task, arg)
         }
         chThdSleepMilliseconds(10);
     }
-    return 0;
 }
 
 
@@ -89,7 +88,6 @@ static THD_FUNCTION(parameter_listener, arg)
         }
         (void)ret; // ingore errors
     }
-    return 0;
 }
 
 
@@ -164,7 +162,6 @@ static THD_FUNCTION(led_thread, arg)
             chThdSleepMilliseconds(760);
         }
     }
-    return 0;
 }
 
 int main(void) {

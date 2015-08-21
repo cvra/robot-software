@@ -114,8 +114,6 @@ static THD_FUNCTION(adc_task, arg)
     adcStart(&ADCD1, NULL);
 
     adcConvert(&ADCD1, &adcgrpcfg1, adc_samples, DMA_BUFFER_SIZE); // should never return
-
-    return 0;
 }
 
 void analog_init(void)
