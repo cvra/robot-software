@@ -23,10 +23,8 @@
  */
 MEMORY
 {
-    panic_log : org = 0x20000000, len = 1k
-
     flash : org = 0x08000000, len = 1M
-    ram0  : org = 0x20000400, len = 127k    /* SRAM1 + SRAM2 */
+    ram0  : org = 0x20000000, len = 128k    /* SRAM1 + SRAM2 */
     ram1  : org = 0x20000000, len = 112k    /* SRAM1 */
     ram2  : org = 0x2001C000, len = 16k     /* SRAM2 */
     ram3  : org = 0x00000000, len = 0
@@ -52,8 +50,5 @@ REGION_ALIAS("BSS_RAM", ram0);
 
 /* core coupled memory region */
 REGION_ALIAS("CCM_RAM", ram4);
-
-__panic_log = ORIGIN(panic_log);
-__panic_log_len = LENGTH(panic_log);
 
 INCLUDE rules.ld

@@ -153,6 +153,22 @@ SECTIONS
         PROVIDE(end = .);
     } > BSS_RAM
 
+    .noinit : ALIGN(4)
+    {
+        . = ALIGN(4);
+        *(.noinit)
+        *(.noinit.*)
+        . = ALIGN(4);
+    } > DATA_RAM
+
+    .ccm : ALIGN(4)
+    {
+        . = ALIGN(4);
+        *(.ccm)
+        *(.ccm.*)
+        . = ALIGN(4);
+    } > CCM_RAM
+
     .ram0 (NOLOAD) : ALIGN(4)
     {
         . = ALIGN(4);
@@ -224,14 +240,6 @@ SECTIONS
         . = ALIGN(4);
         __ram7_free__ = .;
     } > ram7
-
-    .ccm (NOLOAD) : ALIGN(4)
-    {
-        . = ALIGN(4);
-        *(.ccm)
-        *(.ccm.*)
-        . = ALIGN(4);
-    } > CCM_RAM
 }
 
 /* Heap default boundaries, it is defaulted to be the non-used part
