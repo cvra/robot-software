@@ -29,7 +29,7 @@ void differential_base_init(void)
 
 
 THD_WORKING_AREA(differential_base_tracking_thread_wa, DIFFERENTIAL_BASE_TRACKING_THREAD_STACK_SZ);
-msg_t differential_base_tracking_thread(void *p)
+void differential_base_tracking_thread(void *p)
 {
     (void) p;
 
@@ -131,8 +131,6 @@ msg_t differential_base_tracking_thread(void *p)
 
         chThdSleepMilliseconds(50);
     }
-
-    return MSG_OK;
 }
 
 

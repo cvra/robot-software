@@ -14,7 +14,7 @@
 
 THD_WORKING_AREA(wa_odometry_publisher, ODOMETRY_PUBLISHER_STACKSIZE);
 
-static msg_t odometry_publisher_thread(void *p)
+static void odometry_publisher_thread(void *p)
 {
     static uint8_t buffer[64];
     cmp_ctx_t ctx;
@@ -42,8 +42,6 @@ static msg_t odometry_publisher_thread(void *p)
 
             chThdSleepMilliseconds(ODOMETRY_PUBLISHER_TIMESTEP_MS);
     }
-
-    return MSG_OK;
 }
 
 void odometry_publisher_init(void)

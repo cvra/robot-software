@@ -25,9 +25,9 @@ msg_t tx_mbox_buf[CAN_BRIDGE_TX_QUEUE_SIZE];
 struct can_frame tx_pool_buf[CAN_BRIDGE_TX_QUEUE_SIZE];
 
 /** Thread running the CAN bridge. */
-msg_t can_bridge_thread(void *p);
-msg_t can_bridge_rx_thread(void *p);
-msg_t can_bridge_tx_thread(void *p);
+void can_bridge_thread(void *p);
+void can_bridge_rx_thread(void *p);
+void can_bridge_tx_thread(void *p);
 bool can_interface_receive(struct can_frame *frame);
 
 struct can_bridge_instance_t {
@@ -61,7 +61,7 @@ void can_bridge_init(void)
                       NULL);
 }
 
-msg_t can_bridge_thread(void *p)
+void can_bridge_thread(void *p)
 {
     struct netconn *conn, *client_conn;
     struct can_bridge_instance_t *instance;
@@ -115,10 +115,9 @@ msg_t can_bridge_thread(void *p)
         chThdWait(tx);
         chThdWait(rx);
     }
-    return MSG_OK;
 }
 
-msg_t can_bridge_tx_thread(void *p)
+void can_bridge_tx_thread(void *p)
 {
     chRegSetThreadName("can_bridge_tx");
     struct can_bridge_instance_t *instance = (struct can_bridge_instance_t *)p;
@@ -157,7 +156,6 @@ msg_t can_bridge_tx_thread(void *p)
 
     chBSemSignal(&instance->tx_finished);
 
-    return MSG_OK;
 }
 
 void serial_write(void *arg, const void *p, size_t len)
@@ -168,7 +166,7 @@ void serial_write(void *arg, const void *p, size_t len)
     }
 }
 
-msg_t can_bridge_rx_thread(void *p)
+void can_bridge_rx_thread(void *p)
 {
     chRegSetThreadName("can_bridge_rx");
     struct can_bridge_instance_t *instance = (struct can_bridge_instance_t *)p;
@@ -196,8 +194,6 @@ msg_t can_bridge_rx_thread(void *p)
     netconn_close(instance->conn);
     netconn_delete(instance->conn);
     free(instance);
-
-    return MSG_OK;
 }
 
 void can_interface_send(struct can_frame *frame)

@@ -120,7 +120,7 @@ void can_bridge_send_frames(Node& node)
 
 THD_WORKING_AREA(thread_wa, UAVCAN_NODE_STACK_SIZE);
 
-msg_t main(void *arg)
+void main(void *arg)
 {
     chRegSetThreadName("uavcan");
 
@@ -399,7 +399,6 @@ msg_t main(void *arg)
         // todo: publish time once a second
         // time_sync_master.publish();
     }
-    return msg_t();
 }
 
 } // namespace uavcan_node
