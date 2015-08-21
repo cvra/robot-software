@@ -267,6 +267,8 @@ static void cmd_node_tracker(BaseSequentialStream *chp, int argc, char **argv)
 
 static void cmd_pos(BaseSequentialStream *chp, int argc, char **argv)
 {
+    (void)argc;
+    (void)argv;
     float x, y, theta;
 
     chMtxLock(&robot_pose_lock);
