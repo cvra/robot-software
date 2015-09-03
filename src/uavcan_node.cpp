@@ -130,7 +130,7 @@ void main(void *arg)
     uint8_t id = *(uint8_t *)arg;
 
     int res;
-    res = can.init(1000000);
+    res = can.init((uint32_t)1000000);
     if (res < 0) {
         node_fail("CAN init");
     }
