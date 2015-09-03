@@ -347,7 +347,9 @@ void main(void *arg)
         node_fail("cvra::motor::feedback::MotorEncoderPosition subscriber");
     }
 
-    node.setStatusOk();
+    // Mark the node as correctly initialized
+    node.getNodeStatusProvider().setModeOperational();
+    node.getNodeStatusProvider().setHealthOk();
 
 
     uavcan::Publisher<cvra::Reboot> reboot_pub(node);
