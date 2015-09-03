@@ -12,7 +12,6 @@
 #include "sntp/sntp.h"
 #include "unix_timestamp.h"
 #include "panic_log.h"
-#include "can_bridge.h"
 #include "rpc_server.h"
 #include "uavcan_node.h"
 #include "timestamp/timestamp_stm32.h"
@@ -167,7 +166,6 @@ int main(void) {
         }
 
         sntp_init();
-        can_bridge_init();
         uavcan_node_start(10);
         rpc_server_init();
         message_server_init();

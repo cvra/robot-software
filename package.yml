@@ -4,8 +4,6 @@ depends:
     - crc
     - serial-datagram:
         fork: Stapelzeiger
-    - serial-can-bridge:
-        fork: nuft
     - parameter:
         fork: Stapelzeiger
     - simplerpc
@@ -19,7 +17,6 @@ target.arm:
     - src/sntp/sntp.c
     - src/commands.c
     - src/board/board.c
-    - src/can_bridge.c
     - src/rpc_server.c
     - src/rpc_callbacks.c
     - src/msg_callbacks.c

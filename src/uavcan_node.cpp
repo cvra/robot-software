@@ -4,7 +4,6 @@
 #include <uavcan_stm32/uavcan_stm32.hpp>
 #include <uavcan/protocol/NodeStatus.hpp>
 #include <lwip/api.h>
-#include <src/can_bridge.h>
 #include <cvra/Reboot.hpp>
 #include <cvra/motor/control/Velocity.hpp>
 #include <cvra/Reboot.hpp>
@@ -83,49 +82,11 @@ static void node_fail(const char *reason)
     }
 }
 
-void can_bridge_send_frames(Node& node)
-{
-    while (1) {
-        struct can_frame *framep;
-        msg_t m = chMBFetch(&can_bridge_tx_queue, (msg_t *)&framep, TIME_IMMEDIATE);
-        if (m == MSG_OK) {
-            uint32_t id = framep->id;
-            uavcan::CanFrame ucframe;
-            if (id & CAN_FRAME_EXT_FLAG) {
-                ucframe.id = id & CAN_FRAME_EXT_ID_MASK;
-                ucframe.id |= uavcan::CanFrame::FlagEFF;
-            } else {
-                ucframe.id = id & CAN_FRAME_STD_ID_MASK;
-            }
-
-            if (id & CAN_FRAME_RTR_FLAG) {
-                ucframe.id |= uavcan::CanFrame::FlagRTR;
-            }
-
-            ucframe.dlc = framep->dlc;
-            memcpy(ucframe.data, framep->data.u8, framep->dlc);
-
-            if (can.driver.wait_tx_mb0(MS2ST(100))) {
-                uavcan::MonotonicTime tx_timeout = node.getMonotonicTime();
-                tx_timeout += uavcan::MonotonicDuration::fromMSec(100);
-                uavcan::ICanIface* const iface = can.driver.getIface(0);
-                iface->send(ucframe, tx_timeout, 0);
-            }
-            chPoolFree(&can_bridge_tx_pool, framep);
-        } else {
-            break;
-        }
-    }
-}
-
 THD_WORKING_AREA(thread_wa, UAVCAN_NODE_STACK_SIZE);
 
 void main(void *arg)
 {
     chRegSetThreadName("uavcan");
-
-    // bridge has to be initialized first
-    chSemWait(&can_bridge_is_initialized);
 
     uint8_t id = *(uint8_t *)arg;
 
@@ -387,8 +348,6 @@ void main(void *arg)
             motor_driver_uavcan_update_config(&drv_list[i]);
             motor_driver_uavcan_send_setpoint(&drv_list[i]);
         }
-
-        can_bridge_send_frames(node);
 
         // todo: publish time once a second
         // time_sync_master.publish();
