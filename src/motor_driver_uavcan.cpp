@@ -88,7 +88,8 @@ static void send_stream_config(struct can_driver_s *can_drv, int node_id, uint8_
     }
     feedback_stream_config.frequency = frequency;
 
-    can_drv->feedback_stream_pub.unicast(feedback_stream_config, node_id);
+#warning "Unicast is simply disabled. Won't work as is."
+//    can_drv->feedback_stream_pub.unicast(feedback_stream_config, node_id);
 }
 
 
@@ -137,7 +138,8 @@ void motor_driver_send_initial_config(motor_driver_t *d)
 
     config_msg.mode = parameter_integer_get(&d->config.mode); // todo !
 
-    can_drv->config_client.unicast(config_msg, node_id);
+#warning "Unicast is simply disabled. Won't work as is."
+    //can_drv->config_client.unicast(config_msg, node_id);
 
     can_drv->enabled = false;
 
@@ -162,7 +164,9 @@ void motor_driver_uavcan_update_config(motor_driver_t *d)
             request.pid.ki = parameter_scalar_get(&d->config.position_pid.ki);
             request.pid.kd = parameter_scalar_get(&d->config.position_pid.kd);
             request.pid.ilimit = parameter_scalar_get(&d->config.position_pid.ilimit);
-            can_drv->position_pid_client.unicast(request, node_id);
+
+#warning "Unicast is simply disabled. Won't work as is."
+            //can_drv->position_pid_client.unicast(request, node_id);
         }
 
         if (parameter_namespace_contains_changed(&d->config.velocity_pid.root)) {
@@ -171,7 +175,9 @@ void motor_driver_uavcan_update_config(motor_driver_t *d)
             request.pid.ki = parameter_scalar_get(&d->config.velocity_pid.ki);
             request.pid.kd = parameter_scalar_get(&d->config.velocity_pid.kd);
             request.pid.ilimit = parameter_scalar_get(&d->config.velocity_pid.ilimit);
-            can_drv->speed_pid_client.unicast(request, node_id);
+
+#warning "Unicast is simply disabled. Won't work as is."
+            //can_drv->speed_pid_client.unicast(request, node_id);
         }
 
         if (parameter_namespace_contains_changed(&d->config.current_pid.root)) {
@@ -180,7 +186,9 @@ void motor_driver_uavcan_update_config(motor_driver_t *d)
             request.pid.ki = parameter_scalar_get(&d->config.current_pid.ki);
             request.pid.kd = parameter_scalar_get(&d->config.current_pid.kd);
             request.pid.ilimit = parameter_scalar_get(&d->config.current_pid.ilimit);
-            can_drv->current_pid_client.unicast(request, node_id);
+
+#warning "Unicast is simply disabled. Won't work as is."
+            //can_drv->current_pid_client.unicast(request, node_id);
         }
     }
     if (parameter_namespace_contains_changed(&d->config.stream)) {
@@ -239,7 +247,9 @@ void motor_enable(can_driver_s *d, int node_id)
     if (!d->enabled) {
         d->enabled = true;
         enable_msg.enable = true;
-        d->enable_client.unicast(enable_msg, node_id);
+
+#warning "Unicast is simply disabled. Won't work as is."
+        //d->enable_client.unicast(enable_msg, node_id);
     }
 }
 
@@ -249,7 +259,8 @@ void motor_disable(can_driver_s *d, int node_id)
     if (d->enabled) {
         d->enabled = false;
         enable_msg.enable = false;
-        d->enable_client.unicast(enable_msg, node_id);
+#warning "Unicast is simply disabled. Won't work as is."
+        //d->enable_client.unicast(enable_msg, node_id);
     }
 }
 
@@ -280,25 +291,29 @@ void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
         case MOTOR_CONTROL_MODE_VELOCITY: {
             motor_enable(can_drv, node_id);
             velocity_setpoint.velocity = motor_driver_get_velocity_setpt(d);
-            can_drv->velocity_pub.unicast(velocity_setpoint, node_id);
+#warning "Unicast is simply disabled. Won't work as is."
+            //can_drv->velocity_pub.unicast(velocity_setpoint, node_id);
         } break;
 
         case MOTOR_CONTROL_MODE_POSITION: {
             motor_enable(can_drv, node_id);
             position_setpoint.position = motor_driver_get_position_setpt(d);
-            can_drv->position_pub.unicast(position_setpoint, node_id);
+#warning "Unicast is simply disabled. Won't work as is."
+            //can_drv->position_pub.unicast(position_setpoint, node_id);
         } break;
 
         case MOTOR_CONTROL_MODE_TORQUE: {
             motor_enable(can_drv, node_id);
             torque_setpoint.torque = motor_driver_get_torque_setpt(d);
-            can_drv->torque_pub.unicast(torque_setpoint, node_id);
+#warning "Unicast is simply disabled. Won't work as is."
+            //can_drv->torque_pub.unicast(torque_setpoint, node_id);
         } break;
 
         case MOTOR_CONTROL_MODE_VOLTAGE: {
             motor_enable(can_drv, node_id);
             voltage_setpoint.voltage = motor_driver_get_voltage_setpt(d);
-            can_drv->voltage_pub.unicast(voltage_setpoint, node_id);
+#warning "Unicast is simply disabled. Won't work as is."
+            //can_drv->voltage_pub.unicast(voltage_setpoint, node_id);
         } break;
 
         case MOTOR_CONTROL_MODE_TRAJECTORY: {
@@ -315,7 +330,8 @@ void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
             trajectory_setpoint.velocity = velocity;
             trajectory_setpoint.acceleration = acceleration;
             trajectory_setpoint.torque = torque;
-            can_drv->trajectory_pub.unicast(trajectory_setpoint, node_id);
+#warning "Unicast is simply disabled. Won't work as is."
+            //can_drv->trajectory_pub.unicast(trajectory_setpoint, node_id);
         } break;
 
         case MOTOR_CONTROL_MODE_DISABLED: {

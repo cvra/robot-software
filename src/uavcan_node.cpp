@@ -380,7 +380,9 @@ void main(void *arg)
             if (button || reboot_node_id > 127) {
                 reboot_pub.broadcast(reboot_msg);
             } else {
-                reboot_pub.unicast(reboot_msg, uavcan::NodeID(reboot_node_id));
+
+#warning "Unicast is simply disabled. Won't work as is."
+//                reboot_pub.unicast(reboot_msg, uavcan::NodeID(reboot_node_id));
             }
             reboot_node_id = 0;
         }
