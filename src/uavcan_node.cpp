@@ -164,20 +164,10 @@ void main(void *arg)
     /*
      * Initializing the UAVCAN node - this may take a while
      */
-    while (true) {
-        // Calling start() multiple times is OK - only the first successfull call will be effective
-        int res = node.start();
-
-        uavcan::NetworkCompatibilityCheckResult ncc_result;
-
-        if (res >= 0) {
-            res = node.checkNetworkCompatibility(ncc_result);
-            if (res >= 0) {
-                break;
-            }
-        }
+    do {
+        res = node.start();
         chThdSleepMilliseconds(1000);
-    }
+    } while (res < 0);
 
     /*
      * Time synchronizer
