@@ -88,6 +88,7 @@ static void cmd_panic_log(BaseSequentialStream *chp, int argc, char **argv) {
         chprintf(chp, "Did not reboot after a panic.");
     } else {
         chprintf(chp, "%s", message);
+        panic_log_clear();
     }
     chprintf(chp, "\r\n");
 }

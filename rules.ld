@@ -153,15 +153,15 @@ SECTIONS
         PROVIDE(end = .);
     } > BSS_RAM
 
-    .noinit : ALIGN(4)
+    .noinit (NOLOAD) : ALIGN(4)
     {
         . = ALIGN(4);
         *(.noinit)
         *(.noinit.*)
         . = ALIGN(4);
-    } > DATA_RAM
+    } > NOINIT_RAM
 
-    .ccm : ALIGN(4)
+    .ccm (NOLOAD) : ALIGN(4)
     {
         . = ALIGN(4);
         *(.ccm)

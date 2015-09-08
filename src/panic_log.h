@@ -11,4 +11,10 @@ void panic_log_write(const char *msg);
  */
 const char *panic_log_read(void);
 
+/** Clears the panic log.
+ *
+ * @note Any further call to panic_log_read() will return NULL.
+ */
+void panic_log_clear(void);
+
 #endif
