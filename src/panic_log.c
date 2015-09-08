@@ -36,3 +36,9 @@ const char *panic_log_read(void)
     }
     return NULL;
 }
+
+void panic_log_clear(void)
+{
+    memset(&panic_log[0], 0, sizeof(panic_log));
+}
+
