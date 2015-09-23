@@ -368,7 +368,9 @@ static THD_FUNCTION(uavcan_node, arg)
 
             chprintf(ch_stdout, "LoadConfiguration received\n");
 
-            node.setStatusOk();
+            // Mark the node as correctly initialized
+            node.getNodeStatusProvider().setModeOperational();
+            node.getNodeStatusProvider().setHealthOk();
         });
 
     if (load_config_srv_res < 0) {
