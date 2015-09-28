@@ -28,7 +28,7 @@ target.arm:
     - src/robot_pose.c
     - src/odometry_publisher.c
     - src/motor_driver.c
-    - src/motor_driver_uavcan.cpp
+    # - src/motor_driver_uavcan.cpp
     - src/motor_manager.c
     - src/differential_base.c
     - src/stream.c
