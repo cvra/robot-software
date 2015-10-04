@@ -16,7 +16,7 @@
 // #include <cvra/motor/feedback/MotorEncoderPosition.hpp>
 // #include <cvra/motor/feedback/MotorPosition.hpp>
 // #include <cvra/motor/feedback/MotorTorque.hpp>
-// #include <cvra/StringID.hpp>
+#include <cvra/StringID.hpp>
 #include "robot_pose.h"
 #include <simplerpc/message.h>
 #include "src/rpc_server.h"
@@ -24,7 +24,7 @@
 #include "timestamp/timestamp.h"
 #include "odometry/robot_base.h"
 #include "motor_driver.h"
-#include "motor_driver_uavcan.h"
+// #include "motor_driver_uavcan.h"
 #include "odometry/odometry.h"
 #include "config.h"
 #include "uavcan_node_private.hpp"
@@ -164,20 +164,20 @@ void main(void *arg)
         node_fail("NodeStatus subscribe");
     }
 
-    // uavcan::Subscriber<cvra::StringID> string_id_sub(node);
-    // res = string_id_sub.start(
-    //     [&](const uavcan::ReceivedDataStructure<cvra::StringID>& msg)
-    //     {
-    //         uint8_t can_id = msg.getSrcNodeID().get();
+    uavcan::Subscriber<cvra::StringID> string_id_sub(node);
+    res = string_id_sub.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::StringID>& msg)
+        {
+            uint8_t can_id = msg.getSrcNodeID().get();
 
-    //         if (bus_enumerator_get_str_id(&bus_enumerator, can_id) == NULL) {
-    //             bus_enumerator_update_node_info(&bus_enumerator, msg.id.c_str(), can_id);
-    //         }
-    //     }
-    // );
-    // if (res != 0) {
-    //     node_fail("cvra::StringID subscriber");
-    // }
+            if (bus_enumerator_get_str_id(&bus_enumerator, can_id) == NULL) {
+                bus_enumerator_update_node_info(&bus_enumerator, msg.id.c_str(), can_id);
+            }
+        }
+    );
+    if (res != 0) {
+        node_fail("cvra::StringID subscriber");
+    }
 
     // uavcan::Subscriber<cvra::motor::feedback::CurrentPID> current_pid_sub(node);
     // res = current_pid_sub.start(
