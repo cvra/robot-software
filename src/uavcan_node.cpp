@@ -4,13 +4,6 @@
 #include <uavcan_stm32/uavcan_stm32.hpp>
 #include <uavcan/protocol/NodeStatus.hpp>
 #include <lwip/api.h>
-#include <src/can_bridge.h>
-#include <cvra/Reboot.hpp>
-#include <cvra/motor/control/Velocity.hpp>
-#include <cvra/Reboot.hpp>
-#include <cvra/motor/config/VelocityPID.hpp>
-#include <cvra/motor/config/PositionPID.hpp>
-#include <cvra/motor/config/CurrentPID.hpp>
 #include <cvra/motor/feedback/CurrentPID.hpp>
 #include <cvra/motor/feedback/VelocityPID.hpp>
 #include <cvra/motor/feedback/PositionPID.hpp>
@@ -18,6 +11,7 @@
 #include <cvra/motor/feedback/MotorEncoderPosition.hpp>
 #include <cvra/motor/feedback/MotorPosition.hpp>
 #include <cvra/motor/feedback/MotorTorque.hpp>
+#include <cvra/Reboot.hpp>
 #include <cvra/StringID.hpp>
 #include "robot_pose.h"
 #include <simplerpc/message.h>
@@ -36,8 +30,6 @@
 
 #include <errno.h>
 
-#include <uavcan/protocol/global_time_sync_master.hpp>
-
 
 #define UAVCAN_SPIN_FREQ    500 // [Hz]
 
@@ -50,72 +42,41 @@ bus_enumerator_t bus_enumerator;
 namespace uavcan_node
 {
 
-uavcan_stm32::CanInitHelper<128> can;
-
-uavcan::LazyConstructor<Node> node_;
-
 uint8_t reboot_node_id = 0;
+
+static void node_status_cb(const uavcan::ReceivedDataStructure<uavcan::protocol::NodeStatus>& msg);
+static void node_fail(const char *reason);
+
+
+static constexpr int RxQueueSize = 64;
+static constexpr std::uint32_t BitRate = 1000000;
+
+constexpr unsigned NodeMemoryPoolSize = 16384;
+typedef uavcan::Node<NodeMemoryPoolSize> Node;
+
+uavcan::ISystemClock& getSystemClock()
+{
+    return uavcan_stm32::SystemClock::instance();
+}
+
+uavcan::ICanDriver& getCanDriver()
+{
+    static uavcan_stm32::CanInitHelper<RxQueueSize> can;
+    static bool initialized = false;
+    if (!initialized) {
+        initialized = true;
+        int res = can.init(BitRate);
+        if (res < 0) {
+            node_fail("CAN driver");
+        }
+    }
+    return can.driver;
+}
 
 Node& getNode()
 {
-    if (!node_.isConstructed())
-    {
-        node_.construct<uavcan::ICanDriver&, uavcan::ISystemClock&>(can.driver, uavcan_stm32::SystemClock::instance());
-    }
-    return *node_;
-}
-
-void node_status_cb(const uavcan::ReceivedDataStructure<uavcan::protocol::NodeStatus>& msg)
-{
-    (void) msg;
-    // TODO !!!
-    // int can_id = msg.getSrcNodeID().get();
-    // bus_enumerator_get_driver()
-    // motor_driver_send_initial_config()
-    node_tracker_set_id((uint8_t)msg.getSrcNodeID().get());
-}
-
-static void node_fail(const char *reason)
-{
-    (void) reason;
-    while (1) {
-        chThdSleepMilliseconds(100);
-    }
-}
-
-void can_bridge_send_frames(Node& node)
-{
-    while (1) {
-        struct can_frame *framep;
-        msg_t m = chMBFetch(&can_bridge_tx_queue, (msg_t *)&framep, TIME_IMMEDIATE);
-        if (m == MSG_OK) {
-            uint32_t id = framep->id;
-            uavcan::CanFrame ucframe;
-            if (id & CAN_FRAME_EXT_FLAG) {
-                ucframe.id = id & CAN_FRAME_EXT_ID_MASK;
-                ucframe.id |= uavcan::CanFrame::FlagEFF;
-            } else {
-                ucframe.id = id & CAN_FRAME_STD_ID_MASK;
-            }
-
-            if (id & CAN_FRAME_RTR_FLAG) {
-                ucframe.id |= uavcan::CanFrame::FlagRTR;
-            }
-
-            ucframe.dlc = framep->dlc;
-            memcpy(ucframe.data, framep->data.u8, framep->dlc);
-
-            if (can.driver.wait_tx_mb0(MS2ST(100))) {
-                uavcan::MonotonicTime tx_timeout = node.getMonotonicTime();
-                tx_timeout += uavcan::MonotonicDuration::fromMSec(100);
-                uavcan::ICanIface* const iface = can.driver.getIface(0);
-                iface->send(ucframe, tx_timeout, 0);
-            }
-            chPoolFree(&can_bridge_tx_pool, framep);
-        } else {
-            break;
-        }
-    }
+    static Node node(getCanDriver(), getSystemClock());
+    return node;
 }
 
 THD_WORKING_AREA(thread_wa, UAVCAN_NODE_STACK_SIZE);
@@ -124,21 +85,26 @@ void main(void *arg)
 {
     chRegSetThreadName("uavcan");
 
-    // bridge has to be initialized first
-    chSemWait(&can_bridge_is_initialized);
-
-    uint8_t id = *(uint8_t *)arg;
-
-    int res;
-    res = can.init(1000000);
-    if (res < 0) {
-        node_fail("CAN init");
-    }
-
     Node& node = getNode();
 
-    node.setNodeID(id);
+    uint8_t id = *(uint8_t *)arg;
+    node.setNodeID(uavcan::NodeID(id));
+
     node.setName("cvra.master");
+
+    uavcan::protocol::SoftwareVersion sw_version;
+    sw_version.major = 1;
+    node.setSoftwareVersion(sw_version);
+
+    uavcan::protocol::HardwareVersion hw_version;
+    hw_version.major = 1;
+    node.setHardwareVersion(hw_version);
+
+    int res;
+    res = node.start();
+    if (res < 0) {
+        node_fail("node start");
+    }
 
     /*
      * Initialising odometry
@@ -160,38 +126,6 @@ void main(void *arg)
     odometry_encoder_record_sample(&enc_right[1], 0, 0);
     odometry_encoder_record_sample(&enc_left[0], 0, 0);
     odometry_encoder_record_sample(&enc_left[1], 0, 0);
-
-    /*
-     * Initializing the UAVCAN node - this may take a while
-     */
-    while (true) {
-        // Calling start() multiple times is OK - only the first successfull call will be effective
-        int res = node.start();
-
-        uavcan::NetworkCompatibilityCheckResult ncc_result;
-
-        if (res >= 0) {
-            res = node.checkNetworkCompatibility(ncc_result);
-            if (res >= 0) {
-                break;
-            }
-        }
-        chThdSleepMilliseconds(1000);
-    }
-
-    /*
-     * Time synchronizer
-     */
-    uavcan::UtcDuration adjustment;
-    uint64_t utc_time_init = 1234;
-    adjustment = uavcan::UtcTime::fromUSec(utc_time_init) - uavcan::UtcTime::fromUSec(0);
-    node.getSystemClock().adjustUtc(adjustment);
-
-    static uavcan::GlobalTimeSyncMaster time_sync_master(node);
-    res = time_sync_master.init();;
-    if (res < 0) {
-        node_fail("TimeSyncMaster");
-    }
 
     /*
      * NodeStatus subscriber
@@ -347,7 +281,9 @@ void main(void *arg)
         node_fail("cvra::motor::feedback::MotorEncoderPosition subscriber");
     }
 
-    node.setStatusOk();
+    // Mark the node as correctly initialized
+    node.getNodeStatusProvider().setModeOperational();
+    node.getNodeStatusProvider().setHealthOk();
 
 
     uavcan::Publisher<cvra::Reboot> reboot_pub(node);
@@ -356,14 +292,6 @@ void main(void *arg)
     {
         node_fail("cvra::Reboot publisher");
     }
-
-    uavcan::Publisher<cvra::motor::control::Velocity> velocity_ctrl_setpt_pub(node);
-    const int velocity_ctrl_setpt_pub_init_res = velocity_ctrl_setpt_pub.init();
-    if (velocity_ctrl_setpt_pub_init_res < 0)
-    {
-        node_fail("cvra::motor::control::Velocity publisher");
-    }
-
 
     while (true)
     {
@@ -374,15 +302,10 @@ void main(void *arg)
 
         // reboot command
         int button = palReadPad(GPIOA, GPIOA_BUTTON_WKUP);
-        if (button || reboot_node_id) {
+        if (button) {
             cvra::Reboot reboot_msg;
             reboot_msg.bootmode = reboot_msg.BOOTLOADER_TIMEOUT;
-            if (button || reboot_node_id > 127) {
-                reboot_pub.broadcast(reboot_msg);
-            } else {
-                reboot_pub.unicast(reboot_msg, uavcan::NodeID(reboot_node_id));
-            }
-            reboot_node_id = 0;
+            reboot_pub.broadcast(reboot_msg);
         }
 
         motor_driver_t *drv_list;
@@ -394,10 +317,26 @@ void main(void *arg)
             motor_driver_uavcan_send_setpoint(&drv_list[i]);
         }
 
-        can_bridge_send_frames(node);
-
         // todo: publish time once a second
         // time_sync_master.publish();
+    }
+}
+
+static void node_status_cb(const uavcan::ReceivedDataStructure<uavcan::protocol::NodeStatus>& msg)
+{
+    (void) msg;
+    // TODO !!!
+    // int can_id = msg.getSrcNodeID().get();
+    // bus_enumerator_get_driver()
+    // motor_driver_send_initial_config()
+    node_tracker_set_id((uint8_t)msg.getSrcNodeID().get());
+}
+
+static void node_fail(const char *reason)
+{
+    (void) reason;
+    while (1) {
+        chThdSleepMilliseconds(100);
     }
 }
 

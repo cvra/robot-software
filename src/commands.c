@@ -220,9 +220,6 @@ static void cmd_node(BaseSequentialStream *chp, int argc, char **argv)
     }
     uint8_t id =  bus_enumerator_get_can_id(&bus_enumerator, argv[0]);
     chprintf(chp, "Node ID: %s = %d.\r\n", argv[0],id);
-    chprintf(chp, "%s %d\r\n", bus_enumerator.str_to_can->str_id, bus_enumerator.str_to_can->can_id);
-    chprintf(chp, "%s %d\r\n", bus_enumerator.can_to_str->str_id, bus_enumerator.can_to_str->can_id);
-
 }
 
 static void cmd_uavcan_node_reboot(BaseSequentialStream *chp, int argc, char **argv)

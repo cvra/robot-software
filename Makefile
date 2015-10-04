@@ -178,6 +178,7 @@ CPPWARN = -Wall -Wextra
 DDEFS += -DUAVCAN_TOSTRING=0 \
 		 -DUAVCAN_STM32_NUM_IFACES=1 \
 		 -DUAVCAN_STM32_TIMER_NUMBER=3 \
+		 -DUAVCAN_STM32_CHIBIOS=1 \
 		 -DUAVCAN_TINY=0
 
 # List all default ASM defines here, like -D_DEBUG=1
@@ -219,9 +220,11 @@ ULIBS =
 # UAVCAN
 ##############################################################################
 include uavcan/libuavcan/include.mk
+include uavcan/libuavcan_drivers/stm32/driver/include.mk
 
-CPPSRC += $(LIBUAVCAN_SRC)
-UINCDIR += $(LIBUAVCAN_INC) src/can-driver/include ./dsdlc_generated
+CPPSRC += $(LIBUAVCAN_SRC) $(LIBUAVCAN_STM32_SRC)
+
+UINCDIR += $(LIBUAVCAN_INC) ./dsdlc_generated $(LIBUAVCAN_STM32_INC)
 
 #
 # End of user defines
