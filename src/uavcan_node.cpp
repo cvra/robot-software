@@ -3,7 +3,7 @@
 #include <chprintf.h>
 #include <main.h>
 #include <uavcan/uavcan.hpp>
-// #include <cvra/Reboot.hpp>
+#include <cvra/Reboot.hpp>
 #include <control.h>
 #include <index.h>
 #include <parameter/parameter.h>
@@ -107,27 +107,27 @@ static THD_FUNCTION(uavcan_node, arg)
     // stream_set_prescaler(&string_id_stream_config, 0.5, UAVCAN_SPIN_FREQUENCY);
     // stream_enable(&string_id_stream_config, true);
 
-    // /* Subscribers */
-    // uavcan::Subscriber<cvra::Reboot> reboot_sub(node);
-    // int ret = reboot_sub.start(
-    //     [&](const uavcan::ReceivedDataStructure<cvra::Reboot>& msg)
-    //     {
-    //         switch (msg.bootmode) {
-    //         case msg.REBOOT:
-    //             reboot(BOOT_ARG_START_APPLICATION);
-    //             break;
-    //         case msg.BOOTLOADER_TIMEOUT:
-    //             reboot(BOOT_ARG_START_BOOTLOADER);
-    //             break;
-    //         case msg.BOOTLOADER_NO_TIMEOUT:
-    //             reboot(BOOT_ARG_START_BOOTLOADER_NO_TIMEOUT);
-    //             break;
-    //         }
-    //     }
-    // );
-    // if (ret != 0) {
-    //     uavcan_failure("cvra::Reboot subscriber");
-    // }
+    /* Subscribers */
+    uavcan::Subscriber<cvra::Reboot> reboot_sub(node);
+    int ret = reboot_sub.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::Reboot>& msg)
+        {
+            switch (msg.bootmode) {
+            case msg.REBOOT:
+                reboot(BOOT_ARG_START_APPLICATION);
+                break;
+            case msg.BOOTLOADER_TIMEOUT:
+                reboot(BOOT_ARG_START_BOOTLOADER);
+                break;
+            case msg.BOOTLOADER_NO_TIMEOUT:
+                reboot(BOOT_ARG_START_BOOTLOADER_NO_TIMEOUT);
+                break;
+            }
+        }
+    );
+    if (ret != 0) {
+        uavcan_failure("cvra::Reboot subscriber");
+    }
 
     // uavcan::Subscriber<cvra::motor::EmergencyStop> emergency_stop_sub(node);
     // ret = emergency_stop_sub.start(
