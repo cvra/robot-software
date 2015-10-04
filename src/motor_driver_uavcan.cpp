@@ -20,13 +20,15 @@
 
 using namespace uavcan_node;
 
+void enable_client_cb(const uavcan::ServiceCallResult<cvra::motor::config::EnableMotor>& call_result);
+
 struct can_driver_s {
-    uavcan::Publisher<cvra::motor::config::VelocityPID> speed_pid_client;
-    uavcan::Publisher<cvra::motor::config::PositionPID> position_pid_client;
-    uavcan::Publisher<cvra::motor::config::CurrentPID> current_pid_client;
-    uavcan::Publisher<cvra::motor::config::LoadConfiguration> config_client;
-    uavcan::Publisher<cvra::motor::config::EnableMotor> enable_client;
-    uavcan::Publisher<cvra::motor::config::FeedbackStream> feedback_stream_pub;
+    uavcan::ServiceClient<cvra::motor::config::VelocityPID> speed_pid_client;
+    uavcan::ServiceClient<cvra::motor::config::PositionPID> position_pid_client;
+    uavcan::ServiceClient<cvra::motor::config::CurrentPID> current_pid_client;
+    uavcan::ServiceClient<cvra::motor::config::LoadConfiguration> config_client;
+    uavcan::ServiceClient<cvra::motor::config::EnableMotor> enable_client;
+    uavcan::ServiceClient<cvra::motor::config::FeedbackStream> feedback_stream_pub;
     uavcan::Publisher<cvra::motor::control::Velocity> velocity_pub;
     uavcan::Publisher<cvra::motor::control::Position> position_pub;
     uavcan::Publisher<cvra::motor::control::Torque> torque_pub;
@@ -47,6 +49,18 @@ struct can_driver_s {
         voltage_pub(getNode()),
         trajectory_pub(getNode())
     {
+        // speed_pid_client.init();
+        // speed_pid_client.setCallback();
+        // position_pid_client.init();
+        // position_pid_client.setCallback();
+        // current_pid_client.init();
+        // current_pid_client.setCallback();
+        // config_client.init();
+        // config_client.setCallback();
+        // enable_client.init();
+        // enable_client.setCallback(enable_client_cb);
+        // feedback_stream_pub.init();
+        // feedback_stream_pub.setCallback();
         enabled = false;
         last_setpoint_update = timestamp_get();
     }
@@ -78,7 +92,7 @@ static void update_motor_can_id(motor_driver_t *d)
 
 static void send_stream_config(struct can_driver_s *can_drv, int node_id, uint8_t stream, float frequency)
 {
-    cvra::motor::config::FeedbackStream feedback_stream_config;
+    cvra::motor::config::FeedbackStream::Request feedback_stream_config;
 
     feedback_stream_config.stream = stream;
     if (frequency == 0) {
@@ -96,7 +110,7 @@ static void send_stream_config(struct can_driver_s *can_drv, int node_id, uint8_
 extern "C"
 void motor_driver_send_initial_config(motor_driver_t *d)
 {
-    cvra::motor::config::LoadConfiguration config_msg;
+    cvra::motor::config::LoadConfiguration::Request config_msg;
 
     update_motor_can_id(d);
     int node_id = motor_driver_get_can_id(d);
@@ -159,7 +173,7 @@ void motor_driver_uavcan_update_config(motor_driver_t *d)
 
     if (parameter_namespace_contains_changed(&d->config.control)) {
         if (parameter_namespace_contains_changed(&d->config.position_pid.root)) {
-            cvra::motor::config::PositionPID request;
+            cvra::motor::config::PositionPID::Request request;
             request.pid.kp = parameter_scalar_get(&d->config.position_pid.kp);
             request.pid.ki = parameter_scalar_get(&d->config.position_pid.ki);
             request.pid.kd = parameter_scalar_get(&d->config.position_pid.kd);
@@ -170,7 +184,7 @@ void motor_driver_uavcan_update_config(motor_driver_t *d)
         }
 
         if (parameter_namespace_contains_changed(&d->config.velocity_pid.root)) {
-            cvra::motor::config::VelocityPID request;
+            cvra::motor::config::VelocityPID::Request request;
             request.pid.kp = parameter_scalar_get(&d->config.velocity_pid.kp);
             request.pid.ki = parameter_scalar_get(&d->config.velocity_pid.ki);
             request.pid.kd = parameter_scalar_get(&d->config.velocity_pid.kd);
@@ -181,7 +195,7 @@ void motor_driver_uavcan_update_config(motor_driver_t *d)
         }
 
         if (parameter_namespace_contains_changed(&d->config.current_pid.root)) {
-            cvra::motor::config::CurrentPID request;
+            cvra::motor::config::CurrentPID::Request request;
             request.pid.kp = parameter_scalar_get(&d->config.current_pid.kp);
             request.pid.ki = parameter_scalar_get(&d->config.current_pid.ki);
             request.pid.kd = parameter_scalar_get(&d->config.current_pid.kd);
@@ -195,43 +209,43 @@ void motor_driver_uavcan_update_config(motor_driver_t *d)
         if (parameter_changed(&d->config.current_pid_stream)) {
             send_stream_config(can_drv,
                                node_id,
-                               cvra::motor::config::FeedbackStream::STREAM_CURRENT_PID,
+                               cvra::motor::config::FeedbackStream::Request::STREAM_CURRENT_PID,
                                parameter_scalar_get(&d->config.current_pid_stream));
         }
         if (parameter_changed(&d->config.velocity_pid_stream)) {
             send_stream_config(can_drv,
                                node_id,
-                               cvra::motor::config::FeedbackStream::STREAM_VELOCITY_PID,
+                               cvra::motor::config::FeedbackStream::Request::STREAM_VELOCITY_PID,
                                parameter_scalar_get(&d->config.velocity_pid_stream));
         }
         if (parameter_changed(&d->config.position_pid_stream)) {
             send_stream_config(can_drv,
                                node_id,
-                               cvra::motor::config::FeedbackStream::STREAM_POSITION_PID,
+                               cvra::motor::config::FeedbackStream::Request::STREAM_POSITION_PID,
                                parameter_scalar_get(&d->config.position_pid_stream));
         }
         if (parameter_changed(&d->config.index_stream)) {
             send_stream_config(can_drv,
                                node_id,
-                               cvra::motor::config::FeedbackStream::STREAM_INDEX,
+                               cvra::motor::config::FeedbackStream::Request::STREAM_INDEX,
                                parameter_scalar_get(&d->config.index_stream));
         }
         if (parameter_changed(&d->config.encoder_pos_stream)) {
             send_stream_config(can_drv,
                                node_id,
-                               cvra::motor::config::FeedbackStream::STREAM_MOTOR_ENCODER,
+                               cvra::motor::config::FeedbackStream::Request::STREAM_MOTOR_ENCODER,
                                parameter_scalar_get(&d->config.encoder_pos_stream));
         }
         if (parameter_changed(&d->config.motor_pos_stream)) {
             send_stream_config(can_drv,
                                node_id,
-                               cvra::motor::config::FeedbackStream::STREAM_MOTOR_POSITION,
+                               cvra::motor::config::FeedbackStream::Request::STREAM_MOTOR_POSITION,
                                parameter_scalar_get(&d->config.motor_pos_stream));
         }
         if (parameter_changed(&d->config.motor_torque_stream)) {
             send_stream_config(can_drv,
                                node_id,
-                               cvra::motor::config::FeedbackStream::STREAM_MOTOR_TORQUE,
+                               cvra::motor::config::FeedbackStream::Request::STREAM_MOTOR_TORQUE,
                                parameter_scalar_get(&d->config.motor_torque_stream));
         }
     }
@@ -241,26 +255,28 @@ void motor_driver_uavcan_update_config(motor_driver_t *d)
     }
 }
 
+void enable_client_cb(const uavcan::ServiceCallResult<cvra::motor::config::EnableMotor>& call_result)
+{
+    (void) call_result;
+}
+
 void motor_enable(can_driver_s *d, int node_id)
 {
-    cvra::motor::config::EnableMotor enable_msg;
+    cvra::motor::config::EnableMotor::Request enable_msg;
     if (!d->enabled) {
         d->enabled = true;
         enable_msg.enable = true;
-
-#warning "Unicast is simply disabled. Won't work as is."
-        //d->enable_client.unicast(enable_msg, node_id);
+        d->enable_client.call(node_id, enable_msg);
     }
 }
 
 void motor_disable(can_driver_s *d, int node_id)
 {
-    cvra::motor::config::EnableMotor enable_msg;
+    cvra::motor::config::EnableMotor::Request enable_msg;
     if (d->enabled) {
         d->enabled = false;
         enable_msg.enable = false;
-#warning "Unicast is simply disabled. Won't work as is."
-        //d->enable_client.unicast(enable_msg, node_id);
+        d->enable_client.call(node_id, enable_msg);
     }
 }
 
