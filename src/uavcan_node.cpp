@@ -14,13 +14,13 @@
 #include <uavcan_stm32/uavcan_stm32.hpp>
 #include <uavcan/protocol/NodeStatus.hpp>
 #include "stream.h"
+#include <cvra/motor/config/EnableMotor.hpp>
 /*
 #include <cvra/motor/config/LoadConfiguration.hpp>
 #include <cvra/motor/config/CurrentPID.hpp>
 #include <cvra/motor/config/VelocityPID.hpp>
 #include <cvra/motor/config/PositionPID.hpp>
 #include <cvra/motor/config/TorqueLimit.hpp>
-#include <cvra/motor/config/EnableMotor.hpp>
 #include <cvra/motor/config/FeedbackStream.hpp>
 #include <cvra/StringID.hpp>
 #include <cvra/motor/EmergencyStop.hpp>
@@ -434,17 +434,19 @@ static THD_FUNCTION(uavcan_node, arg)
     //     uavcan_failure("cvra::motor::config::TorqueLimit server");
     // }
 
-    // /** Enable Motor config */
-    // uavcan::Subscriber<cvra::motor::config::EnableMotor> enable_motor_srv(node);
-    // const int enable_motor_srv_res = enable_motor_srv.start(
-    //     [&](const uavcan::ReceivedDataStructure<cvra::motor::config::EnableMotor>& req)
-    //     {
-    //         control_enable(req.enable);
-    //     });
+    /** Enable Motor config */
+    uavcan::ServiceServer<cvra::motor::config::EnableMotor> enable_motor_srv(node);
+    const int enable_motor_srv_res = enable_motor_srv.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::motor::config::EnableMotor::Request>& req,
+                                                cvra::motor::config::EnableMotor::Response& rsp)
+        {
+            (void) rsp;     /* empty response */
+            control_enable(req.enable);
+        });
 
-    // if (enable_motor_srv_res < 0) {
-    //     uavcan_failure("cvra::motor::config::EnableMotor server");
-    // }
+    if (enable_motor_srv_res < 0) {
+        uavcan_failure("cvra::motor::config::EnableMotor server");
+    }
 
     while (true) {
         int res = node.spin(uavcan::MonotonicDuration::fromMSec(1000/UAVCAN_SPIN_FREQUENCY));
