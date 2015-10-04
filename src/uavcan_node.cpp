@@ -5,7 +5,6 @@
 #include <uavcan/protocol/NodeStatus.hpp>
 #include <lwip/api.h>
 // #include <cvra/motor/control/Velocity.hpp>
-// #include <cvra/Reboot.hpp>
 // #include <cvra/motor/config/VelocityPID.hpp>
 // #include <cvra/motor/config/PositionPID.hpp>
 // #include <cvra/motor/config/CurrentPID.hpp>
@@ -16,6 +15,7 @@
 // #include <cvra/motor/feedback/MotorEncoderPosition.hpp>
 // #include <cvra/motor/feedback/MotorPosition.hpp>
 // #include <cvra/motor/feedback/MotorTorque.hpp>
+#include <cvra/Reboot.hpp>
 #include <cvra/StringID.hpp>
 #include "robot_pose.h"
 #include <simplerpc/message.h>
@@ -314,12 +314,12 @@ void main(void *arg)
     node.getNodeStatusProvider().setHealthOk();
 
 
-    // uavcan::Publisher<cvra::Reboot> reboot_pub(node);
-    // const int reboot_pub_init_res = reboot_pub.init();
-    // if (reboot_pub_init_res < 0)
-    // {
-    //     node_fail("cvra::Reboot publisher");
-    // }
+    uavcan::Publisher<cvra::Reboot> reboot_pub(node);
+    const int reboot_pub_init_res = reboot_pub.init();
+    if (reboot_pub_init_res < 0)
+    {
+        node_fail("cvra::Reboot publisher");
+    }
 
     // uavcan::Publisher<cvra::motor::control::Velocity> velocity_ctrl_setpt_pub(node);
     // const int velocity_ctrl_setpt_pub_init_res = velocity_ctrl_setpt_pub.init();
@@ -336,20 +336,20 @@ void main(void *arg)
             // log warning
         }
 
-//         // reboot command
-//         int button = palReadPad(GPIOA, GPIOA_BUTTON_WKUP);
-//         if (button || reboot_node_id) {
-//             cvra::Reboot reboot_msg;
-//             reboot_msg.bootmode = reboot_msg.BOOTLOADER_TIMEOUT;
-//             if (button || reboot_node_id > 127) {
-//                 reboot_pub.broadcast(reboot_msg);
-//             } else {
+        // reboot command
+        int button = palReadPad(GPIOA, GPIOA_BUTTON_WKUP);
+        if (button || reboot_node_id) {
+            cvra::Reboot reboot_msg;
+            reboot_msg.bootmode = reboot_msg.BOOTLOADER_TIMEOUT;
+            if (button || reboot_node_id > 127) {
+                reboot_pub.broadcast(reboot_msg);
+            } else {
 
-// #warning "Unicast is simply disabled. Won't work as is."
-// //                reboot_pub.unicast(reboot_msg, uavcan::NodeID(reboot_node_id));
-//             }
-//             reboot_node_id = 0;
-//         }
+#warning "Unicast is simply disabled. Won't work as is."
+//                reboot_pub.unicast(reboot_msg, uavcan::NodeID(reboot_node_id));
+            }
+            reboot_node_id = 0;
+        }
 
 //         motor_driver_t *drv_list;
 //         uint16_t drv_list_len;
