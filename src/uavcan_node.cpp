@@ -3,7 +3,6 @@
 #include <hal.h>
 #include <uavcan_stm32/uavcan_stm32.hpp>
 #include <uavcan/protocol/NodeStatus.hpp>
-// #include <uavcan/protocol/global_time_sync_master.hpp>
 #include <lwip/api.h>
 #include <cvra/motor/feedback/CurrentPID.hpp>
 #include <cvra/motor/feedback/VelocityPID.hpp>
@@ -127,20 +126,6 @@ void main(void *arg)
     odometry_encoder_record_sample(&enc_right[1], 0, 0);
     odometry_encoder_record_sample(&enc_left[0], 0, 0);
     odometry_encoder_record_sample(&enc_left[1], 0, 0);
-
-    // /*
-    //  * Time synchronizer
-    //  */
-    // uavcan::UtcDuration adjustment;
-    // uint64_t utc_time_init = 1234;
-    // adjustment = uavcan::UtcTime::fromUSec(utc_time_init) - uavcan::UtcTime::fromUSec(0);
-    // node.getSystemClock().adjustUtc(adjustment);
-
-    // static uavcan::GlobalTimeSyncMaster time_sync_master(node);
-    // res = time_sync_master.init();;
-    // if (res < 0) {
-    //     node_fail("TimeSyncMaster");
-    // }
 
     /*
      * NodeStatus subscriber
