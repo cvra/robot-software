@@ -20,7 +20,12 @@
 
 using namespace uavcan_node;
 
+void speed_pid_client_cb(const uavcan::ServiceCallResult<cvra::motor::config::VelocityPID>& call_result);
+void position_pid_client_cb(const uavcan::ServiceCallResult<cvra::motor::config::PositionPID>& call_result);
+void current_pid_client_cb(const uavcan::ServiceCallResult<cvra::motor::config::CurrentPID>& call_result);
+void config_client_cb(const uavcan::ServiceCallResult<cvra::motor::config::LoadConfiguration>& call_result);
 void enable_client_cb(const uavcan::ServiceCallResult<cvra::motor::config::EnableMotor>& call_result);
+void feedback_stream_pub_cb(const uavcan::ServiceCallResult<cvra::motor::config::FeedbackStream>& call_result);
 
 struct can_driver_s {
     uavcan::ServiceClient<cvra::motor::config::VelocityPID> speed_pid_client;
@@ -49,18 +54,18 @@ struct can_driver_s {
         voltage_pub(getNode()),
         trajectory_pub(getNode())
     {
-        // speed_pid_client.init();
-        // speed_pid_client.setCallback();
-        // position_pid_client.init();
-        // position_pid_client.setCallback();
-        // current_pid_client.init();
-        // current_pid_client.setCallback();
-        // config_client.init();
-        // config_client.setCallback();
-        // enable_client.init();
-        // enable_client.setCallback(enable_client_cb);
-        // feedback_stream_pub.init();
-        // feedback_stream_pub.setCallback();
+        speed_pid_client.init();
+        speed_pid_client.setCallback(speed_pid_client_cb);
+        position_pid_client.init();
+        position_pid_client.setCallback(position_pid_client_cb);
+        current_pid_client.init();
+        current_pid_client.setCallback(current_pid_client_cb);
+        config_client.init();
+        config_client.setCallback(config_client_cb);
+        enable_client.init();
+        enable_client.setCallback(enable_client_cb);
+        feedback_stream_pub.init();
+        feedback_stream_pub.setCallback(feedback_stream_pub_cb);
         enabled = false;
         last_setpoint_update = timestamp_get();
     }
@@ -102,8 +107,7 @@ static void send_stream_config(struct can_driver_s *can_drv, int node_id, uint8_
     }
     feedback_stream_config.frequency = frequency;
 
-#warning "Unicast is simply disabled. Won't work as is."
-//    can_drv->feedback_stream_pub.unicast(feedback_stream_config, node_id);
+   can_drv->feedback_stream_pub.call(node_id, feedback_stream_config);
 }
 
 
@@ -152,8 +156,7 @@ void motor_driver_send_initial_config(motor_driver_t *d)
 
     config_msg.mode = parameter_integer_get(&d->config.mode); // todo !
 
-#warning "Unicast is simply disabled. Won't work as is."
-    //can_drv->config_client.unicast(config_msg, node_id);
+    can_drv->config_client.call(node_id, config_msg);
 
     can_drv->enabled = false;
 
@@ -179,8 +182,7 @@ void motor_driver_uavcan_update_config(motor_driver_t *d)
             request.pid.kd = parameter_scalar_get(&d->config.position_pid.kd);
             request.pid.ilimit = parameter_scalar_get(&d->config.position_pid.ilimit);
 
-#warning "Unicast is simply disabled. Won't work as is."
-            //can_drv->position_pid_client.unicast(request, node_id);
+            can_drv->position_pid_client.call(node_id, request);
         }
 
         if (parameter_namespace_contains_changed(&d->config.velocity_pid.root)) {
@@ -190,8 +192,7 @@ void motor_driver_uavcan_update_config(motor_driver_t *d)
             request.pid.kd = parameter_scalar_get(&d->config.velocity_pid.kd);
             request.pid.ilimit = parameter_scalar_get(&d->config.velocity_pid.ilimit);
 
-#warning "Unicast is simply disabled. Won't work as is."
-            //can_drv->speed_pid_client.unicast(request, node_id);
+            can_drv->speed_pid_client.call(node_id, request);
         }
 
         if (parameter_namespace_contains_changed(&d->config.current_pid.root)) {
@@ -201,8 +202,7 @@ void motor_driver_uavcan_update_config(motor_driver_t *d)
             request.pid.kd = parameter_scalar_get(&d->config.current_pid.kd);
             request.pid.ilimit = parameter_scalar_get(&d->config.current_pid.ilimit);
 
-#warning "Unicast is simply disabled. Won't work as is."
-            //can_drv->current_pid_client.unicast(request, node_id);
+            can_drv->current_pid_client.call(node_id, request);
         }
     }
     if (parameter_namespace_contains_changed(&d->config.stream)) {
@@ -255,11 +255,6 @@ void motor_driver_uavcan_update_config(motor_driver_t *d)
     }
 }
 
-void enable_client_cb(const uavcan::ServiceCallResult<cvra::motor::config::EnableMotor>& call_result)
-{
-    (void) call_result;
-}
-
 void motor_enable(can_driver_s *d, int node_id)
 {
     cvra::motor::config::EnableMotor::Request enable_msg;
@@ -307,29 +302,29 @@ void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
         case MOTOR_CONTROL_MODE_VELOCITY: {
             motor_enable(can_drv, node_id);
             velocity_setpoint.velocity = motor_driver_get_velocity_setpt(d);
-#warning "Unicast is simply disabled. Won't work as is."
-            //can_drv->velocity_pub.unicast(velocity_setpoint, node_id);
+            velocity_setpoint.node_id = node_id;
+            can_drv->velocity_pub.broadcast(velocity_setpoint);
         } break;
 
         case MOTOR_CONTROL_MODE_POSITION: {
             motor_enable(can_drv, node_id);
             position_setpoint.position = motor_driver_get_position_setpt(d);
-#warning "Unicast is simply disabled. Won't work as is."
-            //can_drv->position_pub.unicast(position_setpoint, node_id);
+            position_setpoint.node_id = node_id;
+            can_drv->position_pub.broadcast(position_setpoint);
         } break;
 
         case MOTOR_CONTROL_MODE_TORQUE: {
             motor_enable(can_drv, node_id);
             torque_setpoint.torque = motor_driver_get_torque_setpt(d);
-#warning "Unicast is simply disabled. Won't work as is."
-            //can_drv->torque_pub.unicast(torque_setpoint, node_id);
+            torque_setpoint.node_id = node_id;
+            can_drv->torque_pub.broadcast(torque_setpoint);
         } break;
 
         case MOTOR_CONTROL_MODE_VOLTAGE: {
             motor_enable(can_drv, node_id);
             voltage_setpoint.voltage = motor_driver_get_voltage_setpt(d);
-#warning "Unicast is simply disabled. Won't work as is."
-            //can_drv->voltage_pub.unicast(voltage_setpoint, node_id);
+            voltage_setpoint.node_id = node_id;
+            can_drv->voltage_pub.broadcast(voltage_setpoint);
         } break;
 
         case MOTOR_CONTROL_MODE_TRAJECTORY: {
@@ -346,8 +341,8 @@ void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
             trajectory_setpoint.velocity = velocity;
             trajectory_setpoint.acceleration = acceleration;
             trajectory_setpoint.torque = torque;
-#warning "Unicast is simply disabled. Won't work as is."
-            //can_drv->trajectory_pub.unicast(trajectory_setpoint, node_id);
+            trajectory_setpoint.node_id = node_id;
+            can_drv->trajectory_pub.broadcast(trajectory_setpoint);
         } break;
 
         case MOTOR_CONTROL_MODE_DISABLED: {
@@ -361,3 +356,46 @@ void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
     can_drv->last_setpoint_update = timestamp_get();
     motor_driver_unlock(d);
 }
+
+void speed_pid_client_cb(const uavcan::ServiceCallResult<cvra::motor::config::VelocityPID>& call_result)
+{
+    if (!call_result.isSuccessful()) {
+        chSysHalt("uavcan service call timeout");
+    }
+}
+
+void position_pid_client_cb(const uavcan::ServiceCallResult<cvra::motor::config::PositionPID>& call_result)
+{
+    if (!call_result.isSuccessful()) {
+        chSysHalt("uavcan service call timeout");
+    }
+}
+
+void current_pid_client_cb(const uavcan::ServiceCallResult<cvra::motor::config::CurrentPID>& call_result)
+{
+    if (!call_result.isSuccessful()) {
+        chSysHalt("uavcan service call timeout");
+    }
+}
+
+void config_client_cb(const uavcan::ServiceCallResult<cvra::motor::config::LoadConfiguration>& call_result)
+{
+    if (!call_result.isSuccessful()) {
+        chSysHalt("uavcan service call timeout");
+    }
+}
+
+void enable_client_cb(const uavcan::ServiceCallResult<cvra::motor::config::EnableMotor>& call_result)
+{
+    if (!call_result.isSuccessful()) {
+        chSysHalt("uavcan service call timeout");
+    }
+}
+
+void feedback_stream_pub_cb(const uavcan::ServiceCallResult<cvra::motor::config::FeedbackStream>& call_result)
+{
+    if (!call_result.isSuccessful()) {
+        chSysHalt("uavcan service call timeout");
+    }
+}
+

@@ -3,18 +3,15 @@
 #include <hal.h>
 #include <uavcan_stm32/uavcan_stm32.hpp>
 #include <uavcan/protocol/NodeStatus.hpp>
+// #include <uavcan/protocol/global_time_sync_master.hpp>
 #include <lwip/api.h>
-// #include <cvra/motor/control/Velocity.hpp>
-// #include <cvra/motor/config/VelocityPID.hpp>
-// #include <cvra/motor/config/PositionPID.hpp>
-// #include <cvra/motor/config/CurrentPID.hpp>
-// #include <cvra/motor/feedback/CurrentPID.hpp>
-// #include <cvra/motor/feedback/VelocityPID.hpp>
-// #include <cvra/motor/feedback/PositionPID.hpp>
-// #include <cvra/motor/feedback/Index.hpp>
-// #include <cvra/motor/feedback/MotorEncoderPosition.hpp>
-// #include <cvra/motor/feedback/MotorPosition.hpp>
-// #include <cvra/motor/feedback/MotorTorque.hpp>
+#include <cvra/motor/feedback/CurrentPID.hpp>
+#include <cvra/motor/feedback/VelocityPID.hpp>
+#include <cvra/motor/feedback/PositionPID.hpp>
+#include <cvra/motor/feedback/Index.hpp>
+#include <cvra/motor/feedback/MotorEncoderPosition.hpp>
+#include <cvra/motor/feedback/MotorPosition.hpp>
+#include <cvra/motor/feedback/MotorTorque.hpp>
 #include <cvra/Reboot.hpp>
 #include <cvra/StringID.hpp>
 #include "robot_pose.h"
@@ -24,7 +21,7 @@
 #include "timestamp/timestamp.h"
 #include "odometry/robot_base.h"
 #include "motor_driver.h"
-// #include "motor_driver_uavcan.h"
+#include "motor_driver_uavcan.h"
 #include "odometry/odometry.h"
 #include "config.h"
 #include "uavcan_node_private.hpp"
@@ -33,8 +30,6 @@
 #include "main.h"
 
 #include <errno.h>
-
-#include <uavcan/protocol/global_time_sync_master.hpp>
 
 
 #define UAVCAN_SPIN_FREQ    500 // [Hz]
@@ -112,34 +107,26 @@ void main(void *arg)
         node_fail("node start");
     }
 
-    // /*
-    //  * Initialising odometry
-    //  */
-    // static odometry_differential_base_t robot_base;
-    // struct robot_base_pose_2d_s init_pose = {0.0f, 0.0f, 0.0f};
-    // odometry_base_init(&robot_base,
-    //                    init_pose,
-    //                    config_get_scalar("/master/odometry/radius_right"),
-    //                    config_get_scalar("/master/odometry/radius_left"),
-    //                    ROBOT_RIGHT_WHEEL_DIRECTION,
-    //                    ROBOT_LEFT_WHEEL_DIRECTION,
-    //                    config_get_scalar("/master/odometry/wheelbase"),
-    //                    timestamp_get());
+    /*
+     * Initialising odometry
+     */
+    static odometry_differential_base_t robot_base;
+    struct robot_base_pose_2d_s init_pose = {0.0f, 0.0f, 0.0f};
+    odometry_base_init(&robot_base,
+                       init_pose,
+                       config_get_scalar("/master/odometry/radius_right"),
+                       config_get_scalar("/master/odometry/radius_left"),
+                       ROBOT_RIGHT_WHEEL_DIRECTION,
+                       ROBOT_LEFT_WHEEL_DIRECTION,
+                       config_get_scalar("/master/odometry/wheelbase"),
+                       timestamp_get());
 
-    // static odometry_encoder_sample_t enc_right[2];
-    // static odometry_encoder_sample_t enc_left[2];
-    // odometry_encoder_record_sample(&enc_right[0], 0, 0);
-    // odometry_encoder_record_sample(&enc_right[1], 0, 0);
-    // odometry_encoder_record_sample(&enc_left[0], 0, 0);
-    // odometry_encoder_record_sample(&enc_left[1], 0, 0);
-
-    // /*
-    //  * Initializing the UAVCAN node - this may take a while
-    //  */
-    // do {
-    //     res = node.start();
-    //     chThdSleepMilliseconds(1000);
-    // } while (res < 0);
+    static odometry_encoder_sample_t enc_right[2];
+    static odometry_encoder_sample_t enc_left[2];
+    odometry_encoder_record_sample(&enc_right[0], 0, 0);
+    odometry_encoder_record_sample(&enc_right[1], 0, 0);
+    odometry_encoder_record_sample(&enc_left[0], 0, 0);
+    odometry_encoder_record_sample(&enc_left[1], 0, 0);
 
     // /*
     //  * Time synchronizer
@@ -179,135 +166,135 @@ void main(void *arg)
         node_fail("cvra::StringID subscriber");
     }
 
-    // uavcan::Subscriber<cvra::motor::feedback::CurrentPID> current_pid_sub(node);
-    // res = current_pid_sub.start(
-    //     [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::CurrentPID>& msg)
-    //     {
-    //         motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
-    //         if (driver != NULL) {
-    //             motor_driver_set_stream_value(driver, MOTOR_STREAM_CURRENT, msg.current);
-    //             motor_driver_set_stream_value(driver, MOTOR_STREAM_CURRENT_SETPT, msg.current_setpoint);
-    //             motor_driver_set_stream_value(driver, MOTOR_STREAM_MOTOR_VOLTAGE, msg.motor_voltage);
-    //         }
-    //     }
-    // );
-    // if (res != 0) {
-    //     node_fail("cvra::motor::feedback::CurrentPID subscriber");
-    // }
+    uavcan::Subscriber<cvra::motor::feedback::CurrentPID> current_pid_sub(node);
+    res = current_pid_sub.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::CurrentPID>& msg)
+        {
+            motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
+            if (driver != NULL) {
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_CURRENT, msg.current);
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_CURRENT_SETPT, msg.current_setpoint);
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_MOTOR_VOLTAGE, msg.motor_voltage);
+            }
+        }
+    );
+    if (res != 0) {
+        node_fail("cvra::motor::feedback::CurrentPID subscriber");
+    }
 
-    // uavcan::Subscriber<cvra::motor::feedback::VelocityPID> velocity_pid_sub(node);
-    // res = velocity_pid_sub.start(
-    //     [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::VelocityPID>& msg)
-    //     {
-    //         motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
-    //         if (driver != NULL) {
-    //             motor_driver_set_stream_value(driver, MOTOR_STREAM_VELOCITY, msg.velocity);
-    //             motor_driver_set_stream_value(driver, MOTOR_STREAM_VELOCITY_SETPT, msg.velocity_setpoint);
-    //         }
-    //     }
-    // );
-    // if (res != 0) {
-    //     node_fail("cvra::motor::feedback::VelocityPID subscriber");
-    // }
+    uavcan::Subscriber<cvra::motor::feedback::VelocityPID> velocity_pid_sub(node);
+    res = velocity_pid_sub.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::VelocityPID>& msg)
+        {
+            motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
+            if (driver != NULL) {
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_VELOCITY, msg.velocity);
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_VELOCITY_SETPT, msg.velocity_setpoint);
+            }
+        }
+    );
+    if (res != 0) {
+        node_fail("cvra::motor::feedback::VelocityPID subscriber");
+    }
 
-    // uavcan::Subscriber<cvra::motor::feedback::PositionPID> position_pid_sub(node);
-    // res = position_pid_sub.start(
-    //     [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::PositionPID>& msg)
-    //     {
-    //         motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
-    //         if (driver != NULL) {
-    //             motor_driver_set_stream_value(driver, MOTOR_STREAM_POSITION, msg.position);
-    //             motor_driver_set_stream_value(driver, MOTOR_STREAM_POSITION_SETPT, msg.position_setpoint);
-    //         }
-    //     }
-    // );
-    // if (res != 0) {
-    //     node_fail("cvra::motor::feedback::PositionPID subscriber");
-    // }
+    uavcan::Subscriber<cvra::motor::feedback::PositionPID> position_pid_sub(node);
+    res = position_pid_sub.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::PositionPID>& msg)
+        {
+            motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
+            if (driver != NULL) {
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_POSITION, msg.position);
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_POSITION_SETPT, msg.position_setpoint);
+            }
+        }
+    );
+    if (res != 0) {
+        node_fail("cvra::motor::feedback::PositionPID subscriber");
+    }
 
-    // uavcan::Subscriber<cvra::motor::feedback::Index> index_sub(node);
-    // res = index_sub.start(
-    //     [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::Index>& msg)
-    //     {
-    //         motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
-    //         if (driver != NULL) {
-    //             motor_driver_set_stream_value(driver, MOTOR_STREAM_INDEX, msg.position);
-    //         }
-    //     }
-    // );
-    // if (res != 0) {
-    //     node_fail("cvra::motor::feedback::Index subscriber");
-    // }
+    uavcan::Subscriber<cvra::motor::feedback::Index> index_sub(node);
+    res = index_sub.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::Index>& msg)
+        {
+            motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
+            if (driver != NULL) {
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_INDEX, msg.position);
+            }
+        }
+    );
+    if (res != 0) {
+        node_fail("cvra::motor::feedback::Index subscriber");
+    }
 
-    // uavcan::Subscriber<cvra::motor::feedback::MotorPosition> motor_pos_sub(node);
-    // res = motor_pos_sub.start(
-    //     [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::MotorPosition>& msg)
-    //     {
-    //         motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
-    //         if (driver != NULL) {
-    //             motor_driver_set_stream_value(driver, MOTOR_STREAM_POSITION, msg.position);
-    //             motor_driver_set_stream_value(driver, MOTOR_STREAM_VELOCITY, msg.velocity);
-    //         }
-    //     }
-    // );
-    // if (res != 0) {
-    //     node_fail("cvra::motor::feedback::MotorPosition subscriber");
-    // }
+    uavcan::Subscriber<cvra::motor::feedback::MotorPosition> motor_pos_sub(node);
+    res = motor_pos_sub.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::MotorPosition>& msg)
+        {
+            motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
+            if (driver != NULL) {
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_POSITION, msg.position);
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_VELOCITY, msg.velocity);
+            }
+        }
+    );
+    if (res != 0) {
+        node_fail("cvra::motor::feedback::MotorPosition subscriber");
+    }
 
-    // uavcan::Subscriber<cvra::motor::feedback::MotorTorque> motor_torque_sub(node);
-    // res = motor_torque_sub.start(
-    //     [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::MotorTorque>& msg)
-    //     {
-    //         motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
-    //         if (driver != NULL) {
-    //             motor_driver_set_stream_value(driver, MOTOR_STREAM_MOTOR_TORQUE, msg.torque);
-    //             motor_driver_set_stream_value(driver, MOTOR_STREAM_POSITION, msg.position);
-    //         }
-    //     }
-    // );
-    // if (res != 0) {
-    //     node_fail("cvra::motor::feedback::MotorTorque subscriber");
-    // }
+    uavcan::Subscriber<cvra::motor::feedback::MotorTorque> motor_torque_sub(node);
+    res = motor_torque_sub.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::MotorTorque>& msg)
+        {
+            motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
+            if (driver != NULL) {
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_MOTOR_TORQUE, msg.torque);
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_POSITION, msg.position);
+            }
+        }
+    );
+    if (res != 0) {
+        node_fail("cvra::motor::feedback::MotorTorque subscriber");
+    }
 
-    // uavcan::Subscriber<cvra::motor::feedback::MotorEncoderPosition> enc_pos_sub(node);
-    // res = enc_pos_sub.start(
-    //     [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::MotorEncoderPosition>& msg)
-    //     {
-    //         chMtxLock(&robot_pose_lock);
-    //         if(msg.getSrcNodeID().get() == 29) {
-    //             odometry_encoder_record_sample(&enc_right[0], enc_right[1].timestamp, enc_right[1].value);
-    //             odometry_encoder_record_sample(&enc_right[1], timestamp_get(), msg.raw_encoder_position);
-    //             palTogglePad(GPIOF, GPIOF_LED_YELLOW_1);
-    //         } else if(msg.getSrcNodeID().get() == 31) {
-    //             odometry_encoder_record_sample(&enc_left[0], enc_left[1].timestamp, enc_left[1].value);
-    //             odometry_encoder_record_sample(&enc_left[1], timestamp_get(), msg.raw_encoder_position);
-    //         }
+    uavcan::Subscriber<cvra::motor::feedback::MotorEncoderPosition> enc_pos_sub(node);
+    res = enc_pos_sub.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::MotorEncoderPosition>& msg)
+        {
+            chMtxLock(&robot_pose_lock);
+            if(msg.getSrcNodeID().get() == 29) {
+                odometry_encoder_record_sample(&enc_right[0], enc_right[1].timestamp, enc_right[1].value);
+                odometry_encoder_record_sample(&enc_right[1], timestamp_get(), msg.raw_encoder_position);
+                palTogglePad(GPIOF, GPIOF_LED_YELLOW_1);
+            } else if(msg.getSrcNodeID().get() == 31) {
+                odometry_encoder_record_sample(&enc_left[0], enc_left[1].timestamp, enc_left[1].value);
+                odometry_encoder_record_sample(&enc_left[1], timestamp_get(), msg.raw_encoder_position);
+            }
 
-    //         parameter_namespace_t *odometry_ns;
-    //         odometry_ns = parameter_namespace_find(&global_config, "/master/odometry");
-    //         if (parameter_namespace_contains_changed(odometry_ns)) {
-    //             odometry_base_set_parameters(&robot_base,
-    //                                          config_get_scalar("/master/odometry/wheelbase"),
-    //                                          config_get_scalar("/master/odometry/radius_right"),
-    //                                          config_get_scalar("/master/odometry/radius_left"));
+            parameter_namespace_t *odometry_ns;
+            odometry_ns = parameter_namespace_find(&global_config, "/master/odometry");
+            if (parameter_namespace_contains_changed(odometry_ns)) {
+                odometry_base_set_parameters(&robot_base,
+                                             config_get_scalar("/master/odometry/wheelbase"),
+                                             config_get_scalar("/master/odometry/radius_right"),
+                                             config_get_scalar("/master/odometry/radius_left"));
 
-    //             palTogglePad(GPIOF, GPIOF_LED_YELLOW_2);
-    //         }
+                palTogglePad(GPIOF, GPIOF_LED_YELLOW_2);
+            }
 
-    //         /*
-    //          * Only call odometry update when an encoder value has been registered for each wheel
-    //          * ie when the last timestamp recorded is different from the previous one
-    //          */
-    //         if(enc_right[1].timestamp != enc_right[0].timestamp && enc_left[1].timestamp != enc_left[0].timestamp) {
-    //             odometry_base_update(&robot_base, enc_right[1], enc_left[1]);
-    //             odometry_base_get_pose(&robot_base, &robot_pose);
-    //         }
-    //         chMtxUnlock(&robot_pose_lock);
-    //     }
-    // );
-    // if (res != 0) {
-    //     node_fail("cvra::motor::feedback::MotorEncoderPosition subscriber");
-    // }
+            /*
+             * Only call odometry update when an encoder value has been registered for each wheel
+             * ie when the last timestamp recorded is different from the previous one
+             */
+            if(enc_right[1].timestamp != enc_right[0].timestamp && enc_left[1].timestamp != enc_left[0].timestamp) {
+                odometry_base_update(&robot_base, enc_right[1], enc_left[1]);
+                odometry_base_get_pose(&robot_base, &robot_pose);
+            }
+            chMtxUnlock(&robot_pose_lock);
+        }
+    );
+    if (res != 0) {
+        node_fail("cvra::motor::feedback::MotorEncoderPosition subscriber");
+    }
 
     // Mark the node as correctly initialized
     node.getNodeStatusProvider().setModeOperational();
@@ -321,14 +308,6 @@ void main(void *arg)
         node_fail("cvra::Reboot publisher");
     }
 
-    // uavcan::Publisher<cvra::motor::control::Velocity> velocity_ctrl_setpt_pub(node);
-    // const int velocity_ctrl_setpt_pub_init_res = velocity_ctrl_setpt_pub.init();
-    // if (velocity_ctrl_setpt_pub_init_res < 0)
-    // {
-    //     node_fail("cvra::motor::control::Velocity publisher");
-    // }
-
-
     while (true)
     {
         res = node.spin(uavcan::MonotonicDuration::fromMSec(1000/UAVCAN_SPIN_FREQ));
@@ -338,27 +317,20 @@ void main(void *arg)
 
         // reboot command
         int button = palReadPad(GPIOA, GPIOA_BUTTON_WKUP);
-        if (button || reboot_node_id) {
+        if (button) {
             cvra::Reboot reboot_msg;
             reboot_msg.bootmode = reboot_msg.BOOTLOADER_TIMEOUT;
-            if (button || reboot_node_id > 127) {
-                reboot_pub.broadcast(reboot_msg);
-            } else {
-
-#warning "Unicast is simply disabled. Won't work as is."
-//                reboot_pub.unicast(reboot_msg, uavcan::NodeID(reboot_node_id));
-            }
-            reboot_node_id = 0;
+            reboot_pub.broadcast(reboot_msg);
         }
 
-//         motor_driver_t *drv_list;
-//         uint16_t drv_list_len;
-//         motor_manager_get_list(&motor_manager, &drv_list, &drv_list_len);
-//         int i;
-//         for (i = 0; i < drv_list_len; i++) {
-//             motor_driver_uavcan_update_config(&drv_list[i]);
-//             motor_driver_uavcan_send_setpoint(&drv_list[i]);
-//         }
+        motor_driver_t *drv_list;
+        uint16_t drv_list_len;
+        motor_manager_get_list(&motor_manager, &drv_list, &drv_list_len);
+        int i;
+        for (i = 0; i < drv_list_len; i++) {
+            motor_driver_uavcan_update_config(&drv_list[i]);
+            motor_driver_uavcan_send_setpoint(&drv_list[i]);
+        }
 
         // todo: publish time once a second
         // time_sync_master.publish();
