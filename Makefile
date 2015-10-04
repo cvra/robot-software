@@ -248,7 +248,7 @@ src/src.mk: package.yml
 # run uavcan dsdl compiler
 .PHONY: dsdlc
 dsdlc:
-	$(LIBUAVCAN_DSDLC) $(UAVCAN_DSDL_DIR)
+	$(LIBUAVCAN_DSDLC) cvra $(UAVCAN_DSDL_DIR)
 
 .PHONY: tests
 tests: CMakeLists.txt
