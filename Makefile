@@ -248,7 +248,7 @@ flash: build/$(PROJECT).elf
 .PHONY: dsdlc
 dsdlc:
 	@$(COLOR_PRINTF) "Running uavcan dsdl compiler"
-	$(LIBUAVCAN_DSDLC) $(UAVCAN_DSDL_DIR)
+	$(LIBUAVCAN_DSDLC) cvra $(UAVCAN_DSDL_DIR)
 
 .PHONY: heap_size
 heap_size: build/$(PROJECT).elf
