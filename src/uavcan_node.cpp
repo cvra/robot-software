@@ -87,8 +87,8 @@ void main(void *arg)
 
     Node& node = getNode();
 
-    uavcan::uint32_t id = *(uint8_t *)arg;
-    node.setNodeID(id);
+    uint8_t id = *(uint8_t *)arg;
+    node.setNodeID(uavcan::NodeID(id));
 
     node.setName("cvra.master");
 
