@@ -203,6 +203,7 @@ UDEFS = $(BOARDDEFS)
 UDEFS += -DUAVCAN_STM32_CHIBIOS=1 \
 		 -DUAVCAN_TOSTRING=0 \
 		 -DUAVCAN_DEBUG=0 \
+		 -DUAVCAN_STM32_TIMER_NUMBER=2 \
 		 -DUAVCAN_STM32_NUM_IFACES=1
 
 # Define ASM defines here
@@ -221,9 +222,10 @@ ULIBS =
 # UAVCAN
 #
 include uavcan/libuavcan/include.mk
+include uavcan/libuavcan_drivers/stm32/driver/include.mk
 
-CPPSRC += $(LIBUAVCAN_SRC)
-UINCDIR += $(LIBUAVCAN_INC) ./dsdlc_generated
+CPPSRC += $(LIBUAVCAN_SRC) $(LIBUAVCAN_STM32_SRC)
+UINCDIR += $(LIBUAVCAN_INC) $(LIBUAVCAN_STM32_INC) ./dsdlc_generated
 
 #
 # End of user defines
