@@ -70,6 +70,14 @@ void panic_hook(const char *reason)
     palSetPad(GPIOF, GPIOF_LED_GREEN_2);
 
     panic_log_write(reason);
+    if (ch.rlist.r_current != NULL) {
+        panic_log_printf("\ncurrent thread: ");
+        if (ch.rlist.r_current->p_name != NULL) {
+            panic_log_printf("%s\n", ch.rlist.r_current->p_name);
+        } else {
+            panic_log_printf("0x%p\n", ch.rlist.r_current);
+        }
+    }
 #if defined(DEBUG)
     BlockingUARTDriver panic_uart;
     blocking_uart_init(&panic_uart, USART3, DEBUG_UART_BAUDRATE);
