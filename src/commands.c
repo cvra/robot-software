@@ -77,6 +77,13 @@ static void cmd_crashme(BaseSequentialStream *chp, int argc, char **argv) {
     chSysHalt(__FUNCTION__);
 }
 
+static void cmd_reboot(BaseSequentialStream *chp, int argc, char **argv) {
+    (void) argv;
+    (void) argc;
+    (void) chp;
+    NVIC_SystemReset();
+}
+
 static void cmd_panic_log(BaseSequentialStream *chp, int argc, char **argv) {
     (void) argv;
     (void) argc;
@@ -286,6 +293,7 @@ const ShellCommand commands[] = {
     {"threads", cmd_threads},
     {"panic_log", cmd_panic_log},
     {"crashme", cmd_crashme},
+    {"reboot", cmd_reboot},
     {"time", cmd_time},
     {"rpc_client_demo", cmd_rpc_client_test},
     {"node", cmd_node},
