@@ -27,19 +27,26 @@
 #include "malloc_lock.h"
 #include <lwipthread.h>
 
+#if defined(DEBUG)
+#warning DEBUG is defined, remove for match!
+#endif
 
 /* Command line related.                                                     */
 #define SHELL_WA_SIZE   THD_WORKING_AREA_SIZE(2048)
-
-
-
-motor_manager_t motor_manager;
-
-
-
 static const ShellConfig shell_cfg1 = {
     (BaseSequentialStream *)&SDU1,
     commands
+};
+
+motor_manager_t motor_manager;
+
+// debug UART
+#define DEBUG_UART_BAUDRATE 119200
+static const SerialConfig debug_uart_config = {
+    .speed = DEBUG_UART_BAUDRATE,
+    .cr1 = 0,
+    .cr2 = USART_CR2_STOP1_BITS | USART_CR2_LINEN,
+    .cr3 = 0
 };
 
 /**
@@ -60,10 +67,26 @@ void panic_hook(const char *reason)
     palSetPad(GPIOF, GPIOF_LED_GREEN_1);
     palSetPad(GPIOF, GPIOF_LED_GREEN_2);
 
-//    panic_log_write(reason);
+    panic_log_write(reason);
+#if defined(DEBUG)
+    BlockingUARTDriver panic_uart;
+    blocking_uart_init(&panic_uart, USART3, DEBUG_UART_BAUDRATE);
 
+    // block to preserve fault state
+    const char *msg = panic_log_read();
+    while(1) {
+        if (msg != NULL) {
+            chprintf((BaseSequentialStream *)&panic_uart, "kernel panic:\n%s\n", msg);
+        }
+        unsigned int i = 10000000;
+        while(i--) {
+            __asm__ volatile ("nop");
+        }
+    }
+#else
     // reboot
-    //NVIC_SystemReset();
+    NVIC_SystemReset();
+#endif
 }
 
 /** Late init hook, called before c++ static constructors. */
@@ -84,7 +107,7 @@ int main(void) {
     sduObjectInit(&SDU1);
     sduStart(&SDU1, &serusbcfg);
 
-    sdStart(&SD3, NULL);
+    sdStart(&SD3, &debug_uart_config);
     chprintf((BaseSequentialStream *)&SD3 , "\n> boot\n");
 
     /*
