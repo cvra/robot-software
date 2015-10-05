@@ -1,38 +1,42 @@
-#include "panic_log.h"
-#include <string.h>
+#include <ch.h>
+#include <chprintf.h>
+#include <memstreams.h>
 #include <crc/crc32.h>
+#include <string.h>
+#include "panic_log.h"
 
 __attribute__ ((section(".noinit")))
-__attribute__ ((aligned(4)))
-char panic_log[1024];
-const size_t panic_log_len = sizeof(panic_log);
+char panic_log[500];
+__attribute__ ((section(".noinit")))
+uint32_t panic_log_crc;
+
+bool panic_log_stream_is_initialized = false;
+MemoryStream panic_log_stream;
+
+void panic_log_printf(const char *fmt, ...)
+{
+    if (!panic_log_stream_is_initialized) {
+        msObjectInit(&panic_log_stream, (uint8_t *)&panic_log[0], sizeof(panic_log), 0);
+        panic_log_stream_is_initialized = true;
+    }
+
+    va_list ap;
+    va_start(ap, fmt);
+    chvprintf((BaseSequentialStream *)&panic_log_stream, fmt, ap);
+    va_end(ap);
+
+    panic_log_crc = crc32(0, &panic_log[0], sizeof(panic_log));
+}
 
 void panic_log_write(const char *msg)
 {
-    uint32_t *crc = (uint32_t *)&panic_log[0];
-    char *buffer = &panic_log[0] + sizeof(uint32_t);
-    size_t len = sizeof(panic_log) - sizeof(uint32_t);
-
-    strncpy(buffer, msg, len);
-    // Terminates the buffer
-    size_t msg_len = strnlen(msg, len);
-    if (msg_len >= len) {
-        buffer[len - 1] = '\0';
-    } else {
-        buffer[msg_len] = '\0';
-    }
-
-    *crc = crc32(0, buffer, len);
+    panic_log_printf("%s", msg);
 }
 
 const char *panic_log_read(void)
 {
-    uint32_t *crc = (uint32_t *)&panic_log[0];
-    char *buffer = &panic_log[0] + sizeof(uint32_t);
-    size_t len = sizeof(panic_log) - sizeof(uint32_t);
-
-    if (*crc == crc32(0, buffer, len)) {
-        return buffer;
+    if (panic_log_crc == crc32(0, &panic_log[0], sizeof(panic_log))) {
+        return &panic_log[0];
     }
     return NULL;
 }

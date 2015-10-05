@@ -1,6 +1,9 @@
 #ifndef PANIC_LOG_H_
 #define PANIC_LOG_H_
 
+/** Formatted print a massage to the panic log. */
+void panic_log_printf(const char *fmt, ...);
+
 /** Writes the given message to the kernel panic log. */
 void panic_log_write(const char *msg);
 
