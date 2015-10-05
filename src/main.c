@@ -12,6 +12,8 @@
 #include "sntp/sntp.h"
 #include "unix_timestamp.h"
 #include "panic_log.h"
+#include "fault_debug.h"
+#include "blocking_uart_driver.h"
 #include "rpc_server.h"
 #include "uavcan_node.h"
 #include "timestamp/timestamp_stm32.h"
@@ -78,7 +80,7 @@ void panic_hook(const char *reason)
         if (msg != NULL) {
             chprintf((BaseSequentialStream *)&panic_uart, "kernel panic:\n%s\n", msg);
         }
-        unsigned int i = 10000000;
+        unsigned int i = 100000000;
         while(i--) {
             __asm__ volatile ("nop");
         }
@@ -93,6 +95,7 @@ void panic_hook(const char *reason)
 void __late_init(void)
 {
     /* C++ Static initializer requires working chibios. */
+    fault_debug_init();
     halInit();
     chSysInit();
     malloc_lock_init();
