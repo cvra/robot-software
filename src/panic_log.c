@@ -16,8 +16,8 @@ MemoryStream panic_log_stream;
 void panic_log_printf(const char *fmt, ...)
 {
     if (!panic_log_stream_is_initialized) {
-        msObjectInit(&panic_log_stream, (uint8_t *)&panic_log[0], sizeof(panic_log), 0);
-        panic_log_stream_is_initialized = true;
+        // clear & renitialize panic log
+        panic_log_clear();
     }
 
     va_list ap;
@@ -44,5 +44,10 @@ const char *panic_log_read(void)
 void panic_log_clear(void)
 {
     memset(&panic_log[0], 0, sizeof(panic_log));
+    panic_log_crc = 0;
+    // initialize stream object with buffer
+    msObjectInit(&panic_log_stream, (uint8_t *)&panic_log[0],
+        sizeof(panic_log) - 1, 0); // size - 1 for null terminated message
+    panic_log_stream_is_initialized = true;
 }
 
