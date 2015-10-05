@@ -109,7 +109,13 @@ void fault_handler(void *sp)
 
     // get fault name
     const char *isr;
-    uint32_t isr_nb = __get_IPSR();
+    enum  {
+        HardFault = 3,
+        MemManage = 4,
+        BusFault = 5,
+        UsageFault = 6,
+    } isr_nb;
+    isr_nb = __get_IPSR();
     if (isr_nb < 3 || isr_nb > 6) {
         isr = "unknown fault";
     } else {
@@ -133,17 +139,43 @@ void fault_handler(void *sp)
     panic_log_printf("r8-r12: %08x %08x %08x %08x %08x\n", ctx->r8, ctx->r9, ctx->r10, ctx->r11, ctx->r12);
     panic_log_printf("sp: %08x lr: %08x pc: %08x\n", old_sp, ctx->lr, ctx->pc);
 
+    uint16_t UFSR = (SCB_CFSR >> 16) & 0xffff;
     uint8_t BFSR = (SCB_CFSR >> 8) & 0xff;
     uint8_t MMFSR = (SCB_CFSR) & 0xff;
 
-    panic_log_printf("CFSR: %08x\n", SCB_CFSR);
+    panic_log_printf("UFSR: %04x BFSR: %02x MMFSR: %02x\n", UFSR, BFSR, MMFSR);
 
     if (MMFSR & MMFSR_MMARVALID) {
-        panic_log_printf("MemManageFault: 0x%08x\n", SCB_MMFAR);
+        panic_log_printf("address: 0x%08x\n", SCB_MMFAR);
     }
     if (BFSR & BFSR_BFARVALID) {
-        panic_log_printf("BusFault: 0x%08x\n", SCB_BFAR);
+        panic_log_printf("address: 0x%08x\n", SCB_BFAR);
+    }
+    if (UFSR & UFSR_UNALIGNED) {
+        panic_log_printf("\"Unaligned memory access\"\n");
+    }
+    if (UFSR & UFSR_DIVBYZERO) {
+        panic_log_printf("\"Division by zero\"\n");
+    }
+    if (MMFSR & MMFSR_IACCVIOL) {
+        panic_log_printf("\"Instruction access violation\"\n");
+    }
+    if (MMFSR & MMFSR_DACCVIOL) {
+        panic_log_printf("\"Data access violation\"\n");
     }
 
     chSysHalt(isr);
+}
+
+void fault_debug_init(void)
+{
+    // enable UsageFault
+    SCB->SHCSR |= SCB_SHCSR_USGFAULTENA_Msk;
+    // enable BusFault
+    SCB->SHCSR |= SCB_SHCSR_BUSFAULTENA_Msk;
+    // enable MemManageFault
+    SCB->SHCSR |= SCB_SHCSR_MEMFAULTENA_Msk;
+
+    // enable fault on division by zero
+    SCB->CCR |= SCB_CCR_DIV_0_TRP_Msk;
 }
