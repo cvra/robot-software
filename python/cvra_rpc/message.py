@@ -29,16 +29,17 @@ def decode(data):
     return name, data
 
 
-def create_request_handler(callbacks_dict):
+def create_request_handler(callbacks_dict, default_callback=lambda msg, args: None):
     """
     Returns a class derived from BaseRequestHandler that can be used with UDP
     socket server.
     """
     class Server(socketserver.BaseRequestHandler):
         callbacks = callbacks_dict
+        default_cb = default_callback
 
         def handle(self):
-            handle_message(self.request[0], self.callbacks)
+            handle_message(self.request[0], self.callbacks, self.default_cb)
 
     return Server
 
@@ -54,10 +55,12 @@ def send(target, name, args=None):
     sock.close()
 
 
-def handle_message(data, callbacks):
+def handle_message(data, callbacks, default_callback=lambda msg, args: None):
     """
     Handles a single datagram and calls the correct callback.
     """
     name, args = decode(data)
     if name in callbacks:
         callbacks[name](args)
+    else:
+        default_callback(name, args)

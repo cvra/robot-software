@@ -81,6 +81,13 @@ class MessageRequestHandlerTestCase(unittest.TestCase):
         data = message.encode('bar')
         message.handle_message(data, callbacks)
 
+    def test_default_callback(self):
+        callbacks = {'foo': Mock()}
+        data = message.encode('bar', [42])
+        default_cb = Mock()
+        message.handle_message(data, callbacks, default_callback=default_cb)
+        default_cb.assert_called_once_with('bar', [42])
+
     def test_args_forwarded(self):
         callbacks = {'foo': Mock()}
         data = message.encode('foo', [1, 2, 3])
@@ -97,9 +104,10 @@ class MessageRequestHandlerTestCase(unittest.TestCase):
         """
         TARGET = ('localhost', 9999)
         callbacks = {'foo': Mock(), 'bar': Mock()}
+        default_cb = Mock()
 
         # Creates the server
-        RequestHandler = message.create_request_handler(callbacks)
+        RequestHandler = message.create_request_handler(callbacks, default_cb)
         server = socketserver.UDPServer(TARGET, RequestHandler)
 
         # Starts the server in another thread
@@ -109,6 +117,7 @@ class MessageRequestHandlerTestCase(unittest.TestCase):
         # Sends the messages
         message.send(TARGET, 'foo', [1, 2, 3])
         message.send(TARGET, 'bar')
+        message.send(TARGET, 'other')
 
         # Terminates the server thread
         server.shutdown()
@@ -116,3 +125,4 @@ class MessageRequestHandlerTestCase(unittest.TestCase):
         # Checks that the callbacks were called
         callbacks['foo'].assert_any_call([1, 2, 3])
         callbacks['bar'].assert_any_call([])
+        default_cb.assert_called_once_with('other', [])
