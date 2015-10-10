@@ -57,7 +57,7 @@
 
 
 /* Robot settings. */
-#if 0
+#ifdef ON_ROBOT
 
 #define ODOMETRY_PUBLISHER_PORT 20000
 #define ODOMETRY_PUBLISHER_HOST(server) ip_addr_set(server, IP_ADDR_BROADCAST)
