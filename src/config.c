@@ -16,6 +16,8 @@ static parameter_namespace_t odometry_config;
 static parameter_t odometry_wheel_base;
 static parameter_t odometry_left_radius;
 static parameter_t odometry_right_radius;
+static parameter_t odometry_left_wheel_direction;
+static parameter_t odometry_right_wheel_direction;
 
 static parameter_namespace_t differential_base_config;
 static parameter_t differential_base_wheel_base;
@@ -48,6 +50,16 @@ void config_init(void)
                                           &odometry_config,
                                           "radius_left",
                                           ROBOT_LEFT_EXTERNAL_WHEEL_RADIUS);
+
+    parameter_integer_declare_with_default(&odometry_right_wheel_direction,
+                                           &odometry_config,
+                                           "right_wheel_direction",
+                                           ROBOT_RIGHT_WHEEL_DIRECTION);
+
+    parameter_integer_declare_with_default(&odometry_left_wheel_direction,
+                                           &odometry_config,
+                                           "left_wheel_direction",
+                                           ROBOT_LEFT_WHEEL_DIRECTION);
 
     parameter_namespace_declare(&differential_base_config, &master_config, "differential_base");
     parameter_scalar_declare_with_default(&differential_base_wheel_base,
