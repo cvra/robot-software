@@ -26,21 +26,23 @@ class MessageEncodingTestCase(unittest.TestCase):
         Checks that the message starts with the message type.
         """
         data = message.encode("foo")
-        self.assertEqual(msgpack_decode(data), ['foo'])
+        self.assertEqual(msgpack_decode(data), ['foo', None])
 
     def test_encoding_message_parameters(self):
         """
         Checks that we can append parameters.
         """
         data = message.encode("foo", [1, 2, 3])
-        self.assertEqual(msgpack_decode(data), ['foo', 1, 2, 3])
+        self.assertEqual(msgpack_decode(data), ['foo', [1, 2, 3]])
 
     def test_encoding_float_single_precision(self):
         """
         Checks that we can encode float as single precision.
         """
-        data = message.encode("foo", [1.])
-        self.assertEqual(data[1 + 3 + 1], 0xca)
+        data = message.encode("foo", 1. + 1e-8)
+        name, args = message.decode(data)
+
+        self.assertEqual(1., args)
 
 
 class MessageDecodingTestCase(unittest.TestCase):
@@ -71,7 +73,7 @@ class MessageRequestHandlerTestCase(unittest.TestCase):
 
         data = message.encode('bar')
         message.handle_message(data, callbacks)
-        callbacks['bar'].assert_any_call([])
+        callbacks['bar'].assert_any_call(None)
 
     def test_unknown_callbacks_are_ignored(self):
         """
@@ -83,10 +85,10 @@ class MessageRequestHandlerTestCase(unittest.TestCase):
 
     def test_default_callback(self):
         callbacks = {'foo': Mock()}
-        data = message.encode('bar', [42])
+        data = message.encode('bar', 42)
         default_cb = Mock()
         message.handle_message(data, callbacks, default_callback=default_cb)
-        default_cb.assert_called_once_with('bar', [42])
+        default_cb.assert_called_once_with('bar', 42)
 
     def test_args_forwarded(self):
         callbacks = {'foo': Mock()}
@@ -124,5 +126,5 @@ class MessageRequestHandlerTestCase(unittest.TestCase):
 
         # Checks that the callbacks were called
         callbacks['foo'].assert_any_call([1, 2, 3])
-        callbacks['bar'].assert_any_call([])
-        default_cb.assert_called_once_with('other', [])
+        callbacks['bar'].assert_any_call(None)
+        default_cb.assert_called_once_with('other', None)

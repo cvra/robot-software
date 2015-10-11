@@ -10,10 +10,8 @@ def encode(message_name, args=None):
     """
     Encodes a message, given its name and arguments.
     """
-    if args is None:
-        args = []
 
-    return msgpack.packb([message_name] + args, use_single_float=True)
+    return msgpack.packb([message_name, args], use_single_float=True)
 
 
 def decode(data):
@@ -24,7 +22,7 @@ def decode(data):
     u.feed(data)
     message = next(u)
 
-    name, data = message[0], message[1:]
+    name, data = message[0], message[1]
 
     return name, data
 
