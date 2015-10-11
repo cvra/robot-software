@@ -11,21 +11,20 @@ extern "C" {
 #endif
 
 /** @brief A single RPC method. */
-typedef struct {
+struct service_call_method_s {
     const char *name; /**< Method name (eg: "goto_point") */
     /** Method handler.
      *
      * First argument is a general purpose parameter, provided by the user.
-     * Second argument is number of args.
-     * Third argument is a pointer to a MessagePack context containing the args.
+     * Second argument is a pointer to the received MessagePack context.
      * Last argument is a pointer to a MessagePack context for output.
      *
      */
-    void (*cb)(void *, int, cmp_ctx_t*, cmp_ctx_t *);
+    bool (*cb)(void *arg, cmp_ctx_t *in, cmp_ctx_t *out);
 
     /** Arg that will be passed to cb. */
     void *arg;
-} service_call_method;
+};
 
 /** @brief Prepares a service call.
  *
@@ -35,13 +34,14 @@ typedef struct {
  * @param [in] buffer The output buffer to use.
  * @param [in] buffer_size Size of buffer in bytes.
  * @param [in] method_name Name of the RPC call.
- * @param [in] param_count Number of arguments to the service call.
  * @param [out] cmp Pointer to the cmp instance to use.
  * @param [out] mem Pointer to the cmp_mem_access_t instance to use.
  */
-void service_call_encode(cmp_ctx_t *cmp, cmp_mem_access_t *mem,
-                         uint8_t *buffer, size_t buffer_size,
-                         const char *method_name, int param_count);
+void service_call_write_header(cmp_ctx_t *cmp,
+                              cmp_mem_access_t *mem,
+                              uint8_t *buffer,
+                              size_t buffer_size,
+                              const char *method_name);
 
 /** @brief Processes the a buffer and calls the appropriate callback.
  *
@@ -57,9 +57,12 @@ void service_call_encode(cmp_ctx_t *cmp, cmp_mem_access_t *mem,
  *
  * @returns The number of bytes written on the output buffer.
  */
-size_t service_call_process(const uint8_t *buffer, size_t buffer_size,
-                            uint8_t *output_buffer, size_t output_buffer_size,
-                            service_call_method *callbacks, int callbacks_len);
+size_t service_call_process(const uint8_t *buffer,
+                            size_t buffer_size,
+                            uint8_t *output_buffer,
+                            size_t output_buffer_size,
+                            struct service_call_method_s *callbacks,
+                            int callbacks_len);
 
 #ifdef __cplusplus
 }
