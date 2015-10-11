@@ -22,7 +22,7 @@ def encode_call(method_name, params):
     """
     Encode a call to the given method with the given parameters.
     """
-    data = msgpack.packb([method_name] + params, use_single_float=True)
+    data = msgpack.packb([method_name, params], use_single_float=True)
     return serial_datagram.encode(data)
 
 
@@ -38,7 +38,7 @@ def decode_call(data):
 
     command = next(u)
 
-    return command[0], command[1:]
+    return command[0], command[1]
 
 
 def handle_connection(handlers, socket):

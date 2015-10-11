@@ -22,17 +22,17 @@ class ServiceCallEncodingTestCase(unittest.TestCase):
         u.feed(data)
         command = next(u)
 
-        self.assertEqual(command, ['foo', 1, 2, 3])
+        self.assertEqual(command, ['foo', [1, 2, 3]])
 
     def test_float_single_precision(self):
         """
         Checks that floats are single precision.
         """
-        data = service_call.encode_call("foo", [1.])
-        data = serial_datagram.decode(data)
+        data = service_call.encode_call("foo", 1. + 1e-8)
+        name, args = service_call.decode_call(data)
 
         # Check that we have the marker for single precision float
-        self.assertEqual(data[1 + 3 + 1], 0xca)
+        self.assertEqual(1., args)
 
     def test_decoding_method(self):
         """
