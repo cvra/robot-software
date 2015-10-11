@@ -186,3 +186,16 @@ TEST(ServiceCallTestGroup, OutputLenIsReturned)
 
     CHECK_EQUAL(6, output_len);
 }
+
+
+TEST(ServiceCallTestGroup, WriteNilIfOutputBufferIsEmpty)
+{
+    size_t output_len;
+    service_call_write_header(&ctx, &mem, buffer, sizeof buffer, "foo_cb");
+    output_len = service_call_process(buffer, sizeof buffer,
+                                      output_buffer, sizeof output_buffer,
+                                      callbacks, LEN(callbacks));
+    CHECK_EQUAL(1, output_len);
+    cmp_mem_access_ro_init(&ctx, &mem, output_buffer, sizeof output_buffer);
+    CHECK_TRUE(cmp_read_nil(&ctx));
+}

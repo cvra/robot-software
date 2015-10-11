@@ -54,5 +54,8 @@ size_t service_call_process(const uint8_t *buffer,
         }
     }
 
+    if (cmp_mem_access_get_pos(&out_mem) == 0) {
+        cmp_write_nil(&out_cmp);
+    }
     return cmp_mem_access_get_pos(&out_mem);
 }
