@@ -28,10 +28,11 @@ static void odometry_publisher_thread(void *p)
     ODOMETRY_PUBLISHER_HOST(&server);
 
     while (1) {
-            message_encode(&ctx, &mem, buffer, sizeof buffer,
-                           "odometry_raw", 3);
+            message_write_header(&ctx, &mem, buffer, sizeof buffer,
+                                 "odometry_raw");
             chMtxLock(&robot_pose_lock);
                 //odometry_base_get_pose(&robot_base, &robot_pose);
+                cmp_write_array(&ctx, 3);
                 cmp_write_float(&ctx, robot_pose.x);
                 cmp_write_float(&ctx, robot_pose.y);
                 cmp_write_float(&ctx, robot_pose.theta);

@@ -147,6 +147,9 @@ size_t rpc_transmit(uint8_t *input_buffer, size_t input_buffer_size,
     serial_datagram_send((void *)input_buffer, input_buffer_size,
                          netconn_serial_datagram_tx_adapter, (void *)conn);
 
+    if (output_buffer == NULL) {
+        goto fail;
+    }
     cmp_mem_access_init(&ctx, &mem, output_buffer, output_buffer_size);
 
     while (1) {

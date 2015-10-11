@@ -7,6 +7,7 @@
 #include "trajectories.h"
 
 #define MOTOR_ID_MAX_LEN 24
+#define MOTOR_ID_MAX_LEN_WITH_NUL (MOTOR_ID_MAX_LEN+1) // terminated C string buffer
 
 #define MOTOR_CONTROL_MODE_DISABLED     0
 #define MOTOR_CONTROL_MODE_POSITION     1
