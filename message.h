@@ -7,11 +7,11 @@ extern "C" {
 
 #include <cmp_mem_access/cmp_mem_access.h>
 
-typedef struct {
+struct message_method_s{
     const char *name;
-    void (*cb)(void *, int, cmp_ctx_t *);
+    void (*cb)(void *arg, cmp_ctx_t *in);
     void *arg;
-} message_method_t;
+};
 
 /** @brief Prepares a message
  *
@@ -22,13 +22,14 @@ typedef struct {
  * @param [in] buffer The output buffer to use.
  * @param [in] buffer_size Size of buffer in bytes.
  * @param [in] method_name Name of the RPC call.
- * @param [in] param_count Number of arguments to the service call.
  * @param [out] cmp Pointer to the cmp instance to use.
  * @param [out] mem Pointer to the cmp_mem_access_t instance to use.
  */
-void message_encode(cmp_ctx_t *cmp, cmp_mem_access_t *mem,
-                    uint8_t *buffer, size_t buffer_size,
-                    const char *method_name, int param_count);
+void message_write_header(cmp_ctx_t *cmp,
+                          cmp_mem_access_t *mem,
+                          uint8_t *buffer,
+                          size_t buffer_size,
+                          const char *method_name);
 
 
 /** @brief Processes a buffer and calls the correct callback.
@@ -38,8 +39,10 @@ void message_encode(cmp_ctx_t *cmp, cmp_mem_access_t *mem,
  * @param [in] callbacks Array of all possible callback function and their associated types.
  * @param [in] callbacks_len Number of items in callbacks.
  */
-void message_process(uint8_t *buffer, size_t buffer_size,
-                     message_method_t *callbacks, unsigned int callbacks_len);
+void message_process(uint8_t *buffer,
+                     size_t buffer_size,
+                     struct message_method_s *callbacks,
+                     unsigned int callbacks_len);
 
 
 #ifdef __cplusplus

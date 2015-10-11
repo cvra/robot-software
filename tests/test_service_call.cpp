@@ -5,26 +5,34 @@
 
 #define LEN(a) (sizeof (a) / sizeof(a[0]))
 
-void foo_cb(void *p, int argc, cmp_ctx_t *args_ctx, cmp_ctx_t *output_ctx)
+bool foo_cb(void *p, cmp_ctx_t *args_ctx, cmp_ctx_t *output_ctx)
 {
-    mock().actualCall("foo").withIntParameter("argc", argc);
+    mock().actualCall("foo");
+
+    return true;
 }
 
-void bar_cb(void *p, int argc, cmp_ctx_t *args_ctx, cmp_ctx_t *output_ctx)
+bool bar_cb(void *p, cmp_ctx_t *args_ctx, cmp_ctx_t *output_ctx)
 {
     mock().actualCall("bar");
+
+    return true;
 }
 
 /** This callback shows how to read the several arguments. */
-void arg_read_cb(void *p, int argc, cmp_ctx_t *args_ctx, cmp_ctx_t *output_ctx)
+bool arg_read_cb(void *p, cmp_ctx_t *args_ctx, cmp_ctx_t *output_ctx)
 {
     bool result;
     int arg;
     char arg_name[64];
     unsigned int arg_len;
+    uint32_t array_size = 0;
 
     MockActualCall& state = mock().actualCall("arg_read_cb");
 
+    result = cmp_read_array(args_ctx, &array_size);
+    CHECK_TRUE(result);
+    CHECK_EQUAL(2, array_size);
     result = cmp_read_int(args_ctx, &arg);
     CHECK_TRUE(result);
     state = state.withIntParameter("x", arg);
@@ -32,15 +40,19 @@ void arg_read_cb(void *p, int argc, cmp_ctx_t *args_ctx, cmp_ctx_t *output_ctx)
     result = cmp_read_int(args_ctx, &arg);
     CHECK_TRUE(result);
     state = state.withIntParameter("y", arg);
+
+    return true;
 }
 
-void output_test_cb(void *p, int argc, cmp_ctx_t *args_ctx, cmp_ctx_t *output_ctx)
+bool output_test_cb(void *p, cmp_ctx_t *args_ctx, cmp_ctx_t *output_ctx)
 {
     cmp_write_str(output_ctx, "hello", 5);
+
+    return true;
 }
 
 
-service_call_method callbacks[] = {
+static struct service_call_method_s callbacks[] = {
     {.name = "foo", .cb = foo_cb},
     {.name = "bar", .cb = bar_cb},
     {.name = "arg_read", .cb = arg_read_cb},
@@ -74,13 +86,13 @@ TEST(ServiceCallTestGroup, CanEncodeServiceCall)
     uint32_t size = sizeof method_name;
     uint32_t array_size;
 
-    service_call_encode(&ctx, &mem, buffer, sizeof buffer, "foo", 12);
+    service_call_write_header(&ctx, &mem, buffer, sizeof buffer, "foo");
 
     cmp_mem_access_set_pos(&mem, 0);
 
     result = cmp_read_array(&ctx, &array_size);
     CHECK_TRUE(result);
-    CHECK_EQUAL(12 + 1, array_size);
+    CHECK_EQUAL(2, array_size);
 
     result = cmp_read_str(&ctx, method_name, &size);
     CHECK_TRUE(result);
@@ -89,15 +101,15 @@ TEST(ServiceCallTestGroup, CanEncodeServiceCall)
 
 TEST(ServiceCallTestGroup, CanProcessServiceCall)
 {
-    service_call_encode(&ctx, &mem, buffer, sizeof buffer, "foo", 0);
+    service_call_write_header(&ctx, &mem, buffer, sizeof buffer, "foo");
 
-    mock().expectOneCall("foo").withIntParameter("argc", 0);
+    mock().expectOneCall("foo");
     service_call_process(buffer, sizeof buffer, NULL, 0, callbacks, LEN(callbacks));
 }
 
 TEST(ServiceCallTestGroup, CallsCorrectServiceCall)
 {
-    service_call_encode(&ctx, &mem, buffer, sizeof buffer, "bar", 0);
+    service_call_write_header(&ctx, &mem, buffer, sizeof buffer, "bar");
 
     mock().expectOneCall("bar");
 
@@ -106,12 +118,10 @@ TEST(ServiceCallTestGroup, CallsCorrectServiceCall)
 
 TEST(ServiceCallTestGroup, PassesArgcCorrectly)
 {
-    const int argc = 2;
-
-    // Writes the header with two arguments
-    service_call_encode(&ctx, &mem, buffer, sizeof buffer, "arg_read", argc);
+    service_call_write_header(&ctx, &mem, buffer, sizeof buffer, "arg_read");
 
     // Writes the arguments
+    cmp_write_array(&ctx, 2);
     cmp_write_uint(&ctx, 12);
     cmp_write_uint(&ctx, 13);
 
@@ -123,21 +133,23 @@ TEST(ServiceCallTestGroup, PassesArgcCorrectly)
     service_call_process(buffer, sizeof buffer, NULL, 0, callbacks, LEN(callbacks));
 }
 
-static void pointer_arg_cb(void *p, int argc, cmp_ctx_t *args_ctx, cmp_ctx_t *output_ctx)
+static bool pointer_arg_cb(void *p, cmp_ctx_t *args_ctx, cmp_ctx_t *output_ctx)
 {
     mock().actualCall("cb").withPointerParameter("p", p);
+
+    return true;
 }
 
 TEST(ServiceCallTestGroup, PassesPointerCorrectly)
 {
     int foo;
-    service_call_method callbacks[] = {
+    static struct service_call_method_s callbacks[] = {
         {.name = "cb", .cb = pointer_arg_cb, .arg=&foo},
     };
 
     mock().expectOneCall("cb").withPointerParameter("p", &foo);
 
-    service_call_encode(&ctx, &mem, buffer, sizeof buffer, "cb", 0);
+    service_call_write_header(&ctx, &mem, buffer, sizeof buffer, "cb");
 
     // Parses the buffer
     service_call_process(buffer, sizeof buffer, NULL, 0, callbacks, LEN(callbacks));
@@ -146,14 +158,11 @@ TEST(ServiceCallTestGroup, PassesPointerCorrectly)
 
 TEST(ServiceCallTestGroup, OutputTest)
 {
-    const int argc = 0;
-
     char str[10];
     unsigned int str_len = sizeof str;
     bool result;
 
-    // Writes header
-    service_call_encode(&ctx, &mem, buffer, sizeof buffer, "output_test_cb", argc);
+    service_call_write_header(&ctx, &mem, buffer, sizeof buffer, "output_test_cb");
 
     service_call_process(buffer, sizeof buffer,
                          output_buffer, sizeof output_buffer,
@@ -169,7 +178,7 @@ TEST(ServiceCallTestGroup, OutputTest)
 TEST(ServiceCallTestGroup, OutputLenIsReturned)
 {
     size_t output_len;
-    service_call_encode(&ctx, &mem, buffer, sizeof buffer, "output_test_cb", 0);
+    service_call_write_header(&ctx, &mem, buffer, sizeof buffer, "output_test_cb");
 
     output_len = service_call_process(buffer, sizeof buffer,
                                       output_buffer, sizeof output_buffer,
