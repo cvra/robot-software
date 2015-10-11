@@ -110,7 +110,7 @@ void differential_base_tracking_thread(void *p)
             /* Apply speed to wheels. */
             chprintf((BaseSequentialStream *)&SDU1 , "setpoint: %.2f output: %.2f\r\n", speed, output.tangential_velocity);
 
-            float right_spd = ROBOT_RIGHT_WHEEL_DIRECTION * output.tangential_velocity / (radius_left * M_PI);
+            float right_spd = ROBOT_RIGHT_WHEEL_DIRECTION * output.tangential_velocity / (radius_right * M_PI);
 
             float left_spd = ROBOT_LEFT_WHEEL_DIRECTION * output.tangential_velocity / (radius_left * M_PI);
 
