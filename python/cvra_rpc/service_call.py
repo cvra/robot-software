@@ -65,15 +65,10 @@ def call(adress, method_name, method_args=None):
     Calls the given method on the given adress (a tuple containing hostname
     and port), with the given parameters (dict object).
     """
-    if method_args is None:
-        method_args = []
     connection = socket.create_connection(adress)
     data = encode_call(method_name, method_args)
     connection.sendall(data)
 
     data = connection.recv(1024)
 
-    u = msgpack.Unpacker(encoding='ascii')
-    u.feed(data)
-
-    return tuple(u)
+    return msgpack.unpackb(data, encoding='ascii')

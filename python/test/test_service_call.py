@@ -50,7 +50,7 @@ class ServiceCallEncodingTestCase(unittest.TestCase):
         Check that we correctly send the call.
         """
         create_connection.return_value = Mock()
-        create_connection.return_value.recv = Mock(return_value=b'')
+        create_connection.return_value.recv = Mock(return_value=msgpack.packb(None))
 
         adress = ('127.0.0.1', 20001)
         method_name = 'foo'
@@ -70,12 +70,12 @@ class ServiceCallEncodingTestCase(unittest.TestCase):
         """
         create_connection.return_value = Mock()
         adress = ('127.0.0.1', 20001)
-        return_data = msgpack.packb(1)+msgpack.packb('bar')
+        return_data = msgpack.packb([1, 'bar'])
 
         create_connection.return_value.recv = Mock(return_value=return_data)
 
         result = service_call.call(adress, 'foo')
-        self.assertEqual(result, (1, 'bar'))
+        self.assertEqual(result, [1, 'bar'])
 
 
 class ServiceCallServerTestCase(unittest.TestCase):
