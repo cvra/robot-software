@@ -10,6 +10,7 @@ extern "C" {
 #endif
 
 #define DIFF_BASE_TRAJ_LENGTH 100
+#define DIFF_BASE_TRAJ_POINT_DIM 5
 
 extern trajectory_t diff_base_trajectory;
 extern mutex_t diff_base_trajectory_lock;

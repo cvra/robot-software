@@ -138,7 +138,8 @@ static void cmd_rpc_client_test(BaseSequentialStream *chp, int argc, char **argv
 
     IP4_ADDR(&server, 192, 168, 2, 1);
 
-    service_call_encode(&ctx, &mem, request, sizeof request, "demo", 0);
+    service_call_write_header(&ctx, &mem, request, sizeof request, "demo");
+    cmp_write_nil(&ctx);
 
     rpc_transmit(request, cmp_mem_access_get_pos(&mem), output, sizeof output,
                  &server, port);

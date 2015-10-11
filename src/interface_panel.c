@@ -32,8 +32,8 @@ static void notify_event(const char *event_name, const char *button_name)
     ip_addr_t server;
     BUTTON_PRESS_CALLBACK_HOST(&server);
 
-    service_call_encode(&cmp, &mem, rpc_output, sizeof rpc_output,
-                        event_name, 1);
+    service_call_write_header(&cmp, &mem, rpc_output, sizeof rpc_output,
+                              event_name);
     cmp_write_str(&cmp, button_name, strlen(button_name));
     rpc_transmit(rpc_output, cmp_mem_access_get_pos(&mem),
             NULL, 0, &server, BUTTON_PRESS_CALLBACK_PORT);

@@ -14,9 +14,8 @@
 
 #define TRAJ_CHUNK_BUFFER_LEN   100
 
-void message_cb(void *p, int argc, cmp_ctx_t *input)
+void message_cb(void *p, cmp_ctx_t *input)
 {
-    (void) argc;
     (void) p;
     bool res;
     cmp_read_bool(input, &res);
@@ -28,14 +27,16 @@ void message_cb(void *p, int argc, cmp_ctx_t *input)
     }
 }
 
-void message_actuator_voltage_callback(void *p, int argc, cmp_ctx_t *input)
+void message_actuator_voltage_callback(void *p, cmp_ctx_t *input)
 {
     (void) p;
-    char actuator_id[25];
-    uint32_t actuator_id_size = 25;
+    char actuator_id[MOTOR_ID_MAX_LEN_WITH_NUL];
+    uint32_t actuator_id_size = sizeof(actuator_id);
     float setpoint;
+    uint32_t array_len = 0;
 
-    if (argc != 2) {
+    cmp_read_array(input, &array_len);
+    if (array_len != 2) {
         return;
     }
 
@@ -45,14 +46,16 @@ void message_actuator_voltage_callback(void *p, int argc, cmp_ctx_t *input)
     motor_manager_set_voltage(&motor_manager, actuator_id, setpoint);
 }
 
-void message_actuator_torque_callback(void *p, int argc, cmp_ctx_t *input)
+void message_actuator_torque_callback(void *p, cmp_ctx_t *input)
 {
     (void) p;
-    char actuator_id[25];
-    uint32_t actuator_id_size = 25;
+    char actuator_id[MOTOR_ID_MAX_LEN_WITH_NUL];
+    uint32_t actuator_id_size = sizeof(actuator_id);
     float setpoint;
+    uint32_t array_len = 0;
 
-    if (argc != 2) {
+    cmp_read_array(input, &array_len);
+    if (array_len != 2) {
         return;
     }
 
@@ -62,14 +65,16 @@ void message_actuator_torque_callback(void *p, int argc, cmp_ctx_t *input)
     motor_manager_set_torque(&motor_manager, actuator_id, setpoint);
 }
 
-void message_actuator_velocity_callback(void *p, int argc, cmp_ctx_t *input)
+void message_actuator_velocity_callback(void *p, cmp_ctx_t *input)
 {
     (void) p;
-    char actuator_id[25];
-    uint32_t actuator_id_size = 25;
+    char actuator_id[MOTOR_ID_MAX_LEN_WITH_NUL];
+    uint32_t actuator_id_size = sizeof(actuator_id);
     float setpoint;
+    uint32_t array_len = 0;
 
-    if (argc != 2) {
+    cmp_read_array(input, &array_len);
+    if (array_len != 2) {
         return;
     }
 
@@ -79,14 +84,16 @@ void message_actuator_velocity_callback(void *p, int argc, cmp_ctx_t *input)
     motor_manager_set_velocity(&motor_manager, actuator_id, setpoint);
 }
 
-void message_actuator_position_callback(void *p, int argc, cmp_ctx_t *input)
+void message_actuator_position_callback(void *p, cmp_ctx_t *input)
 {
     (void) p;
-    char actuator_id[25];
-    uint32_t actuator_id_size = 25;
+    char actuator_id[MOTOR_ID_MAX_LEN_WITH_NUL];
+    uint32_t actuator_id_size = sizeof(actuator_id);
     float setpoint;
+    uint32_t array_len = 0;
 
-    if (argc != 2) {
+    cmp_read_array(input, &array_len);
+    if (array_len != 2) {
         return;
     }
 
@@ -96,20 +103,21 @@ void message_actuator_position_callback(void *p, int argc, cmp_ctx_t *input)
     motor_manager_set_position(&motor_manager, actuator_id, setpoint);
 }
 
-void message_actuator_trajectory_callback(void *p, int argc, cmp_ctx_t *input)
+void message_actuator_trajectory_callback(void *p, cmp_ctx_t *input)
 {
     (void) p;
-    (void) argc;
 
     unix_timestamp_t start;
-    static float chunk_buffer[TRAJ_CHUNK_BUFFER_LEN][4]; // pos, vel, acc, torque
+    static float chunk_buffer[TRAJ_CHUNK_BUFFER_LEN][ACTUATOR_TRAJECTORY_POINT_DIMENSION];
     uint32_t point_count, i, point_dimension, j;
     int32_t delta_t, start_time;
-    char actuator_id[25];
-    uint32_t actuator_id_size = 25;
+    char actuator_id[MOTOR_ID_MAX_LEN_WITH_NUL];
+    uint32_t actuator_id_size = sizeof(actuator_id);
     trajectory_chunk_t chunk;
+    uint32_t array_len = 0;
 
-    if (argc < 5) {
+    cmp_read_array(input, &array_len);
+    if (array_len != 5) {
         return;
     }
 
@@ -120,30 +128,42 @@ void message_actuator_trajectory_callback(void *p, int argc, cmp_ctx_t *input)
     cmp_read_int(input, &delta_t);
 
     cmp_read_array(input, &point_count);
+    if (point_count > TRAJ_CHUNK_BUFFER_LEN) {
+        return;
+    }
     for (i = 0; i < point_count; i++) {
         cmp_read_array(input, &point_dimension);
-        for (j = 0; j < point_dimension; j++) {
+        if (point_dimension != ACTUATOR_TRAJECTORY_POINT_DIMENSION) {
+            return;
+        }
+        for (j = 0; j < ACTUATOR_TRAJECTORY_POINT_DIMENSION; j++) {
             cmp_read_float(input, &chunk_buffer[i][j]);
         }
     }
 
     start_time = timestamp_unix_to_local_us(start);
-    trajectory_chunk_init(&chunk, (float*)chunk_buffer, point_count, 4, start_time, delta_t);
+    trajectory_chunk_init(&chunk, (float*)chunk_buffer,
+                          point_count, ACTUATOR_TRAJECTORY_POINT_DIMENSION,
+                          start_time, delta_t);
 
     motor_manager_execute_trajecory(&motor_manager, actuator_id, &chunk);
 }
 
-void wheelbase_trajectory_callback(void *p, int argc, cmp_ctx_t *input)
+void wheelbase_trajectory_callback(void *p, cmp_ctx_t *input)
 {
+    (void) p;
+
     unix_timestamp_t start;
-    static float chunk_buffer[TRAJ_CHUNK_BUFFER_LEN][5];
+    static float chunk_buffer[TRAJ_CHUNK_BUFFER_LEN][DIFF_BASE_TRAJ_POINT_DIM];
     uint32_t point_count, i, point_dimension, j;
     int32_t dt, start_time;
     trajectory_chunk_t chunk;
+    uint32_t array_len = 0;
 
-    (void) p;
-    (void) argc;
-
+    cmp_read_array(input, &array_len);
+    if (array_len != 4) {
+        return;
+    }
 
     cmp_read_int(input, &start.s);
     cmp_read_int(input, &start.us);
@@ -151,8 +171,14 @@ void wheelbase_trajectory_callback(void *p, int argc, cmp_ctx_t *input)
 
 
     cmp_read_array(input, &point_count);
+    if (point_count > TRAJ_CHUNK_BUFFER_LEN) {
+        return;
+    }
     for (i = 0; i < point_count; ++i) {
         cmp_read_array(input, &point_dimension);
+        if (point_dimension != DIFF_BASE_TRAJ_POINT_DIM) {
+            return;
+        }
         for (j = 0; j < point_dimension; ++j) {
             cmp_read_float(input, &chunk_buffer[i][j]);
         }
@@ -161,7 +187,7 @@ void wheelbase_trajectory_callback(void *p, int argc, cmp_ctx_t *input)
     start_time = timestamp_unix_to_local_us(start);
 
     trajectory_chunk_init(&chunk, (float *)chunk_buffer, point_count,
-                                    point_dimension, start_time, dt);
+                          DIFF_BASE_TRAJ_POINT_DIM, start_time, dt);
 
     chMtxLock(&diff_base_trajectory_lock);
         int ret = trajectory_apply_chunk(&diff_base_trajectory, &chunk);
@@ -179,7 +205,7 @@ void wheelbase_trajectory_callback(void *p, int argc, cmp_ctx_t *input)
 
 
 
-message_method_t message_callbacks[] = {
+struct message_method_s message_callbacks[] = {
     {.name = "test", .cb = message_cb},
     {.name = "actuator_voltage", .cb = message_actuator_voltage_callback},
     {.name = "actuator_torque", .cb = message_actuator_torque_callback},

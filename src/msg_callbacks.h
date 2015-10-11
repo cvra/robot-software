@@ -4,7 +4,7 @@
 #include <rpc_callbacks.h>
 #include <simplerpc/message.h>
 
-extern message_method_t message_callbacks[];
+extern struct message_method_s message_callbacks[];
 extern int message_callbacks_len;
 
 #endif

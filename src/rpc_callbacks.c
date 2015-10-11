@@ -7,70 +7,92 @@
 #include "motor_manager.h"
 #include "uavcan_node.h"
 
-const char *error_msg_bad_argc = "Error: invalid argument count.";
 const char *error_msg_bad_format = "Error: invalid argument format.";
 const char *error_msg_invalid_arg = "Error: invalid argument value.";
 
 
-static void ping_cb(void *p, int argc, cmp_ctx_t *input, cmp_ctx_t *output)
+static bool ping_cb(void *p, cmp_ctx_t *input, cmp_ctx_t *output)
 {
-    (void) argc;
     (void) input;
     (void) p;
     cmp_write_str(output, "pong", 4);
+    return true;
 }
 
-static void msgpack_error_cb(void *arg, const char *id, const char *err)
+
+struct param_read_err_buf_s {
+    char buffer[100];
+    int write_pos;
+};
+
+static void param_read_err_buffer_write_str(struct param_read_err_buf_s *buf,
+                                            const char *str)
 {
-    cmp_ctx_t *output = (cmp_ctx_t *)arg;
-    cmp_write_array(output, 2);
-    cmp_write_str(output, id, strlen(id));
-    cmp_write_str(output, err, strlen(err));
+    int bytes_left = sizeof(buf->buffer) - buf->write_pos;
+    int len = strlen(str);
+    if (len > bytes_left) {
+        memcpy(&buf->buffer[buf->write_pos], str, bytes_left);
+        buf->write_pos += bytes_left;
+    } else {
+        memcpy(&buf->buffer[buf->write_pos], str, len);
+        buf->write_pos += len;
+    }
 }
 
-static void config_update_cb(void *p, int argc, cmp_ctx_t *input, cmp_ctx_t *output)
+static void param_read_err_cb(void *arg, const char *id, const char *err)
 {
-    (void) argc;
-    (void) output;
+    struct param_read_err_buf_s *buf = (struct param_read_err_buf_s *)arg;
+    param_read_err_buffer_write_str(buf, "parameter ");
+    if (id != NULL) {
+        param_read_err_buffer_write_str(buf, id);
+    }
+    param_read_err_buffer_write_str(buf, ": ");
+    param_read_err_buffer_write_str(buf, err);
+    param_read_err_buffer_write_str(buf, "\n");
+}
+
+static bool config_update_cb(void *p, cmp_ctx_t *input, cmp_ctx_t *output)
+{
     (void) p;
-    parameter_msgpack_read_cmp(&global_config, input, msgpack_error_cb, (void *)output);
+    struct param_read_err_buf_s buf;
+    buf.write_pos = 0;
+    parameter_msgpack_read_cmp(&global_config, input, param_read_err_cb, (void *)&buf);
+    return cmp_write_str(output, buf.buffer, buf.write_pos);
 }
 
-static void create_motor_driver(void *p, int argc, cmp_ctx_t *input, cmp_ctx_t *output)
+static bool create_motor_driver(void *p, cmp_ctx_t *input, cmp_ctx_t *output)
 {
     (void) p;
-    char actuator_id[25];
+    char actuator_id[MOTOR_ID_MAX_LEN_WITH_NUL];
     uint32_t actuator_id_len = sizeof(actuator_id);
 
-    if (argc != 1) {
-        cmp_write_str(output, error_msg_bad_argc, strlen(error_msg_bad_argc));
-        return;
+    if (cmp_read_str(input, actuator_id, &actuator_id_len) == false) {
+        cmp_write_str(output, error_msg_bad_format, strlen(error_msg_bad_format));
+        return true;
     }
 
-    cmp_read_str(input, actuator_id, &actuator_id_len);
-
     motor_manager_create_driver(&motor_manager, actuator_id);
+    return true;
 }
 
-static void led_cb(void *p, int argc, cmp_ctx_t *input, cmp_ctx_t *output)
+static bool led_cb(void *p, cmp_ctx_t *input, cmp_ctx_t *output)
 {
     (void) p;
 
     char led_name[32];
     uint32_t led_name_len;
+    uint32_t array_len = 0;
     bool led_status;
-    bool success;
-
-    if (argc != 2) {
-        cmp_write_str(output, error_msg_bad_argc, strlen(error_msg_bad_argc));
-    }
+    bool err;
 
     led_name_len = sizeof led_name;
-    success = true;
-    success &= cmp_read_str(input, led_name, &led_name_len);
-    success &= cmp_read_bool(input, &led_status);
+    err = false;
+    err = err || !cmp_read_array(input, &array_len);
+    err = err || array_len != 2;
+    err = err || !cmp_read_str(input, led_name, &led_name_len);
+    err = err || !cmp_read_bool(input, &led_status);
 
-    if (success) {
+    if (err == false) {
         if (!strcmp(led_name, "ready")) {
             palWritePad(GPIOF, GPIOF_LED_READY, led_status);
         } else if (!strcmp(led_name, "debug")) {
@@ -100,28 +122,25 @@ static void led_cb(void *p, int argc, cmp_ctx_t *input, cmp_ctx_t *output)
         cmp_write_str(output, error_msg_bad_format,
                               strlen(error_msg_bad_format));
     }
+    return true;
 }
 
-static void reboot_node(void *p, int argc, cmp_ctx_t *input, cmp_ctx_t *output)
+static bool reboot_node(void *p, cmp_ctx_t *input, cmp_ctx_t *output)
 {
     uint8_t id;
     (void) p;
 
-    if (argc != 1) {
-        cmp_write_str(output, error_msg_bad_argc, strlen(error_msg_bad_argc));
-        return;
-    }
-
     if(cmp_read_u8(input, &id) == false) {
         cmp_write_str(output, error_msg_bad_format,
                 strlen(error_msg_bad_format));
-        return;
+    } else {
+        uavcan_node_send_reboot(id);
     }
 
-   uavcan_node_send_reboot(id);
+    return true;
 }
 
-service_call_method service_call_callbacks[] = {
+struct service_call_method_s service_call_callbacks[] = {
     {.name="ping", .cb=ping_cb},
     {.name="config_update", .cb=config_update_cb},
     {.name="led_set", .cb=led_cb},
