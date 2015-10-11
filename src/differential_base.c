@@ -44,18 +44,16 @@ void differential_base_tracking_thread(void *p)
         chSysHalt("tracy parameter not found");
     }
 
-    float motor_base;
-    float radius_right;
-    float radius_left;
-    bool first_run = true;
+    float motor_base=1;
+    float radius_right=1;
+    float radius_left=1;
     bool tracy_active = false;
     while (1) {
-        if (parameter_namespace_contains_changed(base_config) || first_run) {
+        if (parameter_namespace_contains_changed(base_config)) {
             motor_base = parameter_scalar_get(parameter_find(base_config, "wheelbase"));
             radius_right = parameter_scalar_get(parameter_find(base_config, "radius_right"));
             radius_left = parameter_scalar_get(parameter_find(base_config, "radius_left"));
         }
-        first_run = false;
 
         float *point;
         float x, y, theta, speed, omega;
