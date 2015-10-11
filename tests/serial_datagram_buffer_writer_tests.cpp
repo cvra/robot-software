@@ -1,6 +1,7 @@
 #include "CppUTest/TestHarness.h"
 #include "../serial_datagram.h"
 #include "../serial_datagram_buffer_writer.h"
+#include <cstring>
 
 TEST_GROUP(SerialDatagramBuffferWriterTestCase)
 {
