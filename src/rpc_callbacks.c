@@ -57,7 +57,11 @@ static bool config_update_cb(void *p, cmp_ctx_t *input, cmp_ctx_t *output)
     struct param_read_err_buf_s buf;
     buf.write_pos = 0;
     parameter_msgpack_read_cmp(&global_config, input, param_read_err_cb, (void *)&buf);
-    return cmp_write_str(output, buf.buffer, buf.write_pos);
+    if (buf.write_pos == 0) {
+        return true;
+    } else {
+        return cmp_write_str(output, buf.buffer, buf.write_pos);
+    }
 }
 
 static bool create_motor_driver(void *p, cmp_ctx_t *input, cmp_ctx_t *output)
