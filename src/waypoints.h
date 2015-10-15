@@ -4,6 +4,8 @@
 #include <pid/pid.h>
 #include <stdbool.h>
 #include <odometry/robot_base.h>
+#include <parameter/parameter.h>
+#include <motor_driver.h> // for pid_parameter_s
 
 #define WAYPOINTS_FREQUENCY 50
 
@@ -15,6 +17,9 @@ typedef struct {
     struct robot_base_pose_2d_s target;
     pid_ctrl_t distance_pid;
     pid_ctrl_t heading_pid;
+    parameter_namespace_t namespace;
+    struct pid_parameter_s distance_pid_param;
+    struct pid_parameter_s heading_pid_param;
     bool enabled;
 } waypoints_t;
 
