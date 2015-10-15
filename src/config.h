@@ -7,6 +7,8 @@ extern "C" {
 
 extern parameter_namespace_t global_config;
 extern parameter_namespace_t actuator_config;
+extern parameter_namespace_t master_config;
+
 
 /* Inits all the globally available objects. */
 void config_init(void);

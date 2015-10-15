@@ -8,7 +8,7 @@ parameter_namespace_t global_config;
 
 parameter_namespace_t actuator_config;
 
-static parameter_namespace_t master_config;
+parameter_namespace_t master_config;
 
 static parameter_t foo;
 
@@ -19,14 +19,6 @@ static parameter_t odometry_right_radius;
 static parameter_t odometry_left_wheel_direction;
 static parameter_t odometry_right_wheel_direction;
 
-static parameter_namespace_t differential_base_config;
-static parameter_t differential_base_wheel_base;
-static parameter_t differential_base_left_radius;
-static parameter_t differential_base_right_radius;
-
-static parameter_namespace_t tracy_config;
-static parameter_t tracy_g;
-static parameter_t tracy_damping_coef;
 
 
 void config_init(void)
@@ -60,29 +52,6 @@ void config_init(void)
                                            &odometry_config,
                                            "left_wheel_direction",
                                            ROBOT_LEFT_WHEEL_DIRECTION);
-
-    parameter_namespace_declare(&differential_base_config, &master_config, "differential_base");
-    parameter_scalar_declare_with_default(&differential_base_wheel_base,
-                                          &differential_base_config,
-                                          "wheelbase",
-                                          ROBOT_EXTERNAL_WHEELBASE);
-
-    parameter_scalar_declare_with_default(&differential_base_right_radius,
-                                          &differential_base_config,
-                                          "radius_right",
-                                          ROBOT_RIGHT_MOTOR_WHEEL_RADIUS);
-
-    parameter_scalar_declare_with_default(&differential_base_left_radius,
-                                          &differential_base_config,
-                                          "radius_left",
-                                          ROBOT_LEFT_MOTOR_WHEEL_RADIUS);
-
-    parameter_namespace_declare(&tracy_config, &master_config, "tracy");
-    parameter_scalar_declare_with_default(&tracy_g, &tracy_config, "g",
-                                          DEFAULT_PARAM_G);
-
-    parameter_scalar_declare_with_default(&tracy_damping_coef, &tracy_config, "damping",
-                                          DEFAULT_PARAM_DAMPING_COEFF);
 
     parameter_scalar_declare(&foo, &master_config, "foo");
 }

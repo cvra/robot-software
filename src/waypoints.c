@@ -1,5 +1,6 @@
-#include "waypoints.h"
 #include <math.h>
+#include <parameter/parameter.h>
+#include "waypoints.h"
 
 static void pid_register(struct pid_parameter_s *pid,
                          parameter_namespace_t *parent,
@@ -13,7 +14,7 @@ static void pid_register(struct pid_parameter_s *pid,
     parameter_scalar_declare_with_default(&pid->ilimit, &pid->root, "ilimit", 0);
 }
 
-static void pid_param_update(struct pid_param_s *p, pid_ctrl_t *ctrl)
+static void pid_param_update(struct pid_parameter_s *p, pid_ctrl_t *ctrl)
 {
     if (parameter_changed(&p->kp) ||
         parameter_changed(&p->ki) ||
@@ -23,8 +24,8 @@ static void pid_param_update(struct pid_param_s *p, pid_ctrl_t *ctrl)
                             parameter_scalar_get(&p->kd));
         pid_reset_integral(ctrl);
     }
-    if (parameter_changed(&p->i_limit)) {
-        pid_set_integral_limit(ctrl, parameter_scalar_get(&p->i_limit));
+    if (parameter_changed(&p->ilimit)) {
+        pid_set_integral_limit(ctrl, parameter_scalar_get(&p->ilimit));
     }
 }
 
@@ -39,9 +40,9 @@ void waypoints_init(waypoints_t *waypoints, parameter_namespace_t *param)
     pid_init(&waypoints->distance_pid);
     pid_init(&waypoints->heading_pid);
 
-    parameter_namespace_declare(&waypoints->namespace, param, "waypoint-ctrl");
-    pid_register(&waypoints->distance_pid_param, param, "distance");
-    pid_register(&waypoints->distance_pid_param, param, "heading");
+    parameter_namespace_declare(&waypoints->namespace, param, "waypoint_ctrl");
+    pid_register(&waypoints->distance_pid_param, &waypoints->namespace, "distance");
+    pid_register(&waypoints->heading_pid_param, &waypoints->namespace, "heading");
 
     pid_set_frequency(&waypoints->distance_pid, WAYPOINTS_FREQUENCY);
     pid_set_frequency(&waypoints->heading_pid, WAYPOINTS_FREQUENCY);
@@ -49,7 +50,6 @@ void waypoints_init(waypoints_t *waypoints, parameter_namespace_t *param)
 
 void waypoints_set_target(waypoints_t *waypoints, struct robot_base_pose_2d_s target)
 {
-    /* TODO: make threadsafe */
     waypoints->target = target;
     waypoints->enabled = true;
 }

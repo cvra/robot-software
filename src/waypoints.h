@@ -23,7 +23,7 @@ typedef struct {
     bool enabled;
 } waypoints_t;
 
-void waypoints_init(waypoints_t *waypoints);
+void waypoints_init(waypoints_t *waypoints, parameter_namespace_t *param);
 void waypoints_set_target(waypoints_t *waypoints, struct robot_base_pose_2d_s target);
 void waypoints_process(waypoints_t *waypoints,
                        struct robot_base_pose_2d_s pose,

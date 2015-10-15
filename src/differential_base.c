@@ -12,24 +12,68 @@
 #include "robot_pose.h"
 #include "motor_manager.h"
 #include "differential_base.h"
+#include "waypoints.h"
 
 #define DIFFERENTIAL_BASE_TRACKING_THREAD_STACK_SZ 2048
+
+
+static parameter_namespace_t differential_base_config;
+static parameter_t differential_base_wheel_base;
+static parameter_t differential_base_left_radius;
+static parameter_t differential_base_right_radius;
+
+static parameter_namespace_t tracy_config;
+static parameter_t tracy_g;
+static parameter_t tracy_damping_coef;
+
 
 trajectory_t diff_base_trajectory;
 mutex_t diff_base_trajectory_lock;
 
+waypoints_t diff_base_waypoint;
+mutex_t diff_base_waypoint_lock;
+
 
 void differential_base_init(void)
 {
+    parameter_namespace_declare(&differential_base_config, &master_config, "differential_base");
+    parameter_scalar_declare_with_default(&differential_base_wheel_base,
+                                          &differential_base_config,
+                                          "wheelbase",
+                                          ROBOT_EXTERNAL_WHEELBASE);
+
+    parameter_scalar_declare_with_default(&differential_base_right_radius,
+                                          &differential_base_config,
+                                          "radius_right",
+                                          ROBOT_RIGHT_MOTOR_WHEEL_RADIUS);
+
+    parameter_scalar_declare_with_default(&differential_base_left_radius,
+                                          &differential_base_config,
+                                          "radius_left",
+                                          ROBOT_LEFT_MOTOR_WHEEL_RADIUS);
+
+    parameter_namespace_declare(&tracy_config, &master_config, "tracy");
+    parameter_scalar_declare_with_default(&tracy_g, &tracy_config, "g",
+                                          DEFAULT_PARAM_G);
+
+    parameter_scalar_declare_with_default(&tracy_damping_coef, &tracy_config, "damping",
+                                          DEFAULT_PARAM_DAMPING_COEFF);
+
+
     static float trajectory_buffer[100][5];
     trajectory_init(&diff_base_trajectory, (float *)trajectory_buffer, 100, 5, 10*1000);
 
     chMtxObjectInit(&diff_base_trajectory_lock);
+
+    waypoints_init(&diff_base_waypoint, &master_config);
+
+    chMtxObjectInit(&diff_base_waypoint_lock);
+
 }
 
 
-THD_WORKING_AREA(differential_base_tracking_thread_wa, DIFFERENTIAL_BASE_TRACKING_THREAD_STACK_SZ);
-void differential_base_tracking_thread(void *p)
+THD_WORKING_AREA(differential_base_tracking_thread_tracy_wa, DIFFERENTIAL_BASE_TRACKING_THREAD_STACK_SZ);
+void differential_base_tracking_thread_tracy(void *p)
 {
     (void) p;
 
@@ -132,11 +176,49 @@ void differential_base_tracking_thread(void *p)
 }
 
 
+THD_WORKING_AREA(differential_base_tracking_thread_waypoint_wa, DIFFERENTIAL_BASE_TRACKING_THREAD_STACK_SZ);
+void differential_base_tracking_thread_waypoint(void *p)
+{
+    (void) p;
+
+    while (1) {
+        struct robot_base_pose_2d_s odometry_pose;
+
+        /* Get data from odometry. */
+        chMtxLock(&robot_pose_lock);
+            odometry_pose = robot_pose;
+        chMtxUnlock(&robot_pose_lock);
+
+
+        float left_wheel_velocity, right_wheel_velocity;
+
+        chMtxLock(&diff_base_waypoint_lock);
+            waypoints_process(&diff_base_waypoint, odometry_pose,
+                              &left_wheel_velocity, &right_wheel_velocity);
+        chMtxUnlock(&diff_base_waypoint_lock);
+
+        motor_manager_set_velocity(&motor_manager, "left-wheel", left_wheel_velocity);
+        motor_manager_set_velocity(&motor_manager, "right-wheel", right_wheel_velocity);
+        // chprintf((BaseSequentialStream *)&SDU1, "%f %f\n", diff_base_waypoint.target.x, diff_base_waypoint.target.y);
+
+        chThdSleepMilliseconds(1000/WAYPOINTS_FREQUENCY);
+    }
+}
+
+
 void differential_base_tracking_start(void)
 {
-    chThdCreateStatic(differential_base_tracking_thread_wa,
+#if 0 // use tracy
+    chThdCreateStatic(differential_base_tracking_thread_tracy_wa,
                       DIFFERENTIAL_BASE_TRACKING_THREAD_STACK_SZ,
                       DIFFERENTIAL_BASE_TRACKING_THREAD_PRIO,
-                      differential_base_tracking_thread,
+                      differential_base_tracking_thread_tracy,
                       NULL);
+#else
+    chThdCreateStatic(differential_base_tracking_thread_waypoint_wa,
+                      DIFFERENTIAL_BASE_TRACKING_THREAD_STACK_SZ,
+                      DIFFERENTIAL_BASE_TRACKING_THREAD_PRIO,
+                      differential_base_tracking_thread_waypoint,
+                      NULL);
+#endif
 }
