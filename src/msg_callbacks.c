@@ -11,6 +11,8 @@
 #include "motor_manager.h"
 #include "unix_timestamp.h"
 #include "differential_base.h"
+#include "odometry/robot_base.h"
+#include "waypoints.h"
 
 #define TRAJ_CHUNK_BUFFER_LEN   100
 
@@ -203,6 +205,30 @@ void wheelbase_trajectory_callback(void *p, cmp_ctx_t *input)
 }
 
 
+void wheelbase_waypoint_callback(void *p, cmp_ctx_t *input)
+{
+    (void) p;
+
+    uint32_t array_len = 0;
+    cmp_read_array(input, &array_len);
+    if (array_len != 2) {
+        return;
+    }
+
+    struct robot_base_pose_2d_s target;
+    target.theta = 0;
+    if (cmp_read_float(input, &target.x) == false) {
+        return;
+    }
+    if (cmp_read_float(input, &target.y) == false) {
+        return;
+    }
+
+    chMtxLock(&diff_base_waypoint_lock);
+        waypoints_set_target(&diff_base_waypoint, target);
+    chMtxUnlock(&diff_base_waypoint_lock);
+}
+
 
 
 struct message_method_s message_callbacks[] = {
@@ -213,6 +239,7 @@ struct message_method_s message_callbacks[] = {
     {.name = "actuator_position", .cb = message_actuator_position_callback},
     {.name = "actuator_trajectory", .cb = message_actuator_trajectory_callback},
     {.name = "wheelbase_trajectory", .cb = wheelbase_trajectory_callback},
+    {.name = "wheelbase_waypoint", .cb = wheelbase_waypoint_callback},
 };
 
 int message_callbacks_len = sizeof message_callbacks / sizeof(message_callbacks[0]);
