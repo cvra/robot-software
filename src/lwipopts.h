@@ -59,15 +59,17 @@
 /* Robot settings. */
 #ifdef ON_ROBOT
 
-#define ODOMETRY_PUBLISHER_PORT 20000
-#define ODOMETRY_PUBLISHER_HOST(server) ip_addr_set(server, IP_ADDR_BROADCAST)
-
 #define STREAM_PORT            20042
 #define STREAM_HOST(server)    ip_addr_set(server, IP_ADDR_BROADCAST)
+
+#define ODOMETRY_PUBLISHER_PORT STREAM_PORT
+#define ODOMETRY_PUBLISHER_HOST(server) ip_addr_set(server, IP_ADDR_BROADCAST)
 
 #else
 /* Laptop debug settings. We cannot use a broadcast address to debug over wifi
  * because routers don't forward broadcast packets. */
+
+#error "currently untested"
 
 #define LAPTOP_IP(p) IP4_ADDR(p, 192, 168, 2, 101)
 
