@@ -245,11 +245,15 @@ void main(void *arg)
     res = enc_pos_sub.start(
         [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::MotorEncoderPosition>& msg)
         {
-            if(msg.getSrcNodeID() == uavcan::NodeID(bus_enumerator_get_can_id(&bus_enumerator, "right-wheel"))) {
+            if (bus_enumerator_get_can_id(&bus_enumerator, "right-wheel") == BUS_ENUMERATOR_STRING_ID_NOT_FOUND
+                || bus_enumerator_get_can_id(&bus_enumerator, "left-wheel") == BUS_ENUMERATOR_STRING_ID_NOT_FOUND) {
+                return;
+            }
+            if(msg.getSrcNodeID().get() == bus_enumerator_get_can_id(&bus_enumerator, "right-wheel")) {
                 odometry_encoder_record_sample(&enc_right[0], enc_right[1].timestamp, enc_right[1].value);
                 odometry_encoder_record_sample(&enc_right[1], timestamp_get(), msg.raw_encoder_position);
                 odometry_base_update(&robot_base, enc_right[1], enc_left[1]);   /* TODO shouldn't be called in here */
-            } else if(msg.getSrcNodeID() == uavcan::NodeID(bus_enumerator_get_can_id(&bus_enumerator, "left-wheel"))) {
+            } else if(msg.getSrcNodeID().get() == bus_enumerator_get_can_id(&bus_enumerator, "left-wheel")) {
                 odometry_encoder_record_sample(&enc_left[0], enc_left[1].timestamp, enc_left[1].value);
                 odometry_encoder_record_sample(&enc_left[1], timestamp_get(), msg.raw_encoder_position);
             }
