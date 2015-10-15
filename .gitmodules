@@ -43,3 +43,6 @@
 [submodule "src/tracy-the-trajectory-tracker"]
 	path = src/tracy-the-trajectory-tracker
 	url = https://github.com/cvra/tracy-the-trajectory-tracker
+[submodule "src/pid"]
+	path = src/pid
+	url = https://github.com/cvra/pid.git

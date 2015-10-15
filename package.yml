@@ -9,6 +9,7 @@ depends:
     - simplerpc
     - odometry
     - tracy-the-trajectory-tracker
+    - pid
 
 
 target.arm:
