@@ -10,7 +10,7 @@ void trajectory_init(trajectory_t *traj,
     traj->length = len;
     traj->dimension = dimension;
     traj->sampling_time_us = sampling_time_us;
-    traj->read_pointer = 0;
+    traj->read_index = 0;
     traj->read_time_us = traj->last_defined_time_us = 0;
     traj->last_chunk_start_time_us = 0;
 }
@@ -45,7 +45,7 @@ int _trajectory_copy_from_buffer(trajectory_t *traj,
     }
 
     int write_offset_to_read_index = (write_time_us - traj->read_time_us) / traj->sampling_time_us;
-    int write_index = traj->read_pointer + write_offset_to_read_index;
+    int write_index = traj->read_index + write_offset_to_read_index;
     int nb_points_free = traj->length - write_offset_to_read_index;
     assert(nb_points_free > 0);     // the calling code asserts this
 
@@ -87,7 +87,7 @@ int trajectory_apply_chunk(trajectory_t *traj, const trajectory_chunk_t *chunk)
     traj->last_chunk_start_time_us = chunk->start_time_us;
 
     if (traj->last_defined_time_us < chunk->start_time_us) {
-        traj->read_pointer = 0;
+        traj->read_index = 0;
         traj->read_time_us = chunk->start_time_us;
     }
 
@@ -136,9 +136,9 @@ float* trajectory_read(trajectory_t *traj, int64_t time)
 
     traj->read_time_us += offset * traj->sampling_time_us;
 
-    traj->read_pointer += offset;
-    traj->read_pointer = traj->read_pointer % traj->length;
+    traj->read_index += offset;
+    traj->read_index = traj->read_index % traj->length;
 
 
-    return &traj->buffer[traj->read_pointer * traj->dimension];
+    return &traj->buffer[traj->read_index * traj->dimension];
 }

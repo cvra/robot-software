@@ -26,7 +26,7 @@ TEST(TrajectoryInitTestGroup, CanInitTraj)
     CHECK_EQUAL(3, traj.length);
     CHECK_EQUAL(2, traj.dimension);
     CHECK_EQUAL(1000, (int)traj.sampling_time_us);
-    CHECK_EQUAL(0, (int)traj.read_pointer);
+    CHECK_EQUAL(0, (int)traj.read_index);
 }
 
 TEST(TrajectoryInitTestGroup, CanInitChunk)
@@ -88,7 +88,7 @@ TEST(TrajectoriesMergingTestGroup, ReturnCode)
 TEST(TrajectoriesMergingTestGroup, MergeWrapAround)
 {
     // Leave enough room to wrap around
-    traj.read_pointer = 50;
+    traj.read_index = 50;
     traj.read_time_us = 50 * dt;
     traj.last_defined_time_us = 100 * dt;
 
@@ -113,7 +113,7 @@ TEST(TrajectoriesMergingTestGroup, MergeWithNonZeroStartTime)
 
 TEST(TrajectoriesMergingTestGroup, MergeWithNonZeroReadPointer)
 {
-    traj.read_pointer = 4;
+    traj.read_index = 4;
     traj.read_time_us = 100;
     chunk.start_time_us = 100 + 2 * dt;
 
@@ -125,7 +125,7 @@ TEST(TrajectoriesMergingTestGroup, MergeWithNonZeroReadPointer)
 TEST(TrajectoriesMergingTestGroup, MergeFromPast)
 {
     traj.read_time_us = 100;
-    traj.read_pointer = 10;
+    traj.read_index = 10;
     chunk.start_time_us = 100 - 2 * dt;
 
     trajectory_apply_chunk(&traj, &chunk);
@@ -139,7 +139,7 @@ TEST(TrajectoriesMergingTestGroup, MergeFromPast)
 TEST(TrajectoriesMergingTestGroup, ChunkStartAfterLastDefinedResetsTrajectory)
 {
     traj.read_time_us = 100;
-    traj.read_pointer = 10;
+    traj.read_index = 10;
     traj.last_defined_time_us = 200;
     chunk.start_time_us = 300;
 
@@ -147,13 +147,13 @@ TEST(TrajectoriesMergingTestGroup, ChunkStartAfterLastDefinedResetsTrajectory)
     CHECK_EQUAL(0, ret);
     CHECK_EQUAL(chunk.start_time_us, traj.read_time_us);
     CHECK_EQUAL(chunk.start_time_us + (chunk.length - 1) * dt, traj.last_defined_time_us);
-    CHECK_EQUAL(chunk.buffer[0], traj.buffer[traj.read_pointer]);
+    CHECK_EQUAL(chunk.buffer[0], traj.buffer[traj.read_index]);
 }
 
 TEST(TrajectoriesMergingTestGroup, MergeFromFuture)
 {
     traj.read_time_us = 100;
-    traj.read_pointer = 10;
+    traj.read_index = 10;
     chunk.start_time_us = 100 + 2 * dt;
     int i;
 
@@ -191,11 +191,11 @@ TEST(TrajectoriesReadTestGroup, ReadChangesTheReadPointer)
     traj.last_defined_time_us = time;
 
 
-    CHECK_EQUAL(0, traj.read_pointer);
+    CHECK_EQUAL(0, traj.read_index);
 
     trajectory_read(&traj, time);
 
-    CHECK_EQUAL(4, traj.read_pointer);
+    CHECK_EQUAL(4, traj.read_index);
     LONGS_EQUAL(time, traj.read_time_us);
 }
 
@@ -209,7 +209,7 @@ TEST(TrajectoriesReadTestGroup, ReadWrapsAround)
 
     trajectory_read(&traj, time);
 
-    CHECK_EQUAL(4, traj.read_pointer);
+    CHECK_EQUAL(4, traj.read_index);
     LONGS_EQUAL(time, traj.read_time_us);
 }
 
@@ -357,7 +357,7 @@ TEST(TrajectoriesErrorTestGroup, ReadBeforeReadPointer)
 TEST(TrajectoriesErrorTestGroup, OutOfOrderArrival)
 {
     int ret;
-    traj.read_pointer = traj.read_time_us = 0;
+    traj.read_index = traj.read_time_us = 0;
     chunk.start_time_us = traj.read_time_us + 2 * dt;
 
     trajectory_apply_chunk(&traj, &chunk);
@@ -420,7 +420,7 @@ TEST(TrajectoryCopyFromBufferGroup, CircularBufferWrap)
 
     trajectory_init(&traj, (float *)traj_buffer, 5, 1, dt);
     traj.read_time_us = 0;
-    traj.read_pointer = 4;
+    traj.read_index = 4;
 
     _trajectory_copy_from_buffer(&traj, 0, &points[0], 3);
 

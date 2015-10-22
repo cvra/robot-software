@@ -17,7 +17,7 @@ typedef struct {
     int length;
     int dimension;
     int64_t sampling_time_us;
-    int read_pointer;
+    int read_index;
     int64_t read_time_us;
     int64_t last_defined_time_us;
     int64_t last_chunk_start_time_us; /**< For out of order arrival detection. */
