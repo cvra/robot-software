@@ -1,6 +1,14 @@
 #include <iostream>
+#include <string.h>
 #include "../src/trajectories.h"
 #include "CppUTest/TestHarness.h"
+
+extern "C" {
+int _trajectory_copy_from_buffer(trajectory_t *traj,
+                                  int64_t write_time_us,
+                                  const float *buffer,
+                                  int nb_points);
+}
 
 TEST_GROUP(TrajectoryInitTestGroup)
 {
@@ -296,11 +304,11 @@ TEST(TrajectoriesErrorTestGroup, CheckSampleRate)
 
 TEST(TrajectoriesErrorTestGroup, CheckTooFarInTheFuture)
 {
-    // Last point of chunk will override the trajectory
-    chunk.start_time_us = 90 * dt;
+    // chunk is further in future than the end of the traj buffer
+    chunk.start_time_us = 101 * dt;
 
     ret = trajectory_apply_chunk(&traj, &chunk);
-    CHECK_EQUAL(TRAJECTORY_ERROR_CHUNK_TOO_LONG, ret);
+    CHECK_EQUAL(TRAJECTORY_ERROR_CHUNK_TOO_FAR_IN_FUTURE, ret);
 }
 
 TEST(TrajectoriesErrorTestGroup, CheckDimension)
@@ -351,4 +359,73 @@ TEST(TrajectoriesErrorTestGroup, OutOfOrderArrival)
 
     ret = trajectory_apply_chunk(&traj, &chunk);
     CHECK_EQUAL(TRAJECTORY_ERROR_CHUNK_OUT_OF_ORER, ret);
+}
+
+TEST_GROUP(TrajectoryCopyFromBufferGroup)
+{
+    trajectory_t traj;
+    float traj_buffer[100];
+
+    float chunk_buffer[10];
+
+    const uint64_t dt = 100;
+
+    int ret;
+
+    void setup(void)
+    {
+        memset(traj_buffer, 0, sizeof traj_buffer);
+        memset(chunk_buffer, 0, sizeof chunk_buffer);
+
+        trajectory_init(&traj, (float *)traj_buffer, 100, 1, dt);
+        traj.read_time_us = 1234;
+    }
+};
+
+TEST(TrajectoryCopyFromBufferGroup, TooFarInFuture)
+{
+    int64_t write_time_us = 101 * dt + traj.read_time_us;
+
+    ret = _trajectory_copy_from_buffer(&traj, write_time_us, &chunk_buffer[0], 10);
+    CHECK_EQUAL(TRAJECTORY_ERROR_CHUNK_TOO_FAR_IN_FUTURE, ret);
+}
+
+TEST(TrajectoryCopyFromBufferGroup, CopyTwoPoints)
+{
+    float points[] = {21.0, 42.0};
+
+    _trajectory_copy_from_buffer(&traj, 1234, &points[0], 2);
+
+    CHECK_EQUAL(0, ret);
+    CHECK_EQUAL(points[0], traj_buffer[0]);
+    CHECK_EQUAL(points[1], traj_buffer[1]);
+}
+
+TEST(TrajectoryCopyFromBufferGroup, CopyMultiDimensionPoints)
+{
+    float points[] = {21.0, 42.0};
+    trajectory_init(&traj, (float *)traj_buffer, 100, 2, dt);
+    traj.read_time_us = 1234;
+
+    _trajectory_copy_from_buffer(&traj, 1234, &points[0], 1);
+
+    CHECK_EQUAL(0, ret);
+    CHECK_EQUAL(points[0], traj_buffer[0]);
+    CHECK_EQUAL(points[1], traj_buffer[1]);
+}
+
+TEST(TrajectoryCopyFromBufferGroup, CircularBufferWrap)
+{
+    float points[] = {21.0, 42.0, 84.0};
+
+    trajectory_init(&traj, (float *)traj_buffer, 5, 1, dt);
+    traj.read_time_us = 0;
+    traj.read_pointer = 4;
+
+    _trajectory_copy_from_buffer(&traj, 0, &points[0], 3);
+
+    CHECK_EQUAL(0, ret);
+    CHECK_EQUAL(points[0], traj_buffer[4]);
+    CHECK_EQUAL(points[1], traj_buffer[0]);
+    CHECK_EQUAL(points[2], traj_buffer[1]);
 }

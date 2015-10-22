@@ -7,10 +7,11 @@ extern "C" {
 
 #include <stdint.h>
 
-#define TRAJECTORY_ERROR_TIMESTEP_MISMATCH -1
-#define TRAJECTORY_ERROR_CHUNK_TOO_LONG -2
-#define TRAJECTORY_ERROR_DIMENSION_MISMATCH -3
-#define TRAJECTORY_ERROR_CHUNK_OUT_OF_ORER -4
+#define TRAJECTORY_ERROR_TIMESTEP_MISMATCH          -1
+#define TRAJECTORY_ERROR_CHUNK_TOO_OLD              -2
+#define TRAJECTORY_ERROR_DIMENSION_MISMATCH         -3
+#define TRAJECTORY_ERROR_CHUNK_OUT_OF_ORER          -4
+#define TRAJECTORY_ERROR_CHUNK_TOO_FAR_IN_FUTURE    -5
 
 typedef struct {
     float *buffer;
@@ -73,7 +74,7 @@ void trajectory_chunk_init(trajectory_chunk_t *chunk, float *buffer, int length,
  *
  * @note If an error occurs, the trajectory is left unchanged.
  */
-int trajectory_apply_chunk(trajectory_t *traj, trajectory_chunk_t *chunk);
+int trajectory_apply_chunk(trajectory_t *traj, const trajectory_chunk_t *chunk);
 
 /** Reads the current point of the trajectory.
  *
