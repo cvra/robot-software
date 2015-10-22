@@ -2,8 +2,6 @@
 #include "trajectories.h"
 #include <assert.h>
 
-#include <stdio.h>
-
 void trajectory_init(trajectory_t *traj,
                      float *buffer, int len, int dimension,
                      uint64_t sampling_time_us)
@@ -49,11 +47,7 @@ int _trajectory_copy_from_buffer(trajectory_t *traj,
     int write_offset_to_read_index = (write_time_us - traj->read_time_us) / traj->sampling_time_us;
     int write_index = traj->read_pointer + write_offset_to_read_index;
     int nb_points_free = traj->length - write_offset_to_read_index;
-
-    if (nb_points_free <= 0) {
-        return TRAJECTORY_ERROR_CHUNK_TOO_FAR_IN_FUTURE;
-    }
-
+    assert(nb_points_free > 0);     // the calling code asserts this
 
     int nb_points_to_end = traj->length - write_index;
 
@@ -64,8 +58,6 @@ int _trajectory_copy_from_buffer(trajectory_t *traj,
     memcpy(&traj->buffer[write_index * traj->dimension],
            buffer,
            nb_points_to_copy_till_buf_end * traj->dimension * sizeof(float));
-
-    nb_points_to_copy = min(nb_points, nb_points_free) - nb_points_to_copy;
 
     memcpy(&traj->buffer[0],
            &buffer[nb_points_to_end * traj->dimension],
@@ -94,16 +86,28 @@ int trajectory_apply_chunk(trajectory_t *traj, const trajectory_chunk_t *chunk)
 
     traj->last_chunk_start_time_us = chunk->start_time_us;
 
+    if (traj->last_defined_time_us < chunk->start_time_us) {
+        traj->read_pointer = 0;
+        traj->read_time_us = chunk->start_time_us;
+    }
+
+
     int64_t write_time_us;
     float *buffer;
     int first_chunk_point_idx;
     int nb_points_to_copy;
 
-    if (chunk->start_time_us > traj->read_time_us) {
+    if (chunk->start_time_us >= traj->read_time_us) {
         write_time_us = chunk->start_time_us;
     } else {
         write_time_us = traj->read_time_us + traj->sampling_time_us;
     }
+
+    /* chunks which are too far in the future to overlap the currently defined
+     * tarjectory reset the trajectory to the current chunk.
+     * Therefore, the write_time is always inside the trajectory buffer. */
+    assert(write_time_us < traj->read_time_us + traj->length * traj->sampling_time_us);
+
 
     first_chunk_point_idx = (write_time_us - chunk->start_time_us) / traj->sampling_time_us;
     assert(first_chunk_point_idx >= 0);

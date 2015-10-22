@@ -60,6 +60,7 @@ TEST_GROUP(TrajectoriesMergingTestGroup)
         }
 
         trajectory_init(&traj, (float *)traj_buffer, 100, 1, dt);
+        traj.last_defined_time_us = 50 * dt;
         trajectory_chunk_init(&chunk, (float *)chunk_buffer, 10, 1, 0, dt);
     }
 };
@@ -89,6 +90,7 @@ TEST(TrajectoriesMergingTestGroup, MergeWrapAround)
     // Leave enough room to wrap around
     traj.read_pointer = 50;
     traj.read_time_us = 50 * dt;
+    traj.last_defined_time_us = 100 * dt;
 
     // The chunk arrives at the end of the buffer
     chunk.start_time_us = 95 * dt;
@@ -132,6 +134,20 @@ TEST(TrajectoriesMergingTestGroup, MergeFromPast)
 
     // Check that we did not touch the points before the read pointer
     CHECK_EQUAL(0., traj_buffer[10]);
+}
+
+TEST(TrajectoriesMergingTestGroup, ChunkStartAfterLastDefinedResetsTrajectory)
+{
+    traj.read_time_us = 100;
+    traj.read_pointer = 10;
+    traj.last_defined_time_us = 200;
+    chunk.start_time_us = 300;
+
+    int ret = trajectory_apply_chunk(&traj, &chunk);
+    CHECK_EQUAL(0, ret);
+    CHECK_EQUAL(chunk.start_time_us, traj.read_time_us);
+    CHECK_EQUAL(chunk.start_time_us + (chunk.length - 1) * dt, traj.last_defined_time_us);
+    CHECK_EQUAL(chunk.buffer[0], traj.buffer[traj.read_pointer]);
 }
 
 TEST(TrajectoriesMergingTestGroup, MergeFromFuture)
@@ -235,6 +251,7 @@ TEST_GROUP(TrajectoriesMultipleDimensionTestGroup)
     {
         memset(traj_buffer, 0, sizeof traj_buffer);
         trajectory_init(&traj, (float *)traj_buffer, 100, 3, dt);
+        traj.last_defined_time_us = 21 * dt;
 
         memset(chunk_buffer, 0, sizeof chunk_buffer);
         trajectory_chunk_init(&chunk, (float *)chunk_buffer, 10, 3, 0, dt);
@@ -302,15 +319,6 @@ TEST(TrajectoriesErrorTestGroup, CheckSampleRate)
     CHECK_EQUAL(TRAJECTORY_ERROR_TIMESTEP_MISMATCH, ret);
 }
 
-TEST(TrajectoriesErrorTestGroup, CheckTooFarInTheFuture)
-{
-    // chunk is further in future than the end of the traj buffer
-    chunk.start_time_us = 101 * dt;
-
-    ret = trajectory_apply_chunk(&traj, &chunk);
-    CHECK_EQUAL(TRAJECTORY_ERROR_CHUNK_TOO_FAR_IN_FUTURE, ret);
-}
-
 TEST(TrajectoriesErrorTestGroup, CheckDimension)
 {
     chunk.dimension = traj.dimension - 1;
@@ -336,7 +344,7 @@ TEST(TrajectoriesErrorTestGroup, ReadBeforeReadPointer)
     // overwritten
     float *res;
 
-    chunk.start_time_us = 20 * dt;
+    chunk.start_time_us = 5 * dt;
     trajectory_apply_chunk(&traj, &chunk);
     res = trajectory_read(&traj, 10 * dt);
     CHECK_TRUE(res != NULL);
@@ -381,14 +389,6 @@ TEST_GROUP(TrajectoryCopyFromBufferGroup)
         traj.read_time_us = 1234;
     }
 };
-
-TEST(TrajectoryCopyFromBufferGroup, TooFarInFuture)
-{
-    int64_t write_time_us = 101 * dt + traj.read_time_us;
-
-    ret = _trajectory_copy_from_buffer(&traj, write_time_us, &chunk_buffer[0], 10);
-    CHECK_EQUAL(TRAJECTORY_ERROR_CHUNK_TOO_FAR_IN_FUTURE, ret);
-}
 
 TEST(TrajectoryCopyFromBufferGroup, CopyTwoPoints)
 {

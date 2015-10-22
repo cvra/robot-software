@@ -11,7 +11,6 @@ extern "C" {
 #define TRAJECTORY_ERROR_CHUNK_TOO_OLD              -2
 #define TRAJECTORY_ERROR_DIMENSION_MISMATCH         -3
 #define TRAJECTORY_ERROR_CHUNK_OUT_OF_ORER          -4
-#define TRAJECTORY_ERROR_CHUNK_TOO_FAR_IN_FUTURE    -5
 
 typedef struct {
     float *buffer;
