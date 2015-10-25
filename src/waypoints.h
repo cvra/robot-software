@@ -7,7 +7,8 @@
 #include <parameter/parameter.h>
 #include <motor_driver.h> // for pid_parameter_s
 
-#define WAYPOINTS_FREQUENCY 50
+#define WAYPOINTS_FREQUENCY             50      // [Hz]
+#define WAYPOINTS_MIN_DISTANCE_ERROR    5e-3    // [m]
 
 #ifdef __cplusplus
 extern "C" {

@@ -64,12 +64,23 @@ void waypoints_process(waypoints_t *waypoints,
 
     float distance_to_wp = sqrtf(powf(waypoints->target.x - pose.x, 2) +
                                  powf(waypoints->target.y - pose.y, 2));
-    float heading_to_wp = atan2f(waypoints->target.y - pose.y,
-                                 waypoints->target.x - pose.x);
-    float heading_error = heading_to_wp - pose.theta;
+    float heading_error = 0;
+    float distance_error = 0;
 
-    /* distance to the waypoint projected onto the heading error */
-    float distance_error = cosf(heading_error) * distance_to_wp;
+    if (distance_to_wp > WAYPOINTS_MIN_DISTANCE_ERROR) {
+        float heading_to_wp = atan2f(waypoints->target.y - pose.y,
+                                     waypoints->target.x - pose.x);
+        heading_error = pose.theta - heading_to_wp;
+        /* distance to the waypoint projected onto the heading error */
+        distance_error = cosf(heading_error) * distance_to_wp;
+    } else {
+        /* arrived at taget; turn to target heading */
+        heading_error = pose.theta - waypoints->target.theta;
+        distance_error = 0;
+    }
+
+    heading_error = fmodf(heading_error, M_PI); // unwind
+
 
     float distance_ctrl = pid_process(&waypoints->distance_pid, distance_error);
     float heading_ctrl = pid_process(&waypoints->heading_pid, heading_error);
