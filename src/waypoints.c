@@ -72,7 +72,7 @@ void waypoints_process(waypoints_t *waypoints,
                                      waypoints->target.x - pose.x);
         heading_error = pose.theta - heading_to_wp;
         /* distance to the waypoint projected onto the heading error */
-        distance_error = cosf(heading_error) * distance_to_wp;
+        distance_error = -cosf(heading_error) * distance_to_wp;
     } else {
         /* arrived at taget; turn to target heading */
         heading_error = pose.theta - waypoints->target.theta;
