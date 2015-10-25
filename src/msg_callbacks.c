@@ -211,16 +211,18 @@ void wheelbase_waypoint_callback(void *p, cmp_ctx_t *input)
 
     uint32_t array_len = 0;
     cmp_read_array(input, &array_len);
-    if (array_len != 2) {
+    if (array_len != 3) {
         return;
     }
 
     struct robot_base_pose_2d_s target;
-    target.theta = 0;
     if (cmp_read_float(input, &target.x) == false) {
         return;
     }
     if (cmp_read_float(input, &target.y) == false) {
+        return;
+    }
+    if (cmp_read_float(input, &target.theta) == false) {
         return;
     }
 

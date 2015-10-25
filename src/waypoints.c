@@ -71,6 +71,12 @@ void waypoints_process(waypoints_t *waypoints,
                        float *left_wheel_velocity,
                        float *right_wheel_velocity)
 {
+    //if (!waypoints->enabled) {
+    //    *left_wheel_velocity = 0;
+    //    *right_wheel_velocity = 0;
+    //    return;
+    //}
+
     pid_param_update(&waypoints->distance_pid_param, &waypoints->distance_pid);
     pid_param_update(&waypoints->heading_pid_param, &waypoints->heading_pid);
 
@@ -79,19 +85,26 @@ void waypoints_process(waypoints_t *waypoints,
     float heading_error = 0;
     float distance_error = 0;
 
-    if (distance_to_wp > WAYPOINTS_MIN_DISTANCE_ERROR) {
+    if (distance_to_wp > WAYPOINTS_MIN_DISTANCE_ERROR && waypoints->enabled) {
         float heading_to_wp = atan2f(waypoints->target.y - pose.y,
                                      waypoints->target.x - pose.x);
         heading_error = pose.theta - heading_to_wp;
-        /* distance to the waypoint projected onto the heading error */
-        distance_error = -cosf(heading_error) * distance_to_wp;
+
+        heading_error = periodic_error(heading_error);
+        if (fabs(heading_error) > WAYPOINTS_MAX_HEADING_ERROR) {
+            distance_error = 0;
+        } else {
+            /* distance to the waypoint projected onto the heading error */
+            distance_error = -cosf(heading_error) * distance_to_wp;
+        }
     } else {
         /* arrived at taget; turn to target heading */
+        waypoints->enabled = false;
         heading_error = pose.theta - waypoints->target.theta;
+        heading_error = periodic_error(heading_error);
         distance_error = 0;
     }
 
-    heading_error = periodic_error(heading_error);
 
     float distance_ctrl = pid_process(&waypoints->distance_pid, distance_error);
     float heading_ctrl = pid_process(&waypoints->heading_pid, heading_error);

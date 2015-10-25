@@ -197,8 +197,8 @@ void differential_base_tracking_thread_waypoint(void *p)
                               &left_wheel_velocity, &right_wheel_velocity);
         chMtxUnlock(&diff_base_waypoint_lock);
 
-        motor_manager_set_velocity(&motor_manager, "left-wheel", left_wheel_velocity);
-        motor_manager_set_velocity(&motor_manager, "right-wheel", right_wheel_velocity);
+        motor_manager_set_velocity(&motor_manager, "left-wheel", -1 * left_wheel_velocity);
+        motor_manager_set_velocity(&motor_manager, "right-wheel", -1 * right_wheel_velocity);
         // chprintf((BaseSequentialStream *)&SDU1, "%f %f\n", diff_base_waypoint.target.x, diff_base_waypoint.target.y);
 
         chThdSleepMilliseconds(1000/WAYPOINTS_FREQUENCY);
