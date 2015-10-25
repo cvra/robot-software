@@ -54,6 +54,18 @@ void waypoints_set_target(waypoints_t *waypoints, struct robot_base_pose_2d_s ta
     waypoints->enabled = true;
 }
 
+static float periodic_error(float err)
+{
+    err = fmodf(err, 2*M_PI);
+    if (err > M_PI) {
+        return err - 2*M_PI;
+    }
+    if (err < -M_PI) {
+        return err + 2*M_PI;
+    }
+    return err;
+}
+
 void waypoints_process(waypoints_t *waypoints,
                        struct robot_base_pose_2d_s pose,
                        float *left_wheel_velocity,
@@ -79,8 +91,7 @@ void waypoints_process(waypoints_t *waypoints,
         distance_error = 0;
     }
 
-    heading_error = fmodf(heading_error, M_PI); // unwind
-
+    heading_error = periodic_error(heading_error);
 
     float distance_ctrl = pid_process(&waypoints->distance_pid, distance_error);
     float heading_ctrl = pid_process(&waypoints->heading_pid, heading_error);
