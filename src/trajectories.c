@@ -2,6 +2,8 @@
 #include "trajectories.h"
 #include <assert.h>
 
+#include <stdio.h>
+
 void trajectory_init(trajectory_t *traj,
                      float *buffer, int len, int dimension,
                      uint64_t sampling_time_us)
@@ -48,10 +50,10 @@ int _trajectory_copy_from_buffer(trajectory_t *traj,
     int write_index = traj->read_index + write_offset_to_read_index;
     int nb_points_free = traj->length - write_offset_to_read_index;
     assert(nb_points_free > 0);     // the calling code asserts this
-
-    int nb_points_to_end = traj->length - write_index;
-
     int nb_points_to_copy = min(nb_points, nb_points_free);
+
+    write_index %= traj->length;
+    int nb_points_to_end = traj->length - write_index;
     int nb_points_to_copy_till_buf_end = min(nb_points_to_copy, nb_points_to_end);
     int nb_points_to_copy_wrapped = nb_points_to_copy - nb_points_to_copy_till_buf_end;
 
@@ -60,7 +62,7 @@ int _trajectory_copy_from_buffer(trajectory_t *traj,
            nb_points_to_copy_till_buf_end * traj->dimension * sizeof(float));
 
     memcpy(&traj->buffer[0],
-           &buffer[nb_points_to_end * traj->dimension],
+           &buffer[nb_points_to_copy_till_buf_end * traj->dimension],
            nb_points_to_copy_wrapped * traj->dimension * sizeof(float));
 
     int64_t last_point_offset_to_read_index = (write_offset_to_read_index + nb_points_to_copy - 1);

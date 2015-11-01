@@ -429,3 +429,19 @@ TEST(TrajectoryCopyFromBufferGroup, CircularBufferWrap)
     CHECK_EQUAL(points[1], traj_buffer[0]);
     CHECK_EQUAL(points[2], traj_buffer[1]);
 }
+
+TEST(TrajectoryCopyFromBufferGroup, WriteIndexAlreadyWrapped)
+{
+    float points[] = {21.0, 42.0, 84.0};
+
+    trajectory_init(&traj, (float *)traj_buffer, 5, 1, dt);
+    traj.read_time_us = 0;
+    traj.read_index = 4;
+
+    _trajectory_copy_from_buffer(&traj, 2*dt, &points[0], 3);
+
+    CHECK_EQUAL(0, ret);
+    CHECK_EQUAL(points[0], traj_buffer[1]);
+    CHECK_EQUAL(points[1], traj_buffer[2]);
+    CHECK_EQUAL(points[2], traj_buffer[3]);
+}
