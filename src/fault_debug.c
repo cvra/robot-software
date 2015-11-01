@@ -82,7 +82,7 @@ __attribute__ ((naked))
 void NMI_Handler(void)
 {
     // reboot. I don't have any better idea what to do here.
-    NVIC_SystemReset();
+    chSysHalt("Non Maskable Interrupt");
 }
 
 __attribute__ ((naked))
