@@ -6,6 +6,7 @@
 #include "priorities.h"
 #include "main.h"
 #include "parameter/parameter.h"
+#include "timestamp/timestamp.h"
 #include "robot_parameters.h"
 #include "tracy-the-trajectory-tracker/src/trajectory_tracking.h"
 #include "config.h"
