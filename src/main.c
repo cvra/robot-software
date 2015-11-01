@@ -29,10 +29,6 @@
 #include "malloc_lock.h"
 #include <lwipthread.h>
 
-#if defined(DEBUG)
-#warning DEBUG is defined, remove for match!
-#endif
-
 /* Command line related.                                                     */
 #define SHELL_WA_SIZE   THD_WORKING_AREA_SIZE(2048)
 static const ShellConfig shell_cfg1 = {
@@ -43,7 +39,7 @@ static const ShellConfig shell_cfg1 = {
 motor_manager_t motor_manager;
 
 // debug UART
-#define DEBUG_UART_BAUDRATE 119200
+#define DEBUG_UART_BAUDRATE SERIAL_DEFAULT_BITRATE
 static const SerialConfig debug_uart_config = {
     .speed = DEBUG_UART_BAUDRATE,
     .cr1 = 0,
@@ -78,7 +74,6 @@ void panic_hook(const char *reason)
             panic_log_printf("0x%p\n", ch.rlist.r_current);
         }
     }
-#if defined(DEBUG)
     BlockingUARTDriver panic_uart;
     blocking_uart_init(&panic_uart, USART3, DEBUG_UART_BAUDRATE);
 
@@ -93,10 +88,6 @@ void panic_hook(const char *reason)
             __asm__ volatile ("nop");
         }
     }
-#else
-    // reboot
-    NVIC_SystemReset();
-#endif
 }
 
 /** Late init hook, called before c++ static constructors. */
@@ -171,46 +162,29 @@ int main(void) {
 
     differential_base_init();
 
-    /* Checks if there is any log message from a previous boot */
-    if (panic_log_read() != NULL) {
-        /* Turns on the user LED if yes */
-        palClearPad(GPIOC, GPIOC_LED);
 
-        /* Turn on all LEDs on the front panel. */
-        palSetPad(GPIOF, GPIOF_LED_READY);
-        palSetPad(GPIOF, GPIOF_LED_DEBUG);
-        palSetPad(GPIOF, GPIOF_LED_ERROR);
-        palSetPad(GPIOF, GPIOF_LED_POWER_ERROR);
-        palSetPad(GPIOF, GPIOF_LED_PC_ERROR);
-        palSetPad(GPIOF, GPIOF_LED_BUS_ERROR);
-        palSetPad(GPIOF, GPIOF_LED_YELLOW_1);
-        palSetPad(GPIOF, GPIOF_LED_YELLOW_2);
-        palSetPad(GPIOF, GPIOF_LED_GREEN_1);
-        palSetPad(GPIOF, GPIOF_LED_GREEN_2);
-    } else {
-        struct netif *ethernet_if;
+    struct netif *ethernet_if;
 
-        differential_base_tracking_start(); // tracy
-        ip_thread_init();
+    differential_base_tracking_start(); // tracy
+    ip_thread_init();
 
-        chThdSleepMilliseconds(1000);
-        ethernet_if = netif_find("ms0");
-        if (ethernet_if) {
-            dhcp_start(ethernet_if);
-        }
+    chThdSleepMilliseconds(1000);
+    ethernet_if = netif_find("ms0");
+    if (ethernet_if) {
+        dhcp_start(ethernet_if);
+    }
 
-        sntp_init();
-        uavcan_node_start(10);
-        rpc_server_init();
-        message_server_init();
-        interface_panel_init();
-        odometry_publisher_init();
+    sntp_init();
+    uavcan_node_start(10);
+    rpc_server_init();
+    message_server_init();
+    interface_panel_init();
+    odometry_publisher_init();
 
 #ifdef ENABLE_STREAM
-        #warning "Enabling robot stream can lead to lwip crash. Do not use in match until fixed."
-        stream_init();
+    #warning "Enabling robot stream can lead to lwip crash. Do not use in match until fixed."
+    stream_init();
 #endif
-    }
 
     /* main thread, spawns a shell on USB connection. */
     while (1) {

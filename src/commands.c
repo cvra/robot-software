@@ -84,22 +84,6 @@ static void cmd_reboot(BaseSequentialStream *chp, int argc, char **argv) {
     NVIC_SystemReset();
 }
 
-static void cmd_panic_log(BaseSequentialStream *chp, int argc, char **argv) {
-    (void) argv;
-    (void) argc;
-    const char *message;
-
-    message = panic_log_read();
-
-    if (message == NULL) {
-        chprintf(chp, "Did not reboot after a panic.");
-    } else {
-        chprintf(chp, "%s", message);
-        panic_log_clear();
-    }
-    chprintf(chp, "\r\n");
-}
-
 static void cmd_time(BaseSequentialStream *chp, int argc, char **argv)
 {
     (void) argv;
@@ -291,7 +275,6 @@ const ShellCommand commands[] = {
     {"ip", cmd_ip},
     {"config_tree", cmd_config_tree},
     {"threads", cmd_threads},
-    {"panic_log", cmd_panic_log},
     {"crashme", cmd_crashme},
     {"reboot", cmd_reboot},
     {"time", cmd_time},
