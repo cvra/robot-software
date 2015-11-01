@@ -28,6 +28,7 @@
 #include "stream.h"
 #include "malloc_lock.h"
 #include <lwipthread.h>
+#include "log.h"
 
 /* Command line related.                                                     */
 #define SHELL_WA_SIZE   THD_WORKING_AREA_SIZE(2048)
@@ -39,7 +40,7 @@ static const ShellConfig shell_cfg1 = {
 motor_manager_t motor_manager;
 
 // debug UART
-#define DEBUG_UART_BAUDRATE SERIAL_DEFAULT_BITRATE
+#define DEBUG_UART_BAUDRATE 921600
 static const SerialConfig debug_uart_config = {
     .speed = DEBUG_UART_BAUDRATE,
     .cr1 = 0,
@@ -110,7 +111,7 @@ int main(void) {
     sduStart(&SDU1, &serusbcfg);
 
     sdStart(&SD3, &debug_uart_config);
-    chprintf((BaseSequentialStream *)&SD3 , "\n> boot\n");
+    log_message("boot");
 
     /*
      * Activates the USB driver and then the USB bus pull-up on D+.
