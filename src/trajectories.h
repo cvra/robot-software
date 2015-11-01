@@ -46,6 +46,14 @@ void trajectory_init(trajectory_t *traj,
                      float *buffer, int len, int dimension,
                      uint64_t sampling_time_us);
 
+
+/** this is used to free the trajectory buffer
+ *
+ * @param [in] traj trajectory pointer
+ */
+void *trajectory_get_buffer_pointer(trajectory_t *traj);
+
+
 /** Inits a trajectory chunk. A chunk is a part of a trajectory that can later
  * be merged to a trajectory.
  *

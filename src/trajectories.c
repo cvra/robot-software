@@ -17,6 +17,13 @@ void trajectory_init(trajectory_t *traj,
     traj->last_chunk_start_time_us = 0;
 }
 
+
+void *trajectory_get_buffer_pointer(trajectory_t *traj)
+{
+    return traj->buffer;
+}
+
+
 void trajectory_chunk_init(trajectory_chunk_t *chunk, float *buffer, int length,
                            int dimension, uint64_t start_time_us,
                            uint64_t sampling_time_us)

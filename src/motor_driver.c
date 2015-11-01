@@ -91,6 +91,7 @@ static void free_trajectory_buffer(motor_driver_t *d)
 {
     if (d->control_mode == MOTOR_CONTROL_MODE_TRAJECTORY
         && d->setpt.trajectory != NULL) {
+        chPoolFree(d->traj_buffer_points_pool, trajectory_get_buffer_pointer(d->setpt.trajectory));
         chPoolFree(d->traj_buffer_pool, d->setpt.trajectory);
         d->setpt.trajectory = NULL;
     }
