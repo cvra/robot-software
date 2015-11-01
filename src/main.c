@@ -181,10 +181,7 @@ int main(void) {
     interface_panel_init();
     odometry_publisher_init();
 
-#ifdef ENABLE_STREAM
-    #warning "Enabling robot stream can lead to lwip crash. Do not use in match until fixed."
     stream_init();
-#endif
 
     /* main thread, spawns a shell on USB connection. */
     while (1) {

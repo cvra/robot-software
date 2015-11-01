@@ -75,7 +75,7 @@
 
 #define STREAM_PORT            20042
 #define STREAM_HOST(server)    LAPTOP_IP(server)
-//#define ENABLE_STREAM
+
 #endif
 
 #endif /* __LWIPOPT_H__ */

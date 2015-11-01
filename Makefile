@@ -204,7 +204,7 @@ DLIBS =
 #
 
 # List all user C define here, like -D_DEBUG=1
-UDEFS = -DDEBRA=1 -DENABLE_STREAM -DON_ROBOT
+UDEFS = -DDEBRA=1 -DON_ROBOT
 
 # Define ASM defines here
 UADEFS =
