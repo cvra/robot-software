@@ -263,6 +263,7 @@ float parameter_scalar_read(parameter_t *p)
 {
     PARAMETER_ASSERT(p->type == _PARAM_TYPE_SCALAR);
     PARAMETER_LOCK();
+    PARAMETER_ASSERT(p->defined == true);
     float ret = p->value.s;
     PARAMETER_UNLOCK();
     return ret;
@@ -310,6 +311,7 @@ int32_t parameter_integer_read(parameter_t *p)
 {
     PARAMETER_ASSERT(p->type == _PARAM_TYPE_INTEGER);
     PARAMETER_LOCK();
+    PARAMETER_ASSERT(p->defined == true);
     int32_t ret = p->value.i;
     PARAMETER_UNLOCK();
     return ret;
@@ -364,6 +366,7 @@ void parameter_vector_read(parameter_t *p, float *out)
 {
     PARAMETER_ASSERT(p->type == _PARAM_TYPE_VECTOR);
     PARAMETER_LOCK();
+    PARAMETER_ASSERT(p->defined == true);
     int i;
     for (i = 0; i < p->value.vect.dim; i++) {
         out[i] = p->value.vect.buf[i];
@@ -429,6 +432,7 @@ uint16_t parameter_variable_vector_read(parameter_t *p, float *out)
 {
     PARAMETER_ASSERT(p->type == _PARAM_TYPE_VAR_VECTOR);
     PARAMETER_LOCK();
+    PARAMETER_ASSERT(p->defined == true);
     int i;
     for (i = 0; i < p->value.vect.dim; i++) {
         out[i] = p->value.vect.buf[i];
@@ -499,6 +503,7 @@ uint16_t parameter_string_read(parameter_t *p, char *out, uint16_t out_size)
 {
     PARAMETER_ASSERT(p->type == _PARAM_TYPE_STRING);
     PARAMETER_LOCK();
+    PARAMETER_ASSERT(p->defined == true);
     uint16_t len = p->value.str.len;
     if (out_size > len) {
         memcpy(out, p->value.str.buf, len);
