@@ -394,7 +394,9 @@ void parameter_msgpack_write_cmp(const parameter_namespace_t *ns,
     }
 
     for (param=ns->parameter_list; param!=NULL; param=param->next) {
-        map_size ++;
+        if (parameter_defined(param)) {
+            map_size ++;
+        }
     }
 
     cmp_write_map(cmp, map_size);
@@ -408,6 +410,10 @@ void parameter_msgpack_write_cmp(const parameter_namespace_t *ns,
     /* Write each parameter. */
     for (param=ns->parameter_list; param!=NULL; param=param->next) {
         success = true;
+
+        if (parameter_defined(param) == false) {
+            continue;
+        }
 
         switch(param->type) {
             case _PARAM_TYPE_SCALAR:

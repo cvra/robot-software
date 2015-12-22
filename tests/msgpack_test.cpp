@@ -152,6 +152,26 @@ TEST(MessagePackTestGroup, TestWrite)
     CHECK_EQUAL(42., val);
 }
 
+TEST(MessagePackTestGroup, TestUndefinedValuesAreIgnored)
+{
+    uint32_t size;
+    char name[128];
+    parameter_scalar_set(&a_bar, 40.);
+
+    CHECK_FALSE(parameter_defined(&a_baz));
+    CHECK_TRUE(parameter_defined(&a_bar));
+
+    parameter_msgpack_write_cmp(&a, &ctx, msgpack_error_cb, NULL);
+    cmp_mem_access_set_pos(&mem, 0);
+
+    CHECK_TRUE(cmp_read_map(&ctx, &size));
+    CHECK_EQUAL(1, size);
+
+    size = sizeof(name);
+    CHECK_TRUE(cmp_read_str(&ctx, name, &size));
+    STRCMP_EQUAL(name, "bar");
+}
+
 TEST(MessagePackTestGroup, TestWriteVector)
 {
     uint32_t map_size;
@@ -281,7 +301,7 @@ TEST(MessagePackTestGroup, TestWriteUnknownParameter)
 
     parameter_namespace_declare(&rootns, NULL, NULL);
 
-    parameter_integer_declare(&bad_param, &rootns, "bad_param");
+    parameter_integer_declare_with_default(&bad_param, &rootns, "bad_param", 40);
 
     // Bogus type
     bad_param.type = 99;
