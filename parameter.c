@@ -352,7 +352,7 @@ void parameter_vector_declare_with_default(parameter_t *p,
 
 uint16_t parameter_vector_dim(parameter_t *p)
 {
-    PARAMETER_ASSERT(p->type == _PARAM_TYPE_VECTOR || p->type == _PARAM_TYPE_VAR_VECTOR);
+    PARAMETER_ASSERT(p->type == _PARAM_TYPE_VECTOR);
     return p->value.vect.dim;
 }
 

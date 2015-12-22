@@ -377,10 +377,10 @@ int parameter_msgpack_read(parameter_namespace_t *ns,
 }
 
 
-void parameter_msgpack_write_cmp(const parameter_namespace_t *ns,
-                                 cmp_ctx_t *cmp,
-                                 parameter_msgpack_err_cb err_cb,
-                                 void *err_arg)
+static void parameter_msgpack_write_subtree(const parameter_namespace_t *ns,
+                                            cmp_ctx_t *cmp,
+                                            parameter_msgpack_err_cb err_cb,
+                                            void *err_arg)
 {
     uint32_t map_size = 0;
     uint32_t i;
@@ -394,7 +394,7 @@ void parameter_msgpack_write_cmp(const parameter_namespace_t *ns,
     }
 
     for (param=ns->parameter_list; param!=NULL; param=param->next) {
-        if (parameter_defined(param)) {
+        if (param->defined) {
             map_size ++;
         }
     }
@@ -404,14 +404,14 @@ void parameter_msgpack_write_cmp(const parameter_namespace_t *ns,
     /* Write subtrees. */
     for (child=ns->subspaces; child != NULL; child=child->next) {
         cmp_write_str(cmp, child->id, strlen(child->id));
-        parameter_msgpack_write_cmp(child, cmp, err_cb, err_arg);
+        parameter_msgpack_write_subtree(child, cmp, err_cb, err_arg);
     }
 
     /* Write each parameter. */
     for (param=ns->parameter_list; param!=NULL; param=param->next) {
         success = true;
 
-        if (parameter_defined(param) == false) {
+        if (param->defined == false) {
             continue;
         }
 
@@ -435,8 +435,8 @@ void parameter_msgpack_write_cmp(const parameter_namespace_t *ns,
             case _PARAM_TYPE_VAR_VECTOR:
             case _PARAM_TYPE_VECTOR:
                 success &= cmp_write_str(cmp, param->id, strlen(param->id));
-                success &= cmp_write_array(cmp, parameter_vector_dim(param));
-                for (i=0; i<parameter_vector_dim(param); i++) {
+                success &= cmp_write_array(cmp, param->value.vect.dim);
+                for (i=0; i<param->value.vect.dim; i++) {
                     success &= cmp_write_float(cmp, param->value.vect.buf[i]);
                 }
                 break;
@@ -450,6 +450,16 @@ void parameter_msgpack_write_cmp(const parameter_namespace_t *ns,
             err_cb(err_arg, param->id, "cmp_write failed");
         }
     }
+}
+
+void parameter_msgpack_write_cmp(const parameter_namespace_t *ns,
+                                 cmp_ctx_t *cmp,
+                                 parameter_msgpack_err_cb err_cb,
+                                 void *err_arg)
+{
+    PARAMETER_LOCK();
+    parameter_msgpack_write_subtree(ns, cmp, err_cb, err_arg);
+    PARAMETER_UNLOCK();
 }
 
 /** Saves the given parameter tree to the given buffer as MessagePack. */
