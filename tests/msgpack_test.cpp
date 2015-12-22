@@ -309,3 +309,22 @@ TEST(MessagePackTestGroup, TestWriteNotEnoughSpaceLeft)
 
     mock().checkExpectations();
 }
+
+TEST(MessagePackTestGroup, TestBackAndForth)
+{
+    // Write an initial value
+    parameter_integer_set(&a_baz, 42);
+
+    // Save it as messagepack
+    parameter_msgpack_write_cmp(&rootns, &ctx, msgpack_error_cb, NULL);
+    cmp_mem_access_set_pos(&mem, 0);
+
+    // Change it
+    parameter_integer_set(&a_baz, 99);
+
+    // Load it from messagepack
+    parameter_msgpack_read_cmp(&rootns, &ctx, msgpack_error_cb, NULL);
+
+    // Check that it had its old value
+    CHECK_EQUAL(42, parameter_integer_get(&a_baz));
+}
