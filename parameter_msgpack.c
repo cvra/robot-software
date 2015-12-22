@@ -1,3 +1,4 @@
+#include <string.h>
 #include <cmp_mem_access/cmp_mem_access.h>
 #include <parameter_port.h>
 #include "parameter_msgpack.h"
@@ -373,4 +374,103 @@ int parameter_msgpack_read(parameter_namespace_t *ns,
     cmp_mem_access_t mem;
     cmp_mem_access_ro_init(&cmp, &mem, buf, size);
     return parameter_msgpack_read_cmp(ns, &cmp, err_cb, err_arg);
+}
+
+
+static void parameter_msgpack_write_subtree(const parameter_namespace_t *ns,
+                                            cmp_ctx_t *cmp,
+                                            parameter_msgpack_err_cb err_cb,
+                                            void *err_arg)
+{
+    uint32_t map_size = 0;
+    uint32_t i;
+
+    parameter_namespace_t *child;
+    parameter_t *param;
+    bool success;
+
+    for (child=ns->subspaces; child != NULL; child=child->next) {
+        map_size ++;
+    }
+
+    for (param=ns->parameter_list; param!=NULL; param=param->next) {
+        if (param->defined) {
+            map_size ++;
+        }
+    }
+
+    cmp_write_map(cmp, map_size);
+
+    /* Write subtrees. */
+    for (child=ns->subspaces; child != NULL; child=child->next) {
+        cmp_write_str(cmp, child->id, strlen(child->id));
+        parameter_msgpack_write_subtree(child, cmp, err_cb, err_arg);
+    }
+
+    /* Write each parameter. */
+    for (param=ns->parameter_list; param!=NULL; param=param->next) {
+        success = true;
+
+        if (param->defined == false) {
+            continue;
+        }
+
+        switch(param->type) {
+            case _PARAM_TYPE_SCALAR:
+                success &= cmp_write_str(cmp, param->id, strlen(param->id));
+                success &= cmp_write_float(cmp, param->value.s);
+                break;
+
+            case _PARAM_TYPE_INTEGER:
+                success &= cmp_write_str(cmp, param->id, strlen(param->id));
+                success &= cmp_write_s32(cmp, param->value.i);
+                break;
+
+            case _PARAM_TYPE_STRING:
+                success &= cmp_write_str(cmp, param->id, strlen(param->id));
+                success &= cmp_write_str(cmp, param->value.str.buf,
+                                         param->value.str.len);
+                break;
+
+            case _PARAM_TYPE_VAR_VECTOR:
+            case _PARAM_TYPE_VECTOR:
+                success &= cmp_write_str(cmp, param->id, strlen(param->id));
+                success &= cmp_write_array(cmp, param->value.vect.dim);
+                for (i=0; i<param->value.vect.dim; i++) {
+                    success &= cmp_write_float(cmp, param->value.vect.buf[i]);
+                }
+                break;
+
+            default:
+                err_cb(err_arg, param->id, "unsupported type for saving");
+                break;
+        }
+
+        if (success == false) {
+            err_cb(err_arg, param->id, "cmp_write failed");
+        }
+    }
+}
+
+void parameter_msgpack_write_cmp(const parameter_namespace_t *ns,
+                                 cmp_ctx_t *cmp,
+                                 parameter_msgpack_err_cb err_cb,
+                                 void *err_arg)
+{
+    PARAMETER_LOCK();
+    parameter_msgpack_write_subtree(ns, cmp, err_cb, err_arg);
+    PARAMETER_UNLOCK();
+}
+
+/** Saves the given parameter tree to the given buffer as MessagePack. */
+void parameter_msgpack_write(const parameter_namespace_t *ns,
+                             char *buf,
+                             size_t size,
+                             parameter_msgpack_err_cb err_cb,
+                             void *err_arg)
+{
+    cmp_ctx_t cmp;
+    cmp_mem_access_t mem;
+    cmp_mem_access_init(&cmp, &mem, buf, size);
+    parameter_msgpack_write_cmp(ns, &cmp, err_cb, err_arg);
 }
