@@ -365,7 +365,7 @@ int parameter_msgpack_read_cmp(parameter_namespace_t *ns,
 
 
 int parameter_msgpack_read(parameter_namespace_t *ns,
-                           const char *buf,
+                           const void *buf,
                            size_t size,
                            parameter_msgpack_err_cb err_cb,
                            void *err_arg)
@@ -464,7 +464,7 @@ void parameter_msgpack_write_cmp(const parameter_namespace_t *ns,
 
 /** Saves the given parameter tree to the given buffer as MessagePack. */
 void parameter_msgpack_write(const parameter_namespace_t *ns,
-                             char *buf,
+                             void *buf,
                              size_t size,
                              parameter_msgpack_err_cb err_cb,
                              void *err_arg)
