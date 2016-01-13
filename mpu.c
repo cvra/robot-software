@@ -29,7 +29,7 @@
 #include <math.h>
 #include <stdint.h>
 #include <hal.h>
-#include "memory_protection.h"
+#include "mpu.h"
 
 void mpu_enable(void)
 {

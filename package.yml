@@ -1,2 +1,2 @@
 target.arm:
-    - memory_protection.c
+    - mpu.c
