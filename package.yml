@@ -1,0 +1,2 @@
+target.arm:
+    - memory_protection.c
