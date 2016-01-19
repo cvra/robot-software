@@ -57,6 +57,14 @@ static bool get_int(cmp_object_t *obj, int32_t *out)
     return false;
 }
 
+static bool get_bool(cmp_object_t *obj, bool *out)
+{
+    if (cmp_object_as_bool(obj, out)) {
+        return true;
+    }
+    return false;
+}
+
 static int get_vector(cmp_ctx_t *cmp,
                       float *buf,
                       int len,
@@ -121,6 +129,25 @@ static int read_parameter_integer(parameter_t *p,
     int32_t v;
     if (get_int(obj, &v)) {
         parameter_integer_set(p, v);
+    } else {
+        err_cb(err_arg, p->id, "warning: type mismatch");
+        int ret = discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
+        if (ret != 0) {
+            return ret;
+        }
+    }
+    return 0;
+}
+
+static bool read_parameter_boolean(parameter_t *p,
+                                   cmp_object_t *obj,
+                                   cmp_ctx_t *cmp,
+                                   parameter_msgpack_err_cb err_cb,
+                                   void *err_arg)
+{
+    bool v;
+    if (get_bool(obj, &v)) {
+        parameter_boolean_set(p, v);
     } else {
         err_cb(err_arg, p->id, "warning: type mismatch");
         int ret = discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
@@ -253,6 +280,8 @@ static int read_parameter(parameter_t *p,
         return read_parameter_scalar(p, obj, cmp, err_cb, err_arg);
     case _PARAM_TYPE_INTEGER:
         return read_parameter_integer(p, obj, cmp, err_cb, err_arg);
+    case _PARAM_TYPE_BOOLEAN:
+        return read_parameter_boolean(p, obj, cmp, err_cb, err_arg);
     case _PARAM_TYPE_VECTOR:
         return read_parameter_vector(p, obj, cmp, err_cb, err_arg);
     case _PARAM_TYPE_VAR_VECTOR:
@@ -424,6 +453,11 @@ static void parameter_msgpack_write_subtree(const parameter_namespace_t *ns,
             case _PARAM_TYPE_INTEGER:
                 success &= cmp_write_str(cmp, param->id, strlen(param->id));
                 success &= cmp_write_s32(cmp, param->value.i);
+                break;
+
+            case _PARAM_TYPE_BOOLEAN:
+                success &= cmp_write_str(cmp, param->id, strlen(param->id));
+                success &= cmp_write_bool(cmp, param->value.b);
                 break;
 
             case _PARAM_TYPE_STRING:

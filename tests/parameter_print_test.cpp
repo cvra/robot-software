@@ -12,6 +12,7 @@ TEST_GROUP(Print)
     parameter_namespace_t rootns;
     parameter_t param_scalar;
     parameter_t param_integer;
+    parameter_t param_boolean;
     parameter_namespace_t sub1;
     parameter_t param_string;
     parameter_t param_not_set;
@@ -34,6 +35,7 @@ TEST_GROUP(Print)
         parameter_namespace_declare(&rootns, NULL, NULL);
         parameter_scalar_declare_with_default(&param_scalar, &rootns, "param_scalar", 3.1415926536);
         parameter_integer_declare_with_default(&param_integer, &rootns, "param_integer", 42);
+        parameter_boolean_declare_with_default(&param_boolean, &rootns, "param_boolean", true);
         parameter_namespace_declare(&sub1, &rootns, "sub1");
         parameter_string_declare_with_default(&param_string, &sub1, "param_string", strbuf, sizeof(strbuf), "abcd");
         parameter_scalar_declare(&param_not_set, &sub1, "param_not_set");
@@ -46,6 +48,8 @@ TEST_GROUP(Print)
 
 int printfn(void *arg, const char *fmt, ...)
 {
+    (void) arg;
+
     va_list args;
     va_start(args, fmt);
     int remaining = sizeof(outbuffer) - outbuffer_pos;
@@ -59,6 +63,7 @@ int printfn(void *arg, const char *fmt, ...)
 
 
 const char *expected =
+"param_boolean: true\n"
 "param_integer: 42\n"
 "param_scalar: 3.141593\n"
 "sub2:\n"

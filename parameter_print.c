@@ -53,6 +53,10 @@ static void param_entry_print(parameter_t *p,
         printfn(printfn_arg, "%d\n", parameter_integer_read(p));
         break;
     }
+    case _PARAM_TYPE_BOOLEAN: {
+        printfn(printfn_arg, "%s\n", parameter_boolean_read(p) ? "true":"false");
+        break;
+    }
     case _PARAM_TYPE_STRING: {
         int len = parameter_string_max_len(p);
         char *s = malloc(len);

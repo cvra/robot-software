@@ -36,7 +36,7 @@ struct _param_val_matrix_s {
 };
 
 #define _PARAM_TYPE_SCALAR      1
-// #define _PARAM_TYPE_BOOL        2
+#define _PARAM_TYPE_BOOLEAN     2
 #define _PARAM_TYPE_INTEGER     3
 #define _PARAM_TYPE_STRING      4
 #define _PARAM_TYPE_VECTOR      5
@@ -153,6 +153,18 @@ void parameter_integer_declare_with_default(parameter_t *p,
 int32_t parameter_integer_get(parameter_t *p);
 int32_t parameter_integer_read(parameter_t *p);
 void parameter_integer_set(parameter_t *p, int32_t value);
+
+/* Boolean type parameter */
+void parameter_boolean_declare(parameter_t *p, parameter_namespace_t *ns,
+                               const char *id);
+
+void parameter_boolean_declare_with_default(parameter_t *p,
+                                            parameter_namespace_t *ns,
+                                            const char *id,
+                                            bool default_val);
+void parameter_boolean_set(parameter_t *p, bool value);
+bool parameter_boolean_get(parameter_t *p);
+bool parameter_boolean_read(parameter_t *p);
 
 /*
  * Vector type parameter
