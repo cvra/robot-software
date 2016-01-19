@@ -46,6 +46,8 @@ TEST_GROUP(Print)
 
 int printfn(void *arg, const char *fmt, ...)
 {
+    (void) arg;
+
     va_list args;
     va_start(args, fmt);
     int remaining = sizeof(outbuffer) - outbuffer_pos;

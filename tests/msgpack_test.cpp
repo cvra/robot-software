@@ -11,6 +11,8 @@ using namespace std;
 
 static void msgpack_error_cb(void *arg, const char *id, const char *err)
 {
+    (void) arg;
+    (void) id;
     FAIL(err);
 }
 
@@ -176,8 +178,6 @@ TEST(MessagePackTestGroup, TestWriteVector)
 {
     uint32_t map_size;
     uint32_t name_len;
-    int32_t ival;
-    float val;
 
     char name[128];
     parameter_t array;
@@ -217,8 +217,6 @@ TEST(MessagePackTestGroup, TestWriteVariableVector)
 {
     uint32_t map_size;
     uint32_t name_len;
-    int32_t ival;
-    float val;
 
     char name[128];
     parameter_t array;
@@ -259,8 +257,6 @@ TEST(MessagePackTestGroup, TestWriteString)
 {
     uint32_t map_size;
     uint32_t name_len;
-    int32_t ival;
-    float val;
 
     parameter_t array;
     char array_value[128];
@@ -292,6 +288,9 @@ TEST(MessagePackTestGroup, TestWriteString)
 
 void log_problematic_id_callback(void *p, const char *id, const char *err)
 {
+    (void) p;
+    (void) err;
+
     mock().actualCall("error").withParameter("id", id);
 }
 
