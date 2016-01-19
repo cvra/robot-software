@@ -286,6 +286,45 @@ TEST(MessagePackTestGroup, TestWriteString)
     STRCMP_EQUAL("hello", name);
 }
 
+TEST(MessagePackTestGroup, TestBooleanWrite)
+{
+    char name[128];
+
+    parameter_namespace_declare(&rootns, NULL, NULL);
+    parameter_boolean_declare(&a_foo, &rootns, "foo");
+    parameter_boolean_set(&a_foo, true);
+
+    parameter_msgpack_write_cmp(&rootns, &ctx, msgpack_error_cb, NULL);
+
+    cmp_mem_access_set_pos(&mem, 0);
+
+    uint32_t map_size, name_len;
+    CHECK_TRUE(cmp_read_map(&ctx, &map_size));
+
+    name_len = sizeof(name);
+    CHECK_TRUE(cmp_read_str(&ctx, name, &name_len));
+
+    bool res;
+    CHECK_TRUE(cmp_read_bool(&ctx, &res));
+    CHECK_EQUAL(true, res);
+}
+
+TEST(MessagePackTestGroup, TestBooleanRead)
+{
+    parameter_namespace_declare(&rootns, NULL, NULL);
+    parameter_boolean_declare(&a_foo, &rootns, "foo");
+
+    cmp_write_map(&ctx, 1);
+    cmp_write_str(&ctx, "foo", 3);
+    cmp_write_bool(&ctx, true);
+
+    cmp_mem_access_set_pos(&mem, 0);
+
+    parameter_msgpack_read_cmp(&rootns, &ctx, msgpack_error_cb, NULL);
+    CHECK_TRUE(parameter_defined(&a_foo));
+    CHECK_EQUAL(true, parameter_boolean_get(&a_foo));
+}
+
 void log_problematic_id_callback(void *p, const char *id, const char *err)
 {
     (void) p;
