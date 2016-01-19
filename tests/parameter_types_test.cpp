@@ -123,3 +123,50 @@ TEST(StringParamter, CanDeclareWithDefault)
     STRCMP_EQUAL("#default", buf);
     CHECK_TRUE(parameter_changed(&p_default));
 }
+
+TEST_GROUP(BoolParameter)
+{
+    parameter_namespace_t ns;
+    parameter_t p;
+
+    void setup(void)
+    {
+        parameter_namespace_declare(&ns, NULL, NULL);
+        parameter_boolean_declare(&p, &ns, "bool");
+    }
+};
+
+TEST(BoolParameter, TypeFlag)
+{
+    CHECK_EQUAL(_PARAM_TYPE_BOOLEAN, p.type);
+    STRCMP_EQUAL("bool", p.id);
+}
+
+TEST(BoolParameter, CanSet)
+{
+    parameter_boolean_set(&p, true);
+    CHECK_TRUE(parameter_changed(&p));
+    CHECK_EQUAL(true, p.value.b);
+}
+
+TEST(BoolParameter, CanRead)
+{
+    parameter_boolean_set(&p, true);
+    CHECK_EQUAL(true, parameter_boolean_read(&p));
+    CHECK_TRUE(parameter_changed(&p));
+}
+
+TEST(BoolParameter, CanGet)
+{
+    parameter_boolean_set(&p, true);
+    CHECK_EQUAL(true, parameter_boolean_get(&p));
+    CHECK_FALSE(parameter_changed(&p));
+}
+
+TEST(BoolParameter, CanDeclareWithDefault)
+{
+    parameter_t p_default;
+    parameter_boolean_declare_with_default(&p_default, &ns, "defaultbool", true);
+    CHECK_TRUE(parameter_changed(&p_default));
+    CHECK_EQUAL(true, parameter_boolean_get(&p_default));
+}

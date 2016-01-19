@@ -326,6 +326,51 @@ void parameter_integer_set(parameter_t *p, int32_t value)
     _parameter_changed_set(p);
 }
 
+/* Boolean type parameter. */
+
+void parameter_boolean_declare(parameter_t *p, parameter_namespace_t *ns, const char *id)
+{
+    p->type = _PARAM_TYPE_BOOLEAN;
+    _parameter_declare(p, ns, id);
+}
+
+void parameter_boolean_declare_with_default(parameter_t *p,
+                                            parameter_namespace_t *ns,
+                                            const char *id,
+                                            bool default_val)
+{
+    p->value.b = default_val;
+    p->type = _PARAM_TYPE_BOOLEAN;
+    _parameter_declare(p, ns, id);
+    _parameter_changed_set(p);
+}
+
+void parameter_boolean_set(parameter_t *p, bool value)
+{
+    PARAMETER_ASSERT(p->type == _PARAM_TYPE_BOOLEAN);
+
+    PARAMETER_LOCK();
+    p->value.b = value;
+    PARAMETER_UNLOCK();
+    _parameter_changed_set(p);
+}
+
+bool parameter_boolean_get(parameter_t *p)
+{
+    _parameter_changed_clear(p);
+    return parameter_boolean_read(p);
+}
+
+bool parameter_boolean_read(parameter_t *p)
+{
+    PARAMETER_ASSERT(p->type == _PARAM_TYPE_BOOLEAN);
+    PARAMETER_LOCK();
+    PARAMETER_ASSERT(p->defined == true);
+    bool ret = p->value.b;
+    PARAMETER_UNLOCK();
+    return ret;
+}
+
 
 /*
  * Vector type parameter
