@@ -1,0 +1,40 @@
+sudo: false
+addons:
+    apt:
+        sources:
+            - deadsnakes
+        packages:
+            - python3.5
+            - python3.5-dev
+            - python-pip
+            - python-virtualenv
+            # Needed for ARM gcc
+            - lib32bz2-1.0
+            - lib32ncurses5
+            - lib32z1
+
+language: cpp
+
+matrix:
+    include:
+        - compiler: clang
+          env: BUILD_TYPE="tests"
+        - compiler: gcc
+          env: BUILD_TYPE="tests"
+        - compiler: gcc
+          env: BUILD_TYPE="build"
+
+before_install:
+    - pushd uavcan
+    - git submodule init
+    - git submodule update
+    - popd
+
+
+install:
+    - ci/install.sh
+
+script:
+    - ci/build.sh
+
+
