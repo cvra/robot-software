@@ -23,8 +23,7 @@ case $BUILD_TYPE in
         mkdir build
         cd build
         cmake ..
-        make VERBOSE=true
-        ./tests
+        make check
         ;;
 
     build)
