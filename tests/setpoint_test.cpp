@@ -49,7 +49,7 @@ TEST(Setpoint, UpdatePositionAfterInit)
 
     CHECK_EQUAL(SETPT_MODE_TORQUE, interpolator.setpt_mode);
 
-    setpoint_update_position(&interpolator, target_pos, current_pos, current_vel);
+    setpoint_update_position(&interpolator, target_pos, current_pos, current_vel, false);
 
     CHECK_EQUAL(SETPT_MODE_POS, interpolator.setpt_mode);
     DOUBLES_EQUAL(target_pos, interpolator.target_pos, FLOAT_TOLERANCE);
@@ -193,7 +193,7 @@ TEST(SetpointVelocityRamp, Static)
     float max_acc = 2;
 
     DOUBLES_EQUAL(0,
-                  vel_ramp(pos, vel, target_pos, delta_t, max_vel, max_acc),
+                  vel_ramp(pos, vel, target_pos, delta_t, max_vel, max_acc, false),
                   FLOAT_TOLERANCE);
 }
 
@@ -207,7 +207,7 @@ TEST(SetpointVelocityRamp, Cruising)
     float max_acc = 2;
 
     DOUBLES_EQUAL(0,
-                  vel_ramp(pos, vel, target_pos, delta_t, max_vel, max_acc),
+                  vel_ramp(pos, vel, target_pos, delta_t, max_vel, max_acc, false),
                   FLOAT_TOLERANCE);
 }
 
@@ -221,7 +221,7 @@ TEST(SetpointVelocityRamp, Start)
     float max_acc = 2;
 
     DOUBLES_EQUAL(max_acc,
-                  vel_ramp(pos, vel, target_pos, delta_t, max_vel, max_acc),
+                  vel_ramp(pos, vel, target_pos, delta_t, max_vel, max_acc, false),
                   FLOAT_TOLERANCE);
 }
 
@@ -235,7 +235,7 @@ TEST(SetpointVelocityRamp, Stopping)
     float max_acc = 2;
 
     DOUBLES_EQUAL(-max_acc,
-                  vel_ramp(pos, vel, target_pos, delta_t, max_vel, max_acc),
+                  vel_ramp(pos, vel, target_pos, delta_t, max_vel, max_acc, false),
                   FLOAT_TOLERANCE);
 }
 
@@ -249,7 +249,7 @@ TEST(SetpointVelocityRamp, VeryClose)
     float max_vel = 3;
 
     DOUBLES_EQUAL(- max_acc / 2,
-                  vel_ramp(pos, vel, target_pos, delta_t, max_vel, max_acc),
+                  vel_ramp(pos, vel, target_pos, delta_t, max_vel, max_acc, false),
                   FLOAT_TOLERANCE);
 }
 
@@ -263,7 +263,7 @@ TEST(SetpointVelocityRamp, GoingTheWrongWay)
     float max_acc = 2;
 
     DOUBLES_EQUAL(max_acc,
-                  vel_ramp(pos, vel, target_pos, delta_t, max_vel, max_acc),
+                  vel_ramp(pos, vel, target_pos, delta_t, max_vel, max_acc, false),
                   FLOAT_TOLERANCE);
 }
 
@@ -277,6 +277,6 @@ TEST(SetpointVelocityRamp, Overshot)
     float max_vel = 3;
 
     DOUBLES_EQUAL(- max_acc / 2,
-                  vel_ramp(pos, vel, target_pos, delta_t, max_vel, max_acc),
+                  vel_ramp(pos, vel, target_pos, delta_t, max_vel, max_acc, false),
                   FLOAT_TOLERANCE);
 }

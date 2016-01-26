@@ -15,7 +15,7 @@ static float vel_setpt_interpolation(float vel, float acc, float delta_t)
 }
 
 // returns acceleration to be applied for the next delta_t
-static float vel_ramp(float pos, float vel, float target_pos, float delta_t, float max_vel, float max_acc, bool periodic)
+float vel_ramp(float pos, float vel, float target_pos, float delta_t, float max_vel, float max_acc, bool periodic)
 {
     float breaking_dist = vel * vel / 2 / max_acc;  // distance needed to break with max_acc
     float error = pos - target_pos;
