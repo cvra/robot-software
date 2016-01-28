@@ -64,9 +64,6 @@ void mpu_configure_region(int region, void *addr, size_t len,
 
     chSysLock();
 
-    /* Enable MemManage faults. */
-    SCB->SHCSR |= SCB_SHCSR_MEMFAULTENA_Msk;
-
     /* Update the MPU settings. */
     MPU->RBAR = (uintptr_t)addr + region + MPU_RBAR_VALID_Msk;
     MPU->RASR = rasr;
@@ -82,6 +79,9 @@ void mpu_init(void)
 {
     /* Enable default memory permissions for priviledged code. */
     MPU->CTRL |= MPU_CTRL_PRIVDEFENA_Msk;
+
+    /* Enable MemManage faults. */
+    SCB->SHCSR |= SCB_SHCSR_MEMFAULTENA_Msk;
 
     /* NULL pointer protection, highest priority. */
     mpu_configure_region(7, NULL, 5, AP_NO_NO, false);
