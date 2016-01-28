@@ -86,6 +86,15 @@ void mpu_init(void)
     /* NULL pointer protection, highest priority. */
     mpu_configure_region(7, NULL, 5, AP_NO_NO, false);
 
+    /* Mark RAM as non executable. Using lowest priority means explicitely
+     * allowing a RAM region to be executable is possible.
+     *
+     * We can use a fixed address range for RAM because it is a standard define
+     * by ARM. */
+    void *ram_base = (void *)0x20000000;
+    int ram_size_pow2 = 29; /* 2^29 = 0.5GB. */
+    mpu_configure_region(0, ram_base, ram_size_pow2, AP_RW_RW, false);
+
     mpu_enable();
 }
 
