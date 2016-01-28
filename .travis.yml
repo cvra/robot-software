@@ -1,40 +1,41 @@
+sudo: false
+addons:
+    apt:
+        sources:
+            - deadsnakes
+            - ubuntu-toolchain-r-test
+        packages:
+            - python3.5
+            - python3.5-dev
+            - python-pip
+            - python-virtualenv
+            - gcc-4.9
+            - g++-4.9
+            # Needed for ARM gcc
+            - lib32bz2-1.0
+            - lib32ncurses5
+            - lib32z1
+
 language: cpp
 
+matrix:
+    include:
+        - compiler: clang
+          env: BUILD_TYPE="tests"
+        - compiler: gcc
+          env: BUILD_TYPE="tests"
+        - compiler: gcc
+          env: BUILD_TYPE="build"
+
 before_install:
-    # Install packager dependencies
-    - sudo pip install pyaml jinja2
-
-    # Install cpputest
-    - pushd ..
-    - wget "https://github.com/cpputest/cpputest.github.io/blob/master/releases/cpputest-3.6.tar.gz?raw=true" -O cpputest.tar.gz
-    - tar -xzf cpputest.tar.gz
-    - cd cpputest-3.6/
-    - ./configure
-    - make
-    - sudo make install
+    - pushd uavcan
+    - git submodule init
+    - git submodule update
     - popd
+    - if [ "$CXX" = "g++" ]; then export CXX="g++-4.9" CC="gcc-4.9"; fi
 
-    # Install ARM toolchain
-    - sudo add-apt-repository -y ppa:terry.guo/gcc-arm-embedded
-    - sudo apt-get update -y
-    - sudo apt-get install -y gcc-arm-none-eabi
-
-
-before_script:
-    - git submodule update --init --recursive
-    - packager/packager.py
-    - mkdir build/
-    - pushd build/
-    - cmake ..
-    - popd
-
+install:
+    - ci/install.sh
 
 script:
-    # Unit test build
-    - pushd build/
-    - make
-    - ./tests
-    - popd
-
-    # Real build
-    - ./build.sh
+    - ci/build.sh
