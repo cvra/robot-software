@@ -1,4 +1,6 @@
 # Master board
+[![Build Status](https://travis-ci.org/cvra/master-firmware.svg?branch=master)](https://travis-ci.org/cvra/master-firmware)
+
 This is the firmware for the "master" board of the robot, which is used for hard realtime tasks such as control and odometry.
 It runs on an Olimex E407 board, and communicates with the embedded PC via Ethernet/IP.
 
