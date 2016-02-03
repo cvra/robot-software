@@ -26,6 +26,8 @@ You can then further restrict memory by using `mpu_configure_region`, e.g.:
 * Implement `void fault_printf(const char *fmt, ...)` for logging.
 * Call `fault_init()` to enable the fault IRQs.
 
+The file `fault_tests.c` contains functions to test the MPU and the fault handler.
+
 Note: Depending on the CPU (Cortex-M3/M4 or Cortex-M0) you need to compile fault_v7m.s or fault_v6m.s
 
 ##License
