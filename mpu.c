@@ -97,35 +97,3 @@ void mpu_init(void)
 
     mpu_enable();
 }
-
-void MemManage_Handler(void)
-{
-    static char msg[128];
-    struct port_extctx ctx;
-
-    uint32_t MMFSR;
-
-    /* Setup default error message. */
-    strcpy(msg, __FUNCTION__);
-
-    /* Get context info */
-    memcpy(&ctx, (void*)__get_PSP(), sizeof(struct port_extctx));
-
-    /* Get Memory Managment fault adress register */
-    MMFSR = SCB->CFSR & SCB_CFSR_MEMFAULTSR_Msk;
-
-    /* Data access violation */
-    if (MMFSR & (1 << 1)) {
-        snprintf(msg, sizeof(msg),
-                 "Invalid access to %p (pc=%p)", (void *)SCB->MMFAR, ctx.pc);
-    }
-
-    /* Instruction address violation. */
-    if (MMFSR & (1 << 0)) {
-        snprintf(msg, sizeof(msg),
-                 "Jumped to XN region %p (lr_thd=%p)",
-                    (void *)SCB->MMFAR, ctx.lr_thd);
-    }
-
-    chSysHalt(msg);
-}
