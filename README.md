@@ -8,6 +8,7 @@
 ##MPU Usage
 
 By default the MPU prevents access to NULL pointer via memory region 7 (highest priority).
+Code execution from RAM is also disabled using lowest priority (memory region).
 To enable this you only have call `mpu_init()` to be protected.
 
 You can then further restrict memory by using `mpu_configure_region`, e.g.:
@@ -20,6 +21,8 @@ You can then further restrict memory by using `mpu_configure_region`, e.g.:
                          AP_RW_RW,
                          false); /* Non executable. */
 ```
+
+If you want to enable code execution from RAM you should add an executable region with higher priority (1-6).
 
 ##Fault Handler Usage
 
