@@ -2,6 +2,7 @@
 #include "motor_manager.h"
 #include "config.h"
 #include "main.h"
+#include "log.h"
 
 void motor_manager_init(motor_manager_t *m,
                         trajectory_t *trajectory_buffer,
@@ -35,6 +36,7 @@ motor_driver_t *motor_manager_create_driver(motor_manager_t *m,
     if (bus_enumerator_get_can_id(m->bus_enumerator, actuator_id) != BUS_ENUMERATOR_STRING_ID_NOT_FOUND) {
         return NULL;
     }
+    log_message("create motor %s", actuator_id);
 
     if (m->motor_driver_buffer_nb_elements < m->motor_driver_buffer_len) {
         motor_driver_t *driver = &m->motor_driver_buffer[m->motor_driver_buffer_nb_elements];
