@@ -58,14 +58,14 @@
 #define MEMP_MEM_MALLOC 1
 
 
+#define ODOMETRY_PUBLISHER_PORT 20042
+#define STREAM_PORT            20042
 
 /* Robot settings. */
 #ifdef ON_ROBOT
 
-#define ODOMETRY_PUBLISHER_PORT 20000
 #define ODOMETRY_PUBLISHER_HOST(server) ip_addr_set(server, IP_ADDR_BROADCAST)
 
-#define STREAM_PORT            20042
 #define STREAM_HOST(server)    ip_addr_set(server, IP_ADDR_BROADCAST)
 
 #else
@@ -75,10 +75,8 @@
 #define LAPTOP_IP(p) IP4_ADDR(p, 192, 168, 2, 101)
 
 
-#define ODOMETRY_PUBLISHER_PORT 20000
 #define ODOMETRY_PUBLISHER_HOST(server) LAPTOP_IP(server)
 
-#define STREAM_PORT            20042
 #define STREAM_HOST(server)    LAPTOP_IP(server)
 
 #endif
