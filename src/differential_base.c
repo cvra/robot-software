@@ -6,6 +6,7 @@
 #include "priorities.h"
 #include "main.h"
 #include "parameter/parameter.h"
+#include "timestamp/timestamp.h"
 #include "robot_parameters.h"
 #include "tracy-the-trajectory-tracker/src/trajectory_tracking.h"
 #include "config.h"
@@ -59,7 +60,7 @@ void differential_base_tracking_thread(void *p)
         float x, y, theta, speed, omega;
         uint64_t now;
 
-        now = ST2US(chVTGetSystemTime());
+        now = timestamp_get();
 
         chMtxLock(&diff_base_trajectory_lock);
         point = trajectory_read(&diff_base_trajectory, now);

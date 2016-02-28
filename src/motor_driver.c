@@ -2,6 +2,8 @@
 #include <string.h>
 #include "motor_driver.h"
 
+#include "log.h"
+#include "timestamp/timestamp.h"
 
 #define MOTOR_CONTROL_UPDATE_PERIOD_POSITION    0.05f // [s]
 #define MOTOR_CONTROL_UPDATE_PERIOD_VELOCITY    0.05f // [s]
@@ -91,6 +93,7 @@ static void free_trajectory_buffer(motor_driver_t *d)
 {
     if (d->control_mode == MOTOR_CONTROL_MODE_TRAJECTORY
         && d->setpt.trajectory != NULL) {
+        chPoolFree(d->traj_buffer_points_pool, trajectory_get_buffer_pointer(d->setpt.trajectory));
         chPoolFree(d->traj_buffer_pool, d->setpt.trajectory);
         d->setpt.trajectory = NULL;
     }
@@ -148,8 +151,21 @@ void motor_driver_update_trajectory(motor_driver_t *d, trajectory_chunk_t *traj)
         trajectory_init(d->setpt.trajectory, traj_mem, d->traj_buffer_nb_points, 4, traj->sampling_time_us);
         d->control_mode = MOTOR_CONTROL_MODE_TRAJECTORY;
     }
-    if (trajectory_apply_chunk(d->setpt.trajectory, traj) != 0) {
-        chSysHalt("trajectory apply chunk failed");
+    int ret = trajectory_apply_chunk(d->setpt.trajectory, traj);
+    switch (ret) {
+        case TRAJECTORY_ERROR_TIMESTEP_MISMATCH:
+            chSysHalt("TRAJECTORY_ERROR_TIMESTEP_MISMATCH");
+            break;
+        case TRAJECTORY_ERROR_CHUNK_TOO_OLD:
+            chSysHalt("TRAJECTORY_ERROR_CHUNK_TOO_OLD");
+            break;
+        case TRAJECTORY_ERROR_DIMENSION_MISMATCH:
+            chSysHalt("TRAJECTORY_ERROR_DIMENSION_MISMATCH");
+            break;
+        case TRAJECTORY_ERROR_CHUNK_OUT_OF_ORER:
+            log_message("TRAJECTORY_ERROR_CHUNK_OUT_OF_ORER");
+            // chSysHalt("TRAJECTORY_ERROR_CHUNK_OUT_OF_ORER");
+            break;
     }
     d->update_period = MOTOR_CONTROL_UPDATE_PERIOD_TRAJECTORY;
     chBSemSignal(&d->lock);
@@ -235,7 +251,13 @@ void motor_driver_get_trajectory_point(motor_driver_t *d,
     }
     float *t = trajectory_read(d->setpt.trajectory, timestamp_us);
     if (t == NULL) {
-        chSysHalt("control error"); // todo
+        // chSysHalt("control error"); // todo
+        log_message("trajectory read: %d failed", timestamp_get());
+        *position = 0;
+        *velocity = 0;
+        *acceleration = 0;
+        *torque = 0;
+        return;
     }
     *position = t[0];
     *velocity = t[1];

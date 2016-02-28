@@ -110,6 +110,7 @@ CSRC = $(PORTSRC) \
        $(LWSRC) \
        $(FATFSSRC) \
        $(CHIBIOS)/os/various/evtimer.c \
+       $(CHIBIOS)/os/hal/lib/streams/memstreams.c \
        $(CHIBIOS)/os/hal/lib/streams/chprintf.c \
        $(CHIBIOS)/os/various/syscalls.c \
        $(CHIBIOS)/os/various/shell.c
@@ -174,12 +175,13 @@ CPPWARN = -Wall -Wextra
 # Start of default section
 #
 
-# List all default C defines here, like -D_DEBUG=1
+# List all default C defines here, like -DDEBUG
 DDEFS += -DUAVCAN_TOSTRING=0 \
 		 -DUAVCAN_STM32_NUM_IFACES=1 \
 		 -DUAVCAN_STM32_TIMER_NUMBER=3 \
 		 -DUAVCAN_STM32_CHIBIOS=1 \
-		 -DUAVCAN_TINY=0
+		 -DUAVCAN_TINY=0 \
+		 -DLWIP_DEBUG=1
 
 # List all default ASM defines here, like -D_DEBUG=1
 DADEFS =
@@ -202,7 +204,7 @@ DLIBS =
 #
 
 # List all user C define here, like -D_DEBUG=1
-UDEFS = -DDEBRA=1 -DENABLE_STREAM -DON_ROBOT
+UDEFS = -DDEBRA=1 -DON_ROBOT
 
 # Define ASM defines here
 UADEFS =

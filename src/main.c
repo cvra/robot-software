@@ -12,6 +12,8 @@
 #include "sntp/sntp.h"
 #include "unix_timestamp.h"
 #include "panic_log.h"
+#include "fault_debug.h"
+#include "blocking_uart_driver.h"
 #include "rpc_server.h"
 #include "uavcan_node.h"
 #include "timestamp/timestamp_stm32.h"
@@ -26,20 +28,24 @@
 #include "stream.h"
 #include "malloc_lock.h"
 #include <lwipthread.h>
-
+#include "log.h"
 
 /* Command line related.                                                     */
 #define SHELL_WA_SIZE   THD_WORKING_AREA_SIZE(2048)
-
-
+static const ShellConfig shell_cfg1 = {
+    (BaseSequentialStream *)&SD3,
+    commands
+};
 
 motor_manager_t motor_manager;
 
-
-
-static const ShellConfig shell_cfg1 = {
-    (BaseSequentialStream *)&SDU1,
-    commands
+// debug UART
+#define DEBUG_UART_BAUDRATE 921600
+static const SerialConfig debug_uart_config = {
+    .speed = DEBUG_UART_BAUDRATE,
+    .cr1 = 0,
+    .cr2 = USART_CR2_STOP1_BITS | USART_CR2_LINEN,
+    .cr3 = 0
 };
 
 /**
@@ -60,16 +66,36 @@ void panic_hook(const char *reason)
     palSetPad(GPIOF, GPIOF_LED_GREEN_1);
     palSetPad(GPIOF, GPIOF_LED_GREEN_2);
 
-//    panic_log_write(reason);
+    panic_log_write(reason);
+    if (ch.rlist.r_current != NULL) {
+        panic_log_printf("\ncurrent thread: ");
+        if (ch.rlist.r_current->p_name != NULL) {
+            panic_log_printf("%s\n", ch.rlist.r_current->p_name);
+        } else {
+            panic_log_printf("0x%p\n", ch.rlist.r_current);
+        }
+    }
+    BlockingUARTDriver panic_uart;
+    blocking_uart_init(&panic_uart, USART3, DEBUG_UART_BAUDRATE);
 
-    // reboot
-    //NVIC_SystemReset();
+    // block to preserve fault state
+    const char *msg = panic_log_read();
+    while(1) {
+        if (msg != NULL) {
+            chprintf((BaseSequentialStream *)&panic_uart, "kernel panic:\n%s\n", msg);
+        }
+        unsigned int i = 100000000;
+        while(i--) {
+            __asm__ volatile ("nop");
+        }
+    }
 }
 
 /** Late init hook, called before c++ static constructors. */
 void __late_init(void)
 {
     /* C++ Static initializer requires working chibios. */
+    fault_debug_init();
     halInit();
     chSysInit();
     malloc_lock_init();
@@ -84,8 +110,8 @@ int main(void) {
     sduObjectInit(&SDU1);
     sduStart(&SDU1, &serusbcfg);
 
-    sdStart(&SD3, NULL);
-    chprintf((BaseSequentialStream *)&SD3 , "\n> boot\n");
+    sdStart(&SD3, &debug_uart_config);
+    log_message("boot");
 
     /*
      * Activates the USB driver and then the USB bus pull-up on D+.
@@ -137,50 +163,30 @@ int main(void) {
 
     differential_base_init();
 
-    /* Checks if there is any log message from a previous boot */
-    if (panic_log_read() != NULL) {
-        /* Turns on the user LED if yes */
-        palClearPad(GPIOC, GPIOC_LED);
 
-        /* Turn on all LEDs on the front panel. */
-        palSetPad(GPIOF, GPIOF_LED_READY);
-        palSetPad(GPIOF, GPIOF_LED_DEBUG);
-        palSetPad(GPIOF, GPIOF_LED_ERROR);
-        palSetPad(GPIOF, GPIOF_LED_POWER_ERROR);
-        palSetPad(GPIOF, GPIOF_LED_PC_ERROR);
-        palSetPad(GPIOF, GPIOF_LED_BUS_ERROR);
-        palSetPad(GPIOF, GPIOF_LED_YELLOW_1);
-        palSetPad(GPIOF, GPIOF_LED_YELLOW_2);
-        palSetPad(GPIOF, GPIOF_LED_GREEN_1);
-        palSetPad(GPIOF, GPIOF_LED_GREEN_2);
-    } else {
-        struct netif *ethernet_if;
+    struct netif *ethernet_if;
 
-        differential_base_tracking_start(); // tracy
-        ip_thread_init();
+    differential_base_tracking_start(); // tracy
+    ip_thread_init();
 
-        chThdSleepMilliseconds(1000);
-        ethernet_if = netif_find("ms0");
-        if (ethernet_if) {
-            dhcp_start(ethernet_if);
-        }
-
-        sntp_init();
-        uavcan_node_start(10);
-        rpc_server_init();
-        message_server_init();
-        interface_panel_init();
-        odometry_publisher_init();
-
-#ifdef ENABLE_STREAM
-        #warning "Enabling robot stream can lead to lwip crash. Do not use in match until fixed."
-        stream_init();
-#endif
+    chThdSleepMilliseconds(1000);
+    ethernet_if = netif_find("ms0");
+    if (ethernet_if) {
+        dhcp_start(ethernet_if);
     }
+
+    sntp_init();
+    uavcan_node_start(10);
+    rpc_server_init();
+    message_server_init();
+    interface_panel_init();
+    odometry_publisher_init();
+
+    stream_init();
 
     /* main thread, spawns a shell on USB connection. */
     while (1) {
-        if (!shelltp && (SDU1.config->usbp->state == USB_ACTIVE)) {
+        if (!shelltp) {
             shelltp = shellCreate(&shell_cfg1, SHELL_WA_SIZE, USB_SHELL_PRIO);
         } else if (chThdTerminatedX(shelltp)) {
             chThdRelease(shelltp);    /* Recovers memory of the previous shell.   */
