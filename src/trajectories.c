@@ -98,7 +98,7 @@ int trajectory_apply_chunk(trajectory_t *traj, const trajectory_chunk_t *chunk)
 
     // trajectories are sent with overlap
     if (traj->last_defined_time_us < chunk->start_time_us) {
-        log_message("WARNING: trajectroy apply chunk: last defined < chunk start -> reset traj\n");
+        log_message("WARNING: trajectroy apply chunk: last defined < chunk start -> reset traj");
         traj->read_index = 0;
         traj->read_time_us = chunk->start_time_us;
     }

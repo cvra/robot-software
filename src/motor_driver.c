@@ -163,7 +163,7 @@ void motor_driver_update_trajectory(motor_driver_t *d, trajectory_chunk_t *traj)
             chSysHalt("TRAJECTORY_ERROR_DIMENSION_MISMATCH");
             break;
         case TRAJECTORY_ERROR_CHUNK_OUT_OF_ORER:
-            log_message("TRAJECTORY_ERROR_CHUNK_OUT_OF_ORER\n");
+            log_message("TRAJECTORY_ERROR_CHUNK_OUT_OF_ORER");
             // chSysHalt("TRAJECTORY_ERROR_CHUNK_OUT_OF_ORER");
             break;
     }
@@ -252,7 +252,7 @@ void motor_driver_get_trajectory_point(motor_driver_t *d,
     float *t = trajectory_read(d->setpt.trajectory, timestamp_us);
     if (t == NULL) {
         // chSysHalt("control error"); // todo
-        log_message("trajectory read: %d failed\n", timestamp_get());
+        log_message("trajectory read: %d failed", timestamp_get());
         *position = 0;
         *velocity = 0;
         *acceleration = 0;
