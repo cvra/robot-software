@@ -112,13 +112,13 @@ static THD_FUNCTION(uavcan_node, arg)
         {
             switch (msg.bootmode) {
             case msg.REBOOT:
-                reboot(BOOT_ARG_START_APPLICATION);
+                reboot_system(BOOT_ARG_START_APPLICATION);
                 break;
             case msg.BOOTLOADER_TIMEOUT:
-                reboot(BOOT_ARG_START_BOOTLOADER);
+                reboot_system(BOOT_ARG_START_BOOTLOADER);
                 break;
             case msg.BOOTLOADER_NO_TIMEOUT:
-                reboot(BOOT_ARG_START_BOOTLOADER_NO_TIMEOUT);
+                reboot_system(BOOT_ARG_START_BOOTLOADER_NO_TIMEOUT);
                 break;
             }
         }
@@ -132,7 +132,7 @@ static THD_FUNCTION(uavcan_node, arg)
         [&](const uavcan::ReceivedDataStructure<cvra::motor::EmergencyStop>& msg)
         {
             (void)msg;
-            reboot(BOOT_ARG_START_BOOTLOADER_NO_TIMEOUT);
+            reboot_system(BOOT_ARG_START_BOOTLOADER_NO_TIMEOUT);
         }
     );
     if (ret != 0) {
