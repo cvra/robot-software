@@ -251,7 +251,13 @@ void motor_driver_get_trajectory_point(motor_driver_t *d,
     }
     float *t = trajectory_read(d->setpt.trajectory, timestamp_us);
     if (t == NULL) {
-        chSysHalt("control error"); // todo
+        // chSysHalt("control error"); // todo
+        log_message("trajectory read: %d failed\n", timestamp_get());
+        *position = 0;
+        *velocity = 0;
+        *acceleration = 0;
+        *torque = 0;
+        return;
     }
     *position = t[0];
     *velocity = t[1];
