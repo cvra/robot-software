@@ -33,7 +33,7 @@
 /* Command line related.                                                     */
 #define SHELL_WA_SIZE   THD_WORKING_AREA_SIZE(2048)
 static const ShellConfig shell_cfg1 = {
-    (BaseSequentialStream *)&SDU1,
+    (BaseSequentialStream *)&SD3,
     commands
 };
 
@@ -186,7 +186,7 @@ int main(void) {
 
     /* main thread, spawns a shell on USB connection. */
     while (1) {
-        if (!shelltp && (SDU1.config->usbp->state == USB_ACTIVE)) {
+        if (!shelltp) {
             shelltp = shellCreate(&shell_cfg1, SHELL_WA_SIZE, USB_SHELL_PRIO);
         } else if (chThdTerminatedX(shelltp)) {
             chThdRelease(shelltp);    /* Recovers memory of the previous shell.   */
