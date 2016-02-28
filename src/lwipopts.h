@@ -49,6 +49,8 @@
 
 /** SNTP update delay - in milliseconds */
 #define SNTP_UPDATE_DELAY (20 * 1000)
+#define SNTP_RETRY_TIMEOUT_EXP  0
+#define SNTP_RETRY_TIMEOUT      3000
 
 /** Use newlib malloc() instead of memory pools. */
 #include <stdlib.h>
