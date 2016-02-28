@@ -21,6 +21,7 @@ before_install:
 
 
 before_script:
+    - git submodule update --init --recursive
     - packager/packager.py
     - mkdir build/
     - pushd build/
@@ -36,4 +37,4 @@ script:
     - popd
 
     # Real build
-    - make
+    - ./build.sh
