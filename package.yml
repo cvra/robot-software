@@ -37,6 +37,7 @@ target.arm:
     - src/node_tracker.c
     - src/malloc_lock.c
     - src/waypoints.c
+    - src/log.c
 
 source:
     - src/unix_timestamp.c

@@ -77,20 +77,11 @@ static void cmd_crashme(BaseSequentialStream *chp, int argc, char **argv) {
     chSysHalt(__FUNCTION__);
 }
 
-static void cmd_panic_log(BaseSequentialStream *chp, int argc, char **argv) {
+static void cmd_reboot(BaseSequentialStream *chp, int argc, char **argv) {
     (void) argv;
     (void) argc;
-    const char *message;
-
-    message = panic_log_read();
-
-    if (message == NULL) {
-        chprintf(chp, "Did not reboot after a panic.");
-    } else {
-        chprintf(chp, "%s", message);
-        panic_log_clear();
-    }
-    chprintf(chp, "\r\n");
+    (void) chp;
+    NVIC_SystemReset();
 }
 
 static void cmd_time(BaseSequentialStream *chp, int argc, char **argv)
@@ -102,7 +93,7 @@ static void cmd_time(BaseSequentialStream *chp, int argc, char **argv)
     int h, m;
 
     /* Get current time */
-    int now = ST2US(chVTGetSystemTime());
+    int now = timestamp_get();
     ts = timestamp_local_us_to_unix(now);
     chprintf(chp, "Current scheduler tick:      %12ld\r\n", now);
     chprintf(chp, "Current UNIX timestamp:      %12ld\r\n", ts.s);
@@ -284,8 +275,8 @@ const ShellCommand commands[] = {
     {"ip", cmd_ip},
     {"config_tree", cmd_config_tree},
     {"threads", cmd_threads},
-    {"panic_log", cmd_panic_log},
     {"crashme", cmd_crashme},
+    {"reboot", cmd_reboot},
     {"time", cmd_time},
     {"rpc_client_demo", cmd_rpc_client_test},
     {"node", cmd_node},

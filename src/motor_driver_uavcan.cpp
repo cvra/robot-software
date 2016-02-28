@@ -329,7 +329,7 @@ void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
 
         case MOTOR_CONTROL_MODE_TRAJECTORY: {
             motor_enable(can_drv, node_id);
-            uint64_t timestamp_us = ST2US(chVTGetSystemTime());
+            uint64_t timestamp_us = timestamp_get();
             float position, velocity, acceleration, torque;
             motor_driver_get_trajectory_point(d,
                                               timestamp_us,

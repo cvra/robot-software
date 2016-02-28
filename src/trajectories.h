@@ -7,17 +7,17 @@ extern "C" {
 
 #include <stdint.h>
 
-#define TRAJECTORY_ERROR_TIMESTEP_MISMATCH -1
-#define TRAJECTORY_ERROR_CHUNK_TOO_LONG -2
-#define TRAJECTORY_ERROR_DIMENSION_MISMATCH -3
-#define TRAJECTORY_ERROR_CHUNK_OUT_OF_ORER -4
+#define TRAJECTORY_ERROR_TIMESTEP_MISMATCH          -1
+#define TRAJECTORY_ERROR_CHUNK_TOO_OLD              -2
+#define TRAJECTORY_ERROR_DIMENSION_MISMATCH         -3
+#define TRAJECTORY_ERROR_CHUNK_OUT_OF_ORER          -4
 
 typedef struct {
     float *buffer;
     int length;
     int dimension;
     int64_t sampling_time_us;
-    int read_pointer;
+    int read_index;
     int64_t read_time_us;
     int64_t last_defined_time_us;
     int64_t last_chunk_start_time_us; /**< For out of order arrival detection. */
@@ -46,6 +46,14 @@ void trajectory_init(trajectory_t *traj,
                      float *buffer, int len, int dimension,
                      uint64_t sampling_time_us);
 
+
+/** this is used to free the trajectory buffer
+ *
+ * @param [in] traj trajectory pointer
+ */
+void *trajectory_get_buffer_pointer(trajectory_t *traj);
+
+
 /** Inits a trajectory chunk. A chunk is a part of a trajectory that can later
  * be merged to a trajectory.
  *
@@ -73,7 +81,7 @@ void trajectory_chunk_init(trajectory_chunk_t *chunk, float *buffer, int length,
  *
  * @note If an error occurs, the trajectory is left unchanged.
  */
-int trajectory_apply_chunk(trajectory_t *traj, trajectory_chunk_t *chunk);
+int trajectory_apply_chunk(trajectory_t *traj, const trajectory_chunk_t *chunk);
 
 /** Reads the current point of the trajectory.
  *

@@ -9,6 +9,9 @@
 
 #include "priorities.h"
 
+#define LWIP_DBG_TYPES_ON   LWIP_DBG_ON
+#define SNTP_DEBUG          LWIP_DBG_ON
+
 /* See lwip/src/include/lwip/opt.h for reference. */
 
 #define MEM_ALIGNMENT                   4
@@ -31,7 +34,7 @@
 #define LWIP_NETMASK(p) IP4_ADDR(p, 255, 255, 255, 0)
 
 #include "unix_timestamp.h"
-
+#include "timestamp/timestamp.h"
 /* This macro is called everytime the NTP service wants to update the system time.
  * We use it to synchronize the unix time reference rather than changing
  * internal timers which are supposed to be only up counting. */
@@ -39,15 +42,15 @@
     unix_timestamp_t ts; \
     ts.s = sec; \
     ts.us = us; \
-    timestamp_set_reference(ts, ST2US(chVTGetSystemTime())); \
+    timestamp_set_reference(ts, timestamp_get()); \
     } while(0)
 
-/** Address of the SNTP server. Currently resovles to pool.ntp.org for
- * Switzerland. */
-#define SNTP_SERVER_ADDRESS "192.168.2.1"
+#define SNTP_SERVER_ADDRESS "192.168.3.1"
 
 /** SNTP update delay - in milliseconds */
 #define SNTP_UPDATE_DELAY (20 * 1000)
+#define SNTP_RETRY_TIMEOUT_EXP  0
+#define SNTP_RETRY_TIMEOUT      3000
 
 /** Use newlib malloc() instead of memory pools. */
 #include <stdlib.h>
@@ -55,14 +58,14 @@
 #define MEMP_MEM_MALLOC 1
 
 
+#define ODOMETRY_PUBLISHER_PORT 20042
+#define STREAM_PORT            20042
 
 /* Robot settings. */
 #ifdef ON_ROBOT
 
-#define STREAM_PORT            20042
 #define STREAM_HOST(server)    ip_addr_set(server, IP_ADDR_BROADCAST)
 
-#define ODOMETRY_PUBLISHER_PORT STREAM_PORT
 #define ODOMETRY_PUBLISHER_HOST(server) ip_addr_set(server, IP_ADDR_BROADCAST)
 
 #else
@@ -74,12 +77,10 @@
 #define LAPTOP_IP(p) IP4_ADDR(p, 192, 168, 2, 101)
 
 
-#define ODOMETRY_PUBLISHER_PORT 20000
 #define ODOMETRY_PUBLISHER_HOST(server) LAPTOP_IP(server)
 
-#define STREAM_PORT            20042
 #define STREAM_HOST(server)    LAPTOP_IP(server)
-//#define ENABLE_STREAM
+
 #endif
 
 #endif /* __LWIPOPT_H__ */
