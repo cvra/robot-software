@@ -1,6 +1,7 @@
 #include <string.h>
 #include "trajectories.h"
 #include <assert.h>
+#include "log.h"
 
 #include <stdio.h>
 
@@ -95,7 +96,9 @@ int trajectory_apply_chunk(trajectory_t *traj, const trajectory_chunk_t *chunk)
 
     traj->last_chunk_start_time_us = chunk->start_time_us;
 
+    // trajectories are sent with overlap
     if (traj->last_defined_time_us < chunk->start_time_us) {
+        log_message("WARNING: trajectroy apply chunk: last defined < chunk start -> reset traj\n");
         traj->read_index = 0;
         traj->read_time_us = chunk->start_time_us;
     }
