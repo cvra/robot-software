@@ -9,6 +9,9 @@
 
 #include "priorities.h"
 
+#define LWIP_DBG_TYPES_ON   LWIP_DBG_ON
+#define SNTP_DEBUG          LWIP_DBG_ON
+
 /* See lwip/src/include/lwip/opt.h for reference. */
 
 #define MEM_ALIGNMENT                   4
