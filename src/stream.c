@@ -39,35 +39,64 @@ static void stream_thread(void *p)
             if (motor_driver_get_stream_change_status(&drv_list[i]) != 0) {
                 if (motor_driver_get_stream_change_status(&drv_list[i])
                     & (1 << MOTOR_STREAM_CURRENT_SETPT)) {
-                    message_write_header(&ctx, &mem, buffer, sizeof(buffer), "current_pid");
+                    message_write_header(&ctx, &mem, buffer, sizeof(buffer), "current_setp");
                     cmp_write_map(&ctx, 1);
                     cmp_write_str(&ctx, motor_driver_get_id(&drv_list[i]), strlen(motor_driver_get_id(&drv_list[i])));
-                    cmp_write_array(&ctx, 3);
-                    cmp_write_float(&ctx, motor_driver_get_and_clear_stream_value(&drv_list[i], MOTOR_STREAM_CURRENT));
                     cmp_write_float(&ctx, motor_driver_get_and_clear_stream_value(&drv_list[i], MOTOR_STREAM_CURRENT_SETPT));
+                    message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, STREAM_PORT);
+                }
+
+                if (motor_driver_get_stream_change_status(&drv_list[i])
+                    & (1 << MOTOR_STREAM_CURRENT)) {
+                    message_write_header(&ctx, &mem, buffer, sizeof(buffer), "current");
+                    cmp_write_map(&ctx, 1);
+                    cmp_write_str(&ctx, motor_driver_get_id(&drv_list[i]), strlen(motor_driver_get_id(&drv_list[i])));
+                    cmp_write_float(&ctx, motor_driver_get_and_clear_stream_value(&drv_list[i], MOTOR_STREAM_CURRENT));
+                    message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, STREAM_PORT);
+                }
+
+                if (motor_driver_get_stream_change_status(&drv_list[i])
+                    & (1 << MOTOR_STREAM_MOTOR_VOLTAGE)) {
+                    message_write_header(&ctx, &mem, buffer, sizeof(buffer), "voltage");
+                    cmp_write_map(&ctx, 1);
+                    cmp_write_str(&ctx, motor_driver_get_id(&drv_list[i]), strlen(motor_driver_get_id(&drv_list[i])));
                     cmp_write_float(&ctx, motor_driver_get_and_clear_stream_value(&drv_list[i], MOTOR_STREAM_MOTOR_VOLTAGE));
                     message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, STREAM_PORT);
                 }
 
                 if (motor_driver_get_stream_change_status(&drv_list[i])
                     & (1 << MOTOR_STREAM_VELOCITY_SETPT)) {
-                    message_write_header(&ctx, &mem, buffer, sizeof(buffer), "velocity_pid");
+                    message_write_header(&ctx, &mem, buffer, sizeof(buffer), "velocity_setp");
                     cmp_write_map(&ctx, 1);
                     cmp_write_str(&ctx, motor_driver_get_id(&drv_list[i]), strlen(motor_driver_get_id(&drv_list[i])));
-                    cmp_write_array(&ctx, 2);
-                    cmp_write_float(&ctx, motor_driver_get_and_clear_stream_value(&drv_list[i], MOTOR_STREAM_VELOCITY));
                     cmp_write_float(&ctx, motor_driver_get_and_clear_stream_value(&drv_list[i], MOTOR_STREAM_VELOCITY_SETPT));
                     message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, STREAM_PORT);
                 }
 
                 if (motor_driver_get_stream_change_status(&drv_list[i])
-                    & (1 << MOTOR_STREAM_POSITION_SETPT)) {
-                    message_write_header(&ctx, &mem, buffer, sizeof(buffer), "position_pid");
+                    & (1 << MOTOR_STREAM_VELOCITY)) {
+                    message_write_header(&ctx, &mem, buffer, sizeof(buffer), "velocity");
                     cmp_write_map(&ctx, 1);
                     cmp_write_str(&ctx, motor_driver_get_id(&drv_list[i]), strlen(motor_driver_get_id(&drv_list[i])));
-                    cmp_write_array(&ctx, 2);
-                    cmp_write_float(&ctx, motor_driver_get_and_clear_stream_value(&drv_list[i], MOTOR_STREAM_POSITION));
+                    cmp_write_float(&ctx, motor_driver_get_and_clear_stream_value(&drv_list[i], MOTOR_STREAM_VELOCITY));
+                    message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, STREAM_PORT);
+                }
+
+                if (motor_driver_get_stream_change_status(&drv_list[i])
+                    & (1 << MOTOR_STREAM_POSITION_SETPT)) {
+                    message_write_header(&ctx, &mem, buffer, sizeof(buffer), "position_setp");
+                    cmp_write_map(&ctx, 1);
+                    cmp_write_str(&ctx, motor_driver_get_id(&drv_list[i]), strlen(motor_driver_get_id(&drv_list[i])));
                     cmp_write_float(&ctx, motor_driver_get_and_clear_stream_value(&drv_list[i], MOTOR_STREAM_POSITION_SETPT));
+                    message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, STREAM_PORT);
+                }
+
+                if (motor_driver_get_stream_change_status(&drv_list[i])
+                    & (1 << MOTOR_STREAM_POSITION)) {
+                    message_write_header(&ctx, &mem, buffer, sizeof(buffer), "position");
+                    cmp_write_map(&ctx, 1);
+                    cmp_write_str(&ctx, motor_driver_get_id(&drv_list[i]), strlen(motor_driver_get_id(&drv_list[i])));
+                    cmp_write_float(&ctx, motor_driver_get_and_clear_stream_value(&drv_list[i], MOTOR_STREAM_POSITION));
                     message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, STREAM_PORT);
                 }
 
@@ -81,13 +110,11 @@ static void stream_thread(void *p)
                 }
 
                 if (motor_driver_get_stream_change_status(&drv_list[i])
-                    & (1 << MOTOR_STREAM_POSITION)) {
-                    message_write_header(&ctx, &mem, buffer, sizeof(buffer), "position");
+                    & (1 << MOTOR_STREAM_MOTOR_ENCODER)) {
+                    message_write_header(&ctx, &mem, buffer, sizeof(buffer), "encoder");
                     cmp_write_map(&ctx, 1);
                     cmp_write_str(&ctx, motor_driver_get_id(&drv_list[i]), strlen(motor_driver_get_id(&drv_list[i])));
-                    cmp_write_array(&ctx, 2);
-                    cmp_write_float(&ctx, motor_driver_get_and_clear_stream_value(&drv_list[i], MOTOR_STREAM_POSITION));
-                    cmp_write_float(&ctx, motor_driver_get_and_clear_stream_value(&drv_list[i], MOTOR_STREAM_VELOCITY));
+                    cmp_write_float(&ctx, motor_driver_get_and_clear_stream_value(&drv_list[i], MOTOR_STREAM_MOTOR_ENCODER));
                     message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, STREAM_PORT);
                 }
 
@@ -96,9 +123,7 @@ static void stream_thread(void *p)
                     message_write_header(&ctx, &mem, buffer, sizeof(buffer), "torque");
                     cmp_write_map(&ctx, 1);
                     cmp_write_str(&ctx, motor_driver_get_id(&drv_list[i]), strlen(motor_driver_get_id(&drv_list[i])));
-                    cmp_write_array(&ctx, 2);
                     cmp_write_float(&ctx, motor_driver_get_and_clear_stream_value(&drv_list[i], MOTOR_STREAM_MOTOR_TORQUE));
-                    cmp_write_float(&ctx, motor_driver_get_and_clear_stream_value(&drv_list[i], MOTOR_STREAM_POSITION));
                     message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, STREAM_PORT);
                 }
             }

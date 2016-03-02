@@ -245,6 +245,11 @@ void main(void *arg)
     res = enc_pos_sub.start(
         [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::MotorEncoderPosition>& msg)
         {
+            motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
+            if (driver != NULL) {
+                motor_driver_set_stream_value(driver, MOTOR_STREAM_MOTOR_ENCODER, msg.raw_encoder_position);
+            }
+
             if (bus_enumerator_get_can_id(&bus_enumerator, "right-wheel") == BUS_ENUMERATOR_STRING_ID_NOT_FOUND
                 || bus_enumerator_get_can_id(&bus_enumerator, "left-wheel") == BUS_ENUMERATOR_STRING_ID_NOT_FOUND) {
                 return;
