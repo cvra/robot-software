@@ -52,6 +52,7 @@ tests:
     - tests/unix-timestamp.cpp
     - tests/bus_enumerator.cpp
     - tests/trajectories_test.cpp
+    - tests/log.c
 
 templates:
     app_src.mk.jinja: app_src.mk
