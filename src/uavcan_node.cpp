@@ -113,10 +113,10 @@ void main(void *arg)
     struct robot_base_pose_2d_s init_pose = {0.0f, 0.0f, 0.0f};
     odometry_base_init(&robot_base,
                        init_pose,
-                       config_get_scalar("/master/odometry/radius_right"),
-                       config_get_scalar("/master/odometry/radius_left"),
-                       ROBOT_RIGHT_WHEEL_DIRECTION,
-                       ROBOT_LEFT_WHEEL_DIRECTION,
+                       ROBOT_RIGHT_WHEEL_DIRECTION * config_get_scalar("/master/odometry/radius_right"),
+                       ROBOT_LEFT_WHEEL_DIRECTION * config_get_scalar("/master/odometry/radius_left"),
+                       1,
+                       1,
                        config_get_scalar("/master/odometry/wheelbase"),
                        timestamp_get());
 
@@ -266,8 +266,8 @@ void main(void *arg)
             if (parameter_namespace_contains_changed(odometry_ns)) {
                 odometry_base_set_parameters(&robot_base,
                                              config_get_scalar("/master/odometry/wheelbase"),
-                                             config_get_scalar("/master/odometry/radius_right"),
-                                             config_get_scalar("/master/odometry/radius_left"));
+                                             ROBOT_RIGHT_WHEEL_DIRECTION * config_get_scalar("/master/odometry/radius_right"),
+                                             ROBOT_LEFT_WHEEL_DIRECTION * config_get_scalar("/master/odometry/radius_left"));
 
             }
 
