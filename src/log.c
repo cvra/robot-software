@@ -18,7 +18,7 @@ void log_message(const char *fmt, ...)
 
     uint32_t ts = timestamp_get();
     uint32_t s = ts / 1000000;
-    uint32_t us = ts - s;
+    uint32_t us = ts - s * 1000000;
     chprintf((BaseSequentialStream *)&SD3, "[%4d.%06d] %s: ", s, us, thread_name);
 
     va_start(args, fmt);
