@@ -120,12 +120,10 @@ void main(void *arg)
                        config_get_scalar("/master/odometry/wheelbase"),
                        timestamp_get());
 
-    static odometry_encoder_sample_t enc_right[2];
-    static odometry_encoder_sample_t enc_left[2];
-    odometry_encoder_record_sample(&enc_right[0], 0, 0);
-    odometry_encoder_record_sample(&enc_right[1], 0, 0);
-    odometry_encoder_record_sample(&enc_left[0], 0, 0);
-    odometry_encoder_record_sample(&enc_left[1], 0, 0);
+    static odometry_encoder_sample_t enc_right;
+    static odometry_encoder_sample_t enc_left;
+    odometry_encoder_record_sample(&enc_right, 0, 0);
+    odometry_encoder_record_sample(&enc_left, 0, 0);
 
     /*
      * NodeStatus subscriber
@@ -255,12 +253,12 @@ void main(void *arg)
                 return;
             }
             if(msg.getSrcNodeID().get() == bus_enumerator_get_can_id(&bus_enumerator, "right-wheel")) {
-                odometry_encoder_record_sample(&enc_right[0], enc_right[1].timestamp, enc_right[1].value);
-                odometry_encoder_record_sample(&enc_right[1], timestamp_get(), msg.raw_encoder_position);
-                odometry_base_update(&robot_base, enc_right[1], enc_left[1]);   /* TODO shouldn't be called in here */
+                odometry_encoder_record_sample(&enc_right, timestamp_get(), msg.raw_encoder_position);
             } else if(msg.getSrcNodeID().get() == bus_enumerator_get_can_id(&bus_enumerator, "left-wheel")) {
-                odometry_encoder_record_sample(&enc_left[0], enc_left[1].timestamp, enc_left[1].value);
-                odometry_encoder_record_sample(&enc_left[1], timestamp_get(), msg.raw_encoder_position);
+                odometry_encoder_record_sample(&enc_left, timestamp_get(), msg.raw_encoder_position);
+            }
+            if (enc_left.timestamp != 0 && enc_right.timestamp != 0) {
+                odometry_base_update(&robot_base, enc_right, enc_left);
             }
 
             parameter_namespace_t *odometry_ns;
