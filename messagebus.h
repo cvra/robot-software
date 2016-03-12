@@ -24,6 +24,7 @@ typedef struct {
         messagebus_topic_t *head;
     } topics;
     void *lock;
+    void *condvar;
 } messagebus_t;
 
 /** Initializes a topic object
@@ -41,8 +42,10 @@ void messagebus_topic_init(messagebus_topic_t *topic, void *topic_lock, void *to
  *
  * @parameter [in] bus The messagebus to init.
  * @parameter [in] lock The lock to use for this bus.
+ * @parameter [in] condvar The condition variable used to signal threads
+ * waiting on this bus.
  */
-void messagebus_init(messagebus_t *bus, void *lock);
+void messagebus_init(messagebus_t *bus, void *lock, void *condvar);
 
 /** Initializes the presence of the topic on the bus.
  *
@@ -63,6 +66,13 @@ void messagebus_advertise_topic(messagebus_t *bus, messagebus_topic_t *topic, co
  * @return A pointer to the topic if it is found, NULL otherwise.
  */
 messagebus_topic_t *messagebus_find_topic(messagebus_t *bus, const char *name);
+
+/** Waits until a topic is found on the bus.
+ *
+ * @parameter [in] bus The bus to scan.
+ * @parameter [in] name The name of the topic to search.
+ */
+messagebus_topic_t *messagebus_find_topic_blocking(messagebus_t *bus, const char *name);
 
 /** Publish a topics on the bus.
  *

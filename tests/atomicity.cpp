@@ -6,7 +6,7 @@
 TEST_GROUP(MessageBusAtomicityTestGroup)
 {
     messagebus_t bus;
-    int bus_lock;
+    int bus_lock, bus_condvar;
     messagebus_topic_t topic;
     uint8_t buffer[128];
     int topic_lock;
@@ -16,7 +16,7 @@ TEST_GROUP(MessageBusAtomicityTestGroup)
     {
         mock().strictOrder();
 
-        messagebus_init(&bus, &bus_lock);
+        messagebus_init(&bus, &bus_lock, &bus_condvar);
         messagebus_topic_init(&topic, &topic_lock, &topic_condvar, buffer, sizeof buffer);
     }
 
@@ -115,4 +115,18 @@ TEST(MessageBusAtomicityTestGroup, Wait)
 
     lock_mocks_enable(true);
     messagebus_topic_wait(&topic, buffer, sizeof(buffer));
+}
+
+TEST(MessageBusAtomicityTestGroup, FindBlocking)
+{
+    messagebus_advertise_topic(&bus, &topic, "topic");
+    lock_mocks_enable(true);
+
+    mock().expectOneCall("messagebus_lock_acquire")
+          .withPointerParameter("lock", bus.lock);
+
+    mock().expectOneCall("messagebus_lock_release")
+          .withPointerParameter("lock", bus.lock);
+
+    messagebus_find_topic_blocking(&bus, "topic");
 }

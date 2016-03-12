@@ -1,10 +1,23 @@
 #include "messagebus.h"
 #include <string.h>
 
-void messagebus_init(messagebus_t *bus, void *bus_lock)
+static messagebus_topic_t *topic_by_name(messagebus_t *bus, const char *name)
+{
+    messagebus_topic_t *t;
+    for (t=bus->topics.head; t!=NULL; t=t->next) {
+        if (!strcmp(name, t->name)) {
+            return t;
+        }
+    }
+
+    return NULL;
+}
+
+void messagebus_init(messagebus_t *bus, void *lock, void *condvar)
 {
     memset(bus, 0, sizeof(messagebus_t));
-    bus->lock = bus_lock;
+    bus->lock = lock;
+    bus->condvar = condvar;
 }
 
 void messagebus_topic_init(messagebus_topic_t *topic, void *topic_lock, void *topic_condvar,
@@ -29,19 +42,35 @@ void messagebus_advertise_topic(messagebus_t *bus, messagebus_topic_t *topic, co
     }
     bus->topics.head = topic;
 
+    messagebus_condvar_broadcast(bus->condvar);
+
     messagebus_lock_release(bus->lock);
 }
 
 messagebus_topic_t *messagebus_find_topic(messagebus_t *bus, const char *name)
 {
-    messagebus_topic_t *t, *res=NULL;
+    messagebus_topic_t *res;
 
     messagebus_lock_acquire(bus->lock);
 
-    for (t=bus->topics.head; t!=NULL; t=t->next) {
-        if (!strcmp(name, t->name)) {
-            res = t;
-            break;
+    res = topic_by_name(bus, name);
+
+    messagebus_lock_release(bus->lock);
+
+    return res;
+}
+
+messagebus_topic_t *messagebus_find_topic_blocking(messagebus_t *bus, const char *name)
+{
+    messagebus_topic_t *res = NULL;
+
+    messagebus_lock_acquire(bus->lock);
+
+    while (res == NULL) {
+        res = topic_by_name(bus, name);
+
+        if (res == NULL) {
+            messagebus_condvar_wait(bus->condvar);
         }
     }
 

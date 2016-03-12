@@ -6,6 +6,7 @@ TEST_GROUP(MessageBusTestGroup)
 {
     messagebus_t bus;
     int bus_lock;
+    int bus_condvar;
     messagebus_topic_t topic;
     uint8_t buffer[128];
     int topic_lock;
@@ -14,7 +15,7 @@ TEST_GROUP(MessageBusTestGroup)
 
     void setup()
     {
-        messagebus_init(&bus, &bus_lock);
+        messagebus_init(&bus, &bus_lock, &bus_condvar);
         messagebus_topic_init(&topic, &topic_lock, &topic_condvar, buffer, sizeof buffer);
         messagebus_topic_init(&second_topic, NULL, NULL, NULL, 0);
     }
@@ -32,6 +33,7 @@ TEST(MessageBusTestGroup, CanCreateBus)
 {
     POINTERS_EQUAL(NULL, bus.topics.head);
     POINTERS_EQUAL(&bus_lock, bus.lock);
+    POINTERS_EQUAL(&bus_condvar, bus.condvar);
 }
 
 TEST(MessageBusTestGroup, AdvertiseTopicName)
@@ -76,6 +78,17 @@ TEST(MessageBusTestGroup, CanScanBus)
 
     POINTERS_EQUAL(&topic, messagebus_find_topic(&bus, "first"));
     POINTERS_EQUAL(&second_topic, messagebus_find_topic(&bus, "second"));
+}
+
+TEST(MessageBusTestGroup, FindTopicBlocking)
+{
+    messagebus_topic_t *res;
+    /* This is a partial test only: we cannot test that the behavior is correct
+     * when the topic is not on the bus yes without additional thread and I
+     * don't like threading in tests. */
+    messagebus_advertise_topic(&bus, &topic, "topic");
+    res = messagebus_find_topic_blocking(&bus, "topic");
+    POINTERS_EQUAL(&topic, res);
 }
 
 TEST(MessageBusTestGroup, CanPublish)

@@ -6,7 +6,7 @@
 TEST_GROUP(SignalingTestGroup)
 {
     messagebus_t bus;
-    int bus_lock;
+    int bus_lock, bus_condvar;
     messagebus_topic_t topic;
     uint8_t buffer[128];
     int topic_lock;
@@ -15,6 +15,7 @@ TEST_GROUP(SignalingTestGroup)
     void setup()
     {
         mock().strictOrder();
+        messagebus_init(&bus, &bus_lock, &bus_condvar);
         messagebus_topic_init(&topic, &topic_lock, &topic_condvar, buffer, sizeof buffer);
     }
 
@@ -57,4 +58,21 @@ TEST(SignalingTestGroup, TopicWait)
           .withPointerParameter("lock", topic.lock);
 
     messagebus_topic_wait(&topic, buffer, sizeof(buffer));
+}
+
+TEST(SignalingTestGroup, Advertise)
+{
+    lock_mocks_enable(true);
+    condvar_mocks_enable(true);
+
+    mock().expectOneCall("messagebus_lock_acquire")
+          .withPointerParameter("lock", bus.lock);
+
+    mock().expectOneCall("messagebus_condvar_broadcast")
+          .withPointerParameter("var", bus.condvar);
+
+    mock().expectOneCall("messagebus_lock_release")
+          .withPointerParameter("lock", bus.lock);
+
+    messagebus_advertise_topic(&bus, &topic, "topic");
 }
