@@ -22,5 +22,17 @@ target_link_libraries(
     CppUTestExt
     )
 
+add_executable(
+    demo
+    ./messagebus.c
+    ./examples/posix/port.c
+    ./examples/posix/demo.c
+    )
+
+target_link_libraries(
+    demo
+    pthread
+    )
+
 # Run unit tests
 add_custom_target(check ./tests -c DEPENDS tests)
