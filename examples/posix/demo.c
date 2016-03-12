@@ -11,10 +11,12 @@ static void* producer(void *p)
 {
     messagebus_topic_t *topic;
     int counter = 0;
+    int producer_number = (int)p;
 
     while (1) {
         topic = messagebus_find_topic(&bus, "myint");
-        printf("[publisher] writing %d on topic %s\n", counter, topic->name);
+        printf("[publisher %d] writing %d on topic %s\n",
+                producer_number, counter, topic->name);
         messagebus_topic_publish(topic, &counter, sizeof counter);
         counter += 1;
         sleep(2);
@@ -64,8 +66,10 @@ int main(int argc, const char **argv)
     pthread_create(&consumer_thd, NULL, consumer, (void *)2);
     pthread_create(&consumer_thd, NULL, consumer, (void *)3);
 
-    /* Creates the producer thread */
-    pthread_create(&producer_thd, NULL, producer, NULL);
+    /* Creates the producer threads, slightly offset */
+    pthread_create(&producer_thd, NULL, producer, (void *)1);
+    sleep(5);
+    pthread_create(&producer_thd, NULL, producer, (void *)2);
 
     while(1) {
     }
