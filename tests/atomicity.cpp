@@ -9,13 +9,14 @@ TEST_GROUP(MessageBusAtomicityTestGroup)
     int bus_lock;
     topic_t topic;
     uint8_t buffer[128];
+    int topic_lock;
 
     void setup()
     {
         mock().strictOrder();
 
         messagebus_init(&bus, &bus_lock);
-        topic_init(&topic, buffer, sizeof buffer);
+        topic_init(&topic, &topic_lock, buffer, sizeof buffer);
     }
 
     void teardown()
@@ -56,5 +57,49 @@ TEST(MessageBusAtomicityTestGroup, FindExistingTopicIsLockedProperly)
     messagebus_advertise_topic(&bus, &topic, "topic");
     lock_mocks_enable(true);
     messagebus_find_topic(&bus, "topic");
+}
 
+TEST(MessageBusAtomicityTestGroup, PublishIsAtomic)
+{
+    uint8_t data[4];
+    mock().expectOneCall("messagebus_lock_acquire")
+          .withPointerParameter("lock", topic.lock);
+    mock().expectOneCall("messagebus_lock_release")
+          .withPointerParameter("lock", topic.lock);
+
+    lock_mocks_enable(true);
+    messagebus_publish(&topic, data, 4);
+}
+
+TEST(MessageBusAtomicityTestGroup, ReadPublished)
+{
+    uint8_t buffer[128];
+    bool res;
+
+    mock().expectOneCall("messagebus_lock_acquire")
+          .withPointerParameter("lock", topic.lock);
+    mock().expectOneCall("messagebus_lock_release")
+          .withPointerParameter("lock", topic.lock);
+
+    messagebus_publish(&topic, buffer, sizeof(buffer));
+
+    lock_mocks_enable(true);
+    res = messagebus_read(&topic, buffer, sizeof(buffer));
+
+    CHECK_TRUE(res);
+}
+
+TEST(MessageBusAtomicityTestGroup, ReadUnpublished)
+{
+    uint8_t buffer[128];
+    bool res;
+    mock().expectOneCall("messagebus_lock_acquire")
+          .withPointerParameter("lock", topic.lock);
+    mock().expectOneCall("messagebus_lock_release")
+          .withPointerParameter("lock", topic.lock);
+
+    lock_mocks_enable(true);
+    res = messagebus_read(&topic, buffer, sizeof(buffer));
+
+    CHECK_FALSE(res);
 }

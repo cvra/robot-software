@@ -8,17 +8,19 @@ TEST_GROUP(MessageBusTestGroup)
     int bus_lock;
     topic_t topic;
     uint8_t buffer[128];
+    int topic_lock;
 
     void setup()
     {
         messagebus_init(&bus, &bus_lock);
-        topic_init(&topic, buffer, sizeof buffer);
+        topic_init(&topic, &topic_lock, buffer, sizeof buffer);
     }
 };
 
 TEST(MessageBusTestGroup, CanCreateTopicWithBuffer)
 {
     POINTERS_EQUAL(buffer, topic.buffer);
+    POINTERS_EQUAL(&topic_lock, topic.lock);
     CHECK_EQUAL(topic.buffer_len, sizeof(buffer));
 }
 
@@ -45,7 +47,7 @@ TEST(MessageBusTestGroup, FirstTopicGoesToHead)
 TEST(MessageBusTestGroup, NextofListIsOkToo)
 {
     topic_t second_topic;
-    topic_init(&second_topic, NULL, 0);
+    topic_init(&second_topic, NULL, NULL, 0);
 
     messagebus_advertise_topic(&bus, &topic, "first");
     messagebus_advertise_topic(&bus, &second_topic, "second");
@@ -69,7 +71,7 @@ TEST(MessageBusTestGroup, TopicFound)
 TEST(MessageBusTestGroup, CanScanBus)
 {
     topic_t second_topic;
-    topic_init(&second_topic, NULL, 0);
+    topic_init(&second_topic, NULL, NULL, 0);
 
     messagebus_advertise_topic(&bus, &topic, "first");
     messagebus_advertise_topic(&bus, &second_topic, "second");

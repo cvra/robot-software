@@ -12,6 +12,7 @@ extern "C" {
 typedef struct topic_s {
     void *buffer;
     size_t buffer_len;
+    void *lock;
     char name[TOPIC_NAME_MAX_LENGTH+1];
     struct topic_s *next;
     bool published;
@@ -28,9 +29,10 @@ typedef struct {
  *
  * @parameter [in] topic The topic object to create.
  * @parameter [in] buffer,buffer_len The buffer where the topic messages will
+ * @parameter [in] lock The lock to use for this topic.
  * be stored.
  */
-void topic_init(topic_t *topic, void *buffer, size_t buffer_len);
+void topic_init(topic_t *topic, void *topic_lock, void *buffer, size_t buffer_len);
 
 /** Initializes a new message bus with no topics.
  *
