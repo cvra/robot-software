@@ -9,11 +9,14 @@ TEST_GROUP(MessageBusTestGroup)
     topic_t topic;
     uint8_t buffer[128];
     int topic_lock;
+    int topic_condvar;
+    topic_t second_topic;
 
     void setup()
     {
         messagebus_init(&bus, &bus_lock);
-        topic_init(&topic, &topic_lock, buffer, sizeof buffer);
+        topic_init(&topic, &topic_lock, &topic_condvar, buffer, sizeof buffer);
+        topic_init(&second_topic, NULL, NULL, NULL, 0);
     }
 };
 
@@ -21,6 +24,7 @@ TEST(MessageBusTestGroup, CanCreateTopicWithBuffer)
 {
     POINTERS_EQUAL(buffer, topic.buffer);
     POINTERS_EQUAL(&topic_lock, topic.lock);
+    POINTERS_EQUAL(&topic_condvar, topic.condvar);
     CHECK_EQUAL(topic.buffer_len, sizeof(buffer));
 }
 
@@ -46,9 +50,6 @@ TEST(MessageBusTestGroup, FirstTopicGoesToHead)
 
 TEST(MessageBusTestGroup, NextofListIsOkToo)
 {
-    topic_t second_topic;
-    topic_init(&second_topic, NULL, NULL, 0);
-
     messagebus_advertise_topic(&bus, &topic, "first");
     messagebus_advertise_topic(&bus, &second_topic, "second");
 
@@ -70,9 +71,6 @@ TEST(MessageBusTestGroup, TopicFound)
 
 TEST(MessageBusTestGroup, CanScanBus)
 {
-    topic_t second_topic;
-    topic_init(&second_topic, NULL, NULL, 0);
-
     messagebus_advertise_topic(&bus, &topic, "first");
     messagebus_advertise_topic(&bus, &second_topic, "second");
 
@@ -121,5 +119,15 @@ TEST(MessageBusTestGroup, WontReadUnpublishedtopic)
 
     res = messagebus_read(&topic, &rx, sizeof(int));
     CHECK_FALSE(res);
+}
+
+TEST(MessageBusTestGroup, WaitForUpdate)
+{
+    int tx=42, rx;
+
+    messagebus_publish(&topic, &tx, sizeof(int));
+    messagebus_wait(&topic, &rx, sizeof(int));
+
+    CHECK_EQUAL(tx, rx);
 }
 

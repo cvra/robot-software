@@ -10,13 +10,14 @@ TEST_GROUP(MessageBusAtomicityTestGroup)
     topic_t topic;
     uint8_t buffer[128];
     int topic_lock;
+    int topic_condvar;
 
     void setup()
     {
         mock().strictOrder();
 
         messagebus_init(&bus, &bus_lock);
-        topic_init(&topic, &topic_lock, buffer, sizeof buffer);
+        topic_init(&topic, &topic_lock, &topic_condvar, buffer, sizeof buffer);
     }
 
     void teardown()
@@ -102,4 +103,17 @@ TEST(MessageBusAtomicityTestGroup, ReadUnpublished)
     res = messagebus_read(&topic, buffer, sizeof(buffer));
 
     CHECK_FALSE(res);
+}
+
+TEST(MessageBusAtomicityTestGroup, Wait)
+{
+    uint8_t buffer[128];
+    bool res;
+    mock().expectOneCall("messagebus_lock_acquire")
+          .withPointerParameter("lock", topic.lock);
+    mock().expectOneCall("messagebus_lock_release")
+          .withPointerParameter("lock", topic.lock);
+
+    lock_mocks_enable(true);
+    messagebus_wait(&topic, buffer, sizeof(buffer));
 }

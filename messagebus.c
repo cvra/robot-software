@@ -7,12 +7,14 @@ void messagebus_init(messagebus_t *bus, void *bus_lock)
     bus->lock = bus_lock;
 }
 
-void topic_init(topic_t *topic, void *topic_lock, void *buffer, size_t buffer_len)
+void topic_init(topic_t *topic, void *topic_lock, void *topic_condvar,
+                void *buffer, size_t buffer_len)
 {
     memset(topic, 0, sizeof(topic_t));
     topic->buffer = buffer;
     topic->buffer_len = buffer_len;
     topic->lock = topic_lock;
+    topic->condvar = topic_condvar;
 }
 
 void messagebus_advertise_topic(messagebus_t *bus, topic_t *topic, const char *name)
@@ -55,8 +57,11 @@ bool messagebus_publish(topic_t *topic, void *buf, size_t buf_len)
     }
 
     messagebus_lock_acquire(topic->lock);
+
     memcpy(topic->buffer, buf, buf_len);
     topic->published = true;
+    messagebus_condvar_broadcast(topic->condvar);
+
     messagebus_lock_release(topic->lock);
 
     return true;
@@ -75,4 +80,14 @@ bool messagebus_read(topic_t *topic, void *buf, size_t buf_len)
     messagebus_lock_release(topic->lock);
 
     return success;
+}
+
+void messagebus_wait(topic_t *topic, void *buf, size_t buf_len)
+{
+    messagebus_lock_acquire(topic->lock);
+    messagebus_condvar_wait(topic->condvar);
+
+    memcpy(buf, topic->buffer, buf_len);
+
+    messagebus_lock_release(topic->lock);
 }

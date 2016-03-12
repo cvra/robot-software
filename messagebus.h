@@ -13,6 +13,7 @@ typedef struct topic_s {
     void *buffer;
     size_t buffer_len;
     void *lock;
+    void *condvar;
     char name[TOPIC_NAME_MAX_LENGTH+1];
     struct topic_s *next;
     bool published;
@@ -29,10 +30,12 @@ typedef struct {
  *
  * @parameter [in] topic The topic object to create.
  * @parameter [in] buffer,buffer_len The buffer where the topic messages will
- * @parameter [in] lock The lock to use for this topic.
+ * @parameter [in] topic_lock The lock to use for this topic.
+ * @parameter [in] topic_condvar The condition variable to use for this topic.
  * be stored.
  */
-void topic_init(topic_t *topic, void *topic_lock, void *buffer, size_t buffer_len);
+void topic_init(topic_t *topic, void *topic_lock, void *topic_condvar,
+                void *buffer, size_t buffer_len);
 
 /** Initializes a new message bus with no topics.
  *
@@ -84,6 +87,14 @@ bool messagebus_publish(topic_t *topic, void *buf, size_t buf_len);
  */
 bool messagebus_read(topic_t *topic, void *buf, size_t buf_len);
 
+/** Wait for an update to be published on the topic.
+ *
+ * @parameter [in] topic A pointer to the topic to read.
+ * @parameter [out] buf Pointer where the read data will be stored.
+ * @parameter [out] buf_len Length of the buffer.
+ */
+void messagebus_wait(topic_t *topic, void *buf, size_t buf_len);
+
 /** @defgroup portable Portable functions, platform specific.
  * @{*/
 
@@ -92,6 +103,12 @@ extern void messagebus_lock_acquire(void *lock);
 
 /** Release a lock previously acquired by messagebus_lock_acquire. */
 extern void messagebus_lock_release(void *lock);
+
+/** Signal all tasks waiting on the given condition variable. */
+extern void messagebus_condvar_broadcast(void *var);
+
+/** Wait on the given condition variable. */
+extern void messagebus_condvar_wait(void *var);
 
 /** @} */
 

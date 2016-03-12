@@ -3,6 +3,7 @@
 #include "../../messagebus.h"
 
 static bool lock_enabled = false;
+static bool condvar_enabled = false;
 
 void messagebus_lock_acquire(void *lock)
 {
@@ -20,9 +21,30 @@ void messagebus_lock_release(void *lock)
     }
 }
 
+void messagebus_condvar_broadcast(void *var)
+{
+    if (condvar_enabled) {
+        mock().actualCall("messagebus_condvar_broadcast")
+              .withPointerParameter("var", var);
+    }
+}
+
+void messagebus_condvar_wait(void *var)
+{
+    if (condvar_enabled) {
+        mock().actualCall("messagebus_condvar_wait")
+              .withPointerParameter("var", var);
+    }
+}
+
 void lock_mocks_enable(bool enabled)
 {
     lock_enabled = enabled;
+}
+
+void condvar_mocks_enable(bool enabled)
+{
+    condvar_enabled = enabled;
 }
 
 TEST_GROUP(LockTestGroup)
@@ -32,11 +54,13 @@ TEST_GROUP(LockTestGroup)
     void setup()
     {
         lock_mocks_enable(true);
+        condvar_mocks_enable(true);
     }
 
     void teardown()
     {
         lock_mocks_enable(false);
+        condvar_mocks_enable(false);
     }
 };
 
@@ -54,4 +78,24 @@ TEST(LockTestGroup, CanUnlock)
           .withPointerParameter("lock", &lock);
 
     messagebus_lock_release(&lock);
+}
+
+TEST(LockTestGroup, CanBroadcastCondVar)
+{
+    int var;
+    mock().expectOneCall("messagebus_condvar_broadcast")
+          .withPointerParameter("var", &var);
+
+    messagebus_condvar_broadcast(&var);
+}
+
+TEST(LockTestGroup, CanWaitCondVar)
+{
+    int var;
+
+    mock().expectOneCall("messagebus_condvar_wait")
+          .withPointerParameter("var", &var);
+
+
+    messagebus_condvar_wait(&var);
 }

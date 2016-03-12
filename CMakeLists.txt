@@ -9,6 +9,7 @@ add_executable(
     tests
     ./messagebus.c
     ./tests/atomicity.cpp
+    ./tests/signaling.cpp
     ./tests/mocks/synchronization.cpp
     ./tests/msgbus.cpp
     ./tests/main.cpp
