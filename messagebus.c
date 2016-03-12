@@ -1,9 +1,10 @@
 #include "messagebus.h"
 #include <string.h>
 
-void messagebus_init(messagebus_t *bus)
+void messagebus_init(messagebus_t *bus, void *bus_lock)
 {
     memset(bus, 0, sizeof(messagebus_t));
+    bus->lock = bus_lock;
 }
 
 void topic_init(topic_t *topic, void *buffer, size_t buffer_len)
@@ -18,23 +19,32 @@ void messagebus_advertise_topic(messagebus_t *bus, topic_t *topic, const char *n
     memset(topic->name, 0, sizeof(topic->name));
     strncpy(topic->name, name, TOPIC_NAME_MAX_LENGTH);
 
+    messagebus_lock_acquire(bus->lock);
+
     if (bus->topics.head != NULL) {
         topic->next = bus->topics.head;
     }
     bus->topics.head = topic;
+
+    messagebus_lock_release(bus->lock);
 }
 
 topic_t *messagebus_find_topic(messagebus_t *bus, const char *name)
 {
-    topic_t *t;
+    topic_t *t, *res=NULL;
+
+    messagebus_lock_acquire(bus->lock);
 
     for (t=bus->topics.head; t!=NULL; t=t->next) {
         if (!strcmp(name, t->name)) {
-            return t;
+            res = t;
+            break;
         }
     }
 
-    return NULL;
+    messagebus_lock_release(bus->lock);
+
+    return res;
 }
 
 bool messagebus_publish(topic_t *topic, void *buf, size_t buf_len)

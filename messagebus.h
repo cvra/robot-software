@@ -21,8 +21,8 @@ typedef struct {
     struct {
         topic_t *head;
     } topics;
+    void *lock;
 } messagebus_t;
-
 
 /** Initializes a topic object
  *
@@ -35,8 +35,9 @@ void topic_init(topic_t *topic, void *buffer, size_t buffer_len);
 /** Initializes a new message bus with no topics.
  *
  * @parameter [in] bus The messagebus to init.
+ * @parameter [in] lock The lock to use for this bus.
  */
-void messagebus_init(messagebus_t *bus);
+void messagebus_init(messagebus_t *bus, void *lock);
 
 /** Initializes the presence of the topic on the bus.
  *
@@ -80,6 +81,17 @@ bool messagebus_publish(topic_t *topic, void *buf, size_t buf_len);
  * @returns false if the topic was never published to
  */
 bool messagebus_read(topic_t *topic, void *buf, size_t buf_len);
+
+/** @defgroup portable Portable functions, platform specific.
+ * @{*/
+
+/** Acquire a reentrant lock (mutex). */
+extern void messagebus_lock_acquire(void *lock);
+
+/** Release a lock previously acquired by messagebus_lock_acquire. */
+extern void messagebus_lock_release(void *lock);
+
+/** @} */
 
 #ifdef __cplusplus
 }

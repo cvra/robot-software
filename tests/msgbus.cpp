@@ -5,12 +5,13 @@
 TEST_GROUP(MessageBusTestGroup)
 {
     messagebus_t bus;
+    int bus_lock;
     topic_t topic;
     uint8_t buffer[128];
 
     void setup()
     {
-        messagebus_init(&bus);
+        messagebus_init(&bus, &bus_lock);
         topic_init(&topic, buffer, sizeof buffer);
     }
 };
@@ -24,6 +25,7 @@ TEST(MessageBusTestGroup, CanCreateTopicWithBuffer)
 TEST(MessageBusTestGroup, CanCreateBus)
 {
     POINTERS_EQUAL(NULL, bus.topics.head);
+    POINTERS_EQUAL(&bus_lock, bus.lock);
 }
 
 TEST(MessageBusTestGroup, AdvertiseTopicName)
@@ -118,3 +120,4 @@ TEST(MessageBusTestGroup, WontReadUnpublishedtopic)
     res = messagebus_read(&topic, &rx, sizeof(int));
     CHECK_FALSE(res);
 }
+
