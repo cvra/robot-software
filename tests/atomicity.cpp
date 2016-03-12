@@ -17,7 +17,7 @@ TEST_GROUP(MessageBusAtomicityTestGroup)
         mock().strictOrder();
 
         messagebus_init(&bus, &bus_lock);
-        topic_init(&topic, &topic_lock, &topic_condvar, buffer, sizeof buffer);
+        messagebus_topic_init(&topic, &topic_lock, &topic_condvar, buffer, sizeof buffer);
     }
 
     void teardown()
@@ -69,7 +69,7 @@ TEST(MessageBusAtomicityTestGroup, PublishIsAtomic)
           .withPointerParameter("lock", topic.lock);
 
     lock_mocks_enable(true);
-    messagebus_publish(&topic, data, 4);
+    messagebus_topic_publish(&topic, data, 4);
 }
 
 TEST(MessageBusAtomicityTestGroup, ReadPublished)
@@ -82,10 +82,10 @@ TEST(MessageBusAtomicityTestGroup, ReadPublished)
     mock().expectOneCall("messagebus_lock_release")
           .withPointerParameter("lock", topic.lock);
 
-    messagebus_publish(&topic, buffer, sizeof(buffer));
+    messagebus_topic_publish(&topic, buffer, sizeof(buffer));
 
     lock_mocks_enable(true);
-    res = messagebus_read(&topic, buffer, sizeof(buffer));
+    res = messagebus_topic_read(&topic, buffer, sizeof(buffer));
 
     CHECK_TRUE(res);
 }
@@ -100,7 +100,7 @@ TEST(MessageBusAtomicityTestGroup, ReadUnpublished)
           .withPointerParameter("lock", topic.lock);
 
     lock_mocks_enable(true);
-    res = messagebus_read(&topic, buffer, sizeof(buffer));
+    res = messagebus_topic_read(&topic, buffer, sizeof(buffer));
 
     CHECK_FALSE(res);
 }
@@ -115,5 +115,5 @@ TEST(MessageBusAtomicityTestGroup, Wait)
           .withPointerParameter("lock", topic.lock);
 
     lock_mocks_enable(true);
-    messagebus_wait(&topic, buffer, sizeof(buffer));
+    messagebus_topic_wait(&topic, buffer, sizeof(buffer));
 }

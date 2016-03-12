@@ -15,8 +15,8 @@ TEST_GROUP(MessageBusTestGroup)
     void setup()
     {
         messagebus_init(&bus, &bus_lock);
-        topic_init(&topic, &topic_lock, &topic_condvar, buffer, sizeof buffer);
-        topic_init(&second_topic, NULL, NULL, NULL, 0);
+        messagebus_topic_init(&topic, &topic_lock, &topic_condvar, buffer, sizeof buffer);
+        messagebus_topic_init(&second_topic, NULL, NULL, NULL, 0);
     }
 };
 
@@ -83,7 +83,7 @@ TEST(MessageBusTestGroup, CanPublish)
     uint8_t data[] = {1, 2, 3};
     bool res;
 
-    res = messagebus_publish(&topic, data, sizeof(data));
+    res = messagebus_topic_publish(&topic, data, sizeof(data));
 
     MEMCMP_EQUAL(topic.buffer, data, sizeof(data));
     CHECK_TRUE(res);
@@ -95,7 +95,7 @@ TEST(MessageBusTestGroup, WontPublishTooBigMessage)
     bool res;
 
     topic.buffer_len = 1;
-    res = messagebus_publish(&topic, data, sizeof(data));
+    res = messagebus_topic_publish(&topic, data, sizeof(data));
 
     CHECK_FALSE(res);
 }
@@ -105,8 +105,8 @@ TEST(MessageBusTestGroup, CanRead)
     int tx=42, rx;
     bool res;
 
-    messagebus_publish(&topic, &tx, sizeof(int));
-    res = messagebus_read(&topic, &rx, sizeof(int));
+    messagebus_topic_publish(&topic, &tx, sizeof(int));
+    res = messagebus_topic_read(&topic, &rx, sizeof(int));
 
     CHECK_TRUE(res);
     CHECK_EQUAL(tx, rx);
@@ -117,7 +117,7 @@ TEST(MessageBusTestGroup, WontReadUnpublishedtopic)
     int rx;
     bool res;
 
-    res = messagebus_read(&topic, &rx, sizeof(int));
+    res = messagebus_topic_read(&topic, &rx, sizeof(int));
     CHECK_FALSE(res);
 }
 
@@ -125,8 +125,8 @@ TEST(MessageBusTestGroup, WaitForUpdate)
 {
     int tx=42, rx;
 
-    messagebus_publish(&topic, &tx, sizeof(int));
-    messagebus_wait(&topic, &rx, sizeof(int));
+    messagebus_topic_publish(&topic, &tx, sizeof(int));
+    messagebus_topic_wait(&topic, &rx, sizeof(int));
 
     CHECK_EQUAL(tx, rx);
 }

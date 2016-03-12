@@ -15,7 +15,7 @@ TEST_GROUP(SignalingTestGroup)
     void setup()
     {
         mock().strictOrder();
-        topic_init(&topic, &topic_lock, &topic_condvar, buffer, sizeof buffer);
+        messagebus_topic_init(&topic, &topic_lock, &topic_condvar, buffer, sizeof buffer);
     }
 
     void teardown()
@@ -39,7 +39,7 @@ TEST(SignalingTestGroup, TopicPublish)
     mock().expectOneCall("messagebus_lock_release")
           .withPointerParameter("lock", topic.lock);
 
-    messagebus_publish(&topic, buffer, sizeof(buffer));
+    messagebus_topic_publish(&topic, buffer, sizeof(buffer));
 }
 
 TEST(SignalingTestGroup, TopicWait)
@@ -56,5 +56,5 @@ TEST(SignalingTestGroup, TopicWait)
     mock().expectOneCall("messagebus_lock_release")
           .withPointerParameter("lock", topic.lock);
 
-    messagebus_wait(&topic, buffer, sizeof(buffer));
+    messagebus_topic_wait(&topic, buffer, sizeof(buffer));
 }

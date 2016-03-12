@@ -34,7 +34,7 @@ typedef struct {
  * @parameter [in] topic_condvar The condition variable to use for this topic.
  * be stored.
  */
-void topic_init(topic_t *topic, void *topic_lock, void *topic_condvar,
+void messagebus_topic_init(topic_t *topic, void *topic_lock, void *topic_condvar,
                 void *buffer, size_t buffer_len);
 
 /** Initializes a new message bus with no topics.
@@ -74,7 +74,7 @@ topic_t *messagebus_find_topic(messagebus_t *bus, const char *name);
  * false is returned.
  * @returns True if successful, otherwise.
  */
-bool messagebus_publish(topic_t *topic, void *buf, size_t buf_len);
+bool messagebus_topic_publish(topic_t *topic, void *buf, size_t buf_len);
 
 /** Reads the content of a single topic.
  *
@@ -85,7 +85,7 @@ bool messagebus_publish(topic_t *topic, void *buf, size_t buf_len);
  * @returns true if the topic was published on at least once.
  * @returns false if the topic was never published to
  */
-bool messagebus_read(topic_t *topic, void *buf, size_t buf_len);
+bool messagebus_topic_read(topic_t *topic, void *buf, size_t buf_len);
 
 /** Wait for an update to be published on the topic.
  *
@@ -93,7 +93,7 @@ bool messagebus_read(topic_t *topic, void *buf, size_t buf_len);
  * @parameter [out] buf Pointer where the read data will be stored.
  * @parameter [out] buf_len Length of the buffer.
  */
-void messagebus_wait(topic_t *topic, void *buf, size_t buf_len);
+void messagebus_topic_wait(topic_t *topic, void *buf, size_t buf_len);
 
 /** @defgroup portable Portable functions, platform specific.
  * @{*/

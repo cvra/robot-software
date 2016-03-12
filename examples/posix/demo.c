@@ -15,7 +15,7 @@ static void* producer(void *p)
     while (1) {
         topic = messagebus_find_topic(&bus, "myint");
         printf("[publisher] writing %d on topic %s\n", counter, topic->name);
-        messagebus_publish(topic, &counter, sizeof counter);
+        messagebus_topic_publish(topic, &counter, sizeof counter);
         counter += 1;
         sleep(2);
     }
@@ -32,7 +32,7 @@ static void *consumer(void *p)
     while (1) {
         topic = messagebus_find_topic(&bus, "myint");
 
-        messagebus_wait(topic, &received, sizeof received);
+        messagebus_topic_wait(topic, &received, sizeof received);
         printf("[consumer %d] read %d on topic %s\n",
                consumer_number, received, topic->name);
     }
@@ -54,7 +54,7 @@ int main(int argc, const char **argv)
     int buffer;
 
     condvar_wrapper_t wrapper = {PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER};
-    topic_init(&topic, &wrapper, &wrapper, &buffer, sizeof buffer);
+    messagebus_topic_init(&topic, &wrapper, &wrapper, &buffer, sizeof buffer);
 
     messagebus_advertise_topic(&bus, &topic, "myint");
 

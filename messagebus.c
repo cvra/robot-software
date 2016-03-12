@@ -7,7 +7,7 @@ void messagebus_init(messagebus_t *bus, void *bus_lock)
     bus->lock = bus_lock;
 }
 
-void topic_init(topic_t *topic, void *topic_lock, void *topic_condvar,
+void messagebus_topic_init(topic_t *topic, void *topic_lock, void *topic_condvar,
                 void *buffer, size_t buffer_len)
 {
     memset(topic, 0, sizeof(topic_t));
@@ -50,7 +50,7 @@ topic_t *messagebus_find_topic(messagebus_t *bus, const char *name)
     return res;
 }
 
-bool messagebus_publish(topic_t *topic, void *buf, size_t buf_len)
+bool messagebus_topic_publish(topic_t *topic, void *buf, size_t buf_len)
 {
     if (topic->buffer_len < buf_len) {
         return false;
@@ -67,7 +67,7 @@ bool messagebus_publish(topic_t *topic, void *buf, size_t buf_len)
     return true;
 }
 
-bool messagebus_read(topic_t *topic, void *buf, size_t buf_len)
+bool messagebus_topic_read(topic_t *topic, void *buf, size_t buf_len)
 {
     bool success = false;
     messagebus_lock_acquire(topic->lock);
@@ -82,7 +82,7 @@ bool messagebus_read(topic_t *topic, void *buf, size_t buf_len)
     return success;
 }
 
-void messagebus_wait(topic_t *topic, void *buf, size_t buf_len)
+void messagebus_topic_wait(topic_t *topic, void *buf, size_t buf_len)
 {
     messagebus_lock_acquire(topic->lock);
     messagebus_condvar_wait(topic->condvar);
