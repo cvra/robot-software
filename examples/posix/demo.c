@@ -13,8 +13,10 @@ static void* producer(void *p)
     int counter = 0;
     int producer_number = (int)p;
 
+    printf("[publisher %d] waiting for topic myint\n", producer_number);
+
     while (1) {
-        topic = messagebus_find_topic(&bus, "myint");
+        topic = messagebus_find_topic_blocking(&bus, "myint");
         printf("[publisher %d] writing %d on topic %s\n",
                 producer_number, counter, topic->name);
         messagebus_topic_publish(topic, &counter, sizeof counter);
@@ -31,8 +33,10 @@ static void *consumer(void *p)
     int received;
     int consumer_number = (int)p;
 
+    printf("[consumer %d] waiting for topic myint\n", consumer_number);
+
     while (1) {
-        topic = messagebus_find_topic(&bus, "myint");
+        topic = messagebus_find_topic_blocking(&bus, "myint");
 
         messagebus_topic_wait(topic, &received, sizeof received);
         printf("[consumer %d] read %d on topic %s\n",
@@ -48,8 +52,8 @@ int main(int argc, const char **argv)
     (void) argv;
 
     /* Create the message bus. */
-    pthread_mutex_t bus_lock = PTHREAD_MUTEX_INITIALIZER;
-    messagebus_init(&bus, &bus_lock);
+    condvar_wrapper_t bus_sync = {PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER};
+    messagebus_init(&bus, &bus_sync, &bus_sync);
 
     /* Creates a topic and publish it on the bus. */
     messagebus_topic_t topic;
@@ -58,7 +62,6 @@ int main(int argc, const char **argv)
     condvar_wrapper_t wrapper = {PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER};
     messagebus_topic_init(&topic, &wrapper, &wrapper, &buffer, sizeof buffer);
 
-    messagebus_advertise_topic(&bus, &topic, "myint");
 
     /* Creates a few consumer threads. */
     pthread_t producer_thd, consumer_thd;
@@ -68,7 +71,10 @@ int main(int argc, const char **argv)
 
     /* Creates the producer threads, slightly offset */
     pthread_create(&producer_thd, NULL, producer, (void *)1);
-    sleep(5);
+
+    sleep(1);
+    messagebus_advertise_topic(&bus, &topic, "myint");
+    sleep(3);
     pthread_create(&producer_thd, NULL, producer, (void *)2);
 
     while(1) {
