@@ -53,18 +53,13 @@ int main(int argc, const char **argv)
     topic_t topic;
     int buffer;
 
-    pthread_mutex_t topic_lock = PTHREAD_MUTEX_INITIALIZER;
-    pthread_cond_t topic_cond = PTHREAD_COND_INITIALIZER;
-
-    condvar_wrapper_t wrapper = {&topic_lock, &topic_cond};
-
-    topic_init(&topic, &topic_lock, &wrapper, &buffer, sizeof buffer);
+    condvar_wrapper_t wrapper = {PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER};
+    topic_init(&topic, &wrapper, &wrapper, &buffer, sizeof buffer);
 
     messagebus_advertise_topic(&bus, &topic, "myint");
 
-    pthread_t producer_thd, consumer_thd;
-
     /* Creates a few consumer threads. */
+    pthread_t producer_thd, consumer_thd;
     pthread_create(&consumer_thd, NULL, consumer, (void *)1);
     pthread_create(&consumer_thd, NULL, consumer, (void *)2);
     pthread_create(&consumer_thd, NULL, consumer, (void *)3);

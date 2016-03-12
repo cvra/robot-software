@@ -7,8 +7,8 @@ extern "C" {
 #endif
 
 typedef struct {
-    pthread_mutex_t *mutex;
-    pthread_cond_t *cond;
+    pthread_mutex_t mutex;
+    pthread_cond_t cond;
 } condvar_wrapper_t;
 
 #ifdef __cplusplus
