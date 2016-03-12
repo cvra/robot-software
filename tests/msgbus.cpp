@@ -6,11 +6,11 @@ TEST_GROUP(MessageBusTestGroup)
 {
     messagebus_t bus;
     int bus_lock;
-    topic_t topic;
+    messagebus_topic_t topic;
     uint8_t buffer[128];
     int topic_lock;
     int topic_condvar;
-    topic_t second_topic;
+    messagebus_topic_t second_topic;
 
     void setup()
     {

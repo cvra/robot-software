@@ -7,17 +7,17 @@ void messagebus_init(messagebus_t *bus, void *bus_lock)
     bus->lock = bus_lock;
 }
 
-void messagebus_topic_init(topic_t *topic, void *topic_lock, void *topic_condvar,
+void messagebus_topic_init(messagebus_topic_t *topic, void *topic_lock, void *topic_condvar,
                 void *buffer, size_t buffer_len)
 {
-    memset(topic, 0, sizeof(topic_t));
+    memset(topic, 0, sizeof(messagebus_topic_t));
     topic->buffer = buffer;
     topic->buffer_len = buffer_len;
     topic->lock = topic_lock;
     topic->condvar = topic_condvar;
 }
 
-void messagebus_advertise_topic(messagebus_t *bus, topic_t *topic, const char *name)
+void messagebus_advertise_topic(messagebus_t *bus, messagebus_topic_t *topic, const char *name)
 {
     memset(topic->name, 0, sizeof(topic->name));
     strncpy(topic->name, name, TOPIC_NAME_MAX_LENGTH);
@@ -32,9 +32,9 @@ void messagebus_advertise_topic(messagebus_t *bus, topic_t *topic, const char *n
     messagebus_lock_release(bus->lock);
 }
 
-topic_t *messagebus_find_topic(messagebus_t *bus, const char *name)
+messagebus_topic_t *messagebus_find_topic(messagebus_t *bus, const char *name)
 {
-    topic_t *t, *res=NULL;
+    messagebus_topic_t *t, *res=NULL;
 
     messagebus_lock_acquire(bus->lock);
 
@@ -50,7 +50,7 @@ topic_t *messagebus_find_topic(messagebus_t *bus, const char *name)
     return res;
 }
 
-bool messagebus_topic_publish(topic_t *topic, void *buf, size_t buf_len)
+bool messagebus_topic_publish(messagebus_topic_t *topic, void *buf, size_t buf_len)
 {
     if (topic->buffer_len < buf_len) {
         return false;
@@ -67,7 +67,7 @@ bool messagebus_topic_publish(topic_t *topic, void *buf, size_t buf_len)
     return true;
 }
 
-bool messagebus_topic_read(topic_t *topic, void *buf, size_t buf_len)
+bool messagebus_topic_read(messagebus_topic_t *topic, void *buf, size_t buf_len)
 {
     bool success = false;
     messagebus_lock_acquire(topic->lock);
@@ -82,7 +82,7 @@ bool messagebus_topic_read(topic_t *topic, void *buf, size_t buf_len)
     return success;
 }
 
-void messagebus_topic_wait(topic_t *topic, void *buf, size_t buf_len)
+void messagebus_topic_wait(messagebus_topic_t *topic, void *buf, size_t buf_len)
 {
     messagebus_lock_acquire(topic->lock);
     messagebus_condvar_wait(topic->condvar);

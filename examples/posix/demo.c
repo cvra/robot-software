@@ -9,7 +9,7 @@ messagebus_t bus;
 
 static void* producer(void *p)
 {
-    topic_t *topic;
+    messagebus_topic_t *topic;
     int counter = 0;
 
     while (1) {
@@ -25,7 +25,7 @@ static void* producer(void *p)
 
 static void *consumer(void *p)
 {
-    topic_t *topic;
+    messagebus_topic_t *topic;
     int received;
     int consumer_number = (int)p;
 
@@ -50,7 +50,7 @@ int main(int argc, const char **argv)
     messagebus_init(&bus, &bus_lock);
 
     /* Creates a topic and publish it on the bus. */
-    topic_t topic;
+    messagebus_topic_t topic;
     int buffer;
 
     condvar_wrapper_t wrapper = {PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER};
