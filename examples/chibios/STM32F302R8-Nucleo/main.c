@@ -4,6 +4,7 @@
 
 messagebus_t bus;
 MUTEX_DECL(bus_lock);
+CONDVAR_DECL(bus_condvar);
 
 static THD_FUNCTION(button_thread, arg)
 {
@@ -12,7 +13,7 @@ static THD_FUNCTION(button_thread, arg)
     chRegSetThreadName(__FUNCTION__);
 
     messagebus_topic_t *button_topic;
-    button_topic = messagebus_find_topic(&bus, "/button_pressed");
+    button_topic = messagebus_find_topic_blocking(&bus, "/button_pressed");
 
     while (true) {
         while (palReadPad(GPIOC, GPIOC_BUTTON)) {
@@ -32,7 +33,7 @@ static THD_FUNCTION(led_thread, arg)
     chRegSetThreadName(__FUNCTION__);
     messagebus_topic_t *button_topic;
 
-    button_topic = messagebus_find_topic(&bus, "/button_pressed");
+    button_topic = messagebus_find_topic_blocking(&bus, "/button_pressed");
     while (true) {
         messagebus_topic_wait(button_topic, NULL, 0);
         palTogglePad(GPIOB, GPIOB_LED_GREEN);
@@ -42,7 +43,7 @@ static THD_FUNCTION(led_thread, arg)
 int main(void) {
     halInit();
     chSysInit();
-    messagebus_init(&bus, &bus_lock);
+    messagebus_init(&bus, &bus_lock, &bus_condvar);
 
     messagebus_topic_t button_topic;
     MUTEX_DECL(button_topic_lock);
