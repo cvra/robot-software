@@ -1,28 +1,68 @@
 #include "ch.h"
 #include "hal.h"
+#include "../../../messagebus.h"
 
-static THD_WORKING_AREA(waThread1, 128);
-static THD_FUNCTION(Thread1, arg) {
+messagebus_t bus;
+MUTEX_DECL(bus_lock);
+
+static THD_FUNCTION(button_thread, arg)
+{
 
     (void)arg;
-    chRegSetThreadName("blinker");
+    chRegSetThreadName(__FUNCTION__);
+
+    messagebus_topic_t *button_topic;
+    button_topic = messagebus_find_topic(&bus, "/button_pressed");
+
     while (true) {
-        palClearPad(GPIOB, GPIOB_LED_GREEN);
-        chThdSleepMilliseconds(500);
-        palSetPad(GPIOB, GPIOB_LED_GREEN);
-        chThdSleepMilliseconds(500);
+        while (palReadPad(GPIOC, GPIOC_BUTTON)) {
+            chThdSleepMilliseconds(100);
+        }
+        messagebus_topic_publish(button_topic, NULL, 0);
+        chThdSleepMilliseconds(100);
+        while (!palReadPad(GPIOC, GPIOC_BUTTON)) {
+            chThdSleepMilliseconds(100);
+        }
+    }
+}
+
+static THD_FUNCTION(led_thread, arg)
+{
+    (void)arg;
+    chRegSetThreadName(__FUNCTION__);
+    messagebus_topic_t *button_topic;
+
+    button_topic = messagebus_find_topic(&bus, "/button_pressed");
+    while (true) {
+        messagebus_topic_wait(button_topic, NULL, 0);
+        palTogglePad(GPIOB, GPIOB_LED_GREEN);
     }
 }
 
 int main(void) {
     halInit();
     chSysInit();
+    messagebus_init(&bus, &bus_lock);
 
-    chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO, Thread1, NULL);
+    messagebus_topic_t button_topic;
+    MUTEX_DECL(button_topic_lock);
+    CONDVAR_DECL(button_topic_condvar);
+
+    messagebus_topic_init(&button_topic,
+                          &button_topic_lock, &button_topic_lock,
+                          NULL, 0);
+
+    messagebus_advertise_topic(&bus, &button_topic, "/button_pressed");
+
+    static THD_WORKING_AREA(button_thread_wa, 128);
+    chThdCreateStatic(button_thread_wa, sizeof(button_thread_wa),
+                      NORMALPRIO, button_thread, NULL);
+
+    static THD_WORKING_AREA(led_thread_wa, 128);
+    chThdCreateStatic(led_thread_wa, sizeof(led_thread_wa),
+                      NORMALPRIO, led_thread, NULL);
 
     while (true) {
-        if (!palReadPad(GPIOC, GPIOC_BUTTON))
-            TestThread(&SD2);
         chThdSleepMilliseconds(500);
     }
 }
