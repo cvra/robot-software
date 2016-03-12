@@ -108,7 +108,6 @@ TEST(MessageBusAtomicityTestGroup, ReadUnpublished)
 TEST(MessageBusAtomicityTestGroup, Wait)
 {
     uint8_t buffer[128];
-    bool res;
     mock().expectOneCall("messagebus_lock_acquire")
           .withPointerParameter("lock", topic.lock);
     mock().expectOneCall("messagebus_lock_release")
