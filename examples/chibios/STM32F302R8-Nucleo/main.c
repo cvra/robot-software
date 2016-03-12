@@ -50,7 +50,7 @@ int main(void) {
     CONDVAR_DECL(button_topic_condvar);
 
     messagebus_topic_init(&button_topic,
-                          &button_topic_lock, &button_topic_lock,
+                          &button_topic_lock, &button_topic_condvar,
                           NULL, 0);
 
     messagebus_advertise_topic(&bus, &button_topic, "/button_pressed");
