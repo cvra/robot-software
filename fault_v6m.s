@@ -19,5 +19,5 @@ HardFault_Handler:
     push {r4-r7}
 
     mrs r0, msp
-    b fault_handler
+    bl fault_handler
     // never return
