@@ -5,6 +5,10 @@
 #error "__CORTEX_M version not supported"
 #endif
 
+#ifndef ARM_CORTEX_FAULT_FPU_DEBUG
+#define ARM_CORTEX_FAULT_FPU_DEBUG 0
+#endif
+
 #if (__CORTEX_M == 0x03 || __CORTEX_M == 0x04)
 // ARMv7-M Architecture Reference Manual, Chapter B1.5.14 Fault behavior, p. 669
 // MemManage Status Register, MMFSR
