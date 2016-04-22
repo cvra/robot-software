@@ -189,3 +189,7 @@ ULIBS =
 
 RULESPATH = .
 include $(RULESPATH)/rules.mk
+
+.PHONY: flash
+flash: build/$(PROJECT).elf
+	openocd -f openocd.cfg -c "program build/$(PROJECT).elf verify reset" -c "shutdown"
