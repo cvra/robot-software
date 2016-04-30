@@ -95,9 +95,15 @@ include lwip.mk
 # ChibiOS C++ bindings
 include $(CHIBIOS)/os/various/cpp_wrappers/chcpp.mk
 
+# Bootloader settings
+USE_BOOTLOADER = no
 
-
-LDSCRIPT= STM32F407xG.ld
+ifeq ($(USE_BOOTLOADER), yes)
+  DDEFS += -DCORTEX_VTOR_INIT=0x0800C000
+  LDSCRIPT= STM32F407xG_bootloader.ld
+else
+  LDSCRIPT= STM32F407xG.ld
+endif
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
