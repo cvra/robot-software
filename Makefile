@@ -76,7 +76,14 @@ include $(CHIBIOS)/os/rt/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
 #include $(CHIBIOS)/test/rt/test.mk
 
 # Define linker script file here
-LDSCRIPT= STM32F302x8.ld
+USE_BOOTLOADER = yes
+
+ifeq ($(USE_BOOTLOADER), yes)
+  DDEFS += -DCORTEX_VTOR_INIT=0x08003800
+  LDSCRIPT= STM32F302x8_bootloader.ld
+else
+  LDSCRIPT= STM32F302x8.ld
+endif
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
