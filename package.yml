@@ -1,0 +1,19 @@
+source:
+    - messagebus.c
+
+tests:
+    - tests/mocks/synchronization.cpp
+    - tests/atomicity.cpp
+    - tests/main.cpp
+    - tests/msgbus.cpp
+    - tests/signaling.cpp
+
+target.demo:
+    - examples/posix/demo.c
+    - examples/posix/port.c
+
+target.arm:
+    - examples/chibios/port.c
+
+templates:
+    demo.jinja: CMakeLists.txt
