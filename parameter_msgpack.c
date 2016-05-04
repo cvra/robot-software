@@ -26,11 +26,11 @@ static int discard_msgpack_element(cmp_object_t *obj,
     case CMP_TYPE_SINT32:
     case CMP_TYPE_SINT64:
     case CMP_TYPE_NEGATIVE_FIXNUM:
-        return true;
+        return 0;
     default:
         // todo discarding namespaces / vectors won't work
         err_cb(err_arg, err_id, "discarding failed");
-        return false;
+        return -1;
   }
 }
 

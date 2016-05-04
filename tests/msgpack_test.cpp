@@ -386,3 +386,22 @@ TEST(MessagePackTestGroup, TestBackAndForth)
     // Check that it had its old value
     CHECK_EQUAL(42, parameter_integer_get(&a_baz));
 }
+
+TEST(MessagePackTestGroup, IgnoresUnknownParameters)
+{
+    parameter_scalar_set(&a_foo, 42);
+
+    cmp_write_map(&ctx, 1);
+    cmp_write_str(&ctx, "a", 1);
+    cmp_write_map(&ctx, 2);
+    cmp_write_str(&ctx, "b", 1);
+    cmp_write_float(&ctx, 38.);
+    cmp_write_str(&ctx, "foo", 3);
+    cmp_write_float(&ctx, 12.);
+
+    cmp_mem_access_set_pos(&mem, 0);
+
+    parameter_msgpack_read_cmp(&rootns, &ctx, NULL, NULL);
+
+    CHECK_EQUAL(12., parameter_scalar_get(&a_foo));
+}
