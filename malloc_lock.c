@@ -1,7 +1,7 @@
 #include <ch.h>
 #include <malloc.h>
 
-MUTEX_DECL(lock);
+static MUTEX_DECL(lock);
 
 #if !CH_CFG_USE_MUTEXES_RECURSIVE
 #error "Malloc lock must be recursive, please enable CH_CFG_USE_MUTEXES_RECURSIVE"
