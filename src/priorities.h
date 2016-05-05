@@ -12,6 +12,7 @@
 #define RPC_SERVER_PRIO                         (NORMALPRIO - 1)
 #define ODOMETRY_PUBLISHER_PRIO                 (NORMALPRIO - 1)
 #define DIFFERENTIAL_BASE_TRACKING_THREAD_PRIO  (NORMALPRIO - 1)
+#define IMU_PRIO                                (NORMALPRIO - 2)
 #define STREAM_PRIO                             (NORMALPRIO - 3)
 
 #define INTERFACE_PANEL_PRIO                    (NORMALPRIO + 2)

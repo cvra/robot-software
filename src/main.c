@@ -29,6 +29,7 @@
 #include "malloc_lock.h"
 #include <lwipthread.h>
 #include "log.h"
+#include "imu.h"
 
 /* Command line related.                                                     */
 #define SHELL_WA_SIZE   THD_WORKING_AREA_SIZE(2048)
@@ -181,6 +182,7 @@ int main(void) {
     message_server_init();
     interface_panel_init();
     odometry_publisher_init();
+    imu_init();
 
     stream_init();
 
