@@ -5,8 +5,11 @@
 #include <sys/types.h>
 
 #include "ch.h"
+
 #if defined(STDOUT_SD) || defined(STDIN_SD)
 #include "hal.h"
+extern BaseSequentialStream STDOUT_SD;
+extern BaseSequentialStream STDIN_SD;
 #endif
 
 int _read_r(struct _reent *r, int file, char * ptr, int len)
