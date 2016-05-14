@@ -2,7 +2,7 @@
 #include <hal.h>
 #include <math.h>
 #include <chprintf.h>
-#include "usbconf.h"
+#include "log.h"
 #include "priorities.h"
 #include "main.h"
 #include "parameter/parameter.h"
@@ -151,7 +151,7 @@ void differential_base_tracking_thread_tracy(void *p)
             tracy_linear_controller(&error, &input, &output);
 
             /* Apply speed to wheels. */
-            chprintf((BaseSequentialStream *)&SDU1 , "setpoint: %.2f output: %.2f\r\n", speed, output.tangential_velocity);
+            log_message("setpoint: %.2f output: %.2f", speed, output.tangential_velocity);
 
             float right_spd = ROBOT_RIGHT_WHEEL_DIRECTION * output.tangential_velocity / (radius_right * M_PI);
 
@@ -159,7 +159,7 @@ void differential_base_tracking_thread_tracy(void *p)
 
             motor_manager_set_velocity(&motor_manager, "right-wheel", right_spd);
             motor_manager_set_velocity(&motor_manager, "left-wheel", left_spd);
-            chprintf((BaseSequentialStream *)&SDU1 , "wheels %.4f %.4f\r\n", left_spd, right_spd);
+            log_message("wheels %.4f %.4f", left_spd, right_spd);
 
 
         } else {
@@ -200,7 +200,7 @@ void differential_base_tracking_thread_waypoint(void *p)
 
         motor_manager_set_velocity(&motor_manager, "left-wheel", -1 * left_wheel_velocity);
         motor_manager_set_velocity(&motor_manager, "right-wheel", -1 * right_wheel_velocity);
-        // chprintf((BaseSequentialStream *)&SDU1, "%f %f\n", diff_base_waypoint.target.x, diff_base_waypoint.target.y);
+        // log_message("%f %f", diff_base_waypoint.target.x, diff_base_waypoint.target.y);
 
         chThdSleepMilliseconds(1000/WAYPOINTS_FREQUENCY);
     }

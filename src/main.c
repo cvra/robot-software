@@ -17,7 +17,6 @@
 #include "rpc_server.h"
 #include "uavcan_node.h"
 #include "timestamp/timestamp_stm32.h"
-#include "usbconf.h"
 #include "config.h"
 #include "interface_panel.h"
 #include "robot_pose.h"
@@ -107,22 +106,9 @@ int main(void) {
     static thread_t *shelltp = NULL;
 
 
-    /* Initializes a serial-over-USB CDC driver.  */
-    sduObjectInit(&SDU1);
-    sduStart(&SDU1, &serusbcfg);
-
+    /* Initializes a serial driver.  */
     sdStart(&SD3, &debug_uart_config);
     log_message("boot");
-
-    /*
-     * Activates the USB driver and then the USB bus pull-up on D+.
-     * Note, a delay is inserted in order to not have to disconnect the cable
-     * after a reset.
-     */
-    usbDisconnectBus(serusbcfg.usbp);
-    chThdSleepMilliseconds(1500);
-    usbStart(serusbcfg.usbp, &usbcfg);
-    usbConnectBus(serusbcfg.usbp);
 
     /* Shell manager initialization.  */
     shellInit();

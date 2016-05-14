@@ -4,7 +4,6 @@
 #include <string.h>
 #include "interface_panel.h"
 #include "priorities.h"
-#include "usbconf.h"
 #include "chprintf.h"
 #include "rpc_server.h"
 #include "unix_timestamp.h"

@@ -5,7 +5,6 @@
 #include <cmp/cmp.h>
 #include <chprintf.h>
 #include "log.h"
-#include "usbconf.h"
 
 #include "main.h"
 #include "timestamp/timestamp.h"
@@ -203,9 +202,9 @@ void wheelbase_trajectory_callback(void *p, cmp_ctx_t *input)
         palTogglePad(GPIOF, GPIOF_LED_READY);
     }
 
-//    chprintf((BaseSequentialStream *)&SDU1, "retcode %d ts: %d expected ts %d\r\n", ret, dt, diff_base_trajectory.sampling_time_us);
-//    chprintf((BaseSequentialStream *)&SDU1, "chunk start: %ld trajectory last: %ld\r\n", chunk.start_time_us, diff_base_trajectory.last_chunk_start_time_us);
-//    chprintf((BaseSequentialStream *)&SDU1, "traj read time %d\r\n", diff_base_trajectory.read_time_us);
+//    log_message("retcode %d ts: %d expected ts %d", ret, dt, diff_base_trajectory.sampling_time_us);
+//    log_message("chunk start: %ld trajectory last: %ld", chunk.start_time_us, diff_base_trajectory.last_chunk_start_time_us);
+//    log_message("traj read time %d", diff_base_trajectory.read_time_us);
 }
 
 

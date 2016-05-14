@@ -23,7 +23,6 @@ target.arm:
     - src/msg_callbacks.c
     - src/uavcan_node.cpp
     - src/blocking_uart_driver.c
-    - src/usbconf.c
     - src/config.c
     - src/interface_panel.c
     - src/robot_pose.c
