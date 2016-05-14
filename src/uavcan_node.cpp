@@ -4,6 +4,7 @@
 #include <uavcan_stm32/uavcan_stm32.hpp>
 #include <uavcan/protocol/NodeStatus.hpp>
 #include <lwip/api.h>
+#include <cvra/motor/EmergencyStop.hpp>
 #include <cvra/motor/feedback/CurrentPID.hpp>
 #include <cvra/motor/feedback/VelocityPID.hpp>
 #include <cvra/motor/feedback/PositionPID.hpp>
@@ -132,6 +133,18 @@ void main(void *arg)
     res = ns_sub.start(node_status_cb);
     if (res < 0) {
         node_fail("NodeStatus subscribe");
+    }
+
+    uavcan::Subscriber<cvra::motor::EmergencyStop> emergency_stop_sub(node);
+    res = emergency_stop_sub.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::motor::EmergencyStop>& msg)
+        {
+            (void)msg;
+            NVIC_SystemReset();
+        }
+    );
+    if (res != 0) {
+        node_fail("cvra::motor::EmergencyStop subscriber");
     }
 
     uavcan::Subscriber<cvra::StringID> string_id_sub(node);
