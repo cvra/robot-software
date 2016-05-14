@@ -215,7 +215,8 @@ void differential_base_tracking_start(void)
                       DIFFERENTIAL_BASE_TRACKING_THREAD_PRIO,
                       differential_base_tracking_thread_tracy,
                       NULL);
-#else
+#endif
+#if 0 // use waypoints
     chThdCreateStatic(differential_base_tracking_thread_waypoint_wa,
                       DIFFERENTIAL_BASE_TRACKING_THREAD_STACK_SZ,
                       DIFFERENTIAL_BASE_TRACKING_THREAD_PRIO,
