@@ -14,6 +14,7 @@
 #include <cvra/motor/feedback/MotorTorque.hpp>
 #include <cvra/Reboot.hpp>
 #include <cvra/StringID.hpp>
+#include <cvra/proximity_beacon/Signal.hpp>
 #include "robot_pose.h"
 #include <simplerpc/message.h>
 #include "src/rpc_server.h"
@@ -292,6 +293,28 @@ void main(void *arg)
     );
     if (res != 0) {
         node_fail("cvra::motor::feedback::MotorEncoderPosition subscriber");
+    }
+
+    uavcan::Subscriber<cvra::proximity_beacon::Signal> prox_beac_sub(node);
+    res = prox_beac_sub.start(
+        [&](const uavcan::ReceivedDataStructure<cvra::proximity_beacon::Signal>& msg)
+        {
+            ip_addr_t server;
+            ODOMETRY_PUBLISHER_HOST(&server);
+
+            static uint8_t buffer[40];
+            cmp_ctx_t ctx;
+            cmp_mem_access_t mem;
+            message_write_header(&ctx, &mem, buffer, sizeof(buffer), "proximity_beacon");
+            cmp_write_array(&ctx, 2);
+            cmp_write_float(&ctx, msg.start_angle);
+            cmp_write_float(&ctx, msg.length);
+
+            message_transmit(buffer, cmp_mem_access_get_pos(&mem),
+                             &server, ODOMETRY_PUBLISHER_PORT);
+        });
+    if (res < 0) {
+        node_fail("cvra::proximity_beacon::Signal subscriber");
     }
 
     // Mark the node as correctly initialized

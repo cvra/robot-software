@@ -1,0 +1,5 @@
+#
+# Proximity beacon Settings.
+#
+
+float32 speed # [rad/s]
