@@ -1,0 +1,6 @@
+#
+# Light pulse signal from Proximity beacon.
+#
+
+float32 start_angle # [rad]
+float32 length      # [rad]
