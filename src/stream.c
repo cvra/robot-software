@@ -20,6 +20,7 @@ THD_WORKING_AREA(wa_stream, STREAM_STACKSIZE);
 
 static void stream_thread(void *p)
 {
+    chRegSetThreadName("stream");
     static uint8_t buffer[64];
     static char topic_name[TOPIC_NAME_LEN];
     cmp_ctx_t ctx;
