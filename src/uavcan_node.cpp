@@ -513,7 +513,11 @@ static THD_FUNCTION(uavcan_node, arg)
 
         if (stream_update(&index_stream_config)) {
             cvra::motor::feedback::Index index;
-            index.position = index_get_position();
+            float index_pos;
+            uint32_t update_count;
+            index_get_position(&index_pos, &update_count);
+            index.position = index_pos;
+            index.update_count = update_count;
             index_pub.broadcast(index);
         }
 

@@ -9,8 +9,7 @@ extern "C" {
 
 
 void index_init(void);
-float index_get_position(void);
-
+void index_get_position(float *out_position, uint32_t *out_update_count);
 
 #ifdef __cplusplus
 }

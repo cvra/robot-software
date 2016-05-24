@@ -2,7 +2,8 @@
 #include "index.h"
 #include "control.h"
 
-float position;
+static float position;
+static uint32_t update_count;
 
 static void exti_callback(EXTDriver *extp, expchannel_t channel);
 
@@ -39,6 +40,7 @@ static void exti_callback(EXTDriver *extp, expchannel_t channel)
     (void)channel;
 
     position = control_get_position();
+    update_count++;
 }
 
 void index_init(void)
@@ -47,7 +49,8 @@ void index_init(void)
     extStart(&EXTD1, &extcfg);
 }
 
-float index_get_position(void)
+void index_get_position(float *out_position, uint32_t *out_update_count)
 {
-    return position;
+    *out_position = position;
+    *out_update_count = update_count;
 }
