@@ -216,6 +216,7 @@ void main(void *arg)
             motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
             if (driver != NULL) {
                 motor_driver_set_stream_value(driver, MOTOR_STREAM_INDEX, msg.position);
+                driver->stream.value_stream_index_update_count = msg.update_count;
             }
         }
     );

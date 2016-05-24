@@ -116,7 +116,9 @@ static void stream_thread(void *p)
                     strncat(topic_name, motor_driver_get_id(&drv_list[i]), TOPIC_NAME_LEN);
                     strncat(topic_name, "/index", TOPIC_NAME_LEN);
                     message_write_header(&ctx, &mem, buffer, sizeof(buffer), topic_name);
+                    cmp_write_array(&ctx, 2);
                     cmp_write_float(&ctx, motor_driver_get_and_clear_stream_value(&drv_list[i], MOTOR_STREAM_INDEX));
+                    cmp_write_uint(&ctx, drv_list[i].stream.value_stream_index_update_count);
                     message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, STREAM_PORT);
                 }
 

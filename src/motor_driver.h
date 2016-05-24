@@ -96,6 +96,7 @@ typedef struct {
     struct {
         uint32_t change_status;
         float values[MOTOR_STREAMS_NB_VALUES];
+        uint32_t value_stream_index_update_count;
     } stream;
 
     void *can_driver;
