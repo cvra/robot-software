@@ -1,5 +1,5 @@
 #include <hal.h>
-#include <simplerpc/service_call.h>
+#include <simplerpc/message.h>
 #include <lwip/api.h>
 #include <string.h>
 #include "interface_panel.h"
@@ -10,7 +10,9 @@
 
 #define INTERFACE_PANEL_STACKSIZE 1024
 #define PC_ERROR_STACKSIZE 512
-#define BTN_CNT_RESET_VALUE 10
+#define BTN_CNT_RESET_VALUE 3
+#define MSGPACK_BUF_LEN     40
+#define TOPIC_NAME_BUF_LEN 32
 
 typedef enum {UP, DOWN} btn_state_t;
 
@@ -23,29 +25,30 @@ static void debounce(int *count, bool pressed)
     }
 }
 
-static void notify_event(const char *event_name, const char *button_name)
+static void transmit_button_state(const btn_state_t *state, const char *button_name)
 {
-    static uint8_t rpc_output[32];
-    cmp_ctx_t cmp;
+    static uint8_t buffer[MSGPACK_BUF_LEN];
+    static char topic_name[TOPIC_NAME_BUF_LEN];
+    cmp_ctx_t ctx;
     cmp_mem_access_t mem;
     ip_addr_t server;
-    BUTTON_PRESS_CALLBACK_HOST(&server);
+    BUTTON_PRESS_PUBLISHER(&server);
 
-    service_call_write_header(&cmp, &mem, rpc_output, sizeof rpc_output,
-                              event_name);
-    cmp_write_str(&cmp, button_name, strlen(button_name));
-    rpc_transmit(rpc_output, cmp_mem_access_get_pos(&mem),
-            NULL, 0, &server, BUTTON_PRESS_CALLBACK_PORT);
+    strncpy(topic_name, "interface-panel/", TOPIC_NAME_BUF_LEN);
+    strncat(topic_name, button_name, TOPIC_NAME_BUF_LEN);
+    message_write_header(&ctx, &mem, buffer, sizeof(buffer), topic_name);
+    cmp_write_bool(&ctx, *state == DOWN);
+
+    message_transmit(buffer, cmp_mem_access_get_pos(&mem),
+            &server, BUTTON_PRESS_PUBLISHER_PORT);
 }
 
-static void handle_state_change(int count, btn_state_t *state, const char *name)
+static void handle_state_change(int count, btn_state_t *state)
 {
     if (*state == UP && count == 0) {
         *state = DOWN;
-        notify_event("button_pressed", name);
     } else if (*state == DOWN && count > 0) {
         *state = UP;
-        notify_event("button_released", name);
     }
 }
 
@@ -66,13 +69,17 @@ void interface_panel_thread(void *p)
     while (1) {
         debounce(&yellow_btn_cnt, !palReadPad(GPIOF, GPIOF_BTN_YELLOW));
         debounce(&green_btn_cnt, !palReadPad(GPIOF, GPIOF_BTN_GREEN));
-        debounce(&start_cnt, !palReadPad(GPIOF, GPIOF_START));
+        debounce(&start_cnt, palReadPad(GPIOF, GPIOF_START));
 
-        handle_state_change(yellow_btn_cnt, &yellow_state, "yellow");
-        handle_state_change(green_btn_cnt, &green_state, "green");
-        handle_state_change(start_cnt, &start_state, "start");
+        handle_state_change(yellow_btn_cnt, &yellow_state);
+        handle_state_change(green_btn_cnt, &green_state);
+        handle_state_change(start_cnt, &start_state);
 
-        chThdSleepMilliseconds(10);
+        transmit_button_state(&yellow_state, "yellow-pressed");
+        transmit_button_state(&green_state, "green-pressed");
+        transmit_button_state(&start_state, "start");
+
+        chThdSleepMilliseconds(200);
     }
 }
 

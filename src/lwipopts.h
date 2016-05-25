@@ -60,6 +60,7 @@
 
 #define ODOMETRY_PUBLISHER_PORT 20042
 #define STREAM_PORT            20042
+#define BUTTON_PRESS_PUBLISHER_PORT 20042
 
 /* Robot settings. */
 #ifdef ON_ROBOT
@@ -67,6 +68,8 @@
 #define STREAM_HOST(server)    ip_addr_set(server, IP_ADDR_BROADCAST)
 
 #define ODOMETRY_PUBLISHER_HOST(server) ip_addr_set(server, IP_ADDR_BROADCAST)
+
+#define BUTTON_PRESS_PUBLISHER(server) ip_addr_set(server, IP_ADDR_BROADCAST)
 
 #else
 /* Laptop debug settings. We cannot use a broadcast address to debug over wifi
