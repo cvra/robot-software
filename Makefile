@@ -250,7 +250,7 @@ mem_info: build/$(PROJECT).elf
 
 .PHONY: flash
 flash: build/$(PROJECT).elf
-	openocd -f oocd.cfg -c "program build/ch.elf verify reset" -c "shutdown"
+	openocd -f oocd_stlink.cfg -c "program build/ch.elf verify reset" -c "shutdown"
 
 # run uavcan dsdl compiler
 .PHONY: dsdlc
