@@ -1,10 +1,12 @@
+depends:
+    - test-runner
+
 source:
     - messagebus.c
 
 tests:
     - tests/mocks/synchronization.cpp
     - tests/atomicity.cpp
-    - tests/main.cpp
     - tests/msgbus.cpp
     - tests/signaling.cpp
 
