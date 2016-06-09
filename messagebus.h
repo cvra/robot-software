@@ -27,15 +27,16 @@ typedef struct {
     void *condvar;
 } messagebus_t;
 
-/** This function iterates over the bus.
- *
- * @warning It does not try to lock the bus, as it may be interrupted, e.g. by
- * a break.
- */
 #define MESSAGEBUS_TOPIC_FOREACH(_bus, _topic_var_name) \
-    for (messagebus_topic_t *(_topic_var_name) = (_bus)->topics.head; \
-         topic != NULL; \
-         (_topic_var_name) = (_topic_var_name)->next)
+    for(int __control = -1; __control < 2 ; __control++) \
+        if(__control < 0) { \
+            messagebus_lock_acquire((_bus)->lock); \
+        } else if(__control > 0) { \
+            messagebus_lock_release((_bus)->lock); \
+        } else  \
+            for (messagebus_topic_t *(_topic_var_name) = (_bus)->topics.head; \
+                    topic != NULL; \
+                    (_topic_var_name) = (_topic_var_name)->next)
 
 /** Initializes a topic object
  *
