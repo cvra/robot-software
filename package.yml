@@ -9,6 +9,7 @@ tests:
     - tests/atomicity.cpp
     - tests/msgbus.cpp
     - tests/signaling.cpp
+    - tests/foreach.cpp
 
 target.demo:
     - examples/posix/demo.c
