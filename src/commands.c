@@ -16,6 +16,7 @@
 #include "node_tracker.h"
 #include "msgbus/messagebus.h"
 #include "main.h"
+#include "odometry/encoder.h"
 
 
 
@@ -268,9 +269,24 @@ static void cmd_topics(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
+static void cmd_encoders(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    (void) argc;
+    (void) argv;
+
+    messagebus_topic_t *encoders_topic;
+    encoders_msg_t values;
+
+    encoders_topic = messagebus_find_topic_blocking(&bus, "/encoders");
+    messagebus_topic_wait(encoders_topic, &values, sizeof(values));
+
+    chprintf(chp, "left: %ld\r\nright: %ld\r\n", values.left, values.right);
+}
+
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
+    {"encoders", cmd_encoders},
     {"ip", cmd_ip},
     {"mem", cmd_mem},
     {"node", cmd_node},

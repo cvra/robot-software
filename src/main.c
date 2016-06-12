@@ -28,6 +28,7 @@
 #include "log.h"
 #include "imu.h"
 #include "usbconf.h"
+#include "odometry/encoder.h"
 
 /* Command line related.                                                     */
 #define SHELL_WA_SIZE   THD_WORKING_AREA_SIZE(2048)
@@ -198,6 +199,8 @@ int main(void) {
     message_server_init();
     interface_panel_init();
     imu_init();
+
+    encoder_start();
 
     stream_init();
 

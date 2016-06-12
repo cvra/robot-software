@@ -251,6 +251,12 @@
 #define STM32_SPI_DMA_ERROR_HOOK(spip)      chSysHalt()
 
 /*
+ * ST driver system settings.
+ */
+#define STM32_ST_IRQ_PRIORITY               8
+#define STM32_ST_USE_TIMER                  5
+
+/*
  * UART driver system settings.
  */
 #define STM32_UART_USE_USART1               FALSE
