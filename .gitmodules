@@ -46,3 +46,6 @@
 [submodule "src/arm-cortex-tools"]
 	path = src/arm-cortex-tools
 	url = https://github.com/cvra/arm-cortex-tools.git
+[submodule "src/msgbus"]
+	path = src/msgbus
+	url = https://github.com/cvra/msgbus
