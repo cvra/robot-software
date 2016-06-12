@@ -256,16 +256,16 @@ static void cmd_node_tracker(BaseSequentialStream *chp, int argc, char **argv)
 
 
 const ShellCommand commands[] = {
-    {"mem", cmd_mem},
-    {"ip", cmd_ip},
-    {"config_tree", cmd_config_tree},
-    {"threads", cmd_threads},
     {"crashme", cmd_crashme},
-    {"reboot", cmd_reboot},
-    {"time", cmd_time},
-    {"rpc_client_demo", cmd_rpc_client_test},
+    {"config_tree", cmd_config_tree},
+    {"ip", cmd_ip},
+    {"mem", cmd_mem},
     {"node", cmd_node},
     {"node_reboot", cmd_uavcan_node_reboot},
     {"node_tracker", cmd_node_tracker},
+    {"reboot", cmd_reboot},
+    {"rpc_client_demo", cmd_rpc_client_test},
+    {"threads", cmd_threads},
+    {"time", cmd_time},
     {NULL, NULL}
 };
