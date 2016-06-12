@@ -9,7 +9,6 @@
 #include <cvra/motor/feedback/VelocityPID.hpp>
 #include <cvra/motor/feedback/PositionPID.hpp>
 #include <cvra/motor/feedback/Index.hpp>
-#include <cvra/motor/feedback/MotorEncoderPosition.hpp>
 #include <cvra/motor/feedback/MotorPosition.hpp>
 #include <cvra/motor/feedback/MotorTorque.hpp>
 #include <cvra/Reboot.hpp>
@@ -107,25 +106,6 @@ void main(void *arg)
     if (res < 0) {
         node_fail("node start");
     }
-
-    /*
-     * Initialising odometry
-     */
-    static odometry_differential_base_t robot_base;
-    struct robot_base_pose_2d_s init_pose = {0.0f, 0.0f, 0.0f};
-    odometry_base_init(&robot_base,
-                       init_pose,
-                       ROBOT_RIGHT_WHEEL_DIRECTION * config_get_scalar("/master/odometry/radius_right"),
-                       ROBOT_LEFT_WHEEL_DIRECTION * config_get_scalar("/master/odometry/radius_left"),
-                       1,
-                       1,
-                       config_get_scalar("/master/odometry/wheelbase"),
-                       timestamp_get());
-
-    static odometry_encoder_sample_t enc_right;
-    static odometry_encoder_sample_t enc_left;
-    odometry_encoder_record_sample(&enc_right, 0, 0);
-    odometry_encoder_record_sample(&enc_left, 0, 0);
 
     /*
      * NodeStatus subscriber
@@ -252,48 +232,6 @@ void main(void *arg)
     );
     if (res != 0) {
         node_fail("cvra::motor::feedback::MotorTorque subscriber");
-    }
-
-    uavcan::Subscriber<cvra::motor::feedback::MotorEncoderPosition> enc_pos_sub(node);
-    res = enc_pos_sub.start(
-        [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::MotorEncoderPosition>& msg)
-        {
-            motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
-            if (driver != NULL) {
-                motor_driver_set_stream_value(driver, MOTOR_STREAM_MOTOR_ENCODER, msg.raw_encoder_position);
-            }
-
-            if (bus_enumerator_get_can_id(&bus_enumerator, "right-wheel") == BUS_ENUMERATOR_STRING_ID_NOT_FOUND
-                || bus_enumerator_get_can_id(&bus_enumerator, "left-wheel") == BUS_ENUMERATOR_STRING_ID_NOT_FOUND) {
-                return;
-            }
-            if(msg.getSrcNodeID().get() == bus_enumerator_get_can_id(&bus_enumerator, "right-wheel")) {
-                odometry_encoder_record_sample(&enc_right, timestamp_get(), msg.raw_encoder_position);
-            } else if(msg.getSrcNodeID().get() == bus_enumerator_get_can_id(&bus_enumerator, "left-wheel")) {
-                odometry_encoder_record_sample(&enc_left, timestamp_get(), msg.raw_encoder_position);
-            }
-            if (enc_left.timestamp != 0 && enc_right.timestamp != 0) {
-                odometry_base_update(&robot_base, enc_right, enc_left);
-            }
-
-            parameter_namespace_t *odometry_ns;
-            odometry_ns = parameter_namespace_find(&global_config, "/master/odometry");
-            if (parameter_namespace_contains_changed(odometry_ns)) {
-                odometry_base_set_parameters(&robot_base,
-                                             config_get_scalar("/master/odometry/wheelbase"),
-                                             ROBOT_RIGHT_WHEEL_DIRECTION * config_get_scalar("/master/odometry/radius_right"),
-                                             ROBOT_LEFT_WHEEL_DIRECTION * config_get_scalar("/master/odometry/radius_left"));
-
-            }
-
-            /* update global robot pose */
-            chMtxLock(&robot_pose_lock);
-            odometry_base_get_pose(&robot_base, &robot_pose);
-            chMtxUnlock(&robot_pose_lock);
-        }
-    );
-    if (res != 0) {
-        node_fail("cvra::motor::feedback::MotorEncoderPosition subscriber");
     }
 
     uavcan::Subscriber<cvra::proximity_beacon::Signal> prox_beac_sub(node);
