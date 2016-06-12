@@ -14,6 +14,8 @@
 #include "bus_enumerator.h"
 #include "uavcan_node.h"
 #include "node_tracker.h"
+#include "msgbus/messagebus.h"
+#include "main.h"
 
 
 
@@ -254,6 +256,17 @@ static void cmd_node_tracker(BaseSequentialStream *chp, int argc, char **argv)
     chprintf(chp, "\r\n");
 }
 
+static void cmd_topics(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    (void) argc;
+    (void) argv;
+
+    chprintf(chp, "available topics:\r\n");
+
+    MESSAGEBUS_TOPIC_FOREACH(&bus, topic) {
+        chprintf(chp, "%s\r\n", topic->name);
+    }
+}
 
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
@@ -267,5 +280,6 @@ const ShellCommand commands[] = {
     {"rpc_client_demo", cmd_rpc_client_test},
     {"threads", cmd_threads},
     {"time", cmd_time},
+    {"topics", cmd_topics},
     {NULL, NULL}
 };
