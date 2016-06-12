@@ -10,6 +10,7 @@ depends:
     - pid
     - arm-cortex-tools
     - timestamp
+    - msgbus
 
 target.arm:
     - src/main.c

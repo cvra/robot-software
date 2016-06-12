@@ -55,6 +55,11 @@ void fault_printf(const char *fmt, ...)
     va_end(ap);
 }
 
+/* Bus related declarations */
+messagebus_t bus;
+MUTEX_DECL(bus_lock);
+CONDVAR_DECL(bus_condvar);
+
 /**
  * Function called on a kernel panic.
  * @param [in] reaon Kernel panic message.  */
@@ -138,6 +143,9 @@ int main(void) {
 
     /* Shell manager initialization.  */
     shellInit();
+
+    /* Initialize the interthread communication bus. */
+    messagebus_init(&bus, &bus_lock, &bus_condvar);
 
     /* Initialize global objects. */
     config_init();
