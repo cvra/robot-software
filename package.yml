@@ -32,6 +32,7 @@ target.arm:
     - src/malloc_lock.c
     - src/log.c
     - src/imu.c
+    - src/usbconf.c
 
 source:
     - src/unix_timestamp.c

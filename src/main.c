@@ -27,11 +27,12 @@
 #include <lwipthread.h>
 #include "log.h"
 #include "imu.h"
+#include "usbconf.h"
 
 /* Command line related.                                                     */
 #define SHELL_WA_SIZE   THD_WORKING_AREA_SIZE(2048)
 static const ShellConfig shell_cfg1 = {
-    (BaseSequentialStream *)&SD3,
+    (BaseSequentialStream *)&SDU1,
     commands
 };
 
@@ -117,10 +118,23 @@ void __late_init(void)
 int main(void) {
     static thread_t *shelltp = NULL;
 
-
     /* Initializes a serial driver.  */
     sdStart(&SD3, &debug_uart_config);
     log_message("boot");
+
+    /* Initializes a serial-over-USB CDC driver.  */
+    sduObjectInit(&SDU1);
+    sduStart(&SDU1, &serusbcfg);
+
+    /*
+     * Activates the USB driver and then the USB bus pull-up on D+.
+     * Note, a delay is inserted in order to not have to disconnect the cable
+     * after a reset.
+     */
+    usbDisconnectBus(serusbcfg.usbp);
+    chThdSleepMilliseconds(1500);
+    usbStart(serusbcfg.usbp, &usbcfg);
+    usbConnectBus(serusbcfg.usbp);
 
     /* Shell manager initialization.  */
     shellInit();
