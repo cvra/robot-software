@@ -14,15 +14,12 @@
 #include <cvra/Reboot.hpp>
 #include <cvra/StringID.hpp>
 #include <cvra/proximity_beacon/Signal.hpp>
-#include "robot_pose.h"
 #include <simplerpc/message.h>
 #include "src/rpc_server.h"
 #include "robot_parameters.h"
 #include "timestamp/timestamp.h"
-#include "odometry/robot_base.h"
 #include "motor_driver.h"
 #include "motor_driver_uavcan.h"
-#include "odometry/odometry.h"
 #include "config.h"
 #include "uavcan_node_private.hpp"
 #include "uavcan_node.h"

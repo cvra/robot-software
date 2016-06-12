@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include "robot_parameters.h"
 #include "config.h"
-#include "tracy-the-trajectory-tracker/src/trajectory_tracking.h"
 
 parameter_namespace_t global_config;
 

@@ -20,11 +20,8 @@
 #include "timestamp/timestamp_stm32.h"
 #include "config.h"
 #include "interface_panel.h"
-#include "robot_pose.h"
 #include "robot_parameters.h"
-#include "odometry_publisher.h"
 #include "motor_manager.h"
-#include "differential_base.h"
 #include "stream.h"
 #include "malloc_lock.h"
 #include <lwipthread.h>
@@ -130,7 +127,6 @@ int main(void) {
 
     /* Initialize global objects. */
     config_init();
-    chMtxObjectInit(&robot_pose_lock);
 
 
     /* Initialise timestamp module */
@@ -163,12 +159,9 @@ int main(void) {
                        MAX_NB_MOTOR_DRIVERS,
                        &bus_enumerator);
 
-    differential_base_init();
-
 
     struct netif *ethernet_if;
 
-    differential_base_tracking_start(); // tracy
     ip_thread_init();
 
     chThdSleepMilliseconds(1000);
@@ -182,7 +175,6 @@ int main(void) {
     rpc_server_init();
     message_server_init();
     interface_panel_init();
-    odometry_publisher_init();
     imu_init();
 
     stream_init();

@@ -7,11 +7,9 @@ depends:
     - parameter:
         fork: Stapelzeiger
     - simplerpc
-    - odometry
-    - tracy-the-trajectory-tracker
     - pid
     - arm-cortex-tools
-
+    - timestamp
 
 target.arm:
     - src/main.c
@@ -26,16 +24,12 @@ target.arm:
     - src/blocking_uart_driver.c
     - src/config.c
     - src/interface_panel.c
-    - src/robot_pose.c
-    - src/odometry_publisher.c
     - src/motor_driver.c
     - src/motor_driver_uavcan.cpp
     - src/motor_manager.c
-    - src/differential_base.c
     - src/stream.c
     - src/node_tracker.c
     - src/malloc_lock.c
-    - src/waypoints.c
     - src/log.c
     - src/imu.c
 

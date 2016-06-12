@@ -14,7 +14,6 @@
 #include "bus_enumerator.h"
 #include "uavcan_node.h"
 #include "node_tracker.h"
-#include "robot_pose.h"
 
 
 
@@ -255,20 +254,6 @@ static void cmd_node_tracker(BaseSequentialStream *chp, int argc, char **argv)
     chprintf(chp, "\r\n");
 }
 
-static void cmd_pos(BaseSequentialStream *chp, int argc, char **argv)
-{
-    (void)argc;
-    (void)argv;
-    float x, y, theta;
-
-    chMtxLock(&robot_pose_lock);
-    x = robot_pose.x;
-    y = robot_pose.y;
-    theta = robot_pose.theta;
-    chMtxUnlock(&robot_pose_lock);
-
-    chprintf(chp, "%.3f;%.3f;%.3f\r\n", x, y, theta);
-}
 
 const ShellCommand commands[] = {
     {"mem", cmd_mem},
@@ -280,7 +265,6 @@ const ShellCommand commands[] = {
     {"time", cmd_time},
     {"rpc_client_demo", cmd_rpc_client_test},
     {"node", cmd_node},
-    {"pos", cmd_pos},
     {"node_reboot", cmd_uavcan_node_reboot},
     {"node_tracker", cmd_node_tracker},
     {NULL, NULL}
