@@ -1,5 +1,5 @@
-#ifndef ODOMETRY_H_
-#define ODOMETRY_H_
+#ifndef ODOMETRY_H
+#define ODOMETRY_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -55,4 +55,4 @@ void odometry_update(
 }
 #endif
 
-#endif
+#endif /* ODOMETRY_H */

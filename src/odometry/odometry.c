@@ -64,7 +64,7 @@ void odometry_update(
 
     /* Compute position */
     float dt = timestamp_duration_s(odom->time_last_update, time_now);
-    delta_polar.angle *= odom->parameters.track * 2.f;
+    delta_polar.angle *= (2.f / odom->parameters.track);
 
     float cos_theta = cosf(odom->position.heading + 0.5f * delta_polar.angle);
     float sin_theta = sinf(odom->position.heading + 0.5f * delta_polar.angle);

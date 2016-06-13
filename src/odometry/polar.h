@@ -5,10 +5,11 @@
 extern "C" {
 #endif
 
+#include <math.h>
 #include "encoder.h"
 
-#define DEGREES(x) (x * 180 / M_PI)
-#define RADIANS(x) (x * M_PI / 180)
+#define DEGREES(x) (x * 180.f / M_PI)
+#define RADIANS(x) (x * M_PI / 180.f)
 
 typedef struct {
     float distance;
