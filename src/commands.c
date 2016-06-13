@@ -17,6 +17,8 @@
 #include "msgbus/messagebus.h"
 #include "main.h"
 #include "odometry/encoder.h"
+#include "odometry/polar.h"
+#include "odometry/odometry.h"
 
 
 
@@ -283,6 +285,20 @@ static void cmd_encoders(BaseSequentialStream *chp, int argc, char *argv[])
     chprintf(chp, "left: %ld\r\nright: %ld\r\n", values.left, values.right);
 }
 
+static void cmd_position(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    (void) argc;
+    (void) argv;
+
+    messagebus_topic_t *position_topic;
+    odometry_pose2d_t pos;
+
+    position_topic = messagebus_find_topic_blocking(&bus, "/position");
+    messagebus_topic_wait(position_topic, &pos, sizeof(pos));
+
+    chprintf(chp, "x: %f [m]\r\ny: %f [m]\r\na: %f [deg]\r\n", pos.x, pos.y, DEGREES(pos.heading));
+}
+
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
@@ -292,6 +308,7 @@ const ShellCommand commands[] = {
     {"node", cmd_node},
     {"node_reboot", cmd_uavcan_node_reboot},
     {"node_tracker", cmd_node_tracker},
+    {"pos", cmd_position},
     {"reboot", cmd_reboot},
     {"rpc_client_demo", cmd_rpc_client_test},
     {"threads", cmd_threads},
