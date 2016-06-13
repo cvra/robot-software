@@ -2,6 +2,7 @@
 #include "msgbus/messagebus.h"
 #include "odometry.h"
 #include "position_manager.h"
+#include "robot_parameters.h"
 #include "main.h"
 
 #define POSITION_MANAGER_STACKSIZE 1024
@@ -34,8 +35,15 @@ static THD_FUNCTION(position_manager_thd, arg)
     odometry_diffbase_t odom;
 
     odometry_pose2d_t init_pos = {.x=0.f, .y=0.f, .heading=0.f};
-    odometry_params_t params = {.track=0.194f, .tick_per_turn=16384, .wheel_radius=0.016f};
-    wheels_t wheel_corrections = {.left=-1.f, .right=1.f};
+    odometry_params_t params = {
+        .track=ROBOT_EXTERNAL_TRACK_LENGTH,
+        .tick_per_turn=EXTERNAL_ENCODER_TICKS_PER_TURN,
+        .wheel_radius=ROBOT_EXTERNAL_WHEEL_RADIUS
+    };
+    wheels_t wheel_corrections = {
+        .left=-1.f,
+        .right=1.f
+    };
 
     messagebus_topic_wait(encoders_topic, &encoder_values, sizeof(encoder_values));
 
