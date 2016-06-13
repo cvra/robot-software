@@ -10,26 +10,26 @@ extern "C" {
 #include "encoder.h"
 
 typedef struct {
-    float x;
-    float y;
-    float heading;
+    float x;        // [m]
+    float y;        // [m]
+    float heading;  // [rad]
 } odometry_pose2d_t;
 
 typedef struct {
-    float track;
-    float tick_per_turn;
-    float wheel_radius;
+    float track;         // [m]
+    float tick_per_turn; // [ticks]
+    float wheel_radius;  // [m]
 } odometry_params_t;
 
 typedef struct {
     odometry_pose2d_t position;
     odometry_pose2d_t velocity;
 
-    timestamp_t time_last_update;
-    encoders_msg_t previous_encoder_values;
+    timestamp_t time_last_update;           // [us]
+    encoders_msg_t previous_encoder_values; // [ticks]
 
     odometry_params_t parameters;
-    wheels_t wheels_correction_factor;
+    wheels_t wheels_correction_factor;      // [m]
 } odometry_diffbase_t;
 
 void odometry_init(
