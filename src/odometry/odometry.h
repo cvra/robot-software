@@ -45,6 +45,12 @@ void odometry_reset(
         const odometry_pose2d_t new_position,
         const timestamp_t time_now);
 
+void odometry_update(
+        odometry_diffbase_t *odom,
+        const encoders_msg_t encoders,
+        const timestamp_t time_now);
+
+
 #ifdef __cplusplus
 }
 #endif
