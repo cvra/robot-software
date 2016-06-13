@@ -35,6 +35,7 @@ target.arm:
     - src/imu.c
     - src/usbconf.c
     - src/odometry/encoder.c
+    - src/odometry/position_manager.c
 
 source:
     - src/unix_timestamp.c

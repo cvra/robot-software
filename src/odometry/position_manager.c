@@ -1,0 +1,58 @@
+#include <ch.h>
+#include "msgbus/messagebus.h"
+#include "odometry.h"
+#include "position_manager.h"
+#include "main.h"
+
+#define POSITION_MANAGER_STACKSIZE 1024
+
+static THD_FUNCTION(position_manager_thd, arg)
+{
+    (void) arg;
+    chRegSetThreadName(__FUNCTION__);
+
+    /* Setup and advertise position topic */
+    static messagebus_topic_t position_topic;
+    static MUTEX_DECL(position_topic_lock);
+    static CONDVAR_DECL(position_topic_condvar);
+    static odometry_pose2d_t position_topic_value;
+
+    messagebus_topic_init(&position_topic,
+                          &position_topic_lock,
+                          &position_topic_condvar,
+                          &position_topic_value, sizeof(position_topic_value));
+
+    messagebus_advertise_topic(&bus, &position_topic, "/position");
+
+    /* Setup encoders topic subscription */
+    messagebus_topic_t *encoders_topic;
+    encoders_msg_t encoder_values;
+
+    encoders_topic = messagebus_find_topic_blocking(&bus, "/encoders");
+
+    /* Initialise odometry */
+    odometry_diffbase_t odom;
+
+    odometry_pose2d_t init_pos = {.x=0.f, .y=0.f, .heading=0.f};
+    odometry_params_t params = {.track=0.194f, .tick_per_turn=16384, .wheel_radius=0.016f};
+    wheels_t wheel_corrections = {.left=-1.f, .right=1.f};
+
+    messagebus_topic_wait(encoders_topic, &encoder_values, sizeof(encoder_values));
+
+    odometry_init(&odom, init_pos, params, wheel_corrections, encoder_values, timestamp_get());
+
+    while (1) {
+        /* Update odometry */
+        messagebus_topic_wait(encoders_topic, &encoder_values, sizeof(encoder_values));
+        odometry_update(&odom, encoder_values, timestamp_get());
+
+        /* Publish position */
+        messagebus_topic_publish(&position_topic, &(odom.position), sizeof(odom.position));
+    }
+}
+
+void position_manager_start(void)
+{
+    static THD_WORKING_AREA(position_thd_wa, POSITION_MANAGER_STACKSIZE);
+    chThdCreateStatic(position_thd_wa, sizeof(position_thd_wa), NORMALPRIO, position_manager_thd, NULL);
+}
