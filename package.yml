@@ -41,6 +41,7 @@ source:
     - src/bus_enumerator.c
     - src/trajectories.c
     - src/odometry/polar.c
+    - src/odometry/odometry.c
 
 include_directories:
     - src/
@@ -51,6 +52,7 @@ tests:
     - tests/unix-timestamp.cpp
     - tests/bus_enumerator.cpp
     - tests/polar_test.cpp
+    - tests/odometry_test.cpp
 
 templates:
     app_src.mk.jinja: app_src.mk
