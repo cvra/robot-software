@@ -2,6 +2,14 @@
 #include <math.h>
 #include "odometry/odometry.h"
 
+static void pose2d_equal(odometry_pose2d_t expected, odometry_pose2d_t value);
+
+static void pose2d_equal(odometry_pose2d_t expected, odometry_pose2d_t value)
+{
+    DOUBLES_EQUAL(expected.x, value.x, 1e-6);
+    DOUBLES_EQUAL(expected.y, value.y, 1e-6);
+    DOUBLES_EQUAL(0.f, angle_delta(expected.heading, value.heading), 1e-6);
+}
 
 TEST_GROUP(OdometrySetup)
 {
@@ -20,13 +28,8 @@ TEST_GROUP(OdometrySetup)
 
 TEST(OdometrySetup, CanInit)
 {
-    DOUBLES_EQUAL(2.0f, odom.position.x, 1e-7);
-    DOUBLES_EQUAL(3.0f, odom.position.y, 1e-7);
-    DOUBLES_EQUAL(20.0f, odom.position.heading, 1e-7);
-
-    DOUBLES_EQUAL(0.0f, odom.velocity.x, 1e-7);
-    DOUBLES_EQUAL(0.0f, odom.velocity.y, 1e-7);
-    DOUBLES_EQUAL(0.0f, odom.velocity.heading, 1e-7);
+    pose2d_equal({2.f, 3.f, 20.f}, odom.position);
+    pose2d_equal({0.f, 0.f, 0.f}, odom.velocity);
 
     CHECK_EQUAL(42, odom.time_last_update);
     CHECK_EQUAL(17, odom.previous_encoder_values.left);
@@ -51,13 +54,8 @@ TEST(OdometrySetup, CanReset)
 
     odometry_reset(&odom, new_position, now);
 
-    DOUBLES_EQUAL(new_position.x, odom.position.x, 1e-7);
-    DOUBLES_EQUAL(new_position.y, odom.position.y, 1e-7);
-    DOUBLES_EQUAL(new_position.heading, odom.position.heading, 1e-7);
-
-    DOUBLES_EQUAL(0.0f, odom.velocity.x, 1e-7);
-    DOUBLES_EQUAL(0.0f, odom.velocity.y, 1e-7);
-    DOUBLES_EQUAL(0.0f, odom.velocity.heading, 1e-7);
+    pose2d_equal(new_position, odom.position);
+    pose2d_equal({0.f, 0.f, 0.f}, odom.velocity);
 
     CHECK_EQUAL(now, odom.time_last_update);
 }
@@ -85,13 +83,8 @@ TEST(Odometry, CanUpdateIdle)
 
     odometry_update(&odom, encoders, now);
 
-    DOUBLES_EQUAL(0.0f, odom.position.x, 1e-7);
-    DOUBLES_EQUAL(0.0f, odom.position.y, 1e-7);
-    DOUBLES_EQUAL(0.0f, odom.position.heading, 1e-7);
-
-    DOUBLES_EQUAL(0.0f, odom.velocity.x, 1e-7);
-    DOUBLES_EQUAL(0.0f, odom.velocity.y, 1e-7);
-    DOUBLES_EQUAL(0.0f, odom.velocity.heading, 1e-7);
+    pose2d_equal({0.f, 0.f, 0.f}, odom.position);
+    pose2d_equal({0.f, 0.f, 0.f}, odom.velocity);
 }
 
 TEST(Odometry, CanStoreEncoderValues)
@@ -112,13 +105,8 @@ TEST(Odometry, CanUpdateRobotPositiveLinear)
 
     odometry_update(&odom, encoders, now);
 
-    DOUBLES_EQUAL(1.25663706144f, odom.position.x, 1e-7);
-    DOUBLES_EQUAL(0.0f, odom.position.y, 1e-7);
-    DOUBLES_EQUAL(0.0f, odom.position.heading, 1e-7);
-
-    DOUBLES_EQUAL(1.25663706144f, odom.velocity.x, 1e-7);
-    DOUBLES_EQUAL(0.0f, odom.velocity.y, 1e-7);
-    DOUBLES_EQUAL(0.0f, odom.velocity.heading, 1e-7);
+    pose2d_equal({1.25663706144f, 0.f, 0.f}, odom.position);
+    pose2d_equal({1.25663706144f, 0.f, 0.f}, odom.velocity);
 }
 
 TEST(Odometry, CanUpdateRobotNegativeLinear)
@@ -128,13 +116,8 @@ TEST(Odometry, CanUpdateRobotNegativeLinear)
 
     odometry_update(&odom, encoders, now);
 
-    DOUBLES_EQUAL(-0.62831853071f, odom.position.x, 1e-7);
-    DOUBLES_EQUAL(0.0f, odom.position.y, 1e-7);
-    DOUBLES_EQUAL(0.0f, odom.position.heading, 1e-7);
-
-    DOUBLES_EQUAL(-1.25663706144f, odom.velocity.x, 1e-7);
-    DOUBLES_EQUAL(0.0f, odom.velocity.y, 1e-7);
-    DOUBLES_EQUAL(0.0f, odom.velocity.heading, 1e-7);
+    pose2d_equal({-0.62831853071f, 0.f, 0.f}, odom.position);
+    pose2d_equal({-1.25663706144f, 0.f, 0.f}, odom.velocity);
 }
 
 TEST(Odometry, CanUpdateRobotPositiveRotation)
@@ -144,13 +127,8 @@ TEST(Odometry, CanUpdateRobotPositiveRotation)
 
     odometry_update(&odom, encoders, now);
 
-    DOUBLES_EQUAL(0.0f, odom.position.x, 1e-7);
-    DOUBLES_EQUAL(0.0f, odom.position.y, 1e-7);
-    DOUBLES_EQUAL(2.51327412288f, odom.position.heading, 3e-7);
-
-    DOUBLES_EQUAL(0.0f, odom.velocity.x, 1e-7);
-    DOUBLES_EQUAL(0.0f, odom.velocity.y, 1e-7);
-    DOUBLES_EQUAL(2.51327412288f, odom.velocity.heading, 1e-7);
+    pose2d_equal({0.f, 0.f, 2.51327412288f}, odom.position);
+    pose2d_equal({0.f, 0.f, 2.51327412288f}, odom.velocity);
 }
 
 TEST(Odometry, CanUpdateRobotNegativeRotation)
@@ -160,13 +138,8 @@ TEST(Odometry, CanUpdateRobotNegativeRotation)
 
     odometry_update(&odom, encoders, now);
 
-    DOUBLES_EQUAL(0.0f, odom.position.x, 1e-7);
-    DOUBLES_EQUAL(0.0f, odom.position.y, 1e-7);
-    DOUBLES_EQUAL(-0.62831853071f, odom.position.heading, 1e-7);
-
-    DOUBLES_EQUAL(0.0f, odom.velocity.x, 1e-7);
-    DOUBLES_EQUAL(0.0f, odom.velocity.y, 1e-7);
-    DOUBLES_EQUAL(-2.51327412288f, odom.velocity.heading, 1e-7);
+    pose2d_equal({0.f, 0.f, -0.62831853071f}, odom.position);
+    pose2d_equal({0.f, 0.f, -2.51327412288f}, odom.velocity);
 }
 
 TEST(Odometry, CanGoBackToInitialPosition)
@@ -179,13 +152,8 @@ TEST(Odometry, CanGoBackToInitialPosition)
     encoders = {.left=0, .right=0};
     odometry_update(&odom, encoders, 2000000);
 
-    DOUBLES_EQUAL(0.0f, odom.position.x, 1e-7);
-    DOUBLES_EQUAL(0.0f, odom.position.y, 2e-7);
-    DOUBLES_EQUAL(0.0f, odom.position.heading, 1e-7);
-
-    DOUBLES_EQUAL(-1.25663706144f, odom.velocity.x, 1e-7);
-    DOUBLES_EQUAL(0.0f, odom.velocity.y, 2e-7);
-    DOUBLES_EQUAL(0.0f, odom.velocity.heading, 1e-7);
+    pose2d_equal({0.f, 0.f, 0.f}, odom.position);
+    pose2d_equal({-1.25663706144f, 0.f, 0.f}, odom.velocity);
 }
 
 TEST(Odometry, CanGoBackToInitialPositionAfterSquareMotion)
@@ -194,73 +162,67 @@ TEST(Odometry, CanGoBackToInitialPositionAfterSquareMotion)
 
     encoders = {.left=1024, .right=1024};
     odometry_update(&odom, encoders, 1000000);
-
-    DOUBLES_EQUAL(1.25663706144f, odom.position.x, 1e-6);
-    DOUBLES_EQUAL(0.0f, odom.position.y, 2e-7);
-    DOUBLES_EQUAL(0.0f, odom.position.heading, 1e-6);
+    pose2d_equal({1.25663706144f, 0.f, 0.f}, odom.position);
 
     encoders = {.left=384, .right=1664}; // 640 ticks to move by pi/2
     odometry_update(&odom, encoders, 2000000);
-
-    DOUBLES_EQUAL(1.25663706144f, odom.position.x, 1e-6);
-    DOUBLES_EQUAL(0.0f, odom.position.y, 2e-7);
-    DOUBLES_EQUAL(M_PI/2, odom.position.heading, 1e-6);
+    pose2d_equal({1.25663706144f, 0.f, RADIANS(90)}, odom.position);
 
     encoders = {.left=1408, .right=2688};
     odometry_update(&odom, encoders, 3000000);
-
-    DOUBLES_EQUAL(1.25663706144f, odom.position.x, 1e-6);
-    DOUBLES_EQUAL(1.25663706144f, odom.position.y, 2e-7);
-    DOUBLES_EQUAL(M_PI/2, odom.position.heading, 1e-6);
+    pose2d_equal({1.25663706144f, 1.25663706144f, RADIANS(90)}, odom.position);
 
     encoders = {.left=768, .right=3328}; // 640 ticks to move by pi/2
     odometry_update(&odom, encoders, 4000000);
-
-    DOUBLES_EQUAL(1.25663706144f, odom.position.x, 1e-6);
-    DOUBLES_EQUAL(1.25663706144f, odom.position.y, 2e-7);
-    DOUBLES_EQUAL(M_PI, odom.position.heading, 1e-6);
+    pose2d_equal({1.25663706144f, 1.25663706144f, RADIANS(180)}, odom.position);
 
     encoders = {.left=1792, .right=4352};
     odometry_update(&odom, encoders, 5000000);
-
-    DOUBLES_EQUAL(0.0f, odom.position.x, 1e-6);
-    DOUBLES_EQUAL(1.25663706144f, odom.position.y, 2e-7);
-    DOUBLES_EQUAL(M_PI, odom.position.heading, 1e-6);
+    pose2d_equal({0.f, 1.25663706144f, RADIANS(180)}, odom.position);
 
     encoders = {.left=1152, .right=4992}; // 640 ticks to move by pi/2
     odometry_update(&odom, encoders, 6000000);
-
-    DOUBLES_EQUAL(0.0f, odom.position.x, 1e-6);
-    DOUBLES_EQUAL(1.25663706144f, odom.position.y, 2e-7);
-    DOUBLES_EQUAL(3*M_PI/2, odom.position.heading, 1e-6);
+    pose2d_equal({0.f, 1.25663706144f, RADIANS(270)}, odom.position);
 
     encoders = {.left=2176, .right=6016};
     odometry_update(&odom, encoders, 7000000);
-
-    DOUBLES_EQUAL(0.0f, odom.position.x, 1e-6);
-    DOUBLES_EQUAL(0.0f, odom.position.y, 2e-7);
-    DOUBLES_EQUAL(3*M_PI/2, odom.position.heading, 1e-6);
+    pose2d_equal({0.f, 0.f, RADIANS(270)}, odom.position);
 
     encoders = {.left=1536, .right=6656}; // 640 ticks to move by pi/2
     odometry_update(&odom, encoders, 8000000);
+    pose2d_equal({0.f, 0.f, RADIANS(360)}, odom.position);
 
-    DOUBLES_EQUAL(0.0f, odom.position.x, 1e-6);
-    DOUBLES_EQUAL(0.0f, odom.position.y, 2e-7);
-    DOUBLES_EQUAL(2*M_PI, odom.position.heading, 1e-6);
 }
 
 TEST(Odometry, CanUpdateCircularMotion)
 {
     encoders_msg_t encoders;
 
+    /* Quarter cirle */
     encoders = {.left=384, .right=1664};
     odometry_update(&odom, encoders, 1000000);
 
-    DOUBLES_EQUAL(0.88857658763f, odom.position.x, 1e-6);
-    DOUBLES_EQUAL(0.88857658763f, odom.position.y, 2e-7);
-    DOUBLES_EQUAL(1.57079632679f, odom.position.heading, 1e-6);
+    pose2d_equal({0.88857658763f, 0.88857658763f, RADIANS(90)}, odom.position);
+    pose2d_equal({1.25663706144f, 0.f, RADIANS(90)}, odom.velocity);
 
-    DOUBLES_EQUAL(1.25663706144f, odom.velocity.x, 1e-7);
-    DOUBLES_EQUAL(0.0f, odom.velocity.y, 1e-7);
-    DOUBLES_EQUAL(1.57079632679f, odom.velocity.heading, 2e-7);
+    /* Half circle */
+    encoders = {.left=768, .right=3328};
+    odometry_update(&odom, encoders, 2000000);
+
+    pose2d_equal({0.f, 1.77715317526f, RADIANS(180)}, odom.position);
+    pose2d_equal({1.25663706144f, 0.f, RADIANS(90)}, odom.velocity);
+
+    /* Three quarter cirle */
+    encoders = {.left=1152, .right=4992};
+    odometry_update(&odom, encoders, 3000000);
+
+    pose2d_equal({-0.88857658763f, 0.88857658763f, RADIANS(270)}, odom.position);
+    pose2d_equal({1.25663706144f, 0.f, RADIANS(90)}, odom.velocity);
+
+    /* Full circle */
+    encoders = {.left=1536, .right=6656};
+    odometry_update(&odom, encoders, 4000000);
+
+    pose2d_equal({0.f, 0.f, 0.f}, odom.position);
+    pose2d_equal({1.25663706144f, 0.f, RADIANS(90)}, odom.velocity);
 }
