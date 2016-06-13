@@ -2,6 +2,7 @@
 #include <math.h>
 #include "odometry.h"
 
+
 void odometry_init(
         odometry_diffbase_t *odom,
         const odometry_pose2d_t initial_position,
@@ -73,7 +74,7 @@ void odometry_update(
     odom->position.heading += delta_polar.angle;
 
     /* Wrap heading */
-    odom->position.heading = fmodf(odom->position.heading, 2 * M_PI);
+    odom->position.heading = angle_wrap(odom->position.heading);
 
     /* Compute velocity */
     odom->velocity.x = delta_polar.distance * cos_theta / dt;

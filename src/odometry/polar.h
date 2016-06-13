@@ -14,6 +14,8 @@ typedef struct {
 
 void polar_get_polar_from_wheels(const wheels_t wheels, polar_t *polar);
 
+float angle_wrap(float angle);
+
 
 #ifdef __cplusplus
 }

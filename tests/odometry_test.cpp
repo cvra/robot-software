@@ -1,5 +1,6 @@
-#include "CppUTest/TestHarness.h"
+#include <CppUTest/TestHarness.h>
 #include "odometry/odometry.h"
+
 
 TEST_GROUP(OdometrySetup)
 {
@@ -144,7 +145,7 @@ TEST(Odometry, CanUpdateRobotPositiveRotation)
 
     DOUBLES_EQUAL(0.0f, odom.position.x, 1e-7);
     DOUBLES_EQUAL(0.0f, odom.position.y, 1e-7);
-    DOUBLES_EQUAL(2.51327412288f, odom.position.heading, 1e-7);
+    DOUBLES_EQUAL(2.51327412288f, odom.position.heading, 3e-7);
 
     DOUBLES_EQUAL(0.0f, odom.velocity.x, 1e-7);
     DOUBLES_EQUAL(0.0f, odom.velocity.y, 1e-7);
@@ -178,11 +179,11 @@ TEST(Odometry, CanGoBackToInitialPosition)
     odometry_update(&odom, encoders, 2000000);
 
     DOUBLES_EQUAL(0.0f, odom.position.x, 1e-7);
-    DOUBLES_EQUAL(0.0f, odom.position.y, 1e-7);
+    DOUBLES_EQUAL(0.0f, odom.position.y, 2e-7);
     DOUBLES_EQUAL(0.0f, odom.position.heading, 1e-7);
 
     DOUBLES_EQUAL(-1.25663706144f, odom.velocity.x, 1e-7);
-    DOUBLES_EQUAL(0.0f, odom.velocity.y, 1e-7);
+    DOUBLES_EQUAL(0.0f, odom.velocity.y, 2e-7);
     DOUBLES_EQUAL(0.0f, odom.velocity.heading, 1e-7);
 }
 
@@ -214,9 +215,9 @@ TEST(Odometry, CanGoBackToInitialPositionAfterSquareMotion)
     encoders = {.left=1536, .right=6656}; // 640 ticks to move by pi/2
     odometry_update(&odom, encoders, 8000000);
 
-    DOUBLES_EQUAL(0.0f, odom.position.x, 2e-7);
+    DOUBLES_EQUAL(0.0f, odom.position.x, 1e-6);
     DOUBLES_EQUAL(0.0f, odom.position.y, 2e-7);
-    DOUBLES_EQUAL(0.0f, odom.position.heading, 1e-7);
+    DOUBLES_EQUAL(0.0f, odom.position.heading, 1e-6);
 
     DOUBLES_EQUAL(0.0f, odom.velocity.x, 1e-7);
     DOUBLES_EQUAL(0.0f, odom.velocity.y, 1e-7);
