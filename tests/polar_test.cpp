@@ -55,6 +55,8 @@ TEST(AngleDelta, CanComputeAngleDelta)
 
 TEST(AngleDelta, CanComputeAngleDeltaOverTwoPi)
 {
-    DOUBLES_EQUAL(0.0f, angle_delta(M_PI, 3*M_PI), 1e-6);
+    DOUBLES_EQUAL(0.f, angle_delta(M_PI, 3*M_PI), 1e-6);
     DOUBLES_EQUAL(M_PI, angle_delta(-2*M_PI, 5*M_PI), 2e-6);
+
+    DOUBLES_EQUAL(0.f, angle_delta(-M_PI, M_PI), 1e-6);
 }

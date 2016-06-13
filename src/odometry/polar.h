@@ -7,6 +7,9 @@ extern "C" {
 
 #include "encoder.h"
 
+#define DEGREES(x) (x * 180 / M_PI)
+#define RADIANS(x) (x * M_PI / 180)
+
 typedef struct {
     float distance;
     float angle;
@@ -14,7 +17,8 @@ typedef struct {
 
 void polar_get_polar_from_wheels(const wheels_t wheels, polar_t *polar);
 
-float angle_wrap(float angle);
+float angle_delta(float start, float end);
+
 
 
 #ifdef __cplusplus
