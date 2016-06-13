@@ -37,3 +37,25 @@ TEST(OdometrySetup, CanInit)
     DOUBLES_EQUAL(1.01f, odom.wheels_correction_factor.left, 1e-7);
     DOUBLES_EQUAL(-1.f, odom.wheels_correction_factor.right, 1e-7);
 }
+
+TEST(OdometrySetup, CanReset)
+{
+    odometry_pose2d_t new_position;
+    new_position.x = 1.0f;
+    new_position.y = 0.5f;
+    new_position.heading = 1.57f;
+
+    timestamp_t now = 1000;
+
+    odometry_reset(&odom, new_position, now);
+
+    DOUBLES_EQUAL(new_position.x, odom.position.x, 1e-7);
+    DOUBLES_EQUAL(new_position.y, odom.position.y, 1e-7);
+    DOUBLES_EQUAL(new_position.heading, odom.position.heading, 1e-7);
+
+    DOUBLES_EQUAL(0.0f, odom.velocity.x, 1e-7);
+    DOUBLES_EQUAL(0.0f, odom.velocity.y, 1e-7);
+    DOUBLES_EQUAL(0.0f, odom.velocity.heading, 1e-7);
+
+    CHECK_EQUAL(now, odom.time_last_update);
+}

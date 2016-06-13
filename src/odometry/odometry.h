@@ -40,6 +40,11 @@ void odometry_init(
         const encoders_msg_t previous_encoder_values,
         const timestamp_t time_now);
 
+void odometry_reset(
+        odometry_diffbase_t *odom,
+        const odometry_pose2d_t new_position,
+        const timestamp_t time_now);
+
 #ifdef __cplusplus
 }
 #endif
