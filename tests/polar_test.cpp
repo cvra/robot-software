@@ -39,28 +39,22 @@ TEST(Polar, CanGetPolarFromWheelsAngular)
     DOUBLES_EQUAL(10.0f, polar.angle, 1e-7);
 }
 
-TEST_GROUP(AngleWrap)
-{
 
+TEST_GROUP(AngleDelta)
+{
 };
 
-TEST(AngleWrap, CanWrap)
+TEST(AngleDelta, CanComputeAngleDelta)
 {
-    DOUBLES_EQUAL(2.0f, angle_wrap(2.0f), 2e-7);
-    DOUBLES_EQUAL(-2.0f, angle_wrap(-2.0f), 2e-7);
+    DOUBLES_EQUAL(1.0f, angle_delta(1.0f, 2.0f), 2e-7);
+    DOUBLES_EQUAL(-1.0f, angle_delta(-1.0f, -2.0f), 1e-7);
 
-    DOUBLES_EQUAL(-2.28318530718f, angle_wrap(4.0f), 1e-6);
-    DOUBLES_EQUAL(2.28318530718f, angle_wrap(-4.0f), 1e-6);
+    DOUBLES_EQUAL(-3.0f, angle_delta(4.0f, 1.0f), 1e-7);
+    DOUBLES_EQUAL(1.0f, angle_delta(-4.0f, -3.0f), 2e-7);
 }
 
-TEST(AngleWrap, CanWrapEdges)
+TEST(AngleDelta, CanComputeAngleDeltaOverTwoPi)
 {
-    DOUBLES_EQUAL(-M_PI, angle_wrap(M_PI), 1e-6);
-    DOUBLES_EQUAL(M_PI, angle_wrap(-M_PI), 1e-6);
-
-    DOUBLES_EQUAL(0.f, angle_wrap(2 * M_PI), 1e-6);
-    DOUBLES_EQUAL(0.f, angle_wrap(-2 * M_PI), 1e-6);
-
-    DOUBLES_EQUAL(-M_PI, angle_wrap(3 * M_PI), 1e-6);
-    DOUBLES_EQUAL(-M_PI, angle_wrap(-3 * M_PI), 1e-6);
+    DOUBLES_EQUAL(0.0f, angle_delta(M_PI, 3*M_PI), 1e-6);
+    DOUBLES_EQUAL(M_PI, angle_delta(-2*M_PI, 5*M_PI), 2e-6);
 }

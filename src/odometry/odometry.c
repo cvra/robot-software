@@ -73,12 +73,9 @@ void odometry_update(
     odom->position.y += delta_polar.distance * sin_theta;
     odom->position.heading += delta_polar.angle;
 
-    /* Wrap heading */
-    odom->position.heading = angle_wrap(odom->position.heading);
-
     /* Compute velocity */
-    odom->velocity.x = delta_polar.distance * cos_theta / dt;
-    odom->velocity.y = delta_polar.distance * sin_theta / dt;
+    odom->velocity.x = delta_polar.distance / dt;
+    odom->velocity.y = 0.f;
     odom->velocity.heading = delta_polar.angle / dt;
 
 

@@ -1,4 +1,5 @@
 #include <CppUTest/TestHarness.h>
+#include <math.h>
 #include "odometry/odometry.h"
 
 
@@ -194,32 +195,72 @@ TEST(Odometry, CanGoBackToInitialPositionAfterSquareMotion)
     encoders = {.left=1024, .right=1024};
     odometry_update(&odom, encoders, 1000000);
 
+    DOUBLES_EQUAL(1.25663706144f, odom.position.x, 1e-6);
+    DOUBLES_EQUAL(0.0f, odom.position.y, 2e-7);
+    DOUBLES_EQUAL(0.0f, odom.position.heading, 1e-6);
+
     encoders = {.left=384, .right=1664}; // 640 ticks to move by pi/2
     odometry_update(&odom, encoders, 2000000);
+
+    DOUBLES_EQUAL(1.25663706144f, odom.position.x, 1e-6);
+    DOUBLES_EQUAL(0.0f, odom.position.y, 2e-7);
+    DOUBLES_EQUAL(M_PI/2, odom.position.heading, 1e-6);
 
     encoders = {.left=1408, .right=2688};
     odometry_update(&odom, encoders, 3000000);
 
+    DOUBLES_EQUAL(1.25663706144f, odom.position.x, 1e-6);
+    DOUBLES_EQUAL(1.25663706144f, odom.position.y, 2e-7);
+    DOUBLES_EQUAL(M_PI/2, odom.position.heading, 1e-6);
+
     encoders = {.left=768, .right=3328}; // 640 ticks to move by pi/2
     odometry_update(&odom, encoders, 4000000);
+
+    DOUBLES_EQUAL(1.25663706144f, odom.position.x, 1e-6);
+    DOUBLES_EQUAL(1.25663706144f, odom.position.y, 2e-7);
+    DOUBLES_EQUAL(M_PI, odom.position.heading, 1e-6);
 
     encoders = {.left=1792, .right=4352};
     odometry_update(&odom, encoders, 5000000);
 
+    DOUBLES_EQUAL(0.0f, odom.position.x, 1e-6);
+    DOUBLES_EQUAL(1.25663706144f, odom.position.y, 2e-7);
+    DOUBLES_EQUAL(M_PI, odom.position.heading, 1e-6);
+
     encoders = {.left=1152, .right=4992}; // 640 ticks to move by pi/2
     odometry_update(&odom, encoders, 6000000);
 
+    DOUBLES_EQUAL(0.0f, odom.position.x, 1e-6);
+    DOUBLES_EQUAL(1.25663706144f, odom.position.y, 2e-7);
+    DOUBLES_EQUAL(3*M_PI/2, odom.position.heading, 1e-6);
+
     encoders = {.left=2176, .right=6016};
     odometry_update(&odom, encoders, 7000000);
+
+    DOUBLES_EQUAL(0.0f, odom.position.x, 1e-6);
+    DOUBLES_EQUAL(0.0f, odom.position.y, 2e-7);
+    DOUBLES_EQUAL(3*M_PI/2, odom.position.heading, 1e-6);
 
     encoders = {.left=1536, .right=6656}; // 640 ticks to move by pi/2
     odometry_update(&odom, encoders, 8000000);
 
     DOUBLES_EQUAL(0.0f, odom.position.x, 1e-6);
     DOUBLES_EQUAL(0.0f, odom.position.y, 2e-7);
-    DOUBLES_EQUAL(0.0f, odom.position.heading, 1e-6);
+    DOUBLES_EQUAL(2*M_PI, odom.position.heading, 1e-6);
+}
 
-    DOUBLES_EQUAL(0.0f, odom.velocity.x, 1e-7);
+TEST(Odometry, CanUpdateCircularMotion)
+{
+    encoders_msg_t encoders;
+
+    encoders = {.left=384, .right=1664};
+    odometry_update(&odom, encoders, 1000000);
+
+    DOUBLES_EQUAL(0.88857658763f, odom.position.x, 1e-6);
+    DOUBLES_EQUAL(0.88857658763f, odom.position.y, 2e-7);
+    DOUBLES_EQUAL(1.57079632679f, odom.position.heading, 1e-6);
+
+    DOUBLES_EQUAL(1.25663706144f, odom.velocity.x, 1e-7);
     DOUBLES_EQUAL(0.0f, odom.velocity.y, 1e-7);
-    DOUBLES_EQUAL(1.57079632679f, odom.velocity.heading, 1e-7);
+    DOUBLES_EQUAL(1.57079632679f, odom.velocity.heading, 2e-7);
 }
