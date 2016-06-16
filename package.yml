@@ -49,6 +49,7 @@ include_directories:
     - src/board/
 
 tests:
+    - tests/ch.cpp
     - tests/log.c
     - tests/unix-timestamp.cpp
     - tests/bus_enumerator.cpp

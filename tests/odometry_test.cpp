@@ -1,5 +1,7 @@
-#include <CppUTest/TestHarness.h>
 #include <math.h>
+#include <CppUTest/TestHarness.h>
+#include <CppUTestExt/MockSupport.h>
+#include "ch.h"
 #include "odometry/odometry.h"
 
 static void pose2d_equal(odometry_pose2d_t expected, odometry_pose2d_t value);
@@ -22,7 +24,7 @@ TEST_GROUP(OdometrySetup)
         wheels_t wheel_corrections = {.left=1.01f, .right=-1.f};
         encoders_msg_t prev_encoders = {.left=17, .right=19};
 
-        odometry_init(&odom, init_pos, params, wheel_corrections, prev_encoders, 42);
+        odometry_init(&odom, NULL, init_pos, params, wheel_corrections, prev_encoders, 42);
     }
 };
 
@@ -72,7 +74,7 @@ TEST_GROUP(Odometry)
         wheels_t wheel_corrections = {.left=1.f, .right=1.f};
         encoders_msg_t prev_encoders = {.left=0, .right=0};
 
-        odometry_init(&odom, init_pos, params, wheel_corrections, prev_encoders, 0);
+        odometry_init(&odom, NULL, init_pos, params, wheel_corrections, prev_encoders, 0);
     }
 };
 
@@ -225,4 +227,65 @@ TEST(Odometry, CanUpdateCircularMotion)
 
     pose2d_equal({0.f, 0.f, 0.f}, odom.position);
     pose2d_equal({0.628318531f, 0.f, RADIANS(90)}, odom.velocity);
+}
+
+
+TEST_GROUP(OdometrySync)
+{
+    odometry_diffbase_t odom;
+
+    void setup(void)
+    {
+        odometry_init(&odom, NULL, {0,0,0}, {0,0,0}, {0,0}, {0,0}, 0);
+    }
+
+    void teardown()
+    {
+        lock_mocks_enable(false);
+        mock().checkExpectations();
+        mock().clear();
+    }
+};
+
+TEST(OdometrySync, InitCanLock)
+{
+    lock_mocks_enable(true);
+
+    mock().expectOneCall("chMtxLock")
+          .withPointerParameter("lock", odom.lock);
+    mock().expectOneCall("chMtxUnlock")
+          .withPointerParameter("lock", odom.lock);
+
+    odometry_init(&odom, NULL, {0,0,0}, {0,0,0}, {0,0}, {0,0}, 0);
+
+    mock().checkExpectations();
+}
+
+TEST(OdometrySync, UpdateCanLock)
+{
+    lock_mocks_enable(true);
+
+    mock().expectOneCall("chMtxLock")
+          .withPointerParameter("lock", odom.lock);
+    mock().expectOneCall("chMtxUnlock")
+          .withPointerParameter("lock", odom.lock);
+
+    odometry_update(&odom, {0,0}, 0);
+
+    mock().checkExpectations();
+}
+
+
+TEST(OdometrySync, ResetCanLock)
+{
+    lock_mocks_enable(true);
+
+    mock().expectOneCall("chMtxLock")
+          .withPointerParameter("lock", odom.lock);
+    mock().expectOneCall("chMtxUnlock")
+          .withPointerParameter("lock", odom.lock);
+
+    odometry_reset(&odom, {0,0,0}, 0);
+
+    mock().checkExpectations();
 }

@@ -2,15 +2,21 @@
 #include <math.h>
 #include "odometry.h"
 
+static void odometry_lock_acquire(odometry_diffbase_t *odom);
+static void odometry_lock_release(odometry_diffbase_t *odom);
 
 void odometry_init(
         odometry_diffbase_t *odom,
+        mutex_t *lock,
         const odometry_pose2d_t initial_position,
         const odometry_params_t robot_params,
         const wheels_t wheels_correction_factor,
         const encoders_msg_t previous_encoder_values,
         const timestamp_t time_now)
 {
+    odom->lock = lock;
+    odometry_lock_acquire(odom);
+
     memcpy(&(odom->position), &initial_position, sizeof(odometry_pose2d_t));
     odom->velocity.x = 0.f;
     odom->velocity.y = 0.f;
@@ -21,6 +27,8 @@ void odometry_init(
 
     memcpy(&(odom->parameters), &robot_params, sizeof(odometry_params_t));
     memcpy(&(odom->wheels_correction_factor), &wheels_correction_factor, sizeof(wheels_t));
+
+    odometry_lock_release(odom);
 }
 
 void odometry_reset(
@@ -28,6 +36,8 @@ void odometry_reset(
         const odometry_pose2d_t new_position,
         const timestamp_t time_now)
 {
+    odometry_lock_acquire(odom);
+
     memcpy(&(odom->position), &new_position, sizeof(odometry_pose2d_t));
 
     odom->velocity.x = 0.f;
@@ -35,6 +45,8 @@ void odometry_reset(
     odom->velocity.heading = 0.f;
 
     odom->time_last_update = time_now;
+
+    odometry_lock_release(odom);
 }
 
 void odometry_update(
@@ -42,6 +54,8 @@ void odometry_update(
         const encoders_msg_t encoders,
         const timestamp_t time_now)
 {
+    odometry_lock_acquire(odom);
+
     /* Get delta of encoder wheels */
     wheels_t delta_wheels;
     delta_wheels.left  = (float)(encoders.left - odom->previous_encoder_values.left);
@@ -83,4 +97,16 @@ void odometry_update(
     odom->time_last_update = time_now;
     odom->previous_encoder_values.left = encoders.left;
     odom->previous_encoder_values.right = encoders.right;
+
+    odometry_lock_release(odom);
+}
+
+static void odometry_lock_acquire(odometry_diffbase_t *odom)
+{
+    chMtxLock(odom->lock);
+}
+
+static void odometry_lock_release(odometry_diffbase_t *odom)
+{
+    chMtxUnlock(odom->lock);
 }

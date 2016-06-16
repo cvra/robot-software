@@ -5,6 +5,8 @@
 extern "C" {
 #endif
 
+#include <ch.h>
+
 #include "timestamp/timestamp.h"
 #include "polar.h"
 #include "encoder.h"
@@ -30,10 +32,13 @@ typedef struct {
 
     odometry_params_t parameters;
     wheels_t wheels_correction_factor;      // [m]
+
+    mutex_t *lock;
 } odometry_diffbase_t;
 
 void odometry_init(
         odometry_diffbase_t *odom,
+        mutex_t *lock,
         const odometry_pose2d_t initial_position,
         const odometry_params_t robot_params,
         const wheels_t wheels_correction_factor,

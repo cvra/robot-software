@@ -47,7 +47,8 @@ static THD_FUNCTION(position_manager_thd, arg)
 
     messagebus_topic_wait(encoders_topic, &encoder_values, sizeof(encoder_values));
 
-    odometry_init(&odom, init_pos, params, wheel_corrections, encoder_values, timestamp_get());
+    MUTEX_DECL(odom_lock);
+    odometry_init(&odom, &odom_lock, init_pos, params, wheel_corrections, encoder_values, timestamp_get());
 
     while (1) {
         /* Update odometry */
