@@ -72,3 +72,17 @@ void position_manager_reset(float x, float y, float heading)
     odometry_pose2d_t new_position = {.x=x, .y=y, .heading=heading};
     odometry_reset(&odom, new_position, timestamp_get());
 }
+
+void position_manager_set_wheel_correction(float left, float right)
+{
+    wheels_t factors = {.left=left, .right=right};
+    odometry_set_wheel_corrections(&odom, &factors);
+}
+
+void position_manager_get_wheel_correction(float *left, float *right)
+{
+    wheels_t factors;
+    odometry_get_wheel_corrections(&odom, &factors);
+    (* left) = factors.left;
+    (* right) = factors.right;
+}

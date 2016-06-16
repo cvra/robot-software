@@ -101,6 +101,22 @@ void odometry_update(
     odometry_lock_release(odom);
 }
 
+void odometry_get_wheel_corrections(odometry_diffbase_t *odom, wheels_t *wheel_corrections)
+{
+    odometry_lock_acquire(odom);
+    wheel_corrections->left = odom->wheels_correction_factor.left;
+    wheel_corrections->right = odom->wheels_correction_factor.right;
+    odometry_lock_release(odom);
+}
+
+void odometry_set_wheel_corrections(odometry_diffbase_t *odom, wheels_t *wheel_corrections)
+{
+    odometry_lock_acquire(odom);
+    odom->wheels_correction_factor.left = wheel_corrections->left;
+    odom->wheels_correction_factor.right = wheel_corrections->right;
+    odometry_lock_release(odom);
+}
+
 static void odometry_lock_acquire(odometry_diffbase_t *odom)
 {
     chMtxLock(odom->lock);
@@ -110,3 +126,4 @@ static void odometry_lock_release(odometry_diffbase_t *odom)
 {
     chMtxUnlock(odom->lock);
 }
+

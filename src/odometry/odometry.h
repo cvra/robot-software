@@ -55,6 +55,10 @@ void odometry_update(
         const encoders_msg_t encoders,
         const timestamp_t time_now);
 
+void odometry_get_wheel_corrections(odometry_diffbase_t *odom, wheels_t *wheel_corrections);
+
+void odometry_set_wheel_corrections(odometry_diffbase_t *odom, wheels_t *wheel_corrections);
+
 
 #ifdef __cplusplus
 }

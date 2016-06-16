@@ -62,6 +62,24 @@ TEST(OdometrySetup, CanReset)
     CHECK_EQUAL(now, odom.time_last_update);
 }
 
+TEST(OdometrySetup, CanGetWheelCorrection)
+{
+    wheels_t wheel_corrections;
+    odometry_get_wheel_corrections(&odom, &wheel_corrections);
+
+    DOUBLES_EQUAL(odom.wheels_correction_factor.left, wheel_corrections.left, 1e-7);
+    DOUBLES_EQUAL(odom.wheels_correction_factor.right, wheel_corrections.right, 1e-7);
+}
+
+TEST(OdometrySetup, CanSetWheelCorrection)
+{
+    wheels_t wheel_corrections = {2, 3};
+    odometry_set_wheel_corrections(&odom, &wheel_corrections);
+
+    DOUBLES_EQUAL(wheel_corrections.left, odom.wheels_correction_factor.left, 1e-7);
+    DOUBLES_EQUAL(wheel_corrections.right, odom.wheels_correction_factor.right, 1e-7);
+}
+
 
 TEST_GROUP(Odometry)
 {
@@ -275,7 +293,6 @@ TEST(OdometrySync, UpdateCanLock)
     mock().checkExpectations();
 }
 
-
 TEST(OdometrySync, ResetCanLock)
 {
     lock_mocks_enable(true);
@@ -286,6 +303,36 @@ TEST(OdometrySync, ResetCanLock)
           .withPointerParameter("lock", odom.lock);
 
     odometry_reset(&odom, {0,0,0}, 0);
+
+    mock().checkExpectations();
+}
+
+TEST(OdometrySync, GetWheelCorrectionCanLock)
+{
+    lock_mocks_enable(true);
+
+    mock().expectOneCall("chMtxLock")
+          .withPointerParameter("lock", odom.lock);
+    mock().expectOneCall("chMtxUnlock")
+          .withPointerParameter("lock", odom.lock);
+
+    wheels_t wheel_corrections;
+    odometry_get_wheel_corrections(&odom, &wheel_corrections);
+
+    mock().checkExpectations();
+}
+
+TEST(OdometrySync, SetWheelCorrectionCanLock)
+{
+    lock_mocks_enable(true);
+
+    mock().expectOneCall("chMtxLock")
+          .withPointerParameter("lock", odom.lock);
+    mock().expectOneCall("chMtxUnlock")
+          .withPointerParameter("lock", odom.lock);
+
+    wheels_t wheel_corrections = {0,0};
+    odometry_set_wheel_corrections(&odom, &wheel_corrections);
 
     mock().checkExpectations();
 }

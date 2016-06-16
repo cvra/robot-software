@@ -9,6 +9,8 @@ void position_manager_start(void);
 
 void position_manager_reset(float x, float y, float heading);
 
+void position_manager_set_wheel_correction(float left, float right);
+void position_manager_get_wheel_correction(float *left, float *right);
 
 #ifdef __cplusplus
 }

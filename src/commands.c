@@ -313,6 +313,24 @@ static void cmd_position_reset(BaseSequentialStream *chp, int argc, char *argv[]
     }
 }
 
+static void cmd_wheel_correction(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc == 2) {
+        float left, right;
+        position_manager_get_wheel_correction(&left, &right);
+
+        if (!strcmp("left", argv[0])) {
+            left = atof(argv[1]);
+        } else if (!strcmp("right", argv[0])) {
+            right = atof(argv[1]);
+        }
+
+        position_manager_set_wheel_correction(left, right);
+    } else {
+        chprintf(chp, "Usage: wheel_corr {left|right} factor\r\n");
+    }
+}
+
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
@@ -329,5 +347,6 @@ const ShellCommand commands[] = {
     {"threads", cmd_threads},
     {"time", cmd_time},
     {"topics", cmd_topics},
+    {"wheel_corr", cmd_wheel_correction},
     {NULL, NULL}
 };
