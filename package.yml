@@ -10,6 +10,7 @@ depends:
     - odometry
     - tracy-the-trajectory-tracker
     - pid
+    - arm-cortex-tools
 
 
 target.arm:
@@ -32,7 +33,6 @@ target.arm:
     - src/motor_manager.c
     - src/differential_base.c
     - src/stream.c
-    - src/fault_debug.c
     - src/node_tracker.c
     - src/malloc_lock.c
     - src/waypoints.c

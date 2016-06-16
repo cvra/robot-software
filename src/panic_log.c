@@ -15,16 +15,19 @@ MemoryStream panic_log_stream;
 
 void panic_log_printf(const char *fmt, ...)
 {
+    va_list ap;
+    va_start(ap, fmt);
+    panic_log_vprintf(fmt, ap);
+    va_end(ap);
+}
+
+void panic_log_vprintf(const char *fmt, va_list ap)
+{
     if (!panic_log_stream_is_initialized) {
         // clear & renitialize panic log
         panic_log_clear();
     }
-
-    va_list ap;
-    va_start(ap, fmt);
     chvprintf((BaseSequentialStream *)&panic_log_stream, fmt, ap);
-    va_end(ap);
-
     panic_log_crc = crc32(0, &panic_log[0], sizeof(panic_log));
 }
 
