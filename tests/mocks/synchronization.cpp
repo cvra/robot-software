@@ -61,6 +61,8 @@ TEST_GROUP(LockTestGroup)
     {
         lock_mocks_enable(false);
         condvar_mocks_enable(false);
+        mock().checkExpectations();
+        mock().clear();
     }
 };
 

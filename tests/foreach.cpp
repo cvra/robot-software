@@ -22,6 +22,8 @@ TEST_GROUP(MsgBusForeachTestGroup)
    void teardown()
    {
        lock_mocks_enable(false);
+       mock().checkExpectations();
+       mock().clear();
    }
 };
 

@@ -23,6 +23,8 @@ TEST_GROUP(SignalingTestGroup)
     {
         lock_mocks_enable(false);
         condvar_mocks_enable(false);
+        mock().checkExpectations();
+        mock().clear();
     }
 };
 

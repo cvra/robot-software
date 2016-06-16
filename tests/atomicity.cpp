@@ -23,6 +23,8 @@ TEST_GROUP(MessageBusAtomicityTestGroup)
     void teardown()
     {
         lock_mocks_enable(false);
+        mock().checkExpectations();
+        mock().clear();
     }
 };
 
