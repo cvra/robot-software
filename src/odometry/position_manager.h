@@ -7,6 +7,8 @@ extern "C" {
 
 void position_manager_start(void);
 
+void position_manager_reset(float x, float y, float heading);
+
 
 #ifdef __cplusplus
 }

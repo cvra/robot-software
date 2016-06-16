@@ -7,6 +7,9 @@
 
 #define POSITION_MANAGER_STACKSIZE 1024
 
+odometry_diffbase_t odom;
+
+
 static THD_FUNCTION(position_manager_thd, arg)
 {
     (void) arg;
@@ -32,8 +35,6 @@ static THD_FUNCTION(position_manager_thd, arg)
     encoders_topic = messagebus_find_topic_blocking(&bus, "/encoders");
 
     /* Initialise odometry */
-    odometry_diffbase_t odom;
-
     odometry_pose2d_t init_pos = {.x=0.f, .y=0.f, .heading=0.f};
     odometry_params_t params = {
         .track=ROBOT_EXTERNAL_TRACK_LENGTH,
@@ -64,4 +65,10 @@ void position_manager_start(void)
 {
     static THD_WORKING_AREA(position_thd_wa, POSITION_MANAGER_STACKSIZE);
     chThdCreateStatic(position_thd_wa, sizeof(position_thd_wa), NORMALPRIO, position_manager_thd, NULL);
+}
+
+void position_manager_reset(float x, float y, float heading)
+{
+    odometry_pose2d_t new_position = {.x=x, .y=y, .heading=heading};
+    odometry_reset(&odom, new_position, timestamp_get());
 }

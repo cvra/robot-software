@@ -299,6 +299,20 @@ static void cmd_position(BaseSequentialStream *chp, int argc, char *argv[])
     chprintf(chp, "x: %f [m]\r\ny: %f [m]\r\na: %f [deg]\r\n", pos.x, pos.y, DEGREES(pos.heading));
 }
 
+static void cmd_position_reset(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc == 3) {
+        float x = atof(argv[0]);
+        float y = atof(argv[0]);
+        float heading = atof(argv[0]);
+
+        position_manager_reset(x, y, heading);
+        chprintf(chp, "New pos x: %f [m]\r\ny: %f [m]\r\na: %f [deg]\r\n", x, y, heading);
+    } else {
+        chprintf(chp, "Usage: pos_reset x[m] y[m] heading[deg]\r\n");
+    }
+}
+
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
@@ -309,6 +323,7 @@ const ShellCommand commands[] = {
     {"node_reboot", cmd_uavcan_node_reboot},
     {"node_tracker", cmd_node_tracker},
     {"pos", cmd_position},
+    {"pos_reset", cmd_position_reset},
     {"reboot", cmd_reboot},
     {"rpc_client_demo", cmd_rpc_client_test},
     {"threads", cmd_threads},
