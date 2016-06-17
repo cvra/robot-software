@@ -19,6 +19,7 @@
 #include "odometry/encoder.h"
 #include "odometry/polar.h"
 #include "odometry/odometry.h"
+#include "odometry/position_manager.h"
 
 
 
