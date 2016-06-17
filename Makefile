@@ -128,7 +128,7 @@ include app_src.mk
 CPPSRC += $(CHCPPSRC)
 
 # List ASM source files here
-ASMSRC = $(STARTUPASM) $(PORTASM) $(OSALASM)
+ASMSRC += $(STARTUPASM) $(PORTASM) $(OSALASM)
 
 INCDIR += $(PORTINC) $(KERNINC) $(TESTINC) \
 		  $(STARTUPINC) \

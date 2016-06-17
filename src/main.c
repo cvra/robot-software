@@ -12,7 +12,8 @@
 #include "sntp/sntp.h"
 #include "unix_timestamp.h"
 #include "panic_log.h"
-#include "fault_debug.h"
+#include <arm-cortex-tools/mpu.h>
+#include <arm-cortex-tools/fault.h>
 #include "blocking_uart_driver.h"
 #include "rpc_server.h"
 #include "uavcan_node.h"
@@ -47,6 +48,14 @@ static const SerialConfig debug_uart_config = {
     .cr2 = USART_CR2_STOP1_BITS | USART_CR2_LINEN,
     .cr3 = 0
 };
+
+void fault_printf(const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    panic_log_vprintf(fmt, ap);
+    va_end(ap);
+}
 
 /**
  * Function called on a kernel panic.
@@ -94,8 +103,14 @@ void panic_hook(const char *reason)
 /** Late init hook, called before c++ static constructors. */
 void __late_init(void)
 {
+    /* Enable fault handlers. */
+    fault_init();
+
+    /* Initalize memory protection unit and add a guard against NULL
+     * dereferences. */
+    mpu_init();
+
     /* C++ Static initializer requires working chibios. */
-    fault_debug_init();
     halInit();
     chSysInit();
     malloc_lock_init();

@@ -46,3 +46,6 @@
 [submodule "src/pid"]
 	path = src/pid
 	url = https://github.com/cvra/pid.git
+[submodule "src/arm-cortex-tools"]
+	path = src/arm-cortex-tools
+	url = https://github.com/cvra/arm-cortex-tools.git
