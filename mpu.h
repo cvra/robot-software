@@ -45,6 +45,7 @@ void mpu_disable(void);
  * @note The lowest 5 bits of the base address are ignored.
  * @warning This function makes the assumption that the region is in memory,
  * not peripheral space (B flag=0).
+ * @warning This function is not thread-safe.
  */
 void mpu_configure_region(int region, void *addr, size_t log2_len,
                           access_permission_t ap, bool executable);
