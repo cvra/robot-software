@@ -36,13 +36,9 @@ void mpu_configure_region(int region, void *addr, size_t len,
     rasr += ((len - 1) << MPU_RASR_SIZE_Pos);
     rasr += MPU_RASR_ENABLE_Msk;
 
-    chSysLock();
-
     /* Update the MPU settings. */
     MPU->RBAR = (uintptr_t)addr + region + MPU_RBAR_VALID_Msk;
     MPU->RASR = rasr;
-
-    chSysUnlock();
 
     /* Make sure the memory barriers are correct. */
     __ISB();
