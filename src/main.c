@@ -217,11 +217,14 @@ void context_switch_hook(void *ntp, void *otp)
         return;
     }
 
+    chSysLockFromISR();
+
     mpu_configure_region(6,
                          /* we skip sizeof(thread_t) because the start of the working area is used by ChibiOS. */
                          ntp + sizeof(thread_t) + 32,
                          5, /* 32 bytes */
                          AP_NO_NO, /* no permission */
                          false);
+    chSysUnlockFromISR();
 
 }
