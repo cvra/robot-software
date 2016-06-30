@@ -200,3 +200,31 @@ int main(void) {
     }
 }
 
+uintptr_t __stack_chk_guard = 0xdeadbeef;
+
+void __stack_chk_fail(void)
+{
+    chSysHalt("Stack smashing detected");
+}
+
+void context_switch_hook(void *ntp, void *otp)
+{
+    (void) otp;
+
+    /* The main thread does not have the same memory layout as the other ones
+       (it uses the process stack instead of its own stack), so we ignore it. */
+    if (ntp == &ch.mainthread) {
+        return;
+    }
+
+    chSysLockFromISR();
+
+    mpu_configure_region(6,
+                         /* we skip sizeof(thread_t) because the start of the working area is used by ChibiOS. */
+                         ntp + sizeof(thread_t) + 32,
+                         5, /* 32 bytes */
+                         AP_NO_NO, /* no permission */
+                         false);
+    chSysUnlockFromISR();
+
+}

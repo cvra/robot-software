@@ -6,8 +6,8 @@
 # Compiler options here.
 ifeq ($(USE_OPT),)
   USE_OPT = -O2 -ggdb -fomit-frame-pointer -falign-functions=16
-  USE_OPT += -fno-stack-protector -ftree-loop-distribute-patterns
   USE_OPT += -frename-registers -freorder-blocks -fconserve-stack
+  USE_OPT += -fstack-protector-all -L .
 endif
 
 # C specific options here (added to USE_OPT).
@@ -242,6 +242,14 @@ GLOBAL_SRC_DEP = app_src.mk
 
 RULESPATH = $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC
 include $(RULESPATH)/rules.mk
+
+# Empty libraries, required by stack smashing protection
+PRE_MAKE_ALL_RULE_HOOK: libssp.a libssp_nonshared.a
+libssp.a:
+	arm-none-eabi-ar rcs $@
+
+libssp_nonshared.a:
+	arm-none-eabi-ar rcs $@
 
 .PHONY: mem_info
 mem_info: build/$(PROJECT).elf
