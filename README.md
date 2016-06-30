@@ -6,20 +6,21 @@ It runs on an Olimex E407 board, and communicates with the embedded PC via Ether
 
 # Quickstart
 This requires a working ARM toolchain and OpenOCD.
-By default it assumes you are using a BusBlaster V2.
-You can change this in oocd.cfg.
+It also requires CVRA's packager system, you can install it by running `sudo pip3 install cvra-packager==1.0.0`.
+By default it assumes you are using a ST-Link V2.
+You can change this in the Makefile.
 
 ```
     git submodule init
     git submodule update
 
-    ./packager/packager.py
+    packager
     make dsdlc
     make
     make flash
 ```
 
-Now the board should be pingable at 192.168.0.20.
+Now the board should be pingable at 192.168.3.20.
 
 # Kernel panics
 If there is a kernel panic, the board will reboot and turn on a green led.
