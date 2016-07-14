@@ -28,9 +28,9 @@ if [ "$BUILD_TYPE" == "tests" ]
 then
     # Install cpputest
     pushd ..
-    wget "https://github.com/cpputest/cpputest.github.io/blob/master/releases/cpputest-3.6.tar.gz?raw=true" -O cpputest.tar.gz
+    wget "https://github.com/cpputest/cpputest.github.io/blob/master/releases/cpputest-3.7.tar.gz?raw=true" -O cpputest.tar.gz
     tar -xzf cpputest.tar.gz
-    cd cpputest-3.6/
+    cd cpputest-3.7/
     ./configure --prefix=$HOME/cpputest
     make
     make install

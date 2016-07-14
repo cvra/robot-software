@@ -7,11 +7,10 @@ depends:
     - parameter:
         fork: Stapelzeiger
     - simplerpc
-    - odometry
-    - tracy-the-trajectory-tracker
     - pid
     - arm-cortex-tools
-
+    - timestamp
+    - msgbus
 
 target.arm:
     - src/main.c
@@ -26,33 +25,37 @@ target.arm:
     - src/blocking_uart_driver.c
     - src/config.c
     - src/interface_panel.c
-    - src/robot_pose.c
-    - src/odometry_publisher.c
     - src/motor_driver.c
     - src/motor_driver_uavcan.cpp
     - src/motor_manager.c
-    - src/differential_base.c
     - src/stream.c
     - src/node_tracker.c
     - src/malloc_lock.c
-    - src/waypoints.c
     - src/log.c
     - src/imu.c
+    - src/usbconf.c
+    - src/odometry/encoder.c
+    - src/odometry/position_manager.c
 
 source:
     - src/unix_timestamp.c
     - src/bus_enumerator.c
     - src/trajectories.c
+    - src/odometry/polar.c
+    - src/odometry/odometry.c
 
 include_directories:
     - src/
     - src/board/
 
 tests:
+    - tests/ch.cpp
+    - tests/log.c
     - tests/unix-timestamp.cpp
     - tests/bus_enumerator.cpp
-    - tests/trajectories_test.cpp
-    - tests/log.c
+    - tests/polar_test.cpp
+    - tests/odometry_test.cpp
 
 templates:
     app_src.mk.jinja: app_src.mk
+    CMakeLists.txt.jinja: CMakeLists.txt

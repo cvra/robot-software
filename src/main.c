@@ -20,21 +20,21 @@
 #include "timestamp/timestamp_stm32.h"
 #include "config.h"
 #include "interface_panel.h"
-#include "robot_pose.h"
 #include "robot_parameters.h"
-#include "odometry_publisher.h"
 #include "motor_manager.h"
-#include "differential_base.h"
 #include "stream.h"
 #include "malloc_lock.h"
 #include <lwipthread.h>
 #include "log.h"
 #include "imu.h"
+#include "usbconf.h"
+#include "odometry/encoder.h"
+#include "odometry/position_manager.h"
 
 /* Command line related.                                                     */
 #define SHELL_WA_SIZE   THD_WORKING_AREA_SIZE(2048)
 static const ShellConfig shell_cfg1 = {
-    (BaseSequentialStream *)&SD3,
+    (BaseSequentialStream *)&SDU1,
     commands
 };
 
@@ -56,6 +56,11 @@ void fault_printf(const char *fmt, ...)
     panic_log_vprintf(fmt, ap);
     va_end(ap);
 }
+
+/* Bus related declarations */
+messagebus_t bus;
+MUTEX_DECL(bus_lock);
+CONDVAR_DECL(bus_condvar);
 
 /**
  * Function called on a kernel panic.
@@ -120,17 +125,32 @@ void __late_init(void)
 int main(void) {
     static thread_t *shelltp = NULL;
 
-
     /* Initializes a serial driver.  */
     sdStart(&SD3, &debug_uart_config);
     log_message("boot");
 
+    /* Initializes a serial-over-USB CDC driver.  */
+    sduObjectInit(&SDU1);
+    sduStart(&SDU1, &serusbcfg);
+
+    /*
+     * Activates the USB driver and then the USB bus pull-up on D+.
+     * Note, a delay is inserted in order to not have to disconnect the cable
+     * after a reset.
+     */
+    usbDisconnectBus(serusbcfg.usbp);
+    chThdSleepMilliseconds(1500);
+    usbStart(serusbcfg.usbp, &usbcfg);
+    usbConnectBus(serusbcfg.usbp);
+
     /* Shell manager initialization.  */
     shellInit();
 
+    /* Initialize the interthread communication bus. */
+    messagebus_init(&bus, &bus_lock, &bus_condvar);
+
     /* Initialize global objects. */
     config_init();
-    chMtxObjectInit(&robot_pose_lock);
 
 
     /* Initialise timestamp module */
@@ -163,12 +183,9 @@ int main(void) {
                        MAX_NB_MOTOR_DRIVERS,
                        &bus_enumerator);
 
-    differential_base_init();
-
 
     struct netif *ethernet_if;
 
-    differential_base_tracking_start(); // tracy
     ip_thread_init();
 
     chThdSleepMilliseconds(1000);
@@ -182,8 +199,10 @@ int main(void) {
     rpc_server_init();
     message_server_init();
     interface_panel_init();
-    odometry_publisher_init();
     imu_init();
+
+    encoder_start();
+    position_manager_start();
 
     stream_init();
 

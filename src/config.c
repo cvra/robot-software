@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include "robot_parameters.h"
 #include "config.h"
-#include "tracy-the-trajectory-tracker/src/trajectory_tracking.h"
 
 parameter_namespace_t global_config;
 
@@ -13,11 +12,8 @@ parameter_namespace_t master_config;
 static parameter_t foo;
 
 static parameter_namespace_t odometry_config;
-static parameter_t odometry_wheel_base;
-static parameter_t odometry_left_radius;
-static parameter_t odometry_right_radius;
-static parameter_t odometry_left_wheel_direction;
-static parameter_t odometry_right_wheel_direction;
+static parameter_t odometry_track;
+static parameter_t odometry_radius;
 
 
 
@@ -28,30 +24,15 @@ void config_init(void)
     parameter_namespace_declare(&master_config, &global_config, "master");
 
     parameter_namespace_declare(&odometry_config, &master_config, "odometry");
-    parameter_scalar_declare_with_default(&odometry_wheel_base,
+    parameter_scalar_declare_with_default(&odometry_track,
                                           &odometry_config,
-                                          "wheelbase",
-                                          ROBOT_EXTERNAL_WHEELBASE);
+                                          "track",
+                                          ROBOT_EXTERNAL_TRACK_LENGTH);
 
-    parameter_scalar_declare_with_default(&odometry_right_radius,
+    parameter_scalar_declare_with_default(&odometry_radius,
                                           &odometry_config,
-                                          "radius_right",
-                                          ROBOT_RIGHT_EXTERNAL_WHEEL_RADIUS);
-
-    parameter_scalar_declare_with_default(&odometry_left_radius,
-                                          &odometry_config,
-                                          "radius_left",
-                                          ROBOT_LEFT_EXTERNAL_WHEEL_RADIUS);
-
-    parameter_integer_declare_with_default(&odometry_right_wheel_direction,
-                                           &odometry_config,
-                                           "right_wheel_direction",
-                                           ROBOT_RIGHT_WHEEL_DIRECTION);
-
-    parameter_integer_declare_with_default(&odometry_left_wheel_direction,
-                                           &odometry_config,
-                                           "left_wheel_direction",
-                                           ROBOT_LEFT_WHEEL_DIRECTION);
+                                          "radius",
+                                          ROBOT_EXTERNAL_WHEEL_RADIUS);
 
     parameter_scalar_declare(&foo, &master_config, "foo");
 }

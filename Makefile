@@ -12,7 +12,7 @@ endif
 
 # C specific options here (added to USE_OPT).
 ifeq ($(USE_COPT),)
-  USE_COPT =
+  USE_COPT = -std=gnu99
 endif
 
 # C++ specific options here (added to USE_OPT).
@@ -184,7 +184,7 @@ CPPWARN = -Wall -Wextra
 # List all default C defines here, like -DDEBUG
 DDEFS += -DUAVCAN_TOSTRING=0 \
 		 -DUAVCAN_STM32_NUM_IFACES=1 \
-		 -DUAVCAN_STM32_TIMER_NUMBER=3 \
+		 -DUAVCAN_STM32_TIMER_NUMBER=2 \
 		 -DUAVCAN_STM32_CHIBIOS=1 \
 		 -DUAVCAN_TINY=0 \
 		 -DLWIP_DEBUG=1
