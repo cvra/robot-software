@@ -16,10 +16,10 @@
 #include "node_tracker.h"
 #include "msgbus/messagebus.h"
 #include "main.h"
-#include "odometry/encoder.h"
-#include "odometry/polar.h"
-#include "odometry/odometry.h"
-#include "odometry/position_manager.h"
+#include "base/encoder.h"
+#include "base/polar.h"
+#include "base/odometry.h"
+#include "base/position_manager.h"
 
 
 

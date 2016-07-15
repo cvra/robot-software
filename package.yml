@@ -34,15 +34,15 @@ target.arm:
     - src/log.c
     - src/imu.c
     - src/usbconf.c
-    - src/odometry/encoder.c
-    - src/odometry/position_manager.c
+    - src/base/encoder.c
+    - src/base/position_manager.c
 
 source:
     - src/unix_timestamp.c
     - src/bus_enumerator.c
     - src/trajectories.c
-    - src/odometry/polar.c
-    - src/odometry/odometry.c
+    - src/base/polar.c
+    - src/base/odometry.c
 
 include_directories:
     - src/

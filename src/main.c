@@ -28,8 +28,8 @@
 #include "log.h"
 #include "imu.h"
 #include "usbconf.h"
-#include "odometry/encoder.h"
-#include "odometry/position_manager.h"
+#include "base/encoder.h"
+#include "base/position_manager.h"
 
 /* Command line related.                                                     */
 #define SHELL_WA_SIZE   THD_WORKING_AREA_SIZE(2048)

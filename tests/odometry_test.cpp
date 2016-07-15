@@ -2,7 +2,7 @@
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
 #include "ch.h"
-#include "odometry/odometry.h"
+#include "base/odometry.h"
 
 static void pose2d_equal(odometry_pose2d_t expected, odometry_pose2d_t value);
 
