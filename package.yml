@@ -43,6 +43,7 @@ source:
     - src/trajectories.c
     - src/base/polar.c
     - src/base/odometry.c
+    - src/base/base_controller.c
 
 include_directories:
     - src/
@@ -55,6 +56,7 @@ tests:
     - tests/bus_enumerator.cpp
     - tests/polar_test.cpp
     - tests/odometry_test.cpp
+    - tests/base_controller_test.cpp
 
 templates:
     app_src.mk.jinja: app_src.mk
