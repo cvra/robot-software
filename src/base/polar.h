@@ -17,6 +17,7 @@ typedef struct {
 } polar_t;
 
 void polar_get_polar_from_wheels(const wheels_t wheels, polar_t *polar);
+void polar_get_wheels_from_polar(const polar_t polar, wheels_t *wheels);
 
 float angle_delta(float start, float end);
 
