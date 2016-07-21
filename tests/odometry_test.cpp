@@ -4,9 +4,9 @@
 #include "ch.h"
 #include "base/odometry.h"
 
-static void pose2d_equal(odometry_pose2d_t expected, odometry_pose2d_t value);
+static void pose2d_equal(pose2d_t expected, pose2d_t value);
 
-static void pose2d_equal(odometry_pose2d_t expected, odometry_pose2d_t value)
+static void pose2d_equal(pose2d_t expected, pose2d_t value)
 {
     DOUBLES_EQUAL(expected.x, value.x, 1e-6);
     DOUBLES_EQUAL(expected.y, value.y, 1e-6);
@@ -19,7 +19,7 @@ TEST_GROUP(OdometrySetup)
 
     void setup(void)
     {
-        odometry_pose2d_t init_pos = {.x=2.f, .y=3.f, .heading=20.f};
+        pose2d_t init_pos = {.x=2.f, .y=3.f, .heading=20.f};
         odometry_params_t params = {.track=1.f, .tick_per_turn=1024, .wheel_radius=0.2f};
         wheels_t wheel_corrections = {.left=1.01f, .right=-1.f};
         encoders_msg_t prev_encoders = {.left=17, .right=19};
@@ -47,7 +47,7 @@ TEST(OdometrySetup, CanInit)
 
 TEST(OdometrySetup, CanReset)
 {
-    odometry_pose2d_t new_position;
+    pose2d_t new_position;
     new_position.x = 1.0f;
     new_position.y = 0.5f;
     new_position.heading = 1.57f;
@@ -87,7 +87,7 @@ TEST_GROUP(Odometry)
 
     void setup(void)
     {
-        odometry_pose2d_t init_pos = {.x=0.f, .y=0.f, .heading=0.f};
+        pose2d_t init_pos = {.x=0.f, .y=0.f, .heading=0.f};
         odometry_params_t params = {.track=0.5f, .tick_per_turn=1024, .wheel_radius=0.1f};
         wheels_t wheel_corrections = {.left=1.f, .right=1.f};
         encoders_msg_t prev_encoders = {.left=0, .right=0};

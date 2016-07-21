@@ -1,5 +1,6 @@
 #include <ch.h>
 #include "msgbus/messagebus.h"
+#include "base.h"
 #include "odometry.h"
 #include "position_manager.h"
 #include "robot_parameters.h"
@@ -19,7 +20,7 @@ static THD_FUNCTION(position_manager_thd, arg)
     static messagebus_topic_t position_topic;
     static MUTEX_DECL(position_topic_lock);
     static CONDVAR_DECL(position_topic_condvar);
-    static odometry_pose2d_t position_topic_value;
+    static pose2d_t position_topic_value;
 
     messagebus_topic_init(&position_topic,
                           &position_topic_lock,
@@ -35,7 +36,7 @@ static THD_FUNCTION(position_manager_thd, arg)
     encoders_topic = messagebus_find_topic_blocking(&bus, "/encoders");
 
     /* Initialise odometry */
-    odometry_pose2d_t init_pos = {.x=0.f, .y=0.f, .heading=0.f};
+    pose2d_t init_pos = {.x=0.f, .y=0.f, .heading=0.f};
     odometry_params_t params = {
         .track=ROBOT_EXTERNAL_TRACK_LENGTH,
         .tick_per_turn=EXTERNAL_ENCODER_TICKS_PER_TURN,
@@ -69,7 +70,7 @@ void position_manager_start(void)
 
 void position_manager_reset(float x, float y, float heading)
 {
-    odometry_pose2d_t new_position = {.x=x, .y=y, .heading=heading};
+    pose2d_t new_position = {.x=x, .y=y, .heading=heading};
     odometry_reset(&odom, new_position, timestamp_get());
 }
 

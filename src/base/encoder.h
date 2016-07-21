@@ -14,10 +14,6 @@ typedef struct {
     int32_t right;
 } encoders_msg_t;
 
-typedef struct {
-    float left;
-    float right;
-} wheels_t;
 
 void encoder_start(void);
 

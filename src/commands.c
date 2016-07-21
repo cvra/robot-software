@@ -292,7 +292,7 @@ static void cmd_position(BaseSequentialStream *chp, int argc, char *argv[])
     (void) argv;
 
     messagebus_topic_t *position_topic;
-    odometry_pose2d_t pos;
+    pose2d_t pos;
 
     position_topic = messagebus_find_topic_blocking(&bus, "/position");
     messagebus_topic_wait(position_topic, &pos, sizeof(pos));
