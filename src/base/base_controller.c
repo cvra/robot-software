@@ -4,10 +4,12 @@
 #include "base_controller.h"
 #include "main.h"
 #include "cvra/cvra_motors.h"
+#include "trajectory_manager/trajectory_manager_core.h"
 
 
-#define BASE_CONTROLLER_STACKSIZE  2048
-#define POSITION_MANAGER_STACKSIZE 1024
+#define BASE_CONTROLLER_STACKSIZE    2048
+#define POSITION_MANAGER_STACKSIZE   1024
+#define TRAJECTORY_MANAGER_STACKSIZE 1024
 
 
 struct _robot robot;
@@ -150,4 +152,10 @@ void position_manager_start(void)
 {
     static THD_WORKING_AREA(position_thd_wa, POSITION_MANAGER_STACKSIZE);
     chThdCreateStatic(position_thd_wa, sizeof(position_thd_wa), NORMALPRIO, position_manager_thd, NULL);
+}
+
+void trajectory_manager_start(void)
+{
+    static THD_WORKING_AREA(trajectory_thd_wa, TRAJECTORY_MANAGER_STACKSIZE);
+    chThdCreateStatic(trajectory_thd_wa, sizeof(trajectory_thd_wa), NORMALPRIO, trajectory_manager_thd, &(robot.traj));
 }

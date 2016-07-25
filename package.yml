@@ -34,8 +34,15 @@ target.arm:
     - src/log.c
     - src/imu.c
     - src/usbconf.c
+    - src/aversive/math/fast_math/fast_math.c
+    - src/aversive/math/geometry/circles.c
+    - src/aversive/math/geometry/lines.c
+    - src/aversive/math/geometry/polygon.c
+    - src/aversive/math/geometry/vect_base.c
+    - src/aversive/math/vect2/vect2.c
     - src/aversive/cvra/cvra_motors.c
     - src/aversive/cvra/cvra_pid.c
+    - src/aversive/error/error.c
     - src/aversive/robot_system/angle_distance.c
     - src/aversive/robot_system/robot_system.c
     - src/aversive/position_manager/position_manager.c

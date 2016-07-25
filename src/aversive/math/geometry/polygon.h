@@ -22,7 +22,7 @@
 #ifndef _POLYGON_H_
 #define _POLYGON_H_
 
-#include <vect_base.h>
+#include "math/geometry/vect_base.h"
 
 /** \addtogroup Geometrie
  * @{ */
@@ -46,20 +46,20 @@ uint8_t is_in_poly(const point_t *p, poly_t *pol);
 /** Checks if a point belongs to a polygon
  * @param [in] *pol Polygon to check
  * @param [in] *x x-coordinate of point to check
- * @param [in] *y y-coordinate of point to check 
+ * @param [in] *y y-coordinate of point to check
  * @return 0 if outside, 1 if inside, 2 if on edge.
  * @sa is_in_poly
  */
 uint8_t is_point_in_poly(poly_t *pol, int16_t x, int16_t y);
 
- /** Checks if a segment is crossing a polygon 
+ /** Checks if a segment is crossing a polygon
   * @param [in] p1, p2 The two points defining the segment.
   * @param [in] pol The polygon to check.
   * @param [out] intersect_pt Contains the intersection point.
   * @returns 0 dont cross, 1 cross, 2 on a side,
-  *  3 touch out (a segment boundary is on a polygon edge, 
+  *  3 touch out (a segment boundary is on a polygon edge,
   *  and the second segment boundary is out of the polygon) */
-uint8_t 
+uint8_t
 is_crossing_poly(point_t p1, point_t p2, point_t *intersect_pt,
 		 poly_t *pol);
 
@@ -77,7 +77,7 @@ void polygon_set_boundingbox(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 uint8_t is_in_boundingbox(const point_t *p);
 
 /** @brief Constructs the visibility ray graph.
- * 
+ *
  *  Giving the list of poygons, compute the graph of "visibility rays".
  * This rays array is composed of indexes representing 2 polygon
  * vertices that can "see" each others:
@@ -99,24 +99,24 @@ uint8_t is_in_boundingbox(const point_t *p);
  * @return Number of rays
  */
 
-uint8_t 
+uint8_t
 calc_rays(poly_t *polys, uint8_t npolys, uint8_t *rays);
 
 /** Compute the weight of every rays: the length of the rays is used
- * here. 
+ * here.
  *
  * @note The +1 is a little hack to introduce a preference between two
  * possiblity path: If we have 3 checkpoints aligned in a path (say A,
- * B, C) the algorithm will prefer (A, C) instead of (A, B, C) 
+ * B, C) the algorithm will prefer (A, C) instead of (A, B, C)
  * @param [in] *polys Array of polygons
  * @param [in] npolys Number of polygons in the array
  * @param [in] *rays Array of the rays
  * @param [in] ray_n Number of rays in the array
  * @param [out] *weight List of the weights of each ray
  * */
-void 
-calc_rays_weight(poly_t *polys, uint8_t npolys, uint8_t *rays, 
+void
+calc_rays_weight(poly_t *polys, uint8_t npolys, uint8_t *rays,
 		 uint8_t ray_n, uint16_t *weight);
- 
+
 /** @} */
 #endif

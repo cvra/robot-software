@@ -64,6 +64,9 @@ struct _robot {
     uint8_t is_aligning:1;                  // =1 if the robot is aligning on border
 };
 
+extern struct _robot robot;
+
+
 typedef struct {
     pid_ctrl_t distance_pid;
     pid_ctrl_t heading_pid;

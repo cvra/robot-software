@@ -630,36 +630,37 @@ static void trajectory_manager_line_event(struct trajectory *traj)
 
 
 /* trajectory event */
-void trajectory_manager_event(void * param)
+void trajectory_manager_thd(void * param)
 {
     struct trajectory *traj = (struct trajectory *)param;
 
-
     while(1) {
-        switch (traj->state) {
-            case RUNNING_XY_START:
-            case RUNNING_XY_ANGLE:
-            case RUNNING_XY_ANGLE_OK:
-            case RUNNING_XY_F_START:
-            case RUNNING_XY_F_ANGLE:
-            case RUNNING_XY_F_ANGLE_OK:
-            case RUNNING_XY_B_START:
-            case RUNNING_XY_B_ANGLE:
-            case RUNNING_XY_B_ANGLE_OK:
-                trajectory_manager_xy_event(traj);
-                break;
+        if (traj->scheduled) {
+            switch (traj->state) {
+                case RUNNING_XY_START:
+                case RUNNING_XY_ANGLE:
+                case RUNNING_XY_ANGLE_OK:
+                case RUNNING_XY_F_START:
+                case RUNNING_XY_F_ANGLE:
+                case RUNNING_XY_F_ANGLE_OK:
+                case RUNNING_XY_B_START:
+                case RUNNING_XY_B_ANGLE:
+                case RUNNING_XY_B_ANGLE_OK:
+                    trajectory_manager_xy_event(traj);
+                    break;
 
-            case RUNNING_CIRCLE:
-                trajectory_manager_circle_event(traj);
-                break;
+                case RUNNING_CIRCLE:
+                    trajectory_manager_circle_event(traj);
+                    break;
 
-            case RUNNING_LINE:
-            case RUNNING_CLITOID_LINE:
-                trajectory_manager_line_event(traj);
-                break;
+                case RUNNING_LINE:
+                case RUNNING_CLITOID_LINE:
+                    trajectory_manager_line_event(traj);
+                    break;
 
-            default:
-                break;
+                default:
+                    break;
+            }
         }
         chThdSleepMilliseconds(TRAJ_EVT_PERIOD);
     }

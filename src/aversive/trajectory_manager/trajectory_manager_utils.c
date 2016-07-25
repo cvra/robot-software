@@ -75,6 +75,20 @@ void set_quadramp_acc(struct trajectory *traj, double d_acc, double a_acc)
     quadramp_set_2nd_order_vars(q_a, fabs(a_acc), fabs(a_acc));
 }
 
+/** remove event if any */
+void delete_event(struct trajectory *traj)
+{
+    set_quadramp_speed(traj, traj->d_speed, traj->a_speed);
+    set_quadramp_acc(traj, traj->d_acc, traj->a_acc);
+    traj->scheduled = false;
+}
+
+/** schedule the trajectory event */
+void schedule_event(struct trajectory *traj)
+{
+    traj->scheduled = true;
+}
+
 /** do a modulo 2.pi -> [-Pi,+Pi], knowing that 'a' is in [-3Pi,+3Pi] */
 double simple_modulo_2pi(double a)
 {

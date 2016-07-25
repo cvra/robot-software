@@ -21,10 +21,10 @@
 
 #include <math.h>
 
-#include <aversive.h>
+#include "aversive.h"
 
-#include <vect_base.h>
-#include <circles.h>
+#include "math/geometry/vect_base.h"
+#include "math/geometry/circles.h"
 //#include "../fast_math/fast_math.h"
 
 static inline float sq(float x)

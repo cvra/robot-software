@@ -98,6 +98,8 @@ struct line_target {
 
 /** A complete instance of the trajectory manager. */
 struct trajectory {
+    bool scheduled; // Is any trajectory related action is scheduled
+
     enum trajectory_state state; /**< describe the type of target, and if we reached the target */
 
     union {

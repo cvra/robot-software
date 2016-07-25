@@ -204,6 +204,7 @@ int main(void) {
     encoder_start();
     base_controller_start();
     position_manager_start();
+    trajectory_manager_start();
 
     stream_init();
 

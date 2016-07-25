@@ -27,8 +27,8 @@
 #include <stdio.h>
 #include <math.h>
 
-#include <vect_base.h>
-#include <lines.h>
+#include "math/geometry/vect_base.h"
+#include "math/geometry/lines.h"
 
 #define DEBUG 0
 
@@ -213,7 +213,7 @@ intersect_segment(const point_t *s1, const point_t *s2,
 	debug_printf("px=%" PRIi32 " py=%" PRIi32 "\n", p->x, p->y);
 
 	/* Consider as parallel if intersection is too far */
-	if (ABS(p->x) > (1L << 15) || ABS(p->y) > (1L << 15))
+	if (fabs(p->x) > (1L << 15) || fabs(p->y) > (1L << 15))
 		return 0;
 
 	/* if prod scal neg: cut in middle of segment */

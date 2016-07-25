@@ -21,7 +21,7 @@
 
 #include <stdint.h>
 #include <math.h>
-#include <vect_base.h>
+#include "math/geometry/vect_base.h"
 //#include "../fast_math/fast_math.h"
 
 /* Return scalar product */

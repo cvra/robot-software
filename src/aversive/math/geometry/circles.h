@@ -22,7 +22,7 @@
 #ifndef _CIRCLES_H_
 #define _CIRCLES_H_
 
-#include <vect_base.h>
+#include "math/geometry/vect_base.h"
 
 /** \addtogroup Geometrie
  * This module does some simple calculation on circles, lines, and polygons.
@@ -45,18 +45,18 @@ typedef struct _circle {
  */
 int pt_is_inside_circle(const point_t *p, circle_t *c);
 
-/** Checks if 2 circles are intersecting. 
+/** Checks if 2 circles are intersecting.
   * @return The number of intersection points (0, 1 or 2)
   * @param [in] *c1 The first circle.
-  * @param [in] *c2 The second circle. 
+  * @param [in] *c2 The second circle.
   * @param [out] *p1 The first intersection point.
   * @param [out] *p2 The second intersection point.
-  * 
+  *
   * @note If the 2 circles intersect on 1 point, then p1 == p2.
   */
 int circle_intersect(const circle_t *c1, const circle_t *c2,
 			 point_t *p1, point_t *p2);
-			 
+
 
 /** @} */
 

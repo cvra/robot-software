@@ -1,6 +1,6 @@
-/*  
+/*
  *  Copyright Droids Corporation, Microb Technology, Eirbot (2005)
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -21,9 +21,9 @@
 
 
 #include <string.h>
+#include <stdint.h>
 
-#include <platform.h>
-#include <aversive/error.h>
+#include "error/error.h"
 
 struct error_fct g_error_fct;
 
@@ -34,9 +34,9 @@ void error_init(void)
 }
 
 
-struct error error_generate(uint8_t num, uint8_t severity, const char * t, 
+struct error error_generate(uint8_t num, uint8_t severity, const char * t,
 			    const char * f, uint16_t l) {
-	struct error e;      
+	struct error e;
 
 	e.err_num = num;
 	e.severity = severity;
