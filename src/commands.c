@@ -19,7 +19,7 @@
 #include "base/encoder.h"
 #include "base/polar.h"
 #include "base/odometry.h"
-#include "base/position_manager.h"
+#include "base/base_controller.h"
 
 
 
@@ -286,33 +286,34 @@ static void cmd_encoders(BaseSequentialStream *chp, int argc, char *argv[])
     chprintf(chp, "left: %ld\r\nright: %ld\r\n", values.left, values.right);
 }
 
-// static void cmd_position(BaseSequentialStream *chp, int argc, char *argv[])
-// {
-//     (void) argc;
-//     (void) argv;
+static void cmd_position(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    (void) argc;
+    (void) argv;
 
-//     messagebus_topic_t *position_topic;
-//     pose2d_t pos;
+    float x, y, a;
 
-//     position_topic = messagebus_find_topic_blocking(&bus, "/position");
-//     messagebus_topic_wait(position_topic, &pos, sizeof(pos));
+    x = position_get_x_float(&robot.pos);
+    y = position_get_y_float(&robot.pos);
+    a = position_get_a_rad_float(&robot.pos);
 
-//     chprintf(chp, "x: %f [m]\r\ny: %f [m]\r\na: %f [deg]\r\n", pos.x, pos.y, DEGREES(pos.heading));
-// }
+    chprintf(chp, "x: %f [m]\r\ny: %f [m]\r\na: %f [deg]\r\n", x, y, a);
+}
 
-// static void cmd_position_reset(BaseSequentialStream *chp, int argc, char *argv[])
-// {
-//     if (argc == 3) {
-//         float x = atof(argv[0]);
-//         float y = atof(argv[0]);
-//         float heading = atof(argv[0]);
+static void cmd_position_reset(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc == 3) {
+        float x = atof(argv[0]);
+        float y = atof(argv[1]);
+        float a = atof(argv[2]);
 
-//         position_manager_reset(x, y, heading);
-//         chprintf(chp, "New pos x: %f [m]\r\ny: %f [m]\r\na: %f [deg]\r\n", x, y, heading);
-//     } else {
-//         chprintf(chp, "Usage: pos_reset x[m] y[m] heading[deg]\r\n");
-//     }
-// }
+        position_set(&robot.pos, x, y, a);
+
+        chprintf(chp, "New pos x: %f [m]\r\ny: %f [m]\r\na: %f [deg]\r\n", x, y, a);
+    } else {
+        chprintf(chp, "Usage: pos_reset x[m] y[m] a[deg]\r\n");
+    }
+}
 
 // static void cmd_wheel_correction(BaseSequentialStream *chp, int argc, char *argv[])
 // {
@@ -332,18 +333,43 @@ static void cmd_encoders(BaseSequentialStream *chp, int argc, char *argv[])
 //     }
 // }
 
+static void cmd_traj_forward(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc == 1) {
+        float distance;
+        distance = atof(argv[0]);
+        trajectory_d_rel(&robot.traj, distance);
+    } else {
+        chprintf(chp, "Usage: forward distance\r\n");
+    }
+}
+
+static void cmd_traj_rotate(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc == 1) {
+        float angle;
+        angle = atof(argv[1]);
+        trajectory_a_rel(&robot.traj, angle);
+    } else {
+        chprintf(chp, "Usage: rotate angle\r\n");
+    }
+}
+
+
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
     {"encoders", cmd_encoders},
+    {"forward", cmd_traj_forward},
     {"ip", cmd_ip},
     {"mem", cmd_mem},
     {"node", cmd_node},
     {"node_reboot", cmd_uavcan_node_reboot},
     {"node_tracker", cmd_node_tracker},
-    // {"pos", cmd_position},
-    // {"pos_reset", cmd_position_reset},
+    {"pos", cmd_position},
+    {"pos_reset", cmd_position_reset},
     {"reboot", cmd_reboot},
+    {"rotate", cmd_traj_rotate},
     {"rpc_client_demo", cmd_rpc_client_test},
     {"threads", cmd_threads},
     {"time", cmd_time},
