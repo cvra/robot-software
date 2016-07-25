@@ -286,51 +286,51 @@ static void cmd_encoders(BaseSequentialStream *chp, int argc, char *argv[])
     chprintf(chp, "left: %ld\r\nright: %ld\r\n", values.left, values.right);
 }
 
-static void cmd_position(BaseSequentialStream *chp, int argc, char *argv[])
-{
-    (void) argc;
-    (void) argv;
+// static void cmd_position(BaseSequentialStream *chp, int argc, char *argv[])
+// {
+//     (void) argc;
+//     (void) argv;
 
-    messagebus_topic_t *position_topic;
-    pose2d_t pos;
+//     messagebus_topic_t *position_topic;
+//     pose2d_t pos;
 
-    position_topic = messagebus_find_topic_blocking(&bus, "/position");
-    messagebus_topic_wait(position_topic, &pos, sizeof(pos));
+//     position_topic = messagebus_find_topic_blocking(&bus, "/position");
+//     messagebus_topic_wait(position_topic, &pos, sizeof(pos));
 
-    chprintf(chp, "x: %f [m]\r\ny: %f [m]\r\na: %f [deg]\r\n", pos.x, pos.y, DEGREES(pos.heading));
-}
+//     chprintf(chp, "x: %f [m]\r\ny: %f [m]\r\na: %f [deg]\r\n", pos.x, pos.y, DEGREES(pos.heading));
+// }
 
-static void cmd_position_reset(BaseSequentialStream *chp, int argc, char *argv[])
-{
-    if (argc == 3) {
-        float x = atof(argv[0]);
-        float y = atof(argv[0]);
-        float heading = atof(argv[0]);
+// static void cmd_position_reset(BaseSequentialStream *chp, int argc, char *argv[])
+// {
+//     if (argc == 3) {
+//         float x = atof(argv[0]);
+//         float y = atof(argv[0]);
+//         float heading = atof(argv[0]);
 
-        position_manager_reset(x, y, heading);
-        chprintf(chp, "New pos x: %f [m]\r\ny: %f [m]\r\na: %f [deg]\r\n", x, y, heading);
-    } else {
-        chprintf(chp, "Usage: pos_reset x[m] y[m] heading[deg]\r\n");
-    }
-}
+//         position_manager_reset(x, y, heading);
+//         chprintf(chp, "New pos x: %f [m]\r\ny: %f [m]\r\na: %f [deg]\r\n", x, y, heading);
+//     } else {
+//         chprintf(chp, "Usage: pos_reset x[m] y[m] heading[deg]\r\n");
+//     }
+// }
 
-static void cmd_wheel_correction(BaseSequentialStream *chp, int argc, char *argv[])
-{
-    if (argc == 2) {
-        float left, right;
-        position_manager_get_wheel_correction(&left, &right);
+// static void cmd_wheel_correction(BaseSequentialStream *chp, int argc, char *argv[])
+// {
+//     if (argc == 2) {
+//         float left, right;
+//         position_manager_get_wheel_correction(&left, &right);
 
-        if (!strcmp("left", argv[0])) {
-            left = atof(argv[1]);
-        } else if (!strcmp("right", argv[0])) {
-            right = atof(argv[1]);
-        }
+//         if (!strcmp("left", argv[0])) {
+//             left = atof(argv[1]);
+//         } else if (!strcmp("right", argv[0])) {
+//             right = atof(argv[1]);
+//         }
 
-        position_manager_set_wheel_correction(left, right);
-    } else {
-        chprintf(chp, "Usage: wheel_corr {left|right} factor\r\n");
-    }
-}
+//         position_manager_set_wheel_correction(left, right);
+//     } else {
+//         chprintf(chp, "Usage: wheel_corr {left|right} factor\r\n");
+//     }
+// }
 
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
@@ -341,13 +341,13 @@ const ShellCommand commands[] = {
     {"node", cmd_node},
     {"node_reboot", cmd_uavcan_node_reboot},
     {"node_tracker", cmd_node_tracker},
-    {"pos", cmd_position},
-    {"pos_reset", cmd_position_reset},
+    // {"pos", cmd_position},
+    // {"pos_reset", cmd_position_reset},
     {"reboot", cmd_reboot},
     {"rpc_client_demo", cmd_rpc_client_test},
     {"threads", cmd_threads},
     {"time", cmd_time},
     {"topics", cmd_topics},
-    {"wheel_corr", cmd_wheel_correction},
+    // {"wheel_corr", cmd_wheel_correction},
     {NULL, NULL}
 };

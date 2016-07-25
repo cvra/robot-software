@@ -34,8 +34,20 @@ target.arm:
     - src/log.c
     - src/imu.c
     - src/usbconf.c
+    - src/aversive/cvra/cvra_motors.c
+    - src/aversive/cvra/cvra_pid.c
+    - src/aversive/robot_system/angle_distance.c
+    - src/aversive/robot_system/robot_system.c
+    - src/aversive/position_manager/position_manager.c
+    - src/aversive/quadramp/quadramp.c
+    - src/aversive/control_system_manager/control_system_manager.c
+    - src/aversive/trajectory_manager/trajectory_manager.c
+    - src/aversive/trajectory_manager/trajectory_manager_core.c
+    - src/aversive/trajectory_manager/trajectory_manager_utils.c
+    - src/aversive/blocking_detection_manager/blocking_detection_manager.c
     - src/base/encoder.c
-    - src/base/position_manager.c
+    # - src/base/position_manager.c
+    - src/base/base_controller.c
 
 source:
     - src/unix_timestamp.c
@@ -43,10 +55,10 @@ source:
     - src/trajectories.c
     - src/base/polar.c
     - src/base/odometry.c
-    - src/base/base_controller.c
 
 include_directories:
     - src/
+    - src/aversive/
     - src/board/
 
 tests:

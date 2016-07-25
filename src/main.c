@@ -29,9 +29,9 @@
 #include "imu.h"
 #include "usbconf.h"
 #include "base/encoder.h"
-#include "base/position_manager.h"
+#include "base/base_controller.h"
 
-/* Command line related.                                                     */
+/* Command line related */
 #define SHELL_WA_SIZE   THD_WORKING_AREA_SIZE(2048)
 static const ShellConfig shell_cfg1 = {
     (BaseSequentialStream *)&SDU1,
@@ -202,6 +202,7 @@ int main(void) {
     imu_init();
 
     encoder_start();
+    base_controller_start();
     position_manager_start();
 
     stream_init();

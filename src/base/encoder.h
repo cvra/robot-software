@@ -16,6 +16,8 @@ typedef struct {
 
 
 void encoder_start(void);
+uint32_t encoder_get_left(void);
+uint32_t encoder_get_right(void);
 
 
 #ifdef __cplusplus
