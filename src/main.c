@@ -236,14 +236,13 @@ void context_switch_hook(void *ntp, void *otp)
         return;
     }
 
-    chSysLockFromISR();
-
+    /* Note: We want to use mpu_configure_region inside a thread
+       or an ISR context. It turns out ChibiOS doesn't like it (panic)
+       if you lock around mpu_configure_region in here. */
     mpu_configure_region(6,
                          /* we skip sizeof(thread_t) because the start of the working area is used by ChibiOS. */
                          ntp + sizeof(thread_t) + 32,
                          5, /* 32 bytes */
                          AP_NO_NO, /* no permission */
                          false);
-    chSysUnlockFromISR();
-
 }
