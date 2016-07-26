@@ -35,6 +35,8 @@ static THD_FUNCTION(base_ctrl_thd, arg)
     (void) arg;
     chRegSetThreadName(__FUNCTION__);
 
+    robot.mode = BOARD_MODE_ANGLE_DISTANCE;
+
     /* Motors */
     cvra_motor_t left_wheel_motor = {.m=&motor_manager, .max_velocity=10.f};
     cvra_motor_t right_wheel_motor = {.m=&motor_manager, .max_velocity=10.f};
@@ -88,16 +90,15 @@ static THD_FUNCTION(base_ctrl_thd, arg)
     trajectory_set_cs(&robot.traj, &robot.distance_cs, &robot.angle_cs);
     trajectory_set_robot_params(&robot.traj, &robot.rs, &robot.pos);
 
-    /* distance window, angle window, angle start */
-    trajectory_set_windows(&robot.traj, 15., 5.0, 10.); // Prod
+    trajectory_set_windows(&robot.traj, 15., 5.0, 10.); // Distance window, angle window, angle start
 
     // Angle BDM
     bd_init(&robot.angle_bd, &robot.angle_cs);
-    bd_set_thresholds(&robot.angle_bd, 3000, 1); /* thresold, duration. */
+    bd_set_thresholds(&robot.angle_bd, 3000, 1); // thresold, duration
 
     // Distance BDM
     bd_init(&robot.distance_bd, &robot.distance_cs);
-    bd_set_thresholds(&robot.distance_bd, 3600, 1); /* thresold, duration. */
+    bd_set_thresholds(&robot.distance_bd, 3600, 1); // thresold, duration
 
     robot.is_aligning = 0;
 
