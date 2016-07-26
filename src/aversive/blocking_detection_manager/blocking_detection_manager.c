@@ -30,13 +30,6 @@
 #include <blocking_detection_manager/blocking_detection_manager.h>
 
 
-#define ABS(val) ({					\
-			__typeof(val) __val = (val);	\
-			if (__val < 0)			\
-				__val = - __val;	\
-			__val;				\
-		})
-
 /** init module, give the robot system to use as a parameter */
 void bd_init(struct blocking_detection * bd, struct cs *cs)
 {
@@ -64,7 +57,7 @@ void bd_set_thresholds(struct blocking_detection *bd, uint32_t err_thres, uint16
 /** function to be called periodically */
 void bd_manage(struct blocking_detection * bd)
 {
-	uint32_t err = ABS(cs_get_error(bd->cs));
+	uint32_t err = fabs(cs_get_error(bd->cs));
 
 	if(bd->err_thres == 0) return;
 
