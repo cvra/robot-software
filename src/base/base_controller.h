@@ -76,10 +76,13 @@ void base_controller_init(base_controller_t *base);
 
 void base_controller_compute_error(polar_t *error, pose2d_t desired, pose2d_t measured);
 
+void robot_init(void);
+
 void base_controller_start(void);
 
 void position_manager_start(void);
 
+void trajectory_manager_start(void);
 
 #ifdef __cplusplus
 }

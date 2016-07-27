@@ -29,17 +29,14 @@ void base_controller_compute_error(polar_t *error, pose2d_t desired, pose2d_t me
     error->angle = angle_delta(measured.heading, desired.heading);
 }
 
-
-static THD_FUNCTION(base_ctrl_thd, arg)
+void robot_init(void)
 {
-    (void) arg;
-    chRegSetThreadName(__FUNCTION__);
-
     robot.mode = BOARD_MODE_ANGLE_DISTANCE;
 
     /* Motors */
-    cvra_motor_t left_wheel_motor = {.m=&motor_manager, .max_velocity=10.f};
-    cvra_motor_t right_wheel_motor = {.m=&motor_manager, .max_velocity=10.f};
+    static cvra_motor_t left_wheel_motor = {.m=&motor_manager, .max_velocity=10.f};
+    static cvra_motor_t right_wheel_motor = {.m=&motor_manager, .max_velocity=10.f};
+    cvra_encoder_init();
 
     /* Robot system initialisation, encoders and PWM */
     rs_init(&robot.rs);
@@ -47,8 +44,8 @@ static THD_FUNCTION(base_ctrl_thd, arg)
 
     rs_set_left_pwm(&robot.rs, cvra_motor_left_wheel_set_velocity, &left_wheel_motor);
     rs_set_right_pwm(&robot.rs, cvra_motor_right_wheel_set_velocity, &right_wheel_motor);
-    rs_set_left_ext_encoder(&robot.rs, cvra_encoder_get_left_ext, NULL, 1.);
-    rs_set_right_ext_encoder(&robot.rs, cvra_encoder_get_right_ext, NULL, -1.);
+    rs_set_left_ext_encoder(&robot.rs, cvra_encoder_get_left_ext, NULL, -1.);
+    rs_set_right_ext_encoder(&robot.rs, cvra_encoder_get_right_ext, NULL, 1.);
 
     /* Position manager */
     position_init(&robot.pos);
@@ -104,6 +101,13 @@ static THD_FUNCTION(base_ctrl_thd, arg)
 
     // Position initialisation
     position_set(&robot.pos, 0, 0, 0);
+}
+
+
+static THD_FUNCTION(base_ctrl_thd, arg)
+{
+    (void) arg;
+    chRegSetThreadName(__FUNCTION__);
 
     while (1) {
         rs_update(&robot.rs);

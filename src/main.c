@@ -202,6 +202,7 @@ int main(void) {
     imu_init();
 
     encoder_start();
+    robot_init();
     base_controller_start();
     position_manager_start();
     trajectory_manager_start();
