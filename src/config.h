@@ -19,6 +19,9 @@ void config_init(void);
  */
 float config_get_scalar(const char *id);
 
+/* Macro to easily find a parameter from path */
+#define PARAMETER(s) parameter_find(&global_config, (s))
+
 #ifdef __cplusplus
 }
 #endif

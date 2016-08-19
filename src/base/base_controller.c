@@ -5,11 +5,12 @@
 #include "main.h"
 #include "cvra/cvra_motors.h"
 #include "trajectory_manager/trajectory_manager_core.h"
+#include "trajectory_manager/trajectory_manager_utils.h"
 
 
-#define BASE_CONTROLLER_STACKSIZE    2048
-#define POSITION_MANAGER_STACKSIZE   1024
-#define TRAJECTORY_MANAGER_STACKSIZE 1024
+#define BASE_CONTROLLER_STACKSIZE    4096
+#define POSITION_MANAGER_STACKSIZE   4096
+#define TRAJECTORY_MANAGER_STACKSIZE 4096
 
 
 struct _robot robot;
@@ -31,12 +32,15 @@ void base_controller_compute_error(polar_t *error, pose2d_t desired, pose2d_t me
 
 void robot_init(void)
 {
-    robot.mode = BOARD_MODE_ANGLE_DISTANCE;
+    robot.mode = BOARD_MODE_DISTANCE_ONLY;
 
     /* Motors */
     static cvra_motor_t left_wheel_motor = {.m=&motor_manager, .max_velocity=10.f};
     static cvra_motor_t right_wheel_motor = {.m=&motor_manager, .max_velocity=10.f};
     cvra_encoder_init();
+
+    robot.angle_pid.divider = 100;
+    robot.distance_pid.divider = 100;
 
     /* Robot system initialisation, encoders and PWM */
     rs_init(&robot.rs);
@@ -89,6 +93,15 @@ void robot_init(void)
 
     trajectory_set_windows(&robot.traj, 15., 5.0, 10.); // Distance window, angle window, angle start
 
+    trajectory_set_acc(&robot.traj,
+            acc_mm2imp(&robot.traj, 100),
+            acc_rd2imp(&robot.traj, 100));
+
+
+    trajectory_set_speed(&robot.traj,
+            speed_mm2imp(&robot.traj, 10),
+            speed_rd2imp(&robot.traj, 10));
+
     // Angle BDM
     bd_init(&robot.angle_bd, &robot.angle_cs);
     bd_set_thresholds(&robot.angle_bd, 3000, 1); // thresold, duration
@@ -128,8 +141,8 @@ static THD_FUNCTION(base_ctrl_thd, arg)
         }
 
         /* Gestion du blocage */
-        bd_manage(&robot.angle_bd);
-        bd_manage(&robot.distance_bd);
+        //bd_manage(&robot.angle_bd);
+        //bd_manage(&robot.distance_bd);
 
         /* Wait 10 milliseconds (100 Hz) */
         chThdSleepMilliseconds(1000 / ASSERV_FREQUENCY);

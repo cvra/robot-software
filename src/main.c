@@ -31,6 +31,8 @@
 #include "base/encoder.h"
 #include "base/base_controller.h"
 
+void init_base_motors(void);
+
 /* Command line related */
 #define SHELL_WA_SIZE   THD_WORKING_AREA_SIZE(2048)
 static const ShellConfig shell_cfg1 = {
@@ -201,6 +203,9 @@ int main(void) {
     interface_panel_init();
     imu_init();
 
+    init_base_motors();
+
+    /* Base init */
     encoder_start();
     robot_init();
     base_controller_start();
@@ -223,6 +228,66 @@ int main(void) {
 }
 
 uintptr_t __stack_chk_guard = 0xdeadbeef;
+
+void init_base_motors(void)
+{
+    motor_manager_create_driver(&motor_manager, "left-wheel");
+    motor_manager_create_driver(&motor_manager, "right-wheel");
+
+    /* Left wheel config */
+    parameter_integer_set(PARAMETER("actuator/left-wheel/motor/mode"), 2);
+    parameter_integer_set(PARAMETER("actuator/left-wheel/motor/motor_encoder_steps_per_revolution"), 4096);
+    parameter_integer_set(PARAMETER("actuator/left-wheel/motor/second_encoder_steps_per_revolution"), 16384);
+    parameter_integer_set(PARAMETER("actuator/left-wheel/motor/transmission_ratio_p"), 49);
+    parameter_integer_set(PARAMETER("actuator/left-wheel/motor/transmission_ratio_q"), 676);
+    parameter_scalar_set(PARAMETER("actuator/left-wheel/motor/torque_constant"), 1.);
+
+    parameter_scalar_set(PARAMETER("actuator/left-wheel/control/current/kp"), 4.);
+    parameter_scalar_set(PARAMETER("actuator/left-wheel/control/current/ki"), 1500.);
+    parameter_scalar_set(PARAMETER("actuator/left-wheel/control/current/kd"), 0.);
+    parameter_scalar_set(PARAMETER("actuator/left-wheel/control/current/ilimit"), 50.);
+
+    parameter_scalar_set(PARAMETER("actuator/left-wheel/control/velocity/kp"), 14.);
+    parameter_scalar_set(PARAMETER("actuator/left-wheel/control/velocity/ki"), 110.);
+    parameter_scalar_set(PARAMETER("actuator/left-wheel/control/velocity/kd"), 0.);
+    parameter_scalar_set(PARAMETER("actuator/left-wheel/control/velocity/ilimit"), 1400.);
+
+    parameter_scalar_set(PARAMETER("actuator/left-wheel/control/position/kp"), 0.1);
+    parameter_scalar_set(PARAMETER("actuator/left-wheel/control/position/ki"), 0.5);
+    parameter_scalar_set(PARAMETER("actuator/left-wheel/control/position/kd"), 0.);
+
+    parameter_scalar_set(PARAMETER("actuator/left-wheel/control/low_batt_th"), 5.);
+    parameter_scalar_set(PARAMETER("actuator/left-wheel/control/acceleration_limit"), 100.);
+    parameter_scalar_set(PARAMETER("actuator/left-wheel/control/velocity_limit"), 50.);
+    parameter_scalar_set(PARAMETER("actuator/left-wheel/control/torque_limit"), 14.);
+
+    /* Right wheel config */
+    parameter_integer_set(PARAMETER("actuator/right-wheel/motor/mode"), 2);
+    parameter_integer_set(PARAMETER("actuator/right-wheel/motor/motor_encoder_steps_per_revolution"), 4096);
+    parameter_integer_set(PARAMETER("actuator/right-wheel/motor/second_encoder_steps_per_revolution"), 16384);
+    parameter_integer_set(PARAMETER("actuator/right-wheel/motor/transmission_ratio_p"), 49);
+    parameter_integer_set(PARAMETER("actuator/right-wheel/motor/transmission_ratio_q"), 676);
+    parameter_scalar_set(PARAMETER("actuator/right-wheel/motor/torque_constant"), 1.);
+
+    parameter_scalar_set(PARAMETER("actuator/right-wheel/control/current/kp"), 4.);
+    parameter_scalar_set(PARAMETER("actuator/right-wheel/control/current/ki"), 1500.);
+    parameter_scalar_set(PARAMETER("actuator/right-wheel/control/current/kd"), 0.);
+    parameter_scalar_set(PARAMETER("actuator/right-wheel/control/current/ilimit"), 50.);
+
+    parameter_scalar_set(PARAMETER("actuator/right-wheel/control/velocity/kp"), 14.);
+    parameter_scalar_set(PARAMETER("actuator/right-wheel/control/velocity/ki"), 110.);
+    parameter_scalar_set(PARAMETER("actuator/right-wheel/control/velocity/kd"), 0.);
+    parameter_scalar_set(PARAMETER("actuator/right-wheel/control/velocity/ilimit"), 1400.);
+
+    parameter_scalar_set(PARAMETER("actuator/right-wheel/control/position/kp"), 0.1);
+    parameter_scalar_set(PARAMETER("actuator/right-wheel/control/position/ki"), 0.5);
+    parameter_scalar_set(PARAMETER("actuator/right-wheel/control/position/kd"), 0.);
+
+    parameter_scalar_set(PARAMETER("actuator/right-wheel/control/low_batt_th"), 5.);
+    parameter_scalar_set(PARAMETER("actuator/right-wheel/control/acceleration_limit"), 100.);
+    parameter_scalar_set(PARAMETER("actuator/right-wheel/control/velocity_limit"), 50.);
+    parameter_scalar_set(PARAMETER("actuator/right-wheel/control/torque_limit"), 14.);
+}
 
 void __stack_chk_fail(void)
 {
