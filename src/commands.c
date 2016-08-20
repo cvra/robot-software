@@ -359,8 +359,8 @@ static void cmd_pid(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc == 2) {
         float kp, ki, kd, ilim;
-        pid_get_gains(&robot.distance_pid.pid, &kp, &ki, &kd);
-        ilim = pid_get_integral_limit(&robot.distance_pid.pid);
+        pid_get_gains(&robot.angle_pid.pid, &kp, &ki, &kd);
+        ilim = pid_get_integral_limit(&robot.angle_pid.pid);
 
         if (strcmp("p", argv[0]) == 0) {
             kp = atof(argv[1]);
@@ -375,8 +375,8 @@ static void cmd_pid(BaseSequentialStream *chp, int argc, char *argv[])
             return;
         }
 
-        pid_set_gains(&robot.distance_pid.pid, kp, ki, kd);
-        pid_set_integral_limit(&robot.distance_pid.pid, ilim);
+        pid_set_gains(&robot.angle_pid.pid, kp, ki, kd);
+        pid_set_integral_limit(&robot.angle_pid.pid, ilim);
 
         chprintf(chp, "New PID config: p %.2f i %.2f d %.2f ilim %.2f\r\n", kp, ki, kd, ilim);
     } else {

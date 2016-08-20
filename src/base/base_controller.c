@@ -14,7 +14,8 @@
 #define TRAJECTORY_MANAGER_STACKSIZE 4096
 
 #define IMPULSE_PER_MM       160
-#define SPEED_TO_AVERSIVE(s) ((s) * 1000 * IMPULSE_PER_MM / ASSERV_FREQUENCY) // m/s to imp/period
+#define EXT_ENCODER_TRACK_MM 193.82313537598
+#define MOTOR_TRACK_MM       162.9746617261
 
 struct _robot robot;
 
@@ -35,7 +36,7 @@ void base_controller_compute_error(polar_t *error, pose2d_t desired, pose2d_t me
 
 void robot_init(void)
 {
-    robot.mode = BOARD_MODE_DISTANCE_ONLY;
+    robot.mode = BOARD_MODE_ANGLE_ONLY;
 
     /* Motors */
     static cvra_motor_t left_wheel_motor = {.m=&motor_manager, .max_velocity=10.f, .direction=1.};
@@ -58,12 +59,12 @@ void robot_init(void)
     position_init(&robot.pos);
     position_set_related_robot_system(&robot.pos, &robot.rs); // Link pos manager to robot system
 
-    position_set_physical_params(&robot.pos, 193.82313537598, 162.9746617261);
+    position_set_physical_params(&robot.pos, EXT_ENCODER_TRACK_MM, MOTOR_TRACK_MM);
     position_use_ext(&robot.pos);
 
     /* Base angle controller */
     pid_init(&robot.angle_pid.pid);
-    pid_set_gains(&robot.angle_pid.pid, 400, 0, 2000);
+    pid_set_gains(&robot.angle_pid.pid, 10, 0, 0);
     pid_set_integral_limit(&robot.angle_pid.pid, 5000);
 
     quadramp_init(&robot.angle_qr);
@@ -102,8 +103,8 @@ void robot_init(void)
 
 
     trajectory_set_speed(&robot.traj,
-            speed_mm2imp(&robot.traj, SPEED_TO_AVERSIVE(0.5)),
-            speed_rd2imp(&robot.traj, 200));
+            speed_mm2imp(&robot.traj, 500.),
+            speed_rd2imp(&robot.traj, 3.));
 
     // Angle BDM
     bd_init(&robot.angle_bd, &robot.angle_cs);
