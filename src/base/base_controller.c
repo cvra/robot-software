@@ -35,8 +35,8 @@ void robot_init(void)
     robot.mode = BOARD_MODE_DISTANCE_ONLY;
 
     /* Motors */
-    static cvra_motor_t left_wheel_motor = {.m=&motor_manager, .max_velocity=10.f};
-    static cvra_motor_t right_wheel_motor = {.m=&motor_manager, .max_velocity=10.f};
+    static cvra_motor_t left_wheel_motor = {.m=&motor_manager, .max_velocity=10.f, .direction=1};
+    static cvra_motor_t right_wheel_motor = {.m=&motor_manager, .max_velocity=10.f, .direction=-1};
     cvra_encoder_init();
 
     robot.angle_pid.divider = 100;

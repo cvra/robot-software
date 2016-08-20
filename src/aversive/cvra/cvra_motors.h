@@ -10,6 +10,7 @@ extern "C" {
 typedef struct {
     motor_manager_t *m;
     float max_velocity;
+    float direction;
 } cvra_motor_t;
 
 void cvra_motor_left_wheel_set_velocity(void* motor, int32_t velocity);

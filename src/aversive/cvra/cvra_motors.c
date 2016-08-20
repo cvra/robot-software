@@ -4,7 +4,7 @@
 #include "hal.h"
 #include "chprintf.h"
 
-#define MAX_MOTOR_VELOCITY_SCALE 1000.f
+#define MAX_MOTOR_VELOCITY_SCALE 100000
 
 uint32_t left_encoder_prev, right_encoder_prev;
 int32_t left_encoder_value, right_encoder_value;
@@ -21,14 +21,13 @@ void cvra_motor_set_velocity(const char *id, void *motor, int32_t velocity)
 {
     cvra_motor_t *dev = (cvra_motor_t *)motor;
 
-    float vel;
     if (velocity > MAX_MOTOR_VELOCITY_SCALE) {
-        vel = dev->max_velocity;
+        velocity = MAX_MOTOR_VELOCITY_SCALE;
     } else if (velocity < - MAX_MOTOR_VELOCITY_SCALE) {
-        vel = - dev->max_velocity;
-    } else {
-        vel = (float)velocity * dev->max_velocity / MAX_MOTOR_VELOCITY_SCALE;
+        velocity = - MAX_MOTOR_VELOCITY_SCALE;
     }
+
+    float vel = (float)velocity * dev->max_velocity * dev->direction / MAX_MOTOR_VELOCITY_SCALE;
 
     motor_manager_set_velocity(dev->m, id, vel);
     chprintf((BaseSequentialStream *)&SD3, "%s %.2f\r\n", id, vel);
