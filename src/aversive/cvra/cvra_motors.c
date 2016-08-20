@@ -30,7 +30,6 @@ void cvra_motor_set_velocity(const char *id, void *motor, int32_t velocity)
     float vel = (float)velocity * dev->max_velocity * dev->direction / MAX_MOTOR_VELOCITY_SCALE;
 
     motor_manager_set_velocity(dev->m, id, vel);
-    chprintf((BaseSequentialStream *)&SD3, "%s %.2f\r\n", id, vel);
 }
 
 void cvra_motor_left_wheel_set_velocity(void* motor, int32_t velocity)

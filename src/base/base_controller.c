@@ -6,12 +6,15 @@
 #include "cvra/cvra_motors.h"
 #include "trajectory_manager/trajectory_manager_core.h"
 #include "trajectory_manager/trajectory_manager_utils.h"
+#include "log.h"
 
 
 #define BASE_CONTROLLER_STACKSIZE    4096
 #define POSITION_MANAGER_STACKSIZE   4096
 #define TRAJECTORY_MANAGER_STACKSIZE 4096
 
+#define IMPULSE_PER_MM       160
+#define SPEED_TO_AVERSIVE(s) ((s) * 1000 * IMPULSE_PER_MM / ASSERV_FREQUENCY) // m/s to imp/period
 
 struct _robot robot;
 
@@ -35,8 +38,8 @@ void robot_init(void)
     robot.mode = BOARD_MODE_DISTANCE_ONLY;
 
     /* Motors */
-    static cvra_motor_t left_wheel_motor = {.m=&motor_manager, .max_velocity=10.f, .direction=1};
-    static cvra_motor_t right_wheel_motor = {.m=&motor_manager, .max_velocity=10.f, .direction=-1};
+    static cvra_motor_t left_wheel_motor = {.m=&motor_manager, .max_velocity=10.f, .direction=1.};
+    static cvra_motor_t right_wheel_motor = {.m=&motor_manager, .max_velocity=10.f, .direction=-1.};
     cvra_encoder_init();
 
     robot.angle_pid.divider = 100;
@@ -74,7 +77,7 @@ void robot_init(void)
 
     /* Base distance controller */
     pid_init(&robot.distance_pid.pid);
-    pid_set_gains(&robot.distance_pid.pid, 200, 0, 1000);
+    pid_set_gains(&robot.distance_pid.pid, 50, 0, 0);
     pid_set_integral_limit(&robot.distance_pid.pid, 5000);
 
     quadramp_init(&robot.distance_qr);
@@ -94,13 +97,13 @@ void robot_init(void)
     trajectory_set_windows(&robot.traj, 15., 5.0, 10.); // Distance window, angle window, angle start
 
     trajectory_set_acc(&robot.traj,
-            acc_mm2imp(&robot.traj, 100),
-            acc_rd2imp(&robot.traj, 100));
+            acc_mm2imp(&robot.traj, 200),
+            acc_rd2imp(&robot.traj, 200));
 
 
     trajectory_set_speed(&robot.traj,
-            speed_mm2imp(&robot.traj, 10),
-            speed_rd2imp(&robot.traj, 10));
+            speed_mm2imp(&robot.traj, SPEED_TO_AVERSIVE(0.5)),
+            speed_rd2imp(&robot.traj, 200));
 
     // Angle BDM
     bd_init(&robot.angle_bd, &robot.angle_cs);
@@ -160,7 +163,13 @@ static THD_FUNCTION(position_manager_thd, arg)
     (void) arg;
     chRegSetThreadName(__FUNCTION__);
 
+    float x, y, a;
     while (1) {
+        x = position_get_x_float(&robot.pos);
+        y = position_get_y_float(&robot.pos);
+        a = position_get_a_rad_float(&robot.pos);
+        log_message("x: %.1f [mm]\ty: %.1f [mm]\ta: %.1f [rad]\r\n", x, y, a);
+
         position_manage(&robot.pos);
         chThdSleepMilliseconds(1000 / ODOM_FREQUENCY);
     }

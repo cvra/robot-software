@@ -348,10 +348,39 @@ static void cmd_traj_rotate(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc == 1) {
         float angle;
-        angle = atof(argv[1]);
+        angle = atof(argv[0]);
         trajectory_a_rel(&robot.traj, angle);
     } else {
         chprintf(chp, "Usage: rotate angle\r\n");
+    }
+}
+
+static void cmd_pid(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc == 2) {
+        float kp, ki, kd, ilim;
+        pid_get_gains(&robot.distance_pid.pid, &kp, &ki, &kd);
+        ilim = pid_get_integral_limit(&robot.distance_pid.pid);
+
+        if (strcmp("p", argv[0]) == 0) {
+            kp = atof(argv[1]);
+        } else if (strcmp("i", argv[0]) == 0) {
+            ki = atof(argv[1]);
+        } else if (strcmp("d", argv[0]) == 0) {
+            kd = atof(argv[1]);
+        } else if (strcmp("l", argv[0]) == 0) {
+            ilim = atof(argv[1]);
+        } else {
+            chprintf(chp, "Usage: pid {p,i,d,l} value\r\n");
+            return;
+        }
+
+        pid_set_gains(&robot.distance_pid.pid, kp, ki, kd);
+        pid_set_integral_limit(&robot.distance_pid.pid, ilim);
+
+        chprintf(chp, "New PID config: p %.2f i %.2f d %.2f ilim %.2f\r\n", kp, ki, kd, ilim);
+    } else {
+        chprintf(chp, "Usage: pid {p,i,d,l} value\r\n");
     }
 }
 
@@ -374,6 +403,7 @@ const ShellCommand commands[] = {
     {"threads", cmd_threads},
     {"time", cmd_time},
     {"topics", cmd_topics},
+    {"pid", cmd_pid},
     // {"wheel_corr", cmd_wheel_correction},
     {NULL, NULL}
 };
