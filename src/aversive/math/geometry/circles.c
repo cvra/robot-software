@@ -20,6 +20,7 @@
  */
 
 #include <math.h>
+#include <stdint.h>
 
 #include "aversive.h"
 

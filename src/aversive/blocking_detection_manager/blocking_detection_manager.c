@@ -25,7 +25,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-
+#include <stdint.h>
 #include <error/error.h>
 #include <blocking_detection_manager/blocking_detection_manager.h>
 

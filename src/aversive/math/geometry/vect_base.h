@@ -22,6 +22,8 @@
 #ifndef _VECT_BASE_H_
 #define _VECT_BASE_H_
 
+#include <stdint.h>
+
 /** \addtogroup Geometrie
  * @{ */
 
