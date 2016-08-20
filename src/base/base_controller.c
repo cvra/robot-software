@@ -36,7 +36,7 @@ void base_controller_compute_error(polar_t *error, pose2d_t desired, pose2d_t me
 
 void robot_init(void)
 {
-    robot.mode = BOARD_MODE_ANGLE_ONLY;
+    robot.mode = BOARD_MODE_ANGLE_DISTANCE;
 
     /* Motors */
     static cvra_motor_t left_wheel_motor = {.m=&motor_manager, .max_velocity=10.f, .direction=1.};
@@ -98,8 +98,8 @@ void robot_init(void)
     trajectory_set_windows(&robot.traj, 15., 5.0, 10.); // Distance window, angle window, angle start
 
     trajectory_set_acc(&robot.traj,
-            acc_mm2imp(&robot.traj, 200),
-            acc_rd2imp(&robot.traj, 200));
+            acc_mm2imp(&robot.traj, 1000.),
+            acc_rd2imp(&robot.traj, 10.));
 
 
     trajectory_set_speed(&robot.traj,

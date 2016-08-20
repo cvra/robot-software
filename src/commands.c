@@ -355,6 +355,19 @@ static void cmd_traj_rotate(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
+static void cmd_traj_goto_xy(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc == 2) {
+        float x, y;
+        x = atof(argv[0]);
+        y = atof(argv[1]);
+        trajectory_goto_xy_abs(&robot.traj, x, y);
+        chprintf(chp, "Going to x: %.1fmm y: %.1fmm \r\n", x, y);
+    } else {
+        chprintf(chp, "Usage: goto x y\r\n");
+    }
+}
+
 static void cmd_pid(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc == 2) {
@@ -404,6 +417,7 @@ const ShellCommand commands[] = {
     {"time", cmd_time},
     {"topics", cmd_topics},
     {"pid", cmd_pid},
+    {"goto", cmd_traj_goto_xy},
     // {"wheel_corr", cmd_wheel_correction},
     {NULL, NULL}
 };
