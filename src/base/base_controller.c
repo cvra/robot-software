@@ -95,16 +95,16 @@ void robot_init(void)
     trajectory_set_cs(&robot.traj, &robot.distance_cs, &robot.angle_cs);
     trajectory_set_robot_params(&robot.traj, &robot.rs, &robot.pos);
 
-    trajectory_set_windows(&robot.traj, 15., 5.0, 10.); // Distance window, angle window, angle start
+    trajectory_set_windows(&robot.traj, 15., 5.0, 1.); // Distance window, angle window, angle start
 
     trajectory_set_acc(&robot.traj,
             acc_mm2imp(&robot.traj, 1000.),
-            acc_rd2imp(&robot.traj, 10.));
+            acc_rd2imp(&robot.traj, 20.));
 
 
     trajectory_set_speed(&robot.traj,
-            speed_mm2imp(&robot.traj, 500.),
-            speed_rd2imp(&robot.traj, 3.));
+            speed_mm2imp(&robot.traj, 800.),
+            speed_rd2imp(&robot.traj, 20.));
 
     // Angle BDM
     bd_init(&robot.angle_bd, &robot.angle_cs);

@@ -355,16 +355,25 @@ static void cmd_traj_rotate(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
-static void cmd_traj_goto_xy(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_traj_goto(BaseSequentialStream *chp, int argc, char *argv[])
 {
-    if (argc == 2) {
-        float x, y;
+    if (argc == 3) {
+        float x, y, a;
         x = atof(argv[0]);
         y = atof(argv[1]);
+        a = atof(argv[2]);
+        chprintf(chp, "Going to x: %.1fmm y: %.1fmm a: %.1fdeg\r\n", x, y, a);
+
         trajectory_goto_xy_abs(&robot.traj, x, y);
-        chprintf(chp, "Going to x: %.1fmm y: %.1fmm \r\n", x, y);
+        chThdSleepMilliseconds(100);
+
+        while (trajectory_finished(&robot.traj) == 0) {
+            chThdSleepMilliseconds(10);
+        }
+
+        trajectory_a_abs(&robot.traj, a);
     } else {
-        chprintf(chp, "Usage: goto x y\r\n");
+        chprintf(chp, "Usage: goto x y a\r\n");
     }
 }
 
@@ -417,7 +426,7 @@ const ShellCommand commands[] = {
     {"time", cmd_time},
     {"topics", cmd_topics},
     {"pid", cmd_pid},
-    {"goto", cmd_traj_goto_xy},
+    {"goto", cmd_traj_goto},
     // {"wheel_corr", cmd_wheel_correction},
     {NULL, NULL}
 };
