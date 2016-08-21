@@ -79,6 +79,12 @@ void oa_init(void)
 	oa.cur_poly_idx = 1;
 }
 
+void oa_copy(struct obstacle_avoidance *copy)
+{
+	memset(copy, 0, sizeof(oa));
+	memcpy(copy, &oa, sizeof(oa));
+}
+
 /**
  * Set the start and destination point. Return 0 on sucess
  */

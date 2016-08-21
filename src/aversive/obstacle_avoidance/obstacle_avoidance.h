@@ -118,6 +118,9 @@ void oa_reset(void);
 /** Init the obstacle avoidance structure. */
 void oa_init(void);
 
+/** Copies the obstacle avoidance state */
+void oa_copy(struct obstacle_avoidance *copy);
+
 /** Set the start and destination point. */
 void oa_start_end_points(int32_t st_x, int32_t st_y, int32_t en_x, int32_t en_y);
 
