@@ -19,6 +19,8 @@
 #include "uavcan_node.h"
 #include "timestamp/timestamp_stm32.h"
 #include "config.h"
+#include <parameter/parameter_msgpack.h>
+#include <cmp_mem_access/cmp_mem_access.h>
 #include "interface_panel.h"
 #include "robot_parameters.h"
 #include "motor_manager.h"
@@ -123,6 +125,23 @@ void __late_init(void)
     malloc_lock_init();
 }
 
+void config_load_err_cb(void *arg, const char *id, const char *err)
+{
+    (void)arg;
+    log_message("parameter %s: %s", id == NULL ? "(...)" : id, err);
+}
+
+extern unsigned char config_msgpack[];
+extern const size_t config_msgpack_size;
+
+void config_load_from_flash(void)
+{
+    cmp_ctx_t cmp;
+    cmp_mem_access_t mem;
+    cmp_mem_access_ro_init(&cmp, &mem, config_msgpack, config_msgpack_size);
+    parameter_msgpack_read_cmp(&global_config, &cmp, config_load_err_cb, NULL);
+}
+
 /** Application entry point.  */
 int main(void) {
     static thread_t *shelltp = NULL;
@@ -204,6 +223,7 @@ int main(void) {
     imu_init();
 
     init_base_motors();
+    config_load_from_flash();
 
     /* Base init */
     encoder_start();
@@ -233,60 +253,6 @@ void init_base_motors(void)
 {
     motor_manager_create_driver(&motor_manager, "left-wheel");
     motor_manager_create_driver(&motor_manager, "right-wheel");
-
-    /* Left wheel config */
-    parameter_integer_set(PARAMETER("actuator/left-wheel/motor/mode"), 2);
-    parameter_integer_set(PARAMETER("actuator/left-wheel/motor/motor_encoder_steps_per_revolution"), 4096);
-    parameter_integer_set(PARAMETER("actuator/left-wheel/motor/second_encoder_steps_per_revolution"), 16384);
-    parameter_integer_set(PARAMETER("actuator/left-wheel/motor/transmission_ratio_p"), 49);
-    parameter_integer_set(PARAMETER("actuator/left-wheel/motor/transmission_ratio_q"), 676);
-    parameter_scalar_set(PARAMETER("actuator/left-wheel/motor/torque_constant"), 1.);
-
-    parameter_scalar_set(PARAMETER("actuator/left-wheel/control/current/kp"), 4.);
-    parameter_scalar_set(PARAMETER("actuator/left-wheel/control/current/ki"), 1500.);
-    parameter_scalar_set(PARAMETER("actuator/left-wheel/control/current/kd"), 0.);
-    parameter_scalar_set(PARAMETER("actuator/left-wheel/control/current/ilimit"), 50.);
-
-    parameter_scalar_set(PARAMETER("actuator/left-wheel/control/velocity/kp"), 14.);
-    parameter_scalar_set(PARAMETER("actuator/left-wheel/control/velocity/ki"), 110.);
-    parameter_scalar_set(PARAMETER("actuator/left-wheel/control/velocity/kd"), 0.);
-    parameter_scalar_set(PARAMETER("actuator/left-wheel/control/velocity/ilimit"), 1400.);
-
-    parameter_scalar_set(PARAMETER("actuator/left-wheel/control/position/kp"), 0.1);
-    parameter_scalar_set(PARAMETER("actuator/left-wheel/control/position/ki"), 0.5);
-    parameter_scalar_set(PARAMETER("actuator/left-wheel/control/position/kd"), 0.);
-
-    parameter_scalar_set(PARAMETER("actuator/left-wheel/control/low_batt_th"), 5.);
-    parameter_scalar_set(PARAMETER("actuator/left-wheel/control/acceleration_limit"), 100.);
-    parameter_scalar_set(PARAMETER("actuator/left-wheel/control/velocity_limit"), 50.);
-    parameter_scalar_set(PARAMETER("actuator/left-wheel/control/torque_limit"), 14.);
-
-    /* Right wheel config */
-    parameter_integer_set(PARAMETER("actuator/right-wheel/motor/mode"), 2);
-    parameter_integer_set(PARAMETER("actuator/right-wheel/motor/motor_encoder_steps_per_revolution"), 4096);
-    parameter_integer_set(PARAMETER("actuator/right-wheel/motor/second_encoder_steps_per_revolution"), 16384);
-    parameter_integer_set(PARAMETER("actuator/right-wheel/motor/transmission_ratio_p"), 49);
-    parameter_integer_set(PARAMETER("actuator/right-wheel/motor/transmission_ratio_q"), 676);
-    parameter_scalar_set(PARAMETER("actuator/right-wheel/motor/torque_constant"), 1.);
-
-    parameter_scalar_set(PARAMETER("actuator/right-wheel/control/current/kp"), 4.);
-    parameter_scalar_set(PARAMETER("actuator/right-wheel/control/current/ki"), 1500.);
-    parameter_scalar_set(PARAMETER("actuator/right-wheel/control/current/kd"), 0.);
-    parameter_scalar_set(PARAMETER("actuator/right-wheel/control/current/ilimit"), 50.);
-
-    parameter_scalar_set(PARAMETER("actuator/right-wheel/control/velocity/kp"), 14.);
-    parameter_scalar_set(PARAMETER("actuator/right-wheel/control/velocity/ki"), 110.);
-    parameter_scalar_set(PARAMETER("actuator/right-wheel/control/velocity/kd"), 0.);
-    parameter_scalar_set(PARAMETER("actuator/right-wheel/control/velocity/ilimit"), 1400.);
-
-    parameter_scalar_set(PARAMETER("actuator/right-wheel/control/position/kp"), 0.1);
-    parameter_scalar_set(PARAMETER("actuator/right-wheel/control/position/ki"), 0.5);
-    parameter_scalar_set(PARAMETER("actuator/right-wheel/control/position/kd"), 0.);
-
-    parameter_scalar_set(PARAMETER("actuator/right-wheel/control/low_batt_th"), 5.);
-    parameter_scalar_set(PARAMETER("actuator/right-wheel/control/acceleration_limit"), 100.);
-    parameter_scalar_set(PARAMETER("actuator/right-wheel/control/velocity_limit"), 50.);
-    parameter_scalar_set(PARAMETER("actuator/right-wheel/control/torque_limit"), 14.);
 }
 
 void __stack_chk_fail(void)
