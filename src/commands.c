@@ -377,15 +377,30 @@ static void cmd_traj_goto(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
+
+void add_rectangular_obstacle(int x, int y, int half_dx, int half_dy)
+{
+    poly_t *obstacle = oa_new_poly(4);
+
+    oa_poly_set_point(obstacle, x + half_dx, y + half_dy, 0);
+    oa_poly_set_point(obstacle, x + half_dx, y - half_dy, 1);
+    oa_poly_set_point(obstacle, x - half_dx, y - half_dy, 2);
+    oa_poly_set_point(obstacle, x - half_dx, y + half_dy, 3);
+}
+
+
 static void cmd_pathplanner(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc == 3) {
         /* Get goal pos */
-        float x, y, a;
-        x = atof(argv[0]);
-        y = atof(argv[1]);
+        int x, y;
+        float a;
+        x = atoi(argv[0]);
+        y = atoi(argv[1]);
         a = atof(argv[2]);
-        chprintf(chp, "Going to x: %.1fmm y: %.1fmm a: %.1fdeg\r\n", x, y, a);
+        chprintf(chp, "Going to x: %dmm y: %dmm a: %.1fdeg\r\n", x, y, a);
+
+        add_rectangular_obstacle(750, 1150, 350, 200);
 
         /* Request a path to the planner */
         point_t *p;
@@ -397,9 +412,10 @@ static void cmd_pathplanner(BaseSequentialStream *chp, int argc, char *argv[])
 
         /* Computes the path */
         int len = oa_process();
+        chprintf(chp, "Found path of length %d\r\n", len);
 
         /* Checks if a path was found. */
-        if(len == 0) {
+        if(len < 0) {
             chprintf(chp, "Cannot find a suitable path.\r\n");
             return;
         } else {
@@ -414,7 +430,7 @@ static void cmd_pathplanner(BaseSequentialStream *chp, int argc, char *argv[])
             chprintf(chp, "Going to x: %.1fmm y: %.1fmm\r\n", p->x, p->y);
 
             /* Waits for the completion of the trajectory. */
-            chThdSleepMilliseconds(50);
+            chThdSleepMilliseconds(100);
             while (trajectory_finished(&robot.traj) == 0) {
                 chThdSleepMilliseconds(10);
             }
@@ -439,12 +455,7 @@ static void cmd_create_static_obstacle(BaseSequentialStream *chp, int argc, char
         half_size = atof(argv[2]);
 
         /* Create obstacle */
-        poly_t * obstacle = oa_new_poly(4);
-
-        oa_poly_set_point(obstacle, x + half_size, y + half_size, 0);
-        oa_poly_set_point(obstacle, x + half_size, y - half_size, 1);
-        oa_poly_set_point(obstacle, x - half_size, y - half_size, 2);
-        oa_poly_set_point(obstacle, x - half_size, y + half_size, 3);
+        add_rectangular_obstacle(x, y, half_size, half_size);
 
         chprintf(chp, "Created square obstacle at x: %.1fmm y: %.1fmm of half size: %.1fmm\r\n", x, y, half_size);
         oa_dump();

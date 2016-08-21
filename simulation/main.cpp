@@ -40,14 +40,14 @@ void print_obstacle_avoidance(struct obstacle_avoidance &oa)
     printf("\n");
 }
 
-void add_square_obstacle(int x, int y, int half_size)
+void add_rectangular_obstacle(int x, int y, int half_dx, int half_dy)
 {
     poly_t *obstacle = oa_new_poly(4);
 
-    oa_poly_set_point(obstacle, x + half_size, y + half_size, 0);
-    oa_poly_set_point(obstacle, x + half_size, y - half_size, 1);
-    oa_poly_set_point(obstacle, x - half_size, y - half_size, 2);
-    oa_poly_set_point(obstacle, x - half_size, y + half_size, 3);
+    oa_poly_set_point(obstacle, x + half_dx, y + half_dy, 0);
+    oa_poly_set_point(obstacle, x + half_dx, y - half_dy, 1);
+    oa_poly_set_point(obstacle, x - half_dx, y - half_dy, 2);
+    oa_poly_set_point(obstacle, x - half_dx, y + half_dy, 3);
 }
 
 int main(int argc, const char** argv)
@@ -65,8 +65,8 @@ int main(int argc, const char** argv)
     printf("Obstacle avoidance initialised\n");
 
     printf("Adding obstacles\n");
-    add_square_obstacle(1000, 1200, 400);
-    add_square_obstacle(2000,  800, 400);
+    add_rectangular_obstacle(1000, 1200, 400, 400);
+    add_rectangular_obstacle(2000,  800, 400, 400);
 
     struct obstacle_avoidance oa;
     oa_copy(&oa);
