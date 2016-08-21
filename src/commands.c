@@ -389,7 +389,6 @@ static void cmd_pathplanner(BaseSequentialStream *chp, int argc, char *argv[])
 
         /* Request a path to the planner */
         point_t *p;
-        oa_init();
 
         /* Sets starting and ending point of the path. */
         oa_start_end_points(

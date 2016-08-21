@@ -33,13 +33,13 @@
 #include <math/geometry/polygon.h>
 
 #include <obstacle_avoidance/obstacle_avoidance.h>
-#include "log.h"
 
 #define GET_PT(a) (&(a) - &(oa.points[0]))
 
-#define DEBUG_OA 1
+#define DEBUG_OA 0
 
 #if DEBUG_OA == 1
+#include "log.h"
 #define DEBUG_OA_PRINTF(a, ...) log_message(a, ##__VA_ARGS__)
 #else
 #define DEBUG_OA_PRINTF(args...)

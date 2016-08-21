@@ -120,6 +120,8 @@ void robot_init(void)
     const int robot_size = 150;
     polygon_set_boundingbox(robot_size, robot_size, 3000-robot_size, 2000-robot_size);
 
+    /* Initialise obstacle avoidance */
+    oa_init();
 
     // Position initialisation
     position_set(&robot.pos, 900, 500, 90);
