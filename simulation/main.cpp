@@ -52,13 +52,22 @@ int main(int argc, const char** argv)
     oa_copy(&oa);
     print_obstacle_avoidance(oa);
 
-    point_t bar[] = {{.x=1,.y=1},{.x=1.1,.y=1},{.x=1.1,.y=1.1},{.x=1,.y=1.1}};
+    point_t bar[] = {
+        {.x=1000, .y=1000},
+        {.x=1100, .y=1000},
+        {.x=1100, .y=1100},
+        {.x=1000, .y=1100}
+    };
     poly_t obstacles;
     obstacles.l = 4;
     obstacles.pts = bar;
     int nb_obstacles = 1;
 
-    point_t traj[] = {{0.2,0.2},{1.2,0.9},{1.5,1.9}};
+    point_t traj[] = {
+        { 200,  200},
+        {1200,  900},
+        {1500, 1900}
+    };
     int path_len = 3;
 
     visualizer_set_path(traj, path_len);

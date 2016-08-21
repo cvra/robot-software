@@ -18,7 +18,7 @@ namespace {
     int main_window;
     int width, height;
     GLfloat aspect_ratio;
-    const GLfloat table[] = {3.0f, 2.0f};
+    const GLfloat table[] = {3000.0f, 2000.0f};
 }
 
 point_t *path = NULL;
