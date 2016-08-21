@@ -8,6 +8,12 @@ extern "C" {
 
 #include "visualizer.h"
 
+#define START_X  200
+#define START_Y  1000
+#define GOAL_X   2800
+#define GOAL_Y   1000
+
+
 void print_obstacle_avoidance(struct obstacle_avoidance &oa)
 {
     printf("--- Obstacle avoidance dump ---\n");
@@ -34,6 +40,16 @@ void print_obstacle_avoidance(struct obstacle_avoidance &oa)
     printf("\n");
 }
 
+void add_square_obstacle(int x, int y, int half_size)
+{
+    poly_t *obstacle = oa_new_poly(4);
+
+    oa_poly_set_point(obstacle, x + half_size, y + half_size, 0);
+    oa_poly_set_point(obstacle, x + half_size, y - half_size, 1);
+    oa_poly_set_point(obstacle, x - half_size, y - half_size, 2);
+    oa_poly_set_point(obstacle, x - half_size, y + half_size, 3);
+}
+
 int main(int argc, const char** argv)
 {
     (void) argc;
@@ -46,32 +62,31 @@ int main(int argc, const char** argv)
 
     oa_init();
     oa_reset();
-    printf("Obstacle avoidance initialised");
+    printf("Obstacle avoidance initialised\n");
+
+    printf("Adding obstacles\n");
+    add_square_obstacle(1000, 1200, 400);
+    add_square_obstacle(2000,  800, 400);
 
     struct obstacle_avoidance oa;
     oa_copy(&oa);
     print_obstacle_avoidance(oa);
 
-    point_t bar[] = {
-        {.x=1000, .y=1000},
-        {.x=1100, .y=1000},
-        {.x=1100, .y=1100},
-        {.x=1000, .y=1100}
-    };
-    poly_t obstacles;
-    obstacles.l = 4;
-    obstacles.pts = bar;
-    int nb_obstacles = 1;
+    printf("Visualizing obstacles\n");
+    poly_t *obstacles = &oa.polys[1];
+    int nb_obstacles = oa.cur_poly_idx - 1;
 
-    point_t traj[] = {
-        { 200,  200},
-        {1200,  900},
-        {1500, 1900}
-    };
-    int path_len = 3;
+    oa_start_end_points(START_X, START_Y, GOAL_X, GOAL_Y);
 
-    visualizer_set_path(traj, path_len);
-    visualizer_set_obstacles(&obstacles, nb_obstacles);
+    int path_len = oa_process();
+    printf("Path of length %d\n", path_len);
+    if (path_len < 0) {
+        path_len = 0;
+    }
+    point_t *traj = oa_get_path();
+
+    visualizer_set_path({START_X, START_Y}, traj, path_len);
+    visualizer_set_obstacles(obstacles, nb_obstacles);
 
     visualizer_run();
 

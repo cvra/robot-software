@@ -23,12 +23,14 @@ namespace {
 
 point_t *path = NULL;
 size_t path_len = 0;
+point_t start_pos;
 
 poly_t *obstacles = NULL;
 size_t nb_obstacles = 0;
 
-void visualizer_set_path(point_t* new_path, size_t new_len)
+void visualizer_set_path(point_t start, point_t* new_path, size_t new_len)
 {
+    start_pos = start;
     path = new_path;
     path_len = new_len;
 }
@@ -102,6 +104,10 @@ void redraw_all()
     // path
     glBegin(GL_LINES);
     glColor3f(0.0,1.0,0.0);
+    if (path_len > 0) {
+        glVertex2f(start_pos.x, start_pos.y);
+        glVertex2f(path[0].x, path[0].y);
+    }
     for (i = 1; i < path_len; i++) {
         glVertex2f(path[i-1].x, path[i-1].y);
         glVertex2f(path[i].x, path[i].y);
