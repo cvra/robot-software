@@ -64,7 +64,7 @@ void robot_init(void)
 
     /* Base angle controller */
     pid_init(&robot.angle_pid.pid);
-    pid_set_gains(&robot.angle_pid.pid, 10, 0, 0);
+    pid_set_gains(&robot.angle_pid.pid, 30, 1, 10);
     pid_set_integral_limit(&robot.angle_pid.pid, 5000);
 
     quadramp_init(&robot.angle_qr);
@@ -95,7 +95,7 @@ void robot_init(void)
     trajectory_set_cs(&robot.traj, &robot.distance_cs, &robot.angle_cs);
     trajectory_set_robot_params(&robot.traj, &robot.rs, &robot.pos);
 
-    trajectory_set_windows(&robot.traj, 15., 5.0, 1.); // Distance window, angle window, angle start
+    trajectory_set_windows(&robot.traj, 15., 5.0, 10.); // Distance window, angle window, angle start
 
     trajectory_set_acc(&robot.traj,
             acc_mm2imp(&robot.traj, 1000.),
@@ -116,8 +116,13 @@ void robot_init(void)
 
     robot.is_aligning = 0;
 
+    // Setup map
+    const int robot_size = 150;
+    polygon_set_boundingbox(robot_size, robot_size, 3000-robot_size, 2000-robot_size);
+
+
     // Position initialisation
-    position_set(&robot.pos, 0, 0, 0);
+    position_set(&robot.pos, 900, 500, 90);
 }
 
 

@@ -20,7 +20,7 @@
 #include "base/polar.h"
 #include "base/odometry.h"
 #include "base/base_controller.h"
-
+#include "obstacle_avoidance/obstacle_avoidance.h"
 
 
 static void cmd_mem(BaseSequentialStream *chp, int argc, char *argv[]) {
@@ -377,6 +377,58 @@ static void cmd_traj_goto(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
+static void cmd_pathplanner(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc == 3) {
+        /* Get goal pos */
+        float x, y, a;
+        x = atof(argv[0]);
+        y = atof(argv[1]);
+        a = atof(argv[2]);
+        chprintf(chp, "Going to x: %.1fmm y: %.1fmm a: %.1fdeg\r\n", x, y, a);
+
+        /* Request a path to the planner */
+        point_t *p;
+        oa_init();
+
+        /* Sets starting and ending point of the path. */
+        oa_start_end_points(
+            position_get_x_s16(&robot.pos), position_get_x_s16(&robot.pos),
+            x, y);
+
+        /* Computes the path */
+        int len = oa_process();
+
+        /* Checks if a path was found. */
+        if(len == 0) {
+            chprintf(chp, "Cannot find a suitable path.\r\n");
+            return;
+        }
+
+        p = oa_get_path();
+        /* For all the points in the path. */
+        for (int i = 0; i < len; i++) {
+            /* Goes to the point. */
+            trajectory_goto_forward_xy_abs(&robot.traj, p->x, p->y);
+            chprintf(chp, "Going to x: %.1fmm y: %.1fmm\r\n", p->x, p->y);
+
+            /* Waits for the completion of the trajectory. */
+            chThdSleepMilliseconds(50);
+            while (trajectory_finished(&robot.traj) == 0) {
+                chThdSleepMilliseconds(10);
+            }
+
+            /* Increments pointer to load next point. */
+            p++;
+        }
+
+        trajectory_a_abs(&robot.traj, a);
+    } else {
+        chprintf(chp, "Usage: path x y a\r\n");
+    }
+}
+
+
 static void cmd_pid(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc == 2) {
@@ -427,6 +479,7 @@ const ShellCommand commands[] = {
     {"topics", cmd_topics},
     {"pid", cmd_pid},
     {"goto", cmd_traj_goto},
+    {"path", cmd_pathplanner},
     // {"wheel_corr", cmd_wheel_correction},
     {NULL, NULL}
 };

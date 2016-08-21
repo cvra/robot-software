@@ -52,8 +52,8 @@ target.arm:
     - src/aversive/trajectory_manager/trajectory_manager_core.c
     - src/aversive/trajectory_manager/trajectory_manager_utils.c
     - src/aversive/blocking_detection_manager/blocking_detection_manager.c
+    - src/aversive/obstacle_avoidance/obstacle_avoidance.c
     - src/base/encoder.c
-    # - src/base/position_manager.c
     - src/base/base_controller.c
 
 source:

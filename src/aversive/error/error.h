@@ -22,6 +22,7 @@
 #ifndef _ERROR_H_
 #define _ERROR_H_
 
+#include <stdint.h>
 #include <error/general_errors.h>
 
 #define ERROR_SEVERITY_EMERG    0
