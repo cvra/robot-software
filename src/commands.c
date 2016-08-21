@@ -403,6 +403,8 @@ static void cmd_pathplanner(BaseSequentialStream *chp, int argc, char *argv[])
         if(len == 0) {
             chprintf(chp, "Cannot find a suitable path.\r\n");
             return;
+        } else {
+            chprintf(chp, "Path found contains %d points\r\n", len);
         }
 
         p = oa_get_path();
@@ -428,6 +430,29 @@ static void cmd_pathplanner(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
+static void cmd_create_static_obstacle(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc == 3) {
+        /* Get obstacle properties */
+        float x, y, half_size;
+        x = atof(argv[0]);
+        y = atof(argv[1]);
+        half_size = atof(argv[2]);
+
+        /* Create obstacle */
+        poly_t * obstacle = oa_new_poly(4);
+
+        oa_poly_set_point(obstacle, x + half_size, y + half_size, 0);
+        oa_poly_set_point(obstacle, x + half_size, y - half_size, 1);
+        oa_poly_set_point(obstacle, x - half_size, y - half_size, 2);
+        oa_poly_set_point(obstacle, x - half_size, y + half_size, 3);
+
+        chprintf(chp, "Created square obstacle at x: %.1fmm y: %.1fmm of half size: %.1fmm\r\n", x, y, half_size);
+        oa_dump();
+    } else {
+        chprintf(chp, "Usage: obs x y size\r\n");
+    }
+}
 
 static void cmd_pid(BaseSequentialStream *chp, int argc, char *argv[])
 {
@@ -480,6 +505,7 @@ const ShellCommand commands[] = {
     {"pid", cmd_pid},
     {"goto", cmd_traj_goto},
     {"path", cmd_pathplanner},
+    {"obs", cmd_create_static_obstacle},
     // {"wheel_corr", cmd_wheel_correction},
     {NULL, NULL}
 };

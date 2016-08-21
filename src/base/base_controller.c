@@ -169,13 +169,7 @@ static THD_FUNCTION(position_manager_thd, arg)
     (void) arg;
     chRegSetThreadName(__FUNCTION__);
 
-    float x, y, a;
     while (1) {
-        x = position_get_x_float(&robot.pos);
-        y = position_get_y_float(&robot.pos);
-        a = position_get_a_rad_float(&robot.pos);
-        log_message("x: %.1f [mm]\ty: %.1f [mm]\ta: %.1f [rad]\r\n", x, y, a);
-
         position_manage(&robot.pos);
         chThdSleepMilliseconds(1000 / ODOM_FREQUENCY);
     }
