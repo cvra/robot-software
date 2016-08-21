@@ -12,6 +12,8 @@
 #include <GL/glut.h>
 #endif
 
+#include "visualizer.h"
+
 namespace {
     int main_window;
     int width, height;
@@ -19,22 +21,23 @@ namespace {
     const GLfloat table[] = {3.0f, 2.0f};
 }
 
-// XXX tmp
-typedef struct _point_t {
-  float x;  /**< x-coordinate */
-  float y;  /**< y-coordinate */
-} point_t;
-
-typedef struct _poly {
-    point_t * pts;  /**< Array of corner-points */
-    uint8_t l;      /**< Length of the array of points */
-} poly_t;
-
 point_t *path = NULL;
 size_t path_len = 0;
 
 poly_t *obstacles = NULL;
 size_t nb_obstacles = 0;
+
+void visualizer_set_path(point_t* new_path, size_t new_len)
+{
+    path = new_path;
+    path_len = new_len;
+}
+
+void visualizer_set_obstacles(poly_t* new_obstacles, size_t new_len)
+{
+    obstacles = new_obstacles;
+    nb_obstacles = new_len;
+}
 
 static void draw_poly(poly_t *p)
 {
@@ -60,7 +63,7 @@ static void vertex_circle(float px, float py, double radius, int points)
 
 void redraw_all()
 {
-    int i;
+    size_t i;
 
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -122,8 +125,10 @@ void display_cb()
     redraw_all();
 }
 
-int  main( int  argc,  char * argv[])
+void visualizer_run(void)
 {
+    int argc = 0;
+    char **argv = NULL;
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowPosition(50, 50);
@@ -132,20 +137,9 @@ int  main( int  argc,  char * argv[])
     width = aspect_ratio*height;
     glutInitWindowSize(width, height);
 
-    main_window = glutCreateWindow("Obstacle avoidancd");
+    main_window = glutCreateWindow("Obstacle avoidance");
     glutDisplayFunc(display_cb);
     glutReshapeFunc(reshape_cb);
 
-    point_t bar[] = {{.x=1,.y=1},{.x=1.1,.y=1},{.x=1.1,.y=1.1},{.x=1,.y=1.1}};
-    poly_t foo = {.l=4, .pts=bar};
-    obstacles = &foo;
-    nb_obstacles = 1;
-
-    point_t traj[] = {{0.2,0.2},{1.2,0.9},{1.5,1.9}};
-    path = traj;
-    path_len = 3;
-
     glutMainLoop();
-
-    return 0;
 }

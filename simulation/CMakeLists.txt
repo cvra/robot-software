@@ -15,14 +15,21 @@ add_executable(
     ../src/aversive/math/geometry/polygon.c
     ../src/aversive/math/geometry/vect_base.c
     ../src/aversive/obstacle_avoidance/obstacle_avoidance.c
+    visualizer.cpp
     main.cpp
     )
 
-
-# target_link_libraries(
-#     simulation
-#     m
-#     )
+target_link_libraries(
+    simulation
+    GL
+    GLU
+    glut
+    m
+    X11
+    Xext
+    Xmu
+    Xi
+    )
 
 # Run unit tests
 add_custom_target(run ./simulation -c DEPENDS simulation)
