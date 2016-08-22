@@ -411,7 +411,8 @@ static void cmd_pathplanner(BaseSequentialStream *chp, int argc, char *argv[])
             x, y);
 
         /* Computes the path */
-        int len = oa_process();
+        oa_process();
+        int len = oa_get_path(&p);
         chprintf(chp, "Found path of length %d\r\n", len);
 
         /* Checks if a path was found. */
@@ -422,7 +423,6 @@ static void cmd_pathplanner(BaseSequentialStream *chp, int argc, char *argv[])
             chprintf(chp, "Path found contains %d points\r\n", len);
         }
 
-        p = oa_get_path();
         /* For all the points in the path. */
         for (int i = 0; i < len; i++) {
             /* Goes to the point. */

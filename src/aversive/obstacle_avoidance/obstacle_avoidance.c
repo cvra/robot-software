@@ -165,9 +165,10 @@ void oa_poly_set_point(poly_t *pol,
 	oa.pweight[GET_PT(pol->pts[i])] = 0;
 }
 
-point_t * oa_get_path(void)
+int oa_get_path(point_t **path)
 {
-	return oa.u.res;
+	*path = oa.u.res;
+	return oa.u.res_len;
 }
 
 void oa_dump(void)
@@ -349,5 +350,6 @@ oa_process(void)
 
 	/* As dijkstra sets the parent points in the resulting graph,
 	 * we can backtrack the solution path. */
-	return get_path(oa.polys);
+	oa.u.res_len = get_path(oa.polys);
+	return oa.u.res_len;
 }

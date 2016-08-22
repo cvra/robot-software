@@ -109,6 +109,7 @@ struct obstacle_avoidance {
 	union {
 		uint8_t rays[MAX_RAYS*2]; /**< All valid rays given by Dijkstra. */
 		point_t res[MAX_CHKPOINTS]; /**< Resulting path. */
+        int res_len; /** Path length */
 	} u; /**< Contains the intermediate results or the final result. */
 };
 
@@ -153,7 +154,7 @@ int8_t oa_process(void);
  *
  * @returns An array of points, giving the path from start to end.
  */
-point_t * oa_get_path(void);
+int oa_get_path(point_t **path);
 
 
 /** Checks if a segment is intersecting any obstacle.

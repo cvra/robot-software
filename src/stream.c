@@ -14,10 +14,13 @@
 #include "priorities.h"
 #include "base/base_controller.h"
 
+#include "obstacle_avoidance/obstacle_avoidance.h"
+
 #define STREAM_STACKSIZE 1024
 #define TOPIC_NAME_LEN   40
 
 #define POSITION_STREAM_FREQ 10
+#define PATH_STREAM_FREQ     1
 
 THD_WORKING_AREA(wa_stream, STREAM_STACKSIZE);
 
@@ -36,6 +39,7 @@ static void stream_thread(void *p)
 
     // position stream
     int last_position_sent = 0;
+    int last_path_sent = 0;
 
     while (1) {
         motor_driver_t *drv_list;
@@ -156,13 +160,31 @@ static void stream_thread(void *p)
             x = position_get_x_float(&robot.pos);
             y = position_get_y_float(&robot.pos);
             a = position_get_a_rad_float(&robot.pos);
-            message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, STREAM_PORT);            //         log_message("stream position");
             strncpy(topic_name, "position", TOPIC_NAME_LEN);
             message_write_header(&ctx, &mem, buffer, sizeof(buffer), topic_name);
             cmp_write_array(&ctx, 3);
             cmp_write_float(&ctx, x/1000);
             cmp_write_float(&ctx, y/1000);
             cmp_write_float(&ctx, a/1000);
+            message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, STREAM_PORT);
+        }
+
+        if (last_path_sent++ * STREAM_TIMESTEP_MS >= 1000/PATH_STREAM_FREQ) {
+            last_path_sent = 0;
+
+            /* Get path */
+            point_t *path;
+            int path_len = oa_get_path(&path);
+
+            /* Pack path */
+            strncpy(topic_name, "path", TOPIC_NAME_LEN);
+            message_write_header(&ctx, &mem, buffer, sizeof(buffer), topic_name);
+            cmp_write_array(&ctx, path_len);
+            for (int i = 0; i < path_len; i++) {
+                cmp_write_array(&ctx, 2);
+                cmp_write_float(&ctx, path[i].x);
+                cmp_write_float(&ctx, path[i].y);
+            }
             message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, STREAM_PORT);
         }
 
