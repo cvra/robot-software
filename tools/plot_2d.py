@@ -97,7 +97,8 @@ class Graph_Drawer:
     def run_loop(self):
         # Spawn the graph window
         self.win = CustomGraphicsWindow()
-        self.win.setWindowTitle('Plot Tool')
+        self.win.setWindowTitle('CVRA Mission Control')
+        self.win.resize(600,400)
         self.graph = self.win.addPlot()
         self.graph.showGrid(x=True, y=True)
         # This needs to be called to process QT events (render the window)
@@ -221,13 +222,14 @@ class DatagramRcv(QtCore.QThread):
         self.remote = remote
         super(DatagramRcv, self).__init__()
 
-    def msg_cb(self, msg, args):
-        # print(msg, args)
+    def msg_cb(self, msg, data):
+        print(msg, data)
         if msg == 'position':
-            pose = Pose(Point(args[0]/1000, args[1]/1000, 0), Quaternion(1, 0, 0, 0))
+            pose = Pose(Point(data[0]/1000, data[1]/1000, 0), Quaternion(1, 0, 0, 0))
             plot_pose(pose)
         if msg == 'path':
-            print('todo: path')
+            path = Path([PoseStamped(1, Pose(Point(p[0]/1000, p[1]/1000, 0), Quaternion(1, 0, 0, 0))) for p in data])
+            plot_path(path)
 
     def run(self):
         RequestHandler = cvra_rpc.message.create_request_handler({}, lambda todo, msg, args: self.msg_cb(msg, args))
@@ -251,16 +253,6 @@ def main():
 
     signal.signal(signal.SIGINT, signal.SIG_DFL)  # to kill on ctl-C
 
-    path = Path([
-                    PoseStamped(1, Pose(Point(1, 1, 0), Quaternion(1, 0, 0, 0))),
-                    PoseStamped(1, Pose(Point(2, 1, 0), Quaternion(1, 0, 0, 0))),
-                    PoseStamped(1, Pose(Point(2, 2, 0), Quaternion(1, 0, 0, 0))),
-                    PoseStamped(1, Pose(Point(3, 2, 0), Quaternion(1, 0, 0, 0))),
-                ])
-    pose = Pose(Point(1.5, 1, 0), Quaternion(1, 0, 0, 0))
-
-    plot_path(path)
-    plot_pose(pose)
     # draw table
     graph_obj.plot_queue.append(Plot_Info([0,3,3,0,0],[0,0,2,2,0],DEFAULT_TABLE_SERIES,False,'-',DEFAULT_TABLE_SYMBOL_SIZE))
 

@@ -163,9 +163,9 @@ static void stream_thread(void *p)
             strncpy(topic_name, "position", TOPIC_NAME_LEN);
             message_write_header(&ctx, &mem, buffer, sizeof(buffer), topic_name);
             cmp_write_array(&ctx, 3);
-            cmp_write_float(&ctx, x/1000);
-            cmp_write_float(&ctx, y/1000);
-            cmp_write_float(&ctx, a/1000);
+            cmp_write_float(&ctx, x);
+            cmp_write_float(&ctx, y);
+            cmp_write_float(&ctx, a);
             message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, STREAM_PORT);
         }
 
