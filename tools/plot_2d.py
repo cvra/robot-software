@@ -8,6 +8,7 @@
 import logging
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui, QtCore
+import signal
 import attr
 
 # Plotting options
@@ -216,6 +217,8 @@ def main():
     # To avoid rendering issues, we are using the queue system in Graph_Drawer for plot requests
     global graph_obj
     graph_obj = Graph_Drawer()
+
+    signal.signal(signal.SIGINT, signal.SIG_DFL)  # to kill on ctl-C
 
     path = Path([
                     PoseStamped(1, Pose(Point(1, 1, 0), Quaternion(1, 0, 0, 0))),
