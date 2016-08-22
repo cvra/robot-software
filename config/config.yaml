@@ -6,9 +6,9 @@ master:
         control:
             angle:
                 kp: 30.
-                ki: 1.
+                ki: 0.1
                 kd: 10.
-                ilimit: 5000.
+                ilimit: 1000.
             distance:
                 kp: 50.
                 ki: 0.

@@ -1,5 +1,6 @@
 #include <ch.h>
 #include <math.h>
+#include <config.h>
 #include "polar.h"
 #include "base_controller.h"
 #include "main.h"
@@ -133,6 +134,7 @@ static THD_FUNCTION(base_ctrl_thd, arg)
     (void) arg;
     chRegSetThreadName(__FUNCTION__);
 
+    parameter_namespace_t *control_params = parameter_namespace_find(&global_config, "master/aversive/control");
     while (1) {
         rs_update(&robot.rs);
 
@@ -154,6 +156,27 @@ static THD_FUNCTION(base_ctrl_thd, arg)
         /* Gestion du blocage */
         //bd_manage(&robot.angle_bd);
         //bd_manage(&robot.distance_bd);
+
+        if (parameter_namespace_contains_changed(control_params)) {
+            float kp, ki, kd, ilim;
+            pid_get_gains(&robot.angle_pid.pid, &kp, &ki, &kd);
+            ilim = pid_get_integral_limit(&robot.angle_pid.pid);
+            kp = parameter_scalar_get(parameter_find(control_params, "angle/kp"));
+            ki = parameter_scalar_get(parameter_find(control_params, "angle/ki"));
+            kd = parameter_scalar_get(parameter_find(control_params, "angle/kd"));
+            ilim = parameter_scalar_get(parameter_find(control_params, "angle/ilimit"));
+            pid_set_gains(&robot.angle_pid.pid, kp, ki, kd);
+            pid_set_integral_limit(&robot.angle_pid.pid, ilim);
+
+            pid_get_gains(&robot.distance_pid.pid, &kp, &ki, &kd);
+            ilim = pid_get_integral_limit(&robot.distance_pid.pid);
+            kp = parameter_scalar_get(parameter_find(control_params, "distance/kp"));
+            ki = parameter_scalar_get(parameter_find(control_params, "distance/ki"));
+            kd = parameter_scalar_get(parameter_find(control_params, "distance/kd"));
+            ilim = parameter_scalar_get(parameter_find(control_params, "distance/ilimit"));
+            pid_set_gains(&robot.distance_pid.pid, kp, ki, kd);
+            pid_set_integral_limit(&robot.distance_pid.pid, ilim);
+        }
 
         /* Wait 10 milliseconds (100 Hz) */
         chThdSleepMilliseconds(1000 / ASSERV_FREQUENCY);
