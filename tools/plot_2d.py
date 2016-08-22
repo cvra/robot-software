@@ -11,14 +11,21 @@ from pyqtgraph.Qt import QtGui, QtCore
 import signal
 import attr
 
+import cvra_rpc.message
+import cvra_rpc.service_call
+import threading
+import socketserver
+
+MASTER_BOARD_STREAM_ADDR = ('0.0.0.0', 20042)
+
 # Plotting options
-DEFAULT_PATH_SERIES = 42
+DEFAULT_PATH_SERIES = 0
 DEFAULT_PATH_APPEND = True
 DEFAULT_PATH_SYMBOL = '-'
 DEFAULT_PATH_SYMBOL_SIZE = 4
 
-DEFAULT_POSE_SERIES = 10
-DEFAULT_POSE_APPEND = True
+DEFAULT_POSE_SERIES = 1
+DEFAULT_POSE_APPEND = False
 DEFAULT_POSE_SYMBOL = 's'
 DEFAULT_POSE_SYMBOL_SIZE = 20
 
@@ -208,9 +215,32 @@ def plot_pose(data):
     # Create a Plot_Info object with request parameters and add it to the pending queue (for drawing)
     graph_obj.plot_queue.append(Plot_Info(x_set,y_set,DEFAULT_POSE_SERIES,DEFAULT_POSE_APPEND,DEFAULT_POSE_SYMBOL,DEFAULT_POSE_SYMBOL_SIZE))
 
+class DatagramRcv(QtCore.QThread):
+    def __init__(self, remote):
+        self.remote = remote
+        super(DatagramRcv, self).__init__()
+
+    def msg_cb(self, msg, args):
+        # print(msg, args)
+        if msg == 'position':
+            pose = Pose(Point(args[0]/1000, args[1]/1000, 0), Quaternion(1, 0, 0, 0))
+            plot_pose(pose)
+        if msg == 'path':
+            print('todo: path')
+
+    def run(self):
+        RequestHandler = cvra_rpc.message.create_request_handler({}, lambda todo, msg, args: self.msg_cb(msg, args))
+        msg_server = socketserver.UDPServer(self.remote, RequestHandler)
+        print('start CVRA rpc server')
+        msg_server.serve_forever()
+
+
 ##  Function node_setup
 #   This function sets up the ROS Node and registers the ROS services it provides
 def main():
+    rcv_thread = DatagramRcv(MASTER_BOARD_STREAM_ADDR)
+    rcv_thread.start()
+
     # Create a global Graph_Drawer instance for everything to use/draw on
     # This is necessary because QTCore and QTGui does not like to be controlled from multiple threads
     # However, rospy spawns different threads to handle service requests and callbacks
