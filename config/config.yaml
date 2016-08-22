@@ -2,6 +2,18 @@ master:
     odometry:
         track: 0.194
         radius: 0.016
+    aversive:
+        control:
+            angle:
+                kp: 30.
+                ki: 1.
+                kd: 10.
+                ilimit: 5000.
+            distance:
+                kp: 50.
+                ki: 0.
+                kd: 0.
+                ilimit: 5000.
 actuator:
     left-wheel:
         stream:
