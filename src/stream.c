@@ -174,18 +174,27 @@ static void stream_thread(void *p)
 
             /* Get path */
             point_t *path;
-            int path_len = oa_get_path(&path);
+            int path_len = oa_get_path(&path) + 1;
 
-            /* Pack path */
-            strncpy(topic_name, "path", TOPIC_NAME_LEN);
-            message_write_header(&ctx, &mem, buffer, sizeof(buffer), topic_name);
-            cmp_write_array(&ctx, path_len);
-            for (int i = 0; i < path_len; i++) {
+            if (path_len > 1) {
+                /* Pack path */
+                strncpy(topic_name, "path", TOPIC_NAME_LEN);
+                message_write_header(&ctx, &mem, buffer, sizeof(buffer), topic_name);
+                cmp_write_array(&ctx, path_len);
+
+                /* First point is robot position */
                 cmp_write_array(&ctx, 2);
-                cmp_write_float(&ctx, path[i].x);
-                cmp_write_float(&ctx, path[i].y);
+                cmp_write_float(&ctx, position_get_x_float(&robot.pos));
+                cmp_write_float(&ctx, position_get_y_float(&robot.pos));
+
+                /* Next points are defined by trajectory in obstacle avoidance */
+                for (int i = 0; i < path_len; i++) {
+                    cmp_write_array(&ctx, 2);
+                    cmp_write_float(&ctx, path[i].x);
+                    cmp_write_float(&ctx, path[i].y);
+                }
+                message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, STREAM_PORT);
             }
-            message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, STREAM_PORT);
         }
 
         chThdSleepMilliseconds(STREAM_TIMESTEP_MS);
