@@ -1,0 +1,2 @@
+pyqtgraph==0.9.10
+attrs==16.0.0
