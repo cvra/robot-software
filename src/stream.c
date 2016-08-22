@@ -12,9 +12,12 @@
 #include "motor_manager.h"
 #include "main.h"
 #include "priorities.h"
+#include "base/base_controller.h"
 
 #define STREAM_STACKSIZE 1024
 #define TOPIC_NAME_LEN   40
+
+#define POSITION_STREAM_FREQ 10
 
 THD_WORKING_AREA(wa_stream, STREAM_STACKSIZE);
 
@@ -31,6 +34,8 @@ static void stream_thread(void *p)
 
     STREAM_HOST(&server);
 
+    // position stream
+    int last_position_sent = 0;
 
     while (1) {
         motor_driver_t *drv_list;
@@ -142,6 +147,23 @@ static void stream_thread(void *p)
                     message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, STREAM_PORT);
                 }
             }
+        }
+
+        if (last_position_sent++ * STREAM_TIMESTEP_MS >= 1000/POSITION_STREAM_FREQ) {
+            last_position_sent = 0;
+
+            float x, y, a;
+            x = position_get_x_float(&robot.pos);
+            y = position_get_y_float(&robot.pos);
+            a = position_get_a_rad_float(&robot.pos);
+            message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, STREAM_PORT);            //         log_message("stream position");
+            strncpy(topic_name, "position", TOPIC_NAME_LEN);
+            message_write_header(&ctx, &mem, buffer, sizeof(buffer), topic_name);
+            cmp_write_array(&ctx, 3);
+            cmp_write_float(&ctx, x/1000);
+            cmp_write_float(&ctx, y/1000);
+            cmp_write_float(&ctx, a/1000);
+            message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, STREAM_PORT);
         }
 
         chThdSleepMilliseconds(STREAM_TIMESTEP_MS);
