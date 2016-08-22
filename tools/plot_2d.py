@@ -29,6 +29,8 @@ DEFAULT_POSE_APPEND = False
 DEFAULT_POSE_SYMBOL = 's'
 DEFAULT_POSE_SYMBOL_SIZE = 20
 
+DEFAULT_TABLE_SERIES = 2
+DEFAULT_TABLE_SYMBOL_SIZE = 4
 
 @attr.s
 class Point(object):
@@ -110,7 +112,6 @@ class Graph_Drawer:
                 # This causes a slow down if items are plotted at a high frequency (50Hz)
                 # However, this approach does not miss any plot items
                 # If we don't care about missing plot items, we can remove this
-                QtGui.QApplication.instance().processEvents()
             #Process QT events so graph can still be manipulated when there are no plot requests
             QtGui.QApplication.instance().processEvents()
     ##  Function plot
@@ -260,6 +261,8 @@ def main():
 
     plot_path(path)
     plot_pose(pose)
+    # draw table
+    graph_obj.plot_queue.append(Plot_Info([0,3,3,0,0],[0,0,2,2,0],DEFAULT_TABLE_SERIES,False,'-',DEFAULT_TABLE_SYMBOL_SIZE))
 
     # Start the ROS Node and register the services offered
     # Kick off the main run loop in the Graph_Drawer instance
