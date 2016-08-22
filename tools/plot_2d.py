@@ -20,7 +20,7 @@ MASTER_BOARD_STREAM_ADDR = ('0.0.0.0', 20042)
 
 # Plotting options
 DEFAULT_PATH_SERIES = 0
-DEFAULT_PATH_APPEND = True
+DEFAULT_PATH_APPEND = False
 DEFAULT_PATH_SYMBOL = '-'
 DEFAULT_PATH_SYMBOL_SIZE = 4
 
@@ -31,6 +31,9 @@ DEFAULT_POSE_SYMBOL_SIZE = 20
 
 DEFAULT_TABLE_SERIES = 2
 DEFAULT_TABLE_SYMBOL_SIZE = 4
+
+DEFAULT_OBSTACLE_SERIES = 3
+DEFAULT_OBSTACLE_SYMBOL_SIZE = 4
 
 @attr.s
 class Point(object):
@@ -217,6 +220,9 @@ def plot_pose(data):
     # Create a Plot_Info object with request parameters and add it to the pending queue (for drawing)
     graph_obj.plot_queue.append(Plot_Info(x_set,y_set,DEFAULT_POSE_SERIES,DEFAULT_POSE_APPEND,DEFAULT_POSE_SYMBOL,DEFAULT_POSE_SYMBOL_SIZE))
 
+def plot_obstacle(obs, first=False):
+    graph_obj.plot_queue.append(Plot_Info([x for x,_ in obs],[y for _,y in obs],DEFAULT_OBSTACLE_SERIES,not first,'-',DEFAULT_OBSTACLE_SYMBOL_SIZE))
+
 class DatagramRcv(QtCore.QThread):
     def __init__(self, remote):
         self.remote = remote
@@ -227,9 +233,13 @@ class DatagramRcv(QtCore.QThread):
         if msg == 'position':
             pose = Pose(Point(data[0]/1000, data[1]/1000, 0), Quaternion(1, 0, 0, 0))
             plot_pose(pose)
-        if msg == 'path':
+        elif msg == 'path':
             path = Path([PoseStamped(1, Pose(Point(p[0]/1000, p[1]/1000, 0), Quaternion(1, 0, 0, 0))) for p in data])
             plot_path(path)
+        elif msg == 'obstacles':
+            plot_obstacle(data[0], first=True)
+            for obs in data[1:]:
+                plot_obstacle(obs)
 
     def run(self):
         RequestHandler = cvra_rpc.message.create_request_handler({}, lambda todo, msg, args: self.msg_cb(msg, args))
