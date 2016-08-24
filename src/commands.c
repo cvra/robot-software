@@ -493,6 +493,20 @@ static void cmd_pid(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
+static void cmd_blocking_detection_config(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc == 3) {
+        uint32_t err_th = atoi(argv[1]);
+        uint16_t cpt_th = atoi(argv[2]);
+        if (strcmp("angle", argv[0]) == 0) {
+            bd_set_thresholds(&robot.angle_bd, err_th, cpt_th);
+        } else if (strcmp("distance", argv[0]) == 0) {
+            bd_set_thresholds(&robot.distance_bd, err_th, cpt_th);
+        }
+    } else {
+        chprintf(chp, "Usage: bdconf \"angle\"/\"distance\" err_th cpt_th\r\n");
+    }
+}
 
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
@@ -516,6 +530,7 @@ const ShellCommand commands[] = {
     {"goto", cmd_traj_goto},
     {"path", cmd_pathplanner},
     {"obs", cmd_create_static_obstacle},
+    {"bdconf", cmd_blocking_detection_config},
     // {"wheel_corr", cmd_wheel_correction},
     {NULL, NULL}
 };
