@@ -273,7 +273,13 @@ void main(void *arg)
         }
 
         // reboot command
-        int button = palReadPad(GPIOA, GPIOA_BUTTON_WKUP);
+        int button;
+#ifdef BOARD_ST_NUCLEO144_F429ZI
+        button = palReadPad(GPIOC, GPIOC_USER_BUTTON);
+#endif
+#ifdef BOARD_OLIMEX_STM32_E407_REV_D
+        button = palReadPad(GPIOA, GPIOA_BUTTON_WKUP);
+#endif
         if (button) {
             cvra::Reboot reboot_msg;
             reboot_msg.bootmode = reboot_msg.BOOTLOADER_TIMEOUT;

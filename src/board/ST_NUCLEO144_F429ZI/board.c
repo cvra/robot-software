@@ -78,3 +78,13 @@ void __early_init(void) {
  */
 void boardInit(void) {
 }
+
+void board_led_on(void)
+{
+    palSetPad(GPIOB, GPIOB_LED_GREEN);
+}
+
+void board_led_off(void)
+{
+    palClearPad(GPIOB, GPIOB_LED_GREEN);
+}

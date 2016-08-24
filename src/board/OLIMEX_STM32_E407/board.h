@@ -105,7 +105,7 @@
 #define GPIOC_SD_D2                 10
 #define GPIOC_SD_D3                 11
 #define GPIOC_SD_CLK                12
-#define GPIOC_LED                   13
+#define GPIOC_LED                   13 // active low
 #define GPIOC_OSC32_IN              14
 #define GPIOC_OSC32_OUT             15
 
@@ -1292,6 +1292,8 @@
 extern "C" {
 #endif
   void boardInit(void);
+  void board_led_on(void);
+  void board_led_off(void);
 #ifdef __cplusplus
 }
 #endif

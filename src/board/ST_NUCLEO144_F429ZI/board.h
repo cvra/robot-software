@@ -1058,6 +1058,8 @@
 extern "C" {
 #endif
   void boardInit(void);
+  void board_led_on(void);
+  void board_led_off(void);
 #ifdef __cplusplus
 }
 #endif
