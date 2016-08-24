@@ -581,8 +581,8 @@
                                      PIN_MODE_INPUT(GPIOD_PIN5) | \
                                      PIN_MODE_INPUT(GPIOD_PIN6) | \
                                      PIN_MODE_INPUT(GPIOD_PIN7) | \
-                                     PIN_MODE_INPUT(GPIOD_UART3_TX) | \
-                                     PIN_MODE_INPUT(GPIOD_UART3_RX) | \
+                                     PIN_MODE_ALTERNATE(GPIOD_UART3_TX) | \
+                                     PIN_MODE_ALTERNATE(GPIOD_UART3_RX) | \
                                      PIN_MODE_INPUT(GPIOD_PIN10) | \
                                      PIN_MODE_INPUT(GPIOD_PIN11) | \
                                      PIN_MODE_ALTERNATE(GPIOD_ENCODER_LEFT_CHA) | \
