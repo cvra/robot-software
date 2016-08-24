@@ -27,7 +27,7 @@ THD_WORKING_AREA(wa_stream, STREAM_STACKSIZE);
 static void stream_thread(void *p)
 {
     chRegSetThreadName("stream");
-    static uint8_t buffer[64];
+    static uint8_t buffer[200];
     static char topic_name[TOPIC_NAME_LEN];
     cmp_ctx_t ctx;
     cmp_mem_access_t mem;
@@ -196,27 +196,27 @@ static void stream_thread(void *p)
                 message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, STREAM_PORT);
             }
 
-            struct obstacle_avoidance oa;
-            oa_copy(&oa);
+            // static struct obstacle_avoidance oa;
+            // oa_copy(&oa);
 
-            /* Pack obstacle polygons */
-            strncpy(topic_name, "obstacles", TOPIC_NAME_LEN);
-            message_write_header(&ctx, &mem, buffer, sizeof(buffer), topic_name);
-            cmp_write_array(&ctx, oa.cur_poly_idx);
-            for (int i = 0; i < oa.cur_poly_idx; i++) {
-                poly_t *poly;
-                poly = &oa.polys[i];
+            // /* Pack obstacle polygons */
+            // strncpy(topic_name, "obstacles", TOPIC_NAME_LEN);
+            // message_write_header(&ctx, &mem, buffer, sizeof(buffer), topic_name);
+            // cmp_write_array(&ctx, oa.cur_poly_idx);
+            // for (int i = 0; i < oa.cur_poly_idx; i++) {
+            //     poly_t *poly;
+            //     poly = &oa.polys[i];
 
-                cmp_write_array(&ctx, poly->l);
-                for (int j = 0; j < poly->l; j++) {
-                    point_t *pt;
-                    pt = &poly->pts[j];
-                    cmp_write_array(&ctx, 2);
-                    cmp_write_float(&ctx, pt->x);
-                    cmp_write_float(&ctx, pt->y);
-                }
-            }
-            message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, STREAM_PORT);
+            //     cmp_write_array(&ctx, poly->l);
+            //     for (int j = 0; j < poly->l; j++) {
+            //         point_t *pt;
+            //         pt = &poly->pts[j];
+            //         cmp_write_array(&ctx, 2);
+            //         cmp_write_float(&ctx, pt->x);
+            //         cmp_write_float(&ctx, pt->y);
+            //     }
+            // }
+            // message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, STREAM_PORT);
         }
 
 
