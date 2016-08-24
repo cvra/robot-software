@@ -47,6 +47,11 @@ ifeq ($(USE_VERBOSE_COMPILE),)
   USE_VERBOSE_COMPILE = no
 endif
 
+# Bootloader settings
+ifeq ($(USE_BOOTLOADER),)
+  USE_BOOTLOADER = no
+endif
+
 #
 # Build global options
 ##############################################################################
@@ -95,15 +100,9 @@ include lwip.mk
 # ChibiOS C++ bindings
 include $(CHIBIOS)/os/various/cpp_wrappers/chcpp.mk
 
-# Bootloader settings
-USE_BOOTLOADER = no
-
-ifeq ($(USE_BOOTLOADER), yes)
-  DDEFS += -DCORTEX_VTOR_INIT=0x0800C000
-  LDSCRIPT= STM32F407xG_bootloader.ld
-else
-  LDSCRIPT= STM32F407xG.ld
-endif
+# Target board
+include src/board/OLIMEX_STM32_E407/board.mk
+#include src/board/ST_NUCLEO144_F429ZI/board.mk
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -119,7 +118,8 @@ CSRC = $(PORTSRC) \
        $(CHIBIOS)/os/hal/lib/streams/memstreams.c \
        $(CHIBIOS)/os/hal/lib/streams/chprintf.c \
        $(CHIBIOS)/os/various/syscalls.c \
-       $(CHIBIOS)/os/various/shell.c
+       $(CHIBIOS)/os/various/shell.c \
+       $(BOARDSRC)
 
 include app_src.mk
 
@@ -136,7 +136,8 @@ INCDIR += $(PORTINC) $(KERNINC) $(TESTINC) \
           $(OSALINC) \
           $(CHCPPINC) \
           $(CHIBIOS)/os/various \
-		  $(CHIBIOS)/os/hal/lib/streams
+		  $(CHIBIOS)/os/hal/lib/streams \
+		  $(BOARDINC)
 
 #
 # Project, sources and paths

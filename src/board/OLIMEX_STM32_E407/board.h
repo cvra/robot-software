@@ -476,8 +476,8 @@
  * PC3  - SPI2_MOSI                 (alternate 5).
  * PC4  - ETH_RMII_RXD0             (alternate 11).
  * PC5  - ETH_RMII_RXD1             (alternate 11).
- * PC6  - USART6_TX                 (alternate 8).
- * PC7  - USART6_RX                 (alternate 8).
+ * PC6  - GPIOC_PIN6_ENCODER_RIGHT_CHA  (alternate 2).
+ * PC7  - GPIOC_PIN7_ENCODER_RIGHT_CHB  (alternate 2).
  * PC8  - SD_D0                     (alternate 12).
  * PC9  - SD_D1                     (alternate 12).
  * PC10 - SD_D2                     (alternate 12).
