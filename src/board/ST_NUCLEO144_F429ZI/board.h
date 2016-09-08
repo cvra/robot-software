@@ -167,7 +167,7 @@
 #define GPIOG_PIN4                  4
 #define GPIOG_PIN5                  5
 #define GPIOG_USB_OTG_POWER_EN      6 // USB device 5V VBUS power switch
-#define GPIOG_USB_OBVERCURRENT      7 // USB_ObverCurrent, active low (for USB OTG host)
+#define GPIOG_USB_OVERCURRENT       7 // USB_OverCurrent, active low (for USB OTG host)
 #define GPIOG_PIN8                  8
 #define GPIOG_PIN9                  9
 #define GPIOG_PIN10                 10
@@ -914,7 +914,7 @@
  * GPIOG_PIN4                       (input floating).
  * GPIOG_PIN5                       (input floating).
  * GPIOG_USB_OTG_POWER_EN           (output low).
- * GPIOG_USB_OBVERCURRENT           (input floating).
+ * GPIOG_USB_OVERCURRENT            (input floating).
  * GPIOG_PIN8                       (input floating).
  * GPIOG_PIN9                       (input floating).
  * GPIOG_PIN10                      (input floating).
@@ -931,7 +931,7 @@
                                      PIN_MODE_INPUT(GPIOG_PIN4) | \
                                      PIN_MODE_INPUT(GPIOG_PIN5) | \
                                      PIN_MODE_OUTPUT(GPIOG_USB_OTG_POWER_EN) | \
-                                     PIN_MODE_INPUT(GPIOG_USB_OBVERCURRENT) | \
+                                     PIN_MODE_INPUT(GPIOG_USB_OVERCURRENT) | \
                                      PIN_MODE_INPUT(GPIOG_PIN8) | \
                                      PIN_MODE_INPUT(GPIOG_PIN9) | \
                                      PIN_MODE_INPUT(GPIOG_PIN10) | \
@@ -947,7 +947,7 @@
                                      PIN_OTYPE_PUSHPULL(GPIOG_PIN4) | \
                                      PIN_OTYPE_PUSHPULL(GPIOG_PIN5) | \
                                      PIN_OTYPE_PUSHPULL(GPIOG_USB_OTG_POWER_EN) | \
-                                     PIN_OTYPE_PUSHPULL(GPIOG_USB_OBVERCURRENT) | \
+                                     PIN_OTYPE_PUSHPULL(GPIOG_USB_OVERCURRENT) | \
                                      PIN_OTYPE_PUSHPULL(GPIOG_PIN8) | \
                                      PIN_OTYPE_PUSHPULL(GPIOG_PIN9) | \
                                      PIN_OTYPE_PUSHPULL(GPIOG_PIN10) | \
@@ -963,7 +963,7 @@
                                      PIN_OSPEED_100M(GPIOG_PIN4) | \
                                      PIN_OSPEED_100M(GPIOG_PIN5) | \
                                      PIN_OSPEED_100M(GPIOG_USB_OTG_POWER_EN) | \
-                                     PIN_OSPEED_100M(GPIOG_USB_OBVERCURRENT) | \
+                                     PIN_OSPEED_100M(GPIOG_USB_OVERCURRENT) | \
                                      PIN_OSPEED_100M(GPIOG_PIN8) | \
                                      PIN_OSPEED_100M(GPIOG_PIN9) | \
                                      PIN_OSPEED_100M(GPIOG_PIN10) | \
@@ -979,7 +979,7 @@
                                      PIN_PUPDR_FLOATING(GPIOG_PIN4) | \
                                      PIN_PUPDR_FLOATING(GPIOG_PIN5) | \
                                      PIN_PUPDR_FLOATING(GPIOG_USB_OTG_POWER_EN) | \
-                                     PIN_PUPDR_FLOATING(GPIOG_USB_OBVERCURRENT) | \
+                                     PIN_PUPDR_FLOATING(GPIOG_USB_OVERCURRENT) | \
                                      PIN_PUPDR_FLOATING(GPIOG_PIN8) | \
                                      PIN_PUPDR_FLOATING(GPIOG_PIN9) | \
                                      PIN_PUPDR_FLOATING(GPIOG_PIN10) | \
@@ -995,7 +995,7 @@
                                      PIN_ODR_LOW(GPIOG_PIN4) | \
                                      PIN_ODR_LOW(GPIOG_PIN5) | \
                                      PIN_ODR_LOW(GPIOG_USB_OTG_POWER_EN) | \
-                                     PIN_ODR_LOW(GPIOG_USB_OBVERCURRENT) | \
+                                     PIN_ODR_LOW(GPIOG_USB_OVERCURRENT) | \
                                      PIN_ODR_LOW(GPIOG_PIN8) | \
                                      PIN_ODR_LOW(GPIOG_PIN9) | \
                                      PIN_ODR_LOW(GPIOG_PIN10) | \
@@ -1011,7 +1011,7 @@
                                      PIN_AFIO_AF(GPIOG_PIN4, 0) | \
                                      PIN_AFIO_AF(GPIOG_PIN5, 0) | \
                                      PIN_AFIO_AF(GPIOG_USB_OTG_POWER_EN, 0) | \
-                                     PIN_AFIO_AF(GPIOG_USB_OBVERCURRENT, 0))
+                                     PIN_AFIO_AF(GPIOG_USB_OVERCURRENT, 0))
 #define VAL_GPIOG_AFRH              (PIN_AFIO_AF(GPIOG_PIN8, 0) | \
                                      PIN_AFIO_AF(GPIOG_PIN9, 0) | \
                                      PIN_AFIO_AF(GPIOG_PIN10, 0) | \
