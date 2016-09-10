@@ -27,6 +27,11 @@
 #define STM32F405xx
 
 /*
+ *  Define for functional usb without VBUS detection
+ */
+#define BOARD_OTG_NOVBUSSENS 1
+
+/*
  * IO pins assignments.
  */
 #define GPIOA_PIN0                  0U

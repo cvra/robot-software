@@ -5,6 +5,7 @@ dependency-dir: ./src
 
 target.arm:
     - src/board.c
+    - src/usbconf.c
     - src/main.c
 
 # source:

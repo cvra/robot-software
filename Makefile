@@ -112,6 +112,7 @@ CSRC = $(STARTUPSRC) \
 	   $(OSALSRC) \
 	   $(HALSRC) \
 	   $(PLATFORMSRC) \
+       $(CHIBIOS)/os/hal/lib/streams/chprintf.c \
 	   $(APPCSRC)
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
@@ -123,6 +124,7 @@ ASMSRC = $(STARTUPASM) $(PORTASM) $(OSALASM) $(APPASMSRC)
 
 INCDIR = $(STARTUPINC) $(KERNINC) $(PORTINC) $(OSALINC) \
 		 $(HALINC) $(PLATFORMINC) $(APPINC) \
+         $(CHIBIOS)/os/hal/lib/streams \
 		 $(CHIBIOS)/os/various
 
 #
