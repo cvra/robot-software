@@ -4,7 +4,6 @@
 #include <hal.h>
 #include <chprintf.h>
 #include <shell.h>
-#include "usbconf.h"
 #include "mpu9250.h"
 
 #define TEST_WA_SIZE        THD_WORKING_AREA_SIZE(256)
@@ -48,6 +47,7 @@ static void cmd_mpu_ping(BaseSequentialStream *chp, int argc, char **argv)
 }
 
 
+static ShellConfig shell_cfg;
 const ShellCommand shell_commands[] = {
     {"reboot", cmd_reboot},
     {"mpu_ping", cmd_mpu_ping},
@@ -57,21 +57,17 @@ const ShellCommand shell_commands[] = {
 
 static THD_FUNCTION(shell_spawn_thd, p)
 {
-    (void) p;
+    BaseSequentialStream *io = (BaseSequentialStream *)p;
     thread_t *shelltp = NULL;
 
-    static const ShellConfig shell_cfg = {
-        (BaseSequentialStream *)&SDU1,
-        shell_commands
-    };
+    shell_cfg.sc_channel = io;
+    shell_cfg.sc_commands = shell_commands;
 
     shellInit();
 
     while (TRUE) {
         if (!shelltp) {
-            if (SDU1.config->usbp->state == USB_ACTIVE) {
-                shelltp = shellCreate(&shell_cfg, SHELL_WA_SIZE, NORMALPRIO);
-            }
+            shelltp = shellCreate(&shell_cfg, SHELL_WA_SIZE, NORMALPRIO);
         } else {
             if (chThdTerminatedX(shelltp)) {
                 chThdRelease(shelltp);
@@ -82,8 +78,8 @@ static THD_FUNCTION(shell_spawn_thd, p)
     }
 }
 
-void shell_start(void)
+void shell_start(BaseSequentialStream *io)
 {
     static THD_WORKING_AREA(wa, SHELL_WA_SIZE);
-    chThdCreateStatic(wa, sizeof(wa), NORMALPRIO, shell_spawn_thd, NULL);
+    chThdCreateStatic(wa, sizeof(wa), NORMALPRIO, shell_spawn_thd, io);
 }

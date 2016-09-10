@@ -4,6 +4,6 @@
 #include <shell.h>
 extern const ShellCommand shell_commands[];
 
-void shell_start(void);
+void shell_start(BaseSequentialStream *io);
 
 #endif /* _CMD_H_ */

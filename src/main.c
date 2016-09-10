@@ -13,7 +13,7 @@ int main(void)
     usb_start();
     chprintf((BaseSequentialStream *)&SDU1, "CVRA UWB Beacon booting...\r\n");
 
-    shell_start();
+    shell_start((BaseSequentialStream *)&SDU1);
 
     while(true) {
         palTogglePad(GPIOB, GPIOB_LED_STATUS);
