@@ -10,8 +10,10 @@ int main(void)
     halInit();
     chSysInit();
 
+    sdStart(&SD2, NULL);
+    chprintf((BaseSequentialStream *)&SD2, "boot\r\n");
+
     usb_start();
-    chprintf((BaseSequentialStream *)&SDU1, "CVRA UWB Beacon booting...\r\n");
 
     shell_start((BaseSequentialStream *)&SDU1);
 
