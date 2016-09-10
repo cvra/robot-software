@@ -1,0 +1,21 @@
+dependency-dir: ./src
+
+# depends:
+#     -
+
+target.arm:
+    - src/board.c
+    - src/main.c
+
+# source:
+#     -
+
+include_directories:
+    - src/
+
+# tests:
+#     -
+
+templates:
+    app_src.mk.jinja: app_src.mk
+    CMakeLists.txt.jinja: CMakeLists.txt
