@@ -19,6 +19,8 @@
 #include "uavcan_node.h"
 #include "timestamp/timestamp_stm32.h"
 #include "config.h"
+#include <parameter/parameter_msgpack.h>
+#include <cmp_mem_access/cmp_mem_access.h>
 #include "interface_panel.h"
 #include "robot_parameters.h"
 #include "motor_manager.h"
@@ -28,10 +30,12 @@
 #include "log.h"
 #include "imu.h"
 #include "usbconf.h"
-#include "odometry/encoder.h"
-#include "odometry/position_manager.h"
+#include "base/encoder.h"
+#include "base/base_controller.h"
 
-/* Command line related.                                                     */
+void init_base_motors(void);
+
+/* Command line related */
 #define SHELL_WA_SIZE   THD_WORKING_AREA_SIZE(2048)
 static const ShellConfig shell_cfg1 = {
     (BaseSequentialStream *)&SDU1,
@@ -121,6 +125,23 @@ void __late_init(void)
     malloc_lock_init();
 }
 
+void config_load_err_cb(void *arg, const char *id, const char *err)
+{
+    (void)arg;
+    log_message("parameter %s: %s", id == NULL ? "(...)" : id, err);
+}
+
+extern unsigned char config_msgpack[];
+extern const size_t config_msgpack_size;
+
+void config_load_from_flash(void)
+{
+    cmp_ctx_t cmp;
+    cmp_mem_access_t mem;
+    cmp_mem_access_ro_init(&cmp, &mem, config_msgpack, config_msgpack_size);
+    parameter_msgpack_read_cmp(&global_config, &cmp, config_load_err_cb, NULL);
+}
+
 /** Application entry point.  */
 int main(void) {
     static thread_t *shelltp = NULL;
@@ -201,8 +222,15 @@ int main(void) {
     interface_panel_init();
     imu_init();
 
+    init_base_motors();
+    config_load_from_flash();
+
+    /* Base init */
     encoder_start();
+    robot_init();
+    base_controller_start();
     position_manager_start();
+    trajectory_manager_start();
 
     stream_init();
 
@@ -220,6 +248,12 @@ int main(void) {
 }
 
 uintptr_t __stack_chk_guard = 0xdeadbeef;
+
+void init_base_motors(void)
+{
+    motor_manager_create_driver(&motor_manager, "left-wheel");
+    motor_manager_create_driver(&motor_manager, "right-wheel");
+}
 
 void __stack_chk_fail(void)
 {

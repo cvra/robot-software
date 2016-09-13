@@ -11,12 +11,6 @@
 
 static void setup_timer(stm32_tim_t *tmr);
 
-/* Returns the minimal signed difference considering an overflow or underflow. */
-static int encoder_tick_diff(uint32_t enc_old, uint32_t enc_new);
-
-static uint32_t encoder_get_right(void);
-static uint32_t encoder_get_left(void);
-
 
 uint32_t encoder_get_left(void)
 {
@@ -46,7 +40,6 @@ int encoder_tick_diff(uint32_t enc_old, uint32_t enc_new)
         return 0;
     }
 }
-
 
 static THD_FUNCTION(encoders_thd, arg)
 {

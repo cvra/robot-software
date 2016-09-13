@@ -8,14 +8,10 @@ extern "C" {
 #include <ch.h>
 
 #include "timestamp/timestamp.h"
+#include "base.h"
 #include "polar.h"
 #include "encoder.h"
 
-typedef struct {
-    float x;        // [m]
-    float y;        // [m]
-    float heading;  // [rad]
-} odometry_pose2d_t;
 
 typedef struct {
     float track;         // [m]
@@ -24,8 +20,8 @@ typedef struct {
 } odometry_params_t;
 
 typedef struct {
-    odometry_pose2d_t position;
-    odometry_pose2d_t velocity;
+    pose2d_t position;
+    pose2d_t velocity;
 
     timestamp_t time_last_update;           // [us]
     encoders_msg_t previous_encoder_values; // [ticks]
@@ -39,7 +35,7 @@ typedef struct {
 void odometry_init(
         odometry_diffbase_t *odom,
         mutex_t *lock,
-        const odometry_pose2d_t initial_position,
+        const pose2d_t initial_position,
         const odometry_params_t robot_params,
         const wheels_t wheels_correction_factor,
         const encoders_msg_t previous_encoder_values,
@@ -47,7 +43,7 @@ void odometry_init(
 
 void odometry_reset(
         odometry_diffbase_t *odom,
-        const odometry_pose2d_t new_position,
+        const pose2d_t new_position,
         const timestamp_t time_now);
 
 void odometry_update(

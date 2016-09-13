@@ -12,16 +12,22 @@
 #include "motor_manager.h"
 #include "main.h"
 #include "priorities.h"
+#include "base/base_controller.h"
+
+#include "obstacle_avoidance/obstacle_avoidance.h"
 
 #define STREAM_STACKSIZE 1024
 #define TOPIC_NAME_LEN   40
+
+#define POSITION_STREAM_FREQ 10
+#define PATH_STREAM_FREQ     1
 
 THD_WORKING_AREA(wa_stream, STREAM_STACKSIZE);
 
 static void stream_thread(void *p)
 {
     chRegSetThreadName("stream");
-    static uint8_t buffer[64];
+    static uint8_t buffer[200];
     static char topic_name[TOPIC_NAME_LEN];
     cmp_ctx_t ctx;
     cmp_mem_access_t mem;
@@ -31,6 +37,9 @@ static void stream_thread(void *p)
 
     STREAM_HOST(&server);
 
+    // position stream
+    int last_position_sent = 0;
+    int last_path_sent = 0;
 
     while (1) {
         motor_driver_t *drv_list;
@@ -143,6 +152,73 @@ static void stream_thread(void *p)
                 }
             }
         }
+
+        if (last_position_sent++ * STREAM_TIMESTEP_MS >= 1000/POSITION_STREAM_FREQ) {
+            last_position_sent = 0;
+
+            float x, y, a;
+            x = position_get_x_float(&robot.pos);
+            y = position_get_y_float(&robot.pos);
+            a = position_get_a_rad_float(&robot.pos);
+            strncpy(topic_name, "position", TOPIC_NAME_LEN);
+            message_write_header(&ctx, &mem, buffer, sizeof(buffer), topic_name);
+            cmp_write_array(&ctx, 3);
+            cmp_write_float(&ctx, x);
+            cmp_write_float(&ctx, y);
+            cmp_write_float(&ctx, a);
+            message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, STREAM_PORT);
+        }
+
+        if (last_path_sent++ * STREAM_TIMESTEP_MS >= 1000/PATH_STREAM_FREQ) {
+            last_path_sent = 0;
+
+            /* Get path */
+            point_t *path;
+            int path_len = oa_get_path(&path) + 1;
+
+            if (path_len > 1) {
+                /* Pack path */
+                strncpy(topic_name, "path", TOPIC_NAME_LEN);
+                message_write_header(&ctx, &mem, buffer, sizeof(buffer), topic_name);
+                cmp_write_array(&ctx, path_len);
+
+                /* First point is robot position */
+                cmp_write_array(&ctx, 2);
+                cmp_write_float(&ctx, position_get_x_float(&robot.pos));
+                cmp_write_float(&ctx, position_get_y_float(&robot.pos));
+
+                /* Next points are defined by trajectory in obstacle avoidance */
+                for (int i = 0; i < path_len; i++) {
+                    cmp_write_array(&ctx, 2);
+                    cmp_write_float(&ctx, path[i].x);
+                    cmp_write_float(&ctx, path[i].y);
+                }
+                message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, STREAM_PORT);
+            }
+
+            // static struct obstacle_avoidance oa;
+            // oa_copy(&oa);
+
+            // /* Pack obstacle polygons */
+            // strncpy(topic_name, "obstacles", TOPIC_NAME_LEN);
+            // message_write_header(&ctx, &mem, buffer, sizeof(buffer), topic_name);
+            // cmp_write_array(&ctx, oa.cur_poly_idx);
+            // for (int i = 0; i < oa.cur_poly_idx; i++) {
+            //     poly_t *poly;
+            //     poly = &oa.polys[i];
+
+            //     cmp_write_array(&ctx, poly->l);
+            //     for (int j = 0; j < poly->l; j++) {
+            //         point_t *pt;
+            //         pt = &poly->pts[j];
+            //         cmp_write_array(&ctx, 2);
+            //         cmp_write_float(&ctx, pt->x);
+            //         cmp_write_float(&ctx, pt->y);
+            //     }
+            // }
+            // message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, STREAM_PORT);
+        }
+
 
         chThdSleepMilliseconds(STREAM_TIMESTEP_MS);
     }

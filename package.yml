@@ -34,18 +34,39 @@ target.arm:
     - src/log.c
     - src/imu.c
     - src/usbconf.c
-    - src/odometry/encoder.c
-    - src/odometry/position_manager.c
+    - src/aversive/math/fast_math/fast_math.c
+    - src/aversive/math/geometry/circles.c
+    - src/aversive/math/geometry/lines.c
+    - src/aversive/math/geometry/polygon.c
+    - src/aversive/math/geometry/vect_base.c
+    - src/aversive/math/vect2/vect2.c
+    - src/aversive/cvra/cvra_motors.c
+    - src/aversive/cvra/cvra_pid.c
+    - src/aversive/error/error.c
+    - src/aversive/robot_system/angle_distance.c
+    - src/aversive/robot_system/robot_system.c
+    - src/aversive/position_manager/position_manager.c
+    - src/aversive/quadramp/quadramp.c
+    - src/aversive/control_system_manager/control_system_manager.c
+    - src/aversive/trajectory_manager/trajectory_manager.c
+    - src/aversive/trajectory_manager/trajectory_manager_core.c
+    - src/aversive/trajectory_manager/trajectory_manager_utils.c
+    - src/aversive/blocking_detection_manager/blocking_detection_manager.c
+    - src/aversive/obstacle_avoidance/obstacle_avoidance.c
+    - src/base/encoder.c
+    - src/base/base_controller.c
+    - config/config_msgpack.c
 
 source:
     - src/unix_timestamp.c
     - src/bus_enumerator.c
     - src/trajectories.c
-    - src/odometry/polar.c
-    - src/odometry/odometry.c
+    - src/base/polar.c
+    - src/base/odometry.c
 
 include_directories:
     - src/
+    - src/aversive/
     - src/board/
 
 tests:

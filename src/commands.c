@@ -16,11 +16,11 @@
 #include "node_tracker.h"
 #include "msgbus/messagebus.h"
 #include "main.h"
-#include "odometry/encoder.h"
-#include "odometry/polar.h"
-#include "odometry/odometry.h"
-#include "odometry/position_manager.h"
-
+#include "base/encoder.h"
+#include "base/polar.h"
+#include "base/odometry.h"
+#include "base/base_controller.h"
+#include "obstacle_avoidance/obstacle_avoidance.h"
 
 
 static void cmd_mem(BaseSequentialStream *chp, int argc, char *argv[]) {
@@ -291,44 +291,220 @@ static void cmd_position(BaseSequentialStream *chp, int argc, char *argv[])
     (void) argc;
     (void) argv;
 
-    messagebus_topic_t *position_topic;
-    odometry_pose2d_t pos;
+    float x, y, a;
 
-    position_topic = messagebus_find_topic_blocking(&bus, "/position");
-    messagebus_topic_wait(position_topic, &pos, sizeof(pos));
+    x = position_get_x_float(&robot.pos);
+    y = position_get_y_float(&robot.pos);
+    a = position_get_a_rad_float(&robot.pos);
 
-    chprintf(chp, "x: %f [m]\r\ny: %f [m]\r\na: %f [deg]\r\n", pos.x, pos.y, DEGREES(pos.heading));
+    chprintf(chp, "x: %f [mm]\r\ny: %f [mm]\r\na: %f [rad]\r\n", x, y, a);
 }
 
 static void cmd_position_reset(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc == 3) {
         float x = atof(argv[0]);
-        float y = atof(argv[0]);
-        float heading = atof(argv[0]);
+        float y = atof(argv[1]);
+        float a = atof(argv[2]);
 
-        position_manager_reset(x, y, heading);
-        chprintf(chp, "New pos x: %f [m]\r\ny: %f [m]\r\na: %f [deg]\r\n", x, y, heading);
+        position_set(&robot.pos, x, y, a);
+
+        chprintf(chp, "New pos x: %f [mm]\r\ny: %f [mm]\r\na: %f [rad]\r\n", x, y, a);
     } else {
-        chprintf(chp, "Usage: pos_reset x[m] y[m] heading[deg]\r\n");
+        chprintf(chp, "Usage: pos_reset x[mm] y[mm] a[rad]\r\n");
     }
 }
 
-static void cmd_wheel_correction(BaseSequentialStream *chp, int argc, char *argv[])
-{
-    if (argc == 2) {
-        float left, right;
-        position_manager_get_wheel_correction(&left, &right);
+// static void cmd_wheel_correction(BaseSequentialStream *chp, int argc, char *argv[])
+// {
+//     if (argc == 2) {
+//         float left, right;
+//         position_manager_get_wheel_correction(&left, &right);
 
-        if (!strcmp("left", argv[0])) {
-            left = atof(argv[1]);
-        } else if (!strcmp("right", argv[0])) {
-            right = atof(argv[1]);
+//         if (!strcmp("left", argv[0])) {
+//             left = atof(argv[1]);
+//         } else if (!strcmp("right", argv[0])) {
+//             right = atof(argv[1]);
+//         }
+
+//         position_manager_set_wheel_correction(left, right);
+//     } else {
+//         chprintf(chp, "Usage: wheel_corr {left|right} factor\r\n");
+//     }
+// }
+
+static void cmd_traj_forward(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc == 1) {
+        float distance;
+        distance = atof(argv[0]);
+        trajectory_d_rel(&robot.traj, distance);
+    } else {
+        chprintf(chp, "Usage: forward distance\r\n");
+    }
+}
+
+static void cmd_traj_rotate(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc == 1) {
+        float angle;
+        angle = atof(argv[0]);
+        trajectory_a_rel(&robot.traj, angle);
+    } else {
+        chprintf(chp, "Usage: rotate angle\r\n");
+    }
+}
+
+static void cmd_traj_goto(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc == 3) {
+        float x, y, a;
+        x = atof(argv[0]);
+        y = atof(argv[1]);
+        a = atof(argv[2]);
+        chprintf(chp, "Going to x: %.1fmm y: %.1fmm a: %.1fdeg\r\n", x, y, a);
+
+        trajectory_goto_xy_abs(&robot.traj, x, y);
+        chThdSleepMilliseconds(100);
+
+        while (trajectory_finished(&robot.traj) == 0) {
+            chThdSleepMilliseconds(10);
         }
 
-        position_manager_set_wheel_correction(left, right);
+        trajectory_a_abs(&robot.traj, a);
     } else {
-        chprintf(chp, "Usage: wheel_corr {left|right} factor\r\n");
+        chprintf(chp, "Usage: goto x y a\r\n");
+    }
+}
+
+
+void add_rectangular_obstacle(int x, int y, int half_dx, int half_dy)
+{
+    poly_t *obstacle = oa_new_poly(4);
+
+    oa_poly_set_point(obstacle, x + half_dx, y + half_dy, 0);
+    oa_poly_set_point(obstacle, x + half_dx, y - half_dy, 1);
+    oa_poly_set_point(obstacle, x - half_dx, y - half_dy, 2);
+    oa_poly_set_point(obstacle, x - half_dx, y + half_dy, 3);
+}
+
+
+static void cmd_pathplanner(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc == 3) {
+        /* Get goal pos */
+        int x, y;
+        float a;
+        x = atoi(argv[0]);
+        y = atoi(argv[1]);
+        a = atof(argv[2]);
+        chprintf(chp, "Going to x: %dmm y: %dmm a: %.1fdeg\r\n", x, y, a);
+
+        add_rectangular_obstacle(750, 1150, 350, 200);
+
+        /* Request a path to the planner */
+        point_t *p;
+
+        /* Sets starting and ending point of the path. */
+        oa_start_end_points(
+            position_get_x_s16(&robot.pos), position_get_x_s16(&robot.pos),
+            x, y);
+
+        /* Computes the path */
+        oa_process();
+        int len = oa_get_path(&p);
+        chprintf(chp, "Found path of length %d\r\n", len);
+
+        /* Checks if a path was found. */
+        if(len < 0) {
+            chprintf(chp, "Cannot find a suitable path.\r\n");
+            return;
+        } else {
+            chprintf(chp, "Path found contains %d points\r\n", len);
+        }
+
+        /* For all the points in the path. */
+        for (int i = 0; i < len; i++) {
+            /* Goes to the point. */
+            trajectory_goto_forward_xy_abs(&robot.traj, p->x, p->y);
+            chprintf(chp, "Going to x: %.1fmm y: %.1fmm\r\n", p->x, p->y);
+
+            /* Waits for the completion of the trajectory. */
+            chThdSleepMilliseconds(100);
+            while (trajectory_finished(&robot.traj) == 0) {
+                chThdSleepMilliseconds(10);
+            }
+
+            /* Increments pointer to load next point. */
+            p++;
+        }
+
+        trajectory_a_abs(&robot.traj, a);
+    } else {
+        chprintf(chp, "Usage: path x y a\r\n");
+    }
+}
+
+static void cmd_create_static_obstacle(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc == 3) {
+        /* Get obstacle properties */
+        float x, y, half_size;
+        x = atof(argv[0]);
+        y = atof(argv[1]);
+        half_size = atof(argv[2]);
+
+        /* Create obstacle */
+        add_rectangular_obstacle(x, y, half_size, half_size);
+
+        chprintf(chp, "Created square obstacle at x: %.1fmm y: %.1fmm of half size: %.1fmm\r\n", x, y, half_size);
+        oa_dump();
+    } else {
+        chprintf(chp, "Usage: obs x y size\r\n");
+    }
+}
+
+static void cmd_pid(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc == 2) {
+        float kp, ki, kd, ilim;
+        pid_get_gains(&robot.angle_pid.pid, &kp, &ki, &kd);
+        ilim = pid_get_integral_limit(&robot.angle_pid.pid);
+
+        if (strcmp("p", argv[0]) == 0) {
+            kp = atof(argv[1]);
+        } else if (strcmp("i", argv[0]) == 0) {
+            ki = atof(argv[1]);
+        } else if (strcmp("d", argv[0]) == 0) {
+            kd = atof(argv[1]);
+        } else if (strcmp("l", argv[0]) == 0) {
+            ilim = atof(argv[1]);
+        } else {
+            chprintf(chp, "Usage: pid {p,i,d,l} value\r\n");
+            return;
+        }
+
+        pid_set_gains(&robot.angle_pid.pid, kp, ki, kd);
+        pid_set_integral_limit(&robot.angle_pid.pid, ilim);
+
+        chprintf(chp, "New PID config: p %.2f i %.2f d %.2f ilim %.2f\r\n", kp, ki, kd, ilim);
+    } else {
+        chprintf(chp, "Usage: pid {p,i,d,l} value\r\n");
+    }
+}
+
+static void cmd_blocking_detection_config(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc == 3) {
+        uint32_t err_th = atoi(argv[1]);
+        uint16_t cpt_th = atoi(argv[2]);
+        if (strcmp("angle", argv[0]) == 0) {
+            bd_set_thresholds(&robot.angle_bd, err_th, cpt_th);
+        } else if (strcmp("distance", argv[0]) == 0) {
+            bd_set_thresholds(&robot.distance_bd, err_th, cpt_th);
+        }
+    } else {
+        chprintf(chp, "Usage: bdconf \"angle\"/\"distance\" err_th cpt_th\r\n");
     }
 }
 
@@ -336,6 +512,7 @@ const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
     {"encoders", cmd_encoders},
+    {"forward", cmd_traj_forward},
     {"ip", cmd_ip},
     {"mem", cmd_mem},
     {"node", cmd_node},
@@ -344,10 +521,16 @@ const ShellCommand commands[] = {
     {"pos", cmd_position},
     {"pos_reset", cmd_position_reset},
     {"reboot", cmd_reboot},
+    {"rotate", cmd_traj_rotate},
     {"rpc_client_demo", cmd_rpc_client_test},
     {"threads", cmd_threads},
     {"time", cmd_time},
     {"topics", cmd_topics},
-    {"wheel_corr", cmd_wheel_correction},
+    {"pid", cmd_pid},
+    {"goto", cmd_traj_goto},
+    {"path", cmd_pathplanner},
+    {"obs", cmd_create_static_obstacle},
+    {"bdconf", cmd_blocking_detection_config},
+    // {"wheel_corr", cmd_wheel_correction},
     {NULL, NULL}
 };

@@ -8,7 +8,7 @@ static void odometry_lock_release(odometry_diffbase_t *odom);
 void odometry_init(
         odometry_diffbase_t *odom,
         mutex_t *lock,
-        const odometry_pose2d_t initial_position,
+        const pose2d_t initial_position,
         const odometry_params_t robot_params,
         const wheels_t wheels_correction_factor,
         const encoders_msg_t previous_encoder_values,
@@ -17,7 +17,7 @@ void odometry_init(
     odom->lock = lock;
     odometry_lock_acquire(odom);
 
-    memcpy(&(odom->position), &initial_position, sizeof(odometry_pose2d_t));
+    memcpy(&(odom->position), &initial_position, sizeof(pose2d_t));
     odom->velocity.x = 0.f;
     odom->velocity.y = 0.f;
     odom->velocity.heading = 0.f;
@@ -33,12 +33,12 @@ void odometry_init(
 
 void odometry_reset(
         odometry_diffbase_t *odom,
-        const odometry_pose2d_t new_position,
+        const pose2d_t new_position,
         const timestamp_t time_now)
 {
     odometry_lock_acquire(odom);
 
-    memcpy(&(odom->position), &new_position, sizeof(odometry_pose2d_t));
+    memcpy(&(odom->position), &new_position, sizeof(pose2d_t));
 
     odom->velocity.x = 0.f;
     odom->velocity.y = 0.f;
