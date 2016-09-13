@@ -17,7 +17,6 @@ target.arm:
     - src/panic_log.c
     - src/sntp/sntp.c
     - src/commands.c
-    - src/board/board.c
     - src/rpc_server.c
     - src/rpc_callbacks.c
     - src/msg_callbacks.c

@@ -21,9 +21,9 @@ void message_cb(void *p, cmp_ctx_t *input)
     cmp_read_bool(input, &res);
 
     if (res) {
-        palClearPad(GPIOC, GPIOC_LED);
+        board_led_on();
     } else {
-        palSetPad(GPIOC, GPIOC_LED);
+        board_led_off();
     }
 }
 

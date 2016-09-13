@@ -72,7 +72,6 @@ CONDVAR_DECL(bus_condvar);
 void panic_hook(const char *reason)
 {
     (void) reason;
-    palClearPad(GPIOC, GPIOC_LED);
     palSetPad(GPIOF, GPIOF_LED_READY);
     palSetPad(GPIOF, GPIOF_LED_DEBUG);
     palSetPad(GPIOF, GPIOF_LED_ERROR);

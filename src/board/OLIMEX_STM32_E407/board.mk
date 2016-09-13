@@ -1,0 +1,9 @@
+BOARDINC = src/board/OLIMEX_STM32_E407
+BOARDSRC = $(BOARDINC)/board.c
+
+ifeq ($(USE_BOOTLOADER), yes)
+  DDEFS += -DCORTEX_VTOR_INIT=0x0800C000
+  LDSCRIPT= STM32F407xG_bootloader.ld
+else
+  LDSCRIPT= STM32F407xG.ld
+endif
