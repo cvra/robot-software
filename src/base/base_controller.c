@@ -115,8 +115,6 @@ void robot_init(void)
     bd_init(&robot.distance_bd, &robot.distance_cs);
     bd_set_thresholds(&robot.distance_bd, 3600, 1); // thresold, duration
 
-    robot.is_aligning = 0;
-
     // Setup map
     const int robot_size = 150;
     polygon_set_boundingbox(robot_size, robot_size, 3000-robot_size, 2000-robot_size);

@@ -60,8 +60,6 @@ struct _robot {
     struct blocking_detection distance_bd;  // Distance blocking detection manager
 
     enum board_mode_t mode;                 // The current board mode
-
-    uint8_t is_aligning:1;                  // =1 if the robot is aligning on border
 };
 
 extern struct _robot robot;
