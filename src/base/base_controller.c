@@ -155,13 +155,6 @@ static THD_FUNCTION(base_ctrl_thd, arg)
         bd_manage(&robot.angle_bd);
         bd_manage(&robot.distance_bd);
 
-        if (bd_get(&robot.angle_bd)) {
-            log_message("angle blocking");
-        }
-        if (bd_get(&robot.distance_bd)) {
-            log_message("dist blocking");
-        }
-
         if (parameter_namespace_contains_changed(control_params)) {
             float kp, ki, kd, ilim;
             pid_get_gains(&robot.angle_pid.pid, &kp, &ki, &kd);

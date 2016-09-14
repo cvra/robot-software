@@ -21,6 +21,7 @@
 
 #define POSITION_STREAM_FREQ 10
 #define PATH_STREAM_FREQ     1
+#define BD_STREAM_FREQ       10
 
 THD_WORKING_AREA(wa_stream, STREAM_STACKSIZE);
 
@@ -40,6 +41,7 @@ static void stream_thread(void *p)
     // position stream
     int last_position_sent = 0;
     int last_path_sent = 0;
+    int last_blocking_detect_sent = 0;
 
     while (1) {
         motor_driver_t *drv_list;
@@ -217,6 +219,24 @@ static void stream_thread(void *p)
             //     }
             // }
             // message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, STREAM_PORT);
+        }
+
+        if (last_blocking_detect_sent++ * STREAM_TIMESTEP_MS >= 1000/BD_STREAM_FREQ) {
+            last_blocking_detect_sent = 0;
+
+            bool angle_blocking = bd_get(&robot.angle_bd);
+            int32_t angle_error = cs_get_error(&robot.angle_cs);
+            bool distance_blocking = bd_get(&robot.distance_bd);
+            int32_t distance_error = cs_get_error(&robot.distance_cs);
+
+            strncpy(topic_name, "blocking", TOPIC_NAME_LEN);
+            message_write_header(&ctx, &mem, buffer, sizeof(buffer), topic_name);
+            cmp_write_array(&ctx, 4);
+            cmp_write_bool(&ctx, angle_blocking);
+            cmp_write_sint(&ctx, angle_error);
+            cmp_write_bool(&ctx, distance_blocking);
+            cmp_write_sint(&ctx, distance_error);
+            message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, STREAM_PORT);
         }
 
 
