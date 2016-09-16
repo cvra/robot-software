@@ -5,22 +5,22 @@
 	path = lwip
 	url = https://github.com/cvra/lwip
 [submodule "dependencies/crc"]
-	path = src/crc
+	path = lib/crc
 	url = https://github.com/cvra/crc
 [submodule "dependencies/test-runner"]
-	path = src/test-runner
+	path = lib/test-runner
 	url = https://github.com/cvra/test-runner
 [submodule "src/serial-datagram"]
-	path = src/serial-datagram
+	path = lib/serial-datagram
 	url = https://github.com/cvra/serial-datagram
 [submodule "src/cmp"]
-	path = src/cmp
+	path = lib/cmp
 	url = https://github.com/cvra/cmp
 [submodule "src/simplerpc"]
-	path = src/simplerpc
+	path = lib/simplerpc
 	url = https://github.com/cvra/simplerpc
 [submodule "src/cmp_mem_access"]
-	path = src/cmp_mem_access
+	path = lib/cmp_mem_access
 	url = https://github.com/Stapelzeiger/cmp_mem_access
 [submodule "uavcan"]
 	path = uavcan
@@ -29,17 +29,17 @@
 	path = cvra/motor
 	url = https://github.com/cvra/motor-control-uavcan-dsdl.git
 [submodule "src/timestamp"]
-	path = src/timestamp
+	path = lib/timestamp
 	url = https://github.com/cvra/timestamp.git
 [submodule "src/parameter"]
-	path = src/parameter
+	path = lib/parameter
 	url = https://github.com/Stapelzeiger/parameter
 [submodule "src/pid"]
-	path = src/pid
+	path = lib/pid
 	url = https://github.com/cvra/pid.git
 [submodule "src/arm-cortex-tools"]
-	path = src/arm-cortex-tools
+	path = lib/arm-cortex-tools
 	url = https://github.com/cvra/arm-cortex-tools.git
 [submodule "src/msgbus"]
-	path = src/msgbus
+	path = lib/msgbus
 	url = https://github.com/cvra/msgbus
