@@ -77,7 +77,7 @@ endif
 PROJECT = ch
 
 # Imported source files and paths
-CHIBIOS = ChibiOS
+CHIBIOS = ../ChibiOS
 
 # Startup files.
 include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/startup_stm32f4xx.mk
@@ -95,7 +95,8 @@ include $(CHIBIOS)/os/rt/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
 #include $(CHIBIOS)/test/rt/test.mk
 
 # lwIP files
-include lwip.mk
+LWIP = ../lwip/
+include ../lwip.mk
 
 # ChibiOS C++ bindings
 include $(CHIBIOS)/os/various/cpp_wrappers/chcpp.mk
@@ -107,19 +108,19 @@ include src/board/OLIMEX_STM32_E407/board.mk
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
 CSRC = $(PORTSRC) \
-       $(KERNSRC) \
-       $(TESTSRC) \
-       $(HALSRC) \
-       $(PLATFORMSRC) \
+	   $(KERNSRC) \
+	   $(TESTSRC) \
+	   $(HALSRC) \
+	   $(PLATFORMSRC) \
 	   $(STARTUPSRC) \
-       $(LWSRC) \
-       $(FATFSSRC) \
-       $(CHIBIOS)/os/various/evtimer.c \
-       $(CHIBIOS)/os/hal/lib/streams/memstreams.c \
-       $(CHIBIOS)/os/hal/lib/streams/chprintf.c \
-       $(CHIBIOS)/os/various/syscalls.c \
-       $(CHIBIOS)/os/various/shell.c \
-       $(BOARDSRC)
+	   $(LWSRC) \
+	   $(FATFSSRC) \
+	   $(CHIBIOS)/os/various/evtimer.c \
+	   $(CHIBIOS)/os/hal/lib/streams/memstreams.c \
+	   $(CHIBIOS)/os/hal/lib/streams/chprintf.c \
+	   $(CHIBIOS)/os/various/syscalls.c \
+	   $(CHIBIOS)/os/various/shell.c \
+	   $(BOARDSRC)
 
 include app_src.mk
 
@@ -132,10 +133,10 @@ ASMSRC += $(STARTUPASM) $(PORTASM) $(OSALASM)
 
 INCDIR += $(PORTINC) $(KERNINC) $(TESTINC) \
 		  $(STARTUPINC) \
-          $(HALINC) $(PLATFORMINC) $(LWINC) \
-          $(OSALINC) \
-          $(CHCPPINC) \
-          $(CHIBIOS)/os/various \
+		  $(HALINC) $(PLATFORMINC) $(LWINC) \
+		  $(OSALINC) \
+		  $(CHCPPINC) \
+		  $(CHIBIOS)/os/various \
 		  $(CHIBIOS)/os/hal/lib/streams \
 		  $(BOARDINC)
 
@@ -228,8 +229,8 @@ ULIBS =
 #
 # UAVCAN
 ##############################################################################
-include uavcan/libuavcan/include.mk
-include uavcan/libuavcan_drivers/stm32/driver/include.mk
+include ../uavcan/libuavcan/include.mk
+include ../uavcan/libuavcan_drivers/stm32/driver/include.mk
 
 CPPSRC += $(LIBUAVCAN_SRC) $(LIBUAVCAN_STM32_SRC)
 
@@ -241,8 +242,8 @@ UINCDIR += $(LIBUAVCAN_INC) ./dsdlc_generated $(LIBUAVCAN_STM32_INC)
 
 GLOBAL_SRC_DEP = app_src.mk
 
-RULESPATH = $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC
-include $(RULESPATH)/rules.mk
+RULESPATH = ./linker/
+include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/rules.mk
 
 # Empty libraries, required by stack smashing protection
 PRE_MAKE_ALL_RULE_HOOK: libssp.a libssp_nonshared.a
@@ -265,15 +266,15 @@ flash: build/$(PROJECT).elf
 .PHONY: dsdlc
 dsdlc:
 	@$(COLOR_PRINTF) "Running uavcan dsdl compiler"
-	$(LIBUAVCAN_DSDLC) cvra $(UAVCAN_DSDL_DIR)
+	$(LIBUAVCAN_DSDLC) ../cvra $(UAVCAN_DSDL_DIR)
 
 .PHONY: config_msgpack
 config_msgpack:
-	config/config_to_msgpack.py config/config.yaml config/config_msgpack.c
+	../config/config_to_msgpack.py ../config/config.yaml src/config_msgpack.c
 
 .PHONY: heap_size
 heap_size: build/$(PROJECT).elf
-	@python/heap_size.py build/$(PROJECT).elf
+	@../python/heap_size.py build/$(PROJECT).elf
 
 all: heap_size mem_info
 

@@ -3,7 +3,7 @@ BOARDSRC = $(BOARDINC)/board.c
 
 ifeq ($(USE_BOOTLOADER), yes)
   DDEFS += -DCORTEX_VTOR_INIT=0x0800C000
-  LDSCRIPT= STM32F407xG_bootloader.ld
+  LDSCRIPT= linker/STM32F407xG_bootloader.ld
 else
-  LDSCRIPT= STM32F407xG.ld
+  LDSCRIPT= linker/STM32F407xG.ld
 endif

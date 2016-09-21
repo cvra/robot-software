@@ -4,5 +4,5 @@ BOARDSRC = $(BOARDINC)/board.c
 ifeq ($(USE_BOOTLOADER), yes)
   # todo
 else
-  LDSCRIPT= STM32F429xI.ld
+  LDSCRIPT= linker/STM32F429xI.ld
 endif

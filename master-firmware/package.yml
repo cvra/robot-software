@@ -1,4 +1,4 @@
-dependency-dir: ./src/
+dependency-dir: ../lib
 
 depends:
     - crc
@@ -54,7 +54,7 @@ target.arm:
     - src/aversive/obstacle_avoidance/obstacle_avoidance.c
     - src/base/encoder.c
     - src/base/base_controller.c
-    - config/config_msgpack.c
+    - src/config_msgpack.c
 
 source:
     - src/unix_timestamp.c
