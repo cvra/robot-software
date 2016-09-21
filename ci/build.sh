@@ -10,7 +10,8 @@ then
 fi
 
 source env/bin/activate
-export PATH=gcc-arm-none-eabi-4_9-2014q4/bin/:$PATH
+PROJPATH=$(pwd)
+export PATH=$PROJPATH/gcc-arm-none-eabi-4_9-2014q4/bin/:$PATH
 
 export CFLAGS="$CFLAGS -I $HOME/cpputest/include/"
 export CXXFLAGS="$CXXFLAGS -I $HOME/cpputest/include/"
