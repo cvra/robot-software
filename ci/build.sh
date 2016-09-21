@@ -16,6 +16,8 @@ export CFLAGS="$CFLAGS -I $HOME/cpputest/include/"
 export CXXFLAGS="$CXXFLAGS -I $HOME/cpputest/include/"
 export LDFLAGS="$CXXFLAGS -L $HOME/cpputest/lib/"
 
+pushd master-firmware
+
 packager
 
 case $BUILD_TYPE in
@@ -36,3 +38,5 @@ case $BUILD_TYPE in
         exit 1
         ;;
 esac
+
+popd
