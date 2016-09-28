@@ -21,4 +21,3 @@ include_directories:
 
 templates:
     app_src.mk.jinja: app_src.mk
-    CMakeLists.txt.jinja: CMakeLists.txt
