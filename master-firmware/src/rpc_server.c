@@ -5,6 +5,7 @@
 #include "rpc_server.h"
 #include "rpc_callbacks.h"
 #include "msg_callbacks.h"
+#include <trace/trace_points.h>
 
 #define RPC_SERVER_STACKSIZE 2048
 #define RPC_SERVER_PORT 20001
@@ -207,6 +208,7 @@ void message_server_thread(void *arg)
             if (netbuf_copy(buf, buffer, buf->p->tot_len) == 0) {
                 chSysHalt("udp message buffer too small");
             }
+            trace_integer(TRACE_POINT_RPC_MESSAGE_RCV, buf->p->tot_len);
             message_process(buffer, buf->p->tot_len, message_callbacks, message_callbacks_len);
         }
         netbuf_delete(buf);
@@ -243,6 +245,8 @@ void message_transmit(uint8_t *input_buffer, size_t input_buffer_size, ip_addr_t
         // TODO: Do something useful
         return;
     }
+
+    trace_integer(TRACE_POINT_RPC_MESSAGE_SEND, input_buffer_size);
 
     netbuf_ref(buf, input_buffer, input_buffer_size);
 

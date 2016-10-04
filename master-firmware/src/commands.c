@@ -21,7 +21,7 @@
 #include "base/odometry.h"
 #include "base/base_controller.h"
 #include "obstacle_avoidance/obstacle_avoidance.h"
-
+#include <trace/trace.h>
 
 static void cmd_mem(BaseSequentialStream *chp, int argc, char *argv[]) {
     size_t n, size;
@@ -508,6 +508,28 @@ static void cmd_blocking_detection_config(BaseSequentialStream *chp, int argc, c
     }
 }
 
+static void print_fn(void *arg, const char *fmt, ...)
+{
+    BaseSequentialStream *chp = (BaseSequentialStream *)arg;
+    va_list ap;
+    va_start(ap, fmt);
+    chvprintf(chp, fmt, ap);
+    va_end(ap);
+}
+
+static void cmd_trace(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc != 1) {
+        chprintf(chp, "Usage: trace dump|clear\r\n");
+        return;
+    }
+    if (strcmp("dump", argv[0]) == 0) {
+        trace_print(print_fn, chp);
+    } else if (strcmp("clear", argv[0]) == 0) {
+        trace_clear();
+    }
+}
+
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
@@ -531,6 +553,7 @@ const ShellCommand commands[] = {
     {"path", cmd_pathplanner},
     {"obs", cmd_create_static_obstacle},
     {"bdconf", cmd_blocking_detection_config},
+    {"trace", cmd_trace},
     // {"wheel_corr", cmd_wheel_correction},
     {NULL, NULL}
 };
