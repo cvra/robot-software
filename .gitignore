@@ -43,3 +43,7 @@ CMakeLists.txt
 # uavcan dsdl compiler output
 dsdlc_generated/
 tags
+.tags*
+
+# generated config
+master-firmware/src/config_msgpack.c
