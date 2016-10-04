@@ -31,7 +31,6 @@ target.arm:
     - src/node_tracker.c
     - src/malloc_lock.c
     - src/log.c
-    - src/imu.c
     - src/usbconf.c
     - src/aversive/math/fast_math/fast_math.c
     - src/aversive/math/geometry/circles.c

@@ -28,7 +28,6 @@
 #include "malloc_lock.h"
 #include <lwipthread.h>
 #include "log.h"
-#include "imu.h"
 #include "usbconf.h"
 #include "base/encoder.h"
 #include "base/base_controller.h"
@@ -219,7 +218,6 @@ int main(void) {
     rpc_server_init();
     message_server_init();
     interface_panel_init();
-    imu_init();
 
     init_base_motors();
     config_load_from_flash();
