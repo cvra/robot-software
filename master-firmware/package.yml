@@ -28,7 +28,6 @@ target.arm:
     - src/motor_driver_uavcan.cpp
     - src/motor_manager.c
     - src/stream.c
-    - src/node_tracker.c
     - src/malloc_lock.c
     - src/log.c
     - src/usbconf.c

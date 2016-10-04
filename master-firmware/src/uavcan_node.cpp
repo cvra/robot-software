@@ -23,7 +23,6 @@
 #include "config.h"
 #include "uavcan_node_private.hpp"
 #include "uavcan_node.h"
-#include "node_tracker.h"
 #include "main.h"
 
 #include <errno.h>
@@ -307,7 +306,6 @@ static void node_status_cb(const uavcan::ReceivedDataStructure<uavcan::protocol:
     // int can_id = msg.getSrcNodeID().get();
     // bus_enumerator_get_driver()
     // motor_driver_send_initial_config()
-    node_tracker_set_id((uint8_t)msg.getSrcNodeID().get());
 }
 
 static void node_fail(const char *reason)

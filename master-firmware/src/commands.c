@@ -13,7 +13,6 @@
 #include "timestamp/timestamp.h"
 #include "bus_enumerator.h"
 #include "uavcan_node.h"
-#include "node_tracker.h"
 #include "msgbus/messagebus.h"
 #include "main.h"
 #include "base/encoder.h"
@@ -230,34 +229,6 @@ static void cmd_uavcan_node_reboot(BaseSequentialStream *chp, int argc, char **a
         return;
     }
     uavcan_node_send_reboot(id);
-}
-
-static void cmd_node_tracker(BaseSequentialStream *chp, int argc, char **argv)
-{
-    (void)argc;
-    (void)argv;
-    uint64_t d, hi;
-    node_tracker_get_and_clear(&d, &hi);
-    chprintf(chp, "UAVCAN: tracking active nodes...\n");
-    chThdSleepMilliseconds(2000);
-    node_tracker_get_and_clear(&d, &hi);
-    chprintf(chp, "present nodes: ");
-    int id;
-    for (id = 0; id < 128; id++) {
-        if (d & 1) {
-            chprintf(chp, "%u ", id);
-        }
-        d >>= 1;
-        if (d == 0) {
-            if (id < 64) {
-                id = 63;
-                d = hi;
-            } else {
-                break;
-            }
-        }
-    }
-    chprintf(chp, "\r\n");
 }
 
 static void cmd_topics(BaseSequentialStream *chp, int argc, char *argv[])
@@ -517,7 +488,6 @@ const ShellCommand commands[] = {
     {"mem", cmd_mem},
     {"node", cmd_node},
     {"node_reboot", cmd_uavcan_node_reboot},
-    {"node_tracker", cmd_node_tracker},
     {"pos", cmd_position},
     {"pos_reset", cmd_position_reset},
     {"reboot", cmd_reboot},
