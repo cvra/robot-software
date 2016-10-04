@@ -55,6 +55,7 @@ target.arm:
     - src/base/encoder.c
     - src/base/base_controller.c
     - src/config_msgpack.c
+    - src/trace/trace_points.c
 
 source:
     - src/unix_timestamp.c
@@ -62,6 +63,7 @@ source:
     - src/trajectories.c
     - src/base/polar.c
     - src/base/odometry.c
+    - src/trace/trace.c
 
 include_directories:
     - src/
@@ -75,6 +77,8 @@ tests:
     - tests/bus_enumerator.cpp
     - tests/polar_test.cpp
     - tests/odometry_test.cpp
+    - src/trace/tests/trace_test.cpp
+    - src/trace/tests/trace_points.c
 
 templates:
     app_src.mk.jinja: app_src.mk
