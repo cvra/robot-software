@@ -65,11 +65,11 @@
 /* Robot settings. */
 #ifdef ON_ROBOT
 
-#define STREAM_HOST(server)    ip_addr_set(server, IP_ADDR_BROADCAST)
+#define STREAM_HOST(server)             ((server)->addr = (IP_ADDR_BROADCAST)->addr)
 
-#define ODOMETRY_PUBLISHER_HOST(server) ip_addr_set(server, IP_ADDR_BROADCAST)
+#define ODOMETRY_PUBLISHER_HOST(server) ((server)->addr = (IP_ADDR_BROADCAST)->addr)
 
-#define BUTTON_PRESS_PUBLISHER(server) ip_addr_set(server, IP_ADDR_BROADCAST)
+#define BUTTON_PRESS_PUBLISHER(server)  ((server)->addr = (IP_ADDR_BROADCAST)->addr)
 
 #else
 /* Laptop debug settings. We cannot use a broadcast address to debug over wifi

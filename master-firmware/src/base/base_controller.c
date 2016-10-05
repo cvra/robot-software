@@ -8,6 +8,7 @@
 #include "cvra/cvra_motors.h"
 #include "trajectory_manager/trajectory_manager_core.h"
 #include "trajectory_manager/trajectory_manager_utils.h"
+#include "obstacle_avoidance/obstacle_avoidance.h"
 #include "log.h"
 
 #define BASE_CONTROLLER_STACKSIZE    4096
