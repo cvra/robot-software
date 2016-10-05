@@ -3,7 +3,6 @@
 #include <hal.h>
 #include <uavcan_stm32/uavcan_stm32.hpp>
 #include <uavcan/protocol/NodeStatus.hpp>
-#include <lwip/api.h>
 #include <cvra/motor/EmergencyStop.hpp>
 #include <cvra/motor/feedback/CurrentPID.hpp>
 #include <cvra/motor/feedback/VelocityPID.hpp>
@@ -14,15 +13,14 @@
 #include <cvra/Reboot.hpp>
 #include <cvra/StringID.hpp>
 #include <cvra/proximity_beacon/Signal.hpp>
-#include <simplerpc/message.h>
-#include "src/rpc_server.h"
+#include <msgbus/messagebus.h>
 #include "robot_parameters.h"
-#include "timestamp/timestamp.h"
 #include "motor_driver.h"
 #include "motor_driver_uavcan.h"
 #include "config.h"
 #include "uavcan_node_private.hpp"
 #include "uavcan_node.h"
+#include "log.h"
 #include "main.h"
 
 #include <errno.h>
@@ -230,24 +228,29 @@ void main(void *arg)
         node_fail("cvra::motor::feedback::MotorTorque subscriber");
     }
 
+    static messagebus_topic_t proximity_beacon_topic;
+    static MUTEX_DECL(proximity_beacon_topic_lock);
+    static CONDVAR_DECL(proximity_beacon_topic_condvar);
+    static float proximity_beacon_topic_value[2];
+
+    messagebus_topic_init(&proximity_beacon_topic,
+                          &proximity_beacon_topic_lock,
+                          &proximity_beacon_topic_condvar,
+                          &proximity_beacon_topic_value,
+                          sizeof(proximity_beacon_topic_value));
+
+    messagebus_advertise_topic(&bus, &proximity_beacon_topic, "/proximity_beacon");
+
     uavcan::Subscriber<cvra::proximity_beacon::Signal> prox_beac_sub(node);
     res = prox_beac_sub.start(
         [&](const uavcan::ReceivedDataStructure<cvra::proximity_beacon::Signal>& msg)
         {
-            ip_addr_t server;
-            ODOMETRY_PUBLISHER_HOST(&server);
-
-            static uint8_t buffer[40];
-            cmp_ctx_t ctx;
-            cmp_mem_access_t mem;
-            message_write_header(&ctx, &mem, buffer, sizeof(buffer), "proximity_beacon");
-            cmp_write_array(&ctx, 2);
-            cmp_write_float(&ctx, msg.start_angle);
-            cmp_write_float(&ctx, msg.length);
-
-            message_transmit(buffer, cmp_mem_access_get_pos(&mem),
-                             &server, ODOMETRY_PUBLISHER_PORT);
-        });
+            float data[2];
+            data[0] = msg.start_angle;
+            data[1] = msg.length;
+            messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
+        }
+    );
     if (res < 0) {
         node_fail("cvra::proximity_beacon::Signal subscriber");
     }
@@ -259,8 +262,7 @@ void main(void *arg)
 
     uavcan::Publisher<cvra::Reboot> reboot_pub(node);
     const int reboot_pub_init_res = reboot_pub.init();
-    if (reboot_pub_init_res < 0)
-    {
+    if (reboot_pub_init_res < 0) {
         node_fail("cvra::Reboot publisher");
     }
 
@@ -286,27 +288,21 @@ void main(void *arg)
             motor_driver_uavcan_update_config(&drv_list[i]);
             motor_driver_uavcan_send_setpoint(&drv_list[i]);
         }
-
-        // todo: publish time once a second
-        // time_sync_master.publish();
     }
 }
 
 static void node_status_cb(const uavcan::ReceivedDataStructure<uavcan::protocol::NodeStatus>& msg)
 {
-    (void) msg;
-    // TODO !!!
-    // int can_id = msg.getSrcNodeID().get();
-    // bus_enumerator_get_driver()
-    // motor_driver_send_initial_config()
+    if (msg.health != uavcan::protocol::NodeStatus::HEALTH_OK) {
+        log_message("UAVCAN node %u health", msg.getSrcNodeID().get());
+    }
 }
 
 static void node_fail(const char *reason)
 {
     (void) reason;
-    while (1) {
-        chThdSleepMilliseconds(100);
-    }
+    log_message("UAVCAN error: %s", reason);
+    chSysHalt(reason);
 }
 
 } // namespace uavcan_node
