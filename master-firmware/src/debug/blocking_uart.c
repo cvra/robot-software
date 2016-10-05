@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <ch.h>
 #include <hal.h>
-#include "blocking_uart_driver.h"
+#include "blocking_uart.h"
 
 #if !defined(STM32F4XX)
 #error "Blocking UART driver not supported"

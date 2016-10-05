@@ -14,7 +14,7 @@
 #include "panic_log.h"
 #include <arm-cortex-tools/mpu.h>
 #include <arm-cortex-tools/fault.h>
-#include "blocking_uart_driver.h"
+#include "blocking_uart.h"
 #include "rpc_server.h"
 #include "uavcan_node.h"
 #include "timestamp/timestamp_stm32.h"

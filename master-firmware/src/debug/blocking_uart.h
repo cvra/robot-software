@@ -1,5 +1,5 @@
-#ifndef BLOCKING_UART_DRIVER_H
-#define BLOCKING_UART_DRIVER_H
+#ifndef BLOCKING_UART_H
+#define BLOCKING_UART_H
 
 #include <ch.h>
 #include <hal.h>
@@ -26,4 +26,4 @@ void blocking_uart_init(BlockingUARTDriver *driver, USART_TypeDef *uart, uint32_
 }
 #endif
 
-#endif /* BLOCKING_UART_DRIVER_H */
+#endif /* BLOCKING_UART_H */
