@@ -1060,6 +1060,7 @@ extern "C" {
   void boardInit(void);
   void board_led_on(void);
   void board_led_off(void);
+  bool board_button_pressed(void);
 #ifdef __cplusplus
 }
 #endif

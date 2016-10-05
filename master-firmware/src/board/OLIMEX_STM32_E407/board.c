@@ -133,3 +133,7 @@ void board_led_off(void)
     palSetPad(GPIOC, GPIOC_LED);
 }
 
+bool board_button_pressed(void)
+{
+    return palReadPad(GPIOA, GPIOA_BUTTON_WKUP);
+}

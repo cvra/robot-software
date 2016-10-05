@@ -88,3 +88,8 @@ void board_led_off(void)
 {
     palClearPad(GPIOB, GPIOB_LED_GREEN);
 }
+
+bool board_button_pressed(void)
+{
+    return palReadPad(GPIOC, GPIOC_USER_BUTTON);
+}
