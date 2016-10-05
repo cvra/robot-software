@@ -25,5 +25,4 @@ By default it assumes you are using a ST-Link V2. You can change this in the Mak
 Now the board should be pingable at 192.168.3.20.
 
 ### Kernel panics
-If there is a kernel panic, the board will reboot and turn on a green led.
-The panic reason is available via the USB shell or via API.
+If there is a kernel panic, the board will turn on all LEDs and continuously print debug information over UART3 at 921600 baud.
