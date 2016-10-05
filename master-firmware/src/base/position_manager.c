@@ -4,6 +4,7 @@
 #include "odometry.h"
 #include "position_manager.h"
 #include "robot_parameters.h"
+#include "priorities.h"
 #include "main.h"
 
 #define POSITION_MANAGER_STACKSIZE 1024
@@ -65,7 +66,7 @@ static THD_FUNCTION(position_manager_thd, arg)
 void position_manager_start(void)
 {
     static THD_WORKING_AREA(position_thd_wa, POSITION_MANAGER_STACKSIZE);
-    chThdCreateStatic(position_thd_wa, sizeof(position_thd_wa), NORMALPRIO, position_manager_thd, NULL);
+    chThdCreateStatic(position_thd_wa, sizeof(position_thd_wa), POSITION_MANAGER_PRIO, position_manager_thd, NULL);
 }
 
 void position_manager_reset(float x, float y, float heading)

@@ -5,14 +5,18 @@
 
 /* lwip threads */
 #define TCPIP_THREAD_PRIO                       (LOWPRIO + 1)
+#define LWIP_THREAD_PRIO                        (NORMALPRIO + 2)
 #define DEFAULT_THREAD_PRIO                     (LOWPRIO + 1)
 
 #define USB_SHELL_PRIO                          (NORMALPRIO + 2)
-#define CAN_BRIDGE_PRIO                         (NORMALPRIO - 1)
+#define UAVCAN_PRIO                             (NORMALPRIO)
 #define RPC_SERVER_PRIO                         (NORMALPRIO - 1)
 #define ODOMETRY_PUBLISHER_PRIO                 (NORMALPRIO - 1)
 #define DIFFERENTIAL_BASE_TRACKING_THREAD_PRIO  (NORMALPRIO - 1)
-#define IMU_PRIO                                (NORMALPRIO - 2)
+#define POSITION_MANAGER_PRIO                   (NORMALPRIO)
+#define BASE_CONTROLLER_PRIO                    (NORMALPRIO)
+#define TRAJECTORY_MANAGER_PRIO                 (NORMALPRIO)
+#define ENCODER_PRIO                            (NORMALPRIO)
 #define STREAM_PRIO                             (NORMALPRIO - 3)
 
 #define INTERFACE_PANEL_PRIO                    (NORMALPRIO + 2)

@@ -3,12 +3,12 @@
 #include <config.h>
 #include "polar.h"
 #include "base_controller.h"
+#include "priorities.h"
 #include "main.h"
 #include "cvra/cvra_motors.h"
 #include "trajectory_manager/trajectory_manager_core.h"
 #include "trajectory_manager/trajectory_manager_utils.h"
 #include "log.h"
-
 
 #define BASE_CONTROLLER_STACKSIZE    4096
 #define POSITION_MANAGER_STACKSIZE   4096
@@ -184,7 +184,7 @@ static THD_FUNCTION(base_ctrl_thd, arg)
 void base_controller_start(void)
 {
     static THD_WORKING_AREA(base_ctrl_thd_wa, BASE_CONTROLLER_STACKSIZE);
-    chThdCreateStatic(base_ctrl_thd_wa, sizeof(base_ctrl_thd_wa), NORMALPRIO, base_ctrl_thd, NULL);
+    chThdCreateStatic(base_ctrl_thd_wa, sizeof(base_ctrl_thd_wa), BASE_CONTROLLER_PRIO, base_ctrl_thd, NULL);
 }
 
 static THD_FUNCTION(position_manager_thd, arg)
@@ -201,11 +201,11 @@ static THD_FUNCTION(position_manager_thd, arg)
 void position_manager_start(void)
 {
     static THD_WORKING_AREA(position_thd_wa, POSITION_MANAGER_STACKSIZE);
-    chThdCreateStatic(position_thd_wa, sizeof(position_thd_wa), NORMALPRIO, position_manager_thd, NULL);
+    chThdCreateStatic(position_thd_wa, sizeof(position_thd_wa), POSITION_MANAGER_PRIO, position_manager_thd, NULL);
 }
 
 void trajectory_manager_start(void)
 {
     static THD_WORKING_AREA(trajectory_thd_wa, TRAJECTORY_MANAGER_STACKSIZE);
-    chThdCreateStatic(trajectory_thd_wa, sizeof(trajectory_thd_wa), NORMALPRIO, trajectory_manager_thd, &(robot.traj));
+    chThdCreateStatic(trajectory_thd_wa, sizeof(trajectory_thd_wa), TRAJECTORY_MANAGER_PRIO, trajectory_manager_thd, &(robot.traj));
 }

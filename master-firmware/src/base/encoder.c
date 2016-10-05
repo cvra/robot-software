@@ -2,6 +2,7 @@
 #include <hal.h>
 #include "msgbus/messagebus.h"
 #include "main.h"
+#include "priorities.h"
 #include "encoder.h"
 
 #define ENCODER_STACKSIZE 1024
@@ -108,5 +109,5 @@ static void setup_timer(stm32_tim_t *tmr)
 void encoder_start(void)
 {
     static THD_WORKING_AREA(encoders_thd_wa, ENCODER_STACKSIZE);
-    chThdCreateStatic(encoders_thd_wa, sizeof(encoders_thd_wa), NORMALPRIO, encoders_thd, NULL);
+    chThdCreateStatic(encoders_thd_wa, sizeof(encoders_thd_wa), ENCODER_PRIO, encoders_thd, NULL);
 }

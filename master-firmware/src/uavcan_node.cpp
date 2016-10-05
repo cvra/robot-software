@@ -21,6 +21,7 @@
 #include "uavcan_node_private.hpp"
 #include "uavcan_node.h"
 #include "log.h"
+#include "priorities.h"
 #include "main.h"
 
 #include <errno.h>
@@ -312,7 +313,7 @@ extern "C" {
 void uavcan_node_start(uint8_t id)
 {
     static uint8_t node_id = id;
-    chThdCreateStatic(uavcan_node::thread_wa, UAVCAN_NODE_STACK_SIZE, NORMALPRIO, uavcan_node::main, &node_id);
+    chThdCreateStatic(uavcan_node::thread_wa, UAVCAN_NODE_STACK_SIZE, UAVCAN_PRIO, uavcan_node::main, &node_id);
 }
 
 void uavcan_node_send_reboot(uint8_t id)

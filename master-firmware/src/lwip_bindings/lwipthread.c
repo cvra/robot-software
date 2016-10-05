@@ -306,7 +306,7 @@ void ip_thread_init(void)
     /* Creates the LWIP threads (it changes priority internally).  */
     chThdCreateStatic(wa_lwip_thread,
                       LWIP_THREAD_STACK_SIZE,
-                      NORMALPRIO + 2,
+                      LWIP_THREAD_PRIO,
                       lwip_thread, NULL);
 }
 
