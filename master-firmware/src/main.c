@@ -31,6 +31,7 @@
 #include "usbconf.h"
 #include "base/encoder.h"
 #include "base/base_controller.h"
+#include <trace/trace_points.h>
 
 void init_base_motors(void);
 
@@ -70,7 +71,7 @@ CONDVAR_DECL(bus_condvar);
  * @param [in] reaon Kernel panic message.  */
 void panic_hook(const char *reason)
 {
-    (void) reason;
+    trace(TRACE_POINT_PANIC);
     palSetPad(GPIOF, GPIOF_LED_READY);
     palSetPad(GPIOF, GPIOF_LED_DEBUG);
     palSetPad(GPIOF, GPIOF_LED_ERROR);
@@ -116,6 +117,10 @@ void __late_init(void)
     /* Initalize memory protection unit and add a guard against NULL
      * dereferences. */
     mpu_init();
+
+    /* Initialize and enable trace system */
+    trace_init();
+    trace_enable();
 
     /* C++ Static initializer requires working chibios. */
     halInit();
@@ -276,4 +281,10 @@ void context_switch_hook(void *ntp, void *otp)
                          5, /* 32 bytes */
                          AP_NO_NO, /* no permission */
                          false);
+
+    const char *name = ((thread_t *)ntp)->p_name;
+    if (name == NULL) {
+        name = "no name";
+    }
+    trace_string(TRACE_POINT_CONTEXT_SWITCH, name);
 }
