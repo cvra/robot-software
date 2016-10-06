@@ -2,16 +2,16 @@
 #include <stddef.h>
 #include <string.h>
 
-#ifdef _CHIBIOS_RT_
-#include <ch.h>
-#define TRACE_LOCK() syssts_t __syssst = chSysGetStatusAndLockX()
-#define TRACE_UNLOCK() chSysRestoreStatusX(__syssst)
-#define TRACE_TIMESTAMP_GET() ST2MS(chVTGetSystemTimeX())
-#else /* TEST */
+#ifdef TESTS
 #define TRACE_LOCK()
 #define TRACE_UNLOCK()
 unsigned int timestamp = 0;
 #define TRACE_TIMESTAMP_GET() timestamp
+#else /* ChibiOS */
+#include <ch.h>
+#define TRACE_LOCK() syssts_t __syssst = chSysGetStatusAndLockX()
+#define TRACE_UNLOCK() chSysRestoreStatusX(__syssst)
+#define TRACE_TIMESTAMP_GET() ST2MS(chVTGetSystemTimeX())
 #endif
 
 struct trace_buffer_struct trace_buffer;
