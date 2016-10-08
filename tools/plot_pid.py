@@ -6,7 +6,10 @@ from socketserver import UDPServer
 import time
 
 from bokeh.models import ColumnDataSource
+from bokeh.models.widgets import TextInput
 from bokeh.plotting import curdoc, figure
+from bokeh.io import show
+from bokeh.layouts import widgetbox
 
 from tornado import gen
 
@@ -23,15 +26,18 @@ pid_measured = ColumnDataSource(data=dict(x=[0], y=[0]))
 # see then same document.
 doc = curdoc()
 
+# Topic name input box
+topic_name_input = TextInput(value="topic", title="PID topic name:")
+
 @gen.coroutine
 def update(now, consign, measured):
     pid_consign.stream(dict(x=[now], y=[consign]), STREAM_ROLLOVER)
     pid_measured.stream(dict(x=[now], y=[measured]), STREAM_ROLLOVER)
 
 def msg_cb(todo, msg, args):
-    if (msg == 'distance_pid'):
+    if (msg == topic_name_input.value):
         now = time.time() - start
-        print('[{}] receiving: {} {}'.format(now, msg, args))
+        print('[{:.3f}] receiving: {} {}'.format(now, msg, args))
         consign = args[0]
         measured = args[1]
 
@@ -48,4 +54,5 @@ p = figure(plot_width=1500, plot_height=800)
 l_consign = p.line(x='x', y='y', color="red", source=pid_consign)
 l_measured = p.line(x='x', y='y', color="blue", source=pid_measured)
 
+doc.add_root(widgetbox(topic_name_input))
 doc.add_root(p)
