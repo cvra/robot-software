@@ -9,13 +9,12 @@ from bokeh.models import ColumnDataSource
 from bokeh.models.widgets import TextInput
 from bokeh.plotting import curdoc, figure
 from bokeh.io import show
-from bokeh.layouts import widgetbox
+from bokeh.layouts import row
 
 from tornado import gen
 
 
 MASTER_BOARD_STREAM_ADDR = ('0.0.0.0', 20042)
-STREAM_ROLLOVER = 400 # number of points to keep in plot buffer
 
 # this must only be modified from a Bokeh session allback
 start = time.time()
@@ -29,10 +28,13 @@ doc = curdoc()
 # Topic name input box
 topic_name_input = TextInput(value="topic", title="PID topic name:")
 
+# Number of points to keep in plot buffer
+plot_buffer = TextInput(value="400", title="Plot buffer:")
+
 @gen.coroutine
 def update(now, consign, measured):
-    pid_consign.stream(dict(x=[now], y=[consign]), STREAM_ROLLOVER)
-    pid_measured.stream(dict(x=[now], y=[measured]), STREAM_ROLLOVER)
+    pid_consign.stream(dict(x=[now], y=[consign]), int(plot_buffer.value))
+    pid_measured.stream(dict(x=[now], y=[measured]), int(plot_buffer.value))
 
 def msg_cb(todo, msg, args):
     if (msg == topic_name_input.value):
@@ -54,5 +56,5 @@ p = figure(plot_width=1500, plot_height=800)
 l_consign = p.line(x='x', y='y', color="red", source=pid_consign)
 l_measured = p.line(x='x', y='y', color="blue", source=pid_measured)
 
-doc.add_root(widgetbox(topic_name_input))
+doc.add_root(row(children=[topic_name_input, plot_buffer]))
 doc.add_root(p)
