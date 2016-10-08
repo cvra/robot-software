@@ -1,2 +1,3 @@
 pyqtgraph==0.9.10
 attrs==16.0.0
+bokeh==0.12.2
