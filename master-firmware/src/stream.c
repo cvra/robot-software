@@ -22,7 +22,7 @@
 #define POSITION_STREAM_FREQ 10
 #define PATH_STREAM_FREQ     1
 #define BD_STREAM_FREQ       10
-#define DIST_PID_STREAM_FREQ 20
+#define PID_STREAM_FREQ      20
 
 THD_WORKING_AREA(wa_stream, STREAM_STACKSIZE);
 
@@ -44,6 +44,7 @@ static void stream_thread(void *p)
     int last_path_sent = 0;
     int last_blocking_detect_sent = 0;
     int last_distance_pid_sent = 0;
+    int last_angle_pid_sent = 0;
 
     while (1) {
         motor_driver_t *drv_list;
@@ -191,7 +192,7 @@ static void stream_thread(void *p)
             message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, STREAM_PORT);
         }
 
-        if (last_distance_pid_sent++ * STREAM_TIMESTEP_MS >= 1000/DIST_PID_STREAM_FREQ) {
+        if (last_distance_pid_sent++ * STREAM_TIMESTEP_MS >= 1000/PID_STREAM_FREQ) {
             last_distance_pid_sent = 0;
 
             int32_t dist_consign = cs_get_consign(&robot.distance_cs);
@@ -202,6 +203,20 @@ static void stream_thread(void *p)
             cmp_write_array(&ctx, 2);
             cmp_write_sint(&ctx, dist_consign);
             cmp_write_sint(&ctx, dist_measured);
+            message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, STREAM_PORT);
+        }
+
+        if (last_angle_pid_sent++ * STREAM_TIMESTEP_MS >= 1000/PID_STREAM_FREQ) {
+            last_angle_pid_sent = 0;
+
+            int32_t angle_consign = cs_get_consign(&robot.angle_cs);
+            int32_t angle_measured = cs_get_filtered_feedback(&robot.angle_cs);
+
+            strncpy(topic_name, "angle_pid", TOPIC_NAME_LEN);
+            message_write_header(&ctx, &mem, buffer, sizeof(buffer), topic_name);
+            cmp_write_array(&ctx, 2);
+            cmp_write_sint(&ctx, angle_consign);
+            cmp_write_sint(&ctx, angle_measured);
             message_transmit(buffer, cmp_mem_access_get_pos(&mem), &server, STREAM_PORT);
         }
 
