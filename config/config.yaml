@@ -10,7 +10,7 @@ master:
                 kd: 10.
                 ilimit: 1000.
             distance:
-                kp: 50.
+                kp: 25.
                 ki: 0.
                 kd: 0.
                 ilimit: 5000.

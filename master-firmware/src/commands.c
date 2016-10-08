@@ -307,9 +307,11 @@ static void cmd_position_reset(BaseSequentialStream *chp, int argc, char *argv[]
 static void cmd_traj_forward(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc == 1) {
-        float distance;
-        distance = atof(argv[0]);
-        trajectory_d_rel(&robot.traj, distance);
+        robot.mode = BOARD_MODE_DISTANCE_ONLY;
+
+        int32_t distance;
+        distance = atoi(argv[0]);
+        trajectory_only_d_rel(&robot.traj, distance);
     } else {
         chprintf(chp, "Usage: forward distance\r\n");
     }
