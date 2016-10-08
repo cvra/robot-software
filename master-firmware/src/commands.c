@@ -311,7 +311,9 @@ static void cmd_traj_forward(BaseSequentialStream *chp, int argc, char *argv[])
 
         int32_t distance;
         distance = atoi(argv[0]);
-        trajectory_only_d_rel(&robot.traj, distance);
+        trajectory_d_rel(&robot.traj, distance);
+
+        robot.mode = BOARD_MODE_ANGLE_DISTANCE;
     } else {
         chprintf(chp, "Usage: forward distance\r\n");
     }
@@ -320,9 +322,13 @@ static void cmd_traj_forward(BaseSequentialStream *chp, int argc, char *argv[])
 static void cmd_traj_rotate(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc == 1) {
-        float angle;
-        angle = atof(argv[0]);
+        robot.mode = BOARD_MODE_ANGLE_ONLY;
+
+        int32_t angle;
+        angle = atoi(argv[0]);
         trajectory_a_rel(&robot.traj, angle);
+
+        robot.mode = BOARD_MODE_ANGLE_DISTANCE;
     } else {
         chprintf(chp, "Usage: rotate angle\r\n");
     }

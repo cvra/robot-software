@@ -66,9 +66,6 @@ void robot_init(void)
 
     /* Base angle controller */
     pid_init(&robot.angle_pid.pid);
-    pid_set_gains(&robot.angle_pid.pid, 30, 1, 10);
-    pid_set_integral_limit(&robot.angle_pid.pid, 5000);
-
     quadramp_init(&robot.angle_qr);
 
     cs_init(&robot.angle_cs);
@@ -80,9 +77,6 @@ void robot_init(void)
 
     /* Base distance controller */
     pid_init(&robot.distance_pid.pid);
-    pid_set_gains(&robot.distance_pid.pid, 50, 0, 0);
-    pid_set_integral_limit(&robot.distance_pid.pid, 5000);
-
     quadramp_init(&robot.distance_qr);
 
     cs_init(&robot.distance_cs);
@@ -102,7 +96,6 @@ void robot_init(void)
     trajectory_set_acc(&robot.traj,
             acc_mm2imp(&robot.traj, 1000.),
             acc_rd2imp(&robot.traj, 20.));
-
 
     trajectory_set_speed(&robot.traj,
             speed_mm2imp(&robot.traj, 800.),
