@@ -94,20 +94,20 @@ void robot_init(void)
     trajectory_set_windows(&robot.traj, 50., 10.0, 20.); // Distance window, angle window, angle start
 
     trajectory_set_acc(&robot.traj,
-            acc_mm2imp(&robot.traj, 1000.),
-            acc_rd2imp(&robot.traj, 20.));
+            acc_mm2imp(&robot.traj, 300.),
+            acc_rd2imp(&robot.traj, 3.));
 
     trajectory_set_speed(&robot.traj,
-            speed_mm2imp(&robot.traj, 800.),
-            speed_rd2imp(&robot.traj, 20.));
+            speed_mm2imp(&robot.traj, 200.),
+            speed_rd2imp(&robot.traj, 3.));
 
     // Angle BDM
     bd_init(&robot.angle_bd, &robot.angle_cs);
-    bd_set_thresholds(&robot.angle_bd, 3000, 1); // thresold, duration
+    bd_set_thresholds(&robot.angle_bd, 2500, 1); // thresold, duration
 
     // Distance BDM
     bd_init(&robot.distance_bd, &robot.distance_cs);
-    bd_set_thresholds(&robot.distance_bd, 3600, 1); // thresold, duration
+    bd_set_thresholds(&robot.distance_bd, 3000, 1); // thresold, duration
 
     // Setup map
     const int robot_size = 150;
