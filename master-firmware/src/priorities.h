@@ -17,7 +17,7 @@
 #define BASE_CONTROLLER_PRIO                    (NORMALPRIO)
 #define TRAJECTORY_MANAGER_PRIO                 (NORMALPRIO)
 #define ENCODER_PRIO                            (NORMALPRIO)
-#define STREAM_PRIO                             (NORMALPRIO - 3)
+#define STREAM_PRIO                             (NORMALPRIO + 1)
 
 #define INTERFACE_PANEL_PRIO                    (NORMALPRIO + 2)
 

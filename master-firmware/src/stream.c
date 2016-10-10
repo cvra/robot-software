@@ -195,7 +195,7 @@ static void stream_thread(void *p)
         if (last_distance_pid_sent++ * STREAM_TIMESTEP_MS >= 1000/PID_STREAM_FREQ) {
             last_distance_pid_sent = 0;
 
-            int32_t dist_consign = cs_get_consign(&robot.distance_cs);
+            int32_t dist_consign = cs_get_filtered_consign(&robot.distance_cs);
             int32_t dist_measured = cs_get_filtered_feedback(&robot.distance_cs);
 
             strncpy(topic_name, "distance_pid", TOPIC_NAME_LEN);
@@ -209,7 +209,7 @@ static void stream_thread(void *p)
         if (last_angle_pid_sent++ * STREAM_TIMESTEP_MS >= 1000/PID_STREAM_FREQ) {
             last_angle_pid_sent = 0;
 
-            int32_t angle_consign = cs_get_consign(&robot.angle_cs);
+            int32_t angle_consign = cs_get_filtered_consign(&robot.angle_cs);
             int32_t angle_measured = cs_get_filtered_feedback(&robot.angle_cs);
 
             strncpy(topic_name, "angle_pid", TOPIC_NAME_LEN);
