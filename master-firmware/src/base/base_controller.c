@@ -91,7 +91,11 @@ void robot_init(void)
     trajectory_set_cs(&robot.traj, &robot.distance_cs, &robot.angle_cs);
     trajectory_set_robot_params(&robot.traj, &robot.rs, &robot.pos);
 
-    trajectory_set_windows(&robot.traj, 50., 10.0, 20.); // Distance window, angle window, angle start
+    // Distance window, angle window, angle start
+    trajectory_set_windows(&robot.traj,
+            pos_mm2imp(&robot.traj, 10.),
+            pos_rd2imp(&robot.traj, 0.1),
+            pos_rd2imp(&robot.traj, 0.3));
 
     trajectory_set_acc(&robot.traj,
             acc_mm2imp(&robot.traj, 300.),
@@ -103,11 +107,11 @@ void robot_init(void)
 
     // Angle BDM
     bd_init(&robot.angle_bd, &robot.angle_cs);
-    bd_set_thresholds(&robot.angle_bd, 2500, 1); // thresold, duration
+    bd_set_thresholds(&robot.angle_bd, 12500, 1); // thresold, duration
 
     // Distance BDM
     bd_init(&robot.distance_bd, &robot.distance_cs);
-    bd_set_thresholds(&robot.distance_bd, 3000, 1); // thresold, duration
+    bd_set_thresholds(&robot.distance_bd, 15000, 1); // thresold, duration
 
     // Setup map
     const int robot_size = 150;
@@ -148,6 +152,18 @@ static THD_FUNCTION(base_ctrl_thd, arg)
         /* Gestion du blocage */
         bd_manage(&robot.angle_bd);
         bd_manage(&robot.distance_bd);
+
+        /* Collision detected */
+        if (bd_get(&robot.distance_bd)) {
+            log_message("Collision detected in distance !");
+            trajectory_hardstop(&robot.traj);
+            rs_set_distance(&robot.rs, 0);
+        }
+        if (bd_get(&robot.angle_bd)) {
+            log_message("Collision detected in angle !");
+            trajectory_hardstop(&robot.traj);
+            rs_set_angle(&robot.rs, 0);
+        }
 
         if (parameter_namespace_contains_changed(control_params)) {
             float kp, ki, kd, ilim;
