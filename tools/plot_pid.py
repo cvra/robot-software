@@ -6,7 +6,7 @@ from socketserver import UDPServer
 import time
 
 from bokeh.models import ColumnDataSource
-from bokeh.models.widgets import TextInput
+from bokeh.models.widgets import TextInput, Select
 from bokeh.plotting import curdoc, figure
 from bokeh.io import show
 from bokeh.layouts import row
@@ -25,8 +25,10 @@ pid_measured = ColumnDataSource(data=dict(x=[0], y=[0]))
 # see then same document.
 doc = curdoc()
 
-# Topic name input box
-topic_name_input = TextInput(value="topic", title="PID topic name:")
+# Topic selector
+options = []
+topics_received = []
+topic_select = Select(title="Topic:", value="topic", options=options)
 
 # Number of points to keep in plot buffer
 plot_buffer = TextInput(value="400", title="Plot buffer:")
@@ -37,9 +39,11 @@ def update(now, setpoint, measured):
     pid_measured.stream(dict(x=[now], y=[measured]), int(plot_buffer.value))
 
 def msg_cb(todo, msg, args):
-    if (msg == topic_name_input.value):
+    global topics_received
+    topics_received.append(msg)
+
+    if (msg == topic_select.value):
         now = time.time() - start
-        print('[{:.3f}] receiving: {} {}'.format(now, msg, args))
         setpoint = args[0]
         measured = args[1]
 
@@ -56,5 +60,12 @@ p = figure(plot_width=1500, plot_height=800)
 l_setpoint = p.line(x='x', y='y', color="red", source=pid_setpoint, legend='Setpoint')
 l_measured = p.line(x='x', y='y', color="blue", source=pid_measured, legend='Measured')
 
-doc.add_root(row(children=[topic_name_input, plot_buffer]))
+doc.add_root(row(children=[topic_select, plot_buffer]))
 doc.add_root(p)
+
+def update_topics_list():
+    global topics_received
+    topic_select.options = list(set(topics_received))
+    topics_received = []
+
+doc.add_periodic_callback(update_topics_list, 1000)
