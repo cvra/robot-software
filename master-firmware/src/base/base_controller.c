@@ -134,22 +134,22 @@ static THD_FUNCTION(base_ctrl_thd, arg)
     while (1) {
         rs_update(&robot.rs);
 
-        /* Gestion de l'asservissement. */
+        /* Control system manage */
         if (robot.mode != BOARD_MODE_SET_PWM) {
             if (robot.mode == BOARD_MODE_ANGLE_DISTANCE || robot.mode == BOARD_MODE_ANGLE_ONLY) {
                 cs_manage(&robot.angle_cs);
             } else {
-                rs_set_angle(&robot.rs, 0); // Sets a null angle PWM
+                rs_set_angle(&robot.rs, 0); // Sets angle PWM to zero
             }
 
             if (robot.mode == BOARD_MODE_ANGLE_DISTANCE || robot.mode == BOARD_MODE_DISTANCE_ONLY) {
                 cs_manage(&robot.distance_cs);
             } else {
-                rs_set_distance(&robot.rs, 0); // Sets a distance angle PWM
+                rs_set_distance(&robot.rs, 0); // Sets distance PWM to zero
             }
         }
 
-        /* Gestion du blocage */
+        /* Blocking detection manage */
         bd_manage(&robot.angle_bd);
         bd_manage(&robot.distance_bd);
 
