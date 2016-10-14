@@ -15,12 +15,18 @@
 #include "uavcan_node.h"
 #include "msgbus/messagebus.h"
 #include "main.h"
+#include "cvra/cvra_motors.h"
 #include "base/encoder.h"
 #include "base/polar.h"
 #include "base/odometry.h"
 #include "base/base_controller.h"
+#include "trajectory_manager/trajectory_manager_utils.h"
 #include "obstacle_avoidance/obstacle_avoidance.h"
 #include <trace/trace.h>
+
+
+#define DEGREES(x) (x * 180.f / M_PI)
+#define RADIANS(x) (x * M_PI / 180.f)
 
 static void cmd_mem(BaseSequentialStream *chp, int argc, char *argv[]) {
     size_t n, size;
@@ -286,24 +292,6 @@ static void cmd_position_reset(BaseSequentialStream *chp, int argc, char *argv[]
     }
 }
 
-// static void cmd_wheel_correction(BaseSequentialStream *chp, int argc, char *argv[])
-// {
-//     if (argc == 2) {
-//         float left, right;
-//         position_manager_get_wheel_correction(&left, &right);
-
-//         if (!strcmp("left", argv[0])) {
-//             left = atof(argv[1]);
-//         } else if (!strcmp("right", argv[0])) {
-//             right = atof(argv[1]);
-//         }
-
-//         position_manager_set_wheel_correction(left, right);
-//     } else {
-//         chprintf(chp, "Usage: wheel_corr {left|right} factor\r\n");
-//     }
-// }
-
 static void cmd_traj_forward(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc == 1) {
@@ -487,6 +475,97 @@ static void cmd_blocking_detection_config(BaseSequentialStream *chp, int argc, c
     }
 }
 
+static void cmd_wheel_calibration(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    int32_t start_angle, start_distance;
+    int32_t delta_angle, delta_distance;
+    float factor, left_gain, right_gain;
+
+    int count;
+    if(argc < 1) {
+        count = 1;
+    } else {
+        count = atoi(argv[0]);
+    }
+
+    /* Configure robot to be slower and more sensitive to collisions */
+    bd_set_thresholds(&robot.distance_bd, 20000, 2);
+    trajectory_set_acc(&robot.traj,
+            acc_mm2imp(&robot.traj, 150.),
+            acc_rd2imp(&robot.traj, 1.57));
+    trajectory_set_speed(&robot.traj,
+            speed_mm2imp(&robot.traj, 100.),
+            speed_rd2imp(&robot.traj, 0.75));
+
+    /* Go backwards until we hit the wall */
+    robot.mode = BOARD_MODE_DISTANCE_ONLY;
+    trajectory_d_rel(&robot.traj, -2000.);
+    while(!bd_get(&robot.distance_bd)) {
+        chThdSleepMilliseconds(1);
+    }
+    trajectory_hardstop(&robot.traj);
+    bd_reset(&robot.distance_bd);
+    bd_reset(&robot.angle_bd);
+    chprintf(chp, "I just hit the wall\n");
+
+    /* Take reference at the wall */
+    robot.mode = BOARD_MODE_ANGLE_DISTANCE;
+
+    start_angle = rs_get_angle(&robot.rs);
+    start_distance = rs_get_distance(&robot.rs);
+
+    /* Start calibration sequence and do it N times */
+    while(count--) {
+        chprintf(chp, "%d left !\n", count);
+        trajectory_d_rel(&robot.traj, 1200.);
+        while(!trajectory_finished(&robot.traj)) {
+            chThdSleepMilliseconds(1);
+        }
+        trajectory_a_rel(&robot.traj, 180.);
+        while(!trajectory_finished(&robot.traj)) {
+            chThdSleepMilliseconds(1);
+        }
+        trajectory_d_rel(&robot.traj, 1100.);
+        while(!trajectory_finished(&robot.traj)) {
+            chThdSleepMilliseconds(1);
+        }
+        trajectory_a_rel(&robot.traj, -180.);
+        while(!trajectory_finished(&robot.traj)) {
+            chThdSleepMilliseconds(1);
+        }
+    }
+
+    trajectory_d_rel(&robot.traj, -75.);
+    while(!trajectory_finished(&robot.traj)) {
+        chThdSleepMilliseconds(1);
+    }
+
+    /* Go backwards until we reach a wall */
+    robot.mode = BOARD_MODE_DISTANCE_ONLY;
+    trajectory_d_rel(&robot.traj, -2000.);
+    while(!bd_get(&robot.distance_bd)){
+        chThdSleepMilliseconds(1);
+    }
+    trajectory_hardstop(&robot.traj);
+    bd_reset(&robot.distance_bd);
+    bd_reset(&robot.angle_bd);
+
+    robot.mode = BOARD_MODE_ANGLE_DISTANCE;
+
+    /* Compute correction factors */
+    delta_angle = start_angle - rs_get_angle(&robot.rs);
+    delta_distance = start_distance - rs_get_distance(&robot.rs);
+
+    factor = (float)(delta_angle) / (float)(delta_distance);
+    left_gain = (1. + factor) * robot.rs.left_ext_gain;
+    right_gain = (1. - factor) * robot.rs.right_ext_gain;
+
+    chprintf(chp, "Angle difference : %f\n", DEGREES(pos_imp2rd(&robot.traj, delta_angle)));
+    chprintf(chp, "Suggested factors :\n");
+    chprintf(chp, "Left : %.8f (old gain was %f)\n", left_gain, robot.rs.left_ext_gain);
+    chprintf(chp, "Right : %.8f (old gain was %f)\n", right_gain, robot.rs.right_ext_gain);
+}
+
 static void print_fn(void *arg, const char *fmt, ...)
 {
     BaseSequentialStream *chp = (BaseSequentialStream *)arg;
@@ -531,7 +610,7 @@ const ShellCommand commands[] = {
     {"path", cmd_pathplanner},
     {"obs", cmd_create_static_obstacle},
     {"bdconf", cmd_blocking_detection_config},
+    {"wheel_calib", cmd_wheel_calibration},
     {"trace", cmd_trace},
-    // {"wheel_corr", cmd_wheel_correction},
     {NULL, NULL}
 };
