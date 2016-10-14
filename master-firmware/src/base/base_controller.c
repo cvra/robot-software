@@ -15,9 +15,8 @@
 #define POSITION_MANAGER_STACKSIZE   4096
 #define TRAJECTORY_MANAGER_STACKSIZE 4096
 
-#define IMPULSE_PER_MM       160
-#define EXT_ENCODER_TRACK_MM 193.82313537598
-#define MOTOR_TRACK_MM       162.9746617261
+#define IMPULSE_PER_MM       162.974661726
+#define EXT_ENCODER_TRACK_MM 193.823135376
 
 struct _robot robot;
 
@@ -61,7 +60,7 @@ void robot_init(void)
     position_init(&robot.pos);
     position_set_related_robot_system(&robot.pos, &robot.rs); // Link pos manager to robot system
 
-    position_set_physical_params(&robot.pos, EXT_ENCODER_TRACK_MM, MOTOR_TRACK_MM);
+    position_set_physical_params(&robot.pos, EXT_ENCODER_TRACK_MM, IMPULSE_PER_MM);
     position_use_ext(&robot.pos);
 
     /* Base angle controller */
