@@ -18,6 +18,9 @@
 #define IMPULSE_PER_MM       162.974661726
 #define EXT_ENCODER_TRACK_MM 193.823135376
 
+#define LEFT_WHEEL_CORRECTION_FACTOR  -1.
+#define RIGHT_WHEEL_CORRECTION_FACTOR 1.
+
 struct _robot robot;
 
 
@@ -53,8 +56,8 @@ void robot_init(void)
 
     rs_set_left_pwm(&robot.rs, cvra_motor_left_wheel_set_velocity, &left_wheel_motor);
     rs_set_right_pwm(&robot.rs, cvra_motor_right_wheel_set_velocity, &right_wheel_motor);
-    rs_set_left_ext_encoder(&robot.rs, cvra_encoder_get_left_ext, NULL, -1.);
-    rs_set_right_ext_encoder(&robot.rs, cvra_encoder_get_right_ext, NULL, 1.);
+    rs_set_left_ext_encoder(&robot.rs, cvra_encoder_get_left_ext, NULL, LEFT_WHEEL_CORRECTION_FACTOR);
+    rs_set_right_ext_encoder(&robot.rs, cvra_encoder_get_right_ext, NULL, RIGHT_WHEEL_CORRECTION_FACTOR);
 
     /* Position manager */
     position_init(&robot.pos);
