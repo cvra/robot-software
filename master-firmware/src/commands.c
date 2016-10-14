@@ -566,6 +566,21 @@ static void cmd_wheel_calibration(BaseSequentialStream *chp, int argc, char *arg
     chprintf(chp, "Right : %.8f (old gain was %f)\n", right_gain, robot.rs.right_ext_gain);
 }
 
+static void cmd_wheel_correction(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc == 2) {
+        if (!strcmp("left", argv[0])) {
+            float left = atof(argv[1]);
+            rs_set_left_ext_encoder(&robot.rs, cvra_encoder_get_left_ext, NULL, left);
+        } else if (!strcmp("right", argv[0])) {
+            float right = atof(argv[1]);
+            rs_set_right_ext_encoder(&robot.rs, cvra_encoder_get_right_ext, NULL, right);
+        }
+    } else {
+        chprintf(chp, "Usage: wheel_corr {left|right} factor\r\n");
+    }
+}
+
 static void print_fn(void *arg, const char *fmt, ...)
 {
     BaseSequentialStream *chp = (BaseSequentialStream *)arg;
@@ -611,6 +626,7 @@ const ShellCommand commands[] = {
     {"obs", cmd_create_static_obstacle},
     {"bdconf", cmd_blocking_detection_config},
     {"wheel_calib", cmd_wheel_calibration},
+    {"wheel_corr", cmd_wheel_correction},
     {"trace", cmd_trace},
     {NULL, NULL}
 };
