@@ -34,6 +34,7 @@
 #define TRAJECTORY_MANAGER
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <math/vect2/vect2.h>
 #include <math/geometry/vect_base.h>
 #include <math/geometry/lines.h>

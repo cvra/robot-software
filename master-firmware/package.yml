@@ -54,12 +54,14 @@ target.arm:
     - src/base/base_controller.c
     - src/config_msgpack.c
     - src/trace/trace_points.c
+    - src/robot_helpers/trajectory_helpers.c
 
 source:
     - src/unix_timestamp.c
     - src/can/bus_enumerator.c
     - src/trajectories.c
     - src/trace/trace.c
+    - src/robot_helpers/math_helpers.c
 
 include_directories:
     - src/
@@ -75,6 +77,7 @@ tests:
     - tests/unix-timestamp.cpp
     - tests/bus_enumerator.cpp
     - tests/trajectories_test.cpp
+    - tests/test_math_helpers.cpp
     - src/trace/tests/trace_test.cpp
     - src/trace/tests/trace_points.c
 
