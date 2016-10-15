@@ -555,6 +555,80 @@ static void cmd_wheel_correction(BaseSequentialStream *chp, int argc, char *argv
     }
 }
 
+static void cmd_track_calibration(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    int count;
+    if(argc < 1) {
+        count = 1;
+    } else {
+        count = atoi(argv[0]);
+    }
+
+    /* Configure robot to be slower and more sensitive to collisions */
+    bd_set_thresholds(&robot.distance_bd, 20000, 2);
+    trajectory_set_acc(&robot.traj,
+            acc_mm2imp(&robot.traj, 150.),
+            acc_rd2imp(&robot.traj, 1.57));
+    trajectory_set_speed(&robot.traj,
+            speed_mm2imp(&robot.traj, 100.),
+            speed_rd2imp(&robot.traj, 0.75));
+
+    /* Go backwards until we hit the wall */
+    robot.mode = BOARD_MODE_DISTANCE_ONLY;
+    trajectory_d_rel(&robot.traj, -2000.);
+    trajectory_wait_for_collision();
+    trajectory_hardstop(&robot.traj);
+    bd_reset(&robot.distance_bd);
+    bd_reset(&robot.angle_bd);
+    chprintf(chp, "I just hit the wall\n");
+
+    /* Take reference at the wall */
+    robot.mode = BOARD_MODE_ANGLE_DISTANCE;
+
+    float start_angle = pos_imp2rd(&robot.traj, rs_get_angle(&robot.rs));
+
+    /* Start calibration sequence and do it N times */
+    trajectory_d_rel(&robot.traj, 200.);
+    trajectory_wait_for_finish();
+    for (int i = 0; i < count; i++) {
+        chprintf(chp, "%d left !\n", i);
+        trajectory_a_rel(&robot.traj, 360.);
+        trajectory_wait_for_finish();
+    }
+    trajectory_d_rel(&robot.traj, -180.);
+    trajectory_wait_for_finish();
+
+    /* Go backwards until we reach a wall */
+    robot.mode = BOARD_MODE_DISTANCE_ONLY;
+    trajectory_d_rel(&robot.traj, -2000.);
+    trajectory_wait_for_collision();
+    float end_angle = pos_imp2rd(&robot.traj, rs_get_angle(&robot.rs));
+    trajectory_hardstop(&robot.traj);
+    bd_reset(&robot.distance_bd);
+    bd_reset(&robot.angle_bd);
+
+    robot.mode = BOARD_MODE_ANGLE_DISTANCE;
+
+    /* Compute correction factors */
+    float delta_angle = angle_delta(0., end_angle - start_angle);
+    float track_calibrated = (float)robot.pos.phys.track_mm * \
+                                (1 + (delta_angle / (2. * M_PI * (float)count)));
+
+    chprintf(chp, "Start angle %f, End angle : %f\n", DEGREES(start_angle), DEGREES(end_angle));
+    chprintf(chp, "Angle difference : %f\n", DEGREES(delta_angle));
+    chprintf(chp, "Suggested track : %.8f mm\n", track_calibrated);
+}
+
+static void cmd_track_correction(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc < 1) {
+        chprintf(chp, "Usage: wheel_corr {left|right} factor\r\n");
+        return;
+    }
+    float track = atof(argv[0]);
+    position_set_physical_params(&robot.pos, track, robot.pos.phys.distance_imp_per_mm);
+}
+
 static void print_fn(void *arg, const char *fmt, ...)
 {
     BaseSequentialStream *chp = (BaseSequentialStream *)arg;
@@ -601,6 +675,8 @@ const ShellCommand commands[] = {
     {"bdconf", cmd_blocking_detection_config},
     {"wheel_calib", cmd_wheel_calibration},
     {"wheel_corr", cmd_wheel_correction},
+    {"track_calib", cmd_track_calibration},
+    {"track_corr", cmd_track_correction},
     {"trace", cmd_trace},
     {NULL, NULL}
 };
