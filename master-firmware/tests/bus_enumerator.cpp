@@ -1,5 +1,5 @@
 #include "CppUTest/TestHarness.h"
-#include "../src/bus_enumerator.h"
+#include "bus_enumerator.h"
 
 #define SMALL_STR_ID    "bar"
 #define MEDIUM_STR_ID   "foo"

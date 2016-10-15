@@ -22,12 +22,12 @@ target.arm:
     - src/rpc_server.c
     - src/rpc_callbacks.c
     - src/msg_callbacks.c
-    - src/uavcan_node.cpp
+    - src/can/uavcan_node.cpp
     - src/config.c
     - src/interface_panel.c
-    - src/motor_driver.c
-    - src/motor_driver_uavcan.cpp
-    - src/motor_manager.c
+    - src/can/motor_driver.c
+    - src/can/motor_driver_uavcan.cpp
+    - src/can/motor_manager.c
     - src/stream.c
     - src/malloc_lock.c
     - src/usbconf.c
@@ -57,7 +57,7 @@ target.arm:
 
 source:
     - src/unix_timestamp.c
-    - src/bus_enumerator.c
+    - src/can/bus_enumerator.c
     - src/trajectories.c
     - src/trace/trace.c
 
@@ -66,6 +66,7 @@ include_directories:
     - src/aversive/
     - src/board/
     - src/debug/
+    - src/can/
 
 tests:
     - tests/ch.cpp
