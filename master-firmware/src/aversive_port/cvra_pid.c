@@ -1,4 +1,4 @@
-#include "cvra/cvra_pid.h"
+#include "cvra_pid.h"
 
 void cvra_pid_set_out_divider(void *_pid, float divider)
 {

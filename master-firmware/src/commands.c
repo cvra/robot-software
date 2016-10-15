@@ -15,7 +15,7 @@
 #include "uavcan_node.h"
 #include "msgbus/messagebus.h"
 #include "main.h"
-#include "cvra/cvra_motors.h"
+#include "aversive_port/cvra_motors.h"
 #include "base/encoder.h"
 #include "base/base_controller.h"
 #include "trajectory_manager/trajectory_manager_utils.h"

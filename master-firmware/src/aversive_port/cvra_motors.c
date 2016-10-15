@@ -1,4 +1,4 @@
-#include "cvra/cvra_motors.h"
+#include "cvra_motors.h"
 #include "base/encoder.h"
 #include "ch.h"
 #include "hal.h"

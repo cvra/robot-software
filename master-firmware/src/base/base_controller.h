@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include "cvra/cvra_pid.h"
+#include "aversive_port/cvra_pid.h"
 #include "robot_system/robot_system.h"
 #include "position_manager/position_manager.h"
 #include "quadramp/quadramp.h"
