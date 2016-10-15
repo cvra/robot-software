@@ -74,6 +74,7 @@ tests:
     - tests/log.c
     - tests/unix-timestamp.cpp
     - tests/bus_enumerator.cpp
+    - tests/trajectories_test.cpp
     - src/trace/tests/trace_test.cpp
     - src/trace/tests/trace_points.c
 
