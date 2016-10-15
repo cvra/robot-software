@@ -5,6 +5,8 @@
 extern "C" {
 #endif
 
+#include <math.h>
+
 /*
  * Robot base parameters
  */
@@ -15,6 +17,14 @@ extern "C" {
 #define ROBOT_MOTOR_TRACK_LENGTH            0.156f
 
 #define EXTERNAL_ENCODER_TICKS_PER_TURN     16384
+
+#define ROBOT_EXTERNAL_TRACK_LENGTH_MM      (1000. * ROBOT_EXTERNAL_TRACK_LENGTH)
+#define EXTERNAL_ENCODER_TICKS_PER_MM       \
+            (EXTERNAL_ENCODER_TICKS_PER_TURN \
+                / (2. * 1000. * ROBOT_EXTERNAL_WHEEL_RADIUS * M_PI))
+
+#define LEFT_WHEEL_CORRECTION_FACTOR        -1.
+#define RIGHT_WHEEL_CORRECTION_FACTOR       1.
 
 #ifdef __cplusplus
 }

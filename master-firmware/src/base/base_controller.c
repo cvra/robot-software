@@ -1,24 +1,23 @@
 #include <ch.h>
 #include <math.h>
-#include <config.h>
-#include "base_controller.h"
-#include "priorities.h"
-#include "main.h"
-#include "aversive_port/cvra_motors.h"
-#include "trajectory_manager/trajectory_manager_core.h"
-#include "trajectory_manager/trajectory_manager_utils.h"
-#include "obstacle_avoidance/obstacle_avoidance.h"
+
 #include "log.h"
+#include "main.h"
+#include "config.h"
+#include "priorities.h"
+#include "robot_parameters.h"
+#include "aversive_port/cvra_motors.h"
+#include "trajectory_manager/trajectory_manager.h"
+#include "trajectory_manager/trajectory_manager_utils.h"
+#include "trajectory_manager/trajectory_manager_core.h"
+#include "obstacle_avoidance/obstacle_avoidance.h"
+
+#include "base_controller.h"
 
 #define BASE_CONTROLLER_STACKSIZE    4096
 #define POSITION_MANAGER_STACKSIZE   4096
 #define TRAJECTORY_MANAGER_STACKSIZE 4096
 
-#define IMPULSE_PER_MM       162.974661726
-#define EXT_ENCODER_TRACK_MM 193.823135376
-
-#define LEFT_WHEEL_CORRECTION_FACTOR  -1.
-#define RIGHT_WHEEL_CORRECTION_FACTOR 1.
 
 struct _robot robot;
 
@@ -48,7 +47,7 @@ void robot_init(void)
     position_init(&robot.pos);
     position_set_related_robot_system(&robot.pos, &robot.rs); // Link pos manager to robot system
 
-    position_set_physical_params(&robot.pos, EXT_ENCODER_TRACK_MM, IMPULSE_PER_MM);
+    position_set_physical_params(&robot.pos, ROBOT_EXTERNAL_TRACK_LENGTH_MM, EXTERNAL_ENCODER_TICKS_PER_MM);
     position_use_ext(&robot.pos);
 
     /* Base angle controller */
