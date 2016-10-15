@@ -23,8 +23,8 @@ extern "C" {
             (EXTERNAL_ENCODER_TICKS_PER_TURN \
                 / (2. * 1000. * ROBOT_EXTERNAL_WHEEL_RADIUS * M_PI))
 
-#define LEFT_WHEEL_CORRECTION_FACTOR        -1.
-#define RIGHT_WHEEL_CORRECTION_FACTOR       1.
+#define LEFT_WHEEL_CORRECTION_FACTOR        -0.99952566
+#define RIGHT_WHEEL_CORRECTION_FACTOR       1.00047433
 
 #ifdef __cplusplus
 }
