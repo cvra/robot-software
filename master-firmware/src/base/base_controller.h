@@ -6,7 +6,6 @@ extern "C" {
 #endif
 
 #include "cvra/cvra_pid.h"
-#include "base.h"
 #include "robot_system/robot_system.h"
 #include "position_manager/position_manager.h"
 #include "quadramp/quadramp.h"
@@ -64,15 +63,6 @@ struct _robot {
 
 extern struct _robot robot;
 
-
-typedef struct {
-    pid_ctrl_t distance_pid;
-    pid_ctrl_t heading_pid;
-} base_controller_t;
-
-void base_controller_init(base_controller_t *base);
-
-void base_controller_compute_error(polar_t *error, pose2d_t desired, pose2d_t measured);
 
 void robot_init(void);
 

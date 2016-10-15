@@ -59,8 +59,6 @@ source:
     - src/unix_timestamp.c
     - src/bus_enumerator.c
     - src/trajectories.c
-    - src/base/polar.c
-    - src/base/odometry.c
     - src/trace/trace.c
 
 include_directories:
@@ -74,8 +72,6 @@ tests:
     - tests/log.c
     - tests/unix-timestamp.cpp
     - tests/bus_enumerator.cpp
-    - tests/polar_test.cpp
-    - tests/odometry_test.cpp
     - src/trace/tests/trace_test.cpp
     - src/trace/tests/trace_points.c
 

@@ -17,8 +17,6 @@
 #include "main.h"
 #include "cvra/cvra_motors.h"
 #include "base/encoder.h"
-#include "base/polar.h"
-#include "base/odometry.h"
 #include "base/base_controller.h"
 #include "trajectory_manager/trajectory_manager_utils.h"
 #include "obstacle_avoidance/obstacle_avoidance.h"
