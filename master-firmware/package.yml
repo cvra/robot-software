@@ -55,6 +55,7 @@ target.arm:
     - src/config_msgpack.c
     - src/trace/trace_points.c
     - src/robot_helpers/trajectory_helpers.c
+    - src/robot_helpers/strategy_helpers.c
 
 source:
     - src/unix_timestamp.c

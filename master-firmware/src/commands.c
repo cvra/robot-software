@@ -22,6 +22,7 @@
 #include "obstacle_avoidance/obstacle_avoidance.h"
 #include "robot_helpers/math_helpers.h"
 #include "robot_helpers/trajectory_helpers.h"
+#include "robot_helpers/strategy_helpers.h"
 #include <trace/trace.h>
 
 
@@ -598,6 +599,37 @@ static void cmd_track_correction(BaseSequentialStream *chp, int argc, char *argv
     position_set_physical_params(&robot.pos, track, robot.pos.phys.distance_imp_per_mm);
 }
 
+
+static void cmd_autopos(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc < 4) {
+        chprintf(chp, "Usage: autopos {yellow|blue} x y a\r\n");
+        return;
+    }
+
+    enum strat_color_t color = BLUE;
+    if (strcmp("blue", argv[0]) == 0) {
+        color = BLUE;
+    } else if (strcmp("yellow", argv[0]) == 0) {
+        color = YELLOW;
+    } else {
+        chprintf(chp, "Unknown color, please chose either yellow or blue\r\n");
+        return;
+    }
+
+    float x, y, a;
+    x = atof(argv[1]);
+    y = atof(argv[2]);
+    a = atof(argv[3]);
+    chprintf(chp, "Positioning robot to x: %.1fmm y: %.1fmm a: %.1fdeg\r\n", x, y, a);
+
+    strategy_position(
+        (int32_t)x, (int32_t)y, (int32_t)a, 105, color,
+        &robot.mode, &robot.traj, &robot.pos,
+        &robot.distance_bd, &robot.angle_bd);
+}
+
+
 static void print_fn(void *arg, const char *fmt, ...)
 {
     BaseSequentialStream *chp = (BaseSequentialStream *)arg;
@@ -646,6 +678,7 @@ const ShellCommand commands[] = {
     {"wheel_corr", cmd_wheel_correction},
     {"track_calib", cmd_track_calibration},
     {"track_corr", cmd_track_correction},
+    {"autopos", cmd_autopos},
     {"trace", cmd_trace},
     {NULL, NULL}
 };

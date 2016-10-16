@@ -1,7 +1,7 @@
 #include <ch.h>
 #include "base/base_controller.h"
 
-#include "robot_helpers/trajectory_helpers.h"
+#include "trajectory_helpers.h"
 
 void trajectory_wait_for_finish(struct trajectory* robot_traj)
 {
