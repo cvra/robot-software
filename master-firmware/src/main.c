@@ -17,7 +17,7 @@
 #include "blocking_uart.h"
 #include "rpc_server.h"
 #include "uavcan_node.h"
-#include "timestamp/timestamp_stm32.h"
+#include <timestamp/timestamp_stm32.h>
 #include "config.h"
 #include <parameter/parameter_msgpack.h>
 #include <cmp_mem_access/cmp_mem_access.h>
@@ -26,12 +26,13 @@
 #include "motor_manager.h"
 #include "stream.h"
 #include "malloc_lock.h"
-#include <lwipthread.h>
+#include "lwipthread.h"
 #include "log.h"
 #include "usbconf.h"
 #include "base/encoder.h"
 #include "base/base_controller.h"
-#include <trace/trace_points.h>
+#include "trace/trace_points.h"
+#include "strategy.h"
 
 void init_base_motors(void);
 

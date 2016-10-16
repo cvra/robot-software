@@ -38,3 +38,12 @@ void trajectory_align_with_wall(
     /* Enable angle control back */
     *robot_mode = BOARD_MODE_ANGLE_DISTANCE;
 }
+
+void trajectory_move_to(struct trajectory* robot_traj, int32_t x_mm, int32_t y_mm, int32_t a_deg)
+{
+    trajectory_goto_xy_abs(robot_traj, x_mm, y_mm);
+    trajectory_wait_for_finish(robot_traj);
+
+    trajectory_a_abs(robot_traj, a_deg);
+    trajectory_wait_for_finish(robot_traj);
+}

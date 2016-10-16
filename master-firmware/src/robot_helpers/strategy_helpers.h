@@ -7,6 +7,7 @@ extern "C" {
 
 #include "trajectory_manager/trajectory_manager.h"
 #include "blocking_detection_manager/blocking_detection_manager.h"
+#include "base/base_controller.h"
 
 /** Team color
  */
@@ -25,9 +26,10 @@ enum strat_color_t {
 #define MIRROR_A(color, a) (color == YELLOW ? (a) : -(a))
 
 
-/**
+/** Auto position robot at requested location, and ensure the correct
+ *  position is reached by aligning against walls.
  */
-void strategy_position(
+void strategy_auto_position(
         int32_t x, int32_t y, int32_t heading, int32_t robot_size,
         enum strat_color_t robot_color,
         enum board_mode_t* robot_mode,

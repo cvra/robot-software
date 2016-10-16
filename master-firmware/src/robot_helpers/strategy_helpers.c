@@ -1,11 +1,11 @@
 #include "position_manager/position_manager.h"
 #include "trajectory_manager/trajectory_manager_utils.h"
-#include "base/base_controller.h"
+#include "blocking_detection_manager/blocking_detection_manager.h"
 #include "trajectory_helpers.h"
 
 #include "strategy_helpers.h"
 
-void strategy_position(
+void strategy_auto_position(
         int32_t x, int32_t y, int32_t heading, int32_t robot_size,
         enum strat_color_t robot_color,
         enum board_mode_t* robot_mode,

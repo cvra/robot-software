@@ -23,6 +23,7 @@
 #include "robot_helpers/math_helpers.h"
 #include "robot_helpers/trajectory_helpers.h"
 #include "robot_helpers/strategy_helpers.h"
+#include "robot_parameters.h"
 #include <trace/trace.h>
 
 
@@ -323,17 +324,13 @@ static void cmd_traj_rotate(BaseSequentialStream *chp, int argc, char *argv[])
 static void cmd_traj_goto(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc == 3) {
-        float x, y, a;
-        x = atof(argv[0]);
-        y = atof(argv[1]);
-        a = atof(argv[2]);
-        chprintf(chp, "Going to x: %.1fmm y: %.1fmm a: %.1fdeg\r\n", x, y, a);
+        int32_t x, y, a;
+        x = atoi(argv[0]);
+        y = atoi(argv[1]);
+        a = atoi(argv[2]);
+        chprintf(chp, "Going to x: %d [mm], y: %d [mm], a: %d [deg]\r\n", x, y, a);
 
-        trajectory_goto_xy_abs(&robot.traj, x, y);
-        chThdSleepMilliseconds(100);
-        trajectory_wait_for_finish(&robot.traj);
-
-        trajectory_a_abs(&robot.traj, a);
+        trajectory_move_to(&robot.traj, x, y, a);
     } else {
         chprintf(chp, "Usage: goto x y a\r\n");
     }
@@ -617,14 +614,14 @@ static void cmd_autopos(BaseSequentialStream *chp, int argc, char *argv[])
         return;
     }
 
-    float x, y, a;
-    x = atof(argv[1]);
-    y = atof(argv[2]);
-    a = atof(argv[3]);
-    chprintf(chp, "Positioning robot to x: %.1fmm y: %.1fmm a: %.1fdeg\r\n", x, y, a);
+    int32_t x, y, a;
+    x = atoi(argv[1]);
+    y = atoi(argv[2]);
+    a = atoi(argv[3]);
+    chprintf(chp, "Positioning robot to x: %d[mm], y: %d[mm], a: %d[deg]\r\n", x, y, a);
 
-    strategy_position(
-        (int32_t)x, (int32_t)y, (int32_t)a, 105, color,
+    strategy_auto_position(
+        x, y, a, ROBOT_SIZE_X_MM, color,
         &robot.mode, &robot.traj, &robot.pos,
         &robot.distance_bd, &robot.angle_bd);
 }
