@@ -485,17 +485,9 @@ static void cmd_wheel_calibration(BaseSequentialStream *chp, int argc, char *arg
             speed_mm2imp(&robot.traj, 100.),
             speed_rd2imp(&robot.traj, 0.75));
 
-    /* Go backwards until we hit the wall */
-    robot.mode = BOARD_MODE_DISTANCE_ONLY;
-    trajectory_d_rel(&robot.traj, -2000.);
-    trajectory_wait_for_collision(&robot.distance_bd);
-    trajectory_hardstop(&robot.traj);
-    bd_reset(&robot.distance_bd);
-    bd_reset(&robot.angle_bd);
-    chprintf(chp, "I just hit the wall\n");
-
     /* Take reference at the wall */
-    robot.mode = BOARD_MODE_ANGLE_DISTANCE;
+    trajectory_align_with_wall(&robot.mode, &robot.traj, &robot.distance_bd, &robot.angle_bd);
+    chprintf(chp, "I just hit the wall\n");
 
     int32_t start_angle = rs_get_angle(&robot.rs);
     int32_t start_distance = rs_get_distance(&robot.rs);
@@ -516,15 +508,8 @@ static void cmd_wheel_calibration(BaseSequentialStream *chp, int argc, char *arg
     trajectory_d_rel(&robot.traj, -75.);
     trajectory_wait_for_finish(&robot.traj);
 
-    /* Go backwards until we reach a wall */
-    robot.mode = BOARD_MODE_DISTANCE_ONLY;
-    trajectory_d_rel(&robot.traj, -2000.);
-    trajectory_wait_for_collision(&robot.distance_bd);
-    trajectory_hardstop(&robot.traj);
-    bd_reset(&robot.distance_bd);
-    bd_reset(&robot.angle_bd);
-
-    robot.mode = BOARD_MODE_ANGLE_DISTANCE;
+    /* Take reference again at the wall */
+    trajectory_align_with_wall(&robot.mode, &robot.traj, &robot.distance_bd, &robot.angle_bd);
 
     /* Compute correction factors */
     int32_t delta_angle = start_angle - rs_get_angle(&robot.rs);
@@ -573,18 +558,9 @@ static void cmd_track_calibration(BaseSequentialStream *chp, int argc, char *arg
             speed_mm2imp(&robot.traj, 100.),
             speed_rd2imp(&robot.traj, 0.75));
 
-    /* Go backwards until we hit the wall */
-    robot.mode = BOARD_MODE_DISTANCE_ONLY;
-    trajectory_d_rel(&robot.traj, -2000.);
-    trajectory_wait_for_collision(&robot.distance_bd);
-    trajectory_hardstop(&robot.traj);
-    bd_reset(&robot.distance_bd);
-    bd_reset(&robot.angle_bd);
+    /* Take reference with wall */
+    trajectory_align_with_wall(&robot.mode, &robot.traj, &robot.distance_bd, &robot.angle_bd);
     chprintf(chp, "I just hit the wall\n");
-
-    /* Take reference at the wall */
-    robot.mode = BOARD_MODE_ANGLE_DISTANCE;
-
     float start_angle = pos_imp2rd(&robot.traj, rs_get_angle(&robot.rs));
 
     /* Start calibration sequence and do it N times */
@@ -598,16 +574,9 @@ static void cmd_track_calibration(BaseSequentialStream *chp, int argc, char *arg
     trajectory_d_rel(&robot.traj, -180.);
     trajectory_wait_for_finish(&robot.traj);
 
-    /* Go backwards until we reach a wall */
-    robot.mode = BOARD_MODE_DISTANCE_ONLY;
-    trajectory_d_rel(&robot.traj, -2000.);
-    trajectory_wait_for_collision(&robot.distance_bd);
+    /* Take reference at the wall */
+    trajectory_align_with_wall(&robot.mode, &robot.traj, &robot.distance_bd, &robot.angle_bd);
     float end_angle = pos_imp2rd(&robot.traj, rs_get_angle(&robot.rs));
-    trajectory_hardstop(&robot.traj);
-    bd_reset(&robot.distance_bd);
-    bd_reset(&robot.angle_bd);
-
-    robot.mode = BOARD_MODE_ANGLE_DISTANCE;
 
     /* Compute correction factors */
     float delta_angle = angle_delta(0., end_angle - start_angle);
