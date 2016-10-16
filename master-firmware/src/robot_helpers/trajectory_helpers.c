@@ -1,5 +1,4 @@
 #include <ch.h>
-#include "base/base_controller.h"
 
 #include "trajectory_helpers.h"
 

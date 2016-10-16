@@ -235,6 +235,9 @@ int main(void) {
     position_manager_start();
     trajectory_manager_start();
 
+    /* Initialize strategy thread, will wait for signal to begin game */
+    strategy_start();
+
     stream_init();
 
     /* main thread, spawns a shell on USB connection. */
