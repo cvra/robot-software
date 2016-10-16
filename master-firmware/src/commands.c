@@ -330,7 +330,7 @@ static void cmd_traj_goto(BaseSequentialStream *chp, int argc, char *argv[])
 
         trajectory_goto_xy_abs(&robot.traj, x, y);
         chThdSleepMilliseconds(100);
-        trajectory_wait_for_finish();
+        trajectory_wait_for_finish(&robot.traj);
 
         trajectory_a_abs(&robot.traj, a);
     } else {
@@ -392,7 +392,7 @@ static void cmd_pathplanner(BaseSequentialStream *chp, int argc, char *argv[])
 
             /* Waits for the completion of the trajectory. */
             chThdSleepMilliseconds(100);
-            trajectory_wait_for_finish();
+            trajectory_wait_for_finish(&robot.traj);
 
             /* Increments pointer to load next point. */
             p++;
@@ -488,7 +488,7 @@ static void cmd_wheel_calibration(BaseSequentialStream *chp, int argc, char *arg
     /* Go backwards until we hit the wall */
     robot.mode = BOARD_MODE_DISTANCE_ONLY;
     trajectory_d_rel(&robot.traj, -2000.);
-    trajectory_wait_for_collision();
+    trajectory_wait_for_collision(&robot.distance_bd);
     trajectory_hardstop(&robot.traj);
     bd_reset(&robot.distance_bd);
     bd_reset(&robot.angle_bd);
@@ -504,22 +504,22 @@ static void cmd_wheel_calibration(BaseSequentialStream *chp, int argc, char *arg
     while(count--) {
         chprintf(chp, "%d left !\n", count);
         trajectory_d_rel(&robot.traj, 1200.);
-        trajectory_wait_for_finish();
+        trajectory_wait_for_finish(&robot.traj);
         trajectory_a_rel(&robot.traj, 180.);
-        trajectory_wait_for_finish();
+        trajectory_wait_for_finish(&robot.traj);
         trajectory_d_rel(&robot.traj, 1100.);
-        trajectory_wait_for_finish();
+        trajectory_wait_for_finish(&robot.traj);
         trajectory_a_rel(&robot.traj, -180.);
-        trajectory_wait_for_finish();
+        trajectory_wait_for_finish(&robot.traj);
     }
 
     trajectory_d_rel(&robot.traj, -75.);
-    trajectory_wait_for_finish();
+    trajectory_wait_for_finish(&robot.traj);
 
     /* Go backwards until we reach a wall */
     robot.mode = BOARD_MODE_DISTANCE_ONLY;
     trajectory_d_rel(&robot.traj, -2000.);
-    trajectory_wait_for_collision();
+    trajectory_wait_for_collision(&robot.distance_bd);
     trajectory_hardstop(&robot.traj);
     bd_reset(&robot.distance_bd);
     bd_reset(&robot.angle_bd);
@@ -576,7 +576,7 @@ static void cmd_track_calibration(BaseSequentialStream *chp, int argc, char *arg
     /* Go backwards until we hit the wall */
     robot.mode = BOARD_MODE_DISTANCE_ONLY;
     trajectory_d_rel(&robot.traj, -2000.);
-    trajectory_wait_for_collision();
+    trajectory_wait_for_collision(&robot.distance_bd);
     trajectory_hardstop(&robot.traj);
     bd_reset(&robot.distance_bd);
     bd_reset(&robot.angle_bd);
@@ -589,19 +589,19 @@ static void cmd_track_calibration(BaseSequentialStream *chp, int argc, char *arg
 
     /* Start calibration sequence and do it N times */
     trajectory_d_rel(&robot.traj, 200.);
-    trajectory_wait_for_finish();
+    trajectory_wait_for_finish(&robot.traj);
     for (int i = 0; i < count; i++) {
         chprintf(chp, "%d left !\n", i);
         trajectory_a_rel(&robot.traj, 360.);
-        trajectory_wait_for_finish();
+        trajectory_wait_for_finish(&robot.traj);
     }
     trajectory_d_rel(&robot.traj, -180.);
-    trajectory_wait_for_finish();
+    trajectory_wait_for_finish(&robot.traj);
 
     /* Go backwards until we reach a wall */
     robot.mode = BOARD_MODE_DISTANCE_ONLY;
     trajectory_d_rel(&robot.traj, -2000.);
-    trajectory_wait_for_collision();
+    trajectory_wait_for_collision(&robot.distance_bd);
     float end_angle = pos_imp2rd(&robot.traj, rs_get_angle(&robot.rs));
     trajectory_hardstop(&robot.traj);
     bd_reset(&robot.distance_bd);
