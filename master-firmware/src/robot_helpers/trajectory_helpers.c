@@ -4,6 +4,7 @@
 
 void trajectory_wait_for_finish(struct trajectory* robot_traj)
 {
+    chThdSleepMilliseconds(100);
     while(!trajectory_finished(robot_traj)) {
         chThdSleepMilliseconds(1);
     }
@@ -11,6 +12,7 @@ void trajectory_wait_for_finish(struct trajectory* robot_traj)
 
 void trajectory_wait_for_collision(struct blocking_detection* distance_blocking)
 {
+    chThdSleepMilliseconds(100);
     while(!bd_get(distance_blocking)) {
         chThdSleepMilliseconds(1);
     }
