@@ -44,7 +44,7 @@ void strategy_play_game(void* _robot)
     wait_for_autoposition_signal();
     log_message("Positioning robot\n");
     strategy_auto_position(
-        500, 200, 90, ROBOT_SIZE_X_MM, color,
+        900, 200, 90, ROBOT_SIZE_X_MM, color,
         &robot->mode, &robot->traj, &robot->pos,
         &robot->distance_bd, &robot->angle_bd);
     log_message("Robot positioned at x: %d[mm], y: %d[mm], a: %d[deg]\n", 500, 200, 90);
@@ -64,7 +64,17 @@ void strategy_play_game(void* _robot)
     wait_for_starter();
     log_message("Starting game\n");
 
-    trajectory_move_to(&robot->traj, 500, MIRROR_Y(color, 500), MIRROR_A(color, 90));
+    trajectory_move_to(&robot->traj, 750, MIRROR_Y(color, 1350), MIRROR_A(color, 45));
+
+    trajectory_d_rel(&robot->traj, 130.);
+    trajectory_wait_for_finish(&robot->traj);
+    trajectory_d_rel(&robot->traj, -100.);
+    trajectory_wait_for_finish(&robot->traj);
+
+    while (true) {
+        log_message("Game ended!\nInsert coin to play more.\n");
+        chThdSleepSeconds(1);
+    }
 }
 
 void strategy_start(void)
