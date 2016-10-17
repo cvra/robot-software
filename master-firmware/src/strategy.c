@@ -18,14 +18,20 @@ static void wait_for_autoposition_signal(void);
 static void wait_for_starter(void);
 void strategy_play_game(void* robot);
 
-static void wait_for_autoposition_signal(void)
-{
-    chThdSleepSeconds(10);
-}
-
 static void wait_for_starter(void)
 {
-    chThdSleepSeconds(10);
+    /* Wait for a rising edge */
+    while (palReadPad(GPIOE, GPIOE_STARTER)) {
+        chThdSleepMilliseconds(10);
+    }
+    while (!palReadPad(GPIOE, GPIOE_STARTER)) {
+        chThdSleepMilliseconds(10);
+    }
+}
+
+static void wait_for_autoposition_signal(void)
+{
+    wait_for_starter();
 }
 
 
