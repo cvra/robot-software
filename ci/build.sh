@@ -30,7 +30,6 @@ case $BUILD_TYPE in
         ;;
 
     build)
-        make config_msgpack
         make dsdlc
         make
         ;;

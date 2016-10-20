@@ -8,9 +8,6 @@ printf "\033[0m"
 printf "\033[1;34m\n%s\033[0m\n" "Running packager"
 packager
 
-printf "\033[1;34m\n%s\033[0m\n" "generate MessagePack config"
-make config_msgpack
-
 make dsdlc
 
 make

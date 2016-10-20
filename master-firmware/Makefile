@@ -246,7 +246,7 @@ RULESPATH = ./linker/
 include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/rules.mk
 
 # Empty libraries, required by stack smashing protection
-PRE_MAKE_ALL_RULE_HOOK: libssp.a libssp_nonshared.a
+PRE_MAKE_ALL_RULE_HOOK: libssp.a libssp_nonshared.a src/config_msgpack.c
 libssp.a:
 	arm-none-eabi-ar rcs $@
 
@@ -268,9 +268,9 @@ dsdlc:
 	@$(COLOR_PRINTF) "Running uavcan dsdl compiler"
 	$(LIBUAVCAN_DSDLC) ../cvra $(UAVCAN_DSDL_DIR)
 
-.PHONY: config_msgpack
-config_msgpack:
-	../config/config_to_msgpack.py ../config/config.yaml src/config_msgpack.c
+src/config_msgpack.c: ../config/config.yaml
+	@$(COLOR_PRINTF) "Generating MessagePack config..."
+	@../config/config_to_msgpack.py ../config/config.yaml src/config_msgpack.c
 
 .PHONY: heap_size
 heap_size: build/$(PROJECT).elf
