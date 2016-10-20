@@ -145,8 +145,9 @@ TEST(TrajectoriesMergingTestGroup, ChunkStartAfterLastDefinedResetsTrajectory)
 
     int ret = trajectory_apply_chunk(&traj, &chunk);
     CHECK_EQUAL(0, ret);
-    CHECK_EQUAL(chunk.start_time_us, traj.read_time_us);
-    CHECK_EQUAL(chunk.start_time_us + (chunk.length - 1) * dt, traj.last_defined_time_us);
+    LONGS_EQUAL(chunk.start_time_us, traj.read_time_us);
+    LONGS_EQUAL(chunk.start_time_us + (chunk.length - 1) * dt,
+               traj.last_defined_time_us);
     CHECK_EQUAL(chunk.buffer[0], traj.buffer[traj.read_index]);
 }
 
