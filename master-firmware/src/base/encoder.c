@@ -1,9 +1,11 @@
 #include <ch.h>
 #include <hal.h>
 #include "msgbus/messagebus.h"
+#include "messagebus_protobufs.h"
 #include "main.h"
 #include "priorities.h"
 #include "encoder.h"
+#include "encoders.pb.h"
 
 #define ENCODER_STACKSIZE 1024
 
@@ -51,12 +53,12 @@ static THD_FUNCTION(encoders_thd, arg)
     static messagebus_topic_t encoders_topic;
     static MUTEX_DECL(encoders_topic_lock);
     static CONDVAR_DECL(encoders_topic_condvar);
-    static encoders_msg_t encoders_topic_value;
+    static uint8_t encoders_topic_buffer[EncodersMessage_size];
 
     messagebus_topic_init(&encoders_topic,
                           &encoders_topic_lock,
                           &encoders_topic_condvar,
-                          &encoders_topic_value, sizeof(encoders_topic_value));
+                          &encoders_topic_buffer, EncodersMessage_size);
 
     messagebus_advertise_topic(&bus, &encoders_topic, "/encoders");
 
@@ -70,7 +72,7 @@ static THD_FUNCTION(encoders_thd, arg)
     setup_timer(STM32_TIM3);
 
     uint32_t left_old, right_old;
-    encoders_msg_t values = {0, 0};
+    EncodersMessage values = {.left=0, .right=0};
 
     left_old = encoder_get_left();
     right_old = encoder_get_right();
@@ -84,7 +86,7 @@ static THD_FUNCTION(encoders_thd, arg)
         values.left += encoder_tick_diff(left_old, left);
         values.right += encoder_tick_diff(right_old, right);
 
-        messagebus_topic_publish(&encoders_topic, &values, sizeof(values));
+        MESSAGEBUS_PB_PUBLISH(&encoders_topic, &values, EncodersMessage);
 
         left_old = left;
         right_old = right;
