@@ -43,3 +43,6 @@
 [submodule "src/msgbus"]
 	path = lib/msgbus
 	url = https://github.com/cvra/msgbus
+[submodule "lib/nanopb"]
+	path = lib/nanopb
+	url = https://github.com/nanopb/nanopb
