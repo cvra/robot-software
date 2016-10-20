@@ -29,7 +29,7 @@
 *.hex
 
 # ChibiOS build files
-.dep/*
+.dep/
 build/
 
 # Packager build files
@@ -42,6 +42,11 @@ CMakeLists.txt
 
 # uavcan dsdl compiler output
 dsdlc_generated/
+
+# NanoPB generated files
+*.pb.c
+*.pb.h
+
 tags
 .tags*
 
