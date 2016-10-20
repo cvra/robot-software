@@ -11,6 +11,7 @@ addons:
             - python-virtualenv
             - gcc-4.9
             - protobuf-compiler
+            - python-protobuf
             - g++-4.9
             # Needed for ARM gcc
             - lib32bz2-1.0
