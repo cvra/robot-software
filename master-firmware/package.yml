@@ -31,7 +31,6 @@ target.arm:
     - src/can/motor_manager.c
     - src/malloc_lock.c
     - src/usbconf.c
-    - src/aversive/math/fast_math/fast_math.c
     - src/aversive/math/geometry/circles.c
     - src/aversive/math/geometry/lines.c
     - src/aversive/math/geometry/polygon.c
