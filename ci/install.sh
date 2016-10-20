@@ -9,7 +9,7 @@ python --version
 wget https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
 pip install cvra-packager==1.0.0
-pip install protobuf
+pip install protobuf==3.0.0
 pip install -r config/requirements.txt
 
 pushd uavcan/libuavcan/dsdl_compiler/pyuavcan/
