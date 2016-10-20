@@ -20,6 +20,11 @@ By default it assumes you are using a ST-Link V2. You can change this in the Mak
 ```bash
     git submodule update --init --recursive
 
+    # Only needed once
+    pushd lib/nanopb/generator/proto
+    make
+    popd
+
     pushd master-firmware
     packager
     make dsdlc

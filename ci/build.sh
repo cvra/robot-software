@@ -17,6 +17,11 @@ export CFLAGS="$CFLAGS -I $HOME/cpputest/include/"
 export CXXFLAGS="$CXXFLAGS -I $HOME/cpputest/include/"
 export LDFLAGS="$CXXFLAGS -L $HOME/cpputest/lib/"
 
+# Generate base nanopb messages
+pushd lib/nanopb/generator/proto
+make
+popd
+
 pushd master-firmware
 
 packager
