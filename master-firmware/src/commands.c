@@ -473,14 +473,8 @@ static void cmd_wheel_calibration(BaseSequentialStream *chp, int argc, char *arg
         count = atoi(argv[0]);
     }
 
-    /* Configure robot to be slower and more sensitive to collisions */
-    bd_set_thresholds(&robot.distance_bd, 20000, 2);
-    trajectory_set_acc(&robot.traj,
-            acc_mm2imp(&robot.traj, 150.),
-            acc_rd2imp(&robot.traj, 1.57));
-    trajectory_set_speed(&robot.traj,
-            speed_mm2imp(&robot.traj, 100.),
-            speed_rd2imp(&robot.traj, 0.75));
+    /* Configure robot to be slower and less sensitive to collisions */
+    trajectory_set_mode_aligning(&robot.mode, &robot.traj, &robot.distance_bd, &robot.angle_bd);
 
     /* Take reference at the wall */
     trajectory_align_with_wall(&robot.mode, &robot.traj, &robot.distance_bd, &robot.angle_bd);
@@ -546,14 +540,8 @@ static void cmd_track_calibration(BaseSequentialStream *chp, int argc, char *arg
         count = atoi(argv[0]);
     }
 
-    /* Configure robot to be slower and more sensitive to collisions */
-    bd_set_thresholds(&robot.distance_bd, 20000, 2);
-    trajectory_set_acc(&robot.traj,
-            acc_mm2imp(&robot.traj, 150.),
-            acc_rd2imp(&robot.traj, 1.57));
-    trajectory_set_speed(&robot.traj,
-            speed_mm2imp(&robot.traj, 100.),
-            speed_rd2imp(&robot.traj, 0.75));
+    /* Configure robot to be slower and less sensitive to collisions */
+    trajectory_set_mode_aligning(&robot.mode, &robot.traj, &robot.distance_bd, &robot.angle_bd);
 
     /* Take reference with wall */
     trajectory_align_with_wall(&robot.mode, &robot.traj, &robot.distance_bd, &robot.angle_bd);

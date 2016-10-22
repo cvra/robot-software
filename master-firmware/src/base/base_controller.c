@@ -88,13 +88,9 @@ void robot_init(void)
             speed_mm2imp(&robot.traj, 200.),
             speed_rd2imp(&robot.traj, 3.));
 
-    // Angle BDM
+    /* Initialize blocking detection managers */
     bd_init(&robot.angle_bd, &robot.angle_cs);
-    bd_set_thresholds(&robot.angle_bd, 12500, 1); // thresold, duration
-
-    // Distance BDM
     bd_init(&robot.distance_bd, &robot.distance_cs);
-    bd_set_thresholds(&robot.distance_bd, 15000, 1); // thresold, duration
 
     // Setup map
     polygon_set_boundingbox(ROBOT_SIZE_X_MM/2, ROBOT_SIZE_X_MM/2,

@@ -13,7 +13,6 @@ extern "C" {
 #include "trajectory_manager/trajectory_manager.h"
 #include "blocking_detection_manager/blocking_detection_manager.h"
 
-
 /** Frequency of the regulation loop and odometry loop (in Hz) */
 #define ASSERV_FREQUENCY 100
 #define ODOM_FREQUENCY   50

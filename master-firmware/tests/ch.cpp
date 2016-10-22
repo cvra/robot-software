@@ -22,3 +22,8 @@ void lock_mocks_enable(bool enabled)
 {
     lock_enabled = enabled;
 }
+
+void chThdSleepMilliseconds(int milliseconds)
+{
+    (void)milliseconds;
+}

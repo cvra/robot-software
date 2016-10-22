@@ -30,14 +30,12 @@ target.arm:
     - src/can/motor_manager.c
     - src/malloc_lock.c
     - src/usbconf.c
-    - src/aversive/blocking_detection_manager/blocking_detection_manager.c
     - src/aversive_port/cvra_motors.c
     - src/aversive_port/cvra_pid.c
     - src/base/encoder.c
     - src/base/base_controller.c
     - src/config_msgpack.c
     - src/trace/trace_points.c
-    - src/robot_helpers/trajectory_helpers.c
     - src/robot_helpers/strategy_helpers.c
     - src/strategy.c
 
@@ -47,6 +45,17 @@ source:
     - src/trajectories.c
     - src/trace/trace.c
     - src/robot_helpers/math_helpers.c
+    - src/robot_helpers/trajectory_helpers.c
+    - src/aversive/error/error.c
+    - src/aversive/quadramp/quadramp.c
+    - src/aversive/robot_system/angle_distance.c
+    - src/aversive/robot_system/robot_system.c
+    - src/aversive/control_system_manager/control_system_manager.c
+    - src/aversive/position_manager/position_manager.c
+    - src/aversive/trajectory_manager/trajectory_manager.c
+    - src/aversive/trajectory_manager/trajectory_manager_core.c
+    - src/aversive/trajectory_manager/trajectory_manager_utils.c
+    - src/aversive/blocking_detection_manager/blocking_detection_manager.c
     - src/aversive/obstacle_avoidance/obstacle_avoidance.c
     - src/aversive/math/geometry/circles.c
     - src/aversive/math/geometry/lines.c
@@ -78,6 +87,7 @@ tests:
     - tests/bus_enumerator.cpp
     - tests/trajectories_test.cpp
     - tests/test_math_helpers.cpp
+    - tests/test_trajectory_helpers.cpp
     - tests/obstacle_avoidance.cpp
     - src/trace/tests/trace_test.cpp
     - src/trace/tests/trace_points.c

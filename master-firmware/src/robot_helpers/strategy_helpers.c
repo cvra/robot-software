@@ -14,14 +14,8 @@ void strategy_auto_position(
         struct blocking_detection* robot_distance_blocking,
         struct blocking_detection* robot_angle_blocking)
 {
-    /* Configure robot to be slower and more sensitive to collisions */
-    bd_set_thresholds(robot_distance_blocking, 20000, 2);
-    trajectory_set_acc(robot_traj,
-            acc_mm2imp(robot_traj, 150.),
-            acc_rd2imp(robot_traj, 1.57));
-    trajectory_set_speed(robot_traj,
-            speed_mm2imp(robot_traj, 100.),
-            speed_rd2imp(robot_traj, 0.75));
+    /* Configure robot to be slower and less sensitive to collisions */
+    trajectory_set_mode_aligning(robot_mode, robot_traj, robot_distance_blocking, robot_angle_blocking);
 
     /* Go backwards until we hit the wall and reset position */
     trajectory_align_with_wall(robot_mode, robot_traj, robot_distance_blocking, robot_angle_blocking);
@@ -43,7 +37,7 @@ void strategy_auto_position(
     robot_pos->pos_s16.y = robot_size / 2;
 
     /* On se met en place a la position demandee. */
-    trajectory_set_speed(robot_traj, speed_mm2imp(robot_traj, 300), speed_rd2imp(robot_traj, 2.5) );
+    trajectory_set_speed(robot_traj, speed_mm2imp(robot_traj, 300), speed_rd2imp(robot_traj, 2.5));
 
     trajectory_d_rel(robot_traj, (double)(y - robot_size/2));
     trajectory_wait_for_finish(robot_traj);
