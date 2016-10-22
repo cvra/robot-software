@@ -45,4 +45,7 @@ void strategy_auto_position(
     /* Pour finir on s'occuppe de l'angle. */
     trajectory_a_abs(robot_traj, (double)heading);
     trajectory_wait_for_finish(robot_traj);
+
+    /* Restore robot to game mode: faster and more sensitive to collision */
+    trajectory_set_mode_game(robot_mode, robot_traj, robot_distance_blocking, robot_angle_blocking);
 }

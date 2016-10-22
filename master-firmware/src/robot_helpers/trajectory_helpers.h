@@ -41,6 +41,14 @@ void trajectory_set_mode_aligning(
         struct blocking_detection* distance_blocking,
         struct blocking_detection* angle_blocking);
 
+/** Prepare robot for game by settings its dynamics accordingly
+ */
+void trajectory_set_mode_game(
+        enum board_mode_t* robot_mode,
+        struct trajectory* robot_traj,
+        struct blocking_detection* distance_blocking,
+        struct blocking_detection* angle_blocking);
+
 #ifdef __cplusplus
 }
 #endif

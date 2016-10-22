@@ -54,3 +54,55 @@ TEST(TrajectorSetAligningMode, DisablesAngleControl)
 {
     CHECK_TRUE(robot_mode == BOARD_MODE_DISTANCE_ONLY);
 }
+
+
+TEST_GROUP(TrajectorSetGameMode)
+{
+    const int ARBITRARY_TRACK_LENGTH_MM = 100;
+    const int ARBITRARY_ENCODER_TICKS_PER_MM = 10000;
+    const int ARBITRARY_FREQUENCY = 10;
+
+    enum board_mode_t robot_mode;
+    struct robot_position robot_pos;
+    struct trajectory robot_traj;
+    struct blocking_detection distance_blocking;
+    struct blocking_detection angle_blocking;
+
+    void setup(void)
+    {
+        position_set_physical_params(&robot_pos, ARBITRARY_TRACK_LENGTH_MM, ARBITRARY_ENCODER_TICKS_PER_MM);
+        trajectory_manager_init(&robot_traj, ARBITRARY_FREQUENCY);
+        trajectory_set_robot_params(&robot_traj, NULL, &robot_pos);
+
+        trajectory_set_mode_game(&robot_mode, &robot_traj, &distance_blocking, &angle_blocking);
+    }
+};
+
+TEST(TrajectorSetGameMode, ConfiguresSpeed)
+{
+    CHECK_TRUE(robot_traj.a_speed > 0);
+    CHECK_TRUE(robot_traj.d_speed > 0);
+}
+
+TEST(TrajectorSetGameMode, ConfiguresAcceleration)
+{
+    CHECK_TRUE(robot_traj.a_acc > 0);
+    CHECK_TRUE(robot_traj.d_acc > 0);
+}
+
+TEST(TrajectorSetGameMode, ConfiguresDistanceBlockingManager)
+{
+    CHECK_TRUE(distance_blocking.cpt_thres > 0);
+    CHECK_TRUE(distance_blocking.err_thres > 0);
+}
+
+TEST(TrajectorSetGameMode, ConfiguresAngleBlockingManager)
+{
+    CHECK_TRUE(angle_blocking.cpt_thres > 0);
+    CHECK_TRUE(angle_blocking.err_thres > 0);
+}
+
+TEST(TrajectorSetGameMode, EnablesSimultaneousAngleAndDistanceControl)
+{
+    CHECK_TRUE(robot_mode == BOARD_MODE_ANGLE_DISTANCE);
+}

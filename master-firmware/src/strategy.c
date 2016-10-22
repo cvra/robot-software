@@ -50,17 +50,6 @@ void strategy_play_game(void* _robot)
         &robot->distance_bd, &robot->angle_bd);
     log_message("Robot positioned at x: %d[mm], y: %d[mm], a: %d[deg]\n", 900, 200, 90);
 
-    /* Configure robot dynamics */
-    trajectory_set_acc(&robot->traj,
-            acc_mm2imp(&robot->traj, 300.),
-            acc_rd2imp(&robot->traj, 3.));
-    trajectory_set_speed(&robot->traj,
-            speed_mm2imp(&robot->traj, 200.),
-            speed_rd2imp(&robot->traj, 3.));
-
-    bd_set_thresholds(&robot->angle_bd, 12500, 1);
-    bd_set_thresholds(&robot->distance_bd, 15000, 1);
-
     /* Add obstacles */
     poly_t *obstacle = oa_new_poly(4);
     oa_poly_set_point(obstacle, 500, 400, 0);

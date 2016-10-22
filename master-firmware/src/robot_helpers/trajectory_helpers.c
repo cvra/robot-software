@@ -73,3 +73,25 @@ void trajectory_set_mode_aligning(
             acc_mm2imp(robot_traj, 150.),
             acc_rd2imp(robot_traj, 1.57));
 }
+
+void trajectory_set_mode_game(
+        enum board_mode_t* robot_mode,
+        struct trajectory* robot_traj,
+        struct blocking_detection* distance_blocking,
+        struct blocking_detection* angle_blocking)
+{
+    /* Enable simulaneous distance and angular control */
+    *robot_mode = BOARD_MODE_ANGLE_DISTANCE;
+
+    /* Increase sensitivity to collision */
+    bd_set_thresholds(angle_blocking, 12500, 1);
+    bd_set_thresholds(distance_blocking, 15000, 1);
+
+    /* Speed up motion speed/acceleration */
+    trajectory_set_speed(robot_traj,
+            speed_mm2imp(robot_traj, 200.),
+            speed_rd2imp(robot_traj, 3.));
+    trajectory_set_acc(robot_traj,
+            acc_mm2imp(robot_traj, 300.),
+            acc_rd2imp(robot_traj, 3.));
+}

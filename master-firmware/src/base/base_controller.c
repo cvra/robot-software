@@ -80,14 +80,6 @@ void robot_init(void)
     // Distance window, angle window, angle start
     trajectory_set_windows(&robot.traj, 15., 1., 1.);
 
-    trajectory_set_acc(&robot.traj,
-            acc_mm2imp(&robot.traj, 300.),
-            acc_rd2imp(&robot.traj, 3.));
-
-    trajectory_set_speed(&robot.traj,
-            speed_mm2imp(&robot.traj, 200.),
-            speed_rd2imp(&robot.traj, 3.));
-
     /* Initialize blocking detection managers */
     bd_init(&robot.angle_bd, &robot.angle_cs);
     bd_init(&robot.distance_bd, &robot.distance_cs);
