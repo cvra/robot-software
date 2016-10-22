@@ -19,7 +19,7 @@ enum strat_color_t {
 
 /** Compute the symmetrical position depending on color
  */
-#define MIRROR_Y(color, y) (color == YELLOW ? (y) : 2000 - (y))
+#define MIRROR_X(color, x) (color == YELLOW ? (x) : 3000 - (x))
 
 /** Compute the symmetrical angle depending on color
  */
