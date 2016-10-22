@@ -100,8 +100,8 @@ void robot_init(void)
     bd_set_thresholds(&robot.distance_bd, 15000, 1); // thresold, duration
 
     // Setup map
-    const int robot_size = 150;
-    polygon_set_boundingbox(robot_size, robot_size, 3000-robot_size, 2000-robot_size);
+    polygon_set_boundingbox(ROBOT_SIZE_X_MM/2, ROBOT_SIZE_X_MM/2,
+                            3000 - ROBOT_SIZE_X_MM/2, 2000 - ROBOT_SIZE_X_MM/2);
 
     /* Initialise obstacle avoidance */
     oa_init();
