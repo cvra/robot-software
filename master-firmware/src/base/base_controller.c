@@ -78,10 +78,7 @@ void robot_init(void)
     trajectory_set_robot_params(&robot.traj, &robot.rs, &robot.pos);
 
     // Distance window, angle window, angle start
-    trajectory_set_windows(&robot.traj,
-            pos_mm2imp(&robot.traj, 10.),
-            pos_rd2imp(&robot.traj, 0.1),
-            pos_rd2imp(&robot.traj, 0.3));
+    trajectory_set_windows(&robot.traj, 15., 1., 1.);
 
     trajectory_set_acc(&robot.traj,
             acc_mm2imp(&robot.traj, 300.),
