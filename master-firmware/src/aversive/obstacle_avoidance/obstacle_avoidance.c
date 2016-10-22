@@ -167,8 +167,8 @@ void oa_poly_set_point(poly_t *pol,
 
 int oa_get_path(point_t **path)
 {
-	*path = oa.u.res;
-	return oa.u.res_len;
+	*path = oa.res;
+	return oa.res_len;
 }
 
 void oa_dump(void)
@@ -247,18 +247,18 @@ dijkstra(uint8_t start_p, uint8_t start)
 					 * i-2 pos */
 					add = -add;
 
-					if (start_p != oa.u.rays[i] || start != oa.u.rays[i+1])
+					if (start_p != oa.rays[i] || start != oa.rays[i+1])
 						continue;
 
-					if ((oa.pweight[GET_PT(oa.polys[oa.u.rays[i+add]].pts[oa.u.rays[i+add+1]])] != 0) &&
+					if ((oa.pweight[GET_PT(oa.polys[oa.rays[i+add]].pts[oa.rays[i+add+1]])] != 0) &&
 					    (oa.pweight[GET_PT(oa.polys[start_p].pts[start])]+oa.weight[i/4] >=
-					     oa.pweight[GET_PT(oa.polys[oa.u.rays[i+add]].pts[oa.u.rays[i+add+1]])]))
+					     oa.pweight[GET_PT(oa.polys[oa.rays[i+add]].pts[oa.rays[i+add+1]])]))
 						continue;
 
-					oa.p[GET_PT(oa.polys[oa.u.rays[i+add]].pts[oa.u.rays[i+add+1]])] = start_p;
-					oa.pt[GET_PT(oa.polys[oa.u.rays[i+add]].pts[oa.u.rays[i+add+1]])] = start;
-					oa.valid[GET_PT(oa.polys[oa.u.rays[i+add]].pts[oa.u.rays[i+add+1]])]=2;
-					oa.pweight[GET_PT(oa.polys[oa.u.rays[i+add]].pts[oa.u.rays[i+add+1]])] =
+					oa.p[GET_PT(oa.polys[oa.rays[i+add]].pts[oa.rays[i+add+1]])] = start_p;
+					oa.pt[GET_PT(oa.polys[oa.rays[i+add]].pts[oa.rays[i+add+1]])] = start;
+					oa.valid[GET_PT(oa.polys[oa.rays[i+add]].pts[oa.rays[i+add+1]])]=2;
+					oa.pweight[GET_PT(oa.polys[oa.rays[i+add]].pts[oa.rays[i+add+1]])] =
 						oa.pweight[GET_PT(oa.polys[start_p].pts[start])]+oa.weight[i/4];
 
 					oa.valid[GET_PT(oa.polys[start_p].pts[start])] = 1;
@@ -270,9 +270,9 @@ dijkstra(uint8_t start_p, uint8_t start)
 
 					      oa.weight[i/4],
 
-					      oa.polys[oa.u.rays[i+add]].pts[oa.u.rays[i+add+1]].x,
-					      oa.polys[oa.u.rays[i+add]].pts[oa.u.rays[i+add+1]].y,
-					      oa.pweight[GET_PT(oa.polys[oa.u.rays[i+add]].pts[oa.u.rays[i+add+1]])]
+					      oa.polys[oa.rays[i+add]].pts[oa.rays[i+add+1]].x,
+					      oa.polys[oa.rays[i+add]].pts[oa.rays[i+add+1]].y,
+					      oa.pweight[GET_PT(oa.polys[oa.rays[i+add]].pts[oa.rays[i+add+1]])]
 					      );
 				}
 			}
@@ -304,9 +304,9 @@ int8_t get_path(poly_t *polys) {
 		p1 = oa.p[GET_PT(polys[p].pts[pt])];
 		pt1 =  oa.pt[GET_PT(polys[p].pts[pt])];
 		p = p1; pt = pt1;
-		oa.u.res[i].x = polys[p].pts[pt].x;
-		oa.u.res[i].y = polys[p].pts[pt].y;
-		DEBUG_OA_PRINTF( "result[%d]: %2.0f, %2.0f\r", i, oa.u.res[i].x, oa.u.res[i].y);
+		oa.res[i].x = polys[p].pts[pt].x;
+		oa.res[i].y = polys[p].pts[pt].y;
+		DEBUG_OA_PRINTF( "result[%d]: %2.0f, %2.0f\r", i, oa.res[i].x, oa.res[i].y);
 		i++;
 	}
 
@@ -320,25 +320,25 @@ oa_process(void)
 	uint8_t i;
 
 	/* First we compute the visibility graph */
-	ret = calc_rays(oa.polys, oa.cur_poly_idx, oa.u.rays);
-	DEBUG_OA_PRINTF("nbR%d\r", ret);
+	ret = calc_rays(oa.polys, oa.cur_poly_idx, oa.rays);
+	DEBUG_OA_PRINTF("%s: %d rays\r", __FUNCTION__, ret);
 
 	DEBUG_OA_PRINTF("Ray list\r");
 	for (i=0;i<ret;i+=4) {
-		DEBUG_OA_PRINTF("%d,%d -> %d,%d\r", oa.u.rays[i], oa.u.rays[i+1], oa.u.rays[i+2], oa.u.rays[i+3]);
+		DEBUG_OA_PRINTF("%d,%d -> %d,%d\r", oa.rays[i], oa.rays[i+1], oa.rays[i+2], oa.rays[i+3]);
 	}
 
 	/* Then we affect the rays lengths to their weights */
 	calc_rays_weight(oa.polys, oa.cur_poly_idx,
-			 oa.u.rays, ret, oa.weight);
+			 oa.rays, ret, oa.weight);
 
 	DEBUG_OA_PRINTF("Ray weights:\r");
 	for (i=0;i<ret;i+=4) {
 		DEBUG_OA_PRINTF("%d,%d->%d,%d (%d)\r",
-		       (int)oa.polys[oa.u.rays[i]].pts[oa.u.rays[i+1]].x,
-		       (int)oa.polys[oa.u.rays[i]].pts[oa.u.rays[i+1]].y,
-		       (int)oa.polys[oa.u.rays[i+2]].pts[oa.u.rays[i+3]].x,
-		       (int)oa.polys[oa.u.rays[i+2]].pts[oa.u.rays[i+3]].y,
+		       (int)oa.polys[oa.rays[i]].pts[oa.rays[i+1]].x,
+		       (int)oa.polys[oa.rays[i]].pts[oa.rays[i+1]].y,
+		       (int)oa.polys[oa.rays[i+2]].pts[oa.rays[i+3]].x,
+		       (int)oa.polys[oa.rays[i+2]].pts[oa.rays[i+3]].y,
 		       oa.weight[i/4]);
 	}
 
@@ -350,6 +350,6 @@ oa_process(void)
 
 	/* As dijkstra sets the parent points in the resulting graph,
 	 * we can backtrack the solution path. */
-	oa.u.res_len = get_path(oa.polys);
-	return oa.u.res_len;
+	oa.res_len = get_path(oa.polys);
+	return oa.res_len;
 }

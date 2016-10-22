@@ -106,11 +106,9 @@ struct obstacle_avoidance {
 	uint8_t cur_pt_idx; /**< Index of the current point in the current polygon. */
 
 	uint16_t weight[MAX_RAYS]; /**< Length of each ray. */
-	union {
-		uint8_t rays[MAX_RAYS*2]; /**< All valid rays given by Dijkstra. */
-		point_t res[MAX_CHKPOINTS]; /**< Resulting path. */
-        int res_len; /** Path length */
-	} u; /**< Contains the intermediate results or the final result. */
+    uint8_t rays[MAX_RAYS*2]; /**< All valid rays given by Dijkstra. */
+    point_t res[MAX_CHKPOINTS]; /**< Resulting path. */
+    int res_len; /** Path length */
 };
 
 /** Reset obstacle avoidance without cleaning points */
