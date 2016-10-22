@@ -1,9 +1,24 @@
 #include "position_manager/position_manager.h"
 #include "trajectory_manager/trajectory_manager_utils.h"
 #include "blocking_detection_manager/blocking_detection_manager.h"
+#include "obstacle_avoidance/obstacle_avoidance.h"
 #include "trajectory_helpers.h"
 
 #include "strategy_helpers.h"
+
+void strategy_map_setup(int32_t robot_size)
+{
+    /* Define table borders */
+    polygon_set_boundingbox(robot_size/2, robot_size/2,
+                            3000 - robot_size/2, 2000 - robot_size/2);
+
+    /* Add obstacles */
+    poly_t *obstacle = oa_new_poly(4);
+    oa_poly_set_point(obstacle, 500, 400, 0);
+    oa_poly_set_point(obstacle, 500, 700, 1);
+    oa_poly_set_point(obstacle, 800, 700, 2);
+    oa_poly_set_point(obstacle, 800, 400, 3);
+}
 
 void strategy_auto_position(
         int32_t x, int32_t y, int32_t heading, int32_t robot_size,

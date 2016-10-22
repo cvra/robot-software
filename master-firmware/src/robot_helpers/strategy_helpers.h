@@ -25,6 +25,8 @@ enum strat_color_t {
  */
 #define MIRROR_A(color, a) (color == YELLOW ? (a) : -(a))
 
+/** Initialize map with obstacles */
+void strategy_map_setup(int32_t robot_size);
 
 /** Auto position robot at requested location, and ensure the correct
  *  position is reached by aligning against walls.

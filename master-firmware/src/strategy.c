@@ -41,6 +41,10 @@ void strategy_play_game(void* _robot)
     struct _robot* robot = (struct _robot*)_robot;
     enum strat_color_t color = YELLOW;
 
+    /* Initialize map and path planner */
+    oa_init();
+    strategy_map_setup(ROBOT_SIZE_X_MM);
+
     /* Autoposition robot */
     wait_for_autoposition_signal();
     log_message("Positioning robot\n");
@@ -49,13 +53,6 @@ void strategy_play_game(void* _robot)
         &robot->mode, &robot->traj, &robot->pos,
         &robot->distance_bd, &robot->angle_bd);
     log_message("Robot positioned at x: %d[mm], y: %d[mm], a: %d[deg]\n", 900, 200, 90);
-
-    /* Add obstacles */
-    poly_t *obstacle = oa_new_poly(4);
-    oa_poly_set_point(obstacle, 500, 400, 0);
-    oa_poly_set_point(obstacle, 500, 700, 1);
-    oa_poly_set_point(obstacle, 800, 700, 2);
-    oa_poly_set_point(obstacle, 800, 400, 3);
 
     /* Wait for starter to begin */
     wait_for_starter();

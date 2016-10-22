@@ -10,7 +10,6 @@
 #include "trajectory_manager/trajectory_manager.h"
 #include "trajectory_manager/trajectory_manager_utils.h"
 #include "trajectory_manager/trajectory_manager_core.h"
-#include "obstacle_avoidance/obstacle_avoidance.h"
 
 #include "base_controller.h"
 
@@ -83,13 +82,6 @@ void robot_init(void)
     /* Initialize blocking detection managers */
     bd_init(&robot.angle_bd, &robot.angle_cs);
     bd_init(&robot.distance_bd, &robot.distance_cs);
-
-    // Setup map
-    polygon_set_boundingbox(ROBOT_SIZE_X_MM/2, ROBOT_SIZE_X_MM/2,
-                            3000 - ROBOT_SIZE_X_MM/2, 2000 - ROBOT_SIZE_X_MM/2);
-
-    /* Initialise obstacle avoidance */
-    oa_init();
 }
 
 
