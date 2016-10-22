@@ -102,9 +102,6 @@ void robot_init(void)
 
     /* Initialise obstacle avoidance */
     oa_init();
-
-    // Position initialisation
-    position_set(&robot.pos, 900, 500, 90);
 }
 
 
