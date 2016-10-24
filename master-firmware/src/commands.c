@@ -360,16 +360,15 @@ static void cmd_pathplanner(BaseSequentialStream *chp, int argc, char *argv[])
 
         add_rectangular_obstacle(750, 1150, 350, 200);
 
-        /* Request a path to the planner */
-        point_t *p;
-
-        /* Sets starting and ending point of the path. */
+        /* Compute a path */
+        oa_reset();
         oa_start_end_points(
             position_get_x_s16(&robot.pos), position_get_x_s16(&robot.pos),
             x, y);
-
-        /* Computes the path */
         oa_process();
+
+        /* Fetch the computed path */
+        point_t *p;
         int len = oa_get_path(&p);
         chprintf(chp, "Found path of length %d\r\n", len);
 
