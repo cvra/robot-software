@@ -34,14 +34,14 @@ void strategy_auto_position(
 
     /* Go backwards until we hit the wall and reset position */
     trajectory_align_with_wall(robot_mode, robot_traj, robot_distance_blocking, robot_angle_blocking);
-    position_set(robot_pos, MIRROR_X(robot_color, robot_size/2), 0, MIRROR_A(robot_color, 0));
+    position_set(robot_pos, MIRROR_X(robot_color, robot_size/2), 0, 0);
 
     /* On se mets a la bonne position en x. */
     trajectory_d_rel(robot_traj, (double)(x - robot_size/2));
     trajectory_wait_for_finish(robot_traj);
 
     /* On se tourne face a la paroi en Y. */
-    trajectory_only_a_abs(robot_traj, MIRROR_A(robot_color, 90));
+    trajectory_only_a_abs(robot_traj, 90);
     trajectory_wait_for_finish(robot_traj);
 
     /* On recule jusqu'a avoir touche le bord. */

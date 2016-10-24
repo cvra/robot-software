@@ -21,10 +21,6 @@ enum strat_color_t {
  */
 #define MIRROR_X(color, x) (color == YELLOW ? (x) : 3000 - (x))
 
-/** Compute the symmetrical angle depending on color
- */
-#define MIRROR_A(color, a) (color == YELLOW ? (a) : -(a))
-
 /** Initialize map with obstacles */
 void strategy_map_setup(int32_t robot_size);
 
