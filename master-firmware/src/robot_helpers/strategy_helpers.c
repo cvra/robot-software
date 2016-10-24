@@ -14,10 +14,10 @@ void strategy_map_setup(int32_t robot_size)
 
     /* Add obstacles */
     poly_t *obstacle = oa_new_poly(4);
-    oa_poly_set_point(obstacle, 500, 400, 0);
-    oa_poly_set_point(obstacle, 500, 700, 1);
-    oa_poly_set_point(obstacle, 800, 700, 2);
-    oa_poly_set_point(obstacle, 800, 400, 3);
+    oa_poly_set_point(obstacle, 450, 350, 0);
+    oa_poly_set_point(obstacle, 450, 750, 1);
+    oa_poly_set_point(obstacle, 850, 750, 2);
+    oa_poly_set_point(obstacle, 850, 350, 3);
 }
 
 void strategy_auto_position(
