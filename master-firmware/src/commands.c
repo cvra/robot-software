@@ -284,9 +284,9 @@ static void cmd_position_reset(BaseSequentialStream *chp, int argc, char *argv[]
 
         position_set(&robot.pos, x, y, a);
 
-        chprintf(chp, "New pos x: %f [mm]\r\ny: %f [mm]\r\na: %f [rad]\r\n", x, y, a);
+        chprintf(chp, "New pos x: %f [mm]\r\ny: %f [mm]\r\na: %f [deg]\r\n", x, y, a);
     } else {
-        chprintf(chp, "Usage: pos_reset x[mm] y[mm] a[rad]\r\n");
+        chprintf(chp, "Usage: pos_reset x[mm] y[mm] a[deg]\r\n");
     }
 }
 
