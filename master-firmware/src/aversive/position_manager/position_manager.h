@@ -144,7 +144,6 @@ struct robot_position
 #ifdef CONFIG_MODULE_COMPENSATE_CENTRIFUGAL_FORCE
     double centrifugal_coef;            /**< Coefficient for the centrifugal computation */
 #endif
-    semaphore_t lock;                   /**< Lock to prevent concurrent access. */
 };
 
 
