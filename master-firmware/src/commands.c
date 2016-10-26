@@ -6,7 +6,6 @@
 #include <string.h>
 #include "rpc_server.h"
 #include "config.h"
-#include "interface_panel.h"
 #include "commands.h"
 #include "panic_log.h"
 #include "unix_timestamp.h"

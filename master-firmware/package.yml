@@ -24,7 +24,6 @@ target.arm:
     - src/comm/msg_callbacks.c
     - src/comm/stream.c
     - src/config.c
-    - src/interface_panel.c
     - src/can/uavcan_node.cpp
     - src/can/motor_driver.c
     - src/can/motor_driver_uavcan.cpp

@@ -21,7 +21,6 @@
 #include "config.h"
 #include <parameter/parameter_msgpack.h>
 #include <cmp_mem_access/cmp_mem_access.h>
-#include "interface_panel.h"
 #include "robot_parameters.h"
 #include "motor_manager.h"
 #include "stream.h"
@@ -223,7 +222,6 @@ int main(void) {
     uavcan_node_start(10);
     rpc_server_init();
     message_server_init();
-    interface_panel_init();
 
     init_base_motors();
     config_load_from_flash();
