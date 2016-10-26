@@ -274,7 +274,7 @@ src/config_msgpack.c: ../config/config.yaml
 
 .PHONY: heap_size
 heap_size: build/$(PROJECT).elf
-	@../python/heap_size.py build/$(PROJECT).elf
+	@../tools/heap_size.py build/$(PROJECT).elf
 
 all: heap_size mem_info
 
