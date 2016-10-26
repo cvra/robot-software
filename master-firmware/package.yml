@@ -82,6 +82,7 @@ tests:
     - tests/obstacle_avoidance.cpp
     - src/trace/tests/trace_test.cpp
     - src/trace/tests/trace_points.c
+    - tests/trajectory_manager_test.cpp
 
 templates:
     app_src.mk.jinja: app_src.mk
