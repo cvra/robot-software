@@ -36,16 +36,15 @@
  * It will typically be used as a consign filter in a control system to avoid
  * sudden movements.
  */
-struct quadramp_filter
-{
-	double var_2nd_ord_pos; /**< Acceleration */
-	double var_2nd_ord_neg; /**< Deceleration */
-	double var_1st_ord_pos; /**< Speed (> 0) */
-	double var_1st_ord_neg; /**< Speed (< 0) */
+struct quadramp_filter {
+    double var_2nd_ord_pos; /**< Acceleration */
+    double var_2nd_ord_neg; /**< Deceleration */
+    double var_1st_ord_pos; /**< Speed (> 0) */
+    double var_1st_ord_neg; /**< Speed (< 0) */
 
-	double previous_var; /**< Speed at the previous filter iteration. */
-	double previous_out; /**< Position at the previous filter iteration. */
-	int32_t previous_in; /**< Input at the previous filter iteration. */
+    double previous_var; /**< Speed at the previous filter iteration. */
+    double previous_out; /**< Position at the previous filter iteration. */
+    int32_t previous_in; /**< Input at the previous filter iteration. */
 };
 
 /** Initialization of the filter.
@@ -53,32 +52,32 @@ struct quadramp_filter
  */
 void quadramp_init(struct quadramp_filter *q);
 
-/** Resets the filter output to zero and stops any ramp. 
+/** Resets the filter output to zero and stops any ramp.
  * @param [in] q The quadramp instance.
  */
 void quadramp_reset(struct quadramp_filter *q);
 
-/**@brief Set acceleration. 
+/**@brief Set acceleration.
  * @param [in] q The quadramp instance.
  * @param [in] var_2nd_ord_pos The positive acceleration.
  * @param [in] var_2nd_ord_neg The negative acceleration.
  */
 void quadramp_set_2nd_order_vars(struct quadramp_filter *q,
-				 double var_2nd_ord_pos,
-				 double var_2nd_ord_neg);
+                                 double var_2nd_ord_pos,
+                                 double var_2nd_ord_neg);
 
-/**@brief Set speed. 
+/**@brief Set speed.
  * @param [in] q The quadramp instance.
  * @param [in] var_1st_ord_pos The positive speed.
  * @param [in] var_1st_ord_neg The negative speed.
  */
 void quadramp_set_1st_order_vars(struct quadramp_filter *q,
-				 double var_1st_ord_pos,
-				 double var_1st_ord_neg);
+                                 double var_1st_ord_pos,
+                                 double var_1st_ord_neg);
 
 /** @brief Set position.
  *
- * Forces the new position and sets the speed to zero. 
+ * Forces the new position and sets the speed to zero.
  * @param [in] q The quadramp instance.
  * @param [in] pos The new position.
  */

@@ -30,7 +30,7 @@
  *   flags : what to update (UPDATE_A, UPDATE_D)
  */
 void __trajectory_goto_d_a_rel(struct trajectory *traj, double d_mm,
-			       double a_rad, uint8_t state, uint8_t flags);
+                               double a_rad, uint8_t state, uint8_t flags);
 
 /** go straight forward (d is in mm) */
 void trajectory_d_rel(struct trajectory *traj, double d_mm);
@@ -140,6 +140,6 @@ void trajectory_manager_thd(void * param);
  * background.
  */
 int8_t trajectory_clitoid(struct trajectory *traj,
-			  double x, double y, double a, double advance,
-			  double alpha_deg, double beta_deg, double R_mm,
-			  double d_inter_mm);
+                          double x, double y, double a, double advance,
+                          double alpha_deg, double beta_deg, double R_mm,
+                          double d_inter_mm);

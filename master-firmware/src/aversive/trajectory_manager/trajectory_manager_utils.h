@@ -26,7 +26,7 @@
 
 #include <trajectory_manager/trajectory_manager.h>
 
-#define M_2PI (2*M_PI)
+#define M_2PI (2 * M_PI)
 
 #define DEG(x) ((x) * (180.0 / M_PI))
 #define RAD(x) ((x) * (M_PI / 180.0))

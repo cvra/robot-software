@@ -34,7 +34,7 @@ void position_init(struct robot_position *pos)
 /** Set a new robot position */
 void position_set(struct robot_position *pos, int16_t x, int16_t y, double a_deg)
 {
-    pos->pos_d.a = (a_deg * M_PI)/ 180.0;
+    pos->pos_d.a = (a_deg * M_PI) / 180.0;
     pos->pos_d.x = x;
     pos->pos_d.y = y;
     pos->pos_s16.x = x;
@@ -65,7 +65,7 @@ void position_set_related_robot_system(struct robot_position *pos, struct robot_
  *  - number of impulsions for 1 degree (angle)
  */
 void position_set_physical_params(struct robot_position *pos, double track_mm,
-                  double distance_imp_per_mm)
+                                  double distance_imp_per_mm)
 {
     pos->phys.track_mm = track_mm;
     pos->phys.distance_imp_per_mm = distance_imp_per_mm;
@@ -109,15 +109,15 @@ void position_manage(struct robot_position *pos)
 
     rs = pos->rs;
     /* here we could raise an error */
-    if (rs == NULL)
+    if (rs == NULL) {
         return;
+    }
 
 #ifdef CONFIG_MODULE_ROBOT_SYSTEM_MOT_AND_EXT
     if (pos->use_ext) {
         encoders.distance = rs_get_ext_distance(rs);
         encoders.angle = rs_get_ext_angle(rs);
-    }
-    else {
+    } else   {
         encoders.distance = rs_get_mot_distance(rs);
         encoders.angle = rs_get_mot_angle(rs);
     }
@@ -137,33 +137,33 @@ void position_manage(struct robot_position *pos)
     x = pos->pos_d.x;
     y = pos->pos_d.y;
 
-    if (delta.angle==0) {
+    if (delta.angle == 0) {
         /* we go straight */
-        dx = cos(a) * ((double) delta.distance / (pos->phys.distance_imp_per_mm)) ;
-        dy = sin(a) * ((double) delta.distance / (pos->phys.distance_imp_per_mm)) ;
+        dx = cos(a) * ((double) delta.distance / (pos->phys.distance_imp_per_mm));
+        dy = sin(a) * ((double) delta.distance / (pos->phys.distance_imp_per_mm));
         x += dx;
         y += dy;
-    }
-    else {
+    } else   {
         /* r the radius of the circle arc */
         r = (double)delta.distance * pos->phys.track_mm / ((double) delta.angle * 2);
         arc_angle = 2 * (double) delta.angle / (pos->phys.track_mm * pos->phys.distance_imp_per_mm);
 
-        dx = r * (-sin(a) + sin(a+arc_angle));
-        dy = r * (cos(a) - cos(a+arc_angle));
+        dx = r * (-sin(a) + sin(a + arc_angle));
+        dy = r * (cos(a) - cos(a + arc_angle));
 
         x += dx;
         y += dy;
         a += arc_angle;
 
-        if (a < -M_PI)
-            a += (M_PI*2);
-        else if (a > (M_PI))
-            a -= (M_PI*2);
+        if (a < -M_PI) {
+            a += (M_PI * 2);
+        } else if (a > (M_PI)) {
+            a -= (M_PI * 2);
+        }
 
 #ifdef CONFIG_MODULE_COMPENSATE_CENTRIFUGAL_FORCE
         /* This part compensate the centrifugal force when we
-         * turn very quickly. Idea is from Gargamel (RCVA). */
+        * turn very quickly. Idea is from Gargamel (RCVA). */
         if (pos->centrifugal_coef && r != 0) {
             double k;
 
@@ -192,7 +192,7 @@ void position_manage(struct robot_position *pos)
     /* update int position */
     x_s16 = (int16_t)x;
     y_s16 = (int16_t)y;
-    a_s16 = (int16_t)(a * (360.0/(M_PI*2)));
+    a_s16 = (int16_t)(a * (360.0 / (M_PI * 2)));
 
     pos->pos_d.a = a;
     pos->pos_d.x = x;
@@ -275,4 +275,3 @@ float position_get_a_rad_float(struct robot_position *pos)
 {
     return (float)(pos->pos_d.a);
 }
-

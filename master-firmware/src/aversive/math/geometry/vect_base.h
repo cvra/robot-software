@@ -31,16 +31,16 @@
  * @sa _point_t
  */
 typedef struct _vect_t {
-  float x;  /**< x-coordinate */
-  float y;  /**< y-coordinate */
+    float x; /**< x-coordinate */
+    float y; /**< y-coordinate */
 } vect_t;
 
 /** A 2D-point
  * @sa _vect_t
  */
 typedef struct _point_t {
-  float x;  /**< x-coordinate */
-  float y;  /**< y-coordinate */
+    float x; /**< x-coordinate */
+    float y; /**< y-coordinate */
 } point_t;
 
 /** Computes dot product between 2 vectors.
@@ -72,12 +72,12 @@ int8_t vect_pscal_sign(vect_t *v, vect_t *w);
 int8_t vect_pvect_sign(vect_t *v, vect_t *w);
 
 /** Computes the norm of a vector, given the raw coordinates of a start and an end point.
- * @param [in] x1 x-coordinate of the start point 
+ * @param [in] x1 x-coordinate of the start point
  * @param [in] y1 y-coordinate of the start point
- * @param [in] x2 x-coordinate of the end point 
+ * @param [in] x2 x-coordinate of the end point
  * @param [in] y2 y-coordinate of the end point
  * @return Norm of the vector
- */ 
+ */
 float xy_norm(float x1, float y1, float x2, float y2);
 
 /** Computes the norm of a vector, given the start and end points.
@@ -105,7 +105,7 @@ void vect_rot_retro(vect_t *v);
 
 /** Returns the angle between two vectors.
  * @param [in] *v Fist vector
- * @param [in] *w Second vector 
+ * @param [in] *w Second vector
  * @return Angle in radian
  */
 float vect_get_angle(vect_t *v, vect_t *w);

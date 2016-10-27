@@ -30,59 +30,59 @@ struct error_fct g_error_fct;
 /** All fcts pointers to NULL */
 void error_init(void)
 {
-	memset(&g_error_fct, 0, sizeof(g_error_fct));
+    memset(&g_error_fct, 0, sizeof(g_error_fct));
 }
 
 
 struct error error_generate(uint8_t num, uint8_t severity, const char * t,
-			    const char * f, uint16_t l) {
-	struct error e;
+                            const char * f, uint16_t l)
+{
+    struct error e;
 
-	e.err_num = num;
-	e.severity = severity;
+    e.err_num = num;
+    e.severity = severity;
 #ifdef ERROR_DUMP_TEXTLOG
-	e.text = t;
+    e.text = t;
 #else
-	e.text = PSTR("");
+    e.text = PSTR("");
 #endif
 #ifdef ERROR_DUMP_FILE_LINE
-	e.file = f;
-	e.line = l;
+    e.file = f;
+    e.line = l;
 #else
-	e.file = PSTR("");
-	e.line = 0;
+    e.file = PSTR("");
+    e.line = 0;
 #endif
-	return e;
+    return e;
 }
 
 
 /** Register log function for EMERG level */
 void error_register_emerg(void (*f)(struct error *, ...))
 {
-	g_error_fct.emerg = f;
+    g_error_fct.emerg = f;
 }
 
 /** Register log function for ERROR level */
 void error_register_error(void (*f)(struct error *, ...))
 {
-	g_error_fct.error = f;
+    g_error_fct.error = f;
 }
 
 /** Register log function for WARNING level */
 void error_register_warning(void (*f)(struct error *, ...))
 {
-	g_error_fct.warning = f;
+    g_error_fct.warning = f;
 }
 
 /** Register log function for NOTICE level */
 void error_register_notice(void (*f)(struct error *, ...))
 {
-	g_error_fct.notice = f;
+    g_error_fct.notice = f;
 }
 
 /** Register log function for DEBUG level */
 void error_register_debug(void (*f)(struct error *, ...))
 {
-	g_error_fct.debug = f;
+    g_error_fct.debug = f;
 }
-

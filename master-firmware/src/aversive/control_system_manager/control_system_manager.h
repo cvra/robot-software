@@ -63,8 +63,8 @@ void cs_init(struct cs* cs);
  * @param [in] *consign_filter_params The first parameter of consign_filter.
  */
 void cs_set_consign_filter(struct cs* cs,
-                                  int32_t (*consign_filter)(void*, int32_t),
-                                  void* consign_filter_params);
+                           int32_t (*consign_filter)(void*, int32_t),
+                           void* consign_filter_params);
 
 /** Set the cs correct_filter fields in the cs structure.
  * @param [in] cs A cs structure instance.
@@ -73,8 +73,8 @@ void cs_set_consign_filter(struct cs* cs,
  *
  */
 void  cs_set_correct_filter(struct cs* cs,
-                                   int32_t (*correct_filter)(void*, int32_t),
-                                   void* correct_filer_params);
+                            int32_t (*correct_filter)(void*, int32_t),
+                            void* correct_filer_params);
 
 /** Set the cs feedback_filter fields in the cs structure.
  * @param [in] cs A cs structure instance.
@@ -82,8 +82,8 @@ void  cs_set_correct_filter(struct cs* cs,
  * @param [in] *feedback_filer_params The first parameter of feedback_filter.
  */
 void  cs_set_feedback_filter(struct cs* cs,
-                                    int32_t (*feedback_filter)(void*, int32_t),
-                                    void* feedback_filer_params);
+                             int32_t (*feedback_filter)(void*, int32_t),
+                             void* feedback_filer_params);
 
 /** Set the cs output_filter fields in the cs structure.
  * @param [in] cs A cs structure instance.
@@ -91,8 +91,8 @@ void  cs_set_feedback_filter(struct cs* cs,
  * @param [in] *output_filter_params The first parameter of output_filter.
  */
 void  cs_set_output_filter(struct cs* cs,
-                                    int32_t (*output_filter)(void*, int32_t),
-                                    void* output_filer_params);
+                           int32_t (*output_filter)(void*, int32_t),
+                           void* output_filer_params);
 
 /** Set the cs process_in fields in the cs structure.
  * @param [in] cs A cs structure instance.
@@ -100,8 +100,8 @@ void  cs_set_output_filter(struct cs* cs,
  * @param [in] *process_in_params The first argument of process_in.
  */
 void cs_set_process_in(struct cs* cs,
-                              void (*process_in)(void*, int32_t),
-                              void* process_in_params);
+                       void (*process_in)(void*, int32_t),
+                       void* process_in_params);
 
 /** Set the cs process_out fields in the cs structure.
  * @param [in] cs A cs structure instance.
@@ -109,8 +109,8 @@ void cs_set_process_in(struct cs* cs,
  * @param [in] *process_out_params The first argument of process_out.
  */
 void cs_set_process_out(struct cs* cs,
-                               int32_t (*process_out)(void*),
-                               void* process_out_params);
+                        int32_t (*process_out)(void*),
+                        void* process_out_params);
 
 
 /** \brief This function do the main loop of the control system process.

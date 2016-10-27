@@ -1,6 +1,6 @@
-/*  
+/*
  *  Copyright Droids Corporation, Microb Technology, Eirbot (2005)
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -20,13 +20,13 @@
  */
 
 /** \file vect2.h
-* \brief Interface for the 2 dimensional vector module.
-* \author JD & Vincent
-* \version 2.0
-* \date 21.12.2005 @ 23:09
-*
-* This module provides functions to handle 2d vectors and basic geometry fucntions.
-*/
+ * \brief Interface for the 2 dimensional vector module.
+ * \author JD & Vincent
+ * \version 2.0
+ * \date 21.12.2005 @ 23:09
+ *
+ * This module provides functions to handle 2d vectors and basic geometry fucntions.
+ */
 
 /** \addtogroup Vect2D
  * This module manages 2D vectors.
@@ -39,145 +39,143 @@
 /** \brief Definition of reals used in vector 2d */
 typedef float Real;
 
-#define TO_RAD(x) (((Real)x)*(0.01745329251994329577f)) /**< Convert degrees to radian (* pi / 180) */
-#define TO_DEG(x) (((Real)x)*(57.2957795130823208768f)) /**< Convert radian to degrees (* 180 / pi) */
+#define TO_RAD(x) (((Real)x) * (0.01745329251994329577f)) /**< Convert degrees to radian (* pi / 180) */
+#define TO_DEG(x) (((Real)x) * (57.2957795130823208768f)) /**< Convert radian to degrees (* 180 / pi) */
 
 /** \brief Cartesian vector structure
 **/
-typedef struct _vect2_cart
-{
-   Real x;      /**< x-coordinate */
-   Real y;      /**< y-coordinate */
-   
-}vect2_cart;
+typedef struct _vect2_cart {
+    Real x;     /**< x-coordinate */
+    Real y;     /**< y-coordinate */
+
+} vect2_cart;
 
 
 /** \brief Polar vector structure
 **/
-typedef struct _vect2_pol
-{
-   Real r;      /**< Radius */
-   Real theta;  /**< Angle */
-   
-}vect2_pol;
+typedef struct _vect2_pol {
+    Real r;     /**< Radius */
+    Real theta; /**< Angle */
+
+} vect2_pol;
 
 /************************ Begin prototyping ************************/
 
 
 
 /** \brief Convert a polar vector to a cartesian one
-* \param vp reference to target polar vector to convert from.
-* \param vc reference to target cartesian vector where the function write.
-* \warning This function doesn't do any malloc ! You have to allocate structures before calling this function.
-*
-**/
+ * \param vp reference to target polar vector to convert from.
+ * \param vc reference to target cartesian vector where the function write.
+ * \warning This function doesn't do any malloc ! You have to allocate structures before calling this function.
+ *
+ **/
 void vect2_pol2cart(vect2_pol* vp, vect2_cart* vc);
 
 
 /** \brief Convert a cartesian vector to a polar one
-* \param vc reference to target cartesian vector to convert from.
-* \param vp reference to target polar vector where the function write the result.
-* \warning This function doesn't do any malloc ! You have to allocate structures before calling this function.
-*
-**/
+ * \param vc reference to target cartesian vector to convert from.
+ * \param vp reference to target polar vector where the function write the result.
+ * \warning This function doesn't do any malloc ! You have to allocate structures before calling this function.
+ *
+ **/
 void vect2_cart2pol(vect2_cart* vc, vect2_pol* vp);
 
 
 /** \brief Add 2 polar vectors and return the result
-* \param v1 Reference to a polar vector to sum.
-* \param v2 Reference to a polar vector to sum.
-* \param vresult Reference to a polar vector to store the result.
-* \warning This function doesn't do any malloc ! You have to allocate structures before calling this function.
-* \note This function convert the 2 entry vectors to cartesian, sum them and then convert the result to polar.
-* So please think before using it.
-*
-* \f[ \vec V_{result} = \vec V_1 + \vec V_2 \f]
-**/
+ * \param v1 Reference to a polar vector to sum.
+ * \param v2 Reference to a polar vector to sum.
+ * \param vresult Reference to a polar vector to store the result.
+ * \warning This function doesn't do any malloc ! You have to allocate structures before calling this function.
+ * \note This function convert the 2 entry vectors to cartesian, sum them and then convert the result to polar.
+ * So please think before using it.
+ *
+ * \f[ \vec V_{result} = \vec V_1 + \vec V_2 \f]
+ **/
 void vect2_add_pol(vect2_pol* v1, vect2_pol* v2, vect2_pol* vresult);
 
 
 /** \brief Add 2 cartesian vectors and return the result
-* \param v1 Reference to a cartesian vector to sum.
-* \param v2 Reference to a cartesian vector to sum.
-* \param vresult Reference to a polar vector to store the result.
-* \warning This function doesn't do any malloc ! You have to allocate structures before calling this function.
-*
-* \f[ \vec V_{result} = \vec V_1 + \vec V_2 \f]
-**/
+ * \param v1 Reference to a cartesian vector to sum.
+ * \param v2 Reference to a cartesian vector to sum.
+ * \param vresult Reference to a polar vector to store the result.
+ * \warning This function doesn't do any malloc ! You have to allocate structures before calling this function.
+ *
+ * \f[ \vec V_{result} = \vec V_1 + \vec V_2 \f]
+ **/
 void vect2_add_cart(vect2_cart* v1, vect2_cart* v2, vect2_cart* vresult);
 
 
 /** \brief Substract 2 polar vectors and return the result
-* \param v1 Reference to a polar vector to substract.
-* \param v2 Reference to a polar vector to substract.
-* \param vresult Reference to a polar vector to store the result.
-* \warning This function doesn't do any 
-	Real R = 1.45064930529587234;
-	Real theta = 0.6734390282904231341;malloc ! You have to allocate structures before calling this function.
-* \note This function convert the 2 entry vectors to cartesian, substract them and then convert the result to polar.
-* So please think before using it.
-*
-* \f[ \vec V_{result} = \vec V_1 - \vec V_2 \f]
-**/
+ * \param v1 Reference to a polar vector to substract.
+ * \param v2 Reference to a polar vector to substract.
+ * \param vresult Reference to a polar vector to store the result.
+ * \warning This function doesn't do any
+    Real R = 1.45064930529587234;
+    Real theta = 0.6734390282904231341;malloc ! You have to allocate structures before calling this function.
+ * \note This function convert the 2 entry vectors to cartesian, substract them and then convert the result to polar.
+ * So please think before using it.
+ *
+ * \f[ \vec V_{result} = \vec V_1 - \vec V_2 \f]
+ **/
 void vect2_sub_pol(vect2_pol* v1, vect2_pol* v2, vect2_pol* vresult);
 
 /** \brief Substract 2 cartesian vectors and return the result
-* \param v1 Reference to a cartesian vector to substract.
-* \param v2 Reference to a cartesian vector to substract.
-* \param vresult Reference to a cartesian vector to store the result.
-* \warning This function doesn't do any malloc ! You have to allocate structures before calling this function.
-* 
-* \f[ \vec V_{result} = \vec V_1 - \vec V_2 \f]
-**/
+ * \param v1 Reference to a cartesian vector to substract.
+ * \param v2 Reference to a cartesian vector to substract.
+ * \param vresult Reference to a cartesian vector to store the result.
+ * \warning This function doesn't do any malloc ! You have to allocate structures before calling this function.
+ *
+ * \f[ \vec V_{result} = \vec V_1 - \vec V_2 \f]
+ **/
 void vect2_sub_cart(vect2_cart* v1, vect2_cart* v2, vect2_cart* vresult);
 
 
 /** \brief Multiply a cartesian vector by a scalar and return the result
-* \param v1 Reference to a cartesian vector.
-* \param alpha The multiplying scalar.
-* \param vresult Reference to a cartesian vector to store the result.
-* \warning This function doesn't do any malloc ! You have to allocate structures before calling this function.
-*
-* \f[ \vec V_{result} = \alpha\vec V_1 \f]
-**/
+ * \param v1 Reference to a cartesian vector.
+ * \param alpha The multiplying scalar.
+ * \param vresult Reference to a cartesian vector to store the result.
+ * \warning This function doesn't do any malloc ! You have to allocate structures before calling this function.
+ *
+ * \f[ \vec V_{result} = \alpha\vec V_1 \f]
+ **/
 void vect2_scale_cart(vect2_cart* v1, Real alpha, vect2_cart* vresult);
 
 /** \brief Multiply a polar vector by a scalar and return the result
-* \param v1 Reference to a polar vector.
-* \param alpha The multiplying scalar.
-* \param vresult Reference to a cartesian vector to store the result.
-* \warning This function doesn't do any malloc ! You have to allocate structures before calling this function.
-*
-* \f[ \vec V_{result} = \alpha\vec V_1 \f]
-**/
+ * \param v1 Reference to a polar vector.
+ * \param alpha The multiplying scalar.
+ * \param vresult Reference to a cartesian vector to store the result.
+ * \warning This function doesn't do any malloc ! You have to allocate structures before calling this function.
+ *
+ * \f[ \vec V_{result} = \alpha\vec V_1 \f]
+ **/
 void vect2_scale_pol(vect2_pol* v1, Real alpha, vect2_pol* vresult);
 
-/** @brief Norm of a cartesian vector. 
-* @param vc Reference to a cartesian vector.
-**/
+/** @brief Norm of a cartesian vector.
+ * @param vc Reference to a cartesian vector.
+ **/
 float vect2_norm_cart(vect2_cart *vc);
 
-/** @brief Distance between two cartesian vectors. 
-* @param vc1 Reference to a cartesian vector.
-* @param vc2 Reference to a cartesian vector.
-**/
+/** @brief Distance between two cartesian vectors.
+ * @param vc1 Reference to a cartesian vector.
+ * @param vc2 Reference to a cartesian vector.
+ **/
 float vect2_dist_cart(vect2_cart *vc1, vect2_cart *vc2);
 
-/** @brief Inner product of two cartesian vectors. 
-* @param vc1 Reference to a cartesian vector.
-* @param vc2 Reference to a cartesian vector.
-**/
+/** @brief Inner product of two cartesian vectors.
+ * @param vc1 Reference to a cartesian vector.
+ * @param vc2 Reference to a cartesian vector.
+ **/
 float vect2_dot_product_cart(vect2_cart *vc1, vect2_cart *vc2);
 
-/** @brief Angle between two cartesian vectors in radian. 
-* @param vc1 Reference to a cartesian vector.
-* @param vc2 Reference to a cartesian vector.
-**/
+/** @brief Angle between two cartesian vectors in radian.
+ * @param vc1 Reference to a cartesian vector.
+ * @param vc2 Reference to a cartesian vector.
+ **/
 float vect2_angle_2vec_rad_cart(vect2_cart *vc1, vect2_cart *vc2);
 
-/** @brief Angle between vector and x-axis. 
-* @param vc Reference to a cartesian vector.
-**/
+/** @brief Angle between vector and x-axis.
+ * @param vc Reference to a cartesian vector.
+ **/
 float vect2_angle_vec_x_rad_cart(vect2_cart *vc);
 
 /** @} */

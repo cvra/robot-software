@@ -23,8 +23,8 @@ void cvra_motor_set_velocity(const char *id, void *motor, int32_t velocity)
 
     if (velocity > MAX_MOTOR_VELOCITY_SCALE) {
         velocity = MAX_MOTOR_VELOCITY_SCALE;
-    } else if (velocity < - MAX_MOTOR_VELOCITY_SCALE) {
-        velocity = - MAX_MOTOR_VELOCITY_SCALE;
+    } else if (velocity < -MAX_MOTOR_VELOCITY_SCALE) {
+        velocity = -MAX_MOTOR_VELOCITY_SCALE;
     }
 
     float vel = (float)velocity * dev->max_velocity * dev->direction / MAX_MOTOR_VELOCITY_SCALE;

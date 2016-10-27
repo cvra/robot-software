@@ -95,8 +95,7 @@
  * This structure stores the number of encoder impulsion per mm and the
  * distance between the wheels of the robot.
  */
-struct robot_physical_params
-{
+struct robot_physical_params {
     double track_mm;            /**< Track (distance between wheels) in mm */
     double distance_imp_per_mm; /**< Impulsions per mm */
 };
@@ -107,8 +106,7 @@ struct robot_physical_params
  * This structure holds a position of the robot in the double precision format.
  * @sa xya_position_s16
  */
-struct xya_position
-{
+struct xya_position {
     double x; /**< The X coordinate, in mm. */
     double y; /**< The Y coordinate, in mm. */
     double a; /**< The angle relative to the X axis, in radians. */
@@ -120,8 +118,7 @@ struct xya_position
  * @note The angle is stocked in degrees.
  * @sa xya_position
  */
-struct xya_position_s16
-{
+struct xya_position_s16 {
     int16_t x; /**< The X coordinate, in mm. */
     int16_t y; /**< The Y coordinate, in mm. */
     int16_t a; /**< The angle relative to the X axis in degrees. */
@@ -132,8 +129,7 @@ struct xya_position_s16
  * This structure holds everything that is needed to compute and store the
  * position of the robot.
  */
-struct robot_position
-{
+struct robot_position {
     uint8_t use_ext;                    /**< Only useful when we have 2 sets of encoders. */
     struct robot_physical_params phys;  /**< The physical parameters of the robot. */
     struct xya_position pos_d;          /**< Position of the robot in double. */
@@ -195,7 +191,7 @@ void position_use_mot(struct robot_position *pos);
  * @param [in] distance_imp_per_mm The number of encoder pulses for one mm.
  */
 void position_set_physical_params(struct robot_position *pos, double track_mm,
-                  double distance_imp_per_mm);
+                                  double distance_imp_per_mm);
 
 /** @brief Set related robot_system structure.
  *

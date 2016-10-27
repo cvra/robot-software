@@ -47,7 +47,8 @@ void bd_reset(struct blocking_detection * bd)
 /**
  *
  */
-void bd_set_thresholds(struct blocking_detection *bd, uint32_t err_thres, uint16_t cpt_thres) {
+void bd_set_thresholds(struct blocking_detection *bd, uint32_t err_thres, uint16_t cpt_thres)
+{
     bd->cpt_thres = cpt_thres;
     bd->err_thres = err_thres;
 }
@@ -57,25 +58,27 @@ void bd_set_thresholds(struct blocking_detection *bd, uint32_t err_thres, uint16
 /** function to be called periodically */
 void bd_manage(struct blocking_detection * bd)
 {
-	uint32_t err = fabs(cs_get_error(bd->cs));
+    uint32_t err = fabs(cs_get_error(bd->cs));
 
-	if(bd->err_thres == 0) return;
+    if (bd->err_thres == 0) {
+        return;
+    }
 
-	if(bd->err_max < err)
-		bd->err_max = err;
+    if (bd->err_max < err) {
+        bd->err_max = err;
+    }
 
-	if(err > bd->err_thres) {
-		bd->cpt++;
-	}
-	else {
-		bd->cpt=0;
+    if (err > bd->err_thres) {
+        bd->cpt++;
+    } else   {
+        bd->cpt = 0;
     }
 }
 
 /** get value of blocking detection */
 uint8_t bd_get(struct blocking_detection * bd)
 {
-    return (bd->cpt_thres && (bd->cpt >= bd->cpt_thres));
+    return bd->cpt_thres && (bd->cpt >= bd->cpt_thres);
 }
 
 /** get value of blocking detection maximale value, reseted each time it's read*/

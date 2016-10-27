@@ -100,8 +100,7 @@
  *
  * @todo Remove the references to f64 and use floats instead.
  */
-struct robot_system
-{
+struct robot_system {
     uint8_t flags; /**< Flags currently in use. */
 
 #ifdef CONFIG_MODULE_ROBOT_SYSTEM_MOT_AND_EXT
@@ -204,18 +203,20 @@ void rs_set_ratio(struct robot_system * rs, double ratio);
  * @param [in] *left_pwm The function that will be stored as left PWM callback.
  * @param [in] left_pwm_param The data that will be passed to left_pwm.
  */
-void rs_set_left_pwm(struct robot_system * rs, void (*left_pwm)(void *, int32_t), void *left_pwm_param);
+void rs_set_left_pwm(struct robot_system * rs, void (*left_pwm)(void *,
+                                                                int32_t), void *left_pwm_param);
 
 
 /** @brief Define right pwn.
-*
+ *
  * This function tells robot_system which callback to use.
  *
  * @param [in] rs The robot_system instance.
  * @param [in] *right_pwm The function that will be stored as right PWM callback.
  * @param [in] right_pwm_param The data that will be passed to right_pwm.
  */
-void rs_set_right_pwm(struct robot_system * rs, void (*right_pwm)(void *, int32_t), void *right_pwm_param);
+void rs_set_right_pwm(struct robot_system * rs, void (*right_pwm)(void *,
+                                                                  int32_t), void *right_pwm_param);
 
 #ifdef CONFIG_MODULE_ROBOT_SYSTEM_MOT_AND_EXT
 /** @brief Define left motor encoder.
@@ -228,7 +229,7 @@ void rs_set_right_pwm(struct robot_system * rs, void (*right_pwm)(void *, int32_
  * @param gain The gain that will be used for diameter compensation.
  */
 void rs_set_left_mot_encoder(struct robot_system * rs, int32_t (*left_mot_encoder)(void *),
-                 void *left_mot_encoder_param, double gain);
+                             void *left_mot_encoder_param, double gain);
 
 /** @brief Define right motor encoder.
  *
@@ -240,7 +241,7 @@ void rs_set_left_mot_encoder(struct robot_system * rs, int32_t (*left_mot_encode
  * @param gain The gain that will be used for diameter compensation.
  */
 void rs_set_right_mot_encoder(struct robot_system * rs, int32_t (*right_mot_encoder)(void *),
-                  void *right_mot_encoder_param, double gain);
+                              void *right_mot_encoder_param, double gain);
 #endif
 
 /** @brief Define left external encoder.
@@ -253,7 +254,7 @@ void rs_set_right_mot_encoder(struct robot_system * rs, int32_t (*right_mot_enco
  * @param gain The gain that will be used for diameter compensation.
  */
 void rs_set_left_ext_encoder(struct robot_system * rs, int32_t (*left_ext_encoder)(void *),
-                 void *left_ext_encoder_param, double gain);
+                             void *left_ext_encoder_param, double gain);
 
 /** @brief Define right external encoder.
  *
@@ -265,7 +266,7 @@ void rs_set_left_ext_encoder(struct robot_system * rs, int32_t (*left_ext_encode
  * @param gain The gain that will be used for diameter compensation.
  */
 void rs_set_right_ext_encoder(struct robot_system * rs, int32_t (*right_ext_encoder)(void *),
-                  void *right_ext_encoder_param, double gain);
+                              void *right_ext_encoder_param, double gain);
 
 
 /** @brief Sets the angle PWM.
@@ -278,7 +279,7 @@ void rs_set_right_ext_encoder(struct robot_system * rs, int32_t (*right_ext_enco
  */
 void rs_set_angle(void * rs, int32_t angle);
 
- /** @brief Sets the distance PWM.
+/** @brief Sets the distance PWM.
  *
  * This function sets the real PWMs according to the existing angle PWM and
  * the given distance PWM.

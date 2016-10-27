@@ -25,21 +25,21 @@
 
 #include "math/geometry/vect_base.h"
 #include "math/geometry/circles.h"
-//#include "../fast_math/fast_math.h"
 
 static inline float sq(float x)
 {
-	return x*x;
+    return x * x;
 }
 
 int pt_is_inside_circle(const point_t *p, circle_t *c)
 {
-	vect_t v;
-	v.x = p->x - c->x;
-	v.y = p->y - c->y;
-	if ((v.x * v.x + v.y * v.y) < (c->r * c->r))
-		return 1;
-	return 0;
+    vect_t v;
+    v.x = p->x - c->x;
+    v.y = p->y - c->y;
+    if ((v.x * v.x + v.y * v.y) < (c->r * c->r)) {
+        return 1;
+    }
+    return 0;
 }
 
 /*
@@ -53,11 +53,11 @@ int pt_is_inside_circle(const point_t *p, circle_t *c)
  *  the same value.
  */
 int circle_intersect(const circle_t *c1, const circle_t *c2,
-			 point_t *p1, point_t *p2)
+                     point_t *p1, point_t *p2)
 {
-	circle_t ca, cb;
-	float a, b, c, d, e;
-	uint8_t ret = 0;
+    circle_t ca, cb;
+    float a, b, c, d, e;
+    uint8_t ret = 0;
 
 
     /* We have to assume that either delta_x or delta_y is not zero to avoid
@@ -75,63 +75,64 @@ int circle_intersect(const circle_t *c1, const circle_t *c2,
         cb.y = c2->x;
         cb.r = c2->r;
         ret = circle_intersect(&ca, &cb, &pa, &pb);
-        p1->x=pa.y;
-        p1->y=pa.x;
-        p2->y=pb.x;
-        p2->x=pb.y;
+        p1->x = pa.y;
+        p1->y = pa.x;
+        p2->y = pb.x;
+        p2->x = pb.y;
         return ret;
     }
 
-	/* create circles with same radius, but centered on 0,0 : it
-	 * will make process easier */
-	ca.x = 0;
-	ca.y = 0;
-	ca.r = c1->r;
-	cb.x = c2->x - c1->x;
-	cb.y = c2->y - c1->y;
-	cb.r = c2->r;
+    /* create circles with same radius, but centered on 0,0 : it
+     * will make process easier */
+    ca.x = 0;
+    ca.y = 0;
+    ca.r = c1->r;
+    cb.x = c2->x - c1->x;
+    cb.y = c2->y - c1->y;
+    cb.r = c2->r;
 
-	/* inspired from http://www.loria.fr/~roegel/notes/note0001.pdf
-	 * which can be found in doc. */
-	a = 2.0f * cb.x;
-	b = 2.0f * cb.y;
-	c = sq(cb.x) + sq(cb.y) - sq(cb.r) + sq(ca.r);
-	d = sq(2.0f * a * c) -
-		(4.0f * (sq(a) + sq(b)) * (sq(c) - sq(b) * sq(ca.r)) );
+    /* inspired from http://www.loria.fr/~roegel/notes/note0001.pdf
+     * which can be found in doc. */
+    a = 2.0f * cb.x;
+    b = 2.0f * cb.y;
+    c = sq(cb.x) + sq(cb.y) - sq(cb.r) + sq(ca.r);
+    d = sq(2.0f * a * c) -
+        (4.0f * (sq(a) + sq(b)) * (sq(c) - sq(b) * sq(ca.r)));
 
-	/* no intersection */
-	if (d < 0.0f)
-		return 0;
+    /* no intersection */
+    if (d < 0.0f) {
+        return 0;
+    }
 
 
-	if (fabsf(b) <  0.0001f) {
-		/* special case */
-		e = sq(cb.r) - sq((2.0f * c - sq(a)) / (2.0f * a));
+    if (fabsf(b) <  0.0001f) {
+        /* special case */
+        e = sq(cb.r) - sq((2.0f * c - sq(a)) / (2.0f * a));
 
-		/* no intersection */
-		if (e < 0.0f)
-			return 0;
+        /* no intersection */
+        if (e < 0.0f) {
+            return 0;
+        }
 
-		p1->x = (2.0f * a * c - sqrtf(d)) / (2.0f * (sq(a) + sq(b)));
-		p1->y = sqrtf(e);
-		p2->x = p1->x;
-		p2->y = p1->y;
-		ret = 1;
-	}
-	else {
-		/* usual case */
-		p1->x = (2.0f * a * c - sqrtf(d)) / (2.0f * (sq(a) + sq(b)));
-		p1->y = (c - a * p1->x) / b;
-		p2->x = (2.0f * a * c + sqrtf(d)) / (2.0f * (sq(a) + sq(b)));
-		p2->y = (c - a * p2->x) / b;
-		ret = 2;
-	}
+        p1->x = (2.0f * a * c - sqrtf(d)) / (2.0f * (sq(a) + sq(b)));
+        p1->y = sqrtf(e);
+        p2->x = p1->x;
+        p2->y = p1->y;
+        ret = 1;
+    } else   {
+        /* usual case */
+        p1->x = (2.0f * a * c - sqrtf(d)) / (2.0f * (sq(a) + sq(b)));
+        p1->y = (c - a * p1->x) / b;
+        p2->x = (2.0f * a * c + sqrtf(d)) / (2.0f * (sq(a) + sq(b)));
+        p2->y = (c - a * p2->x) / b;
+        ret = 2;
+    }
 
-	/* retranslate */
-	p1->x += c1->x;
-	p1->y += c1->y;
-	p2->x += c1->x;
-	p2->y += c1->y;
+    /* retranslate */
+    p1->x += c1->x;
+    p1->y += c1->y;
+    p2->x += c1->x;
+    p2->y += c1->y;
 
-	return ret;
+    return ret;
 }

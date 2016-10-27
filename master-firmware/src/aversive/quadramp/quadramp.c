@@ -28,157 +28,160 @@
 
 void quadramp_init(struct quadramp_filter *q)
 {
-	memset(q, 0, sizeof(*q));
+    memset(q, 0, sizeof(*q));
 }
 
 
 void quadramp_reset(struct quadramp_filter *q)
 {
-	q->previous_var = 0;
-	q->previous_out = 0;
-	q->previous_in = 0;
+    q->previous_var = 0;
+    q->previous_out = 0;
+    q->previous_in = 0;
 }
 
 void quadramp_set_2nd_order_vars(struct quadramp_filter *q,
-				 double var_2nd_ord_pos,
-				 double var_2nd_ord_neg)
+                                 double var_2nd_ord_pos,
+                                 double var_2nd_ord_neg)
 {
-	q->var_2nd_ord_pos = var_2nd_ord_pos;
-	q->var_2nd_ord_neg = var_2nd_ord_neg;
+    q->var_2nd_ord_pos = var_2nd_ord_pos;
+    q->var_2nd_ord_neg = var_2nd_ord_neg;
 }
 
 void quadramp_set_1st_order_vars(struct quadramp_filter *q,
-				 double var_1st_ord_pos,
-				 double var_1st_ord_neg)
+                                 double var_1st_ord_pos,
+                                 double var_1st_ord_neg)
 {
-	q->var_1st_ord_pos = var_1st_ord_pos;
-	q->var_1st_ord_neg = var_1st_ord_neg;
+    q->var_1st_ord_pos = var_1st_ord_pos;
+    q->var_1st_ord_neg = var_1st_ord_neg;
 }
 
 
-void quadramp_set_position(struct quadramp_filter *q, int32_t pos) {
-	q->previous_out = pos;
-	q->previous_var = 0;
+void quadramp_set_position(struct quadramp_filter *q, int32_t pos)
+{
+    q->previous_out = pos;
+    q->previous_var = 0;
 }
 
 uint8_t quadramp_is_finished(struct quadramp_filter *q)
 {
-	return ((int32_t)q->previous_out == q->previous_in &&
-		q->previous_var == 0);
+    return (int32_t)q->previous_out == q->previous_in &&
+           q->previous_var == 0;
 }
 
 int32_t quadramp_do_filter(void * data, int32_t in)
 {
-	struct quadramp_filter * q = data;
-	int32_t d; /* remaining distance */
-	int32_t pos_target;
-	double var_1st_ord_pos = q->var_1st_ord_pos;
-	double var_1st_ord_neg = -q->var_1st_ord_neg;
-	double var_2nd_ord_pos = q->var_2nd_ord_pos;
-	double var_2nd_ord_neg = -q->var_2nd_ord_neg;
-	double previous_var, d_float;
-	double previous_out;
+    struct quadramp_filter * q = data;
+    int32_t d; /* remaining distance */
+    int32_t pos_target;
+    double var_1st_ord_pos = q->var_1st_ord_pos;
+    double var_1st_ord_neg = -q->var_1st_ord_neg;
+    double var_2nd_ord_pos = q->var_2nd_ord_pos;
+    double var_2nd_ord_neg = -q->var_2nd_ord_neg;
+    double previous_var, d_float;
+    double previous_out;
 
-	previous_var = q->previous_var;
-	previous_out = q->previous_out;
+    previous_var = q->previous_var;
+    previous_out = q->previous_out;
 
-	d_float = (double)in - previous_out ;
+    d_float = (double)in - previous_out;
 
-	/* d is very small, we can jump to dest */
-	if (fabs(d_float) < 2.) {
-		q->previous_var = 0;
-		q->previous_out = in;
-		q->previous_in = in;
-		return in;
-	}
+    /* d is very small, we can jump to dest */
+    if (fabs(d_float) < 2.) {
+        q->previous_var = 0;
+        q->previous_out = in;
+        q->previous_in = in;
+        return in;
+    }
 
-	d = (int32_t)d_float;
+    d = (int32_t)d_float;
 
-	/* Deceleration ramp */
-	if (d > 0 && var_2nd_ord_neg) {
-		double ramp_pos;
-		/* var_2nd_ord_neg < 0 */
-		ramp_pos = sqrt((var_2nd_ord_neg*var_2nd_ord_neg)/4 -
-				2*d_float*var_2nd_ord_neg) +
-			var_2nd_ord_neg/2;
+    /* Deceleration ramp */
+    if (d > 0 && var_2nd_ord_neg) {
+        double ramp_pos;
+        /* var_2nd_ord_neg < 0 */
+        ramp_pos = sqrt((var_2nd_ord_neg * var_2nd_ord_neg) / 4 -
+                        2 * d_float * var_2nd_ord_neg) +
+                   var_2nd_ord_neg / 2;
 
-		if (ramp_pos < var_1st_ord_pos)
-			var_1st_ord_pos = ramp_pos;
-	}
+        if (ramp_pos < var_1st_ord_pos) {
+            var_1st_ord_pos = ramp_pos;
+        }
+    } else if (d < 0 && var_2nd_ord_pos)   {
+        double ramp_neg;
 
-	else if (d < 0 && var_2nd_ord_pos) {
-		double ramp_neg;
+        /* var_2nd_ord_pos > 0 */
+        ramp_neg = -sqrt((var_2nd_ord_pos * var_2nd_ord_pos) / 4 -
+                         2 * d_float * var_2nd_ord_pos ) -
+                   var_2nd_ord_pos / 2;
 
-		/* var_2nd_ord_pos > 0 */
-		ramp_neg = -sqrt( (var_2nd_ord_pos*var_2nd_ord_pos)/4 -
-				  2*d_float*var_2nd_ord_pos ) -
-			var_2nd_ord_pos/2;
+        /* ramp_neg < 0 */
+        if (ramp_neg > var_1st_ord_neg) {
+            var_1st_ord_neg = ramp_neg;
+        }
+    }
 
-		/* ramp_neg < 0 */
-		if (ramp_neg > var_1st_ord_neg)
-			var_1st_ord_neg = ramp_neg ;
-	}
+    /* try to set the speed : can we reach the speed with our acceleration ? */
+    /* si on va moins vite que la Vmax */
+    if (previous_var < var_1st_ord_pos) {
+        /* acceleration would be to high, we reduce the speed */
+        /* si rampe acceleration active ET qu'on ne peut pas atteindre Vmax,
+         * on sature Vmax a Vcourante + acceleration */
+        if (var_2nd_ord_pos &&
+            (var_1st_ord_pos - previous_var) > var_2nd_ord_pos) {
+            var_1st_ord_pos = previous_var + var_2nd_ord_pos;
+        }
+    }
+    /* si on va plus vite que Vmax */
+    else if (previous_var > var_1st_ord_pos) {
+        /* deceleration would be to high, we increase the speed */
+        /* si rampe deceleration active ET qu'on ne peut pas atteindre Vmax,
+         * on sature Vmax a Vcourante + deceleration */
+        if (var_2nd_ord_neg &&
+            (var_1st_ord_pos - previous_var) < var_2nd_ord_neg) {
+            var_1st_ord_pos = previous_var + var_2nd_ord_neg;
+        }
+    }
 
-	/* try to set the speed : can we reach the speed with our acceleration ? */
-	/* si on va moins vite que la Vmax */
-	if (previous_var < var_1st_ord_pos)  {
-		/* acceleration would be to high, we reduce the speed */
-		/* si rampe acceleration active ET qu'on ne peut pas atteindre Vmax,
-		 * on sature Vmax a Vcourante + acceleration */
-		if (var_2nd_ord_pos &&
-		    (var_1st_ord_pos - previous_var) > var_2nd_ord_pos)
-			var_1st_ord_pos = previous_var + var_2nd_ord_pos;
-	}
-	/* si on va plus vite que Vmax */
-	else if (previous_var > var_1st_ord_pos)  {
-		/* deceleration would be to high, we increase the speed */
-		/* si rampe deceleration active ET qu'on ne peut pas atteindre Vmax,
-		 * on sature Vmax a Vcourante + deceleration */
-		if (var_2nd_ord_neg &&
-		    (var_1st_ord_pos - previous_var) < var_2nd_ord_neg)
-			var_1st_ord_pos = previous_var + var_2nd_ord_neg;
-	}
+    /* same for the neg */
+    /* si on va plus vite que la Vmin (en negatif : en vrai la vitesse absolue est inferieure) */
+    if (previous_var > var_1st_ord_neg) {
+        /* acceleration would be to high, we reduce the speed */
+        /* si rampe deceleration active ET qu'on ne peut pas atteindre Vmin,
+         * on sature Vmax a Vcourante + deceleration */
+        if (var_2nd_ord_neg &&
+            (var_1st_ord_neg - previous_var) < var_2nd_ord_neg) {
+            var_1st_ord_neg = previous_var + var_2nd_ord_neg;
+        }
+    }
+    /* si on va moins vite que Vmin (mais vitesse absolue superieure) */
+    else if (previous_var < var_1st_ord_neg) {
+        /* deceleration would be to high, we increase the speed */
+        /* si rampe acceleration active ET qu'on ne peut pas atteindre Vmin,
+         * on sature Vmax a Vcourante + deceleration */
+        if (var_2nd_ord_pos &&
+            (var_1st_ord_neg - previous_var) > var_2nd_ord_pos) {
+            var_1st_ord_neg = previous_var + var_2nd_ord_pos;
+        }
+    }
 
-	/* same for the neg */
-	/* si on va plus vite que la Vmin (en negatif : en vrai la vitesse absolue est inferieure) */
-	if (previous_var > var_1st_ord_neg)  {
-		/* acceleration would be to high, we reduce the speed */
-		/* si rampe deceleration active ET qu'on ne peut pas atteindre Vmin,
-		 * on sature Vmax a Vcourante + deceleration */
-		if (var_2nd_ord_neg &&
-		    (var_1st_ord_neg - previous_var) < var_2nd_ord_neg)
-			var_1st_ord_neg = previous_var + var_2nd_ord_neg;
-	}
-	/* si on va moins vite que Vmin (mais vitesse absolue superieure) */
-	else if (previous_var < var_1st_ord_neg)  {
-		/* deceleration would be to high, we increase the speed */
-		/* si rampe acceleration active ET qu'on ne peut pas atteindre Vmin,
-		 * on sature Vmax a Vcourante + deceleration */
-		if (var_2nd_ord_pos &&
-		    (var_1st_ord_neg - previous_var) > var_2nd_ord_pos)
-			var_1st_ord_neg = previous_var + var_2nd_ord_pos;
-	}
+    /*
+     * Position consign : can we reach the position with our speed ?
+     */
+    if (d_float > var_1st_ord_pos) {
+        pos_target = previous_out + var_1st_ord_pos;
+        previous_var = var_1st_ord_pos;
+    } else if (d_float < var_1st_ord_neg)   {
+        pos_target = previous_out + var_1st_ord_neg;
+        previous_var = var_1st_ord_neg;
+    } else   {
+        pos_target = in;
+        previous_var = d_float;
+    }
 
-	/*
-	 * Position consign : can we reach the position with our speed ?
-	 */
-	if (d_float > var_1st_ord_pos) {
-		pos_target = previous_out + var_1st_ord_pos ;
-		previous_var = var_1st_ord_pos ;
-	}
-	else if (d_float < var_1st_ord_neg) {
-		pos_target = previous_out + var_1st_ord_neg ;
-		previous_var = var_1st_ord_neg ;
-	}
-	else {
-		pos_target = in;
-		previous_var = d_float ;
-	}
+    // update previous_out and previous_var
+    q->previous_var = previous_var;
+    q->previous_out = pos_target;
+    q->previous_in = in;
 
-	// update previous_out and previous_var
-	q->previous_var = previous_var;
-	q->previous_out = pos_target;
-	q->previous_in = in;
-
-	return pos_target;
+    return pos_target;
 }

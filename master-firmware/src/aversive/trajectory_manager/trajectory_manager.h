@@ -113,7 +113,7 @@ struct trajectory {
     double d_win;      /**<< distance window (for END_NEAR) */
     double a_win_rad;  /**<< angle window (for END_NEAR) */
     double a_start_rad;/**<< in xy consigns, start to move in distance
-                         *   when a_target < a_start */
+                        *   when a_target < a_start */
 
     double d_speed;  /**<< distance speed consign */
     double a_speed;  /**<< angle speed consign */
@@ -144,7 +144,7 @@ void trajectory_manager_init(struct trajectory *traj, double cs_hz);
  * @param [in] cs_d, cs_a The control systems to use.
  */
 void trajectory_set_cs(struct trajectory *traj, struct cs *cs_d,
-               struct cs * cs_a);
+                       struct cs * cs_a);
 
 /** @brief Sets related robot params.
  *
@@ -154,8 +154,8 @@ void trajectory_set_cs(struct trajectory *traj, struct cs *cs_d,
  * @param [in] pos The position manager instance of the robot.
  */
 void trajectory_set_robot_params(struct trajectory *traj,
-                 struct robot_system *rs,
-                 struct robot_position *pos) ;
+                                 struct robot_system *rs,
+                                 struct robot_position *pos);
 
 /** @brief Set speed consign.
  *
@@ -194,7 +194,7 @@ void trajectory_set_acc(struct trajectory *traj, double d_acc, double a_acc);
  * @param [in] a_start_deg The angular start window in degrees.
  */
 void trajectory_set_windows(struct trajectory *traj, double d_win,
-                double a_win_deg, double a_start_deg);
+                            double a_win_deg, double a_start_deg);
 
 /** @brief Get trajectory manager state.
  *
@@ -455,7 +455,7 @@ void trajectory_goto_xy_rel(struct trajectory *traj, double x_rel_mm, double y_r
  * @sa TRIGO
  */
 void trajectory_circle_rel(struct trajectory *traj, double x, double y,
-               double radius_mm, double rel_a_deg, uint8_t flags);
+                           double radius_mm, double rel_a_deg, uint8_t flags);
 
 /*
  * Compute the fastest distance and angle speeds matching the radius
@@ -473,9 +473,9 @@ void trajectory_circle_rel(struct trajectory *traj, double x, double y,
  * @param [out] speed_d, speed_a The variable to stock the results.
  */
 void circle_get_da_speed_from_radius(struct trajectory *traj,
-                     double radius_mm,
-                     double *speed_d,
-                     double *speed_a);
+                                     double radius_mm,
+                                     double *speed_d,
+                                     double *speed_a);
 
 /** @brief Do a line.
  *
@@ -495,6 +495,6 @@ void circle_get_da_speed_from_radius(struct trajectory *traj,
  * @todo Test this function.
  */
 void trajectory_line_abs(struct trajectory *traj, double x1, double y1,
-             double x2, double y2, double advance);
+                         double x2, double y2, double advance);
 
-#endif //TRAJECTORY_MANAGER
+#endif // TRAJECTORY_MANAGER

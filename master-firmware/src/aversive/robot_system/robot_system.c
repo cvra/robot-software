@@ -87,13 +87,15 @@ void rs_set_ratio(struct robot_system * rs, double ratio)
 }
 #endif
 
-void rs_set_left_pwm(struct robot_system * rs, void (*left_pwm)(void *, int32_t), void *left_pwm_param)
+void rs_set_left_pwm(struct robot_system * rs, void (*left_pwm)(void *,
+                                                                int32_t), void *left_pwm_param)
 {
     rs->left_pwm = left_pwm;
     rs->left_pwm_param = left_pwm_param;
 }
 
-void rs_set_right_pwm(struct robot_system * rs, void (*right_pwm)(void *, int32_t), void *right_pwm_param)
+void rs_set_right_pwm(struct robot_system * rs, void (*right_pwm)(void *,
+                                                                  int32_t), void *right_pwm_param)
 {
     rs->right_pwm = right_pwm;
     rs->right_pwm_param = right_pwm_param;
@@ -101,7 +103,7 @@ void rs_set_right_pwm(struct robot_system * rs, void (*right_pwm)(void *, int32_
 
 #ifdef CONFIG_MODULE_ROBOT_SYSTEM_MOT_AND_EXT
 void rs_set_left_mot_encoder(struct robot_system * rs, int32_t (*left_mot_encoder)(void *),
-                 void *left_mot_encoder_param, double gain)
+                             void *left_mot_encoder_param, double gain)
 {
     rs->left_mot_encoder = left_mot_encoder;
     rs->left_mot_encoder_param = left_mot_encoder_param;
@@ -109,7 +111,7 @@ void rs_set_left_mot_encoder(struct robot_system * rs, int32_t (*left_mot_encode
 }
 
 void rs_set_right_mot_encoder(struct robot_system * rs, int32_t (*right_mot_encoder)(void *),
-                  void *right_mot_encoder_param, double gain)
+                              void *right_mot_encoder_param, double gain)
 {
     rs->right_mot_encoder = right_mot_encoder;
     rs->right_mot_encoder_param = right_mot_encoder_param;
@@ -118,7 +120,7 @@ void rs_set_right_mot_encoder(struct robot_system * rs, int32_t (*right_mot_enco
 #endif
 
 void rs_set_left_ext_encoder(struct robot_system * rs, int32_t (*left_ext_encoder)(void *),
-                 void *left_ext_encoder_param, double gain)
+                             void *left_ext_encoder_param, double gain)
 {
     rs->left_ext_encoder = left_ext_encoder;
     rs->left_ext_encoder_param = left_ext_encoder_param;
@@ -126,7 +128,7 @@ void rs_set_left_ext_encoder(struct robot_system * rs, int32_t (*left_ext_encode
 }
 
 void rs_set_right_ext_encoder(struct robot_system * rs, int32_t (*right_ext_encoder)(void *),
-                  void *right_ext_encoder_param, double gain)
+                              void *right_ext_encoder_param, double gain)
 {
     rs->right_ext_encoder = right_ext_encoder;
     rs->right_ext_encoder_param = right_ext_encoder_param;
@@ -138,7 +140,7 @@ void rs_set_angle(void * data, int32_t angle)
     struct rs_polar p;
     struct rs_wheels w;
     struct robot_system * rs = data;
-    p.distance = rs->virtual_pwm.distance ;
+    p.distance = rs->virtual_pwm.distance;
     rs->virtual_pwm.angle = angle;
 
     p.angle = angle;
@@ -154,7 +156,7 @@ void rs_set_distance(void * data, int32_t distance)
     struct rs_polar p;
     struct rs_wheels w;
 
-    p.angle = rs->virtual_pwm.angle ;
+    p.angle = rs->virtual_pwm.angle;
     rs->virtual_pwm.distance = distance;
 
     p.distance = distance;
@@ -167,65 +169,65 @@ void rs_set_distance(void * data, int32_t distance)
 int32_t rs_get_angle(void * data)
 {
     struct robot_system * rs = data;
-    return rs->virtual_encoders.angle ;
+    return rs->virtual_encoders.angle;
 }
 
 int32_t rs_get_distance(void * data)
 {
     struct robot_system * rs = data;
-    return rs->virtual_encoders.distance ;
+    return rs->virtual_encoders.distance;
 }
 
 int32_t rs_get_ext_angle(void * data)
 {
     struct robot_system * rs = data;
-    return rs->pext_prev.angle ;
+    return rs->pext_prev.angle;
 }
 
 int32_t rs_get_ext_distance(void * data)
 {
     struct robot_system * rs = data;
-    return rs->pext_prev.distance ;
+    return rs->pext_prev.distance;
 }
 
 #ifdef CONFIG_MODULE_ROBOT_SYSTEM_MOT_AND_EXT
 int32_t rs_get_mot_angle(void * data)
 {
     struct robot_system * rs = data;
-    return rs->pmot_prev.angle ;
+    return rs->pmot_prev.angle;
 }
 
 int32_t rs_get_mot_distance(void * data)
 {
     struct robot_system * rs = data;
 
-    return  rs->pmot_prev.distance ;
+    return rs->pmot_prev.distance;
 }
 #endif
 
 int32_t rs_get_ext_left(void * data)
 {
     struct robot_system * rs = data;
-    return rs->wext_prev.left ;
+    return rs->wext_prev.left;
 }
 
 int32_t rs_get_ext_right(void * data)
 {
     struct robot_system * rs = data;
-    return rs->wext_prev.right ;
+    return rs->wext_prev.right;
 }
 
 #ifdef CONFIG_MODULE_ROBOT_SYSTEM_MOT_AND_EXT
 int32_t rs_get_mot_left(void * data)
 {
     struct robot_system * rs = data;
-    return rs->wmot_prev.left ;
+    return rs->wmot_prev.left;
 }
 
 int32_t rs_get_mot_right(void * data)
 {
     struct robot_system * rs = data;
-    return rs->wmot_prev.right ;
+    return rs->wmot_prev.right;
 }
 #endif
 
@@ -255,7 +257,7 @@ void rs_update(void * data)
 #endif
 
     /* apply gains to each wheel */
-    if (! (rs->flags & RS_IGNORE_EXT_GAIN )) {
+    if (!(rs->flags & RS_IGNORE_EXT_GAIN)) {
         double tmp;
         tmp = wext.left;
         tmp *= rs->left_ext_gain;
@@ -266,9 +268,9 @@ void rs_update(void * data)
     }
 
 #ifdef CONFIG_MODULE_ROBOT_SYSTEM_MOT_AND_EXT
-    if (! (rs->flags & RS_IGNORE_MOT_GAIN )) {
+    if (!(rs->flags & RS_IGNORE_MOT_GAIN)) {
         wmot.left = wmot.left * rs->left_mot_gain;
-        wmot.right =wmot.right * rs->right_mot_gain;
+        wmot.right = wmot.right * rs->right_mot_gain;
     }
 #endif
 
@@ -287,7 +289,6 @@ void rs_update(void * data)
         delta_angle = pext.angle - rs->pext_prev.angle;
         delta_distance = pext.distance - rs->pext_prev.distance;
     }
-
     /* update from motor encoders */
     else {
         delta_angle = pmot.angle - rs->pmot_prev.angle;

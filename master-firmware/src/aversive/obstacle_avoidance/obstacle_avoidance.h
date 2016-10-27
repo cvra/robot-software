@@ -76,37 +76,37 @@
  *\verbatim
     We have an array of points (oa_ext_point_t points):
    _____ _____ _____ _____ _____ _____ _____ _____ _____
-  |     |     |     |     |     |     |     |     |     |
-  | p0  | p1  | p0  | p1  | p2  | p3  | p0  | p1  | p2  |
-  |_____|_____|_____|_____|_____|_____|_____|_____|_____|
+ |     |     |     |     |     |     |     |     |     |
+ | p0  | p1  | p0  | p1  | p2  | p3  | p0  | p1  | p2  |
+ |_____|_____|_____|_____|_____|_____|_____|_____|_____|
 
 
    ^            ^                       ^
-   |            |                       |
+ |            |                       |
    -polygon 0   -polygon 1              -polygon 2
    -2 vertices  -4 vertices             -3 vertices
- \endverbatim
+   \endverbatim
  *
  * And each polygon is represented by the sub array starting with the
  * point represented by oa_ext_point_t * pts and composed of uint8_t l;
  * (in the oa_poly_t structure)
  */
 struct obstacle_avoidance {
-	poly_t polys[MAX_POLY];  /**< Array of polygons (obstacles). */
-	point_t points[MAX_PTS]; /**< Array of points, referenced by polys */
-	uint8_t valid[MAX_PTS]; /**< Used by the Dijkstra algorithm to say if a point was visited. */
-	int32_t pweight[MAX_PTS]; /**< Weight of a point in Dijkstra. */
-	uint8_t p[MAX_PTS]; /**< @todo Dafuq ? */
-	uint8_t pt[MAX_PTS]; /**< Stores all the points. */
+    poly_t polys[MAX_POLY];  /**< Array of polygons (obstacles). */
+    point_t points[MAX_PTS]; /**< Array of points, referenced by polys */
+    uint8_t valid[MAX_PTS]; /**< Used by the Dijkstra algorithm to say if a point was visited. */
+    int32_t pweight[MAX_PTS]; /**< Weight of a point in Dijkstra. */
+    uint8_t p[MAX_PTS]; /**< @todo Dafuq ? */
+    uint8_t pt[MAX_PTS]; /**< Stores all the points. */
 
 
 
-	uint8_t ray_n; /**< Number of computed rays. */
-	uint8_t cur_poly_idx; /**< Index of the current polygon (for adding polygons). */
-	uint8_t cur_pt_idx; /**< Index of the current point in the current polygon. */
+    uint8_t ray_n; /**< Number of computed rays. */
+    uint8_t cur_poly_idx; /**< Index of the current polygon (for adding polygons). */
+    uint8_t cur_pt_idx; /**< Index of the current point in the current polygon. */
 
-	uint16_t weight[MAX_RAYS]; /**< Length of each ray. */
-    uint8_t rays[MAX_RAYS*2]; /**< All valid rays given by Dijkstra. */
+    uint16_t weight[MAX_RAYS]; /**< Length of each ray. */
+    uint8_t rays[MAX_RAYS * 2]; /**< All valid rays given by Dijkstra. */
     point_t res[MAX_CHKPOINTS]; /**< Resulting path. */
     int res_len; /** Path length */
 };

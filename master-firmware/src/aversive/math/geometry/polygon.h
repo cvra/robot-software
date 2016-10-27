@@ -31,8 +31,8 @@
  * An array of points, defining the corners of a geometric figure.
  */
 typedef struct _poly {
-	point_t * pts;  /**< Array of corner-points */
-	uint8_t l;      /**< Length of the array of points */
+    point_t * pts;  /**< Array of corner-points */
+    uint8_t l;      /**< Length of the array of points */
 } poly_t;
 
 /** Checks if a point belongs to a polygon
@@ -52,16 +52,16 @@ uint8_t is_in_poly(const point_t *p, poly_t *pol);
  */
 uint8_t is_point_in_poly(poly_t *pol, int16_t x, int16_t y);
 
- /** Checks if a segment is crossing a polygon
-  * @param [in] p1, p2 The two points defining the segment.
-  * @param [in] pol The polygon to check.
-  * @param [out] intersect_pt Contains the intersection point.
-  * @returns 0 dont cross, 1 cross, 2 on a side,
-  *  3 touch out (a segment boundary is on a polygon edge,
-  *  and the second segment boundary is out of the polygon) */
+/** Checks if a segment is crossing a polygon
+ * @param [in] p1, p2 The two points defining the segment.
+ * @param [in] pol The polygon to check.
+ * @param [out] intersect_pt Contains the intersection point.
+ * @returns 0 dont cross, 1 cross, 2 on a side,
+ *  3 touch out (a segment boundary is on a polygon edge,
+ *  and the second segment boundary is out of the polygon) */
 uint8_t
 is_crossing_poly(point_t p1, point_t p2, point_t *intersect_pt,
-		 poly_t *pol);
+                 poly_t *pol);
 
 /** Set coordinates of bounding box.
  * @param [in] x1 x-coordinate bottom-left corner
@@ -116,7 +116,7 @@ calc_rays(poly_t *polys, uint8_t npolys, uint8_t *rays);
  * */
 void
 calc_rays_weight(poly_t *polys, uint8_t npolys, uint8_t *rays,
-		 uint8_t ray_n, uint16_t *weight);
+                 uint8_t ray_n, uint16_t *weight);
 
 /** @} */
 #endif
