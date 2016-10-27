@@ -8,8 +8,8 @@ source env/bin/activate
 python --version
 wget https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
-pip install cvra-packager==1.0.0
-pip install -r config/requirements.txt
+pip install cvra-packager~=1.0.0
+pip install -r msgpack-python==0.4.8 PyYAML==3.11
 
 pushd uavcan/libuavcan/dsdl_compiler/pyuavcan/
 python setup.py install
