@@ -25,18 +25,12 @@
 #include <stdint.h>
 #include <error/general_errors.h>
 
-#define ERROR_SEVERITY_EMERG    0
-#define ERROR_SEVERITY_ERROR    1
-#define ERROR_SEVERITY_WARNING  2
-#define ERROR_SEVERITY_NOTICE   3
-#define ERROR_SEVERITY_DEBUG    4
-
-
-/** enable the dump of the comment */
-#define ERROR_DUMP_TEXTLOG
-
-/** enable the dump of filename and line number */
-#define ERROR_DUMP_FILE_LINE
+enum {
+    ERROR_SEVERITY_ERROR,
+    ERROR_SEVERITY_WARNING,
+    ERROR_SEVERITY_NOTICE,
+    ERROR_SEVERITY_DEBUG
+};
 
 /** The error structure, which is given as a parameter in log funcs */
 struct error {
@@ -50,7 +44,6 @@ struct error {
 /** Structure of pointers to functions which are called on errors
  */
 struct error_fct {
-    void (*emerg)(struct error *, ...);     /**< Pointer to emergency func */
     void (*error)(struct error *, ...);     /**< Pointer to error func */
     void (*warning)(struct error *, ...);   /**< Pointer to warning func */
     void (*notice)(struct error *, ...);    /**< Pointer to notice func */
@@ -66,9 +59,6 @@ struct error error_generate(uint8_t num,
                             const char * f,
                             uint16_t l);
 
-/** Register log function for EMERG level */
-void error_register_emerg(void (*f)(struct error *, ...));
-
 /** Register log function for ERROR level */
 void error_register_error(void (*f)(struct error *, ...));
 
@@ -80,20 +70,6 @@ void error_register_notice(void (*f)(struct error *, ...));
 
 /** Register log function for DEBUG level */
 void error_register_debug(void (*f)(struct error *, ...));
-
-
-
-
-/** Call this macro to log EMERG events */
-#define EMERG(num, text, ...)  do {                                            \
-        if (g_error_fct.emerg) {                                                \
-            struct error e = error_generate(num, ERROR_SEVERITY_EMERG,     \
-                                            (text),    \
-                                            (__FILE__), \
-                                            __LINE__);     \
-            g_error_fct.emerg(&e, ## __VA_ARGS__);                          \
-        }                                                                      \
-} while (0)
 
 /** Call this macro to log ERROR events */
 #define ERROR(num, text, ...)  do {                                            \

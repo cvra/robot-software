@@ -92,6 +92,7 @@ tests:
     - src/trace/tests/trace_test.cpp
     - src/trace/tests/trace_points.c
     - tests/trajectory_manager_test.cpp
+    - tests/error.cpp
 
 templates:
     app_src.mk.jinja: app_src.mk
