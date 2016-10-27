@@ -29,20 +29,17 @@
 void position_init(struct robot_position *pos)
 {
     memset(pos, 0, sizeof(struct robot_position));
-    // platform_create_semaphore(&pos->lock, 1);
 }
 
 /** Set a new robot position */
 void position_set(struct robot_position *pos, int16_t x, int16_t y, double a_deg)
 {
-    // platform_take_semaphore(&pos->lock);
     pos->pos_d.a = (a_deg * M_PI)/ 180.0;
     pos->pos_d.x = x;
     pos->pos_d.y = y;
     pos->pos_s16.x = x;
     pos->pos_s16.y = y;
     pos->pos_s16.a = a_deg;
-    // platform_signal_semaphore(&pos->lock);
 }
 
 #ifdef CONFIG_MODULE_COMPENSATE_CENTRIFUGAL_FORCE
@@ -136,7 +133,6 @@ void position_manage(struct robot_position *pos)
     delta.angle = encoders.angle - pos->prev_encoders.angle;
 
     /* update double position */
-    // platform_take_semaphore(&pos->lock);
     a = pos->pos_d.a;
     x = pos->pos_d.x;
     y = pos->pos_d.y;
@@ -204,7 +200,6 @@ void position_manage(struct robot_position *pos)
     pos->pos_s16.x = x_s16;
     pos->pos_s16.y = y_s16;
     pos->pos_s16.a = a_s16;
-    // platform_signal_semaphore(&pos->lock);
 }
 
 

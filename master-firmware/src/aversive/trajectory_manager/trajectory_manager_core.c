@@ -662,7 +662,9 @@ void trajectory_manager_thd(void * param)
                     break;
             }
         }
+#ifndef TESTS
         chThdSleepMilliseconds(TRAJ_EVT_PERIOD);
+#endif
     }
 }
 
