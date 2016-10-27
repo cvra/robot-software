@@ -22,7 +22,6 @@
 #ifndef _QUADRAMP_H_
 #define _QUADRAMP_H_
 
-#include <aversive.h>
 
 /** @file quadramp.h
  * This module is responsible for making speed ramps to avoid large accelerations.

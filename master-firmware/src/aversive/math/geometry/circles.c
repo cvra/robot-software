@@ -22,7 +22,6 @@
 #include <math.h>
 #include <stdint.h>
 
-#include "aversive.h"
 
 #include "math/geometry/vect_base.h"
 #include "math/geometry/circles.h"
