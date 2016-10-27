@@ -5,7 +5,7 @@ extern "C" {
 #include <obstacle_avoidance/obstacle_avoidance.h>
 }
 
-TEST_GROUP(ObstacleAvoidanceTestGroup)
+TEST_GROUP(ObstacleAvoidance)
 {
 
     const point_t start = {.x = 1000, .y=1000};
@@ -19,7 +19,7 @@ TEST_GROUP(ObstacleAvoidanceTestGroup)
     }
 };
 
-TEST(ObstacleAvoidanceTestGroup, SimpleCase)
+TEST(ObstacleAvoidance, FindsStraightPathWhenNoObstacle)
 {
     point_t *points;
 
@@ -28,11 +28,11 @@ TEST(ObstacleAvoidanceTestGroup, SimpleCase)
     auto point_cnt = oa_get_path(&points);
 
     CHECK_EQUAL(1, point_cnt);
-    CHECK_EQUAL(1000, points[0].y);
-    CHECK_EQUAL(2000, points[0].x);
+    CHECK_EQUAL(end.x, points[0].x);
+    CHECK_EQUAL(end.y, points[0].y);
 }
 
-TEST(ObstacleAvoidanceTestGroup, WithObstacle)
+TEST(ObstacleAvoidance, FindsPathWithObstacleInTheMiddle)
 {
     point_t *points;
     auto obstacle = oa_new_poly(4);
@@ -50,6 +50,31 @@ TEST(ObstacleAvoidanceTestGroup, WithObstacle)
     CHECK_EQUAL(900, points[0].y);
     CHECK_EQUAL(1600, points[1].x);
     CHECK_EQUAL(900, points[1].y);
-    CHECK_EQUAL(2000, points[2].x);
-    CHECK_EQUAL(1000, points[2].y);
+    CHECK_EQUAL(end.x, points[2].x);
+    CHECK_EQUAL(end.y, points[2].y);
+}
+
+TEST(ObstacleAvoidance, ReturnsToStartPositionWithObstacleInTheMiddle)
+{
+    point_t *points;
+    auto obstacle = oa_new_poly(4);
+    oa_poly_set_point(obstacle, 1400, 900, 0);
+    oa_poly_set_point(obstacle, 1400, 1300, 1);
+    oa_poly_set_point(obstacle, 1600, 1300, 2);
+    oa_poly_set_point(obstacle, 1600, 900, 3);
+
+    oa_process();
+    oa_reset();
+    oa_start_end_points(end.x, end.y, start.x, start.y);
+    oa_process();
+
+    auto point_cnt = oa_get_path(&points);
+
+    CHECK_EQUAL(3, point_cnt);
+    CHECK_EQUAL(1600, points[0].x);
+    CHECK_EQUAL(900, points[0].y);
+    CHECK_EQUAL(1400, points[1].x);
+    CHECK_EQUAL(900, points[1].y);
+    CHECK_EQUAL(start.x, points[2].x);
+    CHECK_EQUAL(start.y, points[2].y);
 }

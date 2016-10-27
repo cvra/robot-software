@@ -19,12 +19,10 @@ enum strat_color_t {
 
 /** Compute the symmetrical position depending on color
  */
-#define MIRROR_Y(color, y) (color == YELLOW ? (y) : 2000 - (y))
+#define MIRROR_X(color, x) (color == YELLOW ? (x) : 3000 - (x))
 
-/** Compute the symmetrical angle depending on color
- */
-#define MIRROR_A(color, a) (color == YELLOW ? (a) : -(a))
-
+/** Initialize map with obstacles */
+void strategy_map_setup(int32_t robot_size);
 
 /** Auto position robot at requested location, and ensure the correct
  *  position is reached by aligning against walls.

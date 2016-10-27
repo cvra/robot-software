@@ -5,6 +5,7 @@
 #include "priorities.h"
 #include "blocking_detection_manager/blocking_detection_manager.h"
 #include "trajectory_manager/trajectory_manager_utils.h"
+#include "obstacle_avoidance/obstacle_avoidance.h"
 #include "robot_helpers/trajectory_helpers.h"
 #include "robot_helpers/strategy_helpers.h"
 #include "robot_parameters.h"
@@ -34,42 +35,70 @@ static void wait_for_autoposition_signal(void)
     wait_for_starter();
 }
 
+void strategy_goto_avoid(
+        struct trajectory* robot_traj,
+        struct robot_position* robot_pos,
+        int x_mm, int y_mm, int a_deg)
+{
+    /* Compute path */
+    oa_reset();
+    const point_t start = {
+            position_get_x_s16(robot_pos),
+            position_get_y_s16(robot_pos)
+        };
+    oa_start_end_points(start.x, start.y, x_mm, y_mm);
+    oa_process();
+
+    /* Retrieve path */
+    point_t *points;
+    int num_points = oa_get_path(&points);
+    log_message("Path to (%d, %d) computed with %d points\r\n", x_mm, y_mm, num_points);
+
+    /* Execute path, one waypoint at a time */
+    for (int i = 0; i < num_points; i++) {
+        log_message("Going to x: %.1fmm y: %.1fmm\r\n", points[i].x, points[i].y);
+        trajectory_goto_xy_abs(robot_traj, points[i].x, points[i].y);
+        trajectory_wait_for_finish(robot_traj);
+    }
+
+    trajectory_a_abs(robot_traj, a_deg);
+    trajectory_wait_for_finish(robot_traj);
+}
+
 
 void strategy_play_game(void* _robot)
 {
     struct _robot* robot = (struct _robot*)_robot;
     enum strat_color_t color = YELLOW;
 
+    /* Initialize map and path planner */
+    oa_init();
+    strategy_map_setup(ROBOT_SIZE_X_MM);
+
     /* Autoposition robot */
     wait_for_autoposition_signal();
     log_message("Positioning robot\n");
     strategy_auto_position(
-        900, 200, 90, ROBOT_SIZE_X_MM, color,
+        600, 200, 90, ROBOT_SIZE_X_MM, color,
         &robot->mode, &robot->traj, &robot->pos,
         &robot->distance_bd, &robot->angle_bd);
-    log_message("Robot positioned at x: %d[mm], y: %d[mm], a: %d[deg]\n", 500, 200, 90);
-
-    /* Configure robot dynamics */
-    trajectory_set_acc(&robot->traj,
-            acc_mm2imp(&robot->traj, 300.),
-            acc_rd2imp(&robot->traj, 3.));
-    trajectory_set_speed(&robot->traj,
-            speed_mm2imp(&robot->traj, 200.),
-            speed_rd2imp(&robot->traj, 3.));
-
-    bd_set_thresholds(&robot->angle_bd, 12500, 1);
-    bd_set_thresholds(&robot->distance_bd, 15000, 1);
+    log_message("Robot positioned at x: 600[mm], y: 200[mm], a: 90[deg]\n");
 
     /* Wait for starter to begin */
     wait_for_starter();
     log_message("Starting game\n");
 
-    trajectory_move_to(&robot->traj, 750, MIRROR_Y(color, 1350), MIRROR_A(color, 45));
+    /* Go to lunar module */
+    strategy_goto_avoid(&robot->traj, &robot->pos, 780, 1340, 45);
 
-    trajectory_d_rel(&robot->traj, 130.);
+    /* Push lunar module */
+    trajectory_d_rel(&robot->traj, 100.);
     trajectory_wait_for_finish(&robot->traj);
     trajectory_d_rel(&robot->traj, -100.);
     trajectory_wait_for_finish(&robot->traj);
+
+    /* Go back to home */
+    strategy_goto_avoid(&robot->traj, &robot->pos, 900, 200, 0);
 
     while (true) {
         log_message("Game ended!\nInsert coin to play more.\n");

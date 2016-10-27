@@ -10,7 +10,6 @@
 #include "trajectory_manager/trajectory_manager.h"
 #include "trajectory_manager/trajectory_manager_utils.h"
 #include "trajectory_manager/trajectory_manager_core.h"
-#include "obstacle_avoidance/obstacle_avoidance.h"
 
 #include "base_controller.h"
 
@@ -78,36 +77,11 @@ void robot_init(void)
     trajectory_set_robot_params(&robot.traj, &robot.rs, &robot.pos);
 
     // Distance window, angle window, angle start
-    trajectory_set_windows(&robot.traj,
-            pos_mm2imp(&robot.traj, 10.),
-            pos_rd2imp(&robot.traj, 0.1),
-            pos_rd2imp(&robot.traj, 0.3));
+    trajectory_set_windows(&robot.traj, 15., 1., 1.);
 
-    trajectory_set_acc(&robot.traj,
-            acc_mm2imp(&robot.traj, 300.),
-            acc_rd2imp(&robot.traj, 3.));
-
-    trajectory_set_speed(&robot.traj,
-            speed_mm2imp(&robot.traj, 200.),
-            speed_rd2imp(&robot.traj, 3.));
-
-    // Angle BDM
+    /* Initialize blocking detection managers */
     bd_init(&robot.angle_bd, &robot.angle_cs);
-    bd_set_thresholds(&robot.angle_bd, 12500, 1); // thresold, duration
-
-    // Distance BDM
     bd_init(&robot.distance_bd, &robot.distance_cs);
-    bd_set_thresholds(&robot.distance_bd, 15000, 1); // thresold, duration
-
-    // Setup map
-    const int robot_size = 150;
-    polygon_set_boundingbox(robot_size, robot_size, 3000-robot_size, 2000-robot_size);
-
-    /* Initialise obstacle avoidance */
-    oa_init();
-
-    // Position initialisation
-    position_set(&robot.pos, 900, 500, 90);
 }
 
 

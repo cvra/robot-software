@@ -32,6 +32,23 @@ void trajectory_align_with_wall(
  */
 void trajectory_move_to(struct trajectory* robot_traj, int32_t x_mm, int32_t y_mm, int32_t a_deg);
 
+/** Prepare robot for aligning by settings its dynamics accordingly
+ * ie. slower and less sensitive to collisions
+ */
+void trajectory_set_mode_aligning(
+        enum board_mode_t* robot_mode,
+        struct trajectory* robot_traj,
+        struct blocking_detection* distance_blocking,
+        struct blocking_detection* angle_blocking);
+
+/** Prepare robot for game by settings its dynamics accordingly
+ */
+void trajectory_set_mode_game(
+        enum board_mode_t* robot_mode,
+        struct trajectory* robot_traj,
+        struct blocking_detection* distance_blocking,
+        struct blocking_detection* angle_blocking);
+
 #ifdef __cplusplus
 }
 #endif
