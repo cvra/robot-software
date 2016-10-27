@@ -41,26 +41,10 @@ struct error error_generate(uint8_t num, uint8_t severity, const char * t,
 
     e.err_num = num;
     e.severity = severity;
-#ifdef ERROR_DUMP_TEXTLOG
     e.text = t;
-#else
-    e.text = PSTR("");
-#endif
-#ifdef ERROR_DUMP_FILE_LINE
     e.file = f;
     e.line = l;
-#else
-    e.file = PSTR("");
-    e.line = 0;
-#endif
     return e;
-}
-
-
-/** Register log function for EMERG level */
-void error_register_emerg(void (*f)(struct error *, ...))
-{
-    g_error_fct.emerg = f;
 }
 
 /** Register log function for ERROR level */
