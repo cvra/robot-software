@@ -18,7 +18,7 @@ TEST_GROUP(TrajectoryManagerTestGroup)
     struct robot_position pos;
     struct robot_system rs;
 
-    const int max_speed = 10;
+    const int arbitrary_max_speed = 10;
 
     void setup()
     {
@@ -46,14 +46,14 @@ TEST_GROUP(TrajectoryManagerTestGroup)
                                angle_window_deg, angle_start_deg);
 
         trajectory_set_acc(&traj, 10, 10);
-        trajectory_set_speed(&traj, max_speed, max_speed);
+        trajectory_set_speed(&traj, arbitrary_max_speed, arbitrary_max_speed);
 
         // Finally go to a point
         trajectory_goto_forward_xy_abs(&traj, 200, 200);
     }
 };
 
-TEST(TrajectoryManagerTestGroup, StateChanges)
+TEST(TrajectoryManagerTestGroup, SchedulesTrajectoryEventFirst)
 {
     // Checks that the trajectory manager is running, and turning to align
     // itself with the target point.
@@ -85,8 +85,8 @@ TEST(TrajectoryManagerTestGroup, ChangesToDriving)
     CHECK_EQUAL(RUNNING_XY_F_ANGLE_OK, traj.state);
 
     // Since we are aligned to the target, we expect to go full speed
-    DOUBLES_EQUAL(max_speed, get_quadramp_angle_speed(&traj), 0.01);
-    DOUBLES_EQUAL(max_speed, get_quadramp_distance_speed(&traj), 0.01);
+    DOUBLES_EQUAL(arbitrary_max_speed, get_quadramp_angle_speed(&traj), 0.01);
+    DOUBLES_EQUAL(arbitrary_max_speed, get_quadramp_distance_speed(&traj), 0.01);
 }
 
 TEST(TrajectoryManagerTestGroup, RemovesEventWhenInWindow)
