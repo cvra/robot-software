@@ -268,9 +268,9 @@ dsdlc:
 	@$(COLOR_PRINTF) "Running uavcan dsdl compiler"
 	$(LIBUAVCAN_DSDLC) ../cvra $(UAVCAN_DSDL_DIR)
 
-src/config_msgpack.c: ../config/config.yaml
+src/config_msgpack.c: ../config.yaml
 	@$(COLOR_PRINTF) "Generating MessagePack config..."
-	@../config/config_to_msgpack.py ../config/config.yaml src/config_msgpack.c
+	@../tools/config/config_to_msgpack.py ../config.yaml src/config_msgpack.c
 
 .PHONY: heap_size
 heap_size: build/$(PROJECT).elf
