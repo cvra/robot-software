@@ -13,7 +13,9 @@
 #include <cvra/Reboot.hpp>
 #include <cvra/StringID.hpp>
 #include <cvra/proximity_beacon/Signal.hpp>
+#include "proximity_beacon.pb.h"
 #include <msgbus/messagebus.h>
+#include <messagebus_protobufs.h>
 #include "robot_parameters.h"
 #include "motor_driver.h"
 #include "motor_driver_uavcan.h"
@@ -232,7 +234,7 @@ void main(void *arg)
     static messagebus_topic_t proximity_beacon_topic;
     static MUTEX_DECL(proximity_beacon_topic_lock);
     static CONDVAR_DECL(proximity_beacon_topic_condvar);
-    static float proximity_beacon_topic_value[2];
+    static uint8_t proximity_beacon_topic_value[ProximityBeaconSignal_size];
 
     messagebus_topic_init(&proximity_beacon_topic,
                           &proximity_beacon_topic_lock,
@@ -246,10 +248,10 @@ void main(void *arg)
     res = prox_beac_sub.start(
         [&](const uavcan::ReceivedDataStructure<cvra::proximity_beacon::Signal>& msg)
         {
-            float data[2];
-            data[0] = msg.start_angle;
-            data[1] = msg.length;
-            messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
+            ProximityBeaconSignal data;
+            data.start_angle = msg.start_angle;
+            data.length = msg.length;
+            MESSAGEBUS_PB_PUBLISH(&proximity_beacon_topic, &data, ProximityBeaconSignal);
         }
     );
     if (res < 0) {

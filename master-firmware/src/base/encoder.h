@@ -6,14 +6,9 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include "encoders.pb.h"
 
 /* Encoders use Timer 3 & 4 */
-
-typedef struct {
-    int32_t left;
-    int32_t right;
-} encoders_msg_t;
-
 
 void encoder_start(void);
 uint32_t encoder_get_left(void);

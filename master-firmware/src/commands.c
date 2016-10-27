@@ -13,6 +13,7 @@
 #include "bus_enumerator.h"
 #include "uavcan_node.h"
 #include "msgbus/messagebus.h"
+#include "messagebus_protobufs.h"
 #include "main.h"
 #include "aversive_port/cvra_motors.h"
 #include "base/encoder.h"
@@ -253,10 +254,10 @@ static void cmd_encoders(BaseSequentialStream *chp, int argc, char *argv[])
     (void) argv;
 
     messagebus_topic_t *encoders_topic;
-    encoders_msg_t values;
+    EncodersMessage values = EncodersMessage_init_default;
 
     encoders_topic = messagebus_find_topic_blocking(&bus, "/encoders");
-    messagebus_topic_wait(encoders_topic, &values, sizeof(values));
+    MESSAGEBUS_PB_READ(encoders_topic, &values, EncodersMessage);
 
     chprintf(chp, "left: %ld\r\nright: %ld\r\n", values.left, values.right);
 }

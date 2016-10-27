@@ -1,0 +1,7 @@
+syntax = "proto2";
+
+message ProximityBeaconSignal {
+    required float start_angle = 1;
+    required float length = 2;
+}
+

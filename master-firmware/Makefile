@@ -98,6 +98,9 @@ include $(CHIBIOS)/os/rt/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
 LWIP = ../lwip/
 include ../lwip.mk
 
+MESSAGES = ../messages
+include $(MESSAGES)/messages.mk
+
 # ChibiOS C++ bindings
 include $(CHIBIOS)/os/various/cpp_wrappers/chcpp.mk
 
@@ -120,6 +123,7 @@ CSRC = $(PORTSRC) \
 	   $(CHIBIOS)/os/hal/lib/streams/chprintf.c \
 	   $(CHIBIOS)/os/various/syscalls.c \
 	   $(CHIBIOS)/os/various/shell.c \
+	   $(PROTOSRC) \
 	   $(BOARDSRC)
 
 include app_src.mk
@@ -138,6 +142,7 @@ INCDIR += $(PORTINC) $(KERNINC) $(TESTINC) \
 		  $(CHCPPINC) \
 		  $(CHIBIOS)/os/various \
 		  $(CHIBIOS)/os/hal/lib/streams \
+		  $(PROTOINC) \
 		  $(BOARDINC)
 
 #
@@ -246,7 +251,7 @@ RULESPATH = ./linker/
 include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/rules.mk
 
 # Empty libraries, required by stack smashing protection
-PRE_MAKE_ALL_RULE_HOOK: libssp.a libssp_nonshared.a src/config_msgpack.c
+PRE_MAKE_ALL_RULE_HOOK: libssp.a libssp_nonshared.a $(BUILDDIR) $(PROTOSRC) src/config_msgpack.c
 libssp.a:
 	arm-none-eabi-ar rcs $@
 
