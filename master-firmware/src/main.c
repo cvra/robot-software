@@ -26,7 +26,7 @@
 #include "stream.h"
 #include "malloc_lock.h"
 #include "lwipthread.h"
-#include "log.h"
+#include <error/error.h>
 #include "usbconf.h"
 #include "base/encoder.h"
 #include "base/base_controller.h"
@@ -131,7 +131,7 @@ void __late_init(void)
 void config_load_err_cb(void *arg, const char *id, const char *err)
 {
     (void)arg;
-    log_message("parameter %s: %s", id == NULL ? "(...)" : id, err);
+    WARNING("parameter %s: %s", id == NULL ? "(...)" : id, err);
 }
 
 extern unsigned char config_msgpack[];
@@ -151,7 +151,7 @@ int main(void) {
 
     /* Initializes a serial driver.  */
     sdStart(&SD3, &debug_uart_config);
-    log_message("boot");
+    NOTICE("boot");
 
     /* Initializes a serial-over-USB CDC driver.  */
     sduObjectInit(&SDU1);

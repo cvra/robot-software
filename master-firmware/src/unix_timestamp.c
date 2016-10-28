@@ -1,5 +1,5 @@
+#include "error/error.h"
 #include "unix_timestamp.h"
-#include "log.h"
 
 static unix_timestamp_t unix_reference = {.s=0, .us=0};
 static int32_t local_reference = 0;
@@ -29,7 +29,7 @@ unix_timestamp_t timestamp_local_us_to_unix(int32_t ts)
 
 void timestamp_set_reference(unix_timestamp_t unix_ts, int32_t local_ts)
 {
-    log_message("ntp time update: %d is: %d.%06d", local_ts, unix_ts.s, unix_ts.us);
+    DEBUG("NTP time update: %d is: %d.%06d", local_ts, unix_ts.s, unix_ts.us);
     unix_reference = unix_ts;
     local_reference = local_ts;
 }

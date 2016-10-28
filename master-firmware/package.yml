@@ -14,7 +14,6 @@ depends:
 
 target.arm:
     - src/main.c
-    - src/debug/log.c
     - src/debug/panic_log.c
     - src/debug/blocking_uart.c
     - src/sntp/sntp.c
@@ -82,7 +81,6 @@ include_directories:
 
 tests:
     - tests/ch.cpp
-    - tests/log.c
     - tests/unix-timestamp.cpp
     - tests/bus_enumerator.cpp
     - tests/trajectories_test.cpp

@@ -1,7 +1,7 @@
 #include <ch.h>
 #include <hal.h>
 
-#include "log.h"
+#include <error/error.h>
 #include "priorities.h"
 #include "blocking_detection_manager/blocking_detection_manager.h"
 #include "trajectory_manager/trajectory_manager_utils.h"
@@ -52,11 +52,11 @@ void strategy_goto_avoid(
     /* Retrieve path */
     point_t *points;
     int num_points = oa_get_path(&points);
-    log_message("Path to (%d, %d) computed with %d points\r\n", x_mm, y_mm, num_points);
+    NOTICE("Path to (%d, %d) computed with %d points\r\n", x_mm, y_mm, num_points);
 
     /* Execute path, one waypoint at a time */
     for (int i = 0; i < num_points; i++) {
-        log_message("Going to x: %.1fmm y: %.1fmm\r\n", points[i].x, points[i].y);
+        NOTICE("Going to x: %.1fmm y: %.1fmm\r\n", points[i].x, points[i].y);
         trajectory_goto_xy_abs(robot_traj, points[i].x, points[i].y);
         trajectory_wait_for_finish(robot_traj);
     }
@@ -77,16 +77,16 @@ void strategy_play_game(void* _robot)
 
     /* Autoposition robot */
     wait_for_autoposition_signal();
-    log_message("Positioning robot\n");
+    NOTICE("Positioning robot\n");
     strategy_auto_position(
         600, 200, 90, ROBOT_SIZE_X_MM, color,
         &robot->mode, &robot->traj, &robot->pos,
         &robot->distance_bd, &robot->angle_bd);
-    log_message("Robot positioned at x: 600[mm], y: 200[mm], a: 90[deg]\n");
+    NOTICE("Robot positioned at x: 600[mm], y: 200[mm], a: 90[deg]\n");
 
     /* Wait for starter to begin */
     wait_for_starter();
-    log_message("Starting game\n");
+    NOTICE("Starting game\n");
 
     /* Go to lunar module */
     strategy_goto_avoid(&robot->traj, &robot->pos, 780, 1340, 45);
@@ -101,7 +101,7 @@ void strategy_play_game(void* _robot)
     strategy_goto_avoid(&robot->traj, &robot->pos, 900, 200, 0);
 
     while (true) {
-        log_message("Game ended!\nInsert coin to play more.\n");
+        WARNING("Game ended!\nInsert coin to play more.\n");
         chThdSleepSeconds(1);
     }
 }
