@@ -72,6 +72,9 @@ void error_register_notice(void (*f)(struct error *, ...));
 /** Register log function for DEBUG level */
 void error_register_debug(void (*f)(struct error *, ...));
 
+/** Returns the human readable name for the given severity level. */
+const char *error_severity_get_name(uint8_t severity);
+
 /** Call this macro to log ERROR events */
 #define ERROR(text, ...)  do {                                            \
         if (g_error_fct.error) {                                                \
