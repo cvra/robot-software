@@ -71,7 +71,7 @@ void __trajectory_goto_d_a_rel(struct trajectory *traj, double d_mm,
 {
     int32_t a_consign, d_consign;
 
-    DEBUG(E_TRAJECTORY, "Goto DA/RS rel to d=%f a_rad=%f", d_mm, a_rad);
+    DEBUG("Goto DA/RS rel to d=%f a_rad=%f", d_mm, a_rad);
     delete_event(traj);
     traj->state = state;
     if (flags & UPDATE_A) {
@@ -133,7 +133,7 @@ void trajectory_turnto_xy(struct trajectory *traj, double x_abs_mm, double y_abs
     double posy = position_get_y_double(traj->position);
     double posa = position_get_a_rad_double(traj->position);
 
-    DEBUG(E_TRAJECTORY, "Goto Turn To xy %f %f", x_abs_mm, y_abs_mm);
+    DEBUG("Goto Turn To xy %f %f", x_abs_mm, y_abs_mm);
     __trajectory_goto_d_a_rel(traj, 0,
                               simple_modulo_2pi(atan2(y_abs_mm - posy, x_abs_mm - posx) - posa),
                               RUNNING_A,
@@ -146,7 +146,7 @@ void trajectory_turnto_xy_behind(struct trajectory *traj, double x_abs_mm, doubl
     double posy = position_get_y_double(traj->position);
     double posa = position_get_a_rad_double(traj->position);
 
-    DEBUG(E_TRAJECTORY, "Goto Turn To xy %f %f", x_abs_mm, y_abs_mm);
+    DEBUG("Goto Turn To xy %f %f", x_abs_mm, y_abs_mm);
     __trajectory_goto_d_a_rel(traj, 0,
                               modulo_2pi(atan2(y_abs_mm - posy, x_abs_mm - posx) - posa + M_PI),
                               RUNNING_A,
@@ -177,7 +177,7 @@ void trajectory_d_a_rel(struct trajectory *traj, double d_mm, double a_deg)
 
 void trajectory_stop(struct trajectory *traj)
 {
-    DEBUG(E_TRAJECTORY, "stop");
+    DEBUG("stop");
     __trajectory_goto_d_a_rel(traj, 0, 0, READY,
                               UPDATE_A | UPDATE_D | RESET_D | RESET_A);
 }
@@ -186,7 +186,7 @@ void trajectory_hardstop(struct trajectory *traj)
 {
     struct quadramp_filter *q_d, *q_a;
 
-    DEBUG(E_TRAJECTORY, "hardstop");
+    DEBUG("hardstop");
 
     q_d = traj->csm_distance->consign_filter_params;
     q_a = traj->csm_angle->consign_filter_params;
@@ -201,7 +201,7 @@ void trajectory_hardstop(struct trajectory *traj)
 
 void trajectory_goto_xy_abs(struct trajectory *traj, double x, double y)
 {
-    DEBUG(E_TRAJECTORY, "Goto XY");
+    DEBUG("Goto XY");
     delete_event(traj);
     traj->target.cart.x = x;
     traj->target.cart.y = y;
@@ -211,7 +211,7 @@ void trajectory_goto_xy_abs(struct trajectory *traj, double x, double y)
 
 void trajectory_goto_forward_xy_abs(struct trajectory *traj, double x, double y)
 {
-    DEBUG(E_TRAJECTORY, "Goto XY_F");
+    DEBUG("Goto XY_F");
     delete_event(traj);
     traj->target.cart.x = x;
     traj->target.cart.y = y;
@@ -221,7 +221,7 @@ void trajectory_goto_forward_xy_abs(struct trajectory *traj, double x, double y)
 
 void trajectory_goto_backward_xy_abs(struct trajectory *traj, double x, double y)
 {
-    DEBUG(E_TRAJECTORY, "Goto XY_B");
+    DEBUG("Goto XY_B");
     delete_event(traj);
     traj->target.cart.x = x;
     traj->target.cart.y = y;
@@ -235,7 +235,7 @@ void trajectory_goto_d_a_rel(struct trajectory *traj, double d, double a)
     double x = position_get_x_double(traj->position);
     double y = position_get_y_double(traj->position);
 
-    DEBUG(E_TRAJECTORY, "Goto DA rel");
+    DEBUG("Goto DA rel");
 
     delete_event(traj);
     p.r = d;
@@ -255,7 +255,7 @@ void trajectory_goto_xy_rel(struct trajectory *traj, double x_rel_mm, double y_r
     double x = position_get_x_double(traj->position);
     double y = position_get_y_double(traj->position);
 
-    DEBUG(E_TRAJECTORY, "Goto XY rel");
+    DEBUG("Goto XY rel");
 
     delete_event(traj);
     c.x = x_rel_mm;
@@ -410,7 +410,7 @@ void trajectory_manager_xy_event(struct trajectory *traj)
 
         default:
             /* hmmm quite odd, delete the event */
-            DEBUG(E_TRAJECTORY, "GNI ???");
+            DEBUG("GNI ???");
             delete_event(traj);
             traj->state = READY;
     }
@@ -423,7 +423,7 @@ void trajectory_manager_xy_event(struct trajectory *traj)
         case RUNNING_XY_F_START:
         case RUNNING_XY_B_START:
             /* START -> ANGLE */
-            DEBUG(E_TRAJECTORY, "-> ANGLE");
+            DEBUG("-> ANGLE");
             traj->state ++;
             break;
 
@@ -437,7 +437,7 @@ void trajectory_manager_xy_event(struct trajectory *traj)
                 }
                 /* ANGLE -> ANGLE_OK */
                 traj->state ++;
-                DEBUG(E_TRAJECTORY, "-> ANGLE_OK");
+                DEBUG("-> ANGLE_OK");
             }
             break;
         }
@@ -457,8 +457,7 @@ void trajectory_manager_xy_event(struct trajectory *traj)
 
     /* step 3 : send the processed commands to cs */
 
-    EVT_DEBUG(E_TRAJECTORY,
-              "EVENT XY d_cur=%d, d_consign=%d, d_speed=%d, a_cur=%d, a_consign=%d, a_speed=%d",
+    EVT_DEBUG("EVENT XY d_cur=%d, d_consign=%d, d_speed=%d, a_cur=%d, a_consign=%d, a_speed=%d",
               rs_get_distance(traj->robot),
               d_consign,
               get_quadramp_distance_speed(traj),
@@ -543,7 +542,7 @@ void trajectory_manager_circle_event(struct trajectory *traj)
 
     set_quadramp_speed(traj, d_speed, a_speed);
 
-    EVT_DEBUG(E_TRAJECTORY, "angle=%2.2f radius=%2.2f r=%2.2f coef_p=%2.2f coef_d=%2.2f "
+    EVT_DEBUG("angle=%2.2f radius=%2.2f r=%2.2f coef_p=%2.2f coef_d=%2.2f "
                             "d_speed=%2.2f a_speed=%2.2f",
               angle_to_center_rad, radius, v2pol_target.r,
               coef_p, coef_d, d_speed, a_speed);
@@ -615,7 +614,7 @@ static void trajectory_manager_line_event(struct trajectory *traj)
     a_consign = pos_rd2imp(traj, v2pol_target.theta) / 1.1;
     a_consign += rs_get_angle(traj->robot);
 
-    EVT_DEBUG(E_TRAJECTORY, "target.x=%2.2f target.y=%2.2f, a_consign=%d, d_consign=%d",
+    EVT_DEBUG("target.x=%2.2f target.y=%2.2f, a_consign=%d, d_consign=%d",
               target_pt.x, target_pt.y, a_consign, d_consign);
 
     cs_set_consign(traj->csm_angle, a_consign);
@@ -708,7 +707,7 @@ void trajectory_circle_rel(struct trajectory *traj,
     traj->target.circle.dest_distance = rs_get_distance(traj->robot);
     traj->target.circle.dest_distance += dst_distance;
 
-    DEBUG(E_TRAJECTORY, "Circle rel (x,y)=%2.2f,%2.2f r=%2.2f flags=%x dst_angle=%d",
+    DEBUG("Circle rel (x,y)=%2.2f,%2.2f r=%2.2f flags=%x dst_angle=%d",
           x, y, radius_mm, flags, traj->target.circle.dest_angle);
 
     traj->state = RUNNING_CIRCLE;
@@ -746,7 +745,7 @@ static void __trajectory_line_abs(struct trajectory *traj,
     traj->target.line.angle = atan2(y2 - y1, x2 - x1);
     traj->target.line.advance = advance;
 
-    DEBUG(E_TRAJECTORY, "Line rel (a,b,c)=%2.2f,%2.2f,%2.2f",
+    DEBUG("Line rel (a,b,c)=%2.2f,%2.2f,%2.2f",
           traj->target.line.line.a,
           traj->target.line.line.b,
           traj->target.line.line.c,
@@ -803,33 +802,33 @@ static int8_t calc_clitoid(struct trajectory *traj,
 
     /* param check */
     if (fabs(alpha_deg) <= fabs(beta_deg)) {
-        DEBUG(E_TRAJECTORY, "alpha is smaller than beta");
+        DEBUG("alpha is smaller than beta");
         return -1;
     }
 
     /* get angular speed Va */
     Vd_mm_s = speed_imp2mm(traj, Vd);
-    DEBUG(E_TRAJECTORY, "Vd_mm_s=%2.2f", Vd_mm_s);
+    DEBUG("Vd_mm_s=%2.2f", Vd_mm_s);
     Va_rd_s = Vd_mm_s / R_mm;
     Va = speed_rd2imp(traj, Va_rd_s);
-    DEBUG(E_TRAJECTORY, "Va_rd_s=%2.2f Va=%2.2f", Va_rd_s, Va);
+    DEBUG("Va_rd_s=%2.2f Va=%2.2f", Va_rd_s, Va);
 
     /* process 't', the time in seconds that we will take to do
      * the first clothoid */
     alpha_rad = RAD(alpha_deg);
     beta_rad = RAD(beta_deg);
     t = fabs(((alpha_rad - beta_rad) * R_mm) / Vd_mm_s);
-    DEBUG(E_TRAJECTORY, "R_mm=%2.2f a_rad=%2.2f alpha_rad=%2.2f beta_rad=%2.2f t=%2.2f",
+    DEBUG("R_mm=%2.2f a_rad=%2.2f alpha_rad=%2.2f beta_rad=%2.2f t=%2.2f",
           R_mm, a_rad, alpha_rad, beta_rad, t);
 
     /* process the angular acceleration */
     Aa_rd_s2 = Va_rd_s / t;
     Aa = acc_rd2imp(traj, Aa_rd_s2);
-    DEBUG(E_TRAJECTORY, "Aa_rd_s2=%2.2f Aa=%2.2f", Aa_rd_s2, Aa);
+    DEBUG("Aa_rd_s2=%2.2f Aa=%2.2f", Aa_rd_s2, Aa);
 
     /* exit if the robot cannot physically do it */
     if (Aa > Amax) {
-        DEBUG(E_TRAJECTORY, "greater than max acceleration");
+        DEBUG("greater than max acceleration");
         return -1;
     }
 
@@ -842,7 +841,7 @@ static int8_t calc_clitoid(struct trajectory *traj,
     pt2.x = intersect.x + cos(a_rad + alpha_rad);
     pt2.y = intersect.y + sin(a_rad + alpha_rad);
     pts2line(&intersect, &pt2, &line2);
-    DEBUG(E_TRAJECTORY, "intersect=(%2.2f, %2.2f)",
+    DEBUG("intersect=(%2.2f, %2.2f)",
           intersect.x, intersect.y);
 
     /* L and A are the parameters of the clothoid, xm and ym are
@@ -861,14 +860,14 @@ static int8_t calc_clitoid(struct trajectory *traj,
         - (pow(L, 7) / (336. * pow(A, 6)))
         + (pow(L, 11) / (42240. * pow(A, 10)))
         - (pow(L, 15) / (9676800. * pow(A, 14)));
-    DEBUG(E_TRAJECTORY, "relative xm,ym = (%2.2f, %2.2f)",
+    DEBUG("relative xm,ym = (%2.2f, %2.2f)",
           xm, ym);
 
     /* the center of the circle is at d_mm when we have to start
      * the clothoid */
     tau = (alpha_rad - beta_rad) / 2.;
     d_mm = ym + (R_mm * cos(tau));
-    DEBUG(E_TRAJECTORY, "d_mm=%2.2f", d_mm);
+    DEBUG("d_mm=%2.2f", d_mm);
 
     /* translate line1 */
     memcpy(&line1_int, &line1, sizeof(line1_int));
@@ -882,7 +881,7 @@ static int8_t calc_clitoid(struct trajectory *traj,
     }
     vect_resize(&v, d_mm);
     line_translate(&line1_int, &v);
-    DEBUG(E_TRAJECTORY, "translate line1 by %2.2f,%2.2f", v.x, v.y);
+    DEBUG("translate line1 by %2.2f,%2.2f", v.x, v.y);
 
     /* translate line2_int */
     v.x = intersect.x - pt2.x;
@@ -894,15 +893,15 @@ static int8_t calc_clitoid(struct trajectory *traj,
     }
     vect_resize(&v, d_mm);
     line_translate(&line2_int, &v);
-    DEBUG(E_TRAJECTORY, "translate line2 by %2.2f,%2.2f", v.x, v.y);
+    DEBUG("translate line2 by %2.2f,%2.2f", v.x, v.y);
 
     /* find the center of the circle, at the intersection of the
      * new translated lines */
     if (intersect_line(&line1_int, &line2_int, &center) != 1) {
-        DEBUG(E_TRAJECTORY, "cannot find circle center");
+        DEBUG("cannot find circle center");
         return -1;
     }
-    DEBUG(E_TRAJECTORY, "center=(%2.2f,%2.2f)", center.x, center.y);
+    DEBUG("center=(%2.2f,%2.2f)", center.x, center.y);
 
     /* M is the same point than xm, ym but in absolute coords */
     if (alpha_rad < 0) {
@@ -912,17 +911,17 @@ static int8_t calc_clitoid(struct trajectory *traj,
         M.x = center.x + cos(a_rad - M_PI / 2 + tau) * R_mm;
         M.y = center.y + sin(a_rad - M_PI / 2 + tau) * R_mm;
     }
-    DEBUG(E_TRAJECTORY, "absolute M = (%2.2f, %2.2f)", M.x, M.y);
+    DEBUG("absolute M = (%2.2f, %2.2f)", M.x, M.y);
 
     /* project M on line 1 */
     proj_pt_line(&M, &line1, &proj);
-    DEBUG(E_TRAJECTORY, "proj M = (%2.2f, %2.2f)", proj.x, proj.y);
+    DEBUG("proj M = (%2.2f, %2.2f)", proj.x, proj.y);
 
     /* process remaining distance before start turning */
     remain_d_mm = d_inter_mm - (pt_norm(&proj, &intersect) + xm);
-    DEBUG(E_TRAJECTORY, "remain_d=%2.2f", remain_d_mm);
+    DEBUG("remain_d=%2.2f", remain_d_mm);
     if (remain_d_mm < 0) {
-        DEBUG(E_TRAJECTORY, "too late, cannot turn");
+        DEBUG("too late, cannot turn");
         return -1;
     }
 
@@ -942,7 +941,7 @@ static void start_clitoid(struct trajectory *traj)
     double R_mm = traj->target.line.R;
     double d;
 
-    DEBUG(E_TRAJECTORY, "%s() Va=%2.2f Aa=%2.2f",
+    DEBUG("%s() Va=%2.2f Aa=%2.2f",
           __FUNCTION__, Va, Aa);
     delete_event(traj);
     d = fabs(R_mm * a_rad);
@@ -990,7 +989,7 @@ int8_t trajectory_clitoid(struct trajectory *traj,
     if (calc_clitoid(traj, x, y, a_rad, alpha_deg, beta_deg, R_mm,
                      Vd, traj->a_acc, d_inter_mm,
                      &Aa, &Va, &remain) < 0) {
-        DEBUG(E_TRAJECTORY, "%s() calc_clitoid returned an error",
+        DEBUG("%s() calc_clitoid returned an error",
               __FUNCTION__);
         return -1;
     }
@@ -1004,7 +1003,7 @@ int8_t trajectory_clitoid(struct trajectory *traj,
     traj->target.line.R = R_mm;
     traj->target.line.turn_pt.x = turnx;
     traj->target.line.turn_pt.y = turny;
-    DEBUG(E_TRAJECTORY, "%s() turn_pt=%2.2f,%2.2f",
+    DEBUG("%s() turn_pt=%2.2f,%2.2f",
           __FUNCTION__, turnx, turny);
 
     __trajectory_line_abs(traj, x, y, turnx, turny,
