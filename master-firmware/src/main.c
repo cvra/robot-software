@@ -12,6 +12,7 @@
 #include "sntp/sntp.h"
 #include "unix_timestamp.h"
 #include "panic_log.h"
+#include "log.h"
 #include <arm-cortex-tools/mpu.h>
 #include <arm-cortex-tools/fault.h>
 #include "blocking_uart.h"
@@ -151,6 +152,8 @@ int main(void) {
 
     /* Initializes a serial driver.  */
     sdStart(&SD3, &debug_uart_config);
+    log_init();
+
     NOTICE("boot");
 
     /* Initializes a serial-over-USB CDC driver.  */

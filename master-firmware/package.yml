@@ -15,6 +15,7 @@ depends:
 target.arm:
     - src/main.c
     - src/debug/panic_log.c
+    - src/debug/log.c
     - src/debug/blocking_uart.c
     - src/sntp/sntp.c
     - src/commands.c
