@@ -51,6 +51,7 @@ source:
     - src/trajectories.c
     - src/trace/trace.c
     - src/robot_helpers/math_helpers.c
+    - src/robot_helpers/beacon_helpers.c
     - src/robot_helpers/trajectory_helpers.c
     - src/aversive/error/error.c
     - src/aversive/quadramp/quadramp.c
@@ -93,6 +94,7 @@ tests:
     - tests/bus_enumerator.cpp
     - tests/trajectories_test.cpp
     - tests/test_math_helpers.cpp
+    - tests/test_beacon_helpers.cpp
     - tests/test_trajectory_helpers.cpp
     - tests/obstacle_avoidance.cpp
     - tests/trace_test.cpp
