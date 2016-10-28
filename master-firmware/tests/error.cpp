@@ -3,7 +3,7 @@
 
 #include "error/error.h"
 
-TEST_GROUP(ErrorLoggingTestGroup)
+TEST_GROUP(ErrorLogging)
 {
     void teardown(void)
     {
@@ -23,7 +23,7 @@ void error_mock(struct error *e, ...)
           .withStringParameter("text", e->text);
 }
 
-TEST(ErrorLoggingTestGroup, PopulatesFieldError)
+TEST(ErrorLogging, PopulatesFieldError)
 {
     auto error = error_generate(ERROR_SEVERITY_WARNING,
                                 "foo", __FILE__, 120);
@@ -34,7 +34,7 @@ TEST(ErrorLoggingTestGroup, PopulatesFieldError)
     STRCMP_EQUAL(__FILE__, error.file);
 }
 
-TEST(ErrorLoggingTestGroup, MockWorks)
+TEST(ErrorLogging, MockWorks)
 {
     auto error = error_generate(ERROR_SEVERITY_WARNING,
                                 "foo", __FILE__, 120);
@@ -46,7 +46,7 @@ TEST(ErrorLoggingTestGroup, MockWorks)
     error_mock(&error);
 }
 
-TEST(ErrorLoggingTestGroup, GeneratesError)
+TEST(ErrorLogging, GeneratesError)
 {
     error_register_error(error_mock);
     mock().expectOneCall("error")
@@ -58,7 +58,7 @@ TEST(ErrorLoggingTestGroup, GeneratesError)
     ERROR("foo");
 }
 
-TEST(ErrorLoggingTestGroup, GeneratesWarning)
+TEST(ErrorLogging, GeneratesWarning)
 {
     error_register_warning(error_mock);
     mock().expectOneCall("error")
@@ -70,7 +70,7 @@ TEST(ErrorLoggingTestGroup, GeneratesWarning)
     WARNING("foo");
 }
 
-TEST(ErrorLoggingTestGroup, GeneratesNotice)
+TEST(ErrorLogging, GeneratesNotice)
 {
     error_register_notice(error_mock);
     mock().expectOneCall("error")
@@ -82,7 +82,7 @@ TEST(ErrorLoggingTestGroup, GeneratesNotice)
     NOTICE( "foo");
 }
 
-TEST(ErrorLoggingTestGroup, GeneratesDebug)
+TEST(ErrorLogging, GeneratesDebug)
 {
     error_register_debug(error_mock);
     mock().expectOneCall("error")
