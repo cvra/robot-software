@@ -1,9 +1,7 @@
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
 
-extern "C" {
 #include "error/error.h"
-}
 
 TEST_GROUP(ErrorLoggingTestGroup)
 {
