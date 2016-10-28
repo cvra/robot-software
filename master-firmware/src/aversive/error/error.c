@@ -34,12 +34,11 @@ void error_init(void)
 }
 
 
-struct error error_generate(uint8_t num, uint8_t severity, const char * t,
+struct error error_generate(uint8_t severity, const char * t,
                             const char * f, uint16_t l)
 {
     struct error e;
 
-    e.err_num = num;
     e.severity = severity;
     e.text = t;
     e.file = f;

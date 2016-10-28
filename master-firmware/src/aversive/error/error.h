@@ -23,7 +23,6 @@
 #define _ERROR_H_
 
 #include <stdint.h>
-#include <error/general_errors.h>
 
 enum {
     ERROR_SEVERITY_ERROR,
@@ -34,7 +33,6 @@ enum {
 
 /** The error structure, which is given as a parameter in log funcs */
 struct error {
-    unsigned int err_num;        /**< Error number */
     unsigned int severity;       /**< Error severity */
     const char * text;      /**< Error text */
     const char * file;      /**< File in which the error occurred */
@@ -53,8 +51,7 @@ struct error_fct {
 extern struct error_fct g_error_fct;
 
 
-struct error error_generate(uint8_t num,
-                            uint8_t severity,
+struct error error_generate(uint8_t severity,
                             const char * t,
                             const char * f,
                             uint16_t l);
@@ -72,9 +69,9 @@ void error_register_notice(void (*f)(struct error *, ...));
 void error_register_debug(void (*f)(struct error *, ...));
 
 /** Call this macro to log ERROR events */
-#define ERROR(num, text, ...)  do {                                            \
+#define ERROR(text, ...)  do {                                            \
         if (g_error_fct.error) {                                                \
-            struct error e = error_generate(num, ERROR_SEVERITY_ERROR,     \
+            struct error e = error_generate(ERROR_SEVERITY_ERROR,     \
                                             (text),    \
                                             (__FILE__), \
                                             __LINE__);     \
@@ -83,9 +80,9 @@ void error_register_debug(void (*f)(struct error *, ...));
 } while (0)
 
 /** Call this macro to log WARNING events */
-#define WARNING(num, text, ...)  do {                                          \
+#define WARNING(text, ...)  do {                                          \
         if (g_error_fct.warning) {                                              \
-            struct error e = error_generate(num, ERROR_SEVERITY_WARNING,   \
+            struct error e = error_generate(ERROR_SEVERITY_WARNING,   \
                                             (text),    \
                                             (__FILE__), \
                                             __LINE__);     \
@@ -94,9 +91,9 @@ void error_register_debug(void (*f)(struct error *, ...));
 } while (0)
 
 /** Call this macro to log NOTICE events */
-#define NOTICE(num, text, ...)  do {                                           \
+#define NOTICE(text, ...)  do {                                           \
         if (g_error_fct.notice) {                                               \
-            struct error e = error_generate(num, ERROR_SEVERITY_NOTICE,    \
+            struct error e = error_generate(ERROR_SEVERITY_NOTICE,    \
                                             (text),    \
                                             (__FILE__), \
                                             __LINE__);     \
@@ -105,9 +102,9 @@ void error_register_debug(void (*f)(struct error *, ...));
 } while (0)
 
 /** Call this macro to log DEBUG events */
-#define DEBUG(num, text, ...)  do {                                            \
+#define DEBUG(text, ...)  do {                                            \
         if (g_error_fct.debug) {                                                \
-            struct error e = error_generate(num, ERROR_SEVERITY_DEBUG,     \
+            struct error e = error_generate(ERROR_SEVERITY_DEBUG,     \
                                             (text),    \
                                             (__FILE__), \
                                             __LINE__);     \
