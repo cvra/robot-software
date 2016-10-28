@@ -11,25 +11,6 @@
 
 MUTEX_DECL(log_lock);
 
-static const char *get_severity_name(uint8_t severity)
-{
-    char *result;
-    switch (severity) {
-        case ERROR_SEVERITY_ERROR:
-            result = "ERROR";
-        case ERROR_SEVERITY_WARNING:
-            result = "WARNING";
-        case ERROR_SEVERITY_NOTICE:
-            result = "NOTICE";
-        case ERROR_SEVERITY_DEBUG:
-            result = "DEBUG";
-        default:
-            result = "UNKNOWN";
-    }
-
-    return result;
-}
-
 static void log_message(struct error *e, ...)
 {
     chMtxLock(&log_lock);
@@ -55,7 +36,7 @@ static void log_message(struct error *e, ...)
     }
 
     /* Print severity message */
-    chprintf(OUTPUT_STREAM, "%s\t", get_severity_name(e->severity));
+    chprintf(OUTPUT_STREAM, "%s\t", error_severity_get_name(e->severity));
 
     /* Print message */
     va_start(args, e);
