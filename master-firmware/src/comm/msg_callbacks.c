@@ -4,7 +4,7 @@
 #include <string.h>
 #include <cmp/cmp.h>
 #include <chprintf.h>
-#include "log.h"
+#include <error/error.h>
 
 #include "main.h"
 #include "timestamp/timestamp.h"
@@ -146,7 +146,7 @@ void message_actuator_trajectory_callback(void *p, cmp_ctx_t *input)
                           point_count, ACTUATOR_TRAJECTORY_POINT_DIMENSION,
                           start_time, delta_t);
 
-    log_message("traj chunk start: %d end: %d cur: %d",
+    DEBUG("traj chunk start: %d end: %d cur: %d",
                 start_time, start_time + point_count * delta_t, timestamp_get());
     motor_manager_execute_trajecory(&motor_manager, actuator_id, &chunk);
 }

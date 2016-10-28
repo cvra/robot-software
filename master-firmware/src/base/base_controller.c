@@ -1,7 +1,7 @@
 #include <ch.h>
 #include <math.h>
 
-#include "log.h"
+#include <error/error.h>
 #include "main.h"
 #include "config.h"
 #include "priorities.h"
@@ -115,12 +115,12 @@ static THD_FUNCTION(base_ctrl_thd, arg)
 
         /* Collision detected */
         if (bd_get(&robot.distance_bd)) {
-            log_message("Collision detected in distance !");
+            WARNING("Collision detected in distance !");
             // trajectory_hardstop(&robot.traj);
             // rs_set_distance(&robot.rs, 0);
         }
         if (bd_get(&robot.angle_bd)) {
-            log_message("Collision detected in angle !");
+            WARNING("Collision detected in angle !");
             // trajectory_hardstop(&robot.traj);
             // rs_set_angle(&robot.rs, 0);
         }

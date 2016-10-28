@@ -14,13 +14,13 @@
 #include <cvra/StringID.hpp>
 #include <cvra/proximity_beacon/Signal.hpp>
 #include <msgbus/messagebus.h>
+#include "error/error.h"
 #include "robot_parameters.h"
 #include "motor_driver.h"
 #include "motor_driver_uavcan.h"
 #include "config.h"
 #include "uavcan_node_private.hpp"
 #include "uavcan_node.h"
-#include "log.h"
 #include "priorities.h"
 #include "main.h"
 
@@ -295,14 +295,14 @@ void main(void *arg)
 static void node_status_cb(const uavcan::ReceivedDataStructure<uavcan::protocol::NodeStatus>& msg)
 {
     if (msg.health != uavcan::protocol::NodeStatus::HEALTH_OK) {
-        log_message("UAVCAN node %u health", msg.getSrcNodeID().get());
+        WARNING("UAVCAN node %u health", msg.getSrcNodeID().get());
     }
 }
 
 static void node_fail(const char *reason)
 {
     (void) reason;
-    log_message("UAVCAN error: %s", reason);
+    ERROR("UAVCAN error: %s", reason);
     chSysHalt(reason);
 }
 

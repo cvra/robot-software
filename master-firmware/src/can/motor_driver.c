@@ -2,7 +2,7 @@
 #include <string.h>
 #include "motor_driver.h"
 
-#include "log.h"
+#include <error/error.h>
 #include "timestamp/timestamp.h"
 
 #define MOTOR_CONTROL_UPDATE_PERIOD_POSITION    0.05f // [s]
@@ -154,17 +154,16 @@ void motor_driver_update_trajectory(motor_driver_t *d, trajectory_chunk_t *traj)
     int ret = trajectory_apply_chunk(d->setpt.trajectory, traj);
     switch (ret) {
         case TRAJECTORY_ERROR_TIMESTEP_MISMATCH:
-            chSysHalt("TRAJECTORY_ERROR_TIMESTEP_MISMATCH");
+            ERROR("TRAJECTORY_ERROR_TIMESTEP_MISMATCH");
             break;
         case TRAJECTORY_ERROR_CHUNK_TOO_OLD:
-            chSysHalt("TRAJECTORY_ERROR_CHUNK_TOO_OLD");
+            ERROR("TRAJECTORY_ERROR_CHUNK_TOO_OLD");
             break;
         case TRAJECTORY_ERROR_DIMENSION_MISMATCH:
-            chSysHalt("TRAJECTORY_ERROR_DIMENSION_MISMATCH");
+            ERROR("TRAJECTORY_ERROR_DIMENSION_MISMATCH");
             break;
         case TRAJECTORY_ERROR_CHUNK_OUT_OF_ORER:
-            log_message("TRAJECTORY_ERROR_CHUNK_OUT_OF_ORER");
-            // chSysHalt("TRAJECTORY_ERROR_CHUNK_OUT_OF_ORER");
+            ERROR("TRAJECTORY_ERROR_CHUNK_OUT_OF_ORER");
             break;
     }
     d->update_period = MOTOR_CONTROL_UPDATE_PERIOD_TRAJECTORY;
@@ -251,8 +250,7 @@ void motor_driver_get_trajectory_point(motor_driver_t *d,
     }
     float *t = trajectory_read(d->setpt.trajectory, timestamp_us);
     if (t == NULL) {
-        // chSysHalt("control error"); // todo
-        log_message("trajectory read: %d failed", timestamp_get());
+        WARNING("trajectory read: %d failed", timestamp_get());
         *position = 0;
         *velocity = 0;
         *acceleration = 0;

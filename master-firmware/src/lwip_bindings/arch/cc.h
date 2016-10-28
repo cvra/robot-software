@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <ch.h>
 
-#include "log.h"
+#include <error/error.h>
 
 /* Define generic types used in lwIP */
 typedef uint8_t u8_t;
@@ -32,9 +32,8 @@ typedef intptr_t mem_ptr_t;
 #define X32_F "x"
 
 /* Diagnostic macros. */
-#define LWIP_PLATFORM_ASSERT(msg) chSysHalt(msg)
-
-#define LWIP_PLATFORM_DIAG(msg)   do { log_message msg; } while(0) 
+#define LWIP_PLATFORM_ASSERT(msg) ERROR(msg)
+#define LWIP_PLATFORM_DIAG(msg) do {DEBUG msg;} while (0);
 
 
 #endif
