@@ -22,6 +22,10 @@
 #ifndef _ERROR_H_
 #define _ERROR_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 enum {
@@ -113,6 +117,8 @@ void error_register_debug(void (*f)(struct error *, ...));
 } while (0)
 
 
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _ERROR_H_ */
