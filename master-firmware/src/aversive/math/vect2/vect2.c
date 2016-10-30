@@ -13,8 +13,8 @@ void vect2_pol2cart(vect2_pol* vp, vect2_cart* vc)
         return;
     }
 
-    vc->x = (Real)((vp->r) * cos(vp->theta));
-    vc->y = (Real)((vp->r) * sin(vp->theta));
+    vc->x = (float)((vp->r) * cos(vp->theta));
+    vc->y = (float)((vp->r) * sin(vp->theta));
 
     return;
 }
@@ -29,8 +29,8 @@ void vect2_cart2pol(vect2_cart* vc, vect2_pol* vp)
         return;
     }
 
-    vp->r = (Real)(sqrt((vc->x) * (vc->x) + (vc->y) * (vc->y)));
-    vp->theta = (Real)atan2(vc->y, vc->x);
+    vp->r = (float)(sqrt((vc->x) * (vc->x) + (vc->y) * (vc->y)));
+    vp->theta = (float)atan2(vc->y, vc->x);
 
     return;
 }
@@ -93,7 +93,7 @@ void vect2_sub_cart(vect2_cart* vc1, vect2_cart* vc2, vect2_cart* vresult)
 
 
 /* Multiply a cartesian vector by a scalar and return the result */
-void vect2_scale_cart(vect2_cart* vc1, Real alpha, vect2_cart* vresult)
+void vect2_scale_cart(vect2_cart* vc1, float alpha, vect2_cart* vresult)
 {
     vresult->x = alpha * (vc1->x);
     vresult->y = alpha * (vc1->y);
@@ -102,7 +102,7 @@ void vect2_scale_cart(vect2_cart* vc1, Real alpha, vect2_cart* vresult)
 }
 
 /* Multiply a polar vector by a scalar and return the result */
-void vect2_scale_pol(vect2_pol* vp1, Real alpha, vect2_pol* vresult)
+void vect2_scale_pol(vect2_pol* vp1, float alpha, vect2_pol* vresult)
 {
     vresult->r = alpha * vp1->r;
 

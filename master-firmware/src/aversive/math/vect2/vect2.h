@@ -36,17 +36,14 @@
 #ifndef _VECT2_H_
 #define _VECT2_H_
 
-/** \brief Definition of reals used in vector 2d */
-typedef float Real;
-
-#define TO_RAD(x) (((Real)x) * (0.01745329251994329577f)) /**< Convert degrees to radian (* pi / 180) */
-#define TO_DEG(x) (((Real)x) * (57.2957795130823208768f)) /**< Convert radian to degrees (* 180 / pi) */
+#define TO_RAD(x) (x * (0.01745329251994329577f) /**< Convert degrees to radian (* pi / 180) */
+#define TO_DEG(x) (x * (57.2957795130823208768f) /**< Convert radian to degrees (* 180 / pi) */
 
 /** \brief Cartesian vector structure
 **/
 typedef struct _vect2_cart {
-    Real x;     /**< x-coordinate */
-    Real y;     /**< y-coordinate */
+    float x;     /**< x-coordinate */
+    float y;     /**< y-coordinate */
 
 } vect2_cart;
 
@@ -54,8 +51,8 @@ typedef struct _vect2_cart {
 /** \brief Polar vector structure
 **/
 typedef struct _vect2_pol {
-    Real r;     /**< Radius */
-    Real theta; /**< Angle */
+    float r;     /**< Radius */
+    float theta; /**< Angle */
 
 } vect2_pol;
 
@@ -110,8 +107,8 @@ void vect2_add_cart(vect2_cart* v1, vect2_cart* v2, vect2_cart* vresult);
  * \param v2 Reference to a polar vector to substract.
  * \param vresult Reference to a polar vector to store the result.
  * \warning This function doesn't do any
-    Real R = 1.45064930529587234;
-    Real theta = 0.6734390282904231341;malloc ! You have to allocate structures before calling this function.
+    float R = 1.45064930529587234;
+    float theta = 0.6734390282904231341;malloc ! You have to allocate structures before calling this function.
  * \note This function convert the 2 entry vectors to cartesian, substract them and then convert the result to polar.
  * So please think before using it.
  *
@@ -138,7 +135,7 @@ void vect2_sub_cart(vect2_cart* v1, vect2_cart* v2, vect2_cart* vresult);
  *
  * \f[ \vec V_{result} = \alpha\vec V_1 \f]
  **/
-void vect2_scale_cart(vect2_cart* v1, Real alpha, vect2_cart* vresult);
+void vect2_scale_cart(vect2_cart* v1, float alpha, vect2_cart* vresult);
 
 /** \brief Multiply a polar vector by a scalar and return the result
  * \param v1 Reference to a polar vector.
@@ -148,7 +145,7 @@ void vect2_scale_cart(vect2_cart* v1, Real alpha, vect2_cart* vresult);
  *
  * \f[ \vec V_{result} = \alpha\vec V_1 \f]
  **/
-void vect2_scale_pol(vect2_pol* v1, Real alpha, vect2_pol* vresult);
+void vect2_scale_pol(vect2_pol* v1, float alpha, vect2_pol* vresult);
 
 /** @brief Norm of a cartesian vector.
  * @param vc Reference to a cartesian vector.
