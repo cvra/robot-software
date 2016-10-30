@@ -53,15 +53,19 @@ const char *error_severity_get_name(uint8_t severity)
         case ERROR_SEVERITY_ERROR:
             result = "ERROR";
             break;
+
         case ERROR_SEVERITY_WARNING:
             result = "WARNING";
             break;
+
         case ERROR_SEVERITY_NOTICE:
             result = "NOTICE";
             break;
+
         case ERROR_SEVERITY_DEBUG:
             result = "DEBUG";
             break;
+
         default:
             result = "UNKNOWN";
             break;

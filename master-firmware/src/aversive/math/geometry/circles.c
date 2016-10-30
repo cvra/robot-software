@@ -119,7 +119,7 @@ int circle_intersect(const circle_t *c1, const circle_t *c2,
         p2->x = p1->x;
         p2->y = p1->y;
         ret = 1;
-    } else   {
+    } else {
         /* usual case */
         p1->x = (2.0f * a * c - sqrtf(d)) / (2.0f * (sq(a) + sq(b)));
         p1->y = (c - a * p1->x) / b;

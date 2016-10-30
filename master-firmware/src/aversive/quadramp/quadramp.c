@@ -106,7 +106,7 @@ int32_t quadramp_do_filter(void * data, int32_t in)
         if (ramp_pos < var_1st_ord_pos) {
             var_1st_ord_pos = ramp_pos;
         }
-    } else if (d < 0 && var_2nd_ord_pos)   {
+    } else if (d < 0 && var_2nd_ord_pos) {
         double ramp_neg;
 
         /* var_2nd_ord_pos > 0 */
@@ -170,10 +170,10 @@ int32_t quadramp_do_filter(void * data, int32_t in)
     if (d_float > var_1st_ord_pos) {
         pos_target = previous_out + var_1st_ord_pos;
         previous_var = var_1st_ord_pos;
-    } else if (d_float < var_1st_ord_neg)   {
+    } else if (d_float < var_1st_ord_neg) {
         pos_target = previous_out + var_1st_ord_neg;
         previous_var = var_1st_ord_neg;
-    } else   {
+    } else {
         pos_target = in;
         previous_var = d_float;
     }

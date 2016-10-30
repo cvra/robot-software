@@ -117,7 +117,7 @@ void position_manage(struct robot_position *pos)
     if (pos->use_ext) {
         encoders.distance = rs_get_ext_distance(rs);
         encoders.angle = rs_get_ext_angle(rs);
-    } else   {
+    } else {
         encoders.distance = rs_get_mot_distance(rs);
         encoders.angle = rs_get_mot_angle(rs);
     }
@@ -143,7 +143,7 @@ void position_manage(struct robot_position *pos)
         dy = sin(a) * ((double) delta.distance / (pos->phys.distance_imp_per_mm));
         x += dx;
         y += dy;
-    } else   {
+    } else {
         /* r the radius of the circle arc */
         r = (double)delta.distance * pos->phys.track_mm / ((double) delta.angle * 2);
         arc_angle = 2 * (double) delta.angle / (pos->phys.track_mm * pos->phys.distance_imp_per_mm);
