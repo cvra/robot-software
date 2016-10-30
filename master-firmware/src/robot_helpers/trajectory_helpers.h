@@ -9,6 +9,9 @@ extern "C" {
 #include "blocking_detection_manager/blocking_detection_manager.h"
 #include "base/base_controller.h"
 
+#define TRAJ_END_GOAL_REACHED   (1 << 0)
+#define TRAJ_END_COLLISION      (1 << 1)
+
 /** Return when ongoing trajectory is finished (ie. goal reached)
  * @note This is a blocking function call
  */
@@ -18,6 +21,9 @@ void trajectory_wait_for_finish(struct trajectory* robot_traj);
  * @note This is a blocking function call
  */
 void trajectory_wait_for_collision(struct blocking_detection* distance_blocking);
+
+
+int trajectory_has_ended(struct _robot *robot, int end_reason);
 
 /** Go backwards until a wall is hit to aligne with it
  */

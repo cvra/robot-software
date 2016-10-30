@@ -1,23 +1,40 @@
 #include <ch.h>
 
 #include "trajectory_manager/trajectory_manager_utils.h"
-
 #include "trajectory_helpers.h"
+
 
 void trajectory_wait_for_finish(struct trajectory* robot_traj)
 {
+#ifndef TESTS
     chThdSleepMilliseconds(100);
     while(!trajectory_finished(robot_traj)) {
         chThdSleepMilliseconds(1);
     }
+#else
+    (void)robot_traj;
+#endif
 }
 
 void trajectory_wait_for_collision(struct blocking_detection* distance_blocking)
 {
+#ifndef TESTS
     chThdSleepMilliseconds(100);
     while(!bd_get(distance_blocking)) {
         chThdSleepMilliseconds(1);
     }
+#else
+    (void)distance_blocking;
+#endif
+}
+
+int trajectory_has_ended(struct _robot *robot, int end_reason)
+{
+    if ((end_reason & TRAJ_END_GOAL_REACHED) && trajectory_finished(&robot->traj)) {
+        return TRAJ_END_GOAL_REACHED;
+    }
+
+    return 0;
 }
 
 void trajectory_align_with_wall(
