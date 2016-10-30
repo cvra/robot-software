@@ -35,6 +35,7 @@
 #include "strategy.h"
 #include "filesystem.h"
 #include "http/server.h"
+#include "dynamic_obstacle_avoidance.h"
 
 void init_base_motors(void);
 
@@ -245,6 +246,7 @@ int main(void) {
 
     /* Initialize strategy thread, will wait for signal to begin game */
     strategy_start();
+    dynamic_obstacle_avoidance_start();
 
     stream_init();
 
