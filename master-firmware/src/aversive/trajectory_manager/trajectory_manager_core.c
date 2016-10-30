@@ -473,10 +473,10 @@ void trajectory_manager_xy_event(struct trajectory *traj)
  * Compute the fastest distance and angle speeds matching the radius
  * from current traj_speed
  */
-void circle_get_da_speed_from_radius(struct trajectory *traj,
-                                     double radius_mm,
-                                     double *speed_d,
-                                     double *speed_a)
+void circle_get_speed_from_radius(struct trajectory *traj,
+                                  double radius_mm,
+                                  double *speed_d,
+                                  double *speed_a)
 {
     /* speed_d = coef * speed_a */
     double coef;
@@ -537,13 +537,13 @@ void trajectory_manager_circle_event(struct trajectory *traj)
     }
     coef_d = exp(5 * angle_to_center_rad);
 
-    circle_get_da_speed_from_radius(traj, radius / (coef_p * coef_d),
-                                    &d_speed, &a_speed);
+    circle_get_speed_from_radius(traj, radius / (coef_p * coef_d),
+                                 &d_speed, &a_speed);
 
     set_quadramp_speed(traj, d_speed, a_speed);
 
     EVT_DEBUG("angle=%2.2f radius=%2.2f r=%2.2f coef_p=%2.2f coef_d=%2.2f "
-                            "d_speed=%2.2f a_speed=%2.2f",
+              "d_speed=%2.2f a_speed=%2.2f",
               angle_to_center_rad, radius, v2pol_target.r,
               coef_p, coef_d, d_speed, a_speed);
 

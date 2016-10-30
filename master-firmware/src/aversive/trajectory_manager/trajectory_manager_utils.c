@@ -94,7 +94,7 @@ double simple_modulo_2pi(double a)
 {
     if (a < -M_PI) {
         a += M_2PI;
-    } else if (a > M_PI)   {
+    } else if (a > M_PI) {
         a -= M_2PI;
     }
     return a;

@@ -466,16 +466,14 @@ void trajectory_circle_rel(struct trajectory *traj, double x, double y,
  * This function computes the fastest distance and angle speeds matching the given radius
  * using the speeds given in the trajectory manager instance.
  *
- * @todo Rename it to more serious buisness.
- *
  * @param [in] traj The trajectory manager instance.
  * @param [in] radius_mm The radius of the circle.
  * @param [out] speed_d, speed_a The variable to stock the results.
  */
-void circle_get_da_speed_from_radius(struct trajectory *traj,
-                                     double radius_mm,
-                                     double *speed_d,
-                                     double *speed_a);
+void circle_get_speed_from_radius(struct trajectory *traj,
+                                  double radius_mm,
+                                  double *speed_d,
+                                  double *speed_a);
 
 /** @brief Do a line.
  *
