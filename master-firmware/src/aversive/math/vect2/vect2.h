@@ -36,9 +36,6 @@
 #ifndef _VECT2_H_
 #define _VECT2_H_
 
-#define TO_RAD(x) (x * (0.01745329251994329577f) /**< Convert degrees to radian (* pi / 180) */
-#define TO_DEG(x) (x * (57.2957795130823208768f) /**< Convert radian to degrees (* 180 / pi) */
-
 /** \brief Cartesian vector structure
 **/
 typedef struct _vect2_cart {
