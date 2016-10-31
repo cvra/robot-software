@@ -45,3 +45,10 @@ PB11    UART3 RX
 PD0     CAN1 RX
 PD1     CAN1 TX
 ```
+
+### Timers
+Hardware timer overview (useful when selecting a new timer):
+* ChibiOS ST timer: Timer 5 (2,3,4,5 possible)
+* UAVCAN clock: Timer 2 (32bit General purpose)
+* Timestamp: Timer 7
+* Encoders: Timer 4 (left), Timer 3 (right) (16bit General purpose)
