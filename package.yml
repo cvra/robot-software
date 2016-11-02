@@ -1,0 +1,8 @@
+dependency-dir: lib
+
+target.arm:
+    - src/main.c
+    - src/board.c
+
+templates:
+    app_src.mk.jinja: app_src.mk
