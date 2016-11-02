@@ -1,8 +1,12 @@
 dependency-dir: lib
 
+depends:
+  - chibios-syscalls
+
 target.arm:
-    - src/main.c
-    - src/board.c
+  - src/main.c
+  - src/board.c
+  - src/stubs.cpp
 
 templates:
     app_src.mk.jinja: app_src.mk
