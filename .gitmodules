@@ -1,3 +1,6 @@
 [submodule "ChibiOS"]
 	path = ChibiOS
 	url = https://github.com/cvra/ChibiOS.git
+[submodule "lib/uavcan"]
+	path = lib/uavcan
+	url = https://github.com/cvra/uavcan

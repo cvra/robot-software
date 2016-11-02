@@ -128,6 +128,24 @@ INCDIR = $(STARTUPINC) $(KERNINC) $(PORTINC) $(OSALINC) \
 
 include app_src.mk
 
+include $(CHIBIOS)/os/various/cpp_wrappers/chcpp.mk
+CPPSRC += $(CHIBIOS)/os/various/cpp_wrappers/ch.cpp
+INCDIR += $(CHCPPINC)
+
+UAVCAN = lib/uavcan
+
+include $(UAVCAN)/libuavcan/include.mk
+include $(UAVCAN)/libuavcan_drivers/stm32/driver/include.mk
+
+CPPSRC += $(LIBUAVCAN_SRC) $(LIBUAVCAN_STM32_SRC)
+INCDIR += $(LIBUAVCAN_INC) $(LIBUAVCAN_STM32_INC) dsdlc_generated
+DDEFS += -DUAVCAN_TOSTRING=0 \
+		 -DUAVCAN_STM32_NUM_IFACES=1 \
+		 -DUAVCAN_STM32_TIMER_NUMBER=2 \
+		 -DUAVCAN_STM32_CHIBIOS=1 \
+		 -DUAVCAN_TINY=1
+
+
 #
 # Project, sources and paths
 ##############################################################################
@@ -200,3 +218,9 @@ include $(RULESPATH)/rules.mk
 .PHONY: flash
 flash: build/$(PROJECT).elf
 	openocd -f openocd.cfg -c "program build/$(PROJECT).elf verify reset" -c "shutdown"
+
+.PHONY: dsdlc
+dsdlc:
+	@$(COLOR_PRINTF) "Running uavcan dsdl compiler"
+	$(LIBUAVCAN_DSDLC) $(UAVCAN_DSDL_DIR)
+
