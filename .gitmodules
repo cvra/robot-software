@@ -4,3 +4,6 @@
 [submodule "lib/uavcan"]
 	path = lib/uavcan
 	url = https://github.com/cvra/uavcan
+[submodule "lib/chibios-syscalls"]
+	path = lib/chibios-syscalls
+	url = https://github.com/cvra/chibios-syscalls
