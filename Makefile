@@ -41,7 +41,7 @@ USE_SMART_BUILD = no
 
 # Stack size to be allocated to the Cortex-M process stack. This stack is
 # the stack used by the main() thread.
-USE_PROCESS_STACKSIZE = 0x400
+USE_PROCESS_STACKSIZE = 5000
 
 # Stack size to the allocated to the Cortex-M main/exceptions stack. This
 # stack is used for processing interrupts and exceptions.
@@ -76,7 +76,10 @@ include $(CHIBIOS)/os/rt/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
 #include $(CHIBIOS)/test/rt/test.mk
 
 # Define linker script file here
-USE_BOOTLOADER = yes
+
+ifeq ($(USE_BOOTLOADER), )
+	USE_BOOTLOADER = no
+endif
 
 ifeq ($(USE_BOOTLOADER), yes)
   DDEFS += -DCORTEX_VTOR_INIT=0x08003800
