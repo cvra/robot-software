@@ -16,20 +16,6 @@ pid_t _getpid(void);
 int _kill(int pid, int sig);
 }
 
-int __cxa_guard_acquire(__guard* g)
-{
-    return !*g;
-}
-
-void __cxa_guard_release(__guard* g)
-{
-    *g = 1;
-}
-
-void __cxa_guard_abort(__guard*)
-{
-}
-
 void __cxa_pure_virtual()
 {
     osalSysHalt("Pure virtual function call.");
