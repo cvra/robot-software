@@ -1,0 +1,9 @@
+{% for dir in include_directories %}
+INCDIR += {{ dir }}
+{% endfor %}
+
+{% for file in target.arm + source -%}
+{% if file.endswith('.c') %}CSRC += {{ file }}
+{% elif file.endswith('.s') %}ASMSRC += {{ file }}
+{% elif file.endswith('.cpp') %}CPPSRC += {{ file }}
+{% endif %}{% endfor %}

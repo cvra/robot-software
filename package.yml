@@ -1,0 +1,16 @@
+dependency-dir: lib
+
+depends:
+  - chibios-syscalls
+  - cmp
+  - cmp_mem_access
+
+target.arm:
+  - src/main.c
+  - src/board.c
+  - src/stubs.cpp
+  - src/uavcan/node.cpp
+  - src/bootloader_config.c
+
+templates:
+    app_src.mk.jinja: app_src.mk
