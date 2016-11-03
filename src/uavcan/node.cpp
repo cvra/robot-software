@@ -40,13 +40,12 @@ static Node& getNode()
     return node;
 }
 
-void main(void *arg)
+void main(unsigned int id, const char *name)
 {
     chRegSetThreadName("uavcan");
 
     Node& node = getNode();
 
-    uint8_t id = (int)arg;
     node.setNodeID(uavcan::NodeID(id));
 
     uavcan::protocol::SoftwareVersion sw_version;
@@ -57,6 +56,8 @@ void main(void *arg)
     hw_version.major = 1;
     node.setHardwareVersion(hw_version);
 
+    node.setName(name);
+
     if (node.start() < 0) {
         chSysHalt("node start");
     }
@@ -64,14 +65,15 @@ void main(void *arg)
     node.getNodeStatusProvider().setModeOperational();
     node.getNodeStatusProvider().setHealthOk();
 
+
     while (true) {
         node.spin(uavcan::MonotonicDuration::fromMSec(1000/UAVCAN_SPIN_FREQ));
     }
 }
 }
 
-void uavcan_start(void)
+void uavcan_start(unsigned int node_id, const char *node_name)
 {
-    uavcan_node::main((void *)42);
+    uavcan_node::main(node_id, node_name);
 }
 
