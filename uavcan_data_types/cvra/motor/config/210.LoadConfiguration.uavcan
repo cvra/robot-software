@@ -1,0 +1,35 @@
+#
+# This is usually the first command that is sent to the motor controller.
+# All other commands except Get ID are ignored until this command is sent.
+#
+
+PID position_pid
+PID velocity_pid
+PID current_pid
+
+float16 torque_limit            # [Nm]
+float16 velocity_limit          # [rad/s]
+float16 acceleration_limit      # [rad/s^2]
+float16 low_batt_th             # [V] low battery threshold
+
+float16 thermal_capacity        # [J/K]
+float16 thermal_resistance      # (to ambient which is assumed 25degC) [K/W]
+float16 thermal_current_gain    # (coil_resistance) [ohm = W/A^2]
+float16 max_temperature         # [degC]
+
+float16 torque_constant         # (of motor without transmission) [Nm/A]
+
+uint16 transmission_ratio_p                 # (output/motor)
+uint16 transmission_ratio_q                 # (output/motor)
+uint16 motor_encoder_steps_per_revolution   # (0=NA)
+uint16 second_encoder_steps_per_revolution  # (0=NA)
+float16 potentiometer_gain
+
+uint8 MODE_OPEN_LOOP                =  0  # open loop speed control (voltage control, speed setpoint is in V)
+uint8 MODE_INDEX                    =  1  # periodic, speed control with index
+uint8 MODE_ENC_PERIODIC             =  2  # periodic, encoder on motor axis
+uint8 MODE_ENC_BOUNDED              =  3  # bounded, encoder on motor axis
+uint8 MODE_2_ENC_PERIODIC           =  4  # periodic, encoder on motor axis, 2nd encoder on output
+uint8 MODE_MOTOR_POT                =  5  # bounded, potentiometer (servo mode)
+uint8 mode  # operation mode as defined above
+---

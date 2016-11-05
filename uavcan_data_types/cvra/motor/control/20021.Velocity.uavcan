@@ -1,0 +1,8 @@
+#
+# Switch to velocity control and hold given velocity.
+#
+
+# UAVCAN node ID for unicast addressing
+uint7 node_id
+
+float32 velocity       # [rad/s]

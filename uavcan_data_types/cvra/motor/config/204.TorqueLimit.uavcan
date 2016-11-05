@@ -1,0 +1,6 @@
+#
+# This torque limit applies to all three control modes.
+#
+
+float16 torque_limit        # [Nm] or NaN to disable
+---
