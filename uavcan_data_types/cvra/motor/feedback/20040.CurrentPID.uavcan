@@ -1,0 +1,7 @@
+#
+# Stream to tune the current PID
+#
+
+float16 current_setpoint
+float16 current
+float16 motor_voltage

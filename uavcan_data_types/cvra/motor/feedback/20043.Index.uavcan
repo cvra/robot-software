@@ -1,0 +1,6 @@
+#
+# Stream the position of the last index passage 
+#
+
+float16 position
+uint32 update_count

@@ -266,7 +266,7 @@ flash: build/$(PROJECT).elf
 .PHONY: dsdlc
 dsdlc:
 	@$(COLOR_PRINTF) "Running uavcan dsdl compiler"
-	$(LIBUAVCAN_DSDLC) ../cvra $(UAVCAN_DSDL_DIR)
+	$(LIBUAVCAN_DSDLC) ../uavcan_data_types/cvra $(UAVCAN_DSDL_DIR)
 
 src/config_msgpack.c: ../config.yaml
 	@$(COLOR_PRINTF) "Generating MessagePack config..."

@@ -1,0 +1,16 @@
+#
+# Feedback Stream setup
+#
+
+uint8 stream
+uint8 enabled
+float16 frequency
+
+uint8 STREAM_CURRENT_PID    = 1
+uint8 STREAM_VELOCITY_PID   = 2
+uint8 STREAM_POSITION_PID   = 3
+uint8 STREAM_INDEX          = 4
+uint8 STREAM_MOTOR_ENCODER  = 5
+uint8 STREAM_MOTOR_POSITION = 6
+uint8 STREAM_MOTOR_TORQUE   = 7
+---

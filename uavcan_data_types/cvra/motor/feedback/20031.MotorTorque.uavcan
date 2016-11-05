@@ -1,0 +1,6 @@
+#
+# Torque Feedback
+#
+
+float16 torque      # [Nm]
+float16 position    # [rad]

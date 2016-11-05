@@ -1,0 +1,9 @@
+#
+# Switch to position control and hold given position.
+# A trapezoidal velocity profile is automatically generated.
+#
+
+# UAVCAN node ID for unicast addressing
+uint7 node_id
+
+float32 position        # [rad]

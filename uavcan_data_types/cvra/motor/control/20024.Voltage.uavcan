@@ -1,0 +1,8 @@
+#
+# Switch to voltage control.
+#
+
+# UAVCAN node ID for unicast addressing
+uint7 node_id
+
+float32 voltage       # [V]

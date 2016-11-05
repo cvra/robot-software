@@ -1,0 +1,13 @@
+#
+# Switch to dynamic control to follow trajectory with given current position &
+# speed. Position interpolation between updates is done assuming constant speed.
+# A feed-forward torque can be applied if given.
+#
+
+# UAVCAN node ID for unicast addressing
+uint7 node_id
+
+float16 position      # [rad]
+float16 velocity      # [rad/s]
+float16 acceleration  # [rad/s^2]
+float16 torque        # [Nm]

@@ -1,0 +1,8 @@
+#
+# This command is used to enable / disable periodic data transmission and set
+# its transmission rate.
+#
+
+int8 message_type
+float16 transmission_rate       # [Hz]
+---
