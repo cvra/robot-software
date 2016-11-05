@@ -222,19 +222,6 @@ static void cmd_node(BaseSequentialStream *chp, int argc, char **argv)
     chprintf(chp, "Node ID: %s = %d.\r\n", argv[0],id);
 }
 
-static void cmd_uavcan_node_reboot(BaseSequentialStream *chp, int argc, char **argv)
-{
-    int id = 0xff;
-    if (argc == 1) {
-        id = atoi(argv[0]);
-    }
-    if (argc > 1 || id < 1 || id > 0xff) {
-        chprintf(chp, "usage: node_reboot [1-127|255]\r\n");
-        return;
-    }
-    uavcan_node_send_reboot(id);
-}
-
 static void cmd_topics(BaseSequentialStream *chp, int argc, char *argv[])
 {
     (void) argc;
@@ -643,7 +630,6 @@ const ShellCommand commands[] = {
     {"ip", cmd_ip},
     {"mem", cmd_mem},
     {"node", cmd_node},
-    {"node_reboot", cmd_uavcan_node_reboot},
     {"pos", cmd_position},
     {"pos_reset", cmd_position_reset},
     {"reboot", cmd_reboot},

@@ -38,8 +38,6 @@ bus_enumerator_t bus_enumerator;
 namespace uavcan_node
 {
 
-uint8_t reboot_node_id = 0;
-
 static void node_status_cb(const uavcan::ReceivedDataStructure<uavcan::protocol::NodeStatus>& msg);
 static void node_fail(const char *reason);
 
@@ -314,11 +312,6 @@ void uavcan_node_start(uint8_t id)
 {
     static uint8_t node_id = id;
     chThdCreateStatic(uavcan_node::thread_wa, UAVCAN_NODE_STACK_SIZE, UAVCAN_PRIO, uavcan_node::main, &node_id);
-}
-
-void uavcan_node_send_reboot(uint8_t id)
-{
-    uavcan_node::reboot_node_id = id;
 }
 
 } // extern "C"

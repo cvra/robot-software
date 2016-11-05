@@ -10,10 +10,6 @@ extern "C" {
 
 void uavcan_node_start(uint8_t id);
 
-// send reboot command to node id.
-// if id > 127 then the reboot command is broadcast.
-void uavcan_node_send_reboot(uint8_t id);
-
 extern bus_enumerator_t bus_enumerator;
 
 #ifdef __cplusplus

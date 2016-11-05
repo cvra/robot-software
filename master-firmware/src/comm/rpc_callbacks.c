@@ -129,27 +129,11 @@ static bool led_cb(void *p, cmp_ctx_t *input, cmp_ctx_t *output)
     return true;
 }
 
-static bool reboot_node(void *p, cmp_ctx_t *input, cmp_ctx_t *output)
-{
-    uint8_t id;
-    (void) p;
-
-    if(cmp_read_u8(input, &id) == false) {
-        cmp_write_str(output, error_msg_bad_format,
-                strlen(error_msg_bad_format));
-    } else {
-        uavcan_node_send_reboot(id);
-    }
-
-    return true;
-}
-
 struct service_call_method_s service_call_callbacks[] = {
     {.name="ping", .cb=ping_cb},
     {.name="config_update", .cb=config_update_cb},
     {.name="led_set", .cb=led_cb},
     {.name="actuator_create_driver", .cb=create_motor_driver},
-    {.name="reboot_node", .cb=reboot_node},
 };
 
 const unsigned int service_call_callbacks_len =
