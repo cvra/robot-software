@@ -84,7 +84,7 @@ endif
 PROJECT = motor-control-firmware
 
 # Imported source files and paths
-CHIBIOS = ChibiOS
+CHIBIOS = ../lib/ChibiOS
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/startup_stm32f3xx.mk
 include $(CHIBIOS)/os/hal/ports/STM32/STM32F3xx/platform.mk
@@ -221,8 +221,8 @@ ULIBS =
 #
 # UAVCAN
 #
-include uavcan/libuavcan/include.mk
-include uavcan/libuavcan_drivers/stm32/driver/include.mk
+include ../lib/uavcan/libuavcan/include.mk
+include ../lib/uavcan/libuavcan_drivers/stm32/driver/include.mk
 
 CPPSRC += $(LIBUAVCAN_SRC) $(LIBUAVCAN_STM32_SRC)
 UINCDIR += $(LIBUAVCAN_INC) $(LIBUAVCAN_STM32_INC) ./dsdlc_generated
@@ -231,24 +231,15 @@ UINCDIR += $(LIBUAVCAN_INC) $(LIBUAVCAN_STM32_INC) ./dsdlc_generated
 # End of user defines
 ##############################################################################
 
-RULESPATH = $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC
-include $(RULESPATH)/rules.mk
+RULESPATH = ./board/
+include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/rules.mk
 -include tools.mk
-
-.PHONY: packager
-packager:
-	python packager/packager.py
-
-CMakeLists.txt: package.yml
-	python packager/packager.py
-
-src/src.mk: package.yml
-	python packager/packager.py
 
 # run uavcan dsdl compiler
 .PHONY: dsdlc
 dsdlc:
-	$(LIBUAVCAN_DSDLC) cvra $(UAVCAN_DSDL_DIR)
+	@$(COLOR_PRINTF) "Running uavcan dsdl compiler"
+	$(LIBUAVCAN_DSDLC) ../uavcan_data_types/cvra $(UAVCAN_DSDL_DIR)
 
 .PHONY: tests
 tests: CMakeLists.txt

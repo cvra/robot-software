@@ -29,4 +29,4 @@ REGION_ALIAS("DATA_RAM", ram0);
 /* RAM region to be used for BSS segment.*/
 REGION_ALIAS("BSS_RAM", ram0);
 
-INCLUDE ChibiOS/os/common/ports/ARMCMx/compilers/GCC/rules.ld
+INCLUDE ../lib/ChibiOS/os/common/ports/ARMCMx/compilers/GCC/rules.ld
