@@ -1,4 +1,7 @@
-dependency-dir: ./src/
+dependency-dir: ../lib
+
+include_directories:
+  - src/
 
 target.arm:
     - src/main.c
@@ -7,7 +10,6 @@ target.arm:
     - src/encoder.c
     - src/motor_pwm.c
     - src/analog.c
-    - src/cmp/cmp.c
     - src/pid_cascade.c
     - src/motor_protection.c
     - src/setpoint.c
@@ -15,11 +17,11 @@ target.arm:
     - src/index.c
     - src/rpm.c
     - src/bootloader_config.c
-    - can-bootloader/config.c
     - src/reboot.c
     - src/uavcan_node.cpp
     - src/libstubs.cpp
     - src/stream.c
+    - ../lib/can-bootloader/config.c
 
 depends:
     - pid
@@ -33,7 +35,6 @@ depends:
         fork: Stapelzeiger
 
 tests:
-    - src/cmp/cmp.c
     - tests/feedback_test.cpp
     - src/rpm.c
     - tests/rpm_test.cpp

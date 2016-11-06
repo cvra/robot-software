@@ -66,10 +66,16 @@ THD_FUNCTION(stream_task, arg)
     }
 }
 
-
-static void parameter_decode_cb(const void *dtgrm, size_t len)
+static void error_cb(void *arg, const char *id, const char *err)
 {
-    int ret = parameter_msgpack_read(&parameter_root_ns, (char*)dtgrm, len);
+    (void)arg;
+    (void)id;
+    (void)err;
+}
+
+static void parameter_decode_cb(const void *dtgrm, size_t len, void *arg)
+{
+    int ret = parameter_msgpack_read(&parameter_root_ns, (char*)dtgrm, len, error_cb, arg);
     chprintf(ch_stdout, "ok %d\n", ret);
     // parameter_print(&parameter_root_ns);
 }
@@ -79,7 +85,7 @@ static THD_FUNCTION(parameter_listener, arg)
 {
     static char rcv_buf[200];
     static serial_datagram_rcv_handler_t rcv_handler;
-    serial_datagram_rcv_handler_init(&rcv_handler, &rcv_buf, sizeof(rcv_buf), parameter_decode_cb);
+    serial_datagram_rcv_handler_init(&rcv_handler, &rcv_buf, sizeof(rcv_buf), parameter_decode_cb, NULL);
     while (1) {
         char c = chSequentialStreamGet((BaseSequentialStream*)arg);
         int ret = serial_datagram_receive(&rcv_handler, &c, 1);
