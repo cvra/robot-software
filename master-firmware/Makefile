@@ -77,7 +77,7 @@ endif
 PROJECT = ch
 
 # Imported source files and paths
-CHIBIOS = ../ChibiOS
+CHIBIOS = ../lib/ChibiOS
 
 # Startup files.
 include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/startup_stm32f4xx.mk
@@ -95,8 +95,8 @@ include $(CHIBIOS)/os/rt/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
 #include $(CHIBIOS)/test/rt/test.mk
 
 # lwIP files
-LWIP = ../lwip/
-include ../lwip.mk
+LWIP = ../lib/lwip/
+include src/lwip.mk
 
 # ChibiOS C++ bindings
 include $(CHIBIOS)/os/various/cpp_wrappers/chcpp.mk
@@ -229,8 +229,8 @@ ULIBS =
 #
 # UAVCAN
 ##############################################################################
-include ../uavcan/libuavcan/include.mk
-include ../uavcan/libuavcan_drivers/stm32/driver/include.mk
+include ../lib/uavcan/libuavcan/include.mk
+include ../lib/uavcan/libuavcan_drivers/stm32/driver/include.mk
 
 CPPSRC += $(LIBUAVCAN_SRC) $(LIBUAVCAN_STM32_SRC)
 

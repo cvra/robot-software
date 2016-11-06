@@ -1,8 +1,8 @@
 [submodule "ChibiOS"]
-	path = ChibiOS
+	path = lib/ChibiOS
 	url = https://github.com/cvra/ChibiOS
 [submodule "lwip"]
-	path = lwip
+	path = lib/lwip
 	url = https://github.com/cvra/lwip
 [submodule "dependencies/crc"]
 	path = lib/crc
@@ -23,7 +23,7 @@
 	path = lib/cmp_mem_access
 	url = https://github.com/Stapelzeiger/cmp_mem_access
 [submodule "uavcan"]
-	path = uavcan
+	path = lib/uavcan
 	url = https://github.com/cvra/uavcan.git
 [submodule "src/timestamp"]
 	path = lib/timestamp
