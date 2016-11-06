@@ -17,14 +17,18 @@ extern "C" {
  * @note This is a blocking function call
  * @warning Will not return if you misspecify the reasons to watch
  *      (ie. the reason watched never occurs)
+ *
+ * @param watched_end_reasons bitmask of the end reasons to watch for
  */
-int trajectory_wait_for_end(struct _robot *robot, int end_reason);
+int trajectory_wait_for_end(struct _robot *robot, int watched_end_reasons);
 
 /** Watches the robot state for the reasons specified
  *  Returns with the end reason of the trajectory if watching it
  *  Otherwise returns 0
+ *
+ * @param watched_end_reasons bitmask of the end reasons to watch for
  */
-int trajectory_has_ended(struct _robot *robot, int end_reason);
+int trajectory_has_ended(struct _robot *robot, int watched_end_reasons);
 
 /** Go backwards until a wall is hit to align with it
  */

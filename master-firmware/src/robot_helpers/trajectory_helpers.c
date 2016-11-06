@@ -4,7 +4,7 @@
 #include "trajectory_helpers.h"
 
 
-int trajectory_wait_for_end(struct _robot *robot, int end_reason)
+int trajectory_wait_for_end(struct _robot *robot, int watched_end_reasons)
 {
 #ifndef TESTS
     chThdSleepMilliseconds(100);
@@ -12,7 +12,7 @@ int trajectory_wait_for_end(struct _robot *robot, int end_reason)
 
     int traj_end_reason = 0;
     while(traj_end_reason == 0) {
-        traj_end_reason = trajectory_has_ended(robot, end_reason);
+        traj_end_reason = trajectory_has_ended(robot, watched_end_reasons);
 #ifndef TESTS
         chThdSleepMilliseconds(1);
 #endif
@@ -21,17 +21,17 @@ int trajectory_wait_for_end(struct _robot *robot, int end_reason)
     return traj_end_reason;
 }
 
-int trajectory_has_ended(struct _robot *robot, int end_reason)
+int trajectory_has_ended(struct _robot *robot, int watched_end_reasons)
 {
-    if ((end_reason & TRAJ_END_GOAL_REACHED) && trajectory_finished(&robot->traj)) {
+    if ((watched_end_reasons & TRAJ_END_GOAL_REACHED) && trajectory_finished(&robot->traj)) {
         return TRAJ_END_GOAL_REACHED;
     }
 
-    if ((end_reason & TRAJ_END_COLLISION) && bd_get(&robot->distance_bd)) {
+    if ((watched_end_reasons & TRAJ_END_COLLISION) && bd_get(&robot->distance_bd)) {
         return TRAJ_END_COLLISION;
     }
 
-    if ((end_reason & TRAJ_END_COLLISION) && bd_get(&robot->angle_bd)) {
+    if ((watched_end_reasons & TRAJ_END_COLLISION) && bd_get(&robot->angle_bd)) {
         return TRAJ_END_COLLISION;
     }
 
