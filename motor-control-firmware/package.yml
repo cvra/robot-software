@@ -1,0 +1,44 @@
+dependency-dir: ./src/
+
+target.arm:
+    - src/main.c
+    - src/blocking_uart_driver.c
+    - src/control.c
+    - src/encoder.c
+    - src/motor_pwm.c
+    - src/analog.c
+    - src/cmp/cmp.c
+    - src/pid_cascade.c
+    - src/motor_protection.c
+    - src/setpoint.c
+    - src/feedback.c
+    - src/index.c
+    - src/rpm.c
+    - src/bootloader_config.c
+    - can-bootloader/config.c
+    - src/reboot.c
+    - src/uavcan_node.cpp
+    - src/libstubs.cpp
+    - src/stream.c
+
+depends:
+    - pid
+    - serial-datagram
+    - cmp_mem_access
+    - filter:
+        fork: froj
+    - parameter:
+        fork: Stapelzeiger
+    - timestamp:
+        fork: Stapelzeiger
+
+tests:
+    - src/cmp/cmp.c
+    - tests/feedback_test.cpp
+    - src/rpm.c
+    - tests/rpm_test.cpp
+    - tests/setpoint_test.cpp
+    - tests/pid_cascade_test.cpp
+
+templates:
+    Makefile.include.jinja: src/src.mk
