@@ -4,16 +4,21 @@
 #include "trajectory_helpers.h"
 
 
-void trajectory_wait_for_finish(struct trajectory* robot_traj)
+int trajectory_wait_for_end(struct _robot *robot, int end_reason)
 {
 #ifndef TESTS
     chThdSleepMilliseconds(100);
-    while(!trajectory_finished(robot_traj)) {
-        chThdSleepMilliseconds(1);
-    }
-#else
-    (void)robot_traj;
 #endif
+
+    int traj_end_reason = 0;
+    while(traj_end_reason == 0) {
+        traj_end_reason = trajectory_has_ended(robot, end_reason);
+#ifndef TESTS
+        chThdSleepMilliseconds(1);
+#endif
+    }
+
+    return traj_end_reason;
 }
 
 void trajectory_wait_for_collision(struct blocking_detection* distance_blocking)
@@ -59,13 +64,13 @@ void trajectory_align_with_wall(
     *robot_mode = BOARD_MODE_ANGLE_DISTANCE;
 }
 
-void trajectory_move_to(struct trajectory* robot_traj, int32_t x_mm, int32_t y_mm, int32_t a_deg)
+void trajectory_move_to(struct _robot* robot, int32_t x_mm, int32_t y_mm, int32_t a_deg)
 {
-    trajectory_goto_xy_abs(robot_traj, x_mm, y_mm);
-    trajectory_wait_for_finish(robot_traj);
+    trajectory_goto_xy_abs(&robot->traj, x_mm, y_mm);
+    trajectory_wait_for_end(robot, TRAJ_END_GOAL_REACHED);
 
-    trajectory_a_abs(robot_traj, a_deg);
-    trajectory_wait_for_finish(robot_traj);
+    trajectory_a_abs(&robot->traj, a_deg);
+    trajectory_wait_for_end(robot, TRAJ_END_GOAL_REACHED);
 }
 
 void trajectory_set_mode_aligning(

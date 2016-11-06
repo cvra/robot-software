@@ -12,10 +12,13 @@ extern "C" {
 #define TRAJ_END_GOAL_REACHED   (1 << 0)
 #define TRAJ_END_COLLISION      (1 << 1)
 
-/** Return when ongoing trajectory is finished (ie. goal reached)
+/** Returns when ongoing trajectory is finished for the reasons specified
+ *  For example when goal is reached
  * @note This is a blocking function call
+ * @warning Will not return if you misspecify the reasons to watch
+ *      (ie. the reason watched never occurs)
  */
-void trajectory_wait_for_finish(struct trajectory* robot_traj);
+int trajectory_wait_for_end(struct _robot *robot, int end_reason);
 
 /** Return when robot collides with something (ie. wall/opponent hit)
  * @note This is a blocking function call
@@ -36,7 +39,7 @@ void trajectory_align_with_wall(
 /** Go to request (x, y, a) point on table
  * @note This is a blocking call that returns when the goal is reached
  */
-void trajectory_move_to(struct trajectory* robot_traj, int32_t x_mm, int32_t y_mm, int32_t a_deg);
+void trajectory_move_to(struct _robot* robot, int32_t x_mm, int32_t y_mm, int32_t a_deg);
 
 /** Prepare robot for aligning by settings its dynamics accordingly
  * ie. slower and less sensitive to collisions

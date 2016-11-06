@@ -29,12 +29,7 @@ void strategy_map_setup(int32_t robot_size);
  */
 void strategy_auto_position(
         int32_t x, int32_t y, int32_t heading, int32_t robot_size,
-        enum strat_color_t robot_color,
-        enum board_mode_t* robot_mode,
-        struct trajectory* robot_traj,
-        struct robot_position* robot_pos,
-        struct blocking_detection* robot_distance_blocking,
-        struct blocking_detection* robot_angle_blocking);
+        enum strat_color_t robot_color, struct _robot* robot);
 
 
 #ifdef __cplusplus

@@ -35,16 +35,13 @@ static void wait_for_autoposition_signal(void)
     wait_for_starter();
 }
 
-void strategy_goto_avoid(
-        struct trajectory* robot_traj,
-        struct robot_position* robot_pos,
-        int x_mm, int y_mm, int a_deg)
+void strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg)
 {
     /* Compute path */
     oa_reset();
     const point_t start = {
-            position_get_x_s16(robot_pos),
-            position_get_y_s16(robot_pos)
+            position_get_x_s16(&robot->pos),
+            position_get_y_s16(&robot->pos)
         };
     oa_start_end_points(start.x, start.y, x_mm, y_mm);
     oa_process();
@@ -57,12 +54,12 @@ void strategy_goto_avoid(
     /* Execute path, one waypoint at a time */
     for (int i = 0; i < num_points; i++) {
         NOTICE("Going to x: %.1fmm y: %.1fmm\r\n", points[i].x, points[i].y);
-        trajectory_goto_xy_abs(robot_traj, points[i].x, points[i].y);
-        trajectory_wait_for_finish(robot_traj);
+        trajectory_goto_xy_abs(&robot->traj, points[i].x, points[i].y);
+        trajectory_wait_for_end(robot, TRAJ_END_GOAL_REACHED);
     }
 
-    trajectory_a_abs(robot_traj, a_deg);
-    trajectory_wait_for_finish(robot_traj);
+    trajectory_a_abs(&robot->traj, a_deg);
+    trajectory_wait_for_end(robot, TRAJ_END_GOAL_REACHED);
 }
 
 
@@ -78,10 +75,7 @@ void strategy_play_game(void* _robot)
     /* Autoposition robot */
     wait_for_autoposition_signal();
     NOTICE("Positioning robot\n");
-    strategy_auto_position(
-        600, 200, 90, ROBOT_SIZE_X_MM, color,
-        &robot->mode, &robot->traj, &robot->pos,
-        &robot->distance_bd, &robot->angle_bd);
+    strategy_auto_position(600, 200, 90, ROBOT_SIZE_X_MM, color, robot);
     NOTICE("Robot positioned at x: 600[mm], y: 200[mm], a: 90[deg]\n");
 
     /* Wait for starter to begin */
@@ -89,16 +83,16 @@ void strategy_play_game(void* _robot)
     NOTICE("Starting game\n");
 
     /* Go to lunar module */
-    strategy_goto_avoid(&robot->traj, &robot->pos, 780, 1340, 45);
+    strategy_goto_avoid(robot, 780, 1340, 45);
 
     /* Push lunar module */
     trajectory_d_rel(&robot->traj, 100.);
-    trajectory_wait_for_finish(&robot->traj);
+    trajectory_wait_for_end(robot, TRAJ_END_GOAL_REACHED);
     trajectory_d_rel(&robot->traj, -100.);
-    trajectory_wait_for_finish(&robot->traj);
+    trajectory_wait_for_end(robot, TRAJ_END_GOAL_REACHED);
 
     /* Go back to home */
-    strategy_goto_avoid(&robot->traj, &robot->pos, 900, 200, 0);
+    strategy_goto_avoid(robot, 900, 200, 0);
 
     while (true) {
         WARNING("Game ended!\nInsert coin to play more.\n");
