@@ -29,8 +29,8 @@
 *.hex
 
 # ChibiOS build files
-.dep/*
-build/
+.dep
+build
 
 # Packager build files
 app_src.mk
