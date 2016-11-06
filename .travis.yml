@@ -28,10 +28,7 @@ matrix:
           env: BUILD_TYPE="build"
 
 before_install:
-    - pushd uavcan
-    - git submodule init
-    - git submodule update
-    - popd
+    - git submodule update --init --recursive
     - if [ "$CXX" = "g++" ]; then export CXX="g++-4.9" CC="gcc-4.9"; fi
 
 install:
