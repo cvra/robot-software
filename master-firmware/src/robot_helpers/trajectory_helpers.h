@@ -20,21 +20,15 @@ extern "C" {
  */
 int trajectory_wait_for_end(struct _robot *robot, int end_reason);
 
-/** Return when robot collides with something (ie. wall/opponent hit)
- * @note This is a blocking function call
+/** Watches the robot state for the reasons specified
+ *  Returns with the end reason of the trajectory if watching it
+ *  Otherwise returns 0
  */
-void trajectory_wait_for_collision(struct blocking_detection* distance_blocking);
-
-
 int trajectory_has_ended(struct _robot *robot, int end_reason);
 
-/** Go backwards until a wall is hit to aligne with it
+/** Go backwards until a wall is hit to align with it
  */
-void trajectory_align_with_wall(
-        enum board_mode_t* robot_mode,
-        struct trajectory* robot_traj,
-        struct blocking_detection* distance_blocking,
-        struct blocking_detection* angle_blocking);
+void trajectory_align_with_wall(struct _robot *robot);
 
 /** Go to request (x, y, a) point on table
  * @note This is a blocking call that returns when the goal is reached

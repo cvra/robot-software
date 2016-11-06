@@ -21,47 +21,39 @@ int trajectory_wait_for_end(struct _robot *robot, int end_reason)
     return traj_end_reason;
 }
 
-void trajectory_wait_for_collision(struct blocking_detection* distance_blocking)
-{
-#ifndef TESTS
-    chThdSleepMilliseconds(100);
-    while(!bd_get(distance_blocking)) {
-        chThdSleepMilliseconds(1);
-    }
-#else
-    (void)distance_blocking;
-#endif
-}
-
 int trajectory_has_ended(struct _robot *robot, int end_reason)
 {
     if ((end_reason & TRAJ_END_GOAL_REACHED) && trajectory_finished(&robot->traj)) {
         return TRAJ_END_GOAL_REACHED;
     }
 
+    if ((end_reason & TRAJ_END_COLLISION) && bd_get(&robot->distance_bd)) {
+        return TRAJ_END_COLLISION;
+    }
+
+    if ((end_reason & TRAJ_END_COLLISION) && bd_get(&robot->angle_bd)) {
+        return TRAJ_END_COLLISION;
+    }
+
     return 0;
 }
 
-void trajectory_align_with_wall(
-        enum board_mode_t* robot_mode,
-        struct trajectory* robot_traj,
-        struct blocking_detection* distance_blocking,
-        struct blocking_detection* angle_blocking)
+void trajectory_align_with_wall(struct _robot *robot)
 {
     /* Disable angle control */
-    *robot_mode = BOARD_MODE_DISTANCE_ONLY;
+    robot->mode = BOARD_MODE_DISTANCE_ONLY;
 
     /* Move backwards until we hit a wall */
-    trajectory_d_rel(robot_traj, -2000.);
-    trajectory_wait_for_collision(distance_blocking);
+    trajectory_d_rel(&robot->traj, -2000.);
+    trajectory_wait_for_end(robot, TRAJ_END_COLLISION);
 
     /* Stop moving on collision */
-    trajectory_hardstop(robot_traj);
-    bd_reset(distance_blocking);
-    bd_reset(angle_blocking);
+    trajectory_hardstop(&robot->traj);
+    bd_reset(&robot->distance_bd);
+    bd_reset(&robot->angle_bd);
 
     /* Enable angle control back */
-    *robot_mode = BOARD_MODE_ANGLE_DISTANCE;
+    robot->mode = BOARD_MODE_ANGLE_DISTANCE;
 }
 
 void trajectory_move_to(struct _robot* robot, int32_t x_mm, int32_t y_mm, int32_t a_deg)

@@ -122,14 +122,18 @@ TEST_GROUP(TrajectoryHasEnded)
     struct _robot robot;
 
     const int arbitrary_max_speed = 10;
+    const int arbitrary_max_acc = 10;
     const int arbitrary_goal_x = 200;
     const int arbitrary_goal_y = 200;
     const int arbitrary_end_angle = 45;
 
     void setup()
     {
-        quadramp_init(&robot.angle_qr);
+        pid_init(&robot.distance_pid.pid);
+        pid_init(&robot.angle_pid.pid);
+
         quadramp_init(&robot.distance_qr);
+        quadramp_init(&robot.angle_qr);
 
         cs_init(&robot.distance_cs);
         cs_init(&robot.angle_cs);
@@ -145,7 +149,7 @@ TEST_GROUP(TrajectoryHasEnded)
         position_init(&robot.pos);
         position_set(&robot.pos, 0, 0, 0);
 
-        int arbitrary_track = 1;
+        int arbitrary_track = 100;
         int arbitrary_impulses_per_mm = 1;
         position_set_physical_params(&robot.pos, arbitrary_track, arbitrary_impulses_per_mm);
 
@@ -160,31 +164,40 @@ TEST_GROUP(TrajectoryHasEnded)
         trajectory_set_windows(&robot.traj, distance_window_mm,
                                angle_window_deg, angle_start_deg);
 
-        trajectory_set_acc(&robot.traj, 10, 10);
-        trajectory_set_speed(&robot.traj, arbitrary_max_speed, arbitrary_max_speed);
+        trajectory_set_acc(&robot.traj, 10, 1);
+        trajectory_set_speed(&robot.traj, 10, 1);
 
         // Finally go to a point
         trajectory_goto_forward_xy_abs(&robot.traj, arbitrary_goal_x, arbitrary_goal_y);
+        robot_manage();
+    }
+
+    void robot_manage()
+    {
+        cs_manage(&robot.distance_cs);
+        cs_manage(&robot.angle_cs);
+        bd_manage(&robot.distance_bd);
+        bd_manage(&robot.angle_bd);
         trajectory_manager_xy_event(&robot.traj);
     }
 };
 
 TEST(TrajectoryHasEnded, ReturnsZeroWhenTrajectoryHasNotEndedYet)
 {
-    int traj_watch_reason = 0;
-    int traj_end_reason = trajectory_has_ended(&robot, traj_watch_reason);
+    int traj_end_reason = trajectory_has_ended(&robot, 0);
 
     CHECK_EQUAL(0, traj_end_reason);
 }
 
-TEST(TrajectoryHasEnded, ReturnsOneWhenGoalIsReached)
+TEST(TrajectoryHasEnded, DetectsGoalIsReached)
 {
-    /* Reach goal */
-    position_set(&robot.pos, arbitrary_goal_x, arbitrary_goal_y, arbitrary_end_angle);
-    trajectory_manager_xy_event(&robot.traj);
+    /* Reach goal (close enough) */
+    position_set(&robot.pos, arbitrary_goal_x-1, arbitrary_goal_y-1, arbitrary_end_angle);
 
-    int traj_watch_reason = TRAJ_END_GOAL_REACHED;
-    int traj_end_reason = trajectory_has_ended(&robot, traj_watch_reason);
+    robot_manage();
+    robot_manage();
+
+    int traj_end_reason = trajectory_has_ended(&robot, TRAJ_END_GOAL_REACHED);
 
     CHECK_EQUAL(TRAJ_END_GOAL_REACHED, traj_end_reason);
 }
@@ -193,10 +206,61 @@ TEST(TrajectoryHasEnded, ReturnsZeroWhenNoReasonSpecifiedEvenIfGoalReached)
 {
     /* Reach goal */
     position_set(&robot.pos, arbitrary_goal_x, arbitrary_goal_y, arbitrary_end_angle);
-    trajectory_manager_xy_event(&robot.traj);
 
-    int traj_watch_reason = 0;
-    int traj_end_reason = trajectory_has_ended(&robot, traj_watch_reason);
+    robot_manage();
+    robot_manage();
+
+    int traj_end_reason = trajectory_has_ended(&robot, 0);
+
+    CHECK_EQUAL(0, traj_end_reason);
+}
+
+TEST(TrajectoryHasEnded, DetectsCollisionInDistance)
+{
+    /* Align angle */
+    position_set(&robot.pos, 0, 0, 45);
+
+    robot_manage();
+    robot_manage();
+
+    int traj_end_reason = trajectory_has_ended(&robot, TRAJ_END_COLLISION);
+
+    CHECK_EQUAL(TRAJ_END_COLLISION, traj_end_reason);
+}
+
+TEST(TrajectoryHasEnded, DetectsCollisionInAngle)
+{
+    robot_manage();
+    robot_manage();
+
+    CHECK_EQUAL(RUNNING_XY_F_ANGLE, robot.traj.state);
+
+    int traj_end_reason = trajectory_has_ended(&robot, TRAJ_END_COLLISION);
+
+    CHECK_EQUAL(TRAJ_END_COLLISION, traj_end_reason);
+}
+
+TEST(TrajectoryHasEnded, ReturnsZeroWhenNoReasonSpecifiedEvenIfCollisionInDistance)
+{
+    /* Align angle */
+    position_set(&robot.pos, 0, 0, 45);
+
+    robot_manage();
+    robot_manage();
+
+    int traj_end_reason = trajectory_has_ended(&robot, 0);
+
+    CHECK_EQUAL(0, traj_end_reason);
+}
+
+TEST(TrajectoryHasEnded, ReturnsZeroWhenNoReasonSpecifiedEvenIfCollisionInAngle)
+{
+    robot_manage();
+    robot_manage();
+
+    CHECK_EQUAL(RUNNING_XY_F_ANGLE, robot.traj.state);
+
+    int traj_end_reason = trajectory_has_ended(&robot, 0);
 
     CHECK_EQUAL(0, traj_end_reason);
 }

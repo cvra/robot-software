@@ -28,7 +28,7 @@ void strategy_auto_position(
     trajectory_set_mode_aligning(&robot->mode, &robot->traj, &robot->distance_bd, &robot->angle_bd);
 
     /* Go backwards until we hit the wall and reset position */
-    trajectory_align_with_wall(&robot->mode, &robot->traj, &robot->distance_bd, &robot->angle_bd);
+    trajectory_align_with_wall(robot);
     position_set(&robot->pos, MIRROR_X(robot_color, robot_size/2), 0, 0);
 
     /* On se mets a la bonne position en x. */
@@ -40,7 +40,7 @@ void strategy_auto_position(
     trajectory_wait_for_end(robot, TRAJ_END_GOAL_REACHED);
 
     /* On recule jusqu'a avoir touche le bord. */
-    trajectory_align_with_wall(&robot->mode, &robot->traj, &robot->distance_bd, &robot->angle_bd);
+    trajectory_align_with_wall(robot);
 
     /* On reregle la position. */
     robot->pos.pos_d.y = robot_size / 2;
