@@ -25,7 +25,9 @@ matrix:
         - compiler: gcc
           env: BUILD_TYPE="tests"
         - compiler: gcc
-          env: BUILD_TYPE="build"
+          env: BUILD_TYPE="build" PLATFORM="master-firmware"
+        - compiler: gcc
+          env: BUILD_TYPE="build" PLATFORM="motor-control-firmware"
 
 before_install:
     - git submodule update --init --recursive

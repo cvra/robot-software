@@ -17,26 +17,26 @@ export CFLAGS="$CFLAGS -I $HOME/cpputest/include/"
 export CXXFLAGS="$CXXFLAGS -I $HOME/cpputest/include/"
 export LDFLAGS="$CXXFLAGS -L $HOME/cpputest/lib/"
 
-pushd master-firmware
-
-packager
 
 case $BUILD_TYPE in
     tests)
-        mkdir build
-        cd build
-        cmake ..
-        make check
+        pushd master-firmware
+        source test.sh
+        popd
+
+        pushd motor-control-firmware
+        source test.sh
+        popd
         ;;
 
     build)
-        make dsdlc
-        make
+        echo "build $PLATFORM"
+        pushd $PLATFORM
+        source build.sh
+        popd
         ;;
     *)
         echo "Unknown build type $BUILD_TYPE"
         exit 1
         ;;
 esac
-
-popd
