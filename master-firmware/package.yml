@@ -92,8 +92,8 @@ tests:
     - tests/test_math_helpers.cpp
     - tests/test_trajectory_helpers.cpp
     - tests/obstacle_avoidance.cpp
-    - src/trace/tests/trace_test.cpp
-    - src/trace/tests/trace_points.c
+    - tests/trace_test.cpp
+    - tests/trace_points.c
     - tests/trajectory_manager_test.cpp
     - tests/error.cpp
 

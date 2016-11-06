@@ -1,6 +1,6 @@
 #include <string.h>
 #include <CppUTest/TestHarness.h>
-#include "../trace.h"
+#include <trace/trace.h>
 #include "trace_points.h"
 
 extern "C"
