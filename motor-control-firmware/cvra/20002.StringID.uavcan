@@ -1,5 +1,0 @@
-#
-# String ID
-#
-
-uint8[<=24] id

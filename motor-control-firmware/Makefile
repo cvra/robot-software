@@ -233,7 +233,6 @@ UINCDIR += $(LIBUAVCAN_INC) $(LIBUAVCAN_STM32_INC) ./dsdlc_generated
 
 RULESPATH = ./board/
 include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/rules.mk
--include tools.mk
 
 # run uavcan dsdl compiler
 .PHONY: dsdlc
@@ -241,13 +240,13 @@ dsdlc:
 	@$(COLOR_PRINTF) "Running uavcan dsdl compiler"
 	$(LIBUAVCAN_DSDLC) ../uavcan_data_types/cvra $(UAVCAN_DSDL_DIR)
 
-.PHONY: tests
-tests: CMakeLists.txt
-	@mkdir -p build/tests
-	@cd build/tests; \
-	cmake ../..; \
-	make ; \
-	./tests;
+.PHONY: flash
+flash: all
+	openocd -f openocd.cfg -c "program build/motor-control-firmware.elf verify reset"
+
+.PHONY: reset
+reset:
+	openocd -f openocd.cfg -c "init" -c "reset" -c "shutdown"
 
 .PHONY: ctags
 ctags:
