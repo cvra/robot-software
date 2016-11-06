@@ -94,10 +94,6 @@ include $(CHIBIOS)/os/rt/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
 # Other files (optional).
 #include $(CHIBIOS)/test/rt/test.mk
 
-# lwIP files
-LWIP = ../lib/lwip/
-include src/lwip.mk
-
 # ChibiOS C++ bindings
 include $(CHIBIOS)/os/various/cpp_wrappers/chcpp.mk
 

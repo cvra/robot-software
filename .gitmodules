@@ -2,7 +2,7 @@
 	path = lib/ChibiOS
 	url = https://github.com/cvra/ChibiOS
 [submodule "lwip"]
-	path = lib/lwip
+	path = lib/lwip/lwip
 	url = https://github.com/cvra/lwip
 [submodule "dependencies/crc"]
 	path = lib/crc
