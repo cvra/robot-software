@@ -1,5 +1,8 @@
 #include <ch.h>
 
+#include <timestamp/timestamp.h>
+#include <error/error.h>
+
 #include "trajectory_manager/trajectory_manager_utils.h"
 #include "math_helpers.h"
 #include "trajectory_helpers.h"
@@ -18,6 +21,7 @@ int trajectory_wait_for_end(struct _robot *robot, messagebus_t *bus, int watched
         chThdSleepMilliseconds(1);
 #endif
     }
+    NOTICE("End of trajectory reason %d", traj_end_reason);
 
     return traj_end_reason;
 }
@@ -37,21 +41,24 @@ int trajectory_has_ended(struct _robot *robot, messagebus_t *bus, int watched_en
     }
 
     if (watched_end_reasons & TRAJ_END_OPPONENT_NEAR) {
-        float beacon_signal[2];
+        float beacon_signal[3];
         messagebus_topic_t* proximity_beacon_topic = messagebus_find_topic_blocking(bus, "/proximity_beacon");
         messagebus_topic_read(proximity_beacon_topic, &beacon_signal, sizeof(beacon_signal));
 
-        if (beacon_signal[0] < TRAJ_MIN_DISTANCE_TO_OPPONENT) {
-            // in case of forward motion
-            if (robot->distance_qr.previous_var > 0) {
-                if (fabs(beacon_signal[1]) < TRAJ_MIN_DIRECTION_TO_OPPONENT) {
-                    return TRAJ_END_OPPONENT_NEAR;
+        // only consider recent beacon signal
+        if (timestamp_duration_s(beacon_signal[0], timestamp_get()) < TRAJ_MAX_TIME_DELAY_OPPONENT_DETECTION) {
+            if (beacon_signal[1] < TRAJ_MIN_DISTANCE_TO_OPPONENT) {
+                // in case of forward motion
+                if (robot->distance_qr.previous_var > 0) {
+                    if (fabs(beacon_signal[2]) < TRAJ_MIN_DIRECTION_TO_OPPONENT) {
+                        return TRAJ_END_OPPONENT_NEAR;
+                    }
                 }
-            }
-            // in case of backward motion
-            if (robot->distance_qr.previous_var < 0) {
-                if (fabs(angle_delta(beacon_signal[1], M_PI)) < TRAJ_MIN_DIRECTION_TO_OPPONENT) {
-                    return TRAJ_END_OPPONENT_NEAR;
+                // in case of backward motion
+                if (robot->distance_qr.previous_var < 0) {
+                    if (fabs(angle_delta(beacon_signal[2], M_PI)) < TRAJ_MIN_DIRECTION_TO_OPPONENT) {
+                        return TRAJ_END_OPPONENT_NEAR;
+                    }
                 }
             }
         }

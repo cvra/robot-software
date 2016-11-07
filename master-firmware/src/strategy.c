@@ -6,6 +6,7 @@
 #include "blocking_detection_manager/blocking_detection_manager.h"
 #include "trajectory_manager/trajectory_manager_utils.h"
 #include "obstacle_avoidance/obstacle_avoidance.h"
+#include "robot_helpers/math_helpers.h"
 #include "robot_helpers/trajectory_helpers.h"
 #include "robot_helpers/strategy_helpers.h"
 #include "robot_parameters.h"
@@ -64,8 +65,18 @@ void strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg, in
                 break;
             } else if (end_reason == TRAJ_END_OPPONENT_NEAR) {
                 trajectory_hardstop(&robot->traj);
-                rs_set_distance(&robot.rs, 0);
-                rs_set_angle(&robot.rs, 0);
+                rs_set_distance(&robot->rs, 0);
+                rs_set_angle(&robot->rs, 0);
+                NOTICE("Stopping robot because opponent too close");
+
+                float beacon_signal[3];
+                messagebus_topic_t* proximity_beacon_topic = messagebus_find_topic_blocking(&bus, "/proximity_beacon");
+                messagebus_topic_read(proximity_beacon_topic, &beacon_signal, sizeof(beacon_signal));
+
+                chThdSleepMilliseconds(100);
+                NOTICE("Retrying now");
+
+                continue;
             }
         }
     }

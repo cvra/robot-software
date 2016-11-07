@@ -24,6 +24,7 @@
 #include "priorities.h"
 #include "main.h"
 #include "robot_helpers/beacon_helpers.h"
+#include <timestamp/timestamp.h>
 
 #include <errno.h>
 
@@ -231,7 +232,7 @@ void main(void *arg)
     static messagebus_topic_t proximity_beacon_topic;
     static MUTEX_DECL(proximity_beacon_topic_lock);
     static CONDVAR_DECL(proximity_beacon_topic_condvar);
-    static float proximity_beacon_topic_value[2];
+    static float proximity_beacon_topic_value[3];
 
     messagebus_topic_init(&proximity_beacon_topic,
                           &proximity_beacon_topic_lock,
@@ -247,12 +248,13 @@ void main(void *arg)
     res = prox_beac_sub.start(
         [&](const uavcan::ReceivedDataStructure<cvra::proximity_beacon::Signal>& msg)
         {
-            float data[2];
-            data[0] = reflector_diameter / (2. * sinf(msg.length / 2.));
-            data[1] = beacon_get_angle(msg.start_angle + angular_offset, msg.length);
+            float data[3];
+            data[0] = timestamp_get();
+            data[1] = reflector_diameter / (2. * sinf(msg.length / 2.));
+            data[2] = beacon_get_angle(msg.start_angle + angular_offset, msg.length);
             messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
 
-            NOTICE("Opponent detected at: %.3fm, %.3frad \traw signal: %.3f, %.3f", data[0], data[1], msg.start_angle, msg.length);
+            NOTICE("Opponent detected at: %.3fm, %.3frad \traw signal: %.3f, %.3f", data[1], data[2], msg.start_angle, msg.length);
         }
     );
     if (res < 0) {

@@ -1,6 +1,7 @@
 #include <CppUTest/TestHarness.h>
 
 #include <msgbus/messagebus.h>
+#include <timestamp/timestamp.h>
 #include "../../lib/msgbus/examples/posix/port.h"
 
 extern "C" {
@@ -199,7 +200,7 @@ TEST_GROUP(TrajectoryHasEnded)
     void msgbus_advertise_beacon()
     {
         condvar_wrapper_t proximity_beacon_topic_wrapper = {PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER};
-        static float proximity_beacon_topic_buffer[2];
+        static float proximity_beacon_topic_buffer[3];
         messagebus_topic_init(&proximity_beacon_topic,
                               &proximity_beacon_topic_wrapper,
                               &proximity_beacon_topic_wrapper,
@@ -208,6 +209,14 @@ TEST_GROUP(TrajectoryHasEnded)
         messagebus_advertise_topic(&bus, &proximity_beacon_topic, "/proximity_beacon");
     }
 };
+
+const float timestamp_now = 42424242;
+
+timestamp_t timestamp_get(void)
+{
+    return (timestamp_t)timestamp_now;
+}
+
 
 TEST(TrajectoryHasEnded, ReturnsZeroWhenTrajectoryHasNotEndedYet)
 {
@@ -296,7 +305,7 @@ TEST(TrajectoryHasEnded, DetectsWhenOpponentTooClose)
     robot_manage();
 
     /* Simulate opponent */
-    float data[2] = {0.3, RADIANS(10)};
+    float data[3] = {timestamp_now, 0.3, RADIANS(10)};
     messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
 
     int traj_end_reason = trajectory_has_ended(&robot, &bus, TRAJ_END_OPPONENT_NEAR);
@@ -312,7 +321,7 @@ TEST(TrajectoryHasEnded, IgnoresOpponentIfOutOfTheWayEvenIfTooClose)
     robot_manage();
 
     /* Simulate opponent */
-    float data[2] = {0.3, RADIANS(170)};
+    float data[3] = {timestamp_now, 0.3, RADIANS(170)};
     messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
 
     int traj_end_reason = trajectory_has_ended(&robot, &bus, TRAJ_END_OPPONENT_NEAR);
@@ -330,7 +339,7 @@ TEST(TrajectoryHasEnded, DetectsWhenOpponentTooCloseAndInDirectionOfMotionWhenGo
     robot_manage();
 
     /* Simulate opponent */
-    float data[2] = {0.3, RADIANS(170)};
+    float data[3] = {timestamp_now, 0.3, RADIANS(170)};
     messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
 
     int traj_end_reason = trajectory_has_ended(&robot, &bus, TRAJ_END_OPPONENT_NEAR);
@@ -346,10 +355,27 @@ TEST(TrajectoryHasEnded, ReturnsZeroWhenNoReasonSpecifiedEvenIfOpponentGetsNear)
     robot_manage();
 
     /* Simulate opponent */
-    float data[2] = {0.3, RADIANS(170)};
+    float data[3] = {timestamp_now, 0.3, RADIANS(170)};
     messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
 
     int traj_end_reason = trajectory_has_ended(&robot, &bus, 0);
+
+    CHECK_EQUAL(0, traj_end_reason);
+}
+
+TEST(TrajectoryHasEnded, IgnoresOpponentTooCloseWhenBeaconSignalTooOld)
+{
+    /* Start forward motion */
+    position_set(&robot.pos, 0, 0, 45);
+    robot_manage();
+    robot_manage();
+
+    /* Simulate opponent */
+    const float arbitrary_old_timestamp = 0;
+    float data[3] = {arbitrary_old_timestamp, 0.3, RADIANS(10)};
+    messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
+
+    int traj_end_reason = trajectory_has_ended(&robot, &bus, TRAJ_END_OPPONENT_NEAR);
 
     CHECK_EQUAL(0, traj_end_reason);
 }
