@@ -1,4 +1,4 @@
-dependency-dir: lib
+dependency-dir: ../lib
 
 depends:
   - chibios-syscalls

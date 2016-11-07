@@ -62,7 +62,7 @@ USE_FPU = no
 PROJECT = ch
 
 # Imported source files and paths
-CHIBIOS = ChibiOS
+CHIBIOS = ../lib/ChibiOS
 # Startup files.
 include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/startup_stm32f3xx.mk
 # HAL-OSAL files (optional).
@@ -136,7 +136,7 @@ include $(CHIBIOS)/os/various/cpp_wrappers/chcpp.mk
 CPPSRC += $(CHIBIOS)/os/various/cpp_wrappers/ch.cpp
 INCDIR += $(CHCPPINC)
 
-UAVCAN = lib/uavcan
+UAVCAN = ../lib/uavcan
 
 include $(UAVCAN)/libuavcan/include.mk
 include $(UAVCAN)/libuavcan_drivers/stm32/driver/include.mk
