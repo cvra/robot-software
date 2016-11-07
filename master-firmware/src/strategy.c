@@ -10,6 +10,7 @@
 #include "robot_helpers/strategy_helpers.h"
 #include "robot_parameters.h"
 #include "base/base_controller.h"
+#include "main.h"
 
 #include "strategy.h"
 
@@ -35,7 +36,7 @@ static void wait_for_autoposition_signal(void)
     wait_for_starter();
 }
 
-void strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg)
+void strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg, int num_retries)
 {
     /* Compute path */
     oa_reset();
@@ -54,12 +55,23 @@ void strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg)
     /* Execute path, one waypoint at a time */
     for (int i = 0; i < num_points; i++) {
         NOTICE("Going to x: %.1fmm y: %.1fmm\r\n", points[i].x, points[i].y);
-        trajectory_goto_xy_abs(&robot->traj, points[i].x, points[i].y);
-        trajectory_wait_for_end(robot, TRAJ_END_GOAL_REACHED);
+
+        for (int j = 0; j < num_retries; j++) {
+            trajectory_goto_xy_abs(&robot->traj, points[i].x, points[i].y);
+            int end_reason = trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED | TRAJ_END_OPPONENT_NEAR);
+
+            if (end_reason == TRAJ_END_GOAL_REACHED) {
+                break;
+            } else if (end_reason == TRAJ_END_OPPONENT_NEAR) {
+                trajectory_hardstop(&robot->traj);
+                rs_set_distance(&robot.rs, 0);
+                rs_set_angle(&robot.rs, 0);
+            }
+        }
     }
 
     trajectory_a_abs(&robot->traj, a_deg);
-    trajectory_wait_for_end(robot, TRAJ_END_GOAL_REACHED);
+    trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
 }
 
 
@@ -75,7 +87,7 @@ void strategy_play_game(void* _robot)
     /* Autoposition robot */
     wait_for_autoposition_signal();
     NOTICE("Positioning robot\n");
-    strategy_auto_position(600, 200, 90, ROBOT_SIZE_X_MM, color, robot);
+    strategy_auto_position(600, 200, 90, ROBOT_SIZE_X_MM, color, robot, &bus);
     NOTICE("Robot positioned at x: 600[mm], y: 200[mm], a: 90[deg]\n");
 
     /* Wait for starter to begin */
@@ -83,16 +95,16 @@ void strategy_play_game(void* _robot)
     NOTICE("Starting game\n");
 
     /* Go to lunar module */
-    strategy_goto_avoid(robot, 780, 1340, 45);
+    strategy_goto_avoid(robot, 780, 1340, 45, 3);
 
     /* Push lunar module */
     trajectory_d_rel(&robot->traj, 100.);
-    trajectory_wait_for_end(robot, TRAJ_END_GOAL_REACHED);
+    trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
     trajectory_d_rel(&robot->traj, -100.);
-    trajectory_wait_for_end(robot, TRAJ_END_GOAL_REACHED);
+    trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
 
     /* Go back to home */
-    strategy_goto_avoid(robot, 900, 200, 0);
+    strategy_goto_avoid(robot, 900, 200, 0, 3);
 
     while (true) {
         WARNING("Game ended!\nInsert coin to play more.\n");

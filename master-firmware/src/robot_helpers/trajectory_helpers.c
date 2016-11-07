@@ -1,10 +1,11 @@
 #include <ch.h>
 
 #include "trajectory_manager/trajectory_manager_utils.h"
+#include "math_helpers.h"
 #include "trajectory_helpers.h"
 
 
-int trajectory_wait_for_end(struct _robot *robot, int watched_end_reasons)
+int trajectory_wait_for_end(struct _robot *robot, messagebus_t *bus, int watched_end_reasons)
 {
 #ifndef TESTS
     chThdSleepMilliseconds(100);
@@ -12,7 +13,7 @@ int trajectory_wait_for_end(struct _robot *robot, int watched_end_reasons)
 
     int traj_end_reason = 0;
     while(traj_end_reason == 0) {
-        traj_end_reason = trajectory_has_ended(robot, watched_end_reasons);
+        traj_end_reason = trajectory_has_ended(robot, bus, watched_end_reasons);
 #ifndef TESTS
         chThdSleepMilliseconds(1);
 #endif
@@ -21,7 +22,7 @@ int trajectory_wait_for_end(struct _robot *robot, int watched_end_reasons)
     return traj_end_reason;
 }
 
-int trajectory_has_ended(struct _robot *robot, int watched_end_reasons)
+int trajectory_has_ended(struct _robot *robot, messagebus_t *bus, int watched_end_reasons)
 {
     if ((watched_end_reasons & TRAJ_END_GOAL_REACHED) && trajectory_finished(&robot->traj)) {
         return TRAJ_END_GOAL_REACHED;
@@ -35,17 +36,38 @@ int trajectory_has_ended(struct _robot *robot, int watched_end_reasons)
         return TRAJ_END_COLLISION;
     }
 
+    if (watched_end_reasons & TRAJ_END_OPPONENT_NEAR) {
+        float beacon_signal[2];
+        messagebus_topic_t* proximity_beacon_topic = messagebus_find_topic_blocking(bus, "/proximity_beacon");
+        messagebus_topic_read(proximity_beacon_topic, &beacon_signal, sizeof(beacon_signal));
+
+        if (beacon_signal[0] < TRAJ_MIN_DISTANCE_TO_OPPONENT) {
+            // in case of forward motion
+            if (robot->distance_qr.previous_var > 0) {
+                if (fabs(beacon_signal[1]) < TRAJ_MIN_DIRECTION_TO_OPPONENT) {
+                    return TRAJ_END_OPPONENT_NEAR;
+                }
+            }
+            // in case of backward motion
+            if (robot->distance_qr.previous_var < 0) {
+                if (fabs(angle_delta(beacon_signal[1], M_PI)) < TRAJ_MIN_DIRECTION_TO_OPPONENT) {
+                    return TRAJ_END_OPPONENT_NEAR;
+                }
+            }
+        }
+    }
+
     return 0;
 }
 
-void trajectory_align_with_wall(struct _robot *robot)
+void trajectory_align_with_wall(struct _robot *robot, messagebus_t *bus)
 {
     /* Disable angle control */
     robot->mode = BOARD_MODE_DISTANCE_ONLY;
 
     /* Move backwards until we hit a wall */
     trajectory_d_rel(&robot->traj, -2000.);
-    trajectory_wait_for_end(robot, TRAJ_END_COLLISION);
+    trajectory_wait_for_end(robot, bus, TRAJ_END_COLLISION);
 
     /* Stop moving on collision */
     trajectory_hardstop(&robot->traj);
@@ -56,13 +78,13 @@ void trajectory_align_with_wall(struct _robot *robot)
     robot->mode = BOARD_MODE_ANGLE_DISTANCE;
 }
 
-void trajectory_move_to(struct _robot* robot, int32_t x_mm, int32_t y_mm, int32_t a_deg)
+void trajectory_move_to(struct _robot* robot, messagebus_t *bus, int32_t x_mm, int32_t y_mm, int32_t a_deg)
 {
     trajectory_goto_xy_abs(&robot->traj, x_mm, y_mm);
-    trajectory_wait_for_end(robot, TRAJ_END_GOAL_REACHED);
+    trajectory_wait_for_end(robot, bus, TRAJ_END_GOAL_REACHED);
 
     trajectory_a_abs(&robot->traj, a_deg);
-    trajectory_wait_for_end(robot, TRAJ_END_GOAL_REACHED);
+    trajectory_wait_for_end(robot, bus, TRAJ_END_GOAL_REACHED);
 }
 
 void trajectory_set_mode_aligning(

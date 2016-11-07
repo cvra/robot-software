@@ -1,5 +1,8 @@
 #include <CppUTest/TestHarness.h>
 
+#include <msgbus/messagebus.h>
+#include "../../lib/msgbus/examples/posix/port.h"
+
 extern "C" {
 #include "trajectory_manager/trajectory_manager.h"
 #include "trajectory_manager/trajectory_manager_core.h"
@@ -10,6 +13,7 @@ extern "C" {
 #include "position_manager/position_manager.h"
 }
 
+#include "robot_helpers/math_helpers.h"
 #include "robot_helpers/trajectory_helpers.h"
 
 
@@ -120,6 +124,8 @@ TEST(TrajectorySetGameMode, EnablesSimultaneousAngleAndDistanceControl)
 TEST_GROUP(TrajectoryHasEnded)
 {
     struct _robot robot;
+    messagebus_t bus;
+    messagebus_topic_t proximity_beacon_topic;
 
     const int arbitrary_max_speed = 10;
     const int arbitrary_max_acc = 10;
@@ -167,6 +173,9 @@ TEST_GROUP(TrajectoryHasEnded)
         trajectory_set_acc(&robot.traj, 10, 1);
         trajectory_set_speed(&robot.traj, 10, 1);
 
+        msgbus_setup();
+        msgbus_advertise_beacon();
+
         // Finally go to a point
         trajectory_goto_forward_xy_abs(&robot.traj, arbitrary_goal_x, arbitrary_goal_y);
         robot_manage();
@@ -180,11 +189,29 @@ TEST_GROUP(TrajectoryHasEnded)
         bd_manage(&robot.angle_bd);
         trajectory_manager_xy_event(&robot.traj);
     }
+
+    void msgbus_setup()
+    {
+        condvar_wrapper_t bus_sync = {PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER};
+        messagebus_init(&bus, &bus_sync, &bus_sync);
+    }
+
+    void msgbus_advertise_beacon()
+    {
+        condvar_wrapper_t proximity_beacon_topic_wrapper = {PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER};
+        static float proximity_beacon_topic_buffer[2];
+        messagebus_topic_init(&proximity_beacon_topic,
+                              &proximity_beacon_topic_wrapper,
+                              &proximity_beacon_topic_wrapper,
+                              &proximity_beacon_topic_buffer,
+                              sizeof(proximity_beacon_topic_buffer));
+        messagebus_advertise_topic(&bus, &proximity_beacon_topic, "/proximity_beacon");
+    }
 };
 
 TEST(TrajectoryHasEnded, ReturnsZeroWhenTrajectoryHasNotEndedYet)
 {
-    int traj_end_reason = trajectory_has_ended(&robot, 0);
+    int traj_end_reason = trajectory_has_ended(&robot, &bus, 0);
 
     CHECK_EQUAL(0, traj_end_reason);
 }
@@ -197,7 +224,7 @@ TEST(TrajectoryHasEnded, DetectsGoalIsReached)
     robot_manage();
     robot_manage();
 
-    int traj_end_reason = trajectory_has_ended(&robot, TRAJ_END_GOAL_REACHED);
+    int traj_end_reason = trajectory_has_ended(&robot, &bus, TRAJ_END_GOAL_REACHED);
 
     CHECK_EQUAL(TRAJ_END_GOAL_REACHED, traj_end_reason);
 }
@@ -210,7 +237,7 @@ TEST(TrajectoryHasEnded, ReturnsZeroWhenNoReasonSpecifiedEvenIfGoalReached)
     robot_manage();
     robot_manage();
 
-    int traj_end_reason = trajectory_has_ended(&robot, 0);
+    int traj_end_reason = trajectory_has_ended(&robot, &bus, 0);
 
     CHECK_EQUAL(0, traj_end_reason);
 }
@@ -223,7 +250,7 @@ TEST(TrajectoryHasEnded, DetectsCollisionInDistance)
     robot_manage();
     robot_manage();
 
-    int traj_end_reason = trajectory_has_ended(&robot, TRAJ_END_COLLISION);
+    int traj_end_reason = trajectory_has_ended(&robot, &bus, TRAJ_END_COLLISION);
 
     CHECK_EQUAL(TRAJ_END_COLLISION, traj_end_reason);
 }
@@ -233,9 +260,7 @@ TEST(TrajectoryHasEnded, DetectsCollisionInAngle)
     robot_manage();
     robot_manage();
 
-    CHECK_EQUAL(RUNNING_XY_F_ANGLE, robot.traj.state);
-
-    int traj_end_reason = trajectory_has_ended(&robot, TRAJ_END_COLLISION);
+    int traj_end_reason = trajectory_has_ended(&robot, &bus, TRAJ_END_COLLISION);
 
     CHECK_EQUAL(TRAJ_END_COLLISION, traj_end_reason);
 }
@@ -248,7 +273,7 @@ TEST(TrajectoryHasEnded, ReturnsZeroWhenNoReasonSpecifiedEvenIfCollisionInDistan
     robot_manage();
     robot_manage();
 
-    int traj_end_reason = trajectory_has_ended(&robot, 0);
+    int traj_end_reason = trajectory_has_ended(&robot, &bus, 0);
 
     CHECK_EQUAL(0, traj_end_reason);
 }
@@ -258,9 +283,73 @@ TEST(TrajectoryHasEnded, ReturnsZeroWhenNoReasonSpecifiedEvenIfCollisionInAngle)
     robot_manage();
     robot_manage();
 
-    CHECK_EQUAL(RUNNING_XY_F_ANGLE, robot.traj.state);
+    int traj_end_reason = trajectory_has_ended(&robot, &bus, 0);
 
-    int traj_end_reason = trajectory_has_ended(&robot, 0);
+    CHECK_EQUAL(0, traj_end_reason);
+}
+
+TEST(TrajectoryHasEnded, DetectsWhenOpponentTooClose)
+{
+    /* Start forward motion */
+    position_set(&robot.pos, 0, 0, 45);
+    robot_manage();
+    robot_manage();
+
+    /* Simulate opponent */
+    float data[2] = {0.3, RADIANS(10)};
+    messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
+
+    int traj_end_reason = trajectory_has_ended(&robot, &bus, TRAJ_END_OPPONENT_NEAR);
+
+    CHECK_EQUAL(TRAJ_END_OPPONENT_NEAR, traj_end_reason);
+}
+
+TEST(TrajectoryHasEnded, IgnoresOpponentIfOutOfTheWayEvenIfTooClose)
+{
+    /* Start forward motion */
+    position_set(&robot.pos, 0, 0, 45);
+    robot_manage();
+    robot_manage();
+
+    /* Simulate opponent */
+    float data[2] = {0.3, RADIANS(170)};
+    messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
+
+    int traj_end_reason = trajectory_has_ended(&robot, &bus, TRAJ_END_OPPONENT_NEAR);
+
+    CHECK_EQUAL(0, traj_end_reason);
+}
+
+TEST(TrajectoryHasEnded, DetectsWhenOpponentTooCloseAndInDirectionOfMotionWhenGoingBack)
+{
+    /* Rotate and force backwards motion */
+    position_set(&robot.pos, 0, 0, -135);
+    trajectory_goto_backward_xy_abs(&robot.traj, arbitrary_goal_x, arbitrary_goal_y);
+    robot_manage();
+    robot_manage();
+    robot_manage();
+
+    /* Simulate opponent */
+    float data[2] = {0.3, RADIANS(170)};
+    messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
+
+    int traj_end_reason = trajectory_has_ended(&robot, &bus, TRAJ_END_OPPONENT_NEAR);
+
+    CHECK_EQUAL(TRAJ_END_OPPONENT_NEAR, traj_end_reason);
+}
+
+TEST(TrajectoryHasEnded, ReturnsZeroWhenNoReasonSpecifiedEvenIfOpponentGetsNear)
+{
+    /* Start forward motion */
+    position_set(&robot.pos, 0, 0, 45);
+    robot_manage();
+    robot_manage();
+
+    /* Simulate opponent */
+    float data[2] = {0.3, RADIANS(170)};
+    messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
+
+    int traj_end_reason = trajectory_has_ended(&robot, &bus, 0);
 
     CHECK_EQUAL(0, traj_end_reason);
 }

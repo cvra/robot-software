@@ -5,12 +5,18 @@
 extern "C" {
 #endif
 
+#include <msgbus/messagebus.h>
+
 #include "trajectory_manager/trajectory_manager.h"
 #include "blocking_detection_manager/blocking_detection_manager.h"
 #include "base/base_controller.h"
 
+#define TRAJ_MIN_DISTANCE_TO_OPPONENT   0.6 // we stop if there is 60cm or less to opponent
+#define TRAJ_MIN_DIRECTION_TO_OPPONENT  0.5 // defines cone in which to consider opponents (cone is double the angle in size)
+
 #define TRAJ_END_GOAL_REACHED   (1 << 0)
 #define TRAJ_END_COLLISION      (1 << 1)
+#define TRAJ_END_OPPONENT_NEAR  (1 << 2)
 
 /** Returns when ongoing trajectory is finished for the reasons specified
  *  For example when goal is reached
@@ -20,7 +26,7 @@ extern "C" {
  *
  * @param watched_end_reasons bitmask of the end reasons to watch for
  */
-int trajectory_wait_for_end(struct _robot *robot, int watched_end_reasons);
+int trajectory_wait_for_end(struct _robot *robot, messagebus_t *bus, int watched_end_reasons);
 
 /** Watches the robot state for the reasons specified
  *  Returns with the end reason of the trajectory if watching it
@@ -28,16 +34,16 @@ int trajectory_wait_for_end(struct _robot *robot, int watched_end_reasons);
  *
  * @param watched_end_reasons bitmask of the end reasons to watch for
  */
-int trajectory_has_ended(struct _robot *robot, int watched_end_reasons);
+int trajectory_has_ended(struct _robot *robot, messagebus_t *bus, int watched_end_reasons);
 
 /** Go backwards until a wall is hit to align with it
  */
-void trajectory_align_with_wall(struct _robot *robot);
+void trajectory_align_with_wall(struct _robot *robot, messagebus_t *bus);
 
 /** Go to request (x, y, a) point on table
  * @note This is a blocking call that returns when the goal is reached
  */
-void trajectory_move_to(struct _robot* robot, int32_t x_mm, int32_t y_mm, int32_t a_deg);
+void trajectory_move_to(struct _robot* robot, messagebus_t *bus, int32_t x_mm, int32_t y_mm, int32_t a_deg);
 
 /** Prepare robot for aligning by settings its dynamics accordingly
  * ie. slower and less sensitive to collisions
