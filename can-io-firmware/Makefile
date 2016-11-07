@@ -83,10 +83,10 @@ endif
 
 ifeq ($(USE_BOOTLOADER), yes)
   DDEFS += -DCORTEX_VTOR_INIT=0x08003800
-  LDSCRIPT= STM32F302x8_bootloader.ld
+  LDSCRIPT= linker/STM32F302x8_bootloader.ld
   DDEFS += -DOCNFIG_ADDR=0x08002800 -DCONFIG_PAGE_SIZE=0x800
 else
-  LDSCRIPT= STM32F302x8.ld
+  LDSCRIPT= linker/STM32F302x8.ld
 endif
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
