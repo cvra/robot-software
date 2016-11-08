@@ -81,7 +81,7 @@ endif
 #
 
 # Define project name here
-PROJECT = motor-control-firmware
+PROJECT = ch
 
 # Imported source files and paths
 CHIBIOS = ../lib/ChibiOS
