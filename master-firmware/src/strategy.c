@@ -54,30 +54,49 @@ void strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg, in
     NOTICE("Path to (%d, %d) computed with %d points\r\n", x_mm, y_mm, num_points);
 
     /* Execute path, one waypoint at a time */
-    for (int i = 0; i < num_points; i++) {
-        NOTICE("Going to x: %.1fmm y: %.1fmm\r\n", points[i].x, points[i].y);
+    for (int j = 0; j < num_retries; j++) {
+        int end_reason = 0;
 
-        for (int j = 0; j < num_retries; j++) {
+        for (int i = 0; i < num_points; i++) {
+            NOTICE("Going to x: %.1fmm y: %.1fmm\r\n", points[i].x, points[i].y);
+
             trajectory_goto_xy_abs(&robot->traj, points[i].x, points[i].y);
-            int end_reason = trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED | TRAJ_END_OPPONENT_NEAR);
+            end_reason = trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED | TRAJ_END_OPPONENT_NEAR);
 
-            if (end_reason == TRAJ_END_GOAL_REACHED) {
+            if (end_reason == TRAJ_END_OPPONENT_NEAR) {
                 break;
-            } else if (end_reason == TRAJ_END_OPPONENT_NEAR) {
-                trajectory_hardstop(&robot->traj);
-                rs_set_distance(&robot->rs, 0);
-                rs_set_angle(&robot->rs, 0);
-                NOTICE("Stopping robot because opponent too close");
-
-                float beacon_signal[3];
-                messagebus_topic_t* proximity_beacon_topic = messagebus_find_topic_blocking(&bus, "/proximity_beacon");
-                messagebus_topic_read(proximity_beacon_topic, &beacon_signal, sizeof(beacon_signal));
-
-                chThdSleepMilliseconds(100);
-                NOTICE("Retrying now");
-
-                continue;
             }
+        }
+
+        if (end_reason == TRAJ_END_GOAL_REACHED) {
+            break;
+        } else if (end_reason == TRAJ_END_OPPONENT_NEAR) {
+            trajectory_hardstop(&robot->traj);
+            rs_set_distance(&robot->rs, 0);
+            rs_set_angle(&robot->rs, 0);
+            NOTICE("Stopping robot because opponent too close");
+
+            /* Create obstacle at opponent position */
+            float beacon_signal[3];
+            messagebus_topic_t* proximity_beacon_topic = messagebus_find_topic_blocking(&bus, "/proximity_beacon");
+            messagebus_topic_read(proximity_beacon_topic, &beacon_signal, sizeof(beacon_signal));
+            strategy_set_opponent_obstacle(
+                beacon_signal[1] * cosf(position_get_a_rad_float(&robot->pos)) + position_get_x_float(&robot->pos),
+                beacon_signal[1] * sinf(position_get_a_rad_float(&robot->pos)) + position_get_y_float(&robot->pos),
+                500);
+
+            /* Query path around opponent */
+            oa_reset();
+            const point_t current_pos = {
+                    position_get_x_s16(&robot->pos),
+                    position_get_y_s16(&robot->pos)
+                };
+            oa_start_end_points(current_pos.x, current_pos.y, x_mm, y_mm);
+            oa_process();
+            num_points = oa_get_path(&points);
+
+            NOTICE("Retrying new path around opponent with %d points", num_points);
+            continue;
         }
     }
 

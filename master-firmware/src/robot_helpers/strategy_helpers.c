@@ -20,6 +20,24 @@ void strategy_map_setup(int32_t robot_size)
     oa_poly_set_point(obstacle, 850, 350, 3);
 }
 
+void strategy_set_opponent_obstacle(int32_t x, int32_t y, int32_t opponent_size)
+{
+    /* Set opponent obstacle */
+    // static poly_t *opponent;
+    // static bool is_initialized = false;
+
+    // if (!is_initialized) {
+    //     opponent = oa_new_poly(4);
+    //     is_initialized = true;
+    // }
+    poly_t *opponent = oa_new_poly(4);
+
+    oa_poly_set_point(opponent, x - opponent_size / 2, y - opponent_size / 2, 0);
+    oa_poly_set_point(opponent, x - opponent_size / 2, y + opponent_size / 2, 1);
+    oa_poly_set_point(opponent, x + opponent_size / 2, y + opponent_size / 2, 2);
+    oa_poly_set_point(opponent, x + opponent_size / 2, y - opponent_size / 2, 3);
+}
+
 void strategy_auto_position(
         int32_t x, int32_t y, int32_t heading, int32_t robot_size,
         enum strat_color_t robot_color, struct _robot* robot, messagebus_t* bus)
