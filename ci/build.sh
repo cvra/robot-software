@@ -21,18 +21,28 @@ export LDFLAGS="$CXXFLAGS -L $HOME/cpputest/lib/"
 case $BUILD_TYPE in
     tests)
         pushd master-firmware
-        ./test.sh
+        packager
+        mkdir build
+        cd build
+        cmake ..
+        make check
         popd
 
         pushd motor-control-firmware
-        ./test.sh
+        packager
+        mkdir build
+        cd build
+        cmake ..
+        make check
         popd
         ;;
 
     build)
         echo "build $PLATFORM"
         pushd $PLATFORM
-        ./build.sh
+        packager
+        make dsdlc
+        make
         popd
         ;;
     *)
