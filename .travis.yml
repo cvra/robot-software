@@ -28,6 +28,8 @@ matrix:
           env: BUILD_TYPE="build" PLATFORM="master-firmware"
         - compiler: gcc
           env: BUILD_TYPE="build" PLATFORM="motor-control-firmware"
+        - compiler: gcc
+          env: BUILD_TYPE="build" PLATFORM="can-io-firmware"
 
 before_install:
     - git submodule update --init --recursive
