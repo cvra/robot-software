@@ -1,0 +1,9 @@
+build/*
+.dep/*
+CMakeLists.txt
+src/src.mk
+.tags*
+tags
+
+*sw[po]
+dsdlc_generated/*
