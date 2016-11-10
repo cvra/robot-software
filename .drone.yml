@@ -1,0 +1,10 @@
+build:
+  master-firmware-tests:
+    image: cvra/cpputest
+    commands:
+      - cd master-firmware
+      - packager
+      - mkdir build
+      - cd build
+      - cmake ..
+      - make check
