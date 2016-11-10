@@ -11,6 +11,7 @@ build:
       - cd ci/dockerfiles
       - ls /var/run/docker.sock
       - docker build -t cpputest cpputest
+      - docker build -t gcc-arm-embedded gcc-arm-embedded
 
   master-firmware-tests:
     image: cpputest
@@ -31,3 +32,17 @@ build:
       - cd build
       - cmake ..
       - make -j check
+
+  master-firmware:
+    image: gcc-arm-embedded
+    commands:
+      # Install UAVCAN dsdl compiler
+      - cd $DRONE_DIR/lib/uavcan/libuavcan/dsdl_compiler/pyuavcan/
+      - python3 setup.py install
+      - cd $DRONE_DIR/lib/uavcan/libuavcan/dsdl_compiler/
+      - python3 setup.py install
+
+      - cd $DRONE_DIR/master-firmware
+      - packager
+      - make dsdlc
+      - make -j
