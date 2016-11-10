@@ -1,7 +1,11 @@
+clone:
+  recursive: true
+
 build:
   master-firmware-tests:
     image: cvra/cpputest
     commands:
+      - git submodule update --init --recursive
       - cd master-firmware
       - packager
       - mkdir build
