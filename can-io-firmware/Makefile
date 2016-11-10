@@ -221,7 +221,7 @@ ULIBS =
 # End of user defines
 ##############################################################################
 
-RULESPATH = $(CHIBIOS)/os/common/ports/ARMCMX/compilers/GCC/
+RULESPATH = $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/
 include $(RULESPATH)/rules.mk
 
 .PHONY: flash
