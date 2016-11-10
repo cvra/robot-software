@@ -12,3 +12,14 @@ build:
       - cd build
       - cmake ..
       - make check
+
+  motor-firmware-tests:
+    image: cvra/cpputest
+    commands:
+      - git submodule update --init --recursive
+      - cd motor-control-firmware
+      - packager
+      - mkdir build
+      - cd build
+      - cmake ..
+      - make check
