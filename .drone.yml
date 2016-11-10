@@ -2,8 +2,18 @@ clone:
   recursive: true
 
 build:
+  dockerfiles:
+    image: docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+    commands:
+      - cd ci/dockerfiles
+      - ls /var/run/docker.sock
+      - docker build -t cpputest cpputest
+
   master-firmware-tests:
-    image: cvra/cpputest
+    image: cpputest
     commands:
       - cd master-firmware
       - packager
@@ -13,7 +23,7 @@ build:
       - make -j check
 
   motor-firmware-tests:
-    image: cvra/cpputest
+    image: cpputest
     commands:
       - cd motor-control-firmware
       - packager
