@@ -5,21 +5,19 @@ build:
   master-firmware-tests:
     image: cvra/cpputest
     commands:
-      - git submodule update --init --recursive
       - cd master-firmware
       - packager
       - mkdir build
       - cd build
       - cmake ..
-      - make check
+      - make -j check
 
   motor-firmware-tests:
     image: cvra/cpputest
     commands:
-      - git submodule update --init --recursive
       - cd motor-control-firmware
       - packager
       - mkdir build
       - cd build
       - cmake ..
-      - make check
+      - make -j check
