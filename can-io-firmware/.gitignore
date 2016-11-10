@@ -1,0 +1,49 @@
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# ChibiOS build files
+.dep/*
+build/
+
+# Packager build files
+app_src.mk
+
+# Vim swap
+*.swp
+
+CMakeLists.txt
+
+# uavcan dsdl compiler output
+dsdlc_generated/
+tags
+.tags*
+
+# generated config
+master-firmware/src/config_msgpack.c
