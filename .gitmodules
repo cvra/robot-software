@@ -46,3 +46,6 @@
 [submodule "lib/can-bootloader"]
 	path = lib/can-bootloader
 	url = https://github.com/cvra/can-bootloader.git
+[submodule "lib/chibios-syscalls"]
+	path = lib/chibios-syscalls
+	url = https://github.com/cvra/chibios-syscalls
