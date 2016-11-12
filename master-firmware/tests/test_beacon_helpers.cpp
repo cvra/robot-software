@@ -1,5 +1,6 @@
 #include <CppUTest/TestHarness.h>
 #include <math.h>
+
 #include "robot_helpers/beacon_helpers.h"
 
 
@@ -57,3 +58,55 @@ TEST(BeaconAngleGetter, WrapsAroundPiForResultSmallerThanMinusPi)
 
     DOUBLES_EQUAL(M_PI - 0.1, angle, 1e-6);
 }
+
+
+TEST_GROUP(BeaconCartesianConvert)
+{
+    float x, y;
+    struct robot_position robot_pos;
+
+    void setup()
+    {
+        x = 0;
+        y = 0;
+
+        position_init(&robot_pos);
+        position_set(&robot_pos, 0, 0, 0);
+    }
+};
+
+TEST(BeaconCartesianConvert, handlesTrivialCase)
+{
+    beacon_cartesian_convert(&robot_pos, 0, 0, &x, &y);
+
+    DOUBLES_EQUAL(0, x, 1e-6);
+    DOUBLES_EQUAL(0, y, 1e-6);
+};
+
+TEST(BeaconCartesianConvert, returnsRelativeOpponentPosWhenRobotPosIsZero)
+{
+    beacon_cartesian_convert(&robot_pos, 1000, M_PI/6, &x, &y);
+
+    DOUBLES_EQUAL(866, x, 1e-1);
+    DOUBLES_EQUAL(500, y, 1e-1);
+};
+
+TEST(BeaconCartesianConvert, returnsRobotPosWhenOpponentIsOnRobot)
+{
+    position_set(&robot_pos, 200, 100, 90);
+
+    beacon_cartesian_convert(&robot_pos, 0, 0, &x, &y);
+
+    DOUBLES_EQUAL(200, x, 1e-1);
+    DOUBLES_EQUAL(100, y, 1e-1);
+};
+
+TEST(BeaconCartesianConvert, returnsCorrectPosInComplexCase)
+{
+    position_set(&robot_pos, 200, 100, 90);
+
+    beacon_cartesian_convert(&robot_pos, 1000, -M_PI/6, &x, &y);
+
+    DOUBLES_EQUAL(700, x, 1e-1);
+    DOUBLES_EQUAL(966, y, 1e-1);
+};

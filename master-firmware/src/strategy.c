@@ -9,6 +9,7 @@
 #include "robot_helpers/math_helpers.h"
 #include "robot_helpers/trajectory_helpers.h"
 #include "robot_helpers/strategy_helpers.h"
+#include "robot_helpers/beacon_helpers.h"
 #include "robot_parameters.h"
 #include "base/base_controller.h"
 #include "main.h"
@@ -80,10 +81,10 @@ void strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg, in
             float beacon_signal[3];
             messagebus_topic_t* proximity_beacon_topic = messagebus_find_topic_blocking(&bus, "/proximity_beacon");
             messagebus_topic_read(proximity_beacon_topic, &beacon_signal, sizeof(beacon_signal));
-            strategy_set_opponent_obstacle(
-                beacon_signal[1] * cosf(position_get_a_rad_float(&robot->pos)) + position_get_x_float(&robot->pos),
-                beacon_signal[1] * sinf(position_get_a_rad_float(&robot->pos)) + position_get_y_float(&robot->pos),
-                500);
+
+            float x_opp, y_opp;
+            beacon_cartesian_convert(&robot->pos, 1000 * beacon_signal[1], beacon_signal[2], &x_opp, &y_opp);
+            strategy_set_opponent_obstacle(x_opp, y_opp, 250);
 
             /* Query path around opponent */
             oa_reset();
