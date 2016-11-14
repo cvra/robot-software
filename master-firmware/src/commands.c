@@ -594,7 +594,7 @@ static void cmd_autopos(BaseSequentialStream *chp, int argc, char *argv[])
     a = atoi(argv[3]);
     chprintf(chp, "Positioning robot to x: %d[mm], y: %d[mm], a: %d[deg]\r\n", x, y, a);
 
-    strategy_auto_position(x, y, a, ROBOT_SIZE_X_MM, color, &robot, &bus);
+    strategy_auto_position(x, y, a, robot.robot_size, color, &robot, &bus);
 }
 
 

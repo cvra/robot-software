@@ -58,6 +58,9 @@ struct _robot {
     struct blocking_detection distance_bd;  // Distance blocking detection manager
 
     enum board_mode_t mode;                 // The current board mode
+
+    int robot_size;
+    int opponent_size;
 };
 
 extern struct _robot robot;

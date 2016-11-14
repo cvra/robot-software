@@ -113,12 +113,12 @@ void strategy_play_game(void* _robot)
 
     /* Initialize map and path planner */
     oa_init();
-    strategy_map_setup(ROBOT_SIZE_X_MM);
+    strategy_map_setup(robot->robot_size);
 
     /* Autoposition robot */
     wait_for_autoposition_signal();
     NOTICE("Positioning robot\n");
-    strategy_auto_position(600, 200, 90, ROBOT_SIZE_X_MM, color, robot, &bus);
+    strategy_auto_position(600, 200, 90, robot->robot_size, color, robot, &bus);
     NOTICE("Robot positioned at x: 600[mm], y: 200[mm], a: 90[deg]\n");
 
     /* Wait for starter to begin */
