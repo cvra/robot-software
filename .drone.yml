@@ -21,7 +21,7 @@ build:
       - mkdir build
       - cd build
       - cmake ..
-      - make -j check
+      - make check
 
   motor-firmware-tests:
     image: cpputest
@@ -31,7 +31,7 @@ build:
       - mkdir build
       - cd build
       - cmake ..
-      - make -j check
+      - make check
 
   master-firmware:
     image: gcc-arm-embedded
@@ -45,7 +45,7 @@ build:
       - cd $DRONE_DIR/master-firmware
       - packager
       - make dsdlc
-      - make -j
+      - make
 
   motor-firmware:
     image: gcc-arm-embedded
@@ -59,7 +59,7 @@ build:
       - cd $DRONE_DIR/motor-control-firmware
       - packager
       - make dsdlc
-      - make -j
+      - make
 
   can-io-firmware:
     image: gcc-arm-embedded
@@ -73,4 +73,4 @@ build:
       - cd $DRONE_DIR/can-io-firmware
       - packager
       - make dsdlc
-      - make -j
+      - make
