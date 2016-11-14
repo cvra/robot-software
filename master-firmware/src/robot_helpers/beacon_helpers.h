@@ -9,7 +9,7 @@ extern "C" {
 
 float beacon_get_angle(float start_angle, float signal_length);
 
-float beacon_cartesian_convert(struct robot_position* robot_pos, float distance, float angle, float* x, float* y);
+void beacon_cartesian_convert(struct robot_position* robot_pos, float distance, float angle, float* x, float* y);
 
 #ifdef __cplusplus
 }
