@@ -9,6 +9,7 @@ extern "C" {
 
 #include "trajectory_manager/trajectory_manager.h"
 #include "blocking_detection_manager/blocking_detection_manager.h"
+#include "obstacle_avoidance/obstacle_avoidance.h"
 #include "base/base_controller.h"
 
 #define TRAJ_MIN_DISTANCE_TO_OPPONENT           0.6 // we stop if there is 60cm or less to opponent
@@ -45,6 +46,10 @@ void trajectory_align_with_wall(struct _robot *robot, messagebus_t *bus);
  * @note This is a blocking call that returns when the goal is reached
  */
 void trajectory_move_to(struct _robot* robot, messagebus_t *bus, int32_t x_mm, int32_t y_mm, int32_t a_deg);
+
+bool trajectory_crosses_obstacle(struct _robot* robot, poly_t* opponent, point_t* intersection);
+
+bool trajectory_is_on_collision_path(struct _robot* robot, int x, int y);
 
 /** Prepare robot for aligning by settings its dynamics accordingly
  * ie. slower and less sensitive to collisions

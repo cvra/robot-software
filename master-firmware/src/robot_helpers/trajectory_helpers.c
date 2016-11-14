@@ -4,7 +4,10 @@
 #include <error/error.h>
 
 #include "trajectory_manager/trajectory_manager_utils.h"
+#include "robot_parameters.h"
 #include "math_helpers.h"
+#include "beacon_helpers.h"
+
 #include "trajectory_helpers.h"
 
 
@@ -48,17 +51,13 @@ int trajectory_has_ended(struct _robot *robot, messagebus_t *bus, int watched_en
         // only consider recent beacon signal
         if (timestamp_duration_s(beacon_signal[0], timestamp_get()) < TRAJ_MAX_TIME_DELAY_OPPONENT_DETECTION) {
             if (beacon_signal[1] < TRAJ_MIN_DISTANCE_TO_OPPONENT) {
-                // in case of forward motion
-                if (robot->distance_qr.previous_var > 0) {
-                    if (fabs(beacon_signal[2]) < TRAJ_MIN_DIRECTION_TO_OPPONENT) {
-                        return TRAJ_END_OPPONENT_NEAR;
-                    }
-                }
-                // in case of backward motion
-                if (robot->distance_qr.previous_var < 0) {
-                    if (fabs(angle_delta(beacon_signal[2], M_PI)) < TRAJ_MIN_DIRECTION_TO_OPPONENT) {
-                        return TRAJ_END_OPPONENT_NEAR;
-                    }
+                float distance_mm = 1000 * beacon_signal[1];
+                float angle_rad = beacon_signal[2];
+                float x_opp, y_opp;
+                beacon_cartesian_convert(&robot->pos, distance_mm, angle_rad, &x_opp, &y_opp);
+
+                if (trajectory_is_on_collision_path(robot, x_opp, y_opp)) {
+                    return TRAJ_END_OPPONENT_NEAR;
                 }
             }
         }
@@ -92,6 +91,32 @@ void trajectory_move_to(struct _robot* robot, messagebus_t *bus, int32_t x_mm, i
 
     trajectory_a_abs(&robot->traj, a_deg);
     trajectory_wait_for_end(robot, bus, TRAJ_END_GOAL_REACHED);
+}
+
+bool trajectory_crosses_obstacle(struct _robot* robot, poly_t* opponent, point_t* intersection)
+{
+    point_t current_position = {
+            position_get_x_float(&robot->pos),
+            position_get_y_float(&robot->pos)
+        };
+    point_t target_position = {
+            robot->traj.target.cart.x,
+            robot->traj.target.cart.y
+        };
+
+    uint8_t path_crosses_obstacle = is_crossing_poly(current_position, target_position, intersection, opponent);
+    bool current_pos_inside_obstacle = math_point_is_in_square(opponent, position_get_x_s16(&robot->pos), position_get_y_s16(&robot->pos));
+
+    return (path_crosses_obstacle == 1 || current_pos_inside_obstacle);
+}
+
+bool trajectory_is_on_collision_path(struct _robot* robot, int x, int y)
+{
+    beacon_opponent_obstacle_t opponent;
+    beacon_create_opponent_obstacle(&opponent, x, y, robot->opponent_size, robot->robot_size);
+
+    point_t intersection;
+    return trajectory_crosses_obstacle(robot, &opponent.polygon, &intersection);
 }
 
 void trajectory_set_mode_aligning(
