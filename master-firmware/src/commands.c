@@ -24,6 +24,7 @@
 #include "robot_helpers/trajectory_helpers.h"
 #include "robot_helpers/strategy_helpers.h"
 #include "robot_parameters.h"
+#include "strategy.h"
 #include <trace/trace.h>
 
 
@@ -320,6 +321,21 @@ static void cmd_traj_goto(BaseSequentialStream *chp, int argc, char *argv[])
         trajectory_move_to(&robot, &bus, x, y, a);
     } else {
         chprintf(chp, "Usage: goto x y a\r\n");
+    }
+}
+
+static void cmd_goto_avoid(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc == 4) {
+        int32_t x = atoi(argv[0]);
+        int32_t y = atoi(argv[1]);
+        int32_t a = atoi(argv[2]);
+        int32_t num_retries = atoi(argv[3]);
+
+        trajectory_set_mode_game(&robot.mode, &robot.traj, &robot.distance_bd, &robot.angle_bd);
+        strategy_goto_avoid(&robot, x, y, a, num_retries);
+    } else {
+        chprintf(chp, "Usage: goto_avoid x y a retries\r\n");
     }
 }
 
@@ -639,6 +655,7 @@ const ShellCommand commands[] = {
     {"pid", cmd_pid},
     {"goto", cmd_traj_goto},
     {"path", cmd_pathplanner},
+    {"goto_avoid", cmd_goto_avoid},
     {"obs", cmd_create_static_obstacle},
     {"bdconf", cmd_blocking_detection_config},
     {"wheel_calib", cmd_wheel_calibration},
