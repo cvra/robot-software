@@ -241,7 +241,7 @@ void main(void *arg)
                           sizeof(proximity_beacon_topic_value));
 
     messagebus_advertise_topic(&bus, &proximity_beacon_topic, "/proximity_beacon");
-    const float reflector_diameter = 0.080f;
+    const float reflector_radius = 0.040f;
     const float angular_offset = M_PI / 2.;
 
     uavcan::Subscriber<cvra::proximity_beacon::Signal> prox_beac_sub(node);
@@ -250,7 +250,7 @@ void main(void *arg)
         {
             float data[3];
             data[0] = timestamp_get();
-            data[1] = reflector_diameter / (2. * sinf(msg.length / 2.));
+            data[1] = reflector_radius + reflector_radius / tanf(msg.length / 2.);
             data[2] = beacon_get_angle(msg.start_angle + angular_offset, msg.length);
             messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
 
