@@ -67,8 +67,6 @@ static void vuart_log_message(struct error *e, va_list args)
     chvprintf(OUTPUT_STREAM, e->text, args);
 
     chprintf(OUTPUT_STREAM, "\n");
-
-    chMtxUnlock(&log_lock);
 }
 
 static void vlogfile_log_message(struct error *e, va_list args)
