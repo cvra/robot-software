@@ -33,6 +33,7 @@
 #include "base/base_controller.h"
 #include "trace/trace_points.h"
 #include "strategy.h"
+#include "filesystem.h"
 #include "http/server.h"
 
 void init_base_motors(void);
@@ -154,6 +155,10 @@ int main(void) {
 
     /* Initializes a serial driver.  */
     sdStart(&SD3, &debug_uart_config);
+
+    /* Try to mount the filesystem. */
+    filesystem_start();
+
     log_init();
 
     NOTICE("boot");

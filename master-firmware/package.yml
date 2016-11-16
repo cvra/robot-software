@@ -42,6 +42,7 @@ target.arm:
     - src/trace/trace_points.c
     - src/robot_helpers/strategy_helpers.c
     - src/strategy.c
+    - src/filesystem.c
     - src/http/server.c
 
 source:
