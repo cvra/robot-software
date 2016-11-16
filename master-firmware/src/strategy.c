@@ -56,6 +56,7 @@ void strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg, in
 
     /* Execute path, one waypoint at a time */
     for (int j = 0; j < num_retries; j++) {
+        NOTICE("Try #%d", j);
         int end_reason = 0;
 
         for (int i = 0; i < num_points; i++) {
@@ -126,7 +127,7 @@ void strategy_play_game(void* _robot)
     NOTICE("Starting game\n");
 
     /* Go to lunar module */
-    strategy_goto_avoid(robot, 780, 1340, 45, 3);
+    strategy_goto_avoid(robot, 780, 1340, 45, 10);
 
     /* Push lunar module */
     trajectory_d_rel(&robot->traj, 100.);
@@ -135,10 +136,10 @@ void strategy_play_game(void* _robot)
     trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
 
     /* Go back to home */
-    strategy_goto_avoid(robot, 900, 200, 0, 3);
+    strategy_goto_avoid(robot, 900, 200, 0, 10);
 
     while (true) {
-        WARNING("Game ended!\nInsert coin to play more.\n");
+        DEBUG("Game ended!\nInsert coin to play more.\n");
         chThdSleepSeconds(1);
     }
 }

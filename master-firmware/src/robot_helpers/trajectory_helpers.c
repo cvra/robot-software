@@ -24,7 +24,7 @@ int trajectory_wait_for_end(struct _robot *robot, messagebus_t *bus, int watched
         chThdSleepMilliseconds(1);
 #endif
     }
-    NOTICE("End of trajectory reason %d", traj_end_reason);
+    NOTICE("End of trajectory reason %d at %d %d", traj_end_reason, position_get_x_s16(&robot->pos), position_get_y_s16(&robot->pos));
 
     return traj_end_reason;
 }
