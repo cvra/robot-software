@@ -24,6 +24,7 @@ static void vlogfile_log_message(struct error *e, va_list args);
 static void log_message(struct error *e, ...)
 {
     va_list va;
+
     chMtxLock(&log_lock);
 
     va_start(va, e);
