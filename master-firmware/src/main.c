@@ -83,6 +83,7 @@ void panic_hook(const char *reason)
     palSetPad(GPIOF, GPIOF_LED_YELLOW_2);
     palSetPad(GPIOF, GPIOF_LED_GREEN_1);
     palSetPad(GPIOF, GPIOF_LED_GREEN_2);
+    palClearPad(GPIOC, GPIOC_LED);
 
     panic_log_write(reason);
     if (ch.rlist.r_current != NULL) {
