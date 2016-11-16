@@ -1,0 +1,5 @@
+target.arm:
+  - src/ff.c
+
+include_directories:
+  - src

@@ -1,5 +1,6 @@
 #include <lwip/api.h>
 #include <simplerpc/service_call.h>
+#include <ff.h>
 #include <lwip/netif.h>
 #include <hal.h>
 #include <chprintf.h>
