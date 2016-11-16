@@ -12,6 +12,7 @@ depends:
     - timestamp
     - msgbus
     - lwip
+    - fatfs
 
 target.arm:
     - src/main.c
