@@ -1,8 +1,10 @@
+#include <error/error.h>
 #include "position_manager/position_manager.h"
 #include "trajectory_manager/trajectory_manager_utils.h"
 #include "blocking_detection_manager/blocking_detection_manager.h"
 #include "obstacle_avoidance/obstacle_avoidance.h"
 #include "trajectory_helpers.h"
+#include "beacon_helpers.h"
 
 #include "strategy_helpers.h"
 
@@ -20,22 +22,25 @@ void strategy_map_setup(int32_t robot_size)
     oa_poly_set_point(obstacle, 850, 350, 3);
 }
 
-void strategy_set_opponent_obstacle(int32_t x, int32_t y, int32_t opponent_size)
+void strategy_set_opponent_obstacle(int32_t x, int32_t y, int32_t opponent_size, int32_t robot_size)
 {
     /* Set opponent obstacle */
-    // static poly_t *opponent;
-    // static bool is_initialized = false;
+    static poly_t *opponent;
+    static bool is_initialized = false;
 
-    // if (!is_initialized) {
-    //     opponent = oa_new_poly(4);
-    //     is_initialized = true;
-    // }
-    poly_t *opponent = oa_new_poly(4);
+    if (!is_initialized) {
+        opponent = oa_new_poly(4);
+        is_initialized = true;
+    }
+    // poly_t *opponent = oa_new_poly(4);
 
-    oa_poly_set_point(opponent, x - opponent_size / 2, y - opponent_size / 2, 0);
-    oa_poly_set_point(opponent, x - opponent_size / 2, y + opponent_size / 2, 1);
-    oa_poly_set_point(opponent, x + opponent_size / 2, y + opponent_size / 2, 2);
-    oa_poly_set_point(opponent, x + opponent_size / 2, y - opponent_size / 2, 3);
+    beacon_set_opponent_obstacle(opponent, x, y, opponent_size, robot_size);
+
+    NOTICE("Opponent obstacle seen at %d %d", x, y);
+    NOTICE("Point 0 %d %d", x - (opponent_size + robot_size) / 2, y - (opponent_size + robot_size) / 2);
+    NOTICE("Point 1 %d %d", x - (opponent_size + robot_size) / 2, y + (opponent_size + robot_size) / 2);
+    NOTICE("Point 2 %d %d", x + (opponent_size + robot_size) / 2, y + (opponent_size + robot_size) / 2);
+    NOTICE("Point 3 %d %d", x + (opponent_size + robot_size) / 2, y - (opponent_size + robot_size) / 2);
 }
 
 void strategy_auto_position(

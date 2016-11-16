@@ -26,7 +26,7 @@ enum strat_color_t {
 void strategy_map_setup(int32_t robot_size);
 
 /** Set an obstacle around opponent's position */
-void strategy_set_opponent_obstacle(int32_t x, int32_t y, int32_t opponent_size);
+void strategy_set_opponent_obstacle(int32_t x, int32_t y, int32_t opponent_size, int32_t robot_size);
 
 /** Auto position robot at requested location, and ensure the correct
  *  position is reached by aligning against walls.

@@ -84,7 +84,7 @@ void strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg, in
 
             float x_opp, y_opp;
             beacon_cartesian_convert(&robot->pos, 1000 * beacon_signal[1], beacon_signal[2], &x_opp, &y_opp);
-            strategy_set_opponent_obstacle(x_opp, y_opp, 250);
+            strategy_set_opponent_obstacle(x_opp, y_opp, robot->opponent_size * 1.25, robot->robot_size);
 
             /* Query path around opponent */
             oa_reset();
