@@ -1,4 +1,5 @@
 #include <error/error.h>
+#include <ff.h>
 #include <lwip/opt.h>
 #include <lwip/arch.h>
 #include <lwip/api.h>
@@ -11,7 +12,8 @@
 
 #define HTTP_PORT 80
 
-static const char http_html_hdr[] = "HTTP/1.1 200 OK\r\nContent-type: text/html\r\n\r\n";
+static const char http_html_hdr[] = "HTTP/1.1 200 OK\r\nContent-type: text/plain\r\n\r\n";
+static const char http_error[] = "HTTP/1.1 500 Internal Server Error\r\n\r\n<h1>Internal server error</h1><br>Cannot open log file.";
 static const char http_index_html[] =
     "<html><head><title>Congrats!</title></head><body><h1>Welcome to our lwIP HTTP server!</h1><p>This is a small test page, served by httpserver-netconn.</body></html>";
 
@@ -28,28 +30,44 @@ http_server_netconn_serve(struct netconn *conn)
        We assume the request (the part we care about) is in one netbuf */
     err = netconn_recv(conn, &inbuf);
 
-    if (err == ERR_OK) {
-        netbuf_data(inbuf, (void**)&buf, &buflen);
+    if (err != ERR_OK) {
+        goto end;
+    }
 
-        /* Is this an HTTP GET command? (only check the first 5 chars, since
-           there are other formats for GET, and we're keeping it very simple )*/
-        if (buflen >= 5 &&
+    netbuf_data(inbuf, (void**)&buf, &buflen);
+
+    /* Is this an HTTP GET command? (only check the first 5 chars, since
+       there are other formats for GET, and we're keeping it very simple )*/
+    if (buflen >= 5 &&
             buf[0] == 'G' &&
             buf[1] == 'E' &&
             buf[2] == 'T' &&
             buf[3] == ' ' &&
             buf[4] == '/' ) {
 
-            /* Send the HTML header
-             * subtract 1 from the size, since we dont send the \0 in the string
-             * NETCONN_NOCOPY: our data is const static, so no need to copy it
-             */
+        FRESULT err;
+        FIL logfile_fp;
+        err = f_open(&logfile_fp, "/log.txt", FA_READ);
+
+        if (err != FR_OK) {
+            WARNING("Cannot open log file.");
+            /* Send an error 500. */
+            netconn_write(conn, http_error, sizeof(http_error) - 1,
+                          NETCONN_NOCOPY);
+        } else {
+            /* Send HTTP header */
             netconn_write(conn, http_html_hdr, sizeof(http_html_hdr) - 1, NETCONN_NOCOPY);
 
-            /* Send our HTML page */
-            netconn_write(conn, http_index_html, sizeof(http_index_html) - 1, NETCONN_NOCOPY);
+            do {
+                static char buffer[128];
+                UINT byte_count;
+                f_read(&logfile_fp, buffer, sizeof(buffer), &byte_count);
+                netconn_write(conn, buffer, byte_count, NETCONN_COPY);
+            } while(!f_eof(&logfile_fp));
         }
     }
+
+end:
     /* Close the connection (server closes in HTTP) */
     netconn_close(conn);
 
@@ -67,13 +85,16 @@ static THD_FUNCTION(http_server_thread, arg)
 
     chRegSetThreadName("http");
 
+    NOTICE("starting HTTP server");
+
     /* Create a new TCP connection handle */
     /* Bind to port 80 (HTTP) with default IP address */
     conn = netconn_new(NETCONN_TCP);
     netconn_bind(conn, IP_ADDR_ANY, HTTP_PORT);
 
-    if (conn != NULL) {
+    if (conn == NULL) {
         ERROR("cannot bind to port %d.", HTTP_PORT);
+        goto end;
     }
 
     /* Put the connection into LISTEN state */
@@ -88,7 +109,10 @@ static THD_FUNCTION(http_server_thread, arg)
     } while (err == ERR_OK);
     WARNING("netconn_accept received error %d, aborting.", err);
     netconn_close(conn);
+
+end:
     netconn_delete(conn);
+    chThdExit(MSG_OK);
 }
 
 /** Initialize the HTTP server (start its thread) */
