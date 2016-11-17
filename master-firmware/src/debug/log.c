@@ -14,7 +14,6 @@
 
 MUTEX_DECL(log_lock);
 
-static FATFS SDC_FS;
 static FIL logfile_fp;
 static bool log_file_enabled = false;
 
@@ -24,6 +23,7 @@ static void vlogfile_log_message(struct error *e, va_list args);
 static void log_message(struct error *e, ...)
 {
     va_list va;
+
     chMtxLock(&log_lock);
 
     va_start(va, e);
@@ -113,16 +113,8 @@ static void vlogfile_log_message(struct error *e, va_list args)
 static bool try_sd_card_mount(void)
 {
     FRESULT err;
-    sdcStart(&SDCD1, NULL);
-    sdcConnect(&SDCD1);
-
-    err = f_mount(&SDC_FS, "", 1);
-    if (err != FR_OK) {
-        WARNING("Cannot mount SD card!");
-        return false;
-    }
-
     err = f_open(&logfile_fp, "/log.txt", FA_OPEN_ALWAYS | FA_WRITE);
+
     if (err != FR_OK) {
         WARNING("Cannot create log file.");
         return false;

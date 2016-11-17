@@ -33,6 +33,8 @@
 #include "base/base_controller.h"
 #include "trace/trace_points.h"
 #include "strategy.h"
+#include "filesystem.h"
+#include "http/server.h"
 
 void init_base_motors(void);
 
@@ -153,6 +155,10 @@ int main(void) {
 
     /* Initializes a serial driver.  */
     sdStart(&SD3, &debug_uart_config);
+
+    /* Try to mount the filesystem. */
+    filesystem_start();
+
     log_init();
 
     NOTICE("boot");
@@ -179,7 +185,6 @@ int main(void) {
 
     /* Initialize global objects. */
     config_init();
-
 
     /* Initialise timestamp module */
     timestamp_stm32_init();
@@ -226,6 +231,7 @@ int main(void) {
     uavcan_node_start(10);
     rpc_server_init();
     message_server_init();
+    http_server_start();
 
     init_base_motors();
     config_load_from_flash();
