@@ -43,11 +43,13 @@ TEST(MessageTestGroup, CanEncodeMessage)
 
 static void foo_cb(void *p, cmp_ctx_t *ctx)
 {
+    (void) p;
     mock().actualCall("foo");
     CHECK_TRUE(cmp_read_nil(ctx));
 }
 static void bar_cb(void *p, cmp_ctx_t *ctx)
 {
+    (void) p;
     int x, y;
     uint32_t array_size;
     bool result;
@@ -92,12 +94,14 @@ TEST(MessageTestGroup, CanUseArguments)
 
 static void first_cb(void *p, cmp_ctx_t *ctx)
 {
+    (void) p;
     (void) ctx;
     mock().actualCall("first");
 }
 
 static void second_cb(void *p, cmp_ctx_t *ctx)
 {
+    (void) p;
     (void) ctx;
     mock().actualCall("second");
 }

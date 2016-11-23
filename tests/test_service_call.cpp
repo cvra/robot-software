@@ -7,6 +7,9 @@
 
 bool foo_cb(void *p, cmp_ctx_t *args_ctx, cmp_ctx_t *output_ctx)
 {
+    (void) p;
+    (void) args_ctx;
+    (void) output_ctx;
     mock().actualCall("foo");
 
     return true;
@@ -14,6 +17,9 @@ bool foo_cb(void *p, cmp_ctx_t *args_ctx, cmp_ctx_t *output_ctx)
 
 bool bar_cb(void *p, cmp_ctx_t *args_ctx, cmp_ctx_t *output_ctx)
 {
+    (void) p;
+    (void) args_ctx;
+    (void) output_ctx;
     mock().actualCall("bar");
 
     return true;
@@ -22,10 +28,10 @@ bool bar_cb(void *p, cmp_ctx_t *args_ctx, cmp_ctx_t *output_ctx)
 /** This callback shows how to read the several arguments. */
 bool arg_read_cb(void *p, cmp_ctx_t *args_ctx, cmp_ctx_t *output_ctx)
 {
+    (void) p;
+    (void) output_ctx;
     bool result;
     int arg;
-    char arg_name[64];
-    unsigned int arg_len;
     uint32_t array_size = 0;
 
     MockActualCall& state = mock().actualCall("arg_read_cb");
@@ -46,6 +52,8 @@ bool arg_read_cb(void *p, cmp_ctx_t *args_ctx, cmp_ctx_t *output_ctx)
 
 bool output_test_cb(void *p, cmp_ctx_t *args_ctx, cmp_ctx_t *output_ctx)
 {
+    (void) p;
+    (void) args_ctx;
     cmp_write_str(output_ctx, "hello", 5);
 
     return true;
@@ -135,6 +143,9 @@ TEST(ServiceCallTestGroup, PassesArgcCorrectly)
 
 static bool pointer_arg_cb(void *p, cmp_ctx_t *args_ctx, cmp_ctx_t *output_ctx)
 {
+    (void) args_ctx;
+    (void) output_ctx;
+
     mock().actualCall("cb").withPointerParameter("p", p);
 
     return true;
