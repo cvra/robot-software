@@ -39,13 +39,20 @@ static void log_message(struct error *e, ...)
     chMtxUnlock(&log_lock);
 }
 
-static void vuart_log_message(struct error *e, va_list args)
+static const char *get_thread_name(void)
 {
-    const char *thread_name = NULL;
-    if (ch.rlist.r_current) {
-        thread_name = ch.rlist.r_current->p_name;
+    const char *thread_name;
+
+    thread_name = chRegGetThreadNameX(chThdGetSelfX());
+    if (thread_name == NULL) {
+        thread_name = "unknown";
     }
 
+    return thread_name;
+}
+
+static void vuart_log_message(struct error *e, va_list args)
+{
     /* Print time */
     uint32_t ts = timestamp_get();
     uint32_t s = ts / 1000000;
@@ -56,9 +63,7 @@ static void vuart_log_message(struct error *e, va_list args)
     chprintf(OUTPUT_STREAM, "%s:%d\t", strrchr(e->file, '/') + 1, e->line);
 
     /* Print current thread */
-    if (thread_name != NULL) {
-        chprintf(OUTPUT_STREAM, "%s\t", thread_name);
-    }
+    chprintf(OUTPUT_STREAM, "%s\t", get_thread_name());
 
     /* Print severity message */
     chprintf(OUTPUT_STREAM, "%s\t", error_severity_get_name(e->severity));
@@ -92,12 +97,8 @@ static void vlogfile_log_message(struct error *e, va_list args)
     snprintf(buffer, sizeof(buffer), "%s:%d\t", strrchr(e->file, '/') + 1, e->line);
     f_write(&logfile_fp, buffer, strlen(buffer), &dummy);
 
-    /* Write current thread. */
-    if (ch.rlist.r_current) {
-        thread_name = ch.rlist.r_current->p_name;
-    } else {
-        thread_name = "unknown";
-    }
+    /* Write thread name */
+    thread_name = get_thread_name();
     f_write(&logfile_fp, thread_name, strlen(thread_name), &dummy);
     f_write(&logfile_fp, "\t", 1, &dummy);
 
