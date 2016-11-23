@@ -563,7 +563,7 @@ static void cmd_track_calibration(BaseSequentialStream *chp, int argc, char *arg
 static void cmd_track_correction(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc < 1) {
-        chprintf(chp, "Usage: wheel_corr {left|right} factor\r\n");
+        chprintf(chp, "Usage: track_corr factor\r\n");
         return;
     }
     float track = atof(argv[0]);
