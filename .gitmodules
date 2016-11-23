@@ -30,7 +30,7 @@
 	url = https://github.com/cvra/timestamp.git
 [submodule "src/parameter"]
 	path = lib/parameter
-	url = https://github.com/Stapelzeiger/parameter
+	url = https://github.com/cvra/parameter
 [submodule "src/pid"]
 	path = lib/pid
 	url = https://github.com/cvra/pid.git
