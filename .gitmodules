@@ -21,7 +21,7 @@
 	url = https://github.com/cvra/simplerpc
 [submodule "src/cmp_mem_access"]
 	path = lib/cmp_mem_access
-	url = https://github.com/Stapelzeiger/cmp_mem_access
+	url = https://github.com/cvra/cmp_mem_access
 [submodule "uavcan"]
 	path = lib/uavcan
 	url = https://github.com/cvra/uavcan.git
