@@ -29,6 +29,9 @@
 
 /**@brief A polygon.
  * An array of points, defining the corners of a geometric figure.
+ *
+ * @warning Polygon points must be stored in counter clockwise order for the
+ * algorithms to work.
  */
 typedef struct _poly {
     point_t * pts;  /**< Array of corner-points */

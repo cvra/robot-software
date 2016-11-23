@@ -62,3 +62,66 @@ TEST(PointInSquareChecker, IdentifiesPointOutsideSquare)
 
     CHECK_FALSE(res);
 }
+
+
+TEST_GROUP(PointIsInPolyGon)
+{
+    point_t points[4];
+    poly_t polygon;
+    const int arbitrary_x = 100;
+    const int arbitrary_y = 200;
+    const int arbitrary_size = 200;
+
+    void setup()
+    {
+        polygon = {.pts=points, .l=4};
+    }
+
+    void set_square_polygon(poly_t* polygon, int x, int y, int size)
+    {
+        polygon->pts[3].x = x - (size) / 2;
+        polygon->pts[3].y = y - (size) / 2;
+
+        polygon->pts[2].x = x - (size) / 2;
+        polygon->pts[2].y = y + (size) / 2;
+
+        polygon->pts[1].x = x + (size) / 2;
+        polygon->pts[1].y = y + (size) / 2;
+
+        polygon->pts[0].x = x + (size) / 2;
+        polygon->pts[0].y = y - (size) / 2;
+    }
+
+    void set_square_polygon_cw(poly_t* polygon, int x, int y, int size)
+    {
+        polygon->pts[0].x = x - (size) / 2;
+        polygon->pts[0].y = y - (size) / 2;
+
+        polygon->pts[1].x = x - (size) / 2;
+        polygon->pts[1].y = y + (size) / 2;
+
+        polygon->pts[2].x = x + (size) / 2;
+        polygon->pts[2].y = y + (size) / 2;
+
+        polygon->pts[3].x = x + (size) / 2;
+        polygon->pts[3].y = y - (size) / 2;
+    }
+};
+
+TEST(PointIsInPolyGon, IdentifiesPointInsidePolygon)
+{
+    set_square_polygon(&polygon, arbitrary_x, arbitrary_y, arbitrary_size);
+
+    uint8_t res = is_point_in_poly(&polygon, arbitrary_x, arbitrary_y);
+
+    CHECK_EQUAL(1, res);
+}
+
+TEST(PointIsInPolyGon, DoesntIdentifyPointInsidePolygonBecausePolygonPointsAreNotInCounterClockWiseOrder)
+{
+    set_square_polygon_cw(&polygon, arbitrary_x, arbitrary_y, arbitrary_size);
+
+    uint8_t res = is_point_in_poly(&polygon, arbitrary_x, arbitrary_y);
+
+    CHECK_EQUAL(0, res);
+}
