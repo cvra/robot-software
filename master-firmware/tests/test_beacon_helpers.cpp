@@ -133,37 +133,37 @@ TEST_GROUP(BeaconOpponentObstacleHandler)
     }
 };
 
-TEST(BeaconOpponentObstacleHandler, setsSquarePolygonObstacleAtRobotPosition)
+TEST(BeaconOpponentObstacleHandler, setsSquarePolygonObstacleAtRobotPositionInCounterClockWiseDirection)
 {
     beacon_set_opponent_obstacle(&opponent, arbitrary_pos_x, arbitrary_pos_y, arbitrary_size, arbitrary_robot_size);
 
-    CHECK_EQUAL(450, opponent.pts[0].x);
-    CHECK_EQUAL(550, opponent.pts[0].y);
+    CHECK_EQUAL(450, opponent.pts[3].x);
+    CHECK_EQUAL(550, opponent.pts[3].y);
 
-    CHECK_EQUAL(450, opponent.pts[1].x);
-    CHECK_EQUAL(1050, opponent.pts[1].y);
-
-    CHECK_EQUAL(950, opponent.pts[2].x);
+    CHECK_EQUAL(450, opponent.pts[2].x);
     CHECK_EQUAL(1050, opponent.pts[2].y);
 
-    CHECK_EQUAL(950, opponent.pts[3].x);
-    CHECK_EQUAL(550, opponent.pts[3].y);
+    CHECK_EQUAL(950, opponent.pts[1].x);
+    CHECK_EQUAL(1050, opponent.pts[1].y);
+
+    CHECK_EQUAL(950, opponent.pts[0].x);
+    CHECK_EQUAL(550, opponent.pts[0].y);
 };
 
-TEST(BeaconOpponentObstacleHandler, createsSquarePolygonObstacleAtRobotPosition)
+TEST(BeaconOpponentObstacleHandler, createsSquarePolygonObstacleAtRobotPositionInCounterClockWiseDirection)
 {
     beacon_opponent_obstacle_t opponent;
     beacon_create_opponent_obstacle(&opponent, arbitrary_pos_x, arbitrary_pos_y, arbitrary_size, arbitrary_robot_size);
 
-    CHECK_EQUAL(450, opponent.polygon.pts[0].x);
-    CHECK_EQUAL(550, opponent.polygon.pts[0].y);
+    CHECK_EQUAL(450, opponent.polygon.pts[3].x);
+    CHECK_EQUAL(550, opponent.polygon.pts[3].y);
 
-    CHECK_EQUAL(450, opponent.polygon.pts[1].x);
-    CHECK_EQUAL(1050, opponent.polygon.pts[1].y);
-
-    CHECK_EQUAL(950, opponent.polygon.pts[2].x);
+    CHECK_EQUAL(450, opponent.polygon.pts[2].x);
     CHECK_EQUAL(1050, opponent.polygon.pts[2].y);
 
-    CHECK_EQUAL(950, opponent.polygon.pts[3].x);
-    CHECK_EQUAL(550, opponent.polygon.pts[3].y);
+    CHECK_EQUAL(950, opponent.polygon.pts[1].x);
+    CHECK_EQUAL(1050, opponent.polygon.pts[1].y);
+
+    CHECK_EQUAL(950, opponent.polygon.pts[0].x);
+    CHECK_EQUAL(550, opponent.polygon.pts[0].y);
 };

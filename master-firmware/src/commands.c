@@ -344,10 +344,10 @@ void add_rectangular_obstacle(int x, int y, int half_dx, int half_dy)
 {
     poly_t *obstacle = oa_new_poly(4);
 
-    oa_poly_set_point(obstacle, x + half_dx, y + half_dy, 0);
-    oa_poly_set_point(obstacle, x + half_dx, y - half_dy, 1);
-    oa_poly_set_point(obstacle, x - half_dx, y - half_dy, 2);
-    oa_poly_set_point(obstacle, x - half_dx, y + half_dy, 3);
+    oa_poly_set_point(obstacle, x - half_dx, y - half_dy, 3);
+    oa_poly_set_point(obstacle, x - half_dx, y + half_dy, 2);
+    oa_poly_set_point(obstacle, x + half_dx, y + half_dy, 1);
+    oa_poly_set_point(obstacle, x + half_dx, y - half_dy, 0);
 }
 
 

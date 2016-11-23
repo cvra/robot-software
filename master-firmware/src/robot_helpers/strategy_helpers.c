@@ -16,16 +16,16 @@ void strategy_map_setup(int32_t robot_size)
 
     /* Add obstacles */
     poly_t *crater = oa_new_poly(4);
-    oa_poly_set_point(crater, 400, 300, 0);
-    oa_poly_set_point(crater, 400, 800, 1);
-    oa_poly_set_point(crater, 900, 800, 2);
-    oa_poly_set_point(crater, 900, 300, 3);
+    oa_poly_set_point(crater, 400, 300, 3);
+    oa_poly_set_point(crater, 400, 800, 2);
+    oa_poly_set_point(crater, 900, 800, 1);
+    oa_poly_set_point(crater, 900, 300, 0);
 
     poly_t *fence = oa_new_poly(4);
-    oa_poly_set_point(fence,   0, 250, 0);
-    oa_poly_set_point(fence,   0, 480, 1);
-    oa_poly_set_point(fence, 850, 480, 2);
-    oa_poly_set_point(fence, 850, 250, 3);
+    oa_poly_set_point(fence,   0, 250, 3);
+    oa_poly_set_point(fence,   0, 480, 2);
+    oa_poly_set_point(fence, 850, 480, 1);
+    oa_poly_set_point(fence, 850, 250, 0);
 }
 
 void strategy_set_opponent_obstacle(int32_t x, int32_t y, int32_t opponent_size, int32_t robot_size)
