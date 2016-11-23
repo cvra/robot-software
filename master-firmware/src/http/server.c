@@ -62,8 +62,8 @@ http_server_netconn_serve(struct netconn *conn)
                 static char buffer[128];
                 UINT byte_count;
                 f_read(&logfile_fp, buffer, sizeof(buffer), &byte_count);
-                netconn_write(conn, buffer, byte_count, NETCONN_COPY);
-            } while(!f_eof(&logfile_fp));
+                err = netconn_write(conn, buffer, byte_count, NETCONN_COPY);
+            } while(!f_eof(&logfile_fp) && err == ERR_OK);
         }
     }
 
