@@ -57,10 +57,10 @@ void motor_driver_init(motor_driver_t *d,
     parameter_scalar_declare_with_default(&d->config.low_batt_th, &d->config.control, "low_batt_th", 12);
 
     parameter_namespace_declare(&d->config.thermal, &d->config.root, "thermal");
-    parameter_scalar_declare(&d->config.thermal_capacity, &d->config.thermal, "capacity");
-    parameter_scalar_declare(&d->config.thermal_resistance, &d->config.thermal, "resistance");
-    parameter_scalar_declare(&d->config.thermal_current_gain, &d->config.thermal, "current_gain");
-    parameter_scalar_declare(&d->config.max_temperature, &d->config.thermal, "max_temperature");
+    parameter_scalar_declare_with_default(&d->config.thermal_capacity, &d->config.thermal, "capacity", 0.);
+    parameter_scalar_declare_with_default(&d->config.thermal_resistance, &d->config.thermal, "resistance", 0.);
+    parameter_scalar_declare_with_default(&d->config.thermal_current_gain, &d->config.thermal, "current_gain", 0.);
+    parameter_scalar_declare_with_default(&d->config.max_temperature, &d->config.thermal, "max_temperature", 0.);
 
     parameter_namespace_declare(&d->config.motor, &d->config.root, "motor");
     parameter_scalar_declare_with_default(&d->config.torque_constant, &d->config.motor, "torque_constant", 1);
@@ -72,13 +72,13 @@ void motor_driver_init(motor_driver_t *d,
     parameter_integer_declare_with_default(&d->config.mode, &d->config.motor, "mode", 4); // todo
 
     parameter_namespace_declare(&d->config.stream, &d->config.root, "stream");
-    parameter_scalar_declare(&d->config.current_pid_stream, &d->config.stream, "current_pid");
-    parameter_scalar_declare(&d->config.velocity_pid_stream, &d->config.stream, "velocity_pid");
-    parameter_scalar_declare(&d->config.position_pid_stream, &d->config.stream, "position_pid");
-    parameter_scalar_declare(&d->config.index_stream, &d->config.stream, "index");
-    parameter_scalar_declare(&d->config.encoder_pos_stream, &d->config.stream, "encoder_pos");
-    parameter_scalar_declare(&d->config.motor_pos_stream, &d->config.stream, "motor_pos");
-    parameter_scalar_declare(&d->config.motor_torque_stream, &d->config.stream, "motor_torque");
+    parameter_scalar_declare_with_default(&d->config.current_pid_stream, &d->config.stream, "current_pid", 0);
+    parameter_scalar_declare_with_default(&d->config.velocity_pid_stream, &d->config.stream, "velocity_pid", 0);
+    parameter_scalar_declare_with_default(&d->config.position_pid_stream, &d->config.stream, "position_pid", 0);
+    parameter_scalar_declare_with_default(&d->config.index_stream, &d->config.stream, "index", 0);
+    parameter_scalar_declare_with_default(&d->config.encoder_pos_stream, &d->config.stream, "encoder_pos", 0);
+    parameter_scalar_declare_with_default(&d->config.motor_pos_stream, &d->config.stream, "motor_pos", 0);
+    parameter_scalar_declare_with_default(&d->config.motor_torque_stream, &d->config.stream, "motor_torque", 0);
 
     d->stream.change_status = 0;
 }
