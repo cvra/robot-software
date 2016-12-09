@@ -14,7 +14,7 @@ typedef struct topic_s {
     size_t buffer_len;
     void *lock;
     void *condvar;
-    char name[TOPIC_NAME_MAX_LENGTH+1];
+    char name[TOPIC_NAME_MAX_LENGTH + 1];
     struct topic_s *next;
     bool published;
 } messagebus_topic_t;
@@ -28,15 +28,17 @@ typedef struct {
 } messagebus_t;
 
 #define MESSAGEBUS_TOPIC_FOREACH(_bus, _topic_var_name) \
-    for(int __control = -1; __control < 2 ; __control++) \
-        if(__control < 0) { \
+    for (int __control = -1; __control < 2; __control++) \
+        if (__control < 0) { \
             messagebus_lock_acquire((_bus)->lock); \
-        } else if(__control > 0) { \
+        } else if (__control > 0) { \
             messagebus_lock_release((_bus)->lock); \
         } else  \
             for (messagebus_topic_t *(_topic_var_name) = (_bus)->topics.head; \
-                    topic != NULL; \
-                    (_topic_var_name) = (_topic_var_name)->next)
+                 topic != NULL; \
+                 (_topic_var_name) = (_topic_var_name)->next)
+
+
 
 /** Initializes a topic object
  *
@@ -47,7 +49,7 @@ typedef struct {
  * be stored.
  */
 void messagebus_topic_init(messagebus_topic_t *topic, void *topic_lock, void *topic_condvar,
-                void *buffer, size_t buffer_len);
+                           void *buffer, size_t buffer_len);
 
 /** Initializes a new message bus with no topics.
  *

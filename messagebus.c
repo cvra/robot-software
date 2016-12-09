@@ -4,7 +4,7 @@
 static messagebus_topic_t *topic_by_name(messagebus_t *bus, const char *name)
 {
     messagebus_topic_t *t;
-    for (t=bus->topics.head; t!=NULL; t=t->next) {
+    for (t = bus->topics.head; t != NULL; t = t->next) {
         if (!strcmp(name, t->name)) {
             return t;
         }
@@ -21,7 +21,7 @@ void messagebus_init(messagebus_t *bus, void *lock, void *condvar)
 }
 
 void messagebus_topic_init(messagebus_topic_t *topic, void *topic_lock, void *topic_condvar,
-                void *buffer, size_t buffer_len)
+                           void *buffer, size_t buffer_len)
 {
     memset(topic, 0, sizeof(messagebus_topic_t));
     topic->buffer = buffer;
