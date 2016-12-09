@@ -35,16 +35,21 @@ static void *observer(void *p)
     condvar_wrapper_t wrapper = {PTHREAD_MUTEX_INITIALIZER,
                                  PTHREAD_COND_INITIALIZER};
 
+    messagebus_watcher_t watchers[2];
     messagebus_watchgroup_init(&group, &wrapper, &wrapper);
-    messagebus_watchgroup_watch(&group,
+    messagebus_watchgroup_watch(&watchers[0],
+                                &group,
                                 messagebus_find_topic_blocking(&bus, "foo"));
-    messagebus_watchgroup_watch(&group,
+    messagebus_watchgroup_watch(&watchers[1],
+                                &group,
                                 messagebus_find_topic_blocking(&bus, "bar"));
 
     while (1) {
         messagebus_topic_t *topic;
         topic = messagebus_watchgroup_wait(&group);
-        printf("[observer] Received on \"%s\"\n", topic->name);
+        printf("[observer] Received a message of size %ld on \"%s\"\n",
+               topic->buffer_len,
+               topic->name);
     }
 }
 

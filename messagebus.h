@@ -15,9 +15,9 @@ typedef struct topic_s {
     void *lock;
     void *condvar;
     char name[TOPIC_NAME_MAX_LENGTH + 1];
-    struct topic_s *next;
     bool published;
-    struct messagebus_watchgroup_s *groups;
+    struct messagebus_watcher_s *watchers;
+    struct topic_s *next;
 } messagebus_topic_t;
 
 typedef struct {
@@ -31,9 +31,13 @@ typedef struct {
 typedef struct messagebus_watchgroup_s {
     void *lock;
     void *condvar;
-    struct messagebus_watchgroup_s *next;
     messagebus_topic_t *published_topic;
 } messagebus_watchgroup_t;
+
+typedef struct messagebus_watcher_s {
+    messagebus_watchgroup_t *group;
+    struct messagebus_watcher_s *next;
+} messagebus_watcher_t;
 
 #define MESSAGEBUS_TOPIC_FOREACH(_bus, _topic_var_name) \
     for (int __control = -1; __control < 2; __control++) \
@@ -142,7 +146,8 @@ void messagebus_watchgroup_init(messagebus_watchgroup_t *group, void *lock,
  *
  * @warning Removing a watchgroup is not supported for now.
  */
-void messagebus_watchgroup_watch(messagebus_watchgroup_t *group,
+void messagebus_watchgroup_watch(messagebus_watcher_t *watcher,
+                                 messagebus_watchgroup_t *group,
                                  messagebus_topic_t *topic);
 
 messagebus_topic_t *messagebus_watchgroup_wait(messagebus_watchgroup_t *group);

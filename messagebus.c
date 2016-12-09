@@ -91,12 +91,12 @@ bool messagebus_topic_publish(messagebus_topic_t *topic, void *buf, size_t buf_l
     topic->published = true;
     messagebus_condvar_broadcast(topic->condvar);
 
-    messagebus_watchgroup_t *g;
-    for (g = topic->groups; g != NULL; g = g->next) {
-        messagebus_lock_acquire(g->lock);
-        g->published_topic = topic;
-        messagebus_condvar_broadcast(g->condvar);
-        messagebus_lock_release(g->lock);
+    messagebus_watcher_t *w;
+    for (w = topic->watchers; w != NULL; w = w->next) {
+        messagebus_lock_acquire(w->group->lock);
+        w->group->published_topic = topic;
+        messagebus_condvar_broadcast(w->group->condvar);
+        messagebus_lock_release(w->group->lock);
     }
 
     messagebus_lock_release(topic->lock);
@@ -136,16 +136,19 @@ void messagebus_watchgroup_init(messagebus_watchgroup_t *group, void *lock,
     group->condvar = condvar;
 }
 
-void messagebus_watchgroup_watch(messagebus_watchgroup_t *group,
+void messagebus_watchgroup_watch(messagebus_watcher_t *watcher,
+                                 messagebus_watchgroup_t *group,
                                  messagebus_topic_t *topic)
 {
     messagebus_lock_acquire(topic->lock);
     messagebus_lock_acquire(group->lock);
 
-    if (topic->groups != NULL) {
-        group->next = topic->groups;
+    watcher->group = group;
+
+    if (topic->watchers != NULL) {
+        watcher->next = topic->watchers;
     }
-    topic->groups = group;
+    topic->watchers = watcher;
 
     messagebus_lock_release(group->lock);
     messagebus_lock_release(topic->lock);
