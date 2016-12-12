@@ -9,27 +9,6 @@
 #include "strategy_helpers.h"
 
 
-void strategy_set_opponent_obstacle(int32_t x, int32_t y, int32_t opponent_size, int32_t robot_size)
-{
-    /* Set opponent obstacle */
-    static poly_t *opponent;
-    static bool is_initialized = false;
-
-    if (!is_initialized) {
-        opponent = oa_new_poly(4);
-        is_initialized = true;
-    }
-    // poly_t *opponent = oa_new_poly(4);
-
-    beacon_set_opponent_obstacle(opponent, x, y, opponent_size, robot_size);
-
-    NOTICE("Opponent obstacle seen at %d %d", x, y);
-    NOTICE("Point 0 %d %d", x - (opponent_size + robot_size) / 2, y - (opponent_size + robot_size) / 2);
-    NOTICE("Point 1 %d %d", x - (opponent_size + robot_size) / 2, y + (opponent_size + robot_size) / 2);
-    NOTICE("Point 2 %d %d", x + (opponent_size + robot_size) / 2, y + (opponent_size + robot_size) / 2);
-    NOTICE("Point 3 %d %d", x + (opponent_size + robot_size) / 2, y - (opponent_size + robot_size) / 2);
-}
-
 void strategy_auto_position(
         int32_t x, int32_t y, int32_t heading, int32_t robot_size,
         enum strat_color_t robot_color, struct _robot* robot, messagebus_t* bus)

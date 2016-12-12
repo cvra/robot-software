@@ -4,6 +4,7 @@
 #include <error/error.h>
 
 #include "trajectory_manager/trajectory_manager_utils.h"
+#include "base/map.h"
 #include "robot_parameters.h"
 #include "math_helpers.h"
 #include "beacon_helpers.h"
@@ -112,11 +113,12 @@ bool trajectory_crosses_obstacle(struct _robot* robot, poly_t* opponent, point_t
 
 bool trajectory_is_on_collision_path(struct _robot* robot, int x, int y)
 {
-    beacon_opponent_obstacle_t opponent;
-    beacon_create_opponent_obstacle(&opponent, x, y, robot->opponent_size, robot->robot_size);
+    point_t points[4];
+    poly_t opponent = {.pts=points, .l=4};
+    map_set_rectangular_obstacle(&opponent, x, y, robot->opponent_size, robot->opponent_size, robot->robot_size);
 
     point_t intersection;
-    return trajectory_crosses_obstacle(robot, &opponent.polygon, &intersection);
+    return trajectory_crosses_obstacle(robot, &opponent, &intersection);
 }
 
 void trajectory_set_mode_aligning(

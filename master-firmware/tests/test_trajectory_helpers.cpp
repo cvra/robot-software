@@ -15,8 +15,8 @@ extern "C" {
 #include "obstacle_avoidance/obstacle_avoidance.h"
 }
 
+#include "base/map.h"
 #include "robot_helpers/math_helpers.h"
-#include "robot_helpers/beacon_helpers.h"
 #include "robot_helpers/trajectory_helpers.h"
 
 
@@ -176,6 +176,7 @@ TEST_GROUP(CurrentTrajectoryCheck)
         robot.opponent_size = 0;
 
         // Opponent obstacle
+        oa_init();
         opponent = oa_new_poly(4);
 
         // Finally go to a point
@@ -190,12 +191,17 @@ TEST_GROUP(CurrentTrajectoryCheck)
         cs_manage(&robot.angle_cs);
         trajectory_manager_xy_event(&robot.traj);
     }
+
+    void set_opponent_position(int x, int y)
+    {
+        map_set_rectangular_obstacle(opponent, x, y, robot.opponent_size, robot.opponent_size, robot.robot_size);
+    }
 };
 
 TEST(CurrentTrajectoryCheck, CurrentPathCrossesWithObstacle)
 {
     robot.opponent_size = 100;
-    beacon_set_opponent_obstacle(opponent, 400, 400, robot.opponent_size, robot.robot_size);
+    set_opponent_position(400, 400);
 
     point_t intersection;
     bool res = trajectory_crosses_obstacle(&robot, opponent, &intersection);
@@ -206,7 +212,7 @@ TEST(CurrentTrajectoryCheck, CurrentPathCrossesWithObstacle)
 TEST(CurrentTrajectoryCheck, CurrentPathDoesntCrossWithObstacle)
 {
     robot.opponent_size = 100;
-    beacon_set_opponent_obstacle(opponent, 240, 250, robot.opponent_size, robot.robot_size);
+    set_opponent_position(240, 250);
 
     point_t intersection;
     bool res = trajectory_crosses_obstacle(&robot, opponent, &intersection);
@@ -217,7 +223,7 @@ TEST(CurrentTrajectoryCheck, CurrentPathDoesntCrossWithObstacle)
 TEST(CurrentTrajectoryCheck, DetectsPathCrossingIfPathInsideObstacle)
 {
     robot.opponent_size = 400;
-    beacon_set_opponent_obstacle(opponent, 250, 250, robot.opponent_size, robot.robot_size);
+    set_opponent_position(250, 250);
 
     point_t intersection;
     bool res = trajectory_crosses_obstacle(&robot, opponent, &intersection);

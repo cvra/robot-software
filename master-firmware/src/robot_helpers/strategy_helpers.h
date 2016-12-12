@@ -22,9 +22,6 @@ enum strat_color_t {
  */
 #define MIRROR_X(color, x) (color == YELLOW ? (x) : 3000 - (x))
 
-/** Set an obstacle around opponent's position */
-void strategy_set_opponent_obstacle(int32_t x, int32_t y, int32_t opponent_size, int32_t robot_size);
-
 /** Auto position robot at requested location, and ensure the correct
  *  position is reached by aligning against walls.
  */

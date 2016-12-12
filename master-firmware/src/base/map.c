@@ -3,8 +3,6 @@
 
 static struct _map map;
 
-static const int MAP_SIZE_X_MM = 3000;
-static const int MAP_SIZE_Y_MM = 2000;
 
 void map_init(int robot_size)
 {
@@ -22,6 +20,21 @@ void map_init(int robot_size)
 
     map.fence = oa_new_poly(4);
     map_set_rectangular_obstacle(map.fence, 355, 370, 710, 22, robot_size);
+
+    /* Add opponent obstacle */
+    for (int i = 0; i < MAP_NUM_OPPONENT; i++) {
+        map.opponents[i] = oa_new_poly(MAP_NUM_OPPONENT_EDGES);
+    }
+}
+
+void map_set_opponent_obstacle(int index, int32_t x, int32_t y, int32_t opponent_size, int32_t robot_size)
+{
+    map_set_rectangular_obstacle(map.opponents[index], x, y, opponent_size, opponent_size, robot_size);
+}
+
+poly_t* map_get_opponent_obstacle(int index)
+{
+    return map.opponents[index];
 }
 
 void map_set_rectangular_obstacle(poly_t* opponent, int center_x, int center_y, int size_x, int size_y, int robot_size)
