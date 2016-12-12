@@ -47,8 +47,13 @@ void trajectory_align_with_wall(struct _robot *robot, messagebus_t *bus);
  */
 void trajectory_move_to(struct _robot* robot, messagebus_t *bus, int32_t x_mm, int32_t y_mm, int32_t a_deg);
 
+/** Check if current trajectory segment crosses the passed obstacle
+ */
 bool trajectory_crosses_obstacle(struct _robot* robot, poly_t* opponent, point_t* intersection);
 
+/** Check if the current trajectory will collide with the obstacle
+    seen at position (x,y)
+ */
 bool trajectory_is_on_collision_path(struct _robot* robot, int x, int y);
 
 /** Prepare robot for aligning by settings its dynamics accordingly
