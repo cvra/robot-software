@@ -1,3 +1,4 @@
+#include "robot_helpers/math_helpers.h"
 #include "base_controller.h"
 #include "map.h"
 
@@ -39,26 +40,15 @@ poly_t* map_get_opponent_obstacle(int index)
 
 void map_set_rectangular_obstacle(poly_t* opponent, int center_x, int center_y, int size_x, int size_y, int robot_size)
 {
-    opponent->pts[0].x = map_clamp_value(center_x + (size_x + robot_size) / 2, 0, MAP_SIZE_X_MM);
-    opponent->pts[0].y = map_clamp_value(center_y - (size_y + robot_size) / 2, 0, MAP_SIZE_Y_MM);
+    opponent->pts[0].x = math_clamp_value(center_x + (size_x + robot_size) / 2, 0, MAP_SIZE_X_MM);
+    opponent->pts[0].y = math_clamp_value(center_y - (size_y + robot_size) / 2, 0, MAP_SIZE_Y_MM);
 
-    opponent->pts[1].x = map_clamp_value(center_x + (size_x + robot_size) / 2, 0, MAP_SIZE_X_MM);
-    opponent->pts[1].y = map_clamp_value(center_y + (size_y + robot_size) / 2, 0, MAP_SIZE_Y_MM);
+    opponent->pts[1].x = math_clamp_value(center_x + (size_x + robot_size) / 2, 0, MAP_SIZE_X_MM);
+    opponent->pts[1].y = math_clamp_value(center_y + (size_y + robot_size) / 2, 0, MAP_SIZE_Y_MM);
 
-    opponent->pts[2].x = map_clamp_value(center_x - (size_x + robot_size) / 2, 0, MAP_SIZE_X_MM);
-    opponent->pts[2].y = map_clamp_value(center_y + (size_y + robot_size) / 2, 0, MAP_SIZE_Y_MM);
+    opponent->pts[2].x = math_clamp_value(center_x - (size_x + robot_size) / 2, 0, MAP_SIZE_X_MM);
+    opponent->pts[2].y = math_clamp_value(center_y + (size_y + robot_size) / 2, 0, MAP_SIZE_Y_MM);
 
-    opponent->pts[3].x = map_clamp_value(center_x - (size_x + robot_size) / 2, 0, MAP_SIZE_X_MM);
-    opponent->pts[3].y = map_clamp_value(center_y - (size_y + robot_size) / 2, 0, MAP_SIZE_Y_MM);
-}
-
-int map_clamp_value(int value, int min, int max)
-{
-    if (value < min) {
-        return min;
-    } else if (value > max) {
-        return max;
-    } else {
-        return value;
-    }
+    opponent->pts[3].x = math_clamp_value(center_x - (size_x + robot_size) / 2, 0, MAP_SIZE_X_MM);
+    opponent->pts[3].y = math_clamp_value(center_y - (size_y + robot_size) / 2, 0, MAP_SIZE_Y_MM);
 }

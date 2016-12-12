@@ -25,3 +25,14 @@ bool math_point_is_in_square(poly_t* square, int x, int y)
 
     return (x > x_min && x < x_max && y > y_min && y < y_max);
 }
+
+int math_clamp_value(int value, int min, int max)
+{
+    if (value < min) {
+        return min;
+    } else if (value > max) {
+        return max;
+    } else {
+        return value;
+    }
+}

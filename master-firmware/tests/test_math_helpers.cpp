@@ -125,3 +125,31 @@ TEST(PointIsInPolyGon, DoesntIdentifyPointInsidePolygonBecausePolygonPointsAreNo
 
     CHECK_EQUAL(0, res);
 }
+
+
+TEST_GROUP(MathClampPointToInterval)
+{
+    const int arbitrary_min = 100;
+    const int arbitrary_max = 200;
+};
+
+TEST(MathClampPointToInterval, returnsMinIfLowerThanMinimumValue)
+{
+    int clamped_value = math_clamp_value(42, arbitrary_min, arbitrary_max);
+
+    CHECK_EQUAL(arbitrary_min, clamped_value);
+}
+
+TEST(MathClampPointToInterval, returnsValueIfWithinInterval)
+{
+    int clamped_value = math_clamp_value(142, arbitrary_min, arbitrary_max);
+
+    CHECK_EQUAL(142, clamped_value);
+}
+
+TEST(MathClampPointToInterval, returnsMaxIfLowerThanMaximumValue)
+{
+    int clamped_value = math_clamp_value(242, arbitrary_min, arbitrary_max);
+
+    CHECK_EQUAL(arbitrary_max, clamped_value);
+}

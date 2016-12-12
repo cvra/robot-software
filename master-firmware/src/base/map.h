@@ -35,10 +35,6 @@ poly_t* map_get_opponent_obstacle(int index);
  */
 void map_set_rectangular_obstacle(poly_t* opponent, int center_x, int center_y, int size_x, int size_y, int robot_size);
 
-/** Clamp the value to fit in the specified interval
- */
-int map_clamp_value(int value, int min, int max);
-
 #ifdef __cplusplus
 }
 #endif

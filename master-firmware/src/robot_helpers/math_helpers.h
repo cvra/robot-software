@@ -12,9 +12,17 @@ extern "C" {
 #define DEGREES(x) (x * 180.f / M_PI)
 #define RADIANS(x) (x * M_PI / 180.f)
 
+/** Return the minimum angular distance between the start and end angle
+ */
 float angle_delta(float start, float end);
 
+/** Check if the given point is inside the given square
+ */
 bool math_point_is_in_square(poly_t* square, int x, int y);
+
+/** Clamp the value to fit in the specified interval
+ */
+int math_clamp_value(int value, int min, int max);
 
 
 #ifdef __cplusplus
