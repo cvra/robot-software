@@ -40,7 +40,6 @@ target.arm:
     - src/base/base_controller.c
     - src/config_msgpack.c
     - src/trace/trace_points.c
-    - src/robot_helpers/strategy_helpers.c
     - src/strategy.c
     - src/dynamic_obstacle_avoidance.c
     - src/filesystem.c
@@ -51,9 +50,11 @@ source:
     - src/can/bus_enumerator.c
     - src/trajectories.c
     - src/trace/trace.c
+    - src/base/map.c
     - src/robot_helpers/math_helpers.c
     - src/robot_helpers/beacon_helpers.c
     - src/robot_helpers/trajectory_helpers.c
+    - src/robot_helpers/strategy_helpers.c
     - src/aversive/blocking_detection_manager/blocking_detection_manager.c
     - src/aversive/obstacle_avoidance/obstacle_avoidance.c
     - src/aversive/math/geometry/circles.c
@@ -85,6 +86,7 @@ tests:
     - tests/unix-timestamp.cpp
     - tests/bus_enumerator.cpp
     - tests/trajectories_test.cpp
+    - tests/test_map.cpp
     - tests/test_math_helpers.cpp
     - tests/test_beacon_helpers.cpp
     - tests/test_trajectory_helpers.cpp
