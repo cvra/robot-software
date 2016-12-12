@@ -15,8 +15,9 @@ typedef struct topic_s {
     void *lock;
     void *condvar;
     char name[TOPIC_NAME_MAX_LENGTH + 1];
-    struct topic_s *next;
     bool published;
+    struct messagebus_watcher_s *watchers;
+    struct topic_s *next;
 } messagebus_topic_t;
 
 typedef struct {
@@ -26,6 +27,17 @@ typedef struct {
     void *lock;
     void *condvar;
 } messagebus_t;
+
+typedef struct messagebus_watchgroup_s {
+    void *lock;
+    void *condvar;
+    messagebus_topic_t *published_topic;
+} messagebus_watchgroup_t;
+
+typedef struct messagebus_watcher_s {
+    messagebus_watchgroup_t *group;
+    struct messagebus_watcher_s *next;
+} messagebus_watcher_t;
 
 #define MESSAGEBUS_TOPIC_FOREACH(_bus, _topic_var_name) \
     for (int __control = -1; __control < 2; __control++) \
@@ -117,6 +129,28 @@ bool messagebus_topic_read(messagebus_topic_t *topic, void *buf, size_t buf_len)
  * @parameter [out] buf_len Length of the buffer.
  */
 void messagebus_topic_wait(messagebus_topic_t *topic, void *buf, size_t buf_len);
+
+/** Initializes a watch group.
+ *
+ * Watch group are used to wait on a set of topics in parallel (similar to
+ * select(2) on UNIX). Each watchgroup has a lock and condition variable
+ * associated to it.
+ *
+ * @parameter [in] lock The lock to use for this group.
+ * @parameter [in] condvar The condition variable to use for this group.
+ */
+void messagebus_watchgroup_init(messagebus_watchgroup_t *group, void *lock,
+                                void *condvar);
+
+/** Adds a topic to a given group.
+ *
+ * @warning Removing a watchgroup is not supported for now.
+ */
+void messagebus_watchgroup_watch(messagebus_watcher_t *watcher,
+                                 messagebus_watchgroup_t *group,
+                                 messagebus_topic_t *topic);
+
+messagebus_topic_t *messagebus_watchgroup_wait(messagebus_watchgroup_t *group);
 
 /** @defgroup portable Portable functions, platform specific.
  * @{*/

@@ -10,9 +10,14 @@ tests:
     - tests/msgbus.cpp
     - tests/signaling.cpp
     - tests/foreach.cpp
+    - tests/watchgroups.cpp
 
 target.demo:
     - examples/posix/demo.c
+    - examples/posix/port.c
+
+target.demo_watchgroups:
+    - examples/posix/demo_watchgroups.c
     - examples/posix/port.c
 
 target.arm:
