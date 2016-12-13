@@ -25,10 +25,10 @@ void strategy_play_game(void* robot);
 static void wait_for_starter(void)
 {
     /* Wait for a rising edge */
-    while (palReadPad(GPIOE, GPIOE_STARTER)) {
+    while (palReadPad(GPIOF, GPIOF_START)) {
         chThdSleepMilliseconds(10);
     }
-    while (!palReadPad(GPIOE, GPIOE_STARTER)) {
+    while (!palReadPad(GPIOF, GPIOF_START)) {
         chThdSleepMilliseconds(10);
     }
 }
