@@ -19,7 +19,6 @@
 #define STRATEGY_PRIO                           (NORMALPRIO + 2)
 #define ENCODER_PRIO                            (NORMALPRIO)
 #define STREAM_PRIO                             (NORMALPRIO + 1)
-#define DYNAMIC_OBSTACLE_AVOIDANCE_PRIO         (NORMALPRIO + 2)
 
 #define INTERFACE_PANEL_PRIO                    (NORMALPRIO + 2)
 
