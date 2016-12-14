@@ -149,11 +149,6 @@ DDEFS += -DUAVCAN_TOSTRING=0 \
 		 -DUAVCAN_STM32_CHIBIOS=1 \
 		 -DUAVCAN_TINY=1
 
-# If we use bootloader we don't have enough room to turn on assertions
-ifeq ($(USE_BOOTLOADER), yes)
-DDEFS += -DUAVCAN_NO_ASSERTIONS=1
-endif
-
 
 #
 # Project, sources and paths

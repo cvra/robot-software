@@ -36,4 +36,6 @@ int main(void)
 
     // Never returns
     uavcan_start(cfg.ID, cfg.board_name);
+
+    return 0;
 }
