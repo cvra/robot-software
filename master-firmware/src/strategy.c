@@ -39,8 +39,17 @@ static void wait_for_autoposition_signal(void)
     wait_for_starter();
 }
 
-void strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg, int num_retries)
+bool strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg)
 {
+    /* Create obstacle at opponent position */
+    float beacon_signal[3];
+    messagebus_topic_t* proximity_beacon_topic = messagebus_find_topic_blocking(&bus, "/proximity_beacon");
+    messagebus_topic_read(proximity_beacon_topic, &beacon_signal, sizeof(beacon_signal));
+
+    float x_opp, y_opp;
+    beacon_cartesian_convert(&robot->pos, 1000 * beacon_signal[1], beacon_signal[2], &x_opp, &y_opp);
+    map_set_opponent_obstacle(0, x_opp, y_opp, robot->opponent_size * 1.25, robot->robot_size);
+
     /* Compute path */
     oa_reset();
     const point_t start = {
@@ -53,58 +62,40 @@ void strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg, in
     /* Retrieve path */
     point_t *points;
     int num_points = oa_get_path(&points);
-    NOTICE("Path to (%d, %d) computed with %d points\r\n", x_mm, y_mm, num_points);
+    NOTICE("Path to (%d, %d) computed with %d points", x_mm, y_mm, num_points);
 
     /* Execute path, one waypoint at a time */
-    for (int j = 0; j < num_retries; j++) {
-        NOTICE("Try #%d", j);
-        int end_reason = 0;
+    int end_reason = 0;
 
-        for (int i = 0; i < num_points; i++) {
-            NOTICE("Going to x: %.1fmm y: %.1fmm\r\n", points[i].x, points[i].y);
+    for (int i = 0; i < num_points; i++) {
+        NOTICE("Going to x: %.1fmm y: %.1fmm", points[i].x, points[i].y);
 
-            trajectory_goto_xy_abs(&robot->traj, points[i].x, points[i].y);
-            end_reason = trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED | TRAJ_END_OPPONENT_NEAR);
+        trajectory_goto_forward_xy_abs(&robot->traj, points[i].x, points[i].y);
+        end_reason = trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED | TRAJ_END_OPPONENT_NEAR);
 
-            if (end_reason == TRAJ_END_OPPONENT_NEAR) {
-                break;
-            }
-        }
-
-        if (end_reason == TRAJ_END_GOAL_REACHED) {
-            break;
-        } else if (end_reason == TRAJ_END_OPPONENT_NEAR) {
-            trajectory_hardstop(&robot->traj);
-            rs_set_distance(&robot->rs, 0);
-            rs_set_angle(&robot->rs, 0);
-            NOTICE("Stopping robot because opponent too close");
-
-            /* Create obstacle at opponent position */
-            float beacon_signal[3];
-            messagebus_topic_t* proximity_beacon_topic = messagebus_find_topic_blocking(&bus, "/proximity_beacon");
-            messagebus_topic_read(proximity_beacon_topic, &beacon_signal, sizeof(beacon_signal));
-
-            float x_opp, y_opp;
-            beacon_cartesian_convert(&robot->pos, 1000 * beacon_signal[1], beacon_signal[2], &x_opp, &y_opp);
-            map_set_opponent_obstacle(0, x_opp, y_opp, robot->opponent_size * 1.25, robot->robot_size);
-
-            /* Query path around opponent */
-            oa_reset();
-            const point_t current_pos = {
-                    position_get_x_s16(&robot->pos),
-                    position_get_y_s16(&robot->pos)
-                };
-            oa_start_end_points(current_pos.x, current_pos.y, x_mm, y_mm);
-            oa_process();
-            num_points = oa_get_path(&points);
-
-            NOTICE("Retrying new path around opponent with %d points", num_points);
-            continue;
+        if (end_reason == TRAJ_END_OPPONENT_NEAR) {
+            return false;
         }
     }
 
-    trajectory_a_abs(&robot->traj, a_deg);
-    trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
+    if (end_reason == TRAJ_END_GOAL_REACHED) {
+        trajectory_a_abs(&robot->traj, a_deg);
+        trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
+
+        NOTICE("Goal reached successfully");
+
+        return true;
+    } else if (end_reason == TRAJ_END_OPPONENT_NEAR) {
+        trajectory_hardstop(&robot->traj);
+        rs_set_distance(&robot->rs, 0);
+        rs_set_angle(&robot->rs, 0);
+
+        WARNING("Stopping robot because opponent too close");
+    } else {
+        WARNING("Trajectory ended with reason %d", end_reason);
+    }
+
+    return false;
 }
 
 
@@ -126,21 +117,33 @@ void strategy_play_game(void* _robot)
     wait_for_starter();
     NOTICE("Starting game\n");
 
-    /* Go to lunar module */
-    strategy_goto_avoid(robot, 780, 1340, 45, 10);
-
-    /* Push lunar module */
-    trajectory_d_rel(&robot->traj, 100.);
-    trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
-    trajectory_d_rel(&robot->traj, -100.);
-    trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
-
-    /* Go back to home */
-    strategy_goto_avoid(robot, 900, 200, 0, 10);
+    int i;
 
     while (true) {
+        /* Go to lunar module */
+        i = 0;
+        while (!strategy_goto_avoid(robot, 780, 1340, 45)) {
+            NOTICE("Try #%d", i);
+            i++;
+        }
+
+        /* Push lunar module */
+        trajectory_d_rel(&robot->traj, 100.);
+        trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
+        trajectory_d_rel(&robot->traj, -100.);
+        trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
+
+        /* Go back to home */
+        i = 0;
+        while (!strategy_goto_avoid(robot, 900, 200, 0)) {
+            NOTICE("Try #%d", i);
+            i++;
+        }
+
         DEBUG("Game ended!\nInsert coin to play more.\n");
         chThdSleepSeconds(1);
+
+        wait_for_starter();
     }
 }
 
