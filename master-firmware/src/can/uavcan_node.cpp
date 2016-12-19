@@ -254,7 +254,7 @@ void main(void *arg)
             data[2] = beacon_get_angle(msg.start_angle + angular_offset, msg.length);
             messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
 
-            NOTICE("Opponent detected at: %.3fm, %.3frad \traw signal: %.3f, %.3f", data[1], data[2], msg.start_angle, msg.length);
+            DEBUG("Opponent detected at: %.3fm, %.3frad \traw signal: %.3f, %.3f", data[1], data[2], msg.start_angle, msg.length);
         }
     );
     if (res < 0) {
