@@ -25,7 +25,8 @@ int trajectory_wait_for_end(struct _robot *robot, messagebus_t *bus, int watched
         chThdSleepMilliseconds(1);
 #endif
     }
-    NOTICE("End of trajectory reason %d at %d %d", traj_end_reason, position_get_x_s16(&robot->pos), position_get_y_s16(&robot->pos));
+    NOTICE("End of trajectory reason %d at %d %d",
+            traj_end_reason, position_get_x_s16(&robot->pos), position_get_y_s16(&robot->pos));
 
     return traj_end_reason;
 }
@@ -45,17 +46,16 @@ int trajectory_has_ended(struct _robot *robot, messagebus_t *bus, int watched_en
     }
 
     if (watched_end_reasons & TRAJ_END_OPPONENT_NEAR) {
-        float beacon_signal[3];
+        beacon_signal_t beacon_signal;
         messagebus_topic_t* proximity_beacon_topic = messagebus_find_topic_blocking(bus, "/proximity_beacon");
         messagebus_topic_read(proximity_beacon_topic, &beacon_signal, sizeof(beacon_signal));
 
         // only consider recent beacon signal
-        if (timestamp_duration_s(beacon_signal[0], timestamp_get()) < TRAJ_MAX_TIME_DELAY_OPPONENT_DETECTION) {
-            if (beacon_signal[1] < TRAJ_MIN_DISTANCE_TO_OPPONENT) {
-                float distance_mm = 1000 * beacon_signal[1];
-                float angle_rad = beacon_signal[2];
+        if (timestamp_duration_s(beacon_signal.timestamp, timestamp_get()) < TRAJ_MAX_TIME_DELAY_OPPONENT_DETECTION) {
+            if (beacon_signal.distance < TRAJ_MIN_DISTANCE_TO_OPPONENT) {
                 float x_opp, y_opp;
-                beacon_cartesian_convert(&robot->pos, distance_mm, angle_rad, &x_opp, &y_opp);
+                beacon_cartesian_convert(&robot->pos, 1000 * beacon_signal.distance, beacon_signal.heading,
+                                         &x_opp, &y_opp);
 
                 if (trajectory_is_on_collision_path(robot, x_opp, y_opp)) {
                     return TRAJ_END_OPPONENT_NEAR;
@@ -106,7 +106,8 @@ bool trajectory_crosses_obstacle(struct _robot* robot, poly_t* opponent, point_t
         };
 
     uint8_t path_crosses_obstacle = is_crossing_poly(current_position, target_position, intersection, opponent);
-    bool current_pos_inside_obstacle = math_point_is_in_square(opponent, position_get_x_s16(&robot->pos), position_get_y_s16(&robot->pos));
+    bool current_pos_inside_obstacle =
+        math_point_is_in_square(opponent, position_get_x_s16(&robot->pos), position_get_y_s16(&robot->pos));
 
     return (path_crosses_obstacle == 1 || current_pos_inside_obstacle);
 }

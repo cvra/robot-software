@@ -42,12 +42,12 @@ static void wait_for_autoposition_signal(void)
 bool strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg)
 {
     /* Create obstacle at opponent position */
-    float beacon_signal[3];
+    beacon_signal_t beacon_signal;
     messagebus_topic_t* proximity_beacon_topic = messagebus_find_topic_blocking(&bus, "/proximity_beacon");
     messagebus_topic_read(proximity_beacon_topic, &beacon_signal, sizeof(beacon_signal));
 
     float x_opp, y_opp;
-    beacon_cartesian_convert(&robot->pos, 1000 * beacon_signal[1], beacon_signal[2], &x_opp, &y_opp);
+    beacon_cartesian_convert(&robot->pos, 1000 * beacon_signal.distance, beacon_signal.heading, &x_opp, &y_opp);
     map_set_opponent_obstacle(0, x_opp, y_opp, robot->opponent_size * 1.25, robot->robot_size);
 
     /* Compute path */
