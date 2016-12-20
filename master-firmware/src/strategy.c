@@ -62,13 +62,13 @@ bool strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg)
     /* Retrieve path */
     point_t *points;
     int num_points = oa_get_path(&points);
-    NOTICE("Path to (%d, %d) computed with %d points", x_mm, y_mm, num_points);
+    DEBUG("Path to (%d, %d) computed with %d points", x_mm, y_mm, num_points);
 
     /* Execute path, one waypoint at a time */
     int end_reason = 0;
 
     for (int i = 0; i < num_points; i++) {
-        NOTICE("Going to x: %.1fmm y: %.1fmm", points[i].x, points[i].y);
+        DEBUG("Going to x: %.1fmm y: %.1fmm", points[i].x, points[i].y);
 
         trajectory_goto_forward_xy_abs(&robot->traj, points[i].x, points[i].y);
         end_reason = trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED | TRAJ_END_OPPONENT_NEAR);
@@ -82,7 +82,7 @@ bool strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg)
         trajectory_a_abs(&robot->traj, a_deg);
         trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
 
-        NOTICE("Goal reached successfully");
+        DEBUG("Goal reached successfully");
 
         return true;
     } else if (end_reason == TRAJ_END_OPPONENT_NEAR) {
@@ -125,7 +125,7 @@ void strategy_play_game(void* _robot)
         /* Go to lunar module */
         i = 0;
         while (!strategy_goto_avoid(robot, 780, 1340, 45)) {
-            NOTICE("Try #%d", i);
+            DEBUG("Try #%d", i);
             i++;
         }
 
@@ -138,7 +138,7 @@ void strategy_play_game(void* _robot)
         /* Go back to home */
         i = 0;
         while (!strategy_goto_avoid(robot, 900, 200, 0)) {
-            NOTICE("Try #%d", i);
+            DEBUG("Try #%d", i);
             i++;
         }
 
