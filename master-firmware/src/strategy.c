@@ -74,7 +74,7 @@ bool strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg)
         end_reason = trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED | TRAJ_END_OPPONENT_NEAR);
 
         if (end_reason == TRAJ_END_OPPONENT_NEAR) {
-            return false;
+            break;
         }
     }
 
