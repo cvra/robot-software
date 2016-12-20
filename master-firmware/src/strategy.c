@@ -101,6 +101,8 @@ bool strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg)
 
 void strategy_play_game(void* _robot)
 {
+    chRegSetThreadName("strategy");
+
     struct _robot* robot = (struct _robot*)_robot;
     enum strat_color_t color = YELLOW;
 
