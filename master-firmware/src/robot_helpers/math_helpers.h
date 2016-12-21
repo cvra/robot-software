@@ -17,6 +17,7 @@ extern "C" {
 float angle_delta(float start, float end);
 
 /** Check if the given point is inside the given square
+ * @note polygon needs points to be ordered counter clock wise
  */
 bool math_point_is_in_square(poly_t* square, int x, int y);
 

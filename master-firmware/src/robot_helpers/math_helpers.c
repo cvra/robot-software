@@ -18,12 +18,9 @@ float angle_delta(float start, float end)
 
 bool math_point_is_in_square(poly_t* square, int x, int y)
 {
-    int x_min = MIN(MIN(square->pts[0].x, square->pts[1].x), MIN(square->pts[2].x, square->pts[3].x));
-    int x_max = MAX(MAX(square->pts[0].x, square->pts[1].x), MAX(square->pts[2].x, square->pts[3].x));
-    int y_min = MIN(MIN(square->pts[0].y, square->pts[1].y), MIN(square->pts[2].y, square->pts[3].y));
-    int y_max = MAX(MAX(square->pts[0].y, square->pts[1].y), MAX(square->pts[2].y, square->pts[3].y));
+    point_t point = {.x=x, .y=y};
 
-    return (x > x_min && x < x_max && y > y_min && y < y_max);
+    return is_in_poly(&point, square) == 1;
 }
 
 int math_clamp_value(int value, int min, int max)
