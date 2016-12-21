@@ -82,6 +82,10 @@ void robot_init(void)
     /* Initialize blocking detection managers */
     bd_init(&robot.angle_bd, &robot.angle_cs);
     bd_init(&robot.distance_bd, &robot.distance_cs);
+
+    /* Set obstacle inflation sizes */
+    robot.robot_size = ROBOT_SIZE_X_MM;
+    robot.opponent_size = DEFAULT_OPPONENT_SIZE_MM;
 }
 
 

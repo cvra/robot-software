@@ -11,6 +11,7 @@ extern "C" {
  * Robot base parameters
  */
 #define ROBOT_SIZE_X_MM                     205 // Front to back length
+#define DEFAULT_OPPONENT_SIZE_MM            300
 
 #define ROBOT_EXTERNAL_WHEEL_RADIUS         0.016f
 #define ROBOT_EXTERNAL_TRACK_LENGTH         0.194f

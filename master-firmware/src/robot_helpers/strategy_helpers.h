@@ -5,6 +5,7 @@
 extern "C" {
 #endif
 
+#include <msgbus/messagebus.h>
 #include "trajectory_manager/trajectory_manager.h"
 #include "blocking_detection_manager/blocking_detection_manager.h"
 #include "base/base_controller.h"
@@ -21,20 +22,12 @@ enum strat_color_t {
  */
 #define MIRROR_X(color, x) (color == YELLOW ? (x) : 3000 - (x))
 
-/** Initialize map with obstacles */
-void strategy_map_setup(int32_t robot_size);
-
 /** Auto position robot at requested location, and ensure the correct
  *  position is reached by aligning against walls.
  */
 void strategy_auto_position(
         int32_t x, int32_t y, int32_t heading, int32_t robot_size,
-        enum strat_color_t robot_color,
-        enum board_mode_t* robot_mode,
-        struct trajectory* robot_traj,
-        struct robot_position* robot_pos,
-        struct blocking_detection* robot_distance_blocking,
-        struct blocking_detection* robot_angle_blocking);
+        enum strat_color_t robot_color, struct _robot* robot, messagebus_t* bus);
 
 
 #ifdef __cplusplus

@@ -36,10 +36,10 @@ TEST(ObstacleAvoidance, FindsPathWithObstacleInTheMiddle)
 {
     point_t *points;
     auto obstacle = oa_new_poly(4);
-    oa_poly_set_point(obstacle, 1400, 900, 0);
-    oa_poly_set_point(obstacle, 1400, 1300, 1);
-    oa_poly_set_point(obstacle, 1600, 1300, 2);
-    oa_poly_set_point(obstacle, 1600, 900, 3);
+    oa_poly_set_point(obstacle, 1400, 900, 3);
+    oa_poly_set_point(obstacle, 1400, 1300, 2);
+    oa_poly_set_point(obstacle, 1600, 1300, 1);
+    oa_poly_set_point(obstacle, 1600, 900, 0);
 
     oa_process();
 
@@ -58,10 +58,10 @@ TEST(ObstacleAvoidance, ReturnsToStartPositionWithObstacleInTheMiddle)
 {
     point_t *points;
     auto obstacle = oa_new_poly(4);
-    oa_poly_set_point(obstacle, 1400, 900, 0);
-    oa_poly_set_point(obstacle, 1400, 1300, 1);
-    oa_poly_set_point(obstacle, 1600, 1300, 2);
-    oa_poly_set_point(obstacle, 1600, 900, 3);
+    oa_poly_set_point(obstacle, 1400, 900, 3);
+    oa_poly_set_point(obstacle, 1400, 1300, 2);
+    oa_poly_set_point(obstacle, 1600, 1300, 1);
+    oa_poly_set_point(obstacle, 1600, 900, 0);
 
     oa_process();
     oa_reset();
@@ -77,4 +77,32 @@ TEST(ObstacleAvoidance, ReturnsToStartPositionWithObstacleInTheMiddle)
     CHECK_EQUAL(900, points[1].y);
     CHECK_EQUAL(start.x, points[2].x);
     CHECK_EQUAL(start.y, points[2].y);
+}
+
+TEST(ObstacleAvoidance, FindsPathWithTwoOverlappingObstacles)
+{
+    point_t *points;
+    auto obstacle1 = oa_new_poly(4);
+    oa_poly_set_point(obstacle1, 1400, 900, 3);
+    oa_poly_set_point(obstacle1, 1400, 1300, 2);
+    oa_poly_set_point(obstacle1, 1600, 1300, 1);
+    oa_poly_set_point(obstacle1, 1600, 900, 0);
+
+    auto obstacle2 = oa_new_poly(4);
+    oa_poly_set_point(obstacle2, 1300, 800, 3);
+    oa_poly_set_point(obstacle2, 1300, 1200, 2);
+    oa_poly_set_point(obstacle2, 1500, 1200, 1);
+    oa_poly_set_point(obstacle2, 1500, 800, 0);
+
+    oa_process();
+
+    auto point_cnt = oa_get_path(&points);
+
+    CHECK_EQUAL(3, point_cnt);
+    CHECK_EQUAL(1300, points[0].x);
+    CHECK_EQUAL(800, points[0].y);
+    CHECK_EQUAL(1500, points[1].x);
+    CHECK_EQUAL(800, points[1].y);
+    CHECK_EQUAL(end.x, points[2].x);
+    CHECK_EQUAL(end.y, points[2].y);
 }

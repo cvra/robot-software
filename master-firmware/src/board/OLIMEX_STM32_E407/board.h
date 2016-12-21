@@ -424,8 +424,8 @@
                                      PIN_PUPDR_FLOATING(GPIOB_JTAG_TDO) |   \
                                      PIN_PUPDR_PULLUP(GPIOB_JTAG_TRST) |    \
                                      PIN_PUPDR_FLOATING(GPIOB_PIN5) |         \
-                                     PIN_PUPDR_FLOATING(GPIOB_PIN6_ENCODER_LEFT_CHA) |         \
-                                     PIN_PUPDR_FLOATING(GPIOB_PIN7_ENCODER_LEFT_CHB) |         \
+                                     PIN_PUPDR_PULLUP(GPIOB_PIN6_ENCODER_LEFT_CHA) |         \
+                                     PIN_PUPDR_PULLUP(GPIOB_PIN7_ENCODER_LEFT_CHB) |         \
                                      PIN_PUPDR_FLOATING(GPIOB_I2C1_SCL) |   \
                                      PIN_PUPDR_FLOATING(GPIOB_I2C1_SDA) |   \
                                      PIN_PUPDR_FLOATING(GPIOB_UART3_TX) |   \
@@ -541,8 +541,8 @@
                                      PIN_PUPDR_FLOATING(GPIOC_SPI2_MOSI) |  \
                                      PIN_PUPDR_FLOATING(GPIOC_ETH_RMII_RXD0) |\
                                      PIN_PUPDR_FLOATING(GPIOC_ETH_RMII_RXD1) |\
-                                     PIN_PUPDR_FLOATING(GPIOC_PIN6_ENCODER_RIGHT_CHA) |  \
-                                     PIN_PUPDR_FLOATING(GPIOC_PIN7_ENCODER_RIGHT_CHB) |  \
+                                     PIN_PUPDR_PULLUP(GPIOC_PIN6_ENCODER_RIGHT_CHA) |  \
+                                     PIN_PUPDR_PULLUP(GPIOC_PIN7_ENCODER_RIGHT_CHB) |  \
                                      PIN_PUPDR_FLOATING(GPIOC_SD_D0) |      \
                                      PIN_PUPDR_FLOATING(GPIOC_SD_D1) |      \
                                      PIN_PUPDR_FLOATING(GPIOC_SD_D2) |      \

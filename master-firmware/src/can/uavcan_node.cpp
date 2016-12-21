@@ -23,6 +23,8 @@
 #include "uavcan_node.h"
 #include "priorities.h"
 #include "main.h"
+#include "robot_helpers/beacon_helpers.h"
+#include <timestamp/timestamp.h>
 
 #include <errno.h>
 
@@ -230,7 +232,7 @@ void main(void *arg)
     static messagebus_topic_t proximity_beacon_topic;
     static MUTEX_DECL(proximity_beacon_topic_lock);
     static CONDVAR_DECL(proximity_beacon_topic_condvar);
-    static float proximity_beacon_topic_value[2];
+    static beacon_signal_t proximity_beacon_topic_value;
 
     messagebus_topic_init(&proximity_beacon_topic,
                           &proximity_beacon_topic_lock,
@@ -239,15 +241,20 @@ void main(void *arg)
                           sizeof(proximity_beacon_topic_value));
 
     messagebus_advertise_topic(&bus, &proximity_beacon_topic, "/proximity_beacon");
+    const float reflector_radius = 0.040f;
+    const float angular_offset = M_PI / 2.;
 
     uavcan::Subscriber<cvra::proximity_beacon::Signal> prox_beac_sub(node);
     res = prox_beac_sub.start(
         [&](const uavcan::ReceivedDataStructure<cvra::proximity_beacon::Signal>& msg)
         {
-            float data[2];
-            data[0] = msg.start_angle;
-            data[1] = msg.length;
+            beacon_signal_t data;
+            data.timestamp = timestamp_get();
+            data.distance = reflector_radius + reflector_radius / tanf(msg.length / 2.);
+            data.heading = beacon_get_angle(msg.start_angle + angular_offset, msg.length);
             messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
+
+            DEBUG("Opponent detected at: %.3fm, %.3frad \traw signal: %.3f, %.3f", data.distance, data.heading, msg.start_angle, msg.length);
         }
     );
     if (res < 0) {
