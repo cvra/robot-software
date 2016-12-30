@@ -5,8 +5,7 @@
 #include "scara_kinematics.h"
 
 
-int compute_possible_elbow_positions(point_t target, float l1, float l2,
-                                        point_t *p1, point_t *p2)
+int scara_num_possible_elbow_positions(point_t target, float l1, float l2, point_t *p1, point_t *p2)
 {
     circle_t c1, c2;
 
@@ -21,7 +20,7 @@ int compute_possible_elbow_positions(point_t target, float l1, float l2,
     return circle_intersect(&c1, &c2, p1, p2);
 }
 
-shoulder_mode_t mode_for_orientation(shoulder_mode_t mode, float scara_angle_offset)
+shoulder_mode_t scara_orientation_mode(shoulder_mode_t mode, float scara_angle_offset)
 {
     if (scara_angle_offset > 0.)
         return mode;
@@ -32,8 +31,7 @@ shoulder_mode_t mode_for_orientation(shoulder_mode_t mode, float scara_angle_off
     return SHOULDER_BACK;
 }
 
-point_t choose_shoulder_solution(point_t target, point_t elbow1,
-                                 point_t elbow2, shoulder_mode_t mode)
+point_t scara_shoulder_solve(point_t target, point_t elbow1, point_t elbow2, shoulder_mode_t mode)
 {
 
     if (target.x < 0) {
@@ -57,14 +55,14 @@ point_t choose_shoulder_solution(point_t target, point_t elbow1,
 
 }
 
-float compute_shoulder_angle(point_t elbow, point_t hand)
+float scara_compute_shoulder_angle(point_t elbow, point_t hand)
 {
     (void)hand;
 
     return atan2f(elbow.y, elbow.x);
 }
 
-float compute_elbow_angle(point_t elbow, point_t hand)
+float scara_compute_elbow_angle(point_t elbow, point_t hand)
 {
     float dx, dy;
     dx = hand.x - elbow.x;

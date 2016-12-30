@@ -5,28 +5,7 @@ extern "C" {
 #include "scara/scara_port.h"
 }
 
-/** Mock scara port functions */
-
-static int32_t time_us;
-
-static void scara_time_set(int32_t time)
-{
-    time_us = time;
-}
-
-int32_t scara_time_get_impl(void)
-{
-    return time_us;
-}
-
-int32_t (*scara_time_get)(void) = scara_time_get_impl;
-
-void scara_panic_impl(void)
-{
-
-}
-
-void (*scara_panic)(void) = scara_panic_impl;
+extern void scara_time_set(int32_t time);
 
 
 TEST_GROUP(ArmTrajectoriesBuilderTest)

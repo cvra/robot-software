@@ -96,6 +96,7 @@ tests:
     - tests/trace_test.cpp
     - tests/trace_points.c
     - tests/trajectory_manager_test.cpp
+    - tests/scara_port_mock.cpp
     - tests/scara_utils.cpp
     - tests/scara_trajectories.cpp
     - tests/scara_kinematics.cpp
