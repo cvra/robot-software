@@ -73,6 +73,7 @@ source:
     - src/scara/scara_utils.c
     - src/scara/scara_trajectories.c
     - src/scara/scara_kinematics.c
+    - src/scara/scara.c
 
 include_directories:
     - src/
@@ -100,6 +101,8 @@ tests:
     - tests/scara_utils.cpp
     - tests/scara_trajectories.cpp
     - tests/scara_kinematics.cpp
+    - tests/scara_kinematics_integration.cpp
+    - tests/scara.cpp
 
 templates:
     app_src.mk.jinja: app_src.mk
