@@ -70,7 +70,7 @@ source:
     - src/aversive/trajectory_manager/trajectory_manager.c
     - src/aversive/trajectory_manager/trajectory_manager_core.c
     - src/aversive/trajectory_manager/trajectory_manager_utils.c
-    - src/debra_arm/arm_utils.c
+    - src/scara/scara_utils.c
 
 include_directories:
     - src/
@@ -94,7 +94,7 @@ tests:
     - tests/trace_test.cpp
     - tests/trace_points.c
     - tests/trajectory_manager_test.cpp
-    - tests/arm_utils.cpp
+    - tests/scara_utils.cpp
 
 templates:
     app_src.mk.jinja: app_src.mk

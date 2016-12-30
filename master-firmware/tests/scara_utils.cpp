@@ -2,7 +2,7 @@
 #include <cmath>
 
 extern "C" {
-#include "debra_arm/arm_utils.h"
+#include "scara/scara_utils.h"
 }
 
 TEST_GROUP(ArmUtilsTestGroup)
@@ -16,7 +16,7 @@ TEST(ArmUtilsTestGroup, CoordinateRobotToArm)
     float offset_angle = M_PI/2.;
     point_t result;
 
-    result = arm_coordinate_robot2arm(target, offset_xy, offset_angle);
+    result = scara_coordinate_robot2arm(target, offset_xy, offset_angle);
     DOUBLES_EQUAL(0., result.x, 1e-2);
     DOUBLES_EQUAL(-100., result.y, 1e-2);
 }
@@ -28,7 +28,7 @@ TEST(ArmUtilsTestGroup, CoordinateTableToRobot)
     float robot_a_rad = M_PI/2;
     point_t result;
 
-    result = arm_coordinate_table2robot(target, robot_pos, robot_a_rad);
+    result = scara_coordinate_table2robot(target, robot_pos, robot_a_rad);
 
     DOUBLES_EQUAL(100., result.x, 1e-2);
     DOUBLES_EQUAL(0., result.y, 1e-2);
@@ -42,7 +42,7 @@ TEST(ArmUtilsTestGroup, CoordinateTableToRobot45Deg)
     float robot_a_rad = M_PI/4;
     point_t result;
 
-    result = arm_coordinate_table2robot(target, robot_pos, robot_a_rad);
+    result = scara_coordinate_table2robot(target, robot_pos, robot_a_rad);
 
     DOUBLES_EQUAL(sqrt(2)*100., result.x, 1e-2);
     DOUBLES_EQUAL(0., result.y, 1e-2);
