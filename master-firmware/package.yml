@@ -72,6 +72,7 @@ source:
     - src/aversive/trajectory_manager/trajectory_manager_utils.c
     - src/scara/scara_utils.c
     - src/scara/scara_trajectories.c
+    - src/scara/scara_kinematics.c
 
 include_directories:
     - src/
@@ -97,6 +98,7 @@ tests:
     - tests/trajectory_manager_test.cpp
     - tests/scara_utils.cpp
     - tests/scara_trajectories.cpp
+    - tests/scara_kinematics.cpp
 
 templates:
     app_src.mk.jinja: app_src.mk
