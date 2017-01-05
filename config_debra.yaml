@@ -1,0 +1,90 @@
+master:
+    robot_size_x_mm: 205 # Front to back length
+    opponent_size_x_mm_default: 300
+    odometry:
+        external_encoder_ticks_per_mm: 162.974661726 # Computed 162.974661726
+        external_track_mm: 194                       # CAD 194
+        left_wheel_correction_factor: -1.
+        right_wheel_correction_factor: 1.
+    aversive:
+        control:
+            angle:
+                kp: 50.
+                ki: 0.
+                kd: 0.
+                ilimit: 1000.
+            distance:
+                kp: 50.
+                ki: 0.
+                kd: 0.
+                ilimit: 5000.
+
+actuator:
+    left-wheel:
+        stream:
+            # Encoder position is needed for odometry
+            encoder_pos: 0
+            velocity_pid: 0
+            position_pid: 0
+        motor:
+            mode: 2
+            motor_encoder_steps_per_revolution: 4096
+            second_encoder_steps_per_revolution: 16384
+            transmission_ratio_p: 49
+            transmission_ratio_q: 676
+            torque_constant: 1.
+        control:
+            current:
+                kp: 4.
+                ki: 1500.
+                kd: 0.
+                ilimit: 50.
+
+            velocity:
+                kp: 14.
+                ki: 110.
+                kd: 0.
+                ilimit: 1400.
+            position:
+                kp: 0.1
+                ki: 0.5
+                kd: 0.
+
+            low_batt_th: 5.
+            acceleration_limit: 100.
+            velocity_limit: 50.
+            torque_limit: 14.
+
+    right-wheel:
+        stream:
+            # Encoder position is needed for odometry
+            encoder_pos: 0
+            velocity_pid: 0
+            position_pid: 0
+        motor:
+            mode: 2
+            motor_encoder_steps_per_revolution: 4096
+            second_encoder_steps_per_revolution: 16384
+            transmission_ratio_p: 49
+            transmission_ratio_q: 676
+            torque_constant: 1.
+        control:
+            current:
+                kp: 4.
+                ki: 1500.
+                kd: 0.
+                ilimit: 50.
+            velocity:
+                kp: 14.
+                ki: 110.
+                kd: 0.
+                ilimit: 1400.
+            position:
+                kp: 0.1
+                ki: 0.5
+                kd: 0.
+
+            low_batt_th: 5.
+            acceleration_limit: 100.
+            velocity_limit: 50.
+            torque_limit: 14.

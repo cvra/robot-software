@@ -52,6 +52,13 @@ ifeq ($(USE_BOOTLOADER),)
   USE_BOOTLOADER = no
 endif
 
+# Config file depending on robot
+ifeq ($(DEBRA),)
+  CONFIG_YAML = ../config.yaml
+else
+  CONFIG_YAML = ../config_debra.yaml
+endif
+
 #
 # Build global options
 ##############################################################################
@@ -265,9 +272,9 @@ dsdlc:
 	@$(COLOR_PRINTF) "Running uavcan dsdl compiler"
 	$(LIBUAVCAN_DSDLC) ../uavcan_data_types/cvra $(UAVCAN_DSDL_DIR)
 
-src/config_msgpack.c: ../config.yaml
+src/config_msgpack.c: ${CONFIG_YAML}
 	@$(COLOR_PRINTF) "Generating MessagePack config..."
-	@../tools/config/config_to_msgpack.py ../config.yaml src/config_msgpack.c
+	@../tools/config/config_to_msgpack.py ${CONFIG_YAML} src/config_msgpack.c
 
 .PHONY: heap_size
 heap_size: build/$(PROJECT).elf
