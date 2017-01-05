@@ -5,7 +5,6 @@
 
 #include "trajectory_manager/trajectory_manager_utils.h"
 #include "base/map.h"
-#include "robot_parameters.h"
 #include "math_helpers.h"
 #include "beacon_helpers.h"
 

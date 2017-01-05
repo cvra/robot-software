@@ -23,7 +23,6 @@
 #include "robot_helpers/math_helpers.h"
 #include "robot_helpers/trajectory_helpers.h"
 #include "robot_helpers/strategy_helpers.h"
-#include "robot_parameters.h"
 #include "strategy.h"
 #include <trace/trace.h>
 

@@ -5,7 +5,6 @@
 #include "main.h"
 #include "config.h"
 #include "priorities.h"
-#include "robot_parameters.h"
 #include "aversive_port/cvra_motors.h"
 #include "trajectory_manager/trajectory_manager.h"
 #include "trajectory_manager/trajectory_manager_utils.h"
@@ -39,14 +38,21 @@ void robot_init(void)
 
     rs_set_left_pwm(&robot.rs, cvra_motor_left_wheel_set_velocity, &left_wheel_motor);
     rs_set_right_pwm(&robot.rs, cvra_motor_right_wheel_set_velocity, &right_wheel_motor);
-    rs_set_left_ext_encoder(&robot.rs, cvra_encoder_get_left_ext, NULL, LEFT_WHEEL_CORRECTION_FACTOR);
-    rs_set_right_ext_encoder(&robot.rs, cvra_encoder_get_right_ext, NULL, RIGHT_WHEEL_CORRECTION_FACTOR);
+    rs_set_left_ext_encoder(
+        &robot.rs, cvra_encoder_get_left_ext, NULL,
+        config_get_scalar("master/odometry/left_wheel_correction_factor"));
+    rs_set_right_ext_encoder(
+        &robot.rs, cvra_encoder_get_right_ext, NULL,
+        config_get_scalar("odometry/right_wheel_correction_factor"));
 
     /* Position manager */
     position_init(&robot.pos);
     position_set_related_robot_system(&robot.pos, &robot.rs); // Link pos manager to robot system
 
-    position_set_physical_params(&robot.pos, ROBOT_EXTERNAL_TRACK_LENGTH_MM, EXTERNAL_ENCODER_TICKS_PER_MM);
+    position_set_physical_params(
+        &robot.pos,
+        config_get_scalar("master/odometry/external_track_mm"),
+        config_get_scalar("master/odometry/external_encoder_ticks_per_mm"));
     position_use_ext(&robot.pos);
 
     /* Base angle controller */
@@ -84,8 +90,8 @@ void robot_init(void)
     bd_init(&robot.distance_bd, &robot.distance_cs);
 
     /* Set obstacle inflation sizes */
-    robot.robot_size = ROBOT_SIZE_X_MM;
-    robot.opponent_size = DEFAULT_OPPONENT_SIZE_MM;
+    robot.robot_size = config_get_integer("master/robot_size_x_mm");
+    robot.opponent_size = config_get_integer("master/opponent_size_x_mm_default");
 }
 
 
@@ -94,7 +100,7 @@ static THD_FUNCTION(base_ctrl_thd, arg)
     (void) arg;
     chRegSetThreadName(__FUNCTION__);
 
-    parameter_namespace_t *control_params = parameter_namespace_find(&global_config, "master/aversive/control");
+    parameter_namespace_t *control_params = parameter_namespace_find(&master_config, "aversive/control");
     while (1) {
         rs_update(&robot.rs);
 

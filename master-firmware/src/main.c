@@ -22,7 +22,6 @@
 #include "config.h"
 #include <parameter/parameter_msgpack.h>
 #include <cmp_mem_access/cmp_mem_access.h>
-#include "robot_parameters.h"
 #include "motor_manager.h"
 #include "stream.h"
 #include "malloc_lock.h"

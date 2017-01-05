@@ -15,7 +15,6 @@
 #include <cvra/proximity_beacon/Signal.hpp>
 #include <msgbus/messagebus.h>
 #include "error/error.h"
-#include "robot_parameters.h"
 #include "motor_driver.h"
 #include "motor_driver_uavcan.h"
 #include "config.h"

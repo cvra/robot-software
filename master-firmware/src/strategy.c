@@ -10,7 +10,6 @@
 #include "robot_helpers/trajectory_helpers.h"
 #include "robot_helpers/strategy_helpers.h"
 #include "robot_helpers/beacon_helpers.h"
-#include "robot_parameters.h"
 #include "base/base_controller.h"
 #include "base/map.h"
 #include "main.h"
