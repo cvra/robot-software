@@ -9,7 +9,7 @@ parameter_namespace_t actuator_config;
 parameter_namespace_t master_config;
 
 static parameter_namespace_t odometry_config;
-static parameter_t robot_size, opponent_size;
+static parameter_t robot_size, opponent_size, calib_dir;
 static parameter_t odometry_ticks, odometry_track, odometry_left_corr, odometry_right_corr;
 
 static parameter_namespace_t aversive_config, aversive_control, aversive_angle, aversive_distance;
@@ -24,6 +24,7 @@ void config_init(void)
 
     parameter_integer_declare(&robot_size, &master_config, "robot_size_x_mm");
     parameter_integer_declare(&opponent_size, &master_config, "opponent_size_x_mm_default");
+    parameter_integer_declare(&calib_dir, &master_config, "calibration_direction");
 
     parameter_namespace_declare(&odometry_config, &master_config, "odometry");
     parameter_scalar_declare(&odometry_ticks, &odometry_config, "external_encoder_ticks_per_mm");
@@ -32,6 +33,7 @@ void config_init(void)
     parameter_scalar_declare(&odometry_right_corr, &odometry_config, "right_wheel_correction_factor");
 
     parameter_namespace_declare(&aversive_config, &master_config, "aversive");
+
     parameter_namespace_declare(&aversive_control, &aversive_config, "control");
     parameter_namespace_declare(&aversive_angle, &aversive_control, "angle");
     parameter_scalar_declare(&aversive_angle_kp, &aversive_angle, "kp");

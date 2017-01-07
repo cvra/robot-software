@@ -59,6 +59,7 @@ struct _robot {
 
     enum board_mode_t mode;                 // The current board mode
 
+    int calibration_direction;              // 1 if calibration side in front, -1 if in back
     int robot_size;
     int opponent_size;
 };

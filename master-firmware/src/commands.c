@@ -487,17 +487,17 @@ static void cmd_wheel_calibration(BaseSequentialStream *chp, int argc, char *arg
     /* Start calibration sequence and do it N times */
     while(count--) {
         chprintf(chp, "%d left !\n", count);
-        trajectory_d_rel(&robot.traj, 1200.);
+        trajectory_d_rel(&robot.traj, - robot.calibration_direction * 1200.);
         trajectory_wait_for_end(&robot, &bus, TRAJ_END_GOAL_REACHED);
         trajectory_a_rel(&robot.traj, 180.);
         trajectory_wait_for_end(&robot, &bus, TRAJ_END_GOAL_REACHED);
-        trajectory_d_rel(&robot.traj, 1100.);
+        trajectory_d_rel(&robot.traj, - robot.calibration_direction * 1100.);
         trajectory_wait_for_end(&robot, &bus, TRAJ_END_GOAL_REACHED);
         trajectory_a_rel(&robot.traj, -180.);
         trajectory_wait_for_end(&robot, &bus, TRAJ_END_GOAL_REACHED);
     }
 
-    trajectory_d_rel(&robot.traj, -75.);
+    trajectory_d_rel(&robot.traj, robot.calibration_direction * 75.);
     trajectory_wait_for_end(&robot, &bus, TRAJ_END_GOAL_REACHED);
 
     /* Take reference again at the wall */
@@ -510,6 +510,9 @@ static void cmd_wheel_calibration(BaseSequentialStream *chp, int argc, char *arg
     float factor = (float)(delta_angle) / (float)(delta_distance);
     float left_gain = (1. + factor) * robot.rs.left_ext_gain;
     float right_gain = (1. - factor) * robot.rs.right_ext_gain;
+
+    /* Stop polar control */
+    trajectory_d_rel(&robot.traj, - robot.calibration_direction * 75.);
 
     chprintf(chp, "Angle difference : %f\n", DEGREES(pos_imp2rd(&robot.traj, delta_angle)));
     chprintf(chp, "Suggested factors :\n");
@@ -550,14 +553,14 @@ static void cmd_track_calibration(BaseSequentialStream *chp, int argc, char *arg
     float start_angle = pos_imp2rd(&robot.traj, rs_get_angle(&robot.rs));
 
     /* Start calibration sequence and do it N times */
-    trajectory_d_rel(&robot.traj, 200.);
+    trajectory_d_rel(&robot.traj, - robot.calibration_direction * 200.);
     trajectory_wait_for_end(&robot, &bus, TRAJ_END_GOAL_REACHED);
     for (int i = 0; i < count; i++) {
         chprintf(chp, "%d left !\n", i);
         trajectory_a_rel(&robot.traj, 360.);
         trajectory_wait_for_end(&robot, &bus, TRAJ_END_GOAL_REACHED);
     }
-    trajectory_d_rel(&robot.traj, -180.);
+    trajectory_d_rel(&robot.traj, robot.calibration_direction * 180.);
     trajectory_wait_for_end(&robot, &bus, TRAJ_END_GOAL_REACHED);
 
     /* Take reference at the wall */

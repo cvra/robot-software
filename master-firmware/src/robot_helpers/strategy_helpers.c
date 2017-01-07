@@ -18,30 +18,36 @@ void strategy_auto_position(
 
     /* Go backwards until we hit the wall and reset position */
     trajectory_align_with_wall(robot, bus);
-    position_set(&robot->pos, MIRROR_X(robot_color, robot_size/2), 0, 0);
 
-    /* On se mets a la bonne position en x. */
-    trajectory_d_rel(&robot->traj, (double)(x - robot_size/2));
+    /* Set robot position in x and heading */
+    if (robot->calibration_direction < 0) {
+        position_set(&robot->pos, MIRROR_X(robot_color, robot_size/2), 0, 0);
+    } else {
+        position_set(&robot->pos, MIRROR_X(robot_color, robot_size/2), 0, 180);
+    }
+
+    /* Go to desired position in x. */
+    trajectory_d_rel(&robot->traj, (double)(- robot->calibration_direction * (x - robot_size/2)));
     trajectory_wait_for_end(robot, bus, TRAJ_END_GOAL_REACHED);
 
-    /* On se tourne face a la paroi en Y. */
-    trajectory_only_a_abs(&robot->traj, 90);
+    /* Turn to face the wall in Y */
+    trajectory_only_a_rel(&robot->traj, 90);
     trajectory_wait_for_end(robot, bus, TRAJ_END_GOAL_REACHED);
 
-    /* On recule jusqu'a avoir touche le bord. */
+    /* Go backwards until we hit the wall and  reset position */
     trajectory_align_with_wall(robot, bus);
 
-    /* On reregle la position. */
+    /* Reset position in y */
     robot->pos.pos_d.y = robot_size / 2;
     robot->pos.pos_s16.y = robot_size / 2;
 
-    /* On se met en place a la position demandee. */
+    /* Go to the desired position in y */
     trajectory_set_speed(&robot->traj, speed_mm2imp(&robot->traj, 300), speed_rd2imp(&robot->traj, 2.5));
 
-    trajectory_d_rel(&robot->traj, (double)(y - robot_size/2));
+    trajectory_d_rel(&robot->traj, (double)(- robot->calibration_direction * (y - robot_size/2)));
     trajectory_wait_for_end(robot, bus, TRAJ_END_GOAL_REACHED);
 
-    /* Pour finir on s'occuppe de l'angle. */
+    /* Set the angle to the desired value */
     trajectory_a_abs(&robot->traj, (double)heading);
     trajectory_wait_for_end(robot, bus, TRAJ_END_GOAL_REACHED);
 

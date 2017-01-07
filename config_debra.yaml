@@ -1,6 +1,7 @@
 master:
     robot_size_x_mm: 205 # Front to back length
     opponent_size_x_mm_default: 300
+    calibration_direction: 1 # calibration side is on the front
     odometry:
         external_encoder_ticks_per_mm: 162.974661726 # Computed 162.974661726
         external_track_mm: 194.                      # CAD 194
