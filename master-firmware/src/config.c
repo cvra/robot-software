@@ -22,8 +22,8 @@ void config_init(void)
     parameter_namespace_declare(&actuator_config, &global_config, "actuator");
     parameter_namespace_declare(&master_config, &global_config, "master");
 
-    parameter_scalar_declare(&robot_size, &master_config, "robot_size_x_mm");
-    parameter_scalar_declare(&opponent_size, &master_config, "opponent_size_x_mm_default");
+    parameter_integer_declare(&robot_size, &master_config, "robot_size_x_mm");
+    parameter_integer_declare(&opponent_size, &master_config, "opponent_size_x_mm_default");
 
     parameter_namespace_declare(&odometry_config, &master_config, "odometry");
     parameter_scalar_declare(&odometry_ticks, &odometry_config, "external_encoder_ticks_per_mm");

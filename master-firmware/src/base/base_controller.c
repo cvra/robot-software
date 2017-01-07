@@ -43,7 +43,7 @@ void robot_init(void)
         config_get_scalar("master/odometry/left_wheel_correction_factor"));
     rs_set_right_ext_encoder(
         &robot.rs, cvra_encoder_get_right_ext, NULL,
-        config_get_scalar("odometry/right_wheel_correction_factor"));
+        config_get_scalar("master/odometry/right_wheel_correction_factor"));
 
     /* Position manager */
     position_init(&robot.pos);
