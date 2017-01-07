@@ -282,6 +282,13 @@ heap_size: build/$(PROJECT).elf
 
 all: heap_size mem_info
 
+clean:
+	@echo Cleaning
+	-rm src/config_msgpack.c
+	-rm -fR .dep $(BUILDDIR)
+	@echo
+	@echo Done
+
 # Generates a ctags file containing the correct definition for the build
 .PHONY: ctags
 ctags:
