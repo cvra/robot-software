@@ -16,6 +16,9 @@ static parameter_namespace_t aversive_config, aversive_control, aversive_angle, 
 static parameter_t aversive_angle_kp, aversive_angle_ki, aversive_angle_kd, aversive_angle_ilimit;
 static parameter_t aversive_distance_kp, aversive_distance_ki, aversive_distance_kd, aversive_distance_ilimit;
 
+static parameter_namespace_t beacon_config;
+static parameter_t beacon_reflector_radius, beacon_angular_offset;
+
 void config_init(void)
 {
     parameter_namespace_declare(&global_config, NULL, NULL);
@@ -31,6 +34,10 @@ void config_init(void)
     parameter_scalar_declare(&odometry_track, &odometry_config, "external_track_mm");
     parameter_scalar_declare(&odometry_left_corr, &odometry_config, "left_wheel_correction_factor");
     parameter_scalar_declare(&odometry_right_corr, &odometry_config, "right_wheel_correction_factor");
+
+    parameter_namespace_declare(&beacon_config, &master_config, "beacon");
+    parameter_scalar_declare(&beacon_reflector_radius, &beacon_config, "reflector_radius");
+    parameter_scalar_declare(&beacon_angular_offset, &beacon_config, "angular_offset");
 
     parameter_namespace_declare(&aversive_config, &master_config, "aversive");
 

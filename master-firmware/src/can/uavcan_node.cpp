@@ -240,8 +240,8 @@ void main(void *arg)
                           sizeof(proximity_beacon_topic_value));
 
     messagebus_advertise_topic(&bus, &proximity_beacon_topic, "/proximity_beacon");
-    const float reflector_radius = 0.040f;
-    const float angular_offset = M_PI / 2.;
+    float reflector_radius = config_get_scalar("master/beacon/reflector_radius");
+    float angular_offset = config_get_scalar("master/beacon/angular_offset");
 
     uavcan::Subscriber<cvra::proximity_beacon::Signal> prox_beac_sub(node);
     res = prox_beac_sub.start(

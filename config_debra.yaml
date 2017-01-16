@@ -7,6 +7,9 @@ master:
         external_track_mm: 193.50199890              # CAD 194
         left_wheel_correction_factor: -1.00028944
         right_wheel_correction_factor: 0.99971050
+    beacon:
+        reflector_radius: 0.04 # in meters
+        angular_offset: -1.57 # in radians
     aversive:
         control:
             angle:
