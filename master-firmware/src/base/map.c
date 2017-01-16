@@ -21,9 +21,10 @@ void map_init(int robot_size)
     map.fence = oa_new_poly(4);
     map_set_rectangular_obstacle(map.fence, 355, 370, 710, 22, robot_size);
 
-    /* Add opponent obstacle */
+    /* Add opponent obstacle as points at origin */
     for (int i = 0; i < MAP_NUM_OPPONENT; i++) {
         map.opponents[i] = oa_new_poly(MAP_NUM_OPPONENT_EDGES);
+        map_set_rectangular_obstacle(map.opponents[i], 0, 0, 0, 0, 0);
     }
 }
 
