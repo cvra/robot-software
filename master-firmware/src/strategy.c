@@ -2,10 +2,12 @@
 #include <hal.h>
 
 #include <error/error.h>
+#include <timestamp/timestamp.h>
+#include <blocking_detection_manager/blocking_detection_manager.h>
+#include <trajectory_manager/trajectory_manager_utils.h>
+#include <obstacle_avoidance/obstacle_avoidance.h>
+
 #include "priorities.h"
-#include "blocking_detection_manager/blocking_detection_manager.h"
-#include "trajectory_manager/trajectory_manager_utils.h"
-#include "obstacle_avoidance/obstacle_avoidance.h"
 #include "robot_helpers/math_helpers.h"
 #include "robot_helpers/trajectory_helpers.h"
 #include "robot_helpers/strategy_helpers.h"
@@ -46,9 +48,12 @@ bool strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg)
     messagebus_topic_t* proximity_beacon_topic = messagebus_find_topic_blocking(&bus, "/proximity_beacon");
     messagebus_topic_read(proximity_beacon_topic, &beacon_signal, sizeof(beacon_signal));
 
-    float x_opp, y_opp;
-    beacon_cartesian_convert(&robot->pos, 1000 * beacon_signal.distance, beacon_signal.heading, &x_opp, &y_opp);
-    map_set_opponent_obstacle(0, x_opp, y_opp, robot->opponent_size * 1.25, robot->robot_size);
+    // only consider recent beacon signal
+    if (timestamp_duration_s(beacon_signal.timestamp, timestamp_get()) < TRAJ_MAX_TIME_DELAY_OPPONENT_DETECTION) {
+        float x_opp, y_opp;
+        beacon_cartesian_convert(&robot->pos, 1000 * beacon_signal.distance, beacon_signal.heading, &x_opp, &y_opp);
+        map_set_opponent_obstacle(0, x_opp, y_opp, robot->opponent_size * 1.25, robot->robot_size);
+    }
 
     /* Compute path */
     oa_reset();
