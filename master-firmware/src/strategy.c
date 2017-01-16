@@ -137,7 +137,7 @@ void strategy_play_game(void* _robot)
 
         /* Go back to home */
         i = 0;
-        while (!strategy_goto_avoid(robot, 900, 200, 0)) {
+        while (!strategy_goto_avoid(robot, 600, 200, 90)) {
             DEBUG("Try #%d", i);
             i++;
         }
