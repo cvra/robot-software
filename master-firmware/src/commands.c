@@ -402,6 +402,15 @@ static void cmd_pathplanner(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
+static void cmd_oa_dump(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    (void)chp;
+    (void)argc;
+    (void)argv;
+
+    oa_dump();
+}
+
 static void cmd_create_static_obstacle(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc == 3) {
@@ -657,6 +666,7 @@ const ShellCommand commands[] = {
     {"goto", cmd_traj_goto},
     {"path", cmd_pathplanner},
     {"goto_avoid", cmd_goto_avoid},
+    {"oa_dump", cmd_oa_dump},
     {"obs", cmd_create_static_obstacle},
     {"bdconf", cmd_blocking_detection_config},
     {"wheel_calib", cmd_wheel_calibration},

@@ -12,8 +12,7 @@ void map_init(int robot_size)
 
     /* Define table borders */
     polygon_set_boundingbox(robot_size/2, robot_size/2,
-                            MAP_SIZE_X_MM - robot_size/2,
-                            MAP_SIZE_Y_MM - robot_size/2);
+                            MAP_SIZE_X_MM - robot_size/2, MAP_SIZE_Y_MM - robot_size/2);
 
     /* Add obstacles */
     map.crater = oa_new_poly(4);
