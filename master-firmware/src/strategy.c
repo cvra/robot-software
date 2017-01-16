@@ -12,6 +12,7 @@
 #include "robot_helpers/beacon_helpers.h"
 #include "base/base_controller.h"
 #include "base/map.h"
+#include "config.h"
 #include "main.h"
 
 #include "strategy.h"
@@ -106,7 +107,7 @@ void strategy_play_game(void* _robot)
     enum strat_color_t color = YELLOW;
 
     /* Initialize map and path planner */
-    map_init(robot->robot_size);
+    map_init(config_get_integer("master/robot_size_x_mm"));
 
     /* Autoposition robot */
     wait_for_autoposition_signal();
