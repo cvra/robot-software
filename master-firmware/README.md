@@ -1,5 +1,11 @@
 # Master Board User Manual
 
+## Build options
+
+When using `make` to build the firmware, you can specify the following options:
+- `-DDEBRA=yes` will tell the makefile to use the Debra configuration file ([../config_debra.yaml](../config_debra.yaml)), instead of the default one ([../config.yaml](../config.yaml)). When switching from one configuration to another, do not forget to `make clean` in order to delete the previously generate config source.
+
+
 ## Connector & Board Modifications
 
 ### Timing Connector
