@@ -36,6 +36,11 @@ enum board_mode_t {
     BOARD_MODE_SET_PWM,
 };
 
+enum direction_t {
+    DIRECTION_BACKWARD = -1,
+    DIRECTION_FORWARD = 1,
+};
+
 /**
  @brief contains all global vars.
 
@@ -59,7 +64,7 @@ struct _robot {
 
     enum board_mode_t mode;                 // The current board mode
 
-    int calibration_direction;              // 1 if calibration side in front, -1 if in back
+    enum direction_t calibration_direction; // Calibration direction / side of the robot
     int robot_size;
     int opponent_size;
 };

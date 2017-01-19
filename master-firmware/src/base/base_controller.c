@@ -90,7 +90,7 @@ void robot_init(void)
     bd_init(&robot.distance_bd, &robot.distance_cs);
 
     /* Set calibration side */
-    robot.calibration_direction = config_get_integer("master/calibration_direction");
+    robot.calibration_direction = (enum direction_t)config_get_integer("master/calibration_direction");
 
     /* Set obstacle inflation sizes */
     robot.robot_size = config_get_integer("master/robot_size_x_mm");
