@@ -36,6 +36,7 @@
 #include "http/server.h"
 
 void init_base_motors(void);
+void init_arm_motors(void);
 
 /* Command line related */
 #define SHELL_WA_SIZE   THD_WORKING_AREA_SIZE(2048)
@@ -232,6 +233,10 @@ int main(void) {
     http_server_start();
 
     init_base_motors();
+#ifdef DEBRA
+    chThdSleepMilliseconds(100);
+    init_arm_motors();
+#endif
     config_load_from_flash();
     uavcan_node_start(10);
 
@@ -268,6 +273,13 @@ void init_base_motors(void)
     motor_manager_create_driver(&motor_manager, "right-wheel");
 }
 
+void init_arm_motors(void)
+{
+    motor_manager_create_driver(&motor_manager, "left-shoulder");
+    motor_manager_create_driver(&motor_manager, "left-elbow");
+    motor_manager_create_driver(&motor_manager, "right-shoulder");
+    motor_manager_create_driver(&motor_manager, "right-elbow");
+}
 
 void init_hands(void)
 {

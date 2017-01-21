@@ -55,8 +55,10 @@ endif
 # Config file depending on robot
 ifeq ($(DEBRA),)
   CONFIG_YAML = ../config.yaml
+  DEBRA = yes
 else
   CONFIG_YAML = ../config_debra.yaml
+  DEBRA = no
 endif
 
 #
@@ -216,7 +218,11 @@ DLIBS =
 #
 
 # List all user C define here, like -D_DEBUG=1
-UDEFS = -DDEBRA=1 -DON_ROBOT
+UDEFS = -DON_ROBOT
+
+ifeq ($(DEBRA), yes)
+  UDEFS += -DDEBRA=1
+endif
 
 # Define ASM defines here
 UADEFS =
