@@ -11,19 +11,8 @@
 #include <aversive/control_system_manager/control_system_manager.h>
 
 typedef struct {
-    cvra_pid_t pid;
-    struct cs manager;
-} scara_control_loop_t;
-
-typedef struct {
     vect2_cart offset_xy; /**< Offset vector between center of robot and shoulder. */
     float offset_rotation; /**< Rotation between the robot base and shoulder in rad. */
-
-    /* Control systems */
-    scara_control_loop_t z_axis;
-    scara_control_loop_t shoulder;
-    scara_control_loop_t hand;
-    scara_control_loop_t elbow;
 
     /* Physical parameters. */
     float length[2];                  /**< Length of the 2 arms elements. */
@@ -46,8 +35,6 @@ void scara_set_physical_parameters(scara_t *arm);
 
 void scara_manage(scara_t *arm);
 
-
-void scara_get_position(scara_t *arm, float *x, float *y, float *z);
 
 scara_waypoint_t scara_position_for_date(scara_t *arm, int32_t date);
 

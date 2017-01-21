@@ -16,31 +16,6 @@ void scara_set_physical_parameters(scara_t *arm)
 }
 
 
-void scara_get_position(scara_t *arm, float *x, float *y, float *z)
-{
-    (void)arm;
-    (void)x;
-    (void)y;
-    (void)z;
-
-    // float alpha, beta;
-
-    // alpha = cs_get_feedback(&arm->shoulder.manager) / (float)arm->shoulder_imp_per_rad;
-    // beta = cs_get_feedback(&arm->elbow.manager) / (float)arm->elbow_imp_per_rad;
-
-    // beta += alpha;
-
-    // if (x)
-    //     *x = arm->length[0] * cos(alpha) + arm->length[1] * cos(beta);
-
-    // if (y)
-    //     *y = arm->length[0] * sin(alpha) + arm->length[1] * sin(beta);
-
-    // if (z)
-    //     *z = cs_get_feedback(&arm->z_axis.manager) / (float)arm->z_axis_imp_per_mm;
-}
-
-
 void scara_init(scara_t *arm)
 {
     memset(arm, 0, sizeof(scara_t));
