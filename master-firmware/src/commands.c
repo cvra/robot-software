@@ -624,6 +624,18 @@ static void cmd_autopos(BaseSequentialStream *chp, int argc, char *argv[])
 }
 
 
+static void cmd_motor_pos(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc < 2) {
+        chprintf(chp, "Usage: motor_pos motor_name position\r\n");
+        return;
+    }
+    float position = atof(argv[1]);
+    chprintf(chp, "Setting motor %s position to %f\r\n", argv[0], position);
+    motor_manager_set_position(&motor_manager, argv[0], position);
+}
+
+
 static void print_fn(void *arg, const char *fmt, ...)
 {
     BaseSequentialStream *chp = (BaseSequentialStream *)arg;
@@ -674,6 +686,7 @@ const ShellCommand commands[] = {
     {"track_calib", cmd_track_calibration},
     {"track_corr", cmd_track_correction},
     {"autopos", cmd_autopos},
+    {"motor_pos", cmd_motor_pos},
     {"trace", cmd_trace},
     {NULL, NULL}
 };
