@@ -39,6 +39,9 @@ target.arm:
     - src/aversive_port/cvra_pid.c
     - src/base/encoder.c
     - src/base/base_controller.c
+    - src/arms/cvra_arm_motors.c
+    - src/arms/scara_port.c
+    - src/arms/arms_controller.c
     - src/config_msgpack.c
     - src/trace/trace_points.c
     - src/strategy.c

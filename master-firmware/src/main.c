@@ -30,6 +30,7 @@
 #include "usbconf.h"
 #include "base/encoder.h"
 #include "base/base_controller.h"
+#include "arms/arms_controller.h"
 #include "trace/trace_points.h"
 #include "strategy.h"
 #include "filesystem.h"
@@ -246,6 +247,12 @@ int main(void) {
     base_controller_start();
     position_manager_start();
     trajectory_manager_start();
+
+    /* Arms init */
+#ifdef DEBRA
+    arms_init();
+    arms_controller_start();
+#endif
 
     /* Initialize strategy thread, will wait for signal to begin game */
     strategy_start();

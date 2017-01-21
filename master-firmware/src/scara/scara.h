@@ -3,6 +3,7 @@
 
 #include <aversive/position_manager/position_manager.h>
 #include <aversive/math/vect2/vect2.h>
+#include <error/error.h>
 
 #include "scara_kinematics.h"
 #include "scara_waypoint.h"
@@ -10,9 +11,14 @@
 #include <aversive_port/cvra_pid.h>
 #include <aversive/control_system_manager/control_system_manager.h>
 
+
 typedef struct {
     vect2_cart offset_xy; /**< Offset vector between center of robot and shoulder. */
     float offset_rotation; /**< Rotation between the robot base and shoulder in rad. */
+
+    /* Motor control callbacks */
+    void (*set_shoulder_position)(float); /**< Callback function to set shoulder position. */
+    void (*set_elbow_position)(float);    /**< Callback function to set elbow position. */
 
     /* Physical parameters. */
     float length[2];                  /**< Length of the 2 arms elements. */
@@ -29,9 +35,15 @@ typedef struct {
 
 void scara_init(scara_t *arm);
 
-void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj);
+void scara_set_physical_parameters(scara_t* arm, float upperarm_length, float forearm_length);
 
-void scara_set_physical_parameters(scara_t *arm);
+void scara_set_shoulder_callback(scara_t* arm, void (*set_shoulder_position)(float));
+void scara_set_elbow_callback(scara_t* arm, void (*set_elbow_position)(float));
+
+/* Goto position in arm local coordinate system */
+void scara_goto(scara_t* arm, float x, float y);
+
+void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj);
 
 void scara_manage(scara_t *arm);
 

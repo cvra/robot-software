@@ -7,30 +7,69 @@
 #include "scara_utils.h"
 #include "scara_port.h"
 
-
-void scara_set_physical_parameters(scara_t *arm)
-{
-    /* Physical constants, not magic numbers. */
-    arm->length[0] = 135.16; /* mm */
-    arm->length[1] = 106.5;
-}
-
-
 void scara_init(scara_t *arm)
 {
     memset(arm, 0, sizeof(scara_t));
-
-    // scara_cs_init_loop(&arm->shoulder);
-    // scara_cs_init_loop(&arm->hand);
-    // scara_cs_init_loop(&arm->elbow);
-    // scara_cs_init_loop(&arm->z_axis);
 
     /* Sets last loop run date for lag compensation. */
     arm->last_loop = scara_time_get();
 
     arm->shoulder_mode = SHOULDER_BACK;
+}
 
-    // platform_create_semaphore(&arm->trajectory_semaphore, 1);
+
+void scara_set_physical_parameters(scara_t* arm, float upperarm_length, float forearm_length)
+{
+    arm->length[0] = upperarm_length;
+    arm->length[1] = forearm_length;
+}
+
+
+void scara_set_shoulder_callback(scara_t* arm, void (*set_shoulder_position)(float))
+{
+    arm->set_shoulder_position = set_shoulder_position;
+}
+
+void scara_set_elbow_callback(scara_t* arm, void (*set_elbow_position)(float))
+{
+    arm->set_elbow_position = set_elbow_position;
+}
+
+void scara_goto(scara_t* arm, float x, float y)
+{
+    point_t target = {.x = x, .y = y};
+
+    point_t p1, p2;
+    int position_count = scara_num_possible_elbow_positions(target, arm->length[0], arm->length[1], &p1, &p2);
+    NOTICE("Inverse kinematics: found %d possible solutions\r\n", position_count);
+
+    if (position_count == 0) {
+        return;
+    } else if (position_count == 2) {
+        shoulder_mode_t mode;
+        mode = scara_orientation_mode(SHOULDER_BACK, 0.);
+        p1 = scara_shoulder_solve(target, p1, p2, mode);
+    }
+
+    /* p1 now contains the correct elbow pos. */
+    float alpha = scara_compute_shoulder_angle(p1, target);
+    float beta = scara_compute_elbow_angle(p1, target);
+
+    /* This is due to mecanical construction of the arms. */
+    beta = beta - alpha;
+
+    /* The arm cannot make one full turn. */
+    if (beta < -M_PI) {
+        beta = 2 * M_PI + beta;
+    }
+    if (beta > M_PI) {
+        beta = beta - 2 * M_PI;
+    }
+
+    NOTICE("Inverse kinematics: alpha [%.3f] \tbeta [%.3f]\r\n", alpha, beta);
+
+    arm->set_shoulder_position(alpha);
+    arm->set_elbow_position(beta);
 }
 
 void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj)
@@ -51,10 +90,6 @@ void scara_manage(scara_t *arm)
     // scara_take_semaphore(&arm->trajectory_semaphore);
 
     if (arm->trajectory.frame_count == 0) {
-        // cs_disable(&arm->shoulder.manager);
-        // cs_disable(&arm->elbow.manager);
-        // cs_disable(&arm->z_axis.manager);
-        // cs_disable(&arm->hand.manager);
         arm->last_loop = current_date;
         // scara_signal_semaphore(&arm->trajectory_semaphore);
         return;
@@ -67,10 +102,6 @@ void scara_manage(scara_t *arm)
     position_count = scara_num_possible_elbow_positions(target, frame.length[0], frame.length[1], &p1, &p2);
 
     if (position_count == 0) {
-        // cs_disable(&arm->shoulder.manager);
-        // cs_disable(&arm->elbow.manager);
-        // cs_disable(&arm->z_axis.manager);
-        // cs_disable(&arm->hand.manager);
         arm->last_loop = current_date;
         // scara_signal_semaphore(&arm->trajectory_semaphore);
         return;
@@ -83,32 +114,16 @@ void scara_manage(scara_t *arm)
     /* p1 now contains the correct elbow pos. */
     alpha = scara_compute_shoulder_angle(p1, target);
     beta  = scara_compute_elbow_angle(p1, target);
-
-
-    /* This is due to mecanical construction of the arms. */
     beta = beta - alpha;
 
-
     /* The arm cannot make one full turn. */
-
     if (beta < -M_PI)
         beta = 2 * M_PI + beta;
 
     if (beta > M_PI)
         beta = beta - 2 * M_PI;
 
-    // cs_enable(&arm->shoulder.manager);
-    // cs_enable(&arm->elbow.manager);
-    // cs_enable(&arm->z_axis.manager);
-    // cs_enable(&arm->hand.manager);
-
-    // cs_set_consign(&arm->shoulder.manager, alpha * arm->shoulder_imp_per_rad);
-    // cs_set_consign(&arm->elbow.manager, beta * arm->elbow_imp_per_rad);
-    // cs_set_consign(&arm->z_axis.manager, frame.position[2] * arm->z_axis_imp_per_mm);
-    // cs_set_consign(&arm->hand.manager, frame.hand_angle * arm->hand_imp_per_deg);
-
     arm->last_loop = scara_time_get();
-
     // scara_signal_semaphore(&arm->trajectory_semaphore);
 }
 
