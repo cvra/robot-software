@@ -23,6 +23,8 @@
 #include "robot_helpers/math_helpers.h"
 #include "robot_helpers/trajectory_helpers.h"
 #include "robot_helpers/strategy_helpers.h"
+#include "scara/scara.h"
+#include "scara/scara_kinematics.h"
 #include "strategy.h"
 #include <trace/trace.h>
 
@@ -635,6 +637,52 @@ static void cmd_motor_pos(BaseSequentialStream *chp, int argc, char *argv[])
     motor_manager_set_position(&motor_manager, argv[0], position);
 }
 
+static void cmd_scara_pos(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc < 3) {
+        chprintf(chp, "Usage: scara_pos side x y\r\n");
+        return;
+    }
+    point_t target = {.x = atof(argv[1]), .y = atof(argv[2])};
+    chprintf(chp, "Moving %s arm to %f %f\r\n", argv[0], target.x, target.y);
+
+    point_t p1, p2;
+    int position_count = scara_num_possible_elbow_positions(target, 0.14, 0.072, &p1, &p2);
+    chprintf(chp, "Found %d possible solutions\r\n", position_count);
+
+    if (position_count == 0) {
+        return;
+    } else if (position_count == 2) {
+        shoulder_mode_t mode;
+        mode = scara_orientation_mode(SHOULDER_BACK, 0.);
+        p1 = scara_shoulder_solve(target, p1, p2, mode);
+    }
+
+    /* p1 now contains the correct elbow pos. */
+    float alpha = scara_compute_shoulder_angle(p1, target);
+    float beta = scara_compute_elbow_angle(p1, target);
+
+    /* This is due to mecanical construction of the arms. */
+    beta = beta - alpha;
+
+    /* The arm cannot make one full turn. */
+    if (beta < -M_PI) {
+        beta = 2 * M_PI + beta;
+    }
+    if (beta > M_PI) {
+        beta = beta - 2 * M_PI;
+    }
+
+    chprintf(chp, "Alpha: %f \tBeta: %f\r\n", alpha, beta);
+
+    if (strcmp("left", argv[0]) == 0) {
+        motor_manager_set_position(&motor_manager, "left-shoulder", alpha);
+        motor_manager_set_position(&motor_manager, "left-elbow", beta);
+    } else if (strcmp("right", argv[0]) == 0) {
+        motor_manager_set_position(&motor_manager, "right-shoulder", alpha);
+        motor_manager_set_position(&motor_manager, "right-elbow", beta);
+    }
+}
 
 static void print_fn(void *arg, const char *fmt, ...)
 {
@@ -687,6 +735,7 @@ const ShellCommand commands[] = {
     {"track_corr", cmd_track_correction},
     {"autopos", cmd_autopos},
     {"motor_pos", cmd_motor_pos},
+    {"scara_pos", cmd_scara_pos},
     {"trace", cmd_trace},
     {NULL, NULL}
 };
