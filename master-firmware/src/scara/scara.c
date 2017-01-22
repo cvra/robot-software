@@ -94,6 +94,16 @@ void scara_goto_robot(scara_t* arm, float x, float y)
     scara_goto_arm(arm, target_arm.x, target_arm.y);
 }
 
+void scara_goto_table(scara_t* arm, float x, float y, float robot_x, float robot_y, float robot_a)
+{
+    point_t target_table = {.x = x, .y = y};
+    point_t robot_pos = {.x = robot_x, .y = robot_y};
+
+    point_t target_robot = scara_coordinate_table2robot(target_table, robot_pos, robot_a);
+
+    scara_goto_robot(arm, target_robot.x, target_robot.y);
+}
+
 
 void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj)
 {

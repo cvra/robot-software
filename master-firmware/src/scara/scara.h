@@ -52,6 +52,9 @@ void scara_goto_arm(scara_t* arm, float x, float y);
 /* Goto position in robot coordinate system */
 void scara_goto_robot(scara_t* arm, float x, float y);
 
+/* Goto position in table coordinate system */
+void scara_goto_table(scara_t* arm, float x, float y, float robot_x, float robot_y, float robot_a);
+
 void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj);
 
 void scara_manage(scara_t *arm);

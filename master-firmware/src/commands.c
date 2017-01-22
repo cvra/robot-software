@@ -24,6 +24,7 @@
 #include "robot_helpers/trajectory_helpers.h"
 #include "robot_helpers/strategy_helpers.h"
 #include "scara/scara.h"
+#include "scara/scara_utils.h"
 #include "arms/arms_controller.h"
 #include "strategy.h"
 #include <trace/trace.h>
@@ -658,6 +659,12 @@ static void cmd_scara_pos(BaseSequentialStream *chp, int argc, char *argv[])
 
     if (strcmp("robot", argv[0]) == 0) {
         scara_goto_robot(arm, x, y);
+    } else if (strcmp("table", argv[0]) == 0) {
+        float robot_x = position_get_x_float(&robot.pos);
+        float robot_y = position_get_y_float(&robot.pos);
+        float robot_a = position_get_a_rad_float(&robot.pos);
+
+        scara_goto_table(arm, x, y, robot_x, robot_y, robot_a);
     } else {
         scara_goto_arm(arm, x, y);
     }
