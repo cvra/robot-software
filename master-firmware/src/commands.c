@@ -23,6 +23,7 @@
 #include "robot_helpers/math_helpers.h"
 #include "robot_helpers/trajectory_helpers.h"
 #include "robot_helpers/strategy_helpers.h"
+#include "robot_helpers/motor_helpers.h"
 #include "scara/scara.h"
 #include "scara/scara_utils.h"
 #include "arms/arms_controller.h"
@@ -638,6 +639,27 @@ static void cmd_motor_pos(BaseSequentialStream *chp, int argc, char *argv[])
     motor_manager_set_position(&motor_manager, argv[0], position);
 }
 
+static void cmd_motor_index(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc < 3) {
+        chprintf(chp, "Usage: motor_index motor_name direction speed\r\n");
+        return;
+    }
+    int motor_dir = atoi(argv[1]);
+    float motor_speed = atof(argv[2]);
+
+    motor_driver_t* motor = bus_enumerator_get_driver(motor_manager.bus_enumerator, argv[0]);
+    if (motor == NULL) {
+        chprintf(chp, "Motor %s doesn't exist\r\n", argv[0]);
+        return;
+    }
+
+    chprintf(chp, "Searching for index of motor %s\r\n", argv[0]);
+
+    float index = motor_auto_index(motor, motor_dir, motor_speed);
+    chprintf(chp, "Average index is %.4f\r\n", index);
+}
+
 static void cmd_scara_pos(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc < 4) {
@@ -721,6 +743,7 @@ const ShellCommand commands[] = {
     {"track_corr", cmd_track_correction},
     {"autopos", cmd_autopos},
     {"motor_pos", cmd_motor_pos},
+    {"motor_index", cmd_motor_index},
     {"scara_pos", cmd_scara_pos},
     {"trace", cmd_trace},
     {NULL, NULL}

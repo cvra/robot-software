@@ -99,7 +99,7 @@ actuator:
             velocity_pid: 0
             position_pid: 0
             motor_pos: 5
-            index: 0
+            index: 10
         motor:
             # motor: 1516SR
             mode: 3 # bounded
@@ -136,7 +136,7 @@ actuator:
             velocity_pid: 0
             position_pid: 0
             motor_pos: 5
-            index: 0
+            index: 10
         motor:
             # motor: 1516SR
             mode: 3 # bounded
@@ -173,7 +173,7 @@ actuator:
             velocity_pid: 0
             position_pid: 0
             motor_pos: 5
-            index: 0
+            index: 10
         motor:
             # motor: 1516SR
             mode: 3 # bounded
@@ -210,7 +210,7 @@ actuator:
             velocity_pid: 0
             position_pid: 0
             motor_pos: 5
-            index: 0
+            index: 10
         motor:
             # motor: 1516SR
             mode: 3 # bounded
