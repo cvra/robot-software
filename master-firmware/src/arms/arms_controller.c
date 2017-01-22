@@ -15,6 +15,7 @@ void arms_init(void)
     scara_set_physical_parameters(&left_arm, 140.f, 72.f); // Arm lengths in mm
     scara_set_offset(&left_arm, 0.f, 120.f, 1.57f);
     scara_set_motor_direction(&left_arm, -1, -1);
+    left_arm.shoulder_mode = SHOULDER_BACK;
 
     scara_init(&right_arm);
     scara_set_shoulder_callback(&right_arm, set_right_shoulder_position);
@@ -22,6 +23,7 @@ void arms_init(void)
     scara_set_physical_parameters(&right_arm, 140.f, 72.f); // Arm lengths in mm
     scara_set_offset(&right_arm, 0.f, -120.f, -1.57f);
     scara_set_motor_direction(&right_arm, -1, -1);
+    left_arm.shoulder_mode = SHOULDER_BACK;
 }
 
 

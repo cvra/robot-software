@@ -60,7 +60,7 @@ void scara_goto_arm(scara_t* arm, float x, float y)
         return;
     } else if (position_count == 2) {
         shoulder_mode_t mode;
-        mode = scara_orientation_mode(SHOULDER_BACK, 0.);
+        mode = scara_orientation_mode(arm->shoulder_mode, arm->offset_rotation);
         p1 = scara_shoulder_solve(target, p1, p2, mode);
     }
 
