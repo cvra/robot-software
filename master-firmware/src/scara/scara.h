@@ -20,6 +20,10 @@ typedef struct {
     void (*set_shoulder_position)(float); /**< Callback function to set shoulder position. */
     void (*set_elbow_position)(float);    /**< Callback function to set elbow position. */
 
+    /* Motor directions */
+    int shoulder_dir;
+    int elbow_dir;
+
     /* Physical parameters. */
     float length[2];                  /**< Length of the 2 arms elements. */
 
@@ -36,12 +40,17 @@ typedef struct {
 void scara_init(scara_t *arm);
 
 void scara_set_physical_parameters(scara_t* arm, float upperarm_length, float forearm_length);
+void scara_set_offset(scara_t* arm, float offset_x, float offset_y, float offset_rotation);
+void scara_set_motor_direction(scara_t* arm, int shoulder_dir, int elbow_dir);
 
 void scara_set_shoulder_callback(scara_t* arm, void (*set_shoulder_position)(float));
 void scara_set_elbow_callback(scara_t* arm, void (*set_elbow_position)(float));
 
 /* Goto position in arm local coordinate system */
-void scara_goto(scara_t* arm, float x, float y);
+void scara_goto_arm(scara_t* arm, float x, float y);
+
+/* Goto position in robot coordinate system */
+void scara_goto_robot(scara_t* arm, float x, float y);
 
 void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj);
 

@@ -24,6 +24,19 @@ void scara_set_physical_parameters(scara_t* arm, float upperarm_length, float fo
     arm->length[1] = forearm_length;
 }
 
+void scara_set_offset(scara_t* arm, float offset_x, float offset_y, float offset_rotation)
+{
+    arm->offset_xy.x = offset_x;
+    arm->offset_xy.y = offset_y;
+    arm->offset_rotation = offset_rotation;
+}
+
+void scara_set_motor_direction(scara_t* arm, int shoulder_dir, int elbow_dir)
+{
+    arm->shoulder_dir = shoulder_dir;
+    arm->elbow_dir = elbow_dir;
+}
+
 
 void scara_set_shoulder_callback(scara_t* arm, void (*set_shoulder_position)(float))
 {
@@ -35,13 +48,13 @@ void scara_set_elbow_callback(scara_t* arm, void (*set_elbow_position)(float))
     arm->set_elbow_position = set_elbow_position;
 }
 
-void scara_goto(scara_t* arm, float x, float y)
+void scara_goto_arm(scara_t* arm, float x, float y)
 {
     point_t target = {.x = x, .y = y};
 
     point_t p1, p2;
     int position_count = scara_num_possible_elbow_positions(target, arm->length[0], arm->length[1], &p1, &p2);
-    NOTICE("Inverse kinematics: found %d possible solutions\r\n", position_count);
+    NOTICE("Inverse kinematics: found %d possible solutions", position_count);
 
     if (position_count == 0) {
         return;
@@ -66,11 +79,21 @@ void scara_goto(scara_t* arm, float x, float y)
         beta = beta - 2 * M_PI;
     }
 
-    NOTICE("Inverse kinematics: alpha [%.3f] \tbeta [%.3f]\r\n", alpha, beta);
+    NOTICE("Inverse kinematics: alpha [%.3f] \tbeta [%.3f]", alpha, beta);
 
-    arm->set_shoulder_position(alpha);
-    arm->set_elbow_position(beta);
+    arm->set_shoulder_position(arm->shoulder_dir * alpha);
+    arm->set_elbow_position(arm->elbow_dir * beta);
 }
+
+void scara_goto_robot(scara_t* arm, float x, float y)
+{
+    point_t target_robot = {.x = x, .y = y};
+
+    point_t target_arm = scara_coordinate_robot2arm(target_robot, arm->offset_xy, arm->offset_rotation);
+
+    scara_goto_arm(arm, target_arm.x, target_arm.y);
+}
+
 
 void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj)
 {

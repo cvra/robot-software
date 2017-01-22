@@ -639,19 +639,27 @@ static void cmd_motor_pos(BaseSequentialStream *chp, int argc, char *argv[])
 
 static void cmd_scara_pos(BaseSequentialStream *chp, int argc, char *argv[])
 {
-    if (argc < 3) {
-        chprintf(chp, "Usage: scara_pos side x y\r\n");
+    if (argc < 4) {
+        chprintf(chp, "Usage: scara_pos frame side x y\r\n");
         return;
     }
-    float x = atof(argv[1]);
-    float y = atof(argv[2]);
+    float x = atof(argv[2]);
+    float y = atof(argv[3]);
 
-    chprintf(chp, "Moving %s arm to %f %f\r\n", argv[0], x, y);
+    chprintf(chp, "Moving %s arm to %f %f in %s frame\r\n", argv[1], x, y, argv[0]);
 
-    if (strcmp("left", argv[0]) == 0) {
-        scara_goto(&left_arm, x, y);
-    } else if (strcmp("right", argv[0]) == 0) {
-        scara_goto(&right_arm, x, y);
+    scara_t* arm;
+
+    if (strcmp("left", argv[1]) == 0) {
+        arm = &left_arm;
+    } else {
+        arm = &right_arm;
+    }
+
+    if (strcmp("robot", argv[0]) == 0) {
+        scara_goto_robot(arm, x, y);
+    } else {
+        scara_goto_arm(arm, x, y);
     }
 }
 
