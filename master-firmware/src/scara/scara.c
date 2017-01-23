@@ -81,8 +81,8 @@ void scara_goto_arm(scara_t* arm, float x, float y)
 
     NOTICE("Inverse kinematics: alpha [%.3f] \tbeta [%.3f]", alpha, beta);
 
-    arm->set_shoulder_position(arm->shoulder_dir * alpha);
-    arm->set_elbow_position(arm->elbow_dir * beta);
+    arm->set_shoulder_position(arm->shoulder_dir * (alpha - arm->shoulder_index));
+    arm->set_elbow_position(arm->elbow_dir * (beta - arm->elbow_index));
 }
 
 void scara_goto_robot(scara_t* arm, float x, float y)

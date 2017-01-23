@@ -1,11 +1,20 @@
+#include <ch.h>
 #include "priorities.h"
-#include "arms_controller.h"
+#include "main.h"
+
+#include "can/bus_enumerator.h"
+#include "robot_helpers/motor_helpers.h"
+
 #include "cvra_arm_motors.h"
+#include "arms_controller.h"
+
 
 #define ARMS_CONTROLLER_STACKSIZE 1024
 
+
 scara_t left_arm;
 scara_t right_arm;
+
 
 void arms_init(void)
 {
@@ -24,6 +33,16 @@ void arms_init(void)
     scara_set_offset(&right_arm, 0.f, -120.f, -1.57f);
     scara_set_motor_direction(&right_arm, -1, -1);
     left_arm.shoulder_mode = SHOULDER_BACK;
+}
+
+float arms_motor_auto_index(const char* motor_name, int motor_dir, float motor_speed)
+{
+    motor_driver_t* motor = bus_enumerator_get_driver(motor_manager.bus_enumerator, motor_name);
+    if (motor == NULL) {
+        chSysHalt("Motor doesn't exist");
+    }
+
+    return motor_auto_index(motor, motor_dir, motor_speed);
 }
 
 

@@ -250,6 +250,7 @@ int main(void) {
 
     /* Arms init */
 #ifdef DEBRA
+    chThdSleepMilliseconds(5000);
     arms_init();
     arms_controller_start();
 #endif

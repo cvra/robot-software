@@ -8,8 +8,13 @@
 extern scara_t left_arm;
 extern scara_t right_arm;
 
+/* Initialize arms */
 void arms_init(void);
 
+/* Auto index a motor given its name */
+float arms_motor_auto_index(const char* motor_name, int motor_dir, float motor_speed);
+
+/* Run arms controller thread */
 void arms_controller_start(void);
 
 #endif

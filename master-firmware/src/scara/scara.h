@@ -24,6 +24,10 @@ typedef struct {
     int shoulder_dir;
     int elbow_dir;
 
+    /* Motor indexes */
+    float shoulder_index;
+    float elbow_index;
+
     /* Physical parameters. */
     float length[2];                  /**< Length of the 2 arms elements. */
 

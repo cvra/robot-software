@@ -14,6 +14,7 @@
 #include "robot_helpers/beacon_helpers.h"
 #include "base/base_controller.h"
 #include "base/map.h"
+#include "arms/arms_controller.h"
 #include "config.h"
 #include "main.h"
 
@@ -113,6 +114,21 @@ void strategy_play_game(void* _robot)
 
     /* Initialize map and path planner */
     map_init(config_get_integer("master/robot_size_x_mm"));
+
+    NOTICE("Strategy is ready, waiting for autopositioning signals");
+
+    /* Autoposition arms */
+    wait_for_autoposition_signal();
+    NOTICE("Positioning arms");
+
+    static const float ARMS_MOTOR_INDEXING_SPEED = 0.8;
+    left_arm.shoulder_index = arms_motor_auto_index("left-shoulder", 1, ARMS_MOTOR_INDEXING_SPEED);
+    left_arm.elbow_index = arms_motor_auto_index("left-elbow", 1, ARMS_MOTOR_INDEXING_SPEED);
+    scara_goto_robot(&left_arm, -150, 70);
+
+    right_arm.shoulder_index = arms_motor_auto_index("right-shoulder", -1, ARMS_MOTOR_INDEXING_SPEED);
+    right_arm.elbow_index = arms_motor_auto_index("right-elbow", -1, ARMS_MOTOR_INDEXING_SPEED);
+    scara_goto_robot(&right_arm, 150, -70);
 
     /* Autoposition robot */
     wait_for_autoposition_signal();
