@@ -132,29 +132,33 @@ void strategy_play_game(void* _robot)
 
     /* Autoposition robot */
     wait_for_autoposition_signal();
-    NOTICE("Positioning robot\n");
+    NOTICE("Positioning robot");
     strategy_auto_position(600, 200, 90, robot->robot_size, color, robot, &bus);
-    NOTICE("Robot positioned at x: 600[mm], y: 200[mm], a: 90[deg]\n");
+    NOTICE("Robot positioned at x: 600[mm], y: 200[mm], a: 90[deg]");
 
     /* Wait for starter to begin */
     wait_for_starter();
-    NOTICE("Starting game\n");
+    NOTICE("Starting game");
 
     int i;
 
     while (true) {
         /* Go to lunar module */
         i = 0;
-        while (!strategy_goto_avoid(robot, 780, 1340, 45)) {
+        while (!strategy_goto_avoid(robot, 1050, 1180, 45)) {
             DEBUG("Try #%d", i);
             i++;
         }
 
         /* Push lunar module */
-        trajectory_d_rel(&robot->traj, 100.);
-        trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
-        trajectory_d_rel(&robot->traj, -100.);
-        trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
+        // trajectory_d_rel(&robot->traj, 100.);
+        // trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
+        // trajectory_d_rel(&robot->traj, -100.);
+        // trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
+
+        strategy_arm_goto(robot, &left_arm, 960, 1460);
+        chThdSleepMilliseconds(5000);
+        scara_goto_robot(&left_arm, -150, 70);
 
         /* Go back to home */
         i = 0;
@@ -163,7 +167,7 @@ void strategy_play_game(void* _robot)
             i++;
         }
 
-        DEBUG("Game ended!\nInsert coin to play more.\n");
+        DEBUG("Game ended!\nInsert coin to play more.");
         chThdSleepSeconds(1);
 
         wait_for_starter();
