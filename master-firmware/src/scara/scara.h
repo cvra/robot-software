@@ -17,12 +17,12 @@ typedef struct {
     float offset_rotation; /**< Rotation between the robot base and shoulder in rad. */
 
     /* Motor control callbacks */
-    void (*set_shoulder_position)(float); /**< Callback function to set shoulder position. */
-    void (*set_elbow_position)(float);    /**< Callback function to set elbow position. */
+    void (*set_shoulder_position)(void*, float); /**< Callback function to set shoulder position. */
+    void (*set_elbow_position)(void*, float);    /**< Callback function to set elbow position. */
 
-    /* Motor directions */
-    int shoulder_dir;
-    int elbow_dir;
+    /* Motor control args */
+    void* shoulder_args;
+    void* elbow_args;
 
     /* Motor indexes */
     float shoulder_index;
@@ -45,10 +45,9 @@ void scara_init(scara_t *arm);
 
 void scara_set_physical_parameters(scara_t* arm, float upperarm_length, float forearm_length);
 void scara_set_offset(scara_t* arm, float offset_x, float offset_y, float offset_rotation);
-void scara_set_motor_direction(scara_t* arm, int shoulder_dir, int elbow_dir);
 
-void scara_set_shoulder_callback(scara_t* arm, void (*set_shoulder_position)(float));
-void scara_set_elbow_callback(scara_t* arm, void (*set_elbow_position)(float));
+void scara_set_shoulder_callback(scara_t* arm, void (*set_shoulder_position)(void*, float), void* shoulder_args);
+void scara_set_elbow_callback(scara_t* arm, void (*set_elbow_position)(void*, float), void* elbow_args);
 
 /* Goto position in arm local coordinate system */
 void scara_goto_arm(scara_t* arm, float x, float y);

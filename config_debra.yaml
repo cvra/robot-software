@@ -29,14 +29,10 @@ master:
             offset_x: 0.   # in mm
             offset_y: 120. # in mm
             offset_a: 1.57 # in radians
-            shoulder_dir: -1
-            elbow_dir: -1
         right:
             offset_x: 0.   # in mm
             offset_y: -120. # in mm
             offset_a: -1.57 # in radians
-            shoulder_dir: -1
-            elbow_dir: -1
 
 actuator:
     left-wheel:

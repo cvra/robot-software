@@ -31,21 +31,16 @@ void scara_set_offset(scara_t* arm, float offset_x, float offset_y, float offset
     arm->offset_rotation = offset_rotation;
 }
 
-void scara_set_motor_direction(scara_t* arm, int shoulder_dir, int elbow_dir)
-{
-    arm->shoulder_dir = shoulder_dir;
-    arm->elbow_dir = elbow_dir;
-}
-
-
-void scara_set_shoulder_callback(scara_t* arm, void (*set_shoulder_position)(float))
+void scara_set_shoulder_callback(scara_t* arm, void (*set_shoulder_position)(void*, float), void* shoulder_args)
 {
     arm->set_shoulder_position = set_shoulder_position;
+    arm->shoulder_args = shoulder_args;
 }
 
-void scara_set_elbow_callback(scara_t* arm, void (*set_elbow_position)(float))
+void scara_set_elbow_callback(scara_t* arm, void (*set_elbow_position)(void*, float), void* elbow_args)
 {
     arm->set_elbow_position = set_elbow_position;
+    arm->elbow_args = elbow_args;
 }
 
 void scara_goto_arm(scara_t* arm, float x, float y)
@@ -81,8 +76,8 @@ void scara_goto_arm(scara_t* arm, float x, float y)
 
     NOTICE("Inverse kinematics: alpha [%.3f] \tbeta [%.3f]", alpha, beta);
 
-    arm->set_shoulder_position(arm->shoulder_dir * (alpha - arm->shoulder_index));
-    arm->set_elbow_position(arm->elbow_dir * (beta - arm->elbow_index));
+    arm->set_shoulder_position(arm->shoulder_args, alpha - arm->shoulder_index);
+    arm->set_elbow_position(arm->elbow_args, beta - arm->elbow_index);
 }
 
 void scara_goto_robot(scara_t* arm, float x, float y)
