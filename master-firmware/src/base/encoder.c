@@ -101,6 +101,7 @@ static void setup_timer(stm32_tim_t *tmr)
     tmr->SMCR   = STM32_TIM_SMCR_SMS(3);     // count on both edges
     tmr->CCMR1  = STM32_TIM_CCMR1_CC1S(1);   // CC1 channel is input, IC1 is mapped on TI1
     tmr->CCMR1 |= STM32_TIM_CCMR1_CC2S(1);   // CC2 channel is input, IC2 is mapped on TI2
+    tmr->CCMR1 |= STM32_TIM_CCMR1_IC1F(3);   // Activate some input filtering
     tmr->CCER   = 0;
     tmr->ARR    = 0xFFFF;
     tmr->CR1    = 1;                         // start

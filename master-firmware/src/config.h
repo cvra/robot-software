@@ -18,6 +18,7 @@ void config_init(void);
  * @note Panics if the ID is unknown.
  */
 float config_get_scalar(const char *id);
+int config_get_integer(const char *id);
 
 /* Macro to easily find a parameter from path */
 #define PARAMETER(s) parameter_find(&global_config, (s))

@@ -5,7 +5,6 @@
 
 #include "trajectory_manager/trajectory_manager_utils.h"
 #include "base/map.h"
-#include "robot_parameters.h"
 #include "math_helpers.h"
 #include "beacon_helpers.h"
 
@@ -72,8 +71,8 @@ void trajectory_align_with_wall(struct _robot *robot, messagebus_t *bus)
     /* Disable angle control */
     robot->mode = BOARD_MODE_DISTANCE_ONLY;
 
-    /* Move backwards until we hit a wall */
-    trajectory_d_rel(&robot->traj, -2000.);
+    /* Move in direction until we hit a wall */
+    trajectory_d_rel(&robot->traj, robot->calibration_direction * 2000.);
     trajectory_wait_for_end(robot, bus, TRAJ_END_COLLISION);
 
     /* Stop moving on collision */

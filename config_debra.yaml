@@ -1,15 +1,15 @@
 master:
     robot_size_x_mm: 205 # Front to back length
     opponent_size_x_mm_default: 300
-    calibration_direction: -1 # calibration side is on the back
+    calibration_direction: 1 # calibration side is on the front
     odometry:
-        external_encoder_ticks_per_mm: 163.62917844 # Calibrated, Computed 162.974661726
-        external_track_mm: 194.89695739             # Calibrated, CAD 194
-        left_wheel_correction_factor: -0.99952566   # Calibrated
-        right_wheel_correction_factor: 1.00047433   # Calibrated
+        external_encoder_ticks_per_mm: 162.974661726 # Computed 162.974661726
+        external_track_mm: 193.50199890              # CAD 194
+        left_wheel_correction_factor: -1.00028944
+        right_wheel_correction_factor: 0.99971050
     beacon:
         reflector_radius: 0.04 # in meters
-        angular_offset: 1.57 # in radians
+        angular_offset: -1.57 # in radians
     aversive:
         control:
             angle:

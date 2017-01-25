@@ -2,17 +2,19 @@
 #include <hal.h>
 
 #include <error/error.h>
+#include <timestamp/timestamp.h>
+#include <blocking_detection_manager/blocking_detection_manager.h>
+#include <trajectory_manager/trajectory_manager_utils.h>
+#include <obstacle_avoidance/obstacle_avoidance.h>
+
 #include "priorities.h"
-#include "blocking_detection_manager/blocking_detection_manager.h"
-#include "trajectory_manager/trajectory_manager_utils.h"
-#include "obstacle_avoidance/obstacle_avoidance.h"
 #include "robot_helpers/math_helpers.h"
 #include "robot_helpers/trajectory_helpers.h"
 #include "robot_helpers/strategy_helpers.h"
 #include "robot_helpers/beacon_helpers.h"
-#include "robot_parameters.h"
 #include "base/base_controller.h"
 #include "base/map.h"
+#include "config.h"
 #include "main.h"
 
 #include "strategy.h"
@@ -26,10 +28,10 @@ void strategy_play_game(void* robot);
 static void wait_for_starter(void)
 {
     /* Wait for a rising edge */
-    while (palReadPad(GPIOE, GPIOE_STARTER)) {
+    while (palReadPad(GPIOF, GPIOF_START)) {
         chThdSleepMilliseconds(10);
     }
-    while (!palReadPad(GPIOE, GPIOE_STARTER)) {
+    while (!palReadPad(GPIOF, GPIOF_START)) {
         chThdSleepMilliseconds(10);
     }
 }
@@ -46,9 +48,12 @@ bool strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg)
     messagebus_topic_t* proximity_beacon_topic = messagebus_find_topic_blocking(&bus, "/proximity_beacon");
     messagebus_topic_read(proximity_beacon_topic, &beacon_signal, sizeof(beacon_signal));
 
-    float x_opp, y_opp;
-    beacon_cartesian_convert(&robot->pos, 1000 * beacon_signal.distance, beacon_signal.heading, &x_opp, &y_opp);
-    map_set_opponent_obstacle(0, x_opp, y_opp, robot->opponent_size * 1.25, robot->robot_size);
+    // only consider recent beacon signal
+    if (timestamp_duration_s(beacon_signal.timestamp, timestamp_get()) < TRAJ_MAX_TIME_DELAY_OPPONENT_DETECTION) {
+        float x_opp, y_opp;
+        beacon_cartesian_convert(&robot->pos, 1000 * beacon_signal.distance, beacon_signal.heading, &x_opp, &y_opp);
+        map_set_opponent_obstacle(0, x_opp, y_opp, robot->opponent_size * 1.25, robot->robot_size);
+    }
 
     /* Compute path */
     oa_reset();
@@ -107,7 +112,7 @@ void strategy_play_game(void* _robot)
     enum strat_color_t color = YELLOW;
 
     /* Initialize map and path planner */
-    map_init(robot->robot_size);
+    map_init(config_get_integer("master/robot_size_x_mm"));
 
     /* Autoposition robot */
     wait_for_autoposition_signal();
@@ -137,7 +142,7 @@ void strategy_play_game(void* _robot)
 
         /* Go back to home */
         i = 0;
-        while (!strategy_goto_avoid(robot, 900, 200, 0)) {
+        while (!strategy_goto_avoid(robot, 600, 200, 90)) {
             DEBUG("Try #%d", i);
             i++;
         }

@@ -22,7 +22,6 @@
 #include "config.h"
 #include <parameter/parameter_msgpack.h>
 #include <cmp_mem_access/cmp_mem_access.h>
-#include "robot_parameters.h"
 #include "motor_manager.h"
 #include "stream.h"
 #include "malloc_lock.h"
@@ -228,13 +227,13 @@ int main(void) {
     }
 
     sntp_init();
-    uavcan_node_start(10);
     rpc_server_init();
     message_server_init();
     http_server_start();
 
     init_base_motors();
     config_load_from_flash();
+    uavcan_node_start(10);
 
     /* Base init */
     encoder_start();

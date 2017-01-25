@@ -8,7 +8,6 @@
 
 #include "main.h"
 #include "timestamp/timestamp.h"
-#include "robot_parameters.h"
 #include "motor_manager.h"
 #include "unix_timestamp.h"
 
