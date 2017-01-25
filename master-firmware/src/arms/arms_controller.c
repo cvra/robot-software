@@ -35,7 +35,6 @@ void arms_init(void)
     scara_set_motor_direction(&left_arm,
         config_get_scalar("master/arms/left/shoulder_dir"),
         config_get_scalar("master/arms/left/elbow_dir"));
-    left_arm.shoulder_mode = SHOULDER_BACK;
 
     /* Configure right arm */
     scara_init(&right_arm);
@@ -53,7 +52,6 @@ void arms_init(void)
     scara_set_motor_direction(&right_arm,
         config_get_scalar("master/arms/right/shoulder_dir"),
         config_get_scalar("master/arms/right/elbow_dir"));
-    left_arm.shoulder_mode = SHOULDER_BACK;
 }
 
 float arms_motor_auto_index(const char* motor_name, int motor_dir, float motor_speed)
