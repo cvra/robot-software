@@ -16,11 +16,12 @@ TEST_GROUP(ArmTestGroup)
 {
     scara_t arm;
     scara_trajectory_t traj;
+    float arbitraryLengths[2] = {100, 50};
 
     void setup()
     {
         scara_init(&arm);
-        scara_set_physical_parameters(&arm);
+        scara_set_physical_parameters(&arm, arbitraryLengths[0], arbitraryLengths[1]);
         arm.offset_rotation = M_PI / 2;
         scara_trajectory_init(&traj);
     }
@@ -33,13 +34,13 @@ TEST_GROUP(ArmTestGroup)
     }
 };
 
-IGNORE_TEST(ArmTestGroup, AllControlSystemInitialized)
-{
-    scara_init(&arm);
-    CHECK_EQUAL(1, arm.shoulder.manager.enabled);
-    CHECK_EQUAL(1, arm.elbow.manager.enabled);
-    CHECK_EQUAL(1, arm.z_axis.manager.enabled);
-}
+// IGNORE_TEST(ArmTestGroup, AllControlSystemInitialized)
+// {
+//     scara_init(&arm);
+//     CHECK_EQUAL(1, arm.shoulder.manager.enabled);
+//     CHECK_EQUAL(1, arm.elbow.manager.enabled);
+//     CHECK_EQUAL(1, arm.z_axis.manager.enabled);
+// }
 
 IGNORE_TEST(ArmTestGroup, LagCompensationIsInitialized)
 {
@@ -57,11 +58,11 @@ IGNORE_TEST(ArmTestGroup, ShoulderModeIsSetToBack)
 
 IGNORE_TEST(ArmTestGroup, PhysicalParametersMakeSense)
 {
-    scara_set_physical_parameters(&arm);
+    scara_set_physical_parameters(&arm, 100, 50);
 
     /* Length must be greater than zero. */
-    CHECK(arm.length[0] > 0);
-    CHECK(arm.length[1] > 0);
+    CHECK_EQUAL(100, arm.length[0]);
+    CHECK_EQUAL(50, arm.length[1]);
 }
 
 IGNORE_TEST(ArmTestGroup, ExecuteTrajectoryCopiesData)
@@ -125,13 +126,13 @@ IGNORE_TEST(ArmTestGroup, ExecuteTrajectoryCopiesData)
 //     CHECK_EQUAL(1, arm.trajectory_semaphore.count);
 // }
 
-IGNORE_TEST(ArmTestGroup, ArmManageEmptyTrajectoryDisablesControl)
-{
-    scara_manage(&arm);
-    CHECK_EQUAL(0, arm.shoulder.manager.enabled);
-    CHECK_EQUAL(0, arm.elbow.manager.enabled);
-    CHECK_EQUAL(0, arm.z_axis.manager.enabled);
-}
+// IGNORE_TEST(ArmTestGroup, ArmManageEmptyTrajectoryDisablesControl)
+// {
+//     scara_manage(&arm);
+//     CHECK_EQUAL(0, arm.shoulder.manager.enabled);
+//     CHECK_EQUAL(0, arm.elbow.manager.enabled);
+//     CHECK_EQUAL(0, arm.z_axis.manager.enabled);
+// }
 
 
 IGNORE_TEST(ArmTestGroup, ArmManageUpdatesLastLoop)
@@ -142,76 +143,76 @@ IGNORE_TEST(ArmTestGroup, ArmManageUpdatesLastLoop)
     CHECK_EQUAL(42, arm.last_loop)
 }
 
-IGNORE_TEST(ArmTestGroup, ArmFinishedTrajectoryHasEnabledControl)
-{
-    scara_time_set(0);
-    scara_trajectory_append_point(&traj, 100, 10, 10, COORDINATE_ARM, 1.);
-    scara_trajectory_append_point(&traj, 100, 10, 10, COORDINATE_ARM, 10.);
-    scara_do_trajectory(&arm, &traj);
+// IGNORE_TEST(ArmTestGroup, ArmFinishedTrajectoryHasEnabledControl)
+// {
+//     scara_time_set(0);
+//     scara_trajectory_append_point(&traj, 100, 10, 10, COORDINATE_ARM, 1.);
+//     scara_trajectory_append_point(&traj, 100, 10, 10, COORDINATE_ARM, 10.);
+//     scara_do_trajectory(&arm, &traj);
 
-    scara_time_set(20 * 1000000);
-    scara_manage(&arm);
-    CHECK_EQUAL(1, arm.shoulder.manager.enabled);
-    CHECK_EQUAL(1, arm.elbow.manager.enabled);
-    CHECK_EQUAL(1, arm.z_axis.manager.enabled);
-}
+//     scara_time_set(20 * 1000000);
+//     scara_manage(&arm);
+//     CHECK_EQUAL(1, arm.shoulder.manager.enabled);
+//     CHECK_EQUAL(1, arm.elbow.manager.enabled);
+//     CHECK_EQUAL(1, arm.z_axis.manager.enabled);
+// }
 
-IGNORE_TEST(ArmTestGroup, ArmManageChangesConsign)
-{
-    scara_trajectory_init(&traj);
-    scara_trajectory_append_point(&traj, 100, 100, 10, COORDINATE_ARM, 1.);
-    scara_do_trajectory(&arm, &traj);
+// IGNORE_TEST(ArmTestGroup, ArmManageChangesConsign)
+// {
+//     scara_trajectory_init(&traj);
+//     scara_trajectory_append_point(&traj, 100, 100, 10, COORDINATE_ARM, 1.);
+//     scara_do_trajectory(&arm, &traj);
 
-    scara_time_set(8 * 1000000);
-    scara_manage(&arm);
-    CHECK(0 != cs_get_consign(&arm.shoulder.manager));
-    CHECK(0 != cs_get_consign(&arm.elbow.manager));
-    CHECK(0 != cs_get_consign(&arm.z_axis.manager));
-}
+//     scara_time_set(8 * 1000000);
+//     scara_manage(&arm);
+//     CHECK(0 != cs_get_consign(&arm.shoulder.manager));
+//     CHECK(0 != cs_get_consign(&arm.elbow.manager));
+//     CHECK(0 != cs_get_consign(&arm.z_axis.manager));
+// }
 
-IGNORE_TEST(ArmTestGroup, ArmManageEnablesConsignWithReachablePoint)
-{
-    scara_trajectory_init(&traj);
-    cs_disable(&arm.shoulder.manager);
-    cs_disable(&arm.elbow.manager);
-    cs_disable(&arm.z_axis.manager);
+// IGNORE_TEST(ArmTestGroup, ArmManageEnablesConsignWithReachablePoint)
+// {
+//     scara_trajectory_init(&traj);
+//     cs_disable(&arm.shoulder.manager);
+//     cs_disable(&arm.elbow.manager);
+//     cs_disable(&arm.z_axis.manager);
 
-    scara_trajectory_append_point_with_length(&traj, 100, 100, 100, COORDINATE_ARM, 1., 100, 100);
-    scara_do_trajectory(&arm, &traj);
+//     scara_trajectory_append_point_with_length(&traj, 100, 100, 100, COORDINATE_ARM, 1., 100, 100);
+//     scara_do_trajectory(&arm, &traj);
 
-    scara_time_set(8 * 1000000);
-    scara_manage(&arm);
+//     scara_time_set(8 * 1000000);
+//     scara_manage(&arm);
 
-    CHECK_EQUAL(1, arm.shoulder.manager.enabled);
-}
+//     CHECK_EQUAL(1, arm.shoulder.manager.enabled);
+// }
 
-IGNORE_TEST(ArmTestGroup, ArmManageDisablesArmIfTooFar)
-{
-    scara_trajectory_init(&traj);
+// IGNORE_TEST(ArmTestGroup, ArmManageDisablesArmIfTooFar)
+// {
+//     scara_trajectory_init(&traj);
 
-    scara_trajectory_append_point_with_length(&traj, 100, 100, 100, COORDINATE_ARM, 1., 10, 10);
-    scara_do_trajectory(&arm, &traj);
+//     scara_trajectory_append_point_with_length(&traj, 100, 100, 100, COORDINATE_ARM, 1., 10, 10);
+//     scara_do_trajectory(&arm, &traj);
 
-    scara_time_set(8 * 1000000);
-    scara_manage(&arm);
+//     scara_time_set(8 * 1000000);
+//     scara_manage(&arm);
 
-    CHECK_EQUAL(0, arm.shoulder.manager.enabled);
-}
+//     CHECK_EQUAL(0, arm.shoulder.manager.enabled);
+// }
 
-IGNORE_TEST(ArmTestGroup, ArmShutdownDisablesControlSystems)
-{
-    scara_trajectory_init(&traj);
-    scara_trajectory_append_point(&traj, 100, 100, 100, COORDINATE_ARM, 1.);
-    scara_do_trajectory(&arm, &traj);
+// IGNORE_TEST(ArmTestGroup, ArmShutdownDisablesControlSystems)
+// {
+//     scara_trajectory_init(&traj);
+//     scara_trajectory_append_point(&traj, 100, 100, 100, COORDINATE_ARM, 1.);
+//     scara_do_trajectory(&arm, &traj);
 
-    scara_manage(&arm);
-    CHECK_EQUAL(1, arm.shoulder.manager.enabled);
+//     scara_manage(&arm);
+//     CHECK_EQUAL(1, arm.shoulder.manager.enabled);
 
-    scara_shutdown(&arm);
-    scara_manage(&arm);
+//     scara_shutdown(&arm);
+//     scara_manage(&arm);
 
-    CHECK_EQUAL(0, arm.shoulder.manager.enabled);
-}
+//     CHECK_EQUAL(0, arm.shoulder.manager.enabled);
+// }
 
 
 IGNORE_TEST(ArmTestGroup, CurrentPointComputation)

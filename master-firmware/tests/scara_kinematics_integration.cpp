@@ -21,11 +21,12 @@ TEST_GROUP(kinematicsTestGroup)
 
     scara_trajectory_t traj;
     scara_t arm;
+    float arbitraryLengths[2] = {100, 50};
 
     void setup()
     {
         scara_init(&arm);
-        scara_set_physical_parameters(&arm);
+        scara_set_physical_parameters(&arm, arbitraryLengths[0], arbitraryLengths[1]);
         arm.offset_rotation = M_PI / 2;
         scara_trajectory_init(&traj);
     }
