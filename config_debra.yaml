@@ -22,6 +22,21 @@ master:
                 ki: 0.
                 kd: 0.
                 ilimit: 5000.
+    arms:
+        upperarm_length: 140. # in mm
+        forearm_length: 72. # in mm
+        left:
+            offset_x: 0.   # in mm
+            offset_y: 120. # in mm
+            offset_a: 1.57 # in radians
+            shoulder_dir: -1
+            elbow_dir: -1
+        right:
+            offset_x: 0.   # in mm
+            offset_y: -120. # in mm
+            offset_a: -1.57 # in radians
+            shoulder_dir: -1
+            elbow_dir: -1
 
 actuator:
     left-wheel:

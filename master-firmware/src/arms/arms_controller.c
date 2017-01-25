@@ -1,6 +1,7 @@
 #include <ch.h>
 #include "priorities.h"
 #include "main.h"
+#include "config.h"
 
 #include "can/bus_enumerator.h"
 #include "robot_helpers/motor_helpers.h"
@@ -18,20 +19,40 @@ scara_t right_arm;
 
 void arms_init(void)
 {
+    /* Configure left arm */
     scara_init(&left_arm);
     scara_set_shoulder_callback(&left_arm, set_left_shoulder_position);
     scara_set_elbow_callback(&left_arm, set_left_elbow_position);
-    scara_set_physical_parameters(&left_arm, 140.f, 72.f); // Arm lengths in mm
-    scara_set_offset(&left_arm, 0.f, 120.f, 1.57f);
-    scara_set_motor_direction(&left_arm, -1, -1);
+
+    scara_set_physical_parameters(&left_arm,
+        config_get_scalar("master/arms/upperarm_length"),
+        config_get_scalar("master/arms/forearm_length"));
+
+    scara_set_offset(&left_arm, config_get_scalar("master/arms/left/offset_x"),
+        config_get_scalar("master/arms/left/offset_y"),
+        config_get_scalar("master/arms/left/offset_a"));
+
+    scara_set_motor_direction(&left_arm,
+        config_get_scalar("master/arms/left/shoulder_dir"),
+        config_get_scalar("master/arms/left/elbow_dir"));
     left_arm.shoulder_mode = SHOULDER_BACK;
 
+    /* Configure right arm */
     scara_init(&right_arm);
     scara_set_shoulder_callback(&right_arm, set_right_shoulder_position);
     scara_set_elbow_callback(&right_arm, set_right_elbow_position);
-    scara_set_physical_parameters(&right_arm, 140.f, 72.f); // Arm lengths in mm
-    scara_set_offset(&right_arm, 0.f, -120.f, -1.57f);
-    scara_set_motor_direction(&right_arm, -1, -1);
+
+    scara_set_physical_parameters(&right_arm,
+        config_get_scalar("master/arms/upperarm_length"),
+        config_get_scalar("master/arms/forearm_length"));
+
+    scara_set_offset(&right_arm, config_get_scalar("master/arms/right/offset_x"),
+        config_get_scalar("master/arms/right/offset_y"),
+        config_get_scalar("master/arms/right/offset_a"));
+
+    scara_set_motor_direction(&right_arm,
+        config_get_scalar("master/arms/right/shoulder_dir"),
+        config_get_scalar("master/arms/right/elbow_dir"));
     left_arm.shoulder_mode = SHOULDER_BACK;
 }
 

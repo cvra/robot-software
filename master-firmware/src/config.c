@@ -19,6 +19,13 @@ static parameter_t aversive_distance_kp, aversive_distance_ki, aversive_distance
 static parameter_namespace_t beacon_config;
 static parameter_t beacon_reflector_radius, beacon_angular_offset;
 
+static parameter_namespace_t arms_config, arms_right_config, arms_left_config;
+static parameter_t upperarm_length, forearm_length;
+static parameter_t left_offset_x, left_offset_y, left_offset_a;
+static parameter_t left_shoulder_dir, left_elbow_dir;
+static parameter_t right_offset_x, right_offset_y, right_offset_a;
+static parameter_t right_shoulder_dir, right_elbow_dir;
+
 void config_init(void)
 {
     parameter_namespace_declare(&global_config, NULL, NULL);
@@ -52,6 +59,27 @@ void config_init(void)
     parameter_scalar_declare(&aversive_distance_ki, &aversive_distance, "ki");
     parameter_scalar_declare(&aversive_distance_kd, &aversive_distance, "kd");
     parameter_scalar_declare(&aversive_distance_ilimit, &aversive_distance, "ilimit");
+
+#ifdef DEBRA
+    parameter_namespace_declare(&arms_config, &master_config, "arms");
+
+    parameter_scalar_declare(&upperarm_length, &arms_config, "upperarm_length");
+    parameter_scalar_declare(&forearm_length, &arms_config, "forearm_length");
+
+    parameter_namespace_declare(&arms_left_config, &arms_config, "left");
+    parameter_scalar_declare(&left_offset_x, &arms_left_config, "offset_x");
+    parameter_scalar_declare(&left_offset_y, &arms_left_config, "offset_y");
+    parameter_scalar_declare(&left_offset_a, &arms_left_config, "offset_a");
+    parameter_scalar_declare(&left_shoulder_dir, &arms_left_config, "shoulder_dir");
+    parameter_scalar_declare(&left_elbow_dir, &arms_left_config, "elbow_dir");
+
+    parameter_namespace_declare(&arms_right_config, &arms_config, "right");
+    parameter_scalar_declare(&right_offset_x, &arms_right_config, "offset_x");
+    parameter_scalar_declare(&right_offset_y, &arms_right_config, "offset_y");
+    parameter_scalar_declare(&right_offset_a, &arms_right_config, "offset_a");
+    parameter_scalar_declare(&right_shoulder_dir, &arms_right_config, "shoulder_dir");
+    parameter_scalar_declare(&right_elbow_dir, &arms_right_config, "elbow_dir");
+#endif
 }
 
 float config_get_scalar(const char *id)
