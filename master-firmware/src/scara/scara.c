@@ -43,6 +43,12 @@ void scara_set_elbow_callback(scara_t* arm, void (*set_elbow_position)(void*, fl
     arm->elbow_args = elbow_args;
 }
 
+void scara_set_wrist_callback(scara_t* arm, void (*set_wrist_position)(void*, float), void* wrist_args)
+{
+    arm->set_wrist_position = set_wrist_position;
+    arm->wrist_args = wrist_args;
+}
+
 void scara_goto_arm(scara_t* arm, float x, float y)
 {
     point_t target = {.x = x, .y = y};

@@ -19,14 +19,17 @@ typedef struct {
     /* Motor control callbacks */
     void (*set_shoulder_position)(void*, float); /**< Callback function to set shoulder position. */
     void (*set_elbow_position)(void*, float);    /**< Callback function to set elbow position. */
+    void (*set_wrist_position)(void*, float);    /**< Callback function to set wrist position. */
 
     /* Motor control args */
     void* shoulder_args;
     void* elbow_args;
+    void* wrist_args;
 
     /* Motor indexes */
     float shoulder_index;
     float elbow_index;
+    float wrist_index;
 
     /* Physical parameters. */
     float length[2];                  /**< Length of the 2 arms elements. */
@@ -48,6 +51,7 @@ void scara_set_offset(scara_t* arm, float offset_x, float offset_y, float offset
 
 void scara_set_shoulder_callback(scara_t* arm, void (*set_shoulder_position)(void*, float), void* shoulder_args);
 void scara_set_elbow_callback(scara_t* arm, void (*set_elbow_position)(void*, float), void* elbow_args);
+void scara_set_wrist_callback(scara_t* arm, void (*set_wrist_position)(void*, float), void* wrist_args);
 
 /* Goto position in arm local coordinate system */
 void scara_goto_arm(scara_t* arm, float x, float y);

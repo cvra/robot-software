@@ -285,8 +285,11 @@ void init_arm_motors(void)
 {
     motor_manager_create_driver(&motor_manager, "left-shoulder");
     motor_manager_create_driver(&motor_manager, "left-elbow");
+    motor_manager_create_driver(&motor_manager, "left-wrist");
+
     motor_manager_create_driver(&motor_manager, "right-shoulder");
     motor_manager_create_driver(&motor_manager, "right-elbow");
+    motor_manager_create_driver(&motor_manager, "right-wrist");
 }
 
 void init_hands(void)

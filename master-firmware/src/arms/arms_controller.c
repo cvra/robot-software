@@ -24,9 +24,11 @@ void arms_init(void)
     scara_init(&left_arm);
     static cvra_arm_motor_t left_shoulder = {.m = &motor_manager, .direction = -1};
     static cvra_arm_motor_t left_elbow = {.m = &motor_manager, .direction = -1};
+    static cvra_arm_motor_t left_wrist = {.m = &motor_manager, .direction = -1};
 
     scara_set_shoulder_callback(&left_arm, set_left_shoulder_position, &left_shoulder);
     scara_set_elbow_callback(&left_arm, set_left_elbow_position, &left_elbow);
+    scara_set_wrist_callback(&left_arm, set_left_wrist_position, &left_wrist);
 
     scara_set_physical_parameters(&left_arm,
         config_get_scalar("master/arms/upperarm_length"),
@@ -40,9 +42,11 @@ void arms_init(void)
     scara_init(&right_arm);
     static cvra_arm_motor_t right_shoulder = {.m = &motor_manager, .direction = -1};
     static cvra_arm_motor_t right_elbow = {.m = &motor_manager, .direction = -1};
+    static cvra_arm_motor_t right_wrist = {.m = &motor_manager, .direction = -1};
 
     scara_set_shoulder_callback(&right_arm, set_right_shoulder_position, &right_shoulder);
     scara_set_elbow_callback(&right_arm, set_right_elbow_position, &right_elbow);
+    scara_set_wrist_callback(&right_arm, set_right_wrist_position, &right_wrist);
 
     scara_set_physical_parameters(&right_arm,
         config_get_scalar("master/arms/upperarm_length"),

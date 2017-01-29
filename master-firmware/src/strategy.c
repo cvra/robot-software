@@ -124,10 +124,12 @@ void strategy_play_game(void* _robot)
     static const float ARMS_MOTOR_INDEXING_SPEED = 0.8;
     left_arm.shoulder_index = arms_motor_auto_index("left-shoulder", 1, ARMS_MOTOR_INDEXING_SPEED);
     left_arm.elbow_index = arms_motor_auto_index("left-elbow", 1, ARMS_MOTOR_INDEXING_SPEED);
+    left_arm.wrist_index = arms_motor_auto_index("left-wrist", 1, ARMS_MOTOR_INDEXING_SPEED);
     scara_goto_robot(&left_arm, -150, 70);
 
     right_arm.shoulder_index = arms_motor_auto_index("right-shoulder", -1, ARMS_MOTOR_INDEXING_SPEED);
     right_arm.elbow_index = arms_motor_auto_index("right-elbow", -1, ARMS_MOTOR_INDEXING_SPEED);
+    right_arm.wrist_index = arms_motor_auto_index("right-wrist", -1, ARMS_MOTOR_INDEXING_SPEED);
     scara_goto_robot(&right_arm, 150, -70);
 
     /* Autoposition robot */
