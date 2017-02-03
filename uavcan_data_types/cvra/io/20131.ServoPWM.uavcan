@@ -1,0 +1,8 @@
+#
+# Servo output position
+#
+
+# UAVCAN node ID for unicast addressing
+uint7 node_id
+
+float16[4] servo_pos

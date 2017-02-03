@@ -268,6 +268,15 @@ void init_base_motors(void)
     motor_manager_create_driver(&motor_manager, "right-wheel");
 }
 
+
+void init_hands(void)
+{
+    bus_enumerator_add_node(&bus_enumerator, "left-fingers", NULL);
+    bus_enumerator_add_node(&bus_enumerator, "left-sensors", NULL);
+    bus_enumerator_add_node(&bus_enumerator, "right-fingers", NULL);
+    bus_enumerator_add_node(&bus_enumerator, "right-sensors", NULL);
+}
+
 void __stack_chk_fail(void)
 {
     chSysHalt("Stack smashing detected");
