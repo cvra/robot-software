@@ -40,7 +40,8 @@ void init_base_motors(void);
 void init_arm_motors(void);
 
 /* Command line related */
-#define SHELL_WA_SIZE   THD_WORKING_AREA_SIZE(2048)
+THD_WORKING_AREA(shell_wa, 2048);
+
 static const ShellConfig shell_cfg1 = {
     (BaseSequentialStream *)&SDU1,
     commands
@@ -263,7 +264,7 @@ int main(void) {
     /* main thread, spawns a shell on USB connection. */
     while (1) {
         if (!shelltp) {
-            shelltp = shellCreate(&shell_cfg1, SHELL_WA_SIZE, USB_SHELL_PRIO);
+            shelltp = shellCreateStatic(&shell_cfg1, &shell_wa, sizeof(shell_wa), USB_SHELL_PRIO);
         } else if (chThdTerminatedX(shelltp)) {
             chThdRelease(shelltp);    /* Recovers memory of the previous shell.   */
             shelltp = NULL;           /* Triggers spawning of a new shell.        */
