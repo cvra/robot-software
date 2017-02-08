@@ -53,12 +53,10 @@ ifeq ($(USE_BOOTLOADER),)
 endif
 
 # Config file depending on robot
-ifeq ($(DEBRA),)
-  CONFIG_YAML = ../config.yaml
-  DEBRA = yes
-else
+ifeq ($(DEBRA), yes)
   CONFIG_YAML = ../config_debra.yaml
-  DEBRA = no
+else
+  CONFIG_YAML = ../config.yaml
 endif
 
 #

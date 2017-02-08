@@ -19,10 +19,12 @@ static parameter_t aversive_distance_kp, aversive_distance_ki, aversive_distance
 static parameter_namespace_t beacon_config;
 static parameter_t beacon_reflector_radius, beacon_angular_offset;
 
+#ifdef DEBRA
 static parameter_namespace_t arms_config, arms_right_config, arms_left_config;
 static parameter_t upperarm_length, forearm_length;
 static parameter_t left_offset_x, left_offset_y, left_offset_a;
 static parameter_t right_offset_x, right_offset_y, right_offset_a;
+#endif
 
 void config_init(void)
 {
