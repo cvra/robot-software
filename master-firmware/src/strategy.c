@@ -124,19 +124,8 @@ bool strategy_goto_avoid_retry(struct _robot* robot, int x_mm, int y_mm, int a_d
     return finished;
 }
 
-
-void strategy_play_game(void* _robot)
+void strategy_debra_play_game(struct _robot* robot, enum strat_color_t color)
 {
-    chRegSetThreadName("strategy");
-
-    struct _robot* robot = (struct _robot*)_robot;
-    enum strat_color_t color = YELLOW;
-
-    /* Initialize map and path planner */
-    map_init(config_get_integer("master/robot_size_x_mm"));
-
-    NOTICE("Strategy is ready, waiting for autopositioning signals");
-
     /* Autoposition arms */
     wait_for_autoposition_signal();
     NOTICE("Positioning arms");
@@ -163,15 +152,10 @@ void strategy_play_game(void* _robot)
     NOTICE("Starting game");
 
     while (true) {
-        /* Go to lunar module */
+        /* Go close to lunar module */
         strategy_goto_avoid_retry(robot, 1050, 1180, 45, -1);
 
-        /* Push lunar module */
-        // trajectory_d_rel(&robot->traj, 100.);
-        // trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
-        // trajectory_d_rel(&robot->traj, -100.);
-        // trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
-
+        /* Push lunar module with arm */
         strategy_arm_goto(robot, &left_arm, 960, 1460, 45);
         chThdSleepMilliseconds(5000);
         scara_goto_robot(&left_arm, -150, 70, RADIANS(45));
@@ -184,6 +168,56 @@ void strategy_play_game(void* _robot)
 
         wait_for_starter();
     }
+}
+
+void strategy_sandoi_play_game(struct _robot* robot, enum strat_color_t color)
+{
+    /* Autoposition robot */
+    wait_for_autoposition_signal();
+    NOTICE("Positioning robot\n");
+    strategy_auto_position(600, 200, 90, robot->robot_size, color, robot, &bus);
+    NOTICE("Robot positioned at x: 600[mm], y: 200[mm], a: 90[deg]\n");
+
+    /* Wait for starter to begin */
+    wait_for_starter();
+    NOTICE("Starting game\n");
+
+    while (true) {
+        /* Go to lunar module */
+        strategy_goto_avoid_retry(robot, 780, 1340, 45, -1);
+
+        /* Push lunar module */
+        trajectory_d_rel(&robot->traj, 100.);
+        trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
+        trajectory_d_rel(&robot->traj, -100.);
+        trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
+
+        /* Go back to home */
+        strategy_goto_avoid_retry(robot, 600, 200, 90, -1);
+
+        DEBUG("Game ended!\nInsert coin to play more.\n");
+        chThdSleepSeconds(1);
+
+        wait_for_starter();
+    }
+}
+
+void strategy_play_game(void* _robot)
+{
+    chRegSetThreadName("strategy");
+
+    struct _robot* robot = (struct _robot*)_robot;
+    enum strat_color_t color = YELLOW;
+
+    /* Initialize map and path planner */
+    map_init(config_get_integer("master/robot_size_x_mm"));
+    NOTICE("Strategy is ready, waiting for autopositioning signal");
+
+#ifdef DEBRA
+    strategy_debra_play_game(robot, color);
+#else
+    strategy_sandoi_play_game(robot, color);
+#endif
 }
 
 void strategy_start(void)
