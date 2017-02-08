@@ -104,6 +104,26 @@ bool strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg)
     return false;
 }
 
+bool strategy_goto_avoid_retry(struct _robot* robot, int x_mm, int y_mm, int a_deg, int num_retries)
+{
+    bool finished = false;
+    int counter = 0;
+
+    while (!finished) {
+        DEBUG("Try #%d", counter);
+        finished = strategy_goto_avoid(robot, x_mm, y_mm, a_deg);
+        counter++;
+
+        // Exit when maximum number of retries is reached
+        // Negative number of retries means infinite number of retries
+        if (num_retries >= 0 && counter > num_retries) {
+            break;
+        }
+    }
+
+    return finished;
+}
+
 
 void strategy_play_game(void* _robot)
 {
@@ -142,15 +162,9 @@ void strategy_play_game(void* _robot)
     wait_for_starter();
     NOTICE("Starting game");
 
-    int i;
-
     while (true) {
         /* Go to lunar module */
-        i = 0;
-        while (!strategy_goto_avoid(robot, 1050, 1180, 45)) {
-            DEBUG("Try #%d", i);
-            i++;
-        }
+        strategy_goto_avoid_retry(robot, 1050, 1180, 45, -1);
 
         /* Push lunar module */
         // trajectory_d_rel(&robot->traj, 100.);
@@ -163,11 +177,7 @@ void strategy_play_game(void* _robot)
         scara_goto_robot(&left_arm, -150, 70, RADIANS(45));
 
         /* Go back to home */
-        i = 0;
-        while (!strategy_goto_avoid(robot, 600, 200, 90)) {
-            DEBUG("Try #%d", i);
-            i++;
-        }
+        strategy_goto_avoid_retry(robot, 600, 200, 90, -1);
 
         DEBUG("Game ended!\nInsert coin to play more.");
         chThdSleepSeconds(1);
