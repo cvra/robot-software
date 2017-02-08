@@ -49,7 +49,7 @@ void scara_set_wrist_callback(scara_t* arm, void (*set_wrist_position)(void*, fl
     arm->wrist_args = wrist_args;
 }
 
-void scara_goto_arm(scara_t* arm, float x, float y)
+void scara_goto_arm(scara_t* arm, float x, float y, float a_rad)
 {
     point_t target = {.x = x, .y = y};
 
@@ -68,9 +68,11 @@ void scara_goto_arm(scara_t* arm, float x, float y)
     /* p1 now contains the correct elbow pos. */
     float alpha = scara_compute_shoulder_angle(p1, target);
     float beta = scara_compute_elbow_angle(p1, target);
+    float gamma = a_rad;
 
     /* This is due to mecanical construction of the arms. */
-    beta = beta - alpha;
+    gamma -= beta;
+    beta -= alpha;
 
     /* The arm cannot make one full turn. */
     if (beta < -M_PI) {
@@ -80,29 +82,30 @@ void scara_goto_arm(scara_t* arm, float x, float y)
         beta = beta - 2 * M_PI;
     }
 
-    NOTICE("Inverse kinematics: alpha [%.3f] \tbeta [%.3f]", alpha, beta);
+    NOTICE("Inverse kinematics: alpha [%.3f] \tbeta [%.3f] \tgamma [%.3f]", alpha, beta, gamma);
 
     arm->set_shoulder_position(arm->shoulder_args, alpha - arm->shoulder_index);
     arm->set_elbow_position(arm->elbow_args, beta - arm->elbow_index);
+    arm->set_wrist_position(arm->wrist_args, gamma - arm->wrist_index);
 }
 
-void scara_goto_robot(scara_t* arm, float x, float y)
+void scara_goto_robot(scara_t* arm, float x, float y, float a_rad)
 {
-    point_t target_robot = {.x = x, .y = y};
+    pose2d_t target_robot = {.translation = {.x = x, .y = y}, .heading = a_rad};
 
-    point_t target_arm = scara_coordinate_robot2arm(target_robot, arm->offset_xy, arm->offset_rotation);
+    pose2d_t target_arm = scara_pose_robot2arm(target_robot, arm->offset_xy, arm->offset_rotation);
 
-    scara_goto_arm(arm, target_arm.x, target_arm.y);
+    scara_goto_arm(arm, target_arm.translation.x, target_arm.translation.y, target_arm.heading);
 }
 
-void scara_goto_table(scara_t* arm, float x, float y, float robot_x, float robot_y, float robot_a)
+void scara_goto_table(scara_t* arm, float x, float y, float a_rad, float robot_x, float robot_y, float robot_a_rad)
 {
-    point_t target_table = {.x = x, .y = y};
+    pose2d_t target_table = {.translation = {.x = x, .y = y}, .heading = a_rad};
     point_t robot_pos = {.x = robot_x, .y = robot_y};
 
-    point_t target_robot = scara_coordinate_table2robot(target_table, robot_pos, robot_a);
+    pose2d_t target_robot = scara_pose_table2robot(target_table, robot_pos, robot_a_rad);
 
-    scara_goto_robot(arm, target_robot.x, target_robot.y);
+    scara_goto_robot(arm, target_robot.translation.x, target_robot.translation.y, target_robot.heading);
 }
 
 

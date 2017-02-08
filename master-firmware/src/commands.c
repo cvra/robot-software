@@ -660,35 +660,28 @@ static void cmd_motor_index(BaseSequentialStream *chp, int argc, char *argv[])
     chprintf(chp, "Average index is %.4f\r\n", index);
 }
 
-static void cmd_scara_pos(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_scara_left(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc < 4) {
-        chprintf(chp, "Usage: scara_pos frame side x y\r\n");
+        chprintf(chp, "Usage: scara_left frame x y a\r\n");
         return;
     }
-    float x = atof(argv[2]);
-    float y = atof(argv[3]);
+    float x = atof(argv[1]);
+    float y = atof(argv[2]);
+    float a = atof(argv[3]);
 
-    chprintf(chp, "Moving %s arm to %f %f in %s frame\r\n", argv[1], x, y, argv[0]);
-
-    scara_t* arm;
-
-    if (strcmp("left", argv[1]) == 0) {
-        arm = &left_arm;
-    } else {
-        arm = &right_arm;
-    }
+    chprintf(chp, "Moving left arm to %f %f %f in %s frame\r\n", x, y, a, argv[0]);
 
     if (strcmp("robot", argv[0]) == 0) {
-        scara_goto_robot(arm, x, y);
+        scara_goto_robot(&left_arm, x, y, RADIANS(a));
     } else if (strcmp("table", argv[0]) == 0) {
         float robot_x = position_get_x_float(&robot.pos);
         float robot_y = position_get_y_float(&robot.pos);
         float robot_a = position_get_a_rad_float(&robot.pos);
 
-        scara_goto_table(arm, x, y, robot_x, robot_y, robot_a);
+        scara_goto_table(&left_arm, x, y, RADIANS(a), robot_x, robot_y, robot_a);
     } else {
-        scara_goto_arm(arm, x, y);
+        scara_goto_arm(&left_arm, x, y, RADIANS(a));
     }
 }
 
@@ -744,7 +737,7 @@ const ShellCommand commands[] = {
     {"autopos", cmd_autopos},
     {"motor_pos", cmd_motor_pos},
     {"motor_index", cmd_motor_index},
-    {"scara_pos", cmd_scara_pos},
+    {"scara_left", cmd_scara_left},
     {"trace", cmd_trace},
     {NULL, NULL}
 };

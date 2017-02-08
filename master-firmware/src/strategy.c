@@ -125,12 +125,12 @@ void strategy_play_game(void* _robot)
     left_arm.shoulder_index = arms_motor_auto_index("left-shoulder", 1, ARMS_MOTOR_INDEXING_SPEED);
     left_arm.elbow_index = arms_motor_auto_index("left-elbow", 1, ARMS_MOTOR_INDEXING_SPEED);
     left_arm.wrist_index = arms_motor_auto_index("left-wrist", 1, ARMS_MOTOR_INDEXING_SPEED);
-    scara_goto_robot(&left_arm, -150, 70);
+    scara_goto_robot(&left_arm, -150, 70, RADIANS(0));
 
     right_arm.shoulder_index = arms_motor_auto_index("right-shoulder", -1, ARMS_MOTOR_INDEXING_SPEED);
     right_arm.elbow_index = arms_motor_auto_index("right-elbow", -1, ARMS_MOTOR_INDEXING_SPEED);
     right_arm.wrist_index = arms_motor_auto_index("right-wrist", -1, ARMS_MOTOR_INDEXING_SPEED);
-    scara_goto_robot(&right_arm, 150, -70);
+    scara_goto_robot(&right_arm, 150, -70, RADIANS(0));
 
     /* Autoposition robot */
     wait_for_autoposition_signal();
@@ -158,9 +158,9 @@ void strategy_play_game(void* _robot)
         // trajectory_d_rel(&robot->traj, -100.);
         // trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
 
-        strategy_arm_goto(robot, &left_arm, 960, 1460);
+        strategy_arm_goto(robot, &left_arm, 960, 1460, 45);
         chThdSleepMilliseconds(5000);
-        scara_goto_robot(&left_arm, -150, 70);
+        scara_goto_robot(&left_arm, -150, 70, RADIANS(45));
 
         /* Go back to home */
         i = 0;

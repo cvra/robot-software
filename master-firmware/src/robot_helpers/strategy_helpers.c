@@ -3,6 +3,8 @@
 #include "trajectory_manager/trajectory_manager_utils.h"
 #include "blocking_detection_manager/blocking_detection_manager.h"
 #include "obstacle_avoidance/obstacle_avoidance.h"
+
+#include "math_helpers.h"
 #include "trajectory_helpers.h"
 #include "beacon_helpers.h"
 
@@ -56,11 +58,11 @@ void strategy_auto_position(
 }
 
 
-void strategy_arm_goto(struct _robot* robot, scara_t* arm, float x, float y)
+void strategy_arm_goto(struct _robot* robot, scara_t* arm, float x, float y, float a_deg)
 {
     float robot_x = position_get_x_float(&robot->pos);
     float robot_y = position_get_y_float(&robot->pos);
     float robot_a = position_get_a_rad_float(&robot->pos);
 
-    scara_goto_table(arm, x, y, robot_x, robot_y, robot_a);
+    scara_goto_table(arm, x, y, RADIANS(a_deg), robot_x, robot_y, robot_a);
 }

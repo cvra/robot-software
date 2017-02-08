@@ -54,13 +54,13 @@ void scara_set_elbow_callback(scara_t* arm, void (*set_elbow_position)(void*, fl
 void scara_set_wrist_callback(scara_t* arm, void (*set_wrist_position)(void*, float), void* wrist_args);
 
 /* Goto position in arm local coordinate system */
-void scara_goto_arm(scara_t* arm, float x, float y);
+void scara_goto_arm(scara_t* arm, float x, float y, float a_rad);
 
 /* Goto position in robot coordinate system */
-void scara_goto_robot(scara_t* arm, float x, float y);
+void scara_goto_robot(scara_t* arm, float x, float y, float a_rad);
 
 /* Goto position in table coordinate system */
-void scara_goto_table(scara_t* arm, float x, float y, float robot_x, float robot_y, float robot_a);
+void scara_goto_table(scara_t* arm, float x, float y, float a_rad, float robot_x, float robot_y, float robot_a_rad);
 
 void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj);
 
