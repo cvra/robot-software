@@ -2,6 +2,7 @@
 #include <hal.h>
 #include "uavcan/node.h"
 #include "bootloader_config.h"
+#include "debug.h"
 
 THD_FUNCTION(blinker, arg)
 {
@@ -25,6 +26,9 @@ int main(void)
 {
     halInit();
     chSysInit();
+
+    debug_init();
+    debug_msg("boot\n");
 
     blinker_start();
 
