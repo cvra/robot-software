@@ -17,4 +17,7 @@ float arms_motor_auto_index(const char* motor_name, int motor_dir, float motor_s
 /* Run arms controller thread */
 void arms_controller_start(void);
 
+/* Index a whole bunch of motors simultaneously */
+void arms_auto_index(char** motor_names, int* motor_dirs, float* motor_speeds, size_t num_motors, float* motor_indexes);
+
 #endif

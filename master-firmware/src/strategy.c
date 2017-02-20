@@ -130,15 +130,20 @@ void strategy_debra_play_game(struct _robot* robot, enum strat_color_t color)
     wait_for_autoposition_signal();
     NOTICE("Positioning arms");
 
-    static const float ARMS_MOTOR_INDEXING_SPEED = 0.8;
-    left_arm.shoulder_index = arms_motor_auto_index("left-shoulder", 1, ARMS_MOTOR_INDEXING_SPEED);
-    left_arm.elbow_index = arms_motor_auto_index("left-elbow", 1, ARMS_MOTOR_INDEXING_SPEED);
-    left_arm.wrist_index = arms_motor_auto_index("left-wrist", 1, ARMS_MOTOR_INDEXING_SPEED);
-    scara_goto_robot(&left_arm, -150, 70, RADIANS(0));
+    char* motor_names[6] = {"left-shoulder", "left-elbow", "left-wrist", "right-shoulder", "right-elbow", "right-wrist"};
+    int motor_dirs[6] = {1, 1, 1, -1, -1, -1};
+    float motor_speeds[6] = {0.8, 0.8, 4.0, 0.8, 0.8, 4.0};
+    float motor_indexes[6];
+    arms_auto_index(motor_names, motor_dirs, motor_speeds, 6, motor_indexes);
 
-    right_arm.shoulder_index = arms_motor_auto_index("right-shoulder", -1, ARMS_MOTOR_INDEXING_SPEED);
-    right_arm.elbow_index = arms_motor_auto_index("right-elbow", -1, ARMS_MOTOR_INDEXING_SPEED);
-    right_arm.wrist_index = arms_motor_auto_index("right-wrist", -1, ARMS_MOTOR_INDEXING_SPEED);
+    left_arm.shoulder_index = motor_indexes[0];
+    left_arm.elbow_index = motor_indexes[1];
+    left_arm.wrist_index = motor_indexes[2];
+    right_arm.shoulder_index = motor_indexes[3];
+    right_arm.elbow_index = motor_indexes[4];
+    right_arm.wrist_index = motor_indexes[5];
+
+    scara_goto_robot(&left_arm, -150, 70, RADIANS(0));
     scara_goto_robot(&right_arm, 150, -70, RADIANS(0));
 
     /* Autoposition robot */
