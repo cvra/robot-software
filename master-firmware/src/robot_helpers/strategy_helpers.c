@@ -58,11 +58,11 @@ void strategy_auto_position(
 }
 
 
-void strategy_arm_goto(struct _robot* robot, scara_t* arm, float x, float y, float a_deg)
+void strategy_arm_goto(struct _robot* robot, scara_t* arm, float x, float y)
 {
     float robot_x = position_get_x_float(&robot->pos);
     float robot_y = position_get_y_float(&robot->pos);
     float robot_a = position_get_a_rad_float(&robot->pos);
 
-    scara_goto_table(arm, x, y, RADIANS(a_deg), robot_x, robot_y, robot_a);
+    scara_goto_table(arm, x, y, robot_x, robot_y, robot_a);
 }

@@ -138,13 +138,11 @@ void strategy_debra_play_game(struct _robot* robot, enum strat_color_t color)
 
     left_arm.shoulder_index = motor_indexes[0];
     left_arm.elbow_index = motor_indexes[1];
-    left_arm.wrist_index = motor_indexes[2];
     right_arm.shoulder_index = motor_indexes[3];
     right_arm.elbow_index = motor_indexes[4];
-    right_arm.wrist_index = motor_indexes[5];
 
-    scara_goto_robot(&left_arm, -150, 70, RADIANS(0));
-    scara_goto_robot(&right_arm, 150, -70, RADIANS(0));
+    scara_goto_robot(&left_arm, -150, 70);
+    scara_goto_robot(&right_arm, 150, -70);
 
     /* Autoposition robot */
     wait_for_autoposition_signal();
@@ -161,9 +159,9 @@ void strategy_debra_play_game(struct _robot* robot, enum strat_color_t color)
         strategy_goto_avoid_retry(robot, 1050, 1180, 45, -1);
 
         /* Push lunar module with arm */
-        strategy_arm_goto(robot, &left_arm, 960, 1460, 45);
+        strategy_arm_goto(robot, &left_arm, 960, 1460);
         chThdSleepMilliseconds(5000);
-        scara_goto_robot(&left_arm, -150, 70, RADIANS(45));
+        scara_goto_robot(&left_arm, -150, 70);
 
         /* Go back to home */
         strategy_goto_avoid_retry(robot, 600, 200, 90, -1);

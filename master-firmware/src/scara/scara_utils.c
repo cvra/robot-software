@@ -39,23 +39,3 @@ point_t scara_coordinate_table2robot(point_t target_point, point_t robot_pos, fl
 
     return target_point;
 }
-
-pose2d_t scara_pose_robot2arm(pose2d_t target, vect2_cart offset_xy, float offset_angle)
-{
-    pose2d_t result;
-
-    result.translation = scara_coordinate_robot2arm(target.translation, offset_xy, offset_angle);
-    result.heading = target.heading - offset_angle;
-
-    return result;
-}
-
-pose2d_t scara_pose_table2robot(pose2d_t target, point_t robot_pos, float robot_a_rad)
-{
-    pose2d_t result;
-
-    result.translation = scara_coordinate_table2robot(target.translation, robot_pos, robot_a_rad);
-    result.heading = target.heading - robot_a_rad;
-
-    return result;
-}
