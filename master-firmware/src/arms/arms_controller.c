@@ -82,14 +82,23 @@ void arms_controller_start(void)
 
 void arms_auto_index(char** motor_names, int* motor_dirs, float* motor_speeds, size_t num_motors, float* motor_indexes)
 {
+    /* Fetch all motor drivers */
     motor_driver_t* motors[num_motors];
-
     for (size_t i = 0; i < num_motors; i++) {
         motors[i] = bus_enumerator_get_driver(motor_manager.bus_enumerator, motor_names[i]);
         if (motors[i] == NULL) {
             chSysHalt("Motor doesn't exist");
         }
     }
+
+    /* Enable index stream over CAN */
+    for (size_t i = 0; i < num_motors; i++) {
+        parameter_scalar_set(&(motors[i]->config.index_stream), 10);
+    }
+#ifndef TESTS
+        // TODO: Wait for an acknowledge that it was changed on the motor board, instead of waiting
+        chThdSleepSeconds(1);
+#endif
 
     /* Start moving in forward direction */
     bool motor_finished[num_motors];
@@ -167,4 +176,10 @@ void arms_auto_index(char** motor_names, int* motor_dirs, float* motor_speeds, s
     for (size_t i = 0; i < num_motors; i++) {
         motor_indexes[i] *= 0.5;
     }
+
+    /* Disable index stream over CAN */
+    for (size_t i = 0; i < num_motors; i++) {
+        parameter_scalar_set(&(motors[i]->config.index_stream), 0);
+    }
+    NOTICE("Disabled motor index streams");
 }
