@@ -43,11 +43,11 @@
 #define GPIOA_PIN3                  3U
 #define GPIOA_LED                   4U
 #define GPIOA_PIN5                  5U
-#define GPIOA_PIN6                  6U
-#define GPIOA_PIN7                  7U
+#define GPIOA_SERVO0                6U
+#define GPIOA_SERVO1                7U
 #define GPIOA_PIN8                  8U
-#define GPIOA_PIN9                  9U
-#define GPIOA_PIN10                 10U
+#define GPIOA_SERVO2                9U
+#define GPIOA_SERVO3                10U
 #define GPIOA_CAN_RX                11U
 #define GPIOA_CAN_TX                12U
 #define GPIOA_SWDIO                 13U
@@ -170,11 +170,11 @@
  * PA3  - GPIOA_PIN3                (input pullup).
  * PA4  - GPIOA_LED                 (output low).
  * PA5  - GPIOA_PIN5                (input pullup).
- * PA6  - GPIOA_PIN6                (input pullup).
- * PA7  - GPIOA_PIN7                (input pullup).
+ * PA6  - GPIOA_SERVO0              (alternate 1 (TIM16_CH1)).
+ * PA7  - GPIOA_SERVO1              (alternate 10 (TIM17_CH1)).
  * PA8  - GPIOA_PIN8                (input pullup).
- * PA9  - GPIOA_PIN9                (input pullup).
- * PA10 - GPIOA_PIN10               (input pullup).
+ * PA9  - GPIOA_SERVO2              (alternate 6 (TIM1_CH2)).
+ * PA10 - GPIOA_SERVO3              (alternate 6 (TIM1_CH3)).
  * PA11 - GPIOA_CAN_RX              (alternate 9).
  * PA12 - GPIOA_CAN_TX              (alternate 9).
  * PA13 - GPIOA_SWDIO               (alternate 0).
@@ -187,11 +187,11 @@
                                      PIN_MODE_INPUT(GPIOA_PIN3) | \
                                      PIN_MODE_OUTPUT(GPIOA_LED) | \
                                      PIN_MODE_INPUT(GPIOA_PIN5) | \
-                                     PIN_MODE_INPUT(GPIOA_PIN6) | \
-                                     PIN_MODE_INPUT(GPIOA_PIN7) | \
+                                     PIN_MODE_ALTERNATE(GPIOA_SERVO0) | \
+                                     PIN_MODE_ALTERNATE(GPIOA_SERVO1) | \
                                      PIN_MODE_INPUT(GPIOA_PIN8) | \
-                                     PIN_MODE_INPUT(GPIOA_PIN9) | \
-                                     PIN_MODE_INPUT(GPIOA_PIN10) | \
+                                     PIN_MODE_ALTERNATE(GPIOA_SERVO2) | \
+                                     PIN_MODE_ALTERNATE(GPIOA_SERVO3) | \
                                      PIN_MODE_ALTERNATE(GPIOA_CAN_RX) | \
                                      PIN_MODE_ALTERNATE(GPIOA_CAN_TX) | \
                                      PIN_MODE_ALTERNATE(GPIOA_SWDIO) | \
@@ -203,11 +203,11 @@
                                      PIN_OTYPE_PUSHPULL(GPIOA_PIN3) | \
                                      PIN_OTYPE_PUSHPULL(GPIOA_LED) | \
                                      PIN_OTYPE_PUSHPULL(GPIOA_PIN5) | \
-                                     PIN_OTYPE_PUSHPULL(GPIOA_PIN6) | \
-                                     PIN_OTYPE_PUSHPULL(GPIOA_PIN7) | \
+                                     PIN_OTYPE_PUSHPULL(GPIOA_SERVO0) | \
+                                     PIN_OTYPE_PUSHPULL(GPIOA_SERVO1) | \
                                      PIN_OTYPE_PUSHPULL(GPIOA_PIN8) | \
-                                     PIN_OTYPE_PUSHPULL(GPIOA_PIN9) | \
-                                     PIN_OTYPE_PUSHPULL(GPIOA_PIN10) | \
+                                     PIN_OTYPE_PUSHPULL(GPIOA_SERVO2) | \
+                                     PIN_OTYPE_PUSHPULL(GPIOA_SERVO3) | \
                                      PIN_OTYPE_PUSHPULL(GPIOA_CAN_RX) | \
                                      PIN_OTYPE_PUSHPULL(GPIOA_CAN_TX) | \
                                      PIN_OTYPE_PUSHPULL(GPIOA_SWDIO) | \
@@ -219,11 +219,11 @@
                                      PIN_OSPEED_100M(GPIOA_PIN3) | \
                                      PIN_OSPEED_2M(GPIOA_LED) | \
                                      PIN_OSPEED_100M(GPIOA_PIN5) | \
-                                     PIN_OSPEED_100M(GPIOA_PIN6) | \
-                                     PIN_OSPEED_100M(GPIOA_PIN7) | \
+                                     PIN_OSPEED_100M(GPIOA_SERVO0) | \
+                                     PIN_OSPEED_100M(GPIOA_SERVO1) | \
                                      PIN_OSPEED_100M(GPIOA_PIN8) | \
-                                     PIN_OSPEED_100M(GPIOA_PIN9) | \
-                                     PIN_OSPEED_100M(GPIOA_PIN10) | \
+                                     PIN_OSPEED_100M(GPIOA_SERVO2) | \
+                                     PIN_OSPEED_100M(GPIOA_SERVO3) | \
                                      PIN_OSPEED_100M(GPIOA_CAN_RX) | \
                                      PIN_OSPEED_100M(GPIOA_CAN_TX) | \
                                      PIN_OSPEED_100M(GPIOA_SWDIO) | \
@@ -235,11 +235,11 @@
                                      PIN_PUPDR_PULLUP(GPIOA_PIN3) | \
                                      PIN_PUPDR_FLOATING(GPIOA_LED) | \
                                      PIN_PUPDR_PULLUP(GPIOA_PIN5) | \
-                                     PIN_PUPDR_PULLUP(GPIOA_PIN6) | \
-                                     PIN_PUPDR_PULLUP(GPIOA_PIN7) | \
+                                     PIN_PUPDR_PULLUP(GPIOA_SERVO0) | \
+                                     PIN_PUPDR_PULLUP(GPIOA_SERVO1) | \
                                      PIN_PUPDR_PULLUP(GPIOA_PIN8) | \
-                                     PIN_PUPDR_PULLUP(GPIOA_PIN9) | \
-                                     PIN_PUPDR_PULLUP(GPIOA_PIN10) | \
+                                     PIN_PUPDR_PULLUP(GPIOA_SERVO2) | \
+                                     PIN_PUPDR_PULLUP(GPIOA_SERVO3) | \
                                      PIN_PUPDR_PULLUP(GPIOA_CAN_RX) | \
                                      PIN_PUPDR_PULLUP(GPIOA_CAN_TX) | \
                                      PIN_PUPDR_PULLUP(GPIOA_SWDIO) | \
@@ -251,11 +251,11 @@
                                      PIN_ODR_LOW(GPIOA_PIN3) | \
                                      PIN_ODR_LOW(GPIOA_LED) | \
                                      PIN_ODR_LOW(GPIOA_PIN5) | \
-                                     PIN_ODR_LOW(GPIOA_PIN6) | \
-                                     PIN_ODR_LOW(GPIOA_PIN7) | \
+                                     PIN_ODR_LOW(GPIOA_SERVO0) | \
+                                     PIN_ODR_LOW(GPIOA_SERVO1) | \
                                      PIN_ODR_LOW(GPIOA_PIN8) | \
-                                     PIN_ODR_LOW(GPIOA_PIN9) | \
-                                     PIN_ODR_LOW(GPIOA_PIN10) | \
+                                     PIN_ODR_LOW(GPIOA_SERVO2) | \
+                                     PIN_ODR_LOW(GPIOA_SERVO3) | \
                                      PIN_ODR_LOW(GPIOA_CAN_RX) | \
                                      PIN_ODR_LOW(GPIOA_CAN_TX) | \
                                      PIN_ODR_LOW(GPIOA_SWDIO) | \
@@ -267,11 +267,11 @@
                                      PIN_AFIO_AF(GPIOA_PIN3, 0) | \
                                      PIN_AFIO_AF(GPIOA_LED, 0) | \
                                      PIN_AFIO_AF(GPIOA_PIN5, 0) | \
-                                     PIN_AFIO_AF(GPIOA_PIN6, 0) | \
-                                     PIN_AFIO_AF(GPIOA_PIN7, 0))
+                                     PIN_AFIO_AF(GPIOA_SERVO0, 1) | \
+                                     PIN_AFIO_AF(GPIOA_SERVO1, 10))
 #define VAL_GPIOA_AFRH              (PIN_AFIO_AF(GPIOA_PIN8, 0) | \
-                                     PIN_AFIO_AF(GPIOA_PIN9, 0) | \
-                                     PIN_AFIO_AF(GPIOA_PIN10, 0) | \
+                                     PIN_AFIO_AF(GPIOA_SERVO2, 6) | \
+                                     PIN_AFIO_AF(GPIOA_SERVO3, 6) | \
                                      PIN_AFIO_AF(GPIOA_CAN_RX, 9) | \
                                      PIN_AFIO_AF(GPIOA_CAN_TX, 9) | \
                                      PIN_AFIO_AF(GPIOA_SWDIO, 0) | \
