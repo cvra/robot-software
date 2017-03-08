@@ -23,7 +23,7 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "error/error.h"
+#include "error.h"
 
 struct error_fct g_error_fct;
 

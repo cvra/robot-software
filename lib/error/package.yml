@@ -1,0 +1,8 @@
+depends:
+  - test-runner
+
+source:
+  - error.c
+
+tests:
+  - tests/error.cpp
