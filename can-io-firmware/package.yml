@@ -4,6 +4,7 @@ depends:
   - chibios-syscalls
   - cmp
   - cmp_mem_access
+  - error
 
 target.arm:
   - src/main.c

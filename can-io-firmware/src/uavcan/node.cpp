@@ -67,7 +67,7 @@ void main(unsigned int id, const char *name)
 
 
     while (true) {
-        node.spin(uavcan::MonotonicDuration::fromMSec(1000/UAVCAN_SPIN_FREQ));
+        node.spin(uavcan::MonotonicDuration::fromMSec(1000 / UAVCAN_SPIN_FREQ));
     }
 }
 }
@@ -76,4 +76,3 @@ void uavcan_start(unsigned int node_id, const char *node_name)
 {
     uavcan_node::main(node_id, node_name);
 }
-
