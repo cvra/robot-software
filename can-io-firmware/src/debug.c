@@ -61,8 +61,6 @@ static const SerialConfig debug_serial_config = {
 
 void debug_init(void)
 {
-    palSetPadMode(GPIOA, GPIOA_PIN9, PAL_MODE_ALTERNATE(7));
-    palSetPadMode(GPIOA, GPIOA_PIN10, PAL_MODE_ALTERNATE(7));
     sdStart(&SD1, &debug_serial_config);
 
     error_register_error(log_message);
