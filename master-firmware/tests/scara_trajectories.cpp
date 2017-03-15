@@ -19,7 +19,6 @@ TEST_GROUP(ArmTrajectoriesBuilderTest)
 
     void teardown()
     {
-        free(traj.frames);
         scara_time_set(0);
     }
 };

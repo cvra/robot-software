@@ -68,8 +68,10 @@ static THD_FUNCTION(arms_ctrl_thd, arg)
     (void) arg;
     chRegSetThreadName(__FUNCTION__);
 
-    while (1) {
-        /* Wait 10 milliseconds (100 Hz) */
+    while (true) {
+        scara_manage(&left_arm);
+        scara_manage(&right_arm);
+
         chThdSleepMilliseconds(1000 / ARMS_FREQUENCY);
     }
 }

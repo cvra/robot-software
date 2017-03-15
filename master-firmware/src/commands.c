@@ -680,15 +680,11 @@ static void cmd_scara_pos(BaseSequentialStream *chp, int argc, char *argv[])
     }
 
     if (strcmp("robot", argv[0]) == 0) {
-        scara_goto_robot(arm, x, y);
+        strategy_arm_goto(&robot, arm, x, y, 0, COORDINATE_ROBOT, 1.);
     } else if (strcmp("table", argv[0]) == 0) {
-        float robot_x = position_get_x_float(&robot.pos);
-        float robot_y = position_get_y_float(&robot.pos);
-        float robot_a = position_get_a_rad_float(&robot.pos);
-
-        scara_goto_table(arm, x, y, robot_x, robot_y, robot_a);
+        strategy_arm_goto(&robot, arm, x, y, 0, COORDINATE_TABLE, 1.);
     } else {
-        scara_goto_arm(arm, x, y);
+        strategy_arm_goto(&robot, arm, x, y, 0, COORDINATE_ARM, 1.);
     }
 }
 

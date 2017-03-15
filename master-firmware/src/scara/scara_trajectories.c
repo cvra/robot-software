@@ -27,9 +27,10 @@ void scara_trajectory_init(scara_trajectory_t *traj) {
 void scara_trajectory_append_point(scara_trajectory_t *traj, const float x, const float y, const float z,
                                    scara_coordinate_t system, const float duration)
 {
-
     traj->frame_count += 1;
-    traj->frames = realloc(traj->frames, traj->frame_count*sizeof(scara_waypoint_t));
+    if (traj->frame_count >= SCARA_TRAJ_MAX_NUM_FRAMES) {
+        scara_panic();
+    }
 
     if (traj->frames == NULL) {
         scara_panic();
@@ -68,8 +69,6 @@ void scara_trajectory_append_point_with_length(scara_trajectory_t *traj, const f
 void scara_trajectory_delete(scara_trajectory_t *traj)
 {
     if (traj->frame_count != 0) {
-        free(traj->frames);
-        traj->frames = NULL;
         traj->frame_count = 0;
     }
 }
@@ -77,8 +76,7 @@ void scara_trajectory_delete(scara_trajectory_t *traj)
 void scara_trajectory_copy(scara_trajectory_t *dest, scara_trajectory_t *src)
 {
     dest->frame_count = src->frame_count;
-    dest->frames = malloc(dest->frame_count * sizeof(scara_waypoint_t));
-    memcpy(dest->frames, src->frames, dest->frame_count * sizeof(scara_waypoint_t));
+    memmove(dest->frames, src->frames, dest->frame_count * sizeof(scara_waypoint_t));
 }
 
 int scara_trajectory_finished(scara_trajectory_t *traj)

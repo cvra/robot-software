@@ -43,15 +43,42 @@ void scara_set_elbow_callback(scara_t* arm, void (*set_elbow_position)(void*, fl
     arm->elbow_args = elbow_args;
 }
 
-void scara_goto_arm(scara_t* arm, float x, float y)
+void scara_goto(scara_t* arm, float x, float y, float z, scara_coordinate_t system, const float duration)
 {
-    point_t target = {.x = x, .y = y};
+    scara_trajectory_init(&(arm->trajectory));
+    scara_trajectory_append_point(&(arm->trajectory), x, y, z, system, duration);
+    scara_do_trajectory(arm, &(arm->trajectory));
+}
+
+void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj)
+{
+    // scara_take_semaphore(&arm->trajectory_semaphore);
+    scara_trajectory_copy(&arm->trajectory, traj);
+    // scara_signal_semaphore(&arm->trajectory_semaphore);
+}
+
+void scara_manage(scara_t *arm)
+{
+    int32_t current_date = scara_time_get();
+
+    // scara_take_semaphore(&arm->trajectory_semaphore);
+
+    if (arm->trajectory.frame_count == 0) {
+        arm->last_loop = current_date;
+        // scara_signal_semaphore(&arm->trajectory_semaphore);
+        return;
+    }
+
+    scara_waypoint_t frame = scara_position_for_date(arm, scara_time_get());
+    point_t target = {.x = frame.position[0], .y = frame.position[1]};
 
     point_t p1, p2;
     int position_count = scara_num_possible_elbow_positions(target, arm->length[0], arm->length[1], &p1, &p2);
     NOTICE("Inverse kinematics: found %d possible solutions", position_count);
 
     if (position_count == 0) {
+        arm->last_loop = current_date;
+        // scara_signal_semaphore(&arm->trajectory_semaphore);
         return;
     } else if (position_count == 2) {
         shoulder_mode_t mode;
@@ -74,84 +101,10 @@ void scara_goto_arm(scara_t* arm, float x, float y)
         beta = beta - 2 * M_PI;
     }
 
-    NOTICE("Inverse kinematics: alpha [%.3f] \tbeta [%.3f]", alpha, beta);
+    arm->last_loop = scara_time_get();
 
     arm->set_shoulder_position(arm->shoulder_args, alpha - arm->shoulder_index);
     arm->set_elbow_position(arm->elbow_args, beta - arm->elbow_index);
-}
-
-void scara_goto_robot(scara_t* arm, float x, float y)
-{
-    point_t target_robot = {.x = x, .y = y};
-
-    point_t target_arm = scara_coordinate_robot2arm(target_robot, arm->offset_xy, arm->offset_rotation);
-
-    scara_goto_arm(arm, target_arm.x, target_arm.y);
-}
-
-void scara_goto_table(scara_t* arm, float x, float y, float robot_x, float robot_y, float robot_a)
-{
-    point_t target_table = {.x = x, .y = y};
-    point_t robot_pos = {.x = robot_x, .y = robot_y};
-
-    point_t target_robot = scara_coordinate_table2robot(target_table, robot_pos, robot_a);
-
-    scara_goto_robot(arm, target_robot.x, target_robot.y);
-}
-
-
-void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj)
-{
-    // scara_take_semaphore(&arm->trajectory_semaphore);
-    scara_trajectory_copy(&arm->trajectory, traj);
-    // scara_signal_semaphore(&arm->trajectory_semaphore);
-}
-
-void scara_manage(scara_t *arm)
-{
-    scara_waypoint_t frame;
-    point_t target, p1, p2;
-    int32_t current_date = scara_time_get();
-    int position_count;
-    float alpha, beta;
-
-    // scara_take_semaphore(&arm->trajectory_semaphore);
-
-    if (arm->trajectory.frame_count == 0) {
-        arm->last_loop = current_date;
-        // scara_signal_semaphore(&arm->trajectory_semaphore);
-        return;
-    }
-
-    frame = scara_position_for_date(arm, scara_time_get());
-    target.x = frame.position[0];
-    target.y = frame.position[1];
-
-    position_count = scara_num_possible_elbow_positions(target, frame.length[0], frame.length[1], &p1, &p2);
-
-    if (position_count == 0) {
-        arm->last_loop = current_date;
-        // scara_signal_semaphore(&arm->trajectory_semaphore);
-        return;
-    } else if (position_count == 2) {
-        shoulder_mode_t mode;
-        mode = scara_orientation_mode(arm->shoulder_mode, arm->offset_rotation);
-        p1 = scara_shoulder_solve(target, p1, p2, mode);
-    }
-
-    /* p1 now contains the correct elbow pos. */
-    alpha = scara_compute_shoulder_angle(p1, target);
-    beta  = scara_compute_elbow_angle(p1, target);
-    beta = beta - alpha;
-
-    /* The arm cannot make one full turn. */
-    if (beta < -M_PI)
-        beta = 2 * M_PI + beta;
-
-    if (beta > M_PI)
-        beta = beta - 2 * M_PI;
-
-    arm->last_loop = scara_time_get();
     // scara_signal_semaphore(&arm->trajectory_semaphore);
 }
 

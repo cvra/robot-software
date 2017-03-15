@@ -49,14 +49,8 @@ void scara_set_offset(scara_t* arm, float offset_x, float offset_y, float offset
 void scara_set_shoulder_callback(scara_t* arm, void (*set_shoulder_position)(void*, float), void* shoulder_args);
 void scara_set_elbow_callback(scara_t* arm, void (*set_elbow_position)(void*, float), void* elbow_args);
 
-/* Goto position in arm local coordinate system */
-void scara_goto_arm(scara_t* arm, float x, float y);
-
-/* Goto position in robot coordinate system */
-void scara_goto_robot(scara_t* arm, float x, float y);
-
-/* Goto position in table coordinate system */
-void scara_goto_table(scara_t* arm, float x, float y, float robot_x, float robot_y, float robot_a);
+/* Goto position in specified coordinate system */
+void scara_goto(scara_t* arm, float x, float y, float z, scara_coordinate_t system, const float duration);
 
 void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj);
 

@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+/* Maximum number of waypoints in a trajectory */
+#define SCARA_TRAJ_MAX_NUM_FRAMES 10
+
 /** This typedef stores the type of the coordinate system used for a trajectory. */
 typedef enum {
     COORDINATE_ARM=0, /**< Coordinate relative to the arm shoulder. */
@@ -22,7 +25,7 @@ typedef struct {
 
 /** This structure holds the data of a single arm trajectory. */
 typedef struct {
-    scara_waypoint_t *frames; /**< Trajectory waypoints. */
+    scara_waypoint_t frames[SCARA_TRAJ_MAX_NUM_FRAMES]; /**< Trajectory waypoints. */
     int frame_count;          /**< Number of frames. */
 } scara_trajectory_t;
 
