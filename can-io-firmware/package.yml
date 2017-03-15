@@ -12,6 +12,7 @@ target.arm:
   - src/board.c
   - src/stubs.cpp
   - src/uavcan/node.cpp
+  - src/uavcan/ServoPWM_handler.cpp
   - src/bootloader_config.c
 
 templates:
