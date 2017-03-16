@@ -5,6 +5,7 @@
 #include "error/error.h"
 #include "debug.h"
 #include "servo_pwm.h"
+#include "main.h"
 
 THD_FUNCTION(blinker, arg)
 {
@@ -23,6 +24,7 @@ static void blinker_start(void)
     chThdCreateStatic(blinker_wa, sizeof(blinker_wa), LOWPRIO, blinker, NULL);
 }
 
+bootloader_config_t config;
 
 int main(void)
 {
@@ -34,18 +36,16 @@ int main(void)
 
     blinker_start();
 
-    bootloader_config_t cfg;
-
     servo_init();
 
-    if (!config_get(&cfg)) {
+    if (!config_get(&config)) {
         chSysHalt("Cannot load config");
     }
 
-    NOTICE("Board name=\"%s\", ID=%d", cfg.board_name, cfg.ID);
+    NOTICE("Board name=\"%s\", ID=%d", config.board_name, config.ID);
 
     // Never returns
-    uavcan_start(cfg.ID, cfg.board_name);
+    uavcan_start(config.ID, config.board_name);
 
     return 0;
 }

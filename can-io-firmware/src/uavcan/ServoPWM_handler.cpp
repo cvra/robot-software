@@ -1,19 +1,13 @@
 #include "error/error.h"
 #include "ServoPWM_handler.hpp"
 #include "servo_pwm.h"
-#include "bootloader_config.h"
+#include "main.h"
 
 void ServoPWM_handler(const uavcan::ReceivedDataStructure<cvra::io::ServoPWM> &msg)
 {
-    bootloader_config_t cfg;
     float pos[4];
 
-    if (!config_get(&cfg)) {
-        ERROR("Cannot load config!");
-        return;
-    }
-
-    if (msg.node_id != cfg.ID) {
+    if (msg.node_id != config.ID) {
         DEBUG("PWM message not addressed to us, dropping it.");
         return;
     }
