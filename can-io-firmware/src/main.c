@@ -4,6 +4,7 @@
 #include "bootloader_config.h"
 #include "error/error.h"
 #include "debug.h"
+#include "servo_pwm.h"
 
 THD_FUNCTION(blinker, arg)
 {
@@ -35,15 +36,9 @@ int main(void)
 
     bootloader_config_t cfg;
 
-    rccEnableAPB2(RCC_APB2ENR_TIM16EN, true);
-
-    TIM16->CR1 = STM32_TIM_CR1_CEN | STM32_TIM_CR1_ARPE;
-    TIM16->CCMR1 = STM32_TIM_CCMR1_OC1M(6) | STM32_TIM_CCMR1_OC1PE;
-    TIM16->CCER = STM32_TIM_CCER_CC1E;
-    TIM16->EGR = STM32_TIM_EGR_UG;
-    TIM16->BDTR = STM32_TIM_BDTR_MOE;
-    TIM16->CCR1 = 12000;
-    TIM16->ARR = 20000;
+    servo_init();
+    float pos[4] = {0, 0.25, 0.5, 1};
+    servo_set(pos);
 
     if (!config_get(&cfg)) {
         chSysHalt("Cannot load config");

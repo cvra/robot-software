@@ -268,7 +268,7 @@
                                      PIN_AFIO_AF(GPIOA_LED, 0) | \
                                      PIN_AFIO_AF(GPIOA_PIN5, 0) | \
                                      PIN_AFIO_AF(GPIOA_SERVO0, 1) | \
-                                     PIN_AFIO_AF(GPIOA_SERVO1, 10))
+                                     PIN_AFIO_AF(GPIOA_SERVO1, 1))
 #define VAL_GPIOA_AFRH              (PIN_AFIO_AF(GPIOA_PIN8, 0) | \
                                      PIN_AFIO_AF(GPIOA_SERVO2, 6) | \
                                      PIN_AFIO_AF(GPIOA_SERVO3, 6) | \
