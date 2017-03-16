@@ -13,6 +13,7 @@ target.arm:
   - src/stubs.cpp
   - src/uavcan/node.cpp
   - src/uavcan/ServoPWM_handler.cpp
+  - src/uavcan/DigitalInput_pub.cpp
   - src/bootloader_config.c
   - src/servo_pwm.c
 

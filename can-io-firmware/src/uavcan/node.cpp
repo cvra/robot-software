@@ -4,6 +4,7 @@
 #include <uavcan_stm32/uavcan_stm32.hpp>
 #include <uavcan/protocol/NodeStatus.hpp>
 #include "ServoPWM_handler.hpp"
+#include "DigitalInput_pub.hpp"
 
 #include "node.h"
 
@@ -71,6 +72,8 @@ void main(unsigned int id, const char *name)
     if (servo_pwm_sub.start(ServoPWM_handler)) {
         ERROR("Cannot start servo PWM handler!");
     }
+
+    DigitalInput_pub_start(node);
 
     while (true) {
         node.spin(uavcan::MonotonicDuration::fromMSec(1000 / UAVCAN_SPIN_FREQ));
