@@ -23,7 +23,7 @@ def digital_input_cb(event):
     src = event.transfer.source_node_id
     values = event.message.pin
 
-    print("{}: {}".format(src, " ".join(int(s) for s in values)))
+    print("{}: {}".format(src, " ".join(str(int(s)) for s in values)))
 
 
 def main():
