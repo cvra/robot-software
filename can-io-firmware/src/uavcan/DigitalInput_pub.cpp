@@ -46,6 +46,6 @@ void digital_input_thread(void *p)
 
 void DigitalInput_pub_start(uavcan::INode &node)
 {
-    static THD_WORKING_AREA(wa, 512);
+    static THD_WORKING_AREA(wa, 700);
     chThdCreateStatic(wa, sizeof(wa), LOWPRIO, digital_input_thread, &node);
 }
