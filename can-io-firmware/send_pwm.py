@@ -39,7 +39,7 @@ def main():
     node = uavcan.make_node(args.port, node_id=42)
     uavcan.load_dsdl(DSDL_DIR)
 
-    send_pwm(node, args.id, args.values)
+    send_pwm(node, args.id, args.value)
 
     # Spin node for 1 second
     node.spin(1)
