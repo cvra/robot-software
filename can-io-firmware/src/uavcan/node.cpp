@@ -8,7 +8,7 @@
 
 #include "node.h"
 
-#define UAVCAN_SPIN_FREQ    500 // [Hz]
+#define UAVCAN_SPIN_FREQ    10 // [Hz]
 
 namespace uavcan_node {
 static const int RxQueueSize = 32;
@@ -73,10 +73,9 @@ void main(unsigned int id, const char *name)
         ERROR("Cannot start servo PWM handler!");
     }
 
-    DigitalInput_pub_start(node);
-
     while (true) {
         node.spin(uavcan::MonotonicDuration::fromMSec(1000 / UAVCAN_SPIN_FREQ));
+        digital_input_publish(node);
     }
 }
 }

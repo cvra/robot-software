@@ -3,8 +3,6 @@
 #include "DigitalInput_pub.hpp"
 #include <cvra/io/DigitalInput.hpp>
 
-uavcan::INode *node;
-
 void read_inputs(bool *result)
 {
     // Workaround the lack of inputs
@@ -21,31 +19,19 @@ void read_inputs(bool *result)
     result[7] = palReadPad(GPIOB, GPIOB_DEBUG_RX);
 }
 
-void digital_input_thread(void *p)
+void digital_input_publish(uavcan::INode &node)
 {
-    uavcan::INode *node = (uavcan::INode *)p;
+    static uavcan::Publisher<cvra::io::DigitalInput> pub(node);
 
-    uavcan::Publisher<cvra::io::DigitalInput> pub(*node);
+    bool values[8];
 
-    while (true) {
-        bool values[8];
+    read_inputs(values);
 
-        read_inputs(values);
+    cvra::io::DigitalInput msg = cvra::io::DigitalInput();
 
-        cvra::io::DigitalInput msg = cvra::io::DigitalInput();
-
-        for (int i = 0; i < 8; i++) {
-            msg.pin[i] = values[i];
-        }
-
-        pub.broadcast(msg);
-
-        chThdSleepMilliseconds(100);
+    for (int i = 0; i < 8; i++) {
+        msg.pin[i] = values[i];
     }
-}
 
-void DigitalInput_pub_start(uavcan::INode &node)
-{
-    static THD_WORKING_AREA(wa, 700);
-    chThdCreateStatic(wa, sizeof(wa), LOWPRIO, digital_input_thread, &node);
+    pub.broadcast(msg);
 }

@@ -3,6 +3,6 @@
 
 #include <uavcan/uavcan.hpp>
 
-void DigitalInput_pub_start(uavcan::INode &node);
+void digital_input_publish(uavcan::INode &node);
 
 #endif
