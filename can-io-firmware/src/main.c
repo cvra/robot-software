@@ -37,8 +37,6 @@ int main(void)
     bootloader_config_t cfg;
 
     servo_init();
-    float pos[4] = {0, 0.25, 0.5, 1};
-    servo_set(pos);
 
     if (!config_get(&cfg)) {
         chSysHalt("Cannot load config");
