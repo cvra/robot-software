@@ -1,0 +1,5 @@
+#
+# GPIO input values
+#
+
+bool[8] pin

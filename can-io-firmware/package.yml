@@ -4,13 +4,18 @@ depends:
   - chibios-syscalls
   - cmp
   - cmp_mem_access
+  - error
 
 target.arm:
   - src/main.c
+  - src/debug.c
   - src/board.c
   - src/stubs.cpp
   - src/uavcan/node.cpp
+  - src/uavcan/ServoPWM_handler.cpp
+  - src/uavcan/DigitalInput_pub.cpp
   - src/bootloader_config.c
+  - src/servo_pwm.c
 
 templates:
     app_src.mk.jinja: app_src.mk

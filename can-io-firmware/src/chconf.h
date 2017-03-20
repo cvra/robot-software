@@ -486,6 +486,8 @@
  */
 #define CH_CFG_SYSTEM_HALT_HOOK(reason) {                                   \
         /* System halt code here.*/                                               \
+        void panic_handler(void); \
+        panic_handler(); \
 }
 
 /** @} */
