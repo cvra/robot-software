@@ -51,7 +51,6 @@ point_t scara_coordinate_table2robot(point_t target_point, point_t robot_pos, fl
     target.y = target_point.y - robot_pos.y;
 
     vect2_cart2pol(&target, &target_pol);
-    /* XXX Not sure if it is -= or += here. */
     target_pol.theta -= robot_a_rad;
     vect2_pol2cart(&target_pol, &target);
 
@@ -59,4 +58,23 @@ point_t scara_coordinate_table2robot(point_t target_point, point_t robot_pos, fl
     target_point.y = target.y;
 
     return target_point;
+}
+
+point_t scara_coordinate_robot2table(point_t robot_point, point_t robot_pos, float robot_a_rad)
+{
+    point_t table_point;
+    vect2_cart table_cart;
+    vect2_pol table_pol;
+
+    table_cart.x = robot_point.x;
+    table_cart.y = robot_point.y;
+
+    vect2_cart2pol(&table_cart, &table_pol);
+    table_pol.theta += robot_a_rad;
+    vect2_pol2cart(&table_pol, &table_cart);
+
+    table_point.x = table_cart.x + robot_pos.x;
+    table_point.y = table_cart.y + robot_pos.y;
+
+    return table_point;
 }
