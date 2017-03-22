@@ -1,5 +1,13 @@
 # Tools help
 
+# ChibiOS GDB integration
+
+When debugging using GDB and OpenOCD, it can be useful to inspect the state of all threads.
+To do so, a script (`chibios-gdb.py`) is provided.
+
+To use it, add `-x tools/chibios-gdb.py` to your `arm-none-eabi-gdb` command.
+You can then use the new `chthreads` GDB command to display all the threads, with extra information such as stack, state, etc.
+
 ## PID plots
 
 You can plot a stream of PID data received from the robot via simpleRPC in messagepack format using
