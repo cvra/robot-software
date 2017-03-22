@@ -8,6 +8,7 @@
 #include "scara_waypoint.h"
 
 point_t scara_coordinate_robot2arm(point_t target_point, vect2_cart offset_xy, float offset_angle);
+point_t scara_coordinate_arm2robot(point_t arm_point, vect2_cart offset_xy, float offset_angle);
 
 point_t scara_coordinate_table2robot(point_t target_point, point_t robot_pos, float robot_a_rad);
 

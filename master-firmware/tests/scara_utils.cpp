@@ -21,6 +21,18 @@ TEST(ArmUtilsTestGroup, CoordinateRobotToArm)
     DOUBLES_EQUAL(-100., result.y, 1e-2);
 }
 
+TEST(ArmUtilsTestGroup, CoordinateArmToRobot)
+{
+    point_t target = {0,-100};
+    vect2_cart offset_xy = {0,100};
+    float offset_angle = M_PI/2.;
+    point_t result;
+
+    result = scara_coordinate_arm2robot(target, offset_xy, offset_angle);
+    DOUBLES_EQUAL(100., result.x, 1e-2);
+    DOUBLES_EQUAL(100., result.y, 1e-2);
+}
+
 TEST(ArmUtilsTestGroup, CoordinateTableToRobot)
 {
     point_t target = {100,200};
