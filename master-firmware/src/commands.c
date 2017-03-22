@@ -688,6 +688,49 @@ static void cmd_scara_goto(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
+static void cmd_scara_pos(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc < 1) {
+        chprintf(chp, "Usage: scara_goto side\r\n");
+        return;
+    }
+
+    scara_t* arm;
+
+    if (strcmp("left", argv[0]) == 0) {
+        arm = &left_arm;
+    } else {
+        arm = &right_arm;
+    }
+
+    motor_driver_t* motor;
+
+    if (strcmp("left", argv[0]) == 0) {
+        motor = bus_enumerator_get_driver(motor_manager.bus_enumerator, "left-shoulder");
+    } else {
+        motor = bus_enumerator_get_driver(motor_manager.bus_enumerator, "right-shoulder");
+    }
+    if (motor == NULL) {
+        chSysHalt("Motor doesn't exist");
+    }
+    float shoulder = motor_driver_get_and_clear_stream_value(motor, MOTOR_STREAM_POSITION);
+
+    if (strcmp("left", argv[0]) == 0) {
+        motor = bus_enumerator_get_driver(motor_manager.bus_enumerator, "left-elbow");
+    } else {
+        motor = bus_enumerator_get_driver(motor_manager.bus_enumerator, "right-elbow");
+    }    if (motor == NULL) {
+        chSysHalt("Motor doesn't exist");
+    }
+    float elbow = motor_driver_get_and_clear_stream_value(motor, MOTOR_STREAM_POSITION);
+
+    shoulder = - (shoulder - arm->shoulder_index);
+    elbow = - (elbow - arm->elbow_index);
+    point_t pos = scara_forward_kinematics(shoulder, elbow, arm->length);
+
+    chprintf(chp, "Position of left arm is %f %f in robot frame\r\n", pos.x, pos.y);
+}
+
 static void print_fn(void *arg, const char *fmt, ...)
 {
     BaseSequentialStream *chp = (BaseSequentialStream *)arg;
@@ -741,6 +784,7 @@ const ShellCommand commands[] = {
     {"motor_pos", cmd_motor_pos},
     {"motor_index", cmd_motor_index},
     {"scara_goto", cmd_scara_goto},
+    {"scara_pos", cmd_scara_pos},
     {"trace", cmd_trace},
     {NULL, NULL}
 };
