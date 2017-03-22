@@ -660,10 +660,10 @@ static void cmd_motor_index(BaseSequentialStream *chp, int argc, char *argv[])
     chprintf(chp, "Average index is %.4f\r\n", index);
 }
 
-static void cmd_scara_pos(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_scara_goto(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc < 4) {
-        chprintf(chp, "Usage: scara_pos frame side x y\r\n");
+        chprintf(chp, "Usage: scara_goto frame side x y\r\n");
         return;
     }
     float x = atof(argv[2]);
@@ -740,7 +740,7 @@ const ShellCommand commands[] = {
     {"autopos", cmd_autopos},
     {"motor_pos", cmd_motor_pos},
     {"motor_index", cmd_motor_index},
-    {"scara_pos", cmd_scara_pos},
+    {"scara_goto", cmd_scara_goto},
     {"trace", cmd_trace},
     {NULL, NULL}
 };
