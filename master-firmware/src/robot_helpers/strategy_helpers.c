@@ -3,6 +3,8 @@
 #include "trajectory_manager/trajectory_manager_utils.h"
 #include "blocking_detection_manager/blocking_detection_manager.h"
 #include "obstacle_avoidance/obstacle_avoidance.h"
+
+#include "math_helpers.h"
 #include "trajectory_helpers.h"
 #include "beacon_helpers.h"
 
@@ -53,4 +55,11 @@ void strategy_auto_position(
 
     /* Restore robot to game mode: faster and more sensitive to collision */
     trajectory_set_mode_game(&robot->mode, &robot->traj, &robot->distance_bd, &robot->angle_bd);
+}
+
+void strategy_arm_goto(struct _robot* robot, scara_t* arm, float x, float y, float z,
+                       scara_coordinate_t system, const float duration)
+{
+    scara_set_related_robot_pos(arm, &(robot->pos));
+    scara_goto(arm, x, y, z, system, duration);
 }

@@ -14,6 +14,7 @@
 #include "robot_helpers/beacon_helpers.h"
 #include "base/base_controller.h"
 #include "base/map.h"
+#include "arms/arms_controller.h"
 #include "config.h"
 #include "main.h"
 
@@ -103,17 +104,77 @@ bool strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg)
     return false;
 }
 
-
-void strategy_play_game(void* _robot)
+bool strategy_goto_avoid_retry(struct _robot* robot, int x_mm, int y_mm, int a_deg, int num_retries)
 {
-    chRegSetThreadName("strategy");
+    bool finished = false;
+    int counter = 0;
 
-    struct _robot* robot = (struct _robot*)_robot;
-    enum strat_color_t color = YELLOW;
+    while (!finished) {
+        DEBUG("Try #%d", counter);
+        finished = strategy_goto_avoid(robot, x_mm, y_mm, a_deg);
+        counter++;
 
-    /* Initialize map and path planner */
-    map_init(config_get_integer("master/robot_size_x_mm"));
+        // Exit when maximum number of retries is reached
+        // Negative number of retries means infinite number of retries
+        if (num_retries >= 0 && counter > num_retries) {
+            break;
+        }
+    }
 
+    return finished;
+}
+
+void strategy_debra_play_game(struct _robot* robot, enum strat_color_t color)
+{
+    /* Autoposition arms */
+    wait_for_autoposition_signal();
+    NOTICE("Positioning arms");
+
+    char* motor_names[6] = {"left-shoulder", "left-elbow", "left-wrist", "right-shoulder", "right-elbow", "right-wrist"};
+    int motor_dirs[6] = {1, 1, 1, -1, -1, -1};
+    float motor_speeds[6] = {0.8, 0.8, 4.0, 0.8, 0.8, 4.0};
+    float motor_indexes[6];
+    arms_auto_index(motor_names, motor_dirs, motor_speeds, 6, motor_indexes);
+
+    left_arm.shoulder_index = motor_indexes[0];
+    left_arm.elbow_index = motor_indexes[1];
+    right_arm.shoulder_index = motor_indexes[3];
+    right_arm.elbow_index = motor_indexes[4];
+
+    strategy_arm_goto(robot, &left_arm, -150, 70, 0, COORDINATE_ROBOT, 1.);
+    strategy_arm_goto(robot, &right_arm, 150, -70, 0, COORDINATE_ROBOT, 1.);
+
+    /* Autoposition robot */
+    wait_for_autoposition_signal();
+    NOTICE("Positioning robot");
+    strategy_auto_position(600, 200, 90, robot->robot_size, color, robot, &bus);
+    NOTICE("Robot positioned at x: 600[mm], y: 200[mm], a: 90[deg]");
+
+    /* Wait for starter to begin */
+    wait_for_starter();
+    NOTICE("Starting game");
+
+    while (true) {
+        /* Go close to lunar module */
+        strategy_goto_avoid_retry(robot, 1050, 1180, 45, -1);
+
+        /* Push lunar module with arm */
+        strategy_arm_goto(robot, &left_arm, 960, 1460, 0, COORDINATE_TABLE, 5.);
+        chThdSleepSeconds(5);
+        strategy_arm_goto(robot, &left_arm, -150, 70, 0, COORDINATE_ROBOT, 1.);
+
+        /* Go back to home */
+        strategy_goto_avoid_retry(robot, 600, 200, 90, -1);
+
+        DEBUG("Game ended!\nInsert coin to play more.");
+        chThdSleepSeconds(1);
+
+        wait_for_starter();
+    }
+}
+
+void strategy_sandoi_play_game(struct _robot* robot, enum strat_color_t color)
+{
     /* Autoposition robot */
     wait_for_autoposition_signal();
     NOTICE("Positioning robot\n");
@@ -124,15 +185,9 @@ void strategy_play_game(void* _robot)
     wait_for_starter();
     NOTICE("Starting game\n");
 
-    int i;
-
     while (true) {
         /* Go to lunar module */
-        i = 0;
-        while (!strategy_goto_avoid(robot, 780, 1340, 45)) {
-            DEBUG("Try #%d", i);
-            i++;
-        }
+        strategy_goto_avoid_retry(robot, 780, 1340, 45, -1);
 
         /* Push lunar module */
         trajectory_d_rel(&robot->traj, 100.);
@@ -141,17 +196,31 @@ void strategy_play_game(void* _robot)
         trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
 
         /* Go back to home */
-        i = 0;
-        while (!strategy_goto_avoid(robot, 600, 200, 90)) {
-            DEBUG("Try #%d", i);
-            i++;
-        }
+        strategy_goto_avoid_retry(robot, 600, 200, 90, -1);
 
         DEBUG("Game ended!\nInsert coin to play more.\n");
         chThdSleepSeconds(1);
 
         wait_for_starter();
     }
+}
+
+void strategy_play_game(void* _robot)
+{
+    chRegSetThreadName("strategy");
+
+    struct _robot* robot = (struct _robot*)_robot;
+    enum strat_color_t color = YELLOW;
+
+    /* Initialize map and path planner */
+    map_init(config_get_integer("master/robot_size_x_mm"));
+    NOTICE("Strategy is ready, waiting for autopositioning signal");
+
+#ifdef DEBRA
+    strategy_debra_play_game(robot, color);
+#else
+    strategy_sandoi_play_game(robot, color);
+#endif
 }
 
 void strategy_start(void)

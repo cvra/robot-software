@@ -23,6 +23,10 @@
 #include "robot_helpers/math_helpers.h"
 #include "robot_helpers/trajectory_helpers.h"
 #include "robot_helpers/strategy_helpers.h"
+#include "robot_helpers/motor_helpers.h"
+#include "scara/scara.h"
+#include "scara/scara_utils.h"
+#include "arms/arms_controller.h"
 #include "strategy.h"
 #include <trace/trace.h>
 
@@ -624,6 +628,66 @@ static void cmd_autopos(BaseSequentialStream *chp, int argc, char *argv[])
 }
 
 
+static void cmd_motor_pos(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc < 2) {
+        chprintf(chp, "Usage: motor_pos motor_name position\r\n");
+        return;
+    }
+    float position = atof(argv[1]);
+    chprintf(chp, "Setting motor %s position to %f\r\n", argv[0], position);
+    motor_manager_set_position(&motor_manager, argv[0], position);
+}
+
+static void cmd_motor_index(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc < 3) {
+        chprintf(chp, "Usage: motor_index motor_name direction speed\r\n");
+        return;
+    }
+    int motor_dir = atoi(argv[1]);
+    float motor_speed = atof(argv[2]);
+
+    motor_driver_t* motor = bus_enumerator_get_driver(motor_manager.bus_enumerator, argv[0]);
+    if (motor == NULL) {
+        chprintf(chp, "Motor %s doesn't exist\r\n", argv[0]);
+        return;
+    }
+
+    chprintf(chp, "Searching for index of motor %s\r\n", argv[0]);
+
+    float index = motor_auto_index(motor, motor_dir, motor_speed);
+    chprintf(chp, "Average index is %.4f\r\n", index);
+}
+
+static void cmd_scara_pos(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc < 4) {
+        chprintf(chp, "Usage: scara_pos frame side x y\r\n");
+        return;
+    }
+    float x = atof(argv[2]);
+    float y = atof(argv[3]);
+
+    chprintf(chp, "Moving %s arm to %f %f in %s frame\r\n", argv[1], x, y, argv[0]);
+
+    scara_t* arm;
+
+    if (strcmp("left", argv[1]) == 0) {
+        arm = &left_arm;
+    } else {
+        arm = &right_arm;
+    }
+
+    if (strcmp("robot", argv[0]) == 0) {
+        strategy_arm_goto(&robot, arm, x, y, 0, COORDINATE_ROBOT, 1.);
+    } else if (strcmp("table", argv[0]) == 0) {
+        strategy_arm_goto(&robot, arm, x, y, 0, COORDINATE_TABLE, 1.);
+    } else {
+        strategy_arm_goto(&robot, arm, x, y, 0, COORDINATE_ARM, 1.);
+    }
+}
+
 static void print_fn(void *arg, const char *fmt, ...)
 {
     BaseSequentialStream *chp = (BaseSequentialStream *)arg;
@@ -674,6 +738,9 @@ const ShellCommand commands[] = {
     {"track_calib", cmd_track_calibration},
     {"track_corr", cmd_track_correction},
     {"autopos", cmd_autopos},
+    {"motor_pos", cmd_motor_pos},
+    {"motor_index", cmd_motor_index},
+    {"scara_pos", cmd_scara_pos},
     {"trace", cmd_trace},
     {NULL, NULL}
 };

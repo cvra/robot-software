@@ -39,6 +39,10 @@ target.arm:
     - src/aversive_port/cvra_pid.c
     - src/base/encoder.c
     - src/base/base_controller.c
+    - src/arms/cvra_arm_motors.c
+    - src/arms/scara_port.c
+    - src/arms/arms_controller.c
+    - src/robot_helpers/motor_helpers.c
     - src/config_msgpack.c
     - src/trace/trace_points.c
     - src/strategy.c
@@ -70,6 +74,10 @@ source:
     - src/aversive/trajectory_manager/trajectory_manager.c
     - src/aversive/trajectory_manager/trajectory_manager_core.c
     - src/aversive/trajectory_manager/trajectory_manager_utils.c
+    - src/scara/scara_utils.c
+    - src/scara/scara_trajectories.c
+    - src/scara/scara_kinematics.c
+    - src/scara/scara.c
 
 include_directories:
     - src/
@@ -93,6 +101,12 @@ tests:
     - tests/trace_test.cpp
     - tests/trace_points.c
     - tests/trajectory_manager_test.cpp
+    - tests/scara_port_mock.cpp
+    - tests/scara_utils.cpp
+    - tests/scara_trajectories.cpp
+    - tests/scara_kinematics.cpp
+    - tests/scara_kinematics_integration.cpp
+    - tests/scara.cpp
 
 templates:
     app_src.mk.jinja: app_src.mk

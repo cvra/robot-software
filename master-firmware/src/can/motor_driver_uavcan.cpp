@@ -75,10 +75,11 @@ struct can_driver_s {
 static void driver_allocation(motor_driver_t *d)
 {
     if (d->can_driver == NULL) {
-        d->can_driver = new struct can_driver_s;
-        if (d->can_driver == NULL) {
+        void* buf = malloc(sizeof(struct can_driver_s));
+        if (buf == NULL) {
             chSysHalt("motor driver memory allocation failed");
         }
+        d->can_driver = new (buf) struct can_driver_s;
     }
 }
 

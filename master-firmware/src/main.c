@@ -30,15 +30,18 @@
 #include "usbconf.h"
 #include "base/encoder.h"
 #include "base/base_controller.h"
+#include "arms/arms_controller.h"
 #include "trace/trace_points.h"
 #include "strategy.h"
 #include "filesystem.h"
 #include "http/server.h"
 
 void init_base_motors(void);
+void init_arm_motors(void);
 
 /* Command line related */
-#define SHELL_WA_SIZE   THD_WORKING_AREA_SIZE(2048)
+THD_WORKING_AREA(shell_wa, 2048);
+
 static const ShellConfig shell_cfg1 = {
     (BaseSequentialStream *)&SDU1,
     commands
@@ -232,6 +235,10 @@ int main(void) {
     http_server_start();
 
     init_base_motors();
+#ifdef DEBRA
+    chThdSleepMilliseconds(100);
+    init_arm_motors();
+#endif
     config_load_from_flash();
     uavcan_node_start(10);
 
@@ -242,6 +249,13 @@ int main(void) {
     position_manager_start();
     trajectory_manager_start();
 
+    /* Arms init */
+#ifdef DEBRA
+    chThdSleepMilliseconds(5000);
+    arms_init();
+    arms_controller_start();
+#endif
+
     /* Initialize strategy thread, will wait for signal to begin game */
     strategy_start();
 
@@ -250,7 +264,7 @@ int main(void) {
     /* main thread, spawns a shell on USB connection. */
     while (1) {
         if (!shelltp) {
-            shelltp = shellCreate(&shell_cfg1, SHELL_WA_SIZE, USB_SHELL_PRIO);
+            shelltp = shellCreateStatic(&shell_cfg1, &shell_wa, sizeof(shell_wa), USB_SHELL_PRIO);
         } else if (chThdTerminatedX(shelltp)) {
             chThdRelease(shelltp);    /* Recovers memory of the previous shell.   */
             shelltp = NULL;           /* Triggers spawning of a new shell.        */
@@ -268,6 +282,16 @@ void init_base_motors(void)
     motor_manager_create_driver(&motor_manager, "right-wheel");
 }
 
+void init_arm_motors(void)
+{
+    motor_manager_create_driver(&motor_manager, "left-shoulder");
+    motor_manager_create_driver(&motor_manager, "left-elbow");
+    motor_manager_create_driver(&motor_manager, "left-wrist");
+
+    motor_manager_create_driver(&motor_manager, "right-shoulder");
+    motor_manager_create_driver(&motor_manager, "right-elbow");
+    motor_manager_create_driver(&motor_manager, "right-wrist");
+}
 
 void init_hands(void)
 {

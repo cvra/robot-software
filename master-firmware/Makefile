@@ -53,10 +53,10 @@ ifeq ($(USE_BOOTLOADER),)
 endif
 
 # Config file depending on robot
-ifeq ($(DEBRA),)
-  CONFIG_YAML = ../config.yaml
-else
+ifeq ($(DEBRA), yes)
   CONFIG_YAML = ../config_debra.yaml
+else
+  CONFIG_YAML = ../config.yaml
 endif
 
 #
@@ -216,7 +216,11 @@ DLIBS =
 #
 
 # List all user C define here, like -D_DEBUG=1
-UDEFS = -DDEBRA=1 -DON_ROBOT
+UDEFS = -DON_ROBOT
+
+ifeq ($(DEBRA), yes)
+  UDEFS += -DDEBRA=1
+endif
 
 # Define ASM defines here
 UADEFS =
