@@ -42,7 +42,7 @@ TEST_GROUP(ArmTestGroup)
 //     CHECK_EQUAL(1, arm.z_axis.manager.enabled);
 // }
 
-IGNORE_TEST(ArmTestGroup, LagCompensationIsInitialized)
+TEST(ArmTestGroup, LagCompensationIsInitialized)
 {
 
     scara_time_set(42);
@@ -50,13 +50,13 @@ IGNORE_TEST(ArmTestGroup, LagCompensationIsInitialized)
     CHECK_EQUAL(42, arm.last_loop);
 }
 
-IGNORE_TEST(ArmTestGroup, ShoulderModeIsSetToBack)
+TEST(ArmTestGroup, ShoulderModeIsSetToBack)
 {
     scara_init(&arm);
     CHECK_EQUAL(SHOULDER_BACK, arm.shoulder_mode);
 }
 
-IGNORE_TEST(ArmTestGroup, PhysicalParametersMakeSense)
+TEST(ArmTestGroup, PhysicalParametersMakeSense)
 {
     scara_set_physical_parameters(&arm, 100, 50);
 
@@ -65,7 +65,7 @@ IGNORE_TEST(ArmTestGroup, PhysicalParametersMakeSense)
     CHECK_EQUAL(50, arm.length[1]);
 }
 
-IGNORE_TEST(ArmTestGroup, ExecuteTrajectoryCopiesData)
+TEST(ArmTestGroup, ExecuteTrajectoryCopiesData)
 {
     scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 1.);
     scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10.);
@@ -135,7 +135,7 @@ IGNORE_TEST(ArmTestGroup, ExecuteTrajectoryCopiesData)
 // }
 
 
-IGNORE_TEST(ArmTestGroup, ArmManageUpdatesLastLoop)
+TEST(ArmTestGroup, ArmManageUpdatesLastLoop)
 {
     scara_time_set(42);
     CHECK_EQUAL(0, arm.trajectory.frame_count);
@@ -215,7 +215,7 @@ IGNORE_TEST(ArmTestGroup, ArmManageUpdatesLastLoop)
 // }
 
 
-IGNORE_TEST(ArmTestGroup, CurrentPointComputation)
+TEST(ArmTestGroup, CurrentPointComputation)
 {
     scara_waypoint_t result;
     const int32_t date = 5 * 1000000;
@@ -228,7 +228,7 @@ IGNORE_TEST(ArmTestGroup, CurrentPointComputation)
     DOUBLES_EQUAL(result.position[0], 5., 0.1);
 }
 
-IGNORE_TEST(ArmTestGroup, CurrentPointSelectFrame)
+TEST(ArmTestGroup, CurrentPointSelectFrame)
 {
     scara_waypoint_t result;
     const int32_t date = 15 * 1000000;
@@ -241,7 +241,7 @@ IGNORE_TEST(ArmTestGroup, CurrentPointSelectFrame)
     DOUBLES_EQUAL(25, result.position[1], 0.1);
 }
 
-IGNORE_TEST(ArmTestGroup, CurrentPointPastEnd)
+TEST(ArmTestGroup, CurrentPointPastEnd)
 {
     scara_waypoint_t result;
     const int32_t date = 25 * 1000000;
@@ -254,7 +254,7 @@ IGNORE_TEST(ArmTestGroup, CurrentPointPastEnd)
     DOUBLES_EQUAL(30, result.position[1], 0.1);
 }
 
-IGNORE_TEST(ArmTestGroup, MixedCoordinateSystems)
+TEST(ArmTestGroup, MixedCoordinateSystems)
 {
     scara_waypoint_t result;
     const int32_t date = 5 * 1000000;
@@ -268,14 +268,14 @@ IGNORE_TEST(ArmTestGroup, MixedCoordinateSystems)
     DOUBLES_EQUAL(-5, result.position[1], 0.1);
 }
 
-IGNORE_TEST(ArmTestGroup, CanSetRelatedRobotPosition)
+TEST(ArmTestGroup, CanSetRelatedRobotPosition)
 {
     struct robot_position pos;
     scara_set_related_robot_pos(&arm, &pos);
     POINTERS_EQUAL(arm.robot_pos, &pos);
 }
 
-IGNORE_TEST(ArmTestGroup, TableCoordinateSystem)
+TEST(ArmTestGroup, TableCoordinateSystem)
 {
     scara_waypoint_t result;
     struct robot_position pos;
@@ -297,7 +297,7 @@ IGNORE_TEST(ArmTestGroup, TableCoordinateSystem)
     DOUBLES_EQUAL(-15, result.position[1], 0.1);
 }
 
-IGNORE_TEST(ArmTestGroup, TrajectoriesFirstPointTableNotHandledCorrectly)
+TEST(ArmTestGroup, TrajectoriesFirstPointTableNotHandledCorrectly)
 {
     /* This tests shows a bug where the trajectory for the case where
      * a coordinate in table or robot frame is not handled correctly past
@@ -314,7 +314,7 @@ IGNORE_TEST(ArmTestGroup, TrajectoriesFirstPointTableNotHandledCorrectly)
     DOUBLES_EQUAL(-10, result.position[1], 0.1);
 }
 
-IGNORE_TEST(ArmTestGroup, LengthAreInterpolated)
+TEST(ArmTestGroup, LengthAreInterpolated)
 {
     scara_waypoint_t result;
     const int32_t date = 5 * 1000000;
