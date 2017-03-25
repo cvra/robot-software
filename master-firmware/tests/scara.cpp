@@ -11,12 +11,21 @@ extern "C" {
 
 void scara_time_set(int32_t time);
 
+void set_motor_pos(void *m, float value)
+{
+    *(float *)m = value;
+}
+
+
 
 TEST_GROUP(ArmTestGroup)
 {
     scara_t arm;
     scara_trajectory_t traj;
     float arbitraryLengths[2] = {100, 50};
+    float shoulder_angle, elbow_angle;
+
+
 
     void setup()
     {
@@ -24,6 +33,12 @@ TEST_GROUP(ArmTestGroup)
         scara_set_physical_parameters(&arm, arbitraryLengths[0], arbitraryLengths[1]);
         arm.offset_rotation = M_PI / 2;
         scara_trajectory_init(&traj);
+
+        shoulder_angle = 0;
+        elbow_angle = 0;
+
+        scara_set_shoulder_callback(&arm, set_motor_pos, &shoulder_angle);
+        scara_set_elbow_callback(&arm, set_motor_pos, &elbow_angle);
     }
 
     void teardown()
@@ -33,14 +48,6 @@ TEST_GROUP(ArmTestGroup)
         scara_trajectory_delete(&arm.trajectory);
     }
 };
-
-// IGNORE_TEST(ArmTestGroup, AllControlSystemInitialized)
-// {
-//     scara_init(&arm);
-//     CHECK_EQUAL(1, arm.shoulder.manager.enabled);
-//     CHECK_EQUAL(1, arm.elbow.manager.enabled);
-//     CHECK_EQUAL(1, arm.z_axis.manager.enabled);
-// }
 
 TEST(ArmTestGroup, LagCompensationIsInitialized)
 {
@@ -126,15 +133,6 @@ TEST(ArmTestGroup, ExecuteTrajectoryCopiesData)
 //     CHECK_EQUAL(1, arm.trajectory_semaphore.count);
 // }
 
-// IGNORE_TEST(ArmTestGroup, ArmManageEmptyTrajectoryDisablesControl)
-// {
-//     scara_manage(&arm);
-//     CHECK_EQUAL(0, arm.shoulder.manager.enabled);
-//     CHECK_EQUAL(0, arm.elbow.manager.enabled);
-//     CHECK_EQUAL(0, arm.z_axis.manager.enabled);
-// }
-
-
 TEST(ArmTestGroup, ArmManageUpdatesLastLoop)
 {
     scara_time_set(42);
@@ -143,77 +141,17 @@ TEST(ArmTestGroup, ArmManageUpdatesLastLoop)
     CHECK_EQUAL(42, arm.last_loop)
 }
 
-// IGNORE_TEST(ArmTestGroup, ArmFinishedTrajectoryHasEnabledControl)
-// {
-//     scara_time_set(0);
-//     scara_trajectory_append_point(&traj, 100, 10, 10, COORDINATE_ARM, 1.);
-//     scara_trajectory_append_point(&traj, 100, 10, 10, COORDINATE_ARM, 10.);
-//     scara_do_trajectory(&arm, &traj);
+TEST(ArmTestGroup, ArmManageChangesConsign)
+{
+    scara_trajectory_init(&traj);
+    scara_trajectory_append_point(&traj, 100, 100, 10, COORDINATE_ARM, 1.);
+    scara_do_trajectory(&arm, &traj);
 
-//     scara_time_set(20 * 1000000);
-//     scara_manage(&arm);
-//     CHECK_EQUAL(1, arm.shoulder.manager.enabled);
-//     CHECK_EQUAL(1, arm.elbow.manager.enabled);
-//     CHECK_EQUAL(1, arm.z_axis.manager.enabled);
-// }
-
-// IGNORE_TEST(ArmTestGroup, ArmManageChangesConsign)
-// {
-//     scara_trajectory_init(&traj);
-//     scara_trajectory_append_point(&traj, 100, 100, 10, COORDINATE_ARM, 1.);
-//     scara_do_trajectory(&arm, &traj);
-
-//     scara_time_set(8 * 1000000);
-//     scara_manage(&arm);
-//     CHECK(0 != cs_get_consign(&arm.shoulder.manager));
-//     CHECK(0 != cs_get_consign(&arm.elbow.manager));
-//     CHECK(0 != cs_get_consign(&arm.z_axis.manager));
-// }
-
-// IGNORE_TEST(ArmTestGroup, ArmManageEnablesConsignWithReachablePoint)
-// {
-//     scara_trajectory_init(&traj);
-//     cs_disable(&arm.shoulder.manager);
-//     cs_disable(&arm.elbow.manager);
-//     cs_disable(&arm.z_axis.manager);
-
-//     scara_trajectory_append_point_with_length(&traj, 100, 100, 100, COORDINATE_ARM, 1., 100, 100);
-//     scara_do_trajectory(&arm, &traj);
-
-//     scara_time_set(8 * 1000000);
-//     scara_manage(&arm);
-
-//     CHECK_EQUAL(1, arm.shoulder.manager.enabled);
-// }
-
-// IGNORE_TEST(ArmTestGroup, ArmManageDisablesArmIfTooFar)
-// {
-//     scara_trajectory_init(&traj);
-
-//     scara_trajectory_append_point_with_length(&traj, 100, 100, 100, COORDINATE_ARM, 1., 10, 10);
-//     scara_do_trajectory(&arm, &traj);
-
-//     scara_time_set(8 * 1000000);
-//     scara_manage(&arm);
-
-//     CHECK_EQUAL(0, arm.shoulder.manager.enabled);
-// }
-
-// IGNORE_TEST(ArmTestGroup, ArmShutdownDisablesControlSystems)
-// {
-//     scara_trajectory_init(&traj);
-//     scara_trajectory_append_point(&traj, 100, 100, 100, COORDINATE_ARM, 1.);
-//     scara_do_trajectory(&arm, &traj);
-
-//     scara_manage(&arm);
-//     CHECK_EQUAL(1, arm.shoulder.manager.enabled);
-
-//     scara_shutdown(&arm);
-//     scara_manage(&arm);
-
-//     CHECK_EQUAL(0, arm.shoulder.manager.enabled);
-// }
-
+    scara_time_set(8 * 1000000);
+    scara_manage(&arm);
+    CHECK(0 != shoulder_angle);
+    CHECK(0 != elbow_angle);
+}
 
 TEST(ArmTestGroup, CurrentPointComputation)
 {
