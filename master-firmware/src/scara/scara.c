@@ -15,6 +15,8 @@ void scara_init(scara_t *arm)
     arm->last_loop = scara_time_get();
 
     arm->shoulder_mode = SHOULDER_BACK;
+
+    chMtxObjectInit(&arm->lock);
 }
 
 
@@ -52,20 +54,20 @@ void scara_goto(scara_t* arm, float x, float y, float z, scara_coordinate_t syst
 
 void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj)
 {
-    // scara_take_semaphore(&arm->trajectory_semaphore);
+    chMtxLock(&arm->lock);
     scara_trajectory_copy(&arm->trajectory, traj);
-    // scara_signal_semaphore(&arm->trajectory_semaphore);
+    chMtxUnlock(&arm->lock);
 }
 
 void scara_manage(scara_t *arm)
 {
     int32_t current_date = scara_time_get();
 
-    // scara_take_semaphore(&arm->trajectory_semaphore);
+    chMtxLock(&arm->lock);
 
     if (arm->trajectory.frame_count == 0) {
         arm->last_loop = current_date;
-        // scara_signal_semaphore(&arm->trajectory_semaphore);
+        chMtxUnlock(&arm->lock);
         return;
     }
 
@@ -78,7 +80,7 @@ void scara_manage(scara_t *arm)
 
     if (position_count == 0) {
         arm->last_loop = current_date;
-        // scara_signal_semaphore(&arm->trajectory_semaphore);
+        chMtxUnlock(&arm->lock);
         return;
     } else if (position_count == 2) {
         shoulder_mode_t mode;
@@ -105,7 +107,8 @@ void scara_manage(scara_t *arm)
 
     arm->set_shoulder_position(arm->shoulder_args, alpha - arm->shoulder_index);
     arm->set_elbow_position(arm->elbow_args, beta - arm->elbow_index);
-    // scara_signal_semaphore(&arm->trajectory_semaphore);
+
+    chMtxUnlock(&arm->lock);
 }
 
 static scara_waypoint_t scara_convert_waypoint_coordinate(scara_t *arm, scara_waypoint_t key)

@@ -1,4 +1,5 @@
 #include "CppUTest/TestHarness.h"
+#include <CppUTestExt/MockSupport.h>
 #include <cstring>
 #include <cmath>
 
@@ -46,6 +47,7 @@ TEST_GROUP(ArmTestGroup)
         scara_time_set(0);
         scara_trajectory_delete(&traj);
         scara_trajectory_delete(&arm.trajectory);
+        lock_mocks_enable(false);
     }
 };
 
@@ -82,56 +84,47 @@ TEST(ArmTestGroup, ExecuteTrajectoryCopiesData)
     CHECK(0 == memcmp(traj.frames, arm.trajectory.frames, sizeof(scara_waypoint_t) * traj.frame_count));
 }
 
-// IGNORE_TEST(ArmTestGroup, ExecuteTrajectoryIsAtomic)
-// {
-//     scara_do_trajectory(&arm, &traj);
+TEST(ArmTestGroup, ExecuteTrajectoryIsAtomic)
+{
+    lock_mocks_enable(true);
+    mock().expectOneCall("chMtxLock").withPointerParameter("lock", &arm.lock);
+    mock().expectOneCall("chMtxUnlock").withPointerParameter("lock", &arm.lock);
+    scara_do_trajectory(&arm, &traj);
+}
 
-//     CHECK_EQUAL(1, arm.trajectory_semaphore.acquired_count);
+TEST(ArmTestGroup, ArmManageIsAtomic)
+{
+    scara_trajectory_append_point(&traj, 60, 60, 10, COORDINATE_ARM, 1.);
+    scara_trajectory_append_point(&traj, 60, 60, 10, COORDINATE_ARM, 10.);
+    scara_do_trajectory(&arm, &traj);
 
-//     /* Checks that the function released semaphore. */
-//     CHECK_EQUAL(1, arm.trajectory_semaphore.count);
-// }
+    lock_mocks_enable(true);
+    mock().expectOneCall("chMtxLock").withPointerParameter("lock", &arm.lock);
+    mock().expectOneCall("chMtxUnlock").withPointerParameter("lock", &arm.lock);
+    scara_manage(&arm);
+}
 
-// IGNORE_TEST(ArmTestGroup, ArmManageIsAtomic)
-// {
-//     scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 1.);
-//     scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10.);
-//     scara_do_trajectory(&arm, &traj);
+TEST(ArmTestGroup, ArmManageIsAtomicWithEmptyTraj)
+{
+    scara_do_trajectory(&arm, &traj);
 
-//     CHECK_EQUAL(1, arm.trajectory_semaphore.acquired_count);
-//     scara_manage(&arm);
-//     CHECK_EQUAL(2, arm.trajectory_semaphore.acquired_count);
-//     CHECK_EQUAL(1, arm.trajectory_semaphore.count);
+    lock_mocks_enable(true);
+    mock().expectOneCall("chMtxLock").withPointerParameter("lock", &arm.lock);
+    mock().expectOneCall("chMtxUnlock").withPointerParameter("lock", &arm.lock);
 
-// }
+    scara_manage(&arm);
+}
 
-// IGNORE_TEST(ArmTestGroup, ArmManageIsAtomicWithEmptyTraj)
-// {
-//     scara_do_trajectory(&arm, &traj);
+TEST(ArmTestGroup, ArmManageIsAtomicWithUnreachableTarget)
+{
+    scara_trajectory_append_point_with_length(&traj, 10000, 10000, 10, COORDINATE_ARM, 1., 10, 10);
+    scara_do_trajectory(&arm, &traj);
+    lock_mocks_enable(true);
+    mock().expectOneCall("chMtxLock").withPointerParameter("lock", &arm.lock);
+    mock().expectOneCall("chMtxUnlock").withPointerParameter("lock", &arm.lock);
 
-//     CHECK_EQUAL(1, arm.trajectory_semaphore.acquired_count);
-//     scara_manage(&arm);
-//     CHECK_EQUAL(2, arm.trajectory_semaphore.acquired_count);
-//     CHECK_EQUAL(1, arm.trajectory_semaphore.count);
-// }
-
-// IGNORE_TEST(ArmTestGroup, ArmShutdownIsAtomic)
-// {
-//     scara_shutdown(&arm);
-//     CHECK_EQUAL(1, arm.trajectory_semaphore.acquired_count);
-//     CHECK_EQUAL(1, arm.trajectory_semaphore.count);
-// }
-
-// IGNORE_TEST(ArmTestGroup, ArmManageIsAtomicWithUnreachableTarget)
-// {
-//     scara_trajectory_append_point_with_length(&traj, 100, 100, 10, COORDINATE_ARM, 1., 10, 10);
-//     scara_do_trajectory(&arm, &traj);
-
-//     CHECK_EQUAL(1, arm.trajectory_semaphore.acquired_count);
-//     scara_manage(&arm);
-//     CHECK_EQUAL(2, arm.trajectory_semaphore.acquired_count);
-//     CHECK_EQUAL(1, arm.trajectory_semaphore.count);
-// }
+    scara_manage(&arm);
+}
 
 TEST(ArmTestGroup, ArmManageUpdatesLastLoop)
 {

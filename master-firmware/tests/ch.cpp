@@ -4,6 +4,11 @@
 
 static bool lock_enabled = false;
 
+void chMtxObjectInit(mutex_t *mp)
+{
+    (void) mp;
+}
+
 void chMtxLock(mutex_t *lock)
 {
     if (lock_enabled) {
