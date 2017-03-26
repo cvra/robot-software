@@ -1,6 +1,8 @@
 #ifndef SCARA_H
 #define SCARA_H
 
+#include <ch.h>
+
 #include <aversive/position_manager/position_manager.h>
 #include <aversive/math/vect2/vect2.h>
 #include <error/error.h>
@@ -38,6 +40,8 @@ typedef struct {
     struct robot_position *robot_pos;
 
     shoulder_mode_t shoulder_mode;
+
+    mutex_t lock;
 } scara_t;
 
 

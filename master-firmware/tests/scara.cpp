@@ -1,4 +1,5 @@
 #include "CppUTest/TestHarness.h"
+#include <CppUTestExt/MockSupport.h>
 #include <cstring>
 #include <cmath>
 
@@ -11,12 +12,21 @@ extern "C" {
 
 void scara_time_set(int32_t time);
 
+void set_motor_pos(void *m, float value)
+{
+    *(float *)m = value;
+}
+
+
 
 TEST_GROUP(ArmTestGroup)
 {
     scara_t arm;
     scara_trajectory_t traj;
     float arbitraryLengths[2] = {100, 50};
+    float shoulder_angle, elbow_angle;
+
+
 
     void setup()
     {
@@ -24,6 +34,12 @@ TEST_GROUP(ArmTestGroup)
         scara_set_physical_parameters(&arm, arbitraryLengths[0], arbitraryLengths[1]);
         arm.offset_rotation = M_PI / 2;
         scara_trajectory_init(&traj);
+
+        shoulder_angle = 0;
+        elbow_angle = 0;
+
+        scara_set_shoulder_callback(&arm, set_motor_pos, &shoulder_angle);
+        scara_set_elbow_callback(&arm, set_motor_pos, &elbow_angle);
     }
 
     void teardown()
@@ -31,18 +47,11 @@ TEST_GROUP(ArmTestGroup)
         scara_time_set(0);
         scara_trajectory_delete(&traj);
         scara_trajectory_delete(&arm.trajectory);
+        lock_mocks_enable(false);
     }
 };
 
-// IGNORE_TEST(ArmTestGroup, AllControlSystemInitialized)
-// {
-//     scara_init(&arm);
-//     CHECK_EQUAL(1, arm.shoulder.manager.enabled);
-//     CHECK_EQUAL(1, arm.elbow.manager.enabled);
-//     CHECK_EQUAL(1, arm.z_axis.manager.enabled);
-// }
-
-IGNORE_TEST(ArmTestGroup, LagCompensationIsInitialized)
+TEST(ArmTestGroup, LagCompensationIsInitialized)
 {
 
     scara_time_set(42);
@@ -50,13 +59,13 @@ IGNORE_TEST(ArmTestGroup, LagCompensationIsInitialized)
     CHECK_EQUAL(42, arm.last_loop);
 }
 
-IGNORE_TEST(ArmTestGroup, ShoulderModeIsSetToBack)
+TEST(ArmTestGroup, ShoulderModeIsSetToBack)
 {
     scara_init(&arm);
     CHECK_EQUAL(SHOULDER_BACK, arm.shoulder_mode);
 }
 
-IGNORE_TEST(ArmTestGroup, PhysicalParametersMakeSense)
+TEST(ArmTestGroup, PhysicalParametersMakeSense)
 {
     scara_set_physical_parameters(&arm, 100, 50);
 
@@ -65,7 +74,7 @@ IGNORE_TEST(ArmTestGroup, PhysicalParametersMakeSense)
     CHECK_EQUAL(50, arm.length[1]);
 }
 
-IGNORE_TEST(ArmTestGroup, ExecuteTrajectoryCopiesData)
+TEST(ArmTestGroup, ExecuteTrajectoryCopiesData)
 {
     scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 1.);
     scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10.);
@@ -75,67 +84,49 @@ IGNORE_TEST(ArmTestGroup, ExecuteTrajectoryCopiesData)
     CHECK(0 == memcmp(traj.frames, arm.trajectory.frames, sizeof(scara_waypoint_t) * traj.frame_count));
 }
 
-// IGNORE_TEST(ArmTestGroup, ExecuteTrajectoryIsAtomic)
-// {
-//     scara_do_trajectory(&arm, &traj);
+TEST(ArmTestGroup, ExecuteTrajectoryIsAtomic)
+{
+    lock_mocks_enable(true);
+    mock().expectOneCall("chMtxLock").withPointerParameter("lock", &arm.lock);
+    mock().expectOneCall("chMtxUnlock").withPointerParameter("lock", &arm.lock);
+    scara_do_trajectory(&arm, &traj);
+}
 
-//     CHECK_EQUAL(1, arm.trajectory_semaphore.acquired_count);
+TEST(ArmTestGroup, ArmManageIsAtomic)
+{
+    scara_trajectory_append_point(&traj, 60, 60, 10, COORDINATE_ARM, 1.);
+    scara_trajectory_append_point(&traj, 60, 60, 10, COORDINATE_ARM, 10.);
+    scara_do_trajectory(&arm, &traj);
 
-//     /* Checks that the function released semaphore. */
-//     CHECK_EQUAL(1, arm.trajectory_semaphore.count);
-// }
+    lock_mocks_enable(true);
+    mock().expectOneCall("chMtxLock").withPointerParameter("lock", &arm.lock);
+    mock().expectOneCall("chMtxUnlock").withPointerParameter("lock", &arm.lock);
+    scara_manage(&arm);
+}
 
-// IGNORE_TEST(ArmTestGroup, ArmManageIsAtomic)
-// {
-//     scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 1.);
-//     scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10.);
-//     scara_do_trajectory(&arm, &traj);
+TEST(ArmTestGroup, ArmManageIsAtomicWithEmptyTraj)
+{
+    scara_do_trajectory(&arm, &traj);
 
-//     CHECK_EQUAL(1, arm.trajectory_semaphore.acquired_count);
-//     scara_manage(&arm);
-//     CHECK_EQUAL(2, arm.trajectory_semaphore.acquired_count);
-//     CHECK_EQUAL(1, arm.trajectory_semaphore.count);
+    lock_mocks_enable(true);
+    mock().expectOneCall("chMtxLock").withPointerParameter("lock", &arm.lock);
+    mock().expectOneCall("chMtxUnlock").withPointerParameter("lock", &arm.lock);
 
-// }
+    scara_manage(&arm);
+}
 
-// IGNORE_TEST(ArmTestGroup, ArmManageIsAtomicWithEmptyTraj)
-// {
-//     scara_do_trajectory(&arm, &traj);
+TEST(ArmTestGroup, ArmManageIsAtomicWithUnreachableTarget)
+{
+    scara_trajectory_append_point_with_length(&traj, 10000, 10000, 10, COORDINATE_ARM, 1., 10, 10);
+    scara_do_trajectory(&arm, &traj);
+    lock_mocks_enable(true);
+    mock().expectOneCall("chMtxLock").withPointerParameter("lock", &arm.lock);
+    mock().expectOneCall("chMtxUnlock").withPointerParameter("lock", &arm.lock);
 
-//     CHECK_EQUAL(1, arm.trajectory_semaphore.acquired_count);
-//     scara_manage(&arm);
-//     CHECK_EQUAL(2, arm.trajectory_semaphore.acquired_count);
-//     CHECK_EQUAL(1, arm.trajectory_semaphore.count);
-// }
+    scara_manage(&arm);
+}
 
-// IGNORE_TEST(ArmTestGroup, ArmShutdownIsAtomic)
-// {
-//     scara_shutdown(&arm);
-//     CHECK_EQUAL(1, arm.trajectory_semaphore.acquired_count);
-//     CHECK_EQUAL(1, arm.trajectory_semaphore.count);
-// }
-
-// IGNORE_TEST(ArmTestGroup, ArmManageIsAtomicWithUnreachableTarget)
-// {
-//     scara_trajectory_append_point_with_length(&traj, 100, 100, 10, COORDINATE_ARM, 1., 10, 10);
-//     scara_do_trajectory(&arm, &traj);
-
-//     CHECK_EQUAL(1, arm.trajectory_semaphore.acquired_count);
-//     scara_manage(&arm);
-//     CHECK_EQUAL(2, arm.trajectory_semaphore.acquired_count);
-//     CHECK_EQUAL(1, arm.trajectory_semaphore.count);
-// }
-
-// IGNORE_TEST(ArmTestGroup, ArmManageEmptyTrajectoryDisablesControl)
-// {
-//     scara_manage(&arm);
-//     CHECK_EQUAL(0, arm.shoulder.manager.enabled);
-//     CHECK_EQUAL(0, arm.elbow.manager.enabled);
-//     CHECK_EQUAL(0, arm.z_axis.manager.enabled);
-// }
-
-
-IGNORE_TEST(ArmTestGroup, ArmManageUpdatesLastLoop)
+TEST(ArmTestGroup, ArmManageUpdatesLastLoop)
 {
     scara_time_set(42);
     CHECK_EQUAL(0, arm.trajectory.frame_count);
@@ -143,79 +134,19 @@ IGNORE_TEST(ArmTestGroup, ArmManageUpdatesLastLoop)
     CHECK_EQUAL(42, arm.last_loop)
 }
 
-// IGNORE_TEST(ArmTestGroup, ArmFinishedTrajectoryHasEnabledControl)
-// {
-//     scara_time_set(0);
-//     scara_trajectory_append_point(&traj, 100, 10, 10, COORDINATE_ARM, 1.);
-//     scara_trajectory_append_point(&traj, 100, 10, 10, COORDINATE_ARM, 10.);
-//     scara_do_trajectory(&arm, &traj);
+TEST(ArmTestGroup, ArmManageChangesConsign)
+{
+    scara_trajectory_init(&traj);
+    scara_trajectory_append_point(&traj, 100, 100, 10, COORDINATE_ARM, 1.);
+    scara_do_trajectory(&arm, &traj);
 
-//     scara_time_set(20 * 1000000);
-//     scara_manage(&arm);
-//     CHECK_EQUAL(1, arm.shoulder.manager.enabled);
-//     CHECK_EQUAL(1, arm.elbow.manager.enabled);
-//     CHECK_EQUAL(1, arm.z_axis.manager.enabled);
-// }
+    scara_time_set(8 * 1000000);
+    scara_manage(&arm);
+    CHECK(0 != shoulder_angle);
+    CHECK(0 != elbow_angle);
+}
 
-// IGNORE_TEST(ArmTestGroup, ArmManageChangesConsign)
-// {
-//     scara_trajectory_init(&traj);
-//     scara_trajectory_append_point(&traj, 100, 100, 10, COORDINATE_ARM, 1.);
-//     scara_do_trajectory(&arm, &traj);
-
-//     scara_time_set(8 * 1000000);
-//     scara_manage(&arm);
-//     CHECK(0 != cs_get_consign(&arm.shoulder.manager));
-//     CHECK(0 != cs_get_consign(&arm.elbow.manager));
-//     CHECK(0 != cs_get_consign(&arm.z_axis.manager));
-// }
-
-// IGNORE_TEST(ArmTestGroup, ArmManageEnablesConsignWithReachablePoint)
-// {
-//     scara_trajectory_init(&traj);
-//     cs_disable(&arm.shoulder.manager);
-//     cs_disable(&arm.elbow.manager);
-//     cs_disable(&arm.z_axis.manager);
-
-//     scara_trajectory_append_point_with_length(&traj, 100, 100, 100, COORDINATE_ARM, 1., 100, 100);
-//     scara_do_trajectory(&arm, &traj);
-
-//     scara_time_set(8 * 1000000);
-//     scara_manage(&arm);
-
-//     CHECK_EQUAL(1, arm.shoulder.manager.enabled);
-// }
-
-// IGNORE_TEST(ArmTestGroup, ArmManageDisablesArmIfTooFar)
-// {
-//     scara_trajectory_init(&traj);
-
-//     scara_trajectory_append_point_with_length(&traj, 100, 100, 100, COORDINATE_ARM, 1., 10, 10);
-//     scara_do_trajectory(&arm, &traj);
-
-//     scara_time_set(8 * 1000000);
-//     scara_manage(&arm);
-
-//     CHECK_EQUAL(0, arm.shoulder.manager.enabled);
-// }
-
-// IGNORE_TEST(ArmTestGroup, ArmShutdownDisablesControlSystems)
-// {
-//     scara_trajectory_init(&traj);
-//     scara_trajectory_append_point(&traj, 100, 100, 100, COORDINATE_ARM, 1.);
-//     scara_do_trajectory(&arm, &traj);
-
-//     scara_manage(&arm);
-//     CHECK_EQUAL(1, arm.shoulder.manager.enabled);
-
-//     scara_shutdown(&arm);
-//     scara_manage(&arm);
-
-//     CHECK_EQUAL(0, arm.shoulder.manager.enabled);
-// }
-
-
-IGNORE_TEST(ArmTestGroup, CurrentPointComputation)
+TEST(ArmTestGroup, CurrentPointComputation)
 {
     scara_waypoint_t result;
     const int32_t date = 5 * 1000000;
@@ -228,7 +159,7 @@ IGNORE_TEST(ArmTestGroup, CurrentPointComputation)
     DOUBLES_EQUAL(result.position[0], 5., 0.1);
 }
 
-IGNORE_TEST(ArmTestGroup, CurrentPointSelectFrame)
+TEST(ArmTestGroup, CurrentPointSelectFrame)
 {
     scara_waypoint_t result;
     const int32_t date = 15 * 1000000;
@@ -241,7 +172,7 @@ IGNORE_TEST(ArmTestGroup, CurrentPointSelectFrame)
     DOUBLES_EQUAL(25, result.position[1], 0.1);
 }
 
-IGNORE_TEST(ArmTestGroup, CurrentPointPastEnd)
+TEST(ArmTestGroup, CurrentPointPastEnd)
 {
     scara_waypoint_t result;
     const int32_t date = 25 * 1000000;
@@ -254,7 +185,7 @@ IGNORE_TEST(ArmTestGroup, CurrentPointPastEnd)
     DOUBLES_EQUAL(30, result.position[1], 0.1);
 }
 
-IGNORE_TEST(ArmTestGroup, MixedCoordinateSystems)
+TEST(ArmTestGroup, MixedCoordinateSystems)
 {
     scara_waypoint_t result;
     const int32_t date = 5 * 1000000;
@@ -268,14 +199,14 @@ IGNORE_TEST(ArmTestGroup, MixedCoordinateSystems)
     DOUBLES_EQUAL(-5, result.position[1], 0.1);
 }
 
-IGNORE_TEST(ArmTestGroup, CanSetRelatedRobotPosition)
+TEST(ArmTestGroup, CanSetRelatedRobotPosition)
 {
     struct robot_position pos;
     scara_set_related_robot_pos(&arm, &pos);
     POINTERS_EQUAL(arm.robot_pos, &pos);
 }
 
-IGNORE_TEST(ArmTestGroup, TableCoordinateSystem)
+TEST(ArmTestGroup, TableCoordinateSystem)
 {
     scara_waypoint_t result;
     struct robot_position pos;
@@ -297,7 +228,7 @@ IGNORE_TEST(ArmTestGroup, TableCoordinateSystem)
     DOUBLES_EQUAL(-15, result.position[1], 0.1);
 }
 
-IGNORE_TEST(ArmTestGroup, TrajectoriesFirstPointTableNotHandledCorrectly)
+TEST(ArmTestGroup, TrajectoriesFirstPointTableNotHandledCorrectly)
 {
     /* This tests shows a bug where the trajectory for the case where
      * a coordinate in table or robot frame is not handled correctly past
@@ -314,7 +245,7 @@ IGNORE_TEST(ArmTestGroup, TrajectoriesFirstPointTableNotHandledCorrectly)
     DOUBLES_EQUAL(-10, result.position[1], 0.1);
 }
 
-IGNORE_TEST(ArmTestGroup, LengthAreInterpolated)
+TEST(ArmTestGroup, LengthAreInterpolated)
 {
     scara_waypoint_t result;
     const int32_t date = 5 * 1000000;
