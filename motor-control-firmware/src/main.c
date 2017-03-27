@@ -14,7 +14,7 @@
 #include <string.h>
 #include <math.h>
 #include "bootloader_config.h"
-#include "uavcan_node.h"
+#include "uavcan/uavcan_node.h"
 #include "timestamp/timestamp_stm32.h"
 #include "index.h"
 

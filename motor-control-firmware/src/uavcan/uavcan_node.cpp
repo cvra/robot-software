@@ -3,7 +3,6 @@
 #include <chprintf.h>
 #include <main.h>
 #include <uavcan/uavcan.hpp>
-#include <cvra/Reboot.hpp>
 #include <control.h>
 #include <index.h>
 #include <parameter/parameter.h>
@@ -35,6 +34,8 @@
 #include <cvra/motor/control/Trajectory.hpp>
 #include <cvra/motor/control/Torque.hpp>
 #include <cvra/motor/control/Voltage.hpp>
+
+#include "Reboot_handler.hpp"
 
 #define CAN_BITRATE             1000000
 #define UAVCAN_SPIN_FREQUENCY   100
@@ -107,22 +108,7 @@ static THD_FUNCTION(uavcan_node, arg)
 
     /* Subscribers */
     uavcan::Subscriber<cvra::Reboot> reboot_sub(node);
-    int ret = reboot_sub.start(
-        [&](const uavcan::ReceivedDataStructure<cvra::Reboot>& msg)
-        {
-            switch (msg.bootmode) {
-            case msg.REBOOT:
-                reboot_system(BOOT_ARG_START_APPLICATION);
-                break;
-            case msg.BOOTLOADER_TIMEOUT:
-                reboot_system(BOOT_ARG_START_BOOTLOADER);
-                break;
-            case msg.BOOTLOADER_NO_TIMEOUT:
-                reboot_system(BOOT_ARG_START_BOOTLOADER_NO_TIMEOUT);
-                break;
-            }
-        }
-    );
+    int ret = reboot_sub.start(Reboot_handler);
     if (ret != 0) {
         uavcan_failure("cvra::Reboot subscriber");
     }

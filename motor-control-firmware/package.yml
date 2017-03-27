@@ -18,7 +18,8 @@ target.arm:
     - src/rpm.c
     - src/bootloader_config.c
     - src/reboot.c
-    - src/uavcan_node.cpp
+    - src/uavcan/uavcan_node.cpp
+    - src/uavcan/Reboot_handler.cpp
     - src/libstubs.cpp
     - src/stream.c
     - ../lib/can-bootloader/config.c
