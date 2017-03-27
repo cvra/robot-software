@@ -30,19 +30,17 @@
 #include <cvra/motor/feedback/MotorTorque.hpp>
 #include <cvra/motor/control/Velocity.hpp>
 #include <cvra/motor/control/Position.hpp>
-#include <cvra/motor/control/Trajectory.hpp>
 #include <cvra/motor/control/Torque.hpp>
 #include <cvra/motor/control/Voltage.hpp>
 
 #include "Reboot_handler.hpp"
 #include "EmergencyStop_handler.hpp"
+#include "Trajectory_handler.hpp"
 
 #define CAN_BITRATE             1000000
 #define UAVCAN_SPIN_FREQUENCY   100
 
 uavcan_stm32::CanInitHelper<128> can;
-
-typedef uavcan::Node<4096> Node;
 
 uavcan::LazyConstructor<Node> node_;
 
@@ -120,19 +118,7 @@ static THD_FUNCTION(uavcan_node, arg)
     }
 
     uavcan::Subscriber<cvra::motor::control::Trajectory> traj_ctrl_sub(node);
-    ret = traj_ctrl_sub.start(
-        [&](const uavcan::ReceivedDataStructure<cvra::motor::control::Trajectory>& msg)
-        {
-            if (uavcan::NodeID(msg.node_id) == node.getNodeID()) {
-                timestamp_t timestamp = timestamp_get();
-                control_update_trajectory_setpoint(msg.position,
-                                                   msg.velocity,
-                                                   msg.acceleration,
-                                                   msg.torque,
-                                               timestamp);
-            }
-        }
-    );
+    ret = traj_ctrl_sub.start(Trajectory_handler);
     if (ret != 0) {
         uavcan_failure("cvra::motor::control::Trajectory subscriber");
     }

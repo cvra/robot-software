@@ -7,5 +7,4 @@
 void EmergencyStop_handler(const uavcan::ReceivedDataStructure<cvra::motor::EmergencyStop> &msg);
 
 
-
 #endif

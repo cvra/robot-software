@@ -15,6 +15,16 @@ struct uavcan_node_arg {
 void uavcan_node_start(void *arg);
 
 #ifdef __cplusplus
+#include <uavcan/uavcan.hpp>
+
+/** Returns the UAVCAN node. */
+typedef uavcan::Node<4096> Node;
+
+Node &get_node();
+
+#endif
+
+#ifdef __cplusplus
 }
 #endif
 
