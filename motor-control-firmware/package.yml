@@ -33,6 +33,7 @@ target.arm:
     - src/uavcan/VelocityPID_server.cpp
     - src/uavcan/PositionPID_server.cpp
     - src/uavcan/TorqueLimit_server.cpp
+    - src/uavcan/uavcan_streams.cpp
     - src/libstubs.cpp
     - src/stream.c
     - ../lib/can-bootloader/config.c

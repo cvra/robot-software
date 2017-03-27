@@ -7,6 +7,8 @@ extern "C" {
 
 #include <stdint.h>
 
+#define UAVCAN_SPIN_FREQUENCY   100
+
 struct uavcan_node_arg {
     const char *node_name;
     uint8_t node_id:7;
