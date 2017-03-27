@@ -680,11 +680,11 @@ static void cmd_scara_goto(BaseSequentialStream *chp, int argc, char *argv[])
     }
 
     if (strcmp("robot", argv[0]) == 0) {
-        strategy_arm_goto(&robot, arm, x, y, 0, COORDINATE_ROBOT, 1.);
+        scara_goto(arm, x, y, 0, COORDINATE_ROBOT, 1.);
     } else if (strcmp("table", argv[0]) == 0) {
-        strategy_arm_goto(&robot, arm, x, y, 0, COORDINATE_TABLE, 1.);
+        scara_goto(arm, x, y, 0, COORDINATE_TABLE, 1.);
     } else {
-        strategy_arm_goto(&robot, arm, x, y, 0, COORDINATE_ARM, 1.);
+        scara_goto(arm, x, y, 0, COORDINATE_ARM, 1.);
     }
 }
 

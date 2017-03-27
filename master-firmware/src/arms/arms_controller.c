@@ -6,6 +6,7 @@
 #include "can/bus_enumerator.h"
 #include "can/motor_manager.h"
 #include "robot_helpers/motor_helpers.h"
+#include "base/base_controller.h"
 
 #include "cvra_arm_motors.h"
 #include "arms_controller.h"
@@ -28,6 +29,8 @@ void arms_init(void)
     scara_set_shoulder_callbacks(&left_arm, set_left_shoulder_position, get_left_shoulder_position, &left_shoulder);
     scara_set_elbow_callbacks(&left_arm, set_left_elbow_position, get_left_elbow_position, &left_elbow);
 
+    scara_set_related_robot_pos(&left_arm, &robot.pos);
+
     scara_set_physical_parameters(&left_arm,
         config_get_scalar("master/arms/upperarm_length"),
         config_get_scalar("master/arms/forearm_length"));
@@ -43,6 +46,8 @@ void arms_init(void)
 
     scara_set_shoulder_callbacks(&right_arm, set_right_shoulder_position, get_right_shoulder_position, &right_shoulder);
     scara_set_elbow_callbacks(&right_arm, set_right_elbow_position, get_right_elbow_position, &right_elbow);
+
+    scara_set_related_robot_pos(&right_arm, &robot.pos);
 
     scara_set_physical_parameters(&right_arm,
         config_get_scalar("master/arms/upperarm_length"),
