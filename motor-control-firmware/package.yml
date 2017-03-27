@@ -22,6 +22,10 @@ target.arm:
     - src/uavcan/Reboot_handler.cpp
     - src/uavcan/EmergencyStop_handler.cpp
     - src/uavcan/Trajectory_handler.cpp
+    - src/uavcan/Velocity_handler.cpp
+    - src/uavcan/Position_handler.cpp
+    - src/uavcan/Torque_handler.cpp
+    - src/uavcan/Voltage_handler.cpp
     - src/uavcan/parameter_server.cpp
     - src/libstubs.cpp
     - src/stream.c

@@ -36,6 +36,10 @@
 #include "Reboot_handler.hpp"
 #include "EmergencyStop_handler.hpp"
 #include "Trajectory_handler.hpp"
+#include "Velocity_handler.hpp"
+#include "Position_handler.hpp"
+#include "Torque_handler.hpp"
+#include "Voltage_handler.hpp"
 #include "parameter_server.hpp"
 
 #define CAN_BITRATE             1000000
@@ -108,7 +112,6 @@ static THD_FUNCTION(uavcan_node, arg)
     stream_enable(&string_id_stream_config, true);
 
     /* Subscribers */
-    int ret;
     if (Reboot_handler_start(node) != 0) {
         uavcan_failure("Reboot subscriber");
     }
@@ -121,55 +124,19 @@ static THD_FUNCTION(uavcan_node, arg)
         uavcan_failure("cvra::motor::control::Trajectory subscriber");
     }
 
-    uavcan::Subscriber<cvra::motor::control::Velocity> vel_ctrl_sub(node);
-    ret = vel_ctrl_sub.start(
-        [&](const uavcan::ReceivedDataStructure<cvra::motor::control::Velocity>& msg)
-        {
-            if (uavcan::NodeID(msg.node_id) == node.getNodeID()) {
-                control_update_velocity_setpoint(msg.velocity);
-            }
-        }
-    );
-    if (ret != 0) {
+    if (Velocity_handler_start(node) != 0) {
         uavcan_failure("cvra::motor::control::Velocity subscriber");
     }
 
-    uavcan::Subscriber<cvra::motor::control::Position> pos_ctrl_sub(node);
-    ret = pos_ctrl_sub.start(
-        [&](const uavcan::ReceivedDataStructure<cvra::motor::control::Position>& msg)
-        {
-            if (uavcan::NodeID(msg.node_id) == node.getNodeID()) {
-                control_update_position_setpoint(msg.position);
-            }
-        }
-    );
-    if (ret != 0) {
+    if (Position_handler_start(node) != 0) {
         uavcan_failure("cvra::motor::control::Position subscriber");
     }
 
-    uavcan::Subscriber<cvra::motor::control::Torque> torque_ctrl_sub(node);
-    ret = torque_ctrl_sub.start(
-        [&](const uavcan::ReceivedDataStructure<cvra::motor::control::Torque>& msg)
-        {
-            if (uavcan::NodeID(msg.node_id) == node.getNodeID()) {
-                control_update_torque_setpoint(msg.torque);
-            }
-        }
-    );
-    if (ret != 0) {
+    if (Torque_handler_start(node) != 0) {
         uavcan_failure("cvra::motor::control::Torque subscriber");
     }
 
-    uavcan::Subscriber<cvra::motor::control::Voltage> voltage_ctrl_sub(node);
-    ret = voltage_ctrl_sub.start(
-        [&](const uavcan::ReceivedDataStructure<cvra::motor::control::Voltage>& msg)
-        {
-            if (uavcan::NodeID(msg.node_id) == node.getNodeID()) {
-                control_update_voltage_setpoint(msg.voltage);
-            }
-        }
-    );
-    if (ret != 0) {
+    if (Voltage_handler_start(node) != 0) {
         uavcan_failure("cvra::motor::control::Voltage subscriber");
     }
 
