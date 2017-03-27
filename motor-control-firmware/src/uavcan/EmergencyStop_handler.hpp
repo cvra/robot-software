@@ -1,10 +1,8 @@
 #ifndef EMERGENCYSTOP_HANDLER_HPP
 #define EMERGENCYSTOP_HANDLER_HPP
 
-#include <uavcan/uavcan.hpp>
-#include <cvra/motor/EmergencyStop.hpp>
+#include "uavcan_node.h"
 
-void EmergencyStop_handler(const uavcan::ReceivedDataStructure<cvra::motor::EmergencyStop> &msg);
-
+int EmergencyStop_handler_start(Node &node);
 
 #endif

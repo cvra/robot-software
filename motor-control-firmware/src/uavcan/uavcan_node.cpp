@@ -113,15 +113,11 @@ static THD_FUNCTION(uavcan_node, arg)
         uavcan_failure("Reboot subscriber");
     }
 
-    uavcan::Subscriber<cvra::motor::EmergencyStop> emergency_stop_sub(node);
-    ret = emergency_stop_sub.start(EmergencyStop_handler);
-    if (ret != 0) {
+    if (EmergencyStop_handler_start(node) != 0) {
         uavcan_failure("cvra::motor::EmergencyStop subscriber");
     }
 
-    uavcan::Subscriber<cvra::motor::control::Trajectory> traj_ctrl_sub(node);
-    ret = traj_ctrl_sub.start(Trajectory_handler);
-    if (ret != 0) {
+    if (Trajectory_handler_start(node) != 0) {
         uavcan_failure("cvra::motor::control::Trajectory subscriber");
     }
 
