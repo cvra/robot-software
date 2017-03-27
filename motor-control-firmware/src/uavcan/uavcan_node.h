@@ -26,8 +26,6 @@ void uavcan_node_start(void *arg);
 /** Returns the UAVCAN node. */
 typedef uavcan::Node<4096> Node;
 
-Node &get_node();
-
 #endif
 
 #endif /* UAVCAN_NODE_H */

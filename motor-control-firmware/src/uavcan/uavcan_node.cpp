@@ -30,47 +30,25 @@
 
 uavcan_stm32::CanInitHelper<128> can;
 
-uavcan::LazyConstructor<Node> node_;
-
-
-Node& get_node()
-{
-    if (!node_.isConstructed()) {
-        node_.construct<uavcan::ICanDriver&, uavcan::ISystemClock&>(can.driver, uavcan_stm32::SystemClock::instance());
-    }
-    return *node_;
-}
 
 void uavcan_failure(const char *reason)
 {
     chSysHalt(reason);
 }
 
-static THD_WORKING_AREA(uavcan_node_wa, 8000);
-static THD_FUNCTION(uavcan_node, arg)
+static int uavcan_node_start(Node &node)
 {
-    struct uavcan_node_arg *node_arg;
-    node_arg = (struct uavcan_node_arg *)arg;
+    return node.start();
+}
 
-    chRegSetThreadName(__FUNCTION__);
-
-    if (can.init((uavcan::uint32_t)CAN_BITRATE) != 0) {
-        uavcan_failure("CAN driver");
-    }
-
-    Node& node = get_node();
-
-    node.setNodeID(node_arg->node_id);
-    node.setName(node_arg->node_name);
-
-    if (node.start() != 0) {
-        uavcan_failure("UAVCAN node start");
-    }
-
+/** Start all UAVCAN services. */
+static void uavcan_services_start(Node &node)
+{
     struct {
         int (*start)(Node &);
         const char *name;
     } services[] = {
+        {uavcan_node_start, "Node start"},
         {Reboot_handler_start, "Reboot subscriber"},
         {EmergencyStop_handler_start, "Emergency stop subscriber"},
         {Trajectory_handler_start, "cvra::motor::control::Trajectory subscriber"},
@@ -89,15 +67,39 @@ static THD_FUNCTION(uavcan_node, arg)
         {NULL, NULL} /* Must be last */
     };
 
-    /* Start all services. */
     for (int i = 0; services[i].start; i++) {
         if (services[i].start(node) < 0) {
             uavcan_failure(services[i].name);
         }
     }
+}
 
+static THD_WORKING_AREA(uavcan_node_wa, 8000);
+static THD_FUNCTION(uavcan_node, arg)
+{
+    struct uavcan_node_arg *node_arg;
+    node_arg = (struct uavcan_node_arg *)arg;
+
+    chRegSetThreadName(__FUNCTION__);
+
+    /* Create the CAN interface driver. */
+    if (can.init((uavcan::uint32_t)CAN_BITRATE) != 0) {
+        uavcan_failure("CAN driver");
+    }
+
+    /* Create the UAVCAN instance. */
+    static Node node(can.driver, uavcan_stm32::SystemClock::instance());
+
+    /* Give it basic properties. */
+    node.setNodeID(node_arg->node_id);
+    node.setName(node_arg->node_name);
+
+    /* Start all the subscribers and publishers linked to that node. */
+    uavcan_services_start(node);
+
+    /* Spin forever */
     while (true) {
-        int res = node.spin(uavcan::MonotonicDuration::fromMSec(1000/UAVCAN_SPIN_FREQUENCY));
+        int res = node.spin(uavcan::MonotonicDuration::fromMSec(1000 / UAVCAN_SPIN_FREQUENCY));
 
         if (res < 0) {
             uavcan_failure("UAVCAN spin");
