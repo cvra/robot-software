@@ -36,6 +36,7 @@
 #include "Reboot_handler.hpp"
 #include "EmergencyStop_handler.hpp"
 #include "Trajectory_handler.hpp"
+#include "parameter_server.hpp"
 
 #define CAN_BITRATE             1000000
 #define UAVCAN_SPIN_FREQUENCY   100
@@ -96,6 +97,8 @@ static THD_FUNCTION(uavcan_node, arg)
 
     node.setNodeID(node_arg->node_id);
     node.setName(node_arg->node_name);
+
+    parameter_server_start();
 
     if (node.start() != 0) {
         uavcan_failure("UAVCAN node start");
