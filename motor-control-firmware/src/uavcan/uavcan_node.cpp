@@ -97,7 +97,7 @@ static THD_FUNCTION(uavcan_node, arg)
     struct uavcan_node_arg *node_arg;
     node_arg = (struct uavcan_node_arg *)arg;
 
-    chRegSetThreadName("uavcan node");
+    chRegSetThreadName(__FUNCTION__);
 
     if (can.init((uavcan::uint32_t)CAN_BITRATE) != 0) {
         uavcan_failure("CAN driver");
@@ -114,37 +114,35 @@ static THD_FUNCTION(uavcan_node, arg)
         uavcan_failure("UAVCAN node start");
     }
 
+    struct {
+        int (*start)(Node &);
+        const char *name;
+    } services[] = {
+        {Reboot_handler_start, "Reboot subscriber"},
+        {EmergencyStop_handler_start, "Emergency stop subscriber"},
+        {Trajectory_handler_start, "cvra::motor::control::Trajectory subscriber"},
+        {Velocity_handler_start, "cvra::motor::control::Velocity subscriber"},
+        {Position_handler_start, "cvra::motor::control::Position subscriber"},
+        {Torque_handler_start, "cvra::motor::control::Torque subscriber"},
+        {Voltage_handler_start, "cvra::motor::control::Voltage subscriber"},
+        {LoadConfiguration_server_start, "cvra::motor::config::LoadConfiguration server"},
+        {CurrentPID_server_start, "cvra::motor::config::CurrentPID server"},
+        {VelocityPID_server_start, "cvra::motor::config::VelocityPID server"},
+        {PositionPID_server_start, "cvra::motor::config::PositionPID server"},
+        {TorqueLimit_server_start, "cvra::motor::config::TorqueLimit server"},
+        {EnableMotor_server_start, "cvra::motor::config::EnableMotor server"},
+        {NULL, NULL} /* Must be last */
+    };
+
+    /* Start all services. */
+    for (int i = 0; services[i].start; i++) {
+        if (services[i].start(node) < 0) {
+            uavcan_failure(services[i].name);
+        }
+    }
+
     stream_set_prescaler(&string_id_stream_config, 0.5, UAVCAN_SPIN_FREQUENCY);
     stream_enable(&string_id_stream_config, true);
-
-    /* Subscribers */
-    if (Reboot_handler_start(node) != 0) {
-        uavcan_failure("Reboot subscriber");
-    }
-
-    if (EmergencyStop_handler_start(node) != 0) {
-        uavcan_failure("cvra::motor::EmergencyStop subscriber");
-    }
-
-    if (Trajectory_handler_start(node) != 0) {
-        uavcan_failure("cvra::motor::control::Trajectory subscriber");
-    }
-
-    if (Velocity_handler_start(node) != 0) {
-        uavcan_failure("cvra::motor::control::Velocity subscriber");
-    }
-
-    if (Position_handler_start(node) != 0) {
-        uavcan_failure("cvra::motor::control::Position subscriber");
-    }
-
-    if (Torque_handler_start(node) != 0) {
-        uavcan_failure("cvra::motor::control::Torque subscriber");
-    }
-
-    if (Voltage_handler_start(node) != 0) {
-        uavcan_failure("cvra::motor::control::Voltage subscriber");
-    }
 
     /* Publishers */
     uavcan::Publisher<cvra::StringID> string_id_pub(node);
@@ -206,9 +204,6 @@ static THD_FUNCTION(uavcan_node, arg)
 
 
     /* Servers */
-    if (LoadConfiguration_server_start(node) != 0) {
-        uavcan_failure("cvra::motor::config::LoadConfiguration server");
-    }
 
     /** Feedback Stream config*/
     uavcan::ServiceServer<cvra::motor::config::FeedbackStream> feedback_stream_sub(node);
@@ -251,33 +246,9 @@ static THD_FUNCTION(uavcan_node, arg)
             }
         }
     );
-    if (feedback_stream_srv_res < 0) {
+
+    if (feedback_stream_srv_res != 0) {
         uavcan_failure("cvra::motor::config::FeedbackStream server");
-    }
-
-    /** Current PID config */
-    if (CurrentPID_server_start(node) < 0) {
-        uavcan_failure("cvra::motor::config::CurrentPID server");
-    }
-
-    /** Velocity PID config */
-    if (VelocityPID_server_start(node) < 0) {
-        uavcan_failure("cvra::motor::config::VelocityPID server");
-    }
-
-    /** Position PID config */
-    if (PositionPID_server_start(node) < 0) {
-        uavcan_failure("cvra::motor::config::PositionPID server");
-    }
-
-    /** Torque Limit config */
-    if (TorqueLimit_server_start(node) < 0) {
-        uavcan_failure("cvra::motor::config::TorqueLimit server");
-    }
-
-    /** Enable Motor config */
-    if (EnableMotor_server_start(node) < 0) {
-        uavcan_failure("cvra::motor::config::EnableMotor server");
     }
 
     while (true) {
