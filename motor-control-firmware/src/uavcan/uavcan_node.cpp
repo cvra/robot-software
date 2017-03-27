@@ -42,6 +42,7 @@
 #include "Voltage_handler.hpp"
 #include "parameter_server.hpp"
 #include "LoadConfiguration_server.hpp"
+#include "EnableMotor_server.hpp"
 
 #define CAN_BITRATE             1000000
 #define UAVCAN_SPIN_FREQUENCY   100
@@ -319,16 +320,7 @@ static THD_FUNCTION(uavcan_node, arg)
     }
 
     /** Enable Motor config */
-    uavcan::ServiceServer<cvra::motor::config::EnableMotor> enable_motor_srv(node);
-    const int enable_motor_srv_res = enable_motor_srv.start(
-        [&](const uavcan::ReceivedDataStructure<cvra::motor::config::EnableMotor::Request>& req,
-                                                cvra::motor::config::EnableMotor::Response& rsp)
-        {
-            (void) rsp;     /* empty response */
-            control_enable(req.enable);
-        });
-
-    if (enable_motor_srv_res < 0) {
+    if (EnableMotor_server_start(node) < 0) {
         uavcan_failure("cvra::motor::config::EnableMotor server");
     }
 
