@@ -21,7 +21,6 @@
 #include <cvra/motor/config/TorqueLimit.hpp>
 #include <cvra/motor/config/FeedbackStream.hpp>
 #include <cvra/StringID.hpp>
-#include <cvra/motor/EmergencyStop.hpp>
 #include <cvra/motor/feedback/CurrentPID.hpp>
 #include <cvra/motor/feedback/VelocityPID.hpp>
 #include <cvra/motor/feedback/PositionPID.hpp>
@@ -36,6 +35,7 @@
 #include <cvra/motor/control/Voltage.hpp>
 
 #include "Reboot_handler.hpp"
+#include "EmergencyStop_handler.hpp"
 
 #define CAN_BITRATE             1000000
 #define UAVCAN_SPIN_FREQUENCY   100
@@ -114,13 +114,7 @@ static THD_FUNCTION(uavcan_node, arg)
     }
 
     uavcan::Subscriber<cvra::motor::EmergencyStop> emergency_stop_sub(node);
-    ret = emergency_stop_sub.start(
-        [&](const uavcan::ReceivedDataStructure<cvra::motor::EmergencyStop>& msg)
-        {
-            (void)msg;
-            reboot_system(BOOT_ARG_START_BOOTLOADER_NO_TIMEOUT);
-        }
-    );
+    ret = emergency_stop_sub.start(EmergencyStop_handler);
     if (ret != 0) {
         uavcan_failure("cvra::motor::EmergencyStop subscriber");
     }
