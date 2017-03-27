@@ -130,8 +130,8 @@ void scara_manage(scara_t *arm)
     arm->last_loop = scara_time_get();
 
     /* Set motor positions */
-    arm->set_shoulder_position(arm->shoulder_args, alpha - arm->shoulder_index);
-    arm->set_elbow_position(arm->elbow_args, beta - arm->elbow_index);
+    arm->set_shoulder_position(arm->shoulder_args, alpha);
+    arm->set_elbow_position(arm->elbow_args, beta);
 
     /* Update motor positions */
     arm->shoulder_pos = arm->get_shoulder_position(arm->shoulder_args);

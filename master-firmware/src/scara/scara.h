@@ -30,10 +30,6 @@ typedef struct {
     void* shoulder_args;
     void* elbow_args;
 
-    /* Motor indexes */
-    float shoulder_index;
-    float elbow_index;
-
     /* Motor positions */
     float shoulder_pos;
     float elbow_pos;

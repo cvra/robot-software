@@ -4,6 +4,7 @@
 typedef struct {
     motor_manager_t *m;
     float direction;
+    float index;
 } cvra_arm_motor_t;
 
 

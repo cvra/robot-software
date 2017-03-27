@@ -23,8 +23,8 @@ void arms_init(void)
 {
     /* Configure left arm */
     scara_init(&left_arm);
-    static cvra_arm_motor_t left_shoulder = {.m = &motor_manager, .direction = -1};
-    static cvra_arm_motor_t left_elbow = {.m = &motor_manager, .direction = -1};
+    static cvra_arm_motor_t left_shoulder = {.m = &motor_manager, .direction = -1, .index = 0};
+    static cvra_arm_motor_t left_elbow = {.m = &motor_manager, .direction = -1, .index = 0};
 
     scara_set_shoulder_callbacks(&left_arm, set_left_shoulder_position, get_left_shoulder_position, &left_shoulder);
     scara_set_elbow_callbacks(&left_arm, set_left_elbow_position, get_left_elbow_position, &left_elbow);
@@ -41,8 +41,8 @@ void arms_init(void)
 
     /* Configure right arm */
     scara_init(&right_arm);
-    static cvra_arm_motor_t right_shoulder = {.m = &motor_manager, .direction = -1};
-    static cvra_arm_motor_t right_elbow = {.m = &motor_manager, .direction = -1};
+    static cvra_arm_motor_t right_shoulder = {.m = &motor_manager, .direction = -1, .index = 0};
+    static cvra_arm_motor_t right_elbow = {.m = &motor_manager, .direction = -1, .index = 0};
 
     scara_set_shoulder_callbacks(&right_arm, set_right_shoulder_position, get_right_shoulder_position, &right_shoulder);
     scara_set_elbow_callbacks(&right_arm, set_right_elbow_position, get_right_elbow_position, &right_elbow);
@@ -189,4 +189,11 @@ void arms_auto_index(char** motor_names, int* motor_dirs, float* motor_speeds, s
         parameter_scalar_set(&(motors[i]->config.index_stream), 0);
     }
     NOTICE("Disabled motor index streams");
+}
+
+
+void arms_set_motor_index(void* motor, float index)
+{
+    cvra_arm_motor_t *dev = (cvra_arm_motor_t*)motor;
+    dev->index = index;
 }
