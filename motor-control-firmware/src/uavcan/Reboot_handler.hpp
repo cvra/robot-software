@@ -1,9 +1,8 @@
 #ifndef REBOOT_HANDLER_HPP
 #define REBOOT_HANDLER_HPP
 
-#include <uavcan/uavcan.hpp>
-#include <cvra/Reboot.hpp>
+#include "uavcan_node.h"
 
-void Reboot_handler(const uavcan::ReceivedDataStructure<cvra::Reboot> &msg);
+int Reboot_handler_start(Node &node);
 
 #endif

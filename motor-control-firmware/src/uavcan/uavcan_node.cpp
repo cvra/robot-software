@@ -108,10 +108,9 @@ static THD_FUNCTION(uavcan_node, arg)
     stream_enable(&string_id_stream_config, true);
 
     /* Subscribers */
-    uavcan::Subscriber<cvra::Reboot> reboot_sub(node);
-    int ret = reboot_sub.start(Reboot_handler);
-    if (ret != 0) {
-        uavcan_failure("cvra::Reboot subscriber");
+    int ret;
+    if (Reboot_handler_start(node) != 0) {
+        uavcan_failure("Reboot subscriber");
     }
 
     uavcan::Subscriber<cvra::motor::EmergencyStop> emergency_stop_sub(node);
