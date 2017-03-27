@@ -41,6 +41,7 @@
 #include "Torque_handler.hpp"
 #include "Voltage_handler.hpp"
 #include "parameter_server.hpp"
+#include "LoadConfiguration_server.hpp"
 
 #define CAN_BITRATE             1000000
 #define UAVCAN_SPIN_FREQUENCY   100
@@ -200,82 +201,7 @@ static THD_FUNCTION(uavcan_node, arg)
 
 
     /* Servers */
-    /** initial config */
-    uavcan::ServiceServer<cvra::motor::config::LoadConfiguration> load_config_srv(node);
-    const int load_config_srv_res = load_config_srv.start(
-        [&](const uavcan::ReceivedDataStructure<cvra::motor::config::LoadConfiguration::Request>& req,
-                                                cvra::motor::config::LoadConfiguration::Response& rsp)
-        {
-            (void) rsp;
-
-            control_stop();
-
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "control/acceleration_limit"), req.acceleration_limit);
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "control/velocity_limit"), req.velocity_limit);
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "control/torque_limit"), req.torque_limit);
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "control/low_batt_th"), req.low_batt_th);
-
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "control/current/kp"), req.current_pid.kp);
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "control/current/ki"), req.current_pid.ki);
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "control/current/kd"), req.current_pid.kd);
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "control/current/i_limit"), req.current_pid.ilimit);
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "control/velocity/kp"), req.velocity_pid.kp);
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "control/velocity/ki"), req.velocity_pid.ki);
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "control/velocity/kd"), req.velocity_pid.kd);
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "control/velocity/i_limit"), req.velocity_pid.ilimit);
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "control/position/kp"), req.position_pid.kp);
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "control/position/ki"), req.position_pid.ki);
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "control/position/kd"), req.position_pid.kd);
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "control/position/i_limit"), req.position_pid.ilimit);
-
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "motor/torque_cst"), req.torque_constant);
-
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "thermal/current_gain"), req.thermal_current_gain);
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "thermal/max_temp"), req.max_temperature);
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "thermal/Rth"), req.thermal_resistance);
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "thermal/Cth"), req.thermal_capacity);
-
-
-            if (req.mode == cvra::motor::config::LoadConfiguration::Request::MODE_INDEX) {
-                control_feedback.input_selection = FEEDBACK_RPM;
-            }
-            if (req.mode == cvra::motor::config::LoadConfiguration::Request::MODE_ENC_PERIODIC) {
-                control_feedback.input_selection = FEEDBACK_PRIMARY_ENCODER_PERIODIC;
-            }
-            if (req.mode == cvra::motor::config::LoadConfiguration::Request::MODE_ENC_BOUNDED) {
-                control_feedback.input_selection = FEEDBACK_PRIMARY_ENCODER_BOUNDED;
-            }
-            if (req.mode == cvra::motor::config::LoadConfiguration::Request::MODE_2_ENC_PERIODIC) {
-                control_feedback.input_selection = FEEDBACK_TWO_ENCODERS_PERIODIC;
-            }
-            if (req.mode == cvra::motor::config::LoadConfiguration::Request::MODE_MOTOR_POT) {
-                control_feedback.input_selection = FEEDBACK_POTENTIOMETER;
-            }
-
-
-            control_feedback.primary_encoder.transmission_p = req.transmission_ratio_p;
-            control_feedback.primary_encoder.transmission_q = req.transmission_ratio_q;
-            control_feedback.primary_encoder.ticks_per_rev = req.motor_encoder_steps_per_revolution;
-
-            control_feedback.secondary_encoder.transmission_p = 1;
-            control_feedback.secondary_encoder.transmission_q = 1;
-            control_feedback.secondary_encoder.ticks_per_rev = req.second_encoder_steps_per_revolution;
-
-            control_feedback.potentiometer.gain = req.potentiometer_gain;
-            control_feedback.potentiometer.zero = 0;
-
-            control_feedback.rpm.phase = 0;
-
-            control_start();
-
-            chprintf(ch_stdout, "LoadConfiguration received\n");
-
-            // Mark the node as correctly initialized
-            node.getNodeStatusProvider().setModeOperational();
-            node.getNodeStatusProvider().setHealthOk();
-        });
-
-    if (load_config_srv_res < 0) {
+    if (LoadConfiguration_server_start(node) != 0) {
         uavcan_failure("cvra::motor::config::LoadConfiguration server");
     }
 

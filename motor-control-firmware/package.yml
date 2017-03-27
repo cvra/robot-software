@@ -27,6 +27,7 @@ target.arm:
     - src/uavcan/Torque_handler.cpp
     - src/uavcan/Voltage_handler.cpp
     - src/uavcan/parameter_server.cpp
+    - src/uavcan/LoadConfiguration_server.cpp
     - src/libstubs.cpp
     - src/stream.c
     - ../lib/can-bootloader/config.c
