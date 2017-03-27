@@ -2,7 +2,6 @@
 #include <uavcan/protocol/param_server.hpp>
 #include "main.h"
 #include "parameter_server.hpp"
-#include "uavcan_node.h"
 
 static const char *exposed_parameters[] = {
     "/control/current/i_limit",
@@ -135,9 +134,9 @@ public:
     }
 };
 
-int parameter_server_start(void)
+int parameter_server_start(Node &node)
 {
-    static uavcan::ParamServer server(get_node());
+    static uavcan::ParamServer server(node);
     static ParamManager manager;
     return server.start(&manager);
 }

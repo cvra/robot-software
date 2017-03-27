@@ -1,26 +1,20 @@
 #include <ch.h>
 #include <hal.h>
 #include <chprintf.h>
-#include <main.h>
+
 #include <uavcan/uavcan.hpp>
-#include <control.h>
-#include <index.h>
-#include <parameter/parameter.h>
-#include <encoder.h>
-#include "timestamp/timestamp.h"
-#include "uavcan_node.h"
-#include <can-bootloader/boot_arg.h>
 #include <uavcan_stm32/uavcan_stm32.hpp>
 #include <uavcan/protocol/NodeStatus.hpp>
+
+#include <main.h>
+#include <control.h>
+#include <index.h>
+#include <encoder.h>
+#include "uavcan_node.h"
+
 #include "stream.h"
-#include <cvra/motor/config/EnableMotor.hpp>
-#include <cvra/motor/config/LoadConfiguration.hpp>
-#include <cvra/motor/config/CurrentPID.hpp>
-#include <cvra/motor/config/VelocityPID.hpp>
-#include <cvra/motor/config/PositionPID.hpp>
-#include <cvra/motor/config/TorqueLimit.hpp>
-#include <cvra/motor/config/FeedbackStream.hpp>
 #include <cvra/StringID.hpp>
+#include <cvra/motor/config/FeedbackStream.hpp>
 #include <cvra/motor/feedback/CurrentPID.hpp>
 #include <cvra/motor/feedback/VelocityPID.hpp>
 #include <cvra/motor/feedback/PositionPID.hpp>
@@ -28,10 +22,6 @@
 #include <cvra/motor/feedback/MotorEncoderPosition.hpp>
 #include <cvra/motor/feedback/MotorPosition.hpp>
 #include <cvra/motor/feedback/MotorTorque.hpp>
-#include <cvra/motor/control/Velocity.hpp>
-#include <cvra/motor/control/Position.hpp>
-#include <cvra/motor/control/Torque.hpp>
-#include <cvra/motor/control/Voltage.hpp>
 
 #include "Reboot_handler.hpp"
 #include "EmergencyStop_handler.hpp"
@@ -108,8 +98,6 @@ static THD_FUNCTION(uavcan_node, arg)
     node.setNodeID(node_arg->node_id);
     node.setName(node_arg->node_name);
 
-    parameter_server_start();
-
     if (node.start() != 0) {
         uavcan_failure("UAVCAN node start");
     }
@@ -131,6 +119,7 @@ static THD_FUNCTION(uavcan_node, arg)
         {PositionPID_server_start, "cvra::motor::config::PositionPID server"},
         {TorqueLimit_server_start, "cvra::motor::config::TorqueLimit server"},
         {EnableMotor_server_start, "cvra::motor::config::EnableMotor server"},
+        {parameter_server_start, "UAVCAN parameter server"},
         {NULL, NULL} /* Must be last */
     };
 
