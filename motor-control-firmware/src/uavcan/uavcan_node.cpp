@@ -43,6 +43,9 @@
 #include "parameter_server.hpp"
 #include "LoadConfiguration_server.hpp"
 #include "EnableMotor_server.hpp"
+#include "CurrentPID_server.hpp"
+#include "VelocityPID_server.hpp"
+#include "PositionPID_server.hpp"
 
 #define CAN_BITRATE             1000000
 #define UAVCAN_SPIN_FREQUENCY   100
@@ -252,55 +255,17 @@ static THD_FUNCTION(uavcan_node, arg)
     }
 
     /** Current PID config */
-    uavcan::ServiceServer<cvra::motor::config::CurrentPID> current_pid_srv(node);
-    const int current_pid_srv_res = current_pid_srv.start(
-        [&](const uavcan::ReceivedDataStructure<cvra::motor::config::CurrentPID::Request>& req,
-                                                cvra::motor::config::CurrentPID::Response& rsp)
-        {
-            (void) rsp; /* empty response */
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "/control/current/kp"), req.pid.kp);
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "/control/current/ki"), req.pid.ki);
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "/control/current/kd"), req.pid.kd);
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "/control/current/i_limit"), req.pid.ilimit);
-        });
-
-    if (current_pid_srv_res < 0) {
+    if (CurrentPID_server_start(node) < 0) {
         uavcan_failure("cvra::motor::config::CurrentPID server");
     }
 
     /** Velocity PID config */
-    uavcan::ServiceServer<cvra::motor::config::VelocityPID> velocity_pid_srv(node);
-    const int velocity_pid_srv_res = velocity_pid_srv.start(
-        [&](const uavcan::ReceivedDataStructure<cvra::motor::config::VelocityPID::Request>& req,
-                                                cvra::motor::config::VelocityPID::Response& rsp)
-        {
-            (void) rsp;
-
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "/control/velocity/kp"), req.pid.kp);
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "/control/velocity/ki"), req.pid.ki);
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "/control/velocity/kd"), req.pid.kd);
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "/control/velocity/i_limit"), req.pid.ilimit);
-        });
-
-    if (velocity_pid_srv_res < 0) {
+    if (VelocityPID_server_start(node) < 0) {
         uavcan_failure("cvra::motor::config::VelocityPID server");
     }
 
     /** Position PID config */
-    uavcan::ServiceServer<cvra::motor::config::PositionPID> position_pid_srv(node);
-    const int position_pid_srv_res = position_pid_srv.start(
-        [&](const uavcan::ReceivedDataStructure<cvra::motor::config::PositionPID::Request>& req,
-                                                cvra::motor::config::PositionPID::Response& rsp)
-        {
-            (void) rsp;
-
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "/control/position/kp"), req.pid.kp);
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "/control/position/ki"), req.pid.ki);
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "/control/position/kd"), req.pid.kd);
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "/control/position/i_limit"), req.pid.ilimit);
-        });
-
-    if (position_pid_srv_res < 0) {
+    if (PositionPID_server_start(node) < 0) {
         uavcan_failure("cvra::motor::config::PositionPID server");
     }
 

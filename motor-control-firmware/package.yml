@@ -29,6 +29,9 @@ target.arm:
     - src/uavcan/parameter_server.cpp
     - src/uavcan/LoadConfiguration_server.cpp
     - src/uavcan/EnableMotor_server.cpp
+    - src/uavcan/CurrentPID_server.cpp
+    - src/uavcan/VelocityPID_server.cpp
+    - src/uavcan/PositionPID_server.cpp
     - src/libstubs.cpp
     - src/stream.c
     - ../lib/can-bootloader/config.c
