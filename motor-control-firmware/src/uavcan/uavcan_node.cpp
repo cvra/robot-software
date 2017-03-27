@@ -46,6 +46,7 @@
 #include "CurrentPID_server.hpp"
 #include "VelocityPID_server.hpp"
 #include "PositionPID_server.hpp"
+#include "TorqueLimit_server.hpp"
 
 #define CAN_BITRATE             1000000
 #define UAVCAN_SPIN_FREQUENCY   100
@@ -270,17 +271,7 @@ static THD_FUNCTION(uavcan_node, arg)
     }
 
     /** Torque Limit config */
-    uavcan::ServiceServer<cvra::motor::config::TorqueLimit> torque_limit_srv(node);
-    const int torque_limit_srv_res = torque_limit_srv.start(
-        [&](const uavcan::ReceivedDataStructure<cvra::motor::config::TorqueLimit::Request>& req,
-                                                cvra::motor::config::TorqueLimit::Response& rsp)
-        {
-            (void) rsp;
-
-            parameter_scalar_set(parameter_find(&parameter_root_ns, "/control/torque_limit"), req.torque_limit);
-        });
-
-    if (torque_limit_srv_res < 0) {
+    if (TorqueLimit_server_start(node) < 0) {
         uavcan_failure("cvra::motor::config::TorqueLimit server");
     }
 
