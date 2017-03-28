@@ -44,7 +44,7 @@ static int uavcan_node_start(Node &node)
 /** Start all UAVCAN services. */
 static void uavcan_services_start(Node &node)
 {
-    struct {
+    const struct {
         int (*start)(Node &);
         const char *name;
     } services[] = {
