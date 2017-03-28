@@ -3,6 +3,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include "error/error.h"
+#include "uavcan/uavcan_log.h"
 
 #define OUTPUT_STREAM ((BaseSequentialStream *)&SD1)
 
@@ -25,7 +26,12 @@ static void log_message(struct error *e, ...)
     va_list va;
     chMtxLock(&log_lock);
 
+    static va_list va_copy;
+
     va_start(va, e);
+
+    va_copy(va_copy, va);
+    uavcan_log_write(e, va);
 
     /* Print time */
     uint32_t ts = ST2MS(chVTGetSystemTime());
@@ -62,6 +68,8 @@ static const SerialConfig debug_serial_config = {
 void debug_init(void)
 {
     sdStart(&SD1, &debug_serial_config);
+
+    uavcan_log_start();
 
     error_register_error(log_message);
     error_register_warning(log_message);

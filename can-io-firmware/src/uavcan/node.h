@@ -11,4 +11,9 @@ void uavcan_start(unsigned int node_id, const char *node_name);
 }
 #endif
 
+#ifdef __cplusplus
+#include <uavcan/uavcan.hpp>
+typedef uavcan::Node<4096> Node;
+#endif
+
 #endif
