@@ -17,8 +17,9 @@
 #include "uavcan/uavcan_node.h"
 #include "timestamp/timestamp_stm32.h"
 #include "index.h"
+#include "log.h"
+#include "error/error.h"
 
-BaseSequentialStream* ch_stdout;
 parameter_namespace_t parameter_root_ns;
 
 
@@ -60,7 +61,7 @@ THD_FUNCTION(stream_task, arg)
         //err = err || !cmp_write_str(&cmp, vel_ctrl_id, strlen(vel_ctrl_id));
         //err = err || !cmp_write_float(&cmp, control_get_vel_ctrl_out());
         if (!err) {
-            serial_datagram_send(dtgrm, cmp_mem_access_get_pos(&mem), _stream_sndfn, ch_stdout);
+            serial_datagram_send(dtgrm, cmp_mem_access_get_pos(&mem), _stream_sndfn, (BaseSequentialStream *)&SD3);
         }
         chThdSleepMilliseconds(10);
     }
@@ -76,8 +77,7 @@ static void error_cb(void *arg, const char *id, const char *err)
 static void parameter_decode_cb(const void *dtgrm, size_t len, void *arg)
 {
     int ret = parameter_msgpack_read(&parameter_root_ns, (char*)dtgrm, len, error_cb, arg);
-    chprintf(ch_stdout, "ok %d\n", ret);
-    // parameter_print(&parameter_root_ns);
+    DEBUG("%s() -> %d", __FUNCTION__, ret);
 }
 
 static THD_WORKING_AREA(parameter_listener_wa, 512);
@@ -90,7 +90,7 @@ static THD_FUNCTION(parameter_listener, arg)
         char c = chSequentialStreamGet((BaseSequentialStream*)arg);
         int ret = serial_datagram_receive(&rcv_handler, &c, 1);
         if (ret != SERIAL_DATAGRAM_RCV_NO_ERROR) {
-            chprintf(ch_stdout, "serial datagram error %d\n", ret);
+            WARNING("Serial datagram error %d", ret);
         }
         (void)ret; // ingore errors
     }
@@ -184,7 +184,7 @@ int main(void) {
     chSysUnlock();
 
     sdStart(&SD3, NULL);
-    ch_stdout = (BaseSequentialStream*)&SD3;
+    log_init();
 
     parameter_namespace_declare(&parameter_root_ns, NULL, NULL);
 
@@ -196,9 +196,7 @@ int main(void) {
     encoder_init_primary();
     encoder_init_secondary();
 
-    chprintf(ch_stdout, "boot\n");
-    chprintf(ch_stdout, "%s: %d\n", config.board_name, config.ID);
-
+    NOTICE("boot id=\"%s\"(%d)", config.board_name, config.ID);
 
     control_init();
 
