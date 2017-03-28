@@ -1,37 +1,39 @@
+#include <ch.h>
 #include <uavcan/protocol/debug/LogMessage.hpp>
 #include <uavcan/protocol/debug/LogLevel.hpp>
-#include "uavcan_log.h"
+#include "uavcan_error_logger.h"
 #include "error/error.h"
 
-/* XXX We could increase this a bit. */
-#define MSG_BUFFER_SIZE 1
+#ifndef UAVCAN_ERROR_LOGGER_BUF_SIZE
+#define UAVCAN_ERROR_LOGGER_BUF_SIZE 5
+#endif
 
 static struct {
     char msg[91];
     char source[32];
     int level;
-} msg_buffer[MSG_BUFFER_SIZE];
+} msg_buffer[UAVCAN_ERROR_LOGGER_BUF_SIZE];
 
-static msg_t free_msg_queue_buf[MSG_BUFFER_SIZE];
-static msg_t msg_queue_buf[MSG_BUFFER_SIZE];
+static msg_t free_msg_queue_buf[UAVCAN_ERROR_LOGGER_BUF_SIZE];
+static msg_t msg_queue_buf[UAVCAN_ERROR_LOGGER_BUF_SIZE];
 
 static MAILBOX_DECL(msg_queue, msg_queue_buf, sizeof(msg_queue_buf));
 static MAILBOX_DECL(free_msg_queue, free_msg_queue_buf, sizeof(free_msg_queue_buf));
 
-int uavcan_log_start(void)
+int error_uavcan_logger_start(void)
 {
     int i;
-    for (i = 0; i < MSG_BUFFER_SIZE; i++) {
+    for (i = 0; i < UAVCAN_ERROR_LOGGER_BUF_SIZE; i++) {
         chMBPost(&free_msg_queue, i, TIME_IMMEDIATE);
     }
 
     return 0;
 }
 
-int uavcan_log_spin(Node &node)
+int error_uavcan_logger_spin(uavcan::INode *node)
 {
     msg_t msg_index;
-    static uavcan::Publisher<uavcan::protocol::debug::LogMessage> pub(node);
+    static uavcan::Publisher<uavcan::protocol::debug::LogMessage> pub(*node);
 
     while (chMBFetch(&msg_queue, &msg_index, TIME_IMMEDIATE) == MSG_OK) {
         /* Construct the UAVCAN data type. */
@@ -47,12 +49,13 @@ int uavcan_log_spin(Node &node)
             case ERROR_SEVERITY_WARNING:
                 msg.level.value = uavcan::protocol::debug::LogLevel::WARNING;
                 break;
-                break;
 
             case ERROR_SEVERITY_NOTICE:
+                msg.level.value = uavcan::protocol::debug::LogLevel::INFO;
                 break;
 
             case ERROR_SEVERITY_DEBUG:
+                msg.level.value = uavcan::protocol::debug::LogLevel::DEBUG;
                 break;
         }
 
@@ -66,7 +69,7 @@ int uavcan_log_spin(Node &node)
     return 0;
 }
 
-void uavcan_log_write(const struct error *e, va_list args)
+void error_uavcan_logger_write(const struct error *e, va_list args)
 {
     msg_t msg_index;
 

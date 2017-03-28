@@ -5,7 +5,7 @@
 #include <uavcan/protocol/NodeStatus.hpp>
 #include "ServoPWM_handler.hpp"
 #include "DigitalInput_pub.hpp"
-#include "uavcan_log.h"
+#include "error_loggers/uavcan_error_logger.h"
 
 #include "node.h"
 
@@ -76,7 +76,7 @@ void main(unsigned int id, const char *name)
     while (true) {
         node.spin(uavcan::MonotonicDuration::fromMSec(1000 / UAVCAN_SPIN_FREQ));
         digital_input_publish(node);
-        uavcan_log_spin(node);
+        error_uavcan_logger_spin(&node);
     }
 }
 }

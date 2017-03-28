@@ -5,6 +5,7 @@ depends:
   - cmp
   - cmp_mem_access
   - error
+  - error_loggers
 
 target.arm:
   - src/main.c
@@ -14,7 +15,6 @@ target.arm:
   - src/uavcan/node.cpp
   - src/uavcan/ServoPWM_handler.cpp
   - src/uavcan/DigitalInput_pub.cpp
-  - src/uavcan/uavcan_log.cpp
   - src/bootloader_config.c
   - src/servo_pwm.c
 

@@ -1,0 +1,6 @@
+depends:
+  - error
+
+target.arm:
+  - uavcan_error_logger.cpp
+  - chstream_error_logger.c

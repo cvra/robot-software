@@ -3,23 +3,10 @@
 #include <stdarg.h>
 #include <string.h>
 #include "error/error.h"
-#include "uavcan/uavcan_log.h"
-
-#define OUTPUT_STREAM ((BaseSequentialStream *)&SD1)
+#include "error_loggers/uavcan_error_logger.h"
+#include "error_loggers/chstream_error_logger.h"
 
 MUTEX_DECL(log_lock);
-
-static const char *get_thread_name(void)
-{
-    const char *thread_name;
-
-    thread_name = chRegGetThreadNameX(chThdGetSelfX());
-    if (thread_name == NULL) {
-        thread_name = "unknown";
-    }
-
-    return thread_name;
-}
 
 static void log_message(struct error *e, ...)
 {
@@ -31,29 +18,9 @@ static void log_message(struct error *e, ...)
     va_start(va, e);
 
     va_copy(va_copy, va);
-    uavcan_log_write(e, va);
 
-    /* Print time */
-    uint32_t ts = ST2MS(chVTGetSystemTime());
-    uint32_t s = ts / 1000;
-    uint32_t ms = ts % 1000;
-    chprintf(OUTPUT_STREAM, "[%4d.%03d]\t", s, ms);
-
-    /* Print location. */
-    chprintf(OUTPUT_STREAM, "%s:%d\t", strrchr(e->file, '/') + 1, e->line);
-
-    /* Print current thread */
-    chprintf(OUTPUT_STREAM, "%s\t", get_thread_name());
-
-    /* Print severity message */
-    chprintf(OUTPUT_STREAM, "%s\t", error_severity_get_name(e->severity));
-
-    /* Print message */
-    chvprintf(OUTPUT_STREAM, e->text, va);
-
-    chprintf(OUTPUT_STREAM, "\n");
-
-    va_end(va);
+    error_chstream_logger_write((BaseSequentialStream *)&SD1, e, va);
+    error_uavcan_logger_write(e, va_copy);
 
     chMtxUnlock(&log_lock);
 }
@@ -69,7 +36,7 @@ void debug_init(void)
 {
     sdStart(&SD1, &debug_serial_config);
 
-    uavcan_log_start();
+    error_uavcan_logger_start();
 
     error_register_error(log_message);
     error_register_warning(log_message);
