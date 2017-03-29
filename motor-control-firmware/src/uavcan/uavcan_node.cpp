@@ -4,7 +4,9 @@
 
 #include <uavcan/uavcan.hpp>
 #include <uavcan_stm32/uavcan_stm32.hpp>
-#include <uavcan/protocol/NodeStatus.hpp>
+#include <uavcan/protocol/SoftwareVersion.hpp>
+
+#include <version/version.h>
 
 #include <main.h>
 #include "uavcan_node.h"
@@ -93,6 +95,12 @@ static THD_FUNCTION(uavcan_node, arg)
     /* Give it basic properties. */
     node.setNodeID(node_arg->node_id);
     node.setName(node_arg->node_name);
+
+    uavcan::protocol::SoftwareVersion sw_version;
+    sw_version.major = 1;
+    sw_version.optional_field_flags = sw_version.OPTIONAL_FIELD_FLAG_VCS_COMMIT;
+    sw_version.vcs_commit = software_version_short;
+    node.setSoftwareVersion(sw_version);
 
     /* Start all the subscribers and publishers linked to that node. */
     uavcan_services_start(node);

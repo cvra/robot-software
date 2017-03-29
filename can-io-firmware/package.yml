@@ -6,6 +6,7 @@ depends:
   - cmp_mem_access
   - error
   - crc
+  - version
 
 target.arm:
   - src/main.c

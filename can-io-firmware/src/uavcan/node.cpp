@@ -1,6 +1,7 @@
 #include <ch.h>
 #include <hal.h>
 #include <error/error.h>
+#include <version/version.h>
 #include <uavcan_stm32/uavcan_stm32.hpp>
 #include <uavcan/protocol/NodeStatus.hpp>
 #include "ServoPWM_handler.hpp"
@@ -53,6 +54,8 @@ void main(unsigned int id, const char *name)
 
     uavcan::protocol::SoftwareVersion sw_version;
     sw_version.major = 1;
+    sw_version.optional_field_flags = sw_version.OPTIONAL_FIELD_FLAG_VCS_COMMIT;
+    sw_version.vcs_commit = software_version_short;
     node.setSoftwareVersion(sw_version);
 
     uavcan::protocol::HardwareVersion hw_version;

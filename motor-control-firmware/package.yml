@@ -42,6 +42,7 @@ depends:
     - pid
     - serial-datagram
     - cmp_mem_access
+    - version
     - filter:
         fork: froj
     - parameter:

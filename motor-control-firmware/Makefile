@@ -121,6 +121,7 @@ CSRC = $(PORTSRC) \
        $(CHIBIOS)/os/various/shell.c \
        $(CHIBIOS)/os/various/syscalls.c \
        $(BOARDSRC) \
+	   src/version.c \
        $(PROJCSRC)
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
@@ -243,6 +244,12 @@ include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/rules.mk
 dsdlc:
 	@$(COLOR_PRINTF) "Running uavcan dsdl compiler"
 	$(LIBUAVCAN_DSDLC) ../uavcan_data_types/cvra $(UAVCAN_DSDL_DIR)
+
+PRE_MAKE_ALL_RULE_HOOK: src/version.c
+.PHONY: src/version.c
+
+src/version.c:
+	@../lib/version/version.sh src/version.c
 
 .PHONY: flash
 flash: all
