@@ -5,6 +5,7 @@ depends:
   - cmp
   - cmp_mem_access
   - error
+  - error_loggers
 
 target.arm:
   - src/main.c

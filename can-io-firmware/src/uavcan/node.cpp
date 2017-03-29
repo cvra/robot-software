@@ -5,6 +5,7 @@
 #include <uavcan/protocol/NodeStatus.hpp>
 #include "ServoPWM_handler.hpp"
 #include "DigitalInput_pub.hpp"
+#include "error_loggers/uavcan_error_logger.h"
 
 #include "node.h"
 
@@ -15,7 +16,6 @@ static const int RxQueueSize = 32;
 static const uint32_t BitRate = 1000000;
 
 const unsigned NodeMemoryPoolSize = 4096;
-typedef uavcan::Node<NodeMemoryPoolSize> Node;
 
 
 static uavcan::ISystemClock& getSystemClock()
@@ -76,6 +76,7 @@ void main(unsigned int id, const char *name)
     while (true) {
         node.spin(uavcan::MonotonicDuration::fromMSec(1000 / UAVCAN_SPIN_FREQ));
         digital_input_publish(node);
+        error_uavcan_logger_spin(&node);
     }
 }
 }

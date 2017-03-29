@@ -36,18 +36,18 @@ target.arm:
     - src/uavcan/uavcan_streams.cpp
     - src/libstubs.cpp
     - src/stream.c
+    - src/log.c
     - ../lib/can-bootloader/config.c
 
 depends:
     - pid
     - serial-datagram
     - cmp_mem_access
-    - filter:
-        fork: froj
-    - parameter:
-        fork: Stapelzeiger
-    - timestamp:
-        fork: Stapelzeiger
+    - filter
+    - parameter
+    - timestamp
+    - error
+    - error_loggers
 
 tests:
     - tests/feedback_test.cpp

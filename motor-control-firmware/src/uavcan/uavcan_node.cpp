@@ -105,6 +105,7 @@ static THD_FUNCTION(uavcan_node, arg)
             uavcan_failure("UAVCAN spin");
         }
 
+        error_uavcan_logger_spin(&node);
         uavcan_streams_spin(node);
     }
 }

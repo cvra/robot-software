@@ -19,23 +19,14 @@ static void log_message(struct error *e, ...)
 
     va_copy(va_copy, va);
 
-    error_chstream_logger_write((BaseSequentialStream *)&SD1, e, va);
+    error_chstream_logger_write((BaseSequentialStream *)&SD3, e, va);
     error_uavcan_logger_write(e, va_copy);
 
     chMtxUnlock(&log_lock);
 }
 
-static const SerialConfig debug_serial_config = {
-    921600,
-    0,
-    USART_CR2_STOP1_BITS | USART_CR2_LINEN,
-    0
-};
-
-void debug_init(void)
+void log_init(void)
 {
-    sdStart(&SD1, &debug_serial_config);
-
     error_uavcan_logger_start();
 
     error_register_error(log_message);
@@ -44,11 +35,4 @@ void debug_init(void)
 
     /* Disabled by default to avoid verbose messages. */
     // error_register_debug(log_message);
-}
-
-void panic_handler(void)
-{
-    palSetPad(GPIOA, GPIOA_LED);
-    while (1) {
-    }
 }
