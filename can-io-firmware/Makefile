@@ -84,7 +84,7 @@ endif
 ifeq ($(USE_BOOTLOADER), yes)
   DDEFS += -DCORTEX_VTOR_INIT=0x08003800
   LDSCRIPT= linker/STM32F302x8_bootloader.ld
-  DDEFS += -DOCNFIG_ADDR=0x08002800 -DCONFIG_PAGE_SIZE=0x800
+  DDEFS += -DCONFIG_ADDR=0x08002800 -DCONFIG_PAGE_SIZE=0x800
 else
   LDSCRIPT= linker/STM32F302x8.ld
 endif
@@ -230,4 +230,3 @@ flash: build/$(PROJECT).elf
 dsdlc:
 	@$(COLOR_PRINTF) "Running uavcan dsdl compiler"
 	$(LIBUAVCAN_DSDLC) ../uavcan_data_types/cvra $(UAVCAN_DSDL_DIR)
-

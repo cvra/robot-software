@@ -5,6 +5,8 @@ depends:
   - cmp
   - cmp_mem_access
   - error
+  - error_loggers
+  - crc
 
 target.arm:
   - src/main.c
@@ -16,6 +18,7 @@ target.arm:
   - src/uavcan/DigitalInput_pub.cpp
   - src/bootloader_config.c
   - src/servo_pwm.c
+  - ../lib/can-bootloader/config.c
 
 templates:
     app_src.mk.jinja: app_src.mk
