@@ -53,7 +53,11 @@ ifeq ($(USE_BOOTLOADER),)
 endif
 
 # Config file depending on robot
-ifeq ($(DEBRA), yes)
+ifeq ($(ROBOT), )
+  $(error Please define ROBOT to either 'debra' or 'sandoi')
+endif
+
+ifeq ($(ROBOT), debra)
   CONFIG_YAML = ../config_debra.yaml
 else
   CONFIG_YAML = ../config.yaml
@@ -218,7 +222,7 @@ DLIBS =
 # List all user C define here, like -D_DEBUG=1
 UDEFS = -DON_ROBOT
 
-ifeq ($(DEBRA), yes)
+ifeq ($(ROBOT), debra)
   UDEFS += -DDEBRA=1
 endif
 
