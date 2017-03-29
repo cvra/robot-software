@@ -5,7 +5,6 @@ depends:
   - cmp
   - cmp_mem_access
   - error
-  - error_loggers
   - crc
 
 target.arm:
