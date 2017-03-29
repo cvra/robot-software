@@ -44,7 +44,7 @@ build:
 
       - cd $DRONE_DIR/master-firmware
       - packager
-      - make dsdlc
+      - make ROBOT=debra dsdlc
       - make ROBOT=debra
 
   motor-firmware:

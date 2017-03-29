@@ -17,6 +17,12 @@ export CFLAGS="$CFLAGS -I $HOME/cpputest/include/"
 export CXXFLAGS="$CXXFLAGS -I $HOME/cpputest/include/"
 export LDFLAGS="$CXXFLAGS -L $HOME/cpputest/lib/"
 
+ROBOT_FLAG=""
+if [ -n "$ROBOT" ]
+then
+    ROBOT_FLAG="ROBOT=$ROBOT"
+fi
+
 
 case $BUILD_TYPE in
     tests)
@@ -41,8 +47,8 @@ case $BUILD_TYPE in
         echo "build $PLATFORM"
         pushd $PLATFORM
         packager
-        make dsdlc
-        make
+        make $ROBOT_FLAG dsdlc
+        make $ROBOT_FLAG
         popd
         ;;
     *)
