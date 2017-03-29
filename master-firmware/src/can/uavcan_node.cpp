@@ -86,6 +86,9 @@ class BusEnumeratorNodeInfoAdapter final : public uavcan::INodeInfoListener
         NOTICE("Discovered node \"%s\" -> %d", node_info.name.c_str(), node_id.get());
         if (bus_enumerator_get_str_id(&bus_enumerator, can_id) == NULL) {
             bus_enumerator_update_node_info(&bus_enumerator, node_info.name.c_str(), can_id);
+
+            /* Signal that we received one answer. */
+            palSetPad(GPIOF, GPIOF_LED_READY);
         }
     }
 
