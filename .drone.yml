@@ -45,7 +45,7 @@ build:
       - cd $DRONE_DIR/master-firmware
       - packager
       - make dsdlc
-      - make
+      - make ROBOT=debra
 
   motor-firmware:
     image: gcc-arm-embedded

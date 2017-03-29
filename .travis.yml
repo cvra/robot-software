@@ -25,7 +25,9 @@ matrix:
         - compiler: gcc
           env: BUILD_TYPE="tests"
         - compiler: gcc
-          env: BUILD_TYPE="build" PLATFORM="master-firmware"
+          env: BUILD_TYPE="build" PLATFORM="master-firmware" ROBOT="debra"
+        - compiler: gcc
+          env: BUILD_TYPE="build" PLATFORM="master-firmware" ROBOT="sandoi"
         - compiler: gcc
           env: BUILD_TYPE="build" PLATFORM="motor-control-firmware"
         - compiler: gcc
