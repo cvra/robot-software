@@ -35,25 +35,36 @@ binary_semaphore_t setpoint_interpolation_lock;
 static setpoint_interpolator_t setpoint_interpolation;
 static struct pid_cascade_s ctrl;
 
-// control loop parameters
-static parameter_namespace_t param_ns_control;
-static parameter_t param_low_batt_th;
-static parameter_t param_vel_limit;
-static parameter_t param_torque_limit;
-static parameter_t param_acc_limit;
-static parameter_namespace_t param_ns_pos_ctrl;
-static parameter_namespace_t param_ns_vel_ctrl;
-static parameter_namespace_t param_ns_cur_ctrl;
-static struct pid_param_s pos_pid_params;
-static struct pid_param_s vel_pid_params;
-static struct pid_param_s cur_pid_params;
-static parameter_namespace_t param_ns_motor;
-static parameter_t param_torque_cst;
-static parameter_namespace_t param_ns_thermal;
-static parameter_t param_current_gain;
-static parameter_t param_max_temp;
-static parameter_t param_Rth;
-static parameter_t param_Cth;
+/** Control loop parameters */
+static struct {
+    parameter_namespace_t ns;
+    parameter_t low_batt_th;
+    struct {
+        parameter_t vel;
+        parameter_t acc;
+        parameter_t torque;
+    } limits;
+
+    struct {
+        parameter_namespace_t ns;
+        struct pid_param_s pid;
+    } pos, vel, cur;
+} control_params;
+
+/** Motor-specific parameters */
+static struct {
+    parameter_namespace_t ns;
+    parameter_t torque_cst;
+} motor_params;
+
+/* Thermal protection parameters */
+static struct {
+    parameter_namespace_t ns;
+    parameter_t current_gain;
+    parameter_t Rth;
+    parameter_t Cth;
+    parameter_t max_temp;
+} thermal_params;
 
 static timestamp_t last_setpoint_update;
 
@@ -220,30 +231,30 @@ static void pid_param_update(struct pid_param_s *p, pid_ctrl_t *ctrl)
 
 static void declare_parameters(void)
 {
-    parameter_namespace_declare(&param_ns_control, &parameter_root_ns, "control");
-    parameter_scalar_declare_with_default(&param_low_batt_th, &param_ns_control, "low_batt_th", LOW_BATT_TH);
-    parameter_scalar_declare(&param_vel_limit, &param_ns_control, "velocity_limit");
-    parameter_scalar_declare(&param_torque_limit, &param_ns_control, "torque_limit");
-    parameter_scalar_declare(&param_acc_limit, &param_ns_control, "acceleration_limit");
+    parameter_namespace_declare(&control_params.ns, &parameter_root_ns, "control");
+    parameter_scalar_declare_with_default(&control_params.low_batt_th, &control_params.ns, "low_batt_th", LOW_BATT_TH);
+    parameter_scalar_declare(&control_params.limits.vel, &control_params.ns, "velocity_limit");
+    parameter_scalar_declare(&control_params.limits.torque, &control_params.ns, "torque_limit");
+    parameter_scalar_declare(&control_params.limits.acc, &control_params.ns, "acceleration_limit");
 
-    parameter_namespace_declare(&param_ns_pos_ctrl, &param_ns_control, "position");
-    pid_param_declare(&pos_pid_params, &param_ns_pos_ctrl);
+    parameter_namespace_declare(&control_params.pos.ns, &control_params.ns, "position");
+    pid_param_declare(&control_params.pos.pid, &control_params.pos.ns);
 
-    parameter_namespace_declare(&param_ns_vel_ctrl, &param_ns_control, "velocity");
-    pid_param_declare(&vel_pid_params, &param_ns_vel_ctrl);
+    parameter_namespace_declare(&control_params.vel.ns, &control_params.ns, "velocity");
+    pid_param_declare(&control_params.vel.pid, &control_params.vel.ns);
 
-    parameter_namespace_declare(&param_ns_cur_ctrl, &param_ns_control, "current");
-    pid_param_declare(&cur_pid_params, &param_ns_cur_ctrl);
+    parameter_namespace_declare(&control_params.cur.ns, &control_params.ns, "current");
+    pid_param_declare(&control_params.cur.pid, &control_params.cur.ns);
 
 
-    parameter_namespace_declare(&param_ns_motor, &parameter_root_ns, "motor");
-    parameter_scalar_declare(&param_torque_cst, &param_ns_motor, "torque_cst");
+    parameter_namespace_declare(&motor_params.ns, &parameter_root_ns, "motor");
+    parameter_scalar_declare(&motor_params.torque_cst, &motor_params.ns, "torque_cst");
 
-    parameter_namespace_declare(&param_ns_thermal, &parameter_root_ns, "thermal");
-    parameter_scalar_declare(&param_current_gain, &param_ns_thermal, "current_gain");
-    parameter_scalar_declare(&param_max_temp, &param_ns_thermal, "max_temp");
-    parameter_scalar_declare(&param_Rth, &param_ns_thermal, "Rth");
-    parameter_scalar_declare(&param_Cth, &param_ns_thermal, "Cth");
+    parameter_namespace_declare(&thermal_params.ns, &parameter_root_ns, "thermal");
+    parameter_scalar_declare(&thermal_params.current_gain, &thermal_params.ns, "current_gain");
+    parameter_scalar_declare(&thermal_params.max_temp, &thermal_params.ns, "max_temp");
+    parameter_scalar_declare(&thermal_params.Rth, &thermal_params.ns, "Rth");
+    parameter_scalar_declare(&thermal_params.Cth, &thermal_params.ns, "Cth");
 }
 
 
@@ -277,49 +288,48 @@ void control_init(void)
 
 static void update_parameters(void)
 {
-    if (parameter_namespace_contains_changed(&param_ns_control)) {
-        if (parameter_namespace_contains_changed(&param_ns_pos_ctrl)) {
-            pid_param_update(&pos_pid_params, &ctrl.position_pid);
+    if (parameter_namespace_contains_changed(&control_params.ns)) {
+        if (parameter_namespace_contains_changed(&control_params.pos.ns)) {
+            pid_param_update(&control_params.pos.pid, &ctrl.position_pid);
         }
-        if (parameter_namespace_contains_changed(&param_ns_vel_ctrl)) {
-            pid_param_update(&vel_pid_params, &ctrl.velocity_pid);
+        if (parameter_namespace_contains_changed(&control_params.vel.ns)) {
+            pid_param_update(&control_params.vel.pid, &ctrl.velocity_pid);
         }
-        if (parameter_namespace_contains_changed(&param_ns_cur_ctrl)) {
-            pid_param_update(&cur_pid_params, &ctrl.current_pid);
+        if (parameter_namespace_contains_changed(&control_params.cur.ns)) {
+            pid_param_update(&control_params.cur.pid, &ctrl.current_pid);
         }
-        if (parameter_changed(&param_low_batt_th)) {
-            low_batt_th = parameter_scalar_get(&param_low_batt_th);
+        if (parameter_changed(&control_params.low_batt_th)) {
+            low_batt_th = parameter_scalar_get(&control_params.low_batt_th);
         }
-        if (parameter_changed(&param_vel_limit)) {
-            ctrl.velocity_limit = parameter_scalar_get(&param_vel_limit);
+        if (parameter_changed(&control_params.limits.vel)) {
+            ctrl.velocity_limit = parameter_scalar_get(&control_params.limits.vel);
             chBSemWait(&setpoint_interpolation_lock);
             setpoint_set_velocity_limit(&setpoint_interpolation, ctrl.velocity_limit);
             chBSemSignal(&setpoint_interpolation_lock);
         }
-        if (parameter_changed(&param_torque_limit)) {
-            ctrl.torque_limit = parameter_scalar_get(&param_torque_limit);
+        if (parameter_changed(&control_params.limits.torque)) {
+            ctrl.torque_limit = parameter_scalar_get(&control_params.limits.torque);
         }
-        if (parameter_changed(&param_acc_limit)) {
+        if (parameter_changed(&control_params.limits.acc)) {
             chBSemWait(&setpoint_interpolation_lock);
-            setpoint_set_acceleration_limit(&setpoint_interpolation, parameter_scalar_get(&param_acc_limit));
+            setpoint_set_acceleration_limit(&setpoint_interpolation, parameter_scalar_get(&control_params.limits.acc));
             chBSemSignal(&setpoint_interpolation_lock);
         }
     }
-    if (parameter_namespace_contains_changed(&param_ns_motor)) {
-        if (parameter_changed(&param_torque_cst)) {
+    if (parameter_namespace_contains_changed(&motor_params.ns)) {
+        if (parameter_changed(&motor_params.torque_cst)) {
             float transmission = (float)control_feedback.primary_encoder.transmission_p / control_feedback.primary_encoder.transmission_q;
-            ctrl.motor_current_constant = 1/(parameter_scalar_get(&param_torque_cst) / transmission);
+            ctrl.motor_current_constant = 1/(parameter_scalar_get(&motor_params.torque_cst) / transmission);
         }
     }
-    if (parameter_namespace_contains_changed(&param_ns_thermal)) {
+    if (parameter_namespace_contains_changed(&thermal_params.ns)) {
         motor_protection_init(&control_motor_protection,
-                              parameter_scalar_get(&param_max_temp),
-                              parameter_scalar_get(&param_Rth),
-                              parameter_scalar_get(&param_Cth),
-                              parameter_scalar_get(&param_current_gain));
+                              parameter_scalar_get(&thermal_params.max_temp),
+                              parameter_scalar_get(&thermal_params.Rth),
+                              parameter_scalar_get(&thermal_params.Cth),
+                              parameter_scalar_get(&thermal_params.current_gain));
     }
 }
-
 
 #define CONTROL_WAKEUP_EVENT 1
 
