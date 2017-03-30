@@ -4,6 +4,7 @@
 #include <uavcan_stm32/uavcan_stm32.hpp>
 #include <uavcan/protocol/NodeStatus.hpp>
 #include <cvra/motor/EmergencyStop.hpp>
+#include <uavcan/protocol/node_info_retriever.hpp>
 #include <cvra/motor/feedback/CurrentPID.hpp>
 #include <cvra/motor/feedback/VelocityPID.hpp>
 #include <cvra/motor/feedback/PositionPID.hpp>
@@ -11,7 +12,6 @@
 #include <cvra/motor/feedback/MotorPosition.hpp>
 #include <cvra/motor/feedback/MotorTorque.hpp>
 #include <cvra/Reboot.hpp>
-#include <cvra/StringID.hpp>
 #include <cvra/proximity_beacon/Signal.hpp>
 #include <msgbus/messagebus.h>
 #include "error/error.h"
@@ -74,6 +74,30 @@ Node& getNode()
     return node;
 }
 
+
+/** This class is used by libuavcan to connect node information to our bus
+ * enumerator. */
+class BusEnumeratorNodeInfoAdapter final : public uavcan::INodeInfoListener
+{
+    void handleNodeInfoRetrieved(uavcan::NodeID node_id,
+                                 const uavcan::protocol::GetNodeInfo::Response& node_info) override
+    {
+        uint8_t can_id = node_id.get();
+        NOTICE("Discovered node \"%s\" -> %d", node_info.name.c_str(), node_id.get());
+        if (bus_enumerator_get_str_id(&bus_enumerator, can_id) == NULL) {
+            bus_enumerator_update_node_info(&bus_enumerator, node_info.name.c_str(), can_id);
+
+            /* Signal that we received one answer. */
+            palSetPad(GPIOF, GPIOF_LED_READY);
+        }
+    }
+
+    void handleNodeInfoUnavailable(uavcan::NodeID node_id) override
+    {
+        WARNING("Could not obtain node information for node %d", node_id.get());
+    }
+};
+
 THD_WORKING_AREA(thread_wa, UAVCAN_NODE_STACK_SIZE);
 
 void main(void *arg)
@@ -122,19 +146,20 @@ void main(void *arg)
         node_fail("cvra::motor::EmergencyStop subscriber");
     }
 
-    uavcan::Subscriber<cvra::StringID> string_id_sub(node);
-    res = string_id_sub.start(
-        [&](const uavcan::ReceivedDataStructure<cvra::StringID>& msg)
-        {
-            uint8_t can_id = msg.getSrcNodeID().get();
+    static uavcan::NodeInfoRetriever retriever(node);
 
-            if (bus_enumerator_get_str_id(&bus_enumerator, can_id) == NULL) {
-                bus_enumerator_update_node_info(&bus_enumerator, msg.id.c_str(), can_id);
-            }
-        }
-    );
-    if (res != 0) {
-        node_fail("cvra::StringID subscriber");
+    res = retriever.start();
+    if (res < 0) {
+        node_fail("NodeInfoRetriever");
+    }
+
+    /*
+     * This class is defined above in this file.
+     */
+    static BusEnumeratorNodeInfoAdapter collector;
+    res = retriever.addListener(&collector);
+    if (res < 0) {
+        node_fail("BusEnumeratorAdapter");
     }
 
     uavcan::Subscriber<cvra::motor::feedback::CurrentPID> current_pid_sub(node);

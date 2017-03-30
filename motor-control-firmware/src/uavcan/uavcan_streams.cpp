@@ -5,7 +5,6 @@
 #include "index.h"
 #include "encoder.h"
 
-#include <cvra/StringID.hpp>
 #include <cvra/motor/config/FeedbackStream.hpp>
 #include <cvra/motor/feedback/CurrentPID.hpp>
 #include <cvra/motor/feedback/VelocityPID.hpp>
@@ -15,7 +14,6 @@
 #include <cvra/motor/feedback/MotorPosition.hpp>
 #include <cvra/motor/feedback/MotorTorque.hpp>
 
-stream_config_t string_id_stream_config     = {false, 0, 0};
 stream_config_t current_pid_stream_config   = {false, 0, 0};
 stream_config_t velocity_pid_stream_config  = {false, 0, 0};
 stream_config_t position_pid_stream_config  = {false, 0, 0};
@@ -29,7 +27,6 @@ uavcan::LazyConstructor<uavcan::Publisher<cvra::motor::feedback::VelocityPID> > 
 uavcan::LazyConstructor<uavcan::Publisher<cvra::motor::feedback::PositionPID> > position_pid_pub;
 
 uavcan::LazyConstructor<uavcan::Publisher<cvra::motor::feedback::Index> > index_pub;
-uavcan::LazyConstructor<uavcan::Publisher<cvra::StringID> > string_id_pub;
 uavcan::LazyConstructor<uavcan::Publisher<cvra::motor::feedback::MotorEncoderPosition> > enc_pos_pub;
 uavcan::LazyConstructor<uavcan::Publisher<cvra::motor::feedback::MotorPosition> > motor_pos_pub;
 uavcan::LazyConstructor<uavcan::Publisher<cvra::motor::feedback::MotorTorque> > motor_torque_pub;
@@ -73,12 +70,6 @@ int uavcan_streams_start(Node &node)
         return res;
     }
 
-    string_id_pub.construct<Node &>(node);
-    res = string_id_pub->init();
-    if (res < 0) {
-        return res;
-    }
-
     enc_pos_pub.construct<Node &>(node);
     res = enc_pos_pub->init();
     if (res < 0) {
@@ -96,9 +87,6 @@ int uavcan_streams_start(Node &node)
     if (res < 0) {
         return res;
     }
-
-    stream_set_prescaler(&string_id_stream_config, 0.5, UAVCAN_SPIN_FREQUENCY);
-    stream_enable(&string_id_stream_config, true);
 
     static uavcan::ServiceServer<cvra::motor::config::FeedbackStream> feedback_stream_sub(node);
 
@@ -200,11 +188,5 @@ void uavcan_streams_spin(Node &node)
         motor_torque.torque = control_get_torque();
         motor_torque.position = control_get_position();
         motor_torque_pub->broadcast(motor_torque);
-    }
-
-    if (stream_update(&string_id_stream_config)) {
-        cvra::StringID string_id;
-        string_id.id = node.getName().c_str();
-        string_id_pub->broadcast(string_id);
     }
 }
