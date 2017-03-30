@@ -12,6 +12,13 @@ static void set_param(const char *name, const float value)
     parameter_scalar_set(p, value);
 }
 
+static void set_param_i(const char *name, const int32_t value)
+{
+    parameter_t *p = parameter_find(&parameter_root_ns, name);
+    parameter_integer_set(p, value);
+}
+
+
 int LoadConfiguration_server_start(Node &node)
 {
     int ret;
@@ -67,14 +74,13 @@ int LoadConfiguration_server_start(Node &node)
             control_feedback.input_selection = FEEDBACK_POTENTIOMETER;
         }
 
+        set_param_i("/encoders/primary/p", req.transmission_ratio_p);
+        set_param_i("/encoders/primary/q", req.transmission_ratio_q);
+        set_param_i("/encoders/primary/ticks_per_rev", req.motor_encoder_steps_per_revolution);
 
-        control_feedback.primary_encoder.transmission_p = req.transmission_ratio_p;
-        control_feedback.primary_encoder.transmission_q = req.transmission_ratio_q;
-        control_feedback.primary_encoder.ticks_per_rev = req.motor_encoder_steps_per_revolution;
-
-        control_feedback.secondary_encoder.transmission_p = 1;
-        control_feedback.secondary_encoder.transmission_q = 1;
-        control_feedback.secondary_encoder.ticks_per_rev = req.second_encoder_steps_per_revolution;
+        set_param_i("/encoders/secondary/p", 1);
+        set_param_i("/encoders/secondary/q", 1);
+        set_param_i("/encoders/secondary/ticks_per_rev", req.second_encoder_steps_per_revolution);
 
         control_feedback.potentiometer.gain = req.potentiometer_gain;
         control_feedback.potentiometer.zero = 0;

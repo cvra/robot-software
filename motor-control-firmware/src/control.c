@@ -66,6 +66,17 @@ static struct {
     parameter_t max_temp;
 } thermal_params;
 
+/** Encoders specific parameters. */
+static struct {
+    parameter_namespace_t ns;
+    struct {
+        parameter_namespace_t ns;
+        parameter_t p;
+        parameter_t q;
+        parameter_t ticks_per_rev;
+    } primary, secondary;
+} encoder_params;
+
 static timestamp_t last_setpoint_update;
 
 static float low_batt_th = LOW_BATT_TH;
@@ -231,30 +242,44 @@ static void pid_param_update(struct pid_param_s *p, pid_ctrl_t *ctrl)
 
 static void declare_parameters(void)
 {
+    /* Control parameters */
     parameter_namespace_declare(&control_params.ns, &parameter_root_ns, "control");
     parameter_scalar_declare_with_default(&control_params.low_batt_th, &control_params.ns, "low_batt_th", LOW_BATT_TH);
     parameter_scalar_declare(&control_params.limits.vel, &control_params.ns, "velocity_limit");
     parameter_scalar_declare(&control_params.limits.torque, &control_params.ns, "torque_limit");
     parameter_scalar_declare(&control_params.limits.acc, &control_params.ns, "acceleration_limit");
-
     parameter_namespace_declare(&control_params.pos.ns, &control_params.ns, "position");
     pid_param_declare(&control_params.pos.pid, &control_params.pos.ns);
-
     parameter_namespace_declare(&control_params.vel.ns, &control_params.ns, "velocity");
     pid_param_declare(&control_params.vel.pid, &control_params.vel.ns);
-
     parameter_namespace_declare(&control_params.cur.ns, &control_params.ns, "current");
     pid_param_declare(&control_params.cur.pid, &control_params.cur.ns);
 
-
+    /* Motor parameters. */
     parameter_namespace_declare(&motor_params.ns, &parameter_root_ns, "motor");
     parameter_scalar_declare(&motor_params.torque_cst, &motor_params.ns, "torque_cst");
 
+    /* Thermal */
     parameter_namespace_declare(&thermal_params.ns, &parameter_root_ns, "thermal");
     parameter_scalar_declare(&thermal_params.current_gain, &thermal_params.ns, "current_gain");
     parameter_scalar_declare(&thermal_params.max_temp, &thermal_params.ns, "max_temp");
     parameter_scalar_declare(&thermal_params.Rth, &thermal_params.ns, "Rth");
     parameter_scalar_declare(&thermal_params.Cth, &thermal_params.ns, "Cth");
+
+    /* Encoders */
+    parameter_namespace_declare(&encoder_params.ns, &parameter_root_ns, "encoders");
+
+    /* Primary */
+    parameter_namespace_declare(&encoder_params.primary.ns, &encoder_params.ns, "primary");
+    parameter_integer_declare_with_default(&encoder_params.primary.p, &encoder_params.primary.ns, "p", 1);
+    parameter_integer_declare_with_default(&encoder_params.primary.q, &encoder_params.primary.ns, "q", 1);
+    parameter_integer_declare_with_default(&encoder_params.primary.ticks_per_rev, &encoder_params.primary.ns, "ticks_per_rev", 1024);
+
+    /* secondary */
+    parameter_namespace_declare(&encoder_params.secondary.ns, &encoder_params.ns, "secondary");
+    parameter_integer_declare_with_default(&encoder_params.secondary.p, &encoder_params.secondary.ns, "p", 1);
+    parameter_integer_declare_with_default(&encoder_params.secondary.q, &encoder_params.secondary.ns, "q", 1);
+    parameter_integer_declare_with_default(&encoder_params.secondary.ticks_per_rev, &encoder_params.secondary.ns, "ticks_per_rev", 1024);
 }
 
 
@@ -329,6 +354,14 @@ static void update_parameters(void)
                               parameter_scalar_get(&thermal_params.Cth),
                               parameter_scalar_get(&thermal_params.current_gain));
     }
+
+    control_feedback.primary_encoder.transmission_p = parameter_integer_get(&encoder_params.primary.p);
+    control_feedback.primary_encoder.transmission_q = parameter_integer_get(&encoder_params.primary.q);
+    control_feedback.primary_encoder.ticks_per_rev = parameter_integer_get(&encoder_params.primary.ticks_per_rev);
+
+    control_feedback.secondary_encoder.transmission_p = parameter_integer_get(&encoder_params.secondary.p);
+    control_feedback.secondary_encoder.transmission_q = parameter_integer_get(&encoder_params.secondary.q);
+    control_feedback.secondary_encoder.ticks_per_rev = parameter_integer_get(&encoder_params.secondary.ticks_per_rev);
 }
 
 #define CONTROL_WAKEUP_EVENT 1
