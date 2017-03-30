@@ -31,6 +31,11 @@ static const char *exposed_parameters[] = {
     "/encoders/secondary/q",
     "/encoders/secondary/ticks_per_rev",
 
+    "/potentiometer/gain",
+    "/potentiometer/zero",
+
+    "/rpm/phase",
+
     "/thermal/Cth",
     "/thermal/Rth",
     "/thermal/current_gain",

@@ -59,8 +59,7 @@ int LoadConfiguration_server_start(Node &node)
         set_param("thermal/current_gain", req.thermal_current_gain);
         set_param("thermal/max_temp", req.max_temperature);
         set_param("thermal/Rth", req.thermal_resistance);
-        set_param("thermal/Cth",
-                  req.thermal_capacity);
+        set_param("thermal/Cth", req.thermal_capacity);
 
         if (req.mode == cvra::motor::config::LoadConfiguration::Request::MODE_INDEX) {
             control_feedback.input_selection = FEEDBACK_RPM;
@@ -82,10 +81,10 @@ int LoadConfiguration_server_start(Node &node)
         set_param_i("/encoders/secondary/q", 1);
         set_param_i("/encoders/secondary/ticks_per_rev", req.second_encoder_steps_per_revolution);
 
-        control_feedback.potentiometer.gain = req.potentiometer_gain;
-        control_feedback.potentiometer.zero = 0;
+        set_param("/potentiometer/gain", req.potentiometer_gain);
+        set_param("/potentiometer/zero", 0.);
 
-        control_feedback.rpm.phase = 0;
+        set_param("/rpm/phase", 0.);
 
         control_start();
 

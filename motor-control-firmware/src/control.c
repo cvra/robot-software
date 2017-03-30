@@ -77,6 +77,17 @@ static struct {
     } primary, secondary;
 } encoder_params;
 
+static struct {
+    parameter_namespace_t ns;
+    parameter_t gain;
+    parameter_t zero;
+} potentiometer_params;
+
+static struct {
+    parameter_namespace_t ns;
+    parameter_t phase;
+} rpm_params;
+
 static timestamp_t last_setpoint_update;
 
 static float low_batt_th = LOW_BATT_TH;
@@ -280,6 +291,14 @@ static void declare_parameters(void)
     parameter_integer_declare_with_default(&encoder_params.secondary.p, &encoder_params.secondary.ns, "p", 1);
     parameter_integer_declare_with_default(&encoder_params.secondary.q, &encoder_params.secondary.ns, "q", 1);
     parameter_integer_declare_with_default(&encoder_params.secondary.ticks_per_rev, &encoder_params.secondary.ns, "ticks_per_rev", 1024);
+
+    /* potentiometer */
+    parameter_namespace_declare(&potentiometer_params.ns, &parameter_root_ns, "potentiometer");
+    parameter_scalar_declare_with_default(&potentiometer_params.gain, &potentiometer_params.ns, "gain", 1.);
+    parameter_scalar_declare_with_default(&potentiometer_params.zero, &potentiometer_params.ns, "zero", 0.);
+
+    parameter_namespace_declare(&rpm_params.ns, &parameter_root_ns, "rpm");
+    parameter_scalar_declare_with_default(&rpm_params.phase, &rpm_params.ns, "phase", 0.);
 }
 
 
@@ -362,6 +381,11 @@ static void update_parameters(void)
     control_feedback.secondary_encoder.transmission_p = parameter_integer_get(&encoder_params.secondary.p);
     control_feedback.secondary_encoder.transmission_q = parameter_integer_get(&encoder_params.secondary.q);
     control_feedback.secondary_encoder.ticks_per_rev = parameter_integer_get(&encoder_params.secondary.ticks_per_rev);
+
+    control_feedback.potentiometer.gain = parameter_scalar_get(&potentiometer_params.gain);
+    control_feedback.potentiometer.zero = parameter_scalar_get(&potentiometer_params.zero);
+
+    control_feedback.rpm.phase = parameter_scalar_get(&rpm_params.phase);
 }
 
 #define CONTROL_WAKEUP_EVENT 1
