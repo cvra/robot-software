@@ -238,6 +238,7 @@ int main(void) {
 #ifdef DEBRA
     chThdSleepMilliseconds(100);
     init_arm_motors();
+    init_hands();
 #endif
     config_load_from_flash();
     uavcan_node_start(10);
@@ -286,19 +287,20 @@ void init_arm_motors(void)
 {
     motor_manager_create_driver(&motor_manager, "left-shoulder");
     motor_manager_create_driver(&motor_manager, "left-elbow");
-    motor_manager_create_driver(&motor_manager, "left-wrist");
 
     motor_manager_create_driver(&motor_manager, "right-shoulder");
     motor_manager_create_driver(&motor_manager, "right-elbow");
-    motor_manager_create_driver(&motor_manager, "right-wrist");
 }
 
 void init_hands(void)
 {
-    bus_enumerator_add_node(&bus_enumerator, "left-fingers", NULL);
-    bus_enumerator_add_node(&bus_enumerator, "left-sensors", NULL);
-    bus_enumerator_add_node(&bus_enumerator, "right-fingers", NULL);
-    bus_enumerator_add_node(&bus_enumerator, "right-sensors", NULL);
+    motor_manager_create_driver(&motor_manager, "left-wrist");
+    motor_manager_create_driver(&motor_manager, "right-wrist");
+
+    // bus_enumerator_add_node(&bus_enumerator, "left-fingers", NULL);
+    // bus_enumerator_add_node(&bus_enumerator, "left-sensors", NULL);
+    // bus_enumerator_add_node(&bus_enumerator, "right-fingers", NULL);
+    // bus_enumerator_add_node(&bus_enumerator, "right-sensors", NULL);
 }
 
 void __stack_chk_fail(void)
