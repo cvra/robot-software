@@ -662,14 +662,15 @@ static void cmd_motor_index(BaseSequentialStream *chp, int argc, char *argv[])
 
 static void cmd_scara_goto(BaseSequentialStream *chp, int argc, char *argv[])
 {
-    if (argc < 4) {
-        chprintf(chp, "Usage: scara_goto frame side x y\r\n");
+    if (argc < 5) {
+        chprintf(chp, "Usage: scara_goto frame side x y z\r\n");
         return;
     }
     float x = atof(argv[2]);
     float y = atof(argv[3]);
+    float z = atof(argv[4]);
 
-    chprintf(chp, "Moving %s arm to %f %f in %s frame\r\n", argv[1], x, y, argv[0]);
+    chprintf(chp, "Moving %s arm to %f %f %f in %s frame\r\n", argv[1], x, y, z, argv[0]);
 
     scara_t* arm;
 
@@ -680,11 +681,11 @@ static void cmd_scara_goto(BaseSequentialStream *chp, int argc, char *argv[])
     }
 
     if (strcmp("robot", argv[0]) == 0) {
-        scara_goto(arm, x, y, 0, COORDINATE_ROBOT, 1.);
+        scara_goto(arm, x, y, z, COORDINATE_ROBOT, 1.);
     } else if (strcmp("table", argv[0]) == 0) {
-        scara_goto(arm, x, y, 0, COORDINATE_TABLE, 1.);
+        scara_goto(arm, x, y, z, COORDINATE_TABLE, 1.);
     } else {
-        scara_goto(arm, x, y, 0, COORDINATE_ARM, 1.);
+        scara_goto(arm, x, y, z, COORDINATE_ARM, 1.);
     }
 }
 
@@ -712,7 +713,7 @@ static void cmd_scara_pos(BaseSequentialStream *chp, int argc, char *argv[])
     }
 
 
-    chprintf(chp, "Position of %s arm is %f %f in %s frame\r\n", argv[1], x, y, argv[0]);
+    chprintf(chp, "Position of %s arm is %f %f %f in %s frame\r\n", argv[1], x, y, z, argv[0]);
 }
 
 static void print_fn(void *arg, const char *fmt, ...)
