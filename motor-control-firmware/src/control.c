@@ -256,9 +256,10 @@ static void declare_parameters(void)
     /* Control parameters */
     parameter_namespace_declare(&control_params.ns, &parameter_root_ns, "control");
     parameter_scalar_declare_with_default(&control_params.low_batt_th, &control_params.ns, "low_batt_th", LOW_BATT_TH);
-    parameter_scalar_declare(&control_params.limits.vel, &control_params.ns, "velocity_limit");
-    parameter_scalar_declare(&control_params.limits.torque, &control_params.ns, "torque_limit");
-    parameter_scalar_declare(&control_params.limits.acc, &control_params.ns, "acceleration_limit");
+    parameter_scalar_declare_with_default(&control_params.limits.vel, &control_params.ns, "velocity_limit", INFINITY);
+    parameter_scalar_declare_with_default(&control_params.limits.torque, &control_params.ns, "torque_limit", INFINITY);
+    parameter_scalar_declare_with_default(&control_params.limits.acc, &control_params.ns, "acceleration_limit", INFINITY);
+
     parameter_namespace_declare(&control_params.pos.ns, &control_params.ns, "position");
     pid_param_declare(&control_params.pos.pid, &control_params.pos.ns);
     parameter_namespace_declare(&control_params.vel.ns, &control_params.ns, "velocity");
@@ -268,14 +269,14 @@ static void declare_parameters(void)
 
     /* Motor parameters. */
     parameter_namespace_declare(&motor_params.ns, &parameter_root_ns, "motor");
-    parameter_scalar_declare(&motor_params.torque_cst, &motor_params.ns, "torque_cst");
+    parameter_scalar_declare_with_default(&motor_params.torque_cst, &motor_params.ns, "torque_cst", 1.);
 
     /* Thermal */
     parameter_namespace_declare(&thermal_params.ns, &parameter_root_ns, "thermal");
-    parameter_scalar_declare(&thermal_params.current_gain, &thermal_params.ns, "current_gain");
-    parameter_scalar_declare(&thermal_params.max_temp, &thermal_params.ns, "max_temp");
-    parameter_scalar_declare(&thermal_params.Rth, &thermal_params.ns, "Rth");
-    parameter_scalar_declare(&thermal_params.Cth, &thermal_params.ns, "Cth");
+    parameter_scalar_declare_with_default(&thermal_params.current_gain, &thermal_params.ns, "current_gain", 1.);
+    parameter_scalar_declare_with_default(&thermal_params.max_temp, &thermal_params.ns, "max_temp", INFINITY);
+    parameter_scalar_declare_with_default(&thermal_params.Rth, &thermal_params.ns, "Rth", 1.);
+    parameter_scalar_declare_with_default(&thermal_params.Cth, &thermal_params.ns, "Cth", INFINITY);
 
     /* Encoders */
     parameter_namespace_declare(&encoder_params.ns, &parameter_root_ns, "encoders");
