@@ -32,6 +32,15 @@ void scara_set_offset(scara_t* arm, float offset_x, float offset_y, float offset
     arm->offset_xy.y = offset_y;
     arm->offset_rotation = offset_rotation;
 }
+
+void scara_set_z_callbacks(scara_t* arm, void (*set_z_position)(void*, float),
+                                  float (*get_z_position)(void*), void* z_args)
+{
+    arm->set_z_position = set_z_position;
+    arm->get_z_position = get_z_position;
+    arm->z_args = z_args;
+}
+
 void scara_set_shoulder_callbacks(scara_t* arm, void (*set_shoulder_position)(void*, float),
                                   float (*get_shoulder_position)(void*), void* shoulder_args)
 {
@@ -72,7 +81,7 @@ void scara_pos(scara_t* arm, float* x, float* y, float* z, scara_coordinate_t sy
 
     *x = pos.x;
     *y = pos.y;
-    *z = 0.;
+    *z = arm->z_pos;
 }
 
 void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj)
@@ -130,10 +139,12 @@ void scara_manage(scara_t *arm)
     arm->last_loop = scara_time_get();
 
     /* Set motor positions */
+    arm->set_z_position(arm->z_args, frame.position[2]);
     arm->set_shoulder_position(arm->shoulder_args, alpha);
     arm->set_elbow_position(arm->elbow_args, beta);
 
     /* Update motor positions */
+    arm->z_pos = arm->get_z_position(arm->z_args);
     arm->shoulder_pos = arm->get_shoulder_position(arm->shoulder_args);
     arm->elbow_pos = arm->get_elbow_position(arm->elbow_args);
 

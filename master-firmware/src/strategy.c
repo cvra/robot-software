@@ -136,8 +136,10 @@ void strategy_debra_play_game(struct _robot* robot, enum strat_color_t color)
     float motor_indexes[6];
     arms_auto_index(motor_names, motor_dirs, motor_speeds, 6, motor_indexes);
 
+    arms_set_motor_index(left_arm.z_args, 0.);
     arms_set_motor_index(left_arm.shoulder_args, motor_indexes[0]);
     arms_set_motor_index(left_arm.elbow_args, motor_indexes[1]);
+    arms_set_motor_index(right_arm.z_args, 0.);
     arms_set_motor_index(right_arm.shoulder_args, motor_indexes[3]);
     arms_set_motor_index(right_arm.elbow_args, motor_indexes[4]);
 
