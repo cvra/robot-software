@@ -56,10 +56,3 @@ void strategy_auto_position(
     /* Restore robot to game mode: faster and more sensitive to collision */
     trajectory_set_mode_game(&robot->mode, &robot->traj, &robot->distance_bd, &robot->angle_bd);
 }
-
-void strategy_arm_goto(struct _robot* robot, scara_t* arm, float x, float y, float z,
-                       scara_coordinate_t system, const float duration)
-{
-    scara_set_related_robot_pos(arm, &(robot->pos));
-    scara_goto(arm, x, y, z, system, duration);
-}

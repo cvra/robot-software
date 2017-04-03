@@ -73,8 +73,8 @@ float scara_compute_elbow_angle(point_t elbow, point_t hand)
 point_t scara_forward_kinematics(float alpha, float beta, float length[2])
 {
     point_t result;
-    result.x = cos(alpha) * length[0] + cos(alpha + beta) * length[1];
-    result.y = sin(alpha) * length[0] + sin(alpha + beta) * length[1];
+    result.x = cosf(alpha) * length[0] + cosf(alpha + beta) * length[1];
+    result.y = sinf(alpha) * length[0] + sinf(alpha + beta) * length[1];
 
     return result;
 }

@@ -30,11 +30,6 @@ void strategy_auto_position(
         int32_t x, int32_t y, int32_t heading, int32_t robot_size,
         enum strat_color_t robot_color, struct _robot* robot, messagebus_t* bus);
 
-/** Move the arm in table coordinates */
-void strategy_arm_goto(struct _robot* robot, scara_t* arm, float x, float y, float z,
-                       scara_coordinate_t system, const float duration);
-
-
 #ifdef __cplusplus
 }
 #endif

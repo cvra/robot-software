@@ -17,6 +17,10 @@ void set_motor_pos(void *m, float value)
     *(float *)m = value;
 }
 
+float get_motor_pos(void *m)
+{
+    return *(float *)m;
+}
 
 
 TEST_GROUP(ArmTestGroup)
@@ -25,7 +29,6 @@ TEST_GROUP(ArmTestGroup)
     scara_trajectory_t traj;
     float arbitraryLengths[2] = {100, 50};
     float shoulder_angle, elbow_angle;
-
 
 
     void setup()
@@ -38,8 +41,8 @@ TEST_GROUP(ArmTestGroup)
         shoulder_angle = 0;
         elbow_angle = 0;
 
-        scara_set_shoulder_callback(&arm, set_motor_pos, &shoulder_angle);
-        scara_set_elbow_callback(&arm, set_motor_pos, &elbow_angle);
+        scara_set_shoulder_callbacks(&arm, set_motor_pos, get_motor_pos, &shoulder_angle);
+        scara_set_elbow_callbacks(&arm, set_motor_pos, get_motor_pos, &elbow_angle);
     }
 
     void teardown()
@@ -53,7 +56,6 @@ TEST_GROUP(ArmTestGroup)
 
 TEST(ArmTestGroup, LagCompensationIsInitialized)
 {
-
     scara_time_set(42);
     scara_init(&arm);
     CHECK_EQUAL(42, arm.last_loop);

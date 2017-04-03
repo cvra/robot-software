@@ -6,6 +6,7 @@
 #include "can/bus_enumerator.h"
 #include "can/motor_manager.h"
 #include "robot_helpers/motor_helpers.h"
+#include "base/base_controller.h"
 
 #include "cvra_arm_motors.h"
 #include "arms_controller.h"
@@ -22,11 +23,13 @@ void arms_init(void)
 {
     /* Configure left arm */
     scara_init(&left_arm);
-    static cvra_arm_motor_t left_shoulder = {.m = &motor_manager, .direction = -1};
-    static cvra_arm_motor_t left_elbow = {.m = &motor_manager, .direction = -1};
+    static cvra_arm_motor_t left_shoulder = {.m = &motor_manager, .direction = -1, .index = 0};
+    static cvra_arm_motor_t left_elbow = {.m = &motor_manager, .direction = -1, .index = 0};
 
-    scara_set_shoulder_callback(&left_arm, set_left_shoulder_position, &left_shoulder);
-    scara_set_elbow_callback(&left_arm, set_left_elbow_position, &left_elbow);
+    scara_set_shoulder_callbacks(&left_arm, set_left_shoulder_position, get_left_shoulder_position, &left_shoulder);
+    scara_set_elbow_callbacks(&left_arm, set_left_elbow_position, get_left_elbow_position, &left_elbow);
+
+    scara_set_related_robot_pos(&left_arm, &robot.pos);
 
     scara_set_physical_parameters(&left_arm,
         config_get_scalar("master/arms/upperarm_length"),
@@ -38,11 +41,13 @@ void arms_init(void)
 
     /* Configure right arm */
     scara_init(&right_arm);
-    static cvra_arm_motor_t right_shoulder = {.m = &motor_manager, .direction = -1};
-    static cvra_arm_motor_t right_elbow = {.m = &motor_manager, .direction = -1};
+    static cvra_arm_motor_t right_shoulder = {.m = &motor_manager, .direction = -1, .index = 0};
+    static cvra_arm_motor_t right_elbow = {.m = &motor_manager, .direction = -1, .index = 0};
 
-    scara_set_shoulder_callback(&right_arm, set_right_shoulder_position, &right_shoulder);
-    scara_set_elbow_callback(&right_arm, set_right_elbow_position, &right_elbow);
+    scara_set_shoulder_callbacks(&right_arm, set_right_shoulder_position, get_right_shoulder_position, &right_shoulder);
+    scara_set_elbow_callbacks(&right_arm, set_right_elbow_position, get_right_elbow_position, &right_elbow);
+
+    scara_set_related_robot_pos(&right_arm, &robot.pos);
 
     scara_set_physical_parameters(&right_arm,
         config_get_scalar("master/arms/upperarm_length"),
@@ -184,4 +189,11 @@ void arms_auto_index(char** motor_names, int* motor_dirs, float* motor_speeds, s
         parameter_scalar_set(&(motors[i]->config.index_stream), 0);
     }
     NOTICE("Disabled motor index streams");
+}
+
+
+void arms_set_motor_index(void* motor, float index)
+{
+    cvra_arm_motor_t *dev = (cvra_arm_motor_t*)motor;
+    dev->index = index;
 }
