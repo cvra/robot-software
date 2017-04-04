@@ -109,8 +109,7 @@ include $(CHIBIOS)/os/rt/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
 include $(CHIBIOS)/os/various/cpp_wrappers/chcpp.mk
 
 # Target board
-include src/board/OLIMEX_STM32_E407/board.mk
-#include src/board/ST_NUCLEO144_F429ZI/board.mk
+include src/board/ST_NUCLEO144_F429ZI/board.mk
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.

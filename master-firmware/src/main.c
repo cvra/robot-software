@@ -45,7 +45,7 @@ void init_hands(void);
 THD_WORKING_AREA(shell_wa, 2048);
 
 static const ShellConfig shell_cfg1 = {
-    (BaseSequentialStream *)&SD3,
+    (BaseSequentialStream *)&SDU1,
     commands
 };
 
@@ -79,17 +79,9 @@ CONDVAR_DECL(bus_condvar);
 void panic_hook(const char *reason)
 {
     trace(TRACE_POINT_PANIC);
-    palSetPad(GPIOF, GPIOF_LED_READY);
-    palSetPad(GPIOF, GPIOF_LED_DEBUG);
-    palSetPad(GPIOF, GPIOF_LED_ERROR);
-    palSetPad(GPIOF, GPIOF_LED_POWER_ERROR);
-    palSetPad(GPIOF, GPIOF_LED_PC_ERROR);
-    palSetPad(GPIOF, GPIOF_LED_BUS_ERROR);
-    palSetPad(GPIOF, GPIOF_LED_YELLOW_1);
-    palSetPad(GPIOF, GPIOF_LED_YELLOW_2);
-    palSetPad(GPIOF, GPIOF_LED_GREEN_1);
-    palSetPad(GPIOF, GPIOF_LED_GREEN_2);
-    palClearPad(GPIOC, GPIOC_LED);
+    // XXX todo: chosoe EXT_IO pin
+    // palClearPad(GPIOB, GPIOB_LED_GREEN);
+    // palClearPad(GPIOB, GPIOB_LED_RED);
 
     panic_log_write(reason);
     if (ch.rlist.r_current != NULL) {
@@ -158,7 +150,8 @@ static void blink_thd(void *p)
     (void) p;
 
     while (true) {
-        palTogglePad(GPIOF, GPIOF_LED_PC_ERROR);
+        // XXX todo: chosoe EXT_IO pin
+        // palTogglePad(GPIOF, GPIOF_LED_PC_ERROR);
         chThdSleepMilliseconds(200);
     }
 }
@@ -174,7 +167,7 @@ int main(void) {
     static thread_t *shelltp = NULL;
 
     /* Initializes a serial driver.  */
-    sdStart(&SD3, &debug_uart_config);
+    sdStart(&SD2, &debug_uart_config);
 
     blink_start();
 

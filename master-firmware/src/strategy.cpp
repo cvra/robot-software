@@ -46,27 +46,28 @@ static enum strat_color_t wait_for_color_selection(void)
 {
     strat_color_t color = YELLOW;
 
-    while (!BUTTON_IS_PRESSED(GPIOF, GPIOF_BTN_YELLOW) && !BUTTON_IS_PRESSED(GPIOF, GPIOF_BTN_GREEN)) {
-        palSetPad(GPIOF, GPIOF_LED_YELLOW_1);
-        palSetPad(GPIOF, GPIOF_LED_GREEN_1);
-        strategy_wait_ms(100);
+    // XXX todo: chosoe EXT_IO pin
+    // while (!BUTTON_IS_PRESSED(GPIOF, GPIOF_BTN_YELLOW) && !BUTTON_IS_PRESSED(GPIOF, GPIOF_BTN_GREEN)) {
+    //     palSetPad(GPIOF, GPIOF_LED_YELLOW_1);
+    //     palSetPad(GPIOF, GPIOF_LED_GREEN_1);
+    //     strategy_wait_ms(100);
 
-        palClearPad(GPIOF, GPIOF_LED_YELLOW_1);
-        palClearPad(GPIOF, GPIOF_LED_GREEN_1);
-        strategy_wait_ms(100);
-    }
+    //     palClearPad(GPIOF, GPIOF_LED_YELLOW_1);
+    //     palClearPad(GPIOF, GPIOF_LED_GREEN_1);
+    //     strategy_wait_ms(100);
+    // }
 
-    if (BUTTON_IS_PRESSED(GPIOF, GPIOF_BTN_GREEN)) {
-        palClearPad(GPIOF, GPIOF_LED_YELLOW_1);
-        palSetPad(GPIOF, GPIOF_LED_GREEN_1);
-        color = BLUE;
-        NOTICE("Color set to blue");
-    } else {
-        palSetPad(GPIOF, GPIOF_LED_YELLOW_1);
-        palClearPad(GPIOF, GPIOF_LED_GREEN_1);
-        color = YELLOW;
-        NOTICE("Color set to yellow");
-    }
+    // if (BUTTON_IS_PRESSED(GPIOF, GPIOF_BTN_GREEN)) {
+    //     palClearPad(GPIOF, GPIOF_LED_YELLOW_1);
+    //     palSetPad(GPIOF, GPIOF_LED_GREEN_1);
+    //     color = BLUE;
+    //     NOTICE("Color set to blue");
+    // } else {
+    //     palSetPad(GPIOF, GPIOF_LED_YELLOW_1);
+    //     palClearPad(GPIOF, GPIOF_LED_GREEN_1);
+    //     color = YELLOW;
+    //     NOTICE("Color set to yellow");
+    // }
 
     return color;
 }
@@ -74,12 +75,13 @@ static enum strat_color_t wait_for_color_selection(void)
 static void wait_for_starter(void)
 {
     /* Wait for a rising edge */
-    while (palReadPad(GPIOF, GPIOF_START)) {
-        strategy_wait_ms(10);
-    }
-    while (!palReadPad(GPIOF, GPIOF_START)) {
-        strategy_wait_ms(10);
-    }
+    // XXX todo: chosoe EXT_IO pin
+    // while (palReadPad(GPIOF, GPIOF_START)) {
+    //     strategy_wait_ms(10);
+    // }
+    // while (!palReadPad(GPIOF, GPIOF_START)) {
+    //     strategy_wait_ms(10);
+    // }
 }
 
 static void wait_for_autoposition_signal(void)
@@ -173,10 +175,12 @@ bool strategy_goto_avoid(int x_mm, int y_mm, int a_deg, int traj_end_flags)
 
         return true;
     } else if (end_reason == TRAJ_END_OPPONENT_NEAR) {
-        palSetPad(GPIOF, GPIOF_LED_PC_ERROR);
+        // XXX todo: chosoe EXT_IO pin
+        // palSetPad(GPIOF, GPIOF_LED_PC_ERROR);
         strategy_stop_robot();
         strategy_wait_ms(100);
-        palClearPad(GPIOF, GPIOF_LED_PC_ERROR);
+        // XXX todo: chosoe EXT_IO pin
+        // palClearPad(GPIOF, GPIOF_LED_PC_ERROR);
         strategy_stop_robot();
         WARNING("Stopping robot because opponent too close");
     } else if (end_reason == TRAJ_END_COLLISION) {

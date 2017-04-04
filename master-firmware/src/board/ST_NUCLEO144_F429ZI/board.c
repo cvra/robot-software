@@ -72,6 +72,28 @@ void __early_init(void) {
   stm32_clock_init();
 }
 
+#if HAL_USE_SDC || defined(__DOXYGEN__)
+/**
+ * @brief   SDC card detection.
+ */
+bool sdc_lld_is_card_inserted(SDCDriver *sdcp) {
+  static bool last_status = false;
+
+  if (blkIsTransferring(sdcp))
+    return last_status;
+  return last_status = (bool)palReadPad(GPIOC, GPIOC_SD_D3);
+}
+
+/**
+ * @brief   SDC card write protection detection.
+ */
+bool sdc_lld_is_write_protected(SDCDriver *sdcp) {
+
+  (void)sdcp;
+  return false;
+}
+#endif /* HAL_USE_SDC */
+
 /**
  * @brief   Board-specific initialization code.
  * @todo    Add your board-specific code, if any.

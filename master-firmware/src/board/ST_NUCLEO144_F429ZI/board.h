@@ -41,7 +41,7 @@
 
 /* on board 10MHz crystal */
 #if !defined(STM32_HSECLK)
-#define STM32_HSECLK                10000000
+#define STM32_HSECLK                8000000
 #endif
 
 /*

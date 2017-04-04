@@ -97,26 +97,27 @@ static bool led_cb(void *p, cmp_ctx_t *input, cmp_ctx_t *output)
     err = err || !cmp_read_bool(input, &led_status);
 
     if (err == false) {
+        // XXX todo: chose EXT_IO pin
         if (!strcmp(led_name, "ready")) {
-            palWritePad(GPIOF, GPIOF_LED_READY, led_status);
+            // palWritePad(GPIOF, GPIOF_LED_READY, led_status);
         } else if (!strcmp(led_name, "debug")) {
-            palWritePad(GPIOF, GPIOF_LED_DEBUG, led_status);
+            // palWritePad(GPIOF, GPIOF_LED_DEBUG, led_status);
         } else if (!strcmp(led_name, "error")) {
-            palWritePad(GPIOF, GPIOF_LED_ERROR, led_status);
+            // palWritePad(GPIOF, GPIOF_LED_ERROR, led_status);
         } else if (!strcmp(led_name, "power_error")) {
-            palWritePad(GPIOF, GPIOF_LED_POWER_ERROR, led_status);
+            // palWritePad(GPIOF, GPIOF_LED_POWER_ERROR, led_status);
         } else if (!strcmp(led_name, "pc_error")) {
-            palWritePad(GPIOF, GPIOF_LED_PC_ERROR, led_status);
+            // palWritePad(GPIOF, GPIOF_LED_PC_ERROR, led_status);
         } else if (!strcmp(led_name, "bus_error")) {
-            palWritePad(GPIOF, GPIOF_LED_BUS_ERROR, led_status);
+            // palWritePad(GPIOF, GPIOF_LED_BUS_ERROR, led_status);
         } else if (!strcmp(led_name, "yellow_1")) {
-            palWritePad(GPIOF, GPIOF_LED_YELLOW_1, led_status);
+            // palWritePad(GPIOF, GPIOF_LED_YELLOW_1, led_status);
         } else if (!strcmp(led_name, "yellow_2")) {
-            palWritePad(GPIOF, GPIOF_LED_YELLOW_2, led_status);
+            // palWritePad(GPIOF, GPIOF_LED_YELLOW_2, led_status);
         } else if (!strcmp(led_name, "green_1")) {
-            palWritePad(GPIOF, GPIOF_LED_GREEN_1, led_status);
+            // palWritePad(GPIOF, GPIOF_LED_GREEN_1, led_status);
         } else if (!strcmp(led_name, "green_2")) {
-            palWritePad(GPIOF, GPIOF_LED_GREEN_2, led_status);
+            // palWritePad(GPIOF, GPIOF_LED_GREEN_2, led_status);
         } else {
             cmp_write_str(output, error_msg_invalid_arg,
                                   strlen(error_msg_invalid_arg));
