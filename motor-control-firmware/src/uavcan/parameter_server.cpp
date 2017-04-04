@@ -24,6 +24,18 @@ static const char *exposed_parameters[] = {
 
     "/motor/torque_cst",
 
+    "/encoders/primary/p",
+    "/encoders/primary/q",
+    "/encoders/primary/ticks_per_rev",
+    "/encoders/secondary/p",
+    "/encoders/secondary/q",
+    "/encoders/secondary/ticks_per_rev",
+
+    "/potentiometer/gain",
+    "/potentiometer/zero",
+
+    "/rpm/phase",
+
     "/thermal/Cth",
     "/thermal/Rth",
     "/thermal/current_gain",
