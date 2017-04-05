@@ -61,7 +61,7 @@ public:
         int min_cost = 10000;
         Action<State> *best_action = nullptr;
 
-        for (int i = 0; i < action_count; i++) {
+        for (size_t i = 0; i < action_count; i++) {
 
             /* If the action cannot be used, then abort. */
             if (actions[i]->can_run(state) == false) {
