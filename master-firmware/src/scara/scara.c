@@ -109,7 +109,7 @@ void scara_manage(scara_t *arm)
 
     point_t p1, p2;
     int position_count = scara_num_possible_elbow_positions(target, arm->length[0], arm->length[1], &p1, &p2);
-    NOTICE("Inverse kinematics: found %d possible solutions", position_count);
+    DEBUG("Inverse kinematics: found %d possible solutions", position_count);
 
     if (position_count == 0) {
         arm->last_loop = current_date;
