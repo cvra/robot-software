@@ -6,6 +6,7 @@
 #include <blocking_detection_manager/blocking_detection_manager.h>
 #include <trajectory_manager/trajectory_manager_utils.h>
 #include <obstacle_avoidance/obstacle_avoidance.h>
+#include <goap/goap.hpp>
 
 #include "priorities.h"
 #include "robot_helpers/math_helpers.h"
@@ -124,9 +125,72 @@ bool strategy_goto_avoid_retry(struct _robot* robot, int x_mm, int y_mm, int a_d
     return finished;
 }
 
+struct TestState {
+    bool has_wood{false};
+    bool has_axe{false};
+};
+
+class CutWood : public goap::Action<TestState> {
+public:
+    bool can_run(TestState state)
+    {
+        return state.has_axe;
+    }
+
+    TestState plan_effects(TestState state)
+    {
+        state.has_wood = true;
+        return state;
+    }
+};
+
+struct GrabAxe : public goap::Action<TestState> {
+    bool can_run(TestState state)
+    {
+        (void) state;
+        return true;
+    }
+
+    TestState plan_effects(TestState state)
+    {
+        state.has_axe = true;
+        return state;
+    }
+};
+
+struct SimpleGoal : goap::Goal<TestState> {
+    bool is_reached(TestState state)
+    {
+        return state.has_wood;
+    }
+};
+
+
 void strategy_debra_play_game(struct _robot* robot, enum strat_color_t color)
 {
+    (void) robot;
+    (void) color;
+
+    SimpleGoal goal;
+    TestState state;
+    CutWood cut_wood_action;
+    GrabAxe grab_axe_action;
+
+    const int max_path_len = 10;
+    goap::Action<TestState> *path[max_path_len] = {nullptr};
+    int action_count = 2;
+    goap::Action<TestState> *actions[] = {&cut_wood_action, &grab_axe_action};
+
+    goap::Planner<TestState> planner(actions, action_count);
+
+    /* Since the goal is reached, we should not need any plan. */
+    int len = planner.plan(state, goal, path, max_path_len);
+
+    NOTICE("Path size: %d", len);
+
+
     /* Autoposition arms */
+#if 0
     wait_for_autoposition_signal();
     NOTICE("Positioning arms");
 
@@ -172,6 +236,7 @@ void strategy_debra_play_game(struct _robot* robot, enum strat_color_t color)
 
         wait_for_starter();
     }
+#endif
 }
 
 void strategy_sandoi_play_game(struct _robot* robot, enum strat_color_t color)
