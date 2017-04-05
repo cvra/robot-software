@@ -20,11 +20,18 @@ public:
         state.has_wood = true;
         return state;
     }
+
+    bool execute(TestState &state)
+    {
+        state.has_wood = true;
+        return true;
+    }
 };
 
 struct GrabAxe : public goap::Action<TestState> {
     bool can_run(TestState state)
     {
+        (void) state;
         return true;
     }
 
@@ -32,6 +39,12 @@ struct GrabAxe : public goap::Action<TestState> {
     {
         state.has_axe = true;
         return state;
+    }
+
+    bool execute(TestState &state)
+    {
+        state.has_axe = true;
+        return true;
     }
 };
 

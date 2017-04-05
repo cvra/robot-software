@@ -142,6 +142,13 @@ public:
         state.has_wood = true;
         return state;
     }
+
+    bool execute(TestState &state)
+    {
+        NOTICE("Chopping some wood!");
+        state.has_wood = true;
+        return true;
+    }
 };
 
 struct GrabAxe : public goap::Action<TestState> {
@@ -156,6 +163,14 @@ struct GrabAxe : public goap::Action<TestState> {
         state.has_axe = true;
         return state;
     }
+
+    bool execute(TestState &state)
+    {
+        NOTICE("Getting my axe!");
+        state.has_axe = true;
+        return true;
+    }
+
 };
 
 struct SimpleGoal : goap::Goal<TestState> {
@@ -187,6 +202,11 @@ void strategy_debra_play_game(struct _robot* robot, enum strat_color_t color)
     int len = planner.plan(state, goal, path, max_path_len);
 
     NOTICE("Path size: %d", len);
+
+    for (int i = 0; i < len; i++) {
+        path[i]->execute(state);
+    }
+
 
 
     /* Autoposition arms */

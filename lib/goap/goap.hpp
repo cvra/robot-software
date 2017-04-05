@@ -19,6 +19,9 @@ public:
     /** Plans the effects of this action on the state and returns the
      * modified state. */
     virtual State plan_effects(State state) = 0;
+
+    /** Tries to execute the task and returns true if it suceeded. */
+    virtual bool execute(State &state) = 0;
 };
 
 template<typename State>
