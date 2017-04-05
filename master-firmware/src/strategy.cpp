@@ -127,6 +127,8 @@ bool strategy_goto_avoid_retry(struct _robot* robot, int x_mm, int y_mm, int a_d
 struct DebraState {
     bool arms_are_indexed{false};
     bool arms_are_deployed{true};
+    bool lunar_module_down{false};
+    bool is_near_lunar_module{false};
     struct _robot *robot{nullptr};
 };
 
@@ -180,8 +182,55 @@ struct RetractArms : public goap::Action<DebraState> {
         NOTICE("Retracting arms!");
         strategy_arm_goto(state.robot, &left_arm, -150, 70, 0, COORDINATE_ROBOT, 1.);
         strategy_arm_goto(state.robot, &right_arm, 150, -70, 0, COORDINATE_ROBOT, 1.);
-
+        chThdSleepSeconds(1.);
         state.arms_are_deployed = false;
+        return true;
+    }
+};
+
+struct GotoLunarModule : public goap::Action<DebraState> {
+    bool can_run(DebraState state)
+    {
+        return !state.arms_are_deployed;
+    }
+
+    DebraState plan_effects(DebraState state)
+    {
+        state.is_near_lunar_module = true;
+        return state;
+    }
+
+    bool execute(DebraState &state)
+    {
+        NOTICE("Goto lunar module");
+        if (strategy_goto_avoid(state.robot, 1050, 1180, 45)) {
+            state.is_near_lunar_module = true;
+        }
+        return state.is_near_lunar_module;
+    }
+};
+
+struct PushLunarModule : public goap::Action<DebraState> {
+    bool can_run(DebraState state)
+    {
+        return state.is_near_lunar_module;
+    }
+
+    DebraState plan_effects(DebraState state)
+    {
+        state.lunar_module_down = true;
+        state.arms_are_deployed = true;
+        return state;
+    }
+
+    bool execute(DebraState &state)
+    {
+        NOTICE("Push lunar module");
+        strategy_arm_goto(state.robot, &left_arm, 960, 1460, 0, COORDINATE_TABLE, 5.);
+        chThdSleepSeconds(5);
+
+        state.lunar_module_down = true;
+        state.arms_are_deployed = true;
         return true;
     }
 };
@@ -193,16 +242,24 @@ struct InitGoal : goap::Goal<DebraState> {
     }
 };
 
+struct GameGoal : goap::Goal<DebraState> {
+    bool is_reached(DebraState state)
+    {
+        return state.lunar_module_down && !state.arms_are_deployed;
+    }
+};
 
 void strategy_debra_play_game(struct _robot* robot, enum strat_color_t color)
 {
     (void) robot;
     (void) color;
-    wait_for_autoposition_signal();
+    int len;
 
-    InitGoal goal;
+    InitGoal init_goal;
     IndexArms index_arms;
     RetractArms retract_arms;
+    GotoLunarModule goto_lunar_module;
+    PushLunarModule push_lunar_module;
 
     DebraState state;
     state.robot = robot;
@@ -213,47 +270,38 @@ void strategy_debra_play_game(struct _robot* robot, enum strat_color_t color)
     goap::Action<DebraState> *actions[] = {
         &index_arms,
         &retract_arms,
+        &goto_lunar_module,
+        &push_lunar_module,
     };
 
     goap::Planner<DebraState> planner(actions, sizeof(actions) / sizeof(actions[0]));
 
-    /* Since the goal is reached, we should not need any plan. */
-    int len = planner.plan(state, goal, path, max_path_len);
+    GameGoal game_goal;
+    len = planner.plan(state, game_goal, path, max_path_len);
+    NOTICE("Plan length: %d", len);
 
-    NOTICE("Path size: %d", len);
-
+    wait_for_autoposition_signal();
+    NOTICE("Getting arms ready...");
+    len = planner.plan(state, init_goal, path, max_path_len);
     for (int i = 0; i < len; i++) {
         path[i]->execute(state);
     }
 
-#if 0
     /* Autoposition robot */
     wait_for_autoposition_signal();
     NOTICE("Positioning robot");
     strategy_auto_position(600, 200, 90, robot->robot_size, color, robot, &bus);
     NOTICE("Robot positioned at x: 600[mm], y: 200[mm], a: 90[deg]");
 
+
     /* Wait for starter to begin */
     wait_for_starter();
     NOTICE("Starting game");
-
-    while (true) {
-        /* Go close to lunar module */
-        strategy_goto_avoid_retry(robot, 1050, 1180, 45, -1);
-
-        /* Push lunar module with arm */
-        scara_goto(&left_arm, 960, 1460, 0, COORDINATE_TABLE, 5.);
-        scara_goto(&left_arm, -150, 70, 0, COORDINATE_ROBOT, 1.);
-
-        /* Go back to home */
-        strategy_goto_avoid_retry(robot, 600, 200, 90, -1);
-
-        DEBUG("Game ended!\nInsert coin to play more.");
-        chThdSleepSeconds(1);
-
-        wait_for_starter();
+    len = planner.plan(state, game_goal, path, max_path_len);
+    NOTICE("Plan length: %d", len);
+    for (int i = 0; i < len; i++) {
+        path[i]->execute(state);
     }
-#endif
 }
 
 void strategy_sandoi_play_game(struct _robot* robot, enum strat_color_t color)
