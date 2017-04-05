@@ -91,7 +91,7 @@ void arms_controller_start(void)
     chThdCreateStatic(arms_ctrl_thd_wa, sizeof(arms_ctrl_thd_wa), ARMS_CONTROLLER_PRIO, arms_ctrl_thd, NULL);
 }
 
-void arms_auto_index(char** motor_names, int* motor_dirs, float* motor_speeds, size_t num_motors, float* motor_indexes)
+void arms_auto_index(const char** motor_names, int* motor_dirs, float* motor_speeds, size_t num_motors, float* motor_indexes)
 {
     /* Fetch all motor drivers */
     motor_driver_t* motors[num_motors];

@@ -21,8 +21,13 @@
 
 /* Trajectory Manager v3 - zer0 - for Eurobot 2010 */
 
-#ifndef _TRAJECTORY_MANAGER_H_
-#define _TRAJECTORY_MANAGER_H_
+
+#ifndef TRAJECTORY_MANAGER_UTILS_H
+#define TRAJECTORY_MANAGER_UTILS_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <trajectory_manager/trajectory_manager.h>
 
@@ -85,5 +90,11 @@ double acc_imp2rd(struct trajectory *traj, double acc);
 int trajectory_moving_backward(struct trajectory *traj);
 int trajectory_moving_forward(struct trajectory *traj);
 int trajectory_turning(struct trajectory *traj);
+
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif

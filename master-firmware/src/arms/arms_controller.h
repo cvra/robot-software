@@ -1,6 +1,10 @@
 #ifndef ARMS_CONTROLLER_H
 #define ARMS_CONTROLLER_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "scara/scara.h"
 
 #define ARMS_FREQUENCY 10
@@ -18,9 +22,12 @@ float arms_motor_auto_index(const char* motor_name, int motor_dir, float motor_s
 void arms_controller_start(void);
 
 /* Index a whole bunch of motors simultaneously */
-void arms_auto_index(char** motor_names, int* motor_dirs, float* motor_speeds, size_t num_motors, float* motor_indexes);
+void arms_auto_index(const char** motor_names, int* motor_dirs, float* motor_speeds, size_t num_motors, float* motor_indexes);
 
 /* Set motor index value */
 void arms_set_motor_index(void* motor, float index);
 
+#ifdef __cplusplus
+}
+#endif
 #endif

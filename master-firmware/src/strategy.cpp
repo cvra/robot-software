@@ -59,8 +59,8 @@ bool strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg)
     /* Compute path */
     oa_reset();
     const point_t start = {
-            position_get_x_s16(&robot->pos),
-            position_get_y_s16(&robot->pos)
+            position_get_x_float(&robot->pos),
+            position_get_y_float(&robot->pos)
         };
     oa_start_end_points(start.x, start.y, x_mm, y_mm);
     oa_process();
@@ -130,7 +130,7 @@ void strategy_debra_play_game(struct _robot* robot, enum strat_color_t color)
     wait_for_autoposition_signal();
     NOTICE("Positioning arms");
 
-    char* motor_names[6] = {"left-shoulder", "left-elbow", "left-wrist", "right-shoulder", "right-elbow", "right-wrist"};
+    const char* motor_names[6] = {"left-shoulder", "left-elbow", "left-wrist", "right-shoulder", "right-elbow", "right-wrist"};
     int motor_dirs[6] = {1, 1, 1, -1, -1, -1};
     float motor_speeds[6] = {0.8, 0.8, 4.0, 0.8, 0.8, 4.0};
     float motor_indexes[6];

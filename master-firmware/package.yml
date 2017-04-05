@@ -45,7 +45,7 @@ target.arm:
     - src/robot_helpers/motor_helpers.c
     - src/config_msgpack.c
     - src/trace/trace_points.c
-    - src/strategy.c
+    - src/strategy.cpp
     - src/filesystem.c
     - src/http/server.c
 
