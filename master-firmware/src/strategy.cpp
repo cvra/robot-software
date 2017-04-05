@@ -21,7 +21,6 @@
 
 #include "strategy.h"
 
-#define STRATEGY_STACKSIZE 1024
 
 static void wait_for_autoposition_signal(void);
 static void wait_for_starter(void);
@@ -311,6 +310,6 @@ void strategy_play_game(void* _robot)
 
 void strategy_start(void)
 {
-    static THD_WORKING_AREA(strategy_thd_wa, STRATEGY_STACKSIZE);
+    static THD_WORKING_AREA(strategy_thd_wa, 4096);
     chThdCreateStatic(strategy_thd_wa, sizeof(strategy_thd_wa), STRATEGY_PRIO, strategy_play_game, &robot);
 }
