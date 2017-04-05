@@ -124,58 +124,72 @@ bool strategy_goto_avoid_retry(struct _robot* robot, int x_mm, int y_mm, int a_d
     return finished;
 }
 
-struct TestState {
-    bool has_wood{false};
-    bool has_axe{false};
+struct DebraState {
+    bool arms_are_indexed{false};
+    bool arms_are_deployed{true};
+    struct _robot *robot{nullptr};
 };
 
-class CutWood : public goap::Action<TestState> {
-public:
-    bool can_run(TestState state)
-    {
-        return state.has_axe;
-    }
-
-    TestState plan_effects(TestState state)
-    {
-        state.has_wood = true;
-        return state;
-    }
-
-    bool execute(TestState &state)
-    {
-        NOTICE("Chopping some wood!");
-        state.has_wood = true;
-        return true;
-    }
-};
-
-struct GrabAxe : public goap::Action<TestState> {
-    bool can_run(TestState state)
+struct IndexArms : public goap::Action<DebraState> {
+    bool can_run(DebraState state)
     {
         (void) state;
         return true;
     }
 
-    TestState plan_effects(TestState state)
+    DebraState plan_effects(DebraState state)
     {
-        state.has_axe = true;
+        state.arms_are_indexed = true;
         return state;
     }
 
-    bool execute(TestState &state)
+    bool execute(DebraState &state)
     {
-        NOTICE("Getting my axe!");
-        state.has_axe = true;
+        NOTICE("Indexing arms!");
+
+        const char* motor_names[6] = {"left-shoulder", "left-elbow", "left-wrist", "right-shoulder", "right-elbow", "right-wrist"};
+        int motor_dirs[6] = {1, 1, 1, -1, -1, -1};
+        float motor_speeds[6] = {0.8, 0.8, 4.0, 0.8, 0.8, 4.0};
+        float motor_indexes[6];
+        arms_auto_index(motor_names, motor_dirs, motor_speeds, 6, motor_indexes);
+
+        left_arm.shoulder_index = motor_indexes[0];
+        left_arm.elbow_index = motor_indexes[1];
+        right_arm.shoulder_index = motor_indexes[3];
+        right_arm.elbow_index = motor_indexes[4];
+
+        state.arms_are_indexed = true;
         return true;
     }
-
 };
 
-struct SimpleGoal : goap::Goal<TestState> {
-    bool is_reached(TestState state)
+struct RetractArms : public goap::Action<DebraState> {
+    bool can_run(DebraState state)
     {
-        return state.has_wood;
+        return state.arms_are_indexed;
+    }
+
+    DebraState plan_effects(DebraState state)
+    {
+        state.arms_are_deployed = false;
+        return state;
+    }
+
+    bool execute(DebraState &state)
+    {
+        NOTICE("Retracting arms!");
+        strategy_arm_goto(state.robot, &left_arm, -150, 70, 0, COORDINATE_ROBOT, 1.);
+        strategy_arm_goto(state.robot, &right_arm, 150, -70, 0, COORDINATE_ROBOT, 1.);
+
+        state.arms_are_deployed = false;
+        return true;
+    }
+};
+
+struct InitGoal : goap::Goal<DebraState> {
+    bool is_reached(DebraState state)
+    {
+        return state.arms_are_deployed == false;
     }
 };
 
@@ -184,18 +198,24 @@ void strategy_debra_play_game(struct _robot* robot, enum strat_color_t color)
 {
     (void) robot;
     (void) color;
+    wait_for_autoposition_signal();
 
-    SimpleGoal goal;
-    TestState state;
-    CutWood cut_wood_action;
-    GrabAxe grab_axe_action;
+    InitGoal goal;
+    IndexArms index_arms;
+    RetractArms retract_arms;
+
+    DebraState state;
+    state.robot = robot;
 
     const int max_path_len = 10;
-    goap::Action<TestState> *path[max_path_len] = {nullptr};
-    int action_count = 2;
-    goap::Action<TestState> *actions[] = {&cut_wood_action, &grab_axe_action};
+    goap::Action<DebraState> *path[max_path_len] = {nullptr};
 
-    goap::Planner<TestState> planner(actions, action_count);
+    goap::Action<DebraState> *actions[] = {
+        &index_arms,
+        &retract_arms,
+    };
+
+    goap::Planner<DebraState> planner(actions, sizeof(actions) / sizeof(actions[0]));
 
     /* Since the goal is reached, we should not need any plan. */
     int len = planner.plan(state, goal, path, max_path_len);
@@ -206,29 +226,7 @@ void strategy_debra_play_game(struct _robot* robot, enum strat_color_t color)
         path[i]->execute(state);
     }
 
-
-
-    /* Autoposition arms */
 #if 0
-    wait_for_autoposition_signal();
-    NOTICE("Positioning arms");
-
-    const char* motor_names[6] = {"left-shoulder", "left-elbow", "left-wrist", "right-shoulder", "right-elbow", "right-wrist"};
-    int motor_dirs[6] = {1, 1, 1, -1, -1, -1};
-    float motor_speeds[6] = {0.8, 0.8, 4.0, 0.8, 0.8, 4.0};
-    float motor_indexes[6];
-    arms_auto_index(motor_names, motor_dirs, motor_speeds, 6, motor_indexes);
-
-    arms_set_motor_index(left_arm.z_args, 0.);
-    arms_set_motor_index(left_arm.shoulder_args, motor_indexes[0]);
-    arms_set_motor_index(left_arm.elbow_args, motor_indexes[1]);
-    arms_set_motor_index(right_arm.z_args, 0.);
-    arms_set_motor_index(right_arm.shoulder_args, motor_indexes[3]);
-    arms_set_motor_index(right_arm.elbow_args, motor_indexes[4]);
-
-    scara_goto(&left_arm, -150, 70, 0, COORDINATE_ROBOT, 1.);
-    scara_goto(&right_arm, 150, -70, 0, COORDINATE_ROBOT, 1.);
-
     /* Autoposition robot */
     wait_for_autoposition_signal();
     NOTICE("Positioning robot");
