@@ -10,3 +10,5 @@
   - SB112 and SB149 OFF
 * JP3 set to E5V
 * JP4, JP5, JP6 and JP7 closed
+
+Note: the X3 oscillator can be soldered out from the ST-link-V2
