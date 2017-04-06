@@ -180,8 +180,8 @@ struct RetractArms : public goap::Action<DebraState> {
     bool execute(DebraState &state)
     {
         NOTICE("Retracting arms!");
-        strategy_arm_goto(state.robot, &left_arm, -150, 70, 0, COORDINATE_ROBOT, 1.);
-        strategy_arm_goto(state.robot, &right_arm, 150, -70, 0, COORDINATE_ROBOT, 1.);
+        scara_goto(&left_arm, -150, 70, 0, COORDINATE_ROBOT, 1.);
+        scara_goto(&right_arm, 150, -70, 0, COORDINATE_ROBOT, 1.);
         chThdSleepSeconds(1.);
         state.arms_are_deployed = false;
         return true;
@@ -226,7 +226,7 @@ struct PushLunarModule : public goap::Action<DebraState> {
     bool execute(DebraState &state)
     {
         NOTICE("Push lunar module");
-        strategy_arm_goto(state.robot, &left_arm, 960, 1460, 0, COORDINATE_TABLE, 5.);
+        scara_goto(&left_arm, 960, 1460, 0, COORDINATE_TABLE, 5.);
         chThdSleepSeconds(5);
 
         state.lunar_module_down = true;
