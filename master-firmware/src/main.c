@@ -38,6 +38,7 @@
 
 void init_base_motors(void);
 void init_arm_motors(void);
+void init_hands(void);
 
 /* Command line related */
 THD_WORKING_AREA(shell_wa, 2048);
