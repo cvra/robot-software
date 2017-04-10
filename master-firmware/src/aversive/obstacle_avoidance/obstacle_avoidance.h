@@ -54,6 +54,10 @@
 #ifndef _OBSTACLE_AVOIDANCE_H_
 #define _OBSTACLE_AVOIDANCE_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <math/geometry/polygon.h>
 #include <math/geometry/vect_base.h>
 #include <math/geometry/lines.h>
@@ -161,4 +165,7 @@ int oa_get_path(point_t **path);
  */
 int oa_segment_intersect_obstacle(point_t p1, point_t p2);
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* _OBSTACLE_AVOIDANCE_H_ */

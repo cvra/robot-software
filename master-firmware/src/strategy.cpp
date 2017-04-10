@@ -6,6 +6,7 @@
 #include <blocking_detection_manager/blocking_detection_manager.h>
 #include <trajectory_manager/trajectory_manager_utils.h>
 #include <obstacle_avoidance/obstacle_avoidance.h>
+#include <goap/goap.hpp>
 
 #include "priorities.h"
 #include "robot_helpers/math_helpers.h"
@@ -20,7 +21,6 @@
 
 #include "strategy.h"
 
-#define STRATEGY_STACKSIZE 1024
 
 static void wait_for_autoposition_signal(void);
 static void wait_for_starter(void);
@@ -59,8 +59,8 @@ bool strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg)
     /* Compute path */
     oa_reset();
     const point_t start = {
-            position_get_x_s16(&robot->pos),
-            position_get_y_s16(&robot->pos)
+            position_get_x_float(&robot->pos),
+            position_get_y_float(&robot->pos)
         };
     oa_start_end_points(start.x, start.y, x_mm, y_mm);
     oa_process();
@@ -124,27 +124,170 @@ bool strategy_goto_avoid_retry(struct _robot* robot, int x_mm, int y_mm, int a_d
     return finished;
 }
 
+struct DebraState {
+    bool arms_are_indexed{false};
+    bool arms_are_deployed{true};
+    bool lunar_module_down{false};
+    bool is_near_lunar_module{false};
+    struct _robot *robot{nullptr};
+};
+
+struct IndexArms : public goap::Action<DebraState> {
+    bool can_run(DebraState state)
+    {
+        (void) state;
+        return true;
+    }
+
+    DebraState plan_effects(DebraState state)
+    {
+        state.arms_are_indexed = true;
+        return state;
+    }
+
+    bool execute(DebraState &state)
+    {
+        NOTICE("Indexing arms!");
+
+        const char* motor_names[6] = {"left-shoulder", "left-elbow", "left-wrist", "right-shoulder", "right-elbow", "right-wrist"};
+        int motor_dirs[6] = {1, 1, 1, -1, -1, -1};
+        float motor_speeds[6] = {0.8, 0.8, 4.0, 0.8, 0.8, 4.0};
+        float motor_indexes[6];
+        arms_auto_index(motor_names, motor_dirs, motor_speeds, 6, motor_indexes);
+
+        arms_set_motor_index(left_arm.z_args, 0);
+        arms_set_motor_index(left_arm.shoulder_args, motor_indexes[0]);
+        arms_set_motor_index(left_arm.elbow_args, motor_indexes[1]);
+        arms_set_motor_index(right_arm.z_args, 0);
+        arms_set_motor_index(right_arm.shoulder_args, motor_indexes[3]);
+        arms_set_motor_index(right_arm.elbow_args, motor_indexes[4]);
+
+        state.arms_are_indexed = true;
+        return true;
+    }
+};
+
+struct RetractArms : public goap::Action<DebraState> {
+    bool can_run(DebraState state)
+    {
+        return state.arms_are_indexed;
+    }
+
+    DebraState plan_effects(DebraState state)
+    {
+        state.arms_are_deployed = false;
+        return state;
+    }
+
+    bool execute(DebraState &state)
+    {
+        NOTICE("Retracting arms!");
+        scara_goto(&left_arm, -150, 70, 0, COORDINATE_ROBOT, 1.);
+        scara_goto(&right_arm, 150, -70, 0, COORDINATE_ROBOT, 1.);
+        chThdSleepSeconds(1.);
+        state.arms_are_deployed = false;
+        return true;
+    }
+};
+
+struct GotoLunarModule : public goap::Action<DebraState> {
+    bool can_run(DebraState state)
+    {
+        return !state.arms_are_deployed;
+    }
+
+    DebraState plan_effects(DebraState state)
+    {
+        state.is_near_lunar_module = true;
+        return state;
+    }
+
+    bool execute(DebraState &state)
+    {
+        NOTICE("Goto lunar module");
+        if (strategy_goto_avoid(state.robot, 1050, 1180, 45)) {
+            state.is_near_lunar_module = true;
+        }
+        return state.is_near_lunar_module;
+    }
+};
+
+struct PushLunarModule : public goap::Action<DebraState> {
+    bool can_run(DebraState state)
+    {
+        return state.is_near_lunar_module;
+    }
+
+    DebraState plan_effects(DebraState state)
+    {
+        state.lunar_module_down = true;
+        state.arms_are_deployed = true;
+        return state;
+    }
+
+    bool execute(DebraState &state)
+    {
+        NOTICE("Push lunar module");
+        scara_goto(&left_arm, 960, 1460, 0, COORDINATE_TABLE, 5.);
+        chThdSleepSeconds(5);
+
+        state.lunar_module_down = true;
+        state.arms_are_deployed = true;
+        return true;
+    }
+};
+
+struct InitGoal : goap::Goal<DebraState> {
+    bool is_reached(DebraState state)
+    {
+        return state.arms_are_deployed == false;
+    }
+};
+
+struct GameGoal : goap::Goal<DebraState> {
+    bool is_reached(DebraState state)
+    {
+        return state.lunar_module_down && !state.arms_are_deployed;
+    }
+};
+
 void strategy_debra_play_game(struct _robot* robot, enum strat_color_t color)
 {
-    /* Autoposition arms */
+    (void) robot;
+    (void) color;
+    int len;
+
+    InitGoal init_goal;
+    IndexArms index_arms;
+    RetractArms retract_arms;
+    GotoLunarModule goto_lunar_module;
+    PushLunarModule push_lunar_module;
+
+    DebraState state;
+    state.robot = robot;
+
+    const int max_path_len = 10;
+    goap::Action<DebraState> *path[max_path_len] = {nullptr};
+
+    goap::Action<DebraState> *actions[] = {
+        &index_arms,
+        &retract_arms,
+        &goto_lunar_module,
+        &push_lunar_module,
+    };
+
+    goap::Planner<DebraState> planner(actions, sizeof(actions) / sizeof(actions[0]));
+
+    GameGoal game_goal;
+    len = planner.plan(state, game_goal, path, max_path_len);
+    NOTICE("Plan length: %d", len);
+
     wait_for_autoposition_signal();
-    NOTICE("Positioning arms");
-
-    char* motor_names[6] = {"left-shoulder", "left-elbow", "left-wrist", "right-shoulder", "right-elbow", "right-wrist"};
-    int motor_dirs[6] = {1, 1, 1, -1, -1, -1};
-    float motor_speeds[6] = {0.8, 0.8, 4.0, 0.8, 0.8, 4.0};
-    float motor_indexes[6];
-    arms_auto_index(motor_names, motor_dirs, motor_speeds, 6, motor_indexes);
-
-    arms_set_motor_index(left_arm.z_args, 0.);
-    arms_set_motor_index(left_arm.shoulder_args, motor_indexes[0]);
-    arms_set_motor_index(left_arm.elbow_args, motor_indexes[1]);
-    arms_set_motor_index(right_arm.z_args, 0.);
-    arms_set_motor_index(right_arm.shoulder_args, motor_indexes[3]);
-    arms_set_motor_index(right_arm.elbow_args, motor_indexes[4]);
-
-    scara_goto(&left_arm, -150, 70, 0, COORDINATE_ROBOT, 1.);
-    scara_goto(&right_arm, 150, -70, 0, COORDINATE_ROBOT, 1.);
+    NOTICE("Getting arms ready...");
+    len = planner.plan(state, init_goal, path, max_path_len);
+    for (int i = 0; i < len; i++) {
+        path[i]->execute(state);
+    }
 
     /* Autoposition robot */
     wait_for_autoposition_signal();
@@ -152,25 +295,14 @@ void strategy_debra_play_game(struct _robot* robot, enum strat_color_t color)
     strategy_auto_position(600, 200, 90, robot->robot_size, color, robot, &bus);
     NOTICE("Robot positioned at x: 600[mm], y: 200[mm], a: 90[deg]");
 
+
     /* Wait for starter to begin */
     wait_for_starter();
     NOTICE("Starting game");
-
-    while (true) {
-        /* Go close to lunar module */
-        strategy_goto_avoid_retry(robot, 1050, 1180, 45, -1);
-
-        /* Push lunar module with arm */
-        scara_goto(&left_arm, 960, 1460, 0, COORDINATE_TABLE, 5.);
-        scara_goto(&left_arm, -150, 70, 0, COORDINATE_ROBOT, 1.);
-
-        /* Go back to home */
-        strategy_goto_avoid_retry(robot, 600, 200, 90, -1);
-
-        DEBUG("Game ended!\nInsert coin to play more.");
-        chThdSleepSeconds(1);
-
-        wait_for_starter();
+    len = planner.plan(state, game_goal, path, max_path_len);
+    NOTICE("Plan length: %d", len);
+    for (int i = 0; i < len; i++) {
+        path[i]->execute(state);
     }
 }
 
@@ -226,6 +358,6 @@ void strategy_play_game(void* _robot)
 
 void strategy_start(void)
 {
-    static THD_WORKING_AREA(strategy_thd_wa, STRATEGY_STACKSIZE);
+    static THD_WORKING_AREA(strategy_thd_wa, 4096);
     chThdCreateStatic(strategy_thd_wa, sizeof(strategy_thd_wa), STRATEGY_PRIO, strategy_play_game, &robot);
 }

@@ -33,6 +33,10 @@
 #ifndef TRAJECTORY_MANAGER
 #define TRAJECTORY_MANAGER
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <math/vect2/vect2.h>
@@ -495,4 +499,7 @@ void circle_get_speed_from_radius(struct trajectory *traj,
 void trajectory_line_abs(struct trajectory *traj, double x1, double y1,
                          double x2, double y2, double advance);
 
+#ifdef __cplusplus
+}
+#endif
 #endif // TRAJECTORY_MANAGER
