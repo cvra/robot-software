@@ -42,6 +42,12 @@ static void wait_for_autoposition_signal(void)
     wait_for_starter();
 }
 
+void strategy_stop_robot(struct _robot* robot)
+{
+    trajectory_hardstop(&robot->traj);
+    chThdSleepMilliseconds(200);
+}
+
 bool strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg)
 {
     /* Create obstacle at opponent position */
@@ -69,6 +75,11 @@ bool strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg)
     point_t *points;
     int num_points = oa_get_path(&points);
     DEBUG("Path to (%d, %d) computed with %d points", x_mm, y_mm, num_points);
+    if (num_points <= 0) {
+        WARNING("No path found!");
+        strategy_stop_robot(robot);
+        return false;
+    }
 
     /* Execute path, one waypoint at a time */
     int end_reason = 0;
@@ -92,10 +103,7 @@ bool strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg)
 
         return true;
     } else if (end_reason == TRAJ_END_OPPONENT_NEAR) {
-        trajectory_hardstop(&robot->traj);
-        rs_set_distance(&robot->rs, 0);
-        rs_set_angle(&robot->rs, 0);
-
+        strategy_stop_robot(robot);
         WARNING("Stopping robot because opponent too close");
     } else {
         WARNING("Trajectory ended with reason %d", end_reason);
