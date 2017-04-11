@@ -26,6 +26,8 @@ void map_init(int robot_size)
         map.opponents[i] = oa_new_poly(MAP_NUM_OPPONENT_EDGES);
         map_set_rectangular_obstacle(map.opponents[i], 0, 0, 0, 0, 0);
     }
+
+    map.last_opponent_index = 0;
 }
 
 void map_set_opponent_obstacle(int index, int32_t x, int32_t y, int32_t opponent_size, int32_t robot_size)
@@ -51,4 +53,13 @@ void map_set_rectangular_obstacle(poly_t* opponent, int center_x, int center_y, 
 
     opponent->pts[3].x = math_clamp_value(center_x - (size_x + robot_size) / 2, 0, MAP_SIZE_X_MM);
     opponent->pts[3].y = math_clamp_value(center_y - (size_y + robot_size) / 2, 0, MAP_SIZE_Y_MM);
+}
+
+void map_update_opponent_obstacle(int32_t x, int32_t y, int32_t opponent_size, int32_t robot_size)
+{
+    map_set_opponent_obstacle(map.last_opponent_index, x, y, opponent_size, robot_size);
+    map.last_opponent_index++;
+    if (map.last_opponent_index >= MAP_NUM_OPPONENT) {
+        map.last_opponent_index = 0;
+    }
 }
