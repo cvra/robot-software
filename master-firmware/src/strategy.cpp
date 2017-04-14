@@ -147,6 +147,7 @@ struct DebraState {
     bool arms_are_indexed{false};
     bool arms_are_deployed{true};
     bool has_moved{false};
+    bool location_accessible[7]{true, false, true, true, true, true, true};
     bool cylinder_present[6]{false, true, true, true, true, true};
     unsigned cylinder_count{0};
     enum Location near_location{Other};
@@ -222,7 +223,7 @@ struct GotoLocation : public goap::Action<DebraState> {
 
     bool can_run(DebraState state)
     {
-        return !state.arms_are_deployed && !state.has_moved;
+        return !state.arms_are_deployed && !state.has_moved && state.location_accessible[(int)m_loc];
     }
 
     DebraState plan_effects(DebraState state)
@@ -241,6 +242,7 @@ struct GotoLocation : public goap::Action<DebraState> {
             state.has_moved = true;
             return true;
         } else {
+            state.location_accessible[(int)m_loc] = false;
             return false;
         }
     }
@@ -311,7 +313,7 @@ void strategy_debra_play_game(struct _robot* robot, enum strat_color_t color)
         GotoLocation(Cylinder0,  900,  200,   0),
         GotoLocation(Cylinder1, 1200,  500,  90),
         GotoLocation(Cylinder2,  400,  700, 180),
-        GotoLocation(Cylinder3,  600, 1100, 180),
+        GotoLocation(Cylinder3,  700, 1100,  90),
         GotoLocation(Cylinder4, 1050, 1180,  45),
         GotoLocation(Cylinder5,  600, 1600,  45),
     };
