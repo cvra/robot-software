@@ -3,11 +3,13 @@
 import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFont
-from PyQt5.QtCore import QCoreApplication
+from PyQt5.QtCore import QCoreApplication, pyqtSlot, pyqtSignal
 from pyqtgraph import PlotWidget
 
 
 class PIDParam(QWidget):
+    paramChanged = pyqtSignal(float, float, float)
+
     def __init__(self):
         super().__init__()
 
@@ -23,38 +25,25 @@ class PIDParam(QWidget):
             label = QLabel(param)
 
             hbox = QHBoxLayout()
-            hbox.addStretch(1)
             hbox.addWidget(label)
             hbox.addWidget(field)
 
             self.params.append(field)
             self.vbox.addLayout(hbox)
 
+        for param in self.params:
+            param.returnPressed.connect(self._param_changed)
+
         self.setLayout(self.vbox)
 
+    @pyqtSlot()
+    def _param_changed(self):
+        self.paramChanged.emit(1, 2, 3)
 
-class PIDTuner(QMainWindow):
-    def param_changed(self, *args):
-        print("Param changed!")
-        print(args)
 
-    def create_config_panels(self):
-        pages = QTabWidget()
-
-        for loop in ['Current', 'Velocity', 'Position']:
-            vbox = QVBoxLayout()
-            self.params[loop.lower()] = {}
-
-            vbox.addWidget(PIDParam())
-            vbox.addWidget(QCheckBox('Plot'))
-
-            widget = QWidget()
-            widget.setLayout(vbox)
-            pages.addTab(widget, loop)
-
-        return pages
-
-    def create_step_response_panel(self):
+class StepConfigPanel(QGroupBox):
+    def __init__(self, name):
+        super().__init__(name)
 
         loopPicker = QComboBox()
         loopPicker.addItem("Current")
@@ -75,10 +64,32 @@ class PIDTuner(QMainWindow):
         vbox.addLayout(frequency_box)
         vbox.addWidget(QCheckBox('Enabled'))
 
-        group = QGroupBox("Step response")
-        group.setLayout(vbox)
+        self.setLayout(vbox)
 
-        return group
+
+class PIDTuner(QMainWindow):
+    @pyqtSlot(float, float, float)
+    def param_changed(self, kp, ki, kd):
+        print("Param changed!")
+
+    def create_config_panels(self):
+        pages = QTabWidget()
+
+        for loop in ['Current', 'Velocity', 'Position']:
+            vbox = QVBoxLayout()
+            self.params[loop.lower()] = {}
+
+            params = PIDParam()
+            params.paramChanged.connect(self.param_changed)
+
+            vbox.addWidget(params)
+            vbox.addWidget(QCheckBox('Plot'))
+
+            widget = QWidget()
+            widget.setLayout(vbox)
+            pages.addTab(widget, loop)
+
+        return pages
 
     def __init__(self):
         super().__init__()
@@ -89,7 +100,7 @@ class PIDTuner(QMainWindow):
         vbox = QVBoxLayout()
         vbox.addWidget(self.create_config_panels())
         vbox.addStretch(1)
-        vbox.addWidget(self.create_step_response_panel())
+        vbox.addWidget(StepConfigPanel("Step response"))
 
         vbox_widget = QWidget()
         vbox_widget.setLayout(vbox)
