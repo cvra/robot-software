@@ -1,9 +1,14 @@
 #!/usr/bin/env python
 
 import sys
+import uavcan
+import threading
+import argparse
+import logging
+
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFont
-from PyQt5.QtCore import QCoreApplication, pyqtSlot, pyqtSignal
+from PyQt5.QtCore import QCoreApplication, pyqtSlot, pyqtSignal, QThread
 from pyqtgraph import PlotWidget
 
 
@@ -67,6 +72,23 @@ class StepConfigPanel(QGroupBox):
         self.setLayout(vbox)
 
 
+class UAVCANThread(QThread):
+    def __init__(self, port):
+        super().__init__()
+        self.port = port
+        self.logger = logging.getLogger('uavcan')
+
+    def run(self):
+        def node_status_callback(event):
+            self.logger.info('NodeStatus from node {}'.format(
+                event.transfer.source_node_id))
+
+        node = uavcan.make_node(self.port, node_id=127)
+        node.add_handler(uavcan.protocol.NodeStatus, node_status_callback)
+
+        node.spin()
+
+
 class PIDTuner(QMainWindow):
     @pyqtSlot(float, float, float)
     def param_changed(self, kp, ki, kd):
@@ -91,7 +113,7 @@ class PIDTuner(QMainWindow):
 
         return pages
 
-    def __init__(self):
+    def __init__(self, port):
         super().__init__()
         self.params = dict()
 
@@ -111,12 +133,33 @@ class PIDTuner(QMainWindow):
 
         self.setCentralWidget(splitter)
 
+        self.can_thread = UAVCANThread(port)
+        self.can_thread.start()
+
         self.setWindowTitle('CVRA PID tuner')
         self.show()
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "port",
+        help="SocketCAN interface (e.g. can0) or SLCAN serial port (e.g. /dev/ttyACM0)"
+    )
+
+    return parser.parse_args()
+
+
 if __name__ == '__main__':
+    logger = logging.getLogger()
+
+    stream_handler = logging.StreamHandler()
+    stream_handler.setLevel(logging.INFO)
+
+    logger.addHandler(stream_handler)
+
+    args = parse_args()
 
     app = QApplication(sys.argv)
-    ex = PIDTuner()
+    ex = PIDTuner(args.port)
     sys.exit(app.exec_())
