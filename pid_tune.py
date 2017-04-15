@@ -10,7 +10,7 @@ from collections import deque
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import QCoreApplication, pyqtSlot, pyqtSignal, QThread
-from pyqtgraph import PlotWidget
+import pyqtgraph as pg
 
 
 class PIDParam(QWidget):
@@ -192,8 +192,8 @@ class PIDTuner(QMainWindow):
         self.board_name = board
         self.board_id = None
 
-        self.plot_widget = PlotWidget()
-        self.current_plot = self.plot_widget.plot()
+        self.plot_widget = pg.PlotWidget()
+        self.current_plot = self.plot_widget.plot(pen=(255, 0, 0))
         self.data = deque(maxlen=30)
 
         vbox = QVBoxLayout()
