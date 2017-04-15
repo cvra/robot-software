@@ -176,19 +176,24 @@ def parse_args():
         help="SocketCAN interface (e.g. can0) or SLCAN serial port (e.g. /dev/ttyACM0)"
     )
     parser.add_argument("board", help="Board name")
+    parser.add_argument("--dsdl", "-d", help="DSDL path", required=True)
+    parser.add_argument(
+        "--verbose", "-v", help="Verbose mode", action='store_true')
 
     return parser.parse_args()
 
 
 if __name__ == '__main__':
-    logger = logging.getLogger()
-
-    stream_handler = logging.StreamHandler()
-    stream_handler.setLevel(logging.DEBUG)
-
-    logger.addHandler(stream_handler)
-
     args = parse_args()
+
+    if args.verbose:
+        level = logging.DEBUG
+    else:
+        level = logging.INFO
+
+    logging.basicConfig(level=level)
+
+    uavcan.load_dsdl(args.dsdl)
 
     app = QApplication(sys.argv)
     ex = PIDTuner(args.port, args.board)
