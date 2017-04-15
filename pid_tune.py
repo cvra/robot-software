@@ -74,6 +74,7 @@ class StepConfigPanel(QGroupBox):
 
 
 class UAVCANThread(QThread):
+    FREQUENCY = 10
     boardDiscovered = pyqtSignal(str, int)
     currentDataReceived = pyqtSignal(float, float, float, float)
 
@@ -116,7 +117,7 @@ class UAVCANThread(QThread):
         req = uavcan.thirdparty.cvra.motor.config.FeedbackStream.Request()
         req.stream = req.STREAM_CURRENT_PID
         req.enabled = enabled
-        req.frequency = 10
+        req.frequency = self.FREQUENCY
         self.node.request(req, board_id, lambda *args: print(args))
 
     def run(self):
@@ -168,9 +169,10 @@ class PIDTuner(QMainWindow):
                 '{} ({})'.format(self.board_name, self.board_id))
 
     @pyqtSlot(int)
-    def _plot_enabled(self, enabled):
+    def _plot_enable(self, enabled):
         self.logger.info('Setting current plot to {}'.format(enabled))
         self.can_thread.enable_current_pid_stream(self.board_id, enabled)
+        self.current_plot.setVisible(enabled)
 
     def __init__(self, port, board):
         super().__init__()
@@ -203,7 +205,7 @@ class PIDTuner(QMainWindow):
         self.can_thread.start()
 
         for param in self.params.values():
-            param['enabled'].stateChanged.connect(self._plot_enabled)
+            param['enabled'].stateChanged.connect(self._plot_enable)
 
         self.setWindowTitle('{} (?)'.format(self.board_name))
         self.show()
