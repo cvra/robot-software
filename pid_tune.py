@@ -73,20 +73,40 @@ class StepConfigPanel(QGroupBox):
 
 
 class UAVCANThread(QThread):
+    boardDiscovered = pyqtSignal(str, int)
+
     def __init__(self, port):
         super().__init__()
         self.port = port
         self.logger = logging.getLogger('uavcan')
+        self.board_name = {}
+
+    def _board_info_callback(self, event):
+        if not event:
+            self.logger.error("Service call timed out!")
+            return
+
+        board = event.transfer.source_node_id
+        name = str(event.response.name)
+        logger.info('Got board info for {}'.format(board))
+        self.board_name[board] = name
+        self.boardDiscovered.emit(name, board)
+
+    def node_status_callback(self, event):
+        board = event.transfer.source_node_id
+        if board not in self.board_name:
+            self.logger.warning("Found a new board {}".format(board))
+            self.node.request(uavcan.protocol.GetNodeInfo.Request(), board,
+                              self._board_info_callback)
+
+        self.logger.info('NodeStatus from node {}'.format(board))
 
     def run(self):
-        def node_status_callback(event):
-            self.logger.info('NodeStatus from node {}'.format(
-                event.transfer.source_node_id))
+        self.node = uavcan.make_node(self.port, node_id=127)
+        self.node.add_handler(uavcan.protocol.NodeStatus,
+                              self.node_status_callback)
 
-        node = uavcan.make_node(self.port, node_id=127)
-        node.add_handler(uavcan.protocol.NodeStatus, node_status_callback)
-
-        node.spin()
+        self.node.spin()
 
 
 class PIDTuner(QMainWindow):
@@ -139,6 +159,10 @@ class PIDTuner(QMainWindow):
         self.setWindowTitle('CVRA PID tuner')
         self.show()
 
+        self.can_thread.boardDiscovered.connect(
+            lambda name, board: QMessageBox.information(self, "Done!", "Discovered {} @ {}".format(name, board))
+        )
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -154,7 +178,7 @@ if __name__ == '__main__':
     logger = logging.getLogger()
 
     stream_handler = logging.StreamHandler()
-    stream_handler.setLevel(logging.INFO)
+    stream_handler.setLevel(logging.DEBUG)
 
     logger.addHandler(stream_handler)
 
