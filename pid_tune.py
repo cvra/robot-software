@@ -116,6 +116,7 @@ class UAVCANThread(QThread):
         self.logger = logging.getLogger('uavcan')
         self.board_name = {}
         self.current_setpoint = 0
+        self.publish_setpoint = False
 
     def _current_pid_callback(self, event):
         data = event.message
@@ -137,6 +138,18 @@ class UAVCANThread(QThread):
         self.logger.debug('Got board info for {}'.format(board))
         self.board_name[board] = name
         self.boardDiscovered.emit(name, board)
+
+    def _publish_setpoint(self):
+        if not self.publish_setpoint:
+            return
+
+        self.logger.debug('Sending setpoint {}'.format(self.current_setpoint))
+
+        m = uavcan.thirdparty.cvra.motor.control.Torque(
+            # TODO: remove hardcoded ID
+            node_id=79,
+            torque=self.current_setpoint)
+        self.node.broadcast(m)
 
     def node_status_callback(self, event):
         board = event.transfer.source_node_id
@@ -163,6 +176,8 @@ class UAVCANThread(QThread):
 
         self.node.add_handler(uavcan.thirdparty.cvra.motor.feedback.CurrentPID,
                               self._current_pid_callback)
+
+        self.node.periodic(0.1, self._publish_setpoint)
 
         self.node.spin()
 
@@ -199,8 +214,10 @@ class PIDTuner(QMainWindow):
             self.logger.info("Set step response parameters: f={} Hz, amp={}".
                              format(freq, amplitude))
             self.step_timer.start(1000 / freq)
+            self.can_thread.publish_setpoint = True
         else:
             self.logger.info("Step response disabled")
+            self.can_thread.publish_setpoint = False
             self.step_timer.stop()
 
     @pyqtSlot(str, int)
