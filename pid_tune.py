@@ -133,9 +133,16 @@ class PIDTuner(QMainWindow):
 
         return pages
 
-    def __init__(self, port):
+    def _discovered_board(self, name, node_id):
+        if name == self.board_name:
+            self.board_id = node_id
+            self.setWindowTitle('{} ({})'.format(self.board_name, self.board_id))
+
+    def __init__(self, port, board):
         super().__init__()
         self.params = dict()
+        self.board_name = board
+        self.board_id = None
 
         self.plot_widget = PlotWidget()
 
@@ -156,12 +163,10 @@ class PIDTuner(QMainWindow):
         self.can_thread = UAVCANThread(port)
         self.can_thread.start()
 
-        self.setWindowTitle('CVRA PID tuner')
+        self.setWindowTitle('{} (?)'.format(self.board_name))
         self.show()
 
-        self.can_thread.boardDiscovered.connect(
-            lambda name, board: QMessageBox.information(self, "Done!", "Discovered {} @ {}".format(name, board))
-        )
+        self.can_thread.boardDiscovered.connect(self._discovered_board)
 
 
 def parse_args():
@@ -170,6 +175,7 @@ def parse_args():
         "port",
         help="SocketCAN interface (e.g. can0) or SLCAN serial port (e.g. /dev/ttyACM0)"
     )
+    parser.add_argument("board", help="Board name")
 
     return parser.parse_args()
 
@@ -185,5 +191,5 @@ if __name__ == '__main__':
     args = parse_args()
 
     app = QApplication(sys.argv)
-    ex = PIDTuner(args.port)
+    ex = PIDTuner(args.port, args.board)
     sys.exit(app.exec_())
