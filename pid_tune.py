@@ -8,8 +8,8 @@ import logging
 from collections import deque
 
 from PyQt5.QtWidgets import *
-from PyQt5.QtGui import QFont
-from PyQt5.QtCore import QCoreApplication, pyqtSlot, pyqtSignal, QThread
+from PyQt5.QtGui import QFont, QDoubleValidator
+from PyQt5.QtCore import QCoreApplication, pyqtSlot, pyqtSignal, QThread, QTimer
 import pyqtgraph as pg
 
 
@@ -48,6 +48,8 @@ class PIDParam(QWidget):
 
 
 class StepConfigPanel(QGroupBox):
+    parametersChanged = pyqtSignal(bool, float, float)
+
     def __init__(self, name):
         super().__init__(name)
 
@@ -55,22 +57,51 @@ class StepConfigPanel(QGroupBox):
         loopPicker.addItem("Current")
         loopPicker.addItem("Velocity")
         loopPicker.addItem("Position")
+        loopPicker.currentIndexChanged.connect(self._type_changed)
 
         amplitude_box = QHBoxLayout()
         amplitude_box.addWidget(QLabel('Amp.'))
-        amplitude_box.addWidget(QLineEdit())
+        self.amplitude_field = QLineEdit('0.')
+        v = QDoubleValidator()
+        v.setBottom(0)
+        self.amplitude_field.setValidator(v)
+        amplitude_box.addWidget(self.amplitude_field)
 
         frequency_box = QHBoxLayout()
         frequency_box.addWidget(QLabel('Freq.'))
-        frequency_box.addWidget(QLineEdit())
+        self.frequency_field = QLineEdit('1')
+        v = QDoubleValidator()
+        v.setBottom(0)
+        self.frequency_field.setValidator(v)
+        frequency_box.addWidget(self.frequency_field)
 
         vbox = QVBoxLayout()
         vbox.addWidget(loopPicker)
         vbox.addLayout(amplitude_box)
         vbox.addLayout(frequency_box)
-        vbox.addWidget(QCheckBox('Enabled'))
+        self.checkbox = QCheckBox('Enabled')
+        vbox.addWidget(self.checkbox)
 
         self.setLayout(vbox)
+
+        self.amplitude_field.returnPressed.connect(self._param_changed)
+        self.frequency_field.returnPressed.connect(self._param_changed)
+        self.checkbox.stateChanged.connect(self._param_changed)
+
+    @pyqtSlot()
+    def _param_changed(self):
+        self.parametersChanged.emit(self.checkbox.checkState(),
+                                    self.getFrequency(), self.getAmplitude())
+
+    @pyqtSlot()
+    def _type_changed(self):
+        self.checkbox.setCheckState(False)
+
+    def getAmplitude(self):
+        return float(self.amplitude_field.text())
+
+    def getFrequency(self):
+        return float(self.frequency_field.text())
 
 
 class UAVCANThread(QThread):
@@ -84,6 +115,7 @@ class UAVCANThread(QThread):
         self.port = port
         self.logger = logging.getLogger('uavcan')
         self.board_name = {}
+        self.current_setpoint = 0
 
     def _current_pid_callback(self, event):
         data = event.message
@@ -102,18 +134,18 @@ class UAVCANThread(QThread):
 
         board = event.transfer.source_node_id
         name = str(event.response.name)
-        self.logger.info('Got board info for {}'.format(board))
+        self.logger.debug('Got board info for {}'.format(board))
         self.board_name[board] = name
         self.boardDiscovered.emit(name, board)
 
     def node_status_callback(self, event):
         board = event.transfer.source_node_id
         if board not in self.board_name:
-            self.logger.warning("Found a new board {}".format(board))
+            self.logger.info("Found a new board {}".format(board))
             self.node.request(uavcan.protocol.GetNodeInfo.Request(), board,
                               self._board_info_callback)
 
-        self.logger.info('NodeStatus from node {}'.format(board))
+        self.logger.debug('NodeStatus from node {}'.format(board))
 
     def enable_current_pid_stream(self, board_id, enabled):
         # TODO: This is not thread safe
@@ -151,6 +183,8 @@ class PIDTuner(QMainWindow):
         self.logger.info('Setting current plot to {}'.format(enabled))
         self.can_thread.enable_current_pid_stream(self.board_id, enabled)
         self.current_plot.setVisible(enabled)
+        self.logger.debug("Step response params {} {}".format(
+            self.step_config.getAmplitude(), self.step_config.getFrequency()))
 
     @pyqtSlot()
     def _uavcan_errored(self):
@@ -158,6 +192,33 @@ class PIDTuner(QMainWindow):
         m.setText("UAVCAN got an error :(")
         m.setIcon(QMessageBox.Critical)
         m.exec()
+
+    @pyqtSlot(bool, float, float)
+    def _step_parameters_changed(self, enabled, freq, amplitude):
+        if enabled:
+            self.logger.info("Set step response parameters: f={} Hz, amp={}".
+                             format(freq, amplitude))
+            self.step_timer.start(1000 / freq)
+        else:
+            self.logger.info("Step response disabled")
+            self.step_timer.stop()
+
+    @pyqtSlot(str, int)
+    def _discovered_board(self, name, node_id):
+        if name == self.board_name:
+            self.board_id = node_id
+            self.setWindowTitle(
+                '{} ({})'.format(self.board_name, self.board_id))
+
+    @pyqtSlot()
+    def _step_timer_timeout(self):
+        if self.can_thread.current_setpoint < 0:
+            self.can_thread.current_setpoint = self.step_config.getAmplitude()
+        else:
+            self.can_thread.current_setpoint = -self.step_config.getAmplitude()
+
+        self.logger.debug("Step timer, current setpoint was set to {}".format(
+            self.can_thread.current_setpoint))
 
     def create_config_panels(self):
         pages = QTabWidget()
@@ -179,18 +240,14 @@ class PIDTuner(QMainWindow):
 
         return pages
 
-    def _discovered_board(self, name, node_id):
-        if name == self.board_name:
-            self.board_id = node_id
-            self.setWindowTitle(
-                '{} ({})'.format(self.board_name, self.board_id))
-
     def __init__(self, port, board):
         super().__init__()
         self.logger = logging.getLogger('PIDTuner')
         self.params = dict()
         self.board_name = board
         self.board_id = None
+
+        self.setWindowTitle('{} (?)'.format(self.board_name))
 
         self.plot_widget = pg.PlotWidget()
         self.current_plot = self.plot_widget.plot(pen=(255, 0, 0))
@@ -199,7 +256,8 @@ class PIDTuner(QMainWindow):
         vbox = QVBoxLayout()
         vbox.addWidget(self.create_config_panels())
         vbox.addStretch(1)
-        vbox.addWidget(StepConfigPanel("Step response"))
+        self.step_config = StepConfigPanel("Step response")
+        vbox.addWidget(self.step_config)
 
         vbox_widget = QWidget()
         vbox_widget.setLayout(vbox)
@@ -208,21 +266,24 @@ class PIDTuner(QMainWindow):
         splitter.addWidget(self.plot_widget)
         splitter.addWidget(vbox_widget)
 
-        self.setCentralWidget(splitter)
-
         self.can_thread = UAVCANThread(port)
+
+        self.step_timer = QTimer()
+        self.step_timer.timeout.connect(self._step_timer_timeout)
+
+        # Connect all signals
         self.can_thread.currentDataReceived.connect(
             self._received_current_data)
         self.can_thread.uavcanErrored.connect(self._uavcan_errored)
-        self.can_thread.start()
-
+        self.step_config.parametersChanged.connect(
+            self._step_parameters_changed)
+        self.can_thread.boardDiscovered.connect(self._discovered_board)
         for param in self.params.values():
             param['enabled'].stateChanged.connect(self._plot_enable)
 
-        self.setWindowTitle('{} (?)'.format(self.board_name))
+        self.setCentralWidget(splitter)
         self.show()
-
-        self.can_thread.boardDiscovered.connect(self._discovered_board)
+        self.can_thread.start()
 
 
 def parse_args():
