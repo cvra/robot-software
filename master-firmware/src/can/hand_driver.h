@@ -12,7 +12,7 @@ typedef struct {
 
 int hand_io_init(void);
 
-void hand_set_fingers(const char *hand_id, float signal_0, float signal_1, float signal_2, float signal_3);
+void hand_set_fingers(const char *hand_id, bool open_0, bool open_1, bool open_2, bool open_3);
 
 #ifdef __cplusplus
 }

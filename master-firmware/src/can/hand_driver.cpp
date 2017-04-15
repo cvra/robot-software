@@ -9,6 +9,9 @@
 #include "main.h"
 #include "hand_driver.h"
 
+static const float FINGER_LEFT_PULSE_OPEN[4] = {0.060f, 0.060f, 0.060f, 0.060f};
+static const float FINGER_LEFT_PULSE_CLOSED[4] = {0.090f, 0.090f, 0.090f, 0.090f};
+
 using namespace uavcan_node;
 
 static uavcan::LazyConstructor<uavcan::Publisher<cvra::io::ServoPWM> > fingers_pub;
@@ -59,7 +62,7 @@ int hand_io_init(void)
     return 0;
 }
 
-void hand_set_fingers(const char *hand_id, float signal_0, float signal_1, float signal_2, float signal_3)
+void hand_set_fingers(const char *hand_id, bool open_0, bool open_1, bool open_2, bool open_3)
 {
     cvra::io::ServoPWM pwm_signals;
 
@@ -70,14 +73,16 @@ void hand_set_fingers(const char *hand_id, float signal_0, float signal_1, float
     }
 
     pwm_signals.node_id = node_id;
-    pwm_signals.servo_pos[0] = signal_0;
-    pwm_signals.servo_pos[1] = signal_1;
-    pwm_signals.servo_pos[2] = signal_2;
-    pwm_signals.servo_pos[3] = signal_3;
+
+    pwm_signals.servo_pos[0] = open_0 ? FINGER_LEFT_PULSE_OPEN[0] : FINGER_LEFT_PULSE_CLOSED[0];
+    pwm_signals.servo_pos[1] = open_1 ? FINGER_LEFT_PULSE_OPEN[1] : FINGER_LEFT_PULSE_CLOSED[1];
+    pwm_signals.servo_pos[2] = open_2 ? FINGER_LEFT_PULSE_OPEN[2] : FINGER_LEFT_PULSE_CLOSED[2];
+    pwm_signals.servo_pos[3] = open_3 ? FINGER_LEFT_PULSE_OPEN[3] : FINGER_LEFT_PULSE_CLOSED[3];
 
     fingers_pub->broadcast(pwm_signals);
 
-    NOTICE("Sent to hand node %d, signals: %.3f %.3f %.3f %.3f", node_id, signal_0, signal_1, signal_2, signal_3);
+    NOTICE("Sent to hand node %d, signals: %.3f %.3f %.3f %.3f", node_id,
+           pwm_signals.servo_pos[0], pwm_signals.servo_pos[1], pwm_signals.servo_pos[2], pwm_signals.servo_pos[3]);
 }
 
 }
