@@ -29,6 +29,7 @@
 #include "scara/scara.h"
 #include "scara/scara_utils.h"
 #include "arms/arms_controller.h"
+#include "can/hand_driver.h"
 #include "strategy.h"
 #include <trace/trace.h>
 
@@ -714,8 +715,22 @@ static void cmd_scara_pos(BaseSequentialStream *chp, int argc, char *argv[])
         scara_pos(arm, &x, &y, &z, COORDINATE_ARM);
     }
 
-
     chprintf(chp, "Position of %s arm is %f %f %f in %s frame\r\n", argv[1], x, y, z, argv[0]);
+}
+
+static void cmd_fingers(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc < 1) {
+        chprintf(chp, "Usage: fingers hand pos\r\n");
+        return;
+    }
+
+    bool pos = atoi(argv[1]) > 0;
+    char *status = pos ? "open" : "closed";
+
+    hand_set_fingers(argv[0], pos, pos, pos, pos);
+
+    chprintf(chp, "Set fingers of %s hand at position %s %s %s %s\r\n", argv[0], status, status, status, status);
 }
 
 static void cmd_rocket(BaseSequentialStream *chp, int argc, char *argv[])
@@ -789,6 +804,7 @@ const ShellCommand commands[] = {
     {"motor_index", cmd_motor_index},
     {"scara_goto", cmd_scara_goto},
     {"scara_pos", cmd_scara_pos},
+    {"fingers", cmd_fingers},
     {"rocket", cmd_rocket},
     {"trace", cmd_trace},
     {NULL, NULL}
