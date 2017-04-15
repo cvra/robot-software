@@ -35,6 +35,7 @@
 #include "strategy.h"
 #include "filesystem.h"
 #include "http/server.h"
+#include "can/hand_driver.h"
 
 void init_base_motors(void);
 void init_arm_motors(void);
@@ -318,10 +319,13 @@ void init_hands(void)
     motor_manager_create_driver(&motor_manager, "left-wrist");
     motor_manager_create_driver(&motor_manager, "right-wrist");
 
+    bus_enumerator_add_node(&bus_enumerator, "foobar2000", NULL);
     // bus_enumerator_add_node(&bus_enumerator, "left-fingers", NULL);
     // bus_enumerator_add_node(&bus_enumerator, "left-sensors", NULL);
     // bus_enumerator_add_node(&bus_enumerator, "right-fingers", NULL);
     // bus_enumerator_add_node(&bus_enumerator, "right-sensors", NULL);
+
+    hand_io_init();
 }
 
 void __stack_chk_fail(void)

@@ -31,6 +31,7 @@ target.arm:
     - src/comm/stream.c
     - src/config.c
     - src/can/uavcan_node.cpp
+    - src/can/hand_driver.cpp
     - src/can/motor_driver.c
     - src/can/motor_driver_uavcan.cpp
     - src/can/motor_manager.c
