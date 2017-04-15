@@ -77,6 +77,7 @@ class UAVCANThread(QThread):
     FREQUENCY = 10
     boardDiscovered = pyqtSignal(str, int)
     currentDataReceived = pyqtSignal(float, float, float, float)
+    uavcanErrored = pyqtSignal()
 
     def __init__(self, port):
         super().__init__()
@@ -91,10 +92,13 @@ class UAVCANThread(QThread):
                                       data.current_setpoint, data.current,
                                       data.motor_voltage)
 
-    def _board_info_callback(self, event):
+    def _check_error_callback(self, event):
         if not event:
-            self.logger.error("Service call timed out!")
-            return
+            self.logger.error("UAVCAN error")
+            self.uavcanErrored.emit()
+
+    def _board_info_callback(self, event):
+        self._check_error_callback(event)
 
         board = event.transfer.source_node_id
         name = str(event.response.name)
@@ -118,7 +122,7 @@ class UAVCANThread(QThread):
         req.stream = req.STREAM_CURRENT_PID
         req.enabled = enabled
         req.frequency = self.FREQUENCY
-        self.node.request(req, board_id, lambda *args: print(args))
+        self.node.request(req, board_id, self._check_error_callback)
 
     def run(self):
         self.node = uavcan.make_node(self.port, node_id=127)
@@ -141,6 +145,19 @@ class PIDTuner(QMainWindow):
         self.data.append((timestamp, setpoint, feedback, voltage))
         x, y = [s[0] for s in self.data], [s[2] for s in self.data]
         self.current_plot.setData(x, y)
+
+    @pyqtSlot(int)
+    def _plot_enable(self, enabled):
+        self.logger.info('Setting current plot to {}'.format(enabled))
+        self.can_thread.enable_current_pid_stream(self.board_id, enabled)
+        self.current_plot.setVisible(enabled)
+
+    @pyqtSlot()
+    def _uavcan_errored(self):
+        m = QMessageBox()
+        m.setText("UAVCAN got an error :(")
+        m.setIcon(QMessageBox.Critical)
+        m.exec()
 
     def create_config_panels(self):
         pages = QTabWidget()
@@ -167,12 +184,6 @@ class PIDTuner(QMainWindow):
             self.board_id = node_id
             self.setWindowTitle(
                 '{} ({})'.format(self.board_name, self.board_id))
-
-    @pyqtSlot(int)
-    def _plot_enable(self, enabled):
-        self.logger.info('Setting current plot to {}'.format(enabled))
-        self.can_thread.enable_current_pid_stream(self.board_id, enabled)
-        self.current_plot.setVisible(enabled)
 
     def __init__(self, port, board):
         super().__init__()
@@ -202,6 +213,7 @@ class PIDTuner(QMainWindow):
         self.can_thread = UAVCANThread(port)
         self.can_thread.currentDataReceived.connect(
             self._received_current_data)
+        self.can_thread.uavcanErrored.connect(self._uavcan_errored)
         self.can_thread.start()
 
         for param in self.params.values():
