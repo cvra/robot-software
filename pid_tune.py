@@ -5,6 +5,7 @@ import uavcan
 import threading
 import argparse
 import logging
+from collections import deque
 
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFont
@@ -74,12 +75,20 @@ class StepConfigPanel(QGroupBox):
 
 class UAVCANThread(QThread):
     boardDiscovered = pyqtSignal(str, int)
+    currentDataReceived = pyqtSignal(float, float, float, float)
 
     def __init__(self, port):
         super().__init__()
         self.port = port
         self.logger = logging.getLogger('uavcan')
         self.board_name = {}
+
+    def _current_pid_callback(self, event):
+        data = event.message
+        self.logger.debug("Received current PID info: {}".format(data))
+        self.currentDataReceived.emit(event.transfer.ts_monotonic,
+                                      data.current_setpoint, data.current,
+                                      data.motor_voltage)
 
     def _board_info_callback(self, event):
         if not event:
@@ -88,7 +97,7 @@ class UAVCANThread(QThread):
 
         board = event.transfer.source_node_id
         name = str(event.response.name)
-        logger.info('Got board info for {}'.format(board))
+        self.logger.info('Got board info for {}'.format(board))
         self.board_name[board] = name
         self.boardDiscovered.emit(name, board)
 
@@ -101,10 +110,22 @@ class UAVCANThread(QThread):
 
         self.logger.info('NodeStatus from node {}'.format(board))
 
+    def enable_current_pid_stream(self, board_id, enabled):
+        # TODO: This is not thread safe
+        self.logger.info('Enabling current PID stream for {}'.format(board_id))
+        req = uavcan.thirdparty.cvra.motor.config.FeedbackStream.Request()
+        req.stream = req.STREAM_CURRENT_PID
+        req.enabled = enabled
+        req.frequency = 10
+        self.node.request(req, board_id, lambda *args: print(args))
+
     def run(self):
         self.node = uavcan.make_node(self.port, node_id=127)
         self.node.add_handler(uavcan.protocol.NodeStatus,
                               self.node_status_callback)
+
+        self.node.add_handler(uavcan.thirdparty.cvra.motor.feedback.CurrentPID,
+                              self._current_pid_callback)
 
         self.node.spin()
 
@@ -113,6 +134,12 @@ class PIDTuner(QMainWindow):
     @pyqtSlot(float, float, float)
     def param_changed(self, kp, ki, kd):
         print("Param changed!")
+
+    @pyqtSlot(float, float, float, float)
+    def _received_current_data(self, timestamp, setpoint, feedback, voltage):
+        self.data.append((timestamp, setpoint, feedback, voltage))
+        x, y = [s[0] for s in self.data], [s[2] for s in self.data]
+        self.current_plot.setData(x, y)
 
     def create_config_panels(self):
         pages = QTabWidget()
@@ -125,7 +152,8 @@ class PIDTuner(QMainWindow):
             params.paramChanged.connect(self.param_changed)
 
             vbox.addWidget(params)
-            vbox.addWidget(QCheckBox('Plot'))
+            self.params[loop.lower()]['enabled'] = QCheckBox('Plot')
+            vbox.addWidget(self.params[loop.lower()]['enabled'])
 
             widget = QWidget()
             widget.setLayout(vbox)
@@ -136,15 +164,24 @@ class PIDTuner(QMainWindow):
     def _discovered_board(self, name, node_id):
         if name == self.board_name:
             self.board_id = node_id
-            self.setWindowTitle('{} ({})'.format(self.board_name, self.board_id))
+            self.setWindowTitle(
+                '{} ({})'.format(self.board_name, self.board_id))
+
+    @pyqtSlot(int)
+    def _plot_enabled(self, enabled):
+        self.logger.info('Setting current plot to {}'.format(enabled))
+        self.can_thread.enable_current_pid_stream(self.board_id, enabled)
 
     def __init__(self, port, board):
         super().__init__()
+        self.logger = logging.getLogger('PIDTuner')
         self.params = dict()
         self.board_name = board
         self.board_id = None
 
         self.plot_widget = PlotWidget()
+        self.current_plot = self.plot_widget.plot()
+        self.data = deque(maxlen=30)
 
         vbox = QVBoxLayout()
         vbox.addWidget(self.create_config_panels())
@@ -161,7 +198,12 @@ class PIDTuner(QMainWindow):
         self.setCentralWidget(splitter)
 
         self.can_thread = UAVCANThread(port)
+        self.can_thread.currentDataReceived.connect(
+            self._received_current_data)
         self.can_thread.start()
+
+        for param in self.params.values():
+            param['enabled'].stateChanged.connect(self._plot_enabled)
 
         self.setWindowTitle('{} (?)'.format(self.board_name))
         self.show()
