@@ -82,6 +82,7 @@ source:
     - src/scara/scara_kinematics.c
     - src/scara/scara.c
     - src/hand/hand_utils.c
+    - src/hand/hand.c
 
 include_directories:
     - src/
@@ -112,6 +113,7 @@ tests:
     - tests/scara_kinematics_integration.cpp
     - tests/scara.cpp
     - tests/test_hand_utils.cpp
+    - tests/test_hand.cpp
 
 templates:
     app_src.mk.jinja: app_src.mk
