@@ -29,6 +29,7 @@
 #include "scara/scara.h"
 #include "scara/scara_utils.h"
 #include "arms/arms_controller.h"
+#include "arms/hands_controller.h"
 #include "can/hand_driver.h"
 #include "strategy.h"
 #include <trace/trace.h>
@@ -665,7 +666,7 @@ static void cmd_motor_index(BaseSequentialStream *chp, int argc, char *argv[])
 
 static void cmd_scara_goto(BaseSequentialStream *chp, int argc, char *argv[])
 {
-    if (argc < 5) {
+    if (argc != 5) {
         chprintf(chp, "Usage: scara_goto frame side x y z\r\n");
         return;
     }
@@ -694,7 +695,7 @@ static void cmd_scara_goto(BaseSequentialStream *chp, int argc, char *argv[])
 
 static void cmd_scara_pos(BaseSequentialStream *chp, int argc, char *argv[])
 {
-    if (argc < 1) {
+    if (argc != 2) {
         chprintf(chp, "Usage: scara_pos frame side\r\n");
         return;
     }
@@ -728,9 +729,41 @@ static void cmd_fingers(BaseSequentialStream *chp, int argc, char *argv[])
     bool pos = atoi(argv[1]) > 0;
     char *status = pos ? "open" : "closed";
 
-    hand_set_fingers(argv[0], pos, pos, pos, pos);
+    hand_driver_set_fingers(argv[0], pos, pos, pos, pos);
 
     chprintf(chp, "Set fingers of %s hand at position %s %s %s %s\r\n", argv[0], status, status, status, status);
+}
+
+static void cmd_hand(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc != 3) {
+        chprintf(chp, "Usage: hand frame side pos\r\n");
+        return;
+    }
+
+    float heading = atof(argv[2]);
+    hand_t* hand;
+
+    if (strcmp("left", argv[1]) == 0) {
+        hand = &left_hand;
+    // } else {
+    //     hand = &right_hand;
+    }
+
+    hand_coordinate_t system;
+    if (strcmp("table", argv[0]) == 0) {
+        system = HAND_COORDINATE_TABLE;
+    } else if (strcmp("robot", argv[0]) == 0) {
+        system = HAND_COORDINATE_ROBOT;
+    } else if (strcmp("arm", argv[0]) == 0) {
+        system = HAND_COORDINATE_ARM;
+    } else {
+        system = HAND_COORDINATE_HAND;
+    }
+
+    hand_goto(hand, heading, system);
+
+    chprintf(chp, "Moving %s hand to %f in %s frame\r\n", argv[1], heading, argv[0]);
 }
 
 static void cmd_rocket(BaseSequentialStream *chp, int argc, char *argv[])
@@ -805,6 +838,7 @@ const ShellCommand commands[] = {
     {"scara_goto", cmd_scara_goto},
     {"scara_pos", cmd_scara_pos},
     {"fingers", cmd_fingers},
+    {"hand", cmd_hand},
     {"rocket", cmd_rocket},
     {"trace", cmd_trace},
     {NULL, NULL}
