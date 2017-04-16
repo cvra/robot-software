@@ -189,15 +189,21 @@ class PIDTuner(QMainWindow):
 
     @pyqtSlot(float, float, float, float)
     def _received_current_data(self, timestamp, setpoint, feedback, voltage):
-        self.data.append((timestamp, setpoint, feedback, voltage))
-        x, y = [s[0] for s in self.data], [s[2] for s in self.data]
-        self.current_plot.setData(x, y)
+        self.current_data.append((timestamp, setpoint, feedback, voltage))
+        x, y = [s[0] for s in self.current_data], \
+               [s[2] for s in self.current_data]
+        self.current_setpoint_plot.setData(x, y)
+
+        x, y = [s[0] for s in self.current_data], \
+               [s[1] for s in self.current_data]
+
+        self.current_feedback_plot.setData(x, y)
 
     @pyqtSlot(int)
     def _plot_enable(self, enabled):
         self.logger.info('Setting current plot to {}'.format(enabled))
         self.can_thread.enable_current_pid_stream(self.board_id, enabled)
-        self.current_plot.setVisible(enabled)
+        self.current_setpoint_plot.setVisible(enabled)
         self.logger.debug("Step response params {} {}".format(
             self.step_config.getAmplitude(), self.step_config.getFrequency()))
 
@@ -267,8 +273,9 @@ class PIDTuner(QMainWindow):
         self.setWindowTitle('{} (?)'.format(self.board_name))
 
         self.plot_widget = pg.PlotWidget()
-        self.current_plot = self.plot_widget.plot(pen=(255, 0, 0))
-        self.data = deque(maxlen=30)
+        self.current_setpoint_plot = self.plot_widget.plot(pen=(255, 0, 0))
+        self.current_feedback_plot = self.plot_widget.plot(pen=(0, 255, 0))
+        self.current_data = deque(maxlen=30)
 
         vbox = QVBoxLayout()
         vbox.addWidget(self.create_config_panels())
