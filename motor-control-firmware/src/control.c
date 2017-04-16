@@ -333,6 +333,20 @@ void control_init(void)
 
 static void update_parameters(void)
 {
+
+    control_feedback.primary_encoder.transmission_p = parameter_integer_get(&encoder_params.primary.p);
+    control_feedback.primary_encoder.transmission_q = parameter_integer_get(&encoder_params.primary.q);
+    control_feedback.primary_encoder.ticks_per_rev = parameter_integer_get(&encoder_params.primary.ticks_per_rev);
+
+    control_feedback.secondary_encoder.transmission_p = parameter_integer_get(&encoder_params.secondary.p);
+    control_feedback.secondary_encoder.transmission_q = parameter_integer_get(&encoder_params.secondary.q);
+    control_feedback.secondary_encoder.ticks_per_rev = parameter_integer_get(&encoder_params.secondary.ticks_per_rev);
+
+    control_feedback.potentiometer.gain = parameter_scalar_get(&potentiometer_params.gain);
+    control_feedback.potentiometer.zero = parameter_scalar_get(&potentiometer_params.zero);
+
+    control_feedback.rpm.phase = parameter_scalar_get(&rpm_params.phase);
+
     if (parameter_namespace_contains_changed(&control_params.ns)) {
         if (parameter_namespace_contains_changed(&control_params.pos.ns)) {
             pid_param_update(&control_params.pos.pid, &ctrl.position_pid);
@@ -375,18 +389,6 @@ static void update_parameters(void)
                               parameter_scalar_get(&thermal_params.current_gain));
     }
 
-    control_feedback.primary_encoder.transmission_p = parameter_integer_get(&encoder_params.primary.p);
-    control_feedback.primary_encoder.transmission_q = parameter_integer_get(&encoder_params.primary.q);
-    control_feedback.primary_encoder.ticks_per_rev = parameter_integer_get(&encoder_params.primary.ticks_per_rev);
-
-    control_feedback.secondary_encoder.transmission_p = parameter_integer_get(&encoder_params.secondary.p);
-    control_feedback.secondary_encoder.transmission_q = parameter_integer_get(&encoder_params.secondary.q);
-    control_feedback.secondary_encoder.ticks_per_rev = parameter_integer_get(&encoder_params.secondary.ticks_per_rev);
-
-    control_feedback.potentiometer.gain = parameter_scalar_get(&potentiometer_params.gain);
-    control_feedback.potentiometer.zero = parameter_scalar_get(&potentiometer_params.zero);
-
-    control_feedback.rpm.phase = parameter_scalar_get(&rpm_params.phase);
 }
 
 #define CONTROL_WAKEUP_EVENT 1
