@@ -36,6 +36,8 @@
 #include "strategy.h"
 #include "filesystem.h"
 #include "http/server.h"
+#include "can/hand_driver.h"
+
 
 void init_base_motors(void);
 void init_arm_motors(void);
@@ -275,6 +277,7 @@ int main(void) {
     chThdSleepMilliseconds(5000);
     arms_init();
     arms_controller_start();
+    hand_driver_init();
     hands_init();
 #endif
 
