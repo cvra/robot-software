@@ -721,8 +721,21 @@ static void cmd_scara_pos(BaseSequentialStream *chp, int argc, char *argv[])
 
 static void cmd_fingers(BaseSequentialStream *chp, int argc, char *argv[])
 {
-    if (argc < 1) {
-        chprintf(chp, "Usage: fingers hand pos\r\n");
+    if (argc != 5) {
+        chprintf(chp, "Usage: fingers hand pos0 pos1 pos2 pos3\r\n");
+        return;
+    }
+
+    float pos[4] = {atof(argv[1]), atof(argv[2]), atof(argv[3]), atof(argv[4])};
+    hand_driver_set_fingers_float(argv[0], pos[0], pos[1], pos[2], pos[3]);
+
+    chprintf(chp, "Set fingers of %s hand at position %.3f %.3f %.3f %.3f\r\n", argv[0], pos[0], pos[1], pos[2], pos[3]);
+}
+
+static void cmd_fingers_cmd(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc != 2) {
+        chprintf(chp, "Usage: fingers_cmd hand status\r\n");
         return;
     }
 
@@ -838,6 +851,7 @@ const ShellCommand commands[] = {
     {"scara_goto", cmd_scara_goto},
     {"scara_pos", cmd_scara_pos},
     {"fingers", cmd_fingers},
+    {"fingers_cmd", cmd_fingers_cmd},
     {"hand", cmd_hand},
     {"rocket", cmd_rocket},
     {"trace", cmd_trace},

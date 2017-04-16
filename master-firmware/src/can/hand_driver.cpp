@@ -85,4 +85,26 @@ void hand_driver_set_fingers(const char *hand_id, bool open_0, bool open_1, bool
            pwm_signals.servo_pos[0], pwm_signals.servo_pos[1], pwm_signals.servo_pos[2], pwm_signals.servo_pos[3]);
 }
 
+
+void hand_driver_set_fingers_float(const char *hand_id, float signal_0, float signal_1, float signal_2, float signal_3)
+{
+    cvra::io::ServoPWM pwm_signals;
+
+    uint8_t node_id = bus_enumerator_get_can_id(&bus_enumerator, hand_id);
+    if (node_id == BUS_ENUMERATOR_CAN_ID_NOT_SET || node_id == BUS_ENUMERATOR_STRING_ID_NOT_FOUND) {
+        WARNING("Hand %s was not identified correctly [node_id: %d]", hand_id, node_id);
+        return;
+    }
+
+    pwm_signals.node_id = node_id;
+    pwm_signals.servo_pos[0] = signal_0;
+    pwm_signals.servo_pos[1] = signal_1;
+    pwm_signals.servo_pos[2] = signal_2;
+    pwm_signals.servo_pos[3] = signal_3;
+
+    fingers_pub->broadcast(pwm_signals);
+
+    NOTICE("Sent to hand node %d, signals: %.3f %.3f %.3f %.3f", node_id, signal_0, signal_1, signal_2, signal_3);
+}
+
 }
