@@ -643,6 +643,17 @@ static void cmd_motor_pos(BaseSequentialStream *chp, int argc, char *argv[])
     motor_manager_set_position(&motor_manager, argv[0], position);
 }
 
+static void cmd_motor_voltage(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc < 2) {
+        chprintf(chp, "Usage: motor_voltage motor_name voltage\r\n");
+        return;
+    }
+    float voltage = atof(argv[1]);
+    chprintf(chp, "Setting motor %s voltage to %f\r\n", argv[0], voltage);
+    motor_manager_set_voltage(&motor_manager, argv[0], voltage);
+}
+
 static void cmd_motor_index(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc < 3) {
@@ -847,6 +858,7 @@ const ShellCommand commands[] = {
     {"track_corr", cmd_track_correction},
     {"autopos", cmd_autopos},
     {"motor_pos", cmd_motor_pos},
+    {"motor_voltage", cmd_motor_voltage},
     {"motor_index", cmd_motor_index},
     {"scara_goto", cmd_scara_goto},
     {"scara_pos", cmd_scara_pos},

@@ -392,3 +392,15 @@ actuator:
             acceleration_limit: 100.
             velocity_limit: 8.
             torque_limit: 1.3
+
+    right-element-rotate:
+        motor:
+            mode: 0 # open loop mode
+            transmission_ratio_p: 1
+            transmission_ratio_q: 1
+            torque_constant: 1. # Nm/A
+        control:
+            low_batt_th: 12
+            acceleration_limit: 100.
+            velocity_limit: 50.
+            torque_limit: 5.
