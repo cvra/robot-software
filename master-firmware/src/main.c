@@ -31,11 +31,11 @@
 #include "base/encoder.h"
 #include "base/base_controller.h"
 #include "arms/arms_controller.h"
+#include "arms/hands_controller.h"
 #include "trace/trace_points.h"
 #include "strategy.h"
 #include "filesystem.h"
 #include "http/server.h"
-#include "can/hand_driver.h"
 
 void init_base_motors(void);
 void init_arm_motors(void);
@@ -275,6 +275,7 @@ int main(void) {
     chThdSleepMilliseconds(5000);
     arms_init();
     arms_controller_start();
+    hands_init();
 #endif
 
     /* Initialize strategy thread, will wait for signal to begin game */
@@ -324,8 +325,6 @@ void init_hands(void)
     // bus_enumerator_add_node(&bus_enumerator, "left-sensors", NULL);
     // bus_enumerator_add_node(&bus_enumerator, "right-fingers", NULL);
     // bus_enumerator_add_node(&bus_enumerator, "right-sensors", NULL);
-
-    hand_io_init();
 }
 
 void __stack_chk_fail(void)

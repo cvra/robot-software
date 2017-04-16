@@ -19,7 +19,7 @@ static uavcan::LazyConstructor<uavcan::Publisher<cvra::io::ServoPWM> > fingers_p
 
 extern "C" {
 
-int hand_io_init(void)
+int hand_driver_init(void)
 {
     // todo: right hand
 
@@ -62,7 +62,7 @@ int hand_io_init(void)
     return 0;
 }
 
-void hand_set_fingers(const char *hand_id, bool open_0, bool open_1, bool open_2, bool open_3)
+void hand_driver_set_fingers(const char *hand_id, bool open_0, bool open_1, bool open_2, bool open_3)
 {
     cvra::io::ServoPWM pwm_signals;
 

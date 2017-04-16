@@ -16,6 +16,7 @@
 #include "base/base_controller.h"
 #include "base/map.h"
 #include "arms/arms_controller.h"
+#include "arms/hands_controller.h"
 #include "config.h"
 #include "main.h"
 
@@ -180,6 +181,7 @@ struct IndexArms : public goap::Action<DebraState> {
         arms_set_motor_index(left_arm.z_args, 0);
         arms_set_motor_index(left_arm.shoulder_args, motor_indexes[0]);
         arms_set_motor_index(left_arm.elbow_args, motor_indexes[1]);
+
         arms_set_motor_index(right_arm.z_args, 0);
         arms_set_motor_index(right_arm.shoulder_args, motor_indexes[3]);
         arms_set_motor_index(right_arm.elbow_args, motor_indexes[4]);

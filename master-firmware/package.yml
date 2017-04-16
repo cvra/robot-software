@@ -45,6 +45,7 @@ target.arm:
     - src/arms/cvra_arm_motors.c
     - src/arms/scara_port.c
     - src/arms/arms_controller.c
+    - src/arms/hands_controller.c
     - src/robot_helpers/motor_helpers.c
     - src/config_msgpack.c
     - src/trace/trace_points.c

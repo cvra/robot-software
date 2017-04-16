@@ -31,6 +31,12 @@ void set_left_elbow_position(void* motor, float position)
     motor_manager_set_position(dev->m, "left-elbow", dev->direction * position + dev->index);
 }
 
+void set_left_wrist_position(void* motor, float position)
+{
+    cvra_arm_motor_t *dev = (cvra_arm_motor_t*)motor;
+    motor_manager_set_position(dev->m, "left-wrist", dev->direction * position + dev->index);
+}
+
 
 void set_right_z_position(void* motor, float position)
 {
@@ -71,6 +77,14 @@ float get_left_elbow_position(void* motor)
 {
     cvra_arm_motor_t *dev = (cvra_arm_motor_t*)motor;
     motor_driver_t* motord = get_motor_driver(dev->m, "left-elbow");
+
+    return dev->direction * (motor_driver_get_and_clear_stream_value(motord, MOTOR_STREAM_POSITION) - dev->index);
+}
+
+float get_left_wrist_position(void* motor)
+{
+    cvra_arm_motor_t *dev = (cvra_arm_motor_t*)motor;
+    motor_driver_t* motord = get_motor_driver(dev->m, "left-wrist");
 
     return dev->direction * (motor_driver_get_and_clear_stream_value(motord, MOTOR_STREAM_POSITION) - dev->index);
 }
