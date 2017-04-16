@@ -9,8 +9,8 @@
 #include "main.h"
 #include "hand_driver.h"
 
-static const float FINGER_LEFT_PULSE_OPEN[4] = {0.060f, 0.060f, 0.060f, 0.060f};
-static const float FINGER_LEFT_PULSE_CLOSED[4] = {0.090f, 0.090f, 0.090f, 0.090f};
+static const float FINGER_LEFT_PULSE_OPEN[4] = {0.0013, 0.0013, 0.0013, 0.0013};
+static const float FINGER_LEFT_PULSE_CLOSED[4] = {0.0021, 0.0021, 0.0021, 0.0021};
 
 using namespace uavcan_node;
 
