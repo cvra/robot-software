@@ -746,8 +746,8 @@ static void cmd_hand(BaseSequentialStream *chp, int argc, char *argv[])
 
     if (strcmp("left", argv[1]) == 0) {
         hand = &left_hand;
-    // } else {
-    //     hand = &right_hand;
+    } else {
+        hand = &right_hand;
     }
 
     hand_coordinate_t system;

@@ -185,6 +185,7 @@ struct IndexArms : public goap::Action<DebraState> {
         arms_set_motor_index(right_arm.z_args, 0);
         arms_set_motor_index(right_arm.shoulder_args, motor_indexes[3]);
         arms_set_motor_index(right_arm.elbow_args, motor_indexes[4]);
+        arms_set_motor_index(right_hand.wrist_args, motor_indexes[5]);
 
         state.arms_are_indexed = true;
         return true;

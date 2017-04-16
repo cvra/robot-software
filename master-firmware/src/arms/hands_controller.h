@@ -9,6 +9,7 @@ extern "C" {
 
 
 extern hand_t left_hand;
+extern hand_t right_hand;
 
 
 /* Initialize both hands */
