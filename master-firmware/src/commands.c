@@ -738,7 +738,7 @@ static void cmd_fingers(BaseSequentialStream *chp, int argc, char *argv[])
     }
 
     float pos[4] = {atof(argv[1]), atof(argv[2]), atof(argv[3]), atof(argv[4])};
-    hand_driver_set_fingers_float(argv[0], pos[0], pos[1], pos[2], pos[3]);
+    hand_driver_set_fingers_float(argv[0], pos);
 
     chprintf(chp, "Set fingers of %s hand at position %.3f %.3f %.3f %.3f\r\n", argv[0], pos[0], pos[1], pos[2], pos[3]);
 }

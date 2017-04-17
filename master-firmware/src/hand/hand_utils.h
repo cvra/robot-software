@@ -15,6 +15,13 @@ typedef enum {
     HAND_COORDINATE_TABLE   /**< Coordinate relative to the table (absolute). */
 } hand_coordinate_t;
 
+typedef enum {
+    FINGER_CLOSED=0,
+    FINGER_OPEN,
+    FINGER_RETRACTED,
+} finger_state_t;
+
+
 float hand_heading_arm2hand(float arm_angle, float arm_offset);
 float hand_heading_hand2arm(float hand_angle, float arm_offset);
 

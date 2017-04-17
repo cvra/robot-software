@@ -9,8 +9,8 @@
 #include "main.h"
 #include "hand_driver.h"
 
-static const float FINGER_LEFT_PULSE_OPEN[4] = {0.0013, 0.0013, 0.0013, 0.0013};
-static const float FINGER_LEFT_PULSE_CLOSED[4] = {0.0021, 0.0021, 0.0021, 0.0021};
+static const float FINGERS_PULSE_OPEN[2][4] = {{0.0013, 0.0013, 0.0013, 0.0013}, {0.0013, 0.0013, 0.0013, 0.0013}};
+static const float FINGERS_PULSE_CLOSED[2][4] = {{0.0021, 0.0021, 0.0021, 0.0021}, {0.0021, 0.0021, 0.0021, 0.0021}};
 
 using namespace uavcan_node;
 
@@ -79,7 +79,7 @@ int hand_driver_init(void)
     return 0;
 }
 
-void hand_driver_set_fingers(const char *hand_id, bool open_0, bool open_1, bool open_2, bool open_3)
+void hand_driver_set_fingers(const char *hand_id, finger_state_t* status)
 {
     cvra::io::ServoPWM pwm_signals;
 
@@ -91,10 +91,15 @@ void hand_driver_set_fingers(const char *hand_id, bool open_0, bool open_1, bool
 
     pwm_signals.node_id = node_id;
 
-    pwm_signals.servo_pos[0] = open_0 ? FINGER_LEFT_PULSE_OPEN[0] : FINGER_LEFT_PULSE_CLOSED[0];
-    pwm_signals.servo_pos[1] = open_1 ? FINGER_LEFT_PULSE_OPEN[1] : FINGER_LEFT_PULSE_CLOSED[1];
-    pwm_signals.servo_pos[2] = open_2 ? FINGER_LEFT_PULSE_OPEN[2] : FINGER_LEFT_PULSE_CLOSED[2];
-    pwm_signals.servo_pos[3] = open_3 ? FINGER_LEFT_PULSE_OPEN[3] : FINGER_LEFT_PULSE_CLOSED[3];
+    for (size_t i = 0; i < 4; i++) {
+        if (status[i] == FINGER_CLOSED) {
+            pwm_signals.servo_pos[i] = FINGERS_PULSE_CLOSED[0][i];
+        } else if (status[i] == FINGER_OPEN) {
+            pwm_signals.servo_pos[i] = FINGERS_PULSE_OPEN[0][i];
+        } else {
+            pwm_signals.servo_pos[i] = 0.8 * FINGERS_PULSE_CLOSED[0][i] + 0.2 * FINGERS_PULSE_OPEN[0][i];
+        }
+    }
 
     fingers_pub->broadcast(pwm_signals);
 
@@ -102,8 +107,7 @@ void hand_driver_set_fingers(const char *hand_id, bool open_0, bool open_1, bool
            pwm_signals.servo_pos[0], pwm_signals.servo_pos[1], pwm_signals.servo_pos[2], pwm_signals.servo_pos[3]);
 }
 
-
-void hand_driver_set_fingers_float(const char *hand_id, float signal_0, float signal_1, float signal_2, float signal_3)
+void hand_driver_set_fingers_float(const char *hand_id, float* signal)
 {
     cvra::io::ServoPWM pwm_signals;
 
@@ -114,14 +118,13 @@ void hand_driver_set_fingers_float(const char *hand_id, float signal_0, float si
     }
 
     pwm_signals.node_id = node_id;
-    pwm_signals.servo_pos[0] = signal_0;
-    pwm_signals.servo_pos[1] = signal_1;
-    pwm_signals.servo_pos[2] = signal_2;
-    pwm_signals.servo_pos[3] = signal_3;
+    for (size_t i = 0; i < 4; i++) {
+        pwm_signals.servo_pos[i] = signal[i];
+    }
 
     fingers_pub->broadcast(pwm_signals);
 
-    NOTICE("Sent to hand node %d, signals: %.3f %.3f %.3f %.3f", node_id, signal_0, signal_1, signal_2, signal_3);
+    NOTICE("Sent to hand node %d, signals: %.3f %.3f %.3f %.3f", node_id, signal[0], signal[1], signal[2], signal[3]);
 }
 
 }
