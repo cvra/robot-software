@@ -35,23 +35,24 @@ int hand_driver_init(void)
                           sizeof(left_hand_sensors_topic_value));
 
     messagebus_advertise_topic(&bus, &left_hand_sensors_topic, "/hand_sensors/left");
-    uavcan::Subscriber<cvra::io::DigitalInput> digital_input_sub(getNode());
+    static uavcan::Subscriber<cvra::io::DigitalInput> digital_input_sub(getNode());
     int res = digital_input_sub.start(
         [&](const uavcan::ReceivedDataStructure<cvra::io::DigitalInput>& msg)
         {
             hand_sensors_t val;
             for (int i = 0; i < 4; i++) {
-                if (msg.pin[i]) {
-                    val.object_present[i] = true;
-                }
-                if (msg.pin[i+4]) {
-                    val.object_color[i] = true;
-                }
+                val.object_present[i] = msg.pin[i];
+                val.object_color[i] = msg.pin[i+4];
             }
             messagebus_topic_publish(&left_hand_sensors_topic, &val, sizeof(val));
+
+            DEBUG("Hands: Objects: %d %d %d %d Colors: %d %d %d %d",
+                (int)val.object_present[0], (int)val.object_present[1], (int)val.object_present[2], (int)val.object_present[3],
+                (int)val.object_color[0], (int)val.object_color[1], (int)val.object_color[2], (int)val.object_color[3]);
         }
     );
     if (res != 0) {
+        ERROR("Failed to subscribe to DigitalInput message, reason %d", res);
         return -1;
     }
 
