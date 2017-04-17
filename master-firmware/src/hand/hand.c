@@ -6,6 +6,10 @@
 void hand_init(hand_t* hand)
 {
     memset(hand, 0, sizeof(hand_t));
+
+    for (size_t i = 0; i < 4; i++) {
+        hand->fingers_open[i] = FINGER_RETRACTED;
+    }
 }
 
 void hand_set_wrist_callbacks(hand_t* hand, void (*set_wrist_position)(void*, float), float (*get_wrist_position)(void*), void* wrist_args)
@@ -13,6 +17,11 @@ void hand_set_wrist_callbacks(hand_t* hand, void (*set_wrist_position)(void*, fl
     hand->set_wrist_position = set_wrist_position;
     hand->get_wrist_position = get_wrist_position;
     hand->wrist_args = wrist_args;
+}
+
+void hand_set_fingers_callbacks(hand_t* hand, void (*set_fingers)(finger_state_t*))
+{
+    hand->set_fingers = set_fingers;
 }
 
 void hand_goto(hand_t* hand, float heading, hand_coordinate_t system)
@@ -31,6 +40,12 @@ void hand_goto(hand_t* hand, float heading, hand_coordinate_t system)
     }
 
     hand->set_wrist_position(hand->wrist_args, wrist_angle);
+}
+
+void hand_set_finger(hand_t* hand, int index, finger_state_t state)
+{
+    hand->fingers_open[index % 4] = state;
+    hand->set_fingers(hand->fingers_open);
 }
 
 void hand_set_related_robot_pos(hand_t *hand, struct robot_position *pos)

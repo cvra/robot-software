@@ -745,17 +745,24 @@ static void cmd_fingers(BaseSequentialStream *chp, int argc, char *argv[])
 
 static void cmd_fingers_cmd(BaseSequentialStream *chp, int argc, char *argv[])
 {
-    if (argc != 2) {
-        chprintf(chp, "Usage: fingers_cmd hand status\r\n");
+    if (argc != 3) {
+        chprintf(chp, "Usage: fingers_cmd hand slot status\r\n");
         return;
     }
 
-    bool pos = atoi(argv[1]) > 0;
-    char *status = pos ? "open" : "closed";
+    hand_t* hand;
+    if (strcmp("left", argv[0]) == 0) {
+        hand = &left_hand;
+    } else {
+        hand = &right_hand;
+    }
 
-    hand_driver_set_fingers(argv[0], pos, pos, pos, pos);
+    int slot = atoi(argv[1]);
+    int status = atoi(argv[2]);
 
-    chprintf(chp, "Set fingers of %s hand at position %s %s %s %s\r\n", argv[0], status, status, status, status);
+    hand_set_finger(hand, slot, status);
+
+    chprintf(chp, "Set fingers of %s hand, slot %d: %d\r\n", argv[0], slot, status);
 }
 
 static void cmd_hand(BaseSequentialStream *chp, int argc, char *argv[])

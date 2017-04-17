@@ -127,4 +127,14 @@ void hand_driver_set_fingers_float(const char *hand_id, float* signal)
     NOTICE("Sent to hand node %d, signals: %.3f %.3f %.3f %.3f", node_id, signal[0], signal[1], signal[2], signal[3]);
 }
 
+void hand_driver_set_right_fingers(finger_state_t* status)
+{
+    hand_driver_set_fingers("right-hand", status);
+}
+
+void hand_driver_set_left_fingers(finger_state_t* status)
+{
+    hand_driver_set_fingers("left-hand", status);
+}
+
 }

@@ -17,6 +17,9 @@ int hand_driver_init(void);
 void hand_driver_set_fingers(const char *hand_id, finger_state_t* status);
 void hand_driver_set_fingers_float(const char *hand_id, float* signal);
 
+void hand_driver_set_right_fingers(finger_state_t* status);
+void hand_driver_set_left_fingers(finger_state_t* status);
+
 #ifdef __cplusplus
 }
 #endif

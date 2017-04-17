@@ -207,8 +207,8 @@ struct RetractArms : public goap::Action<DebraState> {
     bool execute(DebraState &state)
     {
         NOTICE("Retracting arms!");
-        scara_goto(&left_arm, -150, 70, 0, COORDINATE_ROBOT, 1.);
-        scara_goto(&right_arm, 150, -70, 0, COORDINATE_ROBOT, 1.);
+        scara_goto(&left_arm, -150, 70, 20, COORDINATE_ROBOT, 1.);
+        scara_goto(&right_arm, 150, -70, 20, COORDINATE_ROBOT, 1.);
         chThdSleepSeconds(1.);
         state.arms_are_deployed = false;
         return true;
@@ -278,7 +278,7 @@ struct PickCylinder : public goap::Action<DebraState> {
     bool execute(DebraState &state)
     {
         NOTICE("Pick cylinder %d", (int)m_loc);
-        scara_goto(&left_arm, m_x_mm, m_y_mm, 0, COORDINATE_TABLE, 5.);
+        scara_goto(&left_arm, m_x_mm, m_y_mm, 20, COORDINATE_TABLE, 5.);
         chThdSleepSeconds(5);
 
         state.cylinder_count++;
@@ -352,6 +352,10 @@ void strategy_debra_play_game(struct _robot* robot, enum strat_color_t color)
     };
 
     goap::Planner<DebraState> planner(actions, sizeof(actions) / sizeof(actions[0]));
+
+    for (size_t i = 0; i < 4; i++) {
+        hand_set_finger(&right_hand, i, FINGER_RETRACTED);
+    }
 
     wait_for_autoposition_signal();
     NOTICE("Getting arms ready...");
