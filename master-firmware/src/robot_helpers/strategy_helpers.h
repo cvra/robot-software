@@ -30,6 +30,10 @@ void strategy_auto_position(
         int32_t x, int32_t y, int32_t heading, int32_t robot_size,
         enum strat_color_t robot_color, struct _robot* robot, messagebus_t* bus);
 
+/** Align on y axis */
+void strategy_align_y(int32_t y, int32_t robot_size, struct _robot* robot, messagebus_t* bus);
+
+
 #ifdef __cplusplus
 }
 #endif

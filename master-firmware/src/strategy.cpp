@@ -367,9 +367,19 @@ void strategy_debra_play_game(struct _robot* robot, enum strat_color_t color)
     /* Autoposition robot */
     wait_for_autoposition_signal();
     NOTICE("Positioning robot");
-    strategy_auto_position(600, 200, 90, robot->robot_size, color, robot, &bus);
-    NOTICE("Robot positioned at x: 600[mm], y: 200[mm], a: 90[deg]");
 
+    // First alignment
+    strategy_auto_position(300, 200, -90, robot->robot_size, color, robot, &bus);
+    position_set(&robot->pos, MIRROR_X(color, 300), 200 + 382, -90);
+
+    // Second alignement only in y at starting area
+    strategy_goto_avoid_retry(robot, 900, 200, -90, -1);
+    strategy_align_y(200, robot->robot_size, robot, &bus);
+    trajectory_a_abs(&robot->traj, 90);
+    trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
+
+    NOTICE("Robot positioned at x: %d[mm], y: %d[mm], a: %d[deg]",
+           position_get_x_s16(&robot->pos), position_get_y_s16(&robot->pos), position_get_x_s16(&robot->pos));
 
     /* Wait for starter to begin */
     wait_for_starter();

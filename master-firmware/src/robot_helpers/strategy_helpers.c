@@ -56,3 +56,19 @@ void strategy_auto_position(
     /* Restore robot to game mode: faster and more sensitive to collision */
     trajectory_set_mode_game(&robot->mode, &robot->traj, &robot->distance_bd, &robot->angle_bd);
 }
+
+void strategy_align_y(int32_t y, int32_t robot_size, struct _robot* robot, messagebus_t* bus)
+{
+    trajectory_set_mode_aligning(&robot->mode, &robot->traj, &robot->distance_bd, &robot->angle_bd);
+
+    trajectory_align_with_wall(robot, &bus);
+    robot->pos.pos_d.y = robot_size / 2;
+    robot->pos.pos_s16.y = robot_size / 2;
+
+    trajectory_set_speed(&robot->traj, speed_mm2imp(&robot->traj, 300), speed_rd2imp(&robot->traj, 2.5));
+
+    trajectory_d_rel(&robot->traj, (double)(- robot->calibration_direction * (y - robot_size/2)));
+    trajectory_wait_for_end(robot, bus, TRAJ_END_GOAL_REACHED);
+
+    trajectory_set_mode_game(&robot->mode, &robot->traj, &robot->distance_bd, &robot->angle_bd);
+}
