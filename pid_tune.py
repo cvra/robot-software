@@ -60,7 +60,7 @@ class PIDParam(QWidget):
 
 
 class StepConfigPanel(QGroupBox):
-    parametersChanged = pyqtSignal(bool, float, float)
+    parametersChanged = pyqtSignal(bool, float, float, float)
 
     def __init__(self, name):
         super().__init__(name)
@@ -86,10 +86,18 @@ class StepConfigPanel(QGroupBox):
         self.frequency_field.setValidator(v)
         frequency_box.addWidget(self.frequency_field)
 
+        offset_box = QHBoxLayout()
+        offset_box.addWidget(QLabel('Offset'))
+        self.offset_field = QLineEdit('0')
+        v = QDoubleValidator()
+        self.offset_field.setValidator(v)
+        offset_box.addWidget(self.offset_field)
+
         vbox = QVBoxLayout()
         vbox.addWidget(self.loopPicker)
         vbox.addLayout(amplitude_box)
         vbox.addLayout(frequency_box)
+        vbox.addLayout(offset_box)
         self.checkbox = QCheckBox('Enabled')
         vbox.addWidget(self.checkbox)
 
@@ -98,16 +106,19 @@ class StepConfigPanel(QGroupBox):
         self.loopPicker.currentIndexChanged.connect(self._type_changed)
         self.amplitude_field.returnPressed.connect(self._param_changed)
         self.frequency_field.returnPressed.connect(self._param_changed)
+        self.offset_field.returnPressed.connect(self._param_changed)
         self.checkbox.stateChanged.connect(self._param_changed)
 
     @pyqtSlot()
     def _param_changed(self):
         self.parametersChanged.emit(self.checkbox.checkState(),
-                                    self.getFrequency(), self.getAmplitude())
+                                    self.getFrequency(),
+                                    self.getAmplitude(), self.getOffset())
 
     @pyqtSlot()
     def _type_changed(self):
         self.checkbox.setCheckState(False)
+        self.offset_field.setText('0')
 
     def getAmplitude(self):
         try:
@@ -118,6 +129,12 @@ class StepConfigPanel(QGroupBox):
     def getFrequency(self):
         try:
             return float(self.frequency_field.text())
+        except ValueError:
+            return 0.
+
+    def getOffset(self):
+        try:
+            return float(self.offset_field.text())
         except ValueError:
             return 0.
 
@@ -406,8 +423,8 @@ class PIDApp(QMainWindow):
         m.setIcon(QMessageBox.Critical)
         m.exec()
 
-    @pyqtSlot(bool, float, float)
-    def _step_parameters_changed(self, enabled, freq, amplitude):
+    @pyqtSlot(bool, float, float, float)
+    def _step_parameters_changed(self, enabled, freq, amplitude, offset):
         if enabled:
             self.logger.info("Set step response parameters: f={} Hz, amp={}".
                              format(freq, amplitude))
@@ -439,11 +456,12 @@ class PIDApp(QMainWindow):
 
     @pyqtSlot()
     def _step_timer_timeout(self):
-
-        if self.can_thread.setpoint < 0:
-            self.can_thread.setpoint = self.step_config.getAmplitude()
+        if self.can_thread.setpoint < self.step_config.getOffset():
+            self.can_thread.setpoint = self.step_config.getOffset() + \
+                                       self.step_config.getAmplitude()
         else:
-            self.can_thread.setpoint = -self.step_config.getAmplitude()
+            self.can_thread.setpoint = self.step_config.getOffset() - \
+                                       self.step_config.getAmplitude()
 
         self.logger.debug("Step timer, setpoint was set to {}".format(
             self.can_thread.setpoint))
