@@ -6,6 +6,7 @@ import threading
 import argparse
 import logging
 from collections import deque
+from multiprocessing import Lock
 
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFont, QDoubleValidator
@@ -127,11 +128,12 @@ class UAVCANThread(QThread):
         super().__init__()
         self.port = port
         self.logger = logging.getLogger('uavcan')
-        self.board_name = {}
+        self._board_names = {}
         self.node_statuses = {}
         self.setpoint = 0
         self.setpoint_type = None
         self.setpoint_board_id = None
+        self.lock = Lock()
 
     def _current_pid_callback(self, event):
         data = event.message
@@ -163,13 +165,12 @@ class UAVCANThread(QThread):
         board = event.transfer.source_node_id
         name = str(event.response.name)
         self.logger.debug('Got board info for {}'.format(board))
-        self.board_name[board] = name
+        self._board_names[board] = name
         self.boardDiscovered.emit(name, board)
 
     def _publish_setpoint(self):
         if self.setpoint_board_id is None:
             return
-
 
         if self.setpoint_type == SetpointType.TORQUE:
             msg = uavcan.thirdparty.cvra.motor.control.Torque(
@@ -187,10 +188,10 @@ class UAVCANThread(QThread):
         self.logger.debug('Sending setpoint {}'.format(msg))
         self.node.broadcast(msg)
 
-    def node_status_callback(self, event):
+    def _node_status_callback(self, event):
         board = event.transfer.source_node_id
         self.node_statuses[board] = event.message
-        if board not in self.board_name:
+        if board not in self._board_names:
             self.logger.info("Found a new board {}".format(board))
             self.node.request(uavcan.protocol.GetNodeInfo.Request(), board,
                               self._board_info_callback)
@@ -198,38 +199,39 @@ class UAVCANThread(QThread):
         self.logger.debug('NodeStatus from node {}'.format(board))
 
     def enable_current_pid_stream(self, board_id, enabled):
-        # TODO: This is not thread safe
-        self.logger.info('Enabling current PID stream for {}'.format(board_id))
-        req = uavcan.thirdparty.cvra.motor.config.FeedbackStream.Request()
-        req.stream = req.STREAM_CURRENT_PID
-        req.enabled = enabled
-        req.frequency = self.FREQUENCY
-        self.node.request(req, board_id, self._check_error_callback)
+        with self.lock:
+            self.logger.info(
+                'Enabling current PID stream for {}'.format(board_id))
+            req = uavcan.thirdparty.cvra.motor.config.FeedbackStream.Request()
+            req.stream = req.STREAM_CURRENT_PID
+            req.enabled = enabled
+            req.frequency = self.FREQUENCY
+            self.node.request(req, board_id, self._check_error_callback)
 
     def enable_velocity_pid_stream(self, board_id, enabled):
-        # TODO: This is not thread safe
-        self.logger.info(
-            'Enabling velocity PID stream for {}'.format(board_id))
-        req = uavcan.thirdparty.cvra.motor.config.FeedbackStream.Request()
-        req.stream = req.STREAM_VELOCITY_PID
-        req.enabled = enabled
-        req.frequency = self.FREQUENCY
-        self.node.request(req, board_id, self._check_error_callback)
+        with self.lock:
+            self.logger.info(
+                'Enabling velocity PID stream for {}'.format(board_id))
+            req = uavcan.thirdparty.cvra.motor.config.FeedbackStream.Request()
+            req.stream = req.STREAM_VELOCITY_PID
+            req.enabled = enabled
+            req.frequency = self.FREQUENCY
+            self.node.request(req, board_id, self._check_error_callback)
 
     def enable_position_pid_stream(self, board_id, enabled):
-        # TODO: This is not thread safe
-        self.logger.info(
-            'Enabling position PID stream for {}'.format(board_id))
-        req = uavcan.thirdparty.cvra.motor.config.FeedbackStream.Request()
-        req.stream = req.STREAM_POSITION_PID
-        req.enabled = enabled
-        req.frequency = self.FREQUENCY
-        self.node.request(req, board_id, self._check_error_callback)
+        with self.lock:
+            self.logger.info(
+                'Enabling position PID stream for {}'.format(board_id))
+            req = uavcan.thirdparty.cvra.motor.config.FeedbackStream.Request()
+            req.stream = req.STREAM_POSITION_PID
+            req.enabled = enabled
+            req.frequency = self.FREQUENCY
+            self.node.request(req, board_id, self._check_error_callback)
 
     def run(self):
         self.node = uavcan.make_node(self.port, node_id=127)
         self.node.add_handler(uavcan.protocol.NodeStatus,
-                              self.node_status_callback)
+                              self._node_status_callback)
 
         self.node.add_handler(uavcan.thirdparty.cvra.motor.feedback.CurrentPID,
                               self._current_pid_callback)
@@ -244,7 +246,9 @@ class UAVCANThread(QThread):
 
         self.node.periodic(0.1, self._publish_setpoint)
 
-        self.node.spin()
+        while True:
+            with self.lock:
+                self.node.spin(0.2)
 
 
 class PIDTuner(QSplitter):
@@ -322,7 +326,6 @@ class PIDApp(QMainWindow):
         self.position_tuner.set_setpoint_data(timestamps, setpoints)
         self.position_tuner.set_feedback_data(timestamps, feedbacks)
 
-
     @pyqtSlot(bool)
     def _current_plot_enable(self, enabled):
         self.logger.info('Setting current plot to {}'.format(enabled))
@@ -343,7 +346,6 @@ class PIDApp(QMainWindow):
         self.can_thread.enable_position_pid_stream(self.board_id, enabled)
         self.logger.debug("Step response params {} {}".format(
             self.step_config.getAmplitude(), self.step_config.getFrequency()))
-
 
     @pyqtSlot()
     def _uavcan_errored(self):
@@ -370,16 +372,18 @@ class PIDApp(QMainWindow):
         if name == self.board_name:
             self.setEnabled(True)
             self.board_id = node_id
-            self.setWindowTitle('{} ({})'.format(self.board_name, self.board_id))
+            self.setWindowTitle(
+                '{} ({})'.format(self.board_name, self.board_id))
 
             # Mode 0 is MODE_OPERATIONAL
             if self.can_thread.node_statuses[self.board_id].mode != 0:
                 m = QMessageBox()
-                m.setText("Board not in operational mode. Some functions might not work properly.")
+                m.setText(
+                    "Board not in operational mode. Some functions might not work properly."
+                )
                 m.setInformativeText("Did you load the initial config?")
                 m.setIcon(QMessageBox.Warning)
                 m.exec()
-
 
     @pyqtSlot()
     def _step_timer_timeout(self):
