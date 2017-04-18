@@ -10,7 +10,7 @@ from multiprocessing import Lock
 
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFont, QDoubleValidator
-from PyQt5.QtCore import QCoreApplication, pyqtSlot, pyqtSignal, QThread, QTimer
+from PyQt5.QtCore import pyqtSlot, pyqtSignal, QThread, QTimer
 import pyqtgraph as pg
 
 
@@ -21,7 +21,7 @@ class SetpointType:
 
 
 class PIDParam(QWidget):
-    paramChanged = pyqtSignal(float, float, float)
+    paramsChanged = pyqtSignal(float, float, float, float)
 
     def __init__(self):
         super().__init__()
@@ -31,9 +31,10 @@ class PIDParam(QWidget):
         self.params = []
         self.vbox = QVBoxLayout()
 
-        for param in ['Kp', 'Ki', 'Kd']:
+        for param in ['Kp', 'Ki', 'Kd', 'Ilimit']:
             field = QLineEdit()
             field.setMaxLength(5)
+            field.setValidator(QDoubleValidator())
 
             label = QLabel(param)
 
@@ -51,8 +52,11 @@ class PIDParam(QWidget):
 
     @pyqtSlot()
     def _param_changed(self):
-        # TODO handle this
-        self.paramChanged.emit(1, 2, 3)
+        try:
+            values = [float(p.text()) for p in self.params]
+            self.paramsChanged.emit(*values)
+        except ValueError:
+            pass
 
 
 class StepConfigPanel(QGroupBox):
@@ -228,6 +232,42 @@ class UAVCANThread(QThread):
             req.frequency = self.FREQUENCY
             self.node.request(req, board_id, self._check_error_callback)
 
+    def set_current_gains(self, board_id, kp, ki, kd, ilim):
+        with self.lock:
+            self.logger.info(
+                "Changing current gains to Kp={}, Ki={}, Kd={}, Ilim={}".
+                format(kp, ki, kd, ilim))
+            req = uavcan.thirdparty.cvra.motor.config.CurrentPID.Request()
+            req.pid.kp = kp
+            req.pid.ki = ki
+            req.pid.kd = kd
+            req.pid.ilimit = ilim
+            self.node.request(req, board_id, self._check_error_callback)
+
+    def set_velocity_gains(self, board_id, kp, ki, kd, ilim):
+        with self.lock:
+            self.logger.info(
+                "Changing velocity gains to Kp={}, Ki={}, Kd={}, Ilim={}".
+                format(kp, ki, kd, ilim))
+            req = uavcan.thirdparty.cvra.motor.config.VelocityPID.Request()
+            req.pid.kp = kp
+            req.pid.ki = ki
+            req.pid.kd = kd
+            req.pid.ilimit = ilim
+            self.node.request(req, board_id, self._check_error_callback)
+
+    def set_position_gains(self, board_id, kp, ki, kd, ilim):
+        with self.lock:
+            self.logger.info(
+                "Changing position gains to Kp={}, Ki={}, Kd={}, Ilim={}".
+                format(kp, ki, kd, ilim))
+            req = uavcan.thirdparty.cvra.motor.config.PositionPID.Request()
+            req.pid.kp = kp
+            req.pid.ki = ki
+            req.pid.kd = kd
+            req.pid.ilimit = ilim
+            self.node.request(req, board_id, self._check_error_callback)
+
     def run(self):
         self.node = uavcan.make_node(self.port, node_id=127)
         self.node.add_handler(uavcan.protocol.NodeStatus,
@@ -253,10 +293,15 @@ class UAVCANThread(QThread):
 
 class PIDTuner(QSplitter):
     plotEnableChanged = pyqtSignal(bool)
+    paramsChanged = pyqtSignal(float, float, float, float)
 
     @pyqtSlot(int)
     def _plot_changed(self, state):
         self.plotEnableChanged.emit(bool(state))
+
+    @pyqtSlot(float, float, float, float)
+    def _pid_changed(self, *args):
+        self.paramsChanged.emit(*args)
 
     def __init__(self, *args):
         super().__init__(*args)
@@ -267,7 +312,6 @@ class PIDTuner(QSplitter):
 
         self.params = PIDParam()
         self.plot_enabled = QCheckBox('Plot')
-        self.plot_enabled.stateChanged.connect(self._plot_changed)
 
         vbox = QVBoxLayout()
 
@@ -280,6 +324,9 @@ class PIDTuner(QSplitter):
 
         self.addWidget(self.plot)
         self.addWidget(box_widget)
+
+        self.plot_enabled.stateChanged.connect(self._plot_changed)
+        self.params.paramsChanged.connect(self._pid_changed)
 
     def set_feedback_data(self, time, values):
         self.feedback_plot.setData(time, values)
@@ -346,6 +393,18 @@ class PIDApp(QMainWindow):
         self.can_thread.enable_position_pid_stream(self.board_id, enabled)
         self.logger.debug("Step response params {} {}".format(
             self.step_config.getAmplitude(), self.step_config.getFrequency()))
+
+    @pyqtSlot(float, float, float, float)
+    def _current_pid_change(self, kp, ki, kd, ilim):
+        self.can_thread.set_current_gains(self.board_id, kp, ki, kd, ilim)
+
+    @pyqtSlot(float, float, float, float)
+    def _velocity_pid_change(self, kp, ki, kd, ilim):
+        self.can_thread.set_velocity_gains(self.board_id, kp, ki, kd, ilim)
+
+    @pyqtSlot(float, float, float, float)
+    def _position_pid_change(self, kp, ki, kd, ilim):
+        self.can_thread.set_position_gains(self.board_id, kp, ki, kd, ilim)
 
     @pyqtSlot()
     def _uavcan_errored(self):
@@ -434,6 +493,11 @@ class PIDApp(QMainWindow):
         self.step_timer.timeout.connect(self._step_timer_timeout)
 
         # Connect all signals
+
+        self.current_tuner.paramsChanged.connect(self._current_pid_change)
+        self.velocity_tuner.paramsChanged.connect(self._velocity_pid_change)
+        self.position_tuner.paramsChanged.connect(self._position_pid_change)
+
         self.can_thread.currentDataReceived.connect(
             self._received_current_data)
         self.current_tuner.plotEnableChanged.connect(self._current_plot_enable)
