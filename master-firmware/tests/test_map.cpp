@@ -93,3 +93,77 @@ TEST(MapOpponentObstacleSetter, setsSquarePolygonObstacleAtRobotPositionInCounte
     CHECK_EQUAL(950, opponent->pts[0].x);
     CHECK_EQUAL(550, opponent->pts[0].y);
 };
+
+
+TEST_GROUP(MapOpponentObstacleUpdater)
+{
+
+    const int arbitrary_pos_x = 700;
+    const int arbitrary_pos_y = 800;
+    const int arbitrary_size = 300;
+    const int arbitrary_robot_size = 200;
+
+    void setup(void)
+    {
+        map_init(arbitrary_robot_size);
+    }
+};
+
+TEST(MapOpponentObstacleUpdater, setsSquarePolygonObstacleAtRobotPositionInCounterClockWiseDirection)
+{
+    map_update_opponent_obstacle(arbitrary_pos_x, arbitrary_pos_y, arbitrary_size, arbitrary_robot_size);
+    poly_t* opponent = map_get_opponent_obstacle(0);
+
+    CHECK_EQUAL(450, opponent->pts[3].x);
+    CHECK_EQUAL(550, opponent->pts[3].y);
+
+    CHECK_EQUAL(450, opponent->pts[2].x);
+    CHECK_EQUAL(1050, opponent->pts[2].y);
+
+    CHECK_EQUAL(950, opponent->pts[1].x);
+    CHECK_EQUAL(1050, opponent->pts[1].y);
+
+    CHECK_EQUAL(950, opponent->pts[0].x);
+    CHECK_EQUAL(550, opponent->pts[0].y);
+};
+
+TEST(MapOpponentObstacleUpdater, updatesNextPolygon)
+{
+    map_update_opponent_obstacle(arbitrary_pos_x, arbitrary_pos_y, arbitrary_size, arbitrary_robot_size);
+    map_update_opponent_obstacle(arbitrary_pos_x, arbitrary_pos_y, arbitrary_size, arbitrary_robot_size);
+    poly_t* opponent = map_get_opponent_obstacle(1);
+
+    CHECK_EQUAL(450, opponent->pts[3].x);
+    CHECK_EQUAL(550, opponent->pts[3].y);
+
+    CHECK_EQUAL(450, opponent->pts[2].x);
+    CHECK_EQUAL(1050, opponent->pts[2].y);
+
+    CHECK_EQUAL(950, opponent->pts[1].x);
+    CHECK_EQUAL(1050, opponent->pts[1].y);
+
+    CHECK_EQUAL(950, opponent->pts[0].x);
+    CHECK_EQUAL(550, opponent->pts[0].y);
+};
+
+TEST(MapOpponentObstacleUpdater, loopsBackAfterMaximumNumberOfOpponentsReached)
+{
+    for (uint8_t i = 0; i < MAP_NUM_OPPONENT; i++) {
+        map_update_opponent_obstacle(0, 0, 0, 0);
+    }
+    map_update_opponent_obstacle(arbitrary_pos_x, arbitrary_pos_y, arbitrary_size, arbitrary_robot_size);
+
+    poly_t* opponent = map_get_opponent_obstacle(0);
+
+    CHECK_EQUAL(450, opponent->pts[3].x);
+    CHECK_EQUAL(550, opponent->pts[3].y);
+
+    CHECK_EQUAL(450, opponent->pts[2].x);
+    CHECK_EQUAL(1050, opponent->pts[2].y);
+
+    CHECK_EQUAL(950, opponent->pts[1].x);
+    CHECK_EQUAL(1050, opponent->pts[1].y);
+
+    CHECK_EQUAL(950, opponent->pts[0].x);
+    CHECK_EQUAL(550, opponent->pts[0].y);
+};

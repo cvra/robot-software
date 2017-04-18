@@ -17,6 +17,7 @@ struct _map {
     poly_t *fence;
 
     poly_t *opponents[MAP_NUM_OPPONENT];
+    uint8_t last_opponent_index;
 };
 
 /** Initialize the map of the Eurobot table with the static obstacles and opponents
@@ -30,6 +31,10 @@ void map_set_opponent_obstacle(int index, int32_t x, int32_t y, int32_t opponent
 /** Get the position of the opponent identified by its index
  */
 poly_t* map_get_opponent_obstacle(int index);
+
+/** Update opponent obstacle position and size
+ */
+void map_update_opponent_obstacle(int32_t x, int32_t y, int32_t opponent_size, int32_t robot_size);
 
 /** Set the points of a rectangle given its center position and size
  */
