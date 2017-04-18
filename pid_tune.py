@@ -361,6 +361,7 @@ class PIDTuner(QSplitter):
 class PIDApp(QMainWindow):
     @pyqtSlot(float, float, float, float)
     def _received_current_data(self, timestamp, setpoint, feedback, voltage):
+        # TODO Check board ID
         self.current_data.append((timestamp, setpoint, feedback, voltage))
 
         timestamps = [s[0] for s in self.current_data]
@@ -372,6 +373,7 @@ class PIDApp(QMainWindow):
 
     @pyqtSlot(float, float, float)
     def _received_velocity_data(self, timestamp, setpoint, feedback):
+        # TODO Check board ID
         self.velocity_data.append((timestamp, setpoint, feedback))
 
         timestamps = [s[0] for s in self.velocity_data]
@@ -383,6 +385,7 @@ class PIDApp(QMainWindow):
 
     @pyqtSlot(float, float, float)
     def _received_position_data(self, timestamp, setpoint, feedback):
+        # TODO Check board ID
         self.position_data.append((timestamp, setpoint, feedback))
 
         timestamps = [s[0] for s in self.position_data]
