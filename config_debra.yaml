@@ -265,24 +265,23 @@ actuator:
             torque_constant: 0.016 # Nm/A
         control:
             current:
-                kp: 3.
-                ki: 500.
+                kp: 0.
+                ki: 400.
                 kd: 0.
-                ilimit: 100.
-
+                ilimit: 800.
             velocity:
-                kp: 0.005
-                ki: 0.05
+                kp: 0.002
+                ki: 0.2
                 kd: 0.
-                ilimit: 0.2
+                ilimit: 10
             position:
-                kp: 0.1
-                ki: 0.01
-                kd: 0.
-
+                kp: 20
+                ki: 50
+                kd: 0
+                ilimit: 1000
             low_batt_th: 12
-            acceleration_limit: 2500.
-            velocity_limit: 2000.
+            acceleration_limit: 500.
+            velocity_limit: 300.
             torque_limit: 1.3
     right-shoulder:
         stream:
