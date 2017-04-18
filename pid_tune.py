@@ -110,10 +110,16 @@ class StepConfigPanel(QGroupBox):
         self.checkbox.setCheckState(False)
 
     def getAmplitude(self):
-        return float(self.amplitude_field.text())
+        try:
+            return float(self.amplitude_field.text())
+        except ValueError:
+            return 0.
 
     def getFrequency(self):
-        return float(self.frequency_field.text())
+        try:
+            return float(self.frequency_field.text())
+        except ValueError:
+            return 0.
 
     def getType(self):
         # TODO check values
