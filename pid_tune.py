@@ -13,6 +13,12 @@ from PyQt5.QtCore import QCoreApplication, pyqtSlot, pyqtSignal, QThread, QTimer
 import pyqtgraph as pg
 
 
+class SetpointType:
+    TORQUE = 0
+    VELOCITY = 1
+    POSITION = 2
+
+
 class PIDParam(QWidget):
     paramChanged = pyqtSignal(float, float, float)
 
@@ -53,11 +59,10 @@ class StepConfigPanel(QGroupBox):
     def __init__(self, name):
         super().__init__(name)
 
-        loopPicker = QComboBox()
-        loopPicker.addItem("Torque")
-        loopPicker.addItem("Velocity")
-        loopPicker.addItem("Position")
-        loopPicker.currentIndexChanged.connect(self._type_changed)
+        self.loopPicker = QComboBox()
+        self.loopPicker.addItem("Torque")
+        self.loopPicker.addItem("Velocity")
+        self.loopPicker.addItem("Position")
 
         amplitude_box = QHBoxLayout()
         amplitude_box.addWidget(QLabel('Amp.'))
@@ -76,7 +81,7 @@ class StepConfigPanel(QGroupBox):
         frequency_box.addWidget(self.frequency_field)
 
         vbox = QVBoxLayout()
-        vbox.addWidget(loopPicker)
+        vbox.addWidget(self.loopPicker)
         vbox.addLayout(amplitude_box)
         vbox.addLayout(frequency_box)
         self.checkbox = QCheckBox('Enabled')
@@ -84,6 +89,7 @@ class StepConfigPanel(QGroupBox):
 
         self.setLayout(vbox)
 
+        self.loopPicker.currentIndexChanged.connect(self._type_changed)
         self.amplitude_field.returnPressed.connect(self._param_changed)
         self.frequency_field.returnPressed.connect(self._param_changed)
         self.checkbox.stateChanged.connect(self._param_changed)
@@ -103,6 +109,10 @@ class StepConfigPanel(QGroupBox):
     def getFrequency(self):
         return float(self.frequency_field.text())
 
+    def getType(self):
+        # TODO check values
+        return self.loopPicker.currentIndex()
+
 
 class UAVCANThread(QThread):
     FREQUENCY = 10
@@ -115,7 +125,8 @@ class UAVCANThread(QThread):
         self.port = port
         self.logger = logging.getLogger('uavcan')
         self.board_name = {}
-        self.current_setpoint = 0
+        self.setpoint = 0
+        self.setpoint_type = None
         self.publish_setpoint = False
 
     def _current_pid_callback(self, event):
@@ -143,12 +154,21 @@ class UAVCANThread(QThread):
         if not self.publish_setpoint:
             return
 
-        self.logger.debug('Sending setpoint {}'.format(self.current_setpoint))
+        SetpointMessages = {
+            SetpointType.TORQUE: uavcan.thirdparty.cvra.motor.control.Torque,
+            SetpointType.VELOCITY:
+            uavcan.thirdparty.cvra.motor.control.Velocity,
+            SetpointType.POSITION:
+            uavcan.thirdparty.cvra.motor.control.Position
+        }
 
-        m = uavcan.thirdparty.cvra.motor.control.Torque(
+        self.logger.debug('Sending setpoint {} type={}'.format(
+            self.setpoint, self.setpoint_type))
+
+        m = SetpointMessages[self.setpoint_type](
             # TODO: remove hardcoded ID
             node_id=79,
-            torque=self.current_setpoint)
+            torque=self.setpoint)
         self.node.broadcast(m)
 
     def node_status_callback(self, event):
@@ -258,6 +278,7 @@ class PIDApp(QMainWindow):
                              format(freq, amplitude))
             self.step_timer.start(1000 / freq)
             self.can_thread.publish_setpoint = True
+            self.can_thread.setpoint_type = self.step_config.getType()
         else:
             self.logger.info("Step response disabled")
             self.can_thread.publish_setpoint = False
@@ -272,13 +293,14 @@ class PIDApp(QMainWindow):
 
     @pyqtSlot()
     def _step_timer_timeout(self):
-        if self.can_thread.current_setpoint < 0:
-            self.can_thread.current_setpoint = self.step_config.getAmplitude()
-        else:
-            self.can_thread.current_setpoint = -self.step_config.getAmplitude()
 
-        self.logger.debug("Step timer, current setpoint was set to {}".format(
-            self.can_thread.current_setpoint))
+        if self.can_thread.setpoint < 0:
+            self.can_thread.setpoint = self.step_config.getAmplitude()
+        else:
+            self.can_thread.setpoint = -self.step_config.getAmplitude()
+
+        self.logger.debug("Step timer, setpoint was set to {}".format(
+            self.can_thread.setpoint))
 
     def __init__(self, port, board):
         super().__init__()
@@ -315,16 +337,15 @@ class PIDApp(QMainWindow):
         self.step_timer.timeout.connect(self._step_timer_timeout)
 
         # Connect all signals
-        self.can_thread.currentDataReceived.connect(self._received_current_data)
+        self.can_thread.currentDataReceived.connect(
+            self._received_current_data)
         self.current_tuner.plotEnableChanged.connect(self._current_plot_enable)
-
 
         self.can_thread.uavcanErrored.connect(self._uavcan_errored)
 
         self.step_config.parametersChanged.connect(
             self._step_parameters_changed)
         self.can_thread.boardDiscovered.connect(self._discovered_board)
-
 
         self.setCentralWidget(vbox_widget)
         self.show()
