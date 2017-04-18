@@ -192,8 +192,9 @@ class PIDTuner(QSplitter):
     def __init__(self, *args):
         super().__init__(*args)
         self.plot = pg.PlotWidget()
-        self.setpoint_plot = self.plot.plot(pen=(255, 0, 0))
-        self.feedback_plot = self.plot.plot(pen=(0, 255, 0))
+        self.plot.addLegend()
+        self.setpoint_plot = self.plot.plot(pen=(255, 0, 0), name='setpoint')
+        self.feedback_plot = self.plot.plot(pen=(0, 255, 0), name='feedback')
 
         self.params = PIDParam()
         self.plot_enabled = QCheckBox('Plot')
@@ -317,8 +318,6 @@ class PIDApp(QMainWindow):
         self.can_thread.currentDataReceived.connect(self._received_current_data)
         self.current_tuner.plotEnableChanged.connect(self._current_plot_enable)
 
-        self.can_thread.velocityDataReceived.connect(self._received_velocity_data)
-        self.velocity_tuner.plotEnableChanged.connect(self._velocity_plot_enable)
 
         self.can_thread.uavcanErrored.connect(self._uavcan_errored)
 
