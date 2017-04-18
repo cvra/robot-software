@@ -85,8 +85,13 @@ def main():
     req.torque_constant = config['motor']['torque_constant']
     req.motor_encoder_steps_per_revolution = config['motor'][
         'motor_encoder_steps_per_revolution']
-    req.second_encoder_steps_per_revolution = config['motor'][
-        'second_encoder_steps_per_revolution']
+
+    try:
+        req.second_encoder_steps_per_revolution = config['motor'][
+            'second_encoder_steps_per_revolution']
+    except KeyError:
+        pass
+
     req.transmission_ratio_p = config['motor']['transmission_ratio_p']
     req.transmission_ratio_q = config['motor']['transmission_ratio_q']
     req.mode = config['motor']['mode']
