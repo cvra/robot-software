@@ -333,6 +333,7 @@ class PIDApp(QMainWindow):
     @pyqtSlot(str, int)
     def _discovered_board(self, name, node_id):
         if name == self.board_name:
+            self.setEnabled(True)
             self.board_id = node_id
             self.setWindowTitle(
                 '{} ({})'.format(self.board_name, self.board_id))
@@ -350,6 +351,7 @@ class PIDApp(QMainWindow):
 
     def __init__(self, port, board):
         super().__init__()
+        self.setEnabled(False)
         self.logger = logging.getLogger('PIDApp')
         self.board_name = board
         self.board_id = None
