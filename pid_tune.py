@@ -118,6 +118,7 @@ class UAVCANThread(QThread):
     FREQUENCY = 10
     boardDiscovered = pyqtSignal(str, int)
     currentDataReceived = pyqtSignal(float, float, float, float)
+    velocityDataReceived = pyqtSignal(float, float, float)
     uavcanErrored = pyqtSignal()
 
     def __init__(self, port):
@@ -135,6 +136,12 @@ class UAVCANThread(QThread):
         self.currentDataReceived.emit(event.transfer.ts_monotonic,
                                       data.current_setpoint, data.current,
                                       data.motor_voltage)
+
+    def _velocity_pid_callback(self, event):
+        data = event.message
+        self.logger.debug("Received velocity PID info: {}".format(data))
+        self.velocityDataReceived.emit(event.transfer.ts_monotonic,
+                                       data.velocity_setpoint, data.velocity)
 
     def _check_error_callback(self, event):
         if not event:
@@ -165,10 +172,20 @@ class UAVCANThread(QThread):
         self.logger.debug('Sending setpoint {} type={}'.format(
             self.setpoint, self.setpoint_type))
 
-        m = SetpointMessages[self.setpoint_type](
-            node_id=self.setpoint_board_id,
-            torque=self.setpoint)
-        self.node.broadcast(m)
+        if self.setpoint_type == SetpointType.TORQUE:
+            msg = uavcan.thirdparty.cvra.motor.control.Torque(
+                node_id=self.setpoint_board_id, torque=self.setpoint)
+        elif self.setpoint_type == SetpointType.VELOCITY:
+            msg = uavcan.thirdparty.cvra.motor.control.Velocity(
+                node_id=self.setpoint_board_id, velocity=self.setpoint)
+
+        elif self.setpoint_type == SetpointType.Position:
+            msg = uavcan.thirdparty.cvra.motor.control.Position(
+                node_id=self.setpoint_board_id, position=self.setpoint)
+        else:
+            raise ValueError("Unknown setpoint type!")
+
+        self.node.broadcast(msg)
 
     def node_status_callback(self, event):
         board = event.transfer.source_node_id
@@ -188,6 +205,16 @@ class UAVCANThread(QThread):
         req.frequency = self.FREQUENCY
         self.node.request(req, board_id, self._check_error_callback)
 
+    def enable_velocity_pid_stream(self, board_id, enabled):
+        # TODO: This is not thread safe
+        self.logger.info(
+            'Enabling velocity PID stream for {}'.format(board_id))
+        req = uavcan.thirdparty.cvra.motor.config.FeedbackStream.Request()
+        req.stream = req.STREAM_VELOCITY_PID
+        req.enabled = enabled
+        req.frequency = self.FREQUENCY
+        self.node.request(req, board_id, self._check_error_callback)
+
     def run(self):
         self.node = uavcan.make_node(self.port, node_id=127)
         self.node.add_handler(uavcan.protocol.NodeStatus,
@@ -195,6 +222,10 @@ class UAVCANThread(QThread):
 
         self.node.add_handler(uavcan.thirdparty.cvra.motor.feedback.CurrentPID,
                               self._current_pid_callback)
+
+        self.node.add_handler(
+            uavcan.thirdparty.cvra.motor.feedback.VelocityPID,
+            self._velocity_pid_callback)
 
         self.node.periodic(0.1, self._publish_setpoint)
 
@@ -246,20 +277,36 @@ class PIDApp(QMainWindow):
     @pyqtSlot(float, float, float, float)
     def _received_current_data(self, timestamp, setpoint, feedback, voltage):
         self.current_data.append((timestamp, setpoint, feedback, voltage))
-        x, y = [s[0] for s in self.current_data], \
-               [s[2] for s in self.current_data]
 
-        self.current_tuner.set_feedback_data(x, y)
+        timestamps = [s[0] for s in self.current_data]
+        setpoints = [s[1] for s in self.current_data]
+        feedbacks = [s[2] for s in self.current_data]
 
-        x, y = [s[0] for s in self.current_data], \
-               [s[1] for s in self.current_data]
+        self.current_tuner.set_setpoint_data(timestamps, setpoints)
+        self.current_tuner.set_feedback_data(timestamps, feedbacks)
 
-        self.current_tuner.set_setpoint_data(x, y)
+    @pyqtSlot(float, float, float)
+    def _received_velocity_data(self, timestamp, setpoint, feedback):
+        self.velocity_data.append((timestamp, setpoint, feedback))
+
+        timestamps = [s[0] for s in self.velocity_data]
+        setpoints = [s[1] for s in self.velocity_data]
+        feedbacks = [s[2] for s in self.velocity_data]
+
+        self.velocity_tuner.set_setpoint_data(timestamps, setpoints)
+        self.velocity_tuner.set_feedback_data(timestamps, feedbacks)
 
     @pyqtSlot(bool)
     def _current_plot_enable(self, enabled):
         self.logger.info('Setting current plot to {}'.format(enabled))
         self.can_thread.enable_current_pid_stream(self.board_id, enabled)
+        self.logger.debug("Step response params {} {}".format(
+            self.step_config.getAmplitude(), self.step_config.getFrequency()))
+
+    @pyqtSlot(bool)
+    def _velocity_plot_enable(self, enabled):
+        self.logger.info('Setting velocity plot to {}'.format(enabled))
+        self.can_thread.enable_velocity_pid_stream(self.board_id, enabled)
         self.logger.debug("Step response params {} {}".format(
             self.step_config.getAmplitude(), self.step_config.getFrequency()))
 
@@ -339,6 +386,11 @@ class PIDApp(QMainWindow):
         self.can_thread.currentDataReceived.connect(
             self._received_current_data)
         self.current_tuner.plotEnableChanged.connect(self._current_plot_enable)
+
+        self.can_thread.velocityDataReceived.connect(
+            self._received_velocity_data)
+        self.velocity_tuner.plotEnableChanged.connect(
+            self._velocity_plot_enable)
 
         self.can_thread.uavcanErrored.connect(self._uavcan_errored)
 
