@@ -301,16 +301,15 @@ actuator:
             torque_constant: 0.00826 # Nm/A
         control:
             current:
-                kp: 24.
-                ki: 5000.
+                kp: 0
+                ki: 3000.
                 kd: 0.
                 ilimit: 100.
-
             velocity:
-                kp: 0.2
-                ki: 0.8
+                kp: 2
+                ki: 10
                 kd: 0.
-                ilimit: 0.13
+                ilimit: 100
             position:
                 kp: 6
                 ki: 1.
@@ -337,21 +336,19 @@ actuator:
             torque_constant: 0.00826 # Nm/A
         control:
             current:
-                kp: 24.
-                ki: 5000.
+                kp: 0.
+                ki: 2000.
                 kd: 0.
                 ilimit: 100.
-
             velocity:
-                kp: 8
-                ki: 1
+                kp: 1
+                ki: 20
                 kd: 0.
-                ilimit: 0.5
+                ilimit: 100
             position:
                 kp: 12
                 ki: 0.
                 kd: 0.
-
             low_batt_th: 12
             acceleration_limit: 20.
             velocity_limit: 5.
