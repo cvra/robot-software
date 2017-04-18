@@ -54,7 +54,7 @@ class StepConfigPanel(QGroupBox):
         super().__init__(name)
 
         loopPicker = QComboBox()
-        loopPicker.addItem("Current")
+        loopPicker.addItem("Torque")
         loopPicker.addItem("Velocity")
         loopPicker.addItem("Position")
         loopPicker.currentIndexChanged.connect(self._type_changed)
@@ -182,7 +182,43 @@ class UAVCANThread(QThread):
         self.node.spin()
 
 
-class PIDTuner(QMainWindow):
+class PIDTuner(QSplitter):
+    plotEnableChanged = pyqtSignal(bool)
+
+    @pyqtSlot(int)
+    def _plot_changed(self, state):
+        self.plotEnableChanged.emit(bool(state))
+
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.plot = pg.PlotWidget()
+        self.setpoint_plot = self.plot.plot(pen=(255, 0, 0))
+        self.feedback_plot = self.plot.plot(pen=(0, 255, 0))
+
+        self.params = PIDParam()
+        self.plot_enabled = QCheckBox('Plot')
+        self.plot_enabled.stateChanged.connect(self._plot_changed)
+
+        vbox = QVBoxLayout()
+
+        vbox.addWidget(self.params)
+        vbox.addWidget(self.plot_enabled)
+        vbox.addStretch(1)
+
+        box_widget = QWidget()
+        box_widget.setLayout(vbox)
+
+        self.addWidget(self.plot)
+        self.addWidget(box_widget)
+
+    def set_feedback_data(self, time, values):
+        self.feedback_plot.setData(time, values)
+
+    def set_setpoint_data(self, time, values):
+        self.setpoint_plot.setData(time, values)
+
+
+class PIDApp(QMainWindow):
     @pyqtSlot(float, float, float)
     def param_changed(self, kp, ki, kd):
         print("Param changed!")
@@ -192,18 +228,18 @@ class PIDTuner(QMainWindow):
         self.current_data.append((timestamp, setpoint, feedback, voltage))
         x, y = [s[0] for s in self.current_data], \
                [s[2] for s in self.current_data]
-        self.current_setpoint_plot.setData(x, y)
+
+        self.current_tuner.set_feedback_data(x, y)
 
         x, y = [s[0] for s in self.current_data], \
                [s[1] for s in self.current_data]
 
-        self.current_feedback_plot.setData(x, y)
+        self.current_tuner.set_setpoint_data(x, y)
 
-    @pyqtSlot(int)
-    def _plot_enable(self, enabled):
+    @pyqtSlot(bool)
+    def _current_plot_enable(self, enabled):
         self.logger.info('Setting current plot to {}'.format(enabled))
         self.can_thread.enable_current_pid_stream(self.board_id, enabled)
-        self.current_setpoint_plot.setVisible(enabled)
         self.logger.debug("Step response params {} {}".format(
             self.step_config.getAmplitude(), self.step_config.getFrequency()))
 
@@ -243,52 +279,34 @@ class PIDTuner(QMainWindow):
         self.logger.debug("Step timer, current setpoint was set to {}".format(
             self.can_thread.current_setpoint))
 
-    def create_config_panels(self):
-        pages = QTabWidget()
-
-        for loop in ['Current', 'Velocity', 'Position']:
-            vbox = QVBoxLayout()
-            self.params[loop.lower()] = {}
-
-            params = PIDParam()
-            params.paramChanged.connect(self.param_changed)
-
-            vbox.addWidget(params)
-            self.params[loop.lower()]['enabled'] = QCheckBox('Plot')
-            vbox.addWidget(self.params[loop.lower()]['enabled'])
-
-            widget = QWidget()
-            widget.setLayout(vbox)
-            pages.addTab(widget, loop)
-
-        return pages
-
     def __init__(self, port, board):
         super().__init__()
-        self.logger = logging.getLogger('PIDTuner')
-        self.params = dict()
+        self.logger = logging.getLogger('PIDApp')
         self.board_name = board
         self.board_id = None
 
         self.setWindowTitle('{} (?)'.format(self.board_name))
 
-        self.plot_widget = pg.PlotWidget()
-        self.current_setpoint_plot = self.plot_widget.plot(pen=(255, 0, 0))
-        self.current_feedback_plot = self.plot_widget.plot(pen=(0, 255, 0))
         self.current_data = deque(maxlen=30)
+        self.velocity_data = deque(maxlen=30)
+
+        self.current_tuner = PIDTuner()
+        self.velocity_tuner = PIDTuner()
+        self.position_tuner = PIDTuner()
+
+        pages = QTabWidget()
+        pages.addTab(self.current_tuner, 'Current')
+        pages.addTab(self.velocity_tuner, 'Velocity')
+        pages.addTab(self.position_tuner, 'Position')
+
+        self.step_config = StepConfigPanel("Step response")
 
         vbox = QVBoxLayout()
-        vbox.addWidget(self.create_config_panels())
-        vbox.addStretch(1)
-        self.step_config = StepConfigPanel("Step response")
+        vbox.addWidget(pages)
         vbox.addWidget(self.step_config)
 
         vbox_widget = QWidget()
         vbox_widget.setLayout(vbox)
-
-        splitter = QSplitter()
-        splitter.addWidget(self.plot_widget)
-        splitter.addWidget(vbox_widget)
 
         self.can_thread = UAVCANThread(port)
 
@@ -296,16 +314,20 @@ class PIDTuner(QMainWindow):
         self.step_timer.timeout.connect(self._step_timer_timeout)
 
         # Connect all signals
-        self.can_thread.currentDataReceived.connect(
-            self._received_current_data)
+        self.can_thread.currentDataReceived.connect(self._received_current_data)
+        self.current_tuner.plotEnableChanged.connect(self._current_plot_enable)
+
+        self.can_thread.velocityDataReceived.connect(self._received_velocity_data)
+        self.velocity_tuner.plotEnableChanged.connect(self._velocity_plot_enable)
+
         self.can_thread.uavcanErrored.connect(self._uavcan_errored)
+
         self.step_config.parametersChanged.connect(
             self._step_parameters_changed)
         self.can_thread.boardDiscovered.connect(self._discovered_board)
-        for param in self.params.values():
-            param['enabled'].stateChanged.connect(self._plot_enable)
 
-        self.setCentralWidget(splitter)
+
+        self.setCentralWidget(vbox_widget)
         self.show()
         self.can_thread.start()
 
@@ -337,5 +359,5 @@ if __name__ == '__main__':
     uavcan.load_dsdl(args.dsdl)
 
     app = QApplication(sys.argv)
-    ex = PIDTuner(args.port, args.board)
+    ex = PIDApp(args.port, args.board)
     sys.exit(app.exec_())
