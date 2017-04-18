@@ -50,6 +50,7 @@ class PIDParam(QWidget):
 
     @pyqtSlot()
     def _param_changed(self):
+        # TODO handle this
         self.paramChanged.emit(1, 2, 3)
 
 
@@ -119,6 +120,7 @@ class UAVCANThread(QThread):
     boardDiscovered = pyqtSignal(str, int)
     currentDataReceived = pyqtSignal(float, float, float, float)
     velocityDataReceived = pyqtSignal(float, float, float)
+    positionDataReceived = pyqtSignal(float, float, float)
     uavcanErrored = pyqtSignal()
 
     def __init__(self, port):
@@ -143,6 +145,12 @@ class UAVCANThread(QThread):
         self.velocityDataReceived.emit(event.transfer.ts_monotonic,
                                        data.velocity_setpoint, data.velocity)
 
+    def _position_pid_callback(self, event):
+        data = event.message
+        self.logger.debug("Received position PID info: {}".format(data))
+        self.positionDataReceived.emit(event.transfer.ts_monotonic,
+                                       data.position_setpoint, data.position)
+
     def _check_error_callback(self, event):
         if not event:
             self.logger.error("UAVCAN error")
@@ -161,16 +169,6 @@ class UAVCANThread(QThread):
         if self.setpoint_board_id is None:
             return
 
-        SetpointMessages = {
-            SetpointType.TORQUE: uavcan.thirdparty.cvra.motor.control.Torque,
-            SetpointType.VELOCITY:
-            uavcan.thirdparty.cvra.motor.control.Velocity,
-            SetpointType.POSITION:
-            uavcan.thirdparty.cvra.motor.control.Position
-        }
-
-        self.logger.debug('Sending setpoint {} type={}'.format(
-            self.setpoint, self.setpoint_type))
 
         if self.setpoint_type == SetpointType.TORQUE:
             msg = uavcan.thirdparty.cvra.motor.control.Torque(
@@ -179,12 +177,13 @@ class UAVCANThread(QThread):
             msg = uavcan.thirdparty.cvra.motor.control.Velocity(
                 node_id=self.setpoint_board_id, velocity=self.setpoint)
 
-        elif self.setpoint_type == SetpointType.Position:
+        elif self.setpoint_type == SetpointType.POSITION:
             msg = uavcan.thirdparty.cvra.motor.control.Position(
                 node_id=self.setpoint_board_id, position=self.setpoint)
         else:
             raise ValueError("Unknown setpoint type!")
 
+        self.logger.debug('Sending setpoint {}'.format(msg))
         self.node.broadcast(msg)
 
     def node_status_callback(self, event):
@@ -215,6 +214,17 @@ class UAVCANThread(QThread):
         req.frequency = self.FREQUENCY
         self.node.request(req, board_id, self._check_error_callback)
 
+    def enable_position_pid_stream(self, board_id, enabled):
+        # TODO: This is not thread safe
+        self.logger.info(
+            'Enabling position PID stream for {}'.format(board_id))
+        req = uavcan.thirdparty.cvra.motor.config.FeedbackStream.Request()
+        req.stream = req.STREAM_POSITION_PID
+        req.enabled = enabled
+        req.frequency = self.FREQUENCY
+        self.node.request(req, board_id, self._check_error_callback)
+
+
     def run(self):
         self.node = uavcan.make_node(self.port, node_id=127)
         self.node.add_handler(uavcan.protocol.NodeStatus,
@@ -226,6 +236,10 @@ class UAVCANThread(QThread):
         self.node.add_handler(
             uavcan.thirdparty.cvra.motor.feedback.VelocityPID,
             self._velocity_pid_callback)
+
+        self.node.add_handler(
+            uavcan.thirdparty.cvra.motor.feedback.PositionPID,
+            self._position_pid_callback)
 
         self.node.periodic(0.1, self._publish_setpoint)
 
@@ -296,6 +310,18 @@ class PIDApp(QMainWindow):
         self.velocity_tuner.set_setpoint_data(timestamps, setpoints)
         self.velocity_tuner.set_feedback_data(timestamps, feedbacks)
 
+    @pyqtSlot(float, float, float)
+    def _received_position_data(self, timestamp, setpoint, feedback):
+        self.position_data.append((timestamp, setpoint, feedback))
+
+        timestamps = [s[0] for s in self.position_data]
+        setpoints = [s[1] for s in self.position_data]
+        feedbacks = [s[2] for s in self.position_data]
+
+        self.position_tuner.set_setpoint_data(timestamps, setpoints)
+        self.position_tuner.set_feedback_data(timestamps, feedbacks)
+
+
     @pyqtSlot(bool)
     def _current_plot_enable(self, enabled):
         self.logger.info('Setting current plot to {}'.format(enabled))
@@ -309,6 +335,14 @@ class PIDApp(QMainWindow):
         self.can_thread.enable_velocity_pid_stream(self.board_id, enabled)
         self.logger.debug("Step response params {} {}".format(
             self.step_config.getAmplitude(), self.step_config.getFrequency()))
+
+    @pyqtSlot(bool)
+    def _position_plot_enable(self, enabled):
+        self.logger.info('Setting position plot to {}'.format(enabled))
+        self.can_thread.enable_position_pid_stream(self.board_id, enabled)
+        self.logger.debug("Step response params {} {}".format(
+            self.step_config.getAmplitude(), self.step_config.getFrequency()))
+
 
     @pyqtSlot()
     def _uavcan_errored(self):
@@ -358,8 +392,10 @@ class PIDApp(QMainWindow):
 
         self.setWindowTitle('{} (?)'.format(self.board_name))
 
+        # TODO better data storage to allow zoom out
         self.current_data = deque(maxlen=30)
         self.velocity_data = deque(maxlen=30)
+        self.position_data = deque(maxlen=30)
 
         self.current_tuner = PIDTuner()
         self.velocity_tuner = PIDTuner()
@@ -388,11 +424,14 @@ class PIDApp(QMainWindow):
         self.can_thread.currentDataReceived.connect(
             self._received_current_data)
         self.current_tuner.plotEnableChanged.connect(self._current_plot_enable)
-
         self.can_thread.velocityDataReceived.connect(
             self._received_velocity_data)
         self.velocity_tuner.plotEnableChanged.connect(
             self._velocity_plot_enable)
+        self.can_thread.positionDataReceived.connect(
+            self._received_position_data)
+        self.position_tuner.plotEnableChanged.connect(
+            self._position_plot_enable)
 
         self.can_thread.uavcanErrored.connect(self._uavcan_errored)
 
