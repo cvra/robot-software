@@ -336,10 +336,6 @@ class PIDTuner(QSplitter):
 
 
 class PIDApp(QMainWindow):
-    @pyqtSlot(float, float, float)
-    def param_changed(self, kp, ki, kd):
-        print("Param changed!")
-
     @pyqtSlot(float, float, float, float)
     def _received_current_data(self, timestamp, setpoint, feedback, voltage):
         self.current_data.append((timestamp, setpoint, feedback, voltage))
@@ -375,24 +371,15 @@ class PIDApp(QMainWindow):
 
     @pyqtSlot(bool)
     def _current_plot_enable(self, enabled):
-        self.logger.info('Setting current plot to {}'.format(enabled))
         self.can_thread.enable_current_pid_stream(self.board_id, enabled)
-        self.logger.debug("Step response params {} {}".format(
-            self.step_config.getAmplitude(), self.step_config.getFrequency()))
 
     @pyqtSlot(bool)
     def _velocity_plot_enable(self, enabled):
-        self.logger.info('Setting velocity plot to {}'.format(enabled))
         self.can_thread.enable_velocity_pid_stream(self.board_id, enabled)
-        self.logger.debug("Step response params {} {}".format(
-            self.step_config.getAmplitude(), self.step_config.getFrequency()))
 
     @pyqtSlot(bool)
     def _position_plot_enable(self, enabled):
-        self.logger.info('Setting position plot to {}'.format(enabled))
         self.can_thread.enable_position_pid_stream(self.board_id, enabled)
-        self.logger.debug("Step response params {} {}".format(
-            self.step_config.getAmplitude(), self.step_config.getFrequency()))
 
     @pyqtSlot(float, float, float, float)
     def _current_pid_change(self, kp, ki, kd, ilim):
