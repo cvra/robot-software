@@ -128,6 +128,7 @@ class UAVCANThread(QThread):
         self.port = port
         self.logger = logging.getLogger('uavcan')
         self.board_name = {}
+        self.node_statuses = {}
         self.setpoint = 0
         self.setpoint_type = None
         self.setpoint_board_id = None
@@ -188,6 +189,7 @@ class UAVCANThread(QThread):
 
     def node_status_callback(self, event):
         board = event.transfer.source_node_id
+        self.node_statuses[board] = event.message
         if board not in self.board_name:
             self.logger.info("Found a new board {}".format(board))
             self.node.request(uavcan.protocol.GetNodeInfo.Request(), board,
@@ -223,7 +225,6 @@ class UAVCANThread(QThread):
         req.enabled = enabled
         req.frequency = self.FREQUENCY
         self.node.request(req, board_id, self._check_error_callback)
-
 
     def run(self):
         self.node = uavcan.make_node(self.port, node_id=127)
@@ -369,8 +370,16 @@ class PIDApp(QMainWindow):
         if name == self.board_name:
             self.setEnabled(True)
             self.board_id = node_id
-            self.setWindowTitle(
-                '{} ({})'.format(self.board_name, self.board_id))
+            self.setWindowTitle('{} ({})'.format(self.board_name, self.board_id))
+
+            # Mode 0 is MODE_OPERATIONAL
+            if self.can_thread.node_statuses[self.board_id].mode != 0:
+                m = QMessageBox()
+                m.setText("Board not in operational mode. Some functions might not work properly.")
+                m.setInformativeText("Did you load the initial config?")
+                m.setIcon(QMessageBox.Warning)
+                m.exec()
+
 
     @pyqtSlot()
     def _step_timer_timeout(self):
