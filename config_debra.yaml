@@ -365,32 +365,32 @@ actuator:
             index: 0
         motor:
             # motor: 1516SR
-            mode: 2 # periodic
+            mode: 3 # periodic
             motor_encoder_steps_per_revolution: 4096
+            second_encoder_steps_per_revolution: 0
             # transmission: motor: 1/76 gears: 20/50
             transmission_ratio_p: 1
             transmission_ratio_q: 190
             torque_constant: 0.0115 # Nm/A
         control:
             current:
-                kp: 30.
-                ki: 5000.
+                kp: 20.
+                ki: 500.
                 kd: 0.
                 ilimit: 100.
-
             velocity:
-                kp: 0.5
-                ki: 0.8
+                kp: 10
+                ki: 100
                 kd: 0.
-                ilimit: 0.13
+                ilimit: 100
             position:
-                kp: 6
-                ki: 1.
-                kd: 2.
+                kp: 10
+                ki: 0
+                kd: 0
 
             low_batt_th: 12
-            acceleration_limit: 100.
-            velocity_limit: 8.
+            acceleration_limit: 20.
+            velocity_limit: 4.
             torque_limit: 1.3
 
     right-element-rotate:
