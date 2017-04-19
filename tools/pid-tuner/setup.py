@@ -14,12 +14,10 @@ setup(
         'pyserial',
         'pyqtgraph',
         'uavcan',
-        ],
+    ],
     entry_points={
         'console_scripts': [
             'pid_tuner=pid_tuner.pid_tune:main',
             'motor_load_config=pid_tuner.load_initial_config:main',
-            ],
-        },
-    )
-
+        ],
+    }, )
