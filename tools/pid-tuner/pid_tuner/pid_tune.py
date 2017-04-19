@@ -315,12 +315,7 @@ class UAVCANThread(QThread):
 
 
 class PIDTuner(QSplitter):
-    plotEnableChanged = pyqtSignal(bool)
     paramsChanged = pyqtSignal(float, float, float, float)
-
-    @pyqtSlot(int)
-    def _plot_changed(self, state):
-        self.plotEnableChanged.emit(bool(state))
 
     @pyqtSlot(float, float, float, float)
     def _pid_changed(self, *args):
@@ -334,12 +329,10 @@ class PIDTuner(QSplitter):
         self.feedback_plot = self.plot.plot(pen=(0, 255, 0), name='feedback')
 
         self.params = PIDParam()
-        self.plot_enabled = QCheckBox('Plot')
 
         vbox = QVBoxLayout()
 
         vbox.addWidget(self.params)
-        vbox.addWidget(self.plot_enabled)
         vbox.addStretch(1)
 
         box_widget = QWidget()
@@ -348,7 +341,6 @@ class PIDTuner(QSplitter):
         self.addWidget(self.plot)
         self.addWidget(box_widget)
 
-        self.plot_enabled.stateChanged.connect(self._plot_changed)
         self.params.paramsChanged.connect(self._pid_changed)
 
     def set_feedback_data(self, time, values):
@@ -395,17 +387,23 @@ class PIDApp(QMainWindow):
         self.position_tuner.set_setpoint_data(timestamps, setpoints)
         self.position_tuner.set_feedback_data(timestamps, feedbacks)
 
-    @pyqtSlot(bool)
-    def _current_plot_enable(self, enabled):
-        self.can_thread.enable_current_pid_stream(self.board_id, enabled)
-
-    @pyqtSlot(bool)
-    def _velocity_plot_enable(self, enabled):
-        self.can_thread.enable_velocity_pid_stream(self.board_id, enabled)
-
-    @pyqtSlot(bool)
-    def _position_plot_enable(self, enabled):
-        self.can_thread.enable_position_pid_stream(self.board_id, enabled)
+    @pyqtSlot(int)
+    def _tab_changed(self, tab):
+        self.logger.debug("Tab changed to {}".format(tab))
+        if tab == SetpointType.TORQUE:
+            self.can_thread.enable_current_pid_stream(self.board_id, True)
+            self.can_thread.enable_velocity_pid_stream(self.board_id, False)
+            self.can_thread.enable_position_pid_stream(self.board_id, False)
+        elif tab == SetpointType.VELOCITY:
+            self.can_thread.enable_current_pid_stream(self.board_id, False)
+            self.can_thread.enable_velocity_pid_stream(self.board_id, True)
+            self.can_thread.enable_position_pid_stream(self.board_id, False)
+        elif tab == SetpointType.POSITION:
+            self.can_thread.enable_current_pid_stream(self.board_id, False)
+            self.can_thread.enable_velocity_pid_stream(self.board_id, False)
+            self.can_thread.enable_position_pid_stream(self.board_id, True)
+        else:
+            raise RuntimeError("Unexpected tab")
 
     @pyqtSlot(float, float, float, float)
     def _current_pid_change(self, kp, ki, kd, ilim):
@@ -508,21 +506,18 @@ class PIDApp(QMainWindow):
 
         # Connect all signals
 
+        pages.currentChanged.connect(self._tab_changed)
+
         self.current_tuner.paramsChanged.connect(self._current_pid_change)
         self.velocity_tuner.paramsChanged.connect(self._velocity_pid_change)
         self.position_tuner.paramsChanged.connect(self._position_pid_change)
 
         self.can_thread.currentDataReceived.connect(
             self._received_current_data)
-        self.current_tuner.plotEnableChanged.connect(self._current_plot_enable)
         self.can_thread.velocityDataReceived.connect(
             self._received_velocity_data)
-        self.velocity_tuner.plotEnableChanged.connect(
-            self._velocity_plot_enable)
         self.can_thread.positionDataReceived.connect(
             self._received_position_data)
-        self.position_tuner.plotEnableChanged.connect(
-            self._position_plot_enable)
 
         self.can_thread.uavcanErrored.connect(self._uavcan_errored)
 
