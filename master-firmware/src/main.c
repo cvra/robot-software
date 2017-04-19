@@ -275,10 +275,13 @@ int main(void) {
     /* Arms init */
 #ifdef DEBRA
     chThdSleepMilliseconds(5000);
+
     arms_init();
     arms_controller_start();
+
     hand_driver_init();
     hands_init();
+    hands_controller_start();
 #endif
 
     /* Initialize strategy thread, will wait for signal to begin game */
