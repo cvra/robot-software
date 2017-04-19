@@ -5,6 +5,8 @@
 extern "C" {
 #endif
 
+#include <ch.h>
+
 #include <aversive/position_manager/position_manager.h>
 #include "scara/scara.h"
 
@@ -37,6 +39,8 @@ typedef struct {
     /* Robot information */
     struct robot_position *robot_pos;
     scara_t *arm;
+
+    mutex_t lock;
 } hand_t;
 
 

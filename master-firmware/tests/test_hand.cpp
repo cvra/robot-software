@@ -41,6 +41,7 @@ TEST_GROUP(HandTestGroup)
 
     void teardown()
     {
+        lock_mocks_enable(false);
     }
 };
 
@@ -74,4 +75,20 @@ TEST(HandTestGroup, HandSetHeadingInTableCoordinateSystem)
     hand_manage(&hand);
 
     DOUBLES_EQUAL(3 * M_PI / 12., wrist_angle, 1e-2);
+}
+
+TEST(HandTestGroup, HandSetNewWaypointIsAtomic)
+{
+    lock_mocks_enable(true);
+    mock().expectOneCall("chMtxLock").withPointerParameter("lock", &hand.lock);
+    mock().expectOneCall("chMtxUnlock").withPointerParameter("lock", &hand.lock);
+    hand_goto(&hand, 0., HAND_COORDINATE_HAND);
+}
+
+TEST(HandTestGroup, HandManagerIsAtomic)
+{
+    lock_mocks_enable(true);
+    mock().expectOneCall("chMtxLock").withPointerParameter("lock", &hand.lock);
+    mock().expectOneCall("chMtxUnlock").withPointerParameter("lock", &hand.lock);
+    hand_manage(&hand);
 }
