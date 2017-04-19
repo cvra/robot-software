@@ -47,6 +47,7 @@ TEST_GROUP(HandTestGroup)
 TEST(HandTestGroup, HandChangesConsign)
 {
     hand_goto(&hand, 1., HAND_COORDINATE_HAND);
+    hand_manage(&hand);
 
     DOUBLES_EQUAL(1., wrist_angle, 1e-2);
 }
@@ -54,6 +55,7 @@ TEST(HandTestGroup, HandChangesConsign)
 TEST(HandTestGroup, HandSetHeadingInArmCoordinateSystem)
 {
     hand_goto(&hand, M_PI / 2., HAND_COORDINATE_ARM);
+    hand_manage(&hand);
 
     DOUBLES_EQUAL(M_PI / 6., wrist_angle, 1e-2);
 }
@@ -61,6 +63,7 @@ TEST(HandTestGroup, HandSetHeadingInArmCoordinateSystem)
 TEST(HandTestGroup, HandSetHeadingInRobotCoordinateSystem)
 {
     hand_goto(&hand, 0, HAND_COORDINATE_ROBOT);
+    hand_manage(&hand);
 
     DOUBLES_EQUAL(M_PI / 6., wrist_angle, 1e-2);
 }
@@ -68,6 +71,7 @@ TEST(HandTestGroup, HandSetHeadingInRobotCoordinateSystem)
 TEST(HandTestGroup, HandSetHeadingInTableCoordinateSystem)
 {
     hand_goto(&hand, M_PI / 6., HAND_COORDINATE_TABLE);
+    hand_manage(&hand);
 
     DOUBLES_EQUAL(3 * M_PI / 12., wrist_angle, 1e-2);
 }
