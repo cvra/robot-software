@@ -11,6 +11,7 @@ void hand_init(hand_t* hand)
         hand->fingers_open[i] = FINGER_RETRACTED;
     }
 
+    hand->enable_control = false;
     hand->last_waypoint.heading = 0.;
     hand->last_waypoint.coordinate_system = HAND_COORDINATE_HAND;
 
@@ -47,11 +48,13 @@ void hand_manage(hand_t* hand)
     /* Lock */
     chMtxLock(&hand->lock);
 
-    /* Convert waypoint heading to hand coordinate system */
-    float heading = hand_convert_waypoint_coordinate(hand, hand->last_waypoint);
+    if (hand->enable_control) {
+        /* Convert waypoint heading to hand coordinate system */
+        float heading = hand_convert_waypoint_coordinate(hand, hand->last_waypoint);
 
-    /* Send new control reference to wrist motor */
-    hand->set_wrist_position(hand->wrist_args, heading);
+        /* Send new control reference to wrist motor */
+        hand->set_wrist_position(hand->wrist_args, heading);
+    }
 
     /* Unlock */
     chMtxUnlock(&hand->lock);

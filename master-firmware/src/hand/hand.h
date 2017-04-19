@@ -34,6 +34,7 @@ typedef struct {
     finger_state_t fingers_open[4];
 
     /* Control info */
+    bool enable_control;
     hand_waypoint_t last_waypoint;
 
     /* Robot information */

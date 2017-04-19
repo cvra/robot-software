@@ -37,6 +37,8 @@ TEST_GROUP(HandTestGroup)
 
         robot_pos.pos_d.a = M_PI / 12.;
         hand_set_related_robot_pos(&hand, &robot_pos);
+
+        hand.enable_control = true;
     }
 
     void teardown()
@@ -44,6 +46,16 @@ TEST_GROUP(HandTestGroup)
         lock_mocks_enable(false);
     }
 };
+
+TEST(HandTestGroup, HandDoesntMoveIfControlDisabled)
+{
+    hand.enable_control = false;
+
+    hand_goto(&hand, 1., HAND_COORDINATE_HAND);
+    hand_manage(&hand);
+
+    DOUBLES_EQUAL(0., wrist_angle, 1e-2);
+}
 
 TEST(HandTestGroup, HandChangesConsign)
 {
