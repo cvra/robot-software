@@ -19,6 +19,7 @@
 #include "motor_driver_uavcan.h"
 #include "config.h"
 #include "uavcan_node_private.hpp"
+#include "rocket_driver.h"
 #include "uavcan_node.h"
 #include "priorities.h"
 #include "main.h"
@@ -283,6 +284,11 @@ void main(void *arg)
     );
     if (res < 0) {
         node_fail("cvra::proximity_beacon::Signal subscriber");
+    }
+
+    res = rocket_init();
+    if (res < 0) {
+        node_fail("Rocket driver");
     }
 
     // Mark the node as correctly initialized

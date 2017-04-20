@@ -13,6 +13,8 @@
 #include "timestamp/timestamp.h"
 #include "bus_enumerator.h"
 #include "uavcan_node.h"
+#include "can/rocket_driver.h"
+#include <stdio.h>
 #include "msgbus/messagebus.h"
 #include "main.h"
 #include "aversive_port/cvra_motors.h"
@@ -716,6 +718,23 @@ static void cmd_scara_pos(BaseSequentialStream *chp, int argc, char *argv[])
     chprintf(chp, "Position of %s arm is %f %f %f in %s frame\r\n", argv[1], x, y, z, argv[0]);
 }
 
+static void cmd_rocket(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    float pos;
+    if (argc < 1) {
+        chprintf(chp, "Usage: rocket open|close|0..1");
+        return;
+    }
+
+    if (!strcmp("open", argv[0])) {
+        rocket_set_pos(ROCKET_POS_OPEN);
+    } else if (!strcmp("open", argv[0])) {
+        rocket_set_pos(ROCKET_POS_CLOSE);
+    } else if (sscanf(argv[0], "%f", &pos) == 1) {
+        rocket_set_pos(pos);
+    }
+}
+
 static void print_fn(void *arg, const char *fmt, ...)
 {
     BaseSequentialStream *chp = (BaseSequentialStream *)arg;
@@ -770,6 +789,7 @@ const ShellCommand commands[] = {
     {"motor_index", cmd_motor_index},
     {"scara_goto", cmd_scara_goto},
     {"scara_pos", cmd_scara_pos},
+    {"rocket", cmd_rocket},
     {"trace", cmd_trace},
     {NULL, NULL}
 };
