@@ -63,6 +63,11 @@ int trajectory_has_ended(struct _robot *robot, messagebus_t *bus, int watched_en
         }
     }
 
+    if (watched_end_reasons & TRAJ_END_TIMER && trajectory_get_time(robot) >= GAME_DURATION) {
+        trajectory_hardstop(&robot->traj);
+        return TRAJ_END_TIMER;
+    }
+
     return 0;
 }
 
@@ -164,4 +169,14 @@ void trajectory_set_mode_game(
     trajectory_set_acc(robot_traj,
             acc_mm2imp(robot_traj, 300.),
             acc_rd2imp(robot_traj, 3.));
+}
+
+void trajectory_game_timer_reset(struct _robot* robot)
+{
+    robot->start_time = timestamp_get();
+}
+
+int trajectory_get_time(struct _robot* robot)
+{
+    return timestamp_duration_s(robot->start_time, timestamp_get());
 }

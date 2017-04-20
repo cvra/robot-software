@@ -89,9 +89,9 @@ bool strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg)
         DEBUG("Going to x: %.1fmm y: %.1fmm", points[i].x, points[i].y);
 
         trajectory_goto_forward_xy_abs(&robot->traj, points[i].x, points[i].y);
-        end_reason = trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED | TRAJ_END_OPPONENT_NEAR);
+        end_reason = trajectory_wait_for_end(robot, &bus, TRAJ_FLAGS_STD);
 
-        if (end_reason == TRAJ_END_OPPONENT_NEAR) {
+        if (end_reason != TRAJ_END_GOAL_REACHED) {
             break;
         }
     }
@@ -106,6 +106,12 @@ bool strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg)
     } else if (end_reason == TRAJ_END_OPPONENT_NEAR) {
         strategy_stop_robot(robot);
         WARNING("Stopping robot because opponent too close");
+    } else if (end_reason == TRAJ_END_COLLISION) {
+        strategy_stop_robot(robot);
+        WARNING("Stopping robot because collision detected");
+    } else if (end_reason == TRAJ_END_TIMER) {
+        strategy_stop_robot(robot);
+        WARNING("Stopping robot because game has ended !");
     } else {
         WARNING("Trajectory ended with reason %d", end_reason);
     }
@@ -387,6 +393,8 @@ void strategy_debra_play_game(struct _robot* robot, enum strat_color_t color)
 
     /* Wait for starter to begin */
     wait_for_starter();
+    trajectory_game_timer_reset(robot);
+
     NOTICE("Starting game");
     GameGoal game_goal;
     while (true) {

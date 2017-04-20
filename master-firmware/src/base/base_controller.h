@@ -67,6 +67,8 @@ struct _robot {
     enum direction_t calibration_direction; // Calibration direction / side of the robot
     int robot_size;
     int opponent_size;
+
+    uint32_t start_time; // Time since the beginning of the match, in microseconds
 };
 
 extern struct _robot robot;
