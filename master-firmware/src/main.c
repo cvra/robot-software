@@ -31,10 +31,13 @@
 #include "base/encoder.h"
 #include "base/base_controller.h"
 #include "arms/arms_controller.h"
+#include "arms/hands_controller.h"
 #include "trace/trace_points.h"
 #include "strategy.h"
 #include "filesystem.h"
 #include "http/server.h"
+#include "can/hand_driver.h"
+
 
 void init_base_motors(void);
 void init_arm_motors(void);
@@ -272,8 +275,13 @@ int main(void) {
     /* Arms init */
 #ifdef DEBRA
     chThdSleepMilliseconds(5000);
+
     arms_init();
     arms_controller_start();
+
+    hand_driver_init();
+    hands_init();
+    hands_controller_start();
 #endif
 
     /* Initialize strategy thread, will wait for signal to begin game */
@@ -318,10 +326,10 @@ void init_hands(void)
     motor_manager_create_driver(&motor_manager, "left-wrist");
     motor_manager_create_driver(&motor_manager, "right-wrist");
 
-    // bus_enumerator_add_node(&bus_enumerator, "left-fingers", NULL);
-    // bus_enumerator_add_node(&bus_enumerator, "left-sensors", NULL);
-    // bus_enumerator_add_node(&bus_enumerator, "right-fingers", NULL);
-    // bus_enumerator_add_node(&bus_enumerator, "right-sensors", NULL);
+    motor_manager_create_driver(&motor_manager, "right-element-rotate");
+
+    // bus_enumerator_add_node(&bus_enumerator, "left-hand", NULL);
+    bus_enumerator_add_node(&bus_enumerator, "right-hand", NULL);
 }
 
 void __stack_chk_fail(void)

@@ -11,17 +11,21 @@ typedef struct {
 void set_left_z_position(void* motor, float position);
 void set_left_shoulder_position(void* motor, float position);
 void set_left_elbow_position(void* motor, float position);
+void set_left_wrist_position(void* motor, float position);
 
 void set_right_z_position(void* motor, float position);
 void set_right_shoulder_position(void* motor, float position);
 void set_right_elbow_position(void* motor, float position);
+void set_right_wrist_position(void* motor, float position);
 
 float get_left_z_position(void* motor);
 float get_left_shoulder_position(void* motor);
 float get_left_elbow_position(void* motor);
+float get_left_wrist_position(void* motor);
 
 float get_right_z_position(void* motor);
 float get_right_shoulder_position(void* motor);
 float get_right_elbow_position(void* motor);
+float get_right_wrist_position(void* motor);
 
 #endif

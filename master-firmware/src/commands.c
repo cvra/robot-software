@@ -29,6 +29,8 @@
 #include "scara/scara.h"
 #include "scara/scara_utils.h"
 #include "arms/arms_controller.h"
+#include "arms/hands_controller.h"
+#include "can/hand_driver.h"
 #include "strategy.h"
 #include <trace/trace.h>
 
@@ -641,6 +643,17 @@ static void cmd_motor_pos(BaseSequentialStream *chp, int argc, char *argv[])
     motor_manager_set_position(&motor_manager, argv[0], position);
 }
 
+static void cmd_motor_voltage(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc < 2) {
+        chprintf(chp, "Usage: motor_voltage motor_name voltage\r\n");
+        return;
+    }
+    float voltage = atof(argv[1]);
+    chprintf(chp, "Setting motor %s voltage to %f\r\n", argv[0], voltage);
+    motor_manager_set_voltage(&motor_manager, argv[0], voltage);
+}
+
 static void cmd_motor_index(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc < 3) {
@@ -664,7 +677,7 @@ static void cmd_motor_index(BaseSequentialStream *chp, int argc, char *argv[])
 
 static void cmd_scara_goto(BaseSequentialStream *chp, int argc, char *argv[])
 {
-    if (argc < 5) {
+    if (argc != 5) {
         chprintf(chp, "Usage: scara_goto frame side x y z\r\n");
         return;
     }
@@ -693,7 +706,7 @@ static void cmd_scara_goto(BaseSequentialStream *chp, int argc, char *argv[])
 
 static void cmd_scara_pos(BaseSequentialStream *chp, int argc, char *argv[])
 {
-    if (argc < 1) {
+    if (argc != 2) {
         chprintf(chp, "Usage: scara_pos frame side\r\n");
         return;
     }
@@ -714,8 +727,74 @@ static void cmd_scara_pos(BaseSequentialStream *chp, int argc, char *argv[])
         scara_pos(arm, &x, &y, &z, COORDINATE_ARM);
     }
 
-
     chprintf(chp, "Position of %s arm is %f %f %f in %s frame\r\n", argv[1], x, y, z, argv[0]);
+}
+
+static void cmd_fingers(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc != 5) {
+        chprintf(chp, "Usage: fingers hand pos0 pos1 pos2 pos3\r\n");
+        return;
+    }
+
+    float pos[4] = {atof(argv[1]), atof(argv[2]), atof(argv[3]), atof(argv[4])};
+    hand_driver_set_fingers_float(argv[0], pos);
+
+    chprintf(chp, "Set fingers of %s hand at position %.3f %.3f %.3f %.3f\r\n", argv[0], pos[0], pos[1], pos[2], pos[3]);
+}
+
+static void cmd_fingers_cmd(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc != 3) {
+        chprintf(chp, "Usage: fingers_cmd hand slot status\r\n");
+        return;
+    }
+
+    hand_t* hand;
+    if (strcmp("left", argv[0]) == 0) {
+        hand = &left_hand;
+    } else {
+        hand = &right_hand;
+    }
+
+    int slot = atoi(argv[1]);
+    int status = atoi(argv[2]);
+
+    hand_set_finger(hand, slot, status);
+
+    chprintf(chp, "Set fingers of %s hand, slot %d: %d\r\n", argv[0], slot, status);
+}
+
+static void cmd_hand(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc != 3) {
+        chprintf(chp, "Usage: hand frame side pos\r\n");
+        return;
+    }
+
+    float heading = atof(argv[2]);
+    hand_t* hand;
+
+    if (strcmp("left", argv[1]) == 0) {
+        hand = &left_hand;
+    } else {
+        hand = &right_hand;
+    }
+
+    hand_coordinate_t system;
+    if (strcmp("table", argv[0]) == 0) {
+        system = HAND_COORDINATE_TABLE;
+    } else if (strcmp("robot", argv[0]) == 0) {
+        system = HAND_COORDINATE_ROBOT;
+    } else if (strcmp("arm", argv[0]) == 0) {
+        system = HAND_COORDINATE_ARM;
+    } else {
+        system = HAND_COORDINATE_HAND;
+    }
+
+    hand_goto(hand, heading, system);
+
+    chprintf(chp, "Moving %s hand to %f in %s frame\r\n", argv[1], heading, argv[0]);
 }
 
 static void cmd_rocket(BaseSequentialStream *chp, int argc, char *argv[])
@@ -786,9 +865,13 @@ const ShellCommand commands[] = {
     {"track_corr", cmd_track_correction},
     {"autopos", cmd_autopos},
     {"motor_pos", cmd_motor_pos},
+    {"motor_voltage", cmd_motor_voltage},
     {"motor_index", cmd_motor_index},
     {"scara_goto", cmd_scara_goto},
     {"scara_pos", cmd_scara_pos},
+    {"fingers", cmd_fingers},
+    {"fingers_cmd", cmd_fingers_cmd},
+    {"hand", cmd_hand},
     {"rocket", cmd_rocket},
     {"trace", cmd_trace},
     {NULL, NULL}

@@ -16,6 +16,7 @@
 #include "base/base_controller.h"
 #include "base/map.h"
 #include "arms/arms_controller.h"
+#include "arms/hands_controller.h"
 #include "config.h"
 #include "main.h"
 
@@ -132,11 +133,25 @@ bool strategy_goto_avoid_retry(struct _robot* robot, int x_mm, int y_mm, int a_d
     return finished;
 }
 
+enum Location {
+    Other=0,
+    Cylinder0,
+    Cylinder1,
+    Cylinder2,
+    Cylinder3,
+    Cylinder4,
+    Cylinder5,
+
+};
+
 struct DebraState {
     bool arms_are_indexed{false};
     bool arms_are_deployed{true};
-    bool lunar_module_down{false};
-    bool is_near_lunar_module{false};
+    bool has_moved{false};
+    bool location_accessible[7]{true, false, true, true, true, true, true};
+    bool cylinder_present[6]{false, true, true, true, true, true};
+    unsigned cylinder_count{0};
+    enum Location near_location{Other};
     struct _robot *robot{nullptr};
 };
 
@@ -166,9 +181,15 @@ struct IndexArms : public goap::Action<DebraState> {
         arms_set_motor_index(left_arm.z_args, 0);
         arms_set_motor_index(left_arm.shoulder_args, motor_indexes[0]);
         arms_set_motor_index(left_arm.elbow_args, motor_indexes[1]);
+        arms_set_motor_index(left_hand.wrist_args, motor_indexes[2]);
+
         arms_set_motor_index(right_arm.z_args, 0);
         arms_set_motor_index(right_arm.shoulder_args, motor_indexes[3]);
         arms_set_motor_index(right_arm.elbow_args, motor_indexes[4]);
+        arms_set_motor_index(right_hand.wrist_args, motor_indexes[5]);
+
+        left_hand.enable_control = true;
+        right_hand.enable_control = true;
 
         state.arms_are_indexed = true;
         return true;
@@ -190,57 +211,84 @@ struct RetractArms : public goap::Action<DebraState> {
     bool execute(DebraState &state)
     {
         NOTICE("Retracting arms!");
-        scara_goto(&left_arm, -150, 70, 0, COORDINATE_ROBOT, 1.);
-        scara_goto(&right_arm, 150, -70, 0, COORDINATE_ROBOT, 1.);
+        scara_goto(&left_arm, -150, 70, 20, COORDINATE_ROBOT, 1.);
+        scara_goto(&right_arm, 150, -70, 20, COORDINATE_ROBOT, 1.);
         chThdSleepSeconds(1.);
         state.arms_are_deployed = false;
         return true;
     }
 };
 
-struct GotoLunarModule : public goap::Action<DebraState> {
+struct GotoLocation : public goap::Action<DebraState> {
+    enum Location m_loc;
+    int m_x_mm, m_y_mm, m_a_deg;
+
+    GotoLocation(enum Location loc, int x_mm, int y_mm, int a_deg) :
+        m_loc(loc), m_x_mm(x_mm), m_y_mm(y_mm), m_a_deg(a_deg)
+    {
+    }
+
     bool can_run(DebraState state)
     {
-        return !state.arms_are_deployed;
+        return !state.arms_are_deployed && !state.has_moved && state.location_accessible[(int)m_loc];
     }
 
     DebraState plan_effects(DebraState state)
     {
-        state.is_near_lunar_module = true;
+        state.near_location = m_loc;
+        state.has_moved = true;
         return state;
     }
 
     bool execute(DebraState &state)
     {
-        NOTICE("Goto lunar module");
-        if (strategy_goto_avoid(state.robot, 1050, 1180, 45)) {
-            state.is_near_lunar_module = true;
+        NOTICE("Goto location %d: %dmm %dmm %ddeg", (int)m_loc, m_x_mm, m_y_mm, m_a_deg);
+        state.near_location = Other;
+        if (strategy_goto_avoid(state.robot, m_x_mm, m_y_mm, m_a_deg)) {
+            state.near_location = m_loc;
+            state.has_moved = true;
+            return true;
+        } else {
+            state.location_accessible[(int)m_loc] = false;
+            return false;
         }
-        return state.is_near_lunar_module;
     }
 };
 
-struct PushLunarModule : public goap::Action<DebraState> {
+struct PickCylinder : public goap::Action<DebraState> {
+    enum Location m_loc;
+    int m_x_mm, m_y_mm;
+    int m_cylinder_index;
+
+    PickCylinder(enum Location loc, int x_mm, int y_mm, int idx) :
+        m_loc(loc), m_x_mm(x_mm), m_y_mm(y_mm), m_cylinder_index(idx)
+    {
+    }
+
     bool can_run(DebraState state)
     {
-        return state.is_near_lunar_module;
+        return state.near_location == m_loc && state.cylinder_present[m_cylinder_index];
     }
 
     DebraState plan_effects(DebraState state)
     {
-        state.lunar_module_down = true;
+        state.cylinder_count++;
         state.arms_are_deployed = true;
+        state.has_moved = false;
+        state.cylinder_present[m_cylinder_index] = false;
         return state;
     }
 
     bool execute(DebraState &state)
     {
-        NOTICE("Push lunar module");
-        scara_goto(&left_arm, 960, 1460, 0, COORDINATE_TABLE, 5.);
+        NOTICE("Pick cylinder %d", (int)m_loc);
+        scara_goto(&left_arm, m_x_mm, m_y_mm, 20, COORDINATE_TABLE, 5.);
         chThdSleepSeconds(5);
 
-        state.lunar_module_down = true;
+        state.cylinder_count++;
         state.arms_are_deployed = true;
+        state.has_moved = false;
+        state.cylinder_present[m_cylinder_index] = false;
         return true;
     }
 };
@@ -255,7 +303,7 @@ struct InitGoal : goap::Goal<DebraState> {
 struct GameGoal : goap::Goal<DebraState> {
     bool is_reached(DebraState state)
     {
-        return state.lunar_module_down && !state.arms_are_deployed;
+        return (state.cylinder_count == 2) && !state.arms_are_deployed;
     }
 };
 
@@ -268,8 +316,22 @@ void strategy_debra_play_game(struct _robot* robot, enum strat_color_t color)
     InitGoal init_goal;
     IndexArms index_arms;
     RetractArms retract_arms;
-    GotoLunarModule goto_lunar_module;
-    PushLunarModule push_lunar_module;
+    GotoLocation goto_region[] = {
+        GotoLocation(Cylinder0,  900,  200,   0),
+        GotoLocation(Cylinder1, 1200,  500,  90),
+        GotoLocation(Cylinder2,  400,  700, 180),
+        GotoLocation(Cylinder3,  700, 1100,  90),
+        GotoLocation(Cylinder4, 1050, 1180,  45),
+        GotoLocation(Cylinder5,  600, 1600,  45),
+    };
+    PickCylinder pick_cylinder[] = {
+        PickCylinder(Cylinder0,  950,  200, 0), // When starting in this region, it's removed
+        PickCylinder(Cylinder1, 1000,  600, 1),
+        PickCylinder(Cylinder2,  200,  600, 2),
+        PickCylinder(Cylinder3,  500, 1100, 3),
+        PickCylinder(Cylinder4,  900, 1400, 4),
+        PickCylinder(Cylinder5,  800, 1850, 5),
+    };
 
     DebraState state;
     state.robot = robot;
@@ -280,11 +342,24 @@ void strategy_debra_play_game(struct _robot* robot, enum strat_color_t color)
     goap::Action<DebraState> *actions[] = {
         &index_arms,
         &retract_arms,
-        &goto_lunar_module,
-        &push_lunar_module,
+        &goto_region[0],
+        &goto_region[1],
+        &goto_region[2],
+        &goto_region[3],
+        &goto_region[4],
+        &goto_region[5],
+        &pick_cylinder[1],
+        &pick_cylinder[2],
+        &pick_cylinder[3],
+        &pick_cylinder[4],
+        &pick_cylinder[5],
     };
 
     goap::Planner<DebraState> planner(actions, sizeof(actions) / sizeof(actions[0]));
+
+    for (size_t i = 0; i < 4; i++) {
+        hand_set_finger(&right_hand, i, FINGER_RETRACTED);
+    }
 
     wait_for_autoposition_signal();
     NOTICE("Getting arms ready...");
@@ -296,9 +371,19 @@ void strategy_debra_play_game(struct _robot* robot, enum strat_color_t color)
     /* Autoposition robot */
     wait_for_autoposition_signal();
     NOTICE("Positioning robot");
-    strategy_auto_position(600, 200, 90, robot->robot_size, color, robot, &bus);
-    NOTICE("Robot positioned at x: 600[mm], y: 200[mm], a: 90[deg]");
 
+    // First alignment
+    strategy_auto_position(300, 200, -90, robot->robot_size, color, robot, &bus);
+    position_set(&robot->pos, MIRROR_X(color, 300), 200 + 382, -90);
+
+    // Second alignement only in y at starting area
+    strategy_goto_avoid_retry(robot, 900, 200, -90, -1);
+    strategy_align_y(200, robot->robot_size, robot, &bus);
+    trajectory_a_abs(&robot->traj, 90);
+    trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
+
+    NOTICE("Robot positioned at x: %d[mm], y: %d[mm], a: %d[deg]",
+           position_get_x_s16(&robot->pos), position_get_y_s16(&robot->pos), position_get_x_s16(&robot->pos));
 
     /* Wait for starter to begin */
     wait_for_starter();

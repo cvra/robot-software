@@ -17,6 +17,7 @@
 #define BASE_CONTROLLER_PRIO                    (NORMALPRIO)
 #define TRAJECTORY_MANAGER_PRIO                 (NORMALPRIO)
 #define ARMS_CONTROLLER_PRIO                    (NORMALPRIO)
+#define HANDS_CONTROLLER_PRIO                   (NORMALPRIO)
 #define STRATEGY_PRIO                           (NORMALPRIO + 2)
 #define ENCODER_PRIO                            (NORMALPRIO)
 #define STREAM_PRIO                             (NORMALPRIO + 1)

@@ -61,7 +61,7 @@ void pwm_set_duty_cycle(stm32_tim_t *tim, uint8_t channel, uint32_t width)
     tim->CCR[channel] = width;
 }
 
-/* convert 0.0-1.0 to servo duty cycle value (1-2 ms). */
+/* convert 0.0-1.0 to full pwm duty cycle. */
 static uint32_t duty_cycle(float pos)
 {
     if (pos > 1) {
@@ -69,7 +69,7 @@ static uint32_t duty_cycle(float pos)
     } else if (pos < 0) {
         pos = 0;
     }
-    return (uint32_t)(pos * SERVO_PWM_TIMER_FREQ / 1000) + 1000;
+    return (uint32_t)(pos * SERVO_PWM_TIMER_FREQ);
 }
 
 void servo_set(const float pos[4])
