@@ -328,7 +328,6 @@ void init_hands(void)
 
     motor_manager_create_driver(&motor_manager, "right-element-rotate");
 
-    bus_enumerator_add_node(&bus_enumerator, "foobar2000", NULL);
     // bus_enumerator_add_node(&bus_enumerator, "left-hand", NULL);
     bus_enumerator_add_node(&bus_enumerator, "right-hand", NULL);
 }
