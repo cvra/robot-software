@@ -21,8 +21,6 @@ extern "C" {
 
 int hand_driver_init(void)
 {
-    // todo: right hand
-
     static messagebus_topic_t left_hand_sensors_topic, right_hand_sensors_topic;
     static MUTEX_DECL(left_hand_sensors_topic_lock);
     static MUTEX_DECL(right_hand_sensors_topic_lock);
