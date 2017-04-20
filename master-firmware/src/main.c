@@ -152,12 +152,30 @@ void config_load_from_flash(void)
     parameter_msgpack_read_cmp(&global_config, &cmp, config_load_err_cb, NULL);
 }
 
+static void blink_thd(void *p)
+{
+    (void) p;
+
+    while (true) {
+        palTogglePad(GPIOF, GPIOF_LED_PC_ERROR);
+        chThdSleepMilliseconds(200);
+    }
+}
+
+static void blink_start(void)
+{
+    static THD_WORKING_AREA(wa, 512);
+    chThdCreateStatic(wa, sizeof(wa), LOWPRIO, blink_thd, NULL);
+}
+
 /** Application entry point.  */
 int main(void) {
     static thread_t *shelltp = NULL;
 
     /* Initializes a serial driver.  */
     sdStart(&SD3, &debug_uart_config);
+
+    blink_start();
 
     /* Try to mount the filesystem. */
     filesystem_start();
