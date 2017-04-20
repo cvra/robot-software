@@ -22,6 +22,7 @@
 
 #include "strategy.h"
 
+int traj_end_flags;
 
 static void wait_for_autoposition_signal(void);
 static void wait_for_starter(void);
@@ -89,7 +90,7 @@ bool strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg)
         DEBUG("Going to x: %.1fmm y: %.1fmm", points[i].x, points[i].y);
 
         trajectory_goto_forward_xy_abs(&robot->traj, points[i].x, points[i].y);
-        end_reason = trajectory_wait_for_end(robot, &bus, TRAJ_FLAGS_STD);
+        end_reason = trajectory_wait_for_end(robot, &bus, traj_end_flags);
 
         if (end_reason != TRAJ_END_GOAL_REACHED) {
             break;
@@ -319,6 +320,9 @@ void strategy_debra_play_game(struct _robot* robot, enum strat_color_t color)
     (void) color;
     int len;
 
+    /* Disable obstacle avoidance / game time */
+    traj_end_flags = TRAJ_END_GOAL_REACHED;
+
     InitGoal init_goal;
     IndexArms index_arms;
     RetractArms retract_arms;
@@ -393,6 +397,7 @@ void strategy_debra_play_game(struct _robot* robot, enum strat_color_t color)
 
     /* Wait for starter to begin */
     wait_for_starter();
+    traj_end_flags = TRAJ_FLAGS_STD;
     trajectory_game_timer_reset(robot);
 
     NOTICE("Starting game");
