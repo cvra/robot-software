@@ -25,9 +25,41 @@
 
 int traj_end_flags;
 
+static enum strat_color_t wait_for_color_selection(void);
 static void wait_for_autoposition_signal(void);
 static void wait_for_starter(void);
 void strategy_play_game(void* robot);
+
+#define BUTTON_IS_PRESSED(port, io) (palReadPad(port, io) == false) // Active low
+
+static enum strat_color_t wait_for_color_selection(void)
+{
+    strat_color_t color = YELLOW;
+
+    while (!BUTTON_IS_PRESSED(GPIOF, GPIOF_BTN_YELLOW) && !BUTTON_IS_PRESSED(GPIOF, GPIOF_BTN_GREEN)) {
+        palSetPad(GPIOF, GPIOF_LED_YELLOW_1);
+        palSetPad(GPIOF, GPIOF_LED_GREEN_1);
+        chThdSleepMilliseconds(100);
+
+        palClearPad(GPIOF, GPIOF_LED_YELLOW_1);
+        palClearPad(GPIOF, GPIOF_LED_GREEN_1);
+        chThdSleepMilliseconds(100);
+    }
+
+    if (BUTTON_IS_PRESSED(GPIOF, GPIOF_BTN_GREEN)) {
+        palClearPad(GPIOF, GPIOF_LED_YELLOW_1);
+        palSetPad(GPIOF, GPIOF_LED_GREEN_1);
+        color = BLUE;
+        NOTICE("Color set to blue");
+    } else {
+        palSetPad(GPIOF, GPIOF_LED_YELLOW_1);
+        palClearPad(GPIOF, GPIOF_LED_GREEN_1);
+        color = YELLOW;
+        NOTICE("Color set to yellow");
+    }
+
+    return color;
+}
 
 static void wait_for_starter(void)
 {
@@ -315,15 +347,15 @@ struct GameGoal : goap::Goal<DebraState> {
     }
 };
 
-void strategy_debra_play_game(struct _robot* robot, enum strat_color_t color)
+void strategy_debra_play_game(struct _robot* robot)
 {
-    (void) robot;
-    (void) color;
-    int len;
+    /* Wait for color selection */
+    enum strat_color_t color = wait_for_color_selection();
 
     /* Disable obstacle avoidance / game time */
     traj_end_flags = TRAJ_END_GOAL_REACHED;
 
+    int len;
     InitGoal init_goal;
     IndexArms index_arms;
     RetractArms retract_arms;
@@ -427,8 +459,11 @@ void strategy_debra_play_game(struct _robot* robot, enum strat_color_t color)
     }
 }
 
-void strategy_sandoi_play_game(struct _robot* robot, enum strat_color_t color)
+void strategy_sandoi_play_game(struct _robot* robot)
 {
+    /* Wait for color selection */
+    enum strat_color_t color = wait_for_color_selection();
+
     /* Autoposition robot */
     wait_for_autoposition_signal();
     NOTICE("Positioning robot\n");
@@ -464,16 +499,15 @@ void strategy_play_game(void* _robot)
     chRegSetThreadName("strategy");
 
     struct _robot* robot = (struct _robot*)_robot;
-    enum strat_color_t color = YELLOW;
 
     /* Initialize map and path planner */
     map_init(config_get_integer("master/robot_size_x_mm"));
     NOTICE("Strategy is ready, waiting for autopositioning signal");
 
 #ifdef DEBRA
-    strategy_debra_play_game(robot, color);
+    strategy_debra_play_game(robot);
 #else
-    strategy_sandoi_play_game(robot, color);
+    strategy_sandoi_play_game(robot);
 #endif
 }
 
