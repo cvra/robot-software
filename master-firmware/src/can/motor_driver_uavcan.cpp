@@ -20,13 +20,9 @@
 using namespace uavcan;
 using namespace cvra::motor;
 
-void speed_pid_client_cb(const ServiceCallResult<config::VelocityPID>& call_result);
-void position_pid_client_cb(const ServiceCallResult<config::PositionPID>& call_result);
-void current_pid_client_cb(const ServiceCallResult<config::CurrentPID>& call_result);
-void config_client_cb(const ServiceCallResult<config::LoadConfiguration>& call_result);
-void enable_client_cb(const ServiceCallResult<config::EnableMotor>& call_result);
-void feedback_stream_client_cb(const ServiceCallResult<config::FeedbackStream>& call_result);
-
+static void motor_driver_send_initial_config(motor_driver_t *d);
+template<typename T>
+static void assert_call_successful(const ServiceCallResult<T>& call_result);
 
 static LazyConstructor<ServiceClient<config::VelocityPID> > speed_pid_client;
 static LazyConstructor<ServiceClient<config::PositionPID> > position_pid_client;
@@ -50,42 +46,42 @@ int motor_driver_uavcan_init(INode &node)
     if (res != 0) {
         return res;
     }
-    speed_pid_client->setCallback(speed_pid_client_cb);
+    speed_pid_client->setCallback(assert_call_successful<config::VelocityPID>);
 
     position_pid_client.construct<INode &>(node);
     res = position_pid_client->init();
     if (res != 0) {
         return res;
     }
-    position_pid_client->setCallback(position_pid_client_cb);
+    position_pid_client->setCallback(assert_call_successful<config::PositionPID>);
 
     current_pid_client.construct<INode &>(node);
     res = current_pid_client->init();
     if (res != 0) {
         return res;
     }
-    current_pid_client->setCallback(current_pid_client_cb);
+    current_pid_client->setCallback(assert_call_successful<config::CurrentPID>);
 
     config_client.construct<INode &>(node);
     res = config_client->init();
     if (res != 0) {
         return res;
     }
-    config_client->setCallback(config_client_cb);
+    config_client->setCallback(assert_call_successful<config::LoadConfiguration>);
 
     enable_client.construct<INode &>(node);
     res = enable_client->init();
     if (res != 0) {
         return res;
     }
-    enable_client->setCallback(enable_client_cb);
+    enable_client->setCallback(assert_call_successful<config::EnableMotor>);
 
     feedback_stream_client.construct<INode &>(node);
     res = feedback_stream_client->init();
     if (res != 0) {
         return res;
     }
-    feedback_stream_client->setCallback(feedback_stream_client_cb);
+    feedback_stream_client->setCallback(assert_call_successful<config::FeedbackStream>);
 
     velocity_pub.construct<INode &>(node);
     position_pub.construct<INode &>(node);
@@ -148,9 +144,7 @@ static void send_stream_config(int node_id, uint8_t stream, float frequency)
     feedback_stream_client->call(node_id, feedback_stream_config);
 }
 
-
-extern "C"
-void motor_driver_send_initial_config(motor_driver_t *d)
+static void motor_driver_send_initial_config(motor_driver_t *d)
 {
     config::LoadConfiguration::Request config_msg;
 
@@ -389,47 +383,8 @@ void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
     motor_driver_unlock(d);
 }
 
-void speed_pid_client_cb(
-    const ServiceCallResult<config::VelocityPID>& call_result)
-{
-    if (!call_result.isSuccessful()) {
-        chSysHalt("uavcan service call timeout");
-    }
-}
-
-void position_pid_client_cb(
-    const ServiceCallResult<config::PositionPID>& call_result)
-{
-    if (!call_result.isSuccessful()) {
-        chSysHalt("uavcan service call timeout");
-    }
-}
-
-void current_pid_client_cb(
-    const ServiceCallResult<config::CurrentPID>& call_result)
-{
-    if (!call_result.isSuccessful()) {
-        chSysHalt("uavcan service call timeout");
-    }
-}
-
-void config_client_cb(
-    const ServiceCallResult<config::LoadConfiguration>& call_result)
-{
-    if (!call_result.isSuccessful()) {
-        chSysHalt("uavcan service call timeout");
-    }
-}
-
-void enable_client_cb(const ServiceCallResult<config::EnableMotor>& call_result)
-{
-    if (!call_result.isSuccessful()) {
-        chSysHalt("uavcan service call timeout");
-    }
-}
-
-void feedback_stream_client_cb(
-    const ServiceCallResult<config::FeedbackStream>& call_result)
+template<typename T>
+static void assert_call_successful(const ServiceCallResult<T>& call_result)
 {
     if (!call_result.isSuccessful()) {
         chSysHalt("uavcan service call timeout");
