@@ -801,13 +801,13 @@ static void cmd_rocket(BaseSequentialStream *chp, int argc, char *argv[])
 {
     float pos;
     if (argc < 1) {
-        chprintf(chp, "Usage: rocket open|close|0..1");
+        chprintf(chp, "Usage: rocket release|lock|0..1");
         return;
     }
 
-    if (!strcmp("open", argv[0])) {
+    if (!strcmp("release", argv[0])) {
         rocket_set_pos(ROCKET_POS_RELEASE);
-    } else if (!strcmp("open", argv[0])) {
+    } else if (!strcmp("lock", argv[0])) {
         rocket_set_pos(ROCKET_POS_LOCK);
     } else if (sscanf(argv[0], "%f", &pos) == 1) {
         rocket_set_pos(pos);
