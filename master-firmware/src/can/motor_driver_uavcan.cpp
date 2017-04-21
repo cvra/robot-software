@@ -15,10 +15,7 @@
 #include "uavcan_node.h"
 #include "motor_driver.h"
 #include "motor_driver_uavcan.h"
-#include "uavcan_node_private.hpp"
 #include "timestamp/timestamp.h"
-
-using namespace uavcan_node;
 
 void speed_pid_client_cb(
     const uavcan::ServiceCallResult<cvra::motor::config::VelocityPID>& call_result);

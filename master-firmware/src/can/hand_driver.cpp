@@ -5,7 +5,6 @@
 #include <error/error.h>
 #include <msgbus/messagebus.h>
 #include "uavcan_node.h"
-#include "uavcan_node_private.hpp"
 #include "main.h"
 #include "hand_driver.h"
 
@@ -15,8 +14,6 @@ static const float FINGERS_PULSE_OPEN[2][4] = {
 static const float FINGERS_PULSE_CLOSED[2][4] = {
     {0.0021, 0.0021, 0.0021, 0.0021}, {0.0021, 0.0021, 0.0021, 0.0021}
 };
-
-using namespace uavcan_node;
 
 static uavcan::LazyConstructor<uavcan::Publisher<cvra::io::ServoPWM> > fingers_pub;
 

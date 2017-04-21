@@ -8,13 +8,11 @@
 #include "motor_feedback_streams_handler.hpp"
 #include "beacon_signal_handler.hpp"
 #include <cvra/Reboot.hpp>
-#include <msgbus/messagebus.h>
 #include "error/error.h"
 #include "motor_driver.h"
 #include "motor_driver_uavcan.h"
 #include "hand_driver.h"
 #include "config.h"
-#include "uavcan_node_private.hpp"
 #include "rocket_driver.h"
 #include "uavcan_node.h"
 #include "priorities.h"
@@ -37,7 +35,6 @@ namespace uavcan_node
 
 static void node_status_cb(const uavcan::ReceivedDataStructure<uavcan::protocol::NodeStatus>& msg);
 static void node_fail(const char *reason);
-
 
 static constexpr int RxQueueSize = 64;
 static constexpr std::uint32_t BitRate = 1000000;
@@ -64,11 +61,6 @@ uavcan::ICanDriver& getCanDriver()
     return can.driver;
 }
 
-Node& getNode()
-{
-    static Node node(getCanDriver(), getSystemClock());
-    return node;
-}
 
 
 /** This class is used by libuavcan to connect node information to our bus
@@ -100,7 +92,7 @@ void main(void *arg)
 {
     chRegSetThreadName("uavcan");
 
-    Node& node = getNode();
+    static uavcan::Node<UAVCAN_MEMORY_POOL_SIZE> node(getCanDriver(), getSystemClock());
 
     uint8_t id = *(uint8_t *)arg;
     node.setNodeID(uavcan::NodeID(id));
