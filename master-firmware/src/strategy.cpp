@@ -360,20 +360,20 @@ void strategy_debra_play_game(struct _robot* robot)
     IndexArms index_arms;
     RetractArms retract_arms;
     GotoLocation goto_region[] = {
-        GotoLocation(Cylinder0,  900,  200,   0),
-        GotoLocation(Cylinder1, 1200,  500,  90),
-        GotoLocation(Cylinder2,  400,  700, 180),
-        GotoLocation(Cylinder3,  700, 1100,  90),
-        GotoLocation(Cylinder4, 1050, 1180,  45),
-        GotoLocation(Cylinder5,  600, 1600,  45),
+        GotoLocation(Cylinder0, MIRROR_X(color,  900),  200, MIRROR_A(color,   0)),
+        GotoLocation(Cylinder1, MIRROR_X(color, 1200),  500, MIRROR_A(color,  90)),
+        GotoLocation(Cylinder2, MIRROR_X(color,  400),  700, MIRROR_A(color, 180)),
+        GotoLocation(Cylinder3, MIRROR_X(color,  700), 1100, MIRROR_A(color,  90)),
+        GotoLocation(Cylinder4, MIRROR_X(color, 1050), 1180, MIRROR_A(color,  45)),
+        GotoLocation(Cylinder5, MIRROR_X(color,  600), 1600, MIRROR_A(color,  45)),
     };
     PickCylinder pick_cylinder[] = {
-        PickCylinder(Cylinder0,  950,  200, 0), // When starting in this region, it's removed
-        PickCylinder(Cylinder1, 1000,  600, 1),
-        PickCylinder(Cylinder2,  200,  600, 2),
-        PickCylinder(Cylinder3,  500, 1100, 3),
-        PickCylinder(Cylinder4,  900, 1400, 4),
-        PickCylinder(Cylinder5,  800, 1850, 5),
+        PickCylinder(Cylinder0, MIRROR_X(color,  950),  200, 0), // When starting in this region, it's removed
+        PickCylinder(Cylinder1, MIRROR_X(color, 1000),  600, 1),
+        PickCylinder(Cylinder2, MIRROR_X(color,  200),  600, 2),
+        PickCylinder(Cylinder3, MIRROR_X(color,  500), 1100, 3),
+        PickCylinder(Cylinder4, MIRROR_X(color,  900), 1400, 4),
+        PickCylinder(Cylinder5, MIRROR_X(color,  800), 1850, 5),
     };
 
     DebraState state;
@@ -416,13 +416,14 @@ void strategy_debra_play_game(struct _robot* robot)
     NOTICE("Positioning robot");
 
     // First alignment
-    strategy_auto_position(MIRROR_X(color, 300), 200, -90, robot->robot_size, color, robot, &bus);
-    position_set(&robot->pos, MIRROR_X(color, 300), 200 + 382, -90);
+    strategy_auto_position(MIRROR_X(color, 300), 200, MIRROR_A(color, -90), robot->robot_size, color, robot, &bus);
+    robot->pos.pos_d.y += 382;
+    robot->pos.pos_s16.y += 382;
 
     // Second alignement only in y at starting area
-    strategy_goto_avoid_retry(robot, 900, 200, -90, -1);
+    strategy_goto_avoid_retry(robot, MIRROR_X(color, 900), 200, MIRROR_A(color, -90), -1);
     strategy_align_y(200, robot->robot_size, robot, &bus);
-    trajectory_a_abs(&robot->traj, 90);
+    trajectory_a_abs(&robot->traj, MIRROR_A(color, 90));
     trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
 
     NOTICE("Robot positioned at x: %d[mm], y: %d[mm], a: %d[deg]",
@@ -476,7 +477,7 @@ void strategy_sandoi_play_game(struct _robot* robot)
 
     while (true) {
         /* Go to lunar module */
-        strategy_goto_avoid_retry(robot, 780, 1340, 45, -1);
+        strategy_goto_avoid_retry(robot, MIRROR_X(color, 780), 1340, MIRROR_A(color, 45), -1);
 
         /* Push lunar module */
         trajectory_d_rel(&robot->traj, 100.);
@@ -485,7 +486,7 @@ void strategy_sandoi_play_game(struct _robot* robot)
         trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
 
         /* Go back to home */
-        strategy_goto_avoid_retry(robot, 600, 200, 90, -1);
+        strategy_goto_avoid_retry(robot, MIRROR_X(color, 600), 200, MIRROR_A(color, 90), -1);
 
         DEBUG("Game ended!\nInsert coin to play more.\n");
         chThdSleepSeconds(1);
