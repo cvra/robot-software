@@ -16,12 +16,26 @@
 #include <timestamp/timestamp.h>
 #include "uavcan_node.h"
 #include "motor_driver.h"
-#include "motor_driver_uavcan.h"
+#include "motor_driver_uavcan.hpp"
+#include "main.h"
 
 using namespace uavcan;
 using namespace cvra::motor;
 
+/** Sends the initial configuration to the given motor, loading the values from
+ * the global parameter tree. */
 static void motor_driver_send_initial_config(motor_driver_t *d);
+
+/*** Sends a setpoint to the motor board, picking the message type according to
+ * the current value. */
+static void motor_driver_uavcan_send_setpoint(motor_driver_t *d);
+
+/** Send new parameters from the global tree to the motor board. */
+static void motor_driver_uavcan_update_config(motor_driver_t *d);
+
+/** Logs an error in case the UAVCAN RPC failed.
+ *
+ * It is parametrized to adapt to any type of RPC. */
 template<typename T>
 static void assert_call_successful(const ServiceCallResult<T>& call_result);
 
@@ -82,29 +96,35 @@ int motor_driver_uavcan_init(INode &node)
     voltage_pub.construct<INode &>(node);
     trajectory_pub.construct<INode &>(node);
 
+    /* Setup a timer that will send the config & setpoints to the motor boards
+     * periodically.
+     *
+     * This timer will be called from the UAVCAN main event loop.
+     * */
+    static Timer periodic_timer(node);
+    periodic_timer.setCallback(
+        [&](const TimerEvent &event)
+    {
+        (void) event;
+
+        motor_driver_t *drv_list;
+        uint16_t drv_list_len;
+
+        motor_manager_get_list(&motor_manager, &drv_list, &drv_list_len);
+
+        for (int i = 0; i < drv_list_len; i++) {
+            motor_driver_uavcan_update_config(&drv_list[i]);
+            motor_driver_uavcan_send_setpoint(&drv_list[i]);
+        }
+    });
+
+    /* Starts the periodic timer. Its rate must be at least every 300 ms,
+     * otherwise the motor boards disable their output. Packet drop also needs
+     * to be taken into account here. */
+    periodic_timer.startPeriodic(uavcan::MonotonicDuration::fromMSec(50));
+
     return 0;
 }
-
-struct can_driver_s {
-    timestamp_t last_setpoint_update;
-
-    can_driver_s() : last_setpoint_update(timestamp_get())
-    {
-    }
-};
-
-
-static void driver_allocation(motor_driver_t *d)
-{
-    if (d->can_driver == NULL) {
-        void* buf = malloc(sizeof(struct can_driver_s));
-        if (buf == NULL) {
-            chSysHalt("motor driver memory allocation failed");
-        }
-        d->can_driver = new (buf) struct can_driver_s;
-    }
-}
-
 
 static void update_motor_can_id(motor_driver_t *d)
 {
@@ -142,7 +162,6 @@ static void motor_driver_send_initial_config(motor_driver_t *d)
     if (node_id == CAN_ID_NOT_SET) {
         return;
     }
-    driver_allocation(d);
 
     config_msg.position_pid.kp = parameter_scalar_get(&d->config.position_pid.kp);
     config_msg.position_pid.ki = parameter_scalar_get(&d->config.position_pid.ki);
@@ -181,8 +200,7 @@ static void motor_driver_send_initial_config(motor_driver_t *d)
     config_client->call(node_id, config_msg);
 }
 
-extern "C"
-void motor_driver_uavcan_update_config(motor_driver_t *d)
+static void motor_driver_uavcan_update_config(motor_driver_t *d)
 {
 
     update_motor_can_id(d);
@@ -190,7 +208,6 @@ void motor_driver_uavcan_update_config(motor_driver_t *d)
     if (node_id == CAN_ID_NOT_SET) {
         return;
     }
-    driver_allocation(d);
 
     if (parameter_namespace_contains_changed(&d->config.control)) {
         if (parameter_namespace_contains_changed(&d->config.position_pid.root)) {
@@ -266,8 +283,7 @@ void motor_driver_uavcan_update_config(motor_driver_t *d)
     }
 }
 
-extern "C"
-void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
+static void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
 {
     control::Position position_setpoint;
     control::Velocity velocity_setpoint;
@@ -278,13 +294,6 @@ void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
     update_motor_can_id(d);
     int node_id = motor_driver_get_can_id(d);
     if (node_id == CAN_ID_NOT_SET) {
-        return;
-    }
-    driver_allocation(d);
-    can_driver_s *can_drv = (can_driver_s*)d->can_driver;
-
-    timestamp_t now = timestamp_get();
-    if (timestamp_duration_s(can_drv->last_setpoint_update, now) < d->update_period) {
         return;
     }
 
@@ -339,7 +348,6 @@ void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
             ERROR("Unknown control mode %d for board %d", d->control_mode, node_id);
             break;
     }
-    can_drv->last_setpoint_update = timestamp_get();
     motor_driver_unlock(d);
 }
 

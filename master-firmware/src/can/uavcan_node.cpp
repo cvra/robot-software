@@ -9,7 +9,7 @@
 #include "beacon_signal_handler.hpp"
 #include "error/error.h"
 #include "motor_driver.h"
-#include "motor_driver_uavcan.h"
+#include "motor_driver_uavcan.hpp"
 #include "hand_driver.h"
 #include "config.h"
 #include "rocket_driver.h"
@@ -180,16 +180,7 @@ void main(void *arg)
     {
         res = node.spin(uavcan::MonotonicDuration::fromMSec(1000/UAVCAN_SPIN_FREQ));
         if (res < 0) {
-            // log warning
-        }
-
-        motor_driver_t *drv_list;
-        uint16_t drv_list_len;
-        motor_manager_get_list(&motor_manager, &drv_list, &drv_list_len);
-        int i;
-        for (i = 0; i < drv_list_len; i++) {
-            motor_driver_uavcan_update_config(&drv_list[i]);
-            motor_driver_uavcan_send_setpoint(&drv_list[i]);
+            WARNING("UAVCAN spin warning %d", res);
         }
     }
 }
