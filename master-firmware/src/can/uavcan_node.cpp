@@ -7,7 +7,6 @@
 #include <uavcan/protocol/node_info_retriever.hpp>
 #include "motor_feedback_streams_handler.hpp"
 #include "beacon_signal_handler.hpp"
-#include <cvra/Reboot.hpp>
 #include "error/error.h"
 #include "motor_driver.h"
 #include "motor_driver_uavcan.h"
@@ -179,25 +178,11 @@ void main(void *arg)
     node.getNodeStatusProvider().setModeOperational();
     node.getNodeStatusProvider().setHealthOk();
 
-
-    uavcan::Publisher<cvra::Reboot> reboot_pub(node);
-    const int reboot_pub_init_res = reboot_pub.init();
-    if (reboot_pub_init_res < 0) {
-        node_fail("cvra::Reboot publisher");
-    }
-
     while (true)
     {
         res = node.spin(uavcan::MonotonicDuration::fromMSec(1000/UAVCAN_SPIN_FREQ));
         if (res < 0) {
             // log warning
-        }
-
-        // reboot command
-        if (board_button_pressed()) {
-            cvra::Reboot reboot_msg;
-            reboot_msg.bootmode = reboot_msg.BOOTLOADER_TIMEOUT;
-            reboot_pub.broadcast(reboot_msg);
         }
 
         motor_driver_t *drv_list;
