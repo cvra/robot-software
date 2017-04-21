@@ -39,12 +39,12 @@ namespace uavcan_node
 static void node_status_cb(const uavcan::ReceivedDataStructure<uavcan::protocol::NodeStatus>& msg);
 static void node_fail(const char *reason);
 
-uavcan::ISystemClock& getSystemClock()
+static uavcan::ISystemClock& getSystemClock()
 {
     return uavcan_stm32::SystemClock::instance();
 }
 
-uavcan::ICanDriver& getCanDriver()
+static uavcan::ICanDriver& getCanDriver()
 {
     static uavcan_stm32::CanInitHelper<UAVCAN_RX_QUEUE_SIZE> can;
     static bool initialized = false;
@@ -83,15 +83,14 @@ class BusEnumeratorNodeInfoAdapter final : public uavcan::INodeInfoListener
     }
 };
 
-THD_WORKING_AREA(thread_wa, UAVCAN_NODE_STACK_SIZE);
 
-void main(void *arg)
+static void main(void *arg)
 {
     chRegSetThreadName("uavcan");
 
     static uavcan::Node<UAVCAN_MEMORY_POOL_SIZE> node(getCanDriver(), getSystemClock());
 
-    uint8_t id = *(uint8_t *)arg;
+    unsigned int id = (unsigned int)arg;
     node.setNodeID(uavcan::NodeID(id));
 
     node.setName("cvra.master");
@@ -110,9 +109,6 @@ void main(void *arg)
         node_fail("node start");
     }
 
-    /*
-     * NodeStatus subscriber
-     */
     uavcan::Subscriber<uavcan::protocol::NodeStatus> ns_sub(node);
     res = ns_sub.start(node_status_cb);
     if (res < 0) {
@@ -169,9 +165,8 @@ void main(void *arg)
     node.getNodeStatusProvider().setModeOperational();
     node.getNodeStatusProvider().setHealthOk();
 
-    while (true)
-    {
-        res = node.spin(uavcan::MonotonicDuration::fromMSec(1000/UAVCAN_SPIN_FREQ));
+    while (true) {
+        res = node.spin(uavcan::MonotonicDuration::fromMSec(1000 / UAVCAN_SPIN_FREQ));
         if (res < 0) {
             WARNING("UAVCAN spin warning %d", res);
         }
@@ -198,8 +193,13 @@ extern "C" {
 
 void uavcan_node_start(uint8_t id)
 {
-    static uint8_t node_id = id;
-    chThdCreateStatic(uavcan_node::thread_wa, UAVCAN_NODE_STACK_SIZE, UAVCAN_PRIO, uavcan_node::main, &node_id);
+    unsigned int node_id = id;
+    static THD_WORKING_AREA(thread_wa, UAVCAN_NODE_STACK_SIZE);
+    chThdCreateStatic(thread_wa,
+                      UAVCAN_NODE_STACK_SIZE,
+                      UAVCAN_PRIO,
+                      uavcan_node::main,
+                      (void *)node_id);
 }
 
 } // extern "C"

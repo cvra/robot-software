@@ -43,31 +43,31 @@ int hand_driver_init(uavcan::INode &node)
     static uavcan::Subscriber<cvra::io::DigitalInput> digital_input_sub(node);
     int res = digital_input_sub.start(
         [&](const uavcan::ReceivedDataStructure<cvra::io::DigitalInput>& msg)
-        {
-            hand_sensors_t val;
-            for (int i = 0; i < 4; i++) {
-                val.object_present[i] = msg.pin[i];
-                val.object_color[i] = msg.pin[i + 4];
-            }
-
-            uint8_t nodeId = msg.getSrcNodeID().get();
-            if (strcmp(bus_enumerator_get_str_id(&bus_enumerator, nodeId), "right-hand") == 0) {
-                messagebus_topic_publish(&right_hand_sensors_topic, &val, sizeof(val));
-            } else if (strcmp(bus_enumerator_get_str_id(&bus_enumerator,
-                                                        nodeId), "left-hand") == 0) {
-                messagebus_topic_publish(&left_hand_sensors_topic, &val, sizeof(val));
-            } else {
-                WARNING("Unknown hand board streaming sensors data");
-            }
-
-            NOTICE("Hand %s: Objects: %d %d %d %d Colors: %d %d %d %d",
-                   bus_enumerator_get_str_id(&bus_enumerator, nodeId),
-                   (int)val.object_present[0], (int)val.object_present[1],
-                   (int)val.object_present[2], (int)val.object_present[3],
-                   (int)val.object_color[0], (int)val.object_color[1],
-                   (int)val.object_color[2], (int)val.object_color[3]);
+    {
+        hand_sensors_t val;
+        for (int i = 0; i < 4; i++) {
+            val.object_present[i] = msg.pin[i];
+            val.object_color[i] = msg.pin[i + 4];
         }
-        );
+
+        uint8_t nodeId = msg.getSrcNodeID().get();
+        if (strcmp(bus_enumerator_get_str_id(&bus_enumerator, nodeId), "right-hand") == 0) {
+            messagebus_topic_publish(&right_hand_sensors_topic, &val, sizeof(val));
+        } else if (strcmp(bus_enumerator_get_str_id(&bus_enumerator,
+                                                    nodeId), "left-hand") == 0) {
+            messagebus_topic_publish(&left_hand_sensors_topic, &val, sizeof(val));
+        } else {
+            WARNING("Unknown hand board streaming sensors data");
+        }
+
+        NOTICE("Hand %s: Objects: %d %d %d %d Colors: %d %d %d %d",
+               bus_enumerator_get_str_id(&bus_enumerator, nodeId),
+               (int)val.object_present[0], (int)val.object_present[1],
+               (int)val.object_present[2], (int)val.object_present[3],
+               (int)val.object_color[0], (int)val.object_color[1],
+               (int)val.object_color[2], (int)val.object_color[3]);
+    });
+
     if (res != 0) {
         ERROR("Failed to subscribe to DigitalInput message, reason %d", res);
         return -1;
