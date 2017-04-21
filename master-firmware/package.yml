@@ -38,6 +38,7 @@ target.arm:
     - src/can/motor_feedback_streams_handler.cpp
     - src/can/beacon_signal_handler.cpp
     - src/can/rocket_driver.cpp
+    - src/can/emergency_stop_handler.cpp
     - src/malloc_lock.c
     - src/usbconf.c
     - src/aversive_port/cvra_motors.c

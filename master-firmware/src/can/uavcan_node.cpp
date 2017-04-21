@@ -3,8 +3,8 @@
 #include <hal.h>
 #include <uavcan_stm32/uavcan_stm32.hpp>
 #include <uavcan/protocol/NodeStatus.hpp>
-#include <cvra/motor/EmergencyStop.hpp>
 #include <uavcan/protocol/node_info_retriever.hpp>
+#include "emergency_stop_handler.hpp"
 #include "motor_feedback_streams_handler.hpp"
 #include "beacon_signal_handler.hpp"
 #include "error/error.h"
@@ -139,16 +139,9 @@ void main(void *arg)
         node_fail("hand driver");
     }
 
-    uavcan::Subscriber<cvra::motor::EmergencyStop> emergency_stop_sub(node);
-    res = emergency_stop_sub.start(
-        [&](const uavcan::ReceivedDataStructure<cvra::motor::EmergencyStop>& msg)
-        {
-            (void)msg;
-            NVIC_SystemReset();
-        }
-    );
+    res = emergency_stop_init(node);
     if (res != 0) {
-        node_fail("cvra::motor::EmergencyStop subscriber");
+        node_fail("Emergency stop handler");
     }
 
     static uavcan::NodeInfoRetriever retriever(node);
