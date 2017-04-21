@@ -52,7 +52,14 @@ class BusEnumeratorNodeInfoAdapter final : public uavcan::INodeInfoListener
             bus_enumerator_update_node_info(&bus_enumerator, node_info.name.c_str(), can_id);
 
             /* Signal that we received one answer. */
-            palSetPad(GPIOF, GPIOF_LED_READY);
+            palSetPad(GPIOF, GPIOF_LED_DEBUG);
+
+            /* If we received as many nodes as expected, signal it using the
+             * ready LED. */
+            if (bus_enumerator_discovered_nodes_count(&bus_enumerator) ==
+                bus_enumerator_total_nodes_count(&bus_enumerator)) {
+                palSetPad(GPIOF, GPIOF_LED_READY);
+            }
         }
     }
 
