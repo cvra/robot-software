@@ -286,7 +286,7 @@ void main(void *arg)
         node_fail("cvra::proximity_beacon::Signal subscriber");
     }
 
-    res = rocket_init();
+    res = rocket_init(node);
     if (res < 0) {
         node_fail("Rocket driver");
     }
