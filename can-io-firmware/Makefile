@@ -238,3 +238,4 @@ PRE_MAKE_ALL_RULE_HOOK: src/version.c
 src/version.c:
 	@../lib/version/version.sh src/version.c
 
+include ../tools/generate_ctags.mk
