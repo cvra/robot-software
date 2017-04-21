@@ -12,7 +12,8 @@
 
 uavcan::LazyConstructor<uavcan::Publisher<cvra::io::ServoPWM> > pwm_pub;
 
-float rocket_pos = ROCKET_POS_CLOSE;
+float rocket_pos = ROCKET_POS_LOCK;
+float last_pos = ROCKET_POS_LOCK;
 
 static void timer_cb(const uavcan::TimerEvent &event)
 {
@@ -26,6 +27,11 @@ static void timer_cb(const uavcan::TimerEvent &event)
         node_id == BUS_ENUMERATOR_STRING_ID_NOT_FOUND) {
         WARNING("Rocket launcher id was not found correctly [res: %d]", node_id);
         return;
+    }
+
+    if (rocket_pos != last_pos) {
+        NOTICE("Setting rocket position to %.2f", rocket_pos);
+        last_pos = rocket_pos;
     }
 
     /* Send the message. */
@@ -56,6 +62,20 @@ int rocket_init(uavcan::INode &node)
 
 void rocket_set_pos(float pos)
 {
-    DEBUG("Setting rocket position to %.2f", pos);
     rocket_pos = pos;
+}
+
+static void rocket_launch_rocket(void* foo)
+{
+    (void)foo;
+    rocket_set_pos(ROCKET_POS_RELEASE);
+}
+
+void rocket_program_launch_time(unsigned int time)
+{
+    static virtual_timer_t rocket_virtual_timer;
+    chVTObjectInit(&rocket_virtual_timer);
+    chVTSet(&rocket_virtual_timer, S2ST(time), rocket_launch_rocket, NULL);
+
+    NOTICE("Programmed rocket launch in %d seconds", time);
 }

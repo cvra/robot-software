@@ -806,9 +806,9 @@ static void cmd_rocket(BaseSequentialStream *chp, int argc, char *argv[])
     }
 
     if (!strcmp("open", argv[0])) {
-        rocket_set_pos(ROCKET_POS_OPEN);
+        rocket_set_pos(ROCKET_POS_RELEASE);
     } else if (!strcmp("open", argv[0])) {
-        rocket_set_pos(ROCKET_POS_CLOSE);
+        rocket_set_pos(ROCKET_POS_LOCK);
     } else if (sscanf(argv[0], "%f", &pos) == 1) {
         rocket_set_pos(pos);
     }

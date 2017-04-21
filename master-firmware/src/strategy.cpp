@@ -17,6 +17,7 @@
 #include "base/map.h"
 #include "arms/arms_controller.h"
 #include "arms/hands_controller.h"
+#include "can/rocket_driver.h"
 #include "config.h"
 #include "main.h"
 
@@ -399,6 +400,7 @@ void strategy_debra_play_game(struct _robot* robot, enum strat_color_t color)
     wait_for_starter();
     traj_end_flags = TRAJ_FLAGS_STD;
     trajectory_game_timer_reset(robot);
+    rocket_program_launch_time(GAME_DURATION + 1);
 
     NOTICE("Starting game");
     GameGoal game_goal;

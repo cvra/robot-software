@@ -2,8 +2,8 @@
 #define ROCKET_DRIVER_H
 
 /* TODO Calibrate this. */
-#define ROCKET_POS_OPEN 0.
-#define ROCKET_POS_CLOSE 0.
+#define ROCKET_POS_RELEASE  0.0017
+#define ROCKET_POS_LOCK     0.0015
 
 #ifdef __cplusplus
 #include <uavcan/uavcan.hpp>
@@ -15,6 +15,9 @@ extern "C" {
 #endif
 
 void rocket_set_pos(float pos);
+
+/** Program a timer to launch the rocket after given time in seconds */
+void rocket_program_launch_time(unsigned int time);
 
 #ifdef __cplusplus
 }
