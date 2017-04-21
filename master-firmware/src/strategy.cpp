@@ -16,12 +16,16 @@
 #include "robot_helpers/beacon_helpers.h"
 #include "base/base_controller.h"
 #include "base/map.h"
+#include "scara/scara_trajectories.h"
 #include "arms/arms_controller.h"
 #include "arms/hands_controller.h"
 #include "config.h"
 #include "main.h"
 
 #include "strategy.h"
+
+
+#define ARM_CYLINDER_HEIGHT 160
 
 int traj_end_flags;
 
@@ -295,6 +299,57 @@ struct GotoLocation : public goap::Action<DebraState> {
     }
 };
 
+struct CollectCylinderRocketBody : public goap::Action<DebraState> {
+    int m_x_mm, m_y_mm, m_a_deg;
+    enum strat_color_t m_color;
+
+    CollectCylinderRocketBody(enum strat_color_t color)
+        : m_color(color)
+    {
+        m_x_mm = MIRROR_X(m_color, 1200);
+        m_y_mm = 300;
+        m_a_deg = MIRROR_A(m_color, 0);
+    }
+
+    bool can_run(DebraState state)
+    {
+        return !state.arms_are_deployed;
+    }
+
+    DebraState plan_effects(DebraState state)
+    {
+        state.cylinder_count += 4;
+        state.arms_are_deployed = true;
+        return state;
+    }
+
+    bool execute(DebraState &state)
+    {
+        NOTICE("Goto location near rocket body full: %dmm %dmm %ddeg", m_x_mm, m_y_mm, m_a_deg);
+        state.near_location = Other;
+        if (!strategy_goto_avoid(state.robot, m_x_mm, m_y_mm, m_a_deg)) {
+            return false;
+        }
+
+        NOTICE("Collecting cylinder rocket body");
+        scara_trajectory_init(&left_arm.trajectory);
+        scara_trajectory_append_point(&left_arm.trajectory, MIRROR_X(m_color, 1250), 100, 20, COORDINATE_TABLE, 2.);
+        scara_trajectory_append_point(&left_arm.trajectory, MIRROR_X(m_color, 1250), 100, ARM_CYLINDER_HEIGHT, COORDINATE_TABLE, 2.);
+        scara_trajectory_append_point(&left_arm.trajectory, MIRROR_X(m_color, 1200), 100, ARM_CYLINDER_HEIGHT, COORDINATE_TABLE, 1.);
+        scara_trajectory_append_point(&left_arm.trajectory, MIRROR_X(m_color, 1150), 100, ARM_CYLINDER_HEIGHT, COORDINATE_TABLE, 1.);
+        scara_trajectory_append_point(&left_arm.trajectory, MIRROR_X(m_color, 1100), 100, ARM_CYLINDER_HEIGHT, COORDINATE_TABLE, 1.);
+        scara_trajectory_append_point(&left_arm.trajectory, MIRROR_X(m_color, 1000), 100, ARM_CYLINDER_HEIGHT, COORDINATE_TABLE, 1.);
+        scara_do_trajectory(&left_arm, &left_arm.trajectory);
+
+        chThdSleepSeconds(8);
+
+        state.cylinder_count += 4;
+        state.arms_are_deployed = true;
+        return true;
+    }
+};
+
+
 struct PickCylinder : public goap::Action<DebraState> {
     enum Location m_loc;
     int m_x_mm, m_y_mm;
@@ -343,7 +398,7 @@ struct InitGoal : goap::Goal<DebraState> {
 struct GameGoal : goap::Goal<DebraState> {
     bool is_reached(DebraState state)
     {
-        return (state.cylinder_count == 2) && !state.arms_are_deployed;
+        return (state.cylinder_count > 0) && !state.arms_are_deployed;
     }
 };
 
@@ -359,22 +414,7 @@ void strategy_debra_play_game(struct _robot* robot)
     InitGoal init_goal;
     IndexArms index_arms;
     RetractArms retract_arms;
-    GotoLocation goto_region[] = {
-        GotoLocation(Cylinder0, MIRROR_X(color,  900),  200, MIRROR_A(color,   0)),
-        GotoLocation(Cylinder1, MIRROR_X(color, 1200),  500, MIRROR_A(color,  90)),
-        GotoLocation(Cylinder2, MIRROR_X(color,  400),  700, MIRROR_A(color, 180)),
-        GotoLocation(Cylinder3, MIRROR_X(color,  700), 1100, MIRROR_A(color,  90)),
-        GotoLocation(Cylinder4, MIRROR_X(color, 1050), 1180, MIRROR_A(color,  45)),
-        GotoLocation(Cylinder5, MIRROR_X(color,  600), 1600, MIRROR_A(color,  45)),
-    };
-    PickCylinder pick_cylinder[] = {
-        PickCylinder(Cylinder0, MIRROR_X(color,  950),  200, 0), // When starting in this region, it's removed
-        PickCylinder(Cylinder1, MIRROR_X(color, 1000),  600, 1),
-        PickCylinder(Cylinder2, MIRROR_X(color,  200),  600, 2),
-        PickCylinder(Cylinder3, MIRROR_X(color,  500), 1100, 3),
-        PickCylinder(Cylinder4, MIRROR_X(color,  900), 1400, 4),
-        PickCylinder(Cylinder5, MIRROR_X(color,  800), 1850, 5),
-    };
+    CollectCylinderRocketBody collect_rocket_body(color);
 
     DebraState state;
     state.robot = robot;
@@ -385,17 +425,7 @@ void strategy_debra_play_game(struct _robot* robot)
     goap::Action<DebraState> *actions[] = {
         &index_arms,
         &retract_arms,
-        &goto_region[0],
-        &goto_region[1],
-        &goto_region[2],
-        &goto_region[3],
-        &goto_region[4],
-        &goto_region[5],
-        &pick_cylinder[1],
-        &pick_cylinder[2],
-        &pick_cylinder[3],
-        &pick_cylinder[4],
-        &pick_cylinder[5],
+        &collect_rocket_body,
     };
 
     goap::Planner<DebraState> planner(actions, sizeof(actions) / sizeof(actions[0]));
