@@ -12,6 +12,7 @@
 #include "error/error.h"
 #include "motor_driver.h"
 #include "motor_driver_uavcan.h"
+#include "hand_driver.h"
 #include "config.h"
 #include "uavcan_node_private.hpp"
 #include "rocket_driver.h"
@@ -142,6 +143,11 @@ void main(void *arg)
     res = motor_driver_uavcan_init(node);
     if (res < 0) {
         node_fail("motor driver");
+    }
+
+    res = hand_driver_init(node);
+    if (res < 0) {
+        node_fail("hand driver");
     }
 
     uavcan::Subscriber<cvra::motor::EmergencyStop> emergency_stop_sub(node);
