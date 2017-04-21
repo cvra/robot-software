@@ -426,7 +426,7 @@ void strategy_debra_play_game(struct _robot* robot)
     trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
 
     NOTICE("Robot positioned at x: %d[mm], y: %d[mm], a: %d[deg]",
-           position_get_x_s16(&robot->pos), position_get_y_s16(&robot->pos), position_get_x_s16(&robot->pos));
+           position_get_x_s16(&robot->pos), position_get_y_s16(&robot->pos), position_get_a_deg_s16(&robot->pos));
 
     /* Wait for starter to begin */
     wait_for_starter();
