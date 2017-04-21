@@ -1,6 +1,10 @@
 #ifndef SCARA_TRAJECTORIES_H
 #define SCARA_TRAJECTORIES_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "scara_waypoint.h"
 
 /** Adds a point to a given trajectory.
@@ -39,5 +43,10 @@ int scara_trajectory_finished(scara_trajectory_t *traj);
  * will be yielded.
  */
 scara_waypoint_t scara_trajectory_interpolate_waypoints(scara_waypoint_t k1, scara_waypoint_t k2, int32_t date);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* SCARA_TRAJECTORIES_H */
