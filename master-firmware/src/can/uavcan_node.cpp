@@ -139,7 +139,10 @@ void main(void *arg)
         node_fail("beacon signal handler");
     }
 
-
+    res = motor_driver_uavcan_init(node);
+    if (res < 0) {
+        node_fail("motor driver");
+    }
 
     uavcan::Subscriber<cvra::motor::EmergencyStop> emergency_stop_sub(node);
     res = emergency_stop_sub.start(

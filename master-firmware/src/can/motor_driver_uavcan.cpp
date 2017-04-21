@@ -20,86 +20,99 @@
 
 using namespace uavcan_node;
 
-void speed_pid_client_cb(const uavcan::ServiceCallResult<cvra::motor::config::VelocityPID>& call_result);
-void position_pid_client_cb(const uavcan::ServiceCallResult<cvra::motor::config::PositionPID>& call_result);
-void current_pid_client_cb(const uavcan::ServiceCallResult<cvra::motor::config::CurrentPID>& call_result);
-void config_client_cb(const uavcan::ServiceCallResult<cvra::motor::config::LoadConfiguration>& call_result);
+void speed_pid_client_cb(
+    const uavcan::ServiceCallResult<cvra::motor::config::VelocityPID>& call_result);
+void position_pid_client_cb(
+    const uavcan::ServiceCallResult<cvra::motor::config::PositionPID>& call_result);
+void current_pid_client_cb(
+    const uavcan::ServiceCallResult<cvra::motor::config::CurrentPID>& call_result);
+void config_client_cb(
+    const uavcan::ServiceCallResult<cvra::motor::config::LoadConfiguration>& call_result);
 void enable_client_cb(const uavcan::ServiceCallResult<cvra::motor::config::EnableMotor>& call_result);
-void feedback_stream_client_cb(const uavcan::ServiceCallResult<cvra::motor::config::FeedbackStream>& call_result);
+void feedback_stream_client_cb(
+    const uavcan::ServiceCallResult<cvra::motor::config::FeedbackStream>& call_result);
 
 
-static uavcan::LazyConstructor<uavcan::ServiceClient<cvra::motor::config::VelocityPID> > speed_pid_client;
-static uavcan::LazyConstructor<uavcan::ServiceClient<cvra::motor::config::PositionPID> > position_pid_client;
-static uavcan::LazyConstructor<uavcan::ServiceClient<cvra::motor::config::CurrentPID> > current_pid_client;
-static uavcan::LazyConstructor<uavcan::ServiceClient<cvra::motor::config::LoadConfiguration> > config_client;
+static uavcan::LazyConstructor<uavcan::ServiceClient<cvra::motor::config::VelocityPID> >
+speed_pid_client;
+static uavcan::LazyConstructor<uavcan::ServiceClient<cvra::motor::config::PositionPID> >
+position_pid_client;
+static uavcan::LazyConstructor<uavcan::ServiceClient<cvra::motor::config::CurrentPID> >
+current_pid_client;
+static uavcan::LazyConstructor<uavcan::ServiceClient<cvra::motor::config::LoadConfiguration> >
+config_client;
 
-static uavcan::LazyConstructor<uavcan::ServiceClient<cvra::motor::config::EnableMotor> > enable_client;
-static uavcan::LazyConstructor<uavcan::ServiceClient<cvra::motor::config::FeedbackStream> > feedback_stream_client;
+static uavcan::LazyConstructor<uavcan::ServiceClient<cvra::motor::config::EnableMotor> >
+enable_client;
+static uavcan::LazyConstructor<uavcan::ServiceClient<cvra::motor::config::FeedbackStream> >
+feedback_stream_client;
 static uavcan::LazyConstructor<uavcan::Publisher<cvra::motor::control::Velocity> > velocity_pub;
 static uavcan::LazyConstructor<uavcan::Publisher<cvra::motor::control::Position> > position_pub;
 static uavcan::LazyConstructor<uavcan::Publisher<cvra::motor::control::Torque> > torque_pub;
 static uavcan::LazyConstructor<uavcan::Publisher<cvra::motor::control::Voltage> > voltage_pub;
 static uavcan::LazyConstructor<uavcan::Publisher<cvra::motor::control::Trajectory> > trajectory_pub;
 
+int motor_driver_uavcan_init(uavcan::INode &node)
+{
+    int res;
+
+    speed_pid_client.construct<uavcan::INode &>(node);
+    res = speed_pid_client->init();
+    if (res != 0) {
+        return res;
+    }
+    speed_pid_client->setCallback(speed_pid_client_cb);
+
+    position_pid_client.construct<uavcan::INode &>(node);
+    res = position_pid_client->init();
+    if (res != 0) {
+        return res;
+    }
+    position_pid_client->setCallback(position_pid_client_cb);
+
+    current_pid_client.construct<uavcan::INode &>(node);
+    res = current_pid_client->init();
+    if (res != 0) {
+        return res;
+    }
+    current_pid_client->setCallback(current_pid_client_cb);
+
+    config_client.construct<uavcan::INode &>(node);
+    res = config_client->init();
+    if (res != 0) {
+        return res;
+    }
+    config_client->setCallback(config_client_cb);
+
+    enable_client.construct<uavcan::INode &>(node);
+    res = enable_client->init();
+    if (res != 0) {
+        return res;
+    }
+    enable_client->setCallback(enable_client_cb);
+
+    feedback_stream_client.construct<uavcan::INode &>(node);
+    res = feedback_stream_client->init();
+    if (res != 0) {
+        return res;
+    }
+    feedback_stream_client->setCallback(feedback_stream_client_cb);
+
+    velocity_pub.construct<uavcan::INode &>(node);
+    position_pub.construct<uavcan::INode &>(node);
+    torque_pub.construct<uavcan::INode &>(node);
+    voltage_pub.construct<uavcan::INode &>(node);
+    trajectory_pub.construct<uavcan::INode &>(node);
+
+    return 0;
+}
+
 struct can_driver_s {
     bool enabled; // state of the motor board
     timestamp_t last_setpoint_update;
 
-    can_driver_s() {
-        if (!speed_pid_client.isConstructed()) {
-            speed_pid_client.construct<Node &>(getNode());
-            speed_pid_client->init();
-            speed_pid_client->setCallback(speed_pid_client_cb);
-        }
-
-        if (!position_pid_client.isConstructed()) {
-            position_pid_client.construct<Node &>(getNode());
-            position_pid_client->init();
-            position_pid_client->setCallback(position_pid_client_cb);
-        }
-
-        if (!current_pid_client.isConstructed()) {
-            current_pid_client.construct<Node &>(getNode());
-            current_pid_client->init();
-            current_pid_client->setCallback(current_pid_client_cb);
-        }
-
-        if (!config_client.isConstructed()) {
-            config_client.construct<Node &>(getNode());
-            config_client->init();
-            config_client->setCallback(config_client_cb);
-        }
-
-        if (!enable_client.isConstructed()) {
-            enable_client.construct<Node &>(getNode());
-            enable_client->init();
-            enable_client->setCallback(enable_client_cb);
-        }
-
-        if (!feedback_stream_client.isConstructed()) {
-            feedback_stream_client.construct<Node &>(getNode());
-            feedback_stream_client->init();
-            feedback_stream_client->setCallback(feedback_stream_client_cb);
-        }
-
-        if (!velocity_pub.isConstructed()) {
-            velocity_pub.construct<Node &>(getNode());
-        }
-        if (!position_pub.isConstructed()) {
-            position_pub.construct<Node &>(getNode());
-        }
-        if (!torque_pub.isConstructed()) {
-            torque_pub.construct<Node &>(getNode());
-        }
-        if (!voltage_pub.isConstructed()) {
-            voltage_pub.construct<Node &>(getNode());
-        }
-        if (!trajectory_pub.isConstructed()) {
-            trajectory_pub.construct<Node &>(getNode());
-        }
-
-        enabled = false;
-        last_setpoint_update = timestamp_get();
+    can_driver_s() : enabled(false), last_setpoint_update(timestamp_get())
+    {
     }
 };
 
@@ -143,7 +156,7 @@ static void send_stream_config(int node_id, uint8_t stream, float frequency)
     }
     feedback_stream_config.frequency = frequency;
 
-   feedback_stream_client->call(node_id, feedback_stream_config);
+    feedback_stream_client->call(node_id, feedback_stream_config);
 }
 
 
@@ -186,8 +199,10 @@ void motor_driver_send_initial_config(motor_driver_t *d)
     config_msg.torque_constant = parameter_scalar_get(&d->config.torque_constant);
     config_msg.transmission_ratio_p = parameter_integer_get(&d->config.transmission_ratio_p);
     config_msg.transmission_ratio_q = parameter_integer_get(&d->config.transmission_ratio_q);
-    config_msg.motor_encoder_steps_per_revolution = parameter_integer_get(&d->config.motor_encoder_steps_per_revolution);
-    config_msg.second_encoder_steps_per_revolution = parameter_integer_get(&d->config.second_encoder_steps_per_revolution);
+    config_msg.motor_encoder_steps_per_revolution = parameter_integer_get(
+        &d->config.motor_encoder_steps_per_revolution);
+    config_msg.second_encoder_steps_per_revolution = parameter_integer_get(
+        &d->config.second_encoder_steps_per_revolution);
     config_msg.potentiometer_gain = parameter_scalar_get(&d->config.potentiometer_gain);
 
     config_msg.mode = parameter_integer_get(&d->config.mode); // todo !
@@ -326,7 +341,7 @@ void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
     }
 
     motor_driver_lock(d);
-    switch(d->control_mode) {
+    switch (d->control_mode) {
         case MOTOR_CONTROL_MODE_VELOCITY: {
             motor_enable(can_drv, node_id);
             velocity_setpoint.velocity = motor_driver_get_velocity_setpt(d);
@@ -385,28 +400,32 @@ void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
     motor_driver_unlock(d);
 }
 
-void speed_pid_client_cb(const uavcan::ServiceCallResult<cvra::motor::config::VelocityPID>& call_result)
+void speed_pid_client_cb(
+    const uavcan::ServiceCallResult<cvra::motor::config::VelocityPID>& call_result)
 {
     if (!call_result.isSuccessful()) {
         chSysHalt("uavcan service call timeout");
     }
 }
 
-void position_pid_client_cb(const uavcan::ServiceCallResult<cvra::motor::config::PositionPID>& call_result)
+void position_pid_client_cb(
+    const uavcan::ServiceCallResult<cvra::motor::config::PositionPID>& call_result)
 {
     if (!call_result.isSuccessful()) {
         chSysHalt("uavcan service call timeout");
     }
 }
 
-void current_pid_client_cb(const uavcan::ServiceCallResult<cvra::motor::config::CurrentPID>& call_result)
+void current_pid_client_cb(
+    const uavcan::ServiceCallResult<cvra::motor::config::CurrentPID>& call_result)
 {
     if (!call_result.isSuccessful()) {
         chSysHalt("uavcan service call timeout");
     }
 }
 
-void config_client_cb(const uavcan::ServiceCallResult<cvra::motor::config::LoadConfiguration>& call_result)
+void config_client_cb(
+    const uavcan::ServiceCallResult<cvra::motor::config::LoadConfiguration>& call_result)
 {
     if (!call_result.isSuccessful()) {
         chSysHalt("uavcan service call timeout");
@@ -420,10 +439,10 @@ void enable_client_cb(const uavcan::ServiceCallResult<cvra::motor::config::Enabl
     }
 }
 
-void feedback_stream_client_cb(const uavcan::ServiceCallResult<cvra::motor::config::FeedbackStream>& call_result)
+void feedback_stream_client_cb(
+    const uavcan::ServiceCallResult<cvra::motor::config::FeedbackStream>& call_result)
 {
     if (!call_result.isSuccessful()) {
         chSysHalt("uavcan service call timeout");
     }
 }
-

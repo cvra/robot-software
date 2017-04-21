@@ -18,4 +18,9 @@ void motor_driver_uavcan_send_setpoint(motor_driver_t *d);
 }
 #endif
 
+#ifdef __cplusplus
+#include <uavcan/uavcan.hpp>
+int motor_driver_uavcan_init(uavcan::INode &node);
+#endif
+
 #endif /* MOTOR_DRIVER_UAVCAN_H */
