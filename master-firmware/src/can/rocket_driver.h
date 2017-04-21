@@ -2,8 +2,8 @@
 #define ROCKET_DRIVER_H
 
 /* TODO Calibrate this. */
-#define ROCKET_POS_RELEASE  0.0017
-#define ROCKET_POS_LOCK     0.0015
+#define ROCKET_POS_RELEASE  0.0015
+#define ROCKET_POS_LOCK     0.0021
 
 #ifdef __cplusplus
 #include <uavcan/uavcan.hpp>
