@@ -39,27 +39,6 @@ namespace uavcan_node
 static void node_status_cb(const uavcan::ReceivedDataStructure<uavcan::protocol::NodeStatus>& msg);
 static void node_fail(const char *reason);
 
-static uavcan::ISystemClock& getSystemClock()
-{
-    return uavcan_stm32::SystemClock::instance();
-}
-
-static uavcan::ICanDriver& getCanDriver()
-{
-    static uavcan_stm32::CanInitHelper<UAVCAN_RX_QUEUE_SIZE> can;
-    static bool initialized = false;
-    if (!initialized) {
-        initialized = true;
-        int res = can.init(UAVCAN_CAN_BITRATE);
-        if (res < 0) {
-            node_fail("CAN driver");
-        }
-    }
-    return can.driver;
-}
-
-
-
 /** This class is used by libuavcan to connect node information to our bus
  * enumerator. */
 class BusEnumeratorNodeInfoAdapter final : public uavcan::INodeInfoListener
@@ -87,12 +66,21 @@ class BusEnumeratorNodeInfoAdapter final : public uavcan::INodeInfoListener
 static void main(void *arg)
 {
     chRegSetThreadName("uavcan");
-
-    static uavcan::Node<UAVCAN_MEMORY_POOL_SIZE> node(getCanDriver(), getSystemClock());
-
+    int res;
     unsigned int id = (unsigned int)arg;
-    node.setNodeID(uavcan::NodeID(id));
 
+    /* Inits the hardware CAN interface. */
+    static uavcan_stm32::CanInitHelper<UAVCAN_RX_QUEUE_SIZE> can_interface;
+    res = can_interface.init(UAVCAN_CAN_BITRATE);
+
+    if (res < 0) {
+        node_fail("Hardware interface init");
+    }
+
+    static uavcan::Node<UAVCAN_MEMORY_POOL_SIZE> node(can_interface.driver,
+                                                      uavcan_stm32::SystemClock::instance());
+
+    node.setNodeID(uavcan::NodeID(id));
     node.setName("cvra.master");
 
     uavcan::protocol::SoftwareVersion sw_version;
@@ -103,7 +91,6 @@ static void main(void *arg)
     hw_version.major = 1;
     node.setHardwareVersion(hw_version);
 
-    int res;
     res = node.start();
     if (res < 0) {
         node_fail("node start");
