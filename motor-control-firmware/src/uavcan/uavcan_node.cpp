@@ -21,7 +21,6 @@
 #include "Torque_handler.hpp"
 #include "Voltage_handler.hpp"
 #include "LoadConfiguration_server.hpp"
-#include "EnableMotor_server.hpp"
 #include "CurrentPID_server.hpp"
 #include "VelocityPID_server.hpp"
 #include "PositionPID_server.hpp"
@@ -63,7 +62,6 @@ static void uavcan_services_start(Node &node)
         {VelocityPID_server_start, "cvra::motor::config::VelocityPID server"},
         {PositionPID_server_start, "cvra::motor::config::PositionPID server"},
         {TorqueLimit_server_start, "cvra::motor::config::TorqueLimit server"},
-        {EnableMotor_server_start, "cvra::motor::config::EnableMotor server"},
         {parameter_server_start, "UAVCAN parameter server"},
         {uavcan_streams_start, "UAVCAN state streamer"},
         {NULL, NULL} /* Must be last */

@@ -5,17 +5,18 @@
 #include <cvra/motor/config/PositionPID.hpp>
 #include <cvra/motor/config/CurrentPID.hpp>
 #include <cvra/motor/config/LoadConfiguration.hpp>
-#include <cvra/motor/config/EnableMotor.hpp>
 #include <cvra/motor/config/FeedbackStream.hpp>
 #include <cvra/motor/control/Velocity.hpp>
 #include <cvra/motor/control/Position.hpp>
 #include <cvra/motor/control/Torque.hpp>
 #include <cvra/motor/control/Voltage.hpp>
 #include <cvra/motor/control/Trajectory.hpp>
+
+#include <error/error.h>
+#include <timestamp/timestamp.h>
 #include "uavcan_node.h"
 #include "motor_driver.h"
 #include "motor_driver_uavcan.h"
-#include "timestamp/timestamp.h"
 
 using namespace uavcan;
 using namespace cvra::motor;
@@ -29,7 +30,6 @@ static LazyConstructor<ServiceClient<config::PositionPID> > position_pid_client;
 static LazyConstructor<ServiceClient<config::CurrentPID> > current_pid_client;
 static LazyConstructor<ServiceClient<config::LoadConfiguration> > config_client;
 
-static LazyConstructor<ServiceClient<config::EnableMotor> > enable_client;
 static LazyConstructor<ServiceClient<config::FeedbackStream> > feedback_stream_client;
 static LazyConstructor<Publisher<control::Velocity> > velocity_pub;
 static LazyConstructor<Publisher<control::Position> > position_pub;
@@ -69,13 +69,6 @@ int motor_driver_uavcan_init(INode &node)
     }
     config_client->setCallback(assert_call_successful<config::LoadConfiguration>);
 
-    enable_client.construct<INode &>(node);
-    res = enable_client->init();
-    if (res != 0) {
-        return res;
-    }
-    enable_client->setCallback(assert_call_successful<config::EnableMotor>);
-
     feedback_stream_client.construct<INode &>(node);
     res = feedback_stream_client->init();
     if (res != 0) {
@@ -93,16 +86,12 @@ int motor_driver_uavcan_init(INode &node)
 }
 
 struct can_driver_s {
-    bool enabled; // state of the motor board
     timestamp_t last_setpoint_update;
 
-    can_driver_s() : enabled(false), last_setpoint_update(timestamp_get())
+    can_driver_s() : last_setpoint_update(timestamp_get())
     {
     }
 };
-
-static void motor_enable(can_driver_s *d, int node_id);
-static void motor_disable(can_driver_s *d, int node_id);
 
 
 static void driver_allocation(motor_driver_t *d)
@@ -154,7 +143,6 @@ static void motor_driver_send_initial_config(motor_driver_t *d)
         return;
     }
     driver_allocation(d);
-    struct can_driver_s *can_drv = (struct can_driver_s*)d->can_driver;
 
     config_msg.position_pid.kp = parameter_scalar_get(&d->config.position_pid.kp);
     config_msg.position_pid.ki = parameter_scalar_get(&d->config.position_pid.ki);
@@ -191,9 +179,6 @@ static void motor_driver_send_initial_config(motor_driver_t *d)
     config_msg.mode = parameter_integer_get(&d->config.mode); // todo !
 
     config_client->call(node_id, config_msg);
-
-    can_drv->enabled = false;
-
 }
 
 extern "C"
@@ -281,26 +266,6 @@ void motor_driver_uavcan_update_config(motor_driver_t *d)
     }
 }
 
-static void motor_enable(can_driver_s *d, int node_id)
-{
-    config::EnableMotor::Request enable_msg;
-    if (!d->enabled) {
-        d->enabled = true;
-        enable_msg.enable = true;
-        enable_client->call(node_id, enable_msg);
-    }
-}
-
-static void motor_disable(can_driver_s *d, int node_id)
-{
-    config::EnableMotor::Request enable_msg;
-    if (d->enabled) {
-        d->enabled = false;
-        enable_msg.enable = false;
-        enable_client->call(node_id, enable_msg);
-    }
-}
-
 extern "C"
 void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
 {
@@ -326,35 +291,30 @@ void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
     motor_driver_lock(d);
     switch (d->control_mode) {
         case MOTOR_CONTROL_MODE_VELOCITY: {
-            motor_enable(can_drv, node_id);
             velocity_setpoint.velocity = motor_driver_get_velocity_setpt(d);
             velocity_setpoint.node_id = node_id;
             velocity_pub->broadcast(velocity_setpoint);
         } break;
 
         case MOTOR_CONTROL_MODE_POSITION: {
-            motor_enable(can_drv, node_id);
             position_setpoint.position = motor_driver_get_position_setpt(d);
             position_setpoint.node_id = node_id;
             position_pub->broadcast(position_setpoint);
         } break;
 
         case MOTOR_CONTROL_MODE_TORQUE: {
-            motor_enable(can_drv, node_id);
             torque_setpoint.torque = motor_driver_get_torque_setpt(d);
             torque_setpoint.node_id = node_id;
             torque_pub->broadcast(torque_setpoint);
         } break;
 
         case MOTOR_CONTROL_MODE_VOLTAGE: {
-            motor_enable(can_drv, node_id);
             voltage_setpoint.voltage = motor_driver_get_voltage_setpt(d);
             voltage_setpoint.node_id = node_id;
             voltage_pub->broadcast(voltage_setpoint);
         } break;
 
         case MOTOR_CONTROL_MODE_TRAJECTORY: {
-            motor_enable(can_drv, node_id);
             uint64_t timestamp_us = timestamp_get();
             float position, velocity, acceleration, torque;
             motor_driver_get_trajectory_point(d,
@@ -371,12 +331,12 @@ void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
             trajectory_pub->broadcast(trajectory_setpoint);
         } break;
 
-        case MOTOR_CONTROL_MODE_DISABLED: {
-            motor_disable(can_drv, node_id);
-        } break;
+        /* Nothing to do, not sending any setpoint will disable the board. */
+        case MOTOR_CONTROL_MODE_DISABLED:
+            break;
 
         default:
-            /* TODO */
+            ERROR("Unknown control mode %d for board %d", d->control_mode, node_id);
             break;
     }
     can_drv->last_setpoint_update = timestamp_get();
