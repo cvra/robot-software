@@ -25,6 +25,10 @@
 
 #define UAVCAN_NODE_STACK_SIZE 8192
 
+#define UAVCAN_MEMORY_POOL_SIZE 16384
+#define UAVCAN_RX_QUEUE_SIZE 64
+#define UAVCAN_CAN_BITRATE 1000000UL
+
 
 bus_enumerator_t bus_enumerator;
 
@@ -35,12 +39,6 @@ namespace uavcan_node
 static void node_status_cb(const uavcan::ReceivedDataStructure<uavcan::protocol::NodeStatus>& msg);
 static void node_fail(const char *reason);
 
-static constexpr int RxQueueSize = 64;
-static constexpr std::uint32_t BitRate = 1000000;
-
-constexpr unsigned NodeMemoryPoolSize = 16384;
-typedef uavcan::Node<NodeMemoryPoolSize> Node;
-
 uavcan::ISystemClock& getSystemClock()
 {
     return uavcan_stm32::SystemClock::instance();
@@ -48,11 +46,11 @@ uavcan::ISystemClock& getSystemClock()
 
 uavcan::ICanDriver& getCanDriver()
 {
-    static uavcan_stm32::CanInitHelper<RxQueueSize> can;
+    static uavcan_stm32::CanInitHelper<UAVCAN_RX_QUEUE_SIZE> can;
     static bool initialized = false;
     if (!initialized) {
         initialized = true;
-        int res = can.init(BitRate);
+        int res = can.init(UAVCAN_CAN_BITRATE);
         if (res < 0) {
             node_fail("CAN driver");
         }
