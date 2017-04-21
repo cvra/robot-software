@@ -35,6 +35,7 @@ target.arm:
     - src/can/motor_driver.c
     - src/can/motor_driver_uavcan.cpp
     - src/can/motor_manager.c
+    - src/can/motor_feedback_streams_handler.cpp
     - src/can/rocket_driver.cpp
     - src/malloc_lock.c
     - src/usbconf.c
