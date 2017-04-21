@@ -6,8 +6,8 @@
 #include <cvra/motor/EmergencyStop.hpp>
 #include <uavcan/protocol/node_info_retriever.hpp>
 #include "motor_feedback_streams_handler.hpp"
+#include "beacon_signal_handler.hpp"
 #include <cvra/Reboot.hpp>
-#include <cvra/proximity_beacon/Signal.hpp>
 #include <msgbus/messagebus.h>
 #include "error/error.h"
 #include "motor_driver.h"
@@ -18,7 +18,6 @@
 #include "uavcan_node.h"
 #include "priorities.h"
 #include "main.h"
-#include "robot_helpers/beacon_helpers.h"
 #include <timestamp/timestamp.h>
 
 #include <errno.h>
@@ -135,6 +134,12 @@ void main(void *arg)
         node_fail("motor feedback");
     }
 
+    res = beacon_signal_handler_init(node);
+    if (res < 0) {
+        node_fail("beacon signal handler");
+    }
+
+
 
     uavcan::Subscriber<cvra::motor::EmergencyStop> emergency_stop_sub(node);
     res = emergency_stop_sub.start(
@@ -162,38 +167,6 @@ void main(void *arg)
     res = retriever.addListener(&collector);
     if (res < 0) {
         node_fail("BusEnumeratorAdapter");
-    }
-
-    static messagebus_topic_t proximity_beacon_topic;
-    static MUTEX_DECL(proximity_beacon_topic_lock);
-    static CONDVAR_DECL(proximity_beacon_topic_condvar);
-    static beacon_signal_t proximity_beacon_topic_value;
-
-    messagebus_topic_init(&proximity_beacon_topic,
-                          &proximity_beacon_topic_lock,
-                          &proximity_beacon_topic_condvar,
-                          &proximity_beacon_topic_value,
-                          sizeof(proximity_beacon_topic_value));
-
-    messagebus_advertise_topic(&bus, &proximity_beacon_topic, "/proximity_beacon");
-    float reflector_radius = config_get_scalar("master/beacon/reflector_radius");
-    float angular_offset = config_get_scalar("master/beacon/angular_offset");
-
-    uavcan::Subscriber<cvra::proximity_beacon::Signal> prox_beac_sub(node);
-    res = prox_beac_sub.start(
-        [&](const uavcan::ReceivedDataStructure<cvra::proximity_beacon::Signal>& msg)
-        {
-            beacon_signal_t data;
-            data.timestamp = timestamp_get();
-            data.distance = reflector_radius + reflector_radius / tanf(msg.length / 2.);
-            data.heading = beacon_get_angle(msg.start_angle + angular_offset, msg.length);
-            messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
-
-            DEBUG("Opponent detected at: %.3fm, %.3frad \traw signal: %.3f, %.3f", data.distance, data.heading, msg.start_angle, msg.length);
-        }
-    );
-    if (res < 0) {
-        node_fail("cvra::proximity_beacon::Signal subscriber");
     }
 
     res = rocket_init(node);
