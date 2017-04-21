@@ -416,7 +416,7 @@ void strategy_debra_play_game(struct _robot* robot)
     NOTICE("Positioning robot");
 
     // First alignment
-    strategy_auto_position(300, 200, -90, robot->robot_size, color, robot, &bus);
+    strategy_auto_position(MIRROR_X(color, 300), 200, -90, robot->robot_size, color, robot, &bus);
     position_set(&robot->pos, MIRROR_X(color, 300), 200 + 382, -90);
 
     // Second alignement only in y at starting area
@@ -467,7 +467,7 @@ void strategy_sandoi_play_game(struct _robot* robot)
     /* Autoposition robot */
     wait_for_autoposition_signal();
     NOTICE("Positioning robot\n");
-    strategy_auto_position(600, 200, 90, robot->robot_size, color, robot, &bus);
+    strategy_auto_position(MIRROR_X(color, 600), 200, 90, robot->robot_size, color, robot, &bus);
     NOTICE("Robot positioned at x: 600[mm], y: 200[mm], a: 90[deg]\n");
 
     /* Wait for starter to begin */
