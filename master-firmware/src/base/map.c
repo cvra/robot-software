@@ -16,13 +16,6 @@ void map_init(int robot_size)
     polygon_set_boundingbox(robot_size/2, robot_size/2,
                             MAP_SIZE_X_MM - robot_size/2, MAP_SIZE_Y_MM - robot_size/2);
 
-    /* Add contruction areas */
-    for (int i = 0; i < MAP_NUM_CONSTRUCTION_AREA; i++) {
-        map.construction_area[i] = oa_new_poly(4);
-    }
-    map_set_rectangular_obstacle(map.construction_area[0], 925, 110, 110, 500, robot_size);
-    map_set_rectangular_obstacle(map.construction_area[1], 925, 2890, 110, 500, robot_size);
-
     /* Add craters */
     for (int i = 0; i < MAP_NUM_CRATER; i++) {
         map.crater[i] = oa_new_poly(4);

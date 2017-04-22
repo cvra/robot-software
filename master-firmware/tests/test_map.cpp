@@ -167,3 +167,58 @@ TEST(MapOpponentObstacleUpdater, loopsBackAfterMaximumNumberOfOpponentsReached)
     CHECK_EQUAL(950, opponent->pts[0].x);
     CHECK_EQUAL(550, opponent->pts[0].y);
 };
+
+TEST_GROUP(MapEurobot2017)
+{
+    const int arbitrary_robot_size = 260;
+
+    void setup(void)
+    {
+        map_init(arbitrary_robot_size);
+    }
+
+};
+
+TEST(MapEurobot2017, canMoveOnYellowSideForAutopositioning)
+{
+    point_t start = {.x = 300, .y=582};
+    point_t end = {.x = 890, .y=200};
+
+    oa_start_end_points(start.x, start.y, end.x, end.y);
+    oa_process();
+
+    point_t *points;
+    auto point_cnt = oa_get_path(&points);
+
+    CHECK_EQUAL(4, point_cnt);
+    CHECK_EQUAL(400, points[0].x);
+    CHECK_EQUAL(800, points[0].y);
+    CHECK_EQUAL(900, points[1].x);
+    CHECK_EQUAL(800, points[1].y);
+    CHECK_EQUAL(900, points[2].x);
+    CHECK_EQUAL(280, points[2].y);
+    CHECK_EQUAL(end.x, points[3].x);
+    CHECK_EQUAL(end.y, points[3].y);
+};
+
+TEST(MapEurobot2017, canMoveOnBlueSideForAutopositioning)
+{
+    point_t start = {.x = 2700, .y=582};
+    point_t end = {.x = 2110, .y=200};
+
+    oa_start_end_points(start.x, start.y, end.x, end.y);
+    oa_process();
+
+    point_t *points;
+    auto point_cnt = oa_get_path(&points);
+
+    CHECK_EQUAL(4, point_cnt);
+    CHECK_EQUAL(2600, points[0].x);
+    CHECK_EQUAL(800, points[0].y);
+    CHECK_EQUAL(2100, points[1].x);
+    CHECK_EQUAL(800, points[1].y);
+    CHECK_EQUAL(2100, points[2].x);
+    CHECK_EQUAL(280, points[2].y);
+    CHECK_EQUAL(end.x, points[3].x);
+    CHECK_EQUAL(end.y, points[3].y);
+};
