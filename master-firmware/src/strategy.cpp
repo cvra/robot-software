@@ -1,6 +1,7 @@
 #include <ch.h>
 #include <hal.h>
 
+#include "can/rocket_driver.h"
 #include <error/error.h>
 #include <timestamp/timestamp.h>
 #include <blocking_detection_manager/blocking_detection_manager.h>
@@ -17,7 +18,6 @@
 #include "base/map.h"
 #include "arms/arms_controller.h"
 #include "arms/hands_controller.h"
-#include "can/rocket_driver.h"
 #include "config.h"
 #include "main.h"
 
