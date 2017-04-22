@@ -1,6 +1,0 @@
-#
-# Enable Motor
-#
-
-bool enable
----

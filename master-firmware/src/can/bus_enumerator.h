@@ -59,7 +59,19 @@ void bus_enumerator_add_node(bus_enumerator_t *en, const char *str_id, void *dri
 // called by the CAN driver
 void bus_enumerator_update_node_info(bus_enumerator_t *en, const char *str_id, uint8_t can_id);
 
-uint16_t bus_enumerator_get_number_of_entries(bus_enumerator_t *en);
+/** Returns the total number of nodes.
+ *
+ * This function returns the total number of nodes, i.e. the number of time
+ * bus_enumerator_add_node was called.
+ */
+uint16_t bus_enumerator_total_nodes_count(bus_enumerator_t *en);
+
+/** Returns the number of discovered nodes.
+ *
+ * This function returns the number of nodes that were discovered, i.e. where
+ * we have a mapping from string to CAN ID.
+ */
+uint16_t bus_enumerator_discovered_nodes_count(bus_enumerator_t *en);
 
 uint8_t bus_enumerator_get_can_id(bus_enumerator_t *en, const char *str_id);
 void *bus_enumerator_get_driver(bus_enumerator_t *en, const char *str_id);

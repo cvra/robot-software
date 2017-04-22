@@ -105,10 +105,6 @@ def main():
 
     node.request(req, board_id, request_cb)
 
-    req = uavcan.thirdparty.cvra.motor.config.EnableMotor.Request()
-    req.enable = True
-
-    node.request(req, board_id, request_cb)
     node.spin(1)
 
     print("Done")

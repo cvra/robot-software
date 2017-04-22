@@ -93,21 +93,8 @@ static timestamp_t last_setpoint_update;
 static float low_batt_th = LOW_BATT_TH;
 static float ctrl_timeout = DEFAULT_CTRL_TIMEOUT;
 
-static bool control_en = false;
 static bool control_request_termination = false;
 static bool control_running = false;
-
-
-void control_enable(bool en)
-{
-    control_en = en;
-    if (en) {
-        motor_pwm_set(0);
-        motor_pwm_enable();
-    } else {
-        motor_pwm_disable();
-    }
-}
 
 void control_update_position_setpoint(float pos)
 {
@@ -429,8 +416,7 @@ static THD_FUNCTION(control_loop, arg)
 
 
         timestamp_t now = timestamp_get();
-        if (!control_en
-            || analog_get_battery_voltage() < low_batt_th
+        if (analog_get_battery_voltage() < low_batt_th
             || timestamp_duration_s(last_setpoint_update, now) > ctrl_timeout) {
             pid_reset_integral(&ctrl.current_pid);
             pid_reset_integral(&ctrl.velocity_pid);

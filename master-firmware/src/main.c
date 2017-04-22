@@ -36,7 +36,6 @@
 #include "strategy.h"
 #include "filesystem.h"
 #include "http/server.h"
-#include "can/hand_driver.h"
 
 
 void init_base_motors(void);
@@ -279,7 +278,6 @@ int main(void) {
     arms_init();
     arms_controller_start();
 
-    hand_driver_init();
     hands_init();
     hands_controller_start();
 #endif
@@ -327,8 +325,9 @@ void init_hands(void)
     motor_manager_create_driver(&motor_manager, "right-wrist");
 
     motor_manager_create_driver(&motor_manager, "right-element-rotate");
+    motor_manager_create_driver(&motor_manager, "left-element-rotate");
 
-    // bus_enumerator_add_node(&bus_enumerator, "left-hand", NULL);
+    bus_enumerator_add_node(&bus_enumerator, "left-hand", NULL);
     bus_enumerator_add_node(&bus_enumerator, "right-hand", NULL);
 }
 

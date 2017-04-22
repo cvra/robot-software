@@ -6,33 +6,23 @@
 /* Convert a polar vector to a cartesian one */
 void vect2_pol2cart(vect2_pol* vp, vect2_cart* vc)
 {
-    if (vp == NULL) {
-        return;
-    }
-    if (vc == NULL) {
+    if (vp == NULL || vc == NULL) {
         return;
     }
 
     vc->x = (float)((vp->r) * cos(vp->theta));
     vc->y = (float)((vp->r) * sin(vp->theta));
-
-    return;
 }
 
 /* Convert a cartesian vector to a polar one */
 void vect2_cart2pol(vect2_cart* vc, vect2_pol* vp)
 {
-    if (vc == NULL) {
-        return;
-    }
-    if (vp == NULL) {
+    if (vp == NULL || vc == NULL) {
         return;
     }
 
     vp->r = (float)(sqrt((vc->x) * (vc->x) + (vc->y) * (vc->y)));
     vp->theta = (float)atan2(vc->y, vc->x);
-
-    return;
 }
 
 
@@ -50,8 +40,6 @@ void vect2_add_pol(vect2_pol* vp1, vect2_pol* vp2, vect2_pol* vresult)
     vect2_add_cart(&vc1, &vc2, &vc);
 
     vect2_cart2pol(&vc, vresult);
-
-    return;
 }
 
 /* Add 2 cartesian vectors and return the result */
@@ -59,8 +47,6 @@ void vect2_add_cart(vect2_cart* vc1, vect2_cart* vc2, vect2_cart* vresult)
 {
     vresult->x = vc1->x + vc2->x;
     vresult->y = vc1->y + vc2->y;
-
-    return;
 }
 
 
@@ -78,8 +64,6 @@ void vect2_sub_pol(vect2_pol* vp1, vect2_pol* vp2, vect2_pol* vresult)
     vect2_sub_cart(&vc1, &vc2, &vc);
 
     vect2_cart2pol(&vc, vresult);
-
-    return;
 }
 
 /* Substract 2 cartesian vectors and return the result */
@@ -87,8 +71,6 @@ void vect2_sub_cart(vect2_cart* vc1, vect2_cart* vc2, vect2_cart* vresult)
 {
     vresult->x = vc1->x - vc2->x;
     vresult->y = vc1->y - vc2->y;
-
-    return;
 }
 
 
@@ -97,16 +79,12 @@ void vect2_scale_cart(vect2_cart* vc1, float alpha, vect2_cart* vresult)
 {
     vresult->x = alpha * (vc1->x);
     vresult->y = alpha * (vc1->y);
-
-    return;
 }
 
 /* Multiply a polar vector by a scalar and return the result */
 void vect2_scale_pol(vect2_pol* vp1, float alpha, vect2_pol* vresult)
 {
     vresult->r = alpha * vp1->r;
-
-    return;
 }
 
 /* Norm of a cartesian vector. */

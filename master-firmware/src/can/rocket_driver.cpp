@@ -1,6 +1,5 @@
 #include <uavcan/uavcan.hpp>
 #include "rocket_driver.h"
-#include "uavcan_node_private.hpp"
 #include "uavcan_node.h"
 #include <cvra/io/ServoPWM.hpp>
 #include <main.h>
@@ -38,15 +37,15 @@ static void timer_cb(const uavcan::TimerEvent &event)
 }
 
 
-int rocket_init(void)
+int rocket_init(uavcan::INode &node)
 {
     bus_enumerator_add_node(&bus_enumerator, "rocket", NULL);
     /* We broadcast the setpoint periodically in case there is some packet drop. */
-    static uavcan::Timer periodic_timer(uavcan_node::getNode());
+    static uavcan::Timer periodic_timer(node);
     periodic_timer.setCallback(timer_cb);
     periodic_timer.startPeriodic(uavcan::MonotonicDuration::fromMSec(1000));
 
-    pwm_pub.construct<Node &>(uavcan_node::getNode());
+    pwm_pub.construct<uavcan::INode &>(node);
     int res = pwm_pub->init();
     if (res < 0) {
         return res;

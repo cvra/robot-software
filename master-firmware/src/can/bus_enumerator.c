@@ -125,9 +125,21 @@ void bus_enumerator_update_node_info(bus_enumerator_t *en, const char *str_id, u
     }
 }
 
-uint16_t bus_enumerator_get_number_of_entries(bus_enumerator_t *en)
+uint16_t bus_enumerator_total_nodes_count(bus_enumerator_t *en)
 {
     return en->nb_entries_str_to_can;
+}
+
+uint16_t bus_enumerator_discovered_nodes_count(bus_enumerator_t *en)
+{
+    unsigned int i;
+    unsigned int cnt = 0;
+    for (i = 0; i < en->nb_entries_str_to_can; i++) {
+        if (en->str_to_can[i].can_id != BUS_ENUMERATOR_CAN_ID_NOT_SET) {
+            cnt ++;
+        }
+    }
+    return cnt;
 }
 
 uint8_t bus_enumerator_get_can_id(bus_enumerator_t *en, const char *str_id)

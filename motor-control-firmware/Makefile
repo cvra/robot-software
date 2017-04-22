@@ -259,7 +259,4 @@ flash: all
 reset:
 	openocd -f openocd.cfg -c "init" -c "reset" -c "shutdown"
 
-.PHONY: ctags
-ctags:
-	@echo "Generating ctags file..."
-	@cat .dep/*.d | grep ":$$" | sed "s/://" | sort | uniq | xargs ctags --file-scope=no --extra=+q $(CSRC) $(CPPSRC)
+include ../tools/generate_ctags.mk

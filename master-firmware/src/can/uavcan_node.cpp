@@ -3,27 +3,19 @@
 #include <hal.h>
 #include <uavcan_stm32/uavcan_stm32.hpp>
 #include <uavcan/protocol/NodeStatus.hpp>
-#include <cvra/motor/EmergencyStop.hpp>
 #include <uavcan/protocol/node_info_retriever.hpp>
-#include <cvra/motor/feedback/CurrentPID.hpp>
-#include <cvra/motor/feedback/VelocityPID.hpp>
-#include <cvra/motor/feedback/PositionPID.hpp>
-#include <cvra/motor/feedback/Index.hpp>
-#include <cvra/motor/feedback/MotorPosition.hpp>
-#include <cvra/motor/feedback/MotorTorque.hpp>
-#include <cvra/Reboot.hpp>
-#include <cvra/proximity_beacon/Signal.hpp>
-#include <msgbus/messagebus.h>
+#include "emergency_stop_handler.hpp"
+#include "motor_feedback_streams_handler.hpp"
+#include "beacon_signal_handler.hpp"
 #include "error/error.h"
 #include "motor_driver.h"
-#include "motor_driver_uavcan.h"
+#include "motor_driver_uavcan.hpp"
+#include "hand_driver.h"
 #include "config.h"
-#include "uavcan_node_private.hpp"
 #include "rocket_driver.h"
 #include "uavcan_node.h"
 #include "priorities.h"
 #include "main.h"
-#include "robot_helpers/beacon_helpers.h"
 #include <timestamp/timestamp.h>
 
 #include <errno.h>
@@ -32,6 +24,10 @@
 #define UAVCAN_SPIN_FREQ    500 // [Hz]
 
 #define UAVCAN_NODE_STACK_SIZE 8192
+
+#define UAVCAN_MEMORY_POOL_SIZE 16384
+#define UAVCAN_RX_QUEUE_SIZE 64
+#define UAVCAN_CAN_BITRATE 1000000UL
 
 
 bus_enumerator_t bus_enumerator;
@@ -42,39 +38,6 @@ namespace uavcan_node
 
 static void node_status_cb(const uavcan::ReceivedDataStructure<uavcan::protocol::NodeStatus>& msg);
 static void node_fail(const char *reason);
-
-
-static constexpr int RxQueueSize = 64;
-static constexpr std::uint32_t BitRate = 1000000;
-
-constexpr unsigned NodeMemoryPoolSize = 16384;
-typedef uavcan::Node<NodeMemoryPoolSize> Node;
-
-uavcan::ISystemClock& getSystemClock()
-{
-    return uavcan_stm32::SystemClock::instance();
-}
-
-uavcan::ICanDriver& getCanDriver()
-{
-    static uavcan_stm32::CanInitHelper<RxQueueSize> can;
-    static bool initialized = false;
-    if (!initialized) {
-        initialized = true;
-        int res = can.init(BitRate);
-        if (res < 0) {
-            node_fail("CAN driver");
-        }
-    }
-    return can.driver;
-}
-
-Node& getNode()
-{
-    static Node node(getCanDriver(), getSystemClock());
-    return node;
-}
-
 
 /** This class is used by libuavcan to connect node information to our bus
  * enumerator. */
@@ -89,7 +52,14 @@ class BusEnumeratorNodeInfoAdapter final : public uavcan::INodeInfoListener
             bus_enumerator_update_node_info(&bus_enumerator, node_info.name.c_str(), can_id);
 
             /* Signal that we received one answer. */
-            palSetPad(GPIOF, GPIOF_LED_READY);
+            palSetPad(GPIOF, GPIOF_LED_DEBUG);
+
+            /* If we received as many nodes as expected, signal it using the
+             * ready LED. */
+            if (bus_enumerator_discovered_nodes_count(&bus_enumerator) ==
+                bus_enumerator_total_nodes_count(&bus_enumerator)) {
+                palSetPad(GPIOF, GPIOF_LED_READY);
+            }
         }
     }
 
@@ -99,17 +69,25 @@ class BusEnumeratorNodeInfoAdapter final : public uavcan::INodeInfoListener
     }
 };
 
-THD_WORKING_AREA(thread_wa, UAVCAN_NODE_STACK_SIZE);
 
-void main(void *arg)
+static void main(void *arg)
 {
     chRegSetThreadName("uavcan");
+    int res;
+    unsigned int id = (unsigned int)arg;
 
-    Node& node = getNode();
+    /* Inits the hardware CAN interface. */
+    static uavcan_stm32::CanInitHelper<UAVCAN_RX_QUEUE_SIZE> can_interface;
+    res = can_interface.init(UAVCAN_CAN_BITRATE);
 
-    uint8_t id = *(uint8_t *)arg;
+    if (res < 0) {
+        node_fail("Hardware interface init");
+    }
+
+    static uavcan::Node<UAVCAN_MEMORY_POOL_SIZE> node(can_interface.driver,
+                                                      uavcan_stm32::SystemClock::instance());
+
     node.setNodeID(uavcan::NodeID(id));
-
     node.setName("cvra.master");
 
     uavcan::protocol::SoftwareVersion sw_version;
@@ -120,31 +98,40 @@ void main(void *arg)
     hw_version.major = 1;
     node.setHardwareVersion(hw_version);
 
-    int res;
     res = node.start();
     if (res < 0) {
         node_fail("node start");
     }
 
-    /*
-     * NodeStatus subscriber
-     */
     uavcan::Subscriber<uavcan::protocol::NodeStatus> ns_sub(node);
     res = ns_sub.start(node_status_cb);
     if (res < 0) {
         node_fail("NodeStatus subscribe");
     }
 
-    uavcan::Subscriber<cvra::motor::EmergencyStop> emergency_stop_sub(node);
-    res = emergency_stop_sub.start(
-        [&](const uavcan::ReceivedDataStructure<cvra::motor::EmergencyStop>& msg)
-        {
-            (void)msg;
-            NVIC_SystemReset();
-        }
-    );
+    res = motor_feedback_stream_handler_init(node, &bus_enumerator);
+    if (res < 0) {
+        node_fail("motor feedback");
+    }
+
+    res = beacon_signal_handler_init(node);
+    if (res < 0) {
+        node_fail("beacon signal handler");
+    }
+
+    res = motor_driver_uavcan_init(node);
+    if (res < 0) {
+        node_fail("motor driver");
+    }
+
+    res = hand_driver_init(node);
+    if (res < 0) {
+        node_fail("hand driver");
+    }
+
+    res = emergency_stop_init(node);
     if (res != 0) {
-        node_fail("cvra::motor::EmergencyStop subscriber");
+        node_fail("Emergency stop handler");
     }
 
     static uavcan::NodeInfoRetriever retriever(node);
@@ -163,130 +150,7 @@ void main(void *arg)
         node_fail("BusEnumeratorAdapter");
     }
 
-    uavcan::Subscriber<cvra::motor::feedback::CurrentPID> current_pid_sub(node);
-    res = current_pid_sub.start(
-        [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::CurrentPID>& msg)
-        {
-            motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
-            if (driver != NULL) {
-                motor_driver_set_stream_value(driver, MOTOR_STREAM_CURRENT, msg.current);
-                motor_driver_set_stream_value(driver, MOTOR_STREAM_CURRENT_SETPT, msg.current_setpoint);
-                motor_driver_set_stream_value(driver, MOTOR_STREAM_MOTOR_VOLTAGE, msg.motor_voltage);
-            }
-        }
-    );
-    if (res != 0) {
-        node_fail("cvra::motor::feedback::CurrentPID subscriber");
-    }
-
-    uavcan::Subscriber<cvra::motor::feedback::VelocityPID> velocity_pid_sub(node);
-    res = velocity_pid_sub.start(
-        [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::VelocityPID>& msg)
-        {
-            motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
-            if (driver != NULL) {
-                motor_driver_set_stream_value(driver, MOTOR_STREAM_VELOCITY, msg.velocity);
-                motor_driver_set_stream_value(driver, MOTOR_STREAM_VELOCITY_SETPT, msg.velocity_setpoint);
-            }
-        }
-    );
-    if (res != 0) {
-        node_fail("cvra::motor::feedback::VelocityPID subscriber");
-    }
-
-    uavcan::Subscriber<cvra::motor::feedback::PositionPID> position_pid_sub(node);
-    res = position_pid_sub.start(
-        [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::PositionPID>& msg)
-        {
-            motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
-            if (driver != NULL) {
-                motor_driver_set_stream_value(driver, MOTOR_STREAM_POSITION, msg.position);
-                motor_driver_set_stream_value(driver, MOTOR_STREAM_POSITION_SETPT, msg.position_setpoint);
-            }
-        }
-    );
-    if (res != 0) {
-        node_fail("cvra::motor::feedback::PositionPID subscriber");
-    }
-
-    uavcan::Subscriber<cvra::motor::feedback::Index> index_sub(node);
-    res = index_sub.start(
-        [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::Index>& msg)
-        {
-            motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
-            if (driver != NULL) {
-                motor_driver_set_stream_value(driver, MOTOR_STREAM_INDEX, msg.position);
-                driver->stream.value_stream_index_update_count = msg.update_count;
-            }
-        }
-    );
-    if (res != 0) {
-        node_fail("cvra::motor::feedback::Index subscriber");
-    }
-
-    uavcan::Subscriber<cvra::motor::feedback::MotorPosition> motor_pos_sub(node);
-    res = motor_pos_sub.start(
-        [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::MotorPosition>& msg)
-        {
-            motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
-            if (driver != NULL) {
-                motor_driver_set_stream_value(driver, MOTOR_STREAM_POSITION, msg.position);
-                motor_driver_set_stream_value(driver, MOTOR_STREAM_VELOCITY, msg.velocity);
-            }
-        }
-    );
-    if (res != 0) {
-        node_fail("cvra::motor::feedback::MotorPosition subscriber");
-    }
-
-    uavcan::Subscriber<cvra::motor::feedback::MotorTorque> motor_torque_sub(node);
-    res = motor_torque_sub.start(
-        [&](const uavcan::ReceivedDataStructure<cvra::motor::feedback::MotorTorque>& msg)
-        {
-            motor_driver_t *driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(&bus_enumerator, msg.getSrcNodeID().get());
-            if (driver != NULL) {
-                motor_driver_set_stream_value(driver, MOTOR_STREAM_MOTOR_TORQUE, msg.torque);
-                motor_driver_set_stream_value(driver, MOTOR_STREAM_POSITION, msg.position);
-            }
-        }
-    );
-    if (res != 0) {
-        node_fail("cvra::motor::feedback::MotorTorque subscriber");
-    }
-
-    static messagebus_topic_t proximity_beacon_topic;
-    static MUTEX_DECL(proximity_beacon_topic_lock);
-    static CONDVAR_DECL(proximity_beacon_topic_condvar);
-    static beacon_signal_t proximity_beacon_topic_value;
-
-    messagebus_topic_init(&proximity_beacon_topic,
-                          &proximity_beacon_topic_lock,
-                          &proximity_beacon_topic_condvar,
-                          &proximity_beacon_topic_value,
-                          sizeof(proximity_beacon_topic_value));
-
-    messagebus_advertise_topic(&bus, &proximity_beacon_topic, "/proximity_beacon");
-    float reflector_radius = config_get_scalar("master/beacon/reflector_radius");
-    float angular_offset = config_get_scalar("master/beacon/angular_offset");
-
-    uavcan::Subscriber<cvra::proximity_beacon::Signal> prox_beac_sub(node);
-    res = prox_beac_sub.start(
-        [&](const uavcan::ReceivedDataStructure<cvra::proximity_beacon::Signal>& msg)
-        {
-            beacon_signal_t data;
-            data.timestamp = timestamp_get();
-            data.distance = reflector_radius + reflector_radius / tanf(msg.length / 2.);
-            data.heading = beacon_get_angle(msg.start_angle + angular_offset, msg.length);
-            messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
-
-            DEBUG("Opponent detected at: %.3fm, %.3frad \traw signal: %.3f, %.3f", data.distance, data.heading, msg.start_angle, msg.length);
-        }
-    );
-    if (res < 0) {
-        node_fail("cvra::proximity_beacon::Signal subscriber");
-    }
-
-    res = rocket_init();
+    res = rocket_init(node);
     if (res < 0) {
         node_fail("Rocket driver");
     }
@@ -295,34 +159,10 @@ void main(void *arg)
     node.getNodeStatusProvider().setModeOperational();
     node.getNodeStatusProvider().setHealthOk();
 
-
-    uavcan::Publisher<cvra::Reboot> reboot_pub(node);
-    const int reboot_pub_init_res = reboot_pub.init();
-    if (reboot_pub_init_res < 0) {
-        node_fail("cvra::Reboot publisher");
-    }
-
-    while (true)
-    {
-        res = node.spin(uavcan::MonotonicDuration::fromMSec(1000/UAVCAN_SPIN_FREQ));
+    while (true) {
+        res = node.spin(uavcan::MonotonicDuration::fromMSec(1000 / UAVCAN_SPIN_FREQ));
         if (res < 0) {
-            // log warning
-        }
-
-        // reboot command
-        if (board_button_pressed()) {
-            cvra::Reboot reboot_msg;
-            reboot_msg.bootmode = reboot_msg.BOOTLOADER_TIMEOUT;
-            reboot_pub.broadcast(reboot_msg);
-        }
-
-        motor_driver_t *drv_list;
-        uint16_t drv_list_len;
-        motor_manager_get_list(&motor_manager, &drv_list, &drv_list_len);
-        int i;
-        for (i = 0; i < drv_list_len; i++) {
-            motor_driver_uavcan_update_config(&drv_list[i]);
-            motor_driver_uavcan_send_setpoint(&drv_list[i]);
+            WARNING("UAVCAN spin warning %d", res);
         }
     }
 }
@@ -347,8 +187,13 @@ extern "C" {
 
 void uavcan_node_start(uint8_t id)
 {
-    static uint8_t node_id = id;
-    chThdCreateStatic(uavcan_node::thread_wa, UAVCAN_NODE_STACK_SIZE, UAVCAN_PRIO, uavcan_node::main, &node_id);
+    unsigned int node_id = id;
+    static THD_WORKING_AREA(thread_wa, UAVCAN_NODE_STACK_SIZE);
+    chThdCreateStatic(thread_wa,
+                      UAVCAN_NODE_STACK_SIZE,
+                      UAVCAN_PRIO,
+                      uavcan_node::main,
+                      (void *)node_id);
 }
 
 } // extern "C"

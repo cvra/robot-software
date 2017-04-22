@@ -5,13 +5,6 @@
 #include <error/error.h>
 #include "timestamp/timestamp.h"
 
-#define MOTOR_CONTROL_UPDATE_PERIOD_POSITION    0.05f // [s]
-#define MOTOR_CONTROL_UPDATE_PERIOD_VELOCITY    0.05f // [s]
-#define MOTOR_CONTROL_UPDATE_PERIOD_TORQUE      0.05f // [s]
-#define MOTOR_CONTROL_UPDATE_PERIOD_VOLTAGE     0.05f // [s]
-#define MOTOR_CONTROL_UPDATE_PERIOD_TRAJECTORY  0.01f // [s]
-
-
 static void pid_register(struct pid_parameter_s *pid,
                          parameter_namespace_t *parent,
                          const char *name)
@@ -42,7 +35,6 @@ void motor_driver_init(motor_driver_t *d,
     d->can_id = CAN_ID_NOT_SET;
 
     d->control_mode = MOTOR_CONTROL_MODE_DISABLED;
-    d->update_period = 1;
 
     d->can_driver = NULL;
 
@@ -105,7 +97,6 @@ void motor_driver_set_position(motor_driver_t *d, float position)
     free_trajectory_buffer(d);
     d->control_mode = MOTOR_CONTROL_MODE_POSITION;
     d->setpt.position = position;
-    d->update_period = MOTOR_CONTROL_UPDATE_PERIOD_POSITION;
     chBSemSignal(&d->lock);
 }
 
@@ -115,7 +106,6 @@ void motor_driver_set_velocity(motor_driver_t *d, float velocity)
     free_trajectory_buffer(d);
     d->control_mode = MOTOR_CONTROL_MODE_VELOCITY;
     d->setpt.velocity = velocity;
-    d->update_period = MOTOR_CONTROL_UPDATE_PERIOD_VELOCITY;
     chBSemSignal(&d->lock);
 }
 
@@ -125,7 +115,6 @@ void motor_driver_set_torque(motor_driver_t *d, float torque)
     free_trajectory_buffer(d);
     d->control_mode = MOTOR_CONTROL_MODE_TORQUE;
     d->setpt.torque = torque;
-    d->update_period = MOTOR_CONTROL_UPDATE_PERIOD_TORQUE;
     chBSemSignal(&d->lock);
 }
 
@@ -135,7 +124,6 @@ void motor_driver_set_voltage(motor_driver_t *d, float voltage)
     free_trajectory_buffer(d);
     d->control_mode = MOTOR_CONTROL_MODE_VOLTAGE;
     d->setpt.voltage = voltage;
-    d->update_period = MOTOR_CONTROL_UPDATE_PERIOD_VOLTAGE;
     chBSemSignal(&d->lock);
 }
 
@@ -166,7 +154,6 @@ void motor_driver_update_trajectory(motor_driver_t *d, trajectory_chunk_t *traj)
             ERROR("TRAJECTORY_ERROR_CHUNK_OUT_OF_ORER");
             break;
     }
-    d->update_period = MOTOR_CONTROL_UPDATE_PERIOD_TRAJECTORY;
     chBSemSignal(&d->lock);
 }
 

@@ -12,8 +12,6 @@ typedef struct {
     bool object_color[4];
 } hand_sensors_t;
 
-int hand_driver_init(void);
-
 void hand_driver_set_fingers(const char *hand_id, finger_state_t* status);
 void hand_driver_set_fingers_float(const char *hand_id, float* signal);
 
@@ -22,6 +20,11 @@ void hand_driver_set_left_fingers(finger_state_t* status);
 
 #ifdef __cplusplus
 }
+#endif
+
+#ifdef __cplusplus
+#include <uavcan/uavcan.hpp>
+int hand_driver_init(uavcan::INode &node);
 #endif
 
 #endif /* HAND_DRIVER_H */
