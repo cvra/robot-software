@@ -29,11 +29,11 @@ void strategy_auto_position(
     }
 
     /* Go to desired position in x. */
-    trajectory_d_rel(&robot->traj, (double)(- robot->calibration_direction * (x - robot_size/2)));
+    trajectory_d_rel(&robot->traj, (double)(- robot->calibration_direction * (MIRROR_X(robot_color, x) - robot_size/2)));
     trajectory_wait_for_end(robot, bus, TRAJ_END_GOAL_REACHED);
 
     /* Turn to face the wall in Y */
-    trajectory_only_a_abs(&robot->traj, -90);
+    trajectory_only_a_abs(&robot->traj, MIRROR_A(robot_color, -90));
     trajectory_wait_for_end(robot, bus, TRAJ_END_GOAL_REACHED);
 
     /* Go forward until we hit the wall and reset position */
