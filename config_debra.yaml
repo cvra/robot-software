@@ -13,9 +13,9 @@ master:
     aversive:
         control:
             angle:
-                kp: 50.
+                kp: 30.
                 ki: 0.
-                kd: 0.
+                kd: 80.
                 ilimit: 1000.
             distance:
                 kp: 50.
