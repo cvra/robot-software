@@ -451,7 +451,7 @@ void strategy_debra_play_game(struct _robot* robot)
     robot->pos.pos_s16.y += 382;
 
     // Second alignement only in y at starting area
-    strategy_goto_avoid_retry(robot, MIRROR_X(color, 900), 200, MIRROR_A(color, -90), -1);
+    strategy_goto_avoid_retry(robot, MIRROR_X(color, 890), 200, MIRROR_A(color, -90), -1);
     strategy_align_y(170, robot->robot_size, robot, &bus);
     trajectory_a_abs(&robot->traj, MIRROR_A(color, 90));
     trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
