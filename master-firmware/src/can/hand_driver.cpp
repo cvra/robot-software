@@ -15,18 +15,46 @@ static const float FINGERS_PULSE_CLOSED[2][4] = {
     {0.0021, 0.0021, 0.0021, 0.0021}, {0.0021, 0.0021, 0.0021, 0.0021}
 };
 
+static messagebus_topic_t left_hand_sensors_topic, right_hand_sensors_topic;
+static MUTEX_DECL(left_hand_sensors_topic_lock);
+static MUTEX_DECL(right_hand_sensors_topic_lock);
+static CONDVAR_DECL(left_hand_sensors_topic_condvar);
+static CONDVAR_DECL(right_hand_sensors_topic_condvar);
+static hand_sensors_t left_hand_sensors_topic_value, right_hand_sensors_topic_value;
+
+
 static uavcan::LazyConstructor<uavcan::Publisher<cvra::io::ServoPWM> > fingers_pub;
+
+static void digital_input_cb(const uavcan::ReceivedDataStructure<cvra::io::DigitalInput>& msg)
+{
+    hand_sensors_t val;
+    for (int i = 0; i < 4; i++) {
+        val.object_present[i] = msg.pin[i];
+        val.object_color[i] = msg.pin[i + 4];
+    }
+
+    uint8_t nodeId = msg.getSrcNodeID().get();
+    if (strcmp(bus_enumerator_get_str_id(&bus_enumerator, nodeId), "right-hand") == 0) {
+        messagebus_topic_publish(&right_hand_sensors_topic, &val, sizeof(val));
+    } else if (strcmp(bus_enumerator_get_str_id(&bus_enumerator,
+                    nodeId), "left-hand") == 0) {
+        messagebus_topic_publish(&left_hand_sensors_topic, &val, sizeof(val));
+    } else {
+        WARNING("Unknown hand board streaming sensors data");
+    }
+
+    NOTICE("Hand %s: Objects: %d %d %d %d Colors: %d %d %d %d",
+            bus_enumerator_get_str_id(&bus_enumerator, nodeId),
+            (int)val.object_present[0], (int)val.object_present[1],
+            (int)val.object_present[2], (int)val.object_present[3],
+            (int)val.object_color[0], (int)val.object_color[1],
+            (int)val.object_color[2], (int)val.object_color[3]);
+
+}
 
 
 int hand_driver_init(uavcan::INode &node)
 {
-    static messagebus_topic_t left_hand_sensors_topic, right_hand_sensors_topic;
-    static MUTEX_DECL(left_hand_sensors_topic_lock);
-    static MUTEX_DECL(right_hand_sensors_topic_lock);
-    static CONDVAR_DECL(left_hand_sensors_topic_condvar);
-    static CONDVAR_DECL(right_hand_sensors_topic_condvar);
-    static hand_sensors_t left_hand_sensors_topic_value, right_hand_sensors_topic_value;
-
     messagebus_topic_init(&left_hand_sensors_topic,
                           &left_hand_sensors_topic_lock,
                           &left_hand_sensors_topic_condvar,
@@ -41,36 +69,10 @@ int hand_driver_init(uavcan::INode &node)
     messagebus_advertise_topic(&bus, &left_hand_sensors_topic, "/hand/sensors/left");
     messagebus_advertise_topic(&bus, &right_hand_sensors_topic, "/hand/sensors/right");
     static uavcan::Subscriber<cvra::io::DigitalInput> digital_input_sub(node);
-    int res = digital_input_sub.start(
-        [&](const uavcan::ReceivedDataStructure<cvra::io::DigitalInput>& msg)
-    {
-        hand_sensors_t val;
-        for (int i = 0; i < 4; i++) {
-            val.object_present[i] = msg.pin[i];
-            val.object_color[i] = msg.pin[i + 4];
-        }
-
-        uint8_t nodeId = msg.getSrcNodeID().get();
-        if (strcmp(bus_enumerator_get_str_id(&bus_enumerator, nodeId), "right-hand") == 0) {
-            messagebus_topic_publish(&right_hand_sensors_topic, &val, sizeof(val));
-        } else if (strcmp(bus_enumerator_get_str_id(&bus_enumerator,
-                                                    nodeId), "left-hand") == 0) {
-            messagebus_topic_publish(&left_hand_sensors_topic, &val, sizeof(val));
-        } else {
-            WARNING("Unknown hand board streaming sensors data");
-        }
-
-        NOTICE("Hand %s: Objects: %d %d %d %d Colors: %d %d %d %d",
-               bus_enumerator_get_str_id(&bus_enumerator, nodeId),
-               (int)val.object_present[0], (int)val.object_present[1],
-               (int)val.object_present[2], (int)val.object_present[3],
-               (int)val.object_color[0], (int)val.object_color[1],
-               (int)val.object_color[2], (int)val.object_color[3]);
-    });
+    int res = digital_input_sub.start(digital_input_cb);
 
     if (res != 0) {
-        ERROR("Failed to subscribe to DigitalInput message, reason %d", res);
-        return -1;
+        return res;
     }
 
     if (!fingers_pub.isConstructed()) {
