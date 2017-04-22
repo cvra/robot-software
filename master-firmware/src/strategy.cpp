@@ -25,8 +25,6 @@
 #include "strategy.h"
 
 
-#define ARM_CYLINDER_HEIGHT 160
-
 int traj_end_flags;
 
 static enum strat_color_t wait_for_color_selection(void);
@@ -307,7 +305,7 @@ struct CollectCylinderRocketBody : public goap::Action<DebraState> {
         : m_color(color)
     {
         m_x_mm = MIRROR_X(m_color, 1200);
-        m_y_mm = 300;
+        m_y_mm = 400;
         m_a_deg = MIRROR_A(m_color, 0);
     }
 
@@ -331,15 +329,22 @@ struct CollectCylinderRocketBody : public goap::Action<DebraState> {
             return false;
         }
 
+        scara_t* arm;
+
+        if (m_color == YELLOW) {
+            arm = &left_arm;
+        } else {
+            arm = &right_arm;
+        }
+
         NOTICE("Collecting cylinder rocket body");
-        scara_trajectory_init(&left_arm.trajectory);
-        scara_trajectory_append_point(&left_arm.trajectory, MIRROR_X(m_color, 1250), 100, 20, COORDINATE_TABLE, 2.);
-        scara_trajectory_append_point(&left_arm.trajectory, MIRROR_X(m_color, 1250), 100, ARM_CYLINDER_HEIGHT, COORDINATE_TABLE, 2.);
-        scara_trajectory_append_point(&left_arm.trajectory, MIRROR_X(m_color, 1200), 100, ARM_CYLINDER_HEIGHT, COORDINATE_TABLE, 1.);
-        scara_trajectory_append_point(&left_arm.trajectory, MIRROR_X(m_color, 1150), 100, ARM_CYLINDER_HEIGHT, COORDINATE_TABLE, 1.);
-        scara_trajectory_append_point(&left_arm.trajectory, MIRROR_X(m_color, 1100), 100, ARM_CYLINDER_HEIGHT, COORDINATE_TABLE, 1.);
-        scara_trajectory_append_point(&left_arm.trajectory, MIRROR_X(m_color, 1000), 100, ARM_CYLINDER_HEIGHT, COORDINATE_TABLE, 1.);
-        scara_do_trajectory(&left_arm, &left_arm.trajectory);
+        scara_trajectory_init(&arm->trajectory);
+        scara_trajectory_append_point(&arm->trajectory, MIRROR_X(m_color, 1300), 120, 20, COORDINATE_TABLE, 2.);
+        scara_trajectory_append_point(&arm->trajectory, MIRROR_X(m_color, 1300), 120, 210, COORDINATE_TABLE, 2.);
+        scara_trajectory_append_point(&arm->trajectory, MIRROR_X(m_color, 1200), 120, 210, COORDINATE_TABLE, 1.);
+        scara_trajectory_append_point(&arm->trajectory, MIRROR_X(m_color, 1150), 120, 210, COORDINATE_TABLE, 1.);
+        scara_trajectory_append_point(&arm->trajectory, MIRROR_X(m_color, 1100), 120, 210, COORDINATE_TABLE, 1.);
+        scara_do_trajectory(arm, &arm->trajectory);
 
         chThdSleepSeconds(8);
 
