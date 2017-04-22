@@ -329,7 +329,6 @@ void init_hands(void)
 
     bus_enumerator_add_node(&bus_enumerator, "left-hand", NULL);
     bus_enumerator_add_node(&bus_enumerator, "right-hand", NULL);
-    bus_enumerator_add_node(&bus_enumerator, "rocket", NULL);
 }
 
 void __stack_chk_fail(void)

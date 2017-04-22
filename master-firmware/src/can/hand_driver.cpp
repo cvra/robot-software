@@ -34,13 +34,16 @@ static void digital_input_cb(const uavcan::ReceivedDataStructure<cvra::io::Digit
     }
 
     uint8_t nodeId = msg.getSrcNodeID().get();
-    if (strcmp(bus_enumerator_get_str_id(&bus_enumerator, nodeId), "right-hand") == 0) {
+    const char *name = bus_enumerator_get_str_id(&bus_enumerator, nodeId);
+
+    if (name && !strcmp(name, "right-hand")) {
         messagebus_topic_publish(&right_hand_sensors_topic, &val, sizeof(val));
-    } else if (strcmp(bus_enumerator_get_str_id(&bus_enumerator,
-                    nodeId), "left-hand") == 0) {
+    } else if (name && !strcmp(name, "left-hand")) {
         messagebus_topic_publish(&left_hand_sensors_topic, &val, sizeof(val));
+    } else if (name && !strcmp(name, "rocket")) {
+        // Dont do anything
     } else {
-        WARNING("Unknown hand board streaming sensors data");
+        WARNING("Unknown hand board streaming sensors data %d", nodeId);
     }
 
     NOTICE("Hand %s: Objects: %d %d %d %d Colors: %d %d %d %d",
