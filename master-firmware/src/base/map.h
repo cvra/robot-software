@@ -12,9 +12,14 @@ extern "C" {
 #define MAP_NUM_OPPONENT          2
 #define MAP_NUM_OPPONENT_EDGES    4
 
+#define MAP_NUM_CONSTRUCTION_AREA 2
+#define MAP_NUM_CRATER            4
+#define MAP_NUM_FENCE             2
+
 struct _map {
-    poly_t *crater;
-    poly_t *fence;
+    poly_t *construction_area[MAP_NUM_CONSTRUCTION_AREA];
+    poly_t *crater[MAP_NUM_CRATER];
+    poly_t *fence[MAP_NUM_FENCE];
 
     poly_t *opponents[MAP_NUM_OPPONENT];
     uint8_t last_opponent_index;
