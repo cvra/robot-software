@@ -311,7 +311,10 @@ class UAVCANThread(QThread):
 
         while True:
             with self.lock:
-                self.node.spin(0.2)
+                try:
+                    self.node.spin(0.2)
+                except uavcan.transport.TransferError:
+                    pass
 
 
 class PIDTuner(QSplitter):

@@ -98,14 +98,20 @@ def main():
 
     while args.board not in boards_id_by_name:
         print("Board not found, waiting...")
-        node.spin(0.2)
+        try:
+            node.spin(0.2)
+        except uavcan.transport.TransferError:
+            pass
 
     board_id = boards_id_by_name[args.board]
     print("Found board, ID={}".format(board_id))
 
     node.request(req, board_id, request_cb)
 
-    node.spin(1)
+    try:
+        node.spin(1)
+    except uavcan.transport.TransferError:
+        pass
 
     print("Done")
 
