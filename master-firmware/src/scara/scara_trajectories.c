@@ -47,9 +47,8 @@ void scara_trajectory_append_point(scara_trajectory_t *traj, const float x, cons
         traj->frames[traj->frame_count-1].date = traj->frames[traj->frame_count-2].date+1000000*duration;
     }
 
-
-    traj->frames[traj->frame_count-1].length[0] = 135.16;
-    traj->frames[traj->frame_count-1].length[1] = 106.5;
+    traj->frames[traj->frame_count-1].length[0] = 140.f;
+    traj->frames[traj->frame_count-1].length[1] = 72.f;
 
     if (traj->frame_count > 1) {
         traj->frames[traj->frame_count-1].hand_angle = traj->frames[traj->frame_count-2].hand_angle;
