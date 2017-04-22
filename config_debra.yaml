@@ -265,15 +265,15 @@ actuator:
             torque_constant: 0.016 # Nm/A
         control:
             current:
-                kp: 0.
+                kp: 2.
                 ki: 400.
                 kd: 0.
-                ilimit: 800.
+                ilimit: 25.
             velocity:
-                kp: 0.002
+                kp: 0.01
                 ki: 0.2
                 kd: 0.
-                ilimit: 10
+                ilimit: 100
             position:
                 kp: 20
                 ki: 50
@@ -281,7 +281,7 @@ actuator:
                 ilimit: 1000
             low_batt_th: 12
             acceleration_limit: 500.
-            velocity_limit: 300.
+            velocity_limit: 500.
             torque_limit: 1.3
     right-shoulder:
         stream:
@@ -301,18 +301,18 @@ actuator:
         control:
             current:
                 kp: 0
-                ki: 3000.
+                ki: 10000.
                 kd: 0.
                 ilimit: 100.
             velocity:
                 kp: 2
-                ki: 10
+                ki: 50
                 kd: 0.
                 ilimit: 100
             position:
-                kp: 6
-                ki: 1.
-                kd: 2.
+                kp: 40
+                ki: 0
+                kd: 0
 
             low_batt_th: 12
             acceleration_limit: 100.
@@ -335,19 +335,19 @@ actuator:
             torque_constant: 0.00826 # Nm/A
         control:
             current:
-                kp: 0.
-                ki: 2000.
+                kp: 20.
+                ki: 10000.
                 kd: 0.
-                ilimit: 100.
+                ilimit: 200.
             velocity:
-                kp: 1
-                ki: 20
+                kp: 5
+                ki: 4
                 kd: 0.
                 ilimit: 100
             position:
-                kp: 12
-                ki: 0.
-                kd: 0.
+                kp: 10
+                ki: 0
+                kd: 0.2
             low_batt_th: 12
             acceleration_limit: 20.
             velocity_limit: 5.
