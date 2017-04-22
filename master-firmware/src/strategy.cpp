@@ -1,6 +1,7 @@
 #include <ch.h>
 #include <hal.h>
 
+#include "can/rocket_driver.h"
 #include <error/error.h>
 #include <timestamp/timestamp.h>
 #include <blocking_detection_manager/blocking_detection_manager.h>
@@ -22,10 +23,43 @@
 
 #include "strategy.h"
 
+int traj_end_flags;
 
+static enum strat_color_t wait_for_color_selection(void);
 static void wait_for_autoposition_signal(void);
 static void wait_for_starter(void);
 void strategy_play_game(void* robot);
+
+#define BUTTON_IS_PRESSED(port, io) (palReadPad(port, io) == false) // Active low
+
+static enum strat_color_t wait_for_color_selection(void)
+{
+    strat_color_t color = YELLOW;
+
+    while (!BUTTON_IS_PRESSED(GPIOF, GPIOF_BTN_YELLOW) && !BUTTON_IS_PRESSED(GPIOF, GPIOF_BTN_GREEN)) {
+        palSetPad(GPIOF, GPIOF_LED_YELLOW_1);
+        palSetPad(GPIOF, GPIOF_LED_GREEN_1);
+        chThdSleepMilliseconds(100);
+
+        palClearPad(GPIOF, GPIOF_LED_YELLOW_1);
+        palClearPad(GPIOF, GPIOF_LED_GREEN_1);
+        chThdSleepMilliseconds(100);
+    }
+
+    if (BUTTON_IS_PRESSED(GPIOF, GPIOF_BTN_GREEN)) {
+        palClearPad(GPIOF, GPIOF_LED_YELLOW_1);
+        palSetPad(GPIOF, GPIOF_LED_GREEN_1);
+        color = BLUE;
+        NOTICE("Color set to blue");
+    } else {
+        palSetPad(GPIOF, GPIOF_LED_YELLOW_1);
+        palClearPad(GPIOF, GPIOF_LED_GREEN_1);
+        color = YELLOW;
+        NOTICE("Color set to yellow");
+    }
+
+    return color;
+}
 
 static void wait_for_starter(void)
 {
@@ -89,9 +123,9 @@ bool strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg)
         DEBUG("Going to x: %.1fmm y: %.1fmm", points[i].x, points[i].y);
 
         trajectory_goto_forward_xy_abs(&robot->traj, points[i].x, points[i].y);
-        end_reason = trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED | TRAJ_END_OPPONENT_NEAR);
+        end_reason = trajectory_wait_for_end(robot, &bus, traj_end_flags);
 
-        if (end_reason == TRAJ_END_OPPONENT_NEAR) {
+        if (end_reason != TRAJ_END_GOAL_REACHED) {
             break;
         }
     }
@@ -106,6 +140,12 @@ bool strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg)
     } else if (end_reason == TRAJ_END_OPPONENT_NEAR) {
         strategy_stop_robot(robot);
         WARNING("Stopping robot because opponent too close");
+    } else if (end_reason == TRAJ_END_COLLISION) {
+        strategy_stop_robot(robot);
+        WARNING("Stopping robot because collision detected");
+    } else if (end_reason == TRAJ_END_TIMER) {
+        strategy_stop_robot(robot);
+        WARNING("Stopping robot because game has ended !");
     } else {
         WARNING("Trajectory ended with reason %d", end_reason);
     }
@@ -307,30 +347,33 @@ struct GameGoal : goap::Goal<DebraState> {
     }
 };
 
-void strategy_debra_play_game(struct _robot* robot, enum strat_color_t color)
+void strategy_debra_play_game(struct _robot* robot)
 {
-    (void) robot;
-    (void) color;
-    int len;
+    /* Wait for color selection */
+    enum strat_color_t color = wait_for_color_selection();
 
+    /* Disable obstacle avoidance / game time */
+    traj_end_flags = TRAJ_END_GOAL_REACHED;
+
+    int len;
     InitGoal init_goal;
     IndexArms index_arms;
     RetractArms retract_arms;
     GotoLocation goto_region[] = {
-        GotoLocation(Cylinder0,  900,  200,   0),
-        GotoLocation(Cylinder1, 1200,  500,  90),
-        GotoLocation(Cylinder2,  400,  700, 180),
-        GotoLocation(Cylinder3,  700, 1100,  90),
-        GotoLocation(Cylinder4, 1050, 1180,  45),
-        GotoLocation(Cylinder5,  600, 1600,  45),
+        GotoLocation(Cylinder0, MIRROR_X(color,  900),  200, MIRROR_A(color,   0)),
+        GotoLocation(Cylinder1, MIRROR_X(color, 1200),  500, MIRROR_A(color,  90)),
+        GotoLocation(Cylinder2, MIRROR_X(color,  400),  700, MIRROR_A(color, 180)),
+        GotoLocation(Cylinder3, MIRROR_X(color,  700), 1100, MIRROR_A(color,  90)),
+        GotoLocation(Cylinder4, MIRROR_X(color, 1050), 1180, MIRROR_A(color,  45)),
+        GotoLocation(Cylinder5, MIRROR_X(color,  600), 1600, MIRROR_A(color,  45)),
     };
     PickCylinder pick_cylinder[] = {
-        PickCylinder(Cylinder0,  950,  200, 0), // When starting in this region, it's removed
-        PickCylinder(Cylinder1, 1000,  600, 1),
-        PickCylinder(Cylinder2,  200,  600, 2),
-        PickCylinder(Cylinder3,  500, 1100, 3),
-        PickCylinder(Cylinder4,  900, 1400, 4),
-        PickCylinder(Cylinder5,  800, 1850, 5),
+        PickCylinder(Cylinder0, MIRROR_X(color,  950),  200, 0), // When starting in this region, it's removed
+        PickCylinder(Cylinder1, MIRROR_X(color, 1000),  600, 1),
+        PickCylinder(Cylinder2, MIRROR_X(color,  200),  600, 2),
+        PickCylinder(Cylinder3, MIRROR_X(color,  500), 1100, 3),
+        PickCylinder(Cylinder4, MIRROR_X(color,  900), 1400, 4),
+        PickCylinder(Cylinder5, MIRROR_X(color,  800), 1850, 5),
     };
 
     DebraState state;
@@ -373,20 +416,25 @@ void strategy_debra_play_game(struct _robot* robot, enum strat_color_t color)
     NOTICE("Positioning robot");
 
     // First alignment
-    strategy_auto_position(300, 200, -90, robot->robot_size, color, robot, &bus);
-    position_set(&robot->pos, MIRROR_X(color, 300), 200 + 382, -90);
+    strategy_auto_position(MIRROR_X(color, 300), 200, MIRROR_A(color, -90), robot->robot_size, color, robot, &bus);
+    robot->pos.pos_d.y += 382;
+    robot->pos.pos_s16.y += 382;
 
     // Second alignement only in y at starting area
-    strategy_goto_avoid_retry(robot, 900, 200, -90, -1);
+    strategy_goto_avoid_retry(robot, MIRROR_X(color, 900), 200, MIRROR_A(color, -90), -1);
     strategy_align_y(200, robot->robot_size, robot, &bus);
-    trajectory_a_abs(&robot->traj, 90);
+    trajectory_a_abs(&robot->traj, MIRROR_A(color, 90));
     trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
 
     NOTICE("Robot positioned at x: %d[mm], y: %d[mm], a: %d[deg]",
-           position_get_x_s16(&robot->pos), position_get_y_s16(&robot->pos), position_get_x_s16(&robot->pos));
+           position_get_x_s16(&robot->pos), position_get_y_s16(&robot->pos), position_get_a_deg_s16(&robot->pos));
 
     /* Wait for starter to begin */
     wait_for_starter();
+    traj_end_flags = TRAJ_FLAGS_STD;
+    trajectory_game_timer_reset(robot);
+    rocket_program_launch_time(GAME_DURATION + 1);
+
     NOTICE("Starting game");
     GameGoal game_goal;
     while (true) {
@@ -412,12 +460,15 @@ void strategy_debra_play_game(struct _robot* robot, enum strat_color_t color)
     }
 }
 
-void strategy_sandoi_play_game(struct _robot* robot, enum strat_color_t color)
+void strategy_sandoi_play_game(struct _robot* robot)
 {
+    /* Wait for color selection */
+    enum strat_color_t color = wait_for_color_selection();
+
     /* Autoposition robot */
     wait_for_autoposition_signal();
     NOTICE("Positioning robot\n");
-    strategy_auto_position(600, 200, 90, robot->robot_size, color, robot, &bus);
+    strategy_auto_position(MIRROR_X(color, 600), 200, 90, robot->robot_size, color, robot, &bus);
     NOTICE("Robot positioned at x: 600[mm], y: 200[mm], a: 90[deg]\n");
 
     /* Wait for starter to begin */
@@ -426,7 +477,7 @@ void strategy_sandoi_play_game(struct _robot* robot, enum strat_color_t color)
 
     while (true) {
         /* Go to lunar module */
-        strategy_goto_avoid_retry(robot, 780, 1340, 45, -1);
+        strategy_goto_avoid_retry(robot, MIRROR_X(color, 780), 1340, MIRROR_A(color, 45), -1);
 
         /* Push lunar module */
         trajectory_d_rel(&robot->traj, 100.);
@@ -435,7 +486,7 @@ void strategy_sandoi_play_game(struct _robot* robot, enum strat_color_t color)
         trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
 
         /* Go back to home */
-        strategy_goto_avoid_retry(robot, 600, 200, 90, -1);
+        strategy_goto_avoid_retry(robot, MIRROR_X(color, 600), 200, MIRROR_A(color, 90), -1);
 
         DEBUG("Game ended!\nInsert coin to play more.\n");
         chThdSleepSeconds(1);
@@ -449,16 +500,15 @@ void strategy_play_game(void* _robot)
     chRegSetThreadName("strategy");
 
     struct _robot* robot = (struct _robot*)_robot;
-    enum strat_color_t color = YELLOW;
 
     /* Initialize map and path planner */
     map_init(config_get_integer("master/robot_size_x_mm"));
     NOTICE("Strategy is ready, waiting for autopositioning signal");
 
 #ifdef DEBRA
-    strategy_debra_play_game(robot, color);
+    strategy_debra_play_game(robot);
 #else
-    strategy_sandoi_play_game(robot, color);
+    strategy_sandoi_play_game(robot);
 #endif
 }
 

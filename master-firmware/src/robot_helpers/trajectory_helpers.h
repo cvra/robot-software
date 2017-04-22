@@ -12,6 +12,9 @@ extern "C" {
 #include "obstacle_avoidance/obstacle_avoidance.h"
 #include "base/base_controller.h"
 
+/** Duration of a game in seconds. */
+#define GAME_DURATION 90
+
 #define TRAJ_MIN_DISTANCE_TO_OPPONENT           0.6 // we stop if there is 60cm or less to opponent
 #define TRAJ_MIN_DIRECTION_TO_OPPONENT          0.5 // defines cone in which to consider opponents (cone is double the angle in size)
 #define TRAJ_MAX_TIME_DELAY_OPPONENT_DETECTION  0.25 // if delay bigger that this, beacon signal is discarded
@@ -19,6 +22,9 @@ extern "C" {
 #define TRAJ_END_GOAL_REACHED   (1 << 0)
 #define TRAJ_END_COLLISION      (1 << 1)
 #define TRAJ_END_OPPONENT_NEAR  (1 << 2)
+#define TRAJ_END_TIMER          (1 << 3)
+
+#define TRAJ_FLAGS_STD (TRAJ_END_GOAL_REACHED | TRAJ_END_COLLISION | TRAJ_END_OPPONENT_NEAR | TRAJ_END_TIMER)
 
 /** Returns when ongoing trajectory is finished for the reasons specified
  *  For example when goal is reached
@@ -72,6 +78,15 @@ void trajectory_set_mode_game(
         struct trajectory* robot_traj,
         struct blocking_detection* distance_blocking,
         struct blocking_detection* angle_blocking);
+
+/** Set game starting time
+ */
+void trajectory_game_timer_reset(struct _robot* robot);
+
+/** Get current game time
+ */
+int trajectory_get_time(struct _robot* robot);
+
 
 #ifdef __cplusplus
 }

@@ -43,10 +43,10 @@ static void digital_input_cb(const uavcan::ReceivedDataStructure<cvra::io::Digit
     } else if (name && !strcmp(name, "rocket")) {
         // Dont do anything
     } else {
-        WARNING("Unknown hand board streaming sensors data %d", nodeId);
+        DEBUG("Unknown hand board streaming sensors data %d", nodeId);
     }
 
-    NOTICE("Hand %s: Objects: %d %d %d %d Colors: %d %d %d %d",
+    DEBUG("Hand %s: Objects: %d %d %d %d Colors: %d %d %d %d",
             bus_enumerator_get_str_id(&bus_enumerator, nodeId),
             (int)val.object_present[0], (int)val.object_present[1],
             (int)val.object_present[2], (int)val.object_present[3],

@@ -18,25 +18,25 @@ void strategy_auto_position(
     /* Configure robot to be slower and less sensitive to collisions */
     trajectory_set_mode_aligning(&robot->mode, &robot->traj, &robot->distance_bd, &robot->angle_bd);
 
-    /* Go backwards until we hit the wall and reset position */
+    /* Go forward until we hit the wall and reset position */
     trajectory_align_with_wall(robot, bus);
 
     /* Set robot position in x and heading */
     if (robot->calibration_direction < 0) {
-        position_set(&robot->pos, MIRROR_X(robot_color, robot_size/2), 0, 0);
+        position_set(&robot->pos, MIRROR_X(robot_color, robot_size/2), 0, MIRROR_A(robot_color, 180));
     } else {
-        position_set(&robot->pos, MIRROR_X(robot_color, robot_size/2), 0, 180);
+        position_set(&robot->pos, MIRROR_X(robot_color, robot_size/2), 0, MIRROR_A(robot_color, 0));
     }
 
     /* Go to desired position in x. */
-    trajectory_d_rel(&robot->traj, (double)(- robot->calibration_direction * (x - robot_size/2)));
+    trajectory_d_rel(&robot->traj, (double)(- robot->calibration_direction * (MIRROR_X(robot_color, x) - robot_size/2)));
     trajectory_wait_for_end(robot, bus, TRAJ_END_GOAL_REACHED);
 
     /* Turn to face the wall in Y */
-    trajectory_only_a_rel(&robot->traj, 90);
+    trajectory_only_a_abs(&robot->traj, MIRROR_A(robot_color, -90));
     trajectory_wait_for_end(robot, bus, TRAJ_END_GOAL_REACHED);
 
-    /* Go backwards until we hit the wall and  reset position */
+    /* Go forward until we hit the wall and reset position */
     trajectory_align_with_wall(robot, bus);
 
     /* Reset position in y */
