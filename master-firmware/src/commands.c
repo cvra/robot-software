@@ -221,6 +221,67 @@ static void cmd_config_tree(BaseSequentialStream *chp, int argc, char **argv)
     show_config_tree(chp, ns, 0);
 }
 
+static void cmd_config_set(BaseSequentialStream *chp, int argc, char **argv)
+{
+    parameter_t *param;
+    int value_i;
+    float value_f;
+
+    if (argc != 2) {
+        chprintf(chp, "Usage: config_set /parameter/url value.\r\n");
+        return;
+    }
+
+    param = parameter_find(&global_config, argv[0]);
+
+    if (param == NULL) {
+        chprintf(chp, "Could not find parameter \"%s\"\r\n", argv[0]);
+        return;
+    }
+
+    switch (param->type) {
+        case _PARAM_TYPE_INTEGER:
+            if (sscanf(argv[1], "%d", &value_i) == 1) {
+                parameter_integer_set(param, value_i);
+            } else {
+                chprintf(chp, "Invalid value for integer parameter.\r\n");
+            }
+            break;
+
+        case _PARAM_TYPE_SCALAR:
+            if (sscanf(argv[1], "%f", &value_f) == 1) {
+                parameter_scalar_set(param, value_f);
+            } else {
+                chprintf(chp, "Invalid value for scalar parameter.\r\n");
+            }
+            break;
+
+
+        case _PARAM_TYPE_BOOLEAN:
+            if (!strcmp(argv[1], "true")) {
+                parameter_boolean_set(param, true);
+            } else if (!strcmp(argv[1], "false")) {
+                parameter_boolean_set(param, false);
+            } else {
+                chprintf(chp, "Invalid value for boolean parameter, must be true or false.\r\n");
+            }
+            break;
+
+        case _PARAM_TYPE_STRING:
+            if (argc == 2) {
+                parameter_string_set(param, argv[1]);
+            } else {
+                chprintf(chp, "Invalid value for string parameter, must not use spaces.\r\n");
+            }
+            break;
+
+        default:
+            chprintf(chp, "%s: unknown type %d\r\n", param->id, param->type);
+            break;
+    }
+}
+
+
 static void cmd_node(BaseSequentialStream *chp, int argc, char **argv)
 {
     if (argc != 1) {
@@ -839,6 +900,7 @@ static void cmd_trace(BaseSequentialStream *chp, int argc, char *argv[])
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
+    {"config_set", cmd_config_set},
     {"encoders", cmd_encoders},
     {"forward", cmd_traj_forward},
     {"ip", cmd_ip},
