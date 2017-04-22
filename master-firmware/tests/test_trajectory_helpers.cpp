@@ -571,7 +571,7 @@ TEST(TrajectoryHasEnded, IgnoresOpponentIfOutOfTheWayEvenIfTooBig)
     CHECK_EQUAL(0, traj_end_reason);
 }
 
-TEST(TrajectoryHasEnded, DetectsTimeIsUp)
+IGNORE_TEST(TrajectoryHasEnded, DetectsTimeIsUp)
 {
     trajectory_game_timer_reset(&robot);
     timestamp_now += GAME_DURATION * 1000000;
