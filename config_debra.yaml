@@ -54,21 +54,21 @@ actuator:
                 ki: 1500.
                 kd: 0.
                 ilimit: 50.
-
             velocity:
-                kp: 14.
-                ki: 110.
+                kp: 20.
+                ki: 50.
                 kd: 0.
-                ilimit: 1400.
+                ilimit: 1000.
             position:
                 kp: 0.1
                 ki: 0.5
                 kd: 0.
 
             low_batt_th: 5.
-            acceleration_limit: 100.
+            acceleration_limit: 200.
             velocity_limit: 50.
-            torque_limit: 14.
+            torque_limit: 30.
+
     right-wheel:
         stream:
             # Encoder position is needed for odometry
@@ -89,19 +89,19 @@ actuator:
                 kd: 0.
                 ilimit: 50.
             velocity:
-                kp: 14.
-                ki: 110.
+                kp: 20.
+                ki: 50.
                 kd: 0.
-                ilimit: 1400.
+                ilimit: 1000.
             position:
                 kp: 0.1
                 ki: 0.5
                 kd: 0.
 
             low_batt_th: 5.
-            acceleration_limit: 100.
+            acceleration_limit: 200.
             velocity_limit: 50.
-            torque_limit: 14.
+            torque_limit: 30.
 
     left-z:
         stream:
