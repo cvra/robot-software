@@ -316,7 +316,7 @@ struct CollectCylinderRocketBody : public goap::Action<DebraState> {
 
     DebraState plan_effects(DebraState state)
     {
-        state.cylinder_count += 4;
+        state.cylinder_count++;
         state.arms_are_deployed = true;
         return state;
     }
@@ -338,17 +338,20 @@ struct CollectCylinderRocketBody : public goap::Action<DebraState> {
         }
 
         NOTICE("Collecting cylinder rocket body");
-        scara_trajectory_init(&arm->trajectory);
+
         scara_trajectory_append_point(&arm->trajectory, MIRROR_X(m_color, 1300), 120, 20, COORDINATE_TABLE, 2.);
-        scara_trajectory_append_point(&arm->trajectory, MIRROR_X(m_color, 1300), 120, 210, COORDINATE_TABLE, 2.);
-        scara_trajectory_append_point(&arm->trajectory, MIRROR_X(m_color, 1200), 120, 210, COORDINATE_TABLE, 1.);
-        scara_trajectory_append_point(&arm->trajectory, MIRROR_X(m_color, 1150), 120, 210, COORDINATE_TABLE, 1.);
-        scara_trajectory_append_point(&arm->trajectory, MIRROR_X(m_color, 1100), 120, 210, COORDINATE_TABLE, 1.);
-        scara_do_trajectory(arm, &arm->trajectory);
 
-        chThdSleepSeconds(8);
+        for (int i = 0; i < 4; i++) {
+            scara_trajectory_init(&arm->trajectory);
+            scara_trajectory_append_point(&arm->trajectory, MIRROR_X(m_color, 1300), 120, 210, COORDINATE_TABLE, 2.);
+            scara_trajectory_append_point(&arm->trajectory, MIRROR_X(m_color, 1200), 120, 210, COORDINATE_TABLE, 1.);
+            scara_trajectory_append_point(&arm->trajectory, MIRROR_X(m_color, 1150), 120, 210, COORDINATE_TABLE, 1.);
+            scara_trajectory_append_point(&arm->trajectory, MIRROR_X(m_color, 1100), 120, 210, COORDINATE_TABLE, 1.);
+            scara_do_trajectory(arm, &arm->trajectory);
+            chThdSleepSeconds(8);
+        }
 
-        state.cylinder_count += 4;
+        state.cylinder_count++;
         state.arms_are_deployed = true;
         return true;
     }
