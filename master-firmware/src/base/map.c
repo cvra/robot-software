@@ -4,8 +4,6 @@
 
 static struct _map map;
 
-#define TABLE_POINT_X(x) math_clamp_value(x, 0, MAP_SIZE_X_MM)
-#define TABLE_POINT_Y(y) math_clamp_value(y, 0, MAP_SIZE_Y_MM)
 
 void map_init(int robot_size)
 {
@@ -16,28 +14,12 @@ void map_init(int robot_size)
     polygon_set_boundingbox(robot_size/2, robot_size/2,
                             MAP_SIZE_X_MM - robot_size/2, MAP_SIZE_Y_MM - robot_size/2);
 
-    /* Add contruction areas */
-    for (int i = 0; i < MAP_NUM_CONSTRUCTION_AREA; i++) {
-        map.construction_area[i] = oa_new_poly(4);
-    }
-    map_set_rectangular_obstacle(map.construction_area[0], 925, 110, 110, 500, robot_size);
-    map_set_rectangular_obstacle(map.construction_area[1], 925, 2890, 110, 500, robot_size);
+    /* Add obstacles */
+    map.crater = oa_new_poly(4);
+    map_set_rectangular_obstacle(map.crater, 650, 540, 240, 260, robot_size);
 
-    /* Add craters */
-    for (int i = 0; i < MAP_NUM_CRATER; i++) {
-        map.crater[i] = oa_new_poly(4);
-    }
-    map_set_rectangular_obstacle(map.crater[0], 650, 540, 240, 260, robot_size);
-    map_set_rectangular_obstacle(map.crater[1], 2350, 540, 240, 260, robot_size);
-    map_set_rectangular_obstacle(map.crater[2], 1070, 1870, 240, 260, robot_size);
-    map_set_rectangular_obstacle(map.crater[3], 1930, 1870, 240, 260, robot_size);
-
-    /* Add fences */
-    for (int i = 0; i < MAP_NUM_FENCE; i++) {
-        map.fence[i] = oa_new_poly(4);
-    }
-    map_set_rectangular_obstacle(map.fence[0], 355, 370, 710, 22, robot_size);
-    map_set_rectangular_obstacle(map.fence[1], 2645, 370, 710, 22, robot_size);
+    map.fence = oa_new_poly(4);
+    map_set_rectangular_obstacle(map.fence, 355, 370, 710, 22, robot_size);
 
     /* Add opponent obstacle as points at origin */
     for (int i = 0; i < MAP_NUM_OPPONENT; i++) {
@@ -60,17 +42,17 @@ poly_t* map_get_opponent_obstacle(int index)
 
 void map_set_rectangular_obstacle(poly_t* opponent, int center_x, int center_y, int size_x, int size_y, int robot_size)
 {
-    opponent->pts[0].x = TABLE_POINT_X(center_x + (size_x + robot_size) / 2);
-    opponent->pts[0].y = TABLE_POINT_Y(center_y - (size_y + robot_size) / 2);
+    opponent->pts[0].x = math_clamp_value(center_x + (size_x + robot_size) / 2, 0, MAP_SIZE_X_MM);
+    opponent->pts[0].y = math_clamp_value(center_y - (size_y + robot_size) / 2, 0, MAP_SIZE_Y_MM);
 
-    opponent->pts[1].x = TABLE_POINT_X(center_x + (size_x + robot_size) / 2);
-    opponent->pts[1].y = TABLE_POINT_Y(center_y + (size_y + robot_size) / 2);
+    opponent->pts[1].x = math_clamp_value(center_x + (size_x + robot_size) / 2, 0, MAP_SIZE_X_MM);
+    opponent->pts[1].y = math_clamp_value(center_y + (size_y + robot_size) / 2, 0, MAP_SIZE_Y_MM);
 
-    opponent->pts[2].x = TABLE_POINT_X(center_x - (size_x + robot_size) / 2);
-    opponent->pts[2].y = TABLE_POINT_Y(center_y + (size_y + robot_size) / 2);
+    opponent->pts[2].x = math_clamp_value(center_x - (size_x + robot_size) / 2, 0, MAP_SIZE_X_MM);
+    opponent->pts[2].y = math_clamp_value(center_y + (size_y + robot_size) / 2, 0, MAP_SIZE_Y_MM);
 
-    opponent->pts[3].x = TABLE_POINT_X(center_x - (size_x + robot_size) / 2);
-    opponent->pts[3].y = TABLE_POINT_Y(center_y - (size_y + robot_size) / 2);
+    opponent->pts[3].x = math_clamp_value(center_x - (size_x + robot_size) / 2, 0, MAP_SIZE_X_MM);
+    opponent->pts[3].y = math_clamp_value(center_y - (size_y + robot_size) / 2, 0, MAP_SIZE_Y_MM);
 }
 
 void map_update_opponent_obstacle(int32_t x, int32_t y, int32_t opponent_size, int32_t robot_size)
