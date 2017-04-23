@@ -46,8 +46,6 @@ void __assert_func(const char *_file, int _line, const char *_func, const char *
     while(1);
 }
 
-static int error_level = 0;
-
 static THD_WORKING_AREA(led_thread_wa, 128);
 static THD_FUNCTION(led_thread, arg)
 {
@@ -74,12 +72,7 @@ static THD_FUNCTION(led_thread, arg)
             palSetPad(GPIOA, GPIOA_LED);
 
             chThdSleepMilliseconds(720);
-        } else if (error_level) {
-            palClearPad(GPIOA, GPIOA_LED);
-            chThdSleepMilliseconds(80);
-            palSetPad(GPIOA, GPIOA_LED);
-            chThdSleepMilliseconds(80);
-        } else {
+        }else {
             palClearPad(GPIOA, GPIOA_LED);
             chThdSleepMilliseconds(80);
             palSetPad(GPIOA, GPIOA_LED);
