@@ -268,13 +268,18 @@ libssp_nonshared.a:
 	arm-none-eabi-ar rcs $@
 
 .PHONY: mem_info
-mem_info: build/$(PROJECT).elf
-	arm-none-eabi-nm --size-sort --print-size build/$(PROJECT).elf > build/memory_size.txt
-	arm-none-eabi-nm --numeric-sort --print-size build/$(PROJECT).elf > build/memory_layout.txt
+mem_info: $(BUILDDIR)/$(PROJECT).elf
+	arm-none-eabi-nm --size-sort --print-size $(BUILDDIR)/$(PROJECT).elf > $(BUILDDIR)/memory_size.txt
+	arm-none-eabi-nm --numeric-sort --print-size $(BUILDDIR)/$(PROJECT).elf > $(BUILDDIR)/memory_layout.txt
+
+# Openocd config file
+ifeq ($(OPENOCD_CFG), )
+  OPENOCD_CFG = oocd_stlink.cfg
+endif
 
 .PHONY: flash
-flash: build/$(PROJECT).elf
-	openocd -f oocd_stlink.cfg -c "program build/ch.elf verify reset" -c "shutdown"
+flash: $(BUILDDIR)/$(PROJECT).elf
+	openocd -f $(OPENOCD_CFG) -c "program $(BUILDDIR)/$(PROJECT).elf verify reset" -c "shutdown"
 
 # run uavcan dsdl compiler
 .PHONY: dsdlc
@@ -287,8 +292,8 @@ src/config_msgpack.c: ${CONFIG_YAML}
 	@../tools/config/config_to_msgpack.py ${CONFIG_YAML} src/config_msgpack.c
 
 .PHONY: heap_size
-heap_size: build/$(PROJECT).elf
-	@../tools/heap_size.py build/$(PROJECT).elf
+heap_size: $(BUILDDIR)/$(PROJECT).elf
+	@../tools/heap_size.py $(BUILDDIR)/$(PROJECT).elf
 
 all: heap_size mem_info
 
