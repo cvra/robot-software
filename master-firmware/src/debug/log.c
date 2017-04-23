@@ -19,10 +19,17 @@ static bool log_file_enabled = false;
 
 static void vuart_log_message(struct error *e, va_list args);
 static void vlogfile_log_message(struct error *e, va_list args);
+static void vpanic_message(struct error *e, va_list args);
 
 static void log_message(struct error *e, ...)
 {
     va_list va;
+
+    if (e->severity == ERROR_SEVERITY_ERROR) {
+        va_start(va, e);
+        vpanic_message(e, va);
+        va_end(va);
+    }
 
     chMtxLock(&log_lock);
 
@@ -109,6 +116,13 @@ static void vlogfile_log_message(struct error *e, va_list args)
     /* Forces the data to be written. */
     f_write(&logfile_fp, "\n", 1, &dummy);
     f_sync(&logfile_fp);
+}
+
+static void vpanic_message(struct error *e, va_list args)
+{
+    static char buffer[256];
+    vsnprintf(buffer, sizeof(buffer), e->text, args);
+    chSysHalt(buffer);
 }
 
 static bool try_sd_card_mount(void)

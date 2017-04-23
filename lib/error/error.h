@@ -75,7 +75,10 @@ void error_register_debug(void (*f)(struct error *, ...));
 /** Returns the human readable name for the given severity level. */
 const char *error_severity_get_name(uint8_t severity);
 
-/** Call this macro to log ERROR events */
+/** Call this macro to log ERROR events.
+ *
+ * It should be used for non recoverable errors, such as out of memory, failed
+ * assertions and so on. */
 #define ERROR(text, ...)  do {                                            \
         if (g_error_fct.error) {                                                \
             struct error e = error_generate(ERROR_SEVERITY_ERROR,     \
