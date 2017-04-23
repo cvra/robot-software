@@ -576,7 +576,7 @@ IGNORE_TEST(TrajectoryHasEnded, DetectsTimeIsUp)
     trajectory_game_timer_reset(&robot);
     timestamp_now += GAME_DURATION * 1000000;
 
-    int traj_end_reason = trajectory_has_ended(&robot, &bus, TRAJ_FLAGS_STD);
+    int traj_end_reason = trajectory_has_ended(&robot, &bus, TRAJ_FLAGS_ALL);
 
     CHECK_EQUAL(TRAJ_END_TIMER, traj_end_reason);
 }

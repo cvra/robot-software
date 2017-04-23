@@ -469,7 +469,7 @@ void strategy_debra_play_game(struct _robot* robot)
 
     /* Wait for starter to begin */
     wait_for_starter();
-    traj_end_flags = TRAJ_FLAGS_STD;
+    traj_end_flags = TRAJ_FLAGS_ALL;
     trajectory_game_timer_reset(robot);
     rocket_program_launch_time(GAME_DURATION + 1);
 

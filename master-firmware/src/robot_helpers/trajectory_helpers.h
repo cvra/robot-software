@@ -24,7 +24,7 @@ extern "C" {
 #define TRAJ_END_OPPONENT_NEAR  (1 << 2)
 #define TRAJ_END_TIMER          (1 << 3)
 
-#define TRAJ_FLAGS_STD (TRAJ_END_GOAL_REACHED | TRAJ_END_COLLISION | TRAJ_END_OPPONENT_NEAR | TRAJ_END_TIMER)
+#define TRAJ_FLAGS_ALL (TRAJ_END_GOAL_REACHED | TRAJ_END_COLLISION | TRAJ_END_OPPONENT_NEAR | TRAJ_END_TIMER)
 
 /** Returns when ongoing trajectory is finished for the reasons specified
  *  For example when goal is reached
