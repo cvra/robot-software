@@ -109,4 +109,3 @@ TEST(ArmTrajectoriesBuilderTest, WaypointInterpolation)
     DOUBLES_EQUAL(150., result.length[0], 0.1);
     DOUBLES_EQUAL(150., result.length[1], 0.1);
 }
-
