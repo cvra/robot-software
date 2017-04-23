@@ -36,6 +36,7 @@ target.arm:
     - src/libstubs.cpp
     - src/stream.c
     - src/uart_stream.c
+    - src/parameter_listener.c
     - ../lib/can-bootloader/config.c
 
 depends:
