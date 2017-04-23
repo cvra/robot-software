@@ -25,8 +25,6 @@
 #include "strategy.h"
 
 
-int traj_end_flags;
-
 static enum strat_color_t wait_for_color_selection(void);
 static void wait_for_autoposition_signal(void);
 static void wait_for_starter(void);
@@ -85,7 +83,7 @@ void strategy_stop_robot(struct _robot* robot)
     chThdSleepMilliseconds(200);
 }
 
-bool strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg)
+bool strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg, int traj_end_flags)
 {
     /* Create obstacle at opponent position */
     beacon_signal_t beacon_signal;
@@ -155,14 +153,14 @@ bool strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg)
     return false;
 }
 
-bool strategy_goto_avoid_retry(struct _robot* robot, int x_mm, int y_mm, int a_deg, int num_retries)
+bool strategy_goto_avoid_retry(struct _robot* robot, int x_mm, int y_mm, int a_deg, int traj_end_flags, int num_retries)
 {
     bool finished = false;
     int counter = 0;
 
     while (!finished) {
         DEBUG("Try #%d", counter);
-        finished = strategy_goto_avoid(robot, x_mm, y_mm, a_deg);
+        finished = strategy_goto_avoid(robot, x_mm, y_mm, a_deg, traj_end_flags);
         counter++;
 
         // Exit when maximum number of retries is reached
@@ -286,7 +284,7 @@ struct GotoLocation : public goap::Action<DebraState> {
     {
         NOTICE("Goto location %d: %dmm %dmm %ddeg", (int)m_loc, m_x_mm, m_y_mm, m_a_deg);
         state.near_location = Other;
-        if (strategy_goto_avoid(state.robot, m_x_mm, m_y_mm, m_a_deg)) {
+        if (strategy_goto_avoid(state.robot, m_x_mm, m_y_mm, m_a_deg, TRAJ_FLAGS_ALL)) {
             state.near_location = m_loc;
             state.has_moved = true;
             return true;
@@ -325,7 +323,7 @@ struct CollectCylinderRocketBody : public goap::Action<DebraState> {
     {
         NOTICE("Goto location near rocket body full: %dmm %dmm %ddeg", m_x_mm, m_y_mm, m_a_deg);
         state.near_location = Other;
-        if (!strategy_goto_avoid(state.robot, m_x_mm, m_y_mm, m_a_deg)) {
+        if (!strategy_goto_avoid(state.robot, m_x_mm, m_y_mm, m_a_deg, TRAJ_FLAGS_ALL)) {
             return false;
         }
 
@@ -415,9 +413,6 @@ void strategy_debra_play_game(struct _robot* robot)
     /* Wait for color selection */
     enum strat_color_t color = wait_for_color_selection();
 
-    /* Disable obstacle avoidance / game time */
-    traj_end_flags = TRAJ_END_GOAL_REACHED;
-
     int len;
     InitGoal init_goal;
     IndexArms index_arms;
@@ -459,7 +454,7 @@ void strategy_debra_play_game(struct _robot* robot)
     robot->pos.pos_s16.y += 382;
 
     // Second alignement only in y at starting area
-    strategy_goto_avoid_retry(robot, MIRROR_X(color, 890), 200, MIRROR_A(color, -90), -1);
+    strategy_goto_avoid_retry(robot, MIRROR_X(color, 890), 200, MIRROR_A(color, -90), TRAJ_END_GOAL_REACHED, -1);
     strategy_align_y(170, robot->robot_size, robot, &bus);
     trajectory_a_abs(&robot->traj, MIRROR_A(color, 90));
     trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
@@ -469,7 +464,6 @@ void strategy_debra_play_game(struct _robot* robot)
 
     /* Wait for starter to begin */
     wait_for_starter();
-    traj_end_flags = TRAJ_FLAGS_ALL;
     trajectory_game_timer_reset(robot);
     rocket_program_launch_time(GAME_DURATION + 1);
 
@@ -515,7 +509,7 @@ void strategy_sandoi_play_game(struct _robot* robot)
 
     while (true) {
         /* Go to lunar module */
-        strategy_goto_avoid_retry(robot, MIRROR_X(color, 780), 1340, MIRROR_A(color, 45), -1);
+        strategy_goto_avoid_retry(robot, MIRROR_X(color, 780), 1340, MIRROR_A(color, 45), TRAJ_FLAGS_ALL, -1);
 
         /* Push lunar module */
         trajectory_d_rel(&robot->traj, 100.);
@@ -524,7 +518,7 @@ void strategy_sandoi_play_game(struct _robot* robot)
         trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
 
         /* Go back to home */
-        strategy_goto_avoid_retry(robot, MIRROR_X(color, 600), 200, MIRROR_A(color, 90), -1);
+        strategy_goto_avoid_retry(robot, MIRROR_X(color, 600), 200, MIRROR_A(color, 90), TRAJ_FLAGS_ALL, -1);
 
         DEBUG("Game ended!\nInsert coin to play more.\n");
         chThdSleepSeconds(1);

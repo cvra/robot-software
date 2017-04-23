@@ -400,7 +400,7 @@ static void cmd_goto_avoid(BaseSequentialStream *chp, int argc, char *argv[])
         int32_t a = atoi(argv[2]);
 
         trajectory_set_mode_game(&robot.mode, &robot.traj, &robot.distance_bd, &robot.angle_bd);
-        strategy_goto_avoid(&robot, x, y, a);
+        strategy_goto_avoid(&robot, x, y, a, TRAJ_FLAGS_ALL);
     } else {
         chprintf(chp, "Usage: goto_avoid x y a\r\n");
     }
