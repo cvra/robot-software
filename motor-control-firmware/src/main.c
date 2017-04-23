@@ -17,54 +17,10 @@
 #include "uavcan/uavcan_node.h"
 #include "timestamp/timestamp_stm32.h"
 #include "index.h"
+#include "uart_stream.h"
 
 BaseSequentialStream* ch_stdout;
 parameter_namespace_t parameter_root_ns;
-
-
-static void _stream_sndfn(void *arg, const void *p, size_t len)
-{
-    if (len > 0) {
-        chSequentialStreamWrite((BaseSequentialStream*)arg, (const uint8_t*)p, len);
-    }
-}
-
-THD_WORKING_AREA(stream_task_wa, 256);
-THD_FUNCTION(stream_task, arg)
-{
-    (void)arg;
-    chRegSetThreadName("print data");
-    static char dtgrm[200];
-    static cmp_mem_access_t mem;
-    static cmp_ctx_t cmp;
-    while (1) {
-        cmp_mem_access_init(&cmp, &mem, dtgrm, sizeof(dtgrm));
-        bool err = false;
-        err = err || !cmp_write_map(&cmp, 3);
-        const char *enc_id = "enc";
-        err = err || !cmp_write_str(&cmp, enc_id, strlen(enc_id));
-        err = err || !cmp_write_u32(&cmp, encoder_get_primary());
-        const char *pos_id = "pos";
-        err = err || !cmp_write_str(&cmp, pos_id, strlen(pos_id));
-        err = err || !cmp_write_float(&cmp, control_get_position());
-        const char *vel_id = "vel";
-        err = err || !cmp_write_str(&cmp, vel_id, strlen(vel_id));
-        err = err || !cmp_write_float(&cmp, control_get_velocity());
-        // const char *batt_voltage_id = "batt_voltage";
-        // err = err || !cmp_write_str(&cmp, batt_voltage_id, strlen(batt_voltage_id));
-        // err = err || !cmp_write_float(&cmp, analog_get_battery_voltage());
-        //const char *velocity_id = "velocity";
-        //err = err || !cmp_write_str(&cmp, velocity_id, strlen(velocity_id));
-        //err = err || !cmp_write_float(&cmp, control_get_velocity());
-        //const char *vel_ctrl_id = "vel_ctrl";
-        //err = err || !cmp_write_str(&cmp, vel_ctrl_id, strlen(vel_ctrl_id));
-        //err = err || !cmp_write_float(&cmp, control_get_vel_ctrl_out());
-        if (!err) {
-            serial_datagram_send(dtgrm, cmp_mem_access_get_pos(&mem), _stream_sndfn, ch_stdout);
-        }
-        chThdSleepMilliseconds(10);
-    }
-}
 
 static void error_cb(void *arg, const char *id, const char *err)
 {
@@ -204,7 +160,7 @@ int main(void) {
 
     index_init();
 
-    // chThdCreateStatic(stream_task_wa, sizeof(stream_task_wa), LOWPRIO, stream_task, NULL);
+    // uart_stream_start(ch_stdout);
     chThdCreateStatic(parameter_listener_wa, sizeof(parameter_listener_wa), LOWPRIO, parameter_listener, &SD3);
     chThdCreateStatic(led_thread_wa, sizeof(led_thread_wa), LOWPRIO, led_thread, NULL);
 

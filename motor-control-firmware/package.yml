@@ -35,6 +35,7 @@ target.arm:
     - src/uavcan/uavcan_streams.cpp
     - src/libstubs.cpp
     - src/stream.c
+    - src/uart_stream.c
     - ../lib/can-bootloader/config.c
 
 depends:
