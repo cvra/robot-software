@@ -222,3 +222,35 @@ TEST(MapEurobot2017, canMoveOnBlueSideForAutopositioning)
     CHECK_EQUAL(end.x, points[3].x);
     CHECK_EQUAL(end.y, points[3].y);
 };
+
+TEST(MapEurobot2017, canMoveOnYellowGoOut)
+{
+    point_t start = {.x = 890, .y=200};
+    point_t end = {.x =1200 , .y=400};
+
+    oa_start_end_points(start.x, start.y, end.x, end.y);
+    oa_process();
+
+    point_t *points;
+    auto point_cnt = oa_get_path(&points);
+
+    CHECK_EQUAL(1, point_cnt);
+    CHECK_EQUAL(end.x, points[0].x);
+    CHECK_EQUAL(end.y, points[0].y);
+};
+
+TEST(MapEurobot2017, canMoveOnBlueGoOut)
+{
+    point_t start = {.x = 2110, .y=200};
+    point_t end = {.x =1800 , .y=400};
+
+    oa_start_end_points(start.x, start.y, end.x, end.y);
+    oa_process();
+
+    point_t *points;
+    auto point_cnt = oa_get_path(&points);
+
+    CHECK_EQUAL(1, point_cnt);
+    CHECK_EQUAL(end.x, points[0].x);
+    CHECK_EQUAL(end.y, points[0].y);
+};

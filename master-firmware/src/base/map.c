@@ -22,8 +22,6 @@ void map_init(int robot_size)
     }
     map_set_rectangular_obstacle(map.crater[0], 650, 540, 240, 260, robot_size);
     map_set_rectangular_obstacle(map.crater[1], 2350, 540, 240, 260, robot_size);
-    map_set_rectangular_obstacle(map.crater[2], 1070, 1870, 240, 260, robot_size);
-    map_set_rectangular_obstacle(map.crater[3], 1930, 1870, 240, 260, robot_size);
 
     /* Add fences */
     for (int i = 0; i < MAP_NUM_FENCE; i++) {
