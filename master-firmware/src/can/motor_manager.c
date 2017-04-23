@@ -37,7 +37,7 @@ motor_driver_t *motor_manager_create_driver(motor_manager_t *m,
 
         return driver;
     } else {
-        chSysHalt("Motor driver memory allocation failed.");
+        ERROR("Motor driver memory allocation failed.");
         return NULL;
     }
 }

@@ -92,7 +92,7 @@ static void cmd_crashme(BaseSequentialStream *chp, int argc, char **argv) {
     (void) argc;
     (void) chp;
 
-    chSysHalt(__FUNCTION__);
+    ERROR("You asked for it!, uptime=%d ms", ST2MS(chVTGetSystemTime()));
 }
 
 static void cmd_reboot(BaseSequentialStream *chp, int argc, char **argv) {

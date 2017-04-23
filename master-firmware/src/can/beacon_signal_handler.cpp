@@ -22,7 +22,7 @@ static void beacon_cb(const uavcan::ReceivedDataStructure<cvra::proximity_beacon
     angular_offset_p = parameter_find(&global_config, "/master/beacon/angular_offset");
 
     if (reflector_radius_p == NULL || angular_offset_p == NULL) {
-        ERROR("Cound not find beacon parameters!");
+        WARNING("Cound not find beacon parameters!");
         return;
     }
 

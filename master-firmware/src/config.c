@@ -1,5 +1,6 @@
 #include <ch.h>
 #include <stdio.h>
+#include <error/error.h>
 #include "config.h"
 
 parameter_namespace_t global_config;
@@ -162,9 +163,7 @@ float config_get_scalar(const char *id)
     p = parameter_find(&global_config, id);
 
     if (p == NULL) {
-        char err_msg[64];
-        snprintf(err_msg, sizeof err_msg, "Unknown param %s", id);
-        chSysHalt(err_msg);
+        ERROR("Unknown parameter \"%s\"", id);
     }
 
     return parameter_scalar_get(p);
@@ -177,9 +176,7 @@ int config_get_integer(const char *id)
     p = parameter_find(&global_config, id);
 
     if (p == NULL) {
-        char err_msg[64];
-        snprintf(err_msg, sizeof err_msg, "Unknown param %s", id);
-        chSysHalt(err_msg);
+        ERROR("Unknown parameter \"%s\"", id);
     }
 
     return parameter_integer_get(p);

@@ -334,6 +334,6 @@ template<typename T>
 static void assert_call_successful(const ServiceCallResult<T>& call_result)
 {
     if (!call_result.isSuccessful()) {
-        chSysHalt("uavcan service call timeout");
+        ERROR("uavcan service call timeout");
     }
 }

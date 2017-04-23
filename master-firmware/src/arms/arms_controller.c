@@ -94,7 +94,7 @@ float arms_motor_auto_index(const char* motor_name, int motor_dir, float motor_s
 {
     motor_driver_t* motor = bus_enumerator_get_driver(motor_manager.bus_enumerator, motor_name);
     if (motor == NULL) {
-        chSysHalt("Motor doesn't exist");
+        ERROR("Motor \"%s\" doesn't exist", motor_name);
     }
 
     return motor_auto_index(motor, motor_dir, motor_speed);
@@ -178,7 +178,7 @@ void arms_auto_index(const char** motor_names, int* motor_dirs, float* motor_spe
     for (size_t i = 0; i < num_motors; i++) {
         motors[i] = bus_enumerator_get_driver(motor_manager.bus_enumerator, motor_names[i]);
         if (motors[i] == NULL) {
-            chSysHalt("Motor doesn't exist");
+            ERROR("Motor \"%s\" doesn't exist", motor_names[i]);
         }
     }
 

@@ -1,4 +1,4 @@
-#include <ch.h>
+#include <error/error.h>
 #include "timestamp/timestamp.h"
 #include "scara/scara_port.h"
 
@@ -9,7 +9,7 @@ int32_t scara_time_get_impl(void)
 
 void scara_panic_impl(void)
 {
-    chSysHalt("Arm panic");
+    ERROR("Arm panic");
 }
 
 int32_t (*scara_time_get)(void) = scara_time_get_impl;

@@ -61,7 +61,7 @@ void rpc_server_thread(void *p)
     /* Creates a TCP server */
     conn = netconn_new(NETCONN_TCP);
     if (conn == NULL) {
-        chSysHalt("Cannot create SimpleRPC service call server connection (out of memory).");
+        ERROR("Cannot create SimpleRPC service call server connection (out of memory).");
     }
 
     netconn_bind(conn, IP_ADDR_ANY, RPC_SERVER_PORT);
@@ -96,7 +96,7 @@ void rpc_server_thread(void *p)
                 netbuf_data(buf, (void **)&data, &len);
                 err = serial_datagram_receive(&handler, data, len);
                 if (err != SERIAL_DATAGRAM_RCV_NO_ERROR) {
-                    chSysHalt("rpc buffer too small");
+                    ERROR("rpc buffer too small");
                 }
             } while (netbuf_next(buf) >= 0);
             netbuf_delete(buf);
@@ -170,7 +170,7 @@ size_t rpc_transmit(uint8_t *input_buffer, size_t input_buffer_size,
             /* Append data to buffer. */
             int wlen = ctx.write(&ctx, data, len);
             if (wlen != len) {
-                chSysHalt("rpc too long");
+                ERROR("rpc too long");
             }
 
         } while (netbuf_next(buf) >= 0);
@@ -197,7 +197,7 @@ void message_server_thread(void *arg)
 
     conn = netconn_new(NETCONN_UDP);
     if (conn == NULL) {
-        chSysHalt("Cannot create SimpleRPC message server connection (out of memory).");
+        ERROR("Cannot create SimpleRPC message server connection (out of memory).");
     }
     netconn_bind(conn, NULL, MSG_SERVER_PORT);
 
@@ -206,7 +206,7 @@ void message_server_thread(void *arg)
 
         if (err == ERR_OK) {
             if (netbuf_copy(buf, buffer, buf->p->tot_len) == 0) {
-                chSysHalt("udp message buffer too small");
+                ERROR("udp message buffer too small");
             }
             trace_integer(TRACE_POINT_RPC_MESSAGE_RCV, buf->p->tot_len);
             message_process(buffer, buf->p->tot_len, message_callbacks, message_callbacks_len);

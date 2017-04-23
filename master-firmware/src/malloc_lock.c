@@ -1,5 +1,6 @@
 #include <ch.h>
 #include <malloc.h>
+#include <error/error.h>
 
 static bool lock_initialized = false;
 static mutex_t lock;
@@ -20,7 +21,7 @@ void __malloc_lock (struct _reent *reent)
     if (lock_initialized) {
         chMtxLock(&lock);
     } else {
-        chSysHalt("use of malloc before init");
+        ERROR("use of malloc before lock init");
     }
 }
 

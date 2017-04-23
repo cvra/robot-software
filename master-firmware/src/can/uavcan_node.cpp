@@ -37,7 +37,6 @@ namespace uavcan_node
 {
 
 static void node_status_cb(const uavcan::ReceivedDataStructure<uavcan::protocol::NodeStatus>& msg);
-static void node_fail(const char *reason);
 
 /** This class is used by libuavcan to connect node information to our bus
  * enumerator. */
@@ -81,7 +80,7 @@ static void main(void *arg)
     res = can_interface.init(UAVCAN_CAN_BITRATE);
 
     if (res < 0) {
-        node_fail("Hardware interface init");
+        ERROR("Hardware interface init");
     }
 
     static uavcan::Node<UAVCAN_MEMORY_POOL_SIZE> node(can_interface.driver,
@@ -100,45 +99,45 @@ static void main(void *arg)
 
     res = node.start();
     if (res < 0) {
-        node_fail("node start");
+        ERROR("node start");
     }
 
     uavcan::Subscriber<uavcan::protocol::NodeStatus> ns_sub(node);
     res = ns_sub.start(node_status_cb);
     if (res < 0) {
-        node_fail("NodeStatus subscribe");
+        ERROR("NodeStatus subscribe");
     }
 
     res = motor_feedback_stream_handler_init(node, &bus_enumerator);
     if (res < 0) {
-        node_fail("motor feedback");
+        ERROR("motor feedback");
     }
 
     res = beacon_signal_handler_init(node);
     if (res < 0) {
-        node_fail("beacon signal handler");
+        ERROR("beacon signal handler");
     }
 
     res = motor_driver_uavcan_init(node);
     if (res < 0) {
-        node_fail("motor driver");
+        ERROR("motor driver");
     }
 
     res = hand_driver_init(node);
     if (res < 0) {
-        node_fail("hand driver");
+        ERROR("hand driver");
     }
 
     res = emergency_stop_init(node);
     if (res != 0) {
-        node_fail("Emergency stop handler");
+        ERROR("Emergency stop handler");
     }
 
     static uavcan::NodeInfoRetriever retriever(node);
 
     res = retriever.start();
     if (res < 0) {
-        node_fail("NodeInfoRetriever");
+        ERROR("NodeInfoRetriever");
     }
 
     /*
@@ -147,12 +146,12 @@ static void main(void *arg)
     static BusEnumeratorNodeInfoAdapter collector;
     res = retriever.addListener(&collector);
     if (res < 0) {
-        node_fail("BusEnumeratorAdapter");
+        ERROR("BusEnumeratorAdapter");
     }
 
     res = rocket_init(node);
     if (res < 0) {
-        node_fail("Rocket driver");
+        ERROR("Rocket driver");
     }
 
     // Mark the node as correctly initialized
@@ -172,13 +171,6 @@ static void node_status_cb(const uavcan::ReceivedDataStructure<uavcan::protocol:
     if (msg.health != uavcan::protocol::NodeStatus::HEALTH_OK) {
         WARNING("UAVCAN node %u health", msg.getSrcNodeID().get());
     }
-}
-
-static void node_fail(const char *reason)
-{
-    (void) reason;
-    ERROR("UAVCAN error: %s", reason);
-    chSysHalt(reason);
 }
 
 } // namespace uavcan_node

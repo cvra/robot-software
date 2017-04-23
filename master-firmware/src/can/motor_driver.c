@@ -144,7 +144,7 @@ int motor_driver_get_control_mode(motor_driver_t *d)
 float motor_driver_get_position_setpt(motor_driver_t *d)
 {
     if (d->control_mode != MOTOR_CONTROL_MODE_POSITION) {
-        chSysHalt("motor driver get position wrong setpt mode");
+        ERROR("motor driver get position wrong setpt mode");
     }
     return d->setpt.position;
 }
@@ -152,7 +152,7 @@ float motor_driver_get_position_setpt(motor_driver_t *d)
 float motor_driver_get_velocity_setpt(motor_driver_t *d)
 {
     if (d->control_mode != MOTOR_CONTROL_MODE_VELOCITY) {
-        chSysHalt("motor driver get velocity wrong setpt mode");
+        ERROR("motor driver get velocity wrong setpt mode");
     }
     return d->setpt.velocity;
 }
@@ -160,7 +160,7 @@ float motor_driver_get_velocity_setpt(motor_driver_t *d)
 float motor_driver_get_torque_setpt(motor_driver_t *d)
 {
     if (d->control_mode != MOTOR_CONTROL_MODE_TORQUE) {
-        chSysHalt("motor driver get torque wrong setpt mode");
+        ERROR("motor driver get torque wrong setpt mode");
     }
     return d->setpt.torque;
 }
@@ -168,7 +168,7 @@ float motor_driver_get_torque_setpt(motor_driver_t *d)
 float motor_driver_get_voltage_setpt(motor_driver_t *d)
 {
     if (d->control_mode != MOTOR_CONTROL_MODE_VOLTAGE) {
-        chSysHalt("motor driver get voltage wrong setpt mode");
+        ERROR("motor driver get voltage wrong setpt mode");
     }
     return d->setpt.voltage;
 }

@@ -1,3 +1,4 @@
+#include <error/error.h>
 #include "motor_manager.h"
 #include "main.h"
 
@@ -7,7 +8,7 @@ motor_driver_t* get_motor_driver(motor_manager_t* manager, const char* name)
 {
     motor_driver_t* motor = bus_enumerator_get_driver(manager->bus_enumerator, name);
     if (motor == NULL) {
-        chSysHalt("Motor doesn't exist");
+        ERROR("Motor \"%s\" doesn't exist", name);
     }
     return motor;
 }

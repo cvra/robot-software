@@ -324,7 +324,7 @@ void init_hands(void)
 
 void __stack_chk_fail(void)
 {
-    chSysHalt("Stack smashing detected");
+    ERROR("Stack smashing detected");
 }
 
 void context_switch_hook(void *ntp, void *otp)
