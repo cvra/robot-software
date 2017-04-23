@@ -259,42 +259,6 @@ struct RetractArms : public goap::Action<DebraState> {
     }
 };
 
-struct GotoLocation : public goap::Action<DebraState> {
-    enum Location m_loc;
-    int m_x_mm, m_y_mm, m_a_deg;
-
-    GotoLocation(enum Location loc, int x_mm, int y_mm, int a_deg) :
-        m_loc(loc), m_x_mm(x_mm), m_y_mm(y_mm), m_a_deg(a_deg)
-    {
-    }
-
-    bool can_run(DebraState state)
-    {
-        return !state.arms_are_deployed && !state.has_moved && state.location_accessible[(int)m_loc];
-    }
-
-    DebraState plan_effects(DebraState state)
-    {
-        state.near_location = m_loc;
-        state.has_moved = true;
-        return state;
-    }
-
-    bool execute(DebraState &state)
-    {
-        NOTICE("Goto location %d: %dmm %dmm %ddeg", (int)m_loc, m_x_mm, m_y_mm, m_a_deg);
-        state.near_location = Other;
-        if (strategy_goto_avoid(state.robot, m_x_mm, m_y_mm, m_a_deg, TRAJ_FLAGS_ALL)) {
-            state.near_location = m_loc;
-            state.has_moved = true;
-            return true;
-        } else {
-            state.location_accessible[(int)m_loc] = false;
-            return false;
-        }
-    }
-};
-
 struct CollectCylinderRocketBody : public goap::Action<DebraState> {
     int m_x_mm, m_y_mm, m_a_deg;
     enum strat_color_t m_color;
@@ -351,45 +315,6 @@ struct CollectCylinderRocketBody : public goap::Action<DebraState> {
 
         state.cylinder_count++;
         state.arms_are_deployed = true;
-        return true;
-    }
-};
-
-
-struct PickCylinder : public goap::Action<DebraState> {
-    enum Location m_loc;
-    int m_x_mm, m_y_mm;
-    int m_cylinder_index;
-
-    PickCylinder(enum Location loc, int x_mm, int y_mm, int idx) :
-        m_loc(loc), m_x_mm(x_mm), m_y_mm(y_mm), m_cylinder_index(idx)
-    {
-    }
-
-    bool can_run(DebraState state)
-    {
-        return state.near_location == m_loc && state.cylinder_present[m_cylinder_index];
-    }
-
-    DebraState plan_effects(DebraState state)
-    {
-        state.cylinder_count++;
-        state.arms_are_deployed = true;
-        state.has_moved = false;
-        state.cylinder_present[m_cylinder_index] = false;
-        return state;
-    }
-
-    bool execute(DebraState &state)
-    {
-        NOTICE("Pick cylinder %d", (int)m_loc);
-        scara_goto(&left_arm, m_x_mm, m_y_mm, 20, COORDINATE_TABLE, 5.);
-        chThdSleepSeconds(5);
-
-        state.cylinder_count++;
-        state.arms_are_deployed = true;
-        state.has_moved = false;
-        state.cylinder_present[m_cylinder_index] = false;
         return true;
     }
 };
