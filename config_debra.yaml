@@ -23,7 +23,7 @@ master:
                 kd: 0.
                 ilimit: 5000.
     arms:
-        upperarm_length: 140. # in mm
+        upperarm_length: 86. # in mm
         forearm_length: 72. # in mm
         left:
             offset_x: 0.   # in mm
