@@ -13,14 +13,14 @@ master:
     aversive:
         control:
             angle:
-                kp: 30.
+                kp: 3
                 ki: 0.
-                kd: 80.
+                kd: 20.
                 ilimit: 1000.
             distance:
-                kp: 50.
+                kp: 2.15
                 ki: 0.
-                kd: 0.
+                kd: 30.
                 ilimit: 5000.
     arms:
         upperarm_length: 86. # in mm
