@@ -126,19 +126,14 @@ static THD_FUNCTION(base_ctrl_thd, arg)
         /* Collision detected */
         if (bd_get(&robot.distance_bd)) {
             WARNING("Collision detected in distance !");
-            // trajectory_hardstop(&robot.traj);
-            // rs_set_distance(&robot.rs, 0);
         }
         if (bd_get(&robot.angle_bd)) {
             WARNING("Collision detected in angle !");
-            // trajectory_hardstop(&robot.traj);
-            // rs_set_angle(&robot.rs, 0);
         }
 
         if (parameter_namespace_contains_changed(control_params)) {
             float kp, ki, kd, ilim;
             pid_get_gains(&robot.angle_pid.pid, &kp, &ki, &kd);
-            ilim = pid_get_integral_limit(&robot.angle_pid.pid);
             kp = parameter_scalar_get(parameter_find(control_params, "angle/kp"));
             ki = parameter_scalar_get(parameter_find(control_params, "angle/ki"));
             kd = parameter_scalar_get(parameter_find(control_params, "angle/kd"));
@@ -147,7 +142,6 @@ static THD_FUNCTION(base_ctrl_thd, arg)
             pid_set_integral_limit(&robot.angle_pid.pid, ilim);
 
             pid_get_gains(&robot.distance_pid.pid, &kp, &ki, &kd);
-            ilim = pid_get_integral_limit(&robot.distance_pid.pid);
             kp = parameter_scalar_get(parameter_find(control_params, "distance/kp"));
             ki = parameter_scalar_get(parameter_find(control_params, "distance/ki"));
             kd = parameter_scalar_get(parameter_find(control_params, "distance/kd"));
@@ -156,7 +150,7 @@ static THD_FUNCTION(base_ctrl_thd, arg)
             pid_set_integral_limit(&robot.distance_pid.pid, ilim);
         }
 
-        /* Wait 10 milliseconds (100 Hz) */
+        /* Wait until next regulation loop */
         chThdSleepMilliseconds(1000 / ASSERV_FREQUENCY);
     }
 }
