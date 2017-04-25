@@ -857,6 +857,28 @@ static void cmd_hand(BaseSequentialStream *chp, int argc, char *argv[])
     chprintf(chp, "Moving %s hand to %f in %s frame\r\n", argv[1], heading, argv[0]);
 }
 
+static void cmd_state(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    (void)argc;
+    (void)argv;
+
+    float x, y, z;
+
+    chprintf(chp, "Current robot state:\r\n");
+
+    chprintf(chp, "Position of robot is %d %d %d\r\n",
+             position_get_x_s16(&robot.pos), position_get_y_s16(&robot.pos), position_get_a_deg_s16(&robot.pos));
+
+    scara_pos(&right_arm, &x, &y, &z, COORDINATE_TABLE);
+    chprintf(chp, "Position of right arm is %.1f %.1f %.1f in table frame with hand %.3f\r\n",
+             x, y, z, hand_convert_waypoint_coordinate(&right_hand, right_hand.last_waypoint));
+
+    scara_pos(&left_arm, &x, &y, &z, COORDINATE_TABLE);
+    chprintf(chp, "Position of left arm is %.1f %.1f %.1f in table frame with hand %.3f\r\n",
+             x, y, z, hand_convert_waypoint_coordinate(&left_hand, left_hand.last_waypoint));
+}
+
+
 static void cmd_rocket(BaseSequentialStream *chp, int argc, char *argv[])
 {
     float pos;
@@ -934,6 +956,7 @@ const ShellCommand commands[] = {
     {"fingers_cmd", cmd_fingers_cmd},
     {"hand", cmd_hand},
     {"rocket", cmd_rocket},
+    {"state", cmd_state},
     {"trace", cmd_trace},
     {NULL, NULL}
 };
