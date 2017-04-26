@@ -48,11 +48,6 @@ int trajectory_has_ended(int watched_end_reasons);
  */
 void trajectory_align_with_wall(void);
 
-/** Go to request (x, y, a) point on table
- * @note This is a blocking call that returns when the goal is reached
- */
-void trajectory_move_to(int32_t x_mm, int32_t y_mm, int32_t a_deg);
-
 /** Check if current trajectory segment crosses the passed obstacle
  */
 bool trajectory_crosses_obstacle(poly_t* opponent, point_t* intersection);

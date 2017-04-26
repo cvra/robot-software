@@ -379,16 +379,14 @@ static void cmd_traj_rotate(BaseSequentialStream *chp, int argc, char *argv[])
 
 static void cmd_traj_goto(BaseSequentialStream *chp, int argc, char *argv[])
 {
-    if (argc == 3) {
-        int32_t x, y, a;
+    if (argc == 2) {
+        int32_t x, y;
         x = atoi(argv[0]);
         y = atoi(argv[1]);
-        a = atoi(argv[2]);
-        chprintf(chp, "Going to x: %d [mm], y: %d [mm], a: %d [deg]\r\n", x, y, a);
-
-        trajectory_move_to(x, y, a);
+        chprintf(chp, "Going to x: %d [mm], y: %d [mm]\r\n", x, y);
+        trajectory_goto_xy_abs(&robot.traj, x, y);
     } else {
-        chprintf(chp, "Usage: goto x y a\r\n");
+        chprintf(chp, "Usage: goto x y\r\n");
     }
 }
 

@@ -97,14 +97,6 @@ void trajectory_align_with_wall(void)
     robot.mode = BOARD_MODE_ANGLE_DISTANCE;
 }
 
-void trajectory_move_to(int32_t x_mm, int32_t y_mm, int32_t a_deg)
-{
-    trajectory_goto_xy_abs(&robot.traj, x_mm, y_mm);
-    trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
-
-    trajectory_a_abs(&robot.traj, a_deg);
-    trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
-}
 
 bool trajectory_crosses_obstacle(poly_t* opponent, point_t* intersection)
 {
