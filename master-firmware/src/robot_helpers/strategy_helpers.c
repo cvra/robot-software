@@ -22,10 +22,10 @@ void strategy_auto_position(int32_t x, int32_t y, int32_t heading, enum strat_co
     /* Set  position in x and heading */
     if (robot.calibration_direction < 0) {
         position_set(&robot.pos, MIRROR_X(robot_color, robot.robot_size / 2), 0,
-                     MIRROR_A(robot_color, 180));
+                     MIRROR_A(robot_color, 0));
     } else {
         position_set(&robot.pos, MIRROR_X(robot_color, robot.robot_size / 2), 0,
-                     MIRROR_A(robot_color, 0));
+                     MIRROR_A(robot_color, 180));
     }
 
     /* Go to desired position in x. */
