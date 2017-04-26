@@ -23,7 +23,7 @@ void arms_init(void)
 {
     /* Configure left arm */
     scara_init(&left_arm);
-    static cvra_arm_motor_t left_z = {.m = &motor_manager, .direction = -1, .index = 0};
+    static cvra_arm_motor_t left_z = {.m = &motor_manager, .direction = 1, .index = 0};
     static cvra_arm_motor_t left_shoulder = {.m = &motor_manager, .direction = -1, .index = 0};
     static cvra_arm_motor_t left_elbow = {.m = &motor_manager, .direction = -1, .index = 0};
 
@@ -43,7 +43,7 @@ void arms_init(void)
 
     /* Configure right arm */
     scara_init(&right_arm);
-    static cvra_arm_motor_t right_z = {.m = &motor_manager, .direction = -1, .index = 0};
+    static cvra_arm_motor_t right_z = {.m = &motor_manager, .direction = 1, .index = 0};
     static cvra_arm_motor_t right_shoulder = {.m = &motor_manager, .direction = -1, .index = 0};
     static cvra_arm_motor_t right_elbow = {.m = &motor_manager, .direction = -1, .index = 0};
 

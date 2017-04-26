@@ -211,18 +211,25 @@ struct IndexArms : public goap::Action<DebraState> {
     {
         NOTICE("Indexing arms!");
 
+        const char* z_names[2] = {"left-z", "right-z"};
+        int z_dirs[2] = {-1, -1};
+        float z_speeds[2] = {20, 20};
+        float z_indexes[2];
+        arms_auto_index(z_names, z_dirs, z_speeds, 2, z_indexes);
+
+        arms_set_motor_index(left_arm.z_args, z_indexes[0]);
+        arms_set_motor_index(right_arm.z_args, z_indexes[1]);
+
         const char* motor_names[6] = {"left-shoulder", "left-elbow", "left-wrist", "right-shoulder", "right-elbow", "right-wrist"};
         int motor_dirs[6] = {1, 1, 1, -1, -1, -1};
         float motor_speeds[6] = {0.8, 0.8, 4.0, 0.8, 0.8, 4.0};
         float motor_indexes[6];
         arms_auto_index(motor_names, motor_dirs, motor_speeds, 6, motor_indexes);
 
-        arms_set_motor_index(left_arm.z_args, 0);
         arms_set_motor_index(left_arm.shoulder_args, motor_indexes[0]);
         arms_set_motor_index(left_arm.elbow_args, motor_indexes[1]);
         arms_set_motor_index(left_hand.wrist_args, motor_indexes[2]);
 
-        arms_set_motor_index(right_arm.z_args, 0);
         arms_set_motor_index(right_arm.shoulder_args, motor_indexes[3]);
         arms_set_motor_index(right_arm.elbow_args, motor_indexes[4]);
         arms_set_motor_index(right_hand.wrist_args, motor_indexes[5]);
