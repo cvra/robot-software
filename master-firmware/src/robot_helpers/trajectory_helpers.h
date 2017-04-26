@@ -34,7 +34,7 @@ extern "C" {
  *
  * @param watched_end_reasons bitmask of the end reasons to watch for
  */
-int trajectory_wait_for_end(struct _robot *robot, messagebus_t *bus, int watched_end_reasons);
+int trajectory_wait_for_end(int watched_end_reasons);
 
 /** Watches the robot state for the reasons specified
  *  Returns with the end reason of the trajectory if watching it
@@ -42,25 +42,25 @@ int trajectory_wait_for_end(struct _robot *robot, messagebus_t *bus, int watched
  *
  * @param watched_end_reasons bitmask of the end reasons to watch for
  */
-int trajectory_has_ended(struct _robot *robot, messagebus_t *bus, int watched_end_reasons);
+int trajectory_has_ended(int watched_end_reasons);
 
 /** Go backwards until a wall is hit to align with it
  */
-void trajectory_align_with_wall(struct _robot *robot, messagebus_t *bus);
+void trajectory_align_with_wall(void);
 
 /** Go to request (x, y, a) point on table
  * @note This is a blocking call that returns when the goal is reached
  */
-void trajectory_move_to(struct _robot* robot, messagebus_t *bus, int32_t x_mm, int32_t y_mm, int32_t a_deg);
+void trajectory_move_to(int32_t x_mm, int32_t y_mm, int32_t a_deg);
 
 /** Check if current trajectory segment crosses the passed obstacle
  */
-bool trajectory_crosses_obstacle(struct _robot* robot, poly_t* opponent, point_t* intersection);
+bool trajectory_crosses_obstacle(poly_t* opponent, point_t* intersection);
 
 /** Check if the current trajectory will collide with the obstacle
     seen at position (x,y)
  */
-bool trajectory_is_on_collision_path(struct _robot* robot, int x, int y);
+bool trajectory_is_on_collision_path(int x, int y);
 
 /** Prepare robot for aligning by settings its dynamics accordingly
  * ie. slower and less sensitive to collisions
@@ -81,11 +81,11 @@ void trajectory_set_mode_game(
 
 /** Set game starting time
  */
-void trajectory_game_timer_reset(struct _robot* robot);
+void trajectory_game_timer_reset(void);
 
 /** Get current game time
  */
-int trajectory_get_time(struct _robot* robot);
+int trajectory_get_time(void);
 
 
 #ifdef __cplusplus

@@ -7,7 +7,7 @@ extern "C" {
 
 void strategy_start(void);
 
-bool strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg, int traj_end_flags);
+bool strategy_goto_avoid(int x_mm, int y_mm, int a_deg, int traj_end_flags);
 
 #ifdef __cplusplus
 }

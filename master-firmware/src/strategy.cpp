@@ -28,7 +28,7 @@
 static enum strat_color_t wait_for_color_selection(void);
 static void wait_for_autoposition_signal(void);
 static void wait_for_starter(void);
-void strategy_play_game(void* robot);
+void strategy_play_game(void);
 
 #define BUTTON_IS_PRESSED(port, io) (palReadPad(port, io) == false) // Active low
 
@@ -77,13 +77,13 @@ static void wait_for_autoposition_signal(void)
     wait_for_starter();
 }
 
-void strategy_stop_robot(struct _robot* robot)
+void strategy_stop_robot(void)
 {
-    trajectory_hardstop(&robot->traj);
+    trajectory_hardstop(&robot.traj);
     chThdSleepMilliseconds(200);
 }
 
-bool strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg, int traj_end_flags)
+bool strategy_goto_avoid(int x_mm, int y_mm, int a_deg, int traj_end_flags)
 {
     /* Create obstacle at opponent position */
     beacon_signal_t beacon_signal;
@@ -93,15 +93,15 @@ bool strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg, in
     // only consider recent beacon signal
     if (timestamp_duration_s(beacon_signal.timestamp, timestamp_get()) < TRAJ_MAX_TIME_DELAY_OPPONENT_DETECTION) {
         float x_opp, y_opp;
-        beacon_cartesian_convert(&robot->pos, 1000 * beacon_signal.distance, beacon_signal.heading, &x_opp, &y_opp);
-        map_update_opponent_obstacle(x_opp, y_opp, robot->opponent_size * 1.25, robot->robot_size);
+        beacon_cartesian_convert(&robot.pos, 1000 * beacon_signal.distance, beacon_signal.heading, &x_opp, &y_opp);
+        map_update_opponent_obstacle(x_opp, y_opp, robot.opponent_size * 1.25, robot.robot_size);
     }
 
     /* Compute path */
     oa_reset();
     const point_t start = {
-            position_get_x_float(&robot->pos),
-            position_get_y_float(&robot->pos)
+            position_get_x_float(&robot.pos),
+            position_get_y_float(&robot.pos)
         };
     oa_start_end_points(start.x, start.y, x_mm, y_mm);
     oa_process();
@@ -112,7 +112,7 @@ bool strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg, in
     DEBUG("Path to (%d, %d) computed with %d points", x_mm, y_mm, num_points);
     if (num_points <= 0) {
         WARNING("No path found!");
-        strategy_stop_robot(robot);
+        strategy_stop_robot();
         return false;
     }
 
@@ -122,8 +122,8 @@ bool strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg, in
     for (int i = 0; i < num_points; i++) {
         DEBUG("Going to x: %.1fmm y: %.1fmm", points[i].x, points[i].y);
 
-        trajectory_goto_forward_xy_abs(&robot->traj, points[i].x, points[i].y);
-        end_reason = trajectory_wait_for_end(robot, &bus, traj_end_flags);
+        trajectory_goto_forward_xy_abs(&robot.traj, points[i].x, points[i].y);
+        end_reason = trajectory_wait_for_end(traj_end_flags);
 
         if (end_reason != TRAJ_END_GOAL_REACHED) {
             break;
@@ -131,20 +131,20 @@ bool strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg, in
     }
 
     if (end_reason == TRAJ_END_GOAL_REACHED) {
-        trajectory_a_abs(&robot->traj, a_deg);
-        trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
+        trajectory_a_abs(&robot.traj, a_deg);
+        trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
 
         DEBUG("Goal reached successfully");
 
         return true;
     } else if (end_reason == TRAJ_END_OPPONENT_NEAR) {
-        strategy_stop_robot(robot);
+        strategy_stop_robot();
         WARNING("Stopping robot because opponent too close");
     } else if (end_reason == TRAJ_END_COLLISION) {
-        strategy_stop_robot(robot);
+        strategy_stop_robot();
         WARNING("Stopping robot because collision detected");
     } else if (end_reason == TRAJ_END_TIMER) {
-        strategy_stop_robot(robot);
+        strategy_stop_robot();
         WARNING("Stopping robot because game has ended !");
     } else {
         WARNING("Trajectory ended with reason %d", end_reason);
@@ -153,14 +153,14 @@ bool strategy_goto_avoid(struct _robot* robot, int x_mm, int y_mm, int a_deg, in
     return false;
 }
 
-bool strategy_goto_avoid_retry(struct _robot* robot, int x_mm, int y_mm, int a_deg, int traj_end_flags, int num_retries)
+bool strategy_goto_avoid_retry(int x_mm, int y_mm, int a_deg, int traj_end_flags, int num_retries)
 {
     bool finished = false;
     int counter = 0;
 
     while (!finished) {
         DEBUG("Try #%d", counter);
-        finished = strategy_goto_avoid(robot, x_mm, y_mm, a_deg, traj_end_flags);
+        finished = strategy_goto_avoid(x_mm, y_mm, a_deg, traj_end_flags);
         counter++;
 
         // Exit when maximum number of retries is reached
@@ -192,7 +192,6 @@ struct DebraState {
     bool cylinder_present[6]{false, true, true, true, true, true};
     unsigned cylinder_count{0};
     enum Location near_location{Other};
-    struct _robot *robot{nullptr};
 };
 
 struct IndexArms : public goap::Action<DebraState> {
@@ -287,7 +286,7 @@ struct CollectCylinderRocketBody : public goap::Action<DebraState> {
     {
         NOTICE("Goto location near rocket body full: %dmm %dmm %ddeg", m_x_mm, m_y_mm, m_a_deg);
         state.near_location = Other;
-        if (!strategy_goto_avoid(state.robot, m_x_mm, m_y_mm, m_a_deg, TRAJ_FLAGS_ALL)) {
+        if (!strategy_goto_avoid(m_x_mm, m_y_mm, m_a_deg, TRAJ_FLAGS_ALL)) {
             return false;
         }
 
@@ -333,7 +332,7 @@ struct GameGoal : goap::Goal<DebraState> {
     }
 };
 
-void strategy_debra_play_game(struct _robot* robot)
+void strategy_debra_play_game(void)
 {
     /* Wait for color selection */
     enum strat_color_t color = wait_for_color_selection();
@@ -345,7 +344,6 @@ void strategy_debra_play_game(struct _robot* robot)
     CollectCylinderRocketBody collect_rocket_body(color);
 
     DebraState state;
-    state.robot = robot;
 
     const int max_path_len = 10;
     goap::Action<DebraState> *path[max_path_len] = {nullptr};
@@ -374,22 +372,22 @@ void strategy_debra_play_game(struct _robot* robot)
     NOTICE("Positioning robot");
 
     // First alignment
-    strategy_auto_position(MIRROR_X(color, 300), 200, MIRROR_A(color, -90), robot->robot_size, color, robot, &bus);
-    robot->pos.pos_d.y += 382;
-    robot->pos.pos_s16.y += 382;
+    strategy_auto_position(MIRROR_X(color, 300), 200, MIRROR_A(color, -90), color);
+    robot.pos.pos_d.y += 382;
+    robot.pos.pos_s16.y += 382;
 
     // Second alignement only in y at starting area
-    strategy_goto_avoid_retry(robot, MIRROR_X(color, 890), 200, MIRROR_A(color, -90), TRAJ_END_GOAL_REACHED, -1);
-    strategy_align_y(170, robot->robot_size, robot, &bus);
-    trajectory_a_abs(&robot->traj, MIRROR_A(color, 90));
-    trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
+    strategy_goto_avoid_retry(MIRROR_X(color, 890), 200, MIRROR_A(color, -90), TRAJ_END_GOAL_REACHED, -1);
+    strategy_align_y(170);
+    trajectory_a_abs(&robot.traj, MIRROR_A(color, 90));
+    trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
 
     NOTICE("Robot positioned at x: %d[mm], y: %d[mm], a: %d[deg]",
-           position_get_x_s16(&robot->pos), position_get_y_s16(&robot->pos), position_get_a_deg_s16(&robot->pos));
+           position_get_x_s16(&robot.pos), position_get_y_s16(&robot.pos), position_get_a_deg_s16(&robot.pos));
 
     /* Wait for starter to begin */
     wait_for_starter();
-    trajectory_game_timer_reset(robot);
+    trajectory_game_timer_reset();
     rocket_program_launch_time(GAME_DURATION + 1);
 
     NOTICE("Starting game");
@@ -417,7 +415,7 @@ void strategy_debra_play_game(struct _robot* robot)
     }
 }
 
-void strategy_sandoi_play_game(struct _robot* robot)
+void strategy_sandoi_play_game()
 {
     /* Wait for color selection */
     enum strat_color_t color = wait_for_color_selection();
@@ -425,7 +423,7 @@ void strategy_sandoi_play_game(struct _robot* robot)
     /* Autoposition robot */
     wait_for_autoposition_signal();
     NOTICE("Positioning robot\n");
-    strategy_auto_position(MIRROR_X(color, 600), 200, 90, robot->robot_size, color, robot, &bus);
+    strategy_auto_position(MIRROR_X(color, 600), 200, 90, color);
     NOTICE("Robot positioned at x: 600[mm], y: 200[mm], a: 90[deg]\n");
 
     /* Wait for starter to begin */
@@ -434,16 +432,16 @@ void strategy_sandoi_play_game(struct _robot* robot)
 
     while (true) {
         /* Go to lunar module */
-        strategy_goto_avoid_retry(robot, MIRROR_X(color, 780), 1340, MIRROR_A(color, 45), TRAJ_FLAGS_ALL, -1);
+        strategy_goto_avoid_retry(MIRROR_X(color, 780), 1340, MIRROR_A(color, 45), TRAJ_FLAGS_ALL, -1);
 
         /* Push lunar module */
-        trajectory_d_rel(&robot->traj, 100.);
-        trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
-        trajectory_d_rel(&robot->traj, -100.);
-        trajectory_wait_for_end(robot, &bus, TRAJ_END_GOAL_REACHED);
+        trajectory_d_rel(&robot.traj, 100.);
+        trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
+        trajectory_d_rel(&robot.traj, -100.);
+        trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
 
         /* Go back to home */
-        strategy_goto_avoid_retry(robot, MIRROR_X(color, 600), 200, MIRROR_A(color, 90), TRAJ_FLAGS_ALL, -1);
+        strategy_goto_avoid_retry(MIRROR_X(color, 600), 200, MIRROR_A(color, 90), TRAJ_FLAGS_ALL, -1);
 
         DEBUG("Game ended!\nInsert coin to play more.\n");
         chThdSleepSeconds(1);
@@ -452,25 +450,24 @@ void strategy_sandoi_play_game(struct _robot* robot)
     }
 }
 
-void strategy_play_game(void* _robot)
+void strategy_play_game(void *p)
 {
+    (void) p;
     chRegSetThreadName("strategy");
-
-    struct _robot* robot = (struct _robot*)_robot;
 
     /* Initialize map and path planner */
     map_init(config_get_integer("master/robot_size_x_mm"));
     NOTICE("Strategy is ready, waiting for autopositioning signal");
 
 #ifdef DEBRA
-    strategy_debra_play_game(robot);
+    strategy_debra_play_game();
 #else
-    strategy_sandoi_play_game(robot);
+    strategy_sandoi_play_game();
 #endif
 }
 
 void strategy_start(void)
 {
     static THD_WORKING_AREA(strategy_thd_wa, 4096);
-    chThdCreateStatic(strategy_thd_wa, sizeof(strategy_thd_wa), STRATEGY_PRIO, strategy_play_game, &robot);
+    chThdCreateStatic(strategy_thd_wa, sizeof(strategy_thd_wa), STRATEGY_PRIO, strategy_play_game, NULL);
 }

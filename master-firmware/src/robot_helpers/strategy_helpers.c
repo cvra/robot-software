@@ -11,64 +11,70 @@
 #include "strategy_helpers.h"
 
 
-void strategy_auto_position(
-        int32_t x, int32_t y, int32_t heading, int32_t robot_size,
-        enum strat_color_t robot_color, struct _robot* robot, messagebus_t* bus)
+void strategy_auto_position(int32_t x, int32_t y, int32_t heading, enum strat_color_t robot_color)
 {
-    /* Configure robot to be slower and less sensitive to collisions */
-    trajectory_set_mode_aligning(&robot->mode, &robot->traj, &robot->distance_bd, &robot->angle_bd);
+    /* Configure  to be slower and less sensitive to collisions */
+    trajectory_set_mode_aligning(&robot.mode, &robot.traj, &robot.distance_bd, &robot.angle_bd);
 
     /* Go forward until we hit the wall and reset position */
-    trajectory_align_with_wall(robot, bus);
+    trajectory_align_with_wall();
 
-    /* Set robot position in x and heading */
-    if (robot->calibration_direction < 0) {
-        position_set(&robot->pos, MIRROR_X(robot_color, robot_size/2), 0, MIRROR_A(robot_color, 180));
+    /* Set  position in x and heading */
+    if (robot.calibration_direction < 0) {
+        position_set(&robot.pos, MIRROR_X(robot_color, robot.robot_size / 2), 0,
+                     MIRROR_A(robot_color, 180));
     } else {
-        position_set(&robot->pos, MIRROR_X(robot_color, robot_size/2), 0, MIRROR_A(robot_color, 0));
+        position_set(&robot.pos, MIRROR_X(robot_color, robot.robot_size / 2), 0,
+                     MIRROR_A(robot_color, 0));
     }
 
     /* Go to desired position in x. */
-    trajectory_d_rel(&robot->traj, (double)(- robot->calibration_direction * (MIRROR_X(robot_color, x) - robot_size/2)));
-    trajectory_wait_for_end(robot, bus, TRAJ_END_GOAL_REACHED);
+    trajectory_d_rel(&robot.traj,
+                     (double)(-robot.calibration_direction *
+                              (MIRROR_X(robot_color, x) - robot.robot_size / 2)));
+    trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
 
     /* Turn to face the wall in Y */
-    trajectory_only_a_abs(&robot->traj, MIRROR_A(robot_color, -90));
-    trajectory_wait_for_end(robot, bus, TRAJ_END_GOAL_REACHED);
+    trajectory_only_a_abs(&robot.traj, MIRROR_A(robot_color, -90));
+    trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
 
     /* Go forward until we hit the wall and reset position */
-    trajectory_align_with_wall(robot, bus);
+    trajectory_align_with_wall();
 
     /* Reset position in y */
-    robot->pos.pos_d.y = robot_size / 2;
-    robot->pos.pos_s16.y = robot_size / 2;
+    robot.pos.pos_d.y = robot.robot_size / 2;
+    robot.pos.pos_s16.y = robot.robot_size / 2;
 
     /* Go to the desired position in y */
-    trajectory_set_speed(&robot->traj, speed_mm2imp(&robot->traj, 300), speed_rd2imp(&robot->traj, 2.5));
+    trajectory_set_speed(&robot.traj, speed_mm2imp(&robot.traj, 300),
+                         speed_rd2imp(&robot.traj, 2.5));
 
-    trajectory_d_rel(&robot->traj, (double)(- robot->calibration_direction * (y - robot_size/2)));
-    trajectory_wait_for_end(robot, bus, TRAJ_END_GOAL_REACHED);
+    trajectory_d_rel(&robot.traj,
+                     (double)(-robot.calibration_direction * (y - robot.robot_size / 2)));
+    trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
 
     /* Set the angle to the desired value */
-    trajectory_a_abs(&robot->traj, (double)heading);
-    trajectory_wait_for_end(robot, bus, TRAJ_END_GOAL_REACHED);
+    trajectory_a_abs(&robot.traj, (double)heading);
+    trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
 
-    /* Restore robot to game mode: faster and more sensitive to collision */
-    trajectory_set_mode_game(&robot->mode, &robot->traj, &robot->distance_bd, &robot->angle_bd);
+    /* Restore  to game mode: faster and more sensitive to collision */
+    trajectory_set_mode_game(&robot.mode, &robot.traj, &robot.distance_bd, &robot.angle_bd);
 }
 
-void strategy_align_y(int32_t y, int32_t robot_size, struct _robot* robot, messagebus_t* bus)
+void strategy_align_y(int32_t y)
 {
-    trajectory_set_mode_aligning(&robot->mode, &robot->traj, &robot->distance_bd, &robot->angle_bd);
+    trajectory_set_mode_aligning(&robot.mode, &robot.traj, &robot.distance_bd, &robot.angle_bd);
 
-    trajectory_align_with_wall(robot, bus);
-    robot->pos.pos_d.y = robot_size / 2;
-    robot->pos.pos_s16.y = robot_size / 2;
+    trajectory_align_with_wall();
+    robot.pos.pos_d.y = robot.robot_size / 2;
+    robot.pos.pos_s16.y = robot.robot_size / 2;
 
-    trajectory_set_speed(&robot->traj, speed_mm2imp(&robot->traj, 300), speed_rd2imp(&robot->traj, 2.5));
+    trajectory_set_speed(&robot.traj, speed_mm2imp(&robot.traj, 300),
+                         speed_rd2imp(&robot.traj, 2.5));
 
-    trajectory_d_rel(&robot->traj, (double)(- robot->calibration_direction * (y - robot_size/2)));
-    trajectory_wait_for_end(robot, bus, TRAJ_END_GOAL_REACHED);
+    trajectory_d_rel(&robot.traj,
+                     (double)(-robot.calibration_direction * (y - robot.robot_size / 2)));
+    trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
 
-    trajectory_set_mode_game(&robot->mode, &robot->traj, &robot->distance_bd, &robot->angle_bd);
+    trajectory_set_mode_game(&robot.mode, &robot.traj, &robot.distance_bd, &robot.angle_bd);
 }

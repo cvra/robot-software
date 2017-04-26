@@ -28,11 +28,11 @@ enum strat_color_t {
  *  position is reached by aligning against walls.
  */
 void strategy_auto_position(
-        int32_t x, int32_t y, int32_t heading, int32_t robot_size,
-        enum strat_color_t robot_color, struct _robot* robot, messagebus_t* bus);
+        int32_t x, int32_t y, int32_t heading,
+        enum strat_color_t robot_color);
 
 /** Align on y axis */
-void strategy_align_y(int32_t y, int32_t robot_size, struct _robot* robot, messagebus_t* bus);
+void strategy_align_y(int32_t y);
 
 
 #ifdef __cplusplus
