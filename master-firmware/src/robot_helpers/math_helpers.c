@@ -1,8 +1,8 @@
 #include <math.h>
 #include "math_helpers.h"
 
-#define MIN(a,b) (((a)<(b))?(a):(b))
-#define MAX(a,b) (((a)>(b))?(a):(b))
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))
 
 float angle_delta(float start, float end)
 {
@@ -18,7 +18,7 @@ float angle_delta(float start, float end)
 
 bool math_point_is_in_square(poly_t* square, int x, int y)
 {
-    point_t point = {.x=x, .y=y};
+    point_t point = {.x = x, .y = y};
 
     return is_in_poly(&point, square) == 1;
 }

@@ -12,7 +12,7 @@ float motor_wait_for_index(motor_driver_t* motor, float motor_speed)
     NOTICE("Moving axis...");
     motor_driver_set_velocity(motor, motor_speed);
 
-    while(motor->stream.value_stream_index_update_count == index_count) {
+    while (motor->stream.value_stream_index_update_count == index_count) {
 #ifndef TESTS
         chThdSleepMilliseconds(50);
 #endif
@@ -23,7 +23,7 @@ float motor_wait_for_index(motor_driver_t* motor, float motor_speed)
 
 float motor_auto_index(motor_driver_t* motor, int motor_dir, float motor_speed)
 {
-    float index_rising = motor_wait_for_index(motor, - motor_dir * motor_speed);
+    float index_rising = motor_wait_for_index(motor, -motor_dir * motor_speed);
 
     NOTICE("Seen index for first time at %.4f!", index_rising);
 #ifndef TESTS

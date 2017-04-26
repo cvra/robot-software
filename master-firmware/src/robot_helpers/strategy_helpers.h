@@ -14,7 +14,7 @@ extern "C" {
 /** Team color
  */
 enum strat_color_t {
-    YELLOW = 0,
+    YELLOW=0,
     BLUE
 };
 
@@ -28,8 +28,8 @@ enum strat_color_t {
  *  position is reached by aligning against walls.
  */
 void strategy_auto_position(
-        int32_t x, int32_t y, int32_t heading,
-        enum strat_color_t robot_color);
+    int32_t x, int32_t y, int32_t heading,
+    enum strat_color_t robot_color);
 
 /** Align on y axis */
 void strategy_align_y(int32_t y);
