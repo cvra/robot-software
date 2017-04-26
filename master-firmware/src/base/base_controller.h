@@ -41,6 +41,12 @@ enum direction_t {
     DIRECTION_FORWARD = 1,
 };
 
+enum base_speed_t {
+    BASE_SPEED_INIT,
+    BASE_SPEED_SLOW,
+    BASE_SPEED_FAST
+};
+
 /**
  @brief contains all global vars.
 
@@ -50,6 +56,7 @@ enum direction_t {
 struct _robot {
     struct robot_system rs;    // Robot system (angle & distance)
     struct robot_position pos; // Position manager
+    enum base_speed_t base_speed;
 
     struct cs angle_cs;        // Control system manager for angle
     struct cs distance_cs;     // Control system manager for distance

@@ -23,6 +23,7 @@ struct _robot robot;
 void robot_init(void)
 {
     robot.mode = BOARD_MODE_ANGLE_DISTANCE;
+    robot.base_speed = BASE_SPEED_SLOW;
 
     /* Motors */
     static cvra_motor_t left_wheel_motor = {.m=&motor_manager, .direction=1.};
@@ -157,6 +158,41 @@ static THD_FUNCTION(base_ctrl_thd, arg)
             ilim = parameter_scalar_get(parameter_find(control_params, "distance/ilimit"));
             pid_set_gains(&robot.distance_pid.pid, kp, ki, kd);
             pid_set_integral_limit(&robot.distance_pid.pid, ilim);
+        }
+
+        switch (robot.base_speed) {
+            case BASE_SPEED_INIT:
+                trajectory_set_speed(&robot.traj,
+                        1000 * speed_mm2imp(&robot.traj, config_get_scalar("/aversive/trajectories/distance/speed/init")),
+                        speed_rd2imp(&robot.traj, config_get_scalar("/aversive/trajectories/angle/speed/init")));
+
+                trajectory_set_acc(&robot.traj,
+                        1000 * acc_mm2imp(&robot.traj, config_get_scalar("/aversive/trajectories/distance/acc/init")),
+                        acc_rd2imp(&robot.traj, config_get_scalar("/aversive/trajectories/angle/acc/init")));
+                break;
+
+            case BASE_SPEED_SLOW:
+                trajectory_set_speed(&robot.traj,
+                        1000 * speed_mm2imp(&robot.traj, config_get_scalar("/aversive/trajectories/distance/speed/slow")),
+                        speed_rd2imp(&robot.traj, config_get_scalar("/aversive/trajectories/angle/speed/slow")));
+
+                trajectory_set_acc(&robot.traj,
+                        1000 * acc_mm2imp(&robot.traj, config_get_scalar("/aversive/trajectories/distance/acc/slow")),
+                        acc_rd2imp(&robot.traj, config_get_scalar("/aversive/trajectories/angle/acc/slow")));
+                break;
+
+            case BASE_SPEED_FAST:
+                trajectory_set_speed(&robot.traj,
+                        1000 * speed_mm2imp(&robot.traj, config_get_scalar("/aversive/trajectories/distance/speed/fast")),
+                        speed_rd2imp(&robot.traj, config_get_scalar("/aversive/trajectories/angle/speed/fast")));
+                trajectory_set_acc(&robot.traj,
+                        1000 * acc_mm2imp(&robot.traj, config_get_scalar("/aversive/trajectories/distance/acc/fast")),
+                        acc_rd2imp(&robot.traj, config_get_scalar("/aversive/trajectories/angle/acc/fast")));
+                break;
+            default:
+                WARNING("Unknown speed type, going back to safe!");
+                robot.base_speed = BASE_SPEED_SLOW;
+                break;
         }
 
         /* Wait until next regulation loop */
