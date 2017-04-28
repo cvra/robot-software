@@ -30,10 +30,12 @@ static parameter_namespace_t beacon_config;
 static parameter_t beacon_reflector_radius, beacon_angular_offset;
 
 #ifdef DEBRA
-static parameter_namespace_t arms_config, arms_right_config, arms_left_config;
+static parameter_namespace_t arms_config, arms_right_config, arms_left_config, motor_offsets_config;
 static parameter_t upperarm_length, forearm_length;
 static parameter_t left_offset_x, left_offset_y, left_offset_a;
 static parameter_t right_offset_x, right_offset_y, right_offset_a;
+static parameter_t left_z_offset, left_shoulder_offset, left_elbow_offset, left_wrist_offset;
+static parameter_t right_z_offset, right_shoulder_offset, right_elbow_offset, right_wrist_offset;
 #endif
 
 void config_init(void)
@@ -88,6 +90,16 @@ void config_init(void)
     parameter_scalar_declare(&right_offset_x, &arms_right_config, "offset_x");
     parameter_scalar_declare(&right_offset_y, &arms_right_config, "offset_y");
     parameter_scalar_declare(&right_offset_a, &arms_right_config, "offset_a");
+
+    parameter_namespace_declare(&motor_offsets_config, &arms_config, "motor_offsets");
+    parameter_scalar_declare(&left_z_offset, &motor_offsets_config, "left-z");
+    parameter_scalar_declare(&left_shoulder_offset, &motor_offsets_config, "left-shoulder");
+    parameter_scalar_declare(&left_elbow_offset, &motor_offsets_config, "left-elbow");
+    parameter_scalar_declare(&left_wrist_offset, &motor_offsets_config, "left-wrist");
+    parameter_scalar_declare(&right_z_offset, &motor_offsets_config, "right-z");
+    parameter_scalar_declare(&right_shoulder_offset, &motor_offsets_config, "right-shoulder");
+    parameter_scalar_declare(&right_elbow_offset, &motor_offsets_config, "right-elbow");
+    parameter_scalar_declare(&right_wrist_offset, &motor_offsets_config, "right-wrist");
 #endif
 }
 

@@ -211,21 +211,28 @@ struct IndexArms : public goap::Action<DebraState> {
     {
         NOTICE("Indexing arms!");
 
+        const char* z_names[2] = {"left-z", "right-z"};
+        int z_dirs[2] = {-1, -1};
+        float z_speeds[2] = {20, 20};
+        float z_indexes[2];
+        arms_auto_index(z_names, z_dirs, z_speeds, 2, z_indexes);
+
+        arms_set_motor_index(left_arm.z_args, z_indexes[0] + config_get_scalar("master/arms/motor_offsets/left-z"));
+        arms_set_motor_index(right_arm.z_args, z_indexes[1] + config_get_scalar("master/arms/motor_offsets/right-z"));
+
         const char* motor_names[6] = {"left-shoulder", "left-elbow", "left-wrist", "right-shoulder", "right-elbow", "right-wrist"};
         int motor_dirs[6] = {1, 1, 1, -1, -1, -1};
         float motor_speeds[6] = {0.8, 0.8, 4.0, 0.8, 0.8, 4.0};
         float motor_indexes[6];
         arms_auto_index(motor_names, motor_dirs, motor_speeds, 6, motor_indexes);
 
-        arms_set_motor_index(left_arm.z_args, 0);
-        arms_set_motor_index(left_arm.shoulder_args, motor_indexes[0]);
-        arms_set_motor_index(left_arm.elbow_args, motor_indexes[1]);
-        arms_set_motor_index(left_hand.wrist_args, motor_indexes[2]);
+        arms_set_motor_index(left_arm.shoulder_args, motor_indexes[0] + config_get_scalar("master/arms/motor_offsets/left-shoulder"));
+        arms_set_motor_index(left_arm.elbow_args, motor_indexes[1] + config_get_scalar("master/arms/motor_offsets/left-elbow"));
+        arms_set_motor_index(left_hand.wrist_args, motor_indexes[2] + config_get_scalar("master/arms/motor_offsets/left-wrist"));
 
-        arms_set_motor_index(right_arm.z_args, 0);
-        arms_set_motor_index(right_arm.shoulder_args, motor_indexes[3]);
-        arms_set_motor_index(right_arm.elbow_args, motor_indexes[4]);
-        arms_set_motor_index(right_hand.wrist_args, motor_indexes[5]);
+        arms_set_motor_index(right_arm.shoulder_args, motor_indexes[3] + config_get_scalar("master/arms/motor_offsets/right-shoulder"));
+        arms_set_motor_index(right_arm.elbow_args, motor_indexes[4] + config_get_scalar("master/arms/motor_offsets/right-elbow"));
+        arms_set_motor_index(right_hand.wrist_args, motor_indexes[5] + config_get_scalar("master/arms/motor_offsets/right-wrist"));
 
         left_hand.enable_control = true;
         right_hand.enable_control = true;
@@ -250,8 +257,8 @@ struct RetractArms : public goap::Action<DebraState> {
     bool execute(DebraState &state)
     {
         NOTICE("Retracting arms!");
-        scara_goto(&left_arm, -110, 60, 20, COORDINATE_ROBOT, 1.);
-        scara_goto(&right_arm, 110, -60, 20, COORDINATE_ROBOT, 1.);
+        scara_goto(&left_arm, -110, 60, 120, COORDINATE_ROBOT, 1.);
+        scara_goto(&right_arm, 110, -60, 120, COORDINATE_ROBOT, 1.);
         chThdSleepSeconds(1.);
         state.arms_are_deployed = false;
         return true;
@@ -300,14 +307,14 @@ struct CollectCylinderRocketBody : public goap::Action<DebraState> {
 
         NOTICE("Collecting cylinder rocket body");
 
-        scara_trajectory_append_point_with_length(&arm->trajectory, MIRROR_X(m_color, 1300), 120, 20, COORDINATE_TABLE, 2., arm->length[0], arm->length[1]);
+        scara_trajectory_append_point_with_length(&arm->trajectory, MIRROR_X(m_color, 1300), 120, 120, COORDINATE_TABLE, 2., arm->length[0], arm->length[1]);
 
         for (int i = 0; i < 4; i++) {
             scara_trajectory_init(&arm->trajectory);
-            scara_trajectory_append_point_with_length(&arm->trajectory, MIRROR_X(m_color, 1300), 120, 210, COORDINATE_TABLE, 2., arm->length[0], arm->length[1]);
-            scara_trajectory_append_point_with_length(&arm->trajectory, MIRROR_X(m_color, 1200), 120, 210, COORDINATE_TABLE, 1., arm->length[0], arm->length[1]);
-            scara_trajectory_append_point_with_length(&arm->trajectory, MIRROR_X(m_color, 1150), 120, 210, COORDINATE_TABLE, 1., arm->length[0], arm->length[1]);
-            scara_trajectory_append_point_with_length(&arm->trajectory, MIRROR_X(m_color, 1100), 120, 210, COORDINATE_TABLE, 1., arm->length[0], arm->length[1]);
+            scara_trajectory_append_point_with_length(&arm->trajectory, MIRROR_X(m_color, 1300), 120, 20, COORDINATE_TABLE, 2., arm->length[0], arm->length[1]);
+            scara_trajectory_append_point_with_length(&arm->trajectory, MIRROR_X(m_color, 1200), 120, 20, COORDINATE_TABLE, 1., arm->length[0], arm->length[1]);
+            scara_trajectory_append_point_with_length(&arm->trajectory, MIRROR_X(m_color, 1150), 120, 20, COORDINATE_TABLE, 1., arm->length[0], arm->length[1]);
+            scara_trajectory_append_point_with_length(&arm->trajectory, MIRROR_X(m_color, 1100), 120, 20, COORDINATE_TABLE, 1., arm->length[0], arm->length[1]);
             scara_do_trajectory(arm, &arm->trajectory);
             chThdSleepSeconds(8);
         }
