@@ -239,7 +239,18 @@ int main(void) {
                        MAX_NB_MOTOR_DRIVERS,
                        &bus_enumerator);
 
+    /* Initialize motors */
+    init_base_motors();
+#ifdef DEBRA
+    chThdSleepMilliseconds(100);
+    init_arm_motors();
+    init_hands();
+#endif
 
+    /* Load stored robot config */
+    config_load_from_flash();
+
+    /* Start IP over Ethernet */
     struct netif *ethernet_if;
 
     ip_thread_init();
@@ -255,13 +266,7 @@ int main(void) {
     message_server_init();
     http_server_start();
 
-    init_base_motors();
-#ifdef DEBRA
-    chThdSleepMilliseconds(100);
-    init_arm_motors();
-    init_hands();
-#endif
-    config_load_from_flash();
+    /* Initiaze UAVCAN communication */
     uavcan_node_start(10);
 
     /* Base init */
