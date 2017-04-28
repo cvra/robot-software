@@ -25,8 +25,8 @@ void robot_init(void)
     robot.mode = BOARD_MODE_ANGLE_DISTANCE;
 
     /* Motors */
-    static cvra_motor_t left_wheel_motor = {.m=&motor_manager, .max_velocity=10.f, .direction=1.};
-    static cvra_motor_t right_wheel_motor = {.m=&motor_manager, .max_velocity=10.f, .direction=-1.};
+    static cvra_motor_t left_wheel_motor = {.m=&motor_manager, .direction=1.};
+    static cvra_motor_t right_wheel_motor = {.m=&motor_manager, .direction=-1.};
     cvra_encoder_init();
 
     robot.angle_pid.divider = 100;
@@ -36,8 +36,8 @@ void robot_init(void)
     rs_init(&robot.rs);
     rs_set_flags(&robot.rs, RS_USE_EXT);
 
-    rs_set_left_pwm(&robot.rs, cvra_motor_left_wheel_set_velocity, &left_wheel_motor);
-    rs_set_right_pwm(&robot.rs, cvra_motor_right_wheel_set_velocity, &right_wheel_motor);
+    rs_set_left_pwm(&robot.rs, cvra_motor_left_wheel_set_torque, &left_wheel_motor);
+    rs_set_right_pwm(&robot.rs, cvra_motor_right_wheel_set_torque, &right_wheel_motor);
     rs_set_left_ext_encoder(&robot.rs, cvra_encoder_get_left_ext, NULL,
                             config_get_scalar("master/odometry/left_wheel_correction_factor"));
     rs_set_right_ext_encoder(&robot.rs, cvra_encoder_get_right_ext, NULL,
@@ -92,6 +92,14 @@ void robot_init(void)
     /* Set obstacle inflation sizes */
     robot.robot_size = config_get_integer("master/robot_size_x_mm");
     robot.opponent_size = config_get_integer("master/opponent_size_x_mm_default");
+
+    /* Set some defaultj speed and acc. */
+    trajectory_set_speed(&robot.traj,
+            speed_mm2imp(&robot.traj, 600.),
+            speed_rd2imp(&robot.traj, 6.));
+    trajectory_set_acc(&robot.traj,
+            acc_mm2imp(&robot.traj, 3000.),
+            acc_rd2imp(&robot.traj, 30.));
 }
 
 
