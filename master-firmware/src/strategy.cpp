@@ -217,8 +217,8 @@ struct IndexArms : public goap::Action<DebraState> {
         float z_indexes[2];
         arms_auto_index(z_names, z_dirs, z_speeds, 2, z_indexes);
 
-        arms_set_motor_index(left_arm.z_args, z_indexes[0]);
-        arms_set_motor_index(right_arm.z_args, z_indexes[1]);
+        arms_set_motor_index(left_arm.z_args, z_indexes[0] + config_get_scalar("master/arms/motor_offsets/left-z"));
+        arms_set_motor_index(right_arm.z_args, z_indexes[1] + config_get_scalar("master/arms/motor_offsets/right-z"));
 
         const char* motor_names[6] = {"left-shoulder", "left-elbow", "left-wrist", "right-shoulder", "right-elbow", "right-wrist"};
         int motor_dirs[6] = {1, 1, 1, -1, -1, -1};
@@ -226,13 +226,13 @@ struct IndexArms : public goap::Action<DebraState> {
         float motor_indexes[6];
         arms_auto_index(motor_names, motor_dirs, motor_speeds, 6, motor_indexes);
 
-        arms_set_motor_index(left_arm.shoulder_args, motor_indexes[0]);
-        arms_set_motor_index(left_arm.elbow_args, motor_indexes[1]);
-        arms_set_motor_index(left_hand.wrist_args, motor_indexes[2]);
+        arms_set_motor_index(left_arm.shoulder_args, motor_indexes[0] + config_get_scalar("master/arms/motor_offsets/left-shoulder"));
+        arms_set_motor_index(left_arm.elbow_args, motor_indexes[1] + config_get_scalar("master/arms/motor_offsets/left-elbow"));
+        arms_set_motor_index(left_hand.wrist_args, motor_indexes[2] + config_get_scalar("master/arms/motor_offsets/left-wrist"));
 
-        arms_set_motor_index(right_arm.shoulder_args, motor_indexes[3]);
-        arms_set_motor_index(right_arm.elbow_args, motor_indexes[4]);
-        arms_set_motor_index(right_hand.wrist_args, motor_indexes[5]);
+        arms_set_motor_index(right_arm.shoulder_args, motor_indexes[3] + config_get_scalar("master/arms/motor_offsets/right-shoulder"));
+        arms_set_motor_index(right_arm.elbow_args, motor_indexes[4] + config_get_scalar("master/arms/motor_offsets/right-elbow"));
+        arms_set_motor_index(right_hand.wrist_args, motor_indexes[5] + config_get_scalar("master/arms/motor_offsets/right-wrist"));
 
         left_hand.enable_control = true;
         right_hand.enable_control = true;

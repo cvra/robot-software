@@ -33,6 +33,15 @@ master:
             offset_x: 0.   # in mm
             offset_y: -120. # in mm
             offset_a: -1.57 # in radians
+        motor_offsets:
+            left-z: 0. # in mm
+            left-shoulder: 0. # in radians
+            left-elbow: 0. # in radians
+            left-wrist: 0. # in radians
+            right-z: 0. # in mm
+            right-shoulder: 0. # in radians
+            right-elbow: 0. # in radians
+            right-wrist: 0. # in radians
 
 actuator:
     left-wheel:
