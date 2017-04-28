@@ -379,16 +379,14 @@ static void cmd_traj_rotate(BaseSequentialStream *chp, int argc, char *argv[])
 
 static void cmd_traj_goto(BaseSequentialStream *chp, int argc, char *argv[])
 {
-    if (argc == 3) {
-        int32_t x, y, a;
+    if (argc == 2) {
+        int32_t x, y;
         x = atoi(argv[0]);
         y = atoi(argv[1]);
-        a = atoi(argv[2]);
-        chprintf(chp, "Going to x: %d [mm], y: %d [mm], a: %d [deg]\r\n", x, y, a);
-
-        trajectory_move_to(&robot, &bus, x, y, a);
+        chprintf(chp, "Going to x: %d [mm], y: %d [mm]\r\n", x, y);
+        trajectory_goto_xy_abs(&robot.traj, x, y);
     } else {
-        chprintf(chp, "Usage: goto x y a\r\n");
+        chprintf(chp, "Usage: goto x y\r\n");
     }
 }
 
@@ -399,7 +397,7 @@ static void cmd_goto_avoid(BaseSequentialStream *chp, int argc, char *argv[])
         int32_t y = atoi(argv[1]);
         int32_t a = atoi(argv[2]);
 
-        strategy_goto_avoid(&robot, x, y, a, TRAJ_FLAGS_ALL);
+        strategy_goto_avoid(x, y, a, TRAJ_FLAGS_ALL);
     } else {
         chprintf(chp, "Usage: goto_avoid x y a\r\n");
     }
@@ -458,7 +456,7 @@ static void cmd_pathplanner(BaseSequentialStream *chp, int argc, char *argv[])
 
             /* Waits for the completion of the trajectory. */
             chThdSleepMilliseconds(100);
-            trajectory_wait_for_end(&robot, &bus, TRAJ_END_GOAL_REACHED);
+            trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
 
             /* Increments pointer to load next point. */
             p++;
@@ -555,7 +553,7 @@ static void cmd_wheel_calibration(BaseSequentialStream *chp, int argc, char *arg
     trajectory_set_mode_aligning(&robot.mode, &robot.traj, &robot.distance_bd, &robot.angle_bd);
 
     /* Take reference at the wall */
-    trajectory_align_with_wall(&robot, &bus);
+    trajectory_align_with_wall();
     chprintf(chp, "I just hit the wall\n");
 
     int32_t start_angle = rs_get_angle(&robot.rs);
@@ -565,20 +563,20 @@ static void cmd_wheel_calibration(BaseSequentialStream *chp, int argc, char *arg
     while(count--) {
         chprintf(chp, "%d left !\n", count);
         trajectory_d_rel(&robot.traj, - robot.calibration_direction * 1200.);
-        trajectory_wait_for_end(&robot, &bus, TRAJ_END_GOAL_REACHED);
+        trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
         trajectory_a_rel(&robot.traj, 180.);
-        trajectory_wait_for_end(&robot, &bus, TRAJ_END_GOAL_REACHED);
+        trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
         trajectory_d_rel(&robot.traj, - robot.calibration_direction * 1100.);
-        trajectory_wait_for_end(&robot, &bus, TRAJ_END_GOAL_REACHED);
+        trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
         trajectory_a_rel(&robot.traj, -180.);
-        trajectory_wait_for_end(&robot, &bus, TRAJ_END_GOAL_REACHED);
+        trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
     }
 
     trajectory_d_rel(&robot.traj, robot.calibration_direction * 75.);
-    trajectory_wait_for_end(&robot, &bus, TRAJ_END_GOAL_REACHED);
+    trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
 
     /* Take reference again at the wall */
-    trajectory_align_with_wall(&robot, &bus);
+    trajectory_align_with_wall();
 
     /* Compute correction factors */
     int32_t delta_angle = start_angle - rs_get_angle(&robot.rs);
@@ -625,23 +623,23 @@ static void cmd_track_calibration(BaseSequentialStream *chp, int argc, char *arg
     trajectory_set_mode_aligning(&robot.mode, &robot.traj, &robot.distance_bd, &robot.angle_bd);
 
     /* Take reference with wall */
-    trajectory_align_with_wall(&robot, &bus);
+    trajectory_align_with_wall();
     chprintf(chp, "I just hit the wall\n");
     float start_angle = pos_imp2rd(&robot.traj, rs_get_angle(&robot.rs));
 
     /* Start calibration sequence and do it N times */
     trajectory_d_rel(&robot.traj, - robot.calibration_direction * 200.);
-    trajectory_wait_for_end(&robot, &bus, TRAJ_END_GOAL_REACHED);
+    trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
     for (int i = 0; i < count; i++) {
         chprintf(chp, "%d left !\n", i);
         trajectory_a_rel(&robot.traj, 360.);
-        trajectory_wait_for_end(&robot, &bus, TRAJ_END_GOAL_REACHED);
+        trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
     }
     trajectory_d_rel(&robot.traj, robot.calibration_direction * 180.);
-    trajectory_wait_for_end(&robot, &bus, TRAJ_END_GOAL_REACHED);
+    trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
 
     /* Take reference at the wall */
-    trajectory_align_with_wall(&robot, &bus);
+    trajectory_align_with_wall();
     float end_angle = pos_imp2rd(&robot.traj, rs_get_angle(&robot.rs));
 
     /* Compute correction factors */
@@ -688,7 +686,7 @@ static void cmd_autopos(BaseSequentialStream *chp, int argc, char *argv[])
     a = atoi(argv[3]);
     chprintf(chp, "Positioning robot to x: %d[mm], y: %d[mm], a: %d[deg]\r\n", x, y, a);
 
-    strategy_auto_position(x, y, a, robot.robot_size, color, &robot, &bus);
+    strategy_auto_position(x, y, a, color);
 }
 
 

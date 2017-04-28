@@ -19,6 +19,12 @@ extern "C" {
 #include "robot_helpers/math_helpers.h"
 #include "robot_helpers/trajectory_helpers.h"
 
+extern "C" {
+    // TODO: Should this live here?
+    struct _robot robot;
+    messagebus_t bus;
+}
+
 
 TEST_GROUP(TrajectorySetAligningMode)
 {
@@ -204,7 +210,7 @@ TEST(CurrentTrajectoryCheck, CurrentPathCrossesWithObstacle)
     set_opponent_position(400, 400);
 
     point_t intersection;
-    bool res = trajectory_crosses_obstacle(&robot, opponent, &intersection);
+    bool res = trajectory_crosses_obstacle(opponent, &intersection);
 
     CHECK_FALSE(res);
 }
@@ -215,7 +221,7 @@ TEST(CurrentTrajectoryCheck, CurrentPathDoesntCrossWithObstacle)
     set_opponent_position(240, 250);
 
     point_t intersection;
-    bool res = trajectory_crosses_obstacle(&robot, opponent, &intersection);
+    bool res = trajectory_crosses_obstacle(opponent, &intersection);
 
     CHECK_TRUE(res);
 }
@@ -226,7 +232,7 @@ TEST(CurrentTrajectoryCheck, DetectsPathCrossingIfPathInsideObstacle)
     set_opponent_position(250, 250);
 
     point_t intersection;
-    bool res = trajectory_crosses_obstacle(&robot, opponent, &intersection);
+    bool res = trajectory_crosses_obstacle(opponent, &intersection);
 
     CHECK_TRUE(res);
 }
@@ -234,7 +240,7 @@ TEST(CurrentTrajectoryCheck, DetectsPathCrossingIfPathInsideObstacle)
 TEST(CurrentTrajectoryCheck, IsNotOnCollisionPathWithObstacle)
 {
     robot.opponent_size = 100;
-    bool res = trajectory_is_on_collision_path(&robot, 400, 400);
+    bool res = trajectory_is_on_collision_path(400, 400);
 
     CHECK_FALSE(res);
 }
@@ -242,7 +248,7 @@ TEST(CurrentTrajectoryCheck, IsNotOnCollisionPathWithObstacle)
 TEST(CurrentTrajectoryCheck, IsOnCollisionPathWithObstacle)
 {
     robot.opponent_size = 100;
-    bool res = trajectory_is_on_collision_path(&robot, 240, 250);
+    bool res = trajectory_is_on_collision_path(240, 250);
 
     CHECK_TRUE(res);
 }
@@ -250,7 +256,7 @@ TEST(CurrentTrajectoryCheck, IsOnCollisionPathWithObstacle)
 TEST(CurrentTrajectoryCheck, DetectsCollisionIfPathIsCompletelyInsideObstacle)
 {
     robot.opponent_size = 400;
-    bool res = trajectory_is_on_collision_path(&robot, 250, 250);
+    bool res = trajectory_is_on_collision_path(250, 250);
 
     CHECK_TRUE(res);
 }
@@ -258,8 +264,6 @@ TEST(CurrentTrajectoryCheck, DetectsCollisionIfPathIsCompletelyInsideObstacle)
 
 TEST_GROUP(TrajectoryHasEnded)
 {
-    struct _robot robot;
-    messagebus_t bus;
     messagebus_topic_t proximity_beacon_topic;
 
     const int arbitrary_max_speed = 10;
@@ -357,7 +361,7 @@ timestamp_t timestamp_get(void)
 
 TEST(TrajectoryHasEnded, ReturnsZeroWhenTrajectoryHasNotEndedYet)
 {
-    int traj_end_reason = trajectory_has_ended(&robot, &bus, 0);
+    int traj_end_reason = trajectory_has_ended(0);
 
     CHECK_EQUAL(0, traj_end_reason);
 }
@@ -370,7 +374,7 @@ TEST(TrajectoryHasEnded, DetectsGoalIsReached)
     robot_manage();
     robot_manage();
 
-    int traj_end_reason = trajectory_has_ended(&robot, &bus, TRAJ_END_GOAL_REACHED);
+    int traj_end_reason = trajectory_has_ended(TRAJ_END_GOAL_REACHED);
 
     CHECK_EQUAL(TRAJ_END_GOAL_REACHED, traj_end_reason);
 }
@@ -383,7 +387,7 @@ TEST(TrajectoryHasEnded, ReturnsZeroWhenNoReasonSpecifiedEvenIfGoalReached)
     robot_manage();
     robot_manage();
 
-    int traj_end_reason = trajectory_has_ended(&robot, &bus, 0);
+    int traj_end_reason = trajectory_has_ended(0);
 
     CHECK_EQUAL(0, traj_end_reason);
 }
@@ -396,7 +400,7 @@ TEST(TrajectoryHasEnded, DetectsCollisionInDistance)
     robot_manage();
     robot_manage();
 
-    int traj_end_reason = trajectory_has_ended(&robot, &bus, TRAJ_END_COLLISION);
+    int traj_end_reason = trajectory_has_ended(TRAJ_END_COLLISION);
 
     CHECK_EQUAL(TRAJ_END_COLLISION, traj_end_reason);
 }
@@ -406,7 +410,7 @@ TEST(TrajectoryHasEnded, DetectsCollisionInAngle)
     robot_manage();
     robot_manage();
 
-    int traj_end_reason = trajectory_has_ended(&robot, &bus, TRAJ_END_COLLISION);
+    int traj_end_reason = trajectory_has_ended(TRAJ_END_COLLISION);
 
     CHECK_EQUAL(TRAJ_END_COLLISION, traj_end_reason);
 }
@@ -419,7 +423,7 @@ TEST(TrajectoryHasEnded, ReturnsZeroWhenNoReasonSpecifiedEvenIfCollisionInDistan
     robot_manage();
     robot_manage();
 
-    int traj_end_reason = trajectory_has_ended(&robot, &bus, 0);
+    int traj_end_reason = trajectory_has_ended(0);
 
     CHECK_EQUAL(0, traj_end_reason);
 }
@@ -429,7 +433,7 @@ TEST(TrajectoryHasEnded, ReturnsZeroWhenNoReasonSpecifiedEvenIfCollisionInAngle)
     robot_manage();
     robot_manage();
 
-    int traj_end_reason = trajectory_has_ended(&robot, &bus, 0);
+    int traj_end_reason = trajectory_has_ended(0);
 
     CHECK_EQUAL(0, traj_end_reason);
 }
@@ -445,7 +449,7 @@ TEST(TrajectoryHasEnded, DetectsFutureCollisionWhenGoalIsInsideOpponentPolygon)
     float data[3] = {(float)timestamp_now, 0.3, RADIANS(10)};
     messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
 
-    int traj_end_reason = trajectory_has_ended(&robot, &bus, TRAJ_END_OPPONENT_NEAR);
+    int traj_end_reason = trajectory_has_ended(TRAJ_END_OPPONENT_NEAR);
 
     CHECK_EQUAL(TRAJ_END_OPPONENT_NEAR, traj_end_reason);
 }
@@ -464,7 +468,7 @@ TEST(TrajectoryHasEnded, DetectsObstacleNearWhenCurrentPosIsInsideOpponentPolygo
     float data[3] = {(float)timestamp_now, 0.3, RADIANS(170)};
     messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
 
-    int traj_end_reason = trajectory_has_ended(&robot, &bus, TRAJ_END_OPPONENT_NEAR);
+    int traj_end_reason = trajectory_has_ended(TRAJ_END_OPPONENT_NEAR);
 
     CHECK_EQUAL(TRAJ_END_OPPONENT_NEAR, traj_end_reason);
 }
@@ -480,7 +484,7 @@ TEST(TrajectoryHasEnded, DetectsWhenOpponentTooClose)
     float data[3] = {(float)timestamp_now, 0.3, RADIANS(10)};
     messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
 
-    int traj_end_reason = trajectory_has_ended(&robot, &bus, TRAJ_END_OPPONENT_NEAR);
+    int traj_end_reason = trajectory_has_ended(TRAJ_END_OPPONENT_NEAR);
 
     CHECK_EQUAL(TRAJ_END_OPPONENT_NEAR, traj_end_reason);
 }
@@ -496,7 +500,7 @@ TEST(TrajectoryHasEnded, IgnoresOpponentIfOutOfTheWayEvenIfTooClose)
     float data[3] = {(float)timestamp_now, 0.3, RADIANS(170)};
     messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
 
-    int traj_end_reason = trajectory_has_ended(&robot, &bus, TRAJ_END_OPPONENT_NEAR);
+    int traj_end_reason = trajectory_has_ended(TRAJ_END_OPPONENT_NEAR);
 
     CHECK_EQUAL(0, traj_end_reason);
 }
@@ -514,7 +518,7 @@ TEST(TrajectoryHasEnded, DetectsWhenOpponentTooCloseAndInDirectionOfMotionWhenGo
     float data[3] = {(float)timestamp_now, 0.3, RADIANS(170)};
     messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
 
-    int traj_end_reason = trajectory_has_ended(&robot, &bus, TRAJ_END_OPPONENT_NEAR);
+    int traj_end_reason = trajectory_has_ended(TRAJ_END_OPPONENT_NEAR);
 
     CHECK_EQUAL(TRAJ_END_OPPONENT_NEAR, traj_end_reason);
 }
@@ -530,7 +534,7 @@ TEST(TrajectoryHasEnded, ReturnsZeroWhenNoReasonSpecifiedEvenIfOpponentGetsNear)
     float data[3] = {(float)timestamp_now, 0.3, RADIANS(170)};
     messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
 
-    int traj_end_reason = trajectory_has_ended(&robot, &bus, 0);
+    int traj_end_reason = trajectory_has_ended(0);
 
     CHECK_EQUAL(0, traj_end_reason);
 }
@@ -547,7 +551,7 @@ TEST(TrajectoryHasEnded, IgnoresOpponentTooCloseWhenBeaconSignalTooOld)
     float data[3] = {arbitrary_old_timestamp, 0.3, RADIANS(10)};
     messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
 
-    int traj_end_reason = trajectory_has_ended(&robot, &bus, TRAJ_END_OPPONENT_NEAR);
+    int traj_end_reason = trajectory_has_ended(TRAJ_END_OPPONENT_NEAR);
 
     CHECK_EQUAL(0, traj_end_reason);
 }
@@ -566,17 +570,17 @@ TEST(TrajectoryHasEnded, IgnoresOpponentIfOutOfTheWayEvenIfTooBig)
     float data[3] = {(float)timestamp_now, 0.7, RADIANS(10)};
     messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
 
-    int traj_end_reason = trajectory_has_ended(&robot, &bus, TRAJ_END_OPPONENT_NEAR);
+    int traj_end_reason = trajectory_has_ended(TRAJ_END_OPPONENT_NEAR);
 
     CHECK_EQUAL(0, traj_end_reason);
 }
 
 IGNORE_TEST(TrajectoryHasEnded, DetectsTimeIsUp)
 {
-    trajectory_game_timer_reset(&robot);
+    trajectory_game_timer_reset();
     timestamp_now += GAME_DURATION * 1000000;
 
-    int traj_end_reason = trajectory_has_ended(&robot, &bus, TRAJ_FLAGS_ALL);
+    int traj_end_reason = trajectory_has_ended(TRAJ_FLAGS_ALL);
 
     CHECK_EQUAL(TRAJ_END_TIMER, traj_end_reason);
 }

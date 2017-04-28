@@ -12,9 +12,19 @@ static parameter_namespace_t odometry_config;
 static parameter_t robot_size, opponent_size, calib_dir;
 static parameter_t odometry_ticks, odometry_track, odometry_left_corr, odometry_right_corr;
 
-static parameter_namespace_t aversive_config, aversive_control, aversive_angle, aversive_distance;
-static parameter_t aversive_angle_kp, aversive_angle_ki, aversive_angle_kd, aversive_angle_ilimit;
-static parameter_t aversive_distance_kp, aversive_distance_ki, aversive_distance_kd, aversive_distance_ilimit;
+static struct {
+    parameter_namespace_t ns;
+    struct {
+        parameter_namespace_t ns;
+        struct {
+            parameter_namespace_t ns;
+            parameter_t kp;
+            parameter_t ki;
+            parameter_t kd;
+            parameter_t ilimit;
+        } angle, distance;
+    } control;
+} aversive;
 
 static parameter_namespace_t beacon_config;
 static parameter_t beacon_reflector_radius, beacon_angular_offset;
@@ -40,25 +50,28 @@ void config_init(void)
     parameter_scalar_declare(&odometry_ticks, &odometry_config, "external_encoder_ticks_per_mm");
     parameter_scalar_declare(&odometry_track, &odometry_config, "external_track_mm");
     parameter_scalar_declare(&odometry_left_corr, &odometry_config, "left_wheel_correction_factor");
-    parameter_scalar_declare(&odometry_right_corr, &odometry_config, "right_wheel_correction_factor");
+    parameter_scalar_declare(&odometry_right_corr, &odometry_config,
+                             "right_wheel_correction_factor");
 
     parameter_namespace_declare(&beacon_config, &master_config, "beacon");
     parameter_scalar_declare(&beacon_reflector_radius, &beacon_config, "reflector_radius");
     parameter_scalar_declare(&beacon_angular_offset, &beacon_config, "angular_offset");
 
-    parameter_namespace_declare(&aversive_config, &master_config, "aversive");
+    parameter_namespace_declare(&aversive.ns, &master_config, "aversive");
 
-    parameter_namespace_declare(&aversive_control, &aversive_config, "control");
-    parameter_namespace_declare(&aversive_angle, &aversive_control, "angle");
-    parameter_scalar_declare(&aversive_angle_kp, &aversive_angle, "kp");
-    parameter_scalar_declare(&aversive_angle_ki, &aversive_angle, "ki");
-    parameter_scalar_declare(&aversive_angle_kd, &aversive_angle, "kd");
-    parameter_scalar_declare(&aversive_angle_ilimit, &aversive_angle, "ilimit");
-    parameter_namespace_declare(&aversive_distance, &aversive_control, "distance");
-    parameter_scalar_declare(&aversive_distance_kp, &aversive_distance, "kp");
-    parameter_scalar_declare(&aversive_distance_ki, &aversive_distance, "ki");
-    parameter_scalar_declare(&aversive_distance_kd, &aversive_distance, "kd");
-    parameter_scalar_declare(&aversive_distance_ilimit, &aversive_distance, "ilimit");
+    parameter_namespace_declare(&aversive.control.ns, &aversive.ns, "control");
+    parameter_namespace_declare(&aversive.control.angle.ns, &aversive.control.ns, "angle");
+    parameter_scalar_declare(&aversive.control.angle.kp, &aversive.control.angle.ns, "kp");
+    parameter_scalar_declare(&aversive.control.angle.ki, &aversive.control.angle.ns, "ki");
+    parameter_scalar_declare(&aversive.control.angle.kd, &aversive.control.angle.ns, "kd");
+    parameter_scalar_declare(&aversive.control.angle.ilimit, &aversive.control.angle.ns, "ilimit");
+    parameter_namespace_declare(&aversive.control.distance.ns, &aversive.control.ns, "distance");
+    parameter_scalar_declare(&aversive.control.distance.kp, &aversive.control.distance.ns, "kp");
+    parameter_scalar_declare(&aversive.control.distance.ki, &aversive.control.distance.ns, "ki");
+    parameter_scalar_declare(&aversive.control.distance.kd, &aversive.control.distance.ns, "kd");
+    parameter_scalar_declare(&aversive.control.distance.ilimit,
+                             &aversive.control.distance.ns,
+                             "ilimit");
 
 #ifdef DEBRA
     parameter_namespace_declare(&arms_config, &master_config, "arms");
