@@ -138,7 +138,10 @@ bool strategy_goto_avoid(int x_mm, int y_mm, int a_deg, int traj_end_flags)
 
         return true;
     } else if (end_reason == TRAJ_END_OPPONENT_NEAR) {
+        palSetPad(GPIOF, GPIOF_LED_PC_ERROR);
         strategy_stop_robot();
+        chThdSleepMilliseconds(100);
+        palClearPad(GPIOF, GPIOF_LED_PC_ERROR);
         WARNING("Stopping robot because opponent too close");
     } else if (end_reason == TRAJ_END_COLLISION) {
         strategy_stop_robot();
