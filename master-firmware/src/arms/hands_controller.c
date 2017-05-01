@@ -11,7 +11,7 @@
 #include "hands_controller.h"
 
 
-#define HANDS_CONTROLLER_STACKSIZE 128
+#define HANDS_CONTROLLER_STACKSIZE 1024
 
 
 hand_t left_hand;
