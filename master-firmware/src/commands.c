@@ -742,7 +742,7 @@ static void cmd_scara_goto(BaseSequentialStream *chp, int argc, char *argv[])
     float y = atof(argv[3]);
     float z = atof(argv[4]);
 
-    chprintf(chp, "Moving %s arm to %f %f %f in %s frame\r\n", argv[1], x, y, z, argv[0]);
+    chprintf(chp, "Moving %s arm to %f %f %f heading 0 in %s frame\r\n", argv[1], x, y, z, argv[0]);
 
     scara_t* arm;
 
@@ -753,11 +753,11 @@ static void cmd_scara_goto(BaseSequentialStream *chp, int argc, char *argv[])
     }
 
     if (strcmp("robot", argv[0]) == 0) {
-        scara_goto(arm, x, y, z, COORDINATE_ROBOT, 1.);
+        scara_goto(arm, x, y, z, 0, COORDINATE_ROBOT, 1.);
     } else if (strcmp("table", argv[0]) == 0) {
-        scara_goto(arm, x, y, z, COORDINATE_TABLE, 1.);
+        scara_goto(arm, x, y, z, 0, COORDINATE_TABLE, 1.);
     } else {
-        scara_goto(arm, x, y, z, COORDINATE_ARM, 1.);
+        scara_goto(arm, x, y, z, 0, COORDINATE_ARM, 1.);
     }
 }
 

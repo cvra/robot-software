@@ -72,7 +72,7 @@ void scara_set_wrist_callbacks(scara_t* arm, void (*set_wrist_position)(void*, f
                                float (*get_wrist_position)(void*), void* wrist_args);
 
 /* Goto position in specified coordinate system */
-void scara_goto(scara_t* arm, float x, float y, float z, scara_coordinate_t system, const float duration);
+void scara_goto(scara_t* arm, float x, float y, float z, float a, scara_coordinate_t system, const float duration);
 
 /* Get current arm position */
 void scara_pos(scara_t* arm, float* x, float* y, float* z, float* a, scara_coordinate_t system);
