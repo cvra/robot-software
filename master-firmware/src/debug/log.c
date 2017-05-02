@@ -84,17 +84,21 @@ static void vlogfile_log_message(struct error *e, va_list args)
     uint32_t s = ts / 1000000;
     uint32_t us = ts - s * 1000000;
 
+    /* We can define it as static, since entrance to this function is guarded
+     * by a mutex. */
+    static struct _reent ent;
+
     /* Write severity */
     f_write(&logfile_fp, error_severity_get_name(e->severity),
             strlen(error_severity_get_name(e->severity)), &dummy);
 
     /* Write time stamp */
-    snprintf(buffer, sizeof(buffer), "[%4ld.%06ld]\t", s, us);
+    _snprintf_r(&ent, buffer, sizeof(buffer), "[%4ld.%06ld]\t", s, us);
     f_write(&logfile_fp, buffer, strlen(buffer), &dummy);
     f_write(&logfile_fp, "\t", 1, &dummy);
 
     /* Write filename line. */
-    snprintf(buffer, sizeof(buffer), "%s:%d\t", strrchr(e->file, '/') + 1, e->line);
+    _snprintf_r(&ent, buffer, sizeof(buffer), "%s:%d\t", strrchr(e->file, '/') + 1, e->line);
     f_write(&logfile_fp, buffer, strlen(buffer), &dummy);
 
     /* Write thread name */
@@ -103,7 +107,7 @@ static void vlogfile_log_message(struct error *e, va_list args)
     f_write(&logfile_fp, "\t", 1, &dummy);
 
     /* Write error message */
-    vsnprintf(buffer, sizeof(buffer), e->text, args);
+    _snprintf_r(&ent, buffer, sizeof(buffer), e->text, args);
     f_write(&logfile_fp, buffer, strlen(buffer), &dummy);
 
     /* Forces the data to be written. */
