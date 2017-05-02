@@ -122,7 +122,11 @@ void scara_manage(scara_t *arm)
     }
 
     scara_waypoint_t frame = scara_position_for_date(arm, scara_time_get());
+    float heading = frame.hand_angle;
+
+    /* Compute target arm position (without hand) */
     point_t target = {.x = frame.position[0], .y = frame.position[1]};
+    target = scara_arm_position(target, heading, frame.length[2]);
 
     point_t p1, p2;
     int position_count = scara_num_possible_elbow_positions(target, arm->length[0], arm->length[1], &p1, &p2);
@@ -145,6 +149,9 @@ void scara_manage(scara_t *arm)
     /* This is due to mecanical construction of the arms. */
     beta = beta - alpha;
 
+    /* Compute hand angle */
+    float gamma = heading - (alpha + beta);
+
     /* The arm cannot make one full turn. */
     if (beta < -M_PI) {
         beta = 2 * M_PI + beta;
@@ -159,11 +166,13 @@ void scara_manage(scara_t *arm)
     arm->set_z_position(arm->z_args, frame.position[2]);
     arm->set_shoulder_position(arm->shoulder_args, alpha);
     arm->set_elbow_position(arm->elbow_args, beta);
+    arm->set_wrist_position(arm->wrist_args, gamma);
 
     /* Update motor positions */
     arm->z_pos = arm->get_z_position(arm->z_args);
     arm->shoulder_pos = arm->get_shoulder_position(arm->shoulder_args);
     arm->elbow_pos = arm->get_elbow_position(arm->elbow_args);
+    arm->wrist_pos = arm->get_wrist_position(arm->wrist_args);
 
     /* Unlock */
     chMtxUnlock(&arm->lock);
@@ -171,9 +180,9 @@ void scara_manage(scara_t *arm)
 
 static scara_waypoint_t scara_convert_waypoint_coordinate(scara_t *arm, scara_waypoint_t key)
 {
-    point_t pos;
-    pos.x = key.position[0];
-    pos.y = key.position[1];
+    point_t pos = {.x = key.position[0], .y = key.position[1]};
+    float heading = key.hand_angle;
+
     if (key.coordinate_type == COORDINATE_TABLE) {
         point_t robot_pos;
         float robot_a_rad;
@@ -183,12 +192,16 @@ static scara_waypoint_t scara_convert_waypoint_coordinate(scara_t *arm, scara_wa
         robot_a_rad = position_get_a_rad_float(arm->robot_pos);
         pos = scara_coordinate_table2robot(pos, robot_pos, robot_a_rad);
         pos = scara_coordinate_robot2arm(pos, arm->offset_xy, arm->offset_rotation);
+        heading = scara_heading_table2robot(heading, robot_a_rad);
+        heading = scara_heading_robot2arm(heading, arm->offset_rotation);
     } else if (key.coordinate_type == COORDINATE_ROBOT) {
         pos = scara_coordinate_robot2arm(pos, arm->offset_xy, arm->offset_rotation);
+        heading = scara_heading_robot2arm(heading, arm->offset_rotation);
     }
 
     key.position[0] = pos.x;
     key.position[1] = pos.y;
+    key.hand_angle = heading;
     return key;
 }
 

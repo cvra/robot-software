@@ -87,3 +87,12 @@ point_t scara_end_effector_position(point_t arm_pos, float heading, float arm_to
 
     return result;
 }
+
+point_t scara_arm_position(point_t end_effector_pos, float heading, float arm_to_effector_length)
+{
+    point_t result;
+    result.x = end_effector_pos.x - arm_to_effector_length * cosf(heading);
+    result.y = end_effector_pos.y - arm_to_effector_length * sinf(heading);
+
+    return result;
+}

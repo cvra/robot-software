@@ -122,6 +122,46 @@ TEST(kinematicsTestGroup, EndEffectorPosNegativeAngles)
     DOUBLES_EQUAL(result.y, 29.29, 1e-2);
 }
 
+TEST(kinematicsTestGroup, ArmPosTrivialCaseX)
+{
+    point_t result;
+    point_t arm_pos = {200., 100.};
+    float length = 100.;
+    result = scara_arm_position(arm_pos, 0., length);
+    DOUBLES_EQUAL(result.x, 100, 1e-2);
+    DOUBLES_EQUAL(result.y, 100, 1e-2);
+}
+
+TEST(kinematicsTestGroup, ArmPosTrivialCaseY)
+{
+    point_t result;
+    point_t arm_pos = {100., 200.};
+    float length = 100.;
+    result = scara_arm_position(arm_pos, M_PI/2, length);
+    DOUBLES_EQUAL(result.x, 100, 1e-2);
+    DOUBLES_EQUAL(result.y, 100, 1e-2);
+}
+
+TEST(kinematicsTestGroup, ArmPosPositiveAngles)
+{
+    point_t result;
+    point_t arm_pos = {170.71, 170.71};
+    float length = 100.;
+    result = scara_arm_position(arm_pos, M_PI/4, length);
+    DOUBLES_EQUAL(result.x, 100., 1e-2);
+    DOUBLES_EQUAL(result.y, 100., 1e-2);
+}
+
+TEST(kinematicsTestGroup, ArmPosNegativeAngles)
+{
+    point_t result;
+    point_t arm_pos = {170.71, 29.29};
+    float length = 100.;
+    result = scara_arm_position(arm_pos, -M_PI/4, length);
+    DOUBLES_EQUAL(result.x, 100., 1e-2);
+    DOUBLES_EQUAL(result.y, 100., 1e-2);
+}
+
 
 TEST(kinematicsTestGroup, DoesNotOscillateAroundZero)
 {
