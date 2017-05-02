@@ -822,38 +822,6 @@ static void cmd_fingers_cmd(BaseSequentialStream *chp, int argc, char *argv[])
     chprintf(chp, "Set fingers of %s hand, slot %d: %d\r\n", argv[0], slot, status);
 }
 
-static void cmd_hand(BaseSequentialStream *chp, int argc, char *argv[])
-{
-    if (argc != 3) {
-        chprintf(chp, "Usage: hand frame side pos\r\n");
-        return;
-    }
-
-    float heading = atof(argv[2]);
-    hand_t* hand;
-
-    if (strcmp("left", argv[1]) == 0) {
-        hand = &left_hand;
-    } else {
-        hand = &right_hand;
-    }
-
-    hand_coordinate_t system;
-    if (strcmp("table", argv[0]) == 0) {
-        system = HAND_COORDINATE_TABLE;
-    } else if (strcmp("robot", argv[0]) == 0) {
-        system = HAND_COORDINATE_ROBOT;
-    } else if (strcmp("arm", argv[0]) == 0) {
-        system = HAND_COORDINATE_ARM;
-    } else {
-        system = HAND_COORDINATE_HAND;
-    }
-
-    hand_goto(hand, heading, system);
-
-    chprintf(chp, "Moving %s hand to %f in %s frame\r\n", argv[1], heading, argv[0]);
-}
-
 static void cmd_state(BaseSequentialStream *chp, int argc, char *argv[])
 {
     (void)argc;
@@ -867,12 +835,10 @@ static void cmd_state(BaseSequentialStream *chp, int argc, char *argv[])
              position_get_x_s16(&robot.pos), position_get_y_s16(&robot.pos), position_get_a_deg_s16(&robot.pos));
 
     scara_pos(&right_arm, &x, &y, &z, COORDINATE_TABLE);
-    chprintf(chp, "Position of right arm is %.1f %.1f %.1f in table frame with hand %.3f\r\n",
-             x, y, z, hand_convert_waypoint_coordinate(&right_hand, right_hand.last_waypoint));
+    chprintf(chp, "Position of right arm is %.1f %.1f %.1f in table frame\r\n", x, y, z);
 
     scara_pos(&left_arm, &x, &y, &z, COORDINATE_TABLE);
-    chprintf(chp, "Position of left arm is %.1f %.1f %.1f in table frame with hand %.3f\r\n",
-             x, y, z, hand_convert_waypoint_coordinate(&left_hand, left_hand.last_waypoint));
+    chprintf(chp, "Position of left arm is %.1f %.1f %.1f in table frame\r\n", x, y, z);
 }
 
 
@@ -951,7 +917,6 @@ const ShellCommand commands[] = {
     {"scara_pos", cmd_scara_pos},
     {"fingers", cmd_fingers},
     {"fingers_cmd", cmd_fingers_cmd},
-    {"hand", cmd_hand},
     {"rocket", cmd_rocket},
     {"state", cmd_state},
     {"trace", cmd_trace},

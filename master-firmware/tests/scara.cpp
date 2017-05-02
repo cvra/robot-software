@@ -28,7 +28,7 @@ TEST_GROUP(ArmTestGroup)
     scara_t arm;
     scara_trajectory_t traj;
     float arbitraryLengths[2] = {100, 50};
-    float z_pos, shoulder_angle, elbow_angle;
+    float z_pos, shoulder_angle, elbow_angle, wrist_angle;
 
 
     void setup()
@@ -45,6 +45,7 @@ TEST_GROUP(ArmTestGroup)
         scara_set_z_callbacks(&arm, set_motor_pos, get_motor_pos, &z_pos);
         scara_set_shoulder_callbacks(&arm, set_motor_pos, get_motor_pos, &shoulder_angle);
         scara_set_elbow_callbacks(&arm, set_motor_pos, get_motor_pos, &elbow_angle);
+        scara_set_wrist_callbacks(&arm, set_motor_pos, get_motor_pos, &wrist_angle);
     }
 
     void teardown()

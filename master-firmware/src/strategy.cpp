@@ -230,14 +230,11 @@ struct IndexArms : public goap::Action<DebraState> {
 
         arms_set_motor_index(left_arm.shoulder_args, motor_indexes[0] + config_get_scalar("master/arms/motor_offsets/left-shoulder"));
         arms_set_motor_index(left_arm.elbow_args, motor_indexes[1] + config_get_scalar("master/arms/motor_offsets/left-elbow"));
-        arms_set_motor_index(left_hand.wrist_args, motor_indexes[2] + config_get_scalar("master/arms/motor_offsets/left-wrist"));
+        arms_set_motor_index(left_arm.wrist_args, motor_indexes[2] + config_get_scalar("master/arms/motor_offsets/left-wrist"));
 
         arms_set_motor_index(right_arm.shoulder_args, motor_indexes[3] + config_get_scalar("master/arms/motor_offsets/right-shoulder"));
         arms_set_motor_index(right_arm.elbow_args, motor_indexes[4] + config_get_scalar("master/arms/motor_offsets/right-elbow"));
-        arms_set_motor_index(right_hand.wrist_args, motor_indexes[5] + config_get_scalar("master/arms/motor_offsets/right-wrist"));
-
-        left_hand.enable_control = true;
-        right_hand.enable_control = true;
+        arms_set_motor_index(right_arm.wrist_args, motor_indexes[5] + config_get_scalar("master/arms/motor_offsets/right-wrist"));
 
         state.arms_are_indexed = true;
         return true;

@@ -29,10 +29,12 @@ void arms_init(void)
     static cvra_arm_motor_t left_z = {.m = &motor_manager, .direction = 1, .index = 0};
     static cvra_arm_motor_t left_shoulder = {.m = &motor_manager, .direction = -1, .index = 0};
     static cvra_arm_motor_t left_elbow = {.m = &motor_manager, .direction = -1, .index = 0};
+    static cvra_arm_motor_t left_wrist = {.m = &motor_manager, .direction = 1, .index = 0};
 
     scara_set_z_callbacks(&left_arm, set_left_z_position, get_left_z_position, &left_z);
     scara_set_shoulder_callbacks(&left_arm, set_left_shoulder_position, get_left_shoulder_position, &left_shoulder);
     scara_set_elbow_callbacks(&left_arm, set_left_elbow_position, get_left_elbow_position, &left_elbow);
+    scara_set_wrist_callbacks(&left_arm, set_left_wrist_position, get_left_wrist_position, &left_wrist);
 
     scara_set_related_robot_pos(&left_arm, &robot.pos);
 
@@ -49,10 +51,12 @@ void arms_init(void)
     static cvra_arm_motor_t right_z = {.m = &motor_manager, .direction = 1, .index = 0};
     static cvra_arm_motor_t right_shoulder = {.m = &motor_manager, .direction = -1, .index = 0};
     static cvra_arm_motor_t right_elbow = {.m = &motor_manager, .direction = -1, .index = 0};
+    static cvra_arm_motor_t right_wrist = {.m = &motor_manager, .direction = 1, .index = 0};
 
     scara_set_z_callbacks(&right_arm, set_right_z_position, get_right_z_position, &right_z);
     scara_set_shoulder_callbacks(&right_arm, set_right_shoulder_position, get_right_shoulder_position, &right_shoulder);
     scara_set_elbow_callbacks(&right_arm, set_right_elbow_position, get_right_elbow_position, &right_elbow);
+    scara_set_wrist_callbacks(&right_arm, set_right_wrist_position, get_right_wrist_position, &right_wrist);
 
     scara_set_related_robot_pos(&right_arm, &robot.pos);
 
@@ -66,23 +70,11 @@ void arms_init(void)
 
     /* Configure left hand */
     hand_init(&left_hand);
-    static cvra_arm_motor_t left_wrist = {.m = &motor_manager, .direction = 1, .index = 0};
-
-    hand_set_wrist_callbacks(&left_hand, set_left_wrist_position, get_left_wrist_position, &left_wrist);
     hand_set_fingers_callbacks(&left_hand, hand_driver_set_left_fingers);
-
-    hand_set_related_robot_pos(&left_hand, &robot.pos);
-    hand_set_related_arm(&left_hand, &left_arm);
 
     /* Configure right hand */
     hand_init(&right_hand);
-    static cvra_arm_motor_t right_wrist = {.m = &motor_manager, .direction = 1, .index = 0};
-
-    hand_set_wrist_callbacks(&right_hand, set_right_wrist_position, get_right_wrist_position, &right_wrist);
     hand_set_fingers_callbacks(&right_hand, hand_driver_set_right_fingers);
-
-    hand_set_related_robot_pos(&right_hand, &robot.pos);
-    hand_set_related_arm(&right_hand, &right_arm);
 }
 
 float arms_motor_auto_index(const char* motor_name, int motor_dir, float motor_speed)

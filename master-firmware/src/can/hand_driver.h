@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include "hand/hand_utils.h"
+#include "hand/hand.h"
 
 typedef struct {
     bool object_present[4];
