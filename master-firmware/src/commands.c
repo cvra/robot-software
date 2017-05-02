@@ -29,7 +29,6 @@
 #include "scara/scara.h"
 #include "scara/scara_utils.h"
 #include "arms/arms_controller.h"
-#include "arms/hands_controller.h"
 #include "can/hand_driver.h"
 #include "strategy.h"
 #include <trace/trace.h>

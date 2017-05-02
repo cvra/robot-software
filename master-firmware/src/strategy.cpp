@@ -18,7 +18,6 @@
 #include "base/map.h"
 #include "scara/scara_trajectories.h"
 #include "arms/arms_controller.h"
-#include "arms/hands_controller.h"
 #include "config.h"
 #include "main.h"
 
