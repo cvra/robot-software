@@ -5,10 +5,6 @@
 extern "C" {
 #endif
 
-#define ACTUATOR_TRAJECTORY_NB_POINTS           100
-#define ACTUATOR_TRAJECTORY_POINT_DIMENSION     4 // pos, vel, acc, torque
-
-#define MAX_NB_TRAJECTORY_BUFFERS       1
 #define MAX_NB_MOTOR_DRIVERS            20
 #define MAX_NB_BUS_ENUMERATOR_ENTRIES   21
 
