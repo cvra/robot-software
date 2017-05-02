@@ -17,7 +17,7 @@ extern "C" {
  * date is now.
  */
 void scara_trajectory_append_point(scara_trajectory_t *traj, const float x, const float y, const float z,
-                                   scara_coordinate_t system, const float duration);
+                                   scara_coordinate_t system, const float duration, const float* length);
 
 void scara_trajectory_set_hand_angle(scara_trajectory_t *traj, float angle);
 

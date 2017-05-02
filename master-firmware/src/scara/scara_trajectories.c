@@ -25,7 +25,7 @@ void scara_trajectory_init(scara_trajectory_t *traj) {
 
 
 void scara_trajectory_append_point(scara_trajectory_t *traj, const float x, const float y, const float z,
-                                   scara_coordinate_t system, const float duration)
+                                   scara_coordinate_t system, const float duration, const float* length)
 {
     traj->frame_count += 1;
     if (traj->frame_count >= SCARA_TRAJ_MAX_NUM_FRAMES) {
@@ -47,8 +47,8 @@ void scara_trajectory_append_point(scara_trajectory_t *traj, const float x, cons
         traj->frames[traj->frame_count-1].date = traj->frames[traj->frame_count-2].date+1000000*duration;
     }
 
-    traj->frames[traj->frame_count-1].length[0] = 140.f;
-    traj->frames[traj->frame_count-1].length[1] = 72.f;
+    traj->frames[traj->frame_count-1].length[0] = length[0];
+    traj->frames[traj->frame_count-1].length[1] = length[1];
 
     if (traj->frame_count > 1) {
         traj->frames[traj->frame_count-1].hand_angle = traj->frames[traj->frame_count-2].hand_angle;
@@ -58,11 +58,10 @@ void scara_trajectory_append_point(scara_trajectory_t *traj, const float x, cons
 }
 
 void scara_trajectory_append_point_with_length(scara_trajectory_t *traj, const float x, const float y, const float z,
-                                   scara_coordinate_t system, const float duration, const float l1, const float l2) {
-    scara_trajectory_append_point(traj, x, y, z, system, duration);
-
-    traj->frames[traj->frame_count-1].length[0] = l1;
-    traj->frames[traj->frame_count-1].length[1] = l2;
+                                   scara_coordinate_t system, const float duration, const float l1, const float l2)
+{
+    float length[2] = {l1, l2};
+    scara_trajectory_append_point(traj, x, y, z, system, duration, length);
 }
 
 void scara_trajectory_delete(scara_trajectory_t *traj)

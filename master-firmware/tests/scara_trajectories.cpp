@@ -11,6 +11,7 @@ extern void scara_time_set(int32_t time);
 TEST_GROUP(ArmTrajectoriesBuilderTest)
 {
     scara_trajectory_t traj;
+    float arbitraryLengths[2] = {100, 50};
 
     void setup()
     {
@@ -26,14 +27,14 @@ TEST_GROUP(ArmTrajectoriesBuilderTest)
 
 TEST(ArmTrajectoriesBuilderTest, CanAddOnePoint)
 {
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10.);
+    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10., arbitraryLengths);
     CHECK_EQUAL(traj.frame_count, 1);
 }
 
 TEST(ArmTrajectoriesBuilderTest, CanAddMultiplePoints)
 {
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10.);
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10.);
+    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10., arbitraryLengths);
+    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10., arbitraryLengths);
     CHECK_EQUAL(traj.frame_count, 2);
     CHECK_EQUAL(traj.frames[1].date, 10000000);
 }
@@ -41,19 +42,19 @@ TEST(ArmTrajectoriesBuilderTest, CanAddMultiplePoints)
 
 TEST(ArmTrajectoriesBuilderTest, DateIsCorrectlyComputed)
 {
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 1.);
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10.);
+    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 1., arbitraryLengths);
+    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10., arbitraryLengths);
 
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 15.);
+    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 15., arbitraryLengths);
     CHECK_EQUAL(traj.frames[1].date, 10*1000000);
     CHECK_EQUAL(traj.frames[2].date, 25*1000000);
 }
 
 TEST(ArmTrajectoriesBuilderTest, DeleteTrajectory)
 {
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 1.);
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10.);
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 15.);
+    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 1., arbitraryLengths);
+    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10., arbitraryLengths);
+    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 15., arbitraryLengths);
     scara_trajectory_delete(&traj);
     CHECK_EQUAL(0, traj.frame_count);
 }
@@ -61,8 +62,8 @@ TEST(ArmTrajectoriesBuilderTest, DeleteTrajectory)
 TEST(ArmTrajectoriesBuilderTest, CopyTrajectory)
 {
     scara_trajectory_t copy;
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 1.);
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10.);
+    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 1., arbitraryLengths);
+    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10., arbitraryLengths);
 
     scara_trajectory_copy(&copy, &traj);
     CHECK_EQUAL(traj.frame_count, copy.frame_count);
@@ -79,15 +80,15 @@ TEST(ArmTrajectoriesBuilderTest, EmptyTrajectoryIsFinished)
 
 TEST(ArmTrajectoriesBuilderTest, TrajectoryWithPointIsNotFinished)
 {
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 1.);
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10.);
+    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 1., arbitraryLengths);
+    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10., arbitraryLengths);
     CHECK_EQUAL(0, scara_trajectory_finished(&traj));
 }
 
 TEST(ArmTrajectoriesBuilderTest, PastTrajectoryIsFinished)
 {
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 1.);
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10.);
+    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 1., arbitraryLengths);
+    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10., arbitraryLengths);
     scara_time_set(20*1000000);
     CHECK_EQUAL(1, scara_trajectory_finished(&traj));
 }
