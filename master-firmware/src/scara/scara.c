@@ -20,10 +20,11 @@ void scara_init(scara_t *arm)
 }
 
 
-void scara_set_physical_parameters(scara_t* arm, float upperarm_length, float forearm_length)
+void scara_set_physical_parameters(scara_t* arm, float upperarm_length, float forearm_length, float hand_length)
 {
     arm->length[0] = upperarm_length;
     arm->length[1] = forearm_length;
+    arm->length[2] = hand_length;
 }
 
 void scara_set_offset(scara_t* arm, float offset_x, float offset_y, float offset_rotation)

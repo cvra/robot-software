@@ -27,14 +27,14 @@ TEST_GROUP(ArmTestGroup)
 {
     scara_t arm;
     scara_trajectory_t traj;
-    float arbitraryLengths[2] = {100, 50};
+    float arbitraryLengths[3] = {100, 50, 20};
     float z_pos, shoulder_angle, elbow_angle, wrist_angle;
 
 
     void setup()
     {
         scara_init(&arm);
-        scara_set_physical_parameters(&arm, arbitraryLengths[0], arbitraryLengths[1]);
+        scara_set_physical_parameters(&arm, arbitraryLengths[0], arbitraryLengths[1], arbitraryLengths[2]);
         arm.offset_rotation = M_PI / 2;
         scara_trajectory_init(&traj);
 
@@ -72,11 +72,12 @@ TEST(ArmTestGroup, ShoulderModeIsSetToBack)
 
 TEST(ArmTestGroup, PhysicalParametersMakeSense)
 {
-    scara_set_physical_parameters(&arm, 100, 50);
+    scara_set_physical_parameters(&arm, 100, 50, 20);
 
     /* Length must be greater than zero. */
     CHECK_EQUAL(100, arm.length[0]);
     CHECK_EQUAL(50, arm.length[1]);
+    CHECK_EQUAL(20, arm.length[2]);
 }
 
 TEST(ArmTestGroup, ExecuteTrajectoryCopiesData)

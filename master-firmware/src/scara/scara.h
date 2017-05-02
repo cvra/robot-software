@@ -43,7 +43,7 @@ typedef struct {
     float wrist_pos;
 
     /* Physical parameters. */
-    float length[2];                  /**< Length of the 2 arms elements. */
+    float length[3];                  /**< Length of the 2 arms elements and wrist to hand center. */
 
     /* Path informations */
     scara_trajectory_t trajectory;    /**< Current trajectory of the arm. */
@@ -59,7 +59,7 @@ typedef struct {
 
 void scara_init(scara_t *arm);
 
-void scara_set_physical_parameters(scara_t* arm, float upperarm_length, float forearm_length);
+void scara_set_physical_parameters(scara_t* arm, float upperarm_length, float forearm_length, float hand_length);
 void scara_set_offset(scara_t* arm, float offset_x, float offset_y, float offset_rotation);
 
 void scara_set_z_callbacks(scara_t* arm, void (*set_z_position)(void*, float),

@@ -40,7 +40,8 @@ void arms_init(void)
 
     scara_set_physical_parameters(&left_arm,
         config_get_scalar("master/arms/upperarm_length"),
-        config_get_scalar("master/arms/forearm_length"));
+        config_get_scalar("master/arms/forearm_length"),
+        config_get_scalar("master/arms/wrist_to_hand_length"));
 
     scara_set_offset(&left_arm, config_get_scalar("master/arms/left/offset_x"),
         config_get_scalar("master/arms/left/offset_y"),
@@ -62,7 +63,8 @@ void arms_init(void)
 
     scara_set_physical_parameters(&right_arm,
         config_get_scalar("master/arms/upperarm_length"),
-        config_get_scalar("master/arms/forearm_length"));
+        config_get_scalar("master/arms/forearm_length"),
+        config_get_scalar("master/arms/wrist_to_hand_length"));
 
     scara_set_offset(&right_arm, config_get_scalar("master/arms/right/offset_x"),
         config_get_scalar("master/arms/right/offset_y"),
