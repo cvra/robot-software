@@ -222,19 +222,9 @@ int main(void) {
                         MAX_NB_BUS_ENUMERATOR_ENTRIES);
 
 
-    /* allocate and init motor manager */
-    static __attribute__((section(".ccm"))) trajectory_t trajectory_buffer[MAX_NB_TRAJECTORY_BUFFERS];
-    static __attribute__((section(".ccm"))) float trajectory_points_buffer[ACTUATOR_TRAJECTORY_NB_POINTS
-                                                                           * ACTUATOR_TRAJECTORY_POINT_DIMENSION
-                                                                           * MAX_NB_TRAJECTORY_BUFFERS];
-
     static __attribute__((section(".ccm"))) motor_driver_t motor_driver_buffer[MAX_NB_MOTOR_DRIVERS];
 
     motor_manager_init(&motor_manager,
-                       trajectory_buffer,
-                       MAX_NB_TRAJECTORY_BUFFERS,
-                       trajectory_points_buffer,
-                       MAX_NB_TRAJECTORY_BUFFERS,
                        motor_driver_buffer,
                        MAX_NB_MOTOR_DRIVERS,
                        &bus_enumerator);

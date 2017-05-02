@@ -19,15 +19,9 @@ static void pid_register(struct pid_parameter_s *pid,
 
 void motor_driver_init(motor_driver_t *d,
                        const char *actuator_id,
-                       parameter_namespace_t *ns,
-                       memory_pool_t *traj_buffer_pool,
-                       memory_pool_t *traj_buffer_points_pool,
-                       int traj_buffer_nb_points)
+                       parameter_namespace_t *ns)
 {
     chBSemObjectInit(&d->lock, false);
-    d->traj_buffer_pool = traj_buffer_pool;
-    d->traj_buffer_points_pool = traj_buffer_points_pool;
-    d->traj_buffer_nb_points = traj_buffer_nb_points;
 
     strncpy(d->id, actuator_id, MOTOR_ID_MAX_LEN);
     d->id[MOTOR_ID_MAX_LEN] = '\0';
@@ -80,21 +74,9 @@ const char *motor_driver_get_id(motor_driver_t *d)
     return d->id;
 }
 
-// must be called with the locked driver
-static void free_trajectory_buffer(motor_driver_t *d)
-{
-    if (d->control_mode == MOTOR_CONTROL_MODE_TRAJECTORY
-        && d->setpt.trajectory != NULL) {
-        chPoolFree(d->traj_buffer_points_pool, trajectory_get_buffer_pointer(d->setpt.trajectory));
-        chPoolFree(d->traj_buffer_pool, d->setpt.trajectory);
-        d->setpt.trajectory = NULL;
-    }
-}
-
 void motor_driver_set_position(motor_driver_t *d, float position)
 {
     chBSemWait(&d->lock);
-    free_trajectory_buffer(d);
     d->control_mode = MOTOR_CONTROL_MODE_POSITION;
     d->setpt.position = position;
     chBSemSignal(&d->lock);
@@ -103,7 +85,6 @@ void motor_driver_set_position(motor_driver_t *d, float position)
 void motor_driver_set_velocity(motor_driver_t *d, float velocity)
 {
     chBSemWait(&d->lock);
-    free_trajectory_buffer(d);
     d->control_mode = MOTOR_CONTROL_MODE_VELOCITY;
     d->setpt.velocity = velocity;
     chBSemSignal(&d->lock);
@@ -112,7 +93,6 @@ void motor_driver_set_velocity(motor_driver_t *d, float velocity)
 void motor_driver_set_torque(motor_driver_t *d, float torque)
 {
     chBSemWait(&d->lock);
-    free_trajectory_buffer(d);
     d->control_mode = MOTOR_CONTROL_MODE_TORQUE;
     d->setpt.torque = torque;
     chBSemSignal(&d->lock);
@@ -121,46 +101,14 @@ void motor_driver_set_torque(motor_driver_t *d, float torque)
 void motor_driver_set_voltage(motor_driver_t *d, float voltage)
 {
     chBSemWait(&d->lock);
-    free_trajectory_buffer(d);
     d->control_mode = MOTOR_CONTROL_MODE_VOLTAGE;
     d->setpt.voltage = voltage;
-    chBSemSignal(&d->lock);
-}
-
-void motor_driver_update_trajectory(motor_driver_t *d, trajectory_chunk_t *traj)
-{
-    chBSemWait(&d->lock);
-    if (d->control_mode != MOTOR_CONTROL_MODE_TRAJECTORY) {
-        d->setpt.trajectory = chPoolAlloc(d->traj_buffer_pool);
-        float *traj_mem = chPoolAlloc(d->traj_buffer_points_pool);
-        if (d->setpt.trajectory == NULL || traj_mem == NULL) {
-            chSysHalt("motor driver out of memory (trajectory buffer allocation)");
-        }
-        trajectory_init(d->setpt.trajectory, traj_mem, d->traj_buffer_nb_points, 4, traj->sampling_time_us);
-        d->control_mode = MOTOR_CONTROL_MODE_TRAJECTORY;
-    }
-    int ret = trajectory_apply_chunk(d->setpt.trajectory, traj);
-    switch (ret) {
-        case TRAJECTORY_ERROR_TIMESTEP_MISMATCH:
-            ERROR("TRAJECTORY_ERROR_TIMESTEP_MISMATCH");
-            break;
-        case TRAJECTORY_ERROR_CHUNK_TOO_OLD:
-            ERROR("TRAJECTORY_ERROR_CHUNK_TOO_OLD");
-            break;
-        case TRAJECTORY_ERROR_DIMENSION_MISMATCH:
-            ERROR("TRAJECTORY_ERROR_DIMENSION_MISMATCH");
-            break;
-        case TRAJECTORY_ERROR_CHUNK_OUT_OF_ORER:
-            ERROR("TRAJECTORY_ERROR_CHUNK_OUT_OF_ORER");
-            break;
-    }
     chBSemSignal(&d->lock);
 }
 
 void motor_driver_disable(motor_driver_t *d)
 {
     chBSemWait(&d->lock);
-    free_trajectory_buffer(d);
     d->control_mode = MOTOR_CONTROL_MODE_DISABLED;
     chBSemSignal(&d->lock);
 }
@@ -223,31 +171,6 @@ float motor_driver_get_voltage_setpt(motor_driver_t *d)
         chSysHalt("motor driver get voltage wrong setpt mode");
     }
     return d->setpt.voltage;
-}
-
-void motor_driver_get_trajectory_point(motor_driver_t *d,
-                                       int64_t timestamp_us,
-                                       float *position,
-                                       float *velocity,
-                                       float *acceleration,
-                                       float *torque)
-{
-    if (d->control_mode != MOTOR_CONTROL_MODE_TRAJECTORY) {
-        chSysHalt("motor driver get trajectory wrong setpt mode");
-    }
-    float *t = trajectory_read(d->setpt.trajectory, timestamp_us);
-    if (t == NULL) {
-        WARNING("trajectory read: %d failed", timestamp_get());
-        *position = 0;
-        *velocity = 0;
-        *acceleration = 0;
-        *torque = 0;
-        return;
-    }
-    *position = t[0];
-    *velocity = t[1];
-    *acceleration = t[2];
-    *torque = t[3];
 }
 
 void motor_driver_set_stream_value(motor_driver_t *d, uint32_t stream, float value)
