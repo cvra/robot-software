@@ -73,24 +73,32 @@ void scara_goto(scara_t* arm, float x, float y, float z, scara_coordinate_t syst
     scara_do_trajectory(arm, &(arm->trajectory));
 }
 
-void scara_pos(scara_t* arm, float* x, float* y, float* z, scara_coordinate_t system)
+void scara_pos(scara_t* arm, float* x, float* y, float* z, float* a, scara_coordinate_t system)
 {
-    point_t pos = scara_forward_kinematics(arm->shoulder_pos, arm->elbow_pos, arm->length);
+    float heading = arm->shoulder_pos + arm->elbow_pos + arm->wrist_pos;
+
+    point_t pos;
+    pos = scara_forward_kinematics(arm->shoulder_pos, arm->elbow_pos, arm->length);
+    pos = scara_end_effector_position(pos, heading, arm->length[2]);
 
     if (system == COORDINATE_ROBOT) {
         pos = scara_coordinate_arm2robot(pos, arm->offset_xy, arm->offset_rotation);
+        heading = scara_heading_arm2robot(heading, arm->offset_rotation);
     } else if (system == COORDINATE_TABLE) {
         pos = scara_coordinate_arm2robot(pos, arm->offset_xy, arm->offset_rotation);
+        heading = scara_heading_arm2robot(heading, arm->offset_rotation);
 
         point_t robot_xy = {.x = position_get_x_float(arm->robot_pos), .y = position_get_y_float(arm->robot_pos)};
         float robot_a = position_get_a_rad_float(arm->robot_pos);
 
         pos = scara_coordinate_robot2table(pos, robot_xy, robot_a);
+        heading = scara_heading_robot2table(heading, robot_a);
     }
 
     *x = pos.x;
     *y = pos.y;
     *z = arm->z_pos;
+    *a = heading;
 }
 
 void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj)

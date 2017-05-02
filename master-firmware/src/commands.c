@@ -775,16 +775,16 @@ static void cmd_scara_pos(BaseSequentialStream *chp, int argc, char *argv[])
         arm = &right_arm;
     }
 
-    float x, y, z;
+    float x, y, z, a;
     if (strcmp("robot", argv[0]) == 0) {
-        scara_pos(arm, &x, &y, &z, COORDINATE_ROBOT);
+        scara_pos(arm, &x, &y, &z, &a, COORDINATE_ROBOT);
     } else if (strcmp("table", argv[0]) == 0) {
-        scara_pos(arm, &x, &y, &z, COORDINATE_TABLE);
+        scara_pos(arm, &x, &y, &z, &a, COORDINATE_TABLE);
     } else {
-        scara_pos(arm, &x, &y, &z, COORDINATE_ARM);
+        scara_pos(arm, &x, &y, &z, &a, COORDINATE_ARM);
     }
 
-    chprintf(chp, "Position of %s arm is %f %f %f in %s frame\r\n", argv[1], x, y, z, argv[0]);
+    chprintf(chp, "Position of %s arm is %f %f %f heading %f in %s frame\r\n", argv[1], x, y, z, a, argv[0]);
 }
 
 static void cmd_fingers(BaseSequentialStream *chp, int argc, char *argv[])
@@ -827,18 +827,18 @@ static void cmd_state(BaseSequentialStream *chp, int argc, char *argv[])
     (void)argc;
     (void)argv;
 
-    float x, y, z;
+    float x, y, z, a;
 
     chprintf(chp, "Current robot state:\r\n");
 
     chprintf(chp, "Position of robot is %d %d %d\r\n",
              position_get_x_s16(&robot.pos), position_get_y_s16(&robot.pos), position_get_a_deg_s16(&robot.pos));
 
-    scara_pos(&right_arm, &x, &y, &z, COORDINATE_TABLE);
-    chprintf(chp, "Position of right arm is %.1f %.1f %.1f in table frame\r\n", x, y, z);
+    scara_pos(&right_arm, &x, &y, &z, &a, COORDINATE_TABLE);
+    chprintf(chp, "Position of right arm is %.1f %.1f %.1f heading %.1f in table frame\r\n", x, y, z, a);
 
-    scara_pos(&left_arm, &x, &y, &z, COORDINATE_TABLE);
-    chprintf(chp, "Position of left arm is %.1f %.1f %.1f in table frame\r\n", x, y, z);
+    scara_pos(&left_arm, &x, &y, &z, &a, COORDINATE_TABLE);
+    chprintf(chp, "Position of left arm is %.1f %.1f %.1f heading %.1f in table frame\r\n", x, y, z, a);
 }
 
 

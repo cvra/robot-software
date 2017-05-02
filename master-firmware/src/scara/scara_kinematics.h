@@ -32,6 +32,8 @@ point_t scara_shoulder_solve(point_t target, point_t elbow1, point_t elbow2, sho
 
 point_t scara_forward_kinematics(float alpha, float beta, float length[2]);
 
+point_t scara_end_effector_position(point_t arm_pos, float heading, float arm_to_effector_length);
+
 float scara_compute_shoulder_angle(point_t elbow, point_t hand);
 float scara_compute_elbow_angle(point_t elbow, point_t hand);
 
