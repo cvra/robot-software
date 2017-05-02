@@ -4,7 +4,6 @@
 #include <ch.h>
 #include <parameter/parameter.h>
 #include "unix_timestamp.h"
-#include "trajectories.h"
 
 #define MOTOR_ID_MAX_LEN 24
 #define MOTOR_ID_MAX_LEN_WITH_NUL (MOTOR_ID_MAX_LEN+1) // terminated C string buffer
@@ -14,7 +13,6 @@
 #define MOTOR_CONTROL_MODE_VELOCITY     2
 #define MOTOR_CONTROL_MODE_TORQUE       3
 #define MOTOR_CONTROL_MODE_VOLTAGE      4
-#define MOTOR_CONTROL_MODE_TRAJECTORY   5
 
 
 #define MOTOR_STREAMS_NB_VALUES        10
@@ -42,9 +40,6 @@ typedef struct {
     char id[MOTOR_ID_MAX_LEN+1];
     int can_id;
     binary_semaphore_t lock;
-    memory_pool_t *traj_buffer_pool;
-    memory_pool_t *traj_buffer_points_pool;
-    int traj_buffer_nb_points;
 
     float update_period;
     int control_mode;
@@ -53,7 +48,6 @@ typedef struct {
         float velocity;
         float torque;
         float voltage;
-        trajectory_t *trajectory;
     } setpt;
 
     struct {
@@ -114,10 +108,7 @@ extern "C" {
 // - the actuator id is stored internally (copied)
 void motor_driver_init(motor_driver_t *d,
                        const char *actuator_id,
-                       parameter_namespace_t *ns,
-                       memory_pool_t *traj_buffer_pool,
-                       memory_pool_t *traj_buffer_points_pool,
-                       int traj_buffer_nb_points);
+                       parameter_namespace_t *ns);
 
 // returns a pointer to the stored id string
 const char *motor_driver_get_id(motor_driver_t *d);
@@ -126,8 +117,6 @@ void motor_driver_set_position(motor_driver_t *d, float position);
 void motor_driver_set_velocity(motor_driver_t *d, float velocity);
 void motor_driver_set_torque(motor_driver_t *d, float torque);
 void motor_driver_set_voltage(motor_driver_t *d, float voltage);
-// trajectory format: [position, velocity, acceleration, torque]
-void motor_driver_update_trajectory(motor_driver_t *d, trajectory_chunk_t *traj);
 void motor_driver_disable(motor_driver_t *d);
 
 #define CAN_ID_NOT_SET  0xFFFF
@@ -145,12 +134,6 @@ float motor_driver_get_position_setpt(motor_driver_t *d);
 float motor_driver_get_velocity_setpt(motor_driver_t *d);
 float motor_driver_get_torque_setpt(motor_driver_t *d);
 float motor_driver_get_voltage_setpt(motor_driver_t *d);
-void motor_driver_get_trajectory_point(motor_driver_t *d,
-                                       int64_t timestamp_us,
-                                       float *position,
-                                       float *velocity,
-                                       float *acceleration,
-                                       float *torque);
 
 void motor_driver_set_stream_value(motor_driver_t *d, uint32_t stream, float value);
 uint32_t motor_driver_get_stream_change_status(motor_driver_t *d);

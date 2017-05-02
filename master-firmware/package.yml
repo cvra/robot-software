@@ -59,7 +59,6 @@ target.arm:
 source:
     - src/unix_timestamp.c
     - src/can/bus_enumerator.c
-    - src/trajectories.c
     - src/trace/trace.c
     - src/base/map.c
     - src/robot_helpers/math_helpers.c
@@ -101,7 +100,6 @@ tests:
     - tests/ch.cpp
     - tests/unix-timestamp.cpp
     - tests/bus_enumerator.cpp
-    - tests/trajectories_test.cpp
     - tests/test_map.cpp
     - tests/test_math_helpers.cpp
     - tests/test_beacon_helpers.cpp

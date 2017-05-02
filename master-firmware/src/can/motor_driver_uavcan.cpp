@@ -10,7 +10,6 @@
 #include <cvra/motor/control/Position.hpp>
 #include <cvra/motor/control/Torque.hpp>
 #include <cvra/motor/control/Voltage.hpp>
-#include <cvra/motor/control/Trajectory.hpp>
 
 #include <error/error.h>
 #include <timestamp/timestamp.h>
@@ -49,7 +48,6 @@ static LazyConstructor<Publisher<control::Velocity> > velocity_pub;
 static LazyConstructor<Publisher<control::Position> > position_pub;
 static LazyConstructor<Publisher<control::Torque> > torque_pub;
 static LazyConstructor<Publisher<control::Voltage> > voltage_pub;
-static LazyConstructor<Publisher<control::Trajectory> > trajectory_pub;
 
 int motor_driver_uavcan_init(INode &node)
 {
@@ -94,7 +92,6 @@ int motor_driver_uavcan_init(INode &node)
     position_pub.construct<INode &>(node);
     torque_pub.construct<INode &>(node);
     voltage_pub.construct<INode &>(node);
-    trajectory_pub.construct<INode &>(node);
 
     /* Setup a timer that will send the config & setpoints to the motor boards
      * periodically.
@@ -289,7 +286,6 @@ static void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
     control::Velocity velocity_setpoint;
     control::Torque torque_setpoint;
     control::Voltage voltage_setpoint;
-    control::Trajectory trajectory_setpoint;
 
     update_motor_can_id(d);
     int node_id = motor_driver_get_can_id(d);
@@ -321,23 +317,6 @@ static void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
             voltage_setpoint.voltage = motor_driver_get_voltage_setpt(d);
             voltage_setpoint.node_id = node_id;
             voltage_pub->broadcast(voltage_setpoint);
-        } break;
-
-        case MOTOR_CONTROL_MODE_TRAJECTORY: {
-            uint64_t timestamp_us = timestamp_get();
-            float position, velocity, acceleration, torque;
-            motor_driver_get_trajectory_point(d,
-                                              timestamp_us,
-                                              &position,
-                                              &velocity,
-                                              &acceleration,
-                                              &torque);
-            trajectory_setpoint.position = position;
-            trajectory_setpoint.velocity = velocity;
-            trajectory_setpoint.acceleration = acceleration;
-            trajectory_setpoint.torque = torque;
-            trajectory_setpoint.node_id = node_id;
-            trajectory_pub->broadcast(trajectory_setpoint);
         } break;
 
         /* Nothing to do, not sending any setpoint will disable the board. */
