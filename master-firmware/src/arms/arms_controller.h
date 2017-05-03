@@ -8,7 +8,7 @@ extern "C" {
 #include "scara/scara.h"
 #include "hand/hand.h"
 
-#define ARMS_FREQUENCY 10
+#define ARMS_FREQUENCY 20
 
 extern scara_t left_arm;
 extern scara_t right_arm;
