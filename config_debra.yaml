@@ -373,7 +373,7 @@ actuator:
         motor:
             # motor: 1516SR
             mode: 3 # periodic
-            motor_encoder_steps_per_revolution: 4096
+            motor_encoder_steps_per_revolution: 2048
             second_encoder_steps_per_revolution: 0
             # transmission: motor: 1/76 gears: 20/50
             transmission_ratio_p: 1
