@@ -73,6 +73,13 @@ void scara_goto(scara_t* arm, float x, float y, float z, float a, scara_coordina
     scara_do_trajectory(arm, &(arm->trajectory));
 }
 
+void scara_move_z(scara_t* arm, float z_new, scara_coordinate_t system, const float duration)
+{
+    float x, y, z, a;
+    scara_pos(arm, &x, &y, &z, &a, system);
+    scara_goto(arm, x, y, z_new, a, system, duration);
+}
+
 void scara_pos(scara_t* arm, float* x, float* y, float* z, float* a, scara_coordinate_t system)
 {
     float heading = arm->shoulder_pos + arm->elbow_pos + arm->wrist_pos;
