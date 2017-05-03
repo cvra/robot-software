@@ -28,6 +28,7 @@
 #include "robot_helpers/motor_helpers.h"
 #include "scara/scara.h"
 #include "scara/scara_utils.h"
+#include "scara/scara_trajectories.h"
 #include "arms/arms_controller.h"
 #include "can/hand_driver.h"
 #include "strategy.h"
@@ -761,6 +762,55 @@ static void cmd_scara_goto(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
+static void cmd_scara_mv(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc != 5) {
+        chprintf(chp, "Usage: scara_mv side x y a l3\r\n");
+        return;
+    }
+    scara_t* arm;
+    float x, y, z, a, l3;
+
+    if (strcmp("left", argv[0]) == 0) {
+        arm = &left_arm;
+    } else {
+        arm = &right_arm;
+    }
+
+    scara_pos(arm, &x, &y, &z, &a, COORDINATE_TABLE);
+    scara_trajectory_init(&(arm->trajectory));
+    scara_trajectory_append_point_with_length(&(arm->trajectory), x, y, z, a, COORDINATE_TABLE, 0, arm->length[0], arm->length[1], arm->length[2]);
+
+    x = atof(argv[1]);
+    y = atof(argv[2]);
+    a = atof(argv[3]);
+    l3 = atof(argv[4]);
+    scara_trajectory_append_point_with_length(&(arm->trajectory), x, y, z, a, COORDINATE_TABLE, 1, arm->length[0], arm->length[1], l3);
+    scara_do_trajectory(arm, &(arm->trajectory));
+
+    chprintf(chp, "Moving %s arm to %f %f %f heading %f in table frame\r\n", argv[0], x, y, z, a);
+}
+
+static void cmd_scara_z(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc != 2) {
+        chprintf(chp, "Usage: scara_z side z\r\n");
+        return;
+    }
+    scara_t* arm;
+    float z = atof(argv[1]);
+
+    if (strcmp("left", argv[0]) == 0) {
+        arm = &left_arm;
+    } else {
+        arm = &right_arm;
+    }
+
+    scara_move_z(arm, z, COORDINATE_ROBOT, 1);
+
+    chprintf(chp, "Moving %s arm z to %f\r\n", argv[0], z);
+}
+
 static void cmd_scara_pos(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc != 2) {
@@ -914,6 +964,8 @@ const ShellCommand commands[] = {
     {"motor_voltage", cmd_motor_voltage},
     {"motor_index", cmd_motor_index},
     {"scara_goto", cmd_scara_goto},
+    {"scara_mv", cmd_scara_mv},
+    {"scara_z", cmd_scara_z},
     {"scara_pos", cmd_scara_pos},
     {"fingers", cmd_fingers},
     {"fingers_cmd", cmd_fingers_cmd},
