@@ -42,6 +42,9 @@ typedef struct {
     float elbow_pos;
     float wrist_pos;
 
+    /* Wrist position offset for tool selection */
+    float wrist_offset;
+
     /* Physical parameters. */
     float length[3];                  /**< Length of the 2 arms elements and wrist to hand center. */
 
@@ -71,6 +74,8 @@ void scara_set_elbow_callbacks(scara_t* arm, void (*set_elbow_position)(void*, f
                                float (*get_elbow_position)(void*), void* elbow_args);
 void scara_set_wrist_callbacks(scara_t* arm, void (*set_wrist_position)(void*, float),
                                float (*get_wrist_position)(void*), void* wrist_args);
+
+void scara_set_wrist_offset(scara_t* arm, float wrist_offset);
 
 /* Goto position in specified coordinate system */
 void scara_goto(scara_t* arm, float x, float y, float z, float a, scara_coordinate_t system, const float duration);

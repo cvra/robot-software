@@ -66,6 +66,11 @@ void scara_set_wrist_callbacks(scara_t* arm, void (*set_wrist_position)(void*, f
     arm->wrist_args = wrist_args;
 }
 
+void scara_set_wrist_offset(scara_t* arm, float wrist_offset)
+{
+    arm->wrist_offset = wrist_offset;
+}
+
 void scara_goto(scara_t* arm, float x, float y, float z, float a, scara_coordinate_t system, const float duration)
 {
     scara_trajectory_init(&(arm->trajectory));

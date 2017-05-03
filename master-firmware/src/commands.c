@@ -837,6 +837,26 @@ static void cmd_scara_pos(BaseSequentialStream *chp, int argc, char *argv[])
     chprintf(chp, "Position of %s arm is %f %f %f heading %f in %s frame\r\n", argv[1], x, y, z, a, argv[0]);
 }
 
+static void cmd_wrist_offset(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc != 2) {
+        chprintf(chp, "Usage: wrist_offset side offset\r\n");
+        return;
+    }
+
+    float offset = atof(argv[1]);
+    scara_t* arm;
+    if (strcmp("left", argv[0]) == 0) {
+        arm = &left_arm;
+    } else {
+        arm = &right_arm;
+    }
+
+    scara_set_wrist_offset(arm, offset);
+
+    chprintf(chp, "Set %s wrist offset to %f\r\n", argv[0], offset);
+}
+
 static void cmd_fingers(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc != 5) {
@@ -967,6 +987,7 @@ const ShellCommand commands[] = {
     {"scara_mv", cmd_scara_mv},
     {"scara_z", cmd_scara_z},
     {"scara_pos", cmd_scara_pos},
+    {"wrist_offset", cmd_wrist_offset},
     {"fingers", cmd_fingers},
     {"fingers_cmd", cmd_fingers_cmd},
     {"rocket", cmd_rocket},
