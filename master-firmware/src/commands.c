@@ -857,6 +857,23 @@ static void cmd_wrist_offset(BaseSequentialStream *chp, int argc, char *argv[])
     chprintf(chp, "Set %s wrist offset to %f\r\n", argv[0], offset);
 }
 
+static void cmd_base_mode(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc != 1) {
+        chprintf(chp, "Usage: base_mode mode\r\n");
+        return;
+    }
+
+    if (strcmp("all", argv[0]) == 0) {
+        robot.mode = BOARD_MODE_ANGLE_DISTANCE;
+    } else if (strcmp("angle", argv[0]) == 0) {
+        robot.mode = BOARD_MODE_ANGLE_ONLY;
+    } else if (strcmp("distance", argv[0]) == 0) {
+        robot.mode = BOARD_MODE_DISTANCE_ONLY;
+    } else {
+        robot.mode = BOARD_MODE_FREE;
+    }
+}
 static void cmd_fingers(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc != 5) {
@@ -988,6 +1005,7 @@ const ShellCommand commands[] = {
     {"scara_z", cmd_scara_z},
     {"scara_pos", cmd_scara_pos},
     {"wrist_offset", cmd_wrist_offset},
+    {"base_mode", cmd_base_mode},
     {"fingers", cmd_fingers},
     {"fingers_cmd", cmd_fingers_cmd},
     {"rocket", cmd_rocket},
