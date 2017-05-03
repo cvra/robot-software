@@ -136,14 +136,14 @@ void scara_manage(scara_t *arm)
     target = scara_arm_position(target, heading, frame.length[2]);
 
     point_t p1, p2;
-    int position_count = scara_num_possible_elbow_positions(target, arm->length[0], arm->length[1], &p1, &p2);
-    DEBUG("Inverse kinematics: found %d possible solutions", position_count);
+    arm->kinematics_solution_count = scara_num_possible_elbow_positions(target, arm->length[0], arm->length[1], &p1, &p2);
+    DEBUG("Inverse kinematics: found %d possible solutions", arm->kinematics_solution_count);
 
-    if (position_count == 0) {
+    if (arm->kinematics_solution_count == 0) {
         arm->last_loop = current_date;
         chMtxUnlock(&arm->lock);
         return;
-    } else if (position_count == 2) {
+    } else if (arm->kinematics_solution_count == 2) {
         shoulder_mode_t mode;
         mode = scara_orientation_mode(arm->shoulder_mode, arm->offset_rotation);
         p1 = scara_shoulder_solve(target, p1, p2, mode);
@@ -173,13 +173,13 @@ void scara_manage(scara_t *arm)
     arm->set_z_position(arm->z_args, frame.position[2]);
     arm->set_shoulder_position(arm->shoulder_args, alpha);
     arm->set_elbow_position(arm->elbow_args, beta);
-    arm->set_wrist_position(arm->wrist_args, gamma);
+    arm->set_wrist_position(arm->wrist_args, gamma + arm->wrist_offset);
 
     /* Update motor positions */
     arm->z_pos = arm->get_z_position(arm->z_args);
     arm->shoulder_pos = arm->get_shoulder_position(arm->shoulder_args);
     arm->elbow_pos = arm->get_elbow_position(arm->elbow_args);
-    arm->wrist_pos = arm->get_wrist_position(arm->wrist_args);
+    arm->wrist_pos = arm->get_wrist_position(arm->wrist_args) - arm->wrist_offset;
 
     /* Unlock */
     chMtxUnlock(&arm->lock);

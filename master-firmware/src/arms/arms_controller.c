@@ -1,4 +1,5 @@
 #include <ch.h>
+#include <hal.h>
 #include "priorities.h"
 #include "main.h"
 #include "config.h"
@@ -97,6 +98,18 @@ static THD_FUNCTION(arms_ctrl_thd, arg)
     while (true) {
         scara_manage(&left_arm);
         scara_manage(&right_arm);
+
+        if (left_arm.kinematics_solution_count == 0) {
+            palSetPad(GPIOF, GPIOF_LED_ERROR);
+        } else {
+            palClearPad(GPIOF, GPIOF_LED_ERROR);
+        }
+
+        if (left_arm.kinematics_solution_count == 0) {
+            palSetPad(GPIOF, GPIOF_LED_POWER_ERROR);
+        } else {
+            palClearPad(GPIOF, GPIOF_LED_POWER_ERROR);
+        }
 
         hand_manage(&left_hand);
         hand_manage(&right_hand);
