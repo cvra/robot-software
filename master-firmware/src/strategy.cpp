@@ -264,16 +264,12 @@ struct RetractArms : public goap::Action<DebraState> {
     }
 };
 
-struct CollectCylinderRocketBody : public goap::Action<DebraState> {
-    int m_x_mm, m_y_mm, m_a_deg;
+struct CollectCylinder : public goap::Action<DebraState> {
     enum strat_color_t m_color;
 
-    CollectCylinderRocketBody(enum strat_color_t color)
+    CollectCylinder(enum strat_color_t color)
         : m_color(color)
     {
-        m_x_mm = MIRROR_X(m_color, 1200);
-        m_y_mm = 400;
-        m_a_deg = MIRROR_A(m_color, 0);
     }
 
     bool can_run(DebraState state)
@@ -290,33 +286,76 @@ struct CollectCylinderRocketBody : public goap::Action<DebraState> {
 
     bool execute(DebraState &state)
     {
-        NOTICE("Goto location near rocket body full: %dmm %dmm %ddeg", m_x_mm, m_y_mm, m_a_deg);
-        state.near_location = Other;
-        if (!strategy_goto_avoid(m_x_mm, m_y_mm, m_a_deg, TRAJ_FLAGS_ALL)) {
-            return false;
-        }
-
         scara_t* arm;
+        hand_t* hand;
 
         if (m_color == YELLOW) {
-            arm = &left_arm;
-        } else {
             arm = &right_arm;
+            hand = &right_hand;
+        } else {
+            arm = &left_arm;
+            hand = &left_hand;
         }
 
-        NOTICE("Collecting cylinder rocket body");
+        scara_set_wrist_offset(arm, -0.6);
 
-        scara_trajectory_append_point(&arm->trajectory, MIRROR_X(m_color, 1300), 120, 120, 0, COORDINATE_TABLE, 2., &(arm->length[0]));
+        // Go above cylinder
+        scara_move_z(arm, 160, COORDINATE_ROBOT, 0.5);
+        chThdSleepMilliseconds(500);
 
-        for (int i = 0; i < 4; i++) {
-            scara_trajectory_init(&arm->trajectory);
-            scara_trajectory_append_point(&arm->trajectory, MIRROR_X(m_color, 1300), 120, 20, 0, COORDINATE_TABLE, 2., &(arm->length[0]));
-            scara_trajectory_append_point(&arm->trajectory, MIRROR_X(m_color, 1200), 120, 20, 0, COORDINATE_TABLE, 1., &(arm->length[0]));
-            scara_trajectory_append_point(&arm->trajectory, MIRROR_X(m_color, 1150), 120, 20, 0, COORDINATE_TABLE, 1., &(arm->length[0]));
-            scara_trajectory_append_point(&arm->trajectory, MIRROR_X(m_color, 1100), 120, 20, 0, COORDINATE_TABLE, 1., &(arm->length[0]));
-            scara_do_trajectory(arm, &arm->trajectory);
-            chThdSleepSeconds(8);
-        }
+        // Approach cylinder with wheelbase
+        strategy_goto_avoid_retry(MIRROR_X(m_color, 910), 415, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL, -1);
+
+        // Go right to cylinder and adjust height
+        scara_trajectory_init(&arm->trajectory);
+        scara_trajectory_append_point_with_length(&arm->trajectory, 1000, 600, 160, 2.35, COORDINATE_TABLE, 1, arm->length[0], arm->length[1], 180);
+        scara_trajectory_append_point_with_length(&arm->trajectory, 1000, 600,  50, 2.35, COORDINATE_TABLE, 1, arm->length[0], arm->length[1], 180);
+        scara_do_trajectory(arm, &arm->trajectory);
+        chThdSleepSeconds(2);
+
+        hand_set_finger(hand, 0, FINGER_OPEN);
+        chThdSleepMilliseconds(200);
+
+        // Approach cylinder xy
+        scara_trajectory_init(&arm->trajectory);
+        scara_trajectory_append_point_with_length(&arm->trajectory, 1000, 600, 50, 2.35, COORDINATE_TABLE, 0, arm->length[0], arm->length[1], 180);
+        scara_trajectory_append_point_with_length(&arm->trajectory, 1000, 600, 50, 2.35, COORDINATE_TABLE, 1, arm->length[0], arm->length[1], 50);
+        scara_do_trajectory(arm, &arm->trajectory);
+        chThdSleepSeconds(1);
+
+        // Get cylinder
+        hand_set_finger(hand, 0, FINGER_CLOSED);
+        chThdSleepMilliseconds(200);
+
+        // Retract arm
+        scara_trajectory_init(&arm->trajectory);
+        scara_trajectory_append_point_with_length(&arm->trajectory, 1000, 600,  50, 2.35, COORDINATE_TABLE, 0, arm->length[0], arm->length[1], 50);
+        scara_trajectory_append_point_with_length(&arm->trajectory, 1000, 600, 160, 2.35, COORDINATE_TABLE, 1, arm->length[0], arm->length[1], 50);
+        scara_trajectory_append_point_with_length(&arm->trajectory, 1000, 600, 160, 3.14, COORDINATE_TABLE, 1, arm->length[0], arm->length[1], 50);
+        scara_do_trajectory(arm, &arm->trajectory);
+        chThdSleepSeconds(2);
+
+        // Go to construction area
+        strategy_goto_avoid_retry(MIRROR_X(m_color, 250), 900, MIRROR_A(m_color, 180), TRAJ_FLAGS_ALL, -1);
+
+        // Drop cylinder in construction area
+        scara_goto(arm, 50, 1000, 160, 3.14, COORDINATE_TABLE, 1);
+        chThdSleepSeconds(1);
+        hand_set_finger(hand, 0, FINGER_OPEN);
+        chThdSleepMilliseconds(500);
+
+        // Push cylinder to make it horizontal
+        scara_trajectory_init(&arm->trajectory);
+        scara_trajectory_append_point_with_length(&arm->trajectory, 50, 1000, 160,  3, COORDINATE_TABLE, 0, arm->length[0], arm->length[1], 50);
+        scara_trajectory_append_point_with_length(&arm->trajectory, 50, 1100, 160,  3, COORDINATE_TABLE, 0.5, arm->length[0], arm->length[1], 130);
+        scara_trajectory_append_point_with_length(&arm->trajectory, 50, 1100, 120,  3, COORDINATE_TABLE, 0.5, arm->length[0], arm->length[1], 130);
+        scara_trajectory_append_point_with_length(&arm->trajectory, 50,  800, 120, -2, COORDINATE_TABLE, 1, arm->length[0], arm->length[1], 130);
+        scara_trajectory_append_point_with_length(&arm->trajectory, 50,  800, 160, -2, COORDINATE_TABLE, 0.5, arm->length[0], arm->length[1], 130);
+        scara_do_trajectory(arm, &arm->trajectory);
+        chThdSleepSeconds(3);
+
+        hand_set_finger(hand, 0, FINGER_CLOSED);
+        chThdSleepMilliseconds(200);
 
         state.cylinder_count++;
         state.arms_are_deployed = true;
@@ -345,9 +384,10 @@ void strategy_debra_play_game(void)
 
     int len;
     InitGoal init_goal;
+    GameGoal game_goal;
     IndexArms index_arms;
     RetractArms retract_arms;
-    CollectCylinderRocketBody collect_rocket_body(color);
+    CollectCylinder collect_cylinder(color);
 
     DebraState state;
 
@@ -357,7 +397,7 @@ void strategy_debra_play_game(void)
     goap::Action<DebraState> *actions[] = {
         &index_arms,
         &retract_arms,
-        &collect_rocket_body,
+        &collect_cylinder,
     };
 
     goap::Planner<DebraState> planner(actions, sizeof(actions) / sizeof(actions[0]));
@@ -397,7 +437,6 @@ void strategy_debra_play_game(void)
     rocket_program_launch_time(GAME_DURATION + 1);
 
     NOTICE("Starting game");
-    GameGoal game_goal;
     while (true) {
         len = planner.plan(state, game_goal, path, max_path_len);
         NOTICE("Plan length: %d", len);
