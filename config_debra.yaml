@@ -19,9 +19,9 @@ master:
                 kd: 20.
                 ilimit: 1000.
             distance:
-                kp: 2.15
+                kp: 2.
                 ki: 0.
-                kd: 30.
+                kd: 25.
                 ilimit: 5000.
     arms:
         upperarm_length: 86. # in mm
