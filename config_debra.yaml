@@ -184,7 +184,7 @@ actuator:
 
             low_batt_th: 12
             acceleration_limit: 100.
-            velocity_limit: 1.
+            velocity_limit: 10.
             torque_limit: 1
     left-elbow:
         stream:
@@ -219,8 +219,8 @@ actuator:
                 kd: 0.
 
             low_batt_th: 12
-            acceleration_limit: 20.
-            velocity_limit: 5.
+            acceleration_limit: 100.
+            velocity_limit: 10.
             torque_limit: 3
     left-wrist:
         stream:
@@ -327,7 +327,7 @@ actuator:
 
             low_batt_th: 12
             acceleration_limit: 100.
-            velocity_limit: 1.
+            velocity_limit: 10.
             torque_limit: 1
     right-elbow:
         stream:
@@ -360,8 +360,8 @@ actuator:
                 ki: 0
                 kd: 0.2
             low_batt_th: 12
-            acceleration_limit: 20.
-            velocity_limit: 5.
+            acceleration_limit: 100.
+            velocity_limit: 10.
             torque_limit: 3
     right-wrist:
         stream:
