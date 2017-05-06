@@ -27,14 +27,14 @@ TEST_GROUP(ArmTestGroup)
 {
     scara_t arm;
     scara_trajectory_t traj;
-    float arbitraryLengths[2] = {100, 50};
-    float z_pos, shoulder_angle, elbow_angle;
+    float arbitraryLengths[3] = {100, 50, 20};
+    float z_pos, shoulder_angle, elbow_angle, wrist_angle;
 
 
     void setup()
     {
         scara_init(&arm);
-        scara_set_physical_parameters(&arm, arbitraryLengths[0], arbitraryLengths[1]);
+        scara_set_physical_parameters(&arm, arbitraryLengths[0], arbitraryLengths[1], arbitraryLengths[2]);
         arm.offset_rotation = M_PI / 2;
         scara_trajectory_init(&traj);
 
@@ -45,6 +45,7 @@ TEST_GROUP(ArmTestGroup)
         scara_set_z_callbacks(&arm, set_motor_pos, get_motor_pos, &z_pos);
         scara_set_shoulder_callbacks(&arm, set_motor_pos, get_motor_pos, &shoulder_angle);
         scara_set_elbow_callbacks(&arm, set_motor_pos, get_motor_pos, &elbow_angle);
+        scara_set_wrist_callbacks(&arm, set_motor_pos, get_motor_pos, &wrist_angle);
     }
 
     void teardown()
@@ -71,17 +72,18 @@ TEST(ArmTestGroup, ShoulderModeIsSetToBack)
 
 TEST(ArmTestGroup, PhysicalParametersMakeSense)
 {
-    scara_set_physical_parameters(&arm, 100, 50);
+    scara_set_physical_parameters(&arm, 100, 50, 20);
 
     /* Length must be greater than zero. */
     CHECK_EQUAL(100, arm.length[0]);
     CHECK_EQUAL(50, arm.length[1]);
+    CHECK_EQUAL(20, arm.length[2]);
 }
 
 TEST(ArmTestGroup, ExecuteTrajectoryCopiesData)
 {
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 1.);
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10.);
+    scara_trajectory_append_point(&traj, 10, 10, 10, 0, COORDINATE_ARM, 1., arbitraryLengths);
+    scara_trajectory_append_point(&traj, 10, 10, 10, 0, COORDINATE_ARM, 10., arbitraryLengths);
 
     scara_do_trajectory(&arm, &traj);
     CHECK_EQUAL(traj.frame_count, arm.trajectory.frame_count);
@@ -98,8 +100,8 @@ TEST(ArmTestGroup, ExecuteTrajectoryIsAtomic)
 
 TEST(ArmTestGroup, ArmManageIsAtomic)
 {
-    scara_trajectory_append_point(&traj, 60, 60, 10, COORDINATE_ARM, 1.);
-    scara_trajectory_append_point(&traj, 60, 60, 10, COORDINATE_ARM, 10.);
+    scara_trajectory_append_point(&traj, 60, 60, 10, 0, COORDINATE_ARM, 1., arbitraryLengths);
+    scara_trajectory_append_point(&traj, 60, 60, 10, 0, COORDINATE_ARM, 10., arbitraryLengths);
     scara_do_trajectory(&arm, &traj);
 
     lock_mocks_enable(true);
@@ -121,7 +123,7 @@ TEST(ArmTestGroup, ArmManageIsAtomicWithEmptyTraj)
 
 TEST(ArmTestGroup, ArmManageIsAtomicWithUnreachableTarget)
 {
-    scara_trajectory_append_point_with_length(&traj, 10000, 10000, 10, COORDINATE_ARM, 1., 10, 10);
+    scara_trajectory_append_point_with_length(&traj, 10000, 10000, 10, 0, COORDINATE_ARM, 1., 10, 10, 20);
     scara_do_trajectory(&arm, &traj);
     lock_mocks_enable(true);
     mock().expectOneCall("chMtxLock").withPointerParameter("lock", &arm.lock);
@@ -141,7 +143,7 @@ TEST(ArmTestGroup, ArmManageUpdatesLastLoop)
 TEST(ArmTestGroup, ArmManageChangesConsign)
 {
     scara_trajectory_init(&traj);
-    scara_trajectory_append_point(&traj, 100, 100, 10, COORDINATE_ARM, 1.);
+    scara_trajectory_append_point(&traj, 100, 100, 10, 0, COORDINATE_ARM, 1., arbitraryLengths);
     scara_do_trajectory(&arm, &traj);
 
     scara_time_set(8 * 1000000);
@@ -155,8 +157,8 @@ TEST(ArmTestGroup, CurrentPointComputation)
     scara_waypoint_t result;
     const int32_t date = 5 * 1000000;
     scara_time_set(0);
-    scara_trajectory_append_point(&traj, 0, 0, 0, COORDINATE_ARM, 1.);
-    scara_trajectory_append_point(&traj, 10, 20, 0, COORDINATE_ARM, 10.);
+    scara_trajectory_append_point(&traj, 0, 0, 0, 0, COORDINATE_ARM, 1., arbitraryLengths);
+    scara_trajectory_append_point(&traj, 10, 20, 0, 0, COORDINATE_ARM, 10., arbitraryLengths);
     scara_do_trajectory(&arm, &traj);
 
     result = scara_position_for_date(&arm, date);
@@ -167,9 +169,9 @@ TEST(ArmTestGroup, CurrentPointSelectFrame)
 {
     scara_waypoint_t result;
     const int32_t date = 15 * 1000000;
-    scara_trajectory_append_point(&traj, 0, 0, 0, COORDINATE_ARM, 1.);
-    scara_trajectory_append_point(&traj, 10, 20, 0, COORDINATE_ARM, 10.);
-    scara_trajectory_append_point(&traj, 10, 30, 0, COORDINATE_ARM, 10.);
+    scara_trajectory_append_point(&traj, 0, 0, 0, 0, COORDINATE_ARM, 1., arbitraryLengths);
+    scara_trajectory_append_point(&traj, 10, 20, 0, 0, COORDINATE_ARM, 10., arbitraryLengths);
+    scara_trajectory_append_point(&traj, 10, 30, 0, 0, COORDINATE_ARM, 10., arbitraryLengths);
     scara_do_trajectory(&arm, &traj);
 
     result = scara_position_for_date(&arm, date);
@@ -180,9 +182,9 @@ TEST(ArmTestGroup, CurrentPointPastEnd)
 {
     scara_waypoint_t result;
     const int32_t date = 25 * 1000000;
-    scara_trajectory_append_point(&traj, 0, 0, 0, COORDINATE_ARM, 1.);
-    scara_trajectory_append_point(&traj, 10, 20, 0, COORDINATE_ARM, 10.);
-    scara_trajectory_append_point(&traj, 10, 30, 0, COORDINATE_ARM, 10.);
+    scara_trajectory_append_point(&traj, 0, 0, 0, 0, COORDINATE_ARM, 1., arbitraryLengths);
+    scara_trajectory_append_point(&traj, 10, 20, 0, 0, COORDINATE_ARM, 10., arbitraryLengths);
+    scara_trajectory_append_point(&traj, 10, 30, 0, 0, COORDINATE_ARM, 10., arbitraryLengths);
     scara_do_trajectory(&arm, &traj);
 
     result = scara_position_for_date(&arm, date);
@@ -194,8 +196,8 @@ TEST(ArmTestGroup, MixedCoordinateSystems)
     scara_waypoint_t result;
     const int32_t date = 5 * 1000000;
     arm.offset_rotation = M_PI / 2;
-    scara_trajectory_append_point(&traj, 0, 0, 0, COORDINATE_ARM, 1.);
-    scara_trajectory_append_point(&traj, 10, 20, 0, COORDINATE_ROBOT, 10.);
+    scara_trajectory_append_point(&traj, 0, 0, 0, 0, COORDINATE_ARM, 1., arbitraryLengths);
+    scara_trajectory_append_point(&traj, 10, 20, 0, 0, COORDINATE_ROBOT, 10., arbitraryLengths);
     scara_do_trajectory(&arm, &traj);
 
     result = scara_position_for_date(&arm, date);
@@ -223,8 +225,8 @@ TEST(ArmTestGroup, TableCoordinateSystem)
     position_set(&pos, -10, -10, 0);
 
 
-    scara_trajectory_append_point(&traj, 0, 0, 0, COORDINATE_TABLE, 1.);
-    scara_trajectory_append_point(&traj, 10, 20, 0, COORDINATE_TABLE, 10.);
+    scara_trajectory_append_point(&traj, 0, 0, 0, 0, COORDINATE_TABLE, 1., arbitraryLengths);
+    scara_trajectory_append_point(&traj, 10, 20, 0, 0, COORDINATE_TABLE, 10., arbitraryLengths);
     scara_do_trajectory(&arm, &traj);
 
     result = scara_position_for_date(&arm, date);
@@ -240,8 +242,8 @@ TEST(ArmTestGroup, TrajectoriesFirstPointTableNotHandledCorrectly)
     scara_waypoint_t result;
     const int32_t date = 15 * 1000000;
     arm.offset_rotation = M_PI / 2;
-    scara_trajectory_append_point(&traj, 0, 0, 0, COORDINATE_ARM, 1.);
-    scara_trajectory_append_point(&traj, 10, 20, 0, COORDINATE_ROBOT, 10.);
+    scara_trajectory_append_point(&traj, 0, 0, 0, 0, COORDINATE_ARM, 1, arbitraryLengths);
+    scara_trajectory_append_point(&traj, 10, 20, 0, 0, COORDINATE_ROBOT, 10., arbitraryLengths);
     scara_do_trajectory(&arm, &traj);
 
     result = scara_position_for_date(&arm, date);
@@ -254,8 +256,8 @@ TEST(ArmTestGroup, LengthAreInterpolated)
     scara_waypoint_t result;
     const int32_t date = 5 * 1000000;
     arm.offset_rotation = M_PI / 2;
-    scara_trajectory_append_point_with_length(&traj, 0, 0, 0, COORDINATE_ARM, 1., 10, 10);
-    scara_trajectory_append_point_with_length(&traj, 0, 0, 0, COORDINATE_ARM, 10., 100, 200);
+    scara_trajectory_append_point_with_length(&traj, 0, 0, 0, 0, COORDINATE_ARM, 1., 10, 10, 10);
+    scara_trajectory_append_point_with_length(&traj, 0, 0, 0, 0, COORDINATE_ARM, 10., 100, 200, 20);
 
     scara_do_trajectory(&arm, &traj);
 

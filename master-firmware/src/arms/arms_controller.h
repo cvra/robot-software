@@ -6,11 +6,15 @@ extern "C" {
 #endif
 
 #include "scara/scara.h"
+#include "hand/hand.h"
 
 #define ARMS_FREQUENCY 10
 
 extern scara_t left_arm;
 extern scara_t right_arm;
+
+extern hand_t left_hand;
+extern hand_t right_hand;
 
 /* Initialize arms */
 void arms_init(void);

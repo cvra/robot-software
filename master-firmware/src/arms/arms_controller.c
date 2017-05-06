@@ -7,6 +7,7 @@
 #include "can/motor_manager.h"
 #include "robot_helpers/motor_helpers.h"
 #include "base/base_controller.h"
+#include "can/hand_driver.h"
 
 #include "cvra_arm_motors.h"
 #include "arms_controller.h"
@@ -18,6 +19,8 @@
 scara_t left_arm;
 scara_t right_arm;
 
+hand_t left_hand;
+hand_t right_hand;
 
 void arms_init(void)
 {
@@ -26,16 +29,19 @@ void arms_init(void)
     static cvra_arm_motor_t left_z = {.m = &motor_manager, .direction = 1, .index = 0};
     static cvra_arm_motor_t left_shoulder = {.m = &motor_manager, .direction = -1, .index = 0};
     static cvra_arm_motor_t left_elbow = {.m = &motor_manager, .direction = -1, .index = 0};
+    static cvra_arm_motor_t left_wrist = {.m = &motor_manager, .direction = 1, .index = 0};
 
     scara_set_z_callbacks(&left_arm, set_left_z_position, get_left_z_position, &left_z);
     scara_set_shoulder_callbacks(&left_arm, set_left_shoulder_position, get_left_shoulder_position, &left_shoulder);
     scara_set_elbow_callbacks(&left_arm, set_left_elbow_position, get_left_elbow_position, &left_elbow);
+    scara_set_wrist_callbacks(&left_arm, set_left_wrist_position, get_left_wrist_position, &left_wrist);
 
     scara_set_related_robot_pos(&left_arm, &robot.pos);
 
     scara_set_physical_parameters(&left_arm,
         config_get_scalar("master/arms/upperarm_length"),
-        config_get_scalar("master/arms/forearm_length"));
+        config_get_scalar("master/arms/forearm_length"),
+        config_get_scalar("master/arms/wrist_to_hand_length"));
 
     scara_set_offset(&left_arm, config_get_scalar("master/arms/left/offset_x"),
         config_get_scalar("master/arms/left/offset_y"),
@@ -46,20 +52,31 @@ void arms_init(void)
     static cvra_arm_motor_t right_z = {.m = &motor_manager, .direction = 1, .index = 0};
     static cvra_arm_motor_t right_shoulder = {.m = &motor_manager, .direction = -1, .index = 0};
     static cvra_arm_motor_t right_elbow = {.m = &motor_manager, .direction = -1, .index = 0};
+    static cvra_arm_motor_t right_wrist = {.m = &motor_manager, .direction = 1, .index = 0};
 
     scara_set_z_callbacks(&right_arm, set_right_z_position, get_right_z_position, &right_z);
     scara_set_shoulder_callbacks(&right_arm, set_right_shoulder_position, get_right_shoulder_position, &right_shoulder);
     scara_set_elbow_callbacks(&right_arm, set_right_elbow_position, get_right_elbow_position, &right_elbow);
+    scara_set_wrist_callbacks(&right_arm, set_right_wrist_position, get_right_wrist_position, &right_wrist);
 
     scara_set_related_robot_pos(&right_arm, &robot.pos);
 
     scara_set_physical_parameters(&right_arm,
         config_get_scalar("master/arms/upperarm_length"),
-        config_get_scalar("master/arms/forearm_length"));
+        config_get_scalar("master/arms/forearm_length"),
+        config_get_scalar("master/arms/wrist_to_hand_length"));
 
     scara_set_offset(&right_arm, config_get_scalar("master/arms/right/offset_x"),
         config_get_scalar("master/arms/right/offset_y"),
         config_get_scalar("master/arms/right/offset_a"));
+
+    /* Configure left hand */
+    hand_init(&left_hand);
+    hand_set_fingers_callbacks(&left_hand, hand_driver_set_left_fingers);
+
+    /* Configure right hand */
+    hand_init(&right_hand);
+    hand_set_fingers_callbacks(&right_hand, hand_driver_set_right_fingers);
 }
 
 float arms_motor_auto_index(const char* motor_name, int motor_dir, float motor_speed)
@@ -80,6 +97,9 @@ static THD_FUNCTION(arms_ctrl_thd, arg)
     while (true) {
         scara_manage(&left_arm);
         scara_manage(&right_arm);
+
+        hand_manage(&left_hand);
+        hand_manage(&right_hand);
 
         chThdSleepMilliseconds(1000 / ARMS_FREQUENCY);
     }

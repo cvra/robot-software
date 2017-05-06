@@ -22,24 +22,28 @@ typedef struct {
     void (*set_z_position)(void*, float);        /**< Callback function to set z position. */
     void (*set_shoulder_position)(void*, float); /**< Callback function to set shoulder position. */
     void (*set_elbow_position)(void*, float);    /**< Callback function to set elbow position. */
+    void (*set_wrist_position)(void*, float);    /**< Callback function to set wrist position. */
 
     /* Motor feedback callbacks */
+    float (*get_z_position)(void*);        /**< Callback function to get z position. */
     float (*get_shoulder_position)(void*); /**< Callback function to get shoulder position. */
     float (*get_elbow_position)(void*);    /**< Callback function to get elbow position. */
-    float (*get_z_position)(void*);        /**< Callback function to get z position. */
+    float (*get_wrist_position)(void*);        /**< Callback function to get wrist position. */
 
     /* Motor control args */
     void* z_args;
     void* shoulder_args;
     void* elbow_args;
+    void* wrist_args;
 
     /* Motor positions */
     float z_pos;
     float shoulder_pos;
     float elbow_pos;
+    float wrist_pos;
 
     /* Physical parameters. */
-    float length[2];                  /**< Length of the 2 arms elements. */
+    float length[3];                  /**< Length of the 2 arms elements and wrist to hand center. */
 
     /* Path informations */
     scara_trajectory_t trajectory;    /**< Current trajectory of the arm. */
@@ -55,7 +59,7 @@ typedef struct {
 
 void scara_init(scara_t *arm);
 
-void scara_set_physical_parameters(scara_t* arm, float upperarm_length, float forearm_length);
+void scara_set_physical_parameters(scara_t* arm, float upperarm_length, float forearm_length, float hand_length);
 void scara_set_offset(scara_t* arm, float offset_x, float offset_y, float offset_rotation);
 
 void scara_set_z_callbacks(scara_t* arm, void (*set_z_position)(void*, float),
@@ -64,12 +68,17 @@ void scara_set_shoulder_callbacks(scara_t* arm, void (*set_shoulder_position)(vo
                                   float (*get_shoulder_position)(void*), void* shoulder_args);
 void scara_set_elbow_callbacks(scara_t* arm, void (*set_elbow_position)(void*, float),
                                float (*get_elbow_position)(void*), void* elbow_args);
+void scara_set_wrist_callbacks(scara_t* arm, void (*set_wrist_position)(void*, float),
+                               float (*get_wrist_position)(void*), void* wrist_args);
 
 /* Goto position in specified coordinate system */
-void scara_goto(scara_t* arm, float x, float y, float z, scara_coordinate_t system, const float duration);
+void scara_goto(scara_t* arm, float x, float y, float z, float a, scara_coordinate_t system, const float duration);
+
+/* Move arm in axis only */
+void scara_move_z(scara_t* arm, float z, scara_coordinate_t system, const float duration);
 
 /* Get current arm position */
-void scara_pos(scara_t* arm, float* x, float* y, float* z, scara_coordinate_t system);
+void scara_pos(scara_t* arm, float* x, float* y, float* z, float* a, scara_coordinate_t system);
 
 void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj);
 

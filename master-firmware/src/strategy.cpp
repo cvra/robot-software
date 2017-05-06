@@ -18,7 +18,6 @@
 #include "base/map.h"
 #include "scara/scara_trajectories.h"
 #include "arms/arms_controller.h"
-#include "arms/hands_controller.h"
 #include "config.h"
 #include "main.h"
 
@@ -231,14 +230,11 @@ struct IndexArms : public goap::Action<DebraState> {
 
         arms_set_motor_index(left_arm.shoulder_args, motor_indexes[0] + config_get_scalar("master/arms/motor_offsets/left-shoulder"));
         arms_set_motor_index(left_arm.elbow_args, motor_indexes[1] + config_get_scalar("master/arms/motor_offsets/left-elbow"));
-        arms_set_motor_index(left_hand.wrist_args, motor_indexes[2] + config_get_scalar("master/arms/motor_offsets/left-wrist"));
+        arms_set_motor_index(left_arm.wrist_args, motor_indexes[2] + config_get_scalar("master/arms/motor_offsets/left-wrist"));
 
         arms_set_motor_index(right_arm.shoulder_args, motor_indexes[3] + config_get_scalar("master/arms/motor_offsets/right-shoulder"));
         arms_set_motor_index(right_arm.elbow_args, motor_indexes[4] + config_get_scalar("master/arms/motor_offsets/right-elbow"));
-        arms_set_motor_index(right_hand.wrist_args, motor_indexes[5] + config_get_scalar("master/arms/motor_offsets/right-wrist"));
-
-        left_hand.enable_control = true;
-        right_hand.enable_control = true;
+        arms_set_motor_index(right_arm.wrist_args, motor_indexes[5] + config_get_scalar("master/arms/motor_offsets/right-wrist"));
 
         state.arms_are_indexed = true;
         return true;
@@ -260,8 +256,8 @@ struct RetractArms : public goap::Action<DebraState> {
     bool execute(DebraState &state)
     {
         NOTICE("Retracting arms!");
-        scara_goto(&left_arm, -110, 60, 120, COORDINATE_ROBOT, 1.);
-        scara_goto(&right_arm, 110, -60, 120, COORDINATE_ROBOT, 1.);
+        scara_goto(&left_arm, -150, 50, 120, 3.14, COORDINATE_ROBOT, 1.);
+        scara_goto(&right_arm, 150, -50, 120, 0, COORDINATE_ROBOT, 1.);
         chThdSleepSeconds(1.);
         state.arms_are_deployed = false;
         return true;
@@ -310,14 +306,14 @@ struct CollectCylinderRocketBody : public goap::Action<DebraState> {
 
         NOTICE("Collecting cylinder rocket body");
 
-        scara_trajectory_append_point_with_length(&arm->trajectory, MIRROR_X(m_color, 1300), 120, 120, COORDINATE_TABLE, 2., arm->length[0], arm->length[1]);
+        scara_trajectory_append_point(&arm->trajectory, MIRROR_X(m_color, 1300), 120, 120, 0, COORDINATE_TABLE, 2., &(arm->length[0]));
 
         for (int i = 0; i < 4; i++) {
             scara_trajectory_init(&arm->trajectory);
-            scara_trajectory_append_point_with_length(&arm->trajectory, MIRROR_X(m_color, 1300), 120, 20, COORDINATE_TABLE, 2., arm->length[0], arm->length[1]);
-            scara_trajectory_append_point_with_length(&arm->trajectory, MIRROR_X(m_color, 1200), 120, 20, COORDINATE_TABLE, 1., arm->length[0], arm->length[1]);
-            scara_trajectory_append_point_with_length(&arm->trajectory, MIRROR_X(m_color, 1150), 120, 20, COORDINATE_TABLE, 1., arm->length[0], arm->length[1]);
-            scara_trajectory_append_point_with_length(&arm->trajectory, MIRROR_X(m_color, 1100), 120, 20, COORDINATE_TABLE, 1., arm->length[0], arm->length[1]);
+            scara_trajectory_append_point(&arm->trajectory, MIRROR_X(m_color, 1300), 120, 20, 0, COORDINATE_TABLE, 2., &(arm->length[0]));
+            scara_trajectory_append_point(&arm->trajectory, MIRROR_X(m_color, 1200), 120, 20, 0, COORDINATE_TABLE, 1., &(arm->length[0]));
+            scara_trajectory_append_point(&arm->trajectory, MIRROR_X(m_color, 1150), 120, 20, 0, COORDINATE_TABLE, 1., &(arm->length[0]));
+            scara_trajectory_append_point(&arm->trajectory, MIRROR_X(m_color, 1100), 120, 20, 0, COORDINATE_TABLE, 1., &(arm->length[0]));
             scara_do_trajectory(arm, &arm->trajectory);
             chThdSleepSeconds(8);
         }

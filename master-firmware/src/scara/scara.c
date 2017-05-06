@@ -20,10 +20,11 @@ void scara_init(scara_t *arm)
 }
 
 
-void scara_set_physical_parameters(scara_t* arm, float upperarm_length, float forearm_length)
+void scara_set_physical_parameters(scara_t* arm, float upperarm_length, float forearm_length, float hand_length)
 {
     arm->length[0] = upperarm_length;
     arm->length[1] = forearm_length;
+    arm->length[2] = hand_length;
 }
 
 void scara_set_offset(scara_t* arm, float offset_x, float offset_y, float offset_rotation)
@@ -57,31 +58,54 @@ void scara_set_elbow_callbacks(scara_t* arm, void (*set_elbow_position)(void*, f
     arm->elbow_args = elbow_args;
 }
 
-void scara_goto(scara_t* arm, float x, float y, float z, scara_coordinate_t system, const float duration)
+void scara_set_wrist_callbacks(scara_t* arm, void (*set_wrist_position)(void*, float),
+                               float (*get_wrist_position)(void*), void* wrist_args)
+{
+    arm->set_wrist_position = set_wrist_position;
+    arm->get_wrist_position = get_wrist_position;
+    arm->wrist_args = wrist_args;
+}
+
+void scara_goto(scara_t* arm, float x, float y, float z, float a, scara_coordinate_t system, const float duration)
 {
     scara_trajectory_init(&(arm->trajectory));
-    scara_trajectory_append_point(&(arm->trajectory), x, y, z, system, duration);
+    scara_trajectory_append_point(&(arm->trajectory), x, y, z, a, system, duration, &(arm->length[0]));
     scara_do_trajectory(arm, &(arm->trajectory));
 }
 
-void scara_pos(scara_t* arm, float* x, float* y, float* z, scara_coordinate_t system)
+void scara_move_z(scara_t* arm, float z_new, scara_coordinate_t system, const float duration)
 {
-    point_t pos = scara_forward_kinematics(arm->shoulder_pos, arm->elbow_pos, arm->length);
+    float x, y, z, a;
+    scara_pos(arm, &x, &y, &z, &a, system);
+    scara_goto(arm, x, y, z_new, a, system, duration);
+}
+
+void scara_pos(scara_t* arm, float* x, float* y, float* z, float* a, scara_coordinate_t system)
+{
+    float heading = arm->shoulder_pos + arm->elbow_pos + arm->wrist_pos;
+
+    point_t pos;
+    pos = scara_forward_kinematics(arm->shoulder_pos, arm->elbow_pos, arm->length);
+    pos = scara_end_effector_position(pos, heading, arm->length[2]);
 
     if (system == COORDINATE_ROBOT) {
         pos = scara_coordinate_arm2robot(pos, arm->offset_xy, arm->offset_rotation);
+        heading = scara_heading_arm2robot(heading, arm->offset_rotation);
     } else if (system == COORDINATE_TABLE) {
         pos = scara_coordinate_arm2robot(pos, arm->offset_xy, arm->offset_rotation);
+        heading = scara_heading_arm2robot(heading, arm->offset_rotation);
 
         point_t robot_xy = {.x = position_get_x_float(arm->robot_pos), .y = position_get_y_float(arm->robot_pos)};
         float robot_a = position_get_a_rad_float(arm->robot_pos);
 
         pos = scara_coordinate_robot2table(pos, robot_xy, robot_a);
+        heading = scara_heading_robot2table(heading, robot_a);
     }
 
     *x = pos.x;
     *y = pos.y;
     *z = arm->z_pos;
+    *a = heading;
 }
 
 void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj)
@@ -105,7 +129,11 @@ void scara_manage(scara_t *arm)
     }
 
     scara_waypoint_t frame = scara_position_for_date(arm, scara_time_get());
+    float heading = frame.hand_angle;
+
+    /* Compute target arm position (without hand) */
     point_t target = {.x = frame.position[0], .y = frame.position[1]};
+    target = scara_arm_position(target, heading, frame.length[2]);
 
     point_t p1, p2;
     int position_count = scara_num_possible_elbow_positions(target, arm->length[0], arm->length[1], &p1, &p2);
@@ -128,6 +156,9 @@ void scara_manage(scara_t *arm)
     /* This is due to mecanical construction of the arms. */
     beta = beta - alpha;
 
+    /* Compute hand angle */
+    float gamma = heading - (alpha + beta);
+
     /* The arm cannot make one full turn. */
     if (beta < -M_PI) {
         beta = 2 * M_PI + beta;
@@ -142,11 +173,13 @@ void scara_manage(scara_t *arm)
     arm->set_z_position(arm->z_args, frame.position[2]);
     arm->set_shoulder_position(arm->shoulder_args, alpha);
     arm->set_elbow_position(arm->elbow_args, beta);
+    arm->set_wrist_position(arm->wrist_args, gamma);
 
     /* Update motor positions */
     arm->z_pos = arm->get_z_position(arm->z_args);
     arm->shoulder_pos = arm->get_shoulder_position(arm->shoulder_args);
     arm->elbow_pos = arm->get_elbow_position(arm->elbow_args);
+    arm->wrist_pos = arm->get_wrist_position(arm->wrist_args);
 
     /* Unlock */
     chMtxUnlock(&arm->lock);
@@ -154,9 +187,9 @@ void scara_manage(scara_t *arm)
 
 static scara_waypoint_t scara_convert_waypoint_coordinate(scara_t *arm, scara_waypoint_t key)
 {
-    point_t pos;
-    pos.x = key.position[0];
-    pos.y = key.position[1];
+    point_t pos = {.x = key.position[0], .y = key.position[1]};
+    float heading = key.hand_angle;
+
     if (key.coordinate_type == COORDINATE_TABLE) {
         point_t robot_pos;
         float robot_a_rad;
@@ -166,12 +199,16 @@ static scara_waypoint_t scara_convert_waypoint_coordinate(scara_t *arm, scara_wa
         robot_a_rad = position_get_a_rad_float(arm->robot_pos);
         pos = scara_coordinate_table2robot(pos, robot_pos, robot_a_rad);
         pos = scara_coordinate_robot2arm(pos, arm->offset_xy, arm->offset_rotation);
+        heading = scara_heading_table2robot(heading, robot_a_rad);
+        heading = scara_heading_robot2arm(heading, arm->offset_rotation);
     } else if (key.coordinate_type == COORDINATE_ROBOT) {
         pos = scara_coordinate_robot2arm(pos, arm->offset_xy, arm->offset_rotation);
+        heading = scara_heading_robot2arm(heading, arm->offset_rotation);
     }
 
     key.position[0] = pos.x;
     key.position[1] = pos.y;
+    key.hand_angle = heading;
     return key;
 }
 

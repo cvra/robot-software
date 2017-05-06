@@ -48,7 +48,6 @@ target.arm:
     - src/arms/cvra_arm_motors.c
     - src/arms/scara_port.c
     - src/arms/arms_controller.c
-    - src/arms/hands_controller.c
     - src/robot_helpers/motor_helpers.c
     - src/config_msgpack.c
     - src/trace/trace_points.c
@@ -84,7 +83,6 @@ source:
     - src/scara/scara_trajectories.c
     - src/scara/scara_kinematics.c
     - src/scara/scara.c
-    - src/hand/hand_utils.c
     - src/hand/hand.c
 
 include_directories:
@@ -114,7 +112,6 @@ tests:
     - tests/scara_kinematics.cpp
     - tests/scara_kinematics_integration.cpp
     - tests/scara.cpp
-    - tests/test_hand_utils.cpp
     - tests/test_hand.cpp
 
 templates:

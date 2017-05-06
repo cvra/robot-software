@@ -86,3 +86,40 @@ TEST(ArmUtilsTestGroup, CoordinateRobotToTable45Deg)
     DOUBLES_EQUAL(100., result.x, 1e-2);
     DOUBLES_EQUAL(100., result.y, 1e-2);
 }
+
+
+TEST(ArmUtilsTestGroup, HeadingRobotToArm)
+{
+    float target = M_PI/4.;
+    float offset_angle = M_PI/2.;
+
+    float result = scara_heading_robot2arm(target, offset_angle);
+    DOUBLES_EQUAL(- M_PI / 4., result, 1e-2);
+}
+
+TEST(ArmUtilsTestGroup, HeadingArmToRobot)
+{
+    float target = M_PI/4.;
+    float offset_angle = M_PI/2.;
+
+    float result = scara_heading_arm2robot(target, offset_angle);
+    DOUBLES_EQUAL(3 * M_PI / 4., result, 1e-2);
+}
+
+TEST(ArmUtilsTestGroup, HeadingTableToRobot)
+{
+    float target = M_PI/4.;
+    float offset_angle = M_PI/2.;
+
+    float result = scara_heading_table2robot(target, offset_angle);
+    DOUBLES_EQUAL(- M_PI / 4., result, 1e-2);
+}
+
+TEST(ArmUtilsTestGroup, HeadingRobotToTable)
+{
+    float target = M_PI/4.;
+    float offset_angle = M_PI/2.;
+
+    float result = scara_heading_robot2table(target, offset_angle);
+    DOUBLES_EQUAL(3 * M_PI / 4., result, 1e-2);
+}

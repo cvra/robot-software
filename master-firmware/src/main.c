@@ -31,7 +31,6 @@
 #include "base/encoder.h"
 #include "base/base_controller.h"
 #include "arms/arms_controller.h"
-#include "arms/hands_controller.h"
 #include "trace/trace_points.h"
 #include "strategy.h"
 #include "filesystem.h"
@@ -272,9 +271,6 @@ int main(void) {
 
     arms_init();
     arms_controller_start();
-
-    hands_init();
-    hands_controller_start();
 #endif
 
     /* Initialize strategy thread, will wait for signal to begin game */

@@ -26,6 +26,7 @@ master:
     arms:
         upperarm_length: 86. # in mm
         forearm_length: 72. # in mm
+        wrist_to_hand_length: 55. # in mm
         left:
             offset_x: 0.   # in mm
             offset_y: 120. # in mm

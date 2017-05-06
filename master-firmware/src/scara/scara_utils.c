@@ -78,3 +78,23 @@ point_t scara_coordinate_robot2table(point_t robot_point, point_t robot_pos, flo
 
     return table_point;
 }
+
+float scara_heading_robot2arm(float robot_angle, float offset_angle)
+{
+    return robot_angle - offset_angle;
+}
+
+float scara_heading_arm2robot(float arm_angle, float offset_angle)
+{
+    return arm_angle + offset_angle;
+}
+
+float scara_heading_table2robot(float table_angle, float robot_a_rad)
+{
+    return table_angle - robot_a_rad;
+}
+
+float scara_heading_robot2table(float robot_angle, float robot_a_rad)
+{
+    return robot_angle + robot_a_rad;
+}
