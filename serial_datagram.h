@@ -9,6 +9,8 @@
 extern "C" {
 #endif
 
+#define SERIAL_DATAGRAM_CRC_START 0x00000000UL
+
 /* datagram receive callback function type */
 typedef void (*serial_datagram_cb_t)(const void *dtgrm, size_t len, void *arg);
 
@@ -31,6 +33,20 @@ typedef struct {
  * Send a datagram
  */
 void serial_datagram_send(const void *dtgrm, size_t len,
+        void (*send_fn)(void *arg, const void *p, size_t len), void *sendarg);
+
+/**
+ * Send datagram chunk
+ *
+ * This funciton should be used when the datagram needs to be assembled from
+ * multiple buffers.
+ */
+void serial_datagram_send_chunk(const void *dtgrm, size_t len, uint32_t *crc,
+        void (*send_fn)(void *arg, const void *p, size_t len), void *sendarg);
+/**
+ * Send datagram end sequence: [CRC32][END]
+ */
+void serial_datagram_send_end(uint32_t crc,
         void (*send_fn)(void *arg, const void *p, size_t len), void *sendarg);
 
 /**
