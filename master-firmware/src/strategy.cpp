@@ -187,13 +187,10 @@ enum Location {
 };
 
 struct DebraState {
+    unsigned score{0};
     bool arms_are_indexed{false};
     bool arms_are_deployed{true};
-    bool has_moved{false};
-    bool location_accessible[7]{true, false, true, true, true, true, true};
-    bool cylinder_present[6]{false, true, true, true, true, true};
     unsigned cylinder_count{0};
-    enum Location near_location{Other};
 };
 
 struct IndexArms : public goap::Action<DebraState> {
@@ -256,8 +253,8 @@ struct RetractArms : public goap::Action<DebraState> {
     bool execute(DebraState &state)
     {
         NOTICE("Retracting arms!");
-        scara_goto(&left_arm, -150, 50, 120, RADIANS(180), COORDINATE_ROBOT, 1.);
-        scara_goto(&right_arm, 150, -50, 120, RADIANS(0), COORDINATE_ROBOT, 1.);
+        scara_goto(&left_arm, -180, 70, 120, RADIANS(180), COORDINATE_ROBOT, 1.);
+        scara_goto(&right_arm, 180, -70, 120, RADIANS(0), COORDINATE_ROBOT, 1.);
         chThdSleepSeconds(1.);
         state.arms_are_deployed = false;
         return true;
@@ -286,25 +283,28 @@ struct CollectCylinder : public goap::Action<DebraState> {
 
     bool execute(DebraState &state)
     {
-        scara_t* arm;
-        hand_t* hand;
+        NOTICE("Collecting cylinder");
 
-        if (m_color == YELLOW) {
-            arm = &right_arm;
-            hand = &right_hand;
-        } else {
+        scara_t* arm = &right_arm;
+        hand_t* hand = &right_hand;
+
+        if (m_color == BLUE) {
             arm = &left_arm;
             hand = &left_hand;
         }
 
-        scara_set_wrist_offset(arm, -0.6);
+        // Select tool
+        scara_set_wrist_offset(arm, RADIANS(0));
 
         // Go above cylinder
         scara_move_z(arm, 160, COORDINATE_ROBOT, 0.5);
         chThdSleepMilliseconds(500);
 
         // Approach cylinder with wheelbase
-        strategy_goto_avoid_retry(MIRROR_X(m_color, 910), 415, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL, -1);
+        if (!strategy_goto_avoid(MIRROR_X(m_color, 910), 415, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
+            state.arms_are_deployed = true;
+            return false;
+        }
 
         // Go right to cylinder and adjust height
         scara_trajectory_init(&arm->trajectory);
@@ -328,15 +328,56 @@ struct CollectCylinder : public goap::Action<DebraState> {
         chThdSleepMilliseconds(200);
 
         // Retract arm
-        scara_trajectory_init(&arm->trajectory);
-        scara_trajectory_append_point_with_length(&arm->trajectory, 1000, 600,  50, 2.35, COORDINATE_TABLE, 0, arm->length[0], arm->length[1], 50);
-        scara_trajectory_append_point_with_length(&arm->trajectory, 1000, 600, 160, 2.35, COORDINATE_TABLE, 1, arm->length[0], arm->length[1], 50);
-        scara_trajectory_append_point_with_length(&arm->trajectory, 1000, 600, 160, 3.14, COORDINATE_TABLE, 1, arm->length[0], arm->length[1], 50);
-        scara_do_trajectory(arm, &arm->trajectory);
-        chThdSleepSeconds(2);
+        scara_move_z(arm, 160, COORDINATE_ROBOT, 0.5);
+        chThdSleepMilliseconds(500);
+
+        state.cylinder_count++;
+        state.arms_are_deployed = true;
+        return true;
+    }
+};
+
+struct DepositCylinder : public goap::Action<DebraState> {
+    enum strat_color_t m_color;
+
+    DepositCylinder(enum strat_color_t color)
+        : m_color(color)
+    {
+    }
+
+    bool can_run(DebraState state)
+    {
+        return !state.arms_are_deployed && (state.cylinder_count > 0);
+    }
+
+    DebraState plan_effects(DebraState state)
+    {
+        state.score += 10;
+        state.cylinder_count--;
+        state.arms_are_deployed = true;
+        return state;
+    }
+
+    bool execute(DebraState &state)
+    {
+        NOTICE("Depositing cylinder");
+
+        scara_t* arm = &right_arm;
+        hand_t* hand = &right_hand;
+
+        if (m_color == BLUE) {
+            arm = &left_arm;
+            hand = &left_hand;
+        }
+
+        // Select tool
+        scara_set_wrist_offset(arm, RADIANS(0));
 
         // Go to construction area
-        strategy_goto_avoid_retry(MIRROR_X(m_color, 250), 900, MIRROR_A(m_color, 180), TRAJ_FLAGS_ALL, -1);
+        if (!strategy_goto_avoid(MIRROR_X(m_color, 250), 900, MIRROR_A(m_color, 180), TRAJ_FLAGS_ALL)) {
+            state.arms_are_deployed = true;
+            return false;
+        }
 
         // Drop cylinder in construction area
         scara_goto(arm, 50, 1000, 160, 3.14, COORDINATE_TABLE, 1);
@@ -346,22 +387,24 @@ struct CollectCylinder : public goap::Action<DebraState> {
 
         // Push cylinder to make it horizontal
         scara_trajectory_init(&arm->trajectory);
-        scara_trajectory_append_point_with_length(&arm->trajectory, 50, 1000, 160,  3, COORDINATE_TABLE, 0, arm->length[0], arm->length[1], 50);
-        scara_trajectory_append_point_with_length(&arm->trajectory, 50, 1100, 160,  3, COORDINATE_TABLE, 0.5, arm->length[0], arm->length[1], 130);
-        scara_trajectory_append_point_with_length(&arm->trajectory, 50, 1100, 120,  3, COORDINATE_TABLE, 0.5, arm->length[0], arm->length[1], 130);
-        scara_trajectory_append_point_with_length(&arm->trajectory, 50,  800, 120, -2, COORDINATE_TABLE, 1, arm->length[0], arm->length[1], 130);
-        scara_trajectory_append_point_with_length(&arm->trajectory, 50,  800, 160, -2, COORDINATE_TABLE, 0.5, arm->length[0], arm->length[1], 130);
+        scara_trajectory_append_point_with_length(&arm->trajectory, 50, 1000, 160, 3, COORDINATE_TABLE, 0, arm->length[0], arm->length[1], 50);
+        scara_trajectory_append_point_with_length(&arm->trajectory, 50, 1100, 160, 3, COORDINATE_TABLE, 0.5, arm->length[0], arm->length[1], 130);
+        scara_trajectory_append_point_with_length(&arm->trajectory, 50, 1100, 100, 3, COORDINATE_TABLE, 0.5, arm->length[0], arm->length[1], 130);
+        scara_trajectory_append_point_with_length(&arm->trajectory, 50,  800, 100, 4, COORDINATE_TABLE, 1, arm->length[0], arm->length[1], 130);
+        scara_trajectory_append_point_with_length(&arm->trajectory, 50,  800, 160, 4, COORDINATE_TABLE, 0.5, arm->length[0], arm->length[1], 130);
         scara_do_trajectory(arm, &arm->trajectory);
         chThdSleepSeconds(3);
 
         hand_set_finger(hand, 0, FINGER_CLOSED);
         chThdSleepMilliseconds(200);
 
-        state.cylinder_count++;
+        state.score += 10;
+        state.cylinder_count--;
         state.arms_are_deployed = true;
         return true;
     }
 };
+
 
 struct InitGoal : goap::Goal<DebraState> {
     bool is_reached(DebraState state)
@@ -373,7 +416,7 @@ struct InitGoal : goap::Goal<DebraState> {
 struct GameGoal : goap::Goal<DebraState> {
     bool is_reached(DebraState state)
     {
-        return (state.cylinder_count > 0) && !state.arms_are_deployed;
+        return (state.score > 0) && !state.arms_are_deployed;
     }
 };
 
@@ -388,6 +431,7 @@ void strategy_debra_play_game(void)
     IndexArms index_arms;
     RetractArms retract_arms;
     CollectCylinder collect_cylinder(color);
+    DepositCylinder deposit_cylinder(color);
 
     DebraState state;
 
@@ -398,6 +442,7 @@ void strategy_debra_play_game(void)
         &index_arms,
         &retract_arms,
         &collect_cylinder,
+        &deposit_cylinder,
     };
 
     goap::Planner<DebraState> planner(actions, sizeof(actions) / sizeof(actions[0]));
