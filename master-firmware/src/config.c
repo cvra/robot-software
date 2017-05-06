@@ -9,7 +9,7 @@ parameter_namespace_t actuator_config;
 parameter_namespace_t master_config;
 
 static parameter_namespace_t odometry_config;
-static parameter_t robot_size, opponent_size, calib_dir;
+static parameter_t robot_size, robot_alignement_length, opponent_size, calib_dir;
 static parameter_t odometry_ticks, odometry_track, odometry_left_corr, odometry_right_corr;
 
 static struct {
@@ -45,6 +45,7 @@ void config_init(void)
     parameter_namespace_declare(&master_config, &global_config, "master");
 
     parameter_integer_declare(&robot_size, &master_config, "robot_size_x_mm");
+    parameter_integer_declare(&robot_alignement_length, &master_config, "robot_alignment_length_mm");
     parameter_integer_declare(&opponent_size, &master_config, "opponent_size_x_mm_default");
     parameter_integer_declare(&calib_dir, &master_config, "calibration_direction");
 

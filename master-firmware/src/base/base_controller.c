@@ -91,6 +91,7 @@ void robot_init(void)
 
     /* Set obstacle inflation sizes */
     robot.robot_size = config_get_integer("master/robot_size_x_mm");
+    robot.alignement_length = config_get_integer("master/robot_alignment_length_mm");
     robot.opponent_size = config_get_integer("master/opponent_size_x_mm_default");
 
     /* Set some defaultj speed and acc. */
