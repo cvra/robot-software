@@ -342,21 +342,21 @@ struct CollectCylinder : public goap::Action<DebraState> {
         }
 
         // Go right to cylinder and adjust height
-        scara_trajectory_init(&arm->trajectory);
-        scara_trajectory_append_point_with_length(&arm->trajectory, 1000, 600, 160, 2.35, COORDINATE_TABLE, 1, arm->length[0], arm->length[1], 180);
-        scara_trajectory_append_point_with_length(&arm->trajectory, 1000, 600,  50, 2.35, COORDINATE_TABLE, 1, arm->length[0], arm->length[1], 180);
-        scara_do_trajectory(arm, &arm->trajectory);
-        strategy_wait_ms(2000);
+        arm_waypoint_t prepare_pickup_traj[2] = {
+            {.x=1000, .y=600, .z=160, .a=2.35, .coord=COORDINATE_TABLE, .dt=1000, .l3=180},
+            {.x=1000, .y=600, .z=50, .a=2.35, .coord=COORDINATE_TABLE, .dt=1000, .l3=180},
+        };
+        strategy_wait_ms(strategy_set_arm_trajectory(arm, m_color, &prepare_pickup_traj[0], sizeof(prepare_pickup_traj) / sizeof(arm_waypoint_t)));
 
         hand_set_finger(hand, 0, FINGER_OPEN);
         strategy_wait_ms(200);
 
         // Approach cylinder xy
-        scara_trajectory_init(&arm->trajectory);
-        scara_trajectory_append_point_with_length(&arm->trajectory, 1000, 600, 50, 2.35, COORDINATE_TABLE, 0, arm->length[0], arm->length[1], 180);
-        scara_trajectory_append_point_with_length(&arm->trajectory, 1000, 600, 50, 2.35, COORDINATE_TABLE, 1, arm->length[0], arm->length[1], 50);
-        scara_do_trajectory(arm, &arm->trajectory);
-        strategy_wait_ms(1000);
+        arm_waypoint_t pick_cylinder_traj[2] = {
+            {.x=1000, .y=600, .z=50, .a=2.35, .coord=COORDINATE_TABLE, .dt=0, .l3=180},
+            {.x=1000, .y=600, .z=50, .a=2.35, .coord=COORDINATE_TABLE, .dt=1000, .l3=50},
+        };
+        strategy_wait_ms(strategy_set_arm_trajectory(arm, m_color, &pick_cylinder_traj[0], sizeof(pick_cylinder_traj) / sizeof(arm_waypoint_t)));
 
         // Get cylinder
         hand_set_finger(hand, 0, FINGER_CLOSED);
@@ -406,20 +406,22 @@ struct DepositCylinder : public goap::Action<DebraState> {
         }
 
         // Drop cylinder in construction area
-        scara_goto(arm, 50, 1000, 160, 3.14, COORDINATE_TABLE, 1);
-        strategy_wait_ms(1000);
+        arm_waypoint_t drop_cylinder_traj[] = {
+            {.x=50, .y=1000, .z=160, .a=180, .coord=COORDINATE_TABLE, .dt=1000, .l3=55},
+        };
+        strategy_wait_ms(strategy_set_arm_trajectory(arm, m_color, &drop_cylinder_traj[0], sizeof(drop_cylinder_traj) / sizeof(arm_waypoint_t)));
         hand_set_finger(hand, 0, FINGER_OPEN);
         strategy_wait_ms(500);
 
         // Push cylinder to make it horizontal
-        scara_trajectory_init(&arm->trajectory);
-        scara_trajectory_append_point_with_length(&arm->trajectory, 50, 1000, 160, 3, COORDINATE_TABLE, 0, arm->length[0], arm->length[1], 50);
-        scara_trajectory_append_point_with_length(&arm->trajectory, 50, 1100, 160, 3, COORDINATE_TABLE, 0.5, arm->length[0], arm->length[1], 130);
-        scara_trajectory_append_point_with_length(&arm->trajectory, 50, 1100, 100, 3, COORDINATE_TABLE, 0.5, arm->length[0], arm->length[1], 130);
-        scara_trajectory_append_point_with_length(&arm->trajectory, 50,  800, 100, 4, COORDINATE_TABLE, 1, arm->length[0], arm->length[1], 130);
-        scara_trajectory_append_point_with_length(&arm->trajectory, 50,  800, 160, 4, COORDINATE_TABLE, 0.5, arm->length[0], arm->length[1], 130);
-        scara_do_trajectory(arm, &arm->trajectory);
-        strategy_wait_ms(3000);
+        arm_waypoint_t push_cylinder_traj[] = {
+            {.x=50, .y=1000, .z=160, .a=180, .coord=COORDINATE_TABLE, .dt=0, .l3=50},
+            {.x=50, .y=1100, .z=160, .a=180, .coord=COORDINATE_TABLE, .dt=500, .l3=130},
+            {.x=50, .y=1100, .z=100, .a=180, .coord=COORDINATE_TABLE, .dt=500, .l3=130},
+            {.x=50, .y= 800, .z=100, .a=235, .coord=COORDINATE_TABLE, .dt=1000, .l3=130},
+            {.x=50, .y= 800, .z=160, .a=235, .coord=COORDINATE_TABLE, .dt=500, .l3=130},
+        };
+        strategy_wait_ms(strategy_set_arm_trajectory(arm, m_color, &push_cylinder_traj[0], sizeof(push_cylinder_traj) / sizeof(arm_waypoint_t)));
 
         hand_set_finger(hand, 0, FINGER_CLOSED);
         strategy_wait_ms(200);
