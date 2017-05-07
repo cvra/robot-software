@@ -28,7 +28,13 @@ static enum strat_color_t wait_for_color_selection(void);
 static void wait_for_autoposition_signal(void);
 static void wait_for_starter(void);
 static void strategy_wait_ms(int ms);
+
 void strategy_play_game(void);
+
+static scara_t* mirror_left_arm(enum strat_color_t color);
+static scara_t* mirror_right_arm(enum strat_color_t color);
+static hand_t* mirror_left_hand(enum strat_color_t color);
+static hand_t* mirror_right_hand(enum strat_color_t color);
 
 #define BUTTON_IS_PRESSED(port, io) (palReadPad(port, io) == false) // Active low
 
@@ -76,6 +82,26 @@ static void wait_for_autoposition_signal(void)
 {
     wait_for_starter();
 }
+
+
+static scara_t* mirror_left_arm(enum strat_color_t color)
+{
+    return color == YELLOW ? &left_arm : &right_arm;
+}
+static scara_t* mirror_right_arm(enum strat_color_t color)
+{
+    return color == YELLOW ? &right_arm : &left_arm;
+}
+
+static hand_t* mirror_left_hand(enum strat_color_t color)
+{
+    return color == YELLOW ? &left_hand : &right_hand;
+}
+static hand_t* mirror_right_hand(enum strat_color_t color)
+{
+    return color == YELLOW ? &right_hand : &left_hand;
+}
+
 
 static void strategy_wait_ms(int ms)
 {
@@ -299,13 +325,8 @@ struct CollectCylinder : public goap::Action<DebraState> {
     {
         NOTICE("Collecting cylinder");
 
-        scara_t* arm = &right_arm;
-        hand_t* hand = &right_hand;
-
-        if (m_color == BLUE) {
-            arm = &left_arm;
-            hand = &left_hand;
-        }
+        scara_t* arm = mirror_right_arm(m_color);
+        hand_t* hand = mirror_right_hand(m_color);
 
         // Select tool
         scara_set_wrist_offset(arm, RADIANS(0));
@@ -372,13 +393,8 @@ struct DepositCylinder : public goap::Action<DebraState> {
     {
         NOTICE("Depositing cylinder");
 
-        scara_t* arm = &right_arm;
-        hand_t* hand = &right_hand;
-
-        if (m_color == BLUE) {
-            arm = &left_arm;
-            hand = &left_hand;
-        }
+        scara_t* arm = mirror_right_arm(m_color);
+        hand_t* hand = mirror_right_hand(m_color);
 
         // Select tool
         scara_set_wrist_offset(arm, RADIANS(0));
