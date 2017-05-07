@@ -173,11 +173,11 @@ void trajectory_set_mode_game(
 
     /* Speed up motion speed/acceleration */
     trajectory_set_speed(robot_traj,
-                         speed_mm2imp(robot_traj, 200.),
+                         speed_mm2imp(robot_traj, 300.),
                          speed_rd2imp(robot_traj, 3.));
     trajectory_set_acc(robot_traj,
-                       acc_mm2imp(robot_traj, 300.),
-                       acc_rd2imp(robot_traj, 3.));
+                       acc_mm2imp(robot_traj, 600.),
+                       acc_rd2imp(robot_traj, 6.));
 }
 
 void trajectory_game_timer_reset(void)

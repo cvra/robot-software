@@ -138,13 +138,14 @@ actuator:
 
             velocity:
                 kp: 0.005
-                ki: 0.05
+                ki: 0.2
                 kd: 0.
-                ilimit: 0.2
+                ilimit: 100.
             position:
-                kp: 0.1
-                ki: 0.01
+                kp: 10.
+                ki: 10.
                 kd: 0.
+                ilimit: 1000
 
             low_batt_th: 12
             acceleration_limit: 2500.
@@ -396,8 +397,8 @@ actuator:
                 kd: 0
 
             low_batt_th: 12
-            acceleration_limit: 20.
-            velocity_limit: 4.
+            acceleration_limit: 100.
+            velocity_limit: 8.
             torque_limit: 1.3
 
     right-element-rotate:

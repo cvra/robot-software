@@ -224,7 +224,7 @@ struct IndexArms : public goap::Action<DebraState> {
 
         const char* motor_names[6] = {"left-shoulder", "left-elbow", "left-wrist", "right-shoulder", "right-elbow", "right-wrist"};
         int motor_dirs[6] = {1, 1, 1, -1, -1, -1};
-        float motor_speeds[6] = {0.8, 0.8, 4.0, 0.8, 0.8, 4.0};
+        float motor_speeds[6] = {0.8, 0.8, 2.0, 0.8, 0.8, 2.0};
         float motor_indexes[6];
         arms_auto_index(motor_names, motor_dirs, motor_speeds, 6, motor_indexes);
 
