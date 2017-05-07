@@ -27,6 +27,7 @@
 static enum strat_color_t wait_for_color_selection(void);
 static void wait_for_autoposition_signal(void);
 static void wait_for_starter(void);
+static void strategy_wait_ms(int ms);
 void strategy_play_game(void);
 
 #define BUTTON_IS_PRESSED(port, io) (palReadPad(port, io) == false) // Active low
@@ -38,11 +39,11 @@ static enum strat_color_t wait_for_color_selection(void)
     while (!BUTTON_IS_PRESSED(GPIOF, GPIOF_BTN_YELLOW) && !BUTTON_IS_PRESSED(GPIOF, GPIOF_BTN_GREEN)) {
         palSetPad(GPIOF, GPIOF_LED_YELLOW_1);
         palSetPad(GPIOF, GPIOF_LED_GREEN_1);
-        chThdSleepMilliseconds(100);
+        strategy_wait_ms(100);
 
         palClearPad(GPIOF, GPIOF_LED_YELLOW_1);
         palClearPad(GPIOF, GPIOF_LED_GREEN_1);
-        chThdSleepMilliseconds(100);
+        strategy_wait_ms(100);
     }
 
     if (BUTTON_IS_PRESSED(GPIOF, GPIOF_BTN_GREEN)) {
@@ -64,10 +65,10 @@ static void wait_for_starter(void)
 {
     /* Wait for a rising edge */
     while (palReadPad(GPIOF, GPIOF_START)) {
-        chThdSleepMilliseconds(10);
+        strategy_wait_ms(10);
     }
     while (!palReadPad(GPIOF, GPIOF_START)) {
-        chThdSleepMilliseconds(10);
+        strategy_wait_ms(10);
     }
 }
 
@@ -76,10 +77,15 @@ static void wait_for_autoposition_signal(void)
     wait_for_starter();
 }
 
+static void strategy_wait_ms(int ms)
+{
+    chThdSleepMilliseconds(ms);
+}
+
 void strategy_stop_robot(void)
 {
     trajectory_hardstop(&robot.traj);
-    chThdSleepMilliseconds(200);
+    strategy_wait_ms(200);
 }
 
 bool strategy_goto_avoid(int x_mm, int y_mm, int a_deg, int traj_end_flags)
@@ -139,7 +145,7 @@ bool strategy_goto_avoid(int x_mm, int y_mm, int a_deg, int traj_end_flags)
     } else if (end_reason == TRAJ_END_OPPONENT_NEAR) {
         palSetPad(GPIOF, GPIOF_LED_PC_ERROR);
         strategy_stop_robot();
-        chThdSleepMilliseconds(100);
+        strategy_wait_ms(100);
         palClearPad(GPIOF, GPIOF_LED_PC_ERROR);
         WARNING("Stopping robot because opponent too close");
     } else if (end_reason == TRAJ_END_COLLISION) {
@@ -253,9 +259,11 @@ struct RetractArms : public goap::Action<DebraState> {
     bool execute(DebraState &state)
     {
         NOTICE("Retracting arms!");
+
         scara_goto(&left_arm, -180, 70, 120, RADIANS(180), COORDINATE_ROBOT, 1.);
         scara_goto(&right_arm, 180, -70, 120, RADIANS(0), COORDINATE_ROBOT, 1.);
-        chThdSleepSeconds(1.);
+        strategy_wait_ms(1000);
+
         state.arms_are_deployed = false;
         return true;
     }
@@ -298,7 +306,7 @@ struct CollectCylinder : public goap::Action<DebraState> {
 
         // Go above cylinder
         scara_move_z(arm, 160, COORDINATE_ROBOT, 0.5);
-        chThdSleepMilliseconds(500);
+        strategy_wait_ms(500);
 
         // Approach cylinder with wheelbase
         if (!strategy_goto_avoid(MIRROR_X(m_color, 910), 415, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
@@ -311,25 +319,25 @@ struct CollectCylinder : public goap::Action<DebraState> {
         scara_trajectory_append_point_with_length(&arm->trajectory, 1000, 600, 160, 2.35, COORDINATE_TABLE, 1, arm->length[0], arm->length[1], 180);
         scara_trajectory_append_point_with_length(&arm->trajectory, 1000, 600,  50, 2.35, COORDINATE_TABLE, 1, arm->length[0], arm->length[1], 180);
         scara_do_trajectory(arm, &arm->trajectory);
-        chThdSleepSeconds(2);
+        strategy_wait_ms(2000);
 
         hand_set_finger(hand, 0, FINGER_OPEN);
-        chThdSleepMilliseconds(200);
+        strategy_wait_ms(200);
 
         // Approach cylinder xy
         scara_trajectory_init(&arm->trajectory);
         scara_trajectory_append_point_with_length(&arm->trajectory, 1000, 600, 50, 2.35, COORDINATE_TABLE, 0, arm->length[0], arm->length[1], 180);
         scara_trajectory_append_point_with_length(&arm->trajectory, 1000, 600, 50, 2.35, COORDINATE_TABLE, 1, arm->length[0], arm->length[1], 50);
         scara_do_trajectory(arm, &arm->trajectory);
-        chThdSleepSeconds(1);
+        strategy_wait_ms(1000);
 
         // Get cylinder
         hand_set_finger(hand, 0, FINGER_CLOSED);
-        chThdSleepMilliseconds(200);
+        strategy_wait_ms(200);
 
         // Retract arm
         scara_move_z(arm, 160, COORDINATE_ROBOT, 0.5);
-        chThdSleepMilliseconds(500);
+        strategy_wait_ms(500);
 
         state.cylinder_count++;
         state.arms_are_deployed = true;
@@ -381,9 +389,9 @@ struct DepositCylinder : public goap::Action<DebraState> {
 
         // Drop cylinder in construction area
         scara_goto(arm, 50, 1000, 160, 3.14, COORDINATE_TABLE, 1);
-        chThdSleepSeconds(1);
+        strategy_wait_ms(1000);
         hand_set_finger(hand, 0, FINGER_OPEN);
-        chThdSleepMilliseconds(500);
+        strategy_wait_ms(500);
 
         // Push cylinder to make it horizontal
         scara_trajectory_init(&arm->trajectory);
@@ -393,10 +401,10 @@ struct DepositCylinder : public goap::Action<DebraState> {
         scara_trajectory_append_point_with_length(&arm->trajectory, 50,  800, 100, 4, COORDINATE_TABLE, 1, arm->length[0], arm->length[1], 130);
         scara_trajectory_append_point_with_length(&arm->trajectory, 50,  800, 160, 4, COORDINATE_TABLE, 0.5, arm->length[0], arm->length[1], 130);
         scara_do_trajectory(arm, &arm->trajectory);
-        chThdSleepSeconds(3);
+        strategy_wait_ms(3000);
 
         hand_set_finger(hand, 0, FINGER_CLOSED);
-        chThdSleepMilliseconds(200);
+        strategy_wait_ms(200);
 
         state.score += 10;
         state.cylinder_count--;
@@ -500,7 +508,7 @@ void strategy_debra_play_game(void)
             }
         } else {
             NOTICE("No valid plan found, waiting...");
-            chThdSleepSeconds(1);
+            strategy_wait_ms(1000);
         }
     }
 }
@@ -534,7 +542,7 @@ void strategy_sandoi_play_game()
         strategy_goto_avoid_retry(MIRROR_X(color, 600), 200, MIRROR_A(color, 90), TRAJ_FLAGS_ALL, -1);
 
         DEBUG("Game ended!\nInsert coin to play more.\n");
-        chThdSleepSeconds(1);
+        strategy_wait_ms(1000);
 
         wait_for_starter();
     }
