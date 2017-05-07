@@ -67,8 +67,8 @@ void serial_datagram_send(const void *dtgrm, size_t len,
         void (*send_fn)(void *arg, const void *p, size_t len), void *sendarg)
 {
     uint32_t crc = SERIAL_DATAGRAM_CRC_START;
-    serial_datagram_send_chunk(dtgrm, len, send_fn, sendarg, &crc);
-    serial_datagram_send_end(send_fn, sendarg, crc);
+    serial_datagram_send_chunk(dtgrm, len, &crc, send_fn, sendarg);
+    serial_datagram_send_end(crc, send_fn, sendarg);
 }
 
 static void rcv_handler_reset(serial_datagram_rcv_handler_t *h)
