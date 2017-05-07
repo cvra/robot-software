@@ -301,6 +301,57 @@ struct RetractArms : public goap::Action<DebraState> {
     }
 };
 
+struct PushMultiColoredCylinder : public goap::Action<DebraState> {
+    enum strat_color_t m_color;
+
+    PushMultiColoredCylinder(enum strat_color_t color)
+        : m_color(color)
+    {
+    }
+
+    bool can_run(DebraState state)
+    {
+        return !state.arms_are_deployed;
+    }
+
+    DebraState plan_effects(DebraState state)
+    {
+        state.score += 10;
+        state.arms_are_deployed = true;
+        return state;
+    }
+
+    bool execute(DebraState &state)
+    {
+        NOTICE("Pushing multi colored cylinder");
+
+        // Approach cylinder with wheelbase
+        if (!strategy_goto_avoid(MIRROR_X(m_color, 650), 1250, MIRROR_A(m_color, 45), TRAJ_FLAGS_ALL)) {
+            state.arms_are_deployed = true;
+            return false;
+        }
+
+        // Push cylinder to tip over
+        trajectory_d_rel(&robot.traj, 150);
+        trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
+        trajectory_d_rel(&robot.traj, -50);
+        trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
+
+        // Push cylinder to make space for construction
+        scara_move_z(&right_arm, 60, COORDINATE_ROBOT, 1);
+        strategy_wait_ms(1000);
+        trajectory_d_rel(&robot.traj, 120);
+        trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
+        trajectory_d_rel(&robot.traj, -120);
+        trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
+
+        state.score += 10;
+        state.arms_are_deployed = true;
+        state.construction_area_free = true;
+        return true;
+    }
+};
+
 struct CollectCylinder : public goap::Action<DebraState> {
     enum strat_color_t m_color;
 
@@ -458,6 +509,7 @@ void strategy_debra_play_game(void)
     GameGoal game_goal;
     IndexArms index_arms;
     RetractArms retract_arms;
+    PushMultiColoredCylinder push_multi_cylinder(color);
     CollectCylinder collect_cylinder(color);
     DepositCylinder deposit_cylinder(color);
 
@@ -469,6 +521,7 @@ void strategy_debra_play_game(void)
     goap::Action<DebraState> *actions[] = {
         &index_arms,
         &retract_arms,
+        &push_multi_cylinder,
         &collect_cylinder,
         &deposit_cylinder,
     };
