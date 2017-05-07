@@ -260,6 +260,12 @@ struct RetractArms : public goap::Action<DebraState> {
     {
         NOTICE("Retracting arms!");
 
+        // First move arms up
+        scara_move_z(&left_arm, 160, COORDINATE_ROBOT, 0.5);
+        scara_move_z(&right_arm, 160, COORDINATE_ROBOT, 0.5);
+        strategy_wait_ms(500);
+
+        // Then retract arms
         scara_goto(&left_arm, -180, 70, 120, RADIANS(180), COORDINATE_ROBOT, 1.);
         scara_goto(&right_arm, 180, -70, 120, RADIANS(0), COORDINATE_ROBOT, 1.);
         strategy_wait_ms(1000);
@@ -334,10 +340,6 @@ struct CollectCylinder : public goap::Action<DebraState> {
         // Get cylinder
         hand_set_finger(hand, 0, FINGER_CLOSED);
         strategy_wait_ms(200);
-
-        // Retract arm
-        scara_move_z(arm, 160, COORDINATE_ROBOT, 0.5);
-        strategy_wait_ms(500);
 
         state.cylinder_count++;
         state.arms_are_deployed = true;
