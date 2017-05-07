@@ -223,6 +223,7 @@ struct DebraState {
     bool arms_are_indexed{false};
     bool arms_are_deployed{true};
     unsigned cylinder_count{0};
+    bool construction_area_free{false};
 };
 
 struct IndexArms : public goap::Action<DebraState> {
@@ -387,6 +388,95 @@ struct CollectRocketCylinders : public goap::Action<DebraState> {
     }
 };
 
+struct DepositRocketCylinders : public goap::Action<DebraState> {
+    enum strat_color_t m_color;
+
+    DepositRocketCylinders(enum strat_color_t color)
+        : m_color(color)
+    {
+    }
+
+    bool can_run(DebraState state)
+    {
+        return !state.arms_are_deployed && state.construction_area_free;
+    }
+
+    DebraState plan_effects(DebraState state)
+    {
+        state.score += 20;
+        state.arms_are_deployed = true;
+        return state;
+    }
+
+    bool execute(DebraState &state)
+    {
+        NOTICE("Collecting rocket cylinders");
+
+        scara_t* arm = &left_arm;
+        hand_t* hand = &left_hand;
+
+        // Approach rocket with wheelbase
+        if (!strategy_goto_avoid(MIRROR_X(m_color, 680), 1320, MIRROR_A(m_color, -135), TRAJ_FLAGS_ALL)) {
+            state.arms_are_deployed = true;
+            return false;
+        }
+
+        // Collect rocket cylinder
+        for (int i = 0; i < 2; i++) {
+            // Select tool
+            scara_set_wrist_offset(arm, RADIANS(- i * 90));
+
+            // Go above cylinder level
+            scara_move_z(arm, 160, COORDINATE_ROBOT, 0.5);
+            strategy_wait_ms(500);
+
+            // Position cylinder
+            arm_waypoint_t prepare_pickup_traj[2] = {
+                {.x=900, .y=1400, .z=160, .a=45, .coord=COORDINATE_TABLE, .dt=500, .l3=50},
+                {.x=900, .y=1400, .z=120, .a=45, .coord=COORDINATE_TABLE, .dt=1000, .l3=50},
+            };
+            strategy_wait_ms(strategy_set_arm_trajectory(arm, m_color, &prepare_pickup_traj[0],
+                             sizeof(prepare_pickup_traj) / sizeof(arm_waypoint_t)));
+
+            // Push cylinders already in construction area
+            trajectory_d_rel(&robot.traj, -100.);
+            trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
+            trajectory_d_rel(&robot.traj, 100.);
+            trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
+
+            // Drop cylinder and go back
+            scara_move_z(arm, 80, COORDINATE_ROBOT, 0.5);
+            strategy_wait_ms(500);
+            hand_set_finger(hand, i, FINGER_OPEN);
+            strategy_wait_ms(200);
+            trajectory_d_rel(&robot.traj, 50.);
+            trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
+
+            // Lower arm and push cylinder to tip it
+            scara_move_z(arm, 120, COORDINATE_ROBOT, 0.5);
+            strategy_wait_ms(500);
+            hand_set_finger(hand, i, FINGER_CLOSED);
+            strategy_wait_ms(200);
+            trajectory_d_rel(&robot.traj, -100.);
+            trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
+            trajectory_d_rel(&robot.traj, 50.);
+            trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
+        }
+
+        // Push everything tighly in the construction area
+        scara_move_z(&right_arm, 60, COORDINATE_ROBOT, 0.5);
+        strategy_wait_ms(500);
+        trajectory_d_rel(&robot.traj, 70);
+        trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
+        trajectory_d_rel(&robot.traj, -70);
+        trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
+
+        state.score += 20;
+        state.arms_are_deployed = true;
+        return true;
+    }
+};
+
 struct PushMultiColoredCylinder : public goap::Action<DebraState> {
     enum strat_color_t m_color;
 
@@ -397,13 +487,14 @@ struct PushMultiColoredCylinder : public goap::Action<DebraState> {
 
     bool can_run(DebraState state)
     {
-        return !state.arms_are_deployed && (state.cylinder_count > 0);
+        return !state.arms_are_deployed && (state.cylinder_count > 0) && !state.construction_area_free;
     }
 
     DebraState plan_effects(DebraState state)
     {
         state.score += 10;
         state.arms_are_deployed = true;
+        state.construction_area_free = true;
         return state;
     }
 
@@ -585,7 +676,7 @@ struct InitGoal : goap::Goal<DebraState> {
 struct GameGoal : goap::Goal<DebraState> {
     bool is_reached(DebraState state)
     {
-        return (state.score > 0) && !state.arms_are_deployed;
+        return (state.score > 20) && !state.arms_are_deployed;
     }
 };
 
@@ -600,6 +691,7 @@ void strategy_debra_play_game(void)
     IndexArms index_arms;
     RetractArms retract_arms;
     CollectRocketCylinders collect_rocket(color);
+    DepositRocketCylinders deposit_rocket(color);
     PushMultiColoredCylinder push_multi_cylinder(color);
     CollectCylinder collect_cylinder(color);
     DepositCylinder deposit_cylinder(color);
@@ -613,6 +705,7 @@ void strategy_debra_play_game(void)
         &index_arms,
         &retract_arms,
         &collect_rocket,
+        &deposit_rocket,
         &push_multi_cylinder,
         // &collect_cylinder,
         // &deposit_cylinder,
