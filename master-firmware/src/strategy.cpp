@@ -256,8 +256,8 @@ struct RetractArms : public goap::Action<DebraState> {
     bool execute(DebraState &state)
     {
         NOTICE("Retracting arms!");
-        scara_goto(&left_arm, -150, 50, 120, 3.14, COORDINATE_ROBOT, 1.);
-        scara_goto(&right_arm, 150, -50, 120, 0, COORDINATE_ROBOT, 1.);
+        scara_goto(&left_arm, -150, 50, 120, RADIANS(180), COORDINATE_ROBOT, 1.);
+        scara_goto(&right_arm, 150, -50, 120, RADIANS(0), COORDINATE_ROBOT, 1.);
         chThdSleepSeconds(1.);
         state.arms_are_deployed = false;
         return true;

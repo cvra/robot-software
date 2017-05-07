@@ -26,6 +26,7 @@
 #include "robot_helpers/trajectory_helpers.h"
 #include "robot_helpers/strategy_helpers.h"
 #include "robot_helpers/motor_helpers.h"
+#include "robot_helpers/math_helpers.h"
 #include "scara/scara.h"
 #include "scara/scara_utils.h"
 #include "scara/scara_trajectories.h"
@@ -783,12 +784,12 @@ static void cmd_scara_mv(BaseSequentialStream *chp, int argc, char *argv[])
 
     x = atof(argv[1]);
     y = atof(argv[2]);
-    a = atof(argv[3]);
+    a = RADIANS(atof(argv[3]));
     l3 = atof(argv[4]);
     scara_trajectory_append_point_with_length(&(arm->trajectory), x, y, z, a, COORDINATE_TABLE, 1, arm->length[0], arm->length[1], l3);
     scara_do_trajectory(arm, &(arm->trajectory));
 
-    chprintf(chp, "Moving %s arm to %f %f %f heading %f in table frame\r\n", argv[0], x, y, z, a);
+    chprintf(chp, "Moving %s arm to %f %f %f heading %fdeg in table frame\r\n", argv[0], x, y, z, DEGREES(a));
 }
 
 static void cmd_scara_z(BaseSequentialStream *chp, int argc, char *argv[])
@@ -834,7 +835,7 @@ static void cmd_scara_pos(BaseSequentialStream *chp, int argc, char *argv[])
         scara_pos(arm, &x, &y, &z, &a, COORDINATE_ARM);
     }
 
-    chprintf(chp, "Position of %s arm is %f %f %f heading %f in %s frame\r\n", argv[1], x, y, z, a, argv[0]);
+    chprintf(chp, "Position of %s arm is %f %f %f heading %fdeg in %s frame\r\n", argv[1], x, y, z, DEGREES(a), argv[0]);
 }
 
 static void cmd_wrist_offset(BaseSequentialStream *chp, int argc, char *argv[])
@@ -922,10 +923,10 @@ static void cmd_state(BaseSequentialStream *chp, int argc, char *argv[])
              position_get_x_s16(&robot.pos), position_get_y_s16(&robot.pos), position_get_a_deg_s16(&robot.pos));
 
     scara_pos(&right_arm, &x, &y, &z, &a, COORDINATE_TABLE);
-    chprintf(chp, "Position of right arm is %.1f %.1f %.1f heading %.1f in table frame\r\n", x, y, z, a);
+    chprintf(chp, "Position of right arm is %.1f %.1f %.1f heading %.1fdeg in table frame\r\n", x, y, z, DEGREES(a));
 
     scara_pos(&left_arm, &x, &y, &z, &a, COORDINATE_TABLE);
-    chprintf(chp, "Position of left arm is %.1f %.1f %.1f heading %.1f in table frame\r\n", x, y, z, a);
+    chprintf(chp, "Position of left arm is %.1f %.1f %.1f heading %.1fdeg in table frame\r\n", x, y, z, DEGREES(a));
 }
 
 
