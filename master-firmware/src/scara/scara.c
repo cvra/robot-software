@@ -6,6 +6,7 @@
 #include "scara_trajectories.h"
 #include "scara_utils.h"
 #include "scara_port.h"
+#include "scara_jacobian.h"
 
 void scara_init(scara_t *arm)
 {
@@ -175,16 +176,31 @@ void scara_manage(scara_t *arm)
     arm->last_loop = scara_time_get();
 
     /* Set motor positions */
-    arm->set_z_position(arm->z_args, frame.position[2]);
-    arm->set_shoulder_position(arm->shoulder_args, alpha);
-    arm->set_elbow_position(arm->elbow_args, beta);
-    arm->set_wrist_position(arm->wrist_args, gamma + arm->wrist_offset);
+    // arm->set_z_position(arm->z_args, frame.position[2]);
+    // arm->set_shoulder_position(arm->shoulder_args, alpha);
+    // arm->set_elbow_position(arm->elbow_args, beta);
+    // arm->set_wrist_position(arm->wrist_args, gamma + arm->wrist_offset);
 
     /* Update motor positions */
     arm->z_pos = arm->get_z_position(arm->z_args);
     arm->shoulder_pos = arm->get_shoulder_position(arm->shoulder_args);
     arm->elbow_pos = arm->get_elbow_position(arm->elbow_args);
     arm->wrist_pos = arm->get_wrist_position(arm->wrist_args) - arm->wrist_offset;
+
+    float f_x = 1, f_y = 0, f_theta = 0;
+    float torque_alpha, torque_beta, torque_gamma;
+    scara_jacobian_compute(f_x, f_y, f_theta,
+                           arm->shoulder_pos, arm->elbow_pos, arm->wrist_pos,
+                           86.f, 72.f, 0.f,
+                           &torque_alpha, &torque_beta, &torque_gamma);
+
+    NOTICE("Arm position %.3f %.3f %.3f Arm torques %.3f %.3f %.3f",
+        arm->shoulder_pos, arm->elbow_pos, arm->wrist_pos,
+        torque_alpha, torque_beta, torque_gamma);
+
+    arm->set_shoulder_position(arm->shoulder_args, torque_alpha);
+    arm->set_elbow_position(arm->elbow_args, torque_beta);
+    arm->set_wrist_position(arm->wrist_args, torque_gamma);
 
     /* Unlock */
     chMtxUnlock(&arm->lock);

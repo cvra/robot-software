@@ -251,8 +251,8 @@ int main(void) {
     }
 
     sntp_init();
-    rpc_server_init();
-    message_server_init();
+    // rpc_server_init();
+    // message_server_init();
     http_server_start();
 
     /* Initiaze UAVCAN communication */

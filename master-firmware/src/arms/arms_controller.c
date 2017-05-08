@@ -14,7 +14,7 @@
 #include "arms_controller.h"
 
 
-#define ARMS_CONTROLLER_STACKSIZE 1024
+#define ARMS_CONTROLLER_STACKSIZE 4096
 
 
 scara_t left_arm;
@@ -96,7 +96,7 @@ static THD_FUNCTION(arms_ctrl_thd, arg)
     chRegSetThreadName(__FUNCTION__);
 
     while (true) {
-        scara_manage(&left_arm);
+        // scara_manage(&left_arm);
         scara_manage(&right_arm);
 
         if (left_arm.kinematics_solution_count == 0) {
@@ -111,8 +111,8 @@ static THD_FUNCTION(arms_ctrl_thd, arg)
             palClearPad(GPIOF, GPIOF_LED_POWER_ERROR);
         }
 
-        hand_manage(&left_hand);
-        hand_manage(&right_hand);
+        // hand_manage(&left_hand);
+        // hand_manage(&right_hand);
 
         chThdSleepMilliseconds(1000 / ARMS_FREQUENCY);
     }

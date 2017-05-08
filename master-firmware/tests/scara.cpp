@@ -265,3 +265,85 @@ TEST(ArmTestGroup, LengthAreInterpolated)
     DOUBLES_EQUAL(55, result.length[0], 0.1);
     DOUBLES_EQUAL(105, result.length[1], 0.1);
 }
+
+
+#include "scara/scara_jacobian.h"
+
+TEST_GROUP(JacobianTestGroup)
+{
+
+};
+
+TEST(JacobianTestGroup, Test)
+{
+    float f_x = 1, f_y = 0, f_theta = 0;
+    float alpha = 0.5, beta = -0.5, gamma = 0;
+    float l1 = 100, l2 = 100, l3 = 0;
+    float torque_alpha, torque_beta, torque_gamma;
+
+    scara_jacobian_compute(f_x, f_y, f_theta,
+                            alpha, beta, gamma,
+                            l1, l2, l3,
+                             &torque_alpha,  &torque_beta,  &torque_gamma);
+
+    DOUBLES_EQUAL(torque_alpha, -0.0208, 1e-3);
+    DOUBLES_EQUAL(torque_beta, 0.0391, 1e-3);
+    DOUBLES_EQUAL(torque_gamma, -0.0183, 1e-3);
+}
+
+TEST(JacobianTestGroup, Test2)
+{
+    float f_x = 1, f_y = 1, f_theta = 0;
+    float alpha = 0.5, beta = -0.5, gamma = 0;
+    float l1 = 100, l2 = 100, l3 = 0;
+    float torque_alpha, torque_beta, torque_gamma;
+
+    scara_jacobian_compute(f_x, f_y, f_theta,
+                            alpha, beta, gamma,
+                            l1, l2, l3,
+                             &torque_alpha,  &torque_beta,  &torque_gamma);
+
+    DOUBLES_EQUAL(torque_alpha, -0.0208, 1e-3);
+    DOUBLES_EQUAL(torque_beta, 0.0491, 1e-3);
+    DOUBLES_EQUAL(torque_gamma, -0.0283, 1e-3);
+}
+
+#include <iostream>
+TEST(JacobianTestGroup, Test3)
+{
+    float f_x = 1, f_y = 0, f_theta = 0;
+    float alpha = 0.230, beta = -0.002, gamma = -2.221;
+    float l1 = 86, l2 = 72, l3 = 55;
+    float torque_alpha, torque_beta, torque_gamma;
+
+    scara_jacobian_compute(f_x, f_y, f_theta,
+                            alpha, beta, gamma,
+                            l1, l2, l3,
+                             &torque_alpha,  &torque_beta,  &torque_gamma);
+
+    std::cout << "LOL " << - l1 * sin(alpha) - l2 * sin(alpha + beta) - l3 * sin(alpha + beta + gamma) << std::endl;
+    std::cout << "Torques " << torque_alpha << " " << torque_beta << " " << torque_gamma << std::endl;
+
+    DOUBLES_EQUAL(torque_alpha, -5.663, 1e-3);
+    DOUBLES_EQUAL(torque_beta, 12.424, 1e-3);
+    DOUBLES_EQUAL(torque_gamma, -6.761, 1e-3);
+}
+
+TEST(JacobianTestGroup, TestSingularity)
+{
+    float f_x = 1, f_y = 0, f_theta = 0;
+    float alpha = 0.001, beta = 0.001, gamma = 0.;
+    float l1 = 86, l2 = 72, l3 = 55;
+    float torque_alpha, torque_beta, torque_gamma;
+
+    scara_jacobian_compute(f_x, f_y, f_theta,
+                            alpha, beta, gamma,
+                            l1, l2, l3,
+                             &torque_alpha,  &torque_beta,  &torque_gamma);
+
+    std::cout << "Torques " << torque_alpha << " " << torque_beta << " " << torque_gamma << std::endl;
+
+    DOUBLES_EQUAL(torque_alpha, -5.663, 1e-3);
+    DOUBLES_EQUAL(torque_beta, 12.424, 1e-3);
+    DOUBLES_EQUAL(torque_gamma, -6.761, 1e-3);
+}

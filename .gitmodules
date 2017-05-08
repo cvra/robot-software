@@ -49,3 +49,6 @@
 [submodule "lib/chibios-syscalls"]
 	path = lib/chibios-syscalls
 	url = https://github.com/cvra/chibios-syscalls
+[submodule "lib/eigen"]
+	path = lib/eigen
+	url = https://github.com/cvra/eigen
