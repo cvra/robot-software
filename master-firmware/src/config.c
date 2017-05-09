@@ -47,7 +47,7 @@ static struct {
             parameter_t ki;
             parameter_t kd;
             parameter_t ilimit;
-        } x;
+        } x, y;
     } control;
 } right_arm;
 #endif
@@ -124,6 +124,11 @@ void config_init(void)
     parameter_scalar_declare(&right_arm.control.x.ki, &right_arm.control.x.ns, "ki");
     parameter_scalar_declare(&right_arm.control.x.kd, &right_arm.control.x.ns, "kd");
     parameter_scalar_declare(&right_arm.control.x.ilimit, &right_arm.control.x.ns, "ilimit");
+    parameter_namespace_declare(&right_arm.control.y.ns, &right_arm.control.ns, "y");
+    parameter_scalar_declare(&right_arm.control.y.kp, &right_arm.control.y.ns, "kp");
+    parameter_scalar_declare(&right_arm.control.y.ki, &right_arm.control.y.ns, "ki");
+    parameter_scalar_declare(&right_arm.control.y.kd, &right_arm.control.y.ns, "kd");
+    parameter_scalar_declare(&right_arm.control.y.ilimit, &right_arm.control.y.ns, "ilimit");
 #endif
 }
 

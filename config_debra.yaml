@@ -26,14 +26,19 @@ master:
     right_arm:
         control:
             x:
-                kp: 0.
-                ki: 0.
-                kd: 0.
-                ilimit: 0.
+                kp: 8.
+                ki: 2.
+                kd: 0.5
+                ilimit: 100.
+            y:
+                kp: 8.
+                ki: 2.
+                kd: 0.5
+                ilimit: 100.
     arms:
         upperarm_length: 86. # in mm
         forearm_length: 72. # in mm
-        wrist_to_hand_length: 55. # in mm
+        wrist_to_hand_length: 0. # in mm
         left:
             offset_x: 0.   # in mm
             offset_y: 120. # in mm
