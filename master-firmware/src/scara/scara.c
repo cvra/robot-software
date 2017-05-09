@@ -187,15 +187,17 @@ void scara_manage(scara_t *arm)
     arm->elbow_pos = arm->get_elbow_position(arm->elbow_args);
     arm->wrist_pos = arm->get_wrist_position(arm->wrist_args) - arm->wrist_offset;
 
-    float f_x = 1, f_y = 0, f_theta = 0;
-    float torque_alpha, torque_beta, torque_gamma;
-    scara_jacobian_compute(f_x, f_y, f_theta,
-                           arm->shoulder_pos, arm->elbow_pos, arm->wrist_pos,
-                           86.f, 72.f, 0.f,
-                           &torque_alpha, &torque_beta, &torque_gamma);
+    float measured_x, measured_y, measured_z, measured_a;
+    scara_pos(arm, &measured_x, &measured_y, &measured_z, &measured_a, COORDINATE_ARM);
 
-    NOTICE("Arm position %.3f %.3f %.3f Arm torques %.3f %.3f %.3f",
-        arm->shoulder_pos, arm->elbow_pos, arm->wrist_pos,
+    float consign_x = pid_process(&arm->x_pid, measured_x - 100.f);
+
+    float torque_alpha, torque_beta, torque_gamma;
+    scara_jacobian_compute(consign_x, 0, 0, arm->shoulder_pos, arm->elbow_pos, arm->wrist_pos,
+                           86.f, 72.f, 0.f, &torque_alpha, &torque_beta, &torque_gamma);
+
+    NOTICE("Arm x %.3f Arm torques %.3f %.3f %.3f",
+        measured_x,
         torque_alpha, torque_beta, torque_gamma);
 
     arm->set_shoulder_position(arm->shoulder_args, torque_alpha);

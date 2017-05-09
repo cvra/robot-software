@@ -23,6 +23,13 @@ master:
                 ki: 0.
                 kd: 25.
                 ilimit: 5000.
+    right_arm:
+        control:
+            x:
+                kp: 0.
+                ki: 0.
+                kd: 0.
+                ilimit: 0.
     arms:
         upperarm_length: 86. # in mm
         forearm_length: 72. # in mm

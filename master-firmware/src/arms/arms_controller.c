@@ -78,6 +78,8 @@ void arms_init(void)
     /* Configure right hand */
     hand_init(&right_hand);
     hand_set_fingers_callbacks(&right_hand, hand_driver_set_right_fingers);
+
+    pid_init(&right_arm.x_pid);
 }
 
 float arms_motor_auto_index(const char* motor_name, int motor_dir, float motor_speed)
@@ -95,7 +97,19 @@ static THD_FUNCTION(arms_ctrl_thd, arg)
     (void) arg;
     chRegSetThreadName(__FUNCTION__);
 
+    parameter_namespace_t *control_params = parameter_namespace_find(&master_config, "right_arm/control");
+    NOTICE("Start arm control");
     while (true) {
+        if (parameter_namespace_contains_changed(control_params)) {
+            float kp, ki, kd, ilim;
+            kp = parameter_scalar_get(parameter_find(control_params, "x/kp"));
+            ki = parameter_scalar_get(parameter_find(control_params, "x/ki"));
+            kd = parameter_scalar_get(parameter_find(control_params, "x/kd"));
+            ilim = parameter_scalar_get(parameter_find(control_params, "x/ilimit"));
+            pid_set_gains(&right_arm.x_pid, kp, ki, kd);
+            pid_set_integral_limit(&right_arm.x_pid, ilim);
+        }
+
         // scara_manage(&left_arm);
         scara_manage(&right_arm);
 

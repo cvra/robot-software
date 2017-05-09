@@ -36,6 +36,20 @@ static parameter_t left_offset_x, left_offset_y, left_offset_a;
 static parameter_t right_offset_x, right_offset_y, right_offset_a;
 static parameter_t left_z_offset, left_shoulder_offset, left_elbow_offset, left_wrist_offset;
 static parameter_t right_z_offset, right_shoulder_offset, right_elbow_offset, right_wrist_offset;
+
+static struct {
+    parameter_namespace_t ns;
+    struct {
+        parameter_namespace_t ns;
+        struct {
+            parameter_namespace_t ns;
+            parameter_t kp;
+            parameter_t ki;
+            parameter_t kd;
+            parameter_t ilimit;
+        } x;
+    } control;
+} right_arm;
 #endif
 
 void config_init(void)
@@ -102,6 +116,14 @@ void config_init(void)
     parameter_scalar_declare(&right_shoulder_offset, &motor_offsets_config, "right-shoulder");
     parameter_scalar_declare(&right_elbow_offset, &motor_offsets_config, "right-elbow");
     parameter_scalar_declare(&right_wrist_offset, &motor_offsets_config, "right-wrist");
+
+    parameter_namespace_declare(&right_arm.ns, &master_config, "right_arm");
+    parameter_namespace_declare(&right_arm.control.ns, &right_arm.ns, "control");
+    parameter_namespace_declare(&right_arm.control.x.ns, &right_arm.control.ns, "x");
+    parameter_scalar_declare(&right_arm.control.x.kp, &right_arm.control.x.ns, "kp");
+    parameter_scalar_declare(&right_arm.control.x.ki, &right_arm.control.x.ns, "ki");
+    parameter_scalar_declare(&right_arm.control.x.kd, &right_arm.control.x.ns, "kd");
+    parameter_scalar_declare(&right_arm.control.x.ilimit, &right_arm.control.x.ns, "ilimit");
 #endif
 }
 
