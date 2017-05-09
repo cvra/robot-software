@@ -181,7 +181,7 @@ void scara_manage(scara_t *arm)
     arm->last_loop = scara_time_get();
 
     /* Set motor positions */
-    // arm->set_z_position(arm->z_args, frame.position[2]);
+    arm->set_z_position(arm->z_args, frame.position[2]);
     // arm->set_shoulder_position(arm->shoulder_args, alpha);
     // arm->set_elbow_position(arm->elbow_args, beta);
     // arm->set_wrist_position(arm->wrist_args, gamma + arm->wrist_offset);
