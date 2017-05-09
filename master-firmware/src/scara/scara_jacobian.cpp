@@ -26,7 +26,7 @@ void scara_jacobian_compute(float f_x, float f_y, float f_theta,
 {
     Eigen::Matrix3d J = jacobian_matrix(alpha, beta, gamma, l1, l2, l3);
     Eigen::Vector3d force(f_x, f_y, f_theta);
-    const float damping = 0.8;
+    const float damping = 2.;
 
     /* Compute the torque using damped least square */
     Eigen::Vector3d torque = J.transpose() * (J * J.transpose()

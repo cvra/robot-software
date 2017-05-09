@@ -287,9 +287,9 @@ TEST(JacobianTestGroup, SmokeTest)
                             l1, l2, l3,
                              &torque_alpha,  &torque_beta,  &torque_gamma);
 
-    DOUBLES_EQUAL(-0.05005812, torque_alpha, 1e-3);
-    DOUBLES_EQUAL(0.07721903, torque_beta, 1e-3);
-    DOUBLES_EQUAL(-0.01137551, torque_gamma, 1e-3);
+    DOUBLES_EQUAL(-0.04874946, torque_alpha, 1e-3);
+    DOUBLES_EQUAL(0.07341263, torque_beta, 1e-3);
+    DOUBLES_EQUAL(0.0034615, torque_gamma, 1e-3);
 }
 
 TEST(JacobianTestGroup, TestSingularity)
@@ -304,7 +304,7 @@ TEST(JacobianTestGroup, TestSingularity)
                             l1, l2, l3,
                              &torque_alpha,  &torque_beta,  &torque_gamma);
 
-    DOUBLES_EQUAL(-0.007023, torque_alpha, 1e-3);
-    DOUBLES_EQUAL(0.01490902, torque_beta, 1e-3);
-    DOUBLES_EQUAL(-0.00371818, torque_gamma, 1e-3);
+    DOUBLES_EQUAL(0.00056127, torque_alpha, 1e-3);
+    DOUBLES_EQUAL(0.00358869, torque_beta, 1e-3);
+    DOUBLES_EQUAL(-0.00035656, torque_gamma, 1e-3);
 }
