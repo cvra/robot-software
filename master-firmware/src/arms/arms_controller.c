@@ -136,7 +136,7 @@ static THD_FUNCTION(arms_ctrl_thd, arg)
             palClearPad(GPIOF, GPIOF_LED_ERROR);
         }
 
-        if (left_arm.kinematics_solution_count == 0) {
+        if (right_arm.kinematics_solution_count == 0) {
             palSetPad(GPIOF, GPIOF_LED_POWER_ERROR);
         } else {
             palClearPad(GPIOF, GPIOF_LED_POWER_ERROR);
