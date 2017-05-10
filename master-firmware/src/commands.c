@@ -526,6 +526,106 @@ static void cmd_pid(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
+static void cmd_pid_tune(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    (void)argc;
+    (void)argv;
+    chprintf(chp, "pid tuner: press q or CTRL-D to quit\n");
+
+    long index;
+    static char line[20];
+    parameter_namespace_t *ns;
+    motor_driver_t *motors;
+    uint16_t len, i;
+
+    /* list all motors */
+    motor_manager_get_list(&motor_manager, &motors, &len);
+    chprintf(chp, "id: name\n");
+    for (i = 0; i < len; i++) {
+        chprintf(chp, "%2u: %s\n", i+1, motors[i].id);
+    }
+
+    const char *extra[] = {
+        "master/aversive/control/angle",
+        "master/aversive/control/distance",
+        "master/right_arm/control/x",
+        "master/right_arm/control/y",
+    };
+    const size_t extra_len = sizeof(extra)/sizeof(char *);
+    for (i = 0; i < extra_len; i++) {
+        chprintf(chp, "%2u: %s\n", len+i+1, extra[i]);
+    }
+
+    while (1) {
+        chprintf(chp, "choose [1-%u]: ", len + extra_len);
+        if (shellGetLine(chp, line, sizeof(line)) || line[0] == 'q') {
+            /* CTRL-D was pressed */
+            return;
+        }
+
+        index = strtol(line, NULL, 10);
+        if (index > 0 && (unsigned long) index <= len + extra_len) {
+            break;
+        }
+        chprintf(chp, "invalid index\n");
+    }
+
+    /* index starting from 0 */
+    index -= 1;
+    if (index  < len) {
+        chprintf(chp, "tune %s\n", motors[index].id);
+        chprintf(chp, "select type (current|velocity|position): ");
+        if (shellGetLine(chp, line, sizeof(line)) || line[0] == 'q') {
+            /* q or CTRL-D was pressed */
+            return;
+        }
+        ns = parameter_namespace_find(&motors[index].config.control, line);
+        if (ns == NULL) {
+            chprintf(chp, "not found\n");
+            return;
+        }
+    } else {
+        chprintf(chp, "tune %s\n", extra[index-len]);
+        ns = parameter_namespace_find(&global_config, extra[index-len]);
+    }
+
+    /* interactive command line */
+    chprintf(chp, "select:\n> kp|ki|kd|ilimit value\n");
+    while (true) {
+        chprintf(chp, "> ");
+        if (shellGetLine(chp, line, sizeof(line)) || line[0] == 'q') {
+            /* q or CTRL-D was pressed */
+            return;
+        }
+        char *p = strchr(line, ' ');
+        if (p == NULL) {
+            chprintf(chp, "invalid value\n");
+            continue;
+        }
+        *p = '\0';
+        float val = strtof(p + 1, NULL);
+
+        /* shortcut for kp ki kd */
+        char *name = line;
+        if (!strcmp(name, "i")) {
+            name = "ki";
+        } else if (!strcmp(name, "p")) {
+            name = "kp";
+        } else if (!strcmp(name, "d")) {
+            name = "kd";
+        }
+
+        parameter_t *param;
+        param = parameter_find(ns, name);
+        if (param == NULL) {
+            chprintf(chp, "parameter not found\n");
+            continue;
+        }
+        chprintf(chp, "%s = %f\n", name, val);
+        parameter_scalar_set(param, val);
+    }
+}
+
 static void cmd_blocking_detection_config(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc == 3) {
@@ -987,6 +1087,7 @@ const ShellCommand commands[] = {
     {"time", cmd_time},
     {"topics", cmd_topics},
     {"pid", cmd_pid},
+    {"pid_tune", cmd_pid_tune},
     {"goto", cmd_traj_goto},
     {"path", cmd_pathplanner},
     {"goto_avoid", cmd_goto_avoid},
