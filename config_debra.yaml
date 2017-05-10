@@ -26,14 +26,14 @@ master:
     right_arm:
         control:
             x:
-                kp: 8.
-                ki: 2.
-                kd: 0.5
+                kp: 4.
+                ki: 0.
+                kd: 5.
                 ilimit: 100.
             y:
-                kp: 8.
-                ki: 2.
-                kd: 0.5
+                kp: 10.
+                ki: 0.
+                kd: 5.
                 ilimit: 100.
             heading:
                 kp: 40.
