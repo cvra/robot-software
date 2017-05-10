@@ -23,6 +23,23 @@ master:
                 ki: 0.
                 kd: 25.
                 ilimit: 5000.
+    left_arm:
+        control:
+            x:
+                kp: 10.
+                ki: 0.
+                kd: 5.
+                ilimit: 100.
+            y:
+                kp: 10.
+                ki: 0.
+                kd: 5.
+                ilimit: 100.
+            heading:
+                kp: 50.
+                ki: 0.
+                kd: 250.
+                ilimit: 100.
     right_arm:
         control:
             x:

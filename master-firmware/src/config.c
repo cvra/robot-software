@@ -49,7 +49,7 @@ static struct {
             parameter_t ilimit;
         } x, y, heading;
     } control;
-} right_arm;
+} left_arm, right_arm;
 #endif
 
 void config_init(void)
@@ -116,6 +116,24 @@ void config_init(void)
     parameter_scalar_declare(&right_shoulder_offset, &motor_offsets_config, "right-shoulder");
     parameter_scalar_declare(&right_elbow_offset, &motor_offsets_config, "right-elbow");
     parameter_scalar_declare(&right_wrist_offset, &motor_offsets_config, "right-wrist");
+
+    parameter_namespace_declare(&left_arm.ns, &master_config, "left_arm");
+    parameter_namespace_declare(&left_arm.control.ns, &left_arm.ns, "control");
+    parameter_namespace_declare(&left_arm.control.x.ns, &left_arm.control.ns, "x");
+    parameter_scalar_declare(&left_arm.control.x.kp, &left_arm.control.x.ns, "kp");
+    parameter_scalar_declare(&left_arm.control.x.ki, &left_arm.control.x.ns, "ki");
+    parameter_scalar_declare(&left_arm.control.x.kd, &left_arm.control.x.ns, "kd");
+    parameter_scalar_declare(&left_arm.control.x.ilimit, &left_arm.control.x.ns, "ilimit");
+    parameter_namespace_declare(&left_arm.control.y.ns, &left_arm.control.ns, "y");
+    parameter_scalar_declare(&left_arm.control.y.kp, &left_arm.control.y.ns, "kp");
+    parameter_scalar_declare(&left_arm.control.y.ki, &left_arm.control.y.ns, "ki");
+    parameter_scalar_declare(&left_arm.control.y.kd, &left_arm.control.y.ns, "kd");
+    parameter_scalar_declare(&left_arm.control.y.ilimit, &left_arm.control.y.ns, "ilimit");
+    parameter_namespace_declare(&left_arm.control.heading.ns, &left_arm.control.ns, "heading");
+    parameter_scalar_declare(&left_arm.control.heading.kp, &left_arm.control.heading.ns, "kp");
+    parameter_scalar_declare(&left_arm.control.heading.ki, &left_arm.control.heading.ns, "ki");
+    parameter_scalar_declare(&left_arm.control.heading.kd, &left_arm.control.heading.ns, "kd");
+    parameter_scalar_declare(&left_arm.control.heading.ilimit, &left_arm.control.heading.ns, "ilimit");
 
     parameter_namespace_declare(&right_arm.ns, &master_config, "right_arm");
     parameter_namespace_declare(&right_arm.control.ns, &right_arm.ns, "control");
