@@ -572,21 +572,31 @@ static void cmd_pid_tune(BaseSequentialStream *chp, int argc, char *argv[])
 
     /* index starting from 0 */
     index -= 1;
+
     if (index  < len) {
         chprintf(chp, "tune %s\n", motors[index].id);
-        chprintf(chp, "select type (current|velocity|position): ");
+        chprintf(chp, "1: current\n2: velocity\n3: position\n> ");
         if (shellGetLine(chp, line, sizeof(line)) || line[0] == 'q') {
             /* q or CTRL-D was pressed */
             return;
         }
-        ns = parameter_namespace_find(&motors[index].config.control, line);
-        if (ns == NULL) {
-            chprintf(chp, "not found\n");
-            return;
+        char *type = line;
+        if (!strcmp(type, "1")) {
+            type = "current";
+        } else if (!strcmp(type, "2")) {
+            type = "velocity";
+        } else if (!strcmp(type, "3")) {
+            type = "position";
         }
+        ns = parameter_namespace_find(&motors[index].config.control, line);
     } else {
         chprintf(chp, "tune %s\n", extra[index-len]);
         ns = parameter_namespace_find(&global_config, extra[index-len]);
+    }
+
+    if (ns == NULL) {
+        chprintf(chp, "not found\n");
+        return;
     }
 
     /* interactive command line */
