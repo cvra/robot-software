@@ -185,12 +185,6 @@ void scara_manage(scara_t *arm)
 
     arm->last_loop = scara_time_get();
 
-    /* Set motor positions */
-    arm->set_z_position(arm->z_args, frame.position[2]);
-    // arm->set_shoulder_position(arm->shoulder_args, alpha);
-    // arm->set_elbow_position(arm->elbow_args, beta);
-    // arm->set_wrist_position(arm->wrist_args, gamma + arm->wrist_offset);
-
     /* Update motor positions */
     arm->z_pos = arm->get_z_position(arm->z_args);
     arm->shoulder_pos = arm->get_shoulder_position(arm->shoulder_args);
@@ -210,10 +204,12 @@ void scara_manage(scara_t *arm)
                            frame.length[0], frame.length[1], frame.length[2],
                            &torque_alpha, &torque_beta, &torque_gamma);
 
-    // NOTICE("Arm x %.3f y %.3f a %.3f Arm torques %.3f %.3f %.3f",
-    //     measured_x, measured_y, measured_a,
-    //     torque_alpha, torque_beta, torque_gamma);
+    DEBUG("Arm x %.3f y %.3f a %.3f Arm torques %.3f %.3f %.3f",
+        measured_x, measured_y, measured_a,
+        torque_alpha, torque_beta, torque_gamma);
 
+    /* Set motor positions / torques */
+    arm->set_z_position(arm->z_args, frame.position[2]);
     arm->set_shoulder_position(arm->shoulder_args, torque_alpha);
     arm->set_elbow_position(arm->elbow_args, torque_beta);
     arm->set_wrist_position(arm->wrist_args, torque_gamma);
