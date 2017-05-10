@@ -136,7 +136,7 @@ actuator:
             current_pid: 0
             velocity_pid: 0
             position_pid: 0
-            motor_pos: 50
+            motor_pos: 10
             index: 0
         motor:
             # motor: 1516SR
@@ -282,7 +282,7 @@ actuator:
             current_pid: 0
             velocity_pid: 0
             position_pid: 0
-            motor_pos: 50
+            motor_pos: 10
             index: 0
         motor:
             # motor: 1516SR
