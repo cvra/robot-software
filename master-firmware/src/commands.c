@@ -790,6 +790,18 @@ static void cmd_autopos(BaseSequentialStream *chp, int argc, char *argv[])
     strategy_auto_position(x, y, a, color);
 }
 
+static void cmd_motors(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    (void)argc;
+    (void)argv;
+    motor_driver_t *motors;
+    uint16_t len, i;
+    motor_manager_get_list(&motor_manager, &motors, &len);
+    chprintf(chp, "CAN_ID: NAME\n");
+    for (i = 0; i < len; i++) {
+        chprintf(chp, "   %3u: %s\n", motors[i].can_id, motors[i].id);
+    }
+}
 
 static void cmd_motor_pos(BaseSequentialStream *chp, int argc, char *argv[])
 {
@@ -1102,6 +1114,7 @@ const ShellCommand commands[] = {
     {"motor_pos", cmd_motor_pos},
     {"motor_voltage", cmd_motor_voltage},
     {"motor_index", cmd_motor_index},
+    {"motors", cmd_motors},
     {"scara_goto", cmd_scara_goto},
     {"scara_mv", cmd_scara_mv},
     {"scara_z", cmd_scara_z},
