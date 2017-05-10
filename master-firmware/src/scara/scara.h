@@ -49,6 +49,7 @@ typedef struct {
     /* Control system */
     pid_ctrl_t x_pid;
     pid_ctrl_t y_pid;
+    pid_ctrl_t heading_pid;
 
     /* Physical parameters. */
     float length[3];                  /**< Length of the 2 arms elements and wrist to hand center. */

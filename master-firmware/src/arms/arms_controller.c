@@ -81,6 +81,7 @@ void arms_init(void)
 
     pid_init(&right_arm.x_pid);
     pid_init(&right_arm.y_pid);
+    pid_init(&right_arm.heading_pid);
 }
 
 float arms_motor_auto_index(const char* motor_name, int motor_dir, float motor_speed)
@@ -103,6 +104,7 @@ static THD_FUNCTION(arms_ctrl_thd, arg)
     while (true) {
         if (parameter_namespace_contains_changed(control_params)) {
             float kp, ki, kd, ilim;
+
             kp = parameter_scalar_get(parameter_find(control_params, "x/kp"));
             ki = parameter_scalar_get(parameter_find(control_params, "x/ki"));
             kd = parameter_scalar_get(parameter_find(control_params, "x/kd"));
@@ -116,6 +118,13 @@ static THD_FUNCTION(arms_ctrl_thd, arg)
             ilim = parameter_scalar_get(parameter_find(control_params, "y/ilimit"));
             pid_set_gains(&right_arm.y_pid, kp, ki, kd);
             pid_set_integral_limit(&right_arm.y_pid, ilim);
+
+            kp = parameter_scalar_get(parameter_find(control_params, "heading/kp"));
+            ki = parameter_scalar_get(parameter_find(control_params, "heading/ki"));
+            kd = parameter_scalar_get(parameter_find(control_params, "heading/kd"));
+            ilim = parameter_scalar_get(parameter_find(control_params, "heading/ilimit"));
+            pid_set_gains(&right_arm.heading_pid, kp, ki, kd);
+            pid_set_integral_limit(&right_arm.heading_pid, ilim);
         }
 
         // scara_manage(&left_arm);
