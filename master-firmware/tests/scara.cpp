@@ -18,6 +18,11 @@ void set_motor_pos(void *m, float value)
     *(float *)m = value;
 }
 
+void set_motor_vel(void *m, float value)
+{
+    *(float *)m = value;
+}
+
 float get_motor_pos(void *m)
 {
     return *(float *)m;
@@ -44,9 +49,9 @@ TEST_GROUP(ArmTestGroup)
         elbow_angle = 0;
 
         scara_set_z_callbacks(&arm, set_motor_pos, get_motor_pos, &z_pos);
-        scara_set_shoulder_callbacks(&arm, set_motor_pos, get_motor_pos, &shoulder_angle);
-        scara_set_elbow_callbacks(&arm, set_motor_pos, get_motor_pos, &elbow_angle);
-        scara_set_wrist_callbacks(&arm, set_motor_pos, get_motor_pos, &wrist_angle);
+        scara_set_shoulder_callbacks(&arm, set_motor_pos, set_motor_vel, get_motor_pos, &shoulder_angle);
+        scara_set_elbow_callbacks(&arm, set_motor_pos, set_motor_vel, get_motor_pos, &elbow_angle);
+        scara_set_wrist_callbacks(&arm, set_motor_pos, set_motor_vel, get_motor_pos, &wrist_angle);
     }
 
     void teardown()

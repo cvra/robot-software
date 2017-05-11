@@ -33,20 +33,32 @@ void arms_init(void)
     static cvra_arm_motor_t left_wrist = {.m = &motor_manager, .direction = 1, .index = 0};
 
     scara_set_z_callbacks(&left_arm, set_left_z_position, get_left_z_position, &left_z);
-    scara_set_shoulder_callbacks(&left_arm, set_left_shoulder_position, get_left_shoulder_position, &left_shoulder);
-    scara_set_elbow_callbacks(&left_arm, set_left_elbow_position, get_left_elbow_position, &left_elbow);
-    scara_set_wrist_callbacks(&left_arm, set_left_wrist_position, get_left_wrist_position, &left_wrist);
+    scara_set_shoulder_callbacks(&left_arm,
+                                 set_left_shoulder_position,
+                                 set_left_shoulder_velocity,
+                                 get_left_shoulder_position,
+                                 &left_shoulder);
+    scara_set_elbow_callbacks(&left_arm,
+                              set_left_elbow_position,
+                              set_left_elbow_velocity,
+                              get_left_elbow_position,
+                              &left_elbow);
+    scara_set_wrist_callbacks(&left_arm,
+                              set_left_wrist_position,
+                              set_left_wrist_velocity,
+                              get_left_wrist_position,
+                              &left_wrist);
 
     scara_set_related_robot_pos(&left_arm, &robot.pos);
 
     scara_set_physical_parameters(&left_arm,
-        config_get_scalar("master/arms/upperarm_length"),
-        config_get_scalar("master/arms/forearm_length"),
-        config_get_scalar("master/arms/wrist_to_hand_length"));
+                                  config_get_scalar("master/arms/upperarm_length"),
+                                  config_get_scalar("master/arms/forearm_length"),
+                                  config_get_scalar("master/arms/wrist_to_hand_length"));
 
     scara_set_offset(&left_arm, config_get_scalar("master/arms/left/offset_x"),
-        config_get_scalar("master/arms/left/offset_y"),
-        config_get_scalar("master/arms/left/offset_a"));
+                     config_get_scalar("master/arms/left/offset_y"),
+                     config_get_scalar("master/arms/left/offset_a"));
 
     /* Configure right arm */
     scara_init(&right_arm);
@@ -56,20 +68,32 @@ void arms_init(void)
     static cvra_arm_motor_t right_wrist = {.m = &motor_manager, .direction = 1, .index = 0};
 
     scara_set_z_callbacks(&right_arm, set_right_z_position, get_right_z_position, &right_z);
-    scara_set_shoulder_callbacks(&right_arm, set_right_shoulder_position, get_right_shoulder_position, &right_shoulder);
-    scara_set_elbow_callbacks(&right_arm, set_right_elbow_position, get_right_elbow_position, &right_elbow);
-    scara_set_wrist_callbacks(&right_arm, set_right_wrist_position, get_right_wrist_position, &right_wrist);
+    scara_set_shoulder_callbacks(&right_arm,
+                                 set_right_shoulder_position,
+                                 set_right_shoulder_velocity,
+                                 get_right_shoulder_position,
+                                 &right_shoulder);
+    scara_set_elbow_callbacks(&right_arm,
+                              set_right_elbow_position,
+                              set_right_elbow_velocity,
+                              get_right_elbow_position,
+                              &right_elbow);
+    scara_set_wrist_callbacks(&right_arm,
+                              set_right_wrist_position,
+                              set_right_wrist_velocity,
+                              get_right_wrist_position,
+                              &right_wrist);
 
     scara_set_related_robot_pos(&right_arm, &robot.pos);
 
     scara_set_physical_parameters(&right_arm,
-        config_get_scalar("master/arms/upperarm_length"),
-        config_get_scalar("master/arms/forearm_length"),
-        config_get_scalar("master/arms/wrist_to_hand_length"));
+                                  config_get_scalar("master/arms/upperarm_length"),
+                                  config_get_scalar("master/arms/forearm_length"),
+                                  config_get_scalar("master/arms/wrist_to_hand_length"));
 
     scara_set_offset(&right_arm, config_get_scalar("master/arms/right/offset_x"),
-        config_get_scalar("master/arms/right/offset_y"),
-        config_get_scalar("master/arms/right/offset_a"));
+                     config_get_scalar("master/arms/right/offset_y"),
+                     config_get_scalar("master/arms/right/offset_a"));
 
     /* Configure left hand */
     hand_init(&left_hand);
@@ -131,8 +155,10 @@ static THD_FUNCTION(arms_ctrl_thd, arg)
     (void) arg;
     chRegSetThreadName(__FUNCTION__);
 
-    parameter_namespace_t *left_arm_control_params = parameter_namespace_find(&master_config, "left_arm/control");
-    parameter_namespace_t *right_arm_control_params = parameter_namespace_find(&master_config, "right_arm/control");
+    parameter_namespace_t *left_arm_control_params = parameter_namespace_find(&master_config,
+                                                                              "left_arm/control");
+    parameter_namespace_t *right_arm_control_params = parameter_namespace_find(&master_config,
+                                                                               "right_arm/control");
 
     NOTICE("Start arm control");
     while (true) {
@@ -168,10 +194,18 @@ static THD_FUNCTION(arms_ctrl_thd, arg)
 void arms_controller_start(void)
 {
     static THD_WORKING_AREA(arms_ctrl_thd_wa, ARMS_CONTROLLER_STACKSIZE);
-    chThdCreateStatic(arms_ctrl_thd_wa, sizeof(arms_ctrl_thd_wa), ARMS_CONTROLLER_PRIO, arms_ctrl_thd, NULL);
+    chThdCreateStatic(arms_ctrl_thd_wa,
+                      sizeof(arms_ctrl_thd_wa),
+                      ARMS_CONTROLLER_PRIO,
+                      arms_ctrl_thd,
+                      NULL);
 }
 
-void arms_auto_index(const char** motor_names, int* motor_dirs, float* motor_speeds, size_t num_motors, float* motor_indexes)
+void arms_auto_index(const char** motor_names,
+                     int* motor_dirs,
+                     float* motor_speeds,
+                     size_t num_motors,
+                     float* motor_indexes)
 {
     /* Fetch all motor drivers */
     motor_driver_t* motors[num_motors];
@@ -187,8 +221,8 @@ void arms_auto_index(const char** motor_names, int* motor_dirs, float* motor_spe
         parameter_scalar_set(&(motors[i]->config.index_stream), 10);
     }
 #ifndef TESTS
-        // TODO: Wait for an acknowledge that it was changed on the motor board, instead of waiting
-        chThdSleepSeconds(1);
+    // TODO: Wait for an acknowledge that it was changed on the motor board, instead of waiting
+    chThdSleepSeconds(1);
 #endif
 
     /* Start moving in forward direction */
@@ -198,20 +232,22 @@ void arms_auto_index(const char** motor_names, int* motor_dirs, float* motor_spe
         motor_finished[i] = false;
         motor_indexes[i] = 0.;
         index_counts[i] = motors[i]->stream.value_stream_index_update_count;
-        motor_driver_set_velocity(motors[i], - motor_dirs[i] * motor_speeds[i]);
+        motor_driver_set_velocity(motors[i], -motor_dirs[i] * motor_speeds[i]);
         NOTICE("Moving %s axis...", motor_names[i]);
     }
 
     /* Wait for all motors to reach indexes */
     size_t num_finished = 0;
-    while(num_finished != num_motors) {
+    while (num_finished != num_motors) {
         for (size_t i = 0; i < num_motors; i++) {
-            if(!motor_finished[i] && motors[i]->stream.value_stream_index_update_count != index_counts[i]) {
+            if (!motor_finished[i] && motors[i]->stream.value_stream_index_update_count !=
+                index_counts[i]) {
                 /* Stop motor */
                 motor_driver_set_velocity(motors[i], 0.);
 
                 /* Update index */
-                motor_indexes[i] += motor_driver_get_and_clear_stream_value(motors[i], MOTOR_STREAM_INDEX);
+                motor_indexes[i] += motor_driver_get_and_clear_stream_value(motors[i],
+                                                                            MOTOR_STREAM_INDEX);
 
                 /* Mark motor as done */
                 motor_finished[i] = true;
@@ -225,7 +261,7 @@ void arms_auto_index(const char** motor_names, int* motor_dirs, float* motor_spe
 
     /* Move away from index positions */
     for (size_t i = 0; i < num_motors; i++) {
-        motor_driver_set_velocity(motors[i], - motor_dirs[i] * motor_speeds[i]);
+        motor_driver_set_velocity(motors[i], -motor_dirs[i] * motor_speeds[i]);
     }
 #ifndef TESTS
     chThdSleepMilliseconds(1000);
@@ -244,14 +280,16 @@ void arms_auto_index(const char** motor_names, int* motor_dirs, float* motor_spe
 
     /* Wait for all motors to reach indexes */
     num_finished = 0;
-    while(num_finished != num_motors) {
+    while (num_finished != num_motors) {
         for (size_t i = 0; i < num_motors; i++) {
-            if(!motor_finished[i] && motors[i]->stream.value_stream_index_update_count != index_counts[i]) {
+            if (!motor_finished[i] && motors[i]->stream.value_stream_index_update_count !=
+                index_counts[i]) {
                 /* Stop motor */
                 motor_driver_set_velocity(motors[i], 0.);
 
                 /* Update index */
-                motor_indexes[i] += motor_driver_get_and_clear_stream_value(motors[i], MOTOR_STREAM_INDEX);
+                motor_indexes[i] += motor_driver_get_and_clear_stream_value(motors[i],
+                                                                            MOTOR_STREAM_INDEX);
 
                 /* Mark motor as done */
                 motor_finished[i] = true;

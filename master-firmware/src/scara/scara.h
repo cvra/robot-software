@@ -25,6 +25,10 @@ typedef struct {
     void (*set_elbow_position)(void*, float);    /**< Callback function to set elbow position. */
     void (*set_wrist_position)(void*, float);    /**< Callback function to set wrist position. */
 
+    void (*set_shoulder_velocity)(void*, float); /**< Callback function to set shoulder velocity. */
+    void (*set_elbow_velocity)(void*, float);    /**< Callback function to set elbow velocity. */
+    void (*set_wrist_velocity)(void*, float);    /**< Callback function to set wrist velocity. */
+
     /* Motor feedback callbacks */
     float (*get_z_position)(void*);        /**< Callback function to get z position. */
     float (*get_shoulder_position)(void*); /**< Callback function to get shoulder position. */
@@ -75,10 +79,13 @@ void scara_set_offset(scara_t* arm, float offset_x, float offset_y, float offset
 void scara_set_z_callbacks(scara_t* arm, void (*set_z_position)(void*, float),
                            float (*get_z_position)(void*), void* z_args);
 void scara_set_shoulder_callbacks(scara_t* arm, void (*set_shoulder_position)(void*, float),
+                                  void (*set_shoulder_velocity)(void*, float),
                                   float (*get_shoulder_position)(void*), void* shoulder_args);
 void scara_set_elbow_callbacks(scara_t* arm, void (*set_elbow_position)(void*, float),
+                               void (*set_elbow_velocity)(void*, float),
                                float (*get_elbow_position)(void*), void* elbow_args);
 void scara_set_wrist_callbacks(scara_t* arm, void (*set_wrist_position)(void*, float),
+                               void (*set_wrist_velocity)(void*, float),
                                float (*get_wrist_position)(void*), void* wrist_args);
 
 void scara_set_wrist_offset(scara_t* arm, float wrist_offset);
