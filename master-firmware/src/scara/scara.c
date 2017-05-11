@@ -16,6 +16,7 @@ void scara_init(scara_t *arm)
     arm->last_loop = scara_time_get();
 
     arm->shoulder_mode = SHOULDER_BACK;
+    arm->control_mode = CONTROL_JOINT_POSITION;
 
     chMtxObjectInit(&arm->lock);
 }
@@ -80,6 +81,18 @@ void scara_set_wrist_offset(scara_t* arm, float wrist_offset)
 {
     arm->wrist_offset = wrist_offset;
 }
+
+
+void scara_ugly_mode_enable(scara_t* arm)
+{
+    arm->control_mode = CONTROL_JOINT_POSITION;
+}
+
+void scara_ugly_mode_disable(scara_t* arm)
+{
+    arm->control_mode = CONTROL_JAM_PID_XYA;
+}
+
 
 void scara_goto(scara_t* arm,
                 float x,
@@ -218,34 +231,42 @@ void scara_manage(scara_t *arm)
     arm->elbow_pos = arm->get_elbow_position(arm->elbow_args);
     arm->wrist_pos = arm->get_wrist_position(arm->wrist_args) - arm->wrist_offset;
 
-    float measured_x, measured_y, measured_z, measured_a;
-    scara_pos_with_length(arm,
-                          &measured_x,
-                          &measured_y,
-                          &measured_z,
-                          &measured_a,
-                          COORDINATE_ARM,
-                          frame.length[2]);
+    if (arm->control_mode == CONTROL_JAM_PID_XYA) {
+        float measured_x, measured_y, measured_z, measured_a;
+        scara_pos_with_length(arm,
+                              &measured_x,
+                              &measured_y,
+                              &measured_z,
+                              &measured_a,
+                              COORDINATE_ARM,
+                              frame.length[2]);
 
-    float consign_x = pid_process(&arm->x_pid, measured_x - frame.position[0]);
-    float consign_y = pid_process(&arm->y_pid, measured_y - frame.position[1]);
-    float consign_a = pid_process(&arm->heading_pid, measured_a - frame.hand_angle);
+        float consign_x = pid_process(&arm->x_pid, measured_x - frame.position[0]);
+        float consign_y = pid_process(&arm->y_pid, measured_y - frame.position[1]);
+        float consign_a = pid_process(&arm->heading_pid, measured_a - frame.hand_angle);
 
-    float velocity_alpha, velocity_beta, velocity_gamma;
-    scara_jacobian_compute(consign_x, consign_y, consign_a,
-                           arm->shoulder_pos, arm->elbow_pos, arm->wrist_pos,
-                           frame.length[0], frame.length[1], frame.length[2],
-                           &velocity_alpha, &velocity_beta, &velocity_gamma);
+        float velocity_alpha, velocity_beta, velocity_gamma;
+        scara_jacobian_compute(consign_x, consign_y, consign_a,
+                               arm->shoulder_pos, arm->elbow_pos, arm->wrist_pos,
+                               frame.length[0], frame.length[1], frame.length[2],
+                               &velocity_alpha, &velocity_beta, &velocity_gamma);
 
-    DEBUG("Arm x %.3f y %.3f a %.3f Arm velocitys %.3f %.3f %.3f",
-          measured_x, measured_y, measured_a,
-          velocity_alpha, velocity_beta, velocity_gamma);
+        DEBUG("Arm x %.3f y %.3f a %.3f Arm velocities %.3f %.3f %.3f",
+              measured_x, measured_y, measured_a,
+              velocity_alpha, velocity_beta, velocity_gamma);
 
-    /* Set motor commands */
-    arm->set_z_position(arm->z_args, frame.position[2]);
-    arm->set_shoulder_velocity(arm->shoulder_args, velocity_alpha);
-    arm->set_elbow_velocity(arm->elbow_args, velocity_beta);
-    arm->set_wrist_velocity(arm->wrist_args, velocity_gamma);
+        /* Set motor commands */
+        arm->set_z_position(arm->z_args, frame.position[2]);
+        arm->set_shoulder_velocity(arm->shoulder_args, velocity_alpha);
+        arm->set_elbow_velocity(arm->elbow_args, velocity_beta);
+        arm->set_wrist_velocity(arm->wrist_args, velocity_gamma);
+    } else {
+        /* Set motor positions */
+        arm->set_z_position(arm->z_args, frame.position[2]);
+        arm->set_shoulder_position(arm->shoulder_args, alpha);
+        arm->set_elbow_position(arm->elbow_args, beta);
+        arm->set_wrist_position(arm->wrist_args, gamma + arm->wrist_offset);
+    }
 
     /* Unlock */
     chMtxUnlock(&arm->lock);

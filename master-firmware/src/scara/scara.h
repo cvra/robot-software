@@ -14,6 +14,11 @@
 #include <aversive_port/cvra_pid.h>
 #include <aversive/control_system_manager/control_system_manager.h>
 
+/** Control mode of the scara arm. */
+typedef enum {
+    CONTROL_JOINT_POSITION=0, /**< Control the motors in position directly, ugly performance, but safe. */
+    CONTROL_JAM_PID_XYA,      /**< Control using jacobian and PIDs on x,y,a, smooth cartesian trajectories. */
+} scara_control_mode_t;
 
 typedef struct {
     vect2_cart offset_xy; /**< Offset vector between center of robot and shoulder. */
@@ -66,6 +71,7 @@ typedef struct {
     int kinematics_solution_count;
 
     shoulder_mode_t shoulder_mode;
+    scara_control_mode_t control_mode;
 
     mutex_t lock;
 } scara_t;
@@ -89,6 +95,18 @@ void scara_set_wrist_callbacks(scara_t* arm, void (*set_wrist_position)(void*, f
                                float (*get_wrist_position)(void*), void* wrist_args);
 
 void scara_set_wrist_offset(scara_t* arm, float wrist_offset);
+
+
+/** Enable "ugly mode" which is the joint position control
+ * where each motor is controlled in position
+ */
+void scara_ugly_mode_enable(scara_t* arm);
+
+/** Disables "ugly mode" and enables JAM PID controller
+ * where each motor is controlled in velocity (except z axis)
+ */
+void scara_ugly_mode_disable(scara_t* arm);
+
 
 /* Goto position in specified coordinate system */
 void scara_goto(scara_t* arm, float x, float y, float z, float a, scara_coordinate_t system, const float duration);

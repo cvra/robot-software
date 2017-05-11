@@ -287,6 +287,10 @@ struct RetractArms : public goap::Action<DebraState> {
     {
         NOTICE("Retracting arms!");
 
+        // Enable joint position control
+        scara_ugly_mode_enable(&left_arm);
+        scara_ugly_mode_enable(&right_arm);
+
         // First move arms up
         scara_move_z(&left_arm, 160, COORDINATE_ROBOT, 0.5);
         scara_move_z(&right_arm, 160, COORDINATE_ROBOT, 0.5);
@@ -296,6 +300,10 @@ struct RetractArms : public goap::Action<DebraState> {
         scara_goto(&left_arm, -180, 70, 120, RADIANS(180), COORDINATE_ROBOT, 1.);
         scara_goto(&right_arm, 180, -70, 120, RADIANS(0), COORDINATE_ROBOT, 1.);
         strategy_wait_ms(1000);
+
+        // Go back to smooth control
+        scara_ugly_mode_disable(&left_arm);
+        scara_ugly_mode_disable(&right_arm);
 
         state.arms_are_deployed = false;
         return true;

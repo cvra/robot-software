@@ -893,6 +893,30 @@ static void cmd_scara_goto(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
+
+static void cmd_scara_mode(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc != 1) {
+        chprintf(chp, "Usage: scara_mode side mode\r\n");
+        return;
+    }
+
+    scara_t* arm;
+
+    if (strcmp("left", argv[0]) == 0) {
+        arm = &left_arm;
+    } else {
+        arm = &right_arm;
+    }
+
+    if (strcmp("jam", argv[1]) == 0) {
+        arm->control_mode = CONTROL_JAM_PID_XYA;
+    } else {
+        arm->control_mode = CONTROL_JOINT_POSITION;
+    }
+}
+
+
 static void cmd_scara_mv(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc != 5) {
@@ -1005,6 +1029,7 @@ static void cmd_base_mode(BaseSequentialStream *chp, int argc, char *argv[])
         robot.mode = BOARD_MODE_FREE;
     }
 }
+
 static void cmd_fingers(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc != 5) {
@@ -1133,6 +1158,7 @@ const ShellCommand commands[] = {
     {"motor_voltage", cmd_motor_voltage},
     {"motor_index", cmd_motor_index},
     {"motors", cmd_motors},
+    {"scara_mode", cmd_scara_mode},
     {"scara_goto", cmd_scara_goto},
     {"scara_mv", cmd_scara_mv},
     {"scara_z", cmd_scara_z},
