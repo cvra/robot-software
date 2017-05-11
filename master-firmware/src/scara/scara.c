@@ -6,6 +6,7 @@
 #include "scara_trajectories.h"
 #include "scara_utils.h"
 #include "scara_port.h"
+#include "scara_jacobian.h"
 
 void scara_init(scara_t *arm)
 {
@@ -85,13 +86,13 @@ void scara_move_z(scara_t* arm, float z_new, scara_coordinate_t system, const fl
     scara_goto(arm, x, y, z_new, a, system, duration);
 }
 
-void scara_pos(scara_t* arm, float* x, float* y, float* z, float* a, scara_coordinate_t system)
+void scara_pos_with_length(scara_t* arm, float* x, float* y, float* z, float* a, scara_coordinate_t system, float l3)
 {
     float heading = arm->shoulder_pos + arm->elbow_pos + arm->wrist_pos;
 
     point_t pos;
     pos = scara_forward_kinematics(arm->shoulder_pos, arm->elbow_pos, arm->length);
-    pos = scara_end_effector_position(pos, heading, arm->length[2]);
+    pos = scara_end_effector_position(pos, heading, l3);
 
     if (system == COORDINATE_ROBOT) {
         pos = scara_coordinate_arm2robot(pos, arm->offset_xy, arm->offset_rotation);
@@ -111,6 +112,11 @@ void scara_pos(scara_t* arm, float* x, float* y, float* z, float* a, scara_coord
     *y = pos.y;
     *z = arm->z_pos;
     *a = heading;
+}
+
+void scara_pos(scara_t* arm, float* x, float* y, float* z, float* a, scara_coordinate_t system)
+{
+    scara_pos_with_length(arm, x, y, z, a, system, arm->length[2]);
 }
 
 void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj)
@@ -146,6 +152,11 @@ void scara_manage(scara_t *arm)
 
     if (arm->kinematics_solution_count == 0) {
         arm->last_loop = current_date;
+
+        arm->set_shoulder_position(arm->shoulder_args, 0);
+        arm->set_elbow_position(arm->elbow_args, 0);
+        arm->set_wrist_position(arm->wrist_args, 0);
+
         chMtxUnlock(&arm->lock);
         return;
     } else if (arm->kinematics_solution_count == 2) {
@@ -174,17 +185,34 @@ void scara_manage(scara_t *arm)
 
     arm->last_loop = scara_time_get();
 
-    /* Set motor positions */
-    arm->set_z_position(arm->z_args, frame.position[2]);
-    arm->set_shoulder_position(arm->shoulder_args, alpha);
-    arm->set_elbow_position(arm->elbow_args, beta);
-    arm->set_wrist_position(arm->wrist_args, gamma + arm->wrist_offset);
-
     /* Update motor positions */
     arm->z_pos = arm->get_z_position(arm->z_args);
     arm->shoulder_pos = arm->get_shoulder_position(arm->shoulder_args);
     arm->elbow_pos = arm->get_elbow_position(arm->elbow_args);
     arm->wrist_pos = arm->get_wrist_position(arm->wrist_args) - arm->wrist_offset;
+
+    float measured_x, measured_y, measured_z, measured_a;
+    scara_pos_with_length(arm, &measured_x, &measured_y, &measured_z, &measured_a, COORDINATE_ARM, frame.length[2]);
+
+    float consign_x = pid_process(&arm->x_pid, measured_x - frame.position[0]);
+    float consign_y = pid_process(&arm->y_pid, measured_y - frame.position[1]);
+    float consign_a = pid_process(&arm->heading_pid, measured_a - frame.hand_angle);
+
+    float torque_alpha, torque_beta, torque_gamma;
+    scara_jacobian_compute(consign_x, consign_y, consign_a,
+                           arm->shoulder_pos, arm->elbow_pos, arm->wrist_pos,
+                           frame.length[0], frame.length[1], frame.length[2],
+                           &torque_alpha, &torque_beta, &torque_gamma);
+
+    DEBUG("Arm x %.3f y %.3f a %.3f Arm torques %.3f %.3f %.3f",
+        measured_x, measured_y, measured_a,
+        torque_alpha, torque_beta, torque_gamma);
+
+    /* Set motor positions / torques */
+    arm->set_z_position(arm->z_args, frame.position[2]);
+    arm->set_shoulder_position(arm->shoulder_args, torque_alpha);
+    arm->set_elbow_position(arm->elbow_args, torque_beta);
+    arm->set_wrist_position(arm->wrist_args, torque_gamma);
 
     /* Unlock */
     chMtxUnlock(&arm->lock);

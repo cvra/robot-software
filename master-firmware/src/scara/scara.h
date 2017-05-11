@@ -7,6 +7,7 @@
 #include <aversive/math/vect2/vect2.h>
 #include <error/error.h>
 
+#include <pid/pid.h>
 #include "scara_kinematics.h"
 #include "scara_waypoint.h"
 
@@ -44,6 +45,11 @@ typedef struct {
 
     /* Wrist position offset for tool selection */
     float wrist_offset;
+
+    /* Control system */
+    pid_ctrl_t x_pid;
+    pid_ctrl_t y_pid;
+    pid_ctrl_t heading_pid;
 
     /* Physical parameters. */
     float length[3];                  /**< Length of the 2 arms elements and wrist to hand center. */

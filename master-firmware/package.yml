@@ -83,6 +83,7 @@ source:
     - src/scara/scara_trajectories.c
     - src/scara/scara_kinematics.c
     - src/scara/scara.c
+    - src/scara/scara_jacobian.cpp
     - src/hand/hand.c
 
 include_directories:
@@ -93,6 +94,7 @@ include_directories:
     - src/debug/
     - src/can/
     - src/comm/
+    - ../lib/eigen/
 
 tests:
     - tests/ch.cpp

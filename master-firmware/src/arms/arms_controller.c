@@ -14,7 +14,7 @@
 #include "arms_controller.h"
 
 
-#define ARMS_CONTROLLER_STACKSIZE 1024
+#define ARMS_CONTROLLER_STACKSIZE 4096
 
 
 scara_t left_arm;
@@ -78,6 +78,16 @@ void arms_init(void)
     /* Configure right hand */
     hand_init(&right_hand);
     hand_set_fingers_callbacks(&right_hand, hand_driver_set_right_fingers);
+
+    /* Configure left arm controllers */
+    pid_init(&left_arm.x_pid);
+    pid_init(&left_arm.y_pid);
+    pid_init(&left_arm.heading_pid);
+
+    /* Configure right arm controllers */
+    pid_init(&right_arm.x_pid);
+    pid_init(&right_arm.y_pid);
+    pid_init(&right_arm.heading_pid);
 }
 
 float arms_motor_auto_index(const char* motor_name, int motor_dir, float motor_speed)
@@ -90,12 +100,49 @@ float arms_motor_auto_index(const char* motor_name, int motor_dir, float motor_s
     return motor_auto_index(motor, motor_dir, motor_speed);
 }
 
+static void arms_update_controller_gains(parameter_namespace_t* ns, scara_t* arm)
+{
+    float kp, ki, kd, ilim;
+
+    kp = parameter_scalar_get(parameter_find(ns, "x/kp"));
+    ki = parameter_scalar_get(parameter_find(ns, "x/ki"));
+    kd = parameter_scalar_get(parameter_find(ns, "x/kd"));
+    ilim = parameter_scalar_get(parameter_find(ns, "x/ilimit"));
+    pid_set_gains(&arm->x_pid, kp, ki, kd);
+    pid_set_integral_limit(&arm->x_pid, ilim);
+
+    kp = parameter_scalar_get(parameter_find(ns, "y/kp"));
+    ki = parameter_scalar_get(parameter_find(ns, "y/ki"));
+    kd = parameter_scalar_get(parameter_find(ns, "y/kd"));
+    ilim = parameter_scalar_get(parameter_find(ns, "y/ilimit"));
+    pid_set_gains(&arm->y_pid, kp, ki, kd);
+    pid_set_integral_limit(&arm->y_pid, ilim);
+
+    kp = parameter_scalar_get(parameter_find(ns, "heading/kp"));
+    ki = parameter_scalar_get(parameter_find(ns, "heading/ki"));
+    kd = parameter_scalar_get(parameter_find(ns, "heading/kd"));
+    ilim = parameter_scalar_get(parameter_find(ns, "heading/ilimit"));
+    pid_set_gains(&arm->heading_pid, kp, ki, kd);
+    pid_set_integral_limit(&arm->heading_pid, ilim);
+}
+
 static THD_FUNCTION(arms_ctrl_thd, arg)
 {
     (void) arg;
     chRegSetThreadName(__FUNCTION__);
 
+    parameter_namespace_t *left_arm_control_params = parameter_namespace_find(&master_config, "left_arm/control");
+    parameter_namespace_t *right_arm_control_params = parameter_namespace_find(&master_config, "right_arm/control");
+
+    NOTICE("Start arm control");
     while (true) {
+        if (parameter_namespace_contains_changed(left_arm_control_params)) {
+            arms_update_controller_gains(left_arm_control_params, &left_arm);
+        }
+        if (parameter_namespace_contains_changed(right_arm_control_params)) {
+            arms_update_controller_gains(right_arm_control_params, &right_arm);
+        }
+
         scara_manage(&left_arm);
         scara_manage(&right_arm);
 
@@ -105,7 +152,7 @@ static THD_FUNCTION(arms_ctrl_thd, arg)
             palClearPad(GPIOF, GPIOF_LED_ERROR);
         }
 
-        if (left_arm.kinematics_solution_count == 0) {
+        if (right_arm.kinematics_solution_count == 0) {
             palSetPad(GPIOF, GPIOF_LED_POWER_ERROR);
         } else {
             palClearPad(GPIOF, GPIOF_LED_POWER_ERROR);

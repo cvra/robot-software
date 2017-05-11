@@ -23,6 +23,40 @@ master:
                 ki: 0.
                 kd: 25.
                 ilimit: 5000.
+    left_arm:
+        control:
+            x:
+                kp: 10.
+                ki: 0.
+                kd: 5.
+                ilimit: 100.
+            y:
+                kp: 10.
+                ki: 0.
+                kd: 5.
+                ilimit: 100.
+            heading:
+                kp: 50.
+                ki: 0.
+                kd: 250.
+                ilimit: 100.
+    right_arm:
+        control:
+            x:
+                kp: 4.
+                ki: 0.
+                kd: 5.
+                ilimit: 100.
+            y:
+                kp: 10.
+                ki: 0.
+                kd: 5.
+                ilimit: 100.
+            heading:
+                kp: 40.
+                ki: 0.
+                kd: 100.
+                ilimit: 100.
     arms:
         upperarm_length: 86. # in mm
         forearm_length: 72. # in mm
@@ -119,7 +153,7 @@ actuator:
             current_pid: 0
             velocity_pid: 0
             position_pid: 0
-            motor_pos: 20
+            motor_pos: 10
             index: 0
         motor:
             # motor: 1516SR
@@ -156,7 +190,7 @@ actuator:
             current_pid: 0
             velocity_pid: 0
             position_pid: 0
-            motor_pos: 20
+            motor_pos: 50
             index: 0
         motor:
             # motor: 1516SR
@@ -192,7 +226,7 @@ actuator:
             current_pid: 0
             velocity_pid: 0
             position_pid: 0
-            motor_pos: 20
+            motor_pos: 50
             index: 0
         motor:
             # motor: 1516SR
@@ -228,7 +262,7 @@ actuator:
             current_pid: 0
             velocity_pid: 0
             position_pid: 0
-            motor_pos: 20
+            motor_pos: 50
             index: 0
         motor:
             # motor: 1516SR
@@ -265,7 +299,7 @@ actuator:
             current_pid: 0
             velocity_pid: 0
             position_pid: 0
-            motor_pos: 20
+            motor_pos: 10
             index: 0
         motor:
             # motor: 1516SR
@@ -300,7 +334,7 @@ actuator:
             current_pid: 0
             velocity_pid: 0
             position_pid: 0
-            motor_pos: 20
+            motor_pos: 50
             index: 0
         motor:
             # motor: 1516SR
@@ -335,7 +369,7 @@ actuator:
             current_pid: 0
             velocity_pid: 0
             position_pid: 0
-            motor_pos: 20
+            motor_pos: 50
             index: 0
         motor:
             # motor: 1516SR
@@ -369,7 +403,7 @@ actuator:
             current_pid: 0
             velocity_pid: 0
             position_pid: 0
-            motor_pos: 20
+            motor_pos: 50
             index: 0
         motor:
             # motor: 1516SR

@@ -36,6 +36,20 @@ static parameter_t left_offset_x, left_offset_y, left_offset_a;
 static parameter_t right_offset_x, right_offset_y, right_offset_a;
 static parameter_t left_z_offset, left_shoulder_offset, left_elbow_offset, left_wrist_offset;
 static parameter_t right_z_offset, right_shoulder_offset, right_elbow_offset, right_wrist_offset;
+
+static struct {
+    parameter_namespace_t ns;
+    struct {
+        parameter_namespace_t ns;
+        struct {
+            parameter_namespace_t ns;
+            parameter_t kp;
+            parameter_t ki;
+            parameter_t kd;
+            parameter_t ilimit;
+        } x, y, heading;
+    } control;
+} left_arm, right_arm;
 #endif
 
 void config_init(void)
@@ -102,6 +116,42 @@ void config_init(void)
     parameter_scalar_declare(&right_shoulder_offset, &motor_offsets_config, "right-shoulder");
     parameter_scalar_declare(&right_elbow_offset, &motor_offsets_config, "right-elbow");
     parameter_scalar_declare(&right_wrist_offset, &motor_offsets_config, "right-wrist");
+
+    parameter_namespace_declare(&left_arm.ns, &master_config, "left_arm");
+    parameter_namespace_declare(&left_arm.control.ns, &left_arm.ns, "control");
+    parameter_namespace_declare(&left_arm.control.x.ns, &left_arm.control.ns, "x");
+    parameter_scalar_declare(&left_arm.control.x.kp, &left_arm.control.x.ns, "kp");
+    parameter_scalar_declare(&left_arm.control.x.ki, &left_arm.control.x.ns, "ki");
+    parameter_scalar_declare(&left_arm.control.x.kd, &left_arm.control.x.ns, "kd");
+    parameter_scalar_declare(&left_arm.control.x.ilimit, &left_arm.control.x.ns, "ilimit");
+    parameter_namespace_declare(&left_arm.control.y.ns, &left_arm.control.ns, "y");
+    parameter_scalar_declare(&left_arm.control.y.kp, &left_arm.control.y.ns, "kp");
+    parameter_scalar_declare(&left_arm.control.y.ki, &left_arm.control.y.ns, "ki");
+    parameter_scalar_declare(&left_arm.control.y.kd, &left_arm.control.y.ns, "kd");
+    parameter_scalar_declare(&left_arm.control.y.ilimit, &left_arm.control.y.ns, "ilimit");
+    parameter_namespace_declare(&left_arm.control.heading.ns, &left_arm.control.ns, "heading");
+    parameter_scalar_declare(&left_arm.control.heading.kp, &left_arm.control.heading.ns, "kp");
+    parameter_scalar_declare(&left_arm.control.heading.ki, &left_arm.control.heading.ns, "ki");
+    parameter_scalar_declare(&left_arm.control.heading.kd, &left_arm.control.heading.ns, "kd");
+    parameter_scalar_declare(&left_arm.control.heading.ilimit, &left_arm.control.heading.ns, "ilimit");
+
+    parameter_namespace_declare(&right_arm.ns, &master_config, "right_arm");
+    parameter_namespace_declare(&right_arm.control.ns, &right_arm.ns, "control");
+    parameter_namespace_declare(&right_arm.control.x.ns, &right_arm.control.ns, "x");
+    parameter_scalar_declare(&right_arm.control.x.kp, &right_arm.control.x.ns, "kp");
+    parameter_scalar_declare(&right_arm.control.x.ki, &right_arm.control.x.ns, "ki");
+    parameter_scalar_declare(&right_arm.control.x.kd, &right_arm.control.x.ns, "kd");
+    parameter_scalar_declare(&right_arm.control.x.ilimit, &right_arm.control.x.ns, "ilimit");
+    parameter_namespace_declare(&right_arm.control.y.ns, &right_arm.control.ns, "y");
+    parameter_scalar_declare(&right_arm.control.y.kp, &right_arm.control.y.ns, "kp");
+    parameter_scalar_declare(&right_arm.control.y.ki, &right_arm.control.y.ns, "ki");
+    parameter_scalar_declare(&right_arm.control.y.kd, &right_arm.control.y.ns, "kd");
+    parameter_scalar_declare(&right_arm.control.y.ilimit, &right_arm.control.y.ns, "ilimit");
+    parameter_namespace_declare(&right_arm.control.heading.ns, &right_arm.control.ns, "heading");
+    parameter_scalar_declare(&right_arm.control.heading.kp, &right_arm.control.heading.ns, "kp");
+    parameter_scalar_declare(&right_arm.control.heading.ki, &right_arm.control.heading.ns, "ki");
+    parameter_scalar_declare(&right_arm.control.heading.kd, &right_arm.control.heading.ns, "kd");
+    parameter_scalar_declare(&right_arm.control.heading.ilimit, &right_arm.control.heading.ns, "ilimit");
 #endif
 }
 

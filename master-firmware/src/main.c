@@ -45,7 +45,7 @@ void init_hands(void);
 THD_WORKING_AREA(shell_wa, 2048);
 
 static const ShellConfig shell_cfg1 = {
-    (BaseSequentialStream *)&SD3,
+    (BaseSequentialStream *)&SDU1,
     commands
 };
 
@@ -242,18 +242,18 @@ int main(void) {
     /* Start IP over Ethernet */
     struct netif *ethernet_if;
 
-    ip_thread_init();
+    // ip_thread_init();
 
-    chThdSleepMilliseconds(1000);
-    ethernet_if = netif_find("ms0");
-    if (ethernet_if) {
-        dhcp_start(ethernet_if);
-    }
+    // chThdSleepMilliseconds(1000);
+    // ethernet_if = netif_find("ms0");
+    // if (ethernet_if) {
+    //     dhcp_start(ethernet_if);
+    // }
 
-    sntp_init();
-    rpc_server_init();
-    message_server_init();
-    http_server_start();
+    // sntp_init();
+    // rpc_server_init();
+    // message_server_init();
+    // http_server_start();
 
     /* Initiaze UAVCAN communication */
     uavcan_node_start(10);
