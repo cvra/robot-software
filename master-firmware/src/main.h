@@ -10,11 +10,14 @@ extern "C" {
 
 #include "motor_manager.h"
 #include "msgbus/messagebus.h"
+#include <parameter/parameter.h>
 
 /** Robot wide interthread bus. */
 extern messagebus_t bus;
 
 extern motor_manager_t motor_manager;
+
+extern parameter_namespace_t global_config;
 
 #ifdef __cplusplus
 }

@@ -1,3 +1,9 @@
+logging:
+  # level can be "debug", "notice" "warning" or "error"
+  uart:
+    level: "error"
+  sdcard:
+    level: "debug"
 master:
     robot_size_x_mm: 205 # Front to back length
     robot_alignment_length_mm: 130 # robot length from center to alignement border

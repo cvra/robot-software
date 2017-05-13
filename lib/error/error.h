@@ -28,12 +28,10 @@ extern "C" {
 
 #include <stdint.h>
 
-enum {
-    ERROR_SEVERITY_ERROR,
-    ERROR_SEVERITY_WARNING,
-    ERROR_SEVERITY_NOTICE,
-    ERROR_SEVERITY_DEBUG
-};
+#define ERROR_SEVERITY_DEBUG 0
+#define ERROR_SEVERITY_NOTICE 1
+#define ERROR_SEVERITY_WARNING 2
+#define ERROR_SEVERITY_ERROR 3
 
 /** The error structure, which is given as a parameter in log funcs */
 struct error {

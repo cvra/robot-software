@@ -178,12 +178,8 @@ int main(void) {
 
     blink_start();
 
-    /* Try to mount the filesystem. */
-    filesystem_start();
-
-    log_init();
-
-    NOTICE("boot");
+    /* Initialize global objects. */
+    config_init();
 
     /* Initializes a serial-over-USB CDC driver.  */
     sduObjectInit(&SDU1);
@@ -199,14 +195,20 @@ int main(void) {
     usbStart(serusbcfg.usbp, &usbcfg);
     usbConnectBus(serusbcfg.usbp);
 
+    log_init();
+
+    /* Try to mount the filesystem. */
+    filesystem_start();
+
+    NOTICE("boot");
+
+
     /* Shell manager initialization.  */
     shellInit();
 
     /* Initialize the interthread communication bus. */
     messagebus_init(&bus, &bus_lock, &bus_condvar);
 
-    /* Initialize global objects. */
-    config_init();
 
     /* Initialise timestamp module */
     timestamp_stm32_init();
