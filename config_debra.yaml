@@ -299,10 +299,10 @@ actuator:
             torque_constant: 0.0115 # Nm/A
         control:
             current:
-                kp: 0.
-                ki: 0.
+                kp: 22.
+                ki: 4000.
                 kd: 0.
-                ilimit: 0.
+                ilimit: 100.
 
             velocity:
                 kp: 0.
