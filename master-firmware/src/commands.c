@@ -166,6 +166,7 @@ static void show_config_tree(BaseSequentialStream *out, parameter_namespace_t *n
 {
     parameter_t *p;
 
+
     tree_indent(out, indent);
     chprintf(out, "%s\r\n", ns->id);
 
@@ -176,6 +177,13 @@ static void show_config_tree(BaseSequentialStream *out, parameter_namespace_t *n
                 case _PARAM_TYPE_SCALAR:
                     chprintf(out, "%s: %f\r\n", p->id, parameter_scalar_get(p));
                     break;
+
+                case _PARAM_TYPE_STRING: {
+                    static char buf[50];
+                    parameter_string_get(p, buf, sizeof(buf));
+                    chprintf(out, "%s: \"%s\"\r\n", p->id, buf);
+                    break;
+                }
 
                 case _PARAM_TYPE_INTEGER:
                     chprintf(out, "%s: %d\r\n", p->id, parameter_integer_get(p));
