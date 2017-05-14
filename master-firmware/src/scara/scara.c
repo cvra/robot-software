@@ -18,6 +18,11 @@ void scara_init(scara_t *arm)
     arm->shoulder_mode = SHOULDER_BACK;
     arm->control_mode = CONTROL_JOINT_POSITION;
 
+    /* Configure arm controllers */
+    pid_init(&arm->x_pid);
+    pid_init(&arm->y_pid);
+    pid_init(&arm->heading_pid);
+
     chMtxObjectInit(&arm->lock);
 }
 

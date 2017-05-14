@@ -102,16 +102,6 @@ void arms_init(void)
     /* Configure right hand */
     hand_init(&right_hand);
     hand_set_fingers_callbacks(&right_hand, hand_driver_set_right_fingers);
-
-    /* Configure left arm controllers */
-    pid_init(&left_arm.x_pid);
-    pid_init(&left_arm.y_pid);
-    pid_init(&left_arm.heading_pid);
-
-    /* Configure right arm controllers */
-    pid_init(&right_arm.x_pid);
-    pid_init(&right_arm.y_pid);
-    pid_init(&right_arm.heading_pid);
 }
 
 float arms_motor_auto_index(const char* motor_name, int motor_dir, float motor_speed)
