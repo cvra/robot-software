@@ -244,28 +244,37 @@ struct IndexArms : public goap::Action<DebraState> {
     {
         NOTICE("Indexing arms!");
 
-        const char* z_names[2] = {"left-z", "right-z"};
-        int z_dirs[2] = {-1, -1};
-        float z_speeds[2] = {20, 20};
-        float z_indexes[2];
-        arms_auto_index(z_names, z_dirs, z_speeds, 2, z_indexes);
+        cvra_arm_motor_t left_z = {.m = get_motor_driver(&motor_manager, "left-z"), .direction = -1, .index = 0};
+        cvra_arm_motor_t right_z = {.m = get_motor_driver(&motor_manager, "right-z"), .direction = -1, .index = 0};
 
-        arms_set_motor_index(left_arm.z_args, z_indexes[0] + config_get_scalar("master/arms/motor_offsets/left-z"));
-        arms_set_motor_index(right_arm.z_args, z_indexes[1] + config_get_scalar("master/arms/motor_offsets/right-z"));
+        cvra_arm_motor_t left_shoulder = {.m = get_motor_driver(&motor_manager, "left-shoulder"), .direction = 1, .index = 0};
+        cvra_arm_motor_t left_elbow = {.m = get_motor_driver(&motor_manager, "left-elbow"), .direction = 1, .index = 0};
+        cvra_arm_motor_t right_shoulder = {.m = get_motor_driver(&motor_manager, "right-shoulder"), .direction = -1, .index = 0};
+        cvra_arm_motor_t right_elbow = {.m = get_motor_driver(&motor_manager, "right-elbow"), .direction = -1, .index = 0};
 
-        const char* motor_names[6] = {"left-shoulder", "left-elbow", "left-wrist", "right-shoulder", "right-elbow", "right-wrist"};
-        int motor_dirs[6] = {1, 1, 1, -1, -1, -1};
-        float motor_speeds[6] = {0.8, 0.8, 2.0, 0.8, 0.8, 2.0};
-        float motor_indexes[6];
-        arms_auto_index(motor_names, motor_dirs, motor_speeds, 6, motor_indexes);
+        cvra_arm_motor_t* z_motors[] = {
+            &left_z,
+            &right_z,
+        };
+        float z_speeds[] = {20, 20};
+        arms_auto_index(z_motors, z_speeds, sizeof(z_speeds) / sizeof(float));
 
-        arms_set_motor_index(left_arm.shoulder_args, motor_indexes[0] + config_get_scalar("master/arms/motor_offsets/left-shoulder"));
-        arms_set_motor_index(left_arm.elbow_args, motor_indexes[1] + config_get_scalar("master/arms/motor_offsets/left-elbow"));
-        arms_set_motor_index(left_arm.wrist_args, motor_indexes[2] + config_get_scalar("master/arms/motor_offsets/left-wrist"));
+        z_motors[0]->index += config_get_scalar("master/arms/motor_offsets/left-z");
+        z_motors[1]->index += config_get_scalar("master/arms/motor_offsets/right-z");
 
-        arms_set_motor_index(right_arm.shoulder_args, motor_indexes[3] + config_get_scalar("master/arms/motor_offsets/right-shoulder"));
-        arms_set_motor_index(right_arm.elbow_args, motor_indexes[4] + config_get_scalar("master/arms/motor_offsets/right-elbow"));
-        arms_set_motor_index(right_arm.wrist_args, motor_indexes[5] + config_get_scalar("master/arms/motor_offsets/right-wrist"));
+        cvra_arm_motor_t* motors[] = {
+            &left_shoulder,
+            &left_elbow,
+            &right_shoulder,
+            &right_elbow,
+        };
+        float motor_speeds[] = {0.8, 0.8, 0.8, 0.8};
+        arms_auto_index(motors, motor_speeds, sizeof(motor_speeds) / sizeof(float));
+
+        motors[0]->index += config_get_scalar("master/arms/motor_offsets/left-shoulder");
+        motors[1]->index += config_get_scalar("master/arms/motor_offsets/left-elbow");
+        motors[2]->index += config_get_scalar("master/arms/motor_offsets/right-shoulder");
+        motors[3]->index += config_get_scalar("master/arms/motor_offsets/right-elbow");
 
         state.arms_are_indexed = true;
         return true;

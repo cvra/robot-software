@@ -10,7 +10,6 @@
 #include "base/base_controller.h"
 #include "can/hand_driver.h"
 
-#include "cvra_arm_motors.h"
 #include "arms_controller.h"
 
 
@@ -167,27 +166,14 @@ void arms_controller_start(void)
                       NULL);
 }
 
-void arms_auto_index(const char** motor_names,
-                     int* motor_dirs,
-                     float* motor_speeds,
-                     size_t num_motors,
-                     float* motor_indexes)
+void arms_auto_index(cvra_arm_motor_t** motors, float* motor_speeds, size_t num_motors)
 {
-    /* Fetch all motor drivers */
-    motor_driver_t* motors[num_motors];
-    for (size_t i = 0; i < num_motors; i++) {
-        motors[i] = bus_enumerator_get_driver(motor_manager.bus_enumerator, motor_names[i]);
-        if (motors[i] == NULL) {
-            ERROR("Motor \"%s\" doesn't exist", motor_names[i]);
-        }
-    }
-
     /* Enable index stream over CAN */
     for (size_t i = 0; i < num_motors; i++) {
-        if (parameter_defined(&(motors[i]->config.index_stream))) {
-            parameter_scalar_set(&(motors[i]->config.index_stream), 10);
+        if (parameter_defined(&(motors[i]->m->config.index_stream))) {
+            parameter_scalar_set(&(motors[i]->m->config.index_stream), 10);
         } else {
-            ERROR("Undefined motor %s", motor_names[i]);
+            ERROR("Undefined motor %s", motors[i]->m->id);
             return;
         }
     }
@@ -201,24 +187,22 @@ void arms_auto_index(const char** motor_names,
     uint32_t index_counts[num_motors];
     for (size_t i = 0; i < num_motors; i++) {
         motor_finished[i] = false;
-        motor_indexes[i] = 0.;
-        index_counts[i] = motors[i]->stream.value_stream_index_update_count;
-        motor_driver_set_velocity(motors[i], -motor_dirs[i] * motor_speeds[i]);
-        NOTICE("Moving %s axis...", motor_names[i]);
+        motors[i]->index = 0.;
+        index_counts[i] = motors[i]->m->stream.value_stream_index_update_count;
+        motor_driver_set_velocity(motors[i]->m, -motors[i]->direction * motor_speeds[i]);
+        NOTICE("Moving %s axis...", motors[i]->m->id);
     }
 
     /* Wait for all motors to reach indexes */
     size_t num_finished = 0;
     while (num_finished != num_motors) {
         for (size_t i = 0; i < num_motors; i++) {
-            if (!motor_finished[i] && motors[i]->stream.value_stream_index_update_count !=
-                index_counts[i]) {
+            if (!motor_finished[i] && motors[i]->m->stream.value_stream_index_update_count != index_counts[i]) {
                 /* Stop motor */
-                motor_driver_set_velocity(motors[i], 0.);
+                motor_driver_set_velocity(motors[i]->m, 0.);
 
                 /* Update index */
-                motor_indexes[i] += motor_driver_get_and_clear_stream_value(motors[i],
-                                                                            MOTOR_STREAM_INDEX);
+                motors[i]->index += motor_driver_get_and_clear_stream_value(motors[i]->m, MOTOR_STREAM_INDEX);
 
                 /* Mark motor as done */
                 motor_finished[i] = true;
@@ -232,35 +216,33 @@ void arms_auto_index(const char** motor_names,
 
     /* Move away from index positions */
     for (size_t i = 0; i < num_motors; i++) {
-        motor_driver_set_velocity(motors[i], -motor_dirs[i] * motor_speeds[i]);
+        motor_driver_set_velocity(motors[i]->m, -motors[i]->direction * motor_speeds[i]);
     }
 #ifndef TESTS
     chThdSleepMilliseconds(1000);
 #endif
     for (size_t i = 0; i < num_motors; i++) {
-        motor_driver_set_velocity(motors[i], 0);
+        motor_driver_set_velocity(motors[i]->m, 0);
     }
 
     /* Start moving in backward direction */
     for (size_t i = 0; i < num_motors; i++) {
         motor_finished[i] = false;
-        index_counts[i] = motors[i]->stream.value_stream_index_update_count;
-        motor_driver_set_velocity(motors[i], motor_dirs[i] * motor_speeds[i]);
-        NOTICE("Moving %s axis...", motor_names[i]);
+        index_counts[i] = motors[i]->m->stream.value_stream_index_update_count;
+        motor_driver_set_velocity(motors[i]->m, motors[i]->direction * motor_speeds[i]);
+        NOTICE("Moving %s axis...", motors[i]->m->id);
     }
 
     /* Wait for all motors to reach indexes */
     num_finished = 0;
     while (num_finished != num_motors) {
         for (size_t i = 0; i < num_motors; i++) {
-            if (!motor_finished[i] && motors[i]->stream.value_stream_index_update_count !=
-                index_counts[i]) {
+            if (!motor_finished[i] && motors[i]->m->stream.value_stream_index_update_count != index_counts[i]) {
                 /* Stop motor */
-                motor_driver_set_velocity(motors[i], 0.);
+                motor_driver_set_velocity(motors[i]->m, 0.);
 
                 /* Update index */
-                motor_indexes[i] += motor_driver_get_and_clear_stream_value(motors[i],
-                                                                            MOTOR_STREAM_INDEX);
+                motors[i]->index += motor_driver_get_and_clear_stream_value(motors[i]->m, MOTOR_STREAM_INDEX);
 
                 /* Mark motor as done */
                 motor_finished[i] = true;
@@ -274,23 +256,16 @@ void arms_auto_index(const char** motor_names,
 
     /* Compute index */
     for (size_t i = 0; i < num_motors; i++) {
-        motor_indexes[i] *= 0.5;
+        motors[i]->index *= 0.5;
     }
 
     /* Disable index stream over CAN */
     for (size_t i = 0; i < num_motors; i++) {
-        if (parameter_defined(&(motors[i]->config.index_stream))) {
-            parameter_scalar_set(&(motors[i]->config.index_stream), 10);
+        if (parameter_defined(&(motors[i]->m->config.index_stream))) {
+            parameter_scalar_set(&(motors[i]->m->config.index_stream), 10);
         } else {
-            ERROR("Undefined motor %s", motor_names[i]);
+            ERROR("Undefined motor %s", motors[i]->m->id);
         }
     }
     NOTICE("Disabled motor index streams");
-}
-
-
-void arms_set_motor_index(void* motor, float index)
-{
-    cvra_arm_motor_t *dev = (cvra_arm_motor_t*)motor;
-    dev->index = index;
 }
