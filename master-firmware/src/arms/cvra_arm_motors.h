@@ -13,10 +13,18 @@ void set_left_shoulder_position(void* motor, float position);
 void set_left_elbow_position(void* motor, float position);
 void set_left_wrist_position(void* motor, float position);
 
+void set_left_shoulder_velocity(void* motor, float velocity);
+void set_left_elbow_velocity(void* motor, float velocity);
+void set_left_wrist_velocity(void* motor, float velocity);
+
 void set_right_z_position(void* motor, float position);
 void set_right_shoulder_position(void* motor, float position);
 void set_right_elbow_position(void* motor, float position);
 void set_right_wrist_position(void* motor, float position);
+
+void set_right_shoulder_velocity(void* motor, float velocity);
+void set_right_elbow_velocity(void* motor, float velocity);
+void set_right_wrist_velocity(void* motor, float velocity);
 
 float get_left_z_position(void* motor);
 float get_left_shoulder_position(void* motor);
