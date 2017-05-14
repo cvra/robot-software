@@ -898,7 +898,7 @@ static void cmd_scara_goto(BaseSequentialStream *chp, int argc, char *argv[])
 
 static void cmd_scara_mode(BaseSequentialStream *chp, int argc, char *argv[])
 {
-    if (argc != 1) {
+    if (argc != 2) {
         chprintf(chp, "Usage: scara_mode side mode\r\n");
         return;
     }
