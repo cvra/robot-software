@@ -289,7 +289,7 @@ actuator:
             current_pid: 0
             velocity_pid: 0
             position_pid: 0
-            motor_pos: 0
+            motor_pos: 50
             index: 0
         motor:
             # motor: 1524E012SR IE-512
@@ -326,7 +326,7 @@ actuator:
             current_pid: 0
             velocity_pid: 0
             position_pid: 0
-            motor_pos: 0
+            motor_pos: 50
             index: 0
         motor:
             # motor: 1524E012SR IE-512
