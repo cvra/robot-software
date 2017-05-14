@@ -5,14 +5,14 @@
 #include "can/motor_manager.h"
 
 typedef struct {
-    motor_driver_t *m;
+    char id[MOTOR_ID_MAX_LEN_WITH_NUL];
     float direction;
     float index;
 } cvra_arm_motor_t;
 
 typedef struct {
-    motor_driver_t *up;
-    motor_driver_t *down;
+    char up[MOTOR_ID_MAX_LEN_WITH_NUL];
+    char down[MOTOR_ID_MAX_LEN_WITH_NUL];
     float up_direction;
     float down_direction;
 
@@ -20,7 +20,7 @@ typedef struct {
     float pitch_index;   // Pitch index, wired on down
 } cvra_arm_wrist_t;
 
-motor_driver_t* get_motor_driver(motor_manager_t* manager, const char* name);
+motor_driver_t* get_motor_driver(const char* name);
 
 void set_motor_position(void* motor, float position);
 void set_motor_velocity(void* motor, float velocity);
