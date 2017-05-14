@@ -184,7 +184,12 @@ void arms_auto_index(const char** motor_names,
 
     /* Enable index stream over CAN */
     for (size_t i = 0; i < num_motors; i++) {
-        parameter_scalar_set(&(motors[i]->config.index_stream), 10);
+        if (parameter_defined(&(motors[i]->config.index_stream))) {
+            parameter_scalar_set(&(motors[i]->config.index_stream), 10);
+        } else {
+            ERROR("Undefined motor %s", motor_names[i]);
+            return;
+        }
     }
 #ifndef TESTS
     // TODO: Wait for an acknowledge that it was changed on the motor board, instead of waiting
@@ -274,7 +279,11 @@ void arms_auto_index(const char** motor_names,
 
     /* Disable index stream over CAN */
     for (size_t i = 0; i < num_motors; i++) {
-        parameter_scalar_set(&(motors[i]->config.index_stream), 0);
+        if (parameter_defined(&(motors[i]->config.index_stream))) {
+            parameter_scalar_set(&(motors[i]->config.index_stream), 10);
+        } else {
+            ERROR("Undefined motor %s", motor_names[i]);
+        }
     }
     NOTICE("Disabled motor index streams");
 }
