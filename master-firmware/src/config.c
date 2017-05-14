@@ -25,6 +25,19 @@ static struct {
             parameter_t ilimit;
         } angle, distance;
     } control;
+
+    struct {
+        parameter_namespace_t ns;
+        struct {
+            parameter_namespace_t ns;
+            struct {
+                parameter_namespace_t ns;
+                parameter_t init;
+                parameter_t slow;
+                parameter_t fast;
+            } speed, acceleration;
+        } angle, distance;
+    } trajectories;
 } aversive;
 
 static parameter_namespace_t beacon_config;
@@ -91,6 +104,55 @@ void config_init(void)
                              &aversive.control.distance.ns,
                              "ilimit");
 
+    parameter_namespace_declare(&aversive.trajectories.ns, &aversive.ns, "trajectories");
+    parameter_namespace_declare(&aversive.trajectories.angle.ns,
+                                &aversive.trajectories.ns, "angle");
+    parameter_namespace_declare(&aversive.trajectories.angle.speed.ns,
+                                &aversive.trajectories.angle.ns, "speed");
+    parameter_scalar_declare_with_default(&aversive.trajectories.angle.speed.init,
+                                          &aversive.trajectories.angle.speed.ns,
+                                          "init", 0.);
+    parameter_scalar_declare_with_default(&aversive.trajectories.angle.speed.slow,
+                                          &aversive.trajectories.angle.speed.ns,
+                                          "slow", 0.);
+    parameter_scalar_declare_with_default(&aversive.trajectories.angle.speed.fast,
+                                          &aversive.trajectories.angle.speed.ns,
+                                          "fast", 0.);
+    parameter_namespace_declare(&aversive.trajectories.angle.acceleration.ns,
+                                &aversive.trajectories.angle.ns, "acceleration");
+    parameter_scalar_declare_with_default(&aversive.trajectories.angle.acceleration.init,
+                                          &aversive.trajectories.angle.acceleration.ns,
+                                          "init", 0.);
+    parameter_scalar_declare_with_default(&aversive.trajectories.angle.acceleration.slow,
+                                          &aversive.trajectories.angle.acceleration.ns,
+                                          "slow", 0.);
+    parameter_scalar_declare_with_default(&aversive.trajectories.angle.acceleration.fast,
+                                          &aversive.trajectories.angle.acceleration.ns,
+                                          "fast", 0.);
+    parameter_namespace_declare(&aversive.trajectories.distance.ns,
+                                &aversive.trajectories.ns, "distance");
+    parameter_namespace_declare(&aversive.trajectories.distance.speed.ns,
+                                &aversive.trajectories.distance.ns, "speed");
+    parameter_scalar_declare_with_default(&aversive.trajectories.distance.speed.init,
+                                          &aversive.trajectories.distance.speed.ns,
+                                          "init", 0.);
+    parameter_scalar_declare_with_default(&aversive.trajectories.distance.speed.slow,
+                                          &aversive.trajectories.distance.speed.ns,
+                                          "slow", 0.);
+    parameter_scalar_declare_with_default(&aversive.trajectories.distance.speed.fast,
+                                          &aversive.trajectories.distance.speed.ns,
+                                          "fast", 0.);
+    parameter_namespace_declare(&aversive.trajectories.distance.acceleration.ns,
+                                &aversive.trajectories.distance.ns, "acceleration");
+    parameter_scalar_declare_with_default(&aversive.trajectories.distance.acceleration.init,
+                                          &aversive.trajectories.distance.acceleration.ns,
+                                          "init", 0.);
+    parameter_scalar_declare_with_default(&aversive.trajectories.distance.acceleration.slow,
+                                          &aversive.trajectories.distance.acceleration.ns,
+                                          "slow", 0.);
+    parameter_scalar_declare_with_default(&aversive.trajectories.distance.acceleration.fast,
+                                          &aversive.trajectories.distance.acceleration.ns,
+                                          "fast", 0.);
 #ifdef DEBRA
     parameter_namespace_declare(&arms_config, &master_config, "arms");
 

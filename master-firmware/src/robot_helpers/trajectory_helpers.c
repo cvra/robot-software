@@ -49,8 +49,7 @@ int trajectory_has_ended(int watched_end_reasons)
 
     if (watched_end_reasons & TRAJ_END_OPPONENT_NEAR) {
         beacon_signal_t beacon_signal;
-        messagebus_topic_t* proximity_beacon_topic = messagebus_find_topic_blocking(&bus,
-                                                                                    "/proximity_beacon");
+        messagebus_topic_t* proximity_beacon_topic = messagebus_find_topic_blocking(&bus, "/proximity_beacon");
         messagebus_topic_read(proximity_beacon_topic, &beacon_signal, sizeof(beacon_signal));
 
         // only consider recent beacon signal
@@ -97,25 +96,29 @@ void trajectory_align_with_wall(void)
     robot.mode = BOARD_MODE_ANGLE_DISTANCE;
 }
 
+void trajectory_move_to(int32_t x_mm, int32_t y_mm, int32_t a_deg)
+{
+    trajectory_goto_xy_abs(&robot.traj, x_mm, y_mm);
+    trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
+
+    trajectory_a_abs(&robot.traj, a_deg);
+    trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
+}
 
 bool trajectory_crosses_obstacle(poly_t* opponent, point_t* intersection)
 {
     point_t current_position = {
-        position_get_x_float(&robot.pos),
-        position_get_y_float(&robot.pos)
-    };
+            position_get_x_float(&robot.pos),
+            position_get_y_float(&robot.pos)
+        };
     point_t target_position = {
-        robot.traj.target.cart.x,
-        robot.traj.target.cart.y
-    };
+            robot.traj.target.cart.x,
+            robot.traj.target.cart.y
+        };
 
-    uint8_t path_crosses_obstacle = is_crossing_poly(current_position,
-                                                     target_position,
-                                                     intersection,
-                                                     opponent);
+    uint8_t path_crosses_obstacle = is_crossing_poly(current_position, target_position, intersection, opponent);
     bool current_pos_inside_obstacle =
-        math_point_is_in_square(opponent, position_get_x_s16(&robot.pos),
-                                position_get_y_s16(&robot.pos));
+        math_point_is_in_square(opponent, position_get_x_s16(&robot.pos), position_get_y_s16(&robot.pos));
 
     return path_crosses_obstacle == 1 || current_pos_inside_obstacle;
 }
