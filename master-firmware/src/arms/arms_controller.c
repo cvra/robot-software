@@ -27,27 +27,15 @@ void arms_init(void)
 {
     /* Configure left arm */
     scara_init(&left_arm);
-    static cvra_arm_motor_t left_z = {.m = &motor_manager, .direction = 1, .index = 0};
-    static cvra_arm_motor_t left_shoulder = {.m = &motor_manager, .direction = -1, .index = 0};
-    static cvra_arm_motor_t left_elbow = {.m = &motor_manager, .direction = -1, .index = 0};
-    static cvra_arm_motor_t left_wrist = {.m = &motor_manager, .direction = 1, .index = 0};
+    cvra_arm_motor_t left_z = {.m = get_motor_driver(&motor_manager, "left-z"), .direction = 1, .index = 0};
+    cvra_arm_motor_t left_shoulder = {.m = get_motor_driver(&motor_manager, "left-shoulder"), .direction = -1, .index = 0};
+    cvra_arm_motor_t left_elbow = {.m = get_motor_driver(&motor_manager, "left-elbow"), .direction = -1, .index = 0};
+    cvra_arm_motor_t left_wrist = {.m = get_motor_driver(&motor_manager, "left-wrist"), .direction = 1, .index = 0};
 
-    scara_set_z_callbacks(&left_arm, set_left_z_position, get_left_z_position, &left_z);
-    scara_set_shoulder_callbacks(&left_arm,
-                                 set_left_shoulder_position,
-                                 set_left_shoulder_velocity,
-                                 get_left_shoulder_position,
-                                 &left_shoulder);
-    scara_set_elbow_callbacks(&left_arm,
-                              set_left_elbow_position,
-                              set_left_elbow_velocity,
-                              get_left_elbow_position,
-                              &left_elbow);
-    scara_set_wrist_callbacks(&left_arm,
-                              set_left_wrist_position,
-                              set_left_wrist_velocity,
-                              get_left_wrist_position,
-                              &left_wrist);
+    scara_set_z_callbacks(&left_arm, set_motor_position, get_motor_position, &left_z);
+    scara_set_shoulder_callbacks(&left_arm, set_motor_position, set_motor_velocity, get_motor_position, &left_shoulder);
+    scara_set_elbow_callbacks(&left_arm, set_motor_position, set_motor_velocity, get_motor_position, &left_elbow);
+    scara_set_wrist_callbacks(&left_arm, set_motor_position, set_motor_velocity, get_motor_position, &left_wrist);
 
     scara_set_related_robot_pos(&left_arm, &robot.pos);
 
@@ -62,27 +50,15 @@ void arms_init(void)
 
     /* Configure right arm */
     scara_init(&right_arm);
-    static cvra_arm_motor_t right_z = {.m = &motor_manager, .direction = 1, .index = 0};
-    static cvra_arm_motor_t right_shoulder = {.m = &motor_manager, .direction = -1, .index = 0};
-    static cvra_arm_motor_t right_elbow = {.m = &motor_manager, .direction = -1, .index = 0};
-    static cvra_arm_motor_t right_wrist = {.m = &motor_manager, .direction = 1, .index = 0};
+    cvra_arm_motor_t right_z = {.m = get_motor_driver(&motor_manager, "right-z"), .direction = 1, .index = 0};
+    cvra_arm_motor_t right_shoulder = {.m = get_motor_driver(&motor_manager, "right-shoulder"), .direction = -1, .index = 0};
+    cvra_arm_motor_t right_elbow = {.m = get_motor_driver(&motor_manager, "right-elbow"), .direction = -1, .index = 0};
+    cvra_arm_motor_t right_wrist = {.m = get_motor_driver(&motor_manager, "right-wrist"), .direction = 1, .index = 0};
 
-    scara_set_z_callbacks(&right_arm, set_right_z_position, get_right_z_position, &right_z);
-    scara_set_shoulder_callbacks(&right_arm,
-                                 set_right_shoulder_position,
-                                 set_right_shoulder_velocity,
-                                 get_right_shoulder_position,
-                                 &right_shoulder);
-    scara_set_elbow_callbacks(&right_arm,
-                              set_right_elbow_position,
-                              set_right_elbow_velocity,
-                              get_right_elbow_position,
-                              &right_elbow);
-    scara_set_wrist_callbacks(&right_arm,
-                              set_right_wrist_position,
-                              set_right_wrist_velocity,
-                              get_right_wrist_position,
-                              &right_wrist);
+    scara_set_z_callbacks(&right_arm, set_motor_position, get_motor_position, &right_z);
+    scara_set_shoulder_callbacks(&right_arm, set_motor_position, set_motor_velocity, get_motor_position, &right_shoulder);
+    scara_set_elbow_callbacks(&right_arm, set_motor_position, set_motor_velocity, get_motor_position, &right_elbow);
+    scara_set_wrist_callbacks(&right_arm, set_motor_position, set_motor_velocity, get_motor_position, &right_wrist);
 
     scara_set_related_robot_pos(&right_arm, &robot.pos);
 
