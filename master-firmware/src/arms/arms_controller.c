@@ -204,7 +204,7 @@ void arms_auto_index(cvra_arm_motor_t** motors, float* motor_speeds, size_t num_
     uint32_t index_counts[num_motors];
     for (size_t i = 0; i < num_motors; i++) {
         motor_finished[i] = false;
-        motors[i]->index = 0.;
+        motors[i]->index = 0.f;
         index_counts[i] = drivers[i]->stream.value_stream_index_update_count;
         set_motor_velocity(motors[i], - motors[i]->direction * motor_speeds[i]);
         NOTICE("Moving %s axis...", motors[i]->id);
@@ -216,7 +216,7 @@ void arms_auto_index(cvra_arm_motor_t** motors, float* motor_speeds, size_t num_
         for (size_t i = 0; i < num_motors; i++) {
             if (!motor_finished[i] && drivers[i]->stream.value_stream_index_update_count != index_counts[i]) {
                 /* Stop motor */
-                set_motor_velocity(motors[i], 0.);
+                set_motor_velocity(motors[i], 0);
 
                 /* Update index */
                 motors[i]->index += motor_driver_get_and_clear_stream_value(drivers[i], MOTOR_STREAM_INDEX);
@@ -256,7 +256,7 @@ void arms_auto_index(cvra_arm_motor_t** motors, float* motor_speeds, size_t num_
         for (size_t i = 0; i < num_motors; i++) {
             if (!motor_finished[i] && drivers[i]->stream.value_stream_index_update_count != index_counts[i]) {
                 /* Stop motor */
-                set_motor_velocity(motors[i], 0.);
+                set_motor_velocity(motors[i], 0);
 
                 /* Update index */
                 motors[i]->index += motor_driver_get_and_clear_stream_value(drivers[i], MOTOR_STREAM_INDEX);
@@ -274,6 +274,7 @@ void arms_auto_index(cvra_arm_motor_t** motors, float* motor_speeds, size_t num_
     /* Compute index */
     for (size_t i = 0; i < num_motors; i++) {
         motors[i]->index *= 0.5;
+        NOTICE("Motor %s index %.3f", motors[i]->id, motors[i]->index);
     }
 
     /* Disable index stream over CAN */
@@ -312,7 +313,7 @@ void arms_wrist_auto_index(cvra_arm_wrist_t** wrists, float* heading_speeds, flo
     /* Start moving in forward direction */
     for (size_t i = 0; i < num_wrists; i++) {
         wrist_finished[i] = false;
-        wrists[i]->pitch_index = 0.;
+        wrists[i]->pitch_index = 0.f;
         index_counts[i] = drivers_down[i]->stream.value_stream_index_update_count;
         set_wrist_velocity(wrists[i], 0, - pitch_speeds[i]);
         NOTICE("Moving %s / %s axis...", wrists[i]->up, wrists[i]->down);
@@ -384,7 +385,7 @@ void arms_wrist_auto_index(cvra_arm_wrist_t** wrists, float* heading_speeds, flo
     /* Start moving in forward direction */
     for (size_t i = 0; i < num_wrists; i++) {
         wrist_finished[i] = false;
-        wrists[i]->heading_index = 0.;
+        wrists[i]->heading_index = 0.f;
         index_counts[i] = drivers_up[i]->stream.value_stream_index_update_count;
         set_wrist_velocity(wrists[i], - heading_speeds[i], 0);
         NOTICE("Moving %s / %s axis...", wrists[i]->up, wrists[i]->down);
@@ -455,6 +456,7 @@ void arms_wrist_auto_index(cvra_arm_wrist_t** wrists, float* heading_speeds, flo
     for (size_t i = 0; i < num_wrists; i++) {
         wrists[i]->pitch_index *= 0.5;
         wrists[i]->heading_index *= 0.5;
+        NOTICE("Wrist %d  pitch index %.3f heading index %.3f", i, wrists[i]->pitch_index, wrists[i]->heading_index);
     }
 
     /* Disable index stream over CAN */
