@@ -1106,7 +1106,7 @@ static void cmd_wrist_offset(BaseSequentialStream *chp, int argc, char *argv[])
         arm = &right_arm;
     }
 
-    scara_set_wrist_offset(arm, offset);
+    scara_set_wrist_heading_offset(arm, offset);
 
     chprintf(chp, "Set %s wrist offset to %f\r\n", argv[0], offset);
 }

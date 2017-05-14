@@ -244,14 +244,9 @@ struct IndexArms : public goap::Action<DebraState> {
     {
         NOTICE("Indexing arms!");
 
+        /* Z axis indexing */
         cvra_arm_motor_t left_z = {.m = get_motor_driver(&motor_manager, "left-z"), .direction = -1, .index = 0};
         cvra_arm_motor_t right_z = {.m = get_motor_driver(&motor_manager, "right-z"), .direction = -1, .index = 0};
-
-        cvra_arm_motor_t left_shoulder = {.m = get_motor_driver(&motor_manager, "left-shoulder"), .direction = 1, .index = 0};
-        cvra_arm_motor_t left_elbow = {.m = get_motor_driver(&motor_manager, "left-elbow"), .direction = 1, .index = 0};
-        cvra_arm_motor_t right_shoulder = {.m = get_motor_driver(&motor_manager, "right-shoulder"), .direction = -1, .index = 0};
-        cvra_arm_motor_t right_elbow = {.m = get_motor_driver(&motor_manager, "right-elbow"), .direction = -1, .index = 0};
-
         cvra_arm_motor_t* z_motors[] = {
             &left_z,
             &right_z,
@@ -262,6 +257,11 @@ struct IndexArms : public goap::Action<DebraState> {
         z_motors[0]->index += config_get_scalar("master/arms/motor_offsets/left-z");
         z_motors[1]->index += config_get_scalar("master/arms/motor_offsets/right-z");
 
+        /* Arm indexing */
+        cvra_arm_motor_t left_shoulder = {.m = get_motor_driver(&motor_manager, "left-shoulder"), .direction = 1, .index = 0};
+        cvra_arm_motor_t left_elbow = {.m = get_motor_driver(&motor_manager, "left-elbow"), .direction = 1, .index = 0};
+        cvra_arm_motor_t right_shoulder = {.m = get_motor_driver(&motor_manager, "right-shoulder"), .direction = -1, .index = 0};
+        cvra_arm_motor_t right_elbow = {.m = get_motor_driver(&motor_manager, "right-elbow"), .direction = -1, .index = 0};
         cvra_arm_motor_t* motors[] = {
             &left_shoulder,
             &left_elbow,
@@ -275,6 +275,25 @@ struct IndexArms : public goap::Action<DebraState> {
         motors[1]->index += config_get_scalar("master/arms/motor_offsets/left-elbow");
         motors[2]->index += config_get_scalar("master/arms/motor_offsets/right-shoulder");
         motors[3]->index += config_get_scalar("master/arms/motor_offsets/right-elbow");
+
+        /* Wrist indexing */
+        cvra_arm_wrist_t left_wrist = {
+            .up = get_motor_driver(&motor_manager, "left-wrist-up"),
+            .down = get_motor_driver(&motor_manager, "left-wrist-down"),
+            .up_direction = -1,
+            .down_direction = -1,
+            .heading_index = 0,
+            .pitch_index = 0,
+        };
+        cvra_arm_wrist_t* wrists[] = {
+            &left_wrist,
+        };
+        float heading_speeds[] = {10.0};
+        float pitch_speeds[] = {4.0};
+        arms_wrist_auto_index(wrists, heading_speeds, pitch_speeds, sizeof(heading_speeds) / sizeof(float));
+
+        wrists[0]->heading_index += config_get_scalar("master/arms/motor_offsets/left-wrist-heading");
+        wrists[0]->pitch_index += config_get_scalar("master/arms/motor_offsets/left-wrist-pitch");
 
         state.arms_are_indexed = true;
         return true;
