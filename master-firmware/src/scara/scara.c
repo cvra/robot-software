@@ -208,9 +208,9 @@ void scara_manage(scara_t *arm)
     if (arm->kinematics_solution_count == 0) {
         arm->last_loop = current_date;
 
-        arm->set_shoulder_position(arm->shoulder_args, 0);
-        arm->set_elbow_position(arm->elbow_args, 0);
-        arm->set_wrist_position(arm->wrist_args, 0, 0);
+        arm->set_shoulder_velocity(arm->shoulder_args, 0);
+        arm->set_elbow_velocity(arm->elbow_args, 0);
+        arm->set_wrist_velocity(arm->wrist_args, 0, 0);
 
         chMtxUnlock(&arm->lock);
         return;
