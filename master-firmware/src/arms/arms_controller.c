@@ -43,7 +43,8 @@ void arms_init(void)
     static cvra_arm_motor_t left_elbow = {.id = "left-elbow", .direction = -1, .index = 0};
     static cvra_arm_wrist_t left_wrist = {
         .up = "left-wrist-up", .down = "left-wrist-down",
-        .up_direction = 1, .down_direction = 1,
+        .up_direction = 1, .down_direction = -1,
+        .heading_ratio = 6.f, .pitch_ratio = 3.f,
         .heading_index = 0, .pitch_index = 0,
     };
 

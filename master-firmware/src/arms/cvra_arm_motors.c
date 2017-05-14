@@ -41,8 +41,10 @@ void set_wrist_position(void* wrist, float heading, float pitch)
     motor_driver_t* driver_up = get_motor_driver(dev->up);
     motor_driver_t* driver_down = get_motor_driver(dev->down);
 
-    float up = 0.5 * ((heading + dev->heading_index) + (pitch + dev->pitch_index));
-    float down = 0.5 * ((heading + dev->heading_index) - (pitch + dev->pitch_index));
+    float up = (heading + dev->heading_index) * dev->heading_ratio
+               + (pitch + dev->pitch_index) * dev->pitch_ratio;
+    float down = - (heading + dev->heading_index) * dev->heading_ratio
+                 + (pitch + dev->pitch_index) * dev->pitch_ratio;
 
     motor_driver_set_position(driver_up, dev->up_direction * up);
     motor_driver_set_position(driver_down, dev->down_direction * down);
@@ -54,8 +56,8 @@ void set_wrist_velocity(void* wrist, float heading, float pitch)
     motor_driver_t* driver_up = get_motor_driver(dev->up);
     motor_driver_t* driver_down = get_motor_driver(dev->down);
 
-    float up = 0.5 * (heading + pitch);
-    float down = 0.5 * (heading - pitch);
+    float up = heading * dev->heading_ratio + pitch * dev->pitch_ratio;
+    float down = - heading * dev->heading_ratio + pitch * dev->pitch_ratio;
 
     motor_driver_set_velocity(driver_up, dev->up_direction * up);
     motor_driver_set_velocity(driver_down, dev->down_direction * down);
@@ -70,6 +72,8 @@ void get_wrist_position(void* wrist, float* heading, float* pitch)
     float up = dev->up_direction * motor_driver_get_and_clear_stream_value(driver_up, MOTOR_STREAM_POSITION);
     float down = dev->down_direction * motor_driver_get_and_clear_stream_value(driver_down, MOTOR_STREAM_POSITION);
 
-    *heading = up + down - dev->heading_index;
-    *pitch = up - down - dev->pitch_index;
+    *heading = 0.5 * (up - down - dev->heading_index) / dev->heading_ratio;
+    *pitch = 0.5 * (up + down - dev->pitch_index) / dev->pitch_ratio;
+
+    NOTICE("Up %.3f Down %.3f Heading %.3f Pitch %.3f", up, down, *heading, *pitch);
 }

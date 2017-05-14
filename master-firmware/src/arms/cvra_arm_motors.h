@@ -16,6 +16,8 @@ typedef struct {
     float up_direction;
     float down_direction;
 
+    float heading_ratio; // Heading to motor angle ratio
+    float pitch_ratio;   // Pitch to motor angle ratio
     float heading_index; // Heading index, wired on up
     float pitch_index;   // Pitch index, wired on down
 } cvra_arm_wrist_t;

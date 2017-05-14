@@ -274,8 +274,8 @@ struct IndexArms : public goap::Action<DebraState> {
         cvra_arm_wrist_t* wrists[] = {
             (cvra_arm_wrist_t *)left_arm.wrist_args,
         };
-        float heading_speeds[] = {10.0};
-        float pitch_speeds[] = {-4.0};
+        float heading_speeds[] = {3.0};
+        float pitch_speeds[] = {-1.0};
         arms_wrist_auto_index(wrists, heading_speeds, pitch_speeds, sizeof(heading_speeds) / sizeof(float));
 
         wrists[0]->heading_index += config_get_scalar("master/arms/motor_offsets/left-wrist-heading");
