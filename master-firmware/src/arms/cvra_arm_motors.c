@@ -73,8 +73,8 @@ void get_wrist_position(void* wrist, float* heading, float* pitch)
     float up = dev->up_direction * motor_driver_get_and_clear_stream_value(driver_up, MOTOR_STREAM_POSITION);
     float down = dev->down_direction * motor_driver_get_and_clear_stream_value(driver_down, MOTOR_STREAM_POSITION);
 
-    *heading = 0.5 * (up - down - dev->heading_index) / dev->heading_ratio;
-    *pitch = 0.5 * (up + down - dev->pitch_index) / dev->pitch_ratio;
+    *heading = 0.5 * (up - down) / dev->heading_ratio - dev->heading_index;
+    *pitch = 0.5 * (up + down) / dev->pitch_ratio - dev->pitch_index;
 
     /* Bring heading between -PI and PI */
     while (*heading >= M_PI) {

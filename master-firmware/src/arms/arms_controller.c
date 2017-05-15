@@ -308,13 +308,15 @@ void arms_wrist_auto_index(cvra_arm_wrist_t** wrists, float* heading_speeds, flo
     bool wrist_finished[num_wrists];
     uint32_t index_counts[num_wrists];
     size_t num_finished;
+    float heading_indexes[num_wrists];
+    float pitch_indexes[num_wrists];
 
     /*** Index pitch ***/
 
     /* Start moving in forward direction */
     for (size_t i = 0; i < num_wrists; i++) {
         wrist_finished[i] = false;
-        wrists[i]->pitch_index = 0.f;
+        pitch_indexes[i] = 0.f;
         index_counts[i] = drivers_down[i]->stream.value_stream_index_update_count;
         set_wrist_velocity(wrists[i], 0, - pitch_speeds[i]);
         NOTICE("Moving %s / %s axis...", wrists[i]->up, wrists[i]->down);
@@ -329,7 +331,9 @@ void arms_wrist_auto_index(cvra_arm_wrist_t** wrists, float* heading_speeds, flo
                 set_wrist_velocity(wrists[i], 0, 0);
 
                 /* Update index */
-                wrists[i]->pitch_index += motor_driver_get_and_clear_stream_value(drivers_down[i], MOTOR_STREAM_INDEX);
+                float heading, pitch;
+                get_wrist_position(wrists[i], &heading, &pitch);
+                pitch_indexes[i] += pitch;
 
                 /* Mark motor as done */
                 wrist_finished[i] = true;
@@ -369,7 +373,9 @@ void arms_wrist_auto_index(cvra_arm_wrist_t** wrists, float* heading_speeds, flo
                 set_wrist_velocity(wrists[i], 0, 0);
 
                 /* Update index */
-                wrists[i]->pitch_index += motor_driver_get_and_clear_stream_value(drivers_down[i], MOTOR_STREAM_INDEX);
+                float heading, pitch;
+                get_wrist_position(wrists[i], &heading, &pitch);
+                pitch_indexes[i] += pitch;
 
                 /* Mark motor as done */
                 wrist_finished[i] = true;
@@ -386,7 +392,7 @@ void arms_wrist_auto_index(cvra_arm_wrist_t** wrists, float* heading_speeds, flo
     /* Start moving in forward direction */
     for (size_t i = 0; i < num_wrists; i++) {
         wrist_finished[i] = false;
-        wrists[i]->heading_index = 0.f;
+        heading_indexes[i] = 0.f;
         index_counts[i] = drivers_up[i]->stream.value_stream_index_update_count;
         set_wrist_velocity(wrists[i], - heading_speeds[i], 0);
         NOTICE("Moving %s / %s axis...", wrists[i]->up, wrists[i]->down);
@@ -401,7 +407,9 @@ void arms_wrist_auto_index(cvra_arm_wrist_t** wrists, float* heading_speeds, flo
                 set_wrist_velocity(wrists[i], 0, 0);
 
                 /* Update index */
-                wrists[i]->heading_index += motor_driver_get_and_clear_stream_value(drivers_up[i], MOTOR_STREAM_INDEX);
+                float heading, pitch;
+                get_wrist_position(wrists[i], &heading, &pitch);
+                heading_indexes[i] += heading;
 
                 /* Mark motor as done */
                 wrist_finished[i] = true;
@@ -441,7 +449,9 @@ void arms_wrist_auto_index(cvra_arm_wrist_t** wrists, float* heading_speeds, flo
                 set_wrist_velocity(wrists[i], 0, 0);
 
                 /* Update index */
-                wrists[i]->heading_index += motor_driver_get_and_clear_stream_value(drivers_up[i], MOTOR_STREAM_INDEX);
+                float heading, pitch;
+                get_wrist_position(wrists[i], &heading, &pitch);
+                heading_indexes[i] += heading;
 
                 /* Mark motor as done */
                 wrist_finished[i] = true;
@@ -455,8 +465,8 @@ void arms_wrist_auto_index(cvra_arm_wrist_t** wrists, float* heading_speeds, flo
 
     /* Compute index */
     for (size_t i = 0; i < num_wrists; i++) {
-        wrists[i]->pitch_index *= 0.5;
-        wrists[i]->heading_index *= 0.5;
+        wrists[i]->pitch_index = 0.5 * pitch_indexes[i];
+        wrists[i]->heading_index = 0.5 * heading_indexes[i];
         NOTICE("Wrist %d  pitch index %.3f heading index %.3f", i, wrists[i]->pitch_index, wrists[i]->heading_index);
     }
 
