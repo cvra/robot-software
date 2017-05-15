@@ -30,7 +30,7 @@ static void motor_driver_send_initial_config(motor_driver_t *d);
 static void motor_driver_uavcan_send_setpoint(motor_driver_t *d);
 
 /** Send new parameters from the global tree to the motor board. */
-static void motor_driver_uavcan_update_config(motor_driver_t *d);
+static int motor_driver_uavcan_update_config(motor_driver_t *d);
 
 /** Logs an error in case the UAVCAN RPC failed.
  *
@@ -110,7 +110,13 @@ int motor_driver_uavcan_init(INode &node)
         motor_manager_get_list(&motor_manager, &drv_list, &drv_list_len);
 
         for (int i = 0; i < drv_list_len; i++) {
-            motor_driver_uavcan_update_config(&drv_list[i]);
+            /* Only update one motor per 50 ms to avoid overloading the bus. */
+            if (motor_driver_uavcan_update_config(&drv_list[i])) {
+                break;
+            }
+        }
+
+        for (int i = 0; i < drv_list_len; i++) {
             motor_driver_uavcan_send_setpoint(&drv_list[i]);
         }
     });
@@ -197,13 +203,17 @@ static void motor_driver_send_initial_config(motor_driver_t *d)
     config_client->call(node_id, config_msg);
 }
 
-static void motor_driver_uavcan_update_config(motor_driver_t *d)
+static int motor_driver_uavcan_update_config(motor_driver_t *d)
 {
-
+    int changed = 0;
     update_motor_can_id(d);
     int node_id = motor_driver_get_can_id(d);
     if (node_id == CAN_ID_NOT_SET) {
-        return;
+        return 0;
+    }
+
+    if (parameter_namespace_contains_changed(&d->config.root)) {
+        changed = 1;
     }
 
     if (parameter_namespace_contains_changed(&d->config.control)) {
@@ -278,6 +288,8 @@ static void motor_driver_uavcan_update_config(motor_driver_t *d)
         // still some changed parameters: need to resend full config
         motor_driver_send_initial_config(d);
     }
+
+    return changed;
 }
 
 static void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
@@ -334,6 +346,6 @@ template<typename T>
 static void assert_call_successful(const ServiceCallResult<T>& call_result)
 {
     if (!call_result.isSuccessful()) {
-        ERROR("uavcan service call timeout");
+        ERROR("uavcan service call timeout %d", call_result.getCallID().server_node_id.get());
     }
 }
