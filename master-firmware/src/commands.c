@@ -561,9 +561,11 @@ static void cmd_pid_tune(BaseSequentialStream *chp, int argc, char *argv[])
         "master/right_arm/control/x",
         "master/right_arm/control/y",
         "master/right_arm/control/heading",
+        "master/right_arm/control/pitch",
         "master/left_arm/control/x",
         "master/left_arm/control/y",
         "master/left_arm/control/heading",
+        "master/left_arm/control/pitch",
     };
     const size_t extra_len = sizeof(extra)/sizeof(char *);
     for (i = 0; i < extra_len; i++) {

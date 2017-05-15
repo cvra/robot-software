@@ -61,7 +61,7 @@ static struct {
             parameter_t ki;
             parameter_t kd;
             parameter_t ilimit;
-        } x, y, heading;
+        } x, y, heading, pitch;
     } control;
 } left_arm, right_arm;
 #endif
@@ -199,6 +199,11 @@ void config_init(void)
     parameter_scalar_declare(&left_arm.control.heading.ki, &left_arm.control.heading.ns, "ki");
     parameter_scalar_declare(&left_arm.control.heading.kd, &left_arm.control.heading.ns, "kd");
     parameter_scalar_declare(&left_arm.control.heading.ilimit, &left_arm.control.heading.ns, "ilimit");
+    parameter_namespace_declare(&left_arm.control.pitch.ns, &left_arm.control.ns, "pitch");
+    parameter_scalar_declare(&left_arm.control.pitch.kp, &left_arm.control.pitch.ns, "kp");
+    parameter_scalar_declare(&left_arm.control.pitch.ki, &left_arm.control.pitch.ns, "ki");
+    parameter_scalar_declare(&left_arm.control.pitch.kd, &left_arm.control.pitch.ns, "kd");
+    parameter_scalar_declare(&left_arm.control.pitch.ilimit, &left_arm.control.pitch.ns, "ilimit");
 
     parameter_namespace_declare(&right_arm.ns, &master_config, "right_arm");
     parameter_namespace_declare(&right_arm.control.ns, &right_arm.ns, "control");
@@ -217,6 +222,11 @@ void config_init(void)
     parameter_scalar_declare(&right_arm.control.heading.ki, &right_arm.control.heading.ns, "ki");
     parameter_scalar_declare(&right_arm.control.heading.kd, &right_arm.control.heading.ns, "kd");
     parameter_scalar_declare(&right_arm.control.heading.ilimit, &right_arm.control.heading.ns, "ilimit");
+    parameter_namespace_declare(&right_arm.control.pitch.ns, &right_arm.control.ns, "pitch");
+    parameter_scalar_declare(&right_arm.control.pitch.kp, &right_arm.control.pitch.ns, "kp");
+    parameter_scalar_declare(&right_arm.control.pitch.ki, &right_arm.control.pitch.ns, "ki");
+    parameter_scalar_declare(&right_arm.control.pitch.kd, &right_arm.control.pitch.ns, "kd");
+    parameter_scalar_declare(&right_arm.control.pitch.ilimit, &right_arm.control.pitch.ns, "ilimit");
 #endif
 }
 

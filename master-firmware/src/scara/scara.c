@@ -286,7 +286,7 @@ void scara_manage(scara_t *arm)
         arm->set_z_position(arm->z_args, frame.position[2]);
         arm->set_shoulder_velocity(arm->shoulder_args, velocity_alpha);
         arm->set_elbow_velocity(arm->elbow_args, velocity_beta);
-        arm->set_wrist_velocity(arm->wrist_args, velocity_gamma, 0);
+        arm->set_wrist_velocity(arm->wrist_args, velocity_gamma, velocity_delta);
     } else {
         /* Set motor positions */
         arm->set_z_position(arm->z_args, frame.position[2]);
