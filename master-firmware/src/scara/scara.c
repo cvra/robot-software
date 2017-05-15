@@ -269,21 +269,30 @@ void scara_manage(scara_t *arm)
                                frame.length[0], frame.length[1], frame.length[2],
                                &velocity_alpha, &velocity_beta, &velocity_gamma, &velocity_delta);
 
-        DEBUG("Arm x %.3f y %.3f a %.3f p %.3f Arm velocities %.3f %.3f %.3f %.3f",
-              measured_x, measured_y, measured_a, arm->wrist_pitch_pos,
+        scara_pos_with_length(arm,
+                              &measured_x,
+                              &measured_y,
+                              &measured_z,
+                              &measured_a,
+                              &measured_p,
+                              frame.coordinate_type,
+                              frame.length[2]);
+
+        NOTICE("Arm x %.3f y %.3f a %.3f p %.3f Arm velocities %.3f %.3f %.3f %.3f",
+              measured_x, measured_y, measured_a, measured_p,
               velocity_alpha, velocity_beta, velocity_gamma, velocity_delta);
 
         /* Set motor commands */
         arm->set_z_position(arm->z_args, frame.position[2]);
         arm->set_shoulder_velocity(arm->shoulder_args, velocity_alpha);
         arm->set_elbow_velocity(arm->elbow_args, velocity_beta);
-        arm->set_wrist_velocity(arm->wrist_args, velocity_gamma, velocity_delta);
+        arm->set_wrist_velocity(arm->wrist_args, velocity_gamma, 0);
     } else {
         /* Set motor positions */
         arm->set_z_position(arm->z_args, frame.position[2]);
         arm->set_shoulder_position(arm->shoulder_args, alpha);
         arm->set_elbow_position(arm->elbow_args, beta);
-        arm->set_wrist_position(arm->wrist_args, gamma + arm->wrist_heading_offset, 0);
+        arm->set_wrist_velocity(arm->wrist_args, 0, 0);
     }
 
     /* Unlock */
