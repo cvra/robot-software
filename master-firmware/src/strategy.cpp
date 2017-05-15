@@ -740,7 +740,6 @@ void strategy_debra_play_game(void)
         hand_set_finger(&right_hand, i, FINGER_RETRACTED);
     }
 
-    wait_for_autoposition_signal();
     NOTICE("Getting arms ready...");
     len = planner.plan(state, init_goal, path, max_path_len);
     for (int i = 0; i < len; i++) {
