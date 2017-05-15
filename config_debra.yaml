@@ -51,19 +51,24 @@ master:
     left_arm:
         control:
             x:
-                kp: 10.
+                kp: 5.
                 ki: 0.
-                kd: 5.
+                kd: 5
                 ilimit: 100.
             y:
-                kp: 10.
+                kp: 5.
                 ki: 0.
-                kd: 5.
+                kd: 5
                 ilimit: 100.
             heading:
-                kp: 50.
+                kp: 10.
                 ki: 0.
-                kd: 250.
+                kd: 0.
+                ilimit: 100.
+            pitch:
+                kp: 0.
+                ki: 0.
+                kd: 0.
                 ilimit: 100.
     right_arm:
         control:
@@ -82,9 +87,14 @@ master:
                 ki: 0.
                 kd: 100.
                 ilimit: 100.
+            pitch:
+                kp: 10.
+                ki: 0.
+                kd: 0.
+                ilimit: 100.
     arms:
         upperarm_length: 86. # in mm
-        forearm_length: 72. # in mm
+        forearm_length: 43. # in mm
         wrist_to_hand_length: 55. # in mm
         left:
             offset_x: 0.   # in mm
@@ -98,11 +108,13 @@ master:
             left-z: -207. # in mm
             left-shoulder: 0. # in radians
             left-elbow: 0. # in radians
-            left-wrist: 0. # in radians
+            left-wrist-heading: 0. # in radians
+            left-wrist-pitch: 0. # in radians
             right-z: -205. # in mm
             right-shoulder: 0. # in radians
             right-elbow: 0. # in radians
-            right-wrist: 0. # in radians
+            right-wrist-heading: 0. # in radians
+            right-wrist-pitch: 0. # in radians
 
 actuator:
     left-wheel:
@@ -282,7 +294,7 @@ actuator:
             acceleration_limit: 100.
             velocity_limit: 10.
             torque_limit: 3
-    left-wrist:
+    left-wrist-down:
         stream:
             current_pid: 0
             velocity_pid: 0
@@ -290,35 +302,72 @@ actuator:
             motor_pos: 50
             index: 0
         motor:
-            # motor: 1516SR
-            mode: 2 # periodic
-            motor_encoder_steps_per_revolution: 4096
-            # transmission: motor: 1/76 gears: 20/50
+            # motor: 1524E012SR IE-512
+            mode: 3 # bounded
+            motor_encoder_steps_per_revolution: 2048
+            # transmission: motor: 1/76
             transmission_ratio_p: 1
-            transmission_ratio_q: 190
+            transmission_ratio_q: 76
             torque_constant: 0.0115 # Nm/A
         control:
             current:
-                kp: 30.
-                ki: 5000.
+                kp: 22.
+                ki: 4000.
                 kd: 0.
                 ilimit: 100.
 
             velocity:
-                kp: 0.5
-                ki: 0.8
+                kp: 0.2
+                ki: 0.5
                 kd: 0.
-                ilimit: 0.13
+                ilimit: 0.1
             position:
-                kp: 6
+                kp: 5.
                 ki: 1.
-                kd: 2.
+                kd: 0.
+                ilimit: 10.
 
             low_batt_th: 12
             acceleration_limit: 100.
-            velocity_limit: 8.
+            velocity_limit: 10
             torque_limit: 1.3
+    left-wrist-up:
+        stream:
+            current_pid: 0
+            velocity_pid: 0
+            position_pid: 0
+            motor_pos: 50
+            index: 0
+        motor:
+            # motor: 1524E012SR IE-512
+            mode: 3 # bounded
+            motor_encoder_steps_per_revolution: 2048
+            # transmission: motor: 1/76
+            transmission_ratio_p: 1
+            transmission_ratio_q: 76
+            torque_constant: 0.0115 # Nm/A
+        control:
+            current:
+                kp: 22.
+                ki: 4000.
+                kd: 0.
+                ilimit: 100.
 
+            velocity:
+                kp: 0.2
+                ki: 0.5
+                kd: 0.
+                ilimit: 0.1
+            position:
+                kp: 5.
+                ki: 1.
+                kd: 0.
+                ilimit: 10.
+
+            low_batt_th: 12
+            acceleration_limit: 100.
+            velocity_limit: 10
+            torque_limit: 1.3
     right-z:
         stream:
             current_pid: 0

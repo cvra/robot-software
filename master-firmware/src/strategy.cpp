@@ -244,28 +244,42 @@ struct IndexArms : public goap::Action<DebraState> {
     {
         NOTICE("Indexing arms!");
 
-        const char* z_names[2] = {"left-z", "right-z"};
-        int z_dirs[2] = {-1, -1};
-        float z_speeds[2] = {20, 20};
-        float z_indexes[2];
-        arms_auto_index(z_names, z_dirs, z_speeds, 2, z_indexes);
+        /* Z axis indexing */
+        cvra_arm_motor_t* z_motors[] = {
+            (cvra_arm_motor_t *)left_arm.z_args,
+            (cvra_arm_motor_t *)right_arm.z_args,
+        };
+        float z_speeds[] = {-20, -20};
+        arms_auto_index(z_motors, z_speeds, sizeof(z_speeds) / sizeof(float));
 
-        arms_set_motor_index(left_arm.z_args, z_indexes[0] + config_get_scalar("master/arms/motor_offsets/left-z"));
-        arms_set_motor_index(right_arm.z_args, z_indexes[1] + config_get_scalar("master/arms/motor_offsets/right-z"));
+        z_motors[0]->index += config_get_scalar("master/arms/motor_offsets/left-z");
+        z_motors[1]->index += config_get_scalar("master/arms/motor_offsets/right-z");
 
-        const char* motor_names[6] = {"left-shoulder", "left-elbow", "left-wrist", "right-shoulder", "right-elbow", "right-wrist"};
-        int motor_dirs[6] = {1, 1, 1, -1, -1, -1};
-        float motor_speeds[6] = {0.8, 0.8, 2.0, 0.8, 0.8, 2.0};
-        float motor_indexes[6];
-        arms_auto_index(motor_names, motor_dirs, motor_speeds, 6, motor_indexes);
+        /* Arm indexing */
+        cvra_arm_motor_t* motors[] = {
+            (cvra_arm_motor_t *)left_arm.shoulder_args,
+            (cvra_arm_motor_t *)left_arm.elbow_args,
+            (cvra_arm_motor_t *)right_arm.shoulder_args,
+            (cvra_arm_motor_t *)right_arm.elbow_args,
+        };
+        float motor_speeds[] = {0.8, 0.8, -0.8, -0.8};
+        arms_auto_index(motors, motor_speeds, sizeof(motor_speeds) / sizeof(float));
 
-        arms_set_motor_index(left_arm.shoulder_args, motor_indexes[0] + config_get_scalar("master/arms/motor_offsets/left-shoulder"));
-        arms_set_motor_index(left_arm.elbow_args, motor_indexes[1] + config_get_scalar("master/arms/motor_offsets/left-elbow"));
-        arms_set_motor_index(left_arm.wrist_args, motor_indexes[2] + config_get_scalar("master/arms/motor_offsets/left-wrist"));
+        motors[0]->index += config_get_scalar("master/arms/motor_offsets/left-shoulder");
+        motors[1]->index += config_get_scalar("master/arms/motor_offsets/left-elbow");
+        motors[2]->index += config_get_scalar("master/arms/motor_offsets/right-shoulder");
+        motors[3]->index += config_get_scalar("master/arms/motor_offsets/right-elbow");
 
-        arms_set_motor_index(right_arm.shoulder_args, motor_indexes[3] + config_get_scalar("master/arms/motor_offsets/right-shoulder"));
-        arms_set_motor_index(right_arm.elbow_args, motor_indexes[4] + config_get_scalar("master/arms/motor_offsets/right-elbow"));
-        arms_set_motor_index(right_arm.wrist_args, motor_indexes[5] + config_get_scalar("master/arms/motor_offsets/right-wrist"));
+        /* Wrist indexing */
+        cvra_arm_wrist_t* wrists[] = {
+            (cvra_arm_wrist_t *)left_arm.wrist_args,
+        };
+        float heading_speeds[] = {3.0};
+        float pitch_speeds[] = {-1.0};
+        arms_wrist_auto_index(wrists, heading_speeds, pitch_speeds, sizeof(heading_speeds) / sizeof(float));
+
+        wrists[0]->heading_index += config_get_scalar("master/arms/motor_offsets/left-wrist-heading");
+        wrists[0]->pitch_index += config_get_scalar("master/arms/motor_offsets/left-wrist-pitch");
 
         state.arms_are_indexed = true;
         return true;
@@ -347,7 +361,7 @@ struct CollectRocketCylinders : public goap::Action<DebraState> {
         // Collect rocket cylinder
         for (int i = 0; i < 2; i++) {
             // Select tool
-            scara_set_wrist_offset(arm, RADIANS(- i * 90));
+            scara_set_wrist_heading_offset(arm, RADIANS(- i * 90));
 
             // Prepare arm
             arm_waypoint_t prepare_pickup_traj[2] = {
@@ -389,7 +403,7 @@ struct CollectRocketCylinders : public goap::Action<DebraState> {
         }
 
         // Reset wrist offset
-        scara_set_wrist_offset(arm, RADIANS(0));
+        scara_set_wrist_heading_offset(arm, RADIANS(0));
 
         state.cylinder_count += 2;
         state.arms_are_deployed = true;
@@ -433,7 +447,7 @@ struct DepositRocketCylinders : public goap::Action<DebraState> {
         // Collect rocket cylinder
         for (int i = 0; i < 2; i++) {
             // Select tool
-            scara_set_wrist_offset(arm, RADIANS(- i * 90));
+            scara_set_wrist_heading_offset(arm, RADIANS(- i * 90));
 
             // Go above cylinder level
             scara_move_z(arm, 160, COORDINATE_ROBOT, 0.5);
@@ -566,7 +580,7 @@ struct CollectCylinder : public goap::Action<DebraState> {
         hand_t* hand = mirror_right_hand(m_color);
 
         // Select tool
-        scara_set_wrist_offset(arm, RADIANS(0));
+        scara_set_wrist_heading_offset(arm, RADIANS(0));
 
         // Go above cylinder
         scara_move_z(arm, 160, COORDINATE_ROBOT, 0.5);
@@ -636,7 +650,7 @@ struct DepositCylinder : public goap::Action<DebraState> {
         hand_t* hand = mirror_right_hand(m_color);
 
         // Select tool
-        scara_set_wrist_offset(arm, RADIANS(0));
+        scara_set_wrist_heading_offset(arm, RADIANS(0));
 
         // Go to construction area
         if (!strategy_goto_avoid(MIRROR_X(m_color, 250), 900, MIRROR_A(m_color, 180), TRAJ_FLAGS_ALL)) {
@@ -726,7 +740,6 @@ void strategy_debra_play_game(void)
         hand_set_finger(&right_hand, i, FINGER_RETRACTED);
     }
 
-    wait_for_autoposition_signal();
     NOTICE("Getting arms ready...");
     len = planner.plan(state, init_goal, path, max_path_len);
     for (int i = 0; i < len; i++) {

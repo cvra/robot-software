@@ -10,7 +10,6 @@
 #include "base/base_controller.h"
 #include "can/hand_driver.h"
 
-#include "cvra_arm_motors.h"
 #include "arms_controller.h"
 
 
@@ -23,31 +22,36 @@ scara_t right_arm;
 hand_t left_hand;
 hand_t right_hand;
 
+
+static void set_index_stream_frequency(char* motor, float freq)
+{
+    motor_driver_t* driver = get_motor_driver(motor);
+
+    if (parameter_defined(&(driver->config.index_stream))) {
+        parameter_scalar_set(&(driver->config.index_stream), freq);
+    } else {
+        ERROR("Undefined motor %s", motor);
+    }
+}
+
 void arms_init(void)
 {
     /* Configure left arm */
     scara_init(&left_arm);
-    static cvra_arm_motor_t left_z = {.m = &motor_manager, .direction = 1, .index = 0};
-    static cvra_arm_motor_t left_shoulder = {.m = &motor_manager, .direction = -1, .index = 0};
-    static cvra_arm_motor_t left_elbow = {.m = &motor_manager, .direction = -1, .index = 0};
-    static cvra_arm_motor_t left_wrist = {.m = &motor_manager, .direction = 1, .index = 0};
+    static cvra_arm_motor_t left_z = {.id = "left-z", .direction = 1, .index = 0};
+    static cvra_arm_motor_t left_shoulder = {.id = "left-shoulder", .direction = -1, .index = 0};
+    static cvra_arm_motor_t left_elbow = {.id = "left-elbow", .direction = -1, .index = 0};
+    static cvra_arm_wrist_t left_wrist = {
+        .up = "left-wrist-up", .down = "left-wrist-down",
+        .up_direction = 1, .down_direction = -1,
+        .heading_ratio = 6.f, .pitch_ratio = 3.f,
+        .heading_index = 0, .pitch_index = 0,
+    };
 
-    scara_set_z_callbacks(&left_arm, set_left_z_position, get_left_z_position, &left_z);
-    scara_set_shoulder_callbacks(&left_arm,
-                                 set_left_shoulder_position,
-                                 set_left_shoulder_velocity,
-                                 get_left_shoulder_position,
-                                 &left_shoulder);
-    scara_set_elbow_callbacks(&left_arm,
-                              set_left_elbow_position,
-                              set_left_elbow_velocity,
-                              get_left_elbow_position,
-                              &left_elbow);
-    scara_set_wrist_callbacks(&left_arm,
-                              set_left_wrist_position,
-                              set_left_wrist_velocity,
-                              get_left_wrist_position,
-                              &left_wrist);
+    scara_set_z_callbacks(&left_arm, set_motor_position, get_motor_position, &left_z);
+    scara_set_shoulder_callbacks(&left_arm, set_motor_position, set_motor_velocity, get_motor_position, &left_shoulder);
+    scara_set_elbow_callbacks(&left_arm, set_motor_position, set_motor_velocity, get_motor_position, &left_elbow);
+    scara_set_wrist_callbacks(&left_arm, set_wrist_position, set_wrist_velocity, get_wrist_position, &left_wrist);
 
     scara_set_related_robot_pos(&left_arm, &robot.pos);
 
@@ -62,27 +66,15 @@ void arms_init(void)
 
     /* Configure right arm */
     scara_init(&right_arm);
-    static cvra_arm_motor_t right_z = {.m = &motor_manager, .direction = 1, .index = 0};
-    static cvra_arm_motor_t right_shoulder = {.m = &motor_manager, .direction = -1, .index = 0};
-    static cvra_arm_motor_t right_elbow = {.m = &motor_manager, .direction = -1, .index = 0};
-    static cvra_arm_motor_t right_wrist = {.m = &motor_manager, .direction = 1, .index = 0};
+    static cvra_arm_motor_t right_z = {.id = "right-z", .direction = 1, .index = 0};
+    static cvra_arm_motor_t right_shoulder = {.id = "right-shoulder", .direction = -1, .index = 0};
+    static cvra_arm_motor_t right_elbow = {.id = "right-elbow", .direction = -1, .index = 0};
+    // static cvra_arm_motor_t right_wrist = {.id = "right-wrist", .direction = 1, .index = 0};
 
-    scara_set_z_callbacks(&right_arm, set_right_z_position, get_right_z_position, &right_z);
-    scara_set_shoulder_callbacks(&right_arm,
-                                 set_right_shoulder_position,
-                                 set_right_shoulder_velocity,
-                                 get_right_shoulder_position,
-                                 &right_shoulder);
-    scara_set_elbow_callbacks(&right_arm,
-                              set_right_elbow_position,
-                              set_right_elbow_velocity,
-                              get_right_elbow_position,
-                              &right_elbow);
-    scara_set_wrist_callbacks(&right_arm,
-                              set_right_wrist_position,
-                              set_right_wrist_velocity,
-                              get_right_wrist_position,
-                              &right_wrist);
+    scara_set_z_callbacks(&right_arm, set_motor_position, get_motor_position, &right_z);
+    scara_set_shoulder_callbacks(&right_arm, set_motor_position, set_motor_velocity, get_motor_position, &right_shoulder);
+    scara_set_elbow_callbacks(&right_arm, set_motor_position, set_motor_velocity, get_motor_position, &right_elbow);
+    // scara_set_wrist_callbacks(&right_arm, set_motor_position, set_motor_velocity, get_motor_position, &right_wrist);
 
     scara_set_related_robot_pos(&right_arm, &robot.pos);
 
@@ -102,16 +94,6 @@ void arms_init(void)
     /* Configure right hand */
     hand_init(&right_hand);
     hand_set_fingers_callbacks(&right_hand, hand_driver_set_right_fingers);
-
-    /* Configure left arm controllers */
-    pid_init(&left_arm.x_pid);
-    pid_init(&left_arm.y_pid);
-    pid_init(&left_arm.heading_pid);
-
-    /* Configure right arm controllers */
-    pid_init(&right_arm.x_pid);
-    pid_init(&right_arm.y_pid);
-    pid_init(&right_arm.heading_pid);
 }
 
 float arms_motor_auto_index(const char* motor_name, int motor_dir, float motor_speed)
@@ -148,6 +130,13 @@ static void arms_update_controller_gains(parameter_namespace_t* ns, scara_t* arm
     ilim = parameter_scalar_get(parameter_find(ns, "heading/ilimit"));
     pid_set_gains(&arm->heading_pid, kp, ki, kd);
     pid_set_integral_limit(&arm->heading_pid, ilim);
+
+    kp = parameter_scalar_get(parameter_find(ns, "pitch/kp"));
+    ki = parameter_scalar_get(parameter_find(ns, "pitch/ki"));
+    kd = parameter_scalar_get(parameter_find(ns, "pitch/kd"));
+    ilim = parameter_scalar_get(parameter_find(ns, "pitch/ilimit"));
+    pid_set_gains(&arm->pitch_pid, kp, ki, kd);
+    pid_set_integral_limit(&arm->pitch_pid, ilim);
 }
 
 static THD_FUNCTION(arms_ctrl_thd, arg)
@@ -170,7 +159,7 @@ static THD_FUNCTION(arms_ctrl_thd, arg)
         }
 
         scara_manage(&left_arm);
-        scara_manage(&right_arm);
+        // scara_manage(&right_arm);
 
         if (left_arm.kinematics_solution_count == 0) {
             palSetPad(GPIOF, GPIOF_LED_ERROR);
@@ -178,11 +167,11 @@ static THD_FUNCTION(arms_ctrl_thd, arg)
             palClearPad(GPIOF, GPIOF_LED_ERROR);
         }
 
-        if (right_arm.kinematics_solution_count == 0) {
-            palSetPad(GPIOF, GPIOF_LED_POWER_ERROR);
-        } else {
-            palClearPad(GPIOF, GPIOF_LED_POWER_ERROR);
-        }
+        // if (right_arm.kinematics_solution_count == 0) {
+        //     palSetPad(GPIOF, GPIOF_LED_POWER_ERROR);
+        // } else {
+        //     palClearPad(GPIOF, GPIOF_LED_POWER_ERROR);
+        // }
 
         hand_manage(&left_hand);
         hand_manage(&right_hand);
@@ -201,24 +190,17 @@ void arms_controller_start(void)
                       NULL);
 }
 
-void arms_auto_index(const char** motor_names,
-                     int* motor_dirs,
-                     float* motor_speeds,
-                     size_t num_motors,
-                     float* motor_indexes)
+void arms_auto_index(cvra_arm_motor_t** motors, float* motor_speeds, size_t num_motors)
 {
     /* Fetch all motor drivers */
-    motor_driver_t* motors[num_motors];
+    motor_driver_t* drivers[num_motors];
     for (size_t i = 0; i < num_motors; i++) {
-        motors[i] = bus_enumerator_get_driver(motor_manager.bus_enumerator, motor_names[i]);
-        if (motors[i] == NULL) {
-            ERROR("Motor \"%s\" doesn't exist", motor_names[i]);
-        }
+        drivers[i] = get_motor_driver(motors[i]->id);
     }
 
     /* Enable index stream over CAN */
     for (size_t i = 0; i < num_motors; i++) {
-        parameter_scalar_set(&(motors[i]->config.index_stream), 10);
+        set_index_stream_frequency(motors[i]->id, 10);
     }
 #ifndef TESTS
     // TODO: Wait for an acknowledge that it was changed on the motor board, instead of waiting
@@ -230,24 +212,22 @@ void arms_auto_index(const char** motor_names,
     uint32_t index_counts[num_motors];
     for (size_t i = 0; i < num_motors; i++) {
         motor_finished[i] = false;
-        motor_indexes[i] = 0.;
-        index_counts[i] = motors[i]->stream.value_stream_index_update_count;
-        motor_driver_set_velocity(motors[i], -motor_dirs[i] * motor_speeds[i]);
-        NOTICE("Moving %s axis...", motor_names[i]);
+        motors[i]->index = 0.f;
+        index_counts[i] = drivers[i]->stream.value_stream_index_update_count;
+        set_motor_velocity(motors[i], - motors[i]->direction * motor_speeds[i]);
+        NOTICE("Moving %s axis...", motors[i]->id);
     }
 
     /* Wait for all motors to reach indexes */
     size_t num_finished = 0;
     while (num_finished != num_motors) {
         for (size_t i = 0; i < num_motors; i++) {
-            if (!motor_finished[i] && motors[i]->stream.value_stream_index_update_count !=
-                index_counts[i]) {
+            if (!motor_finished[i] && drivers[i]->stream.value_stream_index_update_count != index_counts[i]) {
                 /* Stop motor */
-                motor_driver_set_velocity(motors[i], 0.);
+                set_motor_velocity(motors[i], 0);
 
                 /* Update index */
-                motor_indexes[i] += motor_driver_get_and_clear_stream_value(motors[i],
-                                                                            MOTOR_STREAM_INDEX);
+                motors[i]->index += motor_driver_get_and_clear_stream_value(drivers[i], MOTOR_STREAM_INDEX);
 
                 /* Mark motor as done */
                 motor_finished[i] = true;
@@ -261,35 +241,33 @@ void arms_auto_index(const char** motor_names,
 
     /* Move away from index positions */
     for (size_t i = 0; i < num_motors; i++) {
-        motor_driver_set_velocity(motors[i], -motor_dirs[i] * motor_speeds[i]);
+        set_motor_velocity(motors[i], - motors[i]->direction * motor_speeds[i]);
     }
 #ifndef TESTS
     chThdSleepMilliseconds(1000);
 #endif
     for (size_t i = 0; i < num_motors; i++) {
-        motor_driver_set_velocity(motors[i], 0);
+        set_motor_velocity(motors[i], 0);
     }
 
     /* Start moving in backward direction */
     for (size_t i = 0; i < num_motors; i++) {
         motor_finished[i] = false;
-        index_counts[i] = motors[i]->stream.value_stream_index_update_count;
-        motor_driver_set_velocity(motors[i], motor_dirs[i] * motor_speeds[i]);
-        NOTICE("Moving %s axis...", motor_names[i]);
+        index_counts[i] = drivers[i]->stream.value_stream_index_update_count;
+        set_motor_velocity(motors[i], motors[i]->direction * motor_speeds[i]);
+        NOTICE("Moving %s axis...", motors[i]->id);
     }
 
     /* Wait for all motors to reach indexes */
     num_finished = 0;
     while (num_finished != num_motors) {
         for (size_t i = 0; i < num_motors; i++) {
-            if (!motor_finished[i] && motors[i]->stream.value_stream_index_update_count !=
-                index_counts[i]) {
+            if (!motor_finished[i] && drivers[i]->stream.value_stream_index_update_count != index_counts[i]) {
                 /* Stop motor */
-                motor_driver_set_velocity(motors[i], 0.);
+                set_motor_velocity(motors[i], 0);
 
                 /* Update index */
-                motor_indexes[i] += motor_driver_get_and_clear_stream_value(motors[i],
-                                                                            MOTOR_STREAM_INDEX);
+                motors[i]->index += motor_driver_get_and_clear_stream_value(drivers[i], MOTOR_STREAM_INDEX);
 
                 /* Mark motor as done */
                 motor_finished[i] = true;
@@ -303,19 +281,206 @@ void arms_auto_index(const char** motor_names,
 
     /* Compute index */
     for (size_t i = 0; i < num_motors; i++) {
-        motor_indexes[i] *= 0.5;
+        motors[i]->index *= 0.5;
+        NOTICE("Motor %s index %.3f", motors[i]->id, motors[i]->index);
     }
 
     /* Disable index stream over CAN */
     for (size_t i = 0; i < num_motors; i++) {
-        parameter_scalar_set(&(motors[i]->config.index_stream), 0);
+        set_index_stream_frequency(motors[i]->id, 0);
     }
     NOTICE("Disabled motor index streams");
 }
 
-
-void arms_set_motor_index(void* motor, float index)
+void arms_wrist_auto_index(cvra_arm_wrist_t** wrists, float* heading_speeds, float* pitch_speeds, size_t num_wrists)
 {
-    cvra_arm_motor_t *dev = (cvra_arm_motor_t*)motor;
-    dev->index = index;
+    /* Fetch all motor drivers */
+    motor_driver_t* drivers_up[num_wrists];
+    motor_driver_t* drivers_down[num_wrists];
+    for (size_t i = 0; i < num_wrists; i++) {
+        drivers_up[i] = get_motor_driver(wrists[i]->up);
+        drivers_down[i] = get_motor_driver(wrists[i]->down);
+    }
+
+    /* Enable index stream over CAN */
+    for (size_t i = 0; i < num_wrists; i++) {
+        set_index_stream_frequency(wrists[i]->up, 10);
+        set_index_stream_frequency(wrists[i]->down, 10);
+    }
+#ifndef TESTS
+    // TODO: Wait for an acknowledge that it was changed on the motor board, instead of waiting
+    chThdSleepSeconds(1);
+#endif
+
+    bool wrist_finished[num_wrists];
+    uint32_t index_counts[num_wrists];
+    size_t num_finished;
+    float heading_indexes[num_wrists];
+    float pitch_indexes[num_wrists];
+
+    /*** Index pitch ***/
+
+    /* Start moving in forward direction */
+    for (size_t i = 0; i < num_wrists; i++) {
+        wrist_finished[i] = false;
+        pitch_indexes[i] = 0.f;
+        index_counts[i] = drivers_down[i]->stream.value_stream_index_update_count;
+        set_wrist_velocity(wrists[i], 0, - pitch_speeds[i]);
+        NOTICE("Moving %s / %s axis...", wrists[i]->up, wrists[i]->down);
+    }
+
+    /* Wait for all wrists to reach indexes */
+    num_finished = 0;
+    while (num_finished != num_wrists) {
+        for (size_t i = 0; i < num_wrists; i++) {
+            if (!wrist_finished[i] && drivers_down[i]->stream.value_stream_index_update_count != index_counts[i]) {
+                /* Stop motor */
+                set_wrist_velocity(wrists[i], 0, 0);
+
+                /* Update index */
+                float heading, pitch;
+                get_wrist_position(wrists[i], &heading, &pitch);
+                pitch_indexes[i] += pitch;
+
+                /* Mark motor as done */
+                wrist_finished[i] = true;
+                num_finished++;
+            }
+        }
+#ifndef TESTS
+        chThdSleepMilliseconds(50);
+#endif
+    }
+
+    /* Move away from index positions */
+    for (size_t i = 0; i < num_wrists; i++) {
+        set_wrist_velocity(wrists[i], 0, - pitch_speeds[i]);
+    }
+#ifndef TESTS
+    chThdSleepMilliseconds(1000);
+#endif
+    for (size_t i = 0; i < num_wrists; i++) {
+        set_wrist_velocity(wrists[i], 0, 0);
+    }
+
+    /* Start moving in backward direction */
+    for (size_t i = 0; i < num_wrists; i++) {
+        wrist_finished[i] = false;
+        index_counts[i] = drivers_down[i]->stream.value_stream_index_update_count;
+        set_wrist_velocity(wrists[i], 0, pitch_speeds[i]);
+        NOTICE("Moving %s / %s axis...", wrists[i]->up, wrists[i]->down);
+    }
+
+    /* Wait for all wrists to reach indexes */
+    num_finished = 0;
+    while (num_finished != num_wrists) {
+        for (size_t i = 0; i < num_wrists; i++) {
+            if (!wrist_finished[i] && drivers_down[i]->stream.value_stream_index_update_count != index_counts[i]) {
+                /* Stop motor */
+                set_wrist_velocity(wrists[i], 0, 0);
+
+                /* Update index */
+                float heading, pitch;
+                get_wrist_position(wrists[i], &heading, &pitch);
+                pitch_indexes[i] += pitch;
+
+                /* Mark motor as done */
+                wrist_finished[i] = true;
+                num_finished++;
+            }
+        }
+#ifndef TESTS
+        chThdSleepMilliseconds(50);
+#endif
+    }
+
+    /*** Heading pitch ***/
+
+    /* Start moving in forward direction */
+    for (size_t i = 0; i < num_wrists; i++) {
+        wrist_finished[i] = false;
+        heading_indexes[i] = 0.f;
+        index_counts[i] = drivers_up[i]->stream.value_stream_index_update_count;
+        set_wrist_velocity(wrists[i], - heading_speeds[i], 0);
+        NOTICE("Moving %s / %s axis...", wrists[i]->up, wrists[i]->down);
+    }
+
+    /* Wait for all wrists to reach indexes */
+    num_finished = 0;
+    while (num_finished != num_wrists) {
+        for (size_t i = 0; i < num_wrists; i++) {
+            if (!wrist_finished[i] && drivers_up[i]->stream.value_stream_index_update_count != index_counts[i]) {
+                /* Stop motor */
+                set_wrist_velocity(wrists[i], 0, 0);
+
+                /* Update index */
+                float heading, pitch;
+                get_wrist_position(wrists[i], &heading, &pitch);
+                heading_indexes[i] += heading;
+
+                /* Mark motor as done */
+                wrist_finished[i] = true;
+                num_finished++;
+            }
+        }
+#ifndef TESTS
+        chThdSleepMilliseconds(50);
+#endif
+    }
+
+    /* Move away from index positions */
+    for (size_t i = 0; i < num_wrists; i++) {
+        set_wrist_velocity(wrists[i], - heading_speeds[i], 0);
+    }
+#ifndef TESTS
+    chThdSleepMilliseconds(1000);
+#endif
+    for (size_t i = 0; i < num_wrists; i++) {
+        set_wrist_velocity(wrists[i], 0, 0);
+    }
+
+    /* Start moving in backward direction */
+    for (size_t i = 0; i < num_wrists; i++) {
+        wrist_finished[i] = false;
+        index_counts[i] = drivers_up[i]->stream.value_stream_index_update_count;
+        set_wrist_velocity(wrists[i], heading_speeds[i], 0);
+        NOTICE("Moving %s / %s axis...", wrists[i]->up, wrists[i]->down);
+    }
+
+    /* Wait for all wrists to reach indexes */
+    num_finished = 0;
+    while (num_finished != num_wrists) {
+        for (size_t i = 0; i < num_wrists; i++) {
+            if (!wrist_finished[i] && drivers_up[i]->stream.value_stream_index_update_count != index_counts[i]) {
+                /* Stop motor */
+                set_wrist_velocity(wrists[i], 0, 0);
+
+                /* Update index */
+                float heading, pitch;
+                get_wrist_position(wrists[i], &heading, &pitch);
+                heading_indexes[i] += heading;
+
+                /* Mark motor as done */
+                wrist_finished[i] = true;
+                num_finished++;
+            }
+        }
+#ifndef TESTS
+        chThdSleepMilliseconds(50);
+#endif
+    }
+
+    /* Compute index */
+    for (size_t i = 0; i < num_wrists; i++) {
+        wrists[i]->pitch_index = 0.5 * pitch_indexes[i];
+        wrists[i]->heading_index = 0.5 * heading_indexes[i];
+        NOTICE("Wrist %d  pitch index %.3f heading index %.3f", i, wrists[i]->pitch_index, wrists[i]->heading_index);
+    }
+
+    /* Disable index stream over CAN */
+    for (size_t i = 0; i < num_wrists; i++) {
+        set_index_stream_frequency(wrists[i]->up, 0);
+        set_index_stream_frequency(wrists[i]->down, 0);
+    }
+    NOTICE("Disabled motor index streams");
 }

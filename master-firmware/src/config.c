@@ -48,8 +48,8 @@ static parameter_namespace_t arms_config, arms_right_config, arms_left_config, m
 static parameter_t upperarm_length, forearm_length, wrist_to_hand_length;
 static parameter_t left_offset_x, left_offset_y, left_offset_a;
 static parameter_t right_offset_x, right_offset_y, right_offset_a;
-static parameter_t left_z_offset, left_shoulder_offset, left_elbow_offset, left_wrist_offset;
-static parameter_t right_z_offset, right_shoulder_offset, right_elbow_offset, right_wrist_offset;
+static parameter_t left_z_offset, left_shoulder_offset, left_elbow_offset, left_wrist_heading_offset, left_wrist_pitch_offset;
+static parameter_t right_z_offset, right_shoulder_offset, right_elbow_offset, right_wrist_heading_offset, right_wrist_pitch_offset;
 
 static struct {
     parameter_namespace_t ns;
@@ -61,7 +61,7 @@ static struct {
             parameter_t ki;
             parameter_t kd;
             parameter_t ilimit;
-        } x, y, heading;
+        } x, y, heading, pitch;
     } control;
 } left_arm, right_arm;
 #endif
@@ -174,11 +174,13 @@ void config_init(void)
     parameter_scalar_declare(&left_z_offset, &motor_offsets_config, "left-z");
     parameter_scalar_declare(&left_shoulder_offset, &motor_offsets_config, "left-shoulder");
     parameter_scalar_declare(&left_elbow_offset, &motor_offsets_config, "left-elbow");
-    parameter_scalar_declare(&left_wrist_offset, &motor_offsets_config, "left-wrist");
+    parameter_scalar_declare(&left_wrist_heading_offset, &motor_offsets_config, "left-wrist-heading");
+    parameter_scalar_declare(&left_wrist_pitch_offset, &motor_offsets_config, "left-wrist-pitch");
     parameter_scalar_declare(&right_z_offset, &motor_offsets_config, "right-z");
     parameter_scalar_declare(&right_shoulder_offset, &motor_offsets_config, "right-shoulder");
     parameter_scalar_declare(&right_elbow_offset, &motor_offsets_config, "right-elbow");
-    parameter_scalar_declare(&right_wrist_offset, &motor_offsets_config, "right-wrist");
+    parameter_scalar_declare(&right_wrist_heading_offset, &motor_offsets_config, "right-wrist-heading");
+    parameter_scalar_declare(&right_wrist_pitch_offset, &motor_offsets_config, "right-wrist-pitch");
 
     parameter_namespace_declare(&left_arm.ns, &master_config, "left_arm");
     parameter_namespace_declare(&left_arm.control.ns, &left_arm.ns, "control");
@@ -197,6 +199,11 @@ void config_init(void)
     parameter_scalar_declare(&left_arm.control.heading.ki, &left_arm.control.heading.ns, "ki");
     parameter_scalar_declare(&left_arm.control.heading.kd, &left_arm.control.heading.ns, "kd");
     parameter_scalar_declare(&left_arm.control.heading.ilimit, &left_arm.control.heading.ns, "ilimit");
+    parameter_namespace_declare(&left_arm.control.pitch.ns, &left_arm.control.ns, "pitch");
+    parameter_scalar_declare(&left_arm.control.pitch.kp, &left_arm.control.pitch.ns, "kp");
+    parameter_scalar_declare(&left_arm.control.pitch.ki, &left_arm.control.pitch.ns, "ki");
+    parameter_scalar_declare(&left_arm.control.pitch.kd, &left_arm.control.pitch.ns, "kd");
+    parameter_scalar_declare(&left_arm.control.pitch.ilimit, &left_arm.control.pitch.ns, "ilimit");
 
     parameter_namespace_declare(&right_arm.ns, &master_config, "right_arm");
     parameter_namespace_declare(&right_arm.control.ns, &right_arm.ns, "control");
@@ -215,6 +222,11 @@ void config_init(void)
     parameter_scalar_declare(&right_arm.control.heading.ki, &right_arm.control.heading.ns, "ki");
     parameter_scalar_declare(&right_arm.control.heading.kd, &right_arm.control.heading.ns, "kd");
     parameter_scalar_declare(&right_arm.control.heading.ilimit, &right_arm.control.heading.ns, "ilimit");
+    parameter_namespace_declare(&right_arm.control.pitch.ns, &right_arm.control.ns, "pitch");
+    parameter_scalar_declare(&right_arm.control.pitch.kp, &right_arm.control.pitch.ns, "kp");
+    parameter_scalar_declare(&right_arm.control.pitch.ki, &right_arm.control.pitch.ns, "ki");
+    parameter_scalar_declare(&right_arm.control.pitch.kd, &right_arm.control.pitch.ns, "kd");
+    parameter_scalar_declare(&right_arm.control.pitch.ilimit, &right_arm.control.pitch.ns, "ilimit");
 #endif
 }
 

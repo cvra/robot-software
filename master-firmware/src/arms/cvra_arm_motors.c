@@ -1,12 +1,12 @@
+#include <math.h>
 #include <error/error.h>
-#include "motor_manager.h"
 #include "main.h"
 
 #include "cvra_arm_motors.h"
 
-motor_driver_t* get_motor_driver(motor_manager_t* manager, const char* name)
+motor_driver_t* get_motor_driver(const char* name)
 {
-    motor_driver_t* motor = bus_enumerator_get_driver(manager->bus_enumerator, name);
+    motor_driver_t* motor = bus_enumerator_get_driver(motor_manager.bus_enumerator, name);
     if (motor == NULL) {
         ERROR("Motor \"%s\" doesn't exist", name);
     }
@@ -14,153 +14,83 @@ motor_driver_t* get_motor_driver(motor_manager_t* manager, const char* name)
 }
 
 
-void set_left_z_position(void* motor, float position)
+void set_motor_position(void* motor, float position)
 {
     cvra_arm_motor_t *dev = (cvra_arm_motor_t*)motor;
-    motor_manager_set_position(dev->m, "left-z", dev->direction * position + dev->index);
+    motor_driver_t* driver = get_motor_driver(dev->id);
+    motor_driver_set_position(driver, dev->direction * position + dev->index);
 }
 
-void set_left_shoulder_position(void* motor, float position)
+void set_motor_velocity(void* motor, float velocity)
 {
     cvra_arm_motor_t *dev = (cvra_arm_motor_t*)motor;
-    motor_manager_set_position(dev->m, "left-shoulder", dev->direction * position + dev->index);
+    motor_driver_t* driver = get_motor_driver(dev->id);
+    motor_driver_set_velocity(driver, dev->direction * velocity);
 }
 
-void set_left_elbow_position(void* motor, float position)
+float get_motor_position(void* motor)
 {
     cvra_arm_motor_t *dev = (cvra_arm_motor_t*)motor;
-    motor_manager_set_position(dev->m, "left-elbow", dev->direction * position + dev->index);
-}
-
-void set_left_wrist_position(void* motor, float position)
-{
-    cvra_arm_motor_t *dev = (cvra_arm_motor_t*)motor;
-    motor_manager_set_position(dev->m, "left-wrist", dev->direction * position + dev->index);
-}
-
-void set_left_shoulder_velocity(void* motor, float velocity)
-{
-    cvra_arm_motor_t *dev = (cvra_arm_motor_t*)motor;
-    motor_manager_set_velocity(dev->m, "left-shoulder", dev->direction * velocity);
-}
-
-void set_left_elbow_velocity(void* motor, float velocity)
-{
-    cvra_arm_motor_t *dev = (cvra_arm_motor_t*)motor;
-    motor_manager_set_velocity(dev->m, "left-elbow", dev->direction * velocity);
-}
-
-void set_left_wrist_velocity(void* motor, float velocity)
-{
-    cvra_arm_motor_t *dev = (cvra_arm_motor_t*)motor;
-    motor_manager_set_velocity(dev->m, "left-wrist", dev->direction * velocity);
+    motor_driver_t* driver = get_motor_driver(dev->id);
+    return dev->direction * (motor_driver_get_and_clear_stream_value(driver, MOTOR_STREAM_POSITION) - dev->index);
 }
 
 
-void set_right_z_position(void* motor, float position)
+void set_wrist_position(void* wrist, float heading, float pitch)
 {
-    cvra_arm_motor_t *dev = (cvra_arm_motor_t*)motor;
-    motor_manager_set_position(dev->m, "right-z", dev->direction * position + dev->index);
+    cvra_arm_wrist_t *dev = (cvra_arm_wrist_t*)wrist;
+    motor_driver_t* driver_up = get_motor_driver(dev->up);
+    motor_driver_t* driver_down = get_motor_driver(dev->down);
+
+    float up = (heading + dev->heading_index) * dev->heading_ratio
+               + (pitch + dev->pitch_index) * dev->pitch_ratio;
+    float down = - (heading + dev->heading_index) * dev->heading_ratio
+                 + (pitch + dev->pitch_index) * dev->pitch_ratio;
+
+    motor_driver_set_position(driver_up, dev->up_direction * up);
+    motor_driver_set_position(driver_down, dev->down_direction * down);
 }
 
-void set_right_shoulder_position(void* motor, float position)
+void set_wrist_velocity(void* wrist, float heading, float pitch)
 {
-    cvra_arm_motor_t *dev = (cvra_arm_motor_t*)motor;
-    motor_manager_set_position(dev->m, "right-shoulder", dev->direction * position + dev->index);
+    cvra_arm_wrist_t *dev = (cvra_arm_wrist_t*)wrist;
+    motor_driver_t* driver_up = get_motor_driver(dev->up);
+    motor_driver_t* driver_down = get_motor_driver(dev->down);
+
+    float up = heading * dev->heading_ratio + pitch * dev->pitch_ratio;
+    float down = - heading * dev->heading_ratio + pitch * dev->pitch_ratio;
+
+    motor_driver_set_velocity(driver_up, dev->up_direction * up);
+    motor_driver_set_velocity(driver_down, dev->down_direction * down);
 }
 
-void set_right_elbow_position(void* motor, float position)
+void get_wrist_position(void* wrist, float* heading, float* pitch)
 {
-    cvra_arm_motor_t *dev = (cvra_arm_motor_t*)motor;
-    motor_manager_set_position(dev->m, "right-elbow", dev->direction * position + dev->index);
-}
+    cvra_arm_wrist_t *dev = (cvra_arm_wrist_t*)wrist;
+    motor_driver_t* driver_up = get_motor_driver(dev->up);
+    motor_driver_t* driver_down = get_motor_driver(dev->down);
 
-void set_right_wrist_position(void* motor, float position)
-{
-    cvra_arm_motor_t *dev = (cvra_arm_motor_t*)motor;
-    motor_manager_set_position(dev->m, "right-wrist", dev->direction * position + dev->index);
-}
+    float up = dev->up_direction * motor_driver_get_and_clear_stream_value(driver_up, MOTOR_STREAM_POSITION);
+    float down = dev->down_direction * motor_driver_get_and_clear_stream_value(driver_down, MOTOR_STREAM_POSITION);
 
-void set_right_shoulder_velocity(void* motor, float velocity)
-{
-    cvra_arm_motor_t *dev = (cvra_arm_motor_t*)motor;
-    motor_manager_set_velocity(dev->m, "right-shoulder", dev->direction * velocity);
-}
+    *heading = 0.5 * (up - down) / dev->heading_ratio - dev->heading_index;
+    *pitch = 0.5 * (up + down) / dev->pitch_ratio - dev->pitch_index;
 
-void set_right_elbow_velocity(void* motor, float velocity)
-{
-    cvra_arm_motor_t *dev = (cvra_arm_motor_t*)motor;
-    motor_manager_set_velocity(dev->m, "right-elbow", dev->direction * velocity);
-}
+    /* Bring heading between -PI and PI */
+    while (*heading >= M_PI) {
+        *heading -= 2 * M_PI;
+    }
+    while (*heading <= - M_PI) {
+        *heading += 2 * M_PI;
+    }
 
-void set_right_wrist_velocity(void* motor, float velocity)
-{
-    cvra_arm_motor_t *dev = (cvra_arm_motor_t*)motor;
-    motor_manager_set_velocity(dev->m, "right-wrist", dev->direction * velocity);
-}
+    /* Bring pitch between -PI and PI */
+    while (*pitch >= M_PI) {
+        *pitch -= 2 * M_PI;
+    }
+    while (*pitch <= - M_PI) {
+        *pitch += 2 * M_PI;
+    }
 
-
-float get_left_z_position(void* motor)
-{
-    cvra_arm_motor_t *dev = (cvra_arm_motor_t*)motor;
-    motor_driver_t* motord = get_motor_driver(dev->m, "left-z");
-
-    return dev->direction * (motor_driver_get_and_clear_stream_value(motord, MOTOR_STREAM_POSITION) - dev->index);
-}
-
-float get_left_shoulder_position(void* motor)
-{
-    cvra_arm_motor_t *dev = (cvra_arm_motor_t*)motor;
-    motor_driver_t* motord = get_motor_driver(dev->m, "left-shoulder");
-
-    return dev->direction * (motor_driver_get_and_clear_stream_value(motord, MOTOR_STREAM_POSITION) - dev->index);
-}
-
-float get_left_elbow_position(void* motor)
-{
-    cvra_arm_motor_t *dev = (cvra_arm_motor_t*)motor;
-    motor_driver_t* motord = get_motor_driver(dev->m, "left-elbow");
-
-    return dev->direction * (motor_driver_get_and_clear_stream_value(motord, MOTOR_STREAM_POSITION) - dev->index);
-}
-
-float get_left_wrist_position(void* motor)
-{
-    cvra_arm_motor_t *dev = (cvra_arm_motor_t*)motor;
-    motor_driver_t* motord = get_motor_driver(dev->m, "left-wrist");
-
-    return dev->direction * (motor_driver_get_and_clear_stream_value(motord, MOTOR_STREAM_POSITION) - dev->index);
-}
-
-
-float get_right_z_position(void* motor)
-{
-    cvra_arm_motor_t *dev = (cvra_arm_motor_t*)motor;
-    motor_driver_t* motord = get_motor_driver(dev->m, "right-z");
-
-    return dev->direction * (motor_driver_get_and_clear_stream_value(motord, MOTOR_STREAM_POSITION) - dev->index);
-}
-
-float get_right_shoulder_position(void* motor)
-{
-    cvra_arm_motor_t *dev = (cvra_arm_motor_t*)motor;
-    motor_driver_t* motord = get_motor_driver(dev->m, "right-shoulder");
-
-    return dev->direction * (motor_driver_get_and_clear_stream_value(motord, MOTOR_STREAM_POSITION) - dev->index);
-}
-
-float get_right_elbow_position(void* motor)
-{
-    cvra_arm_motor_t *dev = (cvra_arm_motor_t*)motor;
-    motor_driver_t* motord = get_motor_driver(dev->m, "right-elbow");
-
-    return dev->direction * (motor_driver_get_and_clear_stream_value(motord, MOTOR_STREAM_POSITION) - dev->index);
-}
-
-float get_right_wrist_position(void* motor)
-{
-    cvra_arm_motor_t *dev = (cvra_arm_motor_t*)motor;
-    motor_driver_t* motord = get_motor_driver(dev->m, "right-wrist");
-
-    return dev->direction * (motor_driver_get_and_clear_stream_value(motord, MOTOR_STREAM_POSITION) - dev->index);
+    DEBUG("Up %.3f Down %.3f Heading %.3f Pitch %.3f", up, down, *heading, *pitch);
 }
