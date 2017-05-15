@@ -938,16 +938,18 @@ static void cmd_scara_mv(BaseSequentialStream *chp, int argc, char *argv[])
         arm = &right_arm;
     }
 
+    scara_trajectory_t trajectory;
+
     scara_pos(arm, &x, &y, &z, &a, &p, COORDINATE_TABLE);
-    scara_trajectory_init(&(arm->trajectory));
-    scara_trajectory_append_point_with_length(&(arm->trajectory), x, y, z, a, COORDINATE_TABLE, 0, arm->length[0], arm->length[1], arm->length[2]);
+    scara_trajectory_init(&trajectory);
+    scara_trajectory_append_point_with_length(&trajectory, x, y, z, a, COORDINATE_TABLE, 0, arm->length[0], arm->length[1], arm->length[2]);
 
     x = atof(argv[1]);
     y = atof(argv[2]);
     a = RADIANS(atof(argv[3]));
     l3 = atof(argv[4]);
-    scara_trajectory_append_point_with_length(&(arm->trajectory), x, y, z, a, COORDINATE_TABLE, 1, arm->length[0], arm->length[1], l3);
-    scara_do_trajectory(arm, &(arm->trajectory));
+    scara_trajectory_append_point_with_length(&trajectory, x, y, z, a, COORDINATE_TABLE, 1, arm->length[0], arm->length[1], l3);
+    scara_do_trajectory(arm, &trajectory);
 
     chprintf(chp, "Moving %s arm to %f %f %f heading %fdeg in table frame\r\n", argv[0], x, y, z, DEGREES(a));
 }
