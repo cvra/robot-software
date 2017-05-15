@@ -24,11 +24,7 @@ def dict_merge(dct, merge_dct):
             dct[k] = merge_dct[k]
 
 
-def error_callback(event):
-    print('LoadConfiguration error')
-    print(event)
-
-def send_config(node, config, can_id):
+def config_send(node, config, can_id):
     # create request
     req = uavcan.thirdparty.cvra.motor.config.LoadConfiguration.Request()
 
@@ -67,29 +63,10 @@ def send_config(node, config, can_id):
     req.mode = config['motor']['mode']
 
     # send request
-    node.request(req, can_id, error_callback)
+    node.request(req, can_id, lambda event: print('Load configuration OK!'))
 
-def parse_args():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("port", help="SocketCAN interface (e.g. can0) or SLCAN serial port (e.g. /dev/ttyACM0)")
-    parser.add_argument("config", help="YAML file containing robot config.")
-    parser.add_argument("board", help="Board name")
-    parser.add_argument("can_id", help="CAN ID", type=int)
-    parser.add_argument("--dsdl", "-d", help="DSDL path", required=True)
-    parser.add_argument("--verbose", "-v", help="Verbose mode", action='store_true')
 
-    return parser.parse_args()
-
-def main():
-    args = parse_args()
-
-    if args.verbose:
-        level = logging.DEBUG
-    else:
-        level = logging.INFO
-
-    logging.basicConfig(level=level)
-
+def config_fill_missing(update):
     # default values
     config = {
     'control': {
@@ -114,21 +91,65 @@ def main():
         'potentiometer_gain': 1,
         'mode': 4}
     }
+    dict_merge(config, update)
+    return config
+
+class NodeDiscovery:
+    def __init__(self, node, node_name):
+        self.node_name = node_name
+        self.node_id = None
+        self.node = node
+        self.node.add_handler(uavcan.protocol.NodeStatus,
+                self._node_status_callback)
+
+    def _board_info_callback(self, event):
+        board = event.transfer.source_node_id
+        name = str(event.response.name)
+        if name == self.node_name:
+            self.node_id = board
+
+    def _node_status_callback(self, event):
+        board = event.transfer.source_node_id
+        self.node.request(uavcan.protocol.GetNodeInfo.Request(), board,
+                self._board_info_callback)
+
+    def get_id(self):
+        return self.node_id
+
+def parse_args():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("port", help="SocketCAN interface (e.g. can0) or SLCAN serial port (e.g. /dev/ttyACM0)")
+    parser.add_argument("config", help="YAML file containing robot config.")
+    parser.add_argument("board", help="Board name")
+    parser.add_argument("--dsdl", "-d", help="DSDL path", required=True)
+
+    return parser.parse_args()
+
+def main():
+    args = parse_args()
 
     with open(args.config) as file:
-        actuator_conf = yaml.load(file)['actuator'][args.board]
+        config = yaml.load(file)
 
-    dict_merge(config, actuator_conf)
-    print(config)
+    config = config['actuator'][args.board]
+    config = config_fill_missing(config)
 
     # start UAVCAN node
     uavcan.load_dsdl(args.dsdl)
     node = uavcan.make_node(args.port, node_id=127)
 
-    send_config(node, config, args.can_id)
+    # set up board discovery
+    disc = NodeDiscovery(node, args.board)
 
-    while(1):
-        node.spin(1)
+    while disc.get_id() is None:
+        node.spin(0.1)
+
+    print('board "{}" has ID {}'.format(args.board, disc.get_id()))
+
+    print('Load config...')
+    config_send(node, config, disc.get_id())
+
+    node.spin(0.1)
 
 if __name__ == '__main__':
     main()
