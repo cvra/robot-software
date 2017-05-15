@@ -51,19 +51,19 @@ master:
     left_arm:
         control:
             x:
-                kp: 10.
+                kp: 5.
                 ki: 0.
-                kd: 5.
+                kd: 5
                 ilimit: 100.
             y:
-                kp: 10.
+                kp: 5.
                 ki: 0.
-                kd: 5.
+                kd: 5
                 ilimit: 100.
             heading:
-                kp: 50.
+                kp: 10.
                 ki: 0.
-                kd: 250.
+                kd: 0.
                 ilimit: 100.
     right_arm:
         control:
