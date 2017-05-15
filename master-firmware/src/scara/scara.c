@@ -131,6 +131,13 @@ void scara_pos_with_length(scara_t* arm,
                            float l3)
 {
     float heading = arm->shoulder_pos + arm->elbow_pos + arm->wrist_heading_pos;
+    /* Bring heading between -PI and PI */
+    while (heading >= M_PI) {
+        heading -= 2 * M_PI;
+    }
+    while (heading <= - M_PI) {
+        heading += 2 * M_PI;
+    }
 
     point_t pos;
     pos = scara_forward_kinematics(arm->shoulder_pos, arm->elbow_pos, arm->length);

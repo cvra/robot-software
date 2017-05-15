@@ -1,3 +1,4 @@
+#include <math.h>
 #include <error/error.h>
 #include "main.h"
 
@@ -74,6 +75,22 @@ void get_wrist_position(void* wrist, float* heading, float* pitch)
 
     *heading = 0.5 * (up - down - dev->heading_index) / dev->heading_ratio;
     *pitch = 0.5 * (up + down - dev->pitch_index) / dev->pitch_ratio;
+
+    /* Bring heading between -PI and PI */
+    while (*heading >= M_PI) {
+        *heading -= 2 * M_PI;
+    }
+    while (*heading <= - M_PI) {
+        *heading += 2 * M_PI;
+    }
+
+    /* Bring pitch between -PI and PI */
+    while (*pitch >= M_PI) {
+        *pitch -= 2 * M_PI;
+    }
+    while (*pitch <= - M_PI) {
+        *pitch += 2 * M_PI;
+    }
 
     NOTICE("Up %.3f Down %.3f Heading %.3f Pitch %.3f", up, down, *heading, *pitch);
 }
