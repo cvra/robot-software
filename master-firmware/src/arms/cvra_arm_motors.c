@@ -92,5 +92,5 @@ void get_wrist_position(void* wrist, float* heading, float* pitch)
         *pitch += 2 * M_PI;
     }
 
-    NOTICE("Up %.3f Down %.3f Heading %.3f Pitch %.3f", up, down, *heading, *pitch);
+    DEBUG("Up %.3f Down %.3f Heading %.3f Pitch %.3f", up, down, *heading, *pitch);
 }
