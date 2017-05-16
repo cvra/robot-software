@@ -1,4 +1,4 @@
-#include <uavcan/uavcan.hpp>
+#include "uavcan_node.h"
 #include <cvra/proximity_beacon/Signal.hpp>
 #include <cvra/proximity_beacon/Settings.hpp>
 #include "control.h"
@@ -23,7 +23,7 @@ static void timer_cb(const uavcan::TimerEvent &event)
     control_update_voltage_setpoint(-4.0);
 }
 
-int proximity_beacon_start(uavcan::INode &node)
+int proximity_beacon_start(Node &node)
 {
     proximity_beacon_init();
 

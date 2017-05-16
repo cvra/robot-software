@@ -45,7 +45,7 @@ static void uavcan_services_start(Node &node)
         {uavcan_node_start, "Node start"},
         {Reboot_handler_start, "Reboot subscriber"},
         {EmergencyStop_handler_start, "Emergency stop subscriber"},
-        {proximity_beacon_start, 'proximity beacon'},
+        {proximity_beacon_start, "proximity beacon"},
         {parameter_server_start, "UAVCAN parameter server"},
         {uavcan_streams_start, "UAVCAN state streamer"},
         {NULL, NULL} /* Must be last */
