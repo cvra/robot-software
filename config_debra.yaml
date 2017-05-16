@@ -1,7 +1,7 @@
 logging:
   # level can be "debug", "notice" "warning" or "error"
   uart:
-    level: "error"
+    level: "notice"
   sdcard:
     level: "debug"
 master:
