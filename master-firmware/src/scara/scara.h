@@ -111,7 +111,7 @@ void scara_ugly_mode_disable(scara_t* arm);
 
 
 /* Goto position in specified coordinate system */
-void scara_goto(scara_t* arm, float x, float y, float z, float a, scara_coordinate_t system, const float duration);
+void scara_goto(scara_t* arm, float x, float y, float z, float a, float p, scara_coordinate_t system, const float duration);
 
 /* Move arm in axis only */
 void scara_move_z(scara_t* arm, float z, scara_coordinate_t system, const float duration);

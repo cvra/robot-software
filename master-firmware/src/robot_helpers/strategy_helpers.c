@@ -95,6 +95,7 @@ unsigned strategy_set_arm_trajectory(scara_t* arm, enum strat_color_t color, arm
             trajectory[i].y,
             trajectory[i].z,
             RADIANS(MIRROR_A(color, trajectory[i].a)),
+            RADIANS(trajectory[i].p),
             trajectory[i].coord,
             (float)trajectory[i].dt * 0.001,
             arm->length[0],

@@ -312,8 +312,8 @@ struct RetractArms : public goap::Action<DebraState> {
         strategy_wait_ms(500);
 
         // Then retract arms
-        scara_goto(&left_arm, -180, 70, 120, RADIANS(180), COORDINATE_ROBOT, 1.);
-        scara_goto(&right_arm, 180, -70, 120, RADIANS(0), COORDINATE_ROBOT, 1.);
+        scara_goto(&left_arm, -180, 70, 120, RADIANS(180), RADIANS(0), COORDINATE_ROBOT, 1.);
+        scara_goto(&right_arm, 180, -70, 120, RADIANS(0), RADIANS(0), COORDINATE_ROBOT, 1.);
         strategy_wait_ms(1000);
 
         // Go back to smooth control
@@ -365,8 +365,8 @@ struct CollectRocketCylinders : public goap::Action<DebraState> {
 
             // Prepare arm
             arm_waypoint_t prepare_pickup_traj[2] = {
-                {.x=1140, .y=50, .z=120, .a=220, .coord=COORDINATE_TABLE, .dt=1000, .l3=160},
-                {.x=1140, .y=50, .z=50, .a=220, .coord=COORDINATE_TABLE, .dt=1000, .l3=160},
+                {.x=1140, .y=50, .z=120, .a=220, .p=0, .coord=COORDINATE_TABLE, .dt=1000, .l3=160},
+                {.x=1140, .y=50, .z=50, .a=220, .p=0, .coord=COORDINATE_TABLE, .dt=1000, .l3=160},
             };
             strategy_wait_ms(strategy_set_arm_trajectory(arm, m_color, &prepare_pickup_traj[0],
                              sizeof(prepare_pickup_traj) / sizeof(arm_waypoint_t)));
@@ -376,8 +376,8 @@ struct CollectRocketCylinders : public goap::Action<DebraState> {
 
             // Approach cylinder
             arm_waypoint_t pick_cylinder_traj[2] = {
-                {.x=1140, .y=50, .z=50, .a=220, .coord=COORDINATE_TABLE, .dt=1000, .l3=160},
-                {.x=1140, .y=50, .z=50, .a=220, .coord=COORDINATE_TABLE, .dt=1000, .l3=40},
+                {.x=1140, .y=50, .z=50, .a=220, .p=0, .coord=COORDINATE_TABLE, .dt=1000, .l3=160},
+                {.x=1140, .y=50, .z=50, .a=220, .p=0, .coord=COORDINATE_TABLE, .dt=1000, .l3=40},
             };
             strategy_wait_ms(strategy_set_arm_trajectory(arm, m_color, &pick_cylinder_traj[0],
                              sizeof(pick_cylinder_traj) / sizeof(arm_waypoint_t)));
@@ -395,8 +395,8 @@ struct CollectRocketCylinders : public goap::Action<DebraState> {
 
             // Extract cylinder
             arm_waypoint_t extract_cylinder_traj[2] = {
-                {.x=1140, .y=50, .z=50, .a=220, .coord=COORDINATE_TABLE, .dt=1000, .l3=40},
-                {.x=1140, .y=130, .z=50, .a=220, .coord=COORDINATE_TABLE, .dt=1000, .l3=60},
+                {.x=1140, .y=50, .z=50, .a=220, .p=0, .coord=COORDINATE_TABLE, .dt=1000, .l3=40},
+                {.x=1140, .y=130, .z=50, .a=220, .p=0, .coord=COORDINATE_TABLE, .dt=1000, .l3=60},
             };
             strategy_wait_ms(strategy_set_arm_trajectory(arm, m_color, &extract_cylinder_traj[0],
                              sizeof(extract_cylinder_traj) / sizeof(arm_waypoint_t)));
@@ -455,8 +455,8 @@ struct DepositRocketCylinders : public goap::Action<DebraState> {
 
             // Position cylinder
             arm_waypoint_t prepare_pickup_traj[2] = {
-                {.x=900, .y=1400, .z=160, .a=45, .coord=COORDINATE_TABLE, .dt=500, .l3=50},
-                {.x=900, .y=1400, .z=120, .a=45, .coord=COORDINATE_TABLE, .dt=1000, .l3=50},
+                {.x=900, .y=1400, .z=160, .a=45, .p=0, .coord=COORDINATE_TABLE, .dt=500, .l3=50},
+                {.x=900, .y=1400, .z=120, .a=45, .p=0, .coord=COORDINATE_TABLE, .dt=1000, .l3=50},
             };
             strategy_wait_ms(strategy_set_arm_trajectory(arm, m_color, &prepare_pickup_traj[0],
                              sizeof(prepare_pickup_traj) / sizeof(arm_waypoint_t)));
@@ -594,8 +594,8 @@ struct CollectCylinder : public goap::Action<DebraState> {
 
         // Go right to cylinder and adjust height
         arm_waypoint_t prepare_pickup_traj[2] = {
-            {.x=1000, .y=600, .z=160, .a=270, .coord=COORDINATE_TABLE, .dt=1000, .l3=180},
-            {.x=1000, .y=600, .z=50, .a=270, .coord=COORDINATE_TABLE, .dt=1000, .l3=180},
+            {.x=1000, .y=600, .z=160, .a=270, .p=0, .coord=COORDINATE_TABLE, .dt=1000, .l3=180},
+            {.x=1000, .y=600, .z=50, .a=270, .p=0, .coord=COORDINATE_TABLE, .dt=1000, .l3=180},
         };
         strategy_wait_ms(strategy_set_arm_trajectory(arm, m_color, &prepare_pickup_traj[0],
                          sizeof(prepare_pickup_traj) / sizeof(arm_waypoint_t)));
@@ -605,8 +605,8 @@ struct CollectCylinder : public goap::Action<DebraState> {
 
         // Approach cylinder xy
         arm_waypoint_t pick_cylinder_traj[2] = {
-            {.x=1000, .y=600, .z=50, .a=270, .coord=COORDINATE_TABLE, .dt=0, .l3=180},
-            {.x=1000, .y=600, .z=50, .a=270, .coord=COORDINATE_TABLE, .dt=1000, .l3=50},
+            {.x=1000, .y=600, .z=50, .a=270, .p=0, .coord=COORDINATE_TABLE, .dt=0, .l3=180},
+            {.x=1000, .y=600, .z=50, .a=270, .p=0, .coord=COORDINATE_TABLE, .dt=1000, .l3=50},
         };
         strategy_wait_ms(strategy_set_arm_trajectory(arm, m_color, &pick_cylinder_traj[0],
                          sizeof(pick_cylinder_traj) / sizeof(arm_waypoint_t)));
@@ -660,7 +660,7 @@ struct DepositCylinder : public goap::Action<DebraState> {
 
         // Drop cylinder in construction area
         arm_waypoint_t drop_cylinder_traj[] = {
-            {.x=50, .y=1000, .z=160, .a=180, .coord=COORDINATE_TABLE, .dt=1000, .l3=55},
+            {.x=50, .y=1000, .z=160, .a=180, .p=0, .coord=COORDINATE_TABLE, .dt=1000, .l3=55},
         };
         strategy_wait_ms(strategy_set_arm_trajectory(arm, m_color, &drop_cylinder_traj[0],
                          sizeof(drop_cylinder_traj) / sizeof(arm_waypoint_t)));
@@ -669,11 +669,11 @@ struct DepositCylinder : public goap::Action<DebraState> {
 
         // Push cylinder to make it horizontal
         arm_waypoint_t push_cylinder_traj[] = {
-            {.x=50, .y=1000, .z=160, .a=180, .coord=COORDINATE_TABLE, .dt=0, .l3=50},
-            {.x=50, .y=1100, .z=160, .a=180, .coord=COORDINATE_TABLE, .dt=500, .l3=130},
-            {.x=50, .y=1100, .z=100, .a=180, .coord=COORDINATE_TABLE, .dt=500, .l3=130},
-            {.x=50, .y= 800, .z=100, .a=235, .coord=COORDINATE_TABLE, .dt=1000, .l3=130},
-            {.x=50, .y= 800, .z=160, .a=235, .coord=COORDINATE_TABLE, .dt=500, .l3=130},
+            {.x=50, .y=1000, .z=160, .a=180, .p=0, .coord=COORDINATE_TABLE, .dt=0, .l3=50},
+            {.x=50, .y=1100, .z=160, .a=180, .p=0, .coord=COORDINATE_TABLE, .dt=500, .l3=130},
+            {.x=50, .y=1100, .z=100, .a=180, .p=0, .coord=COORDINATE_TABLE, .dt=500, .l3=130},
+            {.x=50, .y= 800, .z=100, .a=235, .p=0, .coord=COORDINATE_TABLE, .dt=1000, .l3=130},
+            {.x=50, .y= 800, .z=160, .a=235, .p=0, .coord=COORDINATE_TABLE, .dt=500, .l3=130},
         };
         strategy_wait_ms(strategy_set_arm_trajectory(arm, m_color, &push_cylinder_traj[0],
                          sizeof(push_cylinder_traj) / sizeof(arm_waypoint_t)));

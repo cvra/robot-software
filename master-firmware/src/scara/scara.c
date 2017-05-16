@@ -105,11 +105,12 @@ void scara_goto(scara_t* arm,
                 float y,
                 float z,
                 float a,
+                float p,
                 scara_coordinate_t system,
                 const float duration)
 {
     scara_trajectory_init(&(arm->trajectory));
-    scara_trajectory_append_point(&(arm->trajectory), x, y, z, a, system, duration,
+    scara_trajectory_append_point(&(arm->trajectory), x, y, z, a, p, system, duration,
                                   &(arm->length[0]));
     scara_do_trajectory(arm, &(arm->trajectory));
 }
@@ -118,7 +119,7 @@ void scara_move_z(scara_t* arm, float z_new, scara_coordinate_t system, const fl
 {
     float x, y, z, a, p;
     scara_pos(arm, &x, &y, &z, &a, &p, system);
-    scara_goto(arm, x, y, z_new, a, system, duration);
+    scara_goto(arm, x, y, z_new, a, p, system, duration);
 }
 
 void scara_pos_with_length(scara_t* arm,
@@ -261,7 +262,7 @@ void scara_manage(scara_t *arm)
         float consign_x = pid_process(&arm->x_pid, measured_x - frame.position[0]);
         float consign_y = pid_process(&arm->y_pid, measured_y - frame.position[1]);
         float consign_a = pid_process(&arm->heading_pid, measured_a - frame.hand_angle);
-        float consign_p = pid_process(&arm->heading_pid, measured_p);
+        float consign_p = pid_process(&arm->heading_pid, measured_p - frame.pitch_angle);
 
         float velocity_alpha, velocity_beta, velocity_gamma, velocity_delta;
         scara_jacobian_compute(consign_x, consign_y, consign_a, consign_p,
@@ -292,7 +293,8 @@ void scara_manage(scara_t *arm)
         arm->set_z_position(arm->z_args, frame.position[2]);
         arm->set_shoulder_position(arm->shoulder_args, alpha);
         arm->set_elbow_position(arm->elbow_args, beta);
-        arm->set_wrist_velocity(arm->wrist_args, 0, 0);
+        // arm->set_wrist_velocity(arm->wrist_args, 0, 0);
+        arm->set_wrist_position(arm->wrist_args, gamma, frame.pitch_angle);
     }
 
     /* Unlock */

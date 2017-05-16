@@ -25,7 +25,7 @@ void scara_trajectory_init(scara_trajectory_t *traj) {
 
 
 void scara_trajectory_append_point(scara_trajectory_t *traj, const float x, const float y, const float z, const float a,
-                                   scara_coordinate_t system, const float duration, const float* length)
+                                   const float p, scara_coordinate_t system, const float duration, const float* length)
 {
     traj->frame_count += 1;
     if (traj->frame_count >= SCARA_TRAJ_MAX_NUM_FRAMES) {
@@ -40,6 +40,7 @@ void scara_trajectory_append_point(scara_trajectory_t *traj, const float x, cons
     traj->frames[traj->frame_count-1].position[1] = y;
     traj->frames[traj->frame_count-1].position[2] = z;
     traj->frames[traj->frame_count-1].hand_angle = a;
+    traj->frames[traj->frame_count-1].pitch_angle = p;
     traj->frames[traj->frame_count-1].coordinate_type = system;
 
     if (traj->frame_count == 1) {
@@ -53,11 +54,12 @@ void scara_trajectory_append_point(scara_trajectory_t *traj, const float x, cons
     traj->frames[traj->frame_count-1].length[2] = length[2];
 }
 
-void scara_trajectory_append_point_with_length(scara_trajectory_t *traj, const float x, const float y, const float z, const float a,
-                                   scara_coordinate_t system, const float duration, const float l1, const float l2, const float l3)
+void scara_trajectory_append_point_with_length(scara_trajectory_t *traj, const float x, const float y, const float z,
+                                               const float a, const float p, scara_coordinate_t system,
+                                               const float duration, const float l1, const float l2, const float l3)
 {
     float length[3] = {l1, l2, l3};
-    scara_trajectory_append_point(traj, x, y, z, a, system, duration, length);
+    scara_trajectory_append_point(traj, x, y, z, a, p, system, duration, length);
 }
 
 void scara_trajectory_delete(scara_trajectory_t *traj)
@@ -108,6 +110,7 @@ scara_waypoint_t scara_trajectory_interpolate_waypoints(scara_waypoint_t k1, sca
     }
 
     result.hand_angle = interpolate(t, k1.hand_angle, k2.hand_angle);
+    result.pitch_angle = interpolate(t, k1.pitch_angle, k2.pitch_angle);
 
     return result;
 }

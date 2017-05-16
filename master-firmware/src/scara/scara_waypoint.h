@@ -20,6 +20,7 @@ typedef struct {
     scara_coordinate_t coordinate_type; /**< The coordinate system of this trajectory. */
     float length[3];                    /**< The length of the arm to use. */
     float hand_angle;                   /**< The angle of the hand in degree. */
+    float pitch_angle;                  /**< The pitch angle of the hand in degree. */
 } scara_waypoint_t;
 
 
