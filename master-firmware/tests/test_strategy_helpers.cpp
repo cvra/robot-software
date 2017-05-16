@@ -24,9 +24,9 @@ TEST_GROUP(ArmSetTrajectory)
     struct robot_position pos;
 
     arm_waypoint_t trajectory[3] = {
-        {.x=0, .y=0, .z=0, .a=0, .coord=COORDINATE_TABLE, .dt=1000, .l3=20},
-        {.x=100, .y=0, .z=0, .a=90, .coord=COORDINATE_TABLE, .dt=1000, .l3=20},
-        {.x=100, .y=100, .z=0, .a=180, .coord=COORDINATE_TABLE, .dt=1000, .l3=20},
+        {.x=0, .y=0, .z=0, .a=0, .p=-90, .coord=COORDINATE_TABLE, .dt=1000, .l3=20},
+        {.x=100, .y=0, .z=0, .a=90, .p=0, .coord=COORDINATE_TABLE, .dt=1000, .l3=20},
+        {.x=100, .y=100, .z=0, .a=180, .p=90, .coord=COORDINATE_TABLE, .dt=1000, .l3=20},
     };
 
     void setup()
@@ -63,10 +63,12 @@ TEST(ArmSetTrajectory, SetsGivenPointInTrajectory)
     CHECK_EQUAL(100, arm.trajectory.frames[1].position[0]);
     CHECK_EQUAL(0, arm.trajectory.frames[1].position[1]);
     DOUBLES_EQUAL(M_PI/2, arm.trajectory.frames[1].hand_angle, 1e-2);
+    DOUBLES_EQUAL(0, arm.trajectory.frames[1].pitch_angle, 1e-2);
 
     CHECK_EQUAL(100, arm.trajectory.frames[2].position[0]);
     CHECK_EQUAL(100, arm.trajectory.frames[2].position[1]);
     DOUBLES_EQUAL(M_PI, arm.trajectory.frames[2].hand_angle, 1e-2);
+    DOUBLES_EQUAL(M_PI/2, arm.trajectory.frames[2].pitch_angle, 1e-2);
 }
 
 TEST(ArmSetTrajectory, SetsMirrorsPointInTrajectory)
@@ -77,10 +79,12 @@ TEST(ArmSetTrajectory, SetsMirrorsPointInTrajectory)
     CHECK_EQUAL(2900, arm.trajectory.frames[1].position[0]);
     CHECK_EQUAL(0, arm.trajectory.frames[1].position[1]);
     DOUBLES_EQUAL(M_PI/2, arm.trajectory.frames[1].hand_angle, 1e-2);
+    DOUBLES_EQUAL(0, arm.trajectory.frames[1].pitch_angle, 1e-2);
 
     CHECK_EQUAL(2900, arm.trajectory.frames[2].position[0]);
     CHECK_EQUAL(100, arm.trajectory.frames[2].position[1]);
     DOUBLES_EQUAL(0, arm.trajectory.frames[2].hand_angle, 1e-2);
+    DOUBLES_EQUAL(M_PI/2, arm.trajectory.frames[2].pitch_angle, 1e-2);
 }
 
 TEST(ArmSetTrajectory, SetsTimeCorrectly)
