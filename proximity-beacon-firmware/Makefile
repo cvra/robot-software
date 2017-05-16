@@ -107,13 +107,12 @@ include $(BASE_DIR)/board/board.mk
 include src/src.mk
 
 # Define linker script file here
-LDSCRIPT = $(BASE_DIR)/$(BOARDLDSCRIPT)
+LDSCRIPT = $(BASE_DIR)/board/$(BOARDLDSCRIPT)
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
 CSRC = $(PORTSRC) \
        $(KERNSRC) \
-       $(TESTSRC) \
        $(HALSRC) \
        $(OSALSRC) \
        $(PLATFORMSRC) \

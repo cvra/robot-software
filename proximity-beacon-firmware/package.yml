@@ -7,6 +7,7 @@ include_directories:
 target.arm:
     - src/main.c
     - src/proximity_beacon.c
+    - src/proximity_beacon_publisher.cpp
     - ../motor-control-firmware/src/blocking_uart_driver.c
     - ../motor-control-firmware/src/control.c
     - ../motor-control-firmware/src/encoder.c
@@ -23,18 +24,7 @@ target.arm:
     - ../motor-control-firmware/src/uavcan/uavcan_node.cpp
     - ../motor-control-firmware/src/uavcan/Reboot_handler.cpp
     - ../motor-control-firmware/src/uavcan/EmergencyStop_handler.cpp
-    - ../motor-control-firmware/src/uavcan/Trajectory_handler.cpp
-    - ../motor-control-firmware/src/uavcan/Velocity_handler.cpp
-    - ../motor-control-firmware/src/uavcan/Position_handler.cpp
-    - ../motor-control-firmware/src/uavcan/Torque_handler.cpp
-    - ../motor-control-firmware/src/uavcan/Voltage_handler.cpp
     - ../motor-control-firmware/src/uavcan/parameter_server.cpp
-    - ../motor-control-firmware/src/uavcan/LoadConfiguration_server.cpp
-    - ../motor-control-firmware/src/uavcan/CurrentPID_server.cpp
-    - ../motor-control-firmware/src/uavcan/VelocityPID_server.cpp
-    - ../motor-control-firmware/src/uavcan/PositionPID_server.cpp
-    - ../motor-control-firmware/src/uavcan/TorqueLimit_server.cpp
-    - ../motor-control-firmware/src/uavcan/uavcan_streams.cpp
     - ../motor-control-firmware/src/libstubs.cpp
     - ../motor-control-firmware/src/stream.c
     - ../motor-control-firmware/src/uart_stream.c
