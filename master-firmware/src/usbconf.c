@@ -119,7 +119,7 @@ static const uint8_t vcom_string0[] = {
 
 /* Vendor string.  */
 static const uint8_t vcom_string1[] = {
-    USB_DESC_BYTE(38),                    /* bLength.                         */
+    USB_DESC_BYTE(10),                    /* bLength.                         */
     USB_DESC_BYTE(USB_DESCRIPTOR_STRING), /* bDescriptorType.                 */
     'C', 0, 'V', 0, 'R', 0, 'A', 0,
 };
@@ -136,11 +136,14 @@ static const uint8_t vcom_string2[] = {
 
 /* Serial Number string.  */
 static const uint8_t vcom_string3[] = {
-    USB_DESC_BYTE(8),                     /* bLength.                         */
+    USB_DESC_BYTE(14),                     /* bLength.                         */
     USB_DESC_BYTE(USB_DESCRIPTOR_STRING), /* bDescriptorType.                 */
-    '0' + CH_KERNEL_MAJOR, 0,
-    '0' + CH_KERNEL_MINOR, 0,
-    '0' + CH_KERNEL_PATCH, 0
+    'm', 0,
+    'a', 0,
+    's', 0,
+    't', 0,
+    'e', 0,
+    'r', 0,
 };
 
 /* Strings wrappers array.  */
