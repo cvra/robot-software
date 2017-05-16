@@ -20,8 +20,6 @@ language: cpp
 
 matrix:
     include:
-        - compiler: clang
-          env: BUILD_TYPE="tests"
         - compiler: gcc
           env: BUILD_TYPE="tests"
         - compiler: gcc
