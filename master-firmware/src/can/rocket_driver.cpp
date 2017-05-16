@@ -25,7 +25,10 @@ static void timer_cb(const uavcan::TimerEvent &event)
     uint8_t node_id = bus_enumerator_get_can_id(&bus_enumerator, ROCKET_BOARD_NAME);
     if (node_id == BUS_ENUMERATOR_CAN_ID_NOT_SET ||
         node_id == BUS_ENUMERATOR_STRING_ID_NOT_FOUND) {
-        WARNING("Rocket launcher id was not found correctly [res: %d]", node_id);
+        static int warning_prescaler = 0;
+        if (warning_prescaler ++ % 20 == 0) {
+            WARNING("Rocket launcher id was not found correctly [res: %d]", node_id);
+        }
         return;
     }
 
