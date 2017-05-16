@@ -116,7 +116,7 @@ int main(void) {
 
     control_init();
 
-    index_init();
+    // index_init();
 
     // uart_stream_start(ch_stdout);
     parameter_listener_start(ch_stdout);

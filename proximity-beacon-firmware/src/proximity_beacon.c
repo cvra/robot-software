@@ -4,7 +4,6 @@
 #include <math.h>
 #include <timestamp/timestamp.h>
 #include <timestamp/timestamp_stm32.h>
-#include "control.h"
 #include "proximity_beacon.h"
 
 // max 7 signals per tour
