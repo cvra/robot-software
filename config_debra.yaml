@@ -312,15 +312,14 @@ actuator:
         control:
             current:
                 kp: 22.
-                ki: 4000.
+                ki: 6000.
                 kd: 0.
                 ilimit: 100.
-
             velocity:
-                kp: 0.2
-                ki: 0.5
+                kp: 1
+                ki: 20
                 kd: 0.
-                ilimit: 0.1
+                ilimit: 100
             position:
                 kp: 5.
                 ki: 1.
@@ -330,7 +329,7 @@ actuator:
             low_batt_th: 12
             acceleration_limit: 100.
             velocity_limit: 10
-            torque_limit: 1.3
+            torque_limit: 5
     left-wrist-up:
         stream:
             current_pid: 0
@@ -349,15 +348,15 @@ actuator:
         control:
             current:
                 kp: 22.
-                ki: 4000.
+                ki: 6000.
                 kd: 0.
                 ilimit: 100.
 
             velocity:
-                kp: 0.2
-                ki: 0.5
+                kp: 1
+                ki: 20
                 kd: 0.
-                ilimit: 0.1
+                ilimit: 100
             position:
                 kp: 5.
                 ki: 1.
@@ -367,7 +366,7 @@ actuator:
             low_batt_th: 12
             acceleration_limit: 100.
             velocity_limit: 10
-            torque_limit: 1.3
+            torque_limit: 5
     right-z:
         stream:
             current_pid: 0
