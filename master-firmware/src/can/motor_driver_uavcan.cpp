@@ -205,15 +205,10 @@ static void motor_driver_send_initial_config(motor_driver_t *d)
 
 static int motor_driver_uavcan_update_config(motor_driver_t *d)
 {
-    int changed = 0;
     update_motor_can_id(d);
     int node_id = motor_driver_get_can_id(d);
     if (node_id == CAN_ID_NOT_SET) {
         return 0;
-    }
-
-    if (parameter_namespace_contains_changed(&d->config.root)) {
-        changed = 1;
     }
 
     if (parameter_namespace_contains_changed(&d->config.control)) {
@@ -225,6 +220,7 @@ static int motor_driver_uavcan_update_config(motor_driver_t *d)
             request.pid.ilimit = parameter_scalar_get(&d->config.position_pid.ilimit);
 
             position_pid_client->call(node_id, request);
+            return 1;
         }
 
         if (parameter_namespace_contains_changed(&d->config.velocity_pid.root)) {
@@ -235,6 +231,7 @@ static int motor_driver_uavcan_update_config(motor_driver_t *d)
             request.pid.ilimit = parameter_scalar_get(&d->config.velocity_pid.ilimit);
 
             speed_pid_client->call(node_id, request);
+            return 1;
         }
 
         if (parameter_namespace_contains_changed(&d->config.current_pid.root)) {
@@ -245,6 +242,7 @@ static int motor_driver_uavcan_update_config(motor_driver_t *d)
             request.pid.ilimit = parameter_scalar_get(&d->config.current_pid.ilimit);
 
             current_pid_client->call(node_id, request);
+            return 1;
         }
     }
     if (parameter_namespace_contains_changed(&d->config.stream)) {
@@ -252,44 +250,52 @@ static int motor_driver_uavcan_update_config(motor_driver_t *d)
             send_stream_config(node_id,
                                config::FeedbackStream::Request::STREAM_CURRENT_PID,
                                parameter_scalar_get(&d->config.current_pid_stream));
+            return 1;
         }
         if (parameter_changed(&d->config.velocity_pid_stream)) {
             send_stream_config(node_id,
                                config::FeedbackStream::Request::STREAM_VELOCITY_PID,
                                parameter_scalar_get(&d->config.velocity_pid_stream));
+            return 1;
         }
         if (parameter_changed(&d->config.position_pid_stream)) {
             send_stream_config(node_id,
                                config::FeedbackStream::Request::STREAM_POSITION_PID,
                                parameter_scalar_get(&d->config.position_pid_stream));
+            return 1;
         }
         if (parameter_changed(&d->config.index_stream)) {
             send_stream_config(node_id,
                                config::FeedbackStream::Request::STREAM_INDEX,
                                parameter_scalar_get(&d->config.index_stream));
+            return 1;
         }
         if (parameter_changed(&d->config.encoder_pos_stream)) {
             send_stream_config(node_id,
                                config::FeedbackStream::Request::STREAM_MOTOR_ENCODER,
                                parameter_scalar_get(&d->config.encoder_pos_stream));
+            return 1;
         }
         if (parameter_changed(&d->config.motor_pos_stream)) {
             send_stream_config(node_id,
                                config::FeedbackStream::Request::STREAM_MOTOR_POSITION,
                                parameter_scalar_get(&d->config.motor_pos_stream));
+            return 1;
         }
         if (parameter_changed(&d->config.motor_torque_stream)) {
             send_stream_config(node_id,
                                config::FeedbackStream::Request::STREAM_MOTOR_TORQUE,
                                parameter_scalar_get(&d->config.motor_torque_stream));
+            return 1;
         }
     }
     if (parameter_namespace_contains_changed(&d->config.root)) {
         // still some changed parameters: need to resend full config
         motor_driver_send_initial_config(d);
+        return 1;
     }
 
-    return changed;
+    return 0;
 }
 
 static void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
