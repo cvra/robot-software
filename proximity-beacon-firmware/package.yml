@@ -1,0 +1,57 @@
+dependency-dir: ../lib
+
+include_directories:
+  - ../motor-control-firmware/src
+  - src
+
+target.arm:
+    - src/main.c
+    - src/proximity_beacon.c
+    - ../motor-control-firmware/src/blocking_uart_driver.c
+    - ../motor-control-firmware/src/control.c
+    - ../motor-control-firmware/src/encoder.c
+    - ../motor-control-firmware/src/motor_pwm.c
+    - ../motor-control-firmware/src/analog.c
+    - ../motor-control-firmware/src/pid_cascade.c
+    - ../motor-control-firmware/src/motor_protection.c
+    - ../motor-control-firmware/src/setpoint.c
+    - ../motor-control-firmware/src/feedback.c
+    - ../motor-control-firmware/src/index.c
+    - ../motor-control-firmware/src/rpm.c
+    - ../motor-control-firmware/src/bootloader_config.c
+    - ../motor-control-firmware/src/reboot.c
+    - ../motor-control-firmware/src/uavcan/uavcan_node.cpp
+    - ../motor-control-firmware/src/uavcan/Reboot_handler.cpp
+    - ../motor-control-firmware/src/uavcan/EmergencyStop_handler.cpp
+    - ../motor-control-firmware/src/uavcan/Trajectory_handler.cpp
+    - ../motor-control-firmware/src/uavcan/Velocity_handler.cpp
+    - ../motor-control-firmware/src/uavcan/Position_handler.cpp
+    - ../motor-control-firmware/src/uavcan/Torque_handler.cpp
+    - ../motor-control-firmware/src/uavcan/Voltage_handler.cpp
+    - ../motor-control-firmware/src/uavcan/parameter_server.cpp
+    - ../motor-control-firmware/src/uavcan/LoadConfiguration_server.cpp
+    - ../motor-control-firmware/src/uavcan/CurrentPID_server.cpp
+    - ../motor-control-firmware/src/uavcan/VelocityPID_server.cpp
+    - ../motor-control-firmware/src/uavcan/PositionPID_server.cpp
+    - ../motor-control-firmware/src/uavcan/TorqueLimit_server.cpp
+    - ../motor-control-firmware/src/uavcan/uavcan_streams.cpp
+    - ../motor-control-firmware/src/libstubs.cpp
+    - ../motor-control-firmware/src/stream.c
+    - ../motor-control-firmware/src/uart_stream.c
+    - ../motor-control-firmware/src/parameter_listener.c
+    - ../motor-control-firmware/../lib/can-bootloader/config.c
+
+depends:
+    - pid
+    - serial-datagram
+    - cmp_mem_access
+    - version
+    - filter:
+        fork: froj
+    - parameter:
+        fork: Stapelzeiger
+    - timestamp:
+        fork: Stapelzeiger
+
+templates:
+    Makefile.include.jinja: src/src.mk
