@@ -1046,7 +1046,8 @@ static void cmd_scara_traj(BaseSequentialStream *chp, int argc, char *argv[])
     chprintf(chp, "enter trajectory points, press x to execute, q to abort and exit\n");
     chprintf(chp, "input:\n> coord x y z a dt l3\n");
 
-    scara_trajectory_init(&arm->trajectory);
+    scara_trajectory_t trajectory;
+    scara_trajectory_init(&trajectory);
     unsigned i = 0;
     char* token = NULL;
     char* coord = NULL;
@@ -1088,7 +1089,7 @@ static void cmd_scara_traj(BaseSequentialStream *chp, int argc, char *argv[])
         }
         if (j == point_len) {
             scara_trajectory_append_point_with_length(
-                &arm->trajectory, point[0], point[1], point[2], RADIANS(point[3]),
+                &trajectory, point[0], point[1], point[2], RADIANS(point[3]),
                 system, (float)point[4] * 0.001, arm->length[0], arm->length[1], point[5]);
             i++;
 
@@ -1096,7 +1097,7 @@ static void cmd_scara_traj(BaseSequentialStream *chp, int argc, char *argv[])
                      i, coord, point[0], point[1], point[2], point[3], point[4], point[5]);
         }
     }
-    scara_do_trajectory(arm, &arm->trajectory);
+    scara_do_trajectory(arm, &trajectory);
 }
 
 static void cmd_wrist_offset(BaseSequentialStream *chp, int argc, char *argv[])
