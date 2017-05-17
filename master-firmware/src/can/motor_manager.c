@@ -1,4 +1,5 @@
 #include <ch.h>
+#include <string.h>
 #include "motor_manager.h"
 #include "config.h"
 #include "main.h"
@@ -9,6 +10,9 @@ void motor_manager_init(motor_manager_t *m,
                         uint16_t motor_driver_buffer_len,
                         bus_enumerator_t *bus_enumerator)
 {
+    memset(motor_driver_buffer, 0,
+           motor_driver_buffer_len * sizeof(motor_driver_t));
+
     m->motor_driver_buffer = motor_driver_buffer;
     m->motor_driver_buffer_len = motor_driver_buffer_len;
     m->bus_enumerator = bus_enumerator;
