@@ -470,7 +470,7 @@ actuator:
             acceleration_limit: 100.
             velocity_limit: 10.
             torque_limit: 3
-    right-wrist:
+    right-wrist-down:
         stream:
             current_pid: 0
             velocity_pid: 0
@@ -478,34 +478,71 @@ actuator:
             motor_pos: 50
             index: 0
         motor:
-            # motor: 1516SR
-            mode: 3 # periodic
+            # motor: 1524E012SR IE-512
+            mode: 3 # bounded
             motor_encoder_steps_per_revolution: 2048
-            second_encoder_steps_per_revolution: 0
-            # transmission: motor: 1/76 gears: 20/50
+            # transmission: motor: 1/76
             transmission_ratio_p: 1
-            transmission_ratio_q: 190
+            transmission_ratio_q: 76
             torque_constant: 0.0115 # Nm/A
         control:
             current:
-                kp: 20.
-                ki: 500.
+                kp: 22.
+                ki: 6000.
                 kd: 0.
                 ilimit: 100.
             velocity:
-                kp: 10
-                ki: 100
+                kp: 1
+                ki: 20
                 kd: 0.
                 ilimit: 100
             position:
-                kp: 10
-                ki: 0
-                kd: 0
+                kp: 5.
+                ki: 1.
+                kd: 0.1
+                ilimit: 10.
 
             low_batt_th: 12
             acceleration_limit: 100.
-            velocity_limit: 8.
-            torque_limit: 1.3
+            velocity_limit: 10
+            torque_limit: 5
+    right-wrist-up:
+        stream:
+            current_pid: 0
+            velocity_pid: 0
+            position_pid: 0
+            motor_pos: 50
+            index: 0
+        motor:
+            # motor: 1524E012SR IE-512
+            mode: 3 # bounded
+            motor_encoder_steps_per_revolution: 2048
+            # transmission: motor: 1/76
+            transmission_ratio_p: 1
+            transmission_ratio_q: 76
+            torque_constant: 0.0115 # Nm/A
+        control:
+            current:
+                kp: 22.
+                ki: 6000.
+                kd: 0.1
+                ilimit: 100.
+
+            velocity:
+                kp: 1
+                ki: 20
+                kd: 0.
+                ilimit: 100
+            position:
+                kp: 5.
+                ki: 1.
+                kd: 0.
+                ilimit: 10.
+
+            low_batt_th: 12
+            acceleration_limit: 100.
+            velocity_limit: 10
+            torque_limit: 5
 
     right-element-rotate:
         motor:
