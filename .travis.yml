@@ -30,6 +30,8 @@ matrix:
           env: BUILD_TYPE="build" PLATFORM="motor-control-firmware"
         - compiler: gcc
           env: BUILD_TYPE="build" PLATFORM="can-io-firmware"
+        - compiler: gcc
+          env: BUILD_TYPE="build" PLATFORM="proximity-beacon-firmware"
 
 before_install:
     - git submodule update --init --recursive
