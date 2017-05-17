@@ -323,7 +323,7 @@ actuator:
             position:
                 kp: 10.
                 ki: 1.
-                kd: 0.
+                kd: 0.1
                 ilimit: 10.
 
             low_batt_th: 12
@@ -359,7 +359,7 @@ actuator:
             position:
                 kp: 10.
                 ki: 1.
-                kd: 0.
+                kd: 0.1
                 ilimit: 10.
 
             low_batt_th: 12
