@@ -1,3 +1,5 @@
+#include <ch.h>
+#include <hal.h>
 
 #include <uavcan/uavcan.hpp>
 #include <uavcan/protocol/NodeStatus.hpp>
