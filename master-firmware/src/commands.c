@@ -1055,49 +1055,58 @@ static void cmd_scara_traj(BaseSequentialStream *chp, int argc, char *argv[])
     scara_coordinate_t system = COORDINATE_ARM;
     const unsigned point_len = sizeof(point) / sizeof(long) + 1;
 
-    while (true && i < SCARA_TRAJ_MAX_NUM_FRAMES) {
-        chprintf(chp, "> ");
-        if (shellGetLine(chp, line, sizeof(line)) || line[0] == 'q') {
-            chprintf(chp, "q or CTRL-D was pressed. Exiting...\n");
-            return;
-        } else if (strcmp("x", line) == 0) {
-            chprintf(chp, "x pressed. Executing trajectory...\n");
-            break;
-        }
-
-        unsigned j = 0;
-        coord = strtok(line, " ");
-        if (coord != NULL) {
-            if (strcmp("robot", coord) == 0) {
-                system = COORDINATE_ROBOT;
-            } else if (strcmp("table", coord) == 0) {
-                system = COORDINATE_TABLE;
-            } else {
-                system = COORDINATE_ARM;
-            }
-            j++;
-        }
-        token = strtok(NULL, " ");
-        while (j < point_len) {
-            if (token != NULL) {
-                point[j - 1] = strtol(token, NULL, 10);
-                j++;
-                token = strtok(NULL, " ");
-            } else {
+    while (true) {
+        while (i < SCARA_TRAJ_MAX_NUM_FRAMES) {
+            chprintf(chp, "> ");
+            if (shellGetLine(chp, line, sizeof(line)) || line[0] == 'q') {
+                chprintf(chp, "q or CTRL-D was pressed. Exiting...\n");
+                return;
+            } else if (strcmp("x", line) == 0) {
+                chprintf(chp, "x pressed. Executing trajectory...\n");
                 break;
             }
-        }
-        if (j == point_len) {
-            scara_trajectory_append_point_with_length(
-                &trajectory, point[0], point[1], point[2], RADIANS(point[3]), RADIANS(point[4]),
-                system, (float)point[5] * 0.001, arm->length[0], arm->length[1], point[6]);
-            i++;
 
-            chprintf(chp, "Point %d coord:%s x:%d y:%d z:%d a:%d p:%d dt:%d l3:%d added successfully.\n",
-                     i, coord, point[0], point[1], point[2], point[3], point[4], point[5], point[6]);
+            unsigned j = 0;
+            coord = strtok(line, " ");
+
+            if (coord != NULL) {
+                if (strcmp("robot", coord) == 0) {
+                    system = COORDINATE_ROBOT;
+                } else if (strcmp("table", coord) == 0) {
+                    system = COORDINATE_TABLE;
+                } else {
+                    system = COORDINATE_ARM;
+                }
+                j++;
+            }
+
+            token = strtok(NULL, " ");
+            while (j < point_len) {
+                if (token != NULL) {
+                    /* If the token was "_" we keep the coordinate from previous point. */
+                    if (strcmp(token, "_") != 0) {
+                        point[j - 1] = strtol(token, NULL, 10);
+                    }
+
+                    j++;
+                    token = strtok(NULL, " ");
+                } else {
+                    break;
+                }
+            }
+
+            if (j == point_len) {
+                scara_trajectory_append_point_with_length(
+                        &trajectory, point[0], point[1], point[2], RADIANS(point[3]), RADIANS(point[4]),
+                        system, (float)point[5] * 0.001, arm->length[0], arm->length[1], point[6]);
+                i++;
+
+                chprintf(chp, "Point %d coord:%s x:%d y:%d z:%d a:%d p:%d dt:%d l3:%d added successfully.\n",
+                        i, coord, point[0], point[1], point[2], point[3], point[4], point[5], point[6]);
+            }
         }
+        scara_do_trajectory(arm, &trajectory);
     }
-    scara_do_trajectory(arm, &trajectory);
 }
 
 static void cmd_wrist_offset(BaseSequentialStream *chp, int argc, char *argv[])
