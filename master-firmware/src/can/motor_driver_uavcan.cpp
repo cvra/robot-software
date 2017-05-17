@@ -109,9 +109,13 @@ int motor_driver_uavcan_init(INode &node)
 
         motor_manager_get_list(&motor_manager, &drv_list, &drv_list_len);
 
+
+        palClearPad(GPIOF, GPIOF_LED_BUS_ERROR);
+
         for (int i = 0; i < drv_list_len; i++) {
             /* Only update one motor per 50 ms to avoid overloading the bus. */
             if (motor_driver_uavcan_update_config(&drv_list[i])) {
+                palSetPad(GPIOF, GPIOF_LED_BUS_ERROR);
                 break;
             }
         }
