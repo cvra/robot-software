@@ -279,7 +279,7 @@ void scara_manage(scara_t *arm)
                               frame.coordinate_type,
                               frame.length[2]);
 
-        NOTICE("Arm x %.3f y %.3f a %.3f p %.3f Arm velocities %.3f %.3f %.3f %.3f",
+        DEBUG("Arm x %.3f y %.3f a %.3f p %.3f Arm velocities %.3f %.3f %.3f %.3f",
               measured_x, measured_y, measured_a, measured_p,
               velocity_alpha, velocity_beta, velocity_gamma, velocity_delta);
 
