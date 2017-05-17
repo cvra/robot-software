@@ -195,10 +195,10 @@ int main(void) {
     usbStart(serusbcfg.usbp, &usbcfg);
     usbConnectBus(serusbcfg.usbp);
 
-    log_init();
-
     /* Try to mount the filesystem. */
     filesystem_start();
+
+    log_init();
 
     NOTICE("boot");
 
