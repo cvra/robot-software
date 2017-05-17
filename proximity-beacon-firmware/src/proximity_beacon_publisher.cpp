@@ -39,4 +39,3 @@ int proximity_beacon_start(Node &node)
     int ret = signal_pub->init();
     return ret;
 }
-
