@@ -750,16 +750,23 @@ void strategy_debra_play_game(void)
     wait_for_autoposition_signal();
     NOTICE("Positioning robot");
 
+    robot.base_speed = BASE_SPEED_INIT;
+
     // First alignment
     strategy_auto_position(MIRROR_X(color, 300), 200, MIRROR_A(color, -90), color);
     robot.pos.pos_d.y += 382;
     robot.pos.pos_s16.y += 382;
 
     // Second alignement only in y at starting area
+    robot.base_speed = BASE_SPEED_FAST;
     strategy_goto_avoid_retry(MIRROR_X(color, 890), 200, MIRROR_A(color, -90), TRAJ_END_GOAL_REACHED, -1);
+    robot.base_speed = BASE_SPEED_INIT;
+
     strategy_align_y(170);
     trajectory_a_abs(&robot.traj, MIRROR_A(color, 90));
     trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
+
+    robot.base_speed = BASE_SPEED_FAST;
 
     NOTICE("Robot positioned at x: %d[mm], y: %d[mm], a: %d[deg]",
            position_get_x_s16(&robot.pos), position_get_y_s16(&robot.pos), position_get_a_deg_s16(&robot.pos));

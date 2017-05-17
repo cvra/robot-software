@@ -34,20 +34,20 @@ master:
                 speed: # in rad / s
                     init: 0.75
                     slow: 0.75
-                    fast: 6.
+                    fast: 2.
                 acceleration: # in rad / s^2
                     init: 1.57
                     slow: 1.57
-                    fast: 30.
+                    fast: 10.
             distance:
                 speed: # in m / s
                     init: 0.1
-                    slow: 0.1
-                    fast: 0.6
+                    slow: 0.2
+                    fast: 0.3
                 acceleration: # in m / s^2
                     init: 0.15
-                    slow: 0.15
-                    fast: 3.
+                    slow: 0.5
+                    fast: 1.
     left_arm:
         control:
             x:
