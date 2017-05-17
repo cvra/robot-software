@@ -26,8 +26,8 @@ void panic_hook(const char* reason)
     blocking_uart_init(&blocking_uart_stream, USART3, 115200);
     BaseSequentialStream* uart = (BaseSequentialStream*)&blocking_uart_stream;
     int i;
-    while(42){
-        for(i = 10000000; i>0; i--){
+    while (1) {
+        for (i = 10000000; i > 0; i--) {
             __asm__ volatile ("nop");
         }
         chprintf(uart, "Panic: %s\n", reason);
@@ -42,7 +42,8 @@ void __assert_func(const char *_file, int _line, const char *_func, const char *
     (void)_expr;
 
     chSysHalt("assertion failed");
-    while(1);
+    while (1) {
+    }
 }
 
 static THD_WORKING_AREA(led_thread_wa, 128);
@@ -71,7 +72,7 @@ static THD_FUNCTION(led_thread, arg)
             palSetPad(GPIOA, GPIOA_LED);
 
             chThdSleepMilliseconds(720);
-        }else {
+        } else {
             palClearPad(GPIOA, GPIOA_LED);
             chThdSleepMilliseconds(80);
             palSetPad(GPIOA, GPIOA_LED);
@@ -84,7 +85,8 @@ static THD_FUNCTION(led_thread, arg)
     }
 }
 
-int main(void) {
+int main(void)
+{
     halInit();
     chSysInit();
 
@@ -116,9 +118,6 @@ int main(void) {
 
     control_init();
 
-    index_init();
-
-    // uart_stream_start(ch_stdout);
     parameter_listener_start(ch_stdout);
     chThdCreateStatic(led_thread_wa, sizeof(led_thread_wa), LOWPRIO, led_thread, NULL);
 
