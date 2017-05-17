@@ -105,7 +105,7 @@ master:
             offset_y: -120. # in mm
             offset_a: -1.57 # in radians
         motor_offsets:
-            left-z: -207. # in mm
+            left-z: -154. # in mm
             left-shoulder: 0. # in radians
             left-elbow: 0. # in radians
             left-wrist-heading: 0. # in radians

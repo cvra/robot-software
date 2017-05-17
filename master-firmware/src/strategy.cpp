@@ -307,18 +307,19 @@ struct RetractArms : public goap::Action<DebraState> {
         scara_ugly_mode_enable(&right_arm);
 
         // First move arms up
-        scara_move_z(&left_arm, 160, COORDINATE_ROBOT, 0.5);
-        scara_move_z(&right_arm, 160, COORDINATE_ROBOT, 0.5);
+        scara_move_z(&left_arm, 110, COORDINATE_ROBOT, 0.5);
+        scara_move_z(&right_arm, 110, COORDINATE_ROBOT, 0.5);
         strategy_wait_ms(500);
 
-        // Then retract arms
-        scara_goto(&left_arm, -180, 70, 120, RADIANS(180), RADIANS(0), COORDINATE_ROBOT, 1.);
-        scara_goto(&right_arm, 180, -70, 120, RADIANS(0), RADIANS(0), COORDINATE_ROBOT, 1.);
+        scara_goto(&left_arm, 180, 0, 60, RADIANS(180), RADIANS(-90), COORDINATE_ARM, 1.);
+        scara_goto(&right_arm, 180, 0, 60, RADIANS(0), RADIANS(-90), COORDINATE_ARM, 1.);
         strategy_wait_ms(1000);
 
-        // Go back to smooth control
-        scara_ugly_mode_disable(&left_arm);
-        scara_ugly_mode_disable(&right_arm);
+        // Then retract arms
+        scara_goto(&left_arm, -150, 80, 60, RADIANS(180), RADIANS(-90), COORDINATE_ROBOT, 1.);
+        scara_goto(&right_arm, 150, -80, 60, RADIANS(0), RADIANS(-90), COORDINATE_ROBOT, 1.);
+        strategy_wait_ms(1000);
+
 
         state.arms_are_deployed = false;
         return true;
@@ -352,8 +353,16 @@ struct CollectRocketCylinders : public goap::Action<DebraState> {
         scara_t* arm = &left_arm;
         hand_t* hand = &left_hand;
 
+        // Go back to smooth control
+        scara_ugly_mode_disable(&left_arm);
+        scara_ugly_mode_disable(&right_arm);
+
         // Approach rocket with wheelbase
-        if (!strategy_goto_avoid(MIRROR_X(m_color, 1250), 350, MIRROR_A(m_color, 180), TRAJ_FLAGS_ALL)) {
+        if (!strategy_goto_avoid(MIRROR_X(m_color, 1250), 350, MIRROR_A(m_color, -135), TRAJ_FLAGS_ALL)) {
+            state.arms_are_deployed = true;
+            return false;
+        }
+        if (!strategy_goto_avoid(MIRROR_X(m_color, 1040), 260, MIRROR_A(m_color, -135), TRAJ_FLAGS_ALL)) {
             state.arms_are_deployed = true;
             return false;
         }
@@ -365,8 +374,8 @@ struct CollectRocketCylinders : public goap::Action<DebraState> {
 
             // Prepare arm
             arm_waypoint_t prepare_pickup_traj[2] = {
-                {.x=1140, .y=50, .z=120, .a=220, .p=0, .coord=COORDINATE_TABLE, .dt=1000, .l3=160},
-                {.x=1140, .y=50, .z=50, .a=220, .p=0, .coord=COORDINATE_TABLE, .dt=1000, .l3=160},
+                {.x=180, .y=0, .z=100,   .a=0, .p=-90, .coord=COORDINATE_ARM, .dt=0, .l3=55},
+                {.x=1170, .y=20, .z=50, .a=-142, .p=-90, .coord=COORDINATE_TABLE, .dt=5000, .l3=130},
             };
             strategy_wait_ms(strategy_set_arm_trajectory(arm, m_color, &prepare_pickup_traj[0],
                              sizeof(prepare_pickup_traj) / sizeof(arm_waypoint_t)));
@@ -376,8 +385,8 @@ struct CollectRocketCylinders : public goap::Action<DebraState> {
 
             // Approach cylinder
             arm_waypoint_t pick_cylinder_traj[2] = {
-                {.x=1140, .y=50, .z=50, .a=220, .p=0, .coord=COORDINATE_TABLE, .dt=1000, .l3=160},
-                {.x=1140, .y=50, .z=50, .a=220, .p=0, .coord=COORDINATE_TABLE, .dt=1000, .l3=40},
+                {.x=1170, .y=20, .z=50, .a=-142, .p=-90, .coord=COORDINATE_TABLE, .dt=0, .l3=130},
+                {.x=1170, .y=20, .z=50, .a=-142, .p=-90, .coord=COORDINATE_TABLE, .dt=5000, .l3=55},
             };
             strategy_wait_ms(strategy_set_arm_trajectory(arm, m_color, &pick_cylinder_traj[0],
                              sizeof(pick_cylinder_traj) / sizeof(arm_waypoint_t)));
@@ -385,18 +394,11 @@ struct CollectRocketCylinders : public goap::Action<DebraState> {
             // Get cylinder
             hand_set_finger(hand, i, FINGER_CLOSED);
             strategy_wait_ms(200);
-            // Try open and close again to secure cylinder
-            for (int i = 0; i < 2; i++) {
-                hand_set_finger(hand, i, FINGER_OPEN);
-                strategy_wait_ms(200);
-                hand_set_finger(hand, i, FINGER_CLOSED);
-                strategy_wait_ms(200);
-            }
 
             // Extract cylinder
             arm_waypoint_t extract_cylinder_traj[2] = {
-                {.x=1140, .y=50, .z=50, .a=220, .p=0, .coord=COORDINATE_TABLE, .dt=1000, .l3=40},
-                {.x=1140, .y=130, .z=50, .a=220, .p=0, .coord=COORDINATE_TABLE, .dt=1000, .l3=60},
+                {.x=1170, .y=20, .z=50, .a=-142, .p=-90, .coord=COORDINATE_TABLE, .dt=0, .l3=55},
+                {.x=1170, .y=20, .z=50, .a=-142, .p=-90, .coord=COORDINATE_TABLE, .dt=5000, .l3=130},
             };
             strategy_wait_ms(strategy_set_arm_trajectory(arm, m_color, &extract_cylinder_traj[0],
                              sizeof(extract_cylinder_traj) / sizeof(arm_waypoint_t)));
@@ -576,26 +578,26 @@ struct CollectCylinder : public goap::Action<DebraState> {
     {
         NOTICE("Collecting cylinder");
 
-        scara_t* arm = mirror_right_arm(m_color);
-        hand_t* hand = mirror_right_hand(m_color);
+        scara_t* arm = mirror_left_arm(m_color);
+        hand_t* hand = mirror_left_hand(m_color);
 
         // Select tool
         scara_set_wrist_heading_offset(arm, RADIANS(0));
 
         // Go above cylinder
-        scara_move_z(arm, 160, COORDINATE_ROBOT, 0.5);
+        scara_move_z(arm, 100, COORDINATE_ROBOT, 0.5);
         strategy_wait_ms(500);
 
         // Approach cylinder with wheelbase
-        if (!strategy_goto_avoid(MIRROR_X(m_color, 910), 415, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
+        if (!strategy_goto_avoid(MIRROR_X(m_color, 1150), 250, MIRROR_A(m_color, -135), TRAJ_FLAGS_ALL)) {
             state.arms_are_deployed = true;
             return false;
         }
 
         // Go right to cylinder and adjust height
         arm_waypoint_t prepare_pickup_traj[2] = {
-            {.x=1000, .y=600, .z=160, .a=270, .p=0, .coord=COORDINATE_TABLE, .dt=1000, .l3=180},
-            {.x=1000, .y=600, .z=50, .a=270, .p=0, .coord=COORDINATE_TABLE, .dt=1000, .l3=180},
+            {.x=180, .y=0, .z=100,   .a=0, .p=-90, .coord=COORDINATE_ARM, .dt=0, .l3=55},
+            {.x=1000, .y=600, .z=50, .a=-142, .p=-90, .coord=COORDINATE_TABLE, .dt=1000, .l3=130},
         };
         strategy_wait_ms(strategy_set_arm_trajectory(arm, m_color, &prepare_pickup_traj[0],
                          sizeof(prepare_pickup_traj) / sizeof(arm_waypoint_t)));
@@ -605,8 +607,8 @@ struct CollectCylinder : public goap::Action<DebraState> {
 
         // Approach cylinder xy
         arm_waypoint_t pick_cylinder_traj[2] = {
-            {.x=1000, .y=600, .z=50, .a=270, .p=0, .coord=COORDINATE_TABLE, .dt=0, .l3=180},
-            {.x=1000, .y=600, .z=50, .a=270, .p=0, .coord=COORDINATE_TABLE, .dt=1000, .l3=50},
+            {.x=1170, .y=20, .z=50, .a=-142, .p=-90, .coord=COORDINATE_TABLE, .dt=0, .l3=130},
+            {.x=1170, .y=20, .z=50, .a=-142, .p=-90, .coord=COORDINATE_TABLE, .dt=1000, .l3=55},
         };
         strategy_wait_ms(strategy_set_arm_trajectory(arm, m_color, &pick_cylinder_traj[0],
                          sizeof(pick_cylinder_traj) / sizeof(arm_waypoint_t)));
@@ -615,7 +617,16 @@ struct CollectCylinder : public goap::Action<DebraState> {
         hand_set_finger(hand, 0, FINGER_CLOSED);
         strategy_wait_ms(200);
 
-        state.cylinder_count++;
+        // Retract
+        // TODO pick up other cylinders
+        arm_waypoint_t retract_cylinder_traj[2] = {
+            {.x=1170, .y=20, .z=50, .a=-142, .p=-90, .coord=COORDINATE_TABLE, .dt=0, .l3=55},
+            {.x=1170, .y=20, .z=50, .a=-142, .p=-90, .coord=COORDINATE_TABLE, .dt=1000, .l3=130},
+        };
+        strategy_wait_ms(strategy_set_arm_trajectory(arm, m_color, &retract_cylinder_traj[0],
+                         sizeof(retract_cylinder_traj) / sizeof(arm_waypoint_t)));
+
+        state.cylinder_count ++;
         state.arms_are_deployed = true;
         return true;
     }
