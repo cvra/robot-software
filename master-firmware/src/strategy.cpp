@@ -37,6 +37,10 @@ static hand_t* mirror_left_hand(enum strat_color_t color);
 static hand_t* mirror_right_hand(enum strat_color_t color);
 
 #define BUTTON_IS_PRESSED(port, io) (palReadPad(port, io) == false) // Active low
+#define ARM_TRAJ_SYNCHRONOUS(arm, m_color, traj) do { \
+        strategy_wait_ms(strategy_set_arm_trajectory(arm, m_color, traj, \
+                         sizeof(traj) / sizeof(arm_waypoint_t))); \
+    } while (0)
 
 static enum strat_color_t wait_for_color_selection(void)
 {
@@ -287,6 +291,12 @@ struct IndexArms : public goap::Action<DebraState> {
 };
 
 struct RetractArms : public goap::Action<DebraState> {
+    enum strat_color_t m_color;
+
+    RetractArms(enum strat_color_t color)
+        : m_color(color)
+    {
+    }
     bool can_run(DebraState state)
     {
         return state.arms_are_indexed;
@@ -311,15 +321,16 @@ struct RetractArms : public goap::Action<DebraState> {
         scara_move_z(&right_arm, 110, COORDINATE_ROBOT, 0.5);
         strategy_wait_ms(500);
 
-        scara_goto(&left_arm, 180, 0, 60, RADIANS(180), RADIANS(-90), COORDINATE_ARM, 1.);
-        scara_goto(&right_arm, 180, 0, 60, RADIANS(0), RADIANS(-90), COORDINATE_ARM, 1.);
-        strategy_wait_ms(1000);
+        arm_waypoint_t left_traj[] = {
+            {.x=180, .y=0, .z=110, .a=0, .p=0, .coord=COORDINATE_ARM, .dt=1000, .l3=55},
+            {.x=180, .y=0, .z=80, .a=0, .p=-90, .coord=COORDINATE_ARM, .dt=2000, .l3=55},
+            {.x=-150, .y=80, .z=80, .a=180, .p=-90, .coord=COORDINATE_ROBOT, .dt=2000, .l3=55},
+        };
+        ARM_TRAJ_SYNCHRONOUS(&left_arm, m_color, left_traj);
 
-        // Then retract arms
-        scara_goto(&left_arm, -150, 80, 60, RADIANS(180), RADIANS(-90), COORDINATE_ROBOT, 1.);
-        scara_goto(&right_arm, 150, -80, 60, RADIANS(0), RADIANS(-90), COORDINATE_ROBOT, 1.);
-        strategy_wait_ms(1000);
-
+        // TODO right arm
+        //scara_goto(&right_arm, 180, 0, 60, RADIANS(0), RADIANS(-90), COORDINATE_ARM, 1.);
+        //scara_goto(&right_arm, 150, -80, 60, RADIANS(0), RADIANS(-90), COORDINATE_ROBOT, 1.);
 
         state.arms_are_deployed = false;
         return true;
@@ -723,7 +734,7 @@ void strategy_debra_play_game(void)
     InitGoal init_goal;
     GameGoal game_goal;
     IndexArms index_arms;
-    RetractArms retract_arms;
+    RetractArms retract_arms(color);
     CollectRocketCylinders collect_rocket(color);
     DepositRocketCylinders deposit_rocket(color);
     PushMultiColoredCylinder push_multi_cylinder(color);
