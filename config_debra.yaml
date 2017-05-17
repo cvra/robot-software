@@ -316,12 +316,12 @@ actuator:
                 kd: 0.
                 ilimit: 100.
             velocity:
-                kp: 1
-                ki: 20
+                kp: 0.1
+                ki: 10
                 kd: 0.
                 ilimit: 100
             position:
-                kp: 5.
+                kp: 10.
                 ki: 1.
                 kd: 0.
                 ilimit: 10.
@@ -351,14 +351,13 @@ actuator:
                 ki: 6000.
                 kd: 0.
                 ilimit: 100.
-
             velocity:
-                kp: 1
-                ki: 20
+                kp: 0.1
+                ki: 10
                 kd: 0.
                 ilimit: 100
             position:
-                kp: 5.
+                kp: 10.
                 ki: 1.
                 kd: 0.
                 ilimit: 10.
