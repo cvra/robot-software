@@ -317,16 +317,14 @@ struct RetractArms : public goap::Action<DebraState> {
         scara_ugly_mode_enable(&right_arm);
 
         // First move arms up
-        scara_move_z(&left_arm, 110, COORDINATE_ROBOT, 0.5);
-        scara_move_z(&right_arm, 110, COORDINATE_ROBOT, 0.5);
+        scara_move_z(&left_arm, 120, COORDINATE_ROBOT, 0.5);
+        scara_move_z(&right_arm, 120, COORDINATE_ROBOT, 0.5);
         strategy_wait_ms(500);
 
-        arm_waypoint_t left_traj[] = {
-            {.x=180, .y=0, .z=110, .a=0, .p=0, .coord=COORDINATE_ARM, .dt=1000, .l3=55},
-            {.x=180, .y=0, .z=80, .a=0, .p=-90, .coord=COORDINATE_ARM, .dt=2000, .l3=55},
-            {.x=-150, .y=80, .z=80, .a=180, .p=-90, .coord=COORDINATE_ROBOT, .dt=2000, .l3=55},
-        };
-        ARM_TRAJ_SYNCHRONOUS(&left_arm, m_color, left_traj);
+        // scara_goto(&left_arm, 180, 0, 100, RADIANS(0), RADIANS(-90), COORDINATE_ARM, 1.);
+        // strategy_wait_ms(1000);
+        scara_goto(&left_arm, -150, 80, 100, RADIANS(180), RADIANS(-90), COORDINATE_ROBOT, 1.);
+        strategy_wait_ms(1000);
 
         // TODO right arm
         //scara_goto(&right_arm, 180, 0, 60, RADIANS(0), RADIANS(-90), COORDINATE_ARM, 1.);
