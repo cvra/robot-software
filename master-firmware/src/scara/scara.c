@@ -243,6 +243,14 @@ void scara_manage(scara_t *arm)
     /* This is due to mecanical construction of the arms. */
     beta = beta - alpha;
 
+    /* TODO is this even correct ? lol */
+    while (heading >= M_PI) {
+        heading -= 2 * M_PI;
+    }
+    while (heading <= - M_PI) {
+        heading += 2 * M_PI;
+    }
+
     /* Compute hand angle */
     float gamma = heading - (alpha + beta);
 
