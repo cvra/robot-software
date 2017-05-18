@@ -5,7 +5,7 @@ logging:
   sdcard:
     level: "notice" # changing this to debug slows down things too much and causes panic
 master:
-    robot_size_x_mm: 205 # Front to back length
+    robot_size_x_mm: 235 # Robot dimaneter
     robot_alignment_length_mm: 130 # robot length from center to alignement border
     opponent_size_x_mm_default: 300
     calibration_direction: 1 # calibration side is on the front
