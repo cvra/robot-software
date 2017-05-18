@@ -293,8 +293,7 @@ void scara_manage(scara_t *arm)
         arm->set_z_position(arm->z_args, frame.position[2]);
         arm->set_shoulder_position(arm->shoulder_args, alpha);
         arm->set_elbow_position(arm->elbow_args, beta);
-        // arm->set_wrist_velocity(arm->wrist_args, 0, 0);
-        arm->set_wrist_position(arm->wrist_args, gamma, frame.pitch_angle);
+        arm->set_wrist_position(arm->wrist_args, gamma + arm->wrist_heading_offset, frame.pitch_angle);
     }
 
     /* Unlock */
