@@ -554,6 +554,130 @@ struct PushMultiColoredCylinder : public goap::Action<DebraState> {
     }
 };
 
+struct CollectCylinder : public goap::Action<DebraState> {
+    enum strat_color_t m_color;
+
+    CollectCylinder(enum strat_color_t color)
+        : m_color(color)
+    {
+    }
+
+    bool can_run(DebraState state)
+    {
+        return !state.arms_are_deployed;
+    }
+
+    DebraState plan_effects(DebraState state)
+    {
+        state.cylinder_count ++;
+        state.arms_are_deployed = true;
+        return state;
+    }
+
+    bool execute(DebraState &state)
+    {
+        NOTICE("Collecting cylinder");
+
+        scara_t* arm = &left_arm;
+        hand_t* hand = &left_hand;
+
+        // Approach rocket with wheelbase
+        if (!strategy_goto_avoid(MIRROR_X(m_color, 1200), 500, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
+            state.arms_are_deployed = true;
+            return false;
+        }
+
+        scara_ugly_mode_enable(arm);
+
+        // Go above cylinder
+        scara_move_z(arm, 120, COORDINATE_ROBOT, 0.5);
+
+        // Prepare arm
+        scara_goto(arm, 1000, 500, 50, RADIANS(90), RADIANS(-90), COORDINATE_TABLE, 1.);
+        strategy_wait_ms(1000);
+
+        // Select tool
+        scara_set_wrist_heading_offset(arm, RADIANS(0));
+        strategy_wait_ms(1000);
+        hand_set_finger(hand, 0, FINGER_OPEN);
+        strategy_wait_ms(500);
+
+        // Approach cylinder
+        scara_ugly_mode_disable(arm);
+        arm_waypoint_t pick_cylinder_traj[] = {
+            {.x=1000, .y=600, .z=50, .a=90, .p=-90, .coord=COORDINATE_TABLE, .dt=0, .l3=150},
+            {.x=1000, .y=600, .z=50, .a=90, .p=-90, .coord=COORDINATE_TABLE, .dt=1000, .l3=55},
+        };
+        ARM_TRAJ_SYNCHRONOUS(arm, m_color, pick_cylinder_traj);
+        scara_ugly_mode_enable(arm);
+
+        // Get cylinder
+        hand_set_finger(hand, 0, FINGER_CLOSED);
+        strategy_wait_ms(500);
+
+        state.cylinder_count ++;
+        state.arms_are_deployed = true;
+        return true;
+    }
+};
+
+struct DepositCylinder : public goap::Action<DebraState> {
+    enum strat_color_t m_color;
+
+    DepositCylinder(enum strat_color_t color)
+        : m_color(color)
+    {
+    }
+
+    bool can_run(DebraState state)
+    {
+        return !state.arms_are_deployed && (state.cylinder_count > 0);
+    }
+
+    DebraState plan_effects(DebraState state)
+    {
+        state.score += 10;
+        state.arms_are_deployed = true;
+        return state;
+    }
+
+    bool execute(DebraState &state)
+    {
+        NOTICE("Depositing cylinder");
+
+        scara_t* arm = &left_arm;
+        hand_t* hand = &left_hand;
+
+        // Approach with wheelbase
+        if (!strategy_goto_avoid(MIRROR_X(m_color, 1040), 1270, MIRROR_A(m_color, 45), TRAJ_FLAGS_ALL)) {
+            state.arms_are_deployed = true;
+            return false;
+        }
+
+        scara_ugly_mode_enable(arm);
+
+        // Position arm
+        scara_goto(arm, 152, 190, 110, RADIANS(0), RADIANS(0), COORDINATE_ROBOT, 2.);
+        strategy_wait_ms(2000);
+
+        trajectory_d_rel(&robot.traj, 50);
+
+        // Select tool
+        scara_set_wrist_heading_offset(arm, RADIANS(-180));
+        strategy_wait_ms(5000);
+
+        // Drop cylinder
+        hand_set_finger(hand, 0, FINGER_OPEN);
+        strategy_wait_ms(500);
+        hand_set_finger(hand, 0, FINGER_CLOSED);
+        strategy_wait_ms(500);
+
+        state.score += 10;
+        state.arms_are_deployed = true;
+        return true;
+    }
+};
+
 struct InitGoal : goap::Goal<DebraState> {
     bool is_reached(DebraState state)
     {
@@ -581,6 +705,8 @@ void strategy_debra_play_game(void)
     CollectRocketCylinders collect_rocket(color);
     DepositRocketCylinders deposit_rocket(color);
     PushMultiColoredCylinder push_multi_cylinder(color);
+    CollectCylinder collect_cylinder(color);
+    DepositCylinder deposit_cylinder(color);
 
     DebraState state;
 
@@ -590,9 +716,11 @@ void strategy_debra_play_game(void)
     goap::Action<DebraState> *actions[] = {
         &index_arms,
         &retract_arms,
-        &collect_rocket,
-        &deposit_rocket,
-        &push_multi_cylinder,
+        // &collect_rocket,
+        // &deposit_rocket,
+        // &push_multi_cylinder,
+        &collect_cylinder,
+        &deposit_cylinder,
     };
 
     goap::Planner<DebraState> planner(actions, sizeof(actions) / sizeof(actions[0]));
