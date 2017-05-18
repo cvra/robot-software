@@ -69,12 +69,17 @@ void arms_init(void)
     static cvra_arm_motor_t right_z = {.id = "right-z", .direction = 1, .index = 0};
     static cvra_arm_motor_t right_shoulder = {.id = "right-shoulder", .direction = -1, .index = 0};
     static cvra_arm_motor_t right_elbow = {.id = "right-elbow", .direction = -1, .index = 0};
-    // static cvra_arm_motor_t right_wrist = {.id = "right-wrist", .direction = 1, .index = 0};
+    static cvra_arm_wrist_t right_wrist = {
+        .up = "right-wrist-up", .down = "right-wrist-down",
+        .up_direction = 1, .down_direction = -1,
+        .heading_ratio = 6.f, .pitch_ratio = 3.f,
+        .heading_index = 0, .pitch_index = 0,
+    };
 
     scara_set_z_callbacks(&right_arm, set_motor_position, get_motor_position, &right_z);
     scara_set_shoulder_callbacks(&right_arm, set_motor_position, set_motor_velocity, get_motor_position, &right_shoulder);
     scara_set_elbow_callbacks(&right_arm, set_motor_position, set_motor_velocity, get_motor_position, &right_elbow);
-    // scara_set_wrist_callbacks(&right_arm, set_motor_position, set_motor_velocity, get_motor_position, &right_wrist);
+    scara_set_wrist_callbacks(&right_arm, set_wrist_position, set_wrist_velocity, get_wrist_position, &right_wrist);
 
     scara_set_related_robot_pos(&right_arm, &robot.pos);
 
@@ -159,7 +164,7 @@ static THD_FUNCTION(arms_ctrl_thd, arg)
         }
 
         scara_manage(&left_arm);
-        // scara_manage(&right_arm);
+        scara_manage(&right_arm);
 
         if (left_arm.kinematics_solution_count == 0) {
             palSetPad(GPIOF, GPIOF_LED_ERROR);
@@ -167,11 +172,11 @@ static THD_FUNCTION(arms_ctrl_thd, arg)
             palClearPad(GPIOF, GPIOF_LED_ERROR);
         }
 
-        // if (right_arm.kinematics_solution_count == 0) {
-        //     palSetPad(GPIOF, GPIOF_LED_POWER_ERROR);
-        // } else {
-        //     palClearPad(GPIOF, GPIOF_LED_POWER_ERROR);
-        // }
+        if (right_arm.kinematics_solution_count == 0) {
+            palSetPad(GPIOF, GPIOF_LED_POWER_ERROR);
+        } else {
+            palClearPad(GPIOF, GPIOF_LED_POWER_ERROR);
+        }
 
         hand_manage(&left_hand);
         hand_manage(&right_hand);

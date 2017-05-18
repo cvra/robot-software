@@ -316,7 +316,8 @@ void init_hands(void)
 {
     motor_manager_create_driver(&motor_manager, "left-wrist-up");
     motor_manager_create_driver(&motor_manager, "left-wrist-down");
-    motor_manager_create_driver(&motor_manager, "right-wrist");
+    motor_manager_create_driver(&motor_manager, "right-wrist-up");
+    motor_manager_create_driver(&motor_manager, "right-wrist-down");
 
     motor_manager_create_driver(&motor_manager, "right-element-rotate");
     motor_manager_create_driver(&motor_manager, "left-element-rotate");
