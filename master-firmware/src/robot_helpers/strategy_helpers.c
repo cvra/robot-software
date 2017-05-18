@@ -82,7 +82,7 @@ void strategy_align_y(int32_t y)
     trajectory_set_mode_game(&robot.mode, &robot.traj, &robot.distance_bd, &robot.angle_bd);
 }
 
-unsigned strategy_set_arm_trajectory(scara_t* arm, enum strat_color_t color, arm_waypoint_t* trajectory, unsigned trajectory_length)
+unsigned strategy_set_arm_trajectory(scara_t* arm, arm_waypoint_t* trajectory, unsigned trajectory_length)
 {
     unsigned duration = 0;
 
@@ -91,16 +91,12 @@ unsigned strategy_set_arm_trajectory(scara_t* arm, enum strat_color_t color, arm
     for (size_t i = 0; i < trajectory_length; i++) {
         scara_trajectory_append_point_with_length(
             &arm->trajectory,
-            MIRROR_X(color, trajectory[i].x),
-            trajectory[i].y,
-            trajectory[i].z,
-            RADIANS(MIRROR_A(color, trajectory[i].a)),
-            RADIANS(trajectory[i].p),
+            trajectory[i].x, trajectory[i].y, trajectory[i].z,
+            RADIANS(trajectory[i].a), RADIANS(trajectory[i].p),
             trajectory[i].coord,
             (float)trajectory[i].dt * 0.001,
-            arm->length[0],
-            arm->length[1],
-            trajectory[i].l3);
+            arm->length[0], arm->length[1], trajectory[i].l3);
+
         duration += trajectory[i].dt;
     }
 

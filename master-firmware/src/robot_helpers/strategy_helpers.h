@@ -32,8 +32,8 @@ typedef struct {
 
 /** Compute the symmetrical position depending on color
  */
-#define MIRROR_X(color, x) (color == YELLOW ? (x) : 3000 - (x))
-#define MIRROR_A(color, a_deg) (color == YELLOW ? (a_deg) : 180 - (a_deg))
+#define MIRROR_X(color, x) (color == YELLOW ? (x) : 3000. - (x))
+#define MIRROR_A(color, a_deg) (color == YELLOW ? (a_deg) : 180. - (a_deg))
 
 /** Auto position robot at requested location, and ensure the correct
  *  position is reached by aligning against walls.
@@ -46,7 +46,7 @@ void strategy_align_y(int32_t y);
 /** Make and follow a given set of arm waypoints with mirroring
  * Returns the duration of the trajectory
  */
-unsigned strategy_set_arm_trajectory(scara_t* arm, enum strat_color_t color, arm_waypoint_t* trajectory, unsigned trajectory_length);
+unsigned strategy_set_arm_trajectory(scara_t* arm, arm_waypoint_t* trajectory, unsigned trajectory_length);
 
 
 #ifdef __cplusplus

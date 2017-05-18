@@ -115,6 +115,7 @@ void scara_goto(scara_t* arm, float x, float y, float z, float a, float p, scara
 
 /* Move arm in axis only */
 void scara_move_z(scara_t* arm, float z, scara_coordinate_t system, const float duration);
+void scara_move_pitch(scara_t* arm, float pitch, scara_coordinate_t system, const float duration);
 
 /* Get current arm position */
 void scara_pos(scara_t* arm, float* x, float* y, float* z, float* a, float* p, scara_coordinate_t system);
