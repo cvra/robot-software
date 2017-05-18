@@ -362,10 +362,6 @@ struct CollectRocketCylinders : public goap::Action<DebraState> {
         scara_t* arm = &left_arm;
         hand_t* hand = &left_hand;
 
-        // Go back to smooth control
-        scara_ugly_mode_enable(&left_arm);
-        scara_ugly_mode_enable(&right_arm);
-
         // Approach rocket with wheelbase
         if (!strategy_goto_avoid(MIRROR_X(m_color, 1250), 350, MIRROR_A(m_color, -135), TRAJ_FLAGS_ALL)) {
             state.arms_are_deployed = true;
@@ -376,45 +372,64 @@ struct CollectRocketCylinders : public goap::Action<DebraState> {
             return false;
         }
 
+        scara_ugly_mode_enable(arm);
+
+        // Prepare arm
+        arm_waypoint_t prepare_pickup_traj[] = {
+            // {.x=85, .y=50, .z=100,  .a=-40, .p=-90, .coord=COORDINATE_ARM, .dt=1000, .l3=55},
+            {.x=1180, .y=100, .z=50, .a=-120, .p=-90, .coord=COORDINATE_TABLE, .dt=2000, .l3=55},
+            {.x=1150, .y=40, .z=50, .a=-125, .p=-90, .coord=COORDINATE_TABLE, .dt=2000, .l3=110},
+            // {.x=0, .y=250, .z=50, .a=35, .p=-90, .coord=COORDINATE_ROBOT, .dt=2000, .l3=110},
+        };
+        ARM_TRAJ_SYNCHRONOUS(arm, m_color, prepare_pickup_traj);
+
+        hand_set_finger(hand, 0, FINGER_OPEN);
+        strategy_wait_ms(2000);
+
+        // Approach cylinder
+        scara_ugly_mode_disable(arm);
+        arm_waypoint_t pick_cylinder_traj[2] = {
+            {.x=1150, .y=40, .z=50, .a=-125, .p=-90, .coord=COORDINATE_TABLE, .dt=500, .l3=110},
+            {.x=1150, .y=40, .z=50, .a=-125, .p=-90, .coord=COORDINATE_TABLE, .dt=2000, .l3=55},
+            // {.x=80, .y=265, .z=50, .a=30, .p=-90, .coord=COORDINATE_ROBOT, .dt=2000, .l3=110},
+            // {.x=80, .y=265, .z=50, .a=30, .p=-90, .coord=COORDINATE_ROBOT, .dt=2000, .l3=55},
+        };
+        ARM_TRAJ_SYNCHRONOUS(arm, m_color, pick_cylinder_traj);
+        scara_ugly_mode_enable(arm);
+
+
         // Collect rocket cylinder
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 1; i++) {
             // Select tool
             scara_set_wrist_heading_offset(arm, RADIANS(- i * 90));
-
-            // Prepare arm
-            arm_waypoint_t prepare_pickup_traj[] = {
-                //{.x=85, .y=50, .z=100,   .a=-40, .p=-90, .coord=COORDINATE_ARM, .dt=500, .l3=55},
-                {.x=1200, .y=100, .z=50, .a=-113, .p=-90, .coord=COORDINATE_TABLE, .dt=5000, .l3=55},
-            };
-            strategy_wait_ms(strategy_set_arm_trajectory(arm, m_color, &prepare_pickup_traj[0],
-                             sizeof(prepare_pickup_traj) / sizeof(arm_waypoint_t)));
+            strategy_wait_ms(1000);
 
             hand_set_finger(hand, i, FINGER_OPEN);
-            strategy_wait_ms(2000);
-
-            // Approach cylinder
-            arm_waypoint_t pick_cylinder_traj[2] = {
-                {.x=1170, .y=20, .z=50, .a=-142, .p=-90, .coord=COORDINATE_TABLE, .dt=500, .l3=55},
-                {.x=1170, .y=20, .z=50, .a=-142, .p=-90, .coord=COORDINATE_TABLE, .dt=5000, .l3=65}, // TODO replace 65 by real length
-            };
-            strategy_wait_ms(strategy_set_arm_trajectory(arm, m_color, &pick_cylinder_traj[0],
-                             sizeof(pick_cylinder_traj) / sizeof(arm_waypoint_t)));
+            strategy_wait_ms(500);
 
             // Get cylinder
             hand_set_finger(hand, i, FINGER_CLOSED);
-            strategy_wait_ms(2000);
-
-            // Extract cylinder
-            arm_waypoint_t extract_cylinder_traj[2] = {
-                {.x=1170, .y=20, .z=50, .a=-142, .p=-90, .coord=COORDINATE_TABLE, .dt=500, .l3=55},
-                {.x=1170, .y=20, .z=50, .a=-142, .p=-90, .coord=COORDINATE_TABLE, .dt=5000, .l3=150},
-            };
-            strategy_wait_ms(strategy_set_arm_trajectory(arm, m_color, &extract_cylinder_traj[0],
-                             sizeof(extract_cylinder_traj) / sizeof(arm_waypoint_t)));
+            strategy_wait_ms(500);
+            hand_set_finger(hand, i, FINGER_OPEN);
+            strategy_wait_ms(500);
+            hand_set_finger(hand, i, FINGER_CLOSED);
+            strategy_wait_ms(1000);
         }
 
         // Reset wrist offset
         scara_set_wrist_heading_offset(arm, RADIANS(0));
+        strategy_wait_ms(2000);
+
+        // Extract cylinder
+        scara_ugly_mode_disable(arm);
+        arm_waypoint_t extract_cylinder_traj[2] = {
+            {.x=1150, .y=40, .z=50, .a=-125, .p=-90, .coord=COORDINATE_TABLE, .dt=500, .l3=55},
+            {.x=1150, .y=40, .z=50, .a=-125, .p=-90, .coord=COORDINATE_TABLE, .dt=2000, .l3=110},
+            // {.x=80, .y=265, .z=50, .a=30, .p=-90, .coord=COORDINATE_ROBOT, .dt=2000, .l3=55},
+            // {.x=80, .y=265, .z=50, .a=30, .p=-90, .coord=COORDINATE_ROBOT, .dt=2000, .l3=110},
+        };
+        ARM_TRAJ_SYNCHRONOUS(arm, m_color, extract_cylinder_traj);
+        scara_ugly_mode_enable(arm);
 
         state.cylinder_count += 2;
         state.arms_are_deployed = true;
