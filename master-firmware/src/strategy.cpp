@@ -499,8 +499,8 @@ struct DepositCylinder : public goap::Action<DebraState> {
     {
         NOTICE("Depositing cylinder");
 
-        scara_t* arm = &left_arm;
-        hand_t* hand = &left_hand;
+        scara_t* arm = mirror_left_arm(m_color);
+        hand_t* hand = mirror_left_hand(m_color);
 
         // Approach with wheelbase
         if (!strategy_goto_avoid(MIRROR_X(m_color, 1040), 1270, MIRROR_A(m_color, 45), TRAJ_FLAGS_ALL)) {
@@ -511,7 +511,8 @@ struct DepositCylinder : public goap::Action<DebraState> {
         scara_ugly_mode_enable(arm);
 
         // Position arm
-        scara_goto(arm, 152, 190, 110, RADIANS(0), RADIANS(0), COORDINATE_ROBOT, 2.);
+        int x=152, y = (m_color == YELLOW ? 190 : -190), z=110;
+        scara_goto(arm, x, y, z, RADIANS(0), RADIANS(0), COORDINATE_ROBOT, 2.);
         strategy_wait_ms(2000);
 
         trajectory_d_rel(&robot.traj, 50);
