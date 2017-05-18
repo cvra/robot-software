@@ -110,7 +110,7 @@ master:
             left-elbow: 0. # in radians
             left-wrist-heading: 0. # in radians
             left-wrist-pitch: 0. # in radians
-            right-z: -205. # in mm
+            right-z: -154. # in mm
             right-shoulder: 0. # in radians
             right-elbow: 0. # in radians
             right-wrist-heading: 0. # in radians
@@ -418,19 +418,19 @@ actuator:
             torque_constant: 0.00826 # Nm/A
         control:
             current:
-                kp: 0
-                ki: 10000.
+                kp: 24
+                ki: 5000.
                 kd: 0.
                 ilimit: 100.
             velocity:
-                kp: 2
-                ki: 50
+                kp: 0.2
+                ki: 0.8
                 kd: 0.
-                ilimit: 100
+                ilimit: 0.13
             position:
-                kp: 40
-                ki: 0
-                kd: 0
+                kp: 6
+                ki: 1
+                kd: 2
 
             low_batt_th: 12
             acceleration_limit: 100.
@@ -453,19 +453,19 @@ actuator:
             torque_constant: 0.00826 # Nm/A
         control:
             current:
-                kp: 20.
-                ki: 10000.
+                kp: 24.
+                ki: 5000.
                 kd: 0.
-                ilimit: 200.
+                ilimit: 100.
             velocity:
-                kp: 5
-                ki: 4
+                kp: 8
+                ki: 1
                 kd: 0.
-                ilimit: 100
+                ilimit: 0.5
             position:
-                kp: 10
+                kp: 12
                 ki: 0
-                kd: 0.2
+                kd: 0
             low_batt_th: 12
             acceleration_limit: 100.
             velocity_limit: 10.
