@@ -424,14 +424,6 @@ struct CollectCylinder : public goap::Action<DebraState> {
         hand_t* hand = mirror_left_hand(m_color);
 
         int slot = state.cylinder_count;
-        int dx, dy;
-
-        dy = 100;
-        if (m_color == YELLOW) {
-            dx = -200;
-        } else {
-            dx = 200;
-        }
 
         // Approach rocket with wheelbase
         if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm + 200), y_mm - 100, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
