@@ -324,7 +324,7 @@ struct RetractArms : public goap::Action<DebraState> {
 
         scara_move_z(&left_arm, 120, COORDINATE_ROBOT, 0.5);
         scara_move_z(&right_arm, 120, COORDINATE_ROBOT, 0.5);
-        strategy_wait_ms(5000);
+        strategy_wait_ms(1000);
 
         scara_move_pitch(&left_arm, RADIANS(-90), COORDINATE_ARM, 1.);
         scara_move_pitch(&right_arm, RADIANS(-90), COORDINATE_ARM, 1.);
@@ -334,10 +334,8 @@ struct RetractArms : public goap::Action<DebraState> {
         scara_goto(&right_arm, -150, -120, 100, RADIANS(180), RADIANS(-90), COORDINATE_ROBOT, 1.);
         strategy_wait_ms(1000);
 
-        scara_goto(&left_arm, -150, 80,  100, RADIANS(180), RADIANS(-90), COORDINATE_ROBOT, 1.);
-        scara_goto(&right_arm, -150, -80, 100, RADIANS(180), RADIANS(-90), COORDINATE_ROBOT, 1.);
-        strategy_wait_ms(1000);
-
+        scara_goto(&left_arm, -150, 80,  120, RADIANS(180), RADIANS(-90), COORDINATE_ROBOT, 1.);
+        scara_goto(&right_arm, -150, -80, 120, RADIANS(180), RADIANS(-90), COORDINATE_ROBOT, 1.);
         strategy_wait_ms(1000);
 
         state.arms_are_deployed = false;
