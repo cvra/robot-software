@@ -229,6 +229,7 @@ struct DebraState {
     bool arms_are_deployed{true};
     unsigned cylinder_count{0};
     bool construction_area_free{false};
+    bool cylinder_taken[5] = {false}; // TODO how many cylinders
 };
 
 struct IndexArms : public goap::Action<DebraState> {
@@ -396,23 +397,25 @@ struct PushMultiColoredCylinder : public goap::Action<DebraState> {
 };
 
 struct CollectCylinder : public goap::Action<DebraState> {
+    int m_index;
     enum strat_color_t m_color;
     float x_mm, y_mm;
 
-    CollectCylinder(enum strat_color_t color, float x_cylinder_mm, float y_cylinder_mm)
-        : m_color(color), x_mm(x_cylinder_mm), y_mm(y_cylinder_mm)
+    CollectCylinder(unsigned index, enum strat_color_t color, float x_cylinder_mm, float y_cylinder_mm)
+        : m_index(index), m_color(color), x_mm(x_cylinder_mm), y_mm(y_cylinder_mm)
     {
     }
 
     bool can_run(DebraState state)
     {
-        return !state.arms_are_deployed && state.cylinder_count < 4;
+        return !state.arms_are_deployed && state.cylinder_count < 4 && !state.cylinder_taken[m_index];
     }
 
     DebraState plan_effects(DebraState state)
     {
         state.cylinder_count ++;
         state.arms_are_deployed = true;
+        state.cylinder_taken[m_index] = true;
         return state;
     }
 
@@ -461,6 +464,7 @@ struct CollectCylinder : public goap::Action<DebraState> {
 
         state.cylinder_count ++;
         state.arms_are_deployed = true;
+        state.cylinder_taken[m_index] = true;
         return true;
     }
 };
@@ -552,8 +556,8 @@ void strategy_debra_play_game(void)
     RetractArms retract_arms(color);
     PushMultiColoredCylinder push_multi_cylinder(color);
 
-    CollectCylinder collect_cylinder_1(color, 1000, 600);
-    CollectCylinder collect_cylinder_2(color, 500, 1100);
+    CollectCylinder collect_cylinder_1(0, color, 1000, 600);
+    CollectCylinder collect_cylinder_2(1, color, 500, 1100);
 
     DepositCylinder deposit_cylinder(color);
 
