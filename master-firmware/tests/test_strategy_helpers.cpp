@@ -49,16 +49,14 @@ TEST_GROUP(ArmSetTrajectory)
 
 TEST(ArmSetTrajectory, ComputesDurationOfTrajectory)
 {
-    enum strat_color_t color = YELLOW;
-    unsigned duration = strategy_set_arm_trajectory(&arm, color, &trajectory[0], sizeof(trajectory) / sizeof(arm_waypoint_t));
+    unsigned duration = strategy_set_arm_trajectory(&arm, &trajectory[0], sizeof(trajectory) / sizeof(arm_waypoint_t));
 
     CHECK_EQUAL(3000, duration);
 }
 
 TEST(ArmSetTrajectory, SetsGivenPointInTrajectory)
 {
-    enum strat_color_t color = YELLOW;
-    strategy_set_arm_trajectory(&arm, color, &trajectory[0], sizeof(trajectory) / sizeof(arm_waypoint_t));
+    strategy_set_arm_trajectory(&arm, &trajectory[0], sizeof(trajectory) / sizeof(arm_waypoint_t));
 
     CHECK_EQUAL(100, arm.trajectory.frames[1].position[0]);
     CHECK_EQUAL(0, arm.trajectory.frames[1].position[1]);
@@ -71,26 +69,9 @@ TEST(ArmSetTrajectory, SetsGivenPointInTrajectory)
     DOUBLES_EQUAL(M_PI/2, arm.trajectory.frames[2].pitch_angle, 1e-2);
 }
 
-TEST(ArmSetTrajectory, SetsMirrorsPointInTrajectory)
-{
-    enum strat_color_t color = BLUE;
-    strategy_set_arm_trajectory(&arm, color, &trajectory[0], sizeof(trajectory) / sizeof(arm_waypoint_t));
-
-    CHECK_EQUAL(2900, arm.trajectory.frames[1].position[0]);
-    CHECK_EQUAL(0, arm.trajectory.frames[1].position[1]);
-    DOUBLES_EQUAL(M_PI/2, arm.trajectory.frames[1].hand_angle, 1e-2);
-    DOUBLES_EQUAL(0, arm.trajectory.frames[1].pitch_angle, 1e-2);
-
-    CHECK_EQUAL(2900, arm.trajectory.frames[2].position[0]);
-    CHECK_EQUAL(100, arm.trajectory.frames[2].position[1]);
-    DOUBLES_EQUAL(0, arm.trajectory.frames[2].hand_angle, 1e-2);
-    DOUBLES_EQUAL(M_PI/2, arm.trajectory.frames[2].pitch_angle, 1e-2);
-}
-
 TEST(ArmSetTrajectory, SetsTimeCorrectly)
 {
-    enum strat_color_t color = YELLOW;
-    strategy_set_arm_trajectory(&arm, color, &trajectory[0], sizeof(trajectory) / sizeof(arm_waypoint_t));
+    strategy_set_arm_trajectory(&arm, &trajectory[0], sizeof(trajectory) / sizeof(arm_waypoint_t));
 
     CHECK_EQUAL(0, arm.trajectory.frames[0].date);
     CHECK_EQUAL(1000000, arm.trajectory.frames[1].date);
