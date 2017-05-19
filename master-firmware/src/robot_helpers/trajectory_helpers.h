@@ -27,6 +27,8 @@ extern "C" {
 #define TRAJ_FLAGS_ALL (TRAJ_END_GOAL_REACHED | TRAJ_END_COLLISION | TRAJ_END_OPPONENT_NEAR | \
                         TRAJ_END_TIMER)
 
+#define TRAJ_FLAGS_SHORT_DISTANCE (TRAJ_END_GOAL_REACHED | TRAJ_END_TIMER)
+
 /** Returns when ongoing trajectory is finished for the reasons specified
  *  For example when goal is reached
  * @note This is a blocking function call
