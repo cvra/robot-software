@@ -354,7 +354,7 @@ struct PushMultiColoredCylinder : public goap::Action<DebraState> {
 
     bool can_run(DebraState state)
     {
-        return !state.arms_are_deployed && (state.cylinder_count > 0) && !state.construction_area_free;
+        return !state.arms_are_deployed && (state.cylinder_count > 1) && !state.construction_area_free;
     }
 
     DebraState plan_effects(DebraState state)
