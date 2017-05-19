@@ -45,7 +45,7 @@ void init_hands(void);
 THD_WORKING_AREA(shell_wa, 2048);
 
 static const ShellConfig shell_cfg1 = {
-    (BaseSequentialStream *)&SDU1,
+    (BaseSequentialStream *)&SD3,
     commands
 };
 

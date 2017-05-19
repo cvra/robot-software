@@ -280,6 +280,7 @@ endif
 .PHONY: flash
 flash: $(BUILDDIR)/$(PROJECT).elf
 	openocd -f $(OPENOCD_CFG) -c "program $(BUILDDIR)/$(PROJECT).elf verify reset" -c "shutdown"
+	say -v "Daniel" "Robot flashed master!"
 
 # run uavcan dsdl compiler
 .PHONY: dsdlc

@@ -42,6 +42,13 @@ void set_wrist_position(void* wrist, float heading, float pitch)
     motor_driver_t* driver_up = get_motor_driver(dev->up);
     motor_driver_t* driver_down = get_motor_driver(dev->down);
 
+    while (heading >= M_PI) {
+        heading -= 2 * M_PI;
+    }
+    while (heading <= - M_PI) {
+        heading += 2 * M_PI;
+    }
+
     float up = (heading + dev->heading_index) * dev->heading_ratio
                + (pitch + dev->pitch_index) * dev->pitch_ratio;
     float down = - (heading + dev->heading_index) * dev->heading_ratio
@@ -49,6 +56,7 @@ void set_wrist_position(void* wrist, float heading, float pitch)
 
     motor_driver_set_position(driver_up, dev->up_direction * up);
     motor_driver_set_position(driver_down, dev->down_direction * down);
+
 }
 
 void set_wrist_velocity(void* wrist, float heading, float pitch)

@@ -440,19 +440,19 @@ struct CollectCylinder : public goap::Action<DebraState> {
         scara_move_z(arm, 120, COORDINATE_ROBOT, 0.5);
 
         // Prepare arm
-        scara_goto(arm, MIRROR_X(m_color, x_mm), y_mm - 100, 50, RADIANS(MIRROR_A(m_color, 90)), RADIANS(-90), COORDINATE_TABLE, 1.);
-        strategy_wait_ms(1000);
+        scara_goto(arm, MIRROR_X(m_color, x_mm), y_mm - 110, 50, RADIANS(MIRROR_A(m_color, 90)), RADIANS(-90), COORDINATE_TABLE, 1.);
+        strategy_wait_ms(2000);
 
         // Select tool
         scara_set_wrist_heading_offset(arm, RADIANS(-90 * slot));
-        strategy_wait_ms(1000);
+        strategy_wait_ms(2000);
         hand_set_finger(hand, slot, FINGER_OPEN);
         strategy_wait_ms(500);
 
         // Approach cylinder
         scara_ugly_mode_disable(arm);
         arm_waypoint_t pick_cylinder_traj[] = {
-            {.x=MIRROR_X(m_color, x_mm), .y=y_mm, .z=50, .a=MIRROR_A(m_color, 90), .p=-90, .coord=COORDINATE_TABLE, .dt=0, .l3=150},
+            {.x=MIRROR_X(m_color, x_mm), .y=y_mm, .z=50, .a=MIRROR_A(m_color, 90), .p=-90, .coord=COORDINATE_TABLE, .dt=0, .l3=160},
             {.x=MIRROR_X(m_color, x_mm), .y=y_mm, .z=50, .a=MIRROR_A(m_color, 90), .p=-90, .coord=COORDINATE_TABLE, .dt=1000, .l3=55},
         };
         ARM_TRAJ_SYNCHRONOUS(arm, pick_cylinder_traj);
@@ -472,9 +472,10 @@ struct CollectCylinder : public goap::Action<DebraState> {
 
 struct DepositCylinder : public goap::Action<DebraState> {
     enum strat_color_t m_color;
+    int m_drop_count;
 
     DepositCylinder(enum strat_color_t color)
-        : m_color(color)
+        : m_color(color), m_drop_count(0)
     {
     }
 
@@ -495,7 +496,7 @@ struct DepositCylinder : public goap::Action<DebraState> {
     {
         NOTICE("Depositing cylinder");
         int slot = state.cylinder_count;
-        const int push_dst = 50;
+        const int push_dst = 50 + m_drop_count * 100;
 
         scara_t* arm = mirror_left_arm(m_color);
         hand_t* hand = mirror_left_hand(m_color);
@@ -514,18 +515,31 @@ struct DepositCylinder : public goap::Action<DebraState> {
         scara_goto(arm, x, y, z, RADIANS(0), RADIANS(0), COORDINATE_ROBOT, 2.);
         strategy_wait_ms(2000);
 
-        trajectory_d_rel(&robot.traj, 50);
+        trajectory_d_rel(&robot.traj, push_dst);
+        int ret = trajectory_wait_for_end(TRAJ_FLAGS_ALL);
+        if (ret != TRAJ_END_GOAL_REACHED) {
+            return false; // TODO how to recover ?
+        }
 
         // Select tool
-        scara_set_wrist_heading_offset(arm, RADIANS(-180 + 90 * slot));
+        scara_set_wrist_heading_offset(arm, RADIANS(180 - 90 * slot));
         strategy_wait_ms(5000);
 
         // Drop cylinder
         hand_set_finger(hand, slot, FINGER_OPEN);
-        strategy_wait_ms(500);
+        strategy_wait_ms(1000);
         hand_set_finger(hand, slot, FINGER_CLOSED);
         strategy_wait_ms(500);
 
+
+        // Go back
+        trajectory_d_rel(&robot.traj, -push_dst);
+        ret = trajectory_wait_for_end(TRAJ_FLAGS_ALL);
+        if (ret != TRAJ_END_GOAL_REACHED) {
+            return false; // TODO how to recover ?
+        }
+
+        m_drop_count ++;
         state.score += 10;
         state.arms_are_deployed = true;
         state.cylinder_count --;
