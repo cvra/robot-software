@@ -451,7 +451,7 @@ struct CollectCylinder : public goap::Action<DebraState> {
         // Select tool
         scara_set_wrist_heading_offset(arm, RADIANS(90 * slot));
         strategy_wait_ms(1000);
-        hand_set_finger(hand, 0, FINGER_OPEN);
+        hand_set_finger(hand, slot, FINGER_OPEN);
         strategy_wait_ms(500);
 
         // Approach cylinder
@@ -464,7 +464,7 @@ struct CollectCylinder : public goap::Action<DebraState> {
         scara_ugly_mode_enable(arm);
 
         // Get cylinder
-        hand_set_finger(hand, 0, FINGER_CLOSED);
+        hand_set_finger(hand, slot, FINGER_CLOSED);
         strategy_wait_ms(500);
 
         state.cylinder_count ++;
@@ -490,12 +490,14 @@ struct DepositCylinder : public goap::Action<DebraState> {
     {
         state.score += 10;
         state.arms_are_deployed = true;
+        state.cylinder_count --;
         return state;
     }
 
     bool execute(DebraState &state)
     {
         NOTICE("Depositing cylinder");
+        int slot = state.cylinder_count;
 
         scara_t* arm = mirror_left_arm(m_color);
         hand_t* hand = mirror_left_hand(m_color);
@@ -516,17 +518,18 @@ struct DepositCylinder : public goap::Action<DebraState> {
         trajectory_d_rel(&robot.traj, 50);
 
         // Select tool
-        scara_set_wrist_heading_offset(arm, RADIANS(-180));
+        scara_set_wrist_heading_offset(arm, RADIANS(-180 + 90 * slot));
         strategy_wait_ms(5000);
 
         // Drop cylinder
-        hand_set_finger(hand, 0, FINGER_OPEN);
+        hand_set_finger(hand, slot, FINGER_OPEN);
         strategy_wait_ms(500);
-        hand_set_finger(hand, 0, FINGER_CLOSED);
+        hand_set_finger(hand, slot, FINGER_CLOSED);
         strategy_wait_ms(500);
 
         state.score += 10;
         state.arms_are_deployed = true;
+        state.cylinder_count --;
         return true;
     }
 };
