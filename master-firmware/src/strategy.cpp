@@ -224,10 +224,10 @@ enum Location {
 };
 
 struct DebraState {
-    unsigned score{0};
+    int score{0};
     bool arms_are_indexed{false};
     bool arms_are_deployed{true};
-    unsigned cylinder_count{0};
+    int cylinder_count{0};
     bool construction_area_free{false};
     bool cylinder_taken[5] = {false}; // TODO how many cylinders
 };
@@ -421,12 +421,12 @@ struct CollectCylinder : public goap::Action<DebraState> {
 
     bool execute(DebraState &state)
     {
-        NOTICE("Collecting cylinder");
 
         scara_t* arm = mirror_left_arm(m_color);
         hand_t* hand = mirror_left_hand(m_color);
 
         int slot = state.cylinder_count;
+        NOTICE("Collecting cylinder %d using slot %d", m_index, slot);
 
         // Approach rocket with wheelbase
         if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm + 200), y_mm - 100, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
@@ -444,7 +444,7 @@ struct CollectCylinder : public goap::Action<DebraState> {
         strategy_wait_ms(1000);
 
         // Select tool
-        scara_set_wrist_heading_offset(arm, RADIANS(90 * slot));
+        scara_set_wrist_heading_offset(arm, RADIANS(-90 * slot));
         strategy_wait_ms(1000);
         hand_set_finger(hand, slot, FINGER_OPEN);
         strategy_wait_ms(500);
@@ -456,11 +456,12 @@ struct CollectCylinder : public goap::Action<DebraState> {
             {.x=MIRROR_X(m_color, x_mm), .y=y_mm, .z=50, .a=MIRROR_A(m_color, 90), .p=-90, .coord=COORDINATE_TABLE, .dt=1000, .l3=55},
         };
         ARM_TRAJ_SYNCHRONOUS(arm, pick_cylinder_traj);
-        scara_ugly_mode_enable(arm);
 
         // Get cylinder
         hand_set_finger(hand, slot, FINGER_CLOSED);
         strategy_wait_ms(500);
+
+        scara_ugly_mode_enable(arm);
 
         state.cylinder_count ++;
         state.arms_are_deployed = true;
@@ -494,13 +495,15 @@ struct DepositCylinder : public goap::Action<DebraState> {
     {
         NOTICE("Depositing cylinder");
         int slot = state.cylinder_count;
+        const int push_dst = 50;
 
         scara_t* arm = mirror_left_arm(m_color);
         hand_t* hand = mirror_left_hand(m_color);
 
+        state.arms_are_deployed = true;
+
         // Approach with wheelbase
         if (!strategy_goto_avoid(MIRROR_X(m_color, 1040), 1270, MIRROR_A(m_color, 45), TRAJ_FLAGS_ALL)) {
-            state.arms_are_deployed = true;
             return false;
         }
 
