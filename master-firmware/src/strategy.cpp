@@ -367,32 +367,31 @@ struct PushMultiColoredCylinder : public goap::Action<DebraState> {
 
     bool execute(DebraState &state)
     {
-        NOTICE("Pushing multi colored cylinder");
+        scara_t* arm = mirror_left_arm(m_color);
 
-        // Approach cylinder with wheelbase
-        if (!strategy_goto_avoid(MIRROR_X(m_color, 650), 1250, MIRROR_A(m_color, 45), TRAJ_FLAGS_ALL)) {
-            state.arms_are_deployed = true;
+
+        // Approach with wheelbase
+        if (!strategy_goto_avoid(MIRROR_X(m_color, 1040), 1270, MIRROR_A(m_color, 45), TRAJ_FLAGS_ALL)) {
             return false;
         }
 
-        // Push cylinder to tip over
-        trajectory_d_rel(&robot.traj, 150);
-        trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
-        trajectory_d_rel(&robot.traj, -50);
-        trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
+        scara_ugly_mode_enable(arm);
 
-        // Push cylinder to make space for construction
-        scara_move_z(&right_arm, 60, COORDINATE_ROBOT, 1);
-        strategy_wait_ms(1000);
-        trajectory_d_rel(&robot.traj, 120);
-        trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
-        trajectory_d_rel(&robot.traj, -120);
-        trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
+        // Position arm
+        int x=152, y = (m_color == YELLOW ? 190 : -190), z=90;
+        scara_goto(arm, x, y, z, RADIANS(0), RADIANS(0), COORDINATE_ROBOT, 2.);
+        strategy_wait_ms(2000);
+
+        // Retract arm
+        scara_goto(arm, x - 120, y, z + 50, RADIANS(0), RADIANS(0), COORDINATE_ROBOT, 2.);
+        strategy_wait_ms(2000);
 
         state.score += 10;
         state.arms_are_deployed = true;
         state.construction_area_free = true;
+
         return true;
+
     }
 };
 
@@ -481,7 +480,7 @@ struct DepositCylinder : public goap::Action<DebraState> {
 
     bool can_run(DebraState state)
     {
-        return !state.arms_are_deployed && (state.cylinder_count > 0);
+        return !state.arms_are_deployed && (state.cylinder_count > 0) && state.construction_area_free;
     }
 
     DebraState plan_effects(DebraState state)
@@ -494,8 +493,9 @@ struct DepositCylinder : public goap::Action<DebraState> {
 
     bool execute(DebraState &state)
     {
-        int slot = state.cylinder_count;
-        const int push_dst = 50 + m_drop_count * 100;
+        state.cylinder_count --;
+        int slot = state.cylinder_count - 1;
+        int ret;
 
         NOTICE("Depositing cylinder in slot %d", slot);
 
@@ -509,26 +509,38 @@ struct DepositCylinder : public goap::Action<DebraState> {
             return false;
         }
 
-        scara_ugly_mode_enable(arm);
+        do {
+            trajectory_goto_backward_xy_abs(&robot.traj, MIRROR_X(m_color, 970), 1200);
+            ret = trajectory_wait_for_end(TRAJ_FLAGS_ALL);
+        } while (ret != TRAJ_END_GOAL_REACHED);
 
-        // Position arm
-        int x=152, y = (m_color == YELLOW ? 190 : -190), z=90;
-        scara_goto(arm, x, y, z, RADIANS(0), RADIANS(0), COORDINATE_ROBOT, 2.);
+        // Prepare arm
+        int x=152, y = (m_color == YELLOW ? 190 : -190), z=40;
+        scara_goto(arm, x - 120, y, z + 50, RADIANS(0), RADIANS(0), COORDINATE_ROBOT, 2.);
         strategy_wait_ms(2000);
-
-        trajectory_d_rel(&robot.traj, push_dst);
-        int ret = trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
-        if (ret != TRAJ_END_GOAL_REACHED) {
-            return false; // TODO how to recover ?
-        }
 
         // Select tool
         scara_set_wrist_heading_offset(arm, RADIANS(180 - 90 * slot));
         strategy_wait_ms(5000);
 
+        // Position arm
+        scara_goto(arm, x, y, z, RADIANS(0), RADIANS(0), COORDINATE_ROBOT, 2.);
+        strategy_wait_ms(2000);
+
+        do {
+            trajectory_goto_forward_xy_abs(&robot.traj, MIRROR_X(m_color, 1040), 1270);
+            ret = trajectory_wait_for_end(TRAJ_FLAGS_ALL);
+        } while (ret != TRAJ_END_GOAL_REACHED);
+
         // Drop cylinder
         hand_set_finger(hand, slot, FINGER_OPEN);
         strategy_wait_ms(1000);
+
+        do {
+            trajectory_goto_backward_xy_abs(&robot.traj, MIRROR_X(m_color, 970), 1200);
+            ret = trajectory_wait_for_end(TRAJ_FLAGS_ALL);
+        } while (ret != TRAJ_END_GOAL_REACHED);
+
         hand_set_finger(hand, slot, FINGER_CLOSED);
         strategy_wait_ms(500);
 
@@ -536,13 +548,6 @@ struct DepositCylinder : public goap::Action<DebraState> {
         state.score += 10;
         state.arms_are_deployed = true;
         state.cylinder_count --;
-
-        // Go back
-        trajectory_d_rel(&robot.traj, -push_dst);
-        ret = trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
-        if (ret != TRAJ_END_GOAL_REACHED) {
-            return false; // TODO how to recover ?
-        }
 
         return true;
     }
@@ -589,7 +594,7 @@ void strategy_debra_play_game(void)
     goap::Action<DebraState> *actions[] = {
         &index_arms,
         &retract_arms,
-        // &push_multi_cylinder,
+        &push_multi_cylinder,
         &collect_cylinder_1,
         &collect_cylinder_2,
         &deposit_cylinder,
