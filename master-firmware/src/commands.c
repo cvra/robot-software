@@ -1147,19 +1147,6 @@ static void cmd_base_mode(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
-static void cmd_fingers(BaseSequentialStream *chp, int argc, char *argv[])
-{
-    if (argc != 5) {
-        chprintf(chp, "Usage: fingers hand pos0 pos1 pos2 pos3\r\n");
-        return;
-    }
-
-    float pos[4] = {atof(argv[1]), atof(argv[2]), atof(argv[3]), atof(argv[4])};
-    hand_driver_set_fingers_float(argv[0], pos);
-
-    chprintf(chp, "Set fingers of %s hand at position %.3f %.3f %.3f %.3f\r\n", argv[0], pos[0], pos[1], pos[2], pos[3]);
-}
-
 static void cmd_fingers_cmd(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc != 3) {
@@ -1283,7 +1270,6 @@ const ShellCommand commands[] = {
     {"scara_traj", cmd_scara_traj},
     {"wrist_offset", cmd_wrist_offset},
     {"base_mode", cmd_base_mode},
-    {"fingers", cmd_fingers},
     {"fingers_cmd", cmd_fingers_cmd},
     {"rocket", cmd_rocket},
     {"state", cmd_state},
