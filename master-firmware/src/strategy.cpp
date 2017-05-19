@@ -540,7 +540,9 @@ struct InitGoal : goap::Goal<DebraState> {
 struct GameGoal : goap::Goal<DebraState> {
     bool is_reached(DebraState state)
     {
-        return (state.score > 10) && !state.arms_are_deployed;
+        return state.cylinder_taken[0] && state.cylinder_taken[1] &&
+            state.cylinder_count == 0 &&
+            !state.arms_are_deployed;
     }
 };
 
