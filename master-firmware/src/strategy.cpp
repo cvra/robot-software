@@ -493,41 +493,43 @@ struct DepositCylinder : public goap::Action<DebraState> {
 
     bool execute(DebraState &state)
     {
-        int slot = state.cylinder_count - 1;
-
-        NOTICE("Depositing cylinder in slot %d", slot);
-
         scara_t* arm = mirror_left_arm(m_color);
         hand_t* hand = mirror_left_hand(m_color);
 
         state.arms_are_deployed = true;
 
-        // Approach with wheelbase
-        if (!strategy_goto_avoid(MIRROR_X(m_color, 280), 840 + 120 * m_drop_count, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
-            return false;
+        while (state.cylinder_count > 0) {
+            // Select slot
+            int slot = state.cylinder_count - 1;
+            NOTICE("Depositing cylinder in slot %d", slot);
+
+            // Approach with wheelbase
+            if (!strategy_goto_avoid(MIRROR_X(m_color, 280), 840 + 120 * m_drop_count, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
+                return false;
+            }
+
+            // Prepare arm
+            int x = 43, y = (m_color == YELLOW ? 206 : -206), z = 160, a = 180 - 90 * slot;
+
+            scara_move_z(arm, z, COORDINATE_ROBOT, 1.);
+            strategy_wait_ms(1000);
+
+            scara_goto_with_length(arm, x, y, z, RADIANS(a), RADIANS(0), COORDINATE_ROBOT, 4., 0);
+            scara_set_wrist_heading_offset(arm, RADIANS(0));
+            strategy_wait_ms(4000);
+
+            // Drop cylinder
+            hand_set_finger(hand, slot, FINGER_OPEN);
+            strategy_wait_ms(1000);
+
+            hand_set_finger(hand, slot, FINGER_CLOSED);
+            strategy_wait_ms(500);
+
+            m_drop_count ++;
+            state.score += 10;
+            state.arms_are_deployed = true;
+            state.cylinder_count --;
         }
-
-        // Prepare arm
-        int x = 43, y = (m_color == YELLOW ? 206 : -206), z = 160, a = 180 - 90 * slot;
-
-        scara_move_z(arm, z, COORDINATE_ROBOT, 1.);
-        strategy_wait_ms(1000);
-
-        scara_goto_with_length(arm, x, y, z, RADIANS(a), RADIANS(0), COORDINATE_ROBOT, 4., 0);
-        scara_set_wrist_heading_offset(arm, RADIANS(0));
-        strategy_wait_ms(4000);
-
-        // Drop cylinder
-        hand_set_finger(hand, slot, FINGER_OPEN);
-        strategy_wait_ms(1000);
-
-        hand_set_finger(hand, slot, FINGER_CLOSED);
-        strategy_wait_ms(500);
-
-        m_drop_count ++;
-        state.score += 10;
-        state.arms_are_deployed = true;
-        state.cylinder_count --;
 
         return true;
     }
