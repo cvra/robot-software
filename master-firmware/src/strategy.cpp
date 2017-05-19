@@ -493,7 +493,6 @@ struct DepositCylinder : public goap::Action<DebraState> {
 
     bool execute(DebraState &state)
     {
-        state.cylinder_count --;
         int slot = state.cylinder_count - 1;
         int ret;
 
