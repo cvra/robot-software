@@ -378,13 +378,13 @@ struct PushMultiColoredCylinder : public goap::Action<DebraState> {
         scara_ugly_mode_enable(arm);
 
         // Position arm
-        int x=152, y = (m_color == YELLOW ? 190 : -190), z=90;
+        int x=152, y = (m_color == YELLOW ? 190 : -190), z=120;
         scara_goto(arm, x, y, z, RADIANS(0), RADIANS(0), COORDINATE_ROBOT, 2.);
         strategy_wait_ms(2000);
 
-        // Retract arm
-        scara_goto(arm, x - 120, y, z + 50, RADIANS(0), RADIANS(0), COORDINATE_ROBOT, 2.);
-        strategy_wait_ms(2000);
+        scara_move_z(arm, 150, COORDINATE_ROBOT, 1.);
+        strategy_wait_ms(1000);
+
 
         state.score += 10;
         state.arms_are_deployed = true;
@@ -444,7 +444,7 @@ struct CollectCylinder : public goap::Action<DebraState> {
 
         // Select tool
         scara_set_wrist_heading_offset(arm, RADIANS(-90 * slot));
-        strategy_wait_ms(2000);
+        strategy_wait_ms(1000);
         hand_set_finger(hand, slot, FINGER_OPEN);
         strategy_wait_ms(500);
 
@@ -494,7 +494,6 @@ struct DepositCylinder : public goap::Action<DebraState> {
     bool execute(DebraState &state)
     {
         int slot = state.cylinder_count - 1;
-        int ret;
 
         NOTICE("Depositing cylinder in slot %d", slot);
 
@@ -504,41 +503,23 @@ struct DepositCylinder : public goap::Action<DebraState> {
         state.arms_are_deployed = true;
 
         // Approach with wheelbase
-        if (!strategy_goto_avoid(MIRROR_X(m_color, 1040), 1270, MIRROR_A(m_color, 45), TRAJ_FLAGS_ALL)) {
+        if (!strategy_goto_avoid(MIRROR_X(m_color, 280), 840 + 120 * m_drop_count, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
             return false;
         }
 
-        do {
-            trajectory_goto_backward_xy_abs(&robot.traj, MIRROR_X(m_color, 970), 1200);
-            ret = trajectory_wait_for_end(TRAJ_FLAGS_ALL);
-        } while (ret != TRAJ_END_GOAL_REACHED);
-
         // Prepare arm
-        int x=152, y = (m_color == YELLOW ? 190 : -190), z=40;
-        scara_goto(arm, x - 120, y, z + 50, RADIANS(0), RADIANS(0), COORDINATE_ROBOT, 2.);
-        strategy_wait_ms(2000);
+        int x = 43, y = (m_color == YELLOW ? 206 : -206), z = 160, a = 180 - 90 * slot;
 
-        // Select tool
-        scara_set_wrist_heading_offset(arm, RADIANS(180 - 90 * slot));
-        strategy_wait_ms(5000);
+        scara_move_z(arm, z, COORDINATE_ROBOT, 1.);
+        strategy_wait_ms(1000);
 
-        // Position arm
-        scara_goto(arm, x, y, z, RADIANS(0), RADIANS(0), COORDINATE_ROBOT, 2.);
-        strategy_wait_ms(2000);
-
-        do {
-            trajectory_goto_forward_xy_abs(&robot.traj, MIRROR_X(m_color, 1040), 1270);
-            ret = trajectory_wait_for_end(TRAJ_FLAGS_ALL);
-        } while (ret != TRAJ_END_GOAL_REACHED);
+        scara_goto_with_length(arm, x, y, z, RADIANS(a), RADIANS(0), COORDINATE_ROBOT, 4., 0);
+        scara_set_wrist_heading_offset(arm, RADIANS(0));
+        strategy_wait_ms(4000);
 
         // Drop cylinder
         hand_set_finger(hand, slot, FINGER_OPEN);
         strategy_wait_ms(1000);
-
-        do {
-            trajectory_goto_backward_xy_abs(&robot.traj, MIRROR_X(m_color, 970), 1200);
-            ret = trajectory_wait_for_end(TRAJ_FLAGS_ALL);
-        } while (ret != TRAJ_END_GOAL_REACHED);
 
         hand_set_finger(hand, slot, FINGER_CLOSED);
         strategy_wait_ms(500);
