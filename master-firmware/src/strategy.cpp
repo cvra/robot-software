@@ -504,7 +504,7 @@ struct DepositCylinder : public goap::Action<DebraState> {
             NOTICE("Depositing cylinder in slot %d", slot);
 
             // Approach with wheelbase
-            if (!strategy_goto_avoid(MIRROR_X(m_color, 250), 750 + 120 * m_drop_count, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
+            if (!strategy_goto_avoid(MIRROR_X(m_color, 250), 800 + 120 * m_drop_count, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
                 return false;
             }
 
