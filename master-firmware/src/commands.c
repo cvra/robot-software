@@ -33,6 +33,7 @@
 #include "arms/arms_controller.h"
 #include "strategy.h"
 #include <trace/trace.h>
+#include "servo.h"
 
 const ShellCommand commands[];
 
@@ -1135,6 +1136,18 @@ static void cmd_trace(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
+static void cmd_servo(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc != 2) {
+        chprintf(chp, "Usage: servo N POS\r\n");
+        return;
+    }
+    unsigned int n = atoi(argv[0]);
+    float pos = atof(argv[1]);
+
+    servo_set(n, pos);
+}
+
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
@@ -1179,5 +1192,6 @@ const ShellCommand commands[] = {
     {"base_mode", cmd_base_mode},
     {"state", cmd_state},
     {"trace", cmd_trace},
+    {"servo", cmd_servo},
     {NULL, NULL}
 };

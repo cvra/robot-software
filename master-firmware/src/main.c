@@ -36,6 +36,7 @@
 #include "strategy.h"
 #include "filesystem.h"
 #include "http/server.h"
+#include "servo.h"
 
 
 void init_base_motors(void);
@@ -202,6 +203,7 @@ int main(void)
     /* Initialise timestamp module */
     timestamp_stm32_init();
 
+    servo_init();
 
     /* bus enumerator init */
     static __attribute__((section(".ccm"))) struct bus_enumerator_entry_allocator

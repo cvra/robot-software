@@ -53,6 +53,7 @@ target.arm:
     - src/filesystem.c
     - src/http/server.c
     - src/control_panel.c
+    - src/servo.c
 
 source:
     - src/unix_timestamp.c
