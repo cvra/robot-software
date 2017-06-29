@@ -9,7 +9,7 @@
 #define PWM_CLOCK               200000 // Hz
 // PWM counter max: 4096 -> 20.48ms Period
 
-#define PCA9685_I2C_ADDR        0b0100000
+#define PCA9685_I2C_ADDR        0b01000000
 
 #define PCA9685_MODE1           0x00
 #define PCA9685_MODE2           0x01
@@ -17,6 +17,7 @@
 #define PCA9685_LED0_OFF_L      0x08
 #define PCA9685_PRE_SCALE       0xFE
 
+#define PCA9685_MODE1_SLEEP     (1 << 4)
 #define PCA9685_MODE1_AI        (1 << 5)
 #define PCA9685_MODE2_OUTDRV    (1 << 2)
 #define PCA9685_MODE2_OCH       (1 << 3)
@@ -29,12 +30,12 @@ static void pca9685_write_reg(uint8_t reg_addr, uint8_t data)
     i2cMasterTransmit(&I2CD1, PCA9685_I2C_ADDR, buf, 2, NULL, 0);
 }
 
-// static uint8_t pca9685_read_reg(uint8_t reg_addr)
-// {
-//     uint8_t data;
-//     i2cMasterTransmit(&I2CD1, PCA9685_I2C_ADDR, &reg_addr, 1, &data, 1);
-//     return data;
-// }
+static uint8_t pca9685_read_reg(uint8_t reg_addr)
+{
+    uint8_t data;
+    i2cMasterTransmit(&I2CD1, PCA9685_I2C_ADDR, &reg_addr, 1, &data, 1);
+    return data;
+}
 
 void servo_set(unsigned int servo_nb, float pos)
 {
@@ -80,18 +81,24 @@ void servo_init(void)
     i2cStart(&I2CD1, &i2c_config);
 
     i2cAcquireBus(&I2CD1);
-    uint8_t reg;
+    uint8_t mode;
 
     // internal 25MHz oscillator, auto increment
-    reg = PCA9685_MODE1_AI;
-    pca9685_write_reg(PCA9685_MODE1, reg);
+    mode = PCA9685_MODE1_AI;
+
+    pca9685_write_reg(PCA9685_MODE1, mode | PCA9685_MODE1_SLEEP);
+
+    // configure prescaler (sleep mode)
+    pca9685_write_reg(PCA9685_PRE_SCALE, PWM_PRESCALER - 1);
+    pca9685_write_reg(PCA9685_MODE1, mode); // reset sleep mode
+
+    chThdSleepMilliseconds(1); // wait > 0.5us for oscillator
+
+    mode = pca9685_read_reg(PCA9685_MODE1);
+    pca9685_write_reg(PCA9685_MODE1, mode); // clear RESTART bit
 
     // push-pull output, update on I2C STOP,
-    reg = PCA9685_MODE2_OUTDRV;
-    pca9685_write_reg(PCA9685_MODE2, reg);
-
-    reg = PWM_PRESCALER - 1;
-    pca9685_write_reg(PCA9685_PRE_SCALE, reg);
+    pca9685_write_reg(PCA9685_MODE2, PCA9685_MODE2_OUTDRV);
 
     // all servo output off
     unsigned int i;
