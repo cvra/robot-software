@@ -1,3 +1,12 @@
 [submodule "ChibiOS"]
 	path = ChibiOS
 	url = https://github.com/cvra/ChibiOS.git
+[submodule "src/crc"]
+	path = src/crc
+	url = https://github.com/cvra/crc
+[submodule "src/cmp"]
+	path = src/cmp
+	url = https://github.com/cvra/cmp
+[submodule "src/cmp_mem_access"]
+	path = src/cmp_mem_access
+	url = https://github.com/cvra/cmp_mem_access
