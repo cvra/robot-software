@@ -83,7 +83,7 @@ endif
 #
 
 # Define project name here
-PROJECT = ch
+PROJECT = uwb-beacon
 
 # Imported source files and paths
 CHIBIOS = ChibiOS
@@ -198,4 +198,4 @@ include $(RULESPATH)/rules.mk
 
 .PHONY: flash
 flash: build/$(PROJECT).elf
-	openocd -f oocd.cfg -c "program build/ch.elf verify reset" -c "shutdown"
+	openocd -f oocd.cfg -c "program build/$(PROJECT).elf verify reset" -c "shutdown"
