@@ -15,6 +15,7 @@
 #include "rocket_driver.h"
 #include "uavcan_node.h"
 #include "priorities.h"
+#include "control_panel.h"
 #include "main.h"
 #include <timestamp/timestamp.h>
 
@@ -51,15 +52,13 @@ class BusEnumeratorNodeInfoAdapter final : public uavcan::INodeInfoListener
             bus_enumerator_update_node_info(&bus_enumerator, node_info.name.c_str(), can_id);
 
             /* Signal that we received one answer. */
-            // XXX todo: chosoe EXT_IO pin
-            // palSetPad(GPIOF, GPIOF_LED_DEBUG);
+            control_panel_set(LED_DEBUG);
 
             /* If we received as many nodes as expected, signal it using the
              * ready LED. */
             if (bus_enumerator_discovered_nodes_count(&bus_enumerator) ==
                 bus_enumerator_total_nodes_count(&bus_enumerator)) {
-                // XXX todo: chose EXT_IO pin
-                // palSetPad(GPIOF, GPIOF_LED_READY);
+                control_panel_set(LED_READY);
             }
         }
     }

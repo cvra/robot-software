@@ -8,6 +8,7 @@
 #include <lwip/dhcp.h>
 
 #include "main.h"
+#include "control_panel.h"
 #include "commands.h"
 #include "sntp/sntp.h"
 #include "unix_timestamp.h"
@@ -79,9 +80,9 @@ CONDVAR_DECL(bus_condvar);
 void panic_hook(const char *reason)
 {
     trace(TRACE_POINT_PANIC);
-    // XXX todo: chosoe EXT_IO pin
-    // palClearPad(GPIOB, GPIOB_LED_GREEN);
-    // palClearPad(GPIOB, GPIOB_LED_RED);
+
+    palSetPad(GPIOB, GPIOB_LED_GREEN);
+    palSetPad(GPIOB, GPIOB_LED_RED);
 
     panic_log_write(reason);
     if (ch.rlist.r_current != NULL) {
@@ -97,12 +98,12 @@ void panic_hook(const char *reason)
 
     // block to preserve fault state
     const char *msg = panic_log_read();
-    while(1) {
+    while (1) {
         if (msg != NULL) {
             chprintf((BaseSequentialStream *)&panic_uart, "kernel panic:\n%s\n", msg);
         }
         unsigned int i = 100000000;
-        while(i--) {
+        while (i--) {
             __asm__ volatile ("nop");
         }
     }
@@ -150,8 +151,7 @@ static void blink_thd(void *p)
     (void) p;
 
     while (true) {
-        // XXX todo: chosoe EXT_IO pin
-        // palTogglePad(GPIOF, GPIOF_LED_PC_ERROR);
+        control_panel_toggle(LED_PC);
         chThdSleepMilliseconds(200);
     }
 }
@@ -163,12 +163,14 @@ static void blink_start(void)
 }
 
 /** Application entry point.  */
-int main(void) {
+int main(void)
+{
     static thread_t *shelltp = NULL;
 
     /* Initializes a serial driver.  */
     sdStart(&SD2, &debug_uart_config);
 
+    control_panel_init();
     blink_start();
 
     /* Initialize global objects. */
@@ -209,7 +211,7 @@ int main(void) {
 
     /* bus enumerator init */
     static __attribute__((section(".ccm"))) struct bus_enumerator_entry_allocator
-                    bus_enum_entries_alloc[MAX_NB_BUS_ENUMERATOR_ENTRIES];
+        bus_enum_entries_alloc[MAX_NB_BUS_ENUMERATOR_ENTRIES];
 
     bus_enumerator_init(&bus_enumerator,
                         bus_enum_entries_alloc,
