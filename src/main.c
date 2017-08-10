@@ -4,6 +4,7 @@
 
 #include "usbconf.h"
 #include "cmd.h"
+#include "bootloader_config.h"
 
 int main(void)
 {
@@ -13,7 +14,13 @@ int main(void)
     sdStart(&SD2, NULL);
     chprintf((BaseSequentialStream *)&SD2, "boot\r\n");
 
-    usb_start();
+    bootloader_config_t boot_config;
+
+    if (!config_get(&boot_config)) {
+        chSysHalt("Could not read config!");
+    }
+
+    usb_start(boot_config.ID);
 
     shell_start((BaseSequentialStream *)&SDU1);
 

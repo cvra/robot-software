@@ -1,11 +1,18 @@
 dependency-dir: ./src
 
+depends:
+  - crc
+  - cmp
+  - cmp_mem_access
+
 target.arm:
   - src/board.c
   - src/usbconf.c
   - src/cmd.c
   - src/mpu9250.c
   - src/main.c
+  - src/bootloader_config.c
+  - src/can-bootloader/config.c
 
 include_directories:
   - src/

@@ -133,12 +133,13 @@ static const uint8_t vcom_string2[] = {
 };
 
 /* Serial Number string.  */
-static const uint8_t vcom_string3[] = {
-    USB_DESC_BYTE(8),                     /* bLength.                         */
+static uint8_t vcom_string3[] = {
+    USB_DESC_BYTE(10),                     /* bLength.                         */
     USB_DESC_BYTE(USB_DESCRIPTOR_STRING), /* bDescriptorType.                 */
-    '0' + CH_KERNEL_MAJOR, 0,
-    '0' + CH_KERNEL_MINOR, 0,
-    '0' + CH_KERNEL_PATCH, 0
+    '0', 0,
+    '0', 0,
+    '0', 0,
+    '0', 0
 };
 
 /* Strings wrappers array.  */
@@ -149,6 +150,15 @@ static const USBDescriptor vcom_strings[] = {
     {sizeof vcom_string3, vcom_string3}
 };
 
+static void update_serial_vcom(uint8_t *vcom, int serial)
+{
+    vcom[2] = '0' + serial / 100;
+    serial = serial % 100;
+    vcom[4] = '0' + serial / 10;
+    serial = serial % 10;
+    vcom[6] = '0' + serial;
+}
+
 /* Handles the GET_DESCRIPTOR callback. All required descriptors must be
  * handled here.  */
 static const USBDescriptor *get_descriptor(USBDriver *usbp,
@@ -156,7 +166,6 @@ static const USBDescriptor *get_descriptor(USBDriver *usbp,
                                            uint8_t dindex,
                                            uint16_t lang)
 {
-
     (void)usbp;
     (void)lang;
     switch (dtype) {
@@ -263,8 +272,11 @@ const SerialUSBConfig serusbcfg = {
 /* Serial over USB Driver structure.  */
 SerialUSBDriver SDU1;
 
-void usb_start(void)
+void usb_start(unsigned int serial)
 {
+    /* First genereate the serial number string from the serial number. */
+    update_serial_vcom(vcom_string3, serial);
+
     /*
      * Activates the USB driver and then the USB bus pull-up on D+.
      * Note, a delay is inserted in order to not have to disconnect the cable

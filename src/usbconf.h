@@ -5,7 +5,9 @@
 
 extern SerialUSBDriver SDU1;
 
-/* Starts the UART over USB service. */
-void usb_start(void);
+/** Starts the UART over USB service.
+ *
+ * @parameter serial [in] serial number to use for the port. */
+void usb_start(unsigned int serial);
 
 #endif
