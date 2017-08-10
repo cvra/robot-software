@@ -160,8 +160,8 @@
 #define GPIOF_PIN14                 14
 #define GPIOF_EXT_IO_6              15 // EXT_IO_6
 
-#define GPIOG_PIN0                  0 // EXT_IO_1
-#define GPIOG_PIN1                  1 // EXT_IO_4
+#define GPIOG_EXT_IO_1              0 // EXT_IO_1
+#define GPIOG_EXT_IO_4              1 // EXT_IO_4
 #define GPIOG_PIN2                  2
 #define GPIOG_PIN3                  3
 #define GPIOG_LED_RGB_G             4 // LED_RGB_G
@@ -170,7 +170,7 @@
 #define GPIOG_USB_OVERCURRENT       7 // USB_OverCurrent, active low (for USB OTG host) (input floating)
 #define GPIOG_EXT_IO_10             8 // EXT_IO_10
 #define GPIOG_PIN9                  9 // GPIO1 (USART6_RX)
-#define GPIOG_PIN10                 10 // EXT_IO_3
+#define GPIOG_EXT_IO_3              10 // EXT_IO_3
 #define GPIOG_ETH_RMII_TXEN         11 // RMII_TX_EN (alternate 11)
 #define GPIOG_PIN12                 12 // GPIO4
 #define GPIOG_ETH_RMII_TXD0         13 // RMII_TXD0 (alternate 11)
@@ -805,8 +805,8 @@
 /*
  * GPIOG setup:
  */
-#define VAL_GPIOG_MODER             (PIN_MODE_INPUT(GPIOG_PIN0) | \
-                                     PIN_MODE_INPUT(GPIOG_PIN1) | \
+#define VAL_GPIOG_MODER             (PIN_MODE_INPUT(GPIOG_EXT_IO_1) | \
+                                     PIN_MODE_INPUT(GPIOG_EXT_IO_4) | \
                                      PIN_MODE_INPUT(GPIOG_PIN2) | \
                                      PIN_MODE_INPUT(GPIOG_PIN3) | \
                                      PIN_MODE_OUTPUT(GPIOG_LED_RGB_G) | \
@@ -815,14 +815,14 @@
                                      PIN_MODE_INPUT(GPIOG_USB_OVERCURRENT) | \
                                      PIN_MODE_INPUT(GPIOG_EXT_IO_10) | \
                                      PIN_MODE_INPUT(GPIOG_PIN9) | \
-                                     PIN_MODE_INPUT(GPIOG_PIN10) | \
+                                     PIN_MODE_INPUT(GPIOG_EXT_IO_3) | \
                                      PIN_MODE_ALTERNATE(GPIOG_ETH_RMII_TXEN) | \
                                      PIN_MODE_INPUT(GPIOG_PIN12) | \
                                      PIN_MODE_ALTERNATE(GPIOG_ETH_RMII_TXD0) | \
                                      PIN_MODE_INPUT(GPIOG_PIN14) | \
                                      PIN_MODE_INPUT(GPIOG_PIN15))
-#define VAL_GPIOG_OTYPER            (PIN_OTYPE_PUSHPULL(GPIOG_PIN0) | \
-                                     PIN_OTYPE_PUSHPULL(GPIOG_PIN1) | \
+#define VAL_GPIOG_OTYPER            (PIN_OTYPE_PUSHPULL(GPIOG_EXT_IO_1) | \
+                                     PIN_OTYPE_PUSHPULL(GPIOG_EXT_IO_4) | \
                                      PIN_OTYPE_PUSHPULL(GPIOG_PIN2) | \
                                      PIN_OTYPE_PUSHPULL(GPIOG_PIN3) | \
                                      PIN_OTYPE_PUSHPULL(GPIOG_LED_RGB_G) | \
@@ -831,14 +831,14 @@
                                      PIN_OTYPE_PUSHPULL(GPIOG_USB_OVERCURRENT) | \
                                      PIN_OTYPE_PUSHPULL(GPIOG_EXT_IO_10) | \
                                      PIN_OTYPE_PUSHPULL(GPIOG_PIN9) | \
-                                     PIN_OTYPE_PUSHPULL(GPIOG_PIN10) | \
+                                     PIN_OTYPE_PUSHPULL(GPIOG_EXT_IO_3) | \
                                      PIN_OTYPE_PUSHPULL(GPIOG_ETH_RMII_TXEN) | \
                                      PIN_OTYPE_PUSHPULL(GPIOG_PIN12) | \
                                      PIN_OTYPE_PUSHPULL(GPIOG_ETH_RMII_TXD0) | \
                                      PIN_OTYPE_PUSHPULL(GPIOG_PIN14) | \
                                      PIN_OTYPE_PUSHPULL(GPIOG_PIN15))
-#define VAL_GPIOG_OSPEEDR           (PIN_OSPEED_100M(GPIOG_PIN0) | \
-                                     PIN_OSPEED_100M(GPIOG_PIN1) | \
+#define VAL_GPIOG_OSPEEDR           (PIN_OSPEED_100M(GPIOG_EXT_IO_1) | \
+                                     PIN_OSPEED_100M(GPIOG_EXT_IO_4) | \
                                      PIN_OSPEED_100M(GPIOG_PIN2) | \
                                      PIN_OSPEED_100M(GPIOG_PIN3) | \
                                      PIN_OSPEED_100M(GPIOG_LED_RGB_G) | \
@@ -847,14 +847,14 @@
                                      PIN_OSPEED_100M(GPIOG_USB_OVERCURRENT) | \
                                      PIN_OSPEED_100M(GPIOG_EXT_IO_10) | \
                                      PIN_OSPEED_100M(GPIOG_PIN9) | \
-                                     PIN_OSPEED_100M(GPIOG_PIN10) | \
+                                     PIN_OSPEED_100M(GPIOG_EXT_IO_3) | \
                                      PIN_OSPEED_100M(GPIOG_ETH_RMII_TXEN) | \
                                      PIN_OSPEED_100M(GPIOG_PIN12) | \
                                      PIN_OSPEED_100M(GPIOG_ETH_RMII_TXD0) | \
                                      PIN_OSPEED_100M(GPIOG_PIN14) | \
                                      PIN_OSPEED_100M(GPIOG_PIN15))
-#define VAL_GPIOG_PUPDR             (PIN_PUPDR_FLOATING(GPIOG_PIN0) | \
-                                     PIN_PUPDR_FLOATING(GPIOG_PIN1) | \
+#define VAL_GPIOG_PUPDR             (PIN_PUPDR_FLOATING(GPIOG_EXT_IO_1) | \
+                                     PIN_PUPDR_FLOATING(GPIOG_EXT_IO_4) | \
                                      PIN_PUPDR_FLOATING(GPIOG_PIN2) | \
                                      PIN_PUPDR_FLOATING(GPIOG_PIN3) | \
                                      PIN_PUPDR_FLOATING(GPIOG_LED_RGB_G) | \
@@ -863,14 +863,14 @@
                                      PIN_PUPDR_FLOATING(GPIOG_USB_OVERCURRENT) | \
                                      PIN_PUPDR_FLOATING(GPIOG_EXT_IO_10) | \
                                      PIN_PUPDR_FLOATING(GPIOG_PIN9) | \
-                                     PIN_PUPDR_FLOATING(GPIOG_PIN10) | \
+                                     PIN_PUPDR_FLOATING(GPIOG_EXT_IO_3) | \
                                      PIN_PUPDR_FLOATING(GPIOG_ETH_RMII_TXEN) | \
                                      PIN_PUPDR_FLOATING(GPIOG_PIN12) | \
                                      PIN_PUPDR_FLOATING(GPIOG_ETH_RMII_TXD0) | \
                                      PIN_PUPDR_FLOATING(GPIOG_PIN14) | \
                                      PIN_PUPDR_FLOATING(GPIOG_PIN15))
-#define VAL_GPIOG_ODR               (PIN_ODR_LOW(GPIOG_PIN0) | \
-                                     PIN_ODR_LOW(GPIOG_PIN1) | \
+#define VAL_GPIOG_ODR               (PIN_ODR_LOW(GPIOG_EXT_IO_1) | \
+                                     PIN_ODR_LOW(GPIOG_EXT_IO_4) | \
                                      PIN_ODR_LOW(GPIOG_PIN2) | \
                                      PIN_ODR_LOW(GPIOG_PIN3) | \
                                      PIN_ODR_LOW(GPIOG_LED_RGB_G) | \
@@ -879,14 +879,14 @@
                                      PIN_ODR_LOW(GPIOG_USB_OVERCURRENT) | \
                                      PIN_ODR_LOW(GPIOG_EXT_IO_10) | \
                                      PIN_ODR_LOW(GPIOG_PIN9) | \
-                                     PIN_ODR_LOW(GPIOG_PIN10) | \
+                                     PIN_ODR_LOW(GPIOG_EXT_IO_3) | \
                                      PIN_ODR_LOW(GPIOG_ETH_RMII_TXEN) | \
                                      PIN_ODR_LOW(GPIOG_PIN12) | \
                                      PIN_ODR_LOW(GPIOG_ETH_RMII_TXD0) | \
                                      PIN_ODR_LOW(GPIOG_PIN14) | \
                                      PIN_ODR_LOW(GPIOG_PIN15))
-#define VAL_GPIOG_AFRL              (PIN_AFIO_AF(GPIOG_PIN0, 0) | \
-                                     PIN_AFIO_AF(GPIOG_PIN1, 0) | \
+#define VAL_GPIOG_AFRL              (PIN_AFIO_AF(GPIOG_EXT_IO_1, 0) | \
+                                     PIN_AFIO_AF(GPIOG_EXT_IO_4, 0) | \
                                      PIN_AFIO_AF(GPIOG_PIN2, 0) | \
                                      PIN_AFIO_AF(GPIOG_PIN3, 0) | \
                                      PIN_AFIO_AF(GPIOG_LED_RGB_G, 0) | \
@@ -895,7 +895,7 @@
                                      PIN_AFIO_AF(GPIOG_USB_OVERCURRENT, 0))
 #define VAL_GPIOG_AFRH              (PIN_AFIO_AF(GPIOG_EXT_IO_10, 0) | \
                                      PIN_AFIO_AF(GPIOG_PIN9, 0) | \
-                                     PIN_AFIO_AF(GPIOG_PIN10, 0) | \
+                                     PIN_AFIO_AF(GPIOG_EXT_IO_3, 0) | \
                                      PIN_AFIO_AF(GPIOG_ETH_RMII_TXEN, 11) | \
                                      PIN_AFIO_AF(GPIOG_PIN12, 0) | \
                                      PIN_AFIO_AF(GPIOG_ETH_RMII_TXD0, 11) | \
