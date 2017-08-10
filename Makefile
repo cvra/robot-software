@@ -74,6 +74,10 @@ ifeq ($(USE_FPU),)
   USE_FPU = hard
 endif
 
+ifeq ($(USE_BOOTLOADER),)
+  USE_BOOTLOADER = no
+endif
+
 #
 # Architecture or project specific options
 ##############################################################################
@@ -100,9 +104,6 @@ include $(CHIBIOS)/os/rt/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
 #include $(CHIBIOS)/test/rt/test.mk
 
 include app_src.mk
-
-# Define linker script file here
-LDSCRIPT= STM32F405xG.ld
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -187,9 +188,17 @@ ULIBDIR =
 # List all user libraries here
 ULIBS =
 
+
 #
 # End of user defines
 ##############################################################################
+
+ifeq ($(USE_BOOTLOADER), yes)
+  UDEFS += -DCORTEX_VTOR_INIT=0x0800C000
+  LDSCRIPT = STM32F405xG_bootloader.ld
+else
+  LDSCRIPT = STM32F405xG.ld
+endif
 
 GLOBAL_SRC_DEP = app_src.mk
 
