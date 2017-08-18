@@ -19,6 +19,7 @@
 #include "scara/scara_trajectories.h"
 #include "arms/arms_controller.h"
 #include "config.h"
+#include "control_panel.h"
 #include "main.h"
 
 #include "strategy.h"
@@ -36,7 +37,7 @@ static scara_t* mirror_right_arm(enum strat_color_t color);
 static hand_t* mirror_left_hand(enum strat_color_t color);
 static hand_t* mirror_right_hand(enum strat_color_t color);
 
-#define BUTTON_IS_PRESSED(port, io) (palReadPad(port, io) == false) // Active low
+#define BUTTON_IS_PRESSED(in) (control_panel_read(in) == false) // Active low
 #define ARM_TRAJ_SYNCHRONOUS(arm, traj) do { \
         strategy_wait_ms(strategy_set_arm_trajectory(arm, traj, \
                          sizeof(traj) / sizeof(arm_waypoint_t))); \
@@ -46,24 +47,24 @@ static enum strat_color_t wait_for_color_selection(void)
 {
     strat_color_t color = YELLOW;
 
-    while (!BUTTON_IS_PRESSED(GPIOF, GPIOF_BTN_YELLOW) && !BUTTON_IS_PRESSED(GPIOF, GPIOF_BTN_GREEN)) {
-        palSetPad(GPIOF, GPIOF_LED_YELLOW_1);
-        palSetPad(GPIOF, GPIOF_LED_GREEN_1);
+    while (!BUTTON_IS_PRESSED(BUTTON_YELLOW) && !BUTTON_IS_PRESSED(BUTTON_GREEN)) {
+        control_panel_set(LED_YELLOW);
+        control_panel_set(LED_GREEN);
         strategy_wait_ms(100);
 
-        palClearPad(GPIOF, GPIOF_LED_YELLOW_1);
-        palClearPad(GPIOF, GPIOF_LED_GREEN_1);
+        control_panel_clear(LED_YELLOW);
+        control_panel_clear(LED_GREEN);
         strategy_wait_ms(100);
     }
 
-    if (BUTTON_IS_PRESSED(GPIOF, GPIOF_BTN_GREEN)) {
-        palClearPad(GPIOF, GPIOF_LED_YELLOW_1);
-        palSetPad(GPIOF, GPIOF_LED_GREEN_1);
+    if (BUTTON_IS_PRESSED(BUTTON_GREEN)) {
+        control_panel_clear(LED_YELLOW);
+        control_panel_set(LED_GREEN);
         color = BLUE;
         NOTICE("Color set to blue");
     } else {
-        palSetPad(GPIOF, GPIOF_LED_YELLOW_1);
-        palClearPad(GPIOF, GPIOF_LED_GREEN_1);
+        control_panel_set(LED_YELLOW);
+        control_panel_clear(LED_GREEN);
         color = YELLOW;
         NOTICE("Color set to yellow");
     }
@@ -74,10 +75,10 @@ static enum strat_color_t wait_for_color_selection(void)
 static void wait_for_starter(void)
 {
     /* Wait for a rising edge */
-    while (palReadPad(GPIOF, GPIOF_START)) {
+    while (control_panel_read(STARTER)) {
         strategy_wait_ms(10);
     }
-    while (!palReadPad(GPIOF, GPIOF_START)) {
+    while (!control_panel_read(STARTER)) {
         strategy_wait_ms(10);
     }
 }
@@ -173,10 +174,10 @@ bool strategy_goto_avoid(int x_mm, int y_mm, int a_deg, int traj_end_flags)
 
         return true;
     } else if (end_reason == TRAJ_END_OPPONENT_NEAR) {
-        palSetPad(GPIOF, GPIOF_LED_PC_ERROR);
+        control_panel_set(LED_PC);
         strategy_stop_robot();
         strategy_wait_ms(100);
-        palClearPad(GPIOF, GPIOF_LED_PC_ERROR);
+        control_panel_clear(LED_PC);
         strategy_stop_robot();
         WARNING("Stopping robot because opponent too close");
     } else if (end_reason == TRAJ_END_COLLISION) {

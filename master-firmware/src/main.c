@@ -8,6 +8,7 @@
 #include <lwip/dhcp.h>
 
 #include "main.h"
+#include "control_panel.h"
 #include "commands.h"
 #include "sntp/sntp.h"
 #include "unix_timestamp.h"
@@ -45,7 +46,7 @@ void init_hands(void);
 THD_WORKING_AREA(shell_wa, 2048);
 
 static const ShellConfig shell_cfg1 = {
-    (BaseSequentialStream *)&SD3,
+    (BaseSequentialStream *)&SDU1,
     commands
 };
 
@@ -79,17 +80,9 @@ CONDVAR_DECL(bus_condvar);
 void panic_hook(const char *reason)
 {
     trace(TRACE_POINT_PANIC);
-    palSetPad(GPIOF, GPIOF_LED_READY);
-    palSetPad(GPIOF, GPIOF_LED_DEBUG);
-    palSetPad(GPIOF, GPIOF_LED_ERROR);
-    palSetPad(GPIOF, GPIOF_LED_POWER_ERROR);
-    palSetPad(GPIOF, GPIOF_LED_PC_ERROR);
-    palSetPad(GPIOF, GPIOF_LED_BUS_ERROR);
-    palSetPad(GPIOF, GPIOF_LED_YELLOW_1);
-    palSetPad(GPIOF, GPIOF_LED_YELLOW_2);
-    palSetPad(GPIOF, GPIOF_LED_GREEN_1);
-    palSetPad(GPIOF, GPIOF_LED_GREEN_2);
-    palClearPad(GPIOC, GPIOC_LED);
+
+    palSetPad(GPIOB, GPIOB_LED_GREEN);
+    palSetPad(GPIOB, GPIOB_LED_RED);
 
     panic_log_write(reason);
     if (ch.rlist.r_current != NULL) {
@@ -105,12 +98,12 @@ void panic_hook(const char *reason)
 
     // block to preserve fault state
     const char *msg = panic_log_read();
-    while(1) {
+    while (1) {
         if (msg != NULL) {
             chprintf((BaseSequentialStream *)&panic_uart, "kernel panic:\n%s\n", msg);
         }
         unsigned int i = 100000000;
-        while(i--) {
+        while (i--) {
             __asm__ volatile ("nop");
         }
     }
@@ -158,7 +151,7 @@ static void blink_thd(void *p)
     (void) p;
 
     while (true) {
-        palTogglePad(GPIOF, GPIOF_LED_PC_ERROR);
+        control_panel_toggle(LED_PC);
         chThdSleepMilliseconds(200);
     }
 }
@@ -170,30 +163,18 @@ static void blink_start(void)
 }
 
 /** Application entry point.  */
-int main(void) {
+int main(void)
+{
     static thread_t *shelltp = NULL;
 
     /* Initializes a serial driver.  */
-    sdStart(&SD3, &debug_uart_config);
+    sdStart(&SD2, &debug_uart_config);
 
+    control_panel_init();
     blink_start();
 
     /* Initialize global objects. */
     config_init();
-
-    /* Initializes a serial-over-USB CDC driver.  */
-    sduObjectInit(&SDU1);
-    sduStart(&SDU1, &serusbcfg);
-
-    /*
-     * Activates the USB driver and then the USB bus pull-up on D+.
-     * Note, a delay is inserted in order to not have to disconnect the cable
-     * after a reset.
-     */
-    usbDisconnectBus(serusbcfg.usbp);
-    chThdSleepMilliseconds(1500);
-    usbStart(serusbcfg.usbp, &usbcfg);
-    usbConnectBus(serusbcfg.usbp);
 
     /* Try to mount the filesystem. */
     filesystem_start();
@@ -201,10 +182,6 @@ int main(void) {
     log_init();
 
     NOTICE("boot");
-
-
-    /* Shell manager initialization.  */
-    shellInit();
 
     /* Initialize the interthread communication bus. */
     messagebus_init(&bus, &bus_lock, &bus_condvar);
@@ -216,7 +193,7 @@ int main(void) {
 
     /* bus enumerator init */
     static __attribute__((section(".ccm"))) struct bus_enumerator_entry_allocator
-                    bus_enum_entries_alloc[MAX_NB_BUS_ENUMERATOR_ENTRIES];
+        bus_enum_entries_alloc[MAX_NB_BUS_ENUMERATOR_ENTRIES];
 
     bus_enumerator_init(&bus_enumerator,
                         bus_enum_entries_alloc,
@@ -279,6 +256,23 @@ int main(void) {
     strategy_start();
 
     stream_init();
+
+    /* Initializes a serial-over-USB CDC driver.  */
+    sduObjectInit(&SDU1);
+    sduStart(&SDU1, &serusbcfg);
+
+    /*
+     * Activates the USB driver and then the USB bus pull-up on D+.
+     * Note, a delay is inserted in order to not have to disconnect the cable
+     * after a reset.
+     */
+    usbDisconnectBus(serusbcfg.usbp);
+    chThdSleepMilliseconds(1500);
+    usbStart(serusbcfg.usbp, &usbcfg);
+    usbConnectBus(serusbcfg.usbp);
+
+    /* Shell manager initialization.  */
+    shellInit();
 
     /* main thread, spawns a shell on USB connection. */
     while (1) {

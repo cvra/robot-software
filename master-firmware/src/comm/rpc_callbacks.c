@@ -8,8 +8,6 @@
 #include "uavcan_node.h"
 
 const char *error_msg_bad_format = "Error: invalid argument format.";
-const char *error_msg_invalid_arg = "Error: invalid argument value.";
-
 
 static bool ping_cb(void *p, cmp_ctx_t *input, cmp_ctx_t *output)
 {
@@ -79,60 +77,10 @@ static bool create_motor_driver(void *p, cmp_ctx_t *input, cmp_ctx_t *output)
     return true;
 }
 
-static bool led_cb(void *p, cmp_ctx_t *input, cmp_ctx_t *output)
-{
-    (void) p;
-
-    char led_name[32];
-    uint32_t led_name_len;
-    uint32_t array_len = 0;
-    bool led_status;
-    bool err;
-
-    led_name_len = sizeof led_name;
-    err = false;
-    err = err || !cmp_read_array(input, &array_len);
-    err = err || array_len != 2;
-    err = err || !cmp_read_str(input, led_name, &led_name_len);
-    err = err || !cmp_read_bool(input, &led_status);
-
-    if (err == false) {
-        if (!strcmp(led_name, "ready")) {
-            palWritePad(GPIOF, GPIOF_LED_READY, led_status);
-        } else if (!strcmp(led_name, "debug")) {
-            palWritePad(GPIOF, GPIOF_LED_DEBUG, led_status);
-        } else if (!strcmp(led_name, "error")) {
-            palWritePad(GPIOF, GPIOF_LED_ERROR, led_status);
-        } else if (!strcmp(led_name, "power_error")) {
-            palWritePad(GPIOF, GPIOF_LED_POWER_ERROR, led_status);
-        } else if (!strcmp(led_name, "pc_error")) {
-            palWritePad(GPIOF, GPIOF_LED_PC_ERROR, led_status);
-        } else if (!strcmp(led_name, "bus_error")) {
-            palWritePad(GPIOF, GPIOF_LED_BUS_ERROR, led_status);
-        } else if (!strcmp(led_name, "yellow_1")) {
-            palWritePad(GPIOF, GPIOF_LED_YELLOW_1, led_status);
-        } else if (!strcmp(led_name, "yellow_2")) {
-            palWritePad(GPIOF, GPIOF_LED_YELLOW_2, led_status);
-        } else if (!strcmp(led_name, "green_1")) {
-            palWritePad(GPIOF, GPIOF_LED_GREEN_1, led_status);
-        } else if (!strcmp(led_name, "green_2")) {
-            palWritePad(GPIOF, GPIOF_LED_GREEN_2, led_status);
-        } else {
-            cmp_write_str(output, error_msg_invalid_arg,
-                                  strlen(error_msg_invalid_arg));
-
-        }
-    } else {
-        cmp_write_str(output, error_msg_bad_format,
-                              strlen(error_msg_bad_format));
-    }
-    return true;
-}
 
 struct service_call_method_s service_call_callbacks[] = {
     {.name="ping", .cb=ping_cb},
     {.name="config_update", .cb=config_update_cb},
-    {.name="led_set", .cb=led_cb},
     {.name="actuator_create_driver", .cb=create_motor_driver},
 };
 

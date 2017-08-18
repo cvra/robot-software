@@ -18,6 +18,7 @@
 #include "uavcan_node.h"
 #include "motor_driver.h"
 #include "motor_driver_uavcan.hpp"
+#include "control_panel.h"
 #include "main.h"
 
 using namespace uavcan;
@@ -111,13 +112,12 @@ int motor_driver_uavcan_init(INode &node)
 
         motor_manager_get_list(&motor_manager, &drv_list, &drv_list_len);
 
-
-        palClearPad(GPIOF, GPIOF_LED_BUS_ERROR);
+        control_panel_clear(LED_BUS);
 
         for (int i = 0; i < drv_list_len; i++) {
             /* Only update one motor per 50 ms to avoid overloading the bus. */
             if (motor_driver_uavcan_update_config(&drv_list[i])) {
-                palSetPad(GPIOF, GPIOF_LED_BUS_ERROR);
+                control_panel_set(LED_BUS);
                 break;
             }
         }

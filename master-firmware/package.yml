@@ -54,6 +54,7 @@ target.arm:
     - src/strategy.cpp
     - src/filesystem.c
     - src/http/server.c
+    - src/control_panel.c
 
 source:
     - src/unix_timestamp.c
