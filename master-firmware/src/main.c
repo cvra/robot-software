@@ -84,6 +84,15 @@ void panic_hook(const char *reason)
     palSetPad(GPIOB, GPIOB_LED_GREEN);
     palSetPad(GPIOB, GPIOB_LED_RED);
 
+    control_panel_set(LED_READY);
+    control_panel_set(LED_DEBUG);
+    control_panel_set(LED_ERROR);
+    control_panel_set(LED_POWER);
+    control_panel_set(LED_PC);
+    control_panel_set(LED_BUS);
+    control_panel_set(LED_YELLOW);
+    control_panel_set(LED_GREEN);
+
     panic_log_write(reason);
     if (ch.rlist.r_current != NULL) {
         panic_log_printf("\ncurrent thread: ");
