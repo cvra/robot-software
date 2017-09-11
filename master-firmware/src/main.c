@@ -118,6 +118,11 @@ void panic_hook(const char *reason)
     }
 }
 
+void _fini(void)
+{
+    /* empty */
+}
+
 /** Late init hook, called before c++ static constructors. */
 void __late_init(void)
 {
