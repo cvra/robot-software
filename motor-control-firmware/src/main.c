@@ -84,6 +84,11 @@ static THD_FUNCTION(led_thread, arg)
     }
 }
 
+void _fini(void)
+{
+    /* empty */
+}
+
 int main(void) {
     halInit();
     chSysInit();
