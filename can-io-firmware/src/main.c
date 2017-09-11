@@ -24,6 +24,15 @@ static void blinker_start(void)
     chThdCreateStatic(blinker_wa, sizeof(blinker_wa), LOWPRIO, blinker, NULL);
 }
 
+void _unhandled_exception(void)
+{
+    chSysHalt("unhandled exception");
+
+    while (true) {
+        /* wait forever */
+    }
+}
+
 bootloader_config_t config;
 
 int main(void)

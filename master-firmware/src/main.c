@@ -118,6 +118,15 @@ void panic_hook(const char *reason)
     }
 }
 
+void _unhandled_exception(void)
+{
+    chSysHalt("unhandled exception");
+
+    while (true) {
+        /* wait forever */
+    }
+}
+
 void _fini(void)
 {
     /* empty */
