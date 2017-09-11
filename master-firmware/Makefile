@@ -87,7 +87,7 @@ PROJECT = ch
 CHIBIOS = ../lib/ChibiOS
 
 # Startup files.
-include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/startup_stm32f4xx.mk
+include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32f4xx.mk
 
 # HAL-OSAL files (optional).
 include $(CHIBIOS)/os/hal/hal.mk
@@ -96,7 +96,7 @@ include $(CHIBIOS)/os/hal/osal/rt/osal.mk
 
 # RTOS files (optional).
 include $(CHIBIOS)/os/rt/rt.mk
-include $(CHIBIOS)/os/rt/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
+include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
 
 # Other files (optional).
 #include $(CHIBIOS)/test/rt/test.mk
@@ -132,15 +132,16 @@ include app_src.mk
 CPPSRC += $(CHCPPSRC)
 
 # List ASM source files here
-ASMSRC += $(STARTUPASM) $(PORTASM) $(OSALASM)
+ASMSRC +=
+ASMXSRC +=  $(STARTUPASM) $(PORTASM) $(OSALASM)
 
-INCDIR += $(PORTINC) $(KERNINC) $(TESTINC) \
-		  $(STARTUPINC) \
+INCDIR += $(CHIBIOS)/os/license \
+		  $(STARTUPINC) $(KERNINC) $(PORTINC) $(OSALINC) \
 		  $(HALINC) $(PLATFORMINC) $(LWINC) \
-		  $(OSALINC) \
 		  $(CHCPPINC) \
 		  $(CHIBIOS)/os/various \
 		  $(CHIBIOS)/os/hal/lib/streams \
+		  $(TESTINC) \
 		  $(BOARDINC)
 
 #
@@ -249,13 +250,11 @@ UINCDIR += $(LIBUAVCAN_INC) ./dsdlc_generated $(LIBUAVCAN_STM32_INC)
 # End of user defines
 ##############################################################################
 
-GLOBAL_SRC_DEP = app_src.mk
-
 RULESPATH = ./linker/
-include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/rules.mk
+include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/rules.mk
 
 # Empty libraries, required by stack smashing protection
-PRE_MAKE_ALL_RULE_HOOK: libssp.a libssp_nonshared.a src/config_msgpack.c
+PRE_MAKE_ALL_RULE_HOOK: app_src.mk libssp.a libssp_nonshared.a src/config_msgpack.c
 libssp.a:
 	arm-none-eabi-ar rcs $@
 
