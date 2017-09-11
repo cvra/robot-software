@@ -107,6 +107,9 @@ include $(CHIBIOS)/os/various/cpp_wrappers/chcpp.mk
 # Target board
 include src/board/board.mk
 
+# Shell module
+include $(CHIBIOS)/os/various/shell/shell.mk
+
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
 CSRC = $(PORTSRC) \
@@ -117,12 +120,12 @@ CSRC = $(PORTSRC) \
 	   $(STARTUPSRC) \
 	   $(LWSRC) \
 	   $(FATFSSRC) \
+	   $(SHELLSRC) \
 	   $(CHIBIOS)/os/various/evtimer.c \
 	   $(CHIBIOS)/os/hal/lib/streams/memstreams.c \
 	   $(CHIBIOS)/os/hal/lib/streams/chprintf.c \
 	   $(CHIBIOS)/os/various/syscalls.c \
 	   $(CHIBIOS)/os/various/fatfs_bindings/fatfs_diskio.c \
-	   $(CHIBIOS)/os/various/shell.c \
 	   $(BOARDSRC)
 
 include app_src.mk
@@ -141,6 +144,7 @@ INCDIR += $(CHIBIOS)/os/license \
 		  $(CHCPPINC) \
 		  $(CHIBIOS)/os/various \
 		  $(CHIBIOS)/os/hal/lib/streams \
+		  $(SHELLINC) \
 		  $(TESTINC) \
 		  $(BOARDINC)
 
@@ -194,8 +198,9 @@ DDEFS += -DUAVCAN_TOSTRING=0 \
 		 -DUAVCAN_STM32_CHIBIOS=1 \
 		 -DUAVCAN_TINY=0 \
 		 -DLWIP_DEBUG=1 \
-		 -DSHELL_MAX_ARGUMENTS=5
-
+		 -DSHELL_MAX_ARGUMENTS=5 \
+		 -DSHELL_CMD_THREADS_ENABLED=FALSE \
+		 -DSHELL_CMD_TEST_ENABLED=FALSE
 
 # List all default ASM defines here, like -D_DEBUG=1
 DADEFS =
