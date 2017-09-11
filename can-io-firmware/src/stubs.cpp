@@ -70,3 +70,11 @@ void _open_r(void)
 {
     return;
 }
+
+namespace std
+{
+    void __throw_bad_function_call(void)
+    {
+        osalSysHalt("Bad function call");
+    }
+}
