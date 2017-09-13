@@ -76,6 +76,9 @@ def main():
 
     callees = unmangle_names(callees)
 
+    # Sort by called functions then callees
+    callees.sort(key=lambda s:(s[1], s[0]))
+
     # Find longest function name
     longest_function_len = max(len(f) for f, _ in callees)
 
