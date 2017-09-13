@@ -20,6 +20,7 @@ the culprit is found.
 
 import argparse
 import re
+import subprocess
 
 NAME_PATTERN = "^[0-9A-Fa-f]+ <(\w+)>"
 
@@ -32,6 +33,25 @@ def parse_args():
                         help="Regular expression for the callee function name.")
 
     return parser.parse_args()
+
+def unmangle_names(funcs):
+    """
+    Unmangles a list of c++ names
+    """
+    callers = list(f[0] for f in funcs)
+    callees = list(f[1] for f in funcs)
+
+    # We dont want to display function parameters' types as it increases the
+    # output length too much
+    cppfilt = ["arm-none-eabi-c++filt", "--no-params"]
+
+    command = cppfilt + callers
+    callers = subprocess.check_output(command).decode().splitlines()
+
+    command = cppfilt + callees
+    callees = subprocess.check_output(command).decode().splitlines()
+
+    return list(zip(callers, callees))
 
 def main():
     args = parse_args()
@@ -53,6 +73,8 @@ def main():
 
             if current_function != func_name:
                 callees.add((current_function, func_name))
+
+    callees = unmangle_names(callees)
 
     # Find longest function name
     longest_function_len = max(len(f) for f, _ in callees)
