@@ -10,7 +10,7 @@ USE_OPT = -Os -ggdb -fomit-frame-pointer -falign-functions=16 -fno-common
 USE_COPT =
 
 # C++ specific options here (added to USE_OPT).
-USE_CPPOPT = -fno-rtti -fno-exceptions -fno-threadsafe-statics
+USE_CPPOPT = -fno-rtti -fno-exceptions -fno-threadsafe-statics -std=gnu++11
 
 # Enable this if you want the linker to remove unused code and data
 USE_LINK_GC = yes
