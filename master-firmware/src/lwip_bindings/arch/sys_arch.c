@@ -137,8 +137,8 @@ sys_thread_t sys_thread_new(const char *name, lwip_thread_fn thread,
         void *arg, int stacksize, int prio)
 {
     (void) name;
-    sys_thread_t thd = chThdCreateFromHeap(NULL, stacksize, prio, (tfunc_t)thread, arg);
-    thd->p_name = "lwip_spawn";
+    sys_thread_t thd = chThdCreateFromHeap(NULL, stacksize, "lwip_spawn", prio,
+                                           (tfunc_t)thread, arg);
     return thd;
 }
 

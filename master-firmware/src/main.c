@@ -9,6 +9,7 @@
 
 #include "main.h"
 #include "control_panel.h"
+#include <shell.h>
 #include "commands.h"
 #include "sntp/sntp.h"
 #include "unix_timestamp.h"
@@ -86,12 +87,12 @@ void panic_hook(const char *reason)
     control_panel_set(LED_GREEN);
 
     panic_log_write(reason);
-    if (ch.rlist.r_current != NULL) {
+    if (ch.rlist.current != NULL) {
         panic_log_printf("\ncurrent thread: ");
-        if (ch.rlist.r_current->p_name != NULL) {
-            panic_log_printf("%s\n", ch.rlist.r_current->p_name);
+        if (ch.rlist.current->name != NULL) {
+            panic_log_printf("%s\n", ch.rlist.current->name);
         } else {
-            panic_log_printf("0x%p\n", ch.rlist.r_current);
+            panic_log_printf("0x%p\n", ch.rlist.current);
         }
     }
     BlockingUARTDriver panic_uart;
@@ -352,7 +353,7 @@ void context_switch_hook(void *ntp, void *otp)
                          AP_NO_NO, /* no permission */
                          false);
 
-    const char *name = ((thread_t *)ntp)->p_name;
+    const char *name = ((thread_t *)ntp)->name;
     if (name == NULL) {
         name = "no name";
     }
