@@ -96,7 +96,7 @@ void panic_hook(const char *reason)
         }
     }
     BlockingUARTDriver panic_uart;
-    blocking_uart_init(&panic_uart, USART3, DEBUG_UART_BAUDRATE);
+    blocking_uart_init(&panic_uart, UART7, DEBUG_UART_BAUDRATE);
 
     // block to preserve fault state
     const char *msg = panic_log_read();
@@ -182,7 +182,7 @@ static void blink_start(void)
 int main(void)
 {
     /* Initializes a serial driver.  */
-    sdStart(&SD2, &debug_uart_config);
+    sdStart(&SD7, &debug_uart_config);
 
     control_panel_init();
     blink_start();
