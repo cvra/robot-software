@@ -13,3 +13,6 @@
 [submodule "src/test-runner"]
 	path = src/test-runner
 	url = https://github.com/cvra/test-runner
+[submodule "src/can-bootloader"]
+	path = src/can-bootloader
+	url = https://github.com/cvra/can-bootloader
