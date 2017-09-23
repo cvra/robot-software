@@ -11,7 +11,6 @@ void mpu9250_init(mpu9250_t *dev, SPIDriver *spi_dev)
 bool mpu9250_ping(mpu9250_t *dev)
 {
     int id = mpu9250_reg_read(dev, MPU9250_REG_WHO_AM_I);
-    chThdSleepMilliseconds(1);
     return id == 0x71;
 }
 

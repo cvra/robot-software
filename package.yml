@@ -22,6 +22,7 @@ source:
 
 tests:
   - tests/mpu9250/init.cpp
+  - tests/mpu9250/ping.cpp
   - tests/hal_mocks.cpp
 
 templates:
