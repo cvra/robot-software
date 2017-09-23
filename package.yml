@@ -4,18 +4,25 @@ depends:
   - crc
   - cmp
   - cmp_mem_access
+  - test-runner
 
 target.arm:
   - src/board.c
   - src/usbconf.c
   - src/cmd.c
-  - src/mpu9250.c
   - src/main.c
   - src/bootloader_config.c
   - src/can-bootloader/config.c
 
 include_directories:
-  - src/
+    - src/
+
+source:
+  - src/mpu9250.c
+
+tests:
+  - tests/mpu9250/init.cpp
+  - tests/hal_mocks.cpp
 
 templates:
   app_src.mk.jinja: app_src.mk
