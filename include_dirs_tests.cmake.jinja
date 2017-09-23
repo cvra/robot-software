@@ -1,0 +1,5 @@
+{% extends "CMakeLists.txt.jinja" %}
+
+{% block additional_targets %}
+target_include_directories(tests PRIVATE tests)
+{% endblock %}

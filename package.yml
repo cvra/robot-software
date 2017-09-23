@@ -26,3 +26,4 @@ tests:
 
 templates:
   app_src.mk.jinja: app_src.mk
+  include_dirs_tests.cmake.jinja: CMakeLists.txt
