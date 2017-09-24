@@ -22,9 +22,7 @@ source:
   - src/mpu9250.c
 
 tests:
-  - tests/mpu9250/init.cpp
-  - tests/mpu9250/ping.cpp
-  - tests/mpu9250/configuration.cpp
+  - tests/mpu9250.cpp
   - tests/hal_mocks.cpp
 
 templates:
