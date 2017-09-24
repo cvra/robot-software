@@ -488,6 +488,9 @@
   /* System halt code here.*/                                               \
 }
 
+/** Enable floating point support for chprintf. */
+#define CHPRINTF_USE_FLOAT TRUE
+
 /** @} */
 
 /*===========================================================================*/
