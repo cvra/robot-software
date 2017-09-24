@@ -18,6 +18,7 @@ bool mpu9250_ping(mpu9250_t *dev)
 void mpu9250_configure(mpu9250_t *dev)
 {
     /* No FIFO, no external sync, gyroscope sample at 8 kHz (1kHz with prescaler) */
+    /* TODO: For some reason it publishes at 8 kHz. */
     mpu9250_reg_write(dev, MPU9250_REG_SMPLRT_DIV, 7);
     mpu9250_reg_write(dev, MPU9250_REG_CONFIG, 0x00);
 
@@ -56,6 +57,12 @@ void mpu9250_reset(mpu9250_t *dev)
 {
     /* Sets the H_RESET bit. */
     mpu9250_reg_write(dev, MPU9250_REG_PWR_MGMT_1, 0x80);
+}
+
+uint8_t mpu9250_interrupt_read_and_clear(mpu9250_t *dev)
+{
+    /* Reading the interrupt status register clears it automatically. */
+    return mpu9250_reg_read(dev, MPU9250_REG_INT_STATUS);
 }
 
 static uint8_t mpu9250_reg_read(mpu9250_t *dev, uint8_t reg)

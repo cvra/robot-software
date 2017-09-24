@@ -101,3 +101,11 @@ TEST(MPU9250Protocol, WrongId)
     expect_read(117, 42);
     CHECK_FALSE(mpu9250_ping(&dev));
 }
+
+TEST(MPU9250Protocol, ReadInterrupts)
+{
+    // Reads the interrupt status register
+    expect_read(58, 0x42);
+    auto irqs = mpu9250_interrupt_read_and_clear(&dev);
+    CHECK_EQUAL(0x42, irqs);
+}

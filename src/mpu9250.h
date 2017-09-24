@@ -26,6 +26,10 @@ void mpu9250_configure(mpu9250_t *dev);
 /** Reset the internal registers and restores the default settings. */
 void mpu9250_reset(mpu9250_t *dev);
 
+/** Returns the interrupt status register, clearing the interrupt at the same
+ * time. */
+uint8_t mpu9250_interrupt_read_and_clear(mpu9250_t *dev);
+
 #ifdef __cplusplus
 }
 #endif

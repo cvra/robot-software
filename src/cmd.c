@@ -17,43 +17,9 @@ static void cmd_reboot(BaseSequentialStream *chp, int argc, char **argv)
     NVIC_SystemReset();
 }
 
-static void cmd_mpu_ping(BaseSequentialStream *chp, int argc, char **argv)
-{
-    (void) argc;
-    (void) argv;
-
-    /*
-     * SPI1 configuration structure for MPU9250.
-     * SPI1 is on APB2 @ 84MHz / 128 = 656.25kHz
-     * CPHA=1, CPOL=1, 8bits frames, MSb transmitted first.
-     */
-    static SPIConfig spi_cfg = {
-        .end_cb = NULL,
-        .ssport = GPIOB,
-        .sspad = GPIOB_IMU_CS_N,
-        .cr1 = SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_CPOL | SPI_CR1_CPHA
-    };
-    spiStart(&SPID2, &spi_cfg);
-
-    static mpu9250_t mpu;
-    mpu9250_init(&mpu, &SPID2);
-
-    mpu9250_reset(&mpu);
-    chThdSleepMilliseconds(100);
-
-    if (mpu9250_ping(&mpu)) {
-        chprintf(chp, "MPU is ready\r\n");
-    } else {
-        chprintf(chp, "MPU is not responding correctly\r\n");
-    }
-
-}
-
-
 static ShellConfig shell_cfg;
 const ShellCommand shell_commands[] = {
     {"reboot", cmd_reboot},
-    {"mpu_ping", cmd_mpu_ping},
     {NULL, NULL}
 };
 

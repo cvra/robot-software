@@ -6,6 +6,8 @@
 #include "usbconf.h"
 #include "cmd.h"
 #include "bootloader_config.h"
+#include "exti.h"
+#include "imu_thread.h"
 
 messagebus_t bus;
 MUTEX_DECL(bus_lock);
@@ -34,6 +36,9 @@ int main(void)
     shell_start((BaseSequentialStream *)&SDU1);
 
     blink_start();
+    exti_start();
+    imu_start();
+
     while(true) {
         chThdSleepMilliseconds(1000);
     }
