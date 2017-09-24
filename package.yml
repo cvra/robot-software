@@ -5,6 +5,7 @@ depends:
   - cmp
   - cmp_mem_access
   - test-runner
+  - msgbus
 
 target.arm:
   - src/board.c
