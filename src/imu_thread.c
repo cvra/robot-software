@@ -50,19 +50,30 @@ static void imu_reader_thd(void *p)
     imu_init_hardware(&mpu);
 
     /* Creates the IMU topic */
-    /* TODO: Gather some buffer space. */
     messagebus_topic_t imu_topic;
     MUTEX_DECL(imu_topic_lock);
     CONDVAR_DECL(imu_topic_condvar);
-    messagebus_topic_init(&imu_topic, &imu_topic_lock, &imu_topic_condvar, NULL, 0);
+    imu_msg_t imu_topic_content;
+
+    messagebus_topic_init(&imu_topic, &imu_topic_lock, &imu_topic_condvar,
+                          &imu_topic_content, sizeof(imu_topic_content));
     messagebus_advertise_topic(&bus, &imu_topic, "/imu");
 
     while (1) {
+        imu_msg_t msg;
+
+        /* Wait for a measurement ready interrupt */
         chEvtWaitAny(IMU_INTERRUPT_EVENT);
 
-        messagebus_topic_publish(&imu_topic, NULL, 0);
+        /* Read data from the IMU. */
+        mpu9250_gyro_read(&mpu, &msg.gyro.x, &msg.gyro.y, &msg.gyro.z);
+        mpu9250_acc_read(&mpu, &msg.acc.x, &msg.acc.y, &msg.acc.z);
 
+        /* Signals the MPU that we are ready for another interrupt. */
         mpu9250_interrupt_read_and_clear(&mpu);
+
+        /* Publish the data. */
+        messagebus_topic_publish(&imu_topic, &msg, sizeof(msg));
     }
 }
 

@@ -5,7 +5,18 @@
 extern "C" {
 #endif
 
-#include "mpu9250.h"
+typedef struct {
+    struct {
+        float x;
+        float y;
+        float z;
+    } gyro; /**< Gyroscope data in rad/s */
+    struct {
+        float x;
+        float y;
+        float z;
+    } acc; /**< Acceleration data in m/s/s. */
+} imu_msg_t;
 
 /** Starts the thread doing the IMU reading. */
 void imu_start(void);
