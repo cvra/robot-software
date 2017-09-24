@@ -24,6 +24,7 @@ source:
 tests:
   - tests/mpu9250/init.cpp
   - tests/mpu9250/ping.cpp
+  - tests/mpu9250/configuration.cpp
   - tests/hal_mocks.cpp
 
 templates:

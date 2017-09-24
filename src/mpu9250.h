@@ -20,6 +20,9 @@ void mpu9250_init(mpu9250_t *dev, SPIDriver *spi_dev);
 /** Returns true if the MPU9250 is correctly detected, false otherwise. */
 bool mpu9250_ping(mpu9250_t *dev);
 
+/** Sends the configuration to the MPU9250. */
+void mpu9250_configure(mpu9250_t *dev);
+
 #ifdef __cplusplus
 }
 #endif
