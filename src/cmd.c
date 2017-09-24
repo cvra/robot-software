@@ -35,10 +35,13 @@ static void cmd_mpu_ping(BaseSequentialStream *chp, int argc, char **argv)
     };
     spiStart(&SPID2, &spi_cfg);
 
-    static mpu9250_t mpu6000;
-    mpu9250_init(&mpu6000, &SPID2);
+    static mpu9250_t mpu;
+    mpu9250_init(&mpu, &SPID2);
 
-    if (mpu9250_ping(&mpu6000)) {
+    mpu9250_reset(&mpu);
+    chThdSleepMilliseconds(100);
+
+    if (mpu9250_ping(&mpu)) {
         chprintf(chp, "MPU is ready\r\n");
     } else {
         chprintf(chp, "MPU is not responding correctly\r\n");

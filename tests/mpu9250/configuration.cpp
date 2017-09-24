@@ -32,6 +32,12 @@ TEST_GROUP(MPU9250Configuration)
 
 };
 
+TEST(MPU9250Configuration, Reset)
+{
+    expect_write(107, 0x80); // hardware reset
+    mpu9250_reset(&dev);
+}
+
 TEST(MPU9250Configuration, FixedConfiguration)
 {
     expect_write(25, 7); // prescaler

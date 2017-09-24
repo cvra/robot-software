@@ -23,6 +23,9 @@ bool mpu9250_ping(mpu9250_t *dev);
 /** Sends the configuration to the MPU9250. */
 void mpu9250_configure(mpu9250_t *dev);
 
+/** Reset the internal registers and restores the default settings. */
+void mpu9250_reset(mpu9250_t *dev);
+
 #ifdef __cplusplus
 }
 #endif

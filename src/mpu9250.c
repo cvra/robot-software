@@ -52,6 +52,12 @@ void mpu9250_configure(mpu9250_t *dev)
                       MPU9250_REG_USER_CTRL_FIFO_EN | MPU9250_REG_USER_CTRL_FIFO_RST);
 }
 
+void mpu9250_reset(mpu9250_t *dev)
+{
+    /* Sets the H_RESET bit. */
+    mpu9250_reg_write(dev, MPU9250_REG_PWR_MGMT_1, 0x80);
+}
+
 static uint8_t mpu9250_reg_read(mpu9250_t *dev, uint8_t reg)
 {
     uint8_t ret = 0;

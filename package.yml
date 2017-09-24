@@ -16,7 +16,7 @@ target.arm:
   - src/can-bootloader/config.c
 
 include_directories:
-    - src/
+  - src/
 
 source:
   - src/mpu9250.c
