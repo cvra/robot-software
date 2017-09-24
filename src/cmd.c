@@ -6,7 +6,7 @@
 #include <shell.h>
 
 #include "main.h"
-#include "mpu9250.h"
+#include "imu_thread.h"
 
 #define TEST_WA_SIZE        THD_WORKING_AREA_SIZE(256)
 #define SHELL_WA_SIZE       THD_WORKING_AREA_SIZE(2048)
@@ -76,10 +76,40 @@ static void cmd_topics(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
+static void cmd_imu(BaseSequentialStream *chp, int argc, char **argv)
+{
+    (void) argc;
+    (void) argv;
+
+    imu_msg_t msg;
+    messagebus_topic_t *imu_topic;
+
+    imu_topic = messagebus_find_topic(&bus, "/imu");
+
+    if (imu_topic == NULL) {
+        chprintf(chp, "Could not find IMU topic.\r\n");
+        return;
+    }
+
+    if (!messagebus_topic_read(imu_topic, &msg, sizeof(msg))) {
+        chprintf(chp, "No IMU data available.\r\n");
+        return;
+    }
+
+    msg.gyro.x *= 180 / 3.14;
+    msg.gyro.y *= 180 / 3.14;
+    msg.gyro.z *= 180 / 3.14;
+
+
+    chprintf(chp, "acc [m/s^2] :\t%.2f %.2f %.2f\r\n", msg.acc.x, msg.acc.y, msg.acc.z);
+    chprintf(chp, "gyro [deg/s]:\t%.2f %.2f %.2f\r\n", msg.gyro.x, msg.gyro.y, msg.gyro.z);
+}
+
 static ShellConfig shell_cfg;
 const ShellCommand shell_commands[] = {
     {"reboot", cmd_reboot},
     {"topics", cmd_topics},
+    {"imu", cmd_imu},
     {NULL, NULL}
 };
 
