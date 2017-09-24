@@ -11,6 +11,8 @@ messagebus_t bus;
 MUTEX_DECL(bus_lock);
 CONDVAR_DECL(bus_condvar);
 
+static void blink_start(void);
+
 int main(void)
 {
     halInit();
@@ -31,8 +33,24 @@ int main(void)
 
     shell_start((BaseSequentialStream *)&SDU1);
 
+    blink_start();
     while(true) {
-        palTogglePad(GPIOB, GPIOB_LED_STATUS);
         chThdSleepMilliseconds(1000);
     }
+}
+
+static void blink_thd(void *p)
+{
+    (void) p;
+
+    while (1) {
+        palTogglePad(GPIOB, GPIOB_LED_STATUS);
+        chThdSleepMilliseconds(200);
+    }
+}
+
+static void blink_start(void)
+{
+    static THD_WORKING_AREA(blink_wa, 256);
+    chThdCreateStatic(blink_wa, sizeof(blink_wa), LOWPRIO, blink_thd, NULL);
 }
