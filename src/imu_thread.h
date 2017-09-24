@@ -18,6 +18,10 @@ typedef struct {
     } acc; /**< Acceleration data in m/s/s. */
 } imu_msg_t;
 
+typedef struct {
+    float temperature; /**< Temperature level in degree C. */
+} temperature_msg_t;
+
 /** Starts the thread doing the IMU reading. */
 void imu_start(void);
 

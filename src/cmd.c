@@ -105,11 +105,36 @@ static void cmd_imu(BaseSequentialStream *chp, int argc, char **argv)
     chprintf(chp, "gyro [deg/s]:\t%.2f %.2f %.2f\r\n", msg.gyro.x, msg.gyro.y, msg.gyro.z);
 }
 
+
+static void cmd_temp(BaseSequentialStream *chp, int argc, char **argv)
+{
+    (void) argc;
+    (void) argv;
+
+    temperature_msg_t msg;
+    messagebus_topic_t *temperature_topic;
+
+    temperature_topic = messagebus_find_topic(&bus, "/imu/temperature");
+
+    if (temperature_topic == NULL) {
+        chprintf(chp, "Could not find temperature topic.\r\n");
+        return;
+    }
+
+    if (!messagebus_topic_read(temperature_topic, &msg, sizeof(msg))) {
+        chprintf(chp, "No temperature data available.\r\n");
+        return;
+    }
+
+    chprintf(chp, "IMU temperature: %d\r\n", (int)msg.temperature);
+}
+
 static ShellConfig shell_cfg;
 const ShellCommand shell_commands[] = {
     {"reboot", cmd_reboot},
     {"topics", cmd_topics},
     {"imu", cmd_imu},
+    {"temp", cmd_temp},
     {NULL, NULL}
 };
 

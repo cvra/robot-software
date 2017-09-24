@@ -59,6 +59,18 @@ static void imu_reader_thd(void *p)
                           &imu_topic_content, sizeof(imu_topic_content));
     messagebus_advertise_topic(&bus, &imu_topic, "/imu");
 
+    /* Create the temperature topic. */
+    messagebus_topic_t temperature_topic;
+    MUTEX_DECL(temperature_topic_lock);
+    CONDVAR_DECL(temperature_topic_condvar);
+    temperature_msg_t temperature_topic_content;
+
+    messagebus_topic_init(&temperature_topic,
+                          &temperature_topic_lock, &temperature_topic_condvar,
+                          &temperature_topic_content, sizeof(temperature_topic_content));
+    messagebus_advertise_topic(&bus, &temperature_topic, "/imu/temperature");
+
+    int temperature_pub_prescaler = 0;
     while (1) {
         imu_msg_t msg;
 
@@ -69,11 +81,20 @@ static void imu_reader_thd(void *p)
         mpu9250_gyro_read(&mpu, &msg.gyro.x, &msg.gyro.y, &msg.gyro.z);
         mpu9250_acc_read(&mpu, &msg.acc.x, &msg.acc.y, &msg.acc.z);
 
+        /* Publish the data. */
+        messagebus_topic_publish(&imu_topic, &msg, sizeof(msg));
+
+        /* Read the temperature, but not too often, as its useless. */
+        if (temperature_pub_prescaler++ >= 100) {
+            temperature_msg_t msg;
+            msg.temperature = mpu9250_temp_read(&mpu);
+            messagebus_topic_publish(&temperature_topic, &msg, sizeof(msg));
+            temperature_pub_prescaler = 0;
+        }
+
         /* Signals the MPU that we are ready for another interrupt. */
         mpu9250_interrupt_read_and_clear(&mpu);
 
-        /* Publish the data. */
-        messagebus_topic_publish(&imu_topic, &msg, sizeof(msg));
     }
 }
 

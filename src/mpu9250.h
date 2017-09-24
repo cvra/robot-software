@@ -42,6 +42,12 @@ void mpu9250_gyro_read(mpu9250_t *dev, float *x, float *y, float *z);
  */
 void mpu9250_acc_read(mpu9250_t *dev, float *x, float *y, float *z);
 
+/** Reads temperature data from the MPU.
+ *
+ * @note result is in C.
+ */
+float mpu9250_temp_read(mpu9250_t *dev);
+
 #ifdef __cplusplus
 }
 #endif

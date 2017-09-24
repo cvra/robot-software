@@ -149,3 +149,13 @@ TEST(MPU9250Protocol, ReadAccData)
     DOUBLES_EQUAL(y * gain, mes_y, 0.01);
     DOUBLES_EQUAL(z * gain, mes_z, 0.01);
 }
+
+TEST(MPU9250Protocol, ReadTemperatureData)
+{
+    int16_t mes = 1000;
+    expect_read(65, (mes >> 8));
+    expect_read(66, (mes & 0xff));
+
+    float temp = mpu9250_temp_read(&dev);
+    DOUBLES_EQUAL(1000 / 333.87 + 21, temp, 0.01);
+}

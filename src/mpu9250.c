@@ -8,6 +8,9 @@
 /* AFS_SEL = 1 (max 500 deg / s) */
 #define MPU9250_ACCEL_SENSITIVITY (9.81 / 8192)
 
+#define MPU9250_TEMP_SENSITIVITY (1 / 333.87)
+#define MPU9250_TEMP_OFFSET 21
+
 static uint8_t mpu9250_reg_read(mpu9250_t *dev, uint8_t reg);
 static void mpu9250_reg_write(mpu9250_t *dev, uint8_t reg, uint8_t val);
 
@@ -103,6 +106,19 @@ void mpu9250_acc_read(mpu9250_t *dev, float *x, float *y, float *z)
     *x = mes_x * MPU9250_ACCEL_SENSITIVITY;
     *y = mes_y * MPU9250_ACCEL_SENSITIVITY;
     *z = mes_z * MPU9250_ACCEL_SENSITIVITY;
+}
+
+float mpu9250_temp_read(mpu9250_t *dev)
+{
+    uint8_t th, tl;
+    int16_t temp;
+
+    th = mpu9250_reg_read(dev, MPU9250_REG_TEMP_OUT_H);
+    tl = mpu9250_reg_read(dev, MPU9250_REG_TEMP_OUT_L);
+
+    temp = (th << 8) + tl;
+
+    return MPU9250_TEMP_OFFSET + temp * MPU9250_TEMP_SENSITIVITY;
 }
 
 static uint8_t mpu9250_reg_read(mpu9250_t *dev, uint8_t reg)
