@@ -55,7 +55,7 @@ static void imu_reader_thd(void *p)
     MUTEX_DECL(imu_topic_lock);
     CONDVAR_DECL(imu_topic_condvar);
     messagebus_topic_init(&imu_topic, &imu_topic_lock, &imu_topic_condvar, NULL, 0);
-    messagebus_advertise_topic(&bus, &imu_topic, "/imu/raw");
+    messagebus_advertise_topic(&bus, &imu_topic, "/imu");
 
     while (1) {
         chEvtWaitAny(IMU_INTERRUPT_EVENT);

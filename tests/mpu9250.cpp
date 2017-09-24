@@ -73,12 +73,11 @@ TEST(MPU9250Protocol, Reset)
 
 TEST(MPU9250Protocol, FixedConfiguration)
 {
-    expect_write(25, 7); // prescaler
-    expect_write(26, 0x00); // general config
+    expect_write(25, 3); // prescaler
+    expect_write(26, 0x01); // general config
     expect_write(27, 0x08); // gyro config
     expect_write(28, (1 << 3)); // accelerometer config
     expect_write(29, 0x00); // accelerometer config 2
-    expect_write(35, 0xf8); // FIFO enable for temp, gyro & accel
     expect_write(55, 0x20); // IRQ active high, push pull, latched
     expect_write(56, 0x01); // interrupt on data ready
 

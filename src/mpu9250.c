@@ -17,10 +17,11 @@ bool mpu9250_ping(mpu9250_t *dev)
 
 void mpu9250_configure(mpu9250_t *dev)
 {
-    /* No FIFO, no external sync, gyroscope sample at 8 kHz (1kHz with prescaler) */
-    /* TODO: For some reason it publishes at 8 kHz. */
-    mpu9250_reg_write(dev, MPU9250_REG_SMPLRT_DIV, 7);
-    mpu9250_reg_write(dev, MPU9250_REG_CONFIG, 0x00);
+    /* No FIFO, no external sync, gyroscope sample at 1 kHz, bandwidth 184 Hz */
+    mpu9250_reg_write(dev, MPU9250_REG_CONFIG, 0x01);
+
+    /* Divide the sample rate by 3 -> data ready rate is 250 Hz. */
+    mpu9250_reg_write(dev, MPU9250_REG_SMPLRT_DIV, 3);
 
     /* Gyro uses LP filter, 500 deg / s max */
     mpu9250_reg_write(dev, MPU9250_REG_GYRO_CONFIG, (1 << 3));
@@ -31,14 +32,6 @@ void mpu9250_configure(mpu9250_t *dev)
 
     /* Accelerometer: 460 Hz bandwidth, 1 kHz sample rate. */
     mpu9250_reg_write(dev, MPU9250_REG_ACCEL_CONFIG_2, 0);
-
-    /* Enable FIFO for all IMU channels. */
-    mpu9250_reg_write(dev, MPU9250_REG_FIFO_EN,
-                      MPU9250_REG_FIFO_EN_TEMP_OUT  |
-                      MPU9250_REG_FIFO_EN_GYRO_XOUT |
-                      MPU9250_REG_FIFO_EN_GYRO_YOUT |
-                      MPU9250_REG_FIFO_EN_GYRO_ZOUT |
-                      MPU9250_REG_FIFO_EN_ACCEL_OUT);
 
     /* INT pin is active high, configured as push pull, latched, and cleared by
      * reading the INT_STATUS register. */
