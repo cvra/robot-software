@@ -1,5 +1,12 @@
 #include "mpu9250.h"
 #include "mpu9250_registers.h"
+#include <math.h>
+
+/* FS_SEL = 1 (max 500 deg / s) */
+#define MPU9250_GYRO_SENSITIVITY (M_PI / (180 * 65.5))
+
+/* AFS_SEL = 1 (max 500 deg / s) */
+#define MPU9250_ACCEL_SENSITIVITY (9.81 / 8192)
 
 static uint8_t mpu9250_reg_read(mpu9250_t *dev, uint8_t reg);
 static void mpu9250_reg_write(mpu9250_t *dev, uint8_t reg, uint8_t val);
@@ -26,7 +33,7 @@ void mpu9250_configure(mpu9250_t *dev)
     /* Gyro uses LP filter, 500 deg / s max */
     mpu9250_reg_write(dev, MPU9250_REG_GYRO_CONFIG, (1 << 3));
 
-    /* Accelerometer: 8 g max */
+    /* Accelerometer: 4 g max */
     /* TODO: Correctly calculate max acceleration value. */
     mpu9250_reg_write(dev, MPU9250_REG_ACCEL_CONFIG, (1 << 3));
 
@@ -56,6 +63,46 @@ uint8_t mpu9250_interrupt_read_and_clear(mpu9250_t *dev)
 {
     /* Reading the interrupt status register clears it automatically. */
     return mpu9250_reg_read(dev, MPU9250_REG_INT_STATUS);
+}
+
+void mpu9250_gyro_read(mpu9250_t *dev, float *x, float *y, float *z)
+{
+    uint8_t xh, xl, yh, yl, zh, zl;
+    int16_t mes_x, mes_y, mes_z;
+    xh = mpu9250_reg_read(dev, MPU9250_REG_GYRO_XOUT_H);
+    xl = mpu9250_reg_read(dev, MPU9250_REG_GYRO_XOUT_L);
+    yh = mpu9250_reg_read(dev, MPU9250_REG_GYRO_YOUT_H);
+    yl = mpu9250_reg_read(dev, MPU9250_REG_GYRO_YOUT_L);
+    zh = mpu9250_reg_read(dev, MPU9250_REG_GYRO_ZOUT_H);
+    zl = mpu9250_reg_read(dev, MPU9250_REG_GYRO_ZOUT_L);
+
+    mes_x = (xh << 8) + xl;
+    mes_y = (yh << 8) + yl;
+    mes_z = (zh << 8) + zl;
+
+    *x = mes_x * MPU9250_GYRO_SENSITIVITY;
+    *y = mes_y * MPU9250_GYRO_SENSITIVITY;
+    *z = mes_z * MPU9250_GYRO_SENSITIVITY;
+}
+
+void mpu9250_acc_read(mpu9250_t *dev, float *x, float *y, float *z)
+{
+    uint8_t xh, xl, yh, yl, zh, zl;
+    int16_t mes_x, mes_y, mes_z;
+    xh = mpu9250_reg_read(dev, MPU9250_REG_ACCEL_XOUT_H);
+    xl = mpu9250_reg_read(dev, MPU9250_REG_ACCEL_XOUT_L);
+    yh = mpu9250_reg_read(dev, MPU9250_REG_ACCEL_YOUT_H);
+    yl = mpu9250_reg_read(dev, MPU9250_REG_ACCEL_YOUT_L);
+    zh = mpu9250_reg_read(dev, MPU9250_REG_ACCEL_ZOUT_H);
+    zl = mpu9250_reg_read(dev, MPU9250_REG_ACCEL_ZOUT_L);
+
+    mes_x = (xh << 8) + xl;
+    mes_y = (yh << 8) + yl;
+    mes_z = (zh << 8) + zl;
+
+    *x = mes_x * MPU9250_ACCEL_SENSITIVITY;
+    *y = mes_y * MPU9250_ACCEL_SENSITIVITY;
+    *z = mes_z * MPU9250_ACCEL_SENSITIVITY;
 }
 
 static uint8_t mpu9250_reg_read(mpu9250_t *dev, uint8_t reg)

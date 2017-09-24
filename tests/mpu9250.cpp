@@ -108,3 +108,44 @@ TEST(MPU9250Protocol, ReadInterrupts)
     auto irqs = mpu9250_interrupt_read_and_clear(&dev);
     CHECK_EQUAL(0x42, irqs);
 }
+
+TEST(MPU9250Protocol, ReadGyroData)
+{
+    const float gain = 1 / 65.5 * 3.14 / 180;
+
+    int16_t x = 1000, y = 500, z = -200;
+    expect_read(67, (x >> 8));
+    expect_read(68, (x & 0xff));
+    expect_read(69, (y >> 8));
+    expect_read(70, (y & 0xff));
+    expect_read(71, (z >> 8));
+    expect_read(72, (z & 0xff));
+
+    float mes_x, mes_y, mes_z;
+    mpu9250_gyro_read(&dev, &mes_x, &mes_y, &mes_z);
+
+    DOUBLES_EQUAL(x * gain, mes_x, 0.01);
+    DOUBLES_EQUAL(y * gain, mes_y, 0.01);
+    DOUBLES_EQUAL(z * gain, mes_z, 0.01);
+}
+
+TEST(MPU9250Protocol, ReadAccData)
+{
+    const float gain = 9.81 / 8192;
+
+    int16_t x = 1000, y = 500, z = -200;
+
+    expect_read(59, (x >> 8));
+    expect_read(60, (x & 0xff));
+    expect_read(61, (y >> 8));
+    expect_read(62, (y & 0xff));
+    expect_read(63, (z >> 8));
+    expect_read(64, (z & 0xff));
+
+    float mes_x, mes_y, mes_z;
+    mpu9250_acc_read(&dev, &mes_x, &mes_y, &mes_z);
+
+    DOUBLES_EQUAL(x * gain, mes_x, 0.01);
+    DOUBLES_EQUAL(y * gain, mes_y, 0.01);
+    DOUBLES_EQUAL(z * gain, mes_z, 0.01);
+}

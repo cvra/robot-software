@@ -30,6 +30,18 @@ void mpu9250_reset(mpu9250_t *dev);
  * time. */
 uint8_t mpu9250_interrupt_read_and_clear(mpu9250_t *dev);
 
+/** Reads raw values from the gyroscope.
+ *
+ * @note results are in radians / s.
+ */
+void mpu9250_gyro_read(mpu9250_t *dev, float *x, float *y, float *z);
+
+/** Reads raw values from the accelerometer.
+ *
+ * @note results are in m/s/s.
+ */
+void mpu9250_acc_read(mpu9250_t *dev, float *x, float *y, float *z);
+
 #ifdef __cplusplus
 }
 #endif
