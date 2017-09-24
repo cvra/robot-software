@@ -1,4 +1,6 @@
 dependency-dir: ./src
+include_directories:
+  - src/
 
 depends:
   - crc
@@ -6,6 +8,8 @@ depends:
   - cmp_mem_access
   - test-runner
   - msgbus
+  - parameter
+  - chibios-syscalls
 
 target.arm:
   - src/board.c
@@ -16,9 +20,6 @@ target.arm:
   - src/can-bootloader/config.c
   - src/exti.c
   - src/imu_thread.c
-
-include_directories:
-  - src/
 
 source:
   - src/mpu9250.c

@@ -19,3 +19,9 @@
 [submodule "src/msgbus"]
 	path = src/msgbus
 	url = https://github.com/cvra/msgbus
+[submodule "src/parameter"]
+	path = src/parameter
+	url = https://github.com/cvra/parameter
+[submodule "src/chibios-syscalls"]
+	path = src/chibios-syscalls
+	url = https://github.com/cvra/chibios-syscalls
