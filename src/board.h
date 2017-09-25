@@ -58,9 +58,9 @@
 #define GPIOB_PIN4                  4U
 #define GPIOB_PIN5                  5U
 #define GPIOB_PIN6                  6U
-#define GPIOB_PIN7                  7U
-#define GPIOB_PIN8                  8U
-#define GPIOB_PIN9                  9U
+#define GPIOB_CAN_SILENT            7U
+#define GPIOB_CAN_RX                8U
+#define GPIOB_CAN_TX                9U
 #define GPIOB_PIN10                 10U
 #define GPIOB_IMU_INT               11U
 #define GPIOB_IMU_CS_N              12U
@@ -239,9 +239,9 @@
  * GPIOB_PIN4                       (input floating).
  * GPIOB_PIN5                       (input floating).
  * GPIOB_PIN6                       (input floating).
- * GPIOB_PIN7                       (input floating).
- * GPIOB_PIN8                       (input floating).
- * GPIOB_PIN9                       (input floating).
+ * GPIOB_CAN_SILENT                 (output low).
+ * GPIOB_CAN_RX                     (alternate 9).
+ * GPIOB_CAN_TX                     (alternate 9).
  * GPIOB_PIN10                      (input floating).
  * GPIOB_IMU_INT                    (input floating).
  * GPIOB_IMU_CS_N                   (output high).
@@ -256,9 +256,9 @@
                                      PIN_MODE_INPUT(GPIOB_PIN4) | \
                                      PIN_MODE_INPUT(GPIOB_PIN5) | \
                                      PIN_MODE_INPUT(GPIOB_PIN6) | \
-                                     PIN_MODE_INPUT(GPIOB_PIN7) | \
-                                     PIN_MODE_INPUT(GPIOB_PIN8) | \
-                                     PIN_MODE_INPUT(GPIOB_PIN9) | \
+                                     PIN_MODE_OUTPUT(GPIOB_CAN_SILENT) | \
+                                     PIN_MODE_ALTERNATE(GPIOB_CAN_RX) | \
+                                     PIN_MODE_ALTERNATE(GPIOB_CAN_TX) | \
                                      PIN_MODE_INPUT(GPIOB_PIN10) | \
                                      PIN_MODE_INPUT(GPIOB_IMU_INT) | \
                                      PIN_MODE_OUTPUT(GPIOB_IMU_CS_N) | \
@@ -272,9 +272,9 @@
                                      PIN_OTYPE_PUSHPULL(GPIOB_PIN4) | \
                                      PIN_OTYPE_PUSHPULL(GPIOB_PIN5) | \
                                      PIN_OTYPE_PUSHPULL(GPIOB_PIN6) | \
-                                     PIN_OTYPE_PUSHPULL(GPIOB_PIN7) | \
-                                     PIN_OTYPE_PUSHPULL(GPIOB_PIN8) | \
-                                     PIN_OTYPE_PUSHPULL(GPIOB_PIN9) | \
+                                     PIN_OTYPE_PUSHPULL(GPIOB_CAN_SILENT) | \
+                                     PIN_OTYPE_PUSHPULL(GPIOB_CAN_RX) | \
+                                     PIN_OTYPE_PUSHPULL(GPIOB_CAN_TX) | \
                                      PIN_OTYPE_PUSHPULL(GPIOB_PIN10) | \
                                      PIN_OTYPE_PUSHPULL(GPIOB_IMU_INT) | \
                                      PIN_OTYPE_PUSHPULL(GPIOB_IMU_CS_N) | \
@@ -288,9 +288,9 @@
                                      PIN_OSPEED_100M(GPIOB_PIN4) | \
                                      PIN_OSPEED_100M(GPIOB_PIN5) | \
                                      PIN_OSPEED_100M(GPIOB_PIN6) | \
-                                     PIN_OSPEED_100M(GPIOB_PIN7) | \
-                                     PIN_OSPEED_100M(GPIOB_PIN8) | \
-                                     PIN_OSPEED_100M(GPIOB_PIN9) | \
+                                     PIN_OSPEED_100M(GPIOB_CAN_SILENT) | \
+                                     PIN_OSPEED_100M(GPIOB_CAN_RX) | \
+                                     PIN_OSPEED_100M(GPIOB_CAN_TX) | \
                                      PIN_OSPEED_100M(GPIOB_PIN10) | \
                                      PIN_OSPEED_100M(GPIOB_IMU_INT) | \
                                      PIN_OSPEED_100M(GPIOB_IMU_CS_N) | \
@@ -304,9 +304,9 @@
                                      PIN_PUPDR_FLOATING(GPIOB_PIN4) | \
                                      PIN_PUPDR_FLOATING(GPIOB_PIN5) | \
                                      PIN_PUPDR_FLOATING(GPIOB_PIN6) | \
-                                     PIN_PUPDR_FLOATING(GPIOB_PIN7) | \
-                                     PIN_PUPDR_FLOATING(GPIOB_PIN8) | \
-                                     PIN_PUPDR_FLOATING(GPIOB_PIN9) | \
+                                     PIN_PUPDR_FLOATING(GPIOB_CAN_SILENT) | \
+                                     PIN_PUPDR_FLOATING(GPIOB_CAN_RX) | \
+                                     PIN_PUPDR_FLOATING(GPIOB_CAN_TX) | \
                                      PIN_PUPDR_FLOATING(GPIOB_PIN10) | \
                                      PIN_PUPDR_FLOATING(GPIOB_IMU_INT) | \
                                      PIN_PUPDR_FLOATING(GPIOB_IMU_CS_N) | \
@@ -320,9 +320,9 @@
                                      PIN_ODR_HIGH(GPIOB_PIN4) | \
                                      PIN_ODR_HIGH(GPIOB_PIN5) | \
                                      PIN_ODR_HIGH(GPIOB_PIN6) | \
-                                     PIN_ODR_HIGH(GPIOB_PIN7) | \
-                                     PIN_ODR_HIGH(GPIOB_PIN8) | \
-                                     PIN_ODR_HIGH(GPIOB_PIN9) | \
+                                     PIN_ODR_LOW(GPIOB_CAN_SILENT) | \
+                                     PIN_ODR_HIGH(GPIOB_CAN_RX) | \
+                                     PIN_ODR_HIGH(GPIOB_CAN_TX) | \
                                      PIN_ODR_HIGH(GPIOB_PIN10) | \
                                      PIN_ODR_HIGH(GPIOB_IMU_INT) | \
                                      PIN_ODR_HIGH(GPIOB_IMU_CS_N) | \
@@ -336,9 +336,9 @@
                                      PIN_AFIO_AF(GPIOB_PIN4, 0) | \
                                      PIN_AFIO_AF(GPIOB_PIN5, 0) | \
                                      PIN_AFIO_AF(GPIOB_PIN6, 0) | \
-                                     PIN_AFIO_AF(GPIOB_PIN7, 0))
-#define VAL_GPIOB_AFRH              (PIN_AFIO_AF(GPIOB_PIN8, 0) | \
-                                     PIN_AFIO_AF(GPIOB_PIN9, 0) | \
+                                     PIN_AFIO_AF(GPIOB_CAN_SILENT, 0))
+#define VAL_GPIOB_AFRH              (PIN_AFIO_AF(GPIOB_CAN_RX, 9) | \
+                                     PIN_AFIO_AF(GPIOB_CAN_TX, 9) | \
                                      PIN_AFIO_AF(GPIOB_PIN10, 0) | \
                                      PIN_AFIO_AF(GPIOB_IMU_INT, 0) | \
                                      PIN_AFIO_AF(GPIOB_IMU_CS_N, 0) | \
