@@ -1,4 +1,5 @@
 #include <ch.h>
+#include <hal.h>
 #include <chprintf.h>
 #include <parameter/parameter.h>
 #include <parameter/parameter_msgpack.h>
@@ -26,7 +27,7 @@ static THD_FUNCTION(parameter_listener, arg)
     static serial_datagram_rcv_handler_t rcv_handler;
     serial_datagram_rcv_handler_init(&rcv_handler, &rcv_buf, sizeof(rcv_buf), parameter_decode_cb, NULL);
     while (1) {
-        char c = chSequentialStreamGet((BaseSequentialStream*)arg);
+        char c = streamGet((BaseSequentialStream*)arg);
         int ret = serial_datagram_receive(&rcv_handler, &c, 1);
         if (ret != SERIAL_DATAGRAM_RCV_NO_ERROR) {
             chprintf(ch_stdout, "serial datagram error %d\n", ret);
