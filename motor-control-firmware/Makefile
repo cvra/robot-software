@@ -236,7 +236,7 @@ UINCDIR += $(LIBUAVCAN_INC) $(LIBUAVCAN_STM32_INC) ./dsdlc_generated
 # End of user defines
 ##############################################################################
 
-RULESPATH = ./board/
+RULESPATH = $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC
 include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/rules.mk
 
 # run uavcan dsdl compiler
