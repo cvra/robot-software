@@ -4,6 +4,7 @@
 \usepackage[T1]{fontenc}
 \usepackage{graphicx}
 \usepackage{booktabs}
+\usepackage{pdfpages}
 \usepackage{hyperref}
 \usepackage{listings}
 \usepackage{tablefootnote}
@@ -26,6 +27,10 @@
 \begin{document}
 \maketitle
 \tableofcontents
+
+\appendix
+\chapter{Hardware schematic}
+\includepdf[landscape=true]{figures/board_schematic.pdf}
 
 
 \clearpage
