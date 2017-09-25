@@ -17,11 +17,17 @@ parameter_namespace_t parameter_root;
 
 static void blink_start(void);
 
-int main(void)
+/** Late init hook, called before c++ static constructors. */
+void __late_init(void)
 {
+    /* C++ Static initializer requires working chibios. */
     halInit();
     chSysInit();
+}
 
+
+int main(void)
+{
     sdStart(&SD2, NULL);
     chprintf((BaseSequentialStream *)&SD2, "boot\r\n");
 
