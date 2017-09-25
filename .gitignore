@@ -37,3 +37,4 @@
 build
 app_src.mk
 CMakeLists.txt
+dsdlc_generated

@@ -25,3 +25,6 @@
 [submodule "src/chibios-syscalls"]
 	path = src/chibios-syscalls
 	url = https://github.com/cvra/chibios-syscalls
+[submodule "src/libuavcan"]
+	path = src/libuavcan
+	url = https://github.com/cvra/uavcan

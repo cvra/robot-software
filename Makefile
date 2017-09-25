@@ -102,6 +102,7 @@ include $(CHIBIOS)/os/rt/rt.mk
 include $(CHIBIOS)/os/rt/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
 # Other files (optional).
 #include $(CHIBIOS)/test/rt/test.mk
+include $(CHIBIOS)/os/various/cpp_wrappers/chcpp.mk
 
 include app_src.mk
 
@@ -119,13 +120,13 @@ CSRC = $(STARTUPSRC) \
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
-CPPSRC = $(APPCPPSRC)
+CPPSRC = $(APPCPPSRC) $(CHCPPSRC)
 
 # List ASM source files here
 ASMSRC = $(STARTUPASM) $(PORTASM) $(OSALASM) $(APPASMSRC)
 
 INCDIR = $(STARTUPINC) $(KERNINC) $(PORTINC) $(OSALINC) \
-		 $(HALINC) $(PLATFORMINC) $(APPINC) \
+		 $(HALINC) $(PLATFORMINC) $(APPINC) $(CHCPPINC) \
          $(CHIBIOS)/os/hal/lib/streams \
 		 $(CHIBIOS)/os/various
 
@@ -145,8 +146,8 @@ CPPC = $(TRGT)g++
 # Enable loading with g++ only if you need C++ runtime support.
 # NOTE: You can use C++ even without C++ support if you are careful. C++
 #       runtime support makes code size explode.
-LD   = $(TRGT)gcc
-#LD   = $(TRGT)g++
+#LD   = $(TRGT)gcc
+LD   = $(TRGT)g++
 CP   = $(TRGT)objcopy -j startup -j constructors -j destructors -j .text \
 		-j .ARM.extab -j .ARM.exidx -j .eh_frame_hdr -j .eh_frame -j .textalign -j .data
 AS   = $(TRGT)gcc -x assembler-with-cpp
@@ -188,6 +189,19 @@ ULIBDIR =
 # List all user libraries here
 ULIBS =
 
+# UAVCAN configuration
+UDEFS += -DUAVCAN_STM32_CHIBIOS=1 \
+		 -DUAVCAN_TOSTRING=0 \
+		 -DUAVCAN_DEBUG=0 \
+		 -DUAVCAN_STM32_TIMER_NUMBER=2 \
+		 -DUAVCAN_STM32_NUM_IFACES=1
+
+
+include src/libuavcan/libuavcan/include.mk
+include src/libuavcan/libuavcan_drivers/stm32/driver/include.mk
+
+CPPSRC += $(LIBUAVCAN_SRC) $(LIBUAVCAN_STM32_SRC)
+UINCDIR += $(LIBUAVCAN_INC) $(LIBUAVCAN_STM32_INC) ./dsdlc_generated
 
 #
 # End of user defines
@@ -205,6 +219,12 @@ GLOBAL_SRC_DEP = app_src.mk
 
 RULESPATH = $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC
 include $(RULESPATH)/rules.mk
+
+# run uavcan dsdl compiler
+.PHONY: dsdlc
+dsdlc:
+	@$(COLOR_PRINTF) "Running uavcan dsdl compiler"
+	$(LIBUAVCAN_DSDLC) $(UAVCAN_DSDL_DIR)
 
 .PHONY: flash
 flash: build/$(PROJECT).elf
