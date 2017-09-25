@@ -46,6 +46,8 @@
 
 /**
  * @brief   Enables the CAN subsystem.
+ *
+ * Since UAVCAN embeds its own CAN driver, we do not need to enable it.
  */
 #if !defined(HAL_USE_CAN) || defined(__DOXYGEN__)
 #define HAL_USE_CAN                 FALSE

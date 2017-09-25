@@ -120,7 +120,7 @@ CSRC = $(STARTUPSRC) \
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
-CPPSRC = $(APPCPPSRC) $(CHCPPSRC)
+CPPSRC = $(CHCPPSRC) $(APPCPPSRC)
 
 # List ASM source files here
 ASMSRC = $(STARTUPASM) $(PORTASM) $(OSALASM) $(APPASMSRC)

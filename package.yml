@@ -20,6 +20,7 @@ target.arm:
   - src/can-bootloader/config.c
   - src/exti.c
   - src/imu_thread.c
+  - src/uavcan/uavcan_node.cpp
 
 source:
   - src/mpu9250.c
