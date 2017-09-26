@@ -8,9 +8,11 @@
 #include "main.h"
 #include "imu_thread.h"
 #include "ahrs_thread.h"
+#include "decadriver/deca_device_api.h"
+#include "decadriver/deca_regs.h"
 
-#define TEST_WA_SIZE  THD_WORKING_AREA_SIZE(256)
-#define SHELL_WA_SIZE THD_WORKING_AREA_SIZE(2048)
+#define TEST_WA_SIZE        THD_WORKING_AREA_SIZE(256)
+#define SHELL_WA_SIZE       THD_WORKING_AREA_SIZE(2048)
 
 static void cmd_reboot(BaseSequentialStream *chp, int argc, char **argv)
 {
@@ -144,6 +146,66 @@ static void cmd_ahrs(BaseSequentialStream *chp, int argc, char **argv)
         chprintf(chp, "calibrating gyro, do not move the board...\r\n");
         ahrs_calibrate_gyro();
     }
+
+BaseSequentialStream *output;
+
+int readfromspi(uint16 headerLength, const uint8 *headerBuffer, uint32 readlength, uint8 *readBuffer)
+{
+    spiSelect(&SPID1);
+    spiSend(&SPID1, headerLength, headerBuffer);
+    spiReceive(&SPID1, readlength, readBuffer);
+    spiUnselect(&SPID1);
+
+    chprintf(output, "%s -> ", __FUNCTION__);
+    for (int i = 0; i < headerLength; i++) {
+        chprintf(output, "0x%02x ", headerBuffer[i]);
+    }
+    chprintf(output, "| ");
+    for (int i = 0; i < readlength; i++) {
+        chprintf(output, "0x%02x ", readBuffer[i]);
+    }
+
+    chprintf(output, "\r\n");
+}
+
+int writetospi(uint16 headerLength, const uint8 *headerBuffer,
+                uint32 bodyLength, const uint8 *bodyBuffer)
+{
+    chprintf(output, "%s -> ", __FUNCTION__);
+    for (int i = 0; i < headerLength; i++) {
+        chprintf(output, "0x%02x ", headerBuffer[i]);
+    }
+
+    chprintf(output, "| ");
+
+    for (int i = 0; i < bodyLength; i++) {
+        chprintf(output, "0x%02x ", bodyBuffer[i]);
+    }
+
+    chprintf(output, "\r\n");
+}
+
+void deca_sleep(unsigned int time_ms)
+{
+    chThdSleepMilliseconds(time_ms);
+}
+
+
+static void cmd_dwm(BaseSequentialStream *chp, int argc, char **argv)
+{
+
+    static SPIConfig spi_cfg = {
+        .end_cb = NULL,
+        .ssport = GPIOA,
+        .sspad = GPIOA_UWB_CS_N,
+        .cr1 = SPI_CR1_BR_2 | SPI_CR1_BR_0
+    };
+    spiStart(&SPID1, &spi_cfg);
+
+    output = chp;
+    uint32_t id = dwt_readdevid();
+
+    chprintf(chp, "id=0x%x\r\n", id);
 }
 
 static void tree_indent(BaseSequentialStream *out, int indent)
@@ -285,6 +347,7 @@ const ShellCommand shell_commands[] = {
     {"imu", cmd_imu},
     {"ahrs", cmd_ahrs},
     {"temp", cmd_temp},
+    {"dwm", cmd_dwm},
     {"config_tree", cmd_config_tree},
     {"config_set", cmd_config_set},
     {NULL, NULL}
