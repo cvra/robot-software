@@ -88,13 +88,13 @@ PROJECT = ch
 # Imported source files and paths
 CHIBIOS = ../lib/ChibiOS
 include $(CHIBIOS)/os/hal/hal.mk
-include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/startup_stm32f3xx.mk
+include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32f3xx.mk
 include $(CHIBIOS)/os/hal/ports/STM32/STM32F3xx/platform.mk
 include $(CHIBIOS)/os/hal/osal/rt/osal.mk
 include $(CHIBIOS)/os/rt/rt.mk
-include $(CHIBIOS)/os/rt/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
+include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
 include $(CHIBIOS)/os/hal/ports/STM32/STM32F3xx/platform.mk
-include $(CHIBIOS)/test/rt/test.mk
+# include $(CHIBIOS)/test/rt/test.mk
 include $(CHIBIOS)/os/various/cpp_wrappers/chcpp.mk
 
 # must be defined before board.mk include
@@ -107,7 +107,7 @@ include $(BASE_DIR)/board/board.mk
 include src/src.mk
 
 # Define linker script file here
-LDSCRIPT = $(BASE_DIR)/board/$(BOARDLDSCRIPT)
+LDSCRIPT = $(BASE_DIR)/$(BOARDLDSCRIPT)
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -119,7 +119,6 @@ CSRC = $(PORTSRC) \
        $(STARTUPSRC) \
        $(CHIBIOS)/os/hal/lib/streams/chprintf.c \
        $(CHIBIOS)/os/hal/lib/streams/memstreams.c \
-       $(CHIBIOS)/os/various/shell.c \
        $(CHIBIOS)/os/various/syscalls.c \
        $(BASE_DIR)/$(BOARDSRC) \
 	   src/version.c \
@@ -150,12 +149,13 @@ TCSRC =
 TCPPSRC =
 
 # List ASM source files here
-ASMSRC = $(STARTUPASM) $(PORTASM) $(OSALASM)
+ASMSRC =
+ASMXSRC = $(STARTUPASM) $(PORTASM) $(OSALASM)
 
 INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
          $(HALINC) $(OSALINC) $(PLATFORMINC) $(STARTUPINC) \
          $(CHIBIOS)/os/various $(CHIBIOS)/os/hal/lib/streams $(CHCPPINC) \
-         $(BASE_DIR)/$(BOARDINC)
+         $(BASE_DIR)/$(BOARDINC) $(CHIBIOS)/os/license
 
 #
 # Project, sources and paths
@@ -237,8 +237,8 @@ UINCDIR += $(LIBUAVCAN_INC) $(LIBUAVCAN_STM32_INC) ./dsdlc_generated
 # End of user defines
 ##############################################################################
 
-RULESPATH = $(BASE_DIR)/linker
-include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/rules.mk
+RULESPATH = $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC
+include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/rules.mk
 
 # run uavcan dsdl compiler
 .PHONY: dsdlc
