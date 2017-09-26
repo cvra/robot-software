@@ -9,6 +9,7 @@
 #include <main.h>
 #include "uavcan/uavcan_node.h"
 #include "uavcan/imu_publisher.hpp"
+#include "uavcan/parameter_server.hpp"
 
 #define CAN_BITRATE 1000000
 
@@ -53,6 +54,7 @@ static THD_FUNCTION(uavcan_node, arg)
     /* TODO: set software and hardware version */
 
     imu_publisher_start(node);
+    parameter_server_start(node);
 
     /* Spin forever */
     while (true) {

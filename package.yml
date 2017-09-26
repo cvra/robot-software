@@ -22,6 +22,7 @@ target.arm:
   - src/imu_thread.c
   - src/uavcan/uavcan_node.cpp
   - src/uavcan/imu_publisher.cpp
+  - src/uavcan/parameter_server.cpp
 
 source:
   - src/mpu9250.c
