@@ -101,6 +101,7 @@ static void cmd_imu(BaseSequentialStream *chp, int argc, char **argv)
     msg.gyro.z *= 180 / 3.14;
 
 
+    chprintf(chp, "timestamp: %.3f s\r\n", msg.timestamp * 1e-6);
     chprintf(chp, "acc [m/s^2] :\t%.2f %.2f %.2f\r\n", msg.acc.x, msg.acc.y, msg.acc.z);
     chprintf(chp, "gyro [deg/s]:\t%.2f %.2f %.2f\r\n", msg.gyro.x, msg.gyro.y, msg.gyro.z);
 }
@@ -126,6 +127,7 @@ static void cmd_temp(BaseSequentialStream *chp, int argc, char **argv)
         return;
     }
 
+    chprintf(chp, "timestamp: %.3f s\r\n", msg.timestamp * 1e-6);
     chprintf(chp, "IMU temperature: %d\r\n", (int)msg.temperature);
 }
 

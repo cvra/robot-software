@@ -78,8 +78,16 @@ static void imu_reader_thd(void *p)
         chEvtWaitAny(IMU_INTERRUPT_EVENT);
 
         /* Read data from the IMU. */
+#if 0
+        /* TODO: For some reason the macro ST2US creates an overflow. */
+        uint32_t ts = ST2US(chVTGetSystemTime());
+#else
+        uint32_t ts = chVTGetSystemTime() * (1000000 / CH_CFG_ST_FREQUENCY);
+#endif
         mpu9250_gyro_read(&mpu, &msg.gyro.x, &msg.gyro.y, &msg.gyro.z);
         mpu9250_acc_read(&mpu, &msg.acc.x, &msg.acc.y, &msg.acc.z);
+
+        msg.timestamp = ts;
 
         /* Publish the data. */
         messagebus_topic_publish(&imu_topic, &msg, sizeof(msg));
@@ -88,6 +96,7 @@ static void imu_reader_thd(void *p)
         if (temperature_pub_prescaler++ >= 100) {
             temperature_msg_t msg;
             msg.temperature = mpu9250_temp_read(&mpu);
+            msg.timestamp = ts;
             messagebus_topic_publish(&temperature_topic, &msg, sizeof(msg));
             temperature_pub_prescaler = 0;
         }

@@ -62,6 +62,7 @@ void imu_publisher_spin(Node &node)
 
         uavcan::equipment::ahrs::RawIMU msg;
         msg.integration_interval = -1;
+        msg.timestamp.usec = imu_data.timestamp;
 
         msg.rate_gyro_latest[0] = imu_data.gyro.x;
         msg.rate_gyro_latest[1] = imu_data.gyro.y;

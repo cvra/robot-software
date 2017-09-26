@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 typedef struct {
+    uint32_t timestamp; /**< Timestamp in us since boot. */
     struct {
         float x;
         float y;
@@ -19,6 +20,7 @@ typedef struct {
 } imu_msg_t;
 
 typedef struct {
+    uint32_t timestamp;/**< Timestamp in us since boot. */
     float temperature; /**< Temperature level in degree C. */
 } temperature_msg_t;
 
