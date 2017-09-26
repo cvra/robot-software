@@ -23,7 +23,7 @@ void serial_datagram_buffer_writer_cb(void *arg, const void *buffer, size_t len)
     }
 }
 
-size_t serial_datagram_buffer_wrap(uint8_t *input_buffer, size_t input_buffer_len,
+size_t serial_datagram_buffer_wrap(const uint8_t *input_buffer, size_t input_buffer_len,
                                    uint8_t *output_buffer, size_t output_buffer_len)
 {
     serial_datagram_buffer_writer_t writer;

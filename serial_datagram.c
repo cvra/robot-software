@@ -11,14 +11,15 @@
 
 static uint32_t compute_crc(const void *buf, size_t len)
 {
-    return crc32(0x00000000, buf, len);
+    return crc32(SERIAL_DATAGRAM_CRC_START, buf, len);
 }
 
-void serial_datagram_send(const void *dtgrm, size_t len,
+static const uint8_t esc_end[] = {ESC, ESC_END};
+static const uint8_t esc_esc[] = {ESC, ESC_ESC};
+
+void serial_datagram_send_chunk(const void *dtgrm, size_t len, uint32_t *crc,
         void (*send_fn)(void *arg, const void *p, size_t len), void *sendarg)
 {
-    static const uint8_t esc_end[] = {ESC, ESC_END};
-    static const uint8_t esc_esc[] = {ESC, ESC_ESC};
     const uint8_t *dtgrm_byte = (const uint8_t*)dtgrm;
     // send escaped data
     uint32_t a = 0, b = 0;
@@ -36,10 +37,16 @@ void serial_datagram_send(const void *dtgrm, size_t len,
     }
     send_fn(sendarg, &dtgrm_byte[a], b - a);
 
+    // update CRC
+    *crc = crc32(*crc, dtgrm, len);
+}
+
+void serial_datagram_send_end(uint32_t crc,
+        void (*send_fn)(void *arg, const void *p, size_t len), void *sendarg)
+{
     // send CRC32 + END
     uint8_t crc_and_end[2*4 + 1]; // escaped CRC32 + END
     uint32_t i = 0;
-    uint32_t crc = compute_crc(dtgrm, len);
     int32_t j;
     for (j = 3*8; j >= 0; j -= 8) {
         if (((crc >> j) & 0xFF) == ESC) {
@@ -54,6 +61,14 @@ void serial_datagram_send(const void *dtgrm, size_t len,
     }
     crc_and_end[i++] = END;
     send_fn(sendarg, crc_and_end, i);
+}
+
+void serial_datagram_send(const void *dtgrm, size_t len,
+        void (*send_fn)(void *arg, const void *p, size_t len), void *sendarg)
+{
+    uint32_t crc = SERIAL_DATAGRAM_CRC_START;
+    serial_datagram_send_chunk(dtgrm, len, &crc, send_fn, sendarg);
+    serial_datagram_send_end(crc, send_fn, sendarg);
 }
 
 static void rcv_handler_reset(serial_datagram_rcv_handler_t *h)
