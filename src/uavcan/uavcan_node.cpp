@@ -8,6 +8,7 @@
 
 #include <main.h>
 #include "uavcan/uavcan_node.h"
+#include "uavcan/imu_publisher.hpp"
 
 #define CAN_BITRATE 1000000
 
@@ -45,7 +46,13 @@ static THD_FUNCTION(uavcan_node, arg)
 
     node.start();
 
+    // Mark the node as correctly initialized
+    node.getNodeStatusProvider().setModeOperational();
+    node.getNodeStatusProvider().setHealthOk();
+
     /* TODO: set software and hardware version */
+
+    imu_publisher_start(node);
 
     /* Spin forever */
     while (true) {
@@ -54,9 +61,10 @@ static THD_FUNCTION(uavcan_node, arg)
         if (res < 0) {
             uavcan_failure("UAVCAN spin");
         }
+
+        imu_publisher_spin(node);
     }
 }
-
 
 extern "C"
 void uavcan_node_start(uint8_t id, const char *name)
