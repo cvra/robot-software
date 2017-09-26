@@ -28,10 +28,13 @@ target.arm:
 source:
   - src/mpu9250.c
   - src/MadgwickAHRS.c
+  - src/decadriver/deca_device.c
+  - src/decadriver/deca_params_init.c
 
 tests:
   - tests/mpu9250.cpp
   - tests/hal_mocks.cpp
+  - tests/decawave.cpp
 
 templates:
   app_src.mk.jinja: app_src.mk
