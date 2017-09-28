@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?><project name="Development of an ultra-wide band indoor positioning system" company="LSRO" webLink="http://" view-date="2017-08-01" view-index="0" gantt-divider-location="300" resource-divider-location="300" version="2.8.5" locale="en_US">
+<?xml version="1.0" encoding="UTF-8"?><project name="Development of an ultra-wide band indoor positioning system" company="LSRO" webLink="http://" view-date="2017-08-01" view-index="0" gantt-divider-location="352" resource-divider-location="300" version="2.8.5" locale="en_US">
     <description/>
-    <view zooming-state="default:9" id="gantt-chart">
-        <field id="tpd3" name="Name" width="166" order="0"/>
-        <field id="tpd4" name="Begin date" width="64" order="1"/>
-        <field id="tpd5" name="End date" width="64" order="2"/>
+    <view zooming-state="default:8" id="gantt-chart">
+        <field id="tpd3" name="Name" width="183" order="0"/>
+        <field id="tpd4" name="Begin date" width="82" order="1"/>
+        <field id="tpd5" name="End date" width="81" order="2"/>
         <timeline><![CDATA[0]]></timeline>
     </view>
     <view id="resource-table">
@@ -57,7 +57,7 @@
             <depend id="7" type="2" difference="0" hardness="Strong"/>
             <depend id="9" type="2" difference="0" hardness="Strong"/>
         </task>
-        <task id="9" name="State of the art" color="#8cb6ce" meeting="false" start="2017-09-19" duration="15" complete="0" expand="true">
+        <task id="9" name="State of the art" color="#8cb6ce" meeting="false" start="2017-09-19" duration="15" complete="25" expand="true">
             <notes><![CDATA[Lecture de papers sur UWB systems
 Skim through "Probabilistic Robotics"
 
@@ -90,7 +90,7 @@ Eventuellement, si plusieurs estimateurs ont été implémentés, comparaison en
 ]]></notes>
             <depend id="32" type="2" difference="0" hardness="Strong"/>
         </task>
-        <task id="75" name="Communication CAN" color="#8cb6ce" meeting="false" start="2017-09-26" duration="4" complete="0" expand="true">
+        <task id="75" name="Communication CAN" color="#8cb6ce" meeting="false" start="2017-09-26" duration="4" complete="100" expand="true">
             <notes><![CDATA[Vu que le système comprend un nombre important de cartes (minimum 2, probablement 4), devoir se connecter à chaque carte une par une à la main est laborieux. Dans ce but, un bus de communication câblé est utilisé pendant les phases de debug, de configuration et de collecte de données.
 
 Pour gagner du temps, je vais réutiliser des outils avec les quels je travaille depuis longtemps et basé sur le bus physique CAN:
@@ -110,6 +110,9 @@ Pour gagner du temps, je vais réutiliser des outils avec les quels je travaille
             <notes><![CDATA[Implémentation du ranging protocol, c'est à dire la séquence d'information échangée entre une balise fixe et le système embarqué sur le robot pour connaitre la position de la balise et la distance à celle ci.
 
 Decawave fournit une explication sur leur 4-way ranging protocol, peut être que des adaptations seront nécessaires, à voir.]]></notes>
+            <depend id="32" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="76" name="Param storage" color="#8cb6ce" meeting="false" start="2017-11-03" duration="1" complete="0" expand="true">
             <depend id="32" type="2" difference="0" hardness="Strong"/>
         </task>
         <task id="32" name="Collecte data" color="#8cb6ce" meeting="false" start="2017-11-06" duration="5" complete="0" expand="true">
