@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?><project name="Development of an ultra-wide band indoor positioning system" company="LSRO" webLink="http://" view-date="2017-08-01" view-index="0" gantt-divider-location="352" resource-divider-location="300" version="2.8.5" locale="en_US">
+<?xml version="1.0" encoding="UTF-8"?><project name="Development of an ultra-wide band indoor positioning system" company="LSRO" webLink="http://" view-date="2017-09-10" view-index="0" gantt-divider-location="352" resource-divider-location="300" version="2.8.5" locale="en_US">
     <description/>
-    <view zooming-state="default:8" id="gantt-chart">
+    <view zooming-state="default:7" id="gantt-chart">
         <field id="tpd3" name="Name" width="183" order="0"/>
         <field id="tpd4" name="Begin date" width="82" order="1"/>
         <field id="tpd5" name="End date" width="81" order="2"/>
@@ -82,6 +82,12 @@ Buts:
 
 Eventuellement, si plusieurs estimateurs ont été implémentés, comparaison entre eux.]]></notes>
             <depend id="51" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="77" name="Test DMP" color="#8cb6ce" meeting="false" start="2017-09-28" duration="3" complete="0" expand="true">
+            <notes><![CDATA[Test du motion processor intégré au MPU9250.
+
+Particuliérement intéressé par le mode "Quaternion 9 axis"]]></notes>
+            <depend id="15" type="2" difference="0" hardness="Strong"/>
         </task>
         <task id="7" name="Driver IMU" color="#8cb6ce" meeting="false" start="2017-09-19" duration="5" complete="100" expand="true">
             <notes><![CDATA[* Ecriture d'un driver pour le IMU intégré au système
