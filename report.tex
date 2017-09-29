@@ -2,6 +2,7 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
+\usepackage[acronym]{glossaries}
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{pdfpages}
@@ -15,6 +16,7 @@
 \usepackage{siunitx}
 \usepackage{wasysym}
 \usepackage{natbib}
+\usepackage{physics}
 
 
 \title{Development of an ultra-wide band indoor positioning system}
@@ -25,8 +27,84 @@
 }
 
 \begin{document}
+
+\newacronym{imu}{IMU}{Inertial Motion Unit}
 \maketitle
 \tableofcontents
+
+% TODO: Put each section in its own .tex
+\chapter{Introduction}
+
+\section{Requirements}
+
+\section{State of the art}
+
+\chapter{Hardware}
+
+\chapter{Positioning algorithm}
+
+\section{Parametric vs non parametric filter}
+
+\section{Design of the EKF filter}
+
+\begin{enumerate}
+    \item What goes in the state ?
+    \item What is a control input?
+    \item What is a measurement?
+\end{enumerate}
+
+
+\section{First model}
+
+hypotheses:
+
+\begin{enumerate}
+    \item The robot moves in the 2D plane, i.e. its pose is described by $\left( x, y, \theta \right)$.
+    \item The \gls{imu}'s internal motion processor already outputs $\theta$ (but it drifts).
+    \item The \gls{imu} outputs the acceleration vector in body frame $\mathbf{a}^b$.
+    \item The inertial frame and the world frame are the same, i.e. the robot starts at coordinate $\left( 0, 0, 0 \right)$.
+\end{enumerate}
+
+The state contains the position and speed, in world frame:
+\begin{equation}
+    \mathbf{x} = \begin{pmatrix}x & y & \theta & \dot{x} & \dot{y}\end{pmatrix}^T
+\end{equation}
+
+transform the acceleration from body to world frame:
+
+\begin{equation}
+    \mathbf{a}^w = R(\theta) \mathbf{a}^b
+\end{equation}
+
+The state update equation, using the acceleration as control input
+
+\begin{eqnarray}
+    \dv{t} \mathbf{x} &=&
+    \begin{pmatrix}
+        \dot{x} & 
+        \dot{y} &
+        0 & % TODO: Maybe take it from acceleration ?
+        \mathbf{a}^w_x &
+        \mathbf{a}^w_y
+    \end{pmatrix}^T
+    \\&=&
+    \begin{pmatrix}
+        \dot{x} \\
+        \dot{y} \\
+        0 \\  % TODO: Maybe take it from acceleration ?
+        \cos(\theta) \mathbf{a}^B_x - \sin(\theta) \mathbf{a}^B_y \\
+        \sin(\theta) \mathbf{a}^B_x + \cos(\theta) \mathbf{a}^B_y \\
+    \end{pmatrix}
+\end{eqnarray}
+
+The measurement equation is the distance to a beacon at a known location $\mathbf{b}$.
+
+\begin{equation}
+    h(\mathbf{x}) = \sqrt{\left(\mathbf{x}_x - \mathbf{b}_x\right)^2 + \left(\mathbf{x}_y - \mathbf{b}_y\right)^2}
+\end{equation}
+
+
+\chapter{Implementation}
 
 \appendix
 \chapter{Hardware schematic}
