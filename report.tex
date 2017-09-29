@@ -29,6 +29,9 @@
 \begin{document}
 
 \newacronym{imu}{IMU}{Inertial Motion Unit}
+\newacronym{dmp}{DMP}{Digital Motion Processor}
+\newacronym{uwb}{UWB}{Ultra Wide Band}
+
 \maketitle
 \tableofcontents
 
@@ -44,14 +47,6 @@
 \chapter{Positioning algorithm}
 
 \section{Parametric vs non parametric filter}
-
-\section{Design of the EKF filter}
-
-\begin{enumerate}
-    \item What goes in the state ?
-    \item What is a control input?
-    \item What is a measurement?
-\end{enumerate}
 
 
 \section{First model}
@@ -69,6 +64,8 @@ The state contains the position and speed, in world frame:
 \begin{equation}
     \mathbf{x} = \begin{pmatrix}x & y & \theta & \dot{x} & \dot{y}\end{pmatrix}^T
 \end{equation}
+
+\subsection{Motion model}
 
 transform the acceleration from body to world frame:
 
@@ -97,12 +94,20 @@ The state update equation, using the acceleration as control input
     \end{pmatrix}
 \end{eqnarray}
 
-The measurement equation is the distance to a beacon at a known location $\mathbf{b}$.
-
+\subsection{Measurement model}
+In this model we have two different measurement functions.
+The first one is given by the \gls{dmp} and is directly the heading $\theta$:
 \begin{equation}
-    h(\mathbf{x}) = \sqrt{\left(\mathbf{x}_x - \mathbf{b}_x\right)^2 + \left(\mathbf{x}_y - \mathbf{b}_y\right)^2}
+    h_{DMP}(\mathbf{x}) = \theta
 \end{equation}
 
+The second type of measurement is the distance to the UWB anchors.
+It is actually a family of functions; each beacon defines a measurement function.
+This function is the distance to the position of the beacon, called $\mathbf{b}$.
+
+\begin{equation}
+    h_b(\mathbf{x}) = \sqrt{\left(\mathbf{x}_x - \mathbf{b}_x\right)^2 + \left(\mathbf{x}_y - \mathbf{b}_y\right)^2}
+\end{equation}
 
 \chapter{Implementation}
 
