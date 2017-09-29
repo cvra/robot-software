@@ -1,0 +1,12 @@
+stages:
+  - report
+
+pdf:
+  stage: report
+  image: schickling/latex
+  script:
+    - latexmk -pdf report.tex
+  artifacts:
+    paths:
+      - report.pdf
+    expire_in: 7 days
