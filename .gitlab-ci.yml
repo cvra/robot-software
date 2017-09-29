@@ -12,7 +12,10 @@ models_test:
 
 pdf:
   stage: report
-  image: schickling/latex
+  image: ubuntu:xenial # TODO: Maybe make my own image?
+  before_script:
+    - apt-get update -y
+    - apt-get install -y texlive-most
   script:
     - latexmk -pdf report.tex
   artifacts:
