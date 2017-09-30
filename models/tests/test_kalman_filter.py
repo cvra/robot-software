@@ -1,7 +1,6 @@
 from unittest import TestCase
 import numpy as np
-
-from ekf import *
+import ekf
 
 
 class PredictorTest(TestCase):
@@ -10,7 +9,7 @@ class PredictorTest(TestCase):
         self.G = lambda s, u: np.array([[1]])  # linearized
         self.R = np.array([[0.1]])  # noise induced
 
-        self.f = EKFPredictor(self.g, self.G, self.R)
+        self.f = ekf.Predictor(self.g, self.G, self.R)
 
     def test_constructor(self):
         """
@@ -48,7 +47,7 @@ class UpdaterTestCase(TestCase):
         self.h = lambda s: s
         self.H = lambda _: np.array([[1]])
         self.Q = np.array([[0.1]])
-        self.f = EKFCorrector(self.h, self.H, self.Q)
+        self.f = ekf.Corrector(self.h, self.H, self.Q)
 
     def test_constructor(self):
         """
@@ -83,18 +82,18 @@ class UpdaterTestCase(TestCase):
         self.assertAlmostEqual(0.05, sigma[0, 0], places=4)
 
 
-class EKFIntegration(TestCase):
+class Integration(TestCase):
     def setUp(self):
         self.g = lambda s, u: s
         self.G = lambda s, u: np.array([[1]])  # linearized
         self.R = np.array([[0.1]])  # noise induced
 
-        self.predictor = EKFPredictor(self.g, self.G, self.R)
+        self.predictor = ekf.Predictor(self.g, self.G, self.R)
 
         self.h = lambda s: s
         self.H = lambda _: np.array([[1]])
         self.Q = np.array([[0.1]])
-        self.corrector = EKFCorrector(self.h, self.H, self.Q)
+        self.corrector = ekf.Corrector(self.h, self.H, self.Q)
 
     def test_does_it_converge(self):
         u = np.array([0])

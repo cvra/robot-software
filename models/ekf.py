@@ -2,7 +2,7 @@ from numpy.linalg import inv
 import numpy as np
 
 
-class EKFPredictor:
+class Predictor:
     def __init__(self, dynamics, dynamics_jacobian, R):
         """
         Parameters:
@@ -37,7 +37,7 @@ class EKFPredictor:
         return self.predict(mu, sigma, u)
 
 
-class EKFCorrector:
+class Corrector:
     def __init__(self, measurement, measurement_jacobian, Q):
         """
         Parameters:
