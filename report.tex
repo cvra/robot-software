@@ -42,22 +42,36 @@
 
 \section{State of the art}
 
+\begin{enumerate}
+    \item Sensor fusion using kalman for 9 axis IMUs is pretty common.
+        Usually done using quaternions to represent rotations.
+    \item Previous implementations of fusion with UWB focused on a applications of body positioning.
+\end{enumerate}
+
 \chapter{Hardware}
 
 \chapter{Positioning algorithm}
 
 \section{Parametric vs non parametric filter}
 
+Parametric filters are filter which take assumptions on the distribution of the state.
+The most common assumption is that the distribution is Gaussian.
+Non parametric filters, on the other hand, can represent any distribution, and most importantly multi modal ones.
+
+If the problem can be solved using a parametric filter, it is better, as they are computationally less expensive.
+Since we are running the code on a small device with little computing power, it is important to take this into account.
 
 \section{First model}
 
-hypotheses:
+The goal of this model was to create the simplest thing that could possibly work.
+It does not account for most issues, but was enough to start work on a simulator for the system.
 
+To simplify the model, the following hypotheses are made:
 \begin{enumerate}
     \item The robot moves in the 2D plane, i.e. its pose is described by $\left( x, y, \theta \right)$.
     \item The \gls{imu}'s internal motion processor already outputs $\theta$ (but it drifts).
     \item The \gls{imu} outputs the acceleration vector in body frame $\mathbf{a}^b$.
-    \item The inertial frame and the world frame are the same, i.e. the robot starts at coordinate $\left( 0, 0, 0 \right)$.
+    \item The inertial frame is aligned with the world frame, i.e. the robot starts with $\theta=0$.
 \end{enumerate}
 
 The state contains the position and speed, in world frame:
@@ -67,7 +81,7 @@ The state contains the position and speed, in world frame:
 
 \subsection{Motion model}
 
-transform the acceleration from body to world frame:
+The first step is to transform the acceleration from body frame to world frame.
 
 \begin{equation}
     \mathbf{a}^w = R(\theta) \mathbf{a}^b
@@ -83,7 +97,7 @@ The state update equation, using the acceleration as control input
         0 & % TODO: Maybe take it from acceleration ?
         \mathbf{a}^w_x &
         \mathbf{a}^w_y
-    \end{pmatrix}^T
+    \end{pmatrix}^T \nonumber
     \\&=&
     \begin{pmatrix}
         \dot{x} \\
@@ -94,8 +108,10 @@ The state update equation, using the acceleration as control input
     \end{pmatrix}
 \end{eqnarray}
 
+We can turn it into a discrete state update equation using forward Euler:
+
 \begin{equation}
-    x_{t+1} = x_t + \Delta_t \dv{t} \mathbf{x}
+    \mathbf{x}_{t+1} = \mathbf{x}_t + \Delta_t \dv{t} \mathbf{x}
 \end{equation}
 
 
