@@ -71,11 +71,11 @@ Buts:
 * Est-ce que le magnétomètre est intéressant ?]]></notes>
             <depend id="20" type="2" difference="0" hardness="Strong"/>
         </task>
-        <task id="20" name="Design algorithme" color="#8cb6ce" meeting="false" start="2017-10-10" duration="10" complete="10" expand="true">
+        <task id="20" name="Design algorithme" color="#8cb6ce" meeting="false" start="2017-10-10" duration="10" complete="25" expand="true">
             <notes><![CDATA[Cette partie est purement théorique. Le but est de dériver les expressions mathématiques du (ou des) state estimator que je pense utiliser pour le robot.]]></notes>
             <depend id="15" type="2" difference="0" hardness="Strong"/>
         </task>
-        <task id="15" name="Simulation algorithme choisi" color="#8cb6ce" meeting="false" start="2017-10-24" duration="15" complete="10" expand="true">
+        <task id="15" name="Simulation algorithme choisi" color="#8cb6ce" meeting="false" start="2017-10-24" duration="15" complete="25" expand="true">
             <notes><![CDATA[* Implémentation de l'algorithme choisi en Python
 * Simulation sur des trajectoires générées
 * Comparaison de l'effet des différentes sources de bruit
