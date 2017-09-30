@@ -1,24 +1,6 @@
 from unittest import TestCase
-from collections import namedtuple
 from math import sqrt
-from math import cos, sin
-
-TrajectoryPoint = namedtuple('TrajectoryPoint', ('timestamp', 'pos', 'omega', 'acc'))
-
-def generate_circular_traj(r, omega, dt):
-    """
-    Generates a series of point on a circle of given radius. The speed and time
-    interval between two points must also be given.
-    """
-    theta = 0.
-    ts = 0.
-    while True:
-        pos = (r * cos(theta), r * sin(theta))
-        acc = (0, omega**2 * r)
-        yield TrajectoryPoint(ts, pos, omega, acc)
-        ts += dt
-        theta += omega * dt
-
+from trajectories import *
 
 class CircleTrajectoryGenerator(TestCase):
     """
@@ -37,7 +19,7 @@ class CircleTrajectoryGenerator(TestCase):
         """
         Checks that we can initialize a simple trajectory point.
         """
-        p = TrajectoryPoint(timestamp=1.2, pos=(0, 0), omega=1.2, acc=(0, 0))
+        p = TrajectoryPoint(timestamp=1.2, pos=(0, 0), omega=1.2, acc=(0, 0), theta=0.)
 
     def test_generate_trajectory(self):
         """
