@@ -57,7 +57,7 @@ class Corrector:
         H = self.H(mu)
         K = sigma @ H.T @ inv(H @ sigma @ H.T + self.Q)
         mu = mu + K @ (z - self.h(mu))
-        sigma = (np.eye(H.shape[0]) - K @ H) @ sigma
+        sigma = (np.eye(H.shape[1]) - K @ H) @ sigma
         return mu, sigma
 
     def __call__(self, mu, sigma, z):
