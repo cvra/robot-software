@@ -1,7 +1,9 @@
 from math import cos, sin
 from collections import namedtuple
 
-TrajectoryPoint = namedtuple('TrajectoryPoint', ('timestamp', 'pos', 'theta', 'omega', 'acc'))
+TrajectoryPoint = namedtuple('TrajectoryPoint', ('timestamp', 'pos', 'theta',
+                                                 'omega', 'acc'))
+
 
 def generate_circular_traj(r, omega, dt):
     """
@@ -16,5 +18,3 @@ def generate_circular_traj(r, omega, dt):
         yield TrajectoryPoint(ts, pos, theta, omega, acc)
         ts += dt
         theta += omega * dt
-
-
