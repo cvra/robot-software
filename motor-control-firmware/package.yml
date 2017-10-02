@@ -4,6 +4,7 @@ include_directories:
   - src/
 
 target.arm:
+    - board/board.c
     - src/main.c
     - src/blocking_uart_driver.c
     - src/control.c

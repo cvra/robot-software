@@ -83,4 +83,4 @@ REGION_ALIAS("BSS_RAM", ram0);
 REGION_ALIAS("HEAP_RAM", ram0);
 
 /* Generic rules inclusion.*/
-INCLUDE ../lib/ChibiOS/os/common/startup/ARMCMx/compilers/GCC/ld/rules.ld
+INCLUDE rules.ld
