@@ -97,17 +97,21 @@ include $(CHIBIOS)/os/hal/ports/STM32/STM32F3xx/platform.mk
 # include $(CHIBIOS)/test/rt/test.mk
 include $(CHIBIOS)/os/various/cpp_wrappers/chcpp.mk
 
-# must be defined before board.mk include
 ifeq ($(USE_BOOTLOADER),)
   USE_BOOTLOADER = yes
 endif
 
-
-include $(BASE_DIR)/board/board.mk
-include src/src.mk
-
 # Define linker script file here
-LDSCRIPT = $(BASE_DIR)/$(BOARDLDSCRIPT)
+ifeq ($(USE_BOOTLOADER), yes)
+  UDEFS = -DCORTEX_VTOR_INIT=0x08003800
+  UDEFS += -DCONFIG_ADDR=0x08002800
+  UDEFS += -DCONFIG_PAGE_SIZE=2048
+  LDSCRIPT = $(BASE_DIR)/linker/STM32F303xC_bootloader.ld
+else
+  LDSCRIPT = $(BASE_DIR)/linker/STM32F303xC.ld
+endif
+
+include src/src.mk
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -120,7 +124,6 @@ CSRC = $(PORTSRC) \
        $(CHIBIOS)/os/hal/lib/streams/chprintf.c \
        $(CHIBIOS)/os/hal/lib/streams/memstreams.c \
        $(CHIBIOS)/os/various/syscalls.c \
-       $(BASE_DIR)/$(BOARDSRC) \
 	   src/version.c \
        $(PROJCSRC)
 
@@ -155,7 +158,7 @@ ASMXSRC = $(STARTUPASM) $(PORTASM) $(OSALASM)
 INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
          $(HALINC) $(OSALINC) $(PLATFORMINC) $(STARTUPINC) \
          $(CHIBIOS)/os/various $(CHIBIOS)/os/hal/lib/streams $(CHCPPINC) \
-         $(BASE_DIR)/$(BOARDINC) $(CHIBIOS)/os/license
+         $(BASE_DIR)/board $(CHIBIOS)/os/license
 
 #
 # Project, sources and paths
@@ -176,7 +179,7 @@ CPPC = $(TRGT)g++
 #       runtime support makes code size explode.
 # LD   = $(TRGT)gcc
 LD   = $(TRGT)g++
-CP   = $(TRGT)objcopy -j startup -j constructors -j destructors -j .text -j .ARM.extab -j .ARM.exidx -j .eh_frame_hdr -j .eh_frame -j .textalign -j .data
+CP   = $(TRGT)objcopy
 AS   = $(TRGT)gcc -x assembler-with-cpp
 AR   = $(TRGT)ar
 OD   = $(TRGT)objdump
@@ -205,7 +208,6 @@ CPPWARN = -Wall -Wextra
 #
 
 # List all user C define here, like -D_DEBUG=1
-UDEFS = $(BOARDDEFS)
 UDEFS += -DUAVCAN_STM32_CHIBIOS=1 \
 		 -DUAVCAN_TOSTRING=0 \
 		 -DUAVCAN_DEBUG=0 \
@@ -238,7 +240,7 @@ UINCDIR += $(LIBUAVCAN_INC) $(LIBUAVCAN_STM32_INC) ./dsdlc_generated
 ##############################################################################
 
 RULESPATH = $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC
-include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/rules.mk
+include $(RULESPATH)/rules.mk
 
 # run uavcan dsdl compiler
 .PHONY: dsdlc
@@ -254,7 +256,7 @@ src/version.c:
 
 .PHONY: flash
 flash: all
-	openocd -f openocd.cfg -c "program $(BUILDDIR)/$(PROJECT).elf verify reset"
+	openocd -f openocd.cfg -c "program $(BUILDDIR)/$(PROJECT).elf verify reset" -c "shutdown"
 
 .PHONY: reset
 reset:
