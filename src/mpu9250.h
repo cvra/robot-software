@@ -26,6 +26,9 @@ void mpu9250_configure(mpu9250_t *dev);
 /** Reset the internal registers and restores the default settings. */
 void mpu9250_reset(mpu9250_t *dev);
 
+/** Enables readout of the built in magnetometer. */
+void mpu9250_enable_magnetometer(mpu9250_t *dev);
+
 /** Returns the interrupt status register, clearing the interrupt at the same
  * time. */
 uint8_t mpu9250_interrupt_read_and_clear(mpu9250_t *dev);
@@ -35,6 +38,12 @@ uint8_t mpu9250_interrupt_read_and_clear(mpu9250_t *dev);
  * @note results are in radians / s.
  */
 void mpu9250_gyro_read(mpu9250_t *dev, float *x, float *y, float *z);
+
+/** Reads values from the magnetometer.
+ *
+ * @todo Convert the values.
+ */
+void mpu9250_mag_read(mpu9250_t *dev, float *x, float *y, float *z);
 
 /** Reads raw values from the accelerometer.
  *

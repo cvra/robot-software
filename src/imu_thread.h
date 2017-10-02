@@ -17,6 +17,11 @@ typedef struct {
         float y;
         float z;
     } acc; /**< Acceleration data in m/s/s. */
+    struct {
+        float x;
+        float y;
+        float z;
+    } mag; /**< Magnetometer data in uT */
 } imu_msg_t;
 
 typedef struct {

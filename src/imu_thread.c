@@ -34,6 +34,7 @@ static void imu_init_hardware(mpu9250_t *mpu)
     } while (!mpu9250_ping(mpu));
 
     mpu9250_configure(mpu);
+    mpu9250_enable_magnetometer(mpu);
 }
 
 static void imu_reader_thd(void *p)
@@ -86,6 +87,7 @@ static void imu_reader_thd(void *p)
 #endif
         mpu9250_gyro_read(&mpu, &msg.gyro.x, &msg.gyro.y, &msg.gyro.z);
         mpu9250_acc_read(&mpu, &msg.acc.x, &msg.acc.y, &msg.acc.z);
+        mpu9250_mag_read(&mpu, &msg.mag.x, &msg.mag.y, &msg.mag.z);
 
         msg.timestamp = ts;
 

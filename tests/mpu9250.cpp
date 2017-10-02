@@ -159,3 +159,41 @@ TEST(MPU9250Protocol, ReadTemperatureData)
     float temp = mpu9250_temp_read(&dev);
     DOUBLES_EQUAL(1000 / 333.87 + 21, temp, 0.01);
 }
+
+TEST(MPU9250Protocol, CanInitMagnetometer)
+{
+    // The magnetometer is on the external I2C bus of the MPU9250, therefore we
+    // configure it through the MPU.
+    // Fortunately it does not require much.
+    //
+    // We need to write the device address to I2C_SLV0_ADDR, then the register
+    // number to I2C_SLV0_REG then the data to I2C_SLV0_DO
+    expect_read(106, 3); // check that we are only altering the content of user ctrl
+    expect_write(106, (1 << 5) + 3); // magnetometer addr.
+
+    expect_write(37, 0x0c); // magnetometer addr.
+    expect_write(38, 0x0a); // control register
+    expect_write(99, 0x06); // enable continous mode 2 (100 hz)
+
+    expect_write(37, 0x0c + (1 << 7)); // magnetometer addr (read bit set)
+    expect_write(38, 0x03); // data register
+    expect_write(39, (1 << 7) + 0x6); // read 6 bytes and store them
+
+    expect_write(36, 0x40); // delay data ready interrupt until sensor was read
+
+    mpu9250_enable_magnetometer(&dev);
+}
+
+TEST(MPU9250Protocol, ReadMagnetometer)
+{
+    for (int i = 0; i < 6; i++) {
+        expect_read(73 + i, i);
+    }
+
+    int16_t x,y,z;
+    mpu9250_mag_read(&dev, &x, &y, &z);
+
+    CHECK_EQUAL(0x0001, x);
+    CHECK_EQUAL(0x0203, y);
+    CHECK_EQUAL(0x0405, z);
+}

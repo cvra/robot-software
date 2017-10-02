@@ -104,6 +104,7 @@ static void cmd_imu(BaseSequentialStream *chp, int argc, char **argv)
     chprintf(chp, "timestamp: %.3f s\r\n", msg.timestamp * 1e-6);
     chprintf(chp, "acc [m/s^2] :\t%.2f %.2f %.2f\r\n", msg.acc.x, msg.acc.y, msg.acc.z);
     chprintf(chp, "gyro [deg/s]:\t%.2f %.2f %.2f\r\n", msg.gyro.x, msg.gyro.y, msg.gyro.z);
+    chprintf(chp, "mag [uT] :\t%.2f %.2f %.2f\r\n", msg.mag.x, msg.mag.y, msg.mag.z);
 }
 
 
