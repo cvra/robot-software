@@ -1,4 +1,7 @@
+#include <math.h>
 #include <ch.h>
+#include <hal.h>
+
 #include "main.h"
 #include "MadgwickAHRS.h"
 #include "ahrs_thread.h"
@@ -57,4 +60,37 @@ void ahrs_start(void)
     static THD_WORKING_AREA(ahrs_thd_wa, 2048);
     chThdCreateStatic(ahrs_thd_wa, sizeof(ahrs_thd_wa),
                       NORMALPRIO, ahrs_thd, NULL);
+}
+
+void ahrs_calibrate_gyro(void)
+{
+    const int N = 1000;
+    messagebus_topic_t *topic;
+    parameter_t *gain;
+    float x_avg=0, y_avg=0, z_avg=0;
+    float new_beta;
+
+
+    topic = messagebus_find_topic_blocking(&bus, "/imu");
+
+    palSetPad(GPIOB, GPIOB_LED_ERROR);
+    for (int i = 0; i < N; i++) {
+        imu_msg_t msg;
+        messagebus_topic_wait(topic, &msg, sizeof(msg));
+
+        x_avg += msg.gyro.x / N;
+        y_avg += msg.gyro.y / N;
+        z_avg += msg.gyro.z / N;
+
+        // Blink the LED during calibration
+        if (i % 50 == 0) {
+            palTogglePad(GPIOB, GPIOB_LED_ERROR);
+        }
+    }
+    palClearPad(GPIOB, GPIOB_LED_ERROR);
+
+    new_beta = sqrtf(3/4.f) * (x_avg + y_avg + z_avg) / 3.f;
+
+    gain = parameter_find(&parameter_root, "/ahrs/beta");
+    parameter_scalar_set(gain, new_beta);
 }

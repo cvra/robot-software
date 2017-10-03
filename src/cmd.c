@@ -7,9 +7,10 @@
 
 #include "main.h"
 #include "imu_thread.h"
+#include "ahrs_thread.h"
 
-#define TEST_WA_SIZE        THD_WORKING_AREA_SIZE(256)
-#define SHELL_WA_SIZE       THD_WORKING_AREA_SIZE(2048)
+#define TEST_WA_SIZE  THD_WORKING_AREA_SIZE(256)
+#define SHELL_WA_SIZE THD_WORKING_AREA_SIZE(2048)
 
 static void cmd_reboot(BaseSequentialStream *chp, int argc, char **argv)
 {
@@ -130,6 +131,19 @@ static void cmd_temp(BaseSequentialStream *chp, int argc, char **argv)
 
     chprintf(chp, "timestamp: %.3f s\r\n", msg.timestamp * 1e-6);
     chprintf(chp, "IMU temperature: %d\r\n", (int)msg.temperature);
+}
+
+static void cmd_ahrs(BaseSequentialStream *chp, int argc, char **argv)
+{
+    if (argc < 1) {
+        chprintf(chp, "usage: ahrs cal\r\n");
+        return;
+    }
+
+    if (!strcmp(argv[0], "cal")) {
+        chprintf(chp, "calibrating gyro, do not move the board...\r\n");
+        ahrs_calibrate_gyro();
+    }
 }
 
 static void tree_indent(BaseSequentialStream *out, int indent)
@@ -263,11 +277,13 @@ static void cmd_config_set(BaseSequentialStream *chp, int argc, char **argv)
     }
 }
 
+
 static ShellConfig shell_cfg;
 const ShellCommand shell_commands[] = {
     {"reboot", cmd_reboot},
     {"topics", cmd_topics},
     {"imu", cmd_imu},
+    {"ahrs", cmd_ahrs},
     {"temp", cmd_temp},
     {"config_tree", cmd_config_tree},
     {"config_set", cmd_config_set},

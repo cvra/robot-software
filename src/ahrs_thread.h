@@ -11,6 +11,8 @@ typedef struct {
 
 void ahrs_start(void);
 
+void ahrs_calibrate_gyro(void);
+
 #ifdef __cplusplus
 }
 #endif

@@ -5,6 +5,7 @@
 
 static const char *exposed_parameters[] = {
     "/publish_sensor/imu",
+    "/ahrs/beta",
 };
 
 static const size_t exposed_parameters_len = sizeof(exposed_parameters) /
