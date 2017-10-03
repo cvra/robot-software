@@ -6,7 +6,12 @@ extern "C" {
 #endif
 
 typedef struct {
-    float q[4]; /**< orientation quaternion */
+    struct {
+        float w;
+        float x;
+        float y;
+        float z;
+    } q; /**< orientation quaternion */
 } attitude_msg_t;
 
 void ahrs_start(void);

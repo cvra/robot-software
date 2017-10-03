@@ -47,9 +47,14 @@ static void ahrs_thd(void *p)
                                imu.acc.x, imu.acc.y, imu.acc.z,
                                imu.mag.x, imu.mag.y, imu.mag.z);
 
+        float q[4];
         attitude_msg_t msg;
 
-        madgwick_filter_get_quaternion(&msg.q[0]);
+        madgwick_filter_get_quaternion(q);
+        msg.q.w = q[0];
+        msg.q.x = q[1];
+        msg.q.y = q[2];
+        msg.q.z = q[3];
 
         messagebus_topic_publish(&attitude_topic, &msg, sizeof(msg));
     }
