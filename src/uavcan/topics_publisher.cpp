@@ -3,17 +3,22 @@
 #include "main.h"
 #include "uavcan/topics_publisher.hpp"
 #include "imu_thread.h"
+#include "ahrs_thread.h"
 
 #include <uavcan/equipment/ahrs/RawIMU.hpp>
+#include <uavcan/equipment/ahrs/Solution.hpp>
 
-#define WATCHED_TOPIC_CNT 1
+#define WATCHED_TOPIC_CNT 2
 
 uavcan::LazyConstructor<uavcan::Publisher<uavcan::equipment::ahrs::RawIMU> > raw_imu_pub;
+uavcan::LazyConstructor<uavcan::Publisher<uavcan::equipment::ahrs::Solution> > attitude_pub;
 
 static BSEMAPHORE_DECL(imu_topic_signaled, true);
+static BSEMAPHORE_DECL(attitude_topic_signaled, true);
 
 static parameter_t publish_imu;
-static parameter_namespace_t publish_sensor_ns;
+static parameter_t publish_attitude;
+static parameter_namespace_t publish_ns;
 
 
 static void topics_watcher(void *p)
@@ -30,21 +35,27 @@ static void topics_watcher(void *p)
         messagebus_watchgroup_t group;
     } watchgroup;
 
-    static messagebus_topic_t *imu_topic;
-
+    static messagebus_topic_t *imu_topic, *attitude_topic;
 
     /* Create a watchgroup. */
     chMtxObjectInit(&watchgroup.lock);
     chCondObjectInit(&watchgroup.cv);
-    messagebus_watchgroup_init(&watchgroup.group, &watchgroup.cv, &watchgroup.lock);
+
+    messagebus_watchgroup_init(&watchgroup.group, &watchgroup.lock, &watchgroup.cv);
 
     /* Adds all the topics to the watchers. */
     /* TODO: If a topic is missing, the thread will hang forever.
      * Maybe it would be better to check in the loop if the topic exists. */
     imu_topic = messagebus_find_topic_blocking(&bus, "/imu");
+
     messagebus_watchgroup_watch(&watchers[0],
                                 &watchgroup.group,
                                 imu_topic);
+
+    attitude_topic = messagebus_find_topic_blocking(&bus, "/attitude");
+    messagebus_watchgroup_watch(&watchers[1],
+                                &watchgroup.group,
+                                attitude_topic);
 
     while (1) {
         /* Wait for a topic publication. */
@@ -53,7 +64,7 @@ static void topics_watcher(void *p)
 
         if (topic == imu_topic && parameter_boolean_get(&publish_imu)) {
             chBSemSignal(&imu_topic_signaled);
-        } else if (topic == attitude_topic && parameter_boolean_get(&publish_imu)) {
+        } else if (topic == attitude_topic && parameter_boolean_get(&publish_attitude)) {
             chBSemSignal(&attitude_topic_signaled);
         }
     }
@@ -61,11 +72,18 @@ static void topics_watcher(void *p)
 
 void topics_publisher_start(Node &node)
 {
-    parameter_namespace_declare(&publish_sensor_ns, &parameter_root, "publish_sensor");
-    parameter_boolean_declare_with_default(&publish_imu, &publish_sensor_ns, "imu", false);
+    parameter_namespace_declare(&publish_ns, &parameter_root, "publish");
+    parameter_boolean_declare_with_default(&publish_imu, &publish_ns, "imu", false);
+    parameter_boolean_declare_with_default(&publish_attitude, &publish_ns, "attitude", false);
 
     raw_imu_pub.construct<Node &>(node);
     int res = raw_imu_pub->init();
+    if (res < 0) {
+        chSysHalt("bad res");
+    }
+
+    attitude_pub.construct<Node &>(node);
+    res = attitude_pub->init();
     if (res < 0) {
         chSysHalt("bad res");
     }
@@ -99,5 +117,21 @@ void topics_publisher_spin(Node &node)
         msg.accelerometer_latest[2] = imu_data.acc.z;
 
         raw_imu_pub->broadcast(msg);
+    }
+
+    if (chBSemWaitTimeout(&attitude_topic_signaled, TIME_IMMEDIATE) == MSG_OK) {
+        messagebus_topic_t *topic;
+        attitude_msg_t attitude;
+
+        topic = messagebus_find_topic(&bus, "/attitude");
+        messagebus_topic_read(topic, &attitude, sizeof(attitude));
+
+        uavcan::equipment::ahrs::Solution msg;
+        msg.timestamp.usec = attitude.timestamp;
+        msg.orientation_xyzw[0] = attitude.q.x;
+        msg.orientation_xyzw[1] = attitude.q.y;
+        msg.orientation_xyzw[2] = attitude.q.z;
+        msg.orientation_xyzw[3] = attitude.q.w;
+        attitude_pub->broadcast(msg);
     }
 }

@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 typedef struct {
+    uint32_t timestamp; /**< Timestamp in us since boot. */
     struct {
         float w;
         float x;

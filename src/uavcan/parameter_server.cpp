@@ -4,7 +4,8 @@
 #include "parameter_server.hpp"
 
 static const char *exposed_parameters[] = {
-    "/publish_sensor/imu",
+    "/publish/imu",
+    "/publish/attitude",
     "/ahrs/beta",
 };
 

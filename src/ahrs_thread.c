@@ -56,6 +56,8 @@ static void ahrs_thd(void *p)
         msg.q.y = q[2];
         msg.q.z = q[3];
 
+        msg.timestamp = imu.timestamp;
+
         messagebus_topic_publish(&attitude_topic, &msg, sizeof(msg));
     }
 }
