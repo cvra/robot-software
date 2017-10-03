@@ -20,12 +20,14 @@ target.arm:
   - src/can-bootloader/config.c
   - src/exti.c
   - src/imu_thread.c
+  - src/ahrs_thread.c
   - src/uavcan/uavcan_node.cpp
   - src/uavcan/imu_publisher.cpp
   - src/uavcan/parameter_server.cpp
 
 source:
   - src/mpu9250.c
+  - src/MadgwickAHRS.c
 
 tests:
   - tests/mpu9250.cpp

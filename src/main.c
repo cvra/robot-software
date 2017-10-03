@@ -8,6 +8,7 @@
 #include "bootloader_config.h"
 #include "exti.h"
 #include "imu_thread.h"
+#include "ahrs_thread.h"
 #include "uavcan/uavcan_node.h"
 
 messagebus_t bus;
@@ -48,6 +49,7 @@ int main(void)
     blink_start();
     exti_start();
     imu_start();
+    ahrs_start();
     uavcan_node_start(boot_config.ID, boot_config.board_name);
 
     while(true) {
