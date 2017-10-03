@@ -4,11 +4,18 @@
 #include "ahrs_thread.h"
 #include "imu_thread.h"
 
+static struct {
+    parameter_t beta;
+    parameter_namespace_t ns;
+} ahrs_params;
 
 static void ahrs_thd(void *p)
 {
     (void) p;
     chRegSetThreadName("AHRS");
+
+    parameter_namespace_declare(&ahrs_params.ns, &parameter_root, "ahrs");
+    parameter_scalar_declare_with_default(&ahrs_params.beta, &ahrs_params.ns, "beta", 0.1);
 
     messagebus_topic_t *imu_topic;
 
@@ -26,6 +33,10 @@ static void ahrs_thd(void *p)
     messagebus_advertise_topic(&bus, &attitude_topic, "/attitude");
 
     while (1) {
+        if (parameter_changed(&ahrs_params.beta)) {
+            madgwick_filter_set_gain(parameter_scalar_get(&ahrs_params.beta));
+        }
+
         imu_msg_t imu;
         messagebus_topic_wait(imu_topic, &imu, sizeof(imu));
 
