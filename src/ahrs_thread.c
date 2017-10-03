@@ -7,6 +7,7 @@
 
 static void ahrs_thd(void *p)
 {
+    (void) p;
     chRegSetThreadName("AHRS");
 
     messagebus_topic_t *imu_topic;
@@ -28,15 +29,13 @@ static void ahrs_thd(void *p)
         imu_msg_t imu;
         messagebus_topic_wait(imu_topic, &imu, sizeof(imu));
 
-        MadgwickAHRSupdate(imu.gyro.x, imu.gyro.y, imu.gyro.z,
-                           imu.acc.x, imu.acc.y, imu.acc.z,
-                           imu.mag.x, imu.mag.y, imu.mag.z);
+        magdwick_filter_update(imu.gyro.x, imu.gyro.y, imu.gyro.z,
+                               imu.acc.x, imu.acc.y, imu.acc.z,
+                               imu.mag.x, imu.mag.y, imu.mag.z);
 
         attitude_msg_t msg;
-        msg.q[0] = q0;
-        msg.q[1] = q1;
-        msg.q[2] = q2;
-        msg.q[3] = q3;
+
+        madgwick_filter_get_quaternion(&msg.q[0]);
 
         messagebus_topic_publish(&attitude_topic, &msg, sizeof(msg));
     }

@@ -12,44 +12,39 @@
 //
 // =====================================================================================================
 
-// ---------------------------------------------------------------------------------------------------
-// Header files
-
 #include "MadgwickAHRS.h"
 #include <math.h>
-
-// ---------------------------------------------------------------------------------------------------
-// Definitions
 
 #define sampleFreq 250.0f       // sample frequency in Hz
 #define betaDef    0.1f         // 2 * proportional gain
 
-// ---------------------------------------------------------------------------------------------------
-// Variable definitions
+float beta = betaDef;                              // 2 * proportional gain (Kp)
+float q0 = 1.0f, q1 = 0.0f, q2 = 0.0f, q3 = 0.0f;  // quaternion of sensor frame relative to auxiliary frame
 
-volatile float beta = betaDef;                              // 2 * proportional gain (Kp)
-volatile float q0 = 1.0f, q1 = 0.0f, q2 = 0.0f, q3 = 0.0f;  // quaternion of sensor frame relative to auxiliary frame
-
-// ---------------------------------------------------------------------------------------------------
-// Function declarations
+void madgwick_filter_get_quaternion(float out[4])
+{
+    out[0] = q0;
+    out[1] = q1;
+    out[2] = q2;
+    out[3] = q3;
+}
 
 float invSqrt(float x);
 
-// ====================================================================================================
-// Functions
+void madgwick_filter_set_gain(float b)
+{
+    beta = b;
+}
 
-// ---------------------------------------------------------------------------------------------------
-// AHRS algorithm update
-
-void MadgwickAHRSupdate(float gx,
-                        float gy,
-                        float gz,
-                        float ax,
-                        float ay,
-                        float az,
-                        float mx,
-                        float my,
-                        float mz)
+void magdwick_filter_update(float gx,
+                            float gy,
+                            float gz,
+                            float ax,
+                            float ay,
+                            float az,
+                            float mx,
+                            float my,
+                            float mz)
 {
     float recipNorm;
     float s0, s1, s2, s3;
@@ -60,7 +55,7 @@ void MadgwickAHRSupdate(float gx,
 
     // Use IMU algorithm if magnetometer measurement invalid (avoids NaN in magnetometer normalisation)
     if ((mx == 0.0f) && (my == 0.0f) && (mz == 0.0f)) {
-        MadgwickAHRSupdateIMU(gx, gy, gz, ax, ay, az);
+        magdwick_filter_updateIMU(gx, gy, gz, ax, ay, az);
         return;
     }
 
@@ -165,10 +160,7 @@ void MadgwickAHRSupdate(float gx,
     q3 *= recipNorm;
 }
 
-// ---------------------------------------------------------------------------------------------------
-// IMU algorithm update
-
-void MadgwickAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, float az)
+void magdwick_filter_updateIMU(float gx, float gy, float gz, float ax, float ay, float az)
 {
     float recipNorm;
     float s0, s1, s2, s3;
@@ -239,12 +231,14 @@ void MadgwickAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, flo
     q3 *= recipNorm;
 }
 
-// ---------------------------------------------------------------------------------------------------
 // Fast inverse square-root
 // See: http://en.wikipedia.org/wiki/Fast_inverse_square_root
 
 float invSqrt(float x)
 {
+#if 0
+    float y;
+    // On ARM, compile the fast root algorithm
     float halfx = 0.5f * x;
     float y = x;
     long i = *(long*)&y;
@@ -252,8 +246,9 @@ float invSqrt(float x)
     y = *(float*)&i;
     y = y * (1.5f - (halfx * y * y));
     return y;
+#else
+    /* On other platforms we dont know anything about floating point, so better
+     * use safe methods. */
+    return 1 / sqrtf(x);
+#endif
 }
-
-// ====================================================================================================
-// END OF CODE
-// ====================================================================================================

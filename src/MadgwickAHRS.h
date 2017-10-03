@@ -13,27 +13,19 @@
 #ifndef MadgwickAHRS_h
 #define MadgwickAHRS_h
 
-// ----------------------------------------------------------------------------------------------------
-// Variable declaration
+void madgwick_filter_set_gain(float beta);
 
-extern volatile float beta;             // algorithm gain
-extern volatile float q0, q1, q2, q3;   // quaternion of sensor frame relative to auxiliary frame
+void madgwick_filter_get_quaternion(float out[4]);
 
-// ---------------------------------------------------------------------------------------------------
-// Function declarations
-
-void MadgwickAHRSupdate(float gx,
-                        float gy,
-                        float gz,
-                        float ax,
-                        float ay,
-                        float az,
-                        float mx,
-                        float my,
-                        float mz);
-void MadgwickAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, float az);
+void magdwick_filter_update(float gx,
+                            float gy,
+                            float gz,
+                            float ax,
+                            float ay,
+                            float az,
+                            float mx,
+                            float my,
+                            float mz);
+void magdwick_filter_updateIMU(float gx, float gy, float gz, float ax, float ay, float az);
 
 #endif
-// =====================================================================================================
-// End of file
-// =====================================================================================================
