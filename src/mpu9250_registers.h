@@ -125,7 +125,6 @@
 #define MPU9250_REG_USER_CTRL_FIFO_EN        (1 << 6)
 #define MPU9250_REG_USER_CTRL_FIFO_RST       (1 << 2)
 #define MPU9250_REG_USER_CTRL_I2C_MST_EN     (1 << 5)
-#define MPU9250_REG_USER_CTRL_I2C_MST_EN     (1 << 5)
 #define MPU9250_REG_USER_CTRL_I2C_IF_DIS     (1 << 4)
 
 /* Address of the AK8963 accelerometer built in the device. */

@@ -169,31 +169,44 @@ TEST(MPU9250Protocol, CanInitMagnetometer)
     // We need to write the device address to I2C_SLV0_ADDR, then the register
     // number to I2C_SLV0_REG then the data to I2C_SLV0_DO
     expect_read(106, 3); // check that we are only altering the content of user ctrl
-    expect_write(106, (1 << 5) + 3); // magnetometer addr.
+    expect_write(106, (1 << 5) + (1 << 4) + 3); // mst_en and if_dis are set
+
+    expect_write(36, 0x50); // delay data ready interrupt until sensor was read
 
     expect_write(37, 0x0c); // magnetometer addr.
-    expect_write(38, 0x0a); // control register
-    expect_write(99, 0x06); // enable continous mode 2 (100 hz)
+    expect_write(38, 0x0b); // control register 2
+    expect_write(99, 0x01); // reset
+    expect_write(39, 0x81); // write 1 byte
+
+    expect_write(37, 0x0c); // magnetometer addr.
+    expect_write(38, 0x0a); // control register 1
+    expect_write(99, 0x16); // enable continous mode 2 (100 hz), 16 bit
+    expect_write(39, 0x81); // write 1 byte
 
     expect_write(37, 0x0c + (1 << 7)); // magnetometer addr (read bit set)
     expect_write(38, 0x03); // data register
-    expect_write(39, (1 << 7) + 0x6); // read 6 bytes and store them
 
-    expect_write(36, 0x40); // delay data ready interrupt until sensor was read
+    // read 7 bytes and store them. we read 7 bytes because the magnetometer
+    // requires us to read the status byte between each measurement
+    expect_write(39, (1 << 7) + 0x7);
+
+    mock("ch").ignoreOtherCalls();
+
 
     mpu9250_enable_magnetometer(&dev);
 }
 
 TEST(MPU9250Protocol, ReadMagnetometer)
 {
+    float sensitivity = (4912.0f / 32760);
     for (int i = 0; i < 6; i++) {
         expect_read(73 + i, i);
     }
 
-    int16_t x,y,z;
+    float x,y,z;
     mpu9250_mag_read(&dev, &x, &y, &z);
 
-    CHECK_EQUAL(0x0001, x);
-    CHECK_EQUAL(0x0203, y);
-    CHECK_EQUAL(0x0405, z);
+    DOUBLES_EQUAL(0x0001 * sensitivity, x, 0.1);
+    DOUBLES_EQUAL(0x0203 * sensitivity, y, 0.1);
+    DOUBLES_EQUAL(0x0405 * sensitivity, z, 0.1);
 }

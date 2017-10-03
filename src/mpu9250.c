@@ -1,7 +1,7 @@
 #include "mpu9250.h"
 #include "mpu9250_registers.h"
 #include <math.h>
-#include <ch.h>
+#include <hal.h>
 
 /* FS_SEL = 1 (max 500 deg / s) */
 #define MPU9250_GYRO_SENSITIVITY (M_PI / (180 * 65.5))
@@ -76,20 +76,7 @@ void mpu9250_enable_magnetometer(mpu9250_t *dev)
     /* Delay data ready interrupt until data came from the magnetometer. */
     mpu9250_reg_write(dev, MPU9250_REG_I2C_MST_CTRL, (1 << 6) | (1 << 4));
 
-#if 0
-    mpu9250_reg_write(dev, MPU9250_REG_I2C_SLV0_ADDR, AK8963_I2C_ADDR | (1 << 7));
-    mpu9250_reg_write(dev, MPU9250_REG_I2C_SLV0_REG, AK8963_REG_WHOAMI);
-    mpu9250_reg_write(dev, MPU9250_REG_I2C_SLV0_CTRL, 0x81);
-    chThdSleep(1000);
-    uint8_t val = mpu9250_reg_read(dev, MPU9250_REG_EXT_SENS_DATA_00);
-
-    if (val != 0x48) {
-        chSysHalt("foo");
-    }
-
-#else
     /* Enable continous mode @ 100 Hz. */
-
     mpu9250_reg_write(dev, MPU9250_REG_I2C_SLV0_ADDR, AK8963_I2C_ADDR);
     mpu9250_reg_write(dev, MPU9250_REG_I2C_SLV0_REG, AK8963_REG_CNTL2);
     mpu9250_reg_write(dev, MPU9250_REG_I2C_SLV0_DO, 0x01);
@@ -98,20 +85,11 @@ void mpu9250_enable_magnetometer(mpu9250_t *dev)
     chThdSleepMilliseconds(100);
 
     mpu9250_reg_write(dev, MPU9250_REG_I2C_SLV0_ADDR, AK8963_I2C_ADDR);
-    mpu9250_reg_write(dev, MPU9250_REG_I2C_SLV0_REG, 0xc);
-    mpu9250_reg_write(dev, MPU9250_REG_I2C_SLV0_DO, (1 << 6));
-    mpu9250_reg_write(dev, MPU9250_REG_I2C_SLV0_CTRL, 0x81);
-
-
-    chThdSleepMilliseconds(100);
-
-    mpu9250_reg_write(dev, MPU9250_REG_I2C_SLV0_ADDR, AK8963_I2C_ADDR);
     mpu9250_reg_write(dev, MPU9250_REG_I2C_SLV0_REG, AK8963_REG_CNTL1);
     mpu9250_reg_write(dev, MPU9250_REG_I2C_SLV0_DO, 0x16);
     mpu9250_reg_write(dev, MPU9250_REG_I2C_SLV0_CTRL, 0x81);
 
-    // TODO cleanup those delays
-    chThdSleepMilliseconds(1000);
+    chThdSleepMilliseconds(100);
 
     /* Sets the address with the read bit set. */
     mpu9250_reg_write(dev, MPU9250_REG_I2C_SLV0_ADDR, AK8963_I2C_ADDR | (1 << 7));
@@ -119,7 +97,6 @@ void mpu9250_enable_magnetometer(mpu9250_t *dev)
     /* Read 6 bytes from the magnetometer starting from the HXL register and store them. */
     mpu9250_reg_write(dev, MPU9250_REG_I2C_SLV0_REG, AK8963_REG_HXL);
     mpu9250_reg_write(dev, MPU9250_REG_I2C_SLV0_CTRL, (1 << 7) + 0x7);
-#endif
 }
 
 uint8_t mpu9250_interrupt_read_and_clear(mpu9250_t *dev)
