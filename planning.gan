@@ -75,7 +75,7 @@ Buts:
             <notes><![CDATA[Cette partie est purement théorique. Le but est de dériver les expressions mathématiques du (ou des) state estimator que je pense utiliser pour le robot.]]></notes>
             <depend id="15" type="2" difference="0" hardness="Strong"/>
         </task>
-        <task id="15" name="Simulation algorithme choisi" color="#8cb6ce" meeting="false" start="2017-10-24" duration="15" complete="25" expand="true">
+        <task id="15" name="Simulation algorithme choisi" color="#8cb6ce" meeting="false" start="2017-10-24" duration="15" complete="50" expand="true">
             <notes><![CDATA[* Implémentation de l'algorithme choisi en Python
 * Simulation sur des trajectoires générées
 * Comparaison de l'effet des différentes sources de bruit
@@ -86,7 +86,9 @@ Eventuellement, si plusieurs estimateurs ont été implémentés, comparaison en
         <task id="77" name="Test DMP" color="#8cb6ce" meeting="false" start="2017-09-28" duration="3" complete="20" expand="true">
             <notes><![CDATA[Test du motion processor intégré au MPU9250.
 
-Particuliérement intéressé par le mode "Quaternion 9 axis"]]></notes>
+Particuliérement intéressé par le mode "Quaternion 9 axis"
+
+-> Conclusion: C'est pas aussi bien que prévu]]></notes>
             <depend id="15" type="2" difference="0" hardness="Strong"/>
         </task>
         <task id="7" name="Driver IMU" color="#8cb6ce" meeting="false" start="2017-09-19" duration="5" complete="100" expand="true">
@@ -121,7 +123,7 @@ Decawave fournit une explication sur leur 4-way ranging protocol, peut être que
         <task id="76" name="Param storage" color="#8cb6ce" meeting="false" start="2017-11-03" duration="1" complete="0" expand="true">
             <depend id="32" type="2" difference="0" hardness="Strong"/>
         </task>
-        <task id="32" name="Collecte data" color="#8cb6ce" meeting="false" start="2017-11-06" duration="5" complete="0" expand="true">
+        <task id="32" name="Collecte data" color="#8cb6ce" meeting="false" start="2017-11-06" duration="5" complete="10" expand="true">
             <notes><![CDATA[Le but de cette étape est de collecter des données sur une trajectoire réelle. Pendant ce temps les infos suivantes sont enregistrées sur un ordinateur:
 
 * Output IMU
