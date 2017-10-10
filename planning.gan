@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?><project name="Development of an ultra-wide band indoor positioning system" company="LSRO" webLink="http://" view-date="2017-09-10" view-index="0" gantt-divider-location="352" resource-divider-location="300" version="2.8.5" locale="en_US">
+<?xml version="1.0" encoding="UTF-8"?><project name="Development of an ultra-wide band indoor positioning system" company="LSRO" webLink="http://" view-date="2017-09-01" view-index="0" gantt-divider-location="352" resource-divider-location="300" version="2.8.5" locale="en_US">
     <description/>
-    <view zooming-state="default:7" id="gantt-chart">
+    <view zooming-state="default:9" id="gantt-chart">
         <field id="tpd3" name="Name" width="183" order="0"/>
         <field id="tpd4" name="Begin date" width="82" order="1"/>
         <field id="tpd5" name="End date" width="81" order="2"/>
-        <timeline><![CDATA[0]]></timeline>
+        <timeline><![CDATA[78,0]]></timeline>
     </view>
     <view id="resource-table">
         <field id="0" name="Name" width="209" order="0"/>
@@ -71,11 +71,11 @@ Buts:
 * Est-ce que le magnétomètre est intéressant ?]]></notes>
             <depend id="20" type="2" difference="0" hardness="Strong"/>
         </task>
-        <task id="20" name="Design algorithme" color="#8cb6ce" meeting="false" start="2017-10-10" duration="10" complete="25" expand="true">
+        <task id="20" name="Design algorithme" color="#8cb6ce" meeting="false" start="2017-10-10" duration="4" complete="100" expand="true">
             <notes><![CDATA[Cette partie est purement théorique. Le but est de dériver les expressions mathématiques du (ou des) state estimator que je pense utiliser pour le robot.]]></notes>
             <depend id="15" type="2" difference="0" hardness="Strong"/>
         </task>
-        <task id="15" name="Simulation algorithme choisi" color="#8cb6ce" meeting="false" start="2017-10-24" duration="15" complete="50" expand="true">
+        <task id="15" name="Simulation algorithme choisi" color="#8cb6ce" meeting="false" start="2017-10-16" duration="8" complete="75" expand="true">
             <notes><![CDATA[* Implémentation de l'algorithme choisi en Python
 * Simulation sur des trajectoires générées
 * Comparaison de l'effet des différentes sources de bruit
@@ -108,22 +108,22 @@ Pour gagner du temps, je vais réutiliser des outils avec les quels je travaille
 * Un dongle CAN-USB pour interfacer l'ensemble des cartes à mon ordinateur.]]></notes>
             <depend id="32" type="2" difference="0" hardness="Strong"/>
         </task>
-        <task id="25" name="Driver DWM1000" color="#8cb6ce" meeting="false" start="2017-10-02" duration="5" complete="0" expand="true">
+        <task id="25" name="Driver DWM1000" color="#8cb6ce" meeting="false" start="2017-10-02" duration="5" complete="30" expand="true">
             <notes><![CDATA[Buts de cette étape:
 
 * Driver suffisant pour envoyer / recevoir des paquets avec gestion des timestamps (nécessaire pour le ranging protocol).]]></notes>
             <depend id="27" type="2" difference="0" hardness="Strong"/>
         </task>
-        <task id="27" name="Ranging protocol" color="#8cb6ce" meeting="false" start="2017-10-09" duration="20" complete="0" expand="true">
+        <task id="76" name="Param storage" color="#8cb6ce" meeting="false" start="2017-10-20" duration="1" complete="0" expand="true">
+            <depend id="32" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="27" name="Ranging protocol" color="#8cb6ce" meeting="false" start="2017-10-09" duration="10" complete="0" expand="true">
             <notes><![CDATA[Implémentation du ranging protocol, c'est à dire la séquence d'information échangée entre une balise fixe et le système embarqué sur le robot pour connaitre la position de la balise et la distance à celle ci.
 
 Decawave fournit une explication sur leur 4-way ranging protocol, peut être que des adaptations seront nécessaires, à voir.]]></notes>
             <depend id="32" type="2" difference="0" hardness="Strong"/>
         </task>
-        <task id="76" name="Param storage" color="#8cb6ce" meeting="false" start="2017-11-03" duration="1" complete="0" expand="true">
-            <depend id="32" type="2" difference="0" hardness="Strong"/>
-        </task>
-        <task id="32" name="Collecte data" color="#8cb6ce" meeting="false" start="2017-11-06" duration="5" complete="10" expand="true">
+        <task id="32" name="Collecte data" color="#8cb6ce" meeting="false" start="2017-10-23" duration="5" complete="10" expand="true">
             <notes><![CDATA[Le but de cette étape est de collecter des données sur une trajectoire réelle. Pendant ce temps les infos suivantes sont enregistrées sur un ordinateur:
 
 * Output IMU
@@ -132,26 +132,31 @@ Decawave fournit une explication sur leur 4-way ranging protocol, peut être que
 Le but est ensuite de pouvoir tester l'algorithme de positionnement sur des datasets réels au lieu de simulés.]]></notes>
             <depend id="51" type="2" difference="0" hardness="Strong"/>
         </task>
-        <task id="51" name="Test algos sur vrai data" color="#8cb6ce" meeting="false" start="2017-11-14" duration="5" complete="0" expand="true">
+        <task id="51" name="Test algos sur vrai data" color="#8cb6ce" meeting="false" start="2017-10-30" duration="5" complete="0" expand="true">
             <notes><![CDATA[Le but de cette étape est de charger les données obtenues dans les algorithmes utilisés en simulation pour observer les performances de l'estimateur dans des conditions réelles.
 
 Une analyse de la précision du système pourra déjà être faite à ce moment là.	]]></notes>
             <depend id="52" type="2" difference="0" hardness="Strong"/>
         </task>
-        <task id="52" name="Port algorithmes" color="#8cb6ce" meeting="false" start="2017-11-21" duration="15" complete="0" expand="true">
+        <task id="52" name="Port algorithmes" color="#8cb6ce" meeting="false" start="2017-11-06" duration="5" complete="0" expand="true">
             <notes><![CDATA[Pendant cette tâche, le code développé en Python et simulé sera porté en C / C++, et comparé au code simulé. Dans ce but, il sera capable de fonctionner aussi bien sur le PC hôte que sur le STM32.
 
 A la fin de cette tâche, les deux algorithmes (en Python et en C) doivent donner les mêmes résultats.]]></notes>
             <depend id="72" type="2" difference="0" hardness="Strong"/>
         </task>
-        <task id="72" name="Tests" color="#8cb6ce" meeting="false" start="2017-12-12" duration="5" complete="0" expand="true">
+        <task id="72" name="Tests" color="#8cb6ce" meeting="false" start="2017-11-13" duration="5" complete="0" expand="true">
             <notes><![CDATA[Tests du système final et mesure des performances.
 Debug final.]]></notes>
+            <depend id="81" type="2" difference="0" hardness="Strong"/>
         </task>
-        <task id="65" name="Ecriture rapport" color="#8cb6ce" meeting="false" start="2018-01-08" duration="5" complete="0" expand="true">
+        <task id="78" name="Présentation intermédiaire" color="#8cb6ce" meeting="true" start="2017-11-15" duration="0" complete="0" expand="true"/>
+        <task id="81" name="Seconde itération algo" color="#8cb6ce" meeting="false" start="2017-11-20" duration="15" complete="0" expand="true">
+            <notes><![CDATA[Design et test de la seconde itération des algorithmes]]></notes>
+        </task>
+        <task id="65" name="Ecriture rapport" color="#8cb6ce" meeting="false" start="2017-12-18" duration="5" complete="0" expand="true">
             <depend id="0" type="2" difference="0" hardness="Strong"/>
         </task>
-        <task id="0" name="Rendu rapport" color="#8cb6ce" meeting="true" start="2018-01-15" duration="0" complete="0" expand="true"/>
+        <task id="0" name="Rendu rapport" color="#8cb6ce" meeting="true" start="2018-01-03" duration="0" complete="0" expand="true"/>
     </tasks>
     <resources/>
     <allocations/>
