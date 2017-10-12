@@ -29,9 +29,6 @@ void arms_controller_start(void);
 /* Index a whole bunch of motors simultaneously */
 void arms_auto_index(cvra_arm_motor_t** motors, float* motor_speeds, size_t num_motors);
 
-/* Index a whole bunch of motors simultaneously */
-void arms_wrist_auto_index(cvra_arm_wrist_t** wrists, float* heading_speeds, float* pitch_speeds, size_t num_wrists);
-
 #ifdef __cplusplus
 }
 #endif

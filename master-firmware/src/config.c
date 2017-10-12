@@ -48,8 +48,8 @@ static parameter_namespace_t arms_config, arms_right_config, arms_left_config, m
 static parameter_t upperarm_length, forearm_length, wrist_to_hand_length;
 static parameter_t left_offset_x, left_offset_y, left_offset_a;
 static parameter_t right_offset_x, right_offset_y, right_offset_a;
-static parameter_t left_z_offset, left_shoulder_offset, left_elbow_offset, left_wrist_heading_offset, left_wrist_pitch_offset;
-static parameter_t right_z_offset, right_shoulder_offset, right_elbow_offset, right_wrist_heading_offset, right_wrist_pitch_offset;
+static parameter_t left_z_offset, left_shoulder_offset, left_elbow_offset;
+static parameter_t right_z_offset, right_shoulder_offset, right_elbow_offset;
 
 static struct {
     parameter_namespace_t ns;
@@ -174,13 +174,9 @@ void config_init(void)
     parameter_scalar_declare(&left_z_offset, &motor_offsets_config, "left-z");
     parameter_scalar_declare(&left_shoulder_offset, &motor_offsets_config, "left-shoulder");
     parameter_scalar_declare(&left_elbow_offset, &motor_offsets_config, "left-elbow");
-    parameter_scalar_declare(&left_wrist_heading_offset, &motor_offsets_config, "left-wrist-heading");
-    parameter_scalar_declare(&left_wrist_pitch_offset, &motor_offsets_config, "left-wrist-pitch");
     parameter_scalar_declare(&right_z_offset, &motor_offsets_config, "right-z");
     parameter_scalar_declare(&right_shoulder_offset, &motor_offsets_config, "right-shoulder");
     parameter_scalar_declare(&right_elbow_offset, &motor_offsets_config, "right-elbow");
-    parameter_scalar_declare(&right_wrist_heading_offset, &motor_offsets_config, "right-wrist-heading");
-    parameter_scalar_declare(&right_wrist_pitch_offset, &motor_offsets_config, "right-wrist-pitch");
 
     parameter_namespace_declare(&left_arm.ns, &master_config, "left_arm");
     parameter_namespace_declare(&left_arm.control.ns, &left_arm.ns, "control");

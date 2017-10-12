@@ -276,21 +276,6 @@ struct IndexArms : public goap::Action<DebraState> {
         motors[2]->index += config_get_scalar("master/arms/motor_offsets/right-shoulder");
         motors[3]->index += config_get_scalar("master/arms/motor_offsets/right-elbow");
 
-        /* Wrist indexing */
-        cvra_arm_wrist_t* wrists[] = {
-            (cvra_arm_wrist_t *)left_arm.wrist_args,
-            (cvra_arm_wrist_t *)right_arm.wrist_args,
-        };
-        float heading_speeds[] = {3.0, -3.0};
-        float pitch_speeds[] = {-1.0, -1.0};
-        arms_wrist_auto_index(wrists, heading_speeds, pitch_speeds, sizeof(heading_speeds) / sizeof(float));
-
-        wrists[0]->heading_index += config_get_scalar("master/arms/motor_offsets/left-wrist-heading");
-        wrists[0]->pitch_index += config_get_scalar("master/arms/motor_offsets/left-wrist-pitch");
-
-        wrists[1]->heading_index += config_get_scalar("master/arms/motor_offsets/right-wrist-heading");
-        wrists[1]->pitch_index += config_get_scalar("master/arms/motor_offsets/right-wrist-pitch");
-
         state.arms_are_indexed = true;
         return true;
     }

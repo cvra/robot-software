@@ -108,13 +108,9 @@ master:
             left-z: -154. # in mm
             left-shoulder: 0. # in radians
             left-elbow: 0. # in radians
-            left-wrist-heading: 0. # in radians
-            left-wrist-pitch: 0. # in radians
             right-z: -154. # in mm
             right-shoulder: 0. # in radians
             right-elbow: 0. # in radians
-            right-wrist-heading: 0. # in radians
-            right-wrist-pitch: 0. # in radians
 
 actuator:
     left-wheel:
