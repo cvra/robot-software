@@ -17,13 +17,6 @@ notebooks:
   script:
     - cd doc/report
     - pip install -r requirements.txt
-    - jupyter nbconvert --to pdf --execute "models/Gyro integrating model.ipynb"
-    - jupyter nbconvert --to pdf --execute "models/Simple model.ipynb"
-    - jupyter nbconvert --to pdf --execute "experiments/Madgwick drift.ipynb"
-
-  artifacts:
-    expire_in: 1 week
-    paths:
-      - doc/report/models/*.pdf
-      - doc/report/experiments/*.pdf
-
+    - jupyter nbconvert --to notebook --execute "models/Gyro integrating model.ipynb"
+    - jupyter nbconvert --to notebook --execute "models/Simple model.ipynb"
+    - jupyter nbconvert --to notebook --execute "experiments/Madgwick drift.ipynb"
