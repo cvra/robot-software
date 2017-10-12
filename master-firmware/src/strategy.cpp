@@ -313,12 +313,12 @@ struct RetractArms : public goap::Action<DebraState> {
         scara_move_z(&right_arm, 120, COORDINATE_ROBOT, 0.5);
         strategy_wait_ms(1000);
 
-        scara_goto(&left_arm, -150, 120,  120, RADIANS(180), RADIANS(-90), COORDINATE_ROBOT, 1.);
-        scara_goto(&right_arm, -150, -120, 120, RADIANS(180), RADIANS(-90), COORDINATE_ROBOT, 1.);
+        scara_goto(&left_arm, -150, 120,  120, RADIANS(180), COORDINATE_ROBOT, 1.);
+        scara_goto(&right_arm, -150, -120, 120, RADIANS(180), COORDINATE_ROBOT, 1.);
         strategy_wait_ms(1000);
 
-        scara_goto(&left_arm, -150, 80,  120, RADIANS(180), RADIANS(-90), COORDINATE_ROBOT, 1.);
-        scara_goto(&right_arm, -150, -80, 120, RADIANS(180), RADIANS(-90), COORDINATE_ROBOT, 1.);
+        scara_goto(&left_arm, -150, 80,  120, RADIANS(180), COORDINATE_ROBOT, 1.);
+        scara_goto(&right_arm, -150, -80, 120, RADIANS(180), COORDINATE_ROBOT, 1.);
         strategy_wait_ms(1000);
 
         state.arms_are_deployed = false;
@@ -361,7 +361,7 @@ struct PushMultiColoredCylinder : public goap::Action<DebraState> {
 
         // Position arm
         int x=152, y = (m_color == YELLOW ? 190 : -190), z=120;
-        scara_goto(arm, x, y, z, RADIANS(0), RADIANS(0), COORDINATE_ROBOT, 2.);
+        scara_goto(arm, x, y, z, RADIANS(0), COORDINATE_ROBOT, 2.);
         strategy_wait_ms(2000);
 
         scara_move_z(arm, 150, COORDINATE_ROBOT, 1.);
@@ -421,7 +421,7 @@ struct CollectCylinder : public goap::Action<DebraState> {
         scara_move_z(arm, 120, COORDINATE_ROBOT, 0.5);
 
         // Prepare arm
-        scara_goto(arm, MIRROR_X(m_color, x_mm), y_mm - 110, 50, RADIANS(MIRROR_A(m_color, 90)), RADIANS(-90), COORDINATE_TABLE, 1.);
+        scara_goto(arm, MIRROR_X(m_color, x_mm), y_mm - 110, 50, RADIANS(MIRROR_A(m_color, 90)), COORDINATE_TABLE, 1.);
         strategy_wait_ms(2000);
 
         // Select tool
@@ -494,7 +494,7 @@ struct DepositCylinder : public goap::Action<DebraState> {
             scara_move_z(arm, z, COORDINATE_ROBOT, 1.);
             strategy_wait_ms(1000);
 
-            scara_goto_with_length(arm, x, y, z, RADIANS(a), RADIANS(0), COORDINATE_ROBOT, 4., 0);
+            scara_goto_with_length(arm, x, y, z, RADIANS(a), COORDINATE_ROBOT, 4., 0);
             strategy_wait_ms(4000);
 
             // Drop cylinder

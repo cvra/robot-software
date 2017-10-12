@@ -61,12 +61,10 @@ TEST(ArmSetTrajectory, SetsGivenPointInTrajectory)
     CHECK_EQUAL(100, arm.trajectory.frames[1].position[0]);
     CHECK_EQUAL(0, arm.trajectory.frames[1].position[1]);
     DOUBLES_EQUAL(M_PI/2, arm.trajectory.frames[1].hand_angle, 1e-2);
-    DOUBLES_EQUAL(0, arm.trajectory.frames[1].pitch_angle, 1e-2);
 
     CHECK_EQUAL(100, arm.trajectory.frames[2].position[0]);
     CHECK_EQUAL(100, arm.trajectory.frames[2].position[1]);
     DOUBLES_EQUAL(M_PI, arm.trajectory.frames[2].hand_angle, 1e-2);
-    DOUBLES_EQUAL(M_PI/2, arm.trajectory.frames[2].pitch_angle, 1e-2);
 }
 
 TEST(ArmSetTrajectory, SetsTimeCorrectly)
