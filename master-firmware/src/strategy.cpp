@@ -431,8 +431,8 @@ struct CollectCylinder : public goap::Action<DebraState> {
         // Approach cylinder
         scara_ugly_mode_disable(arm);
         arm_waypoint_t pick_cylinder_traj[] = {
-            {.x=MIRROR_X(m_color, x_mm), .y=y_mm, .z=50, .a=MIRROR_A(m_color, 90), .p=-90, .coord=COORDINATE_TABLE, .dt=0, .l3=160},
-            {.x=MIRROR_X(m_color, x_mm), .y=y_mm, .z=50, .a=MIRROR_A(m_color, 90), .p=-90, .coord=COORDINATE_TABLE, .dt=1000, .l3=55},
+            {.x=MIRROR_X(m_color, x_mm), .y=y_mm, .z=50, .a=MIRROR_A(m_color, 90), .coord=COORDINATE_TABLE, .dt=0, .l3=160},
+            {.x=MIRROR_X(m_color, x_mm), .y=y_mm, .z=50, .a=MIRROR_A(m_color, 90), .coord=COORDINATE_TABLE, .dt=1000, .l3=55},
         };
         ARM_TRAJ_SYNCHRONOUS(arm, pick_cylinder_traj);
 

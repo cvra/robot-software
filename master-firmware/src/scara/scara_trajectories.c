@@ -109,7 +109,6 @@ scara_waypoint_t scara_trajectory_interpolate_waypoints(scara_waypoint_t k1, sca
     }
 
     result.hand_angle = interpolate(t, k1.hand_angle, k2.hand_angle);
-    result.pitch_angle = interpolate(t, k1.pitch_angle, k2.pitch_angle);
 
     return result;
 }
