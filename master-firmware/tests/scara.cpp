@@ -51,14 +51,14 @@ TEST_GROUP(ArmTestGroup)
 {
     scara_t arm;
     scara_trajectory_t traj;
-    float arbitraryLengths[3] = {100, 50, 20};
+    float arbitraryLengths[2] = {100, 50};
     float z_pos, shoulder_angle, elbow_angle, wrist_angle;
 
 
     void setup()
     {
         scara_init(&arm);
-        scara_set_physical_parameters(&arm, arbitraryLengths[0], arbitraryLengths[1], arbitraryLengths[2]);
+        scara_set_physical_parameters(&arm, arbitraryLengths[0], arbitraryLengths[1]);
         arm.offset_rotation = M_PI / 2;
         scara_trajectory_init(&traj);
 
@@ -96,12 +96,11 @@ TEST(ArmTestGroup, ShoulderModeIsSetToBack)
 
 TEST(ArmTestGroup, PhysicalParametersMakeSense)
 {
-    scara_set_physical_parameters(&arm, 100, 50, 20);
+    scara_set_physical_parameters(&arm, 100, 50);
 
     /* Length must be greater than zero. */
     CHECK_EQUAL(100, arm.length[0]);
     CHECK_EQUAL(50, arm.length[1]);
-    CHECK_EQUAL(20, arm.length[2]);
 }
 
 TEST(ArmTestGroup, ExecuteTrajectoryCopiesData)
@@ -147,7 +146,7 @@ TEST(ArmTestGroup, ArmManageIsAtomicWithEmptyTraj)
 
 TEST(ArmTestGroup, ArmManageIsAtomicWithUnreachableTarget)
 {
-    scara_trajectory_append_point_with_length(&traj, 10000, 10000, 10, COORDINATE_ARM, 1., 10, 10, 20);
+    scara_trajectory_append_point_with_length(&traj, 10000, 10000, 10, COORDINATE_ARM, 1., 10, 10);
     scara_do_trajectory(&arm, &traj);
     lock_mocks_enable(true);
     mock().expectOneCall("chMtxLock").withPointerParameter("lock", &arm.lock);
@@ -280,8 +279,8 @@ TEST(ArmTestGroup, LengthAreInterpolated)
     scara_waypoint_t result;
     const int32_t date = 5 * 1000000;
     arm.offset_rotation = M_PI / 2;
-    scara_trajectory_append_point_with_length(&traj, 0, 0, 0, COORDINATE_ARM, 1., 10, 10, 10);
-    scara_trajectory_append_point_with_length(&traj, 0, 0, 0, COORDINATE_ARM, 10., 100, 200, 20);
+    scara_trajectory_append_point_with_length(&traj, 0, 0, 0, COORDINATE_ARM, 1., 10, 10);
+    scara_trajectory_append_point_with_length(&traj, 0, 0, 0, COORDINATE_ARM, 10., 100, 200);
 
     scara_do_trajectory(&arm, &traj);
 

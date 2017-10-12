@@ -25,15 +25,10 @@ void scara_init(scara_t *arm)
     chMtxObjectInit(&arm->lock);
 }
 
-
-void scara_set_physical_parameters(scara_t* arm,
-                                   float upperarm_length,
-                                   float forearm_length,
-                                   float hand_length)
+void scara_set_physical_parameters(scara_t *arm, float upperarm_length, float forearm_length)
 {
     arm->length[0] = upperarm_length;
     arm->length[1] = forearm_length;
-    arm->length[2] = hand_length;
 }
 
 void scara_set_offset(scara_t* arm, float offset_x, float offset_y, float offset_rotation)
@@ -100,7 +95,7 @@ void scara_goto(scara_t* arm,
                 scara_coordinate_t system,
                 const float duration)
 {
-    scara_goto_with_length(arm, x, y, z, system, duration, arm->length[2]);
+    scara_goto_with_length(arm, x, y, z, system, duration);
 }
 
 void scara_goto_with_length(scara_t* arm,
@@ -108,12 +103,11 @@ void scara_goto_with_length(scara_t* arm,
                             float y,
                             float z,
                             scara_coordinate_t system,
-                            const float duration,
-                            float l3)
+                            const float duration)
 {
     scara_trajectory_init(&(arm->trajectory));
     scara_trajectory_append_point_with_length(&(arm->trajectory), x, y, z, system, duration,
-                                              arm->length[0], arm->length[1], l3);
+                                              arm->length[0], arm->length[1]);
     scara_do_trajectory(arm, &(arm->trajectory));
 }
 
@@ -129,8 +123,7 @@ void scara_pos_with_length(scara_t* arm,
                            float* x,
                            float* y,
                            float* z,
-                           scara_coordinate_t system,
-                           float l3)
+                           scara_coordinate_t system)
 {
     point_t pos;
     pos = scara_forward_kinematics(arm->shoulder_pos, arm->elbow_pos, arm->length);
@@ -154,7 +147,7 @@ void scara_pos_with_length(scara_t* arm,
 
 void scara_pos(scara_t* arm, float* x, float* y, float* z, scara_coordinate_t system)
 {
-    scara_pos_with_length(arm, x, y, z, system, arm->length[2]);
+    scara_pos_with_length(arm, x, y, z, system);
 }
 
 void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj)
@@ -235,8 +228,7 @@ void scara_manage(scara_t *arm)
                               &measured_x,
                               &measured_y,
                               &measured_z,
-                              COORDINATE_ARM,
-                              frame.length[2]);
+                              COORDINATE_ARM);
 
         float consign_x = pid_process(&arm->x_pid, measured_x - frame.position[0]);
         float consign_y = pid_process(&arm->y_pid, measured_y - frame.position[1]);
@@ -244,15 +236,14 @@ void scara_manage(scara_t *arm)
         float velocity_alpha, velocity_beta, velocity_gamma, velocity_delta;
         scara_jacobian_compute(consign_x, consign_y, 0.f, 0.f,
                                arm->shoulder_pos, arm->elbow_pos, 0.f, 0.f,
-                               frame.length[0], frame.length[1], frame.length[2],
+                               frame.length[0], frame.length[1], 0.f,
                                &velocity_alpha, &velocity_beta, &velocity_gamma, &velocity_delta);
 
         scara_pos_with_length(arm,
                               &measured_x,
                               &measured_y,
                               &measured_z,
-                              frame.coordinate_type,
-                              frame.length[2]);
+                              frame.coordinate_type);
 
         DEBUG("Arm x %.3f y %.3f Arm velocities %.3f %.3f %.3f %.3f",
               measured_x, measured_y,

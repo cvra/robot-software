@@ -431,8 +431,8 @@ struct CollectCylinder : public goap::Action<DebraState> {
         // Approach cylinder
         scara_ugly_mode_disable(arm);
         arm_waypoint_t pick_cylinder_traj[] = {
-            {.x=MIRROR_X(m_color, x_mm), .y=y_mm, .z=50, .coord=COORDINATE_TABLE, .dt=0, .l3=160},
-            {.x=MIRROR_X(m_color, x_mm), .y=y_mm, .z=50, .coord=COORDINATE_TABLE, .dt=1000, .l3=55},
+            {.x=MIRROR_X(m_color, x_mm), .y=y_mm, .z=50, .coord=COORDINATE_TABLE, .dt=0},
+            {.x=MIRROR_X(m_color, x_mm), .y=y_mm, .z=50, .coord=COORDINATE_TABLE, .dt=1000},
         };
         ARM_TRAJ_SYNCHRONOUS(arm, pick_cylinder_traj);
 
@@ -494,7 +494,7 @@ struct DepositCylinder : public goap::Action<DebraState> {
             scara_move_z(arm, z, COORDINATE_ROBOT, 1.);
             strategy_wait_ms(1000);
 
-            scara_goto_with_length(arm, x, y, z, COORDINATE_ROBOT, 4., 0);
+            scara_goto_with_length(arm, x, y, z, COORDINATE_ROBOT, 4.);
             strategy_wait_ms(4000);
 
             // Drop cylinder

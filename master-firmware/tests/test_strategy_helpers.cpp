@@ -19,20 +19,20 @@ TEST_GROUP(ArmSetTrajectory)
 
     scara_trajectory_t traj;
     scara_t arm;
-    float arbitraryLengths[3] = {100, 50, 20};
+    float arbitraryLengths[2] = {100, 50};
 
     struct robot_position pos;
 
     arm_waypoint_t trajectory[3] = {
-        {.x=0, .y=0, .z=0, .coord=COORDINATE_TABLE, .dt=1000, .l3=20},
-        {.x=100, .y=0, .z=0, .coord=COORDINATE_TABLE, .dt=1000, .l3=20},
-        {.x=100, .y=100, .z=0, .coord=COORDINATE_TABLE, .dt=1000, .l3=20},
+        {.x=0, .y=0, .z=0, .coord=COORDINATE_TABLE, .dt=1000},
+        {.x=100, .y=0, .z=0, .coord=COORDINATE_TABLE, .dt=1000},
+        {.x=100, .y=100, .z=0, .coord=COORDINATE_TABLE, .dt=1000},
     };
 
     void setup()
     {
         scara_init(&arm);
-        scara_set_physical_parameters(&arm, arbitraryLengths[0], arbitraryLengths[1], arbitraryLengths[2]);
+        scara_set_physical_parameters(&arm, arbitraryLengths[0], arbitraryLengths[1]);
         arm.offset_rotation = M_PI / 2;
 
         scara_set_related_robot_pos(&arm, &pos);

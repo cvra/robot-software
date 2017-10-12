@@ -45,7 +45,7 @@ static parameter_t beacon_reflector_radius, beacon_angular_offset;
 
 #ifdef DEBRA
 static parameter_namespace_t arms_config, arms_right_config, arms_left_config, motor_offsets_config;
-static parameter_t upperarm_length, forearm_length, wrist_to_hand_length;
+static parameter_t upperarm_length, forearm_length;
 static parameter_t left_offset_x, left_offset_y, left_offset_a;
 static parameter_t right_offset_x, right_offset_y, right_offset_a;
 static parameter_t left_z_offset, left_shoulder_offset, left_elbow_offset;
@@ -158,7 +158,6 @@ void config_init(void)
 
     parameter_scalar_declare(&upperarm_length, &arms_config, "upperarm_length");
     parameter_scalar_declare(&forearm_length, &arms_config, "forearm_length");
-    parameter_scalar_declare(&wrist_to_hand_length, &arms_config, "wrist_to_hand_length");
 
     parameter_namespace_declare(&arms_left_config, &arms_config, "left");
     parameter_scalar_declare(&left_offset_x, &arms_left_config, "offset_x");

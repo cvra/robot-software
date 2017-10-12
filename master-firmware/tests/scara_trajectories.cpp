@@ -11,7 +11,7 @@ extern void scara_time_set(int32_t time);
 TEST_GROUP(ArmTrajectoriesBuilderTest)
 {
     scara_trajectory_t traj;
-    float arbitraryLengths[3] = {100, 50, 20};
+    float arbitraryLengths[2] = {100, 50};
 
     void setup()
     {
@@ -97,8 +97,8 @@ TEST(ArmTrajectoriesBuilderTest, WaypointInterpolation)
 {
     const int32_t interpolation_date = 5 * 1000000; // microseconds
     scara_waypoint_t result;
-    scara_trajectory_append_point_with_length(&traj, 0, 0, 0, COORDINATE_ARM, 1., 100, 100, 100);
-    scara_trajectory_append_point_with_length(&traj, 10, 20, 30, COORDINATE_ARM, 10., 200, 200, 200);
+    scara_trajectory_append_point_with_length(&traj, 0, 0, 0, COORDINATE_ARM, 1., 100, 100);
+    scara_trajectory_append_point_with_length(&traj, 10, 20, 30, COORDINATE_ARM, 10., 200, 200);
 
     result = scara_trajectory_interpolate_waypoints(traj.frames[0], traj.frames[1], interpolation_date);
     CHECK_EQUAL(interpolation_date, result.date);
@@ -109,5 +109,4 @@ TEST(ArmTrajectoriesBuilderTest, WaypointInterpolation)
 
     DOUBLES_EQUAL(150., result.length[0], 0.1);
     DOUBLES_EQUAL(150., result.length[1], 0.1);
-    DOUBLES_EQUAL(150., result.length[2], 0.1);
 }

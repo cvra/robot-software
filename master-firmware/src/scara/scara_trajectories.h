@@ -28,7 +28,7 @@ void scara_trajectory_init(scara_trajectory_t *traj);
 /** same as scara_trajectory_append_point but with a custom length. */
 void scara_trajectory_append_point_with_length(scara_trajectory_t *traj, const float x, const float y, const float z,
                                                scara_coordinate_t system, const float duration,
-                                               const float l1, const float l2, const float l3);
+                                               const float l1, const float l2);
 
 void scara_trajectory_delete(scara_trajectory_t *traj);
 
