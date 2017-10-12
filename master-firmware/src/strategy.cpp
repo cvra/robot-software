@@ -313,10 +313,6 @@ struct RetractArms : public goap::Action<DebraState> {
         scara_move_z(&right_arm, 120, COORDINATE_ROBOT, 0.5);
         strategy_wait_ms(1000);
 
-        scara_move_pitch(&left_arm, RADIANS(-90), COORDINATE_ARM, 1.);
-        scara_move_pitch(&right_arm, RADIANS(-90), COORDINATE_ARM, 1.);
-        strategy_wait_ms(1000);
-
         scara_goto(&left_arm, -150, 120,  120, RADIANS(180), RADIANS(-90), COORDINATE_ROBOT, 1.);
         scara_goto(&right_arm, -150, -120, 120, RADIANS(180), RADIANS(-90), COORDINATE_ROBOT, 1.);
         strategy_wait_ms(1000);

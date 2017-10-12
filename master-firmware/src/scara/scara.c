@@ -130,13 +130,6 @@ void scara_move_z(scara_t* arm, float z_new, scara_coordinate_t system, const fl
     scara_goto(arm, x, y, z_new, a, p, system, duration);
 }
 
-void scara_move_pitch(scara_t* arm, float p_new, scara_coordinate_t system, const float duration)
-{
-    float x, y, z, a, p;
-    scara_pos(arm, &x, &y, &z, &a, &p, system);
-    scara_goto(arm, x, y, z, a, p_new, system, duration);
-}
-
 
 void scara_pos_with_length(scara_t* arm,
                            float* x,
