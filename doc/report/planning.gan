@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?><project name="Development of an ultra-wide band indoor positioning system" company="LSRO" webLink="http://" view-date="2017-09-01" view-index="0" gantt-divider-location="352" resource-divider-location="300" version="2.8.5" locale="en_US">
+    <description/>
+    <view zooming-state="default:9" id="gantt-chart">
+        <field id="tpd3" name="Name" width="183" order="0"/>
+        <field id="tpd4" name="Begin date" width="82" order="1"/>
+        <field id="tpd5" name="End date" width="81" order="2"/>
+        <timeline><![CDATA[78,0]]></timeline>
+    </view>
+    <view id="resource-table">
+        <field id="0" name="Name" width="209" order="0"/>
+        <field id="1" name="Default role" width="85" order="1"/>
+    </view>
+    <!-- -->
+    <calendars base-id="Switzerland">
+        <day-types>
+            <day-type id="0"/>
+            <day-type id="1"/>
+            <default-week id="1" name="default" sun="1" mon="0" tue="0" wed="0" thu="0" fri="0" sat="1"/>
+            <only-show-weekends value="false"/>
+            <overriden-day-types/>
+            <days/>
+        </day-types>
+        <date year="" month="1" date="1" type="HOLIDAY"/>
+        <date year="" month="1" date="2" type="HOLIDAY"/>
+        <date year="" month="8" date="1" type="HOLIDAY"/>
+        <date year="" month="12" date="25" type="HOLIDAY"/>
+        <date year="" month="12" date="26" type="HOLIDAY"/>
+        <date year="2012" month="4" date="6" type="HOLIDAY"/>
+        <date year="2012" month="4" date="8" type="HOLIDAY"/>
+        <date year="2012" month="4" date="9" type="HOLIDAY"/>
+        <date year="2012" month="5" date="17" type="HOLIDAY"/>
+        <date year="2012" month="5" date="27" type="HOLIDAY"/>
+        <date year="2012" month="5" date="28" type="HOLIDAY"/>
+        <date year="2017" month="12" date="24" type="HOLIDAY"/>
+        <date year="2017" month="12" date="27" type="HOLIDAY"/>
+        <date year="2017" month="12" date="28" type="HOLIDAY"/>
+        <date year="2017" month="12" date="29" type="HOLIDAY"/>
+        <date year="2017" month="12" date="30" type="HOLIDAY"/>
+        <date year="2017" month="12" date="31" type="HOLIDAY"/>
+        <date year="2018" month="1" date="1" type="HOLIDAY"/>
+        <date year="2018" month="1" date="2" type="HOLIDAY"/>
+    </calendars>
+    <tasks empty-milestones="true">
+        <taskproperties>
+            <taskproperty id="tpd0" name="type" type="default" valuetype="icon"/>
+            <taskproperty id="tpd1" name="priority" type="default" valuetype="icon"/>
+            <taskproperty id="tpd2" name="info" type="default" valuetype="icon"/>
+            <taskproperty id="tpd3" name="name" type="default" valuetype="text"/>
+            <taskproperty id="tpd4" name="begindate" type="default" valuetype="date"/>
+            <taskproperty id="tpd5" name="enddate" type="default" valuetype="date"/>
+            <taskproperty id="tpd6" name="duration" type="default" valuetype="int"/>
+            <taskproperty id="tpd7" name="completion" type="default" valuetype="int"/>
+            <taskproperty id="tpd8" name="coordinator" type="default" valuetype="text"/>
+            <taskproperty id="tpd9" name="predecessorsr" type="default" valuetype="text"/>
+        </taskproperties>
+        <task id="3" name="Début projet" color="#8cb6ce" meeting="true" start="2017-09-19" duration="0" complete="0" expand="true">
+            <depend id="7" type="2" difference="0" hardness="Strong"/>
+            <depend id="9" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="9" name="State of the art" color="#8cb6ce" meeting="false" start="2017-09-19" duration="15" complete="60" expand="true">
+            <notes><![CDATA[Lecture de papers sur UWB systems
+Skim through "Probabilistic Robotics"
+
+Rédaction d'une review
+
+Buts:
+
+* Trouver comment les gens ont implémenté les systèmes UWB + IMU
+* Trouver quel sont les sources possibles d'imprécision
+* Comment modéliser les capteurs (ex: drift du gyro intégré dans le state)
+* Est-ce que le magnétomètre est intéressant ?]]></notes>
+            <depend id="20" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="20" name="Design algorithme" color="#8cb6ce" meeting="false" start="2017-10-10" duration="4" complete="100" expand="true">
+            <notes><![CDATA[Cette partie est purement théorique. Le but est de dériver les expressions mathématiques du (ou des) state estimator que je pense utiliser pour le robot.]]></notes>
+            <depend id="15" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="15" name="Simulation algorithme choisi" color="#8cb6ce" meeting="false" start="2017-10-16" duration="8" complete="75" expand="true">
+            <notes><![CDATA[* Implémentation de l'algorithme choisi en Python
+* Simulation sur des trajectoires générées
+* Comparaison de l'effet des différentes sources de bruit
+
+Eventuellement, si plusieurs estimateurs ont été implémentés, comparaison entre eux.]]></notes>
+            <depend id="51" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="77" name="Test DMP" color="#8cb6ce" meeting="false" start="2017-09-28" duration="3" complete="20" expand="true">
+            <notes><![CDATA[Test du motion processor intégré au MPU9250.
+
+Particuliérement intéressé par le mode "Quaternion 9 axis"
+
+-> Conclusion: C'est pas aussi bien que prévu]]></notes>
+            <depend id="15" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="7" name="Driver IMU" color="#8cb6ce" meeting="false" start="2017-09-19" duration="5" complete="100" expand="true">
+            <notes><![CDATA[* Ecriture d'un driver pour le IMU intégré au système
+* Utilisation des interrupts pour maximiser la fréquence de lecture du système.
+* Publication sur messagebus pour faciliter le traitement
+]]></notes>
+            <depend id="32" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="75" name="Communication CAN" color="#8cb6ce" meeting="false" start="2017-09-26" duration="4" complete="100" expand="true">
+            <notes><![CDATA[Vu que le système comprend un nombre important de cartes (minimum 2, probablement 4), devoir se connecter à chaque carte une par une à la main est laborieux. Dans ce but, un bus de communication câblé est utilisé pendant les phases de debug, de configuration et de collecte de données.
+
+Pour gagner du temps, je vais réutiliser des outils avec les quels je travaille depuis longtemps et basé sur le bus physique CAN:
+
+* le bootloader CAN du CVRA (https://github.com/cvra/can-bootloader), pour uploader le code. Il est déjà porté sur le hardware.
+* UAVCAN (https://github.com/uavcan), pour fournir des fonctions haut niveau de communication.
+* Un dongle CAN-USB pour interfacer l'ensemble des cartes à mon ordinateur.]]></notes>
+            <depend id="32" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="25" name="Driver DWM1000" color="#8cb6ce" meeting="false" start="2017-10-02" duration="5" complete="30" expand="true">
+            <notes><![CDATA[Buts de cette étape:
+
+* Driver suffisant pour envoyer / recevoir des paquets avec gestion des timestamps (nécessaire pour le ranging protocol).]]></notes>
+            <depend id="27" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="76" name="Param storage" color="#8cb6ce" meeting="false" start="2017-10-20" duration="1" complete="0" expand="true">
+            <depend id="32" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="27" name="Ranging protocol" color="#8cb6ce" meeting="false" start="2017-10-09" duration="10" complete="0" expand="true">
+            <notes><![CDATA[Implémentation du ranging protocol, c'est à dire la séquence d'information échangée entre une balise fixe et le système embarqué sur le robot pour connaitre la position de la balise et la distance à celle ci.
+
+Decawave fournit une explication sur leur 4-way ranging protocol, peut être que des adaptations seront nécessaires, à voir.]]></notes>
+            <depend id="32" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="32" name="Collecte data" color="#8cb6ce" meeting="false" start="2017-10-23" duration="5" complete="10" expand="true">
+            <notes><![CDATA[Le but de cette étape est de collecter des données sur une trajectoire réelle. Pendant ce temps les infos suivantes sont enregistrées sur un ordinateur:
+
+* Output IMU
+* Mesures de distance avec des beacons
+
+Le but est ensuite de pouvoir tester l'algorithme de positionnement sur des datasets réels au lieu de simulés.]]></notes>
+            <depend id="51" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="51" name="Test algos sur vrai data" color="#8cb6ce" meeting="false" start="2017-10-30" duration="5" complete="0" expand="true">
+            <notes><![CDATA[Le but de cette étape est de charger les données obtenues dans les algorithmes utilisés en simulation pour observer les performances de l'estimateur dans des conditions réelles.
+
+Une analyse de la précision du système pourra déjà être faite à ce moment là.	]]></notes>
+            <depend id="52" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="52" name="Port algorithmes" color="#8cb6ce" meeting="false" start="2017-11-06" duration="5" complete="0" expand="true">
+            <notes><![CDATA[Pendant cette tâche, le code développé en Python et simulé sera porté en C / C++, et comparé au code simulé. Dans ce but, il sera capable de fonctionner aussi bien sur le PC hôte que sur le STM32.
+
+A la fin de cette tâche, les deux algorithmes (en Python et en C) doivent donner les mêmes résultats.]]></notes>
+            <depend id="72" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="72" name="Tests" color="#8cb6ce" meeting="false" start="2017-11-13" duration="5" complete="0" expand="true">
+            <notes><![CDATA[Tests du système final et mesure des performances.
+Debug final.]]></notes>
+            <depend id="81" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="78" name="Présentation intermédiaire" color="#8cb6ce" meeting="true" start="2017-11-15" duration="0" complete="0" expand="true"/>
+        <task id="81" name="Seconde itération algo" color="#8cb6ce" meeting="false" start="2017-11-20" duration="15" complete="0" expand="true">
+            <notes><![CDATA[Design et test de la seconde itération des algorithmes]]></notes>
+        </task>
+        <task id="65" name="Ecriture rapport" color="#8cb6ce" meeting="false" start="2017-12-18" duration="5" complete="0" expand="true">
+            <depend id="0" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="0" name="Rendu rapport" color="#8cb6ce" meeting="true" start="2018-01-03" duration="0" complete="0" expand="true"/>
+    </tasks>
+    <resources/>
+    <allocations/>
+    <vacations/>
+    <previous/>
+    <roles roleset-name="Default"/>
+</project>
