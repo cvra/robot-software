@@ -1125,26 +1125,6 @@ static void cmd_scara_traj(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
-static void cmd_wrist_offset(BaseSequentialStream *chp, int argc, char *argv[])
-{
-    if (argc != 2) {
-        chprintf(chp, "Usage: wrist_offset side offset\r\n");
-        return;
-    }
-
-    float offset = atof(argv[1]);
-    scara_t* arm;
-    if (strcmp("left", argv[0]) == 0) {
-        arm = &left_arm;
-    } else {
-        arm = &right_arm;
-    }
-
-    scara_set_wrist_heading_offset(arm, offset);
-
-    chprintf(chp, "Set %s wrist offset to %f\r\n", argv[0], offset);
-}
-
 static void cmd_base_mode(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc != 1) {
@@ -1283,7 +1263,6 @@ const ShellCommand commands[] = {
     {"scara_z", cmd_scara_z},
     {"scara_pos", cmd_scara_pos},
     {"scara_traj", cmd_scara_traj},
-    {"wrist_offset", cmd_wrist_offset},
     {"base_mode", cmd_base_mode},
     {"fingers_cmd", cmd_fingers_cmd},
     {"rocket", cmd_rocket},

@@ -53,9 +53,6 @@ typedef struct {
     float wrist_heading_pos;
     float wrist_pitch_pos;
 
-    /* Wrist position offset for tool selection */
-    float wrist_heading_offset;
-
     /* Control system */
     pid_ctrl_t x_pid;
     pid_ctrl_t y_pid;
@@ -95,8 +92,6 @@ void scara_set_elbow_callbacks(scara_t* arm, void (*set_elbow_position)(void*, f
 void scara_set_wrist_callbacks(scara_t* arm, void (*set_wrist_position)(void*, float, float),
                                void (*set_wrist_velocity)(void*, float, float),
                                void (*get_wrist_position)(void*, float*, float*), void* wrist_args);
-
-void scara_set_wrist_heading_offset(scara_t* arm, float wrist_heading_offset);
 
 
 /** Enable "ugly mode" which is the joint position control

@@ -429,8 +429,6 @@ struct CollectCylinder : public goap::Action<DebraState> {
         strategy_wait_ms(2000);
 
         // Select tool
-        scara_set_wrist_heading_offset(arm, RADIANS(-90 * slot));
-        strategy_wait_ms(1000);
         hand_set_finger(hand, slot, FINGER_OPEN);
         strategy_wait_ms(500);
 
@@ -501,7 +499,6 @@ struct DepositCylinder : public goap::Action<DebraState> {
             strategy_wait_ms(1000);
 
             scara_goto_with_length(arm, x, y, z, RADIANS(a), RADIANS(0), COORDINATE_ROBOT, 4., 0);
-            scara_set_wrist_heading_offset(arm, RADIANS(0));
             strategy_wait_ms(4000);
 
             // Drop cylinder
