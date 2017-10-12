@@ -13,11 +13,23 @@
 #ifndef MadgwickAHRS_h
 #define MadgwickAHRS_h
 
-void madgwick_filter_set_gain(float beta);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-void madgwick_filter_get_quaternion(float out[4]);
+typedef struct {
+    float q[4];
+    float beta;
+    float sample_frequency;
+} madgwick_filter_t;
 
-void magdwick_filter_update(float gx,
+void madgwick_filter_init(madgwick_filter_t *f);
+
+void madgwick_filter_set_gain(madgwick_filter_t *f, float beta);
+void madgwick_filter_set_sample_frequency(madgwick_filter_t *f, float freq);
+
+void madgwick_filter_update(madgwick_filter_t *f,
+                            float gx,
                             float gy,
                             float gz,
                             float ax,
@@ -26,6 +38,12 @@ void magdwick_filter_update(float gx,
                             float mx,
                             float my,
                             float mz);
-void magdwick_filter_updateIMU(float gx, float gy, float gz, float ax, float ay, float az);
+void madgwick_filter_updateIMU(madgwick_filter_t *f,
+                               float gx, float gy, float gz, float ax, float ay, float az);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -22,6 +22,7 @@ static void ahrs_thd(void *p)
 
     messagebus_topic_t *imu_topic;
 
+
     imu_topic = messagebus_find_topic_blocking(&bus, "/imu");
 
     /* Create the attitude topic. */
@@ -35,26 +36,33 @@ static void ahrs_thd(void *p)
                           &attitude_topic_content, sizeof(attitude_topic_content));
     messagebus_advertise_topic(&bus, &attitude_topic, "/attitude");
 
+    // Prepare the filter
+    madgwick_filter_t filter;
+    madgwick_filter_init(&filter);
+    madgwick_filter_set_gain(&filter, parameter_scalar_get(&ahrs_params.beta));
+
+    // TODO: Measure sample frequency instead
+    madgwick_filter_set_sample_frequency(&filter, 250);
+
     while (1) {
         if (parameter_changed(&ahrs_params.beta)) {
-            madgwick_filter_set_gain(parameter_scalar_get(&ahrs_params.beta));
+            madgwick_filter_set_gain(&filter, parameter_scalar_get(&ahrs_params.beta));
         }
 
         imu_msg_t imu;
         messagebus_topic_wait(imu_topic, &imu, sizeof(imu));
 
-        magdwick_filter_update(imu.gyro.x, imu.gyro.y, imu.gyro.z,
+        madgwick_filter_update(&filter,
+                               imu.gyro.x, imu.gyro.y, imu.gyro.z,
                                imu.acc.x, imu.acc.y, imu.acc.z,
                                imu.mag.x, imu.mag.y, imu.mag.z);
 
-        float q[4];
         attitude_msg_t msg;
 
-        madgwick_filter_get_quaternion(q);
-        msg.q.w = q[0];
-        msg.q.x = q[1];
-        msg.q.y = q[2];
-        msg.q.z = q[3];
+        msg.q.w = filter.q[0];
+        msg.q.x = filter.q[1];
+        msg.q.y = filter.q[2];
+        msg.q.z = filter.q[3];
 
         msg.timestamp = imu.timestamp;
 
