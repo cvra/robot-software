@@ -1,0 +1,29 @@
+stages:
+  - test
+  - report
+
+models_test:
+  stage: test
+  image: python:3.5
+  script:
+    - cd doc/report
+    - pip install -r requirements.txt
+    - cd models
+    - python -m unittest discover
+
+notebooks:
+  stage: report
+  image: python:3.5
+  script:
+    - cd doc/report
+    - pip install -r requirements.txt
+    - jupyter nbconvert --to pdf --execute "models/Gyro integrating model.ipynb"
+    - jupyter nbconvert --to pdf --execute "models/Simple model.ipynb"
+    - jupyter nbconvert --to pdf --execute "experiments/Madgwick drift.ipynb"
+
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - doc/report/models/*.pdf
+      - doc/report/experiments/*.pdf
+
