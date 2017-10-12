@@ -22,7 +22,6 @@ void scara_init(scara_t *arm)
     pid_init(&arm->x_pid);
     pid_init(&arm->y_pid);
     pid_init(&arm->heading_pid);
-    pid_init(&arm->pitch_pid);
 
     chMtxObjectInit(&arm->lock);
 }
@@ -194,7 +193,8 @@ void scara_manage(scara_t *arm)
     arm->z_pos = arm->get_z_position(arm->z_args);
     arm->shoulder_pos = arm->get_shoulder_position(arm->shoulder_args);
     arm->elbow_pos = arm->get_elbow_position(arm->elbow_args);
-    arm->get_wrist_position(arm->wrist_args, &arm->wrist_heading_pos, &arm->wrist_pitch_pos);
+    float dummy;
+    arm->get_wrist_position(arm->wrist_args, &arm->wrist_heading_pos, &dummy);
 
     if (arm->trajectory.frame_count == 0) {
         arm->last_loop = current_date;

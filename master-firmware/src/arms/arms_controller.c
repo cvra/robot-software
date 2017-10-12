@@ -135,13 +135,6 @@ static void arms_update_controller_gains(parameter_namespace_t* ns, scara_t* arm
     ilim = parameter_scalar_get(parameter_find(ns, "heading/ilimit"));
     pid_set_gains(&arm->heading_pid, kp, ki, kd);
     pid_set_integral_limit(&arm->heading_pid, ilim);
-
-    kp = parameter_scalar_get(parameter_find(ns, "pitch/kp"));
-    ki = parameter_scalar_get(parameter_find(ns, "pitch/ki"));
-    kd = parameter_scalar_get(parameter_find(ns, "pitch/kd"));
-    ilim = parameter_scalar_get(parameter_find(ns, "pitch/ilimit"));
-    pid_set_gains(&arm->pitch_pid, kp, ki, kd);
-    pid_set_integral_limit(&arm->pitch_pid, ilim);
 }
 
 static THD_FUNCTION(arms_ctrl_thd, arg)
