@@ -11,8 +11,10 @@
 #include "decadriver/deca_device_api.h"
 #include "decadriver/deca_regs.h"
 
-#define TEST_WA_SIZE        THD_WORKING_AREA_SIZE(256)
-#define SHELL_WA_SIZE       THD_WORKING_AREA_SIZE(2048)
+#define TEST_WA_SIZE  THD_WORKING_AREA_SIZE(256)
+#define SHELL_WA_SIZE THD_WORKING_AREA_SIZE(2048)
+
+//#define DW1000_SPI_DUMP
 
 static void cmd_reboot(BaseSequentialStream *chp, int argc, char **argv)
 {
@@ -146,16 +148,19 @@ static void cmd_ahrs(BaseSequentialStream *chp, int argc, char **argv)
         chprintf(chp, "calibrating gyro, do not move the board...\r\n");
         ahrs_calibrate_gyro();
     }
+}
 
 BaseSequentialStream *output;
 
-int readfromspi(uint16 headerLength, const uint8 *headerBuffer, uint32 readlength, uint8 *readBuffer)
+int readfromspi(uint16 headerLength, const uint8 *headerBuffer, uint32 readlength,
+                uint8 *readBuffer)
 {
     spiSelect(&SPID1);
     spiSend(&SPID1, headerLength, headerBuffer);
     spiReceive(&SPID1, readlength, readBuffer);
     spiUnselect(&SPID1);
 
+#ifdef DW1000_SPI_DUMP
     chprintf(output, "%s -> ", __FUNCTION__);
     for (int i = 0; i < headerLength; i++) {
         chprintf(output, "0x%02x ", headerBuffer[i]);
@@ -164,25 +169,30 @@ int readfromspi(uint16 headerLength, const uint8 *headerBuffer, uint32 readlengt
     for (int i = 0; i < readlength; i++) {
         chprintf(output, "0x%02x ", readBuffer[i]);
     }
-
     chprintf(output, "\r\n");
+#endif
 }
 
 int writetospi(uint16 headerLength, const uint8 *headerBuffer,
-                uint32 bodyLength, const uint8 *bodyBuffer)
+               uint32 bodyLength, const uint8 *bodyBuffer)
 {
+#ifdef DW1000_SPI_DUMP
     chprintf(output, "%s -> ", __FUNCTION__);
     for (int i = 0; i < headerLength; i++) {
         chprintf(output, "0x%02x ", headerBuffer[i]);
     }
-
     chprintf(output, "| ");
 
     for (int i = 0; i < bodyLength; i++) {
         chprintf(output, "0x%02x ", bodyBuffer[i]);
     }
-
     chprintf(output, "\r\n");
+#endif
+
+    spiSelect(&SPID1);
+    spiSend(&SPID1, headerLength, headerBuffer);
+    spiSend(&SPID1, bodyLength, bodyBuffer);
+    spiUnselect(&SPID1);
 }
 
 void deca_sleep(unsigned int time_ms)
@@ -190,9 +200,35 @@ void deca_sleep(unsigned int time_ms)
     chThdSleepMilliseconds(time_ms);
 }
 
+decaIrqStatus_t decamutexon(void)
+{
+    return 0;
+}
+
+void decamutexoff(decaIrqStatus_t s)
+{
+}
 
 static void cmd_dwm(BaseSequentialStream *chp, int argc, char **argv)
 {
+    if (argc < 1) {
+        chprintf(chp, "usage: dwm rx|tx\r\n");
+        return;
+    }
+
+    /* Configuration example taken straight from decawave's example. */
+    static dwt_config_t config = {
+        2,               /* Channel number. */
+        DWT_PRF_64M,     /* Pulse repetition frequency. */
+        DWT_PLEN_1024,   /* Preamble length. Used in TX only. */
+        DWT_PAC32,       /* Preamble acquisition chunk size. Used in RX only. */
+        9,               /* TX preamble code. Used in TX only. */
+        9,               /* RX preamble code. Used in RX only. */
+        1,               /* 0 to use standard SFD, 1 to use non-standard SFD. */
+        DWT_BR_110K,     /* Data rate. */
+        DWT_PHRMODE_STD, /* PHY header mode. */
+        (1025 + 64 - 32) /* SFD timeout (preamble length + 1 + SFD length - PAC size). Used in RX only. */
+    };
 
     static SPIConfig spi_cfg = {
         .end_cb = NULL,
@@ -204,8 +240,79 @@ static void cmd_dwm(BaseSequentialStream *chp, int argc, char **argv)
 
     output = chp;
     uint32_t id = dwt_readdevid();
-
     chprintf(chp, "id=0x%x\r\n", id);
+
+    chprintf(chp, "Configuring DW1000\r\n");
+    if (dwt_initialise(DWT_LOADNONE) == DWT_ERROR) {
+        chprintf(chp, "INIT FAILED\r\n");
+        return;
+    }
+
+
+    /* Configure GPIOs to show TX/RX activity. */
+    dwt_setlnapamode(1, 1);
+    dwt_setleds(DWT_LEDS_ENABLE);
+    dwt_configure(&config);
+
+
+    if (!strcmp(argv[0], "tx")) {
+        /* DElay from end of transmission to activation of reception in
+         * microseconds. */
+        //dwt_setrxaftertxdelay(60);
+        while (1) {
+            chprintf(chp, "Sending packet\r\n");
+            const char *tx_msg = "ping";
+            dwt_writetxdata(sizeof(tx_msg), tx_msg, 0); /* Zero offset in TX buffer. */
+            dwt_writetxfctrl(sizeof(tx_msg), 0, 0); /* Zero offset in TX buffer, no ranging. */
+
+            /* Start transmission. */
+            dwt_starttx(DWT_START_TX_IMMEDIATE);
+
+            /* Poll DW1000 until TX frame sent event set. See NOTE 5 below.
+             * STATUS register is 5 bytes long but, as the event we are looking at is in the first byte of the register, we can use this simplest API
+             * function to access it.*/
+            while (!(dwt_read32bitreg(SYS_STATUS_ID) & SYS_STATUS_TXFRS)) {
+                chThdSleepMilliseconds(100);
+            }
+
+
+            /* Clear TX frame sent event. */
+            dwt_write32bitreg(SYS_STATUS_ID, SYS_STATUS_TXFRS);
+
+            chprintf(chp, "done\r\n");
+            chThdSleepMilliseconds(1000);
+        }
+    } else if (!strcmp(argv[0], "rx")) {
+        while (1) {
+            static char rx_buffer[100];
+            memset(rx_buffer, 0, sizeof(rx_buffer));
+            dwt_rxenable(DWT_START_RX_IMMEDIATE);
+            /* Poll until a frame is properly received or an error/timeout occurs. See NOTE 4 below.
+             * STATUS register is 5 bytes long but, as the event we are looking at is in the first byte of the register, we can use this simplest API
+             * function to access it. */
+            uint32_t status_reg, frame_len;
+            do {
+                status_reg = dwt_read32bitreg(SYS_STATUS_ID);
+                //chprintf(chp, "status reg:0x%x\r\n", status_reg);
+            } while (!(status_reg & (SYS_STATUS_RXFCG | SYS_STATUS_ALL_RX_ERR)));
+
+            /* Did we receive a valid frame? */
+            if (status_reg & SYS_STATUS_RXFCG) {
+                /* A frame has been received, copy it to our local buffer. */
+                frame_len = dwt_read32bitreg(RX_FINFO_ID) & RX_FINFO_RXFL_MASK_1023;
+
+                if (frame_len <= sizeof(rx_buffer)) {
+                    dwt_readrxdata(rx_buffer, frame_len, 0);
+                    chprintf(chp, "Received a frame of length %d \"%s\"\r\n", frame_len, rx_buffer);
+                }
+                /* Clear good RX frame event in the DW1000 status register. */
+                dwt_write32bitreg(SYS_STATUS_ID, SYS_STATUS_RXFCG);
+            } else {
+                /* Clear RX error events in the DW1000 status register. */
+                dwt_write32bitreg(SYS_STATUS_ID, SYS_STATUS_ALL_RX_ERR);
+            }
+        }
+    }
 }
 
 static void tree_indent(BaseSequentialStream *out, int indent)
@@ -362,6 +469,12 @@ static THD_FUNCTION(shell_spawn_thd, p)
     shell_cfg.sc_commands = shell_commands;
 
     shellInit();
+
+#if 0
+    const char arg[] = "tx";
+    const char **argv[] = {arg};
+    cmd_dwm(io, 1, argv);
+#endif
 
     while (TRUE) {
         if (!shelltp) {
