@@ -28,23 +28,19 @@ typedef struct {
     void (*set_z_position)(void*, float);        /**< Callback function to set z position. */
     void (*set_shoulder_position)(void*, float); /**< Callback function to set shoulder position. */
     void (*set_elbow_position)(void*, float);    /**< Callback function to set elbow position. */
-    void (*set_wrist_position)(void*, float, float);    /**< Callback function to set wrist position. */
 
     void (*set_shoulder_velocity)(void*, float); /**< Callback function to set shoulder velocity. */
     void (*set_elbow_velocity)(void*, float);    /**< Callback function to set elbow velocity. */
-    void (*set_wrist_velocity)(void*, float, float);    /**< Callback function to set wrist velocity. */
 
     /* Motor feedback callbacks */
     float (*get_z_position)(void*);        /**< Callback function to get z position. */
     float (*get_shoulder_position)(void*); /**< Callback function to get shoulder position. */
     float (*get_elbow_position)(void*);    /**< Callback function to get elbow position. */
-    void (*get_wrist_position)(void*, float*, float*); /**< Callback function to get wrist position. */
 
     /* Motor control args */
     void* z_args;
     void* shoulder_args;
     void* elbow_args;
-    void* wrist_args;
 
     /* Motor positions */
     float z_pos;
@@ -85,10 +81,6 @@ void scara_set_shoulder_callbacks(scara_t* arm, void (*set_shoulder_position)(vo
 void scara_set_elbow_callbacks(scara_t* arm, void (*set_elbow_position)(void*, float),
                                void (*set_elbow_velocity)(void*, float),
                                float (*get_elbow_position)(void*), void* elbow_args);
-void scara_set_wrist_callbacks(scara_t* arm, void (*set_wrist_position)(void*, float, float),
-                               void (*set_wrist_velocity)(void*, float, float),
-                               void (*get_wrist_position)(void*, float*, float*), void* wrist_args);
-
 
 /** Enable "ugly mode" which is the joint position control
  * where each motor is controlled in position

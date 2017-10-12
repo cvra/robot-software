@@ -66,16 +66,6 @@ void scara_set_elbow_callbacks(scara_t* arm, void (*set_elbow_position)(void*, f
     arm->elbow_args = elbow_args;
 }
 
-void scara_set_wrist_callbacks(scara_t* arm, void (*set_wrist_position)(void*, float, float),
-                               void (*set_wrist_velocity)(void*, float, float),
-                               void (*get_wrist_position)(void*, float*, float*), void* wrist_args)
-{
-    arm->set_wrist_position = set_wrist_position;
-    arm->set_wrist_velocity = set_wrist_velocity;
-    arm->get_wrist_position = get_wrist_position;
-    arm->wrist_args = wrist_args;
-}
-
 
 void scara_ugly_mode_enable(scara_t* arm)
 {
@@ -168,8 +158,6 @@ void scara_manage(scara_t *arm)
     arm->z_pos = arm->get_z_position(arm->z_args);
     arm->shoulder_pos = arm->get_shoulder_position(arm->shoulder_args);
     arm->elbow_pos = arm->get_elbow_position(arm->elbow_args);
-    float dummy;
-    arm->get_wrist_position(arm->wrist_args, &dummy, &dummy);
 
     if (arm->trajectory.frame_count == 0) {
         arm->last_loop = current_date;
@@ -195,7 +183,6 @@ void scara_manage(scara_t *arm)
 
         arm->set_shoulder_velocity(arm->shoulder_args, 0);
         arm->set_elbow_velocity(arm->elbow_args, 0);
-        arm->set_wrist_velocity(arm->wrist_args, 0, 0);
 
         chMtxUnlock(&arm->lock);
         return;
@@ -253,13 +240,11 @@ void scara_manage(scara_t *arm)
         arm->set_z_position(arm->z_args, frame.position[2]);
         arm->set_shoulder_velocity(arm->shoulder_args, velocity_alpha);
         arm->set_elbow_velocity(arm->elbow_args, velocity_beta);
-        arm->set_wrist_velocity(arm->wrist_args, velocity_gamma, velocity_delta);
     } else {
         /* Set motor positions */
         arm->set_z_position(arm->z_args, frame.position[2]);
         arm->set_shoulder_position(arm->shoulder_args, alpha);
         arm->set_elbow_position(arm->elbow_args, beta);
-        arm->set_wrist_position(arm->wrist_args, 0.f, 0.f);
     }
 
     /* Unlock */

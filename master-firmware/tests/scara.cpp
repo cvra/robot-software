@@ -28,31 +28,13 @@ float get_motor_pos(void *m)
     return *(float *)m;
 }
 
-void set_wrist_pos(void *m, float heading, float pitch)
-{
-    (void)pitch;
-    *(float *)m = heading;
-}
-
-void set_wrist_vel(void *m, float heading, float pitch)
-{
-    (void)pitch;
-    *(float *)m = heading;
-}
-
-void get_wrist_pos(void *m, float* heading, float* pitch)
-{
-    (void)pitch;
-    *heading = *(float *)m;
-}
-
 
 TEST_GROUP(ArmTestGroup)
 {
     scara_t arm;
     scara_trajectory_t traj;
     float arbitraryLengths[2] = {100, 50};
-    float z_pos, shoulder_angle, elbow_angle, wrist_angle;
+    float z_pos, shoulder_angle, elbow_angle;
 
 
     void setup()
@@ -69,7 +51,6 @@ TEST_GROUP(ArmTestGroup)
         scara_set_z_callbacks(&arm, set_motor_pos, get_motor_pos, &z_pos);
         scara_set_shoulder_callbacks(&arm, set_motor_pos, set_motor_vel, get_motor_pos, &shoulder_angle);
         scara_set_elbow_callbacks(&arm, set_motor_pos, set_motor_vel, get_motor_pos, &elbow_angle);
-        scara_set_wrist_callbacks(&arm, set_wrist_pos, set_wrist_vel, get_wrist_pos, &wrist_angle);
     }
 
     void teardown()
