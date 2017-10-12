@@ -11,6 +11,31 @@ models_test:
     - cd models
     - python -m unittest discover
 
+firmware_tests:
+  stage: test
+  image: antoinealb/cpputest
+  before_script:
+    - git submodule update --init
+    - apt-get update && apt-get install -y cmake python3-pip
+    - pip3 install cvra-packager
+  script:
+    - packager
+    - mkdir build && pushd build
+    - cmake ..
+    - make check
+    - popd
+
+firmware_build:
+  stage: test
+  image: antoinealb/gcc-arm-embedded
+  before_script:
+    - git submodule update --init
+    - apt-get update && apt-get install -y python3-pip
+    - pip3 install cvra-packager
+  script:
+    - packager
+    - make
+
 notebooks:
   stage: report
   image: python:3.5
