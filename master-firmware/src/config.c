@@ -61,7 +61,7 @@ static struct {
             parameter_t ki;
             parameter_t kd;
             parameter_t ilimit;
-        } x, y, heading;
+        } x, y;
     } control;
 } left_arm, right_arm;
 #endif
@@ -190,11 +190,6 @@ void config_init(void)
     parameter_scalar_declare(&left_arm.control.y.ki, &left_arm.control.y.ns, "ki");
     parameter_scalar_declare(&left_arm.control.y.kd, &left_arm.control.y.ns, "kd");
     parameter_scalar_declare(&left_arm.control.y.ilimit, &left_arm.control.y.ns, "ilimit");
-    parameter_namespace_declare(&left_arm.control.heading.ns, &left_arm.control.ns, "heading");
-    parameter_scalar_declare(&left_arm.control.heading.kp, &left_arm.control.heading.ns, "kp");
-    parameter_scalar_declare(&left_arm.control.heading.ki, &left_arm.control.heading.ns, "ki");
-    parameter_scalar_declare(&left_arm.control.heading.kd, &left_arm.control.heading.ns, "kd");
-    parameter_scalar_declare(&left_arm.control.heading.ilimit, &left_arm.control.heading.ns, "ilimit");
 
     parameter_namespace_declare(&right_arm.ns, &master_config, "right_arm");
     parameter_namespace_declare(&right_arm.control.ns, &right_arm.ns, "control");
@@ -208,11 +203,6 @@ void config_init(void)
     parameter_scalar_declare(&right_arm.control.y.ki, &right_arm.control.y.ns, "ki");
     parameter_scalar_declare(&right_arm.control.y.kd, &right_arm.control.y.ns, "kd");
     parameter_scalar_declare(&right_arm.control.y.ilimit, &right_arm.control.y.ns, "ilimit");
-    parameter_namespace_declare(&right_arm.control.heading.ns, &right_arm.control.ns, "heading");
-    parameter_scalar_declare(&right_arm.control.heading.kp, &right_arm.control.heading.ns, "kp");
-    parameter_scalar_declare(&right_arm.control.heading.ki, &right_arm.control.heading.ns, "ki");
-    parameter_scalar_declare(&right_arm.control.heading.kd, &right_arm.control.heading.ns, "kd");
-    parameter_scalar_declare(&right_arm.control.heading.ilimit, &right_arm.control.heading.ns, "ilimit");
 #endif
 }
 

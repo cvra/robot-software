@@ -907,11 +907,11 @@ static void cmd_scara_goto(BaseSequentialStream *chp, int argc, char *argv[])
     }
 
     if (strcmp("robot", argv[0]) == 0) {
-        scara_goto(arm, x, y, z, 0, COORDINATE_ROBOT, 1.);
+        scara_goto(arm, x, y, z, COORDINATE_ROBOT, 1.);
     } else if (strcmp("table", argv[0]) == 0) {
-        scara_goto(arm, x, y, z, 0, COORDINATE_TABLE, 1.);
+        scara_goto(arm, x, y, z, COORDINATE_TABLE, 1.);
     } else {
-        scara_goto(arm, x, y, z, 0, COORDINATE_ARM, 1.);
+        scara_goto(arm, x, y, z, COORDINATE_ARM, 1.);
     }
 }
 
@@ -941,12 +941,12 @@ static void cmd_scara_mode(BaseSequentialStream *chp, int argc, char *argv[])
 
 static void cmd_scara_mv(BaseSequentialStream *chp, int argc, char *argv[])
 {
-    if (argc != 5) {
-        chprintf(chp, "Usage: scara_mv side x y a l3\r\n");
+    if (argc != 4) {
+        chprintf(chp, "Usage: scara_mv side x y l3\r\n");
         return;
     }
     scara_t* arm;
-    float x, y, z, a, l3;
+    float x, y, z, l3;
 
     if (strcmp("left", argv[0]) == 0) {
         arm = &left_arm;
@@ -956,18 +956,17 @@ static void cmd_scara_mv(BaseSequentialStream *chp, int argc, char *argv[])
 
     scara_trajectory_t trajectory;
 
-    scara_pos(arm, &x, &y, &z, &a, COORDINATE_TABLE);
+    scara_pos(arm, &x, &y, &z, COORDINATE_TABLE);
     scara_trajectory_init(&trajectory);
-    scara_trajectory_append_point_with_length(&trajectory, x, y, z, a, COORDINATE_TABLE, 0, arm->length[0], arm->length[1], arm->length[2]);
+    scara_trajectory_append_point_with_length(&trajectory, x, y, z, COORDINATE_TABLE, 0, arm->length[0], arm->length[1], arm->length[2]);
 
     x = atof(argv[1]);
     y = atof(argv[2]);
-    a = RADIANS(atof(argv[3]));
-    l3 = atof(argv[4]);
-    scara_trajectory_append_point_with_length(&trajectory, x, y, z, a, COORDINATE_TABLE, 1, arm->length[0], arm->length[1], l3);
+    l3 = atof(argv[3]);
+    scara_trajectory_append_point_with_length(&trajectory, x, y, z, COORDINATE_TABLE, 1, arm->length[0], arm->length[1], l3);
     scara_do_trajectory(arm, &trajectory);
 
-    chprintf(chp, "Moving %s arm to %f %f %f heading %fdeg in table frame\r\n", argv[0], x, y, z, DEGREES(a));
+    chprintf(chp, "Moving %s arm to %f %f %f in table frame\r\n", argv[0], x, y, z);
 }
 
 static void cmd_scara_z(BaseSequentialStream *chp, int argc, char *argv[])
@@ -1004,16 +1003,16 @@ static void cmd_scara_pos(BaseSequentialStream *chp, int argc, char *argv[])
         arm = &right_arm;
     }
 
-    float x, y, z, a;
+    float x, y, z;
     if (strcmp("robot", argv[0]) == 0) {
-        scara_pos(arm, &x, &y, &z, &a, COORDINATE_ROBOT);
+        scara_pos(arm, &x, &y, &z, COORDINATE_ROBOT);
     } else if (strcmp("table", argv[0]) == 0) {
-        scara_pos(arm, &x, &y, &z, &a, COORDINATE_TABLE);
+        scara_pos(arm, &x, &y, &z, COORDINATE_TABLE);
     } else {
-        scara_pos(arm, &x, &y, &z, &a, COORDINATE_ARM);
+        scara_pos(arm, &x, &y, &z, COORDINATE_ARM);
     }
 
-    chprintf(chp, "Position of %s arm is %f %f %f heading %fdeg in %s frame\r\n", argv[1], x, y, z, DEGREES(a), argv[0]);
+    chprintf(chp, "Position of %s arm is %f %f %f in %s frame\r\n", argv[1], x, y, z, argv[0]);
 }
 
 
@@ -1058,14 +1057,14 @@ static void cmd_scara_traj(BaseSequentialStream *chp, int argc, char *argv[])
 
     /* interactive command line */
     chprintf(chp, "enter trajectory points, press x to execute, q to abort and exit\n");
-    chprintf(chp, "input:\n> coord x y z a p dt l3\n");
+    chprintf(chp, "input:\n> coord x y z dt l3\n");
 
     scara_trajectory_t trajectory;
     scara_trajectory_init(&trajectory);
     unsigned i = 0;
     char* token = NULL;
     char* coord = NULL;
-    long point[6]; // x, y, z, a, dt, l3;
+    long point[5]; // x, y, z, dt, l3;
     scara_coordinate_t system = COORDINATE_ARM;
     const unsigned point_len = sizeof(point) / sizeof(long) + 1;
 
@@ -1110,13 +1109,12 @@ static void cmd_scara_traj(BaseSequentialStream *chp, int argc, char *argv[])
             }
 
             if (j == point_len) {
-                scara_trajectory_append_point_with_length(
-                        &trajectory, point[0], point[1], point[2], RADIANS(point[3]),
-                        system, (float)point[4] * 0.001, arm->length[0], arm->length[1], point[5]);
+                scara_trajectory_append_point_with_length(&trajectory, point[0], point[1], point[2],
+                        system, (float)point[3] * 0.001, arm->length[0], arm->length[1], point[4]);
                 i++;
 
-                chprintf(chp, "Point %d coord:%s x:%d y:%d z:%d a:%d dt:%d l3:%d added successfully.\n",
-                        i, coord, point[0], point[1], point[2], point[3], point[4], point[5]);
+                chprintf(chp, "Point %d coord:%s x:%d y:%d z:%d dt:%d l3:%d added successfully.\n",
+                        i, coord, point[0], point[1], point[2], point[3], point[4]);
             }
         }
         scara_do_trajectory(arm, &trajectory);
@@ -1168,18 +1166,18 @@ static void cmd_state(BaseSequentialStream *chp, int argc, char *argv[])
     (void)argc;
     (void)argv;
 
-    float x, y, z, a;
+    float x, y, z;
 
     chprintf(chp, "Current robot state:\r\n");
 
     chprintf(chp, "Position of robot is %d %d %d\r\n",
              position_get_x_s16(&robot.pos), position_get_y_s16(&robot.pos), position_get_a_deg_s16(&robot.pos));
 
-    scara_pos(&right_arm, &x, &y, &z, &a, COORDINATE_TABLE);
-    chprintf(chp, "Position of right arm is %.1f %.1f %.1f heading %.1fdeg in table frame\r\n", x, y, z, DEGREES(a));
+    scara_pos(&right_arm, &x, &y, &z, COORDINATE_TABLE);
+    chprintf(chp, "Position of right arm is %.1f %.1f %.1f in table frame\r\n", x, y, z);
 
-    scara_pos(&left_arm, &x, &y, &z, &a, COORDINATE_TABLE);
-    chprintf(chp, "Position of left arm is %.1f %.1f %.1f heading %.1fdeg in table frame\r\n", x, y, z, DEGREES(a));
+    scara_pos(&left_arm, &x, &y, &z, COORDINATE_TABLE);
+    chprintf(chp, "Position of left arm is %.1f %.1f %.1f in table frame\r\n", x, y, z);
 }
 
 

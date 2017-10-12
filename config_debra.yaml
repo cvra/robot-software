@@ -60,11 +60,6 @@ master:
                 ki: 0.
                 kd: 5
                 ilimit: 100.
-            heading:
-                kp: 10.
-                ki: 0.
-                kd: 0.
-                ilimit: 100.
     right_arm:
         control:
             x:
@@ -76,11 +71,6 @@ master:
                 kp: 10.
                 ki: 0.
                 kd: 5.
-                ilimit: 100.
-            heading:
-                kp: 40.
-                ki: 0.
-                kd: 100.
                 ilimit: 100.
     arms:
         upperarm_length: 86. # in mm
