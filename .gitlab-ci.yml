@@ -14,8 +14,9 @@ models_test:
 firmware_tests:
   stage: test
   image: antoinealb/cpputest
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
   before_script:
-    - git submodule update --init
     - apt-get update && apt-get install -y cmake python3-pip
     - pip3 install cvra-packager
   script:
@@ -28,8 +29,9 @@ firmware_tests:
 firmware_build:
   stage: test
   image: antoinealb/gcc-arm-embedded
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
   before_script:
-    - git submodule update --init
     - apt-get update && apt-get install -y python3-pip
     - pip3 install cvra-packager
   script:
