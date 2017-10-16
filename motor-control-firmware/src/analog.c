@@ -113,6 +113,10 @@ static THD_FUNCTION(adc_task, arg)
 
     adcStart(&ADCD1, NULL);
 
+    // fix for ChibiOS ADC config bug
+    ADCD1.adcc->CCR = STM32_ADC_ADC12_CLOCK_MODE | ADC_CCR_MDMA_WORD |
+                      (ADCD1.adcc->CCR & ~(ADC_CCR_CKMODE_MASK | ADC_CCR_MDMA_MASK));
+
     adcConvert(&ADCD1, &adcgrpcfg1, adc_samples, DMA_BUFFER_SIZE); // should never return
 }
 
