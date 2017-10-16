@@ -210,28 +210,22 @@ struct IndexArms : public goap::Action<DebraState> {
         /* Z axis indexing */
         cvra_arm_motor_t* z_motors[] = {
             (cvra_arm_motor_t *)left_arm.z_args,
-            (cvra_arm_motor_t *)right_arm.z_args,
         };
-        float z_speeds[] = {-20, -20};
+        float z_speeds[] = {-20};
         arms_auto_index(z_motors, z_speeds, sizeof(z_speeds) / sizeof(float));
 
         z_motors[0]->index += config_get_scalar("master/arms/motor_offsets/left-z");
-        z_motors[1]->index += config_get_scalar("master/arms/motor_offsets/right-z");
 
         /* Arm indexing */
         cvra_arm_motor_t* motors[] = {
             (cvra_arm_motor_t *)left_arm.shoulder_args,
             (cvra_arm_motor_t *)left_arm.elbow_args,
-            (cvra_arm_motor_t *)right_arm.shoulder_args,
-            (cvra_arm_motor_t *)right_arm.elbow_args,
         };
-        float motor_speeds[] = {0.8, 0.8, -0.8, -0.8};
+        float motor_speeds[] = {0.8, 0.8};
         arms_auto_index(motors, motor_speeds, sizeof(motor_speeds) / sizeof(float));
 
         motors[0]->index += config_get_scalar("master/arms/motor_offsets/left-shoulder");
         motors[1]->index += config_get_scalar("master/arms/motor_offsets/left-elbow");
-        motors[2]->index += config_get_scalar("master/arms/motor_offsets/right-shoulder");
-        motors[3]->index += config_get_scalar("master/arms/motor_offsets/right-elbow");
 
         state.arms_are_indexed = true;
         return true;

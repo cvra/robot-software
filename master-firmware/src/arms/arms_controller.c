@@ -16,7 +16,6 @@
 
 
 scara_t left_arm;
-scara_t right_arm;
 
 
 static void set_index_stream_frequency(char* motor, float freq)
@@ -51,26 +50,6 @@ void arms_init(void)
     scara_set_offset(&left_arm, config_get_scalar("master/arms/left/offset_x"),
                      config_get_scalar("master/arms/left/offset_y"),
                      config_get_scalar("master/arms/left/offset_a"));
-
-    /* Configure right arm */
-    scara_init(&right_arm);
-    static cvra_arm_motor_t right_z = {.id = "right-z", .direction = 1, .index = 0};
-    static cvra_arm_motor_t right_shoulder = {.id = "right-shoulder", .direction = -1, .index = 0};
-    static cvra_arm_motor_t right_elbow = {.id = "right-elbow", .direction = -1, .index = 0};
-
-    scara_set_z_callbacks(&right_arm, set_motor_position, get_motor_position, &right_z);
-    scara_set_shoulder_callbacks(&right_arm, set_motor_position, set_motor_velocity, get_motor_position, &right_shoulder);
-    scara_set_elbow_callbacks(&right_arm, set_motor_position, set_motor_velocity, get_motor_position, &right_elbow);
-
-    scara_set_related_robot_pos(&right_arm, &robot.pos);
-
-    scara_set_physical_parameters(&right_arm,
-                                  config_get_scalar("master/arms/upperarm_length"),
-                                  config_get_scalar("master/arms/forearm_length"));
-
-    scara_set_offset(&right_arm, config_get_scalar("master/arms/right/offset_x"),
-                     config_get_scalar("master/arms/right/offset_y"),
-                     config_get_scalar("master/arms/right/offset_a"));
 }
 
 float arms_motor_auto_index(const char* motor_name, int motor_dir, float motor_speed)
@@ -107,22 +86,15 @@ static THD_FUNCTION(arms_ctrl_thd, arg)
     (void) arg;
     chRegSetThreadName(__FUNCTION__);
 
-    parameter_namespace_t *left_arm_control_params = parameter_namespace_find(&master_config,
-                                                                              "left_arm/control");
-    parameter_namespace_t *right_arm_control_params = parameter_namespace_find(&master_config,
-                                                                               "right_arm/control");
+    parameter_namespace_t *left_arm_control_params = parameter_namespace_find(&master_config, "left_arm/control");
 
     NOTICE("Start arm control");
     while (true) {
         if (parameter_namespace_contains_changed(left_arm_control_params)) {
             arms_update_controller_gains(left_arm_control_params, &left_arm);
         }
-        if (parameter_namespace_contains_changed(right_arm_control_params)) {
-            arms_update_controller_gains(right_arm_control_params, &right_arm);
-        }
 
         scara_manage(&left_arm);
-        scara_manage(&right_arm);
 
         chThdSleepMilliseconds(1000 / ARMS_FREQUENCY);
     }

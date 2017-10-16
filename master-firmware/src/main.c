@@ -306,10 +306,6 @@ void init_arm_motors(void)
     motor_manager_create_driver(&motor_manager, "left-z");
     motor_manager_create_driver(&motor_manager, "left-shoulder");
     motor_manager_create_driver(&motor_manager, "left-elbow");
-
-    motor_manager_create_driver(&motor_manager, "right-z");
-    motor_manager_create_driver(&motor_manager, "right-shoulder");
-    motor_manager_create_driver(&motor_manager, "right-elbow");
 }
 
 void __stack_chk_fail(void)
