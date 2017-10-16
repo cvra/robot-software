@@ -280,36 +280,26 @@ TEST_GROUP(JacobianTestGroup)
 /* See doc/Debra Kinematics.ipynb for values. */
 TEST(JacobianTestGroup, SmokeTest)
 {
-    float f_x = 1, f_y = 1, f_theta = 0, f_pitch = 0;
-    float alpha = 0.2, beta = -0.2, gamma = 0., delta = 0.;
-    float l1 = 100, l2 = 200, l3 = 30;
-    float torque_alpha, torque_beta, torque_gamma, torque_delta;
+    float f_x = 1, f_y = 1;
+    float alpha = 0.2, beta = -0.2;
+    float l1 = 100, l2 = 200;
+    float torque_alpha, torque_beta;
 
-    scara_jacobian_compute(f_x, f_y, f_theta, f_pitch,
-                           alpha, beta, gamma, delta,
-                           l1, l2, l3,
-                           &torque_alpha,  &torque_beta,  &torque_gamma, &torque_delta);
+    scara_jacobian_compute(f_x, f_y, alpha, beta, l1, l2, &torque_alpha, &torque_beta);
 
-    DOUBLES_EQUAL(-0.04874946, torque_alpha, 1e-3);
-    DOUBLES_EQUAL(0.07341263, torque_beta, 1e-3);
-    DOUBLES_EQUAL(0.0034615, torque_gamma, 1e-3);
-    DOUBLES_EQUAL(0, torque_delta, 1e-3);
+    DOUBLES_EQUAL(-0.04867114, torque_alpha, 1e-3);
+    DOUBLES_EQUAL(0.07751386, torque_beta, 1e-3);
 }
 
 TEST(JacobianTestGroup, TestSingularity)
 {
-    float f_x = 1, f_y = 1, f_theta = 0, f_pitch = 0;
-    float alpha = 0.2e-3, beta = -0.2e-3, gamma = 0., delta = 0.;
-    float l1 = 100, l2 = 200, l3 = 30;
-    float torque_alpha, torque_beta, torque_gamma, torque_delta;
+    float f_x = 1, f_y = 1;
+    float alpha = 0.2e-3, beta = -0.2e-3;
+    float l1 = 100, l2 = 200;
+    float torque_alpha, torque_beta;
 
-    scara_jacobian_compute(f_x, f_y, f_theta, f_pitch,
-                           alpha, beta, gamma, delta,
-                           l1, l2, l3,
-                           &torque_alpha,  &torque_beta,  &torque_gamma, &torque_delta);
+    scara_jacobian_compute(f_x, f_y, alpha, beta, l1, l2, &torque_alpha, &torque_beta);
 
-    DOUBLES_EQUAL(0.00056127, torque_alpha, 1e-3);
-    DOUBLES_EQUAL(0.00358869, torque_beta, 1e-3);
-    DOUBLES_EQUAL(-0.00035656, torque_gamma, 1e-3);
-    DOUBLES_EQUAL(0, torque_delta, 1e-3);
+    DOUBLES_EQUAL(0.00076903, torque_alpha, 1e-3);
+    DOUBLES_EQUAL(0.00384607, torque_beta, 1e-3);
 }

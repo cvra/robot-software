@@ -211,30 +211,22 @@ void scara_manage(scara_t *arm)
 
     if (arm->control_mode == CONTROL_JAM_PID_XYA) {
         float measured_x, measured_y, measured_z;
-        scara_pos_with_length(arm,
-                              &measured_x,
-                              &measured_y,
-                              &measured_z,
+        scara_pos_with_length(arm, &measured_x, &measured_y, &measured_z,
                               COORDINATE_ARM);
 
         float consign_x = pid_process(&arm->x_pid, measured_x - frame.position[0]);
         float consign_y = pid_process(&arm->y_pid, measured_y - frame.position[1]);
 
-        float velocity_alpha, velocity_beta, velocity_gamma, velocity_delta;
-        scara_jacobian_compute(consign_x, consign_y, 0.f, 0.f,
-                               arm->shoulder_pos, arm->elbow_pos, 0.f, 0.f,
-                               frame.length[0], frame.length[1], 0.f,
-                               &velocity_alpha, &velocity_beta, &velocity_gamma, &velocity_delta);
+        float velocity_alpha, velocity_beta;
+        scara_jacobian_compute(consign_x, consign_y, arm->shoulder_pos,
+                               arm->elbow_pos, frame.length[0], frame.length[1],
+                               &velocity_alpha, &velocity_beta);
 
-        scara_pos_with_length(arm,
-                              &measured_x,
-                              &measured_y,
-                              &measured_z,
+        scara_pos_with_length(arm, &measured_x, &measured_y, &measured_z,
                               frame.coordinate_type);
 
-        DEBUG("Arm x %.3f y %.3f Arm velocities %.3f %.3f %.3f %.3f",
-              measured_x, measured_y,
-              velocity_alpha, velocity_beta, velocity_gamma, velocity_delta);
+        DEBUG("Arm x %.3f y %.3f Arm velocities %.3f %.3f",
+              measured_x, measured_y, velocity_alpha, velocity_beta);
 
         /* Set motor commands */
         arm->set_z_position(arm->z_args, frame.position[2]);
