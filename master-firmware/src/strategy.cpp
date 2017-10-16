@@ -293,10 +293,6 @@ void strategy_debra_play_game(void)
 
     goap::Planner<DebraState> planner(actions, sizeof(actions) / sizeof(actions[0]));
 
-    for (size_t i = 0; i < 4; i++) {
-        hand_set_finger(&right_hand, i, FINGER_RETRACTED);
-    }
-
     NOTICE("Getting arms ready...");
     len = planner.plan(state, init_goal, path, max_path_len);
     for (int i = 0; i < len; i++) {

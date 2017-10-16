@@ -8,7 +8,6 @@
 #include "can/motor_manager.h"
 #include "robot_helpers/motor_helpers.h"
 #include "base/base_controller.h"
-#include "can/hand_driver.h"
 
 #include "arms_controller.h"
 
@@ -18,9 +17,6 @@
 
 scara_t left_arm;
 scara_t right_arm;
-
-hand_t left_hand;
-hand_t right_hand;
 
 
 static void set_index_stream_frequency(char* motor, float freq)
@@ -75,14 +71,6 @@ void arms_init(void)
     scara_set_offset(&right_arm, config_get_scalar("master/arms/right/offset_x"),
                      config_get_scalar("master/arms/right/offset_y"),
                      config_get_scalar("master/arms/right/offset_a"));
-
-    /* Configure left hand */
-    hand_init(&left_hand);
-    hand_set_fingers_callbacks(&left_hand, hand_driver_set_left_fingers);
-
-    /* Configure right hand */
-    hand_init(&right_hand);
-    hand_set_fingers_callbacks(&right_hand, hand_driver_set_right_fingers);
 }
 
 float arms_motor_auto_index(const char* motor_name, int motor_dir, float motor_speed)
@@ -135,9 +123,6 @@ static THD_FUNCTION(arms_ctrl_thd, arg)
 
         scara_manage(&left_arm);
         scara_manage(&right_arm);
-
-        hand_manage(&left_hand);
-        hand_manage(&right_hand);
 
         chThdSleepMilliseconds(1000 / ARMS_FREQUENCY);
     }

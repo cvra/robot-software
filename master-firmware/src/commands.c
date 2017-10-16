@@ -32,7 +32,6 @@
 #include "scara/scara_utils.h"
 #include "scara/scara_trajectories.h"
 #include "arms/arms_controller.h"
-#include "can/hand_driver.h"
 #include "strategy.h"
 #include <trace/trace.h>
 
@@ -1138,28 +1137,6 @@ static void cmd_base_mode(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
-static void cmd_fingers_cmd(BaseSequentialStream *chp, int argc, char *argv[])
-{
-    if (argc != 3) {
-        chprintf(chp, "Usage: fingers_cmd hand slot status\r\n");
-        return;
-    }
-
-    hand_t* hand;
-    if (strcmp("left", argv[0]) == 0) {
-        hand = &left_hand;
-    } else {
-        hand = &right_hand;
-    }
-
-    int slot = atoi(argv[1]);
-    int status = atoi(argv[2]);
-
-    hand_set_finger(hand, slot, status);
-
-    chprintf(chp, "Set fingers of %s hand, slot %d: %d\r\n", argv[0], slot, status);
-}
-
 static void cmd_state(BaseSequentialStream *chp, int argc, char *argv[])
 {
     (void)argc;
@@ -1259,7 +1236,6 @@ const ShellCommand commands[] = {
     {"scara_pos", cmd_scara_pos},
     {"scara_traj", cmd_scara_traj},
     {"base_mode", cmd_base_mode},
-    {"fingers_cmd", cmd_fingers_cmd},
     {"rocket", cmd_rocket},
     {"state", cmd_state},
     {"trace", cmd_trace},

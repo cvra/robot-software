@@ -41,7 +41,6 @@
 
 void init_base_motors(void);
 void init_arm_motors(void);
-void init_hands(void);
 
 motor_manager_t motor_manager;
 
@@ -226,7 +225,6 @@ int main(void)
 #ifdef DEBRA
     chThdSleepMilliseconds(100);
     init_arm_motors();
-    init_hands();
 #endif
 
     /* Load stored robot config */
@@ -312,15 +310,6 @@ void init_arm_motors(void)
     motor_manager_create_driver(&motor_manager, "right-z");
     motor_manager_create_driver(&motor_manager, "right-shoulder");
     motor_manager_create_driver(&motor_manager, "right-elbow");
-}
-
-void init_hands(void)
-{
-    motor_manager_create_driver(&motor_manager, "right-element-rotate");
-    motor_manager_create_driver(&motor_manager, "left-element-rotate");
-
-    bus_enumerator_add_node(&bus_enumerator, "left-hand", NULL);
-    bus_enumerator_add_node(&bus_enumerator, "right-hand", NULL);
 }
 
 void __stack_chk_fail(void)

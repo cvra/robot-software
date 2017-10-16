@@ -10,7 +10,6 @@
 #include "error/error.h"
 #include "motor_driver.h"
 #include "motor_driver_uavcan.hpp"
-#include "hand_driver.h"
 #include "config.h"
 #include "rocket_driver.h"
 #include "uavcan_node.h"
@@ -122,11 +121,6 @@ static void main(void *arg)
     res = motor_driver_uavcan_init(node);
     if (res < 0) {
         ERROR("motor driver");
-    }
-
-    res = hand_driver_init(node);
-    if (res < 0) {
-        ERROR("hand driver");
     }
 
     res = emergency_stop_init(node);
