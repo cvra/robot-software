@@ -10,6 +10,7 @@
 #include "ahrs_thread.h"
 #include "decadriver/deca_device_api.h"
 #include "decadriver/deca_regs.h"
+#include "decawave_interface.h"
 
 #define TEST_WA_SIZE  THD_WORKING_AREA_SIZE(256)
 #define SHELL_WA_SIZE THD_WORKING_AREA_SIZE(2048)
@@ -112,7 +113,6 @@ static void cmd_imu(BaseSequentialStream *chp, int argc, char **argv)
     chprintf(chp, "mag [uT] :\t%.2f %.2f %.2f\r\n", msg.mag.x, msg.mag.y, msg.mag.z);
 }
 
-
 static void cmd_temp(BaseSequentialStream *chp, int argc, char **argv)
 {
     (void) argc;
@@ -150,65 +150,6 @@ static void cmd_ahrs(BaseSequentialStream *chp, int argc, char **argv)
     }
 }
 
-BaseSequentialStream *output;
-
-int readfromspi(uint16 headerLength, const uint8 *headerBuffer, uint32 readlength,
-                uint8 *readBuffer)
-{
-    spiSelect(&SPID1);
-    spiSend(&SPID1, headerLength, headerBuffer);
-    spiReceive(&SPID1, readlength, readBuffer);
-    spiUnselect(&SPID1);
-
-#ifdef DW1000_SPI_DUMP
-    chprintf(output, "%s -> ", __FUNCTION__);
-    for (int i = 0; i < headerLength; i++) {
-        chprintf(output, "0x%02x ", headerBuffer[i]);
-    }
-    chprintf(output, "| ");
-    for (int i = 0; i < readlength; i++) {
-        chprintf(output, "0x%02x ", readBuffer[i]);
-    }
-    chprintf(output, "\r\n");
-#endif
-}
-
-int writetospi(uint16 headerLength, const uint8 *headerBuffer,
-               uint32 bodyLength, const uint8 *bodyBuffer)
-{
-#ifdef DW1000_SPI_DUMP
-    chprintf(output, "%s -> ", __FUNCTION__);
-    for (int i = 0; i < headerLength; i++) {
-        chprintf(output, "0x%02x ", headerBuffer[i]);
-    }
-    chprintf(output, "| ");
-
-    for (int i = 0; i < bodyLength; i++) {
-        chprintf(output, "0x%02x ", bodyBuffer[i]);
-    }
-    chprintf(output, "\r\n");
-#endif
-
-    spiSelect(&SPID1);
-    spiSend(&SPID1, headerLength, headerBuffer);
-    spiSend(&SPID1, bodyLength, bodyBuffer);
-    spiUnselect(&SPID1);
-}
-
-void deca_sleep(unsigned int time_ms)
-{
-    chThdSleepMilliseconds(time_ms);
-}
-
-decaIrqStatus_t decamutexon(void)
-{
-    return 0;
-}
-
-void decamutexoff(decaIrqStatus_t s)
-{
-}
-
 static void cmd_dwm(BaseSequentialStream *chp, int argc, char **argv)
 {
     if (argc < 1) {
@@ -216,52 +157,14 @@ static void cmd_dwm(BaseSequentialStream *chp, int argc, char **argv)
         return;
     }
 
-    /* Configuration example taken straight from decawave's example. */
-    static dwt_config_t config = {
-        2,               /* Channel number. */
-        DWT_PRF_64M,     /* Pulse repetition frequency. */
-        DWT_PLEN_1024,   /* Preamble length. Used in TX only. */
-        DWT_PAC32,       /* Preamble acquisition chunk size. Used in RX only. */
-        9,               /* TX preamble code. Used in TX only. */
-        9,               /* RX preamble code. Used in RX only. */
-        1,               /* 0 to use standard SFD, 1 to use non-standard SFD. */
-        DWT_BR_110K,     /* Data rate. */
-        DWT_PHRMODE_STD, /* PHY header mode. */
-        (1025 + 64 - 32) /* SFD timeout (preamble length + 1 + SFD length - PAC size). Used in RX only. */
-    };
-
-    static SPIConfig spi_cfg = {
-        .end_cb = NULL,
-        .ssport = GPIOA,
-        .sspad = GPIOA_UWB_CS_N,
-        .cr1 = SPI_CR1_BR_2 | SPI_CR1_BR_0
-    };
-    spiStart(&SPID1, &spi_cfg);
-
-    output = chp;
-    uint32_t id = dwt_readdevid();
-    chprintf(chp, "id=0x%x\r\n", id);
-
-    chprintf(chp, "Configuring DW1000\r\n");
-    if (dwt_initialise(DWT_LOADNONE) == DWT_ERROR) {
-        chprintf(chp, "INIT FAILED\r\n");
-        return;
-    }
-
-
-    /* Configure GPIOs to show TX/RX activity. */
-    dwt_setlnapamode(1, 1);
-    dwt_setleds(DWT_LEDS_ENABLE);
-    dwt_configure(&config);
-
 
     if (!strcmp(argv[0], "tx")) {
         /* DElay from end of transmission to activation of reception in
          * microseconds. */
-        //dwt_setrxaftertxdelay(60);
+        dwt_setrxaftertxdelay(60);
         while (1) {
             chprintf(chp, "Sending packet\r\n");
-            const char tx_msg[] = "ping";
+            unsigned char tx_msg[] = "ping";
 
             /* We need to pass sizeof + 2, because those functions assume the
              * checksum size is included. */
@@ -278,7 +181,6 @@ static void cmd_dwm(BaseSequentialStream *chp, int argc, char **argv)
                 chThdSleepMilliseconds(100);
             }
 
-
             /* Clear TX frame sent event. */
             dwt_write32bitreg(SYS_STATUS_ID, SYS_STATUS_TXFRS);
 
@@ -287,7 +189,7 @@ static void cmd_dwm(BaseSequentialStream *chp, int argc, char **argv)
         }
     } else if (!strcmp(argv[0], "rx")) {
         while (1) {
-            static char rx_buffer[100];
+            static unsigned char rx_buffer[100];
             memset(rx_buffer, 0, sizeof(rx_buffer));
             dwt_rxenable(DWT_START_RX_IMMEDIATE);
             /* Poll until a frame is properly received or an error/timeout occurs. See NOTE 4 below.
@@ -472,12 +374,6 @@ static THD_FUNCTION(shell_spawn_thd, p)
     shell_cfg.sc_commands = shell_commands;
 
     shellInit();
-
-#if 0
-    const char arg[] = "tx";
-    const char **argv[] = {arg};
-    cmd_dwm(io, 1, argv);
-#endif
 
     while (TRUE) {
         if (!shelltp) {

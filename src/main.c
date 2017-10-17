@@ -10,6 +10,7 @@
 #include "imu_thread.h"
 #include "ahrs_thread.h"
 #include "uavcan/uavcan_node.h"
+#include "decawave_interface.h"
 
 messagebus_t bus;
 MUTEX_DECL(bus_lock);
@@ -56,6 +57,7 @@ int main(void)
     exti_start();
     imu_start();
     ahrs_start();
+    decawave_start();
     uavcan_node_start(boot_config.ID, boot_config.board_name);
 
     while(true) {
