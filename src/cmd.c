@@ -261,9 +261,12 @@ static void cmd_dwm(BaseSequentialStream *chp, int argc, char **argv)
         //dwt_setrxaftertxdelay(60);
         while (1) {
             chprintf(chp, "Sending packet\r\n");
-            const char *tx_msg = "ping";
-            dwt_writetxdata(sizeof(tx_msg), tx_msg, 0); /* Zero offset in TX buffer. */
-            dwt_writetxfctrl(sizeof(tx_msg), 0, 0); /* Zero offset in TX buffer, no ranging. */
+            const char tx_msg[] = "ping";
+
+            /* We need to pass sizeof + 2, because those functions assume the
+             * checksum size is included. */
+            dwt_writetxdata(sizeof(tx_msg)+2, tx_msg, 0); /* Zero offset in TX buffer. */
+            dwt_writetxfctrl(sizeof(tx_msg)+2, 0, 0); /* Zero offset in TX buffer, no ranging. */
 
             /* Start transmission. */
             dwt_starttx(DWT_START_TX_IMMEDIATE);
