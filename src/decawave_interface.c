@@ -1,8 +1,9 @@
 #include <ch.h>
 #include <hal.h>
+#include <chprintf.h>
+#include "exti.h"
 #include "decadriver/deca_device_api.h"
 #include "decadriver/deca_regs.h"
-
 
 int readfromspi(uint16 headerLength, const uint8 *headerBuffer, uint32 readlength,
                 uint8 *readBuffer)
@@ -35,24 +36,38 @@ void deca_sleep(unsigned int time_ms)
 
 decaIrqStatus_t decamutexon(void)
 {
-    int irq_enabled = port_irq_enabled(port_get_irq_status());
+    int irq_enabled = 0;
 
-    if (irq_enabled) {
-        chSysLock();
-    }
+    /* TODO Proper locking ((prevent DWM1000 interrupts from arriving).
+     *
+     * Cannot use chSysLock because it uses SPI transfers in critical sections.*/
 
     return irq_enabled;
 }
 
 void decamutexoff(decaIrqStatus_t enable_irq)
 {
-    if (enable_irq) {
-        chSysUnlock();
-    }
+    /* TODO Proper locking (see above) */
+    (void) enable_irq;
 }
 
-void decawave_start(void)
+static void frame_rx_cb(const dwt_cb_data_t *data)
 {
+    static unsigned char frame[100];
+    dwt_readrxdata(frame, data->datalength, 0);
+    chprintf((BaseSequentialStream *)&SD2,
+            "Received a frame of length %d \"%s\"\r\n", data->datalength, frame);
+
+    /* We need to manually re enable the receiver once a frame was processed. */
+    dwt_rxenable(DWT_START_RX_IMMEDIATE);
+}
+
+static void decawave_thread(void *p)
+{
+    (void) p;
+
+    chRegSetThreadName("decawave_drv");
+
     static SPIConfig spi_cfg = {
         .end_cb = NULL,
         .ssport = GPIOA,
@@ -60,30 +75,57 @@ void decawave_start(void)
         /* 2.65 Mhz */
         .cr1 = SPI_CR1_BR_2
     };
+
     spiStart(&SPID1, &spi_cfg);
 
     if (dwt_initialise(DWT_LOADUCODE) == DWT_ERROR) {
         chSysHalt("dwm1000 init fail");
     }
+
     dwt_setlnapamode(1, 1);
     dwt_setleds(DWT_LEDS_ENABLE);
-
 
     /* Configuration example taken straight from decawave's example. */
     /* TODO: Make it a bit more easy to configure */
     static dwt_config_t config = {
-        2,               /* Channel number. */
+        5,               /* Channel number. */
         DWT_PRF_64M,     /* Pulse repetition frequency. */
         DWT_PLEN_1024,   /* Preamble length. Used in TX only. */
         DWT_PAC32,       /* Preamble acquisition chunk size. Used in RX only. */
-        9,               /* TX preamble code. Used in TX only. */
-        9,               /* RX preamble code. Used in RX only. */
-        1,               /* 0 to use standard SFD, 1 to use non-standard SFD. */
-        DWT_BR_110K,     /* Data rate. */
-        DWT_PHRMODE_STD, /* PHY header mode. */
+        /* Preamble codes (RX, TX) */
+        5, 5,
+        1,  /* Non standard SFD */
+        DWT_BR_6M8,     /* Data rate. */
+        DWT_PHRMODE_EXT, /* PHY header mode. */
         /* SFD timeout (preamble length + 1 + SFD length - PAC size). Used in RX only. */
         (1025 + 64 - 32)
     };
 
     dwt_configure(&config);
+
+    /* Enable interrupt on frame RX */
+    uint32_t interrupts = DWT_INT_RFCG;
+    dwt_setinterrupt(interrupts, 1);
+
+    /* Configure interrupt listener. */
+    event_listener_t uwb_int;
+    chEvtRegisterMaskWithFlags(&exti_events, &uwb_int,
+                               (eventmask_t)EXTI_EVENT_UWB_INT,
+                               (eventflags_t)EXTI_EVENT_UWB_INT);
+
+    dwt_setcallbacks(NULL, frame_rx_cb, NULL, NULL);
+
+    while (1) {
+        /* Wait for an interrupt coming from the UWB module. */
+        chEvtWaitAny(EXTI_EVENT_UWB_INT);
+
+        /* Process the interrupt. */
+        dwt_isr();
+    }
+}
+
+void decawave_start(void)
+{
+    static THD_WORKING_AREA(thd_wa, 512);
+    chThdCreateStatic(thd_wa, sizeof(thd_wa), HIGHPRIO, decawave_thread, NULL);
 }

@@ -5,7 +5,8 @@
 extern "C" {
 #endif
 
-#define EXTI_EVENT_IMU_INT     1
+#define EXTI_EVENT_IMU_INT     (1 << 0)
+#define EXTI_EVENT_UWB_INT     (1 << 1)
 
 extern event_source_t exti_events;
 

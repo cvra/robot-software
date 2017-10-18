@@ -42,7 +42,7 @@
 #define GPIOA_UWB_CLK               5U
 #define GPIOA_UWB_MISO              6U
 #define GPIOA_UWB_MOSI              7U
-#define GPIOA_PIN8                  8U
+#define GPIOA_UWB_INT               8U
 #define GPIOA_UWB_RST_N             9U
 #define GPIOA_PIN10                 10U
 #define GPIOA_OTG_FS_DM             11U
@@ -123,7 +123,7 @@
  * GPIOA_UWB_CLK                    (alternate 5).
  * GPIOA_UWB_MISO                   (alternate 5).
  * GPIOA_UWB_MOSI                   (alternate 5).
- * GPIOA_PIN8                       (input floating).
+ * GPIOA_UWB_INT                    (input floating).
  * GPIOA_UWB_RST_N                  (input floating).
  * GPIOA_PIN10                      (input floating).
  * GPIOA_OTG_FS_DM                  (alternate 10).
@@ -140,7 +140,7 @@
                                      PIN_MODE_ALTERNATE(GPIOA_UWB_CLK) | \
                                      PIN_MODE_ALTERNATE(GPIOA_UWB_MISO) | \
                                      PIN_MODE_ALTERNATE(GPIOA_UWB_MOSI) | \
-                                     PIN_MODE_INPUT(GPIOA_PIN8) | \
+                                     PIN_MODE_INPUT(GPIOA_UWB_INT) | \
                                      PIN_MODE_INPUT(GPIOA_UWB_RST_N) | \
                                      PIN_MODE_INPUT(GPIOA_PIN10) | \
                                      PIN_MODE_ALTERNATE(GPIOA_OTG_FS_DM) | \
@@ -156,7 +156,7 @@
                                      PIN_OTYPE_PUSHPULL(GPIOA_UWB_CLK) | \
                                      PIN_OTYPE_PUSHPULL(GPIOA_UWB_MISO) | \
                                      PIN_OTYPE_PUSHPULL(GPIOA_UWB_MOSI) | \
-                                     PIN_OTYPE_PUSHPULL(GPIOA_PIN8) | \
+                                     PIN_OTYPE_PUSHPULL(GPIOA_UWB_INT) | \
                                      PIN_OTYPE_OPENDRAIN(GPIOA_UWB_RST_N) | \
                                      PIN_OTYPE_PUSHPULL(GPIOA_PIN10) | \
                                      PIN_OTYPE_PUSHPULL(GPIOA_OTG_FS_DM) | \
@@ -172,7 +172,7 @@
                                      PIN_OSPEED_100M(GPIOA_UWB_CLK) | \
                                      PIN_OSPEED_100M(GPIOA_UWB_MISO) | \
                                      PIN_OSPEED_100M(GPIOA_UWB_MOSI) | \
-                                     PIN_OSPEED_100M(GPIOA_PIN8) | \
+                                     PIN_OSPEED_100M(GPIOA_UWB_INT) | \
                                      PIN_OSPEED_100M(GPIOA_UWB_RST_N) | \
                                      PIN_OSPEED_100M(GPIOA_PIN10) | \
                                      PIN_OSPEED_100M(GPIOA_OTG_FS_DM) | \
@@ -188,7 +188,7 @@
                                      PIN_PUPDR_FLOATING(GPIOA_UWB_CLK) | \
                                      PIN_PUPDR_FLOATING(GPIOA_UWB_MISO) | \
                                      PIN_PUPDR_FLOATING(GPIOA_UWB_MOSI) | \
-                                     PIN_PUPDR_FLOATING(GPIOA_PIN8) | \
+                                     PIN_PUPDR_FLOATING(GPIOA_UWB_INT) | \
                                      PIN_PUPDR_FLOATING(GPIOA_UWB_RST_N) | \
                                      PIN_PUPDR_FLOATING(GPIOA_PIN10) | \
                                      PIN_PUPDR_FLOATING(GPIOA_OTG_FS_DM) | \
@@ -204,7 +204,7 @@
                                      PIN_ODR_HIGH(GPIOA_UWB_CLK) | \
                                      PIN_ODR_HIGH(GPIOA_UWB_MISO) | \
                                      PIN_ODR_HIGH(GPIOA_UWB_MOSI) | \
-                                     PIN_ODR_HIGH(GPIOA_PIN8) | \
+                                     PIN_ODR_HIGH(GPIOA_UWB_INT) | \
                                      PIN_ODR_HIGH(GPIOA_UWB_RST_N) | \
                                      PIN_ODR_HIGH(GPIOA_PIN10) | \
                                      PIN_ODR_HIGH(GPIOA_OTG_FS_DM) | \
@@ -220,7 +220,7 @@
                                      PIN_AFIO_AF(GPIOA_UWB_CLK, 5) | \
                                      PIN_AFIO_AF(GPIOA_UWB_MISO, 5) | \
                                      PIN_AFIO_AF(GPIOA_UWB_MOSI, 5))
-#define VAL_GPIOA_AFRH              (PIN_AFIO_AF(GPIOA_PIN8, 0) | \
+#define VAL_GPIOA_AFRH              (PIN_AFIO_AF(GPIOA_UWB_INT, 0) | \
                                      PIN_AFIO_AF(GPIOA_UWB_RST_N, 0) | \
                                      PIN_AFIO_AF(GPIOA_PIN10, 0) | \
                                      PIN_AFIO_AF(GPIOA_OTG_FS_DM, 10) | \

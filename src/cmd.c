@@ -188,35 +188,7 @@ static void cmd_dwm(BaseSequentialStream *chp, int argc, char **argv)
             chThdSleepMilliseconds(1000);
         }
     } else if (!strcmp(argv[0], "rx")) {
-        while (1) {
-            static unsigned char rx_buffer[100];
-            memset(rx_buffer, 0, sizeof(rx_buffer));
-            dwt_rxenable(DWT_START_RX_IMMEDIATE);
-            /* Poll until a frame is properly received or an error/timeout occurs. See NOTE 4 below.
-             * STATUS register is 5 bytes long but, as the event we are looking at is in the first byte of the register, we can use this simplest API
-             * function to access it. */
-            uint32_t status_reg, frame_len;
-            do {
-                status_reg = dwt_read32bitreg(SYS_STATUS_ID);
-                //chprintf(chp, "status reg:0x%x\r\n", status_reg);
-            } while (!(status_reg & (SYS_STATUS_RXFCG | SYS_STATUS_ALL_RX_ERR)));
-
-            /* Did we receive a valid frame? */
-            if (status_reg & SYS_STATUS_RXFCG) {
-                /* A frame has been received, copy it to our local buffer. */
-                frame_len = dwt_read32bitreg(RX_FINFO_ID) & RX_FINFO_RXFL_MASK_1023;
-
-                if (frame_len <= sizeof(rx_buffer)) {
-                    dwt_readrxdata(rx_buffer, frame_len, 0);
-                    chprintf(chp, "Received a frame of length %d \"%s\"\r\n", frame_len, rx_buffer);
-                }
-                /* Clear good RX frame event in the DW1000 status register. */
-                dwt_write32bitreg(SYS_STATUS_ID, SYS_STATUS_RXFCG);
-            } else {
-                /* Clear RX error events in the DW1000 status register. */
-                dwt_write32bitreg(SYS_STATUS_ID, SYS_STATUS_ALL_RX_ERR);
-            }
-        }
+        dwt_rxenable(DWT_START_RX_IMMEDIATE);
     }
 }
 
