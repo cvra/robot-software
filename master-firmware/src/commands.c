@@ -5,6 +5,7 @@
 #include <hal.h>
 #include <chprintf.h>
 #include <string.h>
+#include <shell.h>
 #include "rpc_server.h"
 #include "config.h"
 #include "commands.h"
@@ -35,37 +36,52 @@
 #include "strategy.h"
 #include <trace/trace.h>
 
+const ShellCommand commands[];
 
-static void cmd_mem(BaseSequentialStream *chp, int argc, char *argv[]) {
-    size_t n, size;
+static ShellConfig shell_cfg = {
+    NULL,
+    commands
+};
 
-    (void)argv;
-    if (argc > 0) {
-        chprintf(chp, "Usage: mem\r\n");
-        return;
+void shell_spawn(BaseSequentialStream *stream)
+{
+    static THD_WORKING_AREA(shell_wa, 2048);
+    static thread_t *shelltp = NULL;
+
+    if (!shelltp) {
+        shell_cfg.sc_channel = stream;
+        shelltp = chThdCreateStatic(&shell_wa, sizeof(shell_wa), USB_SHELL_PRIO,
+                                    shellThread, (void *)&shell_cfg);
+        chRegSetThreadNameX(shelltp, "shell");
+    } else if (chThdTerminatedX(shelltp)) {
+        chThdRelease(shelltp);    /* Recovers memory of the previous shell.   */
+        shelltp = NULL;           /* Triggers spawning of a new shell.        */
     }
-    n = chHeapStatus(NULL, &size);
-    chprintf(chp, "core free memory : %u bytes\r\n", chCoreGetStatusX());
-    chprintf(chp, "heap fragments   : %u\r\n", n);
-    chprintf(chp, "heap free total  : %u bytes\r\n", size);
 }
 
-static void cmd_threads(BaseSequentialStream *chp, int argc, char *argv[]) {
+static void cmd_threads(BaseSequentialStream *chp, int argc, char *argv[])
+{
     static const char *states[] = {CH_STATE_NAMES};
     thread_t *tp;
 
     (void)argv;
     if (argc > 0) {
-        chprintf(chp, "Usage: threads\r\n");
+        shellUsage(chp, "threads");
         return;
     }
-    chprintf(chp, "    addr    stack prio refs     state       time\r\n");
+    chprintf(chp,
+             "stklimit    stack     addr refs prio     state       time         name\r\n"SHELL_NEWLINE_STR);
     tp = chRegFirstThread();
     do {
-        chprintf(chp, "%.8lx %.8lx %4lu %4lu %9s %10lu %s\r\n",
-                (uint32_t)tp, (uint32_t)tp->p_ctx.r13,
-                (uint32_t)tp->p_prio, (uint32_t)(tp->p_refs - 1),
-                states[tp->p_state], (uint32_t)tp->p_time, tp->p_name);
+#if (CH_DBG_ENABLE_STACK_CHECK == TRUE) || (CH_CFG_USE_DYNAMIC == TRUE)
+        uint32_t stklimit = (uint32_t)tp->wabase;
+#else
+        uint32_t stklimit = 0U;
+#endif
+        chprintf(chp, "%08lx %08lx %08lx %4lu %4lu %9s %10lu %12s"SHELL_NEWLINE_STR,
+                 stklimit, (uint32_t)tp->ctx.sp, (uint32_t)tp,
+                 (uint32_t)tp->refs - 1, (uint32_t)tp->prio, states[tp->state],
+                 (uint32_t)tp->time, tp->name == NULL ? "" : tp->name);
         tp = chRegNextThread(tp);
     } while (tp != NULL);
 }
@@ -574,7 +590,7 @@ static void cmd_pid_tune(BaseSequentialStream *chp, int argc, char *argv[])
 
     while (1) {
         chprintf(chp, "choose [1-%u]: ", len + extra_len);
-        if (shellGetLine(chp, line, sizeof(line)) || line[0] == 'q') {
+        if (shellGetLine(&shell_cfg, line, sizeof(line), NULL) || line[0] == 'q') {
             /* CTRL-D was pressed */
             return;
         }
@@ -592,7 +608,7 @@ static void cmd_pid_tune(BaseSequentialStream *chp, int argc, char *argv[])
     if (index  < len) {
         chprintf(chp, "tune %s\n", motors[index].id);
         chprintf(chp, "1: current\n2: velocity\n3: position\n> ");
-        if (shellGetLine(chp, line, sizeof(line)) || line[0] == 'q') {
+        if (shellGetLine(&shell_cfg, line, sizeof(line), NULL) || line[0] == 'q') {
             /* q or CTRL-D was pressed */
             return;
         }
@@ -619,7 +635,7 @@ static void cmd_pid_tune(BaseSequentialStream *chp, int argc, char *argv[])
     chprintf(chp, "select:\n> kp|ki|kd|ilimit value\n");
     while (true) {
         chprintf(chp, "> ");
-        if (shellGetLine(chp, line, sizeof(line)) || line[0] == 'q') {
+        if (shellGetLine(&shell_cfg, line, sizeof(line), NULL) || line[0] == 'q') {
             /* q or CTRL-D was pressed */
             return;
         }
@@ -1028,7 +1044,7 @@ static void cmd_scara_traj(BaseSequentialStream *chp, int argc, char *argv[])
 
     while (1) {
         chprintf(chp, "choose [1-%u]: ", len);
-        if (shellGetLine(chp, line, sizeof(line)) || line[0] == 'q') {
+        if (shellGetLine(&shell_cfg, line, sizeof(line), NULL) || line[0] == 'q') {
             /* CTRL-D was pressed */
             return;
         }
@@ -1058,7 +1074,7 @@ static void cmd_scara_traj(BaseSequentialStream *chp, int argc, char *argv[])
     while (true) {
         while (i < SCARA_TRAJ_MAX_NUM_FRAMES) {
             chprintf(chp, "> ");
-            if (shellGetLine(chp, line, sizeof(line)) || line[0] == 'q') {
+            if (shellGetLine(&shell_cfg, line, sizeof(line), NULL) || line[0] == 'q') {
                 chprintf(chp, "q or CTRL-D was pressed. Exiting...\n");
                 return;
             } else if (strcmp("x", line) == 0) {
@@ -1235,7 +1251,6 @@ const ShellCommand commands[] = {
     {"encoders", cmd_encoders},
     {"forward", cmd_traj_forward},
     {"ip", cmd_ip},
-    {"mem", cmd_mem},
     {"node", cmd_node},
     {"pos", cmd_position},
     {"pos_reset", cmd_position_reset},

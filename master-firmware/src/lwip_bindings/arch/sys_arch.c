@@ -28,7 +28,7 @@ u32_t sys_arch_sem_wait(sys_sem_t *sem, u32_t timeout)
 
     time = chVTGetSystemTimeX() - time;
 
-    return ST2MS(time);
+    return LL_ST2MS(time);
 }
 
 void sys_sem_signal(sys_sem_t *sem)
@@ -102,7 +102,7 @@ u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeout)
 
     time = chVTGetSystemTimeX() - time;
 
-    return ST2MS(time);
+    return LL_ST2MS(time);
 }
 
 u32_t sys_arch_mbox_tryfetch(sys_mbox_t *mbox, void **msg)
@@ -137,8 +137,8 @@ sys_thread_t sys_thread_new(const char *name, lwip_thread_fn thread,
         void *arg, int stacksize, int prio)
 {
     (void) name;
-    sys_thread_t thd = chThdCreateFromHeap(NULL, stacksize, prio, (tfunc_t)thread, arg);
-    thd->p_name = "lwip_spawn";
+    sys_thread_t thd = chThdCreateFromHeap(NULL, stacksize, "lwip_spawn", prio,
+                                           (tfunc_t)thread, arg);
     return thd;
 }
 

@@ -87,7 +87,7 @@ PROJECT = ch
 CHIBIOS = ../lib/ChibiOS
 
 # Startup files.
-include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/startup_stm32f4xx.mk
+include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32f4xx.mk
 
 # HAL-OSAL files (optional).
 include $(CHIBIOS)/os/hal/hal.mk
@@ -96,7 +96,7 @@ include $(CHIBIOS)/os/hal/osal/rt/osal.mk
 
 # RTOS files (optional).
 include $(CHIBIOS)/os/rt/rt.mk
-include $(CHIBIOS)/os/rt/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
+include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
 
 # Other files (optional).
 #include $(CHIBIOS)/test/rt/test.mk
@@ -106,6 +106,9 @@ include $(CHIBIOS)/os/various/cpp_wrappers/chcpp.mk
 
 # Target board
 include src/board/board.mk
+
+# Shell module
+include $(CHIBIOS)/os/various/shell/shell.mk
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -117,12 +120,12 @@ CSRC = $(PORTSRC) \
 	   $(STARTUPSRC) \
 	   $(LWSRC) \
 	   $(FATFSSRC) \
+	   $(SHELLSRC) \
 	   $(CHIBIOS)/os/various/evtimer.c \
 	   $(CHIBIOS)/os/hal/lib/streams/memstreams.c \
 	   $(CHIBIOS)/os/hal/lib/streams/chprintf.c \
 	   $(CHIBIOS)/os/various/syscalls.c \
 	   $(CHIBIOS)/os/various/fatfs_bindings/fatfs_diskio.c \
-	   $(CHIBIOS)/os/various/shell.c \
 	   $(BOARDSRC)
 
 include app_src.mk
@@ -132,15 +135,17 @@ include app_src.mk
 CPPSRC += $(CHCPPSRC)
 
 # List ASM source files here
-ASMSRC += $(STARTUPASM) $(PORTASM) $(OSALASM)
+ASMSRC +=
+ASMXSRC +=  $(STARTUPASM) $(PORTASM) $(OSALASM)
 
-INCDIR += $(PORTINC) $(KERNINC) $(TESTINC) \
-		  $(STARTUPINC) \
+INCDIR += $(CHIBIOS)/os/license \
+		  $(STARTUPINC) $(KERNINC) $(PORTINC) $(OSALINC) \
 		  $(HALINC) $(PLATFORMINC) $(LWINC) \
-		  $(OSALINC) \
 		  $(CHCPPINC) \
 		  $(CHIBIOS)/os/various \
 		  $(CHIBIOS)/os/hal/lib/streams \
+		  $(SHELLINC) \
+		  $(TESTINC) \
 		  $(BOARDINC)
 
 #
@@ -161,8 +166,7 @@ CPPC = $(TRGT)g++
 #       runtime support makes code size explode.
 # LD   = $(TRGT)gcc
 LD   = $(TRGT)g++
-CP   = $(TRGT)objcopy -j startup -j constructors -j destructors -j .text \
-		-j .ARM.extab -j .ARM.exidx -j .eh_frame_hdr -j .eh_frame -j .textalign -j .data
+CP   = $(TRGT)objcopy
 AS   = $(TRGT)gcc -x assembler-with-cpp
 OD   = $(TRGT)objdump
 SZ   = $(TRGT)size
@@ -193,8 +197,9 @@ DDEFS += -DUAVCAN_TOSTRING=0 \
 		 -DUAVCAN_STM32_CHIBIOS=1 \
 		 -DUAVCAN_TINY=0 \
 		 -DLWIP_DEBUG=1 \
-		 -DSHELL_MAX_ARGUMENTS=5
-
+		 -DSHELL_MAX_ARGUMENTS=5 \
+		 -DSHELL_CMD_THREADS_ENABLED=FALSE \
+		 -DSHELL_CMD_TEST_ENABLED=FALSE
 
 # List all default ASM defines here, like -D_DEBUG=1
 DADEFS =
@@ -249,13 +254,11 @@ UINCDIR += $(LIBUAVCAN_INC) ./dsdlc_generated $(LIBUAVCAN_STM32_INC)
 # End of user defines
 ##############################################################################
 
-GLOBAL_SRC_DEP = app_src.mk
-
 RULESPATH = ./linker/
-include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/rules.mk
+include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/rules.mk
 
 # Empty libraries, required by stack smashing protection
-PRE_MAKE_ALL_RULE_HOOK: libssp.a libssp_nonshared.a src/config_msgpack.c
+PRE_MAKE_ALL_RULE_HOOK: app_src.mk libssp.a libssp_nonshared.a src/config_msgpack.c
 libssp.a:
 	arm-none-eabi-ar rcs $@
 

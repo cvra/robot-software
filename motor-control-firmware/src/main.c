@@ -34,6 +34,15 @@ void panic_hook(const char* reason)
     }
 }
 
+void _unhandled_exception(void)
+{
+    chSysHalt("unhandled exception");
+
+    while (true) {
+        /* wait forever */
+    }
+}
+
 void __assert_func(const char *_file, int _line, const char *_func, const char *_expr )
 {
     (void)_file;

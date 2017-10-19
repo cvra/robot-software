@@ -9,6 +9,7 @@
 
 #include "main.h"
 #include "control_panel.h"
+#include <shell.h>
 #include "commands.h"
 #include "sntp/sntp.h"
 #include "unix_timestamp.h"
@@ -41,14 +42,6 @@
 void init_base_motors(void);
 void init_arm_motors(void);
 void init_hands(void);
-
-/* Command line related */
-THD_WORKING_AREA(shell_wa, 2048);
-
-static const ShellConfig shell_cfg1 = {
-    (BaseSequentialStream *)&SDU1,
-    commands
-};
 
 motor_manager_t motor_manager;
 
@@ -94,16 +87,16 @@ void panic_hook(const char *reason)
     control_panel_set(LED_GREEN);
 
     panic_log_write(reason);
-    if (ch.rlist.r_current != NULL) {
+    if (ch.rlist.current != NULL) {
         panic_log_printf("\ncurrent thread: ");
-        if (ch.rlist.r_current->p_name != NULL) {
-            panic_log_printf("%s\n", ch.rlist.r_current->p_name);
+        if (ch.rlist.current->name != NULL) {
+            panic_log_printf("%s\n", ch.rlist.current->name);
         } else {
-            panic_log_printf("0x%p\n", ch.rlist.r_current);
+            panic_log_printf("0x%p\n", ch.rlist.current);
         }
     }
     BlockingUARTDriver panic_uart;
-    blocking_uart_init(&panic_uart, USART3, DEBUG_UART_BAUDRATE);
+    blocking_uart_init(&panic_uart, UART7, DEBUG_UART_BAUDRATE);
 
     // block to preserve fault state
     const char *msg = panic_log_read();
@@ -115,6 +108,15 @@ void panic_hook(const char *reason)
         while (i--) {
             __asm__ volatile ("nop");
         }
+    }
+}
+
+void _unhandled_exception(void)
+{
+    chSysHalt("unhandled exception");
+
+    while (true) {
+        /* wait forever */
     }
 }
 
@@ -179,10 +181,8 @@ static void blink_start(void)
 /** Application entry point.  */
 int main(void)
 {
-    static thread_t *shelltp = NULL;
-
     /* Initializes a serial driver.  */
-    sdStart(&SD2, &debug_uart_config);
+    sdStart(&SD7, &debug_uart_config);
 
     control_panel_init();
     blink_start();
@@ -290,13 +290,7 @@ int main(void)
 
     /* main thread, spawns a shell on USB connection. */
     while (1) {
-        if (!shelltp) {
-            shelltp = shellCreateStatic(&shell_cfg1, &shell_wa, sizeof(shell_wa), USB_SHELL_PRIO);
-        } else if (chThdTerminatedX(shelltp)) {
-            chThdRelease(shelltp);    /* Recovers memory of the previous shell.   */
-            shelltp = NULL;           /* Triggers spawning of a new shell.        */
-        }
-
+        shell_spawn((BaseSequentialStream *)&SDU1);
         chThdSleepMilliseconds(500);
     }
 }
@@ -359,7 +353,7 @@ void context_switch_hook(void *ntp, void *otp)
                          AP_NO_NO, /* no permission */
                          false);
 
-    const char *name = ((thread_t *)ntp)->p_name;
+    const char *name = ((thread_t *)ntp)->name;
     if (name == NULL) {
         name = "no name";
     }

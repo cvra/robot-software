@@ -10,6 +10,7 @@ target.arm:
     - src/proximity_beacon.c
     - src/proximity_beacon_publisher.cpp
     - src/node.cpp
+    - ../motor-control-firmware/board/board.c
     - ../motor-control-firmware/src/blocking_uart_driver.c
     - ../motor-control-firmware/src/control.c
     - ../motor-control-firmware/src/encoder.c
