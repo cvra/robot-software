@@ -31,11 +31,13 @@ source:
   - src/MadgwickAHRS.c
   - src/decadriver/deca_device.c
   - src/decadriver/deca_params_init.c
+  - src/uwb_protocol.c
 
 tests:
   - tests/mpu9250.cpp
   - tests/hal_mocks.cpp
   - tests/decawave.cpp
+  - tests/uwb_protocol.cpp
 
 templates:
   app_src.mk.jinja: app_src.mk
