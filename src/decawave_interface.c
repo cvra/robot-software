@@ -4,6 +4,14 @@
 #include "exti.h"
 #include "decadriver/deca_device_api.h"
 #include "decadriver/deca_regs.h"
+#include "main.h"
+
+messagebus_topic_t rtt_topic;
+MUTEX_DECL(rtt_topic_lock);
+CONDVAR_DECL(rtt_topic_condvar);
+
+
+
 
 int readfromspi(uint16 headerLength, const uint8 *headerBuffer, uint32 readlength,
                 uint8 *readBuffer)
@@ -51,15 +59,41 @@ void decamutexoff(decaIrqStatus_t enable_irq)
     (void) enable_irq;
 }
 
+/* TODO: Handle RX errors as well. */
 static void frame_rx_cb(const dwt_cb_data_t *data)
 {
     static unsigned char frame[100];
-    dwt_readrxdata(frame, data->datalength, 0);
-    chprintf((BaseSequentialStream *)&SD2,
-            "Received a frame of length %d \"%s\"\r\n", data->datalength, frame);
+    static uint32_t last_tx = 0;
+
+    static char tx_msg[] = "hello world";
+
+    /* For testing */
+
+    dwt_setrxaftertxdelay(0);
+
+    /* We need to pass sizeof + 2, because those functions assume the
+     * checksum size is included. */
+    dwt_writetxdata(sizeof(tx_msg)+2, tx_msg, 0); /* Zero offset in TX buffer. */
+    dwt_writetxfctrl(sizeof(tx_msg)+2, 0, 0); /* Zero offset in TX buffer, no ranging. */
+
+    /* Start transmission. */
+    dwt_starttx(DWT_START_TX_IMMEDIATE | DWT_RESPONSE_EXPECTED);
+
+    messagebus_topic_publish(&rtt_topic, NULL, 0);
+
+    //chprintf((BaseSequentialStream *)&SD2, "delay: %d\r\n", ST2MS(new_tx  - last_tx));
+
+    //dwt_readrxdata(frame, data->datalength, 0);
+    //chprintf((BaseSequentialStream *)&SD2,
+    //        "Received a frame of length %d \"%s\"\r\n", data->datalength, frame);
 
     /* We need to manually re enable the receiver once a frame was processed. */
-    dwt_rxenable(DWT_START_RX_IMMEDIATE);
+    //dwt_rxenable(DWT_START_RX_DELAYED);
+}
+
+static void frame_tx_done_cb(const dwt_cb_data_t *data)
+{
+    (void) data;
 }
 
 static void decawave_thread(void *p)
@@ -90,8 +124,8 @@ static void decawave_thread(void *p)
     static dwt_config_t config = {
         5,               /* Channel number. */
         DWT_PRF_64M,     /* Pulse repetition frequency. */
-        DWT_PLEN_1024,   /* Preamble length. Used in TX only. */
-        DWT_PAC32,       /* Preamble acquisition chunk size. Used in RX only. */
+        DWT_PLEN_64,   /* Preamble length. Used in TX only. */
+        DWT_PAC8,       /* Preamble acquisition chunk size. Used in RX only. */
         /* Preamble codes (RX, TX) */
         5, 5,
         1,  /* Non standard SFD */
@@ -104,7 +138,7 @@ static void decawave_thread(void *p)
     dwt_configure(&config);
 
     /* Enable interrupt on frame RX */
-    uint32_t interrupts = DWT_INT_RFCG;
+    uint32_t interrupts = DWT_INT_RFCG | DWT_INT_TFRS;
     dwt_setinterrupt(interrupts, 1);
 
     /* Configure interrupt listener. */
@@ -113,7 +147,11 @@ static void decawave_thread(void *p)
                                (eventmask_t)EXTI_EVENT_UWB_INT,
                                (eventflags_t)EXTI_EVENT_UWB_INT);
 
-    dwt_setcallbacks(NULL, frame_rx_cb, NULL, NULL);
+    dwt_setcallbacks(frame_tx_done_cb, frame_rx_cb, NULL, NULL);
+
+    messagebus_topic_init(&rtt_topic, &rtt_topic_lock, &rtt_topic_condvar,
+            NULL, 0);
+    messagebus_advertise_topic(&bus, &rtt_topic, "/rtt");
 
     while (1) {
         /* Wait for an interrupt coming from the UWB module. */

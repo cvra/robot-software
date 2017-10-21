@@ -161,32 +161,16 @@ static void cmd_dwm(BaseSequentialStream *chp, int argc, char **argv)
     if (!strcmp(argv[0], "tx")) {
         /* DElay from end of transmission to activation of reception in
          * microseconds. */
-        dwt_setrxaftertxdelay(60);
-        while (1) {
-            chprintf(chp, "Sending packet\r\n");
-            unsigned char tx_msg[] = "ping";
+        dwt_setrxaftertxdelay(0);
+        chprintf(chp, "Sending packet\r\n");
+        unsigned char tx_msg[] = "ping";
 
-            /* We need to pass sizeof + 2, because those functions assume the
-             * checksum size is included. */
-            dwt_writetxdata(sizeof(tx_msg)+2, tx_msg, 0); /* Zero offset in TX buffer. */
-            dwt_writetxfctrl(sizeof(tx_msg)+2, 0, 0); /* Zero offset in TX buffer, no ranging. */
-
-            /* Start transmission. */
-            dwt_starttx(DWT_START_TX_IMMEDIATE);
-
-            /* Poll DW1000 until TX frame sent event set. See NOTE 5 below.
-             * STATUS register is 5 bytes long but, as the event we are looking at is in the first byte of the register, we can use this simplest API
-             * function to access it.*/
-            while (!(dwt_read32bitreg(SYS_STATUS_ID) & SYS_STATUS_TXFRS)) {
-                chThdSleepMilliseconds(100);
-            }
-
-            /* Clear TX frame sent event. */
-            dwt_write32bitreg(SYS_STATUS_ID, SYS_STATUS_TXFRS);
-
-            chprintf(chp, "done\r\n");
-            chThdSleepMilliseconds(1000);
-        }
+        /* We need to pass sizeof + 2, because those functions assume the
+         * checksum size is included. */
+        dwt_writetxdata(sizeof(tx_msg)+2, tx_msg, 0); /* Zero offset in TX buffer. */
+        dwt_writetxfctrl(sizeof(tx_msg)+2, 0, 0); /* Zero offset in TX buffer, no ranging. */
+        /* Start transmission. */
+        dwt_starttx(DWT_START_TX_IMMEDIATE | DWT_RESPONSE_EXPECTED);
     } else if (!strcmp(argv[0], "rx")) {
         dwt_rxenable(DWT_START_RX_IMMEDIATE);
     }
