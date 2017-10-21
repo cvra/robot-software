@@ -52,3 +52,14 @@ notebooks:
     - jupyter nbconvert --to notebook --execute "models/Gyro integrating model.ipynb"
     - jupyter nbconvert --to notebook --execute "models/Simple model.ipynb"
     - jupyter nbconvert --to notebook --execute "experiments/Madgwick drift.ipynb"
+
+pdf:
+  stage: report
+  image: schickling/latex
+  script:
+    - cd doc/report
+    - latexmk -pdf report.tex
+  artifacts:
+    paths:
+      - report.pdf
+    expire_in: 30 days
