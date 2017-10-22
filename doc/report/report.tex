@@ -132,6 +132,73 @@ This function is the distance to the position of the beacon, called $\mathbf{b}$
 
 \chapter{Implementation}
 
+\section{UWB beacons protocol}
+
+\subsection{Design principles}
+
+\begin{enumerate}
+    \item Stateless > stateful.
+    \item Must maximize measurements per second -> minimize packets per measurements.
+    \item The MAC layer should be used as much as possible to avoid waking up hosts.
+    \item The same physical layer will also be used for data transmission.
+    \item It must be noted that this protocol is possible only because the DW1000 can be programmed to \emph{send} messages at a given timestamp.
+\end{enumerate}
+
+\subsection{Time measurement}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/ranging_protocol.png}
+    \label{fig:ranging_protocol}
+    \caption[Ranging protocol]{Messages in a time measurement interaction. Source:~\cite{dw1000manual}}
+\end{figure}
+
+The time measurement protocol is composed of a sequence of 3 messages.
+To initiate a measurement sequence, an anchor broadcasts a measurement advertisement message to the broadcast address (0xFFFF).
+Tags may respond with a measurement reply message.
+Finally, the anchor sends a measurement finalization message and the tag computes the ranging solution:
+
+\begin{equation}
+T_{prop} = \frac{T_{round,1} \cdot T_{round,2} - T_{reply,1} \cdot T_{reply,2}}{T_{round,1} + T_{round,2} + T_{reply,1} + T_{reply,2}}
+\label{eqn:ranging}
+\end{equation}
+
+The timing information is then converted to a distance by multiplying by the speed of light ($c$).
+\textbf{How do we convert time from DW1000 clocks to seconds?}
+
+This 3-way ranging scheme works because transceivers can be programmed to send a frame at a given time.
+Therefore, $T_{reply,2}$ can be included in the final message.
+
+Some random implementations notes:
+
+\begin{enumerate}
+    \item Use 802.15.4 MAC to enable hardware filtering.
+    \item Sequence number field will be hacked to store packet type in it instead.
+    \item All numbers in payload are sent in network byte order (most significant byte first).
+    \item All timestamps in messages are in DW1000 units and without a shared reference.
+\end{enumerate}
+
+\paragraph{Measurement advertisement}
+A measurement advertisement message has a sequence number of 0.
+It is sent by an anchor to the broadcast address (0xFFFF).
+It only contains the TX timestamp as a 40 bit unsigned integer ($T_{tx,1}$).
+
+\paragraph{Measurement reply}
+A measurement reply message has a sequence number of 1.
+It is sent by a tag and contains the timestamps of all events so far ($T_{tx,1}$, $T_{rx,1}$ and $T_{tx,2}$)
+
+\paragraph{Measurement finalization}
+Finally, the measurement finalization has a sequence number of 2.
+It is sent by the anchor and contains the content of the previous message plus the new timestamps ($T_{rx,2}$, $T_{tx,3}$).
+
+Once the tag received the last message, it can compute the ranging solution using Equation~\ref{eqn:ranging} with the following informations:
+\begin{eqnarray*}
+    T_{round,1} &=& T_{tx,1} - T_{rx,2} \\
+    T_{reply,1} &=& T_{rx,1} - T_{tx,2} \\
+    T_{round,2} &=& T_{tx,2} - T_{rx,3} \\
+    T_{reply,2} &=& T_{rx,2} - T_{tx,3} 
+\end{eqnarray*}
+
 \appendix
 \chapter{Hardware schematic}
 \includepdf[landscape=true]{figures/board_schematic.pdf}
