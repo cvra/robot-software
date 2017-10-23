@@ -250,3 +250,16 @@ actuator:
             acceleration_limit: 100.
             velocity_limit: 10.
             torque_limit: 3
+    left-pump-5:
+        stream:
+            current_pid: 0
+            velocity_pid: 0
+            position_pid: 0
+            motor_pos: 0
+            index: 0
+        motor:
+            mode: 0 # openloop
+            transmission_ratio_p: 1
+            transmission_ratio_q: 1
+        control:
+            low_batt_th: 12
