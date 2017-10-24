@@ -47,27 +47,6 @@ void scara_set_offset(scara_t* arm, float offset_x, float offset_y, float offset
     arm->offset_rotation = offset_rotation;
 }
 
-void scara_set_z_callbacks(scara_t* arm, void (*set_position)(void*, float),
-                           float (*get_position)(void*), void* args)
-{
-    joint_set_callbacks(&(arm->z_joint), set_position, NULL, get_position, args);
-}
-
-void scara_set_shoulder_callbacks(scara_t* arm, void (*set_position)(void*, float),
-                                  void (*set_velocity)(void*, float),
-                                  float (*get_position)(void*), void* args)
-{
-    joint_set_callbacks(&(arm->shoulder_joint), set_position, set_velocity, get_position, args);
-}
-
-void scara_set_elbow_callbacks(scara_t* arm, void (*set_position)(void*, float),
-                               void (*set_velocity)(void*, float),
-                               float (*get_position)(void*), void* args)
-{
-    joint_set_callbacks(&(arm->elbow_joint), set_position, set_velocity, get_position, args);
-}
-
-
 void scara_ugly_mode_enable(scara_t* arm)
 {
     arm->control_mode = CONTROL_JOINT_POSITION;

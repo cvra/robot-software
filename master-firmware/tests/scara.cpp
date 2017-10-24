@@ -48,9 +48,9 @@ TEST_GROUP(ArmTestGroup)
         shoulder_angle = 0;
         elbow_angle = 0;
 
-        scara_set_z_callbacks(&arm, set_motor_pos, get_motor_pos, &z_pos);
-        scara_set_shoulder_callbacks(&arm, set_motor_pos, set_motor_vel, get_motor_pos, &shoulder_angle);
-        scara_set_elbow_callbacks(&arm, set_motor_pos, set_motor_vel, get_motor_pos, &elbow_angle);
+        joint_set_callbacks(&(arm.z_joint), set_motor_pos, set_motor_vel, get_motor_pos, &z_pos);
+        joint_set_callbacks(&(arm.shoulder_joint), set_motor_pos, set_motor_vel, get_motor_pos, &shoulder_angle);
+        joint_set_callbacks(&(arm.elbow_joint), set_motor_pos, set_motor_vel, get_motor_pos, &elbow_angle);
     }
 
     void teardown()
