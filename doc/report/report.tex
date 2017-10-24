@@ -17,6 +17,7 @@
 \usepackage{wasysym}
 \usepackage{natbib}
 \usepackage{physics}
+\usepackage{hyperref}
 
 
 \title{Development of an ultra-wide band indoor positioning system}
@@ -50,6 +51,27 @@
 \end{enumerate}
 
 \chapter{Hardware}
+
+The board used in this project contains the following elements:
+
+\begin{itemize}
+    \item An Invensense MPU9250 \gls{imu}.
+    \item A Decawave DW1000 \gls{uwb} transceiver.
+    \item An STM32F411 microcontroller.
+    \item USB and CAN interfaces.
+\end{itemize}
+
+\section{Inertial Motion Unit}
+
+The MPU9250 is a 9 axis \gls{imu} made by Invensense\footnote{\url{https://www.invensense.com}}.
+It was chosen because it combines an accelerometer, a gyroscope and a magnetometer in an easy to use package.
+It is connected to the main microcontroller through an SPI bus.
+
+An interesting feature of this device is the \gls{dmp}.
+It is a low power co-processor that can be used for a variety of purpose, including orientation estimation, in which it directly outputs a quaternion.
+Unfortunately, we found out that this feature is poorly documented by the manufacturer, making it impossible to use without reverse engineering.
+Additionally, the \gls{dmp} cannot use the magnetometer data.
+Therefore, we decided not to use it but to implement our own sensor fusion on top of raw sensor information.
 
 \chapter{Positioning algorithm}
 
@@ -203,6 +225,8 @@ Once the tag received the last message, it can compute the ranging solution usin
 \appendix
 \chapter{Hardware schematic}
 \includepdf[landscape=true]{figures/board_schematic.pdf}
+
+\chapter{User manual}
 
 
 \clearpage
