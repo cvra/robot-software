@@ -163,9 +163,9 @@ void config_init(void)
     parameter_scalar_declare(&main_offset_a, &arms_main_config, "offset_a");
 
     parameter_namespace_declare(&motor_offsets_config, &arms_config, "motor_offsets");
-    parameter_scalar_declare(&main_z_offset, &motor_offsets_config, "main-z");
-    parameter_scalar_declare(&main_shoulder_offset, &motor_offsets_config, "main-shoulder");
-    parameter_scalar_declare(&main_elbow_offset, &motor_offsets_config, "main-elbow");
+    parameter_scalar_declare(&main_z_offset, &motor_offsets_config, "z-joint");
+    parameter_scalar_declare(&main_shoulder_offset, &motor_offsets_config, "shoulder-joint");
+    parameter_scalar_declare(&main_elbow_offset, &motor_offsets_config, "elbow-joint");
 
     parameter_namespace_declare(&main_arm.ns, &master_config, "main_arm");
     parameter_namespace_declare(&main_arm.control.ns, &main_arm.ns, "control");

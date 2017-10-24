@@ -303,10 +303,10 @@ void init_base_motors(void)
 
 void init_arm_motors(void)
 {
-    motor_manager_create_driver(&motor_manager, "left-z");
-    motor_manager_create_driver(&motor_manager, "left-shoulder");
-    motor_manager_create_driver(&motor_manager, "left-elbow");
-    motor_manager_create_driver(&motor_manager, "left-pump-5");
+    motor_manager_create_driver(&motor_manager, "z-joint");
+    motor_manager_create_driver(&motor_manager, "shoulder-joint");
+    motor_manager_create_driver(&motor_manager, "elbow-joint");
+    motor_manager_create_driver(&motor_manager, "arm-pump");
 }
 
 void __stack_chk_fail(void)
