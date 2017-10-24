@@ -39,21 +39,8 @@ typedef struct {
 
     /* Motor joints */
     joint_t z_joint;
-
-    /* Motor control callbacks */
-    void (*set_shoulder_position)(void*, float); /**< Callback function to set shoulder position. */
-    void (*set_elbow_position)(void*, float);    /**< Callback function to set elbow position. */
-
-    void (*set_shoulder_velocity)(void*, float); /**< Callback function to set shoulder velocity. */
-    void (*set_elbow_velocity)(void*, float);    /**< Callback function to set elbow velocity. */
-
-    /* Motor feedback callbacks */
-    float (*get_shoulder_position)(void*); /**< Callback function to get shoulder position. */
-    float (*get_elbow_position)(void*);    /**< Callback function to get elbow position. */
-
-    /* Motor control args */
-    void* shoulder_args;
-    void* elbow_args;
+    joint_t shoulder_joint;
+    joint_t elbow_joint;
 
     /* Motor positions */
     float z_pos;
