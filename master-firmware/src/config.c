@@ -44,10 +44,10 @@ static parameter_namespace_t beacon_config;
 static parameter_t beacon_reflector_radius, beacon_angular_offset;
 
 #ifdef DEBRA
-static parameter_namespace_t arms_config, arms_left_config, motor_offsets_config;
+static parameter_namespace_t arms_config, arms_main_config, motor_offsets_config;
 static parameter_t upperarm_length, forearm_length;
-static parameter_t left_offset_x, left_offset_y, left_offset_a;
-static parameter_t left_z_offset, left_shoulder_offset, left_elbow_offset;
+static parameter_t main_offset_x, main_offset_y, main_offset_a;
+static parameter_t main_z_offset, main_shoulder_offset, main_elbow_offset;
 
 static struct {
     parameter_namespace_t ns;
@@ -61,7 +61,7 @@ static struct {
             parameter_t ilimit;
         } x, y;
     } control;
-} left_arm;
+} main_arm;
 #endif
 
 void config_init(void)
@@ -157,28 +157,28 @@ void config_init(void)
     parameter_scalar_declare(&upperarm_length, &arms_config, "upperarm_length");
     parameter_scalar_declare(&forearm_length, &arms_config, "forearm_length");
 
-    parameter_namespace_declare(&arms_left_config, &arms_config, "left");
-    parameter_scalar_declare(&left_offset_x, &arms_left_config, "offset_x");
-    parameter_scalar_declare(&left_offset_y, &arms_left_config, "offset_y");
-    parameter_scalar_declare(&left_offset_a, &arms_left_config, "offset_a");
+    parameter_namespace_declare(&arms_main_config, &arms_config, "main_arm");
+    parameter_scalar_declare(&main_offset_x, &arms_main_config, "offset_x");
+    parameter_scalar_declare(&main_offset_y, &arms_main_config, "offset_y");
+    parameter_scalar_declare(&main_offset_a, &arms_main_config, "offset_a");
 
     parameter_namespace_declare(&motor_offsets_config, &arms_config, "motor_offsets");
-    parameter_scalar_declare(&left_z_offset, &motor_offsets_config, "left-z");
-    parameter_scalar_declare(&left_shoulder_offset, &motor_offsets_config, "left-shoulder");
-    parameter_scalar_declare(&left_elbow_offset, &motor_offsets_config, "left-elbow");
+    parameter_scalar_declare(&main_z_offset, &motor_offsets_config, "main-z");
+    parameter_scalar_declare(&main_shoulder_offset, &motor_offsets_config, "main-shoulder");
+    parameter_scalar_declare(&main_elbow_offset, &motor_offsets_config, "main-elbow");
 
-    parameter_namespace_declare(&left_arm.ns, &master_config, "left_arm");
-    parameter_namespace_declare(&left_arm.control.ns, &left_arm.ns, "control");
-    parameter_namespace_declare(&left_arm.control.x.ns, &left_arm.control.ns, "x");
-    parameter_scalar_declare(&left_arm.control.x.kp, &left_arm.control.x.ns, "kp");
-    parameter_scalar_declare(&left_arm.control.x.ki, &left_arm.control.x.ns, "ki");
-    parameter_scalar_declare(&left_arm.control.x.kd, &left_arm.control.x.ns, "kd");
-    parameter_scalar_declare(&left_arm.control.x.ilimit, &left_arm.control.x.ns, "ilimit");
-    parameter_namespace_declare(&left_arm.control.y.ns, &left_arm.control.ns, "y");
-    parameter_scalar_declare(&left_arm.control.y.kp, &left_arm.control.y.ns, "kp");
-    parameter_scalar_declare(&left_arm.control.y.ki, &left_arm.control.y.ns, "ki");
-    parameter_scalar_declare(&left_arm.control.y.kd, &left_arm.control.y.ns, "kd");
-    parameter_scalar_declare(&left_arm.control.y.ilimit, &left_arm.control.y.ns, "ilimit");
+    parameter_namespace_declare(&main_arm.ns, &master_config, "main_arm");
+    parameter_namespace_declare(&main_arm.control.ns, &main_arm.ns, "control");
+    parameter_namespace_declare(&main_arm.control.x.ns, &main_arm.control.ns, "x");
+    parameter_scalar_declare(&main_arm.control.x.kp, &main_arm.control.x.ns, "kp");
+    parameter_scalar_declare(&main_arm.control.x.ki, &main_arm.control.x.ns, "ki");
+    parameter_scalar_declare(&main_arm.control.x.kd, &main_arm.control.x.ns, "kd");
+    parameter_scalar_declare(&main_arm.control.x.ilimit, &main_arm.control.x.ns, "ilimit");
+    parameter_namespace_declare(&main_arm.control.y.ns, &main_arm.control.ns, "y");
+    parameter_scalar_declare(&main_arm.control.y.kp, &main_arm.control.y.ns, "kp");
+    parameter_scalar_declare(&main_arm.control.y.ki, &main_arm.control.y.ns, "ki");
+    parameter_scalar_declare(&main_arm.control.y.kd, &main_arm.control.y.ns, "kd");
+    parameter_scalar_declare(&main_arm.control.y.ilimit, &main_arm.control.y.ns, "ilimit");
 #endif
 }
 

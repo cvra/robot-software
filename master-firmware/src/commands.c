@@ -573,9 +573,9 @@ static void cmd_pid_tune(BaseSequentialStream *chp, int argc, char *argv[])
     const char *extra[] = {
         "master/aversive/control/angle",
         "master/aversive/control/distance",
-        "master/left_arm/control/x",
-        "master/left_arm/control/y",
-        "master/left_arm/control/heading",
+        "master/main_arm/control/x",
+        "master/main_arm/control/y",
+        "master/main_arm/control/heading",
     };
     const size_t extra_len = sizeof(extra)/sizeof(char *);
     for (i = 0; i < extra_len; i++) {
@@ -894,7 +894,7 @@ static void cmd_scara_goto(BaseSequentialStream *chp, int argc, char *argv[])
 
     chprintf(chp, "Moving arm to %f %f %f heading 0 in %s frame\r\n", x, y, z, argv[0]);
 
-    scara_t* arm = &left_arm;
+    scara_t* arm = &main_arm;
 
     if (strcmp("robot", argv[0]) == 0) {
         scara_goto(arm, x, y, z, COORDINATE_ROBOT, 1.);
@@ -913,7 +913,7 @@ static void cmd_scara_mode(BaseSequentialStream *chp, int argc, char *argv[])
         return;
     }
 
-    scara_t* arm = &left_arm;
+    scara_t* arm = &main_arm;
 
     if (strcmp("jam", argv[0]) == 0) {
         arm->control_mode = CONTROL_JAM_PID_XYA;
@@ -929,7 +929,7 @@ static void cmd_scara_mv(BaseSequentialStream *chp, int argc, char *argv[])
         chprintf(chp, "Usage: scara_mv x y\r\n");
         return;
     }
-    scara_t* arm = &left_arm;
+    scara_t* arm = &main_arm;
     float x, y, z;
 
     scara_trajectory_t trajectory;
@@ -952,7 +952,7 @@ static void cmd_scara_z(BaseSequentialStream *chp, int argc, char *argv[])
         chprintf(chp, "Usage: scara_z side z\r\n");
         return;
     }
-    scara_t* arm = &left_arm;
+    scara_t* arm = &main_arm;
     float z = atof(argv[1]);
 
     scara_move_z(arm, z, COORDINATE_ROBOT, 1);
@@ -967,7 +967,7 @@ static void cmd_scara_pos(BaseSequentialStream *chp, int argc, char *argv[])
         return;
     }
 
-    scara_t* arm = &left_arm;
+    scara_t* arm = &main_arm;
 
     float x, y, z;
     if (strcmp("robot", argv[0]) == 0) {
@@ -989,7 +989,7 @@ static void cmd_scara_traj(BaseSequentialStream *chp, int argc, char *argv[])
     chprintf(chp, "scara trajectory editor: press q or CTRL-D to quit\n");
 
     static char line[128];
-    scara_t* arm = &left_arm;
+    scara_t* arm = &main_arm;
 
     /* interactive command line */
     chprintf(chp, "enter trajectory points, press x to execute, q to abort and exit\n");
@@ -1087,8 +1087,8 @@ static void cmd_state(BaseSequentialStream *chp, int argc, char *argv[])
     chprintf(chp, "Position of robot is %d %d %d\r\n",
              position_get_x_s16(&robot.pos), position_get_y_s16(&robot.pos), position_get_a_deg_s16(&robot.pos));
 
-    scara_pos(&left_arm, &x, &y, &z, COORDINATE_TABLE);
-    chprintf(chp, "Position of left arm is %.1f %.1f %.1f in table frame\r\n", x, y, z);
+    scara_pos(&main_arm, &x, &y, &z, COORDINATE_TABLE);
+    chprintf(chp, "Position of main arm is %.1f %.1f %.1f in table frame\r\n", x, y, z);
 }
 
 

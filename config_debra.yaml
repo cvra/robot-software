@@ -48,7 +48,7 @@ master:
                     init: 0.15
                     slow: 0.5
                     fast: 1.
-    left_arm:
+    main_arm:
         control:
             x:
                 kp: 5.
@@ -63,7 +63,7 @@ master:
     arms:
         upperarm_length: 86. # in mm
         forearm_length: 43. # in mm
-        left:
+        main_arm:
             offset_x: 0.   # in mm
             offset_y: 120. # in mm
             offset_a: 1.57 # in radians

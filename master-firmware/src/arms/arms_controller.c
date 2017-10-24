@@ -15,7 +15,7 @@
 #define ARMS_CONTROLLER_STACKSIZE 4096
 
 
-scara_t left_arm;
+scara_t main_arm;
 
 
 static void set_index_stream_frequency(char* motor, float freq)
@@ -31,25 +31,25 @@ static void set_index_stream_frequency(char* motor, float freq)
 
 void arms_init(void)
 {
-    /* Configure left arm */
-    scara_init(&left_arm);
+    /* Configure main arm */
+    scara_init(&main_arm);
     static cvra_arm_motor_t left_z = {.id = "left-z", .direction = 1, .index = 0};
     static cvra_arm_motor_t left_shoulder = {.id = "left-shoulder", .direction = -1, .index = 0};
     static cvra_arm_motor_t left_elbow = {.id = "left-elbow", .direction = -1, .index = 0};
 
-    scara_set_z_callbacks(&left_arm, set_motor_position, get_motor_position, &left_z);
-    scara_set_shoulder_callbacks(&left_arm, set_motor_position, set_motor_velocity, get_motor_position, &left_shoulder);
-    scara_set_elbow_callbacks(&left_arm, set_motor_position, set_motor_velocity, get_motor_position, &left_elbow);
+    scara_set_z_callbacks(&main_arm, set_motor_position, get_motor_position, &left_z);
+    scara_set_shoulder_callbacks(&main_arm, set_motor_position, set_motor_velocity, get_motor_position, &left_shoulder);
+    scara_set_elbow_callbacks(&main_arm, set_motor_position, set_motor_velocity, get_motor_position, &left_elbow);
 
-    scara_set_related_robot_pos(&left_arm, &robot.pos);
+    scara_set_related_robot_pos(&main_arm, &robot.pos);
 
-    scara_set_physical_parameters(&left_arm,
+    scara_set_physical_parameters(&main_arm,
                                   config_get_scalar("master/arms/upperarm_length"),
                                   config_get_scalar("master/arms/forearm_length"));
 
-    scara_set_offset(&left_arm, config_get_scalar("master/arms/left/offset_x"),
-                     config_get_scalar("master/arms/left/offset_y"),
-                     config_get_scalar("master/arms/left/offset_a"));
+    scara_set_offset(&main_arm, config_get_scalar("master/arms/main_arm/offset_x"),
+                     config_get_scalar("master/arms/main_arm/offset_y"),
+                     config_get_scalar("master/arms/main_arm/offset_a"));
 }
 
 float arms_motor_auto_index(const char* motor_name, int motor_dir, float motor_speed)
@@ -86,15 +86,15 @@ static THD_FUNCTION(arms_ctrl_thd, arg)
     (void) arg;
     chRegSetThreadName(__FUNCTION__);
 
-    parameter_namespace_t *left_arm_control_params = parameter_namespace_find(&master_config, "left_arm/control");
+    parameter_namespace_t *main_arm_control_params = parameter_namespace_find(&master_config, "main_arm/control");
 
     NOTICE("Start arm control");
     while (true) {
-        if (parameter_namespace_contains_changed(left_arm_control_params)) {
-            arms_update_controller_gains(left_arm_control_params, &left_arm);
+        if (parameter_namespace_contains_changed(main_arm_control_params)) {
+            arms_update_controller_gains(main_arm_control_params, &main_arm);
         }
 
-        scara_manage(&left_arm);
+        scara_manage(&main_arm);
 
         chThdSleepMilliseconds(1000 / ARMS_FREQUENCY);
     }
