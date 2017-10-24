@@ -8,6 +8,15 @@
 #include "scara_port.h"
 #include "scara_jacobian.h"
 
+void joint_set_callbacks(joint_t *joint, void (*set_position)(void *, float),
+                         void (*set_velocity)(void *, float),
+                         float (*get_position)(void *), void *args) {
+  joint->set_position = set_position;
+  joint->set_velocity = set_velocity;
+  joint->get_position = get_position;
+  joint->args = args;
+}
+
 void scara_init(scara_t *arm)
 {
     memset(arm, 0, sizeof(scara_t));
@@ -41,9 +50,7 @@ void scara_set_offset(scara_t* arm, float offset_x, float offset_y, float offset
 void scara_set_z_callbacks(scara_t* arm, void (*set_z_position)(void*, float),
                            float (*get_z_position)(void*), void* z_args)
 {
-    arm->set_z_position = set_z_position;
-    arm->get_z_position = get_z_position;
-    arm->z_args = z_args;
+    joint_set_callbacks(&(arm->z_joint), set_z_position, NULL, get_z_position, z_args);
 }
 
 void scara_set_shoulder_callbacks(scara_t* arm, void (*set_shoulder_position)(void*, float),
@@ -155,7 +162,7 @@ void scara_manage(scara_t *arm)
     chMtxLock(&arm->lock);
 
     /* Update motor positions */
-    arm->z_pos = arm->get_z_position(arm->z_args);
+    arm->z_pos = arm->z_joint.get_position(arm->z_joint.args);
     arm->shoulder_pos = arm->get_shoulder_position(arm->shoulder_args);
     arm->elbow_pos = arm->get_elbow_position(arm->elbow_args);
 
@@ -229,12 +236,12 @@ void scara_manage(scara_t *arm)
               measured_x, measured_y, velocity_alpha, velocity_beta);
 
         /* Set motor commands */
-        arm->set_z_position(arm->z_args, frame.position[2]);
+        arm->z_joint.set_position(arm->z_joint.args, frame.position[2]);
         arm->set_shoulder_velocity(arm->shoulder_args, velocity_alpha);
         arm->set_elbow_velocity(arm->elbow_args, velocity_beta);
     } else {
         /* Set motor positions */
-        arm->set_z_position(arm->z_args, frame.position[2]);
+        arm->z_joint.set_position(arm->z_joint.args, frame.position[2]);
         arm->set_shoulder_position(arm->shoulder_args, alpha);
         arm->set_elbow_position(arm->elbow_args, beta);
     }

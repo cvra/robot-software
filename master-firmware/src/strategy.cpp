@@ -208,7 +208,7 @@ struct IndexArms : public goap::Action<DebraState> {
 
         /* Z axis indexing */
         cvra_arm_motor_t* z_motors[] = {
-            (cvra_arm_motor_t *)main_arm.z_args,
+            (cvra_arm_motor_t *)main_arm.z_joint.args,
         };
         float z_speeds[] = {-20};
         arms_auto_index(z_motors, z_speeds, sizeof(z_speeds) / sizeof(float));

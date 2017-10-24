@@ -20,12 +20,27 @@ typedef enum {
     CONTROL_JAM_PID_XYA,      /**< Control using jacobian and PIDs on x,y,a, smooth cartesian trajectories. */
 } scara_control_mode_t;
 
+/** Joint data struct */
+typedef struct {
+    void (*set_position)(void*, float);
+    void (*set_velocity)(void*, float);
+    float (*get_position)(void*);
+    void* args; /// Some internal state
+} joint_t;
+
+void joint_set_callbacks(joint_t *joint, void (*set_position)(void *, float),
+                         void (*set_velocity)(void *, float),
+                         float (*get_position)(void *), void *args);
+
+/** Scara arm datastruct */
 typedef struct {
     vect2_cart offset_xy; /**< Offset vector between center of robot and shoulder. */
     float offset_rotation; /**< Rotation between the robot base and shoulder in rad. */
 
+    /* Motor joints */
+    joint_t z_joint;
+
     /* Motor control callbacks */
-    void (*set_z_position)(void*, float);        /**< Callback function to set z position. */
     void (*set_shoulder_position)(void*, float); /**< Callback function to set shoulder position. */
     void (*set_elbow_position)(void*, float);    /**< Callback function to set elbow position. */
 
@@ -33,12 +48,10 @@ typedef struct {
     void (*set_elbow_velocity)(void*, float);    /**< Callback function to set elbow velocity. */
 
     /* Motor feedback callbacks */
-    float (*get_z_position)(void*);        /**< Callback function to get z position. */
     float (*get_shoulder_position)(void*); /**< Callback function to get shoulder position. */
     float (*get_elbow_position)(void*);    /**< Callback function to get elbow position. */
 
     /* Motor control args */
-    void* z_args;
     void* shoulder_args;
     void* elbow_args;
 
