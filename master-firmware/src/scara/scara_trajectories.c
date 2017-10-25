@@ -24,8 +24,8 @@ void scara_trajectory_init(scara_trajectory_t *traj) {
 }
 
 
-void scara_trajectory_append_point(scara_trajectory_t *traj, const float x, const float y, const float z, const float a,
-                                   const float p, scara_coordinate_t system, const float duration, const float* length)
+void scara_trajectory_append_point(scara_trajectory_t *traj, const float x, const float y, const float z,
+                                   scara_coordinate_t system, const float duration, const float* length)
 {
     traj->frame_count += 1;
     if (traj->frame_count >= SCARA_TRAJ_MAX_NUM_FRAMES) {
@@ -39,8 +39,6 @@ void scara_trajectory_append_point(scara_trajectory_t *traj, const float x, cons
     traj->frames[traj->frame_count-1].position[0] = x;
     traj->frames[traj->frame_count-1].position[1] = y;
     traj->frames[traj->frame_count-1].position[2] = z;
-    traj->frames[traj->frame_count-1].hand_angle = a;
-    traj->frames[traj->frame_count-1].pitch_angle = p;
     traj->frames[traj->frame_count-1].coordinate_type = system;
 
     if (traj->frame_count == 1) {
@@ -51,15 +49,14 @@ void scara_trajectory_append_point(scara_trajectory_t *traj, const float x, cons
 
     traj->frames[traj->frame_count-1].length[0] = length[0];
     traj->frames[traj->frame_count-1].length[1] = length[1];
-    traj->frames[traj->frame_count-1].length[2] = length[2];
 }
 
 void scara_trajectory_append_point_with_length(scara_trajectory_t *traj, const float x, const float y, const float z,
-                                               const float a, const float p, scara_coordinate_t system,
-                                               const float duration, const float l1, const float l2, const float l3)
+                                               scara_coordinate_t system,
+                                               const float duration, const float l1, const float l2)
 {
-    float length[3] = {l1, l2, l3};
-    scara_trajectory_append_point(traj, x, y, z, a, p, system, duration, length);
+    float length[2] = {l1, l2};
+    scara_trajectory_append_point(traj, x, y, z, system, duration, length);
 }
 
 void scara_trajectory_delete(scara_trajectory_t *traj)
@@ -105,12 +102,9 @@ scara_waypoint_t scara_trajectory_interpolate_waypoints(scara_waypoint_t k1, sca
         result.position[i] = interpolate(t, k1.position[i], k2.position[i]);
     }
 
-    for (i=0; i<3; i++) {
+    for (i=0; i<2; i++) {
         result.length[i] = interpolate(t, k1.length[i], k2.length[i]);
     }
-
-    result.hand_angle = interpolate(t, k1.hand_angle, k2.hand_angle);
-    result.pitch_angle = interpolate(t, k1.pitch_angle, k2.pitch_angle);
 
     return result;
 }

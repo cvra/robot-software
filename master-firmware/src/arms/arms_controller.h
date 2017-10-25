@@ -11,11 +11,8 @@ extern "C" {
 
 #define ARMS_FREQUENCY 50
 
-extern scara_t left_arm;
-extern scara_t right_arm;
+extern scara_t main_arm;
 
-extern hand_t left_hand;
-extern hand_t right_hand;
 
 /* Initialize arms */
 void arms_init(void);
@@ -28,9 +25,6 @@ void arms_controller_start(void);
 
 /* Index a whole bunch of motors simultaneously */
 void arms_auto_index(cvra_arm_motor_t** motors, float* motor_speeds, size_t num_motors);
-
-/* Index a whole bunch of motors simultaneously */
-void arms_wrist_auto_index(cvra_arm_wrist_t** wrists, float* heading_speeds, float* pitch_speeds, size_t num_wrists);
 
 #ifdef __cplusplus
 }

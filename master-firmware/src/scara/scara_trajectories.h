@@ -16,8 +16,8 @@ extern "C" {
  * @note This function tests if the given trajectory is empty, and if it is, it assumes the first point
  * date is now.
  */
-void scara_trajectory_append_point(scara_trajectory_t *traj, const float x, const float y, const float z, const float a,
-                                   const float p, scara_coordinate_t system, const float duration, const float* length);
+void scara_trajectory_append_point(scara_trajectory_t *traj, const float x, const float y, const float z,
+                                   scara_coordinate_t system, const float duration, const float* length);
 
 /** Zeroes an scara_trajectory_t structure to avoid problems.
  * @param traj The trajectory to zero.
@@ -27,8 +27,8 @@ void scara_trajectory_init(scara_trajectory_t *traj);
 
 /** same as scara_trajectory_append_point but with a custom length. */
 void scara_trajectory_append_point_with_length(scara_trajectory_t *traj, const float x, const float y, const float z,
-                                               const float a, const float p, scara_coordinate_t system,
-                                               const float duration, const float l1, const float l2, const float l3);
+                                               scara_coordinate_t system, const float duration,
+                                               const float l1, const float l2);
 
 void scara_trajectory_delete(scara_trajectory_t *traj);
 

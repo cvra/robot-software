@@ -19,20 +19,20 @@ TEST_GROUP(ArmSetTrajectory)
 
     scara_trajectory_t traj;
     scara_t arm;
-    float arbitraryLengths[3] = {100, 50, 20};
+    float arbitraryLengths[2] = {100, 50};
 
     struct robot_position pos;
 
     arm_waypoint_t trajectory[3] = {
-        {.x=0, .y=0, .z=0, .a=0, .p=-90, .coord=COORDINATE_TABLE, .dt=1000, .l3=20},
-        {.x=100, .y=0, .z=0, .a=90, .p=0, .coord=COORDINATE_TABLE, .dt=1000, .l3=20},
-        {.x=100, .y=100, .z=0, .a=180, .p=90, .coord=COORDINATE_TABLE, .dt=1000, .l3=20},
+        {.x=0, .y=0, .z=0, .coord=COORDINATE_TABLE, .dt=1000},
+        {.x=100, .y=0, .z=0, .coord=COORDINATE_TABLE, .dt=1000},
+        {.x=100, .y=100, .z=0, .coord=COORDINATE_TABLE, .dt=1000},
     };
 
     void setup()
     {
         scara_init(&arm);
-        scara_set_physical_parameters(&arm, arbitraryLengths[0], arbitraryLengths[1], arbitraryLengths[2]);
+        scara_set_physical_parameters(&arm, arbitraryLengths[0], arbitraryLengths[1]);
         arm.offset_rotation = M_PI / 2;
 
         scara_set_related_robot_pos(&arm, &pos);
@@ -60,13 +60,9 @@ TEST(ArmSetTrajectory, SetsGivenPointInTrajectory)
 
     CHECK_EQUAL(100, arm.trajectory.frames[1].position[0]);
     CHECK_EQUAL(0, arm.trajectory.frames[1].position[1]);
-    DOUBLES_EQUAL(M_PI/2, arm.trajectory.frames[1].hand_angle, 1e-2);
-    DOUBLES_EQUAL(0, arm.trajectory.frames[1].pitch_angle, 1e-2);
 
     CHECK_EQUAL(100, arm.trajectory.frames[2].position[0]);
     CHECK_EQUAL(100, arm.trajectory.frames[2].position[1]);
-    DOUBLES_EQUAL(M_PI, arm.trajectory.frames[2].hand_angle, 1e-2);
-    DOUBLES_EQUAL(M_PI/2, arm.trajectory.frames[2].pitch_angle, 1e-2);
 }
 
 TEST(ArmSetTrajectory, SetsTimeCorrectly)

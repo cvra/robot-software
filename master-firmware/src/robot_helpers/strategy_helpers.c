@@ -92,10 +92,9 @@ unsigned strategy_set_arm_trajectory(scara_t* arm, arm_waypoint_t* trajectory, u
         scara_trajectory_append_point_with_length(
             &arm->trajectory,
             trajectory[i].x, trajectory[i].y, trajectory[i].z,
-            RADIANS(trajectory[i].a), RADIANS(trajectory[i].p),
             trajectory[i].coord,
             (float)trajectory[i].dt * 0.001,
-            arm->length[0], arm->length[1], trajectory[i].l3);
+            arm->length[0], arm->length[1]);
 
         duration += trajectory[i].dt;
     }

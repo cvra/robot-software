@@ -21,12 +21,12 @@ TEST_GROUP(kinematicsTestGroup)
 
     scara_trajectory_t traj;
     scara_t arm;
-    float arbitraryLengths[3] = {100, 50, 20};
+    float arbitraryLengths[2] = {100, 50};
 
     void setup()
     {
         scara_init(&arm);
-        scara_set_physical_parameters(&arm, arbitraryLengths[0], arbitraryLengths[1], arbitraryLengths[2]);
+        scara_set_physical_parameters(&arm, arbitraryLengths[0], arbitraryLengths[1]);
         arm.offset_rotation = M_PI / 2;
         scara_trajectory_init(&traj);
     }
@@ -82,87 +82,6 @@ TEST(kinematicsTestGroup, ForwardKinematicsNegativeAnglesToo)
     DOUBLES_EQUAL(result.y, -200, 1e-2);
 }
 
-TEST(kinematicsTestGroup, EndEffectorPosTrivialCaseX)
-{
-    point_t result;
-    point_t arm_pos = {100., 100.};
-    float length = 100.;
-    result = scara_end_effector_position(arm_pos, 0., length);
-    DOUBLES_EQUAL(result.x, 200, 1e-2);
-    DOUBLES_EQUAL(result.y, 100, 1e-2);
-}
-
-TEST(kinematicsTestGroup, EndEffectorPosTrivialCaseY)
-{
-    point_t result;
-    point_t arm_pos = {100., 100.};
-    float length = 100.;
-    result = scara_end_effector_position(arm_pos, M_PI/2, length);
-    DOUBLES_EQUAL(result.x, 100, 1e-2);
-    DOUBLES_EQUAL(result.y, 200, 1e-2);
-}
-
-TEST(kinematicsTestGroup, EndEffectorPosPositiveAngles)
-{
-    point_t result;
-    point_t arm_pos = {100., 100.};
-    float length = 100.;
-    result = scara_end_effector_position(arm_pos, M_PI/4, length);
-    DOUBLES_EQUAL(result.x, 170.71, 1e-2);
-    DOUBLES_EQUAL(result.y, 170.71, 1e-2);
-}
-
-TEST(kinematicsTestGroup, EndEffectorPosNegativeAngles)
-{
-    point_t result;
-    point_t arm_pos = {100., 100.};
-    float length = 100.;
-    result = scara_end_effector_position(arm_pos, -M_PI/4, length);
-    DOUBLES_EQUAL(result.x, 170.71, 1e-2);
-    DOUBLES_EQUAL(result.y, 29.29, 1e-2);
-}
-
-TEST(kinematicsTestGroup, ArmPosTrivialCaseX)
-{
-    point_t result;
-    point_t arm_pos = {200., 100.};
-    float length = 100.;
-    result = scara_arm_position(arm_pos, 0., length);
-    DOUBLES_EQUAL(result.x, 100, 1e-2);
-    DOUBLES_EQUAL(result.y, 100, 1e-2);
-}
-
-TEST(kinematicsTestGroup, ArmPosTrivialCaseY)
-{
-    point_t result;
-    point_t arm_pos = {100., 200.};
-    float length = 100.;
-    result = scara_arm_position(arm_pos, M_PI/2, length);
-    DOUBLES_EQUAL(result.x, 100, 1e-2);
-    DOUBLES_EQUAL(result.y, 100, 1e-2);
-}
-
-TEST(kinematicsTestGroup, ArmPosPositiveAngles)
-{
-    point_t result;
-    point_t arm_pos = {170.71, 170.71};
-    float length = 100.;
-    result = scara_arm_position(arm_pos, M_PI/4, length);
-    DOUBLES_EQUAL(result.x, 100., 1e-2);
-    DOUBLES_EQUAL(result.y, 100., 1e-2);
-}
-
-TEST(kinematicsTestGroup, ArmPosNegativeAngles)
-{
-    point_t result;
-    point_t arm_pos = {170.71, 29.29};
-    float length = 100.;
-    result = scara_arm_position(arm_pos, -M_PI/4, length);
-    DOUBLES_EQUAL(result.x, 100., 1e-2);
-    DOUBLES_EQUAL(result.y, 100., 1e-2);
-}
-
-
 TEST(kinematicsTestGroup, DoesNotOscillateAroundZero)
 {
     scara_waypoint_t frame;
@@ -170,8 +89,8 @@ TEST(kinematicsTestGroup, DoesNotOscillateAroundZero)
     point_t target;
     int position_count;
 
-    scara_trajectory_append_point(&traj, 100,  1, 10, 0, 0, COORDINATE_ARM, 1., arbitraryLengths);
-    scara_trajectory_append_point(&traj, 100, -1, 10, 0, 0, COORDINATE_ARM, 10., arbitraryLengths);
+    scara_trajectory_append_point(&traj, 100,  1, 10, COORDINATE_ARM, 1., arbitraryLengths);
+    scara_trajectory_append_point(&traj, 100, -1, 10, COORDINATE_ARM, 10., arbitraryLengths);
     scara_do_trajectory(&arm, &traj);
 
     while (scara_time_get() < traj.frames[traj.frame_count-1].date) {

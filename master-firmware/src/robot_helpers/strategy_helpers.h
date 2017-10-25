@@ -22,11 +22,8 @@ typedef struct {
     float x; // Desired position x of end effector in mm without mirroring
     float y; // Desired position y of end effector in mm without mirroring
     float z; // Desired position z of end effector in mm without mirroring
-    float a; // Desired position a of end effector in deg without mirroring
-    float p; // Desired position p of end effector in deg without mirroring
     scara_coordinate_t coord; // Coordinate system
     unsigned dt; // Duration in ms to reach this waypoint
-    float l3; // Length from wrist to end effector
 } arm_waypoint_t;
 
 

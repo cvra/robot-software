@@ -8,7 +8,6 @@
 #include "can/motor_manager.h"
 #include "robot_helpers/motor_helpers.h"
 #include "base/base_controller.h"
-#include "can/hand_driver.h"
 
 #include "arms_controller.h"
 
@@ -16,11 +15,7 @@
 #define ARMS_CONTROLLER_STACKSIZE 4096
 
 
-scara_t left_arm;
-scara_t right_arm;
-
-hand_t left_hand;
-hand_t right_hand;
+scara_t main_arm;
 
 
 static void set_index_stream_frequency(char* motor, float freq)
@@ -36,69 +31,25 @@ static void set_index_stream_frequency(char* motor, float freq)
 
 void arms_init(void)
 {
-    /* Configure left arm */
-    scara_init(&left_arm);
-    static cvra_arm_motor_t left_z = {.id = "left-z", .direction = 1, .index = 0};
-    static cvra_arm_motor_t left_shoulder = {.id = "left-shoulder", .direction = -1, .index = 0};
-    static cvra_arm_motor_t left_elbow = {.id = "left-elbow", .direction = -1, .index = 0};
-    static cvra_arm_wrist_t left_wrist = {
-        .up = "left-wrist-up", .down = "left-wrist-down",
-        .up_direction = 1, .down_direction = -1,
-        .heading_ratio = 6.f, .pitch_ratio = 3.f,
-        .heading_index = 0, .pitch_index = 0,
-    };
+    /* Configure main arm */
+    scara_init(&main_arm);
+    static cvra_arm_motor_t z_joint = {.id = "z-joint", .direction = 1, .index = 0};
+    static cvra_arm_motor_t shoulder_joint = {.id = "shoulder-joint", .direction = -1, .index = 0};
+    static cvra_arm_motor_t elbow_joint = {.id = "elbow-joint", .direction = -1, .index = 0};
 
-    scara_set_z_callbacks(&left_arm, set_motor_position, get_motor_position, &left_z);
-    scara_set_shoulder_callbacks(&left_arm, set_motor_position, set_motor_velocity, get_motor_position, &left_shoulder);
-    scara_set_elbow_callbacks(&left_arm, set_motor_position, set_motor_velocity, get_motor_position, &left_elbow);
-    scara_set_wrist_callbacks(&left_arm, set_wrist_position, set_wrist_velocity, get_wrist_position, &left_wrist);
+    scara_set_z_callbacks(&main_arm, set_motor_position, get_motor_position, &z_joint);
+    scara_set_shoulder_callbacks(&main_arm, set_motor_position, set_motor_velocity, get_motor_position, &shoulder_joint);
+    scara_set_elbow_callbacks(&main_arm, set_motor_position, set_motor_velocity, get_motor_position, &elbow_joint);
 
-    scara_set_related_robot_pos(&left_arm, &robot.pos);
+    scara_set_related_robot_pos(&main_arm, &robot.pos);
 
-    scara_set_physical_parameters(&left_arm,
+    scara_set_physical_parameters(&main_arm,
                                   config_get_scalar("master/arms/upperarm_length"),
-                                  config_get_scalar("master/arms/forearm_length"),
-                                  config_get_scalar("master/arms/wrist_to_hand_length"));
+                                  config_get_scalar("master/arms/forearm_length"));
 
-    scara_set_offset(&left_arm, config_get_scalar("master/arms/left/offset_x"),
-                     config_get_scalar("master/arms/left/offset_y"),
-                     config_get_scalar("master/arms/left/offset_a"));
-
-    /* Configure right arm */
-    scara_init(&right_arm);
-    static cvra_arm_motor_t right_z = {.id = "right-z", .direction = 1, .index = 0};
-    static cvra_arm_motor_t right_shoulder = {.id = "right-shoulder", .direction = -1, .index = 0};
-    static cvra_arm_motor_t right_elbow = {.id = "right-elbow", .direction = -1, .index = 0};
-    static cvra_arm_wrist_t right_wrist = {
-        .up = "right-wrist-up", .down = "right-wrist-down",
-        .up_direction = 1, .down_direction = -1,
-        .heading_ratio = 6.f, .pitch_ratio = 3.f,
-        .heading_index = 0, .pitch_index = 0,
-    };
-
-    scara_set_z_callbacks(&right_arm, set_motor_position, get_motor_position, &right_z);
-    scara_set_shoulder_callbacks(&right_arm, set_motor_position, set_motor_velocity, get_motor_position, &right_shoulder);
-    scara_set_elbow_callbacks(&right_arm, set_motor_position, set_motor_velocity, get_motor_position, &right_elbow);
-    scara_set_wrist_callbacks(&right_arm, set_wrist_position, set_wrist_velocity, get_wrist_position, &right_wrist);
-
-    scara_set_related_robot_pos(&right_arm, &robot.pos);
-
-    scara_set_physical_parameters(&right_arm,
-                                  config_get_scalar("master/arms/upperarm_length"),
-                                  config_get_scalar("master/arms/forearm_length"),
-                                  config_get_scalar("master/arms/wrist_to_hand_length"));
-
-    scara_set_offset(&right_arm, config_get_scalar("master/arms/right/offset_x"),
-                     config_get_scalar("master/arms/right/offset_y"),
-                     config_get_scalar("master/arms/right/offset_a"));
-
-    /* Configure left hand */
-    hand_init(&left_hand);
-    hand_set_fingers_callbacks(&left_hand, hand_driver_set_left_fingers);
-
-    /* Configure right hand */
-    hand_init(&right_hand);
-    hand_set_fingers_callbacks(&right_hand, hand_driver_set_right_fingers);
+    scara_set_offset(&main_arm, config_get_scalar("master/arms/main_arm/offset_x"),
+                     config_get_scalar("master/arms/main_arm/offset_y"),
+                     config_get_scalar("master/arms/main_arm/offset_a"));
 }
 
 float arms_motor_auto_index(const char* motor_name, int motor_dir, float motor_speed)
@@ -128,20 +79,6 @@ static void arms_update_controller_gains(parameter_namespace_t* ns, scara_t* arm
     ilim = parameter_scalar_get(parameter_find(ns, "y/ilimit"));
     pid_set_gains(&arm->y_pid, kp, ki, kd);
     pid_set_integral_limit(&arm->y_pid, ilim);
-
-    kp = parameter_scalar_get(parameter_find(ns, "heading/kp"));
-    ki = parameter_scalar_get(parameter_find(ns, "heading/ki"));
-    kd = parameter_scalar_get(parameter_find(ns, "heading/kd"));
-    ilim = parameter_scalar_get(parameter_find(ns, "heading/ilimit"));
-    pid_set_gains(&arm->heading_pid, kp, ki, kd);
-    pid_set_integral_limit(&arm->heading_pid, ilim);
-
-    kp = parameter_scalar_get(parameter_find(ns, "pitch/kp"));
-    ki = parameter_scalar_get(parameter_find(ns, "pitch/ki"));
-    kd = parameter_scalar_get(parameter_find(ns, "pitch/kd"));
-    ilim = parameter_scalar_get(parameter_find(ns, "pitch/ilimit"));
-    pid_set_gains(&arm->pitch_pid, kp, ki, kd);
-    pid_set_integral_limit(&arm->pitch_pid, ilim);
 }
 
 static THD_FUNCTION(arms_ctrl_thd, arg)
@@ -149,25 +86,15 @@ static THD_FUNCTION(arms_ctrl_thd, arg)
     (void) arg;
     chRegSetThreadName(__FUNCTION__);
 
-    parameter_namespace_t *left_arm_control_params = parameter_namespace_find(&master_config,
-                                                                              "left_arm/control");
-    parameter_namespace_t *right_arm_control_params = parameter_namespace_find(&master_config,
-                                                                               "right_arm/control");
+    parameter_namespace_t *main_arm_control_params = parameter_namespace_find(&master_config, "main_arm/control");
 
     NOTICE("Start arm control");
     while (true) {
-        if (parameter_namespace_contains_changed(left_arm_control_params)) {
-            arms_update_controller_gains(left_arm_control_params, &left_arm);
-        }
-        if (parameter_namespace_contains_changed(right_arm_control_params)) {
-            arms_update_controller_gains(right_arm_control_params, &right_arm);
+        if (parameter_namespace_contains_changed(main_arm_control_params)) {
+            arms_update_controller_gains(main_arm_control_params, &main_arm);
         }
 
-        scara_manage(&left_arm);
-        scara_manage(&right_arm);
-
-        hand_manage(&left_hand);
-        hand_manage(&right_hand);
+        scara_manage(&main_arm);
 
         chThdSleepMilliseconds(1000 / ARMS_FREQUENCY);
     }
@@ -281,199 +208,6 @@ void arms_auto_index(cvra_arm_motor_t** motors, float* motor_speeds, size_t num_
     /* Disable index stream over CAN */
     for (size_t i = 0; i < num_motors; i++) {
         set_index_stream_frequency(motors[i]->id, 0);
-    }
-    NOTICE("Disabled motor index streams");
-}
-
-void arms_wrist_auto_index(cvra_arm_wrist_t** wrists, float* heading_speeds, float* pitch_speeds, size_t num_wrists)
-{
-    /* Fetch all motor drivers */
-    motor_driver_t* drivers_up[num_wrists];
-    motor_driver_t* drivers_down[num_wrists];
-    for (size_t i = 0; i < num_wrists; i++) {
-        drivers_up[i] = get_motor_driver(wrists[i]->up);
-        drivers_down[i] = get_motor_driver(wrists[i]->down);
-    }
-
-    /* Enable index stream over CAN */
-    for (size_t i = 0; i < num_wrists; i++) {
-        set_index_stream_frequency(wrists[i]->up, 10);
-        set_index_stream_frequency(wrists[i]->down, 10);
-    }
-#ifndef TESTS
-    // TODO: Wait for an acknowledge that it was changed on the motor board, instead of waiting
-    chThdSleepSeconds(1);
-#endif
-
-    bool wrist_finished[num_wrists];
-    uint32_t index_counts[num_wrists];
-    size_t num_finished;
-    float heading_indexes[num_wrists];
-    float pitch_indexes[num_wrists];
-
-    /*** Index pitch ***/
-
-    /* Start moving in forward direction */
-    for (size_t i = 0; i < num_wrists; i++) {
-        wrist_finished[i] = false;
-        pitch_indexes[i] = 0.f;
-        index_counts[i] = drivers_down[i]->stream.value_stream_index_update_count;
-        set_wrist_velocity(wrists[i], 0, - pitch_speeds[i]);
-        NOTICE("Moving %s / %s axis...", wrists[i]->up, wrists[i]->down);
-    }
-
-    /* Wait for all wrists to reach indexes */
-    num_finished = 0;
-    while (num_finished != num_wrists) {
-        for (size_t i = 0; i < num_wrists; i++) {
-            if (!wrist_finished[i] && drivers_down[i]->stream.value_stream_index_update_count != index_counts[i]) {
-                /* Stop motor */
-                set_wrist_velocity(wrists[i], 0, 0);
-
-                /* Update index */
-                float heading, pitch;
-                get_wrist_position(wrists[i], &heading, &pitch);
-                pitch_indexes[i] += pitch;
-
-                /* Mark motor as done */
-                wrist_finished[i] = true;
-                num_finished++;
-            }
-        }
-#ifndef TESTS
-        chThdSleepMilliseconds(50);
-#endif
-    }
-
-    /* Move away from index positions */
-    for (size_t i = 0; i < num_wrists; i++) {
-        set_wrist_velocity(wrists[i], 0, - pitch_speeds[i]);
-    }
-#ifndef TESTS
-    chThdSleepMilliseconds(1000);
-#endif
-    for (size_t i = 0; i < num_wrists; i++) {
-        set_wrist_velocity(wrists[i], 0, 0);
-    }
-
-    /* Start moving in backward direction */
-    for (size_t i = 0; i < num_wrists; i++) {
-        wrist_finished[i] = false;
-        index_counts[i] = drivers_down[i]->stream.value_stream_index_update_count;
-        set_wrist_velocity(wrists[i], 0, pitch_speeds[i]);
-        NOTICE("Moving %s / %s axis...", wrists[i]->up, wrists[i]->down);
-    }
-
-    /* Wait for all wrists to reach indexes */
-    num_finished = 0;
-    while (num_finished != num_wrists) {
-        for (size_t i = 0; i < num_wrists; i++) {
-            if (!wrist_finished[i] && drivers_down[i]->stream.value_stream_index_update_count != index_counts[i]) {
-                /* Stop motor */
-                set_wrist_velocity(wrists[i], 0, 0);
-
-                /* Update index */
-                float heading, pitch;
-                get_wrist_position(wrists[i], &heading, &pitch);
-                pitch_indexes[i] += pitch;
-
-                /* Mark motor as done */
-                wrist_finished[i] = true;
-                num_finished++;
-            }
-        }
-#ifndef TESTS
-        chThdSleepMilliseconds(50);
-#endif
-    }
-
-    /*** Heading pitch ***/
-
-    /* Start moving in forward direction */
-    for (size_t i = 0; i < num_wrists; i++) {
-        wrist_finished[i] = false;
-        heading_indexes[i] = 0.f;
-        index_counts[i] = drivers_up[i]->stream.value_stream_index_update_count;
-        set_wrist_velocity(wrists[i], - heading_speeds[i], 0);
-        NOTICE("Moving %s / %s axis...", wrists[i]->up, wrists[i]->down);
-    }
-
-    /* Wait for all wrists to reach indexes */
-    num_finished = 0;
-    while (num_finished != num_wrists) {
-        for (size_t i = 0; i < num_wrists; i++) {
-            if (!wrist_finished[i] && drivers_up[i]->stream.value_stream_index_update_count != index_counts[i]) {
-                /* Stop motor */
-                set_wrist_velocity(wrists[i], 0, 0);
-
-                /* Update index */
-                float heading, pitch;
-                get_wrist_position(wrists[i], &heading, &pitch);
-                heading_indexes[i] += heading;
-
-                /* Mark motor as done */
-                wrist_finished[i] = true;
-                num_finished++;
-            }
-        }
-#ifndef TESTS
-        chThdSleepMilliseconds(50);
-#endif
-    }
-
-    /* Move away from index positions */
-    for (size_t i = 0; i < num_wrists; i++) {
-        set_wrist_velocity(wrists[i], - heading_speeds[i], 0);
-    }
-#ifndef TESTS
-    chThdSleepMilliseconds(1000);
-#endif
-    for (size_t i = 0; i < num_wrists; i++) {
-        set_wrist_velocity(wrists[i], 0, 0);
-    }
-
-    /* Start moving in backward direction */
-    for (size_t i = 0; i < num_wrists; i++) {
-        wrist_finished[i] = false;
-        index_counts[i] = drivers_up[i]->stream.value_stream_index_update_count;
-        set_wrist_velocity(wrists[i], heading_speeds[i], 0);
-        NOTICE("Moving %s / %s axis...", wrists[i]->up, wrists[i]->down);
-    }
-
-    /* Wait for all wrists to reach indexes */
-    num_finished = 0;
-    while (num_finished != num_wrists) {
-        for (size_t i = 0; i < num_wrists; i++) {
-            if (!wrist_finished[i] && drivers_up[i]->stream.value_stream_index_update_count != index_counts[i]) {
-                /* Stop motor */
-                set_wrist_velocity(wrists[i], 0, 0);
-
-                /* Update index */
-                float heading, pitch;
-                get_wrist_position(wrists[i], &heading, &pitch);
-                heading_indexes[i] += heading;
-
-                /* Mark motor as done */
-                wrist_finished[i] = true;
-                num_finished++;
-            }
-        }
-#ifndef TESTS
-        chThdSleepMilliseconds(50);
-#endif
-    }
-
-    /* Compute index */
-    for (size_t i = 0; i < num_wrists; i++) {
-        wrists[i]->pitch_index = 0.5 * pitch_indexes[i];
-        wrists[i]->heading_index = 0.5 * heading_indexes[i];
-        NOTICE("Wrist %d  pitch index %.3f heading index %.3f", i, wrists[i]->pitch_index, wrists[i]->heading_index);
-    }
-
-    /* Disable index stream over CAN */
-    for (size_t i = 0; i < num_wrists; i++) {
-        set_index_stream_frequency(wrists[i]->up, 0);
-        set_index_stream_frequency(wrists[i]->down, 0);
     }
     NOTICE("Disabled motor index streams");
 }

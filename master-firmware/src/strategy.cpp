@@ -32,16 +32,7 @@ static void strategy_wait_ms(int ms);
 
 void strategy_play_game(void);
 
-static scara_t* mirror_left_arm(enum strat_color_t color);
-static scara_t* mirror_right_arm(enum strat_color_t color);
-static hand_t* mirror_left_hand(enum strat_color_t color);
-static hand_t* mirror_right_hand(enum strat_color_t color);
-
 #define BUTTON_IS_PRESSED(in) (control_panel_read(in) == false) // Active low
-#define ARM_TRAJ_SYNCHRONOUS(arm, traj) do { \
-        strategy_wait_ms(strategy_set_arm_trajectory(arm, traj, \
-                         sizeof(traj) / sizeof(arm_waypoint_t))); \
-    } while (0)
 
 static enum strat_color_t wait_for_color_selection(void)
 {
@@ -87,26 +78,6 @@ static void wait_for_autoposition_signal(void)
 {
     wait_for_starter();
 }
-
-
-static scara_t* mirror_left_arm(enum strat_color_t color)
-{
-    return color == YELLOW ? &left_arm : &right_arm;
-}
-static scara_t* mirror_right_arm(enum strat_color_t color)
-{
-    return color == YELLOW ? &right_arm : &left_arm;
-}
-
-static hand_t* mirror_left_hand(enum strat_color_t color)
-{
-    return color == YELLOW ? &left_hand : &right_hand;
-}
-static hand_t* mirror_right_hand(enum strat_color_t color)
-{
-    return color == YELLOW ? &right_hand : &left_hand;
-}
-
 
 static void strategy_wait_ms(int ms)
 {
@@ -213,24 +184,10 @@ bool strategy_goto_avoid_retry(int x_mm, int y_mm, int a_deg, int traj_end_flags
     return finished;
 }
 
-enum Location {
-    Other=0,
-    Cylinder0,
-    Cylinder1,
-    Cylinder2,
-    Cylinder3,
-    Cylinder4,
-    Cylinder5,
-
-};
-
 struct DebraState {
     int score{0};
     bool arms_are_indexed{false};
     bool arms_are_deployed{true};
-    int cylinder_count{0};
-    bool construction_area_free{false};
-    bool cylinder_taken[5] = {false}; // TODO how many cylinders
 };
 
 struct IndexArms : public goap::Action<DebraState> {
@@ -252,44 +209,23 @@ struct IndexArms : public goap::Action<DebraState> {
 
         /* Z axis indexing */
         cvra_arm_motor_t* z_motors[] = {
-            (cvra_arm_motor_t *)left_arm.z_args,
-            (cvra_arm_motor_t *)right_arm.z_args,
+            (cvra_arm_motor_t *)main_arm.z_args,
         };
-        float z_speeds[] = {-20, -20};
+        float z_speeds[] = {-20};
         arms_auto_index(z_motors, z_speeds, sizeof(z_speeds) / sizeof(float));
 
-        z_motors[0]->index += config_get_scalar("master/arms/motor_offsets/left-z");
-        z_motors[1]->index += config_get_scalar("master/arms/motor_offsets/right-z");
+        z_motors[0]->index += config_get_scalar("master/arms/motor_offsets/z-joint");
 
         /* Arm indexing */
         cvra_arm_motor_t* motors[] = {
-            (cvra_arm_motor_t *)left_arm.shoulder_args,
-            (cvra_arm_motor_t *)left_arm.elbow_args,
-            (cvra_arm_motor_t *)right_arm.shoulder_args,
-            (cvra_arm_motor_t *)right_arm.elbow_args,
+            (cvra_arm_motor_t *)main_arm.shoulder_args,
+            (cvra_arm_motor_t *)main_arm.elbow_args,
         };
-        float motor_speeds[] = {0.8, 0.8, -0.8, -0.8};
+        float motor_speeds[] = {0.8, 0.8};
         arms_auto_index(motors, motor_speeds, sizeof(motor_speeds) / sizeof(float));
 
-        motors[0]->index += config_get_scalar("master/arms/motor_offsets/left-shoulder");
-        motors[1]->index += config_get_scalar("master/arms/motor_offsets/left-elbow");
-        motors[2]->index += config_get_scalar("master/arms/motor_offsets/right-shoulder");
-        motors[3]->index += config_get_scalar("master/arms/motor_offsets/right-elbow");
-
-        /* Wrist indexing */
-        cvra_arm_wrist_t* wrists[] = {
-            (cvra_arm_wrist_t *)left_arm.wrist_args,
-            (cvra_arm_wrist_t *)right_arm.wrist_args,
-        };
-        float heading_speeds[] = {3.0, -3.0};
-        float pitch_speeds[] = {-1.0, -1.0};
-        arms_wrist_auto_index(wrists, heading_speeds, pitch_speeds, sizeof(heading_speeds) / sizeof(float));
-
-        wrists[0]->heading_index += config_get_scalar("master/arms/motor_offsets/left-wrist-heading");
-        wrists[0]->pitch_index += config_get_scalar("master/arms/motor_offsets/left-wrist-pitch");
-
-        wrists[1]->heading_index += config_get_scalar("master/arms/motor_offsets/right-wrist-heading");
-        wrists[1]->pitch_index += config_get_scalar("master/arms/motor_offsets/right-wrist-pitch");
+        motors[0]->index += config_get_scalar("master/arms/motor_offsets/shoulder-joint");
+        motors[1]->index += config_get_scalar("master/arms/motor_offsets/elbow-joint");
 
         state.arms_are_indexed = true;
         return true;
@@ -317,221 +253,7 @@ struct RetractArms : public goap::Action<DebraState> {
     bool execute(DebraState &state)
     {
         NOTICE("Retracting arms!");
-
-        // Enable joint position control
-        scara_ugly_mode_enable(&left_arm);
-        scara_ugly_mode_enable(&right_arm);
-
-        // First move arms up
-
-        scara_move_z(&left_arm, 120, COORDINATE_ROBOT, 0.5);
-        scara_move_z(&right_arm, 120, COORDINATE_ROBOT, 0.5);
-        strategy_wait_ms(1000);
-
-        scara_move_pitch(&left_arm, RADIANS(-90), COORDINATE_ARM, 1.);
-        scara_move_pitch(&right_arm, RADIANS(-90), COORDINATE_ARM, 1.);
-        strategy_wait_ms(1000);
-
-        scara_goto(&left_arm, -150, 120,  120, RADIANS(180), RADIANS(-90), COORDINATE_ROBOT, 1.);
-        scara_goto(&right_arm, -150, -120, 120, RADIANS(180), RADIANS(-90), COORDINATE_ROBOT, 1.);
-        strategy_wait_ms(1000);
-
-        scara_goto(&left_arm, -150, 80,  120, RADIANS(180), RADIANS(-90), COORDINATE_ROBOT, 1.);
-        scara_goto(&right_arm, -150, -80, 120, RADIANS(180), RADIANS(-90), COORDINATE_ROBOT, 1.);
-        strategy_wait_ms(1000);
-
         state.arms_are_deployed = false;
-        return true;
-    }
-};
-
-struct PushMultiColoredCylinder : public goap::Action<DebraState> {
-    enum strat_color_t m_color;
-
-    PushMultiColoredCylinder(enum strat_color_t color)
-        : m_color(color)
-    {
-    }
-
-    bool can_run(DebraState state)
-    {
-        return !state.arms_are_deployed && (state.cylinder_count > 1) && !state.construction_area_free;
-    }
-
-    DebraState plan_effects(DebraState state)
-    {
-        state.score += 10;
-        state.arms_are_deployed = true;
-        state.construction_area_free = true;
-        return state;
-    }
-
-    bool execute(DebraState &state)
-    {
-        scara_t* arm = mirror_left_arm(m_color);
-
-
-        // Approach with wheelbase
-        if (!strategy_goto_avoid(MIRROR_X(m_color, 1040), 1270, MIRROR_A(m_color, 45), TRAJ_FLAGS_ALL)) {
-            return false;
-        }
-
-        scara_ugly_mode_enable(arm);
-
-        // Position arm
-        int x=152, y = (m_color == YELLOW ? 190 : -190), z=120;
-        scara_goto(arm, x, y, z, RADIANS(0), RADIANS(0), COORDINATE_ROBOT, 2.);
-        strategy_wait_ms(2000);
-
-        scara_move_z(arm, 150, COORDINATE_ROBOT, 1.);
-        strategy_wait_ms(1000);
-
-
-        state.score += 10;
-        state.arms_are_deployed = true;
-        state.construction_area_free = true;
-
-        return true;
-
-    }
-};
-
-struct CollectCylinder : public goap::Action<DebraState> {
-    int m_index;
-    enum strat_color_t m_color;
-    float x_mm, y_mm;
-
-    CollectCylinder(unsigned index, enum strat_color_t color, float x_cylinder_mm, float y_cylinder_mm)
-        : m_index(index), m_color(color), x_mm(x_cylinder_mm), y_mm(y_cylinder_mm)
-    {
-    }
-
-    bool can_run(DebraState state)
-    {
-        return !state.arms_are_deployed && state.cylinder_count < 4 && !state.cylinder_taken[m_index];
-    }
-
-    DebraState plan_effects(DebraState state)
-    {
-        state.cylinder_count ++;
-        state.arms_are_deployed = true;
-        state.cylinder_taken[m_index] = true;
-        return state;
-    }
-
-    bool execute(DebraState &state)
-    {
-
-        scara_t* arm = mirror_left_arm(m_color);
-        hand_t* hand = mirror_left_hand(m_color);
-
-        int slot = state.cylinder_count;
-        NOTICE("Collecting cylinder %d using slot %d", m_index, slot);
-
-        // Approach rocket with wheelbase
-        if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm + 200), y_mm - 100, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
-            state.arms_are_deployed = true;
-            return false;
-        }
-
-        scara_ugly_mode_enable(arm);
-
-        // Go above cylinder
-        scara_move_z(arm, 120, COORDINATE_ROBOT, 0.5);
-
-        // Prepare arm
-        scara_goto(arm, MIRROR_X(m_color, x_mm), y_mm - 110, 50, RADIANS(MIRROR_A(m_color, 90)), RADIANS(-90), COORDINATE_TABLE, 1.);
-        strategy_wait_ms(2000);
-
-        // Select tool
-        scara_set_wrist_heading_offset(arm, RADIANS(-90 * slot));
-        strategy_wait_ms(1000);
-        hand_set_finger(hand, slot, FINGER_OPEN);
-        strategy_wait_ms(500);
-
-        // Approach cylinder
-        scara_ugly_mode_disable(arm);
-        arm_waypoint_t pick_cylinder_traj[] = {
-            {.x=MIRROR_X(m_color, x_mm), .y=y_mm, .z=50, .a=MIRROR_A(m_color, 90), .p=-90, .coord=COORDINATE_TABLE, .dt=0, .l3=160},
-            {.x=MIRROR_X(m_color, x_mm), .y=y_mm, .z=50, .a=MIRROR_A(m_color, 90), .p=-90, .coord=COORDINATE_TABLE, .dt=1000, .l3=55},
-        };
-        ARM_TRAJ_SYNCHRONOUS(arm, pick_cylinder_traj);
-
-        // Get cylinder
-        hand_set_finger(hand, slot, FINGER_CLOSED);
-        strategy_wait_ms(500);
-
-        scara_ugly_mode_enable(arm);
-
-        state.cylinder_count ++;
-        state.arms_are_deployed = true;
-        state.cylinder_taken[m_index] = true;
-        return true;
-    }
-};
-
-struct DepositCylinder : public goap::Action<DebraState> {
-    enum strat_color_t m_color;
-    int m_drop_count;
-
-    DepositCylinder(enum strat_color_t color)
-        : m_color(color), m_drop_count(0)
-    {
-    }
-
-    bool can_run(DebraState state)
-    {
-        return !state.arms_are_deployed && (state.cylinder_count > 0) && state.construction_area_free;
-    }
-
-    DebraState plan_effects(DebraState state)
-    {
-        state.score += 10;
-        state.arms_are_deployed = true;
-        state.cylinder_count --;
-        return state;
-    }
-
-    bool execute(DebraState &state)
-    {
-        scara_t* arm = mirror_left_arm(m_color);
-        hand_t* hand = mirror_left_hand(m_color);
-
-        state.arms_are_deployed = true;
-
-        while (state.cylinder_count > 0) {
-            // Select slot
-            int slot = state.cylinder_count - 1;
-            NOTICE("Depositing cylinder in slot %d", slot);
-
-            // Approach with wheelbase
-            if (!strategy_goto_avoid(MIRROR_X(m_color, 250), 800 + 120 * m_drop_count, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
-                return false;
-            }
-
-            // Prepare arm
-            int x = 43, y = (m_color == YELLOW ? 206 : -206), z = 160, a = 180 - 90 * slot;
-
-            scara_move_z(arm, z, COORDINATE_ROBOT, 1.);
-            strategy_wait_ms(1000);
-
-            scara_goto_with_length(arm, x, y, z, RADIANS(a), RADIANS(0), COORDINATE_ROBOT, 4., 0);
-            scara_set_wrist_heading_offset(arm, RADIANS(0));
-            strategy_wait_ms(4000);
-
-            // Drop cylinder
-            hand_set_finger(hand, slot, FINGER_OPEN);
-            strategy_wait_ms(1000);
-
-            hand_set_finger(hand, slot, FINGER_CLOSED);
-            strategy_wait_ms(500);
-
-            m_drop_count ++;
-            state.score += 10;
-            state.arms_are_deployed = true;
-            state.cylinder_count --;
-        }
-
         return true;
     }
 };
@@ -543,15 +265,6 @@ struct InitGoal : goap::Goal<DebraState> {
     }
 };
 
-struct GameGoal : goap::Goal<DebraState> {
-    bool is_reached(DebraState state)
-    {
-        return state.cylinder_taken[0] && state.cylinder_taken[1] &&
-            state.cylinder_count == 0 &&
-            !state.arms_are_deployed;
-    }
-};
-
 void strategy_debra_play_game(void)
 {
     /* Wait for color selection */
@@ -559,15 +272,8 @@ void strategy_debra_play_game(void)
 
     int len;
     InitGoal init_goal;
-    GameGoal game_goal;
     IndexArms index_arms;
     RetractArms retract_arms(color);
-    PushMultiColoredCylinder push_multi_cylinder(color);
-
-    CollectCylinder collect_cylinder_1(0, color, 1000, 600);
-    CollectCylinder collect_cylinder_2(1, color, 500, 1100);
-
-    DepositCylinder deposit_cylinder(color);
 
     DebraState state;
 
@@ -577,17 +283,9 @@ void strategy_debra_play_game(void)
     goap::Action<DebraState> *actions[] = {
         &index_arms,
         &retract_arms,
-        &push_multi_cylinder,
-        &collect_cylinder_1,
-        &collect_cylinder_2,
-        &deposit_cylinder,
     };
 
     goap::Planner<DebraState> planner(actions, sizeof(actions) / sizeof(actions[0]));
-
-    for (size_t i = 0; i < 4; i++) {
-        hand_set_finger(&right_hand, i, FINGER_RETRACTED);
-    }
 
     NOTICE("Getting arms ready...");
     len = planner.plan(state, init_goal, path, max_path_len);
@@ -623,29 +321,11 @@ void strategy_debra_play_game(void)
     /* Wait for starter to begin */
     wait_for_starter();
     trajectory_game_timer_reset();
-    rocket_program_launch_time(GAME_DURATION + 1);
 
-    NOTICE("Starting game");
+    NOTICE("Starting game...");
     while (true) {
-        len = planner.plan(state, game_goal, path, max_path_len);
-        NOTICE("Plan length: %d", len);
-        if (len > 0) {
-            bool success = true;
-            for (int i = 0; i < len; i++) {
-                success &= path[i]->execute(state);
-                if (!success) {
-                    NOTICE("Action failed, requesting new plan...");
-                    break;
-                }
-            }
-            if (success) {
-                NOTICE("Goal successfully achieved, exiting.");
-                break;
-            }
-        } else {
-            NOTICE("No valid plan found, waiting...");
-            strategy_wait_ms(1000);
-        }
+        NOTICE("Game ended!");
+        strategy_wait_ms(1000);
     }
 }
 

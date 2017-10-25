@@ -18,9 +18,7 @@ typedef struct {
     int32_t date;                       /**< waypoint validity date, since the boot of the robot in us. */
     float position[3];                  /**< Position of the arm at the data. */
     scara_coordinate_t coordinate_type; /**< The coordinate system of this trajectory. */
-    float length[3];                    /**< The length of the arm to use. */
-    float hand_angle;                   /**< The angle of the hand in degree. */
-    float pitch_angle;                  /**< The pitch angle of the hand in degree. */
+    float length[2];                    /**< The length of the arm to use. */
 } scara_waypoint_t;
 
 
