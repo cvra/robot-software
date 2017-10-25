@@ -1,7 +1,6 @@
 #include <ch.h>
 #include <hal.h>
 
-#include "can/rocket_driver.h"
 #include <error/error.h>
 #include <timestamp/timestamp.h>
 #include <blocking_detection_manager/blocking_detection_manager.h>

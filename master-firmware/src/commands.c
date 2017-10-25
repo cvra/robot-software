@@ -14,7 +14,6 @@
 #include "timestamp/timestamp.h"
 #include "bus_enumerator.h"
 #include "uavcan_node.h"
-#include "can/rocket_driver.h"
 #include <stdio.h>
 #include "msgbus/messagebus.h"
 #include "main.h"
@@ -1092,23 +1091,6 @@ static void cmd_state(BaseSequentialStream *chp, int argc, char *argv[])
 }
 
 
-static void cmd_rocket(BaseSequentialStream *chp, int argc, char *argv[])
-{
-    float pos;
-    if (argc < 1) {
-        chprintf(chp, "Usage: rocket release|lock|0..1");
-        return;
-    }
-
-    if (!strcmp("release", argv[0])) {
-        rocket_set_pos(ROCKET_POS_RELEASE);
-    } else if (!strcmp("lock", argv[0])) {
-        rocket_set_pos(ROCKET_POS_LOCK);
-    } else if (sscanf(argv[0], "%f", &pos) == 1) {
-        rocket_set_pos(pos);
-    }
-}
-
 static void print_fn(void *arg, const char *fmt, ...)
 {
     BaseSequentialStream *chp = (BaseSequentialStream *)arg;
@@ -1171,7 +1153,6 @@ const ShellCommand commands[] = {
     {"scara_pos", cmd_scara_pos},
     {"scara_traj", cmd_scara_traj},
     {"base_mode", cmd_base_mode},
-    {"rocket", cmd_rocket},
     {"state", cmd_state},
     {"trace", cmd_trace},
     {NULL, NULL}
