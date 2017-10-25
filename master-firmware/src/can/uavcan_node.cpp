@@ -11,7 +11,6 @@
 #include "motor_driver.h"
 #include "motor_driver_uavcan.hpp"
 #include "config.h"
-#include "rocket_driver.h"
 #include "uavcan_node.h"
 #include "priorities.h"
 #include "control_panel.h"
@@ -142,11 +141,6 @@ static void main(void *arg)
     res = retriever.addListener(&collector);
     if (res < 0) {
         ERROR("BusEnumeratorAdapter");
-    }
-
-    res = rocket_init(node);
-    if (res < 0) {
-        ERROR("Rocket driver");
     }
 
     // Mark the node as correctly initialized
