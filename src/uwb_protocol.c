@@ -41,7 +41,7 @@ size_t uwb_mac_encapsulate_frame(uint16_t pan_id,
 
     /* Clears CRC placeholders */
     for (int i = 0; i < MAC_CRC_LEN; i++) {
-        frame[frame_size+i] = 0x00;
+        frame[frame_size + i] = 0x00;
     }
 
     frame_size += MAC_CRC_LEN;
@@ -146,6 +146,27 @@ void uwb_process_incoming_frame(uwb_protocol_handler_t *handler,
          * TX timestamps. */
         write_40bit_int(rx_ts, &frame[5]);
         write_40bit_int(reply_ts, &frame[10]);
+        frame_size += 10;
+
+        /* Encodes an answer back to the source. */
+        dst_addr = src_addr;
+        src_addr = handler->address;
+        frame_size = uwb_mac_encapsulate_frame(pan_id,
+                                               src_addr,
+                                               dst_addr,
+                                               seq_num + 1,
+                                               frame,
+                                               frame_size);
+        /* Sends the answer. */
+        uwb_transmit_frame(reply_ts, frame, frame_size);
+    } else if (seq_num == 1) {
+        // TODO how to properly handle this delay
+        uint64_t reply_ts = rx_ts + 1000;
+
+        /* Do not change the advertisement & reply TX timestamp, append the
+         * reply RX & final TX timestamps. */
+        write_40bit_int(rx_ts, &frame[15]);
+        write_40bit_int(reply_ts, &frame[20]);
         frame_size += 10;
 
         /* Encodes an answer back to the source. */

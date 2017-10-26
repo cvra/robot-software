@@ -114,14 +114,27 @@ TEST_GROUP(RangingProtocol)
     }
 
     uwb_protocol_handler_t handler;
+    uwb_protocol_handler_t tx_handler;
+
+    // Various buffer used in tests
+    uint8_t advertisement_frame[64];
+    uint8_t reply_frame[64];
+    uint8_t final_frame[64];
 
     void setup(void)
     {
         uwb_protocol_handler_init(&handler);
+        uwb_protocol_handler_init(&tx_handler);
 
         // put some poison values
         handler.pan_id = 0xaabb;
         handler.address = 0xccdd;
+        tx_handler.pan_id = handler.pan_id;
+        tx_handler.address = 0xeeff;
+
+        memset(advertisement_frame, 0, sizeof(advertisement_frame));
+        memset(reply_frame, 0, sizeof(reply_frame));
+        memset(final_frame, 0, sizeof(final_frame));
     }
 };
 
@@ -150,14 +163,14 @@ void uwb_transmit_frame(uint64_t tx_timestamp, uint8_t *frame, size_t frame_size
 
 TEST(RangingProtocol, PrepareAdvertisementFrame)
 {
-    uint8_t frame[128];
     uint16_t src, dst, pan_id;
     uint8_t seq;
     uint64_t tx_ts = 1600;
 
-    auto size = uwb_protocol_prepare_measurement_advertisement(&handler, tx_ts, frame);
+    auto size =
+        uwb_protocol_prepare_measurement_advertisement(&handler, tx_ts, advertisement_frame);
 
-    size = uwb_mac_decapsulate_frame(&pan_id, &src, &dst, &seq, frame, size);
+    size = uwb_mac_decapsulate_frame(&pan_id, &src, &dst, &seq, advertisement_frame, size);
 
     CHECK_EQUAL(5, size);
     CHECK_EQUAL(handler.pan_id, pan_id);
@@ -165,21 +178,20 @@ TEST(RangingProtocol, PrepareAdvertisementFrame)
     CHECK_EQUAL(MAC_802_15_4_BROADCAST_ADDR, dst);
     CHECK_EQUAL(0, seq);
 
-    CHECK_EQUAL(tx_ts, read_40bit_uint(frame));
+    CHECK_EQUAL(tx_ts, read_40bit_uint(advertisement_frame));
 }
 
 
 TEST(RangingProtocol, SendAdvertisementFrame)
 {
     const uint64_t ts = 1600;
-    uint8_t frame[32];
     size_t frame_size;
 
-    frame_size = uwb_protocol_prepare_measurement_advertisement(&handler, ts, frame);
+    frame_size = uwb_protocol_prepare_measurement_advertisement(&handler, ts, advertisement_frame);
 
     mock().expectOneCall("uwb_timestamp_get").andReturnValue(600);
     mock().expectOneCall("uwb_transmit_frame")
-    .withMemoryBufferParameter("frame", frame, frame_size);
+    .withMemoryBufferParameter("frame", advertisement_frame, frame_size);
 
     uint8_t buffer[128];
     uwb_send_measurement_advertisement(&handler, buffer);
@@ -187,24 +199,14 @@ TEST(RangingProtocol, SendAdvertisementFrame)
 
 TEST(RangingProtocol, SendMeasurementReply)
 {
-    uwb_protocol_handler_t tx_handler;
-    uwb_protocol_handler_init(&tx_handler);
-    tx_handler.address = 0xcafe;
-    tx_handler.pan_id = handler.pan_id;
-
-    // Buffer holding the received frame (measurement advertisement)
-    uint8_t rx_frame[32];
     uint64_t advertisement_tx_ts = 600;
     uint64_t advertisement_rx_ts = 1400;
     uint64_t reply_tx_ts = 2400;
 
-    // Buffer containing the measurement reply
-    uint8_t reply_frame[32];
-
     // Prepare the frame to feed in the protocol handler
     auto rx_size = uwb_protocol_prepare_measurement_advertisement(&tx_handler,
                                                                   advertisement_tx_ts,
-                                                                  rx_frame);
+                                                                  advertisement_frame);
 
     // Expected frame contains the 3 timestamps (see protocol description in report)
     write_40bit_uint(advertisement_tx_ts, &reply_frame[0]);
@@ -225,46 +227,81 @@ TEST(RangingProtocol, SendMeasurementReply)
     mock().expectOneCall("uwb_transmit_frame").withMemoryBufferParameter("frame",
                                                                          reply_frame,
                                                                          reply_size);
-    uwb_process_incoming_frame(&handler, rx_frame, rx_size, advertisement_rx_ts);
+    uwb_process_incoming_frame(&handler, advertisement_frame, rx_size, advertisement_rx_ts);
 
     // Must be called before the stack allocated memory buffers get freed
     mock().checkExpectations();
 }
 
+TEST(RangingProtocol, ReplyIsFollowedByFinalMessage)
+{
+    uint64_t advertisement_tx_ts = 600;
+    uint64_t advertisement_rx_ts = 1400;
+    uint64_t reply_tx_ts = 2400;
+    uint64_t reply_rx_ts = 2600;
+    uint64_t final_tx_ts = 3600;
+
+    // Prepare a measurement reply frame
+    write_40bit_uint(advertisement_tx_ts, &reply_frame[0]);
+    write_40bit_uint(advertisement_rx_ts, &reply_frame[5]);
+    write_40bit_uint(reply_tx_ts, &reply_frame[10]);
+    size_t reply_size = 15;
+    reply_size = uwb_mac_encapsulate_frame(tx_handler.pan_id,
+                                           tx_handler.address,
+                                           handler.address,
+                                           1,      // sequence number
+                                           reply_frame,
+                                           reply_size);
+
+    // The finalization frame should contain all the five timestamps (see doc).
+    write_40bit_uint(advertisement_tx_ts, &final_frame[0]);
+    write_40bit_uint(advertisement_rx_ts, &final_frame[5]);
+    write_40bit_uint(reply_tx_ts, &final_frame[10]);
+    write_40bit_uint(reply_rx_ts, &final_frame[15]);
+    write_40bit_uint(final_tx_ts, &final_frame[20]);
+    size_t final_size = 25;
+    final_size = uwb_mac_encapsulate_frame(tx_handler.pan_id,
+                                           handler.address,
+                                           tx_handler.address,
+                                           2,      // sequence number
+                                           final_frame,
+                                           final_size);
+
+    // Feed the received frame in the processor, expecting a response to get written
+    mock().expectOneCall("uwb_transmit_frame").withMemoryBufferParameter("frame",
+                                                                         final_frame,
+                                                                         final_size);
+    uwb_process_incoming_frame(&handler, reply_frame, reply_size, reply_rx_ts);
+    mock().checkExpectations();
+}
+
 TEST(RangingProtocol, BadPANIDs)
 {
-    uwb_protocol_handler_t tx_handler;
-    uwb_protocol_handler_init(&tx_handler);
+    // Change the PAN IDs so that they don't match anymore
     tx_handler.pan_id = 0xbabc;
     handler.pan_id = 0xcafe;
 
-    uint8_t frame[32];
     uint64_t ts = 600;
 
     auto rx_size = uwb_protocol_prepare_measurement_advertisement(&tx_handler,
                                                                   ts,
-                                                                  frame);
+                                                                  advertisement_frame);
 
     // No frame should be sent because PAN IDs dont match
-    uwb_process_incoming_frame(&handler, frame, rx_size, ts);
+    uwb_process_incoming_frame(&handler, advertisement_frame, rx_size, ts);
 }
 
 TEST(RangingProtocol, BadDstAddress)
 {
-    uwb_protocol_handler_t tx_handler;
-    uwb_protocol_handler_init(&tx_handler);
-    tx_handler.pan_id = handler.pan_id;
-
-    uint8_t frame[32];
     uint64_t ts = 600;
 
     auto rx_size = uwb_protocol_prepare_measurement_advertisement(&tx_handler,
                                                                   ts,
-                                                                  frame);
+                                                                  advertisement_frame);
 
     // Change the destination address from broadcast to the wrong unicast
-    frame[5] = frame[6] = 0x00;
+    advertisement_frame[5] = advertisement_frame[6] = 0x00;
 
     // No frame should be sent because PAN IDs dont match
-    uwb_process_incoming_frame(&handler, frame, rx_size, ts);
+    uwb_process_incoming_frame(&handler, advertisement_frame, rx_size, ts);
 }
