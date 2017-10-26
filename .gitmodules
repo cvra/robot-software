@@ -3,7 +3,7 @@
 	url = https://github.com/cvra/ChibiOS
 [submodule "lwip"]
 	path = lib/lwip/lwip
-	url = https://github.com/cvra/lwip
+	url = https://git.savannah.nongnu.org/git/lwip.git
 [submodule "dependencies/crc"]
 	path = lib/crc
 	url = https://github.com/cvra/crc

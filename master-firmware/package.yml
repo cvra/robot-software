@@ -23,7 +23,6 @@ target.arm:
     - src/debug/blocking_uart.c
     - src/lwip_bindings/lwipthread.c
     - src/lwip_bindings/arch/sys_arch.c
-    - src/sntp/sntp.c
     - src/commands.c
     - src/comm/rpc_server.c
     - src/comm/rpc_callbacks.c

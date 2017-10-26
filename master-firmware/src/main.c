@@ -11,7 +11,6 @@
 #include "control_panel.h"
 #include <shell.h>
 #include "commands.h"
-#include "sntp/sntp.h"
 #include "unix_timestamp.h"
 #include "panic_log.h"
 #include "log.h"
@@ -233,15 +232,11 @@ int main(void)
     /* Start IP over Ethernet */
     struct netif *ethernet_if;
 
-    // ip_thread_init();
+    ip_thread_init();
 
-    // chThdSleepMilliseconds(1000);
-    // ethernet_if = netif_find("ms0");
-    // if (ethernet_if) {
-    //     dhcp_start(ethernet_if);
-    // }
+    chThdSleepMilliseconds(1000);
+    ethernet_if = netif_find("en0");
 
-    // sntp_init();
     // rpc_server_init();
     // message_server_init();
     // http_server_start();

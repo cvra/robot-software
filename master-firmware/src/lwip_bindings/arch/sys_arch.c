@@ -142,6 +142,11 @@ sys_thread_t sys_thread_new(const char *name, lwip_thread_fn thread,
     return thd;
 }
 
+u32_t sys_now(void)
+{
+    return ST2MS(chVTGetSystemTimeX());
+}
+
 
 
 void sys_init(void)
