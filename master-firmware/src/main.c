@@ -11,7 +11,6 @@
 #include "control_panel.h"
 #include <shell.h>
 #include "commands.h"
-#include "sntp/sntp.h"
 #include "unix_timestamp.h"
 #include "panic_log.h"
 #include "log.h"
@@ -241,7 +240,6 @@ int main(void)
     //     dhcp_start(ethernet_if);
     // }
 
-    // sntp_init();
     // rpc_server_init();
     // message_server_init();
     // http_server_start();
