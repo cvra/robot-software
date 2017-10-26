@@ -33,6 +33,9 @@
 #define LWIP_GATEWAY(p) IP4_ADDR(p, 192, 168, 3, 1)
 #define LWIP_NETMASK(p) IP4_ADDR(p, 255, 255, 255, 0)
 
+#define LWIP_IFNAME0 'e'
+#define LWIP_IFNAME1 'n'
+
 /** Use newlib malloc() instead of memory pools. */
 #include <stdlib.h>
 #define MEM_LIBC_MALLOC 1

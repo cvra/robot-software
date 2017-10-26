@@ -232,13 +232,10 @@ int main(void)
     /* Start IP over Ethernet */
     struct netif *ethernet_if;
 
-    // ip_thread_init();
+    ip_thread_init();
 
-    // chThdSleepMilliseconds(1000);
-    // ethernet_if = netif_find("ms0");
-    // if (ethernet_if) {
-    //     dhcp_start(ethernet_if);
-    // }
+    chThdSleepMilliseconds(1000);
+    ethernet_if = netif_find("en0");
 
     // rpc_server_init();
     // message_server_init();
