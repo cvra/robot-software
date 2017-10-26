@@ -9,7 +9,12 @@
 #define MAC_HDR_LEN                     9
 #define MAC_CRC_LEN                     2
 
+#define UWB_SEQ_NUM_ADVERTISEMENT       0
+#define UWB_SEQ_NUM_REPLY               1
+#define UWB_SEQ_NUM_FINALIZATION        2
+
 static void write_40bit_int(uint64_t val, uint8_t *bytes);
+static uint64_t read_40bit_int(uint8_t *bytes);
 
 size_t uwb_mac_encapsulate_frame(uint16_t pan_id,
                                  uint16_t src_addr,
@@ -77,6 +82,16 @@ static void write_40bit_int(uint64_t val, uint8_t *bytes)
     bytes[4] = (val >> 0) & 0xff;
 }
 
+static uint64_t read_40bit_int(uint8_t *bytes)
+{
+    uint64_t res = 0;
+    for (int i = 0; i < 5; i++) {
+        res = (res << 8) | bytes[i];
+    }
+    return res;
+}
+
+
 void uwb_protocol_handler_init(uwb_protocol_handler_t *handler)
 {
     memset(handler, 0, sizeof(uwb_protocol_handler_t));
@@ -91,7 +106,7 @@ size_t uwb_protocol_prepare_measurement_advertisement(uwb_protocol_handler_t *ha
     size = uwb_mac_encapsulate_frame(handler->pan_id,
                                      handler->address,
                                      MAC_802_15_4_BROADCAST_ADDR,
-                                     0,
+                                     UWB_SEQ_NUM_ADVERTISEMENT,
                                      frame,
                                      5);
 
@@ -138,7 +153,7 @@ void uwb_process_incoming_frame(uwb_protocol_handler_t *handler,
     }
 
     /* Measurement advertisement */
-    if (seq_num == 0) {
+    if (seq_num == UWB_SEQ_NUM_ADVERTISEMENT) {
         // TODO how to properly handle this delay
         uint64_t reply_ts = rx_ts + 1000;
 
@@ -154,12 +169,13 @@ void uwb_process_incoming_frame(uwb_protocol_handler_t *handler,
         frame_size = uwb_mac_encapsulate_frame(pan_id,
                                                src_addr,
                                                dst_addr,
-                                               seq_num + 1,
+                                               UWB_SEQ_NUM_REPLY,
                                                frame,
                                                frame_size);
         /* Sends the answer. */
         uwb_transmit_frame(reply_ts, frame, frame_size);
-    } else if (seq_num == 1) {
+
+    } else if (seq_num == UWB_SEQ_NUM_REPLY) {
         // TODO how to properly handle this delay
         uint64_t reply_ts = rx_ts + 1000;
 
@@ -175,10 +191,32 @@ void uwb_process_incoming_frame(uwb_protocol_handler_t *handler,
         frame_size = uwb_mac_encapsulate_frame(pan_id,
                                                src_addr,
                                                dst_addr,
-                                               seq_num + 1,
+                                               UWB_SEQ_NUM_FINALIZATION,
                                                frame,
                                                frame_size);
         /* Sends the answer. */
         uwb_transmit_frame(reply_ts, frame, frame_size);
+
+    } else if (seq_num == UWB_SEQ_NUM_FINALIZATION) {
+        uint64_t advertisement_tx_ts = read_40bit_int(&frame[0]);
+        uint64_t advertisement_rx_ts = read_40bit_int(&frame[5]);
+        uint64_t reply_tx_ts = read_40bit_int(&frame[10]);
+        uint64_t reply_rx_ts = read_40bit_int(&frame[15]);
+        uint64_t final_tx_ts = read_40bit_int(&frame[20]);
+        uint64_t final_rx_ts = rx_ts;
+        uint64_t t_propag;
+
+        // See documentation for explanation
+        uint64_t tround[2], treply[2];
+        tround[0] = reply_rx_ts - advertisement_tx_ts;
+        tround[1] = final_rx_ts - reply_tx_ts;
+        treply[0] = reply_tx_ts - advertisement_rx_ts;
+        treply[1] = final_tx_ts - reply_rx_ts;
+        t_propag = (tround[0] * tround[1]  - treply[0] * treply[1]) /
+                   (tround[0] + tround[1]  + treply[0] + treply[1]);
+
+        if (handler->ranging_found_cb) {
+            handler->ranging_found_cb(src_addr, t_propag);
+        }
     }
 }

@@ -15,6 +15,7 @@ extern "C" {
 typedef struct {
     uint16_t pan_id;
     uint16_t address;
+    void (*ranging_found_cb)(uint16_t anchor_addr, uint64_t time);
 } uwb_protocol_handler_t;
 
 /** Encapsulate frame data into a 802.15.4 MAC data frame.

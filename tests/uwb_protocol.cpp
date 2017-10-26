@@ -275,6 +275,42 @@ TEST(RangingProtocol, ReplyIsFollowedByFinalMessage)
     mock().checkExpectations();
 }
 
+static void ranging_cb(uint16_t anchor_addr, uint64_t propagation_time)
+{
+    mock().actualCall("ranging_cb").withIntParameter("anchor", anchor_addr).withIntParameter("time",
+                                                                                             propagation_time);
+}
+
+TEST(RangingProtocol, RangingSolutionIsComputedFinally)
+{
+    uint64_t advertisement_tx_ts = 600;
+    uint64_t advertisement_rx_ts = 1450;
+    uint64_t reply_tx_ts = 2450;
+    uint64_t reply_rx_ts = 3650;
+    uint64_t final_tx_ts = 4650;
+    uint64_t final_rx_ts = 5500;
+
+    // Prepare the measurement finalization
+    write_40bit_uint(advertisement_tx_ts, &final_frame[0]);
+    write_40bit_uint(advertisement_rx_ts, &final_frame[5]);
+    write_40bit_uint(reply_tx_ts, &final_frame[10]);
+    write_40bit_uint(reply_rx_ts, &final_frame[15]);
+    write_40bit_uint(final_tx_ts, &final_frame[20]);
+    size_t final_size = 25;
+    final_size = uwb_mac_encapsulate_frame(tx_handler.pan_id,
+                                           tx_handler.address,
+                                           handler.address,
+                                           2,      // sequence number
+                                           final_frame,
+                                           final_size);
+
+    // The callback should be triggered when a solution is found
+    handler.ranging_found_cb = ranging_cb;
+    mock().expectOneCall("ranging_cb").withIntParameter("anchor", tx_handler.address)
+    .withIntParameter("time", 1025);
+    uwb_process_incoming_frame(&handler, final_frame, final_size, final_rx_ts);
+}
+
 TEST(RangingProtocol, BadPANIDs)
 {
     // Change the PAN IDs so that they don't match anymore
