@@ -10,6 +10,7 @@
 #include "priorities.h"
 
 #define LWIP_DBG_TYPES_ON   LWIP_DBG_ON
+#define LWIP_COMPAT_MUTEX_ALLOWED
 
 /* See lwip/src/include/lwip/opt.h for reference. */
 
