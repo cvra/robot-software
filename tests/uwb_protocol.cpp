@@ -190,7 +190,7 @@ TEST(RangingProtocol, SendMeasurementReply)
     uwb_protocol_handler_t tx_handler;
     uwb_protocol_handler_init(&tx_handler);
     tx_handler.address = 0xcafe;
-    tx_handler.pan_id = 0xbabc;
+    tx_handler.pan_id = handler.pan_id;
 
     // Buffer holding the received frame (measurement advertisement)
     uint8_t rx_frame[32];
@@ -229,4 +229,42 @@ TEST(RangingProtocol, SendMeasurementReply)
 
     // Must be called before the stack allocated memory buffers get freed
     mock().checkExpectations();
+}
+
+TEST(RangingProtocol, BadPANIDs)
+{
+    uwb_protocol_handler_t tx_handler;
+    uwb_protocol_handler_init(&tx_handler);
+    tx_handler.pan_id = 0xbabc;
+    handler.pan_id = 0xcafe;
+
+    uint8_t frame[32];
+    uint64_t ts = 600;
+
+    auto rx_size = uwb_protocol_prepare_measurement_advertisement(&tx_handler,
+                                                                  ts,
+                                                                  frame);
+
+    // No frame should be sent because PAN IDs dont match
+    uwb_process_incoming_frame(&handler, frame, rx_size, ts);
+}
+
+TEST(RangingProtocol, BadDstAddress)
+{
+    uwb_protocol_handler_t tx_handler;
+    uwb_protocol_handler_init(&tx_handler);
+    tx_handler.pan_id = handler.pan_id;
+
+    uint8_t frame[32];
+    uint64_t ts = 600;
+
+    auto rx_size = uwb_protocol_prepare_measurement_advertisement(&tx_handler,
+                                                                  ts,
+                                                                  frame);
+
+    // Change the destination address from broadcast to the wrong unicast
+    frame[5] = frame[6] = 0x00;
+
+    // No frame should be sent because PAN IDs dont match
+    uwb_process_incoming_frame(&handler, frame, rx_size, ts);
 }

@@ -126,8 +126,16 @@ void uwb_process_incoming_frame(uwb_protocol_handler_t *handler,
                                            frame,
                                            frame_size);
 
-    /* TODO Software based filter on dst_addr and pan_id, even if it is
-     * hardware accelerated. */
+    /* Checks that the packet comes from the correct PAN. */
+    if (pan_id != handler->pan_id) {
+        return;
+    }
+
+    /* Checks that the packet is sent to us. The hardware should already do
+     * this filter, but checking protects us against misconfigurations. */
+    if (dst_addr != handler->address && dst_addr != MAC_802_15_4_BROADCAST_ADDR) {
+        return;
+    }
 
     /* Measurement advertisement */
     if (seq_num == 0) {
