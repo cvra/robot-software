@@ -11,6 +11,7 @@
 #include "decadriver/deca_device_api.h"
 #include "decadriver/deca_regs.h"
 #include "decawave_interface.h"
+#include "uwb_protocol.h"
 
 #define TEST_WA_SIZE  THD_WORKING_AREA_SIZE(256)
 #define SHELL_WA_SIZE THD_WORKING_AREA_SIZE(2048)
@@ -150,29 +151,35 @@ static void cmd_ahrs(BaseSequentialStream *chp, int argc, char **argv)
     }
 }
 
-static void cmd_dwm(BaseSequentialStream *chp, int argc, char **argv)
+static void cmd_range(BaseSequentialStream *chp, int argc, char **argv)
 {
     if (argc < 1) {
-        chprintf(chp, "usage: dwm rx|tx\r\n");
+        chprintf(chp, "usage: range tx|rx\r\n");
         return;
     }
 
 
     if (!strcmp(argv[0], "tx")) {
-        /* DElay from end of transmission to activation of reception in
-         * microseconds. */
-        dwt_setrxaftertxdelay(0);
-        chprintf(chp, "Sending packet\r\n");
-        unsigned char tx_msg[] = "ping";
+        static uint8_t frame[32];
 
-        /* We need to pass sizeof + 2, because those functions assume the
-         * checksum size is included. */
-        dwt_writetxdata(sizeof(tx_msg)+2, tx_msg, 0); /* Zero offset in TX buffer. */
-        dwt_writetxfctrl(sizeof(tx_msg)+2, 0, 0); /* Zero offset in TX buffer, no ranging. */
-        /* Start transmission. */
-        dwt_starttx(DWT_START_TX_IMMEDIATE | DWT_RESPONSE_EXPECTED);
+        // TODO HUGE HACK, please do not create another handler
+        uwb_protocol_handler_t handler;
+        uwb_protocol_handler_init(&handler);
+        handler.address = 0xcafe;
+        handler.pan_id = 0xcafe;
+        uwb_send_measurement_advertisement(&handler, frame);
     } else if (!strcmp(argv[0], "rx")) {
-        dwt_rxenable(DWT_START_RX_IMMEDIATE);
+        const char *topic_name = "/range";
+        messagebus_topic_t *topic;
+        range_msg_t msg;
+        topic = messagebus_find_topic(&bus, topic_name);
+        if (topic == NULL) {
+            chprintf(chp, "could not find topic \"%s\"\r\n", topic_name);
+            return;
+        }
+
+        messagebus_topic_wait(topic, &msg, sizeof(msg));
+        chprintf(chp, "got a ToF to anchor %d : %d\r\n", msg.anchor_addr, msg.range);
     }
 }
 
@@ -315,7 +322,7 @@ const ShellCommand shell_commands[] = {
     {"imu", cmd_imu},
     {"ahrs", cmd_ahrs},
     {"temp", cmd_temp},
-    {"dwm", cmd_dwm},
+    {"range", cmd_range},
     {"config_tree", cmd_config_tree},
     {"config_set", cmd_config_set},
     {NULL, NULL}

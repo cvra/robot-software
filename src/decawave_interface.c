@@ -1,17 +1,19 @@
 #include <ch.h>
 #include <hal.h>
 #include <chprintf.h>
+#include "decawave_interface.h"
 #include "exti.h"
 #include "decadriver/deca_device_api.h"
 #include "decadriver/deca_regs.h"
 #include "main.h"
+#include "uwb_protocol.h"
 
-messagebus_topic_t rtt_topic;
-MUTEX_DECL(rtt_topic_lock);
-CONDVAR_DECL(rtt_topic_condvar);
+static messagebus_topic_t ranging_topic;
+static MUTEX_DECL(ranging_topic_lock);
+static CONDVAR_DECL(ranging_topic_condvar);
+static range_msg_t ranging_topic_buffer;
 
-
-
+static uwb_protocol_handler_t handler;
 
 int readfromspi(uint16 headerLength, const uint8 *headerBuffer, uint32 readlength,
                 uint8 *readBuffer)
@@ -59,36 +61,29 @@ void decamutexoff(decaIrqStatus_t enable_irq)
     (void) enable_irq;
 }
 
+uint64_t uwb_timestamp_get(void)
+{
+#warning not implemented
+    return 0; // TODO
+}
+
+void uwb_transmit_frame(uint64_t tx_timestamp, uint8_t *frame, size_t frame_size)
+{
+    // TODO apparently only the high 32 bits ared used, what does that mean
+#warning not implemented
+    // dwt_setdelayedtrxtime(tx_timestamp);
+    dwt_writetxdata(frame_size, frame, 1); /* Zero offset in TX buffer. */
+    dwt_setrxaftertxdelay(0);
+    dwt_starttx(DWT_START_TX_IMMEDIATE | DWT_RESPONSE_EXPECTED);
+}
+
 /* TODO: Handle RX errors as well. */
 static void frame_rx_cb(const dwt_cb_data_t *data)
 {
-    static unsigned char frame[100];
-    static uint32_t last_tx = 0;
+    static uint8_t frame[1024];
 
-    static char tx_msg[] = "hello world";
-
-    /* For testing */
-
-    dwt_setrxaftertxdelay(0);
-
-    /* We need to pass sizeof + 2, because those functions assume the
-     * checksum size is included. */
-    dwt_writetxdata(sizeof(tx_msg)+2, tx_msg, 0); /* Zero offset in TX buffer. */
-    dwt_writetxfctrl(sizeof(tx_msg)+2, 0, 0); /* Zero offset in TX buffer, no ranging. */
-
-    /* Start transmission. */
-    dwt_starttx(DWT_START_TX_IMMEDIATE | DWT_RESPONSE_EXPECTED);
-
-    messagebus_topic_publish(&rtt_topic, NULL, 0);
-
-    //chprintf((BaseSequentialStream *)&SD2, "delay: %d\r\n", ST2MS(new_tx  - last_tx));
-
-    //dwt_readrxdata(frame, data->datalength, 0);
-    //chprintf((BaseSequentialStream *)&SD2,
-    //        "Received a frame of length %d \"%s\"\r\n", data->datalength, frame);
-
-    /* We need to manually re enable the receiver once a frame was processed. */
-    //dwt_rxenable(DWT_START_RX_DELAYED);
+    dwt_readrxdata(frame, data->datalength, 0);
+    uwb_process_incoming_frame(&handler, frame, data->datalength, 0);
 }
 
 static void frame_tx_done_cb(const dwt_cb_data_t *data)
@@ -96,11 +91,26 @@ static void frame_tx_done_cb(const dwt_cb_data_t *data)
     (void) data;
 }
 
+static void ranging_found_cb(uint16_t addr, uint64_t time)
+{
+    range_msg_t msg;
+    msg.timestamp = ST2MS(chVTGetSystemTime());
+    msg.anchor_addr = addr;
+    msg.range = time;
+
+    messagebus_topic_publish(&ranging_topic, &msg, sizeof(msg));
+}
+
 static void decawave_thread(void *p)
 {
     (void) p;
 
     chRegSetThreadName("decawave_drv");
+
+    uwb_protocol_handler_init(&handler);
+    handler.address = 0xcafe;
+    handler.pan_id = 0xcaff;
+    handler.ranging_found_cb = ranging_found_cb;
 
     static SPIConfig spi_cfg = {
         .end_cb = NULL,
@@ -149,9 +159,9 @@ static void decawave_thread(void *p)
 
     dwt_setcallbacks(frame_tx_done_cb, frame_rx_cb, NULL, NULL);
 
-    messagebus_topic_init(&rtt_topic, &rtt_topic_lock, &rtt_topic_condvar,
-            NULL, 0);
-    messagebus_advertise_topic(&bus, &rtt_topic, "/rtt");
+    messagebus_topic_init(&ranging_topic, &ranging_topic_lock, &ranging_topic_condvar,
+                          &ranging_topic_buffer, sizeof(ranging_topic_buffer));
+    messagebus_advertise_topic(&bus, &ranging_topic, "/ranging");
 
     while (1) {
         /* Wait for an interrupt coming from the UWB module. */

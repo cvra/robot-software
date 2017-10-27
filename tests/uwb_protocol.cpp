@@ -341,3 +341,5 @@ TEST(RangingProtocol, BadDstAddress)
     // No frame should be sent because PAN IDs dont match
     uwb_process_incoming_frame(&handler, advertisement_frame, rx_size, ts);
 }
+
+// TODO: If we are an anchor we should not answer to advertisement
