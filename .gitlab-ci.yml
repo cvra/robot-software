@@ -12,6 +12,9 @@ models_test:
     - python -m unittest discover
 
 firmware_tests:
+  # TODO cleanup this
+  variables:
+    CFLAGS: "-std=gnu99"
   stage: test
   image: antoinealb/cpputest
   before_script:
