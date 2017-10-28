@@ -49,12 +49,7 @@ void scara_ugly_mode_disable(scara_t* arm)
 }
 
 
-void scara_goto(scara_t* arm,
-                float x,
-                float y,
-                float z,
-                scara_coordinate_t system,
-                const float duration)
+void scara_goto(scara_t* arm, float x, float y, float z, scara_coordinate_t system, const float duration)
 {
     scara_trajectory_init(&(arm->trajectory));
     scara_trajectory_append_point(&(arm->trajectory), x, y, z, system, duration, arm->length);
@@ -121,14 +116,10 @@ void scara_manage(scara_t *arm)
     point_t target = {.x = frame.position[0], .y = frame.position[1]};
 
     point_t p1, p2;
-    arm->kinematics_solution_count = scara_num_possible_elbow_positions(target,
-                                                                        arm->length[0],
-                                                                        arm->length[1],
-                                                                        &p1,
-                                                                        &p2);
-    DEBUG("Inverse kinematics: found %d possible solutions", arm->kinematics_solution_count);
+    int kinematics_solution_count = scara_num_possible_elbow_positions(target, arm->length[0], arm->length[1], &p1, &p2);
+    DEBUG("Inverse kinematics: found %d possible solutions", kinematics_solution_count);
 
-    if (arm->kinematics_solution_count == 0) {
+    if (kinematics_solution_count == 0) {
         arm->last_loop = current_date;
 
         arm->shoulder_joint.set_velocity(arm->shoulder_joint.args, 0);
@@ -136,7 +127,7 @@ void scara_manage(scara_t *arm)
 
         chMtxUnlock(&arm->lock);
         return;
-    } else if (arm->kinematics_solution_count == 2) {
+    } else if (kinematics_solution_count == 2) {
         shoulder_mode_t mode;
         mode = scara_orientation_mode(arm->shoulder_mode, arm->offset_rotation);
         p1 = scara_shoulder_solve(target, p1, p2, mode);

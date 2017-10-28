@@ -48,7 +48,6 @@ typedef struct {
     semaphore_t trajectory_semaphore;
     int32_t last_loop;              /**< Timestamp of the last loop execution, in us since boot. */
     struct robot_position *robot_pos;
-    int kinematics_solution_count;
 
     shoulder_mode_t shoulder_mode;
     scara_control_mode_t control_mode;
