@@ -45,7 +45,6 @@ typedef struct {
 
     /* Path informations */
     scara_trajectory_t trajectory;    /**< Current trajectory of the arm. */
-    semaphore_t trajectory_semaphore;
     struct robot_position *robot_pos;
 
     shoulder_mode_t shoulder_mode;

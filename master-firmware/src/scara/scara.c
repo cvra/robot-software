@@ -224,7 +224,5 @@ void scara_set_related_robot_pos(scara_t *arm, struct robot_position *pos)
 
 void scara_shutdown(scara_t *arm)
 {
-    // scara_take_semaphore(&arm->trajectory_semaphore);
     scara_trajectory_delete(&arm->trajectory);
-    // scara_signal_semaphore(&arm->trajectory_semaphore);
 }
