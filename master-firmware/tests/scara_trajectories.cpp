@@ -97,8 +97,8 @@ TEST(ArmTrajectoriesBuilderTest, WaypointInterpolation)
 {
     const int32_t interpolation_date = 5 * 1000000; // microseconds
     scara_waypoint_t result;
-    scara_trajectory_append_point_with_length(&traj, 0, 0, 0, COORDINATE_ARM, 1., 100, 100);
-    scara_trajectory_append_point_with_length(&traj, 10, 20, 30, COORDINATE_ARM, 10., 200, 200);
+    scara_trajectory_append_point(&traj, 0, 0, 0, COORDINATE_ARM, 1., arbitraryLengths);
+    scara_trajectory_append_point(&traj, 10, 20, 30, COORDINATE_ARM, 10., arbitraryLengths);
 
     result = scara_trajectory_interpolate_waypoints(traj.frames[0], traj.frames[1], interpolation_date);
     CHECK_EQUAL(interpolation_date, result.date);
@@ -106,7 +106,4 @@ TEST(ArmTrajectoriesBuilderTest, WaypointInterpolation)
     DOUBLES_EQUAL(5., result.position[0], 0.1);
     DOUBLES_EQUAL(10., result.position[1], 0.1);
     DOUBLES_EQUAL(15., result.position[2], 0.1);
-
-    DOUBLES_EQUAL(150., result.length[0], 0.1);
-    DOUBLES_EQUAL(150., result.length[1], 0.1);
 }

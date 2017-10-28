@@ -935,11 +935,11 @@ static void cmd_scara_mv(BaseSequentialStream *chp, int argc, char *argv[])
 
     scara_pos(arm, &x, &y, &z, COORDINATE_TABLE);
     scara_trajectory_init(&trajectory);
-    scara_trajectory_append_point_with_length(&trajectory, x, y, z, COORDINATE_TABLE, 0, arm->length[0], arm->length[1]);
+    scara_trajectory_append_point(&trajectory, x, y, z, COORDINATE_TABLE, 0, arm->length);
 
     x = atof(argv[0]);
     y = atof(argv[1]);
-    scara_trajectory_append_point_with_length(&trajectory, x, y, z, COORDINATE_TABLE, 1, arm->length[0], arm->length[1]);
+    scara_trajectory_append_point(&trajectory, x, y, z, COORDINATE_TABLE, 1, arm->length);
     scara_do_trajectory(arm, &trajectory);
 
     chprintf(chp, "Moving %s arm to %f %f %f in table frame\r\n", argv[0], x, y, z);
@@ -1044,8 +1044,8 @@ static void cmd_scara_traj(BaseSequentialStream *chp, int argc, char *argv[])
             }
 
             if (j == point_len) {
-                scara_trajectory_append_point_with_length(&trajectory, point[0], point[1], point[2],
-                        system, (float)point[3] * 0.001, arm->length[0], arm->length[1]);
+                scara_trajectory_append_point(&trajectory, point[0], point[1], point[2],
+                        system, (float)point[3] * 0.001, arm->length);
                 i++;
 
                 chprintf(chp, "Point %d coord:%s x:%d y:%d z:%d dt:%d added successfully.\n",

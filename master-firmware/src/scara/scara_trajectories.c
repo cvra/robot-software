@@ -51,14 +51,6 @@ void scara_trajectory_append_point(scara_trajectory_t *traj, const float x, cons
     traj->frames[traj->frame_count-1].length[1] = length[1];
 }
 
-void scara_trajectory_append_point_with_length(scara_trajectory_t *traj, const float x, const float y, const float z,
-                                               scara_coordinate_t system,
-                                               const float duration, const float l1, const float l2)
-{
-    float length[2] = {l1, l2};
-    scara_trajectory_append_point(traj, x, y, z, system, duration, length);
-}
-
 void scara_trajectory_delete(scara_trajectory_t *traj)
 {
     if (traj->frame_count != 0) {

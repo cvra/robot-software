@@ -67,8 +67,7 @@ void scara_goto_with_length(scara_t* arm,
                             const float duration)
 {
     scara_trajectory_init(&(arm->trajectory));
-    scara_trajectory_append_point_with_length(&(arm->trajectory), x, y, z, system, duration,
-                                              arm->length[0], arm->length[1]);
+    scara_trajectory_append_point(&(arm->trajectory), x, y, z, system, duration, arm->length);
     scara_do_trajectory(arm, &(arm->trajectory));
 }
 
