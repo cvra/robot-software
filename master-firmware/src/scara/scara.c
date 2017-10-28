@@ -56,16 +56,6 @@ void scara_goto(scara_t* arm,
                 scara_coordinate_t system,
                 const float duration)
 {
-    scara_goto_with_length(arm, x, y, z, system, duration);
-}
-
-void scara_goto_with_length(scara_t* arm,
-                            float x,
-                            float y,
-                            float z,
-                            scara_coordinate_t system,
-                            const float duration)
-{
     scara_trajectory_init(&(arm->trajectory));
     scara_trajectory_append_point(&(arm->trajectory), x, y, z, system, duration, arm->length);
     scara_do_trajectory(arm, &(arm->trajectory));
