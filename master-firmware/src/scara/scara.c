@@ -8,6 +8,16 @@
 #include "scara_port.h"
 #include "scara_jacobian.h"
 
+static void scara_lock(mutex_t* mutex)
+{
+    chMtxLock(mutex);
+}
+
+static void scara_unlock(mutex_t* mutex)
+{
+    chMtxUnlock(mutex);
+}
+
 void scara_init(scara_t *arm)
 {
     memset(arm, 0, sizeof(scara_t));
@@ -84,9 +94,9 @@ void scara_pos(scara_t* arm, float* x, float* y, float* z, scara_coordinate_t sy
 
 void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj)
 {
-    chMtxLock(&arm->lock);
+    scara_lock(&arm->lock);
     scara_trajectory_copy(&arm->trajectory, traj);
-    chMtxUnlock(&arm->lock);
+    scara_unlock(&arm->lock);
 }
 
 static void scara_read_joint_positions(scara_t *arm)
@@ -100,13 +110,12 @@ void scara_manage(scara_t *arm)
 {
     int32_t current_date = scara_time_get();
 
-    /* Lock */
-    chMtxLock(&arm->lock);
+    scara_lock(&arm->lock);
 
     scara_read_joint_positions(arm);
 
     if (arm->trajectory.frame_count == 0) {
-        chMtxUnlock(&arm->lock);
+        scara_unlock(&arm->lock);
         return;
     }
 
@@ -123,7 +132,7 @@ void scara_manage(scara_t *arm)
         arm->shoulder_joint.set_velocity(arm->shoulder_joint.args, 0);
         arm->elbow_joint.set_velocity(arm->elbow_joint.args, 0);
 
-        chMtxUnlock(&arm->lock);
+        scara_unlock(&arm->lock);
         return;
     } else if (kinematics_solution_count == 2) {
         shoulder_mode_t mode;
@@ -174,8 +183,7 @@ void scara_manage(scara_t *arm)
         arm->elbow_joint.set_position(arm->elbow_joint.args, beta);
     }
 
-    /* Unlock */
-    chMtxUnlock(&arm->lock);
+    scara_unlock(&arm->lock);
 }
 
 static scara_waypoint_t scara_convert_waypoint_coordinate(scara_t *arm, scara_waypoint_t key)
