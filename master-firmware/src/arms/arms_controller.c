@@ -37,9 +37,9 @@ void arms_init(void)
     static cvra_arm_motor_t shoulder_joint = {.id = "shoulder-joint", .direction = -1, .index = 0};
     static cvra_arm_motor_t elbow_joint = {.id = "elbow-joint", .direction = -1, .index = 0};
 
-    scara_set_z_callbacks(&main_arm, set_motor_position, get_motor_position, &z_joint);
-    scara_set_shoulder_callbacks(&main_arm, set_motor_position, set_motor_velocity, get_motor_position, &shoulder_joint);
-    scara_set_elbow_callbacks(&main_arm, set_motor_position, set_motor_velocity, get_motor_position, &elbow_joint);
+    joint_set_callbacks(&(main_arm.z_joint), set_motor_position, set_motor_velocity, get_motor_position, &z_joint);
+    joint_set_callbacks(&(main_arm.elbow_joint), set_motor_position, set_motor_velocity, get_motor_position, &elbow_joint);
+    joint_set_callbacks(&(main_arm.shoulder_joint), set_motor_position, set_motor_velocity, get_motor_position, &shoulder_joint);
 
     scara_set_related_robot_pos(&main_arm, &robot.pos);
 

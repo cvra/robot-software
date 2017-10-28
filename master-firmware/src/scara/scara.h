@@ -3,16 +3,17 @@
 
 #include <ch.h>
 
-#include <aversive/position_manager/position_manager.h>
+#include <aversive/control_system_manager/control_system_manager.h>
 #include <aversive/math/vect2/vect2.h>
+#include <aversive/position_manager/position_manager.h>
+#include <aversive_port/cvra_pid.h>
 #include <error/error.h>
 
 #include <pid/pid.h>
+
+#include "joint.h"
 #include "scara_kinematics.h"
 #include "scara_waypoint.h"
-
-#include <aversive_port/cvra_pid.h>
-#include <aversive/control_system_manager/control_system_manager.h>
 
 /** Control mode of the scara arm. */
 typedef enum {
@@ -20,27 +21,15 @@ typedef enum {
     CONTROL_JAM_PID_XYA,      /**< Control using jacobian and PIDs on x,y,a, smooth cartesian trajectories. */
 } scara_control_mode_t;
 
+/** Scara arm datastruct */
 typedef struct {
     vect2_cart offset_xy; /**< Offset vector between center of robot and shoulder. */
     float offset_rotation; /**< Rotation between the robot base and shoulder in rad. */
 
-    /* Motor control callbacks */
-    void (*set_z_position)(void*, float);        /**< Callback function to set z position. */
-    void (*set_shoulder_position)(void*, float); /**< Callback function to set shoulder position. */
-    void (*set_elbow_position)(void*, float);    /**< Callback function to set elbow position. */
-
-    void (*set_shoulder_velocity)(void*, float); /**< Callback function to set shoulder velocity. */
-    void (*set_elbow_velocity)(void*, float);    /**< Callback function to set elbow velocity. */
-
-    /* Motor feedback callbacks */
-    float (*get_z_position)(void*);        /**< Callback function to get z position. */
-    float (*get_shoulder_position)(void*); /**< Callback function to get shoulder position. */
-    float (*get_elbow_position)(void*);    /**< Callback function to get elbow position. */
-
-    /* Motor control args */
-    void* z_args;
-    void* shoulder_args;
-    void* elbow_args;
+    /* Motor joints */
+    joint_t z_joint;
+    joint_t shoulder_joint;
+    joint_t elbow_joint;
 
     /* Motor positions */
     float z_pos;
@@ -72,15 +61,6 @@ void scara_init(scara_t *arm);
 
 void scara_set_physical_parameters(scara_t* arm, float upperarm_length, float forearm_length);
 void scara_set_offset(scara_t* arm, float offset_x, float offset_y, float offset_rotation);
-
-void scara_set_z_callbacks(scara_t* arm, void (*set_z_position)(void*, float),
-                           float (*get_z_position)(void*), void* z_args);
-void scara_set_shoulder_callbacks(scara_t* arm, void (*set_shoulder_position)(void*, float),
-                                  void (*set_shoulder_velocity)(void*, float),
-                                  float (*get_shoulder_position)(void*), void* shoulder_args);
-void scara_set_elbow_callbacks(scara_t* arm, void (*set_elbow_position)(void*, float),
-                               void (*set_elbow_velocity)(void*, float),
-                               float (*get_elbow_position)(void*), void* elbow_args);
 
 /** Enable "ugly mode" which is the joint position control
  * where each motor is controlled in position
