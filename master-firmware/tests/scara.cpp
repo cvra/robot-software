@@ -62,13 +62,6 @@ TEST_GROUP(ArmTestGroup)
     }
 };
 
-TEST(ArmTestGroup, LagCompensationIsInitialized)
-{
-    scara_time_set(42);
-    scara_init(&arm);
-    CHECK_EQUAL(42, arm.last_loop);
-}
-
 TEST(ArmTestGroup, ShoulderModeIsSetToBack)
 {
     scara_init(&arm);
@@ -134,14 +127,6 @@ TEST(ArmTestGroup, ArmManageIsAtomicWithUnreachableTarget)
     mock().expectOneCall("chMtxUnlock").withPointerParameter("lock", &arm.lock);
 
     scara_manage(&arm);
-}
-
-TEST(ArmTestGroup, ArmManageUpdatesLastLoop)
-{
-    scara_time_set(42);
-    CHECK_EQUAL(0, arm.trajectory.frame_count);
-    scara_manage(&arm);
-    CHECK_EQUAL(42, arm.last_loop)
 }
 
 TEST(ArmTestGroup, ArmManageChangesConsign)
