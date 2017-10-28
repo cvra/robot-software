@@ -3,34 +3,23 @@
 
 #include <ch.h>
 
-#include <aversive/position_manager/position_manager.h>
+#include <aversive/control_system_manager/control_system_manager.h>
 #include <aversive/math/vect2/vect2.h>
+#include <aversive/position_manager/position_manager.h>
+#include <aversive_port/cvra_pid.h>
 #include <error/error.h>
 
 #include <pid/pid.h>
+
+#include "joint.h"
 #include "scara_kinematics.h"
 #include "scara_waypoint.h"
-
-#include <aversive_port/cvra_pid.h>
-#include <aversive/control_system_manager/control_system_manager.h>
 
 /** Control mode of the scara arm. */
 typedef enum {
     CONTROL_JOINT_POSITION=0, /**< Control the motors in position directly, ugly performance, but safe. */
     CONTROL_JAM_PID_XYA,      /**< Control using jacobian and PIDs on x,y,a, smooth cartesian trajectories. */
 } scara_control_mode_t;
-
-/** Joint data struct */
-typedef struct {
-    void (*set_position)(void*, float);
-    void (*set_velocity)(void*, float);
-    float (*get_position)(void*);
-    void* args; /// Some internal state
-} joint_t;
-
-void joint_set_callbacks(joint_t *joint, void (*set_position)(void *, float),
-                         void (*set_velocity)(void *, float),
-                         float (*get_position)(void *), void *args);
 
 /** Scara arm datastruct */
 typedef struct {

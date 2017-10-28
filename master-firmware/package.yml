@@ -78,6 +78,7 @@ source:
     - src/aversive/trajectory_manager/trajectory_manager.c
     - src/aversive/trajectory_manager/trajectory_manager_core.c
     - src/aversive/trajectory_manager/trajectory_manager_utils.c
+    - src/scara/joint.c
     - src/scara/scara_utils.c
     - src/scara/scara_trajectories.c
     - src/scara/scara_kinematics.c
