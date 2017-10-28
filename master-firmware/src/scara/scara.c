@@ -89,6 +89,13 @@ void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj)
     chMtxUnlock(&arm->lock);
 }
 
+static void scara_read_joint_positions(scara_t *arm)
+{
+    arm->z_pos = arm->z_joint.get_position(arm->z_joint.args);
+    arm->shoulder_pos = arm->shoulder_joint.get_position(arm->shoulder_joint.args);
+    arm->elbow_pos = arm->elbow_joint.get_position(arm->elbow_joint.args);
+}
+
 void scara_manage(scara_t *arm)
 {
     int32_t current_date = scara_time_get();
@@ -96,10 +103,7 @@ void scara_manage(scara_t *arm)
     /* Lock */
     chMtxLock(&arm->lock);
 
-    /* Update motor positions */
-    arm->z_pos = arm->z_joint.get_position(arm->z_joint.args);
-    arm->shoulder_pos = arm->shoulder_joint.get_position(arm->shoulder_joint.args);
-    arm->elbow_pos = arm->elbow_joint.get_position(arm->elbow_joint.args);
+    scara_read_joint_positions(arm);
 
     if (arm->trajectory.frame_count == 0) {
         chMtxUnlock(&arm->lock);
