@@ -45,10 +45,7 @@ typedef struct {
 
     /* Path informations */
     scara_trajectory_t trajectory;    /**< Current trajectory of the arm. */
-    semaphore_t trajectory_semaphore;
-    int32_t last_loop;              /**< Timestamp of the last loop execution, in us since boot. */
     struct robot_position *robot_pos;
-    int kinematics_solution_count;
 
     shoulder_mode_t shoulder_mode;
     scara_control_mode_t control_mode;
@@ -75,8 +72,6 @@ void scara_ugly_mode_disable(scara_t* arm);
 
 /* Goto position in specified coordinate system */
 void scara_goto(scara_t* arm, float x, float y, float z, scara_coordinate_t system, const float duration);
-void scara_goto_with_length(scara_t* arm, float x, float y, float z, scara_coordinate_t system,
-                            const float duration);
 
 /* Move arm in axis only */
 void scara_move_z(scara_t* arm, float z, scara_coordinate_t system, const float duration);

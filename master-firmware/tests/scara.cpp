@@ -62,13 +62,6 @@ TEST_GROUP(ArmTestGroup)
     }
 };
 
-TEST(ArmTestGroup, LagCompensationIsInitialized)
-{
-    scara_time_set(42);
-    scara_init(&arm);
-    CHECK_EQUAL(42, arm.last_loop);
-}
-
 TEST(ArmTestGroup, ShoulderModeIsSetToBack)
 {
     scara_init(&arm);
@@ -127,21 +120,13 @@ TEST(ArmTestGroup, ArmManageIsAtomicWithEmptyTraj)
 
 TEST(ArmTestGroup, ArmManageIsAtomicWithUnreachableTarget)
 {
-    scara_trajectory_append_point_with_length(&traj, 10000, 10000, 10, COORDINATE_ARM, 1., 10, 10);
+    scara_trajectory_append_point(&traj, 10000, 10000, 10, COORDINATE_ARM, 1., arbitraryLengths);
     scara_do_trajectory(&arm, &traj);
     lock_mocks_enable(true);
     mock().expectOneCall("chMtxLock").withPointerParameter("lock", &arm.lock);
     mock().expectOneCall("chMtxUnlock").withPointerParameter("lock", &arm.lock);
 
     scara_manage(&arm);
-}
-
-TEST(ArmTestGroup, ArmManageUpdatesLastLoop)
-{
-    scara_time_set(42);
-    CHECK_EQUAL(0, arm.trajectory.frame_count);
-    scara_manage(&arm);
-    CHECK_EQUAL(42, arm.last_loop)
 }
 
 TEST(ArmTestGroup, ArmManageChangesConsign)
@@ -260,14 +245,15 @@ TEST(ArmTestGroup, LengthAreInterpolated)
     scara_waypoint_t result;
     const int32_t date = 5 * 1000000;
     arm.offset_rotation = M_PI / 2;
-    scara_trajectory_append_point_with_length(&traj, 0, 0, 0, COORDINATE_ARM, 1., 10, 10);
-    scara_trajectory_append_point_with_length(&traj, 0, 0, 0, COORDINATE_ARM, 10., 100, 200);
+    const float arbitraryLongerLengths[2] = {arbitraryLengths[0] * 2, arbitraryLengths[1] * 2};
+    scara_trajectory_append_point(&traj, 0, 0, 0, COORDINATE_ARM, 1., arbitraryLengths);
+    scara_trajectory_append_point(&traj, 0, 0, 0, COORDINATE_ARM, 10., arbitraryLongerLengths);
 
     scara_do_trajectory(&arm, &traj);
 
     result = scara_position_for_date(&arm, date);
-    DOUBLES_EQUAL(55, result.length[0], 0.1);
-    DOUBLES_EQUAL(105, result.length[1], 0.1);
+    DOUBLES_EQUAL(arbitraryLengths[0] * 1.5, result.length[0], 0.1);
+    DOUBLES_EQUAL(arbitraryLengths[1] * 1.5, result.length[1], 0.1);
 }
 
 

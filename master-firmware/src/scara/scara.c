@@ -12,9 +12,6 @@ void scara_init(scara_t *arm)
 {
     memset(arm, 0, sizeof(scara_t));
 
-    /* Sets last loop run date for lag compensation. */
-    arm->last_loop = scara_time_get();
-
     arm->shoulder_mode = SHOULDER_BACK;
     arm->control_mode = CONTROL_JOINT_POSITION;
 
@@ -49,26 +46,10 @@ void scara_ugly_mode_disable(scara_t* arm)
 }
 
 
-void scara_goto(scara_t* arm,
-                float x,
-                float y,
-                float z,
-                scara_coordinate_t system,
-                const float duration)
-{
-    scara_goto_with_length(arm, x, y, z, system, duration);
-}
-
-void scara_goto_with_length(scara_t* arm,
-                            float x,
-                            float y,
-                            float z,
-                            scara_coordinate_t system,
-                            const float duration)
+void scara_goto(scara_t* arm, float x, float y, float z, scara_coordinate_t system, const float duration)
 {
     scara_trajectory_init(&(arm->trajectory));
-    scara_trajectory_append_point_with_length(&(arm->trajectory), x, y, z, system, duration,
-                                              arm->length[0], arm->length[1]);
+    scara_trajectory_append_point(&(arm->trajectory), x, y, z, system, duration, arm->length);
     scara_do_trajectory(arm, &(arm->trajectory));
 }
 
@@ -79,12 +60,7 @@ void scara_move_z(scara_t* arm, float z_new, scara_coordinate_t system, const fl
     scara_goto(arm, x, y, z_new, system, duration);
 }
 
-
-void scara_pos_with_length(scara_t* arm,
-                           float* x,
-                           float* y,
-                           float* z,
-                           scara_coordinate_t system)
+void scara_pos(scara_t* arm, float* x, float* y, float* z, scara_coordinate_t system)
 {
     point_t pos;
     pos = scara_forward_kinematics(arm->shoulder_pos, arm->elbow_pos, arm->length);
@@ -104,11 +80,6 @@ void scara_pos_with_length(scara_t* arm,
     *x = pos.x;
     *y = pos.y;
     *z = arm->z_pos;
-}
-
-void scara_pos(scara_t* arm, float* x, float* y, float* z, scara_coordinate_t system)
-{
-    scara_pos_with_length(arm, x, y, z, system);
 }
 
 void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj)
@@ -131,33 +102,26 @@ void scara_manage(scara_t *arm)
     arm->elbow_pos = arm->elbow_joint.get_position(arm->elbow_joint.args);
 
     if (arm->trajectory.frame_count == 0) {
-        arm->last_loop = current_date;
         chMtxUnlock(&arm->lock);
         return;
     }
 
-    scara_waypoint_t frame = scara_position_for_date(arm, scara_time_get());
+    scara_waypoint_t frame = scara_position_for_date(arm, current_date);
 
     /* Compute target arm position (without hand) */
     point_t target = {.x = frame.position[0], .y = frame.position[1]};
 
     point_t p1, p2;
-    arm->kinematics_solution_count = scara_num_possible_elbow_positions(target,
-                                                                        arm->length[0],
-                                                                        arm->length[1],
-                                                                        &p1,
-                                                                        &p2);
-    DEBUG("Inverse kinematics: found %d possible solutions", arm->kinematics_solution_count);
+    int kinematics_solution_count = scara_num_possible_elbow_positions(target, arm->length[0], arm->length[1], &p1, &p2);
+    DEBUG("Inverse kinematics: found %d possible solutions", kinematics_solution_count);
 
-    if (arm->kinematics_solution_count == 0) {
-        arm->last_loop = current_date;
-
+    if (kinematics_solution_count == 0) {
         arm->shoulder_joint.set_velocity(arm->shoulder_joint.args, 0);
         arm->elbow_joint.set_velocity(arm->elbow_joint.args, 0);
 
         chMtxUnlock(&arm->lock);
         return;
-    } else if (arm->kinematics_solution_count == 2) {
+    } else if (kinematics_solution_count == 2) {
         shoulder_mode_t mode;
         mode = scara_orientation_mode(arm->shoulder_mode, arm->offset_rotation);
         p1 = scara_shoulder_solve(target, p1, p2, mode);
@@ -178,12 +142,9 @@ void scara_manage(scara_t *arm)
         beta = beta - 2 * M_PI;
     }
 
-    arm->last_loop = scara_time_get();
-
     if (arm->control_mode == CONTROL_JAM_PID_XYA) {
         float measured_x, measured_y, measured_z;
-        scara_pos_with_length(arm, &measured_x, &measured_y, &measured_z,
-                              COORDINATE_ARM);
+        scara_pos(arm, &measured_x, &measured_y, &measured_z, COORDINATE_ARM);
 
         float consign_x = pid_process(&arm->x_pid, measured_x - frame.position[0]);
         float consign_y = pid_process(&arm->y_pid, measured_y - frame.position[1]);
@@ -193,8 +154,7 @@ void scara_manage(scara_t *arm)
                                arm->elbow_pos, frame.length[0], frame.length[1],
                                &velocity_alpha, &velocity_beta);
 
-        scara_pos_with_length(arm, &measured_x, &measured_y, &measured_z,
-                              frame.coordinate_type);
+        scara_pos(arm, &measured_x, &measured_y, &measured_z, frame.coordinate_type);
 
         DEBUG("Arm x %.3f y %.3f Arm velocities %.3f %.3f",
               measured_x, measured_y, velocity_alpha, velocity_beta);
@@ -264,7 +224,5 @@ void scara_set_related_robot_pos(scara_t *arm, struct robot_position *pos)
 
 void scara_shutdown(scara_t *arm)
 {
-    // scara_take_semaphore(&arm->trajectory_semaphore);
     scara_trajectory_delete(&arm->trajectory);
-    // scara_signal_semaphore(&arm->trajectory_semaphore);
 }
