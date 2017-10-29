@@ -29,7 +29,7 @@ float get_motor_pos(void *m)
 }
 
 
-TEST_GROUP(ArmTestGroup)
+TEST_BASE(ArmTestGroupBase)
 {
     scara_t arm;
     scara_trajectory_t traj;
@@ -60,6 +60,11 @@ TEST_GROUP(ArmTestGroup)
         scara_trajectory_delete(&arm.trajectory);
         lock_mocks_enable(false);
     }
+};
+
+TEST_GROUP_BASE(ArmTestGroup, ArmTestGroupBase)
+{
+
 };
 
 TEST(ArmTestGroup, ShoulderModeIsSetToBack)
@@ -288,4 +293,55 @@ TEST(JacobianTestGroup, TestSingularity)
 
     DOUBLES_EQUAL(0.00076903, torque_alpha, 1e-3);
     DOUBLES_EQUAL(0.00384607, torque_beta, 1e-3);
+}
+
+
+TEST_GROUP_BASE(AScaraJointAnglesComputer, ArmTestGroupBase)
+{
+    float alpha, beta;
+
+    scara_waypoint_t target(float x, float y)
+    {
+        return {.date = 0, .position = {x, y, 0}, .coordinate_type = COORDINATE_ARM, .length = {arbitraryLengths[0], arbitraryLengths[1]}};
+    }
+};
+
+TEST(AScaraJointAnglesComputer, failsWhenNoSolutionFound)
+{
+    scara_waypoint_t unreachable_target = target(200, 0);
+
+    bool solution_found = scara_compute_joint_angles(&arm, unreachable_target, &alpha, &beta);
+
+    CHECK_FALSE(solution_found);
+}
+
+TEST(AScaraJointAnglesComputer, choosesASolutionWhenMoreThanOnePossibility)
+{
+    scara_waypoint_t ambiguous_target = target(120, 0);
+
+    bool solution_found = scara_compute_joint_angles(&arm, ambiguous_target, &alpha, &beta);
+
+    CHECK_TRUE(solution_found);
+    DOUBLES_EQUAL(0.5, alpha, 0.1);
+    DOUBLES_EQUAL(-1.379634, beta, 0.1);
+}
+
+TEST(AScaraJointAnglesComputer, wrapsBetaWhenLowerThanMinusPi)
+{
+    scara_waypoint_t valid_target = target(-arbitraryLengths[0], arbitraryLengths[1]);
+
+    bool solution_found = scara_compute_joint_angles(&arm, valid_target, &alpha, &beta);
+
+    CHECK_TRUE(solution_found);
+    DOUBLES_EQUAL(0.5 * M_PI, beta, 0.1);
+}
+
+TEST(AScaraJointAnglesComputer, wrapsBetaWhenHigherThanMinusPi)
+{
+    scara_waypoint_t valid_target = target(-arbitraryLengths[0], -arbitraryLengths[1]);
+
+    bool solution_found = scara_compute_joint_angles(&arm, valid_target, &alpha, &beta);
+
+    CHECK_TRUE(solution_found);
+    DOUBLES_EQUAL(- 0.5 * M_PI, beta, 0.1);
 }

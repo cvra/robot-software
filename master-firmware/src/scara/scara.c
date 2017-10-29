@@ -106,6 +106,38 @@ static void scara_read_joint_positions(scara_t *arm)
     arm->elbow_pos = arm->elbow_joint.get_position(arm->elbow_joint.args);
 }
 
+bool scara_compute_joint_angles(scara_t* arm, scara_waypoint_t frame, float* alpha, float* beta)
+{
+    point_t target = {.x = frame.position[0], .y = frame.position[1]};
+
+    point_t p1, p2;
+    int kinematics_solution_count = scara_num_possible_elbow_positions(target, arm->length[0], arm->length[1], &p1, &p2);
+
+    if (kinematics_solution_count == 0) {
+        return false;
+    } else if (kinematics_solution_count == 2) {
+        shoulder_mode_t mode = scara_orientation_mode(arm->shoulder_mode, arm->offset_rotation);
+        p1 = scara_shoulder_solve(target, p1, p2, mode);
+    }
+
+    /* p1 now contains the correct elbow pos. */
+    *alpha = scara_compute_shoulder_angle(p1, target);
+    *beta = scara_compute_elbow_angle(p1, target);
+
+    /* This is due to mecanical construction of the arms. */
+    *beta = *beta - *alpha;
+
+    /* The arm cannot make one full turn. */
+    if (*beta < -M_PI) {
+        *beta = 2 * M_PI + *beta;
+    }
+    if (*beta > M_PI) {
+        *beta = *beta - 2 * M_PI;
+    }
+
+    return true;
+}
+
 void scara_manage(scara_t *arm)
 {
     int32_t current_date = scara_time_get();
@@ -121,38 +153,19 @@ void scara_manage(scara_t *arm)
 
     scara_waypoint_t frame = scara_position_for_date(arm, current_date);
 
-    /* Compute target arm position (without hand) */
-    point_t target = {.x = frame.position[0], .y = frame.position[1]};
+    float alpha, beta;
+    bool solution_found = scara_compute_joint_angles(arm, frame, &alpha, &beta);
 
-    point_t p1, p2;
-    int kinematics_solution_count = scara_num_possible_elbow_positions(target, arm->length[0], arm->length[1], &p1, &p2);
-    DEBUG("Inverse kinematics: found %d possible solutions", kinematics_solution_count);
+    if (solution_found) {
+        DEBUG("Inverse kinematics: Found a solution");
+    } else {
+        DEBUG("Inverse kinematics: Found no solution, disabling the arm");
 
-    if (kinematics_solution_count == 0) {
         arm->shoulder_joint.set_velocity(arm->shoulder_joint.args, 0);
         arm->elbow_joint.set_velocity(arm->elbow_joint.args, 0);
 
         scara_unlock(&arm->lock);
         return;
-    } else if (kinematics_solution_count == 2) {
-        shoulder_mode_t mode;
-        mode = scara_orientation_mode(arm->shoulder_mode, arm->offset_rotation);
-        p1 = scara_shoulder_solve(target, p1, p2, mode);
-    }
-
-    /* p1 now contains the correct elbow pos. */
-    float alpha = scara_compute_shoulder_angle(p1, target);
-    float beta = scara_compute_elbow_angle(p1, target);
-
-    /* This is due to mecanical construction of the arms. */
-    beta = beta - alpha;
-
-    /* The arm cannot make one full turn. */
-    if (beta < -M_PI) {
-        beta = 2 * M_PI + beta;
-    }
-    if (beta > M_PI) {
-        beta = beta - 2 * M_PI;
     }
 
     if (arm->control_mode == CONTROL_JAM_PID_XYA) {
