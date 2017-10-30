@@ -43,15 +43,8 @@ int main(void)
     messagebus_init(&bus, &bus_lock, &bus_condvar);
     parameter_namespace_declare(&parameter_root, NULL, NULL);
 
-#if 0
-    /* Due to an electrical problem, USB prevents communication with the DW1000.
-     *
-     * See https://github.com/cvra/uwb-beacon-board/issues/2 */
     usb_start(boot_config.ID);
     shell_start((BaseSequentialStream *)&SDU1);
-#else
-    shell_start((BaseSequentialStream *)&SD2);
-#endif
 
     blink_start();
     exti_start();
