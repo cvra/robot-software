@@ -5,6 +5,7 @@
 extern "C" {
 #endif
 
+#include <stdbool.h>
 #include "scara_waypoint.h"
 
 /** Adds a point to a given trajectory.
@@ -29,6 +30,8 @@ void scara_trajectory_delete(scara_trajectory_t *traj);
 void scara_trajectory_copy(scara_trajectory_t *dest, scara_trajectory_t *src);
 
 int scara_trajectory_finished(scara_trajectory_t *traj);
+
+bool scara_trajectory_is_empty(scara_trajectory_t* trajectory);
 
 /** Interpolates two waypoint.
  * @warning All frames must be expressed in arm frame. Otherwise invalid results

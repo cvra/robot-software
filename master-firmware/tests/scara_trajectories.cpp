@@ -116,3 +116,15 @@ TEST(AnArmTrajectory, InterpolatesWaypoints)
     DOUBLES_EQUAL(10., result.position[1], 0.1);
     DOUBLES_EQUAL(15., result.position[2], 0.1);
 }
+
+TEST(AnArmTrajectory, IsEmptyOnCreation)
+{
+    CHECK_TRUE(scara_trajectory_is_empty(&traj));
+}
+
+TEST(AnArmTrajectory, IsNotEmptyWhenFilledWithPoints)
+{
+    make_trajectory_of_length(1);
+
+    CHECK_FALSE(scara_trajectory_is_empty(&traj));
+}

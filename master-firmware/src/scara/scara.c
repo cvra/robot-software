@@ -146,7 +146,7 @@ void scara_manage(scara_t *arm)
 
     scara_read_joint_positions(arm);
 
-    if (arm->trajectory.frame_count == 0) {
+    if (scara_trajectory_is_empty(&arm->trajectory)) {
         scara_unlock(&arm->lock);
         return;
     }
