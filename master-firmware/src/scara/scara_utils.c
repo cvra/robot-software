@@ -1,80 +1,51 @@
 #include "scara_utils.h"
+#include "lie_groups.h"
 
 
-point_t scara_coordinate_robot2arm(point_t target_point, vect2_cart offset_xy, float offset_angle)
+point_t scara_coordinate_robot2arm(point_t robot_point, vect2_cart offset_xy, float offset_angle)
 {
-    vect2_cart target;
-    vect2_pol target_pol;
-    target.x = target_point.x;
-    target.y = target_point.y;
+    point_t arm_point = {
+        .x = robot_point.x - offset_xy.x,
+        .y = robot_point.y - offset_xy.y
+    };
 
-    vect2_sub_cart(&target, &offset_xy, &target);
-    vect2_cart2pol(&target, &target_pol);
+    arm_point = so2_rotate(so2_create(- offset_angle), arm_point);
 
-    target_pol.theta -= offset_angle;
-
-    vect2_pol2cart(&target_pol, &target);
-
-    target_point.x = target.x;
-    target_point.y = target.y;
-
-    return target_point;
+    return arm_point;
 }
 
 point_t scara_coordinate_arm2robot(point_t arm_point, vect2_cart offset_xy, float offset_angle)
 {
-    point_t robot_point;
-    vect2_cart robot_cart;
-    vect2_pol robot_pol;
+    arm_point = so2_rotate(so2_create(offset_angle), arm_point);
 
-    robot_cart.x = arm_point.x;
-    robot_cart.y = arm_point.y;
-
-    vect2_cart2pol(&robot_cart, &robot_pol);
-    robot_pol.theta += offset_angle;
-    vect2_pol2cart(&robot_pol, &robot_cart);
-
-    vect2_add_cart(&robot_cart, &offset_xy, &robot_cart);
-
-    robot_point.x = robot_cart.x;
-    robot_point.y = robot_cart.y;
+    point_t robot_point = {
+        .x = arm_point.x + offset_xy.x,
+        .y = arm_point.y + offset_xy.y
+    };
 
     return robot_point;
 }
 
 point_t scara_coordinate_table2robot(point_t target_point, point_t robot_pos, float robot_a_rad)
 {
-    vect2_cart target;
-    vect2_pol target_pol;
+    point_t robot_point = {
+        .x = target_point.x - robot_pos.x,
+        .y = target_point.y - robot_pos.y
+    };
 
-    target.x = target_point.x - robot_pos.x;
-    target.y = target_point.y - robot_pos.y;
+    robot_point = so2_rotate(so2_create(- robot_a_rad), robot_point);
 
-    vect2_cart2pol(&target, &target_pol);
-    target_pol.theta -= robot_a_rad;
-    vect2_pol2cart(&target_pol, &target);
-
-    target_point.x = target.x;
-    target_point.y = target.y;
-
-    return target_point;
+    return robot_point;
 }
 
 point_t scara_coordinate_robot2table(point_t robot_point, point_t robot_pos, float robot_a_rad)
 {
-    point_t table_point;
-    vect2_cart table_cart;
-    vect2_pol table_pol;
+    robot_point = so2_rotate(so2_create(robot_a_rad), robot_point);
 
-    table_cart.x = robot_point.x;
-    table_cart.y = robot_point.y;
-
-    vect2_cart2pol(&table_cart, &table_pol);
-    table_pol.theta += robot_a_rad;
-    vect2_pol2cart(&table_pol, &table_cart);
-
-    table_point.x = table_cart.x + robot_pos.x;
-    table_point.y = table_cart.y + robot_pos.y;
+    point_t table_point = {
+        .x = robot_point.x + robot_pos.x,
+        .y = robot_point.y + robot_pos.y
+    };
 
     return table_point;
 }
