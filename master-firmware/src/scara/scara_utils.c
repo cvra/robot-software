@@ -16,14 +16,8 @@ point_t scara_coordinate_robot2arm(point_t robot_point, vect2_cart offset_xy, fl
 
 point_t scara_coordinate_arm2robot(point_t arm_point, vect2_cart offset_xy, float offset_angle)
 {
-    arm_point = so2_rotate(so2_create(offset_angle), arm_point);
-
-    point_t robot_point = {
-        .x = arm_point.x + offset_xy.x,
-        .y = arm_point.y + offset_xy.y
-    };
-
-    return robot_point;
+    se2_t arm2robot = se2_create(offset_angle, translation_2d(offset_xy.x, offset_xy.y));
+    return se2_transform(arm2robot, arm_point);
 }
 
 point_t scara_coordinate_table2robot(point_t target_point, point_t robot_pos, float robot_a_rad)
@@ -40,12 +34,6 @@ point_t scara_coordinate_table2robot(point_t target_point, point_t robot_pos, fl
 
 point_t scara_coordinate_robot2table(point_t robot_point, point_t robot_pos, float robot_a_rad)
 {
-    robot_point = so2_rotate(so2_create(robot_a_rad), robot_point);
-
-    point_t table_point = {
-        .x = robot_point.x + robot_pos.x,
-        .y = robot_point.y + robot_pos.y
-    };
-
-    return table_point;
+    se2_t robot2table = se2_create(robot_a_rad, translation_2d(robot_pos.x, robot_pos.y));
+    return se2_transform(robot2table, robot_point);
 }

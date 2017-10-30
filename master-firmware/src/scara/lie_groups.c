@@ -19,3 +19,25 @@ point_t so2_rotate(so2_t rotation, point_t point)
     point.y = cartesian_point.y;
     return point;
 }
+
+vect_t translation_2d(float x, float y)
+{
+    vect_t translation = {.x = x, .y = y};
+    return translation;
+}
+
+se2_t se2_create(float angle, vect_t translation)
+{
+    se2_t transform = {.rotation = so2_create(angle), .translation = translation};
+    return transform;
+}
+
+point_t se2_transform(se2_t transform, point_t point)
+{
+    point = so2_rotate(transform.rotation, point);
+
+    point.x += transform.translation.x;
+    point.y += transform.translation.y;
+
+    return point;
+}
