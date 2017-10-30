@@ -8,6 +8,8 @@
 #include "scara_port.h"
 #include "scara_jacobian.h"
 
+static void scara_shutdown_joints(scara_t* arm);
+
 static void scara_lock(mutex_t* mutex)
 {
     chMtxLock(mutex);
@@ -160,10 +162,7 @@ void scara_manage(scara_t *arm)
         DEBUG("Inverse kinematics: Found a solution");
     } else {
         DEBUG("Inverse kinematics: Found no solution, disabling the arm");
-
-        arm->shoulder_joint.set_velocity(arm->shoulder_joint.args, 0);
-        arm->elbow_joint.set_velocity(arm->elbow_joint.args, 0);
-
+        scara_shutdown_joints(arm);
         scara_unlock(&arm->lock);
         return;
     }
@@ -250,4 +249,11 @@ void scara_set_related_robot_pos(scara_t *arm, struct robot_position *pos)
 void scara_shutdown(scara_t *arm)
 {
     scara_trajectory_delete(&arm->trajectory);
+}
+
+
+void scara_shutdown_joints(scara_t* arm)
+{
+    arm->shoulder_joint.set_velocity(arm->shoulder_joint.args, 0);
+    arm->elbow_joint.set_velocity(arm->elbow_joint.args, 0);
 }
