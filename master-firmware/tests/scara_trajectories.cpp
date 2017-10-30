@@ -8,7 +8,7 @@ extern "C" {
 extern void scara_time_set(int32_t time);
 
 
-TEST_GROUP(ArmTrajectoriesBuilderTest)
+TEST_GROUP(AnArmTrajectory)
 {
     scara_trajectory_t traj;
     float arbitraryLengths[2] = {100, 50};
@@ -22,50 +22,58 @@ TEST_GROUP(ArmTrajectoriesBuilderTest)
     {
         scara_time_set(0);
     }
+
+    void make_trajectory_of_length(int number_of_points)
+    {
+        for (int i = 0; i < number_of_points; i++)
+        {
+            scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, i + 1, arbitraryLengths);
+        }
+    }
 };
 
 
-TEST(ArmTrajectoriesBuilderTest, CanAddOnePoint)
+TEST(AnArmTrajectory, AppendsOnePoint)
 {
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10., arbitraryLengths);
+    make_trajectory_of_length(1);
+
     CHECK_EQUAL(traj.frame_count, 1);
 }
 
-TEST(ArmTrajectoriesBuilderTest, CanAddMultiplePoints)
+TEST(AnArmTrajectory, AppendsMultiplePoints)
 {
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10., arbitraryLengths);
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10., arbitraryLengths);
+    make_trajectory_of_length(2);
+
     CHECK_EQUAL(traj.frame_count, 2);
-    CHECK_EQUAL(traj.frames[1].date, 10000000);
+    CHECK_EQUAL(traj.frames[1].date, 2000000);
 }
 
 
-TEST(ArmTrajectoriesBuilderTest, DateIsCorrectlyComputed)
+TEST(AnArmTrajectory, ComputesDateCorrectly)
 {
     scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 1., arbitraryLengths);
     scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10., arbitraryLengths);
-
     scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 15., arbitraryLengths);
+
     CHECK_EQUAL(traj.frames[1].date, 10*1000000);
     CHECK_EQUAL(traj.frames[2].date, 25*1000000);
 }
 
-TEST(ArmTrajectoriesBuilderTest, DeleteTrajectory)
+TEST(AnArmTrajectory, DeletesTrajectory)
 {
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 1., arbitraryLengths);
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10., arbitraryLengths);
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 15., arbitraryLengths);
+    make_trajectory_of_length(3);
+
     scara_trajectory_delete(&traj);
     CHECK_EQUAL(0, traj.frame_count);
 }
 
-TEST(ArmTrajectoriesBuilderTest, CopyTrajectory)
+TEST(AnArmTrajectory, CopiesTrajectory)
 {
-    scara_trajectory_t copy;
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 1., arbitraryLengths);
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10., arbitraryLengths);
+    make_trajectory_of_length(2);
 
+    scara_trajectory_t copy;
     scara_trajectory_copy(&copy, &traj);
+
     CHECK_EQUAL(traj.frame_count, copy.frame_count);
     CHECK_EQUAL(traj.frames[0].position[0], copy.frames[0].position[0]);
 
@@ -73,27 +81,28 @@ TEST(ArmTrajectoriesBuilderTest, CopyTrajectory)
     CHECK(traj.frames[0].position != copy.frames[0].position);
 }
 
-TEST(ArmTrajectoriesBuilderTest, EmptyTrajectoryIsFinished)
+TEST(AnArmTrajectory, IsFinishedWhenGivenNoPoints)
 {
     CHECK_EQUAL(1, scara_trajectory_finished(&traj));
 }
 
-TEST(ArmTrajectoriesBuilderTest, TrajectoryWithPointIsNotFinished)
+TEST(AnArmTrajectory, IsNotFinishedWhenGivenPoints)
 {
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 1., arbitraryLengths);
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10., arbitraryLengths);
+    make_trajectory_of_length(2);
+
     CHECK_EQUAL(0, scara_trajectory_finished(&traj));
 }
 
-TEST(ArmTrajectoriesBuilderTest, PastTrajectoryIsFinished)
+TEST(AnArmTrajectory, IsFinishedWhenTrajectoryIsOutdated)
 {
     scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 1., arbitraryLengths);
     scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10., arbitraryLengths);
     scara_time_set(20*1000000);
+
     CHECK_EQUAL(1, scara_trajectory_finished(&traj));
 }
 
-TEST(ArmTrajectoriesBuilderTest, WaypointInterpolation)
+TEST(AnArmTrajectory, InterpolatesWaypoints)
 {
     const int32_t interpolation_date = 5 * 1000000; // microseconds
     scara_waypoint_t result;
