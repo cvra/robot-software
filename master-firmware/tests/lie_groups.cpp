@@ -40,6 +40,17 @@ TEST(AnSO2LieGroup, ComputesRotatedPoint)
     DOUBLES_EQUAL(point.x, rotated.y, 0.01);
 }
 
+TEST(AnSO2LieGroup, ComputesInverseRotatedPoint)
+{
+    so2_t rotation = so2_create(pi / 2);
+    point_t point = {.x = 10, .y = 20};
+
+    point_t rotated = so2_inverse_rotate(rotation, point);
+
+    DOUBLES_EQUAL(point.y, rotated.x, 0.01);
+    DOUBLES_EQUAL(- point.x, rotated.y, 0.01);
+}
+
 TEST_GROUP(AnSE2LieGroup)
 {
     const float pi = M_PI;
@@ -74,4 +85,15 @@ TEST(AnSE2LieGroup, RotatesAndTranslatesPoint)
 
     DOUBLES_EQUAL(- point.y + 1, transformed.x, 0.01);
     DOUBLES_EQUAL(+ point.x + 2, transformed.y, 0.01);
+}
+
+TEST(AnSE2LieGroup, AppliesInverseTransformToPoint)
+{
+    se2_t transform = se2_create(M_PI / 2, {1, 2});
+    point_t point = {.x = 10, .y = 20};
+
+    point_t transformed = se2_inverse_transform(transform, point);
+
+    DOUBLES_EQUAL(  (point.y - 2), transformed.x, 0.01);
+    DOUBLES_EQUAL(- (point.x - 1), transformed.y, 0.01);
 }

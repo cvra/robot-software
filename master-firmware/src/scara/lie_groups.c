@@ -20,6 +20,11 @@ point_t so2_rotate(so2_t rotation, point_t point)
     return point;
 }
 
+point_t so2_inverse_rotate(so2_t rotation, point_t point)
+{
+    return so2_rotate(so2_create(- rotation.angle), point);
+}
+
 vect_t translation_2d(float x, float y)
 {
     vect_t translation = {.x = x, .y = y};
@@ -38,6 +43,16 @@ point_t se2_transform(se2_t transform, point_t point)
 
     point.x += transform.translation.x;
     point.y += transform.translation.y;
+
+    return point;
+}
+
+point_t se2_inverse_transform(se2_t transform, point_t point)
+{
+    point.x -= transform.translation.x;
+    point.y -= transform.translation.y;
+
+    point = so2_inverse_rotate(transform.rotation, point);
 
     return point;
 }
