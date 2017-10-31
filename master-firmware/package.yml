@@ -78,6 +78,7 @@ source:
     - src/aversive/trajectory_manager/trajectory_manager.c
     - src/aversive/trajectory_manager/trajectory_manager_core.c
     - src/aversive/trajectory_manager/trajectory_manager_utils.c
+    - src/scara/lie_groups.c
     - src/scara/joint.c
     - src/scara/scara_utils.c
     - src/scara/scara_trajectories.c
@@ -116,6 +117,7 @@ tests:
     - tests/scara_kinematics_integration.cpp
     - tests/scara.cpp
     - tests/test_hand.cpp
+    - tests/lie_groups.cpp
 
 templates:
     app_src.mk.jinja: app_src.mk
