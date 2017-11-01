@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?><project name="Development of an ultra-wide band indoor positioning system" company="LSRO" webLink="http://" view-date="2017-08-20" view-index="0" gantt-divider-location="352" resource-divider-location="300" version="2.8.5" locale="en_US">
+<?xml version="1.0" encoding="UTF-8"?><project name="Development of an ultra-wide band indoor positioning system" company="LSRO" webLink="http://" view-date="2017-07-01" view-index="0" gantt-divider-location="352" resource-divider-location="300" version="2.8.5" locale="en_US">
     <description/>
-    <view zooming-state="default:7" id="gantt-chart">
+    <view zooming-state="default:10" id="gantt-chart">
         <field id="tpd3" name="Name" width="183" order="0"/>
         <field id="tpd4" name="Begin date" width="82" order="1"/>
         <field id="tpd5" name="End date" width="81" order="2"/>
@@ -157,6 +157,7 @@ Debug final.]]></notes>
             <depend id="0" type="2" difference="0" hardness="Strong"/>
         </task>
         <task id="0" name="Rendu rapport" color="#8cb6ce" meeting="true" start="2018-01-03" duration="0" complete="0" expand="true"/>
+        <task id="82" name="Update dependencies" color="#8cb6ce" meeting="false" start="2018-01-08" duration="3" complete="0" expand="true"/>
     </tasks>
     <resources/>
     <allocations/>

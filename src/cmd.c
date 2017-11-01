@@ -153,25 +153,18 @@ static void cmd_ahrs(BaseSequentialStream *chp, int argc, char **argv)
 
 static void cmd_range(BaseSequentialStream *chp, int argc, char **argv)
 {
+    const char *usage =  "usage: range rx\r\n";
+
     if (argc < 1) {
-        chprintf(chp, "usage: range tx|rx\r\n");
+        chprintf(chp, usage);
         return;
     }
 
-
-    if (!strcmp(argv[0], "tx")) {
-        static uint8_t frame[32];
-
-        // TODO HUGE HACK, please do not create another handler
-        uwb_protocol_handler_t handler;
-        uwb_protocol_handler_init(&handler);
-        handler.address = 0xcafe;
-        handler.pan_id = 0xcafe;
-        uwb_send_measurement_advertisement(&handler, frame);
-    } else if (!strcmp(argv[0], "rx")) {
+    if (!strcmp(argv[0], "rx")) {
         const char *topic_name = "/range";
         messagebus_topic_t *topic;
         range_msg_t msg;
+
         topic = messagebus_find_topic(&bus, topic_name);
         if (topic == NULL) {
             chprintf(chp, "could not find topic \"%s\"\r\n", topic_name);
@@ -179,7 +172,9 @@ static void cmd_range(BaseSequentialStream *chp, int argc, char **argv)
         }
 
         messagebus_topic_wait(topic, &msg, sizeof(msg));
-        chprintf(chp, "got a ToF to anchor %d : %d\r\n", msg.anchor_addr, msg.range);
+        chprintf(chp, "got a ToF to anchor 0x%x : %d\r\n", msg.anchor_addr, msg.range);
+    } else {
+        chprintf(chp, usage);
     }
 }
 

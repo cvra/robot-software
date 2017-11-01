@@ -72,8 +72,10 @@ void uwb_transmit_frame(uint64_t tx_timestamp, uint8_t *frame, size_t frame_size
     // TODO apparently only the high 32 bits ared used, what does that mean
 #warning not implemented
     // dwt_setdelayedtrxtime(tx_timestamp);
-    dwt_writetxdata(frame_size, frame, 1); /* Zero offset in TX buffer. */
-    dwt_setrxaftertxdelay(0);
+    dwt_writetxdata(frame_size, frame, 0); /* Zero offset in TX buffer. */
+    dwt_writetxfctrl(frame_size, 0, 0); /* Zero offset in TX buffer, TODO: ranging?. */
+
+    dwt_setrxaftertxdelay(80);
     dwt_starttx(DWT_START_TX_IMMEDIATE | DWT_RESPONSE_EXPECTED);
 }
 
@@ -83,7 +85,11 @@ static void frame_rx_cb(const dwt_cb_data_t *data)
     static uint8_t frame[1024];
 
     dwt_readrxdata(frame, data->datalength, 0);
+
+    // TODO read RX timestamp
     uwb_process_incoming_frame(&handler, frame, data->datalength, 0);
+
+    palSetPad(GPIOB, GPIOB_LED_ERROR);
 }
 
 static void frame_tx_done_cb(const dwt_cb_data_t *data)
@@ -142,7 +148,7 @@ static void decawave_thread(void *p)
         DWT_BR_6M8,     /* Data rate. */
         DWT_PHRMODE_EXT, /* PHY header mode. */
         /* SFD timeout (preamble length + 1 + SFD length - PAC size). Used in RX only. */
-        (1025 + 64 - 32)
+        (1025 + 64 - 32) // TODO too long
     };
 
     dwt_configure(&config);
@@ -161,7 +167,14 @@ static void decawave_thread(void *p)
 
     messagebus_topic_init(&ranging_topic, &ranging_topic_lock, &ranging_topic_condvar,
                           &ranging_topic_buffer, sizeof(ranging_topic_buffer));
-    messagebus_advertise_topic(&bus, &ranging_topic, "/ranging");
+    messagebus_advertise_topic(&bus, &ranging_topic, "/range");
+
+#if 1
+    dwt_rxenable(DWT_START_RX_IMMEDIATE);
+#else
+    static uint8_t frame[32];
+    uwb_send_measurement_advertisement(&handler, frame);
+#endif
 
     while (1) {
         /* Wait for an interrupt coming from the UWB module. */

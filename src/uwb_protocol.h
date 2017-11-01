@@ -79,7 +79,6 @@ void uwb_process_incoming_frame(uwb_protocol_handler_t *handler, uint8_t *frame,
 
 /** Send the given frame at the correct timestamp. */
 extern void uwb_transmit_frame(uint64_t tx_timestamp, uint8_t *frame, size_t frame_size);
-extern uint64_t uwb_timestamp_get(void);
 /** @} */
 
 #ifdef __cplusplus
