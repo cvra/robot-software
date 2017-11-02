@@ -343,3 +343,33 @@ TEST(RangingProtocol, BadDstAddress)
 }
 
 // TODO: If we are an anchor we should not answer to advertisement
+#define UINT40_MAX ((1UL << 40) - 1)
+TEST(RangingProtocol, Overflow)
+{
+    uint64_t advertisement_tx_ts = UINT40_MAX - 2000;
+    uint64_t advertisement_rx_ts = UINT40_MAX - 1150;
+    uint64_t reply_tx_ts = UINT40_MAX - 150;
+    uint64_t reply_rx_ts = 1050;
+    uint64_t final_tx_ts = 2050;
+    uint64_t final_rx_ts = 2900;
+
+    // Prepare the measurement finalization
+    write_40bit_uint(advertisement_tx_ts, &final_frame[0]);
+    write_40bit_uint(advertisement_rx_ts, &final_frame[5]);
+    write_40bit_uint(reply_tx_ts, &final_frame[10]);
+    write_40bit_uint(reply_rx_ts, &final_frame[15]);
+    write_40bit_uint(final_tx_ts, &final_frame[20]);
+    size_t final_size = 25;
+    final_size = uwb_mac_encapsulate_frame(tx_handler.pan_id,
+                                           tx_handler.address,
+                                           handler.address,
+                                           2,      // sequence number
+                                           final_frame,
+                                           final_size);
+
+    // The callback should be triggered when a solution is found
+    handler.ranging_found_cb = ranging_cb;
+    mock().expectOneCall("ranging_cb").withIntParameter("anchor", tx_handler.address)
+    .withIntParameter("time", 1025);
+    uwb_process_incoming_frame(&handler, final_frame, final_size, final_rx_ts);
+}

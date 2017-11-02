@@ -91,6 +91,19 @@ static uint64_t read_40bit_int(uint8_t *bytes)
     return res;
 }
 
+/** Computes the difference between two unsigned 40 bit numbers, correctly
+ * handling overflows. */
+static uint64_t substract_40bit_int(uint64_t a, uint64_t b)
+{
+    const uint64_t uint40_max = (1ULL << 40) - 1;
+    uint64_t res = a - b;
+    if (b > a) {
+        res += uint40_max;;
+    }
+
+    return res;
+}
+
 
 void uwb_protocol_handler_init(uwb_protocol_handler_t *handler)
 {
@@ -208,10 +221,12 @@ void uwb_process_incoming_frame(uwb_protocol_handler_t *handler,
 
         // See documentation for explanation
         uint64_t tround[2], treply[2];
-        tround[0] = reply_rx_ts - advertisement_tx_ts;
-        tround[1] = final_rx_ts - reply_tx_ts;
-        treply[0] = reply_tx_ts - advertisement_rx_ts;
-        treply[1] = final_tx_ts - reply_rx_ts;
+
+        tround[0] = substract_40bit_int(reply_rx_ts, advertisement_tx_ts);
+        tround[1] = substract_40bit_int(final_rx_ts, reply_tx_ts);
+        treply[0] = substract_40bit_int(reply_tx_ts, advertisement_rx_ts);
+        treply[1] = substract_40bit_int(final_tx_ts, reply_rx_ts);
+
         t_propag = (tround[0] * tround[1]  - treply[0] * treply[1]) /
                    (tround[0] + tround[1]  + treply[0] + treply[1]);
 
