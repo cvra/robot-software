@@ -13,9 +13,13 @@ static MUTEX_DECL(ranging_topic_lock);
 static CONDVAR_DECL(ranging_topic_condvar);
 static range_msg_t ranging_topic_buffer;
 
+static EVENTSOURCE_DECL(advertise_timer_event);
+
 static uwb_protocol_handler_t handler;
 
+#define EVENT_ADVERTISE_TIMER (1 << 0)
 #define EVENT_UWB_INT (1 << 1)
+#define UWB_ADVERTISE_TIMER_PERIOD S2ST(1)
 
 int readfromspi(uint16 headerLength, const uint8 *headerBuffer, uint32 readlength,
                 uint8 *readBuffer)
@@ -65,8 +69,7 @@ void decamutexoff(decaIrqStatus_t enable_irq)
 
 uint64_t uwb_timestamp_get(void)
 {
-#warning not implemented
-    return 0; // TODO
+    return dwt_readsystimestamphi32() << 8;
 }
 
 void uwb_transmit_frame(uint64_t tx_timestamp, uint8_t *frame, size_t frame_size)
@@ -77,21 +80,30 @@ void uwb_transmit_frame(uint64_t tx_timestamp, uint8_t *frame, size_t frame_size
     dwt_writetxdata(frame_size, frame, 0); /* Zero offset in TX buffer. */
     dwt_writetxfctrl(frame_size, 0, 0); /* Zero offset in TX buffer, TODO: ranging?. */
 
-    dwt_setrxaftertxdelay(80);
-    dwt_starttx(DWT_START_TX_IMMEDIATE | DWT_RESPONSE_EXPECTED);
+#if 0
+    dwt_setdelayedtrxtime(tx_timestamp >> 8);
+    dwt_setrxaftertxdelay(0);
+    dwt_starttx(DWT_START_TX_DELAYED | DWT_RESPONSE_EXPECTED );
+#else
+    dwt_starttx(DWT_START_TX_IMMEDIATE | DWT_RESPONSE_EXPECTED );
+#endif
 }
 
-/* TODO: Handle RX errors as well. */
+/* TODO: Handle RX errors as well, especially timeouts. */
 static void frame_rx_cb(const dwt_cb_data_t *data)
 {
     static uint8_t frame[1024];
 
+    uint64_t rx_ts = 0;
+    rx_ts = dwt_readrxtimestamphi32();
+    rx_ts <<= 32;
+    rx_ts |= dwt_readrxtimestamplo32();
+
     dwt_readrxdata(frame, data->datalength, 0);
 
-    // TODO read RX timestamp
-    uwb_process_incoming_frame(&handler, frame, data->datalength, 0);
+    uwb_process_incoming_frame(&handler, frame, data->datalength, rx_ts);
 
-    palSetPad(GPIOB, GPIOB_LED_ERROR);
+    //palSetPad(GPIOB, GPIOB_LED_ERROR);
 }
 
 static void frame_tx_done_cb(const dwt_cb_data_t *data)
@@ -106,7 +118,20 @@ static void ranging_found_cb(uint16_t addr, uint64_t time)
     msg.anchor_addr = addr;
     msg.range = time;
 
+
+    palTogglePad(GPIOB, GPIOB_LED_DEBUG);
+
     messagebus_topic_publish(&ranging_topic, &msg, sizeof(msg));
+}
+
+static void advertise_timer_cb(void *t)
+{
+    virtual_timer_t *timer = (virtual_timer_t *)t;
+
+    chSysLockFromISR();
+    chVTSetI(timer, UWB_ADVERTISE_TIMER_PERIOD, advertise_timer_cb, t);
+    chEvtBroadcastI(&advertise_timer_event);
+    chSysUnlockFromISR();
 }
 
 static void decawave_thread(void *p)
@@ -155,34 +180,48 @@ static void decawave_thread(void *p)
 
     dwt_configure(&config);
 
-    /* Enable interrupt on frame RX */
+    dwt_setcallbacks(frame_tx_done_cb, frame_rx_cb, NULL, NULL);
+
+    /* Enable interrupt on frame RX and TX complete */
     uint32_t interrupts = DWT_INT_RFCG | DWT_INT_TFRS;
     dwt_setinterrupt(interrupts, 1);
 
+    /* Setup a virtual timer to fire each second. */
+    virtual_timer_t advertise_timer;
+    chVTObjectInit(&advertise_timer);
+    chVTSet(&advertise_timer, MS2ST(500), advertise_timer_cb, &advertise_timer);
 
-    dwt_setcallbacks(frame_tx_done_cb, frame_rx_cb, NULL, NULL);
-    static event_listener_t uwb_int_listener;
-
+    /* Register event listeners */
+    static event_listener_t uwb_int_listener, advertise_timer_listener;
     chEvtRegisterMask(&exti_uwb_event, &uwb_int_listener, EVENT_UWB_INT);
+    chEvtRegisterMask(&advertise_timer_event, &advertise_timer_listener, EVENT_ADVERTISE_TIMER);
 
+    /* Prepare topic for range information */
     messagebus_topic_init(&ranging_topic, &ranging_topic_lock, &ranging_topic_condvar,
                           &ranging_topic_buffer, sizeof(ranging_topic_buffer));
     messagebus_advertise_topic(&bus, &ranging_topic, "/range");
 
-#if 1
+//    dwt_setrxtimeout(0); // Disable RX timeout
     dwt_rxenable(DWT_START_RX_IMMEDIATE);
-#else
-    static uint8_t frame[32];
-    uwb_send_measurement_advertisement(&handler, frame);
-#endif
 
     while (1) {
         /* Wait for an interrupt coming from the UWB module. */
-        eventmask_t flags = chEvtWaitOne(EVENT_UWB_INT);
+        eventmask_t flags = chEvtWaitOne(EVENT_ADVERTISE_TIMER | EVENT_UWB_INT);
 
+        chThdSleepMilliseconds(10);
 
-        /* Process the interrupt. */
-        dwt_isr();
+        if (flags & EVENT_ADVERTISE_TIMER) {
+
+            dwt_forcetrxoff();
+
+            static uint8_t frame[32];
+            uwb_send_measurement_advertisement(&handler, frame);
+        }
+
+        if (flags & EVENT_UWB_INT) {
+            /* Process the interrupt. */
+            dwt_isr();
+        }
     }
 }
 
