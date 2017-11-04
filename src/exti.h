@@ -5,10 +5,8 @@
 extern "C" {
 #endif
 
-#define EXTI_EVENT_IMU_INT     (1 << 0)
-#define EXTI_EVENT_UWB_INT     (1 << 1)
-
-extern event_source_t exti_events;
+extern event_source_t exti_imu_event;
+extern event_source_t exti_uwb_event;
 
 /** Starts the external interrupt processing service. */
 void exti_start(void);

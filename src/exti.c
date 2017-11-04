@@ -3,7 +3,8 @@
 
 #include "exti.h"
 
-event_source_t exti_events;
+EVENTSOURCE_DECL(exti_imu_event);
+EVENTSOURCE_DECL(exti_uwb_event);
 
 static void exti_cb(EXTDriver *extp, expchannel_t channel)
 {
@@ -11,11 +12,11 @@ static void exti_cb(EXTDriver *extp, expchannel_t channel)
 
     if (channel == GPIOB_IMU_INT) {
         chSysLockFromISR();
-        chEvtBroadcastFlagsI(&exti_events, EXTI_EVENT_IMU_INT);
+        chEvtBroadcastI(&exti_imu_event);
         chSysUnlockFromISR();
     } else if (channel == GPIOA_UWB_INT) {
         chSysLockFromISR();
-        chEvtBroadcastFlagsI(&exti_events, EXTI_EVENT_UWB_INT);
+        chEvtBroadcastI(&exti_uwb_event);
         chSysUnlockFromISR();
     }
 }
@@ -55,6 +56,5 @@ static const EXTConfig extcfg = {
 
 void exti_start(void)
 {
-    chEvtObjectInit(&exti_events);
     extStart(&EXTD1, &extcfg);
 }

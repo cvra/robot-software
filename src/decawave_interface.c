@@ -15,6 +15,8 @@ static range_msg_t ranging_topic_buffer;
 
 static uwb_protocol_handler_t handler;
 
+#define EVENT_UWB_INT (1 << 1)
+
 int readfromspi(uint16 headerLength, const uint8 *headerBuffer, uint32 readlength,
                 uint8 *readBuffer)
 {
@@ -157,13 +159,11 @@ static void decawave_thread(void *p)
     uint32_t interrupts = DWT_INT_RFCG | DWT_INT_TFRS;
     dwt_setinterrupt(interrupts, 1);
 
-    /* Configure interrupt listener. */
-    event_listener_t uwb_int;
-    chEvtRegisterMaskWithFlags(&exti_events, &uwb_int,
-                               (eventmask_t)EXTI_EVENT_UWB_INT,
-                               (eventflags_t)EXTI_EVENT_UWB_INT);
 
     dwt_setcallbacks(frame_tx_done_cb, frame_rx_cb, NULL, NULL);
+    static event_listener_t uwb_int_listener;
+
+    chEvtRegisterMask(&exti_uwb_event, &uwb_int_listener, EVENT_UWB_INT);
 
     messagebus_topic_init(&ranging_topic, &ranging_topic_lock, &ranging_topic_condvar,
                           &ranging_topic_buffer, sizeof(ranging_topic_buffer));
@@ -178,7 +178,8 @@ static void decawave_thread(void *p)
 
     while (1) {
         /* Wait for an interrupt coming from the UWB module. */
-        chEvtWaitAny(EXTI_EVENT_UWB_INT);
+        eventmask_t flags = chEvtWaitOne(EVENT_UWB_INT);
+
 
         /* Process the interrupt. */
         dwt_isr();

@@ -44,9 +44,8 @@ static void imu_reader_thd(void *p)
 
     /* Starts waiting for the external interrupt. */
     event_listener_t imu_int;
-    chEvtRegisterMaskWithFlags(&exti_events, &imu_int,
-                               (eventmask_t)IMU_INTERRUPT_EVENT,
-                               (eventflags_t)EXTI_EVENT_IMU_INT);
+    chEvtRegisterMask(&exti_imu_event, &imu_int,
+                               (eventmask_t)IMU_INTERRUPT_EVENT);
 
     imu_init_hardware(&mpu);
 
