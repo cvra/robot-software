@@ -172,7 +172,7 @@ static void cmd_range(BaseSequentialStream *chp, int argc, char **argv)
         }
 
         messagebus_topic_wait(topic, &msg, sizeof(msg));
-        chprintf(chp, "got a ToF to anchor 0x%x : %d\r\n", msg.anchor_addr, msg.range);
+        chprintf(chp, "got a ToF to anchor 0x%x : %.3f\r\n", msg.anchor_addr, msg.range);
     } else {
         chprintf(chp, usage);
     }

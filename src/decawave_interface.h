@@ -10,7 +10,7 @@ extern "C" {
 typedef struct {
     uint32_t timestamp;   ///< Time at which the ranging solution was found
     uint16_t anchor_addr; ///< Address of the anchor with which the measurement was done
-    uint64_t range;       ///< Time of flight to the anchor
+    float range;          ///< Distance to the anchor, in meters
 } range_msg_t;
 
 /** Starts the communication interface to the chip. */

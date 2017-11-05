@@ -13,6 +13,9 @@
 #define UWB_SEQ_NUM_REPLY               1
 #define UWB_SEQ_NUM_FINALIZATION        2
 
+#define UWB_DELAY (15000 * 65536)
+#define MASK_40BIT 0xfffffffe00
+
 static void write_40bit_int(uint64_t val, uint8_t *bytes);
 static uint64_t read_40bit_int(uint8_t *bytes);
 
@@ -132,7 +135,8 @@ void uwb_send_measurement_advertisement(uwb_protocol_handler_t *handler, uint8_t
     size_t frame_size;
 
     // TODO: Is this the correct place to add some delay?
-    ts += 1000;
+    ts += UWB_DELAY;
+    ts &= MASK_40BIT;
 
     frame_size = uwb_protocol_prepare_measurement_advertisement(handler, ts, buffer);
     uwb_transmit_frame(ts, buffer, frame_size);
@@ -168,7 +172,9 @@ void uwb_process_incoming_frame(uwb_protocol_handler_t *handler,
     /* Measurement advertisement */
     if (seq_num == UWB_SEQ_NUM_ADVERTISEMENT) {
         // TODO how to properly handle this delay
-        uint64_t reply_ts = rx_ts + 1000;
+        uint64_t reply_ts = rx_ts + UWB_DELAY;
+
+        reply_ts &= MASK_40BIT;
 
         /* Do not change the advertisement TX timestamp, append the reply RX &
          * TX timestamps. */
@@ -190,7 +196,9 @@ void uwb_process_incoming_frame(uwb_protocol_handler_t *handler,
 
     } else if (seq_num == UWB_SEQ_NUM_REPLY) {
         // TODO how to properly handle this delay
-        uint64_t reply_ts = rx_ts + 1000;
+        uint64_t reply_ts = rx_ts + UWB_DELAY;
+
+        reply_ts &= MASK_40BIT;
 
         /* Do not change the advertisement & reply TX timestamp, append the
          * reply RX & final TX timestamps. */

@@ -82,19 +82,6 @@ TEST(MACLayerTestCase, CanDecodeFrame)
 
 TEST_GROUP(RangingProtocol)
 {
-    // So we want to feed the frame in the state
-    //
-    // Then we should check if we need to send something
-    //
-    // And also check if we found a ranging solution
-    //
-    // uwb_ranging_handle_frame(frame);
-    // if (uwb_found_ranging_solution()) {
-    //     // get the solution
-    // } else if (uwb_should_output()) {
-    //     uwb_output(output_frame, output_timestamp)
-    // }
-
     void write_40bit_uint(uint64_t val, uint8_t *bytes)
     {
         bytes[0] = (val >> 32) & 0xff;
@@ -187,9 +174,14 @@ TEST(RangingProtocol, SendAdvertisementFrame)
     const uint64_t ts = 1600;
     size_t frame_size;
 
-    frame_size = uwb_protocol_prepare_measurement_advertisement(&handler, ts, advertisement_frame);
+    // The message should be sent when the lower 9 bits are zero
+    uint64_t tx_ts = ts + (15000 * 65536ULL);
+    tx_ts &= ~(0x1FFULL);
 
-    mock().expectOneCall("uwb_timestamp_get").andReturnValue(600);
+    frame_size =
+        uwb_protocol_prepare_measurement_advertisement(&handler, tx_ts, advertisement_frame);
+
+    mock().expectOneCall("uwb_timestamp_get").andReturnValue((int)ts);
     mock().expectOneCall("uwb_transmit_frame")
     .withMemoryBufferParameter("frame", advertisement_frame, frame_size);
 
@@ -202,6 +194,11 @@ TEST(RangingProtocol, SendMeasurementReply)
     uint64_t advertisement_tx_ts = 600;
     uint64_t advertisement_rx_ts = 1400;
     uint64_t reply_tx_ts = 2400;
+
+    // The final message should be sent when the lower 9 bits are zero
+    reply_tx_ts = advertisement_rx_ts + (15000 * 65536ULL);
+    reply_tx_ts &= ~(0x1FFULL);
+
 
     // Prepare the frame to feed in the protocol handler
     auto rx_size = uwb_protocol_prepare_measurement_advertisement(&tx_handler,
@@ -239,7 +236,12 @@ TEST(RangingProtocol, ReplyIsFollowedByFinalMessage)
     uint64_t advertisement_rx_ts = 1400;
     uint64_t reply_tx_ts = 2400;
     uint64_t reply_rx_ts = 2600;
-    uint64_t final_tx_ts = 3600;
+    uint64_t final_tx_ts;
+
+    // The final message should be sent at a time where the lower 9 bits
+    // are zero
+    final_tx_ts = reply_rx_ts + (15000 * 65536ULL);
+    final_tx_ts &= ~(0x1FFULL);
 
     // Prepare a measurement reply frame
     write_40bit_uint(advertisement_tx_ts, &reply_frame[0]);

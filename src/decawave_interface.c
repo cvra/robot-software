@@ -7,6 +7,7 @@
 #include "decadriver/deca_regs.h"
 #include "main.h"
 #include "uwb_protocol.h"
+#include "usbconf.h"
 
 static messagebus_topic_t ranging_topic;
 static MUTEX_DECL(ranging_topic_lock);
@@ -20,6 +21,14 @@ static uwb_protocol_handler_t handler;
 #define EVENT_ADVERTISE_TIMER (1 << 0)
 #define EVENT_UWB_INT (1 << 1)
 #define UWB_ADVERTISE_TIMER_PERIOD S2ST(1)
+
+/* Default antenna delay values for 64 MHz PRF. */
+#define TX_ANT_DLY 16436
+#define RX_ANT_DLY 2*16436
+
+/** Speed of light in Decawave units */
+#define SPEED_OF_LIGHT (299792458.0 / (128 * 499.2e6))
+
 
 int readfromspi(uint16 headerLength, const uint8 *headerBuffer, uint32 readlength,
                 uint8 *readBuffer)
@@ -67,9 +76,24 @@ void decamutexoff(decaIrqStatus_t enable_irq)
     (void) enable_irq;
 }
 
+
 uint64_t uwb_timestamp_get(void)
 {
-    return dwt_readsystimestamphi32() << 8;
+    return ((uint64_t)dwt_readsystimestamphi32()) << 8;
+}
+
+static uint64_t get_rx_timestamp_u64(void)
+{
+    uint8_t ts_tab[5];
+    uint64_t ts = 0;
+    int i;
+    dwt_readrxtimestamp(ts_tab);
+    for (i = 4; i >= 0; i--)
+    {
+        ts <<= 8;
+        ts |= ts_tab[i];
+    }
+    return ts;
 }
 
 void uwb_transmit_frame(uint64_t tx_timestamp, uint8_t *frame, size_t frame_size)
@@ -80,10 +104,15 @@ void uwb_transmit_frame(uint64_t tx_timestamp, uint8_t *frame, size_t frame_size
     dwt_writetxdata(frame_size, frame, 0); /* Zero offset in TX buffer. */
     dwt_writetxfctrl(frame_size, 0, 0); /* Zero offset in TX buffer, TODO: ranging?. */
 
-#if 0
+#if 1
     dwt_setdelayedtrxtime(tx_timestamp >> 8);
     dwt_setrxaftertxdelay(0);
-    dwt_starttx(DWT_START_TX_DELAYED | DWT_RESPONSE_EXPECTED );
+    int res = dwt_starttx(DWT_START_TX_DELAYED | DWT_RESPONSE_EXPECTED );
+    if (res == DWT_SUCCESS) {
+        palClearPad(GPIOB, GPIOB_LED_ERROR);
+    } else {
+        palSetPad(GPIOB, GPIOB_LED_ERROR);
+    }
 #else
     dwt_starttx(DWT_START_TX_IMMEDIATE | DWT_RESPONSE_EXPECTED );
 #endif
@@ -94,10 +123,20 @@ static void frame_rx_cb(const dwt_cb_data_t *data)
 {
     static uint8_t frame[1024];
 
-    uint64_t rx_ts = 0;
+    uint64_t rx_ts_1, rx_ts = 0;
+#if 0
     rx_ts = dwt_readrxtimestamphi32();
     rx_ts <<= 32;
     rx_ts |= dwt_readrxtimestamplo32();
+#else
+    rx_ts_1 = get_rx_timestamp_u64();
+    //rx_ts = uwb_timestamp_get();// + 65536 * 200;
+#endif
+
+
+    rx_ts = rx_ts_1;
+    //chprintf(&SDU1, "rx_ts_1 = %d\r\n", (int)((rx_ts_1)/65536ULL));
+    //chprintf(&SDU1, "rx_ts_1 - rx_ts = %d\r\n", (int)((rx_ts_1 - rx_ts)/65536ULL));
 
     dwt_readrxdata(frame, data->datalength, 0);
 
@@ -116,8 +155,7 @@ static void ranging_found_cb(uint16_t addr, uint64_t time)
     range_msg_t msg;
     msg.timestamp = ST2MS(chVTGetSystemTime());
     msg.anchor_addr = addr;
-    msg.range = time;
-
+    msg.range = time * SPEED_OF_LIGHT;
 
     palTogglePad(GPIOB, GPIOB_LED_DEBUG);
 
@@ -180,6 +218,9 @@ static void decawave_thread(void *p)
 
     dwt_configure(&config);
 
+    dwt_setrxantennadelay(RX_ANT_DLY);
+    dwt_settxantennadelay(TX_ANT_DLY);
+
     dwt_setcallbacks(frame_tx_done_cb, frame_rx_cb, NULL, NULL);
 
     /* Enable interrupt on frame RX and TX complete */
@@ -201,7 +242,7 @@ static void decawave_thread(void *p)
                           &ranging_topic_buffer, sizeof(ranging_topic_buffer));
     messagebus_advertise_topic(&bus, &ranging_topic, "/range");
 
-//    dwt_setrxtimeout(0); // Disable RX timeout
+    dwt_setrxtimeout(0); // Disable RX timeout
     dwt_rxenable(DWT_START_RX_IMMEDIATE);
 
     while (1) {
