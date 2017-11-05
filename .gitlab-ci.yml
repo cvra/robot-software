@@ -65,5 +65,5 @@ pdf:
     - latexmk -pdf report.tex
   artifacts:
     paths:
-      - report.pdf
+      - doc/report/report.pdf
     expire_in: 30 days
