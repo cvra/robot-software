@@ -58,7 +58,7 @@ notebooks:
 
 pdf:
   stage: report
-  image: schickling/latex
+  image: texlive
   script:
     - cd doc/report
     - latexmk -pdf report.tex
