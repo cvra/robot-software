@@ -61,6 +61,7 @@ pdf:
   image: antoinealb/texlive
   script:
     - cd doc/report
+    - latexmk -pdf abstract.tex
     - latexmk -pdf report.tex
   artifacts:
     paths:
