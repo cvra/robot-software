@@ -58,7 +58,7 @@ notebooks:
 
 pdf:
   stage: report
-  image: texlive
+  image: antoinealb/texlive
   script:
     - cd doc/report
     - latexmk -pdf report.tex
