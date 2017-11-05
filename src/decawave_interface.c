@@ -18,16 +18,15 @@ static EVENTSOURCE_DECL(advertise_timer_event);
 
 static uwb_protocol_handler_t handler;
 
-#define EVENT_ADVERTISE_TIMER (1 << 0)
-#define EVENT_UWB_INT (1 << 1)
+#define EVENT_ADVERTISE_TIMER      (1 << 0)
+#define EVENT_UWB_INT              (1 << 1)
 #define UWB_ADVERTISE_TIMER_PERIOD S2ST(1)
 
 /* Default antenna delay values for 64 MHz PRF. */
-#define TX_ANT_DLY 16436
-#define RX_ANT_DLY 2*16436
+#define RX_ANT_DLY                 2 * 16436
 
 /** Speed of light in Decawave units */
-#define SPEED_OF_LIGHT (299792458.0 / (128 * 499.2e6))
+#define SPEED_OF_LIGHT             (299792458.0 / (128 * 499.2e6))
 
 
 int readfromspi(uint16 headerLength, const uint8 *headerBuffer, uint32 readlength,
@@ -61,18 +60,13 @@ void deca_sleep(unsigned int time_ms)
 
 decaIrqStatus_t decamutexon(void)
 {
-    int irq_enabled = 0;
-
-    /* TODO Proper locking ((prevent DWM1000 interrupts from arriving).
-     *
-     * Cannot use chSysLock because it uses SPI transfers in critical sections.*/
-
-    return irq_enabled;
+    /* As all the Decawave related code runs in the same thread, no need for
+     * locking. */
+    return 0;
 }
 
 void decamutexoff(decaIrqStatus_t enable_irq)
 {
-    /* TODO Proper locking (see above) */
     (void) enable_irq;
 }
 
@@ -88,8 +82,7 @@ static uint64_t get_rx_timestamp_u64(void)
     uint64_t ts = 0;
     int i;
     dwt_readrxtimestamp(ts_tab);
-    for (i = 4; i >= 0; i--)
-    {
+    for (i = 4; i >= 0; i--) {
         ts <<= 8;
         ts |= ts_tab[i];
     }
@@ -98,51 +91,23 @@ static uint64_t get_rx_timestamp_u64(void)
 
 void uwb_transmit_frame(uint64_t tx_timestamp, uint8_t *frame, size_t frame_size)
 {
-    // TODO apparently only the high 32 bits ared used, what does that mean
-#warning not implemented
-    // dwt_setdelayedtrxtime(tx_timestamp);
     dwt_writetxdata(frame_size, frame, 0); /* Zero offset in TX buffer. */
-    dwt_writetxfctrl(frame_size, 0, 0); /* Zero offset in TX buffer, TODO: ranging?. */
+    dwt_writetxfctrl(frame_size, 0, 0); /* Zero offset in TX buffer. */
 
-#if 1
     dwt_setdelayedtrxtime(tx_timestamp >> 8);
     dwt_setrxaftertxdelay(0);
-    int res = dwt_starttx(DWT_START_TX_DELAYED | DWT_RESPONSE_EXPECTED );
-    if (res == DWT_SUCCESS) {
-        palClearPad(GPIOB, GPIOB_LED_ERROR);
-    } else {
-        palSetPad(GPIOB, GPIOB_LED_ERROR);
-    }
-#else
-    dwt_starttx(DWT_START_TX_IMMEDIATE | DWT_RESPONSE_EXPECTED );
-#endif
+    dwt_starttx(DWT_START_TX_DELAYED | DWT_RESPONSE_EXPECTED );
 }
 
 /* TODO: Handle RX errors as well, especially timeouts. */
 static void frame_rx_cb(const dwt_cb_data_t *data)
 {
     static uint8_t frame[1024];
-
-    uint64_t rx_ts_1, rx_ts = 0;
-#if 0
-    rx_ts = dwt_readrxtimestamphi32();
-    rx_ts <<= 32;
-    rx_ts |= dwt_readrxtimestamplo32();
-#else
-    rx_ts_1 = get_rx_timestamp_u64();
-    //rx_ts = uwb_timestamp_get();// + 65536 * 200;
-#endif
-
-
-    rx_ts = rx_ts_1;
-    //chprintf(&SDU1, "rx_ts_1 = %d\r\n", (int)((rx_ts_1)/65536ULL));
-    //chprintf(&SDU1, "rx_ts_1 - rx_ts = %d\r\n", (int)((rx_ts_1 - rx_ts)/65536ULL));
+    uint64_t rx_ts = get_rx_timestamp_u64();
 
     dwt_readrxdata(frame, data->datalength, 0);
 
     uwb_process_incoming_frame(&handler, frame, data->datalength, rx_ts);
-
-    //palSetPad(GPIOB, GPIOB_LED_ERROR);
 }
 
 static void frame_tx_done_cb(const dwt_cb_data_t *data)
@@ -205,12 +170,11 @@ static void decawave_thread(void *p)
     static dwt_config_t config = {
         5,               /* Channel number. */
         DWT_PRF_64M,     /* Pulse repetition frequency. */
-        DWT_PLEN_64,   /* Preamble length. Used in TX only. */
-        DWT_PAC8,       /* Preamble acquisition chunk size. Used in RX only. */
-        /* Preamble codes (RX, TX) */
-        5, 5,
-        1,  /* Non standard SFD */
-        DWT_BR_6M8,     /* Data rate. */
+        DWT_PLEN_64,     /* Preamble length. Used in TX only. */
+        DWT_PAC8,        /* Preamble acquisition chunk size. Used in RX only. */
+        5, 5,            /* Preamble codes (RX, TX) */
+        1,               /* Non standard Start Frame Delimiter */
+        DWT_BR_6M8,      /* Data rate. */
         DWT_PHRMODE_EXT, /* PHY header mode. */
         /* SFD timeout (preamble length + 1 + SFD length - PAC size). Used in RX only. */
         (1025 + 64 - 32) // TODO too long
@@ -219,7 +183,6 @@ static void decawave_thread(void *p)
     dwt_configure(&config);
 
     dwt_setrxantennadelay(RX_ANT_DLY);
-    dwt_settxantennadelay(TX_ANT_DLY);
 
     dwt_setcallbacks(frame_tx_done_cb, frame_rx_cb, NULL, NULL);
 
