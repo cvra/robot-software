@@ -117,7 +117,7 @@ TEST(StringParamter, CanDeclareWithDefault)
 {
     parameter_t p_default;
     parameter_string_declare_with_default(&p_default, &ns, "defaultstr",
-            str_buffer, sizeof(str_buffer), "#default");
+                                          str_buffer, sizeof(str_buffer), "#default");
     char buf[9];
     parameter_string_read(&p_default, buf, sizeof(buf));
     STRCMP_EQUAL("#default", buf);

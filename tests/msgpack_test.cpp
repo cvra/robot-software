@@ -266,7 +266,7 @@ TEST(MessagePackTestGroup, TestWriteString)
     parameter_namespace_declare(&rootns, NULL, NULL);
 
     parameter_string_declare(&array, &rootns, "str",
-                              array_value, sizeof(array_value));
+                             array_value, sizeof(array_value));
 
     parameter_string_set(&array, "hello");
 

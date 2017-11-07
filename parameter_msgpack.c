@@ -12,26 +12,27 @@ static int discard_msgpack_element(cmp_object_t *obj,
 {
     (void)cmp; // ignore unused variable warning. todo
     switch (obj->type) {
-    case CMP_TYPE_POSITIVE_FIXNUM:
-    case CMP_TYPE_NIL:
-    case CMP_TYPE_BOOLEAN:
-    case CMP_TYPE_FLOAT:
-    case CMP_TYPE_DOUBLE:
-    case CMP_TYPE_UINT8:
-    case CMP_TYPE_UINT16:
-    case CMP_TYPE_UINT32:
-    case CMP_TYPE_UINT64:
-    case CMP_TYPE_SINT8:
-    case CMP_TYPE_SINT16:
-    case CMP_TYPE_SINT32:
-    case CMP_TYPE_SINT64:
-    case CMP_TYPE_NEGATIVE_FIXNUM:
-        return 0;
-    default:
-        // todo discarding namespaces / vectors won't work
-        err_cb(err_arg, err_id, "discarding failed");
-        return -1;
-  }
+        case CMP_TYPE_POSITIVE_FIXNUM:
+        case CMP_TYPE_NIL:
+        case CMP_TYPE_BOOLEAN:
+        case CMP_TYPE_FLOAT:
+        case CMP_TYPE_DOUBLE:
+        case CMP_TYPE_UINT8:
+        case CMP_TYPE_UINT16:
+        case CMP_TYPE_UINT32:
+        case CMP_TYPE_UINT64:
+        case CMP_TYPE_SINT8:
+        case CMP_TYPE_SINT16:
+        case CMP_TYPE_SINT32:
+        case CMP_TYPE_SINT64:
+        case CMP_TYPE_NEGATIVE_FIXNUM:
+            return 0;
+
+        default:
+            // todo discarding namespaces / vectors won't work
+            err_cb(err_arg, err_id, "discarding failed");
+            return -1;
+    }
 }
 
 
@@ -276,21 +277,27 @@ static int read_parameter(parameter_t *p,
                           void *err_arg)
 {
     switch (p->type) {
-    case _PARAM_TYPE_SCALAR:
-        return read_parameter_scalar(p, obj, cmp, err_cb, err_arg);
-    case _PARAM_TYPE_INTEGER:
-        return read_parameter_integer(p, obj, cmp, err_cb, err_arg);
-    case _PARAM_TYPE_BOOLEAN:
-        return read_parameter_boolean(p, obj, cmp, err_cb, err_arg);
-    case _PARAM_TYPE_VECTOR:
-        return read_parameter_vector(p, obj, cmp, err_cb, err_arg);
-    case _PARAM_TYPE_VAR_VECTOR:
-        return read_parameter_var_vector(p, obj, cmp, err_cb, err_arg);
-    case _PARAM_TYPE_STRING:
-        return read_parameter_string(p, obj, cmp, err_cb, err_arg);
-    default:
-        err_cb(err_arg, p->id, "TODO not implemented yet");
-        return discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
+        case _PARAM_TYPE_SCALAR:
+            return read_parameter_scalar(p, obj, cmp, err_cb, err_arg);
+
+        case _PARAM_TYPE_INTEGER:
+            return read_parameter_integer(p, obj, cmp, err_cb, err_arg);
+
+        case _PARAM_TYPE_BOOLEAN:
+            return read_parameter_boolean(p, obj, cmp, err_cb, err_arg);
+
+        case _PARAM_TYPE_VECTOR:
+            return read_parameter_vector(p, obj, cmp, err_cb, err_arg);
+
+        case _PARAM_TYPE_VAR_VECTOR:
+            return read_parameter_var_vector(p, obj, cmp, err_cb, err_arg);
+
+        case _PARAM_TYPE_STRING:
+            return read_parameter_string(p, obj, cmp, err_cb, err_arg);
+
+        default:
+            err_cb(err_arg, p->id, "TODO not implemented yet");
+            return discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
     }
 }
 
@@ -327,7 +334,7 @@ static int read_namespace(parameter_namespace_t *ns,
             return -1;
         }
         if (cmp_object_is_map(&obj)) { // namespace
-            parameter_namespace_t *sub = _parameter_namespace_find_w_id_len(ns, id , id_size);
+            parameter_namespace_t *sub = _parameter_namespace_find_w_id_len(ns, id, id_size);
             if (sub == NULL) {
                 err_cb(err_arg, id, "warning: namespace doesn't exist");
             }
@@ -346,7 +353,7 @@ static int read_namespace(parameter_namespace_t *ns,
                 }
             }
         } else { // parameter
-            parameter_t *p = _parameter_find_w_id_len(ns, id , id_size);
+            parameter_t *p = _parameter_find_w_id_len(ns, id, id_size);
             if (p == NULL) {
                 err_cb(err_arg, id, "warning: parameter doesn't exist");
             }
@@ -418,11 +425,11 @@ static void parameter_msgpack_write_subtree(const parameter_namespace_t *ns,
     parameter_t *param;
     bool success;
 
-    for (child=ns->subspaces; child != NULL; child=child->next) {
+    for (child = ns->subspaces; child != NULL; child = child->next) {
         map_size ++;
     }
 
-    for (param=ns->parameter_list; param!=NULL; param=param->next) {
+    for (param = ns->parameter_list; param != NULL; param = param->next) {
         if (param->defined) {
             map_size ++;
         }
@@ -431,20 +438,20 @@ static void parameter_msgpack_write_subtree(const parameter_namespace_t *ns,
     cmp_write_map(cmp, map_size);
 
     /* Write subtrees. */
-    for (child=ns->subspaces; child != NULL; child=child->next) {
+    for (child = ns->subspaces; child != NULL; child = child->next) {
         cmp_write_str(cmp, child->id, strlen(child->id));
         parameter_msgpack_write_subtree(child, cmp, err_cb, err_arg);
     }
 
     /* Write each parameter. */
-    for (param=ns->parameter_list; param!=NULL; param=param->next) {
+    for (param = ns->parameter_list; param != NULL; param = param->next) {
         success = true;
 
         if (param->defined == false) {
             continue;
         }
 
-        switch(param->type) {
+        switch (param->type) {
             case _PARAM_TYPE_SCALAR:
                 success &= cmp_write_str(cmp, param->id, strlen(param->id));
                 success &= cmp_write_float(cmp, param->value.s);
@@ -470,7 +477,7 @@ static void parameter_msgpack_write_subtree(const parameter_namespace_t *ns,
             case _PARAM_TYPE_VECTOR:
                 success &= cmp_write_str(cmp, param->id, strlen(param->id));
                 success &= cmp_write_array(cmp, param->value.vect.dim);
-                for (i=0; i<param->value.vect.dim; i++) {
+                for (i = 0; i < param->value.vect.dim; i++) {
                     success &= cmp_write_float(cmp, param->value.vect.buf[i]);
                 }
                 break;

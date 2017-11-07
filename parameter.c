@@ -109,11 +109,11 @@ void parameter_namespace_declare(parameter_namespace_t *ns,
 
 
 parameter_namespace_t *_parameter_namespace_find_w_id_len(parameter_namespace_t *ns,
-                                                const char *id, size_t id_len)
+                                                          const char *id, size_t id_len)
 {
     parameter_namespace_t *nret = ns;
     uint32_t i = 0;
-    while(nret != NULL && i < id_len) {
+    while (nret != NULL && i < id_len) {
         int id_elem_len = id_split(&id[i], id_len - i);
         nret = get_subnamespace(nret, &id[i], id_elem_len);
         i += id_elem_len + 1;
@@ -132,7 +132,7 @@ parameter_t *_parameter_find_w_id_len(parameter_namespace_t *ns,
 {
     parameter_namespace_t *pns = ns;
     uint32_t i = 0;
-    while(pns != NULL) {
+    while (pns != NULL) {
         int id_elem_len = id_split(&id[i], id_len - i);
         if (id_elem_len + i < id_len) {
             pns = get_subnamespace(pns, &id[i], id_elem_len);
@@ -168,7 +168,7 @@ bool parameter_namespace_contains_changed(const parameter_namespace_t *ns)
     parameter_port_lock();
     uint32_t changed_cnt = ns->changed_cnt;
     parameter_port_unlock();
-    return (changed_cnt > 0);
+    return changed_cnt > 0;
 }
 
 bool parameter_changed(const parameter_t *p)
@@ -284,16 +284,16 @@ void parameter_scalar_set(parameter_t *p, float value)
  */
 
 void parameter_integer_declare(parameter_t *p, parameter_namespace_t *ns,
-                              const char *id)
+                               const char *id)
 {
     p->type = _PARAM_TYPE_INTEGER;
     _parameter_declare(p, ns, id);
 }
 
 void parameter_integer_declare_with_default(parameter_t *p,
-                                           parameter_namespace_t *ns,
-                                           const char *id,
-                                           int32_t default_val)
+                                            parameter_namespace_t *ns,
+                                            const char *id,
+                                            int32_t default_val)
 {
     p->value.i = default_val;
     p->type = _PARAM_TYPE_INTEGER;
@@ -455,7 +455,7 @@ void parameter_variable_vector_declare_with_default(parameter_t *p,
                                                     uint16_t buf_size,
                                                     uint16_t init_size)
 {
-    parameter_variable_vector_declare(p, ns, id , buf, buf_size);
+    parameter_variable_vector_declare(p, ns, id, buf, buf_size);
     parameter_port_assert(init_size <= buf_size);
     p->value.vect.dim = init_size;
     _parameter_changed_set(p);
@@ -525,7 +525,7 @@ void parameter_string_declare_with_default(parameter_t *p,
                                            uint16_t buf_size,
                                            const char *default_str)
 {
-    parameter_string_declare(p, ns, id , buf, buf_size);
+    parameter_string_declare(p, ns, id, buf, buf_size);
     p->value.str.len = strlen(default_str);
     parameter_port_assert(p->value.str.len <= buf_size);
     strncpy(p->value.str.buf, default_str, buf_size);
@@ -554,8 +554,8 @@ uint16_t parameter_string_read(parameter_t *p, char *out, uint16_t out_size)
         memcpy(out, p->value.str.buf, len);
         out[len] = '\0';
     } else {
-        memcpy(out, p->value.str.buf, out_size-1);
-        out[out_size-1] = '\0';
+        memcpy(out, p->value.str.buf, out_size - 1);
+        out[out_size - 1] = '\0';
     }
     parameter_port_unlock();
     return len;

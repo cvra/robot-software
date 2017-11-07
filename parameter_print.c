@@ -45,54 +45,59 @@ static void param_entry_print(parameter_t *p,
         return;
     }
     switch (p->type) {
-    case _PARAM_TYPE_SCALAR: {
-        printfn(printfn_arg, "%f\n", parameter_scalar_read(p));
-        break;
-    }
-    case _PARAM_TYPE_INTEGER: {
-        printfn(printfn_arg, "%d\n", parameter_integer_read(p));
-        break;
-    }
-    case _PARAM_TYPE_BOOLEAN: {
-        printfn(printfn_arg, "%s\n", parameter_boolean_read(p) ? "true":"false");
-        break;
-    }
-    case _PARAM_TYPE_STRING: {
-        int len = parameter_string_max_len(p);
-        char *s = malloc(len);
-        if (s) {
-            parameter_string_read(p, s, len);
-            printfn(printfn_arg, "\"%s\"\n", s);
-            free(s);
-        } else {
-            printfn(printfn_arg, "\"\" %s\n", MALLOC_FAILED_WARNING);
+        case _PARAM_TYPE_SCALAR: {
+            printfn(printfn_arg, "%f\n", parameter_scalar_read(p));
+            break;
         }
-        break;
-    }
-    case _PARAM_TYPE_VECTOR: {
-        int dim = parameter_vector_dim(p);
-        float *v = malloc(dim * sizeof(float));
-        if (v) {
-            parameter_vector_read(p, v);
-            print_array(v, dim, printfn, printfn_arg);
-            free(v);
-        } else {
-            printfn(printfn_arg, "[] %s\n", MALLOC_FAILED_WARNING);
+
+        case _PARAM_TYPE_INTEGER: {
+            printfn(printfn_arg, "%d\n", parameter_integer_read(p));
+            break;
         }
-        break;
-    }
-    case _PARAM_TYPE_VAR_VECTOR: {
-        int dim = parameter_variable_vector_max_dim(p);
-        float *v = malloc(dim * sizeof(float));
-        if (v) {
-            dim = parameter_variable_vector_read(p, v);
-            print_array(v, dim, printfn, printfn_arg);
-            free(v);
-        } else {
-            printfn(printfn_arg, "[] %s\n", MALLOC_FAILED_WARNING);
+
+        case _PARAM_TYPE_BOOLEAN: {
+            printfn(printfn_arg, "%s\n", parameter_boolean_read(p) ? "true" : "false");
+            break;
         }
-        break;
-    }
+
+        case _PARAM_TYPE_STRING: {
+            int len = parameter_string_max_len(p);
+            char *s = malloc(len);
+            if (s) {
+                parameter_string_read(p, s, len);
+                printfn(printfn_arg, "\"%s\"\n", s);
+                free(s);
+            } else {
+                printfn(printfn_arg, "\"\" %s\n", MALLOC_FAILED_WARNING);
+            }
+            break;
+        }
+
+        case _PARAM_TYPE_VECTOR: {
+            int dim = parameter_vector_dim(p);
+            float *v = malloc(dim * sizeof(float));
+            if (v) {
+                parameter_vector_read(p, v);
+                print_array(v, dim, printfn, printfn_arg);
+                free(v);
+            } else {
+                printfn(printfn_arg, "[] %s\n", MALLOC_FAILED_WARNING);
+            }
+            break;
+        }
+
+        case _PARAM_TYPE_VAR_VECTOR: {
+            int dim = parameter_variable_vector_max_dim(p);
+            float *v = malloc(dim * sizeof(float));
+            if (v) {
+                dim = parameter_variable_vector_read(p, v);
+                print_array(v, dim, printfn, printfn_arg);
+                free(v);
+            } else {
+                printfn(printfn_arg, "[] %s\n", MALLOC_FAILED_WARNING);
+            }
+            break;
+        }
     }
 }
 
