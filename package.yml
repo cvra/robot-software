@@ -1,0 +1,11 @@
+depends:
+  - parameter
+  - crc
+  - test-runner
+
+source:
+  - parameter_flash_storage.c
+
+tests:
+  - tests/flash_mock.cpp
+  - tests/parameter_flash_storage.cpp
