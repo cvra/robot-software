@@ -9,6 +9,7 @@ depends:
   - test-runner
   - msgbus
   - parameter
+  - parameter_flash_storage
   - chibios-syscalls
 
 target.arm:
@@ -26,6 +27,8 @@ target.arm:
   - src/uavcan/parameter_server.cpp
   - src/decawave_interface.c
   - parameter_port.c
+
+target.stm32f4: []
 
 source:
   - src/mpu9250.c

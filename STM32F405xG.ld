@@ -22,7 +22,8 @@
  */
 MEMORY
 {
-    flash : org = 0x08000000, len = 1M
+    flash : org = 0x08000000, len = 896k
+    config : org = 0x080e0000, len = 128k   /* Last sector hold configuration data */
     ram0  : org = 0x20000000, len = 128k    /* SRAM1 + SRAM2 */
     ram1  : org = 0x20000000, len = 112k    /* SRAM1 */
     ram2  : org = 0x2001C000, len = 16k     /* SRAM2 */
@@ -52,5 +53,8 @@ REGION_ALIAS("NOINIT_RAM", ram0);
 
 /* core coupled memory region */
 REGION_ALIAS("CCM_RAM", ram4);
+
+_config_start = ORIGIN(config);
+_config_end = ORIGIN(config) + LENGTH(config);
 
 INCLUDE rules.ld

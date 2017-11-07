@@ -5,6 +5,8 @@
 #include <chprintf.h>
 #include <shell.h>
 
+#include <parameter_flash_storage/parameter_flash_storage.h>
+
 #include "main.h"
 #include "imu_thread.h"
 #include "ahrs_thread.h"
@@ -309,6 +311,49 @@ static void cmd_config_set(BaseSequentialStream *chp, int argc, char **argv)
     }
 }
 
+static void cmd_config_erase(BaseSequentialStream *chp, int argc, char **argv)
+{
+    (void) argc;
+    (void) argv;
+    (void) chp;
+    parameter_flash_storage_erase(&_config_start);
+}
+
+static void cmd_config_save(BaseSequentialStream *chp, int argc, char **argv)
+{
+    (void) argc;
+    (void) argv;
+    size_t len = (size_t)(&_config_end - &_config_start);
+    bool success;
+
+    // First write the config to flash
+    parameter_flash_storage_save(&_config_start, len, &parameter_root);
+
+    // Second try to read it back, see if we failed
+    success = parameter_flash_storage_load(&parameter_root, &_config_start);
+
+    if (success) {
+        chprintf(chp, "OK.\r\n");
+    } else {
+        chprintf(chp, "Save failed.\r\n");
+    }
+}
+
+static void cmd_config_load(BaseSequentialStream *chp, int argc, char **argv)
+{
+    (void) argc;
+    (void) argv;
+    bool success;
+
+    success = parameter_flash_storage_load(&parameter_root, &_config_start);
+
+    if (success) {
+        chprintf(chp, "OK.\r\n");
+    } else {
+        chprintf(chp, "Load failed.\r\n");
+    }
+}
+
 
 static ShellConfig shell_cfg;
 const ShellCommand shell_commands[] = {
@@ -320,6 +365,9 @@ const ShellCommand shell_commands[] = {
     {"range", cmd_range},
     {"config_tree", cmd_config_tree},
     {"config_set", cmd_config_set},
+    {"config_save", cmd_config_save},
+    {"config_load", cmd_config_load},
+    {"config_erase", cmd_config_erase},
     {NULL, NULL}
 };
 

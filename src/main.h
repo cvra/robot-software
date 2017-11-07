@@ -11,6 +11,10 @@ extern "C" {
 extern messagebus_t bus;
 extern parameter_namespace_t parameter_root;
 
+/* Addresses provided by the linker script. */
+extern int _config_start, _config_end;
+
+
 #ifdef __cplusplus
 }
 #endif

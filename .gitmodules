@@ -28,3 +28,6 @@
 [submodule "src/libuavcan"]
 	path = src/libuavcan
 	url = https://github.com/cvra/uavcan
+[submodule "src/parameter_flash_storage"]
+	path = src/parameter_flash_storage
+	url = https://github.com/cvra/parameter_flash_storage
