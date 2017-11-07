@@ -24,7 +24,10 @@
 
 #define FLASH_SR_BSY             (1 << 16)
 
-uint8_t flash_addr_to_sector(void *p)
+static void flash_sector_erase_number(uint8_t sector);
+static uint8_t flash_addr_to_sector(void *p);
+
+static uint8_t flash_addr_to_sector(void *p)
 {
     uint32_t addr = (uint32_t)p;
     uint8_t sector;
@@ -70,35 +73,38 @@ static void flash_wait_while_busy(void)
     }
 }
 
-static void flash_write_byte(uint8_t *flash, uint8_t byte)
+static void flash_enable_programming(void)
 {
-    // activate flash programming
     FLASH_CR |= FLASH_CR_PG;
-    // perform byte write
-    *flash = byte;
+}
 
-    flash_wait_while_busy();
+static void flash_disable_programming(void)
+{
+    FLASH_CR &= ~FLASH_CR_PG;
 }
 
 void flash_write(void *addr, const void *data, size_t len)
 {
     flash_wait_while_busy();
 
+    flash_enable_programming();
+
     /* Note:
      * This is a possible point of optimization of energy/time consumption
-     * Different parallelism size of erase and write operations can be cosen
+     * Different parallelism size of erase and write operations can be chosen
      * depending on the supply voltage. */
     flash_set_parallelism_8x();
 
-    uint8_t *r = (uint8_t *)data;
-    uint8_t *w = (uint8_t *)addr;
+    uint8_t *dst = (uint8_t *)addr;
+    uint8_t *src = (uint8_t *)data;
 
-    while (len-- > 0) {
-        flash_write_byte(w++, *r++);
+    size_t i;
+    for (i = 0; i < len; i++) {
+        dst[i] = src[i];
+        flash_wait_while_busy();
     }
 
-    // clear flags
-    FLASH_CR &= ~FLASH_CR_PG;
+    flash_disable_programming();
 }
 
 void flash_sector_erase(void *addr)
@@ -108,7 +114,7 @@ void flash_sector_erase(void *addr)
     flash_sector_erase_number(sector);
 }
 
-void flash_sector_erase_number(uint8_t sector)
+static void flash_sector_erase_number(uint8_t sector)
 {
     flash_set_parallelism_8x();
 

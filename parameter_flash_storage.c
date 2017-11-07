@@ -2,10 +2,10 @@
 #include "parameter_flash_storage.h"
 #include "parameter_flash_storage_private.h"
 #include "flash.h"
-#include "parameter/parameter_msgpack.h"
-#include "cmp/cmp.h"
-#include "cmp_mem_access/cmp_mem_access.h"
-#include "crc/crc32.h"
+#include <parameter/parameter_msgpack.h>
+#include <cmp/cmp.h>
+#include <cmp_mem_access/cmp_mem_access.h>
+#include <crc/crc32.h>
 
 /* We cannot use a CRC start value of 0 because CRC(0, 0xffffffff) = 0xffffffff
  * which makes empty flash pages valid. */
@@ -44,7 +44,7 @@ void parameter_flash_storage_save(void *dst, size_t dst_len, parameter_namespace
 {
     cmp_ctx_t cmp;
     cmp_mem_access_t mem;
-    uint32_t len;
+    size_t len;
     bool success = true;
 
     void *orig_dst = dst;

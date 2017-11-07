@@ -65,10 +65,8 @@ TEST(ConfigSaveTestCase, SavingConfigWorks)
 
     // Check that the flash writer is used
     // Number of expected written bytes is implementation-dependent
-    // Change if if necessary
-    for (int i = 0; i < 8; i++) {
-        mock("flash").expectOneCall("write");
-    }
+    // Change it if necessary
+    mock("flash").expectNCalls(8, "write");
 
     // Saves the parameter, then change its value
     parameter_flash_storage_save(data, sizeof(data), &ns);
@@ -137,12 +135,8 @@ TEST(ConfigLoadTestCase, CRCIsChecked)
     CHECK_EQUAL(10, parameter_integer_get(&foo));
 }
 
-TEST(ConfigLoadTestCase, InvalidConfigReturnsFalse)
+TEST(ConfigLoadTestCase, FailsIfParameterTreeLayoutDoesNotMatchSavedStructure)
 {
-    // This test checks that loading an invalid config fails, even if the
-    // checksum is correct.
-    // This might be the case if the layout of the parameter tree changes for
-    // example.
     parameter_integer_set(&foo, 20);
     parameter_flash_storage_save(data, sizeof(data), &ns);
 
