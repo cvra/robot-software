@@ -6,6 +6,7 @@
 static const char *exposed_parameters[] = {
     "/publish/imu",
     "/publish/attitude",
+    "/publish/range",
     "/ahrs/beta",
 };
 

@@ -118,7 +118,10 @@ static void frame_tx_done_cb(const dwt_cb_data_t *data)
 static void ranging_found_cb(uint16_t addr, uint64_t time)
 {
     range_msg_t msg;
-    msg.timestamp = ST2MS(chVTGetSystemTime());
+    /* TODO: For some reason the macro ST2US creates an overflow. */
+    uint32_t ts = chVTGetSystemTime() * (1000000 / CH_CFG_ST_FREQUENCY);
+
+    msg.timestamp = ts;
     msg.anchor_addr = addr;
     msg.range = time * SPEED_OF_LIGHT;
 
