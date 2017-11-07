@@ -1,6 +1,6 @@
 #include <string.h>
 #include <cmp_mem_access/cmp_mem_access.h>
-#include <parameter_port.h>
+#include "parameter_port.h"
 #include "parameter_msgpack.h"
 
 
@@ -173,7 +173,7 @@ static int read_parameter_vector(parameter_t *p,
                 return ret;
             }
         }
-        float *buf = PARAMETER_MSGPACK_MALLOC(array_size * sizeof(float));
+        float *buf = parameter_port_buffer_alloc(array_size * sizeof(float));
         if (buf == NULL) {
             err_cb(err_arg, p->id, "warning: allocation failed");
             int ret = discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
@@ -183,11 +183,11 @@ static int read_parameter_vector(parameter_t *p,
         }
         int ret = get_vector(cmp, buf, array_size, err_cb, err_arg, p->id);
         if (ret != 0) {
-            PARAMETER_MSGPACK_FREE(buf);
+            parameter_port_buffer_free(buf);
             return ret;
         }
         parameter_vector_set(p, buf);
-        PARAMETER_MSGPACK_FREE(buf);
+        parameter_port_buffer_free(buf);
     } else {
         err_cb(err_arg, p->id, "warning: type mismatch");
         int ret = discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
@@ -213,7 +213,7 @@ static int read_parameter_var_vector(parameter_t *p,
                 return ret;
             }
         }
-        float *buf = PARAMETER_MSGPACK_MALLOC(array_size * sizeof(float));
+        float *buf = parameter_port_buffer_alloc(array_size * sizeof(float));
         if (buf == NULL) {
             err_cb(err_arg, p->id, "warning: allocation failed");
             int ret = discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
@@ -223,11 +223,11 @@ static int read_parameter_var_vector(parameter_t *p,
         }
         int ret = get_vector(cmp, buf, array_size, err_cb, err_arg, p->id);
         if (ret != 0) {
-            PARAMETER_MSGPACK_FREE(buf);
+            parameter_port_buffer_free(buf);
             return ret;
         }
         parameter_variable_vector_set(p, buf, array_size);
-        PARAMETER_MSGPACK_FREE(buf);
+        parameter_port_buffer_free(buf);
     } else {
         err_cb(err_arg, p->id, "warning: type mismatch");
         int ret = discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
@@ -254,18 +254,18 @@ static int read_parameter_string(parameter_t *p,
         err_cb(err_arg, p->id, "warning: string is too long");
         return discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
     }
-    char *str_buf = PARAMETER_MSGPACK_MALLOC(str_len);
+    char *str_buf = parameter_port_buffer_alloc(str_len);
     if (str_buf == NULL) {
         err_cb(err_arg, p->id, "warning: allocation failed");
         return discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
     }
     if (!cmp->read(cmp, str_buf, str_len)) {
         err_cb(err_arg, p->id, "read error");
-        PARAMETER_MSGPACK_FREE(str_buf);
+        parameter_port_buffer_free(str_buf);
         return -1;
     }
     parameter_string_set_w_len(p, str_buf, str_len);
-    PARAMETER_MSGPACK_FREE(str_buf);
+    parameter_port_buffer_free(str_buf);
     return 0;
 }
 
@@ -308,7 +308,7 @@ static int read_namespace(parameter_namespace_t *ns,
             err_cb(err_arg, NULL, "could not read id");
             return -1;
         }
-        char *id = PARAMETER_MSGPACK_MALLOC(id_size + 1); // +1 for nul term.
+        char *id = parameter_port_buffer_alloc(id_size + 1); // +1 for nul term.
         if (id == NULL) {
             err_cb(err_arg, NULL, "allocation failed");
             return -1;
@@ -316,14 +316,14 @@ static int read_namespace(parameter_namespace_t *ns,
         // read id string
         if (!cmp->read(cmp, id, id_size)) {
             err_cb(err_arg, NULL, "could not read id");
-            PARAMETER_MSGPACK_FREE(id);
+            parameter_port_buffer_free(id);
             return -1;
         }
         id[id_size] = '\0'; // nul termination for error printing
         cmp_object_t obj;
         if (!cmp_read_object(cmp, &obj)) {
             err_cb(err_arg, id, "could not read value");
-            PARAMETER_MSGPACK_FREE(id);
+            parameter_port_buffer_free(id);
             return -1;
         }
         if (cmp_object_is_map(&obj)) { // namespace
@@ -331,7 +331,7 @@ static int read_namespace(parameter_namespace_t *ns,
             if (sub == NULL) {
                 err_cb(err_arg, id, "warning: namespace doesn't exist");
             }
-            PARAMETER_MSGPACK_FREE(id);
+            parameter_port_buffer_free(id);
             if (sub != NULL) {
                 uint32_t map_size;
                 cmp_object_as_map(&obj, &map_size);
@@ -350,7 +350,7 @@ static int read_namespace(parameter_namespace_t *ns,
             if (p == NULL) {
                 err_cb(err_arg, id, "warning: parameter doesn't exist");
             }
-            PARAMETER_MSGPACK_FREE(id);
+            parameter_port_buffer_free(id);
             if (p != NULL) {
                 int ret = read_parameter(p, &obj, cmp, err_cb, err_arg);
                 if (ret != 0) {
@@ -491,9 +491,9 @@ void parameter_msgpack_write_cmp(const parameter_namespace_t *ns,
                                  parameter_msgpack_err_cb err_cb,
                                  void *err_arg)
 {
-    PARAMETER_LOCK();
+    parameter_port_lock();
     parameter_msgpack_write_subtree(ns, cmp, err_cb, err_arg);
-    PARAMETER_UNLOCK();
+    parameter_port_unlock();
 }
 
 /** Saves the given parameter tree to the given buffer as MessagePack. */

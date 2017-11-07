@@ -1,10 +1,10 @@
 #include <string.h>
 #include "parameter.h"
-#include <parameter_port.h>
+#include "parameter_port.h"
 
 /*
- * Synchronization is implemented using the PARAMETER_LOCK() and
- * PARAMETER_UNLOCK() macros provided in the parameter_port.h.
+ * Synchronization is implemented using the parameter_port_lock() and
+ * parameter_port_unlock() macros provided in the parameter_port.h.
  * Synchronization is required in the following places:
  *  - linked-list head pointer of the parameter list in a namespace
  *  - linked-list head pointer of the sub-namespace list in a namespace
@@ -50,9 +50,9 @@ static parameter_namespace_t *get_subnamespace(parameter_namespace_t *ns,
     if (ns_id_len == 0) {
         return ns; // this allows to start with a '/' or have '//' instead of '/'
     }
-    PARAMETER_LOCK();
+    parameter_port_lock();
     parameter_namespace_t *i = ns->subspaces;
-    PARAMETER_UNLOCK();
+    parameter_port_unlock();
     while (i != NULL) {
         if (strncmp(ns_id, i->id, ns_id_len) == 0 && i->id[ns_id_len] == '\0') {
             // if the first ns_id_len bytes of ns_id match with i->id and
@@ -73,9 +73,9 @@ static parameter_t *get_parameter(parameter_namespace_t *ns, const char *id,
     if (param_id_len == 0) {
         return NULL;
     }
-    PARAMETER_LOCK();
+    parameter_port_lock();
     parameter_t *i = ns->parameter_list;
-    PARAMETER_UNLOCK();
+    parameter_port_unlock();
     while (i != NULL) {
         if (strncmp(id, i->id, param_id_len) == 0 && i->id[param_id_len] == '\0') {
             // if the first param_id_len bytes of id match with i->id and
@@ -97,11 +97,11 @@ void parameter_namespace_declare(parameter_namespace_t *ns,
     ns->subspaces = NULL;
     ns->parameter_list = NULL;
     if (parent != NULL) {
-        PARAMETER_LOCK();
+        parameter_port_lock();
         // link into parent namespace
         ns->next = ns->parent->subspaces;
         ns->parent->subspaces = ns;
-        PARAMETER_UNLOCK();
+        parameter_port_unlock();
     } else {
         ns->next = NULL;
     }
@@ -156,26 +156,26 @@ void _parameter_declare(parameter_t *p, parameter_namespace_t *ns,
     p->ns = ns;
     p->changed = false;
     p->defined = false;
-    PARAMETER_LOCK();
+    parameter_port_lock();
     // link into namespace
     p->next = p->ns->parameter_list;
     p->ns->parameter_list = p;
-    PARAMETER_UNLOCK();
+    parameter_port_unlock();
 }
 
 bool parameter_namespace_contains_changed(const parameter_namespace_t *ns)
 {
-    PARAMETER_LOCK();
+    parameter_port_lock();
     uint32_t changed_cnt = ns->changed_cnt;
-    PARAMETER_UNLOCK();
+    parameter_port_unlock();
     return (changed_cnt > 0);
 }
 
 bool parameter_changed(const parameter_t *p)
 {
-    PARAMETER_LOCK();
+    parameter_port_lock();
     bool changed = p->changed;
-    PARAMETER_UNLOCK();
+    parameter_port_unlock();
     return changed;
 }
 
@@ -184,18 +184,18 @@ bool parameter_defined(const parameter_t *p)
     if (p == NULL) {
         return false;
     }
-    PARAMETER_LOCK();
+    parameter_port_lock();
     bool defined = p->defined;
-    PARAMETER_UNLOCK();
+    parameter_port_unlock();
     return defined;
 }
 
 void _parameter_changed_set(parameter_t *p)
 {
-    PARAMETER_LOCK();
+    parameter_port_lock();
     bool changed_was_set = p->changed;
     p->changed = true;
-    PARAMETER_UNLOCK();
+    parameter_port_unlock();
     if (changed_was_set) {
         return;
     }
@@ -203,9 +203,9 @@ void _parameter_changed_set(parameter_t *p)
     // be incremented for the namespaces
     parameter_namespace_t *ns = p->ns;
     while (ns != NULL) {
-        PARAMETER_LOCK();
+        parameter_port_lock();
         ns->changed_cnt++;
-        PARAMETER_UNLOCK();
+        parameter_port_unlock();
         ns = ns->parent;
     }
     p->defined = true;
@@ -213,10 +213,10 @@ void _parameter_changed_set(parameter_t *p)
 
 void _parameter_changed_clear(parameter_t *p)
 {
-    PARAMETER_LOCK();
+    parameter_port_lock();
     bool changed_was_set = p->changed;
     p->changed = false;
-    PARAMETER_UNLOCK();
+    parameter_port_unlock();
     if (!changed_was_set) {
         return;
     }
@@ -224,9 +224,9 @@ void _parameter_changed_clear(parameter_t *p)
     // be decremented for the namespaces
     parameter_namespace_t *ns = p->ns;
     while (ns != NULL) {
-        PARAMETER_LOCK();
+        parameter_port_lock();
         ns->changed_cnt--; // here change counts can temporarily become negative
-        PARAMETER_UNLOCK();
+        parameter_port_unlock();
         ns = ns->parent;
     }
 }
@@ -261,20 +261,20 @@ float parameter_scalar_get(parameter_t *p)
 
 float parameter_scalar_read(parameter_t *p)
 {
-    PARAMETER_ASSERT(p->type == _PARAM_TYPE_SCALAR);
-    PARAMETER_LOCK();
-    PARAMETER_ASSERT(p->defined == true);
+    parameter_port_assert(p->type == _PARAM_TYPE_SCALAR);
+    parameter_port_lock();
+    parameter_port_assert(p->defined == true);
     float ret = p->value.s;
-    PARAMETER_UNLOCK();
+    parameter_port_unlock();
     return ret;
 }
 
 void parameter_scalar_set(parameter_t *p, float value)
 {
-    PARAMETER_ASSERT(p->type == _PARAM_TYPE_SCALAR);
-    PARAMETER_LOCK();
+    parameter_port_assert(p->type == _PARAM_TYPE_SCALAR);
+    parameter_port_lock();
     p->value.s = value;
-    PARAMETER_UNLOCK();
+    parameter_port_unlock();
     _parameter_changed_set(p);
 }
 
@@ -309,20 +309,20 @@ int32_t parameter_integer_get(parameter_t *p)
 
 int32_t parameter_integer_read(parameter_t *p)
 {
-    PARAMETER_ASSERT(p->type == _PARAM_TYPE_INTEGER);
-    PARAMETER_LOCK();
-    PARAMETER_ASSERT(p->defined == true);
+    parameter_port_assert(p->type == _PARAM_TYPE_INTEGER);
+    parameter_port_lock();
+    parameter_port_assert(p->defined == true);
     int32_t ret = p->value.i;
-    PARAMETER_UNLOCK();
+    parameter_port_unlock();
     return ret;
 }
 
 void parameter_integer_set(parameter_t *p, int32_t value)
 {
-    PARAMETER_ASSERT(p->type == _PARAM_TYPE_INTEGER);
-    PARAMETER_LOCK();
+    parameter_port_assert(p->type == _PARAM_TYPE_INTEGER);
+    parameter_port_lock();
     p->value.i = value;
-    PARAMETER_UNLOCK();
+    parameter_port_unlock();
     _parameter_changed_set(p);
 }
 
@@ -347,11 +347,11 @@ void parameter_boolean_declare_with_default(parameter_t *p,
 
 void parameter_boolean_set(parameter_t *p, bool value)
 {
-    PARAMETER_ASSERT(p->type == _PARAM_TYPE_BOOLEAN);
+    parameter_port_assert(p->type == _PARAM_TYPE_BOOLEAN);
 
-    PARAMETER_LOCK();
+    parameter_port_lock();
     p->value.b = value;
-    PARAMETER_UNLOCK();
+    parameter_port_unlock();
     _parameter_changed_set(p);
 }
 
@@ -363,11 +363,11 @@ bool parameter_boolean_get(parameter_t *p)
 
 bool parameter_boolean_read(parameter_t *p)
 {
-    PARAMETER_ASSERT(p->type == _PARAM_TYPE_BOOLEAN);
-    PARAMETER_LOCK();
-    PARAMETER_ASSERT(p->defined == true);
+    parameter_port_assert(p->type == _PARAM_TYPE_BOOLEAN);
+    parameter_port_lock();
+    parameter_port_assert(p->defined == true);
     bool ret = p->value.b;
-    PARAMETER_UNLOCK();
+    parameter_port_unlock();
     return ret;
 }
 
@@ -397,7 +397,7 @@ void parameter_vector_declare_with_default(parameter_t *p,
 
 uint16_t parameter_vector_dim(parameter_t *p)
 {
-    PARAMETER_ASSERT(p->type == _PARAM_TYPE_VECTOR);
+    parameter_port_assert(p->type == _PARAM_TYPE_VECTOR);
     return p->value.vect.dim;
 }
 
@@ -409,25 +409,25 @@ void parameter_vector_get(parameter_t *p, float *out)
 
 void parameter_vector_read(parameter_t *p, float *out)
 {
-    PARAMETER_ASSERT(p->type == _PARAM_TYPE_VECTOR);
-    PARAMETER_LOCK();
-    PARAMETER_ASSERT(p->defined == true);
+    parameter_port_assert(p->type == _PARAM_TYPE_VECTOR);
+    parameter_port_lock();
+    parameter_port_assert(p->defined == true);
     int i;
     for (i = 0; i < p->value.vect.dim; i++) {
         out[i] = p->value.vect.buf[i];
     }
-    PARAMETER_UNLOCK();
+    parameter_port_unlock();
 }
 
 void parameter_vector_set(parameter_t *p, const float *v)
 {
-    PARAMETER_ASSERT(p->type == _PARAM_TYPE_VECTOR);
-    PARAMETER_LOCK();
+    parameter_port_assert(p->type == _PARAM_TYPE_VECTOR);
+    parameter_port_lock();
     int i;
     for (i = 0; i < p->value.vect.dim; i++) {
         p->value.vect.buf[i] = v[i];
     }
-    PARAMETER_UNLOCK();
+    parameter_port_unlock();
     _parameter_changed_set(p);
 }
 
@@ -456,14 +456,14 @@ void parameter_variable_vector_declare_with_default(parameter_t *p,
                                                     uint16_t init_size)
 {
     parameter_variable_vector_declare(p, ns, id , buf, buf_size);
-    PARAMETER_ASSERT(init_size <= buf_size);
+    parameter_port_assert(init_size <= buf_size);
     p->value.vect.dim = init_size;
     _parameter_changed_set(p);
 }
 
 uint16_t parameter_variable_vector_max_dim(parameter_t *p)
 {
-    PARAMETER_ASSERT(p->type == _PARAM_TYPE_VAR_VECTOR);
+    parameter_port_assert(p->type == _PARAM_TYPE_VAR_VECTOR);
     return p->value.vect.buf_dim;
 }
 
@@ -475,29 +475,29 @@ uint16_t parameter_variable_vector_get(parameter_t *p, float *out)
 
 uint16_t parameter_variable_vector_read(parameter_t *p, float *out)
 {
-    PARAMETER_ASSERT(p->type == _PARAM_TYPE_VAR_VECTOR);
-    PARAMETER_LOCK();
-    PARAMETER_ASSERT(p->defined == true);
+    parameter_port_assert(p->type == _PARAM_TYPE_VAR_VECTOR);
+    parameter_port_lock();
+    parameter_port_assert(p->defined == true);
     int i;
     for (i = 0; i < p->value.vect.dim; i++) {
         out[i] = p->value.vect.buf[i];
     }
     uint16_t ret = p->value.vect.dim;
-    PARAMETER_UNLOCK();
+    parameter_port_unlock();
     return ret;
 }
 
 void parameter_variable_vector_set(parameter_t *p, const float *v, uint16_t dim)
 {
-    PARAMETER_ASSERT(p->type == _PARAM_TYPE_VAR_VECTOR);
-    PARAMETER_LOCK();
-    PARAMETER_ASSERT(dim <= p->value.vect.buf_dim);
+    parameter_port_assert(p->type == _PARAM_TYPE_VAR_VECTOR);
+    parameter_port_lock();
+    parameter_port_assert(dim <= p->value.vect.buf_dim);
     int i;
     for (i = 0; i < dim; i++) {
         p->value.vect.buf[i] = v[i];
     }
     p->value.vect.dim = dim;
-    PARAMETER_UNLOCK();
+    parameter_port_unlock();
     _parameter_changed_set(p);
 }
 
@@ -527,14 +527,14 @@ void parameter_string_declare_with_default(parameter_t *p,
 {
     parameter_string_declare(p, ns, id , buf, buf_size);
     p->value.str.len = strlen(default_str);
-    PARAMETER_ASSERT(p->value.str.len <= buf_size);
+    parameter_port_assert(p->value.str.len <= buf_size);
     strncpy(p->value.str.buf, default_str, buf_size);
     _parameter_changed_set(p);
 }
 
 uint16_t parameter_string_max_len(parameter_t *p)
 {
-    PARAMETER_ASSERT(p->type == _PARAM_TYPE_STRING);
+    parameter_port_assert(p->type == _PARAM_TYPE_STRING);
     return p->value.str.buf_len + 1; // +1 for '\0' terminator
 }
 
@@ -546,9 +546,9 @@ uint16_t parameter_string_get(parameter_t *p, char *out, uint16_t out_size)
 
 uint16_t parameter_string_read(parameter_t *p, char *out, uint16_t out_size)
 {
-    PARAMETER_ASSERT(p->type == _PARAM_TYPE_STRING);
-    PARAMETER_LOCK();
-    PARAMETER_ASSERT(p->defined == true);
+    parameter_port_assert(p->type == _PARAM_TYPE_STRING);
+    parameter_port_lock();
+    parameter_port_assert(p->defined == true);
     uint16_t len = p->value.str.len;
     if (out_size > len) {
         memcpy(out, p->value.str.buf, len);
@@ -557,7 +557,7 @@ uint16_t parameter_string_read(parameter_t *p, char *out, uint16_t out_size)
         memcpy(out, p->value.str.buf, out_size-1);
         out[out_size-1] = '\0';
     }
-    PARAMETER_UNLOCK();
+    parameter_port_unlock();
     return len;
 }
 
@@ -568,11 +568,11 @@ void parameter_string_set(parameter_t *p, const char *str)
 
 void parameter_string_set_w_len(parameter_t *p, const char *str, uint16_t len)
 {
-    PARAMETER_ASSERT(p->type == _PARAM_TYPE_STRING);
-    PARAMETER_LOCK();
-    PARAMETER_ASSERT(len <= p->value.str.buf_len);
+    parameter_port_assert(p->type == _PARAM_TYPE_STRING);
+    parameter_port_lock();
+    parameter_port_assert(len <= p->value.str.buf_len);
     memcpy(p->value.str.buf, str, len);
     p->value.str.len = len;
-    PARAMETER_UNLOCK();
+    parameter_port_unlock();
     _parameter_changed_set(p);
 }
