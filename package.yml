@@ -25,6 +25,7 @@ target.arm:
   - src/uavcan/topics_publisher.cpp
   - src/uavcan/parameter_server.cpp
   - src/decawave_interface.c
+  - parameter_port.c
 
 source:
   - src/mpu9250.c
