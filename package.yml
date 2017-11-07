@@ -6,6 +6,9 @@ depends:
 source:
   - parameter_flash_storage.c
 
+target.stm32f4:
+  - flash_f4.c
+
 tests:
   - tests/flash_mock.cpp
   - tests/parameter_flash_storage.cpp
