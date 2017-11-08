@@ -8,6 +8,9 @@ static const char *exposed_parameters[] = {
     "/publish/attitude",
     "/publish/range",
     "/ahrs/beta",
+    "/uwb/mac_addr",
+    "/uwb/pan_id",
+    "/uwb/is_anchor",
 };
 
 static const size_t exposed_parameters_len = sizeof(exposed_parameters) /

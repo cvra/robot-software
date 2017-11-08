@@ -9,15 +9,6 @@
 #include "uwb_protocol.h"
 #include "usbconf.h"
 
-static messagebus_topic_t ranging_topic;
-static MUTEX_DECL(ranging_topic_lock);
-static CONDVAR_DECL(ranging_topic_condvar);
-static range_msg_t ranging_topic_buffer;
-
-static EVENTSOURCE_DECL(advertise_timer_event);
-
-static uwb_protocol_handler_t handler;
-
 #define EVENT_ADVERTISE_TIMER      (1 << 0)
 #define EVENT_UWB_INT              (1 << 1)
 #define UWB_ADVERTISE_TIMER_PERIOD S2ST(1)
@@ -27,6 +18,22 @@ static uwb_protocol_handler_t handler;
 
 /** Speed of light in Decawave units */
 #define SPEED_OF_LIGHT             (299792458.0 / (128 * 499.2e6))
+
+static messagebus_topic_t ranging_topic;
+static MUTEX_DECL(ranging_topic_lock);
+static CONDVAR_DECL(ranging_topic_condvar);
+static range_msg_t ranging_topic_buffer;
+
+static EVENTSOURCE_DECL(advertise_timer_event);
+
+static uwb_protocol_handler_t handler;
+
+static struct {
+    parameter_namespace_t ns;
+    parameter_t mac_addr;
+    parameter_t pan_id;
+    parameter_t is_anchor;
+} uwb_params;
 
 
 int readfromspi(uint16 headerLength, const uint8 *headerBuffer, uint32 readlength,
@@ -108,6 +115,8 @@ static void frame_rx_cb(const dwt_cb_data_t *data)
     dwt_readrxdata(frame, data->datalength, 0);
 
     uwb_process_incoming_frame(&handler, frame, data->datalength, rx_ts);
+
+    dwt_rxenable(DWT_START_RX_IMMEDIATE);
 }
 
 static void frame_tx_done_cb(const dwt_cb_data_t *data)
@@ -147,8 +156,6 @@ static void decawave_thread(void *p)
     chRegSetThreadName("decawave_drv");
 
     uwb_protocol_handler_init(&handler);
-    handler.address = 0xcafe;
-    handler.pan_id = 0xcaff;
     handler.ranging_found_cb = ranging_found_cb;
 
     static SPIConfig spi_cfg = {
@@ -208,6 +215,13 @@ static void decawave_thread(void *p)
                           &ranging_topic_buffer, sizeof(ranging_topic_buffer));
     messagebus_advertise_topic(&bus, &ranging_topic, "/range");
 
+    /* Prepare parameters. */
+    parameter_namespace_declare(&uwb_params.ns, &parameter_root, "uwb");
+    parameter_integer_declare_with_default(&uwb_params.mac_addr, &uwb_params.ns, "mac_addr", 0x00);
+    parameter_integer_declare_with_default(&uwb_params.pan_id, &uwb_params.ns, "pan_id", 0x00);
+    parameter_boolean_declare_with_default(&uwb_params.is_anchor, &uwb_params.ns, "is_anchor",
+                                           false);
+
     dwt_setrxtimeout(0); // Disable RX timeout
     dwt_rxenable(DWT_START_RX_IMMEDIATE);
 
@@ -215,14 +229,20 @@ static void decawave_thread(void *p)
         /* Wait for an interrupt coming from the UWB module. */
         eventmask_t flags = chEvtWaitOne(EVENT_ADVERTISE_TIMER | EVENT_UWB_INT);
 
-        chThdSleepMilliseconds(10);
+        /* Copy parameters */
+        handler.is_anchor = parameter_boolean_get(&uwb_params.is_anchor);
+        handler.address = parameter_integer_get(&uwb_params.mac_addr);
+        handler.pan_id = parameter_integer_get(&uwb_params.pan_id);
 
         if (flags & EVENT_ADVERTISE_TIMER) {
+            if (handler.is_anchor) {
+                /* First disable transceiver */
+                dwt_forcetrxoff();
 
-            dwt_forcetrxoff();
-
-            static uint8_t frame[32];
-            uwb_send_measurement_advertisement(&handler, frame);
+                /* Then send a measurement frame */
+                static uint8_t frame[32];
+                uwb_send_measurement_advertisement(&handler, frame);
+            }
         }
 
         if (flags & EVENT_UWB_INT) {

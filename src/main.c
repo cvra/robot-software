@@ -1,6 +1,7 @@
 #include <ch.h>
 #include <hal.h>
 #include <chprintf.h>
+#include <parameter_flash_storage/parameter_flash_storage.h>
 
 #include "main.h"
 #include "usbconf.h"
@@ -43,15 +44,20 @@ int main(void)
     messagebus_init(&bus, &bus_lock, &bus_condvar);
     parameter_namespace_declare(&parameter_root, NULL, NULL);
 
-    usb_start(boot_config.ID);
-    shell_start((BaseSequentialStream *)&SDU1);
-
     blink_start();
     exti_start();
     imu_start();
     ahrs_start();
     decawave_start();
     uavcan_node_start(boot_config.ID, boot_config.board_name);
+
+    /* Starts USB, this takes about 1 second, as we have to disconnect and
+     * reconnect the device. */
+    usb_start(boot_config.ID);
+    shell_start((BaseSequentialStream *)&SDU1);
+
+    /* All services should be initialized by now, we can load the config. */
+    parameter_flash_storage_load(&parameter_root, &_config_start);
 
     while(true) {
         chThdSleepMilliseconds(1000);
