@@ -7,6 +7,7 @@ extern "C" {
 
 #include <stdint.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 /** Broadcast address. Also work as a PAN ID */
 #define MAC_802_15_4_BROADCAST_ADDR 0xffff
@@ -16,6 +17,7 @@ typedef struct {
     uint16_t pan_id;
     uint16_t address;
     void (*ranging_found_cb)(uint16_t anchor_addr, uint64_t time);
+    bool is_anchor;
 } uwb_protocol_handler_t;
 
 /** Encapsulate frame data into a 802.15.4 MAC data frame.

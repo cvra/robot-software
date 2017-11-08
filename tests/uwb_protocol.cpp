@@ -344,6 +344,20 @@ TEST(RangingProtocol, BadDstAddress)
     uwb_process_incoming_frame(&handler, advertisement_frame, rx_size, ts);
 }
 
+TEST(RangingProtocol, DoNotReplyToadvertisementWhenWeAreAnAnchor)
+{
+    uint64_t ts = 600;
+    auto rx_size = uwb_protocol_prepare_measurement_advertisement(&tx_handler,
+                                                                  ts,
+                                                                  advertisement_frame);
+
+    // Configure the receiving beacon as an anchor
+    handler.is_anchor = true;
+
+    // No reply should be sent, hence no mock() call.
+    uwb_process_incoming_frame(&handler, advertisement_frame, rx_size, ts);
+}
+
 // TODO: If we are an anchor we should not answer to advertisement
 #define UINT40_MAX ((1UL << 40) - 1)
 TEST(RangingProtocol, Overflow)

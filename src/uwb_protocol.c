@@ -13,8 +13,8 @@
 #define UWB_SEQ_NUM_REPLY               1
 #define UWB_SEQ_NUM_FINALIZATION        2
 
-#define UWB_DELAY (15000 * 65536)
-#define MASK_40BIT 0xfffffffe00
+#define UWB_DELAY                       (15000 * 65536)
+#define MASK_40BIT                      0xfffffffe00
 
 static void write_40bit_int(uint64_t val, uint8_t *bytes);
 static uint64_t read_40bit_int(uint8_t *bytes);
@@ -171,29 +171,30 @@ void uwb_process_incoming_frame(uwb_protocol_handler_t *handler,
 
     /* Measurement advertisement */
     if (seq_num == UWB_SEQ_NUM_ADVERTISEMENT) {
-        // TODO how to properly handle this delay
-        uint64_t reply_ts = rx_ts + UWB_DELAY;
+        if (handler->is_anchor == false) {
+            // TODO how to properly handle this delay
+            uint64_t reply_ts = rx_ts + UWB_DELAY;
 
-        reply_ts &= MASK_40BIT;
+            reply_ts &= MASK_40BIT;
 
-        /* Do not change the advertisement TX timestamp, append the reply RX &
-         * TX timestamps. */
-        write_40bit_int(rx_ts, &frame[5]);
-        write_40bit_int(reply_ts, &frame[10]);
-        frame_size += 10;
+            /* Do not change the advertisement TX timestamp, append the reply RX &
+             * TX timestamps. */
+            write_40bit_int(rx_ts, &frame[5]);
+            write_40bit_int(reply_ts, &frame[10]);
+            frame_size += 10;
 
-        /* Encodes an answer back to the source. */
-        dst_addr = src_addr;
-        src_addr = handler->address;
-        frame_size = uwb_mac_encapsulate_frame(pan_id,
-                                               src_addr,
-                                               dst_addr,
-                                               UWB_SEQ_NUM_REPLY,
-                                               frame,
-                                               frame_size);
-        /* Sends the answer. */
-        uwb_transmit_frame(reply_ts, frame, frame_size);
-
+            /* Encodes an answer back to the source. */
+            dst_addr = src_addr;
+            src_addr = handler->address;
+            frame_size = uwb_mac_encapsulate_frame(pan_id,
+                                                   src_addr,
+                                                   dst_addr,
+                                                   UWB_SEQ_NUM_REPLY,
+                                                   frame,
+                                                   frame_size);
+            /* Sends the answer. */
+            uwb_transmit_frame(reply_ts, frame, frame_size);
+        }
     } else if (seq_num == UWB_SEQ_NUM_REPLY) {
         // TODO how to properly handle this delay
         uint64_t reply_ts = rx_ts + UWB_DELAY;
