@@ -4,7 +4,7 @@
 #include "uavcan/topics_publisher.hpp"
 #include "imu_thread.h"
 #include "ahrs_thread.h"
-#include "decawave_interface.h"
+#include "ranging_thread.h"
 
 #include <uavcan/equipment/ahrs/RawIMU.hpp>
 #include <uavcan/equipment/ahrs/Solution.hpp>

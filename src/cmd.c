@@ -10,15 +10,11 @@
 #include "main.h"
 #include "imu_thread.h"
 #include "ahrs_thread.h"
-#include "decadriver/deca_device_api.h"
-#include "decadriver/deca_regs.h"
-#include "decawave_interface.h"
+#include "ranging_thread.h"
 #include "uwb_protocol.h"
 
 #define TEST_WA_SIZE  THD_WORKING_AREA_SIZE(256)
 #define SHELL_WA_SIZE THD_WORKING_AREA_SIZE(2048)
-
-//#define DW1000_SPI_DUMP
 
 static void cmd_reboot(BaseSequentialStream *chp, int argc, char **argv)
 {
