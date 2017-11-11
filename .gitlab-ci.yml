@@ -55,6 +55,7 @@ notebooks:
     - jupyter nbconvert --to notebook --execute "models/Gyro integrating model.ipynb"
     - jupyter nbconvert --to notebook --execute "models/Simple model.ipynb"
     - jupyter nbconvert --to notebook --execute "experiments/Madgwick drift.ipynb"
+    - jupyter nbconvert --to notebook --execute "experiments/UWB only.ipynb"
 
 pdf:
   stage: report
