@@ -80,6 +80,7 @@ source:
     - src/aversive/trajectory_manager/trajectory_manager_utils.c
     - src/scara/lie_groups.c
     - src/scara/joint.c
+    - src/scara/scara_hardware_interface.c
     - src/scara/scara_utils.c
     - src/scara/scara_trajectories.c
     - src/scara/scara_kinematics.c
