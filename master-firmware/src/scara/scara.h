@@ -27,9 +27,8 @@ typedef struct {
     vect2_cart offset_xy; /**< Offset vector between center of robot and shoulder. */
     float offset_rotation; /**< Rotation between the robot base and shoulder in rad. */
 
-    scara_hardware_interface_t hw_interface;
-
-    scara_joint_positions_t joint_positions;
+    scara_hardware_interface_t hw_interface; /**< Hardware interface handling joint IO */
+    scara_joint_positions_t joint_positions; /**< Cached joint positions */
 
     /* Control system */
     pid_ctrl_t x_pid;

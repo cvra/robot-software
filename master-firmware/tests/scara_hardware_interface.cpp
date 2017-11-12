@@ -5,34 +5,42 @@ extern "C" {
 }
 
 namespace {
-    void set_motor_pos(void *m, float value)
+    typedef struct {
+        float pos;
+        float vel;
+    } joint_state_t;
+
+    void set_pos(void *m, float value)
     {
-        *(float *)m = value;
+        joint_state_t * state = (joint_state_t *)m;
+        state->pos = value;
     }
 
-    void set_motor_vel(void *m, float value)
+    void set_vel(void *m, float value)
     {
-        *(float *)m = value;
+        joint_state_t * state = (joint_state_t *)m;
+        state->vel = value;
     }
 
-    float get_motor_pos(void *m)
+    float get_pos(void *m)
     {
-        return *(float *)m;
+        joint_state_t * state = (joint_state_t *)m;
+        return state->pos;
     }
 }
 
 TEST_GROUP(AScaraHWInterface)
 {
     scara_hardware_interface_t hw_interface;
-    float z_pos {0};
-    float shoulder_angle {0};
-    float elbow_angle {0};
+    joint_state_t z_state {0, 0};
+    joint_state_t shoulder_state {0, 0};
+    joint_state_t elbow_state {0, 0};
 
     void setup()
     {
-        joint_set_callbacks(&(hw_interface.z_joint), set_motor_pos, set_motor_vel, get_motor_pos, &z_pos);
-        joint_set_callbacks(&(hw_interface.shoulder_joint), set_motor_pos, set_motor_vel, get_motor_pos, &shoulder_angle);
-        joint_set_callbacks(&(hw_interface.elbow_joint), set_motor_pos, set_motor_vel, get_motor_pos, &elbow_angle);
+        joint_set_callbacks(&(hw_interface.z_joint), set_pos, set_vel, get_pos, &z_state);
+        joint_set_callbacks(&(hw_interface.shoulder_joint), set_pos, set_vel, get_pos, &shoulder_state);
+        joint_set_callbacks(&(hw_interface.elbow_joint), set_pos, set_vel, get_pos, &elbow_state);
     }
 
     void teardown()
@@ -41,9 +49,9 @@ TEST_GROUP(AScaraHWInterface)
 
     void set_non_trivial_joint_states()
     {
-        shoulder_angle = 2;
-        elbow_angle = 3;
-        z_pos = 42;
+        shoulder_state = {1, 2};
+        elbow_state = {3, 4};
+        z_state = {42, 73};
     }
 };
 
@@ -53,9 +61,9 @@ TEST(AScaraHWInterface, ReadsJointPositions)
 
     const auto joint_positions = scara_hw_read_joint_positions(&hw_interface);
 
-    CHECK_EQUAL(shoulder_angle, joint_positions.shoulder);
-    CHECK_EQUAL(elbow_angle, joint_positions.elbow);
-    CHECK_EQUAL(z_pos, joint_positions.z);
+    CHECK_EQUAL(shoulder_state.pos, joint_positions.shoulder);
+    CHECK_EQUAL(elbow_state.pos, joint_positions.elbow);
+    CHECK_EQUAL(z_state.pos, joint_positions.z);
 }
 
 TEST(AScaraHWInterface, StopsJointsWhenAskedToShutdown)
@@ -64,7 +72,32 @@ TEST(AScaraHWInterface, StopsJointsWhenAskedToShutdown)
 
     scara_hw_shutdown_joints(&hw_interface);
 
-    CHECK_EQUAL(0, shoulder_angle);
-    CHECK_EQUAL(0, elbow_angle);
-    CHECK_EQUAL(0, z_pos);
+    CHECK_EQUAL(0, shoulder_state.vel);
+    CHECK_EQUAL(0, elbow_state.vel);
+    CHECK_EQUAL(0, z_state.vel);
+}
+
+TEST(AScaraHWInterface, SetsJointPosition)
+{
+    joint_set(&hw_interface.z_joint, {POSITION, 7});
+
+    CHECK_EQUAL(7, z_state.pos);
+    CHECK_EQUAL(0, z_state.vel);
+}
+
+TEST(AScaraHWInterface, SetsJointVelocity)
+{
+    joint_set(&hw_interface.z_joint, {VELOCITY, 7});
+
+    CHECK_EQUAL(7, z_state.vel);
+    CHECK_EQUAL(0, z_state.pos);
+}
+
+TEST(AScaraHWInterface, SetsAllRequestedJointStates)
+{
+    scara_hw_set_joints(&hw_interface, {.z={POSITION, 7}, .shoulder={VELOCITY, 5}, .elbow={VELOCITY, 3}});
+
+    CHECK_EQUAL(7, z_state.pos);
+    CHECK_EQUAL(5, shoulder_state.vel);
+    CHECK_EQUAL(3, elbow_state.vel);
 }

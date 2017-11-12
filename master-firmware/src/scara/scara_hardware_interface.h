@@ -15,8 +15,16 @@ typedef struct {
     float elbow;
 } scara_joint_positions_t;
 
+typedef struct {
+     joint_setpoint_t z;
+     joint_setpoint_t shoulder;
+     joint_setpoint_t elbow;
+} scara_joint_setpoints_t;
+
 void scara_hw_shutdown_joints(scara_hardware_interface_t* hw_interface);
 
 scara_joint_positions_t scara_hw_read_joint_positions(scara_hardware_interface_t* hw_interface);
+
+void scara_hw_set_joints(scara_hardware_interface_t* hw_interface, scara_joint_setpoints_t setpoints);
 
 #endif

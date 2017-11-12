@@ -175,15 +175,19 @@ void scara_manage(scara_t *arm)
         DEBUG("Arm x %.3f y %.3f Arm velocities %.3f %.3f",
               measured_x, measured_y, velocity_alpha, velocity_beta);
 
-        /* Set motor commands */
-        arm->hw_interface.z_joint.set_position(arm->hw_interface.z_joint.args, frame.position[2]);
-        arm->hw_interface.shoulder_joint.set_velocity(arm->hw_interface.shoulder_joint.args, velocity_alpha);
-        arm->hw_interface.elbow_joint.set_velocity(arm->hw_interface.elbow_joint.args, velocity_beta);
+        scara_joint_setpoints_t joint_setpoints = {
+            .z = {POSITION, frame.position[2]},
+            .shoulder = {VELOCITY, velocity_alpha},
+            .elbow = {VELOCITY, velocity_beta}
+        };
+        scara_hw_set_joints(&arm->hw_interface, joint_setpoints);
     } else {
-        /* Set motor positions */
-        arm->hw_interface.z_joint.set_position(arm->hw_interface.z_joint.args, frame.position[2]);
-        arm->hw_interface.shoulder_joint.set_position(arm->hw_interface.shoulder_joint.args, alpha);
-        arm->hw_interface.elbow_joint.set_position(arm->hw_interface.elbow_joint.args, beta);
+        scara_joint_setpoints_t joint_setpoints = {
+            .z = {POSITION, frame.position[2]},
+            .shoulder = {POSITION, alpha},
+            .elbow = {POSITION, beta}
+        };
+        scara_hw_set_joints(&arm->hw_interface, joint_setpoints);
     }
 
     scara_unlock(&arm->lock);

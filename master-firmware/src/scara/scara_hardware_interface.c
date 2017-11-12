@@ -17,3 +17,10 @@ scara_joint_positions_t scara_hw_read_joint_positions(scara_hardware_interface_t
 
     return joint_positions;
 }
+
+void scara_hw_set_joints(scara_hardware_interface_t* hw_interface, scara_joint_setpoints_t setpoints)
+{
+    joint_set(&hw_interface->z_joint, setpoints.z);
+    joint_set(&hw_interface->shoulder_joint, setpoints.shoulder);
+    joint_set(&hw_interface->elbow_joint, setpoints.elbow);
+}
