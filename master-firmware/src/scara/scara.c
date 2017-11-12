@@ -73,7 +73,7 @@ void scara_move_z(scara_t* arm, float z_new, scara_coordinate_t system, const fl
 void scara_pos(scara_t* arm, float* x, float* y, float* z, scara_coordinate_t system)
 {
     point_t pos;
-    pos = scara_forward_kinematics(arm->shoulder_pos, arm->elbow_pos, arm->length);
+    pos = scara_forward_kinematics(arm->joint_positions.shoulder, arm->joint_positions.elbow, arm->length);
 
     if (system == COORDINATE_ROBOT) {
         pos = scara_coordinate_arm2robot(pos, arm->offset_xy, arm->offset_rotation);
@@ -89,7 +89,7 @@ void scara_pos(scara_t* arm, float* x, float* y, float* z, scara_coordinate_t sy
 
     *x = pos.x;
     *y = pos.y;
-    *z = arm->z_pos;
+    *z = arm->joint_positions.z;
 }
 
 void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj)
@@ -97,13 +97,6 @@ void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj)
     scara_lock(&arm->lock);
     scara_trajectory_copy(&arm->trajectory, traj);
     scara_unlock(&arm->lock);
-}
-
-static void scara_read_joint_positions(scara_t *arm)
-{
-    arm->z_pos = arm->hw_interface.z_joint.get_position(arm->hw_interface.z_joint.args);
-    arm->shoulder_pos = arm->hw_interface.shoulder_joint.get_position(arm->hw_interface.shoulder_joint.args);
-    arm->elbow_pos = arm->hw_interface.elbow_joint.get_position(arm->hw_interface.elbow_joint.args);
 }
 
 bool scara_compute_joint_angles(scara_t* arm, scara_waypoint_t frame, float* alpha, float* beta)
@@ -144,7 +137,7 @@ void scara_manage(scara_t *arm)
 
     scara_lock(&arm->lock);
 
-    scara_read_joint_positions(arm);
+    arm->joint_positions = scara_hw_read_joint_positions(&arm->hw_interface);
 
     if (scara_trajectory_is_empty(&arm->trajectory)) {
         scara_unlock(&arm->lock);
@@ -173,8 +166,8 @@ void scara_manage(scara_t *arm)
         float consign_y = pid_process(&arm->y_pid, measured_y - frame.position[1]);
 
         float velocity_alpha, velocity_beta;
-        scara_jacobian_compute(consign_x, consign_y, arm->shoulder_pos,
-                               arm->elbow_pos, frame.length[0], frame.length[1],
+        scara_jacobian_compute(consign_x, consign_y, arm->joint_positions.shoulder,
+                               arm->joint_positions.elbow, frame.length[0], frame.length[1],
                                &velocity_alpha, &velocity_beta);
 
         scara_pos(arm, &measured_x, &measured_y, &measured_z, frame.coordinate_type);

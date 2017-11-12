@@ -29,10 +29,7 @@ typedef struct {
 
     scara_hardware_interface_t hw_interface;
 
-    /* Motor positions */
-    float z_pos;
-    float shoulder_pos;
-    float elbow_pos;
+    scara_joint_positions_t joint_positions;
 
     /* Control system */
     pid_ctrl_t x_pid;
