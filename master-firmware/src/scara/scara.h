@@ -11,7 +11,7 @@
 
 #include <pid/pid.h>
 
-#include "joint.h"
+#include "scara_hardware_interface.h"
 #include "scara_kinematics.h"
 #include "scara_waypoint.h"
 
@@ -21,15 +21,13 @@ typedef enum {
     CONTROL_JAM_PID_XYA,      /**< Control using jacobian and PIDs on x,y,a, smooth cartesian trajectories. */
 } scara_control_mode_t;
 
+
 /** Scara arm datastruct */
 typedef struct {
     vect2_cart offset_xy; /**< Offset vector between center of robot and shoulder. */
     float offset_rotation; /**< Rotation between the robot base and shoulder in rad. */
 
-    /* Motor joints */
-    joint_t z_joint;
-    joint_t shoulder_joint;
-    joint_t elbow_joint;
+    scara_hardware_interface_t hw_interface;
 
     /* Motor positions */
     float z_pos;
