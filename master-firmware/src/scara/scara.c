@@ -173,17 +173,16 @@ void scara_manage(scara_t *arm)
                                arm->joint_positions.elbow, frame.length[0], frame.length[1],
                                &velocity_alpha, &velocity_beta);
 
-        scara_pos(arm, &measured_x, &measured_y, &measured_z, frame.coordinate_type);
-
-        DEBUG("Arm x %.3f y %.3f Arm velocities %.3f %.3f",
-              measured_x, measured_y, velocity_alpha, velocity_beta);
-
         scara_joint_setpoints_t joint_setpoints = {
             .z = {POSITION, frame.position[2]},
             .shoulder = {VELOCITY, velocity_alpha},
             .elbow = {VELOCITY, velocity_beta}
         };
         scara_hw_set_joints(&arm->hw_interface, joint_setpoints);
+
+        scara_pos(arm, &measured_x, &measured_y, &measured_z, frame.coordinate_type);
+        DEBUG("Arm x %.3f y %.3f Arm velocities %.3f %.3f",
+              measured_x, measured_y, joint_setpoints.shoulder.value, joint_setpoints.elbow.value);
     } else {
         scara_joint_positions_t joints_desired = {
             .z = frame.position[2], .shoulder = alpha, .elbow = beta
