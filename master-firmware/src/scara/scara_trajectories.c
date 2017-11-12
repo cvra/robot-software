@@ -53,7 +53,7 @@ void scara_trajectory_append_point(scara_trajectory_t *traj, const float x, cons
 
 void scara_trajectory_delete(scara_trajectory_t *traj)
 {
-    if (traj->frame_count != 0) {
+    if (!scara_trajectory_is_empty(traj)) {
         traj->frame_count = 0;
     }
 }
@@ -68,7 +68,7 @@ int scara_trajectory_finished(scara_trajectory_t *traj)
 {
     int last_frame = traj->frame_count - 1;
 
-    if (traj->frame_count == 0) {
+    if (scara_trajectory_is_empty(traj)) {
         return 1;
     }
 
@@ -77,6 +77,11 @@ int scara_trajectory_finished(scara_trajectory_t *traj)
     }
 
     return 0;
+}
+
+bool scara_trajectory_is_empty(scara_trajectory_t* trajectory)
+{
+    return trajectory->frame_count == 0;
 }
 
 scara_waypoint_t scara_trajectory_interpolate_waypoints(scara_waypoint_t k1, scara_waypoint_t k2, int32_t date)

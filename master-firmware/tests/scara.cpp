@@ -29,7 +29,7 @@ float get_motor_pos(void *m)
 }
 
 
-TEST_GROUP(ArmTestGroup)
+TEST_BASE(ArmTestGroupBase)
 {
     scara_t arm;
     scara_trajectory_t traj;
@@ -62,13 +62,18 @@ TEST_GROUP(ArmTestGroup)
     }
 };
 
-TEST(ArmTestGroup, ShoulderModeIsSetToBack)
+TEST_GROUP_BASE(AScaraArm, ArmTestGroupBase)
+{
+
+};
+
+TEST(AScaraArm, DefaultsToShoulderAtTheBack)
 {
     scara_init(&arm);
     CHECK_EQUAL(SHOULDER_BACK, arm.shoulder_mode);
 }
 
-TEST(ArmTestGroup, PhysicalParametersMakeSense)
+TEST(AScaraArm, SetsPhysicalParameters)
 {
     scara_set_physical_parameters(&arm, 100, 50);
 
@@ -77,7 +82,7 @@ TEST(ArmTestGroup, PhysicalParametersMakeSense)
     CHECK_EQUAL(50, arm.length[1]);
 }
 
-TEST(ArmTestGroup, ExecuteTrajectoryCopiesData)
+TEST(AScaraArm, CopiesDataBeforeExecutingTrajectory)
 {
     scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 1., arbitraryLengths);
     scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10., arbitraryLengths);
@@ -87,7 +92,7 @@ TEST(ArmTestGroup, ExecuteTrajectoryCopiesData)
     CHECK(0 == memcmp(traj.frames, arm.trajectory.frames, sizeof(scara_waypoint_t) * traj.frame_count));
 }
 
-TEST(ArmTestGroup, ExecuteTrajectoryIsAtomic)
+TEST(AScaraArm, TrajectoryExecutionIsAtomic)
 {
     lock_mocks_enable(true);
     mock().expectOneCall("chMtxLock").withPointerParameter("lock", &arm.lock);
@@ -95,7 +100,7 @@ TEST(ArmTestGroup, ExecuteTrajectoryIsAtomic)
     scara_do_trajectory(&arm, &traj);
 }
 
-TEST(ArmTestGroup, ArmManageIsAtomic)
+TEST(AScaraArm, ManageExecutionIsAtomic)
 {
     scara_trajectory_append_point(&traj, 60, 60, 10, COORDINATE_ARM, 1., arbitraryLengths);
     scara_trajectory_append_point(&traj, 60, 60, 10, COORDINATE_ARM, 10., arbitraryLengths);
@@ -107,7 +112,7 @@ TEST(ArmTestGroup, ArmManageIsAtomic)
     scara_manage(&arm);
 }
 
-TEST(ArmTestGroup, ArmManageIsAtomicWithEmptyTraj)
+TEST(AScaraArm, ManageExecutionIsAtomicWithEmptyTraj)
 {
     scara_do_trajectory(&arm, &traj);
 
@@ -118,7 +123,7 @@ TEST(ArmTestGroup, ArmManageIsAtomicWithEmptyTraj)
     scara_manage(&arm);
 }
 
-TEST(ArmTestGroup, ArmManageIsAtomicWithUnreachableTarget)
+TEST(AScaraArm, ManageExecutionIsAtomicWithUnreachableTarget)
 {
     scara_trajectory_append_point(&traj, 10000, 10000, 10, COORDINATE_ARM, 1., arbitraryLengths);
     scara_do_trajectory(&arm, &traj);
@@ -129,7 +134,7 @@ TEST(ArmTestGroup, ArmManageIsAtomicWithUnreachableTarget)
     scara_manage(&arm);
 }
 
-TEST(ArmTestGroup, ArmManageChangesConsign)
+TEST(AScaraArm, UpdatesConsignOverTime)
 {
     scara_trajectory_init(&traj);
     scara_trajectory_append_point(&traj, 100, 100, 10, COORDINATE_ARM, 1., arbitraryLengths);
@@ -141,7 +146,7 @@ TEST(ArmTestGroup, ArmManageChangesConsign)
     CHECK(0 != elbow_angle);
 }
 
-TEST(ArmTestGroup, CurrentPointComputation)
+TEST(AScaraArm, ComputesDesiredPointForCurrentTime)
 {
     scara_waypoint_t result;
     const int32_t date = 5 * 1000000;
@@ -154,7 +159,7 @@ TEST(ArmTestGroup, CurrentPointComputation)
     DOUBLES_EQUAL(result.position[0], 5., 0.1);
 }
 
-TEST(ArmTestGroup, CurrentPointSelectFrame)
+TEST(AScaraArm, SelectsAppropriatePointToExecuteForCurrentTime)
 {
     scara_waypoint_t result;
     const int32_t date = 15 * 1000000;
@@ -167,7 +172,7 @@ TEST(ArmTestGroup, CurrentPointSelectFrame)
     DOUBLES_EQUAL(25, result.position[1], 0.1);
 }
 
-TEST(ArmTestGroup, CurrentPointPastEnd)
+TEST(AScaraArm, SelectsLastTrajectoryPointWhenTimeHasPassedTheEnd)
 {
     scara_waypoint_t result;
     const int32_t date = 25 * 1000000;
@@ -180,7 +185,7 @@ TEST(ArmTestGroup, CurrentPointPastEnd)
     DOUBLES_EQUAL(30, result.position[1], 0.1);
 }
 
-TEST(ArmTestGroup, MixedCoordinateSystems)
+TEST(AScaraArm, SelectsCorrectPointWhenTrajectoryPointsSpecifiedInOtherCoordinateSystems)
 {
     scara_waypoint_t result;
     const int32_t date = 5 * 1000000;
@@ -194,14 +199,14 @@ TEST(ArmTestGroup, MixedCoordinateSystems)
     DOUBLES_EQUAL(-5, result.position[1], 0.1);
 }
 
-TEST(ArmTestGroup, CanSetRelatedRobotPosition)
+TEST(AScaraArm, SetsRelatedRobotPosition)
 {
     struct robot_position pos;
     scara_set_related_robot_pos(&arm, &pos);
     POINTERS_EQUAL(arm.robot_pos, &pos);
 }
 
-TEST(ArmTestGroup, TableCoordinateSystem)
+TEST(AScaraArm, SelectsCorrectPointWhenGivenTrajectoryInTableCoordinateSystem)
 {
     scara_waypoint_t result;
     struct robot_position pos;
@@ -223,7 +228,7 @@ TEST(ArmTestGroup, TableCoordinateSystem)
     DOUBLES_EQUAL(-15, result.position[1], 0.1);
 }
 
-TEST(ArmTestGroup, TrajectoriesFirstPointTableNotHandledCorrectly)
+TEST(AScaraArm, TrajectoriesFirstPointTableNotHandledCorrectly)
 {
     /* This tests shows a bug where the trajectory for the case where
      * a coordinate in table or robot frame is not handled correctly past
@@ -240,7 +245,7 @@ TEST(ArmTestGroup, TrajectoriesFirstPointTableNotHandledCorrectly)
     DOUBLES_EQUAL(-10, result.position[1], 0.1);
 }
 
-TEST(ArmTestGroup, LengthAreInterpolated)
+TEST(AScaraArm, InterpolatesLengthsWhenTheyChangeBetweenWaypoints)
 {
     scara_waypoint_t result;
     const int32_t date = 5 * 1000000;
@@ -258,13 +263,13 @@ TEST(ArmTestGroup, LengthAreInterpolated)
 
 
 
-TEST_GROUP(JacobianTestGroup)
+TEST_GROUP(AScaraJacobian)
 {
 
 };
 
 /* See doc/Debra Kinematics.ipynb for values. */
-TEST(JacobianTestGroup, SmokeTest)
+TEST(AScaraJacobian, ComputesCorrectly)
 {
     float f_x = 1, f_y = 1;
     float alpha = 0.2, beta = -0.2;
@@ -277,7 +282,7 @@ TEST(JacobianTestGroup, SmokeTest)
     DOUBLES_EQUAL(0.07751386, torque_beta, 1e-3);
 }
 
-TEST(JacobianTestGroup, TestSingularity)
+TEST(AScaraJacobian, ComputesCorrectlyCloseToSingularity)
 {
     float f_x = 1, f_y = 1;
     float alpha = 0.2e-3, beta = -0.2e-3;
@@ -288,4 +293,55 @@ TEST(JacobianTestGroup, TestSingularity)
 
     DOUBLES_EQUAL(0.00076903, torque_alpha, 1e-3);
     DOUBLES_EQUAL(0.00384607, torque_beta, 1e-3);
+}
+
+
+TEST_GROUP_BASE(AScaraJointAnglesComputer, ArmTestGroupBase)
+{
+    float alpha, beta;
+
+    scara_waypoint_t target(float x, float y)
+    {
+        return {.date = 0, .position = {x, y, 0}, .coordinate_type = COORDINATE_ARM, .length = {arbitraryLengths[0], arbitraryLengths[1]}};
+    }
+};
+
+TEST(AScaraJointAnglesComputer, failsWhenNoSolutionFound)
+{
+    scara_waypoint_t unreachable_target = target(200, 0);
+
+    bool solution_found = scara_compute_joint_angles(&arm, unreachable_target, &alpha, &beta);
+
+    CHECK_FALSE(solution_found);
+}
+
+TEST(AScaraJointAnglesComputer, choosesASolutionWhenMoreThanOnePossibility)
+{
+    scara_waypoint_t ambiguous_target = target(120, 0);
+
+    bool solution_found = scara_compute_joint_angles(&arm, ambiguous_target, &alpha, &beta);
+
+    CHECK_TRUE(solution_found);
+    DOUBLES_EQUAL(0.5, alpha, 0.1);
+    DOUBLES_EQUAL(-1.379634, beta, 0.1);
+}
+
+TEST(AScaraJointAnglesComputer, wrapsBetaWhenLowerThanMinusPi)
+{
+    scara_waypoint_t valid_target = target(-arbitraryLengths[0], arbitraryLengths[1]);
+
+    bool solution_found = scara_compute_joint_angles(&arm, valid_target, &alpha, &beta);
+
+    CHECK_TRUE(solution_found);
+    DOUBLES_EQUAL(0.5 * M_PI, beta, 0.1);
+}
+
+TEST(AScaraJointAnglesComputer, wrapsBetaWhenHigherThanMinusPi)
+{
+    scara_waypoint_t valid_target = target(-arbitraryLengths[0], -arbitraryLengths[1]);
+
+    bool solution_found = scara_compute_joint_angles(&arm, valid_target, &alpha, &beta);
+
+    CHECK_TRUE(solution_found);
+    DOUBLES_EQUAL(- 0.5 * M_PI, beta, 0.1);
 }
