@@ -7,6 +7,7 @@
 #include "scara_utils.h"
 #include "scara_port.h"
 #include "scara_jacobian.h"
+#include "control/scara_joint_controller.h"
 
 static void scara_lock(mutex_t* mutex)
 {
@@ -184,11 +185,11 @@ void scara_manage(scara_t *arm)
         };
         scara_hw_set_joints(&arm->hw_interface, joint_setpoints);
     } else {
-        scara_joint_setpoints_t joint_setpoints = {
-            .z = {POSITION, frame.position[2]},
-            .shoulder = {POSITION, alpha},
-            .elbow = {POSITION, beta}
+        scara_joint_positions_t joints_desired = {
+            .z = frame.position[2], .shoulder = alpha, .elbow = beta
         };
+        scara_joint_setpoints_t joint_setpoints =
+            scara_joint_controller_process(joints_desired, arm->joint_positions);
         scara_hw_set_joints(&arm->hw_interface, joint_setpoints);
     }
 
