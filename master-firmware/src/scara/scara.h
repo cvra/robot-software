@@ -90,5 +90,6 @@ void scara_set_related_robot_pos(scara_t *arm, struct robot_position *pos);
 void scara_shutdown(scara_t *arm);
 
 void scara_pause(scara_t* arm);
+void scara_continue(scara_t* arm);
 
 #endif

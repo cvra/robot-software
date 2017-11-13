@@ -326,8 +326,6 @@ TEST(AScaraArmPause, PauseCachesPausedTrajectory)
 
 TEST(AScaraArmPause, PauseIsThreadSafe)
 {
-    doTrajectory();
-
     lock_mocks_enable(true);
     mock().expectOneCall("chMtxLock").withPointerParameter("lock", &arm.lock);
     mock().expectOneCall("chMtxUnlock").withPointerParameter("lock", &arm.lock);
@@ -344,6 +342,61 @@ TEST(AScaraArmPause, PausingMultipleTimesDoesNotOverwriteCachedTrajectory)
     scara_pause(&arm);
 
     checkTrajectoryEqual(traj, arm.previous_trajectory);
+}
+
+TEST(AScaraArmPause, ContinueRestoresTrajectory)
+{
+    doTrajectory();
+    scara_pause(&arm);
+
+    scara_continue(&arm);
+
+    checkTrajectoryEqual(traj, arm.trajectory);
+}
+
+TEST(AScaraArmPause, CanPauseAgainAfterContinue)
+{
+    doTrajectory();
+    scara_pause(&arm);
+    scara_continue(&arm);
+
+    scara_pause(&arm);
+
+    CHECK_EQUAL(1, arm.trajectory.frame_count);
+    checkFrameEqual(traj.frames[1], arm.trajectory.frames[0]);
+}
+
+TEST(AScaraArmPause, CanNotContinueIfNotPaused)
+{
+    doTrajectory();
+
+    scara_continue(&arm);
+
+    checkTrajectoryEqual(traj, arm.trajectory);
+}
+
+TEST(AScaraArmPause, ContinueIsThreadSafe)
+{
+    lock_mocks_enable(true);
+    mock().expectOneCall("chMtxLock").withPointerParameter("lock", &arm.lock);
+    mock().expectOneCall("chMtxUnlock").withPointerParameter("lock", &arm.lock);
+
+    scara_continue(&arm);
+}
+
+TEST(AScaraArmPause, ContinueStartsBackAtPausedWaypoint)
+{
+    doTrajectory();
+    scara_pause(&arm);
+
+    scara_time_set(2 * 1e6);
+    scara_continue(&arm);
+
+    int32_t current_date = scara_time_get() + arm.time_offset;
+    scara_waypoint_t frame = scara_position_for_date(&arm, current_date);
+
+    CHECK_EQUAL(-1 * 1e6, arm.time_offset);
+    checkFrameEqual(traj.frames[1], frame);
 }
 
 
