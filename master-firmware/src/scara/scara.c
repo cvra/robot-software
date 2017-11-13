@@ -246,20 +246,27 @@ void scara_shutdown(scara_t *arm)
     scara_trajectory_delete(&arm->trajectory);
 }
 
+static bool scara_is_paused(scara_t* arm)
+{
+    return !scara_trajectory_is_empty(&arm->previous_trajectory);
+}
+
 void scara_pause(scara_t* arm)
 {
     scara_lock(&arm->lock);
 
-    arm->time_offset = scara_time_get();
+    if (!scara_is_paused(arm)) {
+        arm->time_offset = scara_time_get();
 
-    scara_trajectory_copy(&arm->previous_trajectory, &arm->trajectory);
+        scara_trajectory_copy(&arm->previous_trajectory, &arm->trajectory);
 
-    scara_waypoint_t current_pos = scara_position_for_date(arm, arm->time_offset);
-    scara_trajectory_delete(&arm->trajectory);
-    scara_trajectory_append_point(
-        &arm->trajectory, current_pos.position[0], current_pos.position[1],
-        current_pos.position[2], current_pos.coordinate_type,
-        current_pos.date / 1e6, &current_pos.length[0]);
+        scara_waypoint_t current_pos = scara_position_for_date(arm, arm->time_offset);
+        scara_trajectory_delete(&arm->trajectory);
+        scara_trajectory_append_point(
+            &arm->trajectory, current_pos.position[0], current_pos.position[1],
+            current_pos.position[2], current_pos.coordinate_type,
+            current_pos.date / 1e6, &current_pos.length[0]);
+    }
 
     scara_unlock(&arm->lock);
 }

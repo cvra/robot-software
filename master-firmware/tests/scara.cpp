@@ -335,6 +335,17 @@ TEST(AScaraArmPause, PauseIsThreadSafe)
     scara_pause(&arm);
 }
 
+TEST(AScaraArmPause, PausingMultipleTimesDoesNotOverwriteCachedTrajectory)
+{
+    doTrajectory();
+
+    scara_pause(&arm);
+    scara_pause(&arm);
+    scara_pause(&arm);
+
+    checkTrajectoryEqual(traj, arm.previous_trajectory);
+}
+
 
 TEST_GROUP(AScaraJacobian)
 {
