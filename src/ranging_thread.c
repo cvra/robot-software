@@ -30,6 +30,13 @@ static messagebus_topic_t ranging_topic;
 static MUTEX_DECL(ranging_topic_lock);
 static CONDVAR_DECL(ranging_topic_condvar);
 static range_msg_t ranging_topic_buffer;
+
+static messagebus_topic_t anchor_position_topic;
+static MUTEX_DECL(anchor_position_topic_lock);
+static CONDVAR_DECL(anchor_position_topic_condvar);
+static anchor_position_msg_t anchor_position_topic_buffer;
+
+
 static EVENTSOURCE_DECL(advertise_timer_event);
 static EVENTSOURCE_DECL(anchor_position_timer_event);
 
@@ -49,6 +56,7 @@ static struct {
 
 static void ranging_thread(void *p);
 static void ranging_found_cb(uint16_t addr, uint64_t time);
+static void anchor_position_received_cb(uint16_t addr, float x, float y, float z);
 static void topics_init(void);
 static void parameters_init(void);
 static void hardware_init(void);
@@ -72,6 +80,7 @@ static void ranging_thread(void *p)
 
     uwb_protocol_handler_init(&handler);
     handler.ranging_found_cb = ranging_found_cb;
+    handler.anchor_position_received_cb = anchor_position_received_cb;
 
     parameters_init();
     topics_init();
@@ -126,6 +135,22 @@ static void frame_rx_cb(const dwt_cb_data_t *data)
     uwb_process_incoming_frame(&handler, frame, data->datalength, rx_ts);
 
     dwt_rxenable(DWT_START_RX_IMMEDIATE);
+}
+
+static void anchor_position_received_cb(uint16_t addr, float x, float y, float z)
+{
+    anchor_position_msg_t msg;
+
+    /* TODO: For some reason the macro ST2US creates an overflow. */
+    uint32_t ts = chVTGetSystemTime() * (1000000 / CH_CFG_ST_FREQUENCY);
+
+    msg.timestamp = ts;
+    msg.anchor_addr = addr;
+    msg.x = x;
+    msg.y = y;
+    msg.z = z;
+
+    messagebus_topic_publish(&anchor_position_topic, &msg, sizeof(msg));
 }
 
 static void ranging_found_cb(uint16_t addr, uint64_t time)
@@ -185,6 +210,12 @@ static void topics_init(void)
     messagebus_topic_init(&ranging_topic, &ranging_topic_lock, &ranging_topic_condvar,
                           &ranging_topic_buffer, sizeof(ranging_topic_buffer));
     messagebus_advertise_topic(&bus, &ranging_topic, "/range");
+
+    /* Prepare topic for anchor positions */
+    messagebus_topic_init(&anchor_position_topic, &anchor_position_topic_lock, &anchor_position_topic_condvar,
+                          &anchor_position_topic_buffer, sizeof(anchor_position_topic_buffer));
+    messagebus_advertise_topic(&bus, &anchor_position_topic, "/anchors_pos");
+
 }
 
 static void hardware_init(void)
