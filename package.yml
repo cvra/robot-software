@@ -1,6 +1,7 @@
 dependency-dir: ./src
 include_directories:
   - src/
+  - src/eigen
 
 depends:
   - crc
@@ -43,6 +44,7 @@ tests:
   - tests/hal_mocks.cpp
   - tests/decawave.cpp
   - tests/uwb_protocol.cpp
+  - tests/ekf.cpp
 
 templates:
   app_src.mk.jinja: app_src.mk

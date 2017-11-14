@@ -31,3 +31,6 @@
 [submodule "src/parameter_flash_storage"]
 	path = src/parameter_flash_storage
 	url = https://github.com/cvra/parameter_flash_storage
+[submodule "src/eigen"]
+	path = src/eigen
+	url = https://github.com/cvra/eigen
