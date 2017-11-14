@@ -1,5 +1,6 @@
 #include <uavcan/uavcan.hpp>
 #include <uavcan/protocol/param_server.hpp>
+#include <parameter_flash_storage/parameter_flash_storage.h>
 #include "main.h"
 #include "parameter_server.hpp"
 
@@ -95,13 +96,19 @@ public:
 /**
  * Save all params to non-volatile storage.
  * @return Negative if failed.
- *
- * @note Not supported on motor board, always return -1.
  */
     int saveAllParams()
     {
-        /* Not supported. */
-        return -uavcan::ErrDriver;
+        size_t len = (size_t)(&_config_end - &_config_start);
+        // First write the config to flash
+        parameter_flash_storage_save(&_config_start, len, &parameter_root);
+
+        // Second try to read it back, see if we failed
+        if(!parameter_flash_storage_load(&parameter_root, &_config_start)) {
+            return -uavcan::ErrDriver;
+        }
+
+        return 0;
     }
 
 /**
@@ -112,8 +119,8 @@ public:
  */
     int eraseAllParams()
     {
-        /* Not supported. */
-        return -uavcan::ErrDriver;
+        parameter_flash_storage_erase(&_config_start);
+        return 0;
     }
 };
 
