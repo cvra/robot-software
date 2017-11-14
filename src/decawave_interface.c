@@ -74,9 +74,14 @@ void uwb_transmit_frame(uint64_t tx_timestamp, uint8_t *frame, size_t frame_size
     dwt_writetxdata(frame_size, frame, 0); /* Zero offset in TX buffer. */
     dwt_writetxfctrl(frame_size, 0, 0); /* Zero offset in TX buffer. */
 
-    dwt_setdelayedtrxtime(tx_timestamp >> 8);
     dwt_setrxaftertxdelay(0);
-    dwt_starttx(DWT_START_TX_DELAYED | DWT_RESPONSE_EXPECTED );
+
+    if (tx_timestamp == UWB_TX_TIMESTAMP_IMMEDIATE) {
+        dwt_starttx(DWT_RESPONSE_EXPECTED);
+    } else {
+        dwt_setdelayedtrxtime(tx_timestamp >> 8);
+        dwt_starttx(DWT_START_TX_DELAYED | DWT_RESPONSE_EXPECTED );
+    }
 }
 
 

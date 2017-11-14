@@ -16,9 +16,12 @@
 /* Default antenna delay values for 64 MHz PRF. */
 #define RX_ANT_DLY                 2 * 16436
 
-#define EVENT_ADVERTISE_TIMER      (1 << 0)
-#define EVENT_UWB_INT              (1 << 1)
-#define UWB_ADVERTISE_TIMER_PERIOD S2ST(1)
+#define EVENT_UWB_INT               (1 << 0)
+#define EVENT_ADVERTISE_TIMER       (1 << 1)
+#define EVENT_ANCHOR_POSITION_TIMER (1 << 2)
+
+#define UWB_ADVERTISE_TIMER_PERIOD      MS2ST(250)
+#define UWB_ANCHOR_POSITION_TIMER_PERIOD S2ST(1)
 
 
 static uwb_protocol_handler_t handler;
@@ -28,12 +31,20 @@ static MUTEX_DECL(ranging_topic_lock);
 static CONDVAR_DECL(ranging_topic_condvar);
 static range_msg_t ranging_topic_buffer;
 static EVENTSOURCE_DECL(advertise_timer_event);
+static EVENTSOURCE_DECL(anchor_position_timer_event);
 
 static struct {
     parameter_namespace_t ns;
     parameter_t mac_addr;
     parameter_t pan_id;
-    parameter_t is_anchor;
+    struct {
+        parameter_namespace_t ns;
+        parameter_t is_anchor;
+        struct {
+            parameter_namespace_t ns;
+            parameter_t x,y,z;
+        } position;
+    } anchor;
 } uwb_params;
 
 static void ranging_thread(void *p);
@@ -44,6 +55,7 @@ static void hardware_init(void);
 static void events_init(void);
 
 static void advertise_timer_cb(void *t);
+static void anchor_position_timer_cb(void *t);
 static void frame_tx_done_cb(const dwt_cb_data_t *data);
 static void frame_rx_cb(const dwt_cb_data_t *data);
 
@@ -66,12 +78,14 @@ static void ranging_thread(void *p)
     hardware_init();
     events_init();
 
+    static uint8_t frame[64];
+
     while (1) {
         /* Wait for an interrupt coming from the UWB module. */
-        eventmask_t flags = chEvtWaitOne(EVENT_ADVERTISE_TIMER | EVENT_UWB_INT);
+        eventmask_t flags = chEvtWaitOne(ALL_EVENTS);
 
         /* Copy parameters */
-        handler.is_anchor = parameter_boolean_get(&uwb_params.is_anchor);
+        handler.is_anchor = parameter_boolean_get(&uwb_params.anchor.is_anchor);
         handler.address = parameter_integer_get(&uwb_params.mac_addr);
         handler.pan_id = parameter_integer_get(&uwb_params.pan_id);
 
@@ -81,12 +95,14 @@ static void ranging_thread(void *p)
                 dwt_forcetrxoff();
 
                 /* Then send a measurement frame */
-                static uint8_t frame[32];
                 uwb_send_measurement_advertisement(&handler, frame);
             }
-        }
+        } else if (flags & EVENT_ANCHOR_POSITION_TIMER) {
+            /* First disable transceiver */
+            dwt_forcetrxoff();
 
-        if (flags & EVENT_UWB_INT) {
+            uwb_send_anchor_position(&handler, 10, 20, 30, frame);
+        } else if (flags & EVENT_UWB_INT) {
             /* Process the interrupt. */
             dwt_isr();
         }
@@ -137,6 +153,15 @@ static void advertise_timer_cb(void *t)
     chSysUnlockFromISR();
 }
 
+static void anchor_position_timer_cb(void *t)
+{
+    virtual_timer_t *timer = (virtual_timer_t *)t;
+
+    chSysLockFromISR();
+    chVTSetI(timer, UWB_ANCHOR_POSITION_TIMER_PERIOD, anchor_position_timer_cb, t);
+    chEvtBroadcastI(&anchor_position_timer_event);
+    chSysUnlockFromISR();
+}
 
 static void parameters_init(void)
 {
@@ -144,8 +169,14 @@ static void parameters_init(void)
     parameter_namespace_declare(&uwb_params.ns, &parameter_root, "uwb");
     parameter_integer_declare_with_default(&uwb_params.mac_addr, &uwb_params.ns, "mac_addr", 0x00);
     parameter_integer_declare_with_default(&uwb_params.pan_id, &uwb_params.ns, "pan_id", 0x00);
-    parameter_boolean_declare_with_default(&uwb_params.is_anchor, &uwb_params.ns, "is_anchor",
+
+    parameter_namespace_declare(&uwb_params.anchor.ns, &uwb_params.ns, "anchor");
+    parameter_boolean_declare_with_default(&uwb_params.anchor.is_anchor, &uwb_params.anchor.ns, "is_anchor",
                                            false);
+    parameter_namespace_declare(&uwb_params.anchor.position.ns, &uwb_params.anchor.ns, "position");
+    parameter_scalar_declare_with_default(&uwb_params.anchor.position.x, &uwb_params.anchor.position.ns, "x", 0.);
+    parameter_scalar_declare_with_default(&uwb_params.anchor.position.y, &uwb_params.anchor.position.ns, "y", 0.);
+    parameter_scalar_declare_with_default(&uwb_params.anchor.position.z, &uwb_params.anchor.position.ns, "z", 0.);
 }
 
 static void topics_init(void)
@@ -171,13 +202,19 @@ static void hardware_init(void)
 
 static void events_init(void)
 {
-    /* Setup a virtual timer to fire each second. */
+    /* Setup a virtual timer to schedule measurement advertisement. */
     static virtual_timer_t advertise_timer;
     chVTObjectInit(&advertise_timer);
     chVTSet(&advertise_timer, MS2ST(500), advertise_timer_cb, &advertise_timer);
 
+    /* Setup a virtual timer to schedule measurement advertisement. */
+    static virtual_timer_t anchor_position_timer;
+    chVTObjectInit(&anchor_position_timer);
+    chVTSet(&anchor_position_timer, MS2ST(200), anchor_position_timer_cb, &anchor_position_timer);
+
     /* Register event listeners */
-    static event_listener_t uwb_int_listener, advertise_timer_listener;
+    static event_listener_t uwb_int_listener, advertise_timer_listener, anchor_position_listener;
     chEvtRegisterMask(&exti_uwb_event, &uwb_int_listener, EVENT_UWB_INT);
     chEvtRegisterMask(&advertise_timer_event, &advertise_timer_listener, EVENT_ADVERTISE_TIMER);
+    chEvtRegisterMask(&anchor_position_timer_event, &anchor_position_listener, EVENT_ANCHOR_POSITION_TIMER);
 }
