@@ -12,11 +12,16 @@ extern "C" {
 /** Broadcast address. Also work as a PAN ID */
 #define MAC_802_15_4_BROADCAST_ADDR 0xffff
 
+/** Special value to indicate to uwb_transmit_frame that the frame should be
+ * sent as soon as possible. */
+#define UWB_TX_TIMESTAMP_IMMEDIATE UINT64_MAX
+
 /** Object handling all the UWB protocol interactions. */
 typedef struct {
     uint16_t pan_id;
     uint16_t address;
     void (*ranging_found_cb)(uint16_t anchor_addr, uint64_t time);
+    void (*anchor_position_received_cb)(uint16_t anchor_addr, float x, float y, float z);
     bool is_anchor;
 } uwb_protocol_handler_t;
 
@@ -68,7 +73,23 @@ size_t uwb_protocol_prepare_measurement_advertisement(uwb_protocol_handler_t *ha
 
 void uwb_send_measurement_advertisement(uwb_protocol_handler_t *handler, uint8_t *buffer);
 
-void uwb_process_incoming_frame(uwb_protocol_handler_t *handler, uint8_t *frame, size_t frame_size, uint64_t rx_ts);
+/** Broadcasts the anchor's position to every connected beacon. */
+void uwb_send_anchor_position(uwb_protocol_handler_t *handler, float x, float y, float z, uint8_t *buffer);
+
+void uwb_process_incoming_frame(uwb_protocol_handler_t *handler,
+                                uint8_t *frame,
+                                size_t frame_size,
+                                uint64_t rx_ts);
+
+/** Prepares a frame used to transmit an anchor position.
+ *
+ * @returns Number of bytes in frame.
+ */
+size_t uwb_protocol_prepare_anchor_position(uwb_protocol_handler_t *handler,
+                                            float x,
+                                            float y,
+                                            float z,
+                                            uint8_t *frame);
 
 
 /** @group UWB Board specific API
@@ -79,7 +100,11 @@ void uwb_process_incoming_frame(uwb_protocol_handler_t *handler, uint8_t *frame,
  * @{
  */
 
-/** Send the given frame at the correct timestamp. */
+/** Send the given frame at the correct timestamp.
+ *
+ * @note if tx_timestamp is UWB_TX_TIMESTAMP_IMMEDIATE, the frame should be
+ * transmitted as soon as possible.
+ */
 extern void uwb_transmit_frame(uint64_t tx_timestamp, uint8_t *frame, size_t frame_size);
 
 /** Reads the current value of the UWB module clock. */

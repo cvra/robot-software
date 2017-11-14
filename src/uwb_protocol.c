@@ -12,6 +12,7 @@
 #define UWB_SEQ_NUM_ADVERTISEMENT       0
 #define UWB_SEQ_NUM_REPLY               1
 #define UWB_SEQ_NUM_FINALIZATION        2
+#define UWB_SEQ_NUM_ANCHOR_POSITION     3
 
 #define UWB_DELAY                       (15000 * 65536)
 #define MASK_40BIT                      0xfffffffe00
@@ -142,6 +143,38 @@ void uwb_send_measurement_advertisement(uwb_protocol_handler_t *handler, uint8_t
     uwb_transmit_frame(ts, buffer, frame_size);
 }
 
+size_t uwb_protocol_prepare_anchor_position(uwb_protocol_handler_t *handler,
+                                            float x,
+                                            float y,
+                                            float z,
+                                            uint8_t *frame)
+{
+    float *msg = (float *)frame;
+    msg[0] = x;
+    msg[1] = y;
+    msg[2] = z;
+
+    return uwb_mac_encapsulate_frame(handler->pan_id,
+                                     handler->address,
+                                     MAC_802_15_4_BROADCAST_ADDR,
+                                     UWB_SEQ_NUM_ANCHOR_POSITION,
+                                     frame,
+                                     12);
+}
+
+void uwb_send_anchor_position(uwb_protocol_handler_t *handler,
+                              float x,
+                              float y,
+                              float z,
+                              uint8_t *frame)
+{
+    size_t size;
+
+    size = uwb_protocol_prepare_anchor_position(handler, x, y, z, frame);
+
+    uwb_transmit_frame(UWB_TX_TIMESTAMP_IMMEDIATE, frame, size);
+}
+
 void uwb_process_incoming_frame(uwb_protocol_handler_t *handler,
                                 uint8_t *frame,
                                 size_t frame_size,
@@ -242,5 +275,11 @@ void uwb_process_incoming_frame(uwb_protocol_handler_t *handler,
         if (handler->ranging_found_cb) {
             handler->ranging_found_cb(src_addr, t_propag);
         }
+    } else if (seq_num == UWB_SEQ_NUM_ANCHOR_POSITION) {
+        float x, y, z;
+        memcpy(&x, &frame[0], sizeof(float));
+        memcpy(&y, &frame[4], sizeof(float));
+        memcpy(&z, &frame[8], sizeof(float));
+        handler->anchor_position_received_cb(src_addr, x, y, z);
     }
 }

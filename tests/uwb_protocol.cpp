@@ -145,7 +145,9 @@ uint64_t uwb_timestamp_get(void)
 extern "C"
 void uwb_transmit_frame(uint64_t tx_timestamp, uint8_t *frame, size_t frame_size)
 {
-    mock().actualCall("uwb_transmit_frame").withMemoryBufferParameter("frame", frame, frame_size);
+    mock().actualCall("uwb_transmit_frame")
+    .withUnsignedLongIntParameter("timestamp", tx_timestamp)
+    .withMemoryBufferParameter("frame", frame, frame_size);
 }
 
 TEST(RangingProtocol, PrepareAdvertisementFrame)
@@ -183,7 +185,8 @@ TEST(RangingProtocol, SendAdvertisementFrame)
 
     mock().expectOneCall("uwb_timestamp_get").andReturnValue((int)ts);
     mock().expectOneCall("uwb_transmit_frame")
-    .withMemoryBufferParameter("frame", advertisement_frame, frame_size);
+    .withMemoryBufferParameter("frame", advertisement_frame, frame_size)
+    .withUnsignedLongIntParameter("timestamp", tx_ts);
 
     uint8_t buffer[128];
     uwb_send_measurement_advertisement(&handler, buffer);
@@ -221,9 +224,10 @@ TEST(RangingProtocol, SendMeasurementReply)
                                            reply_size);
 
     // Feed the received frame in the processor, expecting a response to get written
-    mock().expectOneCall("uwb_transmit_frame").withMemoryBufferParameter("frame",
-                                                                         reply_frame,
-                                                                         reply_size);
+    mock().expectOneCall("uwb_transmit_frame")
+    .withMemoryBufferParameter("frame", reply_frame, reply_size)
+    .withUnsignedLongIntParameter("timestamp", reply_tx_ts);
+
     uwb_process_incoming_frame(&handler, advertisement_frame, rx_size, advertisement_rx_ts);
 
     // Must be called before the stack allocated memory buffers get freed
@@ -270,9 +274,10 @@ TEST(RangingProtocol, ReplyIsFollowedByFinalMessage)
                                            final_size);
 
     // Feed the received frame in the processor, expecting a response to get written
-    mock().expectOneCall("uwb_transmit_frame").withMemoryBufferParameter("frame",
-                                                                         final_frame,
-                                                                         final_size);
+    mock().expectOneCall("uwb_transmit_frame")
+    .withMemoryBufferParameter("frame", final_frame, final_size)
+    .withUnsignedLongIntParameter("timestamp", final_tx_ts);
+
     uwb_process_incoming_frame(&handler, reply_frame, reply_size, reply_rx_ts);
     mock().checkExpectations();
 }
@@ -388,4 +393,104 @@ TEST(RangingProtocol, Overflow)
     mock().expectOneCall("ranging_cb").withIntParameter("anchor", tx_handler.address)
     .withIntParameter("time", 1025);
     uwb_process_incoming_frame(&handler, final_frame, final_size, final_rx_ts);
+}
+
+TEST_GROUP(AnchorPositionBroadcast)
+{
+    uwb_protocol_handler_t handler;
+    uint8_t frame[128];
+    uint16_t src, dst, pan_id;
+    uint8_t seq;
+    size_t size;
+
+    const float x = 10, y = 20, z = 30;
+    float rx, ry, rz;
+
+    void setup(void)
+    {
+        uwb_protocol_handler_init(&handler);
+        handler.address = 1234;
+        handler.pan_id = 4321;
+        memset(frame, 0, sizeof(frame));
+
+        // Creates the anchor position message
+        size = uwb_protocol_prepare_anchor_position(&handler, x, y, z, frame);
+
+        // Extracts the payload
+        size = uwb_mac_decapsulate_frame(&pan_id, &src, &dst, &seq, frame, size);
+    }
+};
+
+TEST(AnchorPositionBroadcast, PositionIsEncodedCorrectly)
+{
+    // We expect 3 floats (x, y, z) -> 12 bytes
+    CHECK_EQUAL(12, size);
+
+    // Extract the floats from the message
+    memcpy(&rx, &frame[0], sizeof(float));
+    memcpy(&ry, &frame[4], sizeof(float));
+    memcpy(&rz, &frame[8], sizeof(float));
+
+    CHECK_EQUAL(x, rx);
+    CHECK_EQUAL(y, ry);
+    CHECK_EQUAL(z, rz);
+}
+
+TEST(AnchorPositionBroadcast, SourceIsCorrect)
+{
+    CHECK_EQUAL(src, handler.address);
+}
+
+TEST(AnchorPositionBroadcast, MessageIsSentToBroadcast)
+{
+    CHECK_EQUAL(0xffff, dst);
+}
+
+TEST(AnchorPositionBroadcast, MessageIsOnTheCorrectPAN)
+{
+    CHECK_EQUAL(handler.pan_id, pan_id);
+}
+
+TEST(AnchorPositionBroadcast, SequenceNumberIsCorrect)
+{
+    // 3 is anchor position
+    CHECK_EQUAL(3, seq);
+}
+
+TEST(AnchorPositionBroadcast, SendAnchorPosition)
+{
+    // Creates the anchor position message
+    size = uwb_protocol_prepare_anchor_position(&handler, x, y, z, frame);
+
+    mock().expectOneCall("uwb_transmit_frame")
+    .withMemoryBufferParameter("frame", frame, size)
+    .withUnsignedLongIntParameter("timestamp", UWB_TX_TIMESTAMP_IMMEDIATE);
+
+    uint8_t buffer[64];
+    uwb_send_anchor_position(&handler, x, y, z, buffer);
+}
+
+void anchor_position_received_cb(uint16_t anchor_addr, float x, float y, float z)
+{
+    mock().actualCall("anchor_position_cb")
+        .withIntParameter("anchor_addr", anchor_addr)
+        .withParameter("x", x)
+        .withParameter("y", y)
+        .withParameter("z", z);
+}
+
+TEST(AnchorPositionBroadcast, ReceiveAnchorPosition)
+{
+    // Creates the anchor position message
+    size = uwb_protocol_prepare_anchor_position(&handler, x, y, z, frame);
+
+    mock().expectOneCall("anchor_position_cb")
+        .withIntParameter("anchor_addr", handler.address)
+        .withParameter("x", x)
+        .withParameter("y", y)
+        .withParameter("z", z);
+    handler.anchor_position_received_cb = anchor_position_received_cb;
+
+    // Pass 0 as the RX timestamp is not used
+    uwb_process_incoming_frame(&handler, frame, size, 0);
 }
