@@ -2,6 +2,7 @@
 #include <utility>
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
+#include <iostream>
 
 namespace EKF {
 /** Class responsible for the prediction part of a kalman filter.
@@ -47,6 +48,41 @@ public:
 private:
     Covariance R; // < Process covariance
 };
+
+/** Class responsible for the correction class of a Kalman filter.
+ *
+ * The two template arguments are the dimension of the state and the dimension
+ * of the measurement.
+ */
+template <int N, int M> class Corrector {
+public:
+    typedef Eigen::Matrix<float, M, 1> Measurement;
+    typedef Eigen::Matrix<float, N, 1> State;
+    typedef Eigen::Matrix<float, M, N> Jacobian;
+    typedef Eigen::Matrix<float, N, N> Covariance;
+
+    virtual Measurement h(State) = 0;
+    virtual Jacobian H(State) = 0;
+
+    Corrector(Measurement variance) : Q(variance)
+    {
+    }
+
+
+    std::pair<State, Covariance> correct(State mu, Covariance sigma, Measurement z)
+    {
+        auto H = this->H(mu);
+        auto K = sigma * H.transpose() * (H * sigma * H.transpose() + Q).inverse();
+        mu = mu + K * (z - h(mu));
+        sigma = (Jacobian::Identity() - K * H) * sigma;
+
+        return std::pair<State, Covariance>(mu, sigma);
+    }
+
+private:
+    Measurement Q;
+};
+
 };
 
 
@@ -110,4 +146,41 @@ public:
 
     DOUBLES_EQUAL(0.1, mu(0), 0.001);
     DOUBLES_EQUAL(0.2, sigma(0, 0), 0.001);
+}
+
+TEST_GROUP(KalmanCorrector)
+{
+};
+
+TEST(KalmanCorrector, MeasurementModel)
+{
+    class MyCorrector : public EKF::Corrector<1, 1> {
+public:
+        MyCorrector(float noise) : EKF::Corrector<1, 1>(noise * Measurement::Identity())
+        {
+        }
+
+        Measurement h(State mu)
+        {
+            return mu;
+        }
+
+        Jacobian H(State mu)
+        {
+            return Jacobian::Identity();
+        }
+    };
+
+    MyCorrector::State mu;
+    MyCorrector::Covariance sigma;
+    MyCorrector::Measurement z;
+    mu << 0;
+    sigma << 0.1;
+    z << 2;
+
+    MyCorrector corrector(0.1);
+    std::tie(mu, sigma) = corrector.correct(mu, sigma, z);
+
+    DOUBLES_EQUAL(1.0, mu(0), 0.001);
+    DOUBLES_EQUAL(0.05, sigma(0), 0.001);
 }
