@@ -48,9 +48,9 @@ TEST_BASE(ArmTestGroupBase)
         shoulder_angle = 0;
         elbow_angle = 0;
 
-        joint_set_callbacks(&(arm.z_joint), set_motor_pos, set_motor_vel, get_motor_pos, &z_pos);
-        joint_set_callbacks(&(arm.shoulder_joint), set_motor_pos, set_motor_vel, get_motor_pos, &shoulder_angle);
-        joint_set_callbacks(&(arm.elbow_joint), set_motor_pos, set_motor_vel, get_motor_pos, &elbow_angle);
+        joint_set_callbacks(&(arm.hw_interface.z_joint), set_motor_pos, set_motor_vel, get_motor_pos, &z_pos);
+        joint_set_callbacks(&(arm.hw_interface.shoulder_joint), set_motor_pos, set_motor_vel, get_motor_pos, &shoulder_angle);
+        joint_set_callbacks(&(arm.hw_interface.elbow_joint), set_motor_pos, set_motor_vel, get_motor_pos, &elbow_angle);
     }
 
     void teardown()

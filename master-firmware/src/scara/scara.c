@@ -8,8 +8,6 @@
 #include "scara_port.h"
 #include "scara_jacobian.h"
 
-static void scara_shutdown_joints(scara_t* arm);
-
 static void scara_lock(mutex_t* mutex)
 {
     chMtxLock(mutex);
@@ -75,7 +73,7 @@ void scara_move_z(scara_t* arm, float z_new, scara_coordinate_t system, const fl
 void scara_pos(scara_t* arm, float* x, float* y, float* z, scara_coordinate_t system)
 {
     point_t pos;
-    pos = scara_forward_kinematics(arm->shoulder_pos, arm->elbow_pos, arm->length);
+    pos = scara_forward_kinematics(arm->joint_positions.shoulder, arm->joint_positions.elbow, arm->length);
 
     if (system == COORDINATE_ROBOT) {
         pos = scara_coordinate_arm2robot(pos, arm->offset_xy, arm->offset_rotation);
@@ -91,7 +89,7 @@ void scara_pos(scara_t* arm, float* x, float* y, float* z, scara_coordinate_t sy
 
     *x = pos.x;
     *y = pos.y;
-    *z = arm->z_pos;
+    *z = arm->joint_positions.z;
 }
 
 void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj)
@@ -99,13 +97,6 @@ void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj)
     scara_lock(&arm->lock);
     scara_trajectory_copy(&arm->trajectory, traj);
     scara_unlock(&arm->lock);
-}
-
-static void scara_read_joint_positions(scara_t *arm)
-{
-    arm->z_pos = arm->z_joint.get_position(arm->z_joint.args);
-    arm->shoulder_pos = arm->shoulder_joint.get_position(arm->shoulder_joint.args);
-    arm->elbow_pos = arm->elbow_joint.get_position(arm->elbow_joint.args);
 }
 
 bool scara_compute_joint_angles(scara_t* arm, scara_waypoint_t frame, float* alpha, float* beta)
@@ -146,7 +137,7 @@ void scara_manage(scara_t *arm)
 
     scara_lock(&arm->lock);
 
-    scara_read_joint_positions(arm);
+    arm->joint_positions = scara_hw_read_joint_positions(&arm->hw_interface);
 
     if (scara_trajectory_is_empty(&arm->trajectory)) {
         scara_unlock(&arm->lock);
@@ -162,7 +153,7 @@ void scara_manage(scara_t *arm)
         DEBUG("Inverse kinematics: Found a solution");
     } else {
         DEBUG("Inverse kinematics: Found no solution, disabling the arm");
-        scara_shutdown_joints(arm);
+        scara_hw_shutdown_joints(&arm->hw_interface);
         scara_unlock(&arm->lock);
         return;
     }
@@ -175,8 +166,8 @@ void scara_manage(scara_t *arm)
         float consign_y = pid_process(&arm->y_pid, measured_y - frame.position[1]);
 
         float velocity_alpha, velocity_beta;
-        scara_jacobian_compute(consign_x, consign_y, arm->shoulder_pos,
-                               arm->elbow_pos, frame.length[0], frame.length[1],
+        scara_jacobian_compute(consign_x, consign_y, arm->joint_positions.shoulder,
+                               arm->joint_positions.elbow, frame.length[0], frame.length[1],
                                &velocity_alpha, &velocity_beta);
 
         scara_pos(arm, &measured_x, &measured_y, &measured_z, frame.coordinate_type);
@@ -184,15 +175,19 @@ void scara_manage(scara_t *arm)
         DEBUG("Arm x %.3f y %.3f Arm velocities %.3f %.3f",
               measured_x, measured_y, velocity_alpha, velocity_beta);
 
-        /* Set motor commands */
-        arm->z_joint.set_position(arm->z_joint.args, frame.position[2]);
-        arm->shoulder_joint.set_velocity(arm->shoulder_joint.args, velocity_alpha);
-        arm->elbow_joint.set_velocity(arm->elbow_joint.args, velocity_beta);
+        scara_joint_setpoints_t joint_setpoints = {
+            .z = {POSITION, frame.position[2]},
+            .shoulder = {VELOCITY, velocity_alpha},
+            .elbow = {VELOCITY, velocity_beta}
+        };
+        scara_hw_set_joints(&arm->hw_interface, joint_setpoints);
     } else {
-        /* Set motor positions */
-        arm->z_joint.set_position(arm->z_joint.args, frame.position[2]);
-        arm->shoulder_joint.set_position(arm->shoulder_joint.args, alpha);
-        arm->elbow_joint.set_position(arm->elbow_joint.args, beta);
+        scara_joint_setpoints_t joint_setpoints = {
+            .z = {POSITION, frame.position[2]},
+            .shoulder = {POSITION, alpha},
+            .elbow = {POSITION, beta}
+        };
+        scara_hw_set_joints(&arm->hw_interface, joint_setpoints);
     }
 
     scara_unlock(&arm->lock);
@@ -249,11 +244,4 @@ void scara_set_related_robot_pos(scara_t *arm, struct robot_position *pos)
 void scara_shutdown(scara_t *arm)
 {
     scara_trajectory_delete(&arm->trajectory);
-}
-
-
-void scara_shutdown_joints(scara_t* arm)
-{
-    arm->shoulder_joint.set_velocity(arm->shoulder_joint.args, 0);
-    arm->elbow_joint.set_velocity(arm->elbow_joint.args, 0);
 }

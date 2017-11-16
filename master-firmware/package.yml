@@ -80,6 +80,7 @@ source:
     - src/aversive/trajectory_manager/trajectory_manager_utils.c
     - src/scara/lie_groups.c
     - src/scara/joint.c
+    - src/scara/scara_hardware_interface.c
     - src/scara/scara_utils.c
     - src/scara/scara_trajectories.c
     - src/scara/scara_kinematics.c
@@ -115,6 +116,7 @@ tests:
     - tests/scara_trajectories.cpp
     - tests/scara_kinematics.cpp
     - tests/scara_kinematics_integration.cpp
+    - tests/scara_hardware_interface.cpp
     - tests/scara.cpp
     - tests/test_hand.cpp
     - tests/lie_groups.cpp
