@@ -110,11 +110,16 @@ TEST(AnArmTrajectory, InterpolatesWaypoints)
     scara_trajectory_append_point(&traj, 10, 20, 30, COORDINATE_ARM, 10., arbitraryLengths);
 
     result = scara_trajectory_interpolate_waypoints(traj.frames[0], traj.frames[1], interpolation_date);
+
     CHECK_EQUAL(interpolation_date, result.date);
+    CHECK_EQUAL(COORDINATE_ARM, result.coordinate_type);
 
     DOUBLES_EQUAL(5., result.position[0], 0.1);
     DOUBLES_EQUAL(10., result.position[1], 0.1);
     DOUBLES_EQUAL(15., result.position[2], 0.1);
+
+    CHECK_TRUE(result.length[0] > 0.0);
+    CHECK_TRUE(result.length[1] > 0.0);
 }
 
 TEST(AnArmTrajectory, IsEmptyOnCreation)
