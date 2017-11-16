@@ -5,19 +5,28 @@
 extern "C" {
 #endif
 
-#define PARAMETER_LOCK() {}
+/** Acquires a mutual exclusion lock on the parameter tree. */
+extern void parameter_port_lock(void);
 
-#define PARAMETER_UNLOCK() {}
+/** Releases the lock acquired by parameter_port_lock. */
+extern void parameter_port_unlock(void);
 
-#define PARAMETER_ASSERT(check) {}
+/** Checks that condition is true and aborts execution otherwise. */
+extern void parameter_port_assert(int condition);
 
-// an allocated buffer is needed to convert message pack objects
-// only one allocation is made at any moment which allows the use of a
-// static buffer.
-// the maximum allocated size is the maximum of parameter id/namespace string,
-// the largest parameter array, matrix or string parameter
-#define PARAMETER_MSGPACK_MALLOC(size) malloc(size)
-#define PARAMETER_MSGPACK_FREE(ptr) free(ptr)
+/** Allocates a buffer of at least the given size.
+ *
+ * @note This is only used when converting MessagePack objects.
+ * @note At most one buffer is allocated at any moment, which allows the use of
+ * a static buffer.
+ * @note The maximum allocated size is the length of the longest parameter or
+ * namespace name or the largest parameter array, matrix or string, whichever
+ * is the largest.
+ */
+extern void *parameter_port_buffer_alloc(size_t size);
+
+/** Frees a buffer allocated by parameter_port_buffer_alloc. */
+extern void parameter_port_buffer_free(void *buffer);
 
 #ifdef __cplusplus
 }
