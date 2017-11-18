@@ -6,8 +6,8 @@
 #include "scara_trajectories.h"
 #include "scara_utils.h"
 #include "scara_port.h"
-#include "scara_jacobian.h"
 #include "control/scara_joint_controller.h"
+#include "control/scara_inverse_kinematics_controller.h"
 
 static void scara_lock(mutex_t* mutex)
 {
@@ -132,30 +132,6 @@ bool scara_compute_joint_angles(scara_t* arm, scara_waypoint_t frame, float* alp
     }
 
     return true;
-}
-
-scara_joint_setpoints_t scara_ik_controller_process(position_3d_t measured,
-                                                    position_3d_t desired,
-                                                    scara_joint_positions_t joint_positions,
-                                                    float* length,
-                                                    pid_ctrl_t x_pid,
-                                                    pid_ctrl_t y_pid)
-{
-    float consign_x = pid_process(&x_pid, measured.x - desired.x);
-    float consign_y = pid_process(&y_pid, measured.y - desired.y);
-
-    float velocity_alpha, velocity_beta;
-    scara_jacobian_compute(consign_x, consign_y, joint_positions.shoulder,
-                           joint_positions.elbow, length[0], length[1],
-                           &velocity_alpha, &velocity_beta);
-
-    scara_joint_setpoints_t joint_setpoints = {
-        .z = {POSITION, desired.z},
-        .shoulder = {VELOCITY, velocity_alpha},
-        .elbow = {VELOCITY, velocity_beta}
-    };
-
-    return joint_setpoints;
 }
 
 void scara_manage(scara_t *arm)

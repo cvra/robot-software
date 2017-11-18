@@ -87,6 +87,7 @@ source:
     - src/scara/scara.c
     - src/scara/scara_jacobian.cpp
     - src/scara/control/scara_joint_controller.c
+    - src/scara/control/scara_inverse_kinematics_controller.c
     - src/hand/hand.c
 
 include_directories:
