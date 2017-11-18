@@ -13,6 +13,13 @@ typedef enum {
     COORDINATE_TABLE  /**< Coordinate relative to the table (absolute). */
 } scara_coordinate_t;
 
+/** Position in 3D space */
+typedef struct {
+    float x;
+    float y;
+    float z;
+} position_3d_t;
+
 /** This structure holds the data for a single waypoint of an arm trajectory (a waypoint). */
 typedef struct {
     int32_t date;                       /**< waypoint validity date, since the boot of the robot in us. */

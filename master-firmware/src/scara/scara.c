@@ -134,6 +134,30 @@ bool scara_compute_joint_angles(scara_t* arm, scara_waypoint_t frame, float* alp
     return true;
 }
 
+scara_joint_setpoints_t scara_ik_controller_process(position_3d_t measured,
+                                                    position_3d_t desired,
+                                                    scara_joint_positions_t joint_positions,
+                                                    float* length,
+                                                    pid_ctrl_t x_pid,
+                                                    pid_ctrl_t y_pid)
+{
+    float consign_x = pid_process(&x_pid, measured.x - desired.x);
+    float consign_y = pid_process(&y_pid, measured.y - desired.y);
+
+    float velocity_alpha, velocity_beta;
+    scara_jacobian_compute(consign_x, consign_y, joint_positions.shoulder,
+                           joint_positions.elbow, length[0], length[1],
+                           &velocity_alpha, &velocity_beta);
+
+    scara_joint_setpoints_t joint_setpoints = {
+        .z = {POSITION, desired.z},
+        .shoulder = {VELOCITY, velocity_alpha},
+        .elbow = {VELOCITY, velocity_beta}
+    };
+
+    return joint_setpoints;
+}
+
 void scara_manage(scara_t *arm)
 {
     int32_t current_date = scara_time_get() + arm->time_offset;
@@ -162,27 +186,20 @@ void scara_manage(scara_t *arm)
     }
 
     if (arm->control_mode == CONTROL_JAM_PID_XYA) {
-        float measured_x, measured_y, measured_z;
-        scara_pos(arm, &measured_x, &measured_y, &measured_z, COORDINATE_ARM);
+        position_3d_t measured;
+        scara_pos(arm, &measured.x, &measured.y, &measured.z, COORDINATE_ARM);
+        position_3d_t desired = {.x = frame.position[0],
+                                 .y = frame.position[1],
+                                 .z = frame.position[2]};
 
-        float consign_x = pid_process(&arm->x_pid, measured_x - frame.position[0]);
-        float consign_y = pid_process(&arm->y_pid, measured_y - frame.position[1]);
-
-        float velocity_alpha, velocity_beta;
-        scara_jacobian_compute(consign_x, consign_y, arm->joint_positions.shoulder,
-                               arm->joint_positions.elbow, frame.length[0], frame.length[1],
-                               &velocity_alpha, &velocity_beta);
-
-        scara_joint_setpoints_t joint_setpoints = {
-            .z = {POSITION, frame.position[2]},
-            .shoulder = {VELOCITY, velocity_alpha},
-            .elbow = {VELOCITY, velocity_beta}
-        };
+        scara_joint_setpoints_t joint_setpoints =
+            scara_ik_controller_process(measured, desired, arm->joint_positions,
+                                        frame.length, arm->x_pid, arm->y_pid);
         scara_hw_set_joints(&arm->hw_interface, joint_setpoints);
 
-        scara_pos(arm, &measured_x, &measured_y, &measured_z, frame.coordinate_type);
+        scara_pos(arm, &measured.x, &measured.y, &measured.z, frame.coordinate_type);
         DEBUG("Arm x %.3f y %.3f Arm velocities %.3f %.3f",
-              measured_x, measured_y, joint_setpoints.shoulder.value, joint_setpoints.elbow.value);
+              measured.x, measured.y, joint_setpoints.shoulder.value, joint_setpoints.elbow.value);
     } else {
         scara_joint_positions_t joints_desired = {
             .z = frame.position[2], .shoulder = alpha, .elbow = beta
