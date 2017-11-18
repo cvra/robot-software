@@ -27,7 +27,7 @@ TEST_GROUP(AnArmTrajectory)
     {
         for (int i = 0; i < number_of_points; i++)
         {
-            scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, i + 1, arbitraryLengths);
+            scara_trajectory_append_point(&traj, {10, 10, 10}, COORDINATE_ARM, i + 1, arbitraryLengths);
         }
     }
 };
@@ -51,9 +51,9 @@ TEST(AnArmTrajectory, AppendsMultiplePoints)
 
 TEST(AnArmTrajectory, ComputesDateCorrectly)
 {
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 1., arbitraryLengths);
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10., arbitraryLengths);
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 15., arbitraryLengths);
+    scara_trajectory_append_point(&traj, {10, 10, 10}, COORDINATE_ARM, 1., arbitraryLengths);
+    scara_trajectory_append_point(&traj, {10, 10, 10}, COORDINATE_ARM, 10., arbitraryLengths);
+    scara_trajectory_append_point(&traj, {10, 10, 10}, COORDINATE_ARM, 15., arbitraryLengths);
 
     CHECK_EQUAL(traj.frames[1].date, 10*1000000);
     CHECK_EQUAL(traj.frames[2].date, 25*1000000);
@@ -95,8 +95,8 @@ TEST(AnArmTrajectory, IsNotFinishedWhenGivenPoints)
 
 TEST(AnArmTrajectory, IsFinishedWhenTrajectoryIsOutdated)
 {
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 1., arbitraryLengths);
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10., arbitraryLengths);
+    scara_trajectory_append_point(&traj, {10, 10, 10}, COORDINATE_ARM, 1., arbitraryLengths);
+    scara_trajectory_append_point(&traj, {10, 10, 10}, COORDINATE_ARM, 10., arbitraryLengths);
     scara_time_set(20*1000000);
 
     CHECK_EQUAL(1, scara_trajectory_finished(&traj));
@@ -106,8 +106,8 @@ TEST(AnArmTrajectory, InterpolatesWaypoints)
 {
     const int32_t interpolation_date = 5 * 1000000; // microseconds
     scara_waypoint_t result;
-    scara_trajectory_append_point(&traj, 0, 0, 0, COORDINATE_ARM, 1., arbitraryLengths);
-    scara_trajectory_append_point(&traj, 10, 20, 30, COORDINATE_ARM, 10., arbitraryLengths);
+    scara_trajectory_append_point(&traj, {0, 0, 0}, COORDINATE_ARM, 1., arbitraryLengths);
+    scara_trajectory_append_point(&traj, {10, 20, 30}, COORDINATE_ARM, 10., arbitraryLengths);
 
     result = scara_trajectory_interpolate_waypoints(traj.frames[0], traj.frames[1], interpolation_date);
 

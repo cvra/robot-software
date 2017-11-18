@@ -24,9 +24,9 @@ TEST_GROUP(ArmSetTrajectory)
     struct robot_position pos;
 
     arm_waypoint_t trajectory[3] = {
-        {.x=0, .y=0, .z=0, .coord=COORDINATE_TABLE, .dt=1000},
-        {.x=100, .y=0, .z=0, .coord=COORDINATE_TABLE, .dt=1000},
-        {.x=100, .y=100, .z=0, .coord=COORDINATE_TABLE, .dt=1000},
+        {.pos={.x =   0, .y =   0, .z = 0}, .coord=COORDINATE_TABLE, .dt=1000},
+        {.pos={.x = 100, .y =   0, .z = 0}, .coord=COORDINATE_TABLE, .dt=1000},
+        {.pos={.x = 100, .y = 100, .z = 0}, .coord=COORDINATE_TABLE, .dt=1000},
     };
 
     void setup()

@@ -91,7 +91,7 @@ unsigned strategy_set_arm_trajectory(scara_t* arm, arm_waypoint_t* trajectory, u
     for (size_t i = 0; i < trajectory_length; i++) {
         scara_trajectory_append_point(
             &arm->trajectory,
-            trajectory[i].x, trajectory[i].y, trajectory[i].z,
+            trajectory[i].pos,
             trajectory[i].coord,
             (float)trajectory[i].dt * 0.001,
             arm->length);

@@ -19,9 +19,7 @@ enum strat_color_t {
 };
 
 typedef struct {
-    float x; // Desired position x of end effector in mm without mirroring
-    float y; // Desired position y of end effector in mm without mirroring
-    float z; // Desired position z of end effector in mm without mirroring
+    position_3d_t pos; // Desired position of end effector in mm without mirroring
     scara_coordinate_t coord; // Coordinate system
     unsigned dt; // Duration in ms to reach this waypoint
 } arm_waypoint_t;

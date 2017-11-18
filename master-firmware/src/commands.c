@@ -887,20 +887,18 @@ static void cmd_scara_goto(BaseSequentialStream *chp, int argc, char *argv[])
         chprintf(chp, "Usage: scara_goto frame x y z\r\n");
         return;
     }
-    float x = atof(argv[1]);
-    float y = atof(argv[2]);
-    float z = atof(argv[3]);
+    position_3d_t pos = {.x = atof(argv[1]), .y = atof(argv[2]), .z = atof(argv[3])};
 
-    chprintf(chp, "Moving arm to %f %f %f heading 0 in %s frame\r\n", x, y, z, argv[0]);
+    chprintf(chp, "Moving arm to %f %f %f heading 0 in %s frame\r\n", pos.x, pos.y, pos.z, argv[0]);
 
     scara_t* arm = &main_arm;
 
     if (strcmp("robot", argv[0]) == 0) {
-        scara_goto(arm, x, y, z, COORDINATE_ROBOT, 1.);
+        scara_goto(arm, pos, COORDINATE_ROBOT, 1.);
     } else if (strcmp("table", argv[0]) == 0) {
-        scara_goto(arm, x, y, z, COORDINATE_TABLE, 1.);
+        scara_goto(arm, pos, COORDINATE_TABLE, 1.);
     } else {
-        scara_goto(arm, x, y, z, COORDINATE_ARM, 1.);
+        scara_goto(arm, pos, COORDINATE_ARM, 1.);
     }
 }
 
@@ -934,11 +932,11 @@ static void cmd_scara_mv(BaseSequentialStream *chp, int argc, char *argv[])
 
     position_3d_t pos = scara_position(arm, COORDINATE_TABLE);
     scara_trajectory_init(&trajectory);
-    scara_trajectory_append_point(&trajectory, pos.x, pos.y, pos.z, COORDINATE_TABLE, 0, arm->length);
+    scara_trajectory_append_point(&trajectory, pos, COORDINATE_TABLE, 0, arm->length);
 
     pos.x = atof(argv[0]);
     pos.y = atof(argv[1]);
-    scara_trajectory_append_point(&trajectory, pos.x, pos.y, pos.z, COORDINATE_TABLE, 1, arm->length);
+    scara_trajectory_append_point(&trajectory, pos, COORDINATE_TABLE, 1, arm->length);
     scara_do_trajectory(arm, &trajectory);
 
     chprintf(chp, "Moving %s arm to %f %f %f in table frame\r\n", argv[0], pos.x, pos.y, pos.z);
@@ -1044,7 +1042,8 @@ static void cmd_scara_traj(BaseSequentialStream *chp, int argc, char *argv[])
             }
 
             if (j == point_len) {
-                scara_trajectory_append_point(&trajectory, point[0], point[1], point[2],
+                position_3d_t position = {.x = point[0], .y = point[1], .z = point[2]};
+                scara_trajectory_append_point(&trajectory, position,
                         system, (float)point[3] * 0.001, arm->length);
                 i++;
 

@@ -57,17 +57,18 @@ void scara_ugly_mode_disable(scara_t* arm)
 }
 
 
-void scara_goto(scara_t* arm, float x, float y, float z, scara_coordinate_t system, const float duration)
+void scara_goto(scara_t* arm, position_3d_t pos, scara_coordinate_t system, const float duration)
 {
     scara_trajectory_init(&(arm->trajectory));
-    scara_trajectory_append_point(&(arm->trajectory), x, y, z, system, duration, arm->length);
+    scara_trajectory_append_point(&(arm->trajectory), pos, system, duration, arm->length);
     scara_do_trajectory(arm, &(arm->trajectory));
 }
 
 void scara_move_z(scara_t* arm, float z_new, scara_coordinate_t system, const float duration)
 {
-    position_3d_t current_pos = scara_position(arm, system);
-    scara_goto(arm, current_pos.x, current_pos.y, z_new, system, duration);
+    position_3d_t pos = scara_position(arm, system);
+    pos.z = z_new;
+    scara_goto(arm, pos, system, duration);
 }
 
 position_3d_t scara_position(scara_t* arm, scara_coordinate_t system)
@@ -253,8 +254,7 @@ void scara_pause(scara_t* arm)
         scara_waypoint_t current_pos = scara_position_for_date(arm, arm->time_offset);
         scara_trajectory_delete(&arm->trajectory);
         scara_trajectory_append_point(
-            &arm->trajectory, current_pos.position.x, current_pos.position.y,
-            current_pos.position.z, current_pos.coordinate_type,
+            &arm->trajectory, current_pos.position, current_pos.coordinate_type,
             current_pos.date / 1e6, &current_pos.length[0]);
     }
 
