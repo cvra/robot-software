@@ -262,6 +262,143 @@ TEST(AScaraArm, InterpolatesLengthsWhenTheyChangeBetweenWaypoints)
 }
 
 
+TEST_GROUP_BASE(AScaraArmPause, ArmTestGroupBase)
+{
+    void doTrajectory()
+    {
+        scara_trajectory_append_point(&traj, 1, 2, 3, COORDINATE_ARM, 0., arbitraryLengths);
+        scara_trajectory_append_point(&traj, 2, 4, 6, COORDINATE_ARM, 1., arbitraryLengths);
+        scara_trajectory_append_point(&traj, 4, 8, 12, COORDINATE_ARM, 1., arbitraryLengths);
+        scara_do_trajectory(&arm, &traj);
+
+        scara_time_set(1e6); // reached 2nd waypoint
+        scara_manage(&arm);
+    }
+
+    void checkFrameEqual(scara_waypoint_t a, scara_waypoint_t b)
+    {
+        CHECK_EQUAL(a.position[0], b.position[0]);
+        CHECK_EQUAL(a.position[1], b.position[1]);
+        CHECK_EQUAL(a.position[2], b.position[2]);
+        CHECK_EQUAL(a.date, b.date);
+        CHECK_EQUAL(a.coordinate_type, b.coordinate_type);
+        CHECK_EQUAL(a.length[0], b.length[0]);
+        CHECK_EQUAL(a.length[1], b.length[1]);
+    }
+
+    void checkTrajectoryEqual(scara_trajectory_t a, scara_trajectory_t b)
+    {
+        CHECK_EQUAL(a.frame_count, b.frame_count);
+
+        for (int i = 0; i < a.frame_count; i++) {
+            checkFrameEqual(a.frames[i], b.frames[i]);
+        }
+    }
+};
+
+TEST(AScaraArmPause, PauseCachesTime)
+{
+    doTrajectory();
+
+    scara_pause(&arm);
+
+    CHECK_EQUAL(1 * 1e6, arm.time_offset);
+}
+
+TEST(AScaraArmPause, PauseHoldsCurrentPosition)
+{
+    doTrajectory();
+
+    scara_pause(&arm);
+
+    CHECK_EQUAL(1, arm.trajectory.frame_count);
+    checkFrameEqual(traj.frames[1], arm.trajectory.frames[0]);
+}
+
+TEST(AScaraArmPause, PauseCachesPausedTrajectory)
+{
+    doTrajectory();
+
+    scara_pause(&arm);
+
+    checkTrajectoryEqual(traj, arm.previous_trajectory);
+}
+
+TEST(AScaraArmPause, PauseIsThreadSafe)
+{
+    lock_mocks_enable(true);
+    mock().expectOneCall("chMtxLock").withPointerParameter("lock", &arm.lock);
+    mock().expectOneCall("chMtxUnlock").withPointerParameter("lock", &arm.lock);
+
+    scara_pause(&arm);
+}
+
+TEST(AScaraArmPause, PausingMultipleTimesDoesNotOverwriteCachedTrajectory)
+{
+    doTrajectory();
+
+    scara_pause(&arm);
+    scara_pause(&arm);
+    scara_pause(&arm);
+
+    checkTrajectoryEqual(traj, arm.previous_trajectory);
+}
+
+TEST(AScaraArmPause, ContinueRestoresTrajectory)
+{
+    doTrajectory();
+    scara_pause(&arm);
+
+    scara_continue(&arm);
+
+    checkTrajectoryEqual(traj, arm.trajectory);
+}
+
+TEST(AScaraArmPause, CanPauseAgainAfterContinue)
+{
+    doTrajectory();
+    scara_pause(&arm);
+    scara_continue(&arm);
+
+    scara_pause(&arm);
+
+    CHECK_EQUAL(1, arm.trajectory.frame_count);
+    checkFrameEqual(traj.frames[1], arm.trajectory.frames[0]);
+}
+
+TEST(AScaraArmPause, CanNotContinueIfNotPaused)
+{
+    doTrajectory();
+
+    scara_continue(&arm);
+
+    checkTrajectoryEqual(traj, arm.trajectory);
+}
+
+TEST(AScaraArmPause, ContinueIsThreadSafe)
+{
+    lock_mocks_enable(true);
+    mock().expectOneCall("chMtxLock").withPointerParameter("lock", &arm.lock);
+    mock().expectOneCall("chMtxUnlock").withPointerParameter("lock", &arm.lock);
+
+    scara_continue(&arm);
+}
+
+TEST(AScaraArmPause, ContinueStartsBackAtPausedWaypoint)
+{
+    doTrajectory();
+    scara_pause(&arm);
+
+    scara_time_set(2 * 1e6);
+    scara_continue(&arm);
+
+    int32_t current_date = scara_time_get() + arm.time_offset;
+    scara_waypoint_t frame = scara_position_for_date(&arm, current_date);
+
+    CHECK_EQUAL(-1 * 1e6, arm.time_offset);
+    checkFrameEqual(traj.frames[1], frame);
+}
+
 
 TEST_GROUP(AScaraJacobian)
 {

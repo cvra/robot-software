@@ -1056,6 +1056,30 @@ static void cmd_scara_traj(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
+static void cmd_scara_pause(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    (void)argc;
+    (void)argv;
+
+    scara_t* arm = &main_arm;
+
+    scara_pause(arm);
+
+    chprintf(chp, "Arm paused trajectory\r\n");
+}
+
+static void cmd_scara_continue(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    (void)argc;
+    (void)argv;
+
+    scara_t* arm = &main_arm;
+
+    scara_continue(arm);
+
+    chprintf(chp, "Arm restoring from pause\r\n");
+}
+
 static void cmd_base_mode(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc != 1) {
@@ -1152,6 +1176,8 @@ const ShellCommand commands[] = {
     {"scara_z", cmd_scara_z},
     {"scara_pos", cmd_scara_pos},
     {"scara_traj", cmd_scara_traj},
+    {"scara_pause", cmd_scara_pause},
+    {"scara_continue", cmd_scara_continue},
     {"base_mode", cmd_base_mode},
     {"state", cmd_state},
     {"trace", cmd_trace},

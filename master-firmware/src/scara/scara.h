@@ -44,6 +44,10 @@ typedef struct {
     shoulder_mode_t shoulder_mode;
     scara_control_mode_t control_mode;
 
+    /* Cached state for pause/continue */
+    int32_t time_offset; /**< in us */
+    scara_trajectory_t previous_trajectory; /**< Paused trajectory */
+
     mutex_t lock;
 } scara_t;
 
@@ -84,5 +88,8 @@ scara_waypoint_t scara_position_for_date(scara_t *arm, int32_t date);
 void scara_set_related_robot_pos(scara_t *arm, struct robot_position *pos);
 
 void scara_shutdown(scara_t *arm);
+
+void scara_pause(scara_t* arm);
+void scara_continue(scara_t* arm);
 
 #endif

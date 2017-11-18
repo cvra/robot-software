@@ -25,6 +25,8 @@ void scara_init(scara_t *arm)
     arm->shoulder_mode = SHOULDER_BACK;
     arm->control_mode = CONTROL_JOINT_POSITION;
 
+    arm->time_offset = 0;
+
     /* Configure arm controllers */
     pid_init(&arm->x_pid);
     pid_init(&arm->y_pid);
@@ -133,7 +135,7 @@ bool scara_compute_joint_angles(scara_t* arm, scara_waypoint_t frame, float* alp
 
 void scara_manage(scara_t *arm)
 {
-    int32_t current_date = scara_time_get();
+    int32_t current_date = scara_time_get() + arm->time_offset;
 
     scara_lock(&arm->lock);
 
@@ -244,4 +246,43 @@ void scara_set_related_robot_pos(scara_t *arm, struct robot_position *pos)
 void scara_shutdown(scara_t *arm)
 {
     scara_trajectory_delete(&arm->trajectory);
+}
+
+static bool scara_is_paused(scara_t* arm)
+{
+    return !scara_trajectory_is_empty(&arm->previous_trajectory);
+}
+
+void scara_pause(scara_t* arm)
+{
+    scara_lock(&arm->lock);
+
+    if (!scara_is_paused(arm)) {
+        arm->time_offset = scara_time_get();
+
+        scara_trajectory_copy(&arm->previous_trajectory, &arm->trajectory);
+
+        scara_waypoint_t current_pos = scara_position_for_date(arm, arm->time_offset);
+        scara_trajectory_delete(&arm->trajectory);
+        scara_trajectory_append_point(
+            &arm->trajectory, current_pos.position[0], current_pos.position[1],
+            current_pos.position[2], current_pos.coordinate_type,
+            current_pos.date / 1e6, &current_pos.length[0]);
+    }
+
+    scara_unlock(&arm->lock);
+}
+
+void scara_continue(scara_t* arm)
+{
+    scara_lock(&arm->lock);
+
+    if (scara_is_paused(arm)) {
+        arm->time_offset = arm->time_offset - scara_time_get();
+
+        scara_trajectory_copy(&arm->trajectory, &arm->previous_trajectory);
+        scara_trajectory_delete(&arm->previous_trajectory);
+    }
+
+    scara_unlock(&arm->lock);
 }

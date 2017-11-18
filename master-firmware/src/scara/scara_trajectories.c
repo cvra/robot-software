@@ -87,7 +87,7 @@ bool scara_trajectory_is_empty(scara_trajectory_t* trajectory)
 scara_waypoint_t scara_trajectory_interpolate_waypoints(scara_waypoint_t k1, scara_waypoint_t k2, int32_t date)
 {
     float t;
-    scara_waypoint_t result;
+    scara_waypoint_t result = k2;
     int i;
 
     result.date = date;
