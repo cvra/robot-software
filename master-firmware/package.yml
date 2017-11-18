@@ -120,6 +120,7 @@ tests:
     - tests/scara_kinematics_integration.cpp
     - tests/scara_hardware_interface.cpp
     - tests/scara_joint_controller.cpp
+    - tests/scara_inverse_kinematics_controller.cpp
     - tests/scara.cpp
     - tests/test_hand.cpp
     - tests/lie_groups.cpp
