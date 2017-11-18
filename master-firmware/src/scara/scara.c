@@ -102,7 +102,7 @@ void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj)
 
 bool scara_compute_joint_angles(scara_t* arm, scara_waypoint_t frame, float* alpha, float* beta)
 {
-    point_t target = {.x = frame.position[0], .y = frame.position[1]};
+    point_t target = {.x = frame.position.x, .y = frame.position.y};
 
     point_t p1, p2;
     int kinematics_solution_count = scara_num_possible_elbow_positions(target, arm->length[0], arm->length[1], &p1, &p2);
@@ -162,9 +162,9 @@ void scara_manage(scara_t *arm)
     if (arm->control_mode == CONTROL_JAM_PID_XYA) {
         position_3d_t measured;
         scara_pos(arm, &measured.x, &measured.y, &measured.z, COORDINATE_ARM);
-        position_3d_t desired = {.x = frame.position[0],
-                                 .y = frame.position[1],
-                                 .z = frame.position[2]};
+        position_3d_t desired = {.x = frame.position.x,
+                                 .y = frame.position.y,
+                                 .z = frame.position.z};
 
         scara_joint_setpoints_t joint_setpoints =
             scara_ik_controller_process(&arm->ik_controller, measured, desired,
@@ -176,7 +176,7 @@ void scara_manage(scara_t *arm)
               measured.x, measured.y, joint_setpoints.shoulder.value, joint_setpoints.elbow.value);
     } else {
         scara_joint_positions_t joints_desired = {
-            .z = frame.position[2], .shoulder = alpha, .elbow = beta
+            .z = frame.position.z, .shoulder = alpha, .elbow = beta
         };
         scara_joint_setpoints_t joint_setpoints =
             scara_joint_controller_process(joints_desired, arm->joint_positions);
@@ -188,7 +188,7 @@ void scara_manage(scara_t *arm)
 
 static scara_waypoint_t scara_convert_waypoint_coordinate(scara_t *arm, scara_waypoint_t key)
 {
-    point_t pos = {.x = key.position[0], .y = key.position[1]};
+    point_t pos = {.x = key.position.x, .y = key.position.y};
 
     if (key.coordinate_type == COORDINATE_TABLE) {
         point_t robot_pos;
@@ -203,8 +203,8 @@ static scara_waypoint_t scara_convert_waypoint_coordinate(scara_t *arm, scara_wa
         pos = scara_coordinate_robot2arm(pos, arm->offset_xy, arm->offset_rotation);
     }
 
-    key.position[0] = pos.x;
-    key.position[1] = pos.y;
+    key.position.x = pos.x;
+    key.position.y = pos.y;
     return key;
 }
 
@@ -256,8 +256,8 @@ void scara_pause(scara_t* arm)
         scara_waypoint_t current_pos = scara_position_for_date(arm, arm->time_offset);
         scara_trajectory_delete(&arm->trajectory);
         scara_trajectory_append_point(
-            &arm->trajectory, current_pos.position[0], current_pos.position[1],
-            current_pos.position[2], current_pos.coordinate_type,
+            &arm->trajectory, current_pos.position.x, current_pos.position.y,
+            current_pos.position.z, current_pos.coordinate_type,
             current_pos.date / 1e6, &current_pos.length[0]);
     }
 

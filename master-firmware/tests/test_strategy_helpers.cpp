@@ -58,11 +58,11 @@ TEST(ArmSetTrajectory, SetsGivenPointInTrajectory)
 {
     strategy_set_arm_trajectory(&arm, &trajectory[0], sizeof(trajectory) / sizeof(arm_waypoint_t));
 
-    CHECK_EQUAL(100, arm.trajectory.frames[1].position[0]);
-    CHECK_EQUAL(0, arm.trajectory.frames[1].position[1]);
+    CHECK_EQUAL(100, arm.trajectory.frames[1].position.x);
+    CHECK_EQUAL(0, arm.trajectory.frames[1].position.y);
 
-    CHECK_EQUAL(100, arm.trajectory.frames[2].position[0]);
-    CHECK_EQUAL(100, arm.trajectory.frames[2].position[1]);
+    CHECK_EQUAL(100, arm.trajectory.frames[2].position.x);
+    CHECK_EQUAL(100, arm.trajectory.frames[2].position.y);
 }
 
 TEST(ArmSetTrajectory, SetsTimeCorrectly)

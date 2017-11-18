@@ -96,8 +96,8 @@ TEST(kinematicsTestGroup, DoesNotOscillateAroundZero)
     while (scara_time_get() < traj.frames[traj.frame_count-1].date) {
         frame = scara_position_for_date(&arm, scara_time_get());
 
-        target.x = frame.position[0];
-        target.y = frame.position[1];
+        target.x = frame.position.x;
+        target.y = frame.position.y;
 
         position_count = scara_num_possible_elbow_positions(target,
                                  frame.length[0], frame.length[1],

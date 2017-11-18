@@ -23,7 +23,7 @@ typedef struct {
 /** This structure holds the data for a single waypoint of an arm trajectory (a waypoint). */
 typedef struct {
     int32_t date;                       /**< waypoint validity date, since the boot of the robot in us. */
-    float position[3];                  /**< Position of the arm at the data. */
+    position_3d_t position;                  /**< Position of the arm at the data. */
     scara_coordinate_t coordinate_type; /**< The coordinate system of this trajectory. */
     float length[2];                    /**< The length of the arm to use. */
 } scara_waypoint_t;

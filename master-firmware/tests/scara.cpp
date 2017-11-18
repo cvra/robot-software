@@ -156,7 +156,7 @@ TEST(AScaraArm, ComputesDesiredPointForCurrentTime)
     scara_do_trajectory(&arm, &traj);
 
     result = scara_position_for_date(&arm, date);
-    DOUBLES_EQUAL(result.position[0], 5., 0.1);
+    DOUBLES_EQUAL(result.position.x, 5., 0.1);
 }
 
 TEST(AScaraArm, SelectsAppropriatePointToExecuteForCurrentTime)
@@ -169,7 +169,7 @@ TEST(AScaraArm, SelectsAppropriatePointToExecuteForCurrentTime)
     scara_do_trajectory(&arm, &traj);
 
     result = scara_position_for_date(&arm, date);
-    DOUBLES_EQUAL(25, result.position[1], 0.1);
+    DOUBLES_EQUAL(25, result.position.y, 0.1);
 }
 
 TEST(AScaraArm, SelectsLastTrajectoryPointWhenTimeHasPassedTheEnd)
@@ -182,7 +182,7 @@ TEST(AScaraArm, SelectsLastTrajectoryPointWhenTimeHasPassedTheEnd)
     scara_do_trajectory(&arm, &traj);
 
     result = scara_position_for_date(&arm, date);
-    DOUBLES_EQUAL(30, result.position[1], 0.1);
+    DOUBLES_EQUAL(30, result.position.y, 0.1);
 }
 
 TEST(AScaraArm, SelectsCorrectPointWhenTrajectoryPointsSpecifiedInOtherCoordinateSystems)
@@ -195,8 +195,8 @@ TEST(AScaraArm, SelectsCorrectPointWhenTrajectoryPointsSpecifiedInOtherCoordinat
     scara_do_trajectory(&arm, &traj);
 
     result = scara_position_for_date(&arm, date);
-    DOUBLES_EQUAL(10, result.position[0], 0.1);
-    DOUBLES_EQUAL(-5, result.position[1], 0.1);
+    DOUBLES_EQUAL(10, result.position.x, 0.1);
+    DOUBLES_EQUAL(-5, result.position.y, 0.1);
 }
 
 TEST(AScaraArm, SetsRelatedRobotPosition)
@@ -224,8 +224,8 @@ TEST(AScaraArm, SelectsCorrectPointWhenGivenTrajectoryInTableCoordinateSystem)
     scara_do_trajectory(&arm, &traj);
 
     result = scara_position_for_date(&arm, date);
-    DOUBLES_EQUAL(20, result.position[0], 0.1);
-    DOUBLES_EQUAL(-15, result.position[1], 0.1);
+    DOUBLES_EQUAL(20, result.position.x, 0.1);
+    DOUBLES_EQUAL(-15, result.position.y, 0.1);
 }
 
 TEST(AScaraArm, TrajectoriesFirstPointTableNotHandledCorrectly)
@@ -241,8 +241,8 @@ TEST(AScaraArm, TrajectoriesFirstPointTableNotHandledCorrectly)
     scara_do_trajectory(&arm, &traj);
 
     result = scara_position_for_date(&arm, date);
-    DOUBLES_EQUAL(20, result.position[0], 0.1);
-    DOUBLES_EQUAL(-10, result.position[1], 0.1);
+    DOUBLES_EQUAL(20, result.position.x, 0.1);
+    DOUBLES_EQUAL(-10, result.position.y, 0.1);
 }
 
 TEST(AScaraArm, InterpolatesLengthsWhenTheyChangeBetweenWaypoints)
@@ -277,9 +277,9 @@ TEST_GROUP_BASE(AScaraArmPause, ArmTestGroupBase)
 
     void checkFrameEqual(scara_waypoint_t a, scara_waypoint_t b)
     {
-        CHECK_EQUAL(a.position[0], b.position[0]);
-        CHECK_EQUAL(a.position[1], b.position[1]);
-        CHECK_EQUAL(a.position[2], b.position[2]);
+        CHECK_EQUAL(a.position.x, b.position.x);
+        CHECK_EQUAL(a.position.y, b.position.y);
+        CHECK_EQUAL(a.position.z, b.position.z);
         CHECK_EQUAL(a.date, b.date);
         CHECK_EQUAL(a.coordinate_type, b.coordinate_type);
         CHECK_EQUAL(a.length[0], b.length[0]);
