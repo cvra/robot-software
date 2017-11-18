@@ -19,7 +19,7 @@ void scara_ik_controller_set_geometry(scara_ik_controller_t *controller,
 
 scara_joint_setpoints_t
 scara_ik_controller_process(scara_ik_controller_t *controller,
-                            position_3d_t measured, position_3d_t desired,
-                            scara_joint_positions_t joint_positions);
+                            position_3d_t desired,
+                            scara_joint_positions_t measured);
 
 #endif

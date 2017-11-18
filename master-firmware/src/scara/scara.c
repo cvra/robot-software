@@ -160,16 +160,12 @@ void scara_manage(scara_t *arm)
 
     if (arm->control_mode == CONTROL_JAM_PID_XYA) {
         scara_ik_controller_set_geometry(&arm->ik_controller, frame.length);
-
-        position_3d_t measured = scara_position(arm, COORDINATE_ARM);
-
         scara_joint_setpoints_t joint_setpoints =
-            scara_ik_controller_process(&arm->ik_controller, measured, frame.position,
+            scara_ik_controller_process(&arm->ik_controller, frame.position,
                                         arm->joint_positions);
-
         scara_hw_set_joints(&arm->hw_interface, joint_setpoints);
 
-        measured = scara_position(arm, frame.coordinate_type);
+        position_3d_t measured = scara_position(arm, frame.coordinate_type);
         DEBUG("Arm x %.3f y %.3f Arm velocities %.3f %.3f",
               measured.x, measured.y, joint_setpoints.shoulder.value, joint_setpoints.elbow.value);
     } else {
