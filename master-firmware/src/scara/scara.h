@@ -75,7 +75,7 @@ void scara_goto(scara_t* arm, float x, float y, float z, scara_coordinate_t syst
 void scara_move_z(scara_t* arm, float z, scara_coordinate_t system, const float duration);
 
 /* Get current arm position */
-void scara_pos(scara_t* arm, float* x, float* y, float* z, scara_coordinate_t system);
+position_3d_t scara_position(scara_t* arm, scara_coordinate_t system);
 
 void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj);
 

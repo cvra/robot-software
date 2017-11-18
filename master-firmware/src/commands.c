@@ -929,20 +929,19 @@ static void cmd_scara_mv(BaseSequentialStream *chp, int argc, char *argv[])
         return;
     }
     scara_t* arm = &main_arm;
-    float x, y, z;
 
     scara_trajectory_t trajectory;
 
-    scara_pos(arm, &x, &y, &z, COORDINATE_TABLE);
+    position_3d_t pos = scara_position(arm, COORDINATE_TABLE);
     scara_trajectory_init(&trajectory);
-    scara_trajectory_append_point(&trajectory, x, y, z, COORDINATE_TABLE, 0, arm->length);
+    scara_trajectory_append_point(&trajectory, pos.x, pos.y, pos.z, COORDINATE_TABLE, 0, arm->length);
 
-    x = atof(argv[0]);
-    y = atof(argv[1]);
-    scara_trajectory_append_point(&trajectory, x, y, z, COORDINATE_TABLE, 1, arm->length);
+    pos.x = atof(argv[0]);
+    pos.y = atof(argv[1]);
+    scara_trajectory_append_point(&trajectory, pos.x, pos.y, pos.z, COORDINATE_TABLE, 1, arm->length);
     scara_do_trajectory(arm, &trajectory);
 
-    chprintf(chp, "Moving %s arm to %f %f %f in table frame\r\n", argv[0], x, y, z);
+    chprintf(chp, "Moving %s arm to %f %f %f in table frame\r\n", argv[0], pos.x, pos.y, pos.z);
 }
 
 static void cmd_scara_z(BaseSequentialStream *chp, int argc, char *argv[])
@@ -968,16 +967,17 @@ static void cmd_scara_pos(BaseSequentialStream *chp, int argc, char *argv[])
 
     scara_t* arm = &main_arm;
 
-    float x, y, z;
+    position_3d_t pos;
     if (strcmp("robot", argv[0]) == 0) {
-        scara_pos(arm, &x, &y, &z, COORDINATE_ROBOT);
+        pos = scara_position(arm, COORDINATE_ROBOT);
     } else if (strcmp("table", argv[0]) == 0) {
-        scara_pos(arm, &x, &y, &z, COORDINATE_TABLE);
+        pos = scara_position(arm, COORDINATE_TABLE);
     } else {
-        scara_pos(arm, &x, &y, &z, COORDINATE_ARM);
+        pos = scara_position(arm, COORDINATE_ARM);
     }
 
-    chprintf(chp, "Position of %s arm is %f %f %f in %s frame\r\n", argv[1], x, y, z, argv[0]);
+    chprintf(chp, "Position of %s arm is %f %f %f in %s frame\r\n", argv[1],
+             pos.x, pos.y, pos.z, argv[0]);
 }
 
 
@@ -1103,15 +1103,14 @@ static void cmd_state(BaseSequentialStream *chp, int argc, char *argv[])
     (void)argc;
     (void)argv;
 
-    float x, y, z;
-
     chprintf(chp, "Current robot state:\r\n");
 
     chprintf(chp, "Position of robot is %d %d %d\r\n",
              position_get_x_s16(&robot.pos), position_get_y_s16(&robot.pos), position_get_a_deg_s16(&robot.pos));
 
-    scara_pos(&main_arm, &x, &y, &z, COORDINATE_TABLE);
-    chprintf(chp, "Position of main arm is %.1f %.1f %.1f in table frame\r\n", x, y, z);
+    position_3d_t pos = scara_position(&main_arm, COORDINATE_TABLE);
+    chprintf(chp, "Position of main arm is %.1f %.1f %.1f in table frame\r\n",
+             pos.x, pos.y, pos.z);
 }
 
 

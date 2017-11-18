@@ -66,15 +66,14 @@ void scara_goto(scara_t* arm, float x, float y, float z, scara_coordinate_t syst
 
 void scara_move_z(scara_t* arm, float z_new, scara_coordinate_t system, const float duration)
 {
-    float x, y, z;
-    scara_pos(arm, &x, &y, &z, system);
-    scara_goto(arm, x, y, z_new, system, duration);
+    position_3d_t current_pos = scara_position(arm, system);
+    scara_goto(arm, current_pos.x, current_pos.y, z_new, system, duration);
 }
 
-void scara_pos(scara_t* arm, float* x, float* y, float* z, scara_coordinate_t system)
+position_3d_t scara_position(scara_t* arm, scara_coordinate_t system)
 {
-    point_t pos;
-    pos = scara_forward_kinematics(arm->joint_positions.shoulder, arm->joint_positions.elbow, arm->length);
+    point_t pos = scara_forward_kinematics(
+        arm->joint_positions.shoulder, arm->joint_positions.elbow, arm->length);
 
     if (system == COORDINATE_ROBOT) {
         pos = scara_coordinate_arm2robot(pos, arm->offset_xy, arm->offset_rotation);
@@ -88,9 +87,8 @@ void scara_pos(scara_t* arm, float* x, float* y, float* z, scara_coordinate_t sy
         pos = scara_coordinate_robot2table(pos, robot_xy, robot_a);
     }
 
-    *x = pos.x;
-    *y = pos.y;
-    *z = arm->joint_positions.z;
+    position_3d_t position = {.x = pos.x, .y = pos.y, .z = arm->joint_positions.z};
+    return position;
 }
 
 void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj)
@@ -160,10 +158,9 @@ void scara_manage(scara_t *arm)
     }
 
     if (arm->control_mode == CONTROL_JAM_PID_XYA) {
-        position_3d_t measured;
-        scara_pos(arm, &measured.x, &measured.y, &measured.z, COORDINATE_ARM);
-
         scara_ik_controller_set_geometry(&arm->ik_controller, frame.length);
+
+        position_3d_t measured = scara_position(arm, COORDINATE_ARM);
 
         scara_joint_setpoints_t joint_setpoints =
             scara_ik_controller_process(&arm->ik_controller, measured, frame.position,
@@ -171,7 +168,7 @@ void scara_manage(scara_t *arm)
 
         scara_hw_set_joints(&arm->hw_interface, joint_setpoints);
 
-        scara_pos(arm, &measured.x, &measured.y, &measured.z, frame.coordinate_type);
+        measured = scara_position(arm, frame.coordinate_type);
         DEBUG("Arm x %.3f y %.3f Arm velocities %.3f %.3f",
               measured.x, measured.y, joint_setpoints.shoulder.value, joint_setpoints.elbow.value);
     } else {
