@@ -482,3 +482,25 @@ TEST(AScaraJointAnglesComputer, wrapsBetaWhenHigherThanMinusPi)
     CHECK_TRUE(solution_found);
     DOUBLES_EQUAL(- 0.5 * M_PI, beta, 0.1);
 }
+
+TEST_GROUP_BASE(AScaraArmInverseKinematicsController, ArmTestGroupBase)
+{
+    void setup()
+    {
+        ArmTestGroupBase::setup();
+
+        scara_ugly_mode_disable(&arm); // Run IK controller
+    }
+};
+
+TEST(AScaraArmInverseKinematicsController, sendsSetpointsToJoints)
+{
+    scara_trajectory_init(&traj);
+    scara_trajectory_append_point(&traj, 100, 100, 10, COORDINATE_ARM, 1., arbitraryLengths);
+    scara_do_trajectory(&arm, &traj);
+
+    scara_time_set(8 * 1000000);
+    scara_manage(&arm);
+    CHECK(0 != shoulder_angle);
+    CHECK(0 != elbow_angle);
+}
