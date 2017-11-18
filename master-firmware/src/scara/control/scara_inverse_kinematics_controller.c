@@ -2,13 +2,24 @@
 
 #include <scara/scara_jacobian.h>
 
-scara_joint_setpoints_t
-scara_ik_controller_process(position_3d_t measured, position_3d_t desired,
-                            scara_joint_positions_t joint_positions,
-                            float *length, pid_ctrl_t x_pid, pid_ctrl_t y_pid)
+#include <string.h>
+
+void scara_ik_controller_init(scara_ik_controller_t* controller)
 {
-    float consign_x = pid_process(&x_pid, measured.x - desired.x);
-    float consign_y = pid_process(&y_pid, measured.y - desired.y);
+    memset(controller, 0, sizeof(scara_ik_controller_t));
+
+    pid_init(&controller->x_pid);
+    pid_init(&controller->y_pid);
+}
+
+scara_joint_setpoints_t
+scara_ik_controller_process(scara_ik_controller_t *controller,
+                            position_3d_t measured, position_3d_t desired,
+                            scara_joint_positions_t joint_positions,
+                            float *length)
+{
+    float consign_x = pid_process(&controller->x_pid, measured.x - desired.x);
+    float consign_y = pid_process(&controller->y_pid, measured.y - desired.y);
 
     float velocity_alpha, velocity_beta;
     scara_jacobian_compute(consign_x, consign_y, joint_positions.shoulder,

@@ -7,7 +7,6 @@
 #include "scara_utils.h"
 #include "scara_port.h"
 #include "control/scara_joint_controller.h"
-#include "control/scara_inverse_kinematics_controller.h"
 
 static void scara_lock(mutex_t* mutex)
 {
@@ -29,8 +28,7 @@ void scara_init(scara_t *arm)
     arm->time_offset = 0;
 
     /* Configure arm controllers */
-    pid_init(&arm->x_pid);
-    pid_init(&arm->y_pid);
+    scara_ik_controller_init(&arm->ik_controller);
 
     chMtxObjectInit(&arm->lock);
 }
@@ -169,8 +167,8 @@ void scara_manage(scara_t *arm)
                                  .z = frame.position[2]};
 
         scara_joint_setpoints_t joint_setpoints =
-            scara_ik_controller_process(measured, desired, arm->joint_positions,
-                                        frame.length, arm->x_pid, arm->y_pid);
+            scara_ik_controller_process(&arm->ik_controller, measured, desired,
+                                        arm->joint_positions, frame.length);
         scara_hw_set_joints(&arm->hw_interface, joint_setpoints);
 
         scara_pos(arm, &measured.x, &measured.y, &measured.z, frame.coordinate_type);

@@ -14,6 +14,7 @@
 #include "scara_hardware_interface.h"
 #include "scara_kinematics.h"
 #include "scara_waypoint.h"
+#include "control/scara_inverse_kinematics_controller.h"
 
 /** Control mode of the scara arm. */
 typedef enum {
@@ -31,8 +32,7 @@ typedef struct {
     scara_joint_positions_t joint_positions; /**< Cached joint positions */
 
     /* Control system */
-    pid_ctrl_t x_pid;
-    pid_ctrl_t y_pid;
+    scara_ik_controller_t ik_controller;
 
     /* Physical parameters. */
     float length[2];                  /**< Length of the 2 arms elements. */
