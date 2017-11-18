@@ -1,7 +1,10 @@
 #ifndef SCARA_KINEMATICS_H
 #define SCARA_KINEMATICS_H
 
+#include <stdbool.h>
 #include <aversive/math/geometry/vect_base.h>
+
+#include "scara_waypoint.h"
 
 typedef enum {
     SHOULDER_FRONT,
@@ -34,5 +37,8 @@ point_t scara_forward_kinematics(float alpha, float beta, float length[2]);
 
 float scara_compute_shoulder_angle(point_t elbow, point_t hand);
 float scara_compute_elbow_angle(point_t elbow, point_t hand);
+
+bool scara_compute_joint_angles(position_3d_t position, shoulder_mode_t mode,
+                                float *length, float *alpha, float *beta);
 
 #endif /* SCARA_KINEMATICS_H */

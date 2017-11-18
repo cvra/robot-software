@@ -81,8 +81,6 @@ void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj);
 
 void scara_manage(scara_t *arm);
 
-bool scara_compute_joint_angles(scara_t* arm, scara_waypoint_t frame, float* alpha, float* beta);
-
 scara_waypoint_t scara_position_for_date(scara_t *arm, int32_t date);
 
 void scara_set_related_robot_pos(scara_t *arm, struct robot_position *pos);
