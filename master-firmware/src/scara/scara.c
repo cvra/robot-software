@@ -162,13 +162,13 @@ void scara_manage(scara_t *arm)
     if (arm->control_mode == CONTROL_JAM_PID_XYA) {
         position_3d_t measured;
         scara_pos(arm, &measured.x, &measured.y, &measured.z, COORDINATE_ARM);
-        position_3d_t desired = {.x = frame.position.x,
-                                 .y = frame.position.y,
-                                 .z = frame.position.z};
+
+        scara_ik_controller_set_geometry(&arm->ik_controller, frame.length);
 
         scara_joint_setpoints_t joint_setpoints =
-            scara_ik_controller_process(&arm->ik_controller, measured, desired,
-                                        arm->joint_positions, frame.length);
+            scara_ik_controller_process(&arm->ik_controller, measured, frame.position,
+                                        arm->joint_positions);
+
         scara_hw_set_joints(&arm->hw_interface, joint_setpoints);
 
         scara_pos(arm, &measured.x, &measured.y, &measured.z, frame.coordinate_type);
