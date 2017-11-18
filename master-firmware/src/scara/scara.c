@@ -6,7 +6,6 @@
 #include "scara_trajectories.h"
 #include "scara_utils.h"
 #include "scara_port.h"
-#include "control/scara_joint_controller.h"
 
 static void scara_lock(mutex_t* mutex)
 {
@@ -28,6 +27,7 @@ void scara_init(scara_t *arm)
     arm->time_offset = 0;
 
     /* Configure arm controllers */
+    scara_joint_controller_init(&arm->joint_controller);
     scara_ik_controller_init(&arm->ik_controller);
 
     chMtxObjectInit(&arm->lock);
@@ -114,19 +114,6 @@ void scara_manage(scara_t *arm)
 
     scara_waypoint_t frame = scara_position_for_date(arm, current_date);
 
-    float alpha, beta;
-    shoulder_mode_t mode = scara_orientation_mode(arm->shoulder_mode, arm->offset_rotation);
-    bool solution_found = scara_compute_joint_angles(frame.position, mode, arm->length, &alpha, &beta);
-
-    if (solution_found) {
-        DEBUG("Inverse kinematics: Found a solution");
-    } else {
-        DEBUG("Inverse kinematics: Found no solution, disabling the arm");
-        scara_hw_shutdown_joints(&arm->hw_interface);
-        scara_unlock(&arm->lock);
-        return;
-    }
-
     if (arm->control_mode == CONTROL_JAM_PID_XYA) {
         scara_ik_controller_set_geometry(&arm->ik_controller, frame.length);
         scara_joint_setpoints_t joint_setpoints =
@@ -138,11 +125,11 @@ void scara_manage(scara_t *arm)
         DEBUG("Arm x %.3f y %.3f Arm velocities %.3f %.3f",
               measured.x, measured.y, joint_setpoints.shoulder.value, joint_setpoints.elbow.value);
     } else {
-        scara_joint_positions_t joints_desired = {
-            .z = frame.position.z, .shoulder = alpha, .elbow = beta
-        };
+        shoulder_mode_t mode = scara_orientation_mode(arm->shoulder_mode, arm->offset_rotation);
+        scara_joint_controller_set_geometry(&arm->joint_controller, frame.length, mode);
         scara_joint_setpoints_t joint_setpoints =
-            scara_joint_controller_process(joints_desired, arm->joint_positions);
+            scara_joint_controller_process(
+                &arm->joint_controller, frame.position, arm->joint_positions);
         scara_hw_set_joints(&arm->hw_interface, joint_setpoints);
     }
 
