@@ -74,7 +74,7 @@ public:
         auto H = this->H(mu);
         auto K = sigma * H.transpose() * (H * sigma * H.transpose() + Q).inverse();
         mu = mu + K * (z - h(mu));
-        sigma = (Jacobian::Identity() - K * H) * sigma;
+        sigma = (Covariance::Identity() - K * H) * sigma;
 
         return std::pair<State, Covariance>(mu, sigma);
     }
