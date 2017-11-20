@@ -38,6 +38,7 @@ source:
   - src/decadriver/deca_device.c
   - src/decadriver/deca_params_init.c
   - src/uwb_protocol.c
+  - src/state_estimation.cpp
 
 tests:
   - tests/mpu9250.cpp
@@ -45,6 +46,7 @@ tests:
   - tests/decawave.cpp
   - tests/uwb_protocol.cpp
   - tests/ekf.cpp
+  - tests/state_estimation.cpp
 
 templates:
   app_src.mk.jinja: app_src.mk
