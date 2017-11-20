@@ -6,7 +6,6 @@
 #include "scara_trajectories.h"
 #include "scara_utils.h"
 #include "scara_port.h"
-#include "scara_jacobian.h"
 
 static void scara_lock(mutex_t* mutex)
 {
@@ -28,8 +27,8 @@ void scara_init(scara_t *arm)
     arm->time_offset = 0;
 
     /* Configure arm controllers */
-    pid_init(&arm->x_pid);
-    pid_init(&arm->y_pid);
+    scara_joint_controller_init(&arm->joint_controller);
+    scara_ik_controller_init(&arm->ik_controller);
 
     chMtxObjectInit(&arm->lock);
 }
@@ -58,24 +57,24 @@ void scara_ugly_mode_disable(scara_t* arm)
 }
 
 
-void scara_goto(scara_t* arm, float x, float y, float z, scara_coordinate_t system, const float duration)
+void scara_goto(scara_t* arm, position_3d_t pos, scara_coordinate_t system, const float duration)
 {
     scara_trajectory_init(&(arm->trajectory));
-    scara_trajectory_append_point(&(arm->trajectory), x, y, z, system, duration, arm->length);
+    scara_trajectory_append_point(&(arm->trajectory), pos, system, duration, arm->length);
     scara_do_trajectory(arm, &(arm->trajectory));
 }
 
 void scara_move_z(scara_t* arm, float z_new, scara_coordinate_t system, const float duration)
 {
-    float x, y, z;
-    scara_pos(arm, &x, &y, &z, system);
-    scara_goto(arm, x, y, z_new, system, duration);
+    position_3d_t pos = scara_position(arm, system);
+    pos.z = z_new;
+    scara_goto(arm, pos, system, duration);
 }
 
-void scara_pos(scara_t* arm, float* x, float* y, float* z, scara_coordinate_t system)
+position_3d_t scara_position(scara_t* arm, scara_coordinate_t system)
 {
-    point_t pos;
-    pos = scara_forward_kinematics(arm->joint_positions.shoulder, arm->joint_positions.elbow, arm->length);
+    point_t pos = scara_forward_kinematics(
+        arm->joint_positions.shoulder, arm->joint_positions.elbow, arm->length);
 
     if (system == COORDINATE_ROBOT) {
         pos = scara_coordinate_arm2robot(pos, arm->offset_xy, arm->offset_rotation);
@@ -89,9 +88,8 @@ void scara_pos(scara_t* arm, float* x, float* y, float* z, scara_coordinate_t sy
         pos = scara_coordinate_robot2table(pos, robot_xy, robot_a);
     }
 
-    *x = pos.x;
-    *y = pos.y;
-    *z = arm->joint_positions.z;
+    position_3d_t position = {.x = pos.x, .y = pos.y, .z = arm->joint_positions.z};
+    return position;
 }
 
 void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj)
@@ -99,38 +97,6 @@ void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj)
     scara_lock(&arm->lock);
     scara_trajectory_copy(&arm->trajectory, traj);
     scara_unlock(&arm->lock);
-}
-
-bool scara_compute_joint_angles(scara_t* arm, scara_waypoint_t frame, float* alpha, float* beta)
-{
-    point_t target = {.x = frame.position[0], .y = frame.position[1]};
-
-    point_t p1, p2;
-    int kinematics_solution_count = scara_num_possible_elbow_positions(target, arm->length[0], arm->length[1], &p1, &p2);
-
-    if (kinematics_solution_count == 0) {
-        return false;
-    } else if (kinematics_solution_count == 2) {
-        shoulder_mode_t mode = scara_orientation_mode(arm->shoulder_mode, arm->offset_rotation);
-        p1 = scara_shoulder_solve(target, p1, p2, mode);
-    }
-
-    /* p1 now contains the correct elbow pos. */
-    *alpha = scara_compute_shoulder_angle(p1, target);
-    *beta = scara_compute_elbow_angle(p1, target);
-
-    /* This is due to mecanical construction of the arms. */
-    *beta = *beta - *alpha;
-
-    /* The arm cannot make one full turn. */
-    if (*beta < -M_PI) {
-        *beta = 2 * M_PI + *beta;
-    }
-    if (*beta > M_PI) {
-        *beta = *beta - 2 * M_PI;
-    }
-
-    return true;
 }
 
 void scara_manage(scara_t *arm)
@@ -148,47 +114,22 @@ void scara_manage(scara_t *arm)
 
     scara_waypoint_t frame = scara_position_for_date(arm, current_date);
 
-    float alpha, beta;
-    bool solution_found = scara_compute_joint_angles(arm, frame, &alpha, &beta);
-
-    if (solution_found) {
-        DEBUG("Inverse kinematics: Found a solution");
-    } else {
-        DEBUG("Inverse kinematics: Found no solution, disabling the arm");
-        scara_hw_shutdown_joints(&arm->hw_interface);
-        scara_unlock(&arm->lock);
-        return;
-    }
-
     if (arm->control_mode == CONTROL_JAM_PID_XYA) {
-        float measured_x, measured_y, measured_z;
-        scara_pos(arm, &measured_x, &measured_y, &measured_z, COORDINATE_ARM);
-
-        float consign_x = pid_process(&arm->x_pid, measured_x - frame.position[0]);
-        float consign_y = pid_process(&arm->y_pid, measured_y - frame.position[1]);
-
-        float velocity_alpha, velocity_beta;
-        scara_jacobian_compute(consign_x, consign_y, arm->joint_positions.shoulder,
-                               arm->joint_positions.elbow, frame.length[0], frame.length[1],
-                               &velocity_alpha, &velocity_beta);
-
-        scara_pos(arm, &measured_x, &measured_y, &measured_z, frame.coordinate_type);
-
-        DEBUG("Arm x %.3f y %.3f Arm velocities %.3f %.3f",
-              measured_x, measured_y, velocity_alpha, velocity_beta);
-
-        scara_joint_setpoints_t joint_setpoints = {
-            .z = {POSITION, frame.position[2]},
-            .shoulder = {VELOCITY, velocity_alpha},
-            .elbow = {VELOCITY, velocity_beta}
-        };
+        scara_ik_controller_set_geometry(&arm->ik_controller, frame.length);
+        scara_joint_setpoints_t joint_setpoints =
+            scara_ik_controller_process(&arm->ik_controller, frame.position,
+                                        arm->joint_positions);
         scara_hw_set_joints(&arm->hw_interface, joint_setpoints);
+
+        position_3d_t measured = scara_position(arm, frame.coordinate_type);
+        DEBUG("Arm x %.3f y %.3f Arm velocities %.3f %.3f",
+              measured.x, measured.y, joint_setpoints.shoulder.value, joint_setpoints.elbow.value);
     } else {
-        scara_joint_setpoints_t joint_setpoints = {
-            .z = {POSITION, frame.position[2]},
-            .shoulder = {POSITION, alpha},
-            .elbow = {POSITION, beta}
-        };
+        shoulder_mode_t mode = scara_orientation_mode(arm->shoulder_mode, arm->offset_rotation);
+        scara_joint_controller_set_geometry(&arm->joint_controller, frame.length, mode);
+        scara_joint_setpoints_t joint_setpoints =
+            scara_joint_controller_process(
+                &arm->joint_controller, frame.position, arm->joint_positions);
         scara_hw_set_joints(&arm->hw_interface, joint_setpoints);
     }
 
@@ -197,7 +138,7 @@ void scara_manage(scara_t *arm)
 
 static scara_waypoint_t scara_convert_waypoint_coordinate(scara_t *arm, scara_waypoint_t key)
 {
-    point_t pos = {.x = key.position[0], .y = key.position[1]};
+    point_t pos = {.x = key.position.x, .y = key.position.y};
 
     if (key.coordinate_type == COORDINATE_TABLE) {
         point_t robot_pos;
@@ -212,8 +153,8 @@ static scara_waypoint_t scara_convert_waypoint_coordinate(scara_t *arm, scara_wa
         pos = scara_coordinate_robot2arm(pos, arm->offset_xy, arm->offset_rotation);
     }
 
-    key.position[0] = pos.x;
-    key.position[1] = pos.y;
+    key.position.x = pos.x;
+    key.position.y = pos.y;
     return key;
 }
 
@@ -265,8 +206,7 @@ void scara_pause(scara_t* arm)
         scara_waypoint_t current_pos = scara_position_for_date(arm, arm->time_offset);
         scara_trajectory_delete(&arm->trajectory);
         scara_trajectory_append_point(
-            &arm->trajectory, current_pos.position[0], current_pos.position[1],
-            current_pos.position[2], current_pos.coordinate_type,
+            &arm->trajectory, current_pos.position, current_pos.coordinate_type,
             current_pos.date / 1e6, &current_pos.length[0]);
     }
 

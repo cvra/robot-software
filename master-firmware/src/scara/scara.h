@@ -14,6 +14,8 @@
 #include "scara_hardware_interface.h"
 #include "scara_kinematics.h"
 #include "scara_waypoint.h"
+#include "control/scara_joint_controller.h"
+#include "control/scara_inverse_kinematics_controller.h"
 
 /** Control mode of the scara arm. */
 typedef enum {
@@ -31,8 +33,8 @@ typedef struct {
     scara_joint_positions_t joint_positions; /**< Cached joint positions */
 
     /* Control system */
-    pid_ctrl_t x_pid;
-    pid_ctrl_t y_pid;
+    scara_joint_controller_t joint_controller;
+    scara_ik_controller_t ik_controller;
 
     /* Physical parameters. */
     float length[2];                  /**< Length of the 2 arms elements. */
@@ -69,19 +71,17 @@ void scara_ugly_mode_disable(scara_t* arm);
 
 
 /* Goto position in specified coordinate system */
-void scara_goto(scara_t* arm, float x, float y, float z, scara_coordinate_t system, const float duration);
+void scara_goto(scara_t* arm, position_3d_t pos, scara_coordinate_t system, const float duration);
 
 /* Move arm in axis only */
 void scara_move_z(scara_t* arm, float z, scara_coordinate_t system, const float duration);
 
 /* Get current arm position */
-void scara_pos(scara_t* arm, float* x, float* y, float* z, scara_coordinate_t system);
+position_3d_t scara_position(scara_t* arm, scara_coordinate_t system);
 
 void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj);
 
 void scara_manage(scara_t *arm);
-
-bool scara_compute_joint_angles(scara_t* arm, scara_waypoint_t frame, float* alpha, float* beta);
 
 scara_waypoint_t scara_position_for_date(scara_t *arm, int32_t date);
 

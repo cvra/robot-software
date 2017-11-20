@@ -27,7 +27,7 @@ TEST_GROUP(AnArmTrajectory)
     {
         for (int i = 0; i < number_of_points; i++)
         {
-            scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, i + 1, arbitraryLengths);
+            scara_trajectory_append_point(&traj, {10, 10, 10}, COORDINATE_ARM, i + 1, arbitraryLengths);
         }
     }
 };
@@ -51,9 +51,9 @@ TEST(AnArmTrajectory, AppendsMultiplePoints)
 
 TEST(AnArmTrajectory, ComputesDateCorrectly)
 {
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 1., arbitraryLengths);
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10., arbitraryLengths);
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 15., arbitraryLengths);
+    scara_trajectory_append_point(&traj, {10, 10, 10}, COORDINATE_ARM, 1., arbitraryLengths);
+    scara_trajectory_append_point(&traj, {10, 10, 10}, COORDINATE_ARM, 10., arbitraryLengths);
+    scara_trajectory_append_point(&traj, {10, 10, 10}, COORDINATE_ARM, 15., arbitraryLengths);
 
     CHECK_EQUAL(traj.frames[1].date, 10*1000000);
     CHECK_EQUAL(traj.frames[2].date, 25*1000000);
@@ -75,10 +75,10 @@ TEST(AnArmTrajectory, CopiesTrajectory)
     scara_trajectory_copy(&copy, &traj);
 
     CHECK_EQUAL(traj.frame_count, copy.frame_count);
-    CHECK_EQUAL(traj.frames[0].position[0], copy.frames[0].position[0]);
+    CHECK_EQUAL(traj.frames[0].position.x, copy.frames[0].position.x);
 
     /* Check that it is a full copy. */
-    CHECK(traj.frames[0].position != copy.frames[0].position);
+    CHECK(traj.frames != copy.frames);
 }
 
 TEST(AnArmTrajectory, IsFinishedWhenGivenNoPoints)
@@ -95,8 +95,8 @@ TEST(AnArmTrajectory, IsNotFinishedWhenGivenPoints)
 
 TEST(AnArmTrajectory, IsFinishedWhenTrajectoryIsOutdated)
 {
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 1., arbitraryLengths);
-    scara_trajectory_append_point(&traj, 10, 10, 10, COORDINATE_ARM, 10., arbitraryLengths);
+    scara_trajectory_append_point(&traj, {10, 10, 10}, COORDINATE_ARM, 1., arbitraryLengths);
+    scara_trajectory_append_point(&traj, {10, 10, 10}, COORDINATE_ARM, 10., arbitraryLengths);
     scara_time_set(20*1000000);
 
     CHECK_EQUAL(1, scara_trajectory_finished(&traj));
@@ -106,17 +106,17 @@ TEST(AnArmTrajectory, InterpolatesWaypoints)
 {
     const int32_t interpolation_date = 5 * 1000000; // microseconds
     scara_waypoint_t result;
-    scara_trajectory_append_point(&traj, 0, 0, 0, COORDINATE_ARM, 1., arbitraryLengths);
-    scara_trajectory_append_point(&traj, 10, 20, 30, COORDINATE_ARM, 10., arbitraryLengths);
+    scara_trajectory_append_point(&traj, {0, 0, 0}, COORDINATE_ARM, 1., arbitraryLengths);
+    scara_trajectory_append_point(&traj, {10, 20, 30}, COORDINATE_ARM, 10., arbitraryLengths);
 
     result = scara_trajectory_interpolate_waypoints(traj.frames[0], traj.frames[1], interpolation_date);
 
     CHECK_EQUAL(interpolation_date, result.date);
     CHECK_EQUAL(COORDINATE_ARM, result.coordinate_type);
 
-    DOUBLES_EQUAL(5., result.position[0], 0.1);
-    DOUBLES_EQUAL(10., result.position[1], 0.1);
-    DOUBLES_EQUAL(15., result.position[2], 0.1);
+    DOUBLES_EQUAL(5., result.position.x, 0.1);
+    DOUBLES_EQUAL(10., result.position.y, 0.1);
+    DOUBLES_EQUAL(15., result.position.z, 0.1);
 
     CHECK_TRUE(result.length[0] > 0.0);
     CHECK_TRUE(result.length[1] > 0.0);

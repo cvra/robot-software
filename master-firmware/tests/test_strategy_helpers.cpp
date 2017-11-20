@@ -24,9 +24,9 @@ TEST_GROUP(ArmSetTrajectory)
     struct robot_position pos;
 
     arm_waypoint_t trajectory[3] = {
-        {.x=0, .y=0, .z=0, .coord=COORDINATE_TABLE, .dt=1000},
-        {.x=100, .y=0, .z=0, .coord=COORDINATE_TABLE, .dt=1000},
-        {.x=100, .y=100, .z=0, .coord=COORDINATE_TABLE, .dt=1000},
+        {.pos={.x =   0, .y =   0, .z = 0}, .coord=COORDINATE_TABLE, .dt=1000},
+        {.pos={.x = 100, .y =   0, .z = 0}, .coord=COORDINATE_TABLE, .dt=1000},
+        {.pos={.x = 100, .y = 100, .z = 0}, .coord=COORDINATE_TABLE, .dt=1000},
     };
 
     void setup()
@@ -58,11 +58,11 @@ TEST(ArmSetTrajectory, SetsGivenPointInTrajectory)
 {
     strategy_set_arm_trajectory(&arm, &trajectory[0], sizeof(trajectory) / sizeof(arm_waypoint_t));
 
-    CHECK_EQUAL(100, arm.trajectory.frames[1].position[0]);
-    CHECK_EQUAL(0, arm.trajectory.frames[1].position[1]);
+    CHECK_EQUAL(100, arm.trajectory.frames[1].position.x);
+    CHECK_EQUAL(0, arm.trajectory.frames[1].position.y);
 
-    CHECK_EQUAL(100, arm.trajectory.frames[2].position[0]);
-    CHECK_EQUAL(100, arm.trajectory.frames[2].position[1]);
+    CHECK_EQUAL(100, arm.trajectory.frames[2].position.x);
+    CHECK_EQUAL(100, arm.trajectory.frames[2].position.y);
 }
 
 TEST(ArmSetTrajectory, SetsTimeCorrectly)

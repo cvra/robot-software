@@ -24,8 +24,8 @@ void scara_trajectory_init(scara_trajectory_t *traj) {
 }
 
 
-void scara_trajectory_append_point(scara_trajectory_t *traj, const float x, const float y, const float z,
-                                   scara_coordinate_t system, const float duration, const float* length)
+void scara_trajectory_append_point(scara_trajectory_t *traj, position_3d_t pos,
+                                   scara_coordinate_t system, float duration, const float* length)
 {
     traj->frame_count += 1;
     if (traj->frame_count >= SCARA_TRAJ_MAX_NUM_FRAMES) {
@@ -36,9 +36,9 @@ void scara_trajectory_append_point(scara_trajectory_t *traj, const float x, cons
         scara_panic();
     }
 
-    traj->frames[traj->frame_count-1].position[0] = x;
-    traj->frames[traj->frame_count-1].position[1] = y;
-    traj->frames[traj->frame_count-1].position[2] = z;
+    traj->frames[traj->frame_count-1].position.x = pos.x;
+    traj->frames[traj->frame_count-1].position.y = pos.y;
+    traj->frames[traj->frame_count-1].position.z = pos.z;
     traj->frames[traj->frame_count-1].coordinate_type = system;
 
     if (traj->frame_count == 1) {
@@ -95,9 +95,9 @@ scara_waypoint_t scara_trajectory_interpolate_waypoints(scara_waypoint_t k1, sca
     t = (date - k1.date) / (float)(k2.date - k1.date);
     t = smoothstep(t);
 
-    for (i=0; i<3; i++) {
-        result.position[i] = interpolate(t, k1.position[i], k2.position[i]);
-    }
+    result.position.x = interpolate(t, k1.position.x, k2.position.x);
+    result.position.y = interpolate(t, k1.position.y, k2.position.y);
+    result.position.z = interpolate(t, k1.position.z, k2.position.z);
 
     for (i=0; i<2; i++) {
         result.length[i] = interpolate(t, k1.length[i], k2.length[i]);

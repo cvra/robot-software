@@ -124,3 +124,64 @@ TEST(ChooseElbowPositionTestGroup, ChooseElbowForwardBis)
     chosen = scara_shoulder_solve(target, elbow1, elbow2, SHOULDER_FRONT);
     CHECK_EQUAL(elbow2.y, chosen.y);
 }
+
+
+TEST_GROUP(AScaraJointAnglesComputer)
+{
+    float alpha, beta;
+    shoulder_mode_t mode = SHOULDER_BACK;
+    float length[2] = {100, 50};
+
+    void setup()
+    {
+    }
+
+    position_3d_t target(float x, float y)
+    {
+        return {x, y, 0};
+    }
+};
+
+TEST(AScaraJointAnglesComputer, failsWhenNoSolutionFound)
+{
+    position_3d_t unreachable_target = target(200, 0);
+
+    bool solution_found = scara_compute_joint_angles(unreachable_target, mode,
+                                                     length, &alpha, &beta);
+
+    CHECK_FALSE(solution_found);
+}
+
+TEST(AScaraJointAnglesComputer, choosesASolutionWhenMoreThanOnePossibility)
+{
+    position_3d_t ambiguous_target = target(120, 0);
+
+    bool solution_found = scara_compute_joint_angles(ambiguous_target, mode,
+                                                     length, &alpha, &beta);
+
+    CHECK_TRUE(solution_found);
+    DOUBLES_EQUAL(0.5, alpha, 0.1);
+    DOUBLES_EQUAL(-1.379634, beta, 0.1);
+}
+
+TEST(AScaraJointAnglesComputer, wrapsBetaWhenLowerThanMinusPi)
+{
+    position_3d_t valid_target = target(-length[0], length[1]);
+
+    bool solution_found = scara_compute_joint_angles(valid_target, mode,
+                                                     length, &alpha, &beta);
+
+    CHECK_TRUE(solution_found);
+    DOUBLES_EQUAL(0.5 * M_PI, beta, 0.1);
+}
+
+TEST(AScaraJointAnglesComputer, wrapsBetaWhenHigherThanMinusPi)
+{
+    position_3d_t valid_target = target(-length[0], -length[1]);
+
+    bool solution_found = scara_compute_joint_angles(valid_target, mode,
+                                                     length, &alpha, &beta);
+
+    CHECK_TRUE(solution_found);
+    DOUBLES_EQUAL(- 0.5 * M_PI, beta, 0.1);
+}

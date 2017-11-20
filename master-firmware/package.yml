@@ -86,6 +86,8 @@ source:
     - src/scara/scara_kinematics.c
     - src/scara/scara.c
     - src/scara/scara_jacobian.cpp
+    - src/scara/control/scara_joint_controller.c
+    - src/scara/control/scara_inverse_kinematics_controller.c
     - src/hand/hand.c
 
 include_directories:
@@ -117,6 +119,8 @@ tests:
     - tests/scara_kinematics.cpp
     - tests/scara_kinematics_integration.cpp
     - tests/scara_hardware_interface.cpp
+    - tests/scara_joint_controller.cpp
+    - tests/scara_inverse_kinematics_controller.cpp
     - tests/scara.cpp
     - tests/test_hand.cpp
     - tests/lie_groups.cpp

@@ -89,15 +89,15 @@ TEST(kinematicsTestGroup, DoesNotOscillateAroundZero)
     point_t target;
     int position_count;
 
-    scara_trajectory_append_point(&traj, 100,  1, 10, COORDINATE_ARM, 1., arbitraryLengths);
-    scara_trajectory_append_point(&traj, 100, -1, 10, COORDINATE_ARM, 10., arbitraryLengths);
+    scara_trajectory_append_point(&traj, {100,  1, 10}, COORDINATE_ARM, 1., arbitraryLengths);
+    scara_trajectory_append_point(&traj, {100, -1, 10}, COORDINATE_ARM, 10., arbitraryLengths);
     scara_do_trajectory(&arm, &traj);
 
     while (scara_time_get() < traj.frames[traj.frame_count-1].date) {
         frame = scara_position_for_date(&arm, scara_time_get());
 
-        target.x = frame.position[0];
-        target.y = frame.position[1];
+        target.x = frame.position.x;
+        target.y = frame.position.y;
 
         position_count = scara_num_possible_elbow_positions(target,
                                  frame.length[0], frame.length[1],
