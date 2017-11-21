@@ -16,6 +16,14 @@ scara_waypoint_t ArmTrajectory::frame(int index) const
     return m_trajectory.frames[index];
 }
 
+ArmTrajectory& ArmTrajectory::startAt(const ArmTrajectoryFrame& frame)
+{
+    scara_trajectory_init(&m_trajectory);
+    scara_trajectory_append_point(&m_trajectory, frame.position,
+                                  frame.coordinate, 0.0, m_arm->length);
+    return *this;
+}
+
 ArmTrajectory& ArmTrajectory::goThrough(const ArmTrajectoryFrame& frame)
 {
     scara_trajectory_append_point(&m_trajectory, frame.position,

@@ -59,3 +59,15 @@ TEST(ArmTrajectory, AppendsMultiplePoints)
     CHECK_FRAME_EQ(expectedFrame1, trajectory.frame(1));
     CHECK_FRAME_EQ(expectedFrame2, trajectory.frame(2));
 }
+
+TEST(ArmTrajectory, OverwritesPreviousTrajectoryGivenNewStartingPoint)
+{
+    const scara_waypoint_t expectedFrame = {0, {2, 3, 4}, COORDINATE_ROBOT, 0, 0};
+
+    const auto trajectory = ArmTrajectory(&arm)
+                                .goThrough({1, 2, 3, COORDINATE_TABLE})
+                                .startAt({2, 3, 4, COORDINATE_ROBOT});
+
+    CHECK_EQUAL(1, trajectory.size());
+    CHECK_FRAME_EQ(expectedFrame, trajectory.frame(0));
+}

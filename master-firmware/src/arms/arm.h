@@ -20,6 +20,7 @@ public:
     size_t size() const;
     scara_waypoint_t frame(int index) const;
 
+    ArmTrajectory& startAt(const ArmTrajectoryFrame& frame);
     ArmTrajectory& goThrough(const ArmTrajectoryFrame& frame);
 
 private:
