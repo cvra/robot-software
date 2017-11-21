@@ -28,12 +28,15 @@ public:
     /** State update function. */
     virtual State g(State state, Input input)
     {
+        (void) input;
         return state;
     }
 
     /** Returns the Jacobian of the state update function. */
     virtual Jacobian G(State state, Input input)
     {
+        (void) input;
+        (void) state;
         return Jacobian::Identity();
     }
 
