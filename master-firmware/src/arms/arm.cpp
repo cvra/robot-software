@@ -11,9 +11,10 @@ size_t ArmTrajectory::size() const
     return m_trajectory.frame_count;
 }
 
-scara_waypoint_t ArmTrajectory::frame(int index) const
+ArmTrajectoryFrame ArmTrajectory::frame(int index) const
 {
-    return m_trajectory.frames[index];
+    return {m_trajectory.frames[index].position,
+            m_trajectory.frames[index].coordinate_type};
 }
 
 ArmTrajectory& ArmTrajectory::startAt(const ArmTrajectoryFrame& frame)
