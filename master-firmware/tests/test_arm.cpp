@@ -37,7 +37,7 @@ TEST(ArmTrajectory, AppendsGivenPoint)
     const scara_waypoint_t expectedFrame = {0, {1, 2, 3}, COORDINATE_TABLE, 0, 0};
 
     const auto trajectory = ArmTrajectory(&arm)
-                                .goThrough(1, 2, 3, COORDINATE_TABLE);
+                                .goThrough({1, 2, 3, COORDINATE_TABLE});
 
     CHECK_EQUAL(1, trajectory.size());
     CHECK_FRAME_EQ(expectedFrame, trajectory.frame(0));
@@ -50,9 +50,9 @@ TEST(ArmTrajectory, AppendsMultiplePoints)
     const scara_waypoint_t expectedFrame2 = {2000000, {1, 2, 3}, COORDINATE_TABLE, 0, 0};
 
     const auto trajectory = ArmTrajectory(&arm)
-                                .goThrough(1, 2, 3, COORDINATE_TABLE)
-                                .goThrough(1, 2, 3, COORDINATE_TABLE)
-                                .goThrough(1, 2, 3, COORDINATE_TABLE);
+                                .goThrough({1, 2, 3, COORDINATE_TABLE})
+                                .goThrough({1, 2, 3, COORDINATE_TABLE})
+                                .goThrough({1, 2, 3, COORDINATE_TABLE});
 
     CHECK_EQUAL(3, trajectory.size());
     CHECK_FRAME_EQ(expectedFrame0, trajectory.frame(0));

@@ -6,6 +6,12 @@
 #include "scara/scara.h"
 #include "scara/scara_trajectories.h"
 
+struct ArmTrajectoryFrame
+{
+    position_3d_t position;
+    scara_coordinate_t coordinate;
+};
+
 class ArmTrajectory
 {
 public:
@@ -14,8 +20,7 @@ public:
     size_t size() const;
     scara_waypoint_t frame(int index) const;
 
-    ArmTrajectory& goThrough(float x, float y, float z,
-                             scara_coordinate_t coordinate);
+    ArmTrajectory& goThrough(const ArmTrajectoryFrame& frame);
 
 private:
     scara_t* m_arm;
