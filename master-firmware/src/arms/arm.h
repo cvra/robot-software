@@ -19,6 +19,7 @@ public:
 
     size_t size() const;
     ArmTrajectoryFrame frame(int index) const;
+    float duration() const;
 
     ArmTrajectory& startAt(const ArmTrajectoryFrame& frame);
     ArmTrajectory& goThrough(const ArmTrajectoryFrame& frame);
@@ -27,6 +28,7 @@ public:
 private:
     scara_t* m_arm;
     scara_trajectory_t m_trajectory;
+    float m_duration;
 };
 
 #endif

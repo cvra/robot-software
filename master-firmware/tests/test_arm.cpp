@@ -27,6 +27,7 @@ TEST(ArmTrajectory, IsEmptyOnConstruction)
     const auto trajectory = ArmTrajectory(&arm);
 
     CHECK_EQUAL(0, trajectory.size());
+    CHECK_EQUAL(0.f, trajectory.duration());
 }
 
 TEST(ArmTrajectory, AppendsGivenPoint)
@@ -37,6 +38,7 @@ TEST(ArmTrajectory, AppendsGivenPoint)
                                 .goThrough({1, 2, 3, COORDINATE_TABLE});
 
     CHECK_EQUAL(1, trajectory.size());
+    CHECK_EQUAL(1.f, trajectory.duration());
     CHECK_FRAME_EQ(expectedFrame, trajectory.frame(0));
 }
 
@@ -50,6 +52,7 @@ TEST(ArmTrajectory, AppendsMultiplePoints)
                                 .goThrough({1, 2, 3, COORDINATE_TABLE});
 
     CHECK_EQUAL(3, trajectory.size());
+    CHECK_EQUAL(3.f, trajectory.duration());
     CHECK_FRAME_EQ(expectedFrame, trajectory.frame(0));
     CHECK_FRAME_EQ(expectedFrame, trajectory.frame(1));
     CHECK_FRAME_EQ(expectedFrame, trajectory.frame(2));
@@ -64,6 +67,7 @@ TEST(ArmTrajectory, OverwritesPreviousTrajectoryGivenNewStartingPoint)
                                 .startAt({2, 3, 4, COORDINATE_ROBOT});
 
     CHECK_EQUAL(1, trajectory.size());
+    CHECK_EQUAL(0.f, trajectory.duration());
     CHECK_FRAME_EQ(expectedFrame, trajectory.frame(0));
 }
 
