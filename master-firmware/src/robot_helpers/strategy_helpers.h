@@ -9,7 +9,6 @@ extern "C" {
 #include "trajectory_manager/trajectory_manager.h"
 #include "blocking_detection_manager/blocking_detection_manager.h"
 #include "base/base_controller.h"
-#include "scara/scara.h"
 
 /** Team color
  */
@@ -17,13 +16,6 @@ enum strat_color_t {
     YELLOW=0,
     BLUE
 };
-
-typedef struct {
-    position_3d_t pos; // Desired position of end effector in mm without mirroring
-    scara_coordinate_t coord; // Coordinate system
-    unsigned dt; // Duration in ms to reach this waypoint
-} arm_waypoint_t;
-
 
 /** Compute the symmetrical position depending on color
  */
@@ -37,12 +29,6 @@ void strategy_auto_position(int32_t x, int32_t y, int32_t heading, enum strat_co
 
 /** Align on y axis */
 void strategy_align_y(int32_t y);
-
-/** Make and follow a given set of arm waypoints with mirroring
- * Returns the duration of the trajectory
- */
-unsigned strategy_set_arm_trajectory(scara_t* arm, arm_waypoint_t* trajectory, unsigned trajectory_length);
-
 
 #ifdef __cplusplus
 }

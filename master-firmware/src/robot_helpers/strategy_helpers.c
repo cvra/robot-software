@@ -8,9 +8,6 @@
 #include "trajectory_helpers.h"
 #include "beacon_helpers.h"
 
-#include "scara/scara_trajectories.h"
-#include "scara/scara.h"
-
 #include "strategy_helpers.h"
 
 
@@ -80,26 +77,4 @@ void strategy_align_y(int32_t y)
     trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
 
     trajectory_set_mode_game(&robot.mode, &robot.traj, &robot.distance_bd, &robot.angle_bd);
-}
-
-unsigned strategy_set_arm_trajectory(scara_t* arm, arm_waypoint_t* trajectory, unsigned trajectory_length)
-{
-    unsigned duration = 0;
-
-    scara_trajectory_init(&arm->trajectory);
-
-    for (size_t i = 0; i < trajectory_length; i++) {
-        scara_trajectory_append_point(
-            &arm->trajectory,
-            trajectory[i].pos,
-            trajectory[i].coord,
-            (float)trajectory[i].dt * 0.001,
-            arm->length);
-
-        duration += trajectory[i].dt;
-    }
-
-    scara_do_trajectory(arm, &arm->trajectory);
-
-    return duration;
 }
