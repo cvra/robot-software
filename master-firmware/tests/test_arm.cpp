@@ -66,3 +66,25 @@ TEST(ArmTrajectory, OverwritesPreviousTrajectoryGivenNewStartingPoint)
     CHECK_EQUAL(1, trajectory.size());
     CHECK_FRAME_EQ(expectedFrame, trajectory.frame(0));
 }
+
+TEST(ArmTrajectory, ReturnsExpectedEndPositionWhenExecuted)
+{
+    const ArmTrajectoryFrame expectedFrame = {0, 1, 2, COORDINATE_TABLE};
+
+    const auto finalFrame = ArmTrajectory(&arm)
+                                .startAt({2, 3, 4, COORDINATE_ROBOT})
+                                .goThrough({1, 2, 3, COORDINATE_TABLE})
+                                .goThrough({0, 1, 2, COORDINATE_TABLE})
+                                .execute();
+
+    CHECK_FRAME_EQ(expectedFrame, finalFrame);
+}
+
+TEST(ArmTrajectory, ReturnsDefaultEmptyFrameWhenExecutedButEmpty)
+{
+    const ArmTrajectoryFrame emptyFrame = {0, 0, 0, COORDINATE_ARM};
+
+    const auto finalFrame = ArmTrajectory(&arm).execute();
+
+    CHECK_FRAME_EQ(emptyFrame, finalFrame);
+}

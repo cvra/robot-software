@@ -31,3 +31,12 @@ ArmTrajectory& ArmTrajectory::goThrough(const ArmTrajectoryFrame& frame)
                                   frame.coordinate, 1.0, m_arm->length);
     return *this;
 }
+
+ArmTrajectoryFrame ArmTrajectory::execute() const
+{
+    if (size() > 0) {
+        return frame(size() - 1);
+    } else {
+        return ArmTrajectoryFrame();
+    }
+}

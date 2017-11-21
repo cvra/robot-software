@@ -22,6 +22,7 @@ public:
 
     ArmTrajectory& startAt(const ArmTrajectoryFrame& frame);
     ArmTrajectory& goThrough(const ArmTrajectoryFrame& frame);
+    ArmTrajectoryFrame execute() const;
 
 private:
     scara_t* m_arm;
