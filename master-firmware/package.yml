@@ -88,6 +88,7 @@ source:
     - src/scara/scara_jacobian.cpp
     - src/scara/control/scara_joint_controller.c
     - src/scara/control/scara_inverse_kinematics_controller.c
+    - src/arms/arm.cpp
     - src/hand/hand.c
 
 include_directories:
@@ -124,6 +125,7 @@ tests:
     - tests/scara.cpp
     - tests/test_hand.cpp
     - tests/lie_groups.cpp
+    - tests/test_arm.cpp
 
 templates:
     app_src.mk.jinja: app_src.mk
