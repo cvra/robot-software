@@ -11,16 +11,16 @@
 #include "exti.h"
 
 /** Speed of light in Decawave units */
-#define SPEED_OF_LIGHT             (299792458.0 / (128 * 499.2e6))
+#define SPEED_OF_LIGHT                   (299792458.0 / (128 * 499.2e6))
 
 /* Default antenna delay values for 64 MHz PRF. */
-#define RX_ANT_DLY                 2 * 16436
+#define RX_ANT_DLY                       2 * 16436
 
-#define EVENT_UWB_INT               (1 << 0)
-#define EVENT_ADVERTISE_TIMER       (1 << 1)
-#define EVENT_ANCHOR_POSITION_TIMER (1 << 2)
+#define EVENT_UWB_INT                    (1 << 0)
+#define EVENT_ADVERTISE_TIMER            (1 << 1)
+#define EVENT_ANCHOR_POSITION_TIMER      (1 << 2)
 
-#define UWB_ADVERTISE_TIMER_PERIOD      MS2ST(250)
+#define UWB_ADVERTISE_TIMER_PERIOD       MS2ST(250)
 #define UWB_ANCHOR_POSITION_TIMER_PERIOD S2ST(1)
 
 
@@ -44,12 +44,13 @@ static struct {
     parameter_namespace_t ns;
     parameter_t mac_addr;
     parameter_t pan_id;
+    parameter_t antenna_delay;
     struct {
         parameter_namespace_t ns;
         parameter_t is_anchor;
         struct {
             parameter_namespace_t ns;
-            parameter_t x,y,z;
+            parameter_t x, y, z;
         } position;
     } anchor;
 } uwb_params;
@@ -97,6 +98,10 @@ static void ranging_thread(void *p)
         handler.is_anchor = parameter_boolean_get(&uwb_params.anchor.is_anchor);
         handler.address = parameter_integer_get(&uwb_params.mac_addr);
         handler.pan_id = parameter_integer_get(&uwb_params.pan_id);
+
+        if (parameter_changed(&uwb_params.antenna_delay)) {
+            dwt_setrxantennadelay(parameter_integer_get(&uwb_params.antenna_delay));
+        }
 
         if (flags & EVENT_ADVERTISE_TIMER) {
             if (handler.is_anchor) {
@@ -194,14 +199,29 @@ static void parameters_init(void)
     parameter_namespace_declare(&uwb_params.ns, &parameter_root, "uwb");
     parameter_integer_declare_with_default(&uwb_params.mac_addr, &uwb_params.ns, "mac_addr", 0x00);
     parameter_integer_declare_with_default(&uwb_params.pan_id, &uwb_params.ns, "pan_id", 0x00);
+    parameter_integer_declare_with_default(&uwb_params.antenna_delay,
+                                           &uwb_params.ns,
+                                           "antenna_delay",
+                                           RX_ANT_DLY);
 
     parameter_namespace_declare(&uwb_params.anchor.ns, &uwb_params.ns, "anchor");
-    parameter_boolean_declare_with_default(&uwb_params.anchor.is_anchor, &uwb_params.anchor.ns, "is_anchor",
+    parameter_boolean_declare_with_default(&uwb_params.anchor.is_anchor,
+                                           &uwb_params.anchor.ns,
+                                           "is_anchor",
                                            false);
     parameter_namespace_declare(&uwb_params.anchor.position.ns, &uwb_params.anchor.ns, "position");
-    parameter_scalar_declare_with_default(&uwb_params.anchor.position.x, &uwb_params.anchor.position.ns, "x", 0.);
-    parameter_scalar_declare_with_default(&uwb_params.anchor.position.y, &uwb_params.anchor.position.ns, "y", 0.);
-    parameter_scalar_declare_with_default(&uwb_params.anchor.position.z, &uwb_params.anchor.position.ns, "z", 0.);
+    parameter_scalar_declare_with_default(&uwb_params.anchor.position.x,
+                                          &uwb_params.anchor.position.ns,
+                                          "x",
+                                          0.);
+    parameter_scalar_declare_with_default(&uwb_params.anchor.position.y,
+                                          &uwb_params.anchor.position.ns,
+                                          "y",
+                                          0.);
+    parameter_scalar_declare_with_default(&uwb_params.anchor.position.z,
+                                          &uwb_params.anchor.position.ns,
+                                          "z",
+                                          0.);
 }
 
 static void topics_init(void)
@@ -212,8 +232,11 @@ static void topics_init(void)
     messagebus_advertise_topic(&bus, &ranging_topic, "/range");
 
     /* Prepare topic for anchor positions */
-    messagebus_topic_init(&anchor_position_topic, &anchor_position_topic_lock, &anchor_position_topic_condvar,
-                          &anchor_position_topic_buffer, sizeof(anchor_position_topic_buffer));
+    messagebus_topic_init(&anchor_position_topic,
+                          &anchor_position_topic_lock,
+                          &anchor_position_topic_condvar,
+                          &anchor_position_topic_buffer,
+                          sizeof(anchor_position_topic_buffer));
     messagebus_advertise_topic(&bus, &anchor_position_topic, "/anchors_pos");
 
 }
@@ -225,7 +248,7 @@ static void hardware_init(void)
     dwt_setinterrupt(DWT_INT_RFCG | DWT_INT_TFRS, true);
     dwt_setcallbacks(frame_tx_done_cb, frame_rx_cb, NULL, NULL);
 
-    dwt_setrxantennadelay(RX_ANT_DLY);
+    dwt_setrxantennadelay(parameter_integer_get(&uwb_params.antenna_delay));
 
     dwt_setrxtimeout(0); // Disable RX timeout
     dwt_rxenable(DWT_START_RX_IMMEDIATE);
@@ -247,5 +270,7 @@ static void events_init(void)
     static event_listener_t uwb_int_listener, advertise_timer_listener, anchor_position_listener;
     chEvtRegisterMask(&exti_uwb_event, &uwb_int_listener, EVENT_UWB_INT);
     chEvtRegisterMask(&advertise_timer_event, &advertise_timer_listener, EVENT_ADVERTISE_TIMER);
-    chEvtRegisterMask(&anchor_position_timer_event, &anchor_position_listener, EVENT_ANCHOR_POSITION_TIMER);
+    chEvtRegisterMask(&anchor_position_timer_event,
+                      &anchor_position_listener,
+                      EVENT_ANCHOR_POSITION_TIMER);
 }

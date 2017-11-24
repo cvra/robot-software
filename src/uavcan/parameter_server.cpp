@@ -12,6 +12,7 @@ static const char *exposed_parameters[] = {
     "/uwb/mac_addr",
     "/uwb/pan_id",
     "/uwb/anchor/is_anchor",
+    "/uwb/anchor/antenna_delay",
     "/uwb/anchor/position/x",
     "/uwb/anchor/position/y",
     "/uwb/anchor/position/z",
