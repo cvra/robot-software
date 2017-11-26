@@ -12,6 +12,7 @@ extern "C" {
 #define ARMS_FREQUENCY 50
 
 extern scara_t main_arm;
+extern hand_t main_hand;
 
 
 /* Initialize arms */

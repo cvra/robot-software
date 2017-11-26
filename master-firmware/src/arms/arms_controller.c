@@ -16,6 +16,7 @@
 
 
 scara_t main_arm;
+hand_t main_hand;
 
 
 static void set_index_stream_frequency(char* motor, float freq)
@@ -50,6 +51,11 @@ void arms_init(void)
     scara_set_offset(&main_arm, config_get_scalar("master/arms/main_arm/offset_x"),
                      config_get_scalar("master/arms/main_arm/offset_y"),
                      config_get_scalar("master/arms/main_arm/offset_a"));
+
+    /* Configure the hand */
+    hand_init(&main_hand);
+    static cvra_arm_motor_t pump = {.id = "arm-pump", .direction = 0, .index = 0};
+    hand_set_pump_callback(&main_hand, set_motor_voltage, &pump);
 }
 
 float arms_motor_auto_index(const char* motor_name, int motor_dir, float motor_speed)
