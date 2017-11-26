@@ -2,34 +2,32 @@
 
 #include "hand.h"
 
-
 void hand_init(hand_t* hand)
 {
     memset(hand, 0, sizeof(hand_t));
 
-    for (size_t i = 0; i < 4; i++) {
-        hand->fingers_open[i] = FINGER_RETRACTED;
+    hand->pump_state = PUMP_OFF;
+}
+
+void hand_set_pump_callback(hand_t *hand,
+                            void (*set_pump_voltage)(void *, float),
+                            void *pump_args)
+{
+    hand->set_pump_voltage = set_pump_voltage;
+    hand->pump_args = pump_args;
+}
+
+static float pump_voltage(pump_state_t state)
+{
+    if (state == PUMP_ON) {
+        return 10.0;
+    } else {
+        return 0.0;
     }
-
-    chMtxObjectInit(&hand->lock);
 }
 
-void hand_set_fingers_callbacks(hand_t* hand, void (*set_fingers)(finger_state_t*))
+void hand_set_pump(hand_t* hand, pump_state_t state)
 {
-    hand->set_fingers = set_fingers;
-}
-
-void hand_manage(hand_t* hand)
-{
-    /* Lock */
-    chMtxLock(&hand->lock);
-
-    /* Unlock */
-    chMtxUnlock(&hand->lock);
-}
-
-void hand_set_finger(hand_t* hand, int index, finger_state_t state)
-{
-    hand->fingers_open[index % 4] = state;
-    hand->set_fingers(hand->fingers_open);
+    hand->set_pump_voltage(hand->pump_args, pump_voltage(state));
+    hand->pump_state = state;
 }

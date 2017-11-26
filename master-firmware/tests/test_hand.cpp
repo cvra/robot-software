@@ -3,29 +3,41 @@
 
 #include "hand/hand.h"
 
+void set_voltage(void *m, float value)
+{
+    *(float *)m = value;
+}
 
-TEST_GROUP(HandTestGroup)
+TEST_GROUP(AHand)
 {
     hand_t hand;
-    scara_t arm;
-    struct robot_position robot_pos;
-    float wrist_angle;
+    float voltage;
 
     void setup()
     {
         hand_init(&hand);
-    }
-
-    void teardown()
-    {
-        lock_mocks_enable(false);
+        hand_set_pump_callback(&hand, set_voltage, &voltage);
     }
 };
 
-TEST(HandTestGroup, HandManagerIsAtomic)
+TEST(AHand, startsWithDisabledPump)
 {
-    lock_mocks_enable(true);
-    mock().expectOneCall("chMtxLock").withPointerParameter("lock", &hand.lock);
-    mock().expectOneCall("chMtxUnlock").withPointerParameter("lock", &hand.lock);
-    hand_manage(&hand);
+    CHECK_EQUAL(hand.pump_state, PUMP_OFF)
+}
+
+TEST(AHand, canTurnPumpOn)
+{
+    hand_set_pump(&hand, PUMP_ON);
+
+    CHECK_EQUAL(hand.pump_state, PUMP_ON);
+    CHECK(voltage > 0);
+}
+
+TEST(AHand, canTurnPumpBackOff)
+{
+    hand_set_pump(&hand, PUMP_ON);
+    hand_set_pump(&hand, PUMP_OFF);
+
+    CHECK_EQUAL(hand.pump_state, PUMP_OFF);
+    CHECK_EQUAL(voltage, 0);
 }
