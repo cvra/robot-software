@@ -31,6 +31,7 @@
 #include "scara/scara_utils.h"
 #include "scara/scara_trajectories.h"
 #include "arms/arms_controller.h"
+#include "hand/hand.h"
 #include "strategy.h"
 #include <trace/trace.h>
 
@@ -1112,6 +1113,23 @@ static void cmd_state(BaseSequentialStream *chp, int argc, char *argv[])
              pos.x, pos.y, pos.z);
 }
 
+static void cmd_hand(BaseSequentialStream *chp, int argc, char * argv[])
+{
+    if (argc != 1) {
+        chprintf(chp, "Usage: hand on|off\r\n");
+        return;
+    }
+
+    pump_state_t pump_state;
+    if (strcmp("on", argv[0]) == 0) {
+        pump_state = PUMP_ON;
+    } else {
+        pump_state = PUMP_OFF;
+    }
+
+    hand_set_pump(&main_hand, pump_state);
+}
+
 
 static void print_fn(void *arg, const char *fmt, ...)
 {
@@ -1141,6 +1159,7 @@ const ShellCommand commands[] = {
     {"config_set", cmd_config_set},
     {"encoders", cmd_encoders},
     {"forward", cmd_traj_forward},
+    {"hand", cmd_hand},
     {"ip", cmd_ip},
     {"node", cmd_node},
     {"pos", cmd_position},
