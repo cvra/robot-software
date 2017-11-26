@@ -6,7 +6,7 @@
 # Compiler options here.
 ifeq ($(USE_OPT),)
   USE_OPT = -O2 -ggdb -fomit-frame-pointer -falign-functions=16
-  USE_OPT += -frename-registers -freorder-blocks -fconserve-stack
+  USE_OPT += -frename-registers -freorder-blocks -fconserve-stack -fstack-usage
   USE_OPT += -fstack-protector-all -L .
 endif
 
