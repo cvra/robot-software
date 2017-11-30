@@ -114,24 +114,23 @@ void scara_manage(scara_t *arm)
 
     scara_waypoint_t frame = scara_position_for_date(arm, current_date);
 
+    shoulder_mode_t mode = scara_orientation_mode(arm->shoulder_mode, arm->offset_rotation);
+    scara_joint_setpoints_t joint_setpoints;
+
     if (arm->control_mode == CONTROL_JAM_PID_XYA) {
         scara_ik_controller_set_geometry(&arm->ik_controller, frame.length);
-        scara_joint_setpoints_t joint_setpoints =
-            scara_ik_controller_process(&arm->ik_controller, frame.position,
-                                        arm->joint_positions);
-        scara_hw_set_joints(&arm->hw_interface, joint_setpoints);
+        joint_setpoints = scara_ik_controller_process(
+            &arm->ik_controller, frame.position, arm->joint_positions);
 
         position_3d_t measured = scara_position(arm, frame.coordinate_type);
         DEBUG("Arm x %.3f y %.3f Arm velocities %.3f %.3f",
               measured.x, measured.y, joint_setpoints.shoulder.value, joint_setpoints.elbow.value);
     } else {
-        shoulder_mode_t mode = scara_orientation_mode(arm->shoulder_mode, arm->offset_rotation);
         scara_joint_controller_set_geometry(&arm->joint_controller, frame.length, mode);
-        scara_joint_setpoints_t joint_setpoints =
-            scara_joint_controller_process(
-                &arm->joint_controller, frame.position, arm->joint_positions);
-        scara_hw_set_joints(&arm->hw_interface, joint_setpoints);
+        joint_setpoints = scara_joint_controller_process(
+            &arm->joint_controller, frame.position, arm->joint_positions);
     }
+    scara_hw_set_joints(&arm->hw_interface, joint_setpoints);
 
     scara_unlock(&arm->lock);
 }
