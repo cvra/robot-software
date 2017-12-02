@@ -304,6 +304,8 @@ void init_arm_motors(void)
     motor_manager_create_driver(&motor_manager, "shoulder-joint");
     motor_manager_create_driver(&motor_manager, "elbow-joint");
     motor_manager_create_driver(&motor_manager, "arm-pump");
+    motor_manager_create_driver(&motor_manager, "lever-pump-1");
+    motor_manager_create_driver(&motor_manager, "lever-pump-2");
 }
 
 void __stack_chk_fail(void)
