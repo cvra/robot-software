@@ -11,11 +11,21 @@ typedef enum {
     LEVER_DEPLOYED,
 } lever_state_t;
 
+typedef enum {
+    LEVER_PUMP_OFF,
+    LEVER_PUMP_ON,
+} lever_pump_state_t;
+
 typedef struct {
     void (*set_lever)(void*, float);
     void* lever_args;
 
+    void (*set_pump)(void*, float);
+    void* pump1_args;
+    void* pump2_args;
+
     lever_state_t state;
+    lever_pump_state_t pump_state;
 } lever_t;
 
 /* Initialize lever */
@@ -23,12 +33,16 @@ void lever_init(lever_t* lever);
 
 /* Actuator callbacks */
 void lever_set_callbacks(lever_t* lever, void (*set_lever)(void*, float), void* lever_args);
+void lever_pump_set_callbacks(lever_t* lever, void (*set_pump)(void*, float), void* pump1_args, void* pump2_args);
 
 /* Deploy lever */
 void lever_deploy(lever_t* lever);
 
 /* Retract lever */
 void lever_retract(lever_t* lever);
+
+/* Enable/Disable pump */
+void lever_pump_set(lever_t* lever, lever_pump_state_t state);
 
 #ifdef __cplusplus
 }
