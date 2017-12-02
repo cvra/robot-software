@@ -84,6 +84,7 @@ Non parametric filters, on the other hand, can represent any distribution, and m
 If the problem can be solved using a parametric filter, it is better, as they are computationally less expensive.
 Since we are running the code on a small device with little computing power, it is important to take this into account.
 
+
 \section{First model}
 
 The goal of this model was to create the simplest thing that could possibly work.
@@ -160,11 +161,11 @@ This function is the distance to the position of the beacon, called $\mathbf{b}$
 \subsection{Design principles}
 
 \begin{enumerate}
-    \item Stateless > stateful.
-    \item Must maximize measurements per second -> minimize packets per measurements.
-    \item The MAC layer should be used as much as possible to avoid waking up hosts.
-    \item The same physical layer will also be used for data transmission.
-    \item It must be noted that this protocol is possible only because the DW1000 can be programmed to \emph{send} messages at a given timestamp.
+    \item The protocol should require as little state as possible to be stored on the participating beacons.
+        State synchronisation between several systems is a common source of error and bugs.
+    \item We want to maximize the measurement frequency, which means we should have a measurement simple with as little packets as possible.
+    \item To avoid waking up the microcontroller, the MAC layer integrated in the \gls{uwb} module must be leveraged as much as possible.
+    \item The same radio link used for range measurement will also be used as a general purpose link to transmit data between nodes.
 \end{enumerate}
 
 \subsection{Time measurement}
@@ -187,7 +188,6 @@ T_{prop} = \frac{T_{round,1} \cdot T_{round,2} - T_{reply,1} \cdot T_{reply,2}}{
 \end{equation}
 
 The timing information is then converted to a distance by multiplying by the speed of light ($c$).
-\textbf{How do we convert time from DW1000 clocks to seconds?}
 
 This 3-way ranging scheme works because transceivers can be programmed to send a frame at a given time.
 Therefore, $T_{reply,2}$ can be included in the final message.
@@ -223,13 +223,53 @@ Once the tag received the last message, it can compute the ranging solution usin
 \end{eqnarray*}
 
 
-\subsection{Performance evaluation}
+
+\subsection{Antenna delay calibration}
+In order to obtain correct range readings, we should take in account the delay created by antenna transmission.
+This delay should be calibrated as it will be different for each design \cite{dw1000manual}).
+To do it, we simply measured the distance reported by the modules over a known range (averaged on N samples).
+The antenna delay ($\Delta_T$) can then be computed by equation~\ref{eqn:delay-calibration}.
+
+\begin{equation}
+    \Delta_T = \frac{d_{measured} - d_{real}}{2\cdot c}
+    \label{eqn:delay-calibration}
+\end{equation}
+
+On our system, this value was found to be about \textbf{TODO}.
+
+\chapter{Results}
+
+\section{Range measurement}
+
+% TODO test precision and recall
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{experiments/range_noise.png}
+    \caption{Distribution of the range measured by the \gls{uwb} module in the optimal orientation.}
+    \label{fig:range_noise}
+\end{figure}
 
 % TODO: Impact of antenna orientation
 % TODO: Impact of preamble length
 
 \appendix
 \chapter{Hardware schematic}
+
+The following schematic is the one of the board used during this project.
+However, several flaws were discovered and should be corrected before a new batch is produced.
+
+\begin{itemize}
+    \item There is currently now way to use the USB bootloader built in the microcontroller.
+        This makes updating the board's firmware harder, as it requires a specialized debug adapter.
+        Adding a button on pin BOOT0 would allow the user to enter bootloading mode as well as serving as a general purpose button.
+    \item The reset pin of the \gls{uwb} module is connected to a pin used by the USB module of the microcontroller.
+        Although one should be able to disable this pin by software, we could not make it work and had to cut a connection on the board.
+\end{itemize}
+
+All design documents and related issues can be found on the board's Github repository\footnote{\url{https://github.com/cvra/uwb-beacon-board/}}.
+
+
 \includepdf[landscape=true]{figures/board_schematic.pdf}
 
 \chapter{User manual}
