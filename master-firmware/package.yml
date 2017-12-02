@@ -90,6 +90,7 @@ source:
     - src/scara/control/scara_inverse_kinematics_controller.c
     - src/arms/arm.cpp
     - src/hand/hand.c
+    - src/lever/lever.c
 
 include_directories:
     - src/
@@ -123,6 +124,7 @@ tests:
     - tests/scara_inverse_kinematics_controller.cpp
     - tests/scara.cpp
     - tests/test_hand.cpp
+    - tests/test_lever.cpp
     - tests/lie_groups.cpp
     - tests/test_arm.cpp
 
