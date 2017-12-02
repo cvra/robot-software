@@ -12,11 +12,23 @@ typedef enum {
 } lever_state_t;
 
 typedef struct {
+    void (*set_lever)(void*, float);
+    void* lever_args;
+
     lever_state_t state;
 } lever_t;
 
 /* Initialize lever */
 void lever_init(lever_t* lever);
+
+/* Actuator callbacks */
+void lever_set_callbacks(lever_t* lever, void (*set_lever)(void*, float), void* lever_args);
+
+/* Deploy lever */
+void lever_deploy(lever_t* lever);
+
+/* Retract lever */
+void lever_retract(lever_t* lever);
 
 #ifdef __cplusplus
 }
