@@ -35,6 +35,7 @@
 #include "strategy.h"
 #include <trace/trace.h>
 #include "pca9685_pwm.h"
+#include "lever/lever.h"
 
 const ShellCommand commands[];
 
@@ -1166,6 +1167,27 @@ static void cmd_servo(BaseSequentialStream *chp, int argc, char *argv[])
     pca9685_pwm_set_pulse_width(n, pw/1000);
 }
 
+static void cmd_lever(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc != 1) {
+        chprintf(chp, "Usage: lever deploy|retract|on|off\r\n");
+        return;
+    }
+
+    if (strcmp("deploy", argv[0]) == 0) {
+        lever_deploy(&main_lever);
+    } else if (strcmp("retract", argv[0]) == 0) {
+        lever_retract(&main_lever);
+    } else if (strcmp("on", argv[0]) == 0) {
+        lever_pump_set(&main_lever, LEVER_PUMP_ON);
+    } else if (strcmp("off", argv[0]) == 0) {
+        lever_pump_set(&main_lever, LEVER_PUMP_OFF);
+    } else {
+        chprintf(chp, "Invalid command: %s", argv[0]);
+    }
+
+}
+
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
@@ -1212,5 +1234,6 @@ const ShellCommand commands[] = {
     {"state", cmd_state},
     {"trace", cmd_trace},
     {"servo", cmd_servo},
+    {"lever", cmd_lever},
     {NULL, NULL}
 };
