@@ -8,6 +8,7 @@
 #include "can/motor_manager.h"
 #include "robot_helpers/motor_helpers.h"
 #include "base/base_controller.h"
+#include "pca9685_pwm.h"
 
 #include "arms_controller.h"
 
@@ -17,6 +18,7 @@
 
 scara_t main_arm;
 hand_t main_hand;
+lever_t main_lever;
 
 
 static void set_index_stream_frequency(char* motor, float freq)
@@ -28,6 +30,12 @@ static void set_index_stream_frequency(char* motor, float freq)
     } else {
         ERROR("Undefined motor %s", motor);
     }
+}
+
+static void set_servo(void* servo, float pos)
+{
+    unsigned int* servo_nb = (unsigned int *)servo;
+    pca9685_pwm_set_pulse_width(*servo_nb, pos);
 }
 
 void arms_init(void)
@@ -56,6 +64,14 @@ void arms_init(void)
     hand_init(&main_hand);
     static cvra_arm_motor_t pump = {.id = "arm-pump", .direction = 0, .index = 0};
     hand_set_pump_callback(&main_hand, set_motor_voltage, &pump);
+
+    /* Lever init */
+    lever_init(&main_lever);
+    static unsigned int lever_servo_nb = 0;
+    lever_set_callbacks(&main_lever, set_servo, &lever_servo_nb);
+    static cvra_arm_motor_t lever_pump1 = {.id = "lever-pump-1", .direction = 0, .index = 0};
+    static cvra_arm_motor_t lever_pump2 = {.id = "lever-pump-2", .direction = 0, .index = 0};
+    lever_pump_set_callbacks(&main_lever, set_motor_voltage, &lever_pump1, &lever_pump2);
 }
 
 float arms_motor_auto_index(const char* motor_name, int motor_dir, float motor_speed)
