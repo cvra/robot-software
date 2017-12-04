@@ -36,7 +36,7 @@
 #include "strategy.h"
 #include "filesystem.h"
 #include "http/server.h"
-#include "servo.h"
+#include "pca9685_pwm.h"
 
 
 void init_base_motors(void);
@@ -203,7 +203,7 @@ int main(void)
     /* Initialise timestamp module */
     timestamp_stm32_init();
 
-    servo_init();
+    pca9685_pwm_init(0.020);
 
     /* bus enumerator init */
     static __attribute__((section(".ccm"))) struct bus_enumerator_entry_allocator

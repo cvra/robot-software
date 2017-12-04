@@ -33,7 +33,7 @@
 #include "arms/arms_controller.h"
 #include "strategy.h"
 #include <trace/trace.h>
-#include "servo.h"
+#include "pca9685_pwm.h"
 
 const ShellCommand commands[];
 
@@ -1139,13 +1139,13 @@ static void cmd_trace(BaseSequentialStream *chp, int argc, char *argv[])
 static void cmd_servo(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc != 2) {
-        chprintf(chp, "Usage: servo N POS\r\n");
+        chprintf(chp, "Usage: servo N PULSE_MS\r\n");
         return;
     }
     unsigned int n = atoi(argv[0]);
-    float pos = atof(argv[1]);
+    float pw = atof(argv[1]);
 
-    servo_set(n, pos);
+    pca9685_pwm_set_pulse_width(n, pw/1000);
 }
 
 const ShellCommand commands[] = {
