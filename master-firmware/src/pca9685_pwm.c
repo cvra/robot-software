@@ -88,14 +88,22 @@ void pca9685_pwm_set_duty_cycle(unsigned int pwm_nb, float duty_cycle)
     pca9685_write_reg16(PCA9685_LED0_OFF + 4 * pwm_nb, count);
 }
 
-void pca9685_pwm_init(float period_sec)
+void pca9685_pwm_output_enable(bool enable)
+{
+    if (enable) {
+        palClearPad(GPIOC, GPIOC_SERVO_OUTPUT_EN);
+    } else {
+        palSetPad(GPIOC, GPIOC_SERVO_OUTPUT_EN);
+    }
+}
+
+static void pca9685_ll_init(void)
 {
     palSetPadMode(GPIOB, GPIOB_I2C1_SCL, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN);
     palSetPadMode(GPIOB, GPIOB_I2C1_SDA, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN);
 
     // output disable
     palSetPadMode(GPIOC, GPIOC_SERVO_OUTPUT_EN, PAL_MODE_OUTPUT_PUSHPULL);
-    palSetPad(GPIOC, GPIOC_SERVO_OUTPUT_EN);
 
     static const I2CConfig i2c_config = {
         OPMODE_I2C,
@@ -103,10 +111,10 @@ void pca9685_pwm_init(float period_sec)
         STD_DUTY_CYCLE,
     };
     i2cStart(&I2CD1, &i2c_config);
+}
 
-    // internal 25MHz oscillator, auto increment, set into sleep mode
-    pca9685_write_reg8(PCA9685_MODE1, PCA9685_MODE1_AI | PCA9685_MODE1_SLEEP);
-
+void pca9685_pwm_init(float period_sec)
+{
     // configure prescaler (must be in sleep mode)
     pca9685_pwm_period = period_sec;
     float freq = PWM_COUNT_MAX / period_sec;
@@ -118,14 +126,24 @@ void pca9685_pwm_init(float period_sec)
         WARNING("Rounded PWM frequency: %f Hz -> %u Hz", freq, PCA9685_25MHZ_CLOCK / prescaler);
     }
 
+    pca9685_ll_init();
+    pca9685_pwm_output_enable(false);
 
+    // internal 25MHz oscillator, auto increment, enter sleep mode
+    pca9685_write_reg8(PCA9685_MODE1, PCA9685_MODE1_AI | PCA9685_MODE1_SLEEP);
+
+    // change clock prescaler
     pca9685_write_reg8(PCA9685_PRE_SCALE, prescaler - 1);
-    pca9685_write_reg8(PCA9685_MODE1, PCA9685_MODE1_AI); // reset sleep mode
+
+    // reset sleep mode
+    pca9685_write_reg8(PCA9685_MODE1, PCA9685_MODE1_AI);
 
     chThdSleepMilliseconds(1); // wait > 0.5us for oscillator
 
-    uint8_t mode = pca9685_read_reg8(PCA9685_MODE1);
-    pca9685_write_reg8(PCA9685_MODE1, mode); // clear RESTART bit
+    // start PWM by clearing RESTART bit
+    uint8_t reg;
+    reg = pca9685_read_reg8(PCA9685_MODE1);
+    pca9685_write_reg8(PCA9685_MODE1, reg);
 
     // push-pull output, update on I2C STOP,
     pca9685_write_reg8(PCA9685_MODE2, PCA9685_MODE2_OUTDRV);
@@ -136,6 +154,5 @@ void pca9685_pwm_init(float period_sec)
         pwm_off(i);
     }
 
-    // output enable;
-    palClearPad(GPIOC, GPIOC_SERVO_OUTPUT_EN);
+    pca9685_pwm_output_enable(true);
 }
