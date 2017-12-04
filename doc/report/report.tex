@@ -15,7 +15,6 @@
 \usepackage{floatrow}
 \usepackage{siunitx}
 \usepackage{wasysym}
-\usepackage{natbib}
 \usepackage{physics}
 \usepackage{hyperref}
 
@@ -154,6 +153,63 @@ This function is the distance to the position of the beacon, called $\mathbf{b}$
     h_b(\mathbf{x}) = \sqrt{\left(\mathbf{x}_x - \mathbf{b}_x\right)^2 + \left(\mathbf{x}_y - \mathbf{b}_y\right)^2}
 \end{equation}
 
+\section{UWB only model}
+
+This model was developped when I realized that the simple model had two important issues:
+
+\begin{enumerate}
+\item First, it supposed that we knew the rotation between the world frame and the earth magnetic frame, as the beacons' coordinates are in world frame, but the attitude of the robot is in earth magnetic frame.
+\item The model had a lot of different variances to tune, making the tuning hard to do.
+\end{enumerate}
+
+This model removes those issues by relying only on the UWB radio ranging for measurement, and no prediction step.
+
+\subsection{Model}
+
+The state contains only the position of the robot.
+
+\begin{equation*}
+\mathbf{x} = \begin{pmatrix}
+    x\\
+    y
+    \end{pmatrix}
+\end{equation*}
+
+
+There is no information used for prediction, making the prediction function the identity:
+
+\begin{equation}
+\mathbf{x}_{k+1} = \mathbf{x}_{k}
+\end{equation}
+
+For the measurement, the UWB system gives us the distance $d$ to a beacon. The beacon's position $\mathbf{b}$ is known and assumed to be fixed.
+Therefore the measurement model is given by Equation~\ref{eqn:uwb-only-measurement}.
+
+\begin{equation}
+h(\mathbf{x}, \mathbf{b}) = \sqrt{\left(x - b_x\right)^2 + \left(y - b_y\right)^2}
+\label{eqn:uwb-only-measurement}
+\end{equation}
+
+\subsection{Variance tuning}
+
+To compute the variance of the model, we estimate that the robot is moving at a constant speed of maximum $V_{max}$ between two measurements updates (which occurs at \(f_{UWB}\)).
+Therefore, the maximum distance that a robot can do is given by Equation~\ref{eqn:travelled-distance}.
+
+\begin{equation}
+d = \frac{V_{max}}{f}
+\label{eqn:travelled-distance}.
+\end{equation}
+
+If we assume that \(d = 2 \sigma\), this means that our hypothesis is valid 97.5\% of the time, which is reasonable.
+Therefore, the process variance can be estimated using Equation~\ref{eqn:variance}.
+If we assume an update frequency of \SI{10}{\hertz} and a max speed of \SI{0.14}{\meter\per\second}, typical for a Thymio robot \cite{thymioweb}, we get a variance of $\sigma^2 = \SI{4.9e-5}{\meter\squared}$.
+
+\begin{equation}
+\sigma^2 = \left( \frac{V_{max}}{2 f} \right)^2
+\label{eqn:variance}
+\end{equation}
+
+
 \chapter{Implementation}
 
 \section{UWB beacons protocol}
@@ -277,7 +333,7 @@ All design documents and related issues can be found on the board's Github repos
 
 \clearpage
 \nocite{*} % tells bibtex to include everything
-\bibliographystyle{chicago}
+\bibliographystyle{ieeetr}
 \bibliography{report}
 
 \end{document}
