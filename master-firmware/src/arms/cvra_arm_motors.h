@@ -14,6 +14,7 @@ motor_driver_t* get_motor_driver(const char* name);
 
 void set_motor_position(void* motor, float position);
 void set_motor_velocity(void* motor, float velocity);
+void set_motor_voltage(void* motor, float voltage);
 float get_motor_position(void* motor);
 
 #endif
