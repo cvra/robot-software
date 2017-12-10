@@ -54,12 +54,13 @@ models:
     - cd doc/report/
     - pip install -r requirements.txt
   script:
-    - jupyter convert --to notebook --execute "models/Simple model.ipynb"
-    - jupyter convert --to notebook --execute "models/UWB only.ipynb"
+    - jupyter nbconvert --to notebook --execute "models/Simple model.ipynb"
+    - jupyter nbconvert --to notebook --execute "models/UWB only.ipynb"
   artifacts:
     paths:
       - doc/report/models/*.pdf
     expire_in: 2 days
+
 pdf:
   stage: report
   image: antoinealb/texlive
