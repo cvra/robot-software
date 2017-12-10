@@ -31,6 +31,7 @@
 \newacronym{imu}{IMU}{Inertial Motion Unit}
 \newacronym{dmp}{DMP}{Digital Motion Processor}
 \newacronym{uwb}{UWB}{Ultra Wide Band}
+\newacronym{ekf}{EKF}{Extended Kalman Filter}
 
 \maketitle
 \includepdf{abstract.pdf}
@@ -84,6 +85,18 @@ If the problem can be solved using a parametric filter, it is better, as they ar
 Since we are running the code on a small device with little computing power, it is important to take this into account.
 
 
+\section{Simulation}
+
+Testing the model's performance on the real system can be difficult.
+First, implementing all the models in an embedded language like C or C++ is a tedious task.
+Then, feeding the algorithm with recorded or generated measurements makes the results easier to compare and reproduce.
+Therefore, we implemented a testing environment in Python.
+
+Using Python allows to easily express high level mathematical objects.
+For example, the Jacobian matrices are automatically computed using a symbolic math toolbox\footnote{Sympy: \url{http://www.sympy.org/}}, then converted to a numerical version.
+Theoretically, it should even be possible to generate a C++ implementation from the symbolic representation, although that was not used in this project.
+The framework allows us to create new \gls{ekf} models and test their performance in a matter of minutes.
+
 \section{First model}
 
 The goal of this model was to create the simplest thing that could possibly work.
@@ -131,12 +144,11 @@ The state update equation, using the acceleration as control input
     \end{pmatrix}
 \end{eqnarray}
 
-We can turn it into a discrete state update equation using forward Euler:
+We can turn it into a discrete state update equation using the forward Euler method:
 
 \begin{equation}
     \mathbf{x}_{t+1} = \mathbf{x}_t + \Delta_t \dv{t} \mathbf{x}
 \end{equation}
-
 
 \subsection{Measurement model}
 In this model we have two different measurement functions.
@@ -153,6 +165,24 @@ This function is the distance to the position of the beacon, called $\mathbf{b}$
     h_b(\mathbf{x}) = \sqrt{\left(\mathbf{x}_x - \mathbf{b}_x\right)^2 + \left(\mathbf{x}_y - \mathbf{b}_y\right)^2}
 \end{equation}
 
+\subsection{Simulation results}
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[t]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{models/simple_model_trajectory.pdf}
+        \caption{Trajectory}
+    \end{subfigure}%
+    ~
+    \begin{subfigure}[t]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{models/simple_model_error.pdf}
+        \caption{Positioning error}
+    \end{subfigure}
+    \caption{Simulation results using the simple model.
+        The simulated robot moves at \SI{0.17}{\meter\per\second}.
+        The \gls{uwb} ranges arrive at \SI{10}{\hertz}, while the accelerometer information was integrated at \SI{200}{\hertz}.
+        \label{fig:simple_model}
+    }
+\end{figure}
 \section{UWB only model}
 
 This model was developped when I realized that the simple model had two important issues:
@@ -169,10 +199,7 @@ This model removes those issues by relying only on the UWB radio ranging for mea
 The state contains only the position of the robot.
 
 \begin{equation*}
-\mathbf{x} = \begin{pmatrix}
-    x\\
-    y
-    \end{pmatrix}
+\mathbf{x} = \begin{pmatrix}x & y\end{pmatrix}^T
 \end{equation*}
 
 
@@ -197,7 +224,7 @@ Therefore, the maximum distance that a robot can do is given by Equation~\ref{eq
 
 \begin{equation}
 d = \frac{V_{max}}{f}
-\label{eqn:travelled-distance}.
+\label{eqn:travelled-distance}
 \end{equation}
 
 If we assume that \(d = 2 \sigma\), this means that our hypothesis is valid 97.5\% of the time, which is reasonable.
@@ -209,6 +236,27 @@ If we assume an update frequency of \SI{10}{\hertz} and a max speed of \SI{0.14}
 \label{eqn:variance}
 \end{equation}
 
+
+\subsection{Simulation results}
+
+\begin{figure}[htpb]
+    \centering
+    \begin{subfigure}[t]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{models/uwb_only_trajectory.pdf}
+        \caption{Trajectory}
+    \end{subfigure}%
+    ~
+    \begin{subfigure}[t]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{models/uwb_only_error.pdf}
+        \caption{Position error}
+    \end{subfigure}
+    \caption{
+        Simulation results using only \gls{uwb} range information with 3 beacons.
+        The simulated robot moves at \SI{0.17}{\meter\per\second}.
+        The beacon distances were updated at \SI{10}{\hertz}.
+        \label{fig:uwb_only}
+    }
+\end{figure}
 
 \chapter{Implementation}
 
@@ -309,6 +357,7 @@ On our system, this value was found to be about \textbf{TODO}.
 % TODO: Impact of antenna orientation
 % TODO: Impact of preamble length
 
+\chapter{Future work}
 \appendix
 \chapter{Hardware schematic}
 
