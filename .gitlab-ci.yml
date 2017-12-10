@@ -1,5 +1,6 @@
 stages:
   - test
+  - figures
   - report
 
 models_test:
@@ -46,6 +47,19 @@ firmware_build:
     - make dsdlc
     - make
 
+models:
+  stage: figures
+  image: python:3.6
+  before_script:
+    - cd doc/report/
+    - pip install -r requirements.txt
+  script:
+    - jupyter convert --to notebook --execute "models/Simple model.ipynb"
+    - jupyter convert --to notebook --execute "models/UWB only.ipynb"
+  artifacts:
+    paths:
+      - doc/report/models/*.pdf
+    expire_in: 2 days
 pdf:
   stage: report
   image: antoinealb/texlive
