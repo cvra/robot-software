@@ -13,7 +13,7 @@
 \usepackage{multirow}
 \usepackage{subcaption}
 \usepackage{floatrow}
-\usepackage{siunitx}
+\usepackage[binary-units=true]{siunitx}
 \usepackage{wasysym}
 \usepackage{physics}
 \usepackage{hyperref}
@@ -73,9 +73,19 @@ Unfortunately, we found out that this feature is poorly documented by the manufa
 Additionally, the \gls{dmp} cannot use the magnetometer data.
 Therefore, we decided not to use it but to implement our own sensor fusion on top of raw sensor information.
 
+\section{UWB transceiver}
+The board contains an \gls{uwb} transceiver which combines a physical interface and a MAC.
+It has several features useful for our application:
+\begin{enumerate}
+    \item 802.15.4 compliant MAC which provides addressing features to avoid waking up on irrelevant traffic.
+    \item High range, up to \SI{290}{\meter}.
+    \item High accuracy timestamps for RX and TX of packets, allowing precision of up to \SI{10}{\centi\meter}.
+    \item High data rate (up to \SI{6.8}{\mega\bit\per\second}).
+    \end{enumerate}
+
 \chapter{Positioning algorithm}
 
-\section{Parametric vs non parametric filter}
+\section{Parametric vs. non-parametric filter}
 
 Parametric filters are filter which take assumptions on the distribution of the state.
 The most common assumption is that the distribution is Gaussian.
@@ -84,6 +94,12 @@ Non parametric filters, on the other hand, can represent any distribution, and m
 If the problem can be solved using a parametric filter, it is better, as they are computationally less expensive.
 Since we are running the code on a small device with little computing power, it is important to take this into account.
 
+Early on this project we decided to use an \gls{ekf},  which is one of the most common state estimator.
+Like the Kalman filter, which assumes that the distributions of the state and noise are gaussian.
+However, it works on non-linear dynamics, by approximating the non linearities via a first order Taylor expansion.
+
+While the \gls{ekf} is easy to implement and lightweight computationally, it makes the assumption that the noises is distributed according to a normal law.
+We verified this property for the measurement noise (see Section~\ref{sec:range_result}), but could only assume it for the process noise.
 
 \section{Simulation}
 
@@ -258,6 +274,83 @@ If we assume an update frequency of \SI{10}{\hertz} and a max speed of \SI{0.14}
     }
 \end{figure}
 
+
+\section{Differential measurement}
+
+Out of curiosity, we also tried to implement a model where the robot would embed two \gls{uwb} modules separated by a known distance.
+This should allow for a better precision, as well as measuring the heading of the robot.
+We made the following assumptions:
+
+\begin{enumerate}
+    \item Robot moves in the 2D plane
+    \item Gyro in the yaw axis
+    \item  Gyroscope has constant bias ($b_\omega$) and random noise.
+    \item \gls{uwb} receivers are separated by a fixed distance $d$.
+\end{enumerate}
+
+The state vector of the robot contains the position, speed and heading.
+It also contains a constant term for the gyro bias, used to model the noise on the bias.
+
+
+\begin{equation}
+\mathbf{x} = \begin{pmatrix} x & y & \dot{x} & \dot{y} & \theta & b_{\omega} \end{pmatrix}^T
+\end{equation}
+
+\subsection{Model}
+
+The prediction step uses outputs of the accelerometer (in body frame) and the angular rate as control inputs:
+
+\begin{equation}
+\mathbf{u} = \begin{pmatrix}
+    a_x\\
+    a_y\\
+    \omega
+\end{pmatrix}
+\end{equation}
+
+The differential equation governing the state evolution is therefore:
+
+\begin{equation}
+\mathbf{\dot{x}} = \begin{pmatrix}
+\dot{x}\\
+\dot{y}\\
+\cos(\theta) a_x - \sin(\theta) a_y \\
+\sin(\theta) a_x + \cos(\theta) a_y \\
+\omega - b_{\omega}\\
+0
+\end{pmatrix}
+\end{equation}
+
+Using forward Euler integration we get:
+
+\begin{equation}
+\mathbf{x}_{k+1} = \mathbf{x}_{k} + \Delta_t \mathbf{\dot{x}} = \mathbf{g}\left(\mathbf{x}_{k}, \mathbf{u}_k\right)
+\end{equation}
+
+For the measurement step, the UWB system gives us the distance $d$ to a beacon.
+The beacon's position $\mathbf{b}$ is known and assumed to be fixed.
+
+We first compute the position of each UWB receiver. Receiver $n$ is assumed to be at position $\mathbf{x}_{UWB,n}^R$ in robot frame.
+
+\begin{equation}
+\mathbf{x}_{UWB,n}^W = \mathbf{x}_{robot}^W + \begin{pmatrix}
+\cos \theta & - \sin \theta \\
+\sin \theta & \cos \theta
+\end{pmatrix} \mathbf{x}_{UWB,n}^R
+\end{equation}
+
+Then the measurement model is:
+
+\begin{equation}
+h_n(\mathbf{x}, \mathbf{b}) = \sqrt{(x_{UWB,n}^W - b_x)^2 + (y_{UWB,n}^W - b_y)^2}
+\end{equation}
+
+\subsection{Simulation results}
+TODO
+
+
+\section{Attitude estimation}
+
 \chapter{Implementation}
 
 \section{UWB beacons protocol}
@@ -330,7 +423,7 @@ Once the tag received the last message, it can compute the ranging solution usin
 
 \subsection{Antenna delay calibration}
 In order to obtain correct range readings, we should take in account the delay created by antenna transmission.
-This delay should be calibrated as it will be different for each design \cite{dw1000manual}).
+This delay should be calibrated as it will be different for each design \cite{dw1000manual}.
 To do it, we simply measured the distance reported by the modules over a known range (averaged on N samples).
 The antenna delay ($\Delta_T$) can then be computed by equation~\ref{eqn:delay-calibration}.
 
@@ -344,6 +437,7 @@ On our system, this value was found to be about \textbf{TODO}.
 \chapter{Results}
 
 \section{Range measurement}
+\label{sec:range_result}
 
 % TODO test precision and recall
 
