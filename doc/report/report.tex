@@ -44,11 +44,11 @@
 
 \section{State of the art}
 
-\begin{enumerate}
-    \item Sensor fusion using kalman for 9 axis IMUs is pretty common.
-        Usually done using quaternions to represent rotations.
-    \item Previous implementations of fusion with UWB focused on a applications of body positioning.
-\end{enumerate}
+%\begin{enumerate}
+%    \item Sensor fusion using kalman for 9 axis IMUs is pretty common.
+%        Usually done using quaternions to represent rotations.
+%    \item Previous implementations of fusion with UWB focused on a applications of body positioning.
+%\end{enumerate}
 
 \chapter{Hardware}
 
@@ -85,7 +85,7 @@ It has several features useful for our application:
 
 \chapter{Positioning algorithm}
 
-\section{Parametric vs. non-parametric filter}
+\section{Parametric vs.\  non-parametric filter}
 
 Parametric filters are filter which take assumptions on the distribution of the state.
 The most common assumption is that the distribution is Gaussian.
@@ -191,7 +191,7 @@ This function is the distance to the position of the beacon, called $\mathbf{b}$
     ~
     \begin{subfigure}[t]{0.4\textwidth}
         \includegraphics[width=\textwidth]{models/simple_model_error.pdf}
-        \caption{Positioning error}
+        \caption{Position error}
     \end{subfigure}
     \caption{Simulation results using the simple model.
         The simulated robot moves at \SI{0.17}{\meter\per\second}.
@@ -233,7 +233,7 @@ h(\mathbf{x}, \mathbf{b}) = \sqrt{\left(x - b_x\right)^2 + \left(y - b_y\right)^
 \label{eqn:uwb-only-measurement}
 \end{equation}
 
-\subsection{Variance tuning}
+\subsection{Tuning}
 
 To compute the variance of the model, we estimate that the robot is moving at a constant speed of maximum $V_{max}$ between two measurements updates (which occurs at \(f_{UWB}\)).
 Therefore, the maximum distance that a robot can do is given by Equation~\ref{eqn:travelled-distance}.
@@ -444,7 +444,10 @@ On our system, this value was found to be about \textbf{TODO}.
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.6\textwidth]{experiments/range_noise.png}
-    \caption{Distribution of the range measured by the \gls{uwb} module in the optimal orientation.}
+    \caption{Distribution of the range measured by the \gls{uwb} module in the optimal orientation.
+        The corresponding gaussian fit is shown.
+        We see that the error is pretty much normally distributed.
+    }
     \label{fig:range_noise}
 \end{figure}
 
