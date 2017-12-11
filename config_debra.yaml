@@ -48,6 +48,10 @@ master:
                     init: 0.15
                     slow: 0.5
                     fast: 1.
+    lever:
+        servo:
+            deployed: 0.0022
+            retracted: 0.0009
     main_arm:
         control:
             x:

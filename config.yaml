@@ -42,6 +42,10 @@ master:
                     init: 0.15
                     slow: 0.15
                     fast: 3.
+    lever:
+        servo:
+            deployed: 0.0022
+            retracted: 0.0009
 actuator:
     left-wheel:
         stream:

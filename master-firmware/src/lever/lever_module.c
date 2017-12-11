@@ -21,7 +21,11 @@ static void set_servo(void* servo, float pos)
 
 static void lever_update_settings(lever_t* lever, parameter_namespace_t* ns)
 {
-    lever_set_servo_range(lever, 0.0009, 0.0022);
+    float deployed, retracted;
+    deployed = parameter_scalar_get(parameter_find(ns, "servo/deployed"));
+    retracted = parameter_scalar_get(parameter_find(ns, "servo/retracted"));
+
+    lever_set_servo_range(lever, retracted, deployed);
 }
 
 static void lever_module_init(lever_t* lever, parameter_namespace_t* ns)

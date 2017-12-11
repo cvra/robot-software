@@ -43,6 +43,10 @@ static struct {
 static parameter_namespace_t beacon_config;
 static parameter_t beacon_reflector_radius, beacon_angular_offset;
 
+static parameter_namespace_t lever_config;
+static parameter_namespace_t lever_servo_config;
+static parameter_t lever_servo_retracted, lever_servo_deployed;
+
 #ifdef DEBRA
 static parameter_namespace_t arms_config, arms_main_config, motor_offsets_config;
 static parameter_t upperarm_length, forearm_length;
@@ -151,6 +155,12 @@ void config_init(void)
     parameter_scalar_declare_with_default(&aversive.trajectories.distance.acceleration.fast,
                                           &aversive.trajectories.distance.acceleration.ns,
                                           "fast", 0.);
+
+    parameter_namespace_declare(&lever_config, &master_config, "lever");
+    parameter_namespace_declare(&lever_servo_config, &lever_config, "servo");
+    parameter_scalar_declare(&lever_servo_deployed, &lever_servo_config, "deployed");
+    parameter_scalar_declare(&lever_servo_retracted, &lever_servo_config, "retracted");
+
 #ifdef DEBRA
     parameter_namespace_declare(&arms_config, &master_config, "arms");
 
