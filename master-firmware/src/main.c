@@ -32,6 +32,7 @@
 #include "base/encoder.h"
 #include "base/base_controller.h"
 #include "arms/arms_controller.h"
+#include "lever/lever_module.h"
 #include "trace/trace_points.h"
 #include "strategy.h"
 #include "filesystem.h"
@@ -41,6 +42,7 @@
 
 void init_base_motors(void);
 void init_arm_motors(void);
+void init_lever_motors(void);
 
 motor_manager_t motor_manager;
 
@@ -227,6 +229,8 @@ int main(void)
     chThdSleepMilliseconds(100);
     init_arm_motors();
 #endif
+    chThdSleepMilliseconds(100);
+    init_lever_motors();
 
     /* Load stored robot config */
     config_load_from_flash();
@@ -260,6 +264,8 @@ int main(void)
     arms_init();
     arms_controller_start();
 #endif
+    chThdSleepMilliseconds(2000);
+    lever_module_start();
 
     /* Initialize strategy thread, will wait for signal to begin game */
     strategy_start();
@@ -304,6 +310,10 @@ void init_arm_motors(void)
     motor_manager_create_driver(&motor_manager, "shoulder-joint");
     motor_manager_create_driver(&motor_manager, "elbow-joint");
     motor_manager_create_driver(&motor_manager, "arm-pump");
+}
+
+void init_lever_motors(void)
+{
     motor_manager_create_driver(&motor_manager, "lever-pump-1");
     motor_manager_create_driver(&motor_manager, "lever-pump-2");
 }

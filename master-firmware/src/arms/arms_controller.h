@@ -14,8 +14,6 @@ extern "C" {
 
 extern scara_t main_arm;
 extern hand_t main_hand;
-extern lever_t main_lever;
-
 
 /* Initialize arms */
 void arms_init(void);

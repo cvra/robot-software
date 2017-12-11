@@ -35,7 +35,7 @@
 #include "strategy.h"
 #include <trace/trace.h>
 #include "pca9685_pwm.h"
-#include "lever/lever.h"
+#include "lever/lever_module.h"
 
 const ShellCommand commands[];
 
