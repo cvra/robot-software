@@ -26,10 +26,14 @@ typedef struct {
 
     lever_state_t state;
     lever_pump_state_t pump_state;
+
+    float servo_retracted_pwm;  // pwm duty cycle in seconds to retract servo
+    float servo_deployed_pwm;   // pwm duty cycle in seconds to deploy servo
 } lever_t;
 
 /* Initialize lever */
 void lever_init(lever_t* lever);
+void lever_set_servo_range(lever_t* lever, float servo_retracted_pwm, float servo_deployed_pwm);
 
 /* Actuator callbacks */
 void lever_set_callbacks(lever_t* lever, void (*set_lever)(void*, float), void* lever_args);

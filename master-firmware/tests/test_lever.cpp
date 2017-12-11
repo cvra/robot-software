@@ -22,6 +22,7 @@ TEST_GROUP(ALever)
     {
         lever_init(&lever);
         lever_set_callbacks(&lever, &set_servo_pos, &lever_servo_pos);
+        lever_set_servo_range(&lever, 0.001, 0.002);
         lever_pump_set_callbacks(&lever, &set_pump_voltage, &lever_pump1_voltage, &lever_pump2_voltage);
     }
 

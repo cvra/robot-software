@@ -68,6 +68,7 @@ void arms_init(void)
     /* Lever init */
     lever_init(&main_lever);
     static unsigned int lever_servo_nb = 0;
+    lever_set_servo_range(&main_lever, 0.0009, 0.0022);
     lever_set_callbacks(&main_lever, set_servo, &lever_servo_nb);
     static cvra_arm_motor_t lever_pump1 = {.id = "lever-pump-1", .direction = 0, .index = 0};
     static cvra_arm_motor_t lever_pump2 = {.id = "lever-pump-2", .direction = 0, .index = 0};
