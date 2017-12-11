@@ -5,6 +5,8 @@
 extern "C" {
 #endif
 
+#include <stdbool.h>
+
 void pca9685_pwm_init(float period_sec);
 void pca9685_pwm_output_enable(bool enable);
 void pca9685_pwm_set_pulse_width(unsigned int pwm_nb, float pulse_width_sec);
