@@ -5,6 +5,8 @@
 extern "C" {
 #endif
 
+#include <ch.h>
+
 typedef enum {
     LEVER_DISABLED,
     LEVER_RETRACTED,
@@ -29,6 +31,7 @@ typedef struct {
 
     float servo_retracted_pwm;  // pwm duty cycle in seconds to retract servo
     float servo_deployed_pwm;   // pwm duty cycle in seconds to deploy servo
+    mutex_t lock;
 } lever_t;
 
 /* Initialize lever */

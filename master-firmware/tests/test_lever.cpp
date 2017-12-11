@@ -1,4 +1,5 @@
 #include <CppUTest/TestHarness.h>
+#include <CppUTestExt/MockSupport.h>
 
 #include <lever/lever.h>
 
@@ -28,6 +29,7 @@ TEST_GROUP(ALever)
 
     void teardown()
     {
+        lock_mocks_enable(false);
     }
 };
 
@@ -70,4 +72,31 @@ TEST(ALever, stopsPumping)
     CHECK_EQUAL(LEVER_PUMP_OFF, lever.pump_state);
     CHECK_EQUAL(lever_pump1_voltage, 0.0);
     CHECK_EQUAL(lever_pump2_voltage, 0.0);
+}
+
+TEST(ALever, locksCorrectlyWhenSettingServoRange)
+{
+    lock_mocks_enable(true);
+    mock().expectOneCall("chMtxLock").withPointerParameter("lock", &lever.lock);
+    mock().expectOneCall("chMtxUnlock").withPointerParameter("lock", &lever.lock);
+
+    lever_set_servo_range(&lever, 0.001, 0.002);
+}
+
+TEST(ALever, locksCorrectlyWhenDeploying)
+{
+    lock_mocks_enable(true);
+    mock().expectOneCall("chMtxLock").withPointerParameter("lock", &lever.lock);
+    mock().expectOneCall("chMtxUnlock").withPointerParameter("lock", &lever.lock);
+
+    lever_deploy(&lever);
+}
+
+TEST(ALever, locksCorrectlyWhenRetracting)
+{
+    lock_mocks_enable(true);
+    mock().expectOneCall("chMtxLock").withPointerParameter("lock", &lever.lock);
+    mock().expectOneCall("chMtxUnlock").withPointerParameter("lock", &lever.lock);
+
+    lever_retract(&lever);
 }
