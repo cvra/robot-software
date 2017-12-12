@@ -48,6 +48,10 @@ master:
                     init: 0.15
                     slow: 0.5
                     fast: 1.
+    lever:
+        servo:
+            deployed: 0.0022
+            retracted: 0.0009
     main_arm:
         control:
             x:
@@ -251,6 +255,32 @@ actuator:
             velocity_limit: 10.
             torque_limit: 3
     arm-pump:
+        stream:
+            current_pid: 0
+            velocity_pid: 0
+            position_pid: 0
+            motor_pos: 0
+            index: 0
+        motor:
+            mode: 0 # openloop
+            transmission_ratio_p: 1
+            transmission_ratio_q: 1
+        control:
+            low_batt_th: 12
+    lever-pump-1:
+        stream:
+            current_pid: 0
+            velocity_pid: 0
+            position_pid: 0
+            motor_pos: 0
+            index: 0
+        motor:
+            mode: 0 # openloop
+            transmission_ratio_p: 1
+            transmission_ratio_q: 1
+        control:
+            low_batt_th: 12
+    lever-pump-2:
         stream:
             current_pid: 0
             velocity_pid: 0

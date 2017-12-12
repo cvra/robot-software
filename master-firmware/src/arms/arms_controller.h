@@ -7,13 +7,13 @@ extern "C" {
 
 #include "scara/scara.h"
 #include "hand/hand.h"
+#include "lever/lever.h"
 #include "cvra_arm_motors.h"
 
 #define ARMS_FREQUENCY 50
 
 extern scara_t main_arm;
 extern hand_t main_hand;
-
 
 /* Initialize arms */
 void arms_init(void);
