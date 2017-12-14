@@ -26,6 +26,7 @@ target.arm:
   - src/uavcan/uavcan_node.cpp
   - src/uavcan/topics_publisher.cpp
   - src/uavcan/parameter_server.cpp
+  - src/uavcan/restart_server.cpp
   - src/decawave_interface.c
   - src/ranging_thread.c
   - src/parameter_port.c

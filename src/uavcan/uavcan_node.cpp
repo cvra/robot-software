@@ -10,6 +10,7 @@
 #include "uavcan/uavcan_node.h"
 #include "uavcan/topics_publisher.hpp"
 #include "uavcan/parameter_server.hpp"
+#include "uavcan/restart_server.hpp"
 
 #define CAN_BITRATE 1000000
 
@@ -55,6 +56,7 @@ static THD_FUNCTION(uavcan_node, arg)
 
     topics_publisher_start(node);
     parameter_server_start(node);
+    restart_server_start(node);
 
     /* Spin forever */
     while (true) {
