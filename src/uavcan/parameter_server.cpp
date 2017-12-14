@@ -3,34 +3,40 @@
 #include <parameter_flash_storage/parameter_flash_storage.h>
 #include "main.h"
 #include "parameter_server.hpp"
-
-static const char *exposed_parameters[] = {
-    "/publish/imu",
-    "/publish/attitude",
-    "/publish/range",
-    "/ahrs/beta",
-    "/uwb/mac_addr",
-    "/uwb/pan_id",
-    "/uwb/anchor/is_anchor",
-    "/uwb/anchor/antenna_delay",
-    "/uwb/anchor/position/x",
-    "/uwb/anchor/position/y",
-    "/uwb/anchor/position/z",
-};
-
-static const size_t exposed_parameters_len = sizeof(exposed_parameters) /
-                                             sizeof(exposed_parameters[0]);
+#include "parameter_enumeration.hpp"
 
 class ParamManager : public uavcan::IParamManager
 {
+    void construct_full_name_for_parameter(parameter_t *param, Name &name) const
+    {
+        int height = parameter_tree_height(param);
+        name = "/";
+
+        while (height > 1) {
+            parameter_namespace_t *ns = param->ns;
+
+            // height - 2 because we skip root node and leaf node
+            for (int i = 0; i < height - 2; i++) {
+                ns = ns->parent;
+            }
+            name += ns->id;
+            name += "/";
+            height --;
+        }
+
+        name += param->id;
+    }
 public:
 /**
  * Copy the parameter name to @ref out_name if it exists, otherwise do nothing.
  */
     void getParamNameByIndex(Index index, Name& out_name) const
     {
-        if (index < exposed_parameters_len) {
-            out_name = exposed_parameters[index];
+        parameter_t *p;
+        p = parameter_find_by_index(&parameter_root, index);
+
+        if (p != nullptr) {
+            construct_full_name_for_parameter(p, out_name);
         }
     }
 /**

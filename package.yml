@@ -40,6 +40,7 @@ source:
   - src/decadriver/deca_params_init.c
   - src/uwb_protocol.c
   - src/state_estimation.cpp
+  - src/uavcan/parameter_enumeration.cpp
 
 tests:
   - tests/mpu9250.cpp
@@ -48,6 +49,7 @@ tests:
   - tests/uwb_protocol.cpp
   - tests/ekf.cpp
   - tests/state_estimation.cpp
+  - tests/parameter_by_index.cpp
 
 templates:
   app_src.mk.jinja: app_src.mk
