@@ -2,7 +2,7 @@
 PROJINC += {{ dir }}
 {% endfor %}
 
-{% for file in target.arm + source %}
+{% for file in target.arm + target.stm32f3 + source %}
 {%- if file.endswith('.c') %}PROJCSRC += {{ file }}
 {% elif file.endswith('.s') %}PROJASMSRC += {{ file }}
 {% elif file.endswith('.cpp') %}PROJCPPSRC += {{ file }}

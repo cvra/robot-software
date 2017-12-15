@@ -52,3 +52,6 @@
 [submodule "lib/eigen"]
 	path = lib/eigen
 	url = https://github.com/cvra/eigen
+[submodule "lib/parameter_flash_storage"]
+	path = lib/parameter_flash_storage
+	url = https://github.com/cvra/parameter_flash_storage

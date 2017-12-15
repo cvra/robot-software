@@ -3,6 +3,7 @@ dependency-dir: ../lib
 include_directories:
   - src/
 
+target.stm32f3: []
 target.arm:
     - board/board.c
     - src/main.c
@@ -46,6 +47,7 @@ depends:
     - serial-datagram
     - cmp_mem_access
     - version
+    - parameter_flash_storage
     - filter:
         fork: froj
     - parameter
