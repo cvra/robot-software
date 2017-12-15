@@ -90,9 +90,7 @@ int LoadConfiguration_server_start(Node &node)
 
         chprintf(ch_stdout, "LoadConfiguration received\n");
 
-        // Mark the node as correctly initialized
-        node.getNodeStatusProvider().setModeOperational();
-        node.getNodeStatusProvider().setHealthOk();
+        uavcan_init_complete();
     });
 
     return ret;

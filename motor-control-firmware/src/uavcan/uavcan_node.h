@@ -15,6 +15,7 @@ struct uavcan_node_arg {
 };
 
 void uavcan_node_start(void *arg);
+void uavcan_init_complete(void);
 
 #ifdef __cplusplus
 }
