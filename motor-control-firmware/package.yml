@@ -38,6 +38,7 @@ target.arm:
     - src/stream.c
     - src/uart_stream.c
     - src/parameter_listener.c
+    - src/parameter_port.c
     - ../lib/can-bootloader/config.c
 
 depends:
@@ -47,8 +48,7 @@ depends:
     - version
     - filter:
         fork: froj
-    - parameter:
-        fork: Stapelzeiger
+    - parameter
     - timestamp:
         fork: Stapelzeiger
 

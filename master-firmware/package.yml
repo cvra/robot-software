@@ -54,6 +54,7 @@ target.arm:
     - src/control_panel.c
     - src/pca9685_pwm.c
     - src/lever/lever_module.c
+    - src/parameter_port.c
 
 source:
     - src/unix_timestamp.c
