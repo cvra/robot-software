@@ -89,6 +89,15 @@ void parameter_flash_storage_save(void *dst, size_t dst_len, parameter_namespace
 
     len = cmp_mem_access_get_pos(&mem);
 
+    // On STM32F3s we have to make sure we wrote a multiple of 16 bits because
+    // the flash controller does not support single byte writes.
+    if (len % 2 == 1) {
+        uint8_t *end = dst + len + PARAMETER_FLASH_STORAGE_HEADER_SIZE + 1;
+        uint8_t data = 0x00;
+        flash_write(end, &data, 1);
+        len ++;
+    }
+
     parameter_flash_storage_write_block_header(dst, len);
 
     flash_lock();

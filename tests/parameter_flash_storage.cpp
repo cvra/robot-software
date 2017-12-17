@@ -34,6 +34,7 @@ TEST(ConfigSaveTestCase, SavingConfigLockUnlock)
     mock("flash").expectOneCall("unlock");
     mock("flash").expectOneCall("erase").withParameter("sector", data);
     mock("flash").expectOneCall("write"); // data
+    mock("flash").expectOneCall("write"); // fill
     mock("flash").expectOneCall("write"); // CRC(len)
     mock("flash").expectOneCall("write"); // len
     mock("flash").expectOneCall("write"); // crc(data)
@@ -347,4 +348,18 @@ TEST(ConfigSaveTestCase, CanErasePageIfNotenoughSpaceLeftForData)
     mock("flash").expectOneCall("erase").withParameter("sector", block);
     mock("flash").expectOneCall("erase").withParameter("sector", block);
     parameter_flash_storage_save(block, sizeof(block), &ns);
+}
+
+TEST(ConfigSaveTestCase, CheckThatLengthIsAlwaysOdd)
+{
+    uint8_t block[36];
+
+    // On STM32F3s, we have to make sure we write multiple of 16 bits at a time
+    parameter_t p;
+    parameter_integer_declare(&p, &ns, "foo2");
+
+    // Give it a value then save
+    parameter_integer_set(&p, 1);
+    parameter_flash_storage_save(block, sizeof(block), &ns);
+    CHECK_EQUAL(12, parameter_flash_storage_block_get_length(block));
 }
