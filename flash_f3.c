@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdbool.h>
 #include "flash.h"
 
 /* Flash registers. Copied here to avoid dependencies on either libopencm3 or
@@ -20,6 +21,9 @@
 
 #define FLASH_KEYR_KEY1          ((uint32_t)0x45670123)
 #define FLASH_KEYR_KEY2          ((uint32_t)0xcdef89ab)
+
+static bool write_last_byte = false;
+static uint8_t last_byte;
 
 static void flash_wait_for_last_operation(void)
 {
@@ -62,6 +66,25 @@ void flash_write(void *page, const void *data, size_t len)
 
     flash_wait_for_last_operation();
 
+    if ((uint32_t)flash & 0x1) {
+        flash = (uint16_t *)(((uint32_t)flash) & 0xfffffffe);
+
+        /* preserve value of adjacent byte */
+        if (write_last_byte) {
+            half_word = last_byte;
+            write_last_byte = false;
+        } else {
+            half_word = (*flash & 0xff);
+        }
+        half_word |= ((uint16_t)*bytes) << 8;
+
+        flash_write_half_word(flash, half_word);
+
+        flash ++;
+        bytes ++;
+        len --;
+    }
+
     size_t count;
     for (count = len; count > 1; count -= 2) {
 
@@ -72,11 +95,10 @@ void flash_write(void *page, const void *data, size_t len)
     }
 
     if (count == 1) {
-        half_word = *bytes;
-        /* preserve value of adjacent byte */
-        half_word |= (uint16_t)(*(uint8_t *)flash) << 8;
-
-        flash_write_half_word(flash, half_word);
+        // TODO: The byte write in a string of writes might be lost if the
+        // total number written bytes is odd.
+        last_byte = *bytes;
+        write_last_byte = true;
     }
 
     /* reset flags */
