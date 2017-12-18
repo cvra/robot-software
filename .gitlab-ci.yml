@@ -60,6 +60,7 @@ models:
   artifacts:
     paths:
       - doc/report/models/*.pdf
+      - doc/report/experiments/*.pdf
     expire_in: 2 days
 
 pdf:
