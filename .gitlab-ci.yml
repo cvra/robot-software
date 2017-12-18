@@ -56,6 +56,7 @@ models:
   script:
     - jupyter nbconvert --to notebook --execute "models/Simple model.ipynb"
     - jupyter nbconvert --to notebook --execute "models/UWB only.ipynb"
+    - jupyter nbconvert --to notebook --execute "experiments/range_noise.ipynb"
   artifacts:
     paths:
       - doc/report/models/*.pdf
