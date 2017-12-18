@@ -15,7 +15,7 @@ SPEED_OF_LIGHT = 299792458.0 / (128 * 499.2e6)
 
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--distance", "-d", type=float, help="Distance separating the two beacons.", required=True)
+    parser.add_argument("--distance", "-d", type=float, help="Distance separating the two beacons in meters.", required=True)
     parser.add_argument("--port", "-p", help="Serial port to which the adapter is connected or name of socketcan interface.", required=True)
 
     return parser.parse_args()
