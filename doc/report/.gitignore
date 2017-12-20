@@ -19,7 +19,9 @@
 # *.eps
 
 models/*.pdf
+experiments/*.pdf
 report.pdf
+abstract.pdf
 
 ## Bibliography auxiliary files (bibtex/biblatex/biber):
 *.bbl
