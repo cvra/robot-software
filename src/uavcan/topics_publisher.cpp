@@ -150,7 +150,7 @@ void topics_publisher_spin(Node &node)
     }
 
      if (chBSemWaitTimeout(&range_topic_signaled, TIME_IMMEDIATE) == MSG_OK) {
-         palTogglePad(GPIOB, GPIOB_LED_ERROR);
+        palTogglePad(GPIOB, GPIOB_LED_ERROR);
         messagebus_topic_t *topic;
         range_msg_t range_msg;
 

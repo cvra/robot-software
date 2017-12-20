@@ -28,7 +28,9 @@ struct IdentityPredictor : EKF::Predictor<2, 0> {
     }
 };
 
-RadioPositionEstimator::RadioPositionEstimator() : covariance(Eigen::Matrix2f::Identity())
+RadioPositionEstimator::RadioPositionEstimator() : covariance(Eigen::Matrix2f::Identity()),
+                                                   measurementVariance(0.03 * 0.03),
+                                                   processVariance(0.025)
 {
 }
 
@@ -46,8 +48,7 @@ std::tuple<float, float> RadioPositionEstimator::getPosition()
 void RadioPositionEstimator::processDistanceMeasurement(const float anchor_position[2],
                                                         float distance)
 {
-    // TODO the measurement variance should be set at run time
-    UWBOnlyModel m(anchor_position[0], anchor_position[1], 0.03*0.03);
+    UWBOnlyModel m(anchor_position[0], anchor_position[1], measurementVariance);
     Eigen::Matrix<float, 1, 1> z;
     z << distance;
     std::tie(state, covariance) = m.correct(state, covariance, z);
@@ -55,8 +56,7 @@ void RadioPositionEstimator::processDistanceMeasurement(const float anchor_posit
 
 void RadioPositionEstimator::predict(void)
 {
-    // TODO the process variance should be set at run time
-    IdentityPredictor p(0.0250);
+    IdentityPredictor p(processVariance);
     Eigen::Matrix<float, 0, 1> u;
 
     std::tie(state, covariance) = p.predict(state, covariance, u);

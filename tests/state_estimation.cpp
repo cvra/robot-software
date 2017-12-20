@@ -63,3 +63,10 @@ TEST(StateEstimationTestGroup, Converges)
     DOUBLES_EQUAL(2., x, 0.1);
     DOUBLES_EQUAL(2., y, 0.1);
 }
+
+TEST(StateEstimationTestGroup, SetVariance)
+{
+    RadioPositionEstimator est;
+    est.processVariance = 0.3;
+    est.measurementVariance = 0.3;
+}

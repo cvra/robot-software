@@ -12,6 +12,7 @@
 #include "ahrs_thread.h"
 #include "ranging_thread.h"
 #include "uwb_protocol.h"
+#include "state_estimation_thread.h"
 
 #define TEST_WA_SIZE  THD_WORKING_AREA_SIZE(256)
 #define SHELL_WA_SIZE THD_WORKING_AREA_SIZE(2048)
@@ -174,6 +175,28 @@ static void cmd_range(BaseSequentialStream *chp, int argc, char **argv)
     } else {
         chprintf(chp, usage);
     }
+}
+
+static void cmd_anchors(BaseSequentialStream *chp, int argc, char **argv)
+{
+    (void) argc;
+    (void) argv;
+
+    cache_t *cache;
+    cache_entry_t *current;
+    anchor_position_msg_t *pos;
+
+    cache = state_estimation_anchor_cache_acquire();
+    current = cache->used_list;
+    while (current) {
+        pos = (anchor_position_msg_t *)current->payload;
+        chprintf(chp, "%d:\r\n", pos->anchor_addr);
+        chprintf(chp, "  x: %.2f:\r\n", pos->x);
+        chprintf(chp, "  y: %.2f:\r\n", pos->y);
+        chprintf(chp, "  z: %.2f:\r\n", pos->z);
+        current = current->next;
+    }
+    state_estimation_anchor_cache_release();
 }
 
 static void tree_indent(BaseSequentialStream *out, int indent)
@@ -359,6 +382,7 @@ const ShellCommand shell_commands[] = {
     {"ahrs", cmd_ahrs},
     {"temp", cmd_temp},
     {"range", cmd_range},
+    {"anchors", cmd_anchors},
     {"config_tree", cmd_config_tree},
     {"config_set", cmd_config_set},
     {"config_save", cmd_config_save},
