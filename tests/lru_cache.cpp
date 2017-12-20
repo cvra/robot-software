@@ -1,5 +1,6 @@
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
+#include <cstring>
 #include "lru_cache.h"
 
 TEST_GROUP(LeastRecentlyUsedCacheTestGroup)
