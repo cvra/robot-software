@@ -408,7 +408,30 @@ h_n(\mathbf{x}, \mathbf{b}) = \sqrt{(x_{UWB,n}^W - b_x)^2 + (y_{UWB,n}^W - b_y)^
 \end{equation}
 
 \subsection{Simulation results}
-TODO
+
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[t]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{models/differential_model_trajectory.pdf}
+        \caption{Trajectory}
+    \end{subfigure}%
+    ~
+    \begin{subfigure}[t]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{models/differential_model_error.pdf}
+        \caption{Position error}
+    \end{subfigure}
+
+    \begin{subfigure}[t]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{models/differential_model_angle.pdf}
+        \caption{Angle estimation}
+    \end{subfigure}
+
+    \caption{Simulation results using the differential model.
+        The simulated robot moves at \SI{0.17}{\meter\per\second}.
+        The \gls{uwb} ranges arrive at \SI{10}{\hertz}, while the accelerometer information was integrated at \SI{200}{\hertz}.
+        \label{fig:differential_model}
+    }
+\end{figure}
 
 
 \section{Attitude estimation}
