@@ -151,6 +151,7 @@ While the \gls{ekf} is easy to implement and lightweight computationally, it mak
 We verified this property for the measurement noise (see Section~\ref{sec:range_result}), but could only assume it for the process noise.
 
 \section{Simulation}
+\label{sec:simulation}
 
 Testing the model's performance on the real system can be difficult.
 First, implementing all the models in an embedded language like C or C++ is a tedious task.
@@ -217,9 +218,9 @@ We can turn it into a discrete state update equation using the forward Euler met
 
 \subsection{Measurement model}
 In this model we have two different measurement functions.
-The first one is given by the \gls{dmp} and is directly the heading $\theta$:
+The first one is the robot's heading, $\theta$, given by the \gls{dmp} or another attitute estimation algorithm.
 \begin{equation}
-    h_{DMP}(\mathbf{x}) = \theta
+    h_{\theta}(\mathbf{x}) = \theta
 \end{equation}
 
 The second type of measurement is the distance to the UWB anchors.
@@ -231,6 +232,7 @@ This function is the distance to the position of the beacon, called $\mathbf{b}$
 \end{equation}
 
 \subsection{Simulation results}
+
 \begin{figure}[h!]
     \centering
     \begin{subfigure}[t]{0.4\textwidth}
@@ -248,6 +250,16 @@ This function is the distance to the position of the beacon, called $\mathbf{b}$
         \label{fig:simple_model}
     }
 \end{figure}
+
+This simple model was converted to an \gls{ekf} model and implemented using the framework described in Section~\ref{sec:simulation}.
+The noise characteristics of the ranging system were measured (see Section~\ref{sec:range_result}), while the accelerometer noise was taken from the datasheet.
+The results can be seen in Figure~\ref{fig:simple_model}.
+
+We think this behaviour is pretty suboptimal and that the \gls{ekf} could be better tuned.
+However, we decided not to investigate this further, as this model required an absolute heading in the shared referene frame.
+This is not easy to know: the magnetometers can give an absolute heading with respect to the Earth's magnetic frame, but we do not know the rotation between the north and the shared frame.
+This led us to the creation of the next model.
+
 \section{UWB only model}
 
 This model was developped when I realized that the simple model had two important issues:
@@ -294,12 +306,13 @@ d = \frac{V_{max}}{f}
 
 If we assume that \(d = 2 \sigma\), this means that our hypothesis is valid 97.5\% of the time, which is reasonable.
 Therefore, the process variance can be estimated using Equation~\ref{eqn:variance}.
-If we assume an update frequency of \SI{10}{\hertz} and a max speed of \SI{0.14}{\meter\per\second}, typical for a Thymio robot \cite{thymioweb}, we get a variance of $\sigma^2 = \SI{4.9e-5}{\meter\squared}$.
 
 \begin{equation}
 \sigma^2 = \left( \frac{V_{max}}{2 f} \right)^2
 \label{eqn:variance}
 \end{equation}
+
+Assuming an update frequency of \SI{10}{\hertz} and a max speed of \SI{0.14}{\meter\per\second}, typical for a Thymio robot\cite{thymioweb}, we get a variance of $\sigma^2 = \SI{4.9e-5}{\meter\squared}$.
 
 
 \subsection{Simulation results}
