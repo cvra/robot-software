@@ -460,7 +460,7 @@ We used the reference implementation\cite{madgwick2011estimation} which was alre
 
 \chapter{Implementation}
 
-\section{UWB beacons protocol}
+\section{UWB ranging protocol}
 
 \subsection{Design principles}
 
@@ -541,12 +541,11 @@ The antenna delay ($\Delta_T$) can then be computed by equation~\ref{eqn:delay-c
 
 On our system, this value was found to be about 32905~DW1000's internal units (\SI{64.3}{\micro\second}).
 
+
 \chapter{Results}
 
 \section{Range measurement}
 \label{sec:range_result}
-
-% TODO test precision and recall
 
 \begin{figure}[h]
     \centering
@@ -557,6 +556,17 @@ On our system, this value was found to be about 32905~DW1000's internal units (\
     }
     \label{fig:range_noise}
 \end{figure}
+
+The Kalman filter relies on the assumptions that the measurement noise is distributed according to a normal law.
+As we were not familiar with \gls{uwb} ranging technologies, we needed to make sure that this was the case.
+Once the ranging protocol was implemented and working, we separated two boards by a known distance and logged the measured ranges for half an hour.
+The distribution of the results can be seen in Figure~\ref{fig:range_noise}.
+
+We tried to use a statistical normality tests to determine if the samples were from a normal distribution.
+However those tests can only reject the hypothesis that the samples come from the normal distribution and are almost never significant on large sample count. 
+We plotted the distribution that fitted the dataset and decided that the distribution was close enough to a Gaussian for the requirements of the \gls{ekf}.
+
+This experiment also allowed us to confirm that the antenna delay was properly calibrated since the dataset did not exhibit a bias.
 
 % TODO: Impact of antenna orientation
 % TODO: Impact of preamble length
