@@ -6,14 +6,18 @@
 #include "state_estimation.hpp"
 #include "ranging_thread.h"
 #include "state_estimation_thread.h"
+#include "anchor_position_cache.h"
 #include "imu_thread.h"
 
-#define CACHE_ENTRIES 5
+/** Parameters for this service. */
+static struct {
+    parameter_namespace_t ns;
+    parameter_t process_variance;
+    parameter_t range_variance;
+} params;
 
-static cache_t anchor_positions_cache;
-static cache_entry_t anchor_positions_cache_entries[CACHE_ENTRIES];
-static anchor_position_msg_t anchor_positions_cache_entries_content[CACHE_ENTRIES];
-static MUTEX_DECL(anchor_positions_cache_lock);
+/** Creates the parameters. */
+static void parameters_init(parameter_namespace_t *parent);
 
 static THD_WORKING_AREA(state_estimation_wa, 1024);
 static THD_FUNCTION(state_estimation_thd, arg)
@@ -35,30 +39,11 @@ static THD_FUNCTION(state_estimation_thd, arg)
 
     messagebus_topic_init(&state_estimation_topic,
                           &state_estimation_topic_lock,
-                          &state_estimation_topic_condvar,
-                          &state_estimation_topic_content,
+                          &state_estimation_topic_condvar, &state_estimation_topic_content,
                           sizeof(state_estimation_topic_content));
     messagebus_advertise_topic(&bus, &state_estimation_topic, "/ekf/state");
 
-    struct {
-        parameter_namespace_t ns;
-        parameter_t process_variance;
-        parameter_t range_variance;
-    } params;
-
-    parameter_namespace_declare(&params.ns, &parameter_root, "ekf");
-    parameter_scalar_declare_with_default(&params.process_variance,
-                                          &params.ns,
-                                          "process_variance",
-                                          4e-6);
-    parameter_scalar_declare_with_default(&params.range_variance, &params.ns, "range_variance",
-                                          9e-4);
-
-    cache_init(&anchor_positions_cache, anchor_positions_cache_entries, CACHE_ENTRIES);
-
-    for (int i = 0; i < CACHE_ENTRIES; i++) {
-        anchor_positions_cache_entries[i].payload = (void *)&anchor_positions_cache_entries_content[i];
-    }
+    parameters_init(&parameter_root);
 
     // TODO configure variance
     RadioPositionEstimator estimator;
@@ -81,37 +66,20 @@ static THD_FUNCTION(state_estimation_thd, arg)
                                 &watchgroup.group,
                                 imu_topic);
 
-    while (true) { messagebus_topic_t *topic;
+    while (true) {
+        messagebus_topic_t *topic;
         topic = messagebus_watchgroup_wait(&watchgroup.group);
 
-        if (topic == anchor_pos_topic) {
-            // If we got a new beacon position, store it in the map
-            anchor_position_msg_t msg;
-            messagebus_topic_read(topic, &msg, sizeof(msg));
-
-            state_estimation_anchor_cache_acquire();
-
-            cache_entry_t *entry = cache_entry_get(&anchor_positions_cache, msg.anchor_addr);
-            anchor_position_msg_t *dst;
-            if (entry == NULL) {
-                entry = cache_entry_allocate(&anchor_positions_cache, msg.anchor_addr);
-            }
-            dst = (anchor_position_msg_t *)entry->payload;
-            memcpy(dst, &msg, sizeof(anchor_position_msg_t));
-
-            state_estimation_anchor_cache_release();
-        } else if (topic == range_topic) {
+        if (topic == range_topic) {
             // If we got a range, feed it to the estimator
             range_msg_t msg;
             messagebus_topic_read(topic, &msg, sizeof(msg));
 
             estimator.measurementVariance = parameter_scalar_read(&params.range_variance);
 
-            state_estimation_anchor_cache_acquire();
-            if (cache_entry_get(&anchor_positions_cache, msg.anchor_addr)) {
+            if (anchor_position_cache_get(msg.anchor_addr)) {
                 palTogglePad(GPIOB, GPIOB_LED_ERROR);
             }
-            state_estimation_anchor_cache_release();
 
         } else if (topic == imu_topic) {
             // TODO: Better source of periodic interrupts than IMU?
@@ -137,14 +105,13 @@ void state_estimation_start(void)
                       NULL);
 }
 
-cache_t *state_estimation_anchor_cache_acquire(void)
+static void parameters_init(parameter_namespace_t *parent)
 {
-    chMtxLock(&anchor_positions_cache_lock);
-    return &anchor_positions_cache;
+    parameter_namespace_declare(&params.ns, parent, "ekf");
+    parameter_scalar_declare_with_default(&params.process_variance,
+                                          &params.ns,
+                                          "process_variance",
+                                          4e-6);
+    parameter_scalar_declare_with_default(&params.range_variance, &params.ns, "range_variance",
+                                          9e-4);
 }
-
-void state_estimation_anchor_cache_release(void)
-{
-    chMtxUnlock(&anchor_positions_cache_lock);
-}
-

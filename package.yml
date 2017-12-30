@@ -31,6 +31,7 @@ target.arm:
   - src/ranging_thread.c
   - src/parameter_port.c
   - src/state_estimation_thread.cpp
+  - src/anchor_position_cache.c
 
 target.stm32f4: []
 

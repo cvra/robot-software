@@ -50,6 +50,7 @@ int main(void)
     imu_start();
     ahrs_start();
     ranging_start();
+    anchor_position_cache_start();
     state_estimation_start();
 
     uavcan_node_start(boot_config.ID, boot_config.board_name);

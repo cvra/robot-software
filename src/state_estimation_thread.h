@@ -16,9 +16,6 @@ typedef struct {
 
 void state_estimation_start(void);
 
-cache_t *state_estimation_anchor_cache_acquire(void);
-void state_estimation_anchor_cache_release(void);
-
 #ifdef __cplusplus
 }
 #endif

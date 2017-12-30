@@ -13,6 +13,7 @@
 #include "ranging_thread.h"
 #include "uwb_protocol.h"
 #include "state_estimation_thread.h"
+#include "anchor_position_cache.h"
 
 #define TEST_WA_SIZE  THD_WORKING_AREA_SIZE(256)
 #define SHELL_WA_SIZE THD_WORKING_AREA_SIZE(2048)
@@ -182,21 +183,18 @@ static void cmd_anchors(BaseSequentialStream *chp, int argc, char **argv)
     (void) argc;
     (void) argv;
 
-    cache_t *cache;
-    cache_entry_t *current;
     anchor_position_msg_t *pos;
+    uint16_t id;
 
-    cache = state_estimation_anchor_cache_acquire();
-    current = cache->used_list;
-    while (current) {
-        pos = (anchor_position_msg_t *)current->payload;
-        chprintf(chp, "%d:\r\n", pos->anchor_addr);
-        chprintf(chp, "  x: %.2f:\r\n", pos->x);
-        chprintf(chp, "  y: %.2f:\r\n", pos->y);
-        chprintf(chp, "  z: %.2f:\r\n", pos->z);
-        current = current->next;
+    for (id = 0; id < 0xffff; id++) {
+        pos = anchor_position_cache_get(id);
+        if (pos) {
+            chprintf(chp, "%d:\r\n", pos->anchor_addr);
+            chprintf(chp, "  x: %.2f:\r\n", pos->x);
+            chprintf(chp, "  y: %.2f:\r\n", pos->y);
+            chprintf(chp, "  z: %.2f:\r\n", pos->z);
+        }
     }
-    state_estimation_anchor_cache_release();
 }
 
 static void tree_indent(BaseSequentialStream *out, int indent)
