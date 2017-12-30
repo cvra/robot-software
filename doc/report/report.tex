@@ -283,14 +283,15 @@ The state contains only the position of the robot.
 There is no information used for prediction, making the prediction function the identity:
 
 \begin{equation}
-\mathbf{x}_{k+1} = \mathbf{x}_{k}
+    \mathbf{x}_{k+1} = \mathbf{g}(\mathbf{x}_k, \mathbf{u}_{k+1}) = \mathbf{x}_{k}
 \end{equation}
 
-For the measurement, the UWB system gives us the distance $d$ to a beacon. The beacon's position $\mathbf{b}$ is known and assumed to be fixed.
+For the measurement, the UWB system gives us the distance $d$ to a beacon.
+The beacon's position $\mathbf{b}$ is known and assumed to be fixed.
 Therefore the measurement model is given by Equation~\ref{eqn:uwb-only-measurement}.
 
 \begin{equation}
-h(\mathbf{x}, \mathbf{b}) = \sqrt{\left(x - b_x\right)^2 + \left(y - b_y\right)^2}
+    h(\mathbf{x}, \mathbf{b}) = \lVert \mathbf{x} - \mathbf{b} \rVert
 \label{eqn:uwb-only-measurement}
 \end{equation}
 
@@ -336,10 +337,15 @@ Assuming an update frequency of \SI{10}{\hertz} and a max speed of \SI{0.14}{\me
     }
 \end{figure}
 
+The results from the simulation can be seen in Figure~\ref{fig:uwb_only}.
+The simulation parameters were the same as on the previous models to allow for comparison.
+We can see that this filter has a better RMS error.
+As it uses less information than our first model, it is probably due to better tuning.
+As the performance of this model are good enough for our test application, this is the model we decided to implement on the microcontroller.
 
-\section{Differential measurement}
+\section{Differential measurement model}
 
-Out of curiosity, we also tried to implement a model where the robot would embed two \gls{uwb} modules separated by a known distance.
+Out of curiosity, we also tried to implement a model where the robot would embed two \gls{uwb} tags separated by a known distance.
 This should allow for a better precision, as well as measuring the heading of the robot.
 We made the following assumptions:
 
@@ -386,25 +392,26 @@ The differential equation governing the state evolution is therefore:
 Using forward Euler integration we get:
 
 \begin{equation}
-\mathbf{x}_{k+1} = \mathbf{x}_{k} + \Delta_t \mathbf{\dot{x}} = \mathbf{g}\left(\mathbf{x}_{k}, \mathbf{u}_k\right)
+    \mathbf{x}_{k+1} = \mathbf{g}(\mathbf{x}_k, \mathbf{u}_{k+1}) = \mathbf{x}_{k} + \Delta_t \mathbf{\dot{x}}
 \end{equation}
 
 For the measurement step, the UWB system gives us the distance $d$ to a beacon.
 The beacon's position $\mathbf{b}$ is known and assumed to be fixed.
 
-We first compute the position of each UWB receiver. Receiver $n$ is assumed to be at position $\mathbf{x}_{UWB,n}^R$ in robot frame.
+We first compute the position of each UWB receiver in world frame ($W$).
+Receiver $i$ is assumed to be at position $\mathbf{x}_{i}$ in robot frame ($R$).
 
 \begin{equation}
-\mathbf{x}_{UWB,n}^W = \mathbf{x}_{robot}^W + \begin{pmatrix}
+\mathbf{x}_{i}^W = \mathbf{x}_{robot}^W + \begin{pmatrix}
 \cos \theta & - \sin \theta \\
 \sin \theta & \cos \theta
-\end{pmatrix} \mathbf{x}_{UWB,n}^R
+\end{pmatrix} \mathbf{x}_{i}^R
 \end{equation}
 
 Then the measurement model is:
 
 \begin{equation}
-h_n(\mathbf{x}, \mathbf{b}) = \sqrt{(x_{UWB,n}^W - b_x)^2 + (y_{UWB,n}^W - b_y)^2}
+    h_i(\mathbf{x}, \mathbf{b}) = \lVert \mathbf{x}_i^W - \mathbf{b} \rVert
 \end{equation}
 
 \subsection{Simulation results}
@@ -433,6 +440,13 @@ h_n(\mathbf{x}, \mathbf{b}) = \sqrt{(x_{UWB,n}^W - b_x)^2 + (y_{UWB,n}^W - b_y)^
     }
 \end{figure}
 
+This method was also simulated and the results can be seen in Figure~\ref{fig:differential_model}.
+To allow for comparison, it uses the same parameters as the previous experiments.
+We can see that it tracks the angle fairly well and the position has a good performance.
+
+The performance could probably become better with some \gls{ekf} tuning.
+We did not want to spend time doing this, as the hardware did not support this configuration.
+It can however be an interesting extension to allow for better performance and ability to track heading.
 
 \section{Attitude estimation}
 
