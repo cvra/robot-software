@@ -17,16 +17,17 @@
 \usepackage{wasysym}
 \usepackage{physics}
 \usepackage{hyperref}
+\usepackage{lsro_titlepage}
 
 \usepackage[numbers]{natbib}
 
 
 \title{Development of an ultra-wide band indoor positioning system}
 \author{Antoine Albertelli}
-\titlehead{{\Large Ecole Polytechnique Fédérale de Lausanne}\\
-    Laboratoire de Systèmes Robotique (LSRO)\\
-    Supervisor: Daniel Burnier
-}
+\supervisor{Daniel Burnier\\Eliot Ferragni}
+\professor{Franceso Mondada}
+\portrait{figures/antoine.jpg}
+\date{Fall semester, 2017}
 
 \begin{document}
 
@@ -37,10 +38,12 @@
 \newacronym{pan}{PAN}{Personal Area Network}
 \newacronym{tof}{ToF}{Time of Flight}
 
-\maketitle
+
 \setcounter{tocdepth}{1}
 
 \newcommand{\ieeepan}[0]{IEEE 802.15.4a}
+
+\maketitle
 
 \includepdf{abstract.pdf}
 \tableofcontents
@@ -567,6 +570,7 @@ However those tests can only reject the hypothesis that the samples come from th
 We plotted the distribution that fitted the dataset and decided that the distribution was close enough to a Gaussian for the requirements of the \gls{ekf}.
 
 This experiment also allowed us to confirm that the antenna delay was properly calibrated since the dataset did not exhibit a bias.
+
 
 % TODO: Impact of antenna orientation
 % TODO: Impact of preamble length
