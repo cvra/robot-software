@@ -18,6 +18,8 @@
 \usepackage{physics}
 \usepackage{hyperref}
 
+\usepackage[numbers]{natbib}
+
 
 \title{Development of an ultra-wide band indoor positioning system}
 \author{Antoine Albertelli}
@@ -33,16 +35,36 @@
 \newacronym{uwb}{UWB}{Ultra Wide Band}
 \newacronym{ekf}{EKF}{Extended Kalman Filter}
 
-\maketitle
+\setcounter{tocdepth}{1}
+
 \includepdf{abstract.pdf}
 \tableofcontents
 
 % TODO: Put each section in its own .tex
 \chapter{Introduction}
 
+Precise positionning is one of the key elements of a mobile robot.
+It allows the software to take decisions and navigate to goals effectively.
+Common approaches are inertial motion units or dead reckoning.
+
+However those approaches tend to suffer from drift over time, due to their integration process.
+They must be coupled with a reference system to correct the drift.
+GPS can be used for this role, but does not work indoors.
+We wanted to develop a new system based on \gls{uwb} transceiver technology that would be able to operate inside.
+
 \section{Requirements}
 
 \section{State of the art}
+
+* Sensor fusion with GPS
+* UWB distance ranging
+* Extraction to UWB
+* Kalman filter and variations
+
+%jWhen looking at the litterature we observed that the problem of localization using inertial and position data was quite common.
+%jTypical approaches to this problem uses a Kalman filter \cite{titterton2004strapdown}.
+%jThis estimator uses the inertial data as the control input and the GPS data as the measurement.
+%jA good introduction to the Kalman filter and its non-linear variation, the \gls{ekf} can be found in \cite{thrun2005probabilistic}.
 
 %\begin{enumerate}
 %    \item Sensor fusion using kalman for 9 axis IMUs is pretty common.
@@ -79,7 +101,7 @@ It has several features useful for our application:
 \begin{enumerate}
     \item 802.15.4 compliant MAC which provides addressing features to avoid waking up on irrelevant traffic.
     \item High range, up to \SI{290}{\meter}.
-    \item High accuracy timestamps for RX and TX of packets, allowing precision of up to \SI{10}{\centi\meter}.
+    \item High accuracy timestamps for RX and TX of packets.
     \item High data rate (up to \SI{6.8}{\mega\bit\per\second}).
     \end{enumerate}
 
@@ -351,6 +373,14 @@ TODO
 
 \section{Attitude estimation}
 
+While an attitude estimator could be implemented directly in the \gls{ekf}, we chose to use a Madgwick estimator instead.
+This estimator is a relatively novel technique based on gradient descent.
+It is typically as accurate as an \gls{ekf}, while being less computationally expensive\cite{madgwick2011estimation}.
+
+The Madgwick filter takes as inputs the measurements of linear acceleration, angular rates and magnetic fields.
+It then computes the optimal state estimation, and returns it as a quaternion.
+We used the reference implementation\cite{madgwick2011estimation} which was already suitable for microcontroller use.
+
 \chapter{Implementation}
 
 \section{UWB beacons protocol}
@@ -432,7 +462,7 @@ The antenna delay ($\Delta_T$) can then be computed by equation~\ref{eqn:delay-c
     \label{eqn:delay-calibration}
 \end{equation}
 
-On our system, this value was found to be about \textbf{TODO}.
+On our system, this value was found to be about 32905~DW1000's internal units (\SI{64.3}{\micro\second}).
 
 \chapter{Results}
 
