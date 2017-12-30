@@ -1,4 +1,4 @@
-\documentclass[a4paper]{scrreprt}
+\documentclass[a4paper, 12pt]{scrreprt}
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -34,14 +34,20 @@
 \newacronym{dmp}{DMP}{Digital Motion Processor}
 \newacronym{uwb}{UWB}{Ultra Wide Band}
 \newacronym{ekf}{EKF}{Extended Kalman Filter}
+\newacronym{pan}{PAN}{Personal Area Network}
+\newacronym{tof}{ToF}{Time of Flight}
 
+\maketitle
 \setcounter{tocdepth}{1}
+
+\newcommand{\ieeepan}[0]{IEEE 802.15.4a}
 
 \includepdf{abstract.pdf}
 \tableofcontents
 
 % TODO: Put each section in its own .tex
 \chapter{Introduction}
+
 
 Precise positionning is one of the key elements of a mobile robot.
 It allows the software to take decisions and navigate to goals effectively.
@@ -50,27 +56,48 @@ Common approaches are inertial motion units or dead reckoning.
 However those approaches tend to suffer from drift over time, due to their integration process.
 They must be coupled with a reference system to correct the drift.
 GPS can be used for this role, but does not work indoors.
-We wanted to develop a new system based on \gls{uwb} transceiver technology that would be able to operate inside.
+We wanted to develop a new system that could enable indoor positioning of autonomous robots.
+
+In recent year, \gls{pan} radio technologies have received more and more attention\cite{di2006uwb}, and standards for them have been appearing, mostly the \ieeepan{} standard.
+Of particular interest are the \gls{uwb} systems, defined as having a bandwidth of more than \SI{500}{\mega\hertz} or 20\% of the center frequency\cite{uwb2006characteristics}.
+From a communication point of view, \gls{uwb} is an interesting technology due to higher range and bandwidth.
+However, it also enables new applications, including \gls{tof} calculation.
+
+We wanted to use this \gls{tof} measurement to create an indoor positioning system for robots.
+When looking at examples of positioning system for outdoors, a lot of them used a combination of GPS for global, noisy measurements and \gls{imu} (gyroscope, magnetometer and accelerometer) for local position data\cite{sporttracking,titterton2004strapdown}.
+Commercial \gls{uwb} systems have also been used in conjunction with \gls{imu} sensors for greater accuracy\cite{corrales2008hybrid}.
+
+\section{Working principle}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/system.pdf}
+    \caption{Overview of the system, showing one mobile robot (blue) and three fixed anchors (grey).}
+    \label{fig:system}
+\end{figure}
+
+The complete system (Figure~\ref{fig:system}) is made of two types of nodes, tags and anchors.
+The distance between each node is obtained by measuring the time of flight for a radio packet.
+The tags are placed on each robot, and estimate their position using the \gls{imu} combined with the distance measurements to the anchors.
+The anchors are at a reference position (fixed) and can be used by several tags.
+A tag will always use all the available anchors and will be able to seamlessly switch in case a anchors is not in range anymore.
 
 \section{Requirements}
 
-\section{State of the art}
+Possible uses of this system include virtual reality and gaming, industrial automation, robotics contest, etc.
+This work was done for use in robotics contest such as Eurobot or EPFL's internal contest.
+However, we kept in mind the other applications and tried to avoid making choices that would make extension to other applications difficult.
 
-* Sensor fusion with GPS
-* UWB distance ranging
-* Extraction to UWB
-* Kalman filter and variations
+For a robotics contest application, we decided on the following requirements:
 
-%jWhen looking at the litterature we observed that the problem of localization using inertial and position data was quite common.
-%jTypical approaches to this problem uses a Kalman filter \cite{titterton2004strapdown}.
-%jThis estimator uses the inertial data as the control input and the GPS data as the measurement.
-%jA good introduction to the Kalman filter and its non-linear variation, the \gls{ekf} can be found in \cite{thrun2005probabilistic}.
+\begin{enumerate}
+    \item Ability to localize two robots at the same time.
+    \item At least 3 anchors, uses more if more are available.
+    \item The robots are moving in the 2D plane, but the anchors must not be in this plane.
+    \item Reasonable positionning error ($\sigma=\SI{3}{\centi\meter}$).
+\end{enumerate}
 
-%\begin{enumerate}
-%    \item Sensor fusion using kalman for 9 axis IMUs is pretty common.
-%        Usually done using quaternions to represent rotations.
-%    \item Previous implementations of fusion with UWB focused on a applications of body positioning.
-%\end{enumerate}
+% TODO more requirements
 
 \chapter{Hardware}
 
@@ -99,7 +126,7 @@ Therefore, we decided not to use it but to implement our own sensor fusion on to
 The board contains an \gls{uwb} transceiver which combines a physical interface and a MAC.
 It has several features useful for our application:
 \begin{enumerate}
-    \item 802.15.4 compliant MAC which provides addressing features to avoid waking up on irrelevant traffic.
+    \item \ieeepan{} compliant MAC which provides addressing features to avoid waking up on irrelevant traffic.
     \item High range, up to \SI{290}{\meter}.
     \item High accuracy timestamps for RX and TX of packets.
     \item High data rate (up to \SI{6.8}{\mega\bit\per\second}).
@@ -130,7 +157,7 @@ First, implementing all the models in an embedded language like C or C++ is a te
 Then, feeding the algorithm with recorded or generated measurements makes the results easier to compare and reproduce.
 Therefore, we implemented a testing environment in Python.
 
-Using Python allows to easily express high level mathematical objects.
+Python allowed us to easily express high level mathematical objects.
 For example, the Jacobian matrices are automatically computed using a symbolic math toolbox\footnote{Sympy: \url{http://www.sympy.org/}}, then converted to a numerical version.
 Theoretically, it should even be possible to generate a C++ implementation from the symbolic representation, although that was not used in this project.
 The framework allows us to create new \gls{ekf} models and test their performance in a matter of minutes.
