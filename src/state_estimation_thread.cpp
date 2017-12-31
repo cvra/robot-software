@@ -1,7 +1,5 @@
 #include <ch.h>
 #include <hal.h>
-#include <utility>
-#include <unordered_map>
 #include "main.h"
 #include "state_estimation.hpp"
 #include "ranging_thread.h"
@@ -55,10 +53,10 @@ static THD_FUNCTION(state_estimation_thd, arg)
     chMtxObjectInit(&watchgroup.lock);
     chCondObjectInit(&watchgroup.cv);
     messagebus_watchgroup_init(&watchgroup.group, &watchgroup.lock, &watchgroup.cv);
-    messagebus_watchgroup_watch(&watchgroup.watchers[1],
+    messagebus_watchgroup_watch(&watchgroup.watchers[0],
                                 &watchgroup.group,
                                 range_topic);
-    messagebus_watchgroup_watch(&watchgroup.watchers[2],
+    messagebus_watchgroup_watch(&watchgroup.watchers[1],
                                 &watchgroup.group,
                                 imu_topic);
 
@@ -69,11 +67,16 @@ static THD_FUNCTION(state_estimation_thd, arg)
         if (topic == range_topic) {
             // If we got a range, feed it to the estimator
             range_msg_t msg;
+            anchor_position_msg_t *anchor_pos;
             messagebus_topic_read(topic, &msg, sizeof(msg));
 
             estimator.measurementVariance = parameter_scalar_read(&params.range_variance);
 
-            if (anchor_position_cache_get(msg.anchor_addr)) {
+            anchor_pos = anchor_position_cache_get(msg.anchor_addr);
+
+            if (anchor_pos) {
+                float pos[2] = {anchor_pos->x, anchor_pos->y};
+                estimator.processDistanceMeasurement(pos, msg.range);
                 palTogglePad(GPIOB, GPIOB_LED_ERROR);
             }
 
@@ -86,7 +89,10 @@ static THD_FUNCTION(state_estimation_thd, arg)
             estimator.predict();
             position_estimation_msg_t pos_msg;
             pos_msg.timestamp = imu_msg.timestamp;
-            std::tie(pos_msg.x, pos_msg.y) = estimator.getPosition();
+            pos_msg.x = estimator.state(0);
+            pos_msg.y = estimator.state(1);
+            pos_msg.variance_x = estimator.covariance(0, 0);
+            pos_msg.variance_y = estimator.covariance(1, 1);
             messagebus_topic_publish(&state_estimation_topic, &pos_msg, sizeof(pos_msg));
         }
     }

@@ -197,6 +197,31 @@ static void cmd_anchors(BaseSequentialStream *chp, int argc, char **argv)
     }
 }
 
+static void cmd_state(BaseSequentialStream *chp, int argc, char **argv)
+{
+    (void) argc;
+    (void) argv;
+
+    const char *topic_name = "/ekf/state";
+    messagebus_topic_t *topic;
+    position_estimation_msg_t msg;
+
+    topic = messagebus_find_topic(&bus, topic_name);
+
+    if (topic == NULL) {
+        chprintf(chp, "Cound not find topic \"%s\".\r\n", topic_name);
+        return;
+    }
+
+    if (messagebus_topic_read(topic, &msg, sizeof(msg)) == false) {
+        chprintf(chp, "No published data.\r\n");
+        return;
+    }
+
+    chprintf(chp, "mu: (%.3f; %.3f)\r\n", msg.x, msg.y);
+    chprintf(chp, "sigma: (%.3f; %.3f)\r\n", msg.variance_x, msg.variance_y);
+}
+
 static void tree_indent(BaseSequentialStream *out, int indent)
 {
     int i;
@@ -381,6 +406,7 @@ const ShellCommand shell_commands[] = {
     {"temp", cmd_temp},
     {"range", cmd_range},
     {"anchors", cmd_anchors},
+    {"state", cmd_state},
     {"config_tree", cmd_config_tree},
     {"config_set", cmd_config_set},
     {"config_save", cmd_config_save},

@@ -12,6 +12,8 @@ typedef struct {
     uint32_t timestamp;
     float x;
     float y;
+    float variance_x;
+    float variance_y;
 } position_estimation_msg_t;
 
 void state_estimation_start(void);
