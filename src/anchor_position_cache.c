@@ -63,12 +63,17 @@ void anchor_position_cache_start(void)
 
 anchor_position_msg_t *anchor_position_cache_get(uint16_t anchor_addr)
 {
-    anchor_position_msg_t *result;
+    cache_entry_t *result;
+
     chBSemWait(&anchor_positions_cache_semaphore);
     result = cache_entry_get(&anchor_positions_cache, anchor_addr);
     chBSemSignal(&anchor_positions_cache_semaphore);
 
-    return result;
+    if (result) {
+        return (anchor_position_msg_t *)result->payload;
+    }
+
+    return NULL;
 }
 
 static void anchor_cache_init(void)

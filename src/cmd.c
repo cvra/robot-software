@@ -190,9 +190,9 @@ static void cmd_anchors(BaseSequentialStream *chp, int argc, char **argv)
         pos = anchor_position_cache_get(id);
         if (pos) {
             chprintf(chp, "%d:\r\n", pos->anchor_addr);
-            chprintf(chp, "  x: %.2f:\r\n", pos->x);
-            chprintf(chp, "  y: %.2f:\r\n", pos->y);
-            chprintf(chp, "  z: %.2f:\r\n", pos->z);
+            chprintf(chp, "  x: %.2f\r\n", pos->x);
+            chprintf(chp, "  y: %.2f\r\n", pos->y);
+            chprintf(chp, "  z: %.2f\r\n", pos->z);
         }
     }
 }

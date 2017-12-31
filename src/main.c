@@ -13,6 +13,7 @@
 #include "uavcan/uavcan_node.h"
 #include "ranging_thread.h"
 #include "state_estimation_thread.h"
+#include "anchor_position_cache.h"
 
 messagebus_t bus;
 MUTEX_DECL(bus_lock);
