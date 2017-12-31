@@ -24,12 +24,12 @@ static THD_FUNCTION(state_estimation_thd, arg)
 {
     (void) arg;
 
-    messagebus_topic_t *range_topic, *anchor_pos_topic, *imu_topic;
+    messagebus_topic_t *range_topic, *imu_topic;
     struct {
         mutex_t lock;
         condition_variable_t cv;
         messagebus_watchgroup_t group;
-        messagebus_watcher_t watchers[3];
+        messagebus_watcher_t watchers[2];
     } watchgroup;
 
     messagebus_topic_t state_estimation_topic;
@@ -48,7 +48,6 @@ static THD_FUNCTION(state_estimation_thd, arg)
     // TODO configure variance
     RadioPositionEstimator estimator;
 
-    anchor_pos_topic = messagebus_find_topic_blocking(&bus, "/anchors_pos");
     range_topic = messagebus_find_topic_blocking(&bus, "/range");
     imu_topic = messagebus_find_topic_blocking(&bus, "/imu");
 
@@ -56,9 +55,6 @@ static THD_FUNCTION(state_estimation_thd, arg)
     chMtxObjectInit(&watchgroup.lock);
     chCondObjectInit(&watchgroup.cv);
     messagebus_watchgroup_init(&watchgroup.group, &watchgroup.lock, &watchgroup.cv);
-    messagebus_watchgroup_watch(&watchgroup.watchers[0],
-                                &watchgroup.group,
-                                anchor_pos_topic);
     messagebus_watchgroup_watch(&watchgroup.watchers[1],
                                 &watchgroup.group,
                                 range_topic);
