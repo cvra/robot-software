@@ -14,7 +14,7 @@ typedef struct {
 } range_msg_t;
 
 typedef struct {
-    uint32_t timestamp;   ///< Time at which the ranging solution was found (in us since boot)
+    uint32_t timestamp;
     uint16_t anchor_addr;
     float x;
     float y;
