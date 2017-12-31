@@ -145,9 +145,7 @@ void messagebus_watchgroup_watch(messagebus_watcher_t *watcher,
 
     watcher->group = group;
 
-    if (topic->watchers != NULL) {
-        watcher->next = topic->watchers;
-    }
+    watcher->next = topic->watchers;
     topic->watchers = watcher;
 
     messagebus_lock_release(group->lock);

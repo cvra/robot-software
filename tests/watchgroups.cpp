@@ -1,5 +1,6 @@
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
+#include <cstring>
 #include "../messagebus.h"
 #include "mocks/synchronization.hpp"
 
@@ -173,5 +174,26 @@ TEST(Watchgroups, GroupCanBeLinkedInMultipleTopics)
     /* Finally, do the actuall publish. */
     lock_mocks_enable(true);
     condvar_mocks_enable(true);
+    messagebus_topic_publish(&topic, NULL, 0);
+}
+
+TEST(Watchgroups, WatcherAnAlreadyWatchedTopicIsInitialized)
+{
+    int lock, condvar;
+    messagebus_watchgroup_t second_group;
+    messagebus_watcher_t second_watcher;
+
+    // Poison the watchers to simulate uninitialized memory
+    memset(&second_group, 0x55, sizeof(second_group));
+    memset(&second_watcher, 0x55, sizeof(second_watcher));
+
+    messagebus_watchgroup_init(&second_group, &lock, &condvar);
+
+    messagebus_watchgroup_watch(&second_watcher, &second_group, &topic);
+    messagebus_watchgroup_watch(&watcher, &group, &topic);
+
+    POINTERS_EQUAL(NULL, second_watcher.next);
+
+    // It will crash if the watchers are not properly initialized
     messagebus_topic_publish(&topic, NULL, 0);
 }
