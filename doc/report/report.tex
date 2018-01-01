@@ -37,16 +37,18 @@
 \newacronym{ekf}{EKF}{Extended Kalman Filter}
 \newacronym{pan}{PAN}{Personal Area Network}
 \newacronym{tof}{ToF}{Time of Flight}
-
+\newacronym{can}{CAN}{Controller Area Network}
+\newacronym{gui}{GUI}{Graphical User Interface}
+\newcommand{\ieeepan}[0]{IEEE 802.15.4a}
 
 \setcounter{tocdepth}{1}
 
-\newcommand{\ieeepan}[0]{IEEE 802.15.4a}
 
 \maketitle
 
 \includepdf{abstract.pdf}
 \tableofcontents
+
 
 % TODO: Put each section in its own .tex
 \chapter{Introduction}
@@ -110,7 +112,7 @@ The board used in this project contains the following elements:
     \item An Invensense MPU9250 \gls{imu}.
     \item A Decawave DW1000 \gls{uwb} transceiver.
     \item An STM32F411 microcontroller.
-    \item USB and CAN interfaces.
+    \item USB and \gls{can} interfaces.
 \end{itemize}
 
 \section{Inertial Motion Unit}
@@ -197,7 +199,7 @@ The state update equation, using the acceleration as control input
 \begin{eqnarray}
     \dv{t} \mathbf{x} &=&
     \begin{pmatrix}
-        \dot{x} & 
+        \dot{x} &
         \dot{y} &
         0 & % TODO: Maybe take it from acceleration ?
         \mathbf{a}^w_x &
@@ -526,7 +528,7 @@ Once the tag received the last message, it can compute the ranging solution usin
     T_{round,1} &=& T_{tx,1} - T_{rx,2} \\
     T_{reply,1} &=& T_{rx,1} - T_{tx,2} \\
     T_{round,2} &=& T_{tx,2} - T_{rx,3} \\
-    T_{reply,2} &=& T_{rx,2} - T_{tx,3} 
+    T_{reply,2} &=& T_{rx,2} - T_{tx,3}
 \end{eqnarray*}
 
 
@@ -544,6 +546,31 @@ The antenna delay ($\Delta_T$) can then be computed by equation~\ref{eqn:delay-c
 
 On our system, this value was found to be about 32905~DW1000's internal units (\SI{64.3}{\micro\second}).
 
+
+
+\section{Software architecture}
+
+Continuing on the principles used on the ePuck~2, the software is constructed around a message passing bus (Figure~\ref{fig:architecture}).
+This allowed us to validate every subsystem independently during developement.
+It also ensures the software stays loosely coupled: the implementations can be changed without any impact on the rest of the system, as long as the published messages are the same.
+In addition to the data processing pipeline, a generic parameter service allows modules to define settings which are automatically exposed over USB and \gls{can}, and are stored to flash memory for persistency across resets.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/architecture.pdf}
+    \caption{Software architecture.
+    The arrows represent message bus topics.
+    Not shown here is the command shell, which can poke at almost every topic to inspect the data.
+    }
+    \label{fig:architecture}
+\end{figure}
+
+While the console is convenient for debugging, for data logging and integration into a real robot, a more structured way of communication is required.
+We used the \gls{can} bus integrated on the board with the UAVCAN\footnote{\url{http://uavcan.org/}} protocol on top of raw messages.
+UAVCAN is a higher level protocol which defines standard way of encoding messages of various types and different semantics (broadcast or request/response).
+The messages are defined in \texttt{.uavcan} files, from which C++ code is automatically generated.
+The standard also defines a few conventions including a way to access a device's parameters, and provides a \gls{gui} to interact with the bus.
+We used a simple USB-to-CAN converter\footnote{\url{https://github.com/cvra/CAN-USB-dongle-fw}} to connect our PCs to the board.
 
 \chapter{Results}
 
@@ -566,7 +593,7 @@ Once the ranging protocol was implemented and working, we separated two boards b
 The distribution of the results can be seen in Figure~\ref{fig:range_noise}.
 
 We tried to use a statistical normality tests to determine if the samples were from a normal distribution.
-However those tests can only reject the hypothesis that the samples come from the normal distribution and are almost never significant on large sample count. 
+However those tests can only reject the hypothesis that the samples come from the normal distribution and are almost never significant on large sample count.
 We plotted the distribution that fitted the dataset and decided that the distribution was close enough to a Gaussian for the requirements of the \gls{ekf}.
 
 This experiment also allowed us to confirm that the antenna delay was properly calibrated since the dataset did not exhibit a bias.
