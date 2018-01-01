@@ -58,6 +58,7 @@ models:
     - jupyter nbconvert --to notebook --execute "models/UWB only.ipynb"
     - jupyter nbconvert --to notebook --execute "models/Differential 2 beacons.ipynb"
     - jupyter nbconvert --to notebook --execute "experiments/range_noise.ipynb"
+    - jupyter nbconvert --to notebook --execute "experiments/Madgwick drift.ipynb"
   artifacts:
     paths:
       - doc/report/models/*.pdf

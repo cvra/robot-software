@@ -575,6 +575,25 @@ This experiment also allowed us to confirm that the antenna delay was properly c
 % TODO: Impact of antenna orientation
 % TODO: Impact of preamble length
 
+\section{Attitude determination}
+
+As we ended up not using the results from the attitude determination, we did not do a deep evaluation of the performance of the Madgwick filter.
+The dynamic performances seemed pretty good when testing the algorithm ``by hand''.
+To test the algorithm's static drift, we fixed it to a table and let it run until stable, then measured the drift over a 5 minute interval.
+We found the drift to be very good (Figure~\ref{fig:madgwick-drift}), achieving drifts of less than one degree per hour.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{experiments/madgwick_drift_X.pdf}
+    \caption{Static drift of Madgwick's algorithm.
+    Only the worst performing axis is show here.}
+    \label{fig:madgwick-drift}
+\end{figure}
+
+Overall, the performance of Madgwick's algorithm seemed pretty convincing.
+This, coupled with the ease of use and tuning means that this algorithm can be a very good general purpose attitude estimator.
+Compared to the \gls{dmp}, it also does not restrict the choice of sensors.
+
 \chapter{Future work}
 \appendix
 \chapter{Hardware schematic}
