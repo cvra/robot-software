@@ -35,6 +35,10 @@ target.arm:
 
 target.stm32f4: []
 
+target.python_bindings:
+  - tools/ekf_python_bindings.cpp
+  - src/state_estimation.cpp
+
 source:
   - src/mpu9250.c
   - src/MadgwickAHRS.c
