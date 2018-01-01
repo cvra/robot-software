@@ -548,6 +548,52 @@ On our system, this value was found to be about 32905~DW1000's internal units (\
 
 
 
+
+\subsection{Optimal rate calculation}
+When using a radio link such as our \gls{uwb} modules, collisions can occur if two devices try to transmit at the same time.
+If this happens, at least one of the two transmitted packet will be lost.
+As the protocol does not include retransmission logic to stay lightweight, this means the whole ranging sequence will drop.
+This means that increasing the ranging rate past a certain point will \emph{decrease} the rate of succesful range transactions, as collisions will occur more frequently.
+This effect can be seen on Figure~\ref{fig:measurement-rate}.
+
+To study the probability of having collisions, we can use the theory from queuing systems\cite{hongler2017stochastic}.
+Queuing systems are useful to study phenomenons where customers arrive at a certain rate $\lambda$, and are served at a rate $\mu$, or equivalently, use the ressources for a time $\frac{1}{\mu}$.
+In our system, the ressource would be the access to the shared medium, $\lambda$ the number of packets per seconds sent by the nodes and $\frac{1}{\mu}$ the average time it takes for one full measurement sequence to occur.
+
+We will model our system by a so called ``M/M/1'' queue, this means that the emission of packets is Markovian (memoryless), the transmission time is markovian as well, and only 1 packet can be processed at a time.
+Therefore, the the probability of a packet transmission by a node during an interval $t$ is given by the memoryless law:
+
+\begin{equation}
+f(t) = \lambda e^{-\lambda t}
+\end{equation}
+
+From M/M/1, we know that $p_n = (1 - \rho) \rho^n$ is the probability of having $n$ ranging transactions in flight at the same time, where $\rho = \frac{\lambda}{\mu}$ is the load factor of the medium.
+We are interested in the probability of having $n > 1$, i.e. a collision:
+
+\begin{eqnarray}
+    p(n>1) &=& 1 - p(n=0) - p(n=1) \\
+       &=& 1 - (1 - \rho) (1 + \rho)
+\end{eqnarray}
+
+The rate of successful measurements ($\lambda'$) is given by the rate of measurement attemps multiplied by the success rate.
+
+\begin{equation}
+\lambda' = \lambda \cdot (1 - p(n>1))
+\end{equation}
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{models/measurement_rate.pdf}
+    \caption{
+        Measurement rates for various values of $\frac{1}{\mu}$.
+        We see that past a certain point, adding measurement attempts per seconds results in too many collisions, decreasing the overall measurement rate.
+        The current implementation needs about \SI{30}{\milli\second} to complete a measurement.
+        This means the optimal rate of $\lambda = \SI{19.3}{\hertz}$, resulting in a succesful rate of \SI{12.8}{\hertz}.\label{fig:measurement-rate}
+    }
+\end{figure}
+
+
 \section{Software architecture}
 
 Continuing on the principles used on the ePuck~2, the software is constructed around a message passing bus (Figure~\ref{fig:architecture}).
