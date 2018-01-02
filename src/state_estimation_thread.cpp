@@ -70,6 +70,14 @@ static THD_FUNCTION(state_estimation_thd, arg)
             anchor_position_msg_t *anchor_pos;
             messagebus_topic_read(topic, &msg, sizeof(msg));
 
+            // Discard messages with range greater than 1km, as they are
+            // probably the result of an underflow if the tag is too close to
+            // the anchor.
+            if (msg.range > 1000) {
+                continue;
+            }
+
+
             estimator.measurementVariance = parameter_scalar_read(&params.range_variance);
 
             anchor_pos = anchor_position_cache_get(msg.anchor_addr);
