@@ -1,0 +1,8 @@
+depends:
+  - test-runner
+
+source:
+    - quadramp.c
+
+tests:
+    - tests/quadramp.cpp
