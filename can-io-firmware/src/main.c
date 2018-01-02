@@ -46,6 +46,7 @@ int main(void)
     blinker_start();
 
     servo_init();
+    servo_start();
 
     if (!config_get(&config)) {
         chSysHalt("Cannot load config");

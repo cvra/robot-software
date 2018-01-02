@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 void servo_init(void);
+void servo_start(void);
 void servo_set(const float pos[4]);
 
 #ifdef __cplusplus
