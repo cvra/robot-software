@@ -153,6 +153,9 @@ static void cmd_ahrs(BaseSequentialStream *chp, int argc, char **argv)
 
 static void cmd_range(BaseSequentialStream *chp, int argc, char **argv)
 {
+    (void) argc;
+    (void) argv;
+
     const char *topic_name = "/range";
     messagebus_topic_t *topic;
     range_msg_t msg;
@@ -188,9 +191,6 @@ static void cmd_anchors(BaseSequentialStream *chp, int argc, char **argv)
 
 static void cmd_state(BaseSequentialStream *chp, int argc, char **argv)
 {
-    (void) argc;
-    (void) argv;
-
     const char *topic_name = "/ekf/state";
     messagebus_topic_t *topic;
     position_estimation_msg_t msg;
@@ -207,8 +207,15 @@ static void cmd_state(BaseSequentialStream *chp, int argc, char **argv)
         return;
     }
 
-    chprintf(chp, "mu: (%.3f; %.3f)\r\n", msg.x, msg.y);
-    chprintf(chp, "sigma: (%.3f; %.3f)\r\n", msg.variance_x, msg.variance_y);
+    if (argc > 0 && !strcmp("loop", argv[0])) {
+        while (true) {
+            messagebus_topic_read(topic, &msg, sizeof(msg));
+            chprintf(chp, "\rmu: (x=%.3f; y=%.3f)", msg.x, msg.y);
+            chThdSleepMilliseconds(500);
+        }
+    } else {
+        chprintf(chp, "mu: (x=%.3f; y=%.3f)\r\n", msg.x, msg.y);
+    }
 }
 
 static void tree_indent(BaseSequentialStream *out, int indent)
