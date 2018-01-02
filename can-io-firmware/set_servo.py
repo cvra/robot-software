@@ -21,8 +21,8 @@ def parse_args():
 
     parser.add_argument("servo", help="Servo output to be controlled", type=int)
     parser.add_argument("pos", help="Desired duty cycle on the servo output", type=float)
-    parser.add_argument("vel", help="Desired duty cycle rate of change", type=float)
-    parser.add_argument("acc", help="Desired duty cycle rate of rate of change", type=float)
+    parser.add_argument("vel", help="Desired duty cycle rate of change", nargs='?', default=0, type=float)
+    parser.add_argument("acc", help="Desired duty cycle rate of rate of change", nargs='?', default=0, type=float)
 
     return parser.parse_args()
 

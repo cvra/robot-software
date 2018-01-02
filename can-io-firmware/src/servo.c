@@ -25,13 +25,13 @@ static uint32_t duty_cycle(float pos)
     return (uint32_t)(pos * SERVO_PWM_TIMER_FREQ);
 }
 
-/* Not set if coefficient is too small (close to zero) */
+/* Negative coefficients are "do not change" */
 static void set_quadramp_coefficients(struct quadramp_filter* filter, float vel, float acc)
 {
-    if (vel > 1e-7) {
+    if (vel > 0) {
         quadramp_set_1st_order_vars(filter, vel * SERVO_PWM_TIMER_FREQ, vel * SERVO_PWM_TIMER_FREQ);
     }
-    if (acc > 1e-7) {
+    if (acc > 0) {
         quadramp_set_2nd_order_vars(filter, acc * SERVO_PWM_TIMER_FREQ, acc * SERVO_PWM_TIMER_FREQ);
     }
 }
