@@ -3,9 +3,9 @@
 * A version of arm-none-eabi-gcc compatible with C++11 (Tested with GCC 5.4.1)
 * Python 3.5 or greater
 * [Packager](https://github.com/cvra/packager), a program used to manage dependencies
-* [PyUAVCAN](https://github.com/UAVCAN/pyuavcan)
+* [PyUAVCAN](https://github.com/UAVCAN/pyuavcan), which contains the code generator for UAVCAN
 * OpenOCD 0.9.0 or greater
-* CMake and CppUtest for running the unit tests.
+* CMake and [CppUTest](http://cpputest.github.io/) for running the unit tests.
 
 # Quickstart
 

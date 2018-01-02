@@ -8,14 +8,16 @@
 \item
   Python 3.5 or greater
 \item
-  \href{https://github.com/cvra/packager}{Packager}, a program used to
+  Packager\footnote{\url{https://github.com/cvra/packager}}, a program used to
   manage dependencies
 \item
-  \href{https://github.com/UAVCAN/pyuavcan}{PyUAVCAN}
+  PyUAVCAN\footnote{\url{https://github.com/UAVCAN/pyuavcan}}, which contains
+  the code generator for UAVCAN
 \item
   OpenOCD 0.9.0 or greater
 \item
-  CMake and CppUtest for running the unit tests.
+  CMake and CppUTest\footnote{\url{http://cpputest.github.io/}} for running the
+  unit tests.
 \end{itemize}
 
 \section{Quickstart}\label{quickstart}
@@ -70,7 +72,7 @@ a fixed position if it is an anchor.
 The microUSB connection on the board emulates a serial port. You can
 connect to it using your favorite serial terminal emulator. The baudrate
 does not matter, as the simulated connection will accept any baudrate.
-For example, using \href{https://pythonhosted.org/pyserial/}{PySerial}:
+For example, using PySerial\footnote{\url{https://pythonhosted.org/pyserial/}}:
 
 \begin{verbatim}
 # The name of the port might be different on your computer!
@@ -99,7 +101,7 @@ for all parameters), run \texttt{config\_erase} and reboot the device.
 If you have setup UAVCAN correctly, you should be able to run
 \texttt{uavcan\_gui\_tool}, which is a graphical tool used to interact
 with UAVCAN devices. Please refer to
-\href{http://uavcan.org/GUI_Tool/Overview/}{the tool's documentation}
+the tool's documentation\footnote{\url{http://uavcan.org/GUI_Tool/Overview/}}
 for details. Once this is running, you can open a node properties by
 double clicking on the node. You should see a screen similar to the one
 shown below.
