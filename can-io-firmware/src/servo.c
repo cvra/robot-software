@@ -25,17 +25,22 @@ static uint32_t duty_cycle(float pos)
     return (uint32_t)(pos * SERVO_PWM_TIMER_FREQ);
 }
 
-void servo_set(const float pos[4])
+void servo_set(const float pos[4], const float vel[4], const float acc[4])
 {
     servo[0].setpoint = pos[0];
     servo[1].setpoint = pos[1];
     servo[2].setpoint = pos[2];
     servo[3].setpoint = pos[3];
 
-    quadramp_set_1st_order_vars(&servo[0].filter, SERVO_PWM_TIMER_FREQ/10, SERVO_PWM_TIMER_FREQ/10);
-    quadramp_set_1st_order_vars(&servo[1].filter, SERVO_PWM_TIMER_FREQ/10, SERVO_PWM_TIMER_FREQ/10);
-    quadramp_set_1st_order_vars(&servo[2].filter, SERVO_PWM_TIMER_FREQ/10, SERVO_PWM_TIMER_FREQ/10);
-    quadramp_set_1st_order_vars(&servo[3].filter, SERVO_PWM_TIMER_FREQ/10, SERVO_PWM_TIMER_FREQ/10);
+    quadramp_set_1st_order_vars(&servo[0].filter, vel[0] * SERVO_PWM_TIMER_FREQ, vel[0] * SERVO_PWM_TIMER_FREQ);
+    quadramp_set_1st_order_vars(&servo[1].filter, vel[1] * SERVO_PWM_TIMER_FREQ, vel[1] * SERVO_PWM_TIMER_FREQ);
+    quadramp_set_1st_order_vars(&servo[2].filter, vel[2] * SERVO_PWM_TIMER_FREQ, vel[2] * SERVO_PWM_TIMER_FREQ);
+    quadramp_set_1st_order_vars(&servo[3].filter, vel[3] * SERVO_PWM_TIMER_FREQ, vel[3] * SERVO_PWM_TIMER_FREQ);
+
+    quadramp_set_2nd_order_vars(&servo[0].filter, acc[0] * SERVO_PWM_TIMER_FREQ, acc[0] * SERVO_PWM_TIMER_FREQ);
+    quadramp_set_2nd_order_vars(&servo[1].filter, acc[1] * SERVO_PWM_TIMER_FREQ, acc[1] * SERVO_PWM_TIMER_FREQ);
+    quadramp_set_2nd_order_vars(&servo[2].filter, acc[2] * SERVO_PWM_TIMER_FREQ, acc[2] * SERVO_PWM_TIMER_FREQ);
+    quadramp_set_2nd_order_vars(&servo[3].filter, acc[3] * SERVO_PWM_TIMER_FREQ, acc[3] * SERVO_PWM_TIMER_FREQ);
 }
 
 void servo_init(void)

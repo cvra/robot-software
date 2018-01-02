@@ -6,3 +6,5 @@
 uint7 node_id
 
 float16[4] servo_pos
+float16[4] servo_vel
+float16[4] servo_acc
