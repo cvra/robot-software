@@ -24,6 +24,7 @@
 \newacronym{gps}{GPS}{Global Positioning System}
 \newacronym{imu}{IMU}{Inertial Motion Unit}
 \newacronym{uwb}{UWB}{Ultra Wide Band}
+\newacronym{dmp}{DMP}{Digital Motion Processor}
 
 
 \title{Development of an ultra-wide band indoor positioning system}
@@ -60,7 +61,7 @@ A tag will always use all the available anchors and will be able to seamlessly s
 
 After doing a review of the literature on the topic, I will start by doing a model of the system.
 This includes both the dynamics of the system and the impact of noise on precision.
-I should also investigate if the Digital Motion Processing unit built in the \gls{imu} can be useful.
+I should also investigate if the \gls{dmp} unit built in the \gls{imu} can be useful.
 I will then develop a position estimator taking the \gls{imu} data as inputs and the distance readings as measurements.
 
 In parallel to this, I will write code for the reference board (Figure~\ref{fig:board}).
@@ -82,5 +83,15 @@ If time remains, I would like to implement a protocol to communicate over the \g
 \end{figure}
 
 \section{Results}
-\textbf{TODO}
+A working version of the system is implemented.
+Anchors can communicate with tags and vice versa.
+The range measurement is accurate (no bias) and has a good precision ($\sigma = \SI{3}{\centi\meter}$).
+
+A framework in Python allows for comparison of various Kalman models and tuning.
+An embedded implementation of the Kalman filter in C++ tracks the position of the tags.
+Real-world experiments match the precision and accuracy expected from simulated experiments, at least from a qualitative perspective.
+
+The \gls{dmp} did not match our expecations.
+Therefore, an attitude determination algorithm (the Madgwick filter) was implemented and shows good static performance (low drift).
+
 \end{document}
