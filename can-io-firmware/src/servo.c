@@ -25,6 +25,17 @@ static uint32_t duty_cycle(float pos)
     return (uint32_t)(pos * SERVO_PWM_TIMER_FREQ);
 }
 
+/* Not set if coefficient is too small (close to zero) */
+static void set_quadramp_coefficients(struct quadramp_filter* filter, float vel, float acc)
+{
+    if (vel > 1e-7) {
+        quadramp_set_1st_order_vars(filter, vel * SERVO_PWM_TIMER_FREQ, vel * SERVO_PWM_TIMER_FREQ);
+    }
+    if (acc > 1e-7) {
+        quadramp_set_2nd_order_vars(filter, acc * SERVO_PWM_TIMER_FREQ, acc * SERVO_PWM_TIMER_FREQ);
+    }
+}
+
 void servo_set(const float pos[4], const float vel[4], const float acc[4])
 {
     servo[0].setpoint = pos[0];
@@ -32,15 +43,10 @@ void servo_set(const float pos[4], const float vel[4], const float acc[4])
     servo[2].setpoint = pos[2];
     servo[3].setpoint = pos[3];
 
-    quadramp_set_1st_order_vars(&servo[0].filter, vel[0] * SERVO_PWM_TIMER_FREQ, vel[0] * SERVO_PWM_TIMER_FREQ);
-    quadramp_set_1st_order_vars(&servo[1].filter, vel[1] * SERVO_PWM_TIMER_FREQ, vel[1] * SERVO_PWM_TIMER_FREQ);
-    quadramp_set_1st_order_vars(&servo[2].filter, vel[2] * SERVO_PWM_TIMER_FREQ, vel[2] * SERVO_PWM_TIMER_FREQ);
-    quadramp_set_1st_order_vars(&servo[3].filter, vel[3] * SERVO_PWM_TIMER_FREQ, vel[3] * SERVO_PWM_TIMER_FREQ);
-
-    quadramp_set_2nd_order_vars(&servo[0].filter, acc[0] * SERVO_PWM_TIMER_FREQ, acc[0] * SERVO_PWM_TIMER_FREQ);
-    quadramp_set_2nd_order_vars(&servo[1].filter, acc[1] * SERVO_PWM_TIMER_FREQ, acc[1] * SERVO_PWM_TIMER_FREQ);
-    quadramp_set_2nd_order_vars(&servo[2].filter, acc[2] * SERVO_PWM_TIMER_FREQ, acc[2] * SERVO_PWM_TIMER_FREQ);
-    quadramp_set_2nd_order_vars(&servo[3].filter, acc[3] * SERVO_PWM_TIMER_FREQ, acc[3] * SERVO_PWM_TIMER_FREQ);
+    set_quadramp_coefficients(&servo[0].filter, vel[0], acc[0]);
+    set_quadramp_coefficients(&servo[1].filter, vel[1], acc[1]);
+    set_quadramp_coefficients(&servo[2].filter, vel[2], acc[2]);
+    set_quadramp_coefficients(&servo[3].filter, vel[3], acc[3]);
 }
 
 void servo_init(void)
@@ -53,6 +59,11 @@ void servo_init(void)
     quadramp_init(&servo[1].filter);
     quadramp_init(&servo[2].filter);
     quadramp_init(&servo[3].filter);
+
+    set_quadramp_coefficients(&servo[0].filter, 1, 1);
+    set_quadramp_coefficients(&servo[1].filter, 1, 1);
+    set_quadramp_coefficients(&servo[2].filter, 1, 1);
+    set_quadramp_coefficients(&servo[3].filter, 1, 1);
 }
 
 THD_FUNCTION(servo_thd, arg)
