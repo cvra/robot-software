@@ -18,6 +18,8 @@ def parse_args():
         help="Log range messages to a file in CSV",
         type=argparse.FileType('w'))
 
+    parser.add_argument("--anchor", "-a", help="Accept only ranging coming from the given anchor ID", type=int)
+
     return parser.parse_args()
 
 
@@ -36,6 +38,9 @@ def main():
     def range_cb(event):
         msg = event.message
 
+        if args.anchor and msg.anchor_addr != args.anchor:
+            return
+
         print("Received a range from {}: {:.3f}".format(
             msg.anchor_addr, msg.range))
         if args.output:
@@ -44,6 +49,8 @@ def main():
                 'range': msg.range,
                 'anchor_addr': msg.anchor_addr
             })
+
+            args.output.flush()
 
     node = uavcan.make_node(args.port, node_id=127)
 
