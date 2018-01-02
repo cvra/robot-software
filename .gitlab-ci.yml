@@ -54,12 +54,7 @@ models:
     - cd doc/report/
     - pip install -r requirements.txt
   script:
-    - jupyter nbconvert --to notebook --execute "models/Simple model.ipynb"
-    - jupyter nbconvert --to notebook --execute "models/UWB only.ipynb"
-    - jupyter nbconvert --to notebook --execute "models/Differential 2 beacons.ipynb"
-    - jupyter nbconvert --to notebook --execute "models/Bandwidth in half duplex nodes.ipynb"
-    - jupyter nbconvert --to notebook --execute "experiments/range_noise.ipynb"
-    - jupyter nbconvert --to notebook --execute "experiments/Madgwick drift.ipynb"
+    - ./convert_ipython.sh
   artifacts:
     paths:
       - doc/report/models/*.pdf
