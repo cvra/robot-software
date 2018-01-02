@@ -27,10 +27,6 @@ int proximity_beacon_start(Node &node)
 {
     proximity_beacon_init();
 
-    control_stop();
-    /* TODO: set needed parameters */
-    control_start();
-
     static uavcan::Timer periodic_timer(node);
     periodic_timer.setCallback(timer_cb);
     periodic_timer.startPeriodic(uavcan::MonotonicDuration::fromMSec(100));

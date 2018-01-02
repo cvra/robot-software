@@ -137,6 +137,7 @@ int uavcan_streams_start(Node &node)
 
 void uavcan_streams_spin(Node &node)
 {
+    (void) node;
     /* Streams */
     if (stream_update(&current_pid_stream_config)) {
         cvra::motor::feedback::CurrentPID current_pid;

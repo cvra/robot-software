@@ -14,6 +14,8 @@
 #include "index.h"
 #include "uart_stream.h"
 #include "parameter_listener.h"
+#include "main.h"
+#include <parameter_flash_storage/parameter_flash_storage.h>
 
 BaseSequentialStream* ch_stdout;
 parameter_namespace_t parameter_root_ns;
@@ -142,6 +144,13 @@ int main(void) {
     can_transceiver_activate();
     uavcan_node_start(&node_arg);
 
+    /* Wait for all services to boot, then try to load config. */
+    chThdSleepMilliseconds(300);
+
+    if(parameter_flash_storage_load(&parameter_root_ns, &_config_start)) {
+        uavcan_init_complete();
+        control_start();
+    }
 
     while (1) {
         chThdSleepMilliseconds(1000);

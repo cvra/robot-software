@@ -24,6 +24,8 @@
 
 uavcan_stm32::CanInitHelper<128> can;
 
+// Used to signal when the node init is complete
+BSEMAPHORE_DECL(node_init_complete, true);
 
 void uavcan_failure(const char *reason)
 {
@@ -99,6 +101,12 @@ static THD_FUNCTION(uavcan_node, arg)
             uavcan_failure("UAVCAN spin");
         }
 
+        if (chBSemWaitTimeout(&node_init_complete, TIME_IMMEDIATE) == MSG_OK) {
+            node.getNodeStatusProvider().setModeOperational();
+            node.getNodeStatusProvider().setHealthOk();
+        }
+
+
         uavcan_streams_spin(node);
     }
 }
@@ -108,3 +116,10 @@ void uavcan_node_start(void *arg)
 {
     chThdCreateStatic(uavcan_node_wa, sizeof(uavcan_node_wa), NORMALPRIO, uavcan_node, arg);
 }
+
+extern "C"
+void uavcan_init_complete(void)
+{
+    chBSemSignal(&node_init_complete);
+}
+

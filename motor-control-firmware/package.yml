@@ -3,6 +3,7 @@ dependency-dir: ../lib
 include_directories:
   - src/
 
+target.stm32f3: []
 target.arm:
     - board/board.c
     - src/main.c
@@ -38,6 +39,7 @@ target.arm:
     - src/stream.c
     - src/uart_stream.c
     - src/parameter_listener.c
+    - src/parameter_port.c
     - ../lib/can-bootloader/config.c
 
 depends:
@@ -45,10 +47,10 @@ depends:
     - serial-datagram
     - cmp_mem_access
     - version
+    - parameter_flash_storage
     - filter:
         fork: froj
-    - parameter:
-        fork: Stapelzeiger
+    - parameter
     - timestamp:
         fork: Stapelzeiger
 

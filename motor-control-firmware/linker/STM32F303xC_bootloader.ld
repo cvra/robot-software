@@ -21,7 +21,8 @@
  */
 MEMORY
 {
-    flash0  : org = 0x08003800, len = 242k
+    flash0  : org = 0x08003800, len = 240k
+    config  : org = 0x0803f800, len = 2k
     flash1  : org = 0x00000000, len = 0
     flash2  : org = 0x00000000, len = 0
     flash3  : org = 0x00000000, len = 0
@@ -82,6 +83,10 @@ REGION_ALIAS("BSS_RAM", ram0);
 
 /* RAM region to be used for the default heap.*/
 REGION_ALIAS("HEAP_RAM", ram0);
+
+/* Symbols used for config. */
+_config_start = ORIGIN(config);
+_config_end = ORIGIN(config) + LENGTH(config);
 
 /* Generic rules inclusion.*/
 INCLUDE rules.ld

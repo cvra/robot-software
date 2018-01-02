@@ -5,6 +5,7 @@ include_directories:
   - ../motor-control-firmware/src
   - ../motor-control-firmware/src/uavcan
 
+target.stm32f3: []
 target.arm:
     - src/main.c
     - src/proximity_beacon.c
@@ -32,6 +33,7 @@ target.arm:
     - ../motor-control-firmware/src/stream.c
     - ../motor-control-firmware/src/uart_stream.c
     - ../motor-control-firmware/src/parameter_listener.c
+    - ../motor-control-firmware/src/parameter_port.c
     - ../motor-control-firmware/../lib/can-bootloader/config.c
 
 depends:
@@ -41,8 +43,8 @@ depends:
     - version
     - filter:
         fork: froj
-    - parameter:
-        fork: Stapelzeiger
+    - parameter
+    - parameter_flash_storage
     - timestamp:
         fork: Stapelzeiger
 
