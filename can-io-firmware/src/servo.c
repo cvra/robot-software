@@ -2,15 +2,17 @@
 
 #include "pwm.h"
 #include "servo.h"
+#include "quadramp/quadramp.h"
 
 #define SERVO_PWM_TIMER_FREQ    1000000 // 1MHz
 #define SERVO_PWM_PERIOD        20000   // 20 ms period
 
-struct servos_t {
-    float setpoint[4]; // Duty cycle setpoints
-};
+typedef struct {
+    float setpoint; // Duty cycle setpoint
+    struct quadramp_filter filter;
+} servo_t;
 
-static struct servos_t servos;
+static servo_t servo[4];
 
 /* convert 0.0-1.0 to full pwm duty cycle. */
 static uint32_t duty_cycle(float pos)
@@ -25,26 +27,44 @@ static uint32_t duty_cycle(float pos)
 
 void servo_set(const float pos[4])
 {
-    servos.setpoint[0] = pos[0];
-    servos.setpoint[1] = pos[1];
-    servos.setpoint[2] = pos[2];
-    servos.setpoint[3] = pos[3];
+    servo[0].setpoint = pos[0];
+    servo[1].setpoint = pos[1];
+    servo[2].setpoint = pos[2];
+    servo[3].setpoint = pos[3];
+
+    quadramp_set_1st_order_vars(&servo[0].filter, SERVO_PWM_TIMER_FREQ/10, SERVO_PWM_TIMER_FREQ/10);
+    quadramp_set_1st_order_vars(&servo[1].filter, SERVO_PWM_TIMER_FREQ/10, SERVO_PWM_TIMER_FREQ/10);
+    quadramp_set_1st_order_vars(&servo[2].filter, SERVO_PWM_TIMER_FREQ/10, SERVO_PWM_TIMER_FREQ/10);
+    quadramp_set_1st_order_vars(&servo[3].filter, SERVO_PWM_TIMER_FREQ/10, SERVO_PWM_TIMER_FREQ/10);
 }
 
 void servo_init(void)
 {
-    memset(&servos, 0, sizeof(struct servos_t));
     pwm_init(SERVO_PWM_TIMER_FREQ, SERVO_PWM_PERIOD);
+
+    memset(&servo, 0, sizeof(servo));
+
+    quadramp_init(&servo[0].filter);
+    quadramp_init(&servo[1].filter);
+    quadramp_init(&servo[2].filter);
+    quadramp_init(&servo[3].filter);
 }
 
 THD_FUNCTION(servo_thd, arg)
 {
     (void) arg;
+    uint32_t pulsewidth[4];
+
     while (1) {
-        pwm_set_pulsewidth(PWM_CHANNEL_0, duty_cycle(servos.setpoint[0]));
-        pwm_set_pulsewidth(PWM_CHANNEL_1, duty_cycle(servos.setpoint[1]));
-        pwm_set_pulsewidth(PWM_CHANNEL_2, duty_cycle(servos.setpoint[2]));
-        pwm_set_pulsewidth(PWM_CHANNEL_3, duty_cycle(servos.setpoint[3]));
+        pulsewidth[0] = quadramp_do_filter(&servo[0].filter, duty_cycle(servo[0].setpoint));
+        pulsewidth[1] = quadramp_do_filter(&servo[1].filter, duty_cycle(servo[1].setpoint));
+        pulsewidth[2] = quadramp_do_filter(&servo[2].filter, duty_cycle(servo[2].setpoint));
+        pulsewidth[3] = quadramp_do_filter(&servo[3].filter, duty_cycle(servo[3].setpoint));
+
+        pwm_set_pulsewidth(PWM_CHANNEL_0, pulsewidth[0]);
+        pwm_set_pulsewidth(PWM_CHANNEL_1, pulsewidth[1]);
+        pwm_set_pulsewidth(PWM_CHANNEL_2, pulsewidth[2]);
+        pwm_set_pulsewidth(PWM_CHANNEL_3, pulsewidth[3]);
     }
 }
 

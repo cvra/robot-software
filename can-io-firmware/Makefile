@@ -4,7 +4,7 @@
 #
 
 # Compiler options here.
-USE_OPT = -Os -ggdb -fomit-frame-pointer -falign-functions=16 -fno-common
+USE_OPT = -Os -ggdb -fomit-frame-pointer -falign-functions=16 -fno-common -lm
 
 # C specific options here (added to USE_OPT).
 USE_COPT =
