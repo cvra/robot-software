@@ -18,6 +18,7 @@ enum pwm_channel
 
 void pwm_init(uint32_t frequency, uint32_t period);
 
+/* Set given pulse width in clock ticks to the corresponding PWM channel */
 void pwm_set_pulsewidth(enum pwm_channel channel, uint32_t pulsewidth);
 
 #ifdef __cplusplus
