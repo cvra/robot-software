@@ -115,7 +115,12 @@ static void ranging_thread(void *p)
             /* First disable transceiver */
             dwt_forcetrxoff();
 
-            uwb_send_anchor_position(&handler, 10, 20, 30, frame);
+            float x, y, z;
+            x = parameter_scalar_get(&uwb_params.anchor.position.x);
+            y = parameter_scalar_get(&uwb_params.anchor.position.y);
+            z = parameter_scalar_get(&uwb_params.anchor.position.z);
+
+            uwb_send_anchor_position(&handler, x, y, z, frame);
         } else if (flags & EVENT_UWB_INT) {
             /* Process the interrupt. */
             dwt_isr();
