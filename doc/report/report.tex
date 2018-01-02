@@ -22,6 +22,10 @@
 \usepackage[numbers]{natbib}
 
 
+% Needed by pandoc
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
 \title{Development of an ultra-wide band indoor positioning system}
 \author{Antoine Albertelli}
 \supervisor{Daniel Burnier\\Eliot Ferragni}
@@ -715,6 +719,7 @@ All design documents and related issues can be found on the board's Github repos
 
 \chapter{User manual}
 
+\input{user_guide.tex}
 
 \clearpage
 \nocite{*} % tells bibtex to include everything
