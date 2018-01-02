@@ -153,29 +153,18 @@ static void cmd_ahrs(BaseSequentialStream *chp, int argc, char **argv)
 
 static void cmd_range(BaseSequentialStream *chp, int argc, char **argv)
 {
-    const char *usage =  "usage: range rx\r\n";
+    const char *topic_name = "/range";
+    messagebus_topic_t *topic;
+    range_msg_t msg;
 
-    if (argc < 1) {
-        chprintf(chp, usage);
+    topic = messagebus_find_topic(&bus, topic_name);
+    if (topic == NULL) {
+        chprintf(chp, "could not find topic \"%s\"\r\n", topic_name);
         return;
     }
 
-    if (!strcmp(argv[0], "rx")) {
-        const char *topic_name = "/range";
-        messagebus_topic_t *topic;
-        range_msg_t msg;
-
-        topic = messagebus_find_topic(&bus, topic_name);
-        if (topic == NULL) {
-            chprintf(chp, "could not find topic \"%s\"\r\n", topic_name);
-            return;
-        }
-
-        messagebus_topic_wait(topic, &msg, sizeof(msg));
-        chprintf(chp, "got a ToF to anchor 0x%x : %.3f\r\n", msg.anchor_addr, msg.range);
-    } else {
-        chprintf(chp, usage);
-    }
+    messagebus_topic_wait(topic, &msg, sizeof(msg));
+    chprintf(chp, "got a ToF to anchor 0x%x : %.3f\r\n", msg.anchor_addr, msg.range);
 }
 
 static void cmd_anchors(BaseSequentialStream *chp, int argc, char **argv)
