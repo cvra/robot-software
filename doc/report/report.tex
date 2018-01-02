@@ -138,6 +138,7 @@ It has several features useful for our application:
     \end{enumerate}
 
 \chapter{Positioning algorithm}
+\label{chap:algorithm}
 
 \section{Parametric vs.\  non-parametric filter}
 
@@ -550,6 +551,7 @@ On our system, this value was found to be about 32905~DW1000's internal units (\
 
 
 \subsection{Optimal rate calculation}
+\label{sec:optimal-rate}
 When using a radio link such as our \gls{uwb} modules, collisions can occur if two devices try to transmit at the same time.
 If this happens, at least one of the two transmitted packet will be lost.
 As the protocol does not include retransmission logic to stay lightweight, this means the whole ranging sequence will drop.
@@ -616,7 +618,7 @@ We used the \gls{can} bus integrated on the board with the UAVCAN\footnote{\url{
 UAVCAN is a higher level protocol which defines standard way of encoding messages of various types and different semantics (broadcast or request/response).
 The messages are defined in \texttt{.uavcan} files, from which C++ code is automatically generated.
 The standard also defines a few conventions including a way to access a device's parameters, and provides a \gls{gui} to interact with the bus.
-We used a simple USB-to-CAN converter\footnote{\url{https://github.com/cvra/CAN-USB-dongle-fw}} to connect our PCs to the board.
+We used a simple USB-to-CAN converter\footnote{\url{http://www.cvra.ch/technologies/can_dongle.html}} to connect our PCs to the board.
 
 \chapter{Results}
 
@@ -668,6 +670,32 @@ This, coupled with the ease of use and tuning means that this algorithm can be a
 Compared to the \gls{dmp}, it also does not restrict the choice of sensors.
 
 \chapter{Future work}
+
+The current system is already operational and provides an interesting experimental platform.
+However, the performance of the system could be greatly improved in a second revision of this project.
+
+The development of the beacons will continue as an Open Source project on Github\footnote{\url{https://github.com/cvra}}.
+It could be interesting to add one semester project to enhance the current implementation.
+We found two different axes for this work.
+
+\section{Better radio protocol}
+
+One of the weakest points of the current implementation is the protocol used to share the radio medium.
+As the current implementation only relies on probalities to handle collision, its performances are very poor (Section~\ref{sec:optimal-rate}).
+Using a better protocol to handle interleaved packets (Figure~\ref{fig:interleaved-packets}) could result in a much better media utilization, up to 1742 message (570 ranging) per second\cite{dw1000manual}.
+
+To achieve this level of performance, the best approach is probably to reduce as much as possible the amount of broadcast messages.
+Anchors could then address each tag directly, hence reducing greatly the amount of collisions.
+
+% TODO figure to explain this
+
+\section{Better Kalman filter}
+
+As discussed in Chapter~\ref{chap:algorithm}, we implemented the simplest possible Kalman filter.
+The performance of the system could probably benefit from a better model, carefully tuned to the sensors fitted on board.
+In addition to the other algorithms described in this report, other simple models could be interesting.
+For example, adding a constant speed hypothesis to the \gls{ekf} could probably result in a lower RMS error.
+
 \appendix
 \chapter{Hardware schematic}
 
