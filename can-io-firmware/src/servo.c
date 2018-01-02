@@ -17,10 +17,10 @@ static uint32_t duty_cycle(float pos)
 
 void servo_set(const float pos[4])
 {
-    pwm_set_duty_cycle(STM32_TIM16, 0, duty_cycle(pos[0]));
-    pwm_set_duty_cycle(STM32_TIM17, 0, duty_cycle(pos[1]));
-    pwm_set_duty_cycle(STM32_TIM1, 1, duty_cycle(pos[2]));
-    pwm_set_duty_cycle(STM32_TIM1, 2, duty_cycle(pos[3]));
+    pwm_set_pulsewidth(PWM_CHANNEL_0, duty_cycle(pos[0]));
+    pwm_set_pulsewidth(PWM_CHANNEL_1, duty_cycle(pos[1]));
+    pwm_set_pulsewidth(PWM_CHANNEL_2, duty_cycle(pos[2]));
+    pwm_set_pulsewidth(PWM_CHANNEL_3, duty_cycle(pos[3]));
 }
 
 void servo_init(void)

@@ -55,9 +55,17 @@ static void pwm_setup_channel(stm32_tim_t *tim,
 
 /* Note: channel is the channel number from datasheet - 1.
  * eg. TIM1_CH2 has channel number 1. */
-void pwm_set_duty_cycle(stm32_tim_t *tim, uint8_t channel, uint32_t width)
+void pwm_set_pulsewidth_lld(stm32_tim_t *tim, uint8_t channel, uint32_t width)
 {
     tim->CCR[channel] = width;
+}
+
+void pwm_set_pulsewidth(enum pwm_channel channel, uint32_t pulsewidth)
+{
+    if      (channel == PWM_CHANNEL_0) { pwm_set_pulsewidth_lld(STM32_TIM16, 0, pulsewidth); }
+    else if (channel == PWM_CHANNEL_1) { pwm_set_pulsewidth_lld(STM32_TIM17, 0, pulsewidth); }
+    else if (channel == PWM_CHANNEL_2) { pwm_set_pulsewidth_lld(STM32_TIM1, 1, pulsewidth); }
+    else if (channel == PWM_CHANNEL_3) { pwm_set_pulsewidth_lld(STM32_TIM1, 2, pulsewidth); }
 }
 
 void pwm_init(uint32_t frequency, uint32_t period)
