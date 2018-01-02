@@ -8,10 +8,7 @@ extern "C" {
 #include <ch.h>
 #include <hal.h>
 
-#define SERVO_PWM_TIMER_FREQ    1000000 // 1MHz
-#define SERVO_PWM_PERIOD        20000   // 20 ms period
-
-void pwm_init(void);
+void pwm_init(uint32_t frequency, uint32_t period);
 
 /* Note: channel is the channel number from datasheet - 1.
  * eg. TIM1_CH2 has channel number 1. */

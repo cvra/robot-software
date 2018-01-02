@@ -1,6 +1,9 @@
 #include "pwm.h"
 #include "servo.h"
 
+#define SERVO_PWM_TIMER_FREQ    1000000 // 1MHz
+#define SERVO_PWM_PERIOD        20000   // 20 ms period
+
 /* convert 0.0-1.0 to full pwm duty cycle. */
 static uint32_t duty_cycle(float pos)
 {
@@ -22,5 +25,5 @@ void servo_set(const float pos[4])
 
 void servo_init(void)
 {
-    pwm_init();
+    pwm_init(SERVO_PWM_TIMER_FREQ, SERVO_PWM_PERIOD);
 }
