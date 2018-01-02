@@ -70,6 +70,8 @@ THD_FUNCTION(servo_thd, arg)
         pwm_set_pulsewidth(PWM_CHANNEL_1, pulsewidth[1]);
         pwm_set_pulsewidth(PWM_CHANNEL_2, pulsewidth[2]);
         pwm_set_pulsewidth(PWM_CHANNEL_3, pulsewidth[3]);
+
+        chThdSleepMilliseconds(1);
     }
 }
 
