@@ -5,7 +5,9 @@
 #define SERVO_PWM_TIMER_FREQ    1000000 // 1MHz
 #define SERVO_PWM_PERIOD        20000   // 20 ms period
 
-static void pwm_start(stm32_tim_t *tim,
+#define PWM_CHANNEL(x) 1 << (x - 1) // Mask to select channel number, 1 indexed
+
+static void pwm_setup_channel(stm32_tim_t *tim,
                       uint8_t channel_mask,
                       uint32_t clock,
                       uint32_t frequency,
@@ -80,20 +82,37 @@ void servo_set(const float pos[4])
     pwm_set_duty_cycle(STM32_TIM1, 2, duty_cycle(pos[3]));
 }
 
-void servo_init(void)
+void pwm_init(void)
 {
     /* Timer2 channel 2 and 3 */
     rccResetAPB2(RCC_APB2RSTR_TIM1RST);
     rccEnableAPB2(RCC_APB2ENR_TIM1EN, false);
-    pwm_start(STM32_TIM1, 0b0110, STM32_TIMCLK2, SERVO_PWM_TIMER_FREQ, SERVO_PWM_PERIOD);
+    pwm_setup_channel(STM32_TIM1,
+                      PWM_CHANNEL(2) || PWM_CHANNEL(3),
+                      STM32_TIMCLK2,
+                      SERVO_PWM_TIMER_FREQ,
+                      SERVO_PWM_PERIOD);
 
     /* Timer16 channel 1 */
     rccResetAPB2(RCC_APB2RSTR_TIM16RST);
     rccEnableAPB2(RCC_APB2ENR_TIM16EN, false);
-    pwm_start(STM32_TIM16, 1, STM32_TIMCLK2, SERVO_PWM_TIMER_FREQ, SERVO_PWM_PERIOD);
+    pwm_setup_channel(STM32_TIM16,
+                      PWM_CHANNEL(1),
+                      STM32_TIMCLK2,
+                      SERVO_PWM_TIMER_FREQ,
+                      SERVO_PWM_PERIOD);
 
     /* Timer17 channel 1 */
     rccResetAPB2(RCC_APB2RSTR_TIM17RST);
     rccEnableAPB2(RCC_APB2ENR_TIM17EN, false);
-    pwm_start(STM32_TIM17, 1, STM32_TIMCLK2, SERVO_PWM_TIMER_FREQ, SERVO_PWM_PERIOD);
+    pwm_setup_channel(STM32_TIM17,
+                      PWM_CHANNEL(1),
+                      STM32_TIMCLK2,
+                      SERVO_PWM_TIMER_FREQ,
+                      SERVO_PWM_PERIOD);
+}
+
+void servo_init(void)
+{
+    pwm_init();
 }
