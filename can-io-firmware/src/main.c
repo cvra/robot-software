@@ -4,7 +4,7 @@
 #include "bootloader_config.h"
 #include "error/error.h"
 #include "debug.h"
-#include "servo_pwm.h"
+#include "servo.h"
 #include "main.h"
 
 THD_FUNCTION(blinker, arg)

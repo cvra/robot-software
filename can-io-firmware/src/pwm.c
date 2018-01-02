@@ -1,9 +1,6 @@
 #include <ch.h>
 #include <hal.h>
-#include "servo_pwm.h"
-
-#define SERVO_PWM_TIMER_FREQ    1000000 // 1MHz
-#define SERVO_PWM_PERIOD        20000   // 20 ms period
+#include "pwm.h"
 
 #define PWM_CHANNEL(x) 1 << (x - 1) // Mask to select channel number, 1 indexed
 
@@ -63,25 +60,6 @@ void pwm_set_duty_cycle(stm32_tim_t *tim, uint8_t channel, uint32_t width)
     tim->CCR[channel] = width;
 }
 
-/* convert 0.0-1.0 to full pwm duty cycle. */
-static uint32_t duty_cycle(float pos)
-{
-    if (pos > 1) {
-        pos = 1;
-    } else if (pos < 0) {
-        pos = 0;
-    }
-    return (uint32_t)(pos * SERVO_PWM_TIMER_FREQ);
-}
-
-void servo_set(const float pos[4])
-{
-    pwm_set_duty_cycle(STM32_TIM16, 0, duty_cycle(pos[0]));
-    pwm_set_duty_cycle(STM32_TIM17, 0, duty_cycle(pos[1]));
-    pwm_set_duty_cycle(STM32_TIM1, 1, duty_cycle(pos[2]));
-    pwm_set_duty_cycle(STM32_TIM1, 2, duty_cycle(pos[3]));
-}
-
 void pwm_init(void)
 {
     /* Timer2 channel 2 and 3 */
@@ -110,9 +88,4 @@ void pwm_init(void)
                       STM32_TIMCLK2,
                       SERVO_PWM_TIMER_FREQ,
                       SERVO_PWM_PERIOD);
-}
-
-void servo_init(void)
-{
-    pwm_init();
 }

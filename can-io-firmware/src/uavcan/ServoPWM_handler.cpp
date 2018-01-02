@@ -1,6 +1,6 @@
 #include "error/error.h"
 #include "ServoPWM_handler.hpp"
-#include "servo_pwm.h"
+#include "servo.h"
 #include "main.h"
 
 void ServoPWM_handler(const uavcan::ReceivedDataStructure<cvra::io::ServoPWM> &msg)
