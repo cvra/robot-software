@@ -688,7 +688,7 @@ The positioning system is implemented and works in the minimal configuration (on
 Real-world experiments confirm the precision and accuracy expected from simulated experiments, at least from a qualitative perspective.
 We lacked the time to do a proper quantitative analysis of the performance, as well as study the dynamics of the system.
 
-\chapter{Conclusion \&Future work}
+\chapter{Conclusion \& Future work}
 
 This project was an interesting excursion in the land of \gls{uwb} systems.
 A significant amount of time was spent on the design of the state estimator and of the communication system.
@@ -703,7 +703,7 @@ The development of the beacons will continue as an Open Source project on Github
 It could be interesting to add one semester project to enhance the current implementation.
 Here are some topics that could be covered.
 
-\section{Better radio protocol}
+\section{Radio protocol enhancements}
 
 One of the weakest points of the current implementation is the protocol used to share the radio medium.
 As the current implementation only relies on probabilities to handle collision, its performances are very poor (Section~\ref{sec:optimal-rate}).
@@ -714,7 +714,7 @@ Anchors could then address each tag directly, hence reducing greatly the amount 
 
 % TODO figure to explain this
 
-\section{Better Kalman filter}
+\section{Kalman filter enhancements}
 
 As discussed in Chapter~\ref{chap:algorithm}, we implemented the simplest possible Kalman filter.
 The performance of the system could probably benefit from a better model, carefully tuned to the sensors fitted on board.
@@ -742,8 +742,10 @@ All design documents and related issues can be found on the board's Github repos
 \includepdf[landscape=true]{figures/board_schematic.pdf}
 
 \chapter{User manual}
-
 \input{user_guide.tex}
+
+\chapter{Code source organization}
+\input{code_source_org.tex}
 
 \clearpage
 \nocite{*} % tells bibtex to include everything
