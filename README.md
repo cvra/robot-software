@@ -73,24 +73,24 @@ config_set /uwb/anchor/is_anchor false
 config_set /uwb/pan_id 42
 ```
 
-Once you are satisfied with the settings, store them to non volatile memory using `config_save`.
+Once you are satisfied with the settings, store them to non-volatile memory using `config_save`.
 Otherwise, they will be lost on reboot.
-To clear non volatile memory (which restores the default values for all parameters), run `config_erase` and reboot the device.
+To clear non-volatile memory (which restores the default values for all parameters), run `config_erase` and reboot the device.
 
 ## Via CAN
 
 If you have setup UAVCAN correctly, you should be able to run `uavcan_gui_tool`, which is a graphical tool used to interact with UAVCAN devices.
 Please refer to [the tool's documentation](http://uavcan.org/GUI_Tool/Overview/) for details.
-Once this is running, you can open a node properties by double clicking on the node.
+Once this is running, you can open the properties of a node by double clicking on it.
 You should see a screen similar to the one shown below.
 
 ![UAVCAN parameter GUI](doc/report/figures/uavcan_gui.png){width=60%}
 
-On this screen you can double click on a parameter to change its value.
+On this screen, you can double click on a parameter to change its value.
 Do not forget to click the "Send" button to apply your changes.
 
 Once you are happy with your settings, save them to non-volatile memory by clicking the "Store All" button.
-Clicking the "Erase all" button will clear the non volatile memory, restoring all parameters to default values on next reboot.
+Clicking the "Erase all" button will clear the non-volatile memory, restoring all parameters to default values on next reboot.
 
 ## Parameter description
 

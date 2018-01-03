@@ -58,7 +58,7 @@
 
 Precise positioning is one of the key elements of a mobile robot.
 It allows the software to take decisions and navigate to goals effectively.
-Therefore it has been quite extensively studied by roboticists.
+Therefore, it has been quite extensively studied by roboticists.
 Nowadays, the most common approaches are \glspl{imu} or dead reckoning.
 
 However, those approaches tend to suffer from drift over time, due to their integration process.
@@ -80,8 +80,7 @@ Commercial \gls{uwb} systems have also been used in conjunction with \gls{imu} s
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.6\textwidth]{figures/system.pdf}
-    \caption{Overview of the system, showing one mobile robot (blue) and three fixed anchors (grey).}
-    \label{fig:system}
+    \caption{Overview of the system, showing one mobile robot (blue) and three fixed anchors (grey).\label{fig:system}}
 \end{figure}
 
 The complete system (Figure~\ref{fig:system}) is made of two types of nodes, tags and anchors.
@@ -130,7 +129,7 @@ For this project, we used an Open Source development board (Figure~\ref{fig:boar
 
 \section{Inertial Motion Unit}
 
-The MPU9250 is a 9 axis \gls{imu} made by Invensense\footnote{\url{https://www.invensense.com}}.
+The MPU9250 is a 9-axis \gls{imu} made by Invensense\footnote{\url{https://www.invensense.com}}.
 It was chosen because it combines an accelerometer, a gyroscope and a magnetometer in an easy to use package.
 It is connected to the main microcontroller through a SPI bus.
 
@@ -155,17 +154,17 @@ It has several features useful for our application:
 
 \section{Parametric vs.\  non-parametric filter}
 
-State estimation algorithm can be grouped in two major families: parametric and non parametrics filters.
+State estimation algorithm can be grouped in two major families: parametric and non parametric filters.
 Parametric filters are filter which take assumptions on the distribution of the state.
 For example, the Kalman filter makes the assumptions that both the state and the measurement noises are normally distributed.
-Non parametric filters, on the other hand, can represent any distribution, and most importantly multi modal ones.
+Non-parametric filters, on the other hand, can represent any distribution, and most importantly multi modal ones.
 
 If possible, parametric filters should be used, as they are computationally less expensive.
-In this project the code will be running on a microcontroller, therefore it might not be possible to use complex non parametric filters.
+In this project, the code will be running on a microcontroller, therefore it might not be possible to use complex non parametric filters.
 
 Early on the project we decided to use an \gls{ekf}, which is one of the most common state estimator.
-Like the Kalman filter, which assumes that the distributions of the state and noise are gaussian.
-However, it works on non-linear dynamics, by approximating the non linearities via a first order Taylor expansion.
+Like the Kalman filter, which assumes that the distributions of the state and noise are Gaussian.
+However, it works on non-linear dynamics, by approximating the non linear process through a first order Taylor expansion.
 
 While the \gls{ekf} is easy to implement and lightweight computationally, it only works if the noises are Gaussian.
 We can verify this property experimentally for the measurement noise (see Section~\ref{sec:range_result}), but could only assume it for the process noise.
@@ -275,14 +274,14 @@ This simple model was converted to an \gls{ekf} model and implemented using the 
 The noise characteristics of the ranging system were measured (see Section~\ref{sec:range_result}), while the accelerometer noise was taken from the datasheet.
 The results can be seen in Figure~\ref{fig:simple_model}.
 
-We think this behaviour is pretty suboptimal and that the \gls{ekf} could be better tuned.
-However, we decided not to investigate this further, as this model required an absolute heading in the shared referene frame.
+We think this behavior is pretty suboptimal and that the \gls{ekf} could be better tuned.
+However, we decided not to investigate this further, as this model required an absolute heading in the shared reference frame.
 This is not easy to know: the magnetometers can give an absolute heading with respect to the Earth's magnetic frame, but we do not know the rotation between the north and the shared frame.
 This led us to the creation of the next model.
 
 \section{UWB only model}
 
-This model was developped when I realized that the simple model had two important issues:
+This model was developed when I realized that the simple model had two important issues:
 
 \begin{enumerate}
 \item First, it supposed that we knew the rotation between the world frame and the earth magnetic frame, as the beacons' coordinates are in world frame, but the attitude of the robot is in earth magnetic frame.
@@ -409,7 +408,7 @@ The differential equation governing the state evolution is therefore:
 \end{pmatrix}
 \end{equation}
 
-Using forward Euler integration we get:
+Using forward Euler integration, we get:
 
 \begin{equation}
     \mathbf{x}_{k+1} = \mathbf{g}(\mathbf{x}_k, \mathbf{u}_{k+1}) = \mathbf{x}_{k} + \Delta_t \mathbf{\dot{x}}
@@ -489,10 +488,10 @@ Therefore, we had to design our own implementation from their description.
 
 \begin{enumerate}
     \item The protocol should require as little state as possible to be stored on the participating beacons.
-        State synchronisation between several systems is a common source of error and bugs.
+        State synchronization between several systems is a common source of error and bugs.
     \item We want to maximize the measurement frequency, which means we should have a measurement simple with as little packets as possible.
     \item To avoid waking up the microcontroller, the MAC layer integrated in the \gls{uwb} module must be leveraged as much as possible.
-    \item The same radio link used for range measurement will also be used as a general purpose link to transmit data between nodes.
+    \item The same radio link used for range measurement will also be used as a general-purpose link to transmit data between nodes.
 \end{enumerate}
 
 \subsection{Time measurement}
@@ -532,7 +531,7 @@ It is sent by a tag and contains the timestamps of all events so far ($T_{tx,1}$
 Finally, the measurement finalization has a sequence number of 2.
 It is sent by the anchor and contains the content of the previous message plus the new timestamps ($T_{rx,2}$, $T_{tx,3}$).
 
-Once the tag received the last message, it can compute the ranging solution using Equation~\ref{eqn:ranging} with the following informations:
+Once the tag received the last message, it can compute the ranging solution using Equation~\ref{eqn:ranging} with the following information:
 \begin{eqnarray*}
     T_{round,1} &=& T_{tx,1} - T_{rx,2} \\
     T_{reply,1} &=& T_{rx,1} - T_{tx,2} \\
@@ -569,17 +568,17 @@ On our system, this value was found to be about 32840~DW1000's internal units (\
 \subsection{Optimal rate calculation}
 \label{sec:optimal-rate}
 When using a radio link such as our \gls{uwb} modules, collisions can occur if two devices try to transmit at the same time.
-If this happens, at least one of the two transmitted packet will be lost.
+If this happens, at least one of the two transmitted packets will be lost.
 As the protocol does not include retransmission logic to stay lightweight, this means the whole ranging sequence will drop.
-This means that increasing the ranging rate past a certain point will \emph{decrease} the rate of succesful range transactions, as collisions will occur more frequently.
+This means that increasing the ranging rate past a certain point will \emph{decrease} the rate of successful range transactions, as collisions will occur more frequently.
 This effect can be seen on Figure~\ref{fig:measurement-rate}.
 
 To study the probability of having collisions, we can use the theory from queuing systems\cite{hongler2017stochastic}.
-Queuing systems are useful to study phenomenons where customers arrive at a certain rate $\lambda$, and are served at a rate $\mu$, or equivalently, use the ressources for a time $\frac{1}{\mu}$.
+Queuing systems are useful to study phenomenon where customers arrive at a certain rate $\lambda$, and are served at a rate $\mu$, or equivalently, use the ressources for a time $\frac{1}{\mu}$.
 In our system, the ressource would be the access to the shared medium, $\lambda$ the number of packets per seconds sent by the nodes and $\frac{1}{\mu}$ the average time it takes for one full measurement sequence to occur.
 
 We will model our system by a so called ``M/M/1'' queue, this means that the emission of packets is Markovian (memoryless), the transmission time is Markovian as well, and only 1 packet can be processed at a time.
-Therefore, the the probability of a packet transmission by a node during an interval $t$ is given by the memoryless law:
+Therefore, the probability of a packet transmission by a node during an interval $t$ is given by the memoryless law:
 
 \begin{equation}
 f(t) = \lambda e^{-\lambda t}
@@ -615,7 +614,7 @@ The rate of successful measurements ($\lambda'$) is given by the rate of measure
 \section{Software architecture}
 
 Continuing on the principles used on the ePuck~2, the software is constructed around a message passing bus (Figure~\ref{fig:architecture}).
-This allowed us to validate every subsystem independently during developement.
+This allowed us to validate every subsystem independently during development.
 It also ensures the software stays loosely coupled: the implementations can be changed without any impact on the rest of the system, as long as the published messages are the same.
 In addition to the data processing pipeline, a generic parameter service allows modules to define settings which are automatically exposed over USB and \gls{can}, and are stored to flash memory for persistency across resets.
 
@@ -631,7 +630,7 @@ In addition to the data processing pipeline, a generic parameter service allows 
 
 While the console is convenient for debugging, a more structured way of communication is required for data logging and integration into a real robot.
 We used the \gls{can} bus integrated on the board with the UAVCAN\footnote{\url{http://uavcan.org/}} protocol on top.
-UAVCAN is a high level protocol which defines standard way of encoding messages of various types and different semantics (broadcast or request/response).
+UAVCAN is a high-level protocol which defines standard way of encoding messages of various types and different semantics (broadcast or request/response).
 The messages are defined in \texttt{.uavcan} files, from which C++ code is automatically generated.
 The standard also defines a few conventions including a way to access a device's parameters, and provides a \gls{gui} to interact with the bus.
 We used a simple USB-to-CAN converter\footnote{\url{http://www.cvra.ch/technologies/can_dongle.html}} to connect our PCs to the board.
@@ -657,7 +656,7 @@ Once the ranging protocol was implemented and working, we separated two boards b
 The distribution of the results can be seen in Figure~\ref{fig:range_noise}.
 
 We tried to use a statistical normality tests to determine if the samples were from a normal distribution.
-However those tests can only reject the hypothesis that the samples come from the normal distribution and are almost never significant on large sample count.
+However, those tests can only reject the hypothesis that the samples come from the normal distribution and are almost never significant on large sample count.
 We plotted the distribution that fitted the dataset and decided that the distribution was close enough to a Gaussian for the requirements of the \gls{ekf}.
 Although some forum posts described increased noise when running coplanar antennas (instead of parallel), we could not reproduce this effect.
 It seems that any antenna orientation could work effectively.
@@ -669,7 +668,7 @@ This experiment also allowed us to confirm that the antenna delay was properly c
 
 As we ended up not using the results from the attitude determination, we did not do a deep evaluation of the performance of the Madgwick filter.
 The dynamic performances seemed pretty good when testing the algorithm ``by hand''.
-To test the algorithm's static drift, we fixed it to a table and let it run until stable, then measured the drift over a 5 minute interval.
+To test the algorithm's static drift, we fixed it to a table and let it run until stable, then measured the drift over a 5-minute interval.
 We found the drift to be very good (Figure~\ref{fig:madgwick-drift}), achieving drifts of less than one degree per hour.
 
 \begin{figure}[h]
@@ -691,9 +690,9 @@ We lacked the time to do a proper quantitative analysis of the performance, as w
 
 \chapter{Conclusion \&Future work}
 
-This project was a an interesting excursion in the land of \gls{uwb} systems.
+This project was an interesting excursion in the land of \gls{uwb} systems.
 A significant amount of time was spent on the design of the state estimator and of the communication system.
-Unfortunately, a lot of time was also spent writing and debugging simple low level drivers for the various chips involved.
+Unfortunately, a lot of time was also spent writing and debugging simple low-level drivers for the various chips involved.
 
 The current system is already operational and provides an interesting experimental platform.
 The complete measurement stack (ranging, attitude determination and state estimation) are implemented.
@@ -707,7 +706,7 @@ Here are some topics that could be covered.
 \section{Better radio protocol}
 
 One of the weakest points of the current implementation is the protocol used to share the radio medium.
-As the current implementation only relies on probalities to handle collision, its performances are very poor (Section~\ref{sec:optimal-rate}).
+As the current implementation only relies on probabilities to handle collision, its performances are very poor (Section~\ref{sec:optimal-rate}).
 Using a better protocol to handle interleaved packets (Figure~\ref{fig:interleaved-packets}) could result in a much better media utilization, up to 1742 message (570 ranging) per second\cite{dw1000manual}.
 
 To achieve this level of performance, the best approach is probably to reduce as much as possible the amount of broadcast messages.
@@ -732,7 +731,7 @@ However, several flaws were discovered and should be corrected before a new batc
 \begin{itemize}
     \item There is currently no way to use the USB bootloader built in the microcontroller.
         This makes updating the board's firmware harder, as it requires a specialized debug adapter.
-        Adding a button on pin BOOT0 would allow the user to enter bootloading mode as well as serving as a general purpose button.
+        Adding a button on pin BOOT0 would allow the user to enter bootloading mode as well as serving as a general-purpose button.
     \item The reset pin of the \gls{uwb} module is connected to a pin used by the USB module of the microcontroller.
         Although one should be able to disable this pin by software, we could not make it work and had to cut a connection on the board.
 \end{itemize}
