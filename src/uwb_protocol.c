@@ -149,6 +149,7 @@ size_t uwb_protocol_prepare_anchor_position(uwb_protocol_handler_t *handler,
                                             float z,
                                             uint8_t *frame)
 {
+    /* TODO Use proper endianness */
     float *msg = (float *)frame;
     msg[0] = x;
     msg[1] = y;
