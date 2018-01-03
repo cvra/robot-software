@@ -43,6 +43,7 @@
 \newacronym{tof}{ToF}{Time of Flight}
 \newacronym{can}{CAN}{Controller Area Network}
 \newacronym{gui}{GUI}{Graphical User Interface}
+\newacronym{tdma}{TDMA}{Time Division Multiple Access}
 \newcommand{\ieeepan}[0]{IEEE 802.15.4a}
 
 \setcounter{tocdepth}{1}
@@ -707,12 +708,32 @@ Here are some topics that could be covered.
 
 One of the weakest points of the current implementation is the protocol used to share the radio medium.
 As the current implementation only relies on probabilities to handle collision, its performances are very poor (Section~\ref{sec:optimal-rate}).
-Using a better protocol to handle interleaved packets (Figure~\ref{fig:interleaved-packets}) could result in a much better media utilization, up to 1742 message (570 ranging) per second\cite{dw1000manual}.
+Using a better protocol to handle interleaved packets could result in a much better media utilization, up to 1742 message (570 ranging) per second\cite{dw1000manual}.
 
-To achieve this level of performance, the best approach is probably to reduce as much as possible the amount of broadcast messages.
-Anchors could then address each tag directly, hence reducing greatly the amount of collisions.
+To achieve this level of performance, replacing the broadcast measurement advertisements is needed.
+The current implementation means that a ranging sequence eventually locks up the whole media while it is completing (Figure~\ref{fig:broadcast}).
+This leads to low air utilization, as no transaction can occur even when no messages are being transmitted (during CPU processing).
+Switching to unicast addressing (Figure~\ref{fig:unicast}) would allow other tag and anchors to communicate during processing.
 
-% TODO figure to explain this
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[t]{0.6\textwidth}
+        \includegraphics[width=\textwidth]{figures/radio_broadcast.pdf}
+        \caption{Broadcast (current implementation)\label{fig:broadcast}}
+    \end{subfigure}
+    \\[1cm]
+    \begin{subfigure}[t]{0.6\textwidth}
+        \includegraphics[width=\textwidth]{figures/radio_unicast.pdf}
+        \caption{Unicast (proposed change)\label{fig:unicast}}
+    \end{subfigure}
+    \caption{Comparison between broadcast measurement advertisement and unicast measurement advertisements.}
+\end{figure}
+
+
+For even greater performance the \gls{tdma} protocol could be used.
+In \gls{tdma}, each node is assigned a specific time slot by the coordinator.
+This allows for very high air utilization: using the fastest data rate and payloads of 12 bytes, each packet takes \SI{103}{\micro\second} to transmit\cite{dw1000manual}, resulting in about 9700 packets per seconds.
+However it is very complex to implement, as it requires a perfect synchronization between nodes.
 
 \section{Kalman filter enhancements}
 
