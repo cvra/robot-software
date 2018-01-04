@@ -4,8 +4,10 @@
 #include "servo.h"
 #include "quadramp/quadramp.h"
 
+#define SERVO_PWM_THREAD_FREQ   1000    // 1kHz
 #define SERVO_PWM_TIMER_FREQ    1000000 // 1MHz
 #define SERVO_PWM_PERIOD        20000   // 20 ms period
+#define SERVO_PWM_RAMP_SCALE    (SERVO_PWM_TIMER_FREQ / SERVO_PWM_THREAD_FREQ)
 
 typedef struct {
     float setpoint; // Duty cycle setpoint
@@ -30,10 +32,10 @@ static uint32_t duty_cycle(float pos)
 static void set_quadramp_coefficients(struct quadramp_filter* filter, float vel, float acc)
 {
     if (vel > 0) {
-        quadramp_set_1st_order_vars(filter, vel * SERVO_PWM_TIMER_FREQ, vel * SERVO_PWM_TIMER_FREQ);
+        quadramp_set_1st_order_vars(filter, vel * SERVO_PWM_RAMP_SCALE, vel * SERVO_PWM_RAMP_SCALE);
     }
     if (acc > 0) {
-        quadramp_set_2nd_order_vars(filter, acc * SERVO_PWM_TIMER_FREQ, acc * SERVO_PWM_TIMER_FREQ);
+        quadramp_set_2nd_order_vars(filter, acc * SERVO_PWM_RAMP_SCALE, acc * SERVO_PWM_RAMP_SCALE);
     }
 }
 
@@ -92,7 +94,7 @@ THD_FUNCTION(servo_thd, arg)
 
         chMtxUnlock(&servo_mutex);
 
-        chThdSleepMilliseconds(1);
+        chThdSleepMilliseconds(1000 / SERVO_PWM_THREAD_FREQ);
     }
 }
 
