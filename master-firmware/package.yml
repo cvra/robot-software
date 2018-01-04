@@ -15,6 +15,7 @@ depends:
     - fatfs
     - error
     - goap
+    - quadramp
 
 target.arm:
     - src/main.c
@@ -74,7 +75,6 @@ source:
     - src/aversive/math/vect2/vect2.c
     - src/aversive/robot_system/angle_distance.c
     - src/aversive/robot_system/robot_system.c
-    - src/aversive/quadramp/quadramp.c
     - src/aversive/control_system_manager/control_system_manager.c
     - src/aversive/position_manager/position_manager.c
     - src/aversive/trajectory_manager/trajectory_manager.c

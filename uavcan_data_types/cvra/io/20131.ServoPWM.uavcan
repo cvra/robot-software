@@ -6,3 +6,5 @@
 uint7 node_id
 
 float16[4] servo_pos
+float16[4] servo_vel # Negative coefficients are "do not change"
+float16[4] servo_acc # Negative coefficients are "do not change"

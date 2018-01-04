@@ -7,6 +7,7 @@ depends:
   - error
   - crc
   - version
+  - quadramp
 
 target.arm:
   - src/main.c
@@ -17,7 +18,8 @@ target.arm:
   - src/uavcan/ServoPWM_handler.cpp
   - src/uavcan/DigitalInput_pub.cpp
   - src/bootloader_config.c
-  - src/servo_pwm.c
+  - src/pwm.c
+  - src/servo.c
   - ../lib/can-bootloader/config.c
 
 templates:
