@@ -112,6 +112,12 @@ static void ranging_thread(void *p)
                 uwb_send_measurement_advertisement(&handler, frame);
             }
         } else if (flags & EVENT_ANCHOR_POSITION_TIMER) {
+            /* Make sure we are an anchor before we send an anchor position
+             * message. */
+            if (!handler.is_anchor) {
+                continue;
+            }
+
             /* First disable transceiver */
             dwt_forcetrxoff();
 
