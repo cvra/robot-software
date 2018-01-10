@@ -21,6 +21,12 @@ typedef struct {
     float z;
 } anchor_position_msg_t;
 
+typedef struct {
+    uint32_t timestamp;
+    uint16_t tag_addr;
+    float x;
+    float y;
+} tag_position_msg_t;
 
 void ranging_start(void);
 

@@ -26,7 +26,7 @@
 
 /* TODO: Put this in parameters. */
 #define UWB_ANCHOR_POSITION_TIMER_PERIOD S2ST(5)
-#define UWB_TAG_POSITION_TIMER_PERIOD    MS2ST(500)
+#define UWB_TAG_POSITION_TIMER_PERIOD    MS2ST(300)
 
 
 static uwb_protocol_handler_t handler;
@@ -41,6 +41,10 @@ static MUTEX_DECL(anchor_position_topic_lock);
 static CONDVAR_DECL(anchor_position_topic_condvar);
 static anchor_position_msg_t anchor_position_topic_buffer;
 
+static messagebus_topic_t tag_position_topic;
+static MUTEX_DECL(tag_position_topic_lock);
+static CONDVAR_DECL(tag_position_topic_condvar);
+static tag_position_msg_t tag_position_topic_buffer;
 
 static EVENTSOURCE_DECL(advertise_timer_event);
 static EVENTSOURCE_DECL(anchor_position_timer_event);
@@ -64,6 +68,7 @@ static struct {
 static void ranging_thread(void *p);
 static void ranging_found_cb(uint16_t addr, uint64_t time);
 static void anchor_position_received_cb(uint16_t addr, float x, float y, float z);
+static void tag_position_received_cb(uint16_t addr, float x, float y);
 static void topics_init(void);
 static void parameters_init(void);
 static void hardware_init(void);
@@ -89,6 +94,7 @@ static void ranging_thread(void *p)
     uwb_protocol_handler_init(&handler);
     handler.ranging_found_cb = ranging_found_cb;
     handler.anchor_position_received_cb = anchor_position_received_cb;
+    handler.tag_position_received_cb = tag_position_received_cb;
 
     parameters_init();
     topics_init();
@@ -201,6 +207,21 @@ static void anchor_position_received_cb(uint16_t addr, float x, float y, float z
     messagebus_topic_publish(&anchor_position_topic, &msg, sizeof(msg));
 }
 
+static void tag_position_received_cb(uint16_t addr, float x, float y)
+{
+    tag_position_msg_t msg;
+
+    /* TODO: For some reason the macro ST2US creates an overflow. */
+    uint32_t ts = chVTGetSystemTime() * (1000000 / CH_CFG_ST_FREQUENCY);
+
+    msg.timestamp = ts;
+    msg.tag_addr = addr;
+    msg.x = x;
+    msg.y = y;
+
+    messagebus_topic_publish(&tag_position_topic, &msg, sizeof(msg));
+}
+
 static void ranging_found_cb(uint16_t addr, uint64_t time)
 {
     range_msg_t msg;
@@ -293,6 +314,13 @@ static void topics_init(void)
                           sizeof(anchor_position_topic_buffer));
     messagebus_advertise_topic(&bus, &anchor_position_topic, "/anchors_pos");
 
+    /* Prepare topic for tag positions */
+    messagebus_topic_init(&tag_position_topic,
+                          &tag_position_topic_lock,
+                          &tag_position_topic_condvar,
+                          &tag_position_topic_buffer,
+                          sizeof(tag_position_topic_buffer));
+    messagebus_advertise_topic(&bus, &tag_position_topic, "/tags_pos");
 }
 
 static void hardware_init(void)

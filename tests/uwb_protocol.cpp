@@ -550,3 +550,27 @@ TEST(TagPositionBroadcast, SendTagPosition)
     uint8_t buffer[64];
     uwb_send_tag_position(&handler, x, y, buffer);
 }
+
+void tag_position_received_cb(uint16_t tag_addr, float x, float y)
+{
+    mock().actualCall("tag_position_cb")
+        .withIntParameter("tag_addr", tag_addr)
+        .withParameter("x", x)
+        .withParameter("y", y);
+}
+
+TEST(TagPositionBroadcast, ReceiveTagPosition)
+{
+    // Creates the tag position message
+    size = uwb_protocol_prepare_tag_position(&handler, x, y, frame);
+
+    mock().expectOneCall("tag_position_cb")
+        .withIntParameter("tag_addr", handler.address)
+        .withParameter("x", x)
+        .withParameter("y", y);
+    handler.tag_position_received_cb = tag_position_received_cb;
+
+    // Pass 0 as the RX timestamp is not used
+    uwb_process_incoming_frame(&handler, frame, size, 1);
+}
+

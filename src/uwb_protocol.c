@@ -311,5 +311,10 @@ void uwb_process_incoming_frame(uwb_protocol_handler_t *handler,
         memcpy(&y, &frame[4], sizeof(float));
         memcpy(&z, &frame[8], sizeof(float));
         handler->anchor_position_received_cb(src_addr, x, y, z);
+    } else if (seq_num == UWB_SEQ_NUM_TAG_POSITION) {
+        float x, y;
+        memcpy(&x, &frame[0], sizeof(float));
+        memcpy(&y, &frame[4], sizeof(float));
+        handler->tag_position_received_cb(src_addr, x, y);
     }
 }

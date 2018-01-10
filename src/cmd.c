@@ -189,6 +189,25 @@ static void cmd_anchors(BaseSequentialStream *chp, int argc, char **argv)
     }
 }
 
+static void cmd_tags(BaseSequentialStream *chp, int argc, char **argv)
+{
+    (void) argc;
+    (void) argv;
+
+    const char *topic_name = "/tags_pos";
+    tag_position_msg_t msg;
+    messagebus_topic_t *topic;
+
+    topic = messagebus_find_topic(&bus, topic_name);
+    if (topic == NULL) {
+        chprintf(chp, "could not find topic \"%s\"\r\n", topic_name);
+        return;
+    }
+
+    messagebus_topic_wait(topic, &msg, sizeof(msg));
+    chprintf(chp, "Got a tag pos to tag 0x%04x: %.2f %.2f\r\n", msg.tag_addr, msg.x, msg.y);
+}
+
 static void cmd_state(BaseSequentialStream *chp, int argc, char **argv)
 {
     const char *topic_name = "/ekf/state";
@@ -402,6 +421,7 @@ const ShellCommand shell_commands[] = {
     {"temp", cmd_temp},
     {"range", cmd_range},
     {"anchors", cmd_anchors},
+    {"tag", cmd_tags},
     {"state", cmd_state},
     {"config_tree", cmd_config_tree},
     {"config_set", cmd_config_set},

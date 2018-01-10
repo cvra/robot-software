@@ -22,6 +22,7 @@ typedef struct {
     uint16_t address;
     void (*ranging_found_cb)(uint16_t anchor_addr, uint64_t time);
     void (*anchor_position_received_cb)(uint16_t anchor_addr, float x, float y, float z);
+    void (*tag_position_received_cb)(uint16_t tag_addr, float x, float y);
     bool is_anchor;
 } uwb_protocol_handler_t;
 
