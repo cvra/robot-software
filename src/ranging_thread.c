@@ -9,6 +9,7 @@
 #include "ranging_thread.h"
 #include "uwb_protocol.h"
 #include "exti.h"
+#include "state_estimation_thread.h"
 
 /** Speed of light in Decawave units */
 #define SPEED_OF_LIGHT                   (299792458.0 / (128 * 499.2e6))
@@ -19,9 +20,13 @@
 #define EVENT_UWB_INT                    (1 << 0)
 #define EVENT_ADVERTISE_TIMER            (1 << 1)
 #define EVENT_ANCHOR_POSITION_TIMER      (1 << 2)
+#define EVENT_TAG_POSITION_TIMER         (1 << 3)
 
 #define UWB_ADVERTISE_TIMER_PERIOD       MS2ST(250)
-#define UWB_ANCHOR_POSITION_TIMER_PERIOD S2ST(1)
+
+/* TODO: Put this in parameters. */
+#define UWB_ANCHOR_POSITION_TIMER_PERIOD S2ST(5)
+#define UWB_TAG_POSITION_TIMER_PERIOD    MS2ST(500)
 
 
 static uwb_protocol_handler_t handler;
@@ -39,6 +44,7 @@ static anchor_position_msg_t anchor_position_topic_buffer;
 
 static EVENTSOURCE_DECL(advertise_timer_event);
 static EVENTSOURCE_DECL(anchor_position_timer_event);
+static EVENTSOURCE_DECL(tag_position_timer_event);
 
 static struct {
     parameter_namespace_t ns;
@@ -65,6 +71,7 @@ static void events_init(void);
 
 static void advertise_timer_cb(void *t);
 static void anchor_position_timer_cb(void *t);
+static void tag_position_timer_cb(void *t);
 static void frame_tx_done_cb(const dwt_cb_data_t *data);
 static void frame_rx_cb(const dwt_cb_data_t *data);
 
@@ -127,6 +134,31 @@ static void ranging_thread(void *p)
             z = parameter_scalar_get(&uwb_params.anchor.position.z);
 
             uwb_send_anchor_position(&handler, x, y, z, frame);
+
+        } else if (flags & EVENT_TAG_POSITION_TIMER) {
+            /* Make sure we are a tag before we send an anchor position
+             * message. */
+            if (handler.is_anchor) {
+                continue;
+            }
+
+            messagebus_topic_t *topic;
+            position_estimation_msg_t msg;
+            topic = messagebus_find_topic(&bus, "/ekf/state");
+
+            if (topic == NULL) {
+                continue;
+            }
+
+            if (messagebus_topic_read(topic, &msg, sizeof(msg)) == false) {
+                continue;
+            }
+
+            /* First disable transceiver */
+            dwt_forcetrxoff();
+
+            uwb_send_tag_position(&handler, msg.x, msg.y, frame);
+
         } else if (flags & EVENT_UWB_INT) {
             /* Process the interrupt. */
             dwt_isr();
@@ -204,6 +236,17 @@ static void anchor_position_timer_cb(void *t)
     chSysUnlockFromISR();
 }
 
+static void tag_position_timer_cb(void *t)
+{
+    virtual_timer_t *timer = (virtual_timer_t *)t;
+
+    chSysLockFromISR();
+    chVTSetI(timer, UWB_TAG_POSITION_TIMER_PERIOD, tag_position_timer_cb, t);
+    chEvtBroadcastI(&tag_position_timer_event);
+    chSysUnlockFromISR();
+}
+
+
 static void parameters_init(void)
 {
     /* Prepare parameters. */
@@ -272,16 +315,27 @@ static void events_init(void)
     chVTObjectInit(&advertise_timer);
     chVTSet(&advertise_timer, MS2ST(500), advertise_timer_cb, &advertise_timer);
 
-    /* Setup a virtual timer to schedule measurement advertisement. */
+    /* Setup a virtual timer to schedule anchor position broadcasts. */
     static virtual_timer_t anchor_position_timer;
     chVTObjectInit(&anchor_position_timer);
     chVTSet(&anchor_position_timer, MS2ST(200), anchor_position_timer_cb, &anchor_position_timer);
 
+    /* Setup a virtual timer to schedule anchor position broadcasts. */
+    static virtual_timer_t tag_position_timer;
+    chVTObjectInit(&tag_position_timer);
+    chVTSet(&tag_position_timer, MS2ST(400), tag_position_timer_cb, &tag_position_timer);
+
     /* Register event listeners */
-    static event_listener_t uwb_int_listener, advertise_timer_listener, anchor_position_listener;
+    static event_listener_t uwb_int_listener, advertise_timer_listener, anchor_position_listener,
+                            tag_position_listener;
     chEvtRegisterMask(&exti_uwb_event, &uwb_int_listener, EVENT_UWB_INT);
     chEvtRegisterMask(&advertise_timer_event, &advertise_timer_listener, EVENT_ADVERTISE_TIMER);
     chEvtRegisterMask(&anchor_position_timer_event,
                       &anchor_position_listener,
                       EVENT_ANCHOR_POSITION_TIMER);
+
+    chEvtRegisterMask(&tag_position_timer_event,
+                      &tag_position_listener,
+                      EVENT_TAG_POSITION_TIMER);
+
 }

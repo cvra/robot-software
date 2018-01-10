@@ -14,7 +14,7 @@ extern "C" {
 
 /** Special value to indicate to uwb_transmit_frame that the frame should be
  * sent as soon as possible. */
-#define UWB_TX_TIMESTAMP_IMMEDIATE UINT64_MAX
+#define UWB_TX_TIMESTAMP_IMMEDIATE  UINT64_MAX
 
 /** Object handling all the UWB protocol interactions. */
 typedef struct {
@@ -74,7 +74,15 @@ size_t uwb_protocol_prepare_measurement_advertisement(uwb_protocol_handler_t *ha
 void uwb_send_measurement_advertisement(uwb_protocol_handler_t *handler, uint8_t *buffer);
 
 /** Broadcasts the anchor's position to every connected beacon. */
-void uwb_send_anchor_position(uwb_protocol_handler_t *handler, float x, float y, float z, uint8_t *buffer);
+void uwb_send_anchor_position(uwb_protocol_handler_t *handler,
+                              float x,
+                              float y,
+                              float z,
+                              uint8_t *buffer);
+
+/** Broadcasts the tag's position to every connected beacon. */
+void uwb_send_tag_position(uwb_protocol_handler_t *handler, float x, float y, uint8_t *buffer);
+
 
 void uwb_process_incoming_frame(uwb_protocol_handler_t *handler,
                                 uint8_t *frame,
@@ -90,6 +98,16 @@ size_t uwb_protocol_prepare_anchor_position(uwb_protocol_handler_t *handler,
                                             float y,
                                             float z,
                                             uint8_t *frame);
+
+/** Prepares a frame used to transmit a tag position.
+ *
+ * @returns Number of bytes in frame.
+ */
+size_t uwb_protocol_prepare_tag_position(uwb_protocol_handler_t *handler,
+                                         float x,
+                                         float y,
+                                         uint8_t *frame);
+
 
 
 /** @group UWB Board specific API

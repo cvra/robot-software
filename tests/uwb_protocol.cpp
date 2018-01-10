@@ -494,3 +494,59 @@ TEST(AnchorPositionBroadcast, ReceiveAnchorPosition)
     // Pass 0 as the RX timestamp is not used
     uwb_process_incoming_frame(&handler, frame, size, 0);
 }
+
+TEST_GROUP(TagPositionBroadcast)
+{
+    uwb_protocol_handler_t handler;
+    uint8_t frame[128];
+    uint16_t src, dst, pan_id;
+    uint8_t seq;
+    size_t size;
+
+    const float x = 10, y = 20;
+
+    void setup(void)
+    {
+        uwb_protocol_handler_init(&handler);
+        handler.address = 1234;
+        handler.pan_id = 4321;
+        memset(frame, 0, sizeof(frame));
+
+        // Creates the anchor position message
+        size = uwb_protocol_prepare_tag_position(&handler, x, y, frame);
+
+        // Extracts the payload
+        size = uwb_mac_decapsulate_frame(&pan_id, &src, &dst, &seq, frame, size);
+    }
+};
+
+TEST(TagPositionBroadcast, AddressingIsCorrect)
+{
+    CHECK_EQUAL(1234, src);
+    CHECK_EQUAL(4321, pan_id);
+
+    // Tag position is broadcast
+    CHECK_EQUAL(0xffff, dst);
+}
+
+TEST(TagPositionBroadcast, MessageContentIsCorrect)
+{
+    CHECK_EQUAL(4, seq);
+    CHECK_EQUAL(8, size);
+
+    float *buffer = (float *)frame;
+
+    CHECK_EQUAL(x, buffer[0]);
+    CHECK_EQUAL(y, buffer[1]);
+}
+
+TEST(TagPositionBroadcast, SendTagPosition)
+{
+    size = uwb_protocol_prepare_tag_position(&handler, x, y, frame);
+    mock().expectOneCall("uwb_transmit_frame")
+    .withMemoryBufferParameter("frame", frame, size)
+    .withUnsignedLongIntParameter("timestamp", UWB_TX_TIMESTAMP_IMMEDIATE);
+
+    uint8_t buffer[64];
+    uwb_send_tag_position(&handler, x, y, buffer);
+}

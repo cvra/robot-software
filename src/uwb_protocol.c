@@ -13,6 +13,7 @@
 #define UWB_SEQ_NUM_REPLY               1
 #define UWB_SEQ_NUM_FINALIZATION        2
 #define UWB_SEQ_NUM_ANCHOR_POSITION     3
+#define UWB_SEQ_NUM_TAG_POSITION        4
 
 #define UWB_DELAY                       (15000 * 65536)
 #define MASK_40BIT                      0xfffffffe00
@@ -163,6 +164,25 @@ size_t uwb_protocol_prepare_anchor_position(uwb_protocol_handler_t *handler,
                                      12);
 }
 
+size_t uwb_protocol_prepare_tag_position(uwb_protocol_handler_t *handler,
+                                         float x,
+                                         float y,
+                                         uint8_t *frame)
+{
+    /* TODO Use proper endianness */
+    float *msg = (float *)frame;
+    msg[0] = x;
+    msg[1] = y;
+
+    return uwb_mac_encapsulate_frame(handler->pan_id,
+                                     handler->address,
+                                     MAC_802_15_4_BROADCAST_ADDR,
+                                     UWB_SEQ_NUM_TAG_POSITION,
+                                     frame,
+                                     8);
+}
+
+
 void uwb_send_anchor_position(uwb_protocol_handler_t *handler,
                               float x,
                               float y,
@@ -174,6 +194,15 @@ void uwb_send_anchor_position(uwb_protocol_handler_t *handler,
     size = uwb_protocol_prepare_anchor_position(handler, x, y, z, frame);
 
     uwb_transmit_frame(UWB_TX_TIMESTAMP_IMMEDIATE, frame, size);
+}
+
+void uwb_send_tag_position(uwb_protocol_handler_t *handler, float x, float y, uint8_t *buffer)
+{
+    size_t size;
+
+    size = uwb_protocol_prepare_tag_position(handler, x, y, buffer);
+
+    uwb_transmit_frame(UWB_TX_TIMESTAMP_IMMEDIATE, buffer, size);
 }
 
 void uwb_process_incoming_frame(uwb_protocol_handler_t *handler,
