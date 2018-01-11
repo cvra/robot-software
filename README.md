@@ -1,34 +1,24 @@
 # Robot software stack
 
-## Master board
+[![Build Status](https://travis-ci.org/cvra/robot-software.svg?branch=master)](https://travis-ci.org/cvra/robot-software)
 
-* Travis CI: [![Build Status](https://travis-ci.org/cvra/robot-software.svg?branch=master)](https://travis-ci.org/cvra/robot-software)
-* Drone CI: [![Build Status](http://178.32.216.117:8000/api/badges/cvra/robot-software/status.svg)](http://178.32.216.117:8000/cvra/robot-software)
+This repo contains all the software used on our robots:
+- `can-io-firmware` contains the firmware that runs on the [IO board](http://www.cvra.ch/technologies/io_board.html)
+- `motor-control-firmware` contains the firmware that runs on the [motor board](http://www.cvra.ch/technologies/motor_board.html)
+- `proximity-beacon-firmware` contains the firmware that runs on the proximity beacon, it's the same code as the motor board but with a different application that is tailored to the needs of our proximity beacon module
+- `master-firmware` contains the software that runs on the master board, it interfaces all the other boards over CAN and runs the robot's "intelligence".
 
-
-
-
-
-This is the firmware for the "master" board of the robot, which is used for hard realtime tasks such as control and odometry.
-It runs on an Olimex E407 board or a ST Nucleo F429ZI, and communicates with the embedded PC via Ethernet/IP.
-
-### Quickstart
-This requires a working ARM toolchain and OpenOCD.
-It also requires CVRA's packager system, you can install it by running `sudo pip3 install cvra-packager==1.0.0`.
-By default it assumes you are using a ST-Link V2. You can change this in the Makefile.
-
-```bash
-    git submodule update --init --recursive
-
-    pushd master-firmware
-    packager
-    make dsdlc
-    make config_msgpack
-    make
-    make flash
-```
-
-Now the board should be pingable at 192.168.3.20.
-
-### Kernel panics
-If there is a kernel panic, the board will turn on all LEDs and continuously print debug information over UART3 at 921600 baud.
+Other important software components can be found in this repo:
+- `lib` contains all the libraries and building blocks we use on multiple boards, which includes:
+    * `lib/can-bootloader` the bootloader that allows us to update our boards (IO and motor) over CAN
+    * `lib/ChibiOS` the RTOS/HAL we use on all our boards
+    * `lib/uavcan` the CAN communication library we use on all our boards
+    * `lib/error` a logging library
+    * `lib/parameter` a library to create and manage configurations of boards
+    * `lib/msgbus` a publish/subscribe library for inter thread communication
+    * and more.
+- `tools` groups all tools we use to develop on the robot including:
+    * `tools/pid-tuner` a GUI to tune PID gains of motor boards over CAN, written using Python and Qt
+- `uavcan_data_types` contains the custom message definitions (DSDL) for the UAVCAN communication protocol
+- `ci` groups scripts and Docker files for our continuous integration server
+- `doc` contains high-level documentation about the robot
