@@ -13,7 +13,7 @@ void stream_enable(stream_config_t *stream_config, bool enabled)
     stream_config->enabled = enabled;
 }
 
-bool stream_update(stream_config_t *stream_config)
+bool stream_should_send(stream_config_t *stream_config)
 {
     if (stream_config->enabled) {
         stream_config->counter--;

@@ -40,7 +40,22 @@ static const char *exposed_parameters[] = {
     "/thermal/Cth",
     "/thermal/Rth",
     "/thermal/current_gain",
-    "/thermal/max_temp"
+    "/thermal/max_temp",
+
+    "/streams/current/enabled",
+    "/streams/current/frequency",
+    "/streams/velocity/enabled",
+    "/streams/velocity/frequency",
+    "/streams/position/enabled",
+    "/streams/position/frequency",
+    "/streams/index/enabled",
+    "/streams/index/frequency",
+    "/streams/enc_pos/enabled",
+    "/streams/enc_pos/frequency",
+    "/streams/motor_pos/enabled",
+    "/streams/motor_pos/frequency",
+    "/streams/motor_torque/enabled",
+    "/streams/motor_torque/frequency",
 };
 
 static const size_t exposed_parameters_len = sizeof(exposed_parameters) /
