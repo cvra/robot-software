@@ -1,0 +1,5 @@
+# Position that a tag has broadcast
+uavcan.Timestamp timestamp
+uint16  tag_addr                # tag MAC address
+float16 x
+float16 y
