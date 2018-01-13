@@ -10,20 +10,24 @@
 #include <uavcan/equipment/ahrs/Solution.hpp>
 #include <uavcan/equipment/ahrs/Solution.hpp>
 #include <beacon_messages/equipment/RadioRange.hpp>
+#include <beacon_messages/equipment/TagPosition.hpp>
 
-#define WATCHED_TOPIC_CNT 3
+#define WATCHED_TOPIC_CNT 4
 
 uavcan::LazyConstructor<uavcan::Publisher<uavcan::equipment::ahrs::RawIMU> > raw_imu_pub;
 uavcan::LazyConstructor<uavcan::Publisher<uavcan::equipment::ahrs::Solution> > attitude_pub;
 uavcan::LazyConstructor<uavcan::Publisher<beacon_messages::equipment::RadioRange> > range_pub;
+uavcan::LazyConstructor<uavcan::Publisher<beacon_messages::equipment::TagPosition> > tag_pos_pub;
 
 static BSEMAPHORE_DECL(imu_topic_signaled, true);
 static BSEMAPHORE_DECL(attitude_topic_signaled, true);
 static BSEMAPHORE_DECL(range_topic_signaled, true);
+static BSEMAPHORE_DECL(tag_pos_topic_signaled, true);
 
 static parameter_t publish_imu;
 static parameter_t publish_attitude;
 static parameter_t publish_range;
+static parameter_t publish_tag_pos;
 static parameter_namespace_t publish_ns;
 
 
@@ -41,7 +45,7 @@ static void topics_watcher(void *p)
         messagebus_watchgroup_t group;
     } watchgroup;
 
-    static messagebus_topic_t *imu_topic, *attitude_topic, *range_topic;
+    static messagebus_topic_t *imu_topic, *attitude_topic, *range_topic, *tag_pos_topic;
 
     /* Create a watchgroup. */
     chMtxObjectInit(&watchgroup.lock);
@@ -68,6 +72,11 @@ static void topics_watcher(void *p)
                                 &watchgroup.group,
                                 range_topic);
 
+    tag_pos_topic = messagebus_find_topic_blocking(&bus, "/tags_pos");
+    messagebus_watchgroup_watch(&watchers[3],
+                                &watchgroup.group,
+                                tag_pos_topic);
+
     while (1) {
         /* Wait for a topic publication. */
         messagebus_topic_t *topic;
@@ -79,6 +88,8 @@ static void topics_watcher(void *p)
             chBSemSignal(&attitude_topic_signaled);
         } else if (topic == range_topic && parameter_boolean_get(&publish_range)) {
             chBSemSignal(&range_topic_signaled);
+        } else if (topic == tag_pos_topic && parameter_boolean_get(&publish_tag_pos)) {
+            chBSemSignal(&tag_pos_topic_signaled);
         }
     }
 }
@@ -89,6 +100,7 @@ void topics_publisher_start(Node &node)
     parameter_boolean_declare_with_default(&publish_imu, &publish_ns, "imu", false);
     parameter_boolean_declare_with_default(&publish_attitude, &publish_ns, "attitude", false);
     parameter_boolean_declare_with_default(&publish_range, &publish_ns, "range", false);
+    parameter_boolean_declare_with_default(&publish_tag_pos, &publish_ns, "tag_positions", false);
 
     raw_imu_pub.construct<Node &>(node);
     int res = raw_imu_pub->init();
@@ -100,6 +112,10 @@ void topics_publisher_start(Node &node)
 
     range_pub.construct<Node &>(node);
     res = range_pub->init();
+    chDbgAssert(res == 0, "publisher failed");
+
+    tag_pos_pub.construct<Node &>(node);
+    res = tag_pos_pub->init();
     chDbgAssert(res == 0, "publisher failed");
 
     static THD_WORKING_AREA(thd_wa, 256);
@@ -163,4 +179,19 @@ void topics_publisher_spin(Node &node)
         msg.timestamp.usec = range_msg.timestamp;
         range_pub->broadcast(msg);
     }
+
+     if (chBSemWaitTimeout(&tag_pos_topic_signaled, TIME_IMMEDIATE) == MSG_OK) {
+        messagebus_topic_t *topic;
+        tag_position_msg_t tag_pos_msg;
+
+        topic = messagebus_find_topic(&bus, "/tags_pos");
+        messagebus_topic_read(topic, &tag_pos_msg, sizeof(tag_pos_msg));
+
+        beacon_messages::equipment::TagPosition msg;
+        msg.timestamp.usec = tag_pos_msg.timestamp;
+        msg.x = tag_pos_msg.x;
+        msg.y = tag_pos_msg.y;
+        tag_pos_pub->broadcast(msg);
+    }
+
 }
