@@ -5,6 +5,7 @@
 #include "parameter_server.hpp"
 
 static const char *exposed_parameters[] = {
+    "/control/mode",
     "/control/current/i_limit",
     "/control/current/kd",
     "/control/current/ki",

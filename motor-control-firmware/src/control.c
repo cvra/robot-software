@@ -49,6 +49,8 @@ static struct {
         parameter_namespace_t ns;
         struct pid_param_s pid;
     } pos, vel, cur;
+
+    parameter_t mode;
 } control_params;
 
 /** Motor-specific parameters */
@@ -253,6 +255,7 @@ static void declare_parameters(void)
     pid_param_declare(&control_params.vel.pid, &control_params.vel.ns);
     parameter_namespace_declare(&control_params.cur.ns, &control_params.ns, "current");
     pid_param_declare(&control_params.cur.pid, &control_params.cur.ns);
+    parameter_integer_declare_with_default(&control_params.mode, &control_params.ns, "mode", 0);
 
     /* Motor parameters. */
     parameter_namespace_declare(&motor_params.ns, &parameter_root_ns, "motor");
@@ -320,6 +323,7 @@ void control_init(void)
 
 static void update_parameters(void)
 {
+    control_feedback.input_selection = parameter_integer_get(&control_params.mode);
 
     control_feedback.primary_encoder.transmission_p = parameter_integer_get(&encoder_params.primary.p);
     control_feedback.primary_encoder.transmission_q = parameter_integer_get(&encoder_params.primary.q);
