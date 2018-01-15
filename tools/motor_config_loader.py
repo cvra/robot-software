@@ -78,7 +78,10 @@ class ConfigUploader:
 
     def _send_parameter_callback(self, event):
         if not event:
-            raise RuntimError("RPC Timeout")
+            raise RuntimeError("RPC Timeout")
+
+        if not event.response.name:
+            raise RuntimeError("No such parameter!")
 
         self.rpc_answered.release()
 
