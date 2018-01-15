@@ -154,7 +154,7 @@ def main():
     if args.verbose:
         level = logging.DEBUG
     else:
-        level = logging.INFO
+        level = logging.WARNING
 
     logging.basicConfig(level=level)
 
