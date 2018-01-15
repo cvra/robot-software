@@ -67,6 +67,8 @@ class ConfigUploader:
             # TODO other types
             if type(value) == bool:
                 request.value.boolean_value = value
+            elif type(value) == int:
+                request.value.integer_value = value
             else:
                 request.value.real_value = value
 

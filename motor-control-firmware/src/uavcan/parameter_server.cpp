@@ -95,6 +95,7 @@ public:
             auto *val = value.as<Value::Tag::integer_value>();
             if (val && *val > INT32_MIN && *val < INT32_MAX) {
                 parameter_integer_set(p, *val);
+                /* TODO: Cast floats as integers ? */
             }
         } else if (p->type == _PARAM_TYPE_BOOLEAN) {
             auto *val = value.as<Value::Tag::boolean_value>();
