@@ -33,31 +33,20 @@ uavcan::LazyConstructor<uavcan::Publisher<cvra::motor::feedback::MotorEncoderPos
 uavcan::LazyConstructor<uavcan::Publisher<cvra::motor::feedback::MotorPosition> > motor_pos_pub;
 uavcan::LazyConstructor<uavcan::Publisher<cvra::motor::feedback::MotorTorque> > motor_torque_pub;
 
-struct stream_params_s {
-    parameter_namespace_t ns;
-    parameter_t frequency;
-    parameter_t enabled;
-};
-
 static struct {
     parameter_namespace_t ns;
-    struct stream_params_s current, velocity, position, index, enc_pos, motor_pos, motor_torque;
+    parameter_t current, velocity, position, index, enc_pos, motor_pos, motor_torque;
 } stream_params;
 
-static void declare_parameters(struct stream_params_s *p, const char *name)
+static void stream_update_from_parameters(stream_config_t *conf, parameter_t *freq_param)
 {
-    parameter_namespace_declare(&p->ns, &stream_params.ns, name);
-    parameter_boolean_declare_with_default(&p->enabled, &p->ns, "enabled", false);
-    parameter_scalar_declare_with_default(&p->frequency, &p->ns, "frequency", 10);
-}
+    const float frequency = parameter_scalar_get(freq_param);
 
-static void stream_update_from_parameters(stream_config_t *conf, struct stream_params_s *params)
-{
-    if (parameter_namespace_contains_changed(&params->ns)) {
-        stream_set_prescaler(conf,
-                             parameter_scalar_get(&params->frequency),
-                             UAVCAN_SPIN_FREQUENCY);
-        stream_enable(conf, parameter_boolean_get(&params->enabled));
+    if (frequency > 0.f) {
+        stream_set_prescaler(conf, frequency, UAVCAN_SPIN_FREQUENCY);
+        stream_enable(conf, true);
+    } else {
+        stream_enable(conf, false);
     }
 }
 
@@ -66,13 +55,13 @@ int uavcan_streams_start(Node &node)
     int res;
 
     parameter_namespace_declare(&stream_params.ns, &parameter_root_ns, "streams");
-    declare_parameters(&stream_params.current, "current");
-    declare_parameters(&stream_params.velocity, "velocity");
-    declare_parameters(&stream_params.position, "position");
-    declare_parameters(&stream_params.index, "index");
-    declare_parameters(&stream_params.enc_pos, "enc_pos");
-    declare_parameters(&stream_params.motor_pos, "motor_pos");
-    declare_parameters(&stream_params.motor_torque, "motor_torque");
+    parameter_scalar_declare_with_default(&stream_params.current, &stream_params.ns, "current", 0);
+    parameter_scalar_declare_with_default(&stream_params.velocity, &stream_params.ns, "velocity", 0);
+    parameter_scalar_declare_with_default(&stream_params.position, &stream_params.ns, "position", 0);
+    parameter_scalar_declare_with_default(&stream_params.index, &stream_params.ns, "index", 0);
+    parameter_scalar_declare_with_default(&stream_params.enc_pos, &stream_params.ns, "enc_pos", 0);
+    parameter_scalar_declare_with_default(&stream_params.motor_pos, &stream_params.ns, "motor_pos", 0);
+    parameter_scalar_declare_with_default(&stream_params.motor_torque, &stream_params.ns, "motor_torque", 0);
 
     current_pid_pub.construct<Node &>(node);
     res = current_pid_pub->init();
@@ -127,38 +116,31 @@ int uavcan_streams_start(Node &node)
 
         switch (req.stream) {
             case cvra::motor::config::FeedbackStream::Request::STREAM_CURRENT_PID:
-                parameter_boolean_set(&stream_params.current.enabled, req.enabled);
-                parameter_scalar_set(&stream_params.current.frequency, req.frequency);
+                parameter_scalar_set(&stream_params.current, req.frequency);
                 break;
 
             case cvra::motor::config::FeedbackStream::Request::STREAM_VELOCITY_PID:
-                parameter_boolean_set(&stream_params.velocity.enabled, req.enabled);
-                parameter_scalar_set(&stream_params.velocity.frequency, req.frequency);
+                parameter_scalar_set(&stream_params.velocity, req.frequency);
                 break;
 
             case cvra::motor::config::FeedbackStream::Request::STREAM_POSITION_PID:
-                parameter_boolean_set(&stream_params.position.enabled, req.enabled);
-                parameter_scalar_set(&stream_params.position.frequency, req.frequency);
+                parameter_scalar_set(&stream_params.position, req.frequency);
                 break;
 
             case cvra::motor::config::FeedbackStream::Request::STREAM_INDEX:
-                parameter_boolean_set(&stream_params.index.enabled, req.enabled);
-                parameter_scalar_set(&stream_params.index.frequency, req.frequency);
+                parameter_scalar_set(&stream_params.index, req.frequency);
                 break;
 
             case cvra::motor::config::FeedbackStream::Request::STREAM_MOTOR_ENCODER:
-                parameter_boolean_set(&stream_params.enc_pos.enabled, req.enabled);
-                parameter_scalar_set(&stream_params.enc_pos.frequency, req.frequency);
+                parameter_scalar_set(&stream_params.enc_pos, req.frequency);
                 break;
 
             case cvra::motor::config::FeedbackStream::Request::STREAM_MOTOR_POSITION:
-                parameter_boolean_set(&stream_params.motor_pos.enabled, req.enabled);
-                parameter_scalar_set(&stream_params.motor_pos.frequency, req.frequency);
+                parameter_scalar_set(&stream_params.motor_pos, req.frequency);
                 break;
 
             case cvra::motor::config::FeedbackStream::Request::STREAM_MOTOR_TORQUE:
-                parameter_boolean_set(&stream_params.motor_torque.enabled, req.enabled);
-                parameter_scalar_set(&stream_params.motor_torque.frequency, req.frequency);
+                parameter_scalar_set(&stream_params.motor_torque, req.frequency);
                 break;
         }
     });
@@ -174,13 +156,15 @@ void uavcan_streams_spin(Node &node)
 {
     (void) node;
 
-    stream_update_from_parameters(&current_pid_stream_config, &stream_params.current);
-    stream_update_from_parameters(&velocity_pid_stream_config, &stream_params.velocity);
-    stream_update_from_parameters(&position_pid_stream_config, &stream_params.position);
-    stream_update_from_parameters(&index_stream_config, &stream_params.index);
-    stream_update_from_parameters(&enc_pos_stream_config, &stream_params.enc_pos);
-    stream_update_from_parameters(&motor_pos_stream_config, &stream_params.motor_pos);
-    stream_update_from_parameters(&motor_torque_stream_config, &stream_params.motor_torque);
+    if (parameter_namespace_contains_changed(&stream_params.ns)) {
+        stream_update_from_parameters(&current_pid_stream_config, &stream_params.current);
+        stream_update_from_parameters(&velocity_pid_stream_config, &stream_params.velocity);
+        stream_update_from_parameters(&position_pid_stream_config, &stream_params.position);
+        stream_update_from_parameters(&index_stream_config, &stream_params.index);
+        stream_update_from_parameters(&enc_pos_stream_config, &stream_params.enc_pos);
+        stream_update_from_parameters(&motor_pos_stream_config, &stream_params.motor_pos);
+        stream_update_from_parameters(&motor_torque_stream_config, &stream_params.motor_torque);
+    }
 
     /* Streams */
     if (stream_should_send(&current_pid_stream_config)) {

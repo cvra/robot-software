@@ -138,9 +138,7 @@ actuator:
 
     z-joint:
         streams:
-            motor_pos:
-              frequency: 50
-              enabled: true
+            motor_pos: 50.
         motor:
             torque_cst: 0.016 # Nm/A
         encoders:
@@ -173,9 +171,7 @@ actuator:
             torque_limit: 1.3
     shoulder-joint:
         streams:
-            motor_pos:
-                frequency: 50
-                enabled: true
+            motor_pos: 50.
         encoders:
             primary:
                 # motor: 1516SR
@@ -207,9 +203,7 @@ actuator:
             torque_limit: 1.
     elbow-joint:
         streams:
-            motor_pos:
-                frequency: 50
-                enabled: true
+            motor_pos: 50.
         motor:
             torque_cst: 0.00826 # Nm/A
         encoders:
