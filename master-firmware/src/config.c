@@ -74,37 +74,37 @@ void config_init(void)
     parameter_namespace_declare(&actuator_config, &global_config, "actuator");
     parameter_namespace_declare(&master_config, &global_config, "master");
 
-    parameter_integer_declare(&robot_size, &master_config, "robot_size_x_mm");
-    parameter_integer_declare(&robot_alignement_length, &master_config, "robot_alignment_length_mm");
-    parameter_integer_declare(&opponent_size, &master_config, "opponent_size_x_mm_default");
-    parameter_integer_declare(&calib_dir, &master_config, "calibration_direction");
+    parameter_integer_declare_with_default(&robot_size, &master_config, "robot_size_x_mm", 0);
+    parameter_integer_declare_with_default(&robot_alignement_length, &master_config, "robot_alignment_length_mm", 0);
+    parameter_integer_declare_with_default(&opponent_size, &master_config, "opponent_size_x_mm_default", 0);
+    parameter_integer_declare_with_default(&calib_dir, &master_config, "calibration_direction", 0);
 
     parameter_namespace_declare(&odometry_config, &master_config, "odometry");
-    parameter_scalar_declare(&odometry_ticks, &odometry_config, "external_encoder_ticks_per_mm");
-    parameter_scalar_declare(&odometry_track, &odometry_config, "external_track_mm");
-    parameter_scalar_declare(&odometry_left_corr, &odometry_config, "left_wheel_correction_factor");
-    parameter_scalar_declare(&odometry_right_corr, &odometry_config,
-                             "right_wheel_correction_factor");
+    parameter_scalar_declare_with_default(&odometry_ticks, &odometry_config, "external_encoder_ticks_per_mm", 0);
+    parameter_scalar_declare_with_default(&odometry_track, &odometry_config, "external_track_mm", 0);
+    parameter_scalar_declare_with_default(&odometry_left_corr, &odometry_config, "left_wheel_correction_factor", 0);
+    parameter_scalar_declare_with_default(&odometry_right_corr, &odometry_config,
+                             "right_wheel_correction_factor", 0);
 
     parameter_namespace_declare(&beacon_config, &master_config, "beacon");
-    parameter_scalar_declare(&beacon_reflector_radius, &beacon_config, "reflector_radius");
-    parameter_scalar_declare(&beacon_angular_offset, &beacon_config, "angular_offset");
+    parameter_scalar_declare_with_default(&beacon_reflector_radius, &beacon_config, "reflector_radius", 0);
+    parameter_scalar_declare_with_default(&beacon_angular_offset, &beacon_config, "angular_offset", 0);
 
     parameter_namespace_declare(&aversive.ns, &master_config, "aversive");
 
     parameter_namespace_declare(&aversive.control.ns, &aversive.ns, "control");
     parameter_namespace_declare(&aversive.control.angle.ns, &aversive.control.ns, "angle");
-    parameter_scalar_declare(&aversive.control.angle.kp, &aversive.control.angle.ns, "kp");
-    parameter_scalar_declare(&aversive.control.angle.ki, &aversive.control.angle.ns, "ki");
-    parameter_scalar_declare(&aversive.control.angle.kd, &aversive.control.angle.ns, "kd");
-    parameter_scalar_declare(&aversive.control.angle.ilimit, &aversive.control.angle.ns, "ilimit");
+    parameter_scalar_declare_with_default(&aversive.control.angle.kp, &aversive.control.angle.ns, "kp", 0);
+    parameter_scalar_declare_with_default(&aversive.control.angle.ki, &aversive.control.angle.ns, "ki", 0);
+    parameter_scalar_declare_with_default(&aversive.control.angle.kd, &aversive.control.angle.ns, "kd", 0);
+    parameter_scalar_declare_with_default(&aversive.control.angle.ilimit, &aversive.control.angle.ns, "i_limit", 0);
     parameter_namespace_declare(&aversive.control.distance.ns, &aversive.control.ns, "distance");
-    parameter_scalar_declare(&aversive.control.distance.kp, &aversive.control.distance.ns, "kp");
-    parameter_scalar_declare(&aversive.control.distance.ki, &aversive.control.distance.ns, "ki");
-    parameter_scalar_declare(&aversive.control.distance.kd, &aversive.control.distance.ns, "kd");
-    parameter_scalar_declare(&aversive.control.distance.ilimit,
+    parameter_scalar_declare_with_default(&aversive.control.distance.kp, &aversive.control.distance.ns, "kp", 0);
+    parameter_scalar_declare_with_default(&aversive.control.distance.ki, &aversive.control.distance.ns, "ki", 0);
+    parameter_scalar_declare_with_default(&aversive.control.distance.kd, &aversive.control.distance.ns, "kd", 0);
+    parameter_scalar_declare_with_default(&aversive.control.distance.ilimit,
                              &aversive.control.distance.ns,
-                             "ilimit");
+                             "i_limit", 0);
 
     parameter_namespace_declare(&aversive.trajectories.ns, &aversive.ns, "trajectories");
     parameter_namespace_declare(&aversive.trajectories.angle.ns,
@@ -158,37 +158,37 @@ void config_init(void)
 
     parameter_namespace_declare(&lever_config, &master_config, "lever");
     parameter_namespace_declare(&lever_servo_config, &lever_config, "servo");
-    parameter_scalar_declare(&lever_servo_deployed, &lever_servo_config, "deployed");
-    parameter_scalar_declare(&lever_servo_retracted, &lever_servo_config, "retracted");
+    parameter_scalar_declare_with_default(&lever_servo_deployed, &lever_servo_config, "deployed", 0);
+    parameter_scalar_declare_with_default(&lever_servo_retracted, &lever_servo_config, "retracted", 0);
 
 #ifdef DEBRA
     parameter_namespace_declare(&arms_config, &master_config, "arms");
 
-    parameter_scalar_declare(&upperarm_length, &arms_config, "upperarm_length");
-    parameter_scalar_declare(&forearm_length, &arms_config, "forearm_length");
+    parameter_scalar_declare_with_default(&upperarm_length, &arms_config, "upperarm_length", 0);
+    parameter_scalar_declare_with_default(&forearm_length, &arms_config, "forearm_length", 0);
 
     parameter_namespace_declare(&arms_main_config, &arms_config, "main_arm");
-    parameter_scalar_declare(&main_offset_x, &arms_main_config, "offset_x");
-    parameter_scalar_declare(&main_offset_y, &arms_main_config, "offset_y");
-    parameter_scalar_declare(&main_offset_a, &arms_main_config, "offset_a");
+    parameter_scalar_declare_with_default(&main_offset_x, &arms_main_config, "offset_x", 0);
+    parameter_scalar_declare_with_default(&main_offset_y, &arms_main_config, "offset_y", 0);
+    parameter_scalar_declare_with_default(&main_offset_a, &arms_main_config, "offset_a", 0);
 
     parameter_namespace_declare(&motor_offsets_config, &arms_config, "motor_offsets");
-    parameter_scalar_declare(&main_z_offset, &motor_offsets_config, "z-joint");
-    parameter_scalar_declare(&main_shoulder_offset, &motor_offsets_config, "shoulder-joint");
-    parameter_scalar_declare(&main_elbow_offset, &motor_offsets_config, "elbow-joint");
+    parameter_scalar_declare_with_default(&main_z_offset, &motor_offsets_config, "z-joint", 0);
+    parameter_scalar_declare_with_default(&main_shoulder_offset, &motor_offsets_config, "shoulder-joint", 0);
+    parameter_scalar_declare_with_default(&main_elbow_offset, &motor_offsets_config, "elbow-joint", 0);
 
     parameter_namespace_declare(&main_arm.ns, &master_config, "main_arm");
     parameter_namespace_declare(&main_arm.control.ns, &main_arm.ns, "control");
     parameter_namespace_declare(&main_arm.control.x.ns, &main_arm.control.ns, "x");
-    parameter_scalar_declare(&main_arm.control.x.kp, &main_arm.control.x.ns, "kp");
-    parameter_scalar_declare(&main_arm.control.x.ki, &main_arm.control.x.ns, "ki");
-    parameter_scalar_declare(&main_arm.control.x.kd, &main_arm.control.x.ns, "kd");
-    parameter_scalar_declare(&main_arm.control.x.ilimit, &main_arm.control.x.ns, "ilimit");
+    parameter_scalar_declare_with_default(&main_arm.control.x.kp, &main_arm.control.x.ns, "kp", 0);
+    parameter_scalar_declare_with_default(&main_arm.control.x.ki, &main_arm.control.x.ns, "ki", 0);
+    parameter_scalar_declare_with_default(&main_arm.control.x.kd, &main_arm.control.x.ns, "kd", 0);
+    parameter_scalar_declare_with_default(&main_arm.control.x.ilimit, &main_arm.control.x.ns, "i_limit", 0);
     parameter_namespace_declare(&main_arm.control.y.ns, &main_arm.control.ns, "y");
-    parameter_scalar_declare(&main_arm.control.y.kp, &main_arm.control.y.ns, "kp");
-    parameter_scalar_declare(&main_arm.control.y.ki, &main_arm.control.y.ns, "ki");
-    parameter_scalar_declare(&main_arm.control.y.kd, &main_arm.control.y.ns, "kd");
-    parameter_scalar_declare(&main_arm.control.y.ilimit, &main_arm.control.y.ns, "ilimit");
+    parameter_scalar_declare_with_default(&main_arm.control.y.kp, &main_arm.control.y.ns, "kp", 0);
+    parameter_scalar_declare_with_default(&main_arm.control.y.ki, &main_arm.control.y.ns, "ki", 0);
+    parameter_scalar_declare_with_default(&main_arm.control.y.kd, &main_arm.control.y.ns, "kd", 0);
+    parameter_scalar_declare_with_default(&main_arm.control.y.ilimit, &main_arm.control.y.ns, "i_limit", 0);
 #endif
 }
 
