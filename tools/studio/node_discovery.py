@@ -82,11 +82,13 @@ class NodeStatusController:
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("interface", help="Serial port or SocketCAN interface")
+    parser.add_argument("--dsdl", "-d", help="DSDL path", required=True)
 
     return parser.parse_args()
 
 def main():
     args = parse_args()
+    uavcan.load_dsdl(args.dsdl)
 
     node = UavcanNode(interface=args.interface)
 
