@@ -1,11 +1,15 @@
+import argparse
 import threading
 import time
 import uavcan
 
 class UavcanNode:
-    def __init__(self, interface, node_id):
-        self.node = uavcan.make_node(interface, node_id=node_id)
+    def __init__(self, interface, node_id=None):
         self.handlers = []
+        if node_id is None:
+            self.node = uavcan.make_node(interface)
+        else:
+            self.node = uavcan.make_node(interface, node_id)
 
     def add_handler(self, topic, callback):
         self.handlers.append(self.node.add_handler(topic, callback))
@@ -75,8 +79,16 @@ class NodeStatusController:
             self.viewer.display(self.model.known_nodes)
             time.sleep(1)
 
+def parse_args():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("interface", help="Serial port or SocketCAN interface")
+
+    return parser.parse_args()
+
 def main():
-    node = UavcanNode(interface="slcan0", node_id=127)
+    args = parse_args()
+
+    node = UavcanNode(interface=args.interface)
 
     model = NodeStatusModel(node)
     viewer = NodeStatusViewer()
