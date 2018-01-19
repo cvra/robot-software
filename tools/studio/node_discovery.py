@@ -1,5 +1,6 @@
 import argparse
 import datetime
+import sys
 import threading
 import time
 import uavcan
@@ -42,6 +43,7 @@ class NodeStatusModel:
 
 class NodeStatusViewer:
     def __init__(self):
+        self._previous_print_len = 0
         self.status_messages = {
             uavcan.protocol.NodeStatus().MODE_OPERATIONAL: 'OPERATIONAL',
             uavcan.protocol.NodeStatus().MODE_INITIALIZATION: 'INITIALIZATION',
@@ -57,13 +59,21 @@ class NodeStatusViewer:
         }
 
     def display(self, nodes):
-        print('')
+        self._delete_previous_print()
         formatted_line = "{:5} {:20} {:20} {:10}"
         print(formatted_line.format("ID", "Status", "Health", "Uptime"))
         for node, status in nodes.items():
             print(formatted_line.format(node, self._display_status(status.mode),
                                         self._display_health(status.health),
                                         self._display_uptime(status.uptime_sec)))
+        self._previous_print_len = 1 + len(nodes)
+
+    def _delete_previous_print(self):
+        """
+        Delete all previously printed lines one by one
+        """
+        for i in range(self._previous_print_len):
+            sys.stdout.write("\033[F") # delete current line
 
     def _display_status(self, status):
         return self.status_messages[status]
