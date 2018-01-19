@@ -1,4 +1,5 @@
 import argparse
+import datetime
 import threading
 import time
 import uavcan
@@ -57,16 +58,21 @@ class NodeStatusViewer:
 
     def display(self, nodes):
         print('')
-        print("ID \t Status \t Health")
-        for node in nodes:
-            print("{} \t {} \t {}".format(node, self._display_status(nodes[node].mode),
-                                          self._display_health(nodes[node].health)))
+        formatted_line = "{:5} {:20} {:20} {:10}"
+        print(formatted_line.format("ID", "Status", "Health", "Uptime"))
+        for node, status in nodes.items():
+            print(formatted_line.format(node, self._display_status(status.mode),
+                                        self._display_health(status.health),
+                                        self._display_uptime(status.uptime_sec)))
 
     def _display_status(self, status):
         return self.status_messages[status]
 
     def _display_health(self, health):
         return self.health_messages[health]
+
+    def _display_uptime(self, uptime_sec):
+        return str(datetime.timedelta(seconds=uptime_sec))
 
 class NodeStatusController:
     def __init__(self, model, viewer):
