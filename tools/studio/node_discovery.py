@@ -6,15 +6,17 @@ import time
 import uavcan
 
 class UavcanNode:
-    def __init__(self, interface, node_id=None):
+    def __init__(self, interface, node_id):
         self.handlers = []
-        if node_id is None:
-            self.node = uavcan.make_node(interface)
-        else:
-            self.node = uavcan.make_node(interface, node_id)
+        self.node_lock = threading.RLock()
+        self.node = uavcan.make_node(interface, node_id=node_id)
 
     def add_handler(self, topic, callback):
         self.handlers.append(self.node.add_handler(topic, callback))
+
+    def request(self, request, node_id, callback):
+        with self.node_lock:
+            self.node.request(request, node_id, callback)
 
     def spin(self):
         threading.Thread(target=self._uavcan_thread).start()
@@ -22,7 +24,8 @@ class UavcanNode:
     def _uavcan_thread(self):
         while True:
             try:
-                self.node.spin(0.1)
+                with self.node_lock:
+                    self.node.spin(0.1)
                 time.sleep(0.01)
             except uavcan.UAVCANException as ex:
                 print('Node error:', ex)
@@ -99,6 +102,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("interface", help="Serial port or SocketCAN interface")
     parser.add_argument("--dsdl", "-d", help="DSDL path", required=True)
+    parser.add_argument("--node_id", "-n", help="UAVCAN Node ID", default=127)
 
     return parser.parse_args()
 
@@ -106,7 +110,7 @@ def main():
     args = parse_args()
     uavcan.load_dsdl(args.dsdl)
 
-    node = UavcanNode(interface=args.interface)
+    node = UavcanNode(interface=args.interface, node_id=args.node_id)
 
     model = NodeStatusModel(node)
     viewer = NodeStatusViewer()
