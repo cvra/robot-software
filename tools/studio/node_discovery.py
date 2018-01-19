@@ -39,10 +39,23 @@ class UavcanNode:
 class NodeStatusModel:
     def __init__(self, node):
         self.known_nodes = {}
-        node.add_handler(uavcan.protocol.NodeStatus, self._node_status_callback)
+        self.node = node
+        self.node.add_handler(uavcan.protocol.NodeStatus, self._node_status_callback)
 
     def _node_status_callback(self, event):
-        self.known_nodes[event.transfer.source_node_id] = event.message
+        node_id = event.transfer.source_node_id
+        if node_id not in self.known_nodes:
+            self.known_nodes[node_id] = {}
+            self.node.request(uavcan.protocol.GetNodeInfo.Request(), node_id, self._response_callback)
+        self.known_nodes[node_id]['status'] = event.message
+
+    def _response_callback(self, event):
+        if not event:
+            raise RuntimeError("Remote call timeout")
+
+        board = event.transfer.source_node_id
+        name = str(event.response.name)
+        self.known_nodes[board]['name'] = name
 
 class NodeStatusViewer:
     def __init__(self):
@@ -63,10 +76,12 @@ class NodeStatusViewer:
 
     def display(self, nodes):
         self._delete_previous_print()
-        formatted_line = "{:5} {:20} {:20} {:10}"
-        print(formatted_line.format("ID", "Status", "Health", "Uptime"))
-        for node, status in nodes.items():
-            print(formatted_line.format(node, self._display_status(status.mode),
+        formatted_line = "{:5} {:20} {:20} {:20} {:10}"
+        print(formatted_line.format("ID", "Name", "Status", "Health", "Uptime"))
+        for node in nodes:
+            name = nodes[node]['name']
+            status = nodes[node]['status']
+            print(formatted_line.format(node, name, self._display_status(status.mode),
                                         self._display_health(status.health),
                                         self._display_uptime(status.uptime_sec)))
         self._previous_print_len = 1 + len(nodes)
