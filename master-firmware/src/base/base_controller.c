@@ -147,7 +147,7 @@ static THD_FUNCTION(base_ctrl_thd, arg)
             kp = parameter_scalar_get(parameter_find(control_params, "angle/kp"));
             ki = parameter_scalar_get(parameter_find(control_params, "angle/ki"));
             kd = parameter_scalar_get(parameter_find(control_params, "angle/kd"));
-            ilim = parameter_scalar_get(parameter_find(control_params, "angle/ilimit"));
+            ilim = parameter_scalar_get(parameter_find(control_params, "angle/i_limit"));
             pid_set_gains(&robot.angle_pid.pid, kp, ki, kd);
             pid_set_integral_limit(&robot.angle_pid.pid, ilim);
 
@@ -155,7 +155,7 @@ static THD_FUNCTION(base_ctrl_thd, arg)
             kp = parameter_scalar_get(parameter_find(control_params, "distance/kp"));
             ki = parameter_scalar_get(parameter_find(control_params, "distance/ki"));
             kd = parameter_scalar_get(parameter_find(control_params, "distance/kd"));
-            ilim = parameter_scalar_get(parameter_find(control_params, "distance/ilimit"));
+            ilim = parameter_scalar_get(parameter_find(control_params, "distance/i_limit"));
             pid_set_gains(&robot.distance_pid.pid, kp, ki, kd);
             pid_set_integral_limit(&robot.distance_pid.pid, ilim);
         }

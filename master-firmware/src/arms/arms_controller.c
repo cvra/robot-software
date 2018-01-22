@@ -75,14 +75,14 @@ static void arms_update_controller_gains(parameter_namespace_t* ns, scara_t* arm
     kp = parameter_scalar_get(parameter_find(ns, "x/kp"));
     ki = parameter_scalar_get(parameter_find(ns, "x/ki"));
     kd = parameter_scalar_get(parameter_find(ns, "x/kd"));
-    ilim = parameter_scalar_get(parameter_find(ns, "x/ilimit"));
+    ilim = parameter_scalar_get(parameter_find(ns, "x/i_limit"));
     pid_set_gains(&arm->ik_controller.x_pid, kp, ki, kd);
     pid_set_integral_limit(&arm->ik_controller.x_pid, ilim);
 
     kp = parameter_scalar_get(parameter_find(ns, "y/kp"));
     ki = parameter_scalar_get(parameter_find(ns, "y/ki"));
     kd = parameter_scalar_get(parameter_find(ns, "y/kd"));
-    ilim = parameter_scalar_get(parameter_find(ns, "y/ilimit"));
+    ilim = parameter_scalar_get(parameter_find(ns, "y/i_limit"));
     pid_set_gains(&arm->ik_controller.y_pid, kp, ki, kd);
     pid_set_integral_limit(&arm->ik_controller.y_pid, ilim);
 }
