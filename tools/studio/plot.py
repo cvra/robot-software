@@ -2,7 +2,8 @@ import numpy as np
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui
 import queue
-from threading import Thread
+import threading
+import time
 
 class QtPlotter:
     def __init__(self):
@@ -35,27 +36,30 @@ class QtPlotter:
             except queue.Empty:
                 pass
 
-def qtLoop():
+def qt_loop():
     import sys
     if (sys.flags.interactive != 1) or not hasattr(QtCore, 'PYQT_VERSION'):
         QtGui.QApplication.instance().exec_()
 
+class Model:
+    def data(self):
+        return np.random.random(size=(2, 10))
 
-def example():
-    import time
-    plotter = QtPlotter()
-    curve = plotter.getPort()
+class Controller:
+    def __init__(self):
+        self.viewer = QtPlotter()
+        self.curve = self.viewer.getPort()
+        self.model = Model()
+        threading.Thread(target=self.run).start()
 
-    def producer():
+    def run(self):
         while True:
-            curve.put((np.random.random(size=(2, 10)), "#00FFFF"))
+            self.curve.put((self.model.data(), "#00FFFF"))
             time.sleep(1)
 
-    p = Thread(target=producer)
-    p.daemon = True
-    p.start()
-
-    qtLoop()
+def main():
+    plot_controller = Controller()
+    qt_loop()
 
 if __name__ == "__main__":
-    example()
+    main()
