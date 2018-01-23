@@ -12,6 +12,7 @@ class QtPlotter:
         self.timer.timeout.connect(self.update)
         self.timer.start(0)
         self.ax.setAspectLocked(True)
+        self.ax.addLegend()
         self.buffer_size = buffer_size
 
     def getPort(self):
@@ -24,11 +25,16 @@ class QtPlotter:
         for q, plt in self.ports:
             try:
                 data = q.get(block=False)
+
                 plt.clear()
+                self.ax.legend.scene().removeItem(self.ax.legend)
+
+                self.ax.addLegend()
                 for index, variable in enumerate(data):
                     plt.plot(
                         np.asarray(data[variable]['time'][-self.buffer_size:]).flatten(),
                         np.asarray(data[variable]['value'][-self.buffer_size:]).flatten(),
+                        name=variable,
                         pen=(index, len(data)), symbol="o",
                         symbolPen=pg.mkPen({'color': "#00FFFF", 'width': 2}),
                         symbolSize=1
