@@ -6,7 +6,7 @@ import threading
 import time
 
 class QtPlotter:
-    def __init__(self):
+    def __init__(self, buffer_size):
         self.ports = []
         self.timer = pg.QtCore.QTimer()
         self.win = pg.GraphicsWindow()
@@ -14,6 +14,7 @@ class QtPlotter:
         self.timer.timeout.connect(self.update)
         self.timer.start(0)
         self.ax.setAspectLocked(True)
+        self.buffer_size = buffer_size
 
     def getPort(self):
         q = queue.Queue()
@@ -28,8 +29,8 @@ class QtPlotter:
                 data, color = q.get(block=False)
                 plt.clear()
                 plt.setData(
-                    np.asarray(data['x']).flatten(),
-                    np.asarray(data['y']).flatten(), pen=(1,1), symbol="o",
+                    np.asarray(data['time'][-self.buffer_size:]).flatten(),
+                    np.asarray(data['data'][-self.buffer_size:]).flatten(), pen=(1,1), symbol="o",
                     symbolPen=pg.mkPen({'color': color, 'width': 2}),
                     symbolSize=1
                 )
@@ -43,16 +44,21 @@ def qt_loop():
 
 class Model:
     def __init__(self):
-        self.data = {'x': np.array([0]), 'y': np.array([0])}
+        self.data = {'time': np.array([0]), 'data': np.array([0])}
+        threading.Thread(target=self.run).start()
 
     def get_data(self):
-        self.data['x'] = np.append(self.data['x'], self.data['x'][-1] + 1)
-        self.data['y'] = np.append(self.data['y'], np.random.random(size=(1,1)))
         return self.data
+
+    def run(self):
+        while True:
+            self.data['time'] = np.append(self.data['time'], self.data['time'][-1] + 1)
+            self.data['data'] = np.append(self.data['data'], np.random.random(size=(1,1)))
+            time.sleep(0.1)
 
 class Controller:
     def __init__(self):
-        self.viewer = QtPlotter()
+        self.viewer = QtPlotter(buffer_size=100)
         self.curve = self.viewer.getPort()
         self.model = Model()
         threading.Thread(target=self.run).start()
