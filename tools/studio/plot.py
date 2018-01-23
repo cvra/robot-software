@@ -25,14 +25,14 @@ class QtPlotter:
     def update(self):
         for q, plt in self.ports:
             try:
-                data, color = q.get(block=False)
+                data = q.get(block=False)
                 plt.clear()
                 for index, variable in enumerate(data['data']):
                     plt.plot(
                         np.asarray(data['time'][-self.buffer_size:]).flatten(),
                         np.asarray(data['data'][str(variable)][-self.buffer_size:]).flatten(),
                         pen=(index, len(data['data'])), symbol="o",
-                        symbolPen=pg.mkPen({'color': color, 'width': 2}),
+                        symbolPen=pg.mkPen({'color': "#00FFFF", 'width': 2}),
                         symbolSize=1
                     )
             except queue.Empty:
@@ -73,7 +73,7 @@ class Controller:
 
     def run(self):
         while True:
-            self.curve.put((self.model.get_data(), "#00FFFF"))
+            self.curve.put(self.model.get_data())
             time.sleep(1)
 
 def main():
