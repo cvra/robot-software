@@ -27,11 +27,11 @@ class QtPlotter:
             try:
                 data = q.get(block=False)
                 plt.clear()
-                for index, variable in enumerate(data['data']):
+                for index, variable in enumerate(data):
                     plt.plot(
-                        np.asarray(data['time'][-self.buffer_size:]).flatten(),
-                        np.asarray(data['data'][str(variable)][-self.buffer_size:]).flatten(),
-                        pen=(index, len(data['data'])), symbol="o",
+                        np.asarray(data[variable]['time'][-self.buffer_size:]).flatten(),
+                        np.asarray(data[variable]['value'][-self.buffer_size:]).flatten(),
+                        pen=(index, len(data)), symbol="o",
                         symbolPen=pg.mkPen({'color': "#00FFFF", 'width': 2}),
                         symbolSize=1
                     )
@@ -46,11 +46,14 @@ def qt_loop():
 class Model:
     def __init__(self):
         self.data = {
-            'time': np.array([0]),
-            'data': {
-                'x': np.array([0]),
-                'y': np.array([0]),
-            }
+            'x': {
+                'time': np.array([0]),
+                'value': np.array([0]),
+            },
+            'y': {
+                'time': np.array([0]),
+                'value': np.array([0]),
+            },
         }
         threading.Thread(target=self.run).start()
 
@@ -59,9 +62,10 @@ class Model:
 
     def run(self):
         while True:
-            self.data['time'] = np.append(self.data['time'], self.data['time'][-1] + 0.1)
-            self.data['data']['x'] = np.append(self.data['data']['x'], np.random.random(size=(1,1)))
-            self.data['data']['y'] = np.append(self.data['data']['y'], np.random.random(size=(1,1)))
+            self.data['x']['time'] = np.append(self.data['x']['time'], self.data['x']['time'][-1] + 0.1)
+            self.data['y']['time'] = np.append(self.data['y']['time'], self.data['y']['time'][-1] + 0.1)
+            self.data['x']['value'] = np.append(self.data['x']['value'], np.random.random(size=(1,1)))
+            self.data['y']['value'] = np.append(self.data['y']['value'], np.random.random(size=(1,1)))
             time.sleep(0.1)
 
 class Controller:
