@@ -28,8 +28,8 @@ class QtPlotter:
                 data, color = q.get(block=False)
                 plt.clear()
                 plt.setData(
-                    np.asarray(data[0, :]).flatten(),
-                    np.asarray(data[1, :]).flatten(), pen=None, symbol="o",
+                    np.asarray(data['x']).flatten(),
+                    np.asarray(data['y']).flatten(), pen=(1,1), symbol="o",
                     symbolPen=pg.mkPen({'color': color, 'width': 2}),
                     symbolSize=1
                 )
@@ -42,8 +42,13 @@ def qt_loop():
         QtGui.QApplication.instance().exec_()
 
 class Model:
-    def data(self):
-        return np.random.random(size=(2, 10))
+    def __init__(self):
+        self.data = {'x': np.array([0]), 'y': np.array([0])}
+
+    def get_data(self):
+        self.data['x'] = np.append(self.data['x'], self.data['x'][-1] + 1)
+        self.data['y'] = np.append(self.data['y'], np.random.random(size=(1,1)))
+        return self.data
 
 class Controller:
     def __init__(self):
@@ -54,7 +59,7 @@ class Controller:
 
     def run(self):
         while True:
-            self.curve.put((self.model.data(), "#00FFFF"))
+            self.curve.put((self.model.get_data(), "#00FFFF"))
             time.sleep(1)
 
 def main():
