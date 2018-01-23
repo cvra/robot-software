@@ -18,8 +18,7 @@ class QtPlotter:
 
     def getPort(self):
         q = queue.Queue()
-        plt = self.ax.plot()
-
+        plt = self.ax
         self.ports.append((q, plt))
         return q
 
@@ -28,12 +27,14 @@ class QtPlotter:
             try:
                 data, color = q.get(block=False)
                 plt.clear()
-                plt.setData(
-                    np.asarray(data['time'][-self.buffer_size:]).flatten(),
-                    np.asarray(data['data'][-self.buffer_size:]).flatten(), pen=(1,1), symbol="o",
-                    symbolPen=pg.mkPen({'color': color, 'width': 2}),
-                    symbolSize=1
-                )
+                for index, variable in enumerate(data['data']):
+                    plt.plot(
+                        np.asarray(data['time'][-self.buffer_size:]).flatten(),
+                        np.asarray(data['data'][str(variable)][-self.buffer_size:]).flatten(),
+                        pen=(index, len(data['data'])), symbol="o",
+                        symbolPen=pg.mkPen({'color': color, 'width': 2}),
+                        symbolSize=1
+                    )
             except queue.Empty:
                 pass
 
@@ -44,7 +45,13 @@ def qt_loop():
 
 class Model:
     def __init__(self):
-        self.data = {'time': np.array([0]), 'data': np.array([0])}
+        self.data = {
+            'time': np.array([0]),
+            'data': {
+                'x': np.array([0]),
+                'y': np.array([0]),
+            }
+        }
         threading.Thread(target=self.run).start()
 
     def get_data(self):
@@ -52,8 +59,9 @@ class Model:
 
     def run(self):
         while True:
-            self.data['time'] = np.append(self.data['time'], self.data['time'][-1] + 1)
-            self.data['data'] = np.append(self.data['data'], np.random.random(size=(1,1)))
+            self.data['time'] = np.append(self.data['time'], self.data['time'][-1] + 0.1)
+            self.data['data']['x'] = np.append(self.data['data']['x'], np.random.random(size=(1,1)))
+            self.data['data']['y'] = np.append(self.data['data']['y'], np.random.random(size=(1,1)))
             time.sleep(0.1)
 
 class Controller:
