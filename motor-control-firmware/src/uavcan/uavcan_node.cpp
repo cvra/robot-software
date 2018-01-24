@@ -20,11 +20,6 @@
 #include "Position_handler.hpp"
 #include "Torque_handler.hpp"
 #include "Voltage_handler.hpp"
-#include "LoadConfiguration_server.hpp"
-#include "CurrentPID_server.hpp"
-#include "VelocityPID_server.hpp"
-#include "PositionPID_server.hpp"
-#include "TorqueLimit_server.hpp"
 #include "stream.h"
 
 #define CAN_BITRATE             1000000
@@ -60,11 +55,6 @@ static void uavcan_services_start(Node &node)
         {Position_handler_start, "cvra::motor::control::Position subscriber"},
         {Torque_handler_start, "cvra::motor::control::Torque subscriber"},
         {Voltage_handler_start, "cvra::motor::control::Voltage subscriber"},
-        {LoadConfiguration_server_start, "cvra::motor::config::LoadConfiguration server"},
-        {CurrentPID_server_start, "cvra::motor::config::CurrentPID server"},
-        {VelocityPID_server_start, "cvra::motor::config::VelocityPID server"},
-        {PositionPID_server_start, "cvra::motor::config::PositionPID server"},
-        {TorqueLimit_server_start, "cvra::motor::config::TorqueLimit server"},
         {parameter_server_start, "UAVCAN parameter server"},
         {uavcan_streams_start, "UAVCAN state streamer"},
         {NULL, NULL} /* Must be last */

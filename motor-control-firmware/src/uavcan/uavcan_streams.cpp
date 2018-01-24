@@ -7,7 +7,6 @@
 #include "encoder.h"
 #include "main.h"
 
-#include <cvra/motor/config/FeedbackStream.hpp>
 #include <cvra/motor/feedback/CurrentPID.hpp>
 #include <cvra/motor/feedback/VelocityPID.hpp>
 #include <cvra/motor/feedback/PositionPID.hpp>
@@ -101,50 +100,6 @@ int uavcan_streams_start(Node &node)
 
     motor_torque_pub.construct<Node &>(node);
     res = motor_torque_pub->init();
-    if (res < 0) {
-        return res;
-    }
-
-    static uavcan::ServiceServer<cvra::motor::config::FeedbackStream> feedback_stream_sub(node);
-
-    res = feedback_stream_sub.start(
-        [&](const uavcan::ReceivedDataStructure<cvra::motor::config::FeedbackStream::Request>& req,
-            cvra::motor::config::FeedbackStream::Response& rsp)
-    {
-
-        (void) rsp;
-
-        switch (req.stream) {
-            case cvra::motor::config::FeedbackStream::Request::STREAM_CURRENT_PID:
-                parameter_scalar_set(&stream_params.current, req.frequency);
-                break;
-
-            case cvra::motor::config::FeedbackStream::Request::STREAM_VELOCITY_PID:
-                parameter_scalar_set(&stream_params.velocity, req.frequency);
-                break;
-
-            case cvra::motor::config::FeedbackStream::Request::STREAM_POSITION_PID:
-                parameter_scalar_set(&stream_params.position, req.frequency);
-                break;
-
-            case cvra::motor::config::FeedbackStream::Request::STREAM_INDEX:
-                parameter_scalar_set(&stream_params.index, req.frequency);
-                break;
-
-            case cvra::motor::config::FeedbackStream::Request::STREAM_MOTOR_ENCODER:
-                parameter_scalar_set(&stream_params.enc_pos, req.frequency);
-                break;
-
-            case cvra::motor::config::FeedbackStream::Request::STREAM_MOTOR_POSITION:
-                parameter_scalar_set(&stream_params.motor_pos, req.frequency);
-                break;
-
-            case cvra::motor::config::FeedbackStream::Request::STREAM_MOTOR_TORQUE:
-                parameter_scalar_set(&stream_params.motor_torque, req.frequency);
-                break;
-        }
-    });
-
     if (res < 0) {
         return res;
     }
