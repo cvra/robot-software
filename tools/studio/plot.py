@@ -1,15 +1,12 @@
-import numpy as np
-import pyqtgraph as pg
-from pyqtgraph.Qt import QtCore, QtGui
 import queue
 import threading
 import time
-from viewers.QtPlotter import QtPlotter
 
-def qt_loop():
-    import sys
-    if (sys.flags.interactive != 1) or not hasattr(QtCore, 'PYQT_VERSION'):
-        QtGui.QApplication.instance().exec_()
+import numpy as np
+import pyqtgraph as pg
+from pyqtgraph.Qt import QtCore, QtGui
+
+from viewers.LivePlotter import LivePlotter
 
 class Model:
     def __init__(self):
@@ -38,10 +35,11 @@ class Model:
 
 class Controller:
     def __init__(self):
-        self.viewer = QtPlotter(buffer_size=100)
+        self.viewer = LivePlotter(buffer_size=100)
         self.curve = self.viewer.getPort()
         self.model = Model()
         threading.Thread(target=self.run).start()
+        self.viewer.widget.show()
 
     def run(self):
         while True:
@@ -49,8 +47,14 @@ class Controller:
             time.sleep(1)
 
 def main():
+    import sys
+    app = QtGui.QApplication(sys.argv)
+
     plot_controller = Controller()
-    qt_loop()
+
+    if (sys.flags.interactive != 1) or not hasattr(QtCore, 'PYQT_VERSION'):
+        QtGui.QApplication.instance().exec_()
+
 
 if __name__ == "__main__":
     main()

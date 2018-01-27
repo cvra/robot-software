@@ -3,12 +3,12 @@ import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore
 import queue
 
-class QtPlotter:
+class LivePlotter:
     def __init__(self, buffer_size):
         self.ports = []
         self.timer = pg.QtCore.QTimer()
-        self.win = pg.GraphicsWindow()
-        self.ax = self.win.addPlot()
+        self.widget = pg.PlotWidget()
+        self.ax = self.widget.getPlotItem()
         self.timer.timeout.connect(self.update)
         self.timer.start(0)
         self.ax.setAspectLocked(True)
