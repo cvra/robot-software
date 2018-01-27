@@ -4,7 +4,11 @@ import sys
 import threading
 import time
 import uavcan
+
+from pyqtgraph.Qt import QtCore, QtGui
+
 from network.UavcanNode import UavcanNode
+from viewers.Selector import SelectorWidget
 
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -14,8 +18,6 @@ def parse_args():
 
     return parser.parse_args()
 
-import pyqtgraph as pg
-from pyqtgraph.Qt import QtCore, QtGui
 class NodeStatusMonitor:
     def __init__(self, node):
         self.known_nodes = {}
@@ -43,29 +45,6 @@ class NodeStatusMonitor:
 
         if self.on_new_node is not None:
             self.on_new_node()
-
-class NodeSelectViewer(QtGui.QWidget):
-    def __init__(self, parent = None):
-        super(NodeSelectViewer, self).__init__(parent)
-
-        layout = QtGui.QHBoxLayout()
-
-        self.combo_box = pg.ComboBox()
-        layout.addWidget(self.combo_box)
-
-        self.setLayout(layout)
-        self.setWindowTitle("Node Selector")
-
-    def set_nodes(self, nodes):
-        try:
-            self.combo_box.clear()
-            self.combo_box.addItems(nodes)
-        except:
-            pass
-        self.combo_box.update()
-
-    def set_callback(self, callback):
-        self.combo_box.currentIndexChanged.connect(callback)
 
 class NodeSelectController:
     def __init__(self, model, viewer):
@@ -97,7 +76,7 @@ def main():
 
     app = QtGui.QApplication(sys.argv)
 
-    controller = NodeSelectController(model=NodeStatusMonitor(node), viewer=NodeSelectViewer())
+    controller = NodeSelectController(model=NodeStatusMonitor(node), viewer=SelectorWidget(title='Node Selector'))
 
     node.spin()
     qt_loop()
