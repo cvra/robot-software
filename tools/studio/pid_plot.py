@@ -18,6 +18,7 @@ def parse_args():
     parser.add_argument("interface", help="Serial port or SocketCAN interface")
     parser.add_argument("--dsdl", "-d", help="DSDL path", required=True)
     parser.add_argument("--node_id", "-n", help="UAVCAN Node ID", default=127)
+    parser.add_argument('--verbose', '-v', action='count', default=0)
 
     return parser.parse_args()
 
@@ -135,7 +136,7 @@ class PidPlotController:
 
 def main():
     args = parse_args()
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=max(logging.CRITICAL - (10 * args.verbose), 0))
 
     uavcan.load_dsdl(args.dsdl)
     node = UavcanNode(interface=args.interface, node_id=args.node_id)
