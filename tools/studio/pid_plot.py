@@ -1,4 +1,5 @@
 import argparse
+import logging
 import sys
 import threading
 import time
@@ -37,6 +38,7 @@ class PidViewer(QtGui.QWidget):
 
 class NodeStatusMonitor:
     def __init__(self, node):
+        self.logger = logging.getLogger('NodeStatusMonitor')
         self.known_nodes = {}
         self.node = node
         self.node.add_handler(uavcan.protocol.NodeStatus, self._node_status_callback)
@@ -65,12 +67,15 @@ class NodeStatusMonitor:
         board = event.transfer.source_node_id
         name = str(event.response.name)
         self.known_nodes[board]['name'] = name
+        self.logger.info('Detected new node {} ({})'.format(self.known_nodes[board]['name'], board))
 
         if self.on_new_node is not None:
             self.on_new_node()
 
+
 class PidPlotController:
     def __init__(self, model, viewer):
+        self.logger = logging.getLogger('PidPlotController')
         self.model = model
         self.viewer = viewer
         self.curve = self.viewer.plot.getPort()
@@ -87,11 +92,13 @@ class PidPlotController:
         threading.Thread(target=self.run).start()
 
     def run(self):
+        self.logger.info('PID widget started')
         while True:
             self.curve.put(self.data)
             time.sleep(1)
 
     def update_selection(self):
+        self.logger.debug('New node detected, updating available nodes list')
         known_nodes = self.model.known_nodes
         nodes_with_name = {k: v for k, v in known_nodes.items() if 'name' in v.keys()}
         self.nodes = list(nodes_with_name[node]['name'] for node in nodes_with_name)
@@ -99,7 +106,9 @@ class PidPlotController:
 
     def _current_pid_callback(self, event):
         node_id = event.transfer.source_node_id
-        if self.node_to_plot is not None and self.node_to_plot == self.model.node_id_to_name(node_id):
+        node_name = self.model.node_id_to_name(node_id)
+        self.logger.debug('Received current PID feedback from node {} ({})'.format(node_name, node_id))
+        if self.node_to_plot is not None and self.node_to_plot == node_name:
             self.data['setpoint']['time'] = np.append(self.data['setpoint']['time'], time.time())
             self.data['measured']['time'] = np.append(self.data['measured']['time'], time.time())
 
@@ -107,9 +116,10 @@ class PidPlotController:
             self.data['measured']['value'] = np.append(self.data['measured']['value'], event.message.current)
 
     def _change_selected_node(self, i):
-        print("Current index", i, "selection changed to", self.nodes[i])
+        self.logger.debug('Current index {} selection changed to {}'.format(i, self.nodes[i]))
         self.node_to_plot = self.nodes[i]
         self.data = self._empty_pid_data()
+        self.logger.info('Selected node {}'.format(self.node_to_plot))
 
     def _empty_pid_data(self):
         return {
@@ -125,8 +135,9 @@ class PidPlotController:
 
 def main():
     args = parse_args()
-    uavcan.load_dsdl(args.dsdl)
+    logging.basicConfig(level=logging.INFO)
 
+    uavcan.load_dsdl(args.dsdl)
     node = UavcanNode(interface=args.interface, node_id=args.node_id)
 
     app = QtGui.QApplication(sys.argv)

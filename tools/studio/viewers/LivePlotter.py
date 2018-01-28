@@ -1,7 +1,8 @@
+import queue
+
 import numpy as np
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore
-import queue
 
 class LivePlotter:
     def __init__(self, buffer_size):
