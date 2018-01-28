@@ -1,0 +1,6 @@
+monotonic==1.4
+numpy==1.13.3
+PyQt5==5.10
+pyqtgraph==0.10.0
+sip==4.19.7
+uavcan==1.0.0.dev29
