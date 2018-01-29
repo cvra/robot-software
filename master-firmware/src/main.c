@@ -257,14 +257,11 @@ int main(void)
     position_manager_start();
     trajectory_manager_start();
 
-    /* Arms init */
 #ifdef DEBRA
-    chThdSleepMilliseconds(5000);
-
+    /* Arms init */
     arms_init();
     arms_controller_start();
 #endif
-    chThdSleepMilliseconds(2000);
     lever_module_start();
 
     /* Initialize strategy thread, will wait for signal to begin game */
