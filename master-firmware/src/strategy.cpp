@@ -270,11 +270,11 @@ void strategy_debra_play_game(void)
     enum strat_color_t color = wait_for_color_selection();
 
     int len;
+    DebraState state;
+
     InitGoal init_goal;
     IndexArms index_arms;
     RetractArms retract_arms(color);
-
-    DebraState state;
 
     const int max_path_len = 10;
     goap::Action<DebraState> *path[max_path_len] = {nullptr};
@@ -297,18 +297,8 @@ void strategy_debra_play_game(void)
     NOTICE("Positioning robot");
 
     robot.base_speed = BASE_SPEED_INIT;
+    strategy_auto_position(MIRROR_X(color, 300), 300, MIRROR_A(color, -90), color);
 
-    // First alignment
-    strategy_auto_position(MIRROR_X(color, 300), 200, MIRROR_A(color, -90), color);
-    robot.pos.pos_d.y += 382;
-    robot.pos.pos_s16.y += 382;
-
-    // Second alignement only in y at starting area
-    robot.base_speed = BASE_SPEED_FAST;
-    strategy_goto_avoid_retry(MIRROR_X(color, 890), 200, MIRROR_A(color, -90), TRAJ_END_GOAL_REACHED, -1);
-    robot.base_speed = BASE_SPEED_INIT;
-
-    strategy_align_y(170);
     trajectory_a_abs(&robot.traj, MIRROR_A(color, 90));
     trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
 
