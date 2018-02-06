@@ -11,6 +11,7 @@ tests:
     - tests/signaling.cpp
     - tests/foreach.cpp
     - tests/watchgroups.cpp
+    - tests/new_topic_callbacks.cpp
 
 target.demo:
     - examples/posix/demo.c

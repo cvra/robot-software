@@ -25,6 +25,7 @@ typedef struct {
     struct {
         messagebus_topic_t *head;
     } topics;
+    struct messagebus_new_topic_cb_s *new_topic_callback_list;
     void *lock;
     void *condvar;
 } messagebus_t;
@@ -39,6 +40,12 @@ typedef struct messagebus_watcher_s {
     messagebus_watchgroup_t *group;
     struct messagebus_watcher_s *next;
 } messagebus_watcher_t;
+
+typedef struct messagebus_new_topic_cb_s {
+    void (*callback)(messagebus_t *, messagebus_topic_t *, void *);
+    void *callback_arg;
+    struct messagebus_new_topic_cb_s *next;
+} messagebus_new_topic_cb_t;
 
 #define MESSAGEBUS_TOPIC_FOREACH(_bus, _topic_var_name) \
     for (int __control = -1; __control < 2; __control++) \
@@ -152,6 +159,15 @@ void messagebus_watchgroup_watch(messagebus_watcher_t *watcher,
                                  messagebus_topic_t *topic);
 
 messagebus_topic_t *messagebus_watchgroup_wait(messagebus_watchgroup_t *group);
+
+/** Registers a callback that will trigger when a new topic is advertised on
+ * the bus. */
+void messagebus_new_topic_callback_register(messagebus_t *bus,
+                                            messagebus_new_topic_cb_t *cb,
+                                            void (*cb_fun)(messagebus_t *,
+                                                           messagebus_topic_t *,
+                                                           void *),
+                                            void *arg);
 
 /** @defgroup portable Portable functions, platform specific.
  * @{*/

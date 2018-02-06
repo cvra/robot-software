@@ -132,3 +132,19 @@ TEST(MessageBusAtomicityTestGroup, FindBlocking)
 
     messagebus_find_topic_blocking(&bus, "topic");
 }
+
+TEST(MessageBusAtomicityTestGroup, RegisterNewTopicCallback)
+{
+    messagebus_advertise_topic(&bus, &topic, "topic");
+    messagebus_new_topic_cb_t cb;
+
+    lock_mocks_enable(true);
+
+    mock().expectOneCall("messagebus_lock_acquire")
+          .withPointerParameter("lock", bus.lock);
+
+    mock().expectOneCall("messagebus_lock_release")
+          .withPointerParameter("lock", bus.lock);
+
+    messagebus_new_topic_callback_register(&bus, &cb, nullptr, nullptr);
+}

@@ -12,6 +12,7 @@
 * Each topic can have a metadata block.
     It can be used to contain function pointers to serialization / deserialization methods for example.
     Metadata do not offer the same atomicity guarantees as the topic data themselves.
+* Possibility to register callbacks that are triggered on topic creation.
 
 ## Features that won't be supported
 

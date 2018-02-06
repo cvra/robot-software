@@ -42,6 +42,10 @@ void messagebus_advertise_topic(messagebus_t *bus, messagebus_topic_t *topic, co
     }
     bus->topics.head = topic;
 
+    for (messagebus_new_topic_cb_t *cb = bus->new_topic_callback_list; cb != NULL; cb = cb->next) {
+        cb->callback(bus, topic, cb->callback_arg);
+    }
+
     messagebus_condvar_broadcast(bus->condvar);
 
     messagebus_lock_release(bus->lock);
@@ -164,4 +168,21 @@ messagebus_topic_t *messagebus_watchgroup_wait(messagebus_watchgroup_t *group)
     messagebus_lock_release(group->lock);
 
     return res;
+}
+
+void messagebus_new_topic_callback_register(messagebus_t *bus,
+                                            messagebus_new_topic_cb_t *cb,
+                                            void (*cb_fun)(messagebus_t *,
+                                                           messagebus_topic_t *,
+                                                           void *),
+                                            void *arg)
+{
+    messagebus_lock_acquire(bus->lock);
+    cb->callback = cb_fun;
+    cb->callback_arg = arg;
+
+    cb->next = bus->new_topic_callback_list;
+    bus->new_topic_callback_list = cb;
+
+    messagebus_lock_release(bus->lock);
 }
