@@ -29,6 +29,11 @@ TEST(MessageBusTestGroup, CanCreateTopicWithBuffer)
     CHECK_EQUAL(topic.buffer_len, sizeof(buffer));
 }
 
+TEST(MessageBusTestGroup, HasMetadataField)
+{
+    POINTERS_EQUAL(NULL, topic.metadata);
+}
+
 TEST(MessageBusTestGroup, CanCreateBus)
 {
     POINTERS_EQUAL(NULL, bus.topics.head);
@@ -143,4 +148,3 @@ TEST(MessageBusTestGroup, WaitForUpdate)
 
     CHECK_EQUAL(tx, rx);
 }
-
