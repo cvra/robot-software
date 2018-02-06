@@ -18,6 +18,7 @@ typedef struct topic_s {
     bool published;
     struct messagebus_watcher_s *watchers;
     struct topic_s *next;
+    void *metadata;
 } messagebus_topic_t;
 
 typedef struct {
