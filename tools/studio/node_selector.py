@@ -26,7 +26,7 @@ class NodeSelectController:
         self.viewer = viewer
 
         self.nodes = []
-        self.model.set_on_new_node_callback(self.update_selection)
+        self.model.on_new_node(self.update_selection)
 
         self.viewer.set_callback(lambda i: print("Current index", i, "selection changed to", self.nodes[i]))
         self.viewer.show()

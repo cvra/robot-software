@@ -9,10 +9,10 @@ class NodeStatusMonitor:
         self.known_nodes = {}
         self.node = node
         self.node.add_handler(uavcan.protocol.NodeStatus, self._node_status_callback)
-        self.on_new_node = None
+        self.new_node_cb = None
 
-    def set_on_new_node_callback(self, on_new_node):
-        self.on_new_node = on_new_node
+    def on_new_node(self, new_node_cb):
+        self.new_node_cb = new_node_cb
 
     def node_id_to_name(self, node_id):
         if node_id in self.known_nodes.keys():
@@ -36,5 +36,5 @@ class NodeStatusMonitor:
         self.known_nodes[board]['name'] = name
         self.logger.info('Detected new node {} ({})'.format(self.known_nodes[board]['name'], board))
 
-        if self.on_new_node is not None:
-            self.on_new_node()
+        if self.new_node_cb is not None:
+            self.new_node_cb()

@@ -60,7 +60,7 @@ class PidFeedbackRecorder():
         self.data_lock = threading.RLock()
 
         self.monitor = NodeStatusMonitor(node)
-        self.monitor.set_on_new_node_callback(self._update_nodes)
+        self.monitor.on_new_node(self._update_nodes)
 
         self.clear()
         self.node.add_handler(uavcan.thirdparty.cvra.motor.feedback.CurrentPID, self._current_pid_callback)

@@ -40,7 +40,7 @@ class ParameterTreeController(QWidget):
         self.setLayout(layout)
 
         self.monitor = NodeStatusMonitor(node)
-        self.monitor.set_on_new_node_callback(self._update_nodes)
+        self.monitor.on_new_node(self._update_nodes)
 
     def fetch_params(self, target_id):
         t = threading.Thread(target=self._fetch_all_params, args=(target_id,)).start()
