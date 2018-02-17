@@ -26,7 +26,7 @@ class NestedDictView(QTreeView):
         self.model = QStandardItemModel()
         self.model.setHorizontalHeaderLabels(['Key', 'Value'])
 
-        self.header().setDefaultSectionSize(100)
+        self.header().setSectionResizeMode(3) # QHeaderView::ResizeMode = ResizeToContents
         self.setModel(self.model)
 
     def clear(self, parent=None):

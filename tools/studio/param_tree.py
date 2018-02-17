@@ -1,8 +1,12 @@
 import argparse
+import logging
+import queue
 import threading
+import time
 import sys
 
 import uavcan
+from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget
 from network.NodeStatusMonitor import NodeStatusMonitor
 from network.ParameterTree import ParameterTree
@@ -19,58 +23,94 @@ def parse_args():
     parser.add_argument("interface", help="Serial port or SocketCAN interface")
     parser.add_argument("id", help="UAVCAN node ID", type=int)
     parser.add_argument("--dsdl", "-d", help="DSDL path")
+    parser.add_argument('--verbose', '-v', action='count', default=3)
 
     return parser.parse_args()
 
-class ParameterTreeController(QWidget):
-    def __init__(self, node, parent=None):
+class ParameterTreeView(QWidget):
+    def __init__(self, parent=None):
         super().__init__(parent)
-        self.node = node
-        self.params = NestedDict()
         self.window = NestedDictView()
-        self.known_nodes = {}
-        self.param_lock = threading.RLock()
 
         self.node_selector = Selector()
-        self.node_selector.set_callback(self._change_selected_node)
 
         layout = QVBoxLayout()
         layout.addWidget(self.node_selector)
         layout.addWidget(self.window)
         self.setLayout(layout)
 
-        self.monitor = NodeStatusMonitor(node)
-        self.monitor.on_new_node(self._update_nodes)
+    def set(self, params):
+        self.window.set(params)
+
+    def on_node_selection(self, callback):
+        self.node_selector.set_callback(callback)
+
+class ParameterTreeModel(NodeStatusMonitor):
+    def __init__(self, node):
+        super().__init__(node)
+        self.logger = logging.getLogger('ParameterTreeModel')
+        self.param_lock = threading.RLock()
+        self.params = NestedDict()
+        self._clear_queue()
+        threading.Thread(target=self.run).start()
+
+    def run(self):
+        time.sleep(1)
+        self.logger.info('Parameter tree model started')
+        while True:
+            target_id = self.q.get(block=True)
+            if target_id:
+                self.logger.info('Fetching parameters of node {}'.format(target_id))
+                with self.param_lock:
+                    self.params = NestedDict() # clear
+                    for name, value in ParameterTree(self.node, target_id):
+                        self.params.set(name.split('/'), value)
+                        if self.new_params_cb:
+                            self.new_params_cb(self.params)
+
+    def on_new_params(self, callback):
+        self.new_params_cb = callback
 
     def fetch_params(self, target_id):
-        t = threading.Thread(target=self._fetch_all_params, args=(target_id,)).start()
+        # overwrite current request by new one
+        if self.q.qsize() > 0: self._clear_queue()
+        self.q.put(target_id, block=False)
 
-    def _fetch_all_params(self, target_id):
-        with self.param_lock:
-            self.params = NestedDict() # clear
-            for name, value in ParameterTree(self.node, target_id):
-                self.params.set(name.split('/'), value)
-                self.window.set(self.params)
+    def _clear_queue(self):
+        self.q = queue.Queue(maxsize=1)
+
+class ParameterTreeController():
+    def __init__(self, node):
+        self.logger = logging.getLogger('ParameterTreeController')
+
+        self.view = ParameterTreeView()
+        self.view.on_node_selection(self._change_selected_node)
+        self.view.show()
+
+        self.model = ParameterTreeModel(node)
+        self.model.on_new_node(self._update_nodes)
+        self.model.on_new_params(self.view.set)
 
     def _update_nodes(self):
-        self.node_ids = list(NodeInfo(v['name'], k) for k, v in self.monitor.known_nodes.items() if 'name' in v.keys())
-        self.node_selector.set_nodes(list(node.name for node in self.node_ids))
+        self.node_ids = list(NodeInfo(v['name'], k) for k, v in self.model.known_nodes.items() if 'name' in v.keys())
+        self.view.node_selector.set_nodes(list(node.name for node in self.node_ids))
 
     def _change_selected_node(self, i):
         selected_node = self.node_ids[i]
-        self.fetch_params(selected_node.id)
+        self.model.fetch_params(selected_node.id)
 
 def main():
     args = parse_args()
+    logging.basicConfig(level=max(logging.CRITICAL - (10 * args.verbose), 0))
+
     if args.dsdl is not None:
         uavcan.load_dsdl(args.dsdl)
 
     app = QApplication(sys.argv)
-    node = UavcanNode(interface=args.interface, node_id=args.id)
+    app.setFont(QFont('Open Sans', pointSize=20))
 
+    node = UavcanNode(interface=args.interface, node_id=args.id)
     param = ParameterTreeController(node)
-    param.fetch_params(42)
-    param.show()
 
     node.spin()
     sys.exit(app.exec_())
