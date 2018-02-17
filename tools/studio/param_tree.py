@@ -6,7 +6,7 @@ import uavcan
 from PyQt5.QtWidgets import QApplication
 from network.UavcanNode import UavcanNode
 from network.ParameterTree import ParameterTree
-from viewers.NestedDict import NestedDict, NestedDictView
+from viewers.NestedDict import NestedDict, NestedDictViewWidget
 
 
 def parse_args():
@@ -27,7 +27,7 @@ def main():
     node = UavcanNode(interface=args.interface, node_id=args.id)
 
     params = NestedDict()
-    window = NestedDictView()
+    window = NestedDictViewWidget()
 
     def fetch_all_params():
         for name, value in ParameterTree(node, args.target):

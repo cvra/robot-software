@@ -19,18 +19,15 @@ class NestedDict(defaultdict):
     def __repr__(self):
         return str(dict(self))
 
-class NestedDictView(QWidget):
+class NestedDictView(QTreeView):
     def __init__(self):
         super().__init__()
-        self.tree = QTreeView(self)
-        layout = QVBoxLayout(self)
-        layout.addWidget(self.tree)
 
         self.model = QStandardItemModel()
         self.model.setHorizontalHeaderLabels(['Key', 'Value'])
 
-        self.tree.header().setDefaultSectionSize(100)
-        self.tree.setModel(self.model)
+        self.header().setDefaultSectionSize(100)
+        self.setModel(self.model)
 
     def clear(self, parent=None):
         parent = parent or self.model.invisibleRootItem()
@@ -48,4 +45,18 @@ class NestedDictView(QWidget):
             else:
                 parent.appendRow([QStandardItem(k), QStandardItem(str(v))])
 
-        self.tree.expand(parent.index())
+        self.expand(parent.index())
+
+class NestedDictViewWidget(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.tree = NestedDictView()
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.tree)
+        self.setLayout(layout)
+
+    def clear(self):
+        self.tree.clear()
+
+    def set(self, data):
+        self.tree.set(data)

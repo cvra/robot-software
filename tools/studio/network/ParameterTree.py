@@ -39,7 +39,5 @@ class ParameterTree:
     def __next__(self):
         self._request_next()
         param = self.q.get(block=True)
-        if self.done:
-            raise StopIteration()
-        else:
-            return param
+        if self.done: raise StopIteration()
+        else:         return param
