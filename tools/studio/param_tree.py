@@ -9,7 +9,7 @@ import uavcan
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget
 from network.NodeStatusMonitor import NodeStatusMonitor
-from network.ParameterTree import ParameterTree
+from network.ParameterTree import ParameterTree, extract_value
 from network.UavcanNode import UavcanNode
 from viewers.NestedDict import NestedDict, NestedDictView
 from viewers.Selector import Selector
@@ -44,6 +44,9 @@ class ParameterTreeView(QWidget):
 
     def on_node_selection(self, callback):
         self.node_selector.set_callback(callback)
+
+    def on_edit(self, callback):
+        self.window.on_edit(callback)
 
 class ParameterTreeModel(NodeStatusMonitor):
     def __init__(self, node):
@@ -85,6 +88,7 @@ class ParameterTreeController():
 
         self.view = ParameterTreeView()
         self.view.on_node_selection(self._change_selected_node)
+        self.view.on_edit(self._on_param_change)
         self.view.show()
 
         self.model = ParameterTreeModel(node)
@@ -96,8 +100,36 @@ class ParameterTreeController():
         self.view.node_selector.set_nodes(list(node.name for node in self.node_ids))
 
     def _change_selected_node(self, i):
-        selected_node = self.node_ids[i]
-        self.model.fetch_params(selected_node.id)
+        self.selected_node = self.node_ids[i]
+        self.model.fetch_params(self.selected_node.id)
+
+    def _on_param_change(self, item):
+        name = self._item_to_param_name(item)
+        value = item.text()
+        req = uavcan.protocol.param.GetSet.Request(
+            name=name,
+            value=uavcan.protocol.param.Value(real_value=float(value))
+        )
+        self.model.node.request(req, self.selected_node.id, self._param_changed)
+
+    def _item_to_param_name(self, item):
+        row = item.row()
+        keys = []
+        while True:
+            item = item.parent()
+            if item: keys = [item.text()] + keys
+            else:    break
+
+        child = self.model.params.get(keys)
+        param = sorted(child.keys())[row]
+        keys.append(param)
+        return '/'.join(keys)
+
+    def _param_changed(self, event):
+        if not event: raise Exception('ParameterTree Set Timeout')
+        name = event.response.name
+        value = extract_value(event.response.value)
+        self.logger.info('Changed parameter {} to {}'.format(name, value))
 
 def main():
     args = parse_args()

@@ -29,21 +29,29 @@ class NestedDictView(QTreeView):
         self.header().setSectionResizeMode(3) # QHeaderView::ResizeMode = ResizeToContents
         self.setModel(self.model)
 
+        self.table = NestedDict()
+
+    def on_edit(self, callback):
+        self.model.itemChanged.connect(callback)
+
     def clear(self, parent=None):
         parent = parent or self.model.invisibleRootItem()
         parent.removeRows(0, parent.rowCount())
 
-    def set(self, data, parent=None):
+    def set(self, data, parent=None, parent_node=None):
         self.clear(parent)
         parent = parent or self.model.invisibleRootItem()
+        parent_node = parent_node or self.table
 
         for k, v in sorted(data.items()):
             if type(v) is NestedDict:
                 parent.appendRow([QStandardItem(k), QStandardItem('')])
                 entry = parent.child(parent.rowCount() - 1)
-                self.set(v, parent=entry)
+                parent_node[k] = NestedDict()
+                self.set(v, parent=entry, parent_node=parent_node[k])
             else:
                 parent.appendRow([QStandardItem(k), QStandardItem(str(v))])
+                parent_node[k] = parent
 
         self.expand(parent.index())
 
