@@ -20,6 +20,13 @@ class NodeStatusMonitor:
                 return self.known_nodes[node_id]['name']
         return None
 
+    def name_to_node_id(self, name):
+        for node_id, info in self.known_nodes.items():
+            if 'name' in self.known_nodes[node_id].keys():
+                if info['name'] == name:
+                    return node_id
+        return None
+
     def _node_status_callback(self, event):
         node_id = event.transfer.source_node_id
         if node_id not in self.known_nodes:

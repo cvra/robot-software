@@ -47,8 +47,8 @@ class ParameterTreeModel(NodeStatusMonitor):
                     self.params = NestedDict() # clear
                     for name, value in ParameterTree(self.node, target_id):
                         self.params.set(name.split('/'), value)
-                        if self.new_params_cb:
-                            self.new_params_cb(self.params)
+                    if self.new_params_cb:
+                        self.new_params_cb(self.params)
                 self.logger.info('Parameters of node {} successfully fetched'.format(target_id))
 
     def on_new_params(self, callback):
@@ -102,7 +102,6 @@ class ParameterWidget(QWidget):
         layout.addWidget(self.node_selector)
         layout.addWidget(self.tree_view)
         self.setLayout(layout)
-        self.show()
 
         self.model = ParameterTreeModel(node)
         self.model.on_new_node(self._update_nodes)
@@ -132,6 +131,7 @@ def main():
 
     node = UavcanNode(interface=args.interface, node_id=args.id)
     param = ParameterWidget(node=node)
+    param.show()
 
     node.spin()
     sys.exit(app.exec_())
