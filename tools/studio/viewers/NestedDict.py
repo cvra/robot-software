@@ -1,6 +1,7 @@
 from collections import defaultdict
 from functools import reduce
 import operator
+import threading
 
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import QWidget, QTreeView, QVBoxLayout
@@ -9,12 +10,13 @@ from PyQt5.QtWidgets import QWidget, QTreeView, QVBoxLayout
 class NestedDict(defaultdict):
     def __init__(self):
         super().__init__(NestedDict)
+        self.lock = threading.Lock()
 
     def get(self, mapList):
         return reduce(operator.getitem, mapList, self)
 
     def set(self, mapList, value):
-        self.get(mapList[:-1])[mapList[-1]] = value
+        with self.lock: self.get(mapList[:-1])[mapList[-1]] = value
 
     def __repr__(self):
         return str(dict(self))

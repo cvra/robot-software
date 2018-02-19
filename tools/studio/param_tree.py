@@ -27,27 +27,6 @@ def parse_args():
 
     return parser.parse_args()
 
-class ParameterTreeView(QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.window = NestedDictView()
-
-        self.node_selector = Selector()
-
-        layout = QVBoxLayout()
-        layout.addWidget(self.node_selector)
-        layout.addWidget(self.window)
-        self.setLayout(layout)
-
-    def set(self, params):
-        self.window.set(params)
-
-    def on_node_selection(self, callback):
-        self.node_selector.set_callback(callback)
-
-    def on_edit(self, callback):
-        self.window.on_edit(callback)
-
 class ParameterTreeModel(NodeStatusMonitor):
     def __init__(self, node):
         super().__init__(node)
@@ -70,6 +49,7 @@ class ParameterTreeModel(NodeStatusMonitor):
                         self.params.set(name.split('/'), value)
                         if self.new_params_cb:
                             self.new_params_cb(self.params)
+                self.logger.info('Parameters of node {} successfully fetched'.format(target_id))
 
     def on_new_params(self, callback):
         self.new_params_cb = callback
@@ -82,37 +62,19 @@ class ParameterTreeModel(NodeStatusMonitor):
     def _clear_queue(self):
         self.q = queue.Queue(maxsize=1)
 
-class ParameterTreeController():
-    def __init__(self, node):
-        self.logger = logging.getLogger('ParameterTreeController')
-
-        self.view = ParameterTreeView()
-        self.view.on_node_selection(self._change_selected_node)
-        self.view.on_edit(self._on_param_change)
-        self.view.show()
-
-        self.model = ParameterTreeModel(node)
-        self.model.on_new_node(self._update_nodes)
-        self.model.on_new_params(self.view.set)
-
-    def _update_nodes(self):
-        self.node_ids = list(NodeInfo(v['name'], k) for k, v in self.model.known_nodes.items() if 'name' in v.keys())
-        self.view.node_selector.set_nodes(list(node.name for node in self.node_ids))
-
-    def _change_selected_node(self, i):
-        self.selected_node = self.node_ids[i]
-        self.model.fetch_params(self.selected_node.id)
-
-    def _on_param_change(self, item):
-        name = self._item_to_param_name(item)
-        value = item.text()
+    def set_param(self, target_id, name, value):
         req = uavcan.protocol.param.GetSet.Request(
             name=name,
             value=uavcan.protocol.param.Value(real_value=float(value))
         )
-        self.model.node.request(req, self.selected_node.id, self._param_changed)
+        self.node.request(req, target_id, self._param_changed)
 
-    def _item_to_param_name(self, item):
+    def _param_changed(self, event):
+        if not event: raise Exception('ParameterTree Set Timeout')
+        self.logger.info('Changed parameter {name} to {value}'.format(
+            name=event.response.name, value=extract_value(event.response.value)))
+
+    def item_to_path(self, item):
         row = item.row()
         keys = []
         while True:
@@ -120,16 +82,43 @@ class ParameterTreeController():
             if item: keys = [item.text()] + keys
             else:    break
 
-        child = self.model.params.get(keys)
+        child = self.params.get(keys)
         param = sorted(child.keys())[row]
         keys.append(param)
-        return '/'.join(keys)
+        return keys
 
-    def _param_changed(self, event):
-        if not event: raise Exception('ParameterTree Set Timeout')
-        name = event.response.name
-        value = extract_value(event.response.value)
-        self.logger.info('Changed parameter {} to {}'.format(name, value))
+class ParameterWidget(QWidget):
+    def __init__(self, node, parent=None):
+        super().__init__(parent)
+        self.logger = logging.getLogger('ParameterWidget')
+
+        self.node_selector = Selector()
+        self.node_selector.set_callback(self._change_selected_node)
+
+        self.tree_view = NestedDictView()
+        self.tree_view.on_edit(self._on_param_change)
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.node_selector)
+        layout.addWidget(self.tree_view)
+        self.setLayout(layout)
+        self.show()
+
+        self.model = ParameterTreeModel(node)
+        self.model.on_new_node(self._update_nodes)
+        self.model.on_new_params(self.tree_view.set)
+
+    def _update_nodes(self):
+        self.node_ids = list(NodeInfo(v['name'], k) for k, v in self.model.known_nodes.items() if 'name' in v.keys())
+        self.node_selector.set_nodes(list(node.name for node in self.node_ids))
+
+    def _change_selected_node(self, i):
+        self.selected_node = self.node_ids[i]
+        self.model.fetch_params(self.node_ids[self.node_selector.currentIndex()].id)
+
+    def _on_param_change(self, item):
+        self.model.set_param(target_id=self.selected_node.id,
+            name='/'.join(self.model.item_to_path(item)), value=item.text())
 
 def main():
     args = parse_args()
@@ -142,7 +131,7 @@ def main():
     app.setFont(QFont('Open Sans', pointSize=20))
 
     node = UavcanNode(interface=args.interface, node_id=args.id)
-    param = ParameterTreeController(node)
+    param = ParameterWidget(node=node)
 
     node.spin()
     sys.exit(app.exec_())
