@@ -106,6 +106,8 @@ void control_update_position_setpoint(float pos)
     setpoint_update_position(&setpoint_interpolation, pos, current_pos, current_vel, ctrl.periodic_actuator);
     chBSemSignal(&setpoint_interpolation_lock);
     last_setpoint_update = timestamp_get();
+
+    ctrl.position_setpoint = pos;
 }
 
 void control_update_velocity_setpoint(float vel)
@@ -115,6 +117,8 @@ void control_update_velocity_setpoint(float vel)
     setpoint_update_velocity(&setpoint_interpolation, vel, current_vel);
     chBSemSignal(&setpoint_interpolation_lock);
     last_setpoint_update = timestamp_get();
+
+    ctrl.velocity_setpoint = vel;
 }
 
 void control_update_torque_setpoint(float torque)
@@ -123,6 +127,8 @@ void control_update_torque_setpoint(float torque)
     setpoint_update_torque(&setpoint_interpolation, torque);
     chBSemSignal(&setpoint_interpolation_lock);
     last_setpoint_update = timestamp_get();
+
+    ctrl.current_setpoint = torque * ctrl.motor_current_constant;
 }
 
 void control_update_trajectory_setpoint(float pos, float vel, float acc,
@@ -132,6 +138,10 @@ void control_update_trajectory_setpoint(float pos, float vel, float acc,
     setpoint_update_trajectory(&setpoint_interpolation, pos, vel, acc, torque, ts);
     chBSemSignal(&setpoint_interpolation_lock);
     last_setpoint_update = timestamp_get();
+
+    ctrl.position_setpoint = pos;
+    ctrl.velocity_setpoint = vel;
+    ctrl.current_setpoint = torque * ctrl.motor_current_constant;
 }
 
 void control_update_voltage_setpoint(float voltage)
