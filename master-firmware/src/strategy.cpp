@@ -253,6 +253,11 @@ struct RetractArms : public goap::Action<DebraState> {
     {
         NOTICE("Retracting arms!");
         state.arms_are_deployed = false;
+
+        scara_goto(&main_arm, {.x=45., .y=90., .z=150.}, COORDINATE_ROBOT, 0.5);
+        scara_goto(&main_arm, {.x=45., .y=90., .z=150.}, COORDINATE_ROBOT, 0.5);
+        strategy_wait_ms(500);
+
         return true;
     }
 };
