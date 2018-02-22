@@ -17,6 +17,7 @@
 #include "base/map.h"
 #include "scara/scara_trajectories.h"
 #include "arms/arms_controller.h"
+#include "arms/arm.h"
 #include "config.h"
 #include "control_panel.h"
 #include "main.h"
@@ -187,6 +188,7 @@ struct DebraState {
     int score{0};
     bool arms_are_indexed{false};
     bool arms_are_deployed{true};
+    bool tower_built{false};
 };
 
 struct IndexArms : public goap::Action<DebraState> {
@@ -262,10 +264,98 @@ struct RetractArms : public goap::Action<DebraState> {
     }
 };
 
+struct BuildTower : public goap::Action<DebraState> {
+    enum strat_color_t m_color;
+
+    BuildTower(enum strat_color_t color)
+        : m_color(color)
+    {
+    }
+    bool can_run(DebraState state)
+    {
+        return state.arms_are_indexed;
+    }
+
+    DebraState plan_effects(DebraState state)
+    {
+        state.arms_are_deployed = false;
+        state.tower_built = true;
+        return state;
+    }
+
+    bool execute(DebraState &state)
+    {
+        NOTICE("Build tower!");
+        state.arms_are_deployed = false;
+
+        ArmTrajectory traj(&main_arm);
+        ArmTrajectoryFrame last_pos;
+
+        strategy_goto_avoid_retry(MIRROR_X(m_color, 600), 600, MIRROR_A(m_color, -45), TRAJ_FLAGS_ALL, -1);
+
+        // traj.startAt({45, 90, 150, COORDINATE_ROBOT})
+        //     .goThrough({MIRROR_X(m_color, 820), 540, 150, COORDINATE_TABLE})
+        //     .goThrough({MIRROR_X(m_color, 820), 540, 65, COORDINATE_TABLE});
+        // last_pos = traj.execute();
+        // strategy_wait_ms(traj.duration() * 1000.);
+        // scara_goto(scara_t* arm, position_3d_t pos, scara_coordinate_t system, const float duration)
+        scara_goto(&main_arm, {MIRROR_X(m_color, 815), 535, 150}, COORDINATE_TABLE, 2.);
+        strategy_wait_ms(2000.);
+        scara_goto(&main_arm, {MIRROR_X(m_color, 815), 535, 65}, COORDINATE_TABLE, 1.);
+        strategy_wait_ms(1000.);
+
+        hand_set_pump(&main_hand, PUMP_ON);
+        strategy_wait_ms(100.);
+
+        // traj.startAt(last_pos)
+        //     .goThrough({MIRROR_X(m_color, 820), 540, 150, COORDINATE_TABLE});
+        // last_pos = traj.execute();
+        // strategy_wait_ms(traj.duration() * 1000.);
+        scara_goto(&main_arm, {MIRROR_X(m_color, 820), 540, 150}, COORDINATE_TABLE, 1.);
+        strategy_wait_ms(1000.);
+
+        scara_hold_position(&main_arm, COORDINATE_ROBOT);
+
+        strategy_goto_avoid_retry(MIRROR_X(m_color, 600), 600, MIRROR_A(m_color, -135), TRAJ_FLAGS_ALL, -1);
+
+        // const auto current_pos = scara_position(&main_arm, COORDINATE_ROBOT);
+        // traj.startAt({current_pos.x, current_pos.y, current_pos.z, COORDINATE_ROBOT})
+        //     .goThrough({MIRROR_X(m_color, 350), 510, 150, COORDINATE_TABLE})
+        //     .goThrough({MIRROR_X(m_color, 350), 510, 65, COORDINATE_TABLE});
+        // last_pos = traj.execute();
+        // strategy_wait_ms(traj.duration() * 1000.);
+        scara_goto(&main_arm, {MIRROR_X(m_color, 350), 510, 150}, COORDINATE_TABLE, 1.);
+        strategy_wait_ms(1000.);
+        scara_goto(&main_arm, {MIRROR_X(m_color, 350), 510, 65}, COORDINATE_TABLE, 1.);
+        strategy_wait_ms(1000.);
+
+        hand_set_pump(&main_hand, PUMP_OFF);
+        strategy_wait_ms(100.);
+
+        // traj.startAt(last_pos)
+        //     .goThrough({MIRROR_X(m_color, 350), 510, 150, COORDINATE_TABLE});
+        // last_pos = traj.execute();
+        // strategy_wait_ms(traj.duration() * 1000.);
+        scara_goto(&main_arm, {MIRROR_X(m_color, 350), 510, 150}, COORDINATE_TABLE, 1.);
+        strategy_wait_ms(1000.);
+
+        state.tower_built = true;
+        return true;
+    }
+};
+
 struct InitGoal : goap::Goal<DebraState> {
     bool is_reached(DebraState state)
     {
         return state.arms_are_deployed == false;
+    }
+};
+
+struct TowerGoal : goap::Goal<DebraState> {
+    bool is_reached(DebraState state)
+    {
+        return state.arms_are_deployed == false
+            && state.tower_built == true;
     }
 };
 
@@ -281,8 +371,10 @@ void strategy_debra_play_game(void)
     DebraState state;
 
     InitGoal init_goal;
+    TowerGoal tower_goal;
     IndexArms index_arms;
     RetractArms retract_arms(color);
+    BuildTower build_tower(color);
 
     const int max_path_len = 10;
     goap::Action<DebraState> *path[max_path_len] = {nullptr};
@@ -290,6 +382,7 @@ void strategy_debra_play_game(void)
     goap::Action<DebraState> *actions[] = {
         &index_arms,
         &retract_arms,
+        &build_tower,
     };
 
     goap::Planner<DebraState> planner(actions, sizeof(actions) / sizeof(actions[0]));
@@ -320,6 +413,11 @@ void strategy_debra_play_game(void)
     trajectory_game_timer_reset();
 
     NOTICE("Starting game...");
+    len = planner.plan(state, tower_goal, path, max_path_len);
+    for (int i = 0; i < len; i++) {
+        path[i]->execute(state);
+    }
+
     while (true) {
         NOTICE("Game ended!");
         strategy_wait_ms(1000);
