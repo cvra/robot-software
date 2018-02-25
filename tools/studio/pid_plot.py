@@ -167,9 +167,12 @@ class PidPlotController:
         self.logger.info('Selected PID loop {}'.format(self.model.tracked_pid_loop))
 
     def _on_param_edit(self, item):
-        name = '/'.join(self.model.params_model.item_to_path(item))
         target_id = self.model.monitor.name_to_node_id(self.model.tracked_node)
-        self.model.params_model.set_param(target_id=target_id, name=name, value=item.text())
+        keys = self.model.params_model.item_to_path(item)
+        name = '/'.join(keys)
+        value = item.text()
+        value_type = self.model.params_model.params.get(keys).type
+        self.model.params_model.set_param(target_id=target_id, name=name, value=value, value_type=value_type)
         self.logger.debug('Parameter {name} changed to {value} for node {node} ({target_id})'.format(
             name=name, value=item.text(), node=self.model.tracked_node, target_id=target_id))
 

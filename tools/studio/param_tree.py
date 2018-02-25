@@ -9,7 +9,7 @@ import uavcan
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget
 from network.NodeStatusMonitor import NodeStatusMonitor
-from network.ParameterTree import ParameterTree, extract_value
+from network.ParameterTree import ParameterTree, Parameter, extract_value, value_to_uavcan
 from network.UavcanNode import UavcanNode
 from viewers.NestedDict import NestedDict, NestedDictView
 from viewers.Selector import Selector
@@ -45,8 +45,8 @@ class ParameterTreeModel(NodeStatusMonitor):
                 self.logger.info('Fetching parameters of node {}'.format(target_id))
                 with self.param_lock:
                     self.params = NestedDict() # clear
-                    for name, value in ParameterTree(self.node, target_id):
-                        self.params.set(name.split('/'), value)
+                    for parameter in ParameterTree(self.node, target_id):
+                        self.params.set(parameter.name.split('/'), parameter)
                     if self.new_params_cb:
                         self.new_params_cb(self.params)
                 self.logger.info('Parameters of node {} successfully fetched'.format(target_id))
@@ -62,10 +62,10 @@ class ParameterTreeModel(NodeStatusMonitor):
     def _clear_queue(self):
         self.q = queue.Queue(maxsize=1)
 
-    def set_param(self, target_id, name, value):
+    def set_param(self, target_id, name, value, value_type):
         req = uavcan.protocol.param.GetSet.Request(
             name=name,
-            value=uavcan.protocol.param.Value(real_value=float(value))
+            value=value_to_uavcan(value, value_type)
         )
         self.node.request(req, target_id, self._param_changed)
 
@@ -116,8 +116,9 @@ class ParameterWidget(QWidget):
         self.model.fetch_params(self.node_ids[self.node_selector.currentIndex()].id)
 
     def _on_param_change(self, item):
+        keys = self.model.item_to_path(item)
         self.model.set_param(target_id=self.selected_node.id,
-            name='/'.join(self.model.item_to_path(item)), value=item.text())
+            name='/'.join(keys), value=item.text(), value_type=self.model.params.get(keys).type)
 
 def main():
     args = parse_args()
