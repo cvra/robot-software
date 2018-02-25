@@ -7,12 +7,13 @@ import sys
 
 import uavcan
 from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QApplication, QPushButton, QVBoxLayout, QWidget
 from network.NodeStatusMonitor import NodeStatusMonitor
 from network.ParameterTree import ParameterTree, Parameter, extract_value, value_to_uavcan
 from network.UavcanNode import UavcanNode
 from viewers.NestedDict import NestedDict, NestedDictView
 from viewers.Selector import Selector
+from viewers.helpers import vstack, hstack
 
 from collections import namedtuple
 
@@ -74,6 +75,16 @@ class ParameterTreeModel(NodeStatusMonitor):
         self.logger.info('Changed parameter {name} to {value}'.format(
             name=event.response.name, value=extract_value(event.response.value)))
 
+    def save_params(self, target_id):
+        OPCODE_SAVE = 0
+        request = uavcan.protocol.param.ExecuteOpcode.Request(opcode=OPCODE_SAVE)
+        self.node.request(request, target_id, self._save_params_callback)
+        self.logger.info('Asked node {} to save its parameters on flash'.format(target_id))
+
+    def _save_params_callback(self, event):
+        if not event: self.logger.warning('Unable to save parameters')
+        else:         self.logger.info('Parameters saved successfully')
+
     def item_to_path(self, item):
         row = item.row()
         keys = []
@@ -98,10 +109,14 @@ class ParameterWidget(QWidget):
         self.tree_view = NestedDictView()
         self.tree_view.on_edit(self._on_param_change)
 
-        layout = QVBoxLayout()
-        layout.addWidget(self.node_selector)
-        layout.addWidget(self.tree_view)
-        self.setLayout(layout)
+        self.save_button = QPushButton('Save')
+        self.save_button.clicked.connect(self._save_params)
+
+        self.setLayout(vstack([
+            self.node_selector,
+            self.tree_view,
+            self.save_button,
+        ]))
 
         self.model = ParameterTreeModel(node)
         self.model.on_new_node(self._update_nodes)
@@ -119,6 +134,9 @@ class ParameterWidget(QWidget):
         keys = self.model.item_to_path(item)
         self.model.set_param(target_id=self.selected_node.id,
             name='/'.join(keys), value=item.text(), value_type=self.model.params.get(keys).type)
+
+    def _save_params(self):
+        self.model.save_params(self.node_ids[self.node_selector.currentIndex()].id)
 
 def main():
     args = parse_args()

@@ -35,11 +35,15 @@ class PidViewer(QtGui.QWidget):
         self.pid_loop_selector = Selector()
         self.plot = LivePlotter(buffer_size=300)
         self.params_view = NestedDictView()
+        self.save_button = QtGui.QPushButton('Save')
 
         self.setLayout(vstack([
             self.node_selector,
             hstack([
-                self.params_view,
+                vstack([
+                    self.params_view,
+                    self.save_button,
+                ]),
                 vstack([
                     self.pid_loop_selector,
                     self.plot.widget,
@@ -139,6 +143,7 @@ class PidPlotController:
 
         self.viewer.params_view.on_edit(self._on_param_edit)
         self.model.params_model.on_new_params(self.viewer.params_view.set)
+        self.viewer.save_button.clicked.connect(self._save_params)
 
         threading.Thread(target=self.run).start()
 
@@ -156,10 +161,7 @@ class PidPlotController:
         self.model.tracked_node = self.model.nodes[i]
         self.model.clear()
         self.logger.info('Selected node {}'.format(self.model.tracked_node))
-
-        index = self.viewer.node_selector.currentIndex()
-        items = list(self.model.monitor.known_nodes.items())
-        self.model.params_model.fetch_params(int(items[index][0]))
+        self.model.params_model.fetch_params(self.selected_node_id())
 
     def _change_selected_pid_loop(self, i):
         self.model.tracked_pid_loop = self.model.PID_LOOPS[i]
@@ -175,6 +177,16 @@ class PidPlotController:
         self.model.params_model.set_param(target_id=target_id, name=name, value=value, value_type=value_type)
         self.logger.debug('Parameter {name} changed to {value} for node {node} ({target_id})'.format(
             name=name, value=item.text(), node=self.model.tracked_node, target_id=target_id))
+
+    def _save_params(self):
+        index = self.viewer.node_selector.currentIndex()
+        items = list(self.model.monitor.known_nodes.items())
+        self.model.params_model.save_params(self.selected_node_id())
+
+    def selected_node_id(self):
+        index = self.viewer.node_selector.currentIndex()
+        items = list(self.model.monitor.known_nodes.items())
+        return int(items[index][0])
 
 
 def main():
