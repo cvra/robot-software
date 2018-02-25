@@ -9,23 +9,23 @@ import numpy as np
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui
 
-from network.UavcanNode import UavcanNode
-from network.NodeStatusMonitor import NodeStatusMonitor
-from viewers.LivePlotter import LivePlotter
-from viewers.Selector import Selector
-from viewers.NestedDict import NestedDictView
-from viewers.helpers import vstack, hstack
-from param_tree import ParameterTreeModel
+from ..network.UavcanNode import UavcanNode
+from ..network.NodeStatusMonitor import NodeStatusMonitor
+from ..viewers.LivePlotter import LivePlotter
+from ..viewers.Selector import Selector
+from ..viewers.NestedDict import NestedDictView
+from ..viewers.helpers import vstack, hstack
+from .param_tree import ParameterTreeModel
 
 
-def parse_args():
-    parser = argparse.ArgumentParser(description=__doc__)
+def argparser(parser=None):
+    parser = parser or argparse.ArgumentParser(description=__doc__)
     parser.add_argument("interface", help="Serial port or SocketCAN interface")
     parser.add_argument("--dsdl", "-d", help="DSDL path", required=True)
     parser.add_argument("--node_id", "-n", help="UAVCAN Node ID", default=127)
     parser.add_argument('--verbose', '-v', action='count', default=0)
 
-    return parser.parse_args()
+    return parser
 
 class PidViewer(QtGui.QWidget):
     def __init__(self, parent = None):
@@ -189,8 +189,7 @@ class PidPlotController:
         return int(items[index][0])
 
 
-def main():
-    args = parse_args()
+def main(args):
     logging.basicConfig(level=max(logging.CRITICAL - (10 * args.verbose), 0))
 
     app = QtGui.QApplication(sys.argv)
@@ -207,4 +206,5 @@ def main():
         QtGui.QApplication.instance().exec_()
 
 if __name__ == '__main__':
-    main()
+    args = argparser().parse_args()
+    main(args)

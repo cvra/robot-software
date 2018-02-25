@@ -7,18 +7,18 @@ import time
 import uavcan
 from pyqtgraph.Qt import QtCore, QtGui
 
-from network.UavcanNode import UavcanNode
-from network.NodeStatusMonitor import NodeStatusMonitor
-from viewers.Selector import SelectorWidget
+from ..network.UavcanNode import UavcanNode
+from ..network.NodeStatusMonitor import NodeStatusMonitor
+from ..viewers.Selector import SelectorWidget
 
 
-def parse_args():
-    parser = argparse.ArgumentParser(description=__doc__)
+def argparser(parser=None):
+    parser = parser or argparse.ArgumentParser(description=__doc__)
     parser.add_argument("interface", help="Serial port or SocketCAN interface")
     parser.add_argument("--dsdl", "-d", help="DSDL path", required=True)
     parser.add_argument("--node_id", "-n", help="UAVCAN Node ID", default=127)
 
-    return parser.parse_args()
+    return parser
 
 class NodeSelectController:
     def __init__(self, model, viewer):
@@ -42,8 +42,7 @@ def qt_loop():
     if (sys.flags.interactive != 1) or not hasattr(QtCore, 'PYQT_VERSION'):
         QtGui.QApplication.instance().exec_()
 
-def main():
-    args = parse_args()
+def main(args):
     uavcan.load_dsdl(args.dsdl)
 
     node = UavcanNode(interface=args.interface, node_id=args.node_id)
@@ -56,4 +55,5 @@ def main():
     qt_loop()
 
 if __name__ == '__main__':
-    main()
+    args = argparser().parse_args()
+    main(args)
