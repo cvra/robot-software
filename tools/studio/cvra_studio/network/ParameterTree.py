@@ -1,4 +1,5 @@
 from collections import namedtuple
+import logging
 import queue
 
 import uavcan
@@ -35,6 +36,7 @@ class ParameterTree:
     Iterator for accessing a UAVCAN node's parameters
     """
     def __init__(self, node, node_id):
+        self.logger = logging.getLogger('ParameterTree')
         self.node = node
         self.node_id = node_id
         self.index = 0
@@ -49,7 +51,7 @@ class ParameterTree:
                 if len(event.response.name) == 0:
                     self.done = True
             else:
-                raise Exception('Service request has timed out!')
+                self.logger.warning('Service request has timed out!')
 
         self.node.request(uavcan.protocol.param.GetSet.Request(index=self.index), self.node_id, callback)
         self.index = self.index + 1
