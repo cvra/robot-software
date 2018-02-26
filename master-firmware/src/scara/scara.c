@@ -62,6 +62,12 @@ void scara_control_mode_disabled(scara_t* arm)
 }
 
 
+void scara_hold_position(scara_t* arm, scara_coordinate_t system)
+{
+    position_3d_t current_pos = scara_position(arm, system);
+    scara_goto(arm, current_pos, system, 1.f);
+}
+
 void scara_goto(scara_t* arm, position_3d_t pos, scara_coordinate_t system, const float duration)
 {
     scara_trajectory_init(&(arm->trajectory));

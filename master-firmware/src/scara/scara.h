@@ -65,6 +65,8 @@ void scara_control_mode_joint(scara_t* arm);
 void scara_control_mode_cartesian(scara_t* arm);
 void scara_control_mode_disabled(scara_t* arm);
 
+/* Hold current arm position in specified coordinate system */
+void scara_hold_position(scara_t* arm, scara_coordinate_t system);
 
 /* Goto position in specified coordinate system */
 void scara_goto(scara_t* arm, position_3d_t pos, scara_coordinate_t system, const float duration);

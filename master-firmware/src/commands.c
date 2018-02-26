@@ -977,8 +977,28 @@ static void cmd_scara_pos(BaseSequentialStream *chp, int argc, char *argv[])
         pos = scara_position(arm, COORDINATE_ARM);
     }
 
-    chprintf(chp, "Position of %s arm is %f %f %f in %s frame\r\n", argv[1],
+    chprintf(chp, "Position of arm is %f %f %f in %s frame\r\n",
              pos.x, pos.y, pos.z, argv[0]);
+}
+
+static void cmd_scara_hold(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc != 1) {
+        chprintf(chp, "Usage: scara_hold frame\r\n");
+        return;
+    }
+
+    scara_t* arm = &main_arm;
+
+    if (strcmp("robot", argv[0]) == 0) {
+        scara_hold_position(arm, COORDINATE_ROBOT);
+    } else if (strcmp("table", argv[0]) == 0) {
+        scara_hold_position(arm, COORDINATE_TABLE);
+    } else {
+        scara_hold_position(arm, COORDINATE_ARM);
+    }
+
+    chprintf(chp, "Holding current arm position in %s frame\r\n", argv[0]);
 }
 
 
@@ -1227,6 +1247,7 @@ const ShellCommand commands[] = {
     {"scara_mv", cmd_scara_mv},
     {"scara_z", cmd_scara_z},
     {"scara_pos", cmd_scara_pos},
+    {"scara_hold", cmd_scara_hold},
     {"scara_traj", cmd_scara_traj},
     {"scara_pause", cmd_scara_pause},
     {"scara_continue", cmd_scara_continue},
