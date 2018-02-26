@@ -438,7 +438,7 @@ TEST_GROUP_BASE(AScaraArmInverseKinematicsController, ArmTestGroupBase)
     {
         ArmTestGroupBase::setup();
 
-        scara_ugly_mode_disable(&arm); // Run IK controller
+        scara_control_mode_cartesian(&arm); // Run IK controller
     }
 };
 

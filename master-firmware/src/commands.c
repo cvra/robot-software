@@ -909,16 +909,16 @@ static void cmd_scara_goto(BaseSequentialStream *chp, int argc, char *argv[])
 static void cmd_scara_mode(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc != 1) {
-        chprintf(chp, "Usage: scara_mode mode\r\n");
+        chprintf(chp, "Usage: scara_mode {joint,cartesian,free}\r\n");
         return;
     }
 
-    scara_t* arm = &main_arm;
-
-    if (strcmp("jam", argv[0]) == 0) {
-        arm->control_mode = CONTROL_JAM_PID_XYA;
+    if (strcmp("joint", argv[0]) == 0) {
+        scara_control_mode_joint(&main_arm);
+    } else if (strcmp("cartesian", argv[0]) == 0) {
+        scara_control_mode_cartesian(&main_arm);
     } else {
-        arm->control_mode = CONTROL_JOINT_POSITION;
+        scara_control_mode_disabled(&main_arm);
     }
 }
 
@@ -1085,7 +1085,7 @@ static void cmd_scara_continue(BaseSequentialStream *chp, int argc, char *argv[]
 static void cmd_base_mode(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc != 1) {
-        chprintf(chp, "Usage: base_mode mode\r\n");
+        chprintf(chp, "Usage: base_mode {all,angle,distance,free}\r\n");
         return;
     }
 

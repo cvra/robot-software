@@ -22,7 +22,7 @@ void scara_init(scara_t *arm)
     memset(arm, 0, sizeof(scara_t));
 
     arm->shoulder_mode = SHOULDER_BACK;
-    arm->control_mode = CONTROL_JOINT_POSITION;
+    arm->control_mode = CONTROL_JOINT;
 
     arm->time_offset = 0;
 
@@ -46,14 +46,19 @@ void scara_set_offset(scara_t* arm, float offset_x, float offset_y, float offset
     arm->offset_rotation = offset_rotation;
 }
 
-void scara_ugly_mode_enable(scara_t* arm)
+void scara_control_mode_joint(scara_t* arm)
 {
-    arm->control_mode = CONTROL_JOINT_POSITION;
+    arm->control_mode = CONTROL_JOINT;
 }
 
-void scara_ugly_mode_disable(scara_t* arm)
+void scara_control_mode_cartesian(scara_t* arm)
 {
-    arm->control_mode = CONTROL_JAM_PID_XYA;
+    arm->control_mode = CONTROL_CARTESIAN;
+}
+
+void scara_control_mode_disabled(scara_t* arm)
+{
+    arm->control_mode = CONTROL_DISABLED;
 }
 
 
@@ -111,13 +116,18 @@ void scara_manage(scara_t *arm)
         scara_unlock(&arm->lock);
         return;
     }
+    if (arm->control_mode == CONTROL_DISABLED) {
+        scara_hw_shutdown_joints(&arm->hw_interface);
+        scara_unlock(&arm->lock);
+        return;
+    }
 
     scara_waypoint_t frame = scara_position_for_date(arm, current_date);
 
     shoulder_mode_t mode = scara_orientation_mode(arm->shoulder_mode, arm->offset_rotation);
     scara_joint_setpoints_t joint_setpoints;
 
-    if (arm->control_mode == CONTROL_JAM_PID_XYA) {
+    if (arm->control_mode == CONTROL_CARTESIAN) {
         scara_ik_controller_set_geometry(&arm->ik_controller, frame.length);
         joint_setpoints = scara_ik_controller_process(
             &arm->ik_controller, frame.position, arm->joint_positions);
@@ -125,7 +135,7 @@ void scara_manage(scara_t *arm)
         position_3d_t measured = scara_position(arm, frame.coordinate_type);
         DEBUG("Arm x %.3f y %.3f Arm velocities %.3f %.3f",
               measured.x, measured.y, joint_setpoints.shoulder.value, joint_setpoints.elbow.value);
-    } else {
+    } else if (arm->control_mode == CONTROL_JOINT) {
         scara_joint_controller_set_geometry(&arm->joint_controller, frame.length, mode);
         joint_setpoints = scara_joint_controller_process(
             &arm->joint_controller, frame.position, arm->joint_positions);

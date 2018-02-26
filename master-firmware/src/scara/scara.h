@@ -19,8 +19,9 @@
 
 /** Control mode of the scara arm. */
 typedef enum {
-    CONTROL_JOINT_POSITION=0, /**< Control the motors in position directly, ugly performance, but safe. */
-    CONTROL_JAM_PID_XYA,      /**< Control using jacobian and PIDs on x,y,a, smooth cartesian trajectories. */
+    CONTROL_JOINT=0,   /**< Control the motors in position directly, ugly performance, but safe. */
+    CONTROL_CARTESIAN, /**< Control using jacobian and PIDs on x,y, smooth cartesian trajectories. */
+    CONTROL_DISABLED,  /**< Control disabled. */
 } scara_control_mode_t;
 
 
@@ -59,15 +60,10 @@ void scara_init(scara_t *arm);
 void scara_set_physical_parameters(scara_t* arm, float upperarm_length, float forearm_length);
 void scara_set_offset(scara_t* arm, float offset_x, float offset_y, float offset_rotation);
 
-/** Enable "ugly mode" which is the joint position control
- * where each motor is controlled in position
- */
-void scara_ugly_mode_enable(scara_t* arm);
-
-/** Disables "ugly mode" and enables JAM PID controller
- * where each motor is controlled in velocity (except z axis)
- */
-void scara_ugly_mode_disable(scara_t* arm);
+/* Select control mode, see scara_control_mode_t for more info. */
+void scara_control_mode_joint(scara_t* arm);
+void scara_control_mode_cartesian(scara_t* arm);
+void scara_control_mode_disabled(scara_t* arm);
 
 
 /* Goto position in specified coordinate system */
