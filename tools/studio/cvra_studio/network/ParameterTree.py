@@ -52,6 +52,8 @@ class ParameterTree:
                     self.done = True
             else:
                 self.logger.warning('Service request has timed out!')
+                self.q.put(None)
+                self.done = True
 
         self.node.request(uavcan.protocol.param.GetSet.Request(index=self.index), self.node_id, callback)
         self.index = self.index + 1
