@@ -271,6 +271,9 @@ struct InitGoal : goap::Goal<DebraState> {
 
 void strategy_debra_play_game(void)
 {
+    /* Initialize map and path planner */
+    map_init(config_get_integer("master/robot_size_x_mm"));
+
     /* Wait for color selection */
     enum strat_color_t color = wait_for_color_selection();
 
