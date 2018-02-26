@@ -22,8 +22,8 @@ def main():
         parsers[command] = command_main.argparser(subparsers.add_parser(command))
         parsers[command].set_defaults(func=command_main.main)
 
-    try:
-        args = parser.parse_args()
+    args = parser.parse_args()
+    if hasattr(args, 'func'):
         args.func(args)
-    except AttributeError:
+    else:
         parser.print_help()
