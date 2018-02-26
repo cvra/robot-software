@@ -12,7 +12,7 @@ class LivePlotter:
         self.ax = self.widget.getPlotItem()
         self.timer.timeout.connect(self.update)
         self.timer.start(0)
-        self.ax.setAspectLocked(True)
+        self.ax.setAspectLocked(False)
         self.ax.addLegend()
         self.buffer_size = buffer_size
 
@@ -37,8 +37,9 @@ class LivePlotter:
                         np.asarray(data[variable]['value'][-self.buffer_size:]).flatten(),
                         name=variable,
                         pen=(index, len(data)), symbol="o",
-                        symbolPen=pg.mkPen({'color': "#00FFFF", 'width': 2}),
                         symbolSize=1
                     )
             except queue.Empty:
                 pass
+            except Exception:
+                plt.clear()

@@ -13,6 +13,10 @@ from network.UavcanNode import UavcanNode
 from network.NodeStatusMonitor import NodeStatusMonitor
 from viewers.LivePlotter import LivePlotter
 from viewers.Selector import Selector
+from viewers.NestedDict import NestedDictView
+from viewers.helpers import vstack, hstack
+from param_tree import ParameterTreeModel
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -27,18 +31,25 @@ class PidViewer(QtGui.QWidget):
     def __init__(self, parent = None):
         super(PidViewer, self).__init__(parent)
 
-        layout = QtGui.QVBoxLayout()
-
         self.node_selector = Selector()
-        layout.addWidget(self.node_selector)
-
         self.pid_loop_selector = Selector()
-        layout.addWidget(self.pid_loop_selector)
-
         self.plot = LivePlotter(buffer_size=300)
-        layout.addWidget(self.plot.widget)
+        self.params_view = NestedDictView()
+        self.save_button = QtGui.QPushButton('Save')
 
-        self.setLayout(layout)
+        self.setLayout(vstack([
+            self.node_selector,
+            hstack([
+                vstack([
+                    self.params_view,
+                    self.save_button,
+                ]),
+                vstack([
+                    self.pid_loop_selector,
+                    self.plot.widget,
+                ]),
+            ]),
+        ]))
         self.setWindowTitle("PID Plotter")
         self.show()
 
@@ -60,12 +71,15 @@ class PidFeedbackRecorder():
         self.data_lock = threading.RLock()
 
         self.monitor = NodeStatusMonitor(node)
-        self.monitor.set_on_new_node_callback(self._update_nodes)
+        self.monitor.on_new_node(self._update_nodes)
 
         self.clear()
         self.node.add_handler(uavcan.thirdparty.cvra.motor.feedback.CurrentPID, self._current_pid_callback)
         self.node.add_handler(uavcan.thirdparty.cvra.motor.feedback.VelocityPID, self._velocity_pid_callback)
         self.node.add_handler(uavcan.thirdparty.cvra.motor.feedback.PositionPID, self._position_pid_callback)
+
+        self.params_model = ParameterTreeModel(node)
+        self.params_model.on_new_node(self._update_nodes)
 
     def on_new_node(self, callback):
         self.on_new_node = callback
@@ -127,6 +141,10 @@ class PidPlotController:
         self.viewer.pid_loop_selector.set_nodes(self.model.PID_LOOPS)
         self.viewer.pid_loop_selector.set_callback(self._change_selected_pid_loop)
 
+        self.viewer.params_view.on_edit(self._on_param_edit)
+        self.model.params_model.on_new_params(self.viewer.params_view.set)
+        self.viewer.save_button.clicked.connect(self._save_params)
+
         threading.Thread(target=self.run).start()
 
     def run(self):
@@ -143,11 +161,33 @@ class PidPlotController:
         self.model.tracked_node = self.model.nodes[i]
         self.model.clear()
         self.logger.info('Selected node {}'.format(self.model.tracked_node))
+        self.model.params_model.fetch_params(self.selected_node_id())
 
     def _change_selected_pid_loop(self, i):
         self.model.tracked_pid_loop = self.model.PID_LOOPS[i]
         self.model.clear()
         self.logger.info('Selected PID loop {}'.format(self.model.tracked_pid_loop))
+
+    def _on_param_edit(self, item):
+        target_id = self.model.monitor.name_to_node_id(self.model.tracked_node)
+        keys = self.model.params_model.item_to_path(item)
+        name = '/'.join(keys)
+        value = item.text()
+        value_type = self.model.params_model.params.get(keys).type
+        self.model.params_model.set_param(target_id=target_id, name=name, value=value, value_type=value_type)
+        self.logger.debug('Parameter {name} changed to {value} for node {node} ({target_id})'.format(
+            name=name, value=item.text(), node=self.model.tracked_node, target_id=target_id))
+
+    def _save_params(self):
+        index = self.viewer.node_selector.currentIndex()
+        items = list(self.model.monitor.known_nodes.items())
+        self.model.params_model.save_params(self.selected_node_id())
+
+    def selected_node_id(self):
+        index = self.viewer.node_selector.currentIndex()
+        items = list(self.model.monitor.known_nodes.items())
+        return int(items[index][0])
+
 
 def main():
     args = parse_args()
