@@ -8,25 +8,26 @@ import sys
 import uavcan
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QApplication, QPushButton, QVBoxLayout, QWidget
-from network.NodeStatusMonitor import NodeStatusMonitor
-from network.ParameterTree import ParameterTree, Parameter, extract_value, value_to_uavcan
-from network.UavcanNode import UavcanNode
-from viewers.NestedDict import NestedDict, NestedDictView
-from viewers.Selector import Selector
-from viewers.helpers import vstack, hstack
+
+from ..network.NodeStatusMonitor import NodeStatusMonitor
+from ..network.ParameterTree import ParameterTree, Parameter, extract_value, value_to_uavcan
+from ..network.UavcanNode import UavcanNode
+from ..viewers.NestedDict import NestedDict, NestedDictView
+from ..viewers.Selector import Selector
+from ..viewers.helpers import vstack, hstack
 
 from collections import namedtuple
 
 NodeInfo = namedtuple('NodeInfo', ['name', 'id'])
 
-def parse_args():
-    parser = argparse.ArgumentParser(description=__doc__)
+def argparser(parser=None):
+    parser = parser or argparse.ArgumentParser(description=__doc__)
     parser.add_argument("interface", help="Serial port or SocketCAN interface")
     parser.add_argument("id", help="UAVCAN node ID", type=int)
     parser.add_argument("--dsdl", "-d", help="DSDL path")
     parser.add_argument('--verbose', '-v', action='count', default=3)
 
-    return parser.parse_args()
+    return parser
 
 class ParameterTreeModel(NodeStatusMonitor):
     def __init__(self, node):
@@ -138,8 +139,7 @@ class ParameterWidget(QWidget):
     def _save_params(self):
         self.model.save_params(self.node_ids[self.node_selector.currentIndex()].id)
 
-def main():
-    args = parse_args()
+def main(args):
     logging.basicConfig(level=max(logging.CRITICAL - (10 * args.verbose), 0))
 
     if args.dsdl is not None:
@@ -156,4 +156,5 @@ def main():
     sys.exit(app.exec_())
 
 if __name__ == '__main__':
-    main()
+    args = argparser().parse_args()
+    main(args)

@@ -19,6 +19,7 @@ Other important software components can be found in this repo:
     * and more.
 - `tools` groups all tools we use to develop on the robot including:
     * `tools/pid-tuner` a GUI to tune PID gains of motor boards over CAN, written using Python and Qt
+    * `tools/studio` a set of introspection tools written in Python and Qt to debug our robots
 - `uavcan_data_types` contains the custom message definitions (DSDL) for the UAVCAN communication protocol
 - `ci` groups scripts and Docker files for our continuous integration server
 - `doc` contains high-level documentation about the robot

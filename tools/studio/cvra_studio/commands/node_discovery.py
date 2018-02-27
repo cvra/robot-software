@@ -6,8 +6,8 @@ import time
 
 import uavcan
 
-from network.UavcanNode import UavcanNode
-from network.NodeStatusMonitor import NodeStatusMonitor
+from ..network.UavcanNode import UavcanNode
+from ..network.NodeStatusMonitor import NodeStatusMonitor
 
 class NodeStatusViewer:
     def __init__(self):
@@ -65,16 +65,15 @@ class NodeStatusController:
             self.viewer.display(self.model.known_nodes)
             time.sleep(1)
 
-def parse_args():
-    parser = argparse.ArgumentParser(description=__doc__)
+def argparser(parser=None):
+    parser = parser or argparse.ArgumentParser(description=__doc__)
     parser.add_argument("interface", help="Serial port or SocketCAN interface")
     parser.add_argument("--dsdl", "-d", help="DSDL path", required=True)
     parser.add_argument("--node_id", "-n", help="UAVCAN Node ID", default=127)
 
-    return parser.parse_args()
+    return parser
 
-def main():
-    args = parse_args()
+def main(args):
     uavcan.load_dsdl(args.dsdl)
 
     node = UavcanNode(interface=args.interface, node_id=args.node_id)
@@ -86,4 +85,5 @@ def main():
     node.spin()
 
 if __name__ == '__main__':
-    main()
+    args = argparser().parse_args()
+    main(args)
