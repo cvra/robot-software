@@ -1208,6 +1208,35 @@ static void cmd_lever(BaseSequentialStream *chp, int argc, char *argv[])
 
 }
 
+static void cmd_pick_cube(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc != 3) {
+        chprintf(chp, "Usage: pick x y z_start\r\n");
+        return;
+    }
+    float x = atof(argv[0]);
+    float y = atof(argv[1]);
+    float z_start = atof(argv[2]);
+
+    chprintf(chp, "Picking cube at x:%f y:%f z:65(%f)\r\n", x, y, z_start);
+    strat_pick_cube(x, y, z_start);
+}
+
+static void cmd_deposit_cube(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc != 3) {
+        chprintf(chp, "Usage: pick x y num_cubes\r\n");
+        return;
+    }
+    float x = atof(argv[0]);
+    float y = atof(argv[1]);
+    int num_cubes = atoi(argv[2]);
+
+    chprintf(chp, "Depositing cube on tower x:%f y:%f holding %f cubes\r\n", x, y, num_cubes);
+    strat_deposit_cube(x, y, num_cubes);
+    chprintf(chp, "Tower now has %f cubes\r\n", num_cubes + 1);
+}
+
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
@@ -1256,5 +1285,7 @@ const ShellCommand commands[] = {
     {"trace", cmd_trace},
     {"servo", cmd_servo},
     {"lever", cmd_lever},
+    {"pick", cmd_pick_cube},
+    {"deposit", cmd_deposit_cube},
     {NULL, NULL}
 };
