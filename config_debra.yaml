@@ -65,10 +65,10 @@ master:
                 kd: 5
                 i_limit: 100.
     arms:
-        upperarm_length: 140. # in mm
-        forearm_length: 90. # in mm
+        upperarm_length: 143. # in mm
+        forearm_length: 94. # in mm
         main_arm:
-            offset_x: 120.   # in mm
+            offset_x: 117.   # in mm
             offset_y: 0. # in mm
             offset_a: 0. # in radians
         motor_offsets:
