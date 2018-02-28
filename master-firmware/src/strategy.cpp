@@ -347,6 +347,17 @@ struct BuildTower : public goap::Action<DebraState> {
         strat_scara_goto_blocking({130, -150, 200}, COORDINATE_ARM, 1.);
         strat_deposit_cube(MIRROR_X(m_color, 850), 110, 0);
 
+        strat_pick_cube(MIRROR_X(m_color, 910), 540, 200);
+        strat_deposit_cube(MIRROR_X(m_color, 850), 110, 1);
+
+        strat_pick_cube(MIRROR_X(m_color, 850), 540, 200);
+        strat_scara_goto_blocking({50, -200, 200}, COORDINATE_ARM, 1.);
+        strat_deposit_cube(MIRROR_X(m_color, 850), 110, 2);
+
+        strat_pick_cube(MIRROR_X(m_color, 790), 540, 200);
+        strat_scara_goto_blocking({70, -180, 200}, COORDINATE_ARM, 1.);
+        strat_deposit_cube(MIRROR_X(m_color, 850), 110, 3);
+
         state.tower_built = true;
 
         return true;
