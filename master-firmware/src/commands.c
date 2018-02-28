@@ -925,7 +925,7 @@ static void cmd_scara_mode(BaseSequentialStream *chp, int argc, char *argv[])
 
 static void cmd_scara_mv(BaseSequentialStream *chp, int argc, char *argv[])
 {
-    if (argc != 3) {
+    if (argc != 2) {
         chprintf(chp, "Usage: scara_mv x y\r\n");
         return;
     }
@@ -942,21 +942,21 @@ static void cmd_scara_mv(BaseSequentialStream *chp, int argc, char *argv[])
     scara_trajectory_append_point(&trajectory, pos, COORDINATE_TABLE, 1, arm->length);
     scara_do_trajectory(arm, &trajectory);
 
-    chprintf(chp, "Moving %s arm to %f %f %f in table frame\r\n", argv[0], pos.x, pos.y, pos.z);
+    chprintf(chp, "Moving arm to %f %f %f in table frame\r\n", pos.x, pos.y, pos.z);
 }
 
 static void cmd_scara_z(BaseSequentialStream *chp, int argc, char *argv[])
 {
-    if (argc != 2) {
-        chprintf(chp, "Usage: scara_z side z\r\n");
+    if (argc != 1) {
+        chprintf(chp, "Usage: scara_z z\r\n");
         return;
     }
     scara_t* arm = &main_arm;
-    float z = atof(argv[1]);
+    float z = atof(argv[0]);
 
     scara_move_z(arm, z, COORDINATE_ROBOT, 1);
 
-    chprintf(chp, "Moving %s arm z to %f\r\n", argv[0], z);
+    chprintf(chp, "Moving arm z to %f\r\n", z);
 }
 
 static void cmd_scara_pos(BaseSequentialStream *chp, int argc, char *argv[])
