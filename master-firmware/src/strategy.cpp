@@ -264,6 +264,59 @@ struct RetractArms : public goap::Action<DebraState> {
     }
 };
 
+void strat_pick_cube(float x, float y, float z_start)
+{
+    const position_3d_t last_pos = scara_position(&main_arm, COORDINATE_ARM);
+    scara_goto(&main_arm, {200, 0, last_pos.z}, COORDINATE_ARM, 1.);
+    strategy_wait_ms(1000.);
+
+    scara_goto(&main_arm, {x, y, z_start}, COORDINATE_TABLE, 1.);
+    strategy_wait_ms(1000.);
+
+    scara_goto(&main_arm, {x, y, 65}, COORDINATE_TABLE, 1.);
+    strategy_wait_ms(1000.);
+
+    hand_set_pump(&main_hand, PUMP_ON);
+    strategy_wait_ms(200.);
+
+    scara_move_z(&main_arm, z_start, COORDINATE_ARM, 1.);
+    strategy_wait_ms(1000.);
+    strategy_wait_ms(1000.);
+}
+
+void strat_deposit_cube(float x, float y, int num_cubes_in_tower)
+{
+    const float z = (num_cubes_in_tower + 1) * 70.;
+    const float margin_z = 20;
+
+    scara_hold_position(&main_arm, COORDINATE_ARM);
+    strategy_wait_ms(500.);
+
+    const position_3d_t last_pos = scara_position(&main_arm, COORDINATE_ARM);
+    scara_goto(&main_arm, {200, 0, last_pos.z}, COORDINATE_ARM, 2.);
+    strategy_wait_ms(2000.);
+
+    scara_goto(&main_arm, {x, y, z + margin_z}, COORDINATE_TABLE, 2.);
+    strategy_wait_ms(2000.);
+    strategy_wait_ms(500.);
+
+    scara_goto(&main_arm, {x, y, z}, COORDINATE_TABLE, 1.);
+    strategy_wait_ms(1000.);
+    strategy_wait_ms(1000.);
+
+    hand_set_pump(&main_hand, PUMP_OFF);
+    strategy_wait_ms(200.);
+
+    scara_goto(&main_arm, {x, y, z + margin_z}, COORDINATE_TABLE, 1.);
+    strategy_wait_ms(1000.);
+}
+
+void strat_scara_goto_blocking(position_3d_t pos, scara_coordinate_t system, float duration)
+{
+    scara_goto(&main_arm, pos, COORDINATE_ARM, duration);
+    strategy_wait_ms(duration * 1000.);
+}
+
 struct BuildTower : public goap::Action<DebraState> {
     enum strat_color_t m_color;
 
@@ -285,61 +338,17 @@ struct BuildTower : public goap::Action<DebraState> {
 
     bool execute(DebraState &state)
     {
-        NOTICE("Build tower!");
+        NOTICE("Building tower!");
         state.arms_are_deployed = false;
 
-        ArmTrajectory traj(&main_arm);
-        ArmTrajectoryFrame last_pos;
+        strategy_goto_avoid_retry(MIRROR_X(m_color, 750), 330, MIRROR_A(m_color, 0), TRAJ_FLAGS_ALL, -1);
 
-        strategy_goto_avoid_retry(MIRROR_X(m_color, 600), 600, MIRROR_A(m_color, -45), TRAJ_FLAGS_ALL, -1);
-
-        // traj.startAt({45, 90, 150, COORDINATE_ROBOT})
-        //     .goThrough({MIRROR_X(m_color, 820), 540, 150, COORDINATE_TABLE})
-        //     .goThrough({MIRROR_X(m_color, 820), 540, 65, COORDINATE_TABLE});
-        // last_pos = traj.execute();
-        // strategy_wait_ms(traj.duration() * 1000.);
-        // scara_goto(scara_t* arm, position_3d_t pos, scara_coordinate_t system, const float duration)
-        scara_goto(&main_arm, {MIRROR_X(m_color, 815), 535, 150}, COORDINATE_TABLE, 2.);
-        strategy_wait_ms(2000.);
-        scara_goto(&main_arm, {MIRROR_X(m_color, 815), 535, 65}, COORDINATE_TABLE, 1.);
-        strategy_wait_ms(1000.);
-
-        hand_set_pump(&main_hand, PUMP_ON);
-        strategy_wait_ms(100.);
-
-        // traj.startAt(last_pos)
-        //     .goThrough({MIRROR_X(m_color, 820), 540, 150, COORDINATE_TABLE});
-        // last_pos = traj.execute();
-        // strategy_wait_ms(traj.duration() * 1000.);
-        scara_goto(&main_arm, {MIRROR_X(m_color, 820), 540, 150}, COORDINATE_TABLE, 1.);
-        strategy_wait_ms(1000.);
-
-        scara_hold_position(&main_arm, COORDINATE_ROBOT);
-
-        strategy_goto_avoid_retry(MIRROR_X(m_color, 600), 600, MIRROR_A(m_color, -135), TRAJ_FLAGS_ALL, -1);
-
-        // const auto current_pos = scara_position(&main_arm, COORDINATE_ROBOT);
-        // traj.startAt({current_pos.x, current_pos.y, current_pos.z, COORDINATE_ROBOT})
-        //     .goThrough({MIRROR_X(m_color, 350), 510, 150, COORDINATE_TABLE})
-        //     .goThrough({MIRROR_X(m_color, 350), 510, 65, COORDINATE_TABLE});
-        // last_pos = traj.execute();
-        // strategy_wait_ms(traj.duration() * 1000.);
-        scara_goto(&main_arm, {MIRROR_X(m_color, 350), 510, 150}, COORDINATE_TABLE, 1.);
-        strategy_wait_ms(1000.);
-        scara_goto(&main_arm, {MIRROR_X(m_color, 350), 510, 65}, COORDINATE_TABLE, 1.);
-        strategy_wait_ms(1000.);
-
-        hand_set_pump(&main_hand, PUMP_OFF);
-        strategy_wait_ms(100.);
-
-        // traj.startAt(last_pos)
-        //     .goThrough({MIRROR_X(m_color, 350), 510, 150, COORDINATE_TABLE});
-        // last_pos = traj.execute();
-        // strategy_wait_ms(traj.duration() * 1000.);
-        scara_goto(&main_arm, {MIRROR_X(m_color, 350), 510, 150}, COORDINATE_TABLE, 1.);
-        strategy_wait_ms(1000.);
+        strat_pick_cube(MIRROR_X(m_color, 850), 480, 200);
+        strat_scara_goto_blocking({130, -150, 200}, COORDINATE_ARM, 1.);
+        strat_deposit_cube(MIRROR_X(m_color, 850), 110, 0);
 
         state.tower_built = true;
+
         return true;
     }
 };
