@@ -32,6 +32,7 @@
 #include "base/encoder.h"
 #include "base/base_controller.h"
 #include "arms/arms_controller.h"
+#include "arms/arm_trajectory_manager.h"
 #include "lever/lever_module.h"
 #include "trace/trace_points.h"
 #include "strategy.h"
@@ -261,6 +262,7 @@ int main(void)
     /* Arms init */
     arms_init();
     arms_controller_start();
+    arm_trajectory_manager_start(&main_arm);
 #endif
     lever_module_start();
 
