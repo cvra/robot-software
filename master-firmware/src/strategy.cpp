@@ -17,6 +17,7 @@
 #include "base/map.h"
 #include "scara/scara_trajectories.h"
 #include "arms/arms_controller.h"
+#include "arms/arm_trajectory_manager.h"
 #include "arms/arm.h"
 #include "config.h"
 #include "control_panel.h"
@@ -264,24 +265,23 @@ struct RetractArms : public goap::Action<DebraState> {
     }
 };
 
+void strat_scara_goto_blocking(position_3d_t pos, scara_coordinate_t system, float duration)
+{
+    scara_goto(&main_arm, pos, system, duration);
+    arm_traj_wait_for_end();
+}
+
 void strat_pick_cube(float x, float y, float z_start)
 {
     const position_3d_t last_pos = scara_position(&main_arm, COORDINATE_ARM);
-    scara_goto(&main_arm, {200, 0, last_pos.z}, COORDINATE_ARM, 1.);
-    strategy_wait_ms(1000.);
-
-    scara_goto(&main_arm, {x, y, z_start}, COORDINATE_TABLE, 1.);
-    strategy_wait_ms(1000.);
-
-    scara_goto(&main_arm, {x, y, 65}, COORDINATE_TABLE, 1.);
-    strategy_wait_ms(1000.);
+    strat_scara_goto_blocking({200, 0, last_pos.z}, COORDINATE_ARM, 1.);
+    strat_scara_goto_blocking({x, y, z_start}, COORDINATE_TABLE, 1.);
+    strat_scara_goto_blocking({x, y, 65}, COORDINATE_TABLE, 1.);
 
     hand_set_pump(&main_hand, PUMP_ON);
     strategy_wait_ms(200.);
 
-    scara_move_z(&main_arm, z_start, COORDINATE_ARM, 1.);
-    strategy_wait_ms(1000.);
-    strategy_wait_ms(1000.);
+    strat_scara_goto_blocking({x, y, z_start}, COORDINATE_TABLE, 1.);
 }
 
 void strat_deposit_cube(float x, float y, int num_cubes_in_tower)
@@ -290,31 +290,17 @@ void strat_deposit_cube(float x, float y, int num_cubes_in_tower)
     const float margin_z = 20;
 
     scara_hold_position(&main_arm, COORDINATE_ARM);
-    strategy_wait_ms(500.);
+    arm_traj_wait_for_end();
 
     const position_3d_t last_pos = scara_position(&main_arm, COORDINATE_ARM);
-    scara_goto(&main_arm, {200, 0, last_pos.z}, COORDINATE_ARM, 2.);
-    strategy_wait_ms(2000.);
-
-    scara_goto(&main_arm, {x, y, z + margin_z}, COORDINATE_TABLE, 2.);
-    strategy_wait_ms(2000.);
-    strategy_wait_ms(500.);
-
-    scara_goto(&main_arm, {x, y, z}, COORDINATE_TABLE, 1.);
-    strategy_wait_ms(1000.);
-    strategy_wait_ms(1000.);
+    strat_scara_goto_blocking({200, 0, last_pos.z}, COORDINATE_ARM, 2.);
+    strat_scara_goto_blocking({x, y, z + margin_z}, COORDINATE_TABLE, 2.);
+    strat_scara_goto_blocking({x, y, z}, COORDINATE_TABLE, 1.);
 
     hand_set_pump(&main_hand, PUMP_OFF);
     strategy_wait_ms(200.);
 
-    scara_goto(&main_arm, {x, y, z + margin_z}, COORDINATE_TABLE, 1.);
-    strategy_wait_ms(1000.);
-}
-
-void strat_scara_goto_blocking(position_3d_t pos, scara_coordinate_t system, float duration)
-{
-    scara_goto(&main_arm, pos, COORDINATE_ARM, duration);
-    strategy_wait_ms(duration * 1000.);
+    strat_scara_goto_blocking({x, y, z + margin_z}, COORDINATE_TABLE, 1.);
 }
 
 struct BuildTower : public goap::Action<DebraState> {

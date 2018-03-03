@@ -58,9 +58,6 @@ static THD_FUNCTION(arm_traj_thd, arg)
             if (error.x <= main_arm_traj_manager.tol_mm.x &&
                 error.y <= main_arm_traj_manager.tol_mm.y &&
                 error.z <= main_arm_traj_manager.tol_mm.z) {
-                // if (main_arm_traj_manager.state == ARM_MOVING) {
-                //     scara_hold_position(arm, COORDINATE_ROBOT);
-                // }
                 main_arm_traj_manager.state = ARM_READY;
             } else {
                 main_arm_traj_manager.state = ARM_MOVING;
