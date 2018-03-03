@@ -72,6 +72,7 @@ void scara_hold_position(scara_t* arm, scara_coordinate_t system)
 void scara_goto(scara_t* arm, position_3d_t pos, scara_coordinate_t system, velocity_3d_t max_vel)
 {
     scara_trajectory_init(&(arm->trajectory));
+    scara_trajectory_append_point(&(arm->trajectory), scara_position(arm, system), system, max_vel, arm->length);
     scara_trajectory_append_point(&(arm->trajectory), pos, system, max_vel, arm->length);
     scara_do_trajectory(arm, &(arm->trajectory));
 }
