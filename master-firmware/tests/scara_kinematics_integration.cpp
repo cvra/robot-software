@@ -22,6 +22,7 @@ TEST_GROUP(kinematicsTestGroup)
     scara_trajectory_t traj;
     scara_t arm;
     float arbitraryLengths[2] = {100, 50};
+    velocity_3d_t max_vel = {.x=10, .y=10, .z=10};
 
     void setup()
     {
@@ -89,8 +90,8 @@ TEST(kinematicsTestGroup, DoesNotOscillateAroundZero)
     point_t target;
     int position_count;
 
-    scara_trajectory_append_point(&traj, {100,  1, 10}, COORDINATE_ARM, 1., arbitraryLengths);
-    scara_trajectory_append_point(&traj, {100, -1, 10}, COORDINATE_ARM, 10., arbitraryLengths);
+    scara_trajectory_append_point(&traj, {100,  1, 10}, COORDINATE_ARM, max_vel, arbitraryLengths);
+    scara_trajectory_append_point(&traj, {100, -1, 10}, COORDINATE_ARM, max_vel, arbitraryLengths);
     scara_do_trajectory(&arm, &traj);
 
     while (scara_time_get() < traj.frames[traj.frame_count-1].date) {

@@ -69,10 +69,10 @@ void scara_control_mode_disabled(scara_t* arm);
 void scara_hold_position(scara_t* arm, scara_coordinate_t system);
 
 /* Goto position in specified coordinate system */
-void scara_goto(scara_t* arm, position_3d_t pos, scara_coordinate_t system, const float duration);
+void scara_goto(scara_t* arm, position_3d_t pos, scara_coordinate_t system, velocity_3d_t max_vel);
 
 /* Move arm in axis only */
-void scara_move_z(scara_t* arm, float z, scara_coordinate_t system, const float duration);
+void scara_move_z(scara_t* arm, float z, scara_coordinate_t system, float max_vel_z);
 
 /* Get current arm position */
 position_3d_t scara_position(scara_t* arm, scara_coordinate_t system);

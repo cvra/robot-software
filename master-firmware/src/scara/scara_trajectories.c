@@ -1,3 +1,4 @@
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -23,9 +24,18 @@ void scara_trajectory_init(scara_trajectory_t *traj) {
     memset(traj, 0, sizeof(scara_trajectory_t));
 }
 
+float scara_trajectory_duration(position_3d_t start, position_3d_t end, velocity_3d_t max_vel)
+{
+    float duration_x = fabsf(start.x - end.x) / max_vel.x;
+    float duration_y = fabsf(start.y - end.y) / max_vel.y;
+    float duration_z = fabsf(start.z - end.z) / max_vel.z;
+
+    return fmaxf(duration_x, fmaxf(duration_y, duration_z));
+}
 
 void scara_trajectory_append_point(scara_trajectory_t *traj, position_3d_t pos,
-                                   scara_coordinate_t system, float duration, const float* length)
+                                   scara_coordinate_t system,
+                                   position_3d_t max_vel, const float* length)
 {
     traj->frame_count += 1;
     if (traj->frame_count >= SCARA_TRAJ_MAX_NUM_FRAMES) {
@@ -41,10 +51,15 @@ void scara_trajectory_append_point(scara_trajectory_t *traj, position_3d_t pos,
     traj->frames[traj->frame_count-1].position.z = pos.z;
     traj->frames[traj->frame_count-1].coordinate_type = system;
 
+    traj->frames[traj->frame_count-1].max_velocity.x = max_vel.x;
+    traj->frames[traj->frame_count-1].max_velocity.y = max_vel.y;
+    traj->frames[traj->frame_count-1].max_velocity.z = max_vel.z;
+
     if (traj->frame_count == 1) {
-        traj->frames[0].date = scara_time_get();
+        traj->frames[traj->frame_count-1].date = scara_time_get();
     } else {
-        traj->frames[traj->frame_count-1].date = traj->frames[traj->frame_count-2].date+1000000*duration;
+        float duration = scara_trajectory_duration(traj->frames[traj->frame_count-2].position, pos, max_vel);
+        traj->frames[traj->frame_count-1].date = traj->frames[traj->frame_count-2].date + 1000000 * duration;
     }
 
     traj->frames[traj->frame_count-1].length[0] = length[0];

@@ -257,31 +257,33 @@ struct RetractArms : public goap::Action<DebraState> {
         NOTICE("Retracting arms!");
         state.arms_are_deployed = false;
 
-        scara_goto(&main_arm, {.x=45., .y=90., .z=150.}, COORDINATE_ROBOT, 0.5);
-        scara_goto(&main_arm, {.x=45., .y=90., .z=150.}, COORDINATE_ROBOT, 0.5);
-        strategy_wait_ms(500);
+        scara_control_mode_cartesian(&main_arm);
+        scara_goto(&main_arm, {.x=320., .y=70., .z=150.}, COORDINATE_ROBOT, {.x=300, .y=300, .z=1000});
+        arm_traj_wait_for_end();
+        scara_goto(&main_arm, {.x=50., .y=100., .z=150.}, COORDINATE_ROBOT, {.x=300, .y=300, .z=1000});
+        arm_traj_wait_for_end();
 
         return true;
     }
 };
 
-void strat_scara_goto_blocking(position_3d_t pos, scara_coordinate_t system, float duration)
+void strat_scara_goto_blocking(position_3d_t pos, scara_coordinate_t system, velocity_3d_t max_vel)
 {
-    scara_goto(&main_arm, pos, system, duration);
+    scara_goto(&main_arm, pos, system, max_vel);
     arm_traj_wait_for_end();
 }
 
 void strat_pick_cube(float x, float y, float z_start)
 {
     const position_3d_t last_pos = scara_position(&main_arm, COORDINATE_ARM);
-    strat_scara_goto_blocking({200, 0, last_pos.z}, COORDINATE_ARM, 1.);
-    strat_scara_goto_blocking({x, y, z_start}, COORDINATE_TABLE, 1.);
-    strat_scara_goto_blocking({x, y, 65}, COORDINATE_TABLE, 1.);
+    strat_scara_goto_blocking({200, 0, last_pos.z}, COORDINATE_ARM, {300, 300, 1000});
+    strat_scara_goto_blocking({x, y, z_start}, COORDINATE_TABLE, {300, 300, 1000});
+    strat_scara_goto_blocking({x, y, 65}, COORDINATE_TABLE, {300, 300, 1000});
 
     hand_set_pump(&main_hand, PUMP_ON);
     strategy_wait_ms(200.);
 
-    strat_scara_goto_blocking({x, y, z_start}, COORDINATE_TABLE, 1.);
+    strat_scara_goto_blocking({x, y, z_start}, COORDINATE_TABLE, {300, 300, 1000});
 }
 
 void strat_deposit_cube(float x, float y, int num_cubes_in_tower)
@@ -293,14 +295,14 @@ void strat_deposit_cube(float x, float y, int num_cubes_in_tower)
     arm_traj_wait_for_end();
 
     const position_3d_t last_pos = scara_position(&main_arm, COORDINATE_ARM);
-    strat_scara_goto_blocking({200, 0, last_pos.z}, COORDINATE_ARM, 2.);
-    strat_scara_goto_blocking({x, y, z + margin_z}, COORDINATE_TABLE, 2.);
-    strat_scara_goto_blocking({x, y, z}, COORDINATE_TABLE, 1.);
+    strat_scara_goto_blocking({200, 0, last_pos.z}, COORDINATE_ARM, {300, 300, 1000});
+    strat_scara_goto_blocking({x, y, z + margin_z}, COORDINATE_TABLE, {300, 300, 1000});
+    strat_scara_goto_blocking({x, y, z}, COORDINATE_TABLE, {300, 300, 1000});
 
     hand_set_pump(&main_hand, PUMP_OFF);
     strategy_wait_ms(200.);
 
-    strat_scara_goto_blocking({x, y, z + margin_z}, COORDINATE_TABLE, 1.);
+    strat_scara_goto_blocking({x, y, z + margin_z}, COORDINATE_TABLE, {300, 300, 1000});
 }
 
 struct BuildTower : public goap::Action<DebraState> {
@@ -330,18 +332,18 @@ struct BuildTower : public goap::Action<DebraState> {
         strategy_goto_avoid_retry(MIRROR_X(m_color, 750), 330, MIRROR_A(m_color, 0), TRAJ_FLAGS_ALL, -1);
 
         strat_pick_cube(MIRROR_X(m_color, 850), 480, 200);
-        strat_scara_goto_blocking({130, -150, 200}, COORDINATE_ARM, 1.);
+        strat_scara_goto_blocking({130, -150, 200}, COORDINATE_ARM, {300, 300, 1000});
         strat_deposit_cube(MIRROR_X(m_color, 850), 110, 0);
 
         strat_pick_cube(MIRROR_X(m_color, 910), 540, 200);
         strat_deposit_cube(MIRROR_X(m_color, 850), 110, 1);
 
         strat_pick_cube(MIRROR_X(m_color, 850), 540, 200);
-        strat_scara_goto_blocking({50, -200, 200}, COORDINATE_ARM, 1.);
+        strat_scara_goto_blocking({50, -200, 200}, COORDINATE_ARM, {300, 300, 1000});
         strat_deposit_cube(MIRROR_X(m_color, 850), 110, 2);
 
         strat_pick_cube(MIRROR_X(m_color, 790), 540, 200);
-        strat_scara_goto_blocking({70, -180, 200}, COORDINATE_ARM, 1.);
+        strat_scara_goto_blocking({70, -180, 200}, COORDINATE_ARM, {300, 300, 1000});
         strat_deposit_cube(MIRROR_X(m_color, 850), 110, 3);
 
         state.tower_built = true;

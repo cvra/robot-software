@@ -26,7 +26,9 @@ ArmTrajectory& ArmTrajectory::startAt(const ArmTrajectoryFrame& frame)
 {
     scara_trajectory_init(&m_trajectory);
     scara_trajectory_append_point(&m_trajectory, frame.position,
-                                  frame.coordinate, 0.0, m_arm->length);
+                                  frame.coordinate,
+                                  {.x=500.f, .y=500.f, .z=1000.f},
+                                  m_arm->length);
     m_duration = 0.f;
     return *this;
 }
@@ -34,7 +36,9 @@ ArmTrajectory& ArmTrajectory::startAt(const ArmTrajectoryFrame& frame)
 ArmTrajectory& ArmTrajectory::goThrough(const ArmTrajectoryFrame& frame)
 {
     scara_trajectory_append_point(&m_trajectory, frame.position,
-                                  frame.coordinate, 1.0, m_arm->length);
+                                  frame.coordinate,
+                                  {.x=500.f, .y=500.f, .z=1000.f},
+                                  m_arm->length);
     m_duration += 1.f;
     return *this;
 }

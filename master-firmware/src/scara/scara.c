@@ -65,21 +65,23 @@ void scara_control_mode_disabled(scara_t* arm)
 void scara_hold_position(scara_t* arm, scara_coordinate_t system)
 {
     position_3d_t current_pos = scara_position(arm, system);
-    scara_goto(arm, current_pos, system, 1.f);
+    velocity_3d_t max_vel = {.x=300, .y=300, .z=1000};
+    scara_goto(arm, current_pos, system, max_vel);
 }
 
-void scara_goto(scara_t* arm, position_3d_t pos, scara_coordinate_t system, const float duration)
+void scara_goto(scara_t* arm, position_3d_t pos, scara_coordinate_t system, velocity_3d_t max_vel)
 {
     scara_trajectory_init(&(arm->trajectory));
-    scara_trajectory_append_point(&(arm->trajectory), pos, system, duration, arm->length);
+    scara_trajectory_append_point(&(arm->trajectory), pos, system, max_vel, arm->length);
     scara_do_trajectory(arm, &(arm->trajectory));
 }
 
-void scara_move_z(scara_t* arm, float z_new, scara_coordinate_t system, const float duration)
+void scara_move_z(scara_t* arm, float z_new, scara_coordinate_t system, float max_vel_z)
 {
     position_3d_t pos = scara_position(arm, system);
     pos.z = z_new;
-    scara_goto(arm, pos, system, duration);
+    velocity_3d_t max_vel = {.x=0, .y=0, .z=max_vel_z};
+    scara_goto(arm, pos, system, max_vel);
 }
 
 position_3d_t scara_position(scara_t* arm, scara_coordinate_t system)
@@ -222,7 +224,7 @@ void scara_pause(scara_t* arm)
         scara_trajectory_delete(&arm->trajectory);
         scara_trajectory_append_point(
             &arm->trajectory, current_pos.position, current_pos.coordinate_type,
-            current_pos.date / 1e6, &current_pos.length[0]);
+            current_pos.max_velocity, &current_pos.length[0]);
     }
 
     scara_unlock(&arm->lock);

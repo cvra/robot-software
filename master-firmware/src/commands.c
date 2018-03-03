@@ -887,8 +887,8 @@ static void cmd_motor_index(BaseSequentialStream *chp, int argc, char *argv[])
 
 static void cmd_scara_goto(BaseSequentialStream *chp, int argc, char *argv[])
 {
-    if (argc != 4) {
-        chprintf(chp, "Usage: scara_goto frame x y z\r\n");
+    if (argc != 5) {
+        chprintf(chp, "Usage: scara_goto frame x y z max_vel\r\n");
         return;
     }
     position_3d_t pos = {.x = atof(argv[1]), .y = atof(argv[2]), .z = atof(argv[3])};
@@ -896,13 +896,15 @@ static void cmd_scara_goto(BaseSequentialStream *chp, int argc, char *argv[])
     chprintf(chp, "Moving arm to %f %f %f heading 0 in %s frame\r\n", pos.x, pos.y, pos.z, argv[0]);
 
     scara_t* arm = &main_arm;
+    float _max_vel = atof(argv[4]);
+    velocity_3d_t max_vel = {.x=_max_vel, .y=_max_vel, .z=_max_vel};
 
     if (strcmp("robot", argv[0]) == 0) {
-        scara_goto(arm, pos, COORDINATE_ROBOT, 1.);
+        scara_goto(arm, pos, COORDINATE_ROBOT, max_vel);
     } else if (strcmp("table", argv[0]) == 0) {
-        scara_goto(arm, pos, COORDINATE_TABLE, 1.);
+        scara_goto(arm, pos, COORDINATE_TABLE, max_vel);
     } else {
-        scara_goto(arm, pos, COORDINATE_ARM, 1.);
+        scara_goto(arm, pos, COORDINATE_ARM, max_vel);
     }
 }
 
@@ -935,12 +937,13 @@ static void cmd_scara_mv(BaseSequentialStream *chp, int argc, char *argv[])
     scara_trajectory_t trajectory;
 
     position_3d_t pos = scara_position(arm, COORDINATE_TABLE);
+    velocity_3d_t max_vel = {.x = 500.f, .y = 500.f, .z = 1000.f};
     scara_trajectory_init(&trajectory);
-    scara_trajectory_append_point(&trajectory, pos, COORDINATE_TABLE, 0, arm->length);
+    scara_trajectory_append_point(&trajectory, pos, COORDINATE_TABLE, max_vel, arm->length);
 
     pos.x = atof(argv[0]);
     pos.y = atof(argv[1]);
-    scara_trajectory_append_point(&trajectory, pos, COORDINATE_TABLE, 1, arm->length);
+    scara_trajectory_append_point(&trajectory, pos, COORDINATE_TABLE, max_vel, arm->length);
     scara_do_trajectory(arm, &trajectory);
 
     chprintf(chp, "Moving arm to %f %f %f in table frame\r\n", pos.x, pos.y, pos.z);
@@ -1067,11 +1070,12 @@ static void cmd_scara_traj(BaseSequentialStream *chp, int argc, char *argv[])
 
             if (j == point_len) {
                 position_3d_t position = {.x = point[0], .y = point[1], .z = point[2]};
+                velocity_3d_t max_vel = {.x = point[3], .y = point[3], .z = point[3]};
                 scara_trajectory_append_point(&trajectory, position,
-                        system, (float)point[3] * 0.001, arm->length);
+                        system, max_vel, arm->length);
                 i++;
 
-                chprintf(chp, "Point %d coord:%s x:%d y:%d z:%d dt:%d added successfully.\n",
+                chprintf(chp, "Point %d coord:%s x:%d y:%d z:%d max_vel:%d added successfully.\n",
                         i, coord, point[0], point[1], point[2], point[3]);
             }
         }
