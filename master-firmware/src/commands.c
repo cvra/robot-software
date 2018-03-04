@@ -1196,7 +1196,11 @@ static void cmd_lever(BaseSequentialStream *chp, int argc, char *argv[])
     }
 
     se2_t robot_pose = base_get_robot_pose(&robot.pos);
-    se2_t blocks_pose = se2_chain(robot_pose, se2_create_xya(120, 0, RADIANS(90)));
+    se2_t lever_offset = se2_create_xya(
+        parameter_scalar_get(parameter_find(&master_config, "lever/right/offset_x")),
+        parameter_scalar_get(parameter_find(&master_config, "lever/right/offset_y")),
+        parameter_scalar_get(parameter_find(&master_config, "lever/right/offset_a")));
+    se2_t blocks_pose = se2_chain(robot_pose, lever_offset);
 
     if (strcmp("deploy", argv[0]) == 0)       { lever_deploy(&main_lever); }
     else if (strcmp("retract", argv[0]) == 0) { lever_retract(&main_lever); }

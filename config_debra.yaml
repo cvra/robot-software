@@ -49,6 +49,10 @@ master:
                     slow: 0.5
                     fast: 1.
     lever:
+        right:
+            offset_x: 0.   # in mm
+            offset_y: -195. # in mm
+            offset_a: 2.35 # in rad
         servo:
             deployed: 0.0022
             retracted: 0.0009

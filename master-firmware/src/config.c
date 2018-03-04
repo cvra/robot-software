@@ -43,9 +43,20 @@ static struct {
 static parameter_namespace_t beacon_config;
 static parameter_t beacon_reflector_radius, beacon_angular_offset;
 
-static parameter_namespace_t lever_config;
-static parameter_namespace_t lever_servo_config;
-static parameter_t lever_servo_retracted, lever_servo_deployed;
+static struct {
+    parameter_namespace_t ns;
+    struct {
+        parameter_namespace_t ns;
+        parameter_t offset_x;
+        parameter_t offset_y;
+        parameter_t offset_a;
+    } right;
+    struct {
+        parameter_namespace_t ns;
+        parameter_t retracted;
+        parameter_t deployed;
+    } servo;
+} lever;
 
 #ifdef DEBRA
 static parameter_namespace_t arms_config, arms_main_config, motor_offsets_config;
@@ -156,10 +167,14 @@ void config_init(void)
                                           &aversive.trajectories.distance.acceleration.ns,
                                           "fast", 0.);
 
-    parameter_namespace_declare(&lever_config, &master_config, "lever");
-    parameter_namespace_declare(&lever_servo_config, &lever_config, "servo");
-    parameter_scalar_declare_with_default(&lever_servo_deployed, &lever_servo_config, "deployed", 0);
-    parameter_scalar_declare_with_default(&lever_servo_retracted, &lever_servo_config, "retracted", 0);
+    parameter_namespace_declare(&lever.ns, &master_config, "lever");
+    parameter_namespace_declare(&lever.servo.ns, &lever.ns, "servo");
+    parameter_scalar_declare_with_default(&lever.servo.deployed, &lever.servo.ns, "deployed", 0);
+    parameter_scalar_declare_with_default(&lever.servo.retracted, &lever.servo.ns, "retracted", 0);
+    parameter_namespace_declare(&lever.right.ns, &lever.ns, "right");
+    parameter_scalar_declare_with_default(&lever.right.offset_x, &lever.right.ns, "offset_x", 0);
+    parameter_scalar_declare_with_default(&lever.right.offset_y, &lever.right.ns, "offset_y", 0);
+    parameter_scalar_declare_with_default(&lever.right.offset_a, &lever.right.ns, "offset_a", 0);
 
 #ifdef DEBRA
     parameter_namespace_declare(&arms_config, &master_config, "arms");
