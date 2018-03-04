@@ -9,8 +9,8 @@ extern "C" {
 #include <stdbool.h>
 #include "math/geometry/polygon.h"
 
-#define DEGREES(x) (x * 180.f / M_PI)
-#define RADIANS(x) (x * M_PI / 180.f)
+#define DEGREES(x) ((x) * 180.f / M_PI)
+#define RADIANS(x) ((x) * M_PI / 180.f)
 
 /** Return the minimum angular distance between the start and end angle
  */
