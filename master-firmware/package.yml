@@ -132,6 +132,7 @@ tests:
     - tests/lie_groups.cpp
     - tests/test_arm.cpp
     - tests/test_base_helpers.cpp
+    - tests/test_strategy_helpers.cpp
 
 templates:
     app_src.mk.jinja: app_src.mk
