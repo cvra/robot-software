@@ -1222,12 +1222,13 @@ static void cmd_pick_cube(BaseSequentialStream *chp, int argc, char *argv[])
         chprintf(chp, "Usage: pick x y z_start\r\n");
         return;
     }
-    float x = atof(argv[0]);
-    float y = atof(argv[1]);
+    point_t xy;
+    xy.x = atof(argv[0]);
+    xy.y = atof(argv[1]);
     float z_start = atof(argv[2]);
 
-    chprintf(chp, "Picking cube at x:%f y:%f z:65(%f)\r\n", x, y, z_start);
-    strat_pick_cube(x, y, z_start);
+    chprintf(chp, "Picking cube at x:%f y:%f z:65(%f)\r\n", xy.x, xy.y, z_start);
+    strat_pick_cube(xy, z_start);
 }
 
 static void cmd_deposit_cube(BaseSequentialStream *chp, int argc, char *argv[])

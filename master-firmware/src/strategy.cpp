@@ -273,17 +273,17 @@ void strat_scara_goto_blocking(position_3d_t pos, scara_coordinate_t system, vel
     arm_traj_wait_for_end();
 }
 
-void strat_pick_cube(float x, float y, float z_start)
+void strat_pick_cube(point_t xy, float z_start)
 {
     const position_3d_t last_pos = scara_position(&main_arm, COORDINATE_ARM);
     strat_scara_goto_blocking({200, 0, last_pos.z}, COORDINATE_ARM, {300, 300, 1000});
-    strat_scara_goto_blocking({x, y, z_start}, COORDINATE_TABLE, {300, 300, 1000});
-    strat_scara_goto_blocking({x, y, 65}, COORDINATE_TABLE, {300, 300, 1000});
+    strat_scara_goto_blocking({xy.x, xy.y, z_start}, COORDINATE_TABLE, {300, 300, 1000});
+    strat_scara_goto_blocking({xy.x, xy.y, 65}, COORDINATE_TABLE, {300, 300, 1000});
 
     hand_set_pump(&main_hand, PUMP_ON);
     strategy_wait_ms(200.);
 
-    strat_scara_goto_blocking({x, y, z_start}, COORDINATE_TABLE, {300, 300, 1000});
+    strat_scara_goto_blocking({xy.x, xy.y, z_start}, COORDINATE_TABLE, {300, 300, 1000});
 }
 
 void strat_deposit_cube(float x, float y, int num_cubes_in_tower)
@@ -331,18 +331,20 @@ struct BuildTower : public goap::Action<DebraState> {
 
         strategy_goto_avoid_retry(MIRROR_X(m_color, 750), 330, MIRROR_A(m_color, 0), TRAJ_FLAGS_ALL, -1);
 
-        strat_pick_cube(MIRROR_X(m_color, 850), 480, 200);
+        se2_t blocks_pose = se2_create_xya(MIRROR_X(m_color, 850), 540, RADIANS(MIRROR_A(m_color, 0)));
+
+        strat_pick_cube(strategy_block_pos(blocks_pose, BLOCK_BLACK), 200);
         strat_scara_goto_blocking({130, -150, 200}, COORDINATE_ARM, {300, 300, 1000});
         strat_deposit_cube(MIRROR_X(m_color, 850), 110, 0);
 
-        strat_pick_cube(MIRROR_X(m_color, 910), 540, 200);
+        strat_pick_cube(strategy_block_pos(blocks_pose, BLOCK_GREEN), 200);
         strat_deposit_cube(MIRROR_X(m_color, 850), 110, 1);
 
-        strat_pick_cube(MIRROR_X(m_color, 850), 540, 200);
+        strat_pick_cube(strategy_block_pos(blocks_pose, BLOCK_YELLOW), 200);
         strat_scara_goto_blocking({50, -200, 200}, COORDINATE_ARM, {300, 300, 1000});
         strat_deposit_cube(MIRROR_X(m_color, 850), 110, 2);
 
-        strat_pick_cube(MIRROR_X(m_color, 790), 540, 200);
+        strat_pick_cube(strategy_block_pos(blocks_pose, BLOCK_RED), 200);
         strat_scara_goto_blocking({70, -180, 200}, COORDINATE_ARM, {300, 300, 1000});
         strat_deposit_cube(MIRROR_X(m_color, 850), 110, 3);
 
