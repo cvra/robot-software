@@ -2,7 +2,7 @@
 #include <cmath>
 
 extern "C" {
-#include "scara/lie_groups.h"
+#include "math/lie_groups.h"
 }
 
 TEST_GROUP(AnSO2LieGroup)
@@ -65,6 +65,15 @@ TEST(AnSE2LieGroup, ConstructsFromAngleAndVector)
     CHECK_EQUAL(3, transform.translation.y);
 }
 
+TEST(AnSE2LieGroup, ConstructsFromAngleAndXYValues)
+{
+    se2_t transform = se2_create_xya(1, 2, 3);
+
+    CHECK_EQUAL(1, transform.translation.x);
+    CHECK_EQUAL(2, transform.translation.y);
+    CHECK_EQUAL(3, transform.rotation.angle);
+}
+
 TEST(AnSE2LieGroup, ReturnsSamePointWhenTransformIsIdentity)
 {
     se2_t identity = se2_create(0, {0, 0});
@@ -96,4 +105,50 @@ TEST(AnSE2LieGroup, AppliesInverseTransformToPoint)
 
     DOUBLES_EQUAL(  (point.y - 2), transformed.x, 0.01);
     DOUBLES_EQUAL(- (point.x - 1), transformed.y, 0.01);
+}
+
+TEST(AnSE2LieGroup, ChainsTransforms)
+{
+    se2_t A = se2_create(M_PI / 2, {1, 2});
+    se2_t B = se2_create(M_PI / 2, {3, 4});
+
+    se2_t AB = se2_chain(A, B);
+
+    DOUBLES_EQUAL(M_PI, AB.rotation.angle, 0.01);
+    DOUBLES_EQUAL(-3, AB.translation.x, 0.01);
+    DOUBLES_EQUAL(5, AB.translation.y, 0.01);
+}
+
+TEST(AnSE2LieGroup, ChainsTransformsNonTrivial)
+{
+    se2_t A = se2_create(M_PI / 4, {10, 20});
+    se2_t B = se2_create(M_PI / 6, {30, -40});
+
+    se2_t AB = se2_chain(A, B);
+
+    DOUBLES_EQUAL(5 * M_PI / 12, AB.rotation.angle, 0.01);
+    DOUBLES_EQUAL(59.49747468, AB.translation.x, 0.01);
+    DOUBLES_EQUAL(12.92893219, AB.translation.y, 0.01);
+}
+
+TEST(AnSE2LieGroup, InversesTransform)
+{
+    se2_t A = se2_create(M_PI / 2, {1, 2});
+
+    se2_t Ainv = se2_inverse(A);
+
+    DOUBLES_EQUAL(- M_PI / 2, Ainv.rotation.angle, 0.01);
+    DOUBLES_EQUAL(-2, Ainv.translation.x, 0.01);
+    DOUBLES_EQUAL(1, Ainv.translation.y, 0.01);
+}
+
+TEST(AnSE2LieGroup, InversesTransformNonTrivial)
+{
+    se2_t A = se2_create(M_PI / 12, {10, 20});
+
+    se2_t Ainv = se2_inverse(A);
+
+    DOUBLES_EQUAL(- M_PI / 12, Ainv.rotation.angle, 0.01);
+    DOUBLES_EQUAL(-14.83563916, Ainv.translation.x, 0.01);
+    DOUBLES_EQUAL(-16.73032607, Ainv.translation.y, 0.01);
 }

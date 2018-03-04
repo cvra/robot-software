@@ -24,8 +24,15 @@ typedef struct {
 } se2_t;
 
 se2_t se2_create(float angle, vect_t translation);
+se2_t se2_create_xya(float x, float y, float angle);
 
 point_t se2_transform(se2_t transform, point_t point);
 point_t se2_inverse_transform(se2_t transform, point_t point);
+
+// Chains the transforms: res = lhs @ rhs
+se2_t se2_chain(se2_t lhs, se2_t rhs);
+
+// Returns the inverse of input transform
+se2_t se2_inverse(se2_t transform);
 
 #endif

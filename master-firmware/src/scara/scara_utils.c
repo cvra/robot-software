@@ -1,5 +1,5 @@
 #include "scara_utils.h"
-#include "lie_groups.h"
+#include "math/lie_groups.h"
 
 
 point_t scara_coordinate_robot2arm(point_t robot_point, vect2_cart offset_xy, float offset_angle)
