@@ -192,6 +192,7 @@ struct DebraState {
     bool arms_are_indexed{false};
     bool arms_are_deployed{true};
     bool has_blocks{false};
+    bool blocks_ready_for_construction{false};
     bool tower_built{false};
 };
 
@@ -317,12 +318,13 @@ struct BuildTower : public goap::Action<DebraState> {
     }
     bool can_run(DebraState state)
     {
-        return state.arms_are_indexed;
+        return state.arms_are_indexed == false && state.has_blocks;
     }
 
     DebraState plan_effects(DebraState state)
     {
-        state.arms_are_deployed = false;
+        state.arms_are_deployed = true;
+        state.has_blocks = false;
         state.tower_built = true;
         return state;
     }
@@ -330,11 +332,20 @@ struct BuildTower : public goap::Action<DebraState> {
     bool execute(DebraState &state)
     {
         NOTICE("Building tower!");
-        state.arms_are_deployed = false;
+        state.arms_are_deployed = true;
 
-        strategy_goto_avoid_retry(MIRROR_X(m_color, 750), 330, MIRROR_A(m_color, 0), TRAJ_FLAGS_ALL, -1);
+        lever_t* lever = &main_lever;
 
-        se2_t blocks_pose = se2_create_xya(MIRROR_X(m_color, 850), 540, RADIANS(MIRROR_A(m_color, 0)));
+        strategy_goto_avoid_retry(MIRROR_X(m_color, 750), 330, MIRROR_A(m_color, -90), TRAJ_FLAGS_ALL, -1);
+
+        lever_deploy(lever);
+        strategy_wait_ms(500);
+
+        se2_t blocks_pose = lever_deposit(lever, base_get_robot_pose(&robot.pos));
+        strategy_wait_ms(500);
+
+        lever_retract(lever);
+        strategy_wait_ms(500);
 
         strat_pick_cube(strategy_block_pos(blocks_pose, BLOCK_BLACK), 200);
         strat_scara_goto_blocking({130, -150, 200}, COORDINATE_ARM, {300, 300, 1000});
@@ -351,6 +362,7 @@ struct BuildTower : public goap::Action<DebraState> {
         strat_scara_goto_blocking({70, -180, 200}, COORDINATE_ARM, {300, 300, 1000});
         strat_deposit_cube(MIRROR_X(m_color, 850), 110, 3);
 
+        state.has_blocks = false;
         state.tower_built = true;
 
         return true;
