@@ -94,6 +94,7 @@ source:
     - src/arms/arm.cpp
     - src/hand/hand.c
     - src/lever/lever.c
+    - src/base/base_helpers.c
 
 include_directories:
     - src/
@@ -130,6 +131,7 @@ tests:
     - tests/test_lever.cpp
     - tests/lie_groups.cpp
     - tests/test_arm.cpp
+    - tests/test_base_helpers.cpp
 
 templates:
     app_src.mk.jinja: app_src.mk
