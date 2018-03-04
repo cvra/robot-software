@@ -14,11 +14,13 @@
 #include "robot_helpers/strategy_helpers.h"
 #include "robot_helpers/beacon_helpers.h"
 #include "base/base_controller.h"
+#include "base/base_helpers.h"
 #include "base/map.h"
 #include "scara/scara_trajectories.h"
 #include "arms/arms_controller.h"
 #include "arms/arm_trajectory_manager.h"
 #include "arms/arm.h"
+#include "lever/lever_module.h"
 #include "config.h"
 #include "control_panel.h"
 #include "main.h"
@@ -189,6 +191,7 @@ struct DebraState {
     int score{0};
     bool arms_are_indexed{false};
     bool arms_are_deployed{true};
+    bool has_blocks{false};
     bool tower_built{false};
 };
 
@@ -354,6 +357,49 @@ struct BuildTower : public goap::Action<DebraState> {
     }
 };
 
+struct PickupBlocks : public goap::Action<DebraState> {
+    enum strat_color_t m_color;
+
+    PickupBlocks(enum strat_color_t color)
+        : m_color(color)
+    {
+    }
+    bool can_run(DebraState state)
+    {
+        return state.arms_are_deployed == false && state.has_blocks == false;
+    }
+
+    DebraState plan_effects(DebraState state)
+    {
+        state.has_blocks = true;
+        return state;
+    }
+
+    bool execute(DebraState &state)
+    {
+        NOTICE("Picking up some blocks");
+
+        lever_t* lever = &main_lever;
+
+        se2_t blocks_pose = se2_create_xya(MIRROR_X(m_color, 850), 540, 0);
+
+        strategy_goto_avoid_retry(MIRROR_X(m_color, 710), 400, MIRROR_A(m_color, -45), TRAJ_FLAGS_ALL, -1);
+
+        lever_deploy(lever);
+        strategy_wait_ms(500);
+
+        lever_pickup(lever, base_get_robot_pose(&robot.pos), blocks_pose);
+        strategy_wait_ms(500);
+
+        lever_retract(lever);
+        strategy_wait_ms(500);
+
+        state.has_blocks = true;
+
+        return true;
+    }
+};
+
 struct InitGoal : goap::Goal<DebraState> {
     bool is_reached(DebraState state)
     {
@@ -385,6 +431,7 @@ void strategy_debra_play_game(void)
     IndexArms index_arms;
     RetractArms retract_arms(color);
     BuildTower build_tower(color);
+    PickupBlocks pickup_blocks(color);
 
     const int max_path_len = 10;
     goap::Action<DebraState> *path[max_path_len] = {nullptr};
@@ -393,6 +440,7 @@ void strategy_debra_play_game(void)
         &index_arms,
         &retract_arms,
         &build_tower,
+        &pickup_blocks,
     };
 
     goap::Planner<DebraState> planner(actions, sizeof(actions) / sizeof(actions[0]));
