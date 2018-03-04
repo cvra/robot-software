@@ -70,10 +70,35 @@ static float pump_voltage(lever_pump_state_t state)
     return state == LEVER_PUMP_ON ? 10.0f : 0.0f;
 }
 
-void lever_pump_set(lever_t* lever, lever_pump_state_t state)
+static void lever_pump_set(lever_t* lever, lever_pump_state_t state)
 {
     lever->pump_state = state;
 
     lever->set_pump(lever->pump1_args, pump_voltage(state));
     lever->set_pump(lever->pump2_args, pump_voltage(state));
+}
+
+void lever_pickup(lever_t* lever, se2_t robot_pose, se2_t blocks_pose)
+{
+    lever_lock(&lever->lock);
+
+    lever_pump_set(lever, LEVER_PUMP_ON);
+    lever->robot_pose_at_pickup = robot_pose;
+    lever->blocks_pose_at_pickup = blocks_pose;
+
+    lever_unlock(&lever->lock);
+}
+
+se2_t lever_deposit(lever_t* lever, se2_t robot_pose)
+{
+    lever_lock(&lever->lock);
+
+    lever_pump_set(lever, LEVER_PUMP_OFF);
+    se2_t blocks_pose = se2_chain(robot_pose,
+                                  se2_chain(se2_inverse(lever->robot_pose_at_pickup),
+                                            lever->blocks_pose_at_pickup));
+
+    lever_unlock(&lever->lock);
+
+    return blocks_pose;
 }

@@ -20,6 +20,7 @@
 #include "aversive_port/cvra_motors.h"
 #include "base/encoder.h"
 #include "base/base_controller.h"
+#include "base/base_helpers.h"
 #include "trajectory_manager/trajectory_manager_utils.h"
 #include "obstacle_avoidance/obstacle_avoidance.h"
 #include "robot_helpers/math_helpers.h"
@@ -1190,22 +1191,21 @@ static void cmd_servo(BaseSequentialStream *chp, int argc, char *argv[])
 static void cmd_lever(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc != 1) {
-        chprintf(chp, "Usage: lever deploy|retract|on|off\r\n");
+        chprintf(chp, "Usage: lever deploy|retract|pickup|deposit\r\n");
         return;
     }
 
-    if (strcmp("deploy", argv[0]) == 0) {
-        lever_deploy(&main_lever);
-    } else if (strcmp("retract", argv[0]) == 0) {
-        lever_retract(&main_lever);
-    } else if (strcmp("on", argv[0]) == 0) {
-        lever_pump_set(&main_lever, LEVER_PUMP_ON);
-    } else if (strcmp("off", argv[0]) == 0) {
-        lever_pump_set(&main_lever, LEVER_PUMP_OFF);
-    } else {
-        chprintf(chp, "Invalid command: %s", argv[0]);
-    }
+    se2_t robot_pose = base_get_robot_pose(&robot.pos);
+    se2_t blocks_pose = se2_chain(robot_pose, se2_create_xya(120, 0, RADIANS(90)));
 
+    if (strcmp("deploy", argv[0]) == 0)       { lever_deploy(&main_lever); }
+    else if (strcmp("retract", argv[0]) == 0) { lever_retract(&main_lever); }
+    else if (strcmp("pickup", argv[0]) == 0)  { lever_pickup(&main_lever, robot_pose, blocks_pose); }
+    else if (strcmp("deposit", argv[0]) == 0) { blocks_pose = lever_deposit(&main_lever, robot_pose); }
+    else                                      { chprintf(chp, "Invalid command: %s", argv[0]); }
+
+    chprintf(chp, "Blocks at x:%f y:%f a:%f\r\n",
+        blocks_pose.translation.x, blocks_pose.translation.y, blocks_pose.rotation.angle);
 }
 
 static void cmd_pick_cube(BaseSequentialStream *chp, int argc, char *argv[])

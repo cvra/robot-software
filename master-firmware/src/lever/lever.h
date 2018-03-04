@@ -7,6 +7,8 @@ extern "C" {
 
 #include <ch.h>
 
+#include "math/lie_groups.h"
+
 typedef enum {
     LEVER_DISABLED,
     LEVER_RETRACTED,
@@ -29,6 +31,9 @@ typedef struct {
     lever_state_t state;
     lever_pump_state_t pump_state;
 
+    se2_t robot_pose_at_pickup;     // Robot pose at pickup (table frame)
+    se2_t blocks_pose_at_pickup;    // Blocks pose at pickup (table frame)
+
     float servo_retracted_pwm;  // pwm duty cycle in seconds to retract servo
     float servo_deployed_pwm;   // pwm duty cycle in seconds to deploy servo
     mutex_t lock;
@@ -48,8 +53,16 @@ void lever_deploy(lever_t* lever);
 /* Retract lever */
 void lever_retract(lever_t* lever);
 
-/* Enable/Disable pump */
-void lever_pump_set(lever_t* lever, lever_pump_state_t state);
+/* Pickup blocks (set pumps on)
+ * Takes robot pose and blocks pose - both in table frame - to track blocks pose
+ */
+void lever_pickup(lever_t* lever, se2_t robot_pose, se2_t blocks_pose);
+
+/* Deposit blocks (set pumps off)
+ * Takes robot pose in table frame
+ * Returns blocks pose after deposit in table frame
+ */
+se2_t lever_deposit(lever_t* lever, se2_t robot_pose);
 
 #ifdef __cplusplus
 }
