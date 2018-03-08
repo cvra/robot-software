@@ -1241,7 +1241,7 @@ static void cmd_pick_cube(BaseSequentialStream *chp, int argc, char *argv[])
 static void cmd_deposit_cube(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc != 3) {
-        chprintf(chp, "Usage: pick x y num_cubes\r\n");
+        chprintf(chp, "Usage: deposit x y num_cubes\r\n");
         return;
     }
     float x = atof(argv[0]);
