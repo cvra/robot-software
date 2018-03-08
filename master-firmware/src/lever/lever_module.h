@@ -9,7 +9,7 @@ extern "C" {
 
 #define LEVER_FREQUENCY 10
 
-extern lever_t main_lever;
+extern lever_t right_lever, left_lever;
 
 void lever_module_start(void);
 

@@ -333,7 +333,7 @@ struct BuildTower : public goap::Action<DebraState> {
         NOTICE("Building tower!");
         state.arms_are_deployed = true;
 
-        lever_t* lever = &main_lever;
+        lever_t* lever = &left_lever;
 
         strategy_goto_avoid_retry(MIRROR_X(m_color, 750), 330, MIRROR_A(m_color, -90), TRAJ_FLAGS_ALL, -1);
 
@@ -390,7 +390,7 @@ struct PickupBlocks : public goap::Action<DebraState> {
     {
         NOTICE("Picking up some blocks");
 
-        lever_t* lever = &main_lever;
+        lever_t* lever = &left_lever;
 
         se2_t blocks_pose = se2_create_xya(MIRROR_X(m_color, 850), 540, 0);
 
@@ -456,13 +456,14 @@ void strategy_debra_play_game(void)
 
     goap::Planner<DebraState> planner(actions, sizeof(actions) / sizeof(actions[0]));
 
+    lever_retract(&right_lever);
+    lever_retract(&left_lever);
+
     NOTICE("Getting arms ready...");
     len = planner.plan(state, init_goal, path, max_path_len);
     for (int i = 0; i < len; i++) {
         path[i]->execute(state);
     }
-
-    lever_retract(&main_lever);
 
     /* Autoposition robot */
     wait_for_autoposition_signal();

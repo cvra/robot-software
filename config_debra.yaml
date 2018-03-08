@@ -5,15 +5,15 @@ logging:
   sdcard:
     level: "notice" # changing this to debug slows down things too much and causes panic
 master:
-    robot_size_x_mm: 235 # Robot dimaneter
+    robot_size_x_mm: 245 # Robot diameter
     robot_alignment_length_mm: 130 # robot length from center to alignement border
     opponent_size_x_mm_default: 300
-    calibration_direction: 1 # calibration side is on the front
+    calibration_direction: 1 # calibration side is on the back
     odometry:
-        external_encoder_ticks_per_mm: 162.974661726 # Computed 162.974661726
-        external_track_mm: 193.50199890              # CAD 194
-        left_wheel_correction_factor: -1.00028944
-        right_wheel_correction_factor: 0.99971050
+        external_encoder_ticks_per_mm: 163.62917844 # Computed 162.974661726
+        external_track_mm: 202.              # CAD 202
+        left_wheel_correction_factor: 0.99952566
+        right_wheel_correction_factor: -1.00047433
     beacon:
         reflector_radius: 0.04 # in meters
         angular_offset: -1.57 # in radians
@@ -50,12 +50,19 @@ master:
                     fast: 1.
     lever:
         right:
-            offset_x: 0.   # in mm
-            offset_y: -195. # in mm
-            offset_a: 2.35 # in rad
-        servo:
-            deployed: 0.0022
-            retracted: 0.0009
+            offset_x: 0.    # in mm
+            offset_y: -217.5 # in mm
+            offset_a: 0.    # in rad
+            servo:
+                deployed: 0.0008
+                retracted: 0.00205
+        left:
+            offset_x: 0.    # in mm
+            offset_y: 217.5 # in mm
+            offset_a: 0.    # in rad
+            servo:
+                deployed: 0.00215
+                retracted: 0.0008
     main_arm:
         control:
             x:
@@ -69,12 +76,12 @@ master:
                 kd: 5
                 i_limit: 100.
     arms:
-        upperarm_length: 143. # in mm
-        forearm_length: 94. # in mm
+        upperarm_length: 100. # in mm
+        forearm_length: 98. # in mm
         main_arm:
-            offset_x: 117.   # in mm
-            offset_y: 0. # in mm
-            offset_a: 0. # in radians
+            offset_x: -100.  # in mm
+            offset_y: 0.     # in mm
+            offset_a: 3.1415 # in radians
         motor_offsets:
             z-joint: -275. # in mm
             shoulder-joint: 0. # in radians
@@ -179,7 +186,7 @@ actuator:
         encoders:
             primary:
                 # motor: 1516SR
-                ticks_per_rev: 2048
+                ticks_per_rev: 4096
                 # transmission: motor: 1/76 gears: 20/80
                 p: 1
                 q: 304
@@ -213,7 +220,7 @@ actuator:
         encoders:
             primary:
                 # motor: 1516SR
-                ticks_per_rev: 2048
+                ticks_per_rev: 4096
                 # transmission: motor: 1/76 gears: 20/60
                 p: 1
                 q: 228
@@ -237,10 +244,10 @@ actuator:
             acceleration_limit: 100.
             velocity_limit: 10.
             torque_limit: 3.
-#    arm-pump:
-#        control:
-#            mode: 0 # openloop
-#            low_batt_th: 12.
+    arm-pump:
+        control:
+            mode: 0 # openloop
+            low_batt_th: 12.
 #    lever-pump-1:
 #        control:
 #            mode: 0 # openloop

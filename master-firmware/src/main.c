@@ -313,8 +313,13 @@ void init_arm_motors(void)
 
 void init_lever_motors(void)
 {
-    motor_manager_create_driver(&motor_manager, "lever-pump-1");
-    motor_manager_create_driver(&motor_manager, "lever-pump-2");
+    bus_enumerator_add_node(&bus_enumerator, "right-lever", NULL);
+    motor_manager_create_driver(&motor_manager, "right-pump-1");
+    motor_manager_create_driver(&motor_manager, "right-pump-2");
+
+    bus_enumerator_add_node(&bus_enumerator, "left-lever", NULL);
+    motor_manager_create_driver(&motor_manager, "left-pump-1");
+    motor_manager_create_driver(&motor_manager, "left-pump-2");
 }
 
 void __stack_chk_fail(void)

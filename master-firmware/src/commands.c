@@ -1201,23 +1201,36 @@ static void cmd_servo(BaseSequentialStream *chp, int argc, char *argv[])
 
 static void cmd_lever(BaseSequentialStream *chp, int argc, char *argv[])
 {
-    if (argc != 1) {
-        chprintf(chp, "Usage: lever deploy|retract|pickup|deposit\r\n");
+    if (argc != 2) {
+        chprintf(chp, "Usage: lever right|left deploy|retract|pickup|deposit\r\n");
         return;
     }
 
+    lever_t* lever;
+    if      (strcmp("right", argv[0]) == 0) { lever = &right_lever; }
+    else if (strcmp("left", argv[0]) == 0)  { lever = &left_lever; }
+    else                                    { chprintf(chp, "Invalid lever side %s", argv[0]); return; }
+
     se2_t robot_pose = base_get_robot_pose(&robot.pos);
-    se2_t lever_offset = se2_create_xya(
-        parameter_scalar_get(parameter_find(&master_config, "lever/right/offset_x")),
-        parameter_scalar_get(parameter_find(&master_config, "lever/right/offset_y")),
-        parameter_scalar_get(parameter_find(&master_config, "lever/right/offset_a")));
+    se2_t lever_offset;
+    if (strcmp("right", argv[0]) == 0) {
+        lever_offset = se2_create_xya(
+            parameter_scalar_get(parameter_find(&master_config, "lever/right/offset_x")),
+            parameter_scalar_get(parameter_find(&master_config, "lever/right/offset_y")),
+            parameter_scalar_get(parameter_find(&master_config, "lever/right/offset_a")));
+    } else {
+        lever_offset = se2_create_xya(
+            parameter_scalar_get(parameter_find(&master_config, "lever/left/offset_x")),
+            parameter_scalar_get(parameter_find(&master_config, "lever/left/offset_y")),
+            parameter_scalar_get(parameter_find(&master_config, "lever/left/offset_a")));
+    }
     se2_t blocks_pose = se2_chain(robot_pose, lever_offset);
 
-    if (strcmp("deploy", argv[0]) == 0)       { lever_deploy(&main_lever); }
-    else if (strcmp("retract", argv[0]) == 0) { lever_retract(&main_lever); }
-    else if (strcmp("pickup", argv[0]) == 0)  { lever_pickup(&main_lever, robot_pose, blocks_pose); }
-    else if (strcmp("deposit", argv[0]) == 0) { blocks_pose = lever_deposit(&main_lever, robot_pose); }
-    else                                      { chprintf(chp, "Invalid command: %s", argv[0]); }
+    if (strcmp("deploy", argv[1]) == 0)       { lever_deploy(lever); }
+    else if (strcmp("retract", argv[1]) == 0) { lever_retract(lever); }
+    else if (strcmp("pickup", argv[1]) == 0)  { lever_pickup(lever, robot_pose, blocks_pose); }
+    else if (strcmp("deposit", argv[1]) == 0) { blocks_pose = lever_deposit(lever, robot_pose); }
+    else                                      { chprintf(chp, "Invalid command: %s", argv[1]); }
 
     chprintf(chp, "Blocks at x:%f y:%f a:%f\r\n",
         blocks_pose.translation.x, blocks_pose.translation.y, blocks_pose.rotation.angle);

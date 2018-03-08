@@ -50,12 +50,12 @@ static struct {
         parameter_t offset_x;
         parameter_t offset_y;
         parameter_t offset_a;
-    } right;
-    struct {
-        parameter_namespace_t ns;
-        parameter_t retracted;
-        parameter_t deployed;
-    } servo;
+        struct {
+            parameter_namespace_t ns;
+            parameter_t retracted;
+            parameter_t deployed;
+        } servo;
+    } right, left;
 } lever;
 
 #ifdef DEBRA
@@ -168,13 +168,22 @@ void config_init(void)
                                           "fast", 0.);
 
     parameter_namespace_declare(&lever.ns, &master_config, "lever");
-    parameter_namespace_declare(&lever.servo.ns, &lever.ns, "servo");
-    parameter_scalar_declare_with_default(&lever.servo.deployed, &lever.servo.ns, "deployed", 0);
-    parameter_scalar_declare_with_default(&lever.servo.retracted, &lever.servo.ns, "retracted", 0);
+
     parameter_namespace_declare(&lever.right.ns, &lever.ns, "right");
     parameter_scalar_declare_with_default(&lever.right.offset_x, &lever.right.ns, "offset_x", 0);
     parameter_scalar_declare_with_default(&lever.right.offset_y, &lever.right.ns, "offset_y", 0);
     parameter_scalar_declare_with_default(&lever.right.offset_a, &lever.right.ns, "offset_a", 0);
+    parameter_namespace_declare(&lever.right.servo.ns, &lever.right.ns, "servo");
+    parameter_scalar_declare_with_default(&lever.right.servo.deployed, &lever.right.servo.ns, "deployed", 0);
+    parameter_scalar_declare_with_default(&lever.right.servo.retracted, &lever.right.servo.ns, "retracted", 0);
+
+    parameter_namespace_declare(&lever.left.ns, &lever.ns, "left");
+    parameter_scalar_declare_with_default(&lever.left.offset_x, &lever.left.ns, "offset_x", 0);
+    parameter_scalar_declare_with_default(&lever.left.offset_y, &lever.left.ns, "offset_y", 0);
+    parameter_scalar_declare_with_default(&lever.left.offset_a, &lever.left.ns, "offset_a", 0);
+    parameter_namespace_declare(&lever.left.servo.ns, &lever.left.ns, "servo");
+    parameter_scalar_declare_with_default(&lever.left.servo.deployed, &lever.left.servo.ns, "deployed", 0);
+    parameter_scalar_declare_with_default(&lever.left.servo.retracted, &lever.left.servo.ns, "retracted", 0);
 
 #ifdef DEBRA
     parameter_namespace_declare(&arms_config, &master_config, "arms");
