@@ -13,6 +13,8 @@ target.arm:
   - src/main.c
   - src/debug.c
   - src/board.c
+  - src/vl6180x/vl6180x.c
+  - src/vl6180x/vl6180x_chibios.c
   - src/stubs.cpp
   - src/uavcan/node.cpp
   - src/bootloader_config.c
