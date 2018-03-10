@@ -4,7 +4,7 @@
 #include <string.h>
 #include "error/error.h"
 
-#define OUTPUT_STREAM ((BaseSequentialStream *)&SD1)
+#define OUTPUT_STREAM ((BaseSequentialStream *)&SD2)
 
 MUTEX_DECL(log_lock);
 
@@ -61,7 +61,7 @@ static const SerialConfig debug_serial_config = {
 
 void debug_init(void)
 {
-    sdStart(&SD1, &debug_serial_config);
+    sdStart(&SD2, &debug_serial_config);
 
     error_register_error(log_message);
     error_register_warning(log_message);

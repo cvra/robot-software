@@ -57,11 +57,11 @@
 #define GPIOB_PIN0                  0U
 #define GPIOB_PIN1                  1U
 #define GPIOB_PIN2                  2U
-#define GPIOB_SWO                   3U
-#define GPIOB_PIN4                  4U
+#define GPIOB_DEBUG_TX              3U
+#define GPIOB_DEBUG_RX              4U
 #define GPIOB_PIN5                  5U
-#define GPIOB_DEBUG_TX              6U
-#define GPIOB_DEBUG_RX              7U
+#define GPIOB_PIN6                  6U
+#define GPIOB_PIN7                  7U
 #define GPIOB_PIN8                  8U
 #define GPIOB_PIN9                  9U
 #define GPIOB_PIN10                 10U
@@ -216,11 +216,11 @@
  * PB0  - GPIOB_PIN0                (input floating).
  * PB1  - GPIOB_PIN1                (input floating).
  * PB2  - GPIOB_PIN2                (input floating).
- * PB3  - GPIOB_SWO                 (alternate 0).
- * PB4  - GPIOB_PIN4                (input floating).
+ * PB3  - GPIOB_DEBUG_TX            (alternate 7 (UART2 TX)).
+ * PB4  - GPIOB_DEBUG_RX            (alternate 7 (UART2 RX)).
  * PB5  - GPIOB_PIN5                (input floating).
- * PB6  - GPIOB_DEBUG_TX            (alternate 7 (UART1 TX)).
- * PB7  - GPIOB_DEBUG_RX            (alternate 7 (UART1 RX)).
+ * PB6  - GPIOB_PIN6                (input floating).
+ * PB7  - GPIOB_PIN7                (input floating).
  * PB8  - GPIOB_PIN8                (input floating).
  * PB9  - GPIOB_PIN9                (input floating).
  * PB10 - GPIOB_PIN10               (input floating).
@@ -233,11 +233,11 @@
 #define VAL_GPIOB_MODER             (PIN_MODE_INPUT(GPIOB_PIN0) | \
                                      PIN_MODE_INPUT(GPIOB_PIN1) | \
                                      PIN_MODE_INPUT(GPIOB_PIN2) | \
-                                     PIN_MODE_ALTERNATE(GPIOB_SWO) | \
-                                     PIN_MODE_INPUT(GPIOB_PIN4) | \
-                                     PIN_MODE_INPUT(GPIOB_PIN5) | \
                                      PIN_MODE_ALTERNATE(GPIOB_DEBUG_TX) | \
                                      PIN_MODE_ALTERNATE(GPIOB_DEBUG_RX) | \
+                                     PIN_MODE_INPUT(GPIOB_PIN5) | \
+                                     PIN_MODE_INPUT(GPIOB_PIN6) | \
+                                     PIN_MODE_INPUT(GPIOB_PIN7) | \
                                      PIN_MODE_INPUT(GPIOB_PIN8) | \
                                      PIN_MODE_INPUT(GPIOB_PIN9) | \
                                      PIN_MODE_INPUT(GPIOB_PIN10) | \
@@ -249,11 +249,11 @@
 #define VAL_GPIOB_OTYPER            (PIN_OTYPE_PUSHPULL(GPIOB_PIN0) | \
                                      PIN_OTYPE_PUSHPULL(GPIOB_PIN1) | \
                                      PIN_OTYPE_PUSHPULL(GPIOB_PIN2) | \
-                                     PIN_OTYPE_PUSHPULL(GPIOB_SWO) | \
-                                     PIN_OTYPE_PUSHPULL(GPIOB_PIN4) | \
-                                     PIN_OTYPE_PUSHPULL(GPIOB_PIN5) | \
                                      PIN_OTYPE_PUSHPULL(GPIOB_DEBUG_TX) | \
                                      PIN_OTYPE_PUSHPULL(GPIOB_DEBUG_RX) | \
+                                     PIN_OTYPE_PUSHPULL(GPIOB_PIN5) | \
+                                     PIN_OTYPE_PUSHPULL(GPIOB_PIN6) | \
+                                     PIN_OTYPE_PUSHPULL(GPIOB_PIN7) | \
                                      PIN_OTYPE_PUSHPULL(GPIOB_PIN8) | \
                                      PIN_OTYPE_PUSHPULL(GPIOB_PIN9) | \
                                      PIN_OTYPE_PUSHPULL(GPIOB_PIN10) | \
@@ -265,11 +265,11 @@
 #define VAL_GPIOB_OSPEEDR           (PIN_OSPEED_100M(GPIOB_PIN0) | \
                                      PIN_OSPEED_100M(GPIOB_PIN1) | \
                                      PIN_OSPEED_100M(GPIOB_PIN2) | \
-                                     PIN_OSPEED_100M(GPIOB_SWO) | \
-                                     PIN_OSPEED_100M(GPIOB_PIN4) | \
-                                     PIN_OSPEED_100M(GPIOB_PIN5) | \
                                      PIN_OSPEED_100M(GPIOB_DEBUG_TX) | \
                                      PIN_OSPEED_100M(GPIOB_DEBUG_RX) | \
+                                     PIN_OSPEED_100M(GPIOB_PIN5) | \
+                                     PIN_OSPEED_100M(GPIOB_PIN6) | \
+                                     PIN_OSPEED_100M(GPIOB_PIN7) | \
                                      PIN_OSPEED_100M(GPIOB_PIN8) | \
                                      PIN_OSPEED_100M(GPIOB_PIN9) | \
                                      PIN_OSPEED_100M(GPIOB_PIN10) | \
@@ -281,11 +281,11 @@
 #define VAL_GPIOB_PUPDR             (PIN_PUPDR_FLOATING(GPIOB_PIN0) | \
                                      PIN_PUPDR_FLOATING(GPIOB_PIN1) | \
                                      PIN_PUPDR_FLOATING(GPIOB_PIN2) | \
-                                     PIN_PUPDR_PULLUP(GPIOB_SWO) | \
-                                     PIN_PUPDR_FLOATING(GPIOB_PIN4) | \
-                                     PIN_PUPDR_FLOATING(GPIOB_PIN5) | \
-                                     PIN_PUPDR_PULLUP(GPIOB_DEBUG_TX) | \
+                                     PIN_PUPDR_FLOATING(GPIOB_DEBUG_TX) | \
                                      PIN_PUPDR_PULLUP(GPIOB_DEBUG_RX) | \
+                                     PIN_PUPDR_FLOATING(GPIOB_PIN5) | \
+                                     PIN_PUPDR_FLOATING(GPIOB_PIN6) | \
+                                     PIN_PUPDR_FLOATING(GPIOB_PIN7) | \
                                      PIN_PUPDR_FLOATING(GPIOB_PIN8) | \
                                      PIN_PUPDR_FLOATING(GPIOB_PIN9) | \
                                      PIN_PUPDR_FLOATING(GPIOB_PIN10) | \
@@ -297,11 +297,11 @@
 #define VAL_GPIOB_ODR               (PIN_ODR_LOW(GPIOB_PIN0) | \
                                      PIN_ODR_LOW(GPIOB_PIN1) | \
                                      PIN_ODR_LOW(GPIOB_PIN2) | \
-                                     PIN_ODR_LOW(GPIOB_SWO) | \
-                                     PIN_ODR_LOW(GPIOB_PIN4) | \
-                                     PIN_ODR_LOW(GPIOB_PIN5) | \
                                      PIN_ODR_LOW(GPIOB_DEBUG_TX) | \
                                      PIN_ODR_LOW(GPIOB_DEBUG_RX) | \
+                                     PIN_ODR_LOW(GPIOB_PIN5) | \
+                                     PIN_ODR_LOW(GPIOB_PIN6) | \
+                                     PIN_ODR_LOW(GPIOB_PIN7) | \
                                      PIN_ODR_LOW(GPIOB_PIN8) | \
                                      PIN_ODR_LOW(GPIOB_PIN9) | \
                                      PIN_ODR_LOW(GPIOB_PIN10) | \
@@ -313,11 +313,11 @@
 #define VAL_GPIOB_AFRL              (PIN_AFIO_AF(GPIOB_PIN0, 0) | \
                                      PIN_AFIO_AF(GPIOB_PIN1, 0) | \
                                      PIN_AFIO_AF(GPIOB_PIN2, 0) | \
-                                     PIN_AFIO_AF(GPIOB_SWO, 0) | \
-                                     PIN_AFIO_AF(GPIOB_PIN4, 0) | \
-                                     PIN_AFIO_AF(GPIOB_PIN5, 0) | \
                                      PIN_AFIO_AF(GPIOB_DEBUG_TX, 7) | \
-                                     PIN_AFIO_AF(GPIOB_DEBUG_RX, 7))
+                                     PIN_AFIO_AF(GPIOB_DEBUG_RX, 7) | \
+                                     PIN_AFIO_AF(GPIOB_PIN5, 0) | \
+                                     PIN_AFIO_AF(GPIOB_PIN6, 0) | \
+                                     PIN_AFIO_AF(GPIOB_PIN7, 0))
 #define VAL_GPIOB_AFRH              (PIN_AFIO_AF(GPIOB_PIN8, 0) | \
                                      PIN_AFIO_AF(GPIOB_PIN9, 0) | \
                                      PIN_AFIO_AF(GPIOB_PIN10, 0) | \
