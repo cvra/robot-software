@@ -303,10 +303,9 @@ void strat_deposit_cube(float x, float y, int num_cubes_in_tower)
     strat_scara_goto_blocking({x, y, z + margin_z}, COORDINATE_TABLE, {300, 300, 1000});
     strat_scara_goto_blocking({x, y, z}, COORDINATE_TABLE, {300, 300, 1000});
 
-    hand_set_pump(&main_hand, PUMP_OFF);
-    strategy_wait_ms(200.);
-
+    hand_set_pump(&main_hand, PUMP_REVERSE);
     strat_scara_goto_blocking({x, y, z + margin_z}, COORDINATE_TABLE, {300, 300, 1000});
+    hand_set_pump(&main_hand, PUMP_OFF);
 }
 
 struct BuildTower : public goap::Action<DebraState> {

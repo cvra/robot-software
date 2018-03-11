@@ -9,7 +9,8 @@ extern "C" {
 
 typedef enum {
     PUMP_OFF = 0,
-    PUMP_ON
+    PUMP_ON,
+    PUMP_REVERSE,
 } pump_state_t;
 
 typedef struct {

@@ -19,10 +19,12 @@ void hand_set_pump_callback(hand_t *hand,
 
 static float pump_voltage(pump_state_t state)
 {
-    if (state == PUMP_ON) {
-        return 10.0;
-    } else {
-        return 0.0;
+    switch (state)
+    {
+    case PUMP_ON:      return 10.0;
+    case PUMP_OFF:     return 0.0;
+    case PUMP_REVERSE: return -10.0;
+    default:           return 0.0;
     }
 }
 

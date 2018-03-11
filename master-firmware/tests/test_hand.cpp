@@ -33,6 +33,14 @@ TEST(AHand, canTurnPumpOn)
     CHECK(voltage > 0);
 }
 
+TEST(AHand, canTurnPumpOnReverse)
+{
+    hand_set_pump(&hand, PUMP_REVERSE);
+
+    CHECK_EQUAL(hand.pump_state, PUMP_REVERSE);
+    CHECK(voltage < 0);
+}
+
 TEST(AHand, canTurnPumpBackOff)
 {
     hand_set_pump(&hand, PUMP_ON);
