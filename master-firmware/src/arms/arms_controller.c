@@ -130,7 +130,7 @@ void arms_auto_index(cvra_arm_motor_t** motors, float* motor_speeds, size_t num_
     }
 #ifndef TESTS
     // TODO: Wait for an acknowledge that it was changed on the motor board, instead of waiting
-    chThdSleepSeconds(1);
+    chThdSleepSeconds(2);
 #endif
 
     /* Start moving in forward direction */
