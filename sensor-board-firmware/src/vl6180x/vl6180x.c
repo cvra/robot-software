@@ -1,5 +1,16 @@
+#include <stdbool.h>
 #include "vl6180x.h"
 #include "vl6180x_registers.h"
+
+bool vl6180x_ping(vl6180x_t *dev)
+{
+    uint8_t id = vl6180x_read_register(dev, VL6180X_IDENTIFICATION_MODEL_ID);
+    if (0xB4 == id) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 void vl6180x_init(vl6180x_t *dev, void *i2c_dev, uint8_t address)
 {

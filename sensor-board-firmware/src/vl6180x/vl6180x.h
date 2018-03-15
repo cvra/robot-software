@@ -5,6 +5,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include <stdbool.h>
 
 /* Default address of the sensor after powerup. */
 #define VL6180X_DEFAULT_ADDRESS 0x29
@@ -30,6 +31,9 @@ uint8_t vl6180x_measure_distance(vl6180x_t *dev, uint8_t *out_mm);
 
 /** Sends initial configuration to device. */
 void vl6180x_configure(vl6180x_t *dev);
+
+/** Check if sensor is present on I2C */
+bool vl6180x_ping(vl6180x_t *dev);
 
 /** Those functions are hardware specific and must be provided by the user. */
 extern uint8_t vl6180x_read_register(vl6180x_t *dev, uint16_t reg);

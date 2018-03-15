@@ -57,6 +57,14 @@ void tof_distance_init(void)
 
     /* VL6180X TOF distance sensor setup */
     vl6180x_init(&tof_distance, &I2CD2, VL6180X_ADDRESS);
+
+    NOTICE("VL6180X ping...");
+    if (vl6180x_ping(&tof_distance)) {
+        NOTICE("VL6180X ping...OK");
+    } else {
+        NOTICE("VL6180X ping...ERROR");
+    }
+
     vl6180x_configure(&tof_distance);
     NOTICE("VL6180X config");
 }
