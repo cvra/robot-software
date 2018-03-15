@@ -51,6 +51,12 @@ uint8_t vl6180x_measure_distance(vl6180x_t *dev, uint8_t *out_mm)
     return status >> 4;
 }
 
+void vl6180x_change_i2c_address(vl6180x_t *dev, uint8_t address)
+{
+    vl6180x_write_register(dev, VL6180X_I2C_SLAVE_DEVICE_ADDRESS, address);
+    dev->address = address;
+}
+
 /* Configuration as in application note AN4545: VL6180X basic ranging */
 void vl6180x_configure(vl6180x_t *dev)
 {

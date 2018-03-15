@@ -32,6 +32,9 @@ uint8_t vl6180x_measure_distance(vl6180x_t *dev, uint8_t *out_mm);
 /** Sends initial configuration to device. */
 void vl6180x_configure(vl6180x_t *dev);
 
+/** Change default I2C address */
+void vl6180x_change_i2c_address(vl6180x_t *dev, uint8_t address);
+
 /** Check if sensor is present on I2C */
 bool vl6180x_ping(vl6180x_t *dev);
 
