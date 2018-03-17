@@ -4,6 +4,7 @@
 #include <version/version.h>
 #include <uavcan_stm32/uavcan_stm32.hpp>
 #include <uavcan/protocol/NodeStatus.hpp>
+#include "DistanceVL6180X_pub.h"
 
 #include "node.h"
 
@@ -71,6 +72,7 @@ void main(unsigned int id, const char *name)
 
     while (true) {
         node.spin(uavcan::MonotonicDuration::fromMSec(1000 / UAVCAN_SPIN_FREQ));
+        distance_publish(node);
     }
 }
 }

@@ -39,7 +39,7 @@ void i2c_init(void)
 #define VL6180X_GPIO0 PAL_LINE(GPIOA, 2U)
 #define VL6180X_GPIO1 PAL_LINE(GPIOA, 3U)
 
-vl6180x_t tof_distance;
+vl6180x_t vl6180x_dev;
 
 /** Initialize front front distance sensor */
 void tof_distance_init(void)
@@ -56,22 +56,18 @@ void tof_distance_init(void)
     palSetLine(VL6180X_GPIO0);
     chThdSleepMilliseconds(1);
 
-
-    NOTICE("VL6180X GPIO init");
-
     /* VL6180X TOF distance sensor setup */
-    vl6180x_init(&tof_distance, &I2CD2, VL6180X_ADDRESS_0);
+    vl6180x_init(&vl6180x_dev, &I2CD2, VL6180X_ADDRESS_0);
 
-    vl6180x_change_i2c_address(&tof_distance, VL6180X_ADDRESS_MOD);
+    vl6180x_change_i2c_address(&vl6180x_dev, VL6180X_ADDRESS_MOD);
 
-    NOTICE("VL6180X ping...");
-    if (vl6180x_ping(&tof_distance)) {
+    if (vl6180x_ping(&vl6180x_dev)) {
         NOTICE("VL6180X ping...OK");
     } else {
         NOTICE("VL6180X ping...ERROR");
     }
 
-    vl6180x_configure(&tof_distance);
+    vl6180x_configure(&vl6180x_dev);
     NOTICE("VL6180X config");
 }
 
@@ -197,32 +193,8 @@ int main(void)
 
     tof_distance_init();
 
-    // palSetLineMode(VL6180X_GPIO0, PAL_STM32_MODE_OUTPUT);
-    // // keep VL6180X in RESET
-    // palClearLine(VL6180X_GPIO0);
-
-    color_sensor_init();
-
-    while (true) {
-        chThdSleepMilliseconds(100);
-        uint8_t distance_mm, status;
-        status = vl6180x_measure_distance(&tof_distance, &distance_mm);
-        NOTICE("distance [mm]: %d (status = %02x)", distance_mm, status);
-        uint16_t crgb[4];
-        TCS3472_read_color(crgb);
-        NOTICE("CRGB %u %u %u %u", crgb[0], crgb[1], crgb[2], crgb[3]);
-    }
-
-    // tof_distance_init();
-    // while (1) {
-    //     uint8_t distance_mm, status;
-    //     status = vl6180x_measure_distance(&tof_distance, &distance_mm);
-    //     NOTICE("distance [mm]: %d (status = %02x)", distance_mm, status);
-    //     chThdSleepMilliseconds(100);
-    // }
-
     // Never returns
-    // uavcan_start(10, "hello");
+    uavcan_start(10, "hello");
 
     return 0;
 }
