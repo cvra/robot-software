@@ -41,7 +41,6 @@ void i2c_init(void)
 
 vl6180x_t vl6180x_dev;
 
-/** Initialize front front distance sensor */
 void tof_distance_init(void)
 {
     /* GPIO setup */

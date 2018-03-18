@@ -20,7 +20,7 @@
 /*
  * Board identifier.
  */
-#define BOARD_NAME                  "CVRA CAN IO board"
+#define BOARD_NAME                  "CVRA Sensor board"
 
 /*
  * Board oscillators-related settings.

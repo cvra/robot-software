@@ -7,7 +7,7 @@ bool config_get(bootloader_config_t *cfg)
     // not compiled for bootloader, use default config
     cfg->ID = 1;
     strcpy(cfg->board_name, "dummy-config");
-    strcpy(cfg->device_class, "can-io-board");
+    strcpy(cfg->device_class, "sensor-board");
     cfg->application_crc = 0;
     cfg->application_size = 0;
     cfg->update_count = 0;
