@@ -1,5 +1,8 @@
 dependency-dir: ../lib
 
+include_directories:
+  - src/
+
 depends:
   - chibios-syscalls
   - cmp
@@ -8,11 +11,13 @@ depends:
   - crc
   - version
 
+source:
+  - src/vl6180x/vl6180x.c
+
 target.arm:
   - src/main.c
   - src/debug.c
   - src/board.c
-  - src/vl6180x/vl6180x.c
   - src/vl6180x/vl6180x_chibios.c
   - src/stubs.cpp
   - src/uavcan/node.cpp
@@ -20,5 +25,9 @@ target.arm:
   - src/bootloader_config.c
   - ../lib/can-bootloader/config.c
 
+tests:
+    - tests/test_range_sensor.cpp
+
 templates:
     app_src.mk.jinja: app_src.mk
+    CMakeLists.txt.jinja: CMakeLists.txt
