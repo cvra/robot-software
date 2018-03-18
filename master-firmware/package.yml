@@ -134,6 +134,7 @@ tests:
     - tests/test_arm.cpp
     - tests/test_base_helpers.cpp
     - tests/test_strategy_helpers.cpp
+    - tests/test_strategy.cpp
 
 templates:
     app_src.mk.jinja: app_src.mk

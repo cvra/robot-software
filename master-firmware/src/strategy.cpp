@@ -26,6 +26,9 @@
 #include "main.h"
 
 #include "strategy.h"
+#include "strategy/actions.h"
+#include "strategy/goals.h"
+#include "strategy/state.h"
 
 
 static enum strat_color_t wait_for_color_selection(void);
@@ -187,28 +190,8 @@ bool strategy_goto_avoid_retry(int x_mm, int y_mm, int a_deg, int traj_end_flags
     return finished;
 }
 
-struct DebraState {
-    int score{0};
-    bool arms_are_indexed{false};
-    bool arms_are_deployed{true};
-    bool has_blocks{false};
-    bool tower_built{false};
-};
-
-struct IndexArms : public goap::Action<DebraState> {
-    bool can_run(DebraState state)
-    {
-        (void) state;
-        return true;
-    }
-
-    DebraState plan_effects(DebraState state)
-    {
-        state.arms_are_indexed = true;
-        return state;
-    }
-
-    bool execute(DebraState &state)
+struct IndexArms : actions::IndexArms {
+    bool execute(RobotState &state)
     {
         NOTICE("Indexing arms!");
 
@@ -237,25 +220,8 @@ struct IndexArms : public goap::Action<DebraState> {
     }
 };
 
-struct RetractArms : public goap::Action<DebraState> {
-    enum strat_color_t m_color;
-
-    RetractArms(enum strat_color_t color)
-        : m_color(color)
-    {
-    }
-    bool can_run(DebraState state)
-    {
-        return state.arms_are_indexed;
-    }
-
-    DebraState plan_effects(DebraState state)
-    {
-        state.arms_are_deployed = false;
-        return state;
-    }
-
-    bool execute(DebraState &state)
+struct RetractArms : actions::RetractArms {
+    bool execute(RobotState &state)
     {
         NOTICE("Retracting arms!");
         state.arms_are_deployed = false;
@@ -307,26 +273,15 @@ void strat_deposit_cube(float x, float y, int num_cubes_in_tower)
     hand_set_pump(&main_hand, PUMP_OFF);
 }
 
-struct BuildTower : public goap::Action<DebraState> {
+struct BuildTower : actions::BuildTower {
     enum strat_color_t m_color;
 
     BuildTower(enum strat_color_t color)
         : m_color(color)
     {
     }
-    bool can_run(DebraState state)
-    {
-        return state.arms_are_deployed == false && state.has_blocks;
-    }
 
-    DebraState plan_effects(DebraState state)
-    {
-        state.arms_are_deployed = true;
-        state.tower_built = true;
-        return state;
-    }
-
-    bool execute(DebraState &state)
+    bool execute(RobotState &state)
     {
         NOTICE("Building tower!");
         state.arms_are_deployed = true;
@@ -364,25 +319,15 @@ struct BuildTower : public goap::Action<DebraState> {
     }
 };
 
-struct PickupBlocks : public goap::Action<DebraState> {
+struct PickupBlocks : actions::PickupBlocks {
     enum strat_color_t m_color;
 
     PickupBlocks(enum strat_color_t color)
         : m_color(color)
     {
     }
-    bool can_run(DebraState state)
-    {
-        return state.arms_are_deployed == false;
-    }
 
-    DebraState plan_effects(DebraState state)
-    {
-        state.has_blocks = true;
-        return state;
-    }
-
-    bool execute(DebraState &state)
+    bool execute(RobotState &state)
     {
         NOTICE("Picking up some blocks");
 
@@ -407,50 +352,36 @@ struct PickupBlocks : public goap::Action<DebraState> {
     }
 };
 
-struct InitGoal : goap::Goal<DebraState> {
-    bool is_reached(DebraState state)
-    {
-        return state.arms_are_deployed == false;
-    }
-};
-
-struct TowerGoal : goap::Goal<DebraState> {
-    bool is_reached(DebraState state)
-    {
-        return state.arms_are_deployed == false
-            && state.tower_built == true;
-    }
-};
-
 void strategy_debra_play_game(void)
 {
     /* Initialize map and path planner */
     map_init(config_get_integer("master/robot_size_x_mm"));
 
-    /* Wait for color selection */
+    NOTICE("Waiting for color selection...");
     enum strat_color_t color = wait_for_color_selection();
 
     int len;
-    DebraState state;
+    RobotState state;
 
     InitGoal init_goal;
     TowerGoal tower_goal;
+
     IndexArms index_arms;
-    RetractArms retract_arms(color);
+    RetractArms retract_arms;
     BuildTower build_tower(color);
     PickupBlocks pickup_blocks(color);
 
     const int max_path_len = 10;
-    goap::Action<DebraState> *path[max_path_len] = {nullptr};
+    goap::Action<RobotState> *path[max_path_len] = {nullptr};
 
-    goap::Action<DebraState> *actions[] = {
+    goap::Action<RobotState> *actions[] = {
         &index_arms,
         &retract_arms,
         &build_tower,
         &pickup_blocks,
     };
 
-    goap::Planner<DebraState> planner(actions, sizeof(actions) / sizeof(actions[0]));
+    goap::Planner<RobotState> planner(actions, sizeof(actions) / sizeof(actions[0]));
 
     lever_retract(&right_lever);
     lever_retract(&left_lever);
