@@ -11,6 +11,7 @@
 #include "motor_driver.h"
 #include "motor_driver_uavcan.hpp"
 #include "can_io_driver.h"
+#include "sensor_handler.h"
 #include "config.h"
 #include "uavcan_node.h"
 #include "priorities.h"
@@ -125,6 +126,10 @@ static void main(void *arg)
 
     if (can_io_init(node) < 0) {
         ERROR("CAN IO driver");
+    }
+
+    if (sensor_handler_init(node) < 0) {
+        ERROR("sensor init");
     }
 
     res = emergency_stop_init(node);
