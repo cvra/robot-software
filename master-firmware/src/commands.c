@@ -40,9 +40,17 @@
 
 const ShellCommand commands[];
 
+#if SHELL_USE_HISTORY == TRUE
+static char sc_histbuf[SHELL_MAX_HIST_BUFF];
+#endif
+
 static ShellConfig shell_cfg = {
     NULL,
-    commands
+    commands,
+#if SHELL_USE_HISTORY == TRUE
+    sc_histbuf,
+    sizeof(sc_histbuf),
+#endif
 };
 
 void shell_spawn(BaseSequentialStream *stream)
