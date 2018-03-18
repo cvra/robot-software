@@ -5,7 +5,7 @@
 
 bool vl6180x_ping(vl6180x_t *dev)
 {
-    uint8_t id = vl6180x_read_register(dev, VL6180X_IDENTIFICATION_MODEL_ID);
+    uint8_t id = vl6180x_read_register(dev, IDENTIFICATION__MODEL_ID);
     if (0xB4 == id) {
         return true;
     } else {
@@ -25,27 +25,27 @@ uint8_t vl6180x_measure_distance(vl6180x_t *dev, uint8_t *out_mm)
 
     /* Wait for device ready. */
     do {
-        status = vl6180x_read_register(dev, VL6180X_RESULT_RANGE_STATUS);
+        status = vl6180x_read_register(dev, RESULT__RANGE_STATUS);
     } while ((status & (1 << 0)) == 0);
 
     /* Start measurement. */
-    vl6180x_write_register(dev, VL6180X_SYSRANGE_START, 0x01);
+    vl6180x_write_register(dev, SYSRANGE__START, 0x01);
 
     /* Wait for measurement ready. */
     do {
-        status = vl6180x_read_register(dev, VL6180X_RESULT_INTERRUPT_STATUS_GPIO);
+        status = vl6180x_read_register(dev, RESULT__INTERRUPT_STATUS_GPIO);
     } while ((status & (1 << 2)) == 0);
 
     /* Read result. */
-    mm = vl6180x_read_register(dev, VL6180X_RESULT_RANGE_VAL);
+    mm = vl6180x_read_register(dev, RESULT__RANGE_VAL);
     *out_mm = mm;
 
     /* Clear interrupt flags. */
-    vl6180x_write_register(dev, VL6180X_SYSTEM_INTERRUPT_CLEAR, 0x07);
+    vl6180x_write_register(dev, SYSTEM__INTERRUPT_CLEAR, 0x07);
 
     /* Wait for device ready. */
     do {
-        status = vl6180x_read_register(dev, VL6180X_RESULT_RANGE_STATUS);
+        status = vl6180x_read_register(dev, RESULT__RANGE_STATUS);
     } while ((status & (1 << 0)) == 0);
 
     /* Return error code. */
@@ -54,7 +54,7 @@ uint8_t vl6180x_measure_distance(vl6180x_t *dev, uint8_t *out_mm)
 
 void vl6180x_change_i2c_address(vl6180x_t *dev, uint8_t address)
 {
-    vl6180x_write_register(dev, VL6180X_I2C_SLAVE_DEVICE_ADDRESS, address);
+    vl6180x_write_register(dev, I2C_SLAVE__DEVICE_ADDRESS, address);
     dev->address = address;
 }
 
@@ -81,22 +81,22 @@ void vl6180x_configure(vl6180x_t *dev)
     {0x01a7, 0x1f}, {0x0030, 0x00},
     /* Recommended : Public registers - See data sheet for more detail */
     /* Enables polling for New Sample ready when measurement completes */
-    {0x0011, 0x10},
+    {SYSTEM__MODE_GPIO1, 0x10},
     /* Set the averaging sample period (compromise between lower noise and
      * increased execution time) */
-    {0x010a, 0x30},
+    {READOUT__AVERAGING_SAMPLE_PERIOD, 0x30},
     /* Sets the light and dark gain (upper nibble). Dark gain should not be
      * changed.*/
-    {0x003f, 0x46},
+    {SYSALS__ANALOGUE_GAIN, 0x46},
     /* sets the # of range measurements after which auto calibration of system
      * is performed */
-    {0x0031, 0xFF},
+    {SYSRANGE__VHV_REPEAT_RATE, 0xFF},
     /* Set ALS integration time to 100ms */
-    {0x0040, 0x63},
+    {SYSALS__INTEGRATION_PERIOD, 0x63},
     /* perform a single temperature calibration of the ranging sensor */
-    {0x002e, 0x01},
+    {SYSRANGE__VHV_RECALIBRATE, 0x01},
     /* Configure interrupt on new sample ready. Required for polling to work. */
-    {0x0014, 0x24},
+    {SYSTEM__INTERRUPT_CONFIG_GPIO, 0x24},
     };
 
     const size_t init_tab_len = sizeof(init_tab)/sizeof(init_tab[0]);
