@@ -7,7 +7,6 @@ depends:
   - error
   - crc
   - version
-  - quadramp
 
 target.arm:
   - src/main.c
