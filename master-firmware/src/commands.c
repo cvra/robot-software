@@ -1253,6 +1253,21 @@ static void cmd_deposit_cube(BaseSequentialStream *chp, int argc, char *argv[])
     chprintf(chp, "Tower now has %f cubes\r\n", num_cubes + 1);
 }
 
+#include "can/can_io_driver.h"
+
+static void cmd_canio(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc != 3) {
+        chprintf(chp, "Usage: canio name channel pwm\r\n");
+        return;
+    }
+
+    int channel = atoi(argv[1]);
+    float pwm = atof(argv[2]);
+    can_io_set_pwm(argv[0], channel, pwm);
+    chprintf(chp, "Set CAN-IO %s Channel %d PWM %f\r\n", argv[0], channel, pwm);
+}
+
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
@@ -1304,5 +1319,6 @@ const ShellCommand commands[] = {
     {"lever", cmd_lever},
     {"pick", cmd_pick_cube},
     {"deposit", cmd_deposit_cube},
+    {"canio", cmd_canio},
     {NULL, NULL}
 };

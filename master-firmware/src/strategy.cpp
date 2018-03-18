@@ -462,6 +462,8 @@ void strategy_debra_play_game(void)
         path[i]->execute(state);
     }
 
+    lever_retract(&main_lever);
+
     /* Autoposition robot */
     wait_for_autoposition_signal();
     NOTICE("Positioning robot");
