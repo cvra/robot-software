@@ -30,7 +30,7 @@ void control_panel_init(void)
     }
 
     for (unsigned i = 0; i < sizeof(input_pins)/sizeof(input_pins[0]); i++) {
-        palSetPadMode(input_pins[i].port, input_pins[i].pin, PAL_MODE_INPUT_PULLUP);
+        palSetPadMode(input_pins[i].port, input_pins[i].pin, PAL_MODE_INPUT_PULLDOWN);
     }
 }
 
@@ -41,12 +41,12 @@ bool control_panel_read(enum control_panel_input in)
 
 void control_panel_set(enum control_panel_output out)
 {
-    palSetPad(output_pins[out].port, output_pins[out].pin);
+    palClearPad(output_pins[out].port, output_pins[out].pin);
 }
 
 void control_panel_clear(enum control_panel_output out)
 {
-    palClearPad(output_pins[out].port, output_pins[out].pin);
+    palSetPad(output_pins[out].port, output_pins[out].pin);
 }
 
 void control_panel_toggle(enum control_panel_output out)

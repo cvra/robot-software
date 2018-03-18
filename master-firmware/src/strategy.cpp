@@ -38,7 +38,7 @@ static void strategy_wait_ms(int ms);
 
 void strategy_play_game(void);
 
-#define BUTTON_IS_PRESSED(in) (control_panel_read(in) == false) // Active low
+#define BUTTON_IS_PRESSED(in) (control_panel_read(in) == true) // Active high
 
 static enum strat_color_t wait_for_color_selection(void)
 {
@@ -72,10 +72,10 @@ static enum strat_color_t wait_for_color_selection(void)
 static void wait_for_starter(void)
 {
     /* Wait for a rising edge */
-    while (control_panel_read(STARTER)) {
+    while (control_panel_read(BUTTON_GREEN)) {
         strategy_wait_ms(10);
     }
-    while (!control_panel_read(STARTER)) {
+    while (!control_panel_read(BUTTON_GREEN)) {
         strategy_wait_ms(10);
     }
 }
