@@ -67,7 +67,13 @@ void lever_retract(lever_t* lever)
 
 static float pump_voltage(lever_pump_state_t state)
 {
-    return state == LEVER_PUMP_ON ? 10.0f : 0.0f;
+    switch (state)
+    {
+    case LEVER_PUMP_ON:      return 10.f;
+    case LEVER_PUMP_REVERSE: return -10.f;
+    case LEVER_PUMP_OFF:     return 0.f;
+    default:                 return 0.f;
+    }
 }
 
 static void lever_pump_set(lever_t* lever, lever_pump_state_t state)
@@ -93,10 +99,11 @@ se2_t lever_deposit(lever_t* lever, se2_t robot_pose)
 {
     lever_lock(&lever->lock);
 
-    lever_pump_set(lever, LEVER_PUMP_OFF);
+    lever_pump_set(lever, LEVER_PUMP_REVERSE);
     se2_t blocks_pose = se2_chain(robot_pose,
                                   se2_chain(se2_inverse(lever->robot_pose_at_pickup),
                                             lever->blocks_pose_at_pickup));
+    lever_pump_set(lever, LEVER_PUMP_OFF);
 
     lever_unlock(&lever->lock);
 

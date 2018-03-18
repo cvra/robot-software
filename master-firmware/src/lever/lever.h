@@ -18,6 +18,7 @@ typedef enum {
 typedef enum {
     LEVER_PUMP_OFF,
     LEVER_PUMP_ON,
+    LEVER_PUMP_REVERSE,
 } lever_pump_state_t;
 
 typedef struct {
