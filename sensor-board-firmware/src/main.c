@@ -194,7 +194,7 @@ int main(void)
     tof_distance_init();
 
     // Never returns
-    uavcan_start(10, "hello");
+    uavcan_start(90, "hand_sensor");
 
     return 0;
 }
