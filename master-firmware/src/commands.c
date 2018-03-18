@@ -925,6 +925,13 @@ static void cmd_scara_mode(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
+static void cmd_scara_angles(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    scara_joint_positions_t angles = scara_hw_read_joint_positions(&main_arm.hw_interface);
+
+    chprintf(chp, "Arm joint shoulder: %f elbow: %f z: %f\r\n", angles.shoulder, angles.elbow, angles.z);
+}
+
 
 static void cmd_scara_mv(BaseSequentialStream *chp, int argc, char *argv[])
 {
@@ -1280,6 +1287,7 @@ const ShellCommand commands[] = {
     {"motor_voltage", cmd_motor_voltage},
     {"motor_index", cmd_motor_index},
     {"motors", cmd_motors},
+    {"scara_angles", cmd_scara_angles},
     {"scara_mode", cmd_scara_mode},
     {"scara_goto", cmd_scara_goto},
     {"scara_mv", cmd_scara_mv},
