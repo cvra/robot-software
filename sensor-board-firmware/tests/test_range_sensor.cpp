@@ -85,29 +85,29 @@ TEST(VL6180XRegisterTestGroup, CanReadDistance)
     uint8_t mm, ret;
 
     /* Device ready. */
-    expect_read(VL6180X_RESULT_RANGE_STATUS, 0x00);
-    expect_read(VL6180X_RESULT_RANGE_STATUS, 0x01);
+    expect_read(RESULT__RANGE_STATUS, 0x00);
+    expect_read(RESULT__RANGE_STATUS, 0x01);
 
     /* Start of measurement. */
-    expect_write(VL6180X_SYSRANGE_START, 0x01);
+    expect_write(SYSRANGE__START, 0x01);
 
     /* Wait for measurement to be ready. */
-    expect_read(VL6180X_RESULT_INTERRUPT_STATUS_GPIO, 0);
-    expect_read(VL6180X_RESULT_INTERRUPT_STATUS_GPIO, 0);
-    expect_read(VL6180X_RESULT_INTERRUPT_STATUS_GPIO, (1 << 2));
+    expect_read(RESULT__INTERRUPT_STATUS_GPIO, 0);
+    expect_read(RESULT__INTERRUPT_STATUS_GPIO, 0);
+    expect_read(RESULT__INTERRUPT_STATUS_GPIO, (1 << 2));
 
     /* Measurement result. */
-    expect_read(VL6180X_RESULT_RANGE_VAL, 18);
+    expect_read(RESULT__RANGE_VAL, 18);
 
     /* Interrupt clear. */
-    expect_write(VL6180X_SYSTEM_INTERRUPT_CLEAR, 0x07);
+    expect_write(SYSTEM__INTERRUPT_CLEAR, 0x07);
 
     /* Wait for sensor to be ready, return error code 0b1001 (unused). */
     uint8_t err_code = (0x09 << 4);
-    expect_read(VL6180X_RESULT_RANGE_STATUS, err_code | 0);
-    expect_read(VL6180X_RESULT_RANGE_STATUS, err_code | 0);
-    expect_read(VL6180X_RESULT_RANGE_STATUS, err_code | 0);
-    expect_read(VL6180X_RESULT_RANGE_STATUS, err_code | 1);
+    expect_read(RESULT__RANGE_STATUS, err_code | 0);
+    expect_read(RESULT__RANGE_STATUS, err_code | 0);
+    expect_read(RESULT__RANGE_STATUS, err_code | 0);
+    expect_read(RESULT__RANGE_STATUS, err_code | 1);
 
     ret = vl6180x_measure_distance(&dev, &mm);
 
