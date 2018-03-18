@@ -1289,6 +1289,22 @@ static void cmd_canio(BaseSequentialStream *chp, int argc, char *argv[])
     chprintf(chp, "Set CAN-IO %s Channel %d PWM %f\r\n", argv[0], channel, pwm);
 }
 
+static void cmd_hand_dist(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    (void) argc;
+    (void) argv;
+
+    messagebus_topic_t *topic;
+    float dist;
+
+    topic = messagebus_find_topic_blocking(&bus, "/hand_distance");
+    if (messagebus_topic_read(topic, &dist, sizeof(dist))) {
+        chprintf(chp, "hand_distance: %f\r\n", dist);
+    } else {
+        chprintf(chp, "topic was never published\r\n");
+    }
+}
+
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
@@ -1341,5 +1357,6 @@ const ShellCommand commands[] = {
     {"pick", cmd_pick_cube},
     {"deposit", cmd_deposit_cube},
     {"canio", cmd_canio},
+    {"dist", cmd_hand_dist},
     {NULL, NULL}
 };
