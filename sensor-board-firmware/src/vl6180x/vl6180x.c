@@ -68,7 +68,6 @@ void vl6180x_configure(vl6180x_t *dev)
     /* Mandatory: Private registers. */
     vl6180x_write_register(dev, 0x0207, 0x01);
     vl6180x_write_register(dev, 0x0208, 0x01);
-    // vl6180x_write_register(dev, 0x0133, 0x01); // undocumented
     vl6180x_write_register(dev, 0x0096, 0x00);
     vl6180x_write_register(dev, 0x0097, 0xfd);
     vl6180x_write_register(dev, 0x00e3, 0x00);
@@ -93,22 +92,10 @@ void vl6180x_configure(vl6180x_t *dev)
     vl6180x_write_register(dev, 0x00ff, 0x05);
     vl6180x_write_register(dev, 0x0100, 0x05);
     vl6180x_write_register(dev, 0x0199, 0x05);
-    // vl6180x_write_register(dev, 0x0109, 0x07); // undocumented
-    // vl6180x_write_register(dev, 0x010a, 0x30);
-    // vl6180x_write_register(dev, 0x003f, 0x46);
     vl6180x_write_register(dev, 0x01a6, 0x1b);
     vl6180x_write_register(dev, 0x01ac, 0x3e);
     vl6180x_write_register(dev, 0x01a7, 0x1f);
-    // vl6180x_write_register(dev, 0x0103, 0x01); // undocumented
     vl6180x_write_register(dev, 0x0030, 0x00);
-    // vl6180x_write_register(dev, 0x001b, 0x0a); // SYSRANGE__INTERMEASUREMENT_PERIOD
-    // vl6180x_write_register(dev, 0x003e, 0x0a); // SYSALS__INTERMEASUREMENT_PERIOD
-    // vl6180x_write_register(dev, 0x0131, 0x04); // undocumented
-    // // vl6180x_write_register(dev, 0x0011, 0x10);
-    // // vl6180x_write_register(dev, 0x0014, 0x24);
-    // // vl6180x_write_register(dev, 0x0031, 0xff);
-    // vl6180x_write_register(dev, 0x00d2, 0x01); // undocumented
-    // vl6180x_write_register(dev, 0x00f2, 0x01); // undocumented
 
     /* Recommended : Public registers - See data sheet for more detail */
 
