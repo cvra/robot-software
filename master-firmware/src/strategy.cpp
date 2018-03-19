@@ -227,9 +227,9 @@ struct RetractArms : actions::RetractArms {
         state.arms_are_deployed = false;
 
         scara_control_mode_cartesian(&main_arm);
-        scara_goto(&main_arm, {.x=-280., .y=0., .z=295.}, COORDINATE_ROBOT, {.x=300, .y=300, .z=1000});
+        scara_goto(&main_arm, {.x=-280., .y=0., .z=295.}, COORDINATE_ROBOT, {.x=300, .y=300, .z=300});
         arm_traj_wait_for_end();
-        scara_goto(&main_arm, {.x=-20., .y=-120., .z=295.}, COORDINATE_ROBOT, {.x=300, .y=300, .z=1000});
+        scara_goto(&main_arm, {.x=-20., .y=-120., .z=295.}, COORDINATE_ROBOT, {.x=300, .y=300, .z=300});
         arm_traj_wait_for_end();
 
         return true;
@@ -245,14 +245,14 @@ void strat_scara_goto_blocking(position_3d_t pos, scara_coordinate_t system, vel
 void strat_pick_cube(point_t xy, float z_start)
 {
     const position_3d_t last_pos = scara_position(&main_arm, COORDINATE_ARM);
-    strat_scara_goto_blocking({200, 0, last_pos.z}, COORDINATE_ARM, {300, 300, 1000});
-    strat_scara_goto_blocking({xy.x, xy.y, z_start}, COORDINATE_TABLE, {300, 300, 1000});
-    strat_scara_goto_blocking({xy.x, xy.y, 65}, COORDINATE_TABLE, {300, 300, 1000});
+    strat_scara_goto_blocking({200, 0, last_pos.z}, COORDINATE_ARM, {300, 300, 300});
+    strat_scara_goto_blocking({xy.x, xy.y, z_start}, COORDINATE_TABLE, {300, 300, 300});
+    strat_scara_goto_blocking({xy.x, xy.y, 60}, COORDINATE_TABLE, {300, 300, 300});
 
     hand_set_pump(&main_hand, PUMP_ON);
     strategy_wait_ms(200.);
 
-    strat_scara_goto_blocking({xy.x, xy.y, z_start}, COORDINATE_TABLE, {300, 300, 1000});
+    strat_scara_goto_blocking({xy.x, xy.y, z_start}, COORDINATE_TABLE, {300, 300, 300});
 }
 
 void strat_deposit_cube(float x, float y, int num_cubes_in_tower)
@@ -264,12 +264,12 @@ void strat_deposit_cube(float x, float y, int num_cubes_in_tower)
     arm_traj_wait_for_end();
 
     const position_3d_t last_pos = scara_position(&main_arm, COORDINATE_ARM);
-    strat_scara_goto_blocking({200, 0, last_pos.z}, COORDINATE_ARM, {300, 300, 1000});
-    strat_scara_goto_blocking({x, y, z + margin_z}, COORDINATE_TABLE, {300, 300, 1000});
-    strat_scara_goto_blocking({x, y, z}, COORDINATE_TABLE, {300, 300, 1000});
+    strat_scara_goto_blocking({200, 0, last_pos.z}, COORDINATE_ARM, {300, 300, 300});
+    strat_scara_goto_blocking({x, y, z + margin_z}, COORDINATE_TABLE, {300, 300, 300});
+    strat_scara_goto_blocking({x, y, z}, COORDINATE_TABLE, {300, 300, 300});
 
     hand_set_pump(&main_hand, PUMP_REVERSE);
-    strat_scara_goto_blocking({x, y, z + margin_z}, COORDINATE_TABLE, {300, 300, 1000});
+    strat_scara_goto_blocking({x, y, z + margin_z}, COORDINATE_TABLE, {300, 300, 300});
     hand_set_pump(&main_hand, PUMP_OFF);
 }
 
