@@ -60,6 +60,20 @@ struct PickupBlocks : public goap::Action<RobotState> {
     }
 };
 
+struct TurnSwitchOn : public goap::Action<RobotState> {
+    bool can_run(RobotState state)
+    {
+        return state.arms_are_deployed == false;
+    }
+
+    RobotState plan_effects(RobotState state)
+    {
+        state.arms_are_deployed = true;
+        state.switch_on = true;
+        return state;
+    }
+};
+
 } // namespace actions
 
 #endif /* STRATEGY_ACTIONS_H */

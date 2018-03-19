@@ -19,4 +19,11 @@ struct TowerGoal : goap::Goal<RobotState> {
     }
 };
 
+struct SwitchGoal : goap::Goal<RobotState> {
+    bool is_reached(RobotState state)
+    {
+        return state.switch_on == true;
+    }
+};
+
 #endif /* STRATEGY_GOALS_H */

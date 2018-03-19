@@ -7,6 +7,7 @@ struct RobotState {
     bool arms_are_deployed{true};
     bool has_blocks{false};
     bool tower_built{false};
+    bool switch_on{false};
 };
 
 #endif /* STRATEGY_STATE_H */
