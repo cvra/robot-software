@@ -397,7 +397,7 @@ void strategy_debra_play_game(void)
     RobotState state;
 
     InitGoal init_goal;
-    TowerGoal tower_goal;
+    GameGoal game_goal;
 
     IndexArms index_arms;
     RetractArms retract_arms;
@@ -447,7 +447,7 @@ void strategy_debra_play_game(void)
     trajectory_game_timer_reset();
 
     NOTICE("Starting game...");
-    len = planner.plan(state, tower_goal, path, max_path_len);
+    len = planner.plan(state, game_goal, path, max_path_len);
     for (int i = 0; i < len; i++) {
         path[i]->execute(state);
     }

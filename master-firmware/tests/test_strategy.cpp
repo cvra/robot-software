@@ -119,3 +119,35 @@ TEST(Strategy, CanPushInterruptor)
     POINTERS_EQUAL(&retract_arms, path[1]);
     POINTERS_EQUAL(&turn_switch_on, path[2]);
 }
+
+TEST(Strategy, CanWinGame)
+{
+    const int max_path_len = 10;
+    goap::Action<RobotState> *path[max_path_len] = {nullptr};
+    goap::Action<RobotState> *actions[] = {
+        &index_arms,
+        &retract_arms,
+        &build_tower,
+        &pickup_blocks,
+        &turn_switch_on,
+    };
+    goap::Planner<RobotState> planner(actions, sizeof(actions) / sizeof(actions[0]));
+
+    GameGoal switch_goal;
+    int len = planner.plan(state, switch_goal, path, max_path_len);
+    for (int i = 0; i < len; i++) {
+        path[i]->execute(state);
+    }
+
+    CHECK_TRUE(switch_goal.is_reached(state));
+    CHECK_TRUE(len > 0);
+
+    CHECK_EQUAL(7, len);
+    POINTERS_EQUAL(&index_arms, path[0]);
+    POINTERS_EQUAL(&retract_arms, path[1]);
+    POINTERS_EQUAL(&pickup_blocks, path[2]);
+    POINTERS_EQUAL(&build_tower, path[3]);
+    POINTERS_EQUAL(&retract_arms, path[4]);
+    POINTERS_EQUAL(&turn_switch_on, path[5]);
+    POINTERS_EQUAL(&retract_arms, path[6]);
+}
