@@ -432,9 +432,9 @@ void strategy_debra_play_game(void)
     NOTICE("Positioning robot");
 
     robot.base_speed = BASE_SPEED_INIT;
-    strategy_auto_position(MIRROR_X(color, 250), 250, MIRROR_A(color, -90), color);
+    strategy_auto_position(MIRROR_X(color, 200), 200, MIRROR_A(color, -90), color);
 
-    trajectory_a_abs(&robot.traj, MIRROR_A(color, 0));
+    trajectory_a_abs(&robot.traj, MIRROR_A(color, 180));
     trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
 
     robot.base_speed = BASE_SPEED_FAST;
