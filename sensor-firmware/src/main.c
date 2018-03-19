@@ -193,7 +193,7 @@ int main(void)
     tof_distance_init();
 
     // Never returns
-    uavcan_start(90, "hand_sensor");
+    uavcan_start(config.ID, config.board_name);
 
     return 0;
 }
