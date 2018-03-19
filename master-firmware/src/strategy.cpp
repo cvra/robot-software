@@ -352,6 +352,39 @@ struct PickupBlocks : actions::PickupBlocks {
     }
 };
 
+void strat_push_switch_on(float x, float y, float z, float y_push)
+{
+    const position_3d_t last_pos = scara_position(&main_arm, COORDINATE_TABLE);
+    strat_scara_goto_blocking({x,      y, last_pos.z}, COORDINATE_TABLE, {300, 300, 300});
+    strat_scara_goto_blocking({x,      y,          z}, COORDINATE_TABLE, {300, 300, 300});
+    strat_scara_goto_blocking({x, y_push,          z}, COORDINATE_TABLE, {300, 300, 300});
+    strat_scara_goto_blocking({x,      y,          z}, COORDINATE_TABLE, {300, 300, 300});
+    strat_scara_goto_blocking({x,      y, last_pos.z}, COORDINATE_TABLE, {300, 300, 300});
+}
+
+struct TurnSwitchOn : public actions::TurnSwitchOn {
+    enum strat_color_t m_color;
+
+    TurnSwitchOn(enum strat_color_t color)
+        : m_color(color)
+    {
+    }
+
+    bool execute(RobotState& state)
+    {
+        state.arms_are_deployed = true;
+
+        if (!strategy_goto_avoid_retry(MIRROR_X(m_color, 1130), 250, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL, -1)) {
+            return false;
+        }
+
+        strat_push_switch_on(MIRROR_X(m_color, 1130), 50, 150, -15);
+
+        state.switch_on = true;
+        return true;
+    }
+};
+
 void strategy_debra_play_game(void)
 {
     /* Initialize map and path planner */
@@ -370,6 +403,7 @@ void strategy_debra_play_game(void)
     RetractArms retract_arms;
     BuildTower build_tower(color);
     PickupBlocks pickup_blocks(color);
+    TurnSwitchOn turn_switch_on(color);
 
     const int max_path_len = 10;
     goap::Action<RobotState> *path[max_path_len] = {nullptr};
@@ -379,6 +413,7 @@ void strategy_debra_play_game(void)
         &retract_arms,
         &build_tower,
         &pickup_blocks,
+        &turn_switch_on,
     };
 
     goap::Planner<RobotState> planner(actions, sizeof(actions) / sizeof(actions[0]));

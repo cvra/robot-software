@@ -1274,6 +1274,22 @@ static void cmd_deposit_cube(BaseSequentialStream *chp, int argc, char *argv[])
     chprintf(chp, "Tower now has %f cubes\r\n", num_cubes + 1);
 }
 
+
+static void cmd_push_y(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc != 4) {
+        chprintf(chp, "Usage: push_y x y z y_push\r\n");
+        return;
+    }
+    float x = atof(argv[0]);
+    float y = atof(argv[1]);
+    float z = atof(argv[2]);
+    float y_push = atof(argv[3]);
+
+    chprintf(chp, "Pushing from x:%f y:%f z:%f to x:%f y:%f z:%f \r\n", x, y, z, x, y_push, z);
+    strat_push_switch_on(x, y, z, y_push);
+}
+
 #include "can/can_io_driver.h"
 
 static void cmd_canio(BaseSequentialStream *chp, int argc, char *argv[])
@@ -1356,6 +1372,7 @@ const ShellCommand commands[] = {
     {"lever", cmd_lever},
     {"pick", cmd_pick_cube},
     {"deposit", cmd_deposit_cube},
+    {"push_y", cmd_push_y},
     {"canio", cmd_canio},
     {"dist", cmd_hand_dist},
     {NULL, NULL}
