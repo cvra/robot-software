@@ -104,7 +104,7 @@
  * PA5  - GPIOA_PIN5                (input floating).
  * PA6  - GPIOA_PIN6                (input floating).
  * PA7  - GPIOA_PIN7                (input floating).
- * PA8  - GPIOA_CAN_DIS             (output high).
+ * PA8  - GPIOA_CAN_DIS             (output low).
  * PA9  - GPIOA_I2C2_SCL            (alternate 4 opendrain (I2C2)).
  * PA10 - GPIOA_I2C2_SDA            (alternate 4 opendrain (I2C2)).
  * PA11 - GPIOA_CAN_RX              (alternate 9).
@@ -169,7 +169,7 @@
                                      PIN_PUPDR_FLOATING(GPIOA_PIN5) | \
                                      PIN_PUPDR_PULLDOWN(GPIOA_PIN6) | \
                                      PIN_PUPDR_FLOATING(GPIOA_PIN7) | \
-                                     PIN_PUPDR_PULLUP(GPIOA_CAN_DIS) | \
+                                     PIN_PUPDR_FLOATING(GPIOA_CAN_DIS) | \
                                      PIN_PUPDR_FLOATING(GPIOA_I2C2_SCL) | \
                                      PIN_PUPDR_FLOATING(GPIOA_I2C2_SDA) | \
                                      PIN_PUPDR_PULLUP(GPIOA_CAN_RX) | \
