@@ -1,0 +1,8 @@
+#
+# ST VL8160X ToF distance sensor measurement
+#
+
+uint8 distance_mm # mm
+uint4 status
+
+uint4 STATUS_OK = 0
