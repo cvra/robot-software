@@ -11,6 +11,9 @@ void arm_traj_manager_init(struct arm_traj_manager* manager)
 {
     memset(manager, 0, sizeof(struct arm_traj_manager));
     manager->state = ARM_READY;
+
+    bd_init(&manager->blocking_detection_manager_xy);
+    bd_init(&manager->blocking_detection_manager_z);
 }
 
 void arm_traj_manager_set_tolerances(struct arm_traj_manager *manager,
@@ -20,6 +23,18 @@ void arm_traj_manager_set_tolerances(struct arm_traj_manager *manager,
     manager->tol_mm.x = x_tol_mm;
     manager->tol_mm.y = y_tol_mm;
     manager->tol_mm.z = z_tol_mm;
+}
+
+void arm_traj_manager_set_blocking_detection_xy(struct arm_traj_manager *manager, int error_threshold_mm,
+                                                int error_count_threshold)
+{
+    bd_set_thresholds(&manager->blocking_detection_manager_xy, error_threshold_mm, error_count_threshold);
+}
+
+void arm_traj_manager_set_blocking_detection_z(struct arm_traj_manager *manager, int error_threshold_mm,
+                                                int error_count_threshold)
+{
+    bd_set_thresholds(&manager->blocking_detection_manager_z, error_threshold_mm, error_count_threshold);
 }
 
 void arm_traj_wait_for_end(void)
@@ -40,6 +55,9 @@ static THD_FUNCTION(arm_traj_thd, arg)
     arm_traj_manager_init(&main_arm_traj_manager);
     arm_traj_manager_set_tolerances(&main_arm_traj_manager, 10.f, 10.f, 2.f);
 
+    arm_traj_manager_set_blocking_detection_xy(&main_arm_traj_manager, 30 /*mm*/, 10 /*times @ 20Hz*/);
+    arm_traj_manager_set_blocking_detection_z(&main_arm_traj_manager, 5 /*mm*/, 20 /*times @ 20Hz*/);
+
     NOTICE("Start arm trajectory manager");
     while (true) {
         int num_points_in_trajectory = arm->trajectory.frame_count;
@@ -55,10 +73,18 @@ static THD_FUNCTION(arm_traj_thd, arg)
             error.y = fabsf(target_pos.y - current_pos.y);
             error.z = fabsf(target_pos.z - current_pos.z);
 
+            float error_xy = sqrtf(error.x * error.x + error.y * error.y);
+            bd_manage(&main_arm_traj_manager.blocking_detection_manager_xy, error_xy);
+            bd_manage(&main_arm_traj_manager.blocking_detection_manager_z, error.z);
+
             if (error.x <= main_arm_traj_manager.tol_mm.x &&
                 error.y <= main_arm_traj_manager.tol_mm.y &&
                 error.z <= main_arm_traj_manager.tol_mm.z) {
                 main_arm_traj_manager.state = ARM_READY;
+            } else if (bd_get(&main_arm_traj_manager.blocking_detection_manager_xy)) {
+                main_arm_traj_manager.state = ARM_BLOCKED_XY;
+            } else if (bd_get(&main_arm_traj_manager.blocking_detection_manager_z)) {
+                main_arm_traj_manager.state = ARM_BLOCKED_Z;
             } else {
                 main_arm_traj_manager.state = ARM_MOVING;
             }
