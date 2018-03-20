@@ -136,6 +136,7 @@ tests:
     - tests/test_base_helpers.cpp
     - tests/test_strategy_helpers.cpp
     - tests/test_strategy.cpp
+    - tests/aversive/test_blocking_detection_manager.cpp
 
 templates:
     app_src.mk.jinja: app_src.mk
