@@ -1323,6 +1323,31 @@ static void cmd_hand_dist(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
+#include "arms/arm_trajectory_manager.h"
+
+static void cmd_arm_bd(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc != 3) {
+        chprintf(chp, "Usage: arm_bd xy|z error_threshold_mm error_count_threshold\r\n");
+        return;
+    }
+
+    int error_threshold_mm = atoi(argv[1]);
+    int error_count_threshold = atoi(argv[2]);
+
+    if (strcmp("xy", argv[0]) == 0) {
+        arm_traj_manager_set_blocking_detection_xy(&main_arm_traj_manager, error_threshold_mm, error_count_threshold);
+        chprintf(chp, "Set %s Arm blocking detector to error_threshold_mm: %d error_count_threshold: %d\r\n", argv[0],
+                 error_threshold_mm, error_count_threshold);
+    } else if (strcmp("z", argv[0]) == 0) {
+        arm_traj_manager_set_blocking_detection_z(&main_arm_traj_manager, error_threshold_mm, error_count_threshold);
+        chprintf(chp, "Set %s Arm blocking detector to error_threshold_mm: %d error_count_threshold: %d\r\n", argv[0],
+                 error_threshold_mm, error_count_threshold);
+    } else {
+        chprintf(chp, "Unknown Arm blocking detection %s only xy or z supported\r\n", argv[0]);
+    }
+}
+
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
@@ -1377,5 +1402,6 @@ const ShellCommand commands[] = {
     {"push_y", cmd_push_y},
     {"canio", cmd_canio},
     {"dist", cmd_hand_dist},
+    {"arm_bd", cmd_arm_bd},
     {NULL, NULL}
 };
