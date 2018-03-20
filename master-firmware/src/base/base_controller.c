@@ -84,8 +84,8 @@ void robot_init(void)
     trajectory_set_windows(&robot.traj, 15., 5., 30.);
 
     /* Initialize blocking detection managers */
-    bd_init(&robot.angle_bd, &robot.angle_cs);
-    bd_init(&robot.distance_bd, &robot.distance_cs);
+    bd_init(&robot.angle_bd);
+    bd_init(&robot.distance_bd);
 
     /* Set calibration side */
     robot.calibration_direction = (enum direction_t)config_get_integer("master/calibration_direction");
@@ -130,8 +130,8 @@ static THD_FUNCTION(base_ctrl_thd, arg)
         }
 
         /* Blocking detection manage */
-        bd_manage(&robot.angle_bd);
-        bd_manage(&robot.distance_bd);
+        bd_manage(&robot.angle_bd, abs(cs_get_error(&robot.angle_cs)));
+        bd_manage(&robot.distance_bd, abs(cs_get_error(&robot.distance_cs)));
 
         /* Collision detected */
         if (bd_get(&robot.distance_bd)) {
