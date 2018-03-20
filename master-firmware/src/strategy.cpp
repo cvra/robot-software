@@ -242,6 +242,20 @@ void strat_scara_goto_blocking(position_3d_t pos, scara_coordinate_t system, vel
     arm_traj_wait_for_end();
 }
 
+void strat_scara_push_x(float dx, scara_coordinate_t system, velocity_3d_t max_vel)
+{
+    const position_3d_t last_pos = scara_position(&main_arm, system);
+    scara_goto(&main_arm, {last_pos.x + dx, last_pos.y, last_pos.z}, system, max_vel);
+    arm_traj_wait_for_event(ARM_READY | ARM_BLOCKED_XY);
+}
+
+void strat_scara_push_y(float dy, scara_coordinate_t system, velocity_3d_t max_vel)
+{
+    const position_3d_t last_pos = scara_position(&main_arm, system);
+    scara_goto(&main_arm, {last_pos.x, last_pos.y + dy, last_pos.z}, system, max_vel);
+    arm_traj_wait_for_event(ARM_READY | ARM_BLOCKED_XY);
+}
+
 void strat_pick_cube(point_t xy, float z_start)
 {
     const position_3d_t last_pos = scara_position(&main_arm, COORDINATE_ARM);
@@ -357,7 +371,7 @@ void strat_push_switch_on(float x, float y, float z, float y_push)
     const position_3d_t last_pos = scara_position(&main_arm, COORDINATE_TABLE);
     strat_scara_goto_blocking({x,      y, last_pos.z}, COORDINATE_TABLE, {300, 300, 300});
     strat_scara_goto_blocking({x,      y,          z}, COORDINATE_TABLE, {300, 300, 300});
-    strat_scara_goto_blocking({x, y_push,          z}, COORDINATE_TABLE, {300, 300, 300});
+    strat_scara_push_y(                        y_push, COORDINATE_TABLE, {300, 300, 300});
     strat_scara_goto_blocking({x,      y,          z}, COORDINATE_TABLE, {300, 300, 300});
     strat_scara_goto_blocking({x,      y, last_pos.z}, COORDINATE_TABLE, {300, 300, 300});
 }
@@ -378,7 +392,7 @@ struct TurnSwitchOn : public actions::TurnSwitchOn {
             return false;
         }
 
-        strat_push_switch_on(MIRROR_X(m_color, 1130), 50, 150, -15);
+        strat_push_switch_on(MIRROR_X(m_color, 1130), 50, 130, -120);
 
         state.switch_on = true;
         return true;
