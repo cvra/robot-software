@@ -145,6 +145,7 @@ void __late_init(void)
     halInit();
     chSysInit();
     malloc_lock_init();
+    gfxInit();
 }
 
 void config_load_err_cb(void *arg, const char *id, const char *err)

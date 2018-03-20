@@ -19,6 +19,8 @@ depends:
 
 target.arm:
     - src/main.c
+    - src/adafruit_display_driver/gdisp_lld_hx8357.c
+    - src/adafruit_display_driver/board_hx8357.c
     - src/debug/panic_log.c
     - src/debug/log.c
     - src/debug/blocking_uart.c
@@ -102,6 +104,7 @@ source:
 include_directories:
     - src/
     - src/lwip_bindings
+    - src/adafruit_display_driver/
     - src/aversive/
     - src/board/
     - src/debug/

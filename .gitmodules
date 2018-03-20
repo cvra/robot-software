@@ -55,3 +55,6 @@
 [submodule "lib/parameter_flash_storage"]
 	path = lib/parameter_flash_storage
 	url = https://github.com/cvra/parameter_flash_storage
+[submodule "lib/ugfx"]
+	path = lib/ugfx
+	url = https://git.ugfx.io/uGFX/uGFX.git
