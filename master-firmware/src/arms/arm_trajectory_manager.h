@@ -13,10 +13,10 @@ extern "C" {
 #define ARM_TRAJ_MANAGER_FREQUENCY 20
 
 enum arm_traj_state {
-    ARM_READY=0,    /** Done, waiting for new goal */
-    ARM_MOVING,     /** Moving towards goal */
-    ARM_BLOCKED_XY, /** Blocked in xy plane, can't reach target position */
-    ARM_BLOCKED_Z, /** Blocked in z axis, can't reach target position */
+    ARM_READY       = (1u << 0), /** Done, waiting for new goal */
+    ARM_MOVING      = (1u << 1), /** Moving towards goal */
+    ARM_BLOCKED_XY  = (1u << 2), /** Blocked in xy plane, can't reach target position */
+    ARM_BLOCKED_Z   = (1u << 3), /** Blocked in z axis, can't reach target position */
 };
 
 struct arm_traj_manager {
@@ -38,7 +38,20 @@ void arm_traj_manager_set_blocking_detection_xy(struct arm_traj_manager *manager
                                                 int error_count_threshold);
 void arm_traj_manager_set_blocking_detection_z(struct arm_traj_manager *manager, int error_threshold_mm,
                                                int error_count_threshold);
+
 void arm_traj_wait_for_end(void);
+
+/** Returns when ongoing arm trajectory is finished for the reasons specified
+ *  For example when goal is reached (i.e. arm ready for next command)
+ * @note This is a blocking function call
+ * @warning Will not return if you misspecify the reasons to watch
+ *          (ie. the reason watched never occurs)
+ *
+ * @param watched_events bitmask of the end reasons to watch for
+ *
+ * @return arm trajectory event that caused end
+ */
+int arm_traj_wait_for_event(int watched_events);
 
 void arm_trajectory_manager_start(scara_t* arm);
 

@@ -39,11 +39,30 @@ void arm_traj_manager_set_blocking_detection_z(struct arm_traj_manager *manager,
 
 void arm_traj_wait_for_end(void)
 {
-    chThdSleepMilliseconds(1000 / ARM_TRAJ_MANAGER_FREQUENCY);
-    while (main_arm_traj_manager.state == ARM_MOVING) {
+    arm_traj_wait_for_event(ARM_READY);
+    NOTICE("Arm trajectory goal reached");
+}
+
+int watched_event_occured(enum arm_traj_state state, int watched_events)
+{
+    if ((watched_events & ARM_READY) && (state == ARM_READY))           return ARM_READY;
+    if ((watched_events & ARM_BLOCKED_XY) && (state == ARM_BLOCKED_XY)) return ARM_BLOCKED_XY;
+    if ((watched_events & ARM_BLOCKED_Z) && (state == ARM_BLOCKED_Z))   return ARM_BLOCKED_Z;
+    return 0;
+}
+
+int arm_traj_wait_for_event(int watched_events)
+{
+    chThdSleepMilliseconds(100);
+
+    int event = 0;
+    while (event == 0) {
+        event = watched_event_occured(main_arm_traj_manager.state, watched_events);
         chThdSleepMilliseconds(5);
     }
-    NOTICE("Arm trajectory goal reached");
+
+    NOTICE("Arm trajectory end event %d", (int)event);
+    return event;
 }
 
 static THD_FUNCTION(arm_traj_thd, arg)
