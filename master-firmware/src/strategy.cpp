@@ -300,9 +300,9 @@ struct BuildTower : actions::BuildTower {
         NOTICE("Building tower!");
         state.arms_are_deployed = true;
 
-        lever_t* lever = &left_lever;
+        lever_t* lever = &right_lever;
 
-        strategy_goto_avoid_retry(MIRROR_X(m_color, 500), 300, MIRROR_A(m_color, 45), TRAJ_FLAGS_ALL, -1);
+        strategy_goto_avoid_retry(MIRROR_X(m_color, 500), 300, MIRROR_A(m_color, -135), TRAJ_FLAGS_ALL, -1);
 
         lever_deploy(lever);
         strategy_wait_ms(500);
@@ -345,17 +345,17 @@ struct PickupBlocks : actions::PickupBlocks {
     {
         NOTICE("Picking up some blocks");
 
-        lever_t* lever = &left_lever;
+        lever_t* lever = &right_lever;
 
         se2_t blocks_pose = se2_create_xya(MIRROR_X(m_color, 850), 540, 0);
 
-        strategy_goto_avoid_retry(MIRROR_X(m_color, 690), 380, MIRROR_A(m_color, 135), TRAJ_FLAGS_ALL, -1);
+        strategy_goto_avoid_retry(MIRROR_X(m_color, 690), 380, MIRROR_A(m_color, -45), TRAJ_FLAGS_ALL, -1);
 
         lever_deploy(lever);
         strategy_wait_ms(500);
 
         lever_pickup(lever, base_get_robot_pose(&robot.pos), blocks_pose);
-        strategy_wait_ms(500);
+        strategy_wait_ms(1000);
 
         lever_retract(lever);
         strategy_wait_ms(500);
