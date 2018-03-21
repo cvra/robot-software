@@ -26,7 +26,6 @@
 #define BLOCKING_DETECTION_MANAGER_H_
 
 #include <stdint.h>
-#include <control_system_manager/control_system_manager.h>
 
 
 /**@brief Detect blocking based on motor current.
@@ -41,19 +40,18 @@
  * of the motor)
  */
 
-/**@brief Stores the Control System and other values for blocking detection.
+/**@brief Stores settings for blocking detection.
  *
  */
 struct blocking_detection {
-    struct cs *cs;      /**< Control system */
     uint16_t cpt_thres; /**< Number of err_thres surpasses to trigger blocking */
     uint16_t cpt;       /**< Number of times that the current surpassed the threshold */
     uint32_t err_thres; /**< Current threshold */
     uint32_t err_max;   /**< Highest current measured */
 };
 
-/** init module, give the cs as parameter */
-void bd_init(struct blocking_detection *bd, struct cs *cs);
+/** init module */
+void bd_init(struct blocking_detection *bd);
 
 
 void bd_set_thresholds(struct blocking_detection *bd, uint32_t err_thres, uint16_t cpt_thres);
@@ -62,7 +60,7 @@ void bd_set_thresholds(struct blocking_detection *bd, uint32_t err_thres, uint16
 void bd_reset(struct blocking_detection *bd);
 
 /** function to be called periodically */
-void bd_manage(struct blocking_detection *bd);
+void bd_manage(struct blocking_detection *bd, uint32_t err);
 
 /** get value of blocking detection */
 uint8_t bd_get(struct blocking_detection *bd);

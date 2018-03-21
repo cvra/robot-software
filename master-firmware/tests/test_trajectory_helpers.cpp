@@ -285,8 +285,8 @@ TEST_GROUP(TrajectoryHasEnded)
         cs_set_consign_filter(&robot.distance_cs, quadramp_do_filter, &robot.distance_qr);
         cs_set_consign_filter(&robot.angle_cs, quadramp_do_filter, &robot.angle_qr);
 
-        bd_init(&robot.distance_bd, &robot.distance_cs);
-        bd_init(&robot.angle_bd, &robot.angle_cs);
+        bd_init(&robot.distance_bd);
+        bd_init(&robot.angle_bd);
         bd_set_thresholds(&robot.distance_bd, 1, 1);
         bd_set_thresholds(&robot.angle_bd, 1, 1);
 
@@ -327,8 +327,8 @@ TEST_GROUP(TrajectoryHasEnded)
     {
         cs_manage(&robot.distance_cs);
         cs_manage(&robot.angle_cs);
-        bd_manage(&robot.distance_bd);
-        bd_manage(&robot.angle_bd);
+        bd_manage(&robot.distance_bd, abs(cs_get_error(&robot.distance_cs)));
+        bd_manage(&robot.angle_bd, abs(cs_get_error(&robot.angle_cs)));
         trajectory_manager_xy_event(&robot.traj);
     }
 
