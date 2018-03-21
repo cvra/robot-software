@@ -392,7 +392,7 @@ struct TurnSwitchOn : public actions::TurnSwitchOn {
             return false;
         }
 
-        strat_push_switch_on(MIRROR_X(m_color, 1130), 50, 130, -120);
+        strat_push_switch_on(MIRROR_X(m_color, 1130), 50, 120, -120);
 
         state.switch_on = true;
         return true;
