@@ -38,7 +38,7 @@ master:
                 acceleration: # in rad / s^2
                     init: 1.57
                     slow: 1.57
-                    fast: 10.
+                    fast: 6.
             distance:
                 speed: # in m / s
                     init: 0.1
