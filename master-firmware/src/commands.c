@@ -1348,6 +1348,29 @@ static void cmd_arm_bd(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
+static void cmd_motor_sin(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc != 4) {
+        chprintf(chp, "Usage: motor_sin motor amplitude period times\r\n");
+        return;
+    }
+
+    float amplitude = atof(argv[1]);
+    float period = atof(argv[2]);
+    float dt = 0.02; // 50Hz update
+    float dx = dt * 2 * M_PI / period;
+    float times = atof(argv[3]);
+    int num_points = period * times / dt;
+
+    for (int i = 0; i <= num_points; i++)
+    {
+        float voltage = amplitude * sinf(i * dx);
+        motor_manager_set_voltage(&motor_manager, argv[0], voltage);
+        chprintf(chp, "%f\r\n", voltage);
+        chThdSleepMilliseconds(dt * 1000);
+    }
+}
+
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
@@ -1403,5 +1426,6 @@ const ShellCommand commands[] = {
     {"canio", cmd_canio},
     {"dist", cmd_hand_dist},
     {"arm_bd", cmd_arm_bd},
+    {"motor_sin", cmd_motor_sin},
     {NULL, NULL}
 };
