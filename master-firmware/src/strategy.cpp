@@ -72,10 +72,10 @@ static enum strat_color_t wait_for_color_selection(void)
 static void wait_for_starter(void)
 {
     /* Wait for a rising edge */
-    while (control_panel_read(BUTTON_GREEN)) {
+    while (control_panel_read(STARTER)) {
         strategy_wait_ms(10);
     }
-    while (!control_panel_read(BUTTON_GREEN)) {
+    while (!control_panel_read(STARTER)) {
         strategy_wait_ms(10);
     }
 }
