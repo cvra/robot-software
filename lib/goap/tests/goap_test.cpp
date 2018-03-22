@@ -1,3 +1,4 @@
+#include <iostream>
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
 #include "../goap.hpp"
@@ -48,13 +49,13 @@ struct GrabAxe : public goap::Action<TestState> {
     }
 };
 
-struct SimpleGoal : goap::Goal<TestState> {
-    bool is_reached(TestState state)
+struct SimpleGoal : goap::Goal<TestState>
+{
+    virtual int distance_to(const TestState &state) const
     {
-        return state.has_wood;
+        return state.has_wood ? 0 : 1;
     }
 };
-
 
 TEST_GROUP(SimpleScenarioHelpers)
 {
@@ -71,6 +72,13 @@ TEST(SimpleScenarioHelpers, CutWoodChecksForAxe)
     CHECK_TRUE(action.can_run(state));
 }
 
+TEST(SimpleScenarioHelpers, CanComputeDistanceToGoal)
+{
+    CHECK_EQUAL(1, goal.distance_to(state));
+    state.has_wood = true;
+    CHECK_EQUAL(0, goal.distance_to(state));
+}
+
 TEST(SimpleScenarioHelpers, CanCheckGoal)
 {
     CHECK_FALSE(goal.is_reached(state));
@@ -83,6 +91,7 @@ TEST(SimpleScenarioHelpers, CanPredictWoodCuttingEffects)
     state = action.plan_effects(state);
     CHECK_TRUE(state.has_wood);
 }
+
 
 TEST_GROUP(SimpleScenario)
 {
@@ -124,7 +133,6 @@ TEST(SimpleScenario, RespectActionConstrains)
 {
     int action_count = 2;
     goap::Action<TestState> *actions[] = {&cut_wood_action, &grab_axe_action};
-
 
     goap::Planner<TestState> planner(actions, action_count);
 
