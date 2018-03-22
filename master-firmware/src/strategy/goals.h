@@ -5,17 +5,19 @@
 #include "state.h"
 
 struct InitGoal : goap::Goal<RobotState> {
-    bool is_reached(RobotState state)
+    virtual int distance_to(const RobotState &state) const
     {
-        return state.arms_are_deployed == false;
+        return state.arms_are_deployed ? 0 : 1;
     }
 };
 
 struct TowerGoal : goap::Goal<RobotState> {
-    bool is_reached(RobotState state)
+    virtual int distance_to(const RobotState &state) const
     {
-        return state.arms_are_deployed == false
-            && state.tower_built == true;
+        auto res = 0;
+        res += state.arms_are_deployed ? 0 : 1;
+        res += state.tower_built ? 0 : 1;
+        return res;
     }
 };
 
