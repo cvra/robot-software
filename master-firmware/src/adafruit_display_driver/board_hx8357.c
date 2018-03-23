@@ -16,7 +16,7 @@ void hx8357_init_board(void *g)
     (void) g;
     static SPIConfig spi_cfg = {
         .end_cb = NULL,
-        .cr1 = SPI_CR1_BR_0,
+        .cr1 = SPI_CR1_BR_1,
     };
     spiStart(&LCD_SPID, &spi_cfg);
 }
