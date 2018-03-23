@@ -64,6 +64,14 @@ TEST(InternalVisitedListState, CanPopFromListHead)
     POINTERS_EQUAL(nullptr, p->next);
 }
 
+TEST(InternalVisitedListState, CanPopLastElement)
+{
+    visited_states_array_to_list<MyState>(nodes.data(), 1);
+    auto head = nodes.data();
+    list_pop_head<MyState>(head);
+    POINTERS_EQUAL(nullptr, head);
+}
+
 TEST(InternalVisitedListState, CanPushListHead)
 {
     visited_states_array_to_list<MyState>(nodes.data(), nodes.size());
@@ -75,3 +83,11 @@ TEST(InternalVisitedListState, CanPushListHead)
     POINTERS_EQUAL(&nodes[0], head->next);
 }
 
+TEST(InternalVisitedListState, CanPushEmptyList)
+{
+    VisitedState<MyState> new_elem, *head=nullptr;
+
+    list_push_head<MyState>(head, &new_elem);
+    POINTERS_EQUAL(&new_elem, head);
+    POINTERS_EQUAL(nullptr, head->next);
+}

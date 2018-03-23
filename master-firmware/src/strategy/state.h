@@ -10,4 +10,10 @@ struct RobotState {
     bool switch_on{false};
 };
 
+bool operator==(const RobotState& lhs, const RobotState& rhs)
+{
+    return !memcmp(&lhs, &rhs, sizeof(RobotState));
+}
+
+
 #endif /* STRATEGY_STATE_H */

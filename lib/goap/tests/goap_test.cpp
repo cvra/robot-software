@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstring>
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
 #include "../goap.hpp"
@@ -8,6 +9,11 @@ struct TestState {
     bool has_wood;
     bool has_axe;
 };
+
+bool operator==(const TestState& lhs, const TestState& rhs)
+{
+    return !memcmp(&lhs, &rhs, sizeof(TestState));
+}
 
 class CutWood : public goap::Action<TestState> {
 public:
@@ -184,6 +190,63 @@ TEST(SimpleScenario, WhatHappensIfThereIsNoPath)
 
     auto cost = planner.plan(state, goal, path, max_path_len);
     CHECK_EQUAL(-1, cost);
+}
+
+struct FarAwayState {
+    int farDistance;
+};
+
+struct FarAwayGoal : goap::Goal<FarAwayState> {
+    int distance_to(const FarAwayState &s) const
+    {
+        return s.farDistance;
+    }
+};
+
+struct FarAwayAction : goap::Action<FarAwayState> {
+    bool can_run(FarAwayState state)
+    {
+        return true;
+    }
+
+    FarAwayState plan_effects(FarAwayState s)
+    {
+        s.farDistance--;
+        return s;
+    }
+
+    bool execute(FarAwayState &s)
+    {
+        s.farDistance--;
+        return true;
+    }
+
+};
+
+bool operator==(const FarAwayState& lhs, const FarAwayState& rhs)
+{
+    return !memcmp(&lhs, &rhs, sizeof(FarAwayState));
+}
+
+TEST_GROUP(TooLongPathTestGroup)
+{
+};
+
+TEST(TooLongPathTestGroup, DoNotFindFarAwayPlan)
+{
+    // We create a plan that can only be solved in a 1000 actions
+    FarAwayState state;
+    state.farDistance = 1000;
+    FarAwayAction a;
+    FarAwayGoal goal;
+    goap::Action<FarAwayState> *actions[] = {&a};
+
+    // And feed it to a planner than can do path of at most 10 actions
+    goap::Planner<FarAwayState> planner(actions, 1);
+
+    // Of course it will fail
+    auto cost = planner.plan(state, goal);
+    CHECK_EQUAL(-2, cost);
 }
 
 TEST_GROUP(InternalDistanceGroup)

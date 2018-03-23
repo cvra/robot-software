@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include "goap_internals.hpp"
+#include <cstring>
 
 namespace goap {
 
@@ -66,6 +67,8 @@ public:
         auto free_nodes = &nodes[0];
 
         auto open = list_pop_head(free_nodes);
+        VisitedState<State> *close = nullptr;
+
         open->state = state;
         open->cost = 0;
         open->priority = 0;
@@ -74,9 +77,9 @@ public:
 
         while (open) {
             auto current = priority_list_pop(open);
+            list_push_head(close, current);
 
             if (goal.is_reached(current->state)) {
-                // TODO provide something better for path, maybe iterator like ?
                 auto len = 0;
                 for (auto p = current->parent; p; p = p->parent) {
                     len ++;
@@ -97,19 +100,54 @@ public:
                 auto action = actions[i];
 
                 if (action->can_run(current->state)) {
-                    auto neighbor = list_pop_head(free_nodes);
-                    // TODO If neighbor is nullptr, abort
+                    // Cannot allocate a new node, abort
+                    if (free_nodes == nullptr) {
+                        return -2;
+                    }
 
+                    auto neighbor = list_pop_head(free_nodes);
                     neighbor->state = action->plan_effects(current->state);
                     neighbor->cost = current->cost + 1;
                     neighbor->priority = current->priority + 1 + goal.distance_to(neighbor->state);
                     neighbor->parent = current;
                     neighbor->action = action;
 
-                    list_push_head(open, neighbor);
+                    bool should_insert = true;
+
+                    // Check if the node is already in the list of nodes
+                    // scheduled to be visited
+                    for (auto p = open; p; p = p->next) {
+                        if (p->state == neighbor->state) {
+                            should_insert = false;
+                            if (p->cost > neighbor->cost) {
+                                p->priority = neighbor->cost;
+                                p->priority = neighbor->priority;
+                                p->parent = neighbor->parent;
+                                p->action = neighbor->action;
+                            }
+                        }
+                    }
+
+                    // Check if the state is in the list of already visited
+                    // state
+                    for (auto p = close; p; p = p->next) {
+                        if (p->state == neighbor->state) {
+                            should_insert = false;
+                            if (p->cost > neighbor->cost) {
+                                p->priority = neighbor->cost;
+                                p->priority = neighbor->priority;
+                                p->parent = neighbor->parent;
+                                p->action = neighbor->action;
+                            }
+                        }
+                    }
+
+                    if (should_insert) {
+                        list_push_head(open, neighbor);
+                    }
+
                 }
 
-                // TODO: Optimality ?
             }
 
         }
