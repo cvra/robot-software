@@ -39,6 +39,7 @@
 #include "filesystem.h"
 #include "http/server.h"
 #include "pca9685_pwm.h"
+#include "gui.h"
 
 
 void init_base_motors(void);
@@ -145,7 +146,6 @@ void __late_init(void)
     halInit();
     chSysInit();
     malloc_lock_init();
-    gfxInit();
 }
 
 void config_load_err_cb(void *arg, const char *id, const char *err)
@@ -188,6 +188,7 @@ int main(void)
     sdStart(&SD7, &debug_uart_config);
 
     control_panel_init();
+    gui_start();
     blink_start();
 
     /* Initialize global objects. */

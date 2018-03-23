@@ -46,6 +46,7 @@ target.arm:
     - src/aversive_port/cvra_motors.c
     - src/aversive_port/cvra_pid.c
     - src/base/encoder.c
+    - src/gui.c
     - src/base/base_controller.c
     - src/arms/cvra_arm_motors.c
     - src/arms/scara_port.c
