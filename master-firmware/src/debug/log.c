@@ -10,6 +10,7 @@
 
 #include "log.h"
 #include "usbconf.h"
+#include "gui.h"
 
 #define OUTPUT_STREAM ((BaseSequentialStream*)&SD7)
 
@@ -53,6 +54,10 @@ static void log_message(struct error *e, ...)
         vlogfile_log_message(e, va);
         va_end(va);
     }
+
+    va_start(va, e);
+    gui_log_console(e, va);
+    va_end(va);
 
     chMtxUnlock(&log_lock);
 }
