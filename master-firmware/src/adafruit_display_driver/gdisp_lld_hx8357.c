@@ -30,7 +30,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g)
     //// Get the bus for the following initialisation commands
     hx8357_acquire_bus(g);
     hx8357_write_index(g, HX8357_SWRESET);
-    gfxSleepMilliseconds(100);
+    gfxSleepMilliseconds(300);
 
     // setextc
     hx8357_write_index(g, HX8357D_SETC);
@@ -200,7 +200,7 @@ LLDSPEC void gdisp_lld_control(GDisplay *g)
 
                 case GDISP_ROTATE_270:
                     hx8357_acquire_bus(g);
-                    write_reg(g, HX8357_MADCTL, HX8357_MADCTL_MX | HX8357_MADCTL_ML);
+                    write_reg(g, HX8357_MADCTL, HX8357_MADCTL_MX | HX8357_MADCTL_MV);
                     hx8357_release_bus(g);
                     g->g.Height = GDISP_SCREEN_WIDTH;
                     g->g.Width = GDISP_SCREEN_HEIGHT;

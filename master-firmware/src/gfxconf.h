@@ -29,7 +29,7 @@
 //    #define GDISP_INCLUDE_FONT_UI2                   TRUE		// The smallest preferred font.
 //    #define GDISP_INCLUDE_FONT_LARGENUMBERS          FALSE
 //    #define GDISP_INCLUDE_FONT_DEJAVUSANS10          FALSE
-//    #define GDISP_INCLUDE_FONT_DEJAVUSANS12          FALSE
+#define GDISP_INCLUDE_FONT_DEJAVUSANS12          TRUE
 //    #define GDISP_INCLUDE_FONT_DEJAVUSANS16          FALSE
 //    #define GDISP_INCLUDE_FONT_DEJAVUSANS20          FALSE
 //    #define GDISP_INCLUDE_FONT_DEJAVUSANS24          TRUE
@@ -49,7 +49,7 @@
 // #define GDISP_NEED_PIXMAP                            FALSE
 //    #define GDISP_NEED_PIXMAP_IMAGE                  FALSE
 
-#define GDISP_DEFAULT_ORIENTATION GDISP_ROTATE_LANDSCAPE
+#define GDISP_DEFAULT_ORIENTATION GDISP_ROTATE_270
 // #define GDISP_LINEBUF_SIZE                           128
 // #define GDISP_STARTUP_COLOR                          Black
 // #define GDISP_NEED_STARTUP_LOGO                      TRUE
@@ -60,11 +60,11 @@
 #define GFX_USE_GWIN              TRUE
 
  #define GWIN_NEED_WINDOWMANAGER  TRUE
-// #define GWIN_NEED_CONSOLE                            FALSE
+ #define GWIN_NEED_CONSOLE                            TRUE
 //    #define GWIN_CONSOLE_USE_HISTORY                 FALSE
 //        #define GWIN_CONSOLE_HISTORY_AVERAGING       FALSE
 //        #define GWIN_CONSOLE_HISTORY_ATCREATE        FALSE
-//    #define GWIN_CONSOLE_ESCSEQ                      FALSE
+#define GWIN_CONSOLE_ESCSEQ                      TRUE
 //    #define GWIN_CONSOLE_USE_BASESTREAM              FALSE
 //    #define GWIN_CONSOLE_USE_FLOAT                   FALSE
 // #define GWIN_NEED_GRAPH                              FALSE
@@ -83,7 +83,7 @@
 //    #define GWIN_NEED_RADIO                          FALSE
 //    #define GWIN_NEED_PROGRESSBAR                    FALSE
 //        #define GWIN_PROGRESSBAR_AUTO                FALSE
-    #define GWIN_FLAT_STYLING TRUE
+//    #define GWIN_FLAT_STYLING TRUE
 //    #define GWIN_WIDGET_TAGS                         FALSE
 
 // #define GWIN_NEED_CONTAINERS                         FALSE
