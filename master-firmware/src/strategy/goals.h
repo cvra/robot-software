@@ -7,17 +7,14 @@
 struct InitGoal : goap::Goal<RobotState> {
     virtual int distance_to(const RobotState &state) const
     {
-        return state.arms_are_deployed ? 0 : 1;
+        return goap::Distance().shouldBeFalse(state.arms_are_deployed);
     }
 };
 
 struct TowerGoal : goap::Goal<RobotState> {
     virtual int distance_to(const RobotState &state) const
     {
-        auto res = 0;
-        res += state.arms_are_deployed ? 0 : 1;
-        res += state.tower_built ? 0 : 1;
-        return res;
+        return goap::Distance().shouldBeFalse(state.arms_are_deployed).shouldBeTrue(state.tower_built);
     }
 };
 

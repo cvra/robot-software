@@ -185,3 +185,28 @@ TEST(SimpleScenario, WhatHappensIfThereIsNoPath)
     auto cost = planner.plan(state, goal, path, max_path_len);
     CHECK_EQUAL(-1, cost);
 }
+
+TEST_GROUP(InternalDistanceGroup)
+{
+};
+
+TEST(InternalDistanceGroup, CanSetupBoolDistance)
+{
+    int d = goap::Distance().shouldBeTrue(true);
+    CHECK_EQUAL(0, d);
+
+    d = goap::Distance().shouldBeTrue(false);
+    CHECK_EQUAL(1, d);
+}
+
+TEST(InternalDistanceGroup, CanGroupDistance)
+{
+    int d = goap::Distance().shouldBeTrue(true).shouldBeTrue(false);
+    CHECK_EQUAL(1, d);
+}
+
+TEST(InternalDistanceGroup, CanAlsoComputeOpposite)
+{
+    int d = goap::Distance().shouldBeFalse(true).shouldBeFalse(false);
+    CHECK_EQUAL(1, d);
+}

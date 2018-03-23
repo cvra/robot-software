@@ -74,3 +74,4 @@ TEST(InternalVisitedListState, CanPushListHead)
     POINTERS_EQUAL(&new_elem, head);
     POINTERS_EQUAL(&nodes[0], head->next);
 }
+

@@ -118,6 +118,27 @@ public:
         return -1;
     }
 };
+
+// Distance class, used to build distance metrics that read easily
+class Distance {
+    int distance;
+public:
+    Distance shouldBeTrue(bool var)
+    {
+        distance += var ? 0 : 1;
+        return *this;
+    }
+
+    Distance shouldBeFalse(bool var)
+    {
+        distance += var ? 1 : 0;
+        return *this;
+    }
+
+    operator int() {
+        return distance;
+    }
+};
 };
 
 #endif
