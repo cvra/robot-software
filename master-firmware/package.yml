@@ -73,6 +73,7 @@ source:
     - src/aversive/blocking_detection_manager/blocking_detection_manager.c
     - src/aversive/obstacle_avoidance/obstacle_avoidance.c
     - src/aversive/math/geometry/circles.c
+    - src/aversive/math/geometry/discrete_circles.c
     - src/aversive/math/geometry/lines.c
     - src/aversive/math/geometry/polygon.c
     - src/aversive/math/geometry/vect_base.c
@@ -137,6 +138,7 @@ tests:
     - tests/test_strategy_helpers.cpp
     - tests/test_strategy.cpp
     - tests/aversive/test_blocking_detection_manager.cpp
+    - tests/aversive/test_geometry_discrete_circles.cpp
 
 templates:
     app_src.mk.jinja: app_src.mk
