@@ -11,7 +11,7 @@ static GHandle console;
 static bool init_done = false;
 
 #define MSG_MAX_LENGTH 128
-#define MSG_BUF_SIZE 16
+#define MSG_BUF_SIZE   16
 static char msg_buffer[MSG_MAX_LENGTH][MSG_BUF_SIZE];
 static char *msg_mailbox_buf[MSG_BUF_SIZE];
 static MAILBOX_DECL(msg_mailbox, msg_mailbox_buf, MSG_BUF_SIZE);
@@ -22,11 +22,11 @@ static void gui_thread(void *p)
     (void) p;
 
     gfxInit();
-	gwinSetDefaultStyle(&WhiteWidgetStyle, FALSE);
+    gwinSetDefaultStyle(&WhiteWidgetStyle, FALSE);
     gwinSetDefaultFont(gdispOpenFont("DejaVuSans12"));
-	gdispClear(White);
+    gdispClear(White);
     {
-        GWindowInit		wi;
+        GWindowInit wi;
         memset(&wi, 0, sizeof(wi));
         wi.show = TRUE;
         wi.x = 0;
@@ -36,7 +36,7 @@ static void gui_thread(void *p)
         console = gwinConsoleCreate(0, &wi);
     }
     {
-        GWidgetInit		wi;
+        GWidgetInit wi;
         memset(&wi, 0, sizeof(wi));
         wi.g.show = TRUE;
         wi.g.x = 0;
@@ -48,10 +48,10 @@ static void gui_thread(void *p)
         gwinSetText(score_label, "Score 42", TRUE);
     }
     gwinSetColor(console, White);
-	gwinSetBgColor(console, Black);
-	gwinClear(console);
+    gwinSetBgColor(console, Black);
+    gwinClear(console);
     chPoolLoadArray(&msg_pool, msg_buffer, MSG_BUF_SIZE);
-    init_done= true;
+    init_done = true;
 
     WARNING("GUI init done");
 
@@ -95,8 +95,8 @@ void gui_log_console(struct error *e, va_list args)
                 color = 'C'; // no special color
             }
             snprintf(buffer, sizeof(buffer), "\n\033%c%c\033C  \033b%s:%d\033B  ",
-                    color, *error_severity_get_name(e->severity),
-                    strrchr(e->file, '/') + 1, e->line);
+                     color, *error_severity_get_name(e->severity),
+                     strrchr(e->file, '/') + 1, e->line);
             strcat(dst, buffer);
             vsnprintf(buffer, sizeof(buffer), e->text, args);
             strcat(dst, buffer);
