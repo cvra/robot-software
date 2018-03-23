@@ -524,10 +524,6 @@ void strategy_play_game(void *p)
                           &score_condvar, &score_value, sizeof(int));
     messagebus_advertise_topic(&bus, &score_topic, "/score");
 
-    chThdSleepMilliseconds(10 * 1000);
-    int new_score = 22;
-    messagebus_topic_publish(&score_topic, &new_score, sizeof(int));
-
     NOTICE("Strategy is ready, waiting for autopositioning signal");
 
 #ifdef DEBRA
