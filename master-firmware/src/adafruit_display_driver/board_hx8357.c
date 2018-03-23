@@ -50,3 +50,27 @@ void hx8357_write_data(void *g, uint16_t data)
     palSetPad(LCD_PORT, LCD_RS_PIN);
     spiSend(&LCD_SPID, 1, &val);
 }
+
+#define CACHE_SIZE (100 * 2)
+static int cache_depth = 0;
+static uint8_t cache[CACHE_SIZE];
+
+void hx8357_write_cache(GDisplay *g, uint16_t c)
+{
+    cache[cache_depth ++] = c >> 8;
+    cache[cache_depth ++] = c & 0xff;
+
+    if (cache_depth == CACHE_SIZE) {
+        hx8357_flush(g);
+    }
+}
+
+void hx8357_flush(GDisplay *g)
+{
+    (void) g;
+    if (cache_depth) {
+        palSetPad(LCD_PORT, LCD_RS_PIN);
+        spiSend(&LCD_SPID, cache_depth, &cache[0]);
+    }
+    cache_depth = 0;
+}

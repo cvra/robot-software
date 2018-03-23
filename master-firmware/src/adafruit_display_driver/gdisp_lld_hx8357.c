@@ -17,7 +17,7 @@
 
 static void set_viewport(GDisplay *g);
 static void write_reg(GDisplay *g, uint16_t index, uint16_t data);
-static void write_data16(GDisplay *g, uint16_t data);
+static void write_cache_data16(GDisplay *g, uint16_t data);
 
 LLDSPEC bool_t gdisp_lld_init(GDisplay *g)
 {
@@ -156,11 +156,12 @@ LLDSPEC void gdisp_lld_write_start(GDisplay *g)
 LLDSPEC void gdisp_lld_write_color(GDisplay *g)
 {
     uint16_t color = gdispColor2Native(g->p.color);
-    write_data16(g, color);
+    write_cache_data16(g, color);
 }
 LLDSPEC void gdisp_lld_write_stop(GDisplay *g)
 {
     hx8357_release_bus(g);
+    hx8357_flush(g);
 }
 
 LLDSPEC void gdisp_lld_control(GDisplay *g)
@@ -239,8 +240,8 @@ static void write_reg(GDisplay *g, uint16_t index, uint16_t data)
     hx8357_write_data(g, data);
 }
 
-static void write_data16(GDisplay *g, uint16_t data)
+
+static void write_cache_data16(GDisplay *g, uint16_t data)
 {
-    hx8357_write_data(g, data >> 8);
-    hx8357_write_data(g, data & 0xff);
+    hx8357_write_cache(g, data);
 }
