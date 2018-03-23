@@ -514,6 +514,20 @@ void strategy_play_game(void *p)
 
     /* Initialize map and path planner */
     map_init(config_get_integer("master/robot_size_x_mm"));
+
+    /* Prepare score publisher */
+    static messagebus_topic_t score_topic;
+    static MUTEX_DECL(score_lock);
+    static CONDVAR_DECL(score_condvar);
+    static int score_value;
+    messagebus_topic_init(&score_topic, &score_lock,
+                          &score_condvar, &score_value, sizeof(int));
+    messagebus_advertise_topic(&bus, &score_topic, "/score");
+
+    chThdSleepMilliseconds(10 * 1000);
+    int new_score = 22;
+    messagebus_topic_publish(&score_topic, &new_score, sizeof(int));
+
     NOTICE("Strategy is ready, waiting for autopositioning signal");
 
 #ifdef DEBRA

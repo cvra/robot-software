@@ -30,7 +30,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g)
     //// Get the bus for the following initialisation commands
     hx8357_acquire_bus(g);
     hx8357_write_index(g, HX8357_SWRESET);
-    gfxSleepMilliseconds(300);
+    gfxSleepMilliseconds(500);
 
     // setextc
     hx8357_write_index(g, HX8357D_SETC);

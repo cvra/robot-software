@@ -4,14 +4,18 @@
 #include <string.h>
 #include <stdio.h>
 #include <gfx.h>
+#include "main.h"
 
+static MUTEX_DECL(gui_lock);
 static GHandle score_label;
 static GHandle console;
 static bool init_done = false;
 static void gui_thread(void *p)
 {
-    gfxInit();
     (void) p;
+
+    chMtxLock(&gui_lock);
+    gfxInit();
 	gwinSetDefaultStyle(&WhiteWidgetStyle, FALSE);
     gwinSetDefaultFont(gdispOpenFont("DejaVuSans12"));
 	gdispClear(White);
@@ -41,36 +45,46 @@ static void gui_thread(void *p)
 	gwinSetBgColor(console, Black);
 	gwinClear(console);
     init_done= true;
+    chMtxUnlock(&gui_lock);
 
     WARNING("GUI init done");
+
+    chThdSleepMilliseconds(1000);
+    messagebus_topic_t *score_topic = messagebus_find_topic_blocking(&bus, "/score");
     while (true) {
-        chThdSleepMilliseconds(100);
+        static char buffer[64];
+        int score;
+        messagebus_topic_wait(score_topic, &score, sizeof(score));
+        sprintf(buffer, "Score: %d", score);
+        chMtxLock(&gui_lock);
+        gwinSetText(score_label, buffer, TRUE);
+        chMtxUnlock(&gui_lock);
     }
 }
 
 void gui_start()
 {
-    static THD_WORKING_AREA(wa, 8192);
-    chThdCreateStatic(wa, sizeof(wa), NORMALPRIO, gui_thread, NULL);
+    static THD_WORKING_AREA(wa, 16384);
+    chThdCreateStatic(wa, sizeof(wa), LOWPRIO, gui_thread, NULL);
 }
 
 void gui_log_console(struct error *e, va_list args)
 {
     static char buffer[256];
-    if (init_done == false) {
-        return;
+    chMtxLock(&gui_lock);
+    if (init_done) {
+        char color;
+        if (e->severity >= ERROR_SEVERITY_WARNING) {
+            color = '3'; // yellow
+        } else {
+            color = 'C'; // no special color
+        }
+        snprintf(buffer, sizeof(buffer), "\n\033%c%c\033C  \033b%s:%d\033B  ",
+                 color, *error_severity_get_name(e->severity),
+                 strrchr(e->file, '/') + 1, e->line);
+        gwinPrintf(console, buffer);
+        vsnprintf(buffer, sizeof(buffer), e->text, args);
+        gwinPrintf(console, buffer);
     }
-    if (e->severity >= ERROR_SEVERITY_WARNING) {
-        snprintf(buffer, sizeof(buffer),
-                 "\0333%c\033C ", *error_severity_get_name(e->severity));
-    } else {
-        snprintf(buffer, sizeof(buffer),
-                     "%c ", *error_severity_get_name(e->severity));
-    }
-    gwinPrintf(console, buffer);
-    snprintf(buffer, sizeof(buffer), "\033b%s:%d\033B  ", strrchr(e->file, '/') + 1, e->line);
-    gwinPrintf(console, buffer);
-    vsnprintf(buffer, sizeof(buffer), e->text, args);
-    gwinPrintf(console, buffer);
-    gwinPrintf(console, "\n");
+    chMtxUnlock(&gui_lock);
 }
