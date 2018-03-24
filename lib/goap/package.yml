@@ -3,3 +3,4 @@ depends:
 
 tests:
   - tests/goap_test.cpp
+  - tests/goap_internals.cpp

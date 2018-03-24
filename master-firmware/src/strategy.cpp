@@ -386,8 +386,10 @@ struct TurnSwitchOn : public actions::TurnSwitchOn {
 
     bool execute(RobotState& state)
     {
-        state.arms_are_deployed = true;
+        NOTICE("Turning switch on");
 
+        state.arms_are_deployed = true;
+        state.blocks_on_map = false;
         if (!strategy_goto_avoid_retry(MIRROR_X(m_color, 1130), 250, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL, -1)) {
             return false;
         }
@@ -430,7 +432,7 @@ void strategy_debra_play_game(void)
         &turn_switch_on,
     };
 
-    goap::Planner<RobotState> planner(actions, sizeof(actions) / sizeof(actions[0]));
+    static goap::Planner<RobotState> planner(actions, sizeof(actions) / sizeof(actions[0]));
 
     lever_retract(&right_lever);
     lever_retract(&left_lever);

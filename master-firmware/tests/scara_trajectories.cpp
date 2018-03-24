@@ -26,9 +26,10 @@ TEST_GROUP(AnArmTrajectory)
 
     void make_trajectory_of_length(int number_of_points)
     {
-        for (int i = 0; i < number_of_points; i++)
+        for (auto i = 0; i < number_of_points; i++)
         {
-            scara_trajectory_append_point(&traj, {i, i, i}, COORDINATE_ARM, max_vel, arbitraryLengths);
+            float j = i;
+            scara_trajectory_append_point(&traj, {j, j, j}, COORDINATE_ARM, max_vel, arbitraryLengths);
         }
     }
 };

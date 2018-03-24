@@ -1,3 +1,5 @@
+#include <iostream>
+#include <cstring>
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
 #include "../goap.hpp"
@@ -7,6 +9,11 @@ struct TestState {
     bool has_wood;
     bool has_axe;
 };
+
+bool operator==(const TestState& lhs, const TestState& rhs)
+{
+    return !memcmp(&lhs, &rhs, sizeof(TestState));
+}
 
 class CutWood : public goap::Action<TestState> {
 public:
@@ -48,13 +55,13 @@ struct GrabAxe : public goap::Action<TestState> {
     }
 };
 
-struct SimpleGoal : goap::Goal<TestState> {
-    bool is_reached(TestState state)
+struct SimpleGoal : goap::Goal<TestState>
+{
+    virtual int distance_to(const TestState &state) const
     {
-        return state.has_wood;
+        return state.has_wood ? 0 : 1;
     }
 };
-
 
 TEST_GROUP(SimpleScenarioHelpers)
 {
@@ -71,6 +78,13 @@ TEST(SimpleScenarioHelpers, CutWoodChecksForAxe)
     CHECK_TRUE(action.can_run(state));
 }
 
+TEST(SimpleScenarioHelpers, CanComputeDistanceToGoal)
+{
+    CHECK_EQUAL(1, goal.distance_to(state));
+    state.has_wood = true;
+    CHECK_EQUAL(0, goal.distance_to(state));
+}
+
 TEST(SimpleScenarioHelpers, CanCheckGoal)
 {
     CHECK_FALSE(goal.is_reached(state));
@@ -83,6 +97,7 @@ TEST(SimpleScenarioHelpers, CanPredictWoodCuttingEffects)
     state = action.plan_effects(state);
     CHECK_TRUE(state.has_wood);
 }
+
 
 TEST_GROUP(SimpleScenario)
 {
@@ -124,7 +139,6 @@ TEST(SimpleScenario, RespectActionConstrains)
 {
     int action_count = 2;
     goap::Action<TestState> *actions[] = {&cut_wood_action, &grab_axe_action};
-
 
     goap::Planner<TestState> planner(actions, action_count);
 
@@ -176,4 +190,87 @@ TEST(SimpleScenario, WhatHappensIfThereIsNoPath)
 
     auto cost = planner.plan(state, goal, path, max_path_len);
     CHECK_EQUAL(-1, cost);
+}
+
+struct FarAwayState {
+    int farDistance;
+};
+
+struct FarAwayGoal : goap::Goal<FarAwayState> {
+    int distance_to(const FarAwayState &s) const
+    {
+        return s.farDistance;
+    }
+};
+
+struct FarAwayAction : goap::Action<FarAwayState> {
+    bool can_run(FarAwayState state)
+    {
+        (void) state;
+        return true;
+    }
+
+    FarAwayState plan_effects(FarAwayState s)
+    {
+        s.farDistance--;
+        return s;
+    }
+
+    bool execute(FarAwayState &s)
+    {
+        s.farDistance--;
+        return true;
+    }
+
+};
+
+bool operator==(const FarAwayState& lhs, const FarAwayState& rhs)
+{
+    return !memcmp(&lhs, &rhs, sizeof(FarAwayState));
+}
+
+TEST_GROUP(TooLongPathTestGroup)
+{
+};
+
+TEST(TooLongPathTestGroup, DoNotFindFarAwayPlan)
+{
+    // We create a plan that can only be solved in a 1000 actions
+    FarAwayState state;
+    state.farDistance = 1000;
+    FarAwayAction a;
+    FarAwayGoal goal;
+    goap::Action<FarAwayState> *actions[] = {&a};
+
+    // And feed it to a planner than can do path of at most 10 actions
+    goap::Planner<FarAwayState> planner(actions, 1);
+
+    // Of course it will fail
+    auto cost = planner.plan(state, goal);
+    CHECK_EQUAL(-2, cost);
+}
+
+TEST_GROUP(InternalDistanceGroup)
+{
+};
+
+TEST(InternalDistanceGroup, CanSetupBoolDistance)
+{
+    int d = goap::Distance().shouldBeTrue(true);
+    CHECK_EQUAL(0, d);
+
+    d = goap::Distance().shouldBeTrue(false);
+    CHECK_EQUAL(1, d);
+}
+
+TEST(InternalDistanceGroup, CanGroupDistance)
+{
+    int d = goap::Distance().shouldBeTrue(true).shouldBeTrue(false);
+    CHECK_EQUAL(1, d);
+}
+
+TEST(InternalDistanceGroup, CanAlsoComputeOpposite)
+{
+    int d = goap::Distance().shouldBeFalse(true).shouldBeFalse(false);
+    CHECK_EQUAL(1, d);
 }
