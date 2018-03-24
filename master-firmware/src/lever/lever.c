@@ -95,7 +95,7 @@ static float pump_voltage(lever_pump_state_t state)
 {
     switch (state)
     {
-    case LEVER_PUMP_ON:      return 10.f;
+    case LEVER_PUMP_ON:      return 13.f;
     case LEVER_PUMP_REVERSE: return -10.f;
     case LEVER_PUMP_OFF:     return 0.f;
     default:                 return 0.f;
