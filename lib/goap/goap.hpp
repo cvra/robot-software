@@ -136,6 +136,8 @@ public:
 
                     if (should_insert) {
                         list_push_head(open, neighbor);
+                    } else {
+                        list_push_head(free_nodes, neighbor);
                     }
 
                 }
