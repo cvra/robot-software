@@ -143,7 +143,7 @@ TEST(Strategy, CanWinGame)
 
     GameGoal switch_goal;
     auto len = planner.plan(state, switch_goal, path, max_path_len);
-    CHECK_EQUAL(7, len);
+    CHECK_EQUAL(9, len);
     for (auto i = 0; i < len; i++) {
         path[i]->execute(state);
     }
