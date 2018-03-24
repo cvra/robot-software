@@ -52,7 +52,7 @@
 #define GDISP_DEFAULT_ORIENTATION GDISP_ROTATE_270
 // #define GDISP_LINEBUF_SIZE                           128
 // #define GDISP_STARTUP_COLOR                          Black
-// #define GDISP_NEED_STARTUP_LOGO                      TRUE
+#define GDISP_NEED_STARTUP_LOGO                      FALSE
 
 ///////////////////////////////////////////////////////////////////////////
 // GWIN                                                                  //
