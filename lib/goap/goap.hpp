@@ -88,7 +88,9 @@ public:
                 auto i = len - 1;
                 for (auto p = current; p->parent; p = p->parent) {
                     if (path) {
-                        path[i] = p->action;
+                        if (i < path_len) {
+                            path[i] = p->action;
+                        }
                     }
                     i --;
                 }
