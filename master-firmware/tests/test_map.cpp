@@ -6,6 +6,11 @@ extern "C" {
 
 #include "base/map.h"
 
+void POINT_EQUAL(point_t expected, point_t actual)
+{
+    CHECK_EQUAL(expected.x, actual.x);
+    CHECK_EQUAL(expected.y, actual.y);
+}
 
 TEST_GROUP(MapRectangularObstacle)
 {
@@ -29,17 +34,10 @@ TEST(MapRectangularObstacle, setsRectangularPolygonAtGivenPositionInCounterClock
     int arbitrary_center_y = 800;
     map_set_rectangular_obstacle(&opponent, arbitrary_center_x, arbitrary_center_y, arbitrary_size_x, arbitrary_size_y, arbitrary_robot_size);
 
-    CHECK_EQUAL(450, opponent.pts[3].x);
-    CHECK_EQUAL(550, opponent.pts[3].y);
-
-    CHECK_EQUAL(450, opponent.pts[2].x);
-    CHECK_EQUAL(1050, opponent.pts[2].y);
-
-    CHECK_EQUAL(950, opponent.pts[1].x);
-    CHECK_EQUAL(1050, opponent.pts[1].y);
-
-    CHECK_EQUAL(950, opponent.pts[0].x);
-    CHECK_EQUAL(550, opponent.pts[0].y);
+    POINT_EQUAL({450, 550}, opponent.pts[3]);
+    POINT_EQUAL({450, 1050}, opponent.pts[2]);
+    POINT_EQUAL({950, 1050}, opponent.pts[1]);
+    POINT_EQUAL({950, 550}, opponent.pts[0]);
 };
 
 TEST(MapRectangularObstacle, setsRectangularPolygonAtClampedPosition)
@@ -48,17 +46,10 @@ TEST(MapRectangularObstacle, setsRectangularPolygonAtClampedPosition)
     int arbitrary_center_y = 200;
     map_set_rectangular_obstacle(&opponent, arbitrary_center_x, arbitrary_center_y, arbitrary_size_x, arbitrary_size_y, arbitrary_robot_size);
 
-    CHECK_EQUAL(0, opponent.pts[3].x);
-    CHECK_EQUAL(0, opponent.pts[3].y);
-
-    CHECK_EQUAL(0, opponent.pts[2].x);
-    CHECK_EQUAL(450, opponent.pts[2].y);
-
-    CHECK_EQUAL(250, opponent.pts[1].x);
-    CHECK_EQUAL(450, opponent.pts[1].y);
-
-    CHECK_EQUAL(250, opponent.pts[0].x);
-    CHECK_EQUAL(0, opponent.pts[0].y);
+    POINT_EQUAL({0, 0}, opponent.pts[3]);
+    POINT_EQUAL({0, 450}, opponent.pts[2]);
+    POINT_EQUAL({250, 450}, opponent.pts[1]);
+    POINT_EQUAL({250, 0}, opponent.pts[0]);
 };
 
 
@@ -81,17 +72,10 @@ TEST(MapOpponentObstacleSetter, setsSquarePolygonObstacleAtRobotPositionInCounte
     map_set_opponent_obstacle(0, arbitrary_pos_x, arbitrary_pos_y, arbitrary_size, arbitrary_robot_size);
     poly_t* opponent = map_get_opponent_obstacle(0);
 
-    CHECK_EQUAL(450, opponent->pts[3].x);
-    CHECK_EQUAL(550, opponent->pts[3].y);
-
-    CHECK_EQUAL(450, opponent->pts[2].x);
-    CHECK_EQUAL(1050, opponent->pts[2].y);
-
-    CHECK_EQUAL(950, opponent->pts[1].x);
-    CHECK_EQUAL(1050, opponent->pts[1].y);
-
-    CHECK_EQUAL(950, opponent->pts[0].x);
-    CHECK_EQUAL(550, opponent->pts[0].y);
+    POINT_EQUAL({450, 550}, opponent->pts[3]);
+    POINT_EQUAL({450, 1050}, opponent->pts[2]);
+    POINT_EQUAL({950, 1050}, opponent->pts[1]);
+    POINT_EQUAL({950, 550}, opponent->pts[0]);
 };
 
 
@@ -114,17 +98,10 @@ TEST(MapOpponentObstacleUpdater, setsSquarePolygonObstacleAtRobotPositionInCount
     map_update_opponent_obstacle(arbitrary_pos_x, arbitrary_pos_y, arbitrary_size, arbitrary_robot_size);
     poly_t* opponent = map_get_opponent_obstacle(0);
 
-    CHECK_EQUAL(450, opponent->pts[3].x);
-    CHECK_EQUAL(550, opponent->pts[3].y);
-
-    CHECK_EQUAL(450, opponent->pts[2].x);
-    CHECK_EQUAL(1050, opponent->pts[2].y);
-
-    CHECK_EQUAL(950, opponent->pts[1].x);
-    CHECK_EQUAL(1050, opponent->pts[1].y);
-
-    CHECK_EQUAL(950, opponent->pts[0].x);
-    CHECK_EQUAL(550, opponent->pts[0].y);
+    POINT_EQUAL({450, 550}, opponent->pts[3]);
+    POINT_EQUAL({450, 1050}, opponent->pts[2]);
+    POINT_EQUAL({950, 1050}, opponent->pts[1]);
+    POINT_EQUAL({950, 550}, opponent->pts[0]);
 };
 
 TEST(MapOpponentObstacleUpdater, updatesNextPolygon)
@@ -133,17 +110,10 @@ TEST(MapOpponentObstacleUpdater, updatesNextPolygon)
     map_update_opponent_obstacle(arbitrary_pos_x, arbitrary_pos_y, arbitrary_size, arbitrary_robot_size);
     poly_t* opponent = map_get_opponent_obstacle(1);
 
-    CHECK_EQUAL(450, opponent->pts[3].x);
-    CHECK_EQUAL(550, opponent->pts[3].y);
-
-    CHECK_EQUAL(450, opponent->pts[2].x);
-    CHECK_EQUAL(1050, opponent->pts[2].y);
-
-    CHECK_EQUAL(950, opponent->pts[1].x);
-    CHECK_EQUAL(1050, opponent->pts[1].y);
-
-    CHECK_EQUAL(950, opponent->pts[0].x);
-    CHECK_EQUAL(550, opponent->pts[0].y);
+    POINT_EQUAL({450, 550}, opponent->pts[3]);
+    POINT_EQUAL({450, 1050}, opponent->pts[2]);
+    POINT_EQUAL({950, 1050}, opponent->pts[1]);
+    POINT_EQUAL({950, 550}, opponent->pts[0]);
 };
 
 TEST(MapOpponentObstacleUpdater, loopsBackAfterMaximumNumberOfOpponentsReached)
