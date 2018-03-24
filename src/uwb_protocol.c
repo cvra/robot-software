@@ -15,7 +15,7 @@
 #define UWB_SEQ_NUM_ANCHOR_POSITION     3
 #define UWB_SEQ_NUM_TAG_POSITION        4
 
-#define UWB_DELAY                       (15000 * 65536)
+#define UWB_DELAY                       (1000 * 65536)
 #define MASK_40BIT                      0xfffffffe00
 
 static void write_40bit_int(uint64_t val, uint8_t *bytes);

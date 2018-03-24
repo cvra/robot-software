@@ -23,8 +23,6 @@
 #define EVENT_ANCHOR_POSITION_TIMER      (1 << 2)
 #define EVENT_TAG_POSITION_TIMER         (1 << 3)
 
-#define UWB_ADVERTISE_TIMER_PERIOD       MS2ST(250)
-
 /* TODO: Put this in parameters. */
 #define UWB_ANCHOR_POSITION_TIMER_PERIOD S2ST(5)
 #define UWB_TAG_POSITION_TIMER_PERIOD    MS2ST(300)
@@ -247,7 +245,8 @@ static void advertise_timer_cb(void *t)
     virtual_timer_t *timer = (virtual_timer_t *)t;
 
     chSysLockFromISR();
-    chVTSetI(timer, UWB_ADVERTISE_TIMER_PERIOD, advertise_timer_cb, t);
+    int period = uwb_params.anchor.advertisement_period_ms.value.i;
+    chVTSetI(timer, MS2ST(period), anchor_position_timer_cb, t);
     chEvtBroadcastI(&advertise_timer_event);
     chSysUnlockFromISR();
 }
@@ -289,6 +288,11 @@ static void parameters_init(void)
                                            &uwb_params.anchor.ns,
                                            "is_anchor",
                                            false);
+    parameter_integer_declare_with_default(&uwb_params.anchor.advertisement_period_ms,
+                                           &uwb_params.anchor.ns,
+                                           "advertisement_period_ms",
+                                           100);
+
     parameter_namespace_declare(&uwb_params.anchor.position.ns, &uwb_params.anchor.ns, "position");
     parameter_scalar_declare_with_default(&uwb_params.anchor.position.x,
                                           &uwb_params.anchor.position.ns,
