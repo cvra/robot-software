@@ -324,6 +324,22 @@ void strat_deposit_cube(float x, float y, int num_cubes_in_tower)
     hand_set_pump(&main_hand, PUMP_OFF);
 }
 
+void strat_push_the_bee(point_t start, point_t end, float bee_height)
+{
+    const position_3d_t last_pos = scara_position(&main_arm, COORDINATE_ROBOT);
+
+    scara_control_mode_joint(&main_arm);
+    scara_goto(&main_arm, {start.x, start.y, last_pos.z}, COORDINATE_ROBOT, {300, 300, 300});
+    strategy_wait_ms(1000);
+    scara_goto(&main_arm, {start.x, start.y, bee_height}, COORDINATE_ROBOT, {300, 300, 300});
+    strategy_wait_ms(1000);
+    scara_goto(&main_arm, {end.x, end.y, bee_height}, COORDINATE_ROBOT, {300, 300, 300});
+    strategy_wait_ms(1000);
+    scara_control_mode_cartesian(&main_arm);
+
+    strat_scara_goto_blocking({end.x, end.y, last_pos.z}, COORDINATE_ROBOT, {300, 300, 300});
+}
+
 struct BuildTower : actions::BuildTower {
     enum strat_color_t m_color;
 

@@ -1382,6 +1382,25 @@ static void cmd_score_increment(BaseSequentialStream *chp, int argc, char *argv[
     strategy_score_increase(inc);
 }
 
+static void cmd_push_the_bee(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc != 5) {
+        chprintf(chp, "Usage: bee x_start y_start x_end y_end bee_height\r\n");
+        return;
+    }
+    float x_start = atof(argv[0]);
+    float y_start = atof(argv[1]);
+    float x_end = atof(argv[2]);
+    float y_end = atof(argv[3]);
+    float bee_height = atof(argv[4]);
+
+    point_t start = {x_start, y_start};
+    point_t end = {x_end, y_end};
+
+    strat_push_the_bee(start, end, bee_height);
+}
+
+
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
@@ -1439,5 +1458,6 @@ const ShellCommand commands[] = {
     {"arm_bd", cmd_arm_bd},
     {"motor_sin", cmd_motor_sin},
     {"score", cmd_score_increment},
+    {"bee", cmd_push_the_bee},
     {NULL, NULL}
 };
