@@ -255,19 +255,19 @@ struct RetractArms : actions::RetractArms {
         NOTICE("Retracting arms!");
         state.arms_are_deployed = false;
 
+        scara_control_mode_joint(&main_arm);
+
         if (m_color == YELLOW) {
             main_arm.shoulder_mode = SHOULDER_BACK;
         } else {
             main_arm.shoulder_mode = SHOULDER_FRONT;
         }
-
-        scara_control_mode_joint(&main_arm);
-        scara_hold_position(&main_arm, COORDINATE_ROBOT);
-        scara_goto(&main_arm, {.x=-280., .y=0., .z=295.}, COORDINATE_ROBOT, {.x=300, .y=300, .z=300});
-        arm_traj_wait_for_end();
-        scara_goto(&main_arm, {.x=-20., .y=MIRROR(m_color, 120.), .z=295.}, COORDINATE_ROBOT, {.x=300, .y=300, .z=300});
-        arm_traj_wait_for_end();
+        scara_goto(&main_arm, {170., 0., 295.}, COORDINATE_ARM, {300, 300, 300});
+        strategy_wait_ms(500);
         scara_control_mode_cartesian(&main_arm);
+
+        scara_goto(&main_arm, {-20., MIRROR(m_color, 120.), 295.}, COORDINATE_ROBOT, {300, 300, 300});
+        arm_traj_wait_for_end();
 
         return true;
     }
