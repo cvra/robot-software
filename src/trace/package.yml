@@ -1,0 +1,7 @@
+depends:
+  - test-runner
+tests:
+  - tests/trace_test.cpp
+source:
+  - trace.c
+  - trace_points.c

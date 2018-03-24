@@ -12,6 +12,7 @@ depends:
   - parameter
   - parameter_flash_storage
   - chibios-syscalls
+  - trace
 
 target.arm:
   - src/board.c
