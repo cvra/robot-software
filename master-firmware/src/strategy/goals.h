@@ -19,18 +19,19 @@ struct TowerGoal : goap::Goal<RobotState> {
 };
 
 struct SwitchGoal : goap::Goal<RobotState> {
-    bool is_reached(RobotState state)
+    virtual int distance_to(const RobotState &state) const
     {
-        return state.switch_on == true;
+        return goap::Distance().shouldBeTrue(state.switch_on);
     }
 };
 
 struct GameGoal : goap::Goal<RobotState> {
-    bool is_reached(RobotState state)
+    virtual int distance_to(const RobotState &state) const
     {
-        return state.arms_are_deployed == false
-            && state.tower_built == true
-            && state.switch_on == true;
+        return goap::Distance()
+            .shouldBeTrue(state.switch_on)
+            .shouldBeTrue(state.tower_built)
+            .shouldBeFalse(state.arms_are_deployed);
     }
 };
 
