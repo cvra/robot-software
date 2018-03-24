@@ -1,6 +1,7 @@
 #include <ch.h>
 #include <hal.h>
 #include <chprintf.h>
+#include <trace/trace.h>
 #include "decawave_interface.h"
 #include "exti.h"
 #include "decadriver/deca_device_api.h"
@@ -25,6 +26,7 @@ int writetospi(uint16 headerLength, const uint8 *headerBuffer,
                uint32 bodyLength, const uint8 *bodyBuffer)
 {
     spiSelect(&SPID1);
+
     spiSend(&SPID1, headerLength, headerBuffer);
     spiSend(&SPID1, bodyLength, bodyBuffer);
     spiUnselect(&SPID1);

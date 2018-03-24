@@ -1,5 +1,7 @@
 #include <ch.h>
 #include <hal.h>
+#include <trace/trace.h>
+#include "trace_points.h"
 
 #include "exti.h"
 
@@ -15,6 +17,7 @@ static void exti_cb(EXTDriver *extp, expchannel_t channel)
         chEvtBroadcastI(&exti_imu_event);
         chSysUnlockFromISR();
     } else if (channel == GPIOA_UWB_INT) {
+        trace(TRACE_POINT_UWB_IRQ);
         chSysLockFromISR();
         chEvtBroadcastI(&exti_uwb_event);
         chSysUnlockFromISR();

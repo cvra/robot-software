@@ -30,12 +30,12 @@ struct trace_event {
     } data;
 };
 
-extern struct trace_buffer_struct {
+struct trace_buffer_struct {
     bool active;
     size_t write_index;
     size_t nb_events;
     struct trace_event data[TRACE_BUFFER_SIZE];
-} trace_buffer;
+};
 
 #ifdef __cplusplus
 extern "C" {

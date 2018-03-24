@@ -10,6 +10,7 @@
 #include "uwb_protocol.h"
 #include "exti.h"
 #include "state_estimation_thread.h"
+#include "trace_points.h"
 
 /** Speed of light in Decawave units */
 #define SPEED_OF_LIGHT                   (299792458.0 / (128 * 499.2e6))
@@ -58,6 +59,7 @@ static struct {
     struct {
         parameter_namespace_t ns;
         parameter_t is_anchor;
+        parameter_t advertisement_period_ms;
         struct {
             parameter_namespace_t ns;
             parameter_t x, y, z;
@@ -122,6 +124,7 @@ static void ranging_thread(void *p)
                 dwt_forcetrxoff();
 
                 /* Then send a measurement frame */
+                trace(TRACE_POINT_UWB_SEND_ADVERTISEMENT);
                 uwb_send_measurement_advertisement(&handler, frame);
             }
         } else if (flags & EVENT_ANCHOR_POSITION_TIMER) {
@@ -176,12 +179,14 @@ static void ranging_thread(void *p)
 static void frame_tx_done_cb(const dwt_cb_data_t *data)
 {
     (void) data;
+    trace(TRACE_POINT_UWB_TX_DONE);
 }
 
 /* TODO: Handle RX errors as well, especially timeouts. */
 static void frame_rx_cb(const dwt_cb_data_t *data)
 {
     static uint8_t frame[1024];
+    trace(TRACE_POINT_UWB_RX);
     uint64_t rx_ts = decawave_get_rx_timestamp_u64();
 
     dwt_readrxdata(frame, data->datalength, 0);

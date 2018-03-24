@@ -2,7 +2,7 @@
 #include <stddef.h>
 #include <string.h>
 
-struct trace_buffer_struct trace_buffer;
+volatile struct trace_buffer_struct trace_buffer;
 
 static void trace_push_event(uint8_t event_id, struct trace_event *event)
 {
@@ -13,7 +13,7 @@ static void trace_push_event(uint8_t event_id, struct trace_event *event)
     event->timestamp = trace_timestamp_ms_get();
 
     int32_t status = trace_lock();
-    struct trace_event *p;
+    volatile struct trace_event *p;
     p = &trace_buffer.data[trace_buffer.write_index];
     trace_buffer.write_index = (trace_buffer.write_index + 1) % TRACE_BUFFER_SIZE;
     if (trace_buffer.nb_events < TRACE_BUFFER_SIZE) {
@@ -69,7 +69,7 @@ void trace_integer(uint8_t event_id, int32_t i)
  */
 void trace_init(void)
 {
-    memset(&trace_buffer, 0, sizeof(trace_buffer));
+    memset((void *)&trace_buffer, 0, sizeof(trace_buffer));
 }
 
 /** Enable trace */
@@ -107,7 +107,7 @@ void trace_print(void (*print_fn)(void *, const char *, ...), void *arg)
         index = 0;
     }
     for (i = 0; i < trace_buffer.nb_events; i++) {
-        struct trace_event *e = &trace_buffer.data[index];
+        volatile struct trace_event *e = &trace_buffer.data[index];
         print_fn(arg, "[%u] %s: ", e->timestamp, trace_point_names[e->event_id]);
         switch (e->type) {
         case TRACE_TYPE_STRING:

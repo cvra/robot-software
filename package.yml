@@ -24,6 +24,7 @@ target.arm:
   - src/exti.c
   - src/imu_thread.c
   - src/ahrs_thread.c
+  - src/trace_port.c
   - src/uavcan/uavcan_node.cpp
   - src/uavcan/topics_publisher.cpp
   - src/uavcan/parameter_server.cpp

@@ -6,6 +6,8 @@
 #include <shell.h>
 
 #include <parameter_flash_storage/parameter_flash_storage.h>
+#include <trace/trace.h>
+#include "trace_points.h"
 
 #include "main.h"
 #include "imu_thread.h"
@@ -411,11 +413,26 @@ static void cmd_config_load(BaseSequentialStream *chp, int argc, char **argv)
     }
 }
 
+static void print_fn_foo(void *arg, const char *fmt, ...)
+{
+    BaseSequentialStream *chp = (BaseSequentialStream *)arg;
+    va_list ap;
+    va_start(ap, fmt);
+    chvprintf(chp, fmt, ap);
+    va_end(ap);
+}
+
+static void cmd_trace(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    trace_print(print_fn_foo, chp);
+    trace_clear();
+}
 
 static ShellConfig shell_cfg;
 const ShellCommand shell_commands[] = {
     {"reboot", cmd_reboot},
     {"topics", cmd_topics},
+    {"trace", cmd_trace},
     {"imu", cmd_imu},
     {"ahrs", cmd_ahrs},
     {"temp", cmd_temp},
