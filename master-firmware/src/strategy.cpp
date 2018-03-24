@@ -307,8 +307,8 @@ struct BuildTower : actions::BuildTower {
 
         strategy_goto_avoid_retry(MIRROR_X(m_color, 500), 300, MIRROR_A(m_color, -135), TRAJ_FLAGS_ALL, -1);
 
-        // lever_deploy(lever);
-        // strategy_wait_ms(500);
+        lever_deploy(lever);
+        strategy_wait_ms(500);
 
         se2_t blocks_pose = lever_deposit(lever, base_get_robot_pose(&robot.pos));
         strategy_wait_ms(500);
@@ -360,8 +360,8 @@ struct PickupBlocks : actions::PickupBlocks {
         lever_pickup(lever, base_get_robot_pose(&robot.pos), blocks_pose);
         strategy_wait_ms(1000);
 
-        // lever_retract(lever);
-        // strategy_wait_ms(500);
+        lever_retract(lever);
+        strategy_wait_ms(500);
 
         state.has_blocks = true;
 
