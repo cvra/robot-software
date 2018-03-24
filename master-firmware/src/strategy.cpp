@@ -432,7 +432,7 @@ void strategy_debra_play_game(void)
         &turn_switch_on,
     };
 
-    goap::Planner<RobotState> planner(actions, sizeof(actions) / sizeof(actions[0]));
+    static goap::Planner<RobotState> planner(actions, sizeof(actions) / sizeof(actions[0]));
 
     lever_retract(&right_lever);
     lever_retract(&left_lever);
