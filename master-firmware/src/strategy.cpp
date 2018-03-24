@@ -38,6 +38,9 @@ static void strategy_wait_ms(int ms);
 
 void strategy_play_game(void);
 
+#define MIRROR_RIGHT_LEVER(color) (color == YELLOW ? (&right_lever) : (&left_lever))
+#define MIRROR_LEFT_LEVER(color) (color == YELLOW ? (&left_lever) : (&right_lever))
+
 #define BUTTON_IS_PRESSED(in) (control_panel_read(in) == true) // Active high
 
 static enum strat_color_t wait_for_color_selection(void)
@@ -300,7 +303,7 @@ struct BuildTower : actions::BuildTower {
         NOTICE("Building tower!");
         state.arms_are_deployed = true;
 
-        lever_t* lever = &right_lever;
+        lever_t* lever = MIRROR_LEFT_LEVER(m_color);
 
         strategy_goto_avoid_retry(MIRROR_X(m_color, 500), 300, MIRROR_A(m_color, -135), TRAJ_FLAGS_ALL, -1);
 
@@ -345,7 +348,7 @@ struct PickupBlocks : actions::PickupBlocks {
     {
         NOTICE("Picking up some blocks");
 
-        lever_t* lever = &right_lever;
+        lever_t* lever = MIRROR_LEFT_LEVER(m_color);
 
         se2_t blocks_pose = se2_create_xya(MIRROR_X(m_color, 850), 540, 0);
 
