@@ -110,6 +110,12 @@ include src/board/board.mk
 # Shell module
 include $(CHIBIOS)/os/various/shell/shell.mk
 
+# uGFX (GUI library)
+GFXLIB=../lib/ugfx
+OPT_OS=chibios
+include $(GFXLIB)/gfx.mk
+
+
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
 CSRC = $(PORTSRC) \
@@ -126,7 +132,8 @@ CSRC = $(PORTSRC) \
 	   $(CHIBIOS)/os/hal/lib/streams/chprintf.c \
 	   $(CHIBIOS)/os/various/syscalls.c \
 	   $(CHIBIOS)/os/various/fatfs_bindings/fatfs_diskio.c \
-	   $(BOARDSRC)
+	   $(BOARDSRC) \
+	   $(GFXSRC)
 
 include app_src.mk
 
@@ -146,7 +153,8 @@ INCDIR += $(CHIBIOS)/os/license \
 		  $(CHIBIOS)/os/hal/lib/streams \
 		  $(SHELLINC) \
 		  $(TESTINC) \
-		  $(BOARDINC)
+		  $(BOARDINC) \
+		  $(GFXINC)
 
 #
 # Project, sources and paths
@@ -221,6 +229,7 @@ DLIBS =
 
 # List all user C define here, like -D_DEBUG=1
 UDEFS = -DON_ROBOT
+UDEFS += $(addprefix -D, $(GFXDEFS))
 
 ifeq ($(ROBOT), debra)
   UDEFS += -DDEBRA=1

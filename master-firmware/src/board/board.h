@@ -137,7 +137,7 @@
 #define GPIOE_PIN8                  8
 #define GPIOE_PIN9                  9
 #define GPIOE_PIN10                 10
-#define GPIOE_SPI4_CS               11 // SPI4_CS (alternate 5)
+#define GPIOE_SPI4_CS               11 // SPI4_CS (output pushpull)
 #define GPIOE_SPI4_SCK              12 // SPI4_SCK (alternate 5)
 #define GPIOE_SPI4_MISO             13 // SPI4_MISO (alternate 5)
 #define GPIOE_SPI4_MOSI             14 // SPI4_MOSI (alternate 5)
