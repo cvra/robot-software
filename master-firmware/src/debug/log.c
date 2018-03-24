@@ -23,6 +23,7 @@ static bool log_file_enabled = false;
 static void vuart_log_message(struct error *e, va_list args);
 static void vlogfile_log_message(struct error *e, va_list args);
 static void vpanic_message(struct error *e, va_list args);
+static unsigned int get_level_parameter(parameter_t *p);
 
 static struct {
     parameter_namespace_t ns;
@@ -55,9 +56,11 @@ static void log_message(struct error *e, ...)
         va_end(va);
     }
 
-    va_start(va, e);
-    gui_log_console(e, va);
-    va_end(va);
+    if (e->severity >= get_level_parameter(&params.uart.level)) {
+        va_start(va, e);
+        gui_log_console(e, va);
+        va_end(va);
+    }
 
     chMtxUnlock(&log_lock);
 }
