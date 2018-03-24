@@ -224,16 +224,31 @@ struct IndexArms : actions::IndexArms {
 };
 
 struct RetractArms : actions::RetractArms {
+    enum strat_color_t m_color;
+
+    RetractArms(enum strat_color_t color)
+        : m_color(color)
+    {
+    }
+
     bool execute(RobotState &state)
     {
         NOTICE("Retracting arms!");
         state.arms_are_deployed = false;
 
-        scara_control_mode_cartesian(&main_arm);
+        if (m_color == YELLOW) {
+            main_arm.shoulder_mode = SHOULDER_BACK;
+        } else {
+            main_arm.shoulder_mode = SHOULDER_FRONT;
+        }
+
+        scara_control_mode_joint(&main_arm);
+        scara_hold_position(&main_arm, COORDINATE_ROBOT);
         scara_goto(&main_arm, {.x=-280., .y=0., .z=295.}, COORDINATE_ROBOT, {.x=300, .y=300, .z=300});
         arm_traj_wait_for_end();
-        scara_goto(&main_arm, {.x=-20., .y=-120., .z=295.}, COORDINATE_ROBOT, {.x=300, .y=300, .z=300});
+        scara_goto(&main_arm, {.x=-20., .y=MIRROR(m_color, 120.), .z=295.}, COORDINATE_ROBOT, {.x=300, .y=300, .z=300});
         arm_traj_wait_for_end();
+        scara_control_mode_cartesian(&main_arm);
 
         return true;
     }
@@ -419,7 +434,7 @@ void strategy_debra_play_game(void)
     GameGoal game_goal;
 
     IndexArms index_arms;
-    RetractArms retract_arms;
+    RetractArms retract_arms(color);
     BuildTower build_tower(color);
     PickupBlocks pickup_blocks(color);
     TurnSwitchOn turn_switch_on(color);

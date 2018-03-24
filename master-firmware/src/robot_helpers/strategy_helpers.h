@@ -31,6 +31,7 @@ enum block_color {
  */
 #define MIRROR_X(color, x) (color == YELLOW ? (x) : 3000. - (x))
 #define MIRROR_A(color, a_deg) (color == YELLOW ? (a_deg) : 180. - (a_deg))
+#define MIRROR(color, value) (color == YELLOW ? (value) : - (value))
 
 /** Auto position robot at requested location, and ensure the correct
  *  position is reached by aligning against walls.
