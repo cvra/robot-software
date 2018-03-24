@@ -193,6 +193,25 @@ bool strategy_goto_avoid_retry(int x_mm, int y_mm, int a_deg, int traj_end_flags
     return finished;
 }
 
+void strategy_score_init()
+{
+    static messagebus_topic_t topic;
+    static MUTEX_DECL(topic_lock);
+    static CONDVAR_DECL(topic_condvar);
+    static int score;
+
+    messagebus_topic_init(&topic, &topic_lock, &topic_condvar, &score, sizeof(score));
+    messagebus_advertise_topic(&bus, &topic, "/encoders");
+}
+
+void strategy_score_increase(int increment)
+{
+    static int score = 0;
+    score += increment;
+    messagebus_topic_t *score_topic = messagebus_find_topic_blocking(&bus, "/score");
+    messagebus_topic_publish(score_topic, &score, sizeof(score));
+}
+
 struct IndexArms : actions::IndexArms {
     bool execute(RobotState &state)
     {
@@ -335,15 +354,19 @@ struct BuildTower : actions::BuildTower {
 
         strat_pick_cube(strategy_block_pos(blocks_pose, BLOCK_BLACK), 200);
         strat_deposit_cube(MIRROR_X(m_color, 470), 90, 0);
+        strategy_score_increase(1);
 
         strat_pick_cube(strategy_block_pos(blocks_pose, BLOCK_GREEN), 200);
         strat_deposit_cube(MIRROR_X(m_color, 470), 90, 1);
+        strategy_score_increase(2);
 
         strat_pick_cube(strategy_block_pos(blocks_pose, BLOCK_YELLOW), 200);
         strat_deposit_cube(MIRROR_X(m_color, 470), 90, 2);
+        strategy_score_increase(3);
 
         strat_pick_cube(strategy_block_pos(blocks_pose, BLOCK_RED), 200);
         strat_deposit_cube(MIRROR_X(m_color, 470), 90, 3);
+        strategy_score_increase(4);
 
         state.tower_built = true;
 
@@ -413,6 +436,7 @@ struct TurnSwitchOn : public actions::TurnSwitchOn {
         }
 
         strat_push_switch_on(MIRROR_X(m_color, 1130), 50, 120, -120);
+        strategy_score_increase(25);
 
         state.switch_on = true;
         return true;
@@ -423,6 +447,7 @@ void strategy_debra_play_game(void)
 {
     /* Initialize map and path planner */
     map_init(config_get_integer("master/robot_size_x_mm"));
+    strategy_score_init(); // Initialize score to 0
 
     NOTICE("Waiting for color selection...");
     enum strat_color_t color = wait_for_color_selection();
@@ -476,9 +501,13 @@ void strategy_debra_play_game(void)
     NOTICE("Robot positioned at x: %d[mm], y: %d[mm], a: %d[deg]",
            position_get_x_s16(&robot.pos), position_get_y_s16(&robot.pos), position_get_a_deg_s16(&robot.pos));
 
+    /* Init score */
+    strategy_score_increase(5); // Domotic panel
+
     /* Wait for starter to begin */
     wait_for_starter();
     trajectory_game_timer_reset();
+    strategy_score_increase(10);
 
     NOTICE("Starting game...");
     len = planner.plan(state, game_goal, path, max_path_len);

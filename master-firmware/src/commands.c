@@ -1372,6 +1372,16 @@ static void cmd_motor_sin(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
+static void cmd_score_increment(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc != 1) {
+        chprintf(chp, "Usage: score increment\r\n");
+        return;
+    }
+    int inc = atoi(argv[0]);
+    strategy_score_increase(inc);
+}
+
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
@@ -1428,5 +1438,6 @@ const ShellCommand commands[] = {
     {"dist", cmd_hand_dist},
     {"arm_bd", cmd_arm_bd},
     {"motor_sin", cmd_motor_sin},
+    {"score", cmd_score_increment},
     {NULL, NULL}
 };
