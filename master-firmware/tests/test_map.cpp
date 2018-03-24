@@ -125,17 +125,10 @@ TEST(MapOpponentObstacleUpdater, loopsBackAfterMaximumNumberOfOpponentsReached)
 
     poly_t* opponent = map_get_opponent_obstacle(0);
 
-    CHECK_EQUAL(450, opponent->pts[3].x);
-    CHECK_EQUAL(550, opponent->pts[3].y);
-
-    CHECK_EQUAL(450, opponent->pts[2].x);
-    CHECK_EQUAL(1050, opponent->pts[2].y);
-
-    CHECK_EQUAL(950, opponent->pts[1].x);
-    CHECK_EQUAL(1050, opponent->pts[1].y);
-
-    CHECK_EQUAL(950, opponent->pts[0].x);
-    CHECK_EQUAL(550, opponent->pts[0].y);
+    POINT_EQUAL({450, 550}, opponent->pts[3]);
+    POINT_EQUAL({450, 1050}, opponent->pts[2]);
+    POINT_EQUAL({950, 1050}, opponent->pts[1]);
+    POINT_EQUAL({950, 550}, opponent->pts[0]);
 };
 
 TEST_GROUP(MapEurobot2017)
@@ -161,8 +154,7 @@ TEST(MapEurobot2017, canMoveOnYellowGoOut)
     auto point_cnt = oa_get_path(&points);
 
     CHECK_EQUAL(1, point_cnt);
-    CHECK_EQUAL(end.x, points[0].x);
-    CHECK_EQUAL(end.y, points[0].y);
+    POINT_EQUAL(end, points[0]);
 };
 
 TEST(MapEurobot2017, canMoveOnBlueGoOut)
@@ -177,6 +169,5 @@ TEST(MapEurobot2017, canMoveOnBlueGoOut)
     auto point_cnt = oa_get_path(&points);
 
     CHECK_EQUAL(1, point_cnt);
-    CHECK_EQUAL(end.x, points[0].x);
-    CHECK_EQUAL(end.y, points[0].y);
+    POINT_EQUAL(end, points[0]);
 };
