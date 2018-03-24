@@ -3,6 +3,8 @@
 #include <cstring>
 #include "uwb_protocol.h"
 
+#define UWB_TX_DELAY 1000
+
 TEST_GROUP(MACLayerTestCase)
 {
 };
@@ -177,7 +179,7 @@ TEST(RangingProtocol, SendAdvertisementFrame)
     size_t frame_size;
 
     // The message should be sent when the lower 9 bits are zero
-    uint64_t tx_ts = ts + (15000 * 65536ULL);
+    uint64_t tx_ts = ts + (1000 * 65536ULL);
     tx_ts &= ~(0x1FFULL);
 
     frame_size =
@@ -199,7 +201,7 @@ TEST(RangingProtocol, SendMeasurementReply)
     uint64_t reply_tx_ts = 2400;
 
     // The final message should be sent when the lower 9 bits are zero
-    reply_tx_ts = advertisement_rx_ts + (15000 * 65536ULL);
+    reply_tx_ts = advertisement_rx_ts + (UWB_TX_DELAY * 65536ULL);
     reply_tx_ts &= ~(0x1FFULL);
 
 
@@ -244,7 +246,7 @@ TEST(RangingProtocol, ReplyIsFollowedByFinalMessage)
 
     // The final message should be sent at a time where the lower 9 bits
     // are zero
-    final_tx_ts = reply_rx_ts + (15000 * 65536ULL);
+    final_tx_ts = reply_rx_ts + (UWB_TX_DELAY * 65536ULL);
     final_tx_ts &= ~(0x1FFULL);
 
     // Prepare a measurement reply frame

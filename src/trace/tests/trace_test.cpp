@@ -4,6 +4,8 @@
 #include "../trace.h"
 #include "trace_points.h"
 
+extern volatile struct trace_buffer_struct trace_buffer;
+
 int32_t trace_timestamp_ms_get(void)
 {
     return 1234;
