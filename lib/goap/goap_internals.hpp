@@ -26,8 +26,7 @@ struct VisitedState
 template<typename State>
 void visited_states_array_to_list(VisitedState<State> *nodes, int len)
 {
-    int i;
-    for (i = 0; i < len-1; i++) {
+    for (auto i = 0; i < len-1; i++) {
         nodes[i].next = &nodes[i+1];
     }
     nodes[len-1].next = nullptr;
@@ -77,6 +76,17 @@ void list_push_head(VisitedState<State> *&head, VisitedState<State> *elem)
 {
     elem->next = head;
     head = elem;
+}
+
+template<typename State>
+void update_queued_state(VisitedState<State> *previous, const VisitedState<State> *current)
+{
+    if (previous->cost > current->cost) {
+        previous->priority = current->cost;
+        previous->priority = current->priority;
+        previous->parent = current->parent;
+        previous->action = current->action;
+    }
 }
 
 

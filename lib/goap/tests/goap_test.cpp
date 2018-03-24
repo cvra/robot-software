@@ -206,6 +206,7 @@ struct FarAwayGoal : goap::Goal<FarAwayState> {
 struct FarAwayAction : goap::Action<FarAwayState> {
     bool can_run(FarAwayState state)
     {
+        (void) state;
         return true;
     }
 

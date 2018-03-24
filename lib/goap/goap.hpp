@@ -121,12 +121,7 @@ public:
                     for (auto p = open; p; p = p->next) {
                         if (p->state == neighbor->state) {
                             should_insert = false;
-                            if (p->cost > neighbor->cost) {
-                                p->priority = neighbor->cost;
-                                p->priority = neighbor->priority;
-                                p->parent = neighbor->parent;
-                                p->action = neighbor->action;
-                            }
+                            update_queued_state(p, neighbor);
                         }
                     }
 
@@ -135,12 +130,7 @@ public:
                     for (auto p = close; p; p = p->next) {
                         if (p->state == neighbor->state) {
                             should_insert = false;
-                            if (p->cost > neighbor->cost) {
-                                p->priority = neighbor->cost;
-                                p->priority = neighbor->priority;
-                                p->parent = neighbor->parent;
-                                p->action = neighbor->action;
-                            }
+                            update_queued_state(p, neighbor);
                         }
                     }
 
@@ -157,6 +147,7 @@ public:
         // No path was found
         return -1;
     }
+
 };
 
 // Distance class, used to build distance metrics that read easily

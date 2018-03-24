@@ -85,7 +85,8 @@ TEST(InternalVisitedListState, CanPushListHead)
 
 TEST(InternalVisitedListState, CanPushEmptyList)
 {
-    VisitedState<MyState> new_elem, *head=nullptr;
+    VisitedState<MyState> new_elem;
+    VisitedState<MyState> *head=nullptr;
 
     list_push_head<MyState>(head, &new_elem);
     POINTERS_EQUAL(&new_elem, head);
