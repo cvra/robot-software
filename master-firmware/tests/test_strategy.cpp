@@ -24,6 +24,9 @@ struct PickupBlocks : actions::PickupBlocks {
 struct TurnSwitchOn : actions::TurnSwitchOn {
     bool execute(RobotState &state) { return dummy_execute(this, state); }
 };
+struct DeployTheBee : actions::DeployTheBee {
+    bool execute(RobotState &state) { return dummy_execute(this, state); }
+};
 
 TEST_GROUP(Strategy) {
     RobotState state;
@@ -33,6 +36,7 @@ TEST_GROUP(Strategy) {
     BuildTower build_tower;
     PickupBlocks pickup_blocks;
     TurnSwitchOn turn_switch_on;
+    DeployTheBee deploy_the_bee;
 };
 
 TEST(Strategy, CanInitArms)
@@ -45,6 +49,7 @@ TEST(Strategy, CanInitArms)
         &build_tower,
         &pickup_blocks,
         &turn_switch_on,
+        &deploy_the_bee,
     };
     goap::Planner<RobotState> planner(actions, sizeof(actions) / sizeof(actions[0]));
 
@@ -72,6 +77,7 @@ TEST(Strategy, CanBuildTower)
         &build_tower,
         &pickup_blocks,
         &turn_switch_on,
+        &deploy_the_bee,
     };
     goap::Planner<RobotState> planner(actions, sizeof(actions) / sizeof(actions[0]));
 
@@ -102,6 +108,7 @@ TEST(Strategy, CanPushInterruptor)
         &build_tower,
         &pickup_blocks,
         &turn_switch_on,
+        &deploy_the_bee,
     };
     goap::Planner<RobotState> planner(actions, sizeof(actions) / sizeof(actions[0]));
 
@@ -130,6 +137,7 @@ TEST(Strategy, CanWinGame)
         &build_tower,
         &pickup_blocks,
         &turn_switch_on,
+        &deploy_the_bee,
     };
     goap::Planner<RobotState> planner(actions, sizeof(actions) / sizeof(actions[0]));
 

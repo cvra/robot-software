@@ -9,6 +9,7 @@ struct RobotState {
     bool has_blocks{false};
     bool tower_built{false};
     bool switch_on{false};
+    bool bee_deployed{false};
 };
 
 bool operator==(const RobotState& lhs, const RobotState& rhs)

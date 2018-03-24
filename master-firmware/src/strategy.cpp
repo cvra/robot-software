@@ -459,6 +459,36 @@ struct TurnSwitchOn : public actions::TurnSwitchOn {
     }
 };
 
+struct DeployTheBee : public actions::DeployTheBee {
+    enum strat_color_t m_color;
+
+    DeployTheBee(enum strat_color_t color)
+        : m_color(color)
+    {
+    }
+
+    bool execute(RobotState& state)
+    {
+        NOTICE("Gonna deploy the bee!");
+
+        state.arms_are_deployed = true;
+        state.blocks_on_map = false;
+        if (!strategy_goto_avoid_retry(MIRROR_X(m_color, 130), 1870, MIRROR_A(m_color, -90), TRAJ_FLAGS_ALL, -1)) {
+            return false;
+        }
+
+        point_t start = {.x = -260.f, .y = MIRROR(m_color, -110.f)};
+        point_t end = {.x = -260.f, .y = MIRROR(m_color, 110.f)};
+        float bee_height = 150.f;
+        strat_push_the_bee(start, end, bee_height);
+
+        strategy_score_increase(50);
+
+        state.bee_deployed = true;
+        return true;
+    }
+};
+
 void strategy_debra_play_game(void)
 {
     /* Initialize map and path planner */
@@ -479,6 +509,7 @@ void strategy_debra_play_game(void)
     BuildTower build_tower(color);
     PickupBlocks pickup_blocks(color);
     TurnSwitchOn turn_switch_on(color);
+    DeployTheBee deploy_the_bee(color);
 
     const int max_path_len = 10;
     goap::Action<RobotState> *path[max_path_len] = {nullptr};
@@ -489,6 +520,7 @@ void strategy_debra_play_game(void)
         &build_tower,
         &pickup_blocks,
         &turn_switch_on,
+        &deploy_the_bee,
     };
 
     static goap::Planner<RobotState> planner(actions, sizeof(actions) / sizeof(actions[0]));

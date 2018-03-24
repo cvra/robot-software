@@ -76,6 +76,21 @@ struct TurnSwitchOn : public goap::Action<RobotState> {
     }
 };
 
+struct DeployTheBee : public goap::Action<RobotState> {
+    bool can_run(RobotState state)
+    {
+        return state.arms_are_deployed == false;
+    }
+
+    RobotState plan_effects(RobotState state)
+    {
+        state.arms_are_deployed = true;
+        state.blocks_on_map = false;
+        state.bee_deployed = true;
+        return state;
+    }
+};
+
 } // namespace actions
 
 #endif /* STRATEGY_ACTIONS_H */
