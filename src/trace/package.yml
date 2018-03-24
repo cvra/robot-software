@@ -2,6 +2,6 @@ depends:
   - test-runner
 tests:
   - tests/trace_test.cpp
+  - tests/trace_points.c
 source:
   - trace.c
-  - trace_points.c

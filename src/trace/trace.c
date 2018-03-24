@@ -108,7 +108,7 @@ void trace_print(void (*print_fn)(void *, const char *, ...), void *arg)
     }
     for (i = 0; i < trace_buffer.nb_events; i++) {
         struct trace_event *e = &trace_buffer.data[index];
-        print_fn(arg, "[%u] %s: ", e->timestamp, event_names[e->event_id]);
+        print_fn(arg, "[%u] %s: ", e->timestamp, trace_point_names[e->event_id]);
         switch (e->type) {
         case TRACE_TYPE_STRING:
             print_fn(arg, "\"%s\"\n", e->data.string);

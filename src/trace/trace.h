@@ -57,6 +57,9 @@ extern int32_t trace_lock(void);
 extern void trace_unlock(int32_t status);
 extern int32_t trace_timestamp_ms_get(void);
 
+/* Event names */
+extern const char *trace_point_names[];
+
 #ifdef __cplusplus
 }
 #endif

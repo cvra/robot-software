@@ -148,28 +148,28 @@ TEST_GROUP(TracePrintTestGroup)
     }
 };
 
-IGNORE_TEST(TracePrintTestGroup, CanPrintEventWithInteger)
+TEST(TracePrintTestGroup, CanPrintEventWithInteger)
 {
     trace_integer(TRACE_POINT_1, 42);
     trace_print(print_fn, &arg);
     STRCMP_EQUAL("[1234] TRACE_POINT_1: 42\n", buffer);
 }
 
-IGNORE_TEST(TracePrintTestGroup, CanPrintEventWithMessage)
+TEST(TracePrintTestGroup, CanPrintEventWithMessage)
 {
     trace_string(TRACE_POINT_0, "hello world");
     trace_print(print_fn, &arg);
     STRCMP_EQUAL("[1234] TRACE_POINT_0: \"hello world\"\n", buffer);
 }
 
-IGNORE_TEST(TracePrintTestGroup, CanPrintEventWithScalar)
+TEST(TracePrintTestGroup, CanPrintEventWithScalar)
 {
     trace_scalar(TRACE_POINT_2, 1.5);
     trace_print(print_fn, &arg);
     STRCMP_EQUAL("[1234] TRACE_POINT_2: 1.500000\n", buffer);
 }
 
-IGNORE_TEST(TracePrintTestGroup, CanPrintEventWithAddr)
+TEST(TracePrintTestGroup, CanPrintEventWithAddr)
 {
     int foo;
     trace_address(TRACE_POINT_0, &foo);
@@ -179,7 +179,7 @@ IGNORE_TEST(TracePrintTestGroup, CanPrintEventWithAddr)
     STRCMP_EQUAL(buf, buffer);
 }
 
-IGNORE_TEST(TracePrintTestGroup, CanPrintMultipleEventWithInteger)
+TEST(TracePrintTestGroup, CanPrintMultipleEventWithInteger)
 {
     trace_string(TRACE_POINT_0, "hello");
     trace_integer(TRACE_POINT_1, 42);

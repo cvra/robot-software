@@ -3,6 +3,6 @@
 #undef C
 #define C(x) #x,
 
-const char *event_names[] = {
+const char *trace_point_names[] = {
     TRACE_POINTS
 };
