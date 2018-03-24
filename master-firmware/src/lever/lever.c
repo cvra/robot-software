@@ -2,6 +2,16 @@
 
 #include <string.h>
 
+#ifdef TESTS
+#define LEVER_SLEEP_MS(x)
+#else
+#include <ch.h>
+#define LEVER_SLEEP_MS(x) chThdSleepMilliseconds(x)
+#endif
+
+static float pump_voltage(lever_pump_state_t state);
+static void lever_pump_set(lever_t* lever, lever_pump_state_t state);
+
 static void lever_lock(mutex_t* mutex)
 {
     chMtxLock(mutex);
@@ -65,6 +75,22 @@ void lever_retract(lever_t* lever)
     lever_unlock(&lever->lock);
 }
 
+void lever_push_and_retract(lever_t* lever)
+{
+    lever_lock(&lever->lock);
+
+    lever_pump_set(lever, LEVER_PUMP_REVERSE);
+    LEVER_SLEEP_MS(200);
+
+    lever->state = LEVER_RETRACTED;
+    lever->set_lever(lever->lever_args, lever->servo_retracted_pwm);
+
+    LEVER_SLEEP_MS(500);
+    lever_pump_set(lever, LEVER_PUMP_OFF);
+
+    lever_unlock(&lever->lock);
+}
+
 static float pump_voltage(lever_pump_state_t state)
 {
     switch (state)
@@ -99,11 +125,10 @@ se2_t lever_deposit(lever_t* lever, se2_t robot_pose)
 {
     lever_lock(&lever->lock);
 
-    lever_pump_set(lever, LEVER_PUMP_REVERSE);
+    lever_pump_set(lever, LEVER_PUMP_OFF);
     se2_t blocks_pose = se2_chain(robot_pose,
                                   se2_chain(se2_inverse(lever->robot_pose_at_pickup),
                                             lever->blocks_pose_at_pickup));
-    lever_pump_set(lever, LEVER_PUMP_OFF);
 
     lever_unlock(&lever->lock);
 

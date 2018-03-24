@@ -313,7 +313,7 @@ struct BuildTower : actions::BuildTower {
         se2_t blocks_pose = lever_deposit(lever, base_get_robot_pose(&robot.pos));
         strategy_wait_ms(500);
 
-        lever_retract(lever);
+        lever_push_and_retract(lever);
         strategy_wait_ms(500);
 
         strategy_goto_avoid_retry(MIRROR_X(m_color, 500), 300, MIRROR_A(m_color, -225), TRAJ_FLAGS_ALL, -1);

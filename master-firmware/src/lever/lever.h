@@ -53,6 +53,7 @@ void lever_deploy(lever_t* lever);
 
 /* Retract lever */
 void lever_retract(lever_t* lever);
+void lever_push_and_retract(lever_t* lever);
 
 /* Pickup blocks (set pumps on)
  * Takes robot pose and blocks pose - both in table frame - to track blocks pose
