@@ -557,7 +557,6 @@ void strategy_debra_play_game(void)
     /* Wait for starter to begin */
     wait_for_starter();
     trajectory_game_timer_reset();
-    strategy_score_increase(10);
 
     NOTICE("Starting game...");
     len = planner.plan(state, game_goal, path, max_path_len);
