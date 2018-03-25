@@ -331,11 +331,11 @@ void strat_push_the_bee(point_t start, point_t end, float bee_height)
 
     scara_control_mode_joint(&main_arm);
     scara_goto(&main_arm, {start.x, start.y, last_pos.z}, COORDINATE_ROBOT, {300, 300, 300});
-    strategy_wait_ms(1000);
+    strategy_wait_ms(2000);
     scara_goto(&main_arm, {start.x, start.y, bee_height}, COORDINATE_ROBOT, {300, 300, 300});
-    strategy_wait_ms(1000);
+    strategy_wait_ms(2000);
     scara_goto(&main_arm, {end.x, end.y, bee_height}, COORDINATE_ROBOT, {300, 300, 300});
-    strategy_wait_ms(1000);
+    strategy_wait_ms(2000);
     scara_control_mode_cartesian(&main_arm);
 
     strat_scara_goto_blocking({end.x, end.y, last_pos.z}, COORDINATE_ROBOT, {300, 300, 300});
@@ -478,8 +478,8 @@ struct DeployTheBee : public actions::DeployTheBee {
             return false;
         }
 
-        point_t start = {.x = -220.f, .y = MIRROR(m_color, -510.f)};
-        point_t end = {.x = -220.f, .y = MIRROR(m_color, 150.f)};
+        point_t start = {.x = -200.f, .y = MIRROR(m_color, -170.f)};
+        point_t end = {.x = -200.f, .y = MIRROR(m_color, 170.f)};
         float bee_height = 150.f;
         strat_push_the_bee(start, end, bee_height);
 
