@@ -551,6 +551,7 @@ void strategy_debra_play_game(void)
 
     /* Init score */
     strategy_score_increase(5); // Domotic panel
+    strategy_score_increase(5); // Bee
 
     /* Wait for starter to begin */
     wait_for_starter();
