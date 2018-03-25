@@ -143,6 +143,7 @@ tests:
     - tests/test_strategy.cpp
     - tests/aversive/test_blocking_detection_manager.cpp
     - tests/aversive/test_geometry_discrete_circles.cpp
+    - tests/aversive/test_geometry_polygon_intersection.cpp
 
 templates:
     app_src.mk.jinja: app_src.mk
