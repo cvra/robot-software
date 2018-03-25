@@ -301,7 +301,7 @@ void strat_pick_cube(point_t xy, float z_start)
     strat_scara_goto_blocking({xy.x, xy.y, 60}, COORDINATE_TABLE, {300, 300, 300});
 
     hand_set_pump(&main_hand, PUMP_ON);
-    strategy_wait_ms(200.);
+    strategy_wait_ms(500.);
 
     strat_scara_goto_blocking({xy.x, xy.y, z_start}, COORDINATE_TABLE, {300, 300, 300});
 }
@@ -315,9 +315,10 @@ void strat_deposit_cube(float x, float y, int num_cubes_in_tower)
     arm_traj_wait_for_end();
 
     const position_3d_t last_pos = scara_position(&main_arm, COORDINATE_ARM);
-    strat_scara_goto_blocking({200, 0, last_pos.z}, COORDINATE_ARM, {300, 300, 300});
+    strat_scara_goto_blocking({last_pos.x, last_pos.y, z + margin_z}, COORDINATE_ARM, {300, 300, 300});
     strat_scara_goto_blocking({x, y, z + margin_z}, COORDINATE_TABLE, {300, 300, 300});
     strat_scara_goto_blocking({x, y, z}, COORDINATE_TABLE, {300, 300, 300});
+    strategy_wait_ms(2000);
 
     hand_set_pump(&main_hand, PUMP_REVERSE);
     strat_scara_goto_blocking({x, y, z + margin_z}, COORDINATE_TABLE, {300, 300, 300});
