@@ -409,13 +409,13 @@ struct PickupBlocks : actions::PickupBlocks {
         strategy_goto_avoid_retry(MIRROR_X(m_color, 690), 380, MIRROR_A(m_color, -45), TRAJ_FLAGS_ALL, -1);
 
         lever_deploy(lever);
-        strategy_wait_ms(500);
-
-        lever_pickup(lever, base_get_robot_pose(&robot.pos), blocks_pose);
         strategy_wait_ms(1000);
 
+        lever_pickup(lever, base_get_robot_pose(&robot.pos), blocks_pose);
+        strategy_wait_ms(2000);
+
         lever_retract(lever);
-        strategy_wait_ms(500);
+        strategy_wait_ms(1000);
 
         state.has_blocks = true;
 
