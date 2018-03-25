@@ -30,7 +30,7 @@ struct GameGoal : goap::Goal<RobotState> {
     {
         return goap::Distance()
             .shouldBeTrue(state.switch_on)
-            .shouldBeTrue(state.tower_built)
+            // .shouldBeTrue(state.tower_built)
             .shouldBeFalse(state.arms_are_deployed)
             .shouldBeTrue(state.bee_deployed);
     }
