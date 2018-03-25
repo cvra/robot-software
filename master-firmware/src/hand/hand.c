@@ -21,10 +21,10 @@ static float pump_voltage(pump_state_t state)
 {
     switch (state)
     {
-    case PUMP_ON:      return 10.0;
-    case PUMP_OFF:     return 0.0;
-    case PUMP_REVERSE: return -10.0;
-    default:           return 0.0;
+    case PUMP_ON:      return 13.f;
+    case PUMP_OFF:     return 0.f;
+    case PUMP_REVERSE: return -10.f;
+    default:           return 0.f;
     }
 }
 
