@@ -52,7 +52,7 @@ void polygon_set_boundingbox(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
     bbox_y2 = y2;
 }
 
-uint8_t is_in_boundingbox(const point_t *p)
+int is_in_boundingbox(const point_t *p)
 {
     if (p->x >= bbox_x1 &&
         p->x <= bbox_x2 &&
@@ -68,13 +68,13 @@ uint8_t is_in_boundingbox(const point_t *p)
  *  1 inside
  *  2 on edge
  */
-uint8_t
+int
 is_in_poly(const point_t *p, poly_t *pol)
 {
-    uint8_t i;
-    uint8_t ii;
+    int i;
+    int ii;
     int8_t z;
-    uint8_t ret = 1;
+    int ret = 1;
     vect_t v, w;
 
     for (i = 0; i < pol->l; i++) {
@@ -104,7 +104,7 @@ is_in_poly(const point_t *p, poly_t *pol)
 }
 
 /* public wrapper for is_in_poly() */
-uint8_t is_point_in_poly(poly_t *pol, int16_t x, int16_t y)
+int is_point_in_poly(poly_t *pol, int16_t x, int16_t y)
 {
     point_t p;
     p.x = x;
@@ -119,15 +119,15 @@ uint8_t is_point_in_poly(poly_t *pol, int16_t x, int16_t y)
  *  3 touch out (a segment boundary is on a polygon edge,
  *  and the second segment boundary is out of the polygon)
  */
-uint8_t
+int
 is_crossing_poly(point_t p1, point_t p2, point_t *intersect_pt,
                  poly_t *pol)
 {
-    uint8_t i;
-    uint8_t ret;
+    int i;
+    int ret;
     point_t p;
-    uint8_t ret1, ret2;
-    uint8_t cpt = 0;
+    int ret1, ret2;
+    int cpt = 0;
 
     debug_printf("%" PRIi32 " %" PRIi32 " -> %" PRIi32 " %" PRIi32 " crossing poly %p ?\n",
                  p1.x, p1.y, p2.x, p2.y, pol);
@@ -227,14 +227,14 @@ is_crossing_poly(point_t p1, point_t p2, point_t *intersect_pt,
  *  are used to compute visibility to start/stop points)
  */
 
-uint8_t
-calc_rays(poly_t *polys, uint8_t npolys, uint8_t *rays)
+int
+calc_rays(poly_t *polys, int npolys, int *rays)
 {
-    uint8_t i, ii, index;
-    uint8_t ray_n = 0;
-    uint8_t is_ok;
-    uint8_t n;
-    uint8_t pt1, pt2;
+    int i, ii, index;
+    int ray_n = 0;
+    int is_ok;
+    int n;
+    int pt1, pt2;
 
     /* !\\first poly is the start stop point */
 
@@ -336,10 +336,11 @@ calc_rays(poly_t *polys, uint8_t npolys, uint8_t *rays)
  * possiblity path: If we have 3 checpoint aligned in a path (say A,
  * B, C) the algorithm will prefer (A, C) instead of (A, B, C) */
 void
-calc_rays_weight(poly_t *polys, __attribute__((unused)) uint8_t npolys,
-                 uint8_t *rays, uint8_t ray_n, uint16_t *weight)
+calc_rays_weight(poly_t *polys, int npolys,
+                 int *rays, int ray_n, int *weight)
 {
-    uint8_t i;
+    (void) npolys;
+    int i;
     vect_t v;
 
     for (i = 0; i < ray_n; i += 4) {

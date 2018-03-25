@@ -57,7 +57,7 @@ int circle_intersect(const circle_t *c1, const circle_t *c2,
 {
     circle_t ca, cb;
     float a, b, c, d, e;
-    uint8_t ret = 0;
+    int ret = 0;
 
 
     /* We have to assume that either delta_x or delta_y is not zero to avoid

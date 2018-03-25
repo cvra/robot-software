@@ -133,7 +133,7 @@ TEST(RayCastingTestGroup, CanCastRays)
     startstop[0] = {-10, 0};
     startstop[1] = {10, 0};
 
-    uint8_t rays[128];
+    int rays[128];
     auto ray_count = calc_rays(polygons, 2, rays);
 
     CHECK_EQUAL(8 * 4, ray_count);

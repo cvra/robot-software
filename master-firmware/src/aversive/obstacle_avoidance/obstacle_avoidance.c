@@ -125,7 +125,7 @@ void oa_start_end_points(int32_t st_x, int32_t st_y,
 /**
  * Create a new obstacle polygon. Return NULL on error.
  */
-poly_t *oa_new_poly(uint8_t size)
+poly_t *oa_new_poly(int size)
 {
     DEBUG_OA_PRINTF("%s(size=%d)\r", __FUNCTION__, size);
 
@@ -159,7 +159,7 @@ int oa_segment_intersect_obstacle(point_t p1, point_t p2)
  * Add a point to the polygon.
  */
 void oa_poly_set_point(poly_t *pol,
-                       int32_t x, int32_t y, uint8_t i)
+                       int32_t x, int32_t y, int i)
 {
     DEBUG_OA_PRINTF("%s() (%ld,%ld)\r", "oa_s_p", x, y);
 
@@ -178,7 +178,7 @@ int oa_get_path(point_t **path)
 void oa_dump(void)
 {
 #if DEBUG_OA == 1
-    uint8_t i, j;
+    int i, j;
     poly_t *poly;
     point_t *pt;
 
@@ -213,9 +213,9 @@ void oa_dump(void)
  * it will store in (p, pt) the parent point. This is important to
  * remenber and extract the solution path. */
 void
-dijkstra(uint8_t start_p, uint8_t start)
+dijkstra(int start_p, uint8_t start)
 {
-    uint8_t i;
+    int i;
     int8_t add;
     int8_t finish = 0;
     /* weight == 0 means not visited */
@@ -296,7 +296,7 @@ dijkstra(uint8_t start_p, uint8_t start)
 /* display the path */
 int8_t get_path(poly_t *polys)
 {
-    uint8_t p, pt, p1, pt1, i;
+    int p, pt, p1, pt1, i;
 
     p = 0;
     pt = 1;
@@ -330,8 +330,8 @@ int8_t get_path(poly_t *polys)
 int8_t
 oa_process(void)
 {
-    uint8_t ret;
-    uint8_t i;
+    int ret;
+    int i;
 
     /* First we compute the visibility graph */
     ret = calc_rays(oa.polys, oa.cur_poly_idx, oa.rays);
