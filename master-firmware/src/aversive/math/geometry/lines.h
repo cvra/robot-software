@@ -19,8 +19,14 @@
  *
  */
 
+#include <math/geometry/vect_base.h>
+
 #ifndef _LINES_H_
 #define _LINES_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /** \addtogroup Geometrie
  * @{ */
@@ -70,6 +76,10 @@ uint8_t intersect_segment(const point_t *s1, const point_t *s2,
  * @param l The line to translate.
  * @param v The translation vector. */
 void line_translate(line_t *l, vect_t *v);
+
+#ifdef __cplusplus
+}
+#endif
 
 /** @} */
 #endif /* _LINES_H_ */

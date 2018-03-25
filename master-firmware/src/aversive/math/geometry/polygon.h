@@ -22,6 +22,10 @@
 #ifndef _POLYGON_H_
 #define _POLYGON_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "math/geometry/vect_base.h"
 
 /** \addtogroup Geometrie
@@ -121,5 +125,8 @@ void
 calc_rays_weight(poly_t *polys, uint8_t npolys, uint8_t *rays,
                  uint8_t ray_n, uint16_t *weight);
 
+#ifdef __cplusplus
+}
+#endif
 /** @} */
 #endif
