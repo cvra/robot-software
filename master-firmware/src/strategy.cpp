@@ -477,8 +477,8 @@ struct DeployTheBee : public actions::DeployTheBee {
             return false;
         }
 
-        point_t start = {.x = -260.f, .y = MIRROR(m_color, -110.f)};
-        point_t end = {.x = -260.f, .y = MIRROR(m_color, 110.f)};
+        point_t start = {.x = -220.f, .y = MIRROR(m_color, -510.f)};
+        point_t end = {.x = -220.f, .y = MIRROR(m_color, 150.f)};
         float bee_height = 150.f;
         strat_push_the_bee(start, end, bee_height);
 
