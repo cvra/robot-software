@@ -22,6 +22,11 @@
 #ifndef _VECT_BASE_H_
 #define _VECT_BASE_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 #include <stdint.h>
 
 /** \addtogroup Geometrie
@@ -116,4 +121,9 @@ float vect_get_angle(vect_t *v, vect_t *w);
  */
 void vect_resize(vect_t *v, float l);
 /** @} */
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* _VECT_BASE_H_ */

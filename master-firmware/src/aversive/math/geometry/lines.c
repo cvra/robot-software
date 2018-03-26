@@ -45,7 +45,7 @@
  *  p argument is the crossing point coordinates (dummy for 0 or 2
  *  result)
  */
-uint8_t intersect_line(const line_t *l1, const line_t *l2, point_t *p)
+int intersect_line(const line_t *l1, const line_t *l2, point_t *p)
 {
     float tmp1, tmp2;
 
@@ -154,13 +154,13 @@ void proj_pt_line(const point_t * p, const line_t * l, point_t * p_out)
  *  p argument is the crossing point coordinates (dummy for 0 1 or 3
  *  result)
  */
-uint8_t
+int
 intersect_segment(const point_t *s1, const point_t *s2,
                   const point_t *t1, const point_t *t2,
                   point_t *p)
 {
     line_t l1, l2;
-    uint8_t ret;
+    int ret;
     int8_t u1, u2;
     vect_t v, w;
 

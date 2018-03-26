@@ -92,25 +92,25 @@ extern "C" {
    \endverbatim
  *
  * And each polygon is represented by the sub array starting with the
- * point represented by oa_ext_point_t * pts and composed of uint8_t l;
+ * point represented by oa_ext_point_t * pts and composed of int l;
  * (in the oa_poly_t structure)
  */
 struct obstacle_avoidance {
     poly_t polys[MAX_POLY];  /**< Array of polygons (obstacles). */
     point_t points[MAX_PTS]; /**< Array of points, referenced by polys */
-    uint8_t valid[MAX_PTS]; /**< Used by the Dijkstra algorithm to say if a point was visited. */
+    int valid[MAX_PTS]; /**< Used by the Dijkstra algorithm to say if a point was visited. */
     int32_t pweight[MAX_PTS]; /**< Weight of a point in Dijkstra. */
-    uint8_t p[MAX_PTS]; /**< @todo Dafuq ? */
-    uint8_t pt[MAX_PTS]; /**< Stores all the points. */
+    int p[MAX_PTS]; /**< @todo Dafuq ? */
+    int pt[MAX_PTS]; /**< Stores all the points. */
 
 
 
-    uint8_t ray_n; /**< Number of computed rays. */
-    uint8_t cur_poly_idx; /**< Index of the current polygon (for adding polygons). */
-    uint8_t cur_pt_idx; /**< Index of the current point in the current polygon. */
+    int ray_n; /**< Number of computed rays. */
+    int cur_poly_idx; /**< Index of the current polygon (for adding polygons). */
+    int cur_pt_idx; /**< Index of the current point in the current polygon. */
 
-    uint16_t weight[MAX_RAYS]; /**< Length of each ray. */
-    uint8_t rays[MAX_RAYS * 2]; /**< All valid rays given by Dijkstra. */
+    int weight[MAX_RAYS]; /**< Length of each ray. */
+    int rays[MAX_RAYS * 2]; /**< All valid rays given by Dijkstra. */
     point_t res[MAX_CHKPOINTS]; /**< Resulting path. */
     int res_len; /** Path length */
 };
@@ -132,8 +132,10 @@ void oa_start_end_points(int32_t st_x, int32_t st_y, int32_t en_x, int32_t en_y)
  * @return NULL on error.
  * @return Adress of the polygon if OK.
  */
-poly_t *oa_new_poly(uint8_t size);
-
+poly_t *oa_new_poly(int size);
+void oa_new_poly_(int size, poly_t* poly);
+void oa_add_poly_obstacle(circle_t circle, int samples, float angle_offset);
+void oa_get_poly(int i, poly_t* poly);
 
 /** Dump status of the obstacle avoidance. */
 void oa_dump(void);
@@ -143,7 +145,7 @@ void oa_dump(void);
  * @param [in] x,y The coordinates of the point, in mm.
  * @param [in] i The index of the point.
  */
-void oa_poly_set_point(poly_t *pol, int32_t x, int32_t y, uint8_t i);
+void oa_poly_set_point(poly_t *pol, int32_t x, int32_t y, int i);
 
 
 /** Processes the path.

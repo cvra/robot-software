@@ -19,8 +19,14 @@
  *
  */
 
+#include <math/geometry/vect_base.h>
+
 #ifndef _LINES_H_
 #define _LINES_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /** \addtogroup Geometrie
  * @{ */
@@ -51,7 +57,7 @@ void proj_pt_line(const point_t *p, const line_t *l, point_t *p_out);
  * @return 0 if l1 & l2 dont cross, 1 if they cross, 2 if they are the same lines.
  * @param [in] l1, l2 The two line to intersect.
  * @param [out] p The intersection point, only meaningful for result 1. */
-uint8_t intersect_line(const line_t *l1, const line_t *l2, point_t *p);
+int intersect_line(const line_t *l1, const line_t *l2, point_t *p);
 
 /** Intersects 2 segments.
  * @return 0 dont cross, 1 cross, 2 cross on point, 3 parallel and one point in
@@ -60,7 +66,7 @@ uint8_t intersect_line(const line_t *l1, const line_t *l2, point_t *p);
  * @param [out] p The crossing point coordinates (dummy for 0 1 or 3
  * result).
  */
-uint8_t intersect_segment(const point_t *s1, const point_t *s2,
+int intersect_segment(const point_t *s1, const point_t *s2,
                           const point_t *t1, const point_t *t2,
                           point_t *p);
 
@@ -70,6 +76,10 @@ uint8_t intersect_segment(const point_t *s1, const point_t *s2,
  * @param l The line to translate.
  * @param v The translation vector. */
 void line_translate(line_t *l, vect_t *v);
+
+#ifdef __cplusplus
+}
+#endif
 
 /** @} */
 #endif /* _LINES_H_ */
