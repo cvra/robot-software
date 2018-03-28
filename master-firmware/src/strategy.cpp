@@ -469,7 +469,15 @@ void strategy_debra_play_game(void)
     RobotState state;
 
     InitGoal init_goal;
-    PickupCubesGoal goal;
+
+    SwitchGoal switch_goal;
+    BeeGoal bee_goal;
+    PickupCubesGoal pickup_cubes_goal;
+    goap::Goal<RobotState>* goals[] = {
+        &switch_goal,
+        &bee_goal,
+        &pickup_cubes_goal,
+    };
 
     IndexArms index_arms;
     RetractArms retract_arms(color);
@@ -527,10 +535,20 @@ void strategy_debra_play_game(void)
     trajectory_game_timer_reset();
 
     NOTICE("Starting game...");
-    while (!goal.is_reached(state)) {
-        len = planner.plan(state, goal, path, max_path_len);
-        for (int i = 0; i < len; i++) {
-            path[i]->execute(state);
+    auto goals_are_reached = [&goals](const RobotState& state) {
+        for (auto goal : goals) {
+            if (!goal->is_reached(state)) {
+                return false;
+            }
+        }
+        return true;
+    };
+    while (!goals_are_reached(state)) {
+        for (auto goal : goals) {
+            len = planner.plan(state, *goal, path, max_path_len);
+            for (int i = 0; i < len; i++) {
+                path[i]->execute(state);
+            }
         }
     }
 
