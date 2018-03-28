@@ -386,6 +386,7 @@ struct PickupBlocks : actions::PickupBlocks {
         } else {
             state.lever_full_right = true;
         }
+        state.blocks_on_map[blocks_id] = false;
 
         return true;
     }

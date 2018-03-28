@@ -40,7 +40,8 @@ struct PickupBlocks : public goap::Action<RobotState> {
     bool can_run(RobotState state)
     {
         return state.arms_are_deployed == false
-            && (state.lever_full_right == false || state.lever_full_left == false);
+            && (state.lever_full_right == false || state.lever_full_left == false)
+            && state.blocks_on_map[blocks_id] == true;
     }
 
     RobotState plan_effects(RobotState state)
@@ -50,6 +51,7 @@ struct PickupBlocks : public goap::Action<RobotState> {
         } else {
             state.lever_full_left = true;
         }
+        state.blocks_on_map[blocks_id] = false;
         return state;
     }
 };
