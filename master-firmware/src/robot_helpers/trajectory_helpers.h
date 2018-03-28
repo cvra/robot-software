@@ -13,7 +13,7 @@ extern "C" {
 #include "base/base_controller.h"
 
 /** Duration of a game in seconds. */
-#define GAME_DURATION 90
+#define GAME_DURATION 100
 
 #define TRAJ_MIN_DISTANCE_TO_OPPONENT           0.6  // we stop if there is 60cm or less to opponent
 #define TRAJ_MIN_DIRECTION_TO_OPPONENT          0.5  // defines cone in which to consider opponents (cone is double the angle in size)
