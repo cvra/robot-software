@@ -368,7 +368,7 @@ struct PickupBlocks : actions::PickupBlocks {
 
         se2_t blocks_pose = se2_create_xya(MIRROR_X(m_color, x_mm), y_mm, 0);
 
-        if (!strategy_goto_avoid_retry(MIRROR_X(m_color, x_mm - 160), y_mm - 160, MIRROR_A(m_color, a_deg), TRAJ_FLAGS_ALL, 1)) {
+        if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm - 160), y_mm - 160, MIRROR_A(m_color, a_deg), TRAJ_FLAGS_ALL)) {
             return false;
         }
 
@@ -414,11 +414,11 @@ struct TurnSwitchOn : public actions::TurnSwitchOn {
     {
         NOTICE("Turning switch on");
 
-        state.arms_are_deployed = true;
-        if (!strategy_goto_avoid_retry(MIRROR_X(m_color, 1130), 250, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL, -1)) {
+        if (!strategy_goto_avoid(MIRROR_X(m_color, 1130), 250, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
             return false;
         }
 
+        state.arms_are_deployed = true;
         strat_push_switch_on(MIRROR_X(m_color, 1130), 50, 120, -120);
         strategy_score_increase(25);
 
@@ -439,11 +439,11 @@ struct DeployTheBee : public actions::DeployTheBee {
     {
         NOTICE("Gonna deploy the bee!");
 
-        state.arms_are_deployed = true;
-        if (!strategy_goto_avoid_retry(MIRROR_X(m_color, 130), 1870, MIRROR_A(m_color, -90), TRAJ_FLAGS_ALL, -1)) {
+        if (!strategy_goto_avoid(MIRROR_X(m_color, 130), 1870, MIRROR_A(m_color, -90), TRAJ_FLAGS_ALL)) {
             return false;
         }
 
+        state.arms_are_deployed = true;
         point_t start = {.x = -200.f, .y = MIRROR(m_color, -170.f)};
         point_t end = {.x = -200.f, .y = MIRROR(m_color, 170.f)};
         float bee_height = 150.f;
