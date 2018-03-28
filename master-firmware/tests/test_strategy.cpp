@@ -119,3 +119,20 @@ TEST(Strategy, CanWinGame)
     CHECK_TRUE(len > 0);
     CHECK_TRUE(game_goal.is_reached(state));
 }
+
+TEST(Strategy, CanPushTheBee)
+{
+    const int max_path_len = 10;
+    goap::Action<RobotState> *path[max_path_len] = {nullptr};
+    auto actions = availableActions();
+    goap::Planner<RobotState> planner(actions.data(), actions.size());
+
+    BeeGoal bee_goal;
+    int len = planner.plan(state, bee_goal, path, max_path_len);
+    for (int i = 0; i < len; i++) {
+        path[i]->execute(state);
+    }
+
+    CHECK_TRUE(len > 0);
+    CHECK_TRUE(bee_goal.is_reached(state));
+}

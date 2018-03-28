@@ -25,6 +25,13 @@ struct SwitchGoal : goap::Goal<RobotState> {
     }
 };
 
+struct BeeGoal : goap::Goal<RobotState> {
+    virtual int distance_to(const RobotState &state) const
+    {
+        return goap::Distance().shouldBeTrue(state.bee_deployed);
+    }
+};
+
 struct GameGoal : goap::Goal<RobotState> {
     virtual int distance_to(const RobotState &state) const
     {
