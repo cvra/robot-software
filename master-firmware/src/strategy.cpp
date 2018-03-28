@@ -394,20 +394,33 @@ struct BuildTower : actions::BuildTower {
 struct PickupBlocks : actions::PickupBlocks {
     enum strat_color_t m_color;
 
-    PickupBlocks(enum strat_color_t color)
-        : m_color(color)
+    PickupBlocks(enum strat_color_t color, int blocks_id)
+        : actions::PickupBlocks(blocks_id)
+        , m_color(color)
     {
     }
 
     bool execute(RobotState &state)
     {
-        NOTICE("Picking up some blocks");
+        const int x_mm = state.blocks_pos[blocks_id][0];
+        const int y_mm = state.blocks_pos[blocks_id][1];
+        NOTICE("Picking up some blocks at %d %d", x_mm, y_mm);
 
+        enum lever_side_t lever_side = LEVER_SIDE_LEFT;
         lever_t* lever = MIRROR_LEFT_LEVER(m_color);
+        int a_deg = -45;
 
-        se2_t blocks_pose = se2_create_xya(MIRROR_X(m_color, 850), 540, 0);
+        if (state.lever_full_left) {
+            lever_side = LEVER_SIDE_RIGHT;
+            lever = MIRROR_RIGHT_LEVER(m_color);
+            a_deg += 180;
+        }
 
-        strategy_goto_avoid_retry(MIRROR_X(m_color, 690), 380, MIRROR_A(m_color, -45), TRAJ_FLAGS_ALL, -1);
+        se2_t blocks_pose = se2_create_xya(MIRROR_X(m_color, x_mm), y_mm, 0);
+
+        if (!strategy_goto_avoid_retry(MIRROR_X(m_color, x_mm - 160), y_mm - 160, MIRROR_A(m_color, a_deg), TRAJ_FLAGS_ALL, 1)) {
+            return false;
+        }
 
         lever_deploy(lever);
         strategy_wait_ms(1000);
@@ -418,7 +431,11 @@ struct PickupBlocks : actions::PickupBlocks {
         lever_retract(lever);
         strategy_wait_ms(1000);
 
-        state.has_blocks = true;
+        if (lever_side == LEVER_SIDE_LEFT) {
+            state.lever_full_left = true;
+        } else {
+            state.lever_full_right = true;
+        }
 
         return true;
     }
@@ -508,7 +525,9 @@ void strategy_debra_play_game(void)
     IndexArms index_arms;
     RetractArms retract_arms(color);
     BuildTower build_tower(color);
-    PickupBlocks pickup_blocks(color);
+    PickupBlocks pickup_blocks1(color, 0);
+    PickupBlocks pickup_blocks2(color, 1);
+    PickupBlocks pickup_blocks3(color, 2);
     TurnSwitchOn turn_switch_on(color);
     DeployTheBee deploy_the_bee(color);
 
@@ -519,7 +538,9 @@ void strategy_debra_play_game(void)
         &index_arms,
         &retract_arms,
         &build_tower,
-        &pickup_blocks,
+        &pickup_blocks1,
+        &pickup_blocks2,
+        &pickup_blocks3,
         &turn_switch_on,
         &deploy_the_bee,
     };

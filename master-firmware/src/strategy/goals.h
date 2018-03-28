@@ -32,14 +32,24 @@ struct BeeGoal : goap::Goal<RobotState> {
     }
 };
 
+struct PickupCubesGoal : goap::Goal<RobotState> {
+    virtual int distance_to(const RobotState &state) const
+    {
+        return goap::Distance()
+            .shouldBeTrue(state.lever_full_left)
+            .shouldBeTrue(state.lever_full_right);
+    }
+};
+
 struct GameGoal : goap::Goal<RobotState> {
     virtual int distance_to(const RobotState &state) const
     {
         return goap::Distance()
-            .shouldBeTrue(state.switch_on)
+            // .shouldBeTrue(state.switch_on)
             // .shouldBeTrue(state.tower_built)
             .shouldBeFalse(state.arms_are_deployed)
-            .shouldBeTrue(state.bee_deployed);
+            // .shouldBeTrue(state.bee_deployed);
+            .shouldBeTrue(state.lever_full_left);
     }
 };
 

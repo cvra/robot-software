@@ -48,15 +48,22 @@ struct BuildTower : public goap::Action<RobotState> {
 };
 
 struct PickupBlocks : public goap::Action<RobotState> {
+    int blocks_id;
+
+    PickupBlocks(int blocks_id_) : blocks_id(blocks_id_) {}
     bool can_run(RobotState state)
     {
-        return state.arms_are_deployed == false && state.blocks_on_map == true;
+        return state.arms_are_deployed == false
+            && (state.lever_full_right == false || state.lever_full_left == false);
     }
 
     RobotState plan_effects(RobotState state)
     {
-        state.has_blocks = true;
-        state.blocks_on_map = false;
+        if (state.lever_full_right == false) {
+            state.lever_full_right = true;
+        } else {
+            state.lever_full_left = true;
+        }
         return state;
     }
 };

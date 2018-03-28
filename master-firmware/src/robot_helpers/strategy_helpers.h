@@ -27,6 +27,12 @@ enum block_color {
     BLOCK_BLACK,      // ( 0, -l)
 };
 
+/** Lever side */
+enum lever_side_t {
+    LEVER_SIDE_LEFT,
+    LEVER_SIDE_RIGHT,
+};
+
 /** Compute the symmetrical position depending on color
  */
 #define MIRROR_X(color, x) (color == YELLOW ? (x) : 3000. - (x))
