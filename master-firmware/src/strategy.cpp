@@ -464,7 +464,6 @@ struct TurnSwitchOn : public actions::TurnSwitchOn {
         NOTICE("Turning switch on");
 
         state.arms_are_deployed = true;
-        state.blocks_on_map = false;
         if (!strategy_goto_avoid_retry(MIRROR_X(m_color, 1130), 250, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL, -1)) {
             return false;
         }
@@ -490,7 +489,6 @@ struct DeployTheBee : public actions::DeployTheBee {
         NOTICE("Gonna deploy the bee!");
 
         state.arms_are_deployed = true;
-        state.blocks_on_map = false;
         if (!strategy_goto_avoid_retry(MIRROR_X(m_color, 130), 1870, MIRROR_A(m_color, -90), TRAJ_FLAGS_ALL, -1)) {
             return false;
         }

@@ -77,7 +77,6 @@ struct TurnSwitchOn : public goap::Action<RobotState> {
     RobotState plan_effects(RobotState state)
     {
         state.arms_are_deployed = true;
-        state.blocks_on_map = false;
         state.switch_on = true;
         return state;
     }
@@ -92,7 +91,6 @@ struct DeployTheBee : public goap::Action<RobotState> {
     RobotState plan_effects(RobotState state)
     {
         state.arms_are_deployed = true;
-        state.blocks_on_map = false;
         state.bee_deployed = true;
         return state;
     }
