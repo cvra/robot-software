@@ -7,7 +7,7 @@ logging:
 master:
     robot_size_x_mm: 245 # Robot diameter
     robot_alignment_length_mm: 130 # robot length from center to alignement border
-    opponent_size_x_mm_default: 800
+    opponent_size_x_mm_default: 400
     calibration_direction: 1 # calibration side is on the front
     odometry:
         external_encoder_ticks_per_mm: 163.62917844 # Computed 162.974661726
@@ -16,7 +16,7 @@ master:
         right_wheel_correction_factor: -1.00047433
     beacon:
         reflector_radius: 0.04 # in meters
-        angular_offset: -1.57 # in radians
+        angular_offset: 0. # in radians
     aversive:
         control:
             angle:
