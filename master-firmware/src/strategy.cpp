@@ -341,56 +341,6 @@ void strat_push_the_bee(point_t start, point_t end, float bee_height)
     strat_scara_goto_blocking({end.x, end.y, last_pos.z}, COORDINATE_ROBOT, {300, 300, 300});
 }
 
-struct BuildTower : actions::BuildTower {
-    enum strat_color_t m_color;
-
-    BuildTower(enum strat_color_t color)
-        : m_color(color)
-    {
-    }
-
-    bool execute(RobotState &state)
-    {
-        NOTICE("Building tower!");
-        state.arms_are_deployed = true;
-
-        lever_t* lever = MIRROR_LEFT_LEVER(m_color);
-
-        strategy_goto_avoid_retry(MIRROR_X(m_color, 500), 300, MIRROR_A(m_color, -135), TRAJ_FLAGS_ALL, -1);
-
-        lever_deploy(lever);
-        strategy_wait_ms(500);
-
-        se2_t blocks_pose = lever_deposit(lever, base_get_robot_pose(&robot.pos));
-        strategy_wait_ms(500);
-
-        lever_push_and_retract(lever);
-        strategy_wait_ms(500);
-
-        strategy_goto_avoid_retry(MIRROR_X(m_color, 500), 300, MIRROR_A(m_color, -225), TRAJ_FLAGS_ALL, -1);
-
-        strat_pick_cube(strategy_block_pos(blocks_pose, BLOCK_BLACK), 200);
-        strat_deposit_cube(MIRROR_X(m_color, 470), 90, 0);
-        strategy_score_increase(1);
-
-        strat_pick_cube(strategy_block_pos(blocks_pose, BLOCK_GREEN), 200);
-        strat_deposit_cube(MIRROR_X(m_color, 470), 90, 1);
-        strategy_score_increase(2);
-
-        strat_pick_cube(strategy_block_pos(blocks_pose, BLOCK_YELLOW), 200);
-        strat_deposit_cube(MIRROR_X(m_color, 470), 90, 2);
-        strategy_score_increase(3);
-
-        strat_pick_cube(strategy_block_pos(blocks_pose, BLOCK_RED), 200);
-        strat_deposit_cube(MIRROR_X(m_color, 470), 90, 3);
-        strategy_score_increase(4);
-
-        state.tower_built = true;
-
-        return true;
-    }
-};
-
 struct PickupBlocks : actions::PickupBlocks {
     enum strat_color_t m_color;
 
@@ -522,7 +472,6 @@ void strategy_debra_play_game(void)
 
     IndexArms index_arms;
     RetractArms retract_arms(color);
-    BuildTower build_tower(color);
     PickupBlocks pickup_blocks1(color, 0);
     PickupBlocks pickup_blocks2(color, 1);
     PickupBlocks pickup_blocks3(color, 2);
@@ -535,7 +484,6 @@ void strategy_debra_play_game(void)
     goap::Action<RobotState> *actions[] = {
         &index_arms,
         &retract_arms,
-        &build_tower,
         &pickup_blocks1,
         &pickup_blocks2,
         &pickup_blocks3,

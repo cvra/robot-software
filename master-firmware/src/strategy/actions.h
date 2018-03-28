@@ -33,20 +33,6 @@ struct RetractArms : public goap::Action<RobotState> {
     }
 };
 
-struct BuildTower : public goap::Action<RobotState> {
-    bool can_run(RobotState state)
-    {
-        return state.arms_are_deployed == false && state.has_blocks;
-    }
-
-    RobotState plan_effects(RobotState state)
-    {
-        state.arms_are_deployed = true;
-        state.tower_built = true;
-        return state;
-    }
-};
-
 struct PickupBlocks : public goap::Action<RobotState> {
     int blocks_id;
 
