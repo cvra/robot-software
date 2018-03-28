@@ -65,12 +65,8 @@ TEST(Strategy, CanInitArms)
         path[i]->execute(state);
     }
 
-    CHECK_TRUE(init_goal.is_reached(state));
     CHECK_TRUE(len > 0);
-
-    CHECK_EQUAL(2, len);
-    POINTERS_EQUAL(&index_arms, path[0]);
-    POINTERS_EQUAL(&retract_arms, path[1]);
+    CHECK_TRUE(init_goal.is_reached(state));
 }
 
 TEST(Strategy, CanBuildTower)
@@ -86,8 +82,8 @@ TEST(Strategy, CanBuildTower)
         path[i]->execute(state);
     }
 
-    CHECK_TRUE(tower_goal.is_reached(state));
     CHECK_TRUE(len > 0);
+    CHECK_TRUE(tower_goal.is_reached(state));
 }
 
 TEST(Strategy, CanPushInterruptor)
@@ -103,13 +99,8 @@ TEST(Strategy, CanPushInterruptor)
         path[i]->execute(state);
     }
 
-    CHECK_TRUE(switch_goal.is_reached(state));
     CHECK_TRUE(len > 0);
-
-    CHECK_EQUAL(3, len);
-    POINTERS_EQUAL(&index_arms, path[0]);
-    POINTERS_EQUAL(&retract_arms, path[1]);
-    POINTERS_EQUAL(&turn_switch_on, path[2]);
+    CHECK_TRUE(switch_goal.is_reached(state));
 }
 
 TEST(Strategy, CanWinGame)
@@ -121,9 +112,10 @@ TEST(Strategy, CanWinGame)
 
     GameGoal game_goal;
     auto len = planner.plan(state, game_goal, path, max_path_len);
-    CHECK_EQUAL(6, len);
     for (auto i = 0; i < len; i++) {
         path[i]->execute(state);
     }
+
+    CHECK_TRUE(len > 0);
     CHECK_TRUE(game_goal.is_reached(state));
 }
