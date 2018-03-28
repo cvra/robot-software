@@ -469,7 +469,7 @@ void strategy_debra_play_game(void)
     RobotState state;
 
     InitGoal init_goal;
-    GameGoal game_goal;
+    PickupCubesGoal goal;
 
     IndexArms index_arms;
     RetractArms retract_arms(color);
@@ -527,9 +527,11 @@ void strategy_debra_play_game(void)
     trajectory_game_timer_reset();
 
     NOTICE("Starting game...");
-    len = planner.plan(state, game_goal, path, max_path_len);
-    for (int i = 0; i < len; i++) {
-        path[i]->execute(state);
+    while (!goal.is_reached(state)) {
+        len = planner.plan(state, goal, path, max_path_len);
+        for (int i = 0; i < len; i++) {
+            path[i]->execute(state);
+        }
     }
 
     while (true) {
