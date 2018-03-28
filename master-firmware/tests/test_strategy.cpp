@@ -1,4 +1,5 @@
 #include <CppUTest/TestHarness.h>
+#include <vector>
 
 #include "strategy/goals.h"
 #include "strategy/actions.h"
@@ -37,21 +38,26 @@ TEST_GROUP(Strategy) {
     PickupBlocks pickup_blocks;
     TurnSwitchOn turn_switch_on;
     DeployTheBee deploy_the_bee;
+
+    std::vector<goap::Action<RobotState>*> availableActions()
+    {
+        return std::vector<goap::Action<RobotState>*>{
+            &index_arms,
+            &retract_arms,
+            &build_tower,
+            &pickup_blocks,
+            &turn_switch_on,
+            &deploy_the_bee,
+        };
+    }
 };
 
 TEST(Strategy, CanInitArms)
 {
     const int max_path_len = 10;
     goap::Action<RobotState> *path[max_path_len] = {nullptr};
-    goap::Action<RobotState> *actions[] = {
-        &index_arms,
-        &retract_arms,
-        &build_tower,
-        &pickup_blocks,
-        &turn_switch_on,
-        &deploy_the_bee,
-    };
-    goap::Planner<RobotState> planner(actions, sizeof(actions) / sizeof(actions[0]));
+    auto actions = availableActions();
+    goap::Planner<RobotState> planner(actions.data(), actions.size());
 
     InitGoal init_goal;
     int len = planner.plan(state, init_goal, path, max_path_len);
@@ -71,15 +77,8 @@ TEST(Strategy, CanBuildTower)
 {
     const int max_path_len = 10;
     goap::Action<RobotState> *path[max_path_len] = {nullptr};
-    goap::Action<RobotState> *actions[] = {
-        &index_arms,
-        &retract_arms,
-        &build_tower,
-        &pickup_blocks,
-        &turn_switch_on,
-        &deploy_the_bee,
-    };
-    goap::Planner<RobotState> planner(actions, sizeof(actions) / sizeof(actions[0]));
+    auto actions = availableActions();
+    goap::Planner<RobotState> planner(actions.data(), actions.size());
 
     TowerGoal tower_goal;
     int len = planner.plan(state, tower_goal, path, max_path_len);
@@ -89,28 +88,14 @@ TEST(Strategy, CanBuildTower)
 
     CHECK_TRUE(tower_goal.is_reached(state));
     CHECK_TRUE(len > 0);
-
-    CHECK_EQUAL(5, len);
-    POINTERS_EQUAL(&index_arms, path[0]);
-    POINTERS_EQUAL(&retract_arms, path[1]);
-    POINTERS_EQUAL(&pickup_blocks, path[2]);
-    POINTERS_EQUAL(&build_tower, path[3]);
-    POINTERS_EQUAL(&retract_arms, path[4]);
 }
 
 TEST(Strategy, CanPushInterruptor)
 {
     const int max_path_len = 10;
     goap::Action<RobotState> *path[max_path_len] = {nullptr};
-    goap::Action<RobotState> *actions[] = {
-        &index_arms,
-        &retract_arms,
-        &build_tower,
-        &pickup_blocks,
-        &turn_switch_on,
-        &deploy_the_bee,
-    };
-    goap::Planner<RobotState> planner(actions, sizeof(actions) / sizeof(actions[0]));
+    auto actions = availableActions();
+    goap::Planner<RobotState> planner(actions.data(), actions.size());
 
     SwitchGoal switch_goal;
     int len = planner.plan(state, switch_goal, path, max_path_len);
@@ -131,21 +116,14 @@ TEST(Strategy, CanWinGame)
 {
     const int max_path_len = 10;
     goap::Action<RobotState> *path[max_path_len] = {nullptr};
-    goap::Action<RobotState> *actions[] = {
-        &index_arms,
-        &retract_arms,
-        &build_tower,
-        &pickup_blocks,
-        &turn_switch_on,
-        &deploy_the_bee,
-    };
-    goap::Planner<RobotState> planner(actions, sizeof(actions) / sizeof(actions[0]));
+    auto actions = availableActions();
+    goap::Planner<RobotState> planner(actions.data(), actions.size());
 
-    GameGoal switch_goal;
-    auto len = planner.plan(state, switch_goal, path, max_path_len);
+    GameGoal game_goal;
+    auto len = planner.plan(state, game_goal, path, max_path_len);
     CHECK_EQUAL(6, len);
     for (auto i = 0; i < len; i++) {
         path[i]->execute(state);
     }
-    CHECK_TRUE(switch_goal.is_reached(state));
+    CHECK_TRUE(game_goal.is_reached(state));
 }
