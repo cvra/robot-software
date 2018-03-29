@@ -462,11 +462,18 @@ void strategy_debra_play_game(void)
     map_init(config_get_integer("master/robot_size_x_mm"));
     strategy_score_init(); // Initialize score to 0
 
-    NOTICE("Waiting for color selection...");
-    enum strat_color_t color = wait_for_color_selection();
-
     int len;
     RobotState state;
+
+    /* Prepare state publisher */
+    static messagebus_topic_t state_topic;
+    static MUTEX_DECL(state_lock);
+    static CONDVAR_DECL(state_condvar);
+    messagebus_topic_init(&state_topic, &state_lock, &state_condvar, &state, sizeof(state));
+    messagebus_advertise_topic(&bus, &state_topic, "/state");
+
+    NOTICE("Waiting for color selection...");
+    enum strat_color_t color = wait_for_color_selection();
 
     InitGoal init_goal;
 
@@ -509,6 +516,7 @@ void strategy_debra_play_game(void)
     len = planner.plan(state, init_goal, path, max_path_len);
     for (int i = 0; i < len; i++) {
         path[i]->execute(state);
+        messagebus_topic_publish(&state_topic, &state, sizeof(state));
     }
 
     /* Autoposition robot */
@@ -547,7 +555,9 @@ void strategy_debra_play_game(void)
         for (auto goal : goals) {
             len = planner.plan(state, *goal, path, max_path_len);
             for (int i = 0; i < len; i++) {
-                if (!path[i]->execute(state)) {
+                bool success = path[i]->execute(state);
+                messagebus_topic_publish(&state_topic, &state, sizeof(state));
+                if (success == false) {
                     break; // Break on failure
                 }
             }
