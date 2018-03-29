@@ -18,10 +18,6 @@ struct RobotState {
     };
 };
 
-bool operator==(const RobotState& lhs, const RobotState& rhs)
-{
-    return !memcmp(&lhs, &rhs, sizeof(RobotState));
-}
-
+bool operator==(const RobotState& lhs, const RobotState& rhs);
 
 #endif /* STRATEGY_STATE_H */

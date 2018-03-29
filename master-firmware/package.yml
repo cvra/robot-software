@@ -101,6 +101,7 @@ source:
     - src/hand/hand.c
     - src/lever/lever.c
     - src/base/base_helpers.c
+    - src/strategy/state.cpp
 
 include_directories:
     - src/
