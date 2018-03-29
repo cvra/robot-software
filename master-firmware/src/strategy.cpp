@@ -547,7 +547,9 @@ void strategy_debra_play_game(void)
         for (auto goal : goals) {
             len = planner.plan(state, *goal, path, max_path_len);
             for (int i = 0; i < len; i++) {
-                path[i]->execute(state);
+                if (!path[i]->execute(state)) {
+                    break; // Break on failure
+                }
             }
         }
     }
