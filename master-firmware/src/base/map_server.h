@@ -5,9 +5,11 @@
 extern "C" {
 #endif
 
+#include "robot_helpers/strategy_helpers.h"
+
 #define MAP_SERVER_FREQUENCY 10
 
-void map_server_start(void);
+void map_server_start(enum strat_color_t color);
 
 #ifdef __cplusplus
 }

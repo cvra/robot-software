@@ -270,7 +270,6 @@ int main(void)
 
     /* Initialize strategy thread, will wait for signal to begin game */
     strategy_start();
-    map_server_start();
 
     stream_init();
 

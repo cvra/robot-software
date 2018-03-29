@@ -12,12 +12,11 @@ extern "C" {
 #define MAP_NUM_OPPONENT          2
 #define MAP_NUM_OPPONENT_EDGES    4
 
-#define MAP_NUM_CRATER            2
-#define MAP_NUM_FENCE             2
+#define MAP_NUM_BLOCKS_CUBE       6
+#define MAP_NUM_BLOCKS_CUBE_EDGES 8
 
 struct _map {
-    poly_t *crater[MAP_NUM_CRATER];
-    poly_t *fence[MAP_NUM_FENCE];
+    poly_t *blocks_cube[MAP_NUM_BLOCKS_CUBE];
 
     poly_t *opponents[MAP_NUM_OPPONENT];
     uint8_t last_opponent_index;
@@ -42,6 +41,9 @@ void map_update_opponent_obstacle(int32_t x, int32_t y, int32_t opponent_size, i
 /** Set the points of a rectangle given its center position and size
  */
 void map_set_rectangular_obstacle(poly_t* opponent, int center_x, int center_y, int size_x, int size_y, int robot_size);
+
+poly_t* map_get_cubes_obstacle(int index);
+void map_set_cubes_obstacle(poly_t* obstacle, int x, int y, int robot_size);
 
 #ifdef __cplusplus
 }

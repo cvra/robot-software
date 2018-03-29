@@ -14,6 +14,7 @@
 #include "base/base_controller.h"
 #include "base/base_helpers.h"
 #include "base/map.h"
+#include "base/map_server.h"
 #include "scara/scara_trajectories.h"
 #include "arms/arms_controller.h"
 #include "arms/arm_trajectory_manager.h"
@@ -447,6 +448,10 @@ void strategy_debra_play_game(void)
     /* Initialize map and path planner */
     strategy_score_init(); // Initialize score to 0
 
+    NOTICE("Waiting for color selection...");
+    enum strat_color_t color = wait_for_color_selection();
+    map_server_start(color);
+
     int len;
     RobotState state;
 
@@ -559,6 +564,7 @@ void strategy_sandoi_play_game()
 {
     /* Wait for color selection */
     enum strat_color_t color = wait_for_color_selection();
+    map_server_start(color);
 
     /* Autoposition robot */
     wait_for_autoposition_signal();

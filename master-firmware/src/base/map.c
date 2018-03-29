@@ -1,3 +1,4 @@
+#include "math/geometry/discrete_circles.h"
 #include "robot_helpers/math_helpers.h"
 #include "base_controller.h"
 #include "map.h"
@@ -23,6 +24,12 @@ void map_init(int robot_size)
     }
 
     map.last_opponent_index = 0;
+
+    /* Setup cube obstacles */
+    for (int i = 0; i < MAP_NUM_BLOCKS_CUBE; i++) {
+        map.blocks_cube[i] = oa_new_poly(MAP_NUM_BLOCKS_CUBE_EDGES);
+        map_set_cubes_obstacle(map.blocks_cube[i], 0, 0, 0);
+    }
 }
 
 void map_set_opponent_obstacle(int index, int32_t x, int32_t y, int32_t opponent_size, int32_t robot_size)
@@ -57,4 +64,16 @@ void map_update_opponent_obstacle(int32_t x, int32_t y, int32_t opponent_size, i
     if (map.last_opponent_index >= MAP_NUM_OPPONENT) {
         map.last_opponent_index = 0;
     }
+}
+
+poly_t* map_get_cubes_obstacle(int index)
+{
+    return map.blocks_cube[index];
+}
+
+void map_set_cubes_obstacle(poly_t* obstacle, int x, int y, int robot_size)
+{
+    const int CUBES_BLOCK_SIZE = 180;
+    circle_t circle = {.x = x, .y = y, .r = 0.5f * (CUBES_BLOCK_SIZE + robot_size)};
+    discretize_circle(obstacle, circle, MAP_NUM_BLOCKS_CUBE_EDGES, 0.125f * M_PI);
 }
