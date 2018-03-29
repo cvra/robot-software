@@ -459,7 +459,6 @@ struct DeployTheBee : public actions::DeployTheBee {
 void strategy_debra_play_game(void)
 {
     /* Initialize map and path planner */
-    map_init(config_get_integer("master/robot_size_x_mm"));
     strategy_score_init(); // Initialize score to 0
 
     int len;
@@ -609,9 +608,6 @@ void strategy_play_game(void *p)
 {
     (void) p;
     chRegSetThreadName("strategy");
-
-    /* Initialize map and path planner */
-    map_init(config_get_integer("master/robot_size_x_mm"));
 
     /* Prepare score publisher */
     static messagebus_topic_t score_topic;
