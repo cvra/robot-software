@@ -13,8 +13,9 @@
 #include "base/map_server.h"
 #include "robot_helpers/beacon_helpers.h"
 #include "robot_helpers/trajectory_helpers.h"
+#include "strategy/state.h"
 
-#define MAP_SERVER_STACKSIZE 512
+#define MAP_SERVER_STACKSIZE 1024
 
 static THD_FUNCTION(map_server_thd, arg)
 {
@@ -28,6 +29,9 @@ static THD_FUNCTION(map_server_thd, arg)
     beacon_signal_t beacon_signal;
     messagebus_topic_t* proximity_beacon_topic = messagebus_find_topic_blocking(&bus, "/proximity_beacon");
 
+    RobotState state;
+    messagebus_topic_t* strategy_state_topic = messagebus_find_topic_blocking(&bus, "/state");
+
     NOTICE("Map initialized");
     while (true) {
         /* Create obstacle at opponent position, only consider recent beacon signal */
@@ -40,12 +44,19 @@ static THD_FUNCTION(map_server_thd, arg)
             map_update_opponent_obstacle(0, 0, 0, 0); // reset opponent position
         }
 
-        map_set_cubes_obstacle(map_get_cubes_obstacle(0), MIRROR_X(color,  850),  540, robot_size);
-        map_set_cubes_obstacle(map_get_cubes_obstacle(1), MIRROR_X(color,  300), 1190, robot_size);
-        map_set_cubes_obstacle(map_get_cubes_obstacle(2), MIRROR_X(color, 1100), 1500, robot_size);
-        map_set_cubes_obstacle(map_get_cubes_obstacle(3), MIRROR_X(color, 1900), 1500, robot_size);
-        map_set_cubes_obstacle(map_get_cubes_obstacle(4), MIRROR_X(color, 2700), 1190, robot_size);
-        map_set_cubes_obstacle(map_get_cubes_obstacle(5), MIRROR_X(color, 2150),  540, robot_size);
+        messagebus_topic_wait(strategy_state_topic, &state, sizeof(state));
+        NOTICE("Received strategy state");
+
+        /* Update cube blocks obstacles on map depending on state */
+        for (int i = 0; i < 6; i++) {
+            if (state.blocks_on_map[i]) {
+                const int x = state.blocks_pos[i][0];
+                const int y = state.blocks_pos[i][1];
+                map_set_cubes_obstacle(map_get_cubes_obstacle(i), MIRROR_X(color, x), y, robot_size);
+            } else {
+                map_set_cubes_obstacle(map_get_cubes_obstacle(i), 0, 0, 0);
+            }
+        }
 
         chThdSleepMilliseconds(1000 / MAP_SERVER_FREQUENCY);
     }
