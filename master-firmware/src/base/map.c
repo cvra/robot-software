@@ -22,8 +22,11 @@ void map_init(int robot_size)
         map.opponents[i] = oa_new_poly(MAP_NUM_OPPONENT_EDGES);
         map_set_rectangular_obstacle(map.opponents[i], 0, 0, 0, 0, 0);
     }
-
     map.last_opponent_index = 0;
+
+    /* Add wastewater obstacle */
+    map.wastewater_obstacle = oa_new_poly(4);
+    map_set_rectangular_obstacle(map.wastewater_obstacle, 1500, 1875, 1212, 250, robot_size);
 
     /* Setup cube obstacles */
     for (int i = 0; i < MAP_NUM_BLOCKS_CUBE; i++) {

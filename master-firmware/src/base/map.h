@@ -17,6 +17,7 @@ extern "C" {
 
 struct _map {
     poly_t *blocks_cube[MAP_NUM_BLOCKS_CUBE];
+    poly_t *wastewater_obstacle;
 
     poly_t *opponents[MAP_NUM_OPPONENT];
     uint8_t last_opponent_index;
