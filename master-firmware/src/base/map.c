@@ -8,6 +8,9 @@ struct _map map;
 #define TABLE_POINT_X(x) math_clamp_value(x, 0, MAP_SIZE_X_MM)
 #define TABLE_POINT_Y(y) math_clamp_value(y, 0, MAP_SIZE_Y_MM)
 
+static void map_lock(mutex_t* lock) { chMtxLock(lock); }
+static void map_unlock(mutex_t* lock) { chMtxUnlock(lock); }
+
 void map_init(struct _map* map, int robot_size)
 {
     // Initialise obstacle avoidance state
@@ -37,7 +40,9 @@ void map_init(struct _map* map, int robot_size)
 
 void map_set_opponent_obstacle(struct _map* map, int index, int32_t x, int32_t y, int32_t opponent_size, int32_t robot_size)
 {
+    map_lock(&map->lock);
     map_set_rectangular_obstacle(map->opponents[index], x, y, opponent_size, opponent_size, robot_size);
+    map_unlock(&map->lock);
 }
 
 poly_t* map_get_opponent_obstacle(struct _map* map, int index)
@@ -62,11 +67,15 @@ void map_set_rectangular_obstacle(poly_t* opponent, int center_x, int center_y, 
 
 void map_update_opponent_obstacle(struct _map* map, int32_t x, int32_t y, int32_t opponent_size, int32_t robot_size)
 {
-    map_set_opponent_obstacle(map, map->last_opponent_index, x, y, opponent_size, robot_size);
+    map_lock(&map->lock);
+    map_set_rectangular_obstacle(map->opponents[map->last_opponent_index], x, y,
+                                 opponent_size, opponent_size, robot_size);
+
     map->last_opponent_index++;
     if (map->last_opponent_index >= MAP_NUM_OPPONENT) {
         map->last_opponent_index = 0;
     }
+    map_unlock(&map->lock);
 }
 
 poly_t* map_get_cubes_obstacle(struct _map* map, int index)
@@ -78,5 +87,8 @@ void map_set_cubes_obstacle(struct _map* map, int index, int x, int y, int robot
 {
     const int CUBES_BLOCK_SIZE = 180;
     circle_t circle = {.x = x, .y = y, .r = 0.5f * (CUBES_BLOCK_SIZE + robot_size)};
+
+    map_lock(&map->lock);
     discretize_circle(map_get_cubes_obstacle(map, index), circle, MAP_NUM_BLOCKS_CUBE_EDGES, 0.125f * M_PI);
+    map_unlock(&map->lock);
 }

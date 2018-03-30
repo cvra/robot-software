@@ -1,4 +1,5 @@
 #include <CppUTest/TestHarness.h>
+#include <CppUTestExt/MockSupport.h>
 
 extern "C" {
 #include "obstacle_avoidance/obstacle_avoidance.h"
@@ -172,3 +173,43 @@ TEST(MapEurobot2017, canMoveOnBlueGoOut)
     CHECK_EQUAL(1, point_cnt);
     POINT_EQUAL(end, points[0]);
 };
+
+TEST_GROUP(AMap)
+{
+    struct _map map;
+
+    void setup()
+    {
+        map_init(&map, 0);
+        lock_mocks_enable(true);
+    }
+
+    void teardown()
+    {
+        lock_mocks_enable(false);
+    }
+};
+
+TEST(AMap, canSetOpponentObstacleAtomically)
+{
+    mock().expectOneCall("chMtxLock").withPointerParameter("lock", &map.lock);
+    mock().expectOneCall("chMtxUnlock").withPointerParameter("lock", &map.lock);
+
+    map_set_opponent_obstacle(&map, 0, 0, 0, 0, 0);
+}
+
+TEST(AMap, canUpdateOpponentObstacleAtomically)
+{
+    mock().expectOneCall("chMtxLock").withPointerParameter("lock", &map.lock);
+    mock().expectOneCall("chMtxUnlock").withPointerParameter("lock", &map.lock);
+
+    map_update_opponent_obstacle(&map, 0, 0, 0, 0);
+}
+
+TEST(AMap, canSetCubesObstacleAtomically)
+{
+    mock().expectOneCall("chMtxLock").withPointerParameter("lock", &map.lock);
+    mock().expectOneCall("chMtxUnlock").withPointerParameter("lock", &map.lock);
+
+    map_set_cubes_obstacle(&map, 0, 0, 0, 0);
+}
