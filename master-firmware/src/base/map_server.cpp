@@ -48,7 +48,7 @@ static THD_FUNCTION(map_server_thd, arg)
         NOTICE("Received strategy state");
 
         /* Update cube blocks obstacles on map depending on state */
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < MAP_NUM_BLOCKS_CUBE; i++) {
             if (state.blocks_on_map[i]) {
                 const int x = state.blocks_pos[i][0];
                 const int y = state.blocks_pos[i][1];
