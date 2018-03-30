@@ -103,6 +103,7 @@ source:
     - src/lever/lever.c
     - src/base/base_helpers.c
     - src/strategy/state.cpp
+    - src/strategy/score.cpp
 
 include_directories:
     - src/
@@ -146,6 +147,7 @@ tests:
     - tests/aversive/test_blocking_detection_manager.cpp
     - tests/aversive/test_geometry_discrete_circles.cpp
     - tests/aversive/test_geometry_polygon_intersection.cpp
+    - tests/strategy/test_score.cpp
 
 templates:
     app_src.mk.jinja: app_src.mk
