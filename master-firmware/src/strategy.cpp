@@ -2,7 +2,6 @@
 #include <hal.h>
 
 #include <error/error.h>
-#include <timestamp/timestamp.h>
 #include <blocking_detection_manager/blocking_detection_manager.h>
 #include <trajectory_manager/trajectory_manager_utils.h>
 #include <obstacle_avoidance/obstacle_avoidance.h>
@@ -12,10 +11,10 @@
 #include "robot_helpers/math_helpers.h"
 #include "robot_helpers/trajectory_helpers.h"
 #include "robot_helpers/strategy_helpers.h"
-#include "robot_helpers/beacon_helpers.h"
 #include "base/base_controller.h"
 #include "base/base_helpers.h"
 #include "base/map.h"
+#include "base/map_server.h"
 #include "scara/scara_trajectories.h"
 #include "arms/arms_controller.h"
 #include "arms/arm_trajectory_manager.h"
@@ -101,18 +100,6 @@ void strategy_stop_robot(void)
 
 bool strategy_goto_avoid(int x_mm, int y_mm, int a_deg, int traj_end_flags)
 {
-    /* Create obstacle at opponent position */
-    beacon_signal_t beacon_signal;
-    messagebus_topic_t* proximity_beacon_topic = messagebus_find_topic_blocking(&bus, "/proximity_beacon");
-    messagebus_topic_read(proximity_beacon_topic, &beacon_signal, sizeof(beacon_signal));
-
-    // only consider recent beacon signal
-    if (timestamp_duration_s(beacon_signal.timestamp, timestamp_get()) < TRAJ_MAX_TIME_DELAY_OPPONENT_DETECTION) {
-        float x_opp, y_opp;
-        beacon_cartesian_convert(&robot.pos, 1000 * beacon_signal.distance, beacon_signal.heading, &x_opp, &y_opp);
-        map_update_opponent_obstacle(x_opp, y_opp, robot.opponent_size * 1.25, robot.robot_size);
-    }
-
     /* Compute path */
     oa_reset();
     const point_t start = {
@@ -459,7 +446,6 @@ struct DeployTheBee : public actions::DeployTheBee {
 void strategy_debra_play_game(void)
 {
     /* Initialize map and path planner */
-    map_init(config_get_integer("master/robot_size_x_mm"));
     strategy_score_init(); // Initialize score to 0
 
     int len;
@@ -474,6 +460,7 @@ void strategy_debra_play_game(void)
 
     NOTICE("Waiting for color selection...");
     enum strat_color_t color = wait_for_color_selection();
+    map_server_start(color);
 
     InitGoal init_goal;
 
@@ -574,6 +561,7 @@ void strategy_sandoi_play_game()
 {
     /* Wait for color selection */
     enum strat_color_t color = wait_for_color_selection();
+    map_server_start(color);
 
     /* Autoposition robot */
     wait_for_autoposition_signal();
@@ -609,9 +597,6 @@ void strategy_play_game(void *p)
 {
     (void) p;
     chRegSetThreadName("strategy");
-
-    /* Initialize map and path planner */
-    map_init(config_get_integer("master/robot_size_x_mm"));
 
     /* Prepare score publisher */
     static messagebus_topic_t score_topic;

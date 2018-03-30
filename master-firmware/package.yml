@@ -48,6 +48,7 @@ target.arm:
     - src/base/encoder.c
     - src/gui.c
     - src/base/base_controller.c
+    - src/base/map_server.cpp
     - src/arms/cvra_arm_motors.c
     - src/arms/scara_port.c
     - src/arms/arms_controller.c
