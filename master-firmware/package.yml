@@ -63,6 +63,7 @@ target.arm:
     - src/pca9685_pwm.c
     - src/lever/lever_module.c
     - src/parameter_port.c
+    - src/strategy/score_counter.cpp
 
 source:
     - src/unix_timestamp.c

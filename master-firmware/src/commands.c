@@ -1372,16 +1372,6 @@ static void cmd_motor_sin(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
-static void cmd_score_increment(BaseSequentialStream *chp, int argc, char *argv[])
-{
-    if (argc != 1) {
-        chprintf(chp, "Usage: score increment\r\n");
-        return;
-    }
-    int inc = atoi(argv[0]);
-    strategy_score_increase(inc);
-}
-
 static void cmd_push_the_bee(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc != 5) {
@@ -1457,7 +1447,6 @@ const ShellCommand commands[] = {
     {"dist", cmd_hand_dist},
     {"arm_bd", cmd_arm_bd},
     {"motor_sin", cmd_motor_sin},
-    {"score", cmd_score_increment},
     {"bee", cmd_push_the_bee},
     {NULL, NULL}
 };
