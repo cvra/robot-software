@@ -11,13 +11,6 @@ struct InitGoal : goap::Goal<RobotState> {
     }
 };
 
-struct TowerGoal : goap::Goal<RobotState> {
-    virtual int distance_to(const RobotState &state) const
-    {
-        return goap::Distance().shouldBeFalse(state.arms_are_deployed).shouldBeTrue(state.tower_built);
-    }
-};
-
 struct SwitchGoal : goap::Goal<RobotState> {
     virtual int distance_to(const RobotState &state) const
     {
@@ -25,14 +18,19 @@ struct SwitchGoal : goap::Goal<RobotState> {
     }
 };
 
-struct GameGoal : goap::Goal<RobotState> {
+struct BeeGoal : goap::Goal<RobotState> {
+    virtual int distance_to(const RobotState &state) const
+    {
+        return goap::Distance().shouldBeTrue(state.bee_deployed);
+    }
+};
+
+struct PickupCubesGoal : goap::Goal<RobotState> {
     virtual int distance_to(const RobotState &state) const
     {
         return goap::Distance()
-            .shouldBeTrue(state.switch_on)
-            // .shouldBeTrue(state.tower_built)
-            .shouldBeFalse(state.arms_are_deployed)
-            .shouldBeTrue(state.bee_deployed);
+            .shouldBeTrue(state.lever_full_left)
+            .shouldBeTrue(state.lever_full_right);
     }
 };
 

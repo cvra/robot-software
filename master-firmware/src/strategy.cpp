@@ -341,73 +341,36 @@ void strat_push_the_bee(point_t start, point_t end, float bee_height)
     strat_scara_goto_blocking({end.x, end.y, last_pos.z}, COORDINATE_ROBOT, {300, 300, 300});
 }
 
-struct BuildTower : actions::BuildTower {
-    enum strat_color_t m_color;
-
-    BuildTower(enum strat_color_t color)
-        : m_color(color)
-    {
-    }
-
-    bool execute(RobotState &state)
-    {
-        NOTICE("Building tower!");
-        state.arms_are_deployed = true;
-
-        lever_t* lever = MIRROR_LEFT_LEVER(m_color);
-
-        strategy_goto_avoid_retry(MIRROR_X(m_color, 500), 300, MIRROR_A(m_color, -135), TRAJ_FLAGS_ALL, -1);
-
-        lever_deploy(lever);
-        strategy_wait_ms(500);
-
-        se2_t blocks_pose = lever_deposit(lever, base_get_robot_pose(&robot.pos));
-        strategy_wait_ms(500);
-
-        lever_push_and_retract(lever);
-        strategy_wait_ms(500);
-
-        strategy_goto_avoid_retry(MIRROR_X(m_color, 500), 300, MIRROR_A(m_color, -225), TRAJ_FLAGS_ALL, -1);
-
-        strat_pick_cube(strategy_block_pos(blocks_pose, BLOCK_BLACK), 200);
-        strat_deposit_cube(MIRROR_X(m_color, 470), 90, 0);
-        strategy_score_increase(1);
-
-        strat_pick_cube(strategy_block_pos(blocks_pose, BLOCK_GREEN), 200);
-        strat_deposit_cube(MIRROR_X(m_color, 470), 90, 1);
-        strategy_score_increase(2);
-
-        strat_pick_cube(strategy_block_pos(blocks_pose, BLOCK_YELLOW), 200);
-        strat_deposit_cube(MIRROR_X(m_color, 470), 90, 2);
-        strategy_score_increase(3);
-
-        strat_pick_cube(strategy_block_pos(blocks_pose, BLOCK_RED), 200);
-        strat_deposit_cube(MIRROR_X(m_color, 470), 90, 3);
-        strategy_score_increase(4);
-
-        state.tower_built = true;
-
-        return true;
-    }
-};
-
 struct PickupBlocks : actions::PickupBlocks {
     enum strat_color_t m_color;
 
-    PickupBlocks(enum strat_color_t color)
-        : m_color(color)
+    PickupBlocks(enum strat_color_t color, int blocks_id)
+        : actions::PickupBlocks(blocks_id)
+        , m_color(color)
     {
     }
 
     bool execute(RobotState &state)
     {
-        NOTICE("Picking up some blocks");
+        const int x_mm = state.blocks_pos[blocks_id][0];
+        const int y_mm = state.blocks_pos[blocks_id][1];
+        NOTICE("Picking up some blocks at %d %d", x_mm, y_mm);
 
+        enum lever_side_t lever_side = LEVER_SIDE_LEFT;
         lever_t* lever = MIRROR_LEFT_LEVER(m_color);
+        int a_deg = -45;
 
-        se2_t blocks_pose = se2_create_xya(MIRROR_X(m_color, 850), 540, 0);
+        if (state.lever_full_left) {
+            lever_side = LEVER_SIDE_RIGHT;
+            lever = MIRROR_RIGHT_LEVER(m_color);
+            a_deg += 180;
+        }
 
-        strategy_goto_avoid_retry(MIRROR_X(m_color, 690), 380, MIRROR_A(m_color, -45), TRAJ_FLAGS_ALL, -1);
+        se2_t blocks_pose = se2_create_xya(MIRROR_X(m_color, x_mm), y_mm, 0);
+
+        if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm - 160), y_mm - 160, MIRROR_A(m_color, a_deg), TRAJ_FLAGS_ALL)) {
+            return false;
+        }
 
         lever_deploy(lever);
         strategy_wait_ms(1000);
@@ -418,7 +381,12 @@ struct PickupBlocks : actions::PickupBlocks {
         lever_retract(lever);
         strategy_wait_ms(1000);
 
-        state.has_blocks = true;
+        if (lever_side == LEVER_SIDE_LEFT) {
+            state.lever_full_left = true;
+        } else {
+            state.lever_full_right = true;
+        }
+        state.blocks_on_map[blocks_id] = false;
 
         return true;
     }
@@ -446,12 +414,11 @@ struct TurnSwitchOn : public actions::TurnSwitchOn {
     {
         NOTICE("Turning switch on");
 
-        state.arms_are_deployed = true;
-        state.blocks_on_map = false;
-        if (!strategy_goto_avoid_retry(MIRROR_X(m_color, 1130), 250, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL, -1)) {
+        if (!strategy_goto_avoid(MIRROR_X(m_color, 1130), 250, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
             return false;
         }
 
+        state.arms_are_deployed = true;
         strat_push_switch_on(MIRROR_X(m_color, 1130), 50, 120, -120);
         strategy_score_increase(25);
 
@@ -472,12 +439,11 @@ struct DeployTheBee : public actions::DeployTheBee {
     {
         NOTICE("Gonna deploy the bee!");
 
-        state.arms_are_deployed = true;
-        state.blocks_on_map = false;
-        if (!strategy_goto_avoid_retry(MIRROR_X(m_color, 130), 1870, MIRROR_A(m_color, -90), TRAJ_FLAGS_ALL, -1)) {
+        if (!strategy_goto_avoid(MIRROR_X(m_color, 130), 1870, MIRROR_A(m_color, -90), TRAJ_FLAGS_ALL)) {
             return false;
         }
 
+        state.arms_are_deployed = true;
         point_t start = {.x = -200.f, .y = MIRROR(m_color, -170.f)};
         point_t end = {.x = -200.f, .y = MIRROR(m_color, 170.f)};
         float bee_height = 150.f;
@@ -503,12 +469,21 @@ void strategy_debra_play_game(void)
     RobotState state;
 
     InitGoal init_goal;
-    GameGoal game_goal;
+
+    SwitchGoal switch_goal;
+    BeeGoal bee_goal;
+    PickupCubesGoal pickup_cubes_goal;
+    goap::Goal<RobotState>* goals[] = {
+        &switch_goal,
+        &bee_goal,
+        &pickup_cubes_goal,
+    };
 
     IndexArms index_arms;
     RetractArms retract_arms(color);
-    BuildTower build_tower(color);
-    PickupBlocks pickup_blocks(color);
+    PickupBlocks pickup_blocks1(color, 0);
+    PickupBlocks pickup_blocks2(color, 1);
+    PickupBlocks pickup_blocks3(color, 2);
     TurnSwitchOn turn_switch_on(color);
     DeployTheBee deploy_the_bee(color);
 
@@ -518,8 +493,9 @@ void strategy_debra_play_game(void)
     goap::Action<RobotState> *actions[] = {
         &index_arms,
         &retract_arms,
-        &build_tower,
-        &pickup_blocks,
+        &pickup_blocks1,
+        &pickup_blocks2,
+        &pickup_blocks3,
         &turn_switch_on,
         &deploy_the_bee,
     };
@@ -559,9 +535,23 @@ void strategy_debra_play_game(void)
     trajectory_game_timer_reset();
 
     NOTICE("Starting game...");
-    len = planner.plan(state, game_goal, path, max_path_len);
-    for (int i = 0; i < len; i++) {
-        path[i]->execute(state);
+    auto goals_are_reached = [&goals](const RobotState& state) {
+        for (auto goal : goals) {
+            if (!goal->is_reached(state)) {
+                return false;
+            }
+        }
+        return true;
+    };
+    while (!goals_are_reached(state)) {
+        for (auto goal : goals) {
+            len = planner.plan(state, *goal, path, max_path_len);
+            for (int i = 0; i < len; i++) {
+                if (!path[i]->execute(state)) {
+                    break; // Break on failure
+                }
+            }
+        }
     }
 
     while (true) {

@@ -33,30 +33,25 @@ struct RetractArms : public goap::Action<RobotState> {
     }
 };
 
-struct BuildTower : public goap::Action<RobotState> {
-    bool can_run(RobotState state)
-    {
-        return state.arms_are_deployed == false && state.has_blocks;
-    }
-
-    RobotState plan_effects(RobotState state)
-    {
-        state.arms_are_deployed = true;
-        state.tower_built = true;
-        return state;
-    }
-};
-
 struct PickupBlocks : public goap::Action<RobotState> {
+    int blocks_id;
+
+    PickupBlocks(int blocks_id_) : blocks_id(blocks_id_) {}
     bool can_run(RobotState state)
     {
-        return state.arms_are_deployed == false && state.blocks_on_map == true;
+        return state.arms_are_deployed == false
+            && (state.lever_full_right == false || state.lever_full_left == false)
+            && state.blocks_on_map[blocks_id] == true;
     }
 
     RobotState plan_effects(RobotState state)
     {
-        state.has_blocks = true;
-        state.blocks_on_map = false;
+        if (state.lever_full_right == false) {
+            state.lever_full_right = true;
+        } else {
+            state.lever_full_left = true;
+        }
+        state.blocks_on_map[blocks_id] = false;
         return state;
     }
 };
@@ -70,7 +65,6 @@ struct TurnSwitchOn : public goap::Action<RobotState> {
     RobotState plan_effects(RobotState state)
     {
         state.arms_are_deployed = true;
-        state.blocks_on_map = false;
         state.switch_on = true;
         return state;
     }
@@ -85,7 +79,6 @@ struct DeployTheBee : public goap::Action<RobotState> {
     RobotState plan_effects(RobotState state)
     {
         state.arms_are_deployed = true;
-        state.blocks_on_map = false;
         state.bee_deployed = true;
         return state;
     }
