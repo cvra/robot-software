@@ -47,10 +47,8 @@ static THD_FUNCTION(map_server_thd, arg)
             map_update_opponent_obstacle(&map, 0, 0, 0, 0); // reset opponent position
         }
 
-        messagebus_topic_wait(strategy_state_topic, &state, sizeof(state));
-        NOTICE("Received strategy state");
-
         /* Update cube blocks obstacles on map depending on state */
+        messagebus_topic_read(strategy_state_topic, &state, sizeof(state));
         for (int i = 0; i < MAP_NUM_BLOCKS_CUBE; i++) {
             if (state.blocks_on_map[i]) {
                 const int x = state.blocks_pos[i][0];
