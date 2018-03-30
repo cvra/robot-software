@@ -44,7 +44,7 @@ void map_update_opponent_obstacle(int32_t x, int32_t y, int32_t opponent_size, i
 void map_set_rectangular_obstacle(poly_t* opponent, int center_x, int center_y, int size_x, int size_y, int robot_size);
 
 poly_t* map_get_cubes_obstacle(int index);
-void map_set_cubes_obstacle(poly_t* obstacle, int x, int y, int robot_size);
+void map_set_cubes_obstacle(int index, int x, int y, int robot_size);
 
 #ifdef __cplusplus
 }

@@ -52,9 +52,9 @@ static THD_FUNCTION(map_server_thd, arg)
             if (state.blocks_on_map[i]) {
                 const int x = state.blocks_pos[i][0];
                 const int y = state.blocks_pos[i][1];
-                map_set_cubes_obstacle(map_get_cubes_obstacle(i), MIRROR_X(color, x), y, robot_size);
+                map_set_cubes_obstacle(i, MIRROR_X(color, x), y, robot_size);
             } else {
-                map_set_cubes_obstacle(map_get_cubes_obstacle(i), 0, 0, 0);
+                map_set_cubes_obstacle(i, 0, 0, 0);
             }
         }
 

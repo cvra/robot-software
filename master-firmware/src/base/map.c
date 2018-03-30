@@ -3,6 +3,9 @@
 #include "base_controller.h"
 #include "map.h"
 
+// Single static instance of map, obstacle_avoidance module handles the map as a
+// single static struct. So doesn't make sense to instantiate an arbitrary
+// number of times.
 static struct _map map;
 
 #define TABLE_POINT_X(x) math_clamp_value(x, 0, MAP_SIZE_X_MM)
@@ -31,7 +34,7 @@ void map_init(int robot_size)
     /* Setup cube obstacles */
     for (int i = 0; i < MAP_NUM_BLOCKS_CUBE; i++) {
         map.blocks_cube[i] = oa_new_poly(MAP_NUM_BLOCKS_CUBE_EDGES);
-        map_set_cubes_obstacle(map.blocks_cube[i], 0, 0, 0);
+        map_set_cubes_obstacle(i, 0, 0, 0);
     }
 }
 
@@ -74,9 +77,9 @@ poly_t* map_get_cubes_obstacle(int index)
     return map.blocks_cube[index];
 }
 
-void map_set_cubes_obstacle(poly_t* obstacle, int x, int y, int robot_size)
+void map_set_cubes_obstacle(int index, int x, int y, int robot_size)
 {
     const int CUBES_BLOCK_SIZE = 180;
     circle_t circle = {.x = x, .y = y, .r = 0.5f * (CUBES_BLOCK_SIZE + robot_size)};
-    discretize_circle(obstacle, circle, MAP_NUM_BLOCKS_CUBE_EDGES, 0.125f * M_PI);
+    discretize_circle(map_get_cubes_obstacle(index), circle, MAP_NUM_BLOCKS_CUBE_EDGES, 0.125f * M_PI);
 }
