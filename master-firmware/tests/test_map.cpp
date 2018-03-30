@@ -55,7 +55,7 @@ TEST(MapRectangularObstacle, setsRectangularPolygonAtClampedPosition)
 
 TEST_GROUP(MapOpponentObstacleSetter)
 {
-
+    struct _map map;
     const int arbitrary_pos_x = 700;
     const int arbitrary_pos_y = 800;
     const int arbitrary_size = 300;
@@ -63,14 +63,14 @@ TEST_GROUP(MapOpponentObstacleSetter)
 
     void setup(void)
     {
-        map_init(arbitrary_robot_size);
+        map_init(&map, arbitrary_robot_size);
     }
 };
 
 TEST(MapOpponentObstacleSetter, setsSquarePolygonObstacleAtRobotPositionInCounterClockWiseDirection)
 {
-    map_set_opponent_obstacle(0, arbitrary_pos_x, arbitrary_pos_y, arbitrary_size, arbitrary_robot_size);
-    poly_t* opponent = map_get_opponent_obstacle(0);
+    map_set_opponent_obstacle(&map, 0, arbitrary_pos_x, arbitrary_pos_y, arbitrary_size, arbitrary_robot_size);
+    poly_t* opponent = map_get_opponent_obstacle(&map, 0);
 
     POINT_EQUAL({450, 550}, opponent->pts[3]);
     POINT_EQUAL({450, 1050}, opponent->pts[2]);
@@ -81,7 +81,7 @@ TEST(MapOpponentObstacleSetter, setsSquarePolygonObstacleAtRobotPositionInCounte
 
 TEST_GROUP(MapOpponentObstacleUpdater)
 {
-
+    struct _map map;
     const int arbitrary_pos_x = 700;
     const int arbitrary_pos_y = 800;
     const int arbitrary_size = 300;
@@ -89,14 +89,14 @@ TEST_GROUP(MapOpponentObstacleUpdater)
 
     void setup(void)
     {
-        map_init(arbitrary_robot_size);
+        map_init(&map, arbitrary_robot_size);
     }
 };
 
 TEST(MapOpponentObstacleUpdater, setsSquarePolygonObstacleAtRobotPositionInCounterClockWiseDirection)
 {
-    map_update_opponent_obstacle(arbitrary_pos_x, arbitrary_pos_y, arbitrary_size, arbitrary_robot_size);
-    poly_t* opponent = map_get_opponent_obstacle(0);
+    map_update_opponent_obstacle(&map, arbitrary_pos_x, arbitrary_pos_y, arbitrary_size, arbitrary_robot_size);
+    poly_t* opponent = map_get_opponent_obstacle(&map, 0);
 
     POINT_EQUAL({450, 550}, opponent->pts[3]);
     POINT_EQUAL({450, 1050}, opponent->pts[2]);
@@ -106,9 +106,9 @@ TEST(MapOpponentObstacleUpdater, setsSquarePolygonObstacleAtRobotPositionInCount
 
 TEST(MapOpponentObstacleUpdater, updatesNextPolygon)
 {
-    map_update_opponent_obstacle(arbitrary_pos_x, arbitrary_pos_y, arbitrary_size, arbitrary_robot_size);
-    map_update_opponent_obstacle(arbitrary_pos_x, arbitrary_pos_y, arbitrary_size, arbitrary_robot_size);
-    poly_t* opponent = map_get_opponent_obstacle(1);
+    map_update_opponent_obstacle(&map, arbitrary_pos_x, arbitrary_pos_y, arbitrary_size, arbitrary_robot_size);
+    map_update_opponent_obstacle(&map, arbitrary_pos_x, arbitrary_pos_y, arbitrary_size, arbitrary_robot_size);
+    poly_t* opponent = map_get_opponent_obstacle(&map, 1);
 
     POINT_EQUAL({450, 550}, opponent->pts[3]);
     POINT_EQUAL({450, 1050}, opponent->pts[2]);
@@ -119,11 +119,11 @@ TEST(MapOpponentObstacleUpdater, updatesNextPolygon)
 TEST(MapOpponentObstacleUpdater, loopsBackAfterMaximumNumberOfOpponentsReached)
 {
     for (uint8_t i = 0; i < MAP_NUM_OPPONENT; i++) {
-        map_update_opponent_obstacle(0, 0, 0, 0);
+        map_update_opponent_obstacle(&map, 0, 0, 0, 0);
     }
-    map_update_opponent_obstacle(arbitrary_pos_x, arbitrary_pos_y, arbitrary_size, arbitrary_robot_size);
+    map_update_opponent_obstacle(&map, arbitrary_pos_x, arbitrary_pos_y, arbitrary_size, arbitrary_robot_size);
 
-    poly_t* opponent = map_get_opponent_obstacle(0);
+    poly_t* opponent = map_get_opponent_obstacle(&map, 0);
 
     POINT_EQUAL({450, 550}, opponent->pts[3]);
     POINT_EQUAL({450, 1050}, opponent->pts[2]);
@@ -133,11 +133,12 @@ TEST(MapOpponentObstacleUpdater, loopsBackAfterMaximumNumberOfOpponentsReached)
 
 TEST_GROUP(MapEurobot2017)
 {
+    struct _map map;
     const int arbitrary_robot_size = 260;
 
     void setup(void)
     {
-        map_init(arbitrary_robot_size);
+        map_init(&map, arbitrary_robot_size);
     }
 
 };

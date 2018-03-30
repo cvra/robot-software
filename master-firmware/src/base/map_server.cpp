@@ -24,7 +24,7 @@ static THD_FUNCTION(map_server_thd, arg)
 
     const int robot_size = config_get_integer("master/robot_size_x_mm");
     const int opponent_size = config_get_integer("master/opponent_size_x_mm_default");
-    map_init(robot_size);
+    map_init(&map, robot_size);
 
     beacon_signal_t beacon_signal;
     messagebus_topic_t* proximity_beacon_topic = messagebus_find_topic_blocking(&bus, "/proximity_beacon");
@@ -39,9 +39,9 @@ static THD_FUNCTION(map_server_thd, arg)
         if (timestamp_duration_s(beacon_signal.timestamp, timestamp_get()) < TRAJ_MAX_TIME_DELAY_OPPONENT_DETECTION) {
             float x_opp, y_opp;
             beacon_cartesian_convert(&robot.pos, 1000 * beacon_signal.distance, beacon_signal.heading, &x_opp, &y_opp);
-            map_update_opponent_obstacle(x_opp, y_opp, opponent_size * 1.25, robot_size);
+            map_update_opponent_obstacle(&map, x_opp, y_opp, opponent_size * 1.25, robot_size);
         } else {
-            map_update_opponent_obstacle(0, 0, 0, 0); // reset opponent position
+            map_update_opponent_obstacle(&map, 0, 0, 0, 0); // reset opponent position
         }
 
         messagebus_topic_wait(strategy_state_topic, &state, sizeof(state));
@@ -52,9 +52,9 @@ static THD_FUNCTION(map_server_thd, arg)
             if (state.blocks_on_map[i]) {
                 const int x = state.blocks_pos[i][0];
                 const int y = state.blocks_pos[i][1];
-                map_set_cubes_obstacle(i, MIRROR_X(color, x), y, robot_size);
+                map_set_cubes_obstacle(&map, i, MIRROR_X(color, x), y, robot_size);
             } else {
-                map_set_cubes_obstacle(i, 0, 0, 0);
+                map_set_cubes_obstacle(&map, i, 0, 0, 0);
             }
         }
 
