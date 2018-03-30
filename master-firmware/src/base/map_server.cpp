@@ -22,8 +22,8 @@ static THD_FUNCTION(map_server_thd, arg)
     enum strat_color_t color = *(enum strat_color_t*)arg;
     chRegSetThreadName(__FUNCTION__);
 
-    const int robot_size = config_get_integer("master/robot_size_x_mm");
-    const int opponent_size = config_get_integer("master/opponent_size_x_mm_default");
+    int robot_size = config_get_integer("master/robot_size_x_mm");
+    int opponent_size = config_get_integer("master/opponent_size_x_mm_default");
     map_init(&map, robot_size);
 
     beacon_signal_t beacon_signal;
@@ -34,6 +34,9 @@ static THD_FUNCTION(map_server_thd, arg)
 
     NOTICE("Map initialized");
     while (true) {
+        robot_size = config_get_integer("master/robot_size_x_mm");
+        opponent_size = config_get_integer("master/opponent_size_x_mm_default");
+
         /* Create obstacle at opponent position, only consider recent beacon signal */
         messagebus_topic_read(proximity_beacon_topic, &beacon_signal, sizeof(beacon_signal));
         if (timestamp_duration_s(beacon_signal.timestamp, timestamp_get()) < TRAJ_MAX_TIME_DELAY_OPPONENT_DETECTION) {
