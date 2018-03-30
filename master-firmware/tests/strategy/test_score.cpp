@@ -18,3 +18,15 @@ TEST(AScore, countsBeeWhenDeployed)
 
     CHECK_EQUAL(50, score_count_bee(state));
 };
+
+TEST(AScore, doesNotcountSwitchWhenNotDeployed)
+{
+    CHECK_EQUAL(0, score_count_switch(state));
+};
+
+TEST(AScore, countsSwitchWhenDeployed)
+{
+    state.switch_on = true;
+
+    CHECK_EQUAL(25, score_count_switch(state));
+};
