@@ -7,6 +7,30 @@ TEST_GROUP(AScore)
     RobotState state;
 };
 
+TEST(AScore, doesNotcountBeeWhenNotOnMap)
+{
+    state.bee_on_map = false;
+
+    CHECK_EQUAL(0, score_count_bee_on_map(state));
+};
+
+TEST(AScore, countsBeeWhenOnMap)
+{
+    CHECK_EQUAL(5, score_count_bee_on_map(state));
+};
+
+TEST(AScore, doesNotcountPanelWhenNotOnMap)
+{
+    state.panel_on_map = false;
+
+    CHECK_EQUAL(0, score_count_panel_on_map(state));
+};
+
+TEST(AScore, countsPanelWhenOnMap)
+{
+    CHECK_EQUAL(5, score_count_panel_on_map(state));
+};
+
 TEST(AScore, doesNotcountBeeWhenNotDeployed)
 {
     CHECK_EQUAL(0, score_count_bee(state));

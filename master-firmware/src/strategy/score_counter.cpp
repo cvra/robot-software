@@ -31,7 +31,12 @@ static THD_FUNCTION(score_counter_thd, arg)
         messagebus_topic_wait(strategy_state_topic, &state, sizeof(state));
         NOTICE("Received strategy state");
 
-        int score = 5 + 5 + score_count_bee(state) + score_count_switch(state);
+        int score = 0;
+        score += score_count_bee_on_map(state);
+        score += score_count_panel_on_map(state);
+        score += score_count_bee(state);
+        score += score_count_switch(state);
+
         messagebus_topic_publish(&score_topic, &score, sizeof(score));
 
         chThdSleepMilliseconds(1000 / SCORE_COUNTER_FREQUENCY);
