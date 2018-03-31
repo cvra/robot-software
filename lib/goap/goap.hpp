@@ -168,6 +168,12 @@ public:
         return *this;
     }
 
+    Distance shouldBeEqual(int target, int var)
+    {
+        distance += abs(var - target);
+        return *this;
+    }
+
     operator int() {
         return distance;
     }

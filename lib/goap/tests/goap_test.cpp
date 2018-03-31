@@ -274,3 +274,10 @@ TEST(InternalDistanceGroup, CanAlsoComputeOpposite)
     int d = goap::Distance().shouldBeFalse(true).shouldBeFalse(false);
     CHECK_EQUAL(1, d);
 }
+
+TEST(InternalDistanceGroup, CanComputeDistanceFromTargetInteger)
+{
+    CHECK_EQUAL(0, goap::Distance().shouldBeEqual(5, 5));
+    CHECK_EQUAL(2, goap::Distance().shouldBeEqual(5, 3));
+    CHECK_EQUAL(2, goap::Distance().shouldBeEqual(5, 7));
+}
