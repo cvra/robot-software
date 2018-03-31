@@ -168,6 +168,13 @@ public:
         return *this;
     }
 
+    template<int target>
+    Distance shouldBeEqual(int var)
+    {
+        distance += abs(var - target);
+        return *this;
+    }
+
     operator int() {
         return distance;
     }
