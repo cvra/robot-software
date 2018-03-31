@@ -5,8 +5,6 @@
 extern "C" {
 #endif
 
-#define SCORE_COUNTER_FREQUENCY 10
-
 void score_counter_start();
 
 #ifdef __cplusplus

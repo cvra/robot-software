@@ -38,8 +38,6 @@ static THD_FUNCTION(score_counter_thd, arg)
         score += score_count_switch(state);
 
         messagebus_topic_publish(&score_topic, &score, sizeof(score));
-
-        chThdSleepMilliseconds(1000 / SCORE_COUNTER_FREQUENCY);
     }
 }
 
