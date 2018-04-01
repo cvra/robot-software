@@ -1259,7 +1259,11 @@ static void cmd_pick_cube(BaseSequentialStream *chp, int argc, char *argv[])
     float z_start = atof(argv[2]);
 
     chprintf(chp, "Picking cube at x:%f y:%f z:65(%f)\r\n", xy.x, xy.y, z_start);
-    strat_pick_cube(xy, z_start);
+    if (strat_pick_cube(xy, z_start)) {
+        chprintf(chp, "Mission success \\o/\r\nPicked up requested cube, awaiting new orders, master.\r\n");
+    } else {
+        chprintf(chp, "Mission failed :(\r\nThe cube was a lie!\r\n");
+    }
 }
 
 static void cmd_deposit_cube(BaseSequentialStream *chp, int argc, char *argv[])

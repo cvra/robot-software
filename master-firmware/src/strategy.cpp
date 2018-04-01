@@ -279,17 +279,23 @@ bool strat_check_distance_to_hand_lower_than(float expected_value)
     return success;
 }
 
-void strat_pick_cube(point_t xy, float z_start)
+bool strat_pick_cube(point_t xy, float z_start)
 {
     const position_3d_t last_pos = scara_position(&main_arm, COORDINATE_ARM);
     strat_scara_goto_blocking({200, 0, last_pos.z}, COORDINATE_ARM, {300, 300, 300});
     strat_scara_goto_blocking({xy.x, xy.y, z_start}, COORDINATE_TABLE, {300, 300, 300});
     strat_scara_goto_blocking({xy.x, xy.y, 60}, COORDINATE_TABLE, {300, 300, 300});
 
-    hand_set_pump(&main_hand, PUMP_ON);
-    strategy_wait_ms(500.);
+    bool cube_is_present = strat_check_distance_to_hand_lower_than(0.05f);
+
+    if (cube_is_present) {
+        hand_set_pump(&main_hand, PUMP_ON);
+        strategy_wait_ms(500.);
+    }
 
     strat_scara_goto_blocking({xy.x, xy.y, z_start}, COORDINATE_TABLE, {300, 300, 300});
+
+    return cube_is_present;
 }
 
 bool strat_deposit_cube(float x, float y, int num_cubes_in_tower)
@@ -511,9 +517,13 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
         cube_pos.x = state.cubes_pos[state.tower_sequence[level]][0];
         cube_pos.y = state.cubes_pos[state.tower_sequence[level]][1];
 
-        strat_pick_cube(cube_pos, 200);
         state.arms_are_deployed = true;
         state.cubes_ready_for_construction[state.tower_sequence[level]] = false;
+
+        if (!strat_pick_cube(cube_pos, 200)) {
+            WARNING("No cube to pick up at %d %d", cube_pos.x, cube_pos.y);
+            return false;
+        }
 
         if (!strat_deposit_cube(MIRROR_X(m_color, x_mm - 30), y_mm - 210, level)) {
             WARNING("Tower building did not go as expected");
