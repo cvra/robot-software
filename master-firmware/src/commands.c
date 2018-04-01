@@ -1393,6 +1393,20 @@ static void cmd_push_the_bee(BaseSequentialStream *chp, int argc, char *argv[])
     strat_push_the_bee(start, end, bee_height);
 }
 
+static void cmd_check_dist(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc != 1) {
+        chprintf(chp, "Usage: check_dist expected\r\n");
+        return;
+    }
+    float expected = atof(argv[0]);
+    if (strat_check_distance_to_hand_lower_than(expected)) {
+        chprintf(chp, "Success: Measured distance was lower than %f\r\n", expected);
+    } else {
+        chprintf(chp, "Failure: Measured distance was higher than %f\r\n", expected);
+    }
+}
+
 
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
@@ -1451,5 +1465,6 @@ const ShellCommand commands[] = {
     {"arm_bd", cmd_arm_bd},
     {"motor_sin", cmd_motor_sin},
     {"bee", cmd_push_the_bee},
+    {"check_dist", cmd_check_dist},
     {NULL, NULL}
 };
