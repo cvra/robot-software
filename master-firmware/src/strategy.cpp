@@ -275,7 +275,7 @@ void strat_pick_cube(point_t xy, float z_start)
     strat_scara_goto_blocking({xy.x, xy.y, z_start}, COORDINATE_TABLE, {300, 300, 300});
 }
 
-void strat_deposit_cube(float x, float y, int num_cubes_in_tower)
+bool strat_deposit_cube(float x, float y, int num_cubes_in_tower)
 {
     const float z = (num_cubes_in_tower + 1) * 70.;
     const float margin_z = 20;
@@ -293,6 +293,19 @@ void strat_deposit_cube(float x, float y, int num_cubes_in_tower)
     hand_set_pump(&main_hand, PUMP_REVERSE);
     strat_scara_goto_blocking({x, y, z + margin_z}, COORDINATE_TABLE, {300, 300, 300});
     hand_set_pump(&main_hand, PUMP_OFF);
+
+    bool success = true;
+    float distance_to_tower;
+    messagebus_topic_t* topic = messagebus_find_topic_blocking(&bus, "/hand_distance");
+    if (messagebus_topic_read(topic, &distance_to_tower, sizeof(distance_to_tower))) {
+        const float MAX_EXPECTED_DISTANCE_TO_TOWER = 0.05f;
+        WARNING("Hand distance sensor is not publishing");
+        success = (distance_to_tower < MAX_EXPECTED_DISTANCE_TO_TOWER);
+    } else {
+        WARNING("Hand distance sensor is not publishing");
+    }
+
+    return success;
 }
 
 void strat_push_the_bee(point_t start, point_t end, float bee_height)
@@ -496,9 +509,12 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
         state.arms_are_deployed = true;
         state.cubes_ready_for_construction[state.tower_sequence[level]] = false;
 
-        strat_deposit_cube(MIRROR_X(m_color, x_mm - 30), y_mm - 210, level);
-        state.tower_level += 1;
+        if (!strat_deposit_cube(MIRROR_X(m_color, x_mm - 30), y_mm - 210, level)) {
+            WARNING("Tower building did not go as expected");
+            return false;
+        }
 
+        state.tower_level += 1;
         return true;
     }
 };

@@ -1273,8 +1273,11 @@ static void cmd_deposit_cube(BaseSequentialStream *chp, int argc, char *argv[])
     int num_cubes = atoi(argv[2]);
 
     chprintf(chp, "Depositing cube on tower x:%f y:%f holding %f cubes\r\n", x, y, num_cubes);
-    strat_deposit_cube(x, y, num_cubes);
-    chprintf(chp, "Tower now has %f cubes\r\n", num_cubes + 1);
+    if (strat_deposit_cube(x, y, num_cubes)) {
+        chprintf(chp, "Mission success :)\nTower now has %d cubes\r\n", num_cubes + 1);
+    } else {
+        chprintf(chp, "Mission failed :(\n");
+    }
 }
 
 
