@@ -107,7 +107,7 @@ TEST(Strategy, CanNotPushTheInterruptorWhenPanelIsNotOnTheMap)
     SwitchGoal switch_goal;
     int len = planner.plan(state, switch_goal, path, max_path_len);
 
-    CHECK_EQUAL(-2, len);
+    CHECK_TRUE(len < 0);
 }
 
 
@@ -139,7 +139,7 @@ TEST(Strategy, CanNotPushTheBeeWhenBeeIsNotOnTheMap)
     BeeGoal bee_goal;
     int len = planner.plan(state, bee_goal, path, max_path_len);
 
-    CHECK_EQUAL(-2, len);
+    CHECK_TRUE(len < 0);
 }
 
 TEST(Strategy, CanPickupCubes)
@@ -164,7 +164,7 @@ TEST(Strategy, CanBuildTower)
     const int max_path_len = 10;
     goap::Action<RobotState> *path[max_path_len] = {nullptr};
     auto actions = availableActions();
-    goap::Planner<RobotState,200> planner(actions.data(), actions.size());
+    goap::Planner<RobotState> planner(actions.data(), actions.size());
 
     BuildTowerGoal goal;
     int len = planner.plan(state, goal, path, max_path_len);
