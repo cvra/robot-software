@@ -20,6 +20,7 @@
 #define ARM_TRAJ_MANAGER_PRIO                   (NORMALPRIO)
 #define LEVER_MODULE_PRIO                       (NORMALPRIO)
 #define STRATEGY_PRIO                           (NORMALPRIO)
+#define SCORE_COUNTER_PRIO                      (NORMALPRIO)
 #define ENCODER_PRIO                            (NORMALPRIO)
 #define STREAM_PRIO                             (NORMALPRIO)
 #define INTERFACE_PANEL_PRIO                    (NORMALPRIO)

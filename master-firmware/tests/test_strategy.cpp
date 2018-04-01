@@ -83,6 +83,20 @@ TEST(Strategy, CanPushInterruptor)
     CHECK_TRUE(len > 0);
     CHECK_TRUE(switch_goal.is_reached(state));
 }
+TEST(Strategy, CanNotPushTheInterruptorWhenPanelIsNotOnTheMap)
+{
+    const int max_path_len = 10;
+    goap::Action<RobotState> *path[max_path_len] = {nullptr};
+    auto actions = availableActions();
+    goap::Planner<RobotState> planner(actions.data(), actions.size());
+
+    state.panel_on_map = false;
+    SwitchGoal switch_goal;
+    int len = planner.plan(state, switch_goal, path, max_path_len);
+
+    CHECK_EQUAL(-1, len);
+}
+
 
 TEST(Strategy, CanPushTheBee)
 {
@@ -99,6 +113,20 @@ TEST(Strategy, CanPushTheBee)
 
     CHECK_TRUE(len > 0);
     CHECK_TRUE(bee_goal.is_reached(state));
+}
+
+TEST(Strategy, CanNotPushTheBeeWhenBeeIsNotOnTheMap)
+{
+    const int max_path_len = 10;
+    goap::Action<RobotState> *path[max_path_len] = {nullptr};
+    auto actions = availableActions();
+    goap::Planner<RobotState> planner(actions.data(), actions.size());
+
+    state.bee_on_map = false;
+    BeeGoal bee_goal;
+    int len = planner.plan(state, bee_goal, path, max_path_len);
+
+    CHECK_EQUAL(-1, len);
 }
 
 TEST(Strategy, CanPickupCubes)

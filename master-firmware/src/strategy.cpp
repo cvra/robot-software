@@ -28,6 +28,7 @@
 #include "strategy/actions.h"
 #include "strategy/goals.h"
 #include "strategy/state.h"
+#include "strategy/score_counter.h"
 
 
 static enum strat_color_t wait_for_color_selection(void);
@@ -178,25 +179,6 @@ bool strategy_goto_avoid_retry(int x_mm, int y_mm, int a_deg, int traj_end_flags
     }
 
     return finished;
-}
-
-void strategy_score_init()
-{
-    static messagebus_topic_t topic;
-    static MUTEX_DECL(topic_lock);
-    static CONDVAR_DECL(topic_condvar);
-    static int score;
-
-    messagebus_topic_init(&topic, &topic_lock, &topic_condvar, &score, sizeof(score));
-    messagebus_advertise_topic(&bus, &topic, "/encoders");
-}
-
-void strategy_score_increase(int increment)
-{
-    static int score = 0;
-    score += increment;
-    messagebus_topic_t *score_topic = messagebus_find_topic_blocking(&bus, "/score");
-    messagebus_topic_publish(score_topic, &score, sizeof(score));
 }
 
 struct IndexArms : actions::IndexArms {
@@ -407,7 +389,6 @@ struct TurnSwitchOn : public actions::TurnSwitchOn {
 
         state.arms_are_deployed = true;
         strat_push_switch_on(MIRROR_X(m_color, 1130), 50, 120, -120);
-        strategy_score_increase(25);
 
         state.switch_on = true;
         return true;
@@ -436,8 +417,6 @@ struct DeployTheBee : public actions::DeployTheBee {
         float bee_height = 150.f;
         strat_push_the_bee(start, end, bee_height);
 
-        strategy_score_increase(50);
-
         state.bee_deployed = true;
         return true;
     }
@@ -445,9 +424,6 @@ struct DeployTheBee : public actions::DeployTheBee {
 
 void strategy_debra_play_game(void)
 {
-    /* Initialize map and path planner */
-    strategy_score_init(); // Initialize score to 0
-
     int len;
     RobotState state;
 
@@ -461,6 +437,7 @@ void strategy_debra_play_game(void)
     NOTICE("Waiting for color selection...");
     enum strat_color_t color = wait_for_color_selection();
     map_server_start(color);
+    score_counter_start();
 
     InitGoal init_goal;
 
@@ -520,10 +497,6 @@ void strategy_debra_play_game(void)
 
     NOTICE("Robot positioned at x: %d[mm], y: %d[mm], a: %d[deg]",
            position_get_x_s16(&robot.pos), position_get_y_s16(&robot.pos), position_get_a_deg_s16(&robot.pos));
-
-    /* Init score */
-    strategy_score_increase(5); // Domotic panel
-    strategy_score_increase(5); // Bee
 
     /* Wait for starter to begin */
     wait_for_starter();
@@ -597,15 +570,6 @@ void strategy_play_game(void *p)
 {
     (void) p;
     chRegSetThreadName("strategy");
-
-    /* Prepare score publisher */
-    static messagebus_topic_t score_topic;
-    static MUTEX_DECL(score_lock);
-    static CONDVAR_DECL(score_condvar);
-    static int score_value;
-    messagebus_topic_init(&score_topic, &score_lock,
-                          &score_condvar, &score_value, sizeof(int));
-    messagebus_advertise_topic(&bus, &score_topic, "/score");
 
     NOTICE("Strategy is ready, waiting for autopositioning signal");
 

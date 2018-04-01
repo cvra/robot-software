@@ -59,7 +59,7 @@ struct PickupBlocks : public goap::Action<RobotState> {
 struct TurnSwitchOn : public goap::Action<RobotState> {
     bool can_run(RobotState state)
     {
-        return state.arms_are_deployed == false;
+        return state.arms_are_deployed == false && state.panel_on_map;
     }
 
     RobotState plan_effects(RobotState state)
@@ -73,7 +73,7 @@ struct TurnSwitchOn : public goap::Action<RobotState> {
 struct DeployTheBee : public goap::Action<RobotState> {
     bool can_run(RobotState state)
     {
-        return state.arms_are_deployed == false;
+        return state.arms_are_deployed == false && state.bee_on_map;
     }
 
     RobotState plan_effects(RobotState state)
