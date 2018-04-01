@@ -3,8 +3,6 @@
 #include "base_controller.h"
 #include "map.h"
 
-struct _map map;
-
 #define TABLE_POINT_X(x) math_clamp_value(x, 0, MAP_SIZE_X_MM)
 #define TABLE_POINT_Y(y) math_clamp_value(y, 0, MAP_SIZE_Y_MM)
 

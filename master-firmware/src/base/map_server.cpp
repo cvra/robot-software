@@ -17,6 +17,8 @@
 
 #define MAP_SERVER_STACKSIZE 1024
 
+static struct _map map;
+
 static THD_FUNCTION(map_server_thd, arg)
 {
     enum strat_color_t color = *(enum strat_color_t*)arg;
