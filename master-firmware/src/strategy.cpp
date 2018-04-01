@@ -279,13 +279,14 @@ void strat_deposit_cube(float x, float y, int num_cubes_in_tower)
 {
     const float z = (num_cubes_in_tower + 1) * 70.;
     const float margin_z = 20;
+    const float safe_z = fmaxf(z + margin_z, 140.f);
 
     scara_hold_position(&main_arm, COORDINATE_ARM);
     arm_traj_wait_for_end();
 
     const position_3d_t last_pos = scara_position(&main_arm, COORDINATE_ARM);
-    strat_scara_goto_blocking({last_pos.x, last_pos.y, z + margin_z}, COORDINATE_ARM, {300, 300, 300});
-    strat_scara_goto_blocking({x, y, z + margin_z}, COORDINATE_TABLE, {300, 300, 300});
+    strat_scara_goto_blocking({last_pos.x, last_pos.y, safe_z}, COORDINATE_ARM, {300, 300, 300});
+    strat_scara_goto_blocking({x, y, safe_z}, COORDINATE_TABLE, {300, 300, 300});
     strat_scara_goto_blocking({x, y, z}, COORDINATE_TABLE, {300, 300, 300});
     strategy_wait_ms(2000);
 
