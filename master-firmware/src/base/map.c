@@ -6,13 +6,14 @@
 #define TABLE_POINT_X(x) math_clamp_value(x, 0, MAP_SIZE_X_MM)
 #define TABLE_POINT_Y(y) math_clamp_value(y, 0, MAP_SIZE_Y_MM)
 
-static void map_lock(mutex_t* lock) { chMtxLock(lock); }
-static void map_unlock(mutex_t* lock) { chMtxUnlock(lock); }
+static void map_lock(mutex_t *lock) { chMtxLock(lock); }
+static void map_unlock(mutex_t *lock) { chMtxUnlock(lock); }
 
 void map_init(struct _map* map, int robot_size)
 {
     // Initialise obstacle avoidance state
     oa_init();
+    chMtxObjectInit(&map->lock);
 
     /* Define table borders */
     polygon_set_boundingbox(robot_size/2, robot_size/2,
@@ -21,7 +22,7 @@ void map_init(struct _map* map, int robot_size)
     /* Add opponent obstacle as points at origin */
     for (int i = 0; i < MAP_NUM_OPPONENT; i++) {
         map->opponents[i] = oa_new_poly(MAP_NUM_OPPONENT_EDGES);
-        map_set_rectangular_obstacle(map->opponents[i], 0, 0, 0, 0, 0);
+        map_set_opponent_obstacle(map, i, 0, 0, 0, 0);
     }
     map->last_opponent_index = 0;
 
