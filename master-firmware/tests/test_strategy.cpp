@@ -43,7 +43,7 @@ TEST_GROUP(Strategy) {
     TurnSwitchOn turn_switch_on;
     DeployTheBee deploy_the_bee;
     DepositCubes deposit_cubes;
-    BuildTowerLevel build_tower_lvl1{0}, build_tower_lvl2{1}, build_tower_lvl3{2};
+    BuildTowerLevel build_tower_lvl1{0}, build_tower_lvl2{1}, build_tower_lvl3{2}, build_tower_lvl4{3};
 
     std::vector<goap::Action<RobotState>*> availableActions()
     {
@@ -59,6 +59,7 @@ TEST_GROUP(Strategy) {
             &build_tower_lvl1,
             &build_tower_lvl2,
             &build_tower_lvl3,
+            &build_tower_lvl4,
         };
     }
 };

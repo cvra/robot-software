@@ -575,6 +575,7 @@ void strategy_debra_play_game(void)
     BuildTowerLevel build_tower_lvl1(color, 0);
     BuildTowerLevel build_tower_lvl2(color, 1);
     BuildTowerLevel build_tower_lvl3(color, 2);
+    BuildTowerLevel build_tower_lvl4(color, 3);
 
     const int max_path_len = 10;
     goap::Action<RobotState> *path[max_path_len] = {nullptr};
@@ -591,6 +592,7 @@ void strategy_debra_play_game(void)
         &build_tower_lvl1,
         &build_tower_lvl2,
         &build_tower_lvl3,
+        &build_tower_lvl4,
     };
 
     static goap::Planner<RobotState> planner(actions, sizeof(actions) / sizeof(actions[0]));
