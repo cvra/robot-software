@@ -26,6 +26,13 @@ struct TurnSwitchOn : actions::TurnSwitchOn {
 struct DeployTheBee : actions::DeployTheBee {
     bool execute(RobotState &state) { return dummy_execute(this, state); }
 };
+struct DepositCubes : actions::DepositCubes {
+    bool execute(RobotState &state) { return dummy_execute(this, state); }
+};
+struct BuildTowerLevel : actions::BuildTowerLevel {
+    BuildTowerLevel(int level) : actions::BuildTowerLevel(level) {}
+    bool execute(RobotState &state) { return dummy_execute(this, state); }
+};
 
 TEST_GROUP(Strategy) {
     RobotState state;
@@ -35,6 +42,8 @@ TEST_GROUP(Strategy) {
     PickupBlocks pickup_blocks1{0}, pickup_blocks2{1}, pickup_blocks3{2};
     TurnSwitchOn turn_switch_on;
     DeployTheBee deploy_the_bee;
+    DepositCubes deposit_cubes;
+    BuildTowerLevel build_tower_lvl1{0}, build_tower_lvl2{1}, build_tower_lvl3{2};
 
     std::vector<goap::Action<RobotState>*> availableActions()
     {
@@ -46,6 +55,10 @@ TEST_GROUP(Strategy) {
             &pickup_blocks3,
             &turn_switch_on,
             &deploy_the_bee,
+            &deposit_cubes,
+            &build_tower_lvl1,
+            &build_tower_lvl2,
+            &build_tower_lvl3,
         };
     }
 };
@@ -94,7 +107,7 @@ TEST(Strategy, CanNotPushTheInterruptorWhenPanelIsNotOnTheMap)
     SwitchGoal switch_goal;
     int len = planner.plan(state, switch_goal, path, max_path_len);
 
-    CHECK_EQUAL(-1, len);
+    CHECK_EQUAL(-2, len);
 }
 
 
@@ -126,7 +139,7 @@ TEST(Strategy, CanNotPushTheBeeWhenBeeIsNotOnTheMap)
     BeeGoal bee_goal;
     int len = planner.plan(state, bee_goal, path, max_path_len);
 
-    CHECK_EQUAL(-1, len);
+    CHECK_EQUAL(-2, len);
 }
 
 TEST(Strategy, CanPickupCubes)
@@ -137,6 +150,23 @@ TEST(Strategy, CanPickupCubes)
     goap::Planner<RobotState> planner(actions.data(), actions.size());
 
     PickupCubesGoal goal;
+    int len = planner.plan(state, goal, path, max_path_len);
+    for (int i = 0; i < len; i++) {
+        path[i]->execute(state);
+    }
+
+    CHECK_TRUE(len > 0);
+    CHECK_TRUE(goal.is_reached(state));
+}
+
+TEST(Strategy, CanBuildTower)
+{
+    const int max_path_len = 10;
+    goap::Action<RobotState> *path[max_path_len] = {nullptr};
+    auto actions = availableActions();
+    goap::Planner<RobotState,200> planner(actions.data(), actions.size());
+
+    BuildTowerGoal goal;
     int len = planner.plan(state, goal, path, max_path_len);
     for (int i = 0; i < len; i++) {
         path[i]->execute(state);

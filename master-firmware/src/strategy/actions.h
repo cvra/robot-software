@@ -84,6 +84,48 @@ struct DeployTheBee : public goap::Action<RobotState> {
     }
 };
 
+struct DepositCubes : public goap::Action<RobotState> {
+    bool can_run(RobotState state)
+    {
+        return state.lever_full_left || state.lever_full_right;
+    }
+
+    RobotState plan_effects(RobotState state)
+    {
+        if (state.lever_full_right == true) {
+            state.lever_full_right = false;
+        } else {
+            state.lever_full_left = false;
+        }
+
+        for (auto& cube_ready : state.cubes_ready_for_construction) {
+            cube_ready = true;
+        }
+
+        return state;
+    }
+};
+
+struct BuildTowerLevel : public goap::Action<RobotState> {
+    int level;
+    BuildTowerLevel(int lvl) : level(lvl) {}
+
+    bool can_run(RobotState state)
+    {
+      return state.arms_are_deployed == false && state.tower_level == level &&
+             state.cubes_ready_for_construction[state.tower_sequence[level]];
+    }
+
+    RobotState plan_effects(RobotState state)
+    {
+        state.arms_are_deployed = true;
+        state.cubes_ready_for_construction[state.tower_sequence[level]] = false;
+        state.tower_level += 1;
+        return state;
+    }
+};
+
 } // namespace actions
 
 #endif /* STRATEGY_ACTIONS_H */
+
