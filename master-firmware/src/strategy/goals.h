@@ -34,6 +34,18 @@ struct PickupCubesGoal : goap::Goal<RobotState> {
     }
 };
 
+struct DepositCubesGoal : goap::Goal<RobotState> {
+    virtual int distance_to(const RobotState &state) const
+    {
+      return goap::Distance()
+          .shouldBeTrue(state.cubes_ready_for_construction[0])
+          .shouldBeTrue(state.cubes_ready_for_construction[1])
+          .shouldBeTrue(state.cubes_ready_for_construction[2])
+          .shouldBeTrue(state.cubes_ready_for_construction[3])
+          .shouldBeTrue(state.cubes_ready_for_construction[4]);
+    }
+};
+
 struct BuildTowerGoal : goap::Goal<RobotState> {
     virtual int distance_to(const RobotState &state) const
     {

@@ -159,12 +159,49 @@ TEST(Strategy, CanPickupCubes)
     CHECK_TRUE(goal.is_reached(state));
 }
 
+TEST(Strategy, CanDepositCubes)
+{
+    const int max_path_len = 10;
+    goap::Action<RobotState> *path[max_path_len] = {nullptr};
+    auto actions = availableActions();
+    goap::Planner<RobotState, 200> planner(actions.data(), actions.size());
+
+    DepositCubesGoal goal;
+    int len = planner.plan(state, goal, path, max_path_len);
+    for (int i = 0; i < len; i++) {
+        path[i]->execute(state);
+    }
+
+    CHECK_TRUE(len > 0);
+    CHECK_TRUE(goal.is_reached(state));
+}
+
 TEST(Strategy, CanBuildTower)
 {
     const int max_path_len = 10;
     goap::Action<RobotState> *path[max_path_len] = {nullptr};
     auto actions = availableActions();
-    goap::Planner<RobotState,200> planner(actions.data(), actions.size());
+    goap::Planner<RobotState, 200> planner(actions.data(), actions.size());
+
+    BuildTowerGoal goal;
+    int len = planner.plan(state, goal, path, max_path_len);
+    for (int i = 0; i < len; i++) {
+        path[i]->execute(state);
+    }
+
+    CHECK_TRUE(len > 0);
+    CHECK_TRUE(goal.is_reached(state));
+}
+
+TEST(Strategy, CanBuildTowerAfterCubeDeposit)
+{
+    const int max_path_len = 10;
+    goap::Action<RobotState> *path[max_path_len] = {nullptr};
+    auto actions = availableActions();
+    goap::Planner<RobotState> planner(actions.data(), actions.size());
+    for (auto& cube_ready : state.cubes_ready_for_construction) {
+        cube_ready = true; // Fake cube deposit
+    }
 
     BuildTowerGoal goal;
     int len = planner.plan(state, goal, path, max_path_len);

@@ -87,7 +87,7 @@ struct DeployTheBee : public goap::Action<RobotState> {
 struct DepositCubes : public goap::Action<RobotState> {
     bool can_run(RobotState state)
     {
-        return state.lever_full_left || state.lever_full_right;
+        return (state.lever_full_left || state.lever_full_right);
     }
 
     RobotState plan_effects(RobotState state)
