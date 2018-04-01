@@ -13,6 +13,8 @@ int score_count_panel_on_map(const RobotState& state);
 int score_count_bee(const RobotState& state);
 int score_count_switch(const RobotState& state);
 
+int score_count_tower(const RobotState& state);
+
 #ifdef __cplusplus
 }
 #endif
