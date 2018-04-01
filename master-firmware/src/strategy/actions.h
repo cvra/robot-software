@@ -87,7 +87,15 @@ struct DeployTheBee : public goap::Action<RobotState> {
 struct DepositCubes : public goap::Action<RobotState> {
     bool can_run(RobotState state)
     {
-        return state.lever_full_left || state.lever_full_right;
+        auto no_cubes_in_construction_zone = [](const RobotState& state) -> bool {
+            for (const auto& cube_in_construction_zone : state.cubes_ready_for_construction) {
+                if (cube_in_construction_zone) {
+                    return false;
+                }
+            }
+            return true;
+        };
+        return (state.lever_full_left || state.lever_full_right) && no_cubes_in_construction_zone(state);
     }
 
     RobotState plan_effects(RobotState state)
