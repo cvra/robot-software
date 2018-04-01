@@ -407,14 +407,14 @@ struct DeployTheBee : public actions::DeployTheBee {
     {
         NOTICE("Gonna deploy the bee!");
 
-        if (!strategy_goto_avoid(MIRROR_X(m_color, 130), 1870, MIRROR_A(m_color, -90), TRAJ_FLAGS_ALL)) {
+        if (!strategy_goto_avoid(MIRROR_X(m_color, 150), 1850, MIRROR_A(m_color, -90), TRAJ_FLAGS_ALL)) {
             return false;
         }
 
         state.arms_are_deployed = true;
         point_t start = {.x = -200.f, .y = MIRROR(m_color, -170.f)};
         point_t end = {.x = -200.f, .y = MIRROR(m_color, 170.f)};
-        float bee_height = 150.f;
+        float bee_height = 160.f;
         strat_push_the_bee(start, end, bee_height);
 
         state.bee_deployed = true;
