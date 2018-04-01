@@ -26,8 +26,6 @@ struct _map {
   mutex_t lock;
 };
 
-extern struct _map map;
-
 /** Initialize the map of the Eurobot table with the static obstacles and
  * opponents
  */
