@@ -23,6 +23,7 @@ struct RobotState {
 
     enum block_color tower_sequence[3] = {BLOCK_BLACK, BLOCK_BLUE, BLOCK_GREEN};
     bool cubes_ready_for_construction[5] = {false, false, false, false, false}; // YELLOW, GREEN, BLUE, RED, BLACK
+    int cubes_pos[5][2] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};
     int tower_level{0};
 };
 
