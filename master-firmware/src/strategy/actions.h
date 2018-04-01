@@ -112,7 +112,7 @@ struct BuildTowerLevel : public goap::Action<RobotState> {
 
     bool can_run(RobotState state)
     {
-      return state.arms_are_deployed == false && state.tower_level == level &&
+      return state.tower_level == level &&
              state.cubes_ready_for_construction[state.tower_sequence[level]];
     }
 
