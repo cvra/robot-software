@@ -311,6 +311,7 @@ void init_arm_motors(void)
     motor_manager_create_driver(&motor_manager, "shoulder-joint");
     motor_manager_create_driver(&motor_manager, "elbow-joint");
     motor_manager_create_driver(&motor_manager, "arm-pump");
+    bus_enumerator_add_node(&bus_enumerator, "wrist-servo", NULL);
 }
 
 void init_lever_motors(void)
