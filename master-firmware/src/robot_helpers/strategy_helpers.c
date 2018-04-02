@@ -104,31 +104,29 @@ point_t strategy_cube_pos(se2_t cubes_pose, enum cube_color color)
     return se2_transform(cubes_pose, cube_pos_in_block_frame(color));
 }
 
-se2_t strategy_closest_pose_to_pickup_cubes(se2_t current_pose, se2_t cubes_pose)
+void strategy_sort_poses_by_distance(se2_t current_pose, se2_t* pickup_poses, int num_poses)
 {
-    se2_t closest_pose;
-
-    point_t current_pos = {current_pose.translation.x, current_pose.translation.y};
-    point_t candidates[4] = {
-        {cubes_pose.translation.x - 160, cubes_pose.translation.y - 160},
-        {cubes_pose.translation.x + 160, cubes_pose.translation.y - 160},
-        {cubes_pose.translation.x + 160, cubes_pose.translation.y + 160},
-        {cubes_pose.translation.x - 160, cubes_pose.translation.y + 160}
-    };
-
-    int argmin = 0;
-    float min_dist = 1e10;
-    for (int i = 0; i < 4; i++) {
-        float dist = pt_norm(&current_pos, &candidates[i]);
-        if (dist < min_dist) {
-            argmin = i;
-            min_dist = dist;
-        }
+    /* Compute distances to current position */
+    const point_t current_pos = {current_pose.translation.x, current_pose.translation.y};
+    float distances[num_poses];
+    for (int i = 0; i < num_poses; i++) {
+        const point_t candidate = {pickup_poses[i].translation.x, pickup_poses[i].translation.y};
+        distances[i] = pt_norm(&current_pos, &candidate);
     }
 
-    closest_pose.translation.x = candidates[argmin].x;
-    closest_pose.translation.y = candidates[argmin].y;
-    closest_pose.rotation.angle = -45 + 90 * argmin;
+    /* Sort by distance using selection sort */
+    for (int i = 0; i < num_poses - 1; i++) {
+        int min_index = argmin(distances + i, num_poses - i) + i;
 
-    return closest_pose;
+        /* Swap distances */
+        float min_distance = distances[min_index];
+        distances[min_index] = distances[i];
+        distances[i] = min_distance;
+
+        /* Swap poses */
+        se2_t min_pose = pickup_poses[min_index];
+        pickup_poses[min_index] = pickup_poses[i];
+        pickup_poses[i] = min_pose;
+    }
 }
+

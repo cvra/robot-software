@@ -1,5 +1,6 @@
 #include <ch.h>
 #include <hal.h>
+#include <array>
 
 #include <error/error.h>
 #include <blocking_detection_manager/blocking_detection_manager.h>
@@ -348,26 +349,38 @@ struct PickupCubes : actions::PickupCubes {
     {
         const int x_mm = state.blocks_pos[blocks_id][0];
         const int y_mm = state.blocks_pos[blocks_id][1];
-        NOTICE("Picking up some blocks at %d %d", x_mm, y_mm);
-
-        se2_t cubes_pose = se2_create_xya(MIRROR_X(m_color, x_mm), y_mm, 0);
-        se2_t closest_pose = strategy_closest_pose_to_pickup_cubes(base_get_robot_pose(&robot.pos), cubes_pose);
-        int pickup_x_mm = closest_pose.translation.x;
-        int pickup_y_mm = closest_pose.translation.y;
-        int pickup_a_deg = closest_pose.rotation.angle + 180 * (int)(m_color == BLUE);
-        NOTICE("Going to %d %d %d", pickup_x_mm, pickup_y_mm, pickup_a_deg);
+        NOTICE("Picking up some blocks at %d %d", MIRROR_X(m_color, x_mm), y_mm);
 
         enum lever_side_t lever_side = LEVER_SIDE_LEFT;
         lever_t* lever = MIRROR_LEFT_LEVER(m_color);
+        int offset_a_deg = 0;
 
         if (state.lever_full_left) {
             lever_side = LEVER_SIDE_RIGHT;
             lever = MIRROR_RIGHT_LEVER(m_color);
-            pickup_a_deg += 180;
+            offset_a_deg = 180;
         }
 
-        if (!strategy_goto_avoid(pickup_x_mm, pickup_y_mm, pickup_a_deg, TRAJ_FLAGS_ALL)) {
-          return false;
+        se2_t cubes_pose = se2_create_xya(MIRROR_X(m_color, x_mm), y_mm, 0);
+        std::array<se2_t, 4> pickup_poses = {
+            se2_create_xya(MIRROR_X(m_color, x_mm - 160), y_mm - 160, MIRROR_A(m_color, -45)),
+            se2_create_xya(MIRROR_X(m_color, x_mm + 160), y_mm - 160, MIRROR_A(m_color,  45)),
+            se2_create_xya(MIRROR_X(m_color, x_mm + 160), y_mm + 160, MIRROR_A(m_color, 135)),
+            se2_create_xya(MIRROR_X(m_color, x_mm - 160), y_mm + 160, MIRROR_A(m_color, 225)),
+        };
+        strategy_sort_poses_by_distance(base_get_robot_pose(&robot.pos), pickup_poses.data(), pickup_poses.size());
+
+        for (size_t i = 0; i < pickup_poses.size(); i++) {
+            const int pickup_x_mm = pickup_poses[i].translation.x;
+            const int pickup_y_mm = pickup_poses[i].translation.y;
+            const int pickup_a_deg = pickup_poses[i].rotation.angle + offset_a_deg;
+
+            NOTICE("Going to %d %d %d", pickup_x_mm, pickup_y_mm, pickup_a_deg);
+            if (strategy_goto_avoid(pickup_x_mm, pickup_y_mm, pickup_a_deg, TRAJ_FLAGS_ALL)) {
+                break;
+            } else if (i == pickup_poses.size() - 1) {
+                return false;
+            }
         }
 
         lever_deploy(lever);
@@ -576,8 +589,7 @@ void strategy_debra_play_game(void)
     TurnSwitchOn turn_switch_on(color);
     DeployTheBee deploy_the_bee(color);
     DepositCubes deposit_cubes[2] = {
-        DepositCubes(color, 0),
-        DepositCubes(color, 1),
+        DepositCubes(color, 0), DepositCubes(color, 1),
     };
     BuildTowerLevel build_tower_lvl[2][4] = {
         {

@@ -42,8 +42,8 @@ void strategy_align_y(int32_t y);
 /** Compute cube position given pose of cubes block in table frame and cube color */
 point_t strategy_cube_pos(se2_t cubes_pose, enum cube_color color);
 
-/** Compute closest position to pickup cubes */
-se2_t strategy_closest_pose_to_pickup_cubes(se2_t current_pose, se2_t cubes_pose);
+/** Sort positions to pickup cubes from closest to farthest */
+void strategy_sort_poses_by_distance(se2_t current_pose, se2_t* pickup_poses, int num_poses);
 
 #ifdef __cplusplus
 }
