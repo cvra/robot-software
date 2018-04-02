@@ -558,10 +558,10 @@ void strategy_debra_play_game(void)
     PickupCubesGoal pickup_cubes_goal;
     BuildTowerGoal build_tower_goal;
     goap::Goal<RobotState>* goals[] = {
+        // &pickup_cubes_goal,
+        &build_tower_goal,
         &switch_goal,
         &bee_goal,
-        &pickup_cubes_goal,
-        &build_tower_goal,
     };
 
     IndexArms index_arms;
