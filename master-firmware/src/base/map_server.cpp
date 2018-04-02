@@ -60,9 +60,9 @@ static THD_FUNCTION(map_server_thd, arg)
                 map_set_cubes_obstacle(&map, i, 0, 0, 0);
             }
         }
-        if (state.construction_zone.tower_level > 0) {
-            const int x = state.construction_zone.tower_pos[0];
-            const int y = state.construction_zone.tower_pos[1];
+        if (state.construction_zone[0].tower_level > 0) {
+            const int x = state.construction_zone[0].tower_pos[0];
+            const int y = state.construction_zone[0].tower_pos[1];
             map_set_tower_obstacle(&map, 0, x, y, robot_size);
         } else {
             map_set_tower_obstacle(&map, 0, 0, 0, 0);

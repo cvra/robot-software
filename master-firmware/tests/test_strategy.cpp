@@ -27,10 +27,11 @@ struct DeployTheBee : actions::DeployTheBee {
     bool execute(RobotState &state) { return dummy_execute(this, state); }
 };
 struct DepositCubes : actions::DepositCubes {
+    DepositCubes(int id) : actions::DepositCubes(id) {}
     bool execute(RobotState &state) { return dummy_execute(this, state); }
 };
 struct BuildTowerLevel : actions::BuildTowerLevel {
-    BuildTowerLevel(int level) : actions::BuildTowerLevel(level) {}
+    BuildTowerLevel(int id, int level) : actions::BuildTowerLevel(id, level) {}
     bool execute(RobotState &state) { return dummy_execute(this, state); }
 };
 
@@ -42,8 +43,8 @@ TEST_GROUP(Strategy) {
     PickupBlocks pickup_blocks1{0}, pickup_blocks2{1}, pickup_blocks3{2};
     TurnSwitchOn turn_switch_on;
     DeployTheBee deploy_the_bee;
-    DepositCubes deposit_cubes;
-    BuildTowerLevel build_tower_lvl1{0}, build_tower_lvl2{1}, build_tower_lvl3{2}, build_tower_lvl4{3};
+    DepositCubes deposit_cubes{0};
+    std::vector<BuildTowerLevel> build_tower_lvl = {{0, 0}, {0, 1}, {0, 2}, {0, 3}};
 
     std::vector<goap::Action<RobotState>*> availableActions()
     {
@@ -56,10 +57,10 @@ TEST_GROUP(Strategy) {
             &turn_switch_on,
             &deploy_the_bee,
             &deposit_cubes,
-            &build_tower_lvl1,
-            &build_tower_lvl2,
-            &build_tower_lvl3,
-            &build_tower_lvl4,
+            &build_tower_lvl[0],
+            &build_tower_lvl[1],
+            &build_tower_lvl[2],
+            &build_tower_lvl[3],
         };
     }
 };
@@ -167,7 +168,7 @@ TEST(Strategy, CanBuildTower)
     auto actions = availableActions();
     goap::Planner<RobotState> planner(actions.data(), actions.size());
 
-    BuildTowerGoal goal;
+    BuildTowerGoal goal(0);
     int len = planner.plan(state, goal, path, max_path_len);
     for (int i = 0; i < len; i++) {
         path[i]->execute(state);

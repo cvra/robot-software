@@ -57,42 +57,42 @@ TEST(AScore, countsSwitchWhenDeployed)
 
 TEST(AScore, countsTowerOfLevelZero)
 {
-    state.construction_zone.tower_level = 0;
+    state.construction_zone[0].tower_level = 0;
 
     CHECK_EQUAL(0, score_count_tower(state));
 };
 
 TEST(AScore, countsTowerOfLevelOne)
 {
-    state.construction_zone.tower_level = 1;
+    state.construction_zone[0].tower_level = 1;
 
     CHECK_EQUAL(1, score_count_tower(state));
 };
 
 TEST(AScore, countsTowerOfLevelTwo)
 {
-    state.construction_zone.tower_level = 2;
+    state.construction_zone[0].tower_level = 2;
 
     CHECK_EQUAL(3, score_count_tower(state));
 };
 
 TEST(AScore, countsTowerOfLevelThree)
 {
-    state.construction_zone.tower_level = 3;
+    state.construction_zone[0].tower_level = 3;
 
     CHECK_EQUAL(6, score_count_tower(state));
 };
 
 TEST(AScore, countsTowerOfLevelFour)
 {
-    state.construction_zone.tower_level = 4;
+    state.construction_zone[0].tower_level = 4;
 
     CHECK_EQUAL(10, score_count_tower(state));
 };
 
 TEST(AScore, countsTowerOfLevelFive)
 {
-    state.construction_zone.tower_level = 5;
+    state.construction_zone[0].tower_level = 5;
 
     CHECK_EQUAL(15, score_count_tower(state));
 };

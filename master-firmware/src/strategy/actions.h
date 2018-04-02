@@ -85,17 +85,21 @@ struct DeployTheBee : public goap::Action<RobotState> {
 };
 
 struct DepositCubes : public goap::Action<RobotState> {
+    int construction_zone_id;
+    DepositCubes(int id) : construction_zone_id(id) {}
+
     bool can_run(RobotState state)
     {
-        auto no_cubes_in_construction_zone = [](const RobotState& state) -> bool {
-            for (const auto& cube_in_construction_zone : state.construction_zone.cubes_ready) {
+        auto no_cubes_in_construction_zone = [](const RobotState& state, int zone_id) -> bool {
+            for (const auto& cube_in_construction_zone : state.construction_zone[zone_id].cubes_ready) {
                 if (cube_in_construction_zone) {
                     return false;
                 }
             }
             return true;
         };
-        return (state.lever_full_left || state.lever_full_right) && no_cubes_in_construction_zone(state);
+        return (state.lever_full_left || state.lever_full_right) &&
+               no_cubes_in_construction_zone(state, construction_zone_id);
     }
 
     RobotState plan_effects(RobotState state)
@@ -106,7 +110,7 @@ struct DepositCubes : public goap::Action<RobotState> {
             state.lever_full_left = false;
         }
 
-        for (auto& cube_ready : state.construction_zone.cubes_ready) {
+        for (auto& cube_ready : state.construction_zone[construction_zone_id].cubes_ready) {
             cube_ready = true;
         }
 
@@ -115,20 +119,20 @@ struct DepositCubes : public goap::Action<RobotState> {
 };
 
 struct BuildTowerLevel : public goap::Action<RobotState> {
-    int level;
-    BuildTowerLevel(int lvl) : level(lvl) {}
+    int construction_zone_id, level;
+    BuildTowerLevel(int id, int lvl) : construction_zone_id(id), level(lvl) {}
 
     bool can_run(RobotState state)
     {
-      return state.construction_zone.tower_level == level &&
-             state.construction_zone.cubes_ready[state.tower_sequence[level]];
+      return state.construction_zone[construction_zone_id].tower_level == level &&
+             state.construction_zone[construction_zone_id].cubes_ready[state.tower_sequence[level]];
     }
 
     RobotState plan_effects(RobotState state)
     {
         state.arms_are_deployed = true;
-        state.construction_zone.cubes_ready[state.tower_sequence[level]] = false;
-        state.construction_zone.tower_level += 1;
+        state.construction_zone[construction_zone_id].cubes_ready[state.tower_sequence[level]] = false;
+        state.construction_zone[construction_zone_id].tower_level += 1;
         return state;
     }
 };

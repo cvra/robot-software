@@ -399,10 +399,7 @@ void strat_push_switch_on(float x, float y, float z, float y_push)
 struct TurnSwitchOn : public actions::TurnSwitchOn {
     enum strat_color_t m_color;
 
-    TurnSwitchOn(enum strat_color_t color)
-        : m_color(color)
-    {
-    }
+    TurnSwitchOn(enum strat_color_t color) : m_color(color) {}
 
     bool execute(RobotState& state)
     {
@@ -423,10 +420,7 @@ struct TurnSwitchOn : public actions::TurnSwitchOn {
 struct DeployTheBee : public actions::DeployTheBee {
     enum strat_color_t m_color;
 
-    DeployTheBee(enum strat_color_t color)
-        : m_color(color)
-    {
-    }
+    DeployTheBee(enum strat_color_t color) : m_color(color) {}
 
     bool execute(RobotState& state)
     {
@@ -450,14 +444,12 @@ struct DeployTheBee : public actions::DeployTheBee {
 struct DepositCubes : actions::DepositCubes {
     enum strat_color_t m_color;
 
-    DepositCubes(enum strat_color_t color)
-        : m_color(color)
-    {
-    }
+    DepositCubes(enum strat_color_t color, int zone_id)
+        : actions::DepositCubes(zone_id), m_color(color) {}
 
     bool execute(RobotState &state) {
-        const int x_mm = state.construction_zone_pos[0];
-        const int y_mm = state.construction_zone_pos[1];
+        const int x_mm = state.construction_zone_pos[construction_zone_id][0];
+        const int y_mm = state.construction_zone_pos[construction_zone_id][1];
         NOTICE("Depositing cubes at %d %d", x_mm, y_mm);
 
         enum lever_side_t lever_side = LEVER_SIDE_LEFT;
@@ -489,10 +481,10 @@ struct DepositCubes : actions::DepositCubes {
             state.lever_full_right = false;
         }
         for (int i = 0; i < 5; i++) {
-            state.construction_zone.cubes_ready[i] = true;
+            state.construction_zone[construction_zone_id].cubes_ready[i] = true;
             point_t cube_pos = strategy_block_pos(blocks_pose, (enum block_color)i);
-            state.construction_zone.cubes_pos[i][0] = cube_pos.x;
-            state.construction_zone.cubes_pos[i][1] = cube_pos.y;
+            state.construction_zone[construction_zone_id].cubes_pos[i][0] = cube_pos.x;
+            state.construction_zone[construction_zone_id].cubes_pos[i][1] = cube_pos.y;
         }
 
         return true;
@@ -502,12 +494,12 @@ struct DepositCubes : actions::DepositCubes {
 struct BuildTowerLevel : actions::BuildTowerLevel {
     enum strat_color_t m_color;
 
-    BuildTowerLevel(enum strat_color_t color, int level)
-        : actions::BuildTowerLevel(level), m_color(color) {}
+    BuildTowerLevel(enum strat_color_t color, int zone_id, int level)
+        : actions::BuildTowerLevel(zone_id, level), m_color(color) {}
 
     bool execute(RobotState &state) {
-        const int x_mm = state.construction_zone_pos[0];
-        const int y_mm = state.construction_zone_pos[1];
+        const int x_mm = state.construction_zone_pos[construction_zone_id][0];
+        const int y_mm = state.construction_zone_pos[construction_zone_id][1];
         NOTICE("Building a tower level %d at %d %d", level, x_mm, y_mm);
 
         if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, -225), TRAJ_FLAGS_ALL)) {
@@ -515,11 +507,11 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
         }
 
         point_t cube_pos;
-        cube_pos.x = state.construction_zone.cubes_pos[state.tower_sequence[level]][0];
-        cube_pos.y = state.construction_zone.cubes_pos[state.tower_sequence[level]][1];
+        cube_pos.x = state.construction_zone[construction_zone_id].cubes_pos[state.tower_sequence[level]][0];
+        cube_pos.y = state.construction_zone[construction_zone_id].cubes_pos[state.tower_sequence[level]][1];
 
         state.arms_are_deployed = true;
-        state.construction_zone.cubes_ready[state.tower_sequence[level]] = false;
+        state.construction_zone[construction_zone_id].cubes_ready[state.tower_sequence[level]] = false;
 
         if (!strat_pick_cube(cube_pos, 200)) {
             WARNING("No cube to pick up at %d %d", cube_pos.x, cube_pos.y);
@@ -533,9 +525,9 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
             return false;
         }
 
-        state.construction_zone.tower_pos[0] = tower_x_mm;
-        state.construction_zone.tower_pos[1] = tower_y_mm;
-        state.construction_zone.tower_level += 1;
+        state.construction_zone[construction_zone_id].tower_pos[0] = tower_x_mm;
+        state.construction_zone[construction_zone_id].tower_pos[1] = tower_y_mm;
+        state.construction_zone[construction_zone_id].tower_level += 1;
         return true;
     }
 };
@@ -563,7 +555,7 @@ void strategy_debra_play_game(void)
     SwitchGoal switch_goal;
     BeeGoal bee_goal;
     PickupCubesGoal pickup_cubes_goal;
-    BuildTowerGoal build_tower_goal;
+    BuildTowerGoal build_tower_goal(0);
     goap::Goal<RobotState>* goals[] = {
         // &pickup_cubes_goal,
         &build_tower_goal,
@@ -578,11 +570,11 @@ void strategy_debra_play_game(void)
     PickupBlocks pickup_blocks3(color, 2);
     TurnSwitchOn turn_switch_on(color);
     DeployTheBee deploy_the_bee(color);
-    DepositCubes deposit_cubes(color);
-    BuildTowerLevel build_tower_lvl1(color, 0);
-    BuildTowerLevel build_tower_lvl2(color, 1);
-    BuildTowerLevel build_tower_lvl3(color, 2);
-    BuildTowerLevel build_tower_lvl4(color, 3);
+    DepositCubes deposit_cubes(color, 0);
+    BuildTowerLevel build_tower_lvl[4] = {
+        BuildTowerLevel(color, 0, 0), BuildTowerLevel(color, 0, 1),
+        BuildTowerLevel(color, 0, 2), BuildTowerLevel(color, 0, 3)
+    };
 
     const int max_path_len = 10;
     goap::Action<RobotState> *path[max_path_len] = {nullptr};
@@ -596,10 +588,10 @@ void strategy_debra_play_game(void)
         &turn_switch_on,
         &deploy_the_bee,
         &deposit_cubes,
-        &build_tower_lvl1,
-        &build_tower_lvl2,
-        &build_tower_lvl3,
-        &build_tower_lvl4,
+        &build_tower_lvl[0],
+        &build_tower_lvl[1],
+        &build_tower_lvl[2],
+        &build_tower_lvl[3],
     };
 
     static goap::Planner<RobotState> planner(actions, sizeof(actions) / sizeof(actions[0]));
