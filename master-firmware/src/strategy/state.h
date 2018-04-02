@@ -26,6 +26,7 @@ struct RobotState {
     int cubes_pos[5][2] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};
     int tower_level{0};
     int construction_zone_pos[2] = {500, 300};
+    int tower_pos[2] = {0, 0};
 };
 
 bool operator==(const RobotState& lhs, const RobotState& rhs);

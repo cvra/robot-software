@@ -526,11 +526,15 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
             return false;
         }
 
-        if (!strat_deposit_cube(MIRROR_X(m_color, x_mm - 30), y_mm - 210, level)) {
+        const int tower_x_mm = x_mm - 30;
+        const int tower_y_mm = y_mm - 210;
+        if (!strat_deposit_cube(MIRROR_X(m_color, tower_x_mm), tower_y_mm, level)) {
             WARNING("Tower building did not go as expected");
             return false;
         }
 
+        state.tower_pos[0] = tower_x_mm;
+        state.tower_pos[1] = tower_y_mm;
         state.tower_level += 1;
         return true;
     }

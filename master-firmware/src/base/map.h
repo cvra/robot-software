@@ -19,10 +19,15 @@ extern "C" {
 #define MAP_NUM_WATER_DISPENSER 4
 #define MAP_NUM_WATER_DISPENSER_EDGES 4
 
+#define MAP_NUM_TOWERS 1
+#define MAP_NUM_TOWERS_EDGES 4
+#define MAP_TOWER_SIZE 100 /* mm */
+
 struct _map {
   poly_t *blocks_cube[MAP_NUM_BLOCKS_CUBE];
   poly_t *water_dispenser[MAP_NUM_WATER_DISPENSER];
   poly_t *wastewater_obstacle;
+  poly_t *tower[MAP_NUM_TOWERS];
 
   poly_t *opponents[MAP_NUM_OPPONENT];
   uint8_t last_opponent_index;
@@ -57,6 +62,9 @@ void map_set_rectangular_obstacle(poly_t *opponent, int center_x, int center_y,
 
 poly_t *map_get_cubes_obstacle(struct _map *map, int index);
 void map_set_cubes_obstacle(struct _map *map, int index, int x, int y,
+                            int robot_size);
+
+void map_set_tower_obstacle(struct _map *map, int index, int x, int y,
                             int robot_size);
 
 #ifdef __cplusplus

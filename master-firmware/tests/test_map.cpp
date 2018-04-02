@@ -213,3 +213,11 @@ TEST(AMap, canSetCubesObstacleAtomically)
 
     map_set_cubes_obstacle(&map, 0, 0, 0, 0);
 }
+
+TEST(AMap, canSetTowerObstacleAtomically)
+{
+    mock().expectOneCall("chMtxLock").withPointerParameter("lock", &map.lock);
+    mock().expectOneCall("chMtxUnlock").withPointerParameter("lock", &map.lock);
+
+    map_set_tower_obstacle(&map, 0, 0, 0, 0);
+}

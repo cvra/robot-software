@@ -60,6 +60,11 @@ static THD_FUNCTION(map_server_thd, arg)
                 map_set_cubes_obstacle(&map, i, 0, 0, 0);
             }
         }
+        if (state.tower_level > 0) {
+            map_set_tower_obstacle(&map, 0, state.tower_pos[0], state.tower_pos[1], robot_size);
+        } else {
+            map_set_tower_obstacle(&map, 0, 0, 0, 0);
+        }
 
         chThdSleepMilliseconds(1000 / MAP_SERVER_FREQUENCY);
     }
