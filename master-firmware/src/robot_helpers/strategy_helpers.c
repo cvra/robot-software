@@ -103,3 +103,32 @@ point_t strategy_cube_pos(se2_t cubes_pose, enum cube_color color)
 {
     return se2_transform(cubes_pose, cube_pos_in_block_frame(color));
 }
+
+se2_t strategy_closest_pose_to_pickup_cubes(se2_t current_pose, se2_t cubes_pose)
+{
+    se2_t closest_pose;
+
+    point_t current_pos = {current_pose.translation.x, current_pose.translation.y};
+    point_t candidates[4] = {
+        {cubes_pose.translation.x - 160, cubes_pose.translation.y - 160},
+        {cubes_pose.translation.x + 160, cubes_pose.translation.y - 160},
+        {cubes_pose.translation.x + 160, cubes_pose.translation.y + 160},
+        {cubes_pose.translation.x - 160, cubes_pose.translation.y + 160}
+    };
+
+    int argmin = 0;
+    float min_dist = 1e10;
+    for (int i = 0; i < 4; i++) {
+        float dist = pt_norm(&current_pos, &candidates[i]);
+        if (dist < min_dist) {
+            argmin = i;
+            min_dist = dist;
+        }
+    }
+
+    closest_pose.translation.x = candidates[argmin].x;
+    closest_pose.translation.y = candidates[argmin].y;
+    closest_pose.rotation.angle = -45 + 90 * argmin;
+
+    return closest_pose;
+}

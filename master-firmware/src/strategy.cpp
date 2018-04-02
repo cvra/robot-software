@@ -350,20 +350,24 @@ struct PickupCubes : actions::PickupCubes {
         const int y_mm = state.blocks_pos[blocks_id][1];
         NOTICE("Picking up some blocks at %d %d", x_mm, y_mm);
 
+        se2_t cubes_pose = se2_create_xya(MIRROR_X(m_color, x_mm), y_mm, 0);
+        se2_t closest_pose = strategy_closest_pose_to_pickup_cubes(base_get_robot_pose(&robot.pos), cubes_pose);
+        int pickup_x_mm = closest_pose.translation.x;
+        int pickup_y_mm = closest_pose.translation.y;
+        int pickup_a_deg = closest_pose.rotation.angle + 180 * (int)(m_color == BLUE);
+        NOTICE("Going to %d %d %d", pickup_x_mm, pickup_y_mm, pickup_a_deg);
+
         enum lever_side_t lever_side = LEVER_SIDE_LEFT;
         lever_t* lever = MIRROR_LEFT_LEVER(m_color);
-        int a_deg = -45;
 
         if (state.lever_full_left) {
             lever_side = LEVER_SIDE_RIGHT;
             lever = MIRROR_RIGHT_LEVER(m_color);
-            a_deg += 180;
+            pickup_a_deg += 180;
         }
 
-        se2_t cubes_pose = se2_create_xya(MIRROR_X(m_color, x_mm), y_mm, 0);
-
-        if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm - 160), y_mm - 160, MIRROR_A(m_color, a_deg), TRAJ_FLAGS_ALL)) {
-            return false;
+        if (!strategy_goto_avoid(pickup_x_mm, pickup_y_mm, pickup_a_deg, TRAJ_FLAGS_ALL)) {
+          return false;
         }
 
         lever_deploy(lever);

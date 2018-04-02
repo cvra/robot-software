@@ -34,3 +34,55 @@ TEST(ACubePositionComputer, FindsPositionOfNonTrivialBlocksPose)
     POINT_EQUAL({100 - offset, 200 - offset}, strategy_cube_pos(cubes_pose, CUBE_RED));
     POINT_EQUAL({100 + offset, 200 - offset}, strategy_cube_pos(cubes_pose, CUBE_BLACK));
 }
+
+TEST_GROUP(ABlockPositionComputer)
+{
+};
+
+TEST(ABlockPositionComputer, FindsClosestPositionToCubesCase1)
+{
+    se2_t robot_pose = se2_create_xya(200, 200, 0);
+    se2_t cubes_pose = se2_create_xya(850, 540, 0);
+
+    se2_t closest_pose = strategy_closest_pose_to_pickup_cubes(robot_pose, cubes_pose);
+
+    CHECK_EQUAL(690, closest_pose.translation.x);
+    CHECK_EQUAL(380, closest_pose.translation.y);
+    CHECK_EQUAL(-45, closest_pose.rotation.angle);
+}
+
+TEST(ABlockPositionComputer, FindsClosestPositionToCubesCase2)
+{
+    se2_t robot_pose = se2_create_xya(1200, 200, 0);
+    se2_t cubes_pose = se2_create_xya(850, 540, 0);
+
+    se2_t closest_pose = strategy_closest_pose_to_pickup_cubes(robot_pose, cubes_pose);
+
+    CHECK_EQUAL(1010, closest_pose.translation.x);
+    CHECK_EQUAL(380, closest_pose.translation.y);
+    CHECK_EQUAL(45, closest_pose.rotation.angle);
+}
+
+TEST(ABlockPositionComputer, FindsClosestPositionToCubesCase3)
+{
+    se2_t robot_pose = se2_create_xya(1200, 1200, 0);
+    se2_t cubes_pose = se2_create_xya(850, 540, 0);
+
+    se2_t closest_pose = strategy_closest_pose_to_pickup_cubes(robot_pose, cubes_pose);
+
+    CHECK_EQUAL(1010, closest_pose.translation.x);
+    CHECK_EQUAL(700, closest_pose.translation.y);
+    CHECK_EQUAL(135, closest_pose.rotation.angle);
+}
+
+TEST(ABlockPositionComputer, FindsClosestPositionToCubesCase4)
+{
+    se2_t robot_pose = se2_create_xya(200, 1200, 0);
+    se2_t cubes_pose = se2_create_xya(850, 540, 0);
+
+    se2_t closest_pose = strategy_closest_pose_to_pickup_cubes(robot_pose, cubes_pose);
+
+    CHECK_EQUAL(690, closest_pose.translation.x);
+    CHECK_EQUAL(700, closest_pose.translation.y);
+    CHECK_EQUAL(225, closest_pose.rotation.angle);
+}
