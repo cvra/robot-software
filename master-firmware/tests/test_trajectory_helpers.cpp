@@ -358,7 +358,6 @@ timestamp_t timestamp_get(void)
     return (timestamp_t)timestamp_now;
 }
 
-
 TEST(TrajectoryHasEnded, ReturnsZeroWhenTrajectoryHasNotEndedYet)
 {
     int traj_end_reason = trajectory_has_ended(0);
@@ -575,7 +574,7 @@ TEST(TrajectoryHasEnded, IgnoresOpponentIfOutOfTheWayEvenIfTooBig)
     CHECK_EQUAL(0, traj_end_reason);
 }
 
-IGNORE_TEST(TrajectoryHasEnded, DetectsTimeIsUp)
+TEST(TrajectoryHasEnded, DetectsTimeIsUp)
 {
     trajectory_game_timer_reset();
     timestamp_now += GAME_DURATION * 1000000;
@@ -583,4 +582,29 @@ IGNORE_TEST(TrajectoryHasEnded, DetectsTimeIsUp)
     int traj_end_reason = trajectory_has_ended(TRAJ_FLAGS_ALL);
 
     CHECK_EQUAL(TRAJ_END_TIMER, traj_end_reason);
+}
+
+
+TEST_GROUP(ATimeWatcher)
+{
+    void setup(void)
+    {
+        trajectory_game_timer_reset();
+    }
+};
+
+TEST(ATimeWatcher, DetectsGameIsStillGoing)
+{
+    bool time_is_up = trajectory_game_has_ended();
+
+    CHECK_FALSE(time_is_up);
+}
+
+TEST(ATimeWatcher, DetectsTimeIsUp)
+{
+    timestamp_now += GAME_DURATION * 1000000;
+
+    bool time_is_up = trajectory_game_has_ended();
+
+    CHECK_TRUE(time_is_up);
 }

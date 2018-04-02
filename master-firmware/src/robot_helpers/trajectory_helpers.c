@@ -192,3 +192,8 @@ int trajectory_get_time(void)
 {
     return timestamp_duration_s(robot.start_time, timestamp_get());
 }
+
+bool trajectory_game_has_ended(void)
+{
+    return trajectory_get_time() >= GAME_DURATION;
+}

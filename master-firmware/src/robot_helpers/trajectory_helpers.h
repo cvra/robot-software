@@ -90,6 +90,10 @@ void trajectory_game_timer_reset(void);
  */
 int trajectory_get_time(void);
 
+/** Tell if time is up
+ */
+bool trajectory_game_has_ended(void);
+
 
 #ifdef __cplusplus
 }

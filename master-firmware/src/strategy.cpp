@@ -644,7 +644,16 @@ void strategy_debra_play_game(void)
                 if (success == false) {
                     break; // Break on failure
                 }
+                if (trajectory_game_has_ended()) {
+                    break;
+                }
             }
+            if (trajectory_game_has_ended()) {
+                break;
+            }
+        }
+        if (trajectory_game_has_ended()) {
+            break;
         }
     }
 
