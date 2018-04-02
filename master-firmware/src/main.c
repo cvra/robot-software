@@ -204,7 +204,6 @@ int main(void)
     /* Initialize the interthread communication bus. */
     messagebus_init(&bus, &bus_lock, &bus_condvar);
 
-
     /* Initialise timestamp module */
     timestamp_stm32_init();
 

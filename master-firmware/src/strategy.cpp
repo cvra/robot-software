@@ -534,6 +534,7 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
     }
 };
 
+
 void strategy_debra_play_game(void)
 {
     int len;

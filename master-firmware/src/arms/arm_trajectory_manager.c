@@ -3,7 +3,7 @@
 
 #include "arm_trajectory_manager.h"
 
-#define ARM_TRAJ_MANAGER_STACKSIZE 4096
+#define ARM_TRAJ_MANAGER_STACKSIZE 1024
 
 struct arm_traj_manager main_arm_traj_manager;
 

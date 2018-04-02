@@ -5,7 +5,7 @@
 #include "priorities.h"
 #include "encoder.h"
 
-#define ENCODER_STACKSIZE 1024
+#define ENCODER_STACKSIZE 512
 
 #define MAX_16BIT      65535
 #define MAX_16BIT_DIV2 32767

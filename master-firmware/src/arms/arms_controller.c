@@ -12,7 +12,7 @@
 #include "arms_controller.h"
 
 
-#define ARMS_CONTROLLER_STACKSIZE 4096
+#define ARMS_CONTROLLER_STACKSIZE 2048
 
 
 scara_t main_arm;
