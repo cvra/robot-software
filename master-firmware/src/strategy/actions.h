@@ -88,7 +88,7 @@ struct DepositCubes : public goap::Action<RobotState> {
     bool can_run(RobotState state)
     {
         auto no_cubes_in_construction_zone = [](const RobotState& state) -> bool {
-            for (const auto& cube_in_construction_zone : state.cubes_ready_for_construction) {
+            for (const auto& cube_in_construction_zone : state.construction_zone.cubes_ready) {
                 if (cube_in_construction_zone) {
                     return false;
                 }
@@ -106,7 +106,7 @@ struct DepositCubes : public goap::Action<RobotState> {
             state.lever_full_left = false;
         }
 
-        for (auto& cube_ready : state.cubes_ready_for_construction) {
+        for (auto& cube_ready : state.construction_zone.cubes_ready) {
             cube_ready = true;
         }
 
@@ -120,15 +120,15 @@ struct BuildTowerLevel : public goap::Action<RobotState> {
 
     bool can_run(RobotState state)
     {
-      return state.tower_level == level &&
-             state.cubes_ready_for_construction[state.tower_sequence[level]];
+      return state.construction_zone.tower_level == level &&
+             state.construction_zone.cubes_ready[state.tower_sequence[level]];
     }
 
     RobotState plan_effects(RobotState state)
     {
         state.arms_are_deployed = true;
-        state.cubes_ready_for_construction[state.tower_sequence[level]] = false;
-        state.tower_level += 1;
+        state.construction_zone.cubes_ready[state.tower_sequence[level]] = false;
+        state.construction_zone.tower_level += 1;
         return state;
     }
 };

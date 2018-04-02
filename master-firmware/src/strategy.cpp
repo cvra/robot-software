@@ -489,10 +489,10 @@ struct DepositCubes : actions::DepositCubes {
             state.lever_full_right = false;
         }
         for (int i = 0; i < 5; i++) {
-            state.cubes_ready_for_construction[i] = true;
+            state.construction_zone.cubes_ready[i] = true;
             point_t cube_pos = strategy_block_pos(blocks_pose, (enum block_color)i);
-            state.cubes_pos[i][0] = cube_pos.x;
-            state.cubes_pos[i][1] = cube_pos.y;
+            state.construction_zone.cubes_pos[i][0] = cube_pos.x;
+            state.construction_zone.cubes_pos[i][1] = cube_pos.y;
         }
 
         return true;
@@ -515,11 +515,11 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
         }
 
         point_t cube_pos;
-        cube_pos.x = state.cubes_pos[state.tower_sequence[level]][0];
-        cube_pos.y = state.cubes_pos[state.tower_sequence[level]][1];
+        cube_pos.x = state.construction_zone.cubes_pos[state.tower_sequence[level]][0];
+        cube_pos.y = state.construction_zone.cubes_pos[state.tower_sequence[level]][1];
 
         state.arms_are_deployed = true;
-        state.cubes_ready_for_construction[state.tower_sequence[level]] = false;
+        state.construction_zone.cubes_ready[state.tower_sequence[level]] = false;
 
         if (!strat_pick_cube(cube_pos, 200)) {
             WARNING("No cube to pick up at %d %d", cube_pos.x, cube_pos.y);
@@ -533,9 +533,9 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
             return false;
         }
 
-        state.tower_pos[0] = tower_x_mm;
-        state.tower_pos[1] = tower_y_mm;
-        state.tower_level += 1;
+        state.construction_zone.tower_pos[0] = tower_x_mm;
+        state.construction_zone.tower_pos[1] = tower_y_mm;
+        state.construction_zone.tower_level += 1;
         return true;
     }
 };
