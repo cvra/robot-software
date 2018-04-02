@@ -16,8 +16,12 @@ extern "C" {
 #define MAP_NUM_BLOCKS_CUBE 6
 #define MAP_NUM_BLOCKS_CUBE_EDGES 8
 
+#define MAP_NUM_WATER_DISPENSER 4
+#define MAP_NUM_WATER_DISPENSER_EDGES 4
+
 struct _map {
   poly_t *blocks_cube[MAP_NUM_BLOCKS_CUBE];
+  poly_t *water_dispenser[MAP_NUM_WATER_DISPENSER];
   poly_t *wastewater_obstacle;
 
   poly_t *opponents[MAP_NUM_OPPONENT];

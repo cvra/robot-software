@@ -35,6 +35,15 @@ void map_init(struct _map* map, int robot_size)
         map->blocks_cube[i] = oa_new_poly(MAP_NUM_BLOCKS_CUBE_EDGES);
         map_set_cubes_obstacle(map, i, 0, 0, 0);
     }
+
+    /* Setup water dispenser obstacles */
+    for (int i = 0; i < MAP_NUM_WATER_DISPENSER; i++) {
+        map->water_dispenser[i] = oa_new_poly(MAP_NUM_WATER_DISPENSER_EDGES);
+    }
+    map_set_rectangular_obstacle(map->water_dispenser[0],   50,  840, 120,  60, robot_size);
+    map_set_rectangular_obstacle(map->water_dispenser[1], 2950,  840, 120,  60, robot_size);
+    map_set_rectangular_obstacle(map->water_dispenser[2],  610, 1950,  60, 120, robot_size);
+    map_set_rectangular_obstacle(map->water_dispenser[3], 2390, 1950,  60, 120, robot_size);
 }
 
 void map_set_opponent_obstacle(struct _map* map, int index, int32_t x, int32_t y, int32_t opponent_size, int32_t robot_size)
