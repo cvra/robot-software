@@ -19,7 +19,7 @@ extern "C" {
 #define MAP_NUM_WATER_DISPENSER 4
 #define MAP_NUM_WATER_DISPENSER_EDGES 4
 
-#define MAP_NUM_TOWERS 1
+#define MAP_NUM_TOWERS 2
 #define MAP_NUM_TOWERS_EDGES 4
 #define MAP_TOWER_SIZE 100 /* mm */
 

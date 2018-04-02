@@ -555,25 +555,35 @@ void strategy_debra_play_game(void)
     SwitchGoal switch_goal;
     BeeGoal bee_goal;
     PickupCubesGoal pickup_cubes_goal;
-    BuildTowerGoal build_tower_goal(0);
+    BuildTowerGoal build_tower_goal[2] = {BuildTowerGoal(0), BuildTowerGoal(1)};
     goap::Goal<RobotState>* goals[] = {
-        // &pickup_cubes_goal,
-        &build_tower_goal,
+        &pickup_cubes_goal,
+        &build_tower_goal[0],
+        &build_tower_goal[1],
         &switch_goal,
         &bee_goal,
     };
 
     IndexArms index_arms;
     RetractArms retract_arms(color);
-    PickupBlocks pickup_blocks1(color, 0);
-    PickupBlocks pickup_blocks2(color, 1);
-    PickupBlocks pickup_blocks3(color, 2);
+    PickupBlocks pickup_blocks[3] = {
+        PickupBlocks(color, 0), PickupBlocks(color, 1), PickupBlocks(color, 2),
+    };
     TurnSwitchOn turn_switch_on(color);
     DeployTheBee deploy_the_bee(color);
-    DepositCubes deposit_cubes(color, 0);
-    BuildTowerLevel build_tower_lvl[4] = {
-        BuildTowerLevel(color, 0, 0), BuildTowerLevel(color, 0, 1),
-        BuildTowerLevel(color, 0, 2), BuildTowerLevel(color, 0, 3)
+    DepositCubes deposit_cubes[2] = {
+        DepositCubes(color, 0),
+        DepositCubes(color, 1),
+    };
+    BuildTowerLevel build_tower_lvl[2][4] = {
+        {
+            BuildTowerLevel(color, 0, 0), BuildTowerLevel(color, 0, 1),
+            BuildTowerLevel(color, 0, 2), BuildTowerLevel(color, 0, 3),
+        },
+        {
+            BuildTowerLevel(color, 1, 0), BuildTowerLevel(color, 1, 1),
+            BuildTowerLevel(color, 1, 2), BuildTowerLevel(color, 1, 3),
+        },
     };
 
     const int max_path_len = 10;
@@ -582,16 +592,21 @@ void strategy_debra_play_game(void)
     goap::Action<RobotState> *actions[] = {
         &index_arms,
         &retract_arms,
-        &pickup_blocks1,
-        &pickup_blocks2,
-        &pickup_blocks3,
+        &pickup_blocks[0],
+        &pickup_blocks[1],
+        &pickup_blocks[2],
         &turn_switch_on,
         &deploy_the_bee,
-        &deposit_cubes,
-        &build_tower_lvl[0],
-        &build_tower_lvl[1],
-        &build_tower_lvl[2],
-        &build_tower_lvl[3],
+        &deposit_cubes[0],
+        &deposit_cubes[1],
+        &build_tower_lvl[0][0],
+        &build_tower_lvl[0][1],
+        &build_tower_lvl[0][2],
+        &build_tower_lvl[0][3],
+        &build_tower_lvl[1][0],
+        &build_tower_lvl[1][1],
+        &build_tower_lvl[1][2],
+        &build_tower_lvl[1][3],
     };
 
     static goap::Planner<RobotState> planner(actions, sizeof(actions) / sizeof(actions[0]));

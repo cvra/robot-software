@@ -96,3 +96,19 @@ TEST(AScore, countsTowerOfLevelFive)
 
     CHECK_EQUAL(15, score_count_tower(state));
 };
+
+TEST(AScore, countsTwosTowerOfLevelFive)
+{
+    state.construction_zone[0].tower_level = 5;
+    state.construction_zone[1].tower_level = 5;
+
+    CHECK_EQUAL(30, score_count_tower(state));
+};
+
+TEST(AScore, countsTwosTowerOfDifferentLevels)
+{
+    state.construction_zone[0].tower_level = 3;
+    state.construction_zone[1].tower_level = 4;
+
+    CHECK_EQUAL(16, score_count_tower(state));
+};

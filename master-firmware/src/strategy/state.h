@@ -28,9 +28,8 @@ struct RobotState {
         uint16_t cubes_pos[5][2] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};
         uint8_t tower_level{0};
         uint16_t tower_pos[2] = {0, 0};
-    } construction_zone[1];
-    uint16_t construction_zone_pos[1][2] = {{500, 300}};
-    uint16_t buffer[20];
+    } construction_zone[2];
+    uint16_t construction_zone_pos[2][2] = {{500, 300}, {900, 300}};
 };
 
 bool operator==(const RobotState& lhs, const RobotState& rhs);
