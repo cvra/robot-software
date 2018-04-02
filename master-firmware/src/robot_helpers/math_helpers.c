@@ -33,3 +33,16 @@ int math_clamp_value(int value, int min, int max)
         return value;
     }
 }
+
+int argmin(float* values, int num_values)
+{
+    int min_index = 0;
+    float min_value = INFINITY;
+    for (int i = 0; i < num_values; i++) {
+        if (values[i] < min_value) {
+            min_index = i;
+            min_value = values[i];
+        }
+    }
+    return min_index;
+}

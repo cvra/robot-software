@@ -153,3 +153,21 @@ TEST(MathClampPointToInterval, returnsMaxIfLowerThanMaximumValue)
 
     CHECK_EQUAL(arbitrary_max, clamped_value);
 }
+
+TEST_GROUP(ArgMin)
+{
+};
+
+TEST(ArgMin, findsMinimumInArrayObvious)
+{
+    float values[] = {1, 2, 3, 4};
+
+    CHECK_EQUAL(0, argmin(values, sizeof(values) / sizeof(values[0])));
+}
+
+TEST(ArgMin, findsMinimumInArray)
+{
+    float values[] = {2, 3, -1, 5};
+
+    CHECK_EQUAL(2, argmin(values, sizeof(values) / sizeof(values[0])));
+}

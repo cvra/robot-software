@@ -25,6 +25,8 @@ bool math_point_is_in_square(poly_t* square, int x, int y);
  */
 int math_clamp_value(int value, int min, int max);
 
+/** Compute index of smallest value in array of values */
+int argmin(float* values, int num_values);
 
 #ifdef __cplusplus
 }
