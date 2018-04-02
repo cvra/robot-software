@@ -25,6 +25,7 @@ struct RobotState {
     bool cubes_ready_for_construction[5] = {false, false, false, false, false}; // YELLOW, GREEN, BLUE, RED, BLACK
     int cubes_pos[5][2] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};
     int tower_level{0};
+    int construction_zone_pos[2] = {500, 300};
 };
 
 bool operator==(const RobotState& lhs, const RobotState& rhs);

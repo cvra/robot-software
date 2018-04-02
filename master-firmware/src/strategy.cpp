@@ -456,7 +456,9 @@ struct DepositCubes : actions::DepositCubes {
     }
 
     bool execute(RobotState &state) {
-        NOTICE("Depositing cubes");
+        const int x_mm = state.construction_zone_pos[0];
+        const int y_mm = state.construction_zone_pos[1];
+        NOTICE("Depositing cubes at %d %d", x_mm, y_mm);
 
         enum lever_side_t lever_side = LEVER_SIDE_LEFT;
         lever_t* lever = MIRROR_LEFT_LEVER(m_color);
@@ -468,7 +470,7 @@ struct DepositCubes : actions::DepositCubes {
             a_deg += 180;
         }
 
-        if (!strategy_goto_avoid(MIRROR_X(m_color, 500), 300, MIRROR_A(m_color, a_deg), TRAJ_FLAGS_ALL)) {
+        if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, a_deg), TRAJ_FLAGS_ALL)) {
             return false;
         }
 
@@ -504,8 +506,8 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
         : actions::BuildTowerLevel(level), m_color(color) {}
 
     bool execute(RobotState &state) {
-        const int x_mm = 500;
-        const int y_mm = 300;
+        const int x_mm = state.construction_zone_pos[0];
+        const int y_mm = state.construction_zone_pos[1];
         NOTICE("Building a tower level %d at %d %d", level, x_mm, y_mm);
 
         if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, -225), TRAJ_FLAGS_ALL)) {
