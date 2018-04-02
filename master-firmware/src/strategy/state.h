@@ -22,7 +22,7 @@ struct RobotState {
         {850, 540}, {300, 1190}, {1100, 1500}, {1900, 1500}, {2700, 1190}, {2150, 540},
     };
 
-    enum block_color tower_sequence[5] = {BLOCK_YELLOW, BLOCK_BLACK, BLOCK_BLUE, BLOCK_GREEN, BLOCK_RED};
+    enum cube_color tower_sequence[5] = {CUBE_YELLOW, CUBE_BLACK, CUBE_BLUE, CUBE_GREEN, CUBE_RED};
     struct {
         bool cubes_ready[5] = {false, false, false, false, false}; // YELLOW, GREEN, BLUE, RED, BLACK
         uint16_t cubes_pos[5][2] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};

@@ -85,21 +85,21 @@ static point_t point(float x, float y)
     return res;
 }
 
-static point_t block_pos_in_blocks_frame(enum block_color color)
+static point_t cube_pos_in_block_frame(enum cube_color color)
 {
-    const float block_size = 60.f; // in mm
+    const float cube_size = 60.f; // in mm
 
     switch(color) {
-        case BLOCK_GREEN:   return point(  block_size,            0);
-        case BLOCK_BLUE:    return point(           0,   block_size);
-        case BLOCK_RED:     return point(- block_size,            0);
-        case BLOCK_BLACK:   return point(           0, - block_size);
-        case BLOCK_YELLOW:
-        default:            return point(           0,            0);
+        case CUBE_GREEN:    return point(  cube_size,            0);
+        case CUBE_BLUE:     return point(           0,   cube_size);
+        case CUBE_RED:      return point(- cube_size,            0);
+        case CUBE_BLACK:    return point(           0, - cube_size);
+        case CUBE_YELLOW:
+        default:            return point(           0,           0);
     }
 }
 
-point_t strategy_block_pos(se2_t blocks_pose, enum block_color color)
+point_t strategy_cube_pos(se2_t cubes_pose, enum cube_color color)
 {
-    return se2_transform(blocks_pose, block_pos_in_blocks_frame(color));
+    return se2_transform(cubes_pose, cube_pos_in_block_frame(color));
 }

@@ -335,11 +335,11 @@ void strat_push_the_bee(point_t start, point_t end, float bee_height)
     strat_scara_goto_blocking({end.x, end.y, last_pos.z}, COORDINATE_ROBOT, {300, 300, 300});
 }
 
-struct PickupBlocks : actions::PickupBlocks {
+struct PickupCubes : actions::PickupCubes {
     enum strat_color_t m_color;
 
-    PickupBlocks(enum strat_color_t color, int blocks_id)
-        : actions::PickupBlocks(blocks_id)
+    PickupCubes(enum strat_color_t color, int blocks_id)
+        : actions::PickupCubes(blocks_id)
         , m_color(color)
     {
     }
@@ -360,7 +360,7 @@ struct PickupBlocks : actions::PickupBlocks {
             a_deg += 180;
         }
 
-        se2_t blocks_pose = se2_create_xya(MIRROR_X(m_color, x_mm), y_mm, 0);
+        se2_t cubes_pose = se2_create_xya(MIRROR_X(m_color, x_mm), y_mm, 0);
 
         if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm - 160), y_mm - 160, MIRROR_A(m_color, a_deg), TRAJ_FLAGS_ALL)) {
             return false;
@@ -369,7 +369,7 @@ struct PickupBlocks : actions::PickupBlocks {
         lever_deploy(lever);
         strategy_wait_ms(1000);
 
-        lever_pickup(lever, base_get_robot_pose(&robot.pos), blocks_pose);
+        lever_pickup(lever, base_get_robot_pose(&robot.pos), cubes_pose);
         strategy_wait_ms(2000);
 
         lever_retract(lever);
@@ -469,7 +469,7 @@ struct DepositCubes : actions::DepositCubes {
         lever_deploy(lever);
         strategy_wait_ms(500);
 
-        se2_t blocks_pose = lever_deposit(lever, base_get_robot_pose(&robot.pos));
+        se2_t cubes_pose = lever_deposit(lever, base_get_robot_pose(&robot.pos));
         strategy_wait_ms(500);
 
         lever_push_and_retract(lever);
@@ -482,7 +482,7 @@ struct DepositCubes : actions::DepositCubes {
         }
         for (int i = 0; i < 5; i++) {
             state.construction_zone[construction_zone_id].cubes_ready[i] = true;
-            point_t cube_pos = strategy_block_pos(blocks_pose, (enum block_color)i);
+            point_t cube_pos = strategy_cube_pos(cubes_pose, (enum cube_color)i);
             state.construction_zone[construction_zone_id].cubes_pos[i][0] = cube_pos.x;
             state.construction_zone[construction_zone_id].cubes_pos[i][1] = cube_pos.y;
         }
@@ -566,8 +566,8 @@ void strategy_debra_play_game(void)
 
     IndexArms index_arms;
     RetractArms retract_arms(color);
-    PickupBlocks pickup_blocks[3] = {
-        PickupBlocks(color, 0), PickupBlocks(color, 1), PickupBlocks(color, 2),
+    PickupCubes pickup_cubes[3] = {
+        PickupCubes(color, 0), PickupCubes(color, 1), PickupCubes(color, 2),
     };
     TurnSwitchOn turn_switch_on(color);
     DeployTheBee deploy_the_bee(color);
@@ -592,9 +592,9 @@ void strategy_debra_play_game(void)
     goap::Action<RobotState> *actions[] = {
         &index_arms,
         &retract_arms,
-        &pickup_blocks[0],
-        &pickup_blocks[1],
-        &pickup_blocks[2],
+        &pickup_cubes[0],
+        &pickup_cubes[1],
+        &pickup_cubes[2],
         &turn_switch_on,
         &deploy_the_bee,
         &deposit_cubes[0],

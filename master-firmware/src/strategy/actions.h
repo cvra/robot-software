@@ -33,10 +33,10 @@ struct RetractArms : public goap::Action<RobotState> {
     }
 };
 
-struct PickupBlocks : public goap::Action<RobotState> {
+struct PickupCubes : public goap::Action<RobotState> {
     int blocks_id;
 
-    PickupBlocks(int blocks_id_) : blocks_id(blocks_id_) {}
+    PickupCubes(int blocks_id_) : blocks_id(blocks_id_) {}
     bool can_run(RobotState state)
     {
         return state.arms_are_deployed == false

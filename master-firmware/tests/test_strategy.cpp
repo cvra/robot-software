@@ -16,8 +16,8 @@ struct IndexArms : actions::IndexArms {
 struct RetractArms : actions::RetractArms {
     bool execute(RobotState &state) { return dummy_execute(this, state); }
 };
-struct PickupBlocks : actions::PickupBlocks {
-    PickupBlocks(int id) : actions::PickupBlocks(id) {}
+struct PickupCubes : actions::PickupCubes {
+    PickupCubes(int id) : actions::PickupCubes(id) {}
     bool execute(RobotState &state) { return dummy_execute(this, state); }
 };
 struct TurnSwitchOn : actions::TurnSwitchOn {
@@ -40,7 +40,7 @@ TEST_GROUP(Strategy) {
 
     IndexArms index_arms;
     RetractArms retract_arms;
-    PickupBlocks pickup_blocks1{0}, pickup_blocks2{1}, pickup_blocks3{2};
+    std::vector<PickupCubes> pickup_cubes = {{0}, {1}, {2}};
     TurnSwitchOn turn_switch_on;
     DeployTheBee deploy_the_bee;
     std::vector<DepositCubes> deposit_cubes = {{0}, {1}};
@@ -54,9 +54,9 @@ TEST_GROUP(Strategy) {
         return std::vector<goap::Action<RobotState>*>{
             &index_arms,
             &retract_arms,
-            &pickup_blocks1,
-            &pickup_blocks2,
-            &pickup_blocks3,
+            &pickup_cubes[0],
+            &pickup_cubes[1],
+            &pickup_cubes[2],
             &turn_switch_on,
             &deploy_the_bee,
             &deposit_cubes[0],
