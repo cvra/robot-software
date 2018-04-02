@@ -10,21 +10,13 @@ extern "C" {
 #include "blocking_detection_manager/blocking_detection_manager.h"
 #include "base/base_controller.h"
 #include "math/lie_groups.h"
+#include "robot_helpers/eurobot2018.h"
 
 /** Team color
  */
 enum strat_color_t {
     YELLOW=0,
     BLUE
-};
-
-/** Blocks color */
-enum block_color {
-    BLOCK_YELLOW = 0, // ( 0,  0)
-    BLOCK_GREEN,      // ( l,  0)
-    BLOCK_BLUE,       // ( 0,  l)
-    BLOCK_RED,        // (-l,  0)
-    BLOCK_BLACK,      // ( 0, -l)
 };
 
 /** Lever side */

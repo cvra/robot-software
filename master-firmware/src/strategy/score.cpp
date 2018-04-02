@@ -19,3 +19,12 @@ int score_count_switch(const RobotState& state)
 {
     return state.switch_on ? 25 : 0;
 }
+
+int score_count_tower(const RobotState& state)
+{
+    int score = 0;
+    for (int lvl = 0; lvl <= state.tower_level; lvl++) {
+        score += lvl;
+    }
+    return score;
+}

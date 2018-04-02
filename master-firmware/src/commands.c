@@ -1259,7 +1259,11 @@ static void cmd_pick_cube(BaseSequentialStream *chp, int argc, char *argv[])
     float z_start = atof(argv[2]);
 
     chprintf(chp, "Picking cube at x:%f y:%f z:65(%f)\r\n", xy.x, xy.y, z_start);
-    strat_pick_cube(xy, z_start);
+    if (strat_pick_cube(xy, z_start)) {
+        chprintf(chp, "Mission success \\o/\r\nPicked up requested cube, awaiting new orders, master.\r\n");
+    } else {
+        chprintf(chp, "Mission failed :(\r\nThe cube was a lie!\r\n");
+    }
 }
 
 static void cmd_deposit_cube(BaseSequentialStream *chp, int argc, char *argv[])
@@ -1273,8 +1277,11 @@ static void cmd_deposit_cube(BaseSequentialStream *chp, int argc, char *argv[])
     int num_cubes = atoi(argv[2]);
 
     chprintf(chp, "Depositing cube on tower x:%f y:%f holding %f cubes\r\n", x, y, num_cubes);
-    strat_deposit_cube(x, y, num_cubes);
-    chprintf(chp, "Tower now has %f cubes\r\n", num_cubes + 1);
+    if (strat_deposit_cube(x, y, num_cubes)) {
+        chprintf(chp, "Mission success :)\nTower now has %d cubes\r\n", num_cubes + 1);
+    } else {
+        chprintf(chp, "Mission failed :(\n");
+    }
 }
 
 
@@ -1390,6 +1397,20 @@ static void cmd_push_the_bee(BaseSequentialStream *chp, int argc, char *argv[])
     strat_push_the_bee(start, end, bee_height);
 }
 
+static void cmd_check_dist(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc != 1) {
+        chprintf(chp, "Usage: check_dist expected\r\n");
+        return;
+    }
+    float expected = atof(argv[0]);
+    if (strat_check_distance_to_hand_lower_than(expected)) {
+        chprintf(chp, "Success: Measured distance was lower than %f\r\n", expected);
+    } else {
+        chprintf(chp, "Failure: Measured distance was higher than %f\r\n", expected);
+    }
+}
+
 
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
@@ -1448,5 +1469,6 @@ const ShellCommand commands[] = {
     {"arm_bd", cmd_arm_bd},
     {"motor_sin", cmd_motor_sin},
     {"bee", cmd_push_the_bee},
+    {"check_dist", cmd_check_dist},
     {NULL, NULL}
 };

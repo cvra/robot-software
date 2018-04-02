@@ -262,36 +262,61 @@ void strat_scara_push_y(float dy, scara_coordinate_t system, velocity_3d_t max_v
     arm_traj_wait_for_event(ARM_READY | ARM_BLOCKED_XY);
 }
 
-void strat_pick_cube(point_t xy, float z_start)
+bool strat_check_distance_to_hand_lower_than(float expected_value)
+{
+    bool success = true;
+
+    float distance_to_tower;
+    messagebus_topic_t* topic = messagebus_find_topic_blocking(&bus, "/hand_distance");
+
+    if (messagebus_topic_read(topic, &distance_to_tower, sizeof(distance_to_tower))) {
+        WARNING("Hand distance sensor is not publishing");
+        success = (distance_to_tower < expected_value);
+    } else {
+        WARNING("Hand distance sensor is not publishing");
+    }
+
+    return success;
+}
+
+bool strat_pick_cube(point_t xy, float z_start)
 {
     const position_3d_t last_pos = scara_position(&main_arm, COORDINATE_ARM);
     strat_scara_goto_blocking({200, 0, last_pos.z}, COORDINATE_ARM, {300, 300, 300});
     strat_scara_goto_blocking({xy.x, xy.y, z_start}, COORDINATE_TABLE, {300, 300, 300});
     strat_scara_goto_blocking({xy.x, xy.y, 60}, COORDINATE_TABLE, {300, 300, 300});
 
-    hand_set_pump(&main_hand, PUMP_ON);
-    strategy_wait_ms(500.);
+    bool cube_is_present = strat_check_distance_to_hand_lower_than(0.05f);
+
+    if (cube_is_present) {
+        hand_set_pump(&main_hand, PUMP_ON);
+        strategy_wait_ms(500.);
+    }
 
     strat_scara_goto_blocking({xy.x, xy.y, z_start}, COORDINATE_TABLE, {300, 300, 300});
+
+    return cube_is_present;
 }
 
-void strat_deposit_cube(float x, float y, int num_cubes_in_tower)
+bool strat_deposit_cube(float x, float y, int num_cubes_in_tower)
 {
     const float z = (num_cubes_in_tower + 1) * 70.;
     const float margin_z = 20;
+    const float safe_z = fmaxf(z + margin_z, 140.f);
 
     scara_hold_position(&main_arm, COORDINATE_ARM);
     arm_traj_wait_for_end();
 
     const position_3d_t last_pos = scara_position(&main_arm, COORDINATE_ARM);
-    strat_scara_goto_blocking({last_pos.x, last_pos.y, z + margin_z}, COORDINATE_ARM, {300, 300, 300});
-    strat_scara_goto_blocking({x, y, z + margin_z}, COORDINATE_TABLE, {300, 300, 300});
-    strat_scara_goto_blocking({x, y, z}, COORDINATE_TABLE, {300, 300, 300});
-    strategy_wait_ms(2000);
+    strat_scara_goto_blocking({last_pos.x, last_pos.y, safe_z}, COORDINATE_ARM, {300, 300, 300});
+    strat_scara_goto_blocking({x, y, safe_z}, COORDINATE_TABLE, {150, 150, 150});
+    strat_scara_goto_blocking({x, y, z}, COORDINATE_TABLE, {150, 150, 150});
 
     hand_set_pump(&main_hand, PUMP_REVERSE);
     strat_scara_goto_blocking({x, y, z + margin_z}, COORDINATE_TABLE, {300, 300, 300});
     hand_set_pump(&main_hand, PUMP_OFF);
+
+    return strat_check_distance_to_hand_lower_than(0.05f);
 }
 
 void strat_push_the_bee(point_t start, point_t end, float bee_height)
@@ -422,6 +447,93 @@ struct DeployTheBee : public actions::DeployTheBee {
     }
 };
 
+struct DepositCubes : actions::DepositCubes {
+    enum strat_color_t m_color;
+
+    DepositCubes(enum strat_color_t color)
+        : m_color(color)
+    {
+    }
+
+    bool execute(RobotState &state) {
+        NOTICE("Depositing cubes");
+
+        enum lever_side_t lever_side = LEVER_SIDE_LEFT;
+        lever_t* lever = MIRROR_LEFT_LEVER(m_color);
+        int a_deg = -135;
+
+        if (state.lever_full_left == false) {
+            lever_side = LEVER_SIDE_RIGHT;
+            lever = MIRROR_RIGHT_LEVER(m_color);
+            a_deg += 180;
+        }
+
+        if (!strategy_goto_avoid(MIRROR_X(m_color, 500), 300, MIRROR_A(m_color, a_deg), TRAJ_FLAGS_ALL)) {
+            return false;
+        }
+
+        lever_deploy(lever);
+        strategy_wait_ms(500);
+
+        se2_t blocks_pose = lever_deposit(lever, base_get_robot_pose(&robot.pos));
+        strategy_wait_ms(500);
+
+        lever_push_and_retract(lever);
+        strategy_wait_ms(500);
+
+        if (lever_side == LEVER_SIDE_LEFT) {
+            state.lever_full_left = false;
+        } else {
+            state.lever_full_right = false;
+        }
+        for (int i = 0; i < 5; i++) {
+            state.cubes_ready_for_construction[i] = true;
+            point_t cube_pos = strategy_block_pos(blocks_pose, (enum block_color)i);
+            state.cubes_pos[i][0] = cube_pos.x;
+            state.cubes_pos[i][1] = cube_pos.y;
+        }
+
+        return true;
+    }
+};
+
+struct BuildTowerLevel : actions::BuildTowerLevel {
+    enum strat_color_t m_color;
+
+    BuildTowerLevel(enum strat_color_t color, int level)
+        : actions::BuildTowerLevel(level), m_color(color) {}
+
+    bool execute(RobotState &state) {
+        const int x_mm = 500;
+        const int y_mm = 300;
+        NOTICE("Building a tower level %d at %d %d", level, x_mm, y_mm);
+
+        if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, -225), TRAJ_FLAGS_ALL)) {
+            return false;
+        }
+
+        point_t cube_pos;
+        cube_pos.x = state.cubes_pos[state.tower_sequence[level]][0];
+        cube_pos.y = state.cubes_pos[state.tower_sequence[level]][1];
+
+        state.arms_are_deployed = true;
+        state.cubes_ready_for_construction[state.tower_sequence[level]] = false;
+
+        if (!strat_pick_cube(cube_pos, 200)) {
+            WARNING("No cube to pick up at %d %d", cube_pos.x, cube_pos.y);
+            return false;
+        }
+
+        if (!strat_deposit_cube(MIRROR_X(m_color, x_mm - 30), y_mm - 210, level)) {
+            WARNING("Tower building did not go as expected");
+            return false;
+        }
+
+        state.tower_level += 1;
+        return true;
+    }
+};
+
 void strategy_debra_play_game(void)
 {
     int len;
@@ -444,10 +556,12 @@ void strategy_debra_play_game(void)
     SwitchGoal switch_goal;
     BeeGoal bee_goal;
     PickupCubesGoal pickup_cubes_goal;
+    BuildTowerGoal build_tower_goal;
     goap::Goal<RobotState>* goals[] = {
+        // &pickup_cubes_goal,
+        &build_tower_goal,
         &switch_goal,
         &bee_goal,
-        &pickup_cubes_goal,
     };
 
     IndexArms index_arms;
@@ -457,6 +571,11 @@ void strategy_debra_play_game(void)
     PickupBlocks pickup_blocks3(color, 2);
     TurnSwitchOn turn_switch_on(color);
     DeployTheBee deploy_the_bee(color);
+    DepositCubes deposit_cubes(color);
+    BuildTowerLevel build_tower_lvl1(color, 0);
+    BuildTowerLevel build_tower_lvl2(color, 1);
+    BuildTowerLevel build_tower_lvl3(color, 2);
+    BuildTowerLevel build_tower_lvl4(color, 3);
 
     const int max_path_len = 10;
     goap::Action<RobotState> *path[max_path_len] = {nullptr};
@@ -469,6 +588,11 @@ void strategy_debra_play_game(void)
         &pickup_blocks3,
         &turn_switch_on,
         &deploy_the_bee,
+        &deposit_cubes,
+        &build_tower_lvl1,
+        &build_tower_lvl2,
+        &build_tower_lvl3,
+        &build_tower_lvl4,
     };
 
     static goap::Planner<RobotState> planner(actions, sizeof(actions) / sizeof(actions[0]));

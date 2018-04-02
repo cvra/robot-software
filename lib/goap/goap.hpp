@@ -104,7 +104,22 @@ public:
                 if (action->can_run(current->state)) {
                     // Cannot allocate a new node, abort
                     if (free_nodes == nullptr) {
-                        return -2;
+                        // Garbage collect the node that is most unlikely to be
+                        // visited (i.e. lowest priority)
+                        VisitedState<State> *gc, *gc_prev = nullptr;
+                        for (gc = open; gc && gc->next; gc = gc->next) {
+                            gc_prev = gc;
+                        }
+
+                        if (!gc) {
+                            return -2;
+                        }
+
+                        if (gc_prev) {
+                            gc_prev->next = nullptr;
+                        }
+
+                        free_nodes = gc;
                     }
 
                     auto neighbor = list_pop_head(free_nodes);
@@ -165,6 +180,12 @@ public:
     Distance shouldBeFalse(bool var)
     {
         distance += var ? 1 : 0;
+        return *this;
+    }
+
+    Distance shouldBeEqual(int target, int var)
+    {
+        distance += abs(var - target);
         return *this;
     }
 

@@ -36,6 +36,7 @@ static THD_FUNCTION(score_counter_thd, arg)
         score += score_count_panel_on_map(state);
         score += score_count_bee(state);
         score += score_count_switch(state);
+        score += score_count_tower(state);
 
         messagebus_topic_publish(&score_topic, &score, sizeof(score));
     }
