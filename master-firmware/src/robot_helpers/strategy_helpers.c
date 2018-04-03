@@ -104,6 +104,27 @@ point_t strategy_cube_pos(se2_t cubes_pose, enum cube_color color)
     return se2_transform(cubes_pose, cube_pos_in_block_frame(color));
 }
 
+float strategy_distance_to_goal(point_t pos, point_t goal)
+{
+    oa_reset();
+    oa_start_end_points(pos.x, pos.y, goal.x, goal.y);
+    oa_process();
+
+    point_t* points;
+    int num_points = oa_get_path(&points);
+
+    if (num_points <= 0) {
+        return INFINITY;
+    }
+
+    float distance = pt_norm(&pos, &points[0]);
+    for (int i = 1; i < num_points; i++) {
+        distance += pt_norm(&points[i-1], &points[i]);
+    }
+
+    return distance;
+}
+
 void strategy_sort_poses_by_distance(se2_t current_pose, se2_t* pickup_poses, int num_poses)
 {
     /* Compute distances to current position */

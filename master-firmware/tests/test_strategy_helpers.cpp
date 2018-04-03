@@ -1,5 +1,9 @@
 #include <CppUTest/TestHarness.h>
 
+extern "C" {
+#include "obstacle_avoidance/obstacle_avoidance.h"
+}
+
 #include "robot_helpers/math_helpers.h"
 #include "robot_helpers/strategy_helpers.h"
 
@@ -102,4 +106,50 @@ TEST(ABlockPositionComputer, FindsClosestPositionToCubesCase4)
     SE2_EQUAL(poses[2], candidates[1]);
     SE2_EQUAL(poses[0], candidates[2]);
     SE2_EQUAL(poses[1], candidates[3]);
+}
+
+TEST_GROUP(ADistanceToTargetPosition)
+{
+    void setup()
+    {
+        oa_init();
+        polygon_set_boundingbox(0, 0, 3000, 2000);
+
+        poly_t* obstacle = oa_new_poly(4);
+        obstacle->pts[0] = {400, 400};
+        obstacle->pts[1] = {600, 400};
+        obstacle->pts[2] = {600, 600};
+        obstacle->pts[3] = {400, 600};
+    }
+};
+
+TEST(ADistanceToTargetPosition, ComputesInfinityForUnreachablePoint)
+{
+    point_t pos = {200, 200};
+    point_t goal = {500, 500};
+
+    float distance = strategy_distance_to_goal(pos, goal);
+
+    DOUBLES_EQUAL(INFINITY, distance, 0.01);
+}
+
+TEST(ADistanceToTargetPosition, ComputesTrivialStraightLine)
+{
+    point_t pos = {200, 200};
+    point_t goal = {400, 200};
+
+    float distance = strategy_distance_to_goal(pos, goal);
+
+    DOUBLES_EQUAL(200, distance, 0.01);
+}
+
+TEST(ADistanceToTargetPosition, ComputesPathLengthAroundObstacle)
+{
+    point_t pos = {200, 200};
+    point_t goal = {800, 800};
+
+    float distance = strategy_distance_to_goal(pos, goal);
+
+    float expected_distance = sqrtf(powf(600-200 ,2) + powf(400-200 ,2)) + sqrtf(powf(800-600 ,2) + powf(800-400 ,2));
+    DOUBLES_EQUAL(expected_distance, distance, 0.01);
 }
