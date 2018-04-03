@@ -1,5 +1,6 @@
 #include <CppUTest/TestHarness.h>
 #include <array>
+#include <math.h>
 
 extern "C" {
 #include "obstacle_avoidance/obstacle_avoidance.h"
@@ -131,7 +132,7 @@ TEST(ADistanceToTargetPosition, ComputesInfinityForUnreachablePoint)
 
     float distance = strategy_distance_to_goal(pos, goal);
 
-    DOUBLES_EQUAL(INFINITY, distance, 0.01);
+    CHECK_TRUE(isinf(distance));
 }
 
 TEST(ADistanceToTargetPosition, ComputesTrivialStraightLine)
