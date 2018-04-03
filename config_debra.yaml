@@ -66,14 +66,14 @@ master:
     main_arm:
         control:
             x:
-                kp: 5.
+                kp: 3.
                 ki: 0.
-                kd: 5
+                kd: 0.
                 i_limit: 100.
             y:
-                kp: 5.
+                kp: 3.
                 ki: 0.
-                kd: 5
+                kd: 0.
                 i_limit: 100.
     arms:
         upperarm_length: 100. # in mm
