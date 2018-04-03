@@ -1,13 +1,13 @@
 #ifndef EUROBOT2018_H
 #define EUROBOT2018_H
 
-/** Blocks color */
-enum block_color {
-    BLOCK_YELLOW = 0,
-    BLOCK_GREEN,
-    BLOCK_BLUE,
-    BLOCK_RED,
-    BLOCK_BLACK,
+/** Cubes color */
+enum cube_color {
+    CUBE_YELLOW = 0,
+    CUBE_GREEN,
+    CUBE_BLUE,
+    CUBE_RED,
+    CUBE_BLACK,
 };
 
 #endif /* EUROBOT2018_H */

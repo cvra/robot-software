@@ -16,8 +16,8 @@ struct IndexArms : actions::IndexArms {
 struct RetractArms : actions::RetractArms {
     bool execute(RobotState &state) { return dummy_execute(this, state); }
 };
-struct PickupBlocks : actions::PickupBlocks {
-    PickupBlocks(int id) : actions::PickupBlocks(id) {}
+struct PickupCubes : actions::PickupCubes {
+    PickupCubes(int id) : actions::PickupCubes(id) {}
     bool execute(RobotState &state) { return dummy_execute(this, state); }
 };
 struct TurnSwitchOn : actions::TurnSwitchOn {
@@ -27,10 +27,11 @@ struct DeployTheBee : actions::DeployTheBee {
     bool execute(RobotState &state) { return dummy_execute(this, state); }
 };
 struct DepositCubes : actions::DepositCubes {
+    DepositCubes(int id) : actions::DepositCubes(id) {}
     bool execute(RobotState &state) { return dummy_execute(this, state); }
 };
 struct BuildTowerLevel : actions::BuildTowerLevel {
-    BuildTowerLevel(int level) : actions::BuildTowerLevel(level) {}
+    BuildTowerLevel(int id, int level) : actions::BuildTowerLevel(id, level) {}
     bool execute(RobotState &state) { return dummy_execute(this, state); }
 };
 
@@ -39,43 +40,59 @@ TEST_GROUP(Strategy) {
 
     IndexArms index_arms;
     RetractArms retract_arms;
-    PickupBlocks pickup_blocks1{0}, pickup_blocks2{1}, pickup_blocks3{2};
+    std::vector<PickupCubes> pickup_cubes = {{0}, {1}, {2}};
     TurnSwitchOn turn_switch_on;
     DeployTheBee deploy_the_bee;
-    DepositCubes deposit_cubes;
-    BuildTowerLevel build_tower_lvl1{0}, build_tower_lvl2{1}, build_tower_lvl3{2}, build_tower_lvl4{3};
+    std::vector<DepositCubes> deposit_cubes = {{0}, {1}};
+    std::vector<std::vector<BuildTowerLevel>> build_tower_lvl = {
+        {{0, 0}, {0, 1}, {0, 2}, {0, 3}},
+        {{1, 0}, {1, 1}, {1, 2}, {1, 3}},
+    };
 
     std::vector<goap::Action<RobotState>*> availableActions()
     {
         return std::vector<goap::Action<RobotState>*>{
             &index_arms,
             &retract_arms,
-            &pickup_blocks1,
-            &pickup_blocks2,
-            &pickup_blocks3,
+            &pickup_cubes[0],
+            &pickup_cubes[1],
+            &pickup_cubes[2],
             &turn_switch_on,
             &deploy_the_bee,
-            &deposit_cubes,
-            &build_tower_lvl1,
-            &build_tower_lvl2,
-            &build_tower_lvl3,
-            &build_tower_lvl4,
+            &deposit_cubes[0],
+            &deposit_cubes[1],
+            &build_tower_lvl[0][0],
+            &build_tower_lvl[0][1],
+            &build_tower_lvl[0][2],
+            &build_tower_lvl[0][3],
+            &build_tower_lvl[1][0],
+            &build_tower_lvl[1][1],
+            &build_tower_lvl[1][2],
+            &build_tower_lvl[1][3],
         };
+    }
+
+    int compute_and_execute_plan(goap::Goal<RobotState>& goal, RobotState& state)
+    {
+        const int max_path_len = 10;
+        goap::Action<RobotState> *path[max_path_len] = {nullptr};
+        auto actions = availableActions();
+        goap::Planner<RobotState> planner(actions.data(), actions.size());
+
+        int len = planner.plan(state, goal, path, max_path_len);
+        for (int i = 0; i < len; i++) {
+            path[i]->execute(state);
+        }
+
+        return len;
     }
 };
 
 TEST(Strategy, CanInitArms)
 {
-    const int max_path_len = 10;
-    goap::Action<RobotState> *path[max_path_len] = {nullptr};
-    auto actions = availableActions();
-    goap::Planner<RobotState> planner(actions.data(), actions.size());
-
     InitGoal init_goal;
-    int len = planner.plan(state, init_goal, path, max_path_len);
-    for (int i = 0; i < len; i++) {
-        path[i]->execute(state);
-    }
+
+    int len = compute_and_execute_plan(init_goal, state);
 
     CHECK_TRUE(len > 0);
     CHECK_TRUE(init_goal.is_reached(state));
@@ -83,30 +100,19 @@ TEST(Strategy, CanInitArms)
 
 TEST(Strategy, CanPushInterruptor)
 {
-    const int max_path_len = 10;
-    goap::Action<RobotState> *path[max_path_len] = {nullptr};
-    auto actions = availableActions();
-    goap::Planner<RobotState> planner(actions.data(), actions.size());
-
     SwitchGoal switch_goal;
-    int len = planner.plan(state, switch_goal, path, max_path_len);
-    for (int i = 0; i < len; i++) {
-        path[i]->execute(state);
-    }
+
+    int len = compute_and_execute_plan(switch_goal, state);
 
     CHECK_TRUE(len > 0);
     CHECK_TRUE(switch_goal.is_reached(state));
 }
 TEST(Strategy, CanNotPushTheInterruptorWhenPanelIsNotOnTheMap)
 {
-    const int max_path_len = 10;
-    goap::Action<RobotState> *path[max_path_len] = {nullptr};
-    auto actions = availableActions();
-    goap::Planner<RobotState> planner(actions.data(), actions.size());
-
     state.panel_on_map = false;
     SwitchGoal switch_goal;
-    int len = planner.plan(state, switch_goal, path, max_path_len);
+
+    int len = compute_and_execute_plan(switch_goal, state);
 
     CHECK_TRUE(len < 0);
 }
@@ -114,16 +120,9 @@ TEST(Strategy, CanNotPushTheInterruptorWhenPanelIsNotOnTheMap)
 
 TEST(Strategy, CanPushTheBee)
 {
-    const int max_path_len = 10;
-    goap::Action<RobotState> *path[max_path_len] = {nullptr};
-    auto actions = availableActions();
-    goap::Planner<RobotState> planner(actions.data(), actions.size());
-
     BeeGoal bee_goal;
-    int len = planner.plan(state, bee_goal, path, max_path_len);
-    for (int i = 0; i < len; i++) {
-        path[i]->execute(state);
-    }
+
+    int len = compute_and_execute_plan(bee_goal, state);
 
     CHECK_TRUE(len > 0);
     CHECK_TRUE(bee_goal.is_reached(state));
@@ -131,30 +130,19 @@ TEST(Strategy, CanPushTheBee)
 
 TEST(Strategy, CanNotPushTheBeeWhenBeeIsNotOnTheMap)
 {
-    const int max_path_len = 10;
-    goap::Action<RobotState> *path[max_path_len] = {nullptr};
-    auto actions = availableActions();
-    goap::Planner<RobotState> planner(actions.data(), actions.size());
-
     state.bee_on_map = false;
     BeeGoal bee_goal;
-    int len = planner.plan(state, bee_goal, path, max_path_len);
+
+    int len = compute_and_execute_plan(bee_goal, state);
 
     CHECK_TRUE(len < 0);
 }
 
 TEST(Strategy, CanPickupCubes)
 {
-    const int max_path_len = 10;
-    goap::Action<RobotState> *path[max_path_len] = {nullptr};
-    auto actions = availableActions();
-    goap::Planner<RobotState> planner(actions.data(), actions.size());
-
     PickupCubesGoal goal;
-    int len = planner.plan(state, goal, path, max_path_len);
-    for (int i = 0; i < len; i++) {
-        path[i]->execute(state);
-    }
+
+    int len = compute_and_execute_plan(goal, state);
 
     CHECK_TRUE(len > 0);
     CHECK_TRUE(goal.is_reached(state));
@@ -162,17 +150,32 @@ TEST(Strategy, CanPickupCubes)
 
 TEST(Strategy, CanBuildTower)
 {
-    const int max_path_len = 10;
-    goap::Action<RobotState> *path[max_path_len] = {nullptr};
-    auto actions = availableActions();
-    goap::Planner<RobotState> planner(actions.data(), actions.size());
+    BuildTowerGoal goal(0);
 
-    BuildTowerGoal goal;
-    int len = planner.plan(state, goal, path, max_path_len);
-    for (int i = 0; i < len; i++) {
-        path[i]->execute(state);
-    }
+    int len = compute_and_execute_plan(goal, state);
 
     CHECK_TRUE(len > 0);
     CHECK_TRUE(goal.is_reached(state));
+}
+
+TEST(Strategy, CanBuildSecondTower)
+{
+    BuildTowerGoal goal(1);
+
+    int len = compute_and_execute_plan(goal, state);
+
+    CHECK_TRUE(len > 0);
+    CHECK_TRUE(goal.is_reached(state));
+}
+
+TEST(Strategy, CanBuildTwoTowers)
+{
+    std::vector<BuildTowerGoal> goals = {0, 1};
+
+    for (auto& goal : goals) {
+        int len = compute_and_execute_plan(goal, state);
+
+        CHECK_TRUE(len > 0);
+        CHECK_TRUE(goal.is_reached(state));
+    }
 }

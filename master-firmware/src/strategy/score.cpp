@@ -23,8 +23,10 @@ int score_count_switch(const RobotState& state)
 int score_count_tower(const RobotState& state)
 {
     int score = 0;
-    for (int lvl = 0; lvl <= state.tower_level; lvl++) {
-        score += lvl;
+    for (const auto& construction_zone : state.construction_zone) {
+        for (int lvl = 0; lvl <= construction_zone.tower_level; lvl++) {
+            score += lvl;
+        }
     }
     return score;
 }

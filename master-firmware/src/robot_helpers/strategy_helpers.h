@@ -39,8 +39,11 @@ void strategy_auto_position(int32_t x, int32_t y, int32_t heading, enum strat_co
 /** Align on y axis */
 void strategy_align_y(int32_t y);
 
-/** Compute block position given blocks pose in table frame and block color*/
-point_t strategy_block_pos(se2_t blocks_pose, enum block_color color);
+/** Compute cube position given pose of cubes block in table frame and cube color */
+point_t strategy_cube_pos(se2_t cubes_pose, enum cube_color color);
+
+/** Sort positions to pickup cubes from closest to farthest */
+void strategy_sort_poses_by_distance(se2_t current_pose, se2_t* pickup_poses, int num_poses);
 
 #ifdef __cplusplus
 }

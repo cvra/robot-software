@@ -1,6 +1,7 @@
 #ifndef STRATEGY_STATE_H
 #define STRATEGY_STATE_H
 
+#include <stdint.h>
 #include "robot_helpers/eurobot2018.h"
 
 struct RobotState {
@@ -17,14 +18,18 @@ struct RobotState {
     bool lever_full_right{false};
 
     bool blocks_on_map[6] = {true, true, true, true, true, true};
-    int blocks_pos[6][2] = {
+    uint16_t blocks_pos[6][2] = {
         {850, 540}, {300, 1190}, {1100, 1500}, {1900, 1500}, {2700, 1190}, {2150, 540},
     };
 
-    enum block_color tower_sequence[5] = {BLOCK_YELLOW, BLOCK_BLACK, BLOCK_BLUE, BLOCK_GREEN, BLOCK_RED};
-    bool cubes_ready_for_construction[5] = {false, false, false, false, false}; // YELLOW, GREEN, BLUE, RED, BLACK
-    int cubes_pos[5][2] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};
-    int tower_level{0};
+    enum cube_color tower_sequence[5] = {CUBE_YELLOW, CUBE_BLACK, CUBE_BLUE, CUBE_GREEN, CUBE_RED};
+    struct {
+        bool cubes_ready[5] = {false, false, false, false, false}; // YELLOW, GREEN, BLUE, RED, BLACK
+        uint16_t cubes_pos[5][2] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};
+        uint8_t tower_level{0};
+        uint16_t tower_pos[2] = {0, 0};
+    } construction_zone[2];
+    uint16_t construction_zone_pos[2][2] = {{500, 300}, {900, 300}};
 };
 
 bool operator==(const RobotState& lhs, const RobotState& rhs);

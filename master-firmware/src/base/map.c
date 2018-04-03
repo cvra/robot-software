@@ -44,6 +44,12 @@ void map_init(struct _map* map, int robot_size)
     map_set_rectangular_obstacle(map->water_dispenser[1], 2950,  840, 120,  60, robot_size);
     map_set_rectangular_obstacle(map->water_dispenser[2],  610, 1950,  60, 120, robot_size);
     map_set_rectangular_obstacle(map->water_dispenser[3], 2390, 1950,  60, 120, robot_size);
+
+    /* Setup tower obstacles */
+    for (int i = 0; i < MAP_NUM_TOWERS; i++) {
+        map->tower[i] = oa_new_poly(MAP_NUM_TOWERS_EDGES);
+        map_set_tower_obstacle(map, i, 0, 0, 0);
+    }
 }
 
 void map_set_opponent_obstacle(struct _map* map, int index, int32_t x, int32_t y, int32_t opponent_size, int32_t robot_size)
@@ -98,5 +104,13 @@ void map_set_cubes_obstacle(struct _map* map, int index, int x, int y, int robot
 
     map_lock(&map->lock);
     discretize_circle(map_get_cubes_obstacle(map, index), circle, MAP_NUM_BLOCKS_CUBE_EDGES, 0.125f * M_PI);
+    map_unlock(&map->lock);
+}
+
+void map_set_tower_obstacle(struct _map *map, int index, int x, int y,
+                            int robot_size)
+{
+    map_lock(&map->lock);
+    map_set_rectangular_obstacle(map->tower[index], x, y, MAP_TOWER_SIZE, MAP_TOWER_SIZE, robot_size);
     map_unlock(&map->lock);
 }
