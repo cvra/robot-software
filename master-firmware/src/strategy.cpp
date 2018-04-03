@@ -516,8 +516,10 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
         const int y_mm = state.construction_zone_pos[construction_zone_id][1];
         NOTICE("Building a tower level %d at %d %d", level, x_mm, y_mm);
 
-        if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, -225), TRAJ_FLAGS_ALL)) {
-            return false;
+        if (level == 0) {
+            if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, -225), TRAJ_FLAGS_ALL)) {
+                return false;
+            }
         }
 
         point_t cube_pos;
