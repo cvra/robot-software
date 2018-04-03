@@ -98,7 +98,8 @@ struct DepositCubes : public goap::Action<RobotState> {
             }
             return true;
         };
-        return (state.lever_full_left || state.lever_full_right) &&
+        return state.arms_are_deployed == false &&
+               (state.lever_full_left || state.lever_full_right) &&
                no_cubes_in_construction_zone(state, construction_zone_id);
     }
 
