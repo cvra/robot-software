@@ -282,19 +282,16 @@ bool strat_check_distance_to_hand_lower_than(float expected_value)
 
 bool strat_pick_cube(point_t xy, float z_start)
 {
-    const position_3d_t last_pos = scara_position(&main_arm, COORDINATE_ARM);
-    strat_scara_goto_blocking({200, 0, last_pos.z}, COORDINATE_ARM, {300, 300, 300});
-    strat_scara_goto_blocking({xy.x, xy.y, z_start}, COORDINATE_TABLE, {300, 300, 300});
+    const position_3d_t last_pos = scara_position(&main_arm, COORDINATE_TABLE);
+    strat_scara_goto_blocking({xy.x, xy.y, last_pos.z}, COORDINATE_TABLE, {300, 300, 300});
     strat_scara_goto_blocking({xy.x, xy.y, 60}, COORDINATE_TABLE, {300, 300, 300});
 
     bool cube_is_present = strat_check_distance_to_hand_lower_than(0.05f);
 
     if (cube_is_present) {
         hand_set_pump(&main_hand, PUMP_ON);
-        strategy_wait_ms(500.);
+        strategy_wait_ms(500);
     }
-
-    strat_scara_goto_blocking({xy.x, xy.y, z_start}, COORDINATE_TABLE, {300, 300, 300});
 
     return cube_is_present;
 }
