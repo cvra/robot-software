@@ -1249,17 +1249,15 @@ static void cmd_lever(BaseSequentialStream *chp, int argc, char *argv[])
 
 static void cmd_pick_cube(BaseSequentialStream *chp, int argc, char *argv[])
 {
-    if (argc != 3) {
-        chprintf(chp, "Usage: pick x y z_start\r\n");
+    if (argc != 2) {
+        chprintf(chp, "Usage: pick x y\r\n");
         return;
     }
-    point_t xy;
-    xy.x = atof(argv[0]);
-    xy.y = atof(argv[1]);
-    float z_start = atof(argv[2]);
+    float x = atof(argv[0]);
+    float y = atof(argv[1]);
 
-    chprintf(chp, "Picking cube at x:%f y:%f z:65(%f)\r\n", xy.x, xy.y, z_start);
-    if (strat_pick_cube(xy, z_start)) {
+    chprintf(chp, "Picking cube at x:%f y:%f\r\n", x, y);
+    if (strat_pick_cube(x, y)) {
         chprintf(chp, "Mission success \\o/\r\nPicked up requested cube, awaiting new orders, master.\r\n");
     } else {
         chprintf(chp, "Mission failed :(\r\nThe cube was a lie!\r\n");

@@ -280,11 +280,11 @@ bool strat_check_distance_to_hand_lower_than(float expected_value)
     return success;
 }
 
-bool strat_pick_cube(point_t xy, float z_start)
+bool strat_pick_cube(float x, float y)
 {
     const position_3d_t last_pos = scara_position(&main_arm, COORDINATE_TABLE);
-    strat_scara_goto_blocking({xy.x, xy.y, last_pos.z}, COORDINATE_TABLE, {300, 300, 300});
-    strat_scara_goto_blocking({xy.x, xy.y, 60}, COORDINATE_TABLE, {300, 300, 300});
+    strat_scara_goto_blocking({x, y, last_pos.z}, COORDINATE_TABLE, {300, 300, 300});
+    strat_scara_goto_blocking({x, y, 60}, COORDINATE_TABLE, {300, 300, 300});
 
     bool cube_is_present = strat_check_distance_to_hand_lower_than(0.05f);
 
@@ -529,7 +529,7 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
         state.arms_are_deployed = true;
         state.construction_zone[construction_zone_id].cubes_ready[state.tower_sequence[level]] = false;
 
-        if (!strat_pick_cube(cube_pos, 200)) {
+        if (!strat_pick_cube(cube_pos.x, cube_pos.y)) {
             WARNING("No cube to pick up at %d %d", cube_pos.x, cube_pos.y);
             return false;
         }
