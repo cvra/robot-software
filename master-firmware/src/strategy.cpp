@@ -383,13 +383,11 @@ struct PickupCubes : actions::PickupCubes {
         }
 
         lever_deploy(lever);
-        strategy_wait_ms(1000);
-
         lever_pickup(lever, base_get_robot_pose(&robot.pos), cubes_pose);
-        strategy_wait_ms(2000);
+        strategy_wait_ms(1000);
 
         lever_retract(lever);
-        strategy_wait_ms(1000);
+        strategy_wait_ms(500);
 
         if (lever_side == LEVER_SIDE_LEFT) {
             state.lever_full_left = true;
