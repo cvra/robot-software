@@ -104,6 +104,11 @@ point_t strategy_cube_pos(se2_t cubes_pose, enum cube_color color)
     return se2_transform(cubes_pose, cube_pos_in_block_frame(color));
 }
 
+float strategy_flight_distance_to_goal(point_t pos, point_t goal)
+{
+    return pt_norm(&pos, &goal);
+}
+
 float strategy_distance_to_goal(point_t pos, point_t goal)
 {
     oa_reset();
@@ -125,14 +130,15 @@ float strategy_distance_to_goal(point_t pos, point_t goal)
     return distance;
 }
 
-void strategy_sort_poses_by_distance(se2_t current_pose, se2_t* pickup_poses, int num_poses)
+void strategy_sort_poses_by_distance(se2_t current_pose, se2_t* pickup_poses, int num_poses,
+                                     float (*distance_metric)(point_t, point_t))
 {
     /* Compute distances to current position */
     const point_t current_pos = {current_pose.translation.x, current_pose.translation.y};
     float distances[num_poses];
     for (int i = 0; i < num_poses; i++) {
         const point_t candidate = {pickup_poses[i].translation.x, pickup_poses[i].translation.y};
-        distances[i] = pt_norm(&current_pos, &candidate);
+        distances[i] = (*distance_metric)(current_pos, candidate);
     }
 
     /* Sort by distance using selection sort */

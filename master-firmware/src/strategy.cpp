@@ -368,7 +368,9 @@ struct PickupCubes : actions::PickupCubes {
             se2_create_xya(MIRROR_X(m_color, x_mm + 160), y_mm + 160, MIRROR_A(m_color, 135)),
             se2_create_xya(MIRROR_X(m_color, x_mm - 160), y_mm + 160, MIRROR_A(m_color, 225)),
         };
-        strategy_sort_poses_by_distance(base_get_robot_pose(&robot.pos), pickup_poses.data(), pickup_poses.size());
+        strategy_sort_poses_by_distance(
+            base_get_robot_pose(&robot.pos), pickup_poses.data(),
+            pickup_poses.size(), strategy_distance_to_goal);
 
         for (size_t i = 0; i < pickup_poses.size(); i++) {
             const int pickup_x_mm = pickup_poses[i].translation.x;

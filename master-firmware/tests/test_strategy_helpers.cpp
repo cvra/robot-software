@@ -1,4 +1,5 @@
 #include <CppUTest/TestHarness.h>
+#include <array>
 
 extern "C" {
 #include "obstacle_avoidance/obstacle_avoidance.h"
@@ -59,9 +60,9 @@ TEST_GROUP(ABlockPositionComputer)
 TEST(ABlockPositionComputer, FindsClosestPositionToCubesCase1)
 {
     se2_t robot_pose = se2_create_xya(200, 200, 0);
-    se2_t candidates[4] = {poses[0], poses[1], poses[2], poses[3]};
+    std::array<se2_t, 4> candidates = {poses[0], poses[1], poses[2], poses[3]};
 
-    strategy_sort_poses_by_distance(robot_pose, candidates, sizeof(candidates) / sizeof(se2_t));
+    strategy_sort_poses_by_distance(robot_pose, candidates.data(), candidates.size(), strategy_flight_distance_to_goal);
 
     SE2_EQUAL(poses[0], candidates[0]);
     SE2_EQUAL(poses[3], candidates[1]);
@@ -72,9 +73,9 @@ TEST(ABlockPositionComputer, FindsClosestPositionToCubesCase1)
 TEST(ABlockPositionComputer, FindsClosestPositionToCubesCase2)
 {
     se2_t robot_pose = se2_create_xya(1200, 200, 0);
-    se2_t candidates[4] = {poses[0], poses[1], poses[2], poses[3]};
+    std::array<se2_t, 4> candidates = {poses[0], poses[1], poses[2], poses[3]};
 
-    strategy_sort_poses_by_distance(robot_pose, candidates, sizeof(candidates) / sizeof(se2_t));
+    strategy_sort_poses_by_distance(robot_pose, candidates.data(), candidates.size(), strategy_flight_distance_to_goal);
 
     SE2_EQUAL(poses[1], candidates[0]);
     SE2_EQUAL(poses[2], candidates[1]);
@@ -85,9 +86,9 @@ TEST(ABlockPositionComputer, FindsClosestPositionToCubesCase2)
 TEST(ABlockPositionComputer, FindsClosestPositionToCubesCase3)
 {
     se2_t robot_pose = se2_create_xya(1200, 1200, 0);
-    se2_t candidates[4] = {poses[0], poses[1], poses[2], poses[3]};
+    std::array<se2_t, 4> candidates = {poses[0], poses[1], poses[2], poses[3]};
 
-    strategy_sort_poses_by_distance(robot_pose, candidates, sizeof(candidates) / sizeof(se2_t));
+    strategy_sort_poses_by_distance(robot_pose, candidates.data(), candidates.size(), strategy_flight_distance_to_goal);
 
     SE2_EQUAL(poses[2], candidates[0]);
     SE2_EQUAL(poses[3], candidates[1]);
@@ -98,9 +99,9 @@ TEST(ABlockPositionComputer, FindsClosestPositionToCubesCase3)
 TEST(ABlockPositionComputer, FindsClosestPositionToCubesCase4)
 {
     se2_t robot_pose = se2_create_xya(200, 1200, 0);
-    se2_t candidates[4] = {poses[0], poses[1], poses[2], poses[3]};
+    std::array<se2_t, 4> candidates = {poses[0], poses[1], poses[2], poses[3]};
 
-    strategy_sort_poses_by_distance(robot_pose, candidates, sizeof(candidates) / sizeof(se2_t));
+    strategy_sort_poses_by_distance(robot_pose, candidates.data(), candidates.size(), strategy_flight_distance_to_goal);
 
     SE2_EQUAL(poses[3], candidates[0]);
     SE2_EQUAL(poses[2], candidates[1]);
