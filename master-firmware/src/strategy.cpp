@@ -543,6 +543,7 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
             WARNING("Tower building did not go as expected");
             return false;
         }
+        scara_hold_position(&main_arm, COORDINATE_ARM);
 
         state.construction_zone[construction_zone_id].tower_pos[0] = tower_x_mm;
         state.construction_zone[construction_zone_id].tower_pos[1] = tower_y_mm;
