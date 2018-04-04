@@ -115,9 +115,6 @@ struct obstacle_avoidance {
     int res_len; /** Path length */
 };
 
-/** Reset obstacle avoidance without cleaning points */
-void oa_reset(void);
-
 /** Init the obstacle avoidance structure. */
 void oa_init(void);
 

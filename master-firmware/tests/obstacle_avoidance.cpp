@@ -14,7 +14,6 @@ TEST_GROUP(ObstacleAvoidance)
     {
         polygon_set_boundingbox(0, 0, 3000, 3000);
         oa_init();
-        oa_reset();
         oa_start_end_points(start.x, start.y, end.x, end.y);
     }
 };
@@ -64,7 +63,6 @@ TEST(ObstacleAvoidance, ReturnsToStartPositionWithObstacleInTheMiddle)
     oa_poly_set_point(obstacle, 1600, 900, 0);
 
     oa_process();
-    oa_reset();
     oa_start_end_points(end.x, end.y, start.x, start.y);
     oa_process();
 

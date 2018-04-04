@@ -51,7 +51,7 @@ static void __oa_start_end_points(int32_t st_x, int32_t st_y,
                                   int32_t en_x, int32_t en_y);
 
 /* reset oa without reseting points coord */
-void oa_reset(void)
+static void oa_reset(void)
 {
     DEBUG_OA_PRINTF("%s()\r", __FUNCTION__);
 
@@ -332,6 +332,8 @@ oa_process(void)
 {
     int ret;
     int i;
+
+    oa_reset();
 
     /* First we compute the visibility graph */
     ret = calc_rays(oa.polys, oa.cur_poly_idx, oa.rays);

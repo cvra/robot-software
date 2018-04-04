@@ -103,7 +103,6 @@ void strategy_stop_robot(void)
 bool strategy_goto_avoid(int x_mm, int y_mm, int a_deg, int traj_end_flags)
 {
     /* Compute path */
-    oa_reset();
     const point_t start = {
             position_get_x_float(&robot.pos),
             position_get_y_float(&robot.pos)

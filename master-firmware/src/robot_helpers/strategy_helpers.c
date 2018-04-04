@@ -111,7 +111,6 @@ float strategy_flight_distance_to_goal(point_t pos, point_t goal)
 
 float strategy_distance_to_goal(point_t pos, point_t goal)
 {
-    oa_reset();
     oa_start_end_points(pos.x, pos.y, goal.x, goal.y);
     oa_process();
 

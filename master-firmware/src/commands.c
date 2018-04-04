@@ -466,7 +466,6 @@ static void cmd_pathplanner(BaseSequentialStream *chp, int argc, char *argv[])
         add_rectangular_obstacle(750, 1150, 350, 200);
 
         /* Compute a path */
-        oa_reset();
         oa_start_end_points(
             position_get_x_s16(&robot.pos), position_get_x_s16(&robot.pos),
             x, y);
