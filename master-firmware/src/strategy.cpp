@@ -549,16 +549,9 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
 };
 
 
-void strategy_debra_play_game(enum strat_color_t color)
+void strategy_debra_play_game(enum strat_color_t color, RobotState& state)
 {
-    RobotState state;
-
-    /* Prepare state publisher */
-    static messagebus_topic_t state_topic;
-    static MUTEX_DECL(state_lock);
-    static CONDVAR_DECL(state_condvar);
-    messagebus_topic_init(&state_topic, &state_lock, &state_condvar, &state, sizeof(state));
-    messagebus_advertise_topic(&bus, &state_topic, "/state");
+    messagebus_topic_t*state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
     InitGoal init_goal;
 
@@ -627,7 +620,7 @@ void strategy_debra_play_game(enum strat_color_t color)
     int len = planner.plan(state, init_goal, path, max_path_len);
     for (int i = 0; i < len; i++) {
         path[i]->execute(state);
-        messagebus_topic_publish(&state_topic, &state, sizeof(state));
+        messagebus_topic_publish(state_topic, &state, sizeof(state));
     }
 
     /* Autoposition robot */
@@ -663,7 +656,7 @@ void strategy_debra_play_game(enum strat_color_t color)
             int len = planner.plan(state, *goal, path, max_path_len);
             for (int i = 0; i < len; i++) {
                 bool success = path[i]->execute(state);
-                messagebus_topic_publish(&state_topic, &state, sizeof(state));
+                messagebus_topic_publish(state_topic, &state, sizeof(state));
                 if (success == false) {
                     break; // Break on failure
                 }
@@ -686,7 +679,7 @@ void strategy_debra_play_game(enum strat_color_t color)
     }
 }
 
-void strategy_sandoi_play_game(enum strat_color_t color)
+void strategy_sandoi_play_game(enum strat_color_t color, RobotState& state)
 {
     NOTICE("Waiting for autopositioning signal...");
     wait_for_autoposition_signal();
@@ -725,15 +718,23 @@ void strategy_play_game(void *p)
 
     NOTICE("Strategy starting...");
 
+    /* Prepare state publisher */
+    RobotState state;
+    static messagebus_topic_t state_topic;
+    static MUTEX_DECL(state_lock);
+    static CONDVAR_DECL(state_condvar);
+    messagebus_topic_init(&state_topic, &state_lock, &state_condvar, &state, sizeof(state));
+    messagebus_advertise_topic(&bus, &state_topic, "/state");
+
     NOTICE("Waiting for color selection...");
     enum strat_color_t color = wait_for_color_selection();
     map_server_start(color);
     score_counter_start();
 
 #ifdef DEBRA
-    strategy_debra_play_game(color);
+    strategy_debra_play_game(color, state);
 #else
-    strategy_sandoi_play_game(color);
+    strategy_sandoi_play_game(color, state);
 #endif
 }
 
