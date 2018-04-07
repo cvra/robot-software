@@ -428,6 +428,30 @@ static void cmd_trace(BaseSequentialStream *chp, int argc, char *argv[])
     trace_clear();
 }
 
+static void cmd_set_pos(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc < 2) {
+        chprintf(chp, "Usage : set_pos x y\r\n");
+        return;
+    }
+
+    position_estimation_msg_t msg = {0};
+
+    msg.x = atoi(argv[0]);
+    msg.y = atoi(argv[1]);
+    msg.variance_x = 0.01;
+    msg.variance_y = 0.01;
+
+    messagebus_topic_t *topic = messagebus_find_topic(&bus, "/ekf/state");
+
+    if (!topic) {
+        chprintf(chp, "Could not find topic, aborting\r\n");
+        return;
+    }
+
+    messagebus_topic_publish(topic, &msg, sizeof(msg));
+}
+
 static ShellConfig shell_cfg;
 const ShellCommand shell_commands[] = {
     {"reboot", cmd_reboot},
@@ -445,6 +469,7 @@ const ShellCommand shell_commands[] = {
     {"config_save", cmd_config_save},
     {"config_load", cmd_config_load},
     {"config_erase", cmd_config_erase},
+    {"set_pos", cmd_set_pos},
     {NULL, NULL}
 };
 
