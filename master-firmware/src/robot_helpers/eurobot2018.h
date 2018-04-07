@@ -15,6 +15,9 @@ enum cube_color {
     CUBE_UNKNOWN, // Unknow color
 };
 
+/** Get color name from enum */
+const char* cube_color_name(enum cube_color color);
+
 /** Retrieve color from character */
 enum cube_color cube_color_from_character(char c);
 

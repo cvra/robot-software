@@ -1,5 +1,16 @@
 #include "eurobot2018.h"
 
+/** Cubes color to string */
+const char* cube_color_name(enum cube_color color)
+{
+    if      (color == CUBE_YELLOW) { return "YELLOW"; }
+    else if (color == CUBE_GREEN)  { return "GREEN"; }
+    else if (color == CUBE_BLUE)   { return "BLUE"; }
+    else if (color == CUBE_ORANGE) { return "ORANGE"; }
+    else if (color == CUBE_BLACK)  { return "BLACK"; }
+    else                           { return "UNKNOWN"; }
+}
+
 enum cube_color cube_color_from_character(char c)
 {
     if      (c == 'Y') { return CUBE_YELLOW; }
