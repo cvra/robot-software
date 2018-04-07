@@ -14,6 +14,7 @@ int score_count_bee(const RobotState& state);
 int score_count_switch(const RobotState& state);
 
 int score_count_tower(const RobotState& state);
+int score_count_tower_bonus(const RobotState& state);
 
 #ifdef __cplusplus
 }

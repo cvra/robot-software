@@ -112,3 +112,25 @@ TEST(AScore, countsTwosTowerOfDifferentLevels)
 
     CHECK_EQUAL(16, score_count_tower(state));
 };
+
+TEST(AScore, doesNotCountTowerBonusForSmallTower)
+{
+    state.construction_zone[0].tower_level = 1;
+
+    CHECK_EQUAL(0, score_count_tower_bonus(state));
+};
+
+TEST(AScore, countsTowerBonusForSingleTower)
+{
+    state.construction_zone[0].tower_level = 3;
+
+    CHECK_EQUAL(30, score_count_tower_bonus(state));
+};
+
+TEST(AScore, countsTowerBonusForTwoTowers)
+{
+    state.construction_zone[0].tower_level = 3;
+    state.construction_zone[1].tower_level = 4;
+
+    CHECK_EQUAL(60, score_count_tower_bonus(state));
+};
