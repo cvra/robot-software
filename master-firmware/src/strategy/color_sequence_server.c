@@ -39,14 +39,21 @@ static THD_FUNCTION(color_sequence_server_thd, arg) {
     NOTICE("Color sequence server up, listening over BT");
 
     while (true) {
-        chThdSleepMilliseconds(1000 / COLOR_SEQUENCE_SERVER_FREQUENCY);
-
         size_t len = sdAsynchronousRead(&SD2, buffer, sizeof(buffer));
 
-        if (len != 5) { continue; }
+        if (len < 3) {
+            cube_color_from_string((char*)buffer, 3, colors);
+            messagebus_topic_publish(&colors_topic, &colors[0], sizeof(colors));
 
-        cube_color_from_string((char*)buffer, 3, colors);
-        messagebus_topic_publish(&colors_topic, &colors[0], sizeof(colors));
+            DEBUG("Received color: %s %s %s %s %s",
+                  cube_color_name(colors[0]),
+                  cube_color_name(colors[1]),
+                  cube_color_name(colors[2]),
+                  cube_color_name(colors[3]),
+                  cube_color_name(colors[4]));
+        }
+
+        chThdSleepMilliseconds(1000 / COLOR_SEQUENCE_SERVER_FREQUENCY);
     }
 }
 
