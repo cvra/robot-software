@@ -448,19 +448,35 @@ const ShellCommand shell_commands[] = {
     {NULL, NULL}
 };
 
+#if SHELL_USE_HISTORY == TRUE
+static char sc_histbuf[SHELL_MAX_HIST_BUFF];
+#endif
+
+static ShellConfig shell_cfg = {
+    NULL,
+    shell_commands,
+#if SHELL_USE_HISTORY == TRUE
+    sc_histbuf,
+    sizeof(sc_histbuf),
+#endif
+};
+
+
 static THD_FUNCTION(shell_spawn_thd, p)
 {
     BaseSequentialStream *io = (BaseSequentialStream *)p;
     thread_t *shelltp = NULL;
+    static THD_WORKING_AREA(shell_wa, 2048);
 
     shell_cfg.sc_channel = io;
-    shell_cfg.sc_commands = shell_commands;
 
     shellInit();
 
     while (TRUE) {
         if (!shelltp) {
-            shelltp = shellCreate(&shell_cfg, SHELL_WA_SIZE, NORMALPRIO);
+            shelltp = chThdCreateStatic(&shell_wa, sizeof(shell_wa), NORMALPRIO,
+                                    shellThread, (void *)&shell_cfg);
+            chRegSetThreadNameX(shelltp, "shell");
         } else {
             if (chThdTerminatedX(shelltp)) {
                 chThdRelease(shelltp);

@@ -5,6 +5,9 @@
 #define USBD1_DATA_AVAILABLE_EP         1
 #define USBD1_INTERRUPT_REQUEST_EP      2
 
+extern const USBConfig usbcfg;
+extern const SerialUSBConfig serusbcfg;
+
 /* USB Device Descriptor.  */
 static const uint8_t vcom_device_descriptor_data[18] = {
     USB_DESC_DEVICE(0x0110,               /* bcdUSB (1.1).                    */
@@ -218,11 +221,7 @@ static const USBEndpointConfig ep2config = {
 /** Handles the USB driver global events.  */
 static void usb_event(USBDriver *usbp, usbevent_t event)
 {
-
     switch (event) {
-        case USB_EVENT_RESET:
-            return;
-
         case USB_EVENT_ADDRESS:
             return;
 
@@ -241,7 +240,17 @@ static void usb_event(USBDriver *usbp, usbevent_t event)
             chSysUnlockFromISR();
             return;
 
+        case USB_EVENT_RESET:
+        /* Falls into.*/
+        case USB_EVENT_UNCONFIGURED:
+        /* Falls into.*/
         case USB_EVENT_SUSPEND:
+            chSysLockFromISR();
+
+            /* Disconnection event on suspend.*/
+            sduSuspendHookI(&SDU1);
+
+            chSysUnlockFromISR();
             return;
 
         case USB_EVENT_WAKEUP:
@@ -253,21 +262,39 @@ static void usb_event(USBDriver *usbp, usbevent_t event)
     return;
 }
 
-/** USB driver configuration.  */
+/*
+ * Handles the USB driver global events.
+ */
+static void sof_handler(USBDriver *usbp)
+{
+
+    (void)usbp;
+
+    osalSysLockFromISR();
+    sduSOFHookI(&SDU1);
+    osalSysUnlockFromISR();
+}
+
+/*
+ * USB driver configuration.
+ */
 const USBConfig usbcfg = {
     usb_event,
     get_descriptor,
     sduRequestsHook,
-    NULL
+    sof_handler
 };
 
-/** Serial over USB driver configuration.  */
+/*
+ * Serial over USB driver configuration.
+ */
 const SerialUSBConfig serusbcfg = {
     &USBD1,
     USBD1_DATA_REQUEST_EP,
     USBD1_DATA_AVAILABLE_EP,
     USBD1_INTERRUPT_REQUEST_EP
 };
+
 
 /* Serial over USB Driver structure.  */
 SerialUSBDriver SDU1;

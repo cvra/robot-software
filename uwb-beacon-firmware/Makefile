@@ -93,19 +93,16 @@ endif
 PROJECT = uwb-beacon
 
 # Imported source files and paths
-CHIBIOS = ChibiOS
-# Startup files.
-include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/startup_stm32f4xx.mk
-# HAL-OSAL files (optional).
+CHIBIOS = ../lib/ChibiOS
+include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32f4xx.mk
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/hal/ports/STM32/STM32F4xx/platform.mk
 include $(CHIBIOS)/os/hal/osal/rt/osal.mk
-# RTOS files (optional).
 include $(CHIBIOS)/os/rt/rt.mk
-include $(CHIBIOS)/os/rt/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
-# Other files (optional).
-#include $(CHIBIOS)/test/rt/test.mk
+include $(CHIBIOS)/test/rt/test.mk
+include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
 include $(CHIBIOS)/os/various/cpp_wrappers/chcpp.mk
+include $(CHIBIOS)/os/various/shell/shell.mk
 
 include app_src.mk
 
@@ -117,8 +114,8 @@ CSRC = $(STARTUPSRC) \
 	   $(OSALSRC) \
 	   $(HALSRC) \
 	   $(PLATFORMSRC) \
+	   $(SHELLSRC) \
        $(CHIBIOS)/os/hal/lib/streams/chprintf.c \
-       $(CHIBIOS)/os/various/shell.c \
 	   $(APPCSRC)
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
@@ -126,11 +123,20 @@ CSRC = $(STARTUPSRC) \
 CPPSRC = $(CHCPPSRC) $(APPCPPSRC)
 
 # List ASM source files here
-ASMSRC = $(STARTUPASM) $(PORTASM) $(OSALASM) $(APPASMSRC)
+ASMXSRC = $(STARTUPASM) $(PORTASM) $(OSALASM) $(APPASMSRC)
 
-INCDIR = $(STARTUPINC) $(KERNINC) $(PORTINC) $(OSALINC) \
-		 $(HALINC) $(PLATFORMINC) $(APPINC) $(CHCPPINC) \
+INCDIR = $(STARTUPINC) \
+		 $(KERNINC) \
+		 $(PORTINC) \
+		 $(OSALINC) \
+		 $(HALINC) \
+		 $(PLATFORMINC) \
+		 $(APPINC) \
+		 $(CHCPPINC) \
+		 $(SHELLINC) \
+	 	 $(TESTINC) \
          $(CHIBIOS)/os/hal/lib/streams \
+		 $(CHIBIOS)/os/license \
 		 $(CHIBIOS)/os/various
 
 #
@@ -197,11 +203,12 @@ UDEFS += -DUAVCAN_STM32_CHIBIOS=1 \
 		 -DUAVCAN_TOSTRING=0 \
 		 -DUAVCAN_DEBUG=0 \
 		 -DUAVCAN_STM32_TIMER_NUMBER=2 \
-		 -DUAVCAN_STM32_NUM_IFACES=1
+		 -DUAVCAN_STM32_NUM_IFACES=1 \
+		 -DSHELL_CONFIG_FILE
 
 
-include src/libuavcan/libuavcan/include.mk
-include src/libuavcan/libuavcan_drivers/stm32/driver/include.mk
+include ../lib/uavcan/libuavcan/include.mk
+include ../lib/uavcan/libuavcan_drivers/stm32/driver/include.mk
 
 CPPSRC += $(LIBUAVCAN_SRC) $(LIBUAVCAN_STM32_SRC)
 UINCDIR += $(LIBUAVCAN_INC) $(LIBUAVCAN_STM32_INC) ./dsdlc_generated
@@ -220,7 +227,7 @@ endif
 
 GLOBAL_SRC_DEP = app_src.mk
 
-RULESPATH = $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC
+RULESPATH = $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/
 include $(RULESPATH)/rules.mk
 
 # run uavcan dsdl compiler
