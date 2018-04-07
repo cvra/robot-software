@@ -5,7 +5,7 @@ enum cube_color cube_color_from_character(char c)
     if      (c == 'Y') { return CUBE_YELLOW; }
     else if (c == 'G') { return CUBE_GREEN; }
     else if (c == 'B') { return CUBE_BLUE; }
-    else if (c == 'R') { return CUBE_RED; }
+    else if (c == 'O') { return CUBE_ORANGE; }
     else if (c == 'K') { return CUBE_BLACK; }
     else /* Unknown */ { return CUBE_UNKNOWN; }
 }

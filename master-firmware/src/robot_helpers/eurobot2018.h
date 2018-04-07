@@ -10,7 +10,7 @@ enum cube_color {
     CUBE_YELLOW = 0,
     CUBE_GREEN,
     CUBE_BLUE,
-    CUBE_RED,
+    CUBE_ORANGE,
     CUBE_BLACK,
     CUBE_UNKNOWN, // Unknow color
 };

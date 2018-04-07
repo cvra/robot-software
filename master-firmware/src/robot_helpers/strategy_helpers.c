@@ -92,7 +92,7 @@ static point_t cube_pos_in_block_frame(enum cube_color color)
     switch(color) {
         case CUBE_GREEN:    return point(  cube_size,            0);
         case CUBE_BLUE:     return point(           0,   cube_size);
-        case CUBE_RED:      return point(- cube_size,            0);
+        case CUBE_ORANGE:   return point(- cube_size,            0);
         case CUBE_BLACK:    return point(           0, - cube_size);
         case CUBE_YELLOW:
         default:            return point(           0,           0);
