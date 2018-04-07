@@ -1,7 +1,8 @@
-dependency-dir: ./src
+dependency-dir: ../lib
+
 include_directories:
   - src/
-  - src/eigen
+  - ../lib/eigen
 
 depends:
   - crc
@@ -20,7 +21,7 @@ target.arm:
   - src/cmd.c
   - src/main.c
   - src/bootloader_config.c
-  - src/can-bootloader/config.c
+  - ../lib/can-bootloader/config.c
   - src/exti.c
   - src/imu_thread.c
   - src/ahrs_thread.c
