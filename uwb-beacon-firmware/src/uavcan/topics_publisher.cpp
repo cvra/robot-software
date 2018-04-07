@@ -8,16 +8,18 @@
 
 #include <uavcan/equipment/ahrs/RawIMU.hpp>
 #include <uavcan/equipment/ahrs/Solution.hpp>
-#include <uavcan/equipment/ahrs/Solution.hpp>
-#include <beacon_messages/equipment/RadioRange.hpp>
-#include <beacon_messages/equipment/TagPosition.hpp>
+#include <cvra/uwb_beacon/RadioRange.hpp>
+#include <cvra/uwb_beacon/TagPosition.hpp>
 
 #define WATCHED_TOPIC_CNT 4
 
+using RadioRange = cvra::uwb_beacon::RadioRange;
+using TagPosition = cvra::uwb_beacon::TagPosition;
+
 uavcan::LazyConstructor<uavcan::Publisher<uavcan::equipment::ahrs::RawIMU> > raw_imu_pub;
 uavcan::LazyConstructor<uavcan::Publisher<uavcan::equipment::ahrs::Solution> > attitude_pub;
-uavcan::LazyConstructor<uavcan::Publisher<beacon_messages::equipment::RadioRange> > range_pub;
-uavcan::LazyConstructor<uavcan::Publisher<beacon_messages::equipment::TagPosition> > tag_pos_pub;
+uavcan::LazyConstructor<uavcan::Publisher<RadioRange> > range_pub;
+uavcan::LazyConstructor<uavcan::Publisher<TagPosition> > tag_pos_pub;
 
 static BSEMAPHORE_DECL(imu_topic_signaled, true);
 static BSEMAPHORE_DECL(attitude_topic_signaled, true);
@@ -173,7 +175,7 @@ void topics_publisher_spin(Node &node)
         topic = messagebus_find_topic(&bus, "/range");
         messagebus_topic_read(topic, &range_msg, sizeof(range_msg));
 
-        beacon_messages::equipment::RadioRange msg;
+        RadioRange msg;
         msg.range = range_msg.range;
         msg.anchor_addr = range_msg.anchor_addr;
         msg.timestamp.usec = range_msg.timestamp;
@@ -187,7 +189,7 @@ void topics_publisher_spin(Node &node)
         topic = messagebus_find_topic(&bus, "/tags_pos");
         messagebus_topic_read(topic, &tag_pos_msg, sizeof(tag_pos_msg));
 
-        beacon_messages::equipment::TagPosition msg;
+        TagPosition msg;
         msg.timestamp.usec = tag_pos_msg.timestamp;
         msg.x = tag_pos_msg.x;
         msg.y = tag_pos_msg.y;

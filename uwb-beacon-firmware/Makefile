@@ -234,7 +234,8 @@ include $(RULESPATH)/rules.mk
 .PHONY: dsdlc
 dsdlc:
 	@$(COLOR_PRINTF) "Running uavcan dsdl compiler"
-	$(LIBUAVCAN_DSDLC) $(UAVCAN_DSDL_DIR) beacon_messages
+	$(LIBUAVCAN_DSDLC) ../uavcan_data_types/cvra $(UAVCAN_DSDL_DIR)
+
 
 .PHONY: flash
 flash: build/$(PROJECT).elf
