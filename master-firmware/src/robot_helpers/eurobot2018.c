@@ -10,9 +10,9 @@ enum cube_color cube_color_from_character(char c)
     else /* Unknown */ { return CUBE_UNKNOWN; }
 }
 
-void cube_color_from_string(char* string, enum cube_color* colors)
+void cube_color_from_string(char* string, int string_len, enum cube_color* colors)
 {
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < string_len; i++)
     {
         colors[i] = cube_color_from_character(string[i]);
     }

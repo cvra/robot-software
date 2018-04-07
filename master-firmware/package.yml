@@ -64,6 +64,7 @@ target.arm:
     - src/lever/lever_module.c
     - src/parameter_port.c
     - src/strategy/score_counter.cpp
+    - src/strategy/color_sequence_server.c
 
 source:
     - src/unix_timestamp.c

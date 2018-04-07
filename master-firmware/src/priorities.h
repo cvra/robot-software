@@ -15,6 +15,7 @@
 #define BASE_CONTROLLER_PRIO                    (NORMALPRIO)
 #define TRAJECTORY_MANAGER_PRIO                 (NORMALPRIO)
 #define MAP_SERVER_PRIO                         (NORMALPRIO)
+#define COLOR_SEQUENCE_SERVER_PRIO              (NORMALPRIO)
 #define ARMS_CONTROLLER_PRIO                    (NORMALPRIO)
 #define ARM_TRAJ_MANAGER_PRIO                   (NORMALPRIO)
 #define LEVER_MODULE_PRIO                       (NORMALPRIO)

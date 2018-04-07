@@ -17,7 +17,9 @@ enum cube_color {
 
 /** Retrieve color from character */
 enum cube_color cube_color_from_character(char c);
-void cube_color_from_string(char* string, enum cube_color* colors);
+
+/** Retrieve colors from string, length of colors should exceed string_len */
+void cube_color_from_string(char* string, int string_len, enum cube_color* colors);
 
 #ifdef __cplusplus
 }

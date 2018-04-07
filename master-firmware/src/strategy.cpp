@@ -30,6 +30,7 @@
 #include "strategy/goals.h"
 #include "strategy/state.h"
 #include "strategy/score_counter.h"
+#include "strategy/color_sequence_server.h"
 
 
 static enum strat_color_t wait_for_color_selection(void);
@@ -730,6 +731,7 @@ void strategy_play_game(void *p)
     enum strat_color_t color = wait_for_color_selection();
     map_server_start(color);
     score_counter_start();
+    color_sequence_server_start();
 
 #ifdef DEBRA
     NOTICE("First, Order...");
