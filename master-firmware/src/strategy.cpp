@@ -549,7 +549,7 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
 };
 
 
-void strategy_debra_play_game(enum strat_color_t color, RobotState& state)
+void strategy_order_play_game(enum strat_color_t color, RobotState& state)
 {
     messagebus_topic_t*state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
@@ -679,7 +679,7 @@ void strategy_debra_play_game(enum strat_color_t color, RobotState& state)
     }
 }
 
-void strategy_sandoi_play_game(enum strat_color_t color, RobotState& state)
+void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
 {
     NOTICE("Waiting for autopositioning signal...");
     wait_for_autoposition_signal();
@@ -732,9 +732,11 @@ void strategy_play_game(void *p)
     score_counter_start();
 
 #ifdef DEBRA
-    strategy_debra_play_game(color, state);
+    NOTICE("First, Order...");
+    strategy_order_play_game(color, state);
 #else
-    strategy_sandoi_play_game(color, state);
+    NOTICE("Then, Chaos!");
+    strategy_chaos_play_game(color, state);
 #endif
 }
 

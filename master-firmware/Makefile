@@ -50,13 +50,13 @@ endif
 
 # Config file depending on robot
 ifeq ($(ROBOT), )
-  $(error Please define ROBOT to either 'debra' or 'sandoi')
+  $(error Please define ROBOT to either 'order' or 'chaos')
 endif
 
-ifeq ($(ROBOT), debra)
-  CONFIG_YAML = ../config_debra.yaml
+ifeq ($(ROBOT), order)
+  CONFIG_YAML = ../config_order.yaml
 else
-  CONFIG_YAML = ../config.yaml
+  CONFIG_YAML = ../config_chaos.yaml
 endif
 
 #
@@ -231,7 +231,7 @@ DLIBS =
 UDEFS = -DON_ROBOT
 UDEFS += $(addprefix -D, $(GFXDEFS))
 
-ifeq ($(ROBOT), debra)
+ifeq ($(ROBOT), order)
   UDEFS += -DDEBRA=1
 endif
 
