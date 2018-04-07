@@ -517,7 +517,7 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
         NOTICE("Building a tower level %d at %d %d", level, x_mm, y_mm);
 
         if (level == 0) {
-            if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, -225), TRAJ_FLAGS_ALL)) {
+            if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, -215), TRAJ_FLAGS_ALL)) {
                 return false;
             }
         }
@@ -534,8 +534,8 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
             return false;
         }
 
-        const int tower_x_mm = x_mm - 30;
-        const int tower_y_mm = y_mm - 210;
+        const int tower_x_mm = x_mm + 30;
+        const int tower_y_mm = y_mm - 240;
         if (!strat_deposit_cube(MIRROR_X(m_color, tower_x_mm), tower_y_mm, level)) {
             WARNING("Tower building did not go as expected");
             return false;
