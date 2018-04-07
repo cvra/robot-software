@@ -551,8 +551,12 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
 
 void strategy_read_color_sequence(RobotState& state)
 {
+    int tower_sequence_len = sizeof(state.tower_sequence) / sizeof(enum cube_color);
     messagebus_topic_t* colors_topic = messagebus_find_topic_blocking(&bus, "/colors");
-    messagebus_topic_read(colors_topic, &state.tower_sequence[0], sizeof(state.tower_sequence));
+
+    messagebus_topic_read(colors_topic, &state.tower_sequence[0], tower_sequence_len);
+    cube_color_fill_unknown(&state.tower_sequence[0], tower_sequence_len);
+
     NOTICE("Tower sequence is: %s %s %s %s %s",
            cube_color_name(state.tower_sequence[0]),
            cube_color_name(state.tower_sequence[1]),

@@ -1,4 +1,5 @@
 #include <CppUTest/TestHarness.h>
+#include <array>
 
 #include "robot_helpers/eurobot2018.h"
 
@@ -33,4 +34,30 @@ TEST(ACubeColorParser, FindsColorSequence)
     CHECK_EQUAL(CUBE_YELLOW, colors[0]);
     CHECK_EQUAL(CUBE_BLUE, colors[1]);
     CHECK_EQUAL(CUBE_GREEN, colors[2]);
+}
+
+TEST(ACubeColorParser, FillsUnknownWithValidColors)
+{
+    std::array<enum cube_color, 5> colors = {CUBE_UNKNOWN, CUBE_UNKNOWN, CUBE_UNKNOWN, CUBE_UNKNOWN, CUBE_UNKNOWN};
+
+    cube_color_fill_unknown(colors.data(), colors.size());
+
+    CHECK_EQUAL(CUBE_YELLOW, colors[0]);
+    CHECK_EQUAL(CUBE_GREEN, colors[1]);
+    CHECK_EQUAL(CUBE_BLUE, colors[2]);
+    CHECK_EQUAL(CUBE_ORANGE, colors[3]);
+    CHECK_EQUAL(CUBE_BLACK, colors[4]);
+}
+
+TEST(ACubeColorParser, FillsOnlyUnknownWithValidColors)
+{
+    std::array<enum cube_color, 5> colors = {CUBE_BLACK, CUBE_BLUE, CUBE_GREEN, CUBE_UNKNOWN, CUBE_UNKNOWN};
+
+    cube_color_fill_unknown(colors.data(), colors.size());
+
+    CHECK_EQUAL(CUBE_BLACK, colors[0]);
+    CHECK_EQUAL(CUBE_BLUE, colors[1]);
+    CHECK_EQUAL(CUBE_GREEN, colors[2]);
+    CHECK_EQUAL(CUBE_YELLOW, colors[3]);
+    CHECK_EQUAL(CUBE_ORANGE, colors[4]);
 }
