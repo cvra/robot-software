@@ -3,9 +3,10 @@
 
 #include <error/error.h>
 
-#include "robot_helpers/eurobot2018.h"
-
+#include "main.h"
 #include "priorities.h"
+
+#include "robot_helpers/eurobot2018.h"
 #include "color_sequence_server.h"
 
 #define COLOR_SEQUENCE_SERVER_STACKSIZE 512
@@ -19,10 +20,6 @@ static const SerialConfig bt_uart_config = {
     .cr3 = 0
 };
 
-static enum cube_color colors[5] = {
-    CUBE_UNKNOWN, CUBE_UNKNOWN, CUBE_UNKNOWN, CUBE_UNKNOWN, CUBE_UNKNOWN
-};
-
 static THD_FUNCTION(color_sequence_server_thd, arg) {
     (void)arg;
     chRegSetThreadName(__FUNCTION__);
@@ -30,16 +27,26 @@ static THD_FUNCTION(color_sequence_server_thd, arg) {
     uint8_t buffer[16];
     sdStart(&SD2, &bt_uart_config);
 
+    static enum cube_color colors[5] = {
+        CUBE_UNKNOWN, CUBE_UNKNOWN, CUBE_UNKNOWN, CUBE_UNKNOWN, CUBE_UNKNOWN
+    };
+    static messagebus_topic_t colors_topic;
+    static MUTEX_DECL(colors_topic_lock);
+    static CONDVAR_DECL(colors_topic_condvar);
+    messagebus_topic_init(&colors_topic, &colors_topic_lock, &colors_topic_condvar, &colors[0], sizeof(colors));
+    messagebus_advertise_topic(&bus, &colors_topic, "/colors");
+
     NOTICE("Color sequence server up, listening over BT");
 
     while (true) {
+        chThdSleepMilliseconds(1000 / COLOR_SEQUENCE_SERVER_FREQUENCY);
+
         size_t len = sdAsynchronousRead(&SD2, buffer, sizeof(buffer));
 
         if (len != 5) { continue; }
 
-        cube_color_from_string((char*)buffer, colors);
-
-        chThdSleepMilliseconds(1000 / COLOR_SEQUENCE_SERVER_FREQUENCY);
+        cube_color_from_string((char*)buffer, 3, colors);
+        messagebus_topic_publish(&colors_topic, &colors[0], sizeof(colors));
     }
 }
 
