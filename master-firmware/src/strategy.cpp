@@ -549,10 +549,21 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
     }
 };
 
+void strategy_read_color_sequence(RobotState& state)
+{
+    messagebus_topic_t* colors_topic = messagebus_find_topic_blocking(&bus, "/colors");
+    messagebus_topic_read(colors_topic, &state.tower_sequence[0], sizeof(state.tower_sequence));
+    NOTICE("Tower sequence is: %s %s %s %s %s",
+           cube_color_name(state.tower_sequence[0]),
+           cube_color_name(state.tower_sequence[1]),
+           cube_color_name(state.tower_sequence[2]),
+           cube_color_name(state.tower_sequence[3]),
+           cube_color_name(state.tower_sequence[4]));
+}
 
 void strategy_order_play_game(enum strat_color_t color, RobotState& state)
 {
-    messagebus_topic_t*state_topic = messagebus_find_topic_blocking(&bus, "/state");
+    messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
     InitGoal init_goal;
 
@@ -642,6 +653,7 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
     /* Wait for starter to begin */
     wait_for_starter();
     trajectory_game_timer_reset();
+    strategy_read_color_sequence(state);
 
     NOTICE("Starting game...");
     auto goals_are_reached = [&goals](const RobotState& state) {
