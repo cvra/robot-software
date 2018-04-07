@@ -1,0 +1,10 @@
+{% extends "CMakeLists.txt.jinja" %}
+
+{% block additional_targets %}
+
+add_library(ekf_python SHARED {{ target.python_bindings | join(" ") }})
+target_link_libraries(ekf_python m)
+
+target_include_directories(tests PRIVATE tests)
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DEIGEN_NO_MALLOC")
+{% endblock %}

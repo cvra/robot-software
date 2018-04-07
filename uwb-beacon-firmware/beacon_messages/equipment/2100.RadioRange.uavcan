@@ -1,0 +1,5 @@
+# UWB ranging solution
+#
+uavcan.Timestamp timestamp
+uint16  anchor_addr # anchor UWB address
+float16 range # meters

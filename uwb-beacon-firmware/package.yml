@@ -1,0 +1,66 @@
+dependency-dir: ./src
+include_directories:
+  - src/
+  - src/eigen
+
+depends:
+  - crc
+  - cmp
+  - cmp_mem_access
+  - test-runner
+  - msgbus
+  - parameter
+  - parameter_flash_storage
+  - chibios-syscalls
+  - trace
+
+target.arm:
+  - src/board.c
+  - src/usbconf.c
+  - src/cmd.c
+  - src/main.c
+  - src/bootloader_config.c
+  - src/can-bootloader/config.c
+  - src/exti.c
+  - src/imu_thread.c
+  - src/ahrs_thread.c
+  - src/trace_port.c
+  - src/uavcan/uavcan_node.cpp
+  - src/uavcan/topics_publisher.cpp
+  - src/uavcan/parameter_server.cpp
+  - src/uavcan/restart_server.cpp
+  - src/decawave_interface.c
+  - src/ranging_thread.c
+  - src/parameter_port.c
+  - src/state_estimation_thread.cpp
+  - src/anchor_position_cache.c
+
+target.stm32f4: []
+
+target.python_bindings:
+  - tools/ekf_python_bindings.cpp
+  - src/state_estimation.cpp
+
+source:
+  - src/mpu9250.c
+  - src/MadgwickAHRS.c
+  - src/decadriver/deca_device.c
+  - src/decadriver/deca_params_init.c
+  - src/uwb_protocol.c
+  - src/state_estimation.cpp
+  - src/uavcan/parameter_enumeration.cpp
+  - src/lru_cache.c
+
+tests:
+  - tests/mpu9250.cpp
+  - tests/hal_mocks.cpp
+  - tests/decawave.cpp
+  - tests/uwb_protocol.cpp
+  - tests/ekf.cpp
+  - tests/state_estimation.cpp
+  - tests/parameter_by_index.cpp
+  - tests/lru_cache.cpp
+
+templates:
+  app_src.mk.jinja: app_src.mk
+  include_dirs_tests.cmake.jinja: CMakeLists.txt

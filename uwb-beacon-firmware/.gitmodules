@@ -1,0 +1,36 @@
+[submodule "ChibiOS"]
+	path = ChibiOS
+	url = https://github.com/cvra/ChibiOS.git
+[submodule "src/crc"]
+	path = src/crc
+	url = https://github.com/cvra/crc
+[submodule "src/cmp"]
+	path = src/cmp
+	url = https://github.com/cvra/cmp
+[submodule "src/cmp_mem_access"]
+	path = src/cmp_mem_access
+	url = https://github.com/cvra/cmp_mem_access
+[submodule "src/test-runner"]
+	path = src/test-runner
+	url = https://github.com/cvra/test-runner
+[submodule "src/can-bootloader"]
+	path = src/can-bootloader
+	url = https://github.com/cvra/can-bootloader
+[submodule "src/msgbus"]
+	path = src/msgbus
+	url = https://github.com/cvra/msgbus
+[submodule "src/parameter"]
+	path = src/parameter
+	url = https://github.com/cvra/parameter
+[submodule "src/chibios-syscalls"]
+	path = src/chibios-syscalls
+	url = https://github.com/cvra/chibios-syscalls
+[submodule "src/libuavcan"]
+	path = src/libuavcan
+	url = https://github.com/cvra/uavcan
+[submodule "src/parameter_flash_storage"]
+	path = src/parameter_flash_storage
+	url = https://github.com/cvra/parameter_flash_storage
+[submodule "src/eigen"]
+	path = src/eigen
+	url = https://github.com/cvra/eigen
