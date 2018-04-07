@@ -549,9 +549,8 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
 };
 
 
-void strategy_debra_play_game(void)
+void strategy_debra_play_game(enum strat_color_t color)
 {
-    int len;
     RobotState state;
 
     /* Prepare state publisher */
@@ -560,11 +559,6 @@ void strategy_debra_play_game(void)
     static CONDVAR_DECL(state_condvar);
     messagebus_topic_init(&state_topic, &state_lock, &state_condvar, &state, sizeof(state));
     messagebus_advertise_topic(&bus, &state_topic, "/state");
-
-    NOTICE("Waiting for color selection...");
-    enum strat_color_t color = wait_for_color_selection();
-    map_server_start(color);
-    score_counter_start();
 
     InitGoal init_goal;
 
@@ -630,7 +624,7 @@ void strategy_debra_play_game(void)
     lever_retract(&left_lever);
 
     NOTICE("Getting arms ready...");
-    len = planner.plan(state, init_goal, path, max_path_len);
+    int len = planner.plan(state, init_goal, path, max_path_len);
     for (int i = 0; i < len; i++) {
         path[i]->execute(state);
         messagebus_topic_publish(&state_topic, &state, sizeof(state));
@@ -666,7 +660,7 @@ void strategy_debra_play_game(void)
     };
     while (!goals_are_reached(state)) {
         for (auto goal : goals) {
-            len = planner.plan(state, *goal, path, max_path_len);
+            int len = planner.plan(state, *goal, path, max_path_len);
             for (int i = 0; i < len; i++) {
                 bool success = path[i]->execute(state);
                 messagebus_topic_publish(&state_topic, &state, sizeof(state));
@@ -692,21 +686,17 @@ void strategy_debra_play_game(void)
     }
 }
 
-void strategy_sandoi_play_game()
+void strategy_sandoi_play_game(enum strat_color_t color)
 {
-    /* Wait for color selection */
-    enum strat_color_t color = wait_for_color_selection();
-    map_server_start(color);
-
-    /* Autoposition robot */
+    NOTICE("Waiting for autopositioning signal...");
     wait_for_autoposition_signal();
-    NOTICE("Positioning robot\n");
+    NOTICE("Positioning robot");
     strategy_auto_position(MIRROR_X(color, 600), 200, 90, color);
-    NOTICE("Robot positioned at x: 600[mm], y: 200[mm], a: 90[deg]\n");
+    NOTICE("Robot positioned at x: 600[mm], y: 200[mm], a: 90[deg]");
 
     /* Wait for starter to begin */
     wait_for_starter();
-    NOTICE("Starting game\n");
+    NOTICE("Starting game");
 
     while (true) {
         /* Go to lunar module */
@@ -733,12 +723,17 @@ void strategy_play_game(void *p)
     (void) p;
     chRegSetThreadName("strategy");
 
-    NOTICE("Strategy is ready, waiting for autopositioning signal");
+    NOTICE("Strategy starting...");
+
+    NOTICE("Waiting for color selection...");
+    enum strat_color_t color = wait_for_color_selection();
+    map_server_start(color);
+    score_counter_start();
 
 #ifdef DEBRA
-    strategy_debra_play_game();
+    strategy_debra_play_game(color);
 #else
-    strategy_sandoi_play_game();
+    strategy_sandoi_play_game(color);
 #endif
 }
 
