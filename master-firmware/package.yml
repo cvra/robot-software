@@ -73,6 +73,7 @@ source:
     - src/base/map.c
     - src/robot_helpers/math_helpers.c
     - src/robot_helpers/beacon_helpers.c
+    - src/robot_helpers/eurobot2018.c
     - src/robot_helpers/trajectory_helpers.c
     - src/robot_helpers/strategy_helpers.c
     - src/aversive/blocking_detection_manager/blocking_detection_manager.c
@@ -149,6 +150,7 @@ tests:
     - tests/aversive/test_geometry_discrete_circles.cpp
     - tests/aversive/test_geometry_polygon_intersection.cpp
     - tests/strategy/test_score.cpp
+    - tests/test_eurobot2018.cpp
 
 templates:
     app_src.mk.jinja: app_src.mk
