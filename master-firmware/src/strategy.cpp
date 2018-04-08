@@ -43,13 +43,12 @@ void strategy_play_game(void);
 #define MIRROR_RIGHT_LEVER(color) (color == YELLOW ? (&right_lever) : (&left_lever))
 #define MIRROR_LEFT_LEVER(color) (color == YELLOW ? (&left_lever) : (&right_lever))
 
-#define BUTTON_IS_PRESSED(in) (control_panel_read(in) == true) // Active high
-
 static enum strat_color_t wait_for_color_selection(void)
 {
     strat_color_t color = YELLOW;
 
-    while (!BUTTON_IS_PRESSED(BUTTON_YELLOW) && !BUTTON_IS_PRESSED(BUTTON_GREEN)) {
+    while (!control_panel_button_is_pressed(BUTTON_YELLOW) &&
+           !control_panel_button_is_pressed(BUTTON_GREEN)) {
         control_panel_set(LED_YELLOW);
         control_panel_set(LED_GREEN);
         strategy_wait_ms(100);
@@ -59,7 +58,7 @@ static enum strat_color_t wait_for_color_selection(void)
         strategy_wait_ms(100);
     }
 
-    if (BUTTON_IS_PRESSED(BUTTON_GREEN)) {
+    if (control_panel_button_is_pressed(BUTTON_GREEN)) {
         control_panel_clear(LED_YELLOW);
         control_panel_set(LED_GREEN);
         color = BLUE;

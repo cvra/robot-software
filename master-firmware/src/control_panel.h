@@ -27,6 +27,7 @@ bool control_panel_read(enum control_panel_input in);
 void control_panel_set(enum control_panel_output out);
 void control_panel_clear(enum control_panel_output out);
 void control_panel_toggle(enum control_panel_output out);
+bool control_panel_button_is_pressed(enum control_panel_input in);
 
 #ifdef __cplusplus
 }

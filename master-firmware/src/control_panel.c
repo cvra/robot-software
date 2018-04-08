@@ -53,3 +53,8 @@ void control_panel_toggle(enum control_panel_output out)
 {
     palTogglePad(output_pins[out].port, output_pins[out].pin);
 }
+
+bool control_panel_button_is_pressed(enum control_panel_input in)
+{
+    return control_panel_read(in) == true;
+}
