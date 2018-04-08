@@ -30,3 +30,18 @@ int score_count_tower(const RobotState& state)
     }
     return score;
 }
+
+int score_count_tower_bonus(const RobotState& state)
+{
+    if (!state.tower_sequence_known) {
+        return 0;
+    }
+
+    int score = 0;
+    for (const auto& construction_zone : state.construction_zone) {
+        if (construction_zone.tower_level >= 3) {
+            score += 30;
+        }
+    }
+    return score;
+}

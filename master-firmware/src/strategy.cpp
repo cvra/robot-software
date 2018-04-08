@@ -30,6 +30,7 @@
 #include "strategy/goals.h"
 #include "strategy/state.h"
 #include "strategy/score_counter.h"
+#include "strategy/color_sequence_server.h"
 
 
 static enum strat_color_t wait_for_color_selection(void);
@@ -516,7 +517,7 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
         NOTICE("Building a tower level %d at %d %d", level, x_mm, y_mm);
 
         if (level == 0) {
-            if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, -225), TRAJ_FLAGS_ALL)) {
+            if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, -215), TRAJ_FLAGS_ALL)) {
                 return false;
             }
         }
@@ -533,8 +534,8 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
             return false;
         }
 
-        const int tower_x_mm = x_mm - 30;
-        const int tower_y_mm = y_mm - 210;
+        const int tower_x_mm = x_mm + 30;
+        const int tower_y_mm = y_mm - 240;
         if (!strat_deposit_cube(MIRROR_X(m_color, tower_x_mm), tower_y_mm, level)) {
             WARNING("Tower building did not go as expected");
             return false;
@@ -548,10 +549,33 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
     }
 };
 
+void strategy_read_color_sequence(RobotState& state)
+{
+    int tower_sequence_len = sizeof(state.tower_sequence) / sizeof(enum cube_color);
+    messagebus_topic_t* colors_topic = messagebus_find_topic_blocking(&bus, "/colors");
+
+    messagebus_topic_read(colors_topic, &state.tower_sequence[0], tower_sequence_len);
+
+    if (state.tower_sequence[0] != CUBE_UNKNOWN &&
+        state.tower_sequence[1] != CUBE_UNKNOWN &&
+        state.tower_sequence[2] != CUBE_UNKNOWN) {
+        NOTICE("Received a valid color sequence");
+        state.tower_sequence_known = true;
+    }
+
+    cube_color_fill_unknown(&state.tower_sequence[0], tower_sequence_len);
+
+    NOTICE("Tower sequence is: %s %s %s %s %s",
+           cube_color_name(state.tower_sequence[0]),
+           cube_color_name(state.tower_sequence[1]),
+           cube_color_name(state.tower_sequence[2]),
+           cube_color_name(state.tower_sequence[3]),
+           cube_color_name(state.tower_sequence[4]));
+}
 
 void strategy_order_play_game(enum strat_color_t color, RobotState& state)
 {
-    messagebus_topic_t*state_topic = messagebus_find_topic_blocking(&bus, "/state");
+    messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
     InitGoal init_goal;
 
@@ -641,6 +665,7 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
     /* Wait for starter to begin */
     wait_for_starter();
     trajectory_game_timer_reset();
+    strategy_read_color_sequence(state);
 
     NOTICE("Starting game...");
     auto goals_are_reached = [&goals](const RobotState& state) {
@@ -730,6 +755,7 @@ void strategy_play_game(void *p)
     enum strat_color_t color = wait_for_color_selection();
     map_server_start(color);
     score_counter_start();
+    color_sequence_server_start();
 
 #ifdef DEBRA
     NOTICE("First, Order...");
