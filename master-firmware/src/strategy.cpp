@@ -705,33 +705,29 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
 
 void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
 {
-    NOTICE("Waiting for autopositioning signal...");
+    /* Autoposition robot */
     wait_for_autoposition_signal();
     NOTICE("Positioning robot");
-    strategy_auto_position(MIRROR_X(color, 600), 200, 90, color);
-    NOTICE("Robot positioned at x: 600[mm], y: 200[mm], a: 90[deg]");
+
+    robot.base_speed = BASE_SPEED_INIT;
+    strategy_auto_position(MIRROR_X(color, 200), 500, MIRROR_A(color, -90), color);
+
+    trajectory_a_abs(&robot.traj, MIRROR_A(color, 180));
+    trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
+
+    robot.base_speed = BASE_SPEED_FAST;
+
+    NOTICE("Robot positioned at x: %d[mm], y: %d[mm], a: %d[deg]",
+           position_get_x_s16(&robot.pos), position_get_y_s16(&robot.pos), position_get_a_deg_s16(&robot.pos));
 
     /* Wait for starter to begin */
     wait_for_starter();
-    NOTICE("Starting game");
+
+    NOTICE("Starting game...");
 
     while (true) {
-        /* Go to lunar module */
-        strategy_goto_avoid_retry(MIRROR_X(color, 780), 1340, MIRROR_A(color, 45), TRAJ_FLAGS_ALL, -1);
-
-        /* Push lunar module */
-        trajectory_d_rel(&robot.traj, 100.);
-        trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
-        trajectory_d_rel(&robot.traj, -100.);
-        trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
-
-        /* Go back to home */
-        strategy_goto_avoid_retry(MIRROR_X(color, 600), 200, MIRROR_A(color, 90), TRAJ_FLAGS_ALL, -1);
-
-        DEBUG("Game ended!\nInsert coin to play more.\n");
+        NOTICE("Game ended!");
         strategy_wait_ms(1000);
-
-        wait_for_starter();
     }
 }
 
