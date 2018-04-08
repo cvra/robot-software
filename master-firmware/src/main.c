@@ -187,12 +187,15 @@ int main(void)
     /* Initializes a serial driver.  */
     sdStart(&SD7, &debug_uart_config);
 
-    control_panel_init();
-    gui_start();
-    blink_start();
-
     /* Initialize global objects. */
     config_init();
+
+    /* Load stored robot config */
+    config_load_from_flash();
+
+    control_panel_init(config_get_boolean("master/control_panel_active_high"));
+    gui_start();
+    blink_start();
 
     /* Try to mount the filesystem. */
     filesystem_start();
@@ -231,9 +234,6 @@ int main(void)
     init_arm_motors();
     chThdSleepMilliseconds(100);
     init_lever_motors();
-
-    /* Load stored robot config */
-    config_load_from_flash();
 
     /* Start IP over Ethernet */
     struct netif *ethernet_if;
