@@ -4,6 +4,7 @@
 
 #include "main.h"
 #include "priorities.h"
+#include "config.h"
 
 #include "strategy/score.h"
 #include "strategy/score_counter.h"
@@ -32,8 +33,10 @@ static THD_FUNCTION(score_counter_thd, arg)
         NOTICE("Received strategy state");
 
         int score = 0;
-        score += score_count_bee_on_map(state);
-        score += score_count_panel_on_map(state);
+        if (config_get_boolean("master/is_main_robot")) {
+            score += score_count_bee_on_map(state);
+            score += score_count_panel_on_map(state);
+        }
         score += score_count_bee(state);
         score += score_count_switch(state);
         score += score_count_tower(state);
