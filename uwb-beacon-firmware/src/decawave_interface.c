@@ -114,7 +114,7 @@ void decawave_start(void)
         DWT_PRF_64M,     /* Pulse repetition frequency. */
         DWT_PLEN_64,     /* Preamble length. Used in TX only. */
         DWT_PAC8,        /* Preamble acquisition chunk size. Used in RX only. */
-        5, 5,            /* Preamble codes (RX, TX) */
+        9, 9,            /* Preamble codes (RX, TX) */
         1,               /* Non standard Start Frame Delimiter */
         DWT_BR_6M8,      /* Data rate. */
         DWT_PHRMODE_EXT, /* PHY header mode. */
