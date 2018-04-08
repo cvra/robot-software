@@ -58,24 +58,14 @@ static void topics_watcher(void *p)
     /* Adds all the topics to the watchers. */
     /* TODO: If a topic is missing, the thread will hang forever.
      * Maybe it would be better to check in the loop if the topic exists. */
-    imu_topic = messagebus_find_topic_blocking(&bus, "/imu");
+    //imu_topic = messagebus_find_topic_blocking(&bus, "/imu");
 
-    messagebus_watchgroup_watch(&watchers[0],
-                                &watchgroup.group,
-                                imu_topic);
-
-    attitude_topic = messagebus_find_topic_blocking(&bus, "/attitude");
-    messagebus_watchgroup_watch(&watchers[1],
-                                &watchgroup.group,
-                                attitude_topic);
-
-    range_topic = messagebus_find_topic_blocking(&bus, "/range");
-    messagebus_watchgroup_watch(&watchers[2],
-                                &watchgroup.group,
-                                range_topic);
+    //messagebus_watchgroup_watch(&watchers[0],
+    //                            &watchgroup.group,
+    //                            imu_topic);
 
     tag_pos_topic = messagebus_find_topic_blocking(&bus, "/tags_pos");
-    messagebus_watchgroup_watch(&watchers[3],
+    messagebus_watchgroup_watch(&watchers[2],
                                 &watchgroup.group,
                                 tag_pos_topic);
 
