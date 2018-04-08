@@ -700,6 +700,47 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
 
 void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
 {
+    messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
+
+    InitGoal init_goal;
+
+    SwitchGoal switch_goal;
+    PickupCubesGoal pickup_cubes_goal;
+    goap::Goal<RobotState>* goals[] = {
+        &pickup_cubes_goal,
+        &switch_goal,
+    };
+
+    IndexArms index_arms;
+    RetractArms retract_arms(color);
+    PickupCubes pickup_cubes[2] = {
+        PickupCubes(color, 2), PickupCubes(color, 3),
+    };
+    TurnSwitchOn turn_switch_on(color);
+
+    const int max_path_len = 10;
+    goap::Action<RobotState> *path[max_path_len] = {nullptr};
+
+    goap::Action<RobotState> *actions[] = {
+        &index_arms,
+        &retract_arms,
+        &pickup_cubes[0],
+        &pickup_cubes[1],
+        &turn_switch_on,
+    };
+
+    static goap::Planner<RobotState> planner(actions, sizeof(actions) / sizeof(actions[0]));
+
+    lever_retract(&right_lever);
+    lever_retract(&left_lever);
+
+    NOTICE("Getting arms ready...");
+    int len = planner.plan(state, init_goal, path, max_path_len);
+    for (int i = 0; i < len; i++) {
+        path[i]->execute(state);
+        messagebus_topic_publish(state_topic, &state, sizeof(state));
+    }
+
     /* Autoposition robot */
     wait_for_autoposition_signal();
     NOTICE("Positioning robot");
@@ -718,7 +759,39 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     /* Wait for starter to begin */
     wait_for_starter();
 
+    trajectory_game_timer_reset();
+    strategy_read_color_sequence(state);
+
     NOTICE("Starting game...");
+    auto goals_are_reached = [&goals](const RobotState& state) {
+        for (auto goal : goals) {
+            if (!goal->is_reached(state)) {
+                return false;
+            }
+        }
+        return true;
+    };
+    while (!goals_are_reached(state)) {
+        for (auto goal : goals) {
+            int len = planner.plan(state, *goal, path, max_path_len);
+            for (int i = 0; i < len; i++) {
+                bool success = path[i]->execute(state);
+                messagebus_topic_publish(state_topic, &state, sizeof(state));
+                if (success == false) {
+                    break; // Break on failure
+                }
+                if (trajectory_game_has_ended()) {
+                    break;
+                }
+            }
+            if (trajectory_game_has_ended()) {
+                break;
+            }
+        }
+        if (trajectory_game_has_ended()) {
+            break;
+        }
+    }
 
     while (true) {
         NOTICE("Game ended!");
