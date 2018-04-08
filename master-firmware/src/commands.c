@@ -215,6 +215,10 @@ static void show_config_tree(BaseSequentialStream *out, parameter_namespace_t *n
                     chprintf(out, "%s: %d\r\n", p->id, parameter_integer_get(p));
                     break;
 
+                case _PARAM_TYPE_BOOLEAN:
+                    chprintf(out, "%s: %s\r\n", p->id, parameter_boolean_get(p) ? "true" : "false");
+                    break;
+
                 default:
                     chprintf(out, "%s: unknown type %d\r\n", p->id, p->type);
                     break;

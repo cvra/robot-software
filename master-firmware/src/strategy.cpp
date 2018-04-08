@@ -757,13 +757,13 @@ void strategy_play_game(void *p)
     score_counter_start();
     color_sequence_server_start();
 
-#ifdef DEBRA
-    NOTICE("First, Order...");
-    strategy_order_play_game(color, state);
-#else
-    NOTICE("Then, Chaos!");
-    strategy_chaos_play_game(color, state);
-#endif
+    if (config_get_boolean("master/is_main_robot")) {
+        NOTICE("First, Order...");
+        strategy_order_play_game(color, state);
+    } else {
+        NOTICE("Then, Chaos!");
+        strategy_chaos_play_game(color, state);
+    }
 }
 
 void strategy_start(void)
