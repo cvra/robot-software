@@ -555,6 +555,14 @@ void strategy_read_color_sequence(RobotState& state)
     messagebus_topic_t* colors_topic = messagebus_find_topic_blocking(&bus, "/colors");
 
     messagebus_topic_read(colors_topic, &state.tower_sequence[0], tower_sequence_len);
+
+    if (state.tower_sequence[0] != CUBE_UNKNOWN &&
+        state.tower_sequence[1] != CUBE_UNKNOWN &&
+        state.tower_sequence[2] != CUBE_UNKNOWN) {
+        NOTICE("Received a valid color sequence");
+        state.tower_sequence_known = true;
+    }
+
     cube_color_fill_unknown(&state.tower_sequence[0], tower_sequence_len);
 
     NOTICE("Tower sequence is: %s %s %s %s %s",
