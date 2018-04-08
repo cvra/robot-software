@@ -39,9 +39,15 @@ static THD_FUNCTION(color_sequence_server_thd, arg) {
     NOTICE("Color sequence server up, listening over BT");
 
     while (true) {
-        size_t len = sdAsynchronousRead(&SD2, buffer, sizeof(buffer));
+        // Wait for the sync character
+        do {
+            sdRead(&SD2, buffer, 1);
+        } while(buffer[0] != '@');
 
-        if (len < 3) {
+        // Read the color sequence
+        sdRead(&SD2, buffer, 4);
+
+        if (buffer[3] == '\n') {
             cube_color_from_string((char*)buffer, 3, colors);
             messagebus_topic_publish(&colors_topic, &colors[0], sizeof(colors));
 
