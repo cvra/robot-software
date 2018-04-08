@@ -1,0 +1,60 @@
+% Copyright note: This package defines how titles should
+% be typeset at the columbidae University
+% Please check for updates
+\ProvidesPackage{lsro_titlepage}[2017/12/31 v.01 A title page for projects at LSRO]
+
+\RequirePackage{graphicx}
+\newcommand*{\project}[1]{\gdef\@project{#1}%
+}
+\newcommand*{\@project}{Final Year Project}
+\newcommand*{\professor}[1]{\gdef\@professor{#1}%
+}
+\newcommand*{\@professor}{\texttt{\string\professor}}
+
+\newcommand*{\portrait}[1]{\gdef\@portrait{#1}%
+}
+\newcommand*{\@portrait}{example-image-16x9}
+
+\newcommand*{\supervisor}[1]{\gdef\@supervisor{#1}%
+}
+\newcommand*{\@supervisor}{\texttt{\string\supervisor} currently
+not set. Please fix this.}
+\renewcommand*{\maketitle}{%
+
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+
+\begin{titlepage}
+	\centering
+
+\textsc{\LARGE École Polytechnique Fédérale de~Lausanne}\\[1.5cm] 
+\textsc{\Large Laboratoire de Systèmes Robotiques}\\[0.5cm]
+
+\HRule \\[0.4cm]
+{ \huge \bfseries \@title}\\[0.4cm]
+\HRule \\[1.5cm]
+
+
+\vfill
+
+\includegraphics[width=3cm]{\@portrait}\\[0.5cm]
+
+{\Large\@author\unskip\strut}\\[1cm]
+
+\emph{Supervisors}\\
+\@supervisor\unskip\strut\\[1cm]
+\emph{Professor}\\
+Prof.~\@professor
+
+\vspace{2cm}
+
+{\large \@date\par}
+
+\end{titlepage}
+% empty page on verso of titlepage
+\begin{titlepage}
+\centering
+\emph{This page intentionally left blank.}
+\end{titlepage}
+
+}
+\endinput

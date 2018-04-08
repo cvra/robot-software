@@ -41,6 +41,15 @@ case $BUILD_TYPE in
         cmake ..
         make check
         popd
+
+        pushd uwb-beacon-firmware
+        packager
+        mkdir build
+        cd build
+        cmake ..
+        make check
+        popd
+
         ;;
 
     build)

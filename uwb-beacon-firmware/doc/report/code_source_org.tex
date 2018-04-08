@@ -1,0 +1,108 @@
+The code of this project can be separated into three different
+categories: libraries, portable code and platform specific code.
+Libraries are Open Source code that are re-used from other projects.
+Portable code is generic code that does not contain anything specific to
+this processor or board, but is only useful in this project. It can be
+moved into a library if another project requires it later. Portable code
+is usually well covered by unit tests (see the \texttt{tests} folder),
+where non portable code must usually be tested ``by hand''.
+
+\section*{Libraries}\label{libraries}
+
+Most of those libraries have READMEs that describe them in much more
+detail.
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{chibios-syscalls} provides a few extensions for ChibiOS (our
+  RTOS) for malloc and printf mostly.
+\item
+  \texttt{crc} implements some common checksums algorithms.
+\item
+  \texttt{decadriver} is provided by Decawave to interact with their
+  product.
+\item
+  \texttt{eigen} is a C++ matrix manipulation library used for the EKF.
+\item
+  \texttt{parameter} provides a unified interface for the application to
+  declare parameters.
+\item
+  \texttt{cmp}, \texttt{cmp\_mem\_access} and
+  \texttt{parameter\_flash\_storage} are used to store the parameters in
+  non volatile memory.
+\item
+  \texttt{msgbus} implements a software message bus
+  (publisher/subscriber pattern), similar in concept to D-bus or ROS.
+\item
+  \texttt{libuavcan} is the official UAVCAN stack.
+\item
+  \texttt{test-runner} is used only to provide an environment during
+  unit testing.
+\end{itemize}
+
+\section*{Portable code}\label{portable-code}
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{MadgwickAHRS.\{c,h\}} contains the implementation of the
+  Madgwick filter.
+\item
+  \texttt{lru\_cache.\{c,h\}} contains a generic implementation of a
+  Least Recently Used (LRU) cache.
+\item
+  \texttt{mpu9250.\{c,h\}} contains a portable implementation of a
+  driver for the Invensense MPU9250 IMU.
+\item
+  \texttt{state\_estimation.\{cpp,h\}} contains the code for the state
+  estimator (uses ekf.hpp).
+\item
+  \texttt{ekf.hpp} contains a generic implementation of an EKF using C++
+  templates.
+\item
+  \texttt{uwb\_protocol.\{c,h\}} contains a portable implementation of
+  the UWB protocol.
+\end{itemize}
+
+\section*{Non portable code}\label{non-portable-code}
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{ahrs\_thread.\{c,h\}} contains the thread that runs the
+  Madgwick filter.
+\item
+  \texttt{anchor\_position\_cache.\{c,h\}} contains the thread that
+  stores the position of the anchors and provides them to the other
+  threads.
+\item
+  \texttt{imu\_thread.\{c,h\}} contains the thread that runs the IMU
+  driver.
+\item
+  \texttt{ranging\_thread.\{c,h\}} contains the thread responsible for
+  doing range measurements and other radio operations.
+\item
+  \texttt{state\_estimation\_thread.\{cpp,h\}} contains the thread that
+  runs the state estimation.
+\item
+  \texttt{usbconf.\{c,h\}} contains the USB setup code.
+\item
+  \texttt{main.\{c,h\}} contains the entrypoint of the application.
+\item
+  \texttt{cmd.\{c,h\}} contains the command line interface shown on USB.
+\item
+  \texttt{decawave\_interface.\{c,h\}} contains the low level bindings
+  between Decawave's library and our code.
+\item
+  \texttt{board.\{c,h\}} contains GPIO contains GPIO configuration.
+\item
+  \texttt{bootloader\_config.\{c,h\}} contains code for interacting with
+  the CAN bootloader used on some boards.
+\item
+  \texttt{exti.\{c,h\}} contains the external interrupt configuration
+  and handlers.
+\item
+  The \texttt{uavcan} folder contains code related to moving messages
+  from the application to the CAN bus and vice versa.
+\end{itemize}

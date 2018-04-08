@@ -1,0 +1,776 @@
+\documentclass[a4paper, 12pt]{scrreprt}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[acronym]{glossaries}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{pdfpages}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{tablefootnote}
+\usepackage{verbatim}
+\usepackage{multirow}
+\usepackage{subcaption}
+\usepackage{floatrow}
+\usepackage[binary-units=true]{siunitx}
+\usepackage{wasysym}
+\usepackage{physics}
+\usepackage{hyperref}
+\usepackage{lsro_titlepage}
+
+\usepackage[numbers]{natbib}
+
+
+% Needed by pandoc
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\title{Development of an ultra-wide band indoor positioning system}
+\author{Antoine Albertelli}
+\supervisor{Daniel Burnier\\Eliot Ferragni}
+\professor{Franceso Mondada}
+\portrait{figures/antoine.jpg}
+\date{Fall semester, 2017}
+
+\begin{document}
+
+\newacronym{imu}{IMU}{Inertial Motion Unit}
+\newacronym{dmp}{DMP}{Digital Motion Processor}
+\newacronym{uwb}{UWB}{Ultra Wide Band}
+\newacronym{ekf}{EKF}{Extended Kalman Filter}
+\newacronym{pan}{PAN}{Personal Area Network}
+\newacronym{tof}{ToF}{Time of Flight}
+\newacronym{can}{CAN}{Controller Area Network}
+\newacronym{gui}{GUI}{Graphical User Interface}
+\newacronym{tdma}{TDMA}{Time Division Multiple Access}
+\newcommand{\ieeepan}[0]{IEEE 802.15.4a}
+
+\setcounter{tocdepth}{1}
+
+
+\maketitle
+
+\includepdf{abstract.pdf}
+\tableofcontents
+
+
+\chapter{Introduction}
+
+Precise positioning is one of the key elements of a mobile robot.
+It allows the software to take decisions and navigate to goals effectively.
+Therefore, it has been quite extensively studied by roboticists.
+Nowadays, the most common approaches are \glspl{imu} or dead reckoning.
+
+However, those approaches tend to suffer from drift over time, due to their integration process.
+To stay accurate over long period of time, they must be coupled with a reference system to correct the drift.
+GPS can be used for this role, but does not work indoors due to its frequency range.
+We wanted to develop a new system that could enable indoor positioning of autonomous robots.
+
+In recent year, \gls{pan} radio technologies have received an increasing amount of attention\cite{di2006uwb}, and relevant standards have been appearing, mostly under the \ieeepan{} protocol family.
+Of particular interest are \gls{uwb} systems, which have a bandwidth of at least \SI{500}{\mega\hertz} or 20\% of the center frequency\cite{uwb2006characteristics}.
+From a telecommunication point of view, \gls{uwb} is an interesting technology due to higher range and bandwidth at equivalent power level.
+However, it also enables new applications, including \gls{tof} calculation.
+
+We wanted to use this \gls{tof} measurement capability to create an indoor positioning system for robots.
+When looking at examples of positioning system for outdoors, a lot of them used a combination of GPS for global, noisy measurements and \gls{imu} (gyroscope, magnetometer and accelerometer) for local position data\cite{sporttracking,titterton2004strapdown}.
+Commercial \gls{uwb} systems have also been used in conjunction with \gls{imu} sensors for greater accuracy\cite{corrales2008hybrid}.
+
+\section{Working principle}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/system.pdf}
+    \caption{Overview of the system, showing one mobile robot (blue) and three fixed anchors (grey).\label{fig:system}}
+\end{figure}
+
+The complete system (Figure~\ref{fig:system}) is made of two types of nodes, tags and anchors.
+The distances between nodes are obtained by measuring the time of flight for a radio wave.
+The tags are placed on each robot, and estimate their position using the \gls{imu} combined with the distance measurements to the anchors.
+The anchors are at a reference position (fixed) and can be used by several tags.
+A tag will always use all the available anchors and will be able to seamlessly switch in case a anchors is not in range anymore.
+
+\section{Requirements}
+
+Possible uses of this system include virtual reality and gaming, industrial automation, robotics contest, etc.
+This work was done for use in robotics contest such as Eurobot or EPFL's internal contest.
+However, we kept in mind the other applications and tried to avoid making choices that would make extension to other applications difficult.
+
+For a robotics contest application, we decided on the following requirements.
+Those are not to be reached in the framework of this project, but are useful to reason about technical choices.
+
+\begin{enumerate}
+    \item Ability to localize two robots at the same time.
+    \item At least 3 anchors, uses more if more are available.
+    \item The robots are moving in the 2D plane, but the anchors must not be in this plane.
+    \item Reasonable positioning error ($\sigma=\SI{3}{\centi\meter}$).
+    \item Update rate high enough for navigation purposes (about \SI{5}{\hertz}).
+\end{enumerate}
+
+\chapter{Hardware}
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.4\textwidth]{figures/board.jpg}
+    \caption{Development board used for this project.
+        The antenna is sticking out the side to avoid interferences with the ground planes.
+    \label{fig:board}
+    }
+\end{figure}
+
+For this project, we used an Open Source development board (Figure~\ref{fig:board}), which includes all the required components for this project:
+
+\begin{itemize}
+    \item An Invensense MPU9250 \gls{imu}.
+    \item A Decawave DW1000 \gls{uwb} transceiver.
+    \item An STM32F411 microcontroller.
+    \item USB and \gls{can} connectivity.
+\end{itemize}
+
+\section{Inertial Motion Unit}
+
+The MPU9250 is a 9-axis \gls{imu} made by Invensense\footnote{\url{https://www.invensense.com}}.
+It was chosen because it combines an accelerometer, a gyroscope and a magnetometer in an easy to use package.
+It is connected to the main microcontroller through a SPI bus.
+
+An interesting feature of this device is the \gls{dmp}.
+It is a low power co-processor that can be used for a variety of purpose, including orientation estimation, in which it directly outputs a quaternion.
+Unfortunately, we found out that this feature is poorly documented by the manufacturer, making it impossible to use without reverse engineering.
+Additionally, the \gls{dmp} cannot use the magnetometer data.
+Therefore, we decided not to use it but to implement our own sensor fusion on top of raw sensor information.
+
+\section{UWB transceiver}
+The board contains an \gls{uwb} transceiver which combines a physical interface and a MAC.
+It has several features useful for our application:
+\begin{enumerate}
+    \item \ieeepan{} compliant MAC which can filter incoming frames based on their destination addresses,
+    \item High range, up to \SI{290}{\meter},
+    \item High accuracy timestamps for RX and TX of packets,
+    \item High data rate (up to \SI{6.8}{\mega\bit\per\second}).
+    \end{enumerate}
+
+\chapter{Positioning algorithm}
+\label{chap:algorithm}
+
+\section{Parametric vs.\  non-parametric filter}
+
+State estimation algorithm can be grouped in two major families: parametric and non parametric filters.
+Parametric filters are filter which take assumptions on the distribution of the state.
+For example, the Kalman filter makes the assumptions that both the state and the measurement noises are normally distributed.
+Non-parametric filters, on the other hand, can represent any distribution, and most importantly multi modal ones.
+
+If possible, parametric filters should be used, as they are computationally less expensive.
+In this project, the code will be running on a microcontroller, therefore it might not be possible to use complex non parametric filters.
+
+Early on the project we decided to use an \gls{ekf}, which is one of the most common state estimator.
+Like the Kalman filter, which assumes that the distributions of the state and noise are Gaussian.
+However, it works on non-linear dynamics, by approximating the non linear process through a first order Taylor expansion.
+
+While the \gls{ekf} is easy to implement and lightweight computationally, it only works if the noises are Gaussian.
+We can verify this property experimentally for the measurement noise (see Section~\ref{sec:range_result}), but could only assume it for the process noise.
+
+\section{Simulation}
+\label{sec:simulation}
+
+Testing the model's performance on the real system can be difficult.
+First, implementing all the models in an embedded language like C or C++ is a tedious task.
+Then, feeding the algorithm with fixed (recorded or generated) measurements makes the results easier to compare and reproduce.
+Therefore, we implemented a testing environment in Python.
+
+Python allows us to easily express high level mathematical objects.
+For example, the Jacobian matrices are automatically computed using a symbolic math toolbox\footnote{Sympy: \url{http://www.sympy.org/}}, then converted to a numerical version.
+Theoretically, it should even be possible to generate a C++ implementation from the symbolic representation, although that was not used in this project.
+The framework allows us to create new \gls{ekf} models and test their performance in a matter of minutes.
+
+\section{First model}
+
+The goal of this model was to create the simplest thing that could possibly work.
+It does not account for most issues, but was enough to start work on a simulator for the system.
+
+To simplify the model, the following hypotheses are made:
+\begin{enumerate}
+    \item The robot moves in the 2D plane, i.e. its pose is described by $\left( x, y, \theta \right)$.
+    \item The \gls{imu}'s internal motion processor already outputs $\theta$ (but it drifts).
+    \item The \gls{imu} outputs the acceleration vector in body frame $\mathbf{a}^b$.
+    \item The inertial frame is aligned with the world frame, i.e. the robot starts with $\theta=0$.
+\end{enumerate}
+
+The state contains the position and speed, in world frame:
+\begin{equation}
+    \mathbf{x} = \begin{pmatrix}x & y & \theta & \dot{x} & \dot{y}\end{pmatrix}^T
+\end{equation}
+
+\subsection{Motion model}
+
+The first step is to transform the acceleration from body frame to world frame.
+
+\begin{equation}
+    \mathbf{a}^w = R(\theta) \mathbf{a}^b
+\end{equation}
+
+The state update equation, using the acceleration as control input
+
+\begin{eqnarray}
+    \dv{t} \mathbf{x} &=&
+    \begin{pmatrix}
+        \dot{x} &
+        \dot{y} &
+        0 &
+        \mathbf{a}^w_x &
+        \mathbf{a}^w_y
+    \end{pmatrix}^T \nonumber
+    \\&=&
+    \begin{pmatrix}
+        \dot{x} \\
+        \dot{y} \\
+        0 \\
+        \cos(\theta) \mathbf{a}^B_x - \sin(\theta) \mathbf{a}^B_y \\
+        \sin(\theta) \mathbf{a}^B_x + \cos(\theta) \mathbf{a}^B_y \\
+    \end{pmatrix}
+\end{eqnarray}
+
+We can turn it into a discrete state update equation using the forward Euler method:
+
+\begin{equation}
+    \mathbf{x}_{t+1} = \mathbf{x}_t + \Delta_t \dv{t} \mathbf{x}
+\end{equation}
+
+\subsection{Measurement model}
+In this model we have two different measurement functions.
+The first one is the robot's heading, $\theta$, given by the \gls{dmp} or another attitute estimation algorithm.
+\begin{equation}
+    h_{\theta}(\mathbf{x}) = \theta
+\end{equation}
+
+The second type of measurement is the distance to the UWB anchors.
+It is actually a family of functions; each beacon defines a measurement function.
+This function is the distance to the position of the beacon, called $\mathbf{b}$.
+
+\begin{equation}
+    h_b(\mathbf{x}) = \sqrt{\left(\mathbf{x}_x - \mathbf{b}_x\right)^2 + \left(\mathbf{x}_y - \mathbf{b}_y\right)^2}
+\end{equation}
+
+\subsection{Simulation results}
+
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[t]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{models/simple_model_trajectory.pdf}
+        \caption{Trajectory}
+    \end{subfigure}%
+    ~
+    \begin{subfigure}[t]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{models/simple_model_error.pdf}
+        \caption{Position error}
+    \end{subfigure}
+    \caption{Simulation results using the simple model.
+        The simulated robot moves at \SI{0.17}{\meter\per\second}.
+        The \gls{uwb} ranges arrive at \SI{10}{\hertz}, while the accelerometer information was integrated at \SI{200}{\hertz}.
+        \label{fig:simple_model}
+    }
+\end{figure}
+
+This simple model was converted to an \gls{ekf} model and implemented using the framework described in Section~\ref{sec:simulation}.
+The noise characteristics of the ranging system were measured (see Section~\ref{sec:range_result}), while the accelerometer noise was taken from the datasheet.
+The results can be seen in Figure~\ref{fig:simple_model}.
+
+We think this behavior is pretty suboptimal and that the \gls{ekf} could be better tuned.
+However, we decided not to investigate this further, as this model required an absolute heading in the shared reference frame.
+This is not easy to know: the magnetometers can give an absolute heading with respect to the Earth's magnetic frame, but we do not know the rotation between the north and the shared frame.
+This led us to the creation of the next model.
+
+\section{UWB only model}
+
+This model was developed when I realized that the simple model had two important issues:
+
+\begin{enumerate}
+\item First, it supposed that we knew the rotation between the world frame and the earth magnetic frame, as the beacons' coordinates are in world frame, but the attitude of the robot is in earth magnetic frame.
+\item The model had a lot of different variances to tune, making the tuning hard to do.
+\end{enumerate}
+
+This model removes those issues by relying only on the UWB radio ranging for measurement, and no prediction step.
+
+\subsection{Model}
+
+The state contains only the position of the robot.
+
+\begin{equation*}
+\mathbf{x} = \begin{pmatrix}x & y\end{pmatrix}^T
+\end{equation*}
+
+
+There is no information used for prediction, making the prediction function the identity:
+
+\begin{equation}
+    \mathbf{x}_{k+1} = \mathbf{g}(\mathbf{x}_k, \mathbf{u}_{k+1}) = \mathbf{x}_{k}
+\end{equation}
+
+For the measurement, the UWB system gives us the distance $d$ to a beacon.
+The beacon's position $\mathbf{b}$ is known and assumed to be fixed.
+Therefore the measurement model is given by Equation~\ref{eqn:uwb-only-measurement}.
+
+\begin{equation}
+    h(\mathbf{x}, \mathbf{b}) = \lVert \mathbf{x} - \mathbf{b} \rVert
+\label{eqn:uwb-only-measurement}
+\end{equation}
+
+\subsection{Tuning}
+
+To compute the variance of the model, we estimate that the robot is moving at a constant speed of maximum $V_{max}$ between two measurements updates (which occurs at \(f_{UWB}\)).
+Therefore, the maximum distance that a robot can do is given by Equation~\ref{eqn:travelled-distance}.
+
+\begin{equation}
+d = \frac{V_{max}}{f}
+\label{eqn:travelled-distance}
+\end{equation}
+
+If we assume that \(d = 2 \sigma\), this means that our hypothesis is valid 97.5\% of the time, which is reasonable.
+Therefore, the process variance can be estimated using Equation~\ref{eqn:variance}.
+
+\begin{equation}
+\sigma^2 = \left( \frac{V_{max}}{2 f} \right)^2
+\label{eqn:variance}
+\end{equation}
+
+Assuming an update frequency of \SI{10}{\hertz} and a max speed of \SI{0.14}{\meter\per\second}, typical for a Thymio robot\cite{thymioweb}, we get a variance of $\sigma^2 = \SI{4.9e-5}{\meter\squared}$.
+
+
+\subsection{Simulation results}
+
+\begin{figure}[htpb]
+    \centering
+    \begin{subfigure}[t]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{models/uwb_only_trajectory.pdf}
+        \caption{Trajectory}
+    \end{subfigure}%
+    ~
+    \begin{subfigure}[t]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{models/uwb_only_error.pdf}
+        \caption{Position error}
+    \end{subfigure}
+    \caption{
+        Simulation results using only \gls{uwb} range information with 3 beacons.
+        The simulated robot moves at \SI{0.17}{\meter\per\second}.
+        The beacon distances were updated at \SI{10}{\hertz}.
+        \label{fig:uwb_only}
+    }
+\end{figure}
+
+The results from the simulation can be seen in Figure~\ref{fig:uwb_only}.
+The simulation parameters were the same as on the previous models to allow for comparison.
+We can see that this filter has a better RMS error.
+As it uses less information than our first model, it is probably due to better tuning.
+As the performance of this model are good enough for our test application, this is the model we decided to implement on the microcontroller.
+
+\section{Differential measurement model}
+
+Out of curiosity, we also tried to implement a model where the robot would embed two \gls{uwb} tags separated by a known distance.
+This should allow for a better precision, as well as measuring the heading of the robot.
+We made the following assumptions:
+
+\begin{enumerate}
+    \item Robot moves in the 2D plane
+    \item Gyro in the yaw axis
+    \item  Gyroscope has constant bias ($b_\omega$) and random noise.
+    \item \gls{uwb} receivers are separated by a fixed distance $d$.
+\end{enumerate}
+
+The state vector of the robot contains the position, speed and heading.
+It also contains a constant term for the gyro bias, used to model the noise on the bias.
+
+
+\begin{equation}
+\mathbf{x} = \begin{pmatrix} x & y & \dot{x} & \dot{y} & \theta & b_{\omega} \end{pmatrix}^T
+\end{equation}
+
+\subsection{Model}
+
+The prediction step uses outputs of the accelerometer (in body frame) and the angular rate as control inputs:
+
+\begin{equation}
+\mathbf{u} = \begin{pmatrix}
+    a_x\\
+    a_y\\
+    \omega
+\end{pmatrix}
+\end{equation}
+
+The differential equation governing the state evolution is therefore:
+
+\begin{equation}
+\mathbf{\dot{x}} = \begin{pmatrix}
+\dot{x}\\
+\dot{y}\\
+\cos(\theta) a_x - \sin(\theta) a_y \\
+\sin(\theta) a_x + \cos(\theta) a_y \\
+\omega - b_{\omega}\\
+0
+\end{pmatrix}
+\end{equation}
+
+Using forward Euler integration, we get:
+
+\begin{equation}
+    \mathbf{x}_{k+1} = \mathbf{g}(\mathbf{x}_k, \mathbf{u}_{k+1}) = \mathbf{x}_{k} + \Delta_t \mathbf{\dot{x}}
+\end{equation}
+
+For the measurement step, the UWB system gives us the distance $d$ to a beacon.
+The beacon's position $\mathbf{b}$ is known and assumed to be fixed.
+
+We first compute the position of each UWB receiver in world frame ($W$).
+Receiver $i$ is assumed to be at position $\mathbf{x}_{i}$ in robot frame ($R$).
+
+\begin{equation}
+\mathbf{x}_{i}^W = \mathbf{x}_{robot}^W + \begin{pmatrix}
+\cos \theta & - \sin \theta \\
+\sin \theta & \cos \theta
+\end{pmatrix} \mathbf{x}_{i}^R
+\end{equation}
+
+Then the measurement model is:
+
+\begin{equation}
+    h_i(\mathbf{x}, \mathbf{b}) = \lVert \mathbf{x}_i^W - \mathbf{b} \rVert
+\end{equation}
+
+\subsection{Simulation results}
+
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[t]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{models/differential_model_trajectory.pdf}
+        \caption{Trajectory}
+    \end{subfigure}%
+    ~
+    \begin{subfigure}[t]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{models/differential_model_error.pdf}
+        \caption{Position error}
+    \end{subfigure}
+
+    \begin{subfigure}[t]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{models/differential_model_angle.pdf}
+        \caption{Angle estimation}
+    \end{subfigure}
+
+    \caption{Simulation results using the differential model.
+        The simulated robot moves at \SI{0.17}{\meter\per\second}.
+        The \gls{uwb} ranges arrive at \SI{10}{\hertz}, while the accelerometer information was integrated at \SI{200}{\hertz}.
+        \label{fig:differential_model}
+    }
+\end{figure}
+
+This method was also simulated and the results can be seen in Figure~\ref{fig:differential_model}.
+To allow for comparison, it uses the same parameters as the previous experiments.
+We can see that it tracks the angle fairly well and the position has a good performance.
+
+The performance could probably become better with some \gls{ekf} tuning.
+We did not want to spend time doing this, as the hardware did not support this configuration.
+It can however be an interesting extension to allow for better performance and ability to track heading.
+
+\section{Attitude estimation}
+
+While an attitude estimator could be implemented directly in the \gls{ekf}, we chose to use a Madgwick estimator instead.
+This estimator is a relatively novel technique based on gradient descent.
+It is typically as accurate as an \gls{ekf}, while being less computationally expensive\cite{madgwick2011estimation}.
+
+The Madgwick filter takes as inputs the measurements of linear acceleration, angular rates and magnetic fields.
+It then computes the optimal state estimation, and returns it as a quaternion.
+We used the reference implementation\cite{madgwick2011estimation} which was already suitable for microcontroller use.
+
+\chapter{Implementation}
+
+\section{UWB ranging protocol}
+
+Although Decawave provides a description of the protocol\cite{dw1000manual}, the details are still left to the implementor.
+Therefore, we had to design our own implementation from their description. 
+
+\subsection{Design principles}
+
+\begin{enumerate}
+    \item The protocol should require as little state as possible to be stored on the participating beacons.
+        State synchronization between several systems is a common source of error and bugs.
+    \item We want to maximize the measurement frequency, which means we should have a measurement simple with as little packets as possible.
+    \item To avoid waking up the microcontroller, the MAC layer integrated in the \gls{uwb} module must be leveraged as much as possible.
+    \item The same radio link used for range measurement will also be used as a general-purpose link to transmit data between nodes.
+\end{enumerate}
+
+\subsection{Time measurement}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/ranging_protocol.png}
+    \label{fig:ranging_protocol}
+    \caption[Ranging protocol]{Messages in a time measurement interaction. Source:~\cite{dw1000manual}}
+\end{figure}
+
+The time measurement protocol is composed of a sequence of 3 messages.
+To initiate a measurement sequence, an anchor broadcasts a measurement advertisement message to the broadcast address (0xFFFF).
+Tags may respond with a measurement reply message.
+Finally, the anchor sends a measurement finalization message and the tag computes the ranging solution:
+
+\begin{equation}
+T_{prop} = \frac{T_{round,1} \cdot T_{round,2} - T_{reply,1} \cdot T_{reply,2}}{T_{round,1} + T_{round,2} + T_{reply,1} + T_{reply,2}}
+\label{eqn:ranging}
+\end{equation}
+
+The timing information is then converted to a distance by multiplying by the speed of light ($c$).
+
+This 3-way ranging scheme works because transceivers can be programmed to send a frame at a given time.
+Therefore, $T_{reply,2}$ can be included in the final message.
+
+\paragraph{Measurement advertisement}
+A measurement advertisement message has a sequence number of 0.
+It is sent by an anchor to the broadcast address (0xFFFF).
+It only contains the TX timestamp as a 40 bit unsigned integer ($T_{tx,1}$).
+
+\paragraph{Measurement reply}
+A measurement reply message has a sequence number of 1.
+It is sent by a tag and contains the timestamps of all events so far ($T_{tx,1}$, $T_{rx,1}$ and $T_{tx,2}$)
+
+\paragraph{Measurement finalization}
+Finally, the measurement finalization has a sequence number of 2.
+It is sent by the anchor and contains the content of the previous message plus the new timestamps ($T_{rx,2}$, $T_{tx,3}$).
+
+Once the tag received the last message, it can compute the ranging solution using Equation~\ref{eqn:ranging} with the following information:
+\begin{eqnarray*}
+    T_{round,1} &=& T_{tx,1} - T_{rx,2} \\
+    T_{reply,1} &=& T_{rx,1} - T_{tx,2} \\
+    T_{round,2} &=& T_{tx,2} - T_{rx,3} \\
+    T_{reply,2} &=& T_{rx,2} - T_{tx,3}
+\end{eqnarray*}
+
+
+
+
+Here are some notes regarding the implementation:
+
+\begin{enumerate}
+    \item The chosen scheme is compatible with the use of the  \ieeepan{} MAC hardware packet filters.
+    \item The sequence number field is rather used to store the type of the packet rather than an always increasing sequence number.
+    \item All data in messages are sent in network byte order (most significant byte first).
+    \item All timestamps in messages are in DW1000 units and referenced to the internal clock (no shared reference).
+\end{enumerate}
+
+\subsection{Antenna delay calibration}
+In order to obtain correct range readings, we should take in account the delay created by antenna transmission.
+This delay should be calibrated as it will be different for each design \cite{dw1000manual}.
+To do it, we simply measured the distance reported by the modules over a known range (averaged on N samples).
+The antenna delay ($\Delta_T$) can then be computed by equation~\ref{eqn:delay-calibration}.
+
+\begin{equation}
+    \Delta_T = \frac{d_{measured} - d_{real}}{2\cdot c}
+    \label{eqn:delay-calibration}
+\end{equation}
+
+On our system, this value was found to be about 32840~DW1000's internal units (\SI{513}{\nano\second}).
+
+
+\subsection{Optimal rate calculation}
+\label{sec:optimal-rate}
+When using a radio link such as our \gls{uwb} modules, collisions can occur if two devices try to transmit at the same time.
+If this happens, at least one of the two transmitted packets will be lost.
+As the protocol does not include retransmission logic to stay lightweight, this means the whole ranging sequence will drop.
+This means that increasing the ranging rate past a certain point will \emph{decrease} the rate of successful range transactions, as collisions will occur more frequently.
+This effect can be seen on Figure~\ref{fig:measurement-rate}.
+
+To study the probability of having collisions, we can use the theory from queuing systems\cite{hongler2017stochastic}.
+Queuing systems are useful to study phenomenon where customers arrive at a certain rate $\lambda$, and are served at a rate $\mu$, or equivalently, use the ressources for a time $\frac{1}{\mu}$.
+In our system, the ressource would be the access to the shared medium, $\lambda$ the number of packets per seconds sent by the nodes and $\frac{1}{\mu}$ the average time it takes for one full measurement sequence to occur.
+
+We will model our system by a so called ``M/M/1'' queue, this means that the emission of packets is Markovian (memoryless), the transmission time is Markovian as well, and only 1 packet can be processed at a time.
+Therefore, the probability of a packet transmission by a node during an interval $t$ is given by the memoryless law:
+
+\begin{equation}
+f(t) = \lambda e^{-\lambda t}
+\end{equation}
+
+From M/M/1, we know that $p_n = (1 - \rho) \rho^n$ is the probability of having $n$ ranging transactions in flight at the same time, where $\rho = \frac{\lambda}{\mu}$ is the load factor of the medium.
+We are interested in the probability of having $n > 1$, i.e. a collision:
+
+\begin{eqnarray}
+    p(n>1) &=& 1 - p(n=0) - p(n=1) \\
+       &=& 1 - (1 - \rho) (1 + \rho)
+\end{eqnarray}
+
+The rate of successful measurements ($\lambda'$) is given by the rate of measurement attemps multiplied by the success rate.
+
+\begin{equation}
+\lambda' = \lambda \cdot (1 - p(n>1))
+\end{equation}
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{models/measurement_rate.pdf}
+    \caption{
+        Measurement rates for various values of $\frac{1}{\mu}$.
+        We see that past a certain point, adding measurement attempts per seconds results in too many collisions, decreasing the overall measurement rate.
+        The current implementation needs about \SI{30}{\milli\second} to complete a measurement.
+        This means the optimal rate of $\lambda = \SI{19.3}{\hertz}$, resulting in a succesful rate of \SI{12.8}{\hertz}.\label{fig:measurement-rate}
+    }
+\end{figure}
+
+
+\section{Software architecture}
+
+Continuing on the principles used on the ePuck~2, the software is constructed around a message passing bus (Figure~\ref{fig:architecture}).
+This allowed us to validate every subsystem independently during development.
+It also ensures the software stays loosely coupled: the implementations can be changed without any impact on the rest of the system, as long as the published messages are the same.
+In addition to the data processing pipeline, a generic parameter service allows modules to define settings which are automatically exposed over USB and \gls{can}, and are stored to flash memory for persistency across resets.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/architecture.pdf}
+    \caption{Software architecture.
+    The arrows represent message bus topics.
+    Not shown here is the command shell, which can poke at almost every topic to inspect the data.
+    }
+    \label{fig:architecture}
+\end{figure}
+
+While the console is convenient for debugging, a more structured way of communication is required for data logging and integration into a real robot.
+We used the \gls{can} bus integrated on the board with the UAVCAN\footnote{\url{http://uavcan.org/}} protocol on top.
+UAVCAN is a high-level protocol which defines standard way of encoding messages of various types and different semantics (broadcast or request/response).
+The messages are defined in \texttt{.uavcan} files, from which C++ code is automatically generated.
+The standard also defines a few conventions including a way to access a device's parameters, and provides a \gls{gui} to interact with the bus.
+We used a simple USB-to-CAN converter\footnote{\url{http://www.cvra.ch/technologies/can_dongle.html}} to connect our PCs to the board.
+
+\chapter{Results}
+
+\section{Range measurement}
+\label{sec:range_result}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{experiments/range_noise.pdf}
+    \caption{Distribution of the range measured by the \gls{uwb} module in the optimal orientation.
+        The corresponding gaussian fit is shown.
+        We see that the error is pretty much normally distributed.
+    }
+    \label{fig:range_noise}
+\end{figure}
+
+The Kalman filter relies on the assumptions that the measurement noise is distributed according to a normal law.
+As we were not familiar with \gls{uwb} ranging technologies, we needed to make sure that this was the case.
+Once the ranging protocol was implemented and working, we separated two boards by a known distance and logged the measured ranges for half an hour.
+The distribution of the results can be seen in Figure~\ref{fig:range_noise}.
+
+We tried to use a statistical normality tests to determine if the samples were from a normal distribution.
+However, those tests can only reject the hypothesis that the samples come from the normal distribution and are almost never significant on large sample count.
+We plotted the distribution that fitted the dataset and decided that the distribution was close enough to a Gaussian for the requirements of the \gls{ekf}.
+Although some forum posts described increased noise when running coplanar antennas (instead of parallel), we could not reproduce this effect.
+It seems that any antenna orientation could work effectively.
+
+This experiment also allowed us to confirm that the antenna delay was properly calibrated since the dataset did not exhibit a bias.
+
+
+\section{Attitude determination}
+
+As we ended up not using the results from the attitude determination, we did not do a deep evaluation of the performance of the Madgwick filter.
+The dynamic performances seemed pretty good when testing the algorithm ``by hand''.
+To test the algorithm's static drift, we fixed it to a table and let it run until stable, then measured the drift over a 5-minute interval.
+We found the drift to be very good (Figure~\ref{fig:madgwick-drift}), achieving drifts of less than one degree per hour.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{experiments/madgwick_drift_X.pdf}
+    \caption{Static drift of Madgwick's algorithm.
+    Only the worst performing axis is show here.}
+    \label{fig:madgwick-drift}
+\end{figure}
+
+Overall, the performance of Madgwick's algorithm seemed pretty convincing.
+This, coupled with the ease of use and tuning means that this algorithm can be a very good general purpose attitude estimator.
+Compared to the \gls{dmp}, it also does not restrict the choice of sensors.
+
+\section{Positioning algorithm}
+The positioning system is implemented and works in the minimal configuration (one tag and two anchors).
+Real-world experiments confirm the precision and accuracy expected from simulated experiments, at least from a qualitative perspective.
+We lacked the time to do a proper quantitative analysis of the performance, as well as study the dynamics of the system.
+
+\chapter{Conclusion \& Future work}
+
+This project was an interesting excursion in the land of \gls{uwb} systems.
+A significant amount of time was spent on the design of the state estimator and of the communication system.
+Unfortunately, a lot of time was also spent writing and debugging simple low-level drivers for the various chips involved.
+
+The current system is already operational and provides an interesting experimental platform.
+The complete measurement stack (ranging, attitude determination and state estimation) are implemented.
+Loose coupling with the message bus allow for easy swapping of one component for experimentation.
+However, the performance of the system could be greatly improved in a second revision of this project.
+
+The development of the beacons will continue as an Open Source project on Github\footnote{\url{https://github.com/cvra}}.
+It could be interesting to add one semester project to enhance the current implementation.
+Here are some topics that could be covered.
+
+\section{Radio protocol enhancements}
+
+One of the weakest points of the current implementation is the protocol used to share the radio medium.
+As the current implementation only relies on probabilities to handle collision, its performances are very poor (Section~\ref{sec:optimal-rate}).
+Using a better protocol to handle interleaved packets could result in a much better media utilization, up to 1742 message (570 ranging) per second\cite{dw1000manual}.
+
+To achieve this level of performance, replacing the broadcast measurement advertisements is needed.
+The current implementation means that a ranging sequence eventually locks up the whole media while it is completing (Figure~\ref{fig:broadcast}).
+This leads to low air utilization, as no transaction can occur even when no messages are being transmitted (during CPU processing).
+Switching to unicast addressing (Figure~\ref{fig:unicast}) would allow other tag and anchors to communicate during processing.
+
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[t]{0.6\textwidth}
+        \includegraphics[width=\textwidth]{figures/radio_broadcast.pdf}
+        \caption{Broadcast (current implementation)\label{fig:broadcast}}
+    \end{subfigure}
+    \\[1cm]
+    \begin{subfigure}[t]{0.6\textwidth}
+        \includegraphics[width=\textwidth]{figures/radio_unicast.pdf}
+        \caption{Unicast (proposed change)\label{fig:unicast}}
+    \end{subfigure}
+    \caption{Comparison between broadcast measurement advertisement and unicast measurement advertisements.}
+\end{figure}
+
+
+For even greater performance the \gls{tdma} protocol could be used.
+In \gls{tdma}, each node is assigned a specific time slot by the coordinator.
+This allows for very high air utilization: using the fastest data rate and payloads of 12 bytes, each packet takes \SI{103}{\micro\second} to transmit\cite{dw1000manual}, resulting in about 9700 packets per seconds.
+However it is very complex to implement, as it requires a perfect synchronization between nodes.
+
+\section{Kalman filter enhancements}
+
+As discussed in Chapter~\ref{chap:algorithm}, we implemented the simplest possible Kalman filter.
+The performance of the system could probably benefit from a better model, carefully tuned to the sensors fitted on board.
+In addition to the other algorithms described in this report, other simple models could be interesting.
+For example, adding a constant speed hypothesis to the \gls{ekf} could probably result in a lower RMS error.
+
+
+\appendix
+\chapter{Hardware schematic}
+
+The following schematic is the one of the board used during this project.
+However, several flaws were discovered and should be corrected before a new batch is produced.
+
+\begin{itemize}
+    \item There is currently no way to use the USB bootloader built in the microcontroller.
+        This makes updating the board's firmware harder, as it requires a specialized debug adapter.
+        Adding a button on pin BOOT0 would allow the user to enter bootloading mode as well as serving as a general-purpose button.
+    \item The reset pin of the \gls{uwb} module is connected to a pin used by the USB module of the microcontroller.
+        Although one should be able to disable this pin by software, we could not make it work and had to cut a connection on the board.
+\end{itemize}
+
+All design documents and related issues can be found on the board's Github repository\footnote{\url{https://github.com/cvra/uwb-beacon-board/}}.
+
+
+\includepdf[landscape=true]{figures/board_schematic.pdf}
+
+\chapter{User manual}
+\input{user_guide.tex}
+
+\chapter{Code source organization}
+\input{code_source_org.tex}
+
+\clearpage
+\nocite{*} % tells bibtex to include everything
+\bibliographystyle{ieeetr}
+\bibliography{report}
+
+\end{document}
