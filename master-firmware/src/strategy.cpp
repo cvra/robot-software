@@ -578,24 +578,21 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
 
     InitGoal init_goal;
 
-    SwitchGoal switch_goal;
     BeeGoal bee_goal;
     PickupCubesGoal pickup_cubes_goal;
     BuildTowerGoal build_tower_goal[2] = {BuildTowerGoal(0), BuildTowerGoal(1)};
     goap::Goal<RobotState>* goals[] = {
         &pickup_cubes_goal,
+        &bee_goal,
         &build_tower_goal[0],
         &build_tower_goal[1],
-        &switch_goal,
-        &bee_goal,
     };
 
     IndexArms index_arms;
     RetractArms retract_arms(color);
-    PickupCubes pickup_cubes[3] = {
-        PickupCubes(color, 0), PickupCubes(color, 1), PickupCubes(color, 2),
+    PickupCubes pickup_cubes[2] = {
+        PickupCubes(color, 0), PickupCubes(color, 1),
     };
-    TurnSwitchOn turn_switch_on(color);
     DeployTheBee deploy_the_bee(color);
     DepositCubes deposit_cubes[2] = {
         DepositCubes(color, 0), DepositCubes(color, 1),
@@ -619,8 +616,6 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
         &retract_arms,
         &pickup_cubes[0],
         &pickup_cubes[1],
-        &pickup_cubes[2],
-        &turn_switch_on,
         &deploy_the_bee,
         &deposit_cubes[0],
         &deposit_cubes[1],
