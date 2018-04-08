@@ -5,6 +5,7 @@
 
 #include "main.h"
 #include "priorities.h"
+#include "control_panel.h"
 
 #include "robot_helpers/eurobot2018.h"
 #include "color_sequence_server.h"
@@ -51,6 +52,7 @@ static THD_FUNCTION(color_sequence_server_thd, arg) {
             cube_color_from_string((char*)buffer, 3, colors);
             messagebus_topic_publish(&colors_topic, &colors[0], sizeof(colors));
 
+            control_panel_toggle(LED_POWER);
             DEBUG("Received color: %s %s %s %s %s",
                   cube_color_name(colors[0]),
                   cube_color_name(colors[1]),
