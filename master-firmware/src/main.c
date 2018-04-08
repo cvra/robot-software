@@ -227,10 +227,8 @@ int main(void)
 
     /* Initialize motors */
     init_base_motors();
-#ifdef DEBRA
     chThdSleepMilliseconds(100);
     init_arm_motors();
-#endif
     chThdSleepMilliseconds(100);
     init_lever_motors();
 
@@ -259,12 +257,12 @@ int main(void)
     position_manager_start();
     trajectory_manager_start();
 
-#ifdef DEBRA
     /* Arms init */
     arms_init();
     arms_controller_start();
     arm_trajectory_manager_start(&main_arm);
-#endif
+
+    /* Lever arms init */
     lever_module_start();
 
     /* Initialize strategy thread, will wait for signal to begin game */

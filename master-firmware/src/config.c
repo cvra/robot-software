@@ -58,7 +58,6 @@ static struct {
     } right, left;
 } lever;
 
-#ifdef DEBRA
 static parameter_namespace_t arms_config, arms_main_config, motor_offsets_config;
 static parameter_t upperarm_length, forearm_length;
 static parameter_t main_offset_x, main_offset_y, main_offset_a;
@@ -77,7 +76,6 @@ static struct {
         } x, y;
     } control;
 } main_arm;
-#endif
 
 void config_init(void)
 {
@@ -185,7 +183,6 @@ void config_init(void)
     parameter_scalar_declare_with_default(&lever.left.servo.deployed, &lever.left.servo.ns, "deployed", 0);
     parameter_scalar_declare_with_default(&lever.left.servo.retracted, &lever.left.servo.ns, "retracted", 0);
 
-#ifdef DEBRA
     parameter_namespace_declare(&arms_config, &master_config, "arms");
 
     parameter_scalar_declare_with_default(&upperarm_length, &arms_config, "upperarm_length", 0);
@@ -213,7 +210,6 @@ void config_init(void)
     parameter_scalar_declare_with_default(&main_arm.control.y.ki, &main_arm.control.y.ns, "ki", 0);
     parameter_scalar_declare_with_default(&main_arm.control.y.kd, &main_arm.control.y.ns, "kd", 0);
     parameter_scalar_declare_with_default(&main_arm.control.y.ilimit, &main_arm.control.y.ns, "i_limit", 0);
-#endif
 }
 
 float config_get_scalar(const char *id)
