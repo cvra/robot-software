@@ -65,6 +65,10 @@ master:
             servo:
                 deployed: 0.00215
                 retracted: 0.0008
+    ballgun:
+        servo:
+            deployed: 0.0017
+            retracted: 0.0021
     main_arm:
         control:
             x:

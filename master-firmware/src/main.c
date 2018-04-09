@@ -40,6 +40,7 @@
 #include "http/server.h"
 #include "pca9685_pwm.h"
 #include "gui.h"
+#include "ballgun/ballgun_module.h"
 
 
 void init_base_motors(void);
@@ -265,6 +266,9 @@ int main(void)
 
     /* Lever arms init */
     lever_module_start();
+
+    /* Ball gun module start */
+    ballgun_module_start();
 
     /* Initialize strategy thread, will wait for signal to begin game */
     strategy_start();

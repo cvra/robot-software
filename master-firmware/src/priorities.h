@@ -19,6 +19,7 @@
 #define ARMS_CONTROLLER_PRIO                    (NORMALPRIO)
 #define ARM_TRAJ_MANAGER_PRIO                   (NORMALPRIO)
 #define LEVER_MODULE_PRIO                       (NORMALPRIO)
+#define BALLGUN_MODULE_PRIO                     (NORMALPRIO)
 #define STRATEGY_PRIO                           (NORMALPRIO)
 #define SCORE_COUNTER_PRIO                      (NORMALPRIO)
 #define ENCODER_PRIO                            (NORMALPRIO)
