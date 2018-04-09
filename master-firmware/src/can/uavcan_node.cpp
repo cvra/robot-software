@@ -12,6 +12,7 @@
 #include "motor_driver_uavcan.hpp"
 #include "can_io_driver.h"
 #include "sensor_handler.h"
+#include "uwb_position_handler.h"
 #include "config.h"
 #include "uavcan_node.h"
 #include "priorities.h"
@@ -130,6 +131,10 @@ static void main(void *arg)
 
     if (sensor_handler_init(node) < 0) {
         ERROR("sensor init");
+    }
+
+    if (uwb_position_handler_init(node) < 0) {
+        ERROR("UWB TagPosition init");
     }
 
     res = emergency_stop_init(node);
