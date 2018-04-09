@@ -37,6 +37,7 @@
 #include <trace/trace.h>
 #include "pca9685_pwm.h"
 #include "lever/lever_module.h"
+#include "ballgun/ballgun_module.h"
 
 const ShellCommand commands[];
 
@@ -1412,6 +1413,19 @@ static void cmd_check_dist(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
+static void cmd_ballgun(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc != 1) {
+        chprintf(chp, "Usage: ballgun deploy|retract\r\n");
+        return;
+    }
+
+    ballgun_t* ballgun = &main_ballgun;
+
+    if      (strcmp("deploy", argv[0]) == 0)  { ballgun_deploy(ballgun); }
+    else if (strcmp("retract", argv[0]) == 0) { ballgun_retract(ballgun); }
+    else                                      { chprintf(chp, "Invalid command: %s", argv[1]); }
+}
 
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
@@ -1471,5 +1485,6 @@ const ShellCommand commands[] = {
     {"motor_sin", cmd_motor_sin},
     {"bee", cmd_push_the_bee},
     {"check_dist", cmd_check_dist},
+    {"ballgun", cmd_ballgun},
     {NULL, NULL}
 };
