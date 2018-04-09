@@ -17,7 +17,7 @@ int main(void)
     // write to the buffer
     cmp_write_map(&cmp, 1);
     cmp_write_str(&cmp, "test", strlen("test"));
-    cmp_write_int(&cmp, 42);
+    cmp_write_sint(&cmp, 42);
 
     // print the buffer contents in hex
     printf("buffer contents:\n");
