@@ -9,6 +9,8 @@ parameter_namespace_t actuator_config;
 
 parameter_namespace_t master_config;
 
+static parameter_t is_main_robot, control_panel_active_high;
+
 static parameter_namespace_t odometry_config;
 static parameter_t robot_size, robot_alignement_length, opponent_size, calib_dir;
 static parameter_t odometry_ticks, odometry_track, odometry_left_corr, odometry_right_corr;
@@ -58,7 +60,6 @@ static struct {
     } right, left;
 } lever;
 
-#ifdef DEBRA
 static parameter_namespace_t arms_config, arms_main_config, motor_offsets_config;
 static parameter_t upperarm_length, forearm_length;
 static parameter_t main_offset_x, main_offset_y, main_offset_a;
@@ -77,13 +78,15 @@ static struct {
         } x, y;
     } control;
 } main_arm;
-#endif
 
 void config_init(void)
 {
     parameter_namespace_declare(&global_config, NULL, NULL);
     parameter_namespace_declare(&actuator_config, &global_config, "actuator");
     parameter_namespace_declare(&master_config, &global_config, "master");
+
+    parameter_boolean_declare_with_default(&is_main_robot, &master_config, "is_main_robot", false);
+    parameter_boolean_declare_with_default(&control_panel_active_high, &master_config, "control_panel_active_high", true);
 
     parameter_integer_declare_with_default(&robot_size, &master_config, "robot_size_x_mm", 0);
     parameter_integer_declare_with_default(&robot_alignement_length, &master_config, "robot_alignment_length_mm", 0);
@@ -185,7 +188,6 @@ void config_init(void)
     parameter_scalar_declare_with_default(&lever.left.servo.deployed, &lever.left.servo.ns, "deployed", 0);
     parameter_scalar_declare_with_default(&lever.left.servo.retracted, &lever.left.servo.ns, "retracted", 0);
 
-#ifdef DEBRA
     parameter_namespace_declare(&arms_config, &master_config, "arms");
 
     parameter_scalar_declare_with_default(&upperarm_length, &arms_config, "upperarm_length", 0);
@@ -213,31 +215,32 @@ void config_init(void)
     parameter_scalar_declare_with_default(&main_arm.control.y.ki, &main_arm.control.y.ns, "ki", 0);
     parameter_scalar_declare_with_default(&main_arm.control.y.kd, &main_arm.control.y.ns, "kd", 0);
     parameter_scalar_declare_with_default(&main_arm.control.y.ilimit, &main_arm.control.y.ns, "i_limit", 0);
-#endif
+}
+
+static parameter_t* config_get_param(const char *id)
+{
+    parameter_t *p;
+
+    p = parameter_find(&global_config, id);
+
+    if (p == NULL) {
+        ERROR("Unknown parameter \"%s\"", id);
+    }
+
+    return p;
 }
 
 float config_get_scalar(const char *id)
 {
-    parameter_t *p;
-
-    p = parameter_find(&global_config, id);
-
-    if (p == NULL) {
-        ERROR("Unknown parameter \"%s\"", id);
-    }
-
-    return parameter_scalar_get(p);
+    return parameter_scalar_get(config_get_param(id));
 }
 
 int config_get_integer(const char *id)
 {
-    parameter_t *p;
+    return parameter_integer_get(config_get_param(id));
+}
 
-    p = parameter_find(&global_config, id);
-
-    if (p == NULL) {
-        ERROR("Unknown parameter \"%s\"", id);
-    }
-
-    return parameter_integer_get(p);
+bool config_get_boolean(const char *id)
+{
+    return parameter_boolean_get(config_get_param(id));
 }

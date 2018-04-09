@@ -5,6 +5,8 @@ logging:
   sdcard:
     level: "notice" # changing this to debug slows down things too much and causes panic
 master:
+    is_main_robot: true
+    control_panel_active_high: false
     robot_size_x_mm: 245 # Robot diameter
     robot_alignment_length_mm: 130 # robot length from center to alignement border
     opponent_size_x_mm_default: 400
@@ -248,11 +250,19 @@ actuator:
         control:
             mode: 0 # openloop
             low_batt_th: 12.
-#    lever-pump-1:
-#        control:
-#            mode: 0 # openloop
-#            low_batt_th: 12.
-#    lever-pump-2:
-#        control:
-#            mode: 0 # openloop
-#            low_batt_th: 12.
+    right-pump-1:
+        control:
+            mode: 0 # openloop
+            low_batt_th: 12.
+    right-pump-2:
+        control:
+            mode: 0 # openloop
+            low_batt_th: 12.
+    left-pump-1:
+        control:
+            mode: 0 # openloop
+            low_batt_th: 12.
+    left-pump-2:
+        control:
+            mode: 0 # openloop
+            low_batt_th: 12.

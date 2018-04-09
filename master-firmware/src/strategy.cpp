@@ -43,13 +43,12 @@ void strategy_play_game(void);
 #define MIRROR_RIGHT_LEVER(color) (color == YELLOW ? (&right_lever) : (&left_lever))
 #define MIRROR_LEFT_LEVER(color) (color == YELLOW ? (&left_lever) : (&right_lever))
 
-#define BUTTON_IS_PRESSED(in) (control_panel_read(in) == true) // Active high
-
 static enum strat_color_t wait_for_color_selection(void)
 {
     strat_color_t color = YELLOW;
 
-    while (!BUTTON_IS_PRESSED(BUTTON_YELLOW) && !BUTTON_IS_PRESSED(BUTTON_GREEN)) {
+    while (!control_panel_button_is_pressed(BUTTON_YELLOW) &&
+           !control_panel_button_is_pressed(BUTTON_GREEN)) {
         control_panel_set(LED_YELLOW);
         control_panel_set(LED_GREEN);
         strategy_wait_ms(100);
@@ -59,7 +58,7 @@ static enum strat_color_t wait_for_color_selection(void)
         strategy_wait_ms(100);
     }
 
-    if (BUTTON_IS_PRESSED(BUTTON_GREEN)) {
+    if (control_panel_button_is_pressed(BUTTON_GREEN)) {
         control_panel_clear(LED_YELLOW);
         control_panel_set(LED_GREEN);
         color = BLUE;
@@ -579,24 +578,21 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
 
     InitGoal init_goal;
 
-    SwitchGoal switch_goal;
     BeeGoal bee_goal;
     PickupCubesGoal pickup_cubes_goal;
     BuildTowerGoal build_tower_goal[2] = {BuildTowerGoal(0), BuildTowerGoal(1)};
     goap::Goal<RobotState>* goals[] = {
         &pickup_cubes_goal,
+        &bee_goal,
         &build_tower_goal[0],
         &build_tower_goal[1],
-        &switch_goal,
-        &bee_goal,
     };
 
     IndexArms index_arms;
     RetractArms retract_arms(color);
-    PickupCubes pickup_cubes[3] = {
-        PickupCubes(color, 0), PickupCubes(color, 1), PickupCubes(color, 2),
+    PickupCubes pickup_cubes[2] = {
+        PickupCubes(color, 0), PickupCubes(color, 1),
     };
-    TurnSwitchOn turn_switch_on(color);
     DeployTheBee deploy_the_bee(color);
     DepositCubes deposit_cubes[2] = {
         DepositCubes(color, 0), DepositCubes(color, 1),
@@ -620,8 +616,6 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
         &retract_arms,
         &pickup_cubes[0],
         &pickup_cubes[1],
-        &pickup_cubes[2],
-        &turn_switch_on,
         &deploy_the_bee,
         &deposit_cubes[0],
         &deposit_cubes[1],
@@ -652,7 +646,7 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
     NOTICE("Positioning robot");
 
     robot.base_speed = BASE_SPEED_INIT;
-    strategy_auto_position(MIRROR_X(color, 200), 200, MIRROR_A(color, -90), color);
+    strategy_auto_position(MIRROR_X(color, 200), 500, MIRROR_A(color, -90), color);
 
     trajectory_a_abs(&robot.traj, MIRROR_A(color, 180));
     trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
@@ -706,33 +700,102 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
 
 void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
 {
-    NOTICE("Waiting for autopositioning signal...");
+    messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
+
+    InitGoal init_goal;
+
+    SwitchGoal switch_goal;
+    PickupCubesGoal pickup_cubes_goal;
+    goap::Goal<RobotState>* goals[] = {
+        &pickup_cubes_goal,
+        &switch_goal,
+    };
+
+    IndexArms index_arms;
+    RetractArms retract_arms(color);
+    PickupCubes pickup_cubes[2] = {
+        PickupCubes(color, 2), PickupCubes(color, 3),
+    };
+    TurnSwitchOn turn_switch_on(color);
+
+    const int max_path_len = 10;
+    goap::Action<RobotState> *path[max_path_len] = {nullptr};
+
+    goap::Action<RobotState> *actions[] = {
+        &index_arms,
+        &retract_arms,
+        &pickup_cubes[0],
+        &pickup_cubes[1],
+        &turn_switch_on,
+    };
+
+    static goap::Planner<RobotState> planner(actions, sizeof(actions) / sizeof(actions[0]));
+
+    lever_retract(&right_lever);
+    lever_retract(&left_lever);
+
+    NOTICE("Getting arms ready...");
+    int len = planner.plan(state, init_goal, path, max_path_len);
+    for (int i = 0; i < len; i++) {
+        path[i]->execute(state);
+        messagebus_topic_publish(state_topic, &state, sizeof(state));
+    }
+
+    /* Autoposition robot */
     wait_for_autoposition_signal();
     NOTICE("Positioning robot");
-    strategy_auto_position(MIRROR_X(color, 600), 200, 90, color);
-    NOTICE("Robot positioned at x: 600[mm], y: 200[mm], a: 90[deg]");
+
+    robot.base_speed = BASE_SPEED_INIT;
+    strategy_auto_position(MIRROR_X(color, 200), 200, MIRROR_A(color, -90), color);
+
+    trajectory_a_abs(&robot.traj, MIRROR_A(color, 180));
+    trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
+
+    robot.base_speed = BASE_SPEED_FAST;
+
+    NOTICE("Robot positioned at x: %d[mm], y: %d[mm], a: %d[deg]",
+           position_get_x_s16(&robot.pos), position_get_y_s16(&robot.pos), position_get_a_deg_s16(&robot.pos));
 
     /* Wait for starter to begin */
     wait_for_starter();
-    NOTICE("Starting game");
+
+    trajectory_game_timer_reset();
+    strategy_read_color_sequence(state);
+
+    NOTICE("Starting game...");
+    auto goals_are_reached = [&goals](const RobotState& state) {
+        for (auto goal : goals) {
+            if (!goal->is_reached(state)) {
+                return false;
+            }
+        }
+        return true;
+    };
+    while (!goals_are_reached(state)) {
+        for (auto goal : goals) {
+            int len = planner.plan(state, *goal, path, max_path_len);
+            for (int i = 0; i < len; i++) {
+                bool success = path[i]->execute(state);
+                messagebus_topic_publish(state_topic, &state, sizeof(state));
+                if (success == false) {
+                    break; // Break on failure
+                }
+                if (trajectory_game_has_ended()) {
+                    break;
+                }
+            }
+            if (trajectory_game_has_ended()) {
+                break;
+            }
+        }
+        if (trajectory_game_has_ended()) {
+            break;
+        }
+    }
 
     while (true) {
-        /* Go to lunar module */
-        strategy_goto_avoid_retry(MIRROR_X(color, 780), 1340, MIRROR_A(color, 45), TRAJ_FLAGS_ALL, -1);
-
-        /* Push lunar module */
-        trajectory_d_rel(&robot.traj, 100.);
-        trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
-        trajectory_d_rel(&robot.traj, -100.);
-        trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
-
-        /* Go back to home */
-        strategy_goto_avoid_retry(MIRROR_X(color, 600), 200, MIRROR_A(color, 90), TRAJ_FLAGS_ALL, -1);
-
-        DEBUG("Game ended!\nInsert coin to play more.\n");
+        NOTICE("Game ended!");
         strategy_wait_ms(1000);
-
-        wait_for_starter();
     }
 }
 
@@ -757,13 +820,13 @@ void strategy_play_game(void *p)
     score_counter_start();
     color_sequence_server_start();
 
-#ifdef DEBRA
-    NOTICE("First, Order...");
-    strategy_order_play_game(color, state);
-#else
-    NOTICE("Then, Chaos!");
-    strategy_chaos_play_game(color, state);
-#endif
+    if (config_get_boolean("master/is_main_robot")) {
+        NOTICE("First, Order...");
+        strategy_order_play_game(color, state);
+    } else {
+        NOTICE("Then, Chaos!");
+        strategy_chaos_play_game(color, state);
+    }
 }
 
 void strategy_start(void)

@@ -6,6 +6,8 @@ struct control_panel_io {
     uint16_t pin;
 };
 
+static bool active_high;
+
 static struct control_panel_io input_pins[] = {
     {GPIOE, GPIOE_EXT_IO_8}, // BUTTON_YELLOW
     {GPIOF, GPIOF_EXT_IO_9}, // BUTTON_GREEN
@@ -23,14 +25,20 @@ static struct control_panel_io output_pins[] = {
     {GPIOF, GPIOF_EXT_IO_7}, // LED_GREEN
 };
 
-void control_panel_init(void)
+void control_panel_init(bool is_active_high)
 {
+    active_high = is_active_high;
+
     for (unsigned i = 0; i < sizeof(output_pins)/sizeof(output_pins[0]); i++) {
         palSetPadMode(output_pins[i].port, output_pins[i].pin, PAL_MODE_OUTPUT_PUSHPULL);
     }
 
     for (unsigned i = 0; i < sizeof(input_pins)/sizeof(input_pins[0]); i++) {
-        palSetPadMode(input_pins[i].port, input_pins[i].pin, PAL_MODE_INPUT_PULLDOWN);
+        if (active_high) {
+            palSetPadMode(input_pins[i].port, input_pins[i].pin, PAL_MODE_INPUT_PULLUP);
+        } else {
+            palSetPadMode(input_pins[i].port, input_pins[i].pin, PAL_MODE_INPUT_PULLDOWN);
+        }
     }
 }
 
@@ -41,15 +49,32 @@ bool control_panel_read(enum control_panel_input in)
 
 void control_panel_set(enum control_panel_output out)
 {
-    palClearPad(output_pins[out].port, output_pins[out].pin);
+    if (active_high) {
+        palSetPad(output_pins[out].port, output_pins[out].pin);
+    } else {
+        palClearPad(output_pins[out].port, output_pins[out].pin);
+    }
 }
 
 void control_panel_clear(enum control_panel_output out)
 {
-    palSetPad(output_pins[out].port, output_pins[out].pin);
+    if (active_high) {
+        palClearPad(output_pins[out].port, output_pins[out].pin);
+    } else {
+        palSetPad(output_pins[out].port, output_pins[out].pin);
+    }
 }
 
 void control_panel_toggle(enum control_panel_output out)
 {
     palTogglePad(output_pins[out].port, output_pins[out].pin);
+}
+
+bool control_panel_button_is_pressed(enum control_panel_input in)
+{
+    if (active_high) {
+        return control_panel_read(in) == false;
+    } else {
+        return control_panel_read(in) == true;
+    }
 }
