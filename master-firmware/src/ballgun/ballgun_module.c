@@ -2,6 +2,7 @@
 
 #include <error/error.h>
 
+#include <arms/cvra_arm_motors.h>
 #include "config.h"
 #include "main.h"
 #include "pca9685_pwm.h"
@@ -37,6 +38,11 @@ static void ballgun_update_settings(ballgun_t* ballgun, parameter_namespace_t* n
     float fire = parameter_scalar_get(parameter_find(ns, "turbine/fire"));
 
     ballgun_set_turbine_range(ballgun, arm, charge, fire);
+
+    float acc_charge = parameter_scalar_get(parameter_find(ns, "accelerator/charge"));
+    float acc_fire = parameter_scalar_get(parameter_find(ns, "accelerator/fire"));
+
+    ballgun_set_accelerator_range(ballgun, acc_charge, acc_fire);
 }
 
 static THD_FUNCTION(ballgun_module_thd, arg)
@@ -50,6 +56,9 @@ static THD_FUNCTION(ballgun_module_thd, arg)
     ballgun_update_settings(&main_ballgun, main_ballgun_params);
     ballgun_set_callbacks(&main_ballgun, set_servo, NULL);
     ballgun_set_turbine_callbacks(&main_ballgun, set_turbine, NULL);
+
+    static cvra_arm_motor_t ball_accelerator = {.id = "ball-accelerator", .direction = 0, .index = 0};
+    ballgun_set_accelerator_callbacks(&main_ballgun, set_motor_voltage, &ball_accelerator);
 
     NOTICE("Ball gun ready to shoot");
 

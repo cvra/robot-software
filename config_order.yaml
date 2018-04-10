@@ -73,6 +73,9 @@ master:
             arm: 0.00153
             charge: 0.0018
             fire: 0.0012
+        accelerator:
+            charge: 2.0
+            fire: -2.0
     main_arm:
         control:
             x:

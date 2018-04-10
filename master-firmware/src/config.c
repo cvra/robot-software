@@ -73,6 +73,11 @@ static struct {
         parameter_t charge;
         parameter_t fire;
     } turbine;
+    struct {
+        parameter_namespace_t ns;
+        parameter_t charge;
+        parameter_t fire;
+    } accelerator;
 } ballgun;
 
 static parameter_namespace_t arms_config, arms_main_config, motor_offsets_config;
@@ -213,6 +218,10 @@ void config_init(void)
     parameter_scalar_declare_with_default(&ballgun.turbine.arm, &ballgun.turbine.ns, "arm", 0);
     parameter_scalar_declare_with_default(&ballgun.turbine.charge, &ballgun.turbine.ns, "charge", 0);
     parameter_scalar_declare_with_default(&ballgun.turbine.fire, &ballgun.turbine.ns, "fire", 0);
+
+    parameter_namespace_declare(&ballgun.accelerator.ns, &ballgun.ns, "accelerator");
+    parameter_scalar_declare_with_default(&ballgun.accelerator.charge, &ballgun.accelerator.ns, "charge", 0);
+    parameter_scalar_declare_with_default(&ballgun.accelerator.fire, &ballgun.accelerator.ns, "fire", 0);
 
     parameter_namespace_declare(&arms_config, &master_config, "arms");
 
