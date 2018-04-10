@@ -274,3 +274,7 @@ actuator:
         control:
             mode: 0 # openloop
             low_batt_th: 12.
+    ball-accelerator:
+        control:
+            mode: 0 # openloop
+            low_batt_th: 12.

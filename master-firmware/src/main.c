@@ -46,6 +46,7 @@
 void init_base_motors(void);
 void init_arm_motors(void);
 void init_lever_motors(void);
+void init_ballgun_motors(void);
 
 motor_manager_t motor_manager;
 
@@ -227,10 +228,9 @@ int main(void)
 
     /* Initialize motors */
     init_base_motors();
-    chThdSleepMilliseconds(100);
     init_arm_motors();
-    chThdSleepMilliseconds(100);
     init_lever_motors();
+    init_ballgun_motors();
 
     /* Load stored robot config */
     config_load_from_flash();
@@ -325,6 +325,11 @@ void init_lever_motors(void)
     bus_enumerator_add_node(&bus_enumerator, "left-lever", NULL);
     motor_manager_create_driver(&motor_manager, "left-pump-1");
     motor_manager_create_driver(&motor_manager, "left-pump-2");
+}
+
+void init_ballgun_motors(void)
+{
+    motor_manager_create_driver(&motor_manager, "ball-accelerator");
 }
 
 void __stack_chk_fail(void)
