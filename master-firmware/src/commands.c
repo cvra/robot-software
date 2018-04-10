@@ -387,6 +387,28 @@ static void cmd_position_reset(BaseSequentialStream *chp, int argc, char *argv[]
     }
 }
 
+static void cmd_allied_position(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    (void) argc;
+    (void) argv;
+    point_t pos;
+    messagebus_topic_t *topic;
+    const char *topic_name = "/allied_position";
+
+    topic = messagebus_find_topic(&bus, topic_name);
+
+    if (topic == NULL) {
+        chprintf(chp, "Could not find topic %s\r\n", topic_name);
+        return;
+    }
+
+    if (messagebus_topic_read(topic, &pos, sizeof(pos))) {
+        chprintf(chp, "Allied robot position: %.3f %.3f\r\n", pos.x, pos.y);
+    } else {
+        chprintf(chp, "No data published on %s\r\n", topic_name);
+    }
+}
+
 static void cmd_traj_forward(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc == 1) {
@@ -1472,6 +1494,7 @@ const ShellCommand commands[] = {
     {"node", cmd_node},
     {"pos", cmd_position},
     {"pos_reset", cmd_position_reset},
+    {"allied_pos", cmd_allied_position},
     {"reboot", cmd_reboot},
     {"rotate", cmd_traj_rotate},
     {"rpc_client_demo", cmd_rpc_client_test},
