@@ -67,6 +67,12 @@ static struct {
         parameter_t retracted;
         parameter_t deployed;
     } servo;
+    struct {
+        parameter_namespace_t ns;
+        parameter_t arm;
+        parameter_t charge;
+        parameter_t fire;
+    } turbine;
 } ballgun;
 
 static parameter_namespace_t arms_config, arms_main_config, motor_offsets_config;
@@ -198,9 +204,15 @@ void config_init(void)
     parameter_scalar_declare_with_default(&lever.left.servo.retracted, &lever.left.servo.ns, "retracted", 0);
 
     parameter_namespace_declare(&ballgun.ns, &master_config, "ballgun");
+
     parameter_namespace_declare(&ballgun.servo.ns, &ballgun.ns, "servo");
     parameter_scalar_declare_with_default(&ballgun.servo.deployed, &ballgun.servo.ns, "deployed", 0);
     parameter_scalar_declare_with_default(&ballgun.servo.retracted, &ballgun.servo.ns, "retracted", 0);
+
+    parameter_namespace_declare(&ballgun.turbine.ns, &ballgun.ns, "turbine");
+    parameter_scalar_declare_with_default(&ballgun.turbine.arm, &ballgun.turbine.ns, "arm", 0);
+    parameter_scalar_declare_with_default(&ballgun.turbine.charge, &ballgun.turbine.ns, "charge", 0);
+    parameter_scalar_declare_with_default(&ballgun.turbine.fire, &ballgun.turbine.ns, "fire", 0);
 
     parameter_namespace_declare(&arms_config, &master_config, "arms");
 
