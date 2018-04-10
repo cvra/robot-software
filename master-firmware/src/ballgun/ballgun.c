@@ -44,6 +44,16 @@ void ballgun_set_turbine_range(ballgun_t *ballgun, float turbine_armed_pwm, floa
     ballgun_unlock(&ballgun->lock);
 }
 
+void ballgun_set_accelerator_range(ballgun_t *ballgun, float accelerator_charge, float accelerator_fire)
+{
+    ballgun_lock(&ballgun->lock);
+
+    ballgun->accelerator_charge = accelerator_charge;
+    ballgun->accelerator_fire = accelerator_fire;
+
+    ballgun_unlock(&ballgun->lock);
+}
+
 void ballgun_set_callbacks(ballgun_t* ballgun, void (*set_ballgun)(void*, float), void* ballgun_args)
 {
     ballgun->set_ballgun = set_ballgun;
@@ -54,6 +64,13 @@ void ballgun_set_turbine_callbacks(ballgun_t* ballgun, void (*set_turbine)(void*
 {
     ballgun->set_turbine = set_turbine;
     ballgun->turbine_args = turbine_args;
+}
+
+void ballgun_set_accelerator_callbacks(ballgun_t* ballgun, void (*set_accelerator)(void*, float),
+                                       void* accelerator_args)
+{
+    ballgun->set_accelerator = set_accelerator;
+    ballgun->accelerator_args = accelerator_args;
 }
 
 void ballgun_deploy(ballgun_t* ballgun)
@@ -82,6 +99,7 @@ void ballgun_arm(ballgun_t* ballgun)
 
     ballgun->turbine_state = BALLGUN_ARMED;
     ballgun->set_turbine(ballgun->turbine_args, ballgun->turbine_armed_pwm);
+    ballgun->set_accelerator(ballgun->accelerator_args, 0);
 
     ballgun_unlock(&ballgun->lock);
 }
@@ -92,6 +110,7 @@ void ballgun_charge(ballgun_t* ballgun)
 
     ballgun->turbine_state = BALLGUN_CHARGING;
     ballgun->set_turbine(ballgun->turbine_args, ballgun->turbine_charge_pwm);
+    ballgun->set_accelerator(ballgun->accelerator_args, ballgun->accelerator_charge);
 
     ballgun_unlock(&ballgun->lock);
 }
@@ -102,6 +121,7 @@ void ballgun_fire(ballgun_t* ballgun)
 
     ballgun->turbine_state = BALLGUN_FIRING;
     ballgun->set_turbine(ballgun->turbine_args, ballgun->turbine_fire_pwm);
+    ballgun->set_accelerator(ballgun->accelerator_args, ballgun->accelerator_fire);
 
     ballgun_unlock(&ballgun->lock);
 }

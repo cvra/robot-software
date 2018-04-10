@@ -6,6 +6,7 @@
 namespace {
 void set_servo_pos(void *s, float value) { *(float *)s = value; }
 void set_turbine_speed(void *s, float value) { *(float *)s = value; }
+void set_accelerator_speed(void *s, float value) { *(float *)s = value; }
 }
 
 TEST_GROUP(ABallGun)
@@ -13,15 +14,18 @@ TEST_GROUP(ABallGun)
     ballgun_t ballgun;
     float ballgun_servo_pos;
     float ballgun_tubine_speed;
+    float ballgun_accelerator_speed;
 
     void setup()
     {
         ballgun_init(&ballgun);
         ballgun_set_callbacks(&ballgun, &set_servo_pos, &ballgun_servo_pos);
         ballgun_set_turbine_callbacks(&ballgun, &set_turbine_speed, &ballgun_tubine_speed);
+        ballgun_set_accelerator_callbacks(&ballgun, &set_accelerator_speed, &ballgun_accelerator_speed);
 
         ballgun_set_servo_range(&ballgun, 0.001, 0.002);
         ballgun_set_turbine_range(&ballgun, 0.0, -0.001, 0.001);
+        ballgun_set_accelerator_range(&ballgun, -2, 2);
     }
 
     void teardown()
@@ -58,6 +62,7 @@ TEST(ABallGun, charges)
 
     CHECK_EQUAL(BALLGUN_CHARGING, ballgun.turbine_state);
     CHECK(ballgun_tubine_speed < 0.0f);
+    CHECK(ballgun_accelerator_speed < 0.0f);
 }
 
 TEST(ABallGun, fires)
@@ -65,7 +70,7 @@ TEST(ABallGun, fires)
     ballgun_fire(&ballgun);
 
     CHECK_EQUAL(BALLGUN_FIRING, ballgun.turbine_state);
-    CHECK(ballgun_tubine_speed > 0.0f);
+    CHECK(ballgun_accelerator_speed > 0.0f);
 }
 
 TEST(ABallGun, armsAfterFiring)
@@ -75,4 +80,5 @@ TEST(ABallGun, armsAfterFiring)
 
     CHECK_EQUAL(BALLGUN_ARMED, ballgun.turbine_state);
     CHECK(ballgun_tubine_speed == 0.0f);
+    CHECK(ballgun_accelerator_speed == 0.0f);
 }
