@@ -1416,7 +1416,7 @@ static void cmd_check_dist(BaseSequentialStream *chp, int argc, char *argv[])
 static void cmd_ballgun(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc != 1) {
-        chprintf(chp, "Usage: ballgun deploy|retract\r\n");
+        chprintf(chp, "Usage: ballgun deploy|retract|arm|charge|fire\r\n");
         return;
     }
 
@@ -1424,6 +1424,9 @@ static void cmd_ballgun(BaseSequentialStream *chp, int argc, char *argv[])
 
     if      (strcmp("deploy", argv[0]) == 0)  { ballgun_deploy(ballgun); }
     else if (strcmp("retract", argv[0]) == 0) { ballgun_retract(ballgun); }
+    else if (strcmp("arm", argv[0]) == 0)     { ballgun_arm(ballgun); }
+    else if (strcmp("charge", argv[0]) == 0)  { ballgun_charge(ballgun); }
+    else if (strcmp("fire", argv[0]) == 0)    { ballgun_fire(ballgun); }
     else                                      { chprintf(chp, "Invalid command: %s", argv[1]); }
 }
 
