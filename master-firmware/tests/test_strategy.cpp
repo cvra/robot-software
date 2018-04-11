@@ -34,6 +34,9 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
     BuildTowerLevel(int id, int level) : actions::BuildTowerLevel(id, level) {}
     bool execute(RobotState &state) { return dummy_execute(this, state); }
 };
+struct FireBallGunIntoWaterTower : actions::FireBallGunIntoWaterTower {
+    bool execute(RobotState &state) { return dummy_execute(this, state); }
+};
 
 TEST_GROUP(Strategy) {
     RobotState state;
@@ -48,6 +51,7 @@ TEST_GROUP(Strategy) {
         {{0, 0}, {0, 1}, {0, 2}, {0, 3}},
         {{1, 0}, {1, 1}, {1, 2}, {1, 3}},
     };
+    FireBallGunIntoWaterTower fire_ballgun_into_watertower;
 
     std::vector<goap::Action<RobotState>*> availableActions()
     {
@@ -69,6 +73,7 @@ TEST_GROUP(Strategy) {
             &build_tower_lvl[1][1],
             &build_tower_lvl[1][2],
             &build_tower_lvl[1][3],
+            &fire_ballgun_into_watertower,
         };
     }
 
@@ -178,4 +183,14 @@ TEST(Strategy, CanBuildTwoTowers)
         CHECK_TRUE(len > 0);
         CHECK_TRUE(goal.is_reached(state));
     }
+}
+
+TEST(Strategy, CanFillWaterTower)
+{
+    WaterTowerGoal goal;
+
+    int len = compute_and_execute_plan(goal, state);
+
+    CHECK_TRUE(len > 0);
+    CHECK_TRUE(goal.is_reached(state));
 }

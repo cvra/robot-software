@@ -138,6 +138,19 @@ struct BuildTowerLevel : public goap::Action<RobotState> {
     }
 };
 
+struct FireBallGunIntoWaterTower : public goap::Action<RobotState> {
+    bool can_run(RobotState state)
+    {
+        return state.arms_are_deployed == false;
+    }
+
+    RobotState plan_effects(RobotState state)
+    {
+        state.balls_in_watertower += 8;
+        return state;
+    }
+};
+
 } // namespace actions
 
 #endif /* STRATEGY_ACTIONS_H */

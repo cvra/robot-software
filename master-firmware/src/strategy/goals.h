@@ -43,4 +43,11 @@ struct BuildTowerGoal : goap::Goal<RobotState> {
     }
 };
 
+struct WaterTowerGoal : goap::Goal<RobotState> {
+    virtual int distance_to(const RobotState &state) const
+    {
+        return goap::Distance().shouldBeTrue(state.balls_in_watertower > 0);
+    }
+};
+
 #endif /* STRATEGY_GOALS_H */
