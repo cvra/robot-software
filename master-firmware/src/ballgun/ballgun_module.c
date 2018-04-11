@@ -17,13 +17,15 @@ ballgun_t main_ballgun;
 static void set_servo(void* ballgun, float pos)
 {
     (void)ballgun;
-    pca9685_pwm_set_pulse_width(0, pos);
+    int channel = config_get_integer("master/ballgun/servo/channel");
+    pca9685_pwm_set_pulse_width(channel, pos);
 }
 
 static void set_turbine(void* ballgun, float speed)
 {
     (void)ballgun;
-    pca9685_pwm_set_pulse_width(1, speed);
+    int channel = config_get_integer("master/ballgun/turbine/channel");
+    pca9685_pwm_set_pulse_width(channel, speed);
 }
 
 static void ballgun_update_settings(ballgun_t* ballgun, parameter_namespace_t* ns)

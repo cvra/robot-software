@@ -70,11 +70,13 @@ master:
             deployed_fully: 0.00095
             deployed: 0.0015
             retracted: 0.00192
+            channel: 1
         turbine:
             arm: 0.00153
             charge: 0.00193
             fire: 0.0012
             slowfire: 0.00133
+            channel: 0
         accelerator:
             charge: -3.0
             fire: 5.0

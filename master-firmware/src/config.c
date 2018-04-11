@@ -67,6 +67,7 @@ static struct {
         parameter_t retracted;
         parameter_t deployed;
         parameter_t deployed_fully;
+        parameter_t channel;
     } servo;
     struct {
         parameter_namespace_t ns;
@@ -74,6 +75,7 @@ static struct {
         parameter_t charge;
         parameter_t fire;
         parameter_t slowfire;
+        parameter_t channel;
     } turbine;
     struct {
         parameter_namespace_t ns;
@@ -217,12 +219,14 @@ void config_init(void)
     parameter_scalar_declare_with_default(&ballgun.servo.deployed_fully, &ballgun.servo.ns, "deployed_fully", 0);
     parameter_scalar_declare_with_default(&ballgun.servo.deployed, &ballgun.servo.ns, "deployed", 0);
     parameter_scalar_declare_with_default(&ballgun.servo.retracted, &ballgun.servo.ns, "retracted", 0);
+    parameter_integer_declare_with_default(&ballgun.servo.channel, &ballgun.servo.ns, "channel", 0);
 
     parameter_namespace_declare(&ballgun.turbine.ns, &ballgun.ns, "turbine");
     parameter_scalar_declare_with_default(&ballgun.turbine.arm, &ballgun.turbine.ns, "arm", 0);
     parameter_scalar_declare_with_default(&ballgun.turbine.charge, &ballgun.turbine.ns, "charge", 0);
     parameter_scalar_declare_with_default(&ballgun.turbine.fire, &ballgun.turbine.ns, "fire", 0);
     parameter_scalar_declare_with_default(&ballgun.turbine.slowfire, &ballgun.turbine.ns, "slowfire", 0);
+    parameter_integer_declare_with_default(&ballgun.turbine.channel, &ballgun.turbine.ns, "channel", 0);
 
     parameter_namespace_declare(&ballgun.accelerator.ns, &ballgun.ns, "accelerator");
     parameter_scalar_declare_with_default(&ballgun.accelerator.charge, &ballgun.accelerator.ns, "charge", 0);
