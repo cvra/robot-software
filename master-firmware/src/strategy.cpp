@@ -555,12 +555,13 @@ void strat_collect_wastewater(enum strat_color_t color)
     ballgun_deploy(&main_ballgun);
     strategy_wait_ms(1000);
 
-    trajectory_a_rel(&robot.traj, MIRROR(color, -95));
-    trajectory_wait_for_end(TRAJ_FLAGS_ROTATION);
-    trajectory_a_rel(&robot.traj, MIRROR(color, 5));
-    trajectory_wait_for_end(TRAJ_FLAGS_ROTATION);
-
     ballgun_charge(&main_ballgun);
+
+    trajectory_a_rel(&robot.traj, MIRROR(color, -95));
+    trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE /*TRAJ_FLAGS_ROTATION*/);
+    trajectory_a_rel(&robot.traj, MIRROR(color, 5));
+    trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE /*TRAJ_FLAGS_ROTATION*/);
+
     strategy_wait_ms(2000);
 
     ballgun_tidy(&main_ballgun);
