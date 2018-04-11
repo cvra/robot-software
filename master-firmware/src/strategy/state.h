@@ -10,7 +10,6 @@ struct RobotState {
 
     bool arms_are_indexed{false};
     bool arms_are_deployed{true};
-    bool has_blocks{false};
     bool switch_on{false};
     bool bee_deployed{false};
 
@@ -33,7 +32,7 @@ struct RobotState {
     uint16_t construction_zone_pos[2][2] = {{500, 300}, {900, 300}};
 
     bool ballgun_full{false};
-    int balls_in_watertower{0};
+    uint8_t balls_in_watertower{0};
 };
 
 bool operator==(const RobotState& lhs, const RobotState& rhs);
