@@ -1443,6 +1443,14 @@ static void cmd_wastewater(BaseSequentialStream *chp, int argc, char *argv[])
     else                                     { chprintf(chp, "Invalid color: %s", argv[0]); }
 }
 
+static void cmd_watertower(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    (void)chp;
+    (void)argc;
+    (void)argv;
+    strat_fill_watertower();
+}
+
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
@@ -1503,5 +1511,6 @@ const ShellCommand commands[] = {
     {"check_dist", cmd_check_dist},
     {"ballgun", cmd_ballgun},
     {"wastewater", cmd_wastewater},
+    {"watertower", cmd_watertower},
     {NULL, NULL}
 };

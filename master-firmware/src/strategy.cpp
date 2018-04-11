@@ -589,6 +589,42 @@ struct EmptyMonocolorWasteWaterCollector : actions::EmptyMonocolorWasteWaterColl
     }
 };
 
+void strat_fill_watertower(void)
+{
+    ballgun_tidy(&main_ballgun);
+    ballgun_deploy(&main_ballgun);
+    strategy_wait_ms(1000);
+
+    ballgun_fire(&main_ballgun);
+    strategy_wait_ms(2000);
+
+    ballgun_tidy(&main_ballgun);
+}
+
+struct FireBallGunIntoWaterTower : actions::FireBallGunIntoWaterTower {
+    enum strat_color_t m_color;
+
+    FireBallGunIntoWaterTower(enum strat_color_t color)
+        : m_color(color) {}
+
+    bool execute(RobotState &state) {
+        const int x_mm = 240;
+        const int y_mm = 740;
+        NOTICE("Filling water tower from %d %d", x_mm, y_mm);
+
+        if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, -90), TRAJ_FLAGS_ALL)) {
+            return false;
+        }
+
+        strat_fill_watertower();
+
+        state.ballgun_full = false;
+        state.balls_in_watertower += 8;
+
+        return true;
+    }
+};
+
 void strategy_read_color_sequence(RobotState& state)
 {
     int tower_sequence_len = sizeof(state.tower_sequence) / sizeof(enum cube_color);
