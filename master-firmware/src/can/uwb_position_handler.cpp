@@ -5,22 +5,24 @@
 #include "main.h"
 #include "uwb_position_handler.h"
 #include "base/base_controller.h"
+#include "uwb_position.h"
 
 using TagPosition = cvra::uwb_beacon::TagPosition;
 
 static messagebus_topic_t allied_position_topic;
 static MUTEX_DECL(allied_position_topic_lock);
 static CONDVAR_DECL(allied_position_topic_condvar);
-static point_t allied_position;
+static allied_position_t allied_position;
 static uavcan::LazyConstructor<uavcan::Publisher<TagPosition> > publisher;
 
 static void position_cb(const uavcan::ReceivedDataStructure<TagPosition> &msg)
 {
-    point_t pos;
-    pos.x = msg.x;
-    pos.y = msg.y;
+    allied_position_t pos;
+    pos.point.x = msg.x;
+    pos.point.y = msg.y;
+    pos.timestamp = timestamp_get();
     messagebus_topic_publish(&allied_position_topic, &pos, sizeof(pos));
-    DEBUG("Received position from allied robot: %.2f %.2f", pos.x, pos.y);
+    DEBUG("Received position from allied robot: %.2f %.2f", pos.point.x, pos.point.y);
 }
 
 int uwb_position_handler_init(uavcan::INode &node)
