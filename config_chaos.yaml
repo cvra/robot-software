@@ -68,7 +68,7 @@ master:
     ballgun:
         servo:
             deployed: 0.0015
-            retracted: 0.0020
+            retracted: 0.00192
         turbine:
             arm: 0.00153
             charge: 0.0018
