@@ -125,3 +125,9 @@ void ballgun_fire(ballgun_t* ballgun)
 
     ballgun_unlock(&ballgun->lock);
 }
+
+void ballgun_tidy(ballgun_t* ballgun)
+{
+    ballgun_arm(ballgun);
+    ballgun_retract(ballgun);
+}

@@ -1416,7 +1416,7 @@ static void cmd_check_dist(BaseSequentialStream *chp, int argc, char *argv[])
 static void cmd_ballgun(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc != 1) {
-        chprintf(chp, "Usage: ballgun deploy|retract|arm|charge|fire\r\n");
+        chprintf(chp, "Usage: ballgun deploy|retract|arm|charge|fire|tidy\r\n");
         return;
     }
 
@@ -1427,7 +1427,8 @@ static void cmd_ballgun(BaseSequentialStream *chp, int argc, char *argv[])
     else if (strcmp("arm", argv[0]) == 0)     { ballgun_arm(ballgun); }
     else if (strcmp("charge", argv[0]) == 0)  { ballgun_charge(ballgun); }
     else if (strcmp("fire", argv[0]) == 0)    { ballgun_fire(ballgun); }
-    else                                      { chprintf(chp, "Invalid command: %s", argv[1]); }
+    else if (strcmp("tidy", argv[0]) == 0)    { ballgun_tidy(ballgun); }
+    else                                      { chprintf(chp, "Invalid command: %s", argv[0]); }
 }
 
 const ShellCommand commands[] = {

@@ -69,6 +69,9 @@ void ballgun_arm(ballgun_t* ballgun);
 void ballgun_charge(ballgun_t* ballgun);
 void ballgun_fire(ballgun_t* ballgun);
 
+/* Ballgun tidy : arm and retract */
+void ballgun_tidy(ballgun_t* ballgun);
+
 #ifdef __cplusplus
 }
 #endif

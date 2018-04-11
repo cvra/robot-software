@@ -21,6 +21,7 @@
 #include "arms/arm_trajectory_manager.h"
 #include "arms/arm.h"
 #include "lever/lever_module.h"
+#include "ballgun/ballgun_module.h"
 #include "config.h"
 #include "control_panel.h"
 #include "main.h"
@@ -633,6 +634,7 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
 
     lever_retract(&right_lever);
     lever_retract(&left_lever);
+    ballgun_tidy(&main_ballgun);
 
     NOTICE("Getting arms ready...");
     int len = planner.plan(state, init_goal, path, max_path_len);
@@ -733,6 +735,7 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
 
     lever_retract(&right_lever);
     lever_retract(&left_lever);
+    ballgun_tidy(&main_ballgun);
 
     NOTICE("Getting arms ready...");
     int len = planner.plan(state, init_goal, path, max_path_len);
