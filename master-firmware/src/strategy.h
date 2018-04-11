@@ -16,6 +16,8 @@ bool strat_deposit_cube(float x, float y, int num_cubes_in_tower);
 void strat_push_switch_on(float x, float y, float z, float y_push);
 void strat_push_the_bee(point_t start, point_t end, float bee_height);
 
+void strat_collect_wastewater(enum strat_color_t color);
+
 #ifdef __cplusplus
 }
 #endif

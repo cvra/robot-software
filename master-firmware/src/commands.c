@@ -1431,6 +1431,18 @@ static void cmd_ballgun(BaseSequentialStream *chp, int argc, char *argv[])
     else                                      { chprintf(chp, "Invalid command: %s", argv[0]); }
 }
 
+static void cmd_wastewater(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc != 1) {
+        chprintf(chp, "Usage: wastewater yellow|green\r\n");
+        return;
+    }
+
+    if      (strcmp("yellow", argv[0]) == 0) { strat_collect_wastewater(YELLOW); }
+    else if (strcmp("green", argv[0]) == 0)  { strat_collect_wastewater(BLUE); }
+    else                                     { chprintf(chp, "Invalid color: %s", argv[0]); }
+}
+
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
@@ -1490,5 +1502,6 @@ const ShellCommand commands[] = {
     {"bee", cmd_push_the_bee},
     {"check_dist", cmd_check_dist},
     {"ballgun", cmd_ballgun},
+    {"wastewater", cmd_wastewater},
     {NULL, NULL}
 };
