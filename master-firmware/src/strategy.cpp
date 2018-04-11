@@ -657,10 +657,12 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
 
     BeeGoal bee_goal;
     PickupCubesGoal pickup_cubes_goal;
+    WaterTowerGoal watertower_goal;
     BuildTowerGoal build_tower_goal[2] = {BuildTowerGoal(0), BuildTowerGoal(1)};
     goap::Goal<RobotState>* goals[] = {
         &pickup_cubes_goal,
         &bee_goal,
+        &watertower_goal,
         &build_tower_goal[0],
         &build_tower_goal[1],
     };
@@ -684,6 +686,8 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
             BuildTowerLevel(color, 1, 2), BuildTowerLevel(color, 1, 3),
         },
     };
+    EmptyMonocolorWasteWaterCollector empty_wastewater(color);
+    FireBallGunIntoWaterTower fill_watertower(color);
 
     const int max_path_len = 10;
     goap::Action<RobotState> *path[max_path_len] = {nullptr};
@@ -704,6 +708,8 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
         &build_tower_lvl[1][1],
         &build_tower_lvl[1][2],
         &build_tower_lvl[1][3],
+        &empty_wastewater,
+        &fill_watertower,
     };
 
     static goap::Planner<RobotState> planner(actions, sizeof(actions) / sizeof(actions[0]));
