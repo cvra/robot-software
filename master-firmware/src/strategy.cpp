@@ -574,17 +574,40 @@ struct EmptyMonocolorWasteWaterCollector : actions::EmptyMonocolorWasteWaterColl
         : m_color(color) {}
 
     bool execute(RobotState &state) {
-        const int x_mm = 0;
+        const int x_mm = 0 + 240;
         const int y_mm = 840;
-        NOTICE("Emptying waste water collector at %d %d", x_mm, y_mm);
+        NOTICE("Emptying monocolor waste water collector at %d %d", x_mm, y_mm);
 
-        if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm + 240), y_mm, MIRROR_A(m_color, -90), TRAJ_FLAGS_ALL)) {
+        if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, -90), TRAJ_FLAGS_ALL)) {
             return false;
         }
 
         strat_collect_wastewater(m_color);
 
         state.ballgun_state = BallgunState::CHARGED_MONOCOLOR;
+
+        return true;
+    }
+};
+
+struct EmptyMulticolorWasteWaterCollector : actions::EmptyMulticolorWasteWaterCollector {
+    enum strat_color_t m_color;
+
+    EmptyMulticolorWasteWaterCollector(enum strat_color_t color)
+        : m_color(color) {}
+
+    bool execute(RobotState &state) {
+        const int x_mm = 2390;
+        const int y_mm = 2000 - 240;
+        NOTICE("Emptying multicolor waste water collector at %d %d", x_mm, y_mm);
+
+        if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, -180), TRAJ_FLAGS_ALL)) {
+            return false;
+        }
+
+        strat_collect_wastewater(m_color);
+
+        state.ballgun_state = BallgunState::CHARGED_MULTICOLOR;
 
         return true;
     }
@@ -621,6 +644,42 @@ struct FireBallGunIntoWaterTower : actions::FireBallGunIntoWaterTower {
 
         state.ballgun_state = BallgunState::IS_EMPTY;
         state.balls_in_watertower += 8;
+
+        return true;
+    }
+};
+
+void strat_fill_wastewater_treatment_plant(void)
+{
+    ballgun_tidy(&main_ballgun);
+    ballgun_deploy_fully(&main_ballgun);
+    strategy_wait_ms(1000);
+
+    ballgun_slowfire(&main_ballgun);
+    strategy_wait_ms(2000);
+
+    ballgun_tidy(&main_ballgun);
+}
+
+struct FireBallGunIntoWasteWaterTreatmentPlant : actions::FireBallGunIntoWasteWaterTreatmentPlant {
+    enum strat_color_t m_color;
+
+    FireBallGunIntoWasteWaterTreatmentPlant(enum strat_color_t color)
+        : m_color(color) {}
+
+    bool execute(RobotState &state) {
+        const int x_mm = 2390;
+        const int y_mm = 1600;
+        NOTICE("Filling waste water treatment plant from %d %d", x_mm, y_mm);
+
+        if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, 150), TRAJ_FLAGS_ALL)) {
+            return false;
+        }
+
+        strat_fill_wastewater_treatment_plant();
+
+        state.ballgun_state = BallgunState::IS_EMPTY;
+        state.balls_in_wastewater_treatment_plant += 8;
 
         return true;
     }
