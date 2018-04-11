@@ -850,9 +850,11 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
 
     SwitchGoal switch_goal;
     PickupCubesGoal pickup_cubes_goal;
+    WasteWaterGoal wastewater_plant_goal;
     goap::Goal<RobotState>* goals[] = {
         &pickup_cubes_goal,
         &switch_goal,
+        &wastewater_plant_goal,
     };
 
     IndexArms index_arms;
@@ -861,6 +863,8 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
         PickupCubes(color, 2), PickupCubes(color, 3),
     };
     TurnSwitchOn turn_switch_on(color);
+    EmptyMulticolorWasteWaterCollector empty_wastewater_multicolor(color);
+    FireBallGunIntoWasteWaterTreatmentPlant fill_wasterwater_plant(color);
 
     const int max_path_len = 10;
     goap::Action<RobotState> *path[max_path_len] = {nullptr};
@@ -871,6 +875,8 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
         &pickup_cubes[0],
         &pickup_cubes[1],
         &turn_switch_on,
+        &empty_wastewater_multicolor,
+        &fill_wasterwater_plant,
     };
 
     static goap::Planner<RobotState> planner(actions, sizeof(actions) / sizeof(actions[0]));
