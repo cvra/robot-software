@@ -18,6 +18,7 @@ extern "C" {
 #define TRAJ_MIN_DISTANCE_TO_OPPONENT           0.6  // we stop if there is 60cm or less to opponent
 #define TRAJ_MIN_DIRECTION_TO_OPPONENT          0.5  // defines cone in which to consider opponents (cone is double the angle in size)
 #define TRAJ_MAX_TIME_DELAY_OPPONENT_DETECTION  0.25 // if delay bigger that this, beacon signal is discarded
+#define TRAJ_MAX_TIME_DELAY_ALLY_DETECTION      0.5 // if delay bigger that this, ally position is discarded
 
 #define TRAJ_END_GOAL_REACHED   (1 << 0)
 #define TRAJ_END_COLLISION      (1 << 1)
