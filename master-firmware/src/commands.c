@@ -1453,6 +1453,14 @@ static void cmd_watertower(BaseSequentialStream *chp, int argc, char *argv[])
     strat_fill_watertower();
 }
 
+static void cmd_watertower_plant(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    (void)chp;
+    (void)argc;
+    (void)argv;
+    strat_fill_wastewater_treatment_plant();
+}
+
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
@@ -1514,5 +1522,6 @@ const ShellCommand commands[] = {
     {"ballgun", cmd_ballgun},
     {"wastewater", cmd_wastewater},
     {"watertower", cmd_watertower},
+    {"watertower_plant", cmd_watertower_plant},
     {NULL, NULL}
 };

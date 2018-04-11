@@ -18,6 +18,7 @@ void strat_push_the_bee(point_t start, point_t end, float bee_height);
 
 void strat_collect_wastewater(enum strat_color_t color);
 void strat_fill_watertower(void);
+void strat_fill_wastewater_treatment_plant(void);
 
 #ifdef __cplusplus
 }
