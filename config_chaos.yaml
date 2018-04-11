@@ -67,6 +67,7 @@ master:
                 retracted: 0.00088
     ballgun:
         servo:
+            deployed_fully: 0.00095
             deployed: 0.0015
             retracted: 0.00192
         turbine:

@@ -22,12 +22,13 @@ void ballgun_init(ballgun_t* ballgun)
     chMtxObjectInit(&ballgun->lock);
 }
 
-void ballgun_set_servo_range(ballgun_t* ballgun, float retracted, float deployed)
+void ballgun_set_servo_range(ballgun_t* ballgun, float retracted, float deployed, float deployed_fully)
 {
     ballgun_lock(&ballgun->lock);
 
     ballgun->servo_retracted_pwm = retracted;
     ballgun->servo_deployed_pwm = deployed;
+    ballgun->servo_deployed_fully_pwm = deployed_fully;
 
     ballgun_unlock(&ballgun->lock);
 }
@@ -80,6 +81,16 @@ void ballgun_deploy(ballgun_t* ballgun)
 
     ballgun->state = BALLGUN_DEPLOYED;
     ballgun->set_ballgun(ballgun->ballgun_args, ballgun->servo_deployed_pwm);
+
+    ballgun_unlock(&ballgun->lock);
+}
+
+void ballgun_deploy_fully(ballgun_t* ballgun)
+{
+    ballgun_lock(&ballgun->lock);
+
+    ballgun->state = BALLGUN_DEPLOYED_FULLY;
+    ballgun->set_ballgun(ballgun->ballgun_args, ballgun->servo_deployed_fully_pwm);
 
     ballgun_unlock(&ballgun->lock);
 }

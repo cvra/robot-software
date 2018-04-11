@@ -23,7 +23,7 @@ TEST_GROUP(ABallGun)
         ballgun_set_turbine_callbacks(&ballgun, &set_turbine_speed, &ballgun_tubine_speed);
         ballgun_set_accelerator_callbacks(&ballgun, &set_accelerator_speed, &ballgun_accelerator_speed);
 
-        ballgun_set_servo_range(&ballgun, 0.001, 0.002);
+        ballgun_set_servo_range(&ballgun, 0.001, 0.002, 0.003);
         ballgun_set_turbine_range(&ballgun, 0.0, -0.001, 0.001, 0.0005);
         ballgun_set_accelerator_range(&ballgun, -2, 2, 1);
     }
@@ -45,6 +45,14 @@ TEST(ABallGun, deploys)
     ballgun_deploy(&ballgun);
 
     CHECK_EQUAL(BALLGUN_DEPLOYED, ballgun.state);
+    CHECK(ballgun_servo_pos != 0.0f);
+}
+
+TEST(ABallGun, fullyDeploys)
+{
+    ballgun_deploy_fully(&ballgun);
+
+    CHECK_EQUAL(BALLGUN_DEPLOYED_FULLY, ballgun.state);
     CHECK(ballgun_servo_pos != 0.0f);
 }
 
