@@ -72,9 +72,9 @@ master:
             retracted: 0.00192
             channel: 1
         turbine:
-            arm: 0.00153
+            arm: 0.00154
             charge: 0.00193
-            fire: 0.0012
+            fire: 0.00125
             slowfire: 0.00133
             channel: 0
         accelerator:

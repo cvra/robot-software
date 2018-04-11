@@ -208,7 +208,7 @@ int main(void)
     /* Initialise timestamp module */
     timestamp_stm32_init();
 
-    pca9685_pwm_init(0.020);
+    pca9685_pwm_init(0.0212);
 
     /* bus enumerator init */
     static __attribute__((section(".ccm"))) struct bus_enumerator_entry_allocator
