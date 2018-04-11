@@ -4,6 +4,11 @@
 #include <stdint.h>
 #include "robot_helpers/eurobot2018.h"
 
+const int NUM_CONSTRUCTION_ZONES = 2;
+const uint16_t CONSTRUCTION_ZONE_POS[NUM_CONSTRUCTION_ZONES][2] = {
+    {500, 300}, {900, 300},
+};
+
 struct RobotState {
     bool bee_on_map{true};
     bool panel_on_map{true};
@@ -28,8 +33,7 @@ struct RobotState {
         uint16_t cubes_pos[5][2] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};
         uint8_t tower_level{0};
         uint16_t tower_pos[2] = {0, 0};
-    } construction_zone[2];
-    uint16_t construction_zone_pos[2][2] = {{500, 300}, {900, 300}};
+    } construction_zone[NUM_CONSTRUCTION_ZONES];
 
     bool ballgun_full{false};
     uint8_t balls_in_watertower{0};

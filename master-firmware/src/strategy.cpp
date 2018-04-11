@@ -462,8 +462,8 @@ struct DepositCubes : actions::DepositCubes {
         : actions::DepositCubes(zone_id), m_color(color) {}
 
     bool execute(RobotState &state) {
-        const int x_mm = state.construction_zone_pos[construction_zone_id][0];
-        const int y_mm = state.construction_zone_pos[construction_zone_id][1];
+        const int x_mm = CONSTRUCTION_ZONE_POS[construction_zone_id][0];
+        const int y_mm = CONSTRUCTION_ZONE_POS[construction_zone_id][1];
         NOTICE("Depositing cubes at %d %d", x_mm, y_mm);
 
         enum lever_side_t lever_side = LEVER_SIDE_LEFT;
@@ -512,8 +512,8 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
         : actions::BuildTowerLevel(zone_id, level), m_color(color) {}
 
     bool execute(RobotState &state) {
-        const int x_mm = state.construction_zone_pos[construction_zone_id][0];
-        const int y_mm = state.construction_zone_pos[construction_zone_id][1];
+        const int x_mm = CONSTRUCTION_ZONE_POS[construction_zone_id][0];
+        const int y_mm = CONSTRUCTION_ZONE_POS[construction_zone_id][1];
         NOTICE("Building a tower level %d at %d %d", level, x_mm, y_mm);
 
         if (level == 0) {
