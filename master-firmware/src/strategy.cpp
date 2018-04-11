@@ -344,8 +344,8 @@ struct PickupCubes : actions::PickupCubes {
 
     bool execute(RobotState &state)
     {
-        const int x_mm = state.blocks_pos[blocks_id][0];
-        const int y_mm = state.blocks_pos[blocks_id][1];
+        const int x_mm = BLOCK_OF_CUBES_POS[blocks_id][0];
+        const int y_mm = BLOCK_OF_CUBES_POS[blocks_id][1];
         NOTICE("Picking up some blocks at %d %d", MIRROR_X(m_color, x_mm), y_mm);
 
         enum lever_side_t lever_side = LEVER_SIDE_LEFT;

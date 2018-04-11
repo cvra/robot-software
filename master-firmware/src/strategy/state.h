@@ -4,6 +4,11 @@
 #include <stdint.h>
 #include "robot_helpers/eurobot2018.h"
 
+const int NUM_BLOCK_OF_CUBES = 6;
+const uint16_t BLOCK_OF_CUBES_POS[NUM_BLOCK_OF_CUBES][2] = {
+    {850, 540}, {300, 1190}, {1100, 1500}, {1900, 1500}, {2700, 1190}, {2150, 540},
+};
+
 const int NUM_CONSTRUCTION_ZONES = 2;
 const uint16_t CONSTRUCTION_ZONE_POS[NUM_CONSTRUCTION_ZONES][2] = {
     {500, 300}, {900, 300},
@@ -21,10 +26,7 @@ struct RobotState {
     bool lever_full_left{false};
     bool lever_full_right{false};
 
-    bool blocks_on_map[6] = {true, true, true, true, true, true};
-    uint16_t blocks_pos[6][2] = {
-        {850, 540}, {300, 1190}, {1100, 1500}, {1900, 1500}, {2700, 1190}, {2150, 540},
-    };
+    bool blocks_on_map[NUM_BLOCK_OF_CUBES] = {true, true, true, true, true, true};
 
     bool tower_sequence_known{false};
     enum cube_color tower_sequence[5] = {CUBE_YELLOW, CUBE_BLACK, CUBE_BLUE, CUBE_GREEN, CUBE_ORANGE};
