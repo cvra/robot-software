@@ -37,6 +37,9 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
 struct FireBallGunIntoWaterTower : actions::FireBallGunIntoWaterTower {
     bool execute(RobotState &state) { return dummy_execute(this, state); }
 };
+struct EmptyMonocolorWasteWaterCollector : actions::EmptyMonocolorWasteWaterCollector {
+    bool execute(RobotState &state) { return dummy_execute(this, state); }
+};
 
 TEST_GROUP(Strategy) {
     RobotState state;
@@ -52,6 +55,7 @@ TEST_GROUP(Strategy) {
         {{1, 0}, {1, 1}, {1, 2}, {1, 3}},
     };
     FireBallGunIntoWaterTower fire_ballgun_into_watertower;
+    EmptyMonocolorWasteWaterCollector empty_wasterwater_collector;
 
     std::vector<goap::Action<RobotState>*> availableActions()
     {
@@ -74,6 +78,7 @@ TEST_GROUP(Strategy) {
             &build_tower_lvl[1][2],
             &build_tower_lvl[1][3],
             &fire_ballgun_into_watertower,
+            &empty_wasterwater_collector,
         };
     }
 

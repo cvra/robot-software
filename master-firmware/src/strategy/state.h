@@ -32,6 +32,7 @@ struct RobotState {
     } construction_zone[2];
     uint16_t construction_zone_pos[2][2] = {{500, 300}, {900, 300}};
 
+    bool ballgun_full{false};
     int balls_in_watertower{0};
 };
 

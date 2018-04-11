@@ -141,12 +141,26 @@ struct BuildTowerLevel : public goap::Action<RobotState> {
 struct FireBallGunIntoWaterTower : public goap::Action<RobotState> {
     bool can_run(RobotState state)
     {
-        return state.arms_are_deployed == false;
+        return state.arms_are_deployed == false && state.ballgun_full;
     }
 
     RobotState plan_effects(RobotState state)
     {
+        state.ballgun_full = false;
         state.balls_in_watertower += 8;
+        return state;
+    }
+};
+
+struct EmptyMonocolorWasteWaterCollector : public goap::Action<RobotState> {
+    bool can_run(RobotState state)
+    {
+        return state.arms_are_deployed == false && state.ballgun_full == false;
+    }
+
+    RobotState plan_effects(RobotState state)
+    {
+        state.ballgun_full = true;
         return state;
     }
 };
