@@ -11,6 +11,7 @@
 #include "uavcan/topics_publisher.hpp"
 #include "uavcan/parameter_server.hpp"
 #include "uavcan/restart_server.hpp"
+#include "uavcan/position_handler.hpp"
 
 #define CAN_BITRATE 1000000
 
@@ -57,10 +58,11 @@ static THD_FUNCTION(uavcan_node, arg)
     topics_publisher_start(node);
     parameter_server_start(node);
     restart_server_start(node);
+    position_handler_init(node);
 
     /* Spin forever */
     while (true) {
-        int res = node.spin(uavcan::MonotonicDuration::fromMSec(1000 / UAVCAN_SPIN_FREQUENCY));
+        auto res = node.spin(uavcan::MonotonicDuration::fromMSec(1000 / UAVCAN_SPIN_FREQUENCY));
 
         if (res < 0) {
             uavcan_failure("UAVCAN spin");

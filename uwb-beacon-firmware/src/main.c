@@ -48,7 +48,7 @@ int main(void)
 
     blink_start();
     exti_start();
-    imu_start();
+    imu_start(); // disabled so that the EKF does not run
     ahrs_start();
     ranging_start();
     anchor_position_cache_start();

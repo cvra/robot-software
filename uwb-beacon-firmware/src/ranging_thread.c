@@ -125,7 +125,8 @@ static void ranging_thread(void *p)
                 trace(TRACE_POINT_UWB_SEND_ADVERTISEMENT);
                 uwb_send_measurement_advertisement(&handler, frame);
             }
-        } else if (flags & EVENT_ANCHOR_POSITION_TIMER) {
+        }
+        if (flags & EVENT_ANCHOR_POSITION_TIMER) {
             /* Make sure we are an anchor before we send an anchor position
              * message. */
             if (!handler.is_anchor) {
@@ -142,7 +143,8 @@ static void ranging_thread(void *p)
 
             uwb_send_anchor_position(&handler, x, y, z, frame);
 
-        } else if (flags & EVENT_TAG_POSITION_TIMER) {
+        }
+        if (flags & EVENT_TAG_POSITION_TIMER) {
             /* Make sure we are a tag before we send an anchor position
              * message. */
             if (handler.is_anchor) {
@@ -165,8 +167,8 @@ static void ranging_thread(void *p)
             dwt_forcetrxoff();
 
             uwb_send_tag_position(&handler, msg.x, msg.y, frame);
-
-        } else if (flags & EVENT_UWB_INT) {
+        }
+        if (flags & EVENT_UWB_INT) {
             /* Process the interrupt. */
             dwt_isr();
         }
@@ -192,6 +194,7 @@ static void frame_rx_cb(const dwt_cb_data_t *data)
     uwb_process_incoming_frame(&handler, frame, data->datalength, rx_ts);
 
     dwt_rxenable(DWT_START_RX_IMMEDIATE);
+    palTogglePad(GPIOB, GPIOB_LED_ERROR);
 }
 
 static void anchor_position_received_cb(uint16_t addr, float x, float y, float z)

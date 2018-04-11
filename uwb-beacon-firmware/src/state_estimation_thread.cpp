@@ -101,7 +101,7 @@ static THD_FUNCTION(state_estimation_thd, arg)
             pos_msg.y = estimator.state(1);
             pos_msg.variance_x = estimator.covariance(0, 0);
             pos_msg.variance_y = estimator.covariance(1, 1);
-            messagebus_topic_publish(&state_estimation_topic, &pos_msg, sizeof(pos_msg));
+            //messagebus_topic_publish(&state_estimation_topic, &pos_msg, sizeof(pos_msg));
         }
     }
 }
