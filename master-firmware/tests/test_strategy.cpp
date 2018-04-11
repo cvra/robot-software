@@ -37,7 +37,13 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
 struct FireBallGunIntoWaterTower : actions::FireBallGunIntoWaterTower {
     bool execute(RobotState &state) { return dummy_execute(this, state); }
 };
+struct FireBallGunIntoWasteWaterTreatmentPlant : actions::FireBallGunIntoWasteWaterTreatmentPlant {
+    bool execute(RobotState &state) { return dummy_execute(this, state); }
+};
 struct EmptyMonocolorWasteWaterCollector : actions::EmptyMonocolorWasteWaterCollector {
+    bool execute(RobotState &state) { return dummy_execute(this, state); }
+};
+struct EmptyMulticolorWasteWaterCollector : actions::EmptyMulticolorWasteWaterCollector {
     bool execute(RobotState &state) { return dummy_execute(this, state); }
 };
 
@@ -55,7 +61,9 @@ TEST_GROUP(Strategy) {
         {{1, 0}, {1, 1}, {1, 2}, {1, 3}},
     };
     FireBallGunIntoWaterTower fire_ballgun_into_watertower;
-    EmptyMonocolorWasteWaterCollector empty_wasterwater_collector;
+    FireBallGunIntoWasteWaterTreatmentPlant fire_ballgun_into_wastewater_treatment_plant;
+    EmptyMonocolorWasteWaterCollector empty_wasterwater_collector_monocolor;
+    EmptyMulticolorWasteWaterCollector empty_wasterwater_collector_multicolor;
 
     std::vector<goap::Action<RobotState>*> availableActions()
     {
@@ -78,7 +86,9 @@ TEST_GROUP(Strategy) {
             &build_tower_lvl[1][2],
             &build_tower_lvl[1][3],
             &fire_ballgun_into_watertower,
-            &empty_wasterwater_collector,
+            &fire_ballgun_into_wastewater_treatment_plant,
+            &empty_wasterwater_collector_monocolor,
+            &empty_wasterwater_collector_multicolor,
         };
     }
 
@@ -193,6 +203,16 @@ TEST(Strategy, CanBuildTwoTowers)
 TEST(Strategy, CanFillWaterTower)
 {
     WaterTowerGoal goal;
+
+    int len = compute_and_execute_plan(goal, state);
+
+    CHECK_TRUE(len > 0);
+    CHECK_TRUE(goal.is_reached(state));
+}
+
+TEST(Strategy, CanFillWasteWaterTreatment)
+{
+    WasteWaterGoal goal;
 
     int len = compute_and_execute_plan(goal, state);
 

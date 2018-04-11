@@ -14,6 +14,13 @@ const uint16_t CONSTRUCTION_ZONE_POS[NUM_CONSTRUCTION_ZONES][2] = {
     {500, 300}, {900, 300},
 };
 
+
+enum BallgunState {
+    IS_EMPTY = 0,
+    CHARGED_MONOCOLOR,
+    CHARGED_MULTICOLOR,
+};
+
 struct RobotState {
     bool bee_on_map{true};
     bool panel_on_map{true};
@@ -37,8 +44,9 @@ struct RobotState {
         uint16_t tower_pos[2] = {0, 0};
     } construction_zone[NUM_CONSTRUCTION_ZONES];
 
-    bool ballgun_full{false};
+    BallgunState ballgun_state{BallgunState::IS_EMPTY};
     uint8_t balls_in_watertower{0};
+    uint8_t balls_in_wastewater_treatment_plant{0};
 };
 
 bool operator==(const RobotState& lhs, const RobotState& rhs);

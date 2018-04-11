@@ -584,7 +584,7 @@ struct EmptyMonocolorWasteWaterCollector : actions::EmptyMonocolorWasteWaterColl
 
         strat_collect_wastewater(m_color);
 
-        state.ballgun_full = true;
+        state.ballgun_state = BallgunState::CHARGED_MONOCOLOR;
 
         return true;
     }
@@ -619,7 +619,7 @@ struct FireBallGunIntoWaterTower : actions::FireBallGunIntoWaterTower {
 
         strat_fill_watertower();
 
-        state.ballgun_full = false;
+        state.ballgun_state = BallgunState::IS_EMPTY;
         state.balls_in_watertower += 8;
 
         return true;
