@@ -24,8 +24,8 @@ TEST_GROUP(ABallGun)
         ballgun_set_accelerator_callbacks(&ballgun, &set_accelerator_speed, &ballgun_accelerator_speed);
 
         ballgun_set_servo_range(&ballgun, 0.001, 0.002);
-        ballgun_set_turbine_range(&ballgun, 0.0, -0.001, 0.001);
-        ballgun_set_accelerator_range(&ballgun, -2, 2);
+        ballgun_set_turbine_range(&ballgun, 0.0, -0.001, 0.001, 0.0005);
+        ballgun_set_accelerator_range(&ballgun, -2, 2, 1);
     }
 
     void teardown()
@@ -70,6 +70,14 @@ TEST(ABallGun, fires)
     ballgun_fire(&ballgun);
 
     CHECK_EQUAL(BALLGUN_FIRING, ballgun.turbine_state);
+    CHECK(ballgun_accelerator_speed > 0.0f);
+}
+
+TEST(ABallGun, slowfires)
+{
+    ballgun_slowfire(&ballgun);
+
+    CHECK_EQUAL(BALLGUN_SLOWFIRING, ballgun.turbine_state);
     CHECK(ballgun_accelerator_speed > 0.0f);
 }
 

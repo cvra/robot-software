@@ -22,34 +22,35 @@ void ballgun_init(ballgun_t* ballgun)
     chMtxObjectInit(&ballgun->lock);
 }
 
-void ballgun_set_servo_range(ballgun_t* ballgun, float servo_retracted_pwm, float servo_deployed_pwm)
+void ballgun_set_servo_range(ballgun_t* ballgun, float retracted, float deployed)
 {
     ballgun_lock(&ballgun->lock);
 
-    ballgun->servo_retracted_pwm = servo_retracted_pwm;
-    ballgun->servo_deployed_pwm = servo_deployed_pwm;
+    ballgun->servo_retracted_pwm = retracted;
+    ballgun->servo_deployed_pwm = deployed;
 
     ballgun_unlock(&ballgun->lock);
 }
 
-void ballgun_set_turbine_range(ballgun_t *ballgun, float turbine_armed_pwm, float turbine_charge_pwm,
-                               float turbine_fire_pwm)
+void ballgun_set_turbine_range(ballgun_t *ballgun, float armed, float charge, float fire, float slowfire)
 {
     ballgun_lock(&ballgun->lock);
 
-    ballgun->turbine_armed_pwm = turbine_armed_pwm;
-    ballgun->turbine_charge_pwm = turbine_charge_pwm;
-    ballgun->turbine_fire_pwm = turbine_fire_pwm;
+    ballgun->turbine_armed_pwm = armed;
+    ballgun->turbine_charge_pwm = charge;
+    ballgun->turbine_fire_pwm = fire;
+    ballgun->turbine_slowfire_pwm = slowfire;
 
     ballgun_unlock(&ballgun->lock);
 }
 
-void ballgun_set_accelerator_range(ballgun_t *ballgun, float accelerator_charge, float accelerator_fire)
+void ballgun_set_accelerator_range(ballgun_t *ballgun, float charge, float fire, float slowfire)
 {
     ballgun_lock(&ballgun->lock);
 
-    ballgun->accelerator_charge = accelerator_charge;
-    ballgun->accelerator_fire = accelerator_fire;
+    ballgun->accelerator_charge = charge;
+    ballgun->accelerator_fire = fire;
+    ballgun->accelerator_slowfire = slowfire;
 
     ballgun_unlock(&ballgun->lock);
 }
@@ -122,6 +123,17 @@ void ballgun_fire(ballgun_t* ballgun)
     ballgun->turbine_state = BALLGUN_FIRING;
     ballgun->set_turbine(ballgun->turbine_args, ballgun->turbine_fire_pwm);
     ballgun->set_accelerator(ballgun->accelerator_args, ballgun->accelerator_fire);
+
+    ballgun_unlock(&ballgun->lock);
+}
+
+void ballgun_slowfire(ballgun_t* ballgun)
+{
+    ballgun_lock(&ballgun->lock);
+
+    ballgun->turbine_state = BALLGUN_SLOWFIRING;
+    ballgun->set_turbine(ballgun->turbine_args, ballgun->turbine_slowfire_pwm);
+    ballgun->set_accelerator(ballgun->accelerator_args, ballgun->accelerator_slowfire);
 
     ballgun_unlock(&ballgun->lock);
 }

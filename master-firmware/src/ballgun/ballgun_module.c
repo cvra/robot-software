@@ -36,13 +36,15 @@ static void ballgun_update_settings(ballgun_t* ballgun, parameter_namespace_t* n
     float arm = parameter_scalar_get(parameter_find(ns, "turbine/arm"));
     float charge = parameter_scalar_get(parameter_find(ns, "turbine/charge"));
     float fire = parameter_scalar_get(parameter_find(ns, "turbine/fire"));
+    float slowfire = parameter_scalar_get(parameter_find(ns, "turbine/slowfire"));
 
-    ballgun_set_turbine_range(ballgun, arm, charge, fire);
+    ballgun_set_turbine_range(ballgun, arm, charge, fire, slowfire);
 
     float acc_charge = parameter_scalar_get(parameter_find(ns, "accelerator/charge"));
     float acc_fire = parameter_scalar_get(parameter_find(ns, "accelerator/fire"));
+    float acc_slowfire = parameter_scalar_get(parameter_find(ns, "accelerator/slowfire"));
 
-    ballgun_set_accelerator_range(ballgun, acc_charge, acc_fire);
+    ballgun_set_accelerator_range(ballgun, acc_charge, acc_fire, acc_slowfire);
 }
 
 static THD_FUNCTION(ballgun_module_thd, arg)
