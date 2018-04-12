@@ -10,7 +10,8 @@ extern "C" {
 
 #define MAP_SIZE_X_MM 3000
 #define MAP_SIZE_Y_MM 2000
-#define MAP_NUM_OPPONENT 3
+#define MAP_NUM_ALLY_EDGES 4
+#define MAP_NUM_OPPONENT 2
 #define MAP_NUM_OPPONENT_EDGES 4
 
 #define MAP_NUM_BLOCKS_CUBE 6
@@ -29,6 +30,8 @@ struct _map {
   poly_t *wastewater_obstacle;
   poly_t *tower[MAP_NUM_TOWERS];
 
+  poly_t *ally;
+
   poly_t *opponents[MAP_NUM_OPPONENT];
   uint8_t last_opponent_index;
 
@@ -39,6 +42,11 @@ struct _map {
  * opponents
  */
 void map_init(struct _map *map, int robot_size);
+
+/** Set the position of the ally
+ */
+void map_set_ally_obstacle(struct _map* map, int32_t x, int32_t y,
+                           int32_t robot_size);
 
 /** Set the position of the opponent identified by its index
  */
