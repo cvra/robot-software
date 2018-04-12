@@ -45,3 +45,9 @@ int score_count_tower_bonus(const RobotState& state)
     }
     return score;
 }
+
+int score_count_balls(const RobotState& state)
+{
+    return state.balls_in_watertower * 5 +
+           state.balls_in_wastewater_treatment_plant * 10;
+}
