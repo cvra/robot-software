@@ -56,13 +56,12 @@ static THD_FUNCTION(map_server_thd, arg)
         /* Create obstacle at allied position */
         messagebus_topic_read(allied_position_topic, &allied_position, sizeof(allied_position));
         if (timestamp_duration_s(allied_position.timestamp, timestamp_get()) < TRAJ_MAX_TIME_DELAY_ALLY_DETECTION) {
-            map_update_opponent_obstacle(&map,
-                                         allied_position.point.x,
-                                         allied_position.point.y,
-                                         robot_size * 1.25,
-                                         robot_size);
+            map_set_ally_obstacle(&map,
+                                  allied_position.point.x,
+                                  allied_position.point.y,
+                                  robot_size);
         } else {
-            map_update_opponent_obstacle(&map, 0, 0, 0, 0); // reset ally position
+            map_set_ally_obstacle(&map, 0, 0, 0); // reset ally position
         }
 
         /* Update cube blocks obstacles on map depending on state */
