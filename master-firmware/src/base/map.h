@@ -10,7 +10,7 @@ extern "C" {
 
 #define MAP_SIZE_X_MM 3000
 #define MAP_SIZE_Y_MM 2000
-#define MAP_NUM_ALLY_EDGES 4
+#define MAP_NUM_ALLY_EDGES 6
 #define MAP_NUM_OPPONENT 2
 #define MAP_NUM_OPPONENT_EDGES 4
 

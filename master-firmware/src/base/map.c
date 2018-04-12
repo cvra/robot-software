@@ -58,8 +58,12 @@ void map_init(struct _map* map, int robot_size)
 
 void map_set_ally_obstacle(struct _map* map, int32_t x, int32_t y, int32_t robot_size)
 {
+    circle_t ally;
+    ally.x = x;
+    ally.y = y;
+    ally.r = robot_size/2;
     map_lock(&map->lock);
-    map_set_rectangular_obstacle(map->ally, x, y, robot_size, robot_size, robot_size);
+    discretize_circle(map->ally, ally, MAP_NUM_ALLY_EDGES, 0);
     map_unlock(&map->lock);
 }
 
