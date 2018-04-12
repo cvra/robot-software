@@ -461,7 +461,7 @@ static void cmd_goto_avoid(BaseSequentialStream *chp, int argc, char *argv[])
         int32_t y = atoi(argv[1]);
         int32_t a = atoi(argv[2]);
 
-        strategy_goto_avoid(x, y, a, TRAJ_FLAGS_ALL);
+        strategy_goto_avoid(x, y, a, TRAJ_END_GOAL_REACHED | TRAJ_END_COLLISION | TRAJ_END_OPPONENT_NEAR);
     } else {
         chprintf(chp, "Usage: goto_avoid x y a\r\n");
     }
