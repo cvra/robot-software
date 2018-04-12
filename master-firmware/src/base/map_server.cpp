@@ -53,8 +53,8 @@ static THD_FUNCTION(map_server_thd, arg)
         messagebus_topic_read(strategy_state_topic, &state, sizeof(state));
         for (int i = 0; i < MAP_NUM_BLOCKS_CUBE; i++) {
             if (state.blocks_on_map[i]) {
-                const int x = state.blocks_pos[i][0];
-                const int y = state.blocks_pos[i][1];
+                const int x = BLOCK_OF_CUBES_POS[i][0];
+                const int y = BLOCK_OF_CUBES_POS[i][1];
                 map_set_cubes_obstacle(&map, i, MIRROR_X(color, x), y, robot_size);
             } else {
                 map_set_cubes_obstacle(&map, i, 0, 0, 0);

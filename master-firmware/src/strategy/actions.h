@@ -138,6 +138,60 @@ struct BuildTowerLevel : public goap::Action<RobotState> {
     }
 };
 
+struct FireBallGunIntoWaterTower : public goap::Action<RobotState> {
+    bool can_run(RobotState state)
+    {
+        return state.arms_are_deployed == false && state.ballgun_state == BallgunState::CHARGED_MONOCOLOR;
+    }
+
+    RobotState plan_effects(RobotState state)
+    {
+        state.ballgun_state = BallgunState::IS_EMPTY;
+        state.balls_in_watertower += 8;
+        return state;
+    }
+};
+
+struct FireBallGunIntoWasteWaterTreatmentPlant : public goap::Action<RobotState> {
+    bool can_run(RobotState state)
+    {
+        return state.arms_are_deployed == false && state.ballgun_state == BallgunState::CHARGED_MULTICOLOR;
+    }
+
+    RobotState plan_effects(RobotState state)
+    {
+        state.ballgun_state = BallgunState::IS_EMPTY;
+        state.balls_in_wastewater_treatment_plant += 8;
+        return state;
+    }
+};
+
+struct EmptyMonocolorWasteWaterCollector : public goap::Action<RobotState> {
+    bool can_run(RobotState state)
+    {
+        return state.arms_are_deployed == false && state.ballgun_state == BallgunState::IS_EMPTY;
+    }
+
+    RobotState plan_effects(RobotState state)
+    {
+        state.ballgun_state = BallgunState::CHARGED_MONOCOLOR;
+        return state;
+    }
+};
+
+struct EmptyMulticolorWasteWaterCollector : public goap::Action<RobotState> {
+    bool can_run(RobotState state)
+    {
+        return state.arms_are_deployed == false && state.ballgun_state == BallgunState::IS_EMPTY;
+    }
+
+    RobotState plan_effects(RobotState state)
+    {
+        state.ballgun_state = BallgunState::CHARGED_MULTICOLOR;
+        return state;
+    }
+};
+
 } // namespace actions
 
 #endif /* STRATEGY_ACTIONS_H */

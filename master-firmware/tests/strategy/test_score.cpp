@@ -144,3 +144,17 @@ TEST(AScore, countsTowerBonusForTwoTowers)
 
     CHECK_EQUAL(60, score_count_tower_bonus(state));
 };
+
+TEST(AScore, countsBallsInWaterTower)
+{
+    state.balls_in_watertower = 4;
+
+    CHECK_EQUAL(4 * 5, score_count_balls(state));
+};
+
+TEST(AScore, countsBallsInWasteWaterTreatmentPlant)
+{
+    state.balls_in_wastewater_treatment_plant = 3;
+
+    CHECK_EQUAL(3 * 10, score_count_balls(state));
+};

@@ -40,11 +40,13 @@
 #include "http/server.h"
 #include "pca9685_pwm.h"
 #include "gui.h"
+#include "ballgun/ballgun_module.h"
 
 
 void init_base_motors(void);
 void init_arm_motors(void);
 void init_lever_motors(void);
+void init_ballgun_motors(void);
 
 motor_manager_t motor_manager;
 
@@ -206,7 +208,7 @@ int main(void)
     /* Initialise timestamp module */
     timestamp_stm32_init();
 
-    pca9685_pwm_init(0.020);
+    pca9685_pwm_init(0.0212);
 
     /* bus enumerator init */
     static __attribute__((section(".ccm"))) struct bus_enumerator_entry_allocator
@@ -226,10 +228,9 @@ int main(void)
 
     /* Initialize motors */
     init_base_motors();
-    chThdSleepMilliseconds(100);
     init_arm_motors();
-    chThdSleepMilliseconds(100);
     init_lever_motors();
+    init_ballgun_motors();
 
     /* Load stored robot config */
     config_load_from_flash();
@@ -265,6 +266,9 @@ int main(void)
 
     /* Lever arms init */
     lever_module_start();
+
+    /* Ball gun module start */
+    ballgun_module_start();
 
     /* Initialize strategy thread, will wait for signal to begin game */
     strategy_start();
@@ -321,6 +325,11 @@ void init_lever_motors(void)
     bus_enumerator_add_node(&bus_enumerator, "left-lever", NULL);
     motor_manager_create_driver(&motor_manager, "left-pump-1");
     motor_manager_create_driver(&motor_manager, "left-pump-2");
+}
+
+void init_ballgun_motors(void)
+{
+    motor_manager_create_driver(&motor_manager, "ball-accelerator");
 }
 
 void __stack_chk_fail(void)

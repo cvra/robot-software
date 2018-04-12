@@ -21,6 +21,7 @@
 #include "arms/arm_trajectory_manager.h"
 #include "arms/arm.h"
 #include "lever/lever_module.h"
+#include "ballgun/ballgun_module.h"
 #include "config.h"
 #include "control_panel.h"
 #include "main.h"
@@ -343,8 +344,8 @@ struct PickupCubes : actions::PickupCubes {
 
     bool execute(RobotState &state)
     {
-        const int x_mm = state.blocks_pos[blocks_id][0];
-        const int y_mm = state.blocks_pos[blocks_id][1];
+        const int x_mm = BLOCK_OF_CUBES_POS[blocks_id][0];
+        const int y_mm = BLOCK_OF_CUBES_POS[blocks_id][1];
         NOTICE("Picking up some blocks at %d %d", MIRROR_X(m_color, x_mm), y_mm);
 
         enum lever_side_t lever_side = LEVER_SIDE_LEFT;
@@ -461,8 +462,8 @@ struct DepositCubes : actions::DepositCubes {
         : actions::DepositCubes(zone_id), m_color(color) {}
 
     bool execute(RobotState &state) {
-        const int x_mm = state.construction_zone_pos[construction_zone_id][0];
-        const int y_mm = state.construction_zone_pos[construction_zone_id][1];
+        const int x_mm = CONSTRUCTION_ZONE_POS[construction_zone_id][0];
+        const int y_mm = CONSTRUCTION_ZONE_POS[construction_zone_id][1];
         NOTICE("Depositing cubes at %d %d", x_mm, y_mm);
 
         enum lever_side_t lever_side = LEVER_SIDE_LEFT;
@@ -511,8 +512,8 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
         : actions::BuildTowerLevel(zone_id, level), m_color(color) {}
 
     bool execute(RobotState &state) {
-        const int x_mm = state.construction_zone_pos[construction_zone_id][0];
-        const int y_mm = state.construction_zone_pos[construction_zone_id][1];
+        const int x_mm = CONSTRUCTION_ZONE_POS[construction_zone_id][0];
+        const int y_mm = CONSTRUCTION_ZONE_POS[construction_zone_id][1];
         NOTICE("Building a tower level %d at %d %d", level, x_mm, y_mm);
 
         if (level == 0) {
@@ -544,6 +545,142 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
         state.construction_zone[construction_zone_id].tower_pos[0] = tower_x_mm;
         state.construction_zone[construction_zone_id].tower_pos[1] = tower_y_mm;
         state.construction_zone[construction_zone_id].tower_level += 1;
+        return true;
+    }
+};
+
+void strat_collect_wastewater(enum strat_color_t color)
+{
+    ballgun_tidy(&main_ballgun);
+    ballgun_deploy(&main_ballgun);
+    strategy_wait_ms(1000);
+
+    ballgun_charge(&main_ballgun);
+
+    trajectory_a_rel(&robot.traj, MIRROR(color, -95));
+    trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE /*TRAJ_FLAGS_ROTATION*/);
+    trajectory_a_rel(&robot.traj, MIRROR(color, 5));
+    trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE /*TRAJ_FLAGS_ROTATION*/);
+
+    strategy_wait_ms(2000);
+
+    ballgun_tidy(&main_ballgun);
+}
+
+struct EmptyMonocolorWasteWaterCollector : actions::EmptyMonocolorWasteWaterCollector {
+    enum strat_color_t m_color;
+
+    EmptyMonocolorWasteWaterCollector(enum strat_color_t color)
+        : m_color(color) {}
+
+    bool execute(RobotState &state) {
+        const int x_mm = 0 + 240;
+        const int y_mm = 840;
+        NOTICE("Emptying monocolor waste water collector at %d %d", x_mm, y_mm);
+
+        if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, -90), TRAJ_FLAGS_ALL)) {
+            return false;
+        }
+
+        strat_collect_wastewater(m_color);
+
+        state.ballgun_state = BallgunState::CHARGED_MONOCOLOR;
+
+        return true;
+    }
+};
+
+struct EmptyMulticolorWasteWaterCollector : actions::EmptyMulticolorWasteWaterCollector {
+    enum strat_color_t m_color;
+
+    EmptyMulticolorWasteWaterCollector(enum strat_color_t color)
+        : m_color(color) {}
+
+    bool execute(RobotState &state) {
+        const int x_mm = 2390;
+        const int y_mm = 2000 - 240;
+        NOTICE("Emptying multicolor waste water collector at %d %d", x_mm, y_mm);
+
+        if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, -180), TRAJ_FLAGS_ALL)) {
+            return false;
+        }
+
+        strat_collect_wastewater(m_color);
+
+        state.ballgun_state = BallgunState::CHARGED_MULTICOLOR;
+
+        return true;
+    }
+};
+
+void strat_fill_watertower(void)
+{
+    ballgun_tidy(&main_ballgun);
+    ballgun_deploy(&main_ballgun);
+    strategy_wait_ms(1000);
+
+    ballgun_fire(&main_ballgun);
+    strategy_wait_ms(2000);
+
+    ballgun_tidy(&main_ballgun);
+}
+
+struct FireBallGunIntoWaterTower : actions::FireBallGunIntoWaterTower {
+    enum strat_color_t m_color;
+
+    FireBallGunIntoWaterTower(enum strat_color_t color)
+        : m_color(color) {}
+
+    bool execute(RobotState &state) {
+        const int x_mm = 240;
+        const int y_mm = 740;
+        NOTICE("Filling water tower from %d %d", x_mm, y_mm);
+
+        if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, -90), TRAJ_FLAGS_ALL)) {
+            return false;
+        }
+
+        strat_fill_watertower();
+
+        state.ballgun_state = BallgunState::IS_EMPTY;
+        state.balls_in_watertower += 8;
+
+        return true;
+    }
+};
+
+void strat_fill_wastewater_treatment_plant(void)
+{
+    ballgun_tidy(&main_ballgun);
+    ballgun_deploy_fully(&main_ballgun);
+    strategy_wait_ms(1000);
+
+    ballgun_slowfire(&main_ballgun);
+    strategy_wait_ms(2000);
+
+    ballgun_tidy(&main_ballgun);
+}
+
+struct FireBallGunIntoWasteWaterTreatmentPlant : actions::FireBallGunIntoWasteWaterTreatmentPlant {
+    enum strat_color_t m_color;
+
+    FireBallGunIntoWasteWaterTreatmentPlant(enum strat_color_t color)
+        : m_color(color) {}
+
+    bool execute(RobotState &state) {
+        const int x_mm = 2390;
+        const int y_mm = 1600;
+        NOTICE("Filling waste water treatment plant from %d %d", x_mm, y_mm);
+
+        if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, 150), TRAJ_FLAGS_ALL)) {
+            return false;
+        }
+
+        strat_fill_wastewater_treatment_plant();
+
+        state.ballgun_state = BallgunState::IS_EMPTY;
+        state.balls_in_wastewater_treatment_plant += 8;
+
         return true;
     }
 };
@@ -580,10 +717,12 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
 
     BeeGoal bee_goal;
     PickupCubesGoal pickup_cubes_goal;
+    WaterTowerGoal watertower_goal;
     BuildTowerGoal build_tower_goal[2] = {BuildTowerGoal(0), BuildTowerGoal(1)};
     goap::Goal<RobotState>* goals[] = {
         &pickup_cubes_goal,
         &bee_goal,
+        &watertower_goal,
         &build_tower_goal[0],
         &build_tower_goal[1],
     };
@@ -607,6 +746,8 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
             BuildTowerLevel(color, 1, 2), BuildTowerLevel(color, 1, 3),
         },
     };
+    EmptyMonocolorWasteWaterCollector empty_wastewater(color);
+    FireBallGunIntoWaterTower fill_watertower(color);
 
     const int max_path_len = 10;
     goap::Action<RobotState> *path[max_path_len] = {nullptr};
@@ -627,12 +768,15 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
         &build_tower_lvl[1][1],
         &build_tower_lvl[1][2],
         &build_tower_lvl[1][3],
+        &empty_wastewater,
+        &fill_watertower,
     };
 
     static goap::Planner<RobotState> planner(actions, sizeof(actions) / sizeof(actions[0]));
 
     lever_retract(&right_lever);
     lever_retract(&left_lever);
+    ballgun_tidy(&main_ballgun);
 
     NOTICE("Getting arms ready...");
     int len = planner.plan(state, init_goal, path, max_path_len);
@@ -706,9 +850,11 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
 
     SwitchGoal switch_goal;
     PickupCubesGoal pickup_cubes_goal;
+    WasteWaterGoal wastewater_plant_goal;
     goap::Goal<RobotState>* goals[] = {
         &pickup_cubes_goal,
         &switch_goal,
+        &wastewater_plant_goal,
     };
 
     IndexArms index_arms;
@@ -717,6 +863,8 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
         PickupCubes(color, 2), PickupCubes(color, 3),
     };
     TurnSwitchOn turn_switch_on(color);
+    EmptyMulticolorWasteWaterCollector empty_wastewater_multicolor(color);
+    FireBallGunIntoWasteWaterTreatmentPlant fill_wasterwater_plant(color);
 
     const int max_path_len = 10;
     goap::Action<RobotState> *path[max_path_len] = {nullptr};
@@ -727,12 +875,15 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
         &pickup_cubes[0],
         &pickup_cubes[1],
         &turn_switch_on,
+        &empty_wastewater_multicolor,
+        &fill_wasterwater_plant,
     };
 
     static goap::Planner<RobotState> planner(actions, sizeof(actions) / sizeof(actions[0]));
 
     lever_retract(&right_lever);
     lever_retract(&left_lever);
+    ballgun_tidy(&main_ballgun);
 
     NOTICE("Getting arms ready...");
     int len = planner.plan(state, init_goal, path, max_path_len);

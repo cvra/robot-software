@@ -65,6 +65,22 @@ master:
             servo:
                 deployed: 0.00215
                 retracted: 0.0008
+    ballgun:
+        servo:
+            deployed_fully: 0.00095
+            deployed: 0.0017
+            retracted: 0.0021
+            channel: 1
+        turbine:
+            arm: 0.00153
+            charge: 0.0018
+            fire: 0.0012
+            slowfire: 0.00145
+            channel: 0
+        accelerator:
+            charge: -3.0
+            fire: 5.0
+            slowfire: 2.0
     main_arm:
         control:
             x:
@@ -263,6 +279,10 @@ actuator:
             mode: 0 # openloop
             low_batt_th: 12.
     left-pump-2:
+        control:
+            mode: 0 # openloop
+            low_batt_th: 12.
+    ball-accelerator:
         control:
             mode: 0 # openloop
             low_batt_th: 12.
