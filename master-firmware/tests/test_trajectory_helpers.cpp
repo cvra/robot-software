@@ -15,6 +15,7 @@ extern "C" {
 #include "obstacle_avoidance/obstacle_avoidance.h"
 }
 
+#include "uwb_position.h"
 #include "base/map.h"
 #include "robot_helpers/math_helpers.h"
 #include "robot_helpers/trajectory_helpers.h"
@@ -265,6 +266,7 @@ TEST(CurrentTrajectoryCheck, DetectsCollisionIfPathIsCompletelyInsideObstacle)
 TEST_GROUP(TrajectoryHasEnded)
 {
     messagebus_topic_t proximity_beacon_topic;
+    messagebus_topic_t ally_position_topic;
 
     const int arbitrary_max_speed = 10;
     const int arbitrary_max_acc = 10;
@@ -317,6 +319,7 @@ TEST_GROUP(TrajectoryHasEnded)
 
         msgbus_setup();
         msgbus_advertise_beacon();
+        msgbus_advertise_ally();
 
         // Finally go to a point
         trajectory_goto_forward_xy_abs(&robot.traj, arbitrary_goal_x, arbitrary_goal_y);
@@ -348,6 +351,21 @@ TEST_GROUP(TrajectoryHasEnded)
                               &proximity_beacon_topic_buffer,
                               sizeof(proximity_beacon_topic_buffer));
         messagebus_advertise_topic(&bus, &proximity_beacon_topic, "/proximity_beacon");
+    }
+
+    void msgbus_advertise_ally()
+    {
+        static allied_position_t pos;
+        messagebus_topic_init(&ally_position_topic, nullptr, nullptr, &pos,
+                              sizeof(pos));
+
+        messagebus_advertise_topic(&bus, &ally_position_topic, "/allied_position");
+    }
+
+    void publish_allied_position(uint32_t timestamp, point_t pos)
+    {
+        allied_position_t msg = {pos, timestamp};
+        messagebus_topic_publish(&ally_position_topic, &msg, sizeof(msg));
     }
 };
 
@@ -572,6 +590,35 @@ TEST(TrajectoryHasEnded, IgnoresOpponentIfOutOfTheWayEvenIfTooBig)
     int traj_end_reason = trajectory_has_ended(TRAJ_END_OPPONENT_NEAR);
 
     CHECK_EQUAL(0, traj_end_reason);
+}
+
+TEST(TrajectoryHasEnded, DoesStopWhenAllyIsOnTheWay)
+{
+    publish_allied_position(timestamp_now, {100, 100});
+    auto reason = trajectory_has_ended(TRAJ_END_ALLY_NEAR);
+    CHECK_EQUAL(TRAJ_END_ALLY_NEAR, reason);
+}
+
+TEST(TrajectoryHasEnded, DoesNotStopWhenAllyIsNotOnPath)
+{
+    publish_allied_position(timestamp_now, {1000, 1000});
+    auto reason = trajectory_has_ended(TRAJ_END_ALLY_NEAR);
+    CHECK_EQUAL(0, reason);
+}
+
+TEST(TrajectoryHasEnded, DoesNotStopWhenAllyPositionIsTooOld)
+{
+    // Timestamp 20 seconds in the past
+    const auto age = 20;
+    const auto timestamp = timestamp_now - age * 1000000;
+    publish_allied_position(timestamp, {100, 100});
+    auto reason = trajectory_has_ended(TRAJ_END_ALLY_NEAR);
+    CHECK_EQUAL(0, reason);
+}
+
+TEST(TrajectoryHasEnded, ByDefaultCheckForAllyPosition)
+{
+    CHECK_TRUE(TRAJ_FLAGS_ALL & TRAJ_END_ALLY_NEAR);
 }
 
 TEST(TrajectoryHasEnded, DetectsTimeIsUp)

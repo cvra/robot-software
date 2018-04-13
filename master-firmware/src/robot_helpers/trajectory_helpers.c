@@ -7,6 +7,7 @@
 #include "base/map.h"
 #include "math_helpers.h"
 #include "beacon_helpers.h"
+#include "can/uwb_position.h"
 
 #include "trajectory_helpers.h"
 
@@ -65,6 +66,21 @@ int trajectory_has_ended(int watched_end_reasons)
 
                 if (trajectory_is_on_collision_path(x_opp, y_opp)) {
                     return TRAJ_END_OPPONENT_NEAR;
+                }
+            }
+        }
+    }
+
+    if (watched_end_reasons & TRAJ_END_ALLY_NEAR) {
+        messagebus_topic_t *topic = messagebus_find_topic(&bus, "/allied_position");
+        allied_position_t pos;
+
+        if (topic && messagebus_topic_read(topic, &pos, sizeof(pos))) {
+            uint32_t age = timestamp_duration_s(pos.timestamp, timestamp_get());
+
+            if (age < TRAJ_MAX_TIME_DELAY_OPPONENT_DETECTION) {
+                if (trajectory_is_on_collision_path(pos.point.x, pos.point.y)) {
+                    return TRAJ_END_ALLY_NEAR;
                 }
             }
         }
