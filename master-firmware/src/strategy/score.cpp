@@ -51,3 +51,15 @@ int score_count_balls(const RobotState& state)
     return state.balls_in_watertower * 5 +
            state.balls_in_wastewater_treatment_plant * 10;
 }
+
+int score_count_wastewater_bonus(const RobotState& state)
+{
+    int score = 0;
+    if (!state.wastewater_monocolor_full) {
+        score += 10;
+    }
+    if (!state.wastewater_multicolor_full) {
+        score += 10;
+    }
+    return score;
+}

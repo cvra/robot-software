@@ -42,6 +42,7 @@ static THD_FUNCTION(score_counter_thd, arg)
         score += score_count_tower(state);
         score += score_count_tower_bonus(state);
         score += score_count_balls(state);
+        score += score_count_wastewater_bonus(state);
 
         messagebus_topic_publish(&score_topic, &score, sizeof(score));
     }

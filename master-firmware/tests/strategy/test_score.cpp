@@ -158,3 +158,22 @@ TEST(AScore, countsBallsInWasteWaterTreatmentPlant)
 
     CHECK_EQUAL(3 * 10, score_count_balls(state));
 };
+
+TEST(AScore, countsNoBonusForWasteWater)
+{
+    CHECK_EQUAL(0, score_count_wastewater_bonus(state));
+};
+
+TEST(AScore, countsBallsBonusForOpeningMonocolorWasteWater)
+{
+    state.wastewater_monocolor_full = false;
+
+    CHECK_EQUAL(10, score_count_wastewater_bonus(state));
+};
+
+TEST(AScore, countsBallsBonusForOpeningMulticolorWasteWater)
+{
+    state.wastewater_multicolor_full = false;
+
+    CHECK_EQUAL(10, score_count_wastewater_bonus(state));
+};
