@@ -676,10 +676,6 @@ struct EmptyMulticolorWasteWaterCollector : actions::EmptyMulticolorWasteWaterCo
         state.ballgun_state = BallgunState::CHARGED_MULTICOLOR;
         state.wastewater_multicolor_full = false;
 
-        // set in position for ball discharge
-        trajectory_a_rel(&robot.traj, 80.0f); // deg
-        trajectory_d_rel(&robot.traj, 50.0f); // mm
-
         return true;
     }
 };
@@ -706,6 +702,10 @@ struct FireBallGunIntoWaterTower : actions::FireBallGunIntoWaterTower {
         const int x_mm = 240;
         const int y_mm = 740;
         NOTICE("Filling water tower from %d %d", x_mm, y_mm);
+
+        if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, -90), TRAJ_FLAGS_ALL)) {
+            return false;
+        }
 
         strat_fill_watertower();
 
@@ -738,9 +738,10 @@ struct FireBallGunIntoWasteWaterTreatmentPlant : actions::FireBallGunIntoWasteWa
     bool execute(RobotState &state) {
         const int x_mm = 2360;
         const int y_mm = 1758;
+        const int heading_deg = 170;
         NOTICE("Filling waste water treatment plant from %d %d", x_mm, y_mm);
 
-        if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, 150), TRAJ_FLAGS_ALL)) {
+        if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, heading_deg), TRAJ_FLAGS_ALL)) {
             return false;
         }
 
