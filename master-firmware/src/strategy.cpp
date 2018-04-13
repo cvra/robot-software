@@ -597,19 +597,20 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
 
 void strat_collect_wastewater(enum strat_color_t color, float heading)
 {
+    const int shake_amplitude = 10;
     ballgun_tidy(&main_ballgun);
     ballgun_deploy(&main_ballgun);
     strategy_wait_ms(1000);
 
     ballgun_charge(&main_ballgun);
 
-    trajectory_a_abs(&robot.traj, MIRROR_A(color, heading - 5));
+    trajectory_a_abs(&robot.traj, MIRROR_A(color, heading - shake_amplitude));
     trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE /*TRAJ_FLAGS_ROTATION*/);
 
-    for (auto i = 0; i < 3; i++) {
-        trajectory_a_abs(&robot.traj, MIRROR_A(color, heading + 5));
+    for (auto i = 0; i < 6; i++) {
+        trajectory_a_abs(&robot.traj, MIRROR_A(color, heading + shake_amplitude));
         strategy_wait_ms(500);
-        trajectory_a_abs(&robot.traj, MIRROR_A(color, heading - 5));
+        trajectory_a_abs(&robot.traj, MIRROR_A(color, heading - shake_amplitude));
         strategy_wait_ms(500);
     }
 
