@@ -210,6 +210,16 @@ TEST(Strategy, CanFillWaterTower)
     CHECK_TRUE(goal.is_reached(state));
 }
 
+TEST(Strategy, CanNotFillWaterTower)
+{
+    WaterTowerGoal goal;
+
+    int len = compute_and_execute_plan(goal, state);
+    len = compute_and_execute_plan(goal, state);
+
+    CHECK_EQUAL(0, len);
+}
+
 TEST(Strategy, CanFillWasteWaterTreatment)
 {
     WasteWaterGoal goal;
@@ -218,4 +228,14 @@ TEST(Strategy, CanFillWasteWaterTreatment)
 
     CHECK_TRUE(len > 0);
     CHECK_TRUE(goal.is_reached(state));
+}
+
+TEST(Strategy, CanNotFillWasteWaterTreatmentTwice)
+{
+    WasteWaterGoal goal;
+
+    int len = compute_and_execute_plan(goal, state);
+    len = compute_and_execute_plan(goal, state);
+
+    CHECK_EQUAL(0, len);
 }

@@ -169,12 +169,15 @@ struct FireBallGunIntoWasteWaterTreatmentPlant : public goap::Action<RobotState>
 struct EmptyMonocolorWasteWaterCollector : public goap::Action<RobotState> {
     bool can_run(RobotState state)
     {
-        return state.arms_are_deployed == false && state.ballgun_state == BallgunState::IS_EMPTY;
+        return state.arms_are_deployed == false &&
+               state.ballgun_state == BallgunState::IS_EMPTY &&
+               state.wastewater_monocolor_full;
     }
 
     RobotState plan_effects(RobotState state)
     {
         state.ballgun_state = BallgunState::CHARGED_MONOCOLOR;
+        state.wastewater_monocolor_full = false;
         return state;
     }
 };
@@ -182,12 +185,15 @@ struct EmptyMonocolorWasteWaterCollector : public goap::Action<RobotState> {
 struct EmptyMulticolorWasteWaterCollector : public goap::Action<RobotState> {
     bool can_run(RobotState state)
     {
-        return state.arms_are_deployed == false && state.ballgun_state == BallgunState::IS_EMPTY;
+        return state.arms_are_deployed == false &&
+               state.ballgun_state == BallgunState::IS_EMPTY &&
+               state.wastewater_multicolor_full;
     }
 
     RobotState plan_effects(RobotState state)
     {
         state.ballgun_state = BallgunState::CHARGED_MULTICOLOR;
+        state.wastewater_multicolor_full = false;
         return state;
     }
 };

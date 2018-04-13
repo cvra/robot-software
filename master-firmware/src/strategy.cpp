@@ -631,6 +631,7 @@ struct EmptyMonocolorWasteWaterCollector : actions::EmptyMonocolorWasteWaterColl
         strat_collect_wastewater(m_color);
 
         state.ballgun_state = BallgunState::CHARGED_MONOCOLOR;
+        state.wastewater_monocolor_full = false;
 
         return true;
     }
@@ -658,6 +659,7 @@ struct EmptyMulticolorWasteWaterCollector : actions::EmptyMulticolorWasteWaterCo
         strat_collect_wastewater(m_color);
 
         state.ballgun_state = BallgunState::CHARGED_MULTICOLOR;
+        state.wastewater_multicolor_full = false;
 
         return true;
     }

@@ -45,6 +45,8 @@ struct RobotState {
     } construction_zone[NUM_CONSTRUCTION_ZONES];
 
     BallgunState ballgun_state{BallgunState::IS_EMPTY};
+    bool wastewater_monocolor_full{true};
+    bool wastewater_multicolor_full{true};
     uint8_t balls_in_watertower{0};
     uint8_t balls_in_wastewater_treatment_plant{0};
 };
