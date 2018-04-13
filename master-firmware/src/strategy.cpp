@@ -595,7 +595,7 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
     }
 };
 
-void strat_collect_wastewater(enum strat_color_t color)
+void strat_collect_wastewater(enum strat_color_t color, float heading)
 {
     ballgun_tidy(&main_ballgun);
     ballgun_deploy(&main_ballgun);
@@ -603,14 +603,18 @@ void strat_collect_wastewater(enum strat_color_t color)
 
     ballgun_charge(&main_ballgun);
 
-    trajectory_a_rel(&robot.traj, MIRROR(color, -95));
-    strategy_wait_ms(500);
-    trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE /*TRAJ_FLAGS_ROTATION*/);
-    trajectory_a_rel(&robot.traj, MIRROR(color, 5));
-    strategy_wait_ms(200);
+    trajectory_a_abs(&robot.traj, MIRROR_A(color, heading - 5));
     trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE /*TRAJ_FLAGS_ROTATION*/);
 
-    // TODO: oscillate forward/backward + rotation
+    for (auto i = 0; i < 3; i++) {
+        trajectory_a_abs(&robot.traj, MIRROR_A(color, heading + 5));
+        strategy_wait_ms(500);
+        trajectory_a_abs(&robot.traj, MIRROR_A(color, heading - 5));
+        strategy_wait_ms(500);
+    }
+
+    trajectory_a_abs(&robot.traj, MIRROR_A(color, heading));
+
     strategy_wait_ms(2000);
 
     trajectory_d_rel(&robot.traj, -50);
@@ -638,7 +642,7 @@ struct EmptyMonocolorWasteWaterCollector : actions::EmptyMonocolorWasteWaterColl
             return false;
         }
 
-        strat_collect_wastewater(m_color);
+        strat_collect_wastewater(m_color, -180);
 
         state.ballgun_state = BallgunState::CHARGED_MONOCOLOR;
         state.wastewater_monocolor_full = false;
@@ -666,7 +670,7 @@ struct EmptyMulticolorWasteWaterCollector : actions::EmptyMulticolorWasteWaterCo
             return false;
         }
 
-        strat_collect_wastewater(m_color);
+        strat_collect_wastewater(m_color, 90);
 
         state.ballgun_state = BallgunState::CHARGED_MULTICOLOR;
         state.wastewater_multicolor_full = false;

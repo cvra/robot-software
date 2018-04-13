@@ -1476,9 +1476,8 @@ static void cmd_wastewater(BaseSequentialStream *chp, int argc, char *argv[])
         chprintf(chp, "Usage: wastewater yellow|green\r\n");
         return;
     }
-
-    if      (strcmp("yellow", argv[0]) == 0) { strat_collect_wastewater(YELLOW); }
-    else if (strcmp("green", argv[0]) == 0)  { strat_collect_wastewater(BLUE); }
+    if      (strcmp("yellow", argv[0]) == 0) { strat_collect_wastewater(YELLOW, 0); }
+    else if (strcmp("green", argv[0]) == 0)  { strat_collect_wastewater(BLUE, 0); }
     else                                     { chprintf(chp, "Invalid color: %s", argv[0]); }
 }
 
