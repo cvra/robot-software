@@ -60,6 +60,8 @@ static void oa_reset(void)
     memset(oa.weight, 0, sizeof(oa.weight));
     memset(oa.p, 0, sizeof(oa.p));
     memset(oa.pt, 0, sizeof(oa.pt));
+    memset(oa.rays, 0, sizeof(oa.rays));
+    oa.ray_n = 0;
 }
 
 /** Init the oa structure. Note: In the algorithm, the first polygon
