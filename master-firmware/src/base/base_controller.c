@@ -81,7 +81,7 @@ void robot_init(void)
     trajectory_set_robot_params(&robot.traj, &robot.rs, &robot.pos);
 
     // Distance window, angle window, angle start
-    trajectory_set_windows(&robot.traj, 5., 2., 30.);
+    trajectory_set_windows(&robot.traj, 15., 5., 30.);
 
     /* Initialize blocking detection managers */
     bd_init(&robot.angle_bd);
