@@ -748,7 +748,7 @@ struct FireBallGunIntoWasteWaterTreatmentPlant : actions::FireBallGunIntoWasteWa
         strat_fill_wastewater_treatment_plant();
 
         state.ballgun_state = BallgunState::IS_EMPTY;
-        state.balls_in_wastewater_treatment_plant += 1;
+        state.balls_in_wastewater_treatment_plant += 4;
 
         return true;
     }
