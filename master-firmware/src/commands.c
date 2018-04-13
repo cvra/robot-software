@@ -412,7 +412,7 @@ static void cmd_allied_position(BaseSequentialStream *chp, int argc, char *argv[
 static void cmd_traj_forward(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc == 1) {
-        robot.mode = BOARD_MODE_DISTANCE_ONLY;
+        robot.mode = BOARD_MODE_ANGLE_DISTANCE;
 
         int32_t distance;
         distance = atoi(argv[0]);
@@ -427,7 +427,7 @@ static void cmd_traj_forward(BaseSequentialStream *chp, int argc, char *argv[])
 static void cmd_traj_rotate(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc == 1) {
-        robot.mode = BOARD_MODE_ANGLE_ONLY;
+        robot.mode = BOARD_MODE_ANGLE_DISTANCE;
 
         int32_t angle;
         angle = atoi(argv[0]);
