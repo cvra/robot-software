@@ -848,7 +848,7 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
     NOTICE("Positioning robot");
 
     robot.base_speed = BASE_SPEED_INIT;
-    strategy_auto_position(MIRROR_X(color, 200), 500, MIRROR_A(color, -90), color);
+    strategy_auto_position(MIRROR_X(color, 200), 520, MIRROR_A(color, -90), color);
 
     trajectory_a_abs(&robot.traj, MIRROR_A(color, 180));
     trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
@@ -955,7 +955,7 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     NOTICE("Positioning robot");
 
     robot.base_speed = BASE_SPEED_INIT;
-    strategy_auto_position(MIRROR_X(color, 200), 200, MIRROR_A(color, -90), color);
+    strategy_auto_position(MIRROR_X(color, 200), 180, MIRROR_A(color, -90), color);
 
     trajectory_a_abs(&robot.traj, MIRROR_A(color, 180));
     trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
@@ -970,6 +970,8 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
 
     trajectory_game_timer_reset();
     strategy_read_color_sequence(state);
+
+    strategy_wait_ms(2000); /* Wait for Order to get out */
 
     NOTICE("Starting game...");
     auto goals_are_reached = [&goals](const RobotState& state) {
