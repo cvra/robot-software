@@ -383,22 +383,25 @@ struct PickupCubes : actions::PickupCubes {
             se2_create_xya(MIRROR_X(m_color, x_mm + 160), y_mm + 160, MIRROR_A(m_color, 135)),
             se2_create_xya(MIRROR_X(m_color, x_mm - 160), y_mm + 160, MIRROR_A(m_color, 225)),
         };
-        strategy_sort_poses_by_distance(
-            base_get_robot_pose(&robot.pos), pickup_poses.data(),
-            pickup_poses.size(), strategy_distance_to_goal);
+        // strategy_sort_poses_by_distance(
+        //     base_get_robot_pose(&robot.pos), pickup_poses.data(),
+        //     pickup_poses.size(), strategy_distance_to_goal);
 
-        for (size_t i = 0; i < pickup_poses.size(); i++) {
+        // Ugly hack. TODO: debug later the offset. Don't judge me.
+        int i = std::min(blocks_id, 3); // don't segfault please
+        // for (size_t i = 0; i < pickup_poses.size(); i++) {
             const int pickup_x_mm = pickup_poses[i].translation.x;
             const int pickup_y_mm = pickup_poses[i].translation.y;
             const int pickup_a_deg = pickup_poses[i].rotation.angle + offset_a_deg;
 
             NOTICE("Going to %d %d %d", pickup_x_mm, pickup_y_mm, pickup_a_deg);
             if (strategy_goto_avoid(pickup_x_mm, pickup_y_mm, pickup_a_deg, TRAJ_FLAGS_ALL)) {
-                break;
-            } else if (i == pickup_poses.size() - 1) {
+                // break;
+            // } else if (i == pickup_poses.size() - 1) {
+            } else {
                 return false;
             }
-        }
+        // }
 
         lever_deploy(lever);
         lever_pickup(lever, base_get_robot_pose(&robot.pos), cubes_pose);
