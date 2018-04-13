@@ -606,6 +606,9 @@ void strat_collect_wastewater(enum strat_color_t color)
 
     strategy_wait_ms(2000);
 
+    trajectory_d_rel(&robot.traj, -50);
+    trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
+
     ballgun_tidy(&main_ballgun);
 }
 
