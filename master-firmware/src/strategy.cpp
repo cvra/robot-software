@@ -600,10 +600,13 @@ void strat_collect_wastewater(enum strat_color_t color)
     ballgun_charge(&main_ballgun);
 
     trajectory_a_rel(&robot.traj, MIRROR(color, -95));
+    strategy_wait_ms(500);
     trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE /*TRAJ_FLAGS_ROTATION*/);
     trajectory_a_rel(&robot.traj, MIRROR(color, 5));
+    strategy_wait_ms(200);
     trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE /*TRAJ_FLAGS_ROTATION*/);
 
+    // TODO: oscillate forward/backward + rotation
     strategy_wait_ms(2000);
 
     trajectory_d_rel(&robot.traj, -50);
@@ -648,7 +651,7 @@ struct EmptyMulticolorWasteWaterCollector : actions::EmptyMulticolorWasteWaterCo
 
     bool execute(RobotState &state) {
         const int x_mm = 2390;
-        const int y_mm = 2000 - 240;
+        const int y_mm = 2000 - 260;
         NOTICE("Emptying multicolor waste water collector at %d %d", x_mm, y_mm);
 
         if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm - 100, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {

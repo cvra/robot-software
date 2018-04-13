@@ -68,7 +68,7 @@ master:
     ballgun:
         servo:
             deployed_fully: 0.00095
-            deployed: 0.0015
+            deployed: 0.0014
             retracted: 0.00192
             channel: 1
         turbine:
