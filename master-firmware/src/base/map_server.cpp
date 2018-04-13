@@ -44,24 +44,26 @@ static THD_FUNCTION(map_server_thd, arg)
         opponent_size = config_get_integer("master/opponent_size_x_mm_default");
 
         /* Create obstacle at opponent position, only consider recent beacon signal */
-        messagebus_topic_read(proximity_beacon_topic, &beacon_signal, sizeof(beacon_signal));
-        if (timestamp_duration_s(beacon_signal.timestamp, timestamp_get()) < TRAJ_MAX_TIME_DELAY_OPPONENT_DETECTION) {
-            float x_opp, y_opp;
-            beacon_cartesian_convert(&robot.pos, 1000 * beacon_signal.distance, beacon_signal.heading, &x_opp, &y_opp);
-            map_update_opponent_obstacle(&map, x_opp, y_opp, opponent_size * 1.25, robot_size);
-        } else {
-            map_update_opponent_obstacle(&map, 0, 0, 0, 0); // reset opponent position
+        if (messagebus_topic_read(proximity_beacon_topic, &beacon_signal, sizeof(beacon_signal))) {
+            if (timestamp_duration_s(beacon_signal.timestamp, timestamp_get()) < TRAJ_MAX_TIME_DELAY_OPPONENT_DETECTION) {
+                float x_opp, y_opp;
+                beacon_cartesian_convert(&robot.pos, 1000 * beacon_signal.distance, beacon_signal.heading, &x_opp, &y_opp);
+                map_update_opponent_obstacle(&map, x_opp, y_opp, opponent_size * 1.25, robot_size);
+            } else {
+                map_update_opponent_obstacle(&map, 0, 0, 0, 0); // reset opponent position
+            }
         }
 
         /* Create obstacle at allied position */
-        messagebus_topic_read(allied_position_topic, &allied_position, sizeof(allied_position));
-        if (timestamp_duration_s(allied_position.timestamp, timestamp_get()) < TRAJ_MAX_TIME_DELAY_ALLY_DETECTION) {
-            map_set_ally_obstacle(&map,
-                                  allied_position.point.x,
-                                  allied_position.point.y,
-                                  robot_size);
-        } else {
-            map_set_ally_obstacle(&map, 0, 0, 0); // reset ally position
+        if (messagebus_topic_read(allied_position_topic, &allied_position, sizeof(allied_position))) {
+            if (timestamp_duration_s(allied_position.timestamp, timestamp_get()) < TRAJ_MAX_TIME_DELAY_ALLY_DETECTION) {
+                map_set_ally_obstacle(&map,
+                                      allied_position.point.x,
+                                      allied_position.point.y,
+                                      robot_size);
+            } else {
+                map_set_ally_obstacle(&map, 0, 0, 0); // reset ally position
+            }
         }
 
         /* Update cube blocks obstacles on map depending on state */
