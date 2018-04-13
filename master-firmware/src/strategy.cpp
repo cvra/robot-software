@@ -333,6 +333,24 @@ void strat_push_the_bee(point_t start, point_t end, float bee_height)
     strat_scara_goto_blocking({end.x, end.y, last_pos.z}, COORDINATE_ROBOT, {300, 300, 300});
 }
 
+void strat_push_the_bee_v2(point_t start, float bee_height, float forward_motion)
+{
+    const position_3d_t last_pos = scara_position(&main_arm, COORDINATE_ARM);
+
+    strat_scara_goto_blocking({170.f, 0.f, last_pos.z}, COORDINATE_ARM, {300, 300, 300});
+    strat_scara_goto_blocking({start.x, start.y, bee_height}, COORDINATE_ARM, {300, 300, 300});
+
+    /* Push */
+    trajectory_d_rel(&robot.traj, forward_motion);
+    strategy_wait_ms(500);
+    trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
+
+    /* Go back */
+    trajectory_d_rel(&robot.traj, -forward_motion);
+    strategy_wait_ms(500);
+    trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
+}
+
 struct PickupCubes : actions::PickupCubes {
     enum strat_color_t m_color;
 
@@ -431,6 +449,30 @@ struct TurnSwitchOn : public actions::TurnSwitchOn {
     }
 };
 
+// struct DeployTheBee : public actions::DeployTheBee {
+//     enum strat_color_t m_color;
+
+//     DeployTheBee(enum strat_color_t color) : m_color(color) {}
+
+//     bool execute(RobotState& state)
+//     {
+//         NOTICE("Gonna deploy the bee!");
+
+//         if (!strategy_goto_avoid(MIRROR_X(m_color, 150), 1850, MIRROR_A(m_color, -90), TRAJ_FLAGS_ALL)) {
+//             return false;
+//         }
+
+//         state.arms_are_deployed = true;
+//         point_t start = {.x = -200.f, .y = MIRROR(m_color, -170.f)};
+//         point_t end = {.x = -200.f, .y = MIRROR(m_color, 170.f)};
+//         float bee_height = 160.f;
+//         strat_push_the_bee(start, end, bee_height);
+
+//         state.bee_deployed = true;
+//         return true;
+//     }
+// };
+
 struct DeployTheBee : public actions::DeployTheBee {
     enum strat_color_t m_color;
 
@@ -440,15 +482,15 @@ struct DeployTheBee : public actions::DeployTheBee {
     {
         NOTICE("Gonna deploy the bee!");
 
-        if (!strategy_goto_avoid(MIRROR_X(m_color, 150), 1850, MIRROR_A(m_color, -90), TRAJ_FLAGS_ALL)) {
+        if (!strategy_goto_avoid(MIRROR_X(m_color, 170), 1700, MIRROR_A(m_color, -90), TRAJ_FLAGS_ALL)) {
             return false;
         }
 
         state.arms_are_deployed = true;
-        point_t start = {.x = -200.f, .y = MIRROR(m_color, -170.f)};
-        point_t end = {.x = -200.f, .y = MIRROR(m_color, 170.f)};
-        float bee_height = 160.f;
-        strat_push_the_bee(start, end, bee_height);
+        point_t start = {.x = 120.f, .y = MIRROR(m_color, 60.f)};
+        float bee_height = 180.f;
+        float forward_motion = -170.f;
+        strat_push_the_bee_v2(start, bee_height, forward_motion);
 
         state.bee_deployed = true;
         return true;

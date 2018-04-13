@@ -1421,6 +1421,21 @@ static void cmd_push_the_bee(BaseSequentialStream *chp, int argc, char *argv[])
     strat_push_the_bee(start, end, bee_height);
 }
 
+static void cmd_push_the_bee_v2(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc != 4) {
+        chprintf(chp, "Usage: bee2 x_start y_start bee_height forward_motion\r\n");
+        return;
+    }
+    float x_start = atof(argv[0]);
+    float y_start = atof(argv[1]);
+    float bee_height = atof(argv[2]);
+    float forward_motion = atof(argv[3]);
+
+    point_t start = {x_start, y_start};
+    strat_push_the_bee_v2(start, bee_height, forward_motion);
+}
+
 static void cmd_check_dist(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc != 1) {
@@ -1541,6 +1556,7 @@ const ShellCommand commands[] = {
     {"arm_bd", cmd_arm_bd},
     {"motor_sin", cmd_motor_sin},
     {"bee", cmd_push_the_bee},
+    {"bee2", cmd_push_the_bee_v2},
     {"check_dist", cmd_check_dist},
     {"ballgun", cmd_ballgun},
     {"wastewater", cmd_wastewater},
