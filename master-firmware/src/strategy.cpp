@@ -898,6 +898,9 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
         }
     }
 
+    // Avoid burning the ball gun by deploying it
+    ballgun_deploy(&main_ballgun);
+
     while (true) {
         NOTICE("Game ended!");
         strategy_wait_ms(1000);
@@ -1007,6 +1010,9 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
             break;
         }
     }
+
+    // Avoid burning the ball gun by deploying it
+    ballgun_deploy(&main_ballgun);
 
     while (true) {
         NOTICE("Game ended!");
