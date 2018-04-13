@@ -660,7 +660,7 @@ struct EmptyMulticolorWasteWaterCollector : actions::EmptyMulticolorWasteWaterCo
 
     bool execute(RobotState &state) {
         const int x_mm = 2390;
-        const int y_mm = 2000 - 260;
+        const int y_mm = 2000 - 265;
         NOTICE("Emptying multicolor waste water collector at %d %d", x_mm, y_mm);
 
         if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm - 100, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
@@ -675,6 +675,10 @@ struct EmptyMulticolorWasteWaterCollector : actions::EmptyMulticolorWasteWaterCo
 
         state.ballgun_state = BallgunState::CHARGED_MULTICOLOR;
         state.wastewater_multicolor_full = false;
+
+        // set in position for ball discharge
+        trajectory_a_rel(&robot.traj, 80.0f); // deg
+        trajectory_d_rel(&robot.traj, 50.0f); // mm
 
         return true;
     }
@@ -703,10 +707,6 @@ struct FireBallGunIntoWaterTower : actions::FireBallGunIntoWaterTower {
         const int y_mm = 740;
         NOTICE("Filling water tower from %d %d", x_mm, y_mm);
 
-        if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, -90), TRAJ_FLAGS_ALL)) {
-            return false;
-        }
-
         strat_fill_watertower();
 
         state.ballgun_state = BallgunState::IS_EMPTY;
@@ -722,6 +722,7 @@ void strat_fill_wastewater_treatment_plant(void)
     ballgun_deploy_fully(&main_ballgun);
     strategy_wait_ms(1000);
 
+    // TODO: pre-spin "ball-accelerator" motor with ~5V to ensure that it's not blocking
     ballgun_slowfire(&main_ballgun);
     strategy_wait_ms(2000);
 
@@ -735,8 +736,8 @@ struct FireBallGunIntoWasteWaterTreatmentPlant : actions::FireBallGunIntoWasteWa
         : m_color(color) {}
 
     bool execute(RobotState &state) {
-        const int x_mm = 2390;
-        const int y_mm = 1600;
+        const int x_mm = 2360;
+        const int y_mm = 1758;
         NOTICE("Filling waste water treatment plant from %d %d", x_mm, y_mm);
 
         if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, 150), TRAJ_FLAGS_ALL)) {
