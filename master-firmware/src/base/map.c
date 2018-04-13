@@ -21,7 +21,7 @@ void map_init(struct _map* map, int robot_size)
 
     /* Add ally obstacle at origin */
     map->ally = oa_new_poly(MAP_NUM_ALLY_EDGES);
-    map_set_ally_obstacle(map, 0, 0, 0);
+    map_set_ally_obstacle(map, 0, 0, 0, 0);
 
     /* Add opponent obstacle as points at origin */
     for (int i = 0; i < MAP_NUM_OPPONENT; i++) {
@@ -56,12 +56,12 @@ void map_init(struct _map* map, int robot_size)
     }
 }
 
-void map_set_ally_obstacle(struct _map* map, int32_t x, int32_t y, int32_t robot_size)
+void map_set_ally_obstacle(struct _map* map, int32_t x, int32_t y, int32_t ally_size, int32_t robot_size)
 {
     circle_t ally;
     ally.x = x;
     ally.y = y;
-    ally.r = robot_size/2;
+    ally.r = MAP_ALLY_SIZE_FACTOR * (robot_size + ally_size)/2;
     map_lock(&map->lock);
     discretize_circle(map->ally, ally, MAP_NUM_ALLY_EDGES, 0);
     map_unlock(&map->lock);

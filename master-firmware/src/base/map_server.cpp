@@ -60,9 +60,10 @@ static THD_FUNCTION(map_server_thd, arg)
                 map_set_ally_obstacle(&map,
                                       allied_position.point.x,
                                       allied_position.point.y,
+                                      robot_size*1.3,
                                       robot_size);
             } else {
-                map_set_ally_obstacle(&map, 0, 0, 0); // reset ally position
+                map_set_ally_obstacle(&map, 0, 0, 0, 0); // reset ally position
             }
         }
 
