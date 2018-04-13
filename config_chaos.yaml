@@ -204,7 +204,7 @@ actuator:
         encoders:
             primary:
                 # motor: 1516SR
-                ticks_per_rev: 4096
+                ticks_per_rev: 2048
                 # transmission: motor: 1/76 gears: 20/80
                 p: 1
                 q: 304
@@ -238,7 +238,7 @@ actuator:
         encoders:
             primary:
                 # motor: 1516SR
-                ticks_per_rev: 4096
+                ticks_per_rev: 2048
                 # transmission: motor: 1/76 gears: 20/60
                 p: 1
                 q: 228

@@ -19,6 +19,10 @@ void map_init(struct _map* map, int robot_size)
     polygon_set_boundingbox(robot_size/2, robot_size/2,
                             MAP_SIZE_X_MM - robot_size/2, MAP_SIZE_Y_MM - robot_size/2);
 
+    /* Add ally obstacle at origin */
+    map->ally = oa_new_poly(MAP_NUM_ALLY_EDGES);
+    map_set_ally_obstacle(map, 0, 0, 0);
+
     /* Add opponent obstacle as points at origin */
     for (int i = 0; i < MAP_NUM_OPPONENT; i++) {
         map->opponents[i] = oa_new_poly(MAP_NUM_OPPONENT_EDGES);
@@ -50,6 +54,17 @@ void map_init(struct _map* map, int robot_size)
         map->tower[i] = oa_new_poly(MAP_NUM_TOWERS_EDGES);
         map_set_tower_obstacle(map, i, 0, 0, 0);
     }
+}
+
+void map_set_ally_obstacle(struct _map* map, int32_t x, int32_t y, int32_t robot_size)
+{
+    circle_t ally;
+    ally.x = x;
+    ally.y = y;
+    ally.r = robot_size/2;
+    map_lock(&map->lock);
+    discretize_circle(map->ally, ally, MAP_NUM_ALLY_EDGES, 0);
+    map_unlock(&map->lock);
 }
 
 void map_set_opponent_obstacle(struct _map* map, int index, int32_t x, int32_t y, int32_t opponent_size, int32_t robot_size)
