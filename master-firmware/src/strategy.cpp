@@ -720,11 +720,11 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
     WaterTowerGoal watertower_goal;
     BuildTowerGoal build_tower_goal[2] = {BuildTowerGoal(0), BuildTowerGoal(1)};
     goap::Goal<RobotState>* goals[] = {
-        &pickup_cubes_goal,
-        &bee_goal,
         &watertower_goal,
-        &build_tower_goal[0],
-        &build_tower_goal[1],
+        &bee_goal,
+        // &pickup_cubes_goal,
+        // &build_tower_goal[0],
+        // &build_tower_goal[1],
     };
 
     IndexArms index_arms;
@@ -852,9 +852,9 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     PickupCubesGoal pickup_cubes_goal;
     WasteWaterGoal wastewater_plant_goal;
     goap::Goal<RobotState>* goals[] = {
-        &pickup_cubes_goal,
         &switch_goal,
-        &wastewater_plant_goal,
+        // &wastewater_plant_goal,
+        // &pickup_cubes_goal,
     };
 
     IndexArms index_arms;
