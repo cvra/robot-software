@@ -74,12 +74,12 @@ master:
         turbine:
             arm: 0.00154
             charge: 0.00193
-            fire: 0.00125
+            fire: 0.00135
             slowfire: 0.0014
             channel: 0
         accelerator:
             charge: -3.0
-            fire: 5.0
+            fire: 6.0
             slowfire: 0.8
     main_arm:
         control:
