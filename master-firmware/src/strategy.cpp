@@ -713,7 +713,7 @@ struct FireBallGunIntoWaterTower : actions::FireBallGunIntoWaterTower {
         strat_fill_watertower();
 
         state.ballgun_state = BallgunState::IS_EMPTY;
-        state.balls_in_watertower += 1;
+        state.balls_in_watertower += 5;
 
         return true;
     }
