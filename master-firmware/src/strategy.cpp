@@ -379,10 +379,10 @@ struct PickupCubes : actions::PickupCubes {
 
         se2_t cubes_pose = se2_create_xya(MIRROR_X(m_color, x_mm), y_mm, 0);
         std::array<se2_t, 4> pickup_poses = {
-            se2_create_xya(MIRROR_X(m_color, x_mm - 160), y_mm - 160, MIRROR_A(m_color, -45)),
-            se2_create_xya(MIRROR_X(m_color, x_mm + 160), y_mm - 160, MIRROR_A(m_color,  45)),
-            se2_create_xya(MIRROR_X(m_color, x_mm + 160), y_mm + 160, MIRROR_A(m_color, 135)),
-            se2_create_xya(MIRROR_X(m_color, x_mm - 160), y_mm + 160, MIRROR_A(m_color, 225)),
+            se2_create_xya(MIRROR_X(m_color, x_mm - 155), y_mm - 155, MIRROR_A(m_color, -45)),
+            se2_create_xya(MIRROR_X(m_color, x_mm + 155), y_mm - 155, MIRROR_A(m_color,  45)),
+            se2_create_xya(MIRROR_X(m_color, x_mm + 155), y_mm + 155, MIRROR_A(m_color, 135)),
+            se2_create_xya(MIRROR_X(m_color, x_mm - 155), y_mm + 155, MIRROR_A(m_color, 225)),
         };
         // strategy_sort_poses_by_distance(
         //     base_get_robot_pose(&robot.pos), pickup_poses.data(),
