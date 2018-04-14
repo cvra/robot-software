@@ -737,8 +737,8 @@ struct FireBallGunIntoWaterTower : actions::FireBallGunIntoWaterTower {
         : m_color(color) {}
 
     bool execute(RobotState &state) {
-        const int x_mm = 418; // tuned by experience
-        const int y_mm = 382;
+        const int x_mm = 430; // tuned by experience
+        const int y_mm = 410;
         const int heading_deg = 247;
         NOTICE("Filling water tower from %d %d", x_mm, y_mm);
 
