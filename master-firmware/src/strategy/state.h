@@ -33,7 +33,7 @@ struct RobotState {
     bool lever_full_left{false};
     bool lever_full_right{false};
 
-    bool blocks_on_map[NUM_BLOCK_OF_CUBES] = {true, true, true, true, true, true};
+    bool blocks_on_map[NUM_BLOCK_OF_CUBES] = {true, true, true, false, false, false};
 
     bool tower_sequence_known{false};
     enum cube_color tower_sequence[5] = {CUBE_YELLOW, CUBE_BLACK, CUBE_BLUE, CUBE_GREEN, CUBE_ORANGE};
