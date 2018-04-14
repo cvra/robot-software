@@ -470,6 +470,35 @@ struct TurnSwitchOn : public actions::TurnSwitchOn {
     }
 };
 
+struct TurnOpponentSwitchOff : public actions::TurnOpponentSwitchOff {
+    enum strat_color_t m_color;
+
+    TurnOpponentSwitchOff(enum strat_color_t color) : m_color(color) {}
+
+    bool execute(RobotState& state)
+    {
+        NOTICE("Turning opponent switch off O:D");
+
+        if (!strategy_goto_avoid(MIRROR_X(m_color, 1870), 250, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
+            return false;
+        }
+
+        state.arms_are_deployed = true;
+        strat_push_switch_on(MIRROR_X(m_color, 1870), 50, 150, -120);
+
+        state.opponent_panel_on = false;
+        state.should_push_opponent_panel = false;
+
+        int res;
+        do {
+            trajectory_goto_backward_xy_abs(&robot.traj, MIRROR_X(m_color, 1500), 1000);
+            res = trajectory_wait_for_end(TRAJ_FLAGS_ALL);
+        } while (res != TRAJ_END_GOAL_REACHED && res != TRAJ_END_TIMER);
+
+        return true;
+    }
+};
+
 // struct DeployTheBee : public actions::DeployTheBee {
 //     enum strat_color_t m_color;
 
@@ -970,10 +999,12 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     SwitchGoal switch_goal;
     PickupCubesGoal pickup_cubes_goal;
     WasteWaterGoal wastewater_plant_goal;
+    OpponentPanelGoal opponent_panel_goal;
     goap::Goal<RobotState>* goals[] = {
         &switch_goal,
         &wastewater_plant_goal,
         // &pickup_cubes_goal,
+        &opponent_panel_goal, // muahaha
     };
 
     IndexArms index_arms;
@@ -984,6 +1015,7 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     TurnSwitchOn turn_switch_on(color);
     EmptyMulticolorWasteWaterCollector empty_wastewater_multicolor(color);
     FireBallGunIntoWasteWaterTreatmentPlant fill_wasterwater_plant(color);
+    TurnOpponentSwitchOff turn_opponent_switch_off(color);
 
     const int max_path_len = 10;
     goap::Action<RobotState> *path[max_path_len] = {nullptr};
@@ -996,6 +1028,7 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
         &turn_switch_on,
         &empty_wastewater_multicolor,
         &fill_wasterwater_plant,
+        &turn_opponent_switch_off,
     };
 
     static goap::Planner<RobotState> planner(actions, sizeof(actions) / sizeof(actions[0]));
@@ -1062,6 +1095,11 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
                 break;
             }
         }
+
+        if (trajectory_get_time() > 70) {
+            state.should_push_opponent_panel = true;
+        }
+
         if (trajectory_game_has_ended()) {
             break;
         }

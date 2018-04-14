@@ -57,4 +57,11 @@ struct WasteWaterGoal : goap::Goal<RobotState> {
     }
 };
 
+struct OpponentPanelGoal : goap::Goal<RobotState> {
+    virtual int distance_to(const RobotState &state) const
+    {
+        return goap::Distance().shouldBeFalse(state.opponent_panel_on);
+    }
+};
+
 #endif /* STRATEGY_GOALS_H */

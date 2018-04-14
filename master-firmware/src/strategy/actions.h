@@ -200,6 +200,22 @@ struct EmptyMulticolorWasteWaterCollector : public goap::Action<RobotState> {
     }
 };
 
+struct TurnOpponentSwitchOff : public goap::Action<RobotState> {
+    bool can_run(RobotState state)
+    {
+        return state.arms_are_deployed == false && state.should_push_opponent_panel;
+    }
+
+    RobotState plan_effects(RobotState state)
+    {
+        state.arms_are_deployed = true;
+        state.opponent_panel_on = false;
+        state.should_push_opponent_panel = false;
+
+        return state;
+    }
+};
+
 } // namespace actions
 
 #endif /* STRATEGY_ACTIONS_H */

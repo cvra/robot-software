@@ -49,6 +49,9 @@ struct RobotState {
     bool wastewater_multicolor_full{true};
     uint8_t balls_in_watertower{0};
     uint8_t balls_in_wastewater_treatment_plant{0};
+
+    bool should_push_opponent_panel{false};
+    bool opponent_panel_on{true};
 };
 
 bool operator==(const RobotState& lhs, const RobotState& rhs);

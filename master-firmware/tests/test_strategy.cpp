@@ -46,6 +46,9 @@ struct EmptyMonocolorWasteWaterCollector : actions::EmptyMonocolorWasteWaterColl
 struct EmptyMulticolorWasteWaterCollector : actions::EmptyMulticolorWasteWaterCollector {
     bool execute(RobotState &state) { return dummy_execute(this, state); }
 };
+struct TurnOpponentSwitchOff : actions::TurnOpponentSwitchOff {
+    bool execute(RobotState &state) { return dummy_execute(this, state); }
+};
 
 TEST_GROUP(Strategy) {
     RobotState state;
@@ -64,6 +67,7 @@ TEST_GROUP(Strategy) {
     FireBallGunIntoWasteWaterTreatmentPlant fire_ballgun_into_wastewater_treatment_plant;
     EmptyMonocolorWasteWaterCollector empty_wasterwater_collector_monocolor;
     EmptyMulticolorWasteWaterCollector empty_wasterwater_collector_multicolor;
+    TurnOpponentSwitchOff turn_opponent_switch_off;
 
     std::vector<goap::Action<RobotState>*> availableActions()
     {
@@ -89,6 +93,7 @@ TEST_GROUP(Strategy) {
             &fire_ballgun_into_wastewater_treatment_plant,
             &empty_wasterwater_collector_monocolor,
             &empty_wasterwater_collector_multicolor,
+            &turn_opponent_switch_off,
         };
     }
 
@@ -238,4 +243,23 @@ TEST(Strategy, CanNotFillWasteWaterTreatmentTwice)
     len = compute_and_execute_plan(goal, state);
 
     CHECK_EQUAL(0, len);
+}
+
+TEST(Strategy, CanNotPushOpponentPanelByDefault)
+{
+    OpponentPanelGoal goal;
+
+    int len = compute_and_execute_plan(goal, state);
+
+    CHECK_TRUE(len < 0);
+}
+
+TEST(Strategy, CanPushOpponentPanelWhenAskedTo)
+{
+    OpponentPanelGoal goal;
+    state.should_push_opponent_panel = true;
+
+    int len = compute_and_execute_plan(goal, state);
+
+    CHECK_TRUE(len > 0);
 }
