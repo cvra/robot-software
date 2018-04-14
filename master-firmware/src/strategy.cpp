@@ -237,9 +237,9 @@ struct RetractArms : actions::RetractArms {
         scara_control_mode_cartesian(&main_arm);
 
         scara_goto(&main_arm, {-100., MIRROR(m_color, 120.), 295.}, COORDINATE_ROBOT, {300, 300, 300});
-        arm_traj_wait_for_end();
+        strategy_wait_ms(500);
         scara_goto(&main_arm, {20., MIRROR(m_color, 90.), 295.}, COORDINATE_ROBOT, {300, 300, 300});
-        arm_traj_wait_for_end();
+        strategy_wait_ms(500);
 
         return true;
     }
@@ -286,7 +286,12 @@ bool strat_pick_cube(float x, float y)
 {
     const position_3d_t last_pos = scara_position(&main_arm, COORDINATE_TABLE);
     strat_scara_goto_blocking({x, y, last_pos.z}, COORDINATE_TABLE, {300, 300, 300});
-    strat_scara_goto_blocking({x, y, 60}, COORDINATE_TABLE, {300, 300, 300});
+
+    scara_goto(&main_arm, {x, y, 80}, COORDINATE_TABLE, {300, 300, 300});
+    arm_traj_wait_for_end();
+
+    scara_goto(&main_arm, {x, y, 60}, COORDINATE_TABLE, {200, 200, 200});
+    arm_traj_wait_for_event(ARM_READY | ARM_BLOCKED_Z);
 
     bool cube_is_present = strat_check_distance_to_hand_lower_than(0.05f);
 
@@ -592,8 +597,8 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
             return false;
         }
 
-        const int tower_x_mm = x_mm + 30;
-        const int tower_y_mm = y_mm - 240;
+        const int tower_x_mm = x_mm + 0;
+        const int tower_y_mm = y_mm - 220;
         if (!strat_deposit_cube(MIRROR_X(m_color, tower_x_mm), tower_y_mm, level)) {
             WARNING("Tower building did not go as expected");
             return false;
