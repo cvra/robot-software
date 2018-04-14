@@ -631,7 +631,7 @@ struct EmptyMonocolorWasteWaterCollector : actions::EmptyMonocolorWasteWaterColl
         : m_color(color) {}
 
     bool execute(RobotState &state) {
-        const int x_mm = 0 + 240;
+        const int x_mm = 0 + 265;
         const int y_mm = 840;
         NOTICE("Emptying monocolor waste water collector at %d %d", x_mm, y_mm);
 
@@ -689,7 +689,9 @@ void strat_fill_watertower(void)
     ballgun_fire(&main_ballgun);
     strategy_wait_ms(2000);
 
-    ballgun_tidy(&main_ballgun);
+    // ballgun_tidy(&main_ballgun);
+    // keep ballgun out to avoid heating servo
+    ballgun_deploy(&main_ballgun);
 }
 
 struct FireBallGunIntoWaterTower : actions::FireBallGunIntoWaterTower {
@@ -699,11 +701,12 @@ struct FireBallGunIntoWaterTower : actions::FireBallGunIntoWaterTower {
         : m_color(color) {}
 
     bool execute(RobotState &state) {
-        const int x_mm = 240;
-        const int y_mm = 740;
+        const int x_mm = 400;
+        const int y_mm = 344;
+        const int heading_deg = -67;
         NOTICE("Filling water tower from %d %d", x_mm, y_mm);
 
-        if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, -90), TRAJ_FLAGS_ALL)) {
+        if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, heading_deg), TRAJ_FLAGS_ALL)) {
             return false;
         }
 
