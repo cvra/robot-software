@@ -7,7 +7,7 @@ logging:
 master:
     is_main_robot: true
     control_panel_active_high: false
-    robot_size_x_mm: 245 # Robot diameter
+    robot_size_x_mm: 260 # Robot diameter
     robot_alignment_length_mm: 135 # robot length from center to alignement border
     opponent_size_x_mm_default: 400
     calibration_direction: 1 # calibration side is on the front
