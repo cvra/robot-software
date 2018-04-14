@@ -236,7 +236,9 @@ struct RetractArms : actions::RetractArms {
         strategy_wait_ms(500);
         scara_control_mode_cartesian(&main_arm);
 
-        scara_goto(&main_arm, {-20., MIRROR(m_color, 120.), 295.}, COORDINATE_ROBOT, {300, 300, 300});
+        scara_goto(&main_arm, {-100., MIRROR(m_color, 120.), 295.}, COORDINATE_ROBOT, {300, 300, 300});
+        arm_traj_wait_for_end();
+        scara_goto(&main_arm, {20., MIRROR(m_color, 90.), 295.}, COORDINATE_ROBOT, {300, 300, 300});
         arm_traj_wait_for_end();
 
         return true;
