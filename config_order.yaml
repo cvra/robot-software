@@ -79,7 +79,7 @@ master:
             channel: 0
         accelerator:
             charge: -3.0
-            fire: 2.7
+            fire: 3.0
             slowfire: 2.0
     main_arm:
         control:
