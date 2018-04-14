@@ -737,8 +737,8 @@ struct FireBallGunIntoWaterTower : actions::FireBallGunIntoWaterTower {
         : m_color(color) {}
 
     bool execute(RobotState &state) {
-        const int x_mm = 400;
-        const int y_mm = 344;
+        const int x_mm = 418; // tuned by experience
+        const int y_mm = 382;
         const int heading_deg = 247;
         NOTICE("Filling water tower from %d %d", x_mm, y_mm);
 
@@ -749,7 +749,7 @@ struct FireBallGunIntoWaterTower : actions::FireBallGunIntoWaterTower {
         auto res = strat_fill_watertower();
         if (res) {
             state.ballgun_state = BallgunState::IS_EMPTY;
-            state.balls_in_watertower += 5;
+            state.balls_in_watertower += 6;
 
         }
 
