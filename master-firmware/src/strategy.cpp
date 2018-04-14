@@ -707,7 +707,7 @@ struct EmptyMulticolorWasteWaterCollector : actions::EmptyMulticolorWasteWaterCo
     }
 };
 
-void strat_fill_watertower(void)
+bool strat_fill_watertower(void)
 {
     ballgun_tidy(&main_ballgun);
     ballgun_deploy(&main_ballgun);
@@ -722,6 +722,12 @@ void strat_fill_watertower(void)
     // ballgun_tidy(&main_ballgun);
     // keep ballgun out to avoid heating servo
     ballgun_arm(&main_ballgun);
+
+    if (delay < 500) {
+        return false; // not enough time
+    }
+
+    return true;
 }
 
 struct FireBallGunIntoWaterTower : actions::FireBallGunIntoWaterTower {
@@ -740,12 +746,14 @@ struct FireBallGunIntoWaterTower : actions::FireBallGunIntoWaterTower {
             return false;
         }
 
-        strat_fill_watertower();
+        auto res = strat_fill_watertower();
+        if (res) {
+            state.ballgun_state = BallgunState::IS_EMPTY;
+            state.balls_in_watertower += 5;
 
-        state.ballgun_state = BallgunState::IS_EMPTY;
-        state.balls_in_watertower += 5;
+        }
 
-        return true;
+        return res;
     }
 };
 
