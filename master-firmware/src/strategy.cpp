@@ -407,6 +407,8 @@ struct PickupCubes : actions::PickupCubes {
 
             NOTICE("Going to %d %d %d", pickup_x_mm, pickup_y_mm, pickup_a_deg);
             if (strategy_goto_avoid(pickup_x_mm, pickup_y_mm, pickup_a_deg, TRAJ_FLAGS_ALL)) {
+                // go to same position, this time should be slightly more precise
+                strategy_goto_avoid(pickup_x_mm, pickup_y_mm, pickup_a_deg, TRAJ_FLAGS_ALL);
                 // break;
             // } else if (i == pickup_poses.size() - 1) {
             } else {
