@@ -92,6 +92,7 @@ void trajectory_game_timer_reset(void);
 /** Get current game time
  */
 int trajectory_get_time(void);
+int trajectory_get_time_ms(void);
 
 /** Tell if time is up
  */

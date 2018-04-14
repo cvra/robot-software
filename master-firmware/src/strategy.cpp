@@ -708,10 +708,13 @@ void strat_fill_watertower(void)
 {
     ballgun_tidy(&main_ballgun);
     ballgun_deploy(&main_ballgun);
-    strategy_wait_ms(1000);
+    strategy_wait_ms(500);
 
     ballgun_fire(&main_ballgun);
-    strategy_wait_ms(2000);
+
+    const auto remaining = (GAME_DURATION * 1000) - trajectory_get_time_ms();
+    const auto delay = std::max(std::min(2000, remaining), 10);
+    strategy_wait_ms(delay);
 
     // ballgun_tidy(&main_ballgun);
     // keep ballgun out to avoid heating servo
