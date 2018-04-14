@@ -652,6 +652,13 @@ struct EmptyMonocolorWasteWaterCollector : actions::EmptyMonocolorWasteWaterColl
         const int y_mm = 840;
         NOTICE("Emptying monocolor waste water collector at %d %d", x_mm, y_mm);
 
+        se2_t pos;
+        lever_deposit(&left_lever, pos);
+        lever_deposit(&right_lever, pos);
+
+        state.lever_full_left = false;
+        state.lever_full_right = false;
+
         if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm + 100), y_mm, MIRROR_A(m_color, -180), TRAJ_FLAGS_ALL)) {
             return false;
         }
@@ -810,10 +817,10 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
     BuildTowerGoal build_tower_goal[2] = {BuildTowerGoal(0), BuildTowerGoal(1)};
     goap::Goal<RobotState>* goals[] = {
         &bee_goal,
-        // &pickup_cubes_goal,
+        &pickup_cubes_goal,
         &build_tower_goal[0],
         &build_tower_goal[1],
-        // &watertower_goal,
+        &watertower_goal,
     };
 
     IndexArms index_arms;
