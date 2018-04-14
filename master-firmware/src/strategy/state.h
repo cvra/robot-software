@@ -11,7 +11,7 @@ const uint16_t BLOCK_OF_CUBES_POS[NUM_BLOCK_OF_CUBES][2] = {
 
 const int NUM_CONSTRUCTION_ZONES = 2;
 const uint16_t CONSTRUCTION_ZONE_POS[NUM_CONSTRUCTION_ZONES][2] = {
-    {400, 300}, {700, 300},
+    {400, 300}, {800, 300},
 };
 
 
