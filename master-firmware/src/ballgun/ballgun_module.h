@@ -12,6 +12,7 @@ extern "C" {
 extern ballgun_t main_ballgun;
 
 void ballgun_module_start(void);
+void ball_accelerator_voltage(float voltage);
 
 #ifdef __cplusplus
 }

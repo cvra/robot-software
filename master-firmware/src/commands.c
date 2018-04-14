@@ -1470,6 +1470,23 @@ static void cmd_ballgun(BaseSequentialStream *chp, int argc, char *argv[])
     else                                           { chprintf(chp, "Invalid command: %s", argv[0]); }
 }
 
+
+// Copy of strat_fill_wastewater_treatment_plant()
+static void cmd_slowfire(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    ballgun_tidy(&main_ballgun);
+    ballgun_deploy_fully(&main_ballgun);
+    chThdSleepMilliseconds(1000);
+
+    // pre-spin "ball-accelerator" motor with ~5V to ensure that it's not blocking
+    ball_accelerator_voltage(5.0f);
+    chThdSleepMilliseconds(500);
+    ballgun_slowfire(&main_ballgun);
+    chThdSleepMilliseconds(2000);
+
+    ballgun_tidy(&main_ballgun);
+}
+
 static void cmd_wastewater(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc != 1) {
@@ -1558,6 +1575,7 @@ const ShellCommand commands[] = {
     {"bee2", cmd_push_the_bee_v2},
     {"check_dist", cmd_check_dist},
     {"ballgun", cmd_ballgun},
+    {"slowfire", cmd_slowfire},
     {"wastewater", cmd_wastewater},
     {"watertower", cmd_watertower},
     {"watertower_plant", cmd_watertower_plant},

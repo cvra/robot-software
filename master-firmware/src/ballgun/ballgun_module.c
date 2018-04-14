@@ -82,3 +82,9 @@ void ballgun_module_start(void)
     chThdCreateStatic(ballgun_module_thd_wa, sizeof(ballgun_module_thd_wa),
                       BALLGUN_MODULE_PRIO, ballgun_module_thd, NULL);
 }
+
+void ball_accelerator_voltage(float voltage)
+{
+    static cvra_arm_motor_t ball_accelerator = {.id = "ball-accelerator", .direction = 0, .index = 0};
+    set_motor_voltage(&ball_accelerator, voltage);
+}
