@@ -78,7 +78,7 @@ master:
             slowfire: 0.0014
             channel: 0
         accelerator:
-            charge: -3.0
+            charge: -6.0
             fire: 6.0
             slowfire: 3.0
     main_arm:

@@ -458,7 +458,8 @@ struct TurnSwitchOn : public actions::TurnSwitchOn {
     {
         NOTICE("Turning switch on");
 
-        if (!strategy_goto_avoid(MIRROR_X(m_color, 1130), 250, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
+        if (!strategy_goto_avoid(MIRROR_X(m_color, 1130), 250, MIRROR_A(m_color, 90),
+            TRAJ_END_GOAL_REACHED | TRAJ_END_OPPONENT_NEAR | TRAJ_END_TIMER | TRAJ_END_ALLY_NEAR)) {
             return false;
         }
 
