@@ -80,7 +80,7 @@ master:
         accelerator:
             charge: -3.0
             fire: 6.0
-            slowfire: 0.8
+            slowfire: 3.0
     main_arm:
         control:
             x:
