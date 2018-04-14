@@ -85,23 +85,23 @@ static point_t point(float x, float y)
     return res;
 }
 
-static point_t cube_pos_in_block_frame(enum cube_color color)
+static point_t cube_pos_in_block_frame(enum cube_color color, enum strat_color_t robot_color)
 {
     const float cube_size = 60.f; // in mm
 
     switch(color) {
-        case CUBE_GREEN:    return point(  cube_size,            0);
-        case CUBE_BLUE:     return point(           0,   cube_size);
-        case CUBE_ORANGE:   return point(- cube_size,            0);
-        case CUBE_BLACK:    return point(           0, - cube_size);
+        case CUBE_GREEN:    return point(MIRROR(robot_color, - cube_size),           0);
+        case CUBE_BLUE:     return point(MIRROR(robot_color,           0), + cube_size);
+        case CUBE_ORANGE:   return point(MIRROR(robot_color, + cube_size),           0);
+        case CUBE_BLACK:    return point(MIRROR(robot_color,           0), - cube_size);
         case CUBE_YELLOW:
-        default:            return point(           0,           0);
+        default:            return point(MIRROR(robot_color,           0),           0);
     }
 }
 
-point_t strategy_cube_pos(se2_t cubes_pose, enum cube_color color)
+point_t strategy_cube_pos(se2_t cubes_pose, enum cube_color color, enum strat_color_t robot_color)
 {
-    return se2_transform(cubes_pose, cube_pos_in_block_frame(color));
+    return se2_transform(cubes_pose, cube_pos_in_block_frame(color, robot_color));
 }
 
 float strategy_flight_distance_to_goal(point_t pos, point_t goal)

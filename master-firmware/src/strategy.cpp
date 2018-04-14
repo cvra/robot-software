@@ -550,7 +550,7 @@ struct DepositCubes : actions::DepositCubes {
         }
         for (int i = 0; i < 5; i++) {
             state.construction_zone[construction_zone_id].cubes_ready[i] = true;
-            point_t cube_pos = strategy_cube_pos(cubes_pose, (enum cube_color)i);
+            point_t cube_pos = strategy_cube_pos(cubes_pose, (enum cube_color)i, m_color);
             state.construction_zone[construction_zone_id].cubes_pos[i][0] = cube_pos.x;
             state.construction_zone[construction_zone_id].cubes_pos[i][1] = cube_pos.y;
         }
