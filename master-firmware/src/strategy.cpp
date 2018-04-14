@@ -489,6 +489,8 @@ struct TurnOpponentSwitchOff : public actions::TurnOpponentSwitchOff {
 
         state.opponent_panel_on = false;
         state.should_push_opponent_panel = false;
+        scara_hold_position(&main_arm, COORDINATE_ARM);
+
 
         int res;
         do {
@@ -1079,6 +1081,9 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
         }
         return true;
     };
+
+    state.should_push_opponent_panel = true;
+
     while (!trajectory_game_has_ended()) {
         for (auto goal : goals) {
             int len = planner.plan(state, *goal, path, max_path_len);
@@ -1099,7 +1104,6 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
 
         if (trajectory_get_time() > 70) {
             NOTICE("Asking GOAP to shut down this panel.");
-            state.should_push_opponent_panel = true;
             state.opponent_panel_on = true;
         }
     }
