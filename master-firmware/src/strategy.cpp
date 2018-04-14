@@ -296,24 +296,32 @@ bool strat_pick_cube(float x, float y)
     return cube_is_present;
 }
 
+float safe_z(float z)
+{
+    return fminf(z, 300.f);
+}
+
 bool strat_deposit_cube(float x, float y, int num_cubes_in_tower)
 {
     const float z = (num_cubes_in_tower + 1) * 70.f;
-    const float margin_z = 40.f;
-    const float safe_z = fminf(z, 300.f);
+    const float margin_z = 20.f;
     const float safe_z_with_margin = fminf(fmaxf(z + margin_z, 200.f), 300.f);
 
     scara_hold_position(&main_arm, COORDINATE_ARM);
     arm_traj_wait_for_end();
 
+    arm_traj_manager_set_tolerances(&main_arm_traj_manager, 20.f, 20.f, 10.f);
+
     const position_3d_t last_pos = scara_position(&main_arm, COORDINATE_ARM);
     strat_scara_goto_blocking({last_pos.x, last_pos.y, safe_z_with_margin}, COORDINATE_ARM, {300, 300, 300});
     strat_scara_goto_blocking({x, y, safe_z_with_margin}, COORDINATE_TABLE, {150, 150, 150});
-    strat_scara_goto_blocking({x, y, z}, COORDINATE_TABLE, {150, 150, 150});
+    strat_scara_goto_blocking({x, y, safe_z(z)}, COORDINATE_TABLE, {150, 150, 150});
 
     hand_set_pump(&main_hand, PUMP_REVERSE);
-    strat_scara_goto_blocking({x, y, safe_z}, COORDINATE_TABLE, {300, 300, 300});
+    strat_scara_goto_blocking({x, y, safe_z(z + margin_z)}, COORDINATE_TABLE, {300, 300, 300});
     hand_set_pump(&main_hand, PUMP_OFF);
+
+    arm_traj_manager_set_tolerances(&main_arm_traj_manager, 10.f, 10.f, 2.f);
 
     return strat_check_distance_to_hand_lower_than(0.05f);
 }
