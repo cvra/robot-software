@@ -795,7 +795,9 @@ void strat_fill_wastewater_treatment_plant(void)
     ballgun_deploy_fully(&main_ballgun);
     strategy_wait_ms(1000);
 
-    // TODO: pre-spin "ball-accelerator" motor with ~5V to ensure that it's not blocking
+    // pre-spin "ball-accelerator" motor with ~5V to ensure that it's not blocking
+    ball_accelerator_voltage(5.0f);
+    strategy_wait_ms(500);
     ballgun_slowfire(&main_ballgun);
     strategy_wait_ms(2000);
 
