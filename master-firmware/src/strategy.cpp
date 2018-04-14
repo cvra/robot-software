@@ -691,7 +691,7 @@ void strat_fill_watertower(void)
 
     // ballgun_tidy(&main_ballgun);
     // keep ballgun out to avoid heating servo
-    ballgun_deploy(&main_ballgun);
+    ballgun_arm(&main_ballgun);
 }
 
 struct FireBallGunIntoWaterTower : actions::FireBallGunIntoWaterTower {
@@ -703,7 +703,7 @@ struct FireBallGunIntoWaterTower : actions::FireBallGunIntoWaterTower {
     bool execute(RobotState &state) {
         const int x_mm = 400;
         const int y_mm = 344;
-        const int heading_deg = -67;
+        const int heading_deg = 247;
         NOTICE("Filling water tower from %d %d", x_mm, y_mm);
 
         if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, heading_deg), TRAJ_FLAGS_ALL)) {
