@@ -1024,8 +1024,8 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     goap::Action<RobotState> *actions[] = {
         &index_arms,
         &retract_arms,
-        &pickup_cubes[0],
-        &pickup_cubes[1],
+        // &pickup_cubes[0],
+        // &pickup_cubes[1],
         &turn_switch_on,
         &empty_wastewater_multicolor,
         &fill_wasterwater_plant,
@@ -1079,7 +1079,7 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
         }
         return true;
     };
-    while (!goals_are_reached(state)) {
+    while (!trajectory_game_has_ended()) {
         for (auto goal : goals) {
             int len = planner.plan(state, *goal, path, max_path_len);
             for (int i = 0; i < len; i++) {
@@ -1098,19 +1098,17 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
         }
 
         if (trajectory_get_time() > 70) {
+            NOTICE("Asking GOAP to shut down this panel.");
             state.should_push_opponent_panel = true;
-        }
-
-        if (trajectory_game_has_ended()) {
-            break;
+            state.opponent_panel_on = true;
         }
     }
 
     // Avoid burning the ball gun by deploying it
     ballgun_deploy(&main_ballgun);
 
+    NOTICE("Game ended!");
     while (true) {
-        NOTICE("Game ended!");
         strategy_wait_ms(1000);
     }
 }
