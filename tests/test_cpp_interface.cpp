@@ -24,7 +24,8 @@ TEST(MessagebusCppInterface, CanPublish)
     topic->publish(42);
 
     int read_msg;
-    auto res = messagebus_topic_read(&raw_topic, &read_msg, sizeof(read_msg));
+    bool res = messagebus_topic_read(&raw_topic, &read_msg, sizeof(read_msg));
+
     CHECK_TRUE(res);
     CHECK_EQUAL(42, read_msg);
 }
@@ -35,7 +36,7 @@ TEST(MessagebusCppInterface, CanRead)
     messagebus_topic_publish(&raw_topic, &msg, sizeof(msg));
 
     int read_msg;
-    auto res = topic->read(read_msg);
+    bool res = topic->read(read_msg);
 
     CHECK_TRUE(res);
     CHECK_EQUAL(msg, read_msg);
@@ -58,11 +59,11 @@ TEST(MessagebusCppInterface, CanCheckIfTopicExists)
 TEST(MessagebusCppInterface, CanFindTopic)
 {
     auto topic = messagebus::find_topic<int>(bus, "/foo");
-    topic.publish(42);
+    CHECK_TRUE(topic);
 }
 
 TEST(MessagebusCppInterface, CanFindTopicBlocking)
 {
     auto topic = messagebus::find_topic_blocking<int>(bus, "/foo");
-    topic.publish(42);
+    CHECK_TRUE(topic);
 }

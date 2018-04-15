@@ -71,6 +71,6 @@ TopicWrapper<T>::operator bool()
     return topic != nullptr;
 }
 
-} // nmaespace messagebus
+} // namespace messagebus
 
 #endif
