@@ -47,19 +47,8 @@ ifeq ($(USE_VERBOSE_COMPILE),)
   USE_VERBOSE_COMPILE = no
 endif
 
-
-# Config file depending on robot
-ifeq ($(ROBOT), )
-  $(error Please define ROBOT to either 'order' or 'chaos')
-endif
-
-ifeq ($(ROBOT), order)
-  CONFIG_YAML = ../config_order.yaml
-  CONFIG_MSGPACK_C = src/config_msgpack_order.c
-else
-  CONFIG_YAML = ../config_chaos.yaml
-  CONFIG_MSGPACK_C = src/config_msgpack_chaos.c
-endif
+CONFIG_YAML = ../config_order.yaml ../config_chaos.yaml
+CONFIG_MSGPACK_C = $(addprefix src/, $(notdir $(CONFIG_YAML:.yaml=.c)))
 
 #
 # Build global options
@@ -292,9 +281,9 @@ dsdlc:
 	@$(COLOR_PRINTF) "Running uavcan dsdl compiler"
 	$(LIBUAVCAN_DSDLC) ../uavcan_data_types/cvra $(UAVCAN_DSDL_DIR)
 
-$(CONFIG_MSGPACK_C): $(CONFIG_YAML)
-	@$(COLOR_PRINTF) "Generating MessagePack config..."
-	@../tools/config/config_to_msgpack.py $< $@
+$(CONFIG_MSGPACK_C): src/%.c : ../%.yaml
+	@$(COLOR_PRINTF) "Generating $@"
+	@../tools/config/config_to_msgpack.py $< $@ --name msgpack_$(notdir $(<:.yaml=))
 
 .PHONY: heap_size
 heap_size: $(BUILDDIR)/$(PROJECT).elf
