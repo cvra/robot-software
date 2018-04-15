@@ -231,10 +231,6 @@ DLIBS =
 UDEFS = -DON_ROBOT
 UDEFS += $(addprefix -D, $(GFXDEFS))
 
-ifeq ($(ROBOT), order)
-  UDEFS += -DDEBRA=1
-endif
-
 # Define ASM defines here
 UADEFS =
 
