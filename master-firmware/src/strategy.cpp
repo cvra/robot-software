@@ -76,8 +76,10 @@ static enum strat_color_t wait_for_color_selection(void)
 
 static void wait_for_starter(void)
 {
-    const long STARTER_MIN_PULSE_MS = 1000;
+    const long STARTER_MIN_ARMED_TIME_MS = 1000;
     unsigned long starter_armed_time_ms;
+
+    control_panel_clear(LED_READY);
 
     while (1) {
         starter_armed_time_ms = 0;
@@ -89,9 +91,14 @@ static void wait_for_starter(void)
         while (!control_panel_read(STARTER)) {
             strategy_wait_ms(10);
             starter_armed_time_ms += 10;
+
+            /* indicate that starter is armed */
+            if (starter_armed_time_ms >= STARTER_MIN_ARMED_TIME_MS) {
+                control_panel_set(LED_READY);
+            }
         }
 
-        if (starter_armed_time_ms >= STARTER_MIN_PULSE_MS) {
+        if (starter_armed_time_ms >= STARTER_MIN_ARMED_TIME_MS) {
             break;
         }
     }
