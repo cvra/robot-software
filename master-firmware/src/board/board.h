@@ -146,7 +146,7 @@
 #define GPIOF_PIN0                  0
 #define GPIOF_PIN1                  1
 #define GPIOF_PIN2                  2
-#define GPIOF_ROBOT_SELECT          3 // ROBOT_SELECT (input up), default = debra
+#define GPIOF_ROBOT_SELECT          3 // ROBOT_SELECT (input up), default = high
 #define GPIOF_PIN4                  4
 #define GPIOF_PIN5                  5
 #define GPIOF_UART7_RX              6 // DEBUG_UART_RX (alternate 8, pullup)

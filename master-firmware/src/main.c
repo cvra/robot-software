@@ -156,14 +156,23 @@ void config_load_err_cb(void *arg, const char *id, const char *err)
     WARNING("parameter %s: %s", id == NULL ? "(...)" : id, err);
 }
 
-extern unsigned char config_msgpack[];
-extern const size_t config_msgpack_size;
+extern unsigned char msgpack_config_order[];
+extern const size_t msgpack_config_order_size;
+extern unsigned char msgpack_config_chaos[];
+extern const size_t msgpack_config_chaos_size;
 
 void config_load_from_flash(void)
 {
     cmp_ctx_t cmp;
     cmp_mem_access_t mem;
-    cmp_mem_access_ro_init(&cmp, &mem, config_msgpack, config_msgpack_size);
+
+    bool robot_is_order = palReadPad(GPIOF, GPIOF_ROBOT_SELECT);
+
+    if (robot_is_order) {
+        cmp_mem_access_ro_init(&cmp, &mem, msgpack_config_order, msgpack_config_order_size);
+    } else {
+        cmp_mem_access_ro_init(&cmp, &mem, msgpack_config_chaos, msgpack_config_chaos_size);
+    }
     parameter_msgpack_read_cmp(&global_config, &cmp, config_load_err_cb, NULL);
 }
 
