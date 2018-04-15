@@ -12,6 +12,7 @@ tests:
     - tests/foreach.cpp
     - tests/watchgroups.cpp
     - tests/new_topic_callbacks.cpp
+    - tests/test_cpp_interface.cpp
 
 target.demo:
     - examples/posix/demo.c

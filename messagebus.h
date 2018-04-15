@@ -117,7 +117,7 @@ messagebus_topic_t *messagebus_find_topic_blocking(messagebus_t *bus, const char
  * false is returned.
  * @returns True if successful, otherwise.
  */
-bool messagebus_topic_publish(messagebus_topic_t *topic, void *buf, size_t buf_len);
+bool messagebus_topic_publish(messagebus_topic_t *topic, const void *buf, size_t buf_len);
 
 /** Reads the content of a single topic.
  *
@@ -188,5 +188,7 @@ extern void messagebus_condvar_wait(void *var);
 
 #ifdef __cplusplus
 }
+#include "messagebus_cpp.hpp"
 #endif
+
 #endif
