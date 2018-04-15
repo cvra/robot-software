@@ -55,7 +55,6 @@ target.arm:
     - src/arms/arms_controller.c
     - src/arms/arm_trajectory_manager.c
     - src/robot_helpers/motor_helpers.c
-    - src/config_msgpack.c
     - src/trace/trace_points.c
     - src/strategy.cpp
     - src/filesystem.c

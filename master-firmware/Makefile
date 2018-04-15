@@ -55,8 +55,10 @@ endif
 
 ifeq ($(ROBOT), order)
   CONFIG_YAML = ../config_order.yaml
+  CONFIG_MSGPACK_C = src/config_msgpack_order.c
 else
   CONFIG_YAML = ../config_chaos.yaml
+  CONFIG_MSGPACK_C = src/config_msgpack_chaos.c
 endif
 
 #
@@ -133,7 +135,8 @@ CSRC = $(PORTSRC) \
 	   $(CHIBIOS)/os/various/syscalls.c \
 	   $(CHIBIOS)/os/various/fatfs_bindings/fatfs_diskio.c \
 	   $(BOARDSRC) \
-	   $(GFXSRC)
+	   $(GFXSRC) \
+	   $(CONFIG_MSGPACK_C)
 
 include app_src.mk
 
@@ -261,7 +264,8 @@ RULESPATH = ./linker/
 include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/rules.mk
 
 # Empty libraries, required by stack smashing protection
-PRE_MAKE_ALL_RULE_HOOK: app_src.mk libssp.a libssp_nonshared.a src/config_msgpack.c
+PRE_MAKE_ALL_RULE_HOOK: app_src.mk $(CONFIG_MSGPACK_C) libssp.a libssp_nonshared.a
+
 libssp.a:
 	arm-none-eabi-ar rcs $@
 
@@ -288,9 +292,9 @@ dsdlc:
 	@$(COLOR_PRINTF) "Running uavcan dsdl compiler"
 	$(LIBUAVCAN_DSDLC) ../uavcan_data_types/cvra $(UAVCAN_DSDL_DIR)
 
-src/config_msgpack.c: ${CONFIG_YAML}
+$(CONFIG_MSGPACK_C): $(CONFIG_YAML)
 	@$(COLOR_PRINTF) "Generating MessagePack config..."
-	@../tools/config/config_to_msgpack.py ${CONFIG_YAML} src/config_msgpack.c
+	@../tools/config/config_to_msgpack.py $< $@
 
 .PHONY: heap_size
 heap_size: $(BUILDDIR)/$(PROJECT).elf
@@ -300,6 +304,6 @@ all: heap_size mem_info
 
 CLEAN_RULE_HOOK:
 	@$(COLOR_PRINTF) "Remove MessagePack config"
-	-rm -f src/config_msgpack.c
+	-rm -f $(CONFIG_MSGPACK_C)
 
 include ../tools/generate_ctags.mk
