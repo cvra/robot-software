@@ -188,5 +188,7 @@ extern void messagebus_condvar_wait(void *var);
 
 #ifdef __cplusplus
 }
+#include "messagebus_cpp.hpp"
 #endif
+
 #endif

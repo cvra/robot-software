@@ -3,6 +3,7 @@ cc_library(
     srcs = [
         "messagebus.c",
         "messagebus.h",
+        "messagebus_cpp.hpp",
     ],
     hdrs = ["messagebus.h"],
     include_prefix = "msgbus",
