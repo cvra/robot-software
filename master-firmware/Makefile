@@ -303,11 +303,8 @@ heap_size: $(BUILDDIR)/$(PROJECT).elf
 
 all: heap_size mem_info
 
-clean:
-	@echo Cleaning
-	-rm src/config_msgpack.c
-	-rm -fR .dep $(BUILDDIR)
-	@echo
-	@echo Done
+CLEAN_RULE_HOOK:
+	@$(COLOR_PRINTF) "Remove MessagePack config"
+	-rm -f src/config_msgpack.c
 
 include ../tools/generate_ctags.mk
