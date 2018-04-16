@@ -1,6 +1,5 @@
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
-#include <memory>
 #include "../messagebus.h"
 
 
@@ -9,19 +8,18 @@ TEST_GROUP(MessagebusCppInterface)
     messagebus_topic_t raw_topic;
     int topic_content;
     messagebus_t bus;
-    std::unique_ptr<messagebus::TopicWrapper<int> > topic;
+    messagebus::TopicWrapper<int> topic{&raw_topic};
     void setup(void)
     {
         messagebus_topic_init(&raw_topic, nullptr, nullptr, &topic_content, sizeof(topic_content));
         messagebus_init(&bus, nullptr, nullptr);
         messagebus_advertise_topic(&bus, &raw_topic, "/foo");
-        topic = std::make_unique<messagebus::TopicWrapper<int> >(&raw_topic);
     }
 };
 
 TEST(MessagebusCppInterface, CanPublish)
 {
-    topic->publish(42);
+    topic.publish(42);
 
     int read_msg;
     bool res = messagebus_topic_read(&raw_topic, &read_msg, sizeof(read_msg));
@@ -36,7 +34,7 @@ TEST(MessagebusCppInterface, CanRead)
     messagebus_topic_publish(&raw_topic, &msg, sizeof(msg));
 
     int read_msg;
-    bool res = topic->read(read_msg);
+    bool res = topic.read(read_msg);
 
     CHECK_TRUE(res);
     CHECK_EQUAL(msg, read_msg);
@@ -47,7 +45,7 @@ TEST(MessagebusCppInterface, CanWait)
     int msg = 42;
     messagebus_topic_publish(&raw_topic, &msg, sizeof(msg));
 
-    CHECK_EQUAL(42, topic->wait());
+    CHECK_EQUAL(42, topic.wait());
 }
 
 TEST(MessagebusCppInterface, CanCheckIfTopicExists)
