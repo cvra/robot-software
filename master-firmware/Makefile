@@ -47,17 +47,8 @@ ifeq ($(USE_VERBOSE_COMPILE),)
   USE_VERBOSE_COMPILE = no
 endif
 
-
-# Config file depending on robot
-ifeq ($(ROBOT), )
-  $(error Please define ROBOT to either 'order' or 'chaos')
-endif
-
-ifeq ($(ROBOT), order)
-  CONFIG_YAML = ../config_order.yaml
-else
-  CONFIG_YAML = ../config_chaos.yaml
-endif
+CONFIG_YAML = ../config_order.yaml ../config_chaos.yaml
+CONFIG_MSGPACK_C = $(addprefix src/, $(notdir $(CONFIG_YAML:.yaml=.c)))
 
 #
 # Build global options
@@ -133,7 +124,8 @@ CSRC = $(PORTSRC) \
 	   $(CHIBIOS)/os/various/syscalls.c \
 	   $(CHIBIOS)/os/various/fatfs_bindings/fatfs_diskio.c \
 	   $(BOARDSRC) \
-	   $(GFXSRC)
+	   $(GFXSRC) \
+	   $(CONFIG_MSGPACK_C)
 
 include app_src.mk
 
@@ -231,10 +223,6 @@ DLIBS =
 UDEFS = -DON_ROBOT
 UDEFS += $(addprefix -D, $(GFXDEFS))
 
-ifeq ($(ROBOT), order)
-  UDEFS += -DDEBRA=1
-endif
-
 # Define ASM defines here
 UADEFS =
 
@@ -265,7 +253,8 @@ RULESPATH = ./linker/
 include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/rules.mk
 
 # Empty libraries, required by stack smashing protection
-PRE_MAKE_ALL_RULE_HOOK: app_src.mk libssp.a libssp_nonshared.a src/config_msgpack.c
+PRE_MAKE_ALL_RULE_HOOK: app_src.mk $(CONFIG_MSGPACK_C) libssp.a libssp_nonshared.a
+
 libssp.a:
 	arm-none-eabi-ar rcs $@
 
@@ -285,7 +274,6 @@ endif
 .PHONY: flash
 flash: $(BUILDDIR)/$(PROJECT).elf
 	openocd -f $(OPENOCD_CFG) -c "program $(BUILDDIR)/$(PROJECT).elf verify reset" -c "shutdown"
-	say -v "Daniel" "Robot flashed master!"
 
 # run uavcan dsdl compiler
 .PHONY: dsdlc
@@ -293,9 +281,9 @@ dsdlc:
 	@$(COLOR_PRINTF) "Running uavcan dsdl compiler"
 	$(LIBUAVCAN_DSDLC) ../uavcan_data_types/cvra $(UAVCAN_DSDL_DIR)
 
-src/config_msgpack.c: ${CONFIG_YAML}
-	@$(COLOR_PRINTF) "Generating MessagePack config..."
-	@../tools/config/config_to_msgpack.py ${CONFIG_YAML} src/config_msgpack.c
+$(CONFIG_MSGPACK_C): src/%.c : ../%.yaml
+	@$(COLOR_PRINTF) "Generating $@"
+	@../tools/config/config_to_msgpack.py $< $@ --name msgpack_$(notdir $(<:.yaml=))
 
 .PHONY: heap_size
 heap_size: $(BUILDDIR)/$(PROJECT).elf
@@ -303,11 +291,8 @@ heap_size: $(BUILDDIR)/$(PROJECT).elf
 
 all: heap_size mem_info
 
-clean:
-	@echo Cleaning
-	-rm src/config_msgpack.c
-	-rm -fR .dep $(BUILDDIR)
-	@echo
-	@echo Done
+CLEAN_RULE_HOOK:
+	@$(COLOR_PRINTF) "Remove MessagePack config"
+	-rm -f $(CONFIG_MSGPACK_C)
 
 include ../tools/generate_ctags.mk
