@@ -556,7 +556,7 @@ struct DeployTheBee : public actions::DeployTheBee {
         state.arms_are_deployed = true;
         point_t start = {.x = 120.f, .y = MIRROR(m_color, 60.f)};
         float bee_height = 180.f;
-        float forward_motion = -170.f;
+        float forward_motion = -160.f;
         strat_push_the_bee_v2(start, bee_height, forward_motion);
 
         state.bee_deployed = true;
