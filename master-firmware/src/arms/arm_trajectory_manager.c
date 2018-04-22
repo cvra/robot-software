@@ -40,7 +40,7 @@ void arm_traj_manager_set_blocking_detection_z(struct arm_traj_manager *manager,
 void arm_traj_wait_for_end(void)
 {
     arm_traj_wait_for_event(ARM_READY);
-    NOTICE("Arm trajectory goal reached");
+    DEBUG("Arm trajectory goal reached");
 }
 
 int watched_event_occured(enum arm_traj_state state, int watched_events)
