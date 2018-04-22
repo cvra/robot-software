@@ -138,8 +138,6 @@ TEST_GROUP(CurrentTrajectoryCheck)
 
     const int arbitrary_max_speed = 10;
     const int arbitrary_max_acc = 10;
-    const int arbitrary_goal_x = 200;
-    const int arbitrary_goal_y = 200;
     const int arbitrary_end_angle = 45;
 
     const int arbitrary_robot_size = 100;
@@ -185,9 +183,11 @@ TEST_GROUP(CurrentTrajectoryCheck)
         // Opponent obstacle
         oa_init();
         opponent = oa_new_poly(4);
+    }
 
-        // Finally go to a point
-        trajectory_goto_forward_xy_abs(&robot.traj, arbitrary_goal_x, arbitrary_goal_y);
+    void goto_xy(int x_mm, int y_mm)
+    {
+        trajectory_goto_forward_xy_abs(&robot.traj, x_mm, y_mm);
         robot_manage();
         robot_manage();
     }
@@ -205,61 +205,67 @@ TEST_GROUP(CurrentTrajectoryCheck)
     }
 };
 
-TEST(CurrentTrajectoryCheck, CurrentPathCrossesWithObstacle)
-{
-    robot.opponent_size = 100;
-    set_opponent_position(400, 400);
-
-    point_t intersection;
-    bool res = trajectory_crosses_obstacle(opponent, &intersection);
-
-    CHECK_FALSE(res);
-}
-
 TEST(CurrentTrajectoryCheck, CurrentPathDoesntCrossWithObstacle)
 {
-    robot.opponent_size = 100;
-    set_opponent_position(240, 250);
-
     point_t intersection;
-    bool res = trajectory_crosses_obstacle(opponent, &intersection);
+    robot.opponent_size = 100;
 
-    CHECK_TRUE(res);
+    set_opponent_position(400, 400);
+    goto_xy(200, 200);
+
+    CHECK_FALSE(trajectory_crosses_obstacle(opponent, &intersection));
+}
+
+TEST(CurrentTrajectoryCheck, CurrentPathCrossesWithObstacle)
+{
+    point_t intersection;
+    robot.opponent_size = 100;
+
+    set_opponent_position(240, 250);
+    goto_xy(200, 200);
+
+    CHECK_TRUE(trajectory_crosses_obstacle(opponent, &intersection));
 }
 
 TEST(CurrentTrajectoryCheck, DetectsPathCrossingIfPathInsideObstacle)
 {
-    robot.opponent_size = 400;
-    set_opponent_position(250, 250);
-
     point_t intersection;
-    bool res = trajectory_crosses_obstacle(opponent, &intersection);
+    robot.opponent_size = 400;
 
-    CHECK_TRUE(res);
+    set_opponent_position(250, 250);
+    goto_xy(200, 200);
+
+    CHECK_TRUE(trajectory_crosses_obstacle(opponent, &intersection));
 }
 
 TEST(CurrentTrajectoryCheck, IsNotOnCollisionPathWithObstacle)
 {
     robot.opponent_size = 100;
-    bool res = trajectory_is_on_collision_path(400, 400);
 
-    CHECK_FALSE(res);
+    set_opponent_position(250, 250);
+    goto_xy(200, 200);
+
+    CHECK_FALSE(trajectory_is_on_collision_path(400, 400));
 }
 
 TEST(CurrentTrajectoryCheck, IsOnCollisionPathWithObstacle)
 {
     robot.opponent_size = 100;
-    bool res = trajectory_is_on_collision_path(240, 250);
 
-    CHECK_TRUE(res);
+    set_opponent_position(250, 250);
+    goto_xy(200, 200);
+
+    CHECK_TRUE(trajectory_is_on_collision_path(240, 250));
 }
 
 TEST(CurrentTrajectoryCheck, DetectsCollisionIfPathIsCompletelyInsideObstacle)
 {
     robot.opponent_size = 400;
-    bool res = trajectory_is_on_collision_path(250, 250);
 
-    CHECK_TRUE(res);
+    set_opponent_position(250, 250);
+    goto_xy(200, 200);
+
+    CHECK_TRUE(trajectory_is_on_collision_path(250, 250));
 }
 
 
