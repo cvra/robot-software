@@ -878,8 +878,8 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
     WaterTowerGoal watertower_goal;
     BuildTowerGoal build_tower_goal[2] = {BuildTowerGoal(0), BuildTowerGoal(1)};
     goap::Goal<RobotState>* goals[] = {
-        &bee_goal,
         &pickup_cubes_goal,
+        &bee_goal,
         &build_tower_goal[0],
         &build_tower_goal[1],
         &watertower_goal,
