@@ -101,3 +101,17 @@ TEST(TrajectoryManagerTestGroup, RemovesEventWhenInWindow)
 
     CHECK_FALSE(traj.scheduled);
 }
+
+TEST(TrajectoryManagerTestGroup, StartsTrajectoryInDistance)
+{
+    trajectory_d_rel(&traj, 100);
+
+    CHECK_EQUAL(RUNNING_D, traj.state);
+}
+
+TEST(TrajectoryManagerTestGroup, StartsTrajectoryInAngle)
+{
+    trajectory_a_rel(&traj, 10);
+
+    CHECK_EQUAL(RUNNING_A, traj.state);
+}

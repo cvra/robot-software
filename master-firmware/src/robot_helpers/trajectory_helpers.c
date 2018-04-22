@@ -121,16 +121,44 @@ void trajectory_move_to(int32_t x_mm, int32_t y_mm, int32_t a_deg)
     trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
 }
 
+static bool trajectory_is_cartesian(struct trajectory* traj)
+{
+    return traj->state == RUNNING_XY_START ||
+           traj->state == RUNNING_XY_ANGLE ||
+           traj->state == RUNNING_XY_ANGLE_OK ||
+           traj->state == RUNNING_XY_F_START ||
+           traj->state == RUNNING_XY_F_ANGLE ||
+           traj->state == RUNNING_XY_F_ANGLE_OK ||
+           traj->state == RUNNING_XY_B_START ||
+           traj->state == RUNNING_XY_B_ANGLE ||
+           traj->state == RUNNING_XY_B_ANGLE_OK;
+}
+
 bool trajectory_crosses_obstacle(struct _robot* robot, poly_t* opponent, point_t* intersection)
 {
     point_t current_position = {
             position_get_x_float(&robot->pos),
             position_get_y_float(&robot->pos)
         };
-    point_t target_position = {
-            robot->traj.target.cart.x;
-            robot->traj.target.cart.y;
-        };
+    point_t target_position;
+
+    if (trajectory_is_cartesian(&robot->traj)) {
+        target_position.x = robot->traj.target.cart.x;
+        target_position.y = robot->traj.target.cart.y;
+    } else {
+        vect2_pol delta_pol;
+        delta_pol.r = robot->traj.target.pol.distance - (float)rs_get_distance(&robot->rs);
+        delta_pol.theta = robot->traj.target.pol.angle - (float)rs_get_angle(&robot->rs);
+
+        // Account for current heading
+        delta_pol.theta += position_get_a_deg_s16(&robot->pos);
+
+        vect2_cart delta_xy;
+        vect2_pol2cart(&delta_pol, &delta_xy);
+
+        target_position.x = current_position.x + delta_xy.x;
+        target_position.y = current_position.y + delta_xy.y;
+    }
 
     uint8_t path_crosses_obstacle = is_crossing_poly(current_position, target_position, intersection, opponent);
     bool current_pos_inside_obstacle =

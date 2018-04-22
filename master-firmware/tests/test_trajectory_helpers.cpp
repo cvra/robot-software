@@ -238,6 +238,30 @@ TEST(CurrentTrajectoryCheck, DetectsPathCrossingIfPathInsideObstacle)
     CHECK_TRUE(trajectory_crosses_obstacle(&robot, opponent, &intersection));
 }
 
+TEST(CurrentTrajectoryCheck, DetectsPathNotCrossingInPolarMode)
+{
+    point_t intersection;
+    robot.opponent_size = 100;
+
+    set_opponent_position(250, 250);
+    trajectory_d_rel(&robot.traj, 100);
+    robot_manage();
+
+    CHECK_FALSE(trajectory_crosses_obstacle(&robot, opponent, &intersection));
+}
+
+TEST(CurrentTrajectoryCheck, DetectsPathCrossingInPolarMode)
+{
+    point_t intersection;
+    robot.opponent_size = 100;
+
+    set_opponent_position(250, 250);
+    trajectory_d_rel(&robot.traj, 400);
+    robot_manage();
+
+    CHECK_TRUE(trajectory_crosses_obstacle(&robot, opponent, &intersection));
+}
+
 TEST(CurrentTrajectoryCheck, IsNotOnCollisionPathWithObstacle)
 {
     robot.opponent_size = 100;
