@@ -146,7 +146,7 @@ bool strategy_goto_avoid(int x_mm, int y_mm, int a_deg, int traj_end_flags)
     for (int i = 0; i < num_points; i++) {
         DEBUG("Going to x: %.1fmm y: %.1fmm", points[i].x, points[i].y);
 
-        trajectory_goto_forward_xy_abs(&robot.traj, points[i].x, points[i].y);
+        trajectory_goto_xy_abs(&robot.traj, points[i].x, points[i].y);
         end_reason = trajectory_wait_for_end(traj_end_flags);
 
         if (end_reason != TRAJ_END_GOAL_REACHED) {
