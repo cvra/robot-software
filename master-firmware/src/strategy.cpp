@@ -765,9 +765,7 @@ bool strat_fill_watertower(void)
     const auto delay = std::max(std::min(2000, remaining), 10);
     strategy_wait_ms(delay);
 
-    // ballgun_tidy(&main_ballgun);
-    // keep ballgun out to avoid heating servo
-    ballgun_arm(&main_ballgun);
+    ballgun_tidy(&main_ballgun);
 
     if (delay < 500) {
         return false; // not enough time
