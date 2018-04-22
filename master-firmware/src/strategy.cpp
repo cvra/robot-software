@@ -992,6 +992,7 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
                 break;
             }
         }
+        strategy_wait_ms(10);
     }
 
     // Avoid burning the ball gun by deploying it
@@ -1108,6 +1109,7 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
             NOTICE("Asking GOAP to shut down this panel.");
             state.opponent_panel_on = true;
         }
+        strategy_wait_ms(10);
     }
 
     // Avoid burning the ball gun by deploying it
