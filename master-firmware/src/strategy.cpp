@@ -975,15 +975,7 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
     trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
 
     NOTICE("Starting game...");
-    auto goals_are_reached = [&goals](const RobotState& state) {
-        for (auto goal : goals) {
-            if (!goal->is_reached(state)) {
-                return false;
-            }
-        }
-        return true;
-    };
-    while (!goals_are_reached(state)) {
+    while (!trajectory_game_has_ended()) {
         for (auto goal : goals) {
             int len = planner.plan(state, *goal, path, max_path_len);
             for (int i = 0; i < len; i++) {
@@ -999,9 +991,6 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
             if (trajectory_game_has_ended()) {
                 break;
             }
-        }
-        if (trajectory_game_has_ended()) {
-            break;
         }
     }
 
@@ -1094,14 +1083,6 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
 
     NOTICE("Starting game...");
-    auto goals_are_reached = [&goals](const RobotState& state) {
-        for (auto goal : goals) {
-            if (!goal->is_reached(state)) {
-                return false;
-            }
-        }
-        return true;
-    };
 
     state.should_push_opponent_panel = true;
 
