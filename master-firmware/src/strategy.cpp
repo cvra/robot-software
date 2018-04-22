@@ -504,7 +504,7 @@ struct TurnOpponentSwitchOff : public actions::TurnOpponentSwitchOff {
         }
 
         state.arms_are_deployed = true;
-        strat_push_switch_on(MIRROR_X(m_color, 1870), 50, 150, -120);
+        strat_push_switch_on(MIRROR_X(m_color, 1870), 50, 175, -120);
 
         state.opponent_panel_on = false;
         state.should_push_opponent_panel = false;
