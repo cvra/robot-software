@@ -213,7 +213,7 @@ TEST(CurrentTrajectoryCheck, CurrentPathDoesntCrossWithObstacle)
     set_opponent_position(400, 400);
     goto_xy(200, 200);
 
-    CHECK_FALSE(trajectory_crosses_obstacle(opponent, &intersection));
+    CHECK_FALSE(trajectory_crosses_obstacle(&robot, opponent, &intersection));
 }
 
 TEST(CurrentTrajectoryCheck, CurrentPathCrossesWithObstacle)
@@ -224,7 +224,7 @@ TEST(CurrentTrajectoryCheck, CurrentPathCrossesWithObstacle)
     set_opponent_position(240, 250);
     goto_xy(200, 200);
 
-    CHECK_TRUE(trajectory_crosses_obstacle(opponent, &intersection));
+    CHECK_TRUE(trajectory_crosses_obstacle(&robot, opponent, &intersection));
 }
 
 TEST(CurrentTrajectoryCheck, DetectsPathCrossingIfPathInsideObstacle)
@@ -235,7 +235,7 @@ TEST(CurrentTrajectoryCheck, DetectsPathCrossingIfPathInsideObstacle)
     set_opponent_position(250, 250);
     goto_xy(200, 200);
 
-    CHECK_TRUE(trajectory_crosses_obstacle(opponent, &intersection));
+    CHECK_TRUE(trajectory_crosses_obstacle(&robot, opponent, &intersection));
 }
 
 TEST(CurrentTrajectoryCheck, IsNotOnCollisionPathWithObstacle)
@@ -245,7 +245,7 @@ TEST(CurrentTrajectoryCheck, IsNotOnCollisionPathWithObstacle)
     set_opponent_position(250, 250);
     goto_xy(200, 200);
 
-    CHECK_FALSE(trajectory_is_on_collision_path(400, 400));
+    CHECK_FALSE(trajectory_is_on_collision_path(&robot, 400, 400));
 }
 
 TEST(CurrentTrajectoryCheck, IsOnCollisionPathWithObstacle)
@@ -255,7 +255,7 @@ TEST(CurrentTrajectoryCheck, IsOnCollisionPathWithObstacle)
     set_opponent_position(250, 250);
     goto_xy(200, 200);
 
-    CHECK_TRUE(trajectory_is_on_collision_path(240, 250));
+    CHECK_TRUE(trajectory_is_on_collision_path(&robot, 240, 250));
 }
 
 TEST(CurrentTrajectoryCheck, DetectsCollisionIfPathIsCompletelyInsideObstacle)
@@ -265,7 +265,7 @@ TEST(CurrentTrajectoryCheck, DetectsCollisionIfPathIsCompletelyInsideObstacle)
     set_opponent_position(250, 250);
     goto_xy(200, 200);
 
-    CHECK_TRUE(trajectory_is_on_collision_path(250, 250));
+    CHECK_TRUE(trajectory_is_on_collision_path(&robot, 250, 250));
 }
 
 

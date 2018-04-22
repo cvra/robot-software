@@ -64,7 +64,7 @@ int trajectory_has_ended(int watched_end_reasons)
                                          &x_opp,
                                          &y_opp);
 
-                if (trajectory_is_on_collision_path(x_opp, y_opp)) {
+                if (trajectory_is_on_collision_path(&robot, x_opp, y_opp)) {
                     return TRAJ_END_OPPONENT_NEAR;
                 }
             }
@@ -79,7 +79,7 @@ int trajectory_has_ended(int watched_end_reasons)
             uint32_t age = timestamp_duration_s(pos.timestamp, timestamp_get());
 
             if (age < TRAJ_MAX_TIME_DELAY_OPPONENT_DETECTION) {
-                if (trajectory_is_on_collision_path(pos.point.x, pos.point.y)) {
+                if (trajectory_is_on_collision_path(&robot, pos.point.x, pos.point.y)) {
                     return TRAJ_END_ALLY_NEAR;
                 }
             }
@@ -121,37 +121,37 @@ void trajectory_move_to(int32_t x_mm, int32_t y_mm, int32_t a_deg)
     trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
 }
 
-bool trajectory_crosses_obstacle(poly_t* opponent, point_t* intersection)
+bool trajectory_crosses_obstacle(struct _robot* robot, poly_t* opponent, point_t* intersection)
 {
     point_t current_position = {
-            position_get_x_float(&robot.pos),
-            position_get_y_float(&robot.pos)
+            position_get_x_float(&robot->pos),
+            position_get_y_float(&robot->pos)
         };
     point_t target_position = {
-            robot.traj.target.cart.x,
-            robot.traj.target.cart.y
+            robot->traj.target.cart.x;
+            robot->traj.target.cart.y;
         };
 
     uint8_t path_crosses_obstacle = is_crossing_poly(current_position, target_position, intersection, opponent);
     bool current_pos_inside_obstacle =
-        math_point_is_in_square(opponent, position_get_x_s16(&robot.pos), position_get_y_s16(&robot.pos));
+        math_point_is_in_square(opponent, position_get_x_s16(&robot->pos), position_get_y_s16(&robot->pos));
 
     return path_crosses_obstacle == 1 || current_pos_inside_obstacle;
 }
 
-bool trajectory_is_on_collision_path(int x, int y)
+bool trajectory_is_on_collision_path(struct _robot* robot, int x, int y)
 {
     point_t points[4];
     poly_t opponent = {.pts = points, .l = 4};
     map_set_rectangular_obstacle(&opponent,
                                  x,
                                  y,
-                                 robot.opponent_size,
-                                 robot.opponent_size,
-                                 robot.robot_size);
+                                 robot->opponent_size,
+                                 robot->opponent_size,
+                                 robot->robot_size);
 
     point_t intersection;
-    return trajectory_crosses_obstacle(&opponent, &intersection);
+    return trajectory_crosses_obstacle(robot, &opponent, &intersection);
 }
 
 void trajectory_set_mode_aligning(
