@@ -417,6 +417,11 @@ static void cmd_traj_forward(BaseSequentialStream *chp, int argc, char *argv[])
         int32_t distance;
         distance = atoi(argv[0]);
         trajectory_d_rel(&robot.traj, distance);
+        int end_reason = trajectory_wait_for_end(
+            TRAJ_END_GOAL_REACHED | TRAJ_END_COLLISION |
+            TRAJ_END_OPPONENT_NEAR | TRAJ_END_ALLY_NEAR);
+        trajectory_hardstop(&robot.traj);
+        chprintf(chp, "End reason %d\r\n", end_reason);
 
         robot.mode = BOARD_MODE_ANGLE_DISTANCE;
     } else {
