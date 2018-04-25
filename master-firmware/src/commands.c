@@ -1519,6 +1519,22 @@ static void cmd_watertower_plant(BaseSequentialStream *chp, int argc, char *argv
     strat_fill_wastewater_treatment_plant();
 }
 
+static void cmd_wrist(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc != 1) {
+        chprintf(chp, "Usage: wrist h[orizontal]|v[ertical]\r\n");
+        return;
+    }
+
+    wrist_t* wrist = &main_wrist;
+
+    if      (strcmp("horizontal", argv[0]) == 0) { wrist_set_horizontal(wrist); }
+    else if (strcmp("h", argv[0]) == 0)          { wrist_set_horizontal(wrist); }
+    else if (strcmp("vertical", argv[0]) == 0)   { wrist_set_vertical(wrist); }
+    else if (strcmp("v", argv[0]) == 0)          { wrist_set_vertical(wrist); }
+    else                                         { chprintf(chp, "Invalid command: %s", argv[0]); }
+}
+
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
@@ -1584,5 +1600,6 @@ const ShellCommand commands[] = {
     {"wastewater", cmd_wastewater},
     {"watertower", cmd_watertower},
     {"watertower_plant", cmd_watertower_plant},
+    {"wrist", cmd_wrist},
     {NULL, NULL}
 };
