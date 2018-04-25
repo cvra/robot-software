@@ -1528,11 +1528,13 @@ static void cmd_wrist(BaseSequentialStream *chp, int argc, char *argv[])
 
     wrist_t* wrist = &main_wrist;
 
-    if      (strcmp("horizontal", argv[0]) == 0) { wrist_set_horizontal(wrist); }
-    else if (strcmp("h", argv[0]) == 0)          { wrist_set_horizontal(wrist); }
-    else if (strcmp("vertical", argv[0]) == 0)   { wrist_set_vertical(wrist); }
-    else if (strcmp("v", argv[0]) == 0)          { wrist_set_vertical(wrist); }
-    else                                         { chprintf(chp, "Invalid command: %s", argv[0]); }
+    if (strcmp("horizontal", argv[0]) == 0 || strcmp("h", argv[0]) == 0) {
+        wrist_set_horizontal(wrist);
+    } else if (strcmp("vertical", argv[0]) == 0 || strcmp("v", argv[0]) == 0) {
+        wrist_set_vertical(wrist);
+    } else {
+        chprintf(chp, "Invalid command: %s", argv[0]);
+    }
 }
 
 const ShellCommand commands[] = {
