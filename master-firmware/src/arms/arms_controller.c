@@ -5,6 +5,7 @@
 #include "config.h"
 
 #include "can/bus_enumerator.h"
+#include "can/can_io_driver.h"
 #include "can/motor_manager.h"
 #include "robot_helpers/motor_helpers.h"
 #include "base/base_controller.h"
@@ -17,6 +18,8 @@
 
 scara_t main_arm;
 hand_t main_hand;
+wrist_t main_wrist;
+char* WRIST_SERVO_NAME = "wrist-servo";
 
 
 static void set_index_stream_frequency(char* motor, float freq)
@@ -28,6 +31,12 @@ static void set_index_stream_frequency(char* motor, float freq)
     } else {
         ERROR("Undefined motor %s", motor);
     }
+}
+
+static void set_servo(void* lever, float pos)
+{
+    char* name = (char*)lever;
+    can_io_set_pwm(name, 0, pos);
 }
 
 void arms_init(void)
@@ -56,6 +65,11 @@ void arms_init(void)
     hand_init(&main_hand);
     static cvra_arm_motor_t pump = {.id = "arm-pump", .direction = 0, .index = 0};
     hand_set_pump_callback(&main_hand, set_motor_voltage, &pump);
+
+    /* Configure the wrist */
+    wrist_init(&main_wrist);
+    wrist_set_servo_callback(&main_wrist, set_servo, WRIST_SERVO_NAME);
+    wrist_set_servo_range(&main_wrist, 0.0008, 0.0022);
 }
 
 float arms_motor_auto_index(const char* motor_name, int motor_dir, float motor_speed)

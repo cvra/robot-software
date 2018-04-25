@@ -7,6 +7,7 @@ extern "C" {
 
 #include "scara/scara.h"
 #include "hand/hand.h"
+#include "hand/wrist.h"
 #include "lever/lever.h"
 #include "cvra_arm_motors.h"
 
@@ -14,6 +15,7 @@ extern "C" {
 
 extern scara_t main_arm;
 extern hand_t main_hand;
+extern wrist_t main_wrist;
 
 /* Initialize arms */
 void arms_init(void);
