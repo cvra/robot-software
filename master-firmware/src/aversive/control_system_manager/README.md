@@ -72,40 +72,49 @@ Before we start, you will need to provide the control system manager 2
 functions, one to give an input to the process and one to read its output. The
 function prototypes must be :
 
-    int32_t read_myprocess_out(void *param);
-    void write_myprocess_in(void *param, int32_t value);
+```cpp
+int32_t read_myprocess_out(void *param);
+void write_myprocess_in(void *param, int32_t value);
+```
 
 
 So first of all, let's declare and initialize the control system manager :
 
-    struct cs mycs; /* cs stands for Control System. */
-    cs_init(&mycs);
+```cpp
+struct cs mycs; /* cs stands for Control System. */
+cs_init(&mycs);
+```
 
 Now that we have a control system, it would be better if it would be connected
 to our process. Here both functions don't use a parameter, so we just use NULL.
 Otherwise, the third argument of `cs_set_process_*` would be passed to our
 process in/out function as first parameter.
-    
-    cs_set_process_in(&mycs, write_myprocess_in, NULL);
-    cs_set_process_out(&mycs, read_myprocess_out, NULL);
 
+```cpp
+cs_set_process_in(&mycs, write_myprocess_in, NULL);
+cs_set_process_out(&mycs, read_myprocess_out, NULL);
+```
 
 For the correct filter (also called the controller), we will use a simple PID
 controller. See `modules/pid` for details about this type of filters. The tuning
 parameters are only given here as an example. Fine tuning is required for a
 specific process
 
-    struct pid_filter mypid;
-    int K=10, I=0, D=3;
-    pid_init(&mypid);
-    pid_set_gains(&mypid, K, I, D);
-	pid_set_maximums(&mypid, 0, 5000, 30000); 
-	pid_set_out_shift(&mypid, 10);
+```cpp
+struct pid_filter mypid;
+int K=10, I=0, D=3;
+pid_init(&mypid);
+pid_set_gains(&mypid, K, I, D);
+pid_set_maximums(&mypid, 0, 5000, 30000);
+pid_set_out_shift(&mypid, 10);
+```
 
 Now we want to tell the control system manager to use our new PID as a
 controller. This is done in a single function call :
 
-    cs_set_correct_filter(&mycs, pid_do_filter, &mypid);
+```cpp
+cs_set_correct_filter(&mycs, pid_do_filter, &mypid);
+```
 
 Finally, we have to call the control system manager at a fixed frequency and it
 will handle all the details automatically, like reading the process output and
@@ -113,26 +122,30 @@ applying the filters in the right order. In this example, the frequency is about
 100 Hz, but in a real application, you might want to do this in an interrupt to
 get a stable frequency.
 
-    while(1) {
-        cs_manage(&mycs);
-        wait_ms(10);
-    }
+```cpp
+while(1) {
+    cs_manage(&mycs);
+    wait_ms(10);
+}
+```
 
-### Changing consign
+### Changing setpoint
 Now we got a control system that can prevent the system from moving around the
 zero position. What if we want to use our control system to move the system to a
 new state ? For this example, we will move the system to a new position after a
 second (1000 ms). Replace the while loop above with the following code.
 
-    int time=0;
-    int new_consign_value = 300;
-    while(1) {
-        if(time == 1000)
-            cs_set_consign(&mycs, new_consign_value);
-        cs_manage(&mycs);
-        wait_ms(10);
-        time += 10;
-    }
+```cpp
+int time=0;
+int new_consign_value = 300;
+while(1) {
+    if(time == 1000)
+        cs_set_consign(&mycs, new_consign_value);
+    cs_manage(&mycs);
+    wait_ms(10);
+    time += 10;
+}
+```
 
 ### Limiting rate of consign change
 So now our controller is able to move the system to a new state, but it will do
@@ -146,23 +159,29 @@ the acceleration of the robot.
 First of all let's create the filter. Put the following code after the
 `cs_set_correct_filter` call.
 
-    struct quadramp_filter myqr;
-    quadramp_init(&myqr);
+```cpp
+struct quadramp_filter myqr;
+quadramp_init(&myqr);
+```
 
 We will now configure the quadramp with a maximum acceleration of 1 and a
 maximum speed of 10. See the quadramp documentation for details.
 
-    quadramp_set_2nd_order_vars(&myqr, 1, 1);
-    quadramp_set_1st_order_vars(&myqr, 10, 10);
+```cpp
+quadramp_set_2nd_order_vars(&myqr, 1, 1);
+quadramp_set_1st_order_vars(&myqr, 10, 10);
+```
 
 The last step is to tell the control system manager to use the quadramp as a
 consign filter.
 
-    cs_set_consign_filter(&mycs, quadramp_do_filter, &myqr);
+```cpp
+cs_set_consign_filter(&mycs, quadramp_do_filter, &myqr);
+```
 
 Now the system would accelerate slowly, reach a maximum speed, and then brake
 slowly to reach the target.
 
 As you can see, the architecture with 3 separate filters (consign, correct and
 feeback) allows for a very flexible architecture and good code reuse.
-    
+
