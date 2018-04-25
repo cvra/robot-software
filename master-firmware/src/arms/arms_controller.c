@@ -69,7 +69,9 @@ void arms_init(void)
     /* Configure the wrist */
     wrist_init(&main_wrist);
     wrist_set_servo_callback(&main_wrist, set_servo, WRIST_SERVO_NAME);
-    wrist_set_servo_range(&main_wrist, 0.0008, 0.0022);
+    wrist_set_servo_range(&main_wrist,
+                          config_get_scalar("master/wrist/horizontal"),
+                          config_get_scalar("master/wrist/vertical"));
 }
 
 float arms_motor_auto_index(const char* motor_name, int motor_dir, float motor_speed)
@@ -101,17 +103,28 @@ static void arms_update_controller_gains(parameter_namespace_t* ns, scara_t* arm
     pid_set_integral_limit(&arm->ik_controller.y_pid, ilim);
 }
 
+static void wrist_update_params(parameter_namespace_t* ns, wrist_t* wrist)
+{
+    float horizontal = parameter_scalar_get(parameter_find(ns, "horizontal"));
+    float vertical = parameter_scalar_get(parameter_find(ns, "vertical"));
+    wrist_set_servo_range(wrist, horizontal, vertical);
+}
+
 static THD_FUNCTION(arms_ctrl_thd, arg)
 {
     (void) arg;
     chRegSetThreadName(__FUNCTION__);
 
     parameter_namespace_t *main_arm_control_params = parameter_namespace_find(&master_config, "main_arm/control");
+    parameter_namespace_t *main_wrist_params = parameter_namespace_find(&master_config, "wrist");
 
     NOTICE("Start arm control");
     while (true) {
         if (parameter_namespace_contains_changed(main_arm_control_params)) {
             arms_update_controller_gains(main_arm_control_params, &main_arm);
+        }
+        if (parameter_namespace_contains_changed(main_wrist_params)) {
+            wrist_update_params(main_wrist_params, &main_wrist);
         }
 
         scara_manage(&main_arm);
