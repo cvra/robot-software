@@ -61,12 +61,12 @@ void trajectory_move_to(int32_t x_mm, int32_t y_mm, int32_t a_deg);
 
 /** Check if current trajectory segment crosses the passed obstacle
  */
-bool trajectory_crosses_obstacle(poly_t* opponent, point_t* intersection);
+bool trajectory_crosses_obstacle(struct _robot* robot, poly_t* opponent, point_t* intersection);
 
 /** Check if the current trajectory will collide with the obstacle
     seen at position (x,y)
  */
-bool trajectory_is_on_collision_path(int x, int y);
+bool trajectory_is_on_collision_path(struct _robot* robot, int x, int y);
 
 /** Prepare robot for aligning by settings its dynamics accordingly
  * ie. slower and less sensitive to collisions
