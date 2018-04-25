@@ -933,6 +933,7 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
     lever_retract(&right_lever);
     lever_retract(&left_lever);
     ballgun_tidy(&main_ballgun);
+    wrist_set_horizontal(&main_wrist);
 
     NOTICE("Getting arms ready...");
     int len = planner.plan(state, init_goal, path, max_path_len);
@@ -1043,6 +1044,7 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     lever_retract(&right_lever);
     lever_retract(&left_lever);
     ballgun_tidy(&main_ballgun);
+    wrist_set_horizontal(&main_wrist);
 
     NOTICE("Getting arms ready...");
     int len = planner.plan(state, init_goal, path, max_path_len);

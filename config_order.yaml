@@ -50,6 +50,9 @@ master:
                     init: 0.15
                     slow: 0.5
                     fast: 1.5
+    wrist:
+        horizontal: 0.00077
+        vertical: 0.00215
     lever:
         right:
             offset_x: 0.    # in mm

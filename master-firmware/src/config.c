@@ -47,6 +47,12 @@ static parameter_t beacon_reflector_radius, beacon_angular_offset;
 
 static struct {
     parameter_namespace_t ns;
+    parameter_t horizontal;
+    parameter_t vertical;
+} wrist;
+
+static struct {
+    parameter_namespace_t ns;
     struct {
         parameter_namespace_t ns;
         parameter_t offset_x;
@@ -194,6 +200,10 @@ void config_init(void)
     parameter_scalar_declare_with_default(&aversive.trajectories.distance.acceleration.fast,
                                           &aversive.trajectories.distance.acceleration.ns,
                                           "fast", 0.);
+
+    parameter_namespace_declare(&wrist.ns, &master_config, "wrist");
+    parameter_scalar_declare_with_default(&wrist.horizontal, &wrist.ns, "horizontal", 0);
+    parameter_scalar_declare_with_default(&wrist.vertical, &wrist.ns, "vertical", 0);
 
     parameter_namespace_declare(&lever.ns, &master_config, "lever");
 
