@@ -83,6 +83,8 @@ extern struct _robot robot;
 
 
 void robot_init(void);
+void robot_trajectory_windows_set_coarse(void);
+void robot_trajectory_windows_set_fine(void);
 
 void base_controller_start(void);
 
