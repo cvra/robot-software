@@ -1542,6 +1542,19 @@ static void cmd_wrist(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
+static void cmd_speed(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc != 1) {
+        chprintf(chp, "Usage: speed init|slow|fast\r\n");
+        return;
+    }
+
+    if      (strcmp("init", argv[0]) == 0) { robot.base_speed = BASE_SPEED_INIT; }
+    else if (strcmp("slow", argv[0]) == 0) { robot.base_speed = BASE_SPEED_SLOW; }
+    else if (strcmp("fast", argv[0]) == 0) { robot.base_speed = BASE_SPEED_FAST; }
+    else                                   { chprintf(chp, "Invalid base speed: %s", argv[0]); }
+}
+
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
@@ -1608,5 +1621,6 @@ const ShellCommand commands[] = {
     {"watertower", cmd_watertower},
     {"watertower_plant", cmd_watertower_plant},
     {"wrist", cmd_wrist},
+    {"speed", cmd_speed},
     {NULL, NULL}
 };
