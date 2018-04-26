@@ -554,6 +554,10 @@ static void cmd_create_static_obstacle(BaseSequentialStream *chp, int argc, char
         y = atof(argv[1]);
         half_size = atof(argv[2]);
 
+        oa_init();
+        float robot_size = 260;
+        polygon_set_boundingbox(robot_size/2, robot_size/2, 3000 - robot_size/2, 2000 - robot_size/2);
+
         /* Create obstacle */
         add_rectangular_obstacle(x, y, half_size, half_size);
 
