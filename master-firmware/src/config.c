@@ -39,6 +39,13 @@ static struct {
                 parameter_t fast;
             } speed, acceleration;
         } angle, distance;
+        struct {
+            parameter_namespace_t ns;
+            struct {
+                parameter_namespace_t ns;
+                parameter_t coarse;
+            } distance, angle, angle_start;
+        } windows;
     } trajectories;
 } aversive;
 
@@ -200,6 +207,24 @@ void config_init(void)
     parameter_scalar_declare_with_default(&aversive.trajectories.distance.acceleration.fast,
                                           &aversive.trajectories.distance.acceleration.ns,
                                           "fast", 0.);
+
+    parameter_namespace_declare(&aversive.trajectories.windows.ns,
+                                &aversive.trajectories.ns, "windows");
+    parameter_namespace_declare(&aversive.trajectories.windows.distance.ns,
+                                &aversive.trajectories.windows.ns, "distance");
+    parameter_scalar_declare_with_default(
+        &aversive.trajectories.windows.distance.coarse,
+        &aversive.trajectories.windows.distance.ns, "coarse", 0.);
+    parameter_namespace_declare(&aversive.trajectories.windows.angle.ns,
+                                &aversive.trajectories.windows.ns, "angle");
+    parameter_scalar_declare_with_default(
+        &aversive.trajectories.windows.angle.coarse,
+        &aversive.trajectories.windows.angle.ns, "coarse", 0.);
+    parameter_namespace_declare(&aversive.trajectories.windows.angle_start.ns,
+                                &aversive.trajectories.windows.ns, "angle_start");
+    parameter_scalar_declare_with_default(
+        &aversive.trajectories.windows.angle_start.coarse,
+        &aversive.trajectories.windows.angle_start.ns, "coarse", 0.);
 
     parameter_namespace_declare(&wrist.ns, &master_config, "wrist");
     parameter_scalar_declare_with_default(&wrist.horizontal, &wrist.ns, "horizontal", 0);

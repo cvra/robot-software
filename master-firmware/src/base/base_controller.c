@@ -81,7 +81,11 @@ void robot_init(void)
     trajectory_set_robot_params(&robot.traj, &robot.rs, &robot.pos);
 
     // Distance window, angle window, angle start
-    trajectory_set_windows(&robot.traj, 15., 5., 30.);
+    trajectory_set_windows(
+        &robot.traj,
+        config_get_scalar("master/aversive/trajectories/distance/coarse"),
+        config_get_scalar("master/aversive/trajectories/angle/coarse"),
+        config_get_scalar("master/aversive/trajectories/angle_start/coarse"));
 
     /* Initialize blocking detection managers */
     bd_init(&robot.angle_bd);

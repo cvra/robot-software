@@ -50,6 +50,13 @@ master:
                     init: 0.15
                     slow: 0.5
                     fast: 1.5
+            windows:
+                distance:
+                    coarse: 15.
+                angle:
+                    coarse: 5.
+                angle_start:
+                    coarse: 30.
     wrist:
         horizontal: 0.0008
         vertical: 0.00225
