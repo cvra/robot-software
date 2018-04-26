@@ -161,7 +161,7 @@ bool strategy_goto_avoid(int x_mm, int y_mm, int a_deg, int traj_end_flags)
     }
 
     if (end_reason == TRAJ_END_GOAL_REACHED) {
-        trajectory_a_abs(&robot.traj, a_deg);
+        trajectory_only_a_abs(&robot.traj, a_deg);
         trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
 
         DEBUG("Goal reached successfully");
@@ -967,12 +967,6 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
     wait_for_starter();
     trajectory_game_timer_reset();
     strategy_read_color_sequence(state);
-
-    trajectory_a_rel(&robot.traj, MIRROR(color, 45));
-    trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
-
-    trajectory_d_rel(&robot.traj, -150);
-    trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
 
     NOTICE("Starting game...");
     while (!trajectory_game_has_ended()) {
