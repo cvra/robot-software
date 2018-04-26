@@ -295,7 +295,11 @@ uint8_t trajectory_distance_finished(struct trajectory *traj)
 uint8_t trajectory_finished(struct trajectory *traj)
 {
     return trajectory_distance_finished(traj) && trajectory_angle_finished(traj);
+}
 
+uint8_t trajectory_nearly_finished(struct trajectory *traj)
+{
+    return trajectory_in_window(traj, traj->d_win, traj->a_win_rad);
 }
 
 /** return true if traj is nearly finished */

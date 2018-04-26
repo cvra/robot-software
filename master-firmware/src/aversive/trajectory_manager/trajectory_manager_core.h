@@ -96,6 +96,7 @@ uint8_t trajectory_distance_finished(struct trajectory *traj);
  * position consign (after quadramp filter), for angle and
  * distance. */
 uint8_t trajectory_finished(struct trajectory *traj);
+uint8_t trajectory_nearly_finished(struct trajectory *traj);
 
 /** return true if traj is nearly finished */
 uint8_t trajectory_in_window(struct trajectory *traj, double d_win, double a_win_rad);
