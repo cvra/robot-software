@@ -17,11 +17,10 @@ template<typename State>
 class Action {
 public:
     /** Checks if the given state allows this action to proceed. */
-    virtual bool can_run(State state) = 0;
+    virtual bool can_run(const State &state) = 0;
 
-    /** Plans the effects of this action on the state and returns the
-     * modified state. */
-    virtual State plan_effects(State state) = 0;
+    /** Plans the effects of this action on the state */
+    virtual void plan_effects(State &state) = 0;
 
     /** Tries to execute the task and returns true if it suceeded. */
     virtual bool execute(State &state) = 0;
@@ -59,7 +58,7 @@ public:
      *
      * If path is given, then the found path is stored there.
      */
-    int plan(State state, Goal<State> &goal,
+    int plan(const State &state, Goal<State> &goal,
              Action<State> **path = nullptr, int path_len = 10)
     {
         visited_states_array_to_list(nodes, N);
@@ -123,7 +122,8 @@ public:
                     }
 
                     auto neighbor = list_pop_head(free_nodes);
-                    neighbor->state = action->plan_effects(current->state);
+                    neighbor->state = current->state;
+                    action->plan_effects(neighbor->state);
                     neighbor->cost = current->cost + 1;
                     neighbor->priority = current->priority + 1 + goal.distance_to(neighbor->state);
                     neighbor->parent = current;

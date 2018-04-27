@@ -17,15 +17,14 @@ bool operator==(const TestState& lhs, const TestState& rhs)
 
 class CutWood : public goap::Action<TestState> {
 public:
-    bool can_run(TestState state)
+    bool can_run(const TestState &state)
     {
         return state.has_axe;
     }
 
-    TestState plan_effects(TestState state)
+    void plan_effects(TestState &state)
     {
         state.has_wood = true;
-        return state;
     }
 
     bool execute(TestState &state)
@@ -36,16 +35,15 @@ public:
 };
 
 struct GrabAxe : public goap::Action<TestState> {
-    bool can_run(TestState state)
+    bool can_run(const TestState &state)
     {
         (void) state;
         return true;
     }
 
-    TestState plan_effects(TestState state)
+    void plan_effects(TestState &state)
     {
         state.has_axe = true;
-        return state;
     }
 
     bool execute(TestState &state)
@@ -94,7 +92,7 @@ TEST(SimpleScenarioHelpers, CanCheckGoal)
 
 TEST(SimpleScenarioHelpers, CanPredictWoodCuttingEffects)
 {
-    state = action.plan_effects(state);
+    action.plan_effects(state);
     CHECK_TRUE(state.has_wood);
 }
 
@@ -204,16 +202,15 @@ struct FarAwayGoal : goap::Goal<FarAwayState> {
 };
 
 struct FarAwayAction : goap::Action<FarAwayState> {
-    bool can_run(FarAwayState state)
+    bool can_run(const FarAwayState &state)
     {
         (void) state;
         return true;
     }
 
-    FarAwayState plan_effects(FarAwayState s)
+    void plan_effects(FarAwayState &state)
     {
-        s.farDistance--;
-        return s;
+        state.farDistance--;
     }
 
     bool execute(FarAwayState &s)
