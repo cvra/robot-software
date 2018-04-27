@@ -37,8 +37,12 @@ int trajectory_wait_for_end(int watched_end_reasons)
 
 int trajectory_has_ended(int watched_end_reasons)
 {
-    if ((watched_end_reasons & TRAJ_END_GOAL_REACHED) && trajectory_nearly_finished(&robot.traj)) {
+    if ((watched_end_reasons & TRAJ_END_GOAL_REACHED) && trajectory_finished(&robot.traj)) {
         return TRAJ_END_GOAL_REACHED;
+    }
+
+    if ((watched_end_reasons & TRAJ_END_NEAR_GOAL) && trajectory_nearly_finished(&robot.traj)) {
+        return TRAJ_END_NEAR_GOAL;
     }
 
     if ((watched_end_reasons & TRAJ_END_COLLISION) && bd_get(&robot.distance_bd)) {

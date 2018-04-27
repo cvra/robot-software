@@ -25,6 +25,7 @@ extern "C" {
 #define TRAJ_END_OPPONENT_NEAR  (1 << 2)
 #define TRAJ_END_TIMER          (1 << 3)
 #define TRAJ_END_ALLY_NEAR      (1 << 4)
+#define TRAJ_END_NEAR_GOAL      (1 << 5)
 
 #define TRAJ_FLAGS_ALL (TRAJ_END_GOAL_REACHED | TRAJ_END_COLLISION | TRAJ_END_OPPONENT_NEAR | \
                         TRAJ_END_TIMER | TRAJ_END_ALLY_NEAR)
