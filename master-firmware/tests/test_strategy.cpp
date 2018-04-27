@@ -6,7 +6,7 @@
 
 bool dummy_execute(goap::Action<RobotState>* action, RobotState &state)
 {
-    state = action->plan_effects(state);
+    action->plan_effects(state);
     return true;
 }
 

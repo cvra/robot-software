@@ -1125,10 +1125,12 @@ void strategy_play_game(void *p)
 
     /* Prepare state publisher */
     RobotState state;
+
     static messagebus_topic_t state_topic;
     static MUTEX_DECL(state_lock);
     static CONDVAR_DECL(state_condvar);
-    messagebus_topic_init(&state_topic, &state_lock, &state_condvar, &state, sizeof(state));
+    static RobotState state_topic_content;
+    messagebus_topic_init(&state_topic, &state_lock, &state_condvar, &state_topic_content, sizeof(state));
     messagebus_advertise_topic(&bus, &state_topic, "/state");
 
     NOTICE("Waiting for color selection...");
