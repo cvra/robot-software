@@ -51,15 +51,9 @@ master:
                     slow: 0.5
                     fast: 1.5
             windows:
-                distance:
-                    coarse: 100.
-                    fine: 5.
-                angle:
-                    coarse: 40.
-                    fine: 2.
-                angle_start:
-                    coarse: 40.
-                    fine: 40.
+                distance: 100.
+                angle: 40.
+                angle_start: 40.
     wrist:
         horizontal: 0.0008
         vertical: 0.00225

@@ -41,11 +41,9 @@ static struct {
         } angle, distance;
         struct {
             parameter_namespace_t ns;
-            struct {
-                parameter_namespace_t ns;
-                parameter_t coarse;
-                parameter_t fine;
-            } distance, angle, angle_start;
+            parameter_t distance;
+            parameter_t angle;
+            parameter_t angle_start;
         } windows;
     } trajectories;
 } aversive;
@@ -211,30 +209,15 @@ void config_init(void)
 
     parameter_namespace_declare(&aversive.trajectories.windows.ns,
                                 &aversive.trajectories.ns, "windows");
-    parameter_namespace_declare(&aversive.trajectories.windows.distance.ns,
-                                &aversive.trajectories.windows.ns, "distance");
     parameter_scalar_declare_with_default(
-        &aversive.trajectories.windows.distance.coarse,
-        &aversive.trajectories.windows.distance.ns, "coarse", 0.);
+        &aversive.trajectories.windows.distance,
+        &aversive.trajectories.windows.ns, "distance", 0.);
     parameter_scalar_declare_with_default(
-        &aversive.trajectories.windows.distance.fine,
-        &aversive.trajectories.windows.distance.ns, "fine", 0.);
-    parameter_namespace_declare(&aversive.trajectories.windows.angle.ns,
-                                &aversive.trajectories.windows.ns, "angle");
+        &aversive.trajectories.windows.angle,
+        &aversive.trajectories.windows.ns, "angle", 0.);
     parameter_scalar_declare_with_default(
-        &aversive.trajectories.windows.angle.coarse,
-        &aversive.trajectories.windows.angle.ns, "coarse", 0.);
-    parameter_scalar_declare_with_default(
-        &aversive.trajectories.windows.angle.fine,
-        &aversive.trajectories.windows.angle.ns, "fine", 0.);
-    parameter_namespace_declare(&aversive.trajectories.windows.angle_start.ns,
-                                &aversive.trajectories.windows.ns, "angle_start");
-    parameter_scalar_declare_with_default(
-        &aversive.trajectories.windows.angle_start.coarse,
-        &aversive.trajectories.windows.angle_start.ns, "coarse", 0.);
-    parameter_scalar_declare_with_default(
-        &aversive.trajectories.windows.angle_start.fine,
-        &aversive.trajectories.windows.angle_start.ns, "fine", 0.);
+        &aversive.trajectories.windows.angle_start,
+        &aversive.trajectories.windows.ns, "angle_start", 0.);
 
     parameter_namespace_declare(&wrist.ns, &master_config, "wrist");
     parameter_scalar_declare_with_default(&wrist.horizontal, &wrist.ns, "horizontal", 0);

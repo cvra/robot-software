@@ -19,24 +19,6 @@
 
 struct _robot robot;
 
-void robot_trajectory_windows_set_coarse(void)
-{
-    trajectory_set_windows(
-        &robot.traj,
-        config_get_scalar("master/aversive/trajectories/windows/distance/coarse"),
-        config_get_scalar("master/aversive/trajectories/windows/angle/coarse"),
-        config_get_scalar("master/aversive/trajectories/windows/angle_start/coarse"));
-}
-
-void robot_trajectory_windows_set_fine(void)
-{
-    trajectory_set_windows(
-        &robot.traj,
-        config_get_scalar("master/aversive/trajectories/windows/distance/fine"),
-        config_get_scalar("master/aversive/trajectories/windows/angle/fine"),
-        config_get_scalar("master/aversive/trajectories/windows/angle_start/fine"));
-}
-
 void robot_init(void)
 {
     robot.mode = BOARD_MODE_ANGLE_DISTANCE;
@@ -98,7 +80,11 @@ void robot_init(void)
     trajectory_set_robot_params(&robot.traj, &robot.rs, &robot.pos);
 
     // Distance window, angle window, angle start
-    robot_trajectory_windows_set_coarse();
+    trajectory_set_windows(
+        &robot.traj,
+        config_get_scalar("master/aversive/trajectories/windows/distance"),
+        config_get_scalar("master/aversive/trajectories/windows/angle"),
+        config_get_scalar("master/aversive/trajectories/windows/angle_start"));
 
     /* Initialize blocking detection managers */
     bd_init(&robot.angle_bd);
