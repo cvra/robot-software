@@ -19,7 +19,6 @@
 
 struct _robot robot;
 
-
 void robot_init(void)
 {
     robot.mode = BOARD_MODE_ANGLE_DISTANCE;
@@ -81,7 +80,11 @@ void robot_init(void)
     trajectory_set_robot_params(&robot.traj, &robot.rs, &robot.pos);
 
     // Distance window, angle window, angle start
-    trajectory_set_windows(&robot.traj, 15., 5., 30.);
+    trajectory_set_windows(
+        &robot.traj,
+        config_get_scalar("master/aversive/trajectories/windows/distance"),
+        config_get_scalar("master/aversive/trajectories/windows/angle"),
+        config_get_scalar("master/aversive/trajectories/windows/angle_start"));
 
     /* Initialize blocking detection managers */
     bd_init(&robot.angle_bd);

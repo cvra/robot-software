@@ -4,6 +4,7 @@
 #include <error/error.h>
 
 #include "trajectory_manager/trajectory_manager_utils.h"
+#include "trajectory_manager/trajectory_manager_core.h"
 #include "base/map.h"
 #include "math_helpers.h"
 #include "beacon_helpers.h"
@@ -38,6 +39,10 @@ int trajectory_has_ended(int watched_end_reasons)
 {
     if ((watched_end_reasons & TRAJ_END_GOAL_REACHED) && trajectory_finished(&robot.traj)) {
         return TRAJ_END_GOAL_REACHED;
+    }
+
+    if ((watched_end_reasons & TRAJ_END_NEAR_GOAL) && trajectory_nearly_finished(&robot.traj)) {
+        return TRAJ_END_NEAR_GOAL;
     }
 
     if ((watched_end_reasons & TRAJ_END_COLLISION) && bd_get(&robot.distance_bd)) {
