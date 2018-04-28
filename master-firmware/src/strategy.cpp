@@ -575,8 +575,8 @@ struct DepositCubes : actions::DepositCubes {
         : actions::DepositCubes(zone_id), m_color(color) {}
 
     bool execute(RobotState &state) {
-        const int x_mm = CONSTRUCTION_ZONE_POS[construction_zone_id][0];
-        const int y_mm = CONSTRUCTION_ZONE_POS[construction_zone_id][1];
+        const int x_mm = DEPOSIT_ZONE_POS[construction_zone_id][0];
+        const int y_mm = DEPOSIT_ZONE_POS[construction_zone_id][1];
         NOTICE("Depositing cubes at %d %d", x_mm, y_mm);
 
         enum lever_side_t lever_side = LEVER_SIDE_LEFT;
@@ -628,8 +628,8 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
         : actions::BuildTowerLevel(zone_id, level), m_color(color) {}
 
     bool execute(RobotState &state) {
-        const int x_mm = CONSTRUCTION_ZONE_POS[construction_zone_id][0];
-        const int y_mm = CONSTRUCTION_ZONE_POS[construction_zone_id][1];
+        const int x_mm = DEPOSIT_ZONE_POS[construction_zone_id][0];
+        const int y_mm = DEPOSIT_ZONE_POS[construction_zone_id][1];
         NOTICE("Building a tower level %d at %d %d", level, x_mm, y_mm);
 
         if (level == 0) {
@@ -650,8 +650,8 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
             return false;
         }
 
-        const int tower_x_mm = x_mm + 0;
-        const int tower_y_mm = y_mm - 220;
+        const int tower_x_mm = CONSTRUCTION_ZONE_POS[construction_zone_id][0];
+        const int tower_y_mm = CONSTRUCTION_ZONE_POS[construction_zone_id][1];
         if (!strat_deposit_cube(MIRROR_X(m_color, tower_x_mm), tower_y_mm, level)) {
             WARNING("Tower building did not go as expected");
             return false;
