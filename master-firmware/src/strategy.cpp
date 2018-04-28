@@ -589,9 +589,6 @@ struct DepositCubes : actions::DepositCubes {
             a_deg += 180;
         }
 
-        trajectory_d_rel(&robot.traj, 150);
-        trajectory_wait_for_end(TRAJ_FLAGS_ALL);
-
         if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, a_deg), TRAJ_FLAGS_ALL)) {
             return false;
         }
