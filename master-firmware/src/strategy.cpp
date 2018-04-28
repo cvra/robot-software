@@ -630,10 +630,11 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
     bool execute(RobotState &state) {
         const int x_mm = DEPOSIT_ZONE_POSE[construction_zone_id][0];
         const int y_mm = DEPOSIT_ZONE_POSE[construction_zone_id][1];
+        const int a_deg = CONSTRUCTION_HEADING[construction_zone_id];
         NOTICE("Building a tower level %d at %d %d", level, x_mm, y_mm);
 
         if (level == 0) {
-            if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, -215), TRAJ_FLAGS_ALL)) {
+            if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, a_deg), TRAJ_FLAGS_ALL)) {
                 return false;
             }
         }
