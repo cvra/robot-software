@@ -604,10 +604,10 @@ struct DepositCubes : actions::DepositCubes {
             state.lever_full_right = false;
         }
         for (int i = 0; i < 5; i++) {
-            state.construction_zone[construction_zone_id].cubes_ready[i] = true;
+            state.construction_zone[construction_zone_id % 2].cubes_ready[i] = true;
             point_t cube_pos = strategy_cube_pos(cubes_pose, (enum cube_color)i, m_color);
-            state.construction_zone[construction_zone_id].cubes_pos[i][0] = cube_pos.x;
-            state.construction_zone[construction_zone_id].cubes_pos[i][1] = cube_pos.y;
+            state.construction_zone[construction_zone_id % 2].cubes_pos[i][0] = cube_pos.x;
+            state.construction_zone[construction_zone_id % 2].cubes_pos[i][1] = cube_pos.y;
         }
 
         return true;
@@ -648,11 +648,11 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
         }
 
         point_t cube_pos;
-        cube_pos.x = state.construction_zone[construction_zone_id].cubes_pos[state.tower_sequence[level]][0];
-        cube_pos.y = state.construction_zone[construction_zone_id].cubes_pos[state.tower_sequence[level]][1];
+        cube_pos.x = state.construction_zone[construction_zone_id % 2].cubes_pos[state.tower_sequence[level]][0];
+        cube_pos.y = state.construction_zone[construction_zone_id % 2].cubes_pos[state.tower_sequence[level]][1];
 
         state.arms_are_deployed = true;
-        state.construction_zone[construction_zone_id].cubes_ready[state.tower_sequence[level]] = false;
+        state.construction_zone[construction_zone_id % 2].cubes_ready[state.tower_sequence[level]] = false;
 
         if (!strat_pick_cube(cube_pos.x, cube_pos.y)) {
             WARNING("No cube to pick up at %d %d", cube_pos.x, cube_pos.y);
@@ -667,9 +667,9 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
         }
         scara_hold_position(&main_arm, COORDINATE_ARM);
 
-        state.construction_zone[construction_zone_id].tower_pos[0] = tower_x_mm;
-        state.construction_zone[construction_zone_id].tower_pos[1] = tower_y_mm;
-        state.construction_zone[construction_zone_id].tower_level += 1;
+        state.construction_zone[construction_zone_id % 2].tower_pos[0] = tower_x_mm;
+        state.construction_zone[construction_zone_id % 2].tower_pos[1] = tower_y_mm;
+        state.construction_zone[construction_zone_id % 2].tower_level += 1;
         return true;
     }
 };
@@ -1014,11 +1014,14 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     SwitchGoal switch_goal;
     PickupCubesGoal pickup_cubes_goal;
     WasteWaterGoal wastewater_plant_goal;
+    BuildTowerGoal build_tower_goal[2] = {BuildTowerGoal(2), BuildTowerGoal(3)};
     OpponentPanelGoal opponent_panel_goal;
     goap::Goal<RobotState>* goals[] = {
         &switch_goal,
         &wastewater_plant_goal,
-        // &pickup_cubes_goal,
+        &pickup_cubes_goal,
+        &build_tower_goal[0],
+        &build_tower_goal[1],
         &opponent_panel_goal, // muahaha
     };
 
@@ -1030,6 +1033,19 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     TurnSwitchOn turn_switch_on(color);
     EmptyMulticolorWasteWaterCollector empty_wastewater_multicolor(color);
     FireBallGunIntoWasteWaterTreatmentPlant fill_wasterwater_plant(color);
+    DepositCubes deposit_cubes[2] = {
+        DepositCubes(color, 2), DepositCubes(color, 3),
+    };
+    BuildTowerLevel build_tower_lvl[2][4] = {
+        {
+            BuildTowerLevel(color, 2, 0), BuildTowerLevel(color, 2, 1),
+            BuildTowerLevel(color, 2, 2), BuildTowerLevel(color, 2, 3),
+        },
+        {
+            BuildTowerLevel(color, 3, 0), BuildTowerLevel(color, 3, 1),
+            BuildTowerLevel(color, 3, 2), BuildTowerLevel(color, 3, 3),
+        },
+    };
     TurnOpponentSwitchOff turn_opponent_switch_off(color);
 
     const int max_path_len = 10;
@@ -1038,11 +1054,21 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     goap::Action<RobotState> *actions[] = {
         &index_arms,
         &retract_arms,
-        // &pickup_cubes[0],
-        // &pickup_cubes[1],
+        &pickup_cubes[0],
+        &pickup_cubes[1],
         &turn_switch_on,
         &empty_wastewater_multicolor,
         &fill_wasterwater_plant,
+        &deposit_cubes[0],
+        &deposit_cubes[1],
+        &build_tower_lvl[0][0],
+        &build_tower_lvl[0][1],
+        &build_tower_lvl[0][2],
+        &build_tower_lvl[0][3],
+        &build_tower_lvl[1][0],
+        &build_tower_lvl[1][1],
+        &build_tower_lvl[1][2],
+        &build_tower_lvl[1][3],
         &turn_opponent_switch_off,
     };
 
