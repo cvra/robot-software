@@ -1,7 +1,7 @@
 #include "arm.h"
 
 ArmTrajectory::ArmTrajectory(scara_t* arm)
-    : m_arm(arm)
+    : m_arm(arm), m_duration(0.)
 {
     scara_trajectory_init(&m_trajectory);
 }
