@@ -95,7 +95,7 @@ struct DepositCubes : public goap::Action<RobotState> {
         };
         return state.arms_are_deployed == false &&
                (state.lever_full_left || state.lever_full_right) &&
-               no_cubes_in_construction_zone(state, construction_zone_id);
+               no_cubes_in_construction_zone(state, construction_zone_id % 2);
     }
 
     void plan_effects(RobotState &state)
@@ -106,7 +106,7 @@ struct DepositCubes : public goap::Action<RobotState> {
             state.lever_full_left = false;
         }
 
-        for (auto& cube_ready : state.construction_zone[construction_zone_id].cubes_ready) {
+        for (auto& cube_ready : state.construction_zone[construction_zone_id % 2].cubes_ready) {
             cube_ready = true;
         }
     }
@@ -118,15 +118,15 @@ struct BuildTowerLevel : public goap::Action<RobotState> {
 
     bool can_run(const RobotState &state)
     {
-      return state.construction_zone[construction_zone_id].tower_level == level &&
-             state.construction_zone[construction_zone_id].cubes_ready[state.tower_sequence[level]];
+      return state.construction_zone[construction_zone_id % 2].tower_level == level &&
+             state.construction_zone[construction_zone_id % 2].cubes_ready[state.tower_sequence[level]];
     }
 
     void plan_effects(RobotState &state)
     {
         state.arms_are_deployed = true;
-        state.construction_zone[construction_zone_id].cubes_ready[state.tower_sequence[level]] = false;
-        state.construction_zone[construction_zone_id].tower_level += 1;
+        state.construction_zone[construction_zone_id % 2].cubes_ready[state.tower_sequence[level]] = false;
+        state.construction_zone[construction_zone_id % 2].tower_level += 1;
     }
 };
 
