@@ -899,7 +899,7 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
     IndexArms index_arms;
     RetractArms retract_arms(color);
     PickupCubes pickup_cubes[2] = {
-        PickupCubes(color, 0), PickupCubes(color, 1),
+        PickupCubes(color, 1), PickupCubes(color, 2),
     };
     DeployTheBee deploy_the_bee(color);
     DepositCubes deposit_cubes[2] = {
@@ -1028,7 +1028,7 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     IndexArms index_arms;
     RetractArms retract_arms(color);
     PickupCubes pickup_cubes[2] = {
-        PickupCubes(color, 2), PickupCubes(color, 3),
+        PickupCubes(color, 0), PickupCubes(color, 3),
     };
     TurnSwitchOn turn_switch_on(color);
     EmptyMulticolorWasteWaterCollector empty_wastewater_multicolor(color);
