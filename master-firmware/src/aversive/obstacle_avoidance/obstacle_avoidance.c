@@ -61,7 +61,9 @@ static void oa_reset(void)
     memset(oa.p, 0, sizeof(oa.p));
     memset(oa.pt, 0, sizeof(oa.pt));
     memset(oa.rays, 0, sizeof(oa.rays));
+    memset(oa.res, 0, sizeof(oa.res));
     oa.ray_n = 0;
+    oa.res_len = 0;
 }
 
 /** Init the oa structure. Note: In the algorithm, the first polygon

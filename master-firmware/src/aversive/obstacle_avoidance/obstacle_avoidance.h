@@ -103,8 +103,6 @@ struct obstacle_avoidance {
     int p[MAX_PTS]; /**< @todo Dafuq ? */
     int pt[MAX_PTS]; /**< Stores all the points. */
 
-
-
     int ray_n; /**< Number of computed rays. */
     int cur_poly_idx; /**< Index of the current polygon (for adding polygons). */
     int cur_pt_idx; /**< Index of the current point in the current polygon. */
