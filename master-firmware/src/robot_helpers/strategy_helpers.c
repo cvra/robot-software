@@ -156,3 +156,11 @@ void strategy_sort_poses_by_distance(se2_t current_pose, se2_t* pickup_poses, in
     }
 }
 
+shoulder_mode_t MIRROR_SHOULDER(enum strat_color_t color, shoulder_mode_t mode)
+{
+    if (color == YELLOW) {
+        return mode;
+    } else {
+        return mode == SHOULDER_BACK ? SHOULDER_FRONT : SHOULDER_BACK;
+    }
+}

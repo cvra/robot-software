@@ -251,11 +251,7 @@ struct RetractArms : actions::RetractArms {
 
         scara_control_mode_joint(&main_arm);
 
-        if (m_color == YELLOW) {
-            main_arm.shoulder_mode = SHOULDER_BACK;
-        } else {
-            main_arm.shoulder_mode = SHOULDER_FRONT;
-        }
+        main_arm.shoulder_mode = MIRROR_SHOULDER(m_color, SHOULDER_BACK);
         scara_goto(&main_arm, {170., 0., 295.}, COORDINATE_ARM, {300, 300, 300});
         strategy_wait_ms(500);
 

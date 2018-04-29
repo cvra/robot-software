@@ -11,6 +11,7 @@ extern "C" {
 #include "base/base_controller.h"
 #include "math/lie_groups.h"
 #include "robot_helpers/eurobot2018.h"
+#include "scara/scara_kinematics.h"
 
 /** Team color
  */
@@ -30,6 +31,7 @@ enum lever_side_t {
 #define MIRROR_X(color, x) (color == YELLOW ? (x) : 3000. - (x))
 #define MIRROR_A(color, a_deg) (color == YELLOW ? (a_deg) : 180. - (a_deg))
 #define MIRROR(color, value) (color == YELLOW ? (value) : - (value))
+shoulder_mode_t MIRROR_SHOULDER(enum strat_color_t color, shoulder_mode_t mode);
 
 /** Auto position robot at requested location, and ensure the correct
  *  position is reached by aligning against walls.
