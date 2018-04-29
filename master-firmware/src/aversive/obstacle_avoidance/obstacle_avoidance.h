@@ -64,8 +64,8 @@ extern "C" {
 #include <math/geometry/circles.h>
 
 #define MAX_POLY 20        /**< The maximal number of obstacles in the area. */
-#define MAX_PTS 500         /**< The maximal number of polygon vertices. */
-#define MAX_RAYS 2000       /**< The maximal number of rays. */
+#define MAX_PTS 200         /**< The maximal number of polygon vertices. */
+#define MAX_RAYS 1000       /**< The maximal number of rays. */
 #define MAX_CHKPOINTS 100   /**< Maximal length of the path. */
 
 
