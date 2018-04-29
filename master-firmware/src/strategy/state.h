@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "robot_helpers/eurobot2018.h"
+#include "scara/scara_kinematics.h"
 
 const int NUM_BLOCK_OF_CUBES = 6;
 const uint16_t BLOCK_OF_CUBES_POS[NUM_BLOCK_OF_CUBES][2] = {
@@ -15,6 +16,9 @@ const uint16_t CONSTRUCTION_ZONE_POS[NUM_CONSTRUCTION_ZONES][2] = {
 };
 const int16_t CONSTRUCTION_HEADING[NUM_CONSTRUCTION_ZONES] = {
     90, 150,
+};
+const shoulder_mode_t CONSTRUCTION_SHOULDER_MODE[NUM_CONSTRUCTION_ZONES] = {
+    SHOULDER_BACK, SHOULDER_BACK,
 };
 const int16_t DEPOSIT_ZONE_POSE[NUM_CONSTRUCTION_ZONES][3] = {
     {365, 375, 157}, {365, 375, -113},

@@ -614,6 +614,17 @@ struct DepositCubes : actions::DepositCubes {
     }
 };
 
+void strat_scara_force_shoulder_mode(shoulder_mode_t shoulder_mode)
+{
+    scara_control_mode_joint(&main_arm);
+
+    main_arm.shoulder_mode = shoulder_mode;
+    scara_goto(&main_arm, {170., 0., 295.}, COORDINATE_ARM, {300, 300, 300});
+    strategy_wait_ms(500);
+
+    scara_control_mode_cartesian(&main_arm);
+}
+
 struct BuildTowerLevel : actions::BuildTowerLevel {
     enum strat_color_t m_color;
 
@@ -630,6 +641,10 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
             if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, a_deg), TRAJ_FLAGS_ALL)) {
                 return false;
             }
+
+            // Force shoulder position
+            const shoulder_mode_t shoulder_mode = CONSTRUCTION_SHOULDER_MODE[construction_zone_id];
+            strat_scara_force_shoulder_mode(MIRROR_SHOULDER(m_color, shoulder_mode));
         }
 
         point_t cube_pos;
