@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "robot_helpers/eurobot2018.h"
+#include "scara/scara_kinematics.h"
 
 const int NUM_BLOCK_OF_CUBES = 6;
 const uint16_t BLOCK_OF_CUBES_POS[NUM_BLOCK_OF_CUBES][2] = {
@@ -10,8 +11,18 @@ const uint16_t BLOCK_OF_CUBES_POS[NUM_BLOCK_OF_CUBES][2] = {
 };
 
 const int NUM_CONSTRUCTION_ZONES = 2;
-const uint16_t CONSTRUCTION_ZONE_POS[NUM_CONSTRUCTION_ZONES][2] = {
-    {400, 300}, {800, 300},
+const int NUM_TOWERS = 4;
+const uint16_t CONSTRUCTION_ZONE_POS[NUM_TOWERS][2] = {
+    {416, 100}, {502, 154}, {934, 100}, {847, 144},
+};
+const int16_t CONSTRUCTION_HEADING[NUM_TOWERS] = {
+    90, 150, 100, 30,
+};
+const shoulder_mode_t CONSTRUCTION_SHOULDER_MODE[NUM_TOWERS] = {
+    SHOULDER_BACK, SHOULDER_BACK, SHOULDER_FRONT, SHOULDER_FRONT,
+};
+const int16_t DEPOSIT_ZONE_POSE[NUM_TOWERS][3] = {
+    {365, 375, 157}, {365, 375, -113}, {985, 375, 203}, {985, 375, 113},
 };
 
 
@@ -33,7 +44,7 @@ struct RobotState {
     bool lever_full_left{false};
     bool lever_full_right{false};
 
-    bool blocks_on_map[NUM_BLOCK_OF_CUBES] = {true, true, true, false, false, false};
+    bool blocks_on_map[NUM_BLOCK_OF_CUBES] = {true, true, true, true, false, false};
 
     bool tower_sequence_known{false};
     enum cube_color tower_sequence[5] = {CUBE_YELLOW, CUBE_BLACK, CUBE_BLUE, CUBE_GREEN, CUBE_ORANGE};

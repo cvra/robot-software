@@ -166,3 +166,19 @@ TEST(ADistanceToTargetPosition, ComputesPathLengthAroundObstacle)
     float expected_distance = sqrtf(powf(600-200 ,2) + powf(400-200 ,2)) + sqrtf(powf(800-600 ,2) + powf(800-400 ,2));
     DOUBLES_EQUAL(expected_distance, distance, 0.01);
 }
+
+TEST_GROUP(AShoulderModeSelector)
+{
+};
+
+TEST(AShoulderModeSelector, SelectsSameModeOnYellow)
+{
+    CHECK_EQUAL(SHOULDER_BACK, MIRROR_SHOULDER(YELLOW, SHOULDER_BACK));
+    CHECK_EQUAL(SHOULDER_FRONT, MIRROR_SHOULDER(YELLOW, SHOULDER_FRONT));
+}
+
+TEST(AShoulderModeSelector, MirrorsModeOnBlue)
+{
+    CHECK_EQUAL(SHOULDER_FRONT, MIRROR_SHOULDER(BLUE, SHOULDER_BACK));
+    CHECK_EQUAL(SHOULDER_BACK, MIRROR_SHOULDER(BLUE, SHOULDER_FRONT));
+}

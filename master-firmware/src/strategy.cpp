@@ -251,11 +251,7 @@ struct RetractArms : actions::RetractArms {
 
         scara_control_mode_joint(&main_arm);
 
-        if (m_color == YELLOW) {
-            main_arm.shoulder_mode = SHOULDER_BACK;
-        } else {
-            main_arm.shoulder_mode = SHOULDER_FRONT;
-        }
+        main_arm.shoulder_mode = MIRROR_SHOULDER(m_color, SHOULDER_BACK);
         scara_goto(&main_arm, {170., 0., 295.}, COORDINATE_ARM, {300, 300, 300});
         strategy_wait_ms(500);
 
@@ -575,22 +571,19 @@ struct DepositCubes : actions::DepositCubes {
         : actions::DepositCubes(zone_id), m_color(color) {}
 
     bool execute(RobotState &state) {
-        const int x_mm = CONSTRUCTION_ZONE_POS[construction_zone_id][0];
-        const int y_mm = CONSTRUCTION_ZONE_POS[construction_zone_id][1];
+        const int x_mm = DEPOSIT_ZONE_POSE[construction_zone_id][0];
+        const int y_mm = DEPOSIT_ZONE_POSE[construction_zone_id][1];
+        int a_deg = DEPOSIT_ZONE_POSE[construction_zone_id][2];
         NOTICE("Depositing cubes at %d %d", x_mm, y_mm);
 
         enum lever_side_t lever_side = LEVER_SIDE_LEFT;
         lever_t* lever = MIRROR_LEFT_LEVER(m_color);
-        int a_deg = -135;
 
         if (state.lever_full_left == false) {
             lever_side = LEVER_SIDE_RIGHT;
             lever = MIRROR_RIGHT_LEVER(m_color);
             a_deg += 180;
         }
-
-        trajectory_d_rel(&robot.traj, 150);
-        trajectory_wait_for_end(TRAJ_FLAGS_ALL);
 
         if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, a_deg), TRAJ_FLAGS_ALL)) {
             return false;
@@ -611,15 +604,26 @@ struct DepositCubes : actions::DepositCubes {
             state.lever_full_right = false;
         }
         for (int i = 0; i < 5; i++) {
-            state.construction_zone[construction_zone_id].cubes_ready[i] = true;
+            state.construction_zone[construction_zone_id % 2].cubes_ready[i] = true;
             point_t cube_pos = strategy_cube_pos(cubes_pose, (enum cube_color)i, m_color);
-            state.construction_zone[construction_zone_id].cubes_pos[i][0] = cube_pos.x;
-            state.construction_zone[construction_zone_id].cubes_pos[i][1] = cube_pos.y;
+            state.construction_zone[construction_zone_id % 2].cubes_pos[i][0] = cube_pos.x;
+            state.construction_zone[construction_zone_id % 2].cubes_pos[i][1] = cube_pos.y;
         }
 
         return true;
     }
 };
+
+void strat_scara_force_shoulder_mode(shoulder_mode_t shoulder_mode)
+{
+    scara_control_mode_joint(&main_arm);
+
+    main_arm.shoulder_mode = shoulder_mode;
+    scara_goto(&main_arm, {170., 0., 295.}, COORDINATE_ARM, {300, 300, 300});
+    strategy_wait_ms(500);
+
+    scara_control_mode_cartesian(&main_arm);
+}
 
 struct BuildTowerLevel : actions::BuildTowerLevel {
     enum strat_color_t m_color;
@@ -628,39 +632,44 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
         : actions::BuildTowerLevel(zone_id, level), m_color(color) {}
 
     bool execute(RobotState &state) {
-        const int x_mm = CONSTRUCTION_ZONE_POS[construction_zone_id][0];
-        const int y_mm = CONSTRUCTION_ZONE_POS[construction_zone_id][1];
+        const int x_mm = DEPOSIT_ZONE_POSE[construction_zone_id][0];
+        const int y_mm = DEPOSIT_ZONE_POSE[construction_zone_id][1];
+        const int a_deg = CONSTRUCTION_HEADING[construction_zone_id];
         NOTICE("Building a tower level %d at %d %d", level, x_mm, y_mm);
 
         if (level == 0) {
-            if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, -215), TRAJ_FLAGS_ALL)) {
+            if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, a_deg), TRAJ_FLAGS_ALL)) {
                 return false;
             }
+
+            // Force shoulder position
+            const shoulder_mode_t shoulder_mode = CONSTRUCTION_SHOULDER_MODE[construction_zone_id];
+            strat_scara_force_shoulder_mode(MIRROR_SHOULDER(m_color, shoulder_mode));
         }
 
         point_t cube_pos;
-        cube_pos.x = state.construction_zone[construction_zone_id].cubes_pos[state.tower_sequence[level]][0];
-        cube_pos.y = state.construction_zone[construction_zone_id].cubes_pos[state.tower_sequence[level]][1];
+        cube_pos.x = state.construction_zone[construction_zone_id % 2].cubes_pos[state.tower_sequence[level]][0];
+        cube_pos.y = state.construction_zone[construction_zone_id % 2].cubes_pos[state.tower_sequence[level]][1];
 
         state.arms_are_deployed = true;
-        state.construction_zone[construction_zone_id].cubes_ready[state.tower_sequence[level]] = false;
+        state.construction_zone[construction_zone_id % 2].cubes_ready[state.tower_sequence[level]] = false;
 
         if (!strat_pick_cube(cube_pos.x, cube_pos.y)) {
             WARNING("No cube to pick up at %d %d", cube_pos.x, cube_pos.y);
             return false;
         }
 
-        const int tower_x_mm = x_mm + 0;
-        const int tower_y_mm = y_mm - 220;
+        const int tower_x_mm = CONSTRUCTION_ZONE_POS[construction_zone_id][0];
+        const int tower_y_mm = CONSTRUCTION_ZONE_POS[construction_zone_id][1];
         if (!strat_deposit_cube(MIRROR_X(m_color, tower_x_mm), tower_y_mm, level)) {
             WARNING("Tower building did not go as expected");
             return false;
         }
         scara_hold_position(&main_arm, COORDINATE_ARM);
 
-        state.construction_zone[construction_zone_id].tower_pos[0] = tower_x_mm;
-        state.construction_zone[construction_zone_id].tower_pos[1] = tower_y_mm;
-        state.construction_zone[construction_zone_id].tower_level += 1;
+        state.construction_zone[construction_zone_id % 2].tower_pos[0] = tower_x_mm;
+        state.construction_zone[construction_zone_id % 2].tower_pos[1] = tower_y_mm;
+        state.construction_zone[construction_zone_id % 2].tower_level += 1;
         return true;
     }
 };
@@ -890,7 +899,7 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
     IndexArms index_arms;
     RetractArms retract_arms(color);
     PickupCubes pickup_cubes[2] = {
-        PickupCubes(color, 0), PickupCubes(color, 1),
+        PickupCubes(color, 1), PickupCubes(color, 2),
     };
     DeployTheBee deploy_the_bee(color);
     DepositCubes deposit_cubes[2] = {
@@ -1005,22 +1014,38 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     SwitchGoal switch_goal;
     PickupCubesGoal pickup_cubes_goal;
     WasteWaterGoal wastewater_plant_goal;
+    BuildTowerGoal build_tower_goal[2] = {BuildTowerGoal(2), BuildTowerGoal(3)};
     OpponentPanelGoal opponent_panel_goal;
     goap::Goal<RobotState>* goals[] = {
         &switch_goal,
+        &pickup_cubes_goal,
+        &build_tower_goal[0],
+        &build_tower_goal[1],
         &wastewater_plant_goal,
-        // &pickup_cubes_goal,
         &opponent_panel_goal, // muahaha
     };
 
     IndexArms index_arms;
     RetractArms retract_arms(color);
     PickupCubes pickup_cubes[2] = {
-        PickupCubes(color, 2), PickupCubes(color, 3),
+        PickupCubes(color, 0), PickupCubes(color, 3),
     };
     TurnSwitchOn turn_switch_on(color);
     EmptyMulticolorWasteWaterCollector empty_wastewater_multicolor(color);
     FireBallGunIntoWasteWaterTreatmentPlant fill_wasterwater_plant(color);
+    DepositCubes deposit_cubes[2] = {
+        DepositCubes(color, 2), DepositCubes(color, 3),
+    };
+    BuildTowerLevel build_tower_lvl[2][4] = {
+        {
+            BuildTowerLevel(color, 2, 0), BuildTowerLevel(color, 2, 1),
+            BuildTowerLevel(color, 2, 2), BuildTowerLevel(color, 2, 3),
+        },
+        {
+            BuildTowerLevel(color, 3, 0), BuildTowerLevel(color, 3, 1),
+            BuildTowerLevel(color, 3, 2), BuildTowerLevel(color, 3, 3),
+        },
+    };
     TurnOpponentSwitchOff turn_opponent_switch_off(color);
 
     const int max_path_len = 10;
@@ -1029,11 +1054,21 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     goap::Action<RobotState> *actions[] = {
         &index_arms,
         &retract_arms,
-        // &pickup_cubes[0],
-        // &pickup_cubes[1],
+        &pickup_cubes[0],
+        &pickup_cubes[1],
         &turn_switch_on,
         &empty_wastewater_multicolor,
         &fill_wasterwater_plant,
+        &deposit_cubes[0],
+        &deposit_cubes[1],
+        &build_tower_lvl[0][0],
+        &build_tower_lvl[0][1],
+        &build_tower_lvl[0][2],
+        &build_tower_lvl[0][3],
+        &build_tower_lvl[1][0],
+        &build_tower_lvl[1][1],
+        &build_tower_lvl[1][2],
+        &build_tower_lvl[1][3],
         &turn_opponent_switch_off,
     };
 
@@ -1072,7 +1107,7 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     trajectory_game_timer_reset();
     strategy_read_color_sequence(state);
 
-    strategy_wait_ms(2000); /* Wait for Order to get out */
+    NOTICE("Moving out of Order's way. Time for Chaos!");
     trajectory_d_rel(&robot.traj, -400);
     trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
 

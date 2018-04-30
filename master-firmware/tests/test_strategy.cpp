@@ -55,13 +55,15 @@ TEST_GROUP(Strategy) {
 
     IndexArms index_arms;
     RetractArms retract_arms;
-    std::vector<PickupCubes> pickup_cubes = {{0}, {1}, {2}};
+    std::vector<PickupCubes> pickup_cubes = {{0}, {1}, {2}, {3}};
     TurnSwitchOn turn_switch_on;
     DeployTheBee deploy_the_bee;
-    std::vector<DepositCubes> deposit_cubes = {{0}, {1}};
+    std::vector<DepositCubes> deposit_cubes = {{0}, {1}, {2}, {3}};
     std::vector<std::vector<BuildTowerLevel>> build_tower_lvl = {
         {{0, 0}, {0, 1}, {0, 2}, {0, 3}},
         {{1, 0}, {1, 1}, {1, 2}, {1, 3}},
+        {{2, 0}, {2, 1}, {2, 2}, {2, 3}},
+        {{3, 0}, {3, 1}, {3, 2}, {3, 3}},
     };
     FireBallGunIntoWaterTower fire_ballgun_into_watertower;
     FireBallGunIntoWasteWaterTreatmentPlant fire_ballgun_into_wastewater_treatment_plant;
@@ -77,10 +79,13 @@ TEST_GROUP(Strategy) {
             &pickup_cubes[0],
             &pickup_cubes[1],
             &pickup_cubes[2],
+            &pickup_cubes[3],
             &turn_switch_on,
             &deploy_the_bee,
             &deposit_cubes[0],
             &deposit_cubes[1],
+            &deposit_cubes[2],
+            &deposit_cubes[3],
             &build_tower_lvl[0][0],
             &build_tower_lvl[0][1],
             &build_tower_lvl[0][2],
@@ -89,6 +94,14 @@ TEST_GROUP(Strategy) {
             &build_tower_lvl[1][1],
             &build_tower_lvl[1][2],
             &build_tower_lvl[1][3],
+            &build_tower_lvl[2][0],
+            &build_tower_lvl[2][1],
+            &build_tower_lvl[2][2],
+            &build_tower_lvl[2][3],
+            &build_tower_lvl[3][0],
+            &build_tower_lvl[3][1],
+            &build_tower_lvl[3][2],
+            &build_tower_lvl[3][3],
             &fire_ballgun_into_watertower,
             &fire_ballgun_into_wastewater_treatment_plant,
             &empty_wasterwater_collector_monocolor,
@@ -196,6 +209,18 @@ TEST(Strategy, CanBuildSecondTower)
 TEST(Strategy, CanBuildTwoTowers)
 {
     std::vector<BuildTowerGoal> goals = {0, 1};
+
+    for (auto& goal : goals) {
+        int len = compute_and_execute_plan(goal, state);
+
+        CHECK_TRUE(len > 0);
+        CHECK_TRUE(goal.is_reached(state));
+    }
+}
+
+TEST(Strategy, CanBuildTwoOtherTowers)
+{
+    std::vector<BuildTowerGoal> goals = {2, 3};
 
     for (auto& goal : goals) {
         int len = compute_and_execute_plan(goal, state);
