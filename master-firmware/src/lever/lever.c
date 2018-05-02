@@ -134,3 +134,12 @@ se2_t lever_deposit(lever_t* lever, se2_t robot_pose)
 
     return blocks_pose;
 }
+
+void lever_tidy(lever_t* lever)
+{
+    lever_lock(&lever->lock);
+    lever_pump_set(lever, LEVER_PUMP_OFF);
+    lever_unlock(&lever->lock);
+
+    lever_retract(lever);
+}

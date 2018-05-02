@@ -1247,7 +1247,7 @@ static void cmd_servo(BaseSequentialStream *chp, int argc, char *argv[])
 static void cmd_lever(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc != 2) {
-        chprintf(chp, "Usage: lever right|left deploy|retract|pickup|deposit|retpush\r\n");
+        chprintf(chp, "Usage: lever right|left deploy|retract|pickup|deposit|retpush|tidy\r\n");
         return;
     }
 
@@ -1276,6 +1276,7 @@ static void cmd_lever(BaseSequentialStream *chp, int argc, char *argv[])
     else if (strcmp("pickup", argv[1]) == 0)  { lever_pickup(lever, robot_pose, blocks_pose); }
     else if (strcmp("deposit", argv[1]) == 0) { blocks_pose = lever_deposit(lever, robot_pose); }
     else if (strcmp("retpush", argv[1]) == 0) { lever_push_and_retract(lever); }
+    else if (strcmp("tidy", argv[1]) == 0)    { lever_tidy(lever); }
     else                                      { chprintf(chp, "Invalid command: %s", argv[1]); }
 
     chprintf(chp, "Blocks at x:%f y:%f a:%f\r\n",
