@@ -1559,6 +1559,29 @@ static void cmd_speed(BaseSequentialStream *chp, int argc, char *argv[])
     else                                   { chprintf(chp, "Invalid base speed: %s", argv[0]); }
 }
 
+static void cmd_lever_full(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    (void)argc;
+    (void)argv;
+
+    messagebus_topic_t* topic;
+    bool full;
+
+    topic = messagebus_find_topic_blocking(&bus, "/lever/left");
+    if (messagebus_topic_read(topic, &full, sizeof(full))) {
+        chprintf(chp, "left lever: %d\r\n", full);
+    } else {
+        chprintf(chp, "/lever/left topic was never published\r\n");
+    }
+
+    topic = messagebus_find_topic_blocking(&bus, "/lever/right");
+    if (messagebus_topic_read(topic, &full, sizeof(full))) {
+        chprintf(chp, "right lever: %d\r\n", full);
+    } else {
+        chprintf(chp, "/lever/right topic was never published\r\n");
+    }
+}
+
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
@@ -1626,5 +1649,6 @@ const ShellCommand commands[] = {
     {"watertower_plant", cmd_watertower_plant},
     {"wrist", cmd_wrist},
     {"speed", cmd_speed},
+    {"lever_full", cmd_lever_full},
     {NULL, NULL}
 };
