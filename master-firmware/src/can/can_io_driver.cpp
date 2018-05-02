@@ -10,10 +10,36 @@
 
 static uavcan::LazyConstructor<uavcan::Publisher<cvra::io::ServoPWM> > can_io_pwm_pub;
 
+static messagebus_topic_t lever_left_topic;
+static MUTEX_DECL(lever_left_topic_lock);
+static CONDVAR_DECL(lever_left_topic_condvar);
+static bool lever_left_topic_value;
+
+static void io_input_cb(const uavcan::ReceivedDataStructure<cvra::io::DigitalInput>& msg)
+{
+    int can_id = msg.getSrcNodeID().get();
+    bool lever_full = msg.pin[0] == 0;
+
+    if (can_id == bus_enumerator_get_can_id(&bus_enumerator, "left-lever")) {
+        messagebus_topic_publish(&lever_left_topic, &lever_full, sizeof(lever_full));
+    }
+}
+
 int can_io_init(uavcan::INode &node)
 {
     if (!can_io_pwm_pub.isConstructed()) {
         can_io_pwm_pub.construct<uavcan::INode &>(node);
+    }
+
+    messagebus_topic_init(&lever_left_topic, &lever_left_topic_lock,
+                          &lever_left_topic_condvar, &lever_left_topic_value,
+                          sizeof(lever_left_topic_value));
+    messagebus_advertise_topic(&bus, &lever_left_topic, "/lever/left");
+
+    static uavcan::Subscriber<cvra::io::DigitalInput> io_input_sub(node);
+    auto res = io_input_sub.start(io_input_cb);
+    if (res != 0) {
+        return res;
     }
 
     return 0;
