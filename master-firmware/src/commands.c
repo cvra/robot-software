@@ -1484,6 +1484,10 @@ static void cmd_ballgun(BaseSequentialStream *chp, int argc, char *argv[])
 // Copy of strat_fill_wastewater_treatment_plant()
 static void cmd_slowfire(BaseSequentialStream *chp, int argc, char *argv[])
 {
+    (void)chp;
+    (void)argc;
+    (void)argv;
+
     ballgun_tidy(&main_ballgun);
     ballgun_deploy_fully(&main_ballgun);
     chThdSleepMilliseconds(1000);
