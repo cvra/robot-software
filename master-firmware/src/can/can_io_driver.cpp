@@ -10,10 +10,12 @@
 
 static uavcan::LazyConstructor<uavcan::Publisher<cvra::io::ServoPWM> > can_io_pwm_pub;
 
-static messagebus_topic_t lever_left_topic;
+static messagebus_topic_t lever_left_topic, lever_right_topic;
 static MUTEX_DECL(lever_left_topic_lock);
+static MUTEX_DECL(lever_right_topic_lock);
 static CONDVAR_DECL(lever_left_topic_condvar);
-static bool lever_left_topic_value;
+static CONDVAR_DECL(lever_right_topic_condvar);
+static bool lever_left_topic_value, lever_right_topic_value;
 
 static void io_input_cb(const uavcan::ReceivedDataStructure<cvra::io::DigitalInput>& msg)
 {
@@ -22,6 +24,8 @@ static void io_input_cb(const uavcan::ReceivedDataStructure<cvra::io::DigitalInp
 
     if (can_id == bus_enumerator_get_can_id(&bus_enumerator, "left-lever")) {
         messagebus_topic_publish(&lever_left_topic, &lever_full, sizeof(lever_full));
+    } else if (can_id == bus_enumerator_get_can_id(&bus_enumerator, "right-lever")) {
+        messagebus_topic_publish(&lever_right_topic, &lever_full, sizeof(lever_full));
     }
 }
 
@@ -36,13 +40,13 @@ int can_io_init(uavcan::INode &node)
                           sizeof(lever_left_topic_value));
     messagebus_advertise_topic(&bus, &lever_left_topic, "/lever/left");
 
-    static uavcan::Subscriber<cvra::io::DigitalInput> io_input_sub(node);
-    auto res = io_input_sub.start(io_input_cb);
-    if (res != 0) {
-        return res;
-    }
+    messagebus_topic_init(&lever_right_topic, &lever_right_topic_lock,
+                          &lever_right_topic_condvar, &lever_right_topic_value,
+                          sizeof(lever_right_topic_value));
+    messagebus_advertise_topic(&bus, &lever_right_topic, "/lever/right");
 
-    return 0;
+    static uavcan::Subscriber<cvra::io::DigitalInput> io_input_sub(node);
+    return io_input_sub.start(io_input_cb);
 }
 
 extern "C" {
