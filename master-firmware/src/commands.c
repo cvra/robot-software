@@ -1564,22 +1564,8 @@ static void cmd_lever_full(BaseSequentialStream *chp, int argc, char *argv[])
     (void)argc;
     (void)argv;
 
-    messagebus_topic_t* topic;
-    bool full;
-
-    topic = messagebus_find_topic_blocking(&bus, "/lever/left");
-    if (messagebus_topic_read(topic, &full, sizeof(full))) {
-        chprintf(chp, "left lever: %d\r\n", full);
-    } else {
-        chprintf(chp, "/lever/left topic was never published\r\n");
-    }
-
-    topic = messagebus_find_topic_blocking(&bus, "/lever/right");
-    if (messagebus_topic_read(topic, &full, sizeof(full))) {
-        chprintf(chp, "right lever: %d\r\n", full);
-    } else {
-        chprintf(chp, "/lever/right topic was never published\r\n");
-    }
+    chprintf(chp, "left lever: %d\r\n", strat_lever_is_full(LEVER_SIDE_LEFT));
+    chprintf(chp, "right lever: %d\r\n", strat_lever_is_full(LEVER_SIDE_RIGHT));
 }
 
 const ShellCommand commands[] = {
