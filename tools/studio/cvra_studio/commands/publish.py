@@ -35,17 +35,29 @@ def argparser(parser=None):
 
     return parser
 
+class SetpointPublisher():
+    def __init__(self, node, topic, motor, value, period):
+        self.node = node
+        self.topic = topic
+        self.motor = motor
+        self.value = value
+        self.period = period
+        self.handle = node.node.periodic(period, self._publish)
+
+    def _publish(self):
+        self.node.broadcast(self.topic(node_id=self.motor, value=self.value))
+        time.sleep(self.period/2)
+        self.node.broadcast(self.topic(node_id=self.motor, value=- self.value))
+
+    def __del__(self):
+        self.handle.remove()
+
 def main(args):
     uavcan.load_dsdl(args.dsdl)
 
     node = UavcanNode(interface=args.interface, node_id=args.node_id)
 
-    def publish():
-        node.broadcast(args.topic(node_id=args.motor, value=args.value))
-        time.sleep(args.period/2)
-        node.broadcast(args.topic(node_id=args.motor, value=- args.value))
-
-    node.add_publisher(args.period, publish)
+    pub = SetpointPublisher(node, args.topic, args.motor, args.value, args.period)
 
     node.spin()
 
