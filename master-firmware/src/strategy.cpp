@@ -391,14 +391,14 @@ bool strat_lever_is_full(enum lever_side_t lever_side)
     bool full = true;
 
     if (lever_side == LEVER_SIDE_LEFT) {
-        messagebus_topic_t* topic = messagebus_find_topic_blocking(&bus, "/lever/left");
+        messagebus_topic_t* topic = messagebus_find_topic(&bus, "/lever/left");
         if (messagebus_topic_read(topic, &full, sizeof(full))) {
             return full;
         } else {
             WARNING("No left lever detected");
         }
     } else {
-        messagebus_topic_t* topic = messagebus_find_topic_blocking(&bus, "/lever/right");
+        messagebus_topic_t* topic = messagebus_find_topic(&bus, "/lever/right");
         if (messagebus_topic_read(topic, &full, sizeof(full))) {
             return full;
         } else {
