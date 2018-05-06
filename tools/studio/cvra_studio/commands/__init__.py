@@ -3,4 +3,5 @@ __all__ = [
     'node_discovery',
     'param_tree',
     'pid_plot',
+    'publish',
 ]

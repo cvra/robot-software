@@ -11,10 +11,12 @@ from pyqtgraph.Qt import QtCore, QtGui
 
 from ..network.UavcanNode import UavcanNode
 from ..network.NodeStatusMonitor import NodeStatusMonitor
+from ..network.SetpointPublisher import ControlTopic, SetpointPublisher
 from ..viewers.LivePlotter import LivePlotter
 from ..viewers.Selector import Selector
 from ..viewers.NestedDict import NestedDictView
 from ..viewers.helpers import vstack, hstack
+from ..viewers.wrappers import LineEdit, ComboBox
 from .param_tree import ParameterTreeModel
 
 
@@ -37,12 +39,21 @@ class PidViewer(QtGui.QWidget):
         self.params_view = NestedDictView()
         self.save_button = QtGui.QPushButton('Save')
 
+        self.motor =  LineEdit(title="Motor CAN ID\t", callback=None, parent=parent)
+        self.topic =  ComboBox(title="Topic       \t", callback=None, items=list(ControlTopic), parent=parent)
+        self.value =  LineEdit(title="Value       \t", callback=None, parent=parent)
+        self.period = LineEdit(title="Period [s]  \t", callback=None, parent=parent)
+
         self.setLayout(vstack([
             self.node_selector,
             hstack([
                 vstack([
                     self.params_view,
                     self.save_button,
+                    self.motor,
+                    self.topic,
+                    self.value,
+                    self.period,
                 ]),
                 vstack([
                     self.pid_loop_selector,
@@ -52,6 +63,26 @@ class PidViewer(QtGui.QWidget):
         ]))
         self.setWindowTitle("PID Plotter")
         self.show()
+
+class SetpointPublisherModel:
+    def __init__(self, node, topic, motor, value, period):
+        self.publisher = SetpointPublisher(node, ControlTopic(topic), motor, value, period)
+
+    def update_motor(self, value):
+        self.publisher.motor = int(value)
+        self.publisher.update()
+
+    def update_topic(self, value):
+        self.publisher.topic = ControlTopic(value)
+        self.publisher.update()
+
+    def update_value(self, value):
+        self.publisher.value = float(value)
+        self.publisher.update()
+
+    def update_period(self, value):
+        self.publisher.period = float(value)
+        self.publisher.update()
 
 class PidFeedbackRecorder():
     nodes = []
@@ -72,6 +103,8 @@ class PidFeedbackRecorder():
 
         self.monitor = NodeStatusMonitor(node)
         self.monitor.on_new_node(self._update_nodes)
+
+        self.setpt_pub = SetpointPublisherModel(node, topic='voltage', motor=1, value=0, period=1)
 
         self.clear()
         self.node.add_handler(uavcan.thirdparty.cvra.motor.feedback.CurrentPID, self._current_pid_callback)
@@ -144,6 +177,11 @@ class PidPlotController:
         self.viewer.params_view.on_edit(self._on_param_edit)
         self.model.params_model.on_new_params(self.viewer.params_view.set)
         self.viewer.save_button.clicked.connect(self._save_params)
+
+        self.viewer.motor.callback = self.model.setpt_pub.update_motor
+        self.viewer.topic.callback = self.model.setpt_pub.update_topic
+        self.viewer.value.callback = self.model.setpt_pub.update_value
+        self.viewer.period.callback = self.model.setpt_pub.update_period
 
         threading.Thread(target=self.run).start()
 
