@@ -24,6 +24,8 @@ void strat_collect_wastewater(enum strat_color_t color, float heading);
 bool strat_fill_watertower(void);
 void strat_fill_wastewater_treatment_plant(void);
 
+bool strat_lever_is_full(enum lever_side_t lever_side);
+
 #ifdef __cplusplus
 }
 #endif

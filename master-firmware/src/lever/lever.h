@@ -66,6 +66,9 @@ void lever_pickup(lever_t* lever, se2_t robot_pose, se2_t blocks_pose);
  */
 se2_t lever_deposit(lever_t* lever, se2_t robot_pose);
 
+/* Turn off the pumps and retract */
+void lever_tidy(lever_t* lever);
+
 #ifdef __cplusplus
 }
 #endif

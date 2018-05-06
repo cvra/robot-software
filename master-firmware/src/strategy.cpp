@@ -386,6 +386,29 @@ void strat_push_the_bee_v2(point_t start, float bee_height, float forward_motion
     trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
 }
 
+bool strat_lever_is_full(enum lever_side_t lever_side)
+{
+    bool full = true;
+
+    if (lever_side == LEVER_SIDE_LEFT) {
+        messagebus_topic_t* topic = messagebus_find_topic(&bus, "/lever/left");
+        if (messagebus_topic_read(topic, &full, sizeof(full))) {
+            return full;
+        } else {
+            WARNING("No left lever detected");
+        }
+    } else {
+        messagebus_topic_t* topic = messagebus_find_topic(&bus, "/lever/right");
+        if (messagebus_topic_read(topic, &full, sizeof(full))) {
+            return full;
+        } else {
+            WARNING("No right lever detected");
+        }
+    }
+
+    return full;
+}
+
 struct PickupCubes : actions::PickupCubes {
     enum strat_color_t m_color;
 
@@ -440,6 +463,16 @@ struct PickupCubes : actions::PickupCubes {
         strategy_wait_ms(1000);
 
         lever_retract(lever);
+        if (!strat_lever_is_full(MIRROR_LEVER(m_color, lever_side))) {
+            WARNING("No cubes found, waiting for confirmation");
+            strategy_wait_ms(200);
+            if (!strat_lever_is_full(MIRROR_LEVER(m_color, lever_side))) {
+                WARNING("No cubes found confirmed. Abort mission!");
+                lever_tidy(lever);
+                state.blocks_on_map[blocks_id] = false;
+                return false;
+            }
+        }
         strategy_wait_ms(500);
 
         if (lever_side == LEVER_SIDE_LEFT) {
