@@ -74,20 +74,20 @@ master:
                 retracted: 0.00088
     ballgun:
         servo:
-            deployed_fully: 0.001
-            deployed: 0.0014
-            retracted: 0.00192
+            deployed_fully: 0.00141
+            deployed: 0.00182 # 1.9 for throw
+            retracted: 0.002275
             channel: 1
         turbine:
             arm: 0.00154
-            charge: 0.00193
-            fire: 0.00135
-            slowfire: 0.00135
+            charge: 0.00181
+            fire: 0.00131
+            slowfire: 0.00141
             channel: 0
         accelerator:
-            charge: -6.0
-            fire: 6.0
-            slowfire: 0.8
+            charge: -50.0
+            fire: 200.0
+            slowfire: 50.0
     main_arm:
         control:
             x:
@@ -290,6 +290,27 @@ actuator:
             mode: 0 # openloop
             low_batt_th: 12.
     ball-accelerator:
+        encoders:
+          primary:
+            p: 49
+            q: 676
+            ticks_per_rev: 4096
+        motor:
+            torque_cst: 1.
         control:
-            mode: 0 # openloop
-            low_batt_th: 12.
+            mode: 2
+            current:
+                kp: 4.
+                ki: 1500.
+                kd: 0.
+                i_limit: 50.
+            velocity:
+                kp: 5.
+                ki: 30.
+                kd: 0.
+                i_limit: 1000.
+
+            low_batt_th: 5.
+            acceleration_limit: 200.
+            velocity_limit: 1000.
+            torque_limit: 30.
