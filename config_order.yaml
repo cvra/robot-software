@@ -74,9 +74,9 @@ master:
                 retracted: 0.0008
     ballgun:
         servo:
-            deployed_fully: 0.0014
-            deployed: 0.00182 # 1.9 for throw
-            retracted: 0.002265
+            deployed_fully: 0.0010
+            deployed: 0.0014
+            retracted: 0.0019
             channel: 1
         turbine:
             arm: 0.00153
@@ -85,9 +85,9 @@ master:
             slowfire: 0.0014
             channel: 0
         accelerator:
-            charge: -50.0
-            fire: 200.0
-            slowfire: 50.0
+            charge: -3.0
+            fire: 3.0
+            slowfire: 2.0
     main_arm:
         control:
             x:
