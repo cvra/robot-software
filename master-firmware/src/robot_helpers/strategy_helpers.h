@@ -32,6 +32,7 @@ enum lever_side_t {
 #define MIRROR_A(color, a_deg) (color == YELLOW ? (a_deg) : 180. - (a_deg))
 #define MIRROR(color, value) (color == YELLOW ? (value) : - (value))
 shoulder_mode_t MIRROR_SHOULDER(enum strat_color_t color, shoulder_mode_t mode);
+enum lever_side_t MIRROR_LEVER(enum strat_color_t color, enum lever_side_t side);
 
 /** Auto position robot at requested location, and ensure the correct
  *  position is reached by aligning against walls.

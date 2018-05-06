@@ -463,9 +463,11 @@ struct PickupCubes : actions::PickupCubes {
         strategy_wait_ms(1000);
 
         lever_retract(lever);
-        if (!strat_lever_is_full(lever_side)) {
+        if (!strat_lever_is_full(MIRROR_LEVER(m_color, lever_side))) {
+            WARNING("No cubes found, waiting for confirmation");
             strategy_wait_ms(200);
-            if (!strat_lever_is_full(lever_side)) {
+            if (!strat_lever_is_full(MIRROR_LEVER(m_color, lever_side))) {
+                WARNING("No cubes found confirmed. Abort mission!");
                 lever_tidy(lever);
                 state.blocks_on_map[blocks_id] = false;
                 return false;
