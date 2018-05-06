@@ -44,29 +44,10 @@ class SetpointPublisherWidget(QWidget):
 
         self.model = SetpointPublisherModel(node, topic='voltage', motor=1, value=0, period=1)
 
-        self.motor =  LineEdit(
-            title="Motor CAN ID\t",
-            callback=self.model.update_motor,
-            initial_value=self.model.publisher.motor,
-            parent=parent)
-
-        self.topic =  ComboBox(
-            title="Topic       \t",
-            callback=self.model.update_topic,
-            items=list(ControlTopic),
-            parent=parent)
-
-        self.value =  LineEdit(
-            title="Value       \t",
-            callback=self.model.update_value,
-            initial_value=self.model.publisher.value,
-            parent=parent)
-
-        self.period = LineEdit(
-            title="Period [s]  \t",
-            callback=self.model.update_period,
-            initial_value=self.model.publisher.period,
-            parent=parent)
+        self.motor =  LineEdit(title="Motor CAN ID\t", callback=self.model.update_motor, parent=parent)
+        self.topic =  ComboBox(title="Topic       \t", callback=self.model.update_topic, items=list(ControlTopic), parent=parent)
+        self.value =  LineEdit(title="Value       \t", callback=self.model.update_value, parent=parent)
+        self.period = LineEdit(title="Period [s]  \t", callback=self.model.update_period, parent=parent)
 
         self.setLayout(vstack([
             self.motor,
