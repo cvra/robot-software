@@ -463,13 +463,15 @@ struct PickupCubes : actions::PickupCubes {
         strategy_wait_ms(1000);
 
         lever_retract(lever);
-        strategy_wait_ms(500);
-
         if (!strat_lever_is_full(lever_side)) {
-            lever_tidy(lever);
-            state.blocks_on_map[blocks_id] = false;
-            return false;
+            strategy_wait_ms(200);
+            if (!strat_lever_is_full(lever_side)) {
+                lever_tidy(lever);
+                state.blocks_on_map[blocks_id] = false;
+                return false;
+            }
         }
+        strategy_wait_ms(500);
 
         if (lever_side == LEVER_SIDE_LEFT) {
             state.lever_full_left = true;
