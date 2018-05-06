@@ -62,8 +62,8 @@ static THD_FUNCTION(ballgun_module_thd, arg)
     ballgun_set_callbacks(&main_ballgun, set_servo, NULL);
     ballgun_set_turbine_callbacks(&main_ballgun, set_turbine, NULL);
 
-    static cvra_arm_motor_t ball_accelerator = {.id = "ball-accelerator", .direction = 0, .index = 0};
-    ballgun_set_accelerator_callbacks(&main_ballgun, set_motor_voltage, &ball_accelerator);
+    static cvra_arm_motor_t ball_accelerator = {.id = "ball-accelerator", .direction = 1, .index = 0};
+    ballgun_set_accelerator_callbacks(&main_ballgun, set_motor_velocity, &ball_accelerator);
 
     NOTICE("Ball gun ready to shoot");
 
@@ -87,4 +87,10 @@ void ball_accelerator_voltage(float voltage)
 {
     static cvra_arm_motor_t ball_accelerator = {.id = "ball-accelerator", .direction = 0, .index = 0};
     set_motor_voltage(&ball_accelerator, voltage);
+}
+
+void ball_accelerator_velocity(float velocity)
+{
+    static cvra_arm_motor_t ball_accelerator = {.id = "ball-accelerator", .direction = 1, .index = 0};
+    set_motor_velocity(&ball_accelerator, velocity);
 }
