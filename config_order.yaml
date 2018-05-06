@@ -85,6 +85,7 @@ master:
             slowfire: 0.0014
             channel: 0
         accelerator:
+            mode: "voltage"
             charge: -3.0
             fire: 3.0
             slowfire: 2.0

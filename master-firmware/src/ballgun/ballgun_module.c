@@ -1,5 +1,6 @@
 #include <ch.h>
 
+#include <string.h>
 #include <error/error.h>
 
 #include <arms/cvra_arm_motors.h>
@@ -30,6 +31,14 @@ static void set_turbine(void* ballgun, float speed)
 
 static void ballgun_update_settings(ballgun_t* ballgun, parameter_namespace_t* ns)
 {
+    char mode[10];
+    parameter_string_get(parameter_find(ns, "accelerator/mode"), mode, sizeof(mode));
+    if (strcmp(mode, "voltage") == 0) {
+        ballgun_set_accelerator_callbacks(ballgun, set_motor_voltage, ballgun->accelerator_args);
+    } else {
+        ballgun_set_accelerator_callbacks(ballgun, set_motor_velocity, ballgun->accelerator_args);
+    }
+
     float deployed = parameter_scalar_get(parameter_find(ns, "servo/deployed"));
     float retracted = parameter_scalar_get(parameter_find(ns, "servo/retracted"));
     float deployed_fully = parameter_scalar_get(parameter_find(ns, "servo/deployed_fully"));
@@ -58,12 +67,13 @@ static THD_FUNCTION(ballgun_module_thd, arg)
     parameter_namespace_t* main_ballgun_params = parameter_namespace_find(&master_config, "ballgun");
 
     ballgun_init(&main_ballgun);
-    ballgun_update_settings(&main_ballgun, main_ballgun_params);
     ballgun_set_callbacks(&main_ballgun, set_servo, NULL);
     ballgun_set_turbine_callbacks(&main_ballgun, set_turbine, NULL);
 
     static cvra_arm_motor_t ball_accelerator = {.id = "ball-accelerator", .direction = 1, .index = 0};
     ballgun_set_accelerator_callbacks(&main_ballgun, set_motor_velocity, &ball_accelerator);
+
+    ballgun_update_settings(&main_ballgun, main_ballgun_params);
 
     NOTICE("Ball gun ready to shoot");
 

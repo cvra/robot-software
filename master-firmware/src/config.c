@@ -94,6 +94,8 @@ static struct {
         parameter_t charge;
         parameter_t fire;
         parameter_t slowfire;
+        parameter_t mode;
+        char mode_buffer[10];
     } accelerator;
 } ballgun;
 
@@ -260,6 +262,9 @@ void config_init(void)
     parameter_scalar_declare_with_default(&ballgun.accelerator.charge, &ballgun.accelerator.ns, "charge", 0);
     parameter_scalar_declare_with_default(&ballgun.accelerator.fire, &ballgun.accelerator.ns, "fire", 0);
     parameter_scalar_declare_with_default(&ballgun.accelerator.slowfire, &ballgun.accelerator.ns, "slowfire", 0);
+    parameter_string_declare_with_default(&ballgun.accelerator.mode, &ballgun.accelerator.ns, "mode",
+                                          ballgun.accelerator.mode_buffer, sizeof(ballgun.accelerator.mode_buffer),
+                                          "voltage");
 
     parameter_namespace_declare(&arms_config, &master_config, "arms");
 
