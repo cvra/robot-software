@@ -1,6 +1,7 @@
 import enum
 import logging
 import time
+import threading
 
 import uavcan
 
@@ -28,15 +29,22 @@ class SetpointPublisher():
         self.motor = motor
         self.value = value
         self.period = period
-        self.handle = node.node.periodic(period, self._publish)
+        self.lock = threading.RLock()
+        self.handle = node.node.periodic(0.01, self._publish)
         self.logger = logging.getLogger('SetpointPublisher')
-        self.count = 0
+        threading.Thread(target=self._update).start()
 
     def _publish(self):
-        logging.info('Setpoint: {} {} to motor {} at period {}s'.format(self.topic, self.value, self.motor, self.period))
-        self.node.node.broadcast(self.topic(node_id=self.motor, value=self.value if self.count % 2 == 0 else - self.value))
-        self.count += 1
+        with self.lock:
+            logging.info('Setpoint: {} {} to motor {} at period {}s'.format(self.topic, self.value, self.motor, self.period))
+            self.node.node.broadcast(self.topic(node_id=self.motor, value=self.value))
+
+    def _update(self):
+        while True:
+            time.sleep(self.period)
+            with self.lock:
+                self.value *= -1
 
     def update(self):
         self.handle.remove()
-        self.handle = self.node.node.periodic(self.period, self._publish)
+        self.handle = self.node.node.periodic(0.01, self._publish)
