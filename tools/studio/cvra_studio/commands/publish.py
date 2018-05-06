@@ -4,14 +4,14 @@ import sys
 import time
 
 from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QApplication, QPushButton, QWidget, QLineEdit, QLabel, QComboBox
+from PyQt5.QtWidgets import QApplication, QWidget
 
 import uavcan
 
 from ..network.UavcanNode import UavcanNode
 from ..network.SetpointPublisher import ControlTopic, SetpointPublisher
-from ..viewers.Selector import Selector
 from ..viewers.helpers import vstack, hstack
+from ..viewers.wrappers import LineEdit, ComboBox
 
 def argparser(parser=None):
     parser = parser or argparse.ArgumentParser(description=__doc__)
@@ -20,41 +20,6 @@ def argparser(parser=None):
     parser.add_argument("--dsdl", "-d", help="DSDL path", required=True)
 
     return parser
-
-class LineEdit(QWidget):
-    def __init__(self, title, initial_value=0, parent=None, callback=None):
-        super().__init__(parent)
-        self.label = QLabel(title, parent=parent)
-        self.line = QLineEdit(str(initial_value), parent=parent)
-        self.line.returnPressed.connect(self._on_value_change)
-        self.callback = callback
-        self.setLayout(hstack([
-            self.label,
-            self.line,
-        ]))
-
-    def _on_value_change(self):
-        if self.callback:
-            self.callback(self.line.text())
-
-class ComboBox(QWidget):
-    def __init__(self, title, items=[], parent=None, callback=None):
-        super().__init__(parent)
-        self.label = QLabel(title, parent=parent)
-        self.combo = QComboBox(parent=parent)
-        for item in items:
-            self.combo.addItem(str(item))
-        self.combo.currentTextChanged.connect(self._on_value_change)
-        self.callback = callback
-        self.setLayout(hstack([
-            self.label,
-            self.combo,
-        ]))
-
-    def _on_value_change(self):
-        print('Value changed', self.combo.currentText())
-        if self.callback:
-            self.callback(self.combo.currentText())
 
 class SetpointPublisherModel:
     def __init__(self, node, topic, motor, value, period):
