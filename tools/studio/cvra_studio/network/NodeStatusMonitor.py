@@ -36,7 +36,7 @@ class NodeStatusMonitor:
 
     def _response_callback(self, event):
         if not event:
-            raise RuntimeError("Remote call timeout")
+            print("Remote call timeout")
 
         board = event.transfer.source_node_id
         name = str(event.response.name)

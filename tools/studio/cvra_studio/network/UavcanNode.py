@@ -26,8 +26,8 @@ class UavcanNode:
                 time.sleep(0.01)
             except uavcan.UAVCANException as ex:
                 print('Node error:', ex)
-                self._uavcan_exit()
-                return
+                # self._uavcan_exit()
+                # return
 
     def _uavcan_exit(self):
         for handler in self.handlers:
