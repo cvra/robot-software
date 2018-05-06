@@ -11,21 +11,23 @@
 - attendre que balise tourne (-> cartes ont boot up)
 - sélectionner couleur -> bras commence à indexer
 - attendre mélodie de turbine ESC
+- canon doit se ranger
 - bras doit se ranger
 
-- mettre la tôle de calage
+- mettre les tôles de calage
+
 - activer le starter sur Ordre
 - attendre fin de calage
 - enlever tôle de calage
 
-- mettre la tôle de calage
-- activer le starter sur Chaos & attendre fin de calage
+- activer le starter sur Chaos
 - attendre fin de calage
 - enlever tôle de calage
 
-- balise RasPi: vérifier que les LED sur les modules BT sont allumés en continue
+- balise RasPi: vérifier que les LED vertes sur les modules BT sont allumées en continu
 - attendre que les arbitres ont monté la séquence de couleur
 - balise RasPi: vérifier LED bleue du BT clignote de temps en temps => séquence couleur est détecté
+- robot: la 3e LED (rouge) depuis la droite (gauche des robots) change d'état à chaque réception de séquence couleur
 
 - mettre les ficelles de start et attendre le décompte
 
@@ -40,3 +42,4 @@
 - vérifier orientation et placement des cubes
 - vérifier distributeur balles pleines
 - vérifier ballon présent et gonflé
+- vérifier que rien ne traine sur la table (papier, reste de ballon, etc)
