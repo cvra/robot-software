@@ -1,4 +1,5 @@
 import enum
+import logging
 import time
 
 import uavcan
@@ -28,8 +29,10 @@ class SetpointPublisher():
         self.value = value
         self.period = period
         self.handle = node.node.periodic(period, self._publish)
+        self.logger = logging.getLogger('SetpointPublisher')
 
     def _publish(self):
+        logging.info('Setpoint: {} {} to motor {} at period {}s'.format(self.topic, self.value, self.motor, self.period))
         self.node.broadcast(self.topic(node_id=self.motor, value=self.value))
         time.sleep(self.period/2)
         self.node.broadcast(self.topic(node_id=self.motor, value=- self.value))
