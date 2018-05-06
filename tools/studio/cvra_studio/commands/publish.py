@@ -27,15 +27,19 @@ class SetpointPublisherModel:
 
     def update_motor(self, value):
         self.publisher.motor = int(value)
+        self.publisher.update()
 
     def update_topic(self, value):
         self.publisher.topic = ControlTopic(value)
+        self.publisher.update()
 
     def update_value(self, value):
         self.publisher.value = float(value)
+        self.publisher.update()
 
     def update_period(self, value):
         self.publisher.period = float(value)
+        self.publisher.update()
 
 class SetpointPublisherWidget(QWidget):
     def __init__(self, node, parent=None):

@@ -30,12 +30,13 @@ class SetpointPublisher():
         self.period = period
         self.handle = node.node.periodic(period, self._publish)
         self.logger = logging.getLogger('SetpointPublisher')
+        self.count = 0
 
     def _publish(self):
         logging.info('Setpoint: {} {} to motor {} at period {}s'.format(self.topic, self.value, self.motor, self.period))
-        self.node.broadcast(self.topic(node_id=self.motor, value=self.value))
-        time.sleep(self.period/2)
-        self.node.broadcast(self.topic(node_id=self.motor, value=- self.value))
+        self.node.node.broadcast(self.topic(node_id=self.motor, value=self.value if self.count % 2 == 0 else - self.value))
+        self.count += 1
 
-    def __del__(self):
+    def update(self):
         self.handle.remove()
+        self.handle = self.node.node.periodic(self.period, self._publish)
