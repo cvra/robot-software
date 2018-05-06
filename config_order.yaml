@@ -85,9 +85,9 @@ master:
             slowfire: 0.0014
             channel: 0
         accelerator:
-            charge: -3.0
-            fire: 3.0
-            slowfire: 2.0
+            charge: -50.0
+            fire: 200.0
+            slowfire: 50.0
     main_arm:
         control:
             x:
@@ -305,12 +305,12 @@ actuator:
                 kd: 0.
                 i_limit: 50.
             velocity:
-                kp: 0.2
-                ki: 2.
+                kp: 5.
+                ki: 30.
                 kd: 0.
-                i_limit: 100.
+                i_limit: 1000.
 
             low_batt_th: 5.
             acceleration_limit: 200.
-            velocity_limit: 50.
+            velocity_limit: 1000.
             torque_limit: 30.
