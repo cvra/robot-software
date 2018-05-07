@@ -293,25 +293,24 @@ actuator:
     ball-accelerator:
         encoders:
           primary:
-            p: 49
-            q: 676
+            p: 1
+            q: 1
             ticks_per_rev: 4096
         motor:
-            torque_cst: 1.
+            torque_cst: 17.3
         control:
             mode: 2
             current:
-                kp: 4.
-                ki: 1500.
+                kp: 1.
+                ki: 150.
                 kd: 0.
-                i_limit: 50.
+                i_limit: 100.
             velocity:
-                kp: 5.
-                ki: 30.
+                kp: 0.5
+                ki: 150.
                 kd: 0.
-                i_limit: 1000.
-
+                i_limit: 100.
             low_batt_th: 5.
-            acceleration_limit: 200.
-            velocity_limit: 1000.
-            torque_limit: 30.
+            acceleration_limit: 5000.
+            velocity_limit: 550.
+            torque_limit: 40.
