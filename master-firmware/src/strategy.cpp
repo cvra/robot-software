@@ -800,14 +800,16 @@ struct EmptyMulticolorWasteWaterCollector : actions::EmptyMulticolorWasteWaterCo
 
 bool strat_fill_watertower(void)
 {
-    ballgun_tidy(&main_ballgun);
     ballgun_deploy(&main_ballgun);
+    strategy_wait_ms(500);
+
+    ballgun_spin(&main_ballgun);
     strategy_wait_ms(500);
 
     ballgun_fire(&main_ballgun);
 
     const auto remaining = (GAME_DURATION * 1000) - trajectory_get_time_ms();
-    const auto delay = std::max(std::min(2000, remaining), 10);
+    const auto delay = std::max(std::min(3000, remaining), 10);
     strategy_wait_ms(delay);
 
     ballgun_tidy(&main_ballgun);
