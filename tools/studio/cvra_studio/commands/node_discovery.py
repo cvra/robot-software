@@ -31,8 +31,8 @@ class NodeStatusViewer:
         formatted_line = "{:5} {:20} {:20} {:20} {:10}"
         print(formatted_line.format("ID", "Name", "Status", "Health", "Uptime"))
         for node in nodes:
-            name = nodes[node]['name']
-            status = nodes[node]['status']
+            name = nodes[node].get('name', '')
+            status = nodes[node].get('status', 'UNKNOWN')
             print(formatted_line.format(node, name, self._display_status(status.mode),
                                         self._display_health(status.health),
                                         self._display_uptime(status.uptime_sec)))
