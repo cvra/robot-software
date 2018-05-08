@@ -149,6 +149,13 @@ void ballgun_slowfire(ballgun_t* ballgun)
     ballgun_unlock(&ballgun->lock);
 }
 
+void ballgun_spin(ballgun_t* ballgun)
+{
+    ballgun_lock(&ballgun->lock);
+    ballgun->set_accelerator(ballgun->accelerator_args, ballgun->accelerator_fire);
+    ballgun_unlock(&ballgun->lock);
+}
+
 void ballgun_tidy(ballgun_t* ballgun)
 {
     ballgun_arm(ballgun);

@@ -76,19 +76,19 @@ master:
         servo:
             deployed_fully: 0.0010
             deployed: 0.0014
-            retracted: 0.0019
+            retracted: 0.00185
             channel: 1
         turbine:
             arm: 0.00153
             charge: 0.0018
-            fire: 0.0013
+            fire: 0.00135
             slowfire: 0.0014
             channel: 0
         accelerator:
-            mode: "voltage"
-            charge: -3.0
-            fire: 3.0
-            slowfire: 2.0
+            mode: "velocity"
+            charge: -100.
+            fire: 200.
+            slowfire: 80.
     main_arm:
         control:
             x:
@@ -293,25 +293,24 @@ actuator:
     ball-accelerator:
         encoders:
           primary:
-            p: 49
-            q: 676
+            p: 1
+            q: 1
             ticks_per_rev: 4096
         motor:
-            torque_cst: 1.
+            torque_cst: 17.3
         control:
             mode: 2
             current:
-                kp: 4.
-                ki: 1500.
+                kp: 1.
+                ki: 150.
                 kd: 0.
-                i_limit: 50.
+                i_limit: 100.
             velocity:
-                kp: 5.
-                ki: 30.
+                kp: 0.5
+                ki: 150.
                 kd: 0.
-                i_limit: 1000.
-
+                i_limit: 100.
             low_batt_th: 5.
-            acceleration_limit: 200.
-            velocity_limit: 1000.
-            torque_limit: 30.
+            acceleration_limit: 5000.
+            velocity_limit: 550.
+            torque_limit: 40.

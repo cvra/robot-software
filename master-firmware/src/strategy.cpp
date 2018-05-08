@@ -710,16 +710,16 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
 void strat_collect_wastewater(enum strat_color_t color, float heading)
 {
     const int shake_amplitude = 7;
-    ballgun_tidy(&main_ballgun);
     ballgun_deploy(&main_ballgun);
-    strategy_wait_ms(1000);
+    strategy_wait_ms(500);
 
     ballgun_charge(&main_ballgun);
+    strategy_wait_ms(500);
 
-    trajectory_a_abs(&robot.traj, MIRROR_A(color, heading - shake_amplitude));
+    trajectory_a_abs(&robot.traj, MIRROR_A(color, heading));
     trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE /*TRAJ_FLAGS_ROTATION*/);
 
-    for (auto i = 0; i < 6; i++) {
+    for (auto i = 0; i < 3; i++) {
         trajectory_a_abs(&robot.traj, MIRROR_A(color, heading + shake_amplitude));
         strategy_wait_ms(500);
         trajectory_a_abs(&robot.traj, MIRROR_A(color, heading - shake_amplitude));
@@ -727,10 +727,9 @@ void strat_collect_wastewater(enum strat_color_t color, float heading)
     }
 
     trajectory_a_abs(&robot.traj, MIRROR_A(color, heading));
-
     strategy_wait_ms(2000);
 
-    trajectory_d_rel(&robot.traj, -50);
+    trajectory_d_rel(&robot.traj, -100);
     trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
 
     ballgun_tidy(&main_ballgun);
@@ -743,7 +742,7 @@ struct EmptyMonocolorWasteWaterCollector : actions::EmptyMonocolorWasteWaterColl
         : m_color(color) {}
 
     bool execute(RobotState &state) {
-        const int x_mm = 0 + 265;
+        const int x_mm = 0 + 250;
         const int y_mm = 840;
         NOTICE("Emptying monocolor waste water collector at %d %d", x_mm, y_mm);
 
@@ -758,7 +757,7 @@ struct EmptyMonocolorWasteWaterCollector : actions::EmptyMonocolorWasteWaterColl
             return false;
         }
 
-        if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, -90), TRAJ_FLAGS_ALL)) {
+        if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, -150), TRAJ_FLAGS_ALL)) {
             return false;
         }
 
@@ -801,14 +800,16 @@ struct EmptyMulticolorWasteWaterCollector : actions::EmptyMulticolorWasteWaterCo
 
 bool strat_fill_watertower(void)
 {
-    ballgun_tidy(&main_ballgun);
     ballgun_deploy(&main_ballgun);
+    strategy_wait_ms(500);
+
+    ballgun_spin(&main_ballgun);
     strategy_wait_ms(500);
 
     ballgun_fire(&main_ballgun);
 
     const auto remaining = (GAME_DURATION * 1000) - trajectory_get_time_ms();
-    const auto delay = std::max(std::min(2000, remaining), 10);
+    const auto delay = std::max(std::min(3000, remaining), 10);
     strategy_wait_ms(delay);
 
     ballgun_tidy(&main_ballgun);
