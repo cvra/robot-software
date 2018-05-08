@@ -1482,6 +1482,15 @@ static void cmd_ballgun(BaseSequentialStream *chp, int argc, char *argv[])
     else                                           { chprintf(chp, "Invalid command: %s", argv[0]); }
 }
 
+static void cmd_ballsense(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    (void)argc;
+    (void)argv;
+
+    bool sense = palReadPad(GPIOG, GPIOG_PIN9);
+
+    chprintf(chp, "Ball sensor value %d\r\n", sense);
+}
 
 // Copy of strat_fill_wastewater_treatment_plant()
 static void cmd_slowfire(BaseSequentialStream *chp, int argc, char *argv[])
@@ -1638,5 +1647,6 @@ const ShellCommand commands[] = {
     {"wrist", cmd_wrist},
     {"speed", cmd_speed},
     {"lever_full", cmd_lever_full},
+    {"ballsense", cmd_ballsense},
     {NULL, NULL}
 };
