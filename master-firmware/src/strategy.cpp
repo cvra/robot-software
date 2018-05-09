@@ -1053,9 +1053,9 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     goap::Goal<RobotState>* goals[] = {
         &switch_goal,
         &pickup_cubes_goal,
+        &wastewater_plant_goal,
         &build_tower_goal[0],
         &build_tower_goal[1],
-        &wastewater_plant_goal,
         // &opponent_panel_goal, // muahaha
     };
 
