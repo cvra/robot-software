@@ -778,14 +778,14 @@ struct EmptyMulticolorWasteWaterCollector : actions::EmptyMulticolorWasteWaterCo
 
     bool execute(RobotState &state) {
         const int x_mm = 2390;
-        const int y_mm = 2000 - 265;
+        const int y_mm = 2000 - 250;
         NOTICE("Emptying multicolor waste water collector at %d %d", x_mm, y_mm);
 
         if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm - 100, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
             return false;
         }
 
-        if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, -180), TRAJ_FLAGS_ALL)) {
+        if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm), y_mm, MIRROR_A(m_color, 120), TRAJ_FLAGS_ALL)) {
             return false;
         }
 
