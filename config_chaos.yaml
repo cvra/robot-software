@@ -86,12 +86,12 @@ master:
             channel: 0
         accelerator:
             mode: "velocity"
-            charge: -50.0
-            fire: 200.0
-            slowfire: 50.0
+            charge: -100.
+            fire: 200.
+            slowfire: 100.
         sense:
             detect_on: true
-            low_threshold: 2
+            low_threshold: 3
             high_threshold: 3
     main_arm:
         control:
