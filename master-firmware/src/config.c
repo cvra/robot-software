@@ -97,6 +97,12 @@ static struct {
         parameter_t mode;
         char mode_buffer[10];
     } accelerator;
+    struct {
+        parameter_namespace_t ns;
+        parameter_t detect_on;
+        parameter_t low_threshold;
+        parameter_t high_threshold;
+    } sense;
 } ballgun;
 
 static parameter_namespace_t arms_config, arms_main_config, motor_offsets_config;
@@ -265,6 +271,11 @@ void config_init(void)
     parameter_string_declare_with_default(&ballgun.accelerator.mode, &ballgun.accelerator.ns, "mode",
                                           ballgun.accelerator.mode_buffer, sizeof(ballgun.accelerator.mode_buffer),
                                           "voltage");
+
+    parameter_namespace_declare(&ballgun.sense.ns, &ballgun.ns, "sense");
+    parameter_boolean_declare_with_default(&ballgun.sense.detect_on, &ballgun.sense.ns, "detect_on", true);
+    parameter_integer_declare_with_default(&ballgun.sense.low_threshold, &ballgun.sense.ns, "low_threshold", 1);
+    parameter_integer_declare_with_default(&ballgun.sense.high_threshold, &ballgun.sense.ns, "high_threshold", 1);
 
     parameter_namespace_declare(&arms_config, &master_config, "arms");
 

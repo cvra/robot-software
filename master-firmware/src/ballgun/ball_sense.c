@@ -22,7 +22,11 @@ static THD_FUNCTION(ball_sense_thd, arg)
     chRegSetThreadName(__FUNCTION__);
 
     ball_sensor_init(&ball_sensor);
-    ball_sensor_configure(&ball_sensor, true, 2, 3);
+    ball_sensor_configure(
+        &ball_sensor,
+        config_get_boolean("master/ballgun/sense/detect_on"),
+        config_get_integer("master/ballgun/sense/low_threshold"),
+        config_get_integer("master/ballgun/sense/high_threshold"));
 
     NOTICE("Ball sensor ready to count balls");
 
