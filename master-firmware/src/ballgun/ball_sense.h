@@ -6,6 +6,8 @@ extern "C" {
 #endif
 
 void ball_sense_start(void);
+unsigned ball_sense_count(void);
+void ball_sense_reset_count(void);
 
 #ifdef __cplusplus
 }

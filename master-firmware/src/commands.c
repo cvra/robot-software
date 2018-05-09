@@ -38,6 +38,7 @@
 #include "pca9685_pwm.h"
 #include "lever/lever_module.h"
 #include "ballgun/ballgun_module.h"
+#include "ballgun/ball_sense.h"
 
 const ShellCommand commands[];
 
@@ -1484,12 +1485,14 @@ static void cmd_ballgun(BaseSequentialStream *chp, int argc, char *argv[])
 
 static void cmd_ballsense(BaseSequentialStream *chp, int argc, char *argv[])
 {
-    (void)argc;
-    (void)argv;
+    if (argc == 1 && strcmp("reset", argv[0]) == 0) {
+        ball_sense_reset_count();
+    }
 
     bool sense = palReadPad(GPIOG, GPIOG_PIN9);
+    unsigned count = ball_sense_count();
 
-    chprintf(chp, "Ball sensor value %d\r\n", sense);
+    chprintf(chp, "Ball sensor value %d | Ball count %u\r\n", sense, count);
 }
 
 // Copy of strat_fill_wastewater_treatment_plant()
