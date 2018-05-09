@@ -168,8 +168,6 @@ struct EmptyMonocolorWasteWaterCollector : public goap::Action<RobotState> {
     {
         state.ballgun_state = BallgunState::CHARGED_MONOCOLOR;
         state.wastewater_monocolor_full = false;
-        state.lever_full_left = false;
-        state.lever_full_right = false;
     }
 };
 

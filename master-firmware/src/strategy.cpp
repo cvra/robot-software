@@ -750,9 +750,6 @@ struct EmptyMonocolorWasteWaterCollector : actions::EmptyMonocolorWasteWaterColl
         lever_deposit(&left_lever, pos);
         lever_deposit(&right_lever, pos);
 
-        state.lever_full_left = false;
-        state.lever_full_right = false;
-
         if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm + 100), y_mm, MIRROR_A(m_color, -180), TRAJ_FLAGS_ALL)) {
             return false;
         }
@@ -841,7 +838,6 @@ struct FireBallGunIntoWaterTower : actions::FireBallGunIntoWaterTower {
         if (res) {
             state.ballgun_state = BallgunState::IS_EMPTY;
             state.balls_in_watertower += 6;
-
         }
 
         return res;
