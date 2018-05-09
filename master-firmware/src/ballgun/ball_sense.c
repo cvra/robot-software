@@ -3,9 +3,12 @@
 
 #include <error/error.h>
 
+#include "ball_sensor.h"
 #include "ball_sense.h"
 
 #define BALL_SENSE_STACKSIZE 512
+
+static ball_sensor_t ball_sensor;
 
 static inline bool ball_sense_read(void)
 {
@@ -17,11 +20,13 @@ static THD_FUNCTION(ball_sense_thd, arg)
     (void) arg;
     chRegSetThreadName(__FUNCTION__);
 
+    ball_sensor_init(&ball_sensor);
+
     NOTICE("Ball sensor ready to count balls");
 
     while (true) {
-        bool sense = ball_sense_read();
-
+        bool measurement = ball_sense_read();
+        ball_sensor_manage(&ball_sensor, measurement);
         chThdSleepMilliseconds(1);
     }
 }

@@ -97,7 +97,7 @@ TEST(ABallSensor, resetsLowCountOnFallingEdge)
 void create_ball_sensor_pulse(ball_sensor_t* sensor, std::vector<bool> pulse)
 {
     for (const auto measurement : pulse) {
-        ball_sensor_update(sensor, measurement);
+        ball_sensor_manage(sensor, measurement);
     }
 }
 
@@ -120,4 +120,39 @@ TEST(ABallSensor, detectsPulse)
     create_ball_sensor_pulse(&sensor, {false, false, false, true, true, true});
 
     CHECK_EQUAL(true, ball_sensor_detect_pulse(&sensor, 2, 3));
+}
+
+TEST(ABallSensor, ignoresTooLongPulse)
+{
+    create_ball_sensor_pulse(&sensor, {false, false, false, true, true, true, true});
+
+    CHECK_EQUAL(false, ball_sensor_detect_pulse(&sensor, 2, 3));
+}
+
+void create_ball_sensor_pulse_ball(ball_sensor_t* sensor, unsigned ball_count)
+{
+    for (unsigned i = 0; i < ball_count; i++) {
+        create_ball_sensor_pulse(sensor, {false, false, false, true, true, true});
+    }
+}
+
+TEST(ABallSensor, countsNoBallOnStableLowSignal)
+{
+    create_ball_sensor_pulse(&sensor, {false, false, false});
+
+    CHECK_EQUAL(0, sensor.ball_count);
+}
+
+TEST(ABallSensor, countsBall)
+{
+    create_ball_sensor_pulse_ball(&sensor, 1);
+
+    CHECK_EQUAL(1, sensor.ball_count);
+}
+
+TEST(ABallSensor, countsMultipleBalls)
+{
+    create_ball_sensor_pulse_ball(&sensor, 4);
+
+    CHECK_EQUAL(4, sensor.ball_count);
 }

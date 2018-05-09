@@ -18,6 +18,7 @@ typedef struct {
     bool previous;
     unsigned low_count;
     unsigned high_count;
+    unsigned ball_count;
 } ball_sensor_t;
 
 enum ball_sensor_state_t ball_sensor_state(bool previous, bool current);
@@ -25,6 +26,7 @@ enum ball_sensor_state_t ball_sensor_state(bool previous, bool current);
 void ball_sensor_init(ball_sensor_t* sensor);
 void ball_sensor_update(ball_sensor_t* sensor, bool measurement);
 bool ball_sensor_detect_pulse(ball_sensor_t* sensor, unsigned low_threshold, unsigned high_threshold);
+void ball_sensor_manage(ball_sensor_t* sensor, bool measurement);
 
 #ifdef __cplusplus
 }
