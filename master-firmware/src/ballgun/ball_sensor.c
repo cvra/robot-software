@@ -34,3 +34,11 @@ void ball_sensor_update(ball_sensor_t* sensor, bool measurement)
 
     sensor->previous = measurement;
 }
+
+bool ball_sensor_detect_pulse(ball_sensor_t* sensor, unsigned low_threshold, unsigned high_threshold)
+{
+    if (sensor->high_count >= high_threshold && sensor->low_count >= low_threshold) {
+        return true;
+    }
+    return false;
+}

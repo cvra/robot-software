@@ -1,5 +1,7 @@
 #include <CppUTest/TestHarness.h>
 
+#include <vector>
+
 #include "ballgun/ball_sensor.h"
 
 TEST_GROUP(ABallSensor)
@@ -90,4 +92,32 @@ TEST(ABallSensor, resetsLowCountOnFallingEdge)
     ball_sensor_update(&sensor, false);
 
     CHECK_EQUAL(1, sensor.low_count);
+}
+
+void create_ball_sensor_pulse(ball_sensor_t* sensor, std::vector<bool> pulse)
+{
+    for (const auto measurement : pulse) {
+        ball_sensor_update(sensor, measurement);
+    }
+}
+
+TEST(ABallSensor, ignoresShortPulse)
+{
+    create_ball_sensor_pulse(&sensor, {false, false, false, true});
+
+    CHECK_EQUAL(false, ball_sensor_detect_pulse(&sensor, 2, 3));
+}
+
+TEST(ABallSensor, ignoresShortPrePulse)
+{
+    create_ball_sensor_pulse(&sensor, {false, true, true, true});
+
+    CHECK_EQUAL(false, ball_sensor_detect_pulse(&sensor, 2, 3));
+}
+
+TEST(ABallSensor, detectsPulse)
+{
+    create_ball_sensor_pulse(&sensor, {false, false, false, true, true, true});
+
+    CHECK_EQUAL(true, ball_sensor_detect_pulse(&sensor, 2, 3));
 }

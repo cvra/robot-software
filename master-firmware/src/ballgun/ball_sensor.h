@@ -24,6 +24,7 @@ enum ball_sensor_state_t ball_sensor_state(bool previous, bool current);
 
 void ball_sensor_init(ball_sensor_t* sensor);
 void ball_sensor_update(ball_sensor_t* sensor, bool measurement);
+bool ball_sensor_detect_pulse(ball_sensor_t* sensor, unsigned low_threshold, unsigned high_threshold);
 
 #ifdef __cplusplus
 }
