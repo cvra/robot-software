@@ -14,7 +14,16 @@ enum ball_sensor_state_t {
     BALL_SENSOR_FALLING,
 };
 
+typedef struct {
+    bool previous;
+    unsigned low_count;
+    unsigned high_count;
+} ball_sensor_t;
+
 enum ball_sensor_state_t ball_sensor_state(bool previous, bool current);
+
+void ball_sensor_init(ball_sensor_t* sensor);
+void ball_sensor_update(ball_sensor_t* sensor, bool measurement);
 
 #ifdef __cplusplus
 }
