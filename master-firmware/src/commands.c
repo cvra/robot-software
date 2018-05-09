@@ -1481,6 +1481,13 @@ static void cmd_ballgun(BaseSequentialStream *chp, int argc, char *argv[])
     else if (strcmp("empty", argv[0]) == 0)        { ballgun_deploy_fully(ballgun); ballgun_slowfire(ballgun); }
     else if (strcmp("spin", argv[0]) == 0)         { ballgun_spin(ballgun); }
     else                                           { chprintf(chp, "Invalid command: %s", argv[0]); }
+
+    chprintf(chp, "\r\n");
+    while (chnGetTimeout((BaseChannel*)chp, TIME_IMMEDIATE) != 'c') {
+        chprintf(chp, "%d", (int)palReadPad(GPIOG, GPIOG_PIN9));
+        chThdSleepMilliseconds(1);
+    }
+    chprintf(chp, "\r\n");
 }
 
 static void cmd_ballsense(BaseSequentialStream *chp, int argc, char *argv[])
