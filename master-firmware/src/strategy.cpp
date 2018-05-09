@@ -388,22 +388,23 @@ void strat_push_the_bee_v2(point_t start, float bee_height, float forward_motion
 
 bool strat_lever_is_full(enum lever_side_t lever_side)
 {
-    bool full = true;
+    bool full;
+    messagebus_topic_t *topic;
 
     if (lever_side == LEVER_SIDE_LEFT) {
-        messagebus_topic_t* topic = messagebus_find_topic(&bus, "/lever/left");
-        if (messagebus_topic_read(topic, &full, sizeof(full))) {
-            return full;
-        } else {
-            WARNING("No left lever detected");
-        }
+        topic = messagebus_find_topic(&bus, "/lever/left");
     } else {
-        messagebus_topic_t* topic = messagebus_find_topic(&bus, "/lever/right");
-        if (messagebus_topic_read(topic, &full, sizeof(full))) {
-            return full;
-        } else {
-            WARNING("No right lever detected");
-        }
+        topic = messagebus_find_topic(&bus, "/lever/right");
+    }
+
+    if (!topic) {
+        WARNING("Could not find lever topic");
+        return true;
+    }
+
+    if (!messagebus_topic_read(topic, &full, sizeof(full))) {
+        WARNING("Lever topic was never published to.");
+        return true;
     }
 
     return full;
