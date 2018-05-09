@@ -22,6 +22,7 @@
 #include "arms/arm.h"
 #include "lever/lever_module.h"
 #include "ballgun/ballgun_module.h"
+#include "ballgun/ball_sense.h"
 #include "config.h"
 #include "control_panel.h"
 #include "main.h"
@@ -835,11 +836,14 @@ struct FireBallGunIntoWaterTower : actions::FireBallGunIntoWaterTower {
             return false;
         }
 
+        ball_sense_reset_count();
+
         auto res = strat_fill_watertower();
         if (res) {
             state.ballgun_state = BallgunState::IS_EMPTY;
-            state.balls_in_watertower += 6;
         }
+
+        state.balls_in_watertower += ball_sense_count();
 
         return res;
     }
@@ -876,10 +880,11 @@ struct FireBallGunIntoWasteWaterTreatmentPlant : actions::FireBallGunIntoWasteWa
             return false;
         }
 
+        ball_sense_reset_count();
         strat_fill_wastewater_treatment_plant();
 
         state.ballgun_state = BallgunState::IS_EMPTY;
-        state.balls_in_wastewater_treatment_plant += 4;
+        state.balls_in_wastewater_treatment_plant += ball_sense_count() / 2;
 
         return true;
     }
