@@ -66,6 +66,7 @@ target.arm:
     - src/strategy/score_counter.cpp
     - src/strategy/color_sequence_server.c
     - src/ballgun/ballgun_module.c
+    - src/ballgun/ball_sense.c
 
 source:
     - src/unix_timestamp.c
