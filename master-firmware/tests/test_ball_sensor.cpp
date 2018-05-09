@@ -136,15 +136,28 @@ void create_ball_sensor_pulse_ball(ball_sensor_t* sensor, unsigned ball_count)
     }
 }
 
-TEST(ABallSensor, countsNoBallOnStableLowSignal)
+TEST(ABallSensor, ignoresStableLowSignal)
 {
+    ball_sensor_configure(&sensor, true, 2, 3);
+
     create_ball_sensor_pulse(&sensor, {false, false, false});
+
+    CHECK_EQUAL(0, sensor.ball_count);
+}
+
+TEST(ABallSensor, ignoresNegativePulse)
+{
+    ball_sensor_configure(&sensor, true, 2, 3);
+
+    create_ball_sensor_pulse(&sensor, {true, true, true, false, false, false});
 
     CHECK_EQUAL(0, sensor.ball_count);
 }
 
 TEST(ABallSensor, countsBall)
 {
+    ball_sensor_configure(&sensor, true, 2, 3);
+
     create_ball_sensor_pulse_ball(&sensor, 1);
 
     CHECK_EQUAL(1, sensor.ball_count);
@@ -152,6 +165,8 @@ TEST(ABallSensor, countsBall)
 
 TEST(ABallSensor, countsMultipleBalls)
 {
+    ball_sensor_configure(&sensor, true, 2, 3);
+
     create_ball_sensor_pulse_ball(&sensor, 4);
 
     CHECK_EQUAL(4, sensor.ball_count);

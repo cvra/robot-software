@@ -46,9 +46,17 @@ bool ball_sensor_detect_pulse(ball_sensor_t* sensor, unsigned low_threshold, uns
 void ball_sensor_manage(ball_sensor_t* sensor, bool measurement)
 {
     ball_sensor_update(sensor, measurement);
-    if (ball_sensor_detect_pulse(sensor, 2, 3)) {
-        if (measurement == true) {
+    if (ball_sensor_detect_pulse(sensor, sensor->low_threshold, sensor->high_threshold)) {
+        if (measurement == sensor->ball_detection_signal) {
             sensor->ball_count++;
         }
     }
+}
+
+void ball_sensor_configure(ball_sensor_t *sensor, bool ball_detection_signal,
+                           unsigned low_threshold, unsigned high_threshold)
+{
+    sensor->ball_detection_signal = ball_detection_signal;
+    sensor->low_threshold = low_threshold;
+    sensor->high_threshold = high_threshold;
 }

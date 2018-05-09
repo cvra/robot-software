@@ -21,6 +21,7 @@ static THD_FUNCTION(ball_sense_thd, arg)
     chRegSetThreadName(__FUNCTION__);
 
     ball_sensor_init(&ball_sensor);
+    ball_sensor_configure(&ball_sensor, true, 2, 3);
 
     NOTICE("Ball sensor ready to count balls");
 
