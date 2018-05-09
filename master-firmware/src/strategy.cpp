@@ -760,10 +760,17 @@ struct EmptyMonocolorWasteWaterCollector : actions::EmptyMonocolorWasteWaterColl
             return false;
         }
 
+        ball_sense_reset_count();
         strat_collect_wastewater(m_color, -180);
 
-        state.ballgun_state = BallgunState::CHARGED_MONOCOLOR;
         state.wastewater_monocolor_full = false;
+
+        if (ball_sense_count() == 0) {
+            NOTICE("No balls collected :( Abort mission!");
+            return false;
+        }
+
+        state.ballgun_state = BallgunState::CHARGED_MONOCOLOR;
 
         return true;
     }
@@ -788,10 +795,17 @@ struct EmptyMulticolorWasteWaterCollector : actions::EmptyMulticolorWasteWaterCo
             return false;
         }
 
+        ball_sense_reset_count();
         strat_collect_wastewater(m_color, 90);
 
-        state.ballgun_state = BallgunState::CHARGED_MULTICOLOR;
         state.wastewater_multicolor_full = false;
+
+        if (ball_sense_count() == 0) {
+            NOTICE("No balls collected :( Abort mission!");
+            return false;
+        }
+
+        state.ballgun_state = BallgunState::CHARGED_MULTICOLOR;
 
         return true;
     }
