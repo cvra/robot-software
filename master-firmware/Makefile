@@ -104,6 +104,7 @@ include $(CHIBIOS)/os/various/shell/shell.mk
 # uGFX (GUI library)
 GFXLIB=../lib/ugfx
 OPT_OS=chibios
+GFXDRIVERS=ginput/touch/STMPE610
 include $(GFXLIB)/gfx.mk
 
 
