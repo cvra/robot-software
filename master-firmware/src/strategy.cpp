@@ -389,6 +389,8 @@ void strat_push_the_bee_v2(point_t start, float bee_height, float forward_motion
 
 bool strat_lever_is_full(enum lever_side_t lever_side)
 {
+    return true; // Temporarily disable this, investigating logic issues
+
     bool full;
     messagebus_topic_t *topic;
 
