@@ -9,6 +9,9 @@
 
 static GHandle score_label;
 static GHandle console;
+static GHandle   ghButton1;
+static GHandle   ghCheckbox1;
+static GHandle   ghSlider1;
 static bool init_done = false;
 
 #define MSG_MAX_LENGTH 128
@@ -48,6 +51,53 @@ static void gui_thread(void *p)
         gwinSetFont(score_label, gdispOpenFont("DejaVuSans32"));
         gwinSetText(score_label, "Score 42", TRUE);
     }
+
+    {
+	    GWidgetInit	wi;
+
+        gwinWidgetClearInit(&wi);
+        wi.g.show = TRUE;
+
+        // Apply the button parameters
+        wi.g.width = 100;
+        wi.g.height = 30;
+        wi.g.y = 100;
+        wi.g.x = 10;
+        wi.text = "Push Button";
+	    ghButton1 = gwinButtonCreate(0, &wi);
+    }
+
+    {
+        GWidgetInit	wi;
+
+        // Apply some default values for GWIN
+        gwinWidgetClearInit(&wi);
+        wi.g.show = TRUE;
+
+        // Apply the checkbox parameters
+        wi.g.width = 100;		// includes text
+        wi.g.height = 20;
+        wi.g.y = 50;
+        wi.g.x = 10;
+        wi.text = "Checkbox";
+
+        // Create the actual checkbox
+        ghCheckbox1 = gwinCheckboxCreate(0, &wi);
+    }
+
+    {
+	    GWidgetInit	wi;
+	    gwinWidgetClearInit(&wi);
+	    wi.g.show = TRUE;
+
+        wi.g.width = 300;		// includes text
+        wi.g.height = 20;
+        wi.g.y = 150;
+        wi.g.x = 10;
+        wi.text = "Test";
+	    ghSlider1 = gwinSliderCreate(0, &wi);
+    }
+
     gwinSetColor(console, White);
     gwinSetBgColor(console, Black);
     gwinClear(console);
