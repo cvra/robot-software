@@ -1469,6 +1469,7 @@ static void cmd_ballgun(BaseSequentialStream *chp, int argc, char *argv[])
     }
 
     ballgun_t* ballgun = &main_ballgun;
+    ball_sense_reset_count();
 
     if      (strcmp("deploy", argv[0]) == 0)       { ballgun_deploy(ballgun); }
     else if (strcmp("deploy_fully", argv[0]) == 0) { ballgun_deploy_fully(ballgun); }
@@ -1488,6 +1489,7 @@ static void cmd_ballgun(BaseSequentialStream *chp, int argc, char *argv[])
         chThdSleepMilliseconds(1);
     }
     chprintf(chp, "\r\n");
+    chprintf(chp, "Ball count %u\r\n", ball_sense_count());
 }
 
 static void cmd_ballsense(BaseSequentialStream *chp, int argc, char *argv[])
