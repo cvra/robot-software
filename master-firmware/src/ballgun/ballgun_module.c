@@ -9,6 +9,7 @@
 #include "pca9685_pwm.h"
 #include "priorities.h"
 
+#include "ball_sense.h"
 #include "ballgun_module.h"
 
 #define BALLGUN_MODULE_STACKSIZE 512
@@ -63,6 +64,9 @@ static THD_FUNCTION(ballgun_module_thd, arg)
 {
     (void) arg;
     chRegSetThreadName(__FUNCTION__);
+
+    /* Run auxiliary thread to read ball sensor */
+    ball_sense_start();
 
     parameter_namespace_t* main_ballgun_params = parameter_namespace_find(&master_config, "ballgun");
 

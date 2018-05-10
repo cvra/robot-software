@@ -89,6 +89,10 @@ master:
             charge: -100.
             fire: 200.
             slowfire: 80.
+        sense:
+            detect_on: true
+            low_threshold: 2
+            high_threshold: 3
     main_arm:
         control:
             x:
