@@ -91,7 +91,7 @@ static void gui_thread(void *p)
 	    wi.g.show = TRUE;
 
         wi.g.width = 300;		// includes text
-        wi.g.height = 20;
+        wi.g.height = 50;
         wi.g.y = 150;
         wi.g.x = 10;
         wi.text = "Test";
