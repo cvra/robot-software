@@ -64,7 +64,7 @@ master:
             offset_a: 0.    # in rad
             servo:
                 deployed: 0.00085
-                retracted: 0.00213
+                retracted: 0.00207
         left:
             offset_x: 0.    # in mm
             offset_y: 217.5 # in mm

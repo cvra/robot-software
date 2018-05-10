@@ -71,7 +71,7 @@ master:
             offset_a: 0.    # in rad
             servo:
                 deployed: 0.00215
-                retracted: 0.0008
+                retracted: 0.00083
     ballgun:
         servo:
             deployed_fully: 0.0010
