@@ -310,10 +310,10 @@ actuator:
                 kd: 0.
                 i_limit: 200.
             velocity:
-                kp: 1.
-                ki: 150.
+                kp: 3.
+                ki: 0.
                 kd: 0.
-                i_limit: 400.
+                i_limit: 0.
             low_batt_th: 5.
             acceleration_limit: 5000.
             velocity_limit: 550.
