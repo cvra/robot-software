@@ -74,7 +74,7 @@ master:
                 retracted: 0.00088
     ballgun:
         servo:
-            deployed_charge: 0.00141
+            deployed_charge: 0.00197
             deployed_fully: 0.00141
             deployed: 0.00182 # 1.9 for throw
             retracted: 0.00234
