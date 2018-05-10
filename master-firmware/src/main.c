@@ -228,25 +228,6 @@ int main(void)
                         MAX_NB_BUS_ENUMERATOR_ENTRIES);
 
 
-    static __attribute__((section(".ccm"))) motor_driver_t motor_driver_buffer[MAX_NB_MOTOR_DRIVERS];
-
-    motor_manager_init(&motor_manager,
-                       motor_driver_buffer,
-                       MAX_NB_MOTOR_DRIVERS,
-                       &bus_enumerator);
-
-    /* Initialize motors */
-    init_base_motors();
-    init_arm_motors();
-    init_lever_motors();
-    init_ballgun_motors();
-
-    /* Load stored robot config */
-    config_load_from_flash();
-
-    control_panel_init(config_get_boolean("master/control_panel_active_high"));
-
-    /* Start IP over Ethernet */
     struct netif *ethernet_if;
 
     ip_thread_init();
@@ -262,27 +243,6 @@ int main(void)
     uavcan_node_start(10);
 
     /* Base init */
-    encoder_start();
-    robot_init();
-    base_controller_start();
-    position_manager_start();
-    trajectory_manager_start();
-
-    /* Arms init */
-    arms_init();
-    arms_controller_start();
-    arm_trajectory_manager_start(&main_arm);
-
-    /* Lever arms init */
-    lever_module_start();
-
-    /* Ball gun module start */
-    ballgun_module_start();
-
-    /* Initialize strategy thread, will wait for signal to begin game */
-    strategy_start();
-
-    stream_init();
 
     /* Initializes a serial-over-USB CDC driver.  */
     sduObjectInit(&SDU1);
