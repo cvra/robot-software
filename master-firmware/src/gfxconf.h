@@ -73,13 +73,13 @@
 #define GWIN_NEED_WIDGET    TRUE
 // #define GWIN_FOCUS_HIGHLIGHT_WIDTH                   1
     #define GWIN_NEED_LABEL TRUE
-//    #define GWIN_NEED_BUTTON                         FALSE
+    #define GWIN_NEED_BUTTON                         TRUE
 //        #define GWIN_BUTTON_LAZY_RELEASE             FALSE
-//    #define GWIN_NEED_SLIDER                         FALSE
-//        #define GWIN_SLIDER_NOSNAP                   FALSE
+#define GWIN_NEED_SLIDER                         TRUE
+#define GWIN_SLIDER_NOSNAP                   TRUE
 //        #define GWIN_SLIDER_DEAD_BAND                5
 //        #define GWIN_SLIDER_TOGGLE_INC               20
-//    #define GWIN_NEED_CHECKBOX                       FALSE
+#define GWIN_NEED_CHECKBOX                       TRUE
 //    #define GWIN_NEED_RADIO                          FALSE
 //    #define GWIN_NEED_PROGRESSBAR                    FALSE
 //        #define GWIN_PROGRESSBAR_AUTO                FALSE
