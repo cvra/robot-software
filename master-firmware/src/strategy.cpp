@@ -714,7 +714,7 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
 void strat_collect_wastewater(enum strat_color_t color, float heading)
 {
     const int shake_amplitude = 7;
-    ballgun_deploy(&main_ballgun);
+    ballgun_deploy_charge(&main_ballgun);
     strategy_wait_ms(500);
 
     ballgun_charge(&main_ballgun);

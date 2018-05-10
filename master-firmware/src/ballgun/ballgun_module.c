@@ -43,8 +43,9 @@ static void ballgun_update_settings(ballgun_t* ballgun, parameter_namespace_t* n
     float deployed = parameter_scalar_get(parameter_find(ns, "servo/deployed"));
     float retracted = parameter_scalar_get(parameter_find(ns, "servo/retracted"));
     float deployed_fully = parameter_scalar_get(parameter_find(ns, "servo/deployed_fully"));
+    float deployed_charge = parameter_scalar_get(parameter_find(ns, "servo/deployed_charge"));
 
-    ballgun_set_servo_range(ballgun, retracted, deployed, deployed_fully);
+    ballgun_set_servo_range(ballgun, retracted, deployed, deployed_fully, deployed_charge);
 
     float arm = parameter_scalar_get(parameter_find(ns, "turbine/arm"));
     float charge = parameter_scalar_get(parameter_find(ns, "turbine/charge"));

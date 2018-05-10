@@ -12,6 +12,7 @@ typedef enum {
     BALLGUN_RETRACTED,
     BALLGUN_DEPLOYED,
     BALLGUN_DEPLOYED_FULLY,
+    BALLGUN_DEPLOYED_CHARGE,
 } ballgun_state_t;
 
 typedef enum {
@@ -37,6 +38,7 @@ typedef struct {
     float servo_retracted_pwm;  // pwm duty cycle in seconds to retract servo
     float servo_deployed_pwm;   // pwm duty cycle in seconds to deploy servo
     float servo_deployed_fully_pwm; // pwm duty cycle in seconds to deploy servo fully
+    float servo_deployed_charge_pwm; // pwm duty cycle in seconds to deploy servo before charge
 
     float turbine_armed_pwm;    // pwm duty cycle in seconds to arm the turbine ESC
     float turbine_charge_pwm;   // pwm duty cycle in seconds to charge by sucking up
@@ -52,7 +54,7 @@ typedef struct {
 
 /* Initialize ballgun */
 void ballgun_init(ballgun_t* ballgun);
-void ballgun_set_servo_range(ballgun_t* ballgun, float retracted, float deployed, float deployed_fully);
+void ballgun_set_servo_range(ballgun_t* ballgun, float retracted, float deployed, float deployed_fully, float deployed_charge);
 void ballgun_set_turbine_range(ballgun_t *ballgun, float armed, float charge, float fire, float slowfire);
 void ballgun_set_accelerator_range(ballgun_t *ballgun, float charge, float fire, float slowfire);
 
@@ -65,6 +67,7 @@ void ballgun_set_accelerator_callbacks(ballgun_t* ballgun, void (*set_accelerato
 /* Deploy ballgun */
 void ballgun_deploy(ballgun_t* ballgun);
 void ballgun_deploy_fully(ballgun_t* ballgun);
+void ballgun_deploy_charge(ballgun_t* ballgun);
 
 /* Retract ballgun */
 void ballgun_retract(ballgun_t* ballgun);

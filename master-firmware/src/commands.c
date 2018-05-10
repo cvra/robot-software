@@ -1477,7 +1477,7 @@ static void cmd_check_dist(BaseSequentialStream *chp, int argc, char *argv[])
 static void cmd_ballgun(BaseSequentialStream *chp, int argc, char *argv[])
 {
     if (argc != 1) {
-        chprintf(chp, "Usage: ballgun deploy|deploy_fully|retract|arm|charge|fire|slowfire|tidy|empty|spin\r\n");
+        chprintf(chp, "Usage: ballgun deploy|deploy_charge|deploy_fully|retract|arm|charge|fire|slowfire|tidy|empty|spin\r\n");
         return;
     }
 
@@ -1485,6 +1485,7 @@ static void cmd_ballgun(BaseSequentialStream *chp, int argc, char *argv[])
     ball_sense_reset_count();
 
     if      (strcmp("deploy", argv[0]) == 0)       { ballgun_deploy(ballgun); }
+    else if (strcmp("deploy_charge", argv[0]) == 0) { ballgun_deploy_charge(ballgun); }
     else if (strcmp("deploy_fully", argv[0]) == 0) { ballgun_deploy_fully(ballgun); }
     else if (strcmp("retract", argv[0]) == 0)      { ballgun_retract(ballgun); }
     else if (strcmp("arm", argv[0]) == 0)          { ballgun_arm(ballgun); }

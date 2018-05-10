@@ -79,6 +79,7 @@ static struct {
         parameter_t retracted;
         parameter_t deployed;
         parameter_t deployed_fully;
+        parameter_t deployed_charge;
         parameter_t channel;
     } servo;
     struct {
@@ -252,6 +253,7 @@ void config_init(void)
     parameter_namespace_declare(&ballgun.ns, &master_config, "ballgun");
 
     parameter_namespace_declare(&ballgun.servo.ns, &ballgun.ns, "servo");
+    parameter_scalar_declare_with_default(&ballgun.servo.deployed_charge, &ballgun.servo.ns, "deployed_charge", 0);
     parameter_scalar_declare_with_default(&ballgun.servo.deployed_fully, &ballgun.servo.ns, "deployed_fully", 0);
     parameter_scalar_declare_with_default(&ballgun.servo.deployed, &ballgun.servo.ns, "deployed", 0);
     parameter_scalar_declare_with_default(&ballgun.servo.retracted, &ballgun.servo.ns, "retracted", 0);
