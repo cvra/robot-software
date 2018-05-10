@@ -76,7 +76,7 @@ master:
         servo:
             deployed_fully: 0.00141
             deployed: 0.00182 # 1.9 for throw
-            retracted: 0.002275
+            retracted: 0.00234
             channel: 1
         turbine:
             arm: 0.00154
