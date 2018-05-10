@@ -1476,7 +1476,11 @@ static void cmd_ballgun(BaseSequentialStream *chp, int argc, char *argv[])
     else if (strcmp("retract", argv[0]) == 0)      { ballgun_retract(ballgun); }
     else if (strcmp("arm", argv[0]) == 0)          { ballgun_arm(ballgun); }
     else if (strcmp("charge", argv[0]) == 0)       { ballgun_charge(ballgun); }
-    else if (strcmp("fire", argv[0]) == 0)         { ballgun_fire(ballgun); }
+    else if (strcmp("fire", argv[0]) == 0)         {
+        ballgun_spin(ballgun);
+        chThdSleepMilliseconds(500);
+        ballgun_fire(ballgun);
+    }
     else if (strcmp("slowfire", argv[0]) == 0)     { ballgun_slowfire(ballgun); }
     else if (strcmp("tidy", argv[0]) == 0)         { ballgun_tidy(ballgun); }
     else if (strcmp("empty", argv[0]) == 0)        { ballgun_deploy_fully(ballgun); ballgun_slowfire(ballgun); }
