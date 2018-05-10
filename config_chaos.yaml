@@ -88,7 +88,7 @@ master:
             mode: "velocity"
             charge: -100.
             fire: 200.
-            slowfire: 40.
+            slowfire: 20.
         sense:
             detect_on: true
             low_threshold: 3
