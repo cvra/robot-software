@@ -293,7 +293,7 @@ bool strat_check_distance_to_hand_lower_than(float expected_value)
     messagebus_topic_t* topic = messagebus_find_topic_blocking(&bus, "/hand_distance");
 
     if (messagebus_topic_read(topic, &distance_to_tower, sizeof(distance_to_tower))) {
-        WARNING("Hand distance sensor is not publishing");
+        WARNING("Hand distance: %f", distance_to_tower);
         success = (distance_to_tower < expected_value);
     } else {
         WARNING("Hand distance sensor is not publishing");
@@ -692,7 +692,7 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
         state.construction_zone[construction_zone_id % 2].cubes_ready[state.tower_sequence[level]] = false;
 
         if (!strat_pick_cube(cube_pos.x, cube_pos.y)) {
-            WARNING("No cube to pick up at %d %d", cube_pos.x, cube_pos.y);
+            WARNING("No cube to pick up at %f %f", cube_pos.x, cube_pos.y);
             return false;
         }
 
