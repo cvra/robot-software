@@ -1278,6 +1278,19 @@ static void cmd_lever(BaseSequentialStream *chp, int argc, char *argv[])
     else if (strcmp("deposit", argv[1]) == 0) { blocks_pose = lever_deposit(lever, robot_pose); }
     else if (strcmp("retpush", argv[1]) == 0) { lever_push_and_retract(lever); }
     else if (strcmp("tidy", argv[1]) == 0)    { lever_tidy(lever); }
+    else if (strcmp("get", argv[1]) == 0) {
+        lever_deploy(lever);
+        lever_pickup(lever, robot_pose, blocks_pose);
+        chThdSleepMilliseconds(1000);
+        lever_retract(lever);
+    }
+    else if (strcmp("put", argv[1]) == 0) {
+        lever_deploy(lever);
+        chThdSleepMilliseconds(500);
+        blocks_pose = lever_deposit(lever, robot_pose);
+        chThdSleepMilliseconds(500);
+        lever_push_and_retract(lever);
+    }
     else                                      { chprintf(chp, "Invalid command: %s", argv[1]); }
 
     chprintf(chp, "Blocks at x:%f y:%f a:%f\r\n",
