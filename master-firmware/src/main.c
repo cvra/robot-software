@@ -51,7 +51,7 @@ void init_ballgun_motors(void);
 motor_manager_t motor_manager;
 
 // debug UART
-#define DEBUG_UART_BAUDRATE 921600
+#define DEBUG_UART_BAUDRATE 115200
 static const SerialConfig debug_uart_config = {
     .speed = DEBUG_UART_BAUDRATE,
     .cr1 = 0,
