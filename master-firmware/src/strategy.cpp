@@ -270,6 +270,9 @@ void strat_scara_goto_blocking(position_3d_t pos, scara_coordinate_t system, vel
 {
     scara_goto(&main_arm, pos, system, max_vel);
     arm_traj_wait_for_end();
+
+    position_3d_t arm_pos = scara_position(&main_arm, system);
+    NOTICE("Arm at %f %f %f in system %d", arm_pos.x, arm_pos.y, arm_pos.z, (int)system);
 }
 
 void strat_scara_push_x(float dx, scara_coordinate_t system, velocity_3d_t max_vel)
