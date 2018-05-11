@@ -1609,6 +1609,30 @@ static void cmd_lever_full(BaseSequentialStream *chp, int argc, char *argv[])
     chprintf(chp, "right lever: %d\r\n", strat_lever_is_full(LEVER_SIDE_RIGHT));
 }
 
+static void cmd_panel_status(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    (void)argc;
+    (void)argv;
+
+    messagebus_topic_t *topic;
+    topic = messagebus_find_topic(&bus, "/panel_contact_us");
+
+    if (!topic) {
+        chprintf(chp, "Could not find topic.\r\n");
+        return;
+    }
+
+    uint32_t last_contact_time;
+    if (messagebus_topic_read(topic, &last_contact_time, sizeof(last_contact_time))) {
+        uint32_t current_time_us = timestamp_get();
+        uint32_t delta = current_time_us - last_contact_time;
+        chprintf(chp, "Last seen the panel %.2f seconds ago.\r\n", delta / 1e6);
+    } else {
+        chprintf(chp, "never seen that panel mate.\r\n");
+    }
+}
+
+
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
@@ -1678,5 +1702,6 @@ const ShellCommand commands[] = {
     {"speed", cmd_speed},
     {"lever_full", cmd_lever_full},
     {"ballsense", cmd_ballsense},
+    {"panel", cmd_panel_status},
     {NULL, NULL}
 };
