@@ -64,6 +64,18 @@ int main(void)
     /* All services should be initialized by now, we can load the config. */
     parameter_flash_storage_load(&parameter_root, &_config_start);
 
+    {
+        messagebus_topic_t *state_topic = messagebus_find_topic_blocking(&bus, "/ekf/state");
+        position_estimation_msg_t state_msg;
+
+        // Just tell the world that we are an awake
+        state_msg.x = -10000;
+        state_msg.variance_x = 0.01;
+        state_msg.variance_y = 0.01;
+
+        messagebus_topic_publish(state_topic, &state_msg, sizeof(state_msg));
+    }
+
     while(true) {
         chThdSleepMilliseconds(1000);
     }
