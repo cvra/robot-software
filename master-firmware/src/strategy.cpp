@@ -289,27 +289,36 @@ struct RetractArms : actions::RetractArms {
     }
 };
 
+void strat_scara_goto(position_3d_t pos, scara_coordinate_t system, velocity_3d_t max_vel, int watched_events)
+{
+    NOTICE("Moving arm to %.1f %.1f %.1f in system %d", pos.x, pos.y, pos.z, (int)system);
+    scara_goto(&main_arm, pos, system, max_vel);
+    arm_traj_wait_for_event(watched_events);
+
+    position_3d_t arm_pos = scara_position(&main_arm, system);
+    NOTICE("Arm at %.1f %.1f %.1f in system %d", arm_pos.x, arm_pos.y, arm_pos.z, (int)system);
+}
+
 void strat_scara_goto_blocking(position_3d_t pos, scara_coordinate_t system, velocity_3d_t max_vel)
 {
+    NOTICE("Moving arm to %.1f %.1f %.1f in system %d", pos.x, pos.y, pos.z, (int)system);
     scara_goto(&main_arm, pos, system, max_vel);
     arm_traj_wait_for_end();
 
     position_3d_t arm_pos = scara_position(&main_arm, system);
-    NOTICE("Arm at %f %f %f in system %d", arm_pos.x, arm_pos.y, arm_pos.z, (int)system);
+    NOTICE("Arm at %.1f %.1f %.1f in system %d", arm_pos.x, arm_pos.y, arm_pos.z, (int)system);
 }
 
 void strat_scara_push_x(float dx, scara_coordinate_t system, velocity_3d_t max_vel)
 {
     const position_3d_t last_pos = scara_position(&main_arm, system);
-    scara_goto(&main_arm, {last_pos.x + dx, last_pos.y, last_pos.z}, system, max_vel);
-    arm_traj_wait_for_event(ARM_READY | ARM_BLOCKED_XY);
+    strat_scara_goto({last_pos.x + dx, last_pos.y, last_pos.z}, system, max_vel, ARM_READY | ARM_BLOCKED_XY);
 }
 
 void strat_scara_push_y(float dy, scara_coordinate_t system, velocity_3d_t max_vel)
 {
     const position_3d_t last_pos = scara_position(&main_arm, system);
-    scara_goto(&main_arm, {last_pos.x, last_pos.y + dy, last_pos.z}, system, max_vel);
-    arm_traj_wait_for_event(ARM_READY | ARM_BLOCKED_XY);
+    strat_scara_goto({last_pos.x, last_pos.y + dy, last_pos.z}, system, max_vel, ARM_READY | ARM_BLOCKED_XY);
 }
 
 bool strat_check_distance_to_hand_lower_than(float expected_value)
@@ -334,11 +343,8 @@ bool strat_pick_cube(float x, float y)
     const position_3d_t last_pos = scara_position(&main_arm, COORDINATE_TABLE);
     strat_scara_goto_blocking({x, y, last_pos.z}, COORDINATE_TABLE, {300, 300, 300});
 
-    scara_goto(&main_arm, {x, y, 80}, COORDINATE_TABLE, {300, 300, 300});
-    arm_traj_wait_for_end();
-
-    scara_goto(&main_arm, {x, y, 60}, COORDINATE_TABLE, {200, 200, 200});
-    arm_traj_wait_for_event(ARM_READY | ARM_BLOCKED_Z);
+    strat_scara_goto({x, y, 80}, COORDINATE_TABLE, {300, 300, 300}, ARM_READY);
+    strat_scara_goto({x, y, 60}, COORDINATE_TABLE, {200, 200, 200}, ARM_READY | ARM_BLOCKED_Z);
 
     bool cube_is_present = strat_check_distance_to_hand_lower_than(0.05f);
 
