@@ -713,7 +713,7 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
 
 void strat_collect_wastewater(enum strat_color_t color, float heading)
 {
-    const int shake_amplitude = 7;
+    const int SHAKE_AMPLITUDE_DEG = 7;
     ballgun_deploy_charge(&main_ballgun);
     strategy_wait_ms(500);
 
@@ -723,15 +723,25 @@ void strat_collect_wastewater(enum strat_color_t color, float heading)
     trajectory_a_abs(&robot.traj, MIRROR_A(color, heading));
     trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE /*TRAJ_FLAGS_ROTATION*/);
 
+    // open dispenser
+    trajectory_a_abs(&robot.traj, MIRROR_A(color, heading + SHAKE_AMPLITUDE_DEG+3));
+    strategy_wait_ms(500);
+
+    // move closer
+    trajectory_a_abs(&robot.traj, MIRROR_A(color, heading));
+    strategy_wait_ms(500);
+    trajectory_d_rel(&robot.traj, 10);
+    strategy_wait_ms(500);
+
     for (auto i = 0; i < 3; i++) {
-        trajectory_a_abs(&robot.traj, MIRROR_A(color, heading + shake_amplitude));
+        trajectory_a_abs(&robot.traj, MIRROR_A(color, heading - SHAKE_AMPLITUDE_DEG));
         strategy_wait_ms(500);
-        trajectory_a_abs(&robot.traj, MIRROR_A(color, heading - shake_amplitude));
+        trajectory_a_abs(&robot.traj, MIRROR_A(color, heading + SHAKE_AMPLITUDE_DEG));
         strategy_wait_ms(500);
     }
 
     trajectory_a_abs(&robot.traj, MIRROR_A(color, heading));
-    strategy_wait_ms(2000);
+    strategy_wait_ms(500);
 
     trajectory_d_rel(&robot.traj, -100);
     trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
@@ -746,7 +756,7 @@ struct EmptyMonocolorWasteWaterCollector : actions::EmptyMonocolorWasteWaterColl
         : m_color(color) {}
 
     bool execute(RobotState &state) {
-        const int x_mm = 0 + 250;
+        const int x_mm = 0 + 240;
         const int y_mm = 840;
         NOTICE("Emptying monocolor waste water collector at %d %d", x_mm, y_mm);
 
