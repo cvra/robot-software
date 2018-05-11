@@ -33,7 +33,7 @@ static THD_FUNCTION(score_counter_thd, arg)
         NOTICE("Received strategy state");
 
         int score = 0;
-        if (config_get_boolean("master/is_main_robot")) {
+        if (!config_get_boolean("master/is_main_robot")) {
             score += score_count_bee_on_map(state);
             score += score_count_panel_on_map(state);
         }

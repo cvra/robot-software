@@ -1059,6 +1059,7 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
 
     InitGoal init_goal;
 
+    BeeGoal bee_goal;
     SwitchGoal switch_goal;
     PickupCubesGoal pickup_cubes_goal;
     WasteWaterGoal wastewater_plant_goal;
@@ -1067,16 +1068,18 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     goap::Goal<RobotState>* goals[] = {
         &switch_goal,
         &pickup_cubes_goal,
-        &wastewater_plant_goal,
+        &bee_goal,
         &build_tower_goal[0],
         &build_tower_goal[1],
+        &wastewater_plant_goal,
         // &opponent_panel_goal, // muahaha
     };
 
     IndexArms index_arms;
     RetractArms retract_arms(color);
+    DeployTheBee deploy_the_bee(color);
     PickupCubes pickup_cubes[2] = {
-        PickupCubes(color, 0), PickupCubes(color, 3),
+        PickupCubes(color, 0), PickupCubes(color, 2),
     };
     TurnSwitchOn turn_switch_on(color);
     EmptyMulticolorWasteWaterCollector empty_wastewater_multicolor(color);
@@ -1118,6 +1121,7 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
         &build_tower_lvl[1][2],
         &build_tower_lvl[1][3],
         &turn_opponent_switch_off,
+        &deploy_the_bee,
     };
 
     static goap::Planner<RobotState> planner(actions, sizeof(actions) / sizeof(actions[0]));
