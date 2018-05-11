@@ -116,7 +116,7 @@ master:
         motor_offsets:
             z-joint: -275. # in mm
             shoulder-joint: 0. # in radians
-            elbow-joint: 0. # in radians
+            elbow-joint: 0.014701783 # in radians
 
 actuator:
     left-wheel:
