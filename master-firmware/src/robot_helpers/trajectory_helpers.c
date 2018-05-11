@@ -29,8 +29,9 @@ int trajectory_wait_for_end(int watched_end_reasons)
         chThdSleepMilliseconds(1);
 #endif
     }
-    NOTICE("End of trajectory reason %d at %d %d",
-           traj_end_reason, position_get_x_s16(&robot.pos), position_get_y_s16(&robot.pos));
+    NOTICE("End of trajectory reason %d at %d %d %d",
+           traj_end_reason, position_get_x_s16(&robot.pos), position_get_y_s16(&robot.pos),
+           position_get_a_deg_s16(&robot.pos));
 
     return traj_end_reason;
 }
