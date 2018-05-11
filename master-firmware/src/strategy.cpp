@@ -161,7 +161,8 @@ bool strategy_goto_avoid(int x_mm, int y_mm, int a_deg, int traj_end_flags)
     }
 
     if (end_reason == TRAJ_END_GOAL_REACHED) {
-        trajectory_only_a_abs(&robot.traj, a_deg);
+        strategy_wait_ms(200);
+        trajectory_a_abs(&robot.traj, a_deg);
         trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
 
         DEBUG("Goal reached successfully");
