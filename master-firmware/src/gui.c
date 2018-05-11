@@ -58,19 +58,18 @@ static void gui_thread(void *p)
     chThdSleepMilliseconds(1000);
     messagebus_topic_t *score_topic = messagebus_find_topic_blocking(&bus, "/score");
     while (true) {
+        static char buffer[64];
+        int score;
+        if (messagebus_topic_read(score_topic, &score, sizeof(score))) {
+            sprintf(buffer, "Score: %d", score);
+            gwinSetText(score_label, buffer, TRUE);
+        }
+
         char *msg;
         msg_t res = chMBFetch(&msg_mailbox, (msg_t *)&msg, MS2ST(500));
-
         if (res == MSG_OK) {
             gwinPrintf(console, msg);
             chPoolFree(&msg_pool, msg);
-        } else {
-            static char buffer[64];
-            int score;
-            if (messagebus_topic_read(score_topic, &score, sizeof(score))) {
-                sprintf(buffer, "Score: %d", score);
-                gwinSetText(score_label, buffer, TRUE);
-            }
         }
     }
 }

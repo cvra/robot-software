@@ -33,6 +33,7 @@
 #include "strategy/state.h"
 #include "strategy/score_counter.h"
 #include "strategy/color_sequence_server.h"
+#include "timestamp/timestamp.h"
 
 
 static enum strat_color_t wait_for_color_selection(void);
@@ -206,6 +207,28 @@ bool strategy_goto_avoid_retry(int x_mm, int y_mm, int a_deg, int traj_end_flags
     }
 
     return finished;
+}
+
+static void update_panel_state_from_uwb(RobotState &state)
+{
+    messagebus_topic_t *topic;
+    timestamp_t last_contact;
+    topic = messagebus_find_topic(&bus, "/panel_contact_us");
+
+    messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
+
+    if (topic) {
+        if (messagebus_topic_read(topic, &last_contact, sizeof(last_contact))) {
+            auto delta = timestamp_duration_s(last_contact, timestamp_get());
+            if (delta < 3.) {
+                state.switch_on = true;
+            } else {
+                state.switch_on = false;
+            }
+
+            messagebus_topic_publish(state_topic, &state, sizeof(RobotState));
+        }
+    }
 }
 
 struct IndexArms : actions::IndexArms {
@@ -1189,6 +1212,8 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
             NOTICE("Asking GOAP to shut down this panel.");
             state.opponent_panel_on = true;
         }
+
+        update_panel_state_from_uwb(state);
         strategy_wait_ms(10);
     }
 
