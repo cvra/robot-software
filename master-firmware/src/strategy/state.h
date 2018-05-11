@@ -6,13 +6,13 @@
 #include "scara/scara_kinematics.h"
 
 const int NUM_BLOCK_OF_CUBES = 6;
-const uint16_t BLOCK_OF_CUBES_POS[NUM_BLOCK_OF_CUBES][2] = {
+const int BLOCK_OF_CUBES_POS[NUM_BLOCK_OF_CUBES][2] = {
     {850, 540}, {300, 1190}, {1100, 1500}, {1900, 1500}, {2700, 1190}, {2150, 540},
 };
 
 const int NUM_CONSTRUCTION_ZONES = 2;
 const int NUM_TOWERS = 4;
-const uint16_t CONSTRUCTION_ZONE_POS[NUM_TOWERS][2] = {
+const int CONSTRUCTION_ZONE_POS[NUM_TOWERS][2] = {
     {416, 100}, {502, 154}, {934, 100}, {847, 144},
 };
 const int16_t CONSTRUCTION_HEADING[NUM_TOWERS] = {
