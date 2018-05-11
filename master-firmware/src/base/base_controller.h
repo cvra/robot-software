@@ -14,8 +14,8 @@ extern "C" {
 #include "blocking_detection_manager/blocking_detection_manager.h"
 
 /** Frequency of the regulation loop and odometry loop (in Hz) */
-#define ASSERV_FREQUENCY 200
-#define ODOM_FREQUENCY   200
+#define ASSERV_FREQUENCY 100
+#define ODOM_FREQUENCY   100
 
 /**
  @brief Type of the regulators
