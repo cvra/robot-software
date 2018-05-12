@@ -497,7 +497,7 @@ struct PickupCubes : actions::PickupCubes {
 
         lever_deploy(lever);
         lever_pickup(lever, base_get_robot_pose(&robot.pos), cubes_pose);
-        strategy_wait_ms(1000);
+        strategy_wait_ms(1300);
 
         lever_retract(lever);
         if (!strat_lever_is_full(MIRROR_LEVER(m_color, lever_side))) {
