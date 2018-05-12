@@ -1103,7 +1103,7 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
         &wastewater_plant_goal,
         &build_tower_goal[0],
         &build_tower_goal[1],
-        // &opponent_panel_goal, // muahaha
+        &opponent_panel_goal, // muahaha
     };
 
     IndexArms index_arms;
