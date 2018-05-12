@@ -16,7 +16,7 @@
 
 #include "control.h"
 
-#define LOW_BATT_TH 12.f // [V]
+#define LOW_BATT_TH 5.f // [V]
 #define DEFAULT_CTRL_TIMEOUT 0.3f // [s]
 
 struct pid_param_s {
