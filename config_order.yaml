@@ -22,15 +22,15 @@ master:
     aversive:
         control:
             angle:
-                kp: 3
-                ki: 0.
-                kd: 20.
-                i_limit: 1000.
+                kp: 4.
+                ki: 0.3
+                kd: 40.
+                i_limit: 100.
             distance:
                 kp: 2.
-                ki: 0.
+                ki: 0.01
                 kd: 25.
-                i_limit: 5000.
+                i_limit: 100.
         trajectories:
             angle:
                 speed: # in rad / s
