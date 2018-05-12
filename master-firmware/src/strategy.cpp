@@ -459,7 +459,7 @@ struct PickupCubes : actions::PickupCubes {
     {
         const int x_mm = BLOCK_OF_CUBES_POS[blocks_id][0];
         const int y_mm = BLOCK_OF_CUBES_POS[blocks_id][1];
-        NOTICE("Picking up some blocks at %d %d", MIRROR_X(m_color, x_mm), y_mm);
+        NOTICE("Picking up some blocks at %.1f %.1f", MIRROR_X(m_color, x_mm), y_mm);
 
         enum lever_side_t lever_side = LEVER_SIDE_LEFT;
         lever_t* lever = MIRROR_LEFT_LEVER(m_color);
