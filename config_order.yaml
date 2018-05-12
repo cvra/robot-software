@@ -13,9 +13,9 @@ master:
     calibration_direction: 1 # calibration side is on the front
     odometry:
         external_encoder_ticks_per_mm: 163.62917844 # Computed 162.974661726
-        external_track_mm: 201.70553588             # CAD 202
-        left_wheel_correction_factor: 1.00042057    # Calibrated
-        right_wheel_correction_factor: -0.999578714 # Calibrated
+        external_track_mm: 202.43815612
+        left_wheel_correction_factor: 1.00033247    # Calibrated
+        right_wheel_correction_factor: -0.99966681 # Calibrated
     beacon:
         reflector_radius: 0.04 # in meters
         angular_offset: 0. # in radians
