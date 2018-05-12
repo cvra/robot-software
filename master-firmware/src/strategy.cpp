@@ -156,7 +156,7 @@ bool strategy_goto_avoid(int x_mm, int y_mm, int a_deg, int traj_end_flags)
             end_reason = trajectory_wait_for_end(traj_end_flags | TRAJ_END_NEAR_GOAL);
         }
 
-        if (end_reason != TRAJ_END_GOAL_REACHED) {
+        if (end_reason != TRAJ_END_GOAL_REACHED && end_reason != TRAJ_END_NEAR_GOAL) {
             break;
         }
     }
