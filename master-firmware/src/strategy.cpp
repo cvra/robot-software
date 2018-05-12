@@ -1226,6 +1226,10 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     // Avoid burning the ball gun by deploying it
     ballgun_deploy(&main_ballgun);
 
+    // Check that opponent didn't switch off our panel
+    strategy_wait_ms(3000);
+    update_panel_state_from_uwb(state);
+
     NOTICE("Game ended!");
     while (true) {
         strategy_wait_ms(1000);
