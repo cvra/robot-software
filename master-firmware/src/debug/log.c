@@ -56,11 +56,11 @@ static void log_message(struct error *e, ...)
         va_end(va);
     }
 
-    if (e->severity >= get_level_parameter(&params.uart.level)) {
-        va_start(va, e);
-        gui_log_console(e, va);
-        va_end(va);
-    }
+    // if (e->severity >= get_level_parameter(&params.uart.level)) {
+    //     va_start(va, e);
+    //     gui_log_console(e, va);
+    //     va_end(va);
+    // }
 
     chMtxUnlock(&log_lock);
 }
