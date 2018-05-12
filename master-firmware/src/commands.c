@@ -743,21 +743,25 @@ static void cmd_wheel_calibration(BaseSequentialStream *chp, int argc, char *arg
     int32_t start_angle = rs_get_angle(&robot.rs);
     int32_t start_distance = rs_get_distance(&robot.rs);
 
+    trajectory_d_rel(&robot.traj, - robot.calibration_direction * 100.);
+    trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
+
+
     /* Start calibration sequence and do it N times */
     while(count--) {
         chprintf(chp, "%d left !\n", count);
-        trajectory_d_rel(&robot.traj, - robot.calibration_direction * 1200.);
+        trajectory_d_rel(&robot.traj, - robot.calibration_direction * 800.);
         trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
         trajectory_a_rel(&robot.traj, 180.);
         trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
-        trajectory_d_rel(&robot.traj, - robot.calibration_direction * 1100.);
+        trajectory_d_rel(&robot.traj, - robot.calibration_direction * 800.);
         trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
         trajectory_a_rel(&robot.traj, -180.);
         trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
     }
 
-    trajectory_d_rel(&robot.traj, robot.calibration_direction * 75.);
-    trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
+    //trajectory_d_rel(&robot.traj, robot.calibration_direction * 75.);
+    //trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
 
     /* Take reference again at the wall */
     trajectory_align_with_wall();
