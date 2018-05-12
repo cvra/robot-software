@@ -795,10 +795,6 @@ struct EmptyMonocolorWasteWaterCollector : actions::EmptyMonocolorWasteWaterColl
         const int y_mm = 840;
         NOTICE("Emptying monocolor waste water collector at %d %d", x_mm, y_mm);
 
-        se2_t pos;
-        lever_deposit(&left_lever, pos);
-        lever_deposit(&right_lever, pos);
-
         if (!strategy_goto_avoid(MIRROR_X(m_color, x_mm + 100), y_mm, MIRROR_A(m_color, -180), TRAJ_FLAGS_ALL)) {
             return false;
         }
