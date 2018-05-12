@@ -495,6 +495,7 @@ struct PickupCubes : actions::PickupCubes {
             }
         }
 
+        strategy_wait_ms(300);
         lever_deploy(lever);
         lever_pickup(lever, base_get_robot_pose(&robot.pos), cubes_pose);
         strategy_wait_ms(1300);
