@@ -932,6 +932,15 @@ struct FireBallGunIntoWasteWaterTreatmentPlant : actions::FireBallGunIntoWasteWa
         state.ballgun_state = BallgunState::IS_EMPTY;
         state.balls_in_wastewater_treatment_plant += ball_sense_count() / 2;
 
+        NOTICE("Getting out of drop zone");
+        int res;
+        do {
+            const int retreat_x_mm = 2390;
+            const int retreat_y_mm = 2000 - 240 - 200;
+            trajectory_goto_backward_xy_abs(&robot. traj, MIRROR_X(m_color, retreat_x_mm), retreat_y_mm);
+            res = trajectory_wait_for_end(TRAJ_FLAGS_ALL);
+        } while (res != TRAJ_END_GOAL_REACHED && res != TRAJ_END_TIMER);
+
         return true;
     }
 };
