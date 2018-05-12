@@ -38,6 +38,22 @@ static THD_FUNCTION(map_server_thd, arg)
     RobotState state;
     messagebus_topic_t* strategy_state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
+    static messagebus_watcher_t watchers[3];
+
+    static struct {
+        mutex_t lock;
+        condition_variable_t cv;
+        messagebus_watchgroup_t group;
+    } watchgroup;
+
+    chMtxObjectInit(&watchgroup.lock);
+    chCondObjectInit(&watchgroup.cv);
+
+    messagebus_watchgroup_init(&watchgroup.group, &watchgroup.lock, &watchgroup.cv);
+    messagebus_watchgroup_watch(&watchers[0], &watchgroup.group, proximity_beacon_topic);
+    messagebus_watchgroup_watch(&watchers[1], &watchgroup.group, allied_position_topic);
+    messagebus_watchgroup_watch(&watchers[2], &watchgroup.group, strategy_state_topic);
+
     NOTICE("Map initialized");
     while (true) {
         robot_size = config_get_integer("master/robot_size_x_mm");
@@ -88,7 +104,7 @@ static THD_FUNCTION(map_server_thd, arg)
             }
         }
 
-        chThdSleepMilliseconds(1000 / MAP_SERVER_FREQUENCY);
+        messagebus_watchgroup_wait(&watchgroup.group);
     }
 }
 

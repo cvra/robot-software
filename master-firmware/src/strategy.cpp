@@ -1074,6 +1074,7 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
             for (int i = 0; i < len; i++) {
                 bool success = path[i]->execute(state);
                 messagebus_topic_publish(state_topic, &state, sizeof(state));
+                chThdYield();
                 if (success == false) {
                     break; // Break on failure
                 }
