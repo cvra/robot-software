@@ -176,14 +176,46 @@ TEST(Strategy, CanNotPushTheBeeWhenBeeIsNotOnTheMap)
     CHECK_TRUE(len < 0);
 }
 
-TEST(Strategy, CanPickupCubes)
+TEST(Strategy, CanPickupOneBlockCubes)
 {
-    PickupCubesGoal goal;
+    PickupCubesGoal goal(0);
 
     int len = compute_and_execute_plan(goal, state);
 
     CHECK_TRUE(len > 0);
     CHECK_TRUE(goal.is_reached(state));
+}
+
+TEST(Strategy, CanPickupTwoBlocksOfCubes)
+{
+    std::array<PickupCubesGoal, 2> goal = {0, 1};
+
+    int len0 = compute_and_execute_plan(goal[0], state);
+    CHECK_TRUE(len0 > 0);
+
+    int len1 = compute_and_execute_plan(goal[1], state);
+    CHECK_TRUE(len1 > 0);
+
+    CHECK_TRUE(goal[0].is_reached(state));
+    CHECK_TRUE(goal[1].is_reached(state));
+}
+
+TEST(Strategy, CanPickupTwoBlocksOfCubesOnly)
+{
+    std::array<PickupCubesGoal, 3> goal = {0, 1, 2};
+
+    int len0 = compute_and_execute_plan(goal[0], state);
+    CHECK_TRUE(len0 > 0);
+
+    int len1 = compute_and_execute_plan(goal[1], state);
+    CHECK_TRUE(len1 > 0);
+
+    int len2 = compute_and_execute_plan(goal[2], state);
+    CHECK_TRUE(len2 <= 0);
+
+    CHECK_TRUE(goal[0].is_reached(state));
+    CHECK_TRUE(goal[1].is_reached(state));
+    CHECK_FALSE(goal[2].is_reached(state));
 }
 
 TEST(Strategy, CanBuildTower)

@@ -39,7 +39,8 @@ struct PickupCubes : public goap::Action<RobotState> {
     {
         return state.arms_are_deployed == false
             && (state.lever_full_right == false || state.lever_full_left == false)
-            && state.blocks_on_map[blocks_id] == true;
+            && state.blocks_on_map[blocks_id] == true
+            && state.blocks_picked < 2 /* Limit to 2 blocks successfully picked */;
     }
 
     void plan_effects(RobotState &state)
@@ -50,6 +51,7 @@ struct PickupCubes : public goap::Action<RobotState> {
             state.lever_full_left = true;
         }
         state.blocks_on_map[blocks_id] = false;
+        state.blocks_picked++;
     }
 };
 

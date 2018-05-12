@@ -26,11 +26,12 @@ struct BeeGoal : goap::Goal<RobotState> {
 };
 
 struct PickupCubesGoal : goap::Goal<RobotState> {
+    int block_id;
+
+    PickupCubesGoal(int block_id_) : block_id(block_id_) {}
     virtual int distance_to(const RobotState &state) const
     {
-        return goap::Distance()
-            .shouldBeTrue(state.lever_full_left)
-            .shouldBeTrue(state.lever_full_right);
+        return goap::Distance().shouldBeFalse(state.blocks_on_map[block_id]);
     }
 };
 

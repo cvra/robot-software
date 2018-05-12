@@ -518,6 +518,7 @@ struct PickupCubes : actions::PickupCubes {
             state.lever_full_right = true;
         }
         state.blocks_on_map[blocks_id] = false;
+        state.blocks_picked++;
 
         return true;
     }
@@ -966,11 +967,12 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
     InitGoal init_goal;
 
     BeeGoal bee_goal;
-    PickupCubesGoal pickup_cubes_goal;
+    PickupCubesGoal pickup_cubes_goal[2] = {PickupCubesGoal(1), PickupCubesGoal(2)};
     WaterTowerGoal watertower_goal;
     BuildTowerGoal build_tower_goal[2] = {BuildTowerGoal(0), BuildTowerGoal(1)};
     goap::Goal<RobotState>* goals[] = {
-        &pickup_cubes_goal,
+        &pickup_cubes_goal[0],
+        &pickup_cubes_goal[1],
         &bee_goal,
         &build_tower_goal[0],
         &build_tower_goal[1],
@@ -1093,13 +1095,14 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     InitGoal init_goal;
 
     SwitchGoal switch_goal;
-    PickupCubesGoal pickup_cubes_goal;
+    PickupCubesGoal pickup_cubes_goal[2] = {PickupCubesGoal(0), PickupCubesGoal(3)};
     WasteWaterGoal wastewater_plant_goal;
     BuildTowerGoal build_tower_goal[2] = {BuildTowerGoal(2), BuildTowerGoal(3)};
     OpponentPanelGoal opponent_panel_goal;
     goap::Goal<RobotState>* goals[] = {
         &switch_goal,
-        &pickup_cubes_goal,
+        &pickup_cubes_goal[0],
+        &pickup_cubes_goal[1],
         &wastewater_plant_goal,
         &build_tower_goal[0],
         &build_tower_goal[1],
