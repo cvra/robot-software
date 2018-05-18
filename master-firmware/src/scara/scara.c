@@ -136,7 +136,7 @@ void scara_manage(scara_t *arm)
     scara_waypoint_t frame = scara_position_for_date(arm, current_date);
 
     shoulder_mode_t mode = scara_orientation_mode(arm->shoulder_mode, arm->offset_rotation);
-    scara_joint_setpoints_t joint_setpoints;
+    scara_joint_setpoints_t joint_setpoints = {};
 
     if (arm->control_mode == CONTROL_CARTESIAN) {
         scara_ik_controller_set_geometry(&arm->ik_controller, frame.length);

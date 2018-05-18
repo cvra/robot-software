@@ -42,10 +42,6 @@ void scara_trajectory_append_point(scara_trajectory_t *traj, position_3d_t pos,
         scara_panic();
     }
 
-    if (traj->frames == NULL) {
-        scara_panic();
-    }
-
     traj->frames[traj->frame_count-1].position.x = pos.x;
     traj->frames[traj->frame_count-1].position.y = pos.y;
     traj->frames[traj->frame_count-1].position.z = pos.z;
