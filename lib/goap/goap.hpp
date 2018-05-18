@@ -25,6 +25,7 @@ public:
     /** Tries to execute the task and returns true if it suceeded. */
     virtual bool execute(State &state) = 0;
 
+    virtual ~Action() = default;
 };
 
 template<typename State>
@@ -38,6 +39,8 @@ public:
 
     /** Computes the distance from state to goal. */
     virtual int distance_to(const State &state) const = 0;
+
+    virtual ~Goal() = default;
 };
 
 template<typename State, int N = 100>
