@@ -1,5 +1,6 @@
 #include <CppUTest/TestHarness.h>
 #include <vector>
+#include <array>
 
 #include "strategy/goals.h"
 #include "strategy/actions.h"
@@ -188,7 +189,7 @@ TEST(Strategy, CanPickupOneBlockCubes)
 
 TEST(Strategy, CanPickupTwoBlocksOfCubes)
 {
-    std::array<PickupCubesGoal, 2> goal = {0, 1};
+    std::array<PickupCubesGoal, 2> goal = {{{0}, {1}}};
 
     int len0 = compute_and_execute_plan(goal[0], state);
     CHECK_TRUE(len0 > 0);
@@ -202,7 +203,7 @@ TEST(Strategy, CanPickupTwoBlocksOfCubes)
 
 TEST(Strategy, CanPickupTwoBlocksOfCubesOnly)
 {
-    std::array<PickupCubesGoal, 3> goal = {0, 1, 2};
+    std::array<PickupCubesGoal, 3> goal = {{{0}, {1}, {2}}};
 
     int len0 = compute_and_execute_plan(goal[0], state);
     CHECK_TRUE(len0 > 0);
