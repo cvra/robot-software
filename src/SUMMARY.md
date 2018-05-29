@@ -6,5 +6,5 @@
 - [IO board](./io.md)
 - [Sensor board](./sensor.md)
 - [Beacon board](./beacon.md)
-- [CAN USB dongle](./dongle.md)
+- [CAN USB adapter](./adapter.md)
 - [CAN bootloader](./bootloader.md)
