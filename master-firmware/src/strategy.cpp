@@ -843,7 +843,7 @@ void strat_collect_wastewater(enum strat_color_t color, float heading)
     // move closer
     trajectory_a_abs(&robot.traj, MIRROR_A(color, heading));
     strategy_wait_ms(500);
-    trajectory_d_rel(&robot.traj, 10);
+    trajectory_d_rel(&robot.traj, 15);
     strategy_wait_ms(500);
 
     for (auto i = 0; i < 3; i++) {
