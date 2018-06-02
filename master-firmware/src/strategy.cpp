@@ -449,11 +449,11 @@ bool strat_lever_is_full(enum lever_side_t lever_side)
     return full;
 }
 
-struct PickupCubes : actions::PickupCubes {
+struct PickupCubesLeft : actions::PickupCubesLeft {
     enum strat_color_t m_color;
 
-    PickupCubes(enum strat_color_t color, int blocks_id)
-        : actions::PickupCubes(blocks_id)
+    PickupCubesLeft(enum strat_color_t color, int blocks_id)
+        : actions::PickupCubesLeft(blocks_id)
         , m_color(color)
     {
     }
@@ -464,15 +464,8 @@ struct PickupCubes : actions::PickupCubes {
         const int y_mm = BLOCK_OF_CUBES_POS[blocks_id][1];
         NOTICE("Picking up some blocks at %.1f %.1f", MIRROR_X(m_color, x_mm), y_mm);
 
-        enum lever_side_t lever_side = LEVER_SIDE_LEFT;
         lever_t* lever = MIRROR_LEFT_LEVER(m_color);
         int offset_a_deg = 0;
-
-        if (state.lever_full_left) {
-            lever_side = LEVER_SIDE_RIGHT;
-            lever = MIRROR_RIGHT_LEVER(m_color);
-            offset_a_deg = 180;
-        }
 
         se2_t cubes_pose = se2_create_xya(MIRROR_X(m_color, x_mm), y_mm, 0);
         std::array<se2_t, 4> pickup_poses = {
@@ -504,23 +497,68 @@ struct PickupCubes : actions::PickupCubes {
         strategy_wait_ms(1300);
 
         lever_retract(lever);
-        if (!strat_lever_is_full(MIRROR_LEVER(m_color, lever_side))) {
-            WARNING("No cubes found, waiting for confirmation");
-            strategy_wait_ms(200);
-            if (!strat_lever_is_full(MIRROR_LEVER(m_color, lever_side))) {
-                WARNING("No cubes found confirmed. Abort mission!");
-                lever_tidy(lever);
-                state.blocks_on_map[blocks_id] = false;
+        strategy_wait_ms(500);
+
+        state.lever_full_left = true;
+        state.blocks_on_map[blocks_id] = false;
+        state.blocks_picked++;
+
+        return true;
+    }
+};
+
+
+struct PickupCubesRight : actions::PickupCubesRight {
+    enum strat_color_t m_color;
+
+    PickupCubesRight(enum strat_color_t color, int blocks_id)
+        : actions::PickupCubesRight(blocks_id)
+        , m_color(color)
+    {
+    }
+
+    bool execute(RobotState &state)
+    {
+        const int x_mm = BLOCK_OF_CUBES_POS[blocks_id][0];
+        const int y_mm = BLOCK_OF_CUBES_POS[blocks_id][1];
+        NOTICE("Picking up some blocks at %.1f %.1f", MIRROR_X(m_color, x_mm), y_mm);
+
+        lever_t* lever = MIRROR_RIGHT_LEVER(m_color);
+        int offset_a_deg = 180;
+
+        se2_t cubes_pose = se2_create_xya(MIRROR_X(m_color, x_mm), y_mm, 0);
+        std::array<se2_t, 4> pickup_poses = {
+            se2_create_xya(MIRROR_X(m_color, x_mm - 155), y_mm - 155, MIRROR_A(m_color, -45)),
+            se2_create_xya(MIRROR_X(m_color, x_mm + 155), y_mm - 155, MIRROR_A(m_color,  45)),
+            se2_create_xya(MIRROR_X(m_color, x_mm + 155), y_mm + 155, MIRROR_A(m_color, 135)),
+            se2_create_xya(MIRROR_X(m_color, x_mm - 155), y_mm + 155, MIRROR_A(m_color, 225)),
+        };
+        strategy_sort_poses_by_distance(
+            base_get_robot_pose(&robot.pos), pickup_poses.data(),
+            pickup_poses.size(), strategy_distance_to_goal);
+
+        for (size_t i = 0; i < pickup_poses.size(); i++) {
+            const int pickup_x_mm = pickup_poses[i].translation.x;
+            const int pickup_y_mm = pickup_poses[i].translation.y;
+            const int pickup_a_deg = pickup_poses[i].rotation.angle + offset_a_deg;
+
+            NOTICE("Going to %d %d %d", pickup_x_mm, pickup_y_mm, pickup_a_deg);
+            if (strategy_goto_avoid(pickup_x_mm, pickup_y_mm, pickup_a_deg, TRAJ_FLAGS_ALL)) {
+                break;
+            } else if (i == pickup_poses.size() - 1) {
                 return false;
             }
         }
+
+        strategy_wait_ms(300);
+        lever_deploy(lever);
+        lever_pickup(lever, base_get_robot_pose(&robot.pos), cubes_pose);
+        strategy_wait_ms(1300);
+
+        lever_retract(lever);
         strategy_wait_ms(500);
 
-        if (lever_side == LEVER_SIDE_LEFT) {
-            state.lever_full_left = true;
-        } else {
-            state.lever_full_right = true;
-        }
+        state.lever_full_right = true;
         state.blocks_on_map[blocks_id] = false;
         state.blocks_picked++;
 
@@ -991,8 +1029,11 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
 
     IndexArms index_arms;
     RetractArms retract_arms(color);
-    PickupCubes pickup_cubes[2] = {
-        PickupCubes(color, 1), PickupCubes(color, 2),
+    PickupCubesRight pickup_cubes_r[2] = {
+        PickupCubesRight(color, 1), PickupCubesRight(color, 2),
+    };
+    PickupCubesLeft pickup_cubes_l[2] = {
+        PickupCubesLeft(color, 1), PickupCubesLeft(color, 2),
     };
     DeployTheBee deploy_the_bee(color);
     DepositCubes deposit_cubes[2] = {
@@ -1017,8 +1058,10 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
     goap::Action<RobotState> *actions[] = {
         &index_arms,
         &retract_arms,
-        &pickup_cubes[0],
-        &pickup_cubes[1],
+        &pickup_cubes_r[0],
+        &pickup_cubes_r[1],
+        &pickup_cubes_l[0],
+        &pickup_cubes_l[1],
         &deploy_the_bee,
         &deposit_cubes[0],
         &deposit_cubes[1],
@@ -1122,8 +1165,11 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
 
     IndexArms index_arms;
     RetractArms retract_arms(color);
-    PickupCubes pickup_cubes[2] = {
-        PickupCubes(color, 0), PickupCubes(color, 3),
+    PickupCubesRight pickup_cubes_r[2] = {
+        PickupCubesRight(color, 0), PickupCubesRight(color, 3),
+    };
+    PickupCubesLeft pickup_cubes_l[2] = {
+        PickupCubesLeft(color, 0), PickupCubesLeft(color, 3),
     };
     TurnSwitchOn turn_switch_on(color);
     EmptyMulticolorWasteWaterCollector empty_wastewater_multicolor(color);
@@ -1149,8 +1195,10 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     goap::Action<RobotState> *actions[] = {
         &index_arms,
         &retract_arms,
-        &pickup_cubes[0],
-        &pickup_cubes[1],
+        &pickup_cubes_r[0],
+        &pickup_cubes_r[1],
+        &pickup_cubes_l[0],
+        &pickup_cubes_l[1],
         &turn_switch_on,
         &empty_wastewater_multicolor,
         &fill_wasterwater_plant,
