@@ -31,25 +31,41 @@ struct RetractArms : public goap::Action<RobotState> {
     }
 };
 
-struct PickupCubes : public goap::Action<RobotState> {
+struct PickupCubesLeft : public goap::Action<RobotState> {
     int blocks_id;
 
-    PickupCubes(int blocks_id_) : blocks_id(blocks_id_) {}
+    PickupCubesLeft(int blocks_id_) : blocks_id(blocks_id_) {}
     bool can_run(const RobotState &state)
     {
         return state.arms_are_deployed == false
-            && (state.lever_full_right == false || state.lever_full_left == false)
+            && state.lever_full_left == false
             && state.blocks_on_map[blocks_id] == true
             && state.blocks_picked < 2 /* Limit to 2 blocks successfully picked */;
     }
 
     void plan_effects(RobotState &state)
     {
-        if (state.lever_full_right == false) {
-            state.lever_full_right = true;
-        } else {
-            state.lever_full_left = true;
-        }
+        state.lever_full_left = true;
+        state.blocks_on_map[blocks_id] = false;
+        state.blocks_picked++;
+    }
+};
+
+struct PickupCubesRight : public goap::Action<RobotState> {
+    int blocks_id;
+
+    PickupCubesRight(int blocks_id_) : blocks_id(blocks_id_) {}
+    bool can_run(const RobotState &state)
+    {
+        return state.arms_are_deployed == false
+            && state.lever_full_right == false
+            && state.blocks_on_map[blocks_id] == true
+            && state.blocks_picked < 2 /* Limit to 2 blocks successfully picked */;
+    }
+
+    void plan_effects(RobotState &state)
+    {
+        state.lever_full_right = true;
         state.blocks_on_map[blocks_id] = false;
         state.blocks_picked++;
     }
