@@ -1048,9 +1048,9 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
         &pickup_cubes_goal[0],
         &pickup_cubes_goal[1],
         &bee_goal,
+        &watertower_goal,
         &build_tower_goal[0],
         &build_tower_goal[1],
-        &watertower_goal,
     };
 
     IndexArms index_arms;
