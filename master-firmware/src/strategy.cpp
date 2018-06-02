@@ -698,6 +698,17 @@ struct DeployTheBee : public actions::DeployTheBee {
         float forward_motion = -160.f;
         strat_push_the_bee_v2(start, bee_height, forward_motion);
 
+        scara_control_mode_joint(&main_arm);
+
+        main_arm.shoulder_mode = MIRROR_SHOULDER(m_color, SHOULDER_BACK);
+        scara_goto(&main_arm, {170., 0., 295.}, COORDINATE_ARM, {300, 300, 300});
+        strategy_wait_ms(500);
+
+        scara_goto(&main_arm, {20., MIRROR(m_color, 90.), 295.}, COORDINATE_ROBOT, {300, 300, 300});
+        strategy_wait_ms(500);
+
+        scara_control_mode_cartesian(&main_arm);
+
         state.bee_deployed = true;
         return true;
     }
