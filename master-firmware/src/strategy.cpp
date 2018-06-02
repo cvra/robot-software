@@ -458,6 +458,19 @@ struct PickupCubesLeft : actions::PickupCubesLeft {
     {
     }
 
+    bool can_run(const RobotState &state)
+    {
+        bool ok = state.arms_are_deployed == false
+            && state.lever_full_left == false
+            && state.blocks_on_map[blocks_id] == true
+            && state.blocks_picked < 2;
+        bool is_order = config_get_boolean("master/is_main_robot");
+        bool is_right_side = (m_color == BLUE);
+        bool is_broken = is_order && is_right_side;
+
+        return ok && !is_broken;
+    }
+
     bool execute(RobotState &state)
     {
         const int x_mm = BLOCK_OF_CUBES_POS[blocks_id][0];
@@ -515,6 +528,19 @@ struct PickupCubesRight : actions::PickupCubesRight {
         : actions::PickupCubesRight(blocks_id)
         , m_color(color)
     {
+    }
+
+    bool can_run(const RobotState &state)
+    {
+        bool ok = state.arms_are_deployed == false
+            && state.lever_full_right == false
+            && state.blocks_on_map[blocks_id] == true
+            && state.blocks_picked < 2;
+        bool is_order = config_get_boolean("master/is_main_robot");
+        bool is_right_side = (m_color == YELLOW);
+        bool is_broken = is_order && is_right_side;
+
+        return ok && !is_broken;
     }
 
     bool execute(RobotState &state)
