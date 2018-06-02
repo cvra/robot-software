@@ -118,8 +118,11 @@ static void strategy_wait_ms(int ms)
 
 void strategy_stop_robot(void)
 {
-    trajectory_hardstop(&robot.traj);
+    trajectory_stop(&robot.traj);
     strategy_wait_ms(200);
+    robot.mode = BOARD_MODE_FREE;
+    strategy_wait_ms(200);
+    robot.mode = BOARD_MODE_ANGLE_DISTANCE;
 }
 
 bool strategy_goto_avoid(int x_mm, int y_mm, int a_deg, int traj_end_flags)
@@ -173,8 +176,8 @@ bool strategy_goto_avoid(int x_mm, int y_mm, int a_deg, int traj_end_flags)
         control_panel_set(LED_PC);
         strategy_stop_robot();
         strategy_wait_ms(100);
-        control_panel_clear(LED_PC);
         strategy_stop_robot();
+        control_panel_clear(LED_PC);
         WARNING("Stopping robot because opponent too close");
     } else if (end_reason == TRAJ_END_COLLISION) {
         strategy_stop_robot();
