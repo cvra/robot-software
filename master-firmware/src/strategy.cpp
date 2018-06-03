@@ -897,7 +897,7 @@ struct EmptyMulticolorWasteWaterCollector : actions::EmptyMulticolorWasteWaterCo
         : m_color(color) {}
 
     bool execute(RobotState &state) {
-        const int x_mm = 2390;
+        const int x_mm = 2395;
         const int y_mm = 2000 - 240;
         NOTICE("Emptying multicolor waste water collector at %d %d", x_mm, y_mm);
 
