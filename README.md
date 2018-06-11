@@ -24,4 +24,4 @@ Other important software components can be found in this repo:
 - `ci` groups scripts and Docker files for our continuous integration server
 - `doc` contains high-level documentation about the robot
 
-The [user guide](cvra.github.io/robot-software) is generated using mdbook from [doc/user-guide](/doc/user-guide)
+The [user guide](http://cvra.ch/robot-software) is generated using mdbook from [doc/user-guide](/doc/user-guide)
