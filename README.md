@@ -23,3 +23,5 @@ Other important software components can be found in this repo:
 - `uavcan_data_types` contains the custom message definitions (DSDL) for the UAVCAN communication protocol
 - `ci` groups scripts and Docker files for our continuous integration server
 - `doc` contains high-level documentation about the robot
+
+The [user guide](cvra.github.io/robot-software) is generated using mdbook from [doc/user-guide.md](/doc/user-guide.md)
