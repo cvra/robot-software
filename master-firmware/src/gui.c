@@ -8,6 +8,8 @@
 #include "protobuf/strategy.pb.h"
 
 static GHandle score_label;
+static GHandle sensor_label;
+static GHandle sensor_label2;
 static GHandle console;
 static GHandle   ghButton1;
 static GHandle   ghCheckbox1;
@@ -51,6 +53,33 @@ static void gui_thread(void *p)
         gwinSetFont(score_label, gdispOpenFont("DejaVuSans32"));
         gwinSetText(score_label, "Score 42", TRUE);
     }
+        {
+        GWidgetInit wi;
+        gwinWidgetClearInit(&wi);
+        memset(&wi, 0, sizeof(wi));
+        wi.g.show = TRUE;
+        wi.g.x = 0;
+        wi.g.y = 50;
+        wi.g.width = gdispGetWidth()/2  ;
+        wi.g.height = 40;
+        sensor_label = gwinLabelCreate(0, &wi);
+        gwinSetFont(sensor_label, gdispOpenFont("DejaVuSans32"));
+        gwinSetText(sensor_label, "Why dis not wark ?", TRUE);
+    }
+    {
+        GWidgetInit wi;
+        gwinWidgetClearInit(&wi);
+        memset(&wi, 0, sizeof(wi));
+        wi.g.show = TRUE;
+        wi.g.x = 0;
+        wi.g.y = 100;
+        wi.g.width = gdispGetWidth()/2  ;
+        wi.g.height = 40;
+        sensor_label2 = gwinLabelCreate(0, &wi);
+        gwinSetFont(sensor_label2, gdispOpenFont("DejaVuSans32"));
+        gwinSetText(sensor_label2, "Score 47", TRUE);
+    }
+    /*
 
     {
 	    GWidgetInit	wi;
@@ -97,6 +126,7 @@ static void gui_thread(void *p)
         wi.text = "Test";
 	    ghSlider1 = gwinSliderCreate(0, &wi);
     }
+    */
 
     gwinSetColor(console, White);
     gwinSetBgColor(console, Black);
