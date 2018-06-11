@@ -1,0 +1,5 @@
+[book]
+authors = ["Salah-Eddine Missri"]
+multilingual = false
+src = "src"
+title = "CVRA CAN stack"
