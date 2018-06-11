@@ -2,4 +2,4 @@
 authors = ["Salah-Eddine Missri"]
 multilingual = false
 src = "src"
-title = "CVRA CAN stack"
+title = "CVRA's Robotics CAN Ecosystem"
