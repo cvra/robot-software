@@ -71,7 +71,6 @@ An open-source panoply of UAVCAN connected boards to enable smart sensors and ac
 .image {
     display: inline;
     width: 100%;
-    height: 100%;
 }
 
 .overlay {
