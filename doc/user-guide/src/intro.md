@@ -1,6 +1,17 @@
-# CVRA's Robotics CAN Ecosystem
+<center>
+    <h1>
+        CVRA's Robotics CAN Ecosystem
+    </h1>
+    <span>
+      <font size="4">
+        <em>
+            An open-source panoply of UAVCAN connected boards to enable smart<br>
+            sensors and actuators for modular robotics development
+        </em>
+    </font>
+    </span>
+</center>
 
-An open-source panoply of UAVCAN connected boards to enable smart sensors and actuators for modular robotics development
 
 <div class="album">
 <div class="row">
