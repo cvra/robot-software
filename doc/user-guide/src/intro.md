@@ -6,7 +6,7 @@ An open-source panoply of UAVCAN connected boards to enable smart sensors and ac
 <div class="row">
     <div class="large-6 columns container">
         <a href="./motor.html">
-            <img src="/images/motor-board.jpg" class="image">
+            <img src="./images/motor-board.jpg" class="image">
             <div class="overlay">
                 <div class="text">Motor board</div>
             </div>
@@ -14,7 +14,7 @@ An open-source panoply of UAVCAN connected boards to enable smart sensors and ac
     </div>
     <div class="large-6 columns container">
         <a href="./io.html">
-            <img src="/images/io-board.jpg" class="image">
+            <img src="./images/io-board.jpg" class="image">
             <div class="overlay">
                 <div class="text">IO board</div>
             </div>
@@ -24,7 +24,7 @@ An open-source panoply of UAVCAN connected boards to enable smart sensors and ac
 <div class="row">
     <div class="large-6 columns container">
         <a href="./sensor.html">
-            <img src="/images/sensor-board.jpg" class="image">
+            <img src="./images/sensor-board.jpg" class="image">
             <div class="overlay">
                 <div class="text">Sensor board</div>
             </div>
@@ -32,7 +32,7 @@ An open-source panoply of UAVCAN connected boards to enable smart sensors and ac
     </div>
     <div class="large-6 columns container">
         <a href="./beacon.html">
-            <img src="/images/beacon-board.jpg" class="image">
+            <img src="./images/beacon-board.jpg" class="image">
             <div class="overlay">
                 <div class="text">Beacon board</div>
             </div>
@@ -42,7 +42,7 @@ An open-source panoply of UAVCAN connected boards to enable smart sensors and ac
 <div class="row">
     <div class="large-6 columns container">
         <a href="./adapter.html">
-            <img src="/images/can-adapter.jpg" class="image">
+            <img src="./images/can-adapter.jpg" class="image">
             <div class="overlay">
                 <div class="text">CAN adapter</div>
             </div>
@@ -50,7 +50,7 @@ An open-source panoply of UAVCAN connected boards to enable smart sensors and ac
     </div>
     <div class="large-6 columns container">
         <a href="./bootloader.html">
-            <img src="/images/bootloader.png" class="image">
+            <img src="./images/bootloader.png" class="image">
             <div class="overlay">
                 <div class="text">CAN bootloader</div>
             </div>
