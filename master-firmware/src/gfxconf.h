@@ -135,7 +135,7 @@
 //    #define GINPUT_MOUSE_POLL_PERIOD                 25
 //    #define GINPUT_MOUSE_CLICK_TIME                  300
 //    #define GINPUT_TOUCH_CXTCLICK_TIME               700
-#define GINPUT_TOUCH_USER_CALIBRATION_LOAD       FALSE
+#define GINPUT_TOUCH_USER_CALIBRATION_LOAD       TRUE
 #define GINPUT_TOUCH_USER_CALIBRATION_SAVE       FALSE
 //    #define GMOUSE_DRIVER_LIST                       GMOUSEVMT_Win32, GMOUSEVMT_Win32
 // #define GINPUT_NEED_TOGGLE                           FALSE
