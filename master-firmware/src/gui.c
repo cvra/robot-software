@@ -159,22 +159,34 @@ static void gui_thread(void *p)
 
     WARNING("GUI init done");
 
-    chThdSleepMilliseconds(1000);
-    messagebus_topic_t *score_topic = messagebus_find_topic_blocking(&bus, "/score");
-    while (true) {
-        static char buffer[64];
-        Score score_msg;
-        if (messagebus_topic_read(score_topic, &score_msg, sizeof(score_msg))) {
-            sprintf(buffer, "Score: %ld", score_msg.score);
-            gwinSetText(score_label, buffer, TRUE);
-        }
+    NOTICE("test %d", 42);
 
-        char *msg;
-        msg_t res = chMBFetch(&msg_mailbox, (msg_t *)&msg, MS2ST(500));
-        if (res == MSG_OK) {
-            gwinPrintf(console, msg);
-            chPoolFree(&msg_pool, msg);
+    chThdSleepMilliseconds(1000);
+
+    // We want to listen for widget events
+    static GListener gl;
+    geventListenerInit(&gl);
+    gwinAttachListener(&gl);
+
+    while (true)
+    {
+        // Get an Event
+        GEvent *pe = geventEventWait(&gl, TIME_INFINITE);
+
+        switch (pe->type)
+        {
+        case GEVENT_GWIN_BUTTON:
+            if (((GEventGWinButton *)pe)->gwin == ghButton1)
+            {
+                // Our button has been pressed
+                NOTICE("been pressed");
+            }
+            break;
+
+        default:
+            break;
         }
+        chThdSleepMilliseconds(10);
     }
 }
 
