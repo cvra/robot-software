@@ -59,66 +59,66 @@ static void gui_thread(void *p)
         memset(&wi, 0, sizeof(wi));
         wi.show = TRUE;
         wi.x = 0;
-        wi.y = 40;
+        wi.y =  0;
         wi.width = gdispGetWidth();
-        wi.height = gdispGetHeight() - 40;
+        wi.height = gdispGetHeight();
         console = gwinConsoleCreate(0, &wi);
     }
     {
         GWidgetInit wi;
         memset(&wi, 0, sizeof(wi));
         wi.g.show = TRUE;
-        wi.g.x = 0;
-        wi.g.y = 0;
-        wi.g.width = gdispGetWidth();
+        wi.g.x = 5;
+        wi.g.y = 30;
+        wi.g.width = gdispGetWidth()/2;
         wi.g.height = 40;
         score_label = gwinLabelCreate(0, &wi);
         gwinSetFont(score_label, gdispOpenFont("DejaVuSans32"));
-        gwinSetText(score_label, "Score 42", TRUE);
+        gwinSetText(score_label, "Score 41", TRUE);
     }
-        {
+
+    {
         GWidgetInit wi;
         gwinWidgetClearInit(&wi);
         memset(&wi, 0, sizeof(wi));
         wi.g.show = TRUE;
-        wi.g.x = 0;
-        wi.g.y = 50;
-        wi.g.width = gdispGetWidth()/2  ;
+        wi.g.x = 5;
+        wi.g.y = 80;
+        wi.g.width = gdispGetWidth()/2;
         wi.g.height = 40;
         sensor_label = gwinLabelCreate(0, &wi);
         gwinSetFont(sensor_label, gdispOpenFont("DejaVuSans32"));
-        gwinSetText(sensor_label, "Why dis not wark ?", TRUE);
+        gwinSetText(sensor_label, "hello world", TRUE);
     }
     {
         GWidgetInit wi;
         gwinWidgetClearInit(&wi);
         memset(&wi, 0, sizeof(wi));
         wi.g.show = TRUE;
-        wi.g.x = 0;
-        wi.g.y = 100;
+        wi.g.x = 5;
+        wi.g.y = 130;
         wi.g.width = gdispGetWidth()/2  ;
         wi.g.height = 40;
         sensor_label2 = gwinLabelCreate(0, &wi);
         gwinSetFont(sensor_label2, gdispOpenFont("DejaVuSans32"));
         gwinSetText(sensor_label2, "Score 47", TRUE);
     }
-    /*
 
     {
-	    GWidgetInit	wi;
+        GWidgetInit wi;
 
         gwinWidgetClearInit(&wi);
         wi.g.show = TRUE;
 
         // Apply the button parameters
         wi.g.width = 100;
-        wi.g.height = 30;
-        wi.g.y = 100;
-        wi.g.x = 10;
+        wi.g.height = 25;
+        wi.g.y = 0;
+        wi.g.x = 5     ;
         wi.text = "Push Button";
-	    ghButton1 = gwinButtonCreate(0, &wi);
+        ghButton1 = gwinButtonCreate(0, &wi);
     }
-
+    /*
     {
         GWidgetInit	wi;
 
