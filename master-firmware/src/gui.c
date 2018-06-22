@@ -11,67 +11,54 @@ static GHandle score_label;
 static GHandle sensor_label;
 static GHandle sensor_label2;
 static GHandle console;
-static GHandle   ghButton1;
-static GHandle   ghCheckbox1;
-static GHandle   ghSlider1;
+static GHandle ghButton1;
+static GHandle ghButton2;
+static GHandle ghCheckbox1;
+static GHandle ghSlider1;
 static bool init_done = false;
 
 #define MSG_MAX_LENGTH 128
-#define MSG_BUF_SIZE   16
+#define MSG_BUF_SIZE 16
 static char msg_buffer[MSG_MAX_LENGTH][MSG_BUF_SIZE];
 static char *msg_mailbox_buf[MSG_BUF_SIZE];
 static MAILBOX_DECL(msg_mailbox, msg_mailbox_buf, MSG_BUF_SIZE);
 static MEMORYPOOL_DECL(msg_pool, MSG_MAX_LENGTH, NULL);
 
 float calibrationData[] = {
-	0.089231252,    // ax
-	0.000522375,    // bx
-	-22.532257080,  // cx
-	-0.001139728,   // ay
-	0.127720847,    // by
-	-28.272106170,  // cy
+    0.089231252,   // ax
+    0.000522375,   // bx
+    -22.532257080, // cx
+    -0.001139728,  // ay
+    0.127720847,   // by
+    -28.272106170, // cy
 };
 
 // from https://wiki.ugfx.io/index.php/Touchscreen_Calibration
 bool_t LoadMouseCalibration(unsigned instance, void *data, size_t sz)
 {
-	(void)instance;
+    (void)instance;
 
-	if (sz != sizeof(calibrationData) || instance != 0) {
-		return FALSE;
-	}
-
-	memcpy(data, (void*)&calibrationData, sz);
-
-	return TRUE;
-}
-
-static void gui_thread(void *p)
-{
-    (void) p;
-
-    gfxInit();
-    gwinSetDefaultStyle(&WhiteWidgetStyle, FALSE);
-    gwinSetDefaultFont(gdispOpenFont("DejaVuSans12"));
-    gdispClear(White);
+    if (sz != sizeof(calibrationData) || instance != 0)
     {
-        GWindowInit wi;
-        memset(&wi, 0, sizeof(wi));
-        wi.show = TRUE;
-        wi.x = 0;
-        wi.y =  0;
-        wi.width = gdispGetWidth();
-        wi.height = gdispGetHeight();
-        console = gwinConsoleCreate(0, &wi);
+        return FALSE;
     }
+
+    memcpy(data, (void *)&calibrationData, sz);
+
+    return TRUE;
+}
+void page_1(void)
+{
+    gwinDestroy(score_label);
     {
         GWidgetInit wi;
         memset(&wi, 0, sizeof(wi));
         wi.g.show = TRUE;
         wi.g.x = 5;
         wi.g.y = 30;
-        wi.g.width = gdispGetWidth()/2;
+        wi.g.width = gdispGetWidth() / 2;
         wi.g.height = 40;
+        wi.text = "okok";
         score_label = gwinLabelCreate(0, &wi);
         gwinSetFont(score_label, gdispOpenFont("DejaVuSans32"));
         gwinSetText(score_label, "Score 41", TRUE);
@@ -84,7 +71,7 @@ static void gui_thread(void *p)
         wi.g.show = TRUE;
         wi.g.x = 5;
         wi.g.y = 80;
-        wi.g.width = gdispGetWidth()/2;
+        wi.g.width = gdispGetWidth() / 2;
         wi.g.height = 40;
         sensor_label = gwinLabelCreate(0, &wi);
         gwinSetFont(sensor_label, gdispOpenFont("DejaVuSans32"));
@@ -97,11 +84,30 @@ static void gui_thread(void *p)
         wi.g.show = TRUE;
         wi.g.x = 5;
         wi.g.y = 130;
-        wi.g.width = gdispGetWidth()/2  ;
+        wi.g.width = gdispGetWidth() / 2;
         wi.g.height = 40;
         sensor_label2 = gwinLabelCreate(0, &wi);
         gwinSetFont(sensor_label2, gdispOpenFont("DejaVuSans32"));
         gwinSetText(sensor_label2, "Score 47", TRUE);
+    }
+}
+static void gui_thread(void *p)
+{
+    (void)p;
+
+    gfxInit();
+    gwinSetDefaultStyle(&WhiteWidgetStyle, FALSE);
+    gwinSetDefaultFont(gdispOpenFont("DejaVuSans12"));
+    gdispClear(White);
+    {
+        GWindowInit wi;
+        memset(&wi, 0, sizeof(wi));
+        wi.show = TRUE;
+        wi.x = 0;
+        wi.y = 0;
+        wi.width = gdispGetWidth();
+        wi.height = gdispGetHeight();
+        console = gwinConsoleCreate(0, &wi);
     }
 
     {
@@ -114,42 +120,24 @@ static void gui_thread(void *p)
         wi.g.width = 100;
         wi.g.height = 25;
         wi.g.y = 0;
-        wi.g.x = 5     ;
-        wi.text = "Push Button";
+        wi.g.x = 5;
+        wi.text = "Page 1";
         ghButton1 = gwinButtonCreate(0, &wi);
     }
-    /*
     {
-        GWidgetInit	wi;
+        GWidgetInit wi;
 
-        // Apply some default values for GWIN
         gwinWidgetClearInit(&wi);
         wi.g.show = TRUE;
 
-        // Apply the checkbox parameters
-        wi.g.width = 100;		// includes text
-        wi.g.height = 20;
-        wi.g.y = 50;
-        wi.g.x = 10;
-        wi.text = "Checkbox";
-
-        // Create the actual checkbox
-        ghCheckbox1 = gwinCheckboxCreate(0, &wi);
+        // Apply the button parameters
+        wi.g.width = 100;
+        wi.g.height = 25;
+        wi.g.y = 0;
+        wi.g.x = gdispGetWidth() - 110;
+        wi.text = "Page 2";
+        ghButton2 = gwinButtonCreate(0, &wi);
     }
-
-    {
-	    GWidgetInit	wi;
-	    gwinWidgetClearInit(&wi);
-	    wi.g.show = TRUE;
-
-        wi.g.width = 300;		// includes text
-        wi.g.height = 50;
-        wi.g.y = 150;
-        wi.g.x = 10;
-        wi.text = "Test";
-	    ghSlider1 = gwinSliderCreate(0, &wi);
-    }
-    */
 
     gwinSetColor(console, White);
     gwinSetBgColor(console, Black);
@@ -179,10 +167,25 @@ static void gui_thread(void *p)
             if (((GEventGWinButton *)pe)->gwin == ghButton1)
             {
                 // Our button has been pressed
-                NOTICE("been pressed");
+                NOTICE("been pressed 1");
+                page_1();
             }
             break;
+        default:
+            break;
+        }
+        // Get an Event
+        GEvent *pe2 = geventEventWait(&gl, TIME_INFINITE);
 
+        switch (pe2->type)
+        {
+        case GEVENT_GWIN_BUTTON:
+            if (((GEventGWinButton *)pe2)->gwin == ghButton2)
+            {
+                // Our button has been pressed
+                NOTICE("been pressed 2");
+            }
+            break;
         default:
             break;
         }
@@ -199,14 +202,19 @@ void gui_start()
 void gui_log_console(struct error *e, va_list args)
 {
     static char buffer[256];
-    if (init_done) {
+    if (init_done)
+    {
         char *dst = chPoolAlloc(&msg_pool);
-        if (dst) {
+        if (dst)
+        {
             dst[0] = '\0';
             char color;
-            if (e->severity >= ERROR_SEVERITY_WARNING) {
+            if (e->severity >= ERROR_SEVERITY_WARNING)
+            {
                 color = '3'; // yellow
-            } else {
+            }
+            else
+            {
                 color = 'C'; // no special color
             }
             snprintf(buffer, sizeof(buffer), "\n\033%c%c\033C  \033b%s:%d\033B  ",
