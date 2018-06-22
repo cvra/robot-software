@@ -47,6 +47,7 @@ target.arm:
     - src/aversive_port/cvra_pid.c
     - src/base/encoder.c
     - src/gui.c
+    - src/gui_utilities.c
     - src/base/base_controller.c
     - src/base/map_server.cpp
     - src/arms/cvra_arm_motors.c

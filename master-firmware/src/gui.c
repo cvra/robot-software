@@ -7,12 +7,15 @@
 #include "main.h"
 #include "protobuf/strategy.pb.h"
 
+#include "gui_utilities.h"
+
 static GHandle score_label;
 static GHandle sensor_label;
-static GHandle sensor_label2;
+static GHandle sensor2_label;
 static GHandle console;
 static GHandle ghButton1;
 static GHandle ghButton2;
+static GHandle ghButton3;
 static GHandle ghCheckbox1;
 static GHandle ghSlider1;
 static bool init_done = false;
@@ -47,50 +50,7 @@ bool_t LoadMouseCalibration(unsigned instance, void *data, size_t sz)
 
     return TRUE;
 }
-void page_1(void)
-{
-    gwinDestroy(score_label);
-    {
-        GWidgetInit wi;
-        memset(&wi, 0, sizeof(wi));
-        wi.g.show = TRUE;
-        wi.g.x = 5;
-        wi.g.y = 30;
-        wi.g.width = gdispGetWidth() / 2;
-        wi.g.height = 40;
-        wi.text = "okok";
-        score_label = gwinLabelCreate(0, &wi);
-        gwinSetFont(score_label, gdispOpenFont("DejaVuSans32"));
-        gwinSetText(score_label, "Score 41", TRUE);
-    }
 
-    {
-        GWidgetInit wi;
-        gwinWidgetClearInit(&wi);
-        memset(&wi, 0, sizeof(wi));
-        wi.g.show = TRUE;
-        wi.g.x = 5;
-        wi.g.y = 80;
-        wi.g.width = gdispGetWidth() / 2;
-        wi.g.height = 40;
-        sensor_label = gwinLabelCreate(0, &wi);
-        gwinSetFont(sensor_label, gdispOpenFont("DejaVuSans32"));
-        gwinSetText(sensor_label, "hello world", TRUE);
-    }
-    {
-        GWidgetInit wi;
-        gwinWidgetClearInit(&wi);
-        memset(&wi, 0, sizeof(wi));
-        wi.g.show = TRUE;
-        wi.g.x = 5;
-        wi.g.y = 130;
-        wi.g.width = gdispGetWidth() / 2;
-        wi.g.height = 40;
-        sensor_label2 = gwinLabelCreate(0, &wi);
-        gwinSetFont(sensor_label2, gdispOpenFont("DejaVuSans32"));
-        gwinSetText(sensor_label2, "Score 47", TRUE);
-    }
-}
 static void gui_thread(void *p)
 {
     (void)p;
@@ -138,6 +98,20 @@ static void gui_thread(void *p)
         wi.text = "Page 2";
         ghButton2 = gwinButtonCreate(0, &wi);
     }
+    {
+        GWidgetInit wi;
+
+        gwinWidgetClearInit(&wi);
+        wi.g.show = TRUE;
+
+        // Apply the button parameters
+        wi.g.width = 100;
+        wi.g.height = 25;
+        wi.g.y = 0;
+        wi.g.x = gdispGetWidth()/2-50;
+        wi.text = "Page 3";
+        ghButton3 = gwinButtonCreate(0, &wi);
+    }
 
     gwinSetColor(console, White);
     gwinSetBgColor(console, Black);
@@ -164,28 +138,27 @@ static void gui_thread(void *p)
         switch (pe->type)
         {
         case GEVENT_GWIN_BUTTON:
+        {
             if (((GEventGWinButton *)pe)->gwin == ghButton1)
             {
                 // Our button has been pressed
                 NOTICE("been pressed 1");
                 page_1();
             }
-            break;
-        default:
-            break;
-        }
-        // Get an Event
-        GEvent *pe2 = geventEventWait(&gl, TIME_INFINITE);
-
-        switch (pe2->type)
-        {
-        case GEVENT_GWIN_BUTTON:
-            if (((GEventGWinButton *)pe2)->gwin == ghButton2)
+            else if (((GEventGWinButton *)pe)->gwin == ghButton2)
             {
                 // Our button has been pressed
                 NOTICE("been pressed 2");
+                page_2();
             }
-            break;
+            else if (((GEventGWinButton *)pe)->gwin == ghButton3)
+            {
+                // Our button has been pressed
+                NOTICE("been pressed 3");
+                page_3();
+            }
+        }
+        break;
         default:
             break;
         }
