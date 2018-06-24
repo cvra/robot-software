@@ -81,7 +81,7 @@ static void gui_thread(void *p)
         wi.g.height = 25;
         wi.g.y = 0;
         wi.g.x = 5;
-        wi.text = "Page 1";
+        wi.text = "1";
         ghButton1 = gwinButtonCreate(0, &wi);
     }
     {
@@ -95,7 +95,7 @@ static void gui_thread(void *p)
         wi.g.height = 25;
         wi.g.y = 0;
         wi.g.x = gdispGetWidth() - 110;
-        wi.text = "Page 2";
+        wi.text = "2";
         ghButton2 = gwinButtonCreate(0, &wi);
     }
     {
@@ -108,8 +108,8 @@ static void gui_thread(void *p)
         wi.g.width = 100;
         wi.g.height = 25;
         wi.g.y = 0;
-        wi.g.x = gdispGetWidth()/2-50;
-        wi.text = "Page 3";
+        wi.g.x = gdispGetWidth() / 2 - 50;
+        wi.text = "3";
         ghButton3 = gwinButtonCreate(0, &wi);
     }
 
@@ -144,18 +144,21 @@ static void gui_thread(void *p)
                 // Our button has been pressed
                 NOTICE("been pressed 1");
                 page_1();
+                gwinDestroy(ghButton1);
             }
             else if (((GEventGWinButton *)pe)->gwin == ghButton2)
             {
                 // Our button has been pressed
                 NOTICE("been pressed 2");
                 page_2();
+                gwinDestroy(ghButton2);
             }
             else if (((GEventGWinButton *)pe)->gwin == ghButton3)
             {
                 // Our button has been pressed
                 NOTICE("been pressed 3");
                 page_3();
+                gwinDestroy(ghButton3);
             }
         }
         break;
