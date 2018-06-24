@@ -16,7 +16,7 @@ Here are its main features:
  - SWD connector for flashing and debugging, with UART exposed on the same connector.
  - Costs < 35 USD in components.
 
-![Motor boards on the SCARA arm version of 2016 used to control motor pumps](http://www.cvra.ch/images/technologies/motor-board.jpg)
+![Motor boards on the SCARA arm version of 2016 used to control motor pumps](./images/motor-board.jpg)
 
 ## Links
 - [Hardware](https://github.com/cvra/motor-control-board) including KiCad files, the schematics in PDF, and gerber files.

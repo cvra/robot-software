@@ -14,6 +14,8 @@ The Beacon board is a 42x30mm with a dedicated STM32F4 microcontroller and the f
 Still a work in progress.
 Currently basic communication is implemented and distance measurement at low update rate.
 
+![Beacon board, our WIP global positioning system](./images/beacon-board.jpg)
+
 ## Links
 - [Hardware](https://github.com/cvra/uwb-beacon-board) including KiCad files, the schematics in PDF, and gerber files.
 - [Software](https://github.com/cvra/robot-software/tree/master/uwb-beacon-firmware) using ChibiOS RTOS/HAL, and UAVCAN for communication.

@@ -15,7 +15,7 @@ The IO board is a 23x15mm board with a dedicated STM32F3 microcontroller and the
 
 Current application software allows a general purpose usage exposing basic IO control over UAVCAN: PWM output and digital inputs.
 
-![An IO board with USB type A connector behind for scale](http://www.cvra.ch/images/technologies/io-board.jpg)
+![An IO board with USB type A connector behind for scale](./images/io-board.jpg)
 
 ## Links
 - [Hardware](https://github.com/cvra/can-io-board) including KiCad files, the schematics in PDF, and gerber files.

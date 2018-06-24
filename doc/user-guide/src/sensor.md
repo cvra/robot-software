@@ -14,6 +14,8 @@ The Sensor board is a 23x17mm with a dedicated STM32F3 microcontroller and the f
 Current application software only supports the distance sensor.
 Color sensor support is work in progress.
 
+![Sensor board equiped on the end of our robot's SCARA arm](./images/sensor-board.jpg)
+
 ## Links
 - [Hardware](https://github.com/cvra/tof-sensor-board) including KiCad files, the schematics in PDF, and gerber files.
 - [Software](https://github.com/cvra/robot-software/tree/master/sensor-firmware) using ChibiOS RTOS/HAL, and UAVCAN for communication.

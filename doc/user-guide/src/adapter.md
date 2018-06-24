@@ -16,6 +16,8 @@ Summary of features:
 - Micro USB connector that exposes a serial interface and a CAN interface (over SLCAN). It can also be used for flashing the adapter using DFU.
 - Costs < 20 USD in components.
 
+![Adapter board, our very helpful CAN debugger](./images/can-adapter.jpg)
+
 ## Links
 - [Hardware](https://github.com/cvra/CAN-USB-dongle) including KiCad files, the schematics in PDF, and gerber files.
 - [Software](https://github.com/cvra/CAN-USB-dongle-fw) using ChibiOS RTOS/HAL, and UAVCAN for communication.
