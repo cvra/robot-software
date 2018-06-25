@@ -18,9 +18,12 @@
 #include "priorities.h"
 #include "control_panel.h"
 #include "main.h"
+#include "base/base_controller.h"
 #include <timestamp/timestamp.h>
 
 #include <errno.h>
+#include <cvra/master/feedback/DistancePID.hpp>
+#include <cvra/master/feedback/AnglePID.hpp>
 
 
 #define UAVCAN_SPIN_FREQ    500 // [Hz]
@@ -34,6 +37,8 @@
 
 bus_enumerator_t bus_enumerator;
 
+uavcan::LazyConstructor<uavcan::Publisher<cvra::master::feedback::DistancePID> > distance_pid_pub;
+uavcan::LazyConstructor<uavcan::Publisher<cvra::master::feedback::AnglePID> > angle_pid_pub;
 
 namespace uavcan_node
 {
@@ -85,8 +90,8 @@ static void main(void *arg)
         ERROR("Hardware interface init");
     }
 
-    static uavcan::Node<UAVCAN_MEMORY_POOL_SIZE> node(can_interface.driver,
-                                                      uavcan_stm32::SystemClock::instance());
+    using Node = uavcan::Node<UAVCAN_MEMORY_POOL_SIZE>;
+    static Node node(can_interface.driver, uavcan_stm32::SystemClock::instance());
 
     node.setNodeID(uavcan::NodeID(id));
     node.setName("cvra.master");
@@ -141,6 +146,35 @@ static void main(void *arg)
     if (res != 0) {
         ERROR("Emergency stop handler");
     }
+
+    distance_pid_pub.construct<Node&>(node);
+    res = distance_pid_pub->init();
+    if (res < 0) {
+        ERROR("DistancePID publisher");
+    }
+    angle_pid_pub.construct<Node&>(node);
+    res = angle_pid_pub->init();
+    if (res < 0) {
+        ERROR("AnglePID publisher");
+    }
+
+    uavcan::Timer pid_feedback_timer(node);
+    pid_feedback_timer.setCallback([&](const uavcan::TimerEvent& event)
+        {
+            (void)event;
+
+            cvra::master::feedback::DistancePID distance_pid;
+            distance_pid.setpoint = (robot.distance_cs.filtered_consign_value) / robot.distance_pid.divider;
+            distance_pid.measured = (robot.distance_cs.filtered_consign_value - robot.distance_cs.error_value) / robot.distance_pid.divider;
+
+            cvra::master::feedback::AnglePID angle_pid;
+            angle_pid.setpoint = (robot.angle_cs.filtered_consign_value) / robot.angle_pid.divider;
+            angle_pid.measured = (robot.angle_cs.filtered_consign_value - robot.angle_cs.error_value) / robot.angle_pid.divider;
+
+            distance_pid_pub->broadcast(distance_pid);
+            angle_pid_pub->broadcast(angle_pid);
+        });
+    pid_feedback_timer.startPeriodic(uavcan::MonotonicDuration::fromMSec(50));
 
     static uavcan::NodeInfoRetriever retriever(node);
 

@@ -89,7 +89,7 @@ class PidFeedbackRecorder():
     on_new_node_callback = None
     tracked_node = None
 
-    PID_LOOPS = ['Current', 'Velocity', 'Position']
+    PID_LOOPS = ['Current', 'Velocity', 'Position', 'Distance', 'Angle']
     tracked_pid_loop = PID_LOOPS[0]
 
     EMPTY_DATA = { 'setpoint': { 'time': np.array([]), 'value': np.array([]) },
@@ -110,6 +110,8 @@ class PidFeedbackRecorder():
         self.node.add_handler(uavcan.thirdparty.cvra.motor.feedback.CurrentPID, self._current_pid_callback)
         self.node.add_handler(uavcan.thirdparty.cvra.motor.feedback.VelocityPID, self._velocity_pid_callback)
         self.node.add_handler(uavcan.thirdparty.cvra.motor.feedback.PositionPID, self._position_pid_callback)
+        self.node.add_handler(uavcan.thirdparty.cvra.master.feedback.DistancePID, self._distance_pid_callback)
+        self.node.add_handler(uavcan.thirdparty.cvra.master.feedback.AnglePID, self._angle_pid_callback)
 
         self.params_model = ParameterTreeModel(node)
         self.params_model.on_new_node(self._update_nodes)
@@ -149,6 +151,18 @@ class PidFeedbackRecorder():
             self._pid_callback(node_id=event.transfer.source_node_id,
                                setpoint=event.message.position_setpoint,
                                measured=event.message.position)
+
+    def _distance_pid_callback(self, event):
+        if self.tracked_pid_loop == 'Distance':
+            self._pid_callback(node_id=event.transfer.source_node_id,
+                               setpoint=event.message.setpoint,
+                               measured=event.message.measured)
+
+    def _angle_pid_callback(self, event):
+        if self.tracked_pid_loop == 'Angle':
+            self._pid_callback(node_id=event.transfer.source_node_id,
+                               setpoint=event.message.setpoint,
+                               measured=event.message.measured)
 
     def _pid_callback(self, node_id, setpoint, measured):
         node_name = self.monitor.node_id_to_name(node_id)
