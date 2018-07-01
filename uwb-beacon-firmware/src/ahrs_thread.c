@@ -88,7 +88,7 @@ void ahrs_calibrate_gyro(void)
 
     topic = messagebus_find_topic_blocking(&bus, "/imu");
 
-    palSetPad(GPIOB, GPIOB_LED_ERROR);
+    palSetPad(GPIOC, GPIOC_LED_ERROR);
     for (int i = 0; i < N; i++) {
         imu_msg_t msg;
         messagebus_topic_wait(topic, &msg, sizeof(msg));
@@ -99,10 +99,10 @@ void ahrs_calibrate_gyro(void)
 
         // Blink the LED during calibration
         if (i % 50 == 0) {
-            palTogglePad(GPIOB, GPIOB_LED_ERROR);
+            palTogglePad(GPIOC, GPIOC_LED_ERROR);
         }
     }
-    palClearPad(GPIOB, GPIOB_LED_ERROR);
+    palClearPad(GPIOC, GPIOC_LED_ERROR);
 
     new_beta = sqrtf(3/4.f) * (x_avg + y_avg + z_avg) / 3.f;
 

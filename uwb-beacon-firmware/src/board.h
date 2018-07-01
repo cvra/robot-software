@@ -43,7 +43,7 @@
 #define GPIOA_UWB_MISO              6U
 #define GPIOA_UWB_MOSI              7U
 #define GPIOA_UWB_INT               8U
-#define GPIOA_UWB_RST_N             9U
+#define GPIOA_PIN9                  9U
 #define GPIOA_PIN10                 10U
 #define GPIOA_OTG_FS_DM             11U
 #define GPIOA_OTG_FS_DP             12U
@@ -51,9 +51,9 @@
 #define GPIOA_SWCLK                 14U
 #define GPIOA_PIN15                 15U
 
-#define GPIOB_LED_ERROR             0U
-#define GPIOB_LED_DEBUG             1U
-#define GPIOB_LED_STATUS            2U
+#define GPIOB_LED_DEBUG             0U
+#define GPIOB_LED_STATUS            1U
+#define GPIOB_BOOT1                 2U
 #define GPIOB_SWO                   3U
 #define GPIOB_PIN4                  4U
 #define GPIOB_PIN5                  5U
@@ -73,11 +73,11 @@
 #define GPIOC_PIN2                  2U
 #define GPIOC_PIN3                  3U
 #define GPIOC_PIN4                  4U
-#define GPIOC_PIN5                  5U
+#define GPIOC_LED_ERROR             5U
 #define GPIOC_PIN6                  6U
 #define GPIOC_PIN7                  7U
 #define GPIOC_PIN8                  8U
-#define GPIOC_PIN9                  9U
+#define GPIOC_UWB_RST_N             9U
 #define GPIOC_PIN10                 10U
 #define GPIOC_PIN11                 11U
 #define GPIOC_PIN12                 12U
@@ -124,7 +124,7 @@
  * GPIOA_UWB_MISO                   (alternate 5).
  * GPIOA_UWB_MOSI                   (alternate 5).
  * GPIOA_UWB_INT                    (input floating).
- * GPIOA_UWB_RST_N                  (input floating).
+ * GPIOA_PIN9                       (input floating).
  * GPIOA_PIN10                      (input floating).
  * GPIOA_OTG_FS_DM                  (alternate 10).
  * GPIOA_OTG_FS_DP                  (alternate 10).
@@ -141,7 +141,7 @@
                                      PIN_MODE_ALTERNATE(GPIOA_UWB_MISO) | \
                                      PIN_MODE_ALTERNATE(GPIOA_UWB_MOSI) | \
                                      PIN_MODE_INPUT(GPIOA_UWB_INT) | \
-                                     PIN_MODE_INPUT(GPIOA_UWB_RST_N) | \
+                                     PIN_MODE_INPUT(GPIOA_PIN9) | \
                                      PIN_MODE_INPUT(GPIOA_PIN10) | \
                                      PIN_MODE_ALTERNATE(GPIOA_OTG_FS_DM) | \
                                      PIN_MODE_ALTERNATE(GPIOA_OTG_FS_DP) | \
@@ -157,7 +157,7 @@
                                      PIN_OTYPE_PUSHPULL(GPIOA_UWB_MISO) | \
                                      PIN_OTYPE_PUSHPULL(GPIOA_UWB_MOSI) | \
                                      PIN_OTYPE_PUSHPULL(GPIOA_UWB_INT) | \
-                                     PIN_OTYPE_OPENDRAIN(GPIOA_UWB_RST_N) | \
+                                     PIN_OTYPE_PUSHPULL(GPIOA_PIN9) | \
                                      PIN_OTYPE_PUSHPULL(GPIOA_PIN10) | \
                                      PIN_OTYPE_PUSHPULL(GPIOA_OTG_FS_DM) | \
                                      PIN_OTYPE_PUSHPULL(GPIOA_OTG_FS_DP) | \
@@ -173,7 +173,7 @@
                                      PIN_OSPEED_100M(GPIOA_UWB_MISO) | \
                                      PIN_OSPEED_100M(GPIOA_UWB_MOSI) | \
                                      PIN_OSPEED_100M(GPIOA_UWB_INT) | \
-                                     PIN_OSPEED_100M(GPIOA_UWB_RST_N) | \
+                                     PIN_OSPEED_100M(GPIOA_PIN9) | \
                                      PIN_OSPEED_100M(GPIOA_PIN10) | \
                                      PIN_OSPEED_100M(GPIOA_OTG_FS_DM) | \
                                      PIN_OSPEED_100M(GPIOA_OTG_FS_DP) | \
@@ -189,7 +189,7 @@
                                      PIN_PUPDR_FLOATING(GPIOA_UWB_MISO) | \
                                      PIN_PUPDR_FLOATING(GPIOA_UWB_MOSI) | \
                                      PIN_PUPDR_FLOATING(GPIOA_UWB_INT) | \
-                                     PIN_PUPDR_FLOATING(GPIOA_UWB_RST_N) | \
+                                     PIN_PUPDR_FLOATING(GPIOA_PIN9) | \
                                      PIN_PUPDR_FLOATING(GPIOA_PIN10) | \
                                      PIN_PUPDR_FLOATING(GPIOA_OTG_FS_DM) | \
                                      PIN_PUPDR_FLOATING(GPIOA_OTG_FS_DP) | \
@@ -205,7 +205,7 @@
                                      PIN_ODR_HIGH(GPIOA_UWB_MISO) | \
                                      PIN_ODR_HIGH(GPIOA_UWB_MOSI) | \
                                      PIN_ODR_HIGH(GPIOA_UWB_INT) | \
-                                     PIN_ODR_HIGH(GPIOA_UWB_RST_N) | \
+                                     PIN_ODR_HIGH(GPIOA_PIN9) | \
                                      PIN_ODR_HIGH(GPIOA_PIN10) | \
                                      PIN_ODR_HIGH(GPIOA_OTG_FS_DM) | \
                                      PIN_ODR_HIGH(GPIOA_OTG_FS_DP) | \
@@ -221,7 +221,7 @@
                                      PIN_AFIO_AF(GPIOA_UWB_MISO, 5) | \
                                      PIN_AFIO_AF(GPIOA_UWB_MOSI, 5))
 #define VAL_GPIOA_AFRH              (PIN_AFIO_AF(GPIOA_UWB_INT, 0) | \
-                                     PIN_AFIO_AF(GPIOA_UWB_RST_N, 0) | \
+                                     PIN_AFIO_AF(GPIOA_PIN9, 0) | \
                                      PIN_AFIO_AF(GPIOA_PIN10, 0) | \
                                      PIN_AFIO_AF(GPIOA_OTG_FS_DM, 10) | \
                                      PIN_AFIO_AF(GPIOA_OTG_FS_DP, 10) | \
@@ -232,9 +232,9 @@
 /*
  * GPIOB setup:
  *
- * GPIOB_LED_ERROR                  (output).
  * GPIOB_LED_DEBUG                  (output).
  * GPIOB_LED_STATUS                 (output).
+ * GPIOB_BOOT1                      (input).
  * GPIOB_SWO                        (alternate 0).
  * GPIOB_PIN4                       (input floating).
  * GPIOB_PIN5                       (input floating).
@@ -249,9 +249,9 @@
  * GPIOB_IMU_MISO                   (alternate 5).
  * GPIOB_IMU_MOSI                   (alternate 5).
  */
-#define VAL_GPIOB_MODER             (PIN_MODE_OUTPUT(GPIOB_LED_ERROR) | \
-                                     PIN_MODE_OUTPUT(GPIOB_LED_DEBUG) | \
+#define VAL_GPIOB_MODER             (PIN_MODE_OUTPUT(GPIOB_LED_DEBUG) | \
                                      PIN_MODE_OUTPUT(GPIOB_LED_STATUS) | \
+                                     PIN_MODE_INPUT(GPIOB_BOOT1) | \
                                      PIN_MODE_ALTERNATE(GPIOB_SWO) | \
                                      PIN_MODE_INPUT(GPIOB_PIN4) | \
                                      PIN_MODE_INPUT(GPIOB_PIN5) | \
@@ -265,9 +265,9 @@
                                      PIN_MODE_ALTERNATE(GPIOB_IMU_SCK) | \
                                      PIN_MODE_ALTERNATE(GPIOB_IMU_MISO) | \
                                      PIN_MODE_ALTERNATE(GPIOB_IMU_MOSI))
-#define VAL_GPIOB_OTYPER            (PIN_OTYPE_PUSHPULL(GPIOB_LED_ERROR) | \
-                                     PIN_OTYPE_PUSHPULL(GPIOB_LED_DEBUG) | \
+#define VAL_GPIOB_OTYPER            (PIN_OTYPE_PUSHPULL(GPIOB_LED_DEBUG) | \
                                      PIN_OTYPE_PUSHPULL(GPIOB_LED_STATUS) | \
+                                     PIN_OTYPE_PUSHPULL(GPIOB_BOOT1) | \
                                      PIN_OTYPE_PUSHPULL(GPIOB_SWO) | \
                                      PIN_OTYPE_PUSHPULL(GPIOB_PIN4) | \
                                      PIN_OTYPE_PUSHPULL(GPIOB_PIN5) | \
@@ -281,9 +281,9 @@
                                      PIN_OTYPE_PUSHPULL(GPIOB_IMU_SCK) | \
                                      PIN_OTYPE_PUSHPULL(GPIOB_IMU_MISO) | \
                                      PIN_OTYPE_PUSHPULL(GPIOB_IMU_MOSI))
-#define VAL_GPIOB_OSPEEDR           (PIN_OSPEED_100M(GPIOB_LED_ERROR) | \
-                                     PIN_OSPEED_100M(GPIOB_LED_DEBUG) | \
+#define VAL_GPIOB_OSPEEDR           (PIN_OSPEED_100M(GPIOB_LED_DEBUG) | \
                                      PIN_OSPEED_100M(GPIOB_LED_STATUS) | \
+                                     PIN_OSPEED_100M(GPIOB_BOOT1) | \
                                      PIN_OSPEED_100M(GPIOB_SWO) | \
                                      PIN_OSPEED_100M(GPIOB_PIN4) | \
                                      PIN_OSPEED_100M(GPIOB_PIN5) | \
@@ -297,9 +297,9 @@
                                      PIN_OSPEED_100M(GPIOB_IMU_SCK) | \
                                      PIN_OSPEED_100M(GPIOB_IMU_MISO) | \
                                      PIN_OSPEED_100M(GPIOB_IMU_MOSI))
-#define VAL_GPIOB_PUPDR             (PIN_PUPDR_FLOATING(GPIOB_LED_ERROR) | \
-                                     PIN_PUPDR_FLOATING(GPIOB_LED_DEBUG) | \
+#define VAL_GPIOB_PUPDR             (PIN_PUPDR_FLOATING(GPIOB_LED_DEBUG) | \
                                      PIN_PUPDR_FLOATING(GPIOB_LED_STATUS) | \
+                                     PIN_PUPDR_FLOATING(GPIOB_BOOT1) | \
                                      PIN_PUPDR_FLOATING(GPIOB_SWO) | \
                                      PIN_PUPDR_FLOATING(GPIOB_PIN4) | \
                                      PIN_PUPDR_FLOATING(GPIOB_PIN5) | \
@@ -313,9 +313,9 @@
                                      PIN_PUPDR_FLOATING(GPIOB_IMU_SCK) | \
                                      PIN_PUPDR_FLOATING(GPIOB_IMU_MISO) | \
                                      PIN_PUPDR_FLOATING(GPIOB_IMU_MOSI))
-#define VAL_GPIOB_ODR               (PIN_ODR_LOW(GPIOB_LED_ERROR) | \
-                                     PIN_ODR_LOW(GPIOB_LED_DEBUG) | \
+#define VAL_GPIOB_ODR               (PIN_ODR_LOW(GPIOB_LED_DEBUG) | \
                                      PIN_ODR_LOW(GPIOB_LED_STATUS) | \
+                                     PIN_ODR_HIGH(GPIOB_BOOT1) | \
                                      PIN_ODR_HIGH(GPIOB_SWO) | \
                                      PIN_ODR_HIGH(GPIOB_PIN4) | \
                                      PIN_ODR_HIGH(GPIOB_PIN5) | \
@@ -329,9 +329,9 @@
                                      PIN_ODR_HIGH(GPIOB_IMU_SCK) | \
                                      PIN_ODR_HIGH(GPIOB_IMU_MISO) | \
                                      PIN_ODR_HIGH(GPIOB_IMU_MOSI))
-#define VAL_GPIOB_AFRL              (PIN_AFIO_AF(GPIOB_LED_ERROR, 0) | \
-                                     PIN_AFIO_AF(GPIOB_LED_DEBUG, 0) | \
+#define VAL_GPIOB_AFRL              (PIN_AFIO_AF(GPIOB_LED_DEBUG, 0) | \
                                      PIN_AFIO_AF(GPIOB_LED_STATUS, 0) | \
+                                     PIN_AFIO_AF(GPIOB_BOOT1, 0) | \
                                      PIN_AFIO_AF(GPIOB_SWO, 0) | \
                                      PIN_AFIO_AF(GPIOB_PIN4, 0) | \
                                      PIN_AFIO_AF(GPIOB_PIN5, 0) | \
@@ -354,11 +354,11 @@
  * GPIOC_PIN2                       (input floating).
  * GPIOC_PIN3                       (input floating).
  * GPIOC_PIN4                       (input floating).
- * GPIOC_PIN5                       (input floating).
+ * GPIOC_LED_ERROR                  (output floating).
  * GPIOC_PIN6                       (input floating).
  * GPIOC_PIN7                       (input floating).
  * GPIOC_PIN8                       (input floating).
- * GPIOC_PIN9                       (input floating).
+ * GPIOC_UWB_RST_N                  (output floating).
  * GPIOC_PIN10                      (input floating).
  * GPIOC_PIN11                      (input floating).
  * GPIOC_PIN12                      (input floating).
@@ -371,11 +371,11 @@
                                      PIN_MODE_INPUT(GPIOC_PIN2) | \
                                      PIN_MODE_INPUT(GPIOC_PIN3) | \
                                      PIN_MODE_INPUT(GPIOC_PIN4) | \
-                                     PIN_MODE_INPUT(GPIOC_PIN5) | \
+                                     PIN_MODE_OUTPUT(GPIOC_LED_ERROR) | \
                                      PIN_MODE_INPUT(GPIOC_PIN6) | \
                                      PIN_MODE_INPUT(GPIOC_PIN7) | \
                                      PIN_MODE_INPUT(GPIOC_PIN8) | \
-                                     PIN_MODE_INPUT(GPIOC_PIN9) | \
+                                     PIN_MODE_OUTPUT(GPIOC_UWB_RST_N) | \
                                      PIN_MODE_INPUT(GPIOC_PIN10) | \
                                      PIN_MODE_INPUT(GPIOC_PIN11) | \
                                      PIN_MODE_INPUT(GPIOC_PIN12) | \
@@ -387,11 +387,11 @@
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN2) | \
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN3) | \
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN4) | \
-                                     PIN_OTYPE_PUSHPULL(GPIOC_PIN5) | \
+                                     PIN_OTYPE_PUSHPULL(GPIOC_LED_ERROR) | \
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN6) | \
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN7) | \
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN8) | \
-                                     PIN_OTYPE_PUSHPULL(GPIOC_PIN9) | \
+                                     PIN_OTYPE_PUSHPULL(GPIOC_UWB_RST_N) | \
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN10) | \
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN11) | \
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN12) | \
@@ -403,11 +403,11 @@
                                      PIN_OSPEED_100M(GPIOC_PIN2) | \
                                      PIN_OSPEED_100M(GPIOC_PIN3) | \
                                      PIN_OSPEED_100M(GPIOC_PIN4) | \
-                                     PIN_OSPEED_100M(GPIOC_PIN5) | \
+                                     PIN_OSPEED_100M(GPIOC_LED_ERROR) | \
                                      PIN_OSPEED_100M(GPIOC_PIN6) | \
                                      PIN_OSPEED_100M(GPIOC_PIN7) | \
                                      PIN_OSPEED_100M(GPIOC_PIN8) | \
-                                     PIN_OSPEED_100M(GPIOC_PIN9) | \
+                                     PIN_OSPEED_100M(GPIOC_UWB_RST_N) | \
                                      PIN_OSPEED_100M(GPIOC_PIN10) | \
                                      PIN_OSPEED_100M(GPIOC_PIN11) | \
                                      PIN_OSPEED_100M(GPIOC_PIN12) | \
@@ -419,11 +419,11 @@
                                      PIN_PUPDR_FLOATING(GPIOC_PIN2) | \
                                      PIN_PUPDR_FLOATING(GPIOC_PIN3) | \
                                      PIN_PUPDR_FLOATING(GPIOC_PIN4) | \
-                                     PIN_PUPDR_FLOATING(GPIOC_PIN5) | \
+                                     PIN_PUPDR_FLOATING(GPIOC_LED_ERROR) | \
                                      PIN_PUPDR_FLOATING(GPIOC_PIN6) | \
                                      PIN_PUPDR_FLOATING(GPIOC_PIN7) | \
                                      PIN_PUPDR_FLOATING(GPIOC_PIN8) | \
-                                     PIN_PUPDR_FLOATING(GPIOC_PIN9) | \
+                                     PIN_PUPDR_FLOATING(GPIOC_UWB_RST_N) | \
                                      PIN_PUPDR_FLOATING(GPIOC_PIN10) | \
                                      PIN_PUPDR_FLOATING(GPIOC_PIN11) | \
                                      PIN_PUPDR_FLOATING(GPIOC_PIN12) | \
@@ -435,11 +435,11 @@
                                      PIN_ODR_HIGH(GPIOC_PIN2) | \
                                      PIN_ODR_HIGH(GPIOC_PIN3) | \
                                      PIN_ODR_HIGH(GPIOC_PIN4) | \
-                                     PIN_ODR_HIGH(GPIOC_PIN5) | \
+                                     PIN_ODR_LOW(GPIOC_LED_ERROR) | \
                                      PIN_ODR_HIGH(GPIOC_PIN6) | \
                                      PIN_ODR_HIGH(GPIOC_PIN7) | \
                                      PIN_ODR_HIGH(GPIOC_PIN8) | \
-                                     PIN_ODR_HIGH(GPIOC_PIN9) | \
+                                     PIN_ODR_HIGH(GPIOC_UWB_RST_N) | \
                                      PIN_ODR_HIGH(GPIOC_PIN10) | \
                                      PIN_ODR_HIGH(GPIOC_PIN11) | \
                                      PIN_ODR_HIGH(GPIOC_PIN12) | \
@@ -451,11 +451,11 @@
                                      PIN_AFIO_AF(GPIOC_PIN2, 0) | \
                                      PIN_AFIO_AF(GPIOC_PIN3, 0) | \
                                      PIN_AFIO_AF(GPIOC_PIN4, 0) | \
-                                     PIN_AFIO_AF(GPIOC_PIN5, 0) | \
+                                     PIN_AFIO_AF(GPIOC_LED_ERROR, 0) | \
                                      PIN_AFIO_AF(GPIOC_PIN6, 0) | \
                                      PIN_AFIO_AF(GPIOC_PIN7, 0))
 #define VAL_GPIOC_AFRH              (PIN_AFIO_AF(GPIOC_PIN8, 0) | \
-                                     PIN_AFIO_AF(GPIOC_PIN9, 0) | \
+                                     PIN_AFIO_AF(GPIOC_UWB_RST_N, 0) | \
                                      PIN_AFIO_AF(GPIOC_PIN10, 0) | \
                                      PIN_AFIO_AF(GPIOC_PIN11, 0) | \
                                      PIN_AFIO_AF(GPIOC_PIN12, 0) | \
