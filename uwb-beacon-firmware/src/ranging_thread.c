@@ -117,56 +117,13 @@ static void ranging_thread(void *p)
         }
 
         if (flags & EVENT_ADVERTISE_TIMER) {
-            if (handler.is_anchor) {
+            if (!handler.is_anchor) {
                 /* First disable transceiver */
                 dwt_forcetrxoff();
 
-                /* Then send a measurement frame */
-                trace(TRACE_POINT_UWB_SEND_ADVERTISEMENT);
-                uwb_send_measurement_advertisement(&handler, frame);
+                /* Initiate measurement sequence */
+                uwb_initiate_measurement(&handler, frame, 7);
             }
-        }
-        if (flags & EVENT_ANCHOR_POSITION_TIMER) {
-            /* Make sure we are an anchor before we send an anchor position
-             * message. */
-            if (!handler.is_anchor) {
-                continue;
-            }
-
-            /* First disable transceiver */
-            dwt_forcetrxoff();
-
-            float x, y, z;
-            x = parameter_scalar_get(&uwb_params.anchor.position.x);
-            y = parameter_scalar_get(&uwb_params.anchor.position.y);
-            z = parameter_scalar_get(&uwb_params.anchor.position.z);
-
-            uwb_send_anchor_position(&handler, x, y, z, frame);
-
-        }
-        if (flags & EVENT_TAG_POSITION_TIMER) {
-            /* Make sure we are a tag before we send an anchor position
-             * message. */
-            if (handler.is_anchor) {
-                continue;
-            }
-
-            messagebus_topic_t *topic;
-            position_estimation_msg_t msg;
-            topic = messagebus_find_topic(&bus, "/ekf/state");
-
-            if (topic == NULL) {
-                continue;
-            }
-
-            if (messagebus_topic_read(topic, &msg, sizeof(msg)) == false) {
-                continue;
-            }
-
-            /* First disable transceiver */
-            dwt_forcetrxoff();
-
-            uwb_send_tag_position(&handler, msg.x, msg.y, frame);
         }
         if (flags & EVENT_UWB_INT) {
             /* Process the interrupt. */
