@@ -13,29 +13,32 @@
 
 void hx8357_init_board(void *g)
 {
-    (void) g;
+    (void)g;
     static SPIConfig spi_cfg = {
         .end_cb = NULL,
-        .cr1 = SPI_CR1_BR_2,
+        // .cr1 = SPI_CR1_BR_1 | SPI_CR1_BR_0, // div 16, 5.6 MHz
+        // .cr1 = SPI_CR1_BR_1, // div 8, 10.5 MHz
+        .cr1 = SPI_CR1_BR_0, // div 4, 21 MHz
+
     };
     spiStart(&LCD_SPID, &spi_cfg);
 }
 
 void hx8357_acquire_bus(void *g)
 {
-    (void) g;
+    (void)g;
     spiAcquireBus(&LCD_SPID);
 }
 
 void hx8357_release_bus(void *g)
 {
-    (void) g;
+    (void)g;
     spiReleaseBus(&LCD_SPID);
 }
 
 void hx8357_write_index(void *g, uint16_t index)
 {
-    (void) g;
+    (void)g;
     uint8_t val = index;
 
     palClearPad(LCD_PORT, LCD_RS_PIN);
@@ -44,7 +47,7 @@ void hx8357_write_index(void *g, uint16_t index)
 
 void hx8357_write_data(void *g, uint16_t data)
 {
-    (void) g;
+    (void)g;
     uint8_t val = data;
 
     palSetPad(LCD_PORT, LCD_RS_PIN);
@@ -57,18 +60,20 @@ static uint8_t cache[CACHE_SIZE];
 
 void hx8357_write_cache(GDisplay *g, uint16_t c)
 {
-    cache[cache_depth ++] = c >> 8;
-    cache[cache_depth ++] = c & 0xff;
+    cache[cache_depth++] = c >> 8;
+    cache[cache_depth++] = c & 0xff;
 
-    if (cache_depth == CACHE_SIZE) {
+    if (cache_depth == CACHE_SIZE)
+    {
         hx8357_flush(g);
     }
 }
 
 void hx8357_flush(GDisplay *g)
 {
-    (void) g;
-    if (cache_depth) {
+    (void)g;
+    if (cache_depth)
+    {
         palSetPad(LCD_PORT, LCD_RS_PIN);
         spiSend(&LCD_SPID, cache_depth, &cache[0]);
     }
