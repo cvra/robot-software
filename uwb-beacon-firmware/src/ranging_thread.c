@@ -24,7 +24,7 @@
 #define EVENT_TAG_POSITION_TIMER         (1 << 3)
 
 /* TODO: Put this in parameters. */
-#define UWB_ANCHOR_POSITION_TIMER_PERIOD S2ST(5)
+#define UWB_ANCHOR_POSITION_TIMER_PERIOD S2ST(1)
 #define UWB_TAG_POSITION_TIMER_PERIOD    MS2ST(300)
 
 
@@ -103,6 +103,8 @@ static void ranging_thread(void *p)
 
     static uint8_t frame[64];
 
+    int state = 7;
+
     while (1) {
         /* Wait for an interrupt coming from the UWB module. */
         eventmask_t flags = chEvtWaitOne(ALL_EVENTS);
@@ -116,13 +118,18 @@ static void ranging_thread(void *p)
             dwt_setrxantennadelay(parameter_integer_get(&uwb_params.antenna_delay));
         }
 
-        if (flags & EVENT_ADVERTISE_TIMER) {
+        if (flags & EVENT_ANCHOR_POSITION_TIMER) {
             if (!handler.is_anchor) {
                 /* First disable transceiver */
                 dwt_forcetrxoff();
 
                 /* Initiate measurement sequence */
-                uwb_initiate_measurement(&handler, frame, 7);
+                uwb_initiate_measurement(&handler, frame, state);
+                if (state == 7) {
+                    state = 14;
+                } else if (state == 14){
+                    state = 7;
+                }
             }
         }
         if (flags & EVENT_UWB_INT) {
