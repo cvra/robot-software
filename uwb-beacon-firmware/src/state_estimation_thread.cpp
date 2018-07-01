@@ -85,7 +85,6 @@ static THD_FUNCTION(state_estimation_thd, arg)
             if (anchor_pos) {
                 float pos[2] = {anchor_pos->x, anchor_pos->y};
                 estimator.processDistanceMeasurement(pos, msg.range);
-                palTogglePad(GPIOC, GPIOC_LED_ERROR);
             }
 
         } else if (topic == imu_topic) {
