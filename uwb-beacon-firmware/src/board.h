@@ -435,7 +435,7 @@
                                      PIN_ODR_HIGH(GPIOC_PIN2) | \
                                      PIN_ODR_HIGH(GPIOC_PIN3) | \
                                      PIN_ODR_HIGH(GPIOC_PIN4) | \
-                                     PIN_ODR_HIGH(GPIOC_LED_ERROR) | \
+                                     PIN_ODR_LOW(GPIOC_LED_ERROR) | \
                                      PIN_ODR_HIGH(GPIOC_PIN6) | \
                                      PIN_ODR_HIGH(GPIOC_PIN7) | \
                                      PIN_ODR_HIGH(GPIOC_PIN8) | \
