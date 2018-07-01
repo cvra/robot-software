@@ -194,7 +194,7 @@ static void frame_rx_cb(const dwt_cb_data_t *data)
     uwb_process_incoming_frame(&handler, frame, data->datalength, rx_ts);
 
     dwt_rxenable(DWT_START_RX_IMMEDIATE);
-    palTogglePad(GPIOB, GPIOB_LED_ERROR);
+    palTogglePad(GPIOC, GPIOC_LED_ERROR);
 }
 
 static void anchor_position_received_cb(uint16_t addr, float x, float y, float z)
