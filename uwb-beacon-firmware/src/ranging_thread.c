@@ -103,7 +103,9 @@ static void ranging_thread(void *p)
 
     static uint8_t frame[64];
 
-    int state = 7;
+    int current_anchor_mac_index = 0;
+    uint16_t anchor_macs[] = {7, 14};
+    int nb_anchor_macs = sizeof(anchor_macs);
 
     while (1) {
         /* Wait for an interrupt coming from the UWB module. */
@@ -118,17 +120,18 @@ static void ranging_thread(void *p)
             dwt_setrxantennadelay(parameter_integer_get(&uwb_params.antenna_delay));
         }
 
-        if (flags & EVENT_ANCHOR_POSITION_TIMER) {
-            if (!handler.is_anchor) {
+        if (flags & EVENT_ADVERTISE_TIMER) {
+            palTogglePad(GPIOB, GPIOB_LED_STATUS);
+            if (!handler.is_anchor && nb_anchor_macs > 0) {
                 /* First disable transceiver */
                 dwt_forcetrxoff();
 
                 /* Initiate measurement sequence */
-                uwb_initiate_measurement(&handler, frame, state);
-                if (state == 7) {
-                    state = 14;
-                } else if (state == 14){
-                    state = 7;
+                uwb_initiate_measurement(&handler, frame, anchor_macs[current_anchor_mac_index]);
+
+                current_anchor_mac_index++;
+                if (current_anchor_mac_index == nb_anchor_macs) {
+                    current_anchor_mac_index = 0;
                 }
             }
         }
@@ -212,7 +215,7 @@ static void advertise_timer_cb(void *t)
 
     chSysLockFromISR();
     int period = uwb_params.anchor.advertisement_period_ms.value.i;
-    chVTSetI(timer, MS2ST(period), anchor_position_timer_cb, t);
+    chVTSetI(timer, MS2ST(period), advertise_timer_cb, t);
     chEvtBroadcastI(&advertise_timer_event);
     chSysUnlockFromISR();
 }
