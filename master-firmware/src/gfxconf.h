@@ -92,6 +92,7 @@
 //    #define GWIN_NEED_TABSET                         FALSE
 //        #define GWIN_TABSET_TABHEIGHT                18
 
+#define GWIN_REDRAW_IMMEDIATE                       FALSE
 
 ///////////////////////////////////////////////////////////////////////////
 // GEVENT                                                                //

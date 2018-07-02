@@ -143,21 +143,18 @@ static void gui_thread(void *p)
             {
                 // Our button has been pressed
                 NOTICE("been pressed 1");
-                page_1();
                 gwinDestroy(ghButton1);
             }
             else if (((GEventGWinButton *)pe)->gwin == ghButton2)
             {
                 // Our button has been pressed
                 NOTICE("been pressed 2");
-                page_2();
                 gwinDestroy(ghButton2);
             }
             else if (((GEventGWinButton *)pe)->gwin == ghButton3)
             {
                 // Our button has been pressed
                 NOTICE("been pressed 3");
-                page_3();
                 gwinDestroy(ghButton3);
             }
         }
@@ -165,7 +162,7 @@ static void gui_thread(void *p)
         default:
             break;
         }
-        chThdSleepMilliseconds(10);
+        chThdSleepMilliseconds(100);
     }
 }
 
