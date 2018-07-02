@@ -46,7 +46,7 @@ int main(void)
     messagebus_init(&bus, &bus_lock, &bus_condvar);
     parameter_namespace_declare(&parameter_root, NULL, NULL);
 
-    blink_start();
+    //blink_start();
     exti_start();
     imu_start(); // disabled so that the EKF does not run
     ahrs_start();
