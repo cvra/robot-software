@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 2.6)
 project(cvra-build)
 set(CMAKE_BUILD_TYPE Debug)
 
+FILE(GLOB messages build/protobuf/*.pb.c)
+
 {% for dir in include_directories %}
 include_directories({{ dir }})
 {% endfor %}
@@ -23,6 +25,7 @@ add_executable(
     {% for file in tests -%}
     {{ file }}
     {% endfor -%}
+    ${messages}
     )
 
 

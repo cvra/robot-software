@@ -109,6 +109,7 @@ source:
     - src/base/base_helpers.c
     - src/strategy/state.cpp
     - src/strategy/score.cpp
+    - src/msgbus_protobuf.c
     - src/ballgun/ballgun.c
     - src/ballgun/ball_sensor.c
 
@@ -122,6 +123,7 @@ include_directories:
     - src/can/
     - src/comm/
     - ../lib/eigen/
+    - build # This is where generated protobuf code goes
 
 tests:
     - tests/ch.cpp
@@ -159,6 +161,7 @@ tests:
     - tests/test_ballgun.cpp
     - tests/test_wrist.cpp
     - tests/test_ball_sensor.cpp
+    - tests/msgbus_protobuf.cpp
 
 templates:
     app_src.mk.jinja: app_src.mk

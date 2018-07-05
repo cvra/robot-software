@@ -1,0 +1,11 @@
+syntax = "proto2";
+
+import "nanopb.proto";
+
+message Timestamp
+{
+    // Timestamp might not required a msgid but we use it quite a lot in the
+    // tests
+    option (nanopb_msgopt).msgid = 1;
+    required uint32 us = 1; // Timestamp in microseconds since boot
+}
