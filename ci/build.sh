@@ -57,6 +57,12 @@ case $BUILD_TYPE in
         pushd $PLATFORM
         packager
         make $ROBOT_FLAG dsdlc
+
+        if [ "$PLATFORM" == "master-firmware" ]
+        then
+            make protoc
+        fi
+
         make $ROBOT_FLAG
         popd
         ;;

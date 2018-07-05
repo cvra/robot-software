@@ -1,0 +1,9 @@
+syntax = "proto2";
+
+import "nanopb.proto";
+
+message TopicHeader
+{
+    required uint32 msgid = 1; // Type information, expressed as a nanopb msgid
+    required string name = 2 [ (nanopb).max_size = 64 ];
+}

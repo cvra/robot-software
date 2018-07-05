@@ -133,6 +133,9 @@ include app_src.mk
 # setting.
 CPPSRC += $(CHCPPSRC)
 
+PROTOSRC = $(wildcard protobuf/*.proto)
+CSRC += $(addprefix build/,$(PROTOSRC:.proto=.pb.c))
+
 # List ASM source files here
 ASMSRC +=
 ASMXSRC +=  $(STARTUPASM) $(PORTASM) $(OSALASM)
@@ -280,6 +283,19 @@ flash: $(BUILDDIR)/$(PROJECT).elf
 dsdlc:
 	@$(COLOR_PRINTF) "Running uavcan dsdl compiler"
 	$(LIBUAVCAN_DSDLC) ../uavcan_data_types/cvra $(UAVCAN_DSDL_DIR)
+
+../lib/nanopb/nanopb/generator/proto/nanopb_pb2.py:
+	@echo "Making nanopb generator options"
+	make -C ../lib/nanopb/nanopb/generator/proto
+
+protoc: ../lib/nanopb/nanopb/generator/proto/nanopb_pb2.py
+	@echo Compiling protocol buffer files
+	@mkdir -p build/protobuf
+	@protoc \
+		--plugin=protoc-gen-nanopb=../lib/nanopb/nanopb/generator/protoc-gen-nanopb \
+		--python_out=build/protobuf \
+		-I ../lib/nanopb/nanopb/generator/proto \
+		-I protobuf/ --nanopb_out=--library-include-format='#include\ \"%s\"':build/protobuf/ $(PROTOSRC)
 
 $(CONFIG_MSGPACK_C): src/%.c : ../%.yaml
 	@$(COLOR_PRINTF) "Generating $@"

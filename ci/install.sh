@@ -11,6 +11,13 @@ python get-pip.py
 pip install cvra-packager~=1.0.0
 pip install msgpack-python==0.4.8 PyYAML==3.11
 
+echo "Installing protobuf..."
+pushd /
+wget https://github.com/google/protobuf/releases/download/v3.5.1/protoc-3.5.1-linux-x86_64.zip
+unzip protoc*.zip
+popd
+pip install --upgrade protobuf
+
 pushd lib/uavcan/libuavcan/dsdl_compiler/pyuavcan/
 python setup.py install
 popd
