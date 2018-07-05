@@ -28,14 +28,9 @@ static THD_FUNCTION(color_sequence_server_thd, arg) {
     uint8_t buffer[16];
     sdStart(&SD2, &bt_uart_config);
 
-    static enum cube_color colors[5] = {
-        CUBE_UNKNOWN, CUBE_UNKNOWN, CUBE_UNKNOWN, CUBE_UNKNOWN, CUBE_UNKNOWN
-    };
-    static messagebus_topic_t colors_topic;
-    static MUTEX_DECL(colors_topic_lock);
-    static CONDVAR_DECL(colors_topic_condvar);
-    messagebus_topic_init(&colors_topic, &colors_topic_lock, &colors_topic_condvar, &colors[0], sizeof(colors));
-    messagebus_advertise_topic(&bus, &colors_topic, "/colors");
+    static TOPIC_DECL(colors_topic, ColorSequence);
+
+    messagebus_advertise_topic(&bus, &colors_topic.topic, "/colors");
 
     NOTICE("Color sequence server up, listening over BT");
 
@@ -49,8 +44,17 @@ static THD_FUNCTION(color_sequence_server_thd, arg) {
         sdRead(&SD2, buffer, 4);
 
         if (buffer[3] == '\n') {
+            ColorSequence sequence;
+
+            enum cube_color colors[5];
+
             cube_color_from_string((char*)buffer, 3, colors);
-            messagebus_topic_publish(&colors_topic, &colors[0], sizeof(colors));
+
+            for (int i = 0; i < 5; i++) {
+                sequence.sequence[i] = colors[i];
+            }
+
+            messagebus_topic_publish(&colors_topic.topic, &sequence, sizeof(sequence));
 
             control_panel_toggle(LED_POWER);
             DEBUG("Received color: %s %s %s %s %s",

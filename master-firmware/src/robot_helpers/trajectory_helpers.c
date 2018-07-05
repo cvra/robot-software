@@ -8,7 +8,7 @@
 #include "base/map.h"
 #include "math_helpers.h"
 #include "beacon_helpers.h"
-#include "can/uwb_position.h"
+#include "protobuf/beacons.pb.h"
 
 #include "trajectory_helpers.h"
 
@@ -55,12 +55,12 @@ int trajectory_has_ended(int watched_end_reasons)
     }
 
     if (watched_end_reasons & TRAJ_END_OPPONENT_NEAR) {
-        beacon_signal_t beacon_signal;
+        BeaconSignal beacon_signal;
         messagebus_topic_t* proximity_beacon_topic = messagebus_find_topic_blocking(&bus, "/proximity_beacon");
         messagebus_topic_read(proximity_beacon_topic, &beacon_signal, sizeof(beacon_signal));
 
         // only consider recent beacon signal
-        if (timestamp_duration_s(beacon_signal.timestamp,
+        if (timestamp_duration_s(beacon_signal.timestamp.us,
                                  timestamp_get()) < TRAJ_MAX_TIME_DELAY_OPPONENT_DETECTION) {
             if (beacon_signal.distance < TRAJ_MIN_DISTANCE_TO_OPPONENT) {
                 float x_opp, y_opp;
@@ -79,13 +79,13 @@ int trajectory_has_ended(int watched_end_reasons)
 
     if (watched_end_reasons & TRAJ_END_ALLY_NEAR) {
         messagebus_topic_t *topic = messagebus_find_topic(&bus, "/allied_position");
-        allied_position_t pos;
+        AlliedPosition pos;
 
         if (topic && messagebus_topic_read(topic, &pos, sizeof(pos))) {
-            uint32_t age = timestamp_duration_s(pos.timestamp, timestamp_get());
+            uint32_t age = timestamp_duration_s(pos.timestamp.us, timestamp_get());
 
             if (age < TRAJ_MAX_TIME_DELAY_OPPONENT_DETECTION) {
-                if (trajectory_is_on_collision_path(&robot, pos.point.x, pos.point.y)) {
+                if (trajectory_is_on_collision_path(&robot, pos.x, pos.y)) {
                     return TRAJ_END_ALLY_NEAR;
                 }
             }

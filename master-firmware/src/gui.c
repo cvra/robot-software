@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <gfx.h>
 #include "main.h"
+#include "protobuf/strategy.pb.h"
 
 static GHandle score_label;
 static GHandle console;
@@ -59,9 +60,9 @@ static void gui_thread(void *p)
     messagebus_topic_t *score_topic = messagebus_find_topic_blocking(&bus, "/score");
     while (true) {
         static char buffer[64];
-        int score;
-        if (messagebus_topic_read(score_topic, &score, sizeof(score))) {
-            sprintf(buffer, "Score: %d", score);
+        Score score_msg;
+        if (messagebus_topic_read(score_topic, &score_msg, sizeof(score_msg))) {
+            sprintf(buffer, "Score: %ld", score_msg.score);
             gwinSetText(score_label, buffer, TRUE);
         }
 

@@ -39,6 +39,8 @@
 #include "lever/lever_module.h"
 #include "ballgun/ballgun_module.h"
 #include "ballgun/ball_sense.h"
+#include "protobuf/sensors.pb.h"
+#include "protobuf/encoders.pb.h"
 
 const ShellCommand commands[];
 
@@ -351,7 +353,7 @@ static void cmd_encoders(BaseSequentialStream *chp, int argc, char *argv[])
     (void) argv;
 
     messagebus_topic_t *encoders_topic;
-    encoders_msg_t values;
+    EncodersPosition values;
 
     encoders_topic = messagebus_find_topic_blocking(&bus, "/encoders");
     messagebus_topic_wait(encoders_topic, &values, sizeof(values));
@@ -1373,11 +1375,11 @@ static void cmd_hand_dist(BaseSequentialStream *chp, int argc, char *argv[])
     (void) argv;
 
     messagebus_topic_t *topic;
-    float dist;
+    Range range;
 
     topic = messagebus_find_topic_blocking(&bus, "/hand_distance");
-    if (messagebus_topic_read(topic, &dist, sizeof(dist))) {
-        chprintf(chp, "hand_distance: %f\r\n", dist);
+    if (messagebus_topic_read(topic, &range, sizeof(range))) {
+        chprintf(chp, "hand_distance: %f\r\n", range.distance);
     } else {
         chprintf(chp, "topic was never published\r\n");
     }

@@ -7,25 +7,23 @@
 #include "uavcan_node.h"
 #include "main.h"
 #include "can_io_driver.h"
+#include "protobuf/sensors.pb.h"
 
 static uavcan::LazyConstructor<uavcan::Publisher<cvra::io::ServoPWM> > can_io_pwm_pub;
 
-static messagebus_topic_t lever_left_topic, lever_right_topic;
-static MUTEX_DECL(lever_left_topic_lock);
-static MUTEX_DECL(lever_right_topic_lock);
-static CONDVAR_DECL(lever_left_topic_condvar);
-static CONDVAR_DECL(lever_right_topic_condvar);
-static bool lever_left_topic_value, lever_right_topic_value;
+TOPIC_DECL(lever_left_topic, SwitchStatus);
+TOPIC_DECL(lever_right_topic, SwitchStatus);
 
 static void io_input_cb(const uavcan::ReceivedDataStructure<cvra::io::DigitalInput>& msg)
 {
     int can_id = msg.getSrcNodeID().get();
-    bool lever_full = msg.pin[0] == 0;
+    SwitchStatus status;
+    status.switched = (msg.pin[0] == 0);
 
     if (can_id == bus_enumerator_get_can_id(&bus_enumerator, "left-lever")) {
-        messagebus_topic_publish(&lever_left_topic, &lever_full, sizeof(lever_full));
+        messagebus_topic_publish(&lever_left_topic.topic, &status, sizeof(status));
     } else if (can_id == bus_enumerator_get_can_id(&bus_enumerator, "right-lever")) {
-        messagebus_topic_publish(&lever_right_topic, &lever_full, sizeof(lever_full));
+        messagebus_topic_publish(&lever_right_topic.topic, &status, sizeof(status));
     }
 }
 
@@ -35,15 +33,8 @@ int can_io_init(uavcan::INode &node)
         can_io_pwm_pub.construct<uavcan::INode &>(node);
     }
 
-    messagebus_topic_init(&lever_left_topic, &lever_left_topic_lock,
-                          &lever_left_topic_condvar, &lever_left_topic_value,
-                          sizeof(lever_left_topic_value));
-    messagebus_advertise_topic(&bus, &lever_left_topic, "/lever/left");
-
-    messagebus_topic_init(&lever_right_topic, &lever_right_topic_lock,
-                          &lever_right_topic_condvar, &lever_right_topic_value,
-                          sizeof(lever_right_topic_value));
-    messagebus_advertise_topic(&bus, &lever_right_topic, "/lever/right");
+    messagebus_advertise_topic(&bus, &lever_left_topic.topic, "/lever/left");
+    messagebus_advertise_topic(&bus, &lever_right_topic.topic, "/lever/right");
 
     static uavcan::Subscriber<cvra::io::DigitalInput> io_input_sub(node);
     return io_input_sub.start(io_input_cb);

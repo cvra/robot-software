@@ -1,0 +1,19 @@
+syntax = "proto2";
+
+import "nanopb.proto";
+
+message Range {
+    option (nanopb_msgopt).msgid = 3;
+    enum RangeType {
+        ULTRASOUND = 1;
+        LASER = 2;
+    };
+
+    required RangeType type = 1;
+    required float distance = 2;
+}
+
+message SwitchStatus {
+    option (nanopb_msgopt).msgid = 5;
+    required bool switched = 1;
+}

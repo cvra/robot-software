@@ -1,0 +1,10 @@
+syntax = "proto2";
+
+import "nanopb.proto";
+
+message EncodersPosition {
+    option (nanopb_msgopt).msgid = 6;
+    required int32 left = 1;
+    required int32 right = 2;
+}
+

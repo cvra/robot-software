@@ -5,14 +5,16 @@
 extern "C" {
 #endif
 
-/** Cubes color */
+#include "protobuf/strategy.pb.h"
+
+/** Cubes color (short name) */
 enum cube_color {
-    CUBE_YELLOW = 0,
-    CUBE_GREEN,
-    CUBE_BLUE,
-    CUBE_ORANGE,
-    CUBE_BLACK,
-    CUBE_UNKNOWN, // Unknow color
+    CUBE_YELLOW = CubeColor_YELLOW,
+    CUBE_GREEN = CubeColor_GREEN,
+    CUBE_BLUE = CubeColor_BLUE,
+    CUBE_ORANGE = CubeColor_ORANGE,
+    CUBE_BLACK = CubeColor_BLACK,
+    CUBE_UNKNOWN = CubeColor_UNKNOWN, // Unknow color
 };
 
 /** Get color name from enum */

@@ -14,7 +14,7 @@
 #include "robot_helpers/beacon_helpers.h"
 #include "robot_helpers/trajectory_helpers.h"
 #include "strategy/state.h"
-#include "uwb_position.h"
+#include "protobuf/beacons.pb.h"
 
 #define MAP_SERVER_STACKSIZE 1024
 
@@ -29,10 +29,11 @@ static THD_FUNCTION(map_server_thd, arg)
     int opponent_size = config_get_integer("master/opponent_size_x_mm_default");
     map_init(&map, robot_size);
 
-    beacon_signal_t beacon_signal;
+    BeaconSignal beacon_signal;
     messagebus_topic_t* proximity_beacon_topic = messagebus_find_topic_blocking(&bus, "/proximity_beacon");
 
-    allied_position_t allied_position;
+    AlliedPosition allied_position;
+
     messagebus_topic_t* allied_position_topic = messagebus_find_topic_blocking(&bus, "/allied_position");
 
     RobotState state;
@@ -61,7 +62,7 @@ static THD_FUNCTION(map_server_thd, arg)
 
         /* Create obstacle at opponent position, only consider recent beacon signal */
         if (messagebus_topic_read(proximity_beacon_topic, &beacon_signal, sizeof(beacon_signal))) {
-            if (timestamp_duration_s(beacon_signal.timestamp, timestamp_get()) < TRAJ_MAX_TIME_DELAY_OPPONENT_DETECTION) {
+            if (timestamp_duration_s(beacon_signal.timestamp.us, timestamp_get()) < TRAJ_MAX_TIME_DELAY_OPPONENT_DETECTION) {
                 float x_opp, y_opp;
                 beacon_cartesian_convert(&robot.pos, 1000 * beacon_signal.distance, beacon_signal.heading, &x_opp, &y_opp);
                 map_update_opponent_obstacle(&map, x_opp, y_opp, opponent_size * 1.25, robot_size);
@@ -72,10 +73,10 @@ static THD_FUNCTION(map_server_thd, arg)
 
         /* Create obstacle at allied position */
         if (messagebus_topic_read(allied_position_topic, &allied_position, sizeof(allied_position))) {
-            if (timestamp_duration_s(allied_position.timestamp, timestamp_get()) < TRAJ_MAX_TIME_DELAY_ALLY_DETECTION) {
+            if (timestamp_duration_s(allied_position.timestamp.us, timestamp_get()) < TRAJ_MAX_TIME_DELAY_ALLY_DETECTION) {
                 map_set_ally_obstacle(&map,
-                                      allied_position.point.x,
-                                      allied_position.point.y,
+                                      allied_position.x,
+                                      allied_position.y,
                                       robot_size,
                                       robot_size);
             } else {
