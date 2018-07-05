@@ -2,10 +2,9 @@ dependency-dir: ../lib
 
 depends:
     - crc
-    - serial-datagram:
-        fork: Stapelzeiger
-    - parameter:
-        fork: Stapelzeiger
+    - serial-datagram
+    - parameter
+    - nanopb
     - simplerpc
     - pid
     - arm-cortex-tools

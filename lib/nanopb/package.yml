@@ -1,0 +1,6 @@
+include_directories:
+  - nanopb
+source:
+  - nanopb/pb_common.c
+  - nanopb/pb_decode.c
+  - nanopb/pb_encode.c
