@@ -11,7 +11,9 @@ fi
 
 source env/bin/activate
 PROJPATH=$(pwd)
+
 export PATH=$PROJPATH/gcc-arm-none-eabi-4_9-2014q4/bin/:$PATH
+export PATH=$PROJPATH/protoc/bin/:$PATH
 
 export CFLAGS="$CFLAGS -I $HOME/cpputest/include/"
 export CXXFLAGS="$CXXFLAGS -I $HOME/cpputest/include/"
