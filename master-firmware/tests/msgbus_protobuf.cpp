@@ -22,34 +22,44 @@ TEST_GROUP (MessagebusProtobufIntegration) {
     messagebus_t bus;
     int bus_lock;
     int bus_condvar;
+    messagebus_topic_t mytopic;
+    Timestamp topic_content;
+    topic_metadata_t metadata;
 
     void setup()
     {
         messagebus_init(&bus, &bus_lock, &bus_condvar);
+        messagebus_topic_init(&mytopic,
+                              nullptr, nullptr,
+                              &topic_content, sizeof(topic_content));
+        mytopic.metadata = &metadata;
+        metadata.fields = Timestamp_fields;
+        metadata.msgid = Timestamp_msgid;
+
+        messagebus_advertise_topic(&bus, &mytopic, "mytopic");
+        Timestamp msg = Timestamp_init_default;
+        messagebus_topic_publish(&mytopic, &msg, sizeof(msg));
     }
 };
 
 TEST (MessagebusProtobufIntegration, CanCreateTopic) {
-    TOPIC_DECL(mytopic, Timestamp);
+    TOPIC_DECL(topic, Timestamp);
 
-    POINTERS_EQUAL(&mytopic.lock, mytopic.topic.lock);
-    POINTERS_EQUAL(&mytopic.condvar, mytopic.topic.condvar);
-    POINTERS_EQUAL(&mytopic.value, mytopic.topic.buffer);
-    CHECK_EQUAL(sizeof(Timestamp), mytopic.topic.buffer_len);
+    POINTERS_EQUAL(&topic.lock, topic.topic.lock);
+    POINTERS_EQUAL(&topic.condvar, topic.topic.condvar);
+    POINTERS_EQUAL(&topic.value, topic.topic.buffer);
+    CHECK_EQUAL(sizeof(Timestamp), topic.topic.buffer_len);
 
-    POINTERS_EQUAL(&mytopic.metadata, mytopic.topic.metadata);
-    POINTERS_EQUAL(Timestamp_fields, mytopic.metadata.fields);
-    CHECK_EQUAL(Timestamp_msgid, mytopic.metadata.msgid);
+    POINTERS_EQUAL(&topic.metadata, topic.topic.metadata);
+    POINTERS_EQUAL(Timestamp_fields, topic.metadata.fields);
+    CHECK_EQUAL(Timestamp_msgid, topic.metadata.msgid);
 }
 
 TEST (MessagebusProtobufIntegration, CanPublishThenEncodeData) {
-    TOPIC_DECL(mytopic, Timestamp);
-    messagebus_advertise_topic(&bus, &mytopic.topic, "mytopic");
-
     Timestamp foo;
     foo.us = 1000;
 
-    messagebus_topic_publish(&mytopic.topic, &foo, sizeof(foo));
+    messagebus_topic_publish(&mytopic, &foo, sizeof(foo));
 
     messagebus_topic_t *topic = messagebus_find_topic(&bus, "mytopic");
 
@@ -66,13 +76,6 @@ TEST (MessagebusProtobufIntegration, CanPublishThenEncodeData) {
         auto res = pb_encode(&stream, metadata->fields, msg_buffer);
 
         CHECK_TRUE(res);
-
-#if 0
-        // Write the message in a file to be decoded via protoc --decode
-        FILE *out = fopen("example_timestamp.bin", "wb");
-        fwrite(encoded_buffer, stream.bytes_written, 1, out);
-        fclose(out);
-#endif
     }
 
     // Now decode the stream. We assume the message type was transmitted out of
@@ -91,13 +94,10 @@ TEST (MessagebusProtobufIntegration, CanPublishThenEncodeData) {
 }
 
 TEST (MessagebusProtobufIntegration, EncodeMessageWithHeader) {
-    TOPIC_DECL(mytopic, Timestamp);
-    messagebus_advertise_topic(&bus, &mytopic.topic, "mytopic");
-
     uint8_t buffer[128];
     uint8_t obj_buffer[128];
 
-    auto res = messagebus_encode_topic_message(&mytopic.topic,
+    auto res = messagebus_encode_topic_message(&mytopic,
                                                buffer,
                                                sizeof(buffer),
                                                obj_buffer,
@@ -137,12 +137,9 @@ TEST (MessagebusProtobufIntegration, EncodeMessageWithHeader) {
 }
 
 TEST (MessagebusProtobufIntegration, NotEnoughRoomForMessageHeader) {
-    TOPIC_DECL(mytopic, Timestamp);
-    messagebus_advertise_topic(&bus, &mytopic.topic, "mytopic");
-
     uint8_t buffer[1];
     uint8_t obj_buffer[128];
-    auto res = messagebus_encode_topic_message(&mytopic.topic,
+    auto res = messagebus_encode_topic_message(&mytopic,
                                                buffer,
                                                sizeof(buffer),
                                                obj_buffer,
@@ -152,12 +149,9 @@ TEST (MessagebusProtobufIntegration, NotEnoughRoomForMessageHeader) {
 }
 
 TEST (MessagebusProtobufIntegration, NotEnoughRoomForMessageBody) {
-    TOPIC_DECL(mytopic, Timestamp);
-    messagebus_advertise_topic(&bus, &mytopic.topic, "mytopic");
-
     uint8_t buffer[256];
     uint8_t obj_buffer[128];
-    auto res = messagebus_encode_topic_message(&mytopic.topic,
+    auto res = messagebus_encode_topic_message(&mytopic,
                                                buffer,
                                                18,
                                                obj_buffer,
@@ -167,12 +161,9 @@ TEST (MessagebusProtobufIntegration, NotEnoughRoomForMessageBody) {
 }
 
 TEST (MessagebusProtobufIntegration, NotEnoughRoomForObject) {
-    TOPIC_DECL(mytopic, Timestamp);
-    messagebus_advertise_topic(&bus, &mytopic.topic, "mytopic");
-
     uint8_t buffer[256];
     uint8_t obj_buffer[2];
-    auto res = messagebus_encode_topic_message(&mytopic.topic,
+    auto res = messagebus_encode_topic_message(&mytopic,
                                                buffer,
                                                sizeof(buffer),
                                                obj_buffer,

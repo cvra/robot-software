@@ -16,8 +16,6 @@ extern "C" {
 typedef struct {
     const pb_field_t *fields;
     uint32_t msgid;
-    messagebus_watcher_t udp_watcher;
-    messagebus_watcher_t sdcard_watcher;
 } topic_metadata_t;
 
 #define TOPIC_DECL(name, type)                                                                     \
@@ -40,8 +38,6 @@ typedef struct {
         {                                                                                          \
             type##_fields,                                                                         \
             type##_msgid,                                                                          \
-            {0, 0},                                                                                \
-            {0, 0},                                                                                \
         },                                                                                         \
     }
 
@@ -53,10 +49,13 @@ typedef struct {
 /* Wraps the topic information in a header (in protobuf format) to be sent over
  * UDP or logged to disk or whatever.
  *
- * @return The message size in bytes
+ * The scratch buffer must be big enough to hold the topic's content.
+ *
+ * @return The message size in bytes, or zero if there was an error.
  */
-size_t messagebus_encode_topic_message(
-    messagebus_topic_t *topic, uint8_t *buf, size_t buf_len, uint8_t *obj_buf, size_t obj_buf_len);
+size_t messagebus_encode_topic_message(messagebus_topic_t *topic,
+                                       uint8_t *buf, size_t buf_len,
+                                       uint8_t *scratch, size_t scratch_len);
 
 /** Takes a topic information with a header and injects it into the
  * corresponding topic.
