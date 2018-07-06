@@ -1,6 +1,5 @@
 #include "msgbus_protobuf.h"
-#include "protobuf/MessageSize.pb.h"
-#include "protobuf/TopicHeader.pb.h"
+#include "protobuf/protocol.pb.h"
 #include <pb_encode.h>
 #include <pb_decode.h>
 

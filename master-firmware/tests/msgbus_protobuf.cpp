@@ -15,8 +15,7 @@ typedef int condition_variable_t;
 
 // Message types
 #include "protobuf/Timestamp.pb.h"
-#include "protobuf/MessageSize.pb.h"
-#include "protobuf/TopicHeader.pb.h"
+#include "protobuf/protocol.pb.h"
 
 TEST_GROUP (MessagebusProtobufIntegration) {
     messagebus_t bus;
