@@ -682,6 +682,8 @@ extern "C" {
 #define GPIO_MSGP7_MASK         0x00300000UL    /* Mode Selection for SYNC/GPIO7 */
 #define GPIO_MSGP8_MASK         0x00C00000UL    /* Mode Selection for IRQ/GPIO8 */
 
+#define GPIO_PIN0_RXOKLED       0x00000040UL    /* The pin operates as the RXOKLED output */
+#define GPIO_PIN1_SFDLED        0x00000100UL    /* The pin operates as the SFDLED output */
 #define GPIO_PIN2_RXLED         0x00000400UL    /* The pin operates as the RXLED output */
 #define GPIO_PIN3_TXLED         0x00001000UL    /* The pin operates as the TXLED output */
 #define GPIO_PIN4_EXTPA         0x00004000UL    /* The pin operates as the EXTPA output */
