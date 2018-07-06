@@ -15,7 +15,7 @@ extern "C" {
 #include "obstacle_avoidance/obstacle_avoidance.h"
 }
 
-#include "uwb_position.h"
+#include "protobuf/beacons.pb.h"
 #include "base/map.h"
 #include "robot_helpers/math_helpers.h"
 #include "robot_helpers/trajectory_helpers.h"
@@ -367,25 +367,23 @@ TEST_GROUP(TrajectoryHasEnded)
 
     void msgbus_setup()
     {
-        condvar_wrapper_t bus_sync = {PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER};
-        messagebus_init(&bus, &bus_sync, &bus_sync);
+        messagebus_init(&bus, nullptr, nullptr);
     }
 
     void msgbus_advertise_beacon()
     {
-        condvar_wrapper_t proximity_beacon_topic_wrapper = {PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER};
-        static float proximity_beacon_topic_buffer[3];
-        messagebus_topic_init(&proximity_beacon_topic,
-                              &proximity_beacon_topic_wrapper,
-                              &proximity_beacon_topic_wrapper,
-                              &proximity_beacon_topic_buffer,
-                              sizeof(proximity_beacon_topic_buffer));
+        static BeaconSignal prox;
+        prox = BeaconSignal_init_default;
+        messagebus_topic_init(&proximity_beacon_topic, nullptr, nullptr,
+                              &prox, sizeof(prox));
+
         messagebus_advertise_topic(&bus, &proximity_beacon_topic, "/proximity_beacon");
     }
 
     void msgbus_advertise_ally()
     {
-        static allied_position_t pos;
+        static AlliedPosition pos;
+        pos = AlliedPosition_init_default;
         messagebus_topic_init(&ally_position_topic, nullptr, nullptr, &pos,
                               sizeof(pos));
 
@@ -394,7 +392,10 @@ TEST_GROUP(TrajectoryHasEnded)
 
     void publish_allied_position(uint32_t timestamp, point_t pos)
     {
-        allied_position_t msg = {pos, timestamp};
+        AlliedPosition msg;
+        msg.timestamp.us = timestamp;
+        msg.x = pos.x;
+        msg.y = pos.y;
         messagebus_topic_publish(&ally_position_topic, &msg, sizeof(msg));
     }
 };
