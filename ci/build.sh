@@ -31,7 +31,7 @@ case $BUILD_TYPE in
         pushd master-firmware
         packager
         make protoc
-        mkdir build
+        mkdir -p build
         cd build
         cmake ..
         make check
@@ -39,7 +39,7 @@ case $BUILD_TYPE in
 
         pushd motor-control-firmware
         packager
-        mkdir build
+        mkdir -p build
         cd build
         cmake ..
         make check
@@ -47,7 +47,7 @@ case $BUILD_TYPE in
 
         pushd uwb-beacon-firmware
         packager
-        mkdir build
+        mkdir -p build
         cd build
         cmake ..
         make check
