@@ -30,6 +30,7 @@ case $BUILD_TYPE in
     tests)
         pushd master-firmware
         packager
+        make protoc
         mkdir build
         cd build
         cmake ..
