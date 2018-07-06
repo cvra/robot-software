@@ -64,7 +64,10 @@ static THD_FUNCTION(map_server_thd, arg)
         if (messagebus_topic_read(proximity_beacon_topic, &beacon_signal, sizeof(beacon_signal))) {
             if (timestamp_duration_s(beacon_signal.timestamp.us, timestamp_get()) < TRAJ_MAX_TIME_DELAY_OPPONENT_DETECTION) {
                 float x_opp, y_opp;
-                beacon_cartesian_convert(&robot.pos, 1000 * beacon_signal.distance, beacon_signal.heading, &x_opp, &y_opp);
+                beacon_cartesian_convert(&robot.pos,
+                                         1000 * beacon_signal.range.range.distance,
+                                         beacon_signal.range.angle,
+                                         &x_opp, &y_opp);
                 map_update_opponent_obstacle(&map, x_opp, y_opp, opponent_size * 1.25, robot_size);
             } else {
                 map_update_opponent_obstacle(&map, 0, 0, 0, 0); // reset opponent position

@@ -62,11 +62,11 @@ int trajectory_has_ended(int watched_end_reasons)
         // only consider recent beacon signal
         if (timestamp_duration_s(beacon_signal.timestamp.us,
                                  timestamp_get()) < TRAJ_MAX_TIME_DELAY_OPPONENT_DETECTION) {
-            if (beacon_signal.distance < TRAJ_MIN_DISTANCE_TO_OPPONENT) {
+            if (beacon_signal.range.range.distance < TRAJ_MIN_DISTANCE_TO_OPPONENT) {
                 float x_opp, y_opp;
                 beacon_cartesian_convert(&robot.pos,
-                                         1000 * beacon_signal.distance,
-                                         beacon_signal.heading,
+                                         1000 * beacon_signal.range.range.distance,
+                                         beacon_signal.range.angle,
                                          &x_opp,
                                          &y_opp);
 

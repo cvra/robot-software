@@ -29,12 +29,15 @@ static void beacon_cb(const uavcan::ReceivedDataStructure<cvra::proximity_beacon
 
     BeaconSignal data;
     data.timestamp.us = timestamp_get();
-    data.distance = reflector_radius + reflector_radius / tanf(msg.length / 2.);
-    data.heading = beacon_get_angle(msg.start_angle + angular_offset, msg.length);
+    data.range.range.distance = reflector_radius + reflector_radius / tanf(msg.length / 2.);
+    data.range.range.type = Range_RangeType_OTHER;
+    data.range.angle = beacon_get_angle(msg.start_angle + angular_offset, msg.length);
+
     messagebus_topic_publish(&proximity_beacon_topic.topic, &data, sizeof(data));
 
-    DEBUG("Opponent detected at: %.3fm, %.3frad \traw signal: %.3f, %.3f", data.distance,
-            data.heading, msg.start_angle, msg.length);
+    DEBUG("Opponent detected at: %.3fm, %.3frad \traw signal: %.3f, %.3f",
+            data.range.range.distance,
+            data.range.angle, msg.start_angle, msg.length);
 
 }
 

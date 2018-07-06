@@ -2,6 +2,7 @@ syntax = "proto2";
 
 import "nanopb.proto";
 import "Timestamp.proto";
+import "sensors.proto";
 
 message AlliedPosition
 {
@@ -14,7 +15,6 @@ message AlliedPosition
 message BeaconSignal {
     option (nanopb_msgopt).msgid = 4;
     required Timestamp timestamp = 1;
-    required float distance = 2;
-    required float heading = 3;
+    required RangeBearing range = 2;
 }
 
