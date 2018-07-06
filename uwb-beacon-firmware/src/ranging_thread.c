@@ -105,7 +105,7 @@ static void ranging_thread(void *p)
 
     int current_anchor_mac_index = 0;
     uint16_t anchor_macs[] = {7, 14};
-    int nb_anchor_macs = sizeof(anchor_macs);
+    int nb_anchor_macs = sizeof(anchor_macs) / sizeof(anchor_macs[0]);
 
     while (1) {
         /* Wait for an interrupt coming from the UWB module. */
@@ -121,8 +121,8 @@ static void ranging_thread(void *p)
         }
 
         if (flags & EVENT_ADVERTISE_TIMER) {
-            palTogglePad(GPIOB, GPIOB_LED_STATUS);
             if (!handler.is_anchor && nb_anchor_macs > 0) {
+                palTogglePad(GPIOB, GPIOB_LED_STATUS);
                 /* First disable transceiver */
                 dwt_forcetrxoff();
 

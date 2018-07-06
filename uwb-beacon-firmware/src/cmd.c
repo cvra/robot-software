@@ -169,9 +169,9 @@ static void cmd_range(BaseSequentialStream *chp, int argc, char **argv)
     }
 
     messagebus_topic_read(topic, &msg, sizeof(msg));
-    chprintf(chp, "got a ToF to anchor 0x%x : %.3f\r\n", msg.anchor_addr, msg.range);
+    chprintf(chp, "got a ToF to anchor 0x%x: %.3f at timestamp %d\r\n", msg.anchor_addr, msg.range, msg.timestamp);
     messagebus_topic_wait(topic, &msg, sizeof(msg));
-    chprintf(chp, "got a ToF to anchor 0x%x : %.3f\r\n", msg.anchor_addr, msg.range);
+    chprintf(chp, "got a ToF to anchor 0x%x: %.3f at timestamp %d\r\n", msg.anchor_addr, msg.range, msg.timestamp);
 }
 
 static void cmd_anchors(BaseSequentialStream *chp, int argc, char **argv)
