@@ -353,7 +353,7 @@ static void cmd_encoders(BaseSequentialStream *chp, int argc, char *argv[])
     (void) argv;
 
     messagebus_topic_t *encoders_topic;
-    EncodersPosition values;
+    WheelEncodersPulse values;
 
     encoders_topic = messagebus_find_topic_blocking(&bus, "/encoders");
     messagebus_topic_wait(encoders_topic, &values, sizeof(values));

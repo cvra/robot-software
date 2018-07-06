@@ -49,7 +49,7 @@ static THD_FUNCTION(encoders_thd, arg)
     chRegSetThreadName(__FUNCTION__);
 
     /* Setup and advertise encoders topic */
-    static TOPIC_DECL(encoders_topic, EncodersPosition);
+    static TOPIC_DECL(encoders_topic, WheelEncodersPulse);
 
     messagebus_advertise_topic(&bus, &encoders_topic.topic, "/encoders");
 
@@ -63,7 +63,7 @@ static THD_FUNCTION(encoders_thd, arg)
     setup_timer(STM32_TIM3);
 
     uint32_t left_old, right_old;
-    EncodersPosition values = EncodersPosition_init_zero;
+    WheelEncodersPulse values = WheelEncodersPulse_init_zero;
 
     left_old = encoder_get_left();
     right_old = encoder_get_right();
