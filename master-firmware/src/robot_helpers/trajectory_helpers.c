@@ -8,7 +8,7 @@
 #include "base/map.h"
 #include "math_helpers.h"
 #include "beacon_helpers.h"
-#include "can/uwb_position.h"
+#include "protobuf/beacons.pb.h"
 
 #include "trajectory_helpers.h"
 
@@ -55,37 +55,37 @@ int trajectory_has_ended(int watched_end_reasons)
     }
 
     if (watched_end_reasons & TRAJ_END_OPPONENT_NEAR) {
-        beacon_signal_t beacon_signal;
+        BeaconSignal beacon_signal;
         messagebus_topic_t* proximity_beacon_topic = messagebus_find_topic_blocking(&bus, "/proximity_beacon");
-        messagebus_topic_read(proximity_beacon_topic, &beacon_signal, sizeof(beacon_signal));
 
         // only consider recent beacon signal
-        if (timestamp_duration_s(beacon_signal.timestamp,
-                                 timestamp_get()) < TRAJ_MAX_TIME_DELAY_OPPONENT_DETECTION) {
-            if (beacon_signal.distance < TRAJ_MIN_DISTANCE_TO_OPPONENT) {
-                float x_opp, y_opp;
-                beacon_cartesian_convert(&robot.pos,
-                                         1000 * beacon_signal.distance,
-                                         beacon_signal.heading,
-                                         &x_opp,
-                                         &y_opp);
+        if (messagebus_topic_read(proximity_beacon_topic, &beacon_signal, sizeof(beacon_signal)) &&
+            timestamp_duration_s(beacon_signal.timestamp.us, timestamp_get())
+                < TRAJ_MAX_TIME_DELAY_OPPONENT_DETECTION &&
+            beacon_signal.range.range.distance < TRAJ_MIN_DISTANCE_TO_OPPONENT) {
 
-                if (trajectory_is_on_collision_path(&robot, x_opp, y_opp)) {
-                    return TRAJ_END_OPPONENT_NEAR;
-                }
+            float x_opp, y_opp;
+            beacon_cartesian_convert(&robot.pos,
+                                     1000 * beacon_signal.range.range.distance,
+                                     beacon_signal.range.angle,
+                                     &x_opp,
+                                     &y_opp);
+
+            if (trajectory_is_on_collision_path(&robot, x_opp, y_opp)) {
+                return TRAJ_END_OPPONENT_NEAR;
             }
         }
     }
 
     if (watched_end_reasons & TRAJ_END_ALLY_NEAR) {
         messagebus_topic_t *topic = messagebus_find_topic(&bus, "/allied_position");
-        allied_position_t pos;
+        AlliedPosition pos;
 
         if (topic && messagebus_topic_read(topic, &pos, sizeof(pos))) {
-            uint32_t age = timestamp_duration_s(pos.timestamp, timestamp_get());
+            uint32_t age = timestamp_duration_s(pos.timestamp.us, timestamp_get());
 
             if (age < TRAJ_MAX_TIME_DELAY_OPPONENT_DETECTION) {
-                if (trajectory_is_on_collision_path(&robot, pos.point.x, pos.point.y)) {
+                if (trajectory_is_on_collision_path(&robot, pos.x, pos.y)) {
                     return TRAJ_END_ALLY_NEAR;
                 }
             }

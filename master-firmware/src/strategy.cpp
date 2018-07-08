@@ -35,6 +35,9 @@
 #include "strategy/color_sequence_server.h"
 #include "timestamp/timestamp.h"
 
+#include "protobuf/sensors.pb.h"
+#include "protobuf/strategy.pb.h"
+
 
 static enum strat_color_t wait_for_color_selection(void);
 static void wait_for_autoposition_signal(void);
@@ -327,13 +330,13 @@ void strat_scara_push_y(float dy, scara_coordinate_t system, velocity_3d_t max_v
 bool strat_check_distance_to_hand_lower_than(float expected_value)
 {
     bool success = true;
+    Range range;
 
-    float distance_to_tower;
     messagebus_topic_t* topic = messagebus_find_topic_blocking(&bus, "/hand_distance");
 
-    if (messagebus_topic_read(topic, &distance_to_tower, sizeof(distance_to_tower))) {
-        WARNING("Hand distance: %f", distance_to_tower);
-        success = (distance_to_tower < expected_value);
+    if (messagebus_topic_read(topic, &range, sizeof(range))) {
+        WARNING("Hand distance: %f", range.distance);
+        success = (range.distance < expected_value);
     } else {
         WARNING("Hand distance sensor is not publishing");
     }
@@ -427,7 +430,7 @@ bool strat_lever_is_full(enum lever_side_t lever_side)
 {
     return true; // Temporarily disable this, investigating logic issues
 
-    bool full;
+    SwitchStatus status;
     messagebus_topic_t *topic;
 
     if (lever_side == LEVER_SIDE_LEFT) {
@@ -441,12 +444,12 @@ bool strat_lever_is_full(enum lever_side_t lever_side)
         return true;
     }
 
-    if (!messagebus_topic_read(topic, &full, sizeof(full))) {
+    if (!messagebus_topic_read(topic, &status, sizeof(status))) {
         WARNING("Lever topic was never published to.");
         return true;
     }
 
-    return full;
+    return status.switched;
 }
 
 struct PickupCubesLeft : actions::PickupCubesLeft {
@@ -1024,8 +1027,13 @@ void strategy_read_color_sequence(RobotState& state)
 {
     int tower_sequence_len = sizeof(state.tower_sequence) / sizeof(enum cube_color);
     messagebus_topic_t* colors_topic = messagebus_find_topic_blocking(&bus, "/colors");
+    ColorSequence sequence;
 
-    if (messagebus_topic_read(colors_topic, &state.tower_sequence[0], tower_sequence_len)) {
+    if (messagebus_topic_read(colors_topic, &sequence, sizeof(sequence))) {
+        for (auto i = 0; i < tower_sequence_len; i++) {
+            state.tower_sequence[i] = static_cast<enum cube_color>(sequence.sequence[i]);
+        }
+
         if (state.tower_sequence[0] != CUBE_UNKNOWN &&
             state.tower_sequence[1] != CUBE_UNKNOWN &&
             state.tower_sequence[2] != CUBE_UNKNOWN) {

@@ -4,17 +4,18 @@
 
 #include <error/error.h>
 #include "main.h"
+#include "protobuf/sensors.pb.h"
+#include "msgbus_protobuf.h"
 
-static messagebus_topic_t hand_distance_topic;
-static MUTEX_DECL(hand_distance_topic_lock);
-static CONDVAR_DECL(hand_distance_topic_condvar);
-static float hand_distance_topic_value;
+static TOPIC_DECL(hand_distance_topic, Range);
 
 static void sensor_distance_cb(const uavcan::ReceivedDataStructure<cvra::sensor::DistanceVL6180X>& msg)
 {
     if (msg.status == cvra::sensor::DistanceVL6180X::STATUS_OK) {
-        float dist = (float)msg.distance_mm / 1000.0f;
-        messagebus_topic_publish(&hand_distance_topic, &dist, sizeof(dist));
+        Range dist;
+        dist.distance =  msg.distance_mm / 1000.f;
+        dist.type = Range_RangeType_LASER;
+        messagebus_topic_publish(&hand_distance_topic.topic, &dist, sizeof(dist));
     } else {
         DEBUG("Hand distance measurement error: %d", (int)msg.status);
     }
@@ -22,13 +23,7 @@ static void sensor_distance_cb(const uavcan::ReceivedDataStructure<cvra::sensor:
 
 int sensor_handler_init(uavcan::INode &node)
 {
-    messagebus_topic_init(&hand_distance_topic,
-                          &hand_distance_topic_lock,
-                          &hand_distance_topic_condvar,
-                          &hand_distance_topic_value,
-                          sizeof(hand_distance_topic_value));
-
-    messagebus_advertise_topic(&bus, &hand_distance_topic, "/hand_distance");
+    messagebus_advertise_topic(&bus, &hand_distance_topic.topic, "/hand_distance");
 
     static uavcan::Subscriber<cvra::sensor::DistanceVL6180X> distance_sub(node);
 

@@ -15,7 +15,7 @@ extern "C" {
 #include "obstacle_avoidance/obstacle_avoidance.h"
 }
 
-#include "uwb_position.h"
+#include "protobuf/beacons.pb.h"
 #include "base/map.h"
 #include "robot_helpers/math_helpers.h"
 #include "robot_helpers/trajectory_helpers.h"
@@ -367,25 +367,23 @@ TEST_GROUP(TrajectoryHasEnded)
 
     void msgbus_setup()
     {
-        condvar_wrapper_t bus_sync = {PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER};
-        messagebus_init(&bus, &bus_sync, &bus_sync);
+        messagebus_init(&bus, nullptr, nullptr);
     }
 
     void msgbus_advertise_beacon()
     {
-        condvar_wrapper_t proximity_beacon_topic_wrapper = {PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER};
-        static float proximity_beacon_topic_buffer[3];
-        messagebus_topic_init(&proximity_beacon_topic,
-                              &proximity_beacon_topic_wrapper,
-                              &proximity_beacon_topic_wrapper,
-                              &proximity_beacon_topic_buffer,
-                              sizeof(proximity_beacon_topic_buffer));
+        static BeaconSignal prox;
+        prox = BeaconSignal_init_default;
+        messagebus_topic_init(&proximity_beacon_topic, nullptr, nullptr,
+                              &prox, sizeof(prox));
+
         messagebus_advertise_topic(&bus, &proximity_beacon_topic, "/proximity_beacon");
     }
 
     void msgbus_advertise_ally()
     {
-        static allied_position_t pos;
+        static AlliedPosition pos;
+        pos = AlliedPosition_init_default;
         messagebus_topic_init(&ally_position_topic, nullptr, nullptr, &pos,
                               sizeof(pos));
 
@@ -394,8 +392,20 @@ TEST_GROUP(TrajectoryHasEnded)
 
     void publish_allied_position(uint32_t timestamp, point_t pos)
     {
-        allied_position_t msg = {pos, timestamp};
+        AlliedPosition msg;
+        msg.timestamp.us = timestamp;
+        msg.x = pos.x;
+        msg.y = pos.y;
         messagebus_topic_publish(&ally_position_topic, &msg, sizeof(msg));
+    }
+
+    void publish_beacon_signal(uint32_t timestamp_us, float distance, float angle_deg)
+    {
+        BeaconSignal data;
+        data.timestamp.us = timestamp_us;
+        data.range.range.distance = distance;
+        data.range.angle = RADIANS(angle_deg);
+        messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
     }
 };
 
@@ -493,8 +503,8 @@ TEST(TrajectoryHasEnded, DetectsFutureCollisionWhenGoalIsInsideOpponentPolygon)
     robot_manage();
 
     /* Simulate opponent */
-    float data[3] = {(float)timestamp_now, 0.3, RADIANS(10)};
-    messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
+    publish_beacon_signal(timestamp_now, 0.3, 10);
+
 
     int traj_end_reason = trajectory_has_ended(TRAJ_END_OPPONENT_NEAR);
 
@@ -512,8 +522,7 @@ TEST(TrajectoryHasEnded, DetectsObstacleNearWhenCurrentPosIsInsideOpponentPolygo
     robot_manage();
 
     /* Simulate opponent */
-    float data[3] = {(float)timestamp_now, 0.3, RADIANS(170)};
-    messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
+    publish_beacon_signal(timestamp_now, 0.3, 170);
 
     int traj_end_reason = trajectory_has_ended(TRAJ_END_OPPONENT_NEAR);
 
@@ -528,8 +537,7 @@ TEST(TrajectoryHasEnded, DetectsWhenOpponentTooClose)
     robot_manage();
 
     /* Simulate opponent */
-    float data[3] = {(float)timestamp_now, 0.3, RADIANS(10)};
-    messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
+    publish_beacon_signal(timestamp_now, 0.3, 10);
 
     int traj_end_reason = trajectory_has_ended(TRAJ_END_OPPONENT_NEAR);
 
@@ -544,8 +552,7 @@ TEST(TrajectoryHasEnded, IgnoresOpponentIfOutOfTheWayEvenIfTooClose)
     robot_manage();
 
     /* Simulate opponent */
-    float data[3] = {(float)timestamp_now, 0.3, RADIANS(170)};
-    messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
+    publish_beacon_signal(timestamp_now, 0.3, 170);
 
     int traj_end_reason = trajectory_has_ended(TRAJ_END_OPPONENT_NEAR);
 
@@ -562,8 +569,7 @@ TEST(TrajectoryHasEnded, DetectsWhenOpponentTooCloseAndInDirectionOfMotionWhenGo
     robot_manage();
 
     /* Simulate opponent */
-    float data[3] = {(float)timestamp_now, 0.3, RADIANS(170)};
-    messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
+    publish_beacon_signal(timestamp_now, 0.3, 170);
 
     int traj_end_reason = trajectory_has_ended(TRAJ_END_OPPONENT_NEAR);
 
@@ -578,8 +584,7 @@ TEST(TrajectoryHasEnded, ReturnsZeroWhenNoReasonSpecifiedEvenIfOpponentGetsNear)
     robot_manage();
 
     /* Simulate opponent */
-    float data[3] = {(float)timestamp_now, 0.3, RADIANS(170)};
-    messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
+    publish_beacon_signal(timestamp_now, 0.3, 170);
 
     int traj_end_reason = trajectory_has_ended(0);
 
@@ -593,10 +598,9 @@ TEST(TrajectoryHasEnded, IgnoresOpponentTooCloseWhenBeaconSignalTooOld)
     robot_manage();
     robot_manage();
 
-    /* Simulate opponent */
-    const float arbitrary_old_timestamp = 0;
-    float data[3] = {arbitrary_old_timestamp, 0.3, RADIANS(10)};
-    messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
+    /* Simulate an opponent long in the past. */
+    auto old_ts = 0;
+    publish_beacon_signal(old_ts, 0.3, 10);
 
     int traj_end_reason = trajectory_has_ended(TRAJ_END_OPPONENT_NEAR);
 
@@ -614,8 +618,7 @@ TEST(TrajectoryHasEnded, IgnoresOpponentIfOutOfTheWayEvenIfTooBig)
     robot_manage();
 
     /* Simulate opponent */
-    float data[3] = {(float)timestamp_now, 0.7, RADIANS(10)};
-    messagebus_topic_publish(&proximity_beacon_topic, &data, sizeof(data));
+    publish_beacon_signal(timestamp_now, 0.7, 10);
 
     int traj_end_reason = trajectory_has_ended(TRAJ_END_OPPONENT_NEAR);
 

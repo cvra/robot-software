@@ -8,12 +8,6 @@ extern "C" {
 #include "position_manager/position_manager.h"
 #include "obstacle_avoidance/obstacle_avoidance.h"
 
-typedef struct {
-    float timestamp;
-    float distance;
-    float heading;
-} beacon_signal_t;
-
 /** Compute beacon angle from beacon signal values
  */
 float beacon_get_angle(float start_angle, float signal_length);

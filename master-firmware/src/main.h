@@ -9,7 +9,7 @@ extern "C" {
 #define MAX_NB_BUS_ENUMERATOR_ENTRIES   21
 
 #include "motor_manager.h"
-#include "msgbus/messagebus.h"
+#include "msgbus_protobuf.h"
 #include <parameter/parameter.h>
 
 /** Robot wide interthread bus. */

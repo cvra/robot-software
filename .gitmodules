@@ -58,3 +58,6 @@
 [submodule "lib/ugfx"]
 	path = lib/ugfx
 	url = https://git.ugfx.io/uGFX/uGFX.git
+[submodule "lib/nanopb/nanopb"]
+	path = lib/nanopb/nanopb
+	url = https://github.com/nanopb/nanopb

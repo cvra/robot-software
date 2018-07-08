@@ -11,6 +11,7 @@ By default it assumes you are using a ST-Link V2. You can change this in the Mak
 ```bash
     git submodule update --init --recursive
     packager
+    make protoc
     make dsdlc
     make
     make flash

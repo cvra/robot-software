@@ -11,7 +11,9 @@ fi
 
 source env/bin/activate
 PROJPATH=$(pwd)
+
 export PATH=$PROJPATH/gcc-arm-none-eabi-4_9-2014q4/bin/:$PATH
+export PATH=$PROJPATH/protoc/bin/:$PATH
 
 export CFLAGS="$CFLAGS -I $HOME/cpputest/include/"
 export CXXFLAGS="$CXXFLAGS -I $HOME/cpputest/include/"
@@ -28,7 +30,8 @@ case $BUILD_TYPE in
     tests)
         pushd master-firmware
         packager
-        mkdir build
+        make protoc
+        mkdir -p build
         cd build
         cmake ..
         make check
@@ -36,7 +39,7 @@ case $BUILD_TYPE in
 
         pushd motor-control-firmware
         packager
-        mkdir build
+        mkdir -p build
         cd build
         cmake ..
         make check
@@ -44,7 +47,7 @@ case $BUILD_TYPE in
 
         pushd uwb-beacon-firmware
         packager
-        mkdir build
+        mkdir -p build
         cd build
         cmake ..
         make check
@@ -57,6 +60,12 @@ case $BUILD_TYPE in
         pushd $PLATFORM
         packager
         make $ROBOT_FLAG dsdlc
+
+        if [ "$PLATFORM" == "master-firmware" ]
+        then
+            make protoc
+        fi
+
         make $ROBOT_FLAG
         popd
         ;;
