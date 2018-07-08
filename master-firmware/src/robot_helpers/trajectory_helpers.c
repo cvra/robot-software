@@ -57,22 +57,22 @@ int trajectory_has_ended(int watched_end_reasons)
     if (watched_end_reasons & TRAJ_END_OPPONENT_NEAR) {
         BeaconSignal beacon_signal;
         messagebus_topic_t* proximity_beacon_topic = messagebus_find_topic_blocking(&bus, "/proximity_beacon");
-        messagebus_topic_read(proximity_beacon_topic, &beacon_signal, sizeof(beacon_signal));
 
         // only consider recent beacon signal
-        if (timestamp_duration_s(beacon_signal.timestamp.us,
-                                 timestamp_get()) < TRAJ_MAX_TIME_DELAY_OPPONENT_DETECTION) {
-            if (beacon_signal.range.range.distance < TRAJ_MIN_DISTANCE_TO_OPPONENT) {
-                float x_opp, y_opp;
-                beacon_cartesian_convert(&robot.pos,
-                                         1000 * beacon_signal.range.range.distance,
-                                         beacon_signal.range.angle,
-                                         &x_opp,
-                                         &y_opp);
+        if (messagebus_topic_read(proximity_beacon_topic, &beacon_signal, sizeof(beacon_signal)) &&
+            timestamp_duration_s(beacon_signal.timestamp.us, timestamp_get())
+                < TRAJ_MAX_TIME_DELAY_OPPONENT_DETECTION &&
+            beacon_signal.range.range.distance < TRAJ_MIN_DISTANCE_TO_OPPONENT) {
 
-                if (trajectory_is_on_collision_path(&robot, x_opp, y_opp)) {
-                    return TRAJ_END_OPPONENT_NEAR;
-                }
+            float x_opp, y_opp;
+            beacon_cartesian_convert(&robot.pos,
+                                     1000 * beacon_signal.range.range.distance,
+                                     beacon_signal.range.angle,
+                                     &x_opp,
+                                     &y_opp);
+
+            if (trajectory_is_on_collision_path(&robot, x_opp, y_opp)) {
+                return TRAJ_END_OPPONENT_NEAR;
             }
         }
     }
