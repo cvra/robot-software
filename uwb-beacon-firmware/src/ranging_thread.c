@@ -79,6 +79,8 @@ static void anchor_position_timer_cb(void *t);
 static void tag_position_timer_cb(void *t);
 static void frame_tx_done_cb(const dwt_cb_data_t *data);
 static void frame_rx_cb(const dwt_cb_data_t *data);
+static void frame_rx_timeout_cb(const dwt_cb_data_t *data);
+static void frame_rx_error_cb(const dwt_cb_data_t *data);
 
 void ranging_start(void)
 {
@@ -163,6 +165,22 @@ static void frame_rx_cb(const dwt_cb_data_t *data)
     dwt_rxenable(DWT_START_RX_IMMEDIATE);
 }
 
+static void frame_rx_timeout_cb(const dwt_cb_data_t *data)
+{
+    (void) data;
+
+    palTogglePad(GPIOB, GPIOB_LED_DEBUG);
+    dwt_rxenable(DWT_START_RX_IMMEDIATE);
+}
+
+static void frame_rx_error_cb(const dwt_cb_data_t *data)
+{
+    (void) data;
+
+    palTogglePad(GPIOB, GPIOB_LED_DEBUG);
+    dwt_rxenable(DWT_START_RX_IMMEDIATE);
+}
+
 static void anchor_position_received_cb(uint16_t addr, float x, float y, float z)
 {
     anchor_position_msg_t msg;
@@ -203,8 +221,6 @@ static void ranging_found_cb(uint16_t addr, uint64_t time)
     msg.timestamp = ts;
     msg.anchor_addr = addr;
     msg.range = time * SPEED_OF_LIGHT;
-
-    palTogglePad(GPIOB, GPIOB_LED_DEBUG);
 
     messagebus_topic_publish(&ranging_topic, &msg, sizeof(msg));
 }
@@ -305,8 +321,10 @@ static void hardware_init(void)
 {
     decawave_start();
 
-    dwt_setinterrupt(DWT_INT_RFCG | DWT_INT_TFRS, true);
-    dwt_setcallbacks(frame_tx_done_cb, frame_rx_cb, NULL, NULL);
+    dwt_setinterrupt(DWT_INT_RFCG | DWT_INT_TFRS |
+                     DWT_INT_RPHE | DWT_INT_SFDT | DWT_INT_RFSL | DWT_INT_RFCE | DWT_INT_ARFE |
+                     DWT_INT_RFTO | DWT_INT_RXPTO, true);
+    dwt_setcallbacks(frame_tx_done_cb, frame_rx_cb, frame_rx_timeout_cb, frame_rx_error_cb);
 
     dwt_setrxantennadelay(parameter_integer_get(&uwb_params.antenna_delay));
 
