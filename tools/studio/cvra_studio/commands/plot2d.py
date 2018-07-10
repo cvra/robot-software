@@ -15,26 +15,35 @@ def argparser(parser=None):
 
     return parser
 
+def make_cube(x, y, color, mirror):
+    SIZE = 60
+    RADIUS = SIZE / np.sqrt(2)
+    offset = { 'y': (0, 0), 'k': (0, - SIZE), 'b': (0, SIZE), 'g': (- SIZE, 0), 'r': (SIZE, 0) }
+    if mirror: offset['g'], offset['r'] = offset['r'], offset['g']
+    return { 'x': x + offset[color][0], 'y': y + offset[color][1], 'a': 45, 'n': 4, 'r': RADIUS, 'fill': color }
+
+def make_cubes(name, x, y, mirror):
+    return {name.format('_y'): make_cube(x, y, 'y', mirror),
+            name.format('_k'): make_cube(x, y, 'k', mirror),
+            name.format('_b'): make_cube(x, y, 'b', mirror),
+            name.format('_g'): make_cube(x, y, 'g', mirror),
+            name.format('_r'): make_cube(x, y, 'r', mirror)}
+
 class Model:
     def __init__(self):
         self.data = {
-            'foo': {
-                'x': 0,
-                'y': 0,
-                'a': 0,
-                'r': 150,
-                'n': 6,
-                'a': np.pi/2,
-            },
-            'cube_1_y': { 'x':  850, 'y':  540, 'a': 0, 'n': 4 },
-            'cube_1_g': { 'x': 2150, 'y':  540, 'a': 0, 'n': 4 },
-            'cube_2_y': { 'x':  300, 'y': 1190, 'a': 0, 'n': 4 },
-            'cube_2_g': { 'x': 2700, 'y': 1190, 'a': 0, 'n': 4 },
-            'cube_3_y': { 'x': 1100, 'y': 1500, 'a': 0, 'n': 4 },
-            'cube_3_g': { 'x': 1900, 'y': 1500, 'a': 0, 'n': 4 },
-            'wastewater': { 'pts': [[894, 1750], [2106, 1750], [2106, 2000], [894, 2000]] },
-            'table': { 'pts': [[0, 0], [3000, 0], [3000, 2000], [0, 2000]] },
+            'wastewater_g': { 'pts': [[894, 1750], [1500, 1750], [1500, 2000], [894, 2000]], 'color': 'g' },
+            'wastewater_o': { 'pts': [[1500, 1750], [2106, 1750], [2106, 2000], [1500, 2000]], 'color': 'r' },
+            'start_g': { 'pts': [[894, 1750], [1500, 1750], [1500, 2000], [894, 2000]], 'fill': 'g' },
+            'start_o': { 'pts': [[1500, 1750], [2106, 1750], [2106, 2000], [1500, 2000]], 'fill': 'r' },
         }
+        self.data.update(make_cubes('cube_1_o{}',  850,  540, False))
+        self.data.update(make_cubes('cube_2_o{}',  300, 1190, False))
+        self.data.update(make_cubes('cube_3_o{}', 1100, 1500, False))
+        self.data.update(make_cubes('cube_1_g{}', 2150,  540, True))
+        self.data.update(make_cubes('cube_2_g{}', 2700, 1190, True))
+        self.data.update(make_cubes('cube_3_g{}', 1900, 1500, True))
+
         threading.Thread(target=self.run).start()
 
     def get_data(self):
@@ -42,8 +51,15 @@ class Model:
 
     def run(self):
         while True:
-            self.data['foo']['x'] = 3000 * np.random.random(size=(1,1))[0][0]
-            self.data['foo']['y'] = 2000 * np.random.random(size=(1,1))[0][0]
+            random_number = lambda: np.random.random(size=(1,1))[0][0]
+            self.data.update({'robot': {
+                'x': 3000 * random_number(),
+                'y': 2000 * random_number(),
+                'a': 2000 * random_number(),
+                'r': 150,
+                'n': 6,
+                'fill': 'b'
+                }})
             time.sleep(0.1)
 
 class Controller:

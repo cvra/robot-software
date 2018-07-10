@@ -1,14 +1,15 @@
+import math
 from operator import itemgetter
 import queue
 
 import numpy as np
 import pyqtgraph as pg
-from pyqtgraph.Qt import QtCore
+from pyqtgraph.Qt import QtCore, QtGui
 
-from .polygon_helpers import close_polygon, polygon
 
 class LivePlotter2D:
     def __init__(self, size):
+        self.size = size
         self.ports = []
         self.timer = pg.QtCore.QTimer()
         self.widget = pg.PlotWidget()
@@ -20,6 +21,9 @@ class LivePlotter2D:
         self.ax.setXRange(0, size[0])
         self.ax.setYRange(0, size[1])
 
+    def boundingRect(self):
+        return [[0, 0], [self.size[0], 0], [self.size[0], self.size[1]], [0, self.size[1]]]
+
     def getPort(self):
         q = queue.Queue()
         plt = self.ax
@@ -30,32 +34,56 @@ class LivePlotter2D:
         for q, plt in self.ports:
             try:
                 data = q.get(block=False)
-
                 plt.clear()
-                self.ax.legend.scene().removeItem(self.ax.legend)
-
-                self.ax.addLegend()
+                plt.addItem(PolygonItem(self.boundingRect(), 'k', (200,200,200)))
                 for index, variable in enumerate(data):
                     if 'pts' in data[variable].keys():
                         pts = data[variable]['pts']
-                        x, y = list(map(itemgetter(0), pts)), list(map(itemgetter(1), pts))
                     else:
-                        x, y = polygon(data[variable]['x'],
-                                       data[variable]['y'],
-                                       data[variable].get('r', 100),
-                                       data[variable].get('n', 6),
-                                       data[variable].get('a', 0))
-
-                    x, y = close_polygon([x, y])
-                    plt.plot(
-                        np.asarray(x).flatten(),
-                        np.asarray(y).flatten(),
-                        name=variable,
-                        pen=(index, len(data)),
-                        symbol="o",
-                        symbolSize=1
-                    )
+                        pts = createPoly(
+                                (data[variable]['x'], data[variable]['y']),
+                                data[variable].get('n', 6),
+                                data[variable].get('r', 100),
+                                data[variable].get('a', 0))
+                    color = data[variable].get('color', 'k')
+                    fill = data[variable].get('fill', None)
+                    plt.addItem(PolygonItem(pts, color, fill))
             except queue.Empty:
                 pass
             except Exception:
                 plt.clear()
+
+
+def createPoly(center, n, r, s):
+    return [(center[0] + r*math.cos(math.radians(t)),
+             center[1] + r*math.sin(math.radians(t)))
+            for t in list(map(lambda i: i*360/n + s, range(n)))]
+
+
+class PolygonItem(pg.GraphicsObject):
+    def __init__(self, data, color='w', fill=None):
+        pg.GraphicsObject.__init__(self)
+        self.data = data
+        # pre-computing a QPicture object allows paint() to run much more quickly,
+        # rather than re-drawing the shapes every time.
+        self.picture = QtGui.QPicture()
+        p = QtGui.QPainter(self.picture)
+        p.setPen(pg.mkPen(color=color))
+        if fill is not None: p.setBrush(pg.mkBrush(color=fill))
+
+        self.points = []
+        for item in self.data:
+            point = QtCore.QPoint(item[0], item[1])
+            self.points.append(point)
+        p.drawPolygon(*self.points)
+
+        p.end()
+
+    def paint(self, p, *args):
+        p.drawPicture(0, 0, self.picture)
+
+    def boundingRect(self):
+        # boundingRect _must_ indicate the entire area that will be drawn on
+        # or else we will get artifacts and possibly crashing.
+        # (in this case, QPicture does all the work of computing the bouning rect for us)
+        return QtCore.QRectF(self.picture.boundingRect())
