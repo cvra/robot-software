@@ -6,6 +6,15 @@ import numpy as np
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui
 
+COLORS = {
+  'y': (247, 181, 0),
+  'k': (14, 14, 16),
+  'b': (0, 124, 176),
+  'g': (97, 153, 59),
+  'o': (208, 93, 40),
+  'beige': (245, 245, 220),
+  'cvra': (0, 83, 135),
+}
 
 class LivePlotter2D:
     def __init__(self, size):
@@ -35,7 +44,7 @@ class LivePlotter2D:
             try:
                 data = q.get(block=False)
                 plt.clear()
-                plt.addItem(PolygonItem(self.boundingRect(), 'k', (200,200,200)))
+                plt.addItem(PolygonItem(self.boundingRect(), COLORS['k'], COLORS['beige']))
                 for index, variable in enumerate(data):
                     if 'pts' in data[variable].keys():
                         pts = data[variable]['pts']
@@ -47,7 +56,7 @@ class LivePlotter2D:
                                 data[variable].get('a', 0))
                     color = data[variable].get('color', 'k')
                     fill = data[variable].get('fill', None)
-                    plt.addItem(PolygonItem(pts, color, fill))
+                    plt.addItem(PolygonItem(pts, COLORS[color], COLORS[fill]))
             except queue.Empty:
                 pass
             except Exception:

@@ -18,8 +18,8 @@ def argparser(parser=None):
 def make_cube(x, y, color, mirror):
     SIZE = 60
     RADIUS = SIZE / np.sqrt(2)
-    offset = { 'y': (0, 0), 'k': (0, - SIZE), 'b': (0, SIZE), 'g': (- SIZE, 0), 'r': (SIZE, 0) }
-    if mirror: offset['g'], offset['r'] = offset['r'], offset['g']
+    offset = { 'y': (0, 0), 'k': (0, - SIZE), 'b': (0, SIZE), 'g': (- SIZE, 0), 'o': (SIZE, 0) }
+    if mirror: offset['g'], offset['o'] = offset['o'], offset['g']
     return { 'x': x + offset[color][0], 'y': y + offset[color][1], 'a': 45, 'n': 4, 'r': RADIUS, 'fill': color }
 
 def make_cubes(name, x, y, mirror):
@@ -27,15 +27,15 @@ def make_cubes(name, x, y, mirror):
             name.format('_k'): make_cube(x, y, 'k', mirror),
             name.format('_b'): make_cube(x, y, 'b', mirror),
             name.format('_g'): make_cube(x, y, 'g', mirror),
-            name.format('_r'): make_cube(x, y, 'r', mirror)}
+            name.format('_o'): make_cube(x, y, 'o', mirror)}
 
 class Model:
     def __init__(self):
         self.data = {
-            'wastewater_g': { 'pts': [[894, 1750], [1500, 1750], [1500, 2000], [894, 2000]], 'color': 'g' },
-            'wastewater_o': { 'pts': [[1500, 1750], [2106, 1750], [2106, 2000], [1500, 2000]], 'color': 'r' },
-            'start_g': { 'pts': [[894, 1750], [1500, 1750], [1500, 2000], [894, 2000]], 'fill': 'g' },
-            'start_o': { 'pts': [[1500, 1750], [2106, 1750], [2106, 2000], [1500, 2000]], 'fill': 'r' },
+            'wastewater_g': { 'pts': [[894, 1750], [1500, 1750], [1500, 2000], [894, 2000]], 'fill': 'g' },
+            'wastewater_o': { 'pts': [[1500, 1750], [2106, 1750], [2106, 2000], [1500, 2000]], 'fill': 'o' },
+            'start_o': { 'pts': [[0, 0], [400, 0], [400, 650], [0, 650]], 'fill': 'o' },
+            'start_g': { 'pts': [[3000, 0], [2600, 0], [2600, 650], [3000, 650]], 'fill': 'g' },
         }
         self.data.update(make_cubes('cube_1_o{}',  850,  540, False))
         self.data.update(make_cubes('cube_2_o{}',  300, 1190, False))
@@ -58,7 +58,7 @@ class Model:
                 'a': 2000 * random_number(),
                 'r': 150,
                 'n': 6,
-                'fill': 'b'
+                'fill': 'cvra'
                 }})
             time.sleep(0.1)
 
