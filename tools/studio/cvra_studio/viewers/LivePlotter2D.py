@@ -25,7 +25,7 @@ class LivePlotter2D:
         self.ax = self.widget.getPlotItem()
         self.timer.timeout.connect(self.update)
         self.timer.start(0)
-        self.ax.setAspectLocked(False)
+        self.ax.setAspectLocked(True)
         self.ax.addLegend()
         self.ax.setXRange(0, size[0])
         self.ax.setYRange(0, size[1])
