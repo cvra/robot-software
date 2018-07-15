@@ -17,6 +17,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--distance", "-d", type=float, help="Distance separating the two beacons in meters.", required=True)
     parser.add_argument("--port", "-p", help="Serial port to which the adapter is connected or name of socketcan interface.", required=True)
+    parser.add_argument("--dsdl", type=str, help="Custom UAVCAN DSDL path.", required=True)
 
     return parser.parse_args()
 
@@ -30,9 +31,7 @@ def main():
     node = uavcan.make_node(args.port, node_id=123)
     node.lock = threading.RLock()
 
-    # TODO This path is a bit too hardcoded
-    dsdl_path = os.path.join(os.path.dirname(__file__), '..', 'beacon_messages')
-    uavcan.load_dsdl(dsdl_path)
+    uavcan.load_dsdl(args.dsdl)
 
     samples = []
     def range_cb(event):
@@ -43,7 +42,7 @@ def main():
             print("Estimated bias: {:.3f}".format(bias))
             print("Delta to add in decawave units: {}".format(int((bias / 2) / SPEED_OF_LIGHT)))
 
-    node.add_handler(uavcan.thirdparty.beacon_messages.equipment.RadioRange, range_cb)
+    node.add_handler(uavcan.thirdparty.cvra.uwb_beacon.RadioRange, range_cb)
 
     node.spin()
 
