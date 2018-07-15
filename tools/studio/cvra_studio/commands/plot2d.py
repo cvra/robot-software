@@ -17,6 +17,7 @@ def argparser(parser=None):
     parser.add_argument("interface", help="Serial port or SocketCAN interface")
     parser.add_argument("--dsdl", "-d", help="DSDL path", required=True)
     parser.add_argument("--node_id", "-n", help="UAVCAN Node ID", default=127)
+    parser.add_argument('--plot_frequency', '-f', help="Plot update rate", default=30)
     parser.add_argument('--verbose', '-v', action='count', default=0)
 
     return parser
@@ -59,8 +60,8 @@ class Model:
     def _callback(self, event):
         print(event)
         self.data.update({'robot': {
-            'x': 1000 * event.message.x,
-            'y': 1000 * event.message.y,
+            'x': 1000 * (3.0 - event.message.x),
+            'y': 1000 * (2.0 - event.message.y),
             'a': 0,
             'r': 150,
             'n': 6,
@@ -72,8 +73,9 @@ class Model:
 
 
 class Controller:
-    def __init__(self, node):
+    def __init__(self, node, plot_frequency):
         self.viewer = LivePlotter2D(size=(3000, 2000))
+        self.plot_frequency = plot_frequency
         self.curve = self.viewer.getPort()
         self.model = Model(node)
         threading.Thread(target=self.run).start()
@@ -82,7 +84,7 @@ class Controller:
     def run(self):
         while True:
             self.curve.put(self.model.get_data())
-            time.sleep(1)
+            time.sleep(1.0 / self.plot_frequency)
 
 
 def main(args):
@@ -92,7 +94,7 @@ def main(args):
     uavcan.load_dsdl(args.dsdl)
     node = UavcanNode(interface=args.interface, node_id=args.node_id)
 
-    plot_controller = Controller(node)
+    plot_controller = Controller(node, args.plot_frequency)
 
     node.spin()
 
