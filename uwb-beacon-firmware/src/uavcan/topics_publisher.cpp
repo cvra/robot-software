@@ -5,6 +5,7 @@
 #include "imu_thread.h"
 #include "ahrs_thread.h"
 #include "ranging_thread.h"
+#include "state_estimation_thread.h"
 
 #include <uavcan/equipment/ahrs/RawIMU.hpp>
 #include <uavcan/equipment/ahrs/Solution.hpp>
@@ -60,12 +61,8 @@ static void topics_watcher(void *p)
      * Maybe it would be better to check in the loop if the topic exists. */
     //imu_topic = messagebus_find_topic_blocking(&bus, "/imu");
 
-    //messagebus_watchgroup_watch(&watchers[0],
-    //                            &watchgroup.group,
-    //                            imu_topic);
-
-    tag_pos_topic = messagebus_find_topic_blocking(&bus, "/tags_pos");
-    messagebus_watchgroup_watch(&watchers[2],
+    tag_pos_topic = messagebus_find_topic_blocking(&bus, "/ekf/state");
+    messagebus_watchgroup_watch(&watchers[0],
                                 &watchgroup.group,
                                 tag_pos_topic);
 
@@ -173,9 +170,9 @@ void topics_publisher_spin(Node &node)
 
      if (chBSemWaitTimeout(&tag_pos_topic_signaled, TIME_IMMEDIATE) == MSG_OK) {
         messagebus_topic_t *topic;
-        tag_position_msg_t tag_pos_msg;
+        position_estimation_msg_t tag_pos_msg;
 
-        topic = messagebus_find_topic(&bus, "/tags_pos");
+        topic = messagebus_find_topic(&bus, "/ekf/state");
         messagebus_topic_read(topic, &tag_pos_msg, sizeof(tag_pos_msg));
 
         TagPosition msg;

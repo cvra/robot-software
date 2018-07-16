@@ -237,7 +237,8 @@ static void cmd_state(BaseSequentialStream *chp, int argc, char **argv)
             chThdSleepMilliseconds(500);
         }
     } else {
-        chprintf(chp, "mu: (x=%.3f; y=%.3f)\r\n", msg.x, msg.y);
+        chprintf(chp, "mu: (x=%.3f; y=%.3f)\r\nSigma: (x=%f; y=%f)\r\n",
+                msg.x, msg.y, msg.variance_x, msg.variance_y);
     }
 }
 

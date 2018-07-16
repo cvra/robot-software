@@ -106,7 +106,7 @@ static void ranging_thread(void *p)
     static uint8_t frame[64];
 
     int current_anchor_mac_index = 0;
-    uint16_t anchor_macs[] = {7, 14};
+    uint16_t anchor_macs[] = {7, 11, 14};
     int nb_anchor_macs = sizeof(anchor_macs) / sizeof(anchor_macs[0]);
 
     while (1) {
@@ -137,6 +137,26 @@ static void ranging_thread(void *p)
                 }
             }
         }
+
+        if (flags & EVENT_ANCHOR_POSITION_TIMER) {
+            /* Make sure we are an anchor before we send an anchor position
+             * message. */
+            if (!handler.is_anchor) {
+                continue;
+            }
+
+            /* First disable transceiver */
+            dwt_forcetrxoff();
+
+            float x, y, z;
+            x = parameter_scalar_get(&uwb_params.anchor.position.x);
+            y = parameter_scalar_get(&uwb_params.anchor.position.y);
+            z = parameter_scalar_get(&uwb_params.anchor.position.z);
+
+            uwb_send_anchor_position(&handler, x, y, z, frame);
+
+        }
+
         if (flags & EVENT_UWB_INT) {
             /* Process the interrupt. */
             dwt_isr();
