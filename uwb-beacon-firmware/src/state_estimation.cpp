@@ -32,7 +32,7 @@ RadioPositionEstimator::RadioPositionEstimator() : covariance(Eigen::Matrix2f::I
                                                    measurementVariance(0.03 * 0.03),
                                                    processVariance(0.025)
 {
-    setPosition(0,0);
+    setPosition(1.0, 1.0);
 }
 
 void RadioPositionEstimator::setPosition(float x, float y)
