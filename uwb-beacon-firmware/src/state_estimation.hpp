@@ -3,15 +3,15 @@
 
 class RadioPositionEstimator {
 public:
-    typedef Eigen::Matrix<float, 2, 1> State;
-    Eigen::Vector2f state;
-    Eigen::Matrix2f covariance;
+    typedef Eigen::Matrix<float, 3, 1> State;
+    Eigen::Vector3f state;
+    Eigen::Matrix3f covariance;
     float measurementVariance;
     float processVariance;
 
     RadioPositionEstimator();
-    void setPosition(float x, float y);
-    std::tuple<float, float> getPosition();
+    void setPosition(float x, float y, float z);
+    std::tuple<float, float, float> getPosition();
 
     void processDistanceMeasurement(const float anchor_position[2], float distance);
     void predict(void);

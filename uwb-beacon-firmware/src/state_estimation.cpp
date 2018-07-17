@@ -1,11 +1,11 @@
 #include "state_estimation.hpp"
 #include "ekf.hpp"
 
-struct UWBOnlyModel : EKF::Corrector<2, 1> {
-    Eigen::Vector2f anchor_pos;
-    UWBOnlyModel(float bx, float by, float variance)
-        : EKF::Corrector<2, 1>(Measurement::Identity() * variance),
-        anchor_pos(bx, by)
+struct UWBOnlyModel : EKF::Corrector<3, 1> {
+    Eigen::Vector3f anchor_pos;
+    UWBOnlyModel(float bx, float by, float bz, float variance)
+        : EKF::Corrector<3, 1>(Measurement::Identity() * variance),
+        anchor_pos(bx, by, bz)
     {
     }
 
@@ -22,34 +22,35 @@ struct UWBOnlyModel : EKF::Corrector<2, 1> {
     }
 };
 
-struct IdentityPredictor : EKF::Predictor<2, 0> {
-    IdentityPredictor(float variance) : EKF::Predictor<2, 0>(variance * Covariance::Identity())
+struct IdentityPredictor : EKF::Predictor<3, 0> {
+    IdentityPredictor(float variance) : EKF::Predictor<3, 0>(variance * Covariance::Identity())
     {
     }
 };
 
-RadioPositionEstimator::RadioPositionEstimator() : covariance(Eigen::Matrix2f::Identity()),
-                                                   measurementVariance(0.03 * 0.03),
-                                                   processVariance(0.025)
+RadioPositionEstimator::RadioPositionEstimator() : covariance(Eigen::Matrix3f::Identity()),
+                                                   measurementVariance(0.05 * 0.05),
+                                                   processVariance(0.001)
 {
-    setPosition(1.0, 1.0);
+    setPosition(1.0, 1.0, -0.5);
 }
 
-void RadioPositionEstimator::setPosition(float x, float y)
+void RadioPositionEstimator::setPosition(float x, float y, float z)
 {
     state[0] = x;
     state[1] = y;
+    state[2] = z;
 }
 
-std::tuple<float, float> RadioPositionEstimator::getPosition()
+std::tuple<float, float, float> RadioPositionEstimator::getPosition()
 {
-    return std::pair<float, float>(state[0], state[1]);
+    return std::tuple<float, float, float>(state[0], state[1], state[2]);
 }
 
-void RadioPositionEstimator::processDistanceMeasurement(const float anchor_position[2],
+void RadioPositionEstimator::processDistanceMeasurement(const float anchor_position[3],
                                                         float distance)
 {
-    UWBOnlyModel m(anchor_position[0], anchor_position[1], measurementVariance);
+    UWBOnlyModel m(anchor_position[0], anchor_position[1], anchor_position[2], measurementVariance);
     Eigen::Matrix<float, 1, 1> z;
     z << distance;
     std::tie(state, covariance) = m.correct(state, covariance, z);
