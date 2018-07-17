@@ -83,7 +83,7 @@ static THD_FUNCTION(state_estimation_thd, arg)
             anchor_pos = anchor_position_cache_get(msg.anchor_addr);
 
             if (anchor_pos) {
-                float pos[2] = {anchor_pos->x, anchor_pos->y};
+                float pos[3] = {anchor_pos->x, anchor_pos->y, anchor_pos->z};
                 estimator.processDistanceMeasurement(pos, msg.range);
             }
 
@@ -93,13 +93,15 @@ static THD_FUNCTION(state_estimation_thd, arg)
             messagebus_topic_read(topic, &imu_msg, sizeof(imu_msg));
 
             estimator.processVariance = parameter_scalar_read(&params.process_variance);
-            //estimator.predict();
+            estimator.predict();
             position_estimation_msg_t pos_msg;
             pos_msg.timestamp = imu_msg.timestamp;
             pos_msg.x = estimator.state(0);
             pos_msg.y = estimator.state(1);
+            pos_msg.z = estimator.state(2);
             pos_msg.variance_x = estimator.covariance(0, 0);
             pos_msg.variance_y = estimator.covariance(1, 1);
+            pos_msg.variance_z = estimator.covariance(2, 2);
             messagebus_topic_publish(&state_estimation_topic, &pos_msg, sizeof(pos_msg));
         }
     }

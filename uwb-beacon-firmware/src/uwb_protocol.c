@@ -137,7 +137,6 @@ void uwb_send_measurement_advertisement(uwb_protocol_handler_t *handler, uint8_t
     uint64_t ts = uwb_timestamp_get();
     size_t frame_size;
 
-    // TODO: Is this the correct place to add some delay?
     ts += UWB_DELAY;
     ts &= MASK_40BIT;
 
@@ -334,7 +333,6 @@ void uwb_initiate_measurement(uwb_protocol_handler_t *handler, uint8_t *buffer, 
                                      buffer,
                                      0);
 
-    // TODO: Is this the correct place to add some delay?
     ts += UWB_DELAY;
     ts &= MASK_40BIT;
 

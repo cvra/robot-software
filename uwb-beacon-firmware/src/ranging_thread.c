@@ -106,7 +106,7 @@ static void ranging_thread(void *p)
     static uint8_t frame[64];
 
     int current_anchor_mac_index = 0;
-    uint16_t anchor_macs[] = {7, 11, 14};
+    uint16_t anchor_macs[] = {7, 10, 11, 14};
     int nb_anchor_macs = sizeof(anchor_macs) / sizeof(anchor_macs[0]);
 
     while (1) {

@@ -233,12 +233,12 @@ static void cmd_state(BaseSequentialStream *chp, int argc, char **argv)
     if (argc > 0 && !strcmp("loop", argv[0])) {
         while (true) {
             messagebus_topic_read(topic, &msg, sizeof(msg));
-            chprintf(chp, "\rmu: (x=%.3f; y=%.3f)", msg.x, msg.y);
+            chprintf(chp, "\rmu: (x=%.3f; y=%.3f; z=%.3f)", msg.x, msg.y, msg.z);
             chThdSleepMilliseconds(500);
         }
     } else {
-        chprintf(chp, "mu: (x=%.3f; y=%.3f)\r\nSigma: (x=%f; y=%f)\r\n",
-                msg.x, msg.y, msg.variance_x, msg.variance_y);
+        chprintf(chp, "mu: (x=%.3f; y=%.3f; z=%.3f)\r\nVariance: (x=%f; y=%f; z=%f)\r\n",
+                msg.x, msg.y, msg.z, msg.variance_x, msg.variance_y, msg.variance_z);
     }
 }
 
