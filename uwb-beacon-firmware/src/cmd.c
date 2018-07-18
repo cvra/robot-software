@@ -174,6 +174,25 @@ static void cmd_range(BaseSequentialStream *chp, int argc, char **argv)
     chprintf(chp, "got a ToF to anchor 0x%x: %.3f at timestamp %d\r\n", msg.anchor_addr, msg.range, msg.timestamp);
 }
 
+static void cmd_ranging_time(BaseSequentialStream *chp, int argc, char **argv)
+{
+    (void) argc;
+    (void) argv;
+
+    const char *topic_name = "/range";
+    messagebus_topic_t *topic;
+    range_msg_t msg;
+
+    topic = messagebus_find_topic(&bus, topic_name);
+    if (topic == NULL) {
+        chprintf(chp, "could not find topic \"%s\"\r\n", topic_name);
+        return;
+    }
+
+    messagebus_topic_read(topic, &msg, sizeof(msg));
+    chprintf(chp, "ranging time: %d\r\n", msg.ranging_time);
+}
+
 static void cmd_anchors(BaseSequentialStream *chp, int argc, char **argv)
 {
     (void) argc;
@@ -464,6 +483,7 @@ const ShellCommand shell_commands[] = {
     {"ahrs", cmd_ahrs},
     {"temp", cmd_temp},
     {"range", cmd_range},
+    {"ranging_time", cmd_ranging_time},
     {"anchors", cmd_anchors},
     {"tag", cmd_tags},
     {"state", cmd_state},

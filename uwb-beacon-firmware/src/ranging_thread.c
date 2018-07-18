@@ -66,7 +66,7 @@ static struct {
 } uwb_params;
 
 static void ranging_thread(void *p);
-static void ranging_found_cb(uint16_t addr, uint64_t time);
+static void ranging_found_cb(uint16_t addr, uint64_t time, uint64_t ranging_time);
 static void anchor_position_received_cb(uint16_t addr, float x, float y, float z);
 static void tag_position_received_cb(uint16_t addr, float x, float y);
 static void topics_init(void);
@@ -233,7 +233,7 @@ static void tag_position_received_cb(uint16_t addr, float x, float y)
     messagebus_topic_publish(&tag_position_topic, &msg, sizeof(msg));
 }
 
-static void ranging_found_cb(uint16_t addr, uint64_t time)
+static void ranging_found_cb(uint16_t addr, uint64_t time, uint64_t ranging_time)
 {
     range_msg_t msg;
     /* TODO: For some reason the macro ST2US creates an overflow. */
@@ -242,6 +242,7 @@ static void ranging_found_cb(uint16_t addr, uint64_t time)
     msg.timestamp = ts;
     msg.anchor_addr = addr;
     msg.range = time * SPEED_OF_LIGHT;
+    msg.ranging_time = ranging_time * 15.65 / 1000;
 
     messagebus_topic_publish(&ranging_topic, &msg, sizeof(msg));
 }

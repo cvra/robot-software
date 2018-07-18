@@ -291,6 +291,7 @@ void uwb_process_incoming_frame(uwb_protocol_handler_t *handler,
         uint64_t final_tx_ts = read_40bit_int(&frame[20]);
         uint64_t final_rx_ts = rx_ts;
         uint64_t t_propag;
+        uint64_t t_ranging;
 
         // See documentation for explanation
         uint64_t tround[2], treply[2];
@@ -303,8 +304,10 @@ void uwb_process_incoming_frame(uwb_protocol_handler_t *handler,
         t_propag = (tround[0] * tround[1]  - treply[0] * treply[1]) /
                    (tround[0] + tround[1]  + treply[0] + treply[1]);
 
+        t_ranging = substract_40bit_int(final_tx_ts, advertisement_rx_ts);
+
         if (handler->ranging_found_cb) {
-            handler->ranging_found_cb(src_addr, t_propag);
+            handler->ranging_found_cb(src_addr, t_propag, t_ranging);
         }
     } else if (seq_num == UWB_SEQ_NUM_ANCHOR_POSITION) {
         float x, y, z;
