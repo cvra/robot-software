@@ -123,16 +123,9 @@ int main(void) {
     motor_pwm_set(0.0);
 
     analog_init();
-    encoder_init_primary();
-    encoder_init_secondary();
 
     chprintf(ch_stdout, "boot\n");
     chprintf(ch_stdout, "%s: %d\n", config.board_name, config.ID);
-
-
-    control_init();
-
-    index_init();
 
     // uart_stream_start(ch_stdout);
     parameter_listener_start(ch_stdout);
@@ -149,7 +142,6 @@ int main(void) {
 
     if(parameter_flash_storage_load(&parameter_root_ns, &_config_start)) {
         uavcan_init_complete();
-        control_start();
     }
 
     while (1) {
