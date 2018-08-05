@@ -16,6 +16,7 @@ target.arm:
     - src/libstubs.cpp
     - src/parameter_listener.c
     - src/parameter_port.c
+    - src/metal_detector.c
     - ../lib/can-bootloader/config.c
 
 depends:

@@ -1,6 +1,7 @@
 #include <ch.h>
 #include <hal.h>
 #include "motor_pwm.h" // to trigger charge pump recharge cycle
+#include "metal_detector.h"
 #include "analog.h"
 
 #define ADC_MAX         4096
@@ -41,6 +42,7 @@ static void adc_callback(ADCDriver *adcp, adcsample_t *adc_samples, size_t n)
     aux_in = adc_samples[0] + adc_samples[2];
 
     chSysLockFromISR();
+    metal_detector_set_adc_samples(adc_samples, n);
     chEvtBroadcastFlagsI(&analog_event, ANALOG_EVENT_CONVERSION_DONE);
     chSysUnlockFromISR();
 }
