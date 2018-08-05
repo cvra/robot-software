@@ -4,7 +4,7 @@
 #include <math.h>
 
 
-#define PWM_PERIOD                  2880
+#define PWM_PERIOD                  7200
 #define PWM_DIRECTION_CHANNEL       0
 #define PWM_POWER_CHANNEL           1
 
@@ -39,41 +39,13 @@ void pwm_counter_reset(PWMDriver *pwmd)
     if (power_pwm >= 0) { // forward direction (no magic)
         pwmd->tim->CCR[PWM_DIRECTION_CHANNEL] = DIRECTION_DC_LOW;
         pwmd->tim->CCR[PWM_POWER_CHANNEL] = power_pwm;
-        chSysLockFromISR();
-        recharge_flag = false;
-        pwmDisablePeriodicNotificationI(&PWMD1);
-        chSysUnlockFromISR();
-
-    } else { // reverse direction (charge pump recharge)
-        int32_t rev_power_pwm = PWM_PERIOD + power_pwm;
-
-        if (recharge_flag) { // do a recharge cycle
-            pwmd->tim->CCR[PWM_DIRECTION_CHANNEL] = DIRECTION_DC_RECHARGE; // recharge cycle
-            // correct power duty cycle to compensate for recharge
-            rev_power_pwm -= POWR_DC_RECHARGE_CORRECTION;
-            if (rev_power_pwm < 0) {
-                pwmd->tim->CCR[PWM_POWER_CHANNEL] = 0;
-            } else {
-                pwmd->tim->CCR[PWM_POWER_CHANNEL] = rev_power_pwm;
-            }
-
-            recharge_flag = false;
-
-        } else { // no recharge cycle / normal operation after recharge cycle
-            pwmd->tim->CCR[PWM_DIRECTION_CHANNEL] = DIRECTION_DC_HIGH;
-            pwmd->tim->CCR[PWM_POWER_CHANNEL] = rev_power_pwm;
-            recharge_flag = false;
-            chSysLockFromISR();
-            pwmDisablePeriodicNotificationI(&PWMD1);
-            chSysUnlockFromISR();
-        }
-
+        STM32_TIM15->CR1 |= STM32_TIM_CR1_CEN;      // enable ADC timing timer
     }
 }
 
 static const PWMConfig pwm_cfg = {
-    72000000,
-    PWM_PERIOD,           // 25kHz
+    360000,             // clock frequency in Hz (sets prescaler)
+    PWM_PERIOD,         // 50Hz
     pwm_counter_reset,
     // activate channel 1 and 2
     {
@@ -113,12 +85,4 @@ void motor_pwm_disable(void)
     motor_pwm_set(0);
     palClearPad(GPIOA, GPIOA_MOTOR_EN_A);
     palClearPad(GPIOA, GPIOA_MOTOR_EN_B);
-}
-
-void motor_pwm_trigger_update_from_isr(bool recharge)
-{
-    chSysLockFromISR();
-    recharge_flag = recharge;
-    pwmEnablePeriodicNotificationI(&PWMD1);
-    chSysUnlockFromISR();
 }
