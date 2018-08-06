@@ -9,7 +9,7 @@
 #define ADC_TO_VOLTS    0.005281575521f // 3.3/4096/(18/(100+18))
 
 #define ADC_NB_CHANNELS 4
-#define DMA_BUFFER_SIZE (90*2)         // dual buffer of 90 (see adc timing below)
+#define DMA_BUFFER_SIZE (380*2)         // dual buffer of 90 (see adc timing below)
 
 event_source_t analog_event;
 

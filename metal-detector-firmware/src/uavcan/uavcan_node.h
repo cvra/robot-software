@@ -16,6 +16,7 @@ struct uavcan_node_arg {
 
 void uavcan_node_start(void *arg);
 void uavcan_init_complete(void);
+void uavcan_node_emi_broadcast(uint16_t nb_samples, uint16_t *samples);
 
 #ifdef __cplusplus
 }

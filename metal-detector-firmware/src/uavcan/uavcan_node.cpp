@@ -12,6 +12,8 @@
 #include "uavcan_node.h"
 #include "parameter_server.hpp"
 
+#include <cvra/metal_detector/EMIRawSignal.hpp>
+
 #define CAN_BITRATE             1000000
 
 uavcan_stm32::CanInitHelper<128> can;
@@ -47,6 +49,27 @@ static void uavcan_services_start(Node &node)
             uavcan_failure(services[i].name);
         }
     }
+}
+
+
+static uavcan::LazyConstructor<uavcan::Publisher<cvra::metal_detector::EMIRawSignal> > emi_pub;
+void uavcan_node_emi_init(uavcan::INode &node)
+{
+    if (!emi_pub.isConstructed()) {
+        emi_pub.construct<uavcan::INode &>(node);
+    }
+}
+
+void uavcan_node_emi_broadcast(uint16_t nb_samples, uint16_t *samples)
+{
+    cvra::metal_detector::EMIRawSignal msg;
+    msg.nb_samples= nb_samples / 4;
+
+    for (int i = 1; i < nb_samples; i += 4) {
+        msg.samples.push_back(samples[i]);
+    }
+
+    emi_pub->broadcast(msg);
 }
 
 static THD_WORKING_AREA(uavcan_node_wa, 8000);

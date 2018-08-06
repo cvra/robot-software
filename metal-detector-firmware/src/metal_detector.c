@@ -1,6 +1,8 @@
 #include <ch.h>
 #include <hal.h>
 #include "analog.h"
+#include <uavcan/uavcan_node.h>
+
 
 #define METAL_DETECTOR_WAKEUP_EVENT 1
 
@@ -28,7 +30,8 @@ static THD_FUNCTION(metal_detector_task, arg)
         chEvtWaitAny(METAL_DETECTOR_WAKEUP_EVENT);
         chEvtGetAndClearFlags(&analog_event_listener);
 
-        // Detect stuff
+        // TODO: detect metal
+        uavcan_node_emi_broadcast((uint16_t) nb_samples, (uint16_t*)adc_samples);
     }
 }
 
