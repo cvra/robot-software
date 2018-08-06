@@ -8,6 +8,7 @@ extern "C" {
 #endif
 
 void metal_detector_set_adc_samples(adcsample_t* samples, size_t n);
+void metal_detector_init(void);
 
 #ifdef __cplusplus
 }

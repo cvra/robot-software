@@ -4,6 +4,7 @@
 #include <blocking_uart_driver.h>
 #include "motor_pwm.h"
 #include "analog.h"
+#include "metal_detector.h"
 #include "parameter/parameter.h"
 #include "bootloader_config.h"
 #include "uavcan/uavcan_node.h"
@@ -115,9 +116,10 @@ int main(void) {
 
     motor_pwm_setup();
     motor_pwm_enable();
-    motor_pwm_set(0.0);
+    motor_pwm_set(0.2);
 
     analog_init();
+    metal_detector_init();
 
     chprintf(ch_stdout, "boot\n");
     chprintf(ch_stdout, "%s: %d\n", config.board_name, config.ID);
