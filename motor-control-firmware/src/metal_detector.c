@@ -2,6 +2,9 @@
 #include <hal.h>
 #include "analog.h"
 
+#define METAL_DETECTOR_WAKEUP_EVENT 1
+
+
 adcsample_t* adc_samples;
 size_t nb_samples;
 
@@ -10,9 +13,6 @@ void metal_detector_set_adc_samples(adcsample_t* samples, size_t n)
     adc_samples = samples;
     nb_samples = n;
 }
-
-
-#define METAL_DETECTOR_WAKEUP_EVENT 1
 
 static THD_FUNCTION(metal_detector_task, arg)
 {

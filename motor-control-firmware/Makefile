@@ -96,7 +96,7 @@ include $(CHIBIOS)/os/hal/ports/STM32/STM32F3xx/platform.mk
 include $(CHIBIOS)/os/various/cpp_wrappers/chcpp.mk
 
 ifeq ($(USE_BOOTLOADER),)
-  USE_BOOTLOADER = yes
+  USE_BOOTLOADER = no
 endif
 
 # Define linker script file here
