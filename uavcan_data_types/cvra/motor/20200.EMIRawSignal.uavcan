@@ -1,0 +1,2 @@
+uint16 nb_samples
+uint16[<500] samples
