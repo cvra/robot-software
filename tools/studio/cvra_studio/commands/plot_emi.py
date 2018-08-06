@@ -23,6 +23,20 @@ def argparser(parser=None):
 
     return parser
 
+
+import numpy as np
+import scipy.optimize as so
+
+def exponential_decay_fun(amplitude, delay, decay):
+    return lambda t: amplitude * np.minimum(1.0, np.exp(- (t - delay) / decay))
+
+def exponential_decay(t, amp, delay, decay):
+    return exponential_decay_fun(amp, delay, decay)(t)
+
+def fit_exponential_decay(x, y, initial_guess=(1.0, 0.005, 0.005)):
+    return so.curve_fit(exponential_decay, x, y, initial_guess)
+
+
 class EmiViewer(QtGui.QWidget):
     def __init__(self, parent = None):
         super(EmiViewer, self).__init__(parent)
@@ -33,7 +47,7 @@ class EmiViewer(QtGui.QWidget):
         self.show()
 
 class EmiFeedbackRecorder():
-    data = { 'emi': { 'time': np.array([0]), 'value': np.array([0]) } }
+    data = { 'emi': { 'time': np.array([]), 'value': np.array([]) } }
 
     def __init__(self, node):
         self.logger = logging.getLogger('EmiFeedbackRecorder')
@@ -41,7 +55,9 @@ class EmiFeedbackRecorder():
         self.node.add_handler(uavcan.thirdparty.cvra.motor.EMIRawSignal, self._callback)
 
     def _callback(self, event):
-        self.data['emi']['time'] = np.linspace(0, len(event.message.samples)-1, len(event.message.samples))
+        freq = 4800 # Hz
+        nb_samples = len(event.message.samples)
+        self.data['emi']['time'] = np.linspace(0, nb_samples / freq, nb_samples)
         self.data['emi']['value'] = np.array(event.message.samples)
 
 class EmiPlotController:
@@ -54,10 +70,22 @@ class EmiPlotController:
 
         threading.Thread(target=self.run).start()
 
+    def fit_exponential_decay(self, time, values):
+        if len(time) < 42:
+            return None
+        samples = -(values - 2048) / 2048
+        pw, cov = fit_exponential_decay(time, samples)
+        return pw[0], pw[1]*1000, pw[2]*1000
+
     def run(self):
         self.logger.info('Emi widget started')
         while True:
             self.curve.put(self.model.data)
+
+            params = self.fit_exponential_decay(self.model.data['emi']['time'][18:], self.model.data['emi']['value'][18:])
+            if params:
+                self.logger.info('Received exponential_decay: A={:3.3f} delay={:3.3f}ms tau={:3.3f}ms'.format(*params))
+
             time.sleep(0.03)
 
 def main(args):
