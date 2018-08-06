@@ -103,6 +103,8 @@ static THD_FUNCTION(uavcan_node, arg)
     /* Start all the subscribers and publishers linked to that node. */
     uavcan_services_start(node);
 
+    uavcan_node_emi_init(node);
+
     /* Spin forever */
     while (true) {
         int res = node.spin(uavcan::MonotonicDuration::fromMSec(1000 / UAVCAN_SPIN_FREQUENCY));
