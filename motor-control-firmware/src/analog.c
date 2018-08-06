@@ -87,7 +87,7 @@ static THD_FUNCTION(adc_task, arg)
     STM32_TIM15->SMCR   = 0;
     STM32_TIM15->CCMR1  = 0;
     STM32_TIM15->CCER   = 0;
-    STM32_TIM15->ARR    = 0xFFFF - 15000;           // Preload to count to 72MHz/4.8kHz
+    STM32_TIM15->ARR    = 15000;                    // Preload to count to 72MHz/4.8kHz
     STM32_TIM15->CR1    = 0;                        // Don't start yet
 
     adcConvert(&ADCD1, &adcgrpcfg1, adc_samples, DMA_BUFFER_SIZE); // should never return
