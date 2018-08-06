@@ -41,8 +41,9 @@ class EmiViewer(QtGui.QWidget):
     def __init__(self, parent = None):
         super(EmiViewer, self).__init__(parent)
 
+        self.fit = QtGui.QLabel(parent=self)
         self.plot = LivePlotter(buffer_size=500)
-        self.setLayout(vstack([self.plot.widget]))
+        self.setLayout(vstack([self.fit, self.plot.widget]))
         self.setWindowTitle("EMI Plotter")
         self.show()
 
@@ -84,7 +85,9 @@ class EmiPlotController:
 
             params = self.fit_exponential_decay(self.model.data['emi']['time'][18:], self.model.data['emi']['value'][18:])
             if params:
-                self.logger.info('Received exponential_decay: A={:3.3f} delay={:3.3f}ms tau={:3.3f}ms'.format(*params))
+                msg = 'EMI signal fit: A={:3.3f} delay={:3.3f}ms tau={:3.3f}ms'.format(*params)
+                self.logger.info(msg)
+                self.viewer.fit.setText(msg)
 
             time.sleep(0.03)
 
@@ -92,7 +95,7 @@ def main(args):
     logging.basicConfig(level=max(logging.CRITICAL - (10 * args.verbose), 0))
 
     app = QtGui.QApplication(sys.argv)
-    app.setFont(QtGui.QFont('Open Sans', pointSize=20))
+    app.setFont(QtGui.QFont('Open Sans', pointSize=64))
 
     uavcan.load_dsdl(args.dsdl)
     node = UavcanNode(interface=args.interface, node_id=args.node_id)
