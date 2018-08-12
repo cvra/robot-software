@@ -8,6 +8,9 @@ This repo contains all the software used on our robots:
 - `proximity-beacon-firmware` contains the firmware that runs on the proximity beacon, it's the same code as the motor board but with a different application that is tailored to the needs of our proximity beacon module
 - `master-firmware` contains the software that runs on the master board, it interfaces all the other boards over CAN and runs the robot's "intelligence".
 - `eurobt` contains documentation and cofiguration files specific to the Eurobot competition
+- `minesweepers` contains all code specific to our rover for the Minesweepers competition
+    * `minesweepers/doc` contains design documentation
+    * `minesweepers/techreport` contains the technical report source files
 
 Other important software components can be found in this repo:
 - `lib` contains all the libraries and building blocks we use on multiple boards, which includes:
