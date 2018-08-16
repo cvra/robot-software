@@ -1,0 +1,44 @@
+\documentclass[a4paper, 12pt, abstract=on]{scrartcl}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+\usepackage[babel=true]{csquotes}
+\usepackage[acronym]{glossaries}
+\usepackage[english]{babel}
+\usepackage{blindtext}
+
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{url}
+\usepackage{tablefootnote}
+\usepackage{hyperref}
+\usepackage[per-mode=symbol]{siunitx}
+\usepackage{natbib}
+\usepackage{floatrow}
+\usepackage{pdfpages}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+% Headers & footers
+\lhead{Minesweepers: Towards a Landmine-Free World}
+\rhead{}
+
+\newacronym{lipo}{LiPo}{lithium-polymer}
+
+
+\begin{document}
+
+\input{frontpage.tex}
+\input{content.tex}
+
+\clearpage
+\appendix
+
+\clearpage
+\nocite{*} % tells bibtex to include everything
+\bibliographystyle{chicago}
+\bibliography{report}
+
+\end{document}
