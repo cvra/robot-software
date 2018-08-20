@@ -4,3 +4,4 @@ PyQt5==5.10
 pyqtgraph==0.10.0
 sip==4.19.7
 uavcan==1.0.0.dev29
+scipy==1.1.0

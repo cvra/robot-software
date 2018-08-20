@@ -4,7 +4,7 @@
 #include <math.h>
 
 
-#define PWM_PERIOD                  28800
+#define PWM_PERIOD                  2880
 #define PWM_DIRECTION_CHANNEL       0
 #define PWM_POWER_CHANNEL           1
 
