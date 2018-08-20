@@ -1,5 +1,4 @@
 #include <ch.h>
-#include <hal.h>
 
 #include "decadriver/deca_device_api.h"
 #include "decadriver/deca_regs.h"
@@ -15,8 +14,8 @@
 /** Speed of light in Decawave units */
 #define SPEED_OF_LIGHT                   (299792458.0 / (128 * 499.2e6))
 
-/* Antenna delay for the our UWB board. */
-#define RX_ANT_DLY                       32840
+/* Antenna delay for our UWB board. */
+#define RX_ANT_DLY                       32915
 
 #define EVENT_UWB_INT                    (1 << 0)
 #define EVENT_ADVERTISE_TIMER            (1 << 1)
@@ -24,7 +23,7 @@
 #define EVENT_TAG_POSITION_TIMER         (1 << 3)
 
 /* TODO: Put this in parameters. */
-#define UWB_ANCHOR_POSITION_TIMER_PERIOD S2ST(5)
+#define UWB_ANCHOR_POSITION_TIMER_PERIOD S2ST(1)
 #define UWB_TAG_POSITION_TIMER_PERIOD    MS2ST(300)
 
 
@@ -79,6 +78,8 @@ static void anchor_position_timer_cb(void *t);
 static void tag_position_timer_cb(void *t);
 static void frame_tx_done_cb(const dwt_cb_data_t *data);
 static void frame_rx_cb(const dwt_cb_data_t *data);
+static void frame_rx_timeout_cb(const dwt_cb_data_t *data);
+static void frame_rx_error_cb(const dwt_cb_data_t *data);
 
 void ranging_start(void)
 {
@@ -103,6 +104,10 @@ static void ranging_thread(void *p)
 
     static uint8_t frame[64];
 
+    int current_anchor_mac_index = 0;
+    uint16_t anchor_macs[] = {7, 10, 11, 14};
+    int nb_anchor_macs = sizeof(anchor_macs) / sizeof(anchor_macs[0]);
+
     while (1) {
         /* Wait for an interrupt coming from the UWB module. */
         eventmask_t flags = chEvtWaitOne(ALL_EVENTS);
@@ -117,15 +122,21 @@ static void ranging_thread(void *p)
         }
 
         if (flags & EVENT_ADVERTISE_TIMER) {
-            if (handler.is_anchor) {
+            if (!handler.is_anchor && nb_anchor_macs > 0) {
+                board_led_toggle(BOARD_LED_STATUS);
                 /* First disable transceiver */
                 dwt_forcetrxoff();
 
-                /* Then send a measurement frame */
-                trace(TRACE_POINT_UWB_SEND_ADVERTISEMENT);
-                uwb_send_measurement_advertisement(&handler, frame);
+                /* Initiate measurement sequence */
+                uwb_initiate_measurement(&handler, frame, anchor_macs[current_anchor_mac_index]);
+
+                current_anchor_mac_index++;
+                if (current_anchor_mac_index == nb_anchor_macs) {
+                    current_anchor_mac_index = 0;
+                }
             }
         }
+
         if (flags & EVENT_ANCHOR_POSITION_TIMER) {
             /* Make sure we are an anchor before we send an anchor position
              * message. */
@@ -144,30 +155,7 @@ static void ranging_thread(void *p)
             uwb_send_anchor_position(&handler, x, y, z, frame);
 
         }
-        if (flags & EVENT_TAG_POSITION_TIMER) {
-            /* Make sure we are a tag before we send an anchor position
-             * message. */
-            if (handler.is_anchor) {
-                continue;
-            }
 
-            messagebus_topic_t *topic;
-            position_estimation_msg_t msg;
-            topic = messagebus_find_topic(&bus, "/ekf/state");
-
-            if (topic == NULL) {
-                continue;
-            }
-
-            if (messagebus_topic_read(topic, &msg, sizeof(msg)) == false) {
-                continue;
-            }
-
-            /* First disable transceiver */
-            dwt_forcetrxoff();
-
-            uwb_send_tag_position(&handler, msg.x, msg.y, frame);
-        }
         if (flags & EVENT_UWB_INT) {
             /* Process the interrupt. */
             dwt_isr();
@@ -194,7 +182,22 @@ static void frame_rx_cb(const dwt_cb_data_t *data)
     uwb_process_incoming_frame(&handler, frame, data->datalength, rx_ts);
 
     dwt_rxenable(DWT_START_RX_IMMEDIATE);
-    palTogglePad(GPIOB, GPIOB_LED_ERROR);
+}
+
+static void frame_rx_timeout_cb(const dwt_cb_data_t *data)
+{
+    (void) data;
+
+    board_led_toggle(BOARD_LED_DEBUG);
+    dwt_rxenable(DWT_START_RX_IMMEDIATE);
+}
+
+static void frame_rx_error_cb(const dwt_cb_data_t *data)
+{
+    (void) data;
+
+    board_led_toggle(BOARD_LED_DEBUG);
+    dwt_rxenable(DWT_START_RX_IMMEDIATE);
 }
 
 static void anchor_position_received_cb(uint16_t addr, float x, float y, float z)
@@ -238,8 +241,6 @@ static void ranging_found_cb(uint16_t addr, uint64_t time)
     msg.anchor_addr = addr;
     msg.range = time * SPEED_OF_LIGHT;
 
-    palTogglePad(GPIOB, GPIOB_LED_DEBUG);
-
     messagebus_topic_publish(&ranging_topic, &msg, sizeof(msg));
 }
 
@@ -249,7 +250,7 @@ static void advertise_timer_cb(void *t)
 
     chSysLockFromISR();
     int period = uwb_params.anchor.advertisement_period_ms.value.i;
-    chVTSetI(timer, MS2ST(period), anchor_position_timer_cb, t);
+    chVTSetI(timer, MS2ST(period), advertise_timer_cb, t);
     chEvtBroadcastI(&advertise_timer_event);
     chSysUnlockFromISR();
 }
@@ -339,8 +340,10 @@ static void hardware_init(void)
 {
     decawave_start();
 
-    dwt_setinterrupt(DWT_INT_RFCG | DWT_INT_TFRS, true);
-    dwt_setcallbacks(frame_tx_done_cb, frame_rx_cb, NULL, NULL);
+    dwt_setinterrupt(DWT_INT_RFCG | DWT_INT_TFRS |
+                     DWT_INT_RPHE | DWT_INT_SFDT | DWT_INT_RFSL | DWT_INT_RFCE | DWT_INT_ARFE |
+                     DWT_INT_RFTO | DWT_INT_RXPTO, true);
+    dwt_setcallbacks(frame_tx_done_cb, frame_rx_cb, frame_rx_timeout_cb, frame_rx_error_cb);
 
     dwt_setrxantennadelay(parameter_integer_get(&uwb_params.antenna_delay));
 

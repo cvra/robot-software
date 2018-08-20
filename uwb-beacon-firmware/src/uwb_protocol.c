@@ -9,11 +9,12 @@
 #define MAC_HDR_LEN                     9
 #define MAC_CRC_LEN                     2
 
-#define UWB_SEQ_NUM_ADVERTISEMENT       0
-#define UWB_SEQ_NUM_REPLY               1
-#define UWB_SEQ_NUM_FINALIZATION        2
-#define UWB_SEQ_NUM_ANCHOR_POSITION     3
-#define UWB_SEQ_NUM_TAG_POSITION        4
+#define UWB_SEQ_NUM_ADVERTISEMENT           0
+#define UWB_SEQ_NUM_REPLY                   1
+#define UWB_SEQ_NUM_FINALIZATION            2
+#define UWB_SEQ_NUM_ANCHOR_POSITION         3
+#define UWB_SEQ_NUM_TAG_POSITION            4
+#define UWB_SEQ_NUM_INITIATE_MEASUREMENT    5
 
 #define UWB_DELAY                       (1000 * 65536)
 #define MASK_40BIT                      0xfffffffe00
@@ -136,7 +137,6 @@ void uwb_send_measurement_advertisement(uwb_protocol_handler_t *handler, uint8_t
     uint64_t ts = uwb_timestamp_get();
     size_t frame_size;
 
-    // TODO: Is this the correct place to add some delay?
     ts += UWB_DELAY;
     ts &= MASK_40BIT;
 
@@ -316,5 +316,25 @@ void uwb_process_incoming_frame(uwb_protocol_handler_t *handler,
         memcpy(&x, &frame[0], sizeof(float));
         memcpy(&y, &frame[4], sizeof(float));
         handler->tag_position_received_cb(src_addr, x, y);
+    } else if (seq_num == UWB_SEQ_NUM_INITIATE_MEASUREMENT) {
+        uwb_send_measurement_advertisement(handler, frame);
     }
+}
+
+void uwb_initiate_measurement(uwb_protocol_handler_t *handler, uint8_t *buffer, uint16_t anchor_addr)
+{
+    uint64_t ts = uwb_timestamp_get();
+
+    size_t size;
+    size = uwb_mac_encapsulate_frame(handler->pan_id,
+                                     handler->address,
+                                     anchor_addr,
+                                     UWB_SEQ_NUM_INITIATE_MEASUREMENT,
+                                     buffer,
+                                     0);
+
+    ts += UWB_DELAY;
+    ts &= MASK_40BIT;
+
+    uwb_transmit_frame(ts, buffer, size);
 }

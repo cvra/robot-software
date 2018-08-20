@@ -83,9 +83,8 @@ static THD_FUNCTION(state_estimation_thd, arg)
             anchor_pos = anchor_position_cache_get(msg.anchor_addr);
 
             if (anchor_pos) {
-                float pos[2] = {anchor_pos->x, anchor_pos->y};
+                float pos[3] = {anchor_pos->x, anchor_pos->y, anchor_pos->z};
                 estimator.processDistanceMeasurement(pos, msg.range);
-                palTogglePad(GPIOB, GPIOB_LED_ERROR);
             }
 
         } else if (topic == imu_topic) {
@@ -99,9 +98,11 @@ static THD_FUNCTION(state_estimation_thd, arg)
             pos_msg.timestamp = imu_msg.timestamp;
             pos_msg.x = estimator.state(0);
             pos_msg.y = estimator.state(1);
+            pos_msg.z = estimator.state(2);
             pos_msg.variance_x = estimator.covariance(0, 0);
             pos_msg.variance_y = estimator.covariance(1, 1);
-            //messagebus_topic_publish(&state_estimation_topic, &pos_msg, sizeof(pos_msg));
+            pos_msg.variance_z = estimator.covariance(2, 2);
+            messagebus_topic_publish(&state_estimation_topic, &pos_msg, sizeof(pos_msg));
         }
     }
 }

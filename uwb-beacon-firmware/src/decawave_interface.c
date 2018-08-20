@@ -105,7 +105,7 @@ void decawave_start(void)
 
     /* Enable DWM1000 LEDs */
     dwt_setlnapamode(1, 1);
-    dwt_setleds(DWT_LEDS_ENABLE);
+    dwt_setleds(DWT_LEDS_ENABLE | DWT_LEDS_INIT_BLINK);
 
     /* Configuration example taken straight from decawave's example. */
     /* TODO: Make it a bit more easy to configure */
@@ -114,13 +114,21 @@ void decawave_start(void)
         DWT_PRF_64M,     /* Pulse repetition frequency. */
         DWT_PLEN_64,     /* Preamble length. Used in TX only. */
         DWT_PAC8,        /* Preamble acquisition chunk size. Used in RX only. */
-        5, 5,            /* Preamble codes (RX, TX) */
+        9, 9,            /* Preamble codes (RX, TX) */
         1,               /* Non standard Start Frame Delimiter */
         DWT_BR_6M8,      /* Data rate. */
         DWT_PHRMODE_EXT, /* PHY header mode. */
         /* SFD timeout (preamble length + 1 + SFD length - PAC size). Used in RX only. */
-        (1025 + 64 - 32) // TODO too long
+        (64 + 64 - 8)
     };
 
     dwt_configure(&config);
+
+    static dwt_txconfig_t txconfig = {
+        0xC0,       /* Pulse generator delay value */
+        0x25456585, /* TX power, Channel 5 and 64Mhz smart power enabled */
+    };
+
+    dwt_configuretxrf(&txconfig);
+    dwt_setsmarttxpower(1);
 }

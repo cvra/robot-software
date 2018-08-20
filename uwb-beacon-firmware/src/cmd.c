@@ -168,8 +168,10 @@ static void cmd_range(BaseSequentialStream *chp, int argc, char **argv)
         return;
     }
 
+    messagebus_topic_read(topic, &msg, sizeof(msg));
+    chprintf(chp, "got a ToF to anchor 0x%x: %.3f at timestamp %d\r\n", msg.anchor_addr, msg.range, msg.timestamp);
     messagebus_topic_wait(topic, &msg, sizeof(msg));
-    chprintf(chp, "got a ToF to anchor 0x%x : %.3f\r\n", msg.anchor_addr, msg.range);
+    chprintf(chp, "got a ToF to anchor 0x%x: %.3f at timestamp %d\r\n", msg.anchor_addr, msg.range, msg.timestamp);
 }
 
 static void cmd_anchors(BaseSequentialStream *chp, int argc, char **argv)
@@ -231,11 +233,12 @@ static void cmd_state(BaseSequentialStream *chp, int argc, char **argv)
     if (argc > 0 && !strcmp("loop", argv[0])) {
         while (true) {
             messagebus_topic_read(topic, &msg, sizeof(msg));
-            chprintf(chp, "\rmu: (x=%.3f; y=%.3f)", msg.x, msg.y);
+            chprintf(chp, "\rmu: (x=%.3f; y=%.3f; z=%.3f)", msg.x, msg.y, msg.z);
             chThdSleepMilliseconds(500);
         }
     } else {
-        chprintf(chp, "mu: (x=%.3f; y=%.3f)\r\n", msg.x, msg.y);
+        chprintf(chp, "mu: (x=%.3f; y=%.3f; z=%.3f)\r\nVariance: (x=%f; y=%f; z=%f)\r\n",
+                msg.x, msg.y, msg.z, msg.variance_x, msg.variance_y, msg.variance_z);
     }
 }
 

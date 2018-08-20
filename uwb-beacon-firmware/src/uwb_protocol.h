@@ -110,6 +110,10 @@ size_t uwb_protocol_prepare_tag_position(uwb_protocol_handler_t *handler,
                                          uint8_t *frame);
 
 
+void uwb_initiate_measurement(uwb_protocol_handler_t *handler,
+                              uint8_t *buffer,
+                              uint16_t anchor_addr);
+
 
 /** @group UWB Board specific API
  *

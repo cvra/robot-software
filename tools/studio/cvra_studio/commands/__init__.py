@@ -4,5 +4,6 @@ __all__ = [
     'param_tree',
     'pid_plot',
     'plot2d',
+    'plot_uwb',
     'publish',
 ]

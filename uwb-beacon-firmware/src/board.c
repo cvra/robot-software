@@ -78,3 +78,19 @@ void __early_init(void) {
  */
 void boardInit(void) {
 }
+
+static stm32_gpio_t* ports[] = { GPIOC, GPIOB, GPIOB };
+static size_t leds[] = { GPIOC_LED_ERROR, GPIOB_LED_DEBUG, GPIOB_LED_STATUS };
+
+void board_led_set(board_led_t led)
+{
+  palSetPad(ports[led], leds[led]);
+}
+void board_led_clear(board_led_t led)
+{
+  palClearPad(ports[led], leds[led]);
+}
+void board_led_toggle(board_led_t led)
+{
+  palTogglePad(ports[led], leds[led]);
+}
