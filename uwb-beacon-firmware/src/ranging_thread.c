@@ -15,8 +15,8 @@
 /** Speed of light in Decawave units */
 #define SPEED_OF_LIGHT                   (299792458.0 / (128 * 499.2e6))
 
-/* Antenna delay for the our UWB board. */
-#define RX_ANT_DLY                       32840
+/* Antenna delay for our UWB board. */
+#define RX_ANT_DLY                       32915
 
 #define EVENT_UWB_INT                    (1 << 0)
 #define EVENT_ADVERTISE_TIMER            (1 << 1)
