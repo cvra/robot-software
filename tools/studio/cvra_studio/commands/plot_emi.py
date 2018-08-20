@@ -27,13 +27,13 @@ def argparser(parser=None):
 import numpy as np
 import scipy.optimize as so
 
-def exponential_decay_fun(amplitude, delay, decay):
-    return lambda t: amplitude * np.minimum(1.0, np.exp(- (t - delay) / decay))
+def exponential_decay_fun(amplitude, delay, decay, constant):
+    return lambda t: amplitude * np.minimum(1.0, np.exp(- (t - delay) / decay)) + constant
 
-def exponential_decay(t, amp, delay, decay):
-    return exponential_decay_fun(amp, delay, decay)(t)
+def exponential_decay(t, amp, delay, decay, constant):
+    return exponential_decay_fun(amp, delay, decay, constant)(t)
 
-def fit_exponential_decay(x, y, initial_guess=(1.0, 0.005, 0.005)):
+def fit_exponential_decay(x, y, initial_guess=(1.0, 0.0005, 0.0005, 0.0)):
     return so.curve_fit(exponential_decay, x, y, initial_guess)
 
 
@@ -56,7 +56,7 @@ class EmiFeedbackRecorder():
         self.node.add_handler(uavcan.thirdparty.cvra.metal_detector.EMIRawSignal, self._callback)
 
     def _callback(self, event):
-        freq = 4800 # Hz
+        freq = 48000 # Hz
         nb_samples = len(event.message.samples)
         self.data['emi']['time'] = np.linspace(0, nb_samples / freq, nb_samples)
         self.data['emi']['value'] = np.array(event.message.samples)
@@ -76,16 +76,33 @@ class EmiPlotController:
             return None
         samples = -(values - 2048) / 2048
         pw, cov = fit_exponential_decay(time, samples)
-        return pw[0], pw[1]*1000, pw[2]*1000
+        return pw[0], pw[1]*1000, pw[2]*1000, pw[3]
 
     def run(self):
         self.logger.info('Emi widget started')
+
+        def sliding_window_lp(params):
+            window_length = 40
+            if len(sliding_window_lp.samples) > sliding_window_lp.index:
+                sliding_window_lp.samples[sliding_window_lp.index] = params
+            else:
+                sliding_window_lp.samples.append(params)
+
+            sliding_window_lp.index += 1
+            if window_length == sliding_window_lp.index:
+                sliding_window_lp.index = 0
+
+            return np.mean(sliding_window_lp.samples, 0)
+        sliding_window_lp.index = 0
+        sliding_window_lp.samples = []
+
         while True:
             self.curve.put(self.model.data)
 
-            params = self.fit_exponential_decay(self.model.data['emi']['time'][18:], self.model.data['emi']['value'][18:])
+            params = self.fit_exponential_decay(self.model.data['emi']['time'][19:], self.model.data['emi']['value'][19:])
             if params:
-                msg = 'EMI signal fit: A={:3.3f} delay={:3.3f}ms tau={:3.3f}ms'.format(*params)
+                msg = 'EMI signal fit: A={:3.4f} delay={:3.4f}ms tau={:3.4f}ms c={:3.4f}'.format(*sliding_window_lp(params))
+                #msg = '{:3.7f}, {:3.7f}, {:3.7f}, {:3.7f}'.format(*params)
                 self.logger.info(msg)
                 self.viewer.fit.setText(msg)
 
@@ -95,7 +112,7 @@ def main(args):
     logging.basicConfig(level=max(logging.CRITICAL - (10 * args.verbose), 0))
 
     app = QtGui.QApplication(sys.argv)
-    app.setFont(QtGui.QFont('Open Sans', pointSize=64))
+    app.setFont(QtGui.QFont('Open Sans', pointSize=48))
 
     uavcan.load_dsdl(args.dsdl)
     node = UavcanNode(interface=args.interface, node_id=args.node_id)
