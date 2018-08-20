@@ -1,11 +1,11 @@
 #include <math.h>
 #include <ch.h>
-#include <hal.h>
 
 #include "main.h"
 #include "MadgwickAHRS.h"
 #include "ahrs_thread.h"
 #include "imu_thread.h"
+#include "board.h"
 
 static struct {
     parameter_t beta;
@@ -88,7 +88,7 @@ void ahrs_calibrate_gyro(void)
 
     topic = messagebus_find_topic_blocking(&bus, "/imu");
 
-    palSetPad(GPIOC, GPIOC_LED_ERROR);
+    board_led_set(BOARD_LED_ERROR);
     for (int i = 0; i < N; i++) {
         imu_msg_t msg;
         messagebus_topic_wait(topic, &msg, sizeof(msg));
@@ -99,10 +99,10 @@ void ahrs_calibrate_gyro(void)
 
         // Blink the LED during calibration
         if (i % 50 == 0) {
-            palTogglePad(GPIOC, GPIOC_LED_ERROR);
+            board_led_toggle(BOARD_LED_ERROR);
         }
     }
-    palClearPad(GPIOC, GPIOC_LED_ERROR);
+    board_led_clear(BOARD_LED_ERROR);
 
     new_beta = sqrtf(3/4.f) * (x_avg + y_avg + z_avg) / 3.f;
 

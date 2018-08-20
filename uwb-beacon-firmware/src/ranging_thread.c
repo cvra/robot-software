@@ -1,5 +1,4 @@
 #include <ch.h>
-#include <hal.h>
 
 #include "decadriver/deca_device_api.h"
 #include "decadriver/deca_regs.h"
@@ -124,7 +123,7 @@ static void ranging_thread(void *p)
 
         if (flags & EVENT_ADVERTISE_TIMER) {
             if (!handler.is_anchor && nb_anchor_macs > 0) {
-                palTogglePad(GPIOB, GPIOB_LED_STATUS);
+                board_led_toggle(BOARD_LED_STATUS);
                 /* First disable transceiver */
                 dwt_forcetrxoff();
 
@@ -189,7 +188,7 @@ static void frame_rx_timeout_cb(const dwt_cb_data_t *data)
 {
     (void) data;
 
-    palTogglePad(GPIOB, GPIOB_LED_DEBUG);
+    board_led_toggle(BOARD_LED_DEBUG);
     dwt_rxenable(DWT_START_RX_IMMEDIATE);
 }
 
@@ -197,7 +196,7 @@ static void frame_rx_error_cb(const dwt_cb_data_t *data)
 {
     (void) data;
 
-    palTogglePad(GPIOB, GPIOB_LED_DEBUG);
+    board_led_toggle(BOARD_LED_DEBUG);
     dwt_rxenable(DWT_START_RX_IMMEDIATE);
 }
 

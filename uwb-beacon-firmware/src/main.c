@@ -74,7 +74,7 @@ static void blink_thd(void *p)
     (void) p;
 
     while (1) {
-        palTogglePad(GPIOB, GPIOB_LED_STATUS);
+        board_led_toggle(BOARD_LED_STATUS);
         chThdSleepMilliseconds(200);
     }
 }

@@ -546,6 +546,16 @@
 extern "C" {
 #endif
   void boardInit(void);
+
+  typedef enum {
+      BOARD_LED_ERROR = 0,
+      BOARD_LED_DEBUG,
+      BOARD_LED_STATUS,
+  } board_led_t;
+
+  void board_led_set(board_led_t led);
+  void board_led_clear(board_led_t led);
+  void board_led_toggle(board_led_t led);
 #ifdef __cplusplus
 }
 #endif
