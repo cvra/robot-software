@@ -12,7 +12,22 @@
 
 \section{Mapping}
 
-250 words
+To map the competition area, our robot will use a custom localization system that we developped.
+Similarly to GPS, out system computes the rover's position by using the \gls{rtt} of a radio signal to several fixed beacons, of which the position is known.
+
+We use Decawave's DWM1000 radio modem with a custom protocol to measure the distance.
+This gives us a good distance measurement accuracy: $1 \sigma = \SI{3}{\centi\meter}$.
+
+Since we know the distance to each fixed beacons, as well as their positions, we can compute the position of the robot.
+This is done using an \gls{ekf}, using the distance to a point as a correction function.
+For the prediction step, we originally planned to use on using an inexpensive \gls{imu}, similar to the ones used in mobile phones.
+However we probably won't implement it, due to time constraints.
+
+The system was already tested on a \SI{20}{\meter} by \SI{20}{\meter} open field at our workshop.
+We got very good positioning results and reliability, although we lacked time to do a quantitative analysis of the measurement accuracy and precision.
+According to simulation, we should be withing \SI{10}{\centi\meter} of ground truth.
+As the reliability so far is good, we will be using this system only for the Minesweepers 2018.
+
 
 \section{Rough environment handling}
 
