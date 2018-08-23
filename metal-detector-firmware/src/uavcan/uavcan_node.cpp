@@ -65,9 +65,11 @@ void uavcan_node_emi_broadcast(uint16_t nb_samples, uint16_t *samples)
     cvra::metal_detector::EMIRawSignal msg;
     msg.nb_samples= nb_samples / 4;
 
-    for (int i = 1; i < nb_samples; i += 4) {
+    int i = 1;
+    for (; i < nb_samples; i += 4) {
         msg.samples.push_back(samples[i]);
     }
+    msg.samples.push_back(samples[i+1]);
 
     emi_pub->broadcast(msg);
 }
