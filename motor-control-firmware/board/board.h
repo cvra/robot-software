@@ -97,7 +97,7 @@
 /*
  * GPIOA setup:
  *
- * PA0  - GPIOA_GPIO_ADC            (input floating). (ADC1_IN1)
+ * PA0  - GPIOA_GPIO_ADC            (analog). (ADC1_IN1)
  * PA1  - GPIOA_LED                 (output pushpull, high).
  * PA2  - GPIOA_NC_2                (input pulldown).
  * PA3  - GPIOA_NC_3                (input pulldown).
@@ -114,7 +114,7 @@
  * PA14 - GPIOA_SWCLK               (alternate 0).
  * PA15 - GPIOA_NC_15               (input pulldown). // alternate 0?
  */
-#define VAL_GPIOA_MODER             (PIN_MODE_INPUT(GPIOA_GPIO_ADC) |       \
+#define VAL_GPIOA_MODER             (PIN_MODE_ANALOG(GPIOA_GPIO_ADC) |       \
                                      PIN_MODE_OUTPUT(GPIOA_LED) |           \
                                      PIN_MODE_INPUT(GPIOA_NC_2) |           \
                                      PIN_MODE_INPUT(GPIOA_NC_3) |           \
