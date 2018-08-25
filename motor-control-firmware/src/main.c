@@ -121,7 +121,7 @@ int main(void) {
 
     motor_pwm_setup();
     motor_pwm_enable();
-    motor_pwm_set(0.05);
+    motor_pwm_set(0.01);
 
     analog_init();
     metal_detector_init();
