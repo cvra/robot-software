@@ -56,7 +56,7 @@ class EmiFeedbackRecorder():
         self.node.add_handler(uavcan.thirdparty.cvra.metal_detector.EMIRawSignal, self._callback)
 
     def _callback(self, event):
-        freq = 48000 # Hz
+        freq = 75000 # Hz
         nb_samples = len(event.message.samples) - 1
         self.data['emi']['time'] = np.linspace(0, nb_samples / freq, nb_samples)
         self.data['emi']['value'] = np.array(event.message.samples)[0:-1]
@@ -122,17 +122,18 @@ class EmiPlotController:
         sliding_window_lp.samples = []
 
         while True:
-            #self.curve.put(self.model.data)
+            self.curve.put(self.model.data)
 
             temperature = self.calculate_temperature(self.calculate_ntc_resistance(self.model.data['emi']['temperature']))
-            params = self.fit_exponential_decay(self.model.data['emi']['time'][19:], self.model.data['emi']['value'][19:])
+            params = self.fit_exponential_decay(self.model.data['emi']['time'][16:], self.model.data['emi']['value'][16:])
             if params and temperature:
                 delta_tau = params[2] - (0.58399854 - 0.00105068 * (temperature + 273))
                 lp_params = sliding_window_lp(np.append(params, (temperature, delta_tau)))
                 msg = 'EMI signal fit: A={:3.4f} delay={:3.4f}ms tau={:3.4f}ms c={:3.4f} temp={:3.2f}°C delta_tau={:3.4f}ms'.format(*lp_params)
                 #msg = '{:3.7f}, {:3.7f}, {:3.7f}, {:3.7f}, {:3.7f}'.format(*np.append(params, temperature))
-                self.logger.info(msg)
-                #self.viewer.fit.setText(msg)
+                #print(msg)
+                #self.logger.info(msg)
+                self.viewer.fit.setText(msg)
 
             time.sleep(0.03)
 
@@ -140,7 +141,7 @@ def main(args):
     logging.basicConfig(level=max(logging.CRITICAL - (10 * args.verbose), 0))
 
     app = QtGui.QApplication(sys.argv)
-    app.setFont(QtGui.QFont('Open Sans', pointSize=42))
+    app.setFont(QtGui.QFont('Open Sans', pointSize=30))
 
     uavcan.load_dsdl(args.dsdl)
     node = UavcanNode(interface=args.interface, node_id=args.node_id)

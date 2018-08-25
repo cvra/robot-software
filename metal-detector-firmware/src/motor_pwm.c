@@ -4,7 +4,7 @@
 #include <math.h>
 
 
-#define PWM_PERIOD                  2880
+#define PWM_PERIOD                  7200
 #define PWM_DIRECTION_CHANNEL       0
 #define PWM_POWER_CHANNEL           1
 
@@ -25,7 +25,7 @@ void pwm_counter_reset(PWMDriver *pwmd)
 
 static const PWMConfig pwm_cfg = {
     360000,             // clock frequency in Hz (sets prescaler)
-    PWM_PERIOD,         // 12.5Hz
+    PWM_PERIOD,         // 50Hz
     pwm_counter_reset,
     // activate channel 1 and 2
     {

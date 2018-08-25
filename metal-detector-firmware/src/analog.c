@@ -9,7 +9,7 @@
 #define ADC_TO_VOLTS    0.005281575521f // 3.3/4096/(18/(100+18))
 
 #define ADC_NB_CHANNELS 4
-#define DMA_BUFFER_SIZE (380*2)         // dual buffer of 90 (see adc timing below)
+#define DMA_BUFFER_SIZE (190 * 2)         // dual buffer of 190 (see adc timing below)
 
 event_source_t analog_event;
 
@@ -61,13 +61,13 @@ static THD_FUNCTION(adc_task, arg)
         0,                      // TR1
         6,                      // CCR : DUAL=regular,simultaneous
         /* ADC timing
-         * 601.5 sampling + 12.5 conversion ADC cycles (72MHz)
-         * sampling time -> ~8.5us (max frequency ~117kHz)
-         * with 2 samples per conversion -> ~58kHz max frequency
+         * 61.5 sampling + 12.5 conversion ADC cycles (72MHz)
+         * sampling time -> ~1us (max frequency ~973kHz)
+         * with 2 samples per conversion -> ~487kHz max frequency
          */
-        {ADC_SMPR1_SMP_AN1(7), 0}, // SMPRx : 601.5 sampling cycles
+        {ADC_SMPR1_SMP_AN1(5), 0}, // SMPRx : 61.5 sampling cycles
         {ADC_SQR1_NUM_CH(2) | ADC_SQR1_SQ1_N(1) | ADC_SQR1_SQ2_N(1), 0, 0, 0}, // SQRx : ADC1_CH1 2x
-        {ADC_SMPR1_SMP_AN2(7) | ADC_SMPR1_SMP_AN3(7), 0},   // SSMPRx : 601.5 sampling cycles
+        {ADC_SMPR1_SMP_AN2(5) | ADC_SMPR1_SMP_AN3(5), 0},   // SSMPRx : 61.5 sampling cycles
         {ADC_SQR1_NUM_CH(2) | ADC_SQR1_SQ1_N(2) | ADC_SQR1_SQ2_N(3), 0, 0, 0}, // SSQRx : ADC2_CH2, ADC2_CH3
     };
 
@@ -87,7 +87,7 @@ static THD_FUNCTION(adc_task, arg)
     STM32_TIM15->SMCR   = 0;
     STM32_TIM15->CCMR1  = 0;
     STM32_TIM15->CCER   = 0;
-    STM32_TIM15->ARR    = 1500;                     // Preload to count to 72MHz/48kHz
+    STM32_TIM15->ARR    = 960;                      // Preload to count to 72MHz/75kHz
     STM32_TIM15->CR1    = 0;                        // Don't start yet
 
     adcConvert(&ADCD1, &adcgrpcfg1, adc_samples, DMA_BUFFER_SIZE); // should never return
