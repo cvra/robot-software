@@ -1,0 +1,25 @@
+[_: black, data: darkgreen, proc: blue, dev: firebrick]
+_ Rover
+    dev Metal detector
+        data Raw signal
+            proc Fit
+                data Fit parameters
+                    proc Classify signal
+                        data New mine
+                            proc Map builder
+                                data Mine positions
+                                    proc Map builder
+    dev Stereo camera
+        data Point cloud
+            proc 3D Segmentation
+                data 3D Objects
+                    proc Classify objects
+                        data New surface mine
+                            proc Map builder
+    dev UWB
+        data Position
+                            proc Map builder
+_ Terminal
+    data Mine positions
+        proc Display grid
+            dev Screen
