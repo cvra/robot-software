@@ -42,7 +42,7 @@ We decided to place an array of custom pulse induction metal detectors in front 
 Pulse induction is a single-coil based method to detect metal at a distance.
 
 The detector is built around a resistor-inductor circuit formed by the coil.
-We charge this coil with short pulses in the range of its characteristic time-constant $\tau = \frac{L}{R}$.
+We charge this coil with short pulses in the range of its characteristic time-constant $\tau = \frac{L}{R}$ with $L$ the inductance and $R$ the resistance of the coil.
 Then we measure the discharge signal and fit an exponential curve to it.
 Three cases can arise:
 \begin{itemize}
@@ -51,7 +51,7 @@ Three cases can arise:
     \item Ferromagnetic metal is near, hence we observe a longer $\tau$ on the discharge curve because the ferromagnetic metal will be magnetized temporarily and retains the magnetic field longer
 \end{itemize}
 In order to make this detection more reliable, we had to compensate for temperature drift on the measurement.
-Driving the coil at high power heats it, which makes the resistance grow as $R = R_0 (1 + a T + a T^2)$.
+Driving the coil at high power heats it, which makes the resistance grow as $R = R_0 (1 + a T + b T^2)$ with $R_0$ the reference resistance, $a$ and $b$ characteric values of the material, and $T$ the temperature of the coil.
 
 We built our pulse induction metal detectors using custom motor drivers, which incorporate power electronics to turn the on and off the supply current to the coil and a shunt resistor to measure the induced current.
 
