@@ -11,7 +11,28 @@ images/rover-top.png
 \end{figure}
 
 \section{Sensors and landmine detection}
-250 words
+We detect landmines through two sensor measurements:
+\begin{enumerate}
+    \item a pulse induction metal detector to detect surface and buried landmines
+    \item an RGBD sensor to detect surface landmines
+\end{enumerate}
+
+The metal detector is built around a resistor-inductor circuit formed by the coil.
+We charge this coil with short pulses in the range of its characteristic time-constant $\tau = \frac{L}{R}$.
+Then we measure the discharge signal and fit an exponential curve to it.
+Three cases can arise:
+\begin{enumerate}
+    \item Nothing is observed, hence we only observe $\tau$ of the coil
+    \item Non-ferromagnetic metal is near, hence we observe a shorter $\tau$ on the discharge curve because the eddy currents generated in the metal by electromagnetic stimulation decay the magnetic field faster
+    \item Ferromagnetic metal is near, hence we observe a longer $\tau$ on the discharge curve because the ferromagnetic metal will be magnetized temporarily and retains the magnetic field longer
+\end{enumerate}
+In order to make this detection more reliable, we had to compensate for temperature drift on the measurement.
+Driving the coil at high power heats it, which makes the resistance grow as $R = R_0 (1 + a T + a T^2)$.
+
+A complementary detection mechanism is implemented using an RGBD sensor.
+From the sensor data we build a local point cloud of the scene in front of the rover.
+Then, we segment it to extract objects from the ground.
+Objects that fit the geometric and color description of a landmine are logged.
 
 \section{Electronic circuit and control system}
 250 words + image
