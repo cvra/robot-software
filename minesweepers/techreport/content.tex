@@ -7,7 +7,7 @@ In order to face the rough outdoor terrain, we designed a rocker-bogie locomotio
 Its main advantage is the ability to maintain contact with the ground under most circumstances.
 Thus avoiding slippage and loss of maneuvrability.
 
-The rocker-bogie is a suspension arrangement first used for the Mars Pathfinder rover by NASA.
+The rocker-bogie is a suspension arrangement first used for the Mars Pathfinder rover by NASA\footnote{\url{https://mars.nasa.gov/programmissions/missions/past/pathfinder/}}.
 The rocker is split in two parts
 \begin{itemize}
     \item The rocker is the upper split between the front wheel and the center-rear wheels
@@ -25,8 +25,6 @@ This built-in redundancy also make the rover robust in case of a motor getting s
    \caption{\label{fig:rover} CAD view of the rover}
    \includegraphics[width=\textwidth]{images/rover}
 \end{figure}
-
-The rocker-bogie is a 3 wheel arrangement in a tree
 
 \section{Sensors and landmine detection}
 Surface and buried mines were considered as two different detection problems and different sensors are used for either of them.
@@ -81,7 +79,7 @@ All servo motors are driven by a custom drive board that interfaces motor contro
 The drive board exposes a differential control interface to the whole rover locomotion which can then be controlled either manually via the RF link with a remote control, or autonomously via the onboard computer.
 
 An onboard computer (Intel NUC) aggregates information from all sensors to build the map of mines.
-The RGBD sensor we use is an Intel Realsense D435 interfaced over USB 3.1.
+The RGBD sensor we use is an Intel Realsense D435\footnote{\url{https://click.intel.com/intelr-realsensetm-depth-camera-d435.html}} interfaced over USB 3.1.
 The computer also connects to the CAN-bus to receive position information from our custom UWB beacon board.
 It also retrieves signals from the custom metal detector board that drives the coil.
 
@@ -113,7 +111,7 @@ This can be extended by using an exploration maximization approach such as the h
 To map the competition area, our robot will use a custom localization system that we developped.
 Similarly to GPS, our system computes the rover's position by using the \gls{rtt} of a radio signal to several fixed beacons, of which the position is known.
 
-We use Decawave's DWM1000 radio modem with a custom protocol to measure the distance.
+We use Decawave's DWM1000 radio modem\footnote{\url{http://www.decawave.com/products/dwm1000-module}} with a custom protocol to measure the distance.
 This gives us a good distance measurement accuracy: $1 \sigma = \SI{3}{\centi\meter}$.
 
 Since we know the distance to each fixed beacons, as well as their positions, we can compute the position of the robot.
@@ -143,3 +141,4 @@ The independtly steered wheels allow the rover to steer around any obstacles enc
 This locomotion system also minimizes the effective motion of the rover, which equates to lower power consumption, so there is less heat generated and more power autonomy can be achieved
 
 \section{Video}
+The current state of development of our rover is presented in the video submission for the competition: \url{https://youtu.be/eWBsidBigHM}.
