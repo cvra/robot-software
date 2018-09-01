@@ -124,6 +124,8 @@ We got very good positioning results and reliability, although we lacked time to
 According to simulation, we should be within \SI{10}{\centi\meter} of ground truth.
 As the reliability so far is good, we will be using this system only for Minesweepers 2018.
 
+Given this positioning accuracy, we can directly reference a landmine detection to a position on the minefield and log it.
+A map of the minefield can be constructed with the position of all detected landmines (surface and buried) and sent regularly to a terminal for display.
 
 \section{Rough environment handling}
 With its rocker-bogie locomotion system, the rover is designed to be very forgiving to navigation errors in rough terrain.
