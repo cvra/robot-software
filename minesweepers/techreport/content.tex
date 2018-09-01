@@ -1,19 +1,32 @@
 \section{Mechanical design and locomotion system}
-In order to face the rough terrain, we decided to design a rocker-bogie locomotion system with six wheels.
-A rocker-bogie is the same mechanical design that powers Curiosity, the Mars rover.
+The rover central body holds the onboard computer, most of the robot's electronics, and battery.
+On its front, the RGBD sensor is positioned to observe landmines in the forward direction of the rover.
+Below it sit coils we use to detect metal content in the landmines in order to identify them.
+
+In order to face the rough outdoor terrain, we designed a rocker-bogie locomotion system with six wheels.
 Its main advantage is the ability to maintain contact with the ground under most circumstances.
 Thus avoiding slippage and loss of maneuvrability.
 
-The wheels are also steered, similar to Curiosity, in order to allow better stirring control and minimize slippage.
+The rocker-bogie is a suspension arrangement first used for the Mars Pathfinder rover by NASA.
+The rocker is split in two parts
+\begin{itemize}
+    \item The rocker is the upper split between the front wheel and the center-rear wheels
+    \item The bogie is the lower split between the center wheel and the rear wheel
+\end{itemize}
+The bogie is linked to the bogie with a free pivot joint allowing it to move.
+The rocker is also linked to the rover body through a differential joint to balance both sides of the rover.
 
-images/rover-front.png
-images/rover-side.png
-images/rover-top.png
+Each of the six wheels has a dedicated motor drive.
+And each wheel is steered independently with servo motors.
+Thus the rover can keep contact with the ground on very rough terrain, and maintain good maneuvrability.
+This built-in redundancy also make the rover robust in case of a motor getting stuck or failing.
 
 \begin{figure}[htbp]
    \caption{\label{fig:rover} CAD view of the rover}
    \includegraphics[width=\textwidth]{images/rover}
 \end{figure}
+
+The rocker-bogie is a 3 wheel arrangement in a tree
 
 \section{Sensors and landmine detection}
 Surface and buried mines were considered as two different detection problems and different sensors are used for either of them.
@@ -32,11 +45,11 @@ The detector is built around a resistor-inductor circuit formed by the coil.
 We charge this coil with short pulses in the range of its characteristic time-constant $\tau = \frac{L}{R}$.
 Then we measure the discharge signal and fit an exponential curve to it.
 Three cases can arise:
-\begin{enumerate}
+\begin{itemize}
     \item Nothing is observed, hence we only observe $\tau$ of the coil
     \item Non-ferromagnetic metal is near, hence we observe a shorter $\tau$ on the discharge curve because the eddy currents generated in the metal by electromagnetic stimulation decay the magnetic field faster
     \item Ferromagnetic metal is near, hence we observe a longer $\tau$ on the discharge curve because the ferromagnetic metal will be magnetized temporarily and retains the magnetic field longer
-\end{enumerate}
+\end{itemize}
 In order to make this detection more reliable, we had to compensate for temperature drift on the measurement.
 Driving the coil at high power heats it, which makes the resistance grow as $R = R_0 (1 + a T + a T^2)$.
 
@@ -52,11 +65,11 @@ Objects that fit the geometric and color description of a landmine are logged.
 \section{Electronic circuit and control system}
 The electronics of the rover are summarized by the block diagram in figure \ref{fig:block-diagram}.
 The diagram is color-coded:
-\begin{enumerate}
+\begin{itemize}
     \item Power components are represented in red
     \item Wireless communication devices are represented in green
     \item CAN-bus connected devices are represented in blue
-\end{enumerate}
+\end{itemize}
 
 \begin{figure}[htbp]
    \caption{\label{fig:block-diagram} Block diagram of the rover electronics}
@@ -107,4 +120,4 @@ As the reliability so far is good, we will be using this system only for Mineswe
 
 250 words
 
-\textbf{YOUTUBE VIDEO}
+\section{Video}
