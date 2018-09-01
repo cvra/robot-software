@@ -1,5 +1,5 @@
 \section{Mechanical design and locomotion system}
-The rover central body holds the onboard computer, most of the robot's electronics, and battery.
+The rover central body holds the on-board computer, most of the robot's electronics, and battery.
 On its front, the RGBD sensor is positioned to observe landmines in the forward direction of the rover.
 Below it sit coils we use to detect metal content in the landmines in order to identify them.
 
@@ -78,30 +78,30 @@ The diagram is color-coded:
 
 Each wheel has a custom motor control board to drive it, and a steering servo motor for direction.
 All servo motors are driven by a custom drive board that interfaces motor control boards too.
-The drive board exposes a differential control interface to the whole rover locomotion which can then be controlled either manually via the RF link with a remote control, or autonomously via the onboard computer.
+The drive board exposes a differential control interface to the whole rover locomotion which can then be controlled either manually via the RF link with a remote control, or autonomously via the on-board computer.
 
-An onboard computer (Intel NUC) aggregates information from all sensors to build the map of mines.
+An on-board computer (Intel NUC) aggregates information from all sensors to build the map of mines.
 The RGBD sensor we use is an Intel Realsense D435 interfaced over USB 3.1.
 The computer also connects to the CAN-bus to receive position information from our custom UWB beacon board.
 It also retrieves signals from the custom metal detector board that drives the coil.
 
 A custom power board protects all circuitry from the battery.
 It allows a us to monitor battery discharge, provides some security (fuses), and DC-DC voltage conversion.
-From this power board we dispatch power for the onboard computer and the CAN-bus command voltage (+5V).
+From this power board we dispatch power for the on-board computer and the CAN-bus command voltage (+5V).
 Then the protected battery voltage is dispatched through a power rail to all actuators: the coils, the DC motors, and the servo motors.
 Note that each servo motor is powered by a dedicated DC-DC converter to provide it with a more stable power source.
 
 
 \section{Area navigation}
 Our navigation is simple but open for extension.
-The rover will be manually driven, however everything is such that the onboard computer could control the rover.
+The rover will be manually driven, however everything is such that the on-board computer could control the rover.
 The idea is the cover the field in a grid pattern, while going around any landmines we encounter.
 
 The design is such that we first aim to drive the rover manually by remote control.
 This way we can cover the whole minefield with a grid path while avoiding surface mines.
 
-Further development would allow our onboard computer to move the rover autonomously across the minefield.
-The onboard computer running ROS for sensor processing and map building, would also run path planning to drive the rover around.
+Further development would allow our on-board computer to move the rover autonomously across the minefield.
+The on-board computer running ROS for sensor processing and map building, would also run path planning to drive the rover around.
 Path planning can be implemented with the ROS navigation stack.
 By design, the ROS navigation stack\footnote{\url{http://wiki.ros.org/navigation}} allows a robot to be controlled as long as it exposes a differential drive interface.
 The RGBD sensor can be used to provide pseudo laserscan measurements for obstacle avoidance, these can be configured to avoid surface mines correctly.
@@ -135,11 +135,11 @@ This locomotion design has been used and proven on the rough terrain of Mars, an
 In order to be able to test and validate changes in the mechanical design as quickly as possible, most of the rover's parts are manufactured using 3D printing technologies.
 A future iteration of the mechanics would replace the plastic parts with metal for better robustness against harsh environments and a stiffer locomotion system.
 
-The rover body can accomodate proper ventilation and radiators to evacute excess heat from the onboard computr and power circuits.
+The rover body can accommodate proper ventilation and radiators to evacuate excess heat from the on-board computer and power circuits.
 And the metal detection sensor has integrated temperature measurement to compensate for thermal effects, i.e. coil heating during operation and continuous exposure to sunlight.
 
-Autonomous path planning around obstacles in rough terrain can be achieved with the onboard depth sensor.
-The independtly steered wheels allow the rover to steer around any obstacles encountered and avoid them efficiently.
-This locomotion system also minimizes the effective motion of the rover, which equates to lower power consumption, so there is less heat generated and more power autonomy can be achieved
+Autonomous path planning around obstacles in rough terrain can be achieved with the on-board depth sensor.
+The independently steered wheels allow the rover to steer around any obstacles encountered and avoid them efficiently.
+This locomotion system also minimizes the effective motion of the rover, which equates to lower power consumption, so there is less heat generated and more power autonomy can be achieved.
 
 \section{Video}
