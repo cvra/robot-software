@@ -1,5 +1,10 @@
 \section{Mechanical design and locomotion system}
-250 word + image
+In order to face the rough terrain, we decided to design a rocker-bogie locomotion system with six wheels.
+A rocker-bogie is the same mechanical design that powers Curiosity, the Mars rover.
+Its main advantage is the ability to maintain contact with the ground under most circumstances.
+Thus avoiding slippage and loss of maneuvrability.
+
+The wheels are also steered, similar to Curiosity, in order to allow better stirring control and minimize slippage.
 
 images/rover-front.png
 images/rover-side.png
@@ -15,26 +20,42 @@ Surface and buried mines were considered as two different detection problems and
 
 The competition rules forbid us to come in contact surface mines, so they have to be detected from as far as possible and they play a role in navigation and path planning.
 The distinct shapes and colors of surface mines call for a vision based detection.
-The Intel RealSense\texttrademark depth camera was chosen to provide the imagery with which segmentation and classification algorithms will detect the landmines.
+A RGBD (red-green-blue-depth) sensor was chosen to provide the imagery with which segmentation and classification algorithms will detect the landmines.
 
 The only distinctive features of buried mines are the change in soil density that they induce and their metal content.
 We decided to place an array of custom pulse induction metal detectors in front of the rover to detect the buried landmines.
 
 \subsection{Pulse induction metal detector}
 Pulse induction is a single-coil based method to detect metal at a distance.
-These detectors function by first charging up the coils magnetic field by applying a current to it and then suddenly stopping said applied current while observing how the magnetic field decays by measuring the induced current in the coil.
-Metals close to the coil change the decay of its magnetic field either by increasing the inductance (ferromagnetic metals) or decreasing the efficiency due to stronger eddy currents (non-ferromagnetic metals).
+
+The detector is built around a resistor-inductor circuit formed by the coil.
+We charge this coil with short pulses in the range of its characteristic time-constant $\tau = \frac{L}{R}$.
+Then we measure the discharge signal and fit an exponential curve to it.
+Three cases can arise:
+\begin{enumerate}
+    \item Nothing is observed, hence we only observe $\tau$ of the coil
+    \item Non-ferromagnetic metal is near, hence we observe a shorter $\tau$ on the discharge curve because the eddy currents generated in the metal by electromagnetic stimulation decay the magnetic field faster
+    \item Ferromagnetic metal is near, hence we observe a longer $\tau$ on the discharge curve because the ferromagnetic metal will be magnetized temporarily and retains the magnetic field longer
+\end{enumerate}
+In order to make this detection more reliable, we had to compensate for temperature drift on the measurement.
+Driving the coil at high power heats it, which makes the resistance grow as $R = R_0 (1 + a T + a T^2)$.
 
 We built our pulse induction metal detectors using custom motor drivers, which incorporate power electronics to turn the on and off the supply current to the coil and a shunt resistor to measure the induced current.
 
-\subsection{Intel RealSense\texttrademark depth camera}
-TODO
+\subsection{RGBD Sensor}
+A complementary detection mechanism is implemented using an RGBD sensor.
+From the sensor data we build a local point cloud of the scene in front of the rover.
+Then, we segment it to extract objects from the ground.
+Objects that fit the geometric and color description of a landmine are logged.
+
 
 \section{Electronic circuit and control system}
 250 words + image
 
 \section{Area navigation}
-250 words
+Our navigation is simple but open for extension.
+The rover will be manually driven, however everything is such that the onboard computer could control the rover.
+The idea is the cover the field in a grid pattern, while going around any landmines we encounter.
 
 \section{Mapping}
 
