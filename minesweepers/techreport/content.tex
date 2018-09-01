@@ -50,7 +50,34 @@ Objects that fit the geometric and color description of a landmine are logged.
 
 
 \section{Electronic circuit and control system}
-250 words + image
+The electronics of the rover are summarized by the block diagram in figure \ref{fig:block-diagram}.
+The diagram is color-coded:
+\begin{enumerate}
+    \item Power components are represented in red
+    \item Wireless communication devices are represented in green
+    \item CAN-bus connected devices are represented in blue
+\end{enumerate}
+
+\begin{figure}[htbp]
+   \caption{\label{fig:block-diagram} Block diagram of the rover electronics}
+   \includegraphics[width=\textwidth]{images/diagram}
+\end{figure}
+
+Each wheel has a custom motor control board to drive it, and a steering servo motor for direction.
+All servo motors are driven by a custom drive board that interfaces motor control boards too.
+The drive board exposes a differential control interface to the whole rover locomotion which can then be controlled either manually via the RF link with a remote control, or autonomously via the onboard computer.
+
+An onboard computer (Intel NUC) aggregates information from all sensors to build the map of mines.
+The RGBD sensor we use is an Intel Realsense D435 interfaced over USB 3.1.
+The computer also connects to the CAN-bus to receive position information from our custom UWB beacon board.
+It also retrieves signals from the custom metal detector board that drives the coil.
+
+A custom power board protects all circuitry from the battery.
+It allows a us to monitor battery discharge, provides some security (fuses), and DC-DC voltage conversion.
+From this power board we dispatch power for the onboard computer and the CAN-bus command voltage (+5V).
+Then the protected battery voltage is dispatched through a power rail to all actuators: the coils, the DC motors, and the servo motors.
+Note that each servo motor is powered by a dedicated DC-DC converter to provide it with a more stable power source.
+
 
 \section{Area navigation}
 Our navigation is simple but open for extension.
