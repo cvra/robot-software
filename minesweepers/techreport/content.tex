@@ -130,11 +130,16 @@ As the reliability so far is good, we will be using this system only for Mineswe
 \section{Rough environment handling}
 With its rocker-bogie locomotion system, the rover is designed to be very forgiving to navigation errors in rough terrain.
 In addition, the independently actuated wheels allow for tight turn radii without slippage.
+This locomotion design has been used and proven on the rough terrain of Mars, and is well suited to tackle sandy soil with high degree of roughness.
 
 In order to be able to test and validate changes in the mechanical design as quickly as possible, most of the rover's parts are manufactured using 3D printing technologies.
 A future iteration of the mechanics would replace the plastic parts with metal for better robustness against harsh environments and a stiffer locomotion system.
 
-Autonomous path planning around obstacles in rough terrain can be achieved with the on-board depth sensor.
+The rover body can accomodate proper ventilation and radiators to evacute excess heat from the onboard computr and power circuits.
+And the metal detection sensor has integrated temperature measurement to compensate for thermal effects, i.e. coil heating during operation and continuous exposure to sunlight.
 
+Autonomous path planning around obstacles in rough terrain can be achieved with the onboard depth sensor.
+The independtly steered wheels allow the rover to steer around any obstacles encountered and avoid them efficiently.
+This locomotion system also minimizes the effective motion of the rover, which equates to lower power consumption, so there is less heat generated and more power autonomy can be achieved
 
 \section{Video}
