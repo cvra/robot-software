@@ -97,6 +97,17 @@ Our navigation is simple but open for extension.
 The rover will be manually driven, however everything is such that the onboard computer could control the rover.
 The idea is the cover the field in a grid pattern, while going around any landmines we encounter.
 
+The design is such that we first aim to drive the rover manually by remote control.
+This way we can cover the whole minefield with a grid path while avoiding surface mines.
+
+Further development would allow our onboard computer to move the rover autonomously across the minefield.
+The onboard computer running ROS for sensor processing and map building, would also run path planning to drive the rover around.
+Path planning can be implemented with the ROS navigation stack.
+By design, the ROS navigation stack\footnote{\url{http://wiki.ros.org/navigation}} allows a robot to be controlled as long as it exposes a differential drive interface.
+The RGBD sensor can be used to provide pseudo laserscan measurements for obstacle avoidance, these can be configured to avoid surface mines correctly.
+A grid plan covering the minefield can be decomposed into waypoints to ensure the rover covers it well enough.
+This can be extended by using an exploration maximization approach such as the hector exploration planner developed by TU Darmstadt\footnote{\url{http://wiki.ros.org/hector_exploration_planner}}.
+
 \section{Mapping}
 
 To map the competition area, our robot will use a custom localization system that we developped.
