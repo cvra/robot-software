@@ -11,7 +11,24 @@ images/rover-top.png
 \end{figure}
 
 \section{Sensors and landmine detection}
-250 words
+Surface and buried mines were considered as two different detection problems and different sensors are used for either of them.
+
+The competition rules forbid us to come in contact surface mines, so they have to be detected from as far as possible and they play a role in navigation and path planning.
+The distinct shapes and colors of surface mines call for a vision based detection.
+The Intel RealSense\texttrademark depth camera was chosen to provide the imagery with which segmentation and classification algorithms will detect the landmines.
+
+The only distinctive features of buried mines are the change in soil density that they induce and their metal content.
+We decided to place an array of custom pulse induction metal detectors in front of the rover to detect the buried landmines.
+
+\subsection{Pulse induction metal detector}
+Pulse induction is a single-coil based method to detect metal at a distance.
+These detectors function by first charging up the coils magnetic field by applying a current to it and then suddenly stopping said applied current while observing how the magnetic field decays by measuring the induced current in the coil.
+Metals close to the coil change the decay of its magnetic field either by increasing the inductance (ferromagnetic metals) or decreasing the efficiency due to stronger eddy currents (non-ferromagnetic metals).
+
+We built our pulse induction metal detectors using custom motor drivers, which incorporate power electronics to turn the on and off the supply current to the coil and a shunt resistor to measure the induced current.
+
+\subsection{Intel RealSense\texttrademark depth camera}
+TODO
 
 \section{Electronic circuit and control system}
 250 words + image
