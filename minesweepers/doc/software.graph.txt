@@ -5,21 +5,24 @@ _ Rover
             proc Fit
                 data Fit parameters
                     proc Classify signal
-                        data New mine
+                        data Mine info (surface/buried + pos)
                             proc Map builder
                                 data Mine positions
                                     proc Map builder
+                                    proc Classify objects
+                                    proc Classify signal
+                                    proc ROS -> JSON
     dev Stereo camera
         data Point cloud
             proc 3D Segmentation
                 data 3D Objects
                     proc Classify objects
-                        data New surface mine
-                            proc Map builder
+                        data Mine info (surface/buried + pos)
     dev UWB
         data Position
-                            proc Map builder
+                    proc Classify objects
+                    proc Classify signal
 _ Terminal
-    data Mine positions
+    proc ROS -> JSON
         proc Display grid
             dev Screen
