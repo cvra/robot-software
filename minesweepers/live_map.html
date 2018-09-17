@@ -33,22 +33,52 @@
     messageType : 'seeker_msgs/MineMap'
   });
 
-  var ROWS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'O', 'P', 'Q', 'R', 'S', 'T', 'U']
-  var COLS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20']
+  var ROWS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'O', 'P', 'Q', 'R', 'S', 'T'];
+  var COLS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19'];
   summary.subscribe(function(message) {
     document.getElementById("summary").innerHTML = 'I see ' + message.mines.length + ' mines';
 
-    var mines = '<ul>';
+    var mines = [];
     for (i = 0; i < message.mines.length; i++) {
-      var row = ROWS[Math.floor(message.mines[i].position.y)]
-      var col = COLS[Math.floor(message.mines[i].position.x)]
-      mines += '<li>' + row + col + '</li>'
+      var row = ROWS[Math.floor(message.mines[i].position.y)];
+      var col = COLS[Math.floor(message.mines[i].position.x)];
+      mines.push(row + col);
     }
-    mines += '</ul>'
-    document.getElementById("mines").innerHTML = mines
+    var map = '<div class="grid-container">\n';
+    map += '<div class="grid-item"></div>';
+    for (var col in COLS) { map += '<div class="grid-item">' + COLS[col] + '</div>'; }
+    for (row = 0; row < 19; row++) {
+      map += '<div class="grid-item">' + ROWS[row] + '</div>';
+      for (col = 0; col < 19; col++) {
+        map += '<div class="grid-item">';
+        if (mines.find(cell => cell === ROWS[row] + COLS[col])) {
+          map += 'X';
+        }
+        map += '</div>\n';
+      }
+    }
+    map += '</div>';
+    document.getElementById("mines").innerHTML = map;
   });
 
 </script>
+
+<style>
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(20, 1fr);
+  grid-template-rows: repeat(20, 1fr);
+  background-color: #2196F3;
+  padding: 2px;
+}
+.grid-item {
+  background-color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.8);
+  font-size: 20px;
+  text-align: center;
+  /*padding-bottom: 100%;*/
+}
+</style>
 </head>
 
 <body>
