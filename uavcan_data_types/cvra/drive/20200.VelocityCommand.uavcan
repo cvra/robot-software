@@ -1,0 +1,9 @@
+# Linear velocity in [m/s]
+float32 linear_x
+float32 linear_y
+float32 linear_z
+
+# Angular velocity in [rad/s]
+float32 angular_x
+float32 angular_y
+float32 angular_z

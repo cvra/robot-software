@@ -4,6 +4,7 @@
 #include <uavcan_stm32/uavcan_stm32.hpp>
 #include <uavcan/protocol/NodeStatus.hpp>
 #include <uavcan/protocol/node_info_retriever.hpp>
+#include <cvra/drive/VelocityCommand.hpp>
 #include "error/error.h"
 #include "motor_driver.h"
 #include "motor_driver_uavcan.hpp"
@@ -59,7 +60,6 @@ class BusEnumeratorNodeInfoAdapter final : public uavcan::INodeInfoListener
         WARNING("Could not obtain node information for node %d", node_id.get());
     }
 };
-
 
 static void main(void *arg)
 {
@@ -119,6 +119,25 @@ static void main(void *arg)
     res = retriever.addListener(&collector);
     if (res < 0) {
         ERROR("BusEnumeratorAdapter");
+    }
+
+    uavcan::Subscriber<cvra::drive::VelocityCommand> vel_cmd_sub(node);
+    auto VelocityCommand_handler = [&](const uavcan::ReceivedDataStructure<cvra::drive::VelocityCommand> &msg) {
+        float right_voltage = 0.5f * (msg.linear_x - msg.angular_z);
+        float left_voltage = 0.5f * (msg.linear_x + msg.angular_z);
+
+        right_voltage *= -1;  // Right motors are flipped w.r.t. left motors
+
+        motor_manager_set_voltage(&motor_manager, "right-back-wheel", right_voltage);
+        motor_manager_set_voltage(&motor_manager, "right-center-wheel", right_voltage);
+        motor_manager_set_voltage(&motor_manager, "right-front-wheel", right_voltage);
+
+        motor_manager_set_voltage(&motor_manager, "left-back-wheel", left_voltage);
+        motor_manager_set_voltage(&motor_manager, "left-center-wheel", left_voltage);
+        motor_manager_set_voltage(&motor_manager, "left-front-wheel", left_voltage);
+    };
+    if (vel_cmd_sub.start(VelocityCommand_handler)) {
+        ERROR("Cannot start velocity command handler!");
     }
 
     // Mark the node as correctly initialized
