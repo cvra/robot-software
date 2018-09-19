@@ -250,6 +250,33 @@ static void cmd_config_set(BaseSequentialStream *chp, int argc, char **argv)
     }
 }
 
+static void cmd_vel(BaseSequentialStream *chp, int argc, char **argv)
+{
+    if (argc != 2) {
+        chprintf(chp, "Usage: vel linear_x angular_z\r\n");
+        return;
+    }
+
+    float linear_x = atof(argv[0]);
+    float angular_z = atof(argv[1]);
+
+    float right_voltage = 0.5f * (linear_x - angular_z);
+    float left_voltage = 0.5f * (linear_x + angular_z);
+
+    right_voltage *= -1;  // Right motors are flipped w.r.t. left motors
+
+    motor_manager_set_voltage(&motor_manager, "right-back-wheel", right_voltage);
+    motor_manager_set_voltage(&motor_manager, "right-center-wheel", right_voltage);
+    motor_manager_set_voltage(&motor_manager, "right-front-wheel", right_voltage);
+
+    motor_manager_set_voltage(&motor_manager, "left-back-wheel", left_voltage);
+    motor_manager_set_voltage(&motor_manager, "left-center-wheel", left_voltage);
+    motor_manager_set_voltage(&motor_manager, "left-front-wheel", left_voltage);
+
+    chprintf(chp, "Setting velocity:\r\n\tlinear x %.3f [m/s]\r\n\tangular z: %.3f [rad/s]\r\n",
+             linear_x, angular_z);
+}
+
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
@@ -257,5 +284,6 @@ const ShellCommand commands[] = {
     {"reboot", cmd_reboot},
     {"threads", cmd_threads},
     {"time", cmd_time},
+    {"vel", cmd_vel},
     {NULL, NULL}
 };
