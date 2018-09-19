@@ -15,6 +15,12 @@ class UavcanNode:
         with self.node_lock:
             self.node.request(request, node_id, callback)
 
+    def publish(self, msg, priority):
+        self.node.broadcast(msg, priority=priority)
+
+    def publish_periodically(self, period, publish_cmd):
+        self.node.periodic(period, publish_cmd)
+
     def spin(self):
         threading.Thread(target=self._uavcan_thread).start()
 
