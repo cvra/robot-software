@@ -1,3 +1,12 @@
+wlan_conf:
+  file.managed:
+    - name: /etc/netplan/01-wlan.yaml
+    - source: salt://wifi/wlan_config.yaml
+  cmd.run:
+    - name: netplan apply
+    - wait:
+      - file: wlan_conf
+
 hostapd:
   pkg.installed: []
   file.managed:
