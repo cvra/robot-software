@@ -10,9 +10,11 @@ ros_repo:
     - unless: 'apt-key list | grep ros.org'
 
 {% for pkg in ["ros-melodic-ros-base",
-         "python-rosinstall", "python-catkin-tools",
+         "python-rosinstall",
+         "python-catkin-tools",
          "ros-melodic-controller-manager",
          "ros-melodic-diff-drive-controller",
+         "ros-melodic-perception",
 ] %}
 {{ pkg }}:
   pkg.installed:
