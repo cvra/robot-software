@@ -13,6 +13,7 @@ python3-pip:
     "numpy",
     "scipy",
     "scikit-learn",
+    "uavcan",
 ]%}
 {{ pkg }}-python3:
   pip.installed:

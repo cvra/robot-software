@@ -4,6 +4,7 @@ base:
     - users.cvra
     - dev.ros
     - dev.python
+    - can
 
   'virtual:physical':
     - match: grain
