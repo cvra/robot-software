@@ -11,11 +11,13 @@ python3-pip:
     "pyserial",
     "msgpack-python",
     "numpy",
+    "scipy",
+    "scikit-learn",
 ]%}
 {{ pkg }}-python3:
-    pip.installed:
-        - name: {{ pkg }}
-        - bin_env: /usr/bin/pip3
-        - require:
-            - pkg: python3-pip
+  pip.installed:
+    - name: {{ pkg }}
+    - bin_env: /usr/bin/pip3
+    - require:
+      - pkg: python3-pip
 {% endfor %}
