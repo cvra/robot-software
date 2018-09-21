@@ -15,6 +15,7 @@ ros_repo:
          "ros-melodic-controller-manager",
          "ros-melodic-diff-drive-controller",
          "ros-melodic-perception",
+         "ros-melodic-diagnostic-updater",
 ] %}
 {{ pkg }}:
   pkg.installed:

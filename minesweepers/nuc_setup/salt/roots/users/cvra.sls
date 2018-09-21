@@ -1,7 +1,7 @@
 cvra:
   user.present:
     - fullname: CVRA
-    - shell: /bin/bash
+    - shell: /usr/bin/fish
     - home: /home/cvra
     - groups:
       - sudo
