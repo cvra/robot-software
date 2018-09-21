@@ -5,6 +5,7 @@ base:
     - dev.ros
     - dev.python
     - can
+    - dev.realsense
 
   'virtual:physical':
     - match: grain
