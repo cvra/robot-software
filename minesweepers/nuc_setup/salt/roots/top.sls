@@ -8,3 +8,4 @@ base:
   'virtual:physical':
     - match: grain
     - grub
+    - wifi
