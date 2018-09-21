@@ -27,3 +27,13 @@ hostapd_service:
       - file: hostapd_service
     - watch:
       - file: hostapd
+
+dnsmasq:
+  pkg.installed: []
+  file.managed:
+    - name: /etc/dnsmasq.conf
+    - source: salt://wifi/dnsmasq.conf
+  service.running:
+    - watch:
+      - file: dnsmasq
+
