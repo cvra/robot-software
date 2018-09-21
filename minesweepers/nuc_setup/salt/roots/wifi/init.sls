@@ -1,3 +1,7 @@
+# Prevent the system from hanging at boot until a network comes up
+systemd-networkd-wait-online.service:
+  service.masked
+
 wlan_conf:
   file.managed:
     - name: /etc/netplan/01-wlan.yaml
