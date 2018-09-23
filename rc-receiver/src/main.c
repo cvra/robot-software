@@ -19,11 +19,11 @@ struct input_channel_s {
     ICUDriver *icup;
     int pulse_width_us;
 } input_channels[] = {
-    {&ICUD1, -1},
-    {&ICUD3, -1},
-    {&ICUD4, -1},
-    {&ICUD5, -1},
-    {&ICUD9, -1},
+    {&ICUD3, -1}, // 1: PA6 TIM3_CH1
+    {&ICUD4, -1}, // 2: PB6 TIM4_CH1
+    {&ICUD1, -1}, // 3: PA8 TIM1_CH1
+    {&ICUD9, -1}, // 4: PA2 TIM9_CH1
+    {&ICUD5, -1}, // 5: PA0 TIM5_CH1
 };
 
 #define NB_INPUT_CHANNELS (sizeof(input_channels) / sizeof(input_channels[0]))
@@ -88,16 +88,11 @@ int main(void)
 
     chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO + 1, Thread1, NULL);
 
-    // PA8 TIM1_CH1
-    palSetPadMode(GPIOA, 8, PAL_MODE_ALTERNATE(1) | PAL_STM32_PUPDR_PULLDOWN);
-    // PA6 TIM3_CH1
     palSetPadMode(GPIOA, 6, PAL_MODE_ALTERNATE(2) | PAL_STM32_PUPDR_PULLDOWN);
-    // PB6 TIM4_CH1
     palSetPadMode(GPIOB, 6, PAL_MODE_ALTERNATE(2) | PAL_STM32_PUPDR_PULLDOWN);
-    // PA0 TIM5_CH1
-    palSetPadMode(GPIOA, 0, PAL_MODE_ALTERNATE(2) | PAL_STM32_PUPDR_PULLDOWN);
-    // PA2 TIM9_CH1
+    palSetPadMode(GPIOA, 8, PAL_MODE_ALTERNATE(1) | PAL_STM32_PUPDR_PULLDOWN);
     palSetPadMode(GPIOA, 2, PAL_MODE_ALTERNATE(3) | PAL_STM32_PUPDR_PULLDOWN);
+    palSetPadMode(GPIOA, 0, PAL_MODE_ALTERNATE(2) | PAL_STM32_PUPDR_PULLDOWN);
 
     unsigned i;
     for (i = 0; i < NB_INPUT_CHANNELS; i++) {
