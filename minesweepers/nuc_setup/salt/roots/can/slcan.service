@@ -1,0 +1,13 @@
+[Unit]
+Description=SLCAN interface on robot
+After=multi-user.target
+
+[Service]
+Type=forking
+# TODO: Check the path to the CAN dongle
+ExecStart=/usr/bin/slcand -o -s8 -S 3000000 /dev/ttyUSB0; /sbin/ip link set up slcan0
+
+[Install]
+WantedBy=multi-user.target
+
+# vim: set ft=systemd:

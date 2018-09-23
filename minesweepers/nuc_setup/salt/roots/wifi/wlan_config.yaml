@@ -1,0 +1,10 @@
+# This file describes the network interfaces available on your system
+# For more information, see netplan(5).
+network:
+ version: 2
+ renderer: networkd
+ ethernets:
+   wlp2s0:
+     dhcp4: no
+     dhcp6: no
+     addresses: [10.0.0.1/24]
