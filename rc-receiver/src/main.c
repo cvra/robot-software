@@ -15,6 +15,30 @@ static THD_FUNCTION(Thread1, arg) {
     }
 }
 
+icucnt_t last_width, last_period;
+
+static void icuwidthcb(ICUDriver *icup)
+{
+    palSetPad(GPIOA, GPIOA_LED_GREEN);
+    last_width = icuGetWidthX(icup);
+}
+
+static void icuperiodcb(ICUDriver *icup)
+{
+    palClearPad(GPIOA, GPIOA_LED_GREEN);
+    last_period = icuGetPeriodX(icup);
+}
+
+static ICUConfig icucfg3 = {
+    ICU_INPUT_ACTIVE_HIGH,
+    1000000,
+    icuwidthcb,
+    icuperiodcb,
+    NULL,
+    ICU_CHANNEL_1,
+    0
+};
+
 int main(void)
 {
     halInit();
@@ -33,8 +57,13 @@ int main(void)
 
     chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO + 1, Thread1, NULL);
 
+    palSetPadMode(GPIOA, 6, PAL_MODE_ALTERNATE(2)); // PA6 TIM3_CH1
+    icuStart(&ICUD3, &icucfg3);
+    icuStartCapture(&ICUD3);
+    icuEnableNotifications(&ICUD3);
+
     while (true) {
-        chprintf((BaseSequentialStream *) &SD6, "hello world\n");
+        chprintf((BaseSequentialStream *) &SD6, "pwm width %u us, period %u us\n", last_width, last_period);
         chThdSleepMilliseconds(500);
     }
 }
