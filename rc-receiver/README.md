@@ -10,3 +10,9 @@ PA2 TIM9_CH1 CN10_37 (D1)
 
 PC6 UART6_TX CN10_04
 UART baudrate: 115200
+
+Modifications:
+- place 8MHz quartz (X3) with 2x 20pF capacitors (C33, C34)
+- SB50 open
+- R35 closed
+- R37 closed
