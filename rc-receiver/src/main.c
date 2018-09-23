@@ -15,26 +15,56 @@ static THD_FUNCTION(Thread1, arg) {
     }
 }
 
-icucnt_t last_width, last_period;
+struct input_channel_s {
+    ICUDriver *icup;
+    int pulse_width_us;
+} input_channels[] = {
+    {&ICUD1, -1},
+    {&ICUD3, -1},
+    {&ICUD4, -1},
+    {&ICUD5, -1},
+    {&ICUD9, -1},
+};
 
-static void icuwidthcb(ICUDriver *icup)
+#define NB_INPUT_CHANNELS (sizeof(input_channels) / sizeof(input_channels[0]))
+
+int servo_pulse_validate(icucnt_t w)
 {
-    palSetPad(GPIOA, GPIOA_LED_GREEN);
-    last_width = icuGetWidthX(icup);
+    if (w >= 700 && w <= 2300) {
+        return w;
+    }
+    return -1;
 }
 
-static void icuperiodcb(ICUDriver *icup)
+static void icu_width_cb(ICUDriver *icup)
 {
-    palClearPad(GPIOA, GPIOA_LED_GREEN);
-    last_period = icuGetPeriodX(icup);
+    unsigned i;
+    for (i = 0; i < NB_INPUT_CHANNELS; i++) {
+        if (icup == input_channels[i].icup) {
+            icucnt_t w = icuGetWidthX(icup);
+            input_channels[i].pulse_width_us = servo_pulse_validate(w);
+            break;
+        }
+    }
 }
 
-static ICUConfig icucfg3 = {
+static void icu_overflow_cb(ICUDriver *icup)
+{
+    unsigned i;
+    for (i = 0; i < NB_INPUT_CHANNELS; i++) {
+        if (icup == input_channels[i].icup) {
+            input_channels[i].pulse_width_us = -1; // invalidate measurement
+            break;
+        }
+    }
+}
+
+static ICUConfig icucfg = {
     ICU_INPUT_ACTIVE_HIGH,
     1000000,
-    icuwidthcb,
-    icuperiodcb,
+    icu_width_cb,
     NULL,
+    icu_overflow_cb,
     ICU_CHANNEL_1,
     0
 };
@@ -54,16 +84,33 @@ int main(void)
     sdStart(&SD6, &serial_config);
     palSetPadMode(GPIOC, 6, PAL_MODE_ALTERNATE(8)); // UART6 TX
     palSetPadMode(GPIOC, 7, PAL_MODE_ALTERNATE(8)); // UART6 RX
+    BaseSequentialStream *uart = (BaseSequentialStream *)&SD6;
 
     chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO + 1, Thread1, NULL);
 
-    palSetPadMode(GPIOA, 6, PAL_MODE_ALTERNATE(2)); // PA6 TIM3_CH1
-    icuStart(&ICUD3, &icucfg3);
-    icuStartCapture(&ICUD3);
-    icuEnableNotifications(&ICUD3);
+    // PA8 TIM1_CH1
+    palSetPadMode(GPIOA, 8, PAL_MODE_ALTERNATE(1) | PAL_STM32_PUPDR_PULLDOWN);
+    // PA6 TIM3_CH1
+    palSetPadMode(GPIOA, 6, PAL_MODE_ALTERNATE(2) | PAL_STM32_PUPDR_PULLDOWN);
+    // PB6 TIM4_CH1
+    palSetPadMode(GPIOB, 6, PAL_MODE_ALTERNATE(2) | PAL_STM32_PUPDR_PULLDOWN);
+    // PA0 TIM5_CH1
+    palSetPadMode(GPIOA, 0, PAL_MODE_ALTERNATE(2) | PAL_STM32_PUPDR_PULLDOWN);
+    // PA2 TIM9_CH1
+    palSetPadMode(GPIOA, 2, PAL_MODE_ALTERNATE(3) | PAL_STM32_PUPDR_PULLDOWN);
+
+    unsigned i;
+    for (i = 0; i < NB_INPUT_CHANNELS; i++) {
+        icuStart(input_channels[i].icup, &icucfg);
+        icuStartCapture(input_channels[i].icup);
+        icuEnableNotifications(input_channels[i].icup);
+    }
 
     while (true) {
-        chprintf((BaseSequentialStream *) &SD6, "pwm width %u us, period %u us\n", last_width, last_period);
-        chThdSleepMilliseconds(500);
+        for (i = 0; i < NB_INPUT_CHANNELS - 1; i++) {
+            chprintf(uart, "%d,", input_channels[i].pulse_width_us);
+        }
+        chprintf(uart, "%d\n", input_channels[i].pulse_width_us);
+        chThdSleepMilliseconds(50);
     }
 }
