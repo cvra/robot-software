@@ -25,6 +25,7 @@
 #include "usbconf.h"
 #include "pca9685_pwm.h"
 #include "commands.h"
+#include "remote_control.h"
 
 void init_base_motors(void);
 
@@ -169,6 +170,8 @@ int main(void)
 
     /* Initiaze UAVCAN communication */
     uavcan_node_start(10);
+
+    remote_control_start();
 
     /* Initializes a serial-over-USB CDC driver.  */
     sduObjectInit(&SDU1);
