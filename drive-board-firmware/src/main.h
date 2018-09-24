@@ -9,9 +9,11 @@ extern "C" {
 #define MAX_NB_BUS_ENUMERATOR_ENTRIES   21
 
 #include "motor_manager.h"
+#include "base/base.h"
 #include <parameter/parameter.h>
 
 extern motor_manager_t motor_manager;
+extern base_t rover_base;
 
 extern parameter_namespace_t global_config;
 

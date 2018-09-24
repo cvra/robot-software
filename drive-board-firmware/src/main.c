@@ -29,6 +29,7 @@
 void init_base_motors(void);
 
 motor_manager_t motor_manager;
+base_t rover_base;
 
 // debug UART
 #define DEBUG_UART_BAUDRATE 115200
@@ -197,13 +198,15 @@ uintptr_t __stack_chk_guard = 0xdeadbeef;
 
 void init_base_motors(void)
 {
-    motor_manager_create_driver(&motor_manager, "left-back-wheel");
-    motor_manager_create_driver(&motor_manager, "left-center-wheel");
-    motor_manager_create_driver(&motor_manager, "left-front-wheel");
+    rover_base.left.back_wheel.motor = motor_manager_create_driver(&motor_manager, "left-back-wheel");
+    rover_base.left.center_wheel.motor = motor_manager_create_driver(&motor_manager, "left-center-wheel");
+    rover_base.left.front_wheel.motor = motor_manager_create_driver(&motor_manager, "left-front-wheel");
+    rover_base.left.back_wheel.speed_factor = rover_base.left.center_wheel.speed_factor = rover_base.left.front_wheel.speed_factor = 1.f;
 
-    motor_manager_create_driver(&motor_manager, "right-back-wheel");
-    motor_manager_create_driver(&motor_manager, "right-center-wheel");
-    motor_manager_create_driver(&motor_manager, "right-front-wheel");
+    rover_base.right.back_wheel.motor = motor_manager_create_driver(&motor_manager, "right-back-wheel");
+    rover_base.right.center_wheel.motor = motor_manager_create_driver(&motor_manager, "right-center-wheel");
+    rover_base.right.front_wheel.motor = motor_manager_create_driver(&motor_manager, "right-front-wheel");
+    rover_base.right.back_wheel.speed_factor = rover_base.right.center_wheel.speed_factor = rover_base.right.front_wheel.speed_factor = -1.f;
 }
 
 void __stack_chk_fail(void)

@@ -260,18 +260,7 @@ static void cmd_vel(BaseSequentialStream *chp, int argc, char **argv)
     float linear_x = atof(argv[0]);
     float angular_z = atof(argv[1]);
 
-    float right_voltage = 0.5f * (linear_x - angular_z);
-    float left_voltage = 0.5f * (linear_x + angular_z);
-
-    right_voltage *= -1;  // Right motors are flipped w.r.t. left motors
-
-    motor_manager_set_voltage(&motor_manager, "right-back-wheel", right_voltage);
-    motor_manager_set_voltage(&motor_manager, "right-center-wheel", right_voltage);
-    motor_manager_set_voltage(&motor_manager, "right-front-wheel", right_voltage);
-
-    motor_manager_set_voltage(&motor_manager, "left-back-wheel", left_voltage);
-    motor_manager_set_voltage(&motor_manager, "left-center-wheel", left_voltage);
-    motor_manager_set_voltage(&motor_manager, "left-front-wheel", left_voltage);
+    base_set_speed(&rover_base, linear_x, angular_z);
 
     chprintf(chp, "Setting velocity:\r\n\tlinear x %.3f [m/s]\r\n\tangular z: %.3f [rad/s]\r\n",
              linear_x, angular_z);
