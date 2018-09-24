@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "error/error.h"
+#include "main.h"
 
 #define NB_CHANNELS 5
 
@@ -80,6 +81,18 @@ static THD_FUNCTION(rc_thread_main, arg)
         }
         if (parse_channels(line, channels) != 0) {
             NOTICE("%d,%d,%d,%d,%d", channels[0], channels[1], channels[2], channels[3], channels[4]);
+
+            float linear_x, angular_z;
+            linear_x = angular_z = 0.0f;
+
+            if (channels[0] != -1) {
+                linear_x = 3.0f * ((float) channels[0] - 1500.0f) / 500.0f;
+            }
+            if (channels[1] != -1) {
+                angular_z = 3.0f * ((float) channels[1] - 1500.0f) / 500.0f;
+            }
+
+            base_set_speed(&rover_base, linear_x, angular_z);
         }
     }
 }
