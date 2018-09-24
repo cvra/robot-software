@@ -48,10 +48,11 @@ static int parse_channels(char *line, int *channels)
         channels[i] = val;
 
         // check CSV structure
-        if ((i < NB_CHANNELS - 1 && *next != ',') ||
-            (i == NB_CHANNELS - 1 && *next != '\0')) {
+        if ((i < NB_CHANNELS - 1 && *next != ',')) {
             return -1;
         }
+
+        line = next + 1;
     }
     return 0;
 }
@@ -79,19 +80,20 @@ static THD_FUNCTION(rc_thread_main, arg)
         if (!(line = get_line(&SD6))) {
             continue;
         }
-        if (parse_channels(line, channels) != 0) {
-            NOTICE("%d,%d,%d,%d,%d", channels[0], channels[1], channels[2], channels[3], channels[4]);
+        if (parse_channels(line, channels) == 0) {
+            // NOTICE("%d,%d,%d,%d,%d", channels[0], channels[1], channels[2], channels[3], channels[4]);
 
             float linear_x, angular_z;
             linear_x = angular_z = 0.0f;
 
             if (channels[0] != -1) {
-                linear_x = 3.0f * ((float) channels[0] - 1500.0f) / 500.0f;
+                linear_x = 5.0f * ((float) channels[0] - 1500.0f) / 500.0f;
             }
-            if (channels[1] != -1) {
-                angular_z = 3.0f * ((float) channels[1] - 1500.0f) / 500.0f;
+            if (channels[3] != -1) {
+                angular_z = 5.0f * ((float) channels[1] - 1500.0f) / 500.0f;
             }
 
+            // NOTICE("%f,%f", linear_x, angular_z);
             base_set_speed(&rover_base, linear_x, angular_z);
         }
     }
