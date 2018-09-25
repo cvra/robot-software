@@ -25,6 +25,7 @@ target.arm:
     - src/pca9685_pwm.c
     - src/parameter_port.c
     - src/base/base.c
+    - src/remote_control.c
 
 source:
     - src/unix_timestamp.c
