@@ -1,15 +1,22 @@
 #include "base.h"
 
+static void wheel_set_speed(wheel_t* wheel, float speed);
+
 void base_set_speed(base_t* base, float linear_x, float angular_z)
 {
-    float right_voltage = 0.5f * (linear_x - angular_z);
-    float left_voltage = 0.5f * (linear_x + angular_z);
+    float right_speed = 0.5f * (linear_x - angular_z);
+    float left_speed = 0.5f * (linear_x + angular_z);
 
-    motor_driver_set_voltage(base->right.back_wheel.motor, base->right.back_wheel.speed_factor*right_voltage);
-    motor_driver_set_voltage(base->right.center_wheel.motor, base->right.center_wheel.speed_factor*right_voltage);
-    motor_driver_set_voltage(base->right.front_wheel.motor, base->right.front_wheel.speed_factor*right_voltage);
+    wheel_set_speed(&base->right.back_wheel, right_speed);
+    wheel_set_speed(&base->right.center_wheel, right_speed);
+    wheel_set_speed(&base->right.front_wheel, right_speed);
 
-    motor_driver_set_voltage(base->left.back_wheel.motor, base->left.back_wheel.speed_factor*left_voltage);
-    motor_driver_set_voltage(base->left.center_wheel.motor, base->left.center_wheel.speed_factor*left_voltage);
-    motor_driver_set_voltage(base->left.front_wheel.motor, base->left.front_wheel.speed_factor*left_voltage);
+    wheel_set_speed(&base->left.back_wheel, left_speed);
+    wheel_set_speed(&base->left.center_wheel, left_speed);
+    wheel_set_speed(&base->left.front_wheel, left_speed);
+}
+
+void wheel_set_speed(wheel_t* wheel, float speed)
+{
+    motor_driver_set_voltage(wheel->motor, wheel->speed_factor * speed);
 }
