@@ -9,11 +9,14 @@ extern "C" {
 #include "motor_driver.h"
 
 #define MOTOR_NAME_LEN 20
-#define WHEEL_MAX_SPEED 6.0f // Maximum wheel speed achievable
+#define WHEEL_MAX_SPEED 6.0f            // Maximum wheel speed achievable
+#define WHEEL_STEERING_90_DEG 0.0005f   // Delta to span 90 degrees
 
 typedef struct {
     motor_driver_t* motor;
     float speed_factor;
+    unsigned int servo;
+    float steering_center;
 } wheel_t;
 
 typedef struct {
