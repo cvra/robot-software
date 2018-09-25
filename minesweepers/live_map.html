@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<script type="text/javascript" src="http://static.robotwebtools.org/EventEmitter2/current/eventemitter2.min.js"></script>
+<script type="text/javascript" src="http://static.robotwebtools.org/roslibjs/current/roslib.min.js"></script>
+<script type="text/javascript" type="text/javascript">
+  // Connecting to ROS
+  // -----------------
+
+  var ros = new ROSLIB.Ros({
+    url : 'ws://localhost:9090'
+  });
+
+  ros.on('connection', function() {
+    console.log('Connected to websocket server.');
+  });
+
+  ros.on('error', function(error) {
+    console.log('Error connecting to websocket server: ', error);
+  });
+
+  ros.on('close', function() {
+    console.log('Connection to websocket server closed.');
+  });
+
+  // Subscribing to a Topic
+  // ----------------------
+
+  var summary = new ROSLIB.Topic({
+    ros : ros,
+    name : '/map',
+    messageType : 'seeker_msgs/MineMap'
+  });
+
+  var ROWS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'O', 'P', 'Q', 'R', 'S', 'T'];
+  var COLS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19'];
+  summary.subscribe(function(message) {
+    document.getElementById("summary").innerHTML = 'I see ' + message.mines.length + ' mines';
+
+    var mines = [];
+    for (i = 0; i < message.mines.length; i++) {
+      var row = ROWS[Math.floor(message.mines[i].position.y)];
+      var col = COLS[Math.floor(message.mines[i].position.x)];
+      mines.push(row + col);
+    }
+    var map = '<div class="grid-container">\n';
+    map += '<div class="grid-item"></div>';
+    for (var col in COLS) { map += '<div class="grid-item">' + COLS[col] + '</div>'; }
+    for (row = 0; row < 19; row++) {
+      map += '<div class="grid-item">' + ROWS[row] + '</div>';
+      for (col = 0; col < 19; col++) {
+        map += '<div class="grid-item">';
+        if (mines.find(cell => cell === ROWS[row] + COLS[col])) {
+          map += 'X';
+        }
+        map += '</div>\n';
+      }
+    }
+    map += '</div>';
+    document.getElementById("mines").innerHTML = map;
+  });
+
+</script>
+
+<style>
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(20, 1fr);
+  grid-template-rows: repeat(20, 1fr);
+  background-color: #2196F3;
+  padding: 2px;
+}
+.grid-item {
+  background-color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.8);
+  font-size: 20px;
+  text-align: center;
+}
+</style>
+</head>
+
+<body>
+  <h1>Live map of detected mines</h1>
+  <p></p>
+  <p id="summary"></p>
+  <p id="mines"></p>
+</body>
+</html>
