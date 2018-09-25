@@ -10,7 +10,7 @@ extern "C" {
 
 #define MOTOR_NAME_LEN 20
 #define WHEEL_MAX_SPEED 6.0f            // Maximum wheel speed achievable
-#define WHEEL_STEERING_90_DEG 0.0005f   // Delta to span 90 degrees
+#define WHEEL_STEERING_90_DEG 0.0008f   // Delta to span 90 degrees
 
 typedef struct {
     motor_driver_t* motor;

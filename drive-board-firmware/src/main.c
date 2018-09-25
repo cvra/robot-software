@@ -209,9 +209,9 @@ void init_base_motors(void)
     rover_base.left.back_wheel.servo = 0;
     rover_base.left.center_wheel.servo = 2;
     rover_base.left.front_wheel.servo = 4;
-    rover_base.left.back_wheel.steering_center = 0.0015f;
-    rover_base.left.center_wheel.steering_center = 0.0015f;
-    rover_base.left.front_wheel.steering_center = 0.0015f;
+    rover_base.left.back_wheel.steering_center = 0.001675f;
+    rover_base.left.center_wheel.steering_center = 0.00158f;
+    rover_base.left.front_wheel.steering_center = 0.00165f;
 
     rover_base.right.back_wheel.motor = motor_manager_create_driver(&motor_manager, "right-back-wheel");
     rover_base.right.center_wheel.motor = motor_manager_create_driver(&motor_manager, "right-center-wheel");
@@ -221,9 +221,9 @@ void init_base_motors(void)
     rover_base.right.back_wheel.servo = 6;
     rover_base.right.center_wheel.servo = 8;
     rover_base.right.front_wheel.servo = 10;
-    rover_base.right.back_wheel.steering_center = 0.0015f;
+    rover_base.right.back_wheel.steering_center = 0.00156f;
     rover_base.right.center_wheel.steering_center = 0.0015f;
-    rover_base.right.front_wheel.steering_center = 0.0015f;
+    rover_base.right.front_wheel.steering_center = 0.001535f;
 }
 
 void __stack_chk_fail(void)
