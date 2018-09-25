@@ -9,6 +9,7 @@ extern "C" {
 #include "motor_driver.h"
 
 #define MOTOR_NAME_LEN 20
+#define WHEEL_MAX_SPEED 6.0f // Maximum wheel speed achievable
 
 typedef struct {
     motor_driver_t* motor;

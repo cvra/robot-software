@@ -1,6 +1,7 @@
 #include "base.h"
 
 static void wheel_set_speed(wheel_t* wheel, float speed);
+static float clamp(float value, float max);
 
 void base_set_speed(base_t* base, float linear_x, float angular_z)
 {
@@ -18,5 +19,12 @@ void base_set_speed(base_t* base, float linear_x, float angular_z)
 
 void wheel_set_speed(wheel_t* wheel, float speed)
 {
-    motor_driver_set_voltage(wheel->motor, wheel->speed_factor * speed);
+    motor_driver_set_voltage(wheel->motor, clamp(wheel->speed_factor * speed, WHEEL_MAX_SPEED));
+}
+
+float clamp(float value, float max)
+{
+    if (value > max) return max;
+    if (value < -max) return -max;
+    return value;
 }
