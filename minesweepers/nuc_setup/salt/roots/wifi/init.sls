@@ -38,6 +38,7 @@ dnsmasq:
     - name: /etc/dnsmasq.conf
     - source: salt://wifi/dnsmasq.conf
   service.running:
+    - enable: true
     - watch:
       - file: dnsmasq
 
