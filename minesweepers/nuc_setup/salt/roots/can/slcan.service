@@ -4,8 +4,7 @@ After=multi-user.target
 
 [Service]
 Type=forking
-# TODO: Check the path to the CAN dongle
-ExecStart=/usr/bin/slcand -o -s8 -S 3000000 /dev/ttyUSB0; /sbin/ip link set up slcan0
+ExecStart=/usr/local/bin/uavcan_add_slcan -r -s8 /dev/serial/by-id/usb-CVRA_CVRA_CAN2USB_303-if00
 
 [Install]
 WantedBy=multi-user.target
