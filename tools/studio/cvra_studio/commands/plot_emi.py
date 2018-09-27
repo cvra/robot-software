@@ -121,19 +121,39 @@ class EmiPlotController:
         sliding_window_lp.index = 0
         sliding_window_lp.samples = []
 
+        def spectral_centroid(params):
+            spectral_centroid.samples[spectral_centroid.index] = params
+            spectral_centroid.index += 1
+            if spectral_centroid.window_length == spectral_centroid.index:
+                spectral_centroid.index = 0
+
+            spectrum = abs(np.fft.fft(spectral_centroid.samples)).T[0:int(spectral_centroid.window_length/2)+1].T
+            integral = np.sum(spectrum, axis=0)
+            frequency_range = np.tile(np.arange(1, spectral_centroid.window_length + 1), (4, 1)).T
+            freq_times_integral = np.sum(frequency_range * spectrum, axis=0)
+
+            return freq_times_integral / integral - (spectral_centroid.window_length + 1)/2
+        spectral_centroid.window_length = 32
+        spectral_centroid.index = 0
+        spectral_centroid.samples = np.zeros(shape=(spectral_centroid.window_length, 4))
+
+
         while True:
             self.curve.put(self.model.data)
 
             temperature = self.calculate_temperature(self.calculate_ntc_resistance(self.model.data['emi']['temperature']))
-            params = self.fit_exponential_decay(self.model.data['emi']['time'][16:], self.model.data['emi']['value'][16:])
+            params = self.fit_exponential_decay(self.model.data['emi']['time'], self.model.data['emi']['value'])
             if params and temperature:
-                delta_tau = params[2] - (0.58399854 - 0.00105068 * (temperature + 273))
-                lp_params = sliding_window_lp(np.append(params, (temperature, delta_tau)))
-                msg = 'EMI signal fit: A={:3.4f} delay={:3.4f}ms tau={:3.4f}ms c={:3.4f} temp={:3.2f}°C delta_tau={:3.4f}ms'.format(*lp_params)
-                #msg = '{:3.7f}, {:3.7f}, {:3.7f}, {:3.7f}, {:3.7f}'.format(*np.append(params, temperature))
-                #print(msg)
-                #self.logger.info(msg)
+                lp_params = sliding_window_lp(np.append(params, (temperature)))
+                spec_centroids = spectral_centroid(params)
+                msg = 'EMI signal fit: A={:3.4f} delay={:3.4f}ms tau={:3.4f}ms c={:3.4f} temp={:3.2f}°C'.format(*lp_params)
+                self.logger.info(msg)
                 self.viewer.fit.setText(msg)
+
+                if abs(spec_centroids[1]) > 0.2 or abs(spec_centroids[2] > 0.08):
+                    print("Mine!")
+                else:
+                    print(".")
 
             time.sleep(0.03)
 
