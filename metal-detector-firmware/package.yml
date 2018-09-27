@@ -1,0 +1,41 @@
+dependency-dir: ../lib
+
+include_directories:
+  - src/
+
+target.stm32f3: []
+target.arm:
+    - board/board.c
+    - src/main.c
+    - src/blocking_uart_driver.c
+    - src/motor_pwm.c
+    - src/analog.c
+    - src/bootloader_config.c
+    - src/uavcan/uavcan_node.cpp
+    - src/uavcan/parameter_server.cpp
+    - src/libstubs.cpp
+    - src/parameter_listener.c
+    - src/parameter_port.c
+    - ../lib/can-bootloader/config.c
+
+depends:
+    - pid
+    - serial-datagram
+    - cmp_mem_access
+    - version
+    - parameter_flash_storage
+    - filter:
+        fork: froj
+    - parameter
+    - timestamp:
+        fork: Stapelzeiger
+
+tests:
+    - tests/feedback_test.cpp
+    - src/rpm.c
+    - tests/rpm_test.cpp
+    - tests/setpoint_test.cpp
+    - tests/pid_cascade_test.cpp
+
+templates:
+    Makefile.include.jinja: src/src.mk
