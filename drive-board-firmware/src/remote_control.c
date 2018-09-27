@@ -95,6 +95,7 @@ static THD_FUNCTION(rc_thread_main, arg)
 
             // NOTICE("%f,%f", linear_x, angular_z);
             base_set_speed(&rover_base, linear_x, angular_z);
+            chThdSleepMilliseconds(10);
         }
     }
 }

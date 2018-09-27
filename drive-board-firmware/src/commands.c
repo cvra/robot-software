@@ -7,6 +7,8 @@
 
 #include <error/error.h>
 
+#include "timestamp/timestamp.h"
+#include "pca9685_pwm.h"
 #include "main.h"
 
 const ShellCommand commands[];
@@ -266,6 +268,18 @@ static void cmd_vel(BaseSequentialStream *chp, int argc, char **argv)
              linear_x, angular_z);
 }
 
+static void cmd_servo(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    if (argc != 2) {
+        chprintf(chp, "Usage: servo N PULSE_MS\r\n");
+        return;
+    }
+    unsigned int n = atoi(argv[0]);
+    float pw = atof(argv[1]);
+
+    pca9685_pwm_set_pulse_width(n, pw/1000);
+}
+
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
@@ -274,5 +288,6 @@ const ShellCommand commands[] = {
     {"threads", cmd_threads},
     {"time", cmd_time},
     {"vel", cmd_vel},
+    {"servo", cmd_servo},
     {NULL, NULL}
 };
