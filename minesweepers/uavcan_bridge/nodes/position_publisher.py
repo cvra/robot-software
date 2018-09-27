@@ -3,13 +3,13 @@
 Listens for UWB position on UAVCAN and forwards it on ROS
 """
 
+import sys
+
 import uavcan
 import rospy
 
 import tf2_ros
 from geometry_msgs.msg import TransformStamped
-
-DSDL_DIR = os.path.join(os.path.dirname(__file__), '../../../uavcan_data_types/cvra')
 
 def uwb_position_cb(event):
     br = tf2_ros.TransformBroadcaster()
@@ -29,10 +29,16 @@ def uwb_position_cb(event):
     br.sendTransform(tf)
 
 def main():
+    if len(sys.argv) < 3:
+        print("usage: position_publisher.py uavcan_dsdl_path can_interface")
+        return
+
+    dsdl_path, can_interface = sys.argv[1], sys.argv[2]
+
     rospy.init_node('position_publisher')
 
-    node = uavcan.make_node('can0') # TODO: use rosparam
-    uavcan.load_dsdl(DSDL_DIR)
+    node = uavcan.make_node(can_interface)
+    uavcan.load_dsdl(dsdl_path)
 
     handle = node.add_handler(uavcan.thirdparty.cvra.uwb_beacon.TagPosition,
                               uwb_position_cb)
