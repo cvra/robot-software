@@ -83,8 +83,8 @@ void uavcan_node_emi_broadcast(uint16_t nb_samples, uint16_t *samples)
     cvra::motor::EMIRawSignal msg;
     msg.nb_samples= nb_samples;
 
-    int i = 1;
-    for (; i < nb_samples * 3; i += 4) {
+    int i = 1 + 32*4;   // don't send the first 32 smaples (charging cycle)
+    for (; i < nb_samples * 2; i += 4) {
         msg.samples.push_back(samples[i]);
     }
     msg.samples.push_back(samples[i+1]);
