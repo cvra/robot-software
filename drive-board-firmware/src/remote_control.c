@@ -2,6 +2,7 @@
 #include <hal.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <math.h>
 #include "error/error.h"
 #include "main.h"
 
@@ -74,6 +75,7 @@ static float saturate(float val)
     if (val > 1.0f) {
         return 1.0f;
     }
+    return val;
 }
 
 static THD_WORKING_AREA(rc_thread, 500);
