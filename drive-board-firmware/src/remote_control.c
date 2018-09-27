@@ -109,7 +109,7 @@ static THD_FUNCTION(rc_thread_main, arg)
             linear_x = angular_z = 0.0f;
 
             const float LINEAR_GAIN = 5.0f; // [V] ?
-            const float ANGULAR_GAIN = 5.0f;
+            const float ANGULAR_GAIN = -5.0f;
             const float PULSE_RANGE = 300.0f; // [us]
 
             if (channels[4] != -1 && channels[4] < 1500) {
