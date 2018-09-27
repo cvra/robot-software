@@ -43,8 +43,7 @@ def main():
     handle = node.add_handler(uavcan.thirdparty.cvra.uwb_beacon.TagPosition,
                               uwb_position_cb)
 
-    while not rospy.is_shutdown():
-        node.spin(1.0)
+    node.spin()
 
 if __name__ == '__main__':
     try:
