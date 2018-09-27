@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python2
 """
 Listens for UWB position on UAVCAN and forwards it on ROS
 """
