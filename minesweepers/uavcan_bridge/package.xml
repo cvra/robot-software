@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>uavcan_bridge</name>
+  <version>0.0.0</version>
+  <description>The uavcan_bridge package</description>
+
+  <maintainer email="syrianspock@gmail.com">Salah</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>rospy</build_depend>
+  <build_depend>tf2</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+
+  <export>
+  </export>
+</package>
