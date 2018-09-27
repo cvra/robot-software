@@ -57,6 +57,25 @@ static int parse_channels(char *line, int *channels)
     return 0;
 }
 
+static float dead_zone(float val)
+{
+    const float DEAD_ZONE = 0.05f;
+    if (fabsf(val) < DEAD_ZONE) {
+        return 0.0f;
+    }
+    return val;
+}
+
+static float saturate(float val)
+{
+    if (val < -1.0f) {
+        return -1.0f;
+    }
+    if (val > 1.0f) {
+        return 1.0f;
+    }
+}
+
 static THD_WORKING_AREA(rc_thread, 500);
 static THD_FUNCTION(rc_thread_main, arg)
 {
@@ -83,14 +102,25 @@ static THD_FUNCTION(rc_thread_main, arg)
         if (parse_channels(line, channels) == 0) {
             // NOTICE("%d,%d,%d,%d,%d", channels[0], channels[1], channels[2], channels[3], channels[4]);
 
+            bool armed = false;
             float linear_x, angular_z;
             linear_x = angular_z = 0.0f;
 
-            if (channels[0] != -1) {
-                linear_x = 5.0f * ((float) channels[0] - 1500.0f) / 500.0f;
+            const float LINEAR_GAIN = 5.0f; // [V] ?
+            const float ANGULAR_GAIN = 5.0f;
+            const float PULSE_RANGE = 300.0f; // [us]
+
+            if (channels[4] != -1 && channels[4] < 1500) {
+                armed = true;
             }
-            if (channels[3] != -1) {
-                angular_z = 5.0f * ((float) channels[1] - 1500.0f) / 500.0f;
+
+            if (armed && channels[2] != -1) {
+                linear_x = ((float) channels[2] - 1500.0f) / PULSE_RANGE;
+                linear_x = LINEAR_GAIN * dead_zone(saturate(linear_x));
+            }
+            if (armed && channels[1] != -1) {
+                angular_z = ((float) channels[1] - 1500.0f) / PULSE_RANGE;
+                angular_z = ANGULAR_GAIN * dead_zone(saturate(angular_z));
             }
 
             // NOTICE("%f,%f", linear_x, angular_z);
