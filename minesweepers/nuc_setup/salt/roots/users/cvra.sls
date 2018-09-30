@@ -7,6 +7,7 @@ cvra:
       - sudo
       - dialout
       - plugdev
+      - audio
 
   ssh_auth.present:
     - name: github
