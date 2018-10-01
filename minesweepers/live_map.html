@@ -42,7 +42,8 @@
     for (i = 0; i < message.mines.length; i++) {
       var row = ROWS[Math.floor(message.mines[i].position.y)];
       var col = COLS[Math.floor(message.mines[i].position.x)];
-      mines.push(row + col);
+      var type = (message.mines[i].type == 0) ? "s" : "b";
+      mines.push(row + col + type);
     }
     var map = '<div class="grid-container">\n';
     map += '<div class="grid-item"></div>';
@@ -51,8 +52,16 @@
       map += '<div class="grid-item">' + ROWS[row] + '</div>';
       for (col = 0; col < 19; col++) {
         map += '<div class="grid-item">';
-        if (mines.find(cell => cell === ROWS[row] + COLS[col])) {
-          map += 'X';
+        if (mines.find(cell => cell === ROWS[row] + COLS[col] + "s")) {
+          map += '<div class="surface-mine-detected">';
+          map += 'S';
+          map += '</div>\n';
+        } else if (mines.find(cell => cell === ROWS[row] + COLS[col] + "b")) {
+          map += '<div class="buried-mine-detected">';
+          map += 'B';
+          map += '</div>\n';
+        } else {
+
         }
         map += '</div>\n';
       }
@@ -77,12 +86,26 @@
   font-size: 20px;
   text-align: center;
 }
+
+.surface-mine-detected {
+  background-color: red;
+}
+
+.buried-mine-detected {
+  background-color: orange;
+}
+
 </style>
 </head>
 
 <body>
   <h1>Live map of detected mines</h1>
-  <p></p>
+  <p>
+  Legend:
+  <ul>
+      <li>B = Buried mine</li>
+      <li>S = Surface mine</li>
+  </p>
   <p id="summary"></p>
   <p id="mines"></p>
 </body>
