@@ -18,10 +18,9 @@ from seeker_msgs.msg import MineInfo
 
 def argparser(parser=None):
     parser = parser or argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("interface", help="Serial port or SocketCAN interface")
-    parser.add_argument("--dsdl", "-d", help="DSDL path", required=True)
-    parser.add_argument("--node_id", "-n", help="UAVCAN Node ID", default=127)
-    parser.add_argument('--verbose', '-v', action='count', default=0)
+    parser.add_argument("uavcan_dsdl_path", type=str, help="UAVCAN DSDL path")
+    parser.add_argument("can_interface", type=str, help="CAN interface")
+    parser.add_argument("detector_can_id", type=int, help="CAN ID of the detector to watch")
 
     return parser
 
@@ -112,11 +111,15 @@ class EmiSignalRecorder(object):
     signal = np.array([])
     temperature = 0.0
 
-    def __init__(self, node):
+    def __init__(self, node, detector_id):
         self.node = node
+        self.detector_id = detector_id
         self.node.add_handler(uavcan.thirdparty.cvra.metal_detector.EMIRawSignal, self._callback)
 
     def _callback(self, event):
+        if event.transfer.source_node_id != self.detector_id:
+            return
+
         freq = 75000 # Hz
         nb_samples = len(event.message.samples) - 1
         self.time = np.linspace(0, nb_samples / freq, nb_samples)
@@ -124,13 +127,11 @@ class EmiSignalRecorder(object):
         self.temperature = event.message.samples[-1]
 
 class MetalMineDetector(object):
-    def __init__(self, node):
+    def __init__(self, node, detector_id):
         self.node = node
-        self.recorder = EmiSignalRecorder(node)
+        self.recorder = EmiSignalRecorder(node, detector_id)
 
         self.detection_pub = rospy.Publisher('mine_detection', MineInfo, queue_size=1)
-
-        threading.Thread(target=self.run).start()
 
     def run(self):
         self.sliding_window_lp = SlidingWindowLowPass()
@@ -151,22 +152,16 @@ class MetalMineDetector(object):
                 else:
                     print(".")
 
-            time.sleep(0.03)
+            self.node.spin(0.03)
 
 def main(args):
-    logging.basicConfig(level=max(logging.CRITICAL - (10 * args.verbose), 0))
-
     rospy.init_node('emi_mine_detector', disable_signals=True)
 
-    node = uavcan.make_node(args.interface)
-    uavcan.load_dsdl(args.dsdl)
+    node = uavcan.make_node(args.can_interface)
+    uavcan.load_dsdl(args.uavcan_dsdl_path)
 
-    controller = MetalMineDetector(node=node)
-
-    try:
-        node.spin()
-    except KeyboardInterrupt:
-        pass
+    detector = MetalMineDetector(node=node, detector_id=args.detector_can_id)
+    detector.run()
 
 if __name__ == '__main__':
     args = argparser().parse_args()
