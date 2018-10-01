@@ -30,7 +30,7 @@ def main():
 
     dsdl_path, can_interface = sys.argv[1], sys.argv[2]
 
-    rospy.init_node('position_publisher')
+    rospy.init_node('position_publisher', disable_signals=True)
     uwb_position_pub = rospy.Publisher('uwb_position', Point, queue_size=1)
 
     node = uavcan.make_node(can_interface)
@@ -47,7 +47,10 @@ def main():
     handle = node.add_handler(uavcan.thirdparty.cvra.uwb_beacon.TagPosition,
                               uwb_position_cb)
 
-    node.spin()
+    try:
+        node.spin()
+    except KeyboardInterrupt:
+        pass
 
 if __name__ == '__main__':
     try:
