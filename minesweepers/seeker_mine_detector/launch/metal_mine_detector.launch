@@ -1,6 +1,6 @@
 <launch>
-    <arg name="uavcan_dsdl_path" value="/home/cvra/robot-software/uavcan_data_types/cvra/"/>
-    <arg name="can_interface" value="slcan0"/>
+    <arg name="uavcan_dsdl_path" default="/home/cvra/robot-software/uavcan_data_types/cvra/"/>
+    <arg name="can_interface" default="slcan0"/>
 
     <arg name="right_detector_id" value="43"/>
     <arg name="right_detector_offset" value="0.5 0.25 0"/>
