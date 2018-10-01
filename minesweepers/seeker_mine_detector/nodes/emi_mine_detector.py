@@ -4,6 +4,7 @@ Listens for EMI raw signals on UAVCAN, then processes it to determine if we see
 a mine or not and decide to send a message it over ROS
 """
 
+import argparse
 import sys
 
 import rospy
@@ -147,20 +148,24 @@ class MetalMineDetector:
         self.last_position_update = rospy.Time.now()
 
 
-def main():
-    if len(sys.argv) < 4:
-        print("usage: emi_mine_detector.py uavcan_dsdl_path can_interface detector_can_id")
-        return
+def parse_args():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("uavcan_dsdl_path", type=str, help="UAVCAN DSDL path")
+    parser.add_argument("can_interface", type=str, help="CAN interface")
+    parser.add_argument("detector_can_id", type=int, help="CAN ID of the detector to watch")
 
-    dsdl_path, can_interface = sys.argv[1], sys.argv[2]
-    detector_id = int(sys.argv[3])
+    return parser.parse_args()
+
+
+def main():
+    args = parse_args()
 
     rospy.init_node('emi_mine_detector', disable_signals=True)
 
-    node = uavcan.make_node(can_interface)
-    uavcan.load_dsdl(dsdl_path)
+    node = uavcan.make_node(args.can_interface)
+    uavcan.load_dsdl(args.uavcan_dsdl_path)
 
-    detector = MetalMineDetector(node, detector_id=detector_id, uwb_to_detector_offset=[0.5, 0, 0])
+    detector = MetalMineDetector(node, detector_id=args.detector_can_id, uwb_to_detector_offset=[0.5, 0, 0])
 
     try:
         node.spin()
