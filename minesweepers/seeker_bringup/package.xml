@@ -9,11 +9,11 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <run_depend>seeker_alarm_display</run_depend>
-  <run_depend>seeker_map_builder</run_depend>
-  <run_depend>seeker_mine_detector</run_depend>
-  <run_depend>seeker_msgs</run_depend>
-  <run_depend>uavcan_bridge</run_depend>
+  <build_depend>seeker_alarm_display</build_depend>
+  <build_depend>seeker_map_builder</build_depend>
+  <build_depend>seeker_mine_detector</build_depend>
+  <build_depend>seeker_msgs</build_depend>
+  <build_depend>uavcan_bridge</build_depend>
 
   <export>
   </export>
