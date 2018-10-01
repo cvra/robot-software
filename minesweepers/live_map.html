@@ -5,11 +5,14 @@
 <script type="text/javascript" src="http://static.robotwebtools.org/EventEmitter2/current/eventemitter2.min.js"></script>
 <script type="text/javascript" src="http://static.robotwebtools.org/roslibjs/current/roslib.min.js"></script>
 <script type="text/javascript" type="text/javascript">
+
+function open_connection(e) {
   // Connecting to ROS
   // -----------------
 
+  var url = "ws://" + document.connection_form.ip.value + ":9090";
   var ros = new ROSLIB.Ros({
-    url : 'ws://localhost:9090'
+    url : url,
   });
 
   ros.on('connection', function() {
@@ -70,6 +73,8 @@
     document.getElementById("mines").innerHTML = map;
   });
 
+}
+
 </script>
 
 <style>
@@ -100,6 +105,10 @@
 
 <body>
   <h1>Live map of detected mines</h1>
+  <form onsubmit="open_connection(); return false;" name="connection_form">
+      <input name="ip" type="text" value="10.0.0.1">
+      <input type="submit" value="Connect">
+  </form>
   <p>
   Legend:
   <ul>
