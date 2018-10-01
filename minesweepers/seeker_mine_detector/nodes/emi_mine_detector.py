@@ -12,6 +12,7 @@ import uavcan
 import numpy as np
 import scipy.optimize as so
 
+from geometry_msgs.msg import Point
 from seeker_msgs.msg import MineInfo
 
 
@@ -105,12 +106,17 @@ def calculate_temperature(resistance):
 
 
 class MetalMineDetector:
-    def __init__(self, node):
+    def __init__(self, node, uwb_to_detector_offset):
         self.node = node
         self.node.add_handler(uavcan.thirdparty.cvra.metal_detector.EMIRawSignal,
                               self._on_emi_signal_cb)
 
         self.detection_pub = rospy.Publisher('mine_detection', MineInfo, queue_size=1)
+
+        self.uwb_to_detector_offset = np.array(uwb_to_detector_offset)
+        self.uwb_position = None
+        self.last_position_update = None
+        self.position_sub = rospy.Subscriber('uwb_position', Point, self._on_uwb_position_cb)
 
     def _on_emi_signal_cb(self, event):
         rospy.loginfo('Received EMI signal')
@@ -125,10 +131,16 @@ class MetalMineDetector:
 
         if process_emi_signal(*unpack_message(event.message)):
             rospy.loginfo('Mine detected!')
-            self.detection_pub.publish(MineInfo(type=MineInfo.BURIED_LANDMINE))
+            mine_position = Point(*(self.uwb_position + self.uwb_to_detector_offset))
+            self.detection_pub.publish(MineInfo(type=MineInfo.BURIED_LANDMINE, position=mine_position))
         else:
             rospy.loginfo('I see nothing...')
 
+    def _on_uwb_position_cb(self, msg):
+        rospy.loginfo_once('***** UWB positioning active *****')
+
+        self.uwb_position = np.array([msg.x, msg.y, msg.z])
+        self.last_position_update = rospy.Time.now()
 
 
 def main():
@@ -143,7 +155,7 @@ def main():
     node = uavcan.make_node(can_interface)
     uavcan.load_dsdl(dsdl_path)
 
-    detector = MetalMineDetector(node)
+    detector = MetalMineDetector(node, uwb_to_detector_offset=[0.5, 0, 0])
 
     try:
         node.spin()
