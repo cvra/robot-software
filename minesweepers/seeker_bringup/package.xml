@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>seeker_bringup</name>
+  <version>0.0.0</version>
+  <description>The seeker_bringup package</description>
+
+  <maintainer email="syrianspock@gmail.com">Salah</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>seeker_alarm_display</run_depend>
+  <run_depend>seeker_map_builder</run_depend>
+  <run_depend>seeker_mine_detector</run_depend>
+  <run_depend>seeker_msgs</run_depend>
+  <run_depend>uavcan_bridge</run_depend>
+
+  <export>
+  </export>
+</package>

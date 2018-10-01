@@ -8,11 +8,7 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <run_depend>seeker_alarm_display</run_depend>
-  <run_depend>seeker_map_builder</run_depend>
-  <run_depend>seeker_mine_detector</run_depend>
-  <run_depend>seeker_msgs</run_depend>
-  <run_depend>uavcan_bridge</run_depend>
+  <run_depend>seeker_bringup</run_depend>
 
   <export>
     <metapackage />
