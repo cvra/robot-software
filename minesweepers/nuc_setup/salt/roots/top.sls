@@ -7,6 +7,7 @@ base:
     - can
     - dev.realsense
     - sound
+    - http
 
   'virtual:physical':
     - match: grain
