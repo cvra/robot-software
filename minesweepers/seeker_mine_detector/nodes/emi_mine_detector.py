@@ -153,6 +153,7 @@ def parse_args():
     parser.add_argument("uavcan_dsdl_path", type=str, help="UAVCAN DSDL path")
     parser.add_argument("can_interface", type=str, help="CAN interface")
     parser.add_argument("detector_can_id", type=int, help="CAN ID of the detector to watch")
+    parser.add_argument("uwb_to_detector_offset", type=float, nargs=3, help="UWB to detector offset")
 
     return parser.parse_args()
 
@@ -165,7 +166,8 @@ def main():
     node = uavcan.make_node(args.can_interface)
     uavcan.load_dsdl(args.uavcan_dsdl_path)
 
-    detector = MetalMineDetector(node, detector_id=args.detector_can_id, uwb_to_detector_offset=[0.5, 0, 0])
+    detector = MetalMineDetector(node, detector_id=args.detector_can_id,
+                                 uwb_to_detector_offset=args.uwb_to_detector_offset)
 
     try:
         node.spin()
