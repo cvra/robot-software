@@ -38,7 +38,6 @@ def main():
 
     def uwb_position_cb(event):
         x, y = event.message.x, event.message.y
-        rospy.loginfo('x: {} y: {}'.format(x, y))
 
         br = tf2_ros.TransformBroadcaster()
         br.sendTransform(tf_from_position(x, y, 0))
