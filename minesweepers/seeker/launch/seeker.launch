@@ -17,4 +17,7 @@
 
     <node pkg="seeker_map_builder" type="map_builder" name="map_builder"
           required="true" output="screen"/>
+
+    <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" >
+    </include>
 </launch>
