@@ -26,12 +26,19 @@ static THD_FUNCTION(metal_detector_task, arg)
                                (eventmask_t)METAL_DETECTOR_WAKEUP_EVENT,
                                (eventflags_t)ANALOG_EVENT_CONVERSION_DONE);
 
+    int prescaler = 0;
+
     while(TRUE){
         chEvtWaitAny(METAL_DETECTOR_WAKEUP_EVENT);
         chEvtGetAndClearFlags(&analog_event_listener);
 
         // TODO: detect metal
-        uavcan_node_emi_broadcast((uint16_t) nb_samples, (uint16_t*)adc_samples);
+        if (prescaler == 0) {
+            uavcan_node_emi_broadcast((uint16_t) nb_samples, (uint16_t*)adc_samples);
+            prescaler = 5;
+        } else {
+            prescaler --;
+        }
     }
 }
 
