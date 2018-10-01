@@ -11,6 +11,10 @@ from itertools import izip
 import numpy as np
 import scipy.optimize as so
 
+import rospy
+from geometry_msgs.msg import Point
+from seeker_msgs.msg import MineInfo
+
 
 def argparser(parser=None):
     parser = parser or argparse.ArgumentParser(description=__doc__)
@@ -124,6 +128,8 @@ class MetalMineDetector(object):
         self.node = node
         self.recorder = EmiSignalRecorder(node)
 
+        self.detection_pub = rospy.Publisher('mine_detection', MineInfo, queue_size=1)
+
         threading.Thread(target=self.run).start()
 
     def run(self):
@@ -141,6 +147,7 @@ class MetalMineDetector(object):
 
                 if abs(spec_centroids[1]) > 0.2 or abs(spec_centroids[2] > 0.08):
                     print("Mine!")
+                    self.detection_pub.publish(MineInfo(type=MineInfo.BURIED_LANDMINE))
                 else:
                     print(".")
 
@@ -149,12 +156,17 @@ class MetalMineDetector(object):
 def main(args):
     logging.basicConfig(level=max(logging.CRITICAL - (10 * args.verbose), 0))
 
+    rospy.init_node('emi_mine_detector', disable_signals=True)
+
     node = uavcan.make_node(args.interface)
     uavcan.load_dsdl(args.dsdl)
 
     controller = MetalMineDetector(node=node)
 
-    node.spin()
+    try:
+        node.spin()
+    except KeyboardInterrupt:
+        pass
 
 if __name__ == '__main__':
     args = argparser().parse_args()
