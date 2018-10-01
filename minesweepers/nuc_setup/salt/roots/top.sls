@@ -6,6 +6,7 @@ base:
     - dev.python
     - can
     - dev.realsense
+    - sound
 
   'virtual:physical':
     - match: grain
