@@ -22,7 +22,7 @@
 #include "Voltage_handler.hpp"
 #include "stream.h"
 
-#include <cvra/motor/EMIRawSignal.hpp>
+#include <cvra/metal_detector/EMIRawSignal.hpp>
 
 #define CAN_BITRATE             1000000
 
@@ -70,7 +70,7 @@ static void uavcan_services_start(Node &node)
 }
 
 
-static uavcan::LazyConstructor<uavcan::Publisher<cvra::motor::EMIRawSignal> > emi_pub;
+static uavcan::LazyConstructor<uavcan::Publisher<cvra::metal_detector::EMIRawSignal> > emi_pub;
 void uavcan_node_emi_init(uavcan::INode &node)
 {
     if (!emi_pub.isConstructed()) {
@@ -80,7 +80,7 @@ void uavcan_node_emi_init(uavcan::INode &node)
 
 void uavcan_node_emi_broadcast(uint16_t nb_samples, uint16_t *samples)
 {
-    cvra::motor::EMIRawSignal msg;
+    cvra::metal_detector::EMIRawSignal msg;
     msg.nb_samples= nb_samples;
 
     int i = 1 + 32*4;   // don't send the first 32 smaples (charging cycle)

@@ -53,7 +53,7 @@ class EmiFeedbackRecorder():
     def __init__(self, node):
         self.logger = logging.getLogger('EmiFeedbackRecorder')
         self.node = node
-        self.node.add_handler(uavcan.thirdparty.cvra.motor.EMIRawSignal, self._callback)
+        self.node.add_handler(uavcan.thirdparty.cvra.metal_detector.EMIRawSignal, self._callback)
 
     def _callback(self, event):
         freq = 75000 # Hz
