@@ -1,3 +1,5 @@
+from __future__ import division
+from __future__ import absolute_import
 import argparse
 import logging
 import sys
@@ -5,7 +7,9 @@ import threading
 import time
 import uavcan
 
+from itertools import izip
 import numpy as np
+import scipy.optimize as so
 
 
 def argparser(parser=None):
@@ -18,9 +22,6 @@ def argparser(parser=None):
     return parser
 
 
-import numpy as np
-import scipy.optimize as so
-
 def exponential_decay_fun(amplitude, delay, decay, constant):
     return lambda t: amplitude * np.minimum(1.0, np.exp(- (t - delay) / decay)) + constant
 
@@ -31,26 +32,26 @@ def fit_exponential_decay(x, y, initial_guess=(1.0, 0.0005, 0.0005, 0.0)):
     return so.curve_fit(exponential_decay, x, y, initial_guess)
 
 
-class EmiFeedbackRecorder():
-    data = { 'emi': { 'time': np.array([]), 'value': np.array([]), 'temperature': 0.0} }
+class EmiSignalRecorder(object):
+    time = np.array([])
+    signal = np.array([])
+    temperature = 0.0
 
     def __init__(self, node):
-        self.logger = logging.getLogger('EmiFeedbackRecorder')
         self.node = node
         self.node.add_handler(uavcan.thirdparty.cvra.metal_detector.EMIRawSignal, self._callback)
 
     def _callback(self, event):
         freq = 75000 # Hz
         nb_samples = len(event.message.samples) - 1
-        self.data['emi']['time'] = np.linspace(0, nb_samples / freq, nb_samples)
-        self.data['emi']['value'] = np.array(event.message.samples)[0:-1]
-        self.data['emi']['temperature'] = event.message.samples[-1]
+        self.time = np.linspace(0, nb_samples / freq, nb_samples)
+        self.signal = np.array(event.message.samples)[0:-1]
+        self.temperature = event.message.samples[-1]
 
-class EmiPlotController:
+class MetalMineDetector(object):
     def __init__(self, node):
-        self.logger = logging.getLogger('EmiPlotController')
         self.node = node
-        self.model = EmiFeedbackRecorder(node)
+        self.recorder = EmiSignalRecorder(node)
 
         threading.Thread(target=self.run).start()
 
@@ -79,7 +80,7 @@ class EmiPlotController:
                            [0.4389, 230], [0.3658, 240], [0.5418, 250], [0.7735, 260],
                            [0.6459, 270], [0.5424, 280], [0.4583, 290], [0.3894, 300]]
 
-        for a, b in zip(temperature_map[0:-1], temperature_map[1:]):
+        for a, b in izip(temperature_map[0:-1], temperature_map[1:]):
             if resistance < a[0] and resistance > b[0]:
                 temperature = b[1] - (resistance - b[0]) / (a[0] - b[0]) * (b[1] - a[1])
                 return temperature
@@ -119,8 +120,8 @@ class EmiPlotController:
 
 
         while True:
-            temperature = self.calculate_temperature(self.calculate_ntc_resistance(self.model.data['emi']['temperature']))
-            params = self.fit_exponential_decay(self.model.data['emi']['time'], self.model.data['emi']['value'])
+            temperature = self.calculate_temperature(self.calculate_ntc_resistance(self.recorder.temperature))
+            params = self.fit_exponential_decay(self.recorder.time, self.recorder.signal)
             if params and temperature:
                 lp_params = sliding_window_lp(np.append(params, (temperature)))
                 spec_centroids = spectral_centroid(params)
@@ -140,7 +141,7 @@ def main(args):
     node = uavcan.make_node(args.interface)
     uavcan.load_dsdl(args.dsdl)
 
-    controller = EmiPlotController(node=node)
+    controller = MetalMineDetector(node=node)
 
     node.spin()
 
