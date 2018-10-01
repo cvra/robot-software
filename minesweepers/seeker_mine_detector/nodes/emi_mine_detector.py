@@ -106,11 +106,12 @@ def calculate_temperature(resistance):
 
 
 class MetalMineDetector:
-    def __init__(self, node, uwb_to_detector_offset):
+    def __init__(self, node, detector_id, uwb_to_detector_offset):
         self.node = node
         self.node.add_handler(uavcan.thirdparty.cvra.metal_detector.EMIRawSignal,
                               self._on_emi_signal_cb)
 
+        self.detector_id = detector_id
         self.detection_pub = rospy.Publisher('mine_detection', MineInfo, queue_size=1)
 
         self.uwb_to_detector_offset = np.array(uwb_to_detector_offset)
@@ -119,6 +120,9 @@ class MetalMineDetector:
         self.position_sub = rospy.Subscriber('uwb_position', Point, self._on_uwb_position_cb)
 
     def _on_emi_signal_cb(self, event):
+        if event.transfer.source_node_id != self.detector_id:
+            return
+
         rospy.loginfo('Received EMI signal')
 
         def unpack_message(msg):
@@ -144,18 +148,19 @@ class MetalMineDetector:
 
 
 def main():
-    if len(sys.argv) < 3:
-        print("usage: emi_mine_detector.py uavcan_dsdl_path can_interface")
+    if len(sys.argv) < 4:
+        print("usage: emi_mine_detector.py uavcan_dsdl_path can_interface detector_can_id")
         return
 
     dsdl_path, can_interface = sys.argv[1], sys.argv[2]
+    detector_id = int(sys.argv[3])
 
     rospy.init_node('emi_mine_detector', disable_signals=True)
 
     node = uavcan.make_node(can_interface)
     uavcan.load_dsdl(dsdl_path)
 
-    detector = MetalMineDetector(node, uwb_to_detector_offset=[0.5, 0, 0])
+    detector = MetalMineDetector(node, detector_id=detector_id, uwb_to_detector_offset=[0.5, 0, 0])
 
     try:
         node.spin()
