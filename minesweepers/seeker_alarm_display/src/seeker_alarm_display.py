@@ -80,10 +80,10 @@ def parse_args():
     parser.add_argument("iface", help="CAN interface.")
     parser.add_argument("--uavcan-id", type=int, default=123, help="UAVCAN node id for this app")
 
-    return parser.parse_args()
+    return parser.parse_known_args()
 
 def main():
-    args = parse_args()
+    args, _ = parse_args()
 
     node = uavcan.make_node(args.iface, node_id=args.uavcan_id)
     uavcan.load_dsdl(args.dsdl_path)
