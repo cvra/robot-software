@@ -1,3 +1,4 @@
+#!/usr/bin/env python2
 from __future__ import division
 from __future__ import absolute_import
 import argparse
@@ -21,6 +22,7 @@ def argparser(parser=None):
     parser.add_argument("uavcan_dsdl_path", type=str, help="UAVCAN DSDL path")
     parser.add_argument("can_interface", type=str, help="CAN interface")
     parser.add_argument("detector_can_id", type=int, help="CAN ID of the detector to watch")
+    parser.add_argument("uwb_to_detector_offset", type=float, nargs=3, help="UWB to detector offset")
 
     return parser
 
@@ -127,11 +129,23 @@ class EmiSignalRecorder(object):
         self.temperature = event.message.samples[-1]
 
 class MetalMineDetector(object):
-    def __init__(self, node, detector_id):
+    def __init__(self, node, detector_id, uwb_to_detector_offset):
         self.node = node
         self.recorder = EmiSignalRecorder(node, detector_id)
 
+        self.uwb_to_detector_offset = np.array(uwb_to_detector_offset)
+        self.uwb_position = None
+        self.last_position_update = None
+        self.position_sub = rospy.Subscriber('uwb_position', Point, self._on_uwb_position_cb)
+
         self.detection_pub = rospy.Publisher('mine_detection', MineInfo, queue_size=1)
+
+        rospy.loginfo('Metal mine detector actively listening to node {}'.format(detector_id))
+
+    def _on_uwb_position_cb(self, msg):
+        rospy.loginfo_once('***** UWB positioning active *****')
+        self.uwb_position = np.array([msg.x, msg.y, msg.z])
+        self.last_position_update = rospy.Time.now()
 
     def run(self):
         self.sliding_window_lp = SlidingWindowLowPass()
@@ -146,9 +160,10 @@ class MetalMineDetector(object):
                 msg = 'EMI signal fit: A={:3.4f} delay={:3.4f}ms tau={:3.4f}ms c={:3.4f} temp={:3.2f}C'.format(*lp_params)
                 print(msg)
 
-                if abs(spec_centroids[1]) > 0.2 or abs(spec_centroids[2] > 0.08):
+                if self.last_position_update is not None and (abs(spec_centroids[1]) > 0.2 or abs(spec_centroids[2] > 0.08)):
                     print("Mine!")
-                    self.detection_pub.publish(MineInfo(type=MineInfo.BURIED_LANDMINE))
+                    mine_position = Point(*(self.uwb_position + self.uwb_to_detector_offset))
+                    self.detection_pub.publish(MineInfo(type=MineInfo.BURIED_LANDMINE, position=mine_position))
                 else:
                     print(".")
 
@@ -160,9 +175,10 @@ def main(args):
     node = uavcan.make_node(args.can_interface)
     uavcan.load_dsdl(args.uavcan_dsdl_path)
 
-    detector = MetalMineDetector(node=node, detector_id=args.detector_can_id)
+    detector = MetalMineDetector(node=node, detector_id=args.detector_can_id,
+                                 uwb_to_detector_offset=args.uwb_to_detector_offset)
     detector.run()
 
 if __name__ == '__main__':
-    args = argparser().parse_args()
+    args, _ = argparser().parse_known_args()
     main(args)
