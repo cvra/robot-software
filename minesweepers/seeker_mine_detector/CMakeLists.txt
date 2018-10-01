@@ -7,8 +7,3 @@ find_package(catkin
 )
 
 catkin_package()
-
-install(PROGRAMS
-    nodes/emi_mine_detector.py
-    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
