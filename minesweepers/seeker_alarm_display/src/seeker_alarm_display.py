@@ -100,13 +100,14 @@ def main():
     node = uavcan.make_node(args.iface, node_id=args.uavcan_id)
     uavcan.load_dsdl(args.dsdl_path)
 
-    rospy.init_node('mine_alarm_signal')
+    rospy.init_node('mine_alarm_signal', disable_signals=True)
 
     app = LedSignalApplication(node, args.topic)
 
-    # Finally, start uavcan and ROS
-    threading.Thread(target=node.spin).start()
-    rospy.spin()
+    try:
+        node.spin()
+    except KeyboardInterrupt:
+        pass
 
 
 if __name__ == '__main__':
