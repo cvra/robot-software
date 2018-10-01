@@ -155,11 +155,11 @@ def parse_args():
     parser.add_argument("detector_can_id", type=int, help="CAN ID of the detector to watch")
     parser.add_argument("uwb_to_detector_offset", type=float, nargs=3, help="UWB to detector offset")
 
-    return parser.parse_args()
+    return parser.parse_known_args()
 
 
 def main():
-    args = parse_args()
+    args, unknown = parse_args()
 
     rospy.init_node('emi_mine_detector', disable_signals=True)
 
