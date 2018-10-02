@@ -57,7 +57,7 @@ class LedSignalApplication:
             rospy.loginfo("Discovered LED board {}".format(self.led_board_id))
 
     def _mine_detected_callback(self, data):
-        rospy.loginfo('Got a mine: %s', data)
+        rospy.logdebug('Got a mine: %s', data)
 
         # Start a led
         self.led_voltage = 12

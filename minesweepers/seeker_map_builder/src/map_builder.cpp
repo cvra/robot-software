@@ -13,7 +13,7 @@ int main(int argc, char **argv)
 
     auto on_new_mine_detection = boost::function<void(const seeker_msgs::MineInfo::ConstPtr&)>(
         [&pub, &map](const seeker_msgs::MineInfo::ConstPtr& msg) {
-            ROS_INFO("I've seen it first, that mine is mine!");
+            ROS_DEBUG("I've seen it first, that mine is mine!");
 
             map.mines.push_back(*msg);
         }
