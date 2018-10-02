@@ -17,8 +17,6 @@ import rospy
 from geometry_msgs.msg import Point
 from seeker_msgs.msg import MineInfo
 
-import ekf
-
 
 def argparser(parser=None):
     parser = parser or argparse.ArgumentParser(description=__doc__)
@@ -143,19 +141,6 @@ class MetalMineDetector(object):
 
         self.detection_pub = rospy.Publisher('mine_detection', MineInfo, queue_size=1)
         self.processing_counter = 0
-
-        self.g = lambda s, u: s
-        self.G = lambda s, u: np.eye(4)
-        self.R = np.diag([0.1, 0.1, 0.1, 0.1])
-        self.predictor = ekf.Predictor(self.g, self.G, self.R)
-
-        self.h = lambda s: s
-        self.H = lambda _: np.eye(4)
-        self.Q = np.diag([0.01, 0.01, 0.01, 0.01])
-        self.corrector = ekf.Corrector(self.h, self.H, self.Q)
-
-        self.mu = np.zeros((4,1))
-        self.sigma = 0.1 * np.eye(4)
 
         rospy.loginfo('Metal mine detector actively listening to node {}'.format(detector_id))
 
