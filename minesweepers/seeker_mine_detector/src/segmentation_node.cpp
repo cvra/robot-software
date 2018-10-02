@@ -28,7 +28,7 @@ int main (int argc, char** argv)
     ros::init(argc, argv, "segmentation");
     ros::NodeHandle node;
 
-    ros::Publisher pub = node.advertise<sensor_msgs::PointCloud2>("plane", 1);
+    ros::Publisher pub = node.advertise<sensor_msgs::PointCloud2>("objects", 1);
 
     auto on_new_point_cloud = boost::function<void(const sensor_msgs::PointCloud2ConstPtr&)>(
         [&pub](const sensor_msgs::PointCloud2ConstPtr& msg) {
@@ -60,10 +60,6 @@ int main (int argc, char** argv)
             vg.setLeafSize(0.01f, 0.01f, 0.01f);
             vg.filter(*cloud_filtered);
             ROS_INFO_STREAM("PointCloud after filtering has: " << cloud_filtered->points.size()  << " data points.");
-
-            // cloud_filtered->header.frame_id = msg->header.frame_id;
-            // pcl_conversions::toPCL(ros::Time::now(), cloud_filtered->header.stamp);
-            // pub.publish(cloud_filtered);
 
             // Setup segmentation for the planar model and set all the parameters
             pcl::SACSegmentation<pcl::PointXYZ> seg;
@@ -119,9 +115,9 @@ int main (int argc, char** argv)
 
             int j = 0;
             auto palette = seeker::color_palette(cluster_indices.size());
+            pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_cluster(new pcl::PointCloud<pcl::PointXYZRGB>);
             for (const auto& cluster_index : cluster_indices)
             {
-                pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_cluster(new pcl::PointCloud<pcl::PointXYZRGB>);
                 for (const auto& point_index : cluster_index.indices) {
                     pcl::PointXYZRGB point(palette[j].r, palette[j].g, palette[j].b);
                     point.x = cloud_filtered->points[point_index].x;
@@ -129,18 +125,16 @@ int main (int argc, char** argv)
                     point.z = cloud_filtered->points[point_index].z;
                     cloud_cluster->points.push_back(point);
                 }
-                cloud_cluster->width = cloud_cluster->points.size();
-                cloud_cluster->height = 1;
-                cloud_cluster->is_dense = true;
-                ROS_INFO_STREAM("PointCloud " << j << " representing the Cluster: " << cloud_cluster->points.size() << " data points.");
-
-                // Publish cluster
-                cloud_cluster->header.frame_id = msg->header.frame_id;
-                pcl_conversions::toPCL(ros::Time::now(), cloud_cluster->header.stamp);
-                pub.publish(cloud_cluster);
-
+                ROS_INFO_STREAM("Object " << j << " clustered with: " << cloud_cluster->points.size() << " data points.");
                 j++;
             }
+            // Publish clusters
+            cloud_cluster->header.frame_id = msg->header.frame_id;
+            cloud_cluster->width = cloud_cluster->points.size();
+            cloud_cluster->height = 1;
+            cloud_cluster->is_dense = true;
+            pcl_conversions::toPCL(ros::Time::now(), cloud_cluster->header.stamp);
+            pub.publish(cloud_cluster);
         }
     );
     ros::Subscriber sub = node.subscribe("/camera/depth_registered/points", 1, on_new_point_cloud);
