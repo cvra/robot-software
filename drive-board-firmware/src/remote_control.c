@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "error/error.h"
+#include "pca9685_pwm.h"
 #include "main.h"
 
 #define NB_CHANNELS 5
@@ -111,6 +112,7 @@ static THD_FUNCTION(rc_thread_main, arg)
             const float LINEAR_GAIN = 5.0f; // [V] ?
             const float ANGULAR_GAIN = -5.0f;
             const float PULSE_RANGE = 300.0f; // [us]
+            const int DETECTOR_HEIGHT_SERVO = 12;
 
             if (channels[4] != -1 && channels[4] < 1500) {
                 armed = true;
@@ -123,6 +125,12 @@ static THD_FUNCTION(rc_thread_main, arg)
             if (armed && channels[1] != -1) {
                 angular_z = ((float) channels[1] - 1500.0f) / PULSE_RANGE;
                 angular_z = ANGULAR_GAIN * dead_zone(saturate(angular_z));
+            }
+
+            if (armed && channels[0] != -1) {
+                float pwm = ((float) channels[0] - 1500.0f) / PULSE_RANGE;
+                pwm = 0.0015f - 0.001f * saturate(pwm);
+                pca9685_pwm_set_pulse_width(DETECTOR_HEIGHT_SERVO, pwm);
             }
 
             // NOTICE("%f,%f", linear_x, angular_z);
