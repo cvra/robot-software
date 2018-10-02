@@ -9,6 +9,7 @@ import time
 import uavcan
 
 from itertools import izip
+from collections import deque
 import numpy as np
 import scipy.optimize as so
 
@@ -27,13 +28,13 @@ def argparser(parser=None):
     return parser
 
 
-def exponential_decay_fun(amplitude, delay, decay, constant):
-    return lambda t: amplitude * np.minimum(1.0, np.exp(- (t - delay) / decay)) + constant
+def exponential_decay_fun(amplitude, delay, decay):
+    return lambda t: amplitude * np.minimum(1.0, np.exp(- (t - delay) / decay))
 
-def exponential_decay(t, amp, delay, decay, constant):
-    return exponential_decay_fun(amp, delay, decay, constant)(t)
+def exponential_decay(t, amp, delay, decay):
+    return exponential_decay_fun(amp, delay, decay)(t)
 
-def fit_exponential_decay(x, y, initial_guess=(1.0, 0.0005, 0.0005, 0.0)):
+def fit_exponential_decay(x, y, initial_guess=(1.0, 0.0005, 0.0005)):
     return so.curve_fit(exponential_decay, x, y, initial_guess)
 
 def fit_signal(time, values):
@@ -42,7 +43,7 @@ def fit_signal(time, values):
 
     samples = -(values - 2048) / 2048
     pw, cov = fit_exponential_decay(time, samples)
-    return pw[0], pw[1]*1000, pw[2]*1000, pw[3]
+    return [pw[0], pw[1] * 1e3, pw[2] * 1e3], cov
 
 
 def calculate_ntc_resistance(adc_value):
@@ -152,31 +153,32 @@ class MetalMineDetector(object):
         self.sliding_window_lp = SlidingWindowLowPass()
         self.spectral_centroid = SpectralCentroid()
 
+        last_delay = 0.
+        filtered_delay = 0.
+        fitted_measurements = 0
+
+        slow_queue = deque(maxlen=20)
+        fast_queue = deque(maxlen=5)
+
         while True:
             self.node.spin(0.1)
-
             temperature = calculate_temperature(calculate_ntc_resistance(self.recorder.temperature))
-            params = fit_signal(self.recorder.time, self.recorder.signal)
-            if params and temperature:
-                lp_params = self.sliding_window_lp.update(np.append(params, (temperature)))
-                spec_centroids = self.spectral_centroid.update(params)
-                msg = 'EMI signal fit: A={:3.4f} delay={:3.4f}ms tau={:3.4f}ms c={:3.4f} temp={:3.2f}C'.format(*lp_params)
-                rospy.logdebug(msg)
+            params, cov = fit_signal(self.recorder.time, self.recorder.signal)
+            if params:
 
-                self.processing_counter += 1
-                if self.processing_counter < 40:
-                    continue
+                # Put the delay through a bandpass
+                delay = params[1]
+                fast_queue.append(delay)
+                slow_queue.append(delay)
+                fast_avg = sum(fast_queue) / len(fast_queue)
+                slow_avg = sum(slow_queue) / len(slow_queue)
 
-                if self.last_position_update is None:
-                    rospy.logdebug("No UWB fix, no mine position")
-                    continue
+                filtered_delay = fast_avg - slow_avg
 
-                if abs(spec_centroids[1]) > 0.2 or abs(spec_centroids[2] > 0.08):
-                    rospy.logdebug("Mine detected!")
+                if filtered_delay < -4e-3:
                     mine_position = Point(*(self.uwb_position + self.uwb_to_detector_offset))
                     self.detection_pub.publish(MineInfo(type=MineInfo.BURIED_LANDMINE, position=mine_position))
-                else:
-                    rospy.logdebug("I see nothing...")
+                    rospy.loginfo("mine seen")
 
 def main(args):
     rospy.init_node('emi_mine_detector', disable_signals=True)
