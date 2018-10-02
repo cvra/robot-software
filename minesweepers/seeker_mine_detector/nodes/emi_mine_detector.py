@@ -16,6 +16,8 @@ import rospy
 from geometry_msgs.msg import Point
 from seeker_msgs.msg import MineInfo
 
+import ekf
+
 
 def argparser(parser=None):
     parser = parser or argparse.ArgumentParser(description=__doc__)
@@ -141,6 +143,19 @@ class MetalMineDetector(object):
         self.detection_pub = rospy.Publisher('mine_detection', MineInfo, queue_size=1)
         self.processing_counter = 0
 
+        self.g = lambda s, u: s
+        self.G = lambda s, u: np.eye(4)
+        self.R = np.diag([0.1, 0.1, 0.1, 0.1])
+        self.predictor = ekf.Predictor(self.g, self.G, self.R)
+
+        self.h = lambda s: s
+        self.H = lambda _: np.eye(4)
+        self.Q = np.diag([0.01, 0.01, 0.01, 0.01])
+        self.corrector = ekf.Corrector(self.h, self.H, self.Q)
+
+        self.mu = np.zeros((4,1))
+        self.sigma = 0.1 * np.eye(4)
+
         rospy.loginfo('Metal mine detector actively listening to node {}'.format(detector_id))
 
     def _on_uwb_position_cb(self, msg):
@@ -160,32 +175,41 @@ class MetalMineDetector(object):
 
             temperature = calculate_temperature(calculate_ntc_resistance(self.recorder.temperature))
             params = fit_signal(self.recorder.time, self.recorder.signal)
-            if params and temperature:
-                lp_params = self.sliding_window_lp.update(np.append(params, (temperature)))
-                spec_centroids = self.spectral_centroid.update(params)
-                msg = 'EMI signal fit: A={:3.4f} delay={:3.4f}ms tau={:3.4f}ms c={:3.4f} temp={:3.2f}C'.format(*lp_params)
-                rospy.logdebug(msg)
-
-                delay = lp_params[1]
-                alpha = 0.3
-                filtered_delay = alpha * (filtered_delay + delay - last_delay)
-                last_delay = delay
-
-                self.processing_counter += 1
-                if self.processing_counter < 40:
-                    continue
-
-                if self.last_position_update is None:
-                    rospy.logdebug("No UWB fix, no mine position")
-                    continue
-
-                # if abs(spec_centroids[1]) > 0.2 or abs(spec_centroids[2] > 0.08):
-                if np.log(abs(filtered_delay)) > -10:
-                    rospy.logdebug("Mine detected!")
-                    mine_position = Point(*(self.uwb_position + self.uwb_to_detector_offset))
-                    self.detection_pub.publish(MineInfo(type=MineInfo.BURIED_LANDMINE, position=mine_position))
+            if params:
+                z = params
+                if (np.abs(z - self.mu) > 0.1 * np.sqrt(np.diag(self.sigma))).any():
+                    print('There is a mine!')
                 else:
-                    rospy.logdebug("I see nothing...")
+                    mu, sigma = self.predictor.predict(mu, sigma, u)
+                    mu, sigma = self.corrector.correct(mu, sigma, z)
+                    print('No mine')
+
+            # if params and temperature:
+            #     lp_params = self.sliding_window_lp.update(np.append(params, (temperature)))
+            #     spec_centroids = self.spectral_centroid.update(params)
+            #     msg = 'EMI signal fit: A={:3.4f} delay={:3.4f}ms tau={:3.4f}ms c={:3.4f} temp={:3.2f}C'.format(*lp_params)
+            #     rospy.logdebug(msg)
+
+            #     delay = lp_params[1]
+            #     alpha = 0.3
+            #     filtered_delay = alpha * (filtered_delay + delay - last_delay)
+            #     last_delay = delay
+
+            #     self.processing_counter += 1
+            #     if self.processing_counter < 40:
+            #         continue
+
+            #     if self.last_position_update is None:
+            #         rospy.logdebug("No UWB fix, no mine position")
+            #         continue
+
+            #     # if abs(spec_centroids[1]) > 0.2 or abs(spec_centroids[2] > 0.08):
+            #     if np.log(abs(filtered_delay)) > -10:
+            #         rospy.logdebug("Mine detected!")
+            #         mine_position = Point(*(self.uwb_position + self.uwb_to_detector_offset))
+            #         self.detection_pub.publish(MineInfo(type=MineInfo.BURIED_LANDMINE, position=mine_position))
+            #     else:
+            #         rospy.logdebug("I see nothing...")
 
 def main(args):
     rospy.init_node('emi_mine_detector', disable_signals=True)
