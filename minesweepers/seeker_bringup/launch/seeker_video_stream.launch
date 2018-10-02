@@ -1,0 +1,10 @@
+<launch>
+    <arg name="stream" default="true"/>
+
+    <include file="$(find realsense2_camera)/launch/rs_rgbd.launch">
+    </include>
+
+    <group if="$(arg stream)">
+        <node pkg="web_video_server" type="web_video_server" name="web_video_server"/>
+    </group>
+</launch>
