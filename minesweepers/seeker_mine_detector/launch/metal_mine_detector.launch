@@ -2,7 +2,7 @@
     <arg name="uavcan_dsdl_path" default="/home/cvra/robot-software/uavcan_data_types/cvra/"/>
     <arg name="can_interface" default="slcan0"/>
 
-    <arg name="right_detector_id" value="43"/>
+    <arg name="right_detector_id" value="59"/>
     <arg name="right_detector_offset" value="0.5 0.25 0"/>
 
     <arg name="center_detector_id" value="61"/>
