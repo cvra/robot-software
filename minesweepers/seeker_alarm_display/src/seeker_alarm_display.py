@@ -5,14 +5,12 @@ Watches the mine topic and displays a visible warning if something triggers.
 import rospy
 import uavcan
 import threading
-import time
 
 import argparse
 from seeker_msgs.msg import MineInfo
 from subprocess import Popen
 
 LED_DURATION = 4
-BLINK_FREQUENCY = 4
 ALARM_FILE = "/home/cvra/alarm.ogg"
 
 
@@ -21,7 +19,6 @@ class LedSignalApplication:
         self.node = node
         self.led_board_id = None
         self.led_voltage = 0
-        self.current_led_voltage = 0
         self.mplayer_process = None
 
         # UAVCAN callbacks
@@ -36,7 +33,7 @@ class LedSignalApplication:
         if self.led_board_id is None:
             return
         msg = uavcan.thirdparty.cvra.motor.control.Voltage(node_id=self.led_board_id,
-                                                           voltage=self.current_led_voltage)
+                                                           voltage=self.led_voltage)
         self.node.broadcast(msg)
 
 
@@ -59,14 +56,6 @@ class LedSignalApplication:
             self.led_board_id = board
             rospy.loginfo("Discovered LED board {}".format(self.led_board_id))
 
-    def _blink_thread(self):
-        while True:
-            self.current_led_voltage = 0
-            time.sleep(1. / (2 * BLINK_FREQUENCY))
-            self.current_led_voltage = self.led_voltage
-            time.sleep(1. / (2 * BLINK_FREQUENCY))
-
-
     def _mine_detected_callback(self, data):
         rospy.loginfo('Got a mine: %s', data)
 
@@ -77,7 +66,6 @@ class LedSignalApplication:
             self.led_voltage = 0
 
         threading.Timer(LED_DURATION, shutdown).start()
-        threading.Thread(target=self._blink_thread).start()
 
         # If the sound was never played or the sound has finished playing
         if self.mplayer_process is None or \
