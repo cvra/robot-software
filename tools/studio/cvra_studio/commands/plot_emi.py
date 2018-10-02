@@ -138,6 +138,8 @@ class EmiPlotController:
         spectral_centroid.samples = np.zeros(shape=(spectral_centroid.window_length, 4))
 
 
+        last_delay = 0.
+        filtered_delay = 0.
         while True:
             self.curve.put(self.model.data)
 
@@ -150,7 +152,15 @@ class EmiPlotController:
                 self.logger.info(msg)
                 self.viewer.fit.setText(msg)
 
-                if abs(spec_centroids[1]) > 0.2 or abs(spec_centroids[2] > 0.08):
+                delay = lp_params[1]
+                alpha = 0.3
+                filtered_delay = alpha * (filtered_delay + delay - last_delay)
+                last_delay = delay
+                print("{:.7f}".format(np.log(abs(filtered_delay))))
+
+                # if abs(spec_centroids[1]) > 0.1 or abs(spec_centroids[2] > 0.08):
+                # if lp_params[1] < 0.14:
+                if np.log(abs(filtered_delay)) > -10:
                     print("Mine!")
                 else:
                     print(".")
