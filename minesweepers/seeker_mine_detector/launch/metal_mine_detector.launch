@@ -5,10 +5,10 @@
     <arg name="right_detector_id" value="43"/>
     <arg name="right_detector_offset" value="0.5 0.25 0"/>
 
-    <arg name="center_detector_id" value="69"/>
+    <arg name="center_detector_id" value="61"/>
     <arg name="center_detector_offset" value="0.5 0 0"/>
 
-    <arg name="left_detector_id" value="61"/>
+    <arg name="left_detector_id" value="75"/>
     <arg name="left_detector_offset" value="0.5 -0.25 0"/>
 
     <node pkg="seeker_mine_detector" type="emi_mine_detector.py" name="right_mine_detector"
