@@ -139,6 +139,7 @@ class MetalMineDetector(object):
         self.position_sub = rospy.Subscriber('uwb_position', Point, self._on_uwb_position_cb)
 
         self.detection_pub = rospy.Publisher('mine_detection', MineInfo, queue_size=1)
+        self.processing_counter = 0
 
         rospy.loginfo('Metal mine detector actively listening to node {}'.format(detector_id))
 
@@ -152,6 +153,8 @@ class MetalMineDetector(object):
         self.spectral_centroid = SpectralCentroid()
 
         while True:
+            self.node.spin(0.1)
+
             temperature = calculate_temperature(calculate_ntc_resistance(self.recorder.temperature))
             params = fit_signal(self.recorder.time, self.recorder.signal)
             if params and temperature:
@@ -160,14 +163,22 @@ class MetalMineDetector(object):
                 msg = 'EMI signal fit: A={:3.4f} delay={:3.4f}ms tau={:3.4f}ms c={:3.4f} temp={:3.2f}C'.format(*lp_params)
                 rospy.loginfo(msg)
 
-                if self.last_position_update is not None and (abs(spec_centroids[1]) > 0.2 or abs(spec_centroids[2] > 0.08)):
+                self.processing_counter += 1
+                rospy.loginfo(self.processing_counter)
+
+                if self.processing_counter < 40:
+                    continue
+
+                if self.last_position_update is None:
+                    rospy.loginfo("No UWB fix, no mine position")
+                    continue
+
+                if abs(spec_centroids[1]) > 0.2 or abs(spec_centroids[2] > 0.08):
                     rospy.loginfo("Mine detected!")
                     mine_position = Point(*(self.uwb_position + self.uwb_to_detector_offset))
                     self.detection_pub.publish(MineInfo(type=MineInfo.BURIED_LANDMINE, position=mine_position))
                 else:
                     rospy.loginfo("I see nothing...")
-
-            self.node.spin(0.1)
 
 def main(args):
     rospy.init_node('emi_mine_detector', disable_signals=True)
