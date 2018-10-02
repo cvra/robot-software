@@ -9,6 +9,7 @@ import time
 import uavcan
 
 from itertools import izip
+from collections import deque
 import numpy as np
 import scipy.optimize as so
 
@@ -171,18 +172,27 @@ class MetalMineDetector(object):
         filtered_delay = 0.
         fitted_measurements = 0
 
-        with open("/home/cvra/log_emi.csv", "w") as f:
-            while True:
-                self.node.spin(0.1)
+        slow_queue = deque(maxlen=20)
+        fast_queue = deque(maxlen=5)
 
-                temperature = calculate_temperature(calculate_ntc_resistance(self.recorder.temperature))
-                params, cov = fit_signal(self.recorder.time, self.recorder.signal)
-                if params:
+        while True:
+            self.node.spin(0.1)
+            temperature = calculate_temperature(calculate_ntc_resistance(self.recorder.temperature))
+            params, cov = fit_signal(self.recorder.time, self.recorder.signal)
+            if params:
 
-                    print(".")
-                    f.write(",".join(["{:.6f}".format(s) for s in params]))
-                    f.write("\n")
-            
+                # Put the delay through a bandpass
+                delay = params[1]
+                fast_queue.append(delay)
+                slow_queue.append(delay)
+                fast_avg = sum(fast_queue) / len(fast_queue)
+                slow_avg = sum(slow_queue) / len(slow_queue)
+
+                filtered_delay = fast_avg - slow_avg
+
+                if filtered_delay < -4e-3:
+                    print("mine")
+
 def main(args):
     rospy.init_node('emi_mine_detector', disable_signals=True)
 
