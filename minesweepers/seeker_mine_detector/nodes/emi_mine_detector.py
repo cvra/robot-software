@@ -191,7 +191,9 @@ class MetalMineDetector(object):
                 filtered_delay = fast_avg - slow_avg
 
                 if filtered_delay < -4e-3:
-                    print("mine")
+                    mine_position = Point(*(self.uwb_position + self.uwb_to_detector_offset))
+                    self.detection_pub.publish(MineInfo(type=MineInfo.BURIED_LANDMINE, position=mine_position))
+                    rospy.loginfo("mine seen")
 
 def main(args):
     rospy.init_node('emi_mine_detector', disable_signals=True)
