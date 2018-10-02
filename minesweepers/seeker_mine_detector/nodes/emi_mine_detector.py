@@ -29,13 +29,13 @@ def argparser(parser=None):
     return parser
 
 
-def exponential_decay_fun(amplitude, delay, decay, constant):
-    return lambda t: amplitude * np.minimum(1.0, np.exp(- (t - delay) / decay)) + constant
+def exponential_decay_fun(amplitude, delay, decay):
+    return lambda t: amplitude * np.minimum(1.0, np.exp(- (t - delay) / decay))
 
-def exponential_decay(t, amp, delay, decay, constant):
-    return exponential_decay_fun(amp, delay, decay, constant)(t)
+def exponential_decay(t, amp, delay, decay):
+    return exponential_decay_fun(amp, delay, decay)(t)
 
-def fit_exponential_decay(x, y, initial_guess=(1.0, 0.0005, 0.0005, 0.0)):
+def fit_exponential_decay(x, y, initial_guess=(1.0, 0.0005, 0.0005)):
     return so.curve_fit(exponential_decay, x, y, initial_guess)
 
 def fit_signal(time, values):
@@ -44,7 +44,7 @@ def fit_signal(time, values):
 
     samples = -(values - 2048) / 2048
     pw, cov = fit_exponential_decay(time, samples)
-    return pw[0], pw[1]*1000, pw[2]*1000, pw[3]
+    return [pw[0], pw[1] * 1e3, pw[2] * 1e3], cov
 
 
 def calculate_ntc_resistance(adc_value):
@@ -169,48 +169,20 @@ class MetalMineDetector(object):
 
         last_delay = 0.
         filtered_delay = 0.
+        fitted_measurements = 0
 
-        while True:
-            self.node.spin(0.1)
+        with open("/home/cvra/log_emi.csv", "w") as f:
+            while True:
+                self.node.spin(0.1)
 
-            temperature = calculate_temperature(calculate_ntc_resistance(self.recorder.temperature))
-            params = fit_signal(self.recorder.time, self.recorder.signal)
-            if params:
-                z = params
-                if (np.abs(z - self.mu) > 0.1 * np.sqrt(np.diag(self.sigma))).any():
-                    print('There is a mine!')
-                else:
-                    mu, sigma = self.predictor.predict(mu, sigma, u)
-                    mu, sigma = self.corrector.correct(mu, sigma, z)
-                    print('No mine')
+                temperature = calculate_temperature(calculate_ntc_resistance(self.recorder.temperature))
+                params, cov = fit_signal(self.recorder.time, self.recorder.signal)
+                if params:
 
-            # if params and temperature:
-            #     lp_params = self.sliding_window_lp.update(np.append(params, (temperature)))
-            #     spec_centroids = self.spectral_centroid.update(params)
-            #     msg = 'EMI signal fit: A={:3.4f} delay={:3.4f}ms tau={:3.4f}ms c={:3.4f} temp={:3.2f}C'.format(*lp_params)
-            #     rospy.logdebug(msg)
-
-            #     delay = lp_params[1]
-            #     alpha = 0.3
-            #     filtered_delay = alpha * (filtered_delay + delay - last_delay)
-            #     last_delay = delay
-
-            #     self.processing_counter += 1
-            #     if self.processing_counter < 40:
-            #         continue
-
-            #     if self.last_position_update is None:
-            #         rospy.logdebug("No UWB fix, no mine position")
-            #         continue
-
-            #     # if abs(spec_centroids[1]) > 0.2 or abs(spec_centroids[2] > 0.08):
-            #     if np.log(abs(filtered_delay)) > -10:
-            #         rospy.logdebug("Mine detected!")
-            #         mine_position = Point(*(self.uwb_position + self.uwb_to_detector_offset))
-            #         self.detection_pub.publish(MineInfo(type=MineInfo.BURIED_LANDMINE, position=mine_position))
-            #     else:
-            #         rospy.logdebug("I see nothing...")
-
+                    print(".")
+                    f.write(",".join(["{:.6f}".format(s) for s in params]))
+                    f.write("\n")
+            
 def main(args):
     rospy.init_node('emi_mine_detector', disable_signals=True)
 
