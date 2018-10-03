@@ -1,6 +1,9 @@
 <launch>
     <include file="$(find realsense2_camera)/launch/rs_rgbd.launch">
         <arg name="bond" value="true"/>
+        <arg name="enable_fisheye" value="false"/>
+        <arg name="enable_infra1" value="false"/>
+        <arg name="enable_infra2" value="false"/>
     </include>
 
     <node pkg="seeker_mine_detector" type="segmentation_node" name="surface_mine_detector"
