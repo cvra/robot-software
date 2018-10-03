@@ -49,6 +49,9 @@ class LedSignalApplication:
                               self._board_info_callback)
 
     def _board_info_callback(self, event):
+        if not event:
+            return
+
         board = event.transfer.source_node_id
         name = str(event.response.name)
 
