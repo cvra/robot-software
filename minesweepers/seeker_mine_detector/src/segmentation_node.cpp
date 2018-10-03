@@ -211,6 +211,9 @@ int main (int argc, char** argv)
     );
     ros::Subscriber sub = node.subscribe("/camera/depth_registered/points", 1, on_new_point_cloud);
 
+    ros::Duration(5).sleep(); // wait for the storm to pass before we start processing
+    ROS_INFO("Ready to segment mines in point clouds");
+
     while (ros::ok()) {
         ros::spin();
     }
