@@ -1,0 +1,7 @@
+<launch>
+    <include file="$(find realsense2_camera)/launch/rs_rgbd.launch">
+    </include>
+
+    <node pkg="seeker_mine_detector" type="segmentation_node" name="surface_mine_detector"
+          respawn="true" output="screen"/>
+</launch>
