@@ -7,9 +7,11 @@
     </include>
 
     <node pkg="topic_tools" type="throttle" name="throttle_pointcloud"
-          args="messages /camera/depth_registered/points 3.0"
+          args="messages /camera/depth_registered/points 3.0 /registered_pointcloud"
           respawn="true" output="log"/>
 
     <node pkg="seeker_mine_detector" type="segmentation_node" name="surface_mine_detector"
-          respawn="true" output="screen"/>
+          respawn="true" output="screen">
+        <remap from="/camera/depth_registered/points" to="/registered_pointcloud"/>
+    </node>
 </launch>
