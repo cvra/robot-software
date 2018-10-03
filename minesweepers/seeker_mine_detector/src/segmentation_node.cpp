@@ -118,6 +118,10 @@ int main (int argc, char** argv)
                 extract.filter(*cloud_f);
                 *cloud_filtered = *cloud_f;
             }
+            if (cloud_filtered->points.size() == 0) {
+                ROS_DEBUG_STREAM("PointCloud after plane filtering is empty, waiting for next one.");
+                return;
+            }
 
             // Creating the KdTree object for the search method of the extraction
             pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>);
