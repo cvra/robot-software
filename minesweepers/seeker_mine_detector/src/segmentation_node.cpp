@@ -51,8 +51,8 @@ int main (int argc, char** argv)
 
             // Crop to bounding box
             pcl::CropBox<pcl::PointXYZ> boxFilter;
-            boxFilter.setMin(Eigen::Vector4f(-2.0, -1.0,  0.0, 1.0));
-            boxFilter.setMax(Eigen::Vector4f( 2.0,  2.0,  2.0, 1.0));
+            boxFilter.setMin(Eigen::Vector4f(-1.0, -1.0,  0.0, 1.0));
+            boxFilter.setMax(Eigen::Vector4f( 1.0,  1.0,  1.0, 1.0));
             boxFilter.setInputCloud(cloud);
             boxFilter.filter(*cloud);
 
