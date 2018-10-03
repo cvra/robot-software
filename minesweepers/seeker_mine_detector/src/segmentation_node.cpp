@@ -16,6 +16,7 @@
 #include <pcl/segmentation/extract_clusters.h>
 #include <pcl/segmentation/sac_segmentation.h>
 
+#include <geometry_msgs/Point.h>
 #include <seeker_msgs/MineInfo.h>
 
 namespace seeker {
@@ -35,8 +36,16 @@ int main (int argc, char** argv)
     ros::Publisher object_pub = node.advertise<sensor_msgs::PointCloud2>("objects", 1);
     ros::Publisher mine_pub = node.advertise<seeker_msgs::MineInfo>("mine_detection", 1);
 
+    geometry_msgs::Point uwb_position;
+    auto on_new_position = boost::function<void(const geometry_msgs::Point&)>(
+        [&uwb_position](const geometry_msgs::Point& msg) {
+            uwb_position = msg;
+        }
+    );
+    ros::Subscriber uwb_position_sub = node.subscribe<geometry_msgs::Point>("uwb_position", 1, on_new_position);
+
     auto on_new_point_cloud = boost::function<void(const sensor_msgs::PointCloud2ConstPtr&)>(
-        [&object_pub, &mine_pub](const sensor_msgs::PointCloud2ConstPtr& msg) {
+        [&object_pub, &mine_pub, &uwb_position](const sensor_msgs::PointCloud2ConstPtr& msg) {
             ROS_DEBUG("I can see clearly now");
 
             // From ROS to PCL
@@ -166,11 +175,16 @@ int main (int argc, char** argv)
 
                     seeker_msgs::MineInfo msg;
                     msg.type = seeker_msgs::MineInfo::SURFACE_LANDMINE;
+
                     auto cam_to_robot = [](float x, float y, float z) {
                         return std::tuple<float, float, float>(z, -x, -y);
                     };
                     auto mine_pos = cam_to_robot(position_OBB.x, position_OBB.y, position_OBB.z);
                     std::tie(msg.position.x, msg.position.y, msg.position.z) = mine_pos;
+                    msg.position.x += uwb_position.x;
+                    msg.position.y += uwb_position.y;
+                    msg.position.z += uwb_position.z;
+
                     mine_pub.publish(msg);
                 } else {
                     ROS_DEBUG_STREAM("Ignoring clustered object too small");
