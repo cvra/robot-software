@@ -16,6 +16,7 @@
 #include <pcl/segmentation/extract_clusters.h>
 #include <pcl/segmentation/sac_segmentation.h>
 
+#include <seeker_msgs/MineInfo.h>
 
 namespace seeker {
 struct RGB {
@@ -31,11 +32,12 @@ int main (int argc, char** argv)
     ros::init(argc, argv, "segmentation");
     ros::NodeHandle node;
 
-    ros::Publisher pub = node.advertise<sensor_msgs::PointCloud2>("objects", 1);
+    ros::Publisher object_pub = node.advertise<sensor_msgs::PointCloud2>("objects", 1);
+    ros::Publisher mine_pub = node.advertise<seeker_msgs::MineInfo>("mine_detection", 1);
 
     auto on_new_point_cloud = boost::function<void(const sensor_msgs::PointCloud2ConstPtr&)>(
-        [&pub](const sensor_msgs::PointCloud2ConstPtr& msg) {
-            ROS_INFO("I can see clearly now");
+        [&object_pub, &mine_pub](const sensor_msgs::PointCloud2ConstPtr& msg) {
+            ROS_DEBUG("I can see clearly now");
 
             // From ROS to PCL
             pcl::PCLPointCloud2::Ptr cloud_blob(new pcl::PCLPointCloud2);
@@ -161,6 +163,15 @@ int main (int argc, char** argv)
                         cloud_cluster->points.push_back(point);
                     }
                     ROS_INFO_STREAM("Valid object identified");
+
+                    seeker_msgs::MineInfo msg;
+                    msg.type = seeker_msgs::MineInfo::SURFACE_LANDMINE;
+                    auto cam_to_robot = [](float x, float y, float z) {
+                        return std::tuple<float, float, float>(z, -x, -y);
+                    };
+                    auto mine_pos = cam_to_robot(position_OBB.x, position_OBB.y, position_OBB.z);
+                    std::tie(msg.position.x, msg.position.y, msg.position.z) = mine_pos;
+                    mine_pub.publish(msg);
                 } else {
                     ROS_DEBUG_STREAM("Ignoring clustered object too small");
                     continue;
@@ -174,7 +185,7 @@ int main (int argc, char** argv)
             cloud_cluster->height = 1;
             cloud_cluster->is_dense = true;
             pcl_conversions::toPCL(ros::Time::now(), cloud_cluster->header.stamp);
-            pub.publish(cloud_cluster);
+            object_pub.publish(cloud_cluster);
         }
     );
     ros::Subscriber sub = node.subscribe("/camera/depth_registered/points", 1, on_new_point_cloud);
