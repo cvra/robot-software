@@ -1,6 +1,6 @@
 <launch>
     <include file="$(find realsense2_camera)/launch/rs_rgbd.launch">
-        <arg name="respawn" value="true"/>
+        <arg name="bond" value="true"/>
     </include>
 
     <node pkg="seeker_mine_detector" type="segmentation_node" name="surface_mine_detector"
