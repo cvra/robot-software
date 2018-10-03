@@ -44,8 +44,15 @@ int main (int argc, char** argv)
     );
     ros::Subscriber uwb_position_sub = node.subscribe<geometry_msgs::Point>("uwb_position", 1, on_new_position);
 
+    int counter = 0;
     auto on_new_point_cloud = boost::function<void(const sensor_msgs::PointCloud2ConstPtr&)>(
-        [&object_pub, &mine_pub, &uwb_position](const sensor_msgs::PointCloud2ConstPtr& msg) {
+        [&object_pub, &mine_pub, &uwb_position, &counter](const sensor_msgs::PointCloud2ConstPtr& msg) {
+            if (counter == 0) { // Process only once every N point clouds
+                counter = 5;
+                return;
+            }
+            counter--;
+
             ROS_DEBUG("I can see clearly now");
 
             // From ROS to PCL
