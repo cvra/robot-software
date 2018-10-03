@@ -7,6 +7,9 @@
         <arg name="can_interface" value="$(arg can_interface)"/>
     </include>
 
+    <include file="$(find seeker_mine_detector)/launch/rgbd_mine_detector.launch">
+    </include>
+
     <node pkg="uavcan_bridge" type="position_publisher.py" name="uwb_position"
           args="$(arg uavcan_dsdl_path) $(arg can_interface)"
           respawn="true" output="screen"/>
