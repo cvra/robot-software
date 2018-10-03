@@ -3,6 +3,7 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl_ros/point_cloud.h>
 
+#include <pcl/features/moment_of_inertia_estimation.h>
 #include <pcl/features/normal_3d.h>
 #include <pcl/filters/crop_box.h>
 #include <pcl/filters/extract_indices.h>
@@ -15,6 +16,7 @@
 #include <pcl/segmentation/extract_clusters.h>
 #include <pcl/segmentation/sac_segmentation.h>
 
+
 namespace seeker {
 struct RGB {
     uint8_t r, g, b;
@@ -22,6 +24,7 @@ struct RGB {
 };
 std::vector<RGB> color_palette(size_t number_of_colors);
 }  // seeker
+
 
 int main (int argc, char** argv)
 {
@@ -32,7 +35,7 @@ int main (int argc, char** argv)
 
     auto on_new_point_cloud = boost::function<void(const sensor_msgs::PointCloud2ConstPtr&)>(
         [&pub](const sensor_msgs::PointCloud2ConstPtr& msg) {
-            ROS_INFO("I've seen your cloud!");
+            ROS_INFO("I can see clearly now");
 
             // From ROS to PCL
             pcl::PCLPointCloud2::Ptr cloud_blob(new pcl::PCLPointCloud2);
@@ -44,11 +47,11 @@ int main (int argc, char** argv)
             pcl::fromPCLPointCloud2(*cloud_blob, *cloud);
 
             pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_f(new pcl::PointCloud<pcl::PointXYZ>);
-            ROS_INFO_STREAM("PointCloud before filtering has: " << cloud->points.size() << " data points.");
+            ROS_DEBUG_STREAM("PointCloud before filtering has: " << cloud->points.size() << " data points.");
 
             // Crop to bounding box
             pcl::CropBox<pcl::PointXYZ> boxFilter;
-            boxFilter.setMin(Eigen::Vector4f(-2.0, -2.0,  0.0, 1.0));
+            boxFilter.setMin(Eigen::Vector4f(-2.0, -1.0,  0.0, 1.0));
             boxFilter.setMax(Eigen::Vector4f( 2.0,  2.0,  2.0, 1.0));
             boxFilter.setInputCloud(cloud);
             boxFilter.filter(*cloud);
@@ -59,7 +62,12 @@ int main (int argc, char** argv)
             vg.setInputCloud(cloud);
             vg.setLeafSize(0.01f, 0.01f, 0.01f);
             vg.filter(*cloud_filtered);
-            ROS_INFO_STREAM("PointCloud after filtering has: " << cloud_filtered->points.size()  << " data points.");
+            ROS_DEBUG_STREAM("PointCloud after filtering has: " << cloud_filtered->points.size()  << " data points.");
+
+            if (cloud_filtered->points.size() == 0) {
+                ROS_DEBUG_STREAM("PointCloud after filtering is empty, waiting for next one.");
+                return;
+            }
 
             // Setup segmentation for the planar model and set all the parameters
             pcl::SACSegmentation<pcl::PointXYZ> seg;
@@ -80,7 +88,7 @@ int main (int argc, char** argv)
                 seg.segment(*inliers, *coefficients);
                 if (inliers->indices.size() == 0)
                 {
-                    ROS_INFO_STREAM("Could not estimate a planar model for the given dataset.");
+                    ROS_DEBUG_STREAM("Could not estimate a planar model for the given dataset.");
                     break;
                 }
 
@@ -92,7 +100,7 @@ int main (int argc, char** argv)
 
                 // Get the points associated with the planar surface
                 extract.filter(*cloud_plane);
-                ROS_INFO_STREAM("PointCloud representing the planar component: " << cloud_plane->points.size() << " data points.");
+                ROS_DEBUG_STREAM("PointCloud representing the planar component: " << cloud_plane->points.size() << " data points.");
 
                 // Remove the planar inliers, extract the rest
                 extract.setNegative(true);
@@ -118,14 +126,46 @@ int main (int argc, char** argv)
             pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_cluster(new pcl::PointCloud<pcl::PointXYZRGB>);
             for (const auto& cluster_index : cluster_indices)
             {
+                pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_object(new pcl::PointCloud<pcl::PointXYZRGB>);
+
                 for (const auto& point_index : cluster_index.indices) {
                     pcl::PointXYZRGB point(palette[j].r, palette[j].g, palette[j].b);
                     point.x = cloud_filtered->points[point_index].x;
                     point.y = cloud_filtered->points[point_index].y;
                     point.z = cloud_filtered->points[point_index].z;
-                    cloud_cluster->points.push_back(point);
+                    cloud_object->points.push_back(point);
                 }
-                ROS_INFO_STREAM("Object " << j << " clustered with: " << cloud_cluster->points.size() << " data points.");
+                ROS_DEBUG_STREAM("Object " << j << " clustered with: " << cloud_object->points.size() << " data points.");
+
+                pcl::MomentOfInertiaEstimation<pcl::PointXYZRGB> feature_extractor;
+                feature_extractor.setInputCloud(cloud_object);
+                feature_extractor.compute();
+
+                pcl::PointXYZRGB min_point_OBB, max_point_OBB;
+                pcl::PointXYZRGB position_OBB;
+                Eigen::Matrix3f rotational_matrix_OBB;
+                feature_extractor.getOBB(min_point_OBB, max_point_OBB, position_OBB, rotational_matrix_OBB);
+
+                if (cluster_index.indices.size() < 100) {
+                    ROS_DEBUG_STREAM("Found cluster with too few points, skipping");
+                    continue;
+                }
+
+                float obb_x_size = max_point_OBB.x - min_point_OBB.x;
+                float obb_y_size = max_point_OBB.y - min_point_OBB.y;
+                float obb_z_size = max_point_OBB.z - min_point_OBB.z;
+
+                if (obb_x_size > 0.05 && obb_y_size > 0.05 && obb_z_size > 0.05
+                    && obb_x_size < 0.15 && obb_y_size < 0.15 && obb_z_size < 0.15) {
+                    for (const auto& point : cloud_object->points) {
+                        cloud_cluster->points.push_back(point);
+                    }
+                    ROS_INFO_STREAM("Valid object identified");
+                } else {
+                    ROS_DEBUG_STREAM("Ignoring clustered object too small");
+                    continue;
+                }
+
                 j++;
             }
             // Publish clusters
