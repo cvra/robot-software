@@ -161,7 +161,11 @@ class MetalMineDetector(object):
         fast_queue = deque(maxlen=5)
 
         while True:
-            self.node.spin(0.1)
+            try:
+                self.node.spin(0.1)
+            except uavcan.UAVCANException:
+                pass
+
             temperature = calculate_temperature(calculate_ntc_resistance(self.recorder.temperature))
             params, cov = fit_signal(self.recorder.time, self.recorder.signal)
             if params:

@@ -48,7 +48,10 @@ def main():
                               uwb_position_cb)
 
     try:
-        node.spin()
+        try:
+            node.spin()
+        except uavcan.UAVCANException:
+            pass
     except KeyboardInterrupt:
         pass
 
