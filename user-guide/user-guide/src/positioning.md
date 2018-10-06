@@ -16,3 +16,4 @@ This system is not too expensive compared to similar solutions.
 To get a 3D position we need 4 anchors and one tag per robot.
 Each board is 50$, for a total cost of 250$.
 
+For more information see the [technical report](https://github.com/cvra/robot-software/tree/master/uwb-beacon-firmware/doc/report.pdf).
