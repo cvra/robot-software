@@ -49,8 +49,8 @@ tags
 master-firmware/src/config_msgpack.c
 
 # generated files
-master-firmware/libssp.a
-master-firmware/libssp_nonshared.a
+*/libssp.a
+*/libssp_nonshared.a
 
 ### Python
 
