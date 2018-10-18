@@ -98,7 +98,7 @@ static void gui_thread(void *p)
         wi.g.width = 100;
         wi.g.height = 25;
         wi.g.y = 0;
-        wi.g.x = 20;
+        wi.g.x = gdispGetWidth() - 105;
         wi.text = "2";
         ghButton2 = gwinButtonCreate(0, &wi);
     }
@@ -147,7 +147,7 @@ static void gui_thread(void *p)
             {
                 // Our button has been pressed
                 NOTICE("been pressed 1");
-                gwinSetVisible(ghButton2, TRUE);
+                //gwinSetVisible(ghButton2, TRUE);
                 gwinSetVisible(ghButton1, FALSE);
 
             }
@@ -155,14 +155,16 @@ static void gui_thread(void *p)
             {
                 // Our button has been pressed
                 NOTICE("been pressed 2");
-                gwinSetVisible(ghButton1, TRUE);
+                //gwinSetVisible(ghButton1, TRUE);
                 gwinSetVisible(ghButton2, FALSE);
+
             }
             else if (((GEventGWinButton *)pe)->gwin == ghButton3)
             {
                 // Our button has been pressed
                 NOTICE("been pressed 3");
-                gwinDestroy(ghButton3);
+                gwinSetVisible(ghButton2, TRUE);
+                gwinSetVisible(ghButton1, TRUE);
             }
         }
         break;
