@@ -72,8 +72,19 @@ static void gui_thread(void *p)
 
     {
         GWidgetInit wi;
-                memset(&wi, 0, sizeof(wi));
-
+        gwinWidgetClearInit(&wi);
+        wi.g.show = TRUE;
+        wi.g.x = 50;
+        wi.g.y = 45;
+        wi.g.width = gdispGetWidth();
+        wi.g.height = 40;
+        sensor_label = gwinLabelCreate(0, &wi);
+        gwinSetFont(sensor_label, gdispOpenFont("DejaVuSans32"));
+        gwinSetText(sensor_label, "Hand sensor", TRUE);
+    }
+    {
+        GWidgetInit wi;
+        memset(&wi, 0, sizeof(wi));
 
         gwinWidgetClearInit(&wi);
         wi.g.show = TRUE;
@@ -88,8 +99,7 @@ static void gui_thread(void *p)
     }
     {
         GWidgetInit wi;
-                memset(&wi, 0, sizeof(wi));
-
+        memset(&wi, 0, sizeof(wi));
 
         gwinWidgetClearInit(&wi);
         wi.g.show = TRUE;
@@ -104,8 +114,7 @@ static void gui_thread(void *p)
     }
     {
         GWidgetInit wi;
-                memset(&wi, 0, sizeof(wi));
-
+        memset(&wi, 0, sizeof(wi));
 
         gwinWidgetClearInit(&wi);
         wi.g.show = TRUE;
@@ -119,7 +128,6 @@ static void gui_thread(void *p)
         ghButton3 = gwinButtonCreate(0, &wi);
     }
 
-    
     chPoolLoadArray(&msg_pool, msg_buffer, MSG_BUF_SIZE);
     init_done = true;
 
@@ -149,7 +157,7 @@ static void gui_thread(void *p)
                 NOTICE("been pressed 1");
                 //gwinSetVisible(ghButton2, TRUE);
                 gwinSetVisible(ghButton1, FALSE);
-
+                gwinSetText(sensor_label, "1", TRUE);
             }
             else if (((GEventGWinButton *)pe)->gwin == ghButton2)
             {
@@ -157,7 +165,7 @@ static void gui_thread(void *p)
                 NOTICE("been pressed 2");
                 //gwinSetVisible(ghButton1, TRUE);
                 gwinSetVisible(ghButton2, FALSE);
-
+                gwinSetText(sensor_label, "2", TRUE);
             }
             else if (((GEventGWinButton *)pe)->gwin == ghButton3)
             {
@@ -165,6 +173,7 @@ static void gui_thread(void *p)
                 NOTICE("been pressed 3");
                 gwinSetVisible(ghButton2, TRUE);
                 gwinSetVisible(ghButton1, TRUE);
+                gwinSetText(sensor_label, "3", TRUE);
             }
         }
         break;
