@@ -67,11 +67,13 @@ static void gui_thread(void *p)
         wi.y = 0;
         wi.width = gdispGetWidth();
         wi.height = gdispGetHeight();
-        console = gwinConsoleCreate(0, &wi);
+        //console = gwinConsoleCreate(0, &wi);
     }
 
     {
         GWidgetInit wi;
+                memset(&wi, 0, sizeof(wi));
+
 
         gwinWidgetClearInit(&wi);
         wi.g.show = TRUE;
@@ -86,6 +88,8 @@ static void gui_thread(void *p)
     }
     {
         GWidgetInit wi;
+                memset(&wi, 0, sizeof(wi));
+
 
         gwinWidgetClearInit(&wi);
         wi.g.show = TRUE;
@@ -94,12 +98,14 @@ static void gui_thread(void *p)
         wi.g.width = 100;
         wi.g.height = 25;
         wi.g.y = 0;
-        wi.g.x = gdispGetWidth() - 110;
+        wi.g.x = 20;
         wi.text = "2";
         ghButton2 = gwinButtonCreate(0, &wi);
     }
     {
         GWidgetInit wi;
+                memset(&wi, 0, sizeof(wi));
+
 
         gwinWidgetClearInit(&wi);
         wi.g.show = TRUE;
@@ -113,9 +119,7 @@ static void gui_thread(void *p)
         ghButton3 = gwinButtonCreate(0, &wi);
     }
 
-    gwinSetColor(console, White);
-    gwinSetBgColor(console, Black);
-    gwinClear(console);
+    
     chPoolLoadArray(&msg_pool, msg_buffer, MSG_BUF_SIZE);
     init_done = true;
 
@@ -143,13 +147,16 @@ static void gui_thread(void *p)
             {
                 // Our button has been pressed
                 NOTICE("been pressed 1");
-                gwinDestroy(ghButton1);
+                gwinSetVisible(ghButton2, TRUE);
+                gwinSetVisible(ghButton1, FALSE);
+
             }
             else if (((GEventGWinButton *)pe)->gwin == ghButton2)
             {
                 // Our button has been pressed
                 NOTICE("been pressed 2");
-                gwinDestroy(ghButton2);
+                gwinSetVisible(ghButton1, TRUE);
+                gwinSetVisible(ghButton2, FALSE);
             }
             else if (((GEventGWinButton *)pe)->gwin == ghButton3)
             {
@@ -175,6 +182,7 @@ void gui_start()
 void gui_log_console(struct error *e, va_list args)
 {
     static char buffer[256];
+    return;
     if (init_done)
     {
         char *dst = chPoolAlloc(&msg_pool);
