@@ -20,6 +20,52 @@ static GHandle ghCheckbox1;
 static GHandle ghSlider1;
 static bool init_done = false;
 
+
+// interface
+struct page
+{
+    void (*load)(void*);
+    void (*delete)(void*);
+    void* arg;
+};
+// implémentation page 1
+
+struct page_1
+{
+    GHandle* label;
+    GHandle* label2;
+};
+
+void page_1_load(void* arg)
+{
+    struct page_1* page = (struct page_1*)arg;
+    gwinSetText(*page->label, "mkayyy", TRUE);
+} 
+
+void page_1_delete(void* arg){
+
+} 
+// implémentation page 2
+void page_2_load(void* arg){  
+
+}
+void page_2_delete(void* arg){
+
+}
+//---------------------------------
+struct menu
+{
+    struct page *pages;
+    int page_count;
+};
+
+struct page_1 page_1_arg = {&sensor_label, &sensor2_label};
+struct page pages[] = {
+    {&page_1_load, &page_1_delete, &page_1_arg},
+    {&page_2_load, &page_2_delete, NULL},
+};
+struct menu my_menu = {pages, sizeof(pages) / sizeof(struct page)};
+
 #define MSG_MAX_LENGTH 128
 #define MSG_BUF_SIZE 16
 static char msg_buffer[MSG_MAX_LENGTH][MSG_BUF_SIZE];
@@ -153,11 +199,13 @@ static void gui_thread(void *p)
         {
             if (((GEventGWinButton *)pe)->gwin == ghButton1)
             {
-                // Our button has been pressed
+/*                 // Our button has been pressed
                 NOTICE("been pressed 1");
                 //gwinSetVisible(ghButton2, TRUE);
                 gwinSetVisible(ghButton1, FALSE);
-                gwinSetText(sensor_label, "1", TRUE);
+                gwinSetText(sensor_label, "1", TRUE); 
+                */
+                my_menu.pages[0].load(my_menu.pages[0].arg);
             }
             else if (((GEventGWinButton *)pe)->gwin == ghButton2)
             {
