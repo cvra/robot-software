@@ -12,9 +12,9 @@
 
 static GHandle label_ts_test;
 static GHandle label_ts_test2;
-static GHandle ghButton1;
-static GHandle ghButton2;
-static GHandle ghButton3;
+static GHandle button_ts_menu;
+static GHandle button_ts_page1;
+static GHandle button_ts_page2;
 static bool init_done = false;
 
 
@@ -170,7 +170,7 @@ static void gui_thread(void *p)
         wi.g.y = 0;
         wi.g.x = 5;
         wi.text = "1";
-        ghButton1 = gwinButtonCreate(0, &wi);
+        button_ts_menu = gwinButtonCreate(0, &wi);
     }
     {
         GWidgetInit wi;
@@ -185,7 +185,7 @@ static void gui_thread(void *p)
         wi.g.y = 0;
         wi.g.x = gdispGetWidth() - 105;
         wi.text = "2";
-        ghButton2 = gwinButtonCreate(0, &wi);
+        button_ts_page1 = gwinButtonCreate(0, &wi);
     }
     {
         GWidgetInit wi;
@@ -200,7 +200,7 @@ static void gui_thread(void *p)
         wi.g.y = 0;
         wi.g.x = gdispGetWidth() / 2 - 50;
         wi.text = "3";
-        ghButton3 = gwinButtonCreate(0, &wi);
+        button_ts_page2 = gwinButtonCreate(0, &wi);
     }
 
     chPoolLoadArray(&msg_pool, msg_buffer, MSG_BUF_SIZE);
@@ -226,19 +226,19 @@ static void gui_thread(void *p)
         {
         case GEVENT_GWIN_BUTTON:
         {
-            if (((GEventGWinButton *)pe)->gwin == ghButton1)
+            if (((GEventGWinButton *)pe)->gwin == button_ts_menu)
             {
                 my_menu.pages[0].load(my_menu.pages[0].arg);
             }
-            else if (((GEventGWinButton *)pe)->gwin == ghButton2)
+            else if (((GEventGWinButton *)pe)->gwin == button_ts_page1)
             {
-                gwinSetVisible(ghButton2, FALSE);
+                gwinSetVisible(button_ts_page1, FALSE);
                 gwinSetText(label_ts_test, "2", TRUE);
             }
-            else if (((GEventGWinButton *)pe)->gwin == ghButton3)
+            else if (((GEventGWinButton *)pe)->gwin == button_ts_page2)
             {
-                gwinSetVisible(ghButton2, TRUE);
-                gwinSetVisible(ghButton1, TRUE);
+                gwinSetVisible(button_ts_page1, TRUE);
+                gwinSetVisible(button_ts_menu, TRUE);
                 gwinSetText(label_ts_test, "3", TRUE);
             }
         }
