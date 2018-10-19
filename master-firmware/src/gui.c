@@ -10,7 +10,7 @@
 #include "gui_utilities.h"
 
 static GHandle label_ts_test;
-static GHandle sensor2_label;
+static GHandle label_ts_test2;
 static GHandle ghButton1;
 static GHandle ghButton2;
 static GHandle ghButton3;
@@ -24,14 +24,19 @@ struct page
     void (*delete)(void*);
     void* arg;
 };
-// implémentation page 1
 
+
+
+//structure stockant les variables (data) à transmettre à la page 1
 struct page_1
 {
     GHandle* label;
     GHandle* label2;
 };
 
+struct page_1 page_1_arg = {&label_ts_test, &label_ts_test2};
+
+// implémentation page 1
 void page_1_load(void* arg)
 {
     struct page_1* page = (struct page_1*)arg;
@@ -41,6 +46,7 @@ void page_1_load(void* arg)
 void page_1_delete(void* arg){
 
 } 
+
 // implémentation page 2
 void page_2_load(void* arg){  
 
@@ -48,19 +54,43 @@ void page_2_load(void* arg){
 void page_2_delete(void* arg){
 
 }
-//---------------------------------
+// implémentation page 3
+void page_menu_load(void* arg)
+{
+    
+} 
+
+void page_menu_delete(void* arg){
+
+}
+
+// utilisation de l'interface
+struct page pages[] = {
+    {&page_1_load, &page_1_delete, &page_1_arg},
+    {&page_2_load, &page_2_delete, NULL},
+    {&page_menu_load, &page_menu_delete, NULL},
+    
+};
+
+// -----------
 struct menu
 {
     struct page *pages;
     int page_count;
 };
 
-struct page_1 page_1_arg = {&label_ts_test, &sensor2_label};
-struct page pages[] = {
-    {&page_1_load, &page_1_delete, &page_1_arg},
-    {&page_2_load, &page_2_delete, NULL},
-};
 struct menu my_menu = {pages, sizeof(pages) / sizeof(struct page)};
+
+
+
+
+
+
+
+
+
+
+
 
 #define MSG_MAX_LENGTH 128
 #define MSG_BUF_SIZE 16
