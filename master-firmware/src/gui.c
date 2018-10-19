@@ -8,6 +8,7 @@
 #include "protobuf/strategy.pb.h"
 
 #include "gui_utilities.h"
+#define COLOR_BACKGROUND Blue
 
 static GHandle label_ts_test;
 static GHandle label_ts_test2;
@@ -41,6 +42,7 @@ void page_1_load(void* arg)
 {
     struct page_1* page = (struct page_1*)arg;
     gwinSetText(*page->label, "hope", TRUE);
+    gdispClear(COLOR_BACKGROUND);
 } 
 
 void page_1_delete(void* arg){
@@ -94,6 +96,7 @@ struct menu my_menu = {pages, sizeof(pages) / sizeof(struct page)};
 
 #define MSG_MAX_LENGTH 128
 #define MSG_BUF_SIZE 16
+
 static char msg_buffer[MSG_MAX_LENGTH][MSG_BUF_SIZE];
 static char *msg_mailbox_buf[MSG_BUF_SIZE];
 static MAILBOX_DECL(msg_mailbox, msg_mailbox_buf, MSG_BUF_SIZE);
@@ -130,7 +133,7 @@ static void gui_thread(void *p)
     gfxInit();
     gwinSetDefaultStyle(&WhiteWidgetStyle, FALSE);
     gwinSetDefaultFont(gdispOpenFont("DejaVuSans12"));
-    gdispClear(Blue);
+    gdispClear(COLOR_BACKGROUND);
     {
         GWindowInit wi;
         memset(&wi, 0, sizeof(wi));
