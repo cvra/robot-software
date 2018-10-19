@@ -104,7 +104,7 @@ static void gui_thread(void *p)
     gfxInit();
     gwinSetDefaultStyle(&WhiteWidgetStyle, FALSE);
     gwinSetDefaultFont(gdispOpenFont("DejaVuSans12"));
-    gdispClear(White);
+    gdispClear(Blue);
     {
         GWindowInit wi;
         memset(&wi, 0, sizeof(wi));
