@@ -9,15 +9,11 @@
 
 #include "gui_utilities.h"
 
-static GHandle score_label;
-static GHandle sensor_label;
+static GHandle label_ts_test;
 static GHandle sensor2_label;
-static GHandle console;
 static GHandle ghButton1;
 static GHandle ghButton2;
 static GHandle ghButton3;
-static GHandle ghCheckbox1;
-static GHandle ghSlider1;
 static bool init_done = false;
 
 
@@ -39,7 +35,7 @@ struct page_1
 void page_1_load(void* arg)
 {
     struct page_1* page = (struct page_1*)arg;
-    gwinSetText(*page->label, "mkayyy", TRUE);
+    gwinSetText(*page->label, "hope", TRUE);
 } 
 
 void page_1_delete(void* arg){
@@ -59,7 +55,7 @@ struct menu
     int page_count;
 };
 
-struct page_1 page_1_arg = {&sensor_label, &sensor2_label};
+struct page_1 page_1_arg = {&label_ts_test, &sensor2_label};
 struct page pages[] = {
     {&page_1_load, &page_1_delete, &page_1_arg},
     {&page_2_load, &page_2_delete, NULL},
@@ -124,9 +120,9 @@ static void gui_thread(void *p)
         wi.g.y = 45;
         wi.g.width = gdispGetWidth();
         wi.g.height = 40;
-        sensor_label = gwinLabelCreate(0, &wi);
-        gwinSetFont(sensor_label, gdispOpenFont("DejaVuSans32"));
-        gwinSetText(sensor_label, "Hand sensor", TRUE);
+        label_ts_test = gwinLabelCreate(0, &wi);
+        gwinSetFont(label_ts_test, gdispOpenFont("DejaVuSans32"));
+        gwinSetText(label_ts_test, "Hand sensor", TRUE);
     }
     {
         GWidgetInit wi;
@@ -203,7 +199,7 @@ static void gui_thread(void *p)
                 NOTICE("been pressed 1");
                 //gwinSetVisible(ghButton2, TRUE);
                 gwinSetVisible(ghButton1, FALSE);
-                gwinSetText(sensor_label, "1", TRUE); 
+                gwinSetText(label_ts_test, "1", TRUE); 
                 */
                 my_menu.pages[0].load(my_menu.pages[0].arg);
             }
@@ -213,7 +209,7 @@ static void gui_thread(void *p)
                 NOTICE("been pressed 2");
                 //gwinSetVisible(ghButton1, TRUE);
                 gwinSetVisible(ghButton2, FALSE);
-                gwinSetText(sensor_label, "2", TRUE);
+                gwinSetText(label_ts_test, "2", TRUE);
             }
             else if (((GEventGWinButton *)pe)->gwin == ghButton3)
             {
@@ -221,7 +217,7 @@ static void gui_thread(void *p)
                 NOTICE("been pressed 3");
                 gwinSetVisible(ghButton2, TRUE);
                 gwinSetVisible(ghButton1, TRUE);
-                gwinSetText(sensor_label, "3", TRUE);
+                gwinSetText(label_ts_test, "3", TRUE);
             }
         }
         break;
@@ -237,6 +233,23 @@ void gui_start()
     static THD_WORKING_AREA(wa, 4096);
     chThdCreateStatic(wa, sizeof(wa), LOWPRIO, gui_thread, NULL);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void gui_log_console(struct error *e, va_list args)
 {
