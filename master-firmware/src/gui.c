@@ -228,26 +228,15 @@ static void gui_thread(void *p)
         {
             if (((GEventGWinButton *)pe)->gwin == ghButton1)
             {
-/*                 // Our button has been pressed
-                NOTICE("been pressed 1");
-                //gwinSetVisible(ghButton2, TRUE);
-                gwinSetVisible(ghButton1, FALSE);
-                gwinSetText(label_ts_test, "1", TRUE); 
-                */
                 my_menu.pages[0].load(my_menu.pages[0].arg);
             }
             else if (((GEventGWinButton *)pe)->gwin == ghButton2)
             {
-                // Our button has been pressed
-                NOTICE("been pressed 2");
-                //gwinSetVisible(ghButton1, TRUE);
                 gwinSetVisible(ghButton2, FALSE);
                 gwinSetText(label_ts_test, "2", TRUE);
             }
             else if (((GEventGWinButton *)pe)->gwin == ghButton3)
             {
-                // Our button has been pressed
-                NOTICE("been pressed 3");
                 gwinSetVisible(ghButton2, TRUE);
                 gwinSetVisible(ghButton1, TRUE);
                 gwinSetText(label_ts_test, "3", TRUE);
