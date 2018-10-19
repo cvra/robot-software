@@ -69,19 +69,25 @@ void page_menu_delete(void* arg){
 // utilisation de l'interface
 struct page pages[] = {
     {&page_1_load, &page_1_delete, &page_1_arg},
-    {&page_2_load, &page_2_delete, NULL},
-    {&page_menu_load, &page_menu_delete, NULL},
-    
+    {&page_2_load, &page_2_delete, NULL,},
+    {&page_menu_load, &page_menu_delete, NULL}    
 };
 
 // -----------
-struct menu
-{
+struct menu {
     struct page *pages;
     int page_count;
 };
 
 struct menu my_menu = {pages, sizeof(pages) / sizeof(struct page)};
+
+void delete_all_page (int page_count){
+
+    for (int i=0; i>page_count; i++){
+    my_menu.pages[i].delete(my_menu.pages[i].arg);
+    }
+    gdispClear(COLOR_BACKGROUND);
+}
 
 
 
