@@ -169,7 +169,7 @@ static void gui_thread(void *p)
         wi.g.height = 25;
         wi.g.y = 0;
         wi.g.x = 5;
-        wi.text = "1";
+        wi.text = "Menu";
         button_ts_menu = gwinButtonCreate(0, &wi);
     }
     {
@@ -184,7 +184,7 @@ static void gui_thread(void *p)
         wi.g.height = 25;
         wi.g.y = 0;
         wi.g.x = gdispGetWidth() - 105;
-        wi.text = "2";
+        wi.text = "page 1";
         button_ts_page1 = gwinButtonCreate(0, &wi);
     }
     {
@@ -199,7 +199,7 @@ static void gui_thread(void *p)
         wi.g.height = 25;
         wi.g.y = 0;
         wi.g.x = gdispGetWidth() / 2 - 50;
-        wi.text = "3";
+        wi.text = "page 2";
         button_ts_page2 = gwinButtonCreate(0, &wi);
     }
 
@@ -228,17 +228,16 @@ static void gui_thread(void *p)
         {
             if (((GEventGWinButton *)pe)->gwin == button_ts_menu)
             {
-                my_menu.pages[0].load(my_menu.pages[0].arg);
+                gwinSetText(label_ts_test, "okok", TRUE);
             }
             else if (((GEventGWinButton *)pe)->gwin == button_ts_page1)
             {
-                gwinSetVisible(button_ts_page1, FALSE);
-                gwinSetText(label_ts_test, "2", TRUE);
+                my_menu.pages[0].load(my_menu.pages[0].arg);
             }
             else if (((GEventGWinButton *)pe)->gwin == button_ts_page2)
             {
-                gwinSetVisible(button_ts_page1, TRUE);
-                gwinSetVisible(button_ts_menu, TRUE);
+                gwinSetVisible(button_ts_page1, FALSE);
+                gwinSetVisible(button_ts_menu, FALSE);
                 gwinSetText(label_ts_test, "3", TRUE);
             }
         }
