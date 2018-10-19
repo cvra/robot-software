@@ -46,7 +46,8 @@ void page_1_load(void* arg)
 } 
 
 void page_1_delete(void* arg){
-
+    struct page_1* page = (struct page_1*)arg;
+    gwinSetText(*page->label, "deleted", TRUE);
 } 
 
 // implémentation page 2
@@ -57,9 +58,8 @@ void page_2_delete(void* arg){
 
 }
 // implémentation page 3
-void page_menu_load(void* arg)
-{
-    
+void page_menu_load(void* arg){
+
 } 
 
 void page_menu_delete(void* arg){
@@ -83,7 +83,7 @@ struct menu my_menu = {pages, sizeof(pages) / sizeof(struct page)};
 
 void delete_all_page (int page_count){
 
-    for (int i=0; i>page_count; i++){
+    for (int i=0; i<page_count; i++){
     my_menu.pages[i].delete(my_menu.pages[i].arg);
     }
     gdispClear(COLOR_BACKGROUND);
@@ -234,7 +234,8 @@ static void gui_thread(void *p)
         {
             if (((GEventGWinButton *)pe)->gwin == button_ts_menu)
             {
-                gwinSetText(label_ts_test, "okok", TRUE);
+                delete_all_page(3);
+                my_menu.pages[0].delete(my_menu.pages[0].arg);
             }
             else if (((GEventGWinButton *)pe)->gwin == button_ts_page1)
             {
