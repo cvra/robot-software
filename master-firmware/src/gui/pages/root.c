@@ -2,9 +2,6 @@
 
 #define COLOR_BACKGROUND Blue
 
-static GHandle label_ts_test;
-page_root_t page_root_arg = {&label_ts_test};
-
 void page_root_init(void* arg)
 {
     page_root_t *page = (page_root_t *)arg;

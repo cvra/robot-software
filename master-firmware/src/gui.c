@@ -69,6 +69,12 @@ static void gui_thread(void *p)
         //console = gwinConsoleCreate(0, &wi);
     }
 
+    static GHandle label_ts_root;
+    static page_root_t page_root_arg = {&label_ts_root};
+
+    static GHandle label_ts_pos;
+    static page_position_t page_position_arg = {&label_ts_pos};
+
     static page_t pages[] = {
         {&page_root_init, &page_root_load, &page_root_delete, &page_root_arg},
         {&page_position_init, &page_position_load, &page_position_delete, &page_position_arg},
