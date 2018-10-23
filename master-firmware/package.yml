@@ -67,6 +67,7 @@ target.arm:
     - src/strategy/color_sequence_server.c
     - src/ballgun/ballgun_module.c
     - src/ballgun/ball_sense.c
+    - src/gui/pages/root.c
 
 source:
     - src/unix_timestamp.c
@@ -113,6 +114,7 @@ source:
     - src/msgbus_protobuf.c
     - src/ballgun/ballgun.c
     - src/ballgun/ball_sensor.c
+    - src/gui/menu.c
 
 include_directories:
     - src/

@@ -8,87 +8,14 @@
 #include "protobuf/strategy.pb.h"
 
 #include "gui_utilities.h"
+#include "gui/menu.h"
+#include "gui/pages/root.h"
 #define COLOR_BACKGROUND Blue
 
-static GHandle label_ts_test;
-static GHandle label_ts_test2;
 static GHandle button_ts_menu;
 static GHandle button_ts_page1;
 static GHandle button_ts_page2;
 static bool init_done = false;
-// interface
-struct page
-{
-    void (*load)(void*);
-    void (*delete)(void*);
-    void* arg;
-};
-//structure stockant les variables (data) à transmettre à la page 1
-struct page_1
-{
-    GHandle* label;
-    GHandle* label2;
-};
-struct page_1 page_1_arg = {&label_ts_test, &label_ts_test2};
-// implémentation page 1
-void page_1_load(void* arg)
-{
-    struct page_1* page = (struct page_1*)arg;
-    gwinSetText(*page->label, "hope", TRUE);
-    gdispClear(COLOR_BACKGROUND);
-} 
-void page_1_delete(void* arg){
-    struct page_1* page = (struct page_1*)arg;
-    gwinSetText(*page->label, "deleted", TRUE);
-} 
-// implémentation page 2
-void page_2_load(void* arg){  
-
-}
-void page_2_delete(void* arg){
-
-}
-// implémentation page 3
-void page_menu_load(void* arg){
-
-} 
-void page_menu_delete(void* arg){
-    
-}
-// utilisation de l'interface
-struct page pages[] = {
-    {&page_1_load, &page_1_delete, &page_1_arg},
-    {&page_2_load, &page_2_delete, NULL,},
-    {&page_menu_load, &page_menu_delete, NULL}    
-};
-
-// -----------
-struct menu {
-    struct page *pages;
-    int page_count;
-};
-
-struct menu my_menu = {pages, sizeof(pages) / sizeof(struct page)};
-
-void menu_load_page (struct my menu, int page_number){
-
-    for (int i=0; i<page_count; i++){
-    my_menu.pages[i].delete(my_menu.pages[i].arg);
-    }
-    gdispClear(COLOR_BACKGROUND);
-    my_menu.pages[page_number].load(my_menu.pages[page_number].arg);
-}
-
-
-
-
-
-
-
-
-
-
-
 
 #define MSG_MAX_LENGTH 128
 #define MSG_BUF_SIZE 16
@@ -141,18 +68,12 @@ static void gui_thread(void *p)
         //console = gwinConsoleCreate(0, &wi);
     }
 
-    {
-        GWidgetInit wi;
-        gwinWidgetClearInit(&wi);
-        wi.g.show = TRUE;
-        wi.g.x = 50;
-        wi.g.y = 45;
-        wi.g.width = gdispGetWidth();
-        wi.g.height = 40;
-        label_ts_test = gwinLabelCreate(0, &wi);
-        gwinSetFont(label_ts_test, gdispOpenFont("DejaVuSans32"));
-        gwinSetText(label_ts_test, "Hand sensor", TRUE);
-    }
+    static page_t pages[] = {
+        {&page_root_init, &page_root_load, &page_root_delete, &page_root_arg},
+    };
+    menu_t my_menu = {pages, sizeof(pages) / sizeof(page_t*)};
+    menu_initialize(&my_menu);
+
     {
         GWidgetInit wi;
         memset(&wi, 0, sizeof(wi));
@@ -224,18 +145,15 @@ static void gui_thread(void *p)
         {
             if (((GEventGWinButton *)pe)->gwin == button_ts_menu)
             {
-                delete_all_page(3);
-                my_menu.pages[0].delete(my_menu.pages[0].arg);
+                menu_load_page(&my_menu, 0);
             }
             else if (((GEventGWinButton *)pe)->gwin == button_ts_page1)
             {
-                my_menu.pages[0].load(my_menu.pages[0].arg);
+                menu_load_page(&my_menu, 1);
             }
             else if (((GEventGWinButton *)pe)->gwin == button_ts_page2)
             {
-                gwinSetVisible(button_ts_page1, FALSE);
-                gwinSetVisible(button_ts_menu, FALSE);
-                gwinSetText(label_ts_test, "3", TRUE);
+                menu_load_page(&my_menu, 2);
             }
         }
         break;
@@ -251,23 +169,6 @@ void gui_start()
     static THD_WORKING_AREA(wa, 4096);
     chThdCreateStatic(wa, sizeof(wa), LOWPRIO, gui_thread, NULL);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 void gui_log_console(struct error *e, va_list args)
 {
