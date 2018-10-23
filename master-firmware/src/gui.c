@@ -81,12 +81,14 @@ struct menu {
 
 struct menu my_menu = {pages, sizeof(pages) / sizeof(struct page)};
 
-void delete_all_page (int page_count){
+void menu_load_page (struct my menu, int page_number){
 
     for (int i=0; i<page_count; i++){
     my_menu.pages[i].delete(my_menu.pages[i].arg);
     }
     gdispClear(COLOR_BACKGROUND);
+    my_menu.pages[page_number].load(my_menu.pages[page_number].arg);
+
 }
 
 
