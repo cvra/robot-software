@@ -16,8 +16,6 @@ static GHandle button_ts_menu;
 static GHandle button_ts_page1;
 static GHandle button_ts_page2;
 static bool init_done = false;
-
-
 // interface
 struct page
 {
@@ -25,18 +23,13 @@ struct page
     void (*delete)(void*);
     void* arg;
 };
-
-
-
 //structure stockant les variables (data) à transmettre à la page 1
 struct page_1
 {
     GHandle* label;
     GHandle* label2;
 };
-
 struct page_1 page_1_arg = {&label_ts_test, &label_ts_test2};
-
 // implémentation page 1
 void page_1_load(void* arg)
 {
@@ -44,12 +37,10 @@ void page_1_load(void* arg)
     gwinSetText(*page->label, "hope", TRUE);
     gdispClear(COLOR_BACKGROUND);
 } 
-
 void page_1_delete(void* arg){
     struct page_1* page = (struct page_1*)arg;
     gwinSetText(*page->label, "deleted", TRUE);
 } 
-
 // implémentation page 2
 void page_2_load(void* arg){  
 
@@ -61,11 +52,9 @@ void page_2_delete(void* arg){
 void page_menu_load(void* arg){
 
 } 
-
 void page_menu_delete(void* arg){
-
+    
 }
-
 // utilisation de l'interface
 struct page pages[] = {
     {&page_1_load, &page_1_delete, &page_1_arg},
@@ -88,7 +77,6 @@ void menu_load_page (struct my menu, int page_number){
     }
     gdispClear(COLOR_BACKGROUND);
     my_menu.pages[page_number].load(my_menu.pages[page_number].arg);
-
 }
 
 
