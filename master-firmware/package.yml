@@ -68,6 +68,7 @@ target.arm:
     - src/ballgun/ballgun_module.c
     - src/ballgun/ball_sense.c
     - src/gui/pages/root.c
+    - src/gui/pages/position.c
 
 source:
     - src/unix_timestamp.c

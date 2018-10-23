@@ -10,6 +10,7 @@
 #include "gui_utilities.h"
 #include "gui/menu.h"
 #include "gui/pages/root.h"
+#include "gui/pages/position.h"
 #define COLOR_BACKGROUND Blue
 
 static GHandle button_ts_menu;
@@ -70,55 +71,10 @@ static void gui_thread(void *p)
 
     static page_t pages[] = {
         {&page_root_init, &page_root_load, &page_root_delete, &page_root_arg},
+        {&page_position_init, &page_position_load, &page_position_delete, &page_position_arg},
     };
     menu_t my_menu = {pages, sizeof(pages) / sizeof(page_t*)};
     menu_initialize(&my_menu);
-
-    {
-        GWidgetInit wi;
-        memset(&wi, 0, sizeof(wi));
-
-        gwinWidgetClearInit(&wi);
-        wi.g.show = TRUE;
-
-        // Apply the button parameters
-        wi.g.width = 100;
-        wi.g.height = 25;
-        wi.g.y = 0;
-        wi.g.x = 5;
-        wi.text = "Menu";
-        button_ts_menu = gwinButtonCreate(0, &wi);
-    }
-    {
-        GWidgetInit wi;
-        memset(&wi, 0, sizeof(wi));
-
-        gwinWidgetClearInit(&wi);
-        wi.g.show = TRUE;
-
-        // Apply the button parameters
-        wi.g.width = 100;
-        wi.g.height = 25;
-        wi.g.y = 0;
-        wi.g.x = gdispGetWidth() - 105;
-        wi.text = "page 1";
-        button_ts_page1 = gwinButtonCreate(0, &wi);
-    }
-    {
-        GWidgetInit wi;
-        memset(&wi, 0, sizeof(wi));
-
-        gwinWidgetClearInit(&wi);
-        wi.g.show = TRUE;
-
-        // Apply the button parameters
-        wi.g.width = 100;
-        wi.g.height = 25;
-        wi.g.y = 0;
-        wi.g.x = gdispGetWidth() / 2 - 50;
-        wi.text = "page 2";
-        button_ts_page2 = gwinButtonCreate(0, &wi);
-    }
 
     chPoolLoadArray(&msg_pool, msg_buffer, MSG_BUF_SIZE);
     init_done = true;
