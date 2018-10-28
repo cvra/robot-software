@@ -1,0 +1,7 @@
+depends:
+  - test-runner
+
+tests:
+  - tests/test_leader_election.cpp
+  - tests/messages_comparator.cpp
+
