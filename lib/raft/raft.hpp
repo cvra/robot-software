@@ -1,6 +1,14 @@
 #pragma once
 
+#include <error/error.h>
+#include <cstdlib>
+
 namespace raft {
+
+const auto HEARTBEAT_PERIOD = 10;
+const auto ELECTION_TIMEOUT_MAX = 500;
+const auto ELECTION_TIMEOUT_MIN = 100;
+
 using NodeId = int;
 using Term = int;
 
@@ -13,7 +21,8 @@ enum class NodeState {
 struct Message {
     enum class Type {
         VoteRequest=0,
-        VoteReply=1,
+        VoteReply,
+        AppendEntriesRequest,
     };
 
     Type type;
@@ -46,9 +55,13 @@ public:
     int vote_count;
     NodeId voted_for;
     NodeState node_state;
+    int heartbeat_timer;
+    int election_timer;
 
-    State(NodeId id, Peer *peers, int peer_count) : id(id), peers(peers), peer_count(peer_count), term(0),
-        voted_for(0), node_state(NodeState::Follower)
+    State(NodeId id, Peer *peers, int peer_count) : id(id), peers(peers), peer_count(peer_count),
+        term(0),
+        voted_for(0), node_state(NodeState::Follower), heartbeat_timer(0), election_timer(
+            ELECTION_TIMEOUT_MAX)
     {
     }
 
@@ -85,6 +98,10 @@ public:
                 }
 
                 break;
+
+            case Message::Type::AppendEntriesRequest:
+                reset_election_timer();
+                break;
         }
 
         return reply;
@@ -92,6 +109,7 @@ public:
 
     void start_election()
     {
+        DEBUG("Starting election...");
         node_state = NodeState::Candidate;
         term ++;
         vote_count = 0;
@@ -108,6 +126,53 @@ public:
         for (auto i = 0; i < peer_count; i++) {
             peers[i].send(msg);
         }
+    }
+
+    void tick()
+    {
+        DEBUG("tick()");
+        if (node_state == NodeState::Leader) {
+            tick_heartbeat();
+        } else {
+            tick_election();
+        }
+    }
+
+private:
+    void tick_heartbeat()
+    {
+        if (heartbeat_timer > 0) {
+            heartbeat_timer --;
+        } else {
+            DEBUG("Sending heartbeat");
+            Message msg;
+            msg.type = Message::Type::AppendEntriesRequest;
+            msg.term = term;
+            for (auto i = 0; i < peer_count; i ++) {
+                peers[i].send(msg);
+            }
+
+            // Rearm timer
+            heartbeat_timer = HEARTBEAT_PERIOD - 1;
+        }
+    }
+
+    void tick_election()
+    {
+        if (election_timer > 0) {
+            election_timer --;
+        } else {
+            start_election();
+            reset_election_timer();
+        }
+    }
+
+    void reset_election_timer()
+    {
+        auto x = ELECTION_TIMEOUT_MAX - ELECTION_TIMEOUT_MIN;
+
+        election_timer = ELECTION_TIMEOUT_MIN;
+        election_timer += std::rand() % x;
     }
 };
 }

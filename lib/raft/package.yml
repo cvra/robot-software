@@ -1,5 +1,6 @@
 depends:
   - test-runner
+  - error
 
 tests:
   - tests/test_leader_election.cpp

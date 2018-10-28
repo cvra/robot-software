@@ -48,6 +48,10 @@ SimpleString RaftMessageComparator::valueToString(const void* object)
                          msg->term, msg->vote_reply.vote_granted);
 
             break;
+
+        case raft::Message::Type::AppendEntriesRequest:
+            std::sprintf(buffer, "AppendEntriesRequest(term=%d)", msg->term);
+            break;
     }
     return buffer;
 }
@@ -125,6 +129,8 @@ SimpleString StringFrom(raft::Message::Type type)
             return "VoteReply";
         case Type::VoteRequest:
             return "VoteRequest";
+        case Type::AppendEntriesRequest:
+            return "AppendEntriesRequest";
     }
 
     return "<unknown>";

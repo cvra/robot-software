@@ -161,3 +161,76 @@ TEST(LeaderElectionTestGroup, DeniedVotesAreNotCounted)
     state.process(m2);
     CHECK_TRUE(state.node_state != raft::NodeState::Leader);
 }
+
+TEST(LeaderElectionTestGroup, LeaderSendsHeartBeat)
+{
+    // First make the node a leader
+    auto vote_reply = make_vote_reply(true);
+    mock().ignoreOtherCalls();
+    state.start_election();
+    state.process(vote_reply);
+    state.process(vote_reply);
+
+    mock().clear();
+
+
+    raft::Message msg;
+    msg.term = 1;
+    msg.type = raft::Message::Type::AppendEntriesRequest;
+
+    mock().expectOneCall("send").withParameterOfType("raft::Message", "msg", &msg);
+    mock().expectOneCall("send").withParameterOfType("raft::Message", "msg", &msg);
+
+    state.tick();
+
+    mock().checkExpectations();
+}
+
+TEST(LeaderElectionTestGroup, LeaderRearmsHeartbeatTimer)
+{
+    // First make the node a leader
+    auto vote_reply = make_vote_reply(true);
+    mock().ignoreOtherCalls();
+    state.start_election();
+    state.process(vote_reply);
+    state.process(vote_reply);
+
+    state.tick();
+
+    CHECK_EQUAL(raft::HEARTBEAT_PERIOD - 1, state.heartbeat_timer);
+}
+
+TEST(LeaderElectionTestGroup, FollowerDoesNotCareAboutSendingHeartbeat)
+{
+    state.tick();
+}
+
+TEST(LeaderElectionTestGroup, HeartbeatReceptionResetsTimer)
+{
+    raft::Message msg;
+    msg.term = state.term;
+    msg.type = raft::Message::Type::AppendEntriesRequest;
+
+    // First lower the election timer so that we can see a difference
+    while (state.election_timer > raft::ELECTION_TIMEOUT_MIN) {
+        state.tick();
+    }
+
+    state.process(msg);
+
+    // Check that the timer was reset
+    CHECK(state.election_timer > raft::ELECTION_TIMEOUT_MIN);
+    CHECK(state.election_timer < raft::ELECTION_TIMEOUT_MAX);
+}
+
+TEST(LeaderElectionTestGroup, ElectionTimerTimeoutStartsElection)
+{
+    mock().ignoreOtherCalls();
+
+    auto timer_value = state.election_timer;
+
+    for (auto i = 0; i <= timer_value; i++) {
+        state.tick();
+    }
+    CHECK_EQUAL(raft::NodeState::Candidate, state.node_state);
+}
