@@ -65,10 +65,8 @@ public:
     {
     }
 
-    Message process(const Message& msg)
+    bool process(const Message& msg, Message &reply)
     {
-        Message reply;
-
         switch (msg.type) {
             case Message::Type::VoteRequest:
                 reply.type = Message::Type::VoteReply;
@@ -84,7 +82,7 @@ public:
                 }
 
                 reply.term = msg.term;
-                break;
+                return true;
 
             case Message::Type::VoteReply:
                 vote_count ++;
@@ -104,7 +102,7 @@ public:
                 break;
         }
 
-        return reply;
+        return false;
     }
 
     void start_election()

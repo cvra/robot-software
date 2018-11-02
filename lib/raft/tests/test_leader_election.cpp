@@ -37,6 +37,7 @@ TEST_GROUP(LeaderElectionTestGroup)
     DummyPeer *peers_ptrs[2] = {&peers[0], &peers[1]};
     raft::State state{42, (raft::Peer **)&peers_ptrs[0], 2};
     RaftMessageComparator cmp;
+    raft::Message reply;
 
     void setup()
     {
@@ -48,7 +49,7 @@ TEST(LeaderElectionTestGroup, CastsVoteCorrectly)
 {
     auto msg = make_vote_request(1, 3, 0, 0);
 
-    auto reply = state.process(msg);
+    state.process(msg, reply);
     CHECK_EQUAL(raft::Message::Type::VoteReply, reply.type);
     CHECK_TRUE(reply.vote_reply.vote_granted);
     CHECK_EQUAL(1, reply.term);
@@ -59,7 +60,7 @@ TEST(LeaderElectionTestGroup, DoesNotVoteForCandidateWithOlderTerm)
     state.term = 12;
 
     auto msg = make_vote_request(1, 3, 0, 0);
-    auto reply = state.process(msg);
+    state.process(msg, reply);
 
     CHECK_EQUAL(raft::Message::Type::VoteReply, reply.type);
     CHECK_FALSE(reply.vote_reply.vote_granted);
@@ -71,7 +72,7 @@ TEST(LeaderElectionTestGroup, UpdatesCurrentTermAfterVoting)
     msg.type = raft::Message::Type::VoteRequest;
     msg.term = 10;
 
-    state.process(msg);
+    state.process(msg, reply);
     CHECK_EQUAL(10, state.term);
 }
 
@@ -79,8 +80,10 @@ TEST(LeaderElectionTestGroup, CanVoteAtSameTermIfSameCandidate)
 {
     auto msg = make_vote_request(10, 42, 0, 0);
 
-    auto reply1 = state.process(msg);
-    auto reply2 = state.process(msg);
+    raft::Message reply1, reply2;
+
+    state.process(msg, reply1);
+    state.process(msg, reply2);
 
     CHECK_EQUAL(reply1.type, raft::Message::Type::VoteReply);
     CHECK_TRUE(reply1.vote_reply.vote_granted);
@@ -124,8 +127,8 @@ TEST(LeaderElectionTestGroup, IsElectedOnMajority)
 
     mock().ignoreOtherCalls();
     state.start_election();
-    state.process(m1);
-    state.process(m2);
+    state.process(m1, reply);
+    state.process(m2, reply);
 
     CHECK_EQUAL(state.node_state, raft::NodeState::Leader);
 }
@@ -143,12 +146,12 @@ TEST(LeaderElectionTestGroup, RestartVotingProcess)
 
     mock().ignoreOtherCalls();
     state.start_election();
-    state.process(m1);
+    state.process(m1, reply);
     state.start_election();
-    state.process(m2);
+    state.process(m2, reply);
     CHECK_TRUE(state.node_state != raft::NodeState::Leader);
 
-    state.process(m1);
+    state.process(m1, reply);
     CHECK_EQUAL(state.node_state, raft::NodeState::Leader);
 }
 
@@ -158,8 +161,8 @@ TEST(LeaderElectionTestGroup, DeniedVotesAreNotCounted)
     auto m2 = make_vote_reply(false);
     mock().ignoreOtherCalls();
     state.start_election();
-    state.process(m1);
-    state.process(m2);
+    state.process(m1, reply);
+    state.process(m2, reply);
     CHECK_TRUE(state.node_state != raft::NodeState::Leader);
 }
 
@@ -169,8 +172,8 @@ TEST(LeaderElectionTestGroup, LeaderSendsHeartBeat)
     auto vote_reply = make_vote_reply(true);
     mock().ignoreOtherCalls();
     state.start_election();
-    state.process(vote_reply);
-    state.process(vote_reply);
+    state.process(vote_reply, reply);
+    state.process(vote_reply, reply);
 
     mock().clear();
 
@@ -193,8 +196,8 @@ TEST(LeaderElectionTestGroup, LeaderRearmsHeartbeatTimer)
     auto vote_reply = make_vote_reply(true);
     mock().ignoreOtherCalls();
     state.start_election();
-    state.process(vote_reply);
-    state.process(vote_reply);
+    state.process(vote_reply, reply);
+    state.process(vote_reply, reply);
 
     state.tick();
 
@@ -208,7 +211,7 @@ TEST(LeaderElectionTestGroup, FollowerDoesNotCareAboutSendingHeartbeat)
 
 TEST(LeaderElectionTestGroup, HeartbeatReceptionResetsTimer)
 {
-    raft::Message msg;
+    raft::Message msg, reply;
     msg.term = state.term;
     msg.type = raft::Message::Type::AppendEntriesRequest;
 
@@ -217,7 +220,7 @@ TEST(LeaderElectionTestGroup, HeartbeatReceptionResetsTimer)
         state.tick();
     }
 
-    state.process(msg);
+    state.process(msg, reply);
 
     // Check that the timer was reset
     CHECK(state.election_timer > raft::ELECTION_TIMEOUT_MIN);
