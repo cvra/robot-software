@@ -44,6 +44,7 @@ struct Message {
 class Peer {
 public:
     virtual void send(const Message &msg) = 0;
+    virtual ~Peer() {};
 };
 
 class State {
