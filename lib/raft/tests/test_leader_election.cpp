@@ -34,7 +34,8 @@ raft::Message make_vote_request(raft::Term term, raft::NodeId candidate, unsigne
 TEST_GROUP(LeaderElectionTestGroup)
 {
     DummyPeer peers[2];
-    raft::State state{42, peers, 2};
+    DummyPeer *peers_ptrs[2] = {&peers[0], &peers[1]};
+    raft::State state{42, (raft::Peer **)&peers_ptrs[0], 2};
     RaftMessageComparator cmp;
 
     void setup()

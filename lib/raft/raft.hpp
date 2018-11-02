@@ -49,7 +49,7 @@ public:
 class State {
 public:
     NodeId id;
-    Peer *peers;
+    Peer **peers;
     int peer_count;
     Term term;
     int vote_count;
@@ -58,7 +58,7 @@ public:
     int heartbeat_timer;
     int election_timer;
 
-    State(NodeId id, Peer *peers, int peer_count) : id(id), peers(peers), peer_count(peer_count),
+    State(NodeId id, Peer **peers, int peer_count) : id(id), peers(peers), peer_count(peer_count),
         term(0),
         voted_for(0), node_state(NodeState::Follower), heartbeat_timer(0), election_timer(
             ELECTION_TIMEOUT_MAX)
@@ -119,18 +119,17 @@ public:
         msg.term = term;
         msg.vote_request.candidate = id;
 
-        // TODO: fill the following forms
+        // TODO: fill the following fields
         msg.vote_request.last_log_index = 0;
         msg.vote_request.last_log_term = 0;
 
         for (auto i = 0; i < peer_count; i++) {
-            peers[i].send(msg);
+            peers[i]->send(msg);
         }
     }
 
     void tick()
     {
-        DEBUG("tick()");
         if (node_state == NodeState::Leader) {
             tick_heartbeat();
         } else {
@@ -149,7 +148,7 @@ private:
             msg.type = Message::Type::AppendEntriesRequest;
             msg.term = term;
             for (auto i = 0; i < peer_count; i ++) {
-                peers[i].send(msg);
+                peers[i]->send(msg);
             }
 
             // Rearm timer
