@@ -5,6 +5,7 @@
 
 bool RaftMessageComparator::isEqual(const void* object1, const void* object2)
 {
+    using MessageType = raft::Message::Type;
     auto m1 = static_cast<const raft::Message *>(object1);
     auto m2 = static_cast<const raft::Message *>(object2);
 
@@ -17,10 +18,10 @@ bool RaftMessageComparator::isEqual(const void* object1, const void* object2)
     }
 
     switch (m1->type) {
-        case raft::Message::Type::VoteReply:
+        case MessageType::VoteReply:
             return !std::memcmp(&m1->vote_reply, &m2->vote_reply, sizeof(m1->vote_reply));
 
-        case raft::Message::Type::VoteRequest:
+        case MessageType::VoteRequest:
             return !std::memcmp(&m1->vote_request, &m2->vote_request, sizeof(m1->vote_request));
     }
 
@@ -31,9 +32,10 @@ SimpleString RaftMessageComparator::valueToString(const void* object)
 {
     char buffer[256];
     auto msg = static_cast<const raft::Message *>(object);
+    using MessageType = raft::Message::Type;
 
     switch(msg->type) {
-        case raft::Message::Type::VoteRequest:
+        case MessageType::VoteRequest:
             std::sprintf(buffer,
                          "VoteRequest(term=%d, candidate=%d, last_log_term=%d, "
                          "last_log_index=%d)",
@@ -42,14 +44,14 @@ SimpleString RaftMessageComparator::valueToString(const void* object)
                          msg->vote_request.last_log_index);
             break;
 
-        case raft::Message::Type::VoteReply:
+        case MessageType::VoteReply:
             std::sprintf(buffer,
                          "VoteReply(term=%d, vote_granted=%d)",
                          msg->term, msg->vote_reply.vote_granted);
 
             break;
 
-        case raft::Message::Type::AppendEntriesRequest:
+        case MessageType::AppendEntriesRequest:
             std::sprintf(buffer, "AppendEntriesRequest(term=%d)", msg->term);
             break;
     }
