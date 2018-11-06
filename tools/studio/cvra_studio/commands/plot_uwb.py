@@ -17,9 +17,9 @@ def argparser(parser=None):
     parser.add_argument("interface", help="Serial port or SocketCAN interface")
     parser.add_argument("--dsdl", "-d", help="DSDL path", required=True)
     parser.add_argument("--node_id", "-n", help="UAVCAN Node ID", default=127)
-    parser.add_argument('--plot_frequency', '-f', help="Plot update rate", default=30)
-    parser.add_argument('--width', help="Plot width in meters", default=20)
-    parser.add_argument('--height', help="Plot height in meters", default=20)
+    parser.add_argument('--plot_frequency', '-f', help="Plot update rate", default=30, type=float)
+    parser.add_argument('--width', help="Plot width in meters", default=2, type=float)
+    parser.add_argument('--height', help="Plot height in meters", default=3, type=float)
     parser.add_argument('--verbose', '-v', action='count', default=0)
 
     return parser
@@ -31,17 +31,16 @@ class Model:
         self.size = size
         self.node.add_handler(uavcan.thirdparty.cvra.uwb_beacon.TagPosition, self._callback)
         self.data = {
-            'robot': { 'x': 0, 'y': 0, 'a': 0, 'r': 300, 'n': 6, 'fill': 'cvra' },
+            'robot': { 'x': 0, 'y': 0, 'a': 0, 'r': 100, 'n': 6, 'fill': 'cvra' },
             'x_cursor': { 'pts': [[0, 0], [0, self.size[1]]], 'fill': 'cvra' },
             'y_cursor': { 'pts': [[0, 0], [self.size[0], 0]], 'fill': 'cvra' },
         }
 
     def _callback(self, event):
-        print(event)
         x = 1000 * event.message.x
         y = 1000 * event.message.y
         self.data.update({
-            'robot': { 'x': x, 'y': y, 'a': 0, 'r': 300, 'n': 6, 'fill': 'cvra' },
+            'robot': { 'x': x, 'y': y, 'a': 0, 'r': 100, 'n': 6, 'fill': 'cvra' },
             'x_cursor': { 'pts': [[x, 0], [x, self.size[1]]], 'fill': 'cvra' },
             'y_cursor': { 'pts': [[0, y], [self.size[0], y]], 'fill': 'cvra' },
         })
