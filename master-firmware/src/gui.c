@@ -87,8 +87,6 @@ static void gui_thread(void *p)
 
     WARNING("GUI init done");
 
-    NOTICE("test %d", 42);
-
     chThdSleepMilliseconds(1000);
 
     // We want to listen for widget events
