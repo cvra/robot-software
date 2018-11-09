@@ -66,7 +66,6 @@ static void gui_thread(void *p)
         wi.y = 0;
         wi.width = gdispGetWidth();
         wi.height = gdispGetHeight();
-        //console = gwinConsoleCreate(0, &wi);
     }
 
     static GHandle label_ts_root;

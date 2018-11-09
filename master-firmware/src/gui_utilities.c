@@ -28,8 +28,6 @@ void page_1(void)
         wi.g.height = 30;
         wi.text = " page 1score";
         score_label = gwinLabelCreate(0, &wi);
-        //gwinSetFont(score_label, gdispOpenFont("DejaVuSans32"));
-        //gwinSetText(score_label, "Score 41", TRUE);
     }
 
     {
@@ -43,8 +41,6 @@ void page_1(void)
         wi.g.height = 30;
         wi.text = " page 1sensor";
         sensor_label = gwinLabelCreate(0, &wi);
-        // gwinSetFont(sensor_label, gdispOpenFont("DejaVuSans32"));
-        // gwinSetText(sensor_label, "hello world", TRUE);
     }
     {
         GWidgetInit wi;
@@ -57,8 +53,6 @@ void page_1(void)
         wi.g.height = 30;
         wi.text = " page 1sensor2";
         sensor2_label = gwinLabelCreate(0, &wi);
-        // gwinSetFont(sensor2_label, gdispOpenFont("DejaVuSans32"));
-        // gwinSetText(sensor2_label, "Score 47", TRUE);
     }
 }
 void page_2(void)
@@ -76,8 +70,6 @@ void page_2(void)
         wi.g.height = 30;
         wi.text = " page 2 score";
         score_label = gwinLabelCreate(0, &wi);
-        //gwinSetFont(score_label, gdispOpenFont("DejaVuSans32"));
-        //gwinSetText(score_label, "Score 41", TRUE);
     }
 
     {
@@ -91,8 +83,6 @@ void page_2(void)
         wi.g.height = 30;
         wi.text = " page 2 sensor";
         sensor_label = gwinLabelCreate(0, &wi);
-        // gwinSetFont(sensor_label, gdispOpenFont("DejaVuSans32"));
-        // gwinSetText(sensor_label, "hello world", TRUE);
     }
     {
         GWidgetInit wi;
@@ -105,8 +95,6 @@ void page_2(void)
         wi.g.height = 30;
         wi.text = " page 2 sensor2";
         sensor2_label = gwinLabelCreate(0, &wi);
-        // gwinSetFont(sensor2_label, gdispOpenFont("DejaVuSans32"));
-        // gwinSetText(sensor2_label, "Score 47", TRUE);
     }
 }
 void page_3(void)
@@ -124,8 +112,6 @@ void page_3(void)
         wi.g.height = 30;
         wi.text = " page 3 score";
         score_label = gwinLabelCreate(0, &wi);
-        //gwinSetFont(score_label, gdispOpenFont("DejaVuSans32"));
-        //gwinSetText(score_label, "Score 41", TRUE);
     }
 
     {
@@ -139,8 +125,6 @@ void page_3(void)
         wi.g.height = 30;
         wi.text = " page 3 sensor";
         sensor_label = gwinLabelCreate(0, &wi);
-        // gwinSetFont(sensor_label, gdispOpenFont("DejaVuSans32"));
-        // gwinSetText(sensor_label, "hello world", TRUE);
     }
     {
         GWidgetInit wi;
@@ -153,7 +137,5 @@ void page_3(void)
         wi.g.height = 30;
         wi.text = " page 3 sensor2";
         sensor2_label = gwinLabelCreate(0, &wi);
-        // gwinSetFont(sensor2_label, gdispOpenFont("DejaVuSans32"));
-        // gwinSetText(sensor2_label, "Score 47", TRUE);
     }
 }
