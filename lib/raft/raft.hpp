@@ -80,25 +80,41 @@ public:
                     reply.vote_reply.vote_granted = true;
                     term = msg.term;
                     voted_for = msg.vote_request.candidate;
+                    node_state = NodeState::Follower;
                 }
 
                 reply.term = msg.term;
                 return true;
 
             case Message::Type::VoteReply:
-                vote_count ++;
 
-                if (!msg.vote_reply.vote_granted) {
+                if (node_state != NodeState::Candidate) {
                     break;
                 }
 
-                if (vote_count > (peer_count / 2)) {
-                    node_state = NodeState::Leader;
+                vote_count ++;
+
+                if (msg.vote_reply.vote_granted) {
+                    // TODO: Check that this is indeed the majority
+                    // it might not be the case if vote_count does not include the
+                    // candidate itself.
+                    if (2 * vote_count > peer_count) {
+                        node_state = NodeState::Leader;
+                    }
+                } else if (msg.term > term) {
+                    term = msg.term;
+                    node_state = NodeState::Follower;
+                    voted_for = 0;
+                    reset_election_timer();
                 }
 
                 break;
 
             case Message::Type::AppendEntriesRequest:
+                if (msg.term > term) {
+                    node_state = NodeState::Follower;
+                }
+
                 reset_election_timer();
                 break;
         }
@@ -112,6 +128,7 @@ public:
         node_state = NodeState::Candidate;
         term ++;
         vote_count = 0;
+        voted_for = id;
 
         Message msg;
         msg.type = Message::Type::VoteRequest;
