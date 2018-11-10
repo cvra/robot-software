@@ -47,7 +47,9 @@ void mylog(struct error *e, ...)
     va_list va;
     va_start(va, e);
 
-    printf("%s:%d: %s: ", e->file, e->line, error_severity_get_name(e->severity));
+    const auto filename_start = std::strrchr(e->file, '/') + 1;
+
+    printf("%s:%d: %s: ", filename_start, e->line, error_severity_get_name(e->severity));
     vprintf(e->text, va);
     printf("\n");
 
@@ -147,13 +149,13 @@ int main(int argc, char **argv)
         int addr;
 
         if (state.node_state == raft::NodeState::Leader) {
-            WARNING("ima leader");
+            WARNING("ima leader term = %d with %d votes", state.term, state.vote_count);
         }
 
         if (read_from_socket(my_socket, msg, addr)) {
             raft::Message reply;
-            auto replied = state.process(msg, reply);
             DEBUG("msg port = %d", addr);
+            auto replied = state.process(msg, reply);
 
             if (!replied) {
                 continue;

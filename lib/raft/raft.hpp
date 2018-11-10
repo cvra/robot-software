@@ -70,6 +70,7 @@ public:
     {
         switch (msg.type) {
             case Message::Type::VoteRequest:
+                DEBUG("Got a VoteRequest from %d", msg.vote_request.candidate);
                 reply.type = Message::Type::VoteReply;
                 reply.vote_reply.vote_granted = false;
 
@@ -81,12 +82,16 @@ public:
                     term = msg.term;
                     voted_for = msg.vote_request.candidate;
                     node_state = NodeState::Follower;
+
+                    DEBUG("Granted my vote to %d which has term %d", voted_for, term);
                 }
 
                 reply.term = msg.term;
                 return true;
 
             case Message::Type::VoteReply:
+                DEBUG("Got a VoteReply(granted = %d)", msg.vote_reply.vote_granted);
+                // TODO: How about potential duplicate votes =
 
                 if (node_state != NodeState::Candidate) {
                     break;
@@ -108,6 +113,7 @@ public:
                     reset_election_timer();
                 }
 
+
                 break;
 
             case Message::Type::AppendEntriesRequest:
@@ -124,7 +130,7 @@ public:
 
     void start_election()
     {
-        DEBUG("Starting election...");
+        NOTICE("Starting election...");
         node_state = NodeState::Candidate;
         term ++;
         vote_count = 0;
