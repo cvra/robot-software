@@ -5,9 +5,9 @@
 
 bool RaftMessageComparator::isEqual(const void* object1, const void* object2)
 {
-    using MessageType = raft::Message::Type;
-    auto m1 = static_cast<const raft::Message *>(object1);
-    auto m2 = static_cast<const raft::Message *>(object2);
+    using MessageType = TestMessage::Type;
+    auto m1 = static_cast<const TestMessage *>(object1);
+    auto m2 = static_cast<const TestMessage *>(object2);
 
     if (m1->type != m2->type) {
         return false;
@@ -23,6 +23,20 @@ bool RaftMessageComparator::isEqual(const void* object1, const void* object2)
 
         case MessageType::VoteRequest:
             return !std::memcmp(&m1->vote_request, &m2->vote_request, sizeof(m1->vote_request));
+
+        case MessageType::AppendEntriesRequest:
+            const auto c1 = m1->append_entries_request.count;
+            const auto c2 = m2->append_entries_request.count;
+            if (c1 != c2) {
+                return false;
+            }
+
+            for (auto i = 0; i < c1; i++) {
+                if (std::memcmp(&m1->append_entries_request.entries[i], &m2->append_entries_request.entries[i], sizeof(m1->append_entries_request.entries[0]))) {
+                    return false;
+                }
+            }
+            break;
     }
 
     return true;
@@ -31,8 +45,8 @@ bool RaftMessageComparator::isEqual(const void* object1, const void* object2)
 SimpleString RaftMessageComparator::valueToString(const void* object)
 {
     char buffer[256];
-    auto msg = static_cast<const raft::Message *>(object);
-    using MessageType = raft::Message::Type;
+    auto msg = static_cast<const TestMessage *>(object);
+    using MessageType = TestMessage::Type;
 
     switch(msg->type) {
         case MessageType::VoteRequest:
@@ -65,17 +79,17 @@ TEST_GROUP(MessageComparatorTestGroup)
 
 TEST(MessageComparatorTestGroup, WrongTypesReturnFalse)
 {
-    raft::Message m1, m2;
-    m1.type = raft::Message::Type::VoteReply;
-    m2.type = raft::Message::Type::VoteRequest;
+    TestMessage m1, m2;
+    m1.type = TestMessage::Type::VoteReply;
+    m2.type = TestMessage::Type::VoteRequest;
 
     CHECK_FALSE(cmp.isEqual(&m1, &m2));
 }
 
 TEST(MessageComparatorTestGroup, WrongTerm)
 {
-    raft::Message m1;
-    raft::Message m2 = m1;
+    TestMessage m1;
+    TestMessage m2 = m1;
     m2.term ++;
 
     CHECK_FALSE(cmp.isEqual(&m1, &m2));
@@ -84,8 +98,8 @@ TEST(MessageComparatorTestGroup, WrongTerm)
 
 TEST(MessageComparatorTestGroup, CompareVoteRequest)
 {
-    raft::Message m1, m2;
-    m1.type = m2.type = raft::Message::Type::VoteRequest;
+    TestMessage m1, m2;
+    m1.type = m2.type = TestMessage::Type::VoteRequest;
     m1.vote_request.candidate = 42;
 
     CHECK_FALSE(cmp.isEqual(&m1, &m2));
@@ -94,8 +108,8 @@ TEST(MessageComparatorTestGroup, CompareVoteRequest)
 
 TEST(MessageComparatorTestGroup, StringForVoteRequest)
 {
-    raft::Message m;
-    m.type = raft::Message::Type::VoteRequest;
+    TestMessage m;
+    m.type = TestMessage::Type::VoteRequest;
     m.vote_request.candidate = 42;
     m.term = 12;
     m.vote_request.last_log_term = 10;
@@ -110,8 +124,8 @@ TEST(MessageComparatorTestGroup, StringForVoteRequest)
 
 TEST(MessageComparatorTestGroup, StringForVoteReply)
 {
-    raft::Message m;
-    m.type = raft::Message::Type::VoteReply;
+    TestMessage m;
+    m.type = TestMessage::Type::VoteReply;
     m.term = 12;
     m.vote_reply.vote_granted = true;
 
@@ -123,9 +137,9 @@ TEST(MessageComparatorTestGroup, StringForVoteReply)
 }
 
 
-SimpleString StringFrom(raft::Message::Type type)
+SimpleString StringFrom(TestMessage::Type type)
 {
-    using Type = raft::Message::Type;
+    using Type = TestMessage::Type;
     switch (type) {
         case Type::VoteReply:
             return "VoteReply";

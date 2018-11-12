@@ -11,6 +11,7 @@ const auto ELECTION_TIMEOUT_MIN = 100;
 
 using NodeId = int;
 using Term = int;
+using Index = int;
 
 enum class NodeState {
     Follower=0,
@@ -18,6 +19,16 @@ enum class NodeState {
     Leader
 };
 
+template <typename Operation>
+struct LogEntry
+{
+    Operation operation;
+    Term term;
+    Index index;
+};
+
+
+template <typename StateMachine>
 struct Message {
     enum class Type {
         VoteRequest=0,
@@ -38,17 +49,27 @@ struct Message {
         struct {
             bool vote_granted;
         } vote_reply;
+
+        struct {
+            int count;
+            // TODO: How many entries
+            LogEntry<typename StateMachine::Operation> entries[10];
+        } append_entries_request;
     };
 };
 
+template <typename StateMachine>
 class Peer {
 public:
-    virtual void send(const Message &msg) = 0;
+    virtual void send(const Message<StateMachine> &msg) = 0;
     virtual ~Peer() {};
 };
 
+template <typename StateMachine>
 class State {
 public:
+    using Message = Message<StateMachine>;
+    using Peer = Peer<StateMachine>;
     NodeId id;
     Peer **peers;
     int peer_count;
@@ -58,11 +79,14 @@ public:
     NodeState node_state;
     int heartbeat_timer;
     int election_timer;
+    LogEntry<typename StateMachine::Operation> log[10]; // TODO: how many log entries ?
+    int log_size;
 
     State(NodeId id, Peer **peers, int peer_count) : id(id), peers(peers), peer_count(peer_count),
         term(0),
         voted_for(0), node_state(NodeState::Follower), heartbeat_timer(0), election_timer(
-            ELECTION_TIMEOUT_MAX)
+            ELECTION_TIMEOUT_MAX),
+        log_size(0)
     {
     }
 
@@ -159,6 +183,16 @@ public:
         }
     }
 
+    void replicate(typename StateMachine::Operation operation)
+    {
+        LogEntry<typename StateMachine::Operation> entry;
+        entry.operation = operation;
+        entry.term = term;
+        entry.index = last_log_index() + 1;
+        log[log_size] = entry;
+        log_size ++;
+    }
+
 private:
     void tick_heartbeat()
     {
@@ -169,6 +203,7 @@ private:
             Message msg;
             msg.type = Message::Type::AppendEntriesRequest;
             msg.term = term;
+            msg.append_entries_request.count = 0;
             for (auto i = 0; i < peer_count; i ++) {
                 peers[i]->send(msg);
             }
@@ -194,6 +229,14 @@ private:
 
         election_timer = ELECTION_TIMEOUT_MIN;
         election_timer += std::rand() % x;
+    }
+
+    Index last_log_index()
+    {
+        if (log_size > 0) {
+            return log[log_size - 1].index;
+        }
+        return 0;
     }
 };
 }

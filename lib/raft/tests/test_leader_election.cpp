@@ -2,27 +2,30 @@
 #include <CppUTestExt/MockSupport.h>
 #include "../raft.hpp"
 #include "messages_comparator.hpp"
+#include "test_state_machine.hpp"
 
-class DummyPeer : public raft::Peer {
-    virtual void send(const raft::Message &msg)
+using TestRaftState = raft::State<TestStateMachine>;
+
+class DummyPeer : public TestPeer {
+    virtual void send(const TestMessage &msg)
     {
         mock().actualCall("send").withParameterOfType("raft::Message", "msg", &msg);
     }
 };
 
-raft::Message make_vote_reply(bool vote_granted)
+TestMessage make_vote_reply(bool vote_granted)
 {
-    raft::Message msg;
-    msg.type = raft::Message::Type::VoteReply;
+    TestMessage msg;
+    msg.type = TestMessage::Type::VoteReply;
     msg.vote_reply.vote_granted = vote_granted;
 
     return msg;
 }
 
-raft::Message make_vote_request(raft::Term term, raft::NodeId candidate, unsigned last_log_index, raft::Term last_log_term)
+TestMessage make_vote_request(raft::Term term, raft::NodeId candidate, unsigned last_log_index, raft::Term last_log_term)
 {
-    raft::Message msg;
-    msg.type = raft::Message::Type::VoteRequest;
+    TestMessage msg;
+    msg.type = TestMessage::Type::VoteRequest;
     msg.term = term;
     msg.vote_request.candidate = candidate;
     msg.vote_request.last_log_index = last_log_index;
@@ -35,9 +38,9 @@ TEST_GROUP(LeaderElectionTestGroup)
 {
     DummyPeer peers[2];
     DummyPeer *peers_ptrs[2] = {&peers[0], &peers[1]};
-    raft::State state{42, (raft::Peer **)&peers_ptrs[0], 2};
+    TestRaftState state{42, (TestPeer **)&peers_ptrs[0], 2};
     RaftMessageComparator cmp;
-    raft::Message reply;
+    TestMessage reply;
 
     void setup()
     {
@@ -50,7 +53,7 @@ TEST(LeaderElectionTestGroup, CastsVoteCorrectly)
     auto msg = make_vote_request(1, 3, 0, 0);
 
     state.process(msg, reply);
-    CHECK_EQUAL(raft::Message::Type::VoteReply, reply.type);
+    CHECK_EQUAL(TestMessage::Type::VoteReply, reply.type);
     CHECK_TRUE(reply.vote_reply.vote_granted);
     CHECK_EQUAL(1, reply.term);
 }
@@ -62,14 +65,14 @@ TEST(LeaderElectionTestGroup, DoesNotVoteForCandidateWithOlderTerm)
     auto msg = make_vote_request(1, 3, 0, 0);
     state.process(msg, reply);
 
-    CHECK_EQUAL(raft::Message::Type::VoteReply, reply.type);
+    CHECK_EQUAL(TestMessage::Type::VoteReply, reply.type);
     CHECK_FALSE(reply.vote_reply.vote_granted);
 }
 
 TEST(LeaderElectionTestGroup, UpdatesCurrentTermAfterVoting)
 {
-    raft::Message msg;
-    msg.type = raft::Message::Type::VoteRequest;
+    TestMessage msg;
+    msg.type = TestMessage::Type::VoteRequest;
     msg.term = 10;
 
     state.process(msg, reply);
@@ -80,14 +83,14 @@ TEST(LeaderElectionTestGroup, CanVoteAtSameTermIfSameCandidate)
 {
     auto msg = make_vote_request(10, 42, 0, 0);
 
-    raft::Message reply1, reply2;
+    TestMessage reply1, reply2;
 
     state.process(msg, reply1);
     state.process(msg, reply2);
 
-    CHECK_EQUAL(reply1.type, raft::Message::Type::VoteReply);
+    CHECK_EQUAL(reply1.type, TestMessage::Type::VoteReply);
     CHECK_TRUE(reply1.vote_reply.vote_granted);
-    CHECK_EQUAL(reply2.type, raft::Message::Type::VoteReply);
+    CHECK_EQUAL(reply2.type, TestMessage::Type::VoteReply);
     CHECK_TRUE(reply2.vote_reply.vote_granted);
 }
 
@@ -178,9 +181,10 @@ TEST(LeaderElectionTestGroup, LeaderSendsHeartBeat)
     mock().clear();
 
 
-    raft::Message msg;
+    TestMessage msg;
     msg.term = 1;
-    msg.type = raft::Message::Type::AppendEntriesRequest;
+    msg.type = TestMessage::Type::AppendEntriesRequest;
+    msg.append_entries_request.count = 0;
 
     mock().expectOneCall("send").withParameterOfType("raft::Message", "msg", &msg);
     mock().expectOneCall("send").withParameterOfType("raft::Message", "msg", &msg);
@@ -211,9 +215,9 @@ TEST(LeaderElectionTestGroup, FollowerDoesNotCareAboutSendingHeartbeat)
 
 TEST(LeaderElectionTestGroup, HeartbeatReceptionResetsTimer)
 {
-    raft::Message msg, reply;
+    TestMessage msg, reply;
     msg.term = state.term;
-    msg.type = raft::Message::Type::AppendEntriesRequest;
+    msg.type = TestMessage::Type::AppendEntriesRequest;
 
     // First lower the election timer so that we can see a difference
     while (state.election_timer > raft::ELECTION_TIMEOUT_MIN) {

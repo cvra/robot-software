@@ -1,6 +1,7 @@
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
 #include "../raft.hpp"
+#include "test_state_machine.hpp"
 
 class RaftMessageComparator : public MockNamedValueComparator
 {
@@ -10,6 +11,6 @@ public:
 };
 
 // Helper functions to allow use of CHECK_EQUAL with enum classes
-SimpleString StringFrom(raft::Message::Type type);
+SimpleString StringFrom(TestMessage::Type type);
 SimpleString StringFrom(raft::NodeState state);
 

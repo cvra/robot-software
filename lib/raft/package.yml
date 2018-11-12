@@ -5,4 +5,5 @@ depends:
 tests:
   - tests/test_leader_election.cpp
   - tests/messages_comparator.cpp
+  - tests/test_log_replication.cpp
 
