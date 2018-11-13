@@ -5,8 +5,7 @@
 
 #include <gfx.h>
 
-typedef struct
-{
+typedef struct {
     GHandle* label;
 } page_position_t;
 

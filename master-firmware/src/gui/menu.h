@@ -3,8 +3,7 @@
 
 #include "page.h"
 
-typedef struct
-{
+typedef struct {
     page_t* pages;
     int page_count;
 } menu_t;
