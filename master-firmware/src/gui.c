@@ -18,8 +18,8 @@ static GHandle button_ts_page1;
 static GHandle button_ts_page2;
 static bool init_done = false;
 
-#define MSG_MAX_LENGTH 128
-#define MSG_BUF_SIZE 16
+#define MSG_MAX_LENGTH   128
+#define MSG_BUF_SIZE     16
 
 static char msg_buffer[MSG_MAX_LENGTH][MSG_BUF_SIZE];
 static char *msg_mailbox_buf[MSG_BUF_SIZE];
@@ -40,8 +40,7 @@ bool_t LoadMouseCalibration(unsigned instance, void *data, size_t sz)
 {
     (void)instance;
 
-    if (sz != sizeof(calibrationData) || instance != 0)
-    {
+    if (sz != sizeof(calibrationData) || instance != 0) {
         return FALSE;
     }
 
@@ -93,31 +92,24 @@ static void gui_thread(void *p)
     geventListenerInit(&gl);
     gwinAttachListener(&gl);
 
-    while (true)
-    {
+    while (true) {
         // Get an Event
         GEvent *pe = geventEventWait(&gl, TIME_INFINITE);
 
-        switch (pe->type)
-        {
-        case GEVENT_GWIN_BUTTON:
-        {
-            if (((GEventGWinButton *)pe)->gwin == button_ts_menu)
-            {
-                menu_load_page(&my_menu, 0);
+        switch (pe->type) {
+            case GEVENT_GWIN_BUTTON: {
+                if (((GEventGWinButton *)pe)->gwin == button_ts_menu) {
+                    menu_load_page(&my_menu, 0);
+                } else if (((GEventGWinButton *)pe)->gwin == button_ts_page1) {
+                    menu_load_page(&my_menu, 1);
+                } else if (((GEventGWinButton *)pe)->gwin == button_ts_page2) {
+                    menu_load_page(&my_menu, 2);
+                }
             }
-            else if (((GEventGWinButton *)pe)->gwin == button_ts_page1)
-            {
-                menu_load_page(&my_menu, 1);
-            }
-            else if (((GEventGWinButton *)pe)->gwin == button_ts_page2)
-            {
-                menu_load_page(&my_menu, 2);
-            }
-        }
-        break;
-        default:
             break;
+
+            default:
+                break;
         }
         chThdSleepMilliseconds(100);
     }
@@ -133,19 +125,14 @@ void gui_log_console(struct error *e, va_list args)
 {
     static char buffer[256];
     return;
-    if (init_done)
-    {
+    if (init_done) {
         char *dst = chPoolAlloc(&msg_pool);
-        if (dst)
-        {
+        if (dst) {
             dst[0] = '\0';
             char color;
-            if (e->severity >= ERROR_SEVERITY_WARNING)
-            {
+            if (e->severity >= ERROR_SEVERITY_WARNING) {
                 color = '3'; // yellow
-            }
-            else
-            {
+            } else {
                 color = 'C'; // no special color
             }
             snprintf(buffer, sizeof(buffer), "\n\033%c%c\033C  \033b%s:%d\033B  ",
