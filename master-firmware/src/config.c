@@ -125,6 +125,16 @@ static struct {
     } control;
 } main_arm;
 
+static struct {
+    parameter_namespace_t ns;
+    parameter_t ax;
+    parameter_t ay;
+    parameter_t bx;
+    parameter_t by;
+    parameter_t cx;
+    parameter_t cy;
+} screen;
+
 void config_init(void)
 {
     parameter_namespace_declare(&global_config, NULL, NULL);
@@ -306,6 +316,14 @@ void config_init(void)
     parameter_scalar_declare_with_default(&main_arm.control.y.ki, &main_arm.control.y.ns, "ki", 0);
     parameter_scalar_declare_with_default(&main_arm.control.y.kd, &main_arm.control.y.ns, "kd", 0);
     parameter_scalar_declare_with_default(&main_arm.control.y.ilimit, &main_arm.control.y.ns, "i_limit", 0);
+
+    parameter_namespace_declare(&screen.ns, &master_config, "screen");
+    parameter_scalar_declare_with_default(&screen.ax, &screen.ns, "ax", 0);
+    parameter_scalar_declare_with_default(&screen.ay, &screen.ns, "ay", 0);
+    parameter_scalar_declare_with_default(&screen.bx, &screen.ns, "bx", 0);
+    parameter_scalar_declare_with_default(&screen.by, &screen.ns, "by", 0);
+    parameter_scalar_declare_with_default(&screen.cx, &screen.ns, "cx", 0);
+    parameter_scalar_declare_with_default(&screen.cy, &screen.ns, "cy", 0);
 }
 
 static parameter_t* config_get_param(const char *id)

@@ -26,23 +26,20 @@ static char *msg_mailbox_buf[MSG_BUF_SIZE];
 static MAILBOX_DECL(msg_mailbox, msg_mailbox_buf, MSG_BUF_SIZE);
 static MEMORYPOOL_DECL(msg_pool, MSG_MAX_LENGTH, NULL);
 
-float calibrationData[] = {
-    0.089231252,   // ax
-    0.000522375,   // bx
-    -22.532257080, // cx
-    -0.001139728,  // ay
-    0.127720847,   // by
-    -28.272106170, // cy
-};
-
 // from https://wiki.ugfx.io/index.php/Touchscreen_Calibration
 bool_t LoadMouseCalibration(unsigned instance, void *data, size_t sz)
 {
-    (void)instance;
-
-    if (sz != sizeof(calibrationData) || instance != 0) {
+    if (instance != 0) {
         return FALSE;
     }
+
+    float calibrationData[6];
+    calibrationData[0] = config_get_scalar("master/screen/ax");
+    calibrationData[1] = config_get_scalar("master/screen/bx");
+    calibrationData[2] = config_get_scalar("master/screen/cx");
+    calibrationData[3] = config_get_scalar("master/screen/ay");
+    calibrationData[4] = config_get_scalar("master/screen/by");
+    calibrationData[5] = config_get_scalar("master/screen/cy");
 
     memcpy(data, (void *)&calibrationData, sz);
 

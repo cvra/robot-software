@@ -117,6 +117,13 @@ master:
             z-joint: -275. # in mm
             shoulder-joint: 0.054184257 # in radians
             elbow-joint: 0.014701783 # in radians
+    screen:
+        ax: 0.089231252
+        ay: -0.001139728
+        bx: 0.000522375
+        by: 0.127720847
+        cx: -22.532257080
+        cy: -28.272106170
 
 actuator:
     left-wheel:
