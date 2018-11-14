@@ -1638,6 +1638,25 @@ static void cmd_panel_status(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
+static void cmd_touchscreen(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    (void)argc;
+    (void)argv;
+
+    static I2CConfig config;
+    config.op_mode = OPMODE_I2C;
+    config.clock_speed = 100 * 1000;
+    config.duty_cycle = STD_DUTY_CYCLE;
+
+    i2cStart(&I2CD2, &config);
+    uint8_t reg = 0x00;
+    uint16_t answer;
+    msg_t msg = i2cMasterTransmitTimeout(&I2CD2, 0x41, &reg, sizeof(reg),
+                                         &answer, sizeof(answer), MS2ST(100));
+
+    chprintf(chp, "%d\r\n", msg);
+    chprintf(chp, "%d\r\n", answer);
+}
 
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
@@ -1709,5 +1728,6 @@ const ShellCommand commands[] = {
     {"lever_full", cmd_lever_full},
     {"ballsense", cmd_ballsense},
     {"panel", cmd_panel_status},
+    {"touchscreen", cmd_touchscreen},
     {NULL, NULL}
 };

@@ -7,71 +7,111 @@
 #include "main.h"
 #include "protobuf/strategy.pb.h"
 
-static GHandle score_label;
-static GHandle console;
+#include "gui_utilities.h"
+#include "gui/menu.h"
+#include "gui/pages/root.h"
+#include "gui/pages/position.h"
+#define COLOR_BACKGROUND Blue
+
+static GHandle button_ts_menu;
+static GHandle button_ts_page1;
+static GHandle button_ts_page2;
 static bool init_done = false;
 
-#define MSG_MAX_LENGTH 128
-#define MSG_BUF_SIZE   16
+#define MSG_MAX_LENGTH   128
+#define MSG_BUF_SIZE     16
+
 static char msg_buffer[MSG_MAX_LENGTH][MSG_BUF_SIZE];
 static char *msg_mailbox_buf[MSG_BUF_SIZE];
 static MAILBOX_DECL(msg_mailbox, msg_mailbox_buf, MSG_BUF_SIZE);
 static MEMORYPOOL_DECL(msg_pool, MSG_MAX_LENGTH, NULL);
 
+float calibrationData[] = {
+    0.089231252,   // ax
+    0.000522375,   // bx
+    -22.532257080, // cx
+    -0.001139728,  // ay
+    0.127720847,   // by
+    -28.272106170, // cy
+};
+
+// from https://wiki.ugfx.io/index.php/Touchscreen_Calibration
+bool_t LoadMouseCalibration(unsigned instance, void *data, size_t sz)
+{
+    (void)instance;
+
+    if (sz != sizeof(calibrationData) || instance != 0) {
+        return FALSE;
+    }
+
+    memcpy(data, (void *)&calibrationData, sz);
+
+    return TRUE;
+}
+
 static void gui_thread(void *p)
 {
-    (void) p;
+    (void)p;
 
     gfxInit();
     gwinSetDefaultStyle(&WhiteWidgetStyle, FALSE);
     gwinSetDefaultFont(gdispOpenFont("DejaVuSans12"));
-    gdispClear(White);
+    gdispClear(COLOR_BACKGROUND);
     {
         GWindowInit wi;
         memset(&wi, 0, sizeof(wi));
         wi.show = TRUE;
         wi.x = 0;
-        wi.y = 40;
+        wi.y = 0;
         wi.width = gdispGetWidth();
-        wi.height = gdispGetHeight() - 40;
-        console = gwinConsoleCreate(0, &wi);
+        wi.height = gdispGetHeight();
     }
-    {
-        GWidgetInit wi;
-        memset(&wi, 0, sizeof(wi));
-        wi.g.show = TRUE;
-        wi.g.x = 0;
-        wi.g.y = 0;
-        wi.g.width = gdispGetWidth();
-        wi.g.height = 40;
-        score_label = gwinLabelCreate(0, &wi);
-        gwinSetFont(score_label, gdispOpenFont("DejaVuSans32"));
-        gwinSetText(score_label, "Score 42", TRUE);
-    }
-    gwinSetColor(console, White);
-    gwinSetBgColor(console, Black);
-    gwinClear(console);
+
+    static GHandle label_ts_root;
+    static page_root_t page_root_arg = {&label_ts_root};
+
+    static GHandle label_ts_pos;
+    static page_position_t page_position_arg = {&label_ts_pos};
+
+    static page_t pages[] = {
+        {&page_root_init, &page_root_load, &page_root_delete, &page_root_arg},
+        {&page_position_init, &page_position_load, &page_position_delete, &page_position_arg},
+    };
+    menu_t my_menu = {pages, sizeof(pages) / sizeof(page_t*)};
+    menu_initialize(&my_menu);
+
     chPoolLoadArray(&msg_pool, msg_buffer, MSG_BUF_SIZE);
     init_done = true;
 
     WARNING("GUI init done");
 
     chThdSleepMilliseconds(1000);
-    messagebus_topic_t *score_topic = messagebus_find_topic_blocking(&bus, "/score");
-    while (true) {
-        static char buffer[64];
-        Score score_msg;
-        if (messagebus_topic_read(score_topic, &score_msg, sizeof(score_msg))) {
-            sprintf(buffer, "Score: %ld", score_msg.score);
-            gwinSetText(score_label, buffer, TRUE);
-        }
 
-        char *msg;
-        msg_t res = chMBFetch(&msg_mailbox, (msg_t *)&msg, MS2ST(500));
-        if (res == MSG_OK) {
-            gwinPrintf(console, msg);
-            chPoolFree(&msg_pool, msg);
+    // We want to listen for widget events
+    static GListener gl;
+    geventListenerInit(&gl);
+    gwinAttachListener(&gl);
+
+    while (true) {
+        // Get an Event
+        GEvent *pe = geventEventWait(&gl, TIME_INFINITE);
+
+        switch (pe->type) {
+            case GEVENT_GWIN_BUTTON: {
+                if (((GEventGWinButton *)pe)->gwin == button_ts_menu) {
+                    menu_load_page(&my_menu, 0);
+                } else if (((GEventGWinButton *)pe)->gwin == button_ts_page1) {
+                    menu_load_page(&my_menu, 1);
+                } else if (((GEventGWinButton *)pe)->gwin == button_ts_page2) {
+                    menu_load_page(&my_menu, 2);
+                }
+            }
+            break;
+
+            default:
+                break;
         }
+        chThdSleepMilliseconds(100);
     }
 }
 
@@ -84,6 +124,7 @@ void gui_start()
 void gui_log_console(struct error *e, va_list args)
 {
     static char buffer[256];
+    return;
     if (init_done) {
         char *dst = chPoolAlloc(&msg_pool);
         if (dst) {

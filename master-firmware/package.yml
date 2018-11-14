@@ -47,6 +47,7 @@ target.arm:
     - src/aversive_port/cvra_pid.c
     - src/base/encoder.c
     - src/gui.c
+    - src/gui_utilities.c
     - src/base/base_controller.c
     - src/base/map_server.cpp
     - src/arms/cvra_arm_motors.c
@@ -66,6 +67,8 @@ target.arm:
     - src/strategy/color_sequence_server.c
     - src/ballgun/ballgun_module.c
     - src/ballgun/ball_sense.c
+    - src/gui/pages/root.c
+    - src/gui/pages/position.c
 
 source:
     - src/unix_timestamp.c
@@ -112,6 +115,7 @@ source:
     - src/msgbus_protobuf.c
     - src/ballgun/ballgun.c
     - src/ballgun/ball_sensor.c
+    - src/gui/menu.c
 
 include_directories:
     - src/
