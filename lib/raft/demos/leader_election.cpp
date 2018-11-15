@@ -14,7 +14,13 @@
 
 using namespace std;
 
-struct UDPPeer : public raft::Peer {
+struct EmptyStateMachine {
+    enum class Operation {
+
+    };
+};
+
+struct UDPPeer : public raft::Peer<EmptyStateMachine> {
     int src_id;
     int port;
     int peer_socket;
@@ -32,9 +38,9 @@ struct UDPPeer : public raft::Peer {
         inet_aton("127.0.0.1", &servaddr.sin_addr);
     }
 
-    void send(const raft::Message &msg)
+    void send(const raft::Message<EmptyStateMachine> &msg)
     {
-        char buf[sizeof(raft::Message) + sizeof(src_id)];
+        char buf[sizeof(raft::Message<EmptyStateMachine>) + sizeof(src_id)];
         memcpy(&buf[0], &src_id, sizeof(src_id));
         memcpy(&buf[sizeof(src_id)], &msg, sizeof(msg));
         sendto(peer_socket, buf, sizeof(buf), 0,
@@ -84,7 +90,7 @@ int make_receive_socket(int port)
     addr.sin_port = htons(port);
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-    if (::bind(recv_socket , (struct sockaddr*)&addr, sizeof(addr)) < 0) {
+    if (::bind(recv_socket, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
         ERROR("Could not bind socket");
     }
 
@@ -97,24 +103,24 @@ int make_receive_socket(int port)
     return recv_socket;
 }
 
-bool read_from_socket(int socket, raft::Message &msg, int &addr)
+bool read_from_socket(int socket, raft::Message<EmptyStateMachine> &msg, int &addr)
 {
     struct sockaddr_in si_other;
     socklen_t slen;
-    char buf[sizeof(raft::Message) + sizeof(int)];
+    char buf[sizeof(raft::Message<EmptyStateMachine>) + sizeof(int)];
 
     auto recv_len = recvfrom(socket, buf, sizeof(buf), 0,
-            (struct sockaddr *) &si_other, &slen);
+                             (struct sockaddr *) &si_other, &slen);
 
     if (recv_len < 0) {
         // Timeout occured
         return false;
-    } else if (recv_len != sizeof(raft::Message) + sizeof(int)) {
+    } else if (recv_len != sizeof(raft::Message<EmptyStateMachine>) + sizeof(int)) {
         ERROR("Invalid size %d", recv_len);
         return false;
     }
 
-    memcpy(&msg, &buf[sizeof(int)], sizeof(raft::Message));
+    memcpy(&msg, &buf[sizeof(int)], sizeof(raft::Message<EmptyStateMachine>));
     memcpy(&addr, &buf[0], sizeof(int));
 
     return true;
@@ -133,19 +139,19 @@ int main(int argc, char **argv)
 
     auto peers = make_peers(my_port, argv, argc);
 
-    vector<raft::Peer *> peers_ptrs;
+    vector<raft::Peer<EmptyStateMachine> *> peers_ptrs;
     for (auto &p : peers) {
         peers_ptrs.push_back(&p);
     }
 
     auto my_socket = make_receive_socket(atoi(argv[1]));
 
-    raft::State state(my_port, peers_ptrs.data(), peers_ptrs.size());
+    raft::State<EmptyStateMachine> state(my_port, peers_ptrs.data(), peers_ptrs.size());
 
     while (true) {
         state.tick();
         std::this_thread::sleep_for(10ms);
-        raft::Message msg;
+        raft::Message<EmptyStateMachine> msg;
         int addr;
 
         if (state.node_state == raft::NodeState::Leader) {
@@ -153,7 +159,7 @@ int main(int argc, char **argv)
         }
 
         if (read_from_socket(my_socket, msg, addr)) {
-            raft::Message reply;
+            raft::Message<EmptyStateMachine> reply;
             DEBUG("msg port = %d", addr);
             auto replied = state.process(msg, reply);
 
