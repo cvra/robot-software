@@ -1,3 +1,6 @@
+templates:
+    CMakeLists.demo.jinja: CMakeLists.txt
+
 depends:
   - test-runner
   - error
@@ -6,4 +9,7 @@ tests:
   - tests/test_leader_election.cpp
   - tests/messages_comparator.cpp
   - tests/test_log_replication.cpp
+  - tests/test_log.cpp
 
+target.demo_leader_election:
+  - demos/leader_election.cpp

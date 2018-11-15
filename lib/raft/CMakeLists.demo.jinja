@@ -1,0 +1,19 @@
+{% extends 'CMakeLists.txt.jinja' %}
+
+
+{% block additional_targets %}
+
+set(CMAKE_CXX_STANDARD 14)
+
+add_executable(
+    demo_leader_election
+    {% for file in source -%}
+    {{ file }}
+    {% endfor -%}
+
+    {% for file in target.demo_leader_election -%}
+    {{ file }}
+    {% endfor -%}
+    )
+
+{% endblock %}
