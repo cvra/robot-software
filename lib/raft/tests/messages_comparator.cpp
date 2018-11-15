@@ -25,17 +25,9 @@ bool RaftMessageComparator::isEqual(const void* object1, const void* object2)
             return !std::memcmp(&m1->vote_request, &m2->vote_request, sizeof(m1->vote_request));
 
         case MessageType::AppendEntriesRequest:
-            const auto c1 = m1->append_entries_request.count;
-            const auto c2 = m2->append_entries_request.count;
-            if (c1 != c2) {
-                return false;
-            }
-
-            for (auto i = 0; i < c1; i++) {
-                if (std::memcmp(&m1->append_entries_request.entries[i], &m2->append_entries_request.entries[i], sizeof(m1->append_entries_request.entries[0]))) {
-                    return false;
-                }
-            }
+            return !std::memcmp(&m1->append_entries_request,
+                                &m2->append_entries_request,
+                                sizeof(m1->append_entries_request));
             break;
     }
 
@@ -48,7 +40,9 @@ SimpleString RaftMessageComparator::valueToString(const void* object)
     auto msg = static_cast<const TestMessage *>(object);
     using MessageType = TestMessage::Type;
 
-    switch(msg->type) {
+    buffer[0] = 0;
+
+    switch (msg->type) {
         case MessageType::VoteRequest:
             std::sprintf(buffer,
                          "VoteRequest(term=%d, candidate=%d, last_log_term=%d, "
@@ -66,7 +60,13 @@ SimpleString RaftMessageComparator::valueToString(const void* object)
             break;
 
         case MessageType::AppendEntriesRequest:
-            std::sprintf(buffer, "AppendEntriesRequest(term=%d)", msg->term);
+            std::sprintf(buffer,
+                         "AppendEntriesRequest(term=%d, count=%d, prevTerm=%d, prevIndex=%d, leaderCommit=%d)",
+                         msg->term,
+                         msg->append_entries_request.count,
+                         msg->append_entries_request.previous_entry_term,
+                         msg->append_entries_request.previous_entry_index,
+                         msg->append_entries_request.leader_commit);
             break;
     }
     return buffer;
@@ -143,8 +143,10 @@ SimpleString StringFrom(TestMessage::Type type)
     switch (type) {
         case Type::VoteReply:
             return "VoteReply";
+
         case Type::VoteRequest:
             return "VoteRequest";
+
         case Type::AppendEntriesRequest:
             return "AppendEntriesRequest";
     }
@@ -158,8 +160,10 @@ SimpleString StringFrom(raft::NodeState state)
     switch (state) {
         case State::Candidate:
             return "Candidate";
+
         case State::Follower:
             return "Follower";
+
         case State::Leader:
             return "Leader";
     }
