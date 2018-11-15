@@ -27,7 +27,7 @@ TestMessage make_vote_request(raft::Term term, raft::NodeId candidate, unsigned 
     TestMessage msg;
     msg.type = TestMessage::Type::VoteRequest;
     msg.term = term;
-    msg.vote_request.candidate = candidate;
+    msg.from_id = candidate;
     msg.vote_request.last_log_index = last_log_index;
     msg.vote_request.last_log_term = last_log_term;
 
@@ -183,6 +183,7 @@ TEST(LeaderElectionTestGroup, LeaderSendsHeartBeat)
 
     TestMessage msg;
     msg.term = 1;
+    msg.from_id = state.id;
     msg.type = TestMessage::Type::AppendEntriesRequest;
     msg.append_entries_request.count = 0;
 

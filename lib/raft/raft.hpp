@@ -124,7 +124,6 @@ struct Message {
 
     union {
         struct {
-            NodeId candidate;
             unsigned last_log_index;
             Term last_log_term;
         } vote_request;
@@ -201,19 +200,21 @@ public:
 
     bool process(const Message& msg, Message &reply)
     {
+        reply.from_id = id;
+
         switch (msg.type) {
             case Message::Type::VoteRequest: {
-                DEBUG("Got a VoteRequest from %d", msg.vote_request.candidate);
+                DEBUG("Got a VoteRequest from %d", msg.from_id);
                 reply.type = Message::Type::VoteReply;
                 reply.vote_reply.vote_granted = false;
 
                 if (msg.term > term ||
                     (msg.term == term &&
-                     msg.vote_request.candidate == voted_for)) {
+                     msg.from_id == voted_for)) {
 
                     reply.vote_reply.vote_granted = true;
                     term = msg.term;
-                    voted_for = msg.vote_request.candidate;
+                    voted_for = msg.from_id;
                     node_state = NodeState::Follower;
 
                     DEBUG("Granted my vote to %d which has term %d", voted_for, term);
@@ -335,7 +336,7 @@ public:
         Message msg;
         msg.type = Message::Type::VoteRequest;
         msg.term = term;
-        msg.vote_request.candidate = id;
+        msg.from_id = id;
 
         // TODO: fill the following fields
         msg.vote_request.last_log_index = 0;
@@ -384,6 +385,7 @@ private:
             for (auto i = 0; i < peer_count; i++) {
                 Message msg;
                 msg.type = Message::Type::AppendEntriesRequest;
+                msg.from_id = id;
                 msg.term = term;
                 msg.append_entries_request.count = 0;
                 msg.append_entries_request.leader_commit = commit_index;

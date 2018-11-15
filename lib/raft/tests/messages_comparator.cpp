@@ -17,6 +17,10 @@ bool RaftMessageComparator::isEqual(const void* object1, const void* object2)
         return false;
     }
 
+    if (m1->from_id != m2->from_id) {
+        return false;
+    }
+
     switch (m1->type) {
         case MessageType::VoteReply:
             return !std::memcmp(&m1->vote_reply, &m2->vote_reply, sizeof(m1->vote_reply));
@@ -47,7 +51,7 @@ SimpleString RaftMessageComparator::valueToString(const void* object)
             std::sprintf(buffer,
                          "VoteRequest(term=%d, candidate=%d, last_log_term=%d, "
                          "last_log_index=%d)",
-                         msg->term, msg->vote_request.candidate,
+                         msg->term, msg->from_id,
                          msg->vote_request.last_log_term,
                          msg->vote_request.last_log_index);
             break;
@@ -61,7 +65,8 @@ SimpleString RaftMessageComparator::valueToString(const void* object)
 
         case MessageType::AppendEntriesRequest:
             std::sprintf(buffer,
-                         "AppendEntriesRequest(term=%d, count=%d, prevTerm=%d, prevIndex=%d, leaderCommit=%d)",
+                         "AppendEntriesRequest(from=%d, term=%d, count=%d, prevTerm=%d, prevIndex=%d, leaderCommit=%d)",
+                         msg->from_id,
                          msg->term,
                          msg->append_entries_request.count,
                          msg->append_entries_request.previous_entry_term,
@@ -100,17 +105,16 @@ TEST(MessageComparatorTestGroup, CompareVoteRequest)
 {
     TestMessage m1, m2;
     m1.type = m2.type = TestMessage::Type::VoteRequest;
-    m1.vote_request.candidate = 42;
+    m1.from_id = 42;
 
     CHECK_FALSE(cmp.isEqual(&m1, &m2));
 }
-
 
 TEST(MessageComparatorTestGroup, StringForVoteRequest)
 {
     TestMessage m;
     m.type = TestMessage::Type::VoteRequest;
-    m.vote_request.candidate = 42;
+    m.from_id = 42;
     m.term = 12;
     m.vote_request.last_log_term = 10;
     m.vote_request.last_log_index = 11;
