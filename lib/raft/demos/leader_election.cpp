@@ -6,11 +6,10 @@
 #include <cstdio>
 #include <cstdarg>
 #include <thread>
-#include <sys/socket.h>
-#include <arpa/inet.h>
 
 #include "error/error.h"
 #include "../raft.hpp"
+#include "udp_transport.hpp"
 
 using namespace std;
 
@@ -20,33 +19,8 @@ struct EmptyStateMachine {
     };
 };
 
-struct UDPPeer : public raft::Peer<EmptyStateMachine> {
-    int src_id;
-    int port;
-    int peer_socket;
-    struct sockaddr_in servaddr;
+using Peer = UDPPeer<EmptyStateMachine>;
 
-    UDPPeer(int src_id, int port) : src_id(src_id), port(port)
-    {
-        peer_socket = socket(AF_INET, SOCK_DGRAM, 0);
-        if (!peer_socket) {
-            ERROR("Cannot open socket to peer %d", port);
-        }
-
-        servaddr.sin_family = AF_INET;
-        servaddr.sin_port = htons(port);
-        inet_aton("127.0.0.1", &servaddr.sin_addr);
-    }
-
-    void send(const raft::Message<EmptyStateMachine> &msg)
-    {
-        char buf[sizeof(raft::Message<EmptyStateMachine>) + sizeof(src_id)];
-        memcpy(&buf[0], &src_id, sizeof(src_id));
-        memcpy(&buf[sizeof(src_id)], &msg, sizeof(msg));
-        sendto(peer_socket, buf, sizeof(buf), 0,
-               (struct sockaddr *)(&servaddr), sizeof(servaddr));
-    }
-};
 
 void mylog(struct error *e, ...)
 {
@@ -70,60 +44,15 @@ void register_error_handlers()
     error_register_debug(mylog);
 }
 
-std::vector<UDPPeer> make_peers(int my_port, char **argv, int argc)
+std::vector<Peer> make_peers(char **argv, int argc)
 {
-    std::vector<UDPPeer> peers;
+    std::vector<Peer> peers;
     for (auto i = 2; i < argc; i++) {
         auto port = atoi(argv[i]);
-        peers.emplace_back(my_port, port);
+        peers.emplace_back(port);
     }
 
     return peers;
-}
-
-int make_receive_socket(int port)
-{
-    auto recv_socket = socket(AF_INET, SOCK_DGRAM, 0);
-
-    struct sockaddr_in addr;
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(port);
-    addr.sin_addr.s_addr = htonl(INADDR_ANY);
-
-    if (::bind(recv_socket, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
-        ERROR("Could not bind socket");
-    }
-
-
-    struct timeval read_timeout;
-    read_timeout.tv_sec = 0;
-    read_timeout.tv_usec = 10;
-    setsockopt(recv_socket, SOL_SOCKET, SO_RCVTIMEO, &read_timeout, sizeof(read_timeout));
-
-    return recv_socket;
-}
-
-bool read_from_socket(int socket, raft::Message<EmptyStateMachine> &msg, int &addr)
-{
-    struct sockaddr_in si_other;
-    socklen_t slen;
-    char buf[sizeof(raft::Message<EmptyStateMachine>) + sizeof(int)];
-
-    auto recv_len = recvfrom(socket, buf, sizeof(buf), 0,
-                             (struct sockaddr *) &si_other, &slen);
-
-    if (recv_len < 0) {
-        // Timeout occured
-        return false;
-    } else if (recv_len != sizeof(raft::Message<EmptyStateMachine>) + sizeof(int)) {
-        ERROR("Invalid size %d", recv_len);
-        return false;
-    }
-
-    memcpy(&msg, &buf[sizeof(int)], sizeof(raft::Message<EmptyStateMachine>));
-    memcpy(&addr, &buf[0], sizeof(int));
-
-    return true;
 }
 
 int main(int argc, char **argv)
@@ -137,7 +66,7 @@ int main(int argc, char **argv)
 
     const auto my_port = atoi(argv[1]);
 
-    auto peers = make_peers(my_port, argv, argc);
+    auto peers = make_peers(argv, argc);
 
     vector<raft::Peer<EmptyStateMachine> *> peers_ptrs;
     for (auto &p : peers) {
@@ -152,15 +81,14 @@ int main(int argc, char **argv)
         state.tick();
         std::this_thread::sleep_for(10ms);
         raft::Message<EmptyStateMachine> msg;
-        int addr;
 
         if (state.node_state == raft::NodeState::Leader) {
             WARNING("ima leader term = %d with %d votes", state.term, state.vote_count);
         }
 
-        if (read_from_socket(my_socket, msg, addr)) {
+        if (read_from_socket(my_socket, msg)) {
             raft::Message<EmptyStateMachine> reply;
-            DEBUG("msg port = %d", addr);
+            DEBUG("msg port = %d", msg.from_id);
             auto replied = state.process(msg, reply);
 
             if (!replied) {
@@ -168,8 +96,8 @@ int main(int argc, char **argv)
             }
 
             for (auto p : peers) {
-                if (p.port == addr) {
-                    DEBUG("replying to %d", p.port);
+                if (p.id == msg.from_id) {
+                    DEBUG("replying to %d", p.id);
                     p.send(reply);
                 }
             }
