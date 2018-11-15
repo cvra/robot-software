@@ -20,13 +20,93 @@ enum class NodeState {
 };
 
 template <typename Operation>
-struct LogEntry
-{
+struct LogEntry {
     Operation operation;
     Term term;
     Index index;
 };
 
+template <typename Operation, int N>
+class Log
+{
+    int m_size;
+    LogEntry<Operation> entries[N];
+
+    void remove_conflicting_entries(const LogEntry<Operation>* new_entries, int entry_count)
+    {
+        for (auto i = 0; i < size(); i++) {
+            for (auto j = 0; j < entry_count; j++) {
+                if (new_entries[j].index == entries[i].index &&
+                    entries[i].term < new_entries[j].term) {
+                    keep_until(i);
+                    return;
+                }
+            }
+        }
+    }
+
+public:
+    Log() : m_size(0)
+    {
+    }
+
+    int size() const
+    {
+        return m_size;
+    }
+
+    void append(LogEntry<Operation> entry)
+    {
+        if (m_size < N) {
+            entries[m_size] = entry;
+            m_size ++;
+        } else {
+            ERROR("log is already full");
+        }
+    }
+
+    LogEntry<Operation>& operator[](int i)
+    {
+        return entries[i];
+    }
+
+    Index last_index() const
+    {
+        if (m_size > 0) {
+            return entries[m_size - 1].index;
+        }
+
+        return 0;
+    }
+
+    LogEntry<Operation>* find_entry(Term term, Index index)
+    {
+        for (auto i = 0; i < size(); i++) {
+            if (entries[i].index == index && entries[i].term == term) {
+                return &entries[i];
+            }
+        }
+
+        return nullptr;
+    }
+
+    void merge(const LogEntry<Operation>* entries, int entry_count)
+    {
+        remove_conflicting_entries(entries, entry_count);
+
+        for (auto i = 0; i < entry_count; i++) {
+            if (entries[i].index > last_index()) {
+                append(entries[i]);
+            }
+        }
+    }
+
+    // Discards all elements after the nth
+    void keep_until(int n)
+    {
+        m_size = n;
+    }
+};
 
 template <typename StateMachine>
 struct Message {
