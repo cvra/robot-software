@@ -218,6 +218,7 @@ TEST(LeaderElectionTestGroup, HeartbeatReceptionResetsTimer)
     TestMessage msg, reply;
     msg.term = state.term;
     msg.type = TestMessage::Type::AppendEntriesRequest;
+    msg.append_entries_request.count = 0;
 
     // First lower the election timer so that we can see a difference
     while (state.election_timer > raft::ELECTION_TIMEOUT_MIN) {
