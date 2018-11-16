@@ -50,6 +50,7 @@ int main(int argc, char **argv)
 
     bool was_leader = false;
     int previous_log_size = 0;
+    raft::Index prev_commit_index = 0;
 
     while (true) {
         state.tick();
@@ -78,11 +79,17 @@ int main(int argc, char **argv)
             }
 
             DEBUG("log size %d", state.log.size());
-            if (state.log.size() != previous_log_size) {
+            if (state.log.size() != previous_log_size || state.commit_index != prev_commit_index) {
                 for (auto i = 0; i < state.log.size(); i++) {
-                    std::cout << state.log[i].operation << ", ";
+                    if (state.log[i].index <= state.commit_index) {
+                        std::cout << "\e[1m" << state.log[i].operation << ", \e[0m";
+                    } else {
+                        std::cout << state.log[i].operation << ", ";
+                    }
                 }
                 std::cout << std::endl;
+                previous_log_size = state.log.size();
+                prev_commit_index = state.commit_index;
             }
         }
 
