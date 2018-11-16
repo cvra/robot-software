@@ -343,6 +343,10 @@ public:
 
     void start_election()
     {
+        if (node_state == NodeState::Leader) {
+            return;
+        }
+
         NOTICE("Starting election...");
         node_state = NodeState::Candidate;
         term ++;

@@ -136,9 +136,13 @@ TEST(LeaderElectionTestGroup, IsElectedOnMajority)
     CHECK_EQUAL(state.node_state, raft::NodeState::Leader);
 }
 
-IGNORE_TEST(LeaderElectionTestGroup, DoNotCastVotesIfWeAreAlreadyLeader)
+TEST(LeaderElectionTestGroup, DoNotCastVotesIfWeAreAlreadyLeader)
 {
-    FAIL("TODO");
+    state.become_leader();
+    state.start_election();
+
+    // No message should have been sent
+    mock().checkExpectations();
 }
 
 
