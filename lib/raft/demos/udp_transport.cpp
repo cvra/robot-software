@@ -22,4 +22,3 @@ int make_receive_socket(int port)
 
     return recv_socket;
 }
-

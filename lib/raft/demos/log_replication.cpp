@@ -1,27 +1,19 @@
-#include <iostream>
-#include <cstdlib>
-#include <memory>
 #include <vector>
-#include <algorithm>
-#include <cstdio>
-#include <cstdarg>
+#include <iostream>
 #include <thread>
-
+#include <chrono>
 #include "error/error.h"
-#include "error_handlers.h"
 #include "../raft.hpp"
 #include "udp_transport.hpp"
+#include "error_handlers.h"
 
-using namespace std;
+using namespace std::literals::chrono_literals;
 
 struct EmptyStateMachine {
-    enum class Operation {
-
-    };
+    using Operation = int;
 };
 
 using Peer = UDPPeer<EmptyStateMachine>;
-
 
 std::vector<Peer> make_peers(char **argv, int argc)
 {
@@ -33,6 +25,7 @@ std::vector<Peer> make_peers(char **argv, int argc)
 
     return peers;
 }
+
 
 int main(int argc, char **argv)
 {
@@ -47,39 +40,52 @@ int main(int argc, char **argv)
 
     auto peers = make_peers(argv, argc);
 
-    vector<raft::Peer<EmptyStateMachine> *> peers_ptrs;
+    std::vector<raft::Peer<EmptyStateMachine> *> peers_ptrs;
     for (auto &p : peers) {
         peers_ptrs.push_back(&p);
     }
 
     auto my_socket = make_receive_socket(atoi(argv[1]));
-
     raft::State<EmptyStateMachine> state(my_port, peers_ptrs.data(), peers_ptrs.size());
+
+    bool was_leader = false;
+    int previous_log_size = 0;
 
     while (true) {
         state.tick();
         std::this_thread::sleep_for(10ms);
         raft::Message<EmptyStateMachine> msg;
 
-        if (state.node_state == raft::NodeState::Leader) {
-            WARNING("ima leader term = %d with %d votes", state.term, state.vote_count);
-        }
-
         if (read_from_socket(my_socket, msg)) {
             raft::Message<EmptyStateMachine> reply;
-            DEBUG("msg port = %d", msg.from_id);
             auto replied = state.process(msg, reply);
 
-            if (!replied) {
-                continue;
-            }
-
-            for (auto p : peers) {
-                if (p.id == msg.from_id) {
-                    DEBUG("replying to %d", p.id);
-                    p.send(reply);
+            if (replied) {
+                for (auto p : peers) {
+                    if (p.id == msg.from_id) {
+                        p.send(reply);
+                    }
                 }
             }
+
+            // Demo application: if we become leader, we append our own ID to
+            // the list of nodes
+            WARNING("status: %d", static_cast<int>(state.node_state));
+            if (state.node_state == raft::NodeState::Leader && !was_leader) {
+                was_leader = true;
+                WARNING("replicating node id");
+                state.replicate(state.id);
+            }
+
+            DEBUG("log size %d", state.log.size());
+            if (state.log.size() != previous_log_size) {
+                for (auto i = 0; i < state.log.size(); i++) {
+                    std::cout << state.log[i].operation << ", ";
+                }
+                std::cout << std::endl;
+            }
         }
+
     }
+
 }

@@ -13,3 +13,10 @@ tests:
 
 target.demo_leader_election:
   - demos/leader_election.cpp
+  - demos/error_handlers.c
+  - demos/udp_transport.cpp
+
+target.demo_log_replication:
+  - demos/log_replication.cpp
+  - demos/error_handlers.c
+  - demos/udp_transport.cpp

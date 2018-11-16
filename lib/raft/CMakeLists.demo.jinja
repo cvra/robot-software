@@ -3,17 +3,18 @@
 
 {% block additional_targets %}
 
-set(CMAKE_CXX_STANDARD 14)
-
+{% for demo_name in target.keys() %}
 add_executable(
-    demo_leader_election
+    {{ demo_name }}
     {% for file in source -%}
     {{ file }}
     {% endfor -%}
 
-    {% for file in target.demo_leader_election -%}
+    {% for file in target[demo_name] -%}
     {{ file }}
     {% endfor -%}
     )
+{% endfor %}
+
 
 {% endblock %}
