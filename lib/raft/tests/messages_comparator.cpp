@@ -33,6 +33,13 @@ bool RaftMessageComparator::isEqual(const void* object1, const void* object2)
                                 &m2->append_entries_request,
                                 sizeof(m1->append_entries_request));
             break;
+
+        case MessageType::AppendEntriesReply:
+            return !std::memcmp(&m1->append_entries_reply,
+                                &m2->append_entries_reply,
+                                sizeof(m1->append_entries_reply));
+            break;
+
     }
 
     return true;
@@ -72,6 +79,14 @@ SimpleString RaftMessageComparator::valueToString(const void* object)
                          msg->append_entries_request.previous_entry_term,
                          msg->append_entries_request.previous_entry_index,
                          msg->append_entries_request.leader_commit);
+            break;
+
+        case MessageType::AppendEntriesReply:
+            std::sprintf(buffer,
+                         "AppendEntriesReply(from=%d, term=%d, success=%d)",
+                         msg->from_id,
+                         msg->term,
+                         msg->append_entries_reply.success);
             break;
     }
     return buffer;
@@ -153,6 +168,9 @@ SimpleString StringFrom(TestMessage::Type type)
 
         case Type::AppendEntriesRequest:
             return "AppendEntriesRequest";
+
+        case Type::AppendEntriesReply:
+            return "AppendEntriesReply";
     }
 
     return "<unknown>";
