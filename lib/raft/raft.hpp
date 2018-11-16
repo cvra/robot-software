@@ -62,7 +62,7 @@ public:
             entries[m_size] = entry;
             m_size ++;
         } else {
-            ERROR("log is already full");
+            WARNING("log is already full");
         }
     }
 
@@ -78,6 +78,16 @@ public:
         }
 
         return 0;
+    }
+
+    Term last_term() const
+    {
+        if (m_size > 0) {
+            return entries[m_size - 1].term;
+        }
+
+        return 0;
+
     }
 
     LogEntry<Operation>* find_entry(Term term, Index index)
@@ -124,7 +134,7 @@ struct Message {
 
     union {
         struct {
-            unsigned last_log_index;
+            Index last_log_index;
             Term last_log_term;
         } vote_request;
 
@@ -208,7 +218,11 @@ public:
                 reply.type = Message::Type::VoteReply;
                 reply.vote_reply.vote_granted = false;
 
-                if (msg.term > term ||
+                const auto req_lli = msg.vote_request.last_log_index;
+                const auto req_llt = msg.vote_request.last_log_term;
+
+                if ((msg.term > term && log.last_index() <= req_lli && log.last_term() <= req_llt)
+                    ||
                     (msg.term == term &&
                      msg.from_id == voted_for)) {
 
@@ -257,6 +271,7 @@ public:
 
                 if (msg.term > term) {
                     node_state = NodeState::Follower;
+                    term = msg.term;
                 }
 
                 reply.type = Message::Type::AppendEntriesReply;
@@ -295,6 +310,7 @@ public:
                 // term, then solves this conflict.
 
                 reply.append_entries_reply.success = true;
+                reply.append_entries_reply.last_index = log.last_index();
 
                 return true;
             }
@@ -339,8 +355,8 @@ public:
         msg.from_id = id;
 
         // TODO: fill the following fields
-        msg.vote_request.last_log_index = 0;
-        msg.vote_request.last_log_term = 0;
+        msg.vote_request.last_log_index = log.last_index();
+        msg.vote_request.last_log_term = log.last_term();
 
         for (auto i = 0; i < peer_count; i++) {
             peers[i]->send(msg);
@@ -403,6 +419,8 @@ private:
                         }
                         break;
                     }
+                    msg.append_entries_request.previous_entry_term = log[j].term;
+                    msg.append_entries_request.previous_entry_index = log[j].index;
                 }
 
                 peer->send(msg);
@@ -442,15 +460,15 @@ private:
         // This allows us to take N as the median value of the match index,
         // ensuring that a majority of nodes have a match_index of at least N
         std::qsort(peers, peer_count, sizeof(peers[0]), [](const void *a, const void *b) {
-            Peer *pa = (Peer *)a;
-            Peer *pb = (Peer *)b;
-            if (pa->match_index < pb->match_index) {
-                return -1;
-            } else if (pa->match_index > pb->match_index) {
-                return 1;
-            }
-            return 0;
-        });
+                Peer *pa = (Peer *)a;
+                Peer *pb = (Peer *)b;
+                if (pa->match_index < pb->match_index) {
+                    return -1;
+                } else if (pa->match_index > pb->match_index) {
+                    return 1;
+                }
+                return 0;
+            });
 
         auto N = peers[peer_count / 2]->match_index;
 

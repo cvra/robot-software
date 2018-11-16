@@ -57,6 +57,19 @@ TEST(LogOperations, LastIndexOfAnEmptyLogIsZeroByConvention)
     CHECK_EQUAL(0, log.last_index());
 }
 
+TEST(LogOperations, GetLastLogTerm)
+{
+    LogEntry entry;
+    entry.term = 42;
+    log.append(entry);
+    CHECK_EQUAL(42, log.last_term());
+}
+
+TEST(LogOperations, LastTermOfAnEmptyLogIsZeroByConvention)
+{
+    CHECK_EQUAL(0, log.last_term());
+}
+
 TEST(LogOperations, FindExistingEntry)
 {
     raft::Term term = 10;

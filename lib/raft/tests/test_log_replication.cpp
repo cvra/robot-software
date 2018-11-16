@@ -304,6 +304,8 @@ TEST(LogReplicationTestGroup, NonReplicatedEntriesAreSentAgainOnHeartbeat)
         expected_msg.append_entries_request.entries[0] = state.log[1];
         expected_msg.append_entries_request.entries[1] = state.log[2];
         expected_msg.append_entries_request.count = 2;
+        expected_msg.append_entries_request.previous_entry_term = state.term;
+        expected_msg.append_entries_request.previous_entry_index = state.log[0].index;
 
         // We note that the first entry has been committed.
         expected_msg.append_entries_request.leader_commit = 1;
