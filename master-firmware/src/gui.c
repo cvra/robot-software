@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <gfx.h>
+#include "config.h"
 #include "main.h"
 #include "protobuf/strategy.pb.h"
 
