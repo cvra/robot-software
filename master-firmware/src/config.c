@@ -318,12 +318,12 @@ void config_init(void)
     parameter_scalar_declare_with_default(&main_arm.control.y.ilimit, &main_arm.control.y.ns, "i_limit", 0);
 
     parameter_namespace_declare(&screen.ns, &master_config, "screen");
-    parameter_scalar_declare_with_default(&screen.ax, &screen.ns, "ax", 0);
-    parameter_scalar_declare_with_default(&screen.ay, &screen.ns, "ay", 0);
-    parameter_scalar_declare_with_default(&screen.bx, &screen.ns, "bx", 0);
-    parameter_scalar_declare_with_default(&screen.by, &screen.ns, "by", 0);
-    parameter_scalar_declare_with_default(&screen.cx, &screen.ns, "cx", 0);
-    parameter_scalar_declare_with_default(&screen.cy, &screen.ns, "cy", 0);
+    parameter_scalar_declare(&screen.ax, &screen.ns, "ax");
+    parameter_scalar_declare(&screen.ay, &screen.ns, "ay");
+    parameter_scalar_declare(&screen.bx, &screen.ns, "bx");
+    parameter_scalar_declare(&screen.by, &screen.ns, "by");
+    parameter_scalar_declare(&screen.cx, &screen.ns, "cx");
+    parameter_scalar_declare(&screen.cy, &screen.ns, "cy");
 }
 
 static parameter_t* config_get_param(const char *id)
