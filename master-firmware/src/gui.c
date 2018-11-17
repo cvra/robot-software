@@ -77,7 +77,7 @@ static void gui_thread(void *p)
         {&page_root_init, &page_root_load, &page_root_delete, &page_root_arg},
         {&page_position_init, &page_position_load, &page_position_delete, &page_position_arg},
     };
-    menu_t my_menu = {pages, sizeof(pages) / sizeof(page_t*)};
+    menu_t my_menu = {pages, sizeof(pages) / sizeof(page_t)};
     menu_initialize(&my_menu);
 
     chPoolLoadArray(&msg_pool, msg_buffer, MSG_BUF_SIZE);
