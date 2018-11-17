@@ -245,3 +245,7 @@ flash: build/$(PROJECT).elf
 ctags:
 	@echo "Generating ctags file..."
 	@cat .dep/*.d | grep ":$$" | sed "s/://" | sort | uniq | xargs ctags --file-scope=no --extra=+qf $(CSRC) $(CPPSRC)
+
+.PHONY: dfu
+dfu: build/$(PROJECT).bin
+	dfu-util -a 0 -d 0483:df11 --dfuse-address 0x08000000 -D build/$(PROJECT).bin
