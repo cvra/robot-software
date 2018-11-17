@@ -34,7 +34,8 @@ void __late_init(void)
 
 int main(void)
 {
-    sdStart(&SD2, NULL);
+    static const SerialConfig serial_config = {38400, 0, USART_CR2_STOP1_BITS, 0};
+    sdStart(&SD2, &serial_config);
     chprintf((BaseSequentialStream *)&SD2, "boot\r\n");
 
     bootloader_config_t boot_config;
