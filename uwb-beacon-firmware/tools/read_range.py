@@ -56,10 +56,10 @@ def main():
 
     # TODO This path is a bit too hardcoded
     dsdl_path = os.path.join(
-        os.path.dirname(__file__), '..', 'beacon_messages')
+        os.path.dirname(__file__), '..', '..', 'uavcan_data_types', 'cvra', 'uwb_beacon')
     uavcan.load_dsdl(dsdl_path)
 
-    node.add_handler(uavcan.thirdparty.beacon_messages.equipment.RadioRange,
+    node.add_handler(uavcan.thirdparty.uwb_beacon.RadioRange,
                      range_cb)
 
     node.spin()
