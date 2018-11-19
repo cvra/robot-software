@@ -23,5 +23,5 @@ void register_error_handlers(void)
     error_register_error(mylog);
     error_register_warning(mylog);
     error_register_notice(mylog);
-    error_register_debug(mylog);
+    //error_register_debug(mylog);
 }

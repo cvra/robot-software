@@ -75,14 +75,12 @@ int main(int argc, char **argv)
 
             // Demo application: if we become leader, we append our own ID to
             // the list of nodes
-            WARNING("status: %d", static_cast<int>(state.node_state));
             if (state.node_state == raft::NodeState::Leader && !was_leader) {
                 was_leader = true;
                 WARNING("replicating node id");
                 state.replicate(state.id);
             }
 
-            DEBUG("log size %d", state.log.size());
             if (state.log.size() != previous_log_size || state.commit_index != prev_commit_index) {
                 for (auto i = 0; i < state.log.size(); i++) {
                     if (state.log[i].index <= state.commit_index) {
