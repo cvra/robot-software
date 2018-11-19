@@ -27,5 +27,5 @@ Today our average robot contains 15-20 boards over CAN:
 with a Master board to orchestrate everything.
 
 Along these boards, we also developed tools to make our life easier:
-- A [CAN USB dongle](./dongle.html) to inspect traffic over the bus from our computers.
+- A [CAN USB adapter](./adapter.html) to inspect traffic over the bus from our computers.
 - A [CAN bootloader](./bootloader.html) to enable firmware updates over CAN, so we don't need to disassemble our robots to update single modules.

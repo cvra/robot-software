@@ -1,6 +1,6 @@
 # Motor board
 
-The [motor board](http://www.cvra.ch/technologies/motor_board.html) is a small board (31x16mm) with a dedicated STM32F3 microcontroller that is at the core of all our robots since 2015.
+The Motor board is a small board (31x16mm) with a dedicated STM32F3 microcontroller that is at the core of all our robots since 2015.
 We have been using it to control DC motors, motor pumps, and RC servos.
 Here are its main features:
 
