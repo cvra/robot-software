@@ -15,7 +15,8 @@ TEST_GROUP(LogReplicationTestGroup)
 {
     DummyPeer peer;
     TestPeer *peers[1] = {&peer};
-    TestRaftState state{42, peers, 1};
+    TestStateMachine fsm;
+    TestRaftState state{fsm, 42, peers, 1};
     RaftMessageComparator cmp;
 
     void setup()
@@ -326,7 +327,7 @@ TEST(LogReplicationTestGroup, UpdateCommitIndexWhenMajorityReplicatedIt)
 {
     DummyPeer p2;
     TestPeer *peers[] = {&peer, &p2};
-    TestRaftState state{42, peers, 2};
+    TestRaftState state{fsm, 42, peers, 2};
     state.become_leader();
     state.replicate(TestStateMachine::Operation::FOO);
     state.replicate(TestStateMachine::Operation::BAR);

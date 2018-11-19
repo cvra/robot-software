@@ -198,10 +198,13 @@ public:
     Log<typename StateMachine::Operation, 10> log;
     Index commit_index;
 
-    State(NodeId id, Peer **peers, int peer_count) :
+    StateMachine &state_machine;
+
+    State(StateMachine &state_machine, NodeId id, Peer **peers, int peer_count) :
         id(id), peers(peers), peer_count(peer_count), term(0), voted_for(0),
         node_state(NodeState::Follower), heartbeat_timer(0),
-        election_timer(ELECTION_TIMEOUT_MAX), log(), commit_index(0)
+        election_timer(ELECTION_TIMEOUT_MAX), log(), commit_index(0),
+        state_machine(state_machine)
     {
         for (auto i = 0; i < peer_count; i++) {
             peers[i]->match_index = 0;
@@ -302,7 +305,17 @@ public:
                 auto leader_commit = msg.append_entries_request.leader_commit;
                 if (leader_commit > commit_index) {
                     // TODO: actually commit the entries to the state machine
-                    commit_index = std::min(leader_commit, log.last_index());
+                    auto new_index = std::min(leader_commit, log.last_index());
+
+                    // First find first non commited entry
+                    auto i = 0;
+                    for (; i < log.size() && log[i].index <= commit_index; i++) {
+                    }
+
+                    // Then commit all new entries
+                    for (; commit_index < new_index; commit_index ++, i ++) {
+                        state_machine.apply(log[i].operation);
+                    }
                 }
 
                 // Checks for conflicting entries, meaning entries that have

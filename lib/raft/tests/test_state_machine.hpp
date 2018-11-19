@@ -9,6 +9,11 @@ class TestStateMachine
         FOO = 0xca,
         BAR = 0xfe,
     };
+
+    void apply(Operation op)
+    {
+        (void) op;
+    }
 };
 
 using TestRaftState = raft::State<TestStateMachine>;

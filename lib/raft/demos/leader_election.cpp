@@ -18,6 +18,11 @@ struct EmptyStateMachine {
     enum class Operation {
 
     };
+
+    void apply(Operation op)
+    {
+        (void) op;
+    }
 };
 
 using Peer = UDPPeer<EmptyStateMachine>;
@@ -54,7 +59,8 @@ int main(int argc, char **argv)
 
     auto my_socket = make_receive_socket(atoi(argv[1]));
 
-    raft::State<EmptyStateMachine> state(my_port, peers_ptrs.data(), peers_ptrs.size());
+    EmptyStateMachine fsm;
+    raft::State<EmptyStateMachine> state(fsm, my_port, peers_ptrs.data(), peers_ptrs.size());
 
     while (true) {
         state.tick();

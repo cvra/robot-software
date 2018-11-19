@@ -11,6 +11,9 @@ using namespace std::literals::chrono_literals;
 
 struct EmptyStateMachine {
     using Operation = int;
+    void apply(Operation op) {
+        std::cout << "commited " << op << std::endl;
+    }
 };
 
 using Peer = UDPPeer<EmptyStateMachine>;
@@ -46,7 +49,8 @@ int main(int argc, char **argv)
     }
 
     auto my_socket = make_receive_socket(atoi(argv[1]));
-    raft::State<EmptyStateMachine> state(my_port, peers_ptrs.data(), peers_ptrs.size());
+    EmptyStateMachine fsm;
+    raft::State<EmptyStateMachine> state(fsm, my_port, peers_ptrs.data(), peers_ptrs.size());
 
     bool was_leader = false;
     int previous_log_size = 0;

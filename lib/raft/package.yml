@@ -10,6 +10,7 @@ tests:
   - tests/messages_comparator.cpp
   - tests/test_log_replication.cpp
   - tests/test_log.cpp
+  - tests/test_state_machine_commit.cpp
 
 target.demo_leader_election:
   - demos/leader_election.cpp

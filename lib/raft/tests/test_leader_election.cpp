@@ -38,7 +38,8 @@ TEST_GROUP(LeaderElectionTestGroup)
 {
     DummyPeer peers[2];
     DummyPeer *peers_ptrs[2] = {&peers[0], &peers[1]};
-    TestRaftState state{42, (TestPeer **)&peers_ptrs[0], 2};
+    TestStateMachine fsm;
+    TestRaftState state{fsm, 42, (TestPeer **)&peers_ptrs[0], 2};
     RaftMessageComparator cmp;
     TestMessage reply;
 
