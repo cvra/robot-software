@@ -1,0 +1,479 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>CVRA's Robotics CAN Ecosystem</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body class="light">
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">var path_to_root = "";</script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { } 
+            if (theme === null || theme === undefined) { theme = 'light'; }
+            document.body.className = theme;
+            document.querySelector('html').className = theme + ' js';
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <ol class="chapter"><li><a href="intro.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><a href="presentation.html"><strong aria-hidden="true">2.</strong> Presentation</a></li><li><a href="boards.html"><strong aria-hidden="true">3.</strong> Boards</a></li><li><ol class="section"><li><a href="motor.html"><strong aria-hidden="true">3.1.</strong> Motor board</a></li><li><a href="io.html"><strong aria-hidden="true">3.2.</strong> IO board</a></li><li><a href="sensor.html"><strong aria-hidden="true">3.3.</strong> Sensor board</a></li><li><a href="beacon.html"><strong aria-hidden="true">3.4.</strong> Beacon board</a></li><li><a href="adapter.html"><strong aria-hidden="true">3.5.</strong> CAN USB adapter</a></li></ol></li><li><a href="systems.html"><strong aria-hidden="true">4.</strong> Systems</a></li><li><ol class="section"><li><a href="positioning.html"><strong aria-hidden="true">4.1.</strong> Positioning system</a></li></ol></li><li><a href="bootloader.html"><strong aria-hidden="true">5.</strong> CAN bootloader</a></li></ol>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div id="menu-bar-sticky-container">
+                        <div class="left-buttons">
+                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                                <i class="fa fa-paint-brush"></i>
+                            </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light <span class="default">(default)</span></button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            </ul>
+                            
+                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            
+                        </div>
+
+                        <h1 class="menu-title">CVRA's Robotics CAN Ecosystem</h1> 
+
+                        <div class="right-buttons">
+                            <a href="print.html" title="Print this book" aria-label="Print this book">
+                                <i id="print-button" class="fa fa-print"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <p><center>
+<h1>
+CVRA's Robotics CAN Ecosystem
+</h1>
+<span>
+<font size="4">
+<em>
+An open-source panoply of UAVCAN connected boards to enable smart<br>
+sensors and actuators for modular robotics development
+</em>
+</font>
+</span>
+</center></p>
+<div class="album">
+<div class="row">
+    <div class="large-6 columns container">
+        <a href="./motor.html">
+            <img src="./images/motor-board.jpg" class="image">
+            <div class="overlay">
+                <div class="text">Motor board</div>
+            </div>
+        </a>
+    </div>
+    <div class="large-6 columns container">
+        <a href="./io.html">
+            <img src="./images/io-board.jpg" class="image">
+            <div class="overlay">
+                <div class="text">IO board</div>
+            </div>
+        </a>
+    </div>
+</div>
+<div class="row">
+    <div class="large-6 columns container">
+        <a href="./sensor.html">
+            <img src="./images/sensor-board.jpg" class="image">
+            <div class="overlay">
+                <div class="text">Sensor board</div>
+            </div>
+        </a>
+    </div>
+    <div class="large-6 columns container">
+        <a href="./beacon.html">
+            <img src="./images/beacon-board.jpg" class="image">
+            <div class="overlay">
+                <div class="text">Beacon board</div>
+            </div>
+        </a>
+    </div>
+</div>
+<div class="row">
+    <div class="large-6 columns container">
+        <a href="./adapter.html">
+            <img src="./images/can-adapter.jpg" class="image">
+            <div class="overlay">
+                <div class="text">CAN adapter</div>
+            </div>
+        </a>
+    </div>
+    <div class="large-6 columns container">
+        <a href="./bootloader.html">
+            <img src="./images/bootloader.png" class="image">
+            <div class="overlay">
+                <div class="text">CAN bootloader</div>
+            </div>
+        </a>
+    </div>
+</div>
+</div>
+<style media="screen" type="text/css">
+.container {
+    position: relative;
+    width: 50%;
+    white-space: nowrap;
+    display: table-cell;
+    padding-right: 5px;
+}
+
+.image {
+    display: inline;
+    width: 100%;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    bottom: 5px;
+    left: 0;
+    right: 5px;
+    opacity: 0;
+    transition: .5s ease;
+    background-color: #264d73;
+}
+
+.container:hover .overlay {
+    opacity: 0.8;
+}
+
+.text {
+    color: white;
+    font-size: 24px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    text-align: center;
+}
+</style>
+<a class="header" href="#presentation" id="presentation"><h1>Presentation</h1></a>
+<p>At <a href="http://www.cvra.ch/">CVRA</a>, we take part in the robotics competition <a href="https://www.coupederobotique.fr/">Eurobot</a>.
+The rules change every year, and are released in September-October, the national and international competitions take place in April-June of the following year.
+Which gives us 6-7 months to build one or two mobile robots to solve the tasks of the year.</p>
+<p>Until 2014, the robots we developed were centralized systems.
+An FPGA board powered the robot: reading sensors, controlling actuators, and running all the control loops.
+An auxiliary computer provided access to higher level features such as computer vision, and it sometimes was used to run the artificial intelligence.</p>
+<p>In 2011, we started developing a reusable robot with a differential wheelbase SCARA arms: Debra.
+However, the complexity of this robot increased over time.
+Increasing the number of motors every year was painful due to additonal software (to configure the FPGA), hardware (motor drive boards), and wiring (all wires go to the body of the robot).
+We decided to shift to a distributed architecture.</p>
+<p>CAN was selected as main bus over the robot with <a href="http://uavcan.org/">UAVCAN</a> as protocol.
+Each motor would be controlled by a dedicated board that includes a motor drive and a microcontroller, taking care of control, and only exposing a high-level API over CAN.
+This is what we set out to build from 2014.
+Since then, we have developed many other boards that communicate over UAVCAN.</p>
+<p>Today our average robot contains 15-20 boards over CAN:</p>
+<ul>
+<li><a href="./motor.html">Motor boards</a> that can control a DC motor in voltage, torque, velocity, or position.</li>
+<li><a href="./io.html">IO boards</a> that can interface digital inputs and outputs (including PWM for controlling RC servos).</li>
+<li><a href="./sensor.html">Sensor boards</a> that have a time of flight distance sensor and an RGB color sensor onboard.</li>
+<li><a href="./beacon.html">Beacon boards</a> that enable centimeter accurate global positioning.</li>
+</ul>
+<p>with a Master board to orchestrate everything.</p>
+<p>Along these boards, we also developed tools to make our life easier:</p>
+<ul>
+<li>A <a href="./adapter.html">CAN USB adapter</a> to inspect traffic over the bus from our computers.</li>
+<li>A <a href="./bootloader.html">CAN bootloader</a> to enable firmware updates over CAN, so we don't need to disassemble our robots to update single modules.</li>
+</ul>
+<a class="header" href="#motor-board" id="motor-board"><h1>Motor board</h1></a>
+<p>The Motor board is a small board (31x16mm) with a dedicated STM32F3 microcontroller that is at the core of all our robots since 2015.
+We have been using it to control DC motors, motor pumps, and RC servos.
+Here are its main features:</p>
+<ul>
+<li>CAN interface with communication over UAVCAN for parameter/gain setting, setpoint sending, and feedback streaming.</li>
+<li>CAN bootloader for easy firmware update over the bus.</li>
+<li>Control a single DC motor with current sensing, allowing cascaded PID control (torque, velocity, and position).</li>
+<li>H-bridge to drive the motor bidirectionally that supports driving a motor with up to 16.8V @ 6.6A continuously.</li>
+<li>Quadrature encoder interface for motor (5V tolerant).</li>
+<li>Secondary quadrature encoder interface (5V tolerant) (eg. for separate odometry wheels).</li>
+<li>Analog input for RC-servo control.</li>
+<li>Digital input for indexing, allows us to determine a reference location on a given axis that can be used for absolute positioning.</li>
+<li>Runs on 3 or 4 cell LiPo/LiFe batteries.</li>
+<li>SWD connector for flashing and debugging, with UART exposed on the same connector.</li>
+<li>Costs &lt; 35 USD in components.</li>
+</ul>
+<p><img src="./images/motor-board.jpg" alt="Motor boards on the SCARA arm version of 2016 used to control motor pumps" /></p>
+<a class="header" href="#links" id="links"><h2>Links</h2></a>
+<ul>
+<li><a href="https://github.com/cvra/motor-control-board">Hardware</a> including KiCad files, the schematics in PDF, and gerber files.</li>
+<li><a href="https://github.com/cvra/robot-software/tree/master/motor-control-firmware">Software</a> using ChibiOS RTOS/HAL, and UAVCAN for communication.</li>
+<li><a href="https://github.com/cvra/can-bootloader">Bootloader</a> based on libOpenCM3 and a custom lightweight protocol.</li>
+</ul>
+<a class="header" href="#io-board" id="io-board"><h1>IO board</h1></a>
+<p>The IO board is a 23x15mm board with a dedicated STM32F3 microcontroller and the following features:</p>
+<ul>
+<li>CAN interface with communication over UAVCAN for IO control (read / write).</li>
+<li>CAN bootloader for easy firmware update over the bus.</li>
+<li>11 GPIOs exposing:
+<ul>
+<li>Digital outputs, including timer channels for PWM,</li>
+<li>Digital inputs, including timer channels for pulse counting,</li>
+<li>Analog inputs (ADC).</li>
+</ul>
+</li>
+<li>Communication busses such as I²C and SPI.</li>
+<li>Molex Picoblade connection for wiring CAN in daisy chain.</li>
+<li>SWD connector for flashing and debugging, with UART exposed on the same connector.</li>
+<li>Costs &lt; 10 USD in components.</li>
+</ul>
+<p>Current application software allows a general purpose usage exposing basic IO control over UAVCAN: PWM output and digital inputs.</p>
+<p><img src="./images/io-board.jpg" alt="An IO board with USB type A connector behind for scale" /></p>
+<a class="header" href="#links-1" id="links-1"><h2>Links</h2></a>
+<ul>
+<li><a href="https://github.com/cvra/can-io-board">Hardware</a> including KiCad files, the schematics in PDF, and gerber files.</li>
+<li><a href="https://github.com/cvra/robot-software/tree/master/can-io-firmware">Software</a> using ChibiOS RTOS/HAL, and UAVCAN for communication.</li>
+<li><a href="https://github.com/cvra/can-bootloader">Bootloader</a> based on libOpenCM3 and a custom lightweight protocol.</li>
+</ul>
+<a class="header" href="#sensor-board" id="sensor-board"><h1>Sensor board</h1></a>
+<p>The Sensor board is a 23x17mm with a dedicated STM32F3 microcontroller and the following features:</p>
+<ul>
+<li>CAN interface over which sensor data are streamed over UAVCAN.</li>
+<li>CAN bootloader for easy firmware update over the bus.</li>
+<li>Distance time-of-flight sensor (VL6180X) can measure distances from 10mm to 100mm with 1mm resolution.</li>
+<li>RGB Color sensor (TCS34725) with external illumination using a white LED</li>
+<li>Molex Picoblade connection for wiring CAN in daisy chain.</li>
+<li>SWD connector for flashing and debugging, with UART exposed on the same connector.</li>
+<li>2x M2 holes for mounting</li>
+<li>Costs &lt; 25 USD in components.</li>
+</ul>
+<p>Current application software only supports the distance sensor.
+Color sensor support is work in progress.</p>
+<p><img src="./images/sensor-board.jpg" alt="Sensor board equiped on the end of our robot's SCARA arm" /></p>
+<a class="header" href="#links-2" id="links-2"><h2>Links</h2></a>
+<ul>
+<li><a href="https://github.com/cvra/tof-sensor-board">Hardware</a> including KiCad files, the schematics in PDF, and gerber files.</li>
+<li><a href="https://github.com/cvra/robot-software/tree/master/sensor-firmware">Software</a> using ChibiOS RTOS/HAL, and UAVCAN for communication.</li>
+<li><a href="https://github.com/cvra/can-bootloader">Bootloader</a> based on libOpenCM3 and a custom lightweight protocol.</li>
+</ul>
+<a class="header" href="#beacon-board" id="beacon-board"><h1>Beacon board</h1></a>
+<p>The Beacon board is a 42x30mm with a dedicated STM32F4 microcontroller and the following features:</p>
+<ul>
+<li>CAN interface with communication over UAVCAN.</li>
+<li>CAN bootloader for easy firmware update over the bus.</li>
+<li>An Ultra-Wide Band (UWB) module from Decawave for communication and beacon to beacon distance measurement</li>
+<li>Molex Picoblade connection for wiring CAN in daisy chain.</li>
+<li>Micro USB connector for debugging and flashing via DFU.</li>
+<li>SWD connector for flashing and debugging, with UART exposed on the same connector.</li>
+<li>4x M2 holes for mounting.</li>
+<li>Costs &lt; 50 USD in components.</li>
+</ul>
+<p>Still a work in progress.
+Currently basic communication is implemented and distance measurement at low update rate.</p>
+<p><img src="./images/beacon-board.jpg" alt="Beacon board, our WIP global positioning system" /></p>
+<a class="header" href="#links-3" id="links-3"><h2>Links</h2></a>
+<ul>
+<li><a href="https://github.com/cvra/uwb-beacon-board">Hardware</a> including KiCad files, the schematics in PDF, and gerber files.</li>
+<li><a href="https://github.com/cvra/robot-software/tree/master/uwb-beacon-firmware">Software</a> using ChibiOS RTOS/HAL, and UAVCAN for communication.</li>
+<li><a href="https://github.com/cvra/can-bootloader">Bootloader</a> based on libOpenCM3 and a custom lightweight protocol.</li>
+</ul>
+<a class="header" href="#can-usb-adapter" id="can-usb-adapter"><h1>CAN USB adapter</h1></a>
+<p>The CAN USB adapter allows us to inspect the CAN bus of our robots from our laptops, very convenient.
+It acts as a read / write translator over the CAN bus, relaying all the traffic over USB, through serial line CAN (SLCAN).</p>
+<p>UAVCAN supports SLCAN interfaces, and provides a <a href="https://github.com/UAVCAN/pyuavcan">Python library</a>.
+This means we can easily interact with the boards on the bus through Python scripts.
+In fact, this is how we build most of our introspection tools.</p>
+<p>We also use this adapter to flash our boards over CAN using our <a href="https://github.com/cvra/can-bootloader">bootloader</a>.</p>
+<p>Summary of features:</p>
+<ul>
+<li>CAN interface with communication over UAVCAN.</li>
+<li>Molex Picoblade connectors for wiring CAN in daisy chain.</li>
+<li>Micro USB connector that exposes a serial interface and a CAN interface (over SLCAN). It can also be used for flashing the adapter using DFU.</li>
+<li>Costs &lt; 20 USD in components.</li>
+</ul>
+<p><img src="./images/can-adapter.jpg" alt="Adapter board, our very helpful CAN debugger" /></p>
+<a class="header" href="#links-4" id="links-4"><h2>Links</h2></a>
+<ul>
+<li><a href="https://github.com/cvra/CAN-USB-dongle">Hardware</a> including KiCad files, the schematics in PDF, and gerber files.</li>
+<li><a href="https://github.com/cvra/CAN-USB-dongle-fw">Software</a> using ChibiOS RTOS/HAL, and UAVCAN for communication.</li>
+</ul>
+<a class="header" href="#systems" id="systems"><h1>Systems</h1></a>
+<a class="header" href="#positioning-system" id="positioning-system"><h1>Positioning system</h1></a>
+<p>Using our <a href="./beacon.html">beacon board</a>, we can build a positionning system.
+To do so, we will need a few fixed anchors whose positions are known.
+Then, we can use a moving tag that measures its distance to the anchors.
+Finally, a Kalman filter fuses those measurements into an absolute position.
+This principle is similar to the operation of GPS receivers.</p>
+<p><img src="./images/positioning_diagram.png" alt="Positioning system diagram" /></p>
+<p>We tested this system both indoor and outdoor, on small (3mx2m) and larger (20mx20m) maps.
+It provides the position within 5 cm accuracy, at up to 50 Hz when using a single tag.
+We noticed that having 4 fixed anchors conditions the positioning better when using a non-coplanar constellation.</p>
+<p>This system is not too expensive compared to similar solutions.
+To get a 3D position we need 4 anchors and one tag per robot.
+Each board is 50$, for a total cost of 250$.</p>
+<p>For more information see the <a href="https://github.com/cvra/robot-software/tree/master/uwb-beacon-firmware/doc/report.pdf">technical report</a>.</p>
+<a class="header" href="#can-bootloader" id="can-bootloader"><h1>CAN bootloader</h1></a>
+<p>The bootloader is a general purpose bootloader, that we use on all our CAN boards.</p>
+<p>It allows us to flash them with application firmwares over CAN, thus removing the need to intervene directly on the boards (via debugger).
+And it stores a small config in the microcontroller's flash that makes it easily trackable (ID, board type).</p>
+<p>Its main features are:</p>
+<ul>
+<li>Firmware flashing over CAN, without intervention on the board directly.</li>
+<li>Firmware flashing is fast, a typical firmware (few hundred kilobytes) is written in a few seconds over a 1Mbps CAN interface.</li>
+<li>Parallel firmware flashing (using multicast) when several boards are flashed with the same firmware.</li>
+<li>Board tracking through small config containing ID, name, board type, and number of times the flash was erased.</li>
+<li>On power up, it waits for a few seconds for the user to input commands before jumping to the application.</li>
+<li>Application code is checked by CRC at boot, invalid applications are not loaded.</li>
+</ul>
+<p>Currently supported platforms are:</p>
+<ul>
+<li>All our boards at CVRA: motor, IO, sensor, and beacon boards.</li>
+<li>ST Nucleo STM32F103RB board</li>
+<li>ST Nucleo STM32F334R8 board</li>
+<li>Olimex E407 board (with STM32F407 onboard)</li>
+</ul>
+<a class="header" href="#links-5" id="links-5"><h2>Links</h2></a>
+<ul>
+<li><a href="https://github.com/cvra/can-bootloader">Bootloader source code</a></li>
+<li><a href="https://github.com/cvra/can-bootloader/tree/master/platform">Supported platforms</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+        
+        <script type="text/javascript">
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+        
+        
+
+    </body>
+</html>
