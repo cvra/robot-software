@@ -6,6 +6,10 @@
 
 class DummyPeer : public TestPeer
 {
+public:
+    DummyPeer() : TestPeer(0)
+    {
+    }
     virtual void send(const TestMessage &msg)
     {
     }
@@ -25,7 +29,11 @@ TEST_GROUP(LogReplicationTestGroup)
         mock().installComparator("raft::Message", cmp);
     }
 
-    bool replicate(TestStateMachine::Operation operation, raft::Term term, raft::Index index, raft::Term previous_entry_term, raft::Index previous_entry_index)
+    bool replicate(TestStateMachine::Operation operation,
+                   raft::Term term,
+                   raft::Index index,
+                   raft::Term previous_entry_term,
+                   raft::Index previous_entry_index)
     {
         TestMessage msg;
         raft::LogEntry<TestStateMachine::Operation> entry;
@@ -239,7 +247,7 @@ TEST(LogReplicationTestGroup, DuplicateLogEntriesAreIgnored)
 TEST(LogReplicationTestGroup, MatchIndexIsInitializedCorrectly)
 {
     raft::LogEntry<TestStateMachine::Operation> entry;
-    entry.index= 10;
+    entry.index = 10;
     state.log.append(entry);
 
     state.become_leader();

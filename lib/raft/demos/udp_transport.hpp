@@ -11,9 +11,8 @@ struct UDPPeer : public raft::Peer<StateMachine> {
     int peer_socket;
     struct sockaddr_in servaddr;
 
-    UDPPeer(int port)
+    UDPPeer(int port) : raft::Peer<StateMachine>(port)
     {
-        this->id = port;
         peer_socket = socket(AF_INET, SOCK_DGRAM, 0);
         if (!peer_socket) {
             ERROR("Cannot open socket to peer %d", port);

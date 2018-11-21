@@ -167,6 +167,9 @@ struct Message {
 template <typename StateMachine>
 class Peer {
 public:
+    Peer(NodeId id) : id(id)
+    {
+    }
     virtual void send(const Message<StateMachine> &msg) = 0;
     virtual ~Peer()
     {

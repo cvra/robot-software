@@ -7,6 +7,10 @@
 using TestRaftState = raft::State<TestStateMachine>;
 
 class DummyPeer : public TestPeer {
+public:
+    DummyPeer() : TestPeer(0)
+    {
+    }
     virtual void send(const TestMessage &msg)
     {
         mock().actualCall("send").withParameterOfType("raft::Message", "msg", &msg);
@@ -22,7 +26,10 @@ TestMessage make_vote_reply(bool vote_granted)
     return msg;
 }
 
-TestMessage make_vote_request(raft::Term term, raft::NodeId candidate, unsigned last_log_index, raft::Term last_log_term)
+TestMessage make_vote_request(raft::Term term,
+                              raft::NodeId candidate,
+                              unsigned last_log_index,
+                              raft::Term last_log_term)
 {
     TestMessage msg;
     msg.type = TestMessage::Type::VoteRequest;
