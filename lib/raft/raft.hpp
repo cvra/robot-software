@@ -307,18 +307,9 @@ public:
                 // Update the commit value
                 auto leader_commit = msg.append_entries_request.leader_commit;
                 if (leader_commit > commit_index) {
-                    // TODO: actually commit the entries to the state machine
                     auto new_index = std::min(leader_commit, log.last_index());
-
-                    // First find first non commited entry
-                    auto i = 0;
-                    for (; i < log.size() && log[i].index <= commit_index; i++) {
-                    }
-
-                    // Then commit all new entries
-                    for (; commit_index < new_index; commit_index ++, i ++) {
-                        state_machine.apply(log[i].operation);
-                    }
+                    commit_log_entries(commit_index, new_index);
+                    commit_index = new_index;
                 }
 
                 // Checks for conflicting entries, meaning entries that have
@@ -340,7 +331,10 @@ public:
                             peers[i]->next_index = last_index + 1;
                         }
                     }
-                    commit_index = find_safe_index();
+                    auto new_index = find_safe_index();
+                    commit_log_entries(commit_index, new_index);
+                    commit_index = new_index;
+
                     // TODO: If the commit index gets updated we should apply
                     // the entries.
                 } else {
@@ -504,6 +498,21 @@ private:
         // If we are not able to find a safe N to commit, then return the
         // current commit index.
         return commit_index;
+    }
+
+    void commit_log_entries(Index old_index, Index new_index)
+    {
+        auto i = 0;
+
+        // First find all non commited entries
+        auto commit_index = old_index;
+        for (; i < log.size() && log[i].index <= commit_index; i++) {
+        }
+
+        // Then commit all new entries
+        for (; commit_index < new_index; commit_index ++, i ++) {
+            state_machine.apply(log[i].operation);
+        }
     }
 };
 }
