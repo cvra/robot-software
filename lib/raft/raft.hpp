@@ -255,9 +255,6 @@ public:
                 vote_count ++;
 
                 if (msg.vote_reply.vote_granted) {
-                    // TODO: Check that this is indeed the majority
-                    // it might not be the case if vote_count does not include the
-                    // candidate itself.
                     if (2 * vote_count >= peer_count) {
                         become_leader();
                     }
@@ -334,9 +331,6 @@ public:
                     auto new_index = find_safe_index();
                     commit_log_entries(commit_index, new_index);
                     commit_index = new_index;
-
-                    // TODO: If the commit index gets updated we should apply
-                    // the entries.
                 } else {
                     for (auto i = 0; i < peer_count; i++) {
                         if (peers[i]->id == msg.from_id) {
@@ -368,7 +362,6 @@ public:
         msg.term = term;
         msg.from_id = id;
 
-        // TODO: fill the following fields
         msg.vote_request.last_log_index = log.last_index();
         msg.vote_request.last_log_term = log.last_term();
 
