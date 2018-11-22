@@ -186,8 +186,8 @@ public:
 template <typename StateMachine>
 class State {
 public:
-    using Message = Message<StateMachine>;
-    using Peer = Peer<StateMachine>;
+    using Message = raft::Message<StateMachine>;
+    using Peer = raft::Peer<StateMachine>;
     NodeId id;
     Peer **peers;
     int peer_count;
