@@ -258,7 +258,7 @@ public:
                     // TODO: Check that this is indeed the majority
                     // it might not be the case if vote_count does not include the
                     // candidate itself.
-                    if (2 * vote_count > peer_count) {
+                    if (2 * vote_count >= peer_count) {
                         become_leader();
                     }
                 } else if (msg.term > term) {

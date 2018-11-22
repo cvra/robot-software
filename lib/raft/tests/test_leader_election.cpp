@@ -154,25 +154,9 @@ TEST(LeaderElectionTestGroup, DoNotCastVotesIfWeAreAlreadyLeader)
 }
 
 
-TEST(LeaderElectionTestGroup, RestartVotingProcess)
-{
-    auto m1 = make_vote_reply(true);
-    auto m2 = make_vote_reply(true);
-
-    mock().ignoreOtherCalls();
-    state.start_election();
-    state.process(m1, reply);
-    state.start_election();
-    state.process(m2, reply);
-    CHECK_TRUE(state.node_state != raft::NodeState::Leader);
-
-    state.process(m1, reply);
-    CHECK_EQUAL(state.node_state, raft::NodeState::Leader);
-}
-
 TEST(LeaderElectionTestGroup, DeniedVotesAreNotCounted)
 {
-    auto m1 = make_vote_reply(true);
+    auto m1 = make_vote_reply(false);
     auto m2 = make_vote_reply(false);
     mock().ignoreOtherCalls();
     state.start_election();
