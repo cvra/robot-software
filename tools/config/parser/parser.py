@@ -3,19 +3,30 @@ def namespace(name):
 
 
 class Parameter:
-    def __init__(self, name, indent=0):
+    def __init__(self, name, value, parents, indent=0):
         self.name = str(name)
         self.indent = indent
+        self.parents = parents
+        self.value = value
 
     def to_struct(self):
         return '    ' * self.indent + 'parameter_t {};'.format(self.name)
 
+    def to_init_code(self):
+        def value_type_to_str(v):
+            if isinstance(v, int): return 'integer'
+            if isinstance(v, float): return 'scalar'
+
+        return 'parameter_{type}_declare(&{parent}.{name}, &{parent}.ns, "{name}");'.format(
+                    name=self.name, parent='.'.join(self.parents), type=value_type_to_str(self.value))
+
 
 class ParameterNamespace:
-    def __init__(self, name, params, indent=0):
+    def __init__(self, name, params, parents=[], indent=0):
         self.name = str(name)
         self.params = params
         self.indent = indent
+        self.parents = parents
 
     def _struct_header(self):
         return [
@@ -39,6 +50,27 @@ class ParameterNamespace:
 
         return '\n'.join(string)
 
+    def _code_parent_ns(self):
+        return '&{}.ns'.format('.'.join(self.parents)) if len(self.parents) else 'NULL'
+
+    def _code_name(self):
+        return '"{}"'.format(self.name) if len(self.parents) else 'NULL'
+
+    def _code_ns(self):
+        return '&{}.ns'.format('.'.join(self.parents + [self.name]))
+
+    def to_init_code(self):
+        string = [
+            'parameter_namespace_declare({struct}, {parent}, {name});'.format(
+                struct=self._code_ns(), parent=self._code_parent_ns(), name=self._code_name())
+        ]
+
+        if self.params is not None:
+            for param in self.params:
+                string += [param.to_init_code()]
+
+        return '\n'.join(string)
+
 
 def depth(d, level=1):
     if isinstance(d, dict):
@@ -50,16 +82,16 @@ def depth(d, level=1):
             return 0
 
 
-def parse_tree(config, parent='config', level=0):
+def parse_tree(config, name='config', level=0, parents=list()):
     if depth(config) == 1:
-        return ParameterNamespace(parent, [Parameter(key, level + 1) for key in config], level)
+        return ParameterNamespace(name, [Parameter(key, config[key], parents + [name], level + 1) for key in config], parents, level)
     elif depth(config) > 1:
         children = list()
-        for key in config:
-            if isinstance(config[key], dict):
-                children.append(parse_tree(config[key], key, level + 1))
+        for k, v in config.items():
+            if isinstance(v, dict):
+                children.append(parse_tree(v, k, level + 1, parents + [name]))
             else:
-                children.append(Parameter(key, level + 1))
-        return ParameterNamespace(parent, children, level)
+                children.append(Parameter(k, v, parents + [name], level + 1))
+        return ParameterNamespace(name, children, parents, level)
     else:
-        return ParameterNamespace(parent, None, level)
+        return ParameterNamespace(name, None, parents, level)
