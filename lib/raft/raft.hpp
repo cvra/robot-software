@@ -477,14 +477,15 @@ private:
                 Peer *pa = (Peer *)a;
                 Peer *pb = (Peer *)b;
                 if (pa->match_index < pb->match_index) {
-                    return -1;
-                } else if (pa->match_index > pb->match_index) {
                     return 1;
+                } else if (pa->match_index > pb->match_index) {
+                    return -1;
                 }
                 return 0;
             });
 
-        auto N = peers[peer_count / 2]->match_index;
+        const auto median_peer = std::max(peer_count / 2 - 1, 0);
+        auto N = peers[median_peer]->match_index;
 
         // Then check that the entry with index N is from the current term.
         // This is important to ensure consistency when the leader changed
