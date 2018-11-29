@@ -195,13 +195,9 @@ CPPWARN = -Wall -Wextra
 #
 
 # List all default C defines here, like -DDEBUG
-DDEFS += -DUAVCAN_TOSTRING=0 \
-		 -DUAVCAN_STM32_NUM_IFACES=1 \
-		 -DUAVCAN_STM32_TIMER_NUMBER=2 \
-		 -DUAVCAN_STM32_CHIBIOS=1 \
-		 -DUAVCAN_TINY=0 \
-		 -DLWIP_DEBUG=1 \
-		 -DSHELL_CONFIG_FILE
+DDEFS += -include shell.include \
+		 -include uavcan.include \
+		 -include lwip.include
 
 # List all default ASM defines here, like -D_DEBUG=1
 DADEFS =
