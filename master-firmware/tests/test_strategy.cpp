@@ -124,10 +124,10 @@ TEST_GROUP(Strategy) {
     {
         const int max_path_len = 10;
         goap::Action<RobotState> *path[max_path_len] = {nullptr};
+        goap::Planner<RobotState> planner;
         auto actions = availableActions();
-        goap::Planner<RobotState> planner(actions.data(), actions.size());
 
-        int len = planner.plan(state, goal, path, max_path_len);
+        int len = planner.plan(state, goal, actions.data(), actions.size(), path, max_path_len);
         for (int i = 0; i < len; i++) {
             path[i]->execute(state);
         }
