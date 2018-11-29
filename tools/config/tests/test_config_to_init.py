@@ -99,6 +99,23 @@ class TestCodeGenerator(unittest.TestCase):
 
         self.assertEqual(tree, expected_code)
 
+    def test_has_one_bool_entry(self):
+        config = {'answer': True}
+        expected_code = [
+            'parameter_namespace_declare(&config.ns, NULL, NULL);',
+            'parameter_boolean_declare(&config.answer, &config.ns, "answer");',
+        ]
+
+        tree = parse_tree(config).to_init_code().split('\n')
+
+        self.assertEqual(tree, expected_code)
+
+    def test_throws_on_list_entry(self):
+        config = {'answer': [1, 2, 3]}
+
+        with self.assertRaises(TypeError):
+            parse_tree(config).to_init_code()
+
 
 if __name__ == '__main__':
     unittest.main()

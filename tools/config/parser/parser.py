@@ -19,12 +19,16 @@ class Parameter:
         return s.format(name=self.name)
 
     def to_init_code(self):
-        if isinstance(self.value, int):
+        if isinstance(self.value, bool):
+            s = 'parameter_boolean_declare(&{parent}.{name}, &{parent}.ns, "{name}");'
+        elif isinstance(self.value, int):
             s = 'parameter_integer_declare(&{parent}.{name}, &{parent}.ns, "{name}");'
-        if isinstance(self.value, float):
+        elif isinstance(self.value, float):
             s = 'parameter_scalar_declare(&{parent}.{name}, &{parent}.ns, "{name}");'
-        if isinstance(self.value, str):
+        elif isinstance(self.value, str):
             s = 'parameter_string_declare(&{parent}.{name}, &{parent}.ns, "{name}", {parent}.{name}_buffer, sizeof({parent}.{name}_buffer));'
+        else:
+            raise TypeError('[Parameter] Unsupported type: {}'.format(type(self.value)))
 
         return s.format(name=self.name, parent='.'.join(self.parents))
 
