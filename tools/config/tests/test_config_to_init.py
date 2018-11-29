@@ -88,6 +88,17 @@ class TestCodeGenerator(unittest.TestCase):
 
         self.assertEqual(tree, expected_code)
 
+    def test_has_one_string_entry(self):
+        config = {'answer': '42'}
+        expected_code = [
+            'parameter_namespace_declare(&config.ns, NULL, NULL);',
+            'parameter_string_declare(&config.answer, &config.ns, "answer", config.answer_buffer, sizeof(config.answer_buffer));',
+        ]
+
+        tree = parse_tree(config).to_init_code().split('\n')
+
+        self.assertEqual(tree, expected_code)
+
 
 if __name__ == '__main__':
     unittest.main()

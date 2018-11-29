@@ -10,15 +10,23 @@ class Parameter:
         self.value = value
 
     def to_struct(self):
-        return '    ' * self.indent + 'parameter_t {};'.format(self.name)
+        indent = '    ' * self.indent
+        s = indent + 'parameter_t {name};'
+
+        if isinstance(self.value, str):
+            s += '\n' + indent + 'char {name}_buffer[16];'
+
+        return s.format(name=self.name)
 
     def to_init_code(self):
-        def value_type_to_str(v):
-            if isinstance(v, int): return 'integer'
-            if isinstance(v, float): return 'scalar'
+        if isinstance(self.value, int):
+            s = 'parameter_integer_declare(&{parent}.{name}, &{parent}.ns, "{name}");'
+        if isinstance(self.value, float):
+            s = 'parameter_scalar_declare(&{parent}.{name}, &{parent}.ns, "{name}");'
+        if isinstance(self.value, str):
+            s = 'parameter_string_declare(&{parent}.{name}, &{parent}.ns, "{name}", {parent}.{name}_buffer, sizeof({parent}.{name}_buffer));'
 
-        return 'parameter_{type}_declare(&{parent}.{name}, &{parent}.ns, "{name}");'.format(
-                    name=self.name, parent='.'.join(self.parents), type=value_type_to_str(self.value))
+        return s.format(name=self.name, parent='.'.join(self.parents))
 
 
 class ParameterNamespace:
