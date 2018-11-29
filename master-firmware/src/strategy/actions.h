@@ -4,6 +4,10 @@
 #include <goap/goap.hpp>
 #include "state.h"
 
+/** Number of states goap can visit before giving up. Increasing it means a
+ * solution is found on more complex problems at the expense of RAM use. */
+#define GOAP_SPACE_SIZE 30
+
 namespace actions {
 
 struct IndexArms : public goap::Action<RobotState> {

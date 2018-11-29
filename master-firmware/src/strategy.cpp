@@ -39,6 +39,8 @@
 #include "protobuf/strategy.pb.h"
 
 
+static goap::Planner<RobotState, GOAP_SPACE_SIZE> planner;
+
 static enum strat_color_t wait_for_color_selection(void);
 static void wait_for_autoposition_signal(void);
 static void wait_for_starter(void);
@@ -1123,7 +1125,6 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
     };
 
     const auto action_count = sizeof(actions) / sizeof(actions[0]);
-    static goap::Planner<RobotState> planner;
 
     lever_retract(&right_lever);
     lever_retract(&left_lever);
@@ -1262,7 +1263,6 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     };
 
     const auto action_count = sizeof(actions) / sizeof(actions[0]);
-    static goap::Planner<RobotState> planner;
 
     lever_retract(&right_lever);
     lever_retract(&left_lever);
