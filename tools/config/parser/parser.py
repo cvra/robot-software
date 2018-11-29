@@ -19,14 +19,15 @@ class Parameter:
         return s.format(name=self.name)
 
     def to_init_code(self):
+        s = '    '
         if isinstance(self.value, bool):
-            s = 'parameter_boolean_declare(&{parent}.{name}, &{parent}.ns, "{name}");'
+            s += 'parameter_boolean_declare(&{parent}.{name}, &{parent}.ns, "{name}");'
         elif isinstance(self.value, int):
-            s = 'parameter_integer_declare(&{parent}.{name}, &{parent}.ns, "{name}");'
+            s += 'parameter_integer_declare(&{parent}.{name}, &{parent}.ns, "{name}");'
         elif isinstance(self.value, float):
-            s = 'parameter_scalar_declare(&{parent}.{name}, &{parent}.ns, "{name}");'
+            s += 'parameter_scalar_declare(&{parent}.{name}, &{parent}.ns, "{name}");'
         elif isinstance(self.value, str):
-            s = 'parameter_string_declare(&{parent}.{name}, &{parent}.ns, "{name}", {parent}.{name}_buffer, sizeof({parent}.{name}_buffer));'
+            s += 'parameter_string_declare(&{parent}.{name}, &{parent}.ns, "{name}", {parent}.{name}_buffer, sizeof({parent}.{name}_buffer));'
         else:
             raise TypeError('[Parameter] Unsupported type: {}'.format(type(self.value)))
 
@@ -62,24 +63,37 @@ class ParameterNamespace:
 
         return '\n'.join(string)
 
+    def _is_root(self):
+        return len(self.parents) == 0
+
     def _code_parent_ns(self):
-        return '&{}.ns'.format('.'.join(self.parents)) if len(self.parents) else 'NULL'
+        return '&{}.ns'.format('.'.join(self.parents))
 
     def _code_name(self):
-        return '"{}"'.format(self.name) if len(self.parents) else 'NULL'
+        return '"{}"'.format(self.name)
 
     def _code_ns(self):
         return '&{}.ns'.format('.'.join(self.parents + [self.name]))
 
     def to_init_code(self):
-        string = [
-            'parameter_namespace_declare({struct}, {parent}, {name});'.format(
-                struct=self._code_ns(), parent=self._code_parent_ns(), name=self._code_name())
-        ]
+        if self._is_root():
+            string = [
+                'void config_init(void)',
+                '{',
+                '    parameter_namespace_declare({struct}, NULL, NULL);'.format(struct=self._code_ns()),
+            ]
+        else:
+            string = [
+                '    parameter_namespace_declare({struct}, {parent}, {name});'.format(
+                    struct=self._code_ns(), parent=self._code_parent_ns(), name=self._code_name())
+            ]
 
         if self.params is not None:
             for param in self.params:
                 string += [param.to_init_code()]
+
+        if self._is_root():
+            string += ['}']
 
         return '\n'.join(string)
 
