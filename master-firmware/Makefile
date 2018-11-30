@@ -267,8 +267,8 @@ libssp_nonshared.a:
 
 .PHONY: mem_info
 mem_info: $(BUILDDIR)/$(PROJECT).elf
-	arm-none-eabi-nm --size-sort --print-size $(BUILDDIR)/$(PROJECT).elf > $(BUILDDIR)/memory_size.txt
-	arm-none-eabi-nm --numeric-sort --print-size $(BUILDDIR)/$(PROJECT).elf > $(BUILDDIR)/memory_layout.txt
+	arm-none-eabi-nm -C --size-sort --print-size $(BUILDDIR)/$(PROJECT).elf > $(BUILDDIR)/memory_size.txt
+	arm-none-eabi-nm -C --numeric-sort --print-size $(BUILDDIR)/$(PROJECT).elf > $(BUILDDIR)/memory_layout.txt
 
 # Openocd config file
 ifeq ($(OPENOCD_CFG), )

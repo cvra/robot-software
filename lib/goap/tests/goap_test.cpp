@@ -109,12 +109,12 @@ TEST(SimpleScenario, CompletedGoalDoesNotRequireAnyAction)
 {
     int action_count = 1;
     goap::Action<TestState> *actions[] = {&cut_wood_action};
-    goap::Planner<TestState> planner(actions, action_count);
+    goap::Planner<TestState> planner;
 
     state.has_wood = true;
 
     /* Since the goal is reached, we should not need any plan. */
-    auto path_len = planner.plan(state, goal);
+    auto path_len = planner.plan(state, goal, actions, action_count);
 
     CHECK_EQUAL(0, path_len);
 }
@@ -123,12 +123,12 @@ TEST(SimpleScenario, DirectActionLeadsToSolution)
 {
     int action_count = 1;
     goap::Action<TestState> *actions[] = {&cut_wood_action};
-    goap::Planner<TestState> planner(actions, action_count);
+    goap::Planner<TestState> planner;
 
     state.has_axe = true;
 
     /* Since the goal is reached, we should not need any plan. */
-    auto path_len = planner.plan(state, goal);
+    auto path_len = planner.plan(state, goal, actions, action_count);
 
     CHECK_EQUAL(1, path_len);
 }
@@ -138,9 +138,9 @@ TEST(SimpleScenario, RespectActionConstrains)
     int action_count = 2;
     goap::Action<TestState> *actions[] = {&cut_wood_action, &grab_axe_action};
 
-    goap::Planner<TestState> planner(actions, action_count);
+    goap::Planner<TestState> planner;
 
-    auto path_len = planner.plan(state, goal);
+    auto path_len = planner.plan(state, goal, actions, action_count);
 
     CHECK_EQUAL(2, path_len);
 }
@@ -153,10 +153,10 @@ TEST(SimpleScenario, GetPath)
     const int max_path_len = 10;
     goap::Action<TestState> *path[max_path_len] = {nullptr};
 
-    goap::Planner<TestState> planner(actions, action_count);
+    goap::Planner<TestState> planner;
 
     /* Since the goal is reached, we should not need any plan. */
-    auto len = planner.plan(state, goal, path, max_path_len);
+    auto len = planner.plan(state, goal, actions, action_count, path, max_path_len);
     CHECK_EQUAL(2, len);
 
     /* Check that the path is OK. */
@@ -168,11 +168,11 @@ TEST(SimpleScenario, MinimizeCost)
 {
     int action_count = 2;
     goap::Action<TestState> *actions[] = {&grab_axe_action, &cut_wood_action};
-    goap::Planner<TestState> planner(actions, action_count);
+    goap::Planner<TestState> planner;
 
     /* We have two paths: one costing 2 and one costing 1 */
     state.has_axe = true;
-    auto cost = planner.plan(state, goal);
+    auto cost = planner.plan(state, goal, actions, action_count);
     CHECK_EQUAL(1, cost);
 }
 
@@ -181,12 +181,12 @@ TEST(SimpleScenario, WhatHappensIfThereIsNoPath)
     int action_count = 1;
     goap::Action<TestState> *actions[] = {&cut_wood_action};
 
-    goap::Planner<TestState> planner(actions, action_count);
+    goap::Planner<TestState> planner;
 
     const int max_path_len = 10;
     goap::Action<TestState> *path[max_path_len] = {nullptr};
 
-    auto cost = planner.plan(state, goal, path, max_path_len);
+    auto cost = planner.plan(state, goal, actions, action_count, path, max_path_len);
     CHECK_EQUAL(-1, cost);
 }
 
@@ -240,10 +240,10 @@ TEST(TooLongPathTestGroup, DoNotFindFarAwayPlan)
     goap::Action<FarAwayState> *actions[] = {&a};
 
     // And feed it to a planner than can do path of at most 10 actions
-    goap::Planner<FarAwayState> planner(actions, 1);
+    goap::Planner<FarAwayState> planner;
 
     // Of course it will fail
-    auto cost = planner.plan(state, goal);
+    auto cost = planner.plan(state, goal, actions, 1);
     CHECK_EQUAL(-2, cost);
 }
 

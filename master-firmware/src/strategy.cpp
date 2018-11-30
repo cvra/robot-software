@@ -39,6 +39,8 @@
 #include "protobuf/strategy.pb.h"
 
 
+static goap::Planner<RobotState, GOAP_SPACE_SIZE> planner;
+
 static enum strat_color_t wait_for_color_selection(void);
 static void wait_for_autoposition_signal(void);
 static void wait_for_starter(void);
@@ -1122,7 +1124,7 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
         &fill_watertower,
     };
 
-    static goap::Planner<RobotState> planner(actions, sizeof(actions) / sizeof(actions[0]));
+    const auto action_count = sizeof(actions) / sizeof(actions[0]);
 
     lever_retract(&right_lever);
     lever_retract(&left_lever);
@@ -1130,7 +1132,7 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
     wrist_set_horizontal(&main_wrist);
 
     NOTICE("Getting arms ready...");
-    int len = planner.plan(state, init_goal, path, max_path_len);
+    int len = planner.plan(state, init_goal, actions, action_count, path, max_path_len);
     for (int i = 0; i < len; i++) {
         path[i]->execute(state);
         messagebus_topic_publish(state_topic, &state, sizeof(state));
@@ -1159,7 +1161,7 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
     NOTICE("Starting game...");
     while (!trajectory_game_has_ended()) {
         for (auto goal : goals) {
-            int len = planner.plan(state, *goal, path, max_path_len);
+            int len = planner.plan(state, *goal, actions, action_count, path, max_path_len);
             for (int i = 0; i < len; i++) {
                 bool success = path[i]->execute(state);
                 messagebus_topic_publish(state_topic, &state, sizeof(state));
@@ -1260,7 +1262,7 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
         &turn_opponent_switch_off,
     };
 
-    static goap::Planner<RobotState> planner(actions, sizeof(actions) / sizeof(actions[0]));
+    const auto action_count = sizeof(actions) / sizeof(actions[0]);
 
     lever_retract(&right_lever);
     lever_retract(&left_lever);
@@ -1268,7 +1270,7 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     wrist_set_horizontal(&main_wrist);
 
     NOTICE("Getting arms ready...");
-    int len = planner.plan(state, init_goal, path, max_path_len);
+    int len = planner.plan(state, init_goal, actions, action_count, path, max_path_len);
     for (int i = 0; i < len; i++) {
         path[i]->execute(state);
         messagebus_topic_publish(state_topic, &state, sizeof(state));
@@ -1305,7 +1307,7 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
 
     while (!trajectory_game_has_ended()) {
         for (auto goal : goals) {
-            int len = planner.plan(state, *goal, path, max_path_len);
+            int len = planner.plan(state, *goal, actions, action_count, path, max_path_len);
             for (int i = 0; i < len; i++) {
                 bool success = path[i]->execute(state);
                 messagebus_topic_publish(state_topic, &state, sizeof(state));

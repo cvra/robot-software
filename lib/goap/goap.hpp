@@ -45,23 +45,14 @@ public:
 
 template<typename State, int N = 100>
 class Planner {
-    Action<State> **actions;
-    size_t action_count;
     VisitedState<State> nodes[N];
-
 public:
-
-    /** Constructor, takes an array of possible actions. */
-    Planner(Action<State> *actions[], size_t action_count)
-        : actions(actions), action_count(action_count)
-    {
-    }
-
     /** Finds a plan from state to goal and returns its length.
      *
      * If path is given, then the found path is stored there.
      */
     int plan(const State &state, Goal<State> &goal,
+             Action<State> *actions[], unsigned action_count,
              Action<State> **path = nullptr, int path_len = 10)
     {
         visited_states_array_to_list(nodes, N);
