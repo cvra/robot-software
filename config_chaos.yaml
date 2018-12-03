@@ -22,7 +22,7 @@ master:
     aversive:
         control:
             angle:
-                kp: 3
+                kp: 3.
                 ki: 0.
                 kd: 20.
                 i_limit: 1000.
