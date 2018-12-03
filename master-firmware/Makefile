@@ -49,6 +49,7 @@ endif
 
 CONFIG_YAML = ../config_order.yaml ../config_chaos.yaml
 CONFIG_MSGPACK_C = $(addprefix src/, $(notdir $(CONFIG_YAML:.yaml=.c)))
+CONFIG_INIT_C = src/config_private.h
 
 #
 # Build global options
@@ -253,7 +254,7 @@ RULESPATH = ./linker/
 include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/rules.mk
 
 # Empty libraries, required by stack smashing protection
-PRE_MAKE_ALL_RULE_HOOK: app_src.mk $(CONFIG_MSGPACK_C) libssp.a libssp_nonshared.a
+PRE_MAKE_ALL_RULE_HOOK: app_src.mk $(CONFIG_MSGPACK_C) $(CONFIG_INIT_C) libssp.a libssp_nonshared.a
 
 libssp.a:
 	arm-none-eabi-ar rcs $@
@@ -298,6 +299,10 @@ $(CONFIG_MSGPACK_C): src/%.c : ../%.yaml
 	@$(COLOR_PRINTF) "Generating $@"
 	@../tools/config/config_to_msgpack.py $< $@ --name msgpack_$(notdir $(<:.yaml=))
 
+$(CONFIG_INIT_C):
+	@$(COLOR_PRINTF) "Generating $@"
+	@../tools/config/config_to_c.py $< $(CONFIG_YAML) $@
+
 .PHONY: heap_size
 heap_size: $(BUILDDIR)/$(PROJECT).elf
 	@../tools/heap_size.py $(BUILDDIR)/$(PROJECT).elf
@@ -306,6 +311,6 @@ all: heap_size mem_info
 
 CLEAN_RULE_HOOK:
 	@$(COLOR_PRINTF) "Remove MessagePack config"
-	-rm -f $(CONFIG_MSGPACK_C)
+	-rm -f $(CONFIG_MSGPACK_C) $(CONFIG_INIT_C)
 
 include ../tools/generate_ctags.mk
