@@ -180,7 +180,8 @@ void parameter_flash_storage_write_block_header(void *dst, uint32_t len)
 
 uint32_t parameter_flash_storage_block_get_length(void *block)
 {
-    uint32_t *header = (uint32_t *) block;
+    uint32_t header[2];
+    memcpy(header, block, sizeof header);
 
     return header[1];
 }
