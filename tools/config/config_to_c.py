@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+'''
+Generates C code to initialize the parameter tree given a YAML file
+
+When given multiple YAML files as input, the generated code is compared.
+If the code does not match, an error is raised.
+'''
 import yaml
 from binascii import hexlify
 import argparse
@@ -18,7 +24,7 @@ def sanitize_keys(to_convert):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('config_file', type=argparse.FileType(), help='YAML file containing the config')
+    parser.add_argument('config_file', type=argparse.FileType(), nargs='+', help='YAML file(s) containing the config')
     parser.add_argument('output', type=argparse.FileType('w'), help='Name of the generated C file')
 
     return parser.parse_args()
@@ -27,18 +33,25 @@ def parse_args():
 def main():
     args = parse_args()
 
-    config = yaml.load(args.config_file)
-    config = sanitize_keys(config)
-    config = {'master': config['master']}  # Only generate code for master config
+    previous_code = None
+    for file in args.config_file:
+        config = yaml.load(file)
+        config = sanitize_keys(config)
+        config = {'master': config['master']}  # Only generate code for master config
 
-    tree = parse_tree(config)
-    code = ''
-    code += '#include "config.h"\n'
-    code += '\n'
-    code += 'static ' + tree.to_struct()
-    code += '\n'
-    code += '\n'
-    code += tree.to_init_code('config_master_init')
+        tree = parse_tree(config)
+        code = ''
+        code += '#include "config.h"\n'
+        code += '\n'
+        code += 'static ' + tree.to_struct()
+        code += '\n'
+        code += '\n'
+        code += tree.to_init_code('config_master_init')
+
+        if previous_code is None:
+            previous_code = code
+        elif code != previous_code:
+            raise RuntimeError('Input YAML files do not yield the same code!')
 
     args.output.write(code)
 
