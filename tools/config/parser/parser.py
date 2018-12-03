@@ -1,7 +1,3 @@
-def namespace(name):
-    return str(name) + '_ns'
-
-
 class Parameter:
     def __init__(self, name, value, parents, indent=0):
         self.name = str(name)
@@ -44,7 +40,7 @@ class ParameterNamespace:
     def _struct_header(self):
         return [
             'struct {',
-            '    parameter_namespace_t {};'.format(namespace(self.name)),
+            '    parameter_namespace_t ns;',
         ]
 
     def _struct_footer(self):
@@ -75,10 +71,10 @@ class ParameterNamespace:
     def _code_ns(self):
         return '&{}.ns'.format('.'.join(self.parents + [self.name]))
 
-    def to_init_code(self):
+    def to_init_code(self, function_name='config_init'):
         if self._is_root():
             string = [
-                'void config_init(void)',
+                'void {}(void)'.format(function_name),
                 '{',
                 '    parameter_namespace_declare({struct}, NULL, NULL);'.format(struct=self._code_ns()),
             ]

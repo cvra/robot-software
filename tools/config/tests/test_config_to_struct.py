@@ -9,7 +9,7 @@ class TestCodeGenerator(unittest.TestCase):
         config = {}
         expected_code = [
             'struct {',
-            '    parameter_namespace_t config_ns;',
+            '    parameter_namespace_t ns;',
             '} config;',
         ]
 
@@ -21,7 +21,7 @@ class TestCodeGenerator(unittest.TestCase):
         config = {'answer': 42}
         expected_code = [
             'struct {',
-            '    parameter_namespace_t config_ns;',
+            '    parameter_namespace_t ns;',
             '    parameter_t answer;',
             '} config;',
         ]
@@ -39,9 +39,9 @@ class TestCodeGenerator(unittest.TestCase):
         }
         expected_code = [
             'struct {',
-            '    parameter_namespace_t config_ns;',
+            '    parameter_namespace_t ns;',
             '    struct {',
-            '        parameter_namespace_t controller_ns;',
+            '        parameter_namespace_t ns;',
             '        parameter_t kp;',
             '        parameter_t ki;',
             '    } controller;',
@@ -63,11 +63,11 @@ class TestCodeGenerator(unittest.TestCase):
         }
         expected_code = [
             'struct {',
-            '    parameter_namespace_t config_ns;',
+            '    parameter_namespace_t ns;',
             '    struct {',
-            '        parameter_namespace_t robot_ns;',
+            '        parameter_namespace_t ns;',
             '        struct {',
-            '            parameter_namespace_t controller_ns;',
+            '            parameter_namespace_t ns;',
             '            parameter_t kp;',
             '            parameter_t ki;',
             '        } controller;',
@@ -91,11 +91,11 @@ class TestCodeGenerator(unittest.TestCase):
         }
         expected_code = [
             'struct {',
-            '    parameter_namespace_t config_ns;',
+            '    parameter_namespace_t ns;',
             '    struct {',
-            '        parameter_namespace_t robot_ns;',
+            '        parameter_namespace_t ns;',
             '        struct {',
-            '            parameter_namespace_t controller_ns;',
+            '            parameter_namespace_t ns;',
             '            parameter_t kp;',
             '            parameter_t ki;',
             '        } controller;',
@@ -112,7 +112,7 @@ class TestCodeGenerator(unittest.TestCase):
         config = {'answer': '42'}
         expected_code = [
             'struct {',
-            '    parameter_namespace_t config_ns;',
+            '    parameter_namespace_t ns;',
             '    parameter_t answer;',
             '    char answer_buffer[16];',
             '} config;',
