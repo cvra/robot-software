@@ -4,30 +4,31 @@ class Parameter:
         self.indent = indent
         self.parents = parents
         self.value = value
+        self.var = self.name.replace('-', '_')
 
     def to_struct(self):
         indent = '    ' * self.indent
-        s = indent + 'parameter_t {name};'
+        s = indent + 'parameter_t {var};'
 
         if isinstance(self.value, str):
-            s += '\n' + indent + 'char {name}_buffer[16];'
+            s += '\n' + indent + 'char {var}_buffer[16];'
 
-        return s.format(name=self.name)
+        return s.format(var=self.var)
 
     def to_init_code(self):
         s = '    '
         if isinstance(self.value, bool):
-            s += 'parameter_boolean_declare(&{parent}.{name}, &{parent}.ns, "{name}");'
+            s += 'parameter_boolean_declare(&{parent}.{var}, &{parent}.ns, "{name}");'
         elif isinstance(self.value, int):
-            s += 'parameter_integer_declare(&{parent}.{name}, &{parent}.ns, "{name}");'
+            s += 'parameter_integer_declare(&{parent}.{var}, &{parent}.ns, "{name}");'
         elif isinstance(self.value, float):
-            s += 'parameter_scalar_declare(&{parent}.{name}, &{parent}.ns, "{name}");'
+            s += 'parameter_scalar_declare(&{parent}.{var}, &{parent}.ns, "{name}");'
         elif isinstance(self.value, str):
-            s += 'parameter_string_declare(&{parent}.{name}, &{parent}.ns, "{name}", {parent}.{name}_buffer, sizeof({parent}.{name}_buffer));'
+            s += 'parameter_string_declare(&{parent}.{var}, &{parent}.ns, "{name}", {parent}.{name}_buffer, sizeof({parent}.{name}_buffer));'
         else:
             raise TypeError('[Parameter] Unsupported type: {}'.format(type(self.value)))
 
-        return s.format(name=self.name, parent='.'.join(self.parents))
+        return s.format(var=self.var, name=self.name, parent='.'.join(self.parents))
 
 
 class ParameterNamespace:
@@ -36,6 +37,7 @@ class ParameterNamespace:
         self.params = params
         self.indent = indent
         self.parents = parents
+        self.var = self.name.replace('-', '_')
 
     def _struct_header(self):
         return [
@@ -69,7 +71,7 @@ class ParameterNamespace:
         return '"{}"'.format(self.name)
 
     def _code_ns(self):
-        return '&{}.ns'.format('.'.join(self.parents + [self.name]))
+        return '&{}.ns'.format('.'.join(self.parents + [self.var]))
 
     def to_init_code(self, function_name='config_init'):
         if self._is_root():

@@ -122,6 +122,19 @@ class TestCodeGenerator(unittest.TestCase):
 
         self.assertEqual(tree, expected_code)
 
+    def test_replaces_dash_in_entry_name_with_underscore(self):
+        config = {'the-answer': 42}
+        expected_code = [
+            'struct {',
+            '    parameter_namespace_t ns;',
+            '    parameter_t the_answer;',
+            '} config;',
+        ]
+
+        tree = parse_tree(config).to_struct().split('\n')
+
+        self.assertEqual(tree, expected_code)
+
 
 if __name__ == '__main__':
     unittest.main()

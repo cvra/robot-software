@@ -137,6 +137,20 @@ class TestCodeGenerator(unittest.TestCase):
         with self.assertRaises(TypeError):
             parse_tree(config).to_init_code()
 
+    def test_replaces_dash_in_entry_name_with_underscore(self):
+        config = {'the-answer': 42}
+        expected_code = [
+            'void config_init(void)',
+            '{',
+            '    parameter_namespace_declare(&config.ns, NULL, NULL);',
+            '    parameter_integer_declare(&config.the_answer, &config.ns, "the-answer");',
+            '}',
+        ]
+
+        tree = parse_tree(config).to_init_code().split('\n')
+
+        self.assertEqual(tree, expected_code)
+
 
 if __name__ == '__main__':
     unittest.main()
