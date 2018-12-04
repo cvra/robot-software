@@ -15,7 +15,7 @@ extern void trace_unlock(int32_t status)
 
 extern int32_t trace_timestamp_ms_get(void)
 {
-    return ST2MS(chVTGetSystemTimeX());
+    return TIME_I2MS(chVTGetSystemTimeX());
 }
 
 #undef C

@@ -19,7 +19,7 @@ class ChibiOSRestartHandler : public uavcan::IRestartRequestHandler {
         // answer
         (void) request_source;
         chVTObjectInit(&restart_timer);
-        chVTSet(&restart_timer, MS2ST(200), restart_node, NULL);
+        chVTSet(&restart_timer, TIME_MS2I(200), restart_node, NULL);
         return true;
     }
 };

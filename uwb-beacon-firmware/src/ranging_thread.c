@@ -23,8 +23,8 @@
 #define EVENT_TAG_POSITION_TIMER         (1 << 3)
 
 /* TODO: Put this in parameters. */
-#define UWB_ANCHOR_POSITION_TIMER_PERIOD S2ST(1)
-#define UWB_TAG_POSITION_TIMER_PERIOD    MS2ST(300)
+#define UWB_ANCHOR_POSITION_TIMER_PERIOD TIME_S2I(1)
+#define UWB_TAG_POSITION_TIMER_PERIOD    TIME_MS2I(300)
 
 
 static uwb_protocol_handler_t handler;
@@ -250,7 +250,7 @@ static void advertise_timer_cb(void *t)
 
     chSysLockFromISR();
     int period = uwb_params.anchor.advertisement_period_ms.value.i;
-    chVTSetI(timer, MS2ST(period), advertise_timer_cb, t);
+    chVTSetI(timer, TIME_MS2I(period), advertise_timer_cb, t);
     chEvtBroadcastI(&advertise_timer_event);
     chSysUnlockFromISR();
 }
@@ -356,22 +356,22 @@ static void events_init(void)
     /* Setup a virtual timer to schedule measurement advertisement. */
     static virtual_timer_t advertise_timer;
     chVTObjectInit(&advertise_timer);
-    chVTSet(&advertise_timer, MS2ST(500), advertise_timer_cb, &advertise_timer);
+    chVTSet(&advertise_timer, TIME_MS2I(500), advertise_timer_cb, &advertise_timer);
 
     /* Setup a virtual timer to schedule anchor position broadcasts. */
     static virtual_timer_t anchor_position_timer;
     chVTObjectInit(&anchor_position_timer);
-    chVTSet(&anchor_position_timer, MS2ST(200), anchor_position_timer_cb, &anchor_position_timer);
+    chVTSet(&anchor_position_timer, TIME_MS2I(200), anchor_position_timer_cb, &anchor_position_timer);
 
     /* Setup a virtual timer to schedule anchor position broadcasts. */
     static virtual_timer_t tag_position_timer;
     chVTObjectInit(&tag_position_timer);
-    chVTSet(&tag_position_timer, MS2ST(400), tag_position_timer_cb, &tag_position_timer);
+    chVTSet(&tag_position_timer, TIME_MS2I(400), tag_position_timer_cb, &tag_position_timer);
 
     /* Register event listeners */
     static event_listener_t uwb_int_listener, advertise_timer_listener, anchor_position_listener,
                             tag_position_listener;
-    chEvtRegisterMask(&exti_uwb_event, &uwb_int_listener, EVENT_UWB_INT);
+    chEvtRegisterMask(&uwb_event, &uwb_int_listener, EVENT_UWB_INT);
     chEvtRegisterMask(&advertise_timer_event, &advertise_timer_listener, EVENT_ADVERTISE_TIMER);
     chEvtRegisterMask(&anchor_position_timer_event,
                       &anchor_position_listener,
