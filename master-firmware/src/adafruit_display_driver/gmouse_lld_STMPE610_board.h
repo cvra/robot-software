@@ -63,14 +63,14 @@ static void write_reg(GMouse* m, uint8_t reg, uint8_t val)
 {
     uint8_t buffer[2] = {reg, val};
     i2cMasterTransmitTimeout(&I2CD2, STMPE610_I2C_ADDR, buffer, sizeof(buffer),
-                                         NULL, 0, MS2ST(10));
+                                         NULL, 0, TIME_MS2I(10));
 }
 
 static uint8_t read_byte(GMouse* m, uint8_t reg)
 {
     uint8_t reply;
     i2cMasterTransmitTimeout(&I2CD2, STMPE610_I2C_ADDR, &reg, sizeof(reg),
-                                         &reply, sizeof(reply), MS2ST(10));
+                                         &reply, sizeof(reply), TIME_MS2I(10));
 
     return reply;
 }
@@ -78,7 +78,7 @@ static uint8_t read_byte(GMouse* m, uint8_t reg)
 static uint16_t read_word(GMouse* m, uint8_t reg)
 {
     uint8_t reply[2];
-    i2cMasterTransmitTimeout(&I2CD2, 0x41, &reg, sizeof(reg), &reply, sizeof(reply), MS2ST(10));
+    i2cMasterTransmitTimeout(&I2CD2, 0x41, &reg, sizeof(reg), &reply, sizeof(reply), TIME_MS2I(10));
     uint16_t result;
     result = reply[0];
     result <<= 8;

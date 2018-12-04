@@ -19,10 +19,10 @@ static GHandle button_ts_page1;
 static GHandle button_ts_page2;
 
 // from https://wiki.ugfx.io/index.php/Touchscreen_Calibration
-bool_t LoadMouseCalibration(unsigned instance, void *data, size_t sz)
+gBool LoadMouseCalibration(unsigned instance, void *data, gMemSize sz)
 {
     if (instance != 0) {
-        return FALSE;
+        return GFXOFF;
     }
 
     float calibrationData[6];
@@ -35,7 +35,7 @@ bool_t LoadMouseCalibration(unsigned instance, void *data, size_t sz)
 
     memcpy(data, (void *)&calibrationData, sz);
 
-    return TRUE;
+    return GFXON;
 }
 
 static void gui_thread(void *p)
@@ -43,13 +43,13 @@ static void gui_thread(void *p)
     (void)p;
 
     gfxInit();
-    gwinSetDefaultStyle(&WhiteWidgetStyle, FALSE);
+    gwinSetDefaultStyle(&WhiteWidgetStyle, GFXOFF);
     gwinSetDefaultFont(gdispOpenFont("DejaVuSans12"));
     gdispClear(COLOR_BACKGROUND);
     {
         GWindowInit wi;
         memset(&wi, 0, sizeof(wi));
-        wi.show = TRUE;
+        wi.show = GFXON;
         wi.x = 0;
         wi.y = 0;
         wi.width = gdispGetWidth();

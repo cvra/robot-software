@@ -56,7 +56,7 @@ void hx8357_write_data(void *g, uint16_t data)
 static int cache_depth = 0;
 static uint8_t cache[CACHE_SIZE];
 
-void hx8357_write_cache(GDisplay *g, uint16_t c)
+void hx8357_write_cache(void *g, uint16_t c)
 {
     cache[cache_depth++] = c >> 8;
     cache[cache_depth++] = c & 0xff;
@@ -67,7 +67,7 @@ void hx8357_write_cache(GDisplay *g, uint16_t c)
     }
 }
 
-void hx8357_flush(GDisplay *g)
+void hx8357_flush(void *g)
 {
     (void)g;
     if (cache_depth)

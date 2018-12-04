@@ -11,7 +11,7 @@ unsigned int timestamp = 0;
 #include <ch.h>
 #define TRACE_LOCK() syssts_t __syssst = chSysGetStatusAndLockX()
 #define TRACE_UNLOCK() chSysRestoreStatusX(__syssst)
-#define TRACE_TIMESTAMP_GET() ST2MS(chVTGetSystemTimeX())
+#define TRACE_TIMESTAMP_GET() TIME_I2MS(chVTGetSystemTimeX())
 #endif
 
 struct trace_buffer_struct trace_buffer;
