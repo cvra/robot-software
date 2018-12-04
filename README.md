@@ -11,7 +11,7 @@ This repo contains all the software used on our robots:
 - `minesweepers` contains all code specific to our rover for the Minesweepers competition
     * `minesweepers/doc` contains design documentation
     * `minesweepers/techreport` contains the technical report source files
-- `sensor-firmware` contains code running on the [UWB beacon board](https://www.cvra.ch/robot-software/sensor.html)
+- `sensor-firmware` contains code running on the [sensor board](https://www.cvra.ch/robot-software/sensor.html)
 - `uwb-beacon-firmware` contains code and documentation that runs on the [UWB beacon board](https://www.cvra.ch/robot-software/beacon.html)
 
 Other important software components can be found in this repo:
