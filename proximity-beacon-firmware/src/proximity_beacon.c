@@ -15,86 +15,63 @@ msg_t proximity_beacon_buffer[SIGNAL_BUFFER_SIZE];
 mailbox_t proximity_beacon_mbox;
 memory_pool_t proximity_beacon_pool;
 
-static void gpio_exti_callback(EXTDriver *extp, expchannel_t channel);
+static float start_angle = 0;
+static bool signal_active = false;
+static timestamp_t last_last_crossing = 0;
+static timestamp_t last_crossing = 1;
 
-static const EXTConfig extcfg = {
-    {
-        {EXT_CH_MODE_DISABLED, NULL}, // 0
-        {EXT_CH_MODE_DISABLED, NULL}, // 1
-        {EXT_CH_MODE_DISABLED, NULL}, // 2
-        {EXT_CH_MODE_DISABLED, NULL}, // 3
-        // hal sensor, PB4
-        {EXT_CH_MODE_FALLING_EDGE | EXT_CH_MODE_AUTOSTART | EXT_MODE_GPIOB, gpio_exti_callback},
-        {EXT_CH_MODE_DISABLED, NULL}, // 5
-        {EXT_CH_MODE_DISABLED, NULL}, // 6
-        {EXT_CH_MODE_DISABLED, NULL}, // 7
-        {EXT_CH_MODE_DISABLED, NULL}, // 8
-        {EXT_CH_MODE_DISABLED, NULL}, // 9
-        {EXT_CH_MODE_DISABLED, NULL}, // 10
-        {EXT_CH_MODE_DISABLED, NULL}, // 11
-        // SICK active low, PA12
-        {EXT_CH_MODE_BOTH_EDGES | EXT_CH_MODE_AUTOSTART | EXT_MODE_GPIOA, gpio_exti_callback},
-        {EXT_CH_MODE_DISABLED, NULL}, // 13
-        {EXT_CH_MODE_DISABLED, NULL}, // 14
-        {EXT_CH_MODE_DISABLED, NULL}, // 15
-        {EXT_CH_MODE_DISABLED, NULL}, // 16
-        {EXT_CH_MODE_DISABLED, NULL}, // 17
-        {EXT_CH_MODE_DISABLED, NULL}, // 18
-        {EXT_CH_MODE_DISABLED, NULL}, // 19
-        {EXT_CH_MODE_DISABLED, NULL}, // 20
-        {EXT_CH_MODE_DISABLED, NULL}, // 21
-        {EXT_CH_MODE_DISABLED, NULL} // 22
-    }
-};
-
-static void gpio_exti_callback(EXTDriver *extp, expchannel_t channel)
+static void hall_sensor_cb(void *arg)
 {
-    (void)extp;
-    static float start_angle = 0;
-    static bool signal_active = false;
-    static timestamp_t last_last_crossing = 0;
-    static timestamp_t last_crossing = 1;
-
+    (void)arg;
     timestamp_t timestamp = timestamp_get();
-    if (channel == GPIOA_GPIO_I) {
-        int pin = palReadPad(GPIOA, GPIOA_GPIO_I);
 
-        // calculate position
-        float delta_t = timestamp_duration_s(last_crossing, timestamp);
-        float period = timestamp_duration_s(last_last_crossing, last_crossing);
-        float position;
-        if (delta_t < period) {
-            position =  delta_t / period * 2 * M_PI;
-        } else {
-            // can't handle non-constant speed -> set to 0 untill next barrier crossing
-            position = 0;
+    chSysLockFromISR();
+
+    last_last_crossing = last_crossing;
+    last_crossing = timestamp;
+
+    chSysUnlockFromISR();
+}
+
+static void light_sensor_cb(void *arg)
+{
+    (void)arg;
+    timestamp_t timestamp = timestamp_get();
+
+    int pin = palReadPad(GPIOA, GPIOA_GPIO_I);
+
+    // compute position
+    float delta_t = timestamp_duration_s(last_crossing, timestamp);
+    float period = timestamp_duration_s(last_last_crossing, last_crossing);
+    float position;
+    if (delta_t < period) {
+        position =  delta_t / period * 2 * M_PI;
+    } else {
+        // can't handle non-constant speed -> set to 0 until next barrier crossing
+        position = 0;
+    }
+
+    if (!pin) {
+        // light signal received
+        start_angle = position;
+        signal_active = true;
+    } else if (signal_active) {
+        // light signal lost
+        float length = position - start_angle;
+        if (length < 0) {
+            length += 2 * M_PI;
         }
+        signal_active = false;
 
-        if (!pin) {
-            // light signal received
-            start_angle = position;
-            signal_active = true;
-        } else if (signal_active) {
-            // light signal lost
-            float length = position - start_angle;
-            if (length < 0) {
-                length += 2 * M_PI;
-            }
-            signal_active = false;
-
-            chSysLockFromISR();
-            struct proximity_beacon_signal *sp;
-            sp = chPoolAllocI(&proximity_beacon_pool);
-            if (sp) {
-                sp->start_angle = start_angle;
-                sp->length = length;
-                chMBPostI(&proximity_beacon_mbox, (msg_t)sp);
-            }
-            chSysUnlockFromISR();
+        chSysLockFromISR();
+        struct proximity_beacon_signal *sp;
+        sp = chPoolAllocI(&proximity_beacon_pool);
+        if (sp) {
+            sp->start_angle = start_angle;
+            sp->length = length;
+            chMBPostI(&proximity_beacon_mbox, (msg_t)sp);
         }
-    } else if (channel == GPIOB_GPIO_A) { // hal sensor
-        last_last_crossing = last_crossing;
-        last_crossing = timestamp;
+        chSysUnlockFromISR();
     }
 }
 
@@ -103,13 +80,20 @@ void proximity_beacon_init(void)
     chMBObjectInit(&proximity_beacon_mbox, proximity_beacon_buffer, SIGNAL_BUFFER_SIZE);
     chPoolObjectInit(&proximity_beacon_pool, sizeof(struct proximity_beacon_signal), NULL);
     chPoolLoadArray(&proximity_beacon_pool, proximity_beacon_array, SIGNAL_BUFFER_SIZE);
-    extStart(&EXTD1, &extcfg);
+
+    // Enable event on hall sensor pin, PB4
+    palEnableLineEvent(PAL_LINE(GPIOB, 4U), PAL_EVENT_MODE_FALLING_EDGE);
+    palSetLineCallback(PAL_LINE(GPIOB, 4U), hall_sensor_cb, NULL);
+
+    // Enable event on light sensor pin, PA12
+    palEnableLineEvent(PAL_LINE(GPIOB, 12U), PAL_EVENT_MODE_BOTH_EDGES);
+    palSetLineCallback(PAL_LINE(GPIOB, 12U), light_sensor_cb, NULL);
 }
 
 struct proximity_beacon_signal *proximity_beacon_signal_get(void)
 {
     struct proximity_beacon_signal *sp;
-    msg_t m = chMBFetch(&proximity_beacon_mbox, (msg_t *)&sp, TIME_IMMEDIATE);
+    msg_t m = chMBFetchTimeout(&proximity_beacon_mbox, (msg_t *)&sp, TIME_IMMEDIATE);
     if (m != MSG_OK) {
         return NULL;
     }
