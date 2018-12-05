@@ -1,3 +1,4 @@
+/* clang-format off */
 #include "usbconf.h"
 
 /*Endpoints to be used for USBD1.  */
@@ -317,3 +318,4 @@ void usb_start(unsigned int serial)
     sduObjectInit(&SDU1);
     sduStart(&SDU1, &serusbcfg);
 }
+/* clang-format on */
