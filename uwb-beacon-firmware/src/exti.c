@@ -3,61 +3,39 @@
 #include <trace/trace.h>
 #include "trace_points.h"
 
-#include "exti.h"
+EVENTSOURCE_DECL(imu_event);
+EVENTSOURCE_DECL(uwb_event);
 
-EVENTSOURCE_DECL(exti_imu_event);
-EVENTSOURCE_DECL(exti_uwb_event);
-
-static void exti_cb(EXTDriver *extp, expchannel_t channel)
+static void imu_cb(void *arg)
 {
-    (void) extp;
+    (void)arg;
 
-    if (channel == GPIOB_IMU_INT) {
-        chSysLockFromISR();
-        chEvtBroadcastI(&exti_imu_event);
-        chSysUnlockFromISR();
-    } else if (channel == GPIOA_UWB_INT) {
-        trace(TRACE_POINT_UWB_IRQ);
-        chSysLockFromISR();
-        chEvtBroadcastI(&exti_uwb_event);
-        chSysUnlockFromISR();
-    }
+    chSysLockFromISR();
+
+    chEvtBroadcastI(&imu_event);
+
+    chSysUnlockFromISR();
 }
 
+static void uwb_cb(void *arg)
+{
+    (void)arg;
+    trace(TRACE_POINT_UWB_IRQ);
 
-static const EXTConfig extcfg = {
-    {
-        {EXT_CH_MODE_DISABLED, NULL},
-        {EXT_CH_MODE_DISABLED, NULL},
-        {EXT_CH_MODE_DISABLED, NULL},
-        {EXT_CH_MODE_DISABLED, NULL},
-        {EXT_CH_MODE_DISABLED, NULL},
-        {EXT_CH_MODE_DISABLED, NULL},
-        {EXT_CH_MODE_DISABLED, NULL},
-        {EXT_CH_MODE_DISABLED, NULL},
+    chSysLockFromISR();
 
-        /* DWM 1000 IRQ. */
-        {EXT_CH_MODE_RISING_EDGE | EXT_CH_MODE_AUTOSTART | EXT_MODE_GPIOA, exti_cb},
-        {EXT_CH_MODE_DISABLED, NULL},
-        {EXT_CH_MODE_DISABLED, NULL},
+    chEvtBroadcastI(&uwb_event);
 
-        /* MPU9250 IRQ */
-        {EXT_CH_MODE_RISING_EDGE | EXT_CH_MODE_AUTOSTART | EXT_MODE_GPIOB, exti_cb},
-        {EXT_CH_MODE_DISABLED, NULL},
-        {EXT_CH_MODE_DISABLED, NULL},
-        {EXT_CH_MODE_DISABLED, NULL},
-        {EXT_CH_MODE_DISABLED, NULL},
-        {EXT_CH_MODE_DISABLED, NULL},
-        {EXT_CH_MODE_DISABLED, NULL},
-        {EXT_CH_MODE_DISABLED, NULL},
-        {EXT_CH_MODE_DISABLED, NULL},
-        {EXT_CH_MODE_DISABLED, NULL},
-        {EXT_CH_MODE_DISABLED, NULL},
-        {EXT_CH_MODE_DISABLED, NULL}
-    }
-};
+    chSysUnlockFromISR();
+}
 
 void exti_start(void)
 {
-    extStart(&EXTD1, &extcfg);
+    // Enable event on DWM 1000 IRQ, PA8
+    palEnableLineEvent(PAL_LINE(GPIOA, 8U), PAL_EVENT_MODE_RISING_EDGE);
+    palSetLineCallback(PAL_LINE(GPIOA, 8U), uwb_cb, NULL);
+
+    // Enable event on MPU9250, PB11
+    palEnableLineEvent(PAL_LINE(GPIOB, 11U), PAL_EVENT_MODE_RISING_EDGE);
+    palSetLineCallback(PAL_LINE(GPIOB, 11U), imu_cb, NULL);
 }

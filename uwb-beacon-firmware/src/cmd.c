@@ -66,9 +66,9 @@ static void cmd_topics(BaseSequentialStream *chp, int argc, char *argv[])
         systime_t start = chVTGetSystemTime();
         unsigned int message_counter = 0;
 
-        while (chVTGetSystemTime() < start + MS2ST(5000)) {
+        while (chVTGetSystemTime() < start + TIME_MS2I(5000)) {
             chMtxLock(topic->lock);
-            if (chCondWaitTimeout(topic->condvar, MS2ST(10)) != MSG_TIMEOUT) {
+            if (chCondWaitTimeout(topic->condvar, TIME_MS2I(10)) != MSG_TIMEOUT) {
                 message_counter ++;
                 chMtxUnlock(topic->lock);
             }
@@ -427,6 +427,9 @@ static void print_fn_foo(void *arg, const char *fmt, ...)
 
 static void cmd_trace(BaseSequentialStream *chp, int argc, char *argv[])
 {
+    (void) argc;
+    (void) argv;
+
     trace_print(print_fn_foo, chp);
     trace_clear();
 }

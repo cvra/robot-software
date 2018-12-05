@@ -85,6 +85,10 @@ static THD_FUNCTION(led_thread, arg)
     }
 }
 
+void _fini(void)
+{
+}
+
 int main(void)
 {
     halInit();
@@ -130,10 +134,8 @@ int main(void)
     /* Wait for all services to boot, then try to load config. */
     chThdSleepMilliseconds(300);
 
-    if(parameter_flash_storage_load(&parameter_root_ns, &_config_start)) {
-        uavcan_init_complete();
-        control_start();
-    }
+    uavcan_init_complete();
+    control_start();
 
     while (1) {
         chThdSleepMilliseconds(1000);

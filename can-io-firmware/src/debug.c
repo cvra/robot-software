@@ -28,7 +28,7 @@ static void log_message(struct error *e, ...)
     va_start(va, e);
 
     /* Print time */
-    uint32_t ts = ST2MS(chVTGetSystemTime());
+    uint32_t ts = TIME_I2MS(chVTGetSystemTimeX());
     uint32_t s = ts / 1000;
     uint32_t ms = ts % 1000;
     chprintf(OUTPUT_STREAM, "[%4d.%03d]\t", s, ms);
