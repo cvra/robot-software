@@ -195,7 +195,7 @@ CPPWARN = -Wall -Wextra
 #
 
 # List all default C defines here, like -DDEBUG
-DDEFS += -include shell.include \
+DDEFS += -include chibios.include \
 		 -include uavcan.include \
 		 -include lwip.include
 
