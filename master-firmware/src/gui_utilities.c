@@ -21,7 +21,7 @@ void page_1(void)
     {
         GWidgetInit wi;
         memset(&wi, 0, sizeof(wi));
-        wi.g.show = TRUE;
+        wi.g.show = GFXON;
         wi.g.x = 5;
         wi.g.y = 30;
         wi.g.width = gdispGetWidth() / 2;
@@ -34,7 +34,7 @@ void page_1(void)
         GWidgetInit wi;
         gwinWidgetClearInit(&wi);
         memset(&wi, 0, sizeof(wi));
-        wi.g.show = TRUE;
+        wi.g.show = GFXON;
         wi.g.x = 5;
         wi.g.y = 80;
         wi.g.width = gdispGetWidth() / 2;
@@ -46,7 +46,7 @@ void page_1(void)
         GWidgetInit wi;
         gwinWidgetClearInit(&wi);
         memset(&wi, 0, sizeof(wi));
-        wi.g.show = TRUE;
+        wi.g.show = GFXON;
         wi.g.x = 5;
         wi.g.y = 130;
         wi.g.width = gdispGetWidth() / 2;
@@ -63,7 +63,7 @@ void page_2(void)
     {
         GWidgetInit wi;
         memset(&wi, 0, sizeof(wi));
-        wi.g.show = TRUE;
+        wi.g.show = GFXON;
         wi.g.x = 5;
         wi.g.y = 30;
         wi.g.width = gdispGetWidth() / 2;
@@ -76,7 +76,7 @@ void page_2(void)
         GWidgetInit wi;
         gwinWidgetClearInit(&wi);
         memset(&wi, 0, sizeof(wi));
-        wi.g.show = TRUE;
+        wi.g.show = GFXON;
         wi.g.x = 5;
         wi.g.y = 80;
         wi.g.width = gdispGetWidth() / 2;
@@ -88,7 +88,7 @@ void page_2(void)
         GWidgetInit wi;
         gwinWidgetClearInit(&wi);
         memset(&wi, 0, sizeof(wi));
-        wi.g.show = TRUE;
+        wi.g.show = GFXON;
         wi.g.x = 5;
         wi.g.y = 130;
         wi.g.width = gdispGetWidth() / 2;
@@ -105,7 +105,7 @@ void page_3(void)
     {
         GWidgetInit wi;
         memset(&wi, 0, sizeof(wi));
-        wi.g.show = TRUE;
+        wi.g.show = GFXON;
         wi.g.x = 5;
         wi.g.y = 30;
         wi.g.width = gdispGetWidth() / 2;
@@ -118,7 +118,7 @@ void page_3(void)
         GWidgetInit wi;
         gwinWidgetClearInit(&wi);
         memset(&wi, 0, sizeof(wi));
-        wi.g.show = TRUE;
+        wi.g.show = GFXON;
         wi.g.x = 5;
         wi.g.y = 80;
         wi.g.width = gdispGetWidth() / 2;
@@ -130,7 +130,7 @@ void page_3(void)
         GWidgetInit wi;
         gwinWidgetClearInit(&wi);
         memset(&wi, 0, sizeof(wi));
-        wi.g.show = TRUE;
+        wi.g.show = GFXON;
         wi.g.x = 5;
         wi.g.y = 130;
         wi.g.width = gdispGetWidth() / 2;

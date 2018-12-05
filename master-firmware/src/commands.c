@@ -122,7 +122,7 @@ static void cmd_crashme(BaseSequentialStream *chp, int argc, char **argv) {
     (void) argc;
     (void) chp;
 
-    ERROR("You asked for it!, uptime=%d ms", ST2MS(chVTGetSystemTime()));
+    ERROR("You asked for it!, uptime=%d ms", TIME_I2MS(chVTGetSystemTime()));
 }
 
 static void cmd_reboot(BaseSequentialStream *chp, int argc, char **argv) {
@@ -145,7 +145,7 @@ static void cmd_time(BaseSequentialStream *chp, int argc, char **argv)
     ts = timestamp_local_us_to_unix(now);
     chprintf(chp, "Current scheduler tick:      %12ld\r\n", now);
     chprintf(chp, "Current UNIX timestamp:      %12ld\r\n", ts.s);
-    chprintf(chp, "current ChibiOS time (ms):   %12ld\r\n", ST2MS(chVTGetSystemTime()));
+    chprintf(chp, "current ChibiOS time (ms):   %12ld\r\n", TIME_I2MS(chVTGetSystemTime()));
     chprintf(chp, "current timestamp time (us): %12ld\r\n", timestamp_get());
 
     /* Get time since start of day */
@@ -1652,7 +1652,7 @@ static void cmd_touchscreen(BaseSequentialStream *chp, int argc, char *argv[])
     uint8_t reg = 0x00;
     uint16_t answer;
     msg_t msg = i2cMasterTransmitTimeout(&I2CD2, 0x41, &reg, sizeof(reg),
-                                         &answer, sizeof(answer), MS2ST(100));
+                                         &answer, sizeof(answer), TIME_MS2I(100));
 
     chprintf(chp, "%d\r\n", msg);
     chprintf(chp, "%d\r\n", answer);
