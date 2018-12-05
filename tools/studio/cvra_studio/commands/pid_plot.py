@@ -40,7 +40,8 @@ class PidViewer(QtGui.QWidget):
         self.save_button = QtGui.QPushButton('Save')
 
         self.topic =  ComboBox(title="Topic       \t", callback=None, items=list(ControlTopic), parent=parent)
-        self.value =  LineEdit(title="Value       \t", callback=None, parent=parent)
+        self.value_min =  LineEdit(title="Value min   \t", callback=None, parent=parent)
+        self.value_max =  LineEdit(title="Value max   \t", callback=None, parent=parent)
         self.period = LineEdit(title="Period [s]  \t", callback=None, parent=parent)
 
         self.setLayout(vstack([
@@ -50,7 +51,8 @@ class PidViewer(QtGui.QWidget):
                     self.params_view,
                     self.save_button,
                     self.topic,
-                    self.value,
+                    self.value_min,
+                    self.value_max,
                     self.period,
                 ]),
                 vstack([
@@ -63,8 +65,8 @@ class PidViewer(QtGui.QWidget):
         self.show()
 
 class SetpointPublisherModel:
-    def __init__(self, node, topic, motor, value, period):
-        self.publisher = SetpointPublisher(node, ControlTopic(topic), motor, value, period)
+    def __init__(self, node, topic, motor, value_min, value_max, period):
+        self.publisher = SetpointPublisher(node, ControlTopic(topic), motor, value_min, value_max, period)
 
     def update_motor(self, value):
         self.publisher.motor = int(value)
@@ -74,8 +76,12 @@ class SetpointPublisherModel:
         self.publisher.topic = ControlTopic(value)
         self.publisher.update()
 
-    def update_value(self, value):
-        self.publisher.value = float(value)
+    def update_value_min(self, value_min):
+        self.publisher.value_min = float(value_min)
+        self.publisher.update()
+
+    def update_value_max(self, value_max):
+        self.publisher.value_max = float(value_max)
         self.publisher.update()
 
     def update_period(self, value):
@@ -102,7 +108,7 @@ class PidFeedbackRecorder():
         self.monitor = NodeStatusMonitor(node)
         self.monitor.on_new_node(self._update_nodes)
 
-        self.setpt_pub = SetpointPublisherModel(node, topic='voltage', motor=1, value=0, period=1)
+        self.setpt_pub = SetpointPublisherModel(node, topic='voltage', motor=1, value_min=0, value_max=0, period=1)
 
         self.clear()
         self.node.add_handler(uavcan.thirdparty.cvra.motor.feedback.CurrentPID, self._current_pid_callback)
@@ -177,7 +183,8 @@ class PidPlotController:
         self.viewer.save_button.clicked.connect(self._save_params)
 
         self.viewer.topic.callback = self.model.setpt_pub.update_topic
-        self.viewer.value.callback = self.model.setpt_pub.update_value
+        self.viewer.value_min.callback = self.model.setpt_pub.update_value_min
+        self.viewer.value_max.callback = self.model.setpt_pub.update_value_max
         self.viewer.period.callback = self.model.setpt_pub.update_period
 
         threading.Thread(target=self.run).start()
