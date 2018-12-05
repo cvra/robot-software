@@ -7,7 +7,7 @@ include_directories:
 
 target.stm32f3: []
 target.arm:
-    - src/main.c
+    - src/beacon_main.c
     - src/proximity_beacon.c
     - src/proximity_beacon_publisher.cpp
     - src/node.cpp
