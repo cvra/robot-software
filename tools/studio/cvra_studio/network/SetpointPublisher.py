@@ -23,11 +23,12 @@ class ControlTopic(enum.Enum):
         }[self.value]
 
 class SetpointPublisher():
-    def __init__(self, node, topic, motor, value, period):
+    def __init__(self, node, topic, motor, value_min, value_max, period):
         self.node = node
         self.topic = topic
-        self.motor = motor
-        self.value = value
+        self.motor = motor 
+        self.value_min = value_min
+        self.value_max = value_max
         self.period = period
         self.lock = threading.RLock()
         self.handle = node.node.periodic(0.01, self._publish)
@@ -41,9 +42,12 @@ class SetpointPublisher():
 
     def _update(self):
         while True:
+            with self.lock:
+                self.value = self.value_min
             time.sleep(self.period)
             with self.lock:
-                self.value *= -1
+                self.value = self.value_max
+            time.sleep(self.period)
 
     def update(self):
         self.handle.remove()
