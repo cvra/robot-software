@@ -4,13 +4,21 @@
 #include <ballgun/ballgun.h>
 
 namespace {
-void set_servo_pos(void *s, float value) { *(float *)s = value; }
-void set_turbine_speed(void *s, float value) { *(float *)s = value; }
-void set_accelerator_speed(void *s, float value) { *(float *)s = value; }
-}
-
-TEST_GROUP(ABallGun)
+void set_servo_pos(void* s, float value)
 {
+    *(float*)s = value;
+}
+void set_turbine_speed(void* s, float value)
+{
+    *(float*)s = value;
+}
+void set_accelerator_speed(void* s, float value)
+{
+    *(float*)s = value;
+}
+} // namespace
+
+TEST_GROUP (ABallGun) {
     ballgun_t ballgun;
     float ballgun_servo_pos;
     float ballgun_tubine_speed;

@@ -5,8 +5,7 @@ extern "C" {
 #include <scara/control/scara_inverse_kinematics_controller.h>
 }
 
-TEST_GROUP(AScaraIKController)
-{
+TEST_GROUP (AScaraIKController) {
     scara_ik_controller_t controller;
     position_3d_t desired;
     scara_joint_positions_t measured;

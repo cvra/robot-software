@@ -15,10 +15,12 @@
 
 /* Diagnostic macros. */
 #define LWIP_PLATFORM_ASSERT(msg) ERROR(msg)
-#define LWIP_PLATFORM_DIAG(msg) do {DEBUG msg;} while (0);
+#define LWIP_PLATFORM_DIAG(msg) \
+    do {                        \
+        DEBUG msg;              \
+    } while (0);
 
 /* Tell lwIP to use its own defines() for standard unix error codes */
 #define LWIP_PROVIDE_ERRNO
-
 
 #endif

@@ -7,8 +7,8 @@
 #include "proximity_beacon.h"
 
 // max 7 signals per tour
-#define SIGNAL_BUFFER_SIZE  2 * 7
-#define MAX_SPEED           50 * 2 * M_PI
+#define SIGNAL_BUFFER_SIZE 2 * 7
+#define MAX_SPEED 50 * 2 * M_PI
 
 struct proximity_beacon_signal proximity_beacon_array[SIGNAL_BUFFER_SIZE];
 msg_t proximity_beacon_buffer[SIGNAL_BUFFER_SIZE];
@@ -20,7 +20,7 @@ static bool signal_active = false;
 static timestamp_t last_last_crossing = 0;
 static timestamp_t last_crossing = 1;
 
-static void hall_sensor_cb(void *arg)
+static void hall_sensor_cb(void* arg)
 {
     (void)arg;
     timestamp_t timestamp = timestamp_get();
@@ -33,7 +33,7 @@ static void hall_sensor_cb(void *arg)
     chSysUnlockFromISR();
 }
 
-static void light_sensor_cb(void *arg)
+static void light_sensor_cb(void* arg)
 {
     (void)arg;
     timestamp_t timestamp = timestamp_get();
@@ -45,7 +45,7 @@ static void light_sensor_cb(void *arg)
     float period = timestamp_duration_s(last_last_crossing, last_crossing);
     float position;
     if (delta_t < period) {
-        position =  delta_t / period * 2 * M_PI;
+        position = delta_t / period * 2 * M_PI;
     } else {
         // can't handle non-constant speed -> set to 0 until next barrier crossing
         position = 0;
@@ -64,7 +64,7 @@ static void light_sensor_cb(void *arg)
         signal_active = false;
 
         chSysLockFromISR();
-        struct proximity_beacon_signal *sp;
+        struct proximity_beacon_signal* sp;
         sp = chPoolAllocI(&proximity_beacon_pool);
         if (sp) {
             sp->start_angle = start_angle;
@@ -90,17 +90,17 @@ void proximity_beacon_init(void)
     palSetLineCallback(PAL_LINE(GPIOB, 12U), light_sensor_cb, NULL);
 }
 
-struct proximity_beacon_signal *proximity_beacon_signal_get(void)
+struct proximity_beacon_signal* proximity_beacon_signal_get(void)
 {
-    struct proximity_beacon_signal *sp;
-    msg_t m = chMBFetchTimeout(&proximity_beacon_mbox, (msg_t *)&sp, TIME_IMMEDIATE);
+    struct proximity_beacon_signal* sp;
+    msg_t m = chMBFetchTimeout(&proximity_beacon_mbox, (msg_t*)&sp, TIME_IMMEDIATE);
     if (m != MSG_OK) {
         return NULL;
     }
     return sp;
 }
 
-void proximity_beacon_signal_delete(struct proximity_beacon_signal *sp)
+void proximity_beacon_signal_delete(struct proximity_beacon_signal* sp)
 {
     chPoolFree(&proximity_beacon_pool, sp);
 }

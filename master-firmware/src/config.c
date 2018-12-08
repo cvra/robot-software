@@ -154,7 +154,7 @@ void config_init(void)
     parameter_scalar_declare_with_default(&odometry_track, &odometry_config, "external_track_mm", 0);
     parameter_scalar_declare_with_default(&odometry_left_corr, &odometry_config, "left_wheel_correction_factor", 0);
     parameter_scalar_declare_with_default(&odometry_right_corr, &odometry_config,
-                             "right_wheel_correction_factor", 0);
+                                          "right_wheel_correction_factor", 0);
 
     parameter_namespace_declare(&beacon_config, &master_config, "beacon");
     parameter_scalar_declare_with_default(&beacon_reflector_radius, &beacon_config, "reflector_radius", 0);
@@ -173,8 +173,8 @@ void config_init(void)
     parameter_scalar_declare_with_default(&aversive.control.distance.ki, &aversive.control.distance.ns, "ki", 0);
     parameter_scalar_declare_with_default(&aversive.control.distance.kd, &aversive.control.distance.ns, "kd", 0);
     parameter_scalar_declare_with_default(&aversive.control.distance.ilimit,
-                             &aversive.control.distance.ns,
-                             "i_limit", 0);
+                                          &aversive.control.distance.ns,
+                                          "i_limit", 0);
 
     parameter_namespace_declare(&aversive.trajectories.ns, &aversive.ns, "trajectories");
     parameter_namespace_declare(&aversive.trajectories.angle.ns,
@@ -326,9 +326,9 @@ void config_init(void)
     parameter_scalar_declare(&screen.cy, &screen.ns, "cy");
 }
 
-static parameter_t* config_get_param(const char *id)
+static parameter_t* config_get_param(const char* id)
 {
-    parameter_t *p;
+    parameter_t* p;
 
     p = parameter_find(&global_config, id);
 
@@ -339,17 +339,17 @@ static parameter_t* config_get_param(const char *id)
     return p;
 }
 
-float config_get_scalar(const char *id)
+float config_get_scalar(const char* id)
 {
     return parameter_scalar_get(config_get_param(id));
 }
 
-int config_get_integer(const char *id)
+int config_get_integer(const char* id)
 {
     return parameter_integer_get(config_get_param(id));
 }
 
-bool config_get_boolean(const char *id)
+bool config_get_boolean(const char* id)
 {
     return parameter_boolean_get(config_get_param(id));
 }

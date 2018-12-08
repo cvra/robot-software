@@ -4,8 +4,8 @@
 struct UWBOnlyModel : EKF::Corrector<3, 1> {
     Eigen::Vector3f anchor_pos;
     UWBOnlyModel(float bx, float by, float bz, float variance)
-        : EKF::Corrector<3, 1>(Measurement::Identity() * variance),
-        anchor_pos(bx, by, bz)
+        : EKF::Corrector<3, 1>(Measurement::Identity() * variance)
+        , anchor_pos(bx, by, bz)
     {
     }
 
@@ -23,14 +23,16 @@ struct UWBOnlyModel : EKF::Corrector<3, 1> {
 };
 
 struct IdentityPredictor : EKF::Predictor<3, 0> {
-    IdentityPredictor(float variance) : EKF::Predictor<3, 0>(variance * Covariance::Identity())
+    IdentityPredictor(float variance)
+        : EKF::Predictor<3, 0>(variance * Covariance::Identity())
     {
     }
 };
 
-RadioPositionEstimator::RadioPositionEstimator() : covariance(Eigen::Matrix3f::Identity()),
-                                                   measurementVariance(0.05 * 0.05),
-                                                   processVariance(0.001)
+RadioPositionEstimator::RadioPositionEstimator()
+    : covariance(Eigen::Matrix3f::Identity())
+    , measurementVariance(0.05 * 0.05)
+    , processVariance(0.001)
 {
     setPosition(1.0, 1.0, -0.5);
 }

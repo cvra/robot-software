@@ -4,7 +4,7 @@
 
 volatile struct trace_buffer_struct trace_buffer;
 
-static void trace_push_event(uint8_t event_id, struct trace_event *event)
+static void trace_push_event(uint8_t event_id, struct trace_event* event)
 {
     if (!trace_buffer.active) {
         return;
@@ -13,7 +13,7 @@ static void trace_push_event(uint8_t event_id, struct trace_event *event)
     event->timestamp = trace_timestamp_ms_get();
 
     int32_t status = trace_lock();
-    volatile struct trace_event *p;
+    volatile struct trace_event* p;
     p = &trace_buffer.data[trace_buffer.write_index];
     trace_buffer.write_index = (trace_buffer.write_index + 1) % TRACE_BUFFER_SIZE;
     if (trace_buffer.nb_events < TRACE_BUFFER_SIZE) {
@@ -31,7 +31,7 @@ void trace(uint8_t event_id)
     trace_push_event(event_id, &e);
 }
 
-void trace_address(uint8_t event_id, void *p)
+void trace_address(uint8_t event_id, void* p)
 {
     struct trace_event e;
     e.type = TRACE_TYPE_ADDRESS;
@@ -39,7 +39,7 @@ void trace_address(uint8_t event_id, void *p)
     trace_push_event(event_id, &e);
 }
 
-void trace_string(uint8_t event_id, const char *str)
+void trace_string(uint8_t event_id, const char* str)
 {
     struct trace_event e;
     e.type = TRACE_TYPE_STRING;
@@ -69,7 +69,7 @@ void trace_integer(uint8_t event_id, int32_t i)
  */
 void trace_init(void)
 {
-    memset((void *)&trace_buffer, 0, sizeof(trace_buffer));
+    memset((void*)&trace_buffer, 0, sizeof(trace_buffer));
 }
 
 /** Enable trace */
@@ -96,7 +96,7 @@ void trace_clear(void)
     trace_unlock(status);
 }
 
-void trace_print(void (*print_fn)(void *, const char *, ...), void *arg)
+void trace_print(void (*print_fn)(void*, const char*, ...), void* arg)
 {
     trace_buffer.active = false;
     size_t i;
@@ -107,25 +107,25 @@ void trace_print(void (*print_fn)(void *, const char *, ...), void *arg)
         index = 0;
     }
     for (i = 0; i < trace_buffer.nb_events; i++) {
-        volatile struct trace_event *e = &trace_buffer.data[index];
+        volatile struct trace_event* e = &trace_buffer.data[index];
         print_fn(arg, "[%u] %s: ", e->timestamp, trace_point_names[e->event_id]);
         switch (e->type) {
-        case TRACE_TYPE_STRING:
-            print_fn(arg, "\"%s\"\n", e->data.string);
-            break;
-        case TRACE_TYPE_ADDRESS:
+            case TRACE_TYPE_STRING:
+                print_fn(arg, "\"%s\"\n", e->data.string);
+                break;
+            case TRACE_TYPE_ADDRESS:
 #ifdef _CHIBIOS_RT_ // workaround for chprintf
-            print_fn(arg, "%x\n", e->data.address);
+                print_fn(arg, "%x\n", e->data.address);
 #else
-            print_fn(arg, "%p\n", e->data.address);
+                print_fn(arg, "%p\n", e->data.address);
 #endif
-            break;
-        case TRACE_TYPE_SCALAR:
-            print_fn(arg, "%f\n", e->data.scalar);
-            break;
-        case TRACE_TYPE_INTEGER:
-            print_fn(arg, "%d\n", e->data.integer);
-            break;
+                break;
+            case TRACE_TYPE_SCALAR:
+                print_fn(arg, "%f\n", e->data.scalar);
+                break;
+            case TRACE_TYPE_INTEGER:
+                print_fn(arg, "%d\n", e->data.integer);
+                break;
         };
         index = (index + 1) % TRACE_BUFFER_SIZE;
     }

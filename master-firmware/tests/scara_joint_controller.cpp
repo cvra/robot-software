@@ -5,8 +5,7 @@ extern "C" {
 #include <scara/control/scara_joint_controller.h>
 }
 
-TEST_GROUP(AScaraJointController)
-{
+TEST_GROUP (AScaraJointController) {
     scara_joint_controller_t controller;
     position_3d_t desired;
     scara_joint_positions_t measured;

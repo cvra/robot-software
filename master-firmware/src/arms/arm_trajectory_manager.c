@@ -16,8 +16,9 @@ void arm_traj_manager_init(struct arm_traj_manager* manager)
     bd_init(&manager->blocking_detection_manager_z);
 }
 
-void arm_traj_manager_set_tolerances(struct arm_traj_manager *manager,
-                                     float x_tol_mm, float y_tol_mm,
+void arm_traj_manager_set_tolerances(struct arm_traj_manager* manager,
+                                     float x_tol_mm,
+                                     float y_tol_mm,
                                      float z_tol_mm)
 {
     manager->tol_mm.x = x_tol_mm;
@@ -25,14 +26,12 @@ void arm_traj_manager_set_tolerances(struct arm_traj_manager *manager,
     manager->tol_mm.z = z_tol_mm;
 }
 
-void arm_traj_manager_set_blocking_detection_xy(struct arm_traj_manager *manager, int error_threshold_mm,
-                                                int error_count_threshold)
+void arm_traj_manager_set_blocking_detection_xy(struct arm_traj_manager* manager, int error_threshold_mm, int error_count_threshold)
 {
     bd_set_thresholds(&manager->blocking_detection_manager_xy, error_threshold_mm, error_count_threshold);
 }
 
-void arm_traj_manager_set_blocking_detection_z(struct arm_traj_manager *manager, int error_threshold_mm,
-                                                int error_count_threshold)
+void arm_traj_manager_set_blocking_detection_z(struct arm_traj_manager* manager, int error_threshold_mm, int error_count_threshold)
 {
     bd_set_thresholds(&manager->blocking_detection_manager_z, error_threshold_mm, error_count_threshold);
 }
@@ -45,9 +44,12 @@ void arm_traj_wait_for_end(void)
 
 int watched_event_occured(enum arm_traj_state state, int watched_events)
 {
-    if ((watched_events & ARM_READY) && (state == ARM_READY))           return ARM_READY;
-    if ((watched_events & ARM_BLOCKED_XY) && (state == ARM_BLOCKED_XY)) return ARM_BLOCKED_XY;
-    if ((watched_events & ARM_BLOCKED_Z) && (state == ARM_BLOCKED_Z))   return ARM_BLOCKED_Z;
+    if ((watched_events & ARM_READY) && (state == ARM_READY))
+        return ARM_READY;
+    if ((watched_events & ARM_BLOCKED_XY) && (state == ARM_BLOCKED_XY))
+        return ARM_BLOCKED_XY;
+    if ((watched_events & ARM_BLOCKED_Z) && (state == ARM_BLOCKED_Z))
+        return ARM_BLOCKED_Z;
     return 0;
 }
 
@@ -69,7 +71,7 @@ static THD_FUNCTION(arm_traj_thd, arg)
 {
     chRegSetThreadName(__FUNCTION__);
 
-    scara_t* arm = (scara_t *)arg;
+    scara_t* arm = (scara_t*)arg;
 
     arm_traj_manager_init(&main_arm_traj_manager);
     arm_traj_manager_set_tolerances(&main_arm_traj_manager, 10.f, 10.f, 2.f);
@@ -96,9 +98,7 @@ static THD_FUNCTION(arm_traj_thd, arg)
             bd_manage(&main_arm_traj_manager.blocking_detection_manager_xy, error_xy);
             bd_manage(&main_arm_traj_manager.blocking_detection_manager_z, error.z);
 
-            if (error.x <= main_arm_traj_manager.tol_mm.x &&
-                error.y <= main_arm_traj_manager.tol_mm.y &&
-                error.z <= main_arm_traj_manager.tol_mm.z) {
+            if (error.x <= main_arm_traj_manager.tol_mm.x && error.y <= main_arm_traj_manager.tol_mm.y && error.z <= main_arm_traj_manager.tol_mm.z) {
                 main_arm_traj_manager.state = ARM_READY;
             } else if (bd_get(&main_arm_traj_manager.blocking_detection_manager_xy)) {
                 main_arm_traj_manager.state = ARM_BLOCKED_XY;

@@ -3,6 +3,6 @@
 
 #include "uavcan_node.h"
 
-int proximity_beacon_start(Node &node);
+int proximity_beacon_start(Node& node);
 
 #endif

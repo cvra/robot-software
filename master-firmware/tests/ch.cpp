@@ -4,19 +4,19 @@
 
 static bool lock_enabled = false;
 
-void chMtxObjectInit(mutex_t *mp)
+void chMtxObjectInit(mutex_t* mp)
 {
-    (void) mp;
+    (void)mp;
 }
 
-void chMtxLock(mutex_t *lock)
+void chMtxLock(mutex_t* lock)
 {
     if (lock_enabled) {
         mock().actualCall("chMtxLock").withPointerParameter("lock", lock);
     }
 }
 
-void chMtxUnlock(mutex_t *lock)
+void chMtxUnlock(mutex_t* lock)
 {
     if (lock_enabled) {
         mock().actualCall("chMtxUnlock").withPointerParameter("lock", lock);

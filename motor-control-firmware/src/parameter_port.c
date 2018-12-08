@@ -21,13 +21,13 @@ void parameter_port_assert(int condition)
  * It also says that the size is at most the length of the longer
  * param/namespace name or the size of the biggest array matrix or string. */
 static char param_buffer[64];
-void *parameter_port_buffer_alloc(size_t size)
+void* parameter_port_buffer_alloc(size_t size)
 {
     osalDbgAssert(size <= sizeof(param_buffer), "Parameter buffer too big");
     return param_buffer;
 }
 
-void parameter_port_buffer_free(void *buffer)
+void parameter_port_buffer_free(void* buffer)
 {
-    (void) buffer;
+    (void)buffer;
 }

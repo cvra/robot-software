@@ -41,10 +41,8 @@ void timestamp_set_reference(unix_timestamp_t unix_ts, int32_t local_ts);
  */
 int timestamp_unix_compare(unix_timestamp_t a, unix_timestamp_t b);
 
-
 #ifdef __cplusplus
 }
 #endif
-
 
 #endif

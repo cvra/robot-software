@@ -4,13 +4,13 @@
 #include "control.h"
 #include "proximity_beacon.h"
 
-static uavcan::LazyConstructor<uavcan::Publisher<cvra::proximity_beacon::Signal> > signal_pub;
+static uavcan::LazyConstructor<uavcan::Publisher<cvra::proximity_beacon::Signal>> signal_pub;
 
-static void timer_cb(const uavcan::TimerEvent &event)
+static void timer_cb(const uavcan::TimerEvent& event)
 {
-    (void) event;
+    (void)event;
 
-    struct proximity_beacon_signal *pbs;
+    struct proximity_beacon_signal* pbs;
     while ((pbs = proximity_beacon_signal_get()) != NULL) {
         cvra::proximity_beacon::Signal sig;
         sig.start_angle = pbs->start_angle;
@@ -23,7 +23,7 @@ static void timer_cb(const uavcan::TimerEvent &event)
     control_update_voltage_setpoint(-4.0);
 }
 
-int proximity_beacon_start(Node &node)
+int proximity_beacon_start(Node& node)
 {
     proximity_beacon_init();
 
@@ -31,7 +31,7 @@ int proximity_beacon_start(Node &node)
     periodic_timer.setCallback(timer_cb);
     periodic_timer.startPeriodic(uavcan::MonotonicDuration::fromMSec(100));
 
-    signal_pub.construct<uavcan::INode &>(node);
+    signal_pub.construct<uavcan::INode&>(node);
     int ret = signal_pub->init();
     return ret;
 }

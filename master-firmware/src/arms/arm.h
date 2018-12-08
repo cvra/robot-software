@@ -6,14 +6,12 @@
 #include "scara/scara.h"
 #include "scara/scara_trajectories.h"
 
-struct ArmTrajectoryFrame
-{
+struct ArmTrajectoryFrame {
     position_3d_t position;
     scara_coordinate_t coordinate;
 };
 
-class ArmTrajectory
-{
+class ArmTrajectory {
 public:
     ArmTrajectory(scara_t* arm);
 

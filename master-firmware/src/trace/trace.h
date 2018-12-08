@@ -9,7 +9,7 @@
 #define TRACE_BUFFER_SIZE 200
 #endif
 
-extern const char *event_names[];
+extern const char* event_names[];
 
 enum {
     TRACE_TYPE_STRING,
@@ -19,12 +19,12 @@ enum {
 };
 
 struct trace_event {
-    uint32_t event_id:8;
-    uint32_t type:2;
-    uint32_t timestamp:22;
+    uint32_t event_id : 8;
+    uint32_t type : 2;
+    uint32_t timestamp : 22;
     union {
-        void *address;
-        const char *string;
+        void* address;
+        const char* string;
         int32_t integer;
         float scalar;
     } data;
@@ -42,15 +42,15 @@ extern "C" {
 #endif
 
 void trace(uint8_t event);
-void trace_address(uint8_t event, void *p);
-void trace_string(uint8_t event, const char *str);
+void trace_address(uint8_t event, void* p);
+void trace_string(uint8_t event, const char* str);
 void trace_scalar(uint8_t event_id, float f);
 void trace_integer(uint8_t event_id, int32_t i);
 void trace_init(void);
 void trace_enable(void);
 void trace_disable(void);
 void trace_clear(void);
-void trace_print(void (*print_fn)(void *, const char *, ...), void *arg);
+void trace_print(void (*print_fn)(void*, const char*, ...), void* arg);
 
 #ifdef __cplusplus
 }

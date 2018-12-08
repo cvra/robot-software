@@ -12,16 +12,15 @@ static struct {
     parameter_namespace_t ns;
 } ahrs_params;
 
-static void ahrs_thd(void *p)
+static void ahrs_thd(void* p)
 {
-    (void) p;
+    (void)p;
     chRegSetThreadName("AHRS");
 
     parameter_namespace_declare(&ahrs_params.ns, &parameter_root, "ahrs");
     parameter_scalar_declare_with_default(&ahrs_params.beta, &ahrs_params.ns, "beta", 0.1);
 
-    messagebus_topic_t *imu_topic;
-
+    messagebus_topic_t* imu_topic;
 
     imu_topic = messagebus_find_topic_blocking(&bus, "/imu");
 
@@ -80,11 +79,10 @@ void ahrs_start(void)
 void ahrs_calibrate_gyro(void)
 {
     const int N = 1000;
-    messagebus_topic_t *topic;
-    parameter_t *gain;
-    float x_avg=0, y_avg=0, z_avg=0;
+    messagebus_topic_t* topic;
+    parameter_t* gain;
+    float x_avg = 0, y_avg = 0, z_avg = 0;
     float new_beta;
-
 
     topic = messagebus_find_topic_blocking(&bus, "/imu");
 
@@ -104,7 +102,7 @@ void ahrs_calibrate_gyro(void)
     }
     board_led_clear(BOARD_LED_ERROR);
 
-    new_beta = sqrtf(3/4.f) * (x_avg + y_avg + z_avg) / 3.f;
+    new_beta = sqrtf(3 / 4.f) * (x_avg + y_avg + z_avg) / 3.f;
 
     gain = parameter_find(&parameter_root, "/ahrs/beta");
     parameter_scalar_set(gain, new_beta);

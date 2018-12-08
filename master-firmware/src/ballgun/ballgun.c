@@ -34,7 +34,7 @@ void ballgun_set_servo_range(ballgun_t* ballgun, float retracted, float deployed
     ballgun_unlock(&ballgun->lock);
 }
 
-void ballgun_set_turbine_range(ballgun_t *ballgun, float armed, float charge, float fire, float slowfire)
+void ballgun_set_turbine_range(ballgun_t* ballgun, float armed, float charge, float fire, float slowfire)
 {
     ballgun_lock(&ballgun->lock);
 
@@ -46,7 +46,7 @@ void ballgun_set_turbine_range(ballgun_t *ballgun, float armed, float charge, fl
     ballgun_unlock(&ballgun->lock);
 }
 
-void ballgun_set_accelerator_range(ballgun_t *ballgun, float charge, float fire, float slowfire)
+void ballgun_set_accelerator_range(ballgun_t* ballgun, float charge, float fire, float slowfire)
 {
     ballgun_lock(&ballgun->lock);
 
@@ -69,8 +69,7 @@ void ballgun_set_turbine_callbacks(ballgun_t* ballgun, void (*set_turbine)(void*
     ballgun->turbine_args = turbine_args;
 }
 
-void ballgun_set_accelerator_callbacks(ballgun_t* ballgun, void (*set_accelerator)(void*, float),
-                                       void* accelerator_args)
+void ballgun_set_accelerator_callbacks(ballgun_t* ballgun, void (*set_accelerator)(void*, float), void* accelerator_args)
 {
     ballgun->set_accelerator = set_accelerator;
     ballgun->accelerator_args = accelerator_args;

@@ -23,41 +23,39 @@ extern "C" {
 #endif
 
 typedef struct {
-    motor_driver_t *motor_driver_buffer;
+    motor_driver_t* motor_driver_buffer;
     uint16_t motor_driver_buffer_len;
     uint16_t motor_driver_buffer_nb_elements;
-    bus_enumerator_t *bus_enumerator;
+    bus_enumerator_t* bus_enumerator;
 } motor_manager_t;
 
-
-void motor_manager_init(motor_manager_t *m,
-                        motor_driver_t *motor_driver_buffer,
+void motor_manager_init(motor_manager_t* m,
+                        motor_driver_t* motor_driver_buffer,
                         uint16_t motor_driver_buffer_len,
-                        bus_enumerator_t *bus_enumerator);
+                        bus_enumerator_t* bus_enumerator);
 
-
-motor_driver_t *motor_manager_create_driver(motor_manager_t *m,
-                                            const char *actuator_id);
+motor_driver_t* motor_manager_create_driver(motor_manager_t* m,
+                                            const char* actuator_id);
 
 // motor_driver_t elements form an array
-void motor_manager_get_list(motor_manager_t *m, motor_driver_t **buffer, uint16_t *length);
+void motor_manager_get_list(motor_manager_t* m, motor_driver_t** buffer, uint16_t* length);
 
 // setters: get driver, allocate driver if it doesn't exist, panic if allocation fails,
 // use setter for driver,
-void motor_manager_set_voltage(motor_manager_t *m,
-                                const char *actuator_id,
-                                float voltage);
+void motor_manager_set_voltage(motor_manager_t* m,
+                               const char* actuator_id,
+                               float voltage);
 
-void motor_manager_set_torque(motor_manager_t *m,
-                                const char *actuator_id,
-                                float torque);
+void motor_manager_set_torque(motor_manager_t* m,
+                              const char* actuator_id,
+                              float torque);
 
-void motor_manager_set_velocity(motor_manager_t *m,
-                                const char *actuator_id,
+void motor_manager_set_velocity(motor_manager_t* m,
+                                const char* actuator_id,
                                 float velocity);
 
-void motor_manager_set_position(motor_manager_t *m,
-                                const char *actuator_id,
+void motor_manager_set_position(motor_manager_t* m,
+                                const char* actuator_id,
                                 float position);
 
 #ifdef __cplusplus

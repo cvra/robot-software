@@ -6,7 +6,7 @@
 #include "encoder.h"
 #include "control.h"
 
-static void _stream_sndfn(void *arg, const void *p, size_t len)
+static void _stream_sndfn(void* arg, const void* p, size_t len)
 {
     if (len > 0) {
         chSequentialStreamWrite((BaseSequentialStream*)arg, (const uint8_t*)p, len);
@@ -16,7 +16,7 @@ static void _stream_sndfn(void *arg, const void *p, size_t len)
 THD_WORKING_AREA(uart_stream_task_wa, 256);
 THD_FUNCTION(uart_stream_task, arg)
 {
-    BaseSequentialStream *dev = (BaseSequentialStream *)arg;
+    BaseSequentialStream* dev = (BaseSequentialStream*)arg;
     chRegSetThreadName("print data");
     static char dtgrm[200];
     static cmp_mem_access_t mem;
@@ -25,13 +25,13 @@ THD_FUNCTION(uart_stream_task, arg)
         cmp_mem_access_init(&cmp, &mem, dtgrm, sizeof(dtgrm));
         bool err = false;
         err = err || !cmp_write_map(&cmp, 3);
-        const char *enc_id = "enc";
+        const char* enc_id = "enc";
         err = err || !cmp_write_str(&cmp, enc_id, strlen(enc_id));
         err = err || !cmp_write_u32(&cmp, encoder_get_primary());
-        const char *pos_id = "pos";
+        const char* pos_id = "pos";
         err = err || !cmp_write_str(&cmp, pos_id, strlen(pos_id));
         err = err || !cmp_write_float(&cmp, control_get_position());
-        const char *vel_id = "vel";
+        const char* vel_id = "vel";
         err = err || !cmp_write_str(&cmp, vel_id, strlen(vel_id));
         err = err || !cmp_write_float(&cmp, control_get_velocity());
         // const char *batt_voltage_id = "batt_voltage";
@@ -50,7 +50,7 @@ THD_FUNCTION(uart_stream_task, arg)
     }
 }
 
-void uart_stream_start(BaseSequentialStream *dev)
+void uart_stream_start(BaseSequentialStream* dev)
 {
     chThdCreateStatic(uart_stream_task_wa, sizeof(uart_stream_task_wa), LOWPRIO, uart_stream_task, dev);
 }

@@ -5,7 +5,6 @@
 #include <uavcan/uavcan.hpp>
 #include <uavcan_stm32/uavcan_stm32.hpp>
 
-
 #include <main.h>
 #include "uavcan/uavcan_node.h"
 #include "uavcan/topics_publisher.hpp"
@@ -18,11 +17,11 @@
 uavcan_stm32::CanInitHelper<128> can;
 
 struct uavcan_node_arg {
-    const char *node_name;
+    const char* node_name;
     uint8_t node_id : 7;
 };
 
-void uavcan_failure(const char *reason)
+void uavcan_failure(const char* reason)
 {
     chSysHalt(reason);
 }
@@ -30,8 +29,8 @@ void uavcan_failure(const char *reason)
 static THD_WORKING_AREA(uavcan_node_wa, 8000);
 static THD_FUNCTION(uavcan_node, arg)
 {
-    struct uavcan_node_arg *node_arg;
-    node_arg = (struct uavcan_node_arg *)arg;
+    struct uavcan_node_arg* node_arg;
+    node_arg = (struct uavcan_node_arg*)arg;
 
     chRegSetThreadName(__FUNCTION__);
 
@@ -72,8 +71,7 @@ static THD_FUNCTION(uavcan_node, arg)
     }
 }
 
-extern "C"
-void uavcan_node_start(uint8_t id, const char *name)
+extern "C" void uavcan_node_start(uint8_t id, const char* name)
 {
     static struct uavcan_node_arg arg;
     arg.node_name = name;

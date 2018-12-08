@@ -3,13 +3,12 @@
 
 #include "hand/hand.h"
 
-void set_voltage(void *m, float value)
+void set_voltage(void* m, float value)
 {
-    *(float *)m = value;
+    *(float*)m = value;
 }
 
-TEST_GROUP(AHand)
-{
+TEST_GROUP (AHand) {
     hand_t hand;
     float voltage;
 
@@ -20,10 +19,8 @@ TEST_GROUP(AHand)
     }
 };
 
-TEST(AHand, startsWithDisabledPump)
-{
-    CHECK_EQUAL(hand.pump_state, PUMP_OFF)
-}
+TEST(AHand, startsWithDisabledPump){
+    CHECK_EQUAL(hand.pump_state, PUMP_OFF)}
 
 TEST(AHand, canTurnPumpOn)
 {

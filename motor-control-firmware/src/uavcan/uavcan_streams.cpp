@@ -15,29 +15,29 @@
 #include <cvra/motor/feedback/MotorPosition.hpp>
 #include <cvra/motor/feedback/MotorTorque.hpp>
 
-stream_config_t current_pid_stream_config   = {false, 0, 0};
-stream_config_t velocity_pid_stream_config  = {false, 0, 0};
-stream_config_t position_pid_stream_config  = {false, 0, 0};
-stream_config_t index_stream_config         = {false, 0, 0};
-stream_config_t enc_pos_stream_config       = {false, 0, 0};
-stream_config_t motor_pos_stream_config     = {false, 0, 0};
-stream_config_t motor_torque_stream_config  = {false, 0, 0};
+stream_config_t current_pid_stream_config = {false, 0, 0};
+stream_config_t velocity_pid_stream_config = {false, 0, 0};
+stream_config_t position_pid_stream_config = {false, 0, 0};
+stream_config_t index_stream_config = {false, 0, 0};
+stream_config_t enc_pos_stream_config = {false, 0, 0};
+stream_config_t motor_pos_stream_config = {false, 0, 0};
+stream_config_t motor_torque_stream_config = {false, 0, 0};
 
-uavcan::LazyConstructor<uavcan::Publisher<cvra::motor::feedback::CurrentPID> > current_pid_pub;
-uavcan::LazyConstructor<uavcan::Publisher<cvra::motor::feedback::VelocityPID> > velocity_pid_pub;
-uavcan::LazyConstructor<uavcan::Publisher<cvra::motor::feedback::PositionPID> > position_pid_pub;
+uavcan::LazyConstructor<uavcan::Publisher<cvra::motor::feedback::CurrentPID>> current_pid_pub;
+uavcan::LazyConstructor<uavcan::Publisher<cvra::motor::feedback::VelocityPID>> velocity_pid_pub;
+uavcan::LazyConstructor<uavcan::Publisher<cvra::motor::feedback::PositionPID>> position_pid_pub;
 
-uavcan::LazyConstructor<uavcan::Publisher<cvra::motor::feedback::Index> > index_pub;
-uavcan::LazyConstructor<uavcan::Publisher<cvra::motor::feedback::MotorEncoderPosition> > enc_pos_pub;
-uavcan::LazyConstructor<uavcan::Publisher<cvra::motor::feedback::MotorPosition> > motor_pos_pub;
-uavcan::LazyConstructor<uavcan::Publisher<cvra::motor::feedback::MotorTorque> > motor_torque_pub;
+uavcan::LazyConstructor<uavcan::Publisher<cvra::motor::feedback::Index>> index_pub;
+uavcan::LazyConstructor<uavcan::Publisher<cvra::motor::feedback::MotorEncoderPosition>> enc_pos_pub;
+uavcan::LazyConstructor<uavcan::Publisher<cvra::motor::feedback::MotorPosition>> motor_pos_pub;
+uavcan::LazyConstructor<uavcan::Publisher<cvra::motor::feedback::MotorTorque>> motor_torque_pub;
 
 static struct {
     parameter_namespace_t ns;
     parameter_t current, velocity, position, index, enc_pos, motor_pos, motor_torque;
 } stream_params;
 
-static void stream_update_from_parameters(stream_config_t *conf, parameter_t *freq_param)
+static void stream_update_from_parameters(stream_config_t* conf, parameter_t* freq_param)
 {
     const float frequency = parameter_scalar_get(freq_param);
 
@@ -49,7 +49,7 @@ static void stream_update_from_parameters(stream_config_t *conf, parameter_t *fr
     }
 }
 
-int uavcan_streams_start(Node &node)
+int uavcan_streams_start(Node& node)
 {
     int res;
 
@@ -62,43 +62,43 @@ int uavcan_streams_start(Node &node)
     parameter_scalar_declare_with_default(&stream_params.motor_pos, &stream_params.ns, "motor_pos", 0);
     parameter_scalar_declare_with_default(&stream_params.motor_torque, &stream_params.ns, "motor_torque", 0);
 
-    current_pid_pub.construct<Node &>(node);
+    current_pid_pub.construct<Node&>(node);
     res = current_pid_pub->init();
     if (res < 0) {
         return res;
     }
 
-    velocity_pid_pub.construct<Node &>(node);
+    velocity_pid_pub.construct<Node&>(node);
     res = velocity_pid_pub->init();
     if (res < 0) {
         return res;
     }
 
-    position_pid_pub.construct<Node &>(node);
+    position_pid_pub.construct<Node&>(node);
     res = position_pid_pub->init();
     if (res < 0) {
         return res;
     }
 
-    index_pub.construct<Node &>(node);
+    index_pub.construct<Node&>(node);
     res = index_pub->init();
     if (res < 0) {
         return res;
     }
 
-    enc_pos_pub.construct<Node &>(node);
+    enc_pos_pub.construct<Node&>(node);
     res = enc_pos_pub->init();
     if (res < 0) {
         return res;
     }
 
-    motor_pos_pub.construct<Node &>(node);
+    motor_pos_pub.construct<Node&>(node);
     res = motor_pos_pub->init();
     if (res < 0) {
         return res;
     }
 
-    motor_torque_pub.construct<Node &>(node);
+    motor_torque_pub.construct<Node&>(node);
     res = motor_torque_pub->init();
     if (res < 0) {
         return res;
@@ -107,9 +107,9 @@ int uavcan_streams_start(Node &node)
     return 0;
 }
 
-void uavcan_streams_spin(Node &node)
+void uavcan_streams_spin(Node& node)
 {
-    (void) node;
+    (void)node;
 
     if (parameter_namespace_contains_changed(&stream_params.ns)) {
         stream_update_from_parameters(&current_pid_stream_config, &stream_params.current);

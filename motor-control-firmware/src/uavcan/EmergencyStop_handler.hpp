@@ -3,6 +3,6 @@
 
 #include "uavcan_node.h"
 
-int EmergencyStop_handler_start(Node &node);
+int EmergencyStop_handler_start(Node& node);
 
 #endif

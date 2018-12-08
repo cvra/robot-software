@@ -21,14 +21,12 @@ extern "C" {
 #include "robot_helpers/trajectory_helpers.h"
 
 extern "C" {
-    // TODO: Should this live here?
-    struct _robot robot;
-    messagebus_t bus;
+// TODO: Should this live here?
+struct _robot robot;
+messagebus_t bus;
 }
 
-
-TEST_GROUP(TrajectorySetAligningMode)
-{
+TEST_GROUP (TrajectorySetAligningMode) {
     const int ARBITRARY_TRACK_LENGTH_MM = 100;
     const int ARBITRARY_ENCODER_TICKS_PER_MM = 10000;
     const int ARBITRARY_FREQUENCY = 10;
@@ -78,9 +76,7 @@ TEST(TrajectorySetAligningMode, DisablesAngleControl)
     CHECK_TRUE(robot_mode == BOARD_MODE_DISTANCE_ONLY);
 }
 
-
-TEST_GROUP(TrajectorySetGameMode)
-{
+TEST_GROUP (TrajectorySetGameMode) {
     const int ARBITRARY_TRACK_LENGTH_MM = 100;
     const int ARBITRARY_ENCODER_TICKS_PER_MM = 10000;
     const int ARBITRARY_FREQUENCY = 10;
@@ -130,11 +126,9 @@ TEST(TrajectorySetGameMode, EnablesSimultaneousAngleAndDistanceControl)
     CHECK_TRUE(robot_mode == BOARD_MODE_ANGLE_DISTANCE);
 }
 
-
-TEST_GROUP(CurrentTrajectoryCheck)
-{
+TEST_GROUP (CurrentTrajectoryCheck) {
     struct _robot robot;
-    poly_t *opponent;
+    poly_t* opponent;
 
     const int arbitrary_max_speed = 10;
     const int arbitrary_max_acc = 10;
@@ -292,9 +286,7 @@ TEST(CurrentTrajectoryCheck, DetectsCollisionIfPathIsCompletelyInsideObstacle)
     CHECK_TRUE(trajectory_is_on_collision_path(&robot, 250, 250));
 }
 
-
-TEST_GROUP(TrajectoryHasEnded)
-{
+TEST_GROUP (TrajectoryHasEnded) {
     messagebus_topic_t proximity_beacon_topic;
     messagebus_topic_t ally_position_topic;
 
@@ -426,7 +418,7 @@ TEST(TrajectoryHasEnded, ReturnsZeroWhenTrajectoryHasNotEndedYet)
 TEST(TrajectoryHasEnded, DetectsGoalIsReached)
 {
     /* Reach goal (close enough) */
-    position_set(&robot.pos, arbitrary_goal_x-1, arbitrary_goal_y-1, arbitrary_end_angle);
+    position_set(&robot.pos, arbitrary_goal_x - 1, arbitrary_goal_y - 1, arbitrary_end_angle);
 
     robot_manage();
     robot_manage();
@@ -504,7 +496,6 @@ TEST(TrajectoryHasEnded, DetectsFutureCollisionWhenGoalIsInsideOpponentPolygon)
 
     /* Simulate opponent */
     publish_beacon_signal(timestamp_now, 0.3, 10);
-
 
     int traj_end_reason = trajectory_has_ended(TRAJ_END_OPPONENT_NEAR);
 
@@ -664,9 +655,7 @@ TEST(TrajectoryHasEnded, DetectsTimeIsUp)
     CHECK_EQUAL(TRAJ_END_TIMER, traj_end_reason);
 }
 
-
-TEST_GROUP(ATimeWatcher)
-{
+TEST_GROUP (ATimeWatcher) {
     void setup(void)
     {
         trajectory_game_timer_reset();

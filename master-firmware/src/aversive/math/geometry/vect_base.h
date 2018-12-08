@@ -26,7 +26,6 @@
 extern "C" {
 #endif
 
-
 #include <stdint.h>
 
 /** \addtogroup Geometrie
@@ -53,28 +52,28 @@ typedef struct _point_t {
  * @param [in] *w Second vector
  * @return Dot product
  */
-float vect_pscal(vect_t *v, vect_t *w);
+float vect_pscal(vect_t* v, vect_t* w);
 
 /** Returns the Z component of a cross product.
  * @param [in] *v First vector
  * @param [in] *w Second vector
  * @return Cross product
  */
-float vect_pvect(vect_t *v, vect_t *w);
+float vect_pvect(vect_t* v, vect_t* w);
 
 /** Returns the sign of the dot product.
  * @param [in] *v First vector
  * @param [in] *w Second vector
  * @return Sign of the dot product (z > 0 ? 1 : -1)
  */
-int8_t vect_pscal_sign(vect_t *v, vect_t *w);
+int8_t vect_pscal_sign(vect_t* v, vect_t* w);
 
 /** Returns the sign of the Z component of the cross product.
  * @param [in] *v First vector
  * @param [in] *w Second vector
  * @return Sign of the cross product (z > 0 ? 1 : -1)
  */
-int8_t vect_pvect_sign(vect_t *v, vect_t *w);
+int8_t vect_pvect_sign(vect_t* v, vect_t* w);
 
 /** Computes the norm of a vector, given the raw coordinates of a start and an end point.
  * @param [in] x1 x-coordinate of the start point
@@ -90,36 +89,36 @@ float xy_norm(float x1, float y1, float x2, float y2);
  * @param [in] *p2 End point
  * @return Norm of the vector
  */
-float pt_norm(const point_t *p1, const point_t *p2);
+float pt_norm(const point_t* p1, const point_t* p2);
 
 /** Computes the norm of a vector.
  * @param [in] *v Vector
  * @return Norm of the vector
  */
-float vect_norm(const vect_t *v);
+float vect_norm(const vect_t* v);
 
 /** Rotates a vector by 90 deg CCW
  * @param [in,out] *v Vector to rotate
  */
-void vect_rot_trigo(vect_t *v);
+void vect_rot_trigo(vect_t* v);
 
 /** Rotates a vector by 90 deg CW.
  * @param [in,out] *v Vector to rotate
  */
-void vect_rot_retro(vect_t *v);
+void vect_rot_retro(vect_t* v);
 
 /** Returns the angle between two vectors.
  * @param [in] *v Fist vector
  * @param [in] *w Second vector
  * @return Angle in radian
  */
-float vect_get_angle(vect_t *v, vect_t *w);
+float vect_get_angle(vect_t* v, vect_t* w);
 
 /** Scales a vector by a factor.
  * @param [in,out] *v Vector to scale
  * @param [in] l factor
  */
-void vect_resize(vect_t *v, float l);
+void vect_resize(vect_t* v, float l);
 /** @} */
 
 #ifdef __cplusplus

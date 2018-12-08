@@ -5,11 +5,9 @@ extern "C" {
 #include <obstacle_avoidance/obstacle_avoidance.h>
 }
 
-TEST_GROUP(ObstacleAvoidance)
-{
-
-    const point_t start = {.x = 1000, .y=1000};
-    const point_t end = {.x = 2000, .y=1000};
+TEST_GROUP (ObstacleAvoidance) {
+    const point_t start = {.x = 1000, .y = 1000};
+    const point_t end = {.x = 2000, .y = 1000};
     void setup(void)
     {
         polygon_set_boundingbox(0, 0, 3000, 3000);
@@ -20,7 +18,7 @@ TEST_GROUP(ObstacleAvoidance)
 
 TEST(ObstacleAvoidance, FindsStraightPathWhenNoObstacle)
 {
-    point_t *points;
+    point_t* points;
 
     oa_process();
 
@@ -33,7 +31,7 @@ TEST(ObstacleAvoidance, FindsStraightPathWhenNoObstacle)
 
 TEST(ObstacleAvoidance, FindsPathWithObstacleInTheMiddle)
 {
-    point_t *points;
+    point_t* points;
     auto obstacle = oa_new_poly(4);
     oa_poly_set_point(obstacle, 1400, 900, 3);
     oa_poly_set_point(obstacle, 1400, 1300, 2);
@@ -55,7 +53,7 @@ TEST(ObstacleAvoidance, FindsPathWithObstacleInTheMiddle)
 
 TEST(ObstacleAvoidance, ReturnsToStartPositionWithObstacleInTheMiddle)
 {
-    point_t *points;
+    point_t* points;
     auto obstacle = oa_new_poly(4);
     oa_poly_set_point(obstacle, 1400, 900, 3);
     oa_poly_set_point(obstacle, 1400, 1300, 2);
@@ -79,7 +77,7 @@ TEST(ObstacleAvoidance, ReturnsToStartPositionWithObstacleInTheMiddle)
 
 TEST(ObstacleAvoidance, FindsPathWithTwoOverlappingObstacles)
 {
-    point_t *points;
+    point_t* points;
     auto obstacle1 = oa_new_poly(4);
     oa_poly_set_point(obstacle1, 1400, 900, 3);
     oa_poly_set_point(obstacle1, 1400, 1300, 2);

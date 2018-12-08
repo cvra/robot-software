@@ -1,7 +1,6 @@
 #include "scara_utils.h"
 #include "math/lie_groups.h"
 
-
 point_t scara_coordinate_robot2arm(point_t robot_point, vect2_cart offset_xy, float offset_angle)
 {
     se2_t arm2robot = se2_create(offset_angle, translation_2d(offset_xy.x, offset_xy.y));

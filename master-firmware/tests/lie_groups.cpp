@@ -5,8 +5,7 @@ extern "C" {
 #include "math/lie_groups.h"
 }
 
-TEST_GROUP(AnSO2LieGroup)
-{
+TEST_GROUP (AnSO2LieGroup) {
     const float zero = 0;
     const float pi = M_PI;
 };
@@ -36,7 +35,7 @@ TEST(AnSO2LieGroup, ComputesRotatedPoint)
 
     point_t rotated = so2_rotate(rotation, point);
 
-    DOUBLES_EQUAL(- point.y, rotated.x, 0.01);
+    DOUBLES_EQUAL(-point.y, rotated.x, 0.01);
     DOUBLES_EQUAL(point.x, rotated.y, 0.01);
 }
 
@@ -48,11 +47,10 @@ TEST(AnSO2LieGroup, ComputesInverseRotatedPoint)
     point_t rotated = so2_inverse_rotate(rotation, point);
 
     DOUBLES_EQUAL(point.y, rotated.x, 0.01);
-    DOUBLES_EQUAL(- point.x, rotated.y, 0.01);
+    DOUBLES_EQUAL(-point.x, rotated.y, 0.01);
 }
 
-TEST_GROUP(AnSE2LieGroup)
-{
+TEST_GROUP (AnSE2LieGroup) {
     const float pi = M_PI;
 };
 
@@ -92,8 +90,8 @@ TEST(AnSE2LieGroup, RotatesAndTranslatesPoint)
 
     point_t transformed = se2_transform(transform, point);
 
-    DOUBLES_EQUAL(- point.y + 1, transformed.x, 0.01);
-    DOUBLES_EQUAL(+ point.x + 2, transformed.y, 0.01);
+    DOUBLES_EQUAL(-point.y + 1, transformed.x, 0.01);
+    DOUBLES_EQUAL(+point.x + 2, transformed.y, 0.01);
 }
 
 TEST(AnSE2LieGroup, AppliesInverseTransformToPoint)
@@ -103,8 +101,8 @@ TEST(AnSE2LieGroup, AppliesInverseTransformToPoint)
 
     point_t transformed = se2_inverse_transform(transform, point);
 
-    DOUBLES_EQUAL(  (point.y - 2), transformed.x, 0.01);
-    DOUBLES_EQUAL(- (point.x - 1), transformed.y, 0.01);
+    DOUBLES_EQUAL((point.y - 2), transformed.x, 0.01);
+    DOUBLES_EQUAL(-(point.x - 1), transformed.y, 0.01);
 }
 
 TEST(AnSE2LieGroup, ChainsTransforms)
@@ -137,7 +135,7 @@ TEST(AnSE2LieGroup, InversesTransform)
 
     se2_t Ainv = se2_inverse(A);
 
-    DOUBLES_EQUAL(- M_PI / 2, Ainv.rotation.angle, 0.01);
+    DOUBLES_EQUAL(-M_PI / 2, Ainv.rotation.angle, 0.01);
     DOUBLES_EQUAL(-2, Ainv.translation.x, 0.01);
     DOUBLES_EQUAL(1, Ainv.translation.y, 0.01);
 }
@@ -148,7 +146,7 @@ TEST(AnSE2LieGroup, InversesTransformNonTrivial)
 
     se2_t Ainv = se2_inverse(A);
 
-    DOUBLES_EQUAL(- M_PI / 12, Ainv.rotation.angle, 0.01);
+    DOUBLES_EQUAL(-M_PI / 12, Ainv.rotation.angle, 0.01);
     DOUBLES_EQUAL(-14.83563916, Ainv.translation.x, 0.01);
     DOUBLES_EQUAL(-16.73032607, Ainv.translation.y, 0.01);
 }

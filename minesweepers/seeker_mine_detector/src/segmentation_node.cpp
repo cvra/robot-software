@@ -22,13 +22,15 @@
 namespace seeker {
 struct RGB {
     uint8_t r, g, b;
-    RGB(uint8_t r, uint8_t g, uint8_t b) : r(r), g(g), b(b) {};
+    RGB(uint8_t r, uint8_t g, uint8_t b)
+        : r(r)
+        , g(g)
+        , b(b){};
 };
 std::vector<RGB> color_palette(size_t number_of_colors);
-}  // seeker
+} // namespace seeker
 
-
-int main (int argc, char** argv)
+int main(int argc, char** argv)
 {
     ros::init(argc, argv, "segmentation");
     ros::NodeHandle node;
@@ -40,8 +42,7 @@ int main (int argc, char** argv)
     auto on_new_position = boost::function<void(const geometry_msgs::Point&)>(
         [&uwb_position](const geometry_msgs::Point& msg) {
             uwb_position = msg;
-        }
-    );
+        });
     ros::Subscriber uwb_position_sub = node.subscribe<geometry_msgs::Point>("uwb_position", 1, on_new_position);
 
     auto on_new_point_cloud = boost::function<void(const sensor_msgs::PointCloud2ConstPtr&)>(
@@ -62,8 +63,8 @@ int main (int argc, char** argv)
 
             // Crop to bounding box
             pcl::CropBox<pcl::PointXYZ> boxFilter;
-            boxFilter.setMin(Eigen::Vector4f(-1.0, -1.0,  0.0, 1.0));
-            boxFilter.setMax(Eigen::Vector4f( 1.0,  1.0,  1.0, 1.0));
+            boxFilter.setMin(Eigen::Vector4f(-1.0, -1.0, 0.0, 1.0));
+            boxFilter.setMax(Eigen::Vector4f(1.0, 1.0, 1.0, 1.0));
             boxFilter.setInputCloud(cloud);
             boxFilter.filter(*cloud);
 
@@ -73,7 +74,7 @@ int main (int argc, char** argv)
             vg.setInputCloud(cloud);
             vg.setLeafSize(0.01f, 0.01f, 0.01f);
             vg.filter(*cloud_filtered);
-            ROS_DEBUG_STREAM("PointCloud after filtering has: " << cloud_filtered->points.size()  << " data points.");
+            ROS_DEBUG_STREAM("PointCloud after filtering has: " << cloud_filtered->points.size() << " data points.");
 
             if (cloud_filtered->points.size() == 0) {
                 ROS_DEBUG_STREAM("PointCloud after filtering is empty, waiting for next one.");
@@ -91,14 +92,12 @@ int main (int argc, char** argv)
             seg.setMaxIterations(100);
             seg.setDistanceThreshold(0.02);
 
-            int i=0, nr_points = (int) cloud_filtered->points.size();
-            while (cloud_filtered->points.size() > 0.3 * nr_points)
-            {
+            int i = 0, nr_points = (int)cloud_filtered->points.size();
+            while (cloud_filtered->points.size() > 0.3 * nr_points) {
                 // Segment the largest planar component from the remaining cloud
                 seg.setInputCloud(cloud_filtered);
                 seg.segment(*inliers, *coefficients);
-                if (inliers->indices.size() == 0)
-                {
+                if (inliers->indices.size() == 0) {
                     ROS_DEBUG_STREAM("Could not estimate a planar model for the given dataset.");
                     break;
                 }
@@ -139,8 +138,7 @@ int main (int argc, char** argv)
             int j = 0;
             auto palette = seeker::color_palette(cluster_indices.size());
             pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_cluster(new pcl::PointCloud<pcl::PointXYZRGB>);
-            for (const auto& cluster_index : cluster_indices)
-            {
+            for (const auto& cluster_index : cluster_indices) {
                 pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_object(new pcl::PointCloud<pcl::PointXYZRGB>);
 
                 for (const auto& point_index : cluster_index.indices) {
@@ -204,8 +202,7 @@ int main (int argc, char** argv)
             cloud_cluster->is_dense = true;
             pcl_conversions::toPCL(ros::Time::now(), cloud_cluster->header.stamp);
             object_pub.publish(cloud_cluster);
-        }
-    );
+        });
     ros::Subscriber sub = node.subscribe("/camera/depth_registered/points", 1, on_new_point_cloud);
 
     ros::Duration(5).sleep(); // wait for the storm to pass before we start processing
@@ -226,11 +223,11 @@ std::vector<RGB> color_palette(size_t number_of_colors)
     for (size_t i = 0; i < grid_size; i++) {
         for (size_t j = 0; j < grid_size; j++) {
             for (size_t k = 0; k < grid_size; k++) {
-                colors.emplace_back(255.f * i / grid_size, 255.f * j /grid_size, 255.f * k / grid_size);
+                colors.emplace_back(255.f * i / grid_size, 255.f * j / grid_size, 255.f * k / grid_size);
             }
         }
     }
 
     return colors;
 }
-}  // seeker
+} // namespace seeker

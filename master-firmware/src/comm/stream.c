@@ -17,7 +17,7 @@
 #include "obstacle_avoidance/obstacle_avoidance.h"
 
 #define STREAM_STACKSIZE 2048
-#define TOPIC_NAME_LEN   40
+#define TOPIC_NAME_LEN 40
 
 THD_WORKING_AREA(wa_stream, STREAM_STACKSIZE);
 
@@ -32,7 +32,7 @@ void stream_float(cmp_ctx_t* ctx, cmp_mem_access_t* mem, ip_addr_t* server, cons
     message_transmit(buffer, cmp_mem_access_get_pos(mem), server, STREAM_PORT);
 }
 
-static void stream_thread(void *p)
+static void stream_thread(void* p)
 {
     chRegSetThreadName("stream");
     static uint8_t buffer[200];
@@ -41,7 +41,7 @@ static void stream_thread(void *p)
     cmp_mem_access_t mem;
     ip_addr_t server;
 
-    (void) p;
+    (void)p;
 
     STREAM_HOST(&server);
 
@@ -51,7 +51,7 @@ static void stream_thread(void *p)
         stream_float(&ctx, &mem, &server, "base/angle/setpoint", (float)robot.angle_cs.consign_value / robot.angle_pid.divider);
         stream_float(&ctx, &mem, &server, "base/angle/measured", (float)robot.angle_cs.filtered_feedback_value / robot.angle_pid.divider);
 
-        motor_driver_t *drv_list;
+        motor_driver_t* drv_list;
         uint16_t drv_list_len;
         motor_manager_get_list(&motor_manager, &drv_list, &drv_list_len);
 

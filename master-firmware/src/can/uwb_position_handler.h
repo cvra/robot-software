@@ -3,6 +3,6 @@
 
 #include <uavcan/uavcan.hpp>
 
-int uwb_position_handler_init(uavcan::INode &node);
+int uwb_position_handler_init(uavcan::INode& node);
 
 #endif

@@ -7,7 +7,7 @@
  *
  * @note returns zero if there was an error.
  */
-static size_t encode_topic_header(const messagebus_topic_t *topic, uint8_t *buf, size_t buf_len);
+static size_t encode_topic_header(const messagebus_topic_t* topic, uint8_t* buf, size_t buf_len);
 
 /** Encode a given's topic body in the buffer and returns the size. Uses the
  * provided scratch buffer to hold the topic content while it is being
@@ -15,14 +15,17 @@ static size_t encode_topic_header(const messagebus_topic_t *topic, uint8_t *buf,
  *
  * @returns encoded size or zero if there was an error.
  */
-static size_t encode_topic_body(messagebus_topic_t *topic,
-                                uint8_t *buf, size_t buf_len,
-                                uint8_t *scratch, size_t scratch_len);
+static size_t encode_topic_body(messagebus_topic_t* topic,
+                                uint8_t* buf,
+                                size_t buf_len,
+                                uint8_t* scratch,
+                                size_t scratch_len);
 
-
-size_t messagebus_encode_topic_message(messagebus_topic_t *topic,
-                                       uint8_t *buf, size_t buf_len,
-                                       uint8_t *scratch, size_t scratch_len)
+size_t messagebus_encode_topic_message(messagebus_topic_t* topic,
+                                       uint8_t* buf,
+                                       size_t buf_len,
+                                       uint8_t* scratch,
+                                       size_t scratch_len)
 {
     size_t header_len, body_len;
 
@@ -42,11 +45,11 @@ size_t messagebus_encode_topic_message(messagebus_topic_t *topic,
     return header_len + body_len;
 }
 
-void messagebus_inject_encoded_message(messagebus_t *bus, uint8_t *buf, size_t len)
+void messagebus_inject_encoded_message(messagebus_t* bus, uint8_t* buf, size_t len)
 {
     size_t offset = 0;
     pb_istream_t istream;
-    messagebus_topic_t *topic;
+    messagebus_topic_t* topic;
 
     /* TODO check for out of bounds access */
     (void)len;
@@ -85,7 +88,7 @@ void messagebus_inject_encoded_message(messagebus_t *bus, uint8_t *buf, size_t l
 
     /* TODO better approach than just a static buffer. */
     static uint8_t obj_buffer[1024];
-    topic_metadata_t *metadata = (topic_metadata_t *)topic->metadata;
+    topic_metadata_t* metadata = (topic_metadata_t*)topic->metadata;
     if (!pb_decode(&istream, metadata->fields, obj_buffer)) {
         return;
     }
@@ -93,9 +96,9 @@ void messagebus_inject_encoded_message(messagebus_t *bus, uint8_t *buf, size_t l
     messagebus_topic_publish(topic, obj_buffer, topic->buffer_len);
 }
 
-static size_t encode_topic_header(const messagebus_topic_t *topic, uint8_t *buf, size_t buf_len)
+static size_t encode_topic_header(const messagebus_topic_t* topic, uint8_t* buf, size_t buf_len)
 {
-    topic_metadata_t *metadata = topic->metadata;
+    topic_metadata_t* metadata = topic->metadata;
     size_t offset;
     size_t max_len;
 
@@ -132,14 +135,16 @@ static size_t encode_topic_header(const messagebus_topic_t *topic, uint8_t *buf,
     return MessageSize_size + header_size.bytes;
 }
 
-static size_t encode_topic_body(messagebus_topic_t *topic,
-                                uint8_t *buf, size_t buf_len,
-                                uint8_t *scratch, size_t scratch_len)
+static size_t encode_topic_body(messagebus_topic_t* topic,
+                                uint8_t* buf,
+                                size_t buf_len,
+                                uint8_t* scratch,
+                                size_t scratch_len)
 {
     pb_ostream_t stream;
     MessageSize msg_size;
     bool was_posted_once;
-    topic_metadata_t *metadata = topic->metadata;
+    topic_metadata_t* metadata = topic->metadata;
 
     if (scratch_len < topic->buffer_len) {
         return 0;
@@ -169,4 +174,3 @@ static size_t encode_topic_body(messagebus_topic_t *topic,
 
     return msg_size.bytes + MessageSize_size;
 }
-

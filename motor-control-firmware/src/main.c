@@ -22,15 +22,15 @@ parameter_namespace_t parameter_root_ns;
 
 void panic_hook(const char* reason)
 {
-    palClearPad(GPIOA, GPIOA_LED);      // turn on LED (active low)
+    palClearPad(GPIOA, GPIOA_LED); // turn on LED (active low)
     motor_pwm_disable();
     static BlockingUARTDriver blocking_uart_stream;
     blocking_uart_init(&blocking_uart_stream, USART3, 115200);
     BaseSequentialStream* uart = (BaseSequentialStream*)&blocking_uart_stream;
     int i;
-    while(42){
-        for(i = 10000000; i>0; i--){
-            __asm__ volatile ("nop");
+    while (42) {
+        for (i = 10000000; i > 0; i--) {
+            __asm__ volatile("nop");
         }
         chprintf(uart, "Panic: %s\n", reason);
     }
@@ -45,7 +45,7 @@ void _unhandled_exception(void)
     }
 }
 
-void __assert_func(const char *_file, int _line, const char *_func, const char *_expr )
+void __assert_func(const char* _file, int _line, const char* _func, const char* _expr)
 {
     (void)_file;
     (void)_line;
@@ -53,7 +53,8 @@ void __assert_func(const char *_file, int _line, const char *_func, const char *
     (void)_expr;
 
     chSysHalt("assertion failed");
-    while(1);
+    while (1)
+        ;
 }
 
 static THD_WORKING_AREA(led_thread_wa, 128);
@@ -82,7 +83,7 @@ static THD_FUNCTION(led_thread, arg)
             palSetPad(GPIOA, GPIOA_LED);
 
             chThdSleepMilliseconds(720);
-        }else {
+        } else {
             palClearPad(GPIOA, GPIOA_LED);
             chThdSleepMilliseconds(80);
             palSetPad(GPIOA, GPIOA_LED);
@@ -100,7 +101,8 @@ void _fini(void)
     /* empty */
 }
 
-int main(void) {
+int main(void)
+{
     halInit();
     chSysInit();
 
@@ -129,7 +131,6 @@ int main(void) {
     chprintf(ch_stdout, "boot\n");
     chprintf(ch_stdout, "%s: %d\n", config.board_name, config.ID);
 
-
     control_init();
 
     index_init();
@@ -147,7 +148,7 @@ int main(void) {
     /* Wait for all services to boot, then try to load config. */
     chThdSleepMilliseconds(300);
 
-    if(parameter_flash_storage_load(&parameter_root_ns, &_config_start)) {
+    if (parameter_flash_storage_load(&parameter_root_ns, &_config_start)) {
         uavcan_init_complete();
         control_start();
     }

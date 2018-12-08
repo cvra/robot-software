@@ -14,11 +14,11 @@ typedef struct {
 
 void scara_ik_controller_init(scara_ik_controller_t* controller);
 
-void scara_ik_controller_set_geometry(scara_ik_controller_t *controller,
-                                      float *length);
+void scara_ik_controller_set_geometry(scara_ik_controller_t* controller,
+                                      float* length);
 
 scara_joint_setpoints_t
-scara_ik_controller_process(scara_ik_controller_t *controller,
+scara_ik_controller_process(scara_ik_controller_t* controller,
                             position_3d_t desired,
                             scara_joint_positions_t measured);
 

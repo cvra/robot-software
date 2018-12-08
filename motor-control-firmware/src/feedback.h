@@ -29,25 +29,24 @@ enum feedback_input_selection {
     FEEDBACK_POTENTIOMETER = 5,
 };
 
-
 // note: enocders always overflow at 2**16
 struct encoder_s {
-    int32_t accumulator;        // accumulates encoder * p (except for bounded)
-    uint16_t previous;          // previous input
+    int32_t accumulator; // accumulates encoder * p (except for bounded)
+    uint16_t previous; // previous input
 
-    uint16_t transmission_p;    // transmission factor from motor to output
-    uint16_t transmission_q;    // is p / q (i.e. working_end_pos = accumulator / q)
+    uint16_t transmission_p; // transmission factor from motor to output
+    uint16_t transmission_q; // is p / q (i.e. working_end_pos = accumulator / q)
 
-    uint32_t ticks_per_rev;     // one physical revolution of the encoder (datasheet)
+    uint32_t ticks_per_rev; // one physical revolution of the encoder (datasheet)
 };
 
 struct potentiometer_s {
     float zero;
-    float gain;     // pos = gain * input
+    float gain; // pos = gain * input
 };
 
 struct rpm_s {
-    float phase;    // angle in rad from zero to light barrier
+    float phase; // angle in rad from zero to light barrier
 };
 
 struct feedback_s {
@@ -74,9 +73,7 @@ struct feedback_s {
     struct rpm_s rpm;
 };
 
-
-void feedback_compute(struct feedback_s *feedback);
-
+void feedback_compute(struct feedback_s* feedback);
 
 #ifdef __cplusplus
 }

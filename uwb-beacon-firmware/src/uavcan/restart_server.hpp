@@ -3,6 +3,6 @@
 
 #include "uavcan_node.h"
 
-int restart_server_start(Node &node);
+int restart_server_start(Node& node);
 
 #endif

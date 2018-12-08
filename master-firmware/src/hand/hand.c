@@ -9,9 +9,9 @@ void hand_init(hand_t* hand)
     hand->pump_state = PUMP_OFF;
 }
 
-void hand_set_pump_callback(hand_t *hand,
-                            void (*set_pump_voltage)(void *, float),
-                            void *pump_args)
+void hand_set_pump_callback(hand_t* hand,
+                            void (*set_pump_voltage)(void*, float),
+                            void* pump_args)
 {
     hand->set_pump_voltage = set_pump_voltage;
     hand->pump_args = pump_args;
@@ -19,12 +19,15 @@ void hand_set_pump_callback(hand_t *hand,
 
 static float pump_voltage(pump_state_t state)
 {
-    switch (state)
-    {
-    case PUMP_ON:      return 13.f;
-    case PUMP_OFF:     return 0.f;
-    case PUMP_REVERSE: return -10.f;
-    default:           return 0.f;
+    switch (state) {
+        case PUMP_ON:
+            return 13.f;
+        case PUMP_OFF:
+            return 0.f;
+        case PUMP_REVERSE:
+            return -10.f;
+        default:
+            return 0.f;
     }
 }
 

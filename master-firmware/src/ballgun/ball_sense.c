@@ -18,7 +18,7 @@ static inline bool ball_sense_read(void)
 
 static THD_FUNCTION(ball_sense_thd, arg)
 {
-    (void) arg;
+    (void)arg;
     chRegSetThreadName(__FUNCTION__);
 
     ball_sensor_init(&ball_sensor);

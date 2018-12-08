@@ -7,7 +7,7 @@ extern "C" {
 
 #include <ch.h>
 
-void uart_stream_start(BaseSequentialStream *dev);
+void uart_stream_start(BaseSequentialStream* dev);
 
 #ifdef __cplusplus
 }

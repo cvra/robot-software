@@ -53,8 +53,7 @@ void ball_sensor_manage(ball_sensor_t* sensor, bool measurement)
     }
 }
 
-void ball_sensor_configure(ball_sensor_t *sensor, bool ball_detection_signal,
-                           unsigned low_threshold, unsigned high_threshold)
+void ball_sensor_configure(ball_sensor_t* sensor, bool ball_detection_signal, unsigned low_threshold, unsigned high_threshold)
 {
     sensor->ball_detection_signal = ball_detection_signal;
     sensor->low_threshold = low_threshold;

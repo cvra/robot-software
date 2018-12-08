@@ -15,12 +15,12 @@ static struct {
 } params;
 
 /** Creates the parameters. */
-static void parameters_init(parameter_namespace_t *parent);
+static void parameters_init(parameter_namespace_t* parent);
 
 static THD_WORKING_AREA(state_estimation_wa, 1024);
 static THD_FUNCTION(state_estimation_thd, arg)
 {
-    (void) arg;
+    (void)arg;
 
     messagebus_topic_t *range_topic, *imu_topic;
     struct {
@@ -61,13 +61,13 @@ static THD_FUNCTION(state_estimation_thd, arg)
                                 imu_topic);
 
     while (true) {
-        messagebus_topic_t *topic;
+        messagebus_topic_t* topic;
         topic = messagebus_watchgroup_wait(&watchgroup.group);
 
         if (topic == range_topic) {
             // If we got a range, feed it to the estimator
             range_msg_t msg;
-            anchor_position_msg_t *anchor_pos;
+            anchor_position_msg_t* anchor_pos;
             messagebus_topic_read(topic, &msg, sizeof(msg));
 
             // Discard messages with range greater than 1km, as they are
@@ -76,7 +76,6 @@ static THD_FUNCTION(state_estimation_thd, arg)
             if (msg.range > 1000) {
                 continue;
             }
-
 
             estimator.measurementVariance = parameter_scalar_read(&params.range_variance);
 
@@ -116,7 +115,7 @@ void state_estimation_start(void)
                       NULL);
 }
 
-static void parameters_init(parameter_namespace_t *parent)
+static void parameters_init(parameter_namespace_t* parent)
 {
     parameter_namespace_declare(&params.ns, parent, "ekf");
     parameter_scalar_declare_with_default(&params.process_variance,

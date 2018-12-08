@@ -11,11 +11,11 @@
 #include "motor_manager.h"
 #include "unix_timestamp.h"
 
-#define TRAJ_CHUNK_BUFFER_LEN   100
+#define TRAJ_CHUNK_BUFFER_LEN 100
 
-void message_cb(void *p, cmp_ctx_t *input)
+void message_cb(void* p, cmp_ctx_t* input)
 {
-    (void) p;
+    (void)p;
     bool res;
     cmp_read_bool(input, &res);
 
@@ -26,9 +26,9 @@ void message_cb(void *p, cmp_ctx_t *input)
     }
 }
 
-void message_actuator_voltage_callback(void *p, cmp_ctx_t *input)
+void message_actuator_voltage_callback(void* p, cmp_ctx_t* input)
 {
-    (void) p;
+    (void)p;
     char actuator_id[MOTOR_ID_MAX_LEN_WITH_NUL];
     uint32_t actuator_id_size = sizeof(actuator_id);
     float setpoint;
@@ -45,9 +45,9 @@ void message_actuator_voltage_callback(void *p, cmp_ctx_t *input)
     motor_manager_set_voltage(&motor_manager, actuator_id, setpoint);
 }
 
-void message_actuator_torque_callback(void *p, cmp_ctx_t *input)
+void message_actuator_torque_callback(void* p, cmp_ctx_t* input)
 {
-    (void) p;
+    (void)p;
     char actuator_id[MOTOR_ID_MAX_LEN_WITH_NUL];
     uint32_t actuator_id_size = sizeof(actuator_id);
     float setpoint;
@@ -64,9 +64,9 @@ void message_actuator_torque_callback(void *p, cmp_ctx_t *input)
     motor_manager_set_torque(&motor_manager, actuator_id, setpoint);
 }
 
-void message_actuator_velocity_callback(void *p, cmp_ctx_t *input)
+void message_actuator_velocity_callback(void* p, cmp_ctx_t* input)
 {
-    (void) p;
+    (void)p;
     char actuator_id[MOTOR_ID_MAX_LEN_WITH_NUL];
     uint32_t actuator_id_size = sizeof(actuator_id);
     float setpoint;
@@ -83,9 +83,9 @@ void message_actuator_velocity_callback(void *p, cmp_ctx_t *input)
     motor_manager_set_velocity(&motor_manager, actuator_id, setpoint);
 }
 
-void message_actuator_position_callback(void *p, cmp_ctx_t *input)
+void message_actuator_position_callback(void* p, cmp_ctx_t* input)
 {
-    (void) p;
+    (void)p;
     char actuator_id[MOTOR_ID_MAX_LEN_WITH_NUL];
     uint32_t actuator_id_size = sizeof(actuator_id);
     float setpoint;

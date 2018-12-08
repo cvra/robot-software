@@ -10,11 +10,9 @@ extern "C" {
 
 extern void scara_time_set(int32_t time);
 
+#define RAD(x) ((x / 180.) * M_PI)
 
-#define RAD(x) ((x/180.)*M_PI)
-
-TEST_GROUP(kinematicsTestGroup)
-{
+TEST_GROUP (kinematicsTestGroup) {
     float alpha, beta;
     point_t p1, p2;
     int status;
@@ -22,7 +20,7 @@ TEST_GROUP(kinematicsTestGroup)
     scara_trajectory_t traj;
     scara_t arm;
     float arbitraryLengths[2] = {100, 50};
-    velocity_3d_t max_vel = {.x=10, .y=10, .z=10};
+    velocity_3d_t max_vel = {.x = 10, .y = 10, .z = 10};
 
     void setup()
     {
@@ -67,7 +65,7 @@ TEST(kinematicsTestGroup, ForwardKinematicsTrivialCaseBis)
 {
     point_t result;
     float length[] = {100., 100.};
-    result = scara_forward_kinematics(M_PI/2, 0., length);
+    result = scara_forward_kinematics(M_PI / 2, 0., length);
 
     DOUBLES_EQUAL(result.x, 0, 1e-2);
     DOUBLES_EQUAL(result.y, 200, 1e-2);
@@ -77,7 +75,7 @@ TEST(kinematicsTestGroup, ForwardKinematicsNegativeAnglesToo)
 {
     point_t result;
     float length[] = {100., 100.};
-    result = scara_forward_kinematics(-M_PI/2, 0., length);
+    result = scara_forward_kinematics(-M_PI / 2, 0., length);
 
     DOUBLES_EQUAL(result.x, 0, 1e-2);
     DOUBLES_EQUAL(result.y, -200, 1e-2);
@@ -90,21 +88,21 @@ TEST(kinematicsTestGroup, DoesNotOscillateAroundZero)
     point_t target;
     int position_count;
 
-    scara_trajectory_append_point(&traj, {100,  1, 10}, COORDINATE_ARM, max_vel, arbitraryLengths);
+    scara_trajectory_append_point(&traj, {100, 1, 10}, COORDINATE_ARM, max_vel, arbitraryLengths);
     scara_trajectory_append_point(&traj, {100, -1, 10}, COORDINATE_ARM, max_vel, arbitraryLengths);
     scara_do_trajectory(&arm, &traj);
 
-    while (scara_time_get() < traj.frames[traj.frame_count-1].date) {
+    while (scara_time_get() < traj.frames[traj.frame_count - 1].date) {
         frame = scara_position_for_date(&arm, scara_time_get());
 
         target.x = frame.position.x;
         target.y = frame.position.y;
 
         position_count = scara_num_possible_elbow_positions(target,
-                                 frame.length[0], frame.length[1],
-                                 &p1, &p2);
+                                                            frame.length[0], frame.length[1],
+                                                            &p1, &p2);
 
         CHECK_EQUAL(2, position_count);
-        scara_time_set(scara_time_get() + 2*1000);
+        scara_time_set(scara_time_get() + 2 * 1000);
     }
 }

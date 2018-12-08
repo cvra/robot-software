@@ -15,7 +15,7 @@ extern "C" {
 
 /** Frequency of the regulation loop and odometry loop (in Hz) */
 #define ASSERV_FREQUENCY 100
-#define ODOM_FREQUENCY   100
+#define ODOM_FREQUENCY 100
 
 /**
  @brief Type of the regulators
@@ -29,10 +29,10 @@ extern "C" {
  */
 enum board_mode_t {
     BOARD_MODE_ANGLE_DISTANCE, ///< Angle & Distance regulated
-    BOARD_MODE_ANGLE_ONLY,     ///< Angle regulated only
-    BOARD_MODE_DISTANCE_ONLY,  ///< Distance regulated only
-    BOARD_MODE_INDEPENDENT,    ///< 3 independent axis
-    BOARD_MODE_FREE,           ///< No control system
+    BOARD_MODE_ANGLE_ONLY, ///< Angle regulated only
+    BOARD_MODE_DISTANCE_ONLY, ///< Distance regulated only
+    BOARD_MODE_INDEPENDENT, ///< 3 independent axis
+    BOARD_MODE_FREE, ///< No control system
     BOARD_MODE_SET_PWM,
 };
 
@@ -54,22 +54,22 @@ enum base_speed_t {
  group all vars in one place. It also serve as a namespace.
  */
 struct _robot {
-    struct robot_system rs;    // Robot system (angle & distance)
+    struct robot_system rs; // Robot system (angle & distance)
     struct robot_position pos; // Position manager
     enum base_speed_t base_speed;
 
-    struct cs angle_cs;        // Control system manager for angle
-    struct cs distance_cs;     // Control system manager for distance
+    struct cs angle_cs; // Control system manager for angle
+    struct cs distance_cs; // Control system manager for distance
     cvra_pid_t angle_pid;
     cvra_pid_t distance_pid;
     struct quadramp_filter angle_qr;
     struct quadramp_filter distance_qr;
 
-    struct trajectory traj;                 // Trivial trajectory manager
-    struct blocking_detection angle_bd;     // Angle blocking detection manager
-    struct blocking_detection distance_bd;  // Distance blocking detection manager
+    struct trajectory traj; // Trivial trajectory manager
+    struct blocking_detection angle_bd; // Angle blocking detection manager
+    struct blocking_detection distance_bd; // Distance blocking detection manager
 
-    enum board_mode_t mode;                 // The current board mode
+    enum board_mode_t mode; // The current board mode
 
     enum direction_t calibration_direction; // Calibration direction / side of the robot
     int robot_size;
@@ -80,7 +80,6 @@ struct _robot {
 };
 
 extern struct _robot robot;
-
 
 void robot_init(void);
 void robot_trajectory_windows_set_coarse(void);

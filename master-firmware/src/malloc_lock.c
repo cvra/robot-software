@@ -15,9 +15,9 @@ void malloc_lock_init(void)
     lock_initialized = true;
 }
 
-void __malloc_lock (struct _reent *reent)
+void __malloc_lock(struct _reent* reent)
 {
-    (void) reent;
+    (void)reent;
     if (lock_initialized) {
         chMtxLock(&lock);
     } else {
@@ -25,9 +25,9 @@ void __malloc_lock (struct _reent *reent)
     }
 }
 
-void __malloc_unlock (struct _reent *reent)
+void __malloc_unlock(struct _reent* reent)
 {
-    (void) reent;
+    (void)reent;
     if (lock_initialized) {
         chMtxUnlock(&lock);
     }

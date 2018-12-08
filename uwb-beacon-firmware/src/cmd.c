@@ -17,23 +17,23 @@
 #include "state_estimation_thread.h"
 #include "anchor_position_cache.h"
 
-#define TEST_WA_SIZE  THD_WORKING_AREA_SIZE(256)
+#define TEST_WA_SIZE THD_WORKING_AREA_SIZE(256)
 #define SHELL_WA_SIZE THD_WORKING_AREA_SIZE(2048)
 
-static void cmd_reboot(BaseSequentialStream *chp, int argc, char **argv)
+static void cmd_reboot(BaseSequentialStream* chp, int argc, char** argv)
 {
-    (void) chp;
-    (void) argc;
-    (void) argv;
+    (void)chp;
+    (void)argc;
+    (void)argv;
     NVIC_SystemReset();
 }
 
-static void cmd_topics(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_topics(BaseSequentialStream* chp, int argc, char* argv[])
 {
-    (void) argc;
-    (void) argv;
+    (void)argc;
+    (void)argv;
 
-    const char *usage = "usage:\r\n"
+    const char* usage = "usage:\r\n"
                         "topics list -- Lists all available topics.\r\n"
                         "topics hz topic_name -- Displays the rate of the"
                         "topic over a 5 second window.";
@@ -46,7 +46,7 @@ static void cmd_topics(BaseSequentialStream *chp, int argc, char *argv[])
     if (!strcmp(argv[0], "list")) {
         chprintf(chp, "available topics:\r\n");
 
-        MESSAGEBUS_TOPIC_FOREACH(&bus, topic) {
+        MESSAGEBUS_TOPIC_FOREACH (&bus, topic) {
             chprintf(chp, "%s\r\n", topic->name);
         }
     } else if (!strcmp(argv[0], "hz")) {
@@ -55,7 +55,7 @@ static void cmd_topics(BaseSequentialStream *chp, int argc, char *argv[])
             return;
         }
 
-        messagebus_topic_t *topic = messagebus_find_topic(&bus, argv[1]);
+        messagebus_topic_t* topic = messagebus_find_topic(&bus, argv[1]);
         if (topic == NULL) {
             chprintf(chp, "Cannot find topic \"%s\".\r\n", argv[1]);
             return;
@@ -69,7 +69,7 @@ static void cmd_topics(BaseSequentialStream *chp, int argc, char *argv[])
         while (chVTGetSystemTime() < start + TIME_MS2I(5000)) {
             chMtxLock(topic->lock);
             if (chCondWaitTimeout(topic->condvar, TIME_MS2I(10)) != MSG_TIMEOUT) {
-                message_counter ++;
+                message_counter++;
                 chMtxUnlock(topic->lock);
             }
         }
@@ -85,13 +85,13 @@ static void cmd_topics(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
-static void cmd_imu(BaseSequentialStream *chp, int argc, char **argv)
+static void cmd_imu(BaseSequentialStream* chp, int argc, char** argv)
 {
-    (void) argc;
-    (void) argv;
+    (void)argc;
+    (void)argv;
 
     imu_msg_t msg;
-    messagebus_topic_t *imu_topic;
+    messagebus_topic_t* imu_topic;
 
     imu_topic = messagebus_find_topic(&bus, "/imu");
 
@@ -109,20 +109,19 @@ static void cmd_imu(BaseSequentialStream *chp, int argc, char **argv)
     msg.gyro.y *= 180 / 3.14;
     msg.gyro.z *= 180 / 3.14;
 
-
     chprintf(chp, "timestamp: %.3f s\r\n", msg.timestamp * 1e-6);
     chprintf(chp, "acc [m/s^2] :\t%.2f %.2f %.2f\r\n", msg.acc.x, msg.acc.y, msg.acc.z);
     chprintf(chp, "gyro [deg/s]:\t%.2f %.2f %.2f\r\n", msg.gyro.x, msg.gyro.y, msg.gyro.z);
     chprintf(chp, "mag [uT] :\t%.2f %.2f %.2f\r\n", msg.mag.x, msg.mag.y, msg.mag.z);
 }
 
-static void cmd_temp(BaseSequentialStream *chp, int argc, char **argv)
+static void cmd_temp(BaseSequentialStream* chp, int argc, char** argv)
 {
-    (void) argc;
-    (void) argv;
+    (void)argc;
+    (void)argv;
 
     temperature_msg_t msg;
-    messagebus_topic_t *temperature_topic;
+    messagebus_topic_t* temperature_topic;
 
     temperature_topic = messagebus_find_topic(&bus, "/imu/temperature");
 
@@ -140,7 +139,7 @@ static void cmd_temp(BaseSequentialStream *chp, int argc, char **argv)
     chprintf(chp, "IMU temperature: %d\r\n", (int)msg.temperature);
 }
 
-static void cmd_ahrs(BaseSequentialStream *chp, int argc, char **argv)
+static void cmd_ahrs(BaseSequentialStream* chp, int argc, char** argv)
 {
     if (argc < 1) {
         chprintf(chp, "usage: ahrs cal\r\n");
@@ -153,13 +152,13 @@ static void cmd_ahrs(BaseSequentialStream *chp, int argc, char **argv)
     }
 }
 
-static void cmd_range(BaseSequentialStream *chp, int argc, char **argv)
+static void cmd_range(BaseSequentialStream* chp, int argc, char** argv)
 {
-    (void) argc;
-    (void) argv;
+    (void)argc;
+    (void)argv;
 
-    const char *topic_name = "/range";
-    messagebus_topic_t *topic;
+    const char* topic_name = "/range";
+    messagebus_topic_t* topic;
     range_msg_t msg;
 
     topic = messagebus_find_topic(&bus, topic_name);
@@ -174,12 +173,12 @@ static void cmd_range(BaseSequentialStream *chp, int argc, char **argv)
     chprintf(chp, "got a ToF to anchor 0x%x: %.3f at timestamp %d\r\n", msg.anchor_addr, msg.range, msg.timestamp);
 }
 
-static void cmd_anchors(BaseSequentialStream *chp, int argc, char **argv)
+static void cmd_anchors(BaseSequentialStream* chp, int argc, char** argv)
 {
-    (void) argc;
-    (void) argv;
+    (void)argc;
+    (void)argv;
 
-    anchor_position_msg_t *pos;
+    anchor_position_msg_t* pos;
     uint16_t id;
 
     for (id = 0; id < 0xffff; id++) {
@@ -193,14 +192,14 @@ static void cmd_anchors(BaseSequentialStream *chp, int argc, char **argv)
     }
 }
 
-static void cmd_tags(BaseSequentialStream *chp, int argc, char **argv)
+static void cmd_tags(BaseSequentialStream* chp, int argc, char** argv)
 {
-    (void) argc;
-    (void) argv;
+    (void)argc;
+    (void)argv;
 
-    const char *topic_name = "/tags_pos";
+    const char* topic_name = "/tags_pos";
     tag_position_msg_t msg;
-    messagebus_topic_t *topic;
+    messagebus_topic_t* topic;
 
     topic = messagebus_find_topic(&bus, topic_name);
     if (topic == NULL) {
@@ -212,10 +211,10 @@ static void cmd_tags(BaseSequentialStream *chp, int argc, char **argv)
     chprintf(chp, "Got a tag pos to tag 0x%04x: %.2f %.2f\r\n", msg.tag_addr, msg.x, msg.y);
 }
 
-static void cmd_state(BaseSequentialStream *chp, int argc, char **argv)
+static void cmd_state(BaseSequentialStream* chp, int argc, char** argv)
 {
-    const char *topic_name = "/ekf/state";
-    messagebus_topic_t *topic;
+    const char* topic_name = "/ekf/state";
+    messagebus_topic_t* topic;
     position_estimation_msg_t msg;
 
     topic = messagebus_find_topic(&bus, topic_name);
@@ -238,11 +237,11 @@ static void cmd_state(BaseSequentialStream *chp, int argc, char **argv)
         }
     } else {
         chprintf(chp, "mu: (x=%.3f; y=%.3f; z=%.3f)\r\nVariance: (x=%f; y=%f; z=%f)\r\n",
-                msg.x, msg.y, msg.z, msg.variance_x, msg.variance_y, msg.variance_z);
+                 msg.x, msg.y, msg.z, msg.variance_x, msg.variance_y, msg.variance_z);
     }
 }
 
-static void tree_indent(BaseSequentialStream *out, int indent)
+static void tree_indent(BaseSequentialStream* out, int indent)
 {
     int i;
     for (i = 0; i < indent; ++i) {
@@ -250,9 +249,9 @@ static void tree_indent(BaseSequentialStream *out, int indent)
     }
 }
 
-static void show_config_tree(BaseSequentialStream *out, parameter_namespace_t *ns, int indent)
+static void show_config_tree(BaseSequentialStream* out, parameter_namespace_t* ns, int indent)
 {
-    parameter_t *p;
+    parameter_t* p;
     char string_buf[64];
 
     tree_indent(out, indent);
@@ -297,9 +296,9 @@ static void show_config_tree(BaseSequentialStream *out, parameter_namespace_t *n
     }
 }
 
-static void cmd_config_tree(BaseSequentialStream *chp, int argc, char **argv)
+static void cmd_config_tree(BaseSequentialStream* chp, int argc, char** argv)
 {
-    parameter_namespace_t *ns;
+    parameter_namespace_t* ns;
     if (argc != 1) {
         ns = &parameter_root;
     } else {
@@ -313,9 +312,9 @@ static void cmd_config_tree(BaseSequentialStream *chp, int argc, char **argv)
     show_config_tree(chp, ns, 0);
 }
 
-static void cmd_config_set(BaseSequentialStream *chp, int argc, char **argv)
+static void cmd_config_set(BaseSequentialStream* chp, int argc, char** argv)
 {
-    parameter_t *param;
+    parameter_t* param;
     int value_i;
     float value_f;
 
@@ -348,7 +347,6 @@ static void cmd_config_set(BaseSequentialStream *chp, int argc, char **argv)
             }
             break;
 
-
         case _PARAM_TYPE_BOOLEAN:
             if (!strcmp(argv[1], "true")) {
                 parameter_boolean_set(param, true);
@@ -373,18 +371,18 @@ static void cmd_config_set(BaseSequentialStream *chp, int argc, char **argv)
     }
 }
 
-static void cmd_config_erase(BaseSequentialStream *chp, int argc, char **argv)
+static void cmd_config_erase(BaseSequentialStream* chp, int argc, char** argv)
 {
-    (void) argc;
-    (void) argv;
-    (void) chp;
+    (void)argc;
+    (void)argv;
+    (void)chp;
     parameter_flash_storage_erase(&_config_start);
 }
 
-static void cmd_config_save(BaseSequentialStream *chp, int argc, char **argv)
+static void cmd_config_save(BaseSequentialStream* chp, int argc, char** argv)
 {
-    (void) argc;
-    (void) argv;
+    (void)argc;
+    (void)argv;
     size_t len = (size_t)(&_config_end - &_config_start);
     bool success;
 
@@ -401,10 +399,10 @@ static void cmd_config_save(BaseSequentialStream *chp, int argc, char **argv)
     }
 }
 
-static void cmd_config_load(BaseSequentialStream *chp, int argc, char **argv)
+static void cmd_config_load(BaseSequentialStream* chp, int argc, char** argv)
 {
-    (void) argc;
-    (void) argv;
+    (void)argc;
+    (void)argv;
     bool success;
 
     success = parameter_flash_storage_load(&parameter_root, &_config_start);
@@ -416,25 +414,25 @@ static void cmd_config_load(BaseSequentialStream *chp, int argc, char **argv)
     }
 }
 
-static void print_fn_foo(void *arg, const char *fmt, ...)
+static void print_fn_foo(void* arg, const char* fmt, ...)
 {
-    BaseSequentialStream *chp = (BaseSequentialStream *)arg;
+    BaseSequentialStream* chp = (BaseSequentialStream*)arg;
     va_list ap;
     va_start(ap, fmt);
     chvprintf(chp, fmt, ap);
     va_end(ap);
 }
 
-static void cmd_trace(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_trace(BaseSequentialStream* chp, int argc, char* argv[])
 {
-    (void) argc;
-    (void) argv;
+    (void)argc;
+    (void)argv;
 
     trace_print(print_fn_foo, chp);
     trace_clear();
 }
 
-static void cmd_set_pos(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_set_pos(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc < 2) {
         chprintf(chp, "Usage : set_pos x y\r\n");
@@ -448,7 +446,7 @@ static void cmd_set_pos(BaseSequentialStream *chp, int argc, char *argv[])
     msg.variance_x = 0.01;
     msg.variance_y = 0.01;
 
-    messagebus_topic_t *topic = messagebus_find_topic(&bus, "/ekf/state");
+    messagebus_topic_t* topic = messagebus_find_topic(&bus, "/ekf/state");
 
     if (!topic) {
         chprintf(chp, "Could not find topic, aborting\r\n");
@@ -476,8 +474,7 @@ const ShellCommand shell_commands[] = {
     {"config_load", cmd_config_load},
     {"config_erase", cmd_config_erase},
     {"set_pos", cmd_set_pos},
-    {NULL, NULL}
-};
+    {NULL, NULL}};
 
 #if SHELL_USE_HISTORY == TRUE
 static char sc_histbuf[SHELL_MAX_HIST_BUFF];
@@ -492,11 +489,10 @@ static ShellConfig shell_cfg = {
 #endif
 };
 
-
 static THD_FUNCTION(shell_spawn_thd, p)
 {
-    BaseSequentialStream *io = (BaseSequentialStream *)p;
-    thread_t *shelltp = NULL;
+    BaseSequentialStream* io = (BaseSequentialStream*)p;
+    thread_t* shelltp = NULL;
     static THD_WORKING_AREA(shell_wa, 2048);
 
     shell_cfg.sc_channel = io;
@@ -506,7 +502,7 @@ static THD_FUNCTION(shell_spawn_thd, p)
     while (TRUE) {
         if (!shelltp) {
             shelltp = chThdCreateStatic(&shell_wa, sizeof(shell_wa), NORMALPRIO,
-                                    shellThread, (void *)&shell_cfg);
+                                        shellThread, (void*)&shell_cfg);
             chRegSetThreadNameX(shelltp, "shell");
         } else {
             if (chThdTerminatedX(shelltp)) {
@@ -518,7 +514,7 @@ static THD_FUNCTION(shell_spawn_thd, p)
     }
 }
 
-void shell_start(BaseSequentialStream *io)
+void shell_start(BaseSequentialStream* io)
 {
     static THD_WORKING_AREA(wa, SHELL_WA_SIZE);
     chThdCreateStatic(wa, sizeof(wa), NORMALPRIO, shell_spawn_thd, io);

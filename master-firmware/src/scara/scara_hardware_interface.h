@@ -16,9 +16,9 @@ typedef struct {
 } scara_joint_positions_t;
 
 typedef struct {
-     joint_setpoint_t z;
-     joint_setpoint_t shoulder;
-     joint_setpoint_t elbow;
+    joint_setpoint_t z;
+    joint_setpoint_t shoulder;
+    joint_setpoint_t elbow;
 } scara_joint_setpoints_t;
 
 void scara_hw_shutdown_joints(scara_hardware_interface_t* hw_interface);

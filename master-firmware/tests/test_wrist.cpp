@@ -3,16 +3,14 @@
 
 #include <hand/wrist.h>
 
-namespace
-{
+namespace {
 void set_servo_pos(void* s, float value)
 {
-    *(float *)s = value;
+    *(float*)s = value;
 }
-}
+} // namespace
 
-TEST_GROUP(AWrist)
-{
+TEST_GROUP (AWrist) {
     wrist_t wrist;
     float servo_pos = 0.f;
 

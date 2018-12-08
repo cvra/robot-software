@@ -5,10 +5,9 @@ extern "C" {
 #include "scara/scara_kinematics.h"
 }
 
-#define RAD(x) ((x/180.)*M_PI)
+#define RAD(x) ((x / 180.) * M_PI)
 
-TEST_GROUP(GetAngleFromArmPosTestGroup)
-{
+TEST_GROUP (GetAngleFromArmPosTestGroup) {
 };
 
 TEST(GetAngleFromArmPosTestGroup, SimpleShoulderAngle)
@@ -26,14 +25,13 @@ TEST(GetAngleFromArmPosTestGroup, SimpleElbowAngle)
 {
     float angle;
     point_t elbow = {10, 10};
-    point_t hand =  {20, 20};
+    point_t hand = {20, 20};
 
     angle = scara_compute_elbow_angle(elbow, hand);
     DOUBLES_EQUAL(RAD(45), angle, 1e-3);
 }
 
-TEST_GROUP(ChooseElbowPositionTestGroup)
-{
+TEST_GROUP (ChooseElbowPositionTestGroup) {
 };
 
 TEST(ChooseElbowPositionTestGroup, ModeMirrorIdentity)
@@ -125,9 +123,7 @@ TEST(ChooseElbowPositionTestGroup, ChooseElbowForwardBis)
     CHECK_EQUAL(elbow2.y, chosen.y);
 }
 
-
-TEST_GROUP(AScaraJointAnglesComputer)
-{
+TEST_GROUP (AScaraJointAnglesComputer) {
     float alpha, beta;
     shoulder_mode_t mode = SHOULDER_BACK;
     float length[2] = {100, 50};
@@ -183,5 +179,5 @@ TEST(AScaraJointAnglesComputer, wrapsBetaWhenHigherThanMinusPi)
                                                      length, &alpha, &beta);
 
     CHECK_TRUE(solution_found);
-    DOUBLES_EQUAL(- 0.5 * M_PI, beta, 0.1);
+    DOUBLES_EQUAL(-0.5 * M_PI, beta, 0.1);
 }

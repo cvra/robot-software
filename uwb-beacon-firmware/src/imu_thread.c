@@ -10,7 +10,7 @@
 
 #define IMU_INTERRUPT_EVENT (0x01)
 
-static void imu_init_hardware(mpu9250_t *mpu)
+static void imu_init_hardware(mpu9250_t* mpu)
 {
     /*
      * SPI1 configuration structure for MPU9250.
@@ -21,8 +21,7 @@ static void imu_init_hardware(mpu9250_t *mpu)
         .end_cb = NULL,
         .ssport = GPIOB,
         .sspad = GPIOB_IMU_CS_N,
-        .cr1 = SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_CPOL | SPI_CR1_CPHA
-    };
+        .cr1 = SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_CPOL | SPI_CR1_CPHA};
     spiStart(&SPID2, &spi_cfg);
 
     mpu9250_init(mpu, &SPID2);
@@ -37,9 +36,9 @@ static void imu_init_hardware(mpu9250_t *mpu)
     mpu9250_enable_magnetometer(mpu);
 }
 
-static void imu_reader_thd(void *p)
+static void imu_reader_thd(void* p)
 {
-    (void) p;
+    (void)p;
     mpu9250_t mpu;
 
     /* Starts waiting for the external interrupt. */
@@ -103,7 +102,6 @@ static void imu_reader_thd(void *p)
 
         /* Signals the MPU that we are ready for another interrupt. */
         mpu9250_interrupt_read_and_clear(&mpu);
-
     }
 }
 

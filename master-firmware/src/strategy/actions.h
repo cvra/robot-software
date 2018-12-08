@@ -11,25 +11,25 @@
 namespace actions {
 
 struct IndexArms : public goap::Action<RobotState> {
-    bool can_run(const RobotState &state)
+    bool can_run(const RobotState& state)
     {
-        (void) state;
+        (void)state;
         return true;
     }
 
-    void plan_effects(RobotState &state)
+    void plan_effects(RobotState& state)
     {
         state.arms_are_indexed = true;
     }
 };
 
 struct RetractArms : public goap::Action<RobotState> {
-    bool can_run(const RobotState &state)
+    bool can_run(const RobotState& state)
     {
         return state.arms_are_indexed;
     }
 
-    void plan_effects(RobotState &state)
+    void plan_effects(RobotState& state)
     {
         state.arms_are_deployed = false;
     }
@@ -38,8 +38,11 @@ struct RetractArms : public goap::Action<RobotState> {
 struct PickupCubesLeft : public goap::Action<RobotState> {
     int blocks_id;
 
-    PickupCubesLeft(int blocks_id_) : blocks_id(blocks_id_) {}
-    bool can_run(const RobotState &state)
+    PickupCubesLeft(int blocks_id_)
+        : blocks_id(blocks_id_)
+    {
+    }
+    bool can_run(const RobotState& state)
     {
         return state.arms_are_deployed == false
             && state.lever_full_left == false
@@ -47,7 +50,7 @@ struct PickupCubesLeft : public goap::Action<RobotState> {
             && state.blocks_picked < 2 /* Limit to 2 blocks successfully picked */;
     }
 
-    void plan_effects(RobotState &state)
+    void plan_effects(RobotState& state)
     {
         state.lever_full_left = true;
         state.blocks_on_map[blocks_id] = false;
@@ -58,8 +61,11 @@ struct PickupCubesLeft : public goap::Action<RobotState> {
 struct PickupCubesRight : public goap::Action<RobotState> {
     int blocks_id;
 
-    PickupCubesRight(int blocks_id_) : blocks_id(blocks_id_) {}
-    bool can_run(const RobotState &state)
+    PickupCubesRight(int blocks_id_)
+        : blocks_id(blocks_id_)
+    {
+    }
+    bool can_run(const RobotState& state)
     {
         return state.arms_are_deployed == false
             && state.lever_full_right == false
@@ -67,7 +73,7 @@ struct PickupCubesRight : public goap::Action<RobotState> {
             && state.blocks_picked < 2 /* Limit to 2 blocks successfully picked */;
     }
 
-    void plan_effects(RobotState &state)
+    void plan_effects(RobotState& state)
     {
         state.lever_full_right = true;
         state.blocks_on_map[blocks_id] = false;
@@ -76,12 +82,12 @@ struct PickupCubesRight : public goap::Action<RobotState> {
 };
 
 struct TurnSwitchOn : public goap::Action<RobotState> {
-    bool can_run(const RobotState &state)
+    bool can_run(const RobotState& state)
     {
         return state.arms_are_deployed == false && state.panel_on_map;
     }
 
-    void plan_effects(RobotState &state)
+    void plan_effects(RobotState& state)
     {
         state.arms_are_deployed = true;
         state.switch_on = true;
@@ -89,12 +95,12 @@ struct TurnSwitchOn : public goap::Action<RobotState> {
 };
 
 struct DeployTheBee : public goap::Action<RobotState> {
-    bool can_run(const RobotState &state)
+    bool can_run(const RobotState& state)
     {
         return state.arms_are_deployed == false && state.bee_on_map;
     }
 
-    void plan_effects(RobotState &state)
+    void plan_effects(RobotState& state)
     {
         state.arms_are_deployed = true;
         state.bee_deployed = true;
@@ -103,9 +109,12 @@ struct DeployTheBee : public goap::Action<RobotState> {
 
 struct DepositCubes : public goap::Action<RobotState> {
     int construction_zone_id;
-    DepositCubes(int id) : construction_zone_id(id) {}
+    DepositCubes(int id)
+        : construction_zone_id(id)
+    {
+    }
 
-    bool can_run(const RobotState &state)
+    bool can_run(const RobotState& state)
     {
         auto no_cubes_in_construction_zone = [](const RobotState& state, int zone_id) -> bool {
             for (const auto& cube_in_construction_zone : state.construction_zone[zone_id].cubes_ready) {
@@ -115,12 +124,10 @@ struct DepositCubes : public goap::Action<RobotState> {
             }
             return true;
         };
-        return state.arms_are_deployed == false &&
-               (state.lever_full_left || state.lever_full_right) &&
-               no_cubes_in_construction_zone(state, construction_zone_id % 2);
+        return state.arms_are_deployed == false && (state.lever_full_left || state.lever_full_right) && no_cubes_in_construction_zone(state, construction_zone_id % 2);
     }
 
-    void plan_effects(RobotState &state)
+    void plan_effects(RobotState& state)
     {
         if (state.lever_full_right == true) {
             state.lever_full_right = false;
@@ -136,15 +143,18 @@ struct DepositCubes : public goap::Action<RobotState> {
 
 struct BuildTowerLevel : public goap::Action<RobotState> {
     int construction_zone_id, level;
-    BuildTowerLevel(int id, int lvl) : construction_zone_id(id), level(lvl) {}
-
-    bool can_run(const RobotState &state)
+    BuildTowerLevel(int id, int lvl)
+        : construction_zone_id(id)
+        , level(lvl)
     {
-      return state.construction_zone[construction_zone_id % 2].tower_level == level &&
-             state.construction_zone[construction_zone_id % 2].cubes_ready[state.tower_sequence[level]];
     }
 
-    void plan_effects(RobotState &state)
+    bool can_run(const RobotState& state)
+    {
+        return state.construction_zone[construction_zone_id % 2].tower_level == level && state.construction_zone[construction_zone_id % 2].cubes_ready[state.tower_sequence[level]];
+    }
+
+    void plan_effects(RobotState& state)
     {
         state.arms_are_deployed = true;
         state.construction_zone[construction_zone_id % 2].cubes_ready[state.tower_sequence[level]] = false;
@@ -153,12 +163,12 @@ struct BuildTowerLevel : public goap::Action<RobotState> {
 };
 
 struct FireBallGunIntoWaterTower : public goap::Action<RobotState> {
-    bool can_run(const RobotState &state)
+    bool can_run(const RobotState& state)
     {
         return state.arms_are_deployed == false && state.ballgun_state == BallgunState::CHARGED_MONOCOLOR;
     }
 
-    void plan_effects(RobotState &state)
+    void plan_effects(RobotState& state)
     {
         state.ballgun_state = BallgunState::IS_EMPTY;
         state.balls_in_watertower += 8;
@@ -166,12 +176,12 @@ struct FireBallGunIntoWaterTower : public goap::Action<RobotState> {
 };
 
 struct FireBallGunIntoWasteWaterTreatmentPlant : public goap::Action<RobotState> {
-    bool can_run(const RobotState &state)
+    bool can_run(const RobotState& state)
     {
         return state.arms_are_deployed == false && state.ballgun_state == BallgunState::CHARGED_MULTICOLOR;
     }
 
-    void plan_effects(RobotState &state)
+    void plan_effects(RobotState& state)
     {
         state.ballgun_state = BallgunState::IS_EMPTY;
         state.balls_in_wastewater_treatment_plant += 8;
@@ -179,14 +189,12 @@ struct FireBallGunIntoWasteWaterTreatmentPlant : public goap::Action<RobotState>
 };
 
 struct EmptyMonocolorWasteWaterCollector : public goap::Action<RobotState> {
-    bool can_run(const RobotState &state)
+    bool can_run(const RobotState& state)
     {
-        return state.arms_are_deployed == false &&
-               state.ballgun_state == BallgunState::IS_EMPTY &&
-               state.wastewater_monocolor_full;
+        return state.arms_are_deployed == false && state.ballgun_state == BallgunState::IS_EMPTY && state.wastewater_monocolor_full;
     }
 
-    void plan_effects(RobotState &state)
+    void plan_effects(RobotState& state)
     {
         state.ballgun_state = BallgunState::CHARGED_MONOCOLOR;
         state.wastewater_monocolor_full = false;
@@ -194,14 +202,12 @@ struct EmptyMonocolorWasteWaterCollector : public goap::Action<RobotState> {
 };
 
 struct EmptyMulticolorWasteWaterCollector : public goap::Action<RobotState> {
-    bool can_run(const RobotState &state)
+    bool can_run(const RobotState& state)
     {
-        return state.arms_are_deployed == false &&
-               state.ballgun_state == BallgunState::IS_EMPTY &&
-               state.wastewater_multicolor_full;
+        return state.arms_are_deployed == false && state.ballgun_state == BallgunState::IS_EMPTY && state.wastewater_multicolor_full;
     }
 
-    void plan_effects(RobotState &state)
+    void plan_effects(RobotState& state)
     {
         state.ballgun_state = BallgunState::CHARGED_MULTICOLOR;
         state.wastewater_multicolor_full = false;
@@ -209,12 +215,12 @@ struct EmptyMulticolorWasteWaterCollector : public goap::Action<RobotState> {
 };
 
 struct TurnOpponentSwitchOff : public goap::Action<RobotState> {
-    bool can_run(const RobotState &state)
+    bool can_run(const RobotState& state)
     {
         return state.arms_are_deployed == false && state.should_push_opponent_panel;
     }
 
-    void plan_effects(RobotState &state)
+    void plan_effects(RobotState& state)
     {
         state.arms_are_deployed = true;
         state.opponent_panel_on = false;
@@ -225,4 +231,3 @@ struct TurnOpponentSwitchOff : public goap::Action<RobotState> {
 } // namespace actions
 
 #endif /* STRATEGY_ACTIONS_H */
-

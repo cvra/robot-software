@@ -41,7 +41,8 @@ TEST_GROUP (MessagebusProtobufIntegration) {
     }
 };
 
-TEST (MessagebusProtobufIntegration, CanCreateTopic) {
+TEST(MessagebusProtobufIntegration, CanCreateTopic)
+{
     TOPIC_DECL(topic, Timestamp);
 
     POINTERS_EQUAL(&topic.lock, topic.topic.lock);
@@ -54,13 +55,14 @@ TEST (MessagebusProtobufIntegration, CanCreateTopic) {
     CHECK_EQUAL(Timestamp_msgid, topic.metadata.msgid);
 }
 
-TEST (MessagebusProtobufIntegration, CanPublishThenEncodeData) {
+TEST(MessagebusProtobufIntegration, CanPublishThenEncodeData)
+{
     Timestamp foo;
     foo.us = 1000;
 
     messagebus_topic_publish(&mytopic, &foo, sizeof(foo));
 
-    messagebus_topic_t *topic = messagebus_find_topic(&bus, "mytopic");
+    messagebus_topic_t* topic = messagebus_find_topic(&bus, "mytopic");
 
     // Encode the data using introspection
     uint8_t encoded_buffer[128];
@@ -71,7 +73,7 @@ TEST (MessagebusProtobufIntegration, CanPublishThenEncodeData) {
         uint8_t msg_buffer[128];
         CHECK_TRUE(sizeof(msg_buffer) >= topic->buffer_len); // assert
         messagebus_topic_read(topic, msg_buffer, topic->buffer_len);
-        topic_metadata_t *metadata = (topic_metadata_t *)topic->metadata;
+        topic_metadata_t* metadata = (topic_metadata_t*)topic->metadata;
         auto res = pb_encode(&stream, metadata->fields, msg_buffer);
 
         CHECK_TRUE(res);
@@ -92,7 +94,8 @@ TEST (MessagebusProtobufIntegration, CanPublishThenEncodeData) {
     }
 }
 
-TEST (MessagebusProtobufIntegration, EncodeMessageWithHeader) {
+TEST(MessagebusProtobufIntegration, EncodeMessageWithHeader)
+{
     uint8_t buffer[128];
     uint8_t obj_buffer[128];
 
@@ -135,7 +138,8 @@ TEST (MessagebusProtobufIntegration, EncodeMessageWithHeader) {
     CHECK_TRUE(pb_decode(&stream, Timestamp_fields, &ts));
 }
 
-TEST (MessagebusProtobufIntegration, NotEnoughRoomForMessageHeader) {
+TEST(MessagebusProtobufIntegration, NotEnoughRoomForMessageHeader)
+{
     uint8_t buffer[1];
     uint8_t obj_buffer[128];
     auto res = messagebus_encode_topic_message(&mytopic,
@@ -147,7 +151,8 @@ TEST (MessagebusProtobufIntegration, NotEnoughRoomForMessageHeader) {
     CHECK_EQUAL(0, res);
 }
 
-TEST (MessagebusProtobufIntegration, NotEnoughRoomForMessageBody) {
+TEST(MessagebusProtobufIntegration, NotEnoughRoomForMessageBody)
+{
     uint8_t buffer[256];
     uint8_t obj_buffer[128];
     auto res = messagebus_encode_topic_message(&mytopic,
@@ -159,7 +164,8 @@ TEST (MessagebusProtobufIntegration, NotEnoughRoomForMessageBody) {
     CHECK_EQUAL(0, res);
 }
 
-TEST (MessagebusProtobufIntegration, NotEnoughRoomForObject) {
+TEST(MessagebusProtobufIntegration, NotEnoughRoomForObject)
+{
     uint8_t buffer[256];
     uint8_t obj_buffer[2];
     auto res = messagebus_encode_topic_message(&mytopic,
@@ -175,7 +181,7 @@ TEST_GROUP (MessagebusProtobufMessageInjection) {
     messagebus_t bus;
     using EncodedMessage = std::array<uint8_t, 128>;
 
-    EncodedMessage prepare_message(const std::string &name, Timestamp value)
+    EncodedMessage prepare_message(const std::string& name, Timestamp value)
     {
         // Encode the message using a dummy bus
         messagebus_t bus;
@@ -203,7 +209,8 @@ TEST_GROUP (MessagebusProtobufMessageInjection) {
     }
 };
 
-TEST (MessagebusProtobufMessageInjection, CanInjectExternalMessageIntoMessageBus) {
+TEST(MessagebusProtobufMessageInjection, CanInjectExternalMessageIntoMessageBus)
+{
     // Create a serialized object message
     TOPIC_DECL(mytopic, Timestamp);
     messagebus_advertise_topic(&bus, &mytopic.topic, "mytopic");

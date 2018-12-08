@@ -2,8 +2,7 @@
 #include <CppUTestExt/MockSupport.h>
 #include "uavcan/parameter_enumeration.hpp"
 
-TEST_GROUP(ParameterByIndexTestGroup)
-{
+TEST_GROUP (ParameterByIndexTestGroup) {
     parameter_namespace_t ns;
     parameter_t foo, bar, baz;
     parameter_namespace_t sub_ns;
@@ -51,4 +50,3 @@ TEST(ParameterByIndexTestGroup, TestHeight)
     CHECK_EQUAL(1, parameter_tree_height(&foo));
     CHECK_EQUAL(2, parameter_tree_height(&sub_param_1));
 }
-

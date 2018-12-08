@@ -5,7 +5,7 @@
 static float position;
 static uint32_t update_count;
 
-static void index_cb(void *arg)
+static void index_cb(void* arg)
 {
     (void)arg;
 
@@ -26,7 +26,7 @@ void index_init(void)
     palSetLineCallback(PAL_LINE(GPIOA, 12U), index_cb, NULL);
 }
 
-void index_get_position(float *out_position, uint32_t *out_update_count)
+void index_get_position(float* out_position, uint32_t* out_update_count)
 {
     *out_position = position;
     *out_update_count = update_count;

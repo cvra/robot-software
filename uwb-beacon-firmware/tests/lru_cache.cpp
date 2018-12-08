@@ -3,8 +3,7 @@
 #include <cstring>
 #include "lru_cache.h"
 
-TEST_GROUP(LeastRecentlyUsedCacheTestGroup)
-{
+TEST_GROUP (LeastRecentlyUsedCacheTestGroup) {
     cache_entry_t entries[3];
     cache_t cache;
 
@@ -15,14 +14,14 @@ TEST_GROUP(LeastRecentlyUsedCacheTestGroup)
 
         cache_init(&cache, entries, 3);
     }
-
 };
 
 TEST(LeastRecentlyUsedCacheTestGroup, InitPutsEverythingInTheFreeList)
 {
     POINTERS_EQUAL(cache.free_list, &entries[0]);
     POINTERS_EQUAL(entries[0].next, &entries[1]);
-    POINTERS_EQUAL(entries[1].next, &entries[2]); POINTERS_EQUAL(entries[2].next, NULL);
+    POINTERS_EQUAL(entries[1].next, &entries[2]);
+    POINTERS_EQUAL(entries[2].next, NULL);
 }
 
 TEST(LeastRecentlyUsedCacheTestGroup, CanGrabEntriesFromTheFreelist)
@@ -45,7 +44,7 @@ TEST(LeastRecentlyUsedCacheTestGroup, EntriesAreAddedAtTheBeginningOfTheList)
 
 TEST(LeastRecentlyUsedCacheTestGroup, CanFetchByKey)
 {
-    const uint32_t key = 42, invalid_key=100;
+    const uint32_t key = 42, invalid_key = 100;
     auto entry = cache_entry_allocate(&cache, key);
     auto result = cache_entry_get(&cache, 42);
     POINTERS_EQUAL(entry, result);
@@ -85,11 +84,11 @@ TEST(LeastRecentlyUsedCacheTestGroup, NewEntryAreCreatedFromTheEndOfTheUsedList)
 
 TEST(LeastRecentlyUsedCacheTestGroup, SimpleDemo)
 {
-    cache_entry_allocate(&cache, 1)->payload = (void *)10;
-    cache_entry_allocate(&cache, 2)->payload = (void *)20;
-    cache_entry_allocate(&cache, 3)->payload = (void *)30;
+    cache_entry_allocate(&cache, 1)->payload = (void*)10;
+    cache_entry_allocate(&cache, 2)->payload = (void*)20;
+    cache_entry_allocate(&cache, 3)->payload = (void*)30;
 
-    CHECK_EQUAL(cache_entry_get(&cache, 1)->payload, (void *)10);
+    CHECK_EQUAL(cache_entry_get(&cache, 1)->payload, (void*)10);
 
     // This will invalidate the oldest entry, which has key 2
     cache_entry_allocate(&cache, 4);

@@ -57,26 +57,26 @@ static ShellConfig shell_cfg = {
 #endif
 };
 
-void shell_spawn(BaseSequentialStream *stream)
+void shell_spawn(BaseSequentialStream* stream)
 {
     static THD_WORKING_AREA(shell_wa, 2048);
-    static thread_t *shelltp = NULL;
+    static thread_t* shelltp = NULL;
 
     if (!shelltp) {
         shell_cfg.sc_channel = stream;
         shelltp = chThdCreateStatic(&shell_wa, sizeof(shell_wa), USB_SHELL_PRIO,
-                                    shellThread, (void *)&shell_cfg);
+                                    shellThread, (void*)&shell_cfg);
         chRegSetThreadNameX(shelltp, "shell");
     } else if (chThdTerminatedX(shelltp)) {
-        chThdRelease(shelltp);    /* Recovers memory of the previous shell.   */
-        shelltp = NULL;           /* Triggers spawning of a new shell.        */
+        chThdRelease(shelltp); /* Recovers memory of the previous shell.   */
+        shelltp = NULL; /* Triggers spawning of a new shell.        */
     }
 }
 
-static void cmd_threads(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_threads(BaseSequentialStream* chp, int argc, char* argv[])
 {
-    static const char *states[] = {CH_STATE_NAMES};
-    thread_t *tp;
+    static const char* states[] = {CH_STATE_NAMES};
+    thread_t* tp;
 
     (void)argv;
     if (argc > 0) {
@@ -84,7 +84,7 @@ static void cmd_threads(BaseSequentialStream *chp, int argc, char *argv[])
         return;
     }
     chprintf(chp,
-             "stklimit    stack     addr refs prio     state       time         name\r\n"SHELL_NEWLINE_STR);
+             "stklimit    stack     addr refs prio     state       time         name\r\n" SHELL_NEWLINE_STR);
     tp = chRegFirstThread();
     do {
 #if (CH_DBG_ENABLE_STACK_CHECK == TRUE) || (CH_CFG_USE_DYNAMIC == TRUE)
@@ -92,7 +92,7 @@ static void cmd_threads(BaseSequentialStream *chp, int argc, char *argv[])
 #else
         uint32_t stklimit = 0U;
 #endif
-        chprintf(chp, "%08lx %08lx %08lx %4lu %4lu %9s %10lu %12s"SHELL_NEWLINE_STR,
+        chprintf(chp, "%08lx %08lx %08lx %4lu %4lu %9s %10lu %12s" SHELL_NEWLINE_STR,
                  stklimit, (uint32_t)tp->ctx.sp, (uint32_t)tp,
                  (uint32_t)tp->refs - 1, (uint32_t)tp->prio, states[tp->state],
                  (uint32_t)tp->time, tp->name == NULL ? "" : tp->name);
@@ -100,11 +100,12 @@ static void cmd_threads(BaseSequentialStream *chp, int argc, char *argv[])
     } while (tp != NULL);
 }
 
-static void cmd_ip(BaseSequentialStream *chp, int argc, char **argv) {
-    (void) argv;
-    (void) argc;
+static void cmd_ip(BaseSequentialStream* chp, int argc, char** argv)
+{
+    (void)argv;
+    (void)argc;
 
-    struct netif *n; /* used for iteration. */
+    struct netif* n; /* used for iteration. */
 
     for (n = netif_list; n != NULL; n = n->next) {
         /* Converts the IP adress to a human readable format. */
@@ -117,25 +118,27 @@ static void cmd_ip(BaseSequentialStream *chp, int argc, char **argv) {
     }
 }
 
-static void cmd_crashme(BaseSequentialStream *chp, int argc, char **argv) {
-    (void) argv;
-    (void) argc;
-    (void) chp;
+static void cmd_crashme(BaseSequentialStream* chp, int argc, char** argv)
+{
+    (void)argv;
+    (void)argc;
+    (void)chp;
 
     ERROR("You asked for it!, uptime=%d ms", TIME_I2MS(chVTGetSystemTime()));
 }
 
-static void cmd_reboot(BaseSequentialStream *chp, int argc, char **argv) {
-    (void) argv;
-    (void) argc;
-    (void) chp;
+static void cmd_reboot(BaseSequentialStream* chp, int argc, char** argv)
+{
+    (void)argv;
+    (void)argc;
+    (void)chp;
     NVIC_SystemReset();
 }
 
-static void cmd_time(BaseSequentialStream *chp, int argc, char **argv)
+static void cmd_time(BaseSequentialStream* chp, int argc, char** argv)
 {
-    (void) argv;
-    (void) argc;
+    (void)argv;
+    (void)argc;
 
     unix_timestamp_t ts;
     int h, m;
@@ -160,7 +163,7 @@ static void cmd_time(BaseSequentialStream *chp, int argc, char **argv)
     chprintf(chp, "Current time: %02d:%02d:%02d\r\n", h, m, ts.s);
 }
 
-static void cmd_rpc_client_test(BaseSequentialStream *chp, int argc, char **argv)
+static void cmd_rpc_client_test(BaseSequentialStream* chp, int argc, char** argv)
 {
     uint8_t request[30];
     uint8_t output[30];
@@ -169,9 +172,9 @@ static void cmd_rpc_client_test(BaseSequentialStream *chp, int argc, char **argv
     cmp_mem_access_t mem;
     ip_addr_t server;
 
-    (void) chp;
-    (void) argc;
-    (void) argv;
+    (void)chp;
+    (void)argc;
+    (void)argv;
 
     const int port = 20001;
 
@@ -184,7 +187,7 @@ static void cmd_rpc_client_test(BaseSequentialStream *chp, int argc, char **argv
                  &server, port);
 }
 
-static void tree_indent(BaseSequentialStream *out, int indent)
+static void tree_indent(BaseSequentialStream* out, int indent)
 {
     int i;
     for (i = 0; i < indent; ++i) {
@@ -192,15 +195,14 @@ static void tree_indent(BaseSequentialStream *out, int indent)
     }
 }
 
-static void show_config_tree(BaseSequentialStream *out, parameter_namespace_t *ns, int indent)
+static void show_config_tree(BaseSequentialStream* out, parameter_namespace_t* ns, int indent)
 {
-    parameter_t *p;
-
+    parameter_t* p;
 
     tree_indent(out, indent);
     chprintf(out, "%s\r\n", ns->id);
 
-    for (p=ns->parameter_list; p!=NULL; p=p->next) {
+    for (p = ns->parameter_list; p != NULL; p = p->next) {
         tree_indent(out, indent + 1);
         if (parameter_defined(p)) {
             switch (p->type) {
@@ -241,9 +243,9 @@ static void show_config_tree(BaseSequentialStream *out, parameter_namespace_t *n
     }
 }
 
-static void cmd_config_tree(BaseSequentialStream *chp, int argc, char **argv)
+static void cmd_config_tree(BaseSequentialStream* chp, int argc, char** argv)
 {
-    parameter_namespace_t *ns;
+    parameter_namespace_t* ns;
     if (argc != 1) {
         ns = &global_config;
     } else {
@@ -264,9 +266,9 @@ static void cmd_config_tree(BaseSequentialStream *chp, int argc, char **argv)
     show_config_tree(chp, ns, 0);
 }
 
-static void cmd_config_set(BaseSequentialStream *chp, int argc, char **argv)
+static void cmd_config_set(BaseSequentialStream* chp, int argc, char** argv)
 {
-    parameter_t *param;
+    parameter_t* param;
     int value_i;
     float value_f;
 
@@ -299,7 +301,6 @@ static void cmd_config_set(BaseSequentialStream *chp, int argc, char **argv)
             }
             break;
 
-
         case _PARAM_TYPE_BOOLEAN:
             if (!strcmp(argv[1], "true")) {
                 parameter_boolean_set(param, true);
@@ -324,35 +325,34 @@ static void cmd_config_set(BaseSequentialStream *chp, int argc, char **argv)
     }
 }
 
-
-static void cmd_node(BaseSequentialStream *chp, int argc, char **argv)
+static void cmd_node(BaseSequentialStream* chp, int argc, char** argv)
 {
     if (argc != 1) {
-            chprintf(chp, "usage: node node_name.\r\n");
-            return;
+        chprintf(chp, "usage: node node_name.\r\n");
+        return;
     }
-    uint8_t id =  bus_enumerator_get_can_id(&bus_enumerator, argv[0]);
-    chprintf(chp, "Node ID: %s = %d.\r\n", argv[0],id);
+    uint8_t id = bus_enumerator_get_can_id(&bus_enumerator, argv[0]);
+    chprintf(chp, "Node ID: %s = %d.\r\n", argv[0], id);
 }
 
-static void cmd_topics(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_topics(BaseSequentialStream* chp, int argc, char* argv[])
 {
-    (void) argc;
-    (void) argv;
+    (void)argc;
+    (void)argv;
 
     chprintf(chp, "available topics:\r\n");
 
-    MESSAGEBUS_TOPIC_FOREACH(&bus, topic) {
+    MESSAGEBUS_TOPIC_FOREACH (&bus, topic) {
         chprintf(chp, "%s\r\n", topic->name);
     }
 }
 
-static void cmd_encoders(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_encoders(BaseSequentialStream* chp, int argc, char* argv[])
 {
-    (void) argc;
-    (void) argv;
+    (void)argc;
+    (void)argv;
 
-    messagebus_topic_t *encoders_topic;
+    messagebus_topic_t* encoders_topic;
     WheelEncodersPulse values;
 
     encoders_topic = messagebus_find_topic_blocking(&bus, "/encoders");
@@ -361,10 +361,10 @@ static void cmd_encoders(BaseSequentialStream *chp, int argc, char *argv[])
     chprintf(chp, "left: %ld\r\nright: %ld\r\n", values.left, values.right);
 }
 
-static void cmd_position(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_position(BaseSequentialStream* chp, int argc, char* argv[])
 {
-    (void) argc;
-    (void) argv;
+    (void)argc;
+    (void)argv;
 
     float x, y, a;
 
@@ -375,7 +375,7 @@ static void cmd_position(BaseSequentialStream *chp, int argc, char *argv[])
     chprintf(chp, "x: %f [mm]\r\ny: %f [mm]\r\na: %f [rad]\r\n", x, y, a);
 }
 
-static void cmd_position_reset(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_position_reset(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc == 3) {
         float x = atof(argv[0]);
@@ -390,13 +390,13 @@ static void cmd_position_reset(BaseSequentialStream *chp, int argc, char *argv[]
     }
 }
 
-static void cmd_allied_position(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_allied_position(BaseSequentialStream* chp, int argc, char* argv[])
 {
-    (void) argc;
-    (void) argv;
+    (void)argc;
+    (void)argv;
     point_t pos;
-    messagebus_topic_t *topic;
-    const char *topic_name = "/allied_position";
+    messagebus_topic_t* topic;
+    const char* topic_name = "/allied_position";
 
     topic = messagebus_find_topic(&bus, topic_name);
 
@@ -412,7 +412,7 @@ static void cmd_allied_position(BaseSequentialStream *chp, int argc, char *argv[
     }
 }
 
-static void cmd_traj_forward(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_traj_forward(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc == 1) {
         robot.mode = BOARD_MODE_ANGLE_DISTANCE;
@@ -421,8 +421,7 @@ static void cmd_traj_forward(BaseSequentialStream *chp, int argc, char *argv[])
         distance = atoi(argv[0]);
         trajectory_d_rel(&robot.traj, distance);
         int end_reason = trajectory_wait_for_end(
-            TRAJ_END_GOAL_REACHED | TRAJ_END_COLLISION |
-            TRAJ_END_OPPONENT_NEAR | TRAJ_END_ALLY_NEAR);
+            TRAJ_END_GOAL_REACHED | TRAJ_END_COLLISION | TRAJ_END_OPPONENT_NEAR | TRAJ_END_ALLY_NEAR);
         trajectory_hardstop(&robot.traj);
         chprintf(chp, "End reason %d\r\n", end_reason);
 
@@ -432,7 +431,7 @@ static void cmd_traj_forward(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
-static void cmd_traj_rotate(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_traj_rotate(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc == 1) {
         robot.mode = BOARD_MODE_ANGLE_DISTANCE;
@@ -447,7 +446,7 @@ static void cmd_traj_rotate(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
-static void cmd_traj_goto(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_traj_goto(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc == 3) {
         int32_t x, y, a;
@@ -462,7 +461,7 @@ static void cmd_traj_goto(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
-static void cmd_goto_avoid(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_goto_avoid(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc == 3) {
         int32_t x = atoi(argv[0]);
@@ -475,10 +474,9 @@ static void cmd_goto_avoid(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
-
 void add_rectangular_obstacle(int x, int y, int half_dx, int half_dy)
 {
-    poly_t *obstacle = oa_new_poly(4);
+    poly_t* obstacle = oa_new_poly(4);
 
     oa_poly_set_point(obstacle, x - half_dx, y - half_dy, 3);
     oa_poly_set_point(obstacle, x - half_dx, y + half_dy, 2);
@@ -486,8 +484,7 @@ void add_rectangular_obstacle(int x, int y, int half_dx, int half_dy)
     oa_poly_set_point(obstacle, x + half_dx, y - half_dy, 0);
 }
 
-
-static void cmd_pathplanner(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_pathplanner(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc == 3) {
         /* Get goal pos */
@@ -507,12 +504,12 @@ static void cmd_pathplanner(BaseSequentialStream *chp, int argc, char *argv[])
         oa_process();
 
         /* Fetch the computed path */
-        point_t *p;
+        point_t* p;
         int len = oa_get_path(&p);
         chprintf(chp, "Found path of length %d\r\n", len);
 
         /* Checks if a path was found. */
-        if(len < 0) {
+        if (len < 0) {
             chprintf(chp, "Cannot find a suitable path.\r\n");
             return;
         } else {
@@ -539,7 +536,7 @@ static void cmd_pathplanner(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
-static void cmd_oa_dump(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_oa_dump(BaseSequentialStream* chp, int argc, char* argv[])
 {
     (void)chp;
     (void)argc;
@@ -548,7 +545,7 @@ static void cmd_oa_dump(BaseSequentialStream *chp, int argc, char *argv[])
     oa_dump();
 }
 
-static void cmd_create_static_obstacle(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_create_static_obstacle(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc == 3) {
         /* Get obstacle properties */
@@ -559,7 +556,7 @@ static void cmd_create_static_obstacle(BaseSequentialStream *chp, int argc, char
 
         oa_init();
         float robot_size = 260;
-        polygon_set_boundingbox(robot_size/2, robot_size/2, 3000 - robot_size/2, 2000 - robot_size/2);
+        polygon_set_boundingbox(robot_size / 2, robot_size / 2, 3000 - robot_size / 2, 2000 - robot_size / 2);
 
         /* Create obstacle */
         add_rectangular_obstacle(x, y, half_size, half_size);
@@ -571,7 +568,7 @@ static void cmd_create_static_obstacle(BaseSequentialStream *chp, int argc, char
     }
 }
 
-static void cmd_pid(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_pid(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc == 2) {
         float kp, ki, kd, ilim;
@@ -600,7 +597,7 @@ static void cmd_pid(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
-static void cmd_pid_tune(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_pid_tune(BaseSequentialStream* chp, int argc, char* argv[])
 {
     (void)argc;
     (void)argv;
@@ -608,27 +605,27 @@ static void cmd_pid_tune(BaseSequentialStream *chp, int argc, char *argv[])
 
     long index;
     static char line[20];
-    parameter_namespace_t *ns;
-    motor_driver_t *motors;
+    parameter_namespace_t* ns;
+    motor_driver_t* motors;
     uint16_t len, i;
 
     /* list all motors */
     motor_manager_get_list(&motor_manager, &motors, &len);
     chprintf(chp, "id: name\n");
     for (i = 0; i < len; i++) {
-        chprintf(chp, "%2u: %s\n", i+1, motors[i].id);
+        chprintf(chp, "%2u: %s\n", i + 1, motors[i].id);
     }
 
-    const char *extra[] = {
+    const char* extra[] = {
         "master/aversive/control/angle",
         "master/aversive/control/distance",
         "master/main_arm/control/x",
         "master/main_arm/control/y",
         "master/main_arm/control/heading",
     };
-    const size_t extra_len = sizeof(extra)/sizeof(char *);
+    const size_t extra_len = sizeof(extra) / sizeof(char*);
     for (i = 0; i < extra_len; i++) {
-        chprintf(chp, "%2u: %s\n", len+i+1, extra[i]);
+        chprintf(chp, "%2u: %s\n", len + i + 1, extra[i]);
     }
 
     while (1) {
@@ -639,7 +636,7 @@ static void cmd_pid_tune(BaseSequentialStream *chp, int argc, char *argv[])
         }
 
         index = strtol(line, NULL, 10);
-        if (index > 0 && (unsigned long) index <= len + extra_len) {
+        if (index > 0 && (unsigned long)index <= len + extra_len) {
             break;
         }
         chprintf(chp, "invalid index\n");
@@ -648,14 +645,14 @@ static void cmd_pid_tune(BaseSequentialStream *chp, int argc, char *argv[])
     /* index starting from 0 */
     index -= 1;
 
-    if (index  < len) {
+    if (index < len) {
         chprintf(chp, "tune %s\n", motors[index].id);
         chprintf(chp, "1: current\n2: velocity\n3: position\n> ");
         if (shellGetLine(&shell_cfg, line, sizeof(line), NULL) || line[0] == 'q') {
             /* q or CTRL-D was pressed */
             return;
         }
-        char *type = line;
+        char* type = line;
         if (!strcmp(type, "1")) {
             type = "current";
         } else if (!strcmp(type, "2")) {
@@ -665,8 +662,8 @@ static void cmd_pid_tune(BaseSequentialStream *chp, int argc, char *argv[])
         }
         ns = parameter_namespace_find(&motors[index].config.control, line);
     } else {
-        chprintf(chp, "tune %s\n", extra[index-len]);
-        ns = parameter_namespace_find(&global_config, extra[index-len]);
+        chprintf(chp, "tune %s\n", extra[index - len]);
+        ns = parameter_namespace_find(&global_config, extra[index - len]);
     }
 
     if (ns == NULL) {
@@ -682,7 +679,7 @@ static void cmd_pid_tune(BaseSequentialStream *chp, int argc, char *argv[])
             /* q or CTRL-D was pressed */
             return;
         }
-        char *p = strchr(line, ' ');
+        char* p = strchr(line, ' ');
         if (p == NULL) {
             chprintf(chp, "invalid value\n");
             continue;
@@ -691,7 +688,7 @@ static void cmd_pid_tune(BaseSequentialStream *chp, int argc, char *argv[])
         float val = strtof(p + 1, NULL);
 
         /* shortcut for kp ki kd */
-        char *name = line;
+        char* name = line;
         if (!strcmp(name, "i")) {
             name = "ki";
         } else if (!strcmp(name, "p")) {
@@ -700,7 +697,7 @@ static void cmd_pid_tune(BaseSequentialStream *chp, int argc, char *argv[])
             name = "kd";
         }
 
-        parameter_t *param;
+        parameter_t* param;
         param = parameter_find(ns, name);
         if (param == NULL) {
             chprintf(chp, "parameter not found\n");
@@ -711,7 +708,7 @@ static void cmd_pid_tune(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
-static void cmd_blocking_detection_config(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_blocking_detection_config(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc == 3) {
         uint32_t err_th = atoi(argv[1]);
@@ -726,10 +723,10 @@ static void cmd_blocking_detection_config(BaseSequentialStream *chp, int argc, c
     }
 }
 
-static void cmd_wheel_calibration(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_wheel_calibration(BaseSequentialStream* chp, int argc, char* argv[])
 {
     int count;
-    if(argc < 1) {
+    if (argc < 1) {
         count = 1;
     } else {
         count = atoi(argv[0]);
@@ -745,18 +742,17 @@ static void cmd_wheel_calibration(BaseSequentialStream *chp, int argc, char *arg
     int32_t start_angle = rs_get_angle(&robot.rs);
     int32_t start_distance = rs_get_distance(&robot.rs);
 
-    trajectory_d_rel(&robot.traj, - robot.calibration_direction * 100.);
+    trajectory_d_rel(&robot.traj, -robot.calibration_direction * 100.);
     trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
 
-
     /* Start calibration sequence and do it N times */
-    while(count--) {
+    while (count--) {
         chprintf(chp, "%d left !\n", count);
-        trajectory_d_rel(&robot.traj, - robot.calibration_direction * 800.);
+        trajectory_d_rel(&robot.traj, -robot.calibration_direction * 800.);
         trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
         trajectory_a_rel(&robot.traj, 180.);
         trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
-        trajectory_d_rel(&robot.traj, - robot.calibration_direction * 800.);
+        trajectory_d_rel(&robot.traj, -robot.calibration_direction * 800.);
         trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
         trajectory_a_rel(&robot.traj, -180.);
         trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
@@ -777,7 +773,7 @@ static void cmd_wheel_calibration(BaseSequentialStream *chp, int argc, char *arg
     float right_gain = (1. - factor) * robot.rs.right_ext_gain;
 
     /* Stop polar control */
-    trajectory_d_rel(&robot.traj, - robot.calibration_direction * 75.);
+    trajectory_d_rel(&robot.traj, -robot.calibration_direction * 75.);
 
     chprintf(chp, "Angle difference : %f\n", DEGREES(pos_imp2rd(&robot.traj, delta_angle)));
     chprintf(chp, "Suggested factors :\n");
@@ -785,7 +781,7 @@ static void cmd_wheel_calibration(BaseSequentialStream *chp, int argc, char *arg
     chprintf(chp, "Right : %.8f (old gain was %f)\n", right_gain, robot.rs.right_ext_gain);
 }
 
-static void cmd_wheel_correction(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_wheel_correction(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc == 2) {
         if (!strcmp("left", argv[0])) {
@@ -800,10 +796,10 @@ static void cmd_wheel_correction(BaseSequentialStream *chp, int argc, char *argv
     }
 }
 
-static void cmd_track_calibration(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_track_calibration(BaseSequentialStream* chp, int argc, char* argv[])
 {
     int count;
-    if(argc < 1) {
+    if (argc < 1) {
         count = 1;
     } else {
         count = atoi(argv[0]);
@@ -818,7 +814,7 @@ static void cmd_track_calibration(BaseSequentialStream *chp, int argc, char *arg
     float start_angle = pos_imp2rd(&robot.traj, rs_get_angle(&robot.rs));
 
     /* Start calibration sequence and do it N times */
-    trajectory_d_rel(&robot.traj, - robot.calibration_direction * 200.);
+    trajectory_d_rel(&robot.traj, -robot.calibration_direction * 200.);
     trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
     for (int i = 0; i < count; i++) {
         chprintf(chp, "%d left !\n", i);
@@ -834,15 +830,14 @@ static void cmd_track_calibration(BaseSequentialStream *chp, int argc, char *arg
 
     /* Compute correction factors */
     float delta_angle = angle_delta(0., end_angle - start_angle);
-    float track_calibrated = (float)robot.pos.phys.track_mm * \
-                                (1 + (delta_angle / (2. * M_PI * (float)count)));
+    float track_calibrated = (float)robot.pos.phys.track_mm * (1 + (delta_angle / (2. * M_PI * (float)count)));
 
     chprintf(chp, "Start angle %f, End angle : %f\n", DEGREES(start_angle), DEGREES(end_angle));
     chprintf(chp, "Angle difference : %f\n", DEGREES(delta_angle));
     chprintf(chp, "Suggested track : %.8f mm\n", track_calibrated);
 }
 
-static void cmd_track_correction(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_track_correction(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc < 1) {
         chprintf(chp, "Usage: track_corr factor\r\n");
@@ -852,8 +847,7 @@ static void cmd_track_correction(BaseSequentialStream *chp, int argc, char *argv
     position_set_physical_params(&robot.pos, track, robot.pos.phys.distance_imp_per_mm);
 }
 
-
-static void cmd_autopos(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_autopos(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc < 4) {
         chprintf(chp, "Usage: autopos {yellow|blue} x y a\r\n");
@@ -879,11 +873,11 @@ static void cmd_autopos(BaseSequentialStream *chp, int argc, char *argv[])
     strategy_auto_position(x, y, a, color);
 }
 
-static void cmd_motors(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_motors(BaseSequentialStream* chp, int argc, char* argv[])
 {
     (void)argc;
     (void)argv;
-    motor_driver_t *motors;
+    motor_driver_t* motors;
     uint16_t len, i;
     motor_manager_get_list(&motor_manager, &motors, &len);
     chprintf(chp, "CAN_ID: NAME\n");
@@ -892,7 +886,7 @@ static void cmd_motors(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
-static void cmd_motor_pos(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_motor_pos(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc < 2) {
         chprintf(chp, "Usage: motor_pos motor_name position\r\n");
@@ -903,7 +897,7 @@ static void cmd_motor_pos(BaseSequentialStream *chp, int argc, char *argv[])
     motor_manager_set_position(&motor_manager, argv[0], position);
 }
 
-static void cmd_motor_voltage(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_motor_voltage(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc < 2) {
         chprintf(chp, "Usage: motor_voltage motor_name voltage\r\n");
@@ -914,7 +908,7 @@ static void cmd_motor_voltage(BaseSequentialStream *chp, int argc, char *argv[])
     motor_manager_set_voltage(&motor_manager, argv[0], voltage);
 }
 
-static void cmd_motor_index(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_motor_index(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc < 3) {
         chprintf(chp, "Usage: motor_index motor_name direction speed\r\n");
@@ -935,7 +929,7 @@ static void cmd_motor_index(BaseSequentialStream *chp, int argc, char *argv[])
     chprintf(chp, "Average index is %.4f\r\n", index);
 }
 
-static void cmd_scara_goto(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_scara_goto(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc != 5) {
         chprintf(chp, "Usage: scara_goto frame x y z max_vel\r\n");
@@ -947,7 +941,7 @@ static void cmd_scara_goto(BaseSequentialStream *chp, int argc, char *argv[])
 
     scara_t* arm = &main_arm;
     float _max_vel = atof(argv[4]);
-    velocity_3d_t max_vel = {.x=_max_vel, .y=_max_vel, .z=_max_vel};
+    velocity_3d_t max_vel = {.x = _max_vel, .y = _max_vel, .z = _max_vel};
 
     if (strcmp("robot", argv[0]) == 0) {
         scara_goto(arm, pos, COORDINATE_ROBOT, max_vel);
@@ -958,8 +952,7 @@ static void cmd_scara_goto(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
-
-static void cmd_scara_mode(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_scara_mode(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc != 1) {
         chprintf(chp, "Usage: scara_mode {joint,cartesian,free}\r\n");
@@ -975,7 +968,7 @@ static void cmd_scara_mode(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
-static void cmd_scara_angles(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_scara_angles(BaseSequentialStream* chp, int argc, char* argv[])
 {
     (void)argc;
     (void)argv;
@@ -984,8 +977,7 @@ static void cmd_scara_angles(BaseSequentialStream *chp, int argc, char *argv[])
     chprintf(chp, "Arm joint shoulder: %f elbow: %f z: %f\r\n", angles.shoulder, angles.elbow, angles.z);
 }
 
-
-static void cmd_scara_mv(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_scara_mv(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc != 2) {
         chprintf(chp, "Usage: scara_mv x y\r\n");
@@ -1008,7 +1000,7 @@ static void cmd_scara_mv(BaseSequentialStream *chp, int argc, char *argv[])
     chprintf(chp, "Moving arm to %f %f %f in table frame\r\n", pos.x, pos.y, pos.z);
 }
 
-static void cmd_scara_z(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_scara_z(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc != 1) {
         chprintf(chp, "Usage: scara_z z\r\n");
@@ -1022,7 +1014,7 @@ static void cmd_scara_z(BaseSequentialStream *chp, int argc, char *argv[])
     chprintf(chp, "Moving arm z to %f\r\n", z);
 }
 
-static void cmd_scara_pos(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_scara_pos(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc != 1) {
         chprintf(chp, "Usage: scara_pos frame\r\n");
@@ -1044,7 +1036,7 @@ static void cmd_scara_pos(BaseSequentialStream *chp, int argc, char *argv[])
              pos.x, pos.y, pos.z, argv[0]);
 }
 
-static void cmd_scara_hold(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_scara_hold(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc != 1) {
         chprintf(chp, "Usage: scara_hold frame\r\n");
@@ -1064,8 +1056,7 @@ static void cmd_scara_hold(BaseSequentialStream *chp, int argc, char *argv[])
     chprintf(chp, "Holding current arm position in %s frame\r\n", argv[0]);
 }
 
-
-static void cmd_scara_traj(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_scara_traj(BaseSequentialStream* chp, int argc, char* argv[])
 {
     (void)argc;
     (void)argv;
@@ -1131,18 +1122,18 @@ static void cmd_scara_traj(BaseSequentialStream *chp, int argc, char *argv[])
                 position_3d_t position = {.x = point[0], .y = point[1], .z = point[2]};
                 velocity_3d_t max_vel = {.x = point[3], .y = point[3], .z = point[3]};
                 scara_trajectory_append_point(&trajectory, position,
-                        system, max_vel, arm->length);
+                                              system, max_vel, arm->length);
                 i++;
 
                 chprintf(chp, "Point %d coord:%s x:%d y:%d z:%d max_vel:%d added successfully.\n",
-                        i, coord, point[0], point[1], point[2], point[3]);
+                         i, coord, point[0], point[1], point[2], point[3]);
             }
         }
         scara_do_trajectory(arm, &trajectory);
     }
 }
 
-static void cmd_scara_pause(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_scara_pause(BaseSequentialStream* chp, int argc, char* argv[])
 {
     (void)argc;
     (void)argv;
@@ -1154,7 +1145,7 @@ static void cmd_scara_pause(BaseSequentialStream *chp, int argc, char *argv[])
     chprintf(chp, "Arm paused trajectory\r\n");
 }
 
-static void cmd_scara_continue(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_scara_continue(BaseSequentialStream* chp, int argc, char* argv[])
 {
     (void)argc;
     (void)argv;
@@ -1166,7 +1157,7 @@ static void cmd_scara_continue(BaseSequentialStream *chp, int argc, char *argv[]
     chprintf(chp, "Arm restoring from pause\r\n");
 }
 
-static void cmd_base_mode(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_base_mode(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc != 1) {
         chprintf(chp, "Usage: base_mode {all,angle,distance,free}\r\n");
@@ -1184,7 +1175,7 @@ static void cmd_base_mode(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
-static void cmd_state(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_state(BaseSequentialStream* chp, int argc, char* argv[])
 {
     (void)argc;
     (void)argv;
@@ -1199,7 +1190,7 @@ static void cmd_state(BaseSequentialStream *chp, int argc, char *argv[])
              pos.x, pos.y, pos.z);
 }
 
-static void cmd_hand(BaseSequentialStream *chp, int argc, char * argv[])
+static void cmd_hand(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc != 1) {
         chprintf(chp, "Usage: hand on|off\r\n");
@@ -1216,17 +1207,16 @@ static void cmd_hand(BaseSequentialStream *chp, int argc, char * argv[])
     hand_set_pump(&main_hand, pump_state);
 }
 
-
-static void print_fn(void *arg, const char *fmt, ...)
+static void print_fn(void* arg, const char* fmt, ...)
 {
-    BaseSequentialStream *chp = (BaseSequentialStream *)arg;
+    BaseSequentialStream* chp = (BaseSequentialStream*)arg;
     va_list ap;
     va_start(ap, fmt);
     chvprintf(chp, fmt, ap);
     va_end(ap);
 }
 
-static void cmd_trace(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_trace(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc != 1) {
         chprintf(chp, "Usage: trace dump|clear\r\n");
@@ -1239,7 +1229,7 @@ static void cmd_trace(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
-static void cmd_servo(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_servo(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc != 2) {
         chprintf(chp, "Usage: servo N PULSE_MS\r\n");
@@ -1248,10 +1238,10 @@ static void cmd_servo(BaseSequentialStream *chp, int argc, char *argv[])
     unsigned int n = atoi(argv[0]);
     float pw = atof(argv[1]);
 
-    pca9685_pwm_set_pulse_width(n, pw/1000);
+    pca9685_pwm_set_pulse_width(n, pw / 1000);
 }
 
-static void cmd_lever(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_lever(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc != 2) {
         chprintf(chp, "Usage: lever right|left deploy|retract|pickup|deposit|retpush|tidy\r\n");
@@ -1259,9 +1249,14 @@ static void cmd_lever(BaseSequentialStream *chp, int argc, char *argv[])
     }
 
     lever_t* lever;
-    if      (strcmp("right", argv[0]) == 0) { lever = &right_lever; }
-    else if (strcmp("left", argv[0]) == 0)  { lever = &left_lever; }
-    else                                    { chprintf(chp, "Invalid lever side %s", argv[0]); return; }
+    if (strcmp("right", argv[0]) == 0) {
+        lever = &right_lever;
+    } else if (strcmp("left", argv[0]) == 0) {
+        lever = &left_lever;
+    } else {
+        chprintf(chp, "Invalid lever side %s", argv[0]);
+        return;
+    }
 
     se2_t robot_pose = base_get_robot_pose(&robot.pos);
     se2_t lever_offset;
@@ -1278,32 +1273,38 @@ static void cmd_lever(BaseSequentialStream *chp, int argc, char *argv[])
     }
     se2_t blocks_pose = se2_chain(robot_pose, lever_offset);
 
-    if (strcmp("deploy", argv[1]) == 0)       { lever_deploy(lever); }
-    else if (strcmp("retract", argv[1]) == 0) { lever_retract(lever); }
-    else if (strcmp("pickup", argv[1]) == 0)  { lever_pickup(lever, robot_pose, blocks_pose); }
-    else if (strcmp("deposit", argv[1]) == 0) { blocks_pose = lever_deposit(lever, robot_pose); }
-    else if (strcmp("retpush", argv[1]) == 0) { lever_push_and_retract(lever); }
-    else if (strcmp("tidy", argv[1]) == 0)    { lever_tidy(lever); }
-    else if (strcmp("get", argv[1]) == 0) {
+    if (strcmp("deploy", argv[1]) == 0) {
+        lever_deploy(lever);
+    } else if (strcmp("retract", argv[1]) == 0) {
+        lever_retract(lever);
+    } else if (strcmp("pickup", argv[1]) == 0) {
+        lever_pickup(lever, robot_pose, blocks_pose);
+    } else if (strcmp("deposit", argv[1]) == 0) {
+        blocks_pose = lever_deposit(lever, robot_pose);
+    } else if (strcmp("retpush", argv[1]) == 0) {
+        lever_push_and_retract(lever);
+    } else if (strcmp("tidy", argv[1]) == 0) {
+        lever_tidy(lever);
+    } else if (strcmp("get", argv[1]) == 0) {
         lever_deploy(lever);
         lever_pickup(lever, robot_pose, blocks_pose);
         chThdSleepMilliseconds(1000);
         lever_retract(lever);
-    }
-    else if (strcmp("put", argv[1]) == 0) {
+    } else if (strcmp("put", argv[1]) == 0) {
         lever_deploy(lever);
         chThdSleepMilliseconds(500);
         blocks_pose = lever_deposit(lever, robot_pose);
         chThdSleepMilliseconds(500);
         lever_push_and_retract(lever);
+    } else {
+        chprintf(chp, "Invalid command: %s", argv[1]);
     }
-    else                                      { chprintf(chp, "Invalid command: %s", argv[1]); }
 
     chprintf(chp, "Blocks at x:%f y:%f a:%f\r\n",
-        blocks_pose.translation.x, blocks_pose.translation.y, blocks_pose.rotation.angle);
+             blocks_pose.translation.x, blocks_pose.translation.y, blocks_pose.rotation.angle);
 }
 
-static void cmd_pick_cube(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_pick_cube(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc != 2) {
         chprintf(chp, "Usage: pick x y\r\n");
@@ -1320,7 +1321,7 @@ static void cmd_pick_cube(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
-static void cmd_deposit_cube(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_deposit_cube(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc != 3) {
         chprintf(chp, "Usage: deposit x y num_cubes\r\n");
@@ -1338,8 +1339,7 @@ static void cmd_deposit_cube(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
-
-static void cmd_push_y(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_push_y(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc != 4) {
         chprintf(chp, "Usage: push_y x y z y_push\r\n");
@@ -1356,7 +1356,7 @@ static void cmd_push_y(BaseSequentialStream *chp, int argc, char *argv[])
 
 #include "can/can_io_driver.h"
 
-static void cmd_canio(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_canio(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc != 3) {
         chprintf(chp, "Usage: canio name channel pwm\r\n");
@@ -1369,12 +1369,12 @@ static void cmd_canio(BaseSequentialStream *chp, int argc, char *argv[])
     chprintf(chp, "Set CAN-IO %s Channel %d PWM %f\r\n", argv[0], channel, pwm);
 }
 
-static void cmd_hand_dist(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_hand_dist(BaseSequentialStream* chp, int argc, char* argv[])
 {
-    (void) argc;
-    (void) argv;
+    (void)argc;
+    (void)argv;
 
-    messagebus_topic_t *topic;
+    messagebus_topic_t* topic;
     Range range;
 
     topic = messagebus_find_topic_blocking(&bus, "/hand_distance");
@@ -1387,7 +1387,7 @@ static void cmd_hand_dist(BaseSequentialStream *chp, int argc, char *argv[])
 
 #include "arms/arm_trajectory_manager.h"
 
-static void cmd_arm_bd(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_arm_bd(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc != 3) {
         chprintf(chp, "Usage: arm_bd xy|z error_threshold_mm error_count_threshold\r\n");
@@ -1410,7 +1410,7 @@ static void cmd_arm_bd(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
-static void cmd_motor_sin(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_motor_sin(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc != 4) {
         chprintf(chp, "Usage: motor_sin motor amplitude period times\r\n");
@@ -1424,8 +1424,7 @@ static void cmd_motor_sin(BaseSequentialStream *chp, int argc, char *argv[])
     float times = atof(argv[3]);
     int num_points = period * times / dt;
 
-    for (int i = 0; i <= num_points; i++)
-    {
+    for (int i = 0; i <= num_points; i++) {
         float voltage = amplitude * sinf(i * dx);
         motor_manager_set_voltage(&motor_manager, argv[0], voltage);
         chprintf(chp, "%f\r\n", voltage);
@@ -1433,7 +1432,7 @@ static void cmd_motor_sin(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
-static void cmd_push_the_bee(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_push_the_bee(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc != 5) {
         chprintf(chp, "Usage: bee x_start y_start x_end y_end bee_height\r\n");
@@ -1451,7 +1450,7 @@ static void cmd_push_the_bee(BaseSequentialStream *chp, int argc, char *argv[])
     strat_push_the_bee(start, end, bee_height);
 }
 
-static void cmd_push_the_bee_v2(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_push_the_bee_v2(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc != 4) {
         chprintf(chp, "Usage: bee2 x_start y_start bee_height forward_motion\r\n");
@@ -1466,7 +1465,7 @@ static void cmd_push_the_bee_v2(BaseSequentialStream *chp, int argc, char *argv[
     strat_push_the_bee_v2(start, bee_height, forward_motion);
 }
 
-static void cmd_check_dist(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_check_dist(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc != 1) {
         chprintf(chp, "Usage: check_dist expected\r\n");
@@ -1480,7 +1479,7 @@ static void cmd_check_dist(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
-static void cmd_ballgun(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_ballgun(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc != 1) {
         chprintf(chp, "Usage: ballgun deploy|deploy_charge|deploy_fully|retract|arm|charge|fire|slowfire|tidy|empty|spin\r\n");
@@ -1490,22 +1489,34 @@ static void cmd_ballgun(BaseSequentialStream *chp, int argc, char *argv[])
     ballgun_t* ballgun = &main_ballgun;
     ball_sense_reset_count();
 
-    if      (strcmp("deploy", argv[0]) == 0)       { ballgun_deploy(ballgun); }
-    else if (strcmp("deploy_charge", argv[0]) == 0) { ballgun_deploy_charge(ballgun); }
-    else if (strcmp("deploy_fully", argv[0]) == 0) { ballgun_deploy_fully(ballgun); }
-    else if (strcmp("retract", argv[0]) == 0)      { ballgun_retract(ballgun); }
-    else if (strcmp("arm", argv[0]) == 0)          { ballgun_arm(ballgun); }
-    else if (strcmp("charge", argv[0]) == 0)       { ballgun_charge(ballgun); }
-    else if (strcmp("fire", argv[0]) == 0)         {
+    if (strcmp("deploy", argv[0]) == 0) {
+        ballgun_deploy(ballgun);
+    } else if (strcmp("deploy_charge", argv[0]) == 0) {
+        ballgun_deploy_charge(ballgun);
+    } else if (strcmp("deploy_fully", argv[0]) == 0) {
+        ballgun_deploy_fully(ballgun);
+    } else if (strcmp("retract", argv[0]) == 0) {
+        ballgun_retract(ballgun);
+    } else if (strcmp("arm", argv[0]) == 0) {
+        ballgun_arm(ballgun);
+    } else if (strcmp("charge", argv[0]) == 0) {
+        ballgun_charge(ballgun);
+    } else if (strcmp("fire", argv[0]) == 0) {
         ballgun_spin(ballgun);
         chThdSleepMilliseconds(500);
         ballgun_fire(ballgun);
+    } else if (strcmp("slowfire", argv[0]) == 0) {
+        ballgun_slowfire(ballgun);
+    } else if (strcmp("tidy", argv[0]) == 0) {
+        ballgun_tidy(ballgun);
+    } else if (strcmp("empty", argv[0]) == 0) {
+        ballgun_deploy_fully(ballgun);
+        ballgun_slowfire(ballgun);
+    } else if (strcmp("spin", argv[0]) == 0) {
+        ballgun_spin(ballgun);
+    } else {
+        chprintf(chp, "Invalid command: %s", argv[0]);
     }
-    else if (strcmp("slowfire", argv[0]) == 0)     { ballgun_slowfire(ballgun); }
-    else if (strcmp("tidy", argv[0]) == 0)         { ballgun_tidy(ballgun); }
-    else if (strcmp("empty", argv[0]) == 0)        { ballgun_deploy_fully(ballgun); ballgun_slowfire(ballgun); }
-    else if (strcmp("spin", argv[0]) == 0)         { ballgun_spin(ballgun); }
-    else                                           { chprintf(chp, "Invalid command: %s", argv[0]); }
 
     chprintf(chp, "\r\n");
     while (chnGetTimeout((BaseChannel*)chp, TIME_IMMEDIATE) != 'c') {
@@ -1516,7 +1527,7 @@ static void cmd_ballgun(BaseSequentialStream *chp, int argc, char *argv[])
     chprintf(chp, "Ball count %u\r\n", ball_sense_count());
 }
 
-static void cmd_ballsense(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_ballsense(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc == 1 && strcmp("reset", argv[0]) == 0) {
         ball_sense_reset_count();
@@ -1529,7 +1540,7 @@ static void cmd_ballsense(BaseSequentialStream *chp, int argc, char *argv[])
 }
 
 // Copy of strat_fill_wastewater_treatment_plant()
-static void cmd_slowfire(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_slowfire(BaseSequentialStream* chp, int argc, char* argv[])
 {
     (void)chp;
     (void)argc;
@@ -1548,18 +1559,22 @@ static void cmd_slowfire(BaseSequentialStream *chp, int argc, char *argv[])
     ballgun_tidy(&main_ballgun);
 }
 
-static void cmd_wastewater(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_wastewater(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc != 1) {
         chprintf(chp, "Usage: wastewater yellow|green\r\n");
         return;
     }
-    if      (strcmp("yellow", argv[0]) == 0) { strat_collect_wastewater(YELLOW, 0); }
-    else if (strcmp("green", argv[0]) == 0)  { strat_collect_wastewater(BLUE, 0); }
-    else                                     { chprintf(chp, "Invalid color: %s", argv[0]); }
+    if (strcmp("yellow", argv[0]) == 0) {
+        strat_collect_wastewater(YELLOW, 0);
+    } else if (strcmp("green", argv[0]) == 0) {
+        strat_collect_wastewater(BLUE, 0);
+    } else {
+        chprintf(chp, "Invalid color: %s", argv[0]);
+    }
 }
 
-static void cmd_watertower(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_watertower(BaseSequentialStream* chp, int argc, char* argv[])
 {
     (void)chp;
     (void)argc;
@@ -1567,7 +1582,7 @@ static void cmd_watertower(BaseSequentialStream *chp, int argc, char *argv[])
     strat_fill_watertower();
 }
 
-static void cmd_watertower_plant(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_watertower_plant(BaseSequentialStream* chp, int argc, char* argv[])
 {
     (void)chp;
     (void)argc;
@@ -1575,7 +1590,7 @@ static void cmd_watertower_plant(BaseSequentialStream *chp, int argc, char *argv
     strat_fill_wastewater_treatment_plant();
 }
 
-static void cmd_wrist(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_wrist(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc != 1) {
         chprintf(chp, "Usage: wrist h[orizontal]|v[ertical]\r\n");
@@ -1593,20 +1608,25 @@ static void cmd_wrist(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
-static void cmd_speed(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_speed(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc != 1) {
         chprintf(chp, "Usage: speed init|slow|fast\r\n");
         return;
     }
 
-    if      (strcmp("init", argv[0]) == 0) { robot.base_speed = BASE_SPEED_INIT; }
-    else if (strcmp("slow", argv[0]) == 0) { robot.base_speed = BASE_SPEED_SLOW; }
-    else if (strcmp("fast", argv[0]) == 0) { robot.base_speed = BASE_SPEED_FAST; }
-    else                                   { chprintf(chp, "Invalid base speed: %s", argv[0]); }
+    if (strcmp("init", argv[0]) == 0) {
+        robot.base_speed = BASE_SPEED_INIT;
+    } else if (strcmp("slow", argv[0]) == 0) {
+        robot.base_speed = BASE_SPEED_SLOW;
+    } else if (strcmp("fast", argv[0]) == 0) {
+        robot.base_speed = BASE_SPEED_FAST;
+    } else {
+        chprintf(chp, "Invalid base speed: %s", argv[0]);
+    }
 }
 
-static void cmd_lever_full(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_lever_full(BaseSequentialStream* chp, int argc, char* argv[])
 {
     (void)argc;
     (void)argv;
@@ -1615,12 +1635,12 @@ static void cmd_lever_full(BaseSequentialStream *chp, int argc, char *argv[])
     chprintf(chp, "right lever: %d\r\n", strat_lever_is_full(LEVER_SIDE_RIGHT));
 }
 
-static void cmd_panel_status(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_panel_status(BaseSequentialStream* chp, int argc, char* argv[])
 {
     (void)argc;
     (void)argv;
 
-    messagebus_topic_t *topic;
+    messagebus_topic_t* topic;
     topic = messagebus_find_topic(&bus, "/panel_contact_us");
 
     if (!topic) {
@@ -1638,7 +1658,7 @@ static void cmd_panel_status(BaseSequentialStream *chp, int argc, char *argv[])
     }
 }
 
-static void cmd_touchscreen(BaseSequentialStream *chp, int argc, char *argv[])
+static void cmd_touchscreen(BaseSequentialStream* chp, int argc, char* argv[])
 {
     (void)argc;
     (void)argv;
@@ -1729,5 +1749,4 @@ const ShellCommand commands[] = {
     {"ballsense", cmd_ballsense},
     {"panel", cmd_panel_status},
     {"touchscreen", cmd_touchscreen},
-    {NULL, NULL}
-};
+    {NULL, NULL}};

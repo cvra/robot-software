@@ -3,7 +3,6 @@
 #include "setpoint.h"
 #include "pid_cascade.h"
 
-
 static float pos_setpt_interpolation(float pos, float vel, float acc, float delta_t)
 {
     return pos + vel * delta_t + acc / 2 * delta_t * delta_t;
@@ -17,36 +16,35 @@ static float vel_setpt_interpolation(float vel, float acc, float delta_t)
 // returns acceleration to be applied for the next delta_t
 float vel_ramp(float pos, float vel, float target_pos, float delta_t, float max_vel, float max_acc, bool periodic)
 {
-    float breaking_dist = vel * vel / 2 / max_acc;  // distance needed to break with max_acc
+    float breaking_dist = vel * vel / 2 / max_acc; // distance needed to break with max_acc
     float error = pos - target_pos;
     if (periodic) {
         error = periodic_error(error);
     }
     float error_sign = copysignf(1.0, error);
 
-    if (error_sign != copysignf(1.0, vel)) {        // decreasing error with current vel
+    if (error_sign != copysignf(1.0, vel)) { // decreasing error with current vel
         if (fabs(error) <= breaking_dist || fabs(error) <= max_acc * delta_t * delta_t / 2) {
             // too close to break (or just close enough)
-            return - filter_limit_sym(vel / delta_t, max_acc);
+            return -filter_limit_sym(vel / delta_t, max_acc);
         } else if (fabs(vel) >= max_vel) {
             // maximal velocity reached -> just cruise
             return 0;
         } else {
             // we can go faster
-            return - error_sign * max_acc;
+            return -error_sign * max_acc;
         }
     } else {
         // driving away from target position -> turn around
         if (fabs(error) <= max_acc * delta_t * delta_t / 2) {
-            return - filter_limit_sym(vel / delta_t, max_acc);
+            return -filter_limit_sym(vel / delta_t, max_acc);
         } else {
-            return - error_sign * max_acc;
+            return -error_sign * max_acc;
         }
     }
 }
 
-
-void setpoint_init(setpoint_interpolator_t *ip)
+void setpoint_init(setpoint_interpolator_t* ip)
 {
     ip->setpt_mode = SETPT_MODE_TORQUE;
     ip->setpt_torque = 0;
@@ -54,19 +52,18 @@ void setpoint_init(setpoint_interpolator_t *ip)
     ip->vel_limit = 0;
 }
 
-void setpoint_set_acceleration_limit(setpoint_interpolator_t *ip,
+void setpoint_set_acceleration_limit(setpoint_interpolator_t* ip,
                                      float acc_limit)
 {
     ip->acc_limit = acc_limit;
 }
 
-void setpoint_set_velocity_limit(setpoint_interpolator_t *ip, float vel_limit)
+void setpoint_set_velocity_limit(setpoint_interpolator_t* ip, float vel_limit)
 {
     ip->vel_limit = vel_limit;
 }
 
-
-void setpoint_update_position(setpoint_interpolator_t *ip,
+void setpoint_update_position(setpoint_interpolator_t* ip,
                               float pos,
                               float current_pos,
                               float current_vel,
@@ -84,7 +81,7 @@ void setpoint_update_position(setpoint_interpolator_t *ip,
     ip->periodic_actuator = periodic;
 }
 
-void setpoint_update_velocity(setpoint_interpolator_t *ip,
+void setpoint_update_velocity(setpoint_interpolator_t* ip,
                               float vel,
                               float current_vel)
 {
@@ -95,13 +92,13 @@ void setpoint_update_velocity(setpoint_interpolator_t *ip,
     ip->target_vel = vel;
 }
 
-void setpoint_update_torque(setpoint_interpolator_t *ip, float torque)
+void setpoint_update_torque(setpoint_interpolator_t* ip, float torque)
 {
     ip->setpt_mode = SETPT_MODE_TORQUE;
     ip->setpt_torque = torque;
 }
 
-void setpoint_update_trajectory(setpoint_interpolator_t *ip,
+void setpoint_update_trajectory(setpoint_interpolator_t* ip,
                                 float pos,
                                 float vel,
                                 float acc,
@@ -116,15 +113,14 @@ void setpoint_update_trajectory(setpoint_interpolator_t *ip,
     ip->setpt_ts = ts;
 }
 
-void setpoint_update_voltage(setpoint_interpolator_t *ip, float voltage)
+void setpoint_update_voltage(setpoint_interpolator_t* ip, float voltage)
 {
     ip->setpt_mode = SETPT_MODE_VOLT;
     ip->setpt_voltage = voltage;
 }
 
-
-void setpoint_compute(setpoint_interpolator_t *ip,
-                      struct setpoint_s *setpts,
+void setpoint_compute(setpoint_interpolator_t* ip,
+                      struct setpoint_s* setpts,
                       float delta_t)
 {
     if (ip->setpt_mode == SETPT_MODE_TRAJ) {

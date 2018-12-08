@@ -3,11 +3,11 @@
 
 #include <ch.h>
 
-#define assert(x) do { \
-        if (!(x)) { \
+#define assert(x)                          \
+    do {                                   \
+        if (!(x)) {                        \
             chSysHalt("assertion failed"); \
-        } \
-} while (0)
-
+        }                                  \
+    } while (0)
 
 #endif

@@ -5,36 +5,35 @@ extern "C" {
 }
 
 namespace {
-    typedef struct {
-        float pos;
-        float vel;
-    } joint_state_t;
+typedef struct {
+    float pos;
+    float vel;
+} joint_state_t;
 
-    void set_pos(void *m, float value)
-    {
-        joint_state_t * state = (joint_state_t *)m;
-        state->pos = value;
-    }
-
-    void set_vel(void *m, float value)
-    {
-        joint_state_t * state = (joint_state_t *)m;
-        state->vel = value;
-    }
-
-    float get_pos(void *m)
-    {
-        joint_state_t * state = (joint_state_t *)m;
-        return state->pos;
-    }
+void set_pos(void* m, float value)
+{
+    joint_state_t* state = (joint_state_t*)m;
+    state->pos = value;
 }
 
-TEST_GROUP(AScaraHWInterface)
+void set_vel(void* m, float value)
 {
+    joint_state_t* state = (joint_state_t*)m;
+    state->vel = value;
+}
+
+float get_pos(void* m)
+{
+    joint_state_t* state = (joint_state_t*)m;
+    return state->pos;
+}
+} // namespace
+
+TEST_GROUP (AScaraHWInterface) {
     scara_hardware_interface_t hw_interface;
-    joint_state_t z_state {0, 0};
-    joint_state_t shoulder_state {0, 0};
-    joint_state_t elbow_state {0, 0};
+    joint_state_t z_state{0, 0};
+    joint_state_t shoulder_state{0, 0};
+    joint_state_t elbow_state{0, 0};
 
     void setup()
     {
@@ -95,7 +94,7 @@ TEST(AScaraHWInterface, SetsJointVelocity)
 
 TEST(AScaraHWInterface, SetsAllRequestedJointStates)
 {
-    scara_hw_set_joints(&hw_interface, {.z={POSITION, 7}, .shoulder={VELOCITY, 5}, .elbow={VELOCITY, 3}});
+    scara_hw_set_joints(&hw_interface, {.z = {POSITION, 7}, .shoulder = {VELOCITY, 5}, .elbow = {VELOCITY, 3}});
 
     CHECK_EQUAL(7, z_state.pos);
     CHECK_EQUAL(5, shoulder_state.vel);

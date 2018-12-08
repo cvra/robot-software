@@ -22,8 +22,7 @@
 
 #include <errno.h>
 
-
-#define UAVCAN_SPIN_FREQ    500 // [Hz]
+#define UAVCAN_SPIN_FREQ 500 // [Hz]
 
 #define UAVCAN_NODE_STACK_SIZE 8192
 
@@ -31,19 +30,15 @@
 #define UAVCAN_RX_QUEUE_SIZE 64
 #define UAVCAN_CAN_BITRATE 1000000UL
 
-
 bus_enumerator_t bus_enumerator;
 
-
-namespace uavcan_node
-{
+namespace uavcan_node {
 
 static void node_status_cb(const uavcan::ReceivedDataStructure<uavcan::protocol::NodeStatus>& msg);
 
 /** This class is used by libuavcan to connect node information to our bus
  * enumerator. */
-class BusEnumeratorNodeInfoAdapter final : public uavcan::INodeInfoListener
-{
+class BusEnumeratorNodeInfoAdapter final : public uavcan::INodeInfoListener {
     void handleNodeInfoRetrieved(uavcan::NodeID node_id,
                                  const uavcan::protocol::GetNodeInfo::Response& node_info) override
     {
@@ -57,8 +52,7 @@ class BusEnumeratorNodeInfoAdapter final : public uavcan::INodeInfoListener
 
             /* If we received as many nodes as expected, signal it using the
              * ready LED. */
-            if (bus_enumerator_discovered_nodes_count(&bus_enumerator) ==
-                bus_enumerator_total_nodes_count(&bus_enumerator)) {
+            if (bus_enumerator_discovered_nodes_count(&bus_enumerator) == bus_enumerator_total_nodes_count(&bus_enumerator)) {
                 control_panel_set(LED_READY);
             }
         }
@@ -70,8 +64,7 @@ class BusEnumeratorNodeInfoAdapter final : public uavcan::INodeInfoListener
     }
 };
 
-
-static void main(void *arg)
+static void main(void* arg)
 {
     chRegSetThreadName("uavcan");
     int res;
@@ -189,7 +182,7 @@ void uavcan_node_start(uint8_t id)
                       UAVCAN_NODE_STACK_SIZE,
                       UAVCAN_PRIO,
                       uavcan_node::main,
-                      (void *)node_id);
+                      (void*)node_id);
 }
 
 } // extern "C"

@@ -1,32 +1,32 @@
 #include <string.h>
 #include "uwb_protocol.h"
 
-#define MAC_802_15_4_FC_DATA_FRAME      (0x1 << 0)
+#define MAC_802_15_4_FC_DATA_FRAME (0x1 << 0)
 #define MAC_802_15_4_FC_PAN_ID_COMPRESS (0x1 << 6)
-#define MAC_802_15_4_FC_SHORT_SRC_ADDR  (0x2 << 14)
-#define MAC_802_15_4_FC_SHORT_DST_ADDR  (0x2 << 10)
+#define MAC_802_15_4_FC_SHORT_SRC_ADDR (0x2 << 14)
+#define MAC_802_15_4_FC_SHORT_DST_ADDR (0x2 << 10)
 
-#define MAC_HDR_LEN                     9
-#define MAC_CRC_LEN                     2
+#define MAC_HDR_LEN 9
+#define MAC_CRC_LEN 2
 
-#define UWB_SEQ_NUM_ADVERTISEMENT           0
-#define UWB_SEQ_NUM_REPLY                   1
-#define UWB_SEQ_NUM_FINALIZATION            2
-#define UWB_SEQ_NUM_ANCHOR_POSITION         3
-#define UWB_SEQ_NUM_TAG_POSITION            4
-#define UWB_SEQ_NUM_INITIATE_MEASUREMENT    5
+#define UWB_SEQ_NUM_ADVERTISEMENT 0
+#define UWB_SEQ_NUM_REPLY 1
+#define UWB_SEQ_NUM_FINALIZATION 2
+#define UWB_SEQ_NUM_ANCHOR_POSITION 3
+#define UWB_SEQ_NUM_TAG_POSITION 4
+#define UWB_SEQ_NUM_INITIATE_MEASUREMENT 5
 
-#define UWB_DELAY                       (1000 * 65536)
-#define MASK_40BIT                      0xfffffffe00
+#define UWB_DELAY (1000 * 65536)
+#define MASK_40BIT 0xfffffffe00
 
-static void write_40bit_int(uint64_t val, uint8_t *bytes);
-static uint64_t read_40bit_int(uint8_t *bytes);
+static void write_40bit_int(uint64_t val, uint8_t* bytes);
+static uint64_t read_40bit_int(uint8_t* bytes);
 
 size_t uwb_mac_encapsulate_frame(uint16_t pan_id,
                                  uint16_t src_addr,
                                  uint16_t dst_addr,
                                  uint8_t seq_number,
-                                 uint8_t *frame,
+                                 uint8_t* frame,
                                  size_t frame_size)
 {
     uint16_t frame_hdr = 0;
@@ -60,12 +60,11 @@ size_t uwb_mac_encapsulate_frame(uint16_t pan_id,
     return frame_size;
 }
 
-
-size_t uwb_mac_decapsulate_frame(uint16_t *pan_id,
-                                 uint16_t *src_addr,
-                                 uint16_t *dst_addr,
-                                 uint8_t *seq,
-                                 uint8_t *frame,
+size_t uwb_mac_decapsulate_frame(uint16_t* pan_id,
+                                 uint16_t* src_addr,
+                                 uint16_t* dst_addr,
+                                 uint8_t* seq,
+                                 uint8_t* frame,
                                  size_t frame_size)
 {
     *seq = frame[2];
@@ -79,7 +78,7 @@ size_t uwb_mac_decapsulate_frame(uint16_t *pan_id,
     return frame_size - MAC_HDR_LEN - MAC_CRC_LEN;
 }
 
-static void write_40bit_int(uint64_t val, uint8_t *bytes)
+static void write_40bit_int(uint64_t val, uint8_t* bytes)
 {
     bytes[0] = (val >> 32) & 0xff;
     bytes[1] = (val >> 24) & 0xff;
@@ -88,7 +87,7 @@ static void write_40bit_int(uint64_t val, uint8_t *bytes)
     bytes[4] = (val >> 0) & 0xff;
 }
 
-static uint64_t read_40bit_int(uint8_t *bytes)
+static uint64_t read_40bit_int(uint8_t* bytes)
 {
     uint64_t res = 0;
     for (int i = 0; i < 5; i++) {
@@ -104,21 +103,21 @@ static uint64_t substract_40bit_int(uint64_t a, uint64_t b)
     const uint64_t uint40_max = (1ULL << 40) - 1;
     uint64_t res = a - b;
     if (b > a) {
-        res += uint40_max;;
+        res += uint40_max;
+        ;
     }
 
     return res;
 }
 
-
-void uwb_protocol_handler_init(uwb_protocol_handler_t *handler)
+void uwb_protocol_handler_init(uwb_protocol_handler_t* handler)
 {
     memset(handler, 0, sizeof(uwb_protocol_handler_t));
 }
 
-size_t uwb_protocol_prepare_measurement_advertisement(uwb_protocol_handler_t *handler,
+size_t uwb_protocol_prepare_measurement_advertisement(uwb_protocol_handler_t* handler,
                                                       uint64_t tx_timestamp,
-                                                      uint8_t *frame)
+                                                      uint8_t* frame)
 {
     size_t size;
     write_40bit_int(tx_timestamp, frame);
@@ -132,7 +131,7 @@ size_t uwb_protocol_prepare_measurement_advertisement(uwb_protocol_handler_t *ha
     return size;
 }
 
-void uwb_send_measurement_advertisement(uwb_protocol_handler_t *handler, uint8_t *buffer)
+void uwb_send_measurement_advertisement(uwb_protocol_handler_t* handler, uint8_t* buffer)
 {
     uint64_t ts = uwb_timestamp_get();
     size_t frame_size;
@@ -144,14 +143,14 @@ void uwb_send_measurement_advertisement(uwb_protocol_handler_t *handler, uint8_t
     uwb_transmit_frame(ts, buffer, frame_size);
 }
 
-size_t uwb_protocol_prepare_anchor_position(uwb_protocol_handler_t *handler,
+size_t uwb_protocol_prepare_anchor_position(uwb_protocol_handler_t* handler,
                                             float x,
                                             float y,
                                             float z,
-                                            uint8_t *frame)
+                                            uint8_t* frame)
 {
     /* TODO Use proper endianness */
-    float *msg = (float *)frame;
+    float* msg = (float*)frame;
     msg[0] = x;
     msg[1] = y;
     msg[2] = z;
@@ -164,13 +163,13 @@ size_t uwb_protocol_prepare_anchor_position(uwb_protocol_handler_t *handler,
                                      12);
 }
 
-size_t uwb_protocol_prepare_tag_position(uwb_protocol_handler_t *handler,
+size_t uwb_protocol_prepare_tag_position(uwb_protocol_handler_t* handler,
                                          float x,
                                          float y,
-                                         uint8_t *frame)
+                                         uint8_t* frame)
 {
     /* TODO Use proper endianness */
-    float *msg = (float *)frame;
+    float* msg = (float*)frame;
     msg[0] = x;
     msg[1] = y;
 
@@ -182,12 +181,11 @@ size_t uwb_protocol_prepare_tag_position(uwb_protocol_handler_t *handler,
                                      8);
 }
 
-
-void uwb_send_anchor_position(uwb_protocol_handler_t *handler,
+void uwb_send_anchor_position(uwb_protocol_handler_t* handler,
                               float x,
                               float y,
                               float z,
-                              uint8_t *frame)
+                              uint8_t* frame)
 {
     size_t size;
 
@@ -196,7 +194,7 @@ void uwb_send_anchor_position(uwb_protocol_handler_t *handler,
     uwb_transmit_frame(UWB_TX_TIMESTAMP_IMMEDIATE, frame, size);
 }
 
-void uwb_send_tag_position(uwb_protocol_handler_t *handler, float x, float y, uint8_t *buffer)
+void uwb_send_tag_position(uwb_protocol_handler_t* handler, float x, float y, uint8_t* buffer)
 {
     size_t size;
 
@@ -205,8 +203,8 @@ void uwb_send_tag_position(uwb_protocol_handler_t *handler, float x, float y, ui
     uwb_transmit_frame(UWB_TX_TIMESTAMP_IMMEDIATE, buffer, size);
 }
 
-void uwb_process_incoming_frame(uwb_protocol_handler_t *handler,
-                                uint8_t *frame,
+void uwb_process_incoming_frame(uwb_protocol_handler_t* handler,
+                                uint8_t* frame,
                                 size_t frame_size,
                                 uint64_t rx_ts)
 {
@@ -299,8 +297,7 @@ void uwb_process_incoming_frame(uwb_protocol_handler_t *handler,
         treply[0] = substract_40bit_int(reply_tx_ts, advertisement_rx_ts);
         treply[1] = substract_40bit_int(final_tx_ts, reply_rx_ts);
 
-        t_propag = (tround[0] * tround[1]  - treply[0] * treply[1]) /
-                   (tround[0] + tround[1]  + treply[0] + treply[1]);
+        t_propag = (tround[0] * tround[1] - treply[0] * treply[1]) / (tround[0] + tround[1] + treply[0] + treply[1]);
 
         if (handler->ranging_found_cb) {
             handler->ranging_found_cb(src_addr, t_propag);
@@ -321,7 +318,7 @@ void uwb_process_incoming_frame(uwb_protocol_handler_t *handler,
     }
 }
 
-void uwb_initiate_measurement(uwb_protocol_handler_t *handler, uint8_t *buffer, uint16_t anchor_addr)
+void uwb_initiate_measurement(uwb_protocol_handler_t* handler, uint8_t* buffer, uint16_t anchor_addr)
 {
     uint64_t ts = uwb_timestamp_get();
 

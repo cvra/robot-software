@@ -8,10 +8,10 @@
 extern "C" {
 #endif
 
-void rpm_barrier_crossing(timestamp_t time);    // called by interrupt
+void rpm_barrier_crossing(timestamp_t time); // called by interrupt
 float rpm_get_position(void);
 float rpm_get_velocity(void);
-void rpm_get_velocity_and_position(float *velocity, float *position);
+void rpm_get_velocity_and_position(float* velocity, float* position);
 
 #ifdef __cplusplus
 }

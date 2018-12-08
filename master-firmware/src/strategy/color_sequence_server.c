@@ -18,10 +18,10 @@ static const SerialConfig bt_uart_config = {
     .speed = BLUETOOTH_UART_BAUDRATE,
     .cr1 = 0,
     .cr2 = USART_CR2_STOP1_BITS | USART_CR2_LINEN,
-    .cr3 = 0
-};
+    .cr3 = 0};
 
-static THD_FUNCTION(color_sequence_server_thd, arg) {
+static THD_FUNCTION(color_sequence_server_thd, arg)
+{
     (void)arg;
     chRegSetThreadName(__FUNCTION__);
 
@@ -38,7 +38,7 @@ static THD_FUNCTION(color_sequence_server_thd, arg) {
         // Wait for the sync character
         do {
             sdRead(&SD2, buffer, 1);
-        } while(buffer[0] != '@');
+        } while (buffer[0] != '@');
 
         // Read the color sequence
         sdRead(&SD2, buffer, 4);

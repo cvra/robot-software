@@ -4,8 +4,7 @@
 #include "scara_port.h"
 #include "scara_kinematics.h"
 
-
-int scara_num_possible_elbow_positions(point_t target, float l1, float l2, point_t *p1, point_t *p2)
+int scara_num_possible_elbow_positions(point_t target, float l1, float l2, point_t* p1, point_t* p2)
 {
     circle_t c1, c2;
 
@@ -33,7 +32,6 @@ shoulder_mode_t scara_orientation_mode(shoulder_mode_t mode, float scara_angle_o
 
 point_t scara_shoulder_solve(point_t target, point_t elbow1, point_t elbow2, shoulder_mode_t mode)
 {
-
     if (target.x < 0) {
         if (elbow1.x > elbow2.x)
             return elbow1;
@@ -52,7 +50,6 @@ point_t scara_shoulder_solve(point_t target, point_t elbow1, point_t elbow2, sho
         else
             return elbow2;
     }
-
 }
 
 float scara_compute_shoulder_angle(point_t elbow, point_t hand)
@@ -79,8 +76,7 @@ point_t scara_forward_kinematics(float alpha, float beta, float length[2])
     return result;
 }
 
-bool scara_compute_joint_angles(position_3d_t position, shoulder_mode_t mode,
-                                float* length, float* alpha, float* beta)
+bool scara_compute_joint_angles(position_3d_t position, shoulder_mode_t mode, float* length, float* alpha, float* beta)
 {
     point_t target = {.x = position.x, .y = position.y};
 

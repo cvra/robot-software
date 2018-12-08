@@ -1,7 +1,7 @@
 #include "error/error.h"
 #include "unix_timestamp.h"
 
-static unix_timestamp_t unix_reference = {.s=0, .us=0};
+static unix_timestamp_t unix_reference = {.s = 0, .us = 0};
 static int32_t local_reference = 0;
 
 int32_t timestamp_unix_to_local_us(unix_timestamp_t ts)

@@ -5,11 +5,10 @@
 #include <error/error.h>
 #include "timestamp/timestamp.h"
 
-static void pid_register(struct pid_parameter_s *pid,
-                         parameter_namespace_t *parent,
-                         const char *name)
+static void pid_register(struct pid_parameter_s* pid,
+                         parameter_namespace_t* parent,
+                         const char* name)
 {
-
     parameter_namespace_declare(&pid->root, parent, name);
     parameter_scalar_declare_with_default(&pid->kp, &pid->root, "kp", 0);
     parameter_scalar_declare_with_default(&pid->ki, &pid->root, "ki", 0);
@@ -17,9 +16,9 @@ static void pid_register(struct pid_parameter_s *pid,
     parameter_scalar_declare_with_default(&pid->ilimit, &pid->root, "i_limit", 0);
 }
 
-void motor_driver_init(motor_driver_t *d,
-                       const char *actuator_id,
-                       parameter_namespace_t *ns)
+void motor_driver_init(motor_driver_t* d,
+                       const char* actuator_id,
+                       parameter_namespace_t* ns)
 {
     chBSemObjectInit(&d->lock, false);
 
@@ -64,12 +63,12 @@ void motor_driver_init(motor_driver_t *d,
     d->stream.change_status = 0;
 }
 
-const char *motor_driver_get_id(motor_driver_t *d)
+const char* motor_driver_get_id(motor_driver_t* d)
 {
     return d->id;
 }
 
-void motor_driver_set_position(motor_driver_t *d, float position)
+void motor_driver_set_position(motor_driver_t* d, float position)
 {
     chBSemWait(&d->lock);
     d->control_mode = MOTOR_CONTROL_MODE_POSITION;
@@ -77,7 +76,7 @@ void motor_driver_set_position(motor_driver_t *d, float position)
     chBSemSignal(&d->lock);
 }
 
-void motor_driver_set_velocity(motor_driver_t *d, float velocity)
+void motor_driver_set_velocity(motor_driver_t* d, float velocity)
 {
     chBSemWait(&d->lock);
     d->control_mode = MOTOR_CONTROL_MODE_VELOCITY;
@@ -85,7 +84,7 @@ void motor_driver_set_velocity(motor_driver_t *d, float velocity)
     chBSemSignal(&d->lock);
 }
 
-void motor_driver_set_torque(motor_driver_t *d, float torque)
+void motor_driver_set_torque(motor_driver_t* d, float torque)
 {
     chBSemWait(&d->lock);
     d->control_mode = MOTOR_CONTROL_MODE_TORQUE;
@@ -93,7 +92,7 @@ void motor_driver_set_torque(motor_driver_t *d, float torque)
     chBSemSignal(&d->lock);
 }
 
-void motor_driver_set_voltage(motor_driver_t *d, float voltage)
+void motor_driver_set_voltage(motor_driver_t* d, float voltage)
 {
     chBSemWait(&d->lock);
     d->control_mode = MOTOR_CONTROL_MODE_VOLTAGE;
@@ -101,42 +100,39 @@ void motor_driver_set_voltage(motor_driver_t *d, float voltage)
     chBSemSignal(&d->lock);
 }
 
-void motor_driver_disable(motor_driver_t *d)
+void motor_driver_disable(motor_driver_t* d)
 {
     chBSemWait(&d->lock);
     d->control_mode = MOTOR_CONTROL_MODE_DISABLED;
     chBSemSignal(&d->lock);
 }
 
-
-void motor_driver_set_can_id(motor_driver_t *d, int can_id)
+void motor_driver_set_can_id(motor_driver_t* d, int can_id)
 {
     d->can_id = can_id;
 }
 
-int motor_driver_get_can_id(motor_driver_t *d)
+int motor_driver_get_can_id(motor_driver_t* d)
 {
     return d->can_id;
 }
 
-
-void motor_driver_lock(motor_driver_t *d)
+void motor_driver_lock(motor_driver_t* d)
 {
     chBSemWait(&d->lock);
 }
 
-void motor_driver_unlock(motor_driver_t *d)
+void motor_driver_unlock(motor_driver_t* d)
 {
     chBSemSignal(&d->lock);
 }
 
-
-int motor_driver_get_control_mode(motor_driver_t *d)
+int motor_driver_get_control_mode(motor_driver_t* d)
 {
     return d->control_mode;
 }
 
-float motor_driver_get_position_setpt(motor_driver_t *d)
+float motor_driver_get_position_setpt(motor_driver_t* d)
 {
     if (d->control_mode != MOTOR_CONTROL_MODE_POSITION) {
         ERROR("motor driver get position wrong setpt mode");
@@ -144,7 +140,7 @@ float motor_driver_get_position_setpt(motor_driver_t *d)
     return d->setpt.position;
 }
 
-float motor_driver_get_velocity_setpt(motor_driver_t *d)
+float motor_driver_get_velocity_setpt(motor_driver_t* d)
 {
     if (d->control_mode != MOTOR_CONTROL_MODE_VELOCITY) {
         ERROR("motor driver get velocity wrong setpt mode");
@@ -152,7 +148,7 @@ float motor_driver_get_velocity_setpt(motor_driver_t *d)
     return d->setpt.velocity;
 }
 
-float motor_driver_get_torque_setpt(motor_driver_t *d)
+float motor_driver_get_torque_setpt(motor_driver_t* d)
 {
     if (d->control_mode != MOTOR_CONTROL_MODE_TORQUE) {
         ERROR("motor driver get torque wrong setpt mode");
@@ -160,7 +156,7 @@ float motor_driver_get_torque_setpt(motor_driver_t *d)
     return d->setpt.torque;
 }
 
-float motor_driver_get_voltage_setpt(motor_driver_t *d)
+float motor_driver_get_voltage_setpt(motor_driver_t* d)
 {
     if (d->control_mode != MOTOR_CONTROL_MODE_VOLTAGE) {
         ERROR("motor driver get voltage wrong setpt mode");
@@ -168,9 +164,8 @@ float motor_driver_get_voltage_setpt(motor_driver_t *d)
     return d->setpt.voltage;
 }
 
-void motor_driver_set_stream_value(motor_driver_t *d, uint32_t stream, float value)
+void motor_driver_set_stream_value(motor_driver_t* d, uint32_t stream, float value)
 {
-
     if (stream < MOTOR_STREAMS_NB_VALUES) {
         motor_driver_lock(d);
 
@@ -181,12 +176,12 @@ void motor_driver_set_stream_value(motor_driver_t *d, uint32_t stream, float val
     }
 }
 
-uint32_t motor_driver_get_stream_change_status(motor_driver_t *d)
+uint32_t motor_driver_get_stream_change_status(motor_driver_t* d)
 {
     return d->stream.change_status;
 }
 
-float motor_driver_get_and_clear_stream_value(motor_driver_t *d, uint32_t stream)
+float motor_driver_get_and_clear_stream_value(motor_driver_t* d, uint32_t stream)
 {
     float return_value;
 
@@ -202,5 +197,4 @@ float motor_driver_get_and_clear_stream_value(motor_driver_t *d, uint32_t stream
     } else {
         return 0.;
     }
-
 }

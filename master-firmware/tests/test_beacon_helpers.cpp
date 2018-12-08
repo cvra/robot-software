@@ -7,10 +7,7 @@ extern "C" {
 
 #include "robot_helpers/beacon_helpers.h"
 
-
-TEST_GROUP(BeaconAngleGetter)
-{
-
+TEST_GROUP (BeaconAngleGetter) {
 };
 
 TEST(BeaconAngleGetter, ReturnsZeroForZeroInputs)
@@ -55,17 +52,15 @@ TEST(BeaconAngleGetter, WrapsAroundPiForResultGreaterThanPi)
 
 TEST(BeaconAngleGetter, WrapsAroundPiForResultSmallerThanMinusPi)
 {
-    const float arbitrary_start_angle = - M_PI + 0.1;
-    const float arbitrary_signal_length = - 0.4;
+    const float arbitrary_start_angle = -M_PI + 0.1;
+    const float arbitrary_signal_length = -0.4;
 
     float angle = beacon_get_angle(arbitrary_start_angle, arbitrary_signal_length);
 
     DOUBLES_EQUAL(M_PI - 0.1, angle, 1e-6);
 }
 
-
-TEST_GROUP(BeaconCartesianConvert)
-{
+TEST_GROUP (BeaconCartesianConvert) {
     float x, y;
     struct robot_position robot_pos;
 
@@ -89,7 +84,7 @@ TEST(BeaconCartesianConvert, handlesTrivialCase)
 
 TEST(BeaconCartesianConvert, returnsRelativeOpponentPosWhenRobotPosIsZero)
 {
-    beacon_cartesian_convert(&robot_pos, 1000, M_PI/6, &x, &y);
+    beacon_cartesian_convert(&robot_pos, 1000, M_PI / 6, &x, &y);
 
     DOUBLES_EQUAL(866, x, 1e-1);
     DOUBLES_EQUAL(500, y, 1e-1);
@@ -109,7 +104,7 @@ TEST(BeaconCartesianConvert, returnsCorrectPosInComplexCase)
 {
     position_set(&robot_pos, 200, 100, 90);
 
-    beacon_cartesian_convert(&robot_pos, 1000, -M_PI/6, &x, &y);
+    beacon_cartesian_convert(&robot_pos, 1000, -M_PI / 6, &x, &y);
 
     DOUBLES_EQUAL(700, x, 1e-1);
     DOUBLES_EQUAL(966, y, 1e-1);

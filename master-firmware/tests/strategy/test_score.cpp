@@ -2,8 +2,7 @@
 
 #include "strategy/score.h"
 
-TEST_GROUP(AScore)
-{
+TEST_GROUP (AScore) {
     RobotState state;
 };
 

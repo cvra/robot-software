@@ -7,24 +7,40 @@
 
 const int NUM_BLOCK_OF_CUBES = 6;
 const int BLOCK_OF_CUBES_POS[NUM_BLOCK_OF_CUBES][2] = {
-    {850, 540}, {300, 1190}, {1100, 1500}, {1900, 1500}, {2700, 1190}, {2150, 540},
+    {850, 540},
+    {300, 1190},
+    {1100, 1500},
+    {1900, 1500},
+    {2700, 1190},
+    {2150, 540},
 };
 
 const int NUM_CONSTRUCTION_ZONES = 2;
 const int NUM_TOWERS = 4;
 const int CONSTRUCTION_ZONE_POS[NUM_TOWERS][2] = {
-    {416, 100}, {502, 154}, {934, 110}, {847, 144},
+    {416, 100},
+    {502, 154},
+    {934, 110},
+    {847, 144},
 };
 const int16_t CONSTRUCTION_HEADING[NUM_TOWERS] = {
-    90, 155, 110, 30,
+    90,
+    155,
+    110,
+    30,
 };
 const shoulder_mode_t CONSTRUCTION_SHOULDER_MODE[NUM_TOWERS] = {
-    SHOULDER_BACK, SHOULDER_BACK, SHOULDER_FRONT, SHOULDER_FRONT,
+    SHOULDER_BACK,
+    SHOULDER_BACK,
+    SHOULDER_FRONT,
+    SHOULDER_FRONT,
 };
 const int16_t DEPOSIT_ZONE_POSE[NUM_TOWERS][3] = {
-    {365, 375, 157}, {365, 375, -113}, {985, 375, 203}, {985, 375, 113},
+    {365, 375, 157},
+    {365, 375, -113},
+    {985, 375, 203},
+    {985, 375, 113},
 };
-
 
 enum BallgunState {
     IS_EMPTY = 0,

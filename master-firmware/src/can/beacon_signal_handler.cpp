@@ -36,12 +36,11 @@ static void beacon_cb(const uavcan::ReceivedDataStructure<cvra::proximity_beacon
     messagebus_topic_publish(&proximity_beacon_topic.topic, &data, sizeof(data));
 
     DEBUG("Opponent detected at: %.3fm, %.3frad \traw signal: %.3f, %.3f",
-            data.range.range.distance,
-            data.range.angle, msg.start_angle, msg.length);
-
+          data.range.range.distance,
+          data.range.angle, msg.start_angle, msg.length);
 }
 
-int beacon_signal_handler_init(uavcan::INode &node)
+int beacon_signal_handler_init(uavcan::INode& node)
 {
     messagebus_advertise_topic(&bus, &proximity_beacon_topic.topic, "/proximity_beacon");
 

@@ -10,7 +10,7 @@ extern "C" {
 #include <can-bootloader/config.h>
 
 // returns true if config read was successful
-bool config_get(bootloader_config_t *cfg);
+bool config_get(bootloader_config_t* cfg);
 
 #ifdef __cplusplus
 }

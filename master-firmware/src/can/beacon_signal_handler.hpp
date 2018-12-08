@@ -3,6 +3,6 @@
 
 #include <uavcan/uavcan.hpp>
 
-int beacon_signal_handler_init(uavcan::INode &node);
+int beacon_signal_handler_init(uavcan::INode& node);
 
 #endif

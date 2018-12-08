@@ -26,8 +26,8 @@ typedef struct {
 void wrist_init(wrist_t* wrist);
 
 /* Setup servo */
-void wrist_set_servo_callback(wrist_t *wrist, void (*set_servo)(void *, float), void *servo_args);
-void wrist_set_servo_range(wrist_t *wrist, float horizontal, float vertical);
+void wrist_set_servo_callback(wrist_t* wrist, void (*set_servo)(void*, float), void* servo_args);
+void wrist_set_servo_range(wrist_t* wrist, float horizontal, float vertical);
 
 /* Set wrist position */
 void wrist_set_horizontal(wrist_t* wrist);

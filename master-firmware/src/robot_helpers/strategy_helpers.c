@@ -10,7 +10,6 @@
 
 #include "strategy_helpers.h"
 
-
 void strategy_auto_position(int32_t x, int32_t y, int32_t heading, enum strat_color_t robot_color)
 {
     /* Configure  to be slower and less sensitive to collisions */
@@ -30,8 +29,7 @@ void strategy_auto_position(int32_t x, int32_t y, int32_t heading, enum strat_co
 
     /* Go to desired position in x. */
     trajectory_d_rel(&robot.traj,
-                     (double)(-robot.calibration_direction *
-                              (MIRROR_X(robot_color, x) - robot.alignement_length)));
+                     (double)(-robot.calibration_direction * (MIRROR_X(robot_color, x) - robot.alignement_length)));
     trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
 
     /* Turn to face the wall in Y */
@@ -89,13 +87,18 @@ static point_t cube_pos_in_block_frame(enum cube_color color, enum strat_color_t
 {
     const float cube_size = 60.f; // in mm
 
-    switch(color) {
-        case CUBE_GREEN:    return point(MIRROR(robot_color, - cube_size),           0);
-        case CUBE_BLUE:     return point(MIRROR(robot_color,           0), + cube_size);
-        case CUBE_ORANGE:   return point(MIRROR(robot_color, + cube_size),           0);
-        case CUBE_BLACK:    return point(MIRROR(robot_color,           0), - cube_size);
+    switch (color) {
+        case CUBE_GREEN:
+            return point(MIRROR(robot_color, -cube_size), 0);
+        case CUBE_BLUE:
+            return point(MIRROR(robot_color, 0), +cube_size);
+        case CUBE_ORANGE:
+            return point(MIRROR(robot_color, +cube_size), 0);
+        case CUBE_BLACK:
+            return point(MIRROR(robot_color, 0), -cube_size);
         case CUBE_YELLOW:
-        default:            return point(MIRROR(robot_color,           0),           0);
+        default:
+            return point(MIRROR(robot_color, 0), 0);
     }
 }
 
@@ -123,14 +126,13 @@ float strategy_distance_to_goal(point_t pos, point_t goal)
 
     float distance = pt_norm(&pos, &points[0]);
     for (int i = 1; i < num_points; i++) {
-        distance += pt_norm(&points[i-1], &points[i]);
+        distance += pt_norm(&points[i - 1], &points[i]);
     }
 
     return distance;
 }
 
-void strategy_sort_poses_by_distance(se2_t current_pose, se2_t* pickup_poses, int num_poses,
-                                     float (*distance_metric)(point_t, point_t))
+void strategy_sort_poses_by_distance(se2_t current_pose, se2_t* pickup_poses, int num_poses, float (*distance_metric)(point_t, point_t))
 {
     /* Compute distances to current position */
     const point_t current_pos = {current_pose.translation.x, current_pose.translation.y};

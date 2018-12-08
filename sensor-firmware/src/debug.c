@@ -4,13 +4,13 @@
 #include <string.h>
 #include "error/error.h"
 
-#define OUTPUT_STREAM ((BaseSequentialStream *)&SD2)
+#define OUTPUT_STREAM ((BaseSequentialStream*)&SD2)
 
 MUTEX_DECL(log_lock);
 
-static const char *get_thread_name(void)
+static const char* get_thread_name(void)
 {
-    const char *thread_name;
+    const char* thread_name;
 
     thread_name = chRegGetThreadNameX(chThdGetSelfX());
     if (thread_name == NULL) {
@@ -20,7 +20,7 @@ static const char *get_thread_name(void)
     return thread_name;
 }
 
-static void log_message(struct error *e, ...)
+static void log_message(struct error* e, ...)
 {
     va_list va;
     chMtxLock(&log_lock);
@@ -56,8 +56,7 @@ static const SerialConfig debug_serial_config = {
     921600,
     0,
     USART_CR2_STOP1_BITS | USART_CR2_LINEN,
-    0
-};
+    0};
 
 void debug_init(void)
 {

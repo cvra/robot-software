@@ -26,13 +26,13 @@
 #include <position_manager/position_manager.h>
 
 /** initialization of the robot_position pos, everthing is set to 0 */
-void position_init(struct robot_position *pos)
+void position_init(struct robot_position* pos)
 {
     memset(pos, 0, sizeof(struct robot_position));
 }
 
 /** Set a new robot position */
-void position_set(struct robot_position *pos, int16_t x, int16_t y, double a_deg)
+void position_set(struct robot_position* pos, int16_t x, int16_t y, double a_deg)
 {
     pos->pos_d.a = (a_deg * M_PI) / 180.0;
     pos->pos_d.x = x;
@@ -43,7 +43,7 @@ void position_set(struct robot_position *pos, int16_t x, int16_t y, double a_deg
 }
 
 #ifdef CONFIG_MODULE_COMPENSATE_CENTRIFUGAL_FORCE
-void position_set_centrifugal_coef(struct robot_position *pos, double coef)
+void position_set_centrifugal_coef(struct robot_position* pos, double coef)
 {
     pos->centrifugal_coef = coef;
 }
@@ -54,7 +54,7 @@ void position_set_centrifugal_coef(struct robot_position *pos, double coef)
  * The robot_system structure is used to get values from virtual encoders
  * that return angle and distance.
  */
-void position_set_related_robot_system(struct robot_position *pos, struct robot_system *rs)
+void position_set_related_robot_system(struct robot_position* pos, struct robot_system* rs)
 {
     pos->rs = rs;
 }
@@ -64,14 +64,13 @@ void position_set_related_robot_system(struct robot_position *pos, struct robot_
  *  - number of impulsions for 1 mm (distance)
  *  - number of impulsions for 1 degree (angle)
  */
-void position_set_physical_params(struct robot_position *pos, double track_mm,
-                                  double distance_imp_per_mm)
+void position_set_physical_params(struct robot_position* pos, double track_mm, double distance_imp_per_mm)
 {
     pos->phys.track_mm = track_mm;
     pos->phys.distance_imp_per_mm = distance_imp_per_mm;
 }
 
-void position_use_ext(struct robot_position *pos)
+void position_use_ext(struct robot_position* pos)
 {
     struct rs_polar encoders;
 
@@ -82,7 +81,7 @@ void position_use_ext(struct robot_position *pos)
 }
 
 #ifdef CONFIG_MODULE_ROBOT_SYSTEM_MOT_AND_EXT
-void position_use_mot(struct robot_position *pos)
+void position_use_mot(struct robot_position* pos)
 {
     struct rs_polar encoders;
 
@@ -98,14 +97,14 @@ void position_use_mot(struct robot_position *pos)
  * virtual encoders since last read, and depending on physical
  * parameters. The processed position is in mm.
  */
-void position_manage(struct robot_position *pos)
+void position_manage(struct robot_position* pos)
 {
     double x, y, a, r, arc_angle;
     double dx, dy;
     int16_t x_s16, y_s16, a_s16;
     struct rs_polar encoders;
     struct rs_polar delta;
-    struct robot_system * rs;
+    struct robot_system* rs;
 
     rs = pos->rs;
     /* here we could raise an error */
@@ -139,14 +138,14 @@ void position_manage(struct robot_position *pos)
 
     if (delta.angle == 0) {
         /* we go straight */
-        dx = cos(a) * ((double) delta.distance / (pos->phys.distance_imp_per_mm));
-        dy = sin(a) * ((double) delta.distance / (pos->phys.distance_imp_per_mm));
+        dx = cos(a) * ((double)delta.distance / (pos->phys.distance_imp_per_mm));
+        dy = sin(a) * ((double)delta.distance / (pos->phys.distance_imp_per_mm));
         x += dx;
         y += dy;
     } else {
         /* r the radius of the circle arc */
-        r = (double)delta.distance * pos->phys.track_mm / ((double) delta.angle * 2);
-        arc_angle = 2 * (double) delta.angle / (pos->phys.track_mm * pos->phys.distance_imp_per_mm);
+        r = (double)delta.distance * pos->phys.track_mm / ((double)delta.angle * 2);
+        arc_angle = 2 * (double)delta.angle / (pos->phys.track_mm * pos->phys.distance_imp_per_mm);
 
         dx = r * (-sin(a) + sin(a + arc_angle));
         dy = r * (cos(a) - cos(a + arc_angle));
@@ -173,7 +172,7 @@ void position_manage(struct robot_position *pos)
              *      R: radius of the circle
              */
 
-            k = ((double) delta.distance);
+            k = ((double)delta.distance);
             k = k * k;
             k /= r;
             k *= pos->centrifugal_coef;
@@ -202,11 +201,10 @@ void position_manage(struct robot_position *pos)
     pos->pos_s16.a = a_s16;
 }
 
-
 /**
  * returns current x
  */
-int16_t position_get_x_s16(struct robot_position *pos)
+int16_t position_get_x_s16(struct robot_position* pos)
 {
     return pos->pos_s16.x;
 }
@@ -214,7 +212,7 @@ int16_t position_get_x_s16(struct robot_position *pos)
 /**
  * returns current y
  */
-int16_t position_get_y_s16(struct robot_position *pos)
+int16_t position_get_y_s16(struct robot_position* pos)
 {
     return pos->pos_s16.y;
 }
@@ -222,7 +220,7 @@ int16_t position_get_y_s16(struct robot_position *pos)
 /**
  * returns current alpha
  */
-int16_t position_get_a_deg_s16(struct robot_position *pos)
+int16_t position_get_a_deg_s16(struct robot_position* pos)
 {
     return pos->pos_s16.a;
 }
@@ -232,11 +230,11 @@ int16_t position_get_a_deg_s16(struct robot_position *pos)
 /**
  * returns current x
  */
-double position_get_x_double(struct robot_position *pos)
+double position_get_x_double(struct robot_position* pos)
 {
     return pos->pos_d.x;
 }
-float position_get_x_float(struct robot_position *pos)
+float position_get_x_float(struct robot_position* pos)
 {
     return (float)pos->pos_d.x;
 }
@@ -244,16 +242,16 @@ float position_get_x_float(struct robot_position *pos)
 /**
  * returns current y
  */
-double position_get_y_double(struct robot_position *pos)
+double position_get_y_double(struct robot_position* pos)
 {
     return pos->pos_d.y;
 }
-float position_get_y_float(struct robot_position *pos)
+float position_get_y_float(struct robot_position* pos)
 {
     return (float)pos->pos_d.y;
 }
 
-vect2_cart position_get_xy_vect(struct robot_position *pos)
+vect2_cart position_get_xy_vect(struct robot_position* pos)
 {
     vect2_cart r;
     r.x = (float)pos->pos_d.x;
@@ -263,7 +261,7 @@ vect2_cart position_get_xy_vect(struct robot_position *pos)
 /**
  * returns current alpha
  */
-double position_get_a_rad_double(struct robot_position *pos)
+double position_get_a_rad_double(struct robot_position* pos)
 {
     return pos->pos_d.a;
 }
@@ -271,7 +269,7 @@ double position_get_a_rad_double(struct robot_position *pos)
 /**
  * returns current alpha
  */
-float position_get_a_rad_float(struct robot_position *pos)
+float position_get_a_rad_float(struct robot_position* pos)
 {
     return (float)(pos->pos_d.a);
 }

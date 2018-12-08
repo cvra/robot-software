@@ -11,7 +11,6 @@ template <typename T>
 using ReceivedDataStructure = uavcan::ReceivedDataStructure<T>;
 using TagPosition = cvra::uwb_beacon::TagPosition;
 
-
 static void tag_pos_cb(const ReceivedDataStructure<TagPosition>& msg)
 {
     auto topic = messagebus_find_topic(&bus, "/ekf/state");
@@ -29,7 +28,7 @@ static void tag_pos_cb(const ReceivedDataStructure<TagPosition>& msg)
     messagebus_topic_publish(topic, &state_msg, sizeof(state_msg));
 }
 
-int position_handler_init(Node &node)
+int position_handler_init(Node& node)
 {
     static Subscriber<TagPosition> subscriber(node);
 

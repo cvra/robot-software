@@ -8,8 +8,7 @@ extern "C" {
 #include <ch.h>
 #include <hal.h>
 
-enum pwm_channel
-{
+enum pwm_channel {
     PWM_CHANNEL_0, // Timer 16 channel 0
     PWM_CHANNEL_1, // Timer 17 channel 0
     PWM_CHANNEL_2, // Timer 1 channel 1

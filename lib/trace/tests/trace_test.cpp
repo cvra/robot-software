@@ -20,14 +20,12 @@ void trace_unlock(int32_t status)
 {
 }
 
-TEST_GROUP(TraceTestGroup)
-{
+TEST_GROUP (TraceTestGroup) {
     void setup()
     {
         trace_init();
         trace_enable();
     }
-
 };
 
 TEST(TraceTestGroup, CorrectInit)
@@ -114,7 +112,7 @@ TEST(TraceTestGroup, CorrectRingbufferOverwrite)
     // wrap around & overwrite first element
     trace_string(TRACE_POINT_1, "hello world");
 
-    CHECK_EQUAL(TRACE_POINT_0, trace_buffer.data[TRACE_BUFFER_SIZE-1].event_id);
+    CHECK_EQUAL(TRACE_POINT_0, trace_buffer.data[TRACE_BUFFER_SIZE - 1].event_id);
 
     CHECK_EQUAL(TRACE_POINT_1, trace_buffer.data[0].event_id);
     CHECK_EQUAL(TRACE_TYPE_STRING, trace_buffer.data[0].type);
@@ -124,12 +122,11 @@ TEST(TraceTestGroup, CorrectRingbufferOverwrite)
     CHECK_EQUAL(1, trace_buffer.write_index);
 }
 
-extern "C"
-void print_fn(void *p, const char *fmt, ...)
+extern "C" void print_fn(void* p, const char* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    char **buf = (char **)p;
+    char** buf = (char**)p;
     int n = vsprintf(*buf, fmt, ap);
     if (n > 0) {
         *buf += n;
@@ -137,10 +134,9 @@ void print_fn(void *p, const char *fmt, ...)
     va_end(ap);
 }
 
-TEST_GROUP(TracePrintTestGroup)
-{
+TEST_GROUP (TracePrintTestGroup) {
     char buffer[1000];
-    void *arg;
+    void* arg;
     void setup()
     {
         memset(buffer, 0, sizeof(buffer));
@@ -190,5 +186,6 @@ TEST(TracePrintTestGroup, CanPrintMultipleEventWithInteger)
     STRCMP_EQUAL(
         "[1234] TRACE_POINT_0: \"hello\"\n"
         "[1234] TRACE_POINT_1: 42\n"
-        "[1234] TRACE_POINT_2: 1.000000\n", buffer);
+        "[1234] TRACE_POINT_2: 1.000000\n",
+        buffer);
 }

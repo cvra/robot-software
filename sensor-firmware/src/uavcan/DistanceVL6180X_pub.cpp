@@ -4,7 +4,7 @@
 #include <cvra/sensor/DistanceVL6180X.hpp>
 #include "main.h"
 
-void distance_publish(uavcan::INode &node)
+void distance_publish(uavcan::INode& node)
 {
     static uavcan::Publisher<cvra::sensor::DistanceVL6180X> pub(node);
 

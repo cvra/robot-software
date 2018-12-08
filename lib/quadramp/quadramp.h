@@ -22,7 +22,6 @@
 #ifndef _QUADRAMP_H_
 #define _QUADRAMP_H_
 
-
 /** @file quadramp.h
  * This module is responsible for making speed ramps to avoid large accelerations.
  * Its functions are compatible with control_system_manager.
@@ -50,19 +49,19 @@ struct quadramp_filter {
 /** Initialization of the filter.
  * @param [in] q The quadramp instance.
  */
-void quadramp_init(struct quadramp_filter *q);
+void quadramp_init(struct quadramp_filter* q);
 
 /** Resets the filter output to zero and stops any ramp.
  * @param [in] q The quadramp instance.
  */
-void quadramp_reset(struct quadramp_filter *q);
+void quadramp_reset(struct quadramp_filter* q);
 
 /**@brief Set acceleration.
  * @param [in] q The quadramp instance.
  * @param [in] var_2nd_ord_pos The positive acceleration.
  * @param [in] var_2nd_ord_neg The negative acceleration.
  */
-void quadramp_set_2nd_order_vars(struct quadramp_filter *q,
+void quadramp_set_2nd_order_vars(struct quadramp_filter* q,
                                  double var_2nd_ord_pos,
                                  double var_2nd_ord_neg);
 
@@ -71,7 +70,7 @@ void quadramp_set_2nd_order_vars(struct quadramp_filter *q,
  * @param [in] var_1st_ord_pos The positive speed.
  * @param [in] var_1st_ord_neg The negative speed.
  */
-void quadramp_set_1st_order_vars(struct quadramp_filter *q,
+void quadramp_set_1st_order_vars(struct quadramp_filter* q,
                                  double var_1st_ord_pos,
                                  double var_1st_ord_neg);
 
@@ -81,14 +80,14 @@ void quadramp_set_1st_order_vars(struct quadramp_filter *q,
  * @param [in] q The quadramp instance.
  * @param [in] pos The new position.
  */
-void quadramp_set_position(struct quadramp_filter *q, int32_t pos);
+void quadramp_set_position(struct quadramp_filter* q, int32_t pos);
 
 /** @brief Is the ramp finished.
  *
  * @returns 1 when filter_input == filter_output && speed==0.
  * @param [in] q The quadramp instance.
  */
-uint8_t quadramp_is_finished(struct quadramp_filter *q);
+uint8_t quadramp_is_finished(struct quadramp_filter* q);
 
 /** @brief Process the ramp.
  *
@@ -97,6 +96,6 @@ uint8_t quadramp_is_finished(struct quadramp_filter *q);
  *
  * @returns The output of the filter.
  */
-int32_t quadramp_do_filter(void *data, int32_t in);
+int32_t quadramp_do_filter(void* data, int32_t in);
 
 #endif

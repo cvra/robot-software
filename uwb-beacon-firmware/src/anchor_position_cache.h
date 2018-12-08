@@ -10,7 +10,7 @@ extern "C" {
 
 void anchor_position_cache_start(void);
 
-anchor_position_msg_t *anchor_position_cache_get(uint16_t anchor_addr);
+anchor_position_msg_t* anchor_position_cache_get(uint16_t anchor_addr);
 
 #ifdef __cplusplus
 }

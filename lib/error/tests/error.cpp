@@ -3,8 +3,7 @@
 
 #include "../error.h"
 
-TEST_GROUP(ErrorLogging)
-{
+TEST_GROUP (ErrorLogging) {
     void teardown(void)
     {
         error_register_error(NULL);
@@ -14,13 +13,9 @@ TEST_GROUP(ErrorLogging)
     }
 };
 
-void error_mock(struct error *e, ...)
+void error_mock(struct error* e, ...)
 {
-    mock().actualCall("error")
-          .withIntParameter("severity", e->severity)
-          .withStringParameter("file", e->file)
-          .withIntParameter("line", e->line)
-          .withStringParameter("text", e->text);
+    mock().actualCall("error").withIntParameter("severity", e->severity).withStringParameter("file", e->file).withIntParameter("line", e->line).withStringParameter("text", e->text);
 }
 
 TEST(ErrorLogging, PopulatesFieldError)
@@ -38,22 +33,14 @@ TEST(ErrorLogging, MockWorks)
 {
     auto error = error_generate(ERROR_SEVERITY_WARNING,
                                 "foo", __FILE__, 120);
-    mock().expectOneCall("error")
-          .withIntParameter("severity", ERROR_SEVERITY_WARNING)
-          .withIntParameter("line", 120)
-          .withStringParameter("text", "foo")
-          .withStringParameter("file", __FILE__);
+    mock().expectOneCall("error").withIntParameter("severity", ERROR_SEVERITY_WARNING).withIntParameter("line", 120).withStringParameter("text", "foo").withStringParameter("file", __FILE__);
     error_mock(&error);
 }
 
 TEST(ErrorLogging, GeneratesError)
 {
     error_register_error(error_mock);
-    mock().expectOneCall("error")
-          .withIntParameter("severity", ERROR_SEVERITY_ERROR)
-          .withIntParameter("line", __LINE__ + 4)
-          .withStringParameter("text", "foo")
-          .withStringParameter("file", __FILE__);
+    mock().expectOneCall("error").withIntParameter("severity", ERROR_SEVERITY_ERROR).withIntParameter("line", __LINE__ + 4).withStringParameter("text", "foo").withStringParameter("file", __FILE__);
 
     ERROR("foo");
 }
@@ -61,11 +48,7 @@ TEST(ErrorLogging, GeneratesError)
 TEST(ErrorLogging, GeneratesWarning)
 {
     error_register_warning(error_mock);
-    mock().expectOneCall("error")
-          .withIntParameter("severity", ERROR_SEVERITY_WARNING)
-          .withIntParameter("line", __LINE__ + 4)
-          .withStringParameter("text", "foo")
-          .withStringParameter("file", __FILE__);
+    mock().expectOneCall("error").withIntParameter("severity", ERROR_SEVERITY_WARNING).withIntParameter("line", __LINE__ + 4).withStringParameter("text", "foo").withStringParameter("file", __FILE__);
 
     WARNING("foo");
 }
@@ -73,23 +56,15 @@ TEST(ErrorLogging, GeneratesWarning)
 TEST(ErrorLogging, GeneratesNotice)
 {
     error_register_notice(error_mock);
-    mock().expectOneCall("error")
-          .withIntParameter("severity", ERROR_SEVERITY_NOTICE)
-          .withIntParameter("line", __LINE__ + 4)
-          .withStringParameter("text", "foo")
-          .withStringParameter("file", __FILE__);
+    mock().expectOneCall("error").withIntParameter("severity", ERROR_SEVERITY_NOTICE).withIntParameter("line", __LINE__ + 4).withStringParameter("text", "foo").withStringParameter("file", __FILE__);
 
-    NOTICE( "foo");
+    NOTICE("foo");
 }
 
 TEST(ErrorLogging, GeneratesDebug)
 {
     error_register_debug(error_mock);
-    mock().expectOneCall("error")
-          .withIntParameter("severity", ERROR_SEVERITY_DEBUG)
-          .withIntParameter("line", __LINE__ + 4)
-          .withStringParameter("text", "foo")
-          .withStringParameter("file", __FILE__);
+    mock().expectOneCall("error").withIntParameter("severity", ERROR_SEVERITY_DEBUG).withIntParameter("line", __LINE__ + 4).withStringParameter("text", "foo").withStringParameter("file", __FILE__);
 
     DEBUG("foo");
 }

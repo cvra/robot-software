@@ -4,8 +4,7 @@ extern "C" {
 #include <base/base_helpers.h>
 }
 
-TEST_GROUP(ABasePositionGetter)
-{
+TEST_GROUP (ABasePositionGetter) {
     const int ARBITRARY_TRACK_LENGTH_MM = 100;
     const int ARBITRARY_ENCODER_TICKS_PER_MM = 10000;
     struct robot_position robot_pos;

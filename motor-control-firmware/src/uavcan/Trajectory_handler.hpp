@@ -3,6 +3,6 @@
 
 #include "uavcan_node.h"
 
-int Trajectory_handler_start(Node &node);
+int Trajectory_handler_start(Node& node);
 
 #endif

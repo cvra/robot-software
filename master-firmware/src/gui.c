@@ -19,7 +19,7 @@ static GHandle button_ts_page1;
 static GHandle button_ts_page2;
 
 // from https://wiki.ugfx.io/index.php/Touchscreen_Calibration
-gBool LoadMouseCalibration(unsigned instance, void *data, gMemSize sz)
+gBool LoadMouseCalibration(unsigned instance, void* data, gMemSize sz)
 {
     if (instance != 0) {
         return GFXOFF;
@@ -33,12 +33,12 @@ gBool LoadMouseCalibration(unsigned instance, void *data, gMemSize sz)
     calibrationData[4] = config_get_scalar("master/screen/by");
     calibrationData[5] = config_get_scalar("master/screen/cy");
 
-    memcpy(data, (void *)&calibrationData, sz);
+    memcpy(data, (void*)&calibrationData, sz);
 
     return GFXON;
 }
 
-static void gui_thread(void *p)
+static void gui_thread(void* p)
 {
     (void)p;
 
@@ -80,19 +80,18 @@ static void gui_thread(void *p)
 
     while (true) {
         // Get an Event
-        GEvent *pe = geventEventWait(&gl, TIME_INFINITE);
+        GEvent* pe = geventEventWait(&gl, TIME_INFINITE);
 
         switch (pe->type) {
             case GEVENT_GWIN_BUTTON: {
-                if (((GEventGWinButton *)pe)->gwin == button_ts_menu) {
+                if (((GEventGWinButton*)pe)->gwin == button_ts_menu) {
                     menu_load_page(&my_menu, 0);
-                } else if (((GEventGWinButton *)pe)->gwin == button_ts_page1) {
+                } else if (((GEventGWinButton*)pe)->gwin == button_ts_page1) {
                     menu_load_page(&my_menu, 1);
-                } else if (((GEventGWinButton *)pe)->gwin == button_ts_page2) {
+                } else if (((GEventGWinButton*)pe)->gwin == button_ts_page2) {
                     menu_load_page(&my_menu, 2);
                 }
-            }
-            break;
+            } break;
 
             default:
                 break;

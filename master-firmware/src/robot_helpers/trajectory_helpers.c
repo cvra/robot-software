@@ -15,7 +15,6 @@
 // TODO Fix this, this should live in a header somewhere probably
 extern messagebus_t bus;
 
-
 int trajectory_wait_for_end(int watched_end_reasons)
 {
 #ifndef TESTS
@@ -59,11 +58,7 @@ int trajectory_has_ended(int watched_end_reasons)
         messagebus_topic_t* proximity_beacon_topic = messagebus_find_topic_blocking(&bus, "/proximity_beacon");
 
         // only consider recent beacon signal
-        if (messagebus_topic_read(proximity_beacon_topic, &beacon_signal, sizeof(beacon_signal)) &&
-            timestamp_duration_s(beacon_signal.timestamp.us, timestamp_get())
-                < TRAJ_MAX_TIME_DELAY_OPPONENT_DETECTION &&
-            beacon_signal.range.range.distance < TRAJ_MIN_DISTANCE_TO_OPPONENT) {
-
+        if (messagebus_topic_read(proximity_beacon_topic, &beacon_signal, sizeof(beacon_signal)) && timestamp_duration_s(beacon_signal.timestamp.us, timestamp_get()) < TRAJ_MAX_TIME_DELAY_OPPONENT_DETECTION && beacon_signal.range.range.distance < TRAJ_MIN_DISTANCE_TO_OPPONENT) {
             float x_opp, y_opp;
             beacon_cartesian_convert(&robot.pos,
                                      1000 * beacon_signal.range.range.distance,
@@ -78,7 +73,7 @@ int trajectory_has_ended(int watched_end_reasons)
     }
 
     if (watched_end_reasons & TRAJ_END_ALLY_NEAR) {
-        messagebus_topic_t *topic = messagebus_find_topic(&bus, "/allied_position");
+        messagebus_topic_t* topic = messagebus_find_topic(&bus, "/allied_position");
         AlliedPosition pos;
 
         if (topic && messagebus_topic_read(topic, &pos, sizeof(pos))) {
@@ -129,23 +124,14 @@ void trajectory_move_to(int32_t x_mm, int32_t y_mm, int32_t a_deg)
 
 static bool trajectory_is_cartesian(struct trajectory* traj)
 {
-    return traj->state == RUNNING_XY_START ||
-           traj->state == RUNNING_XY_ANGLE ||
-           traj->state == RUNNING_XY_ANGLE_OK ||
-           traj->state == RUNNING_XY_F_START ||
-           traj->state == RUNNING_XY_F_ANGLE ||
-           traj->state == RUNNING_XY_F_ANGLE_OK ||
-           traj->state == RUNNING_XY_B_START ||
-           traj->state == RUNNING_XY_B_ANGLE ||
-           traj->state == RUNNING_XY_B_ANGLE_OK;
+    return traj->state == RUNNING_XY_START || traj->state == RUNNING_XY_ANGLE || traj->state == RUNNING_XY_ANGLE_OK || traj->state == RUNNING_XY_F_START || traj->state == RUNNING_XY_F_ANGLE || traj->state == RUNNING_XY_F_ANGLE_OK || traj->state == RUNNING_XY_B_START || traj->state == RUNNING_XY_B_ANGLE || traj->state == RUNNING_XY_B_ANGLE_OK;
 }
 
 bool trajectory_crosses_obstacle(struct _robot* robot, poly_t* opponent, point_t* intersection)
 {
     point_t current_position = {
-            position_get_x_float(&robot->pos),
-            position_get_y_float(&robot->pos)
-        };
+        position_get_x_float(&robot->pos),
+        position_get_y_float(&robot->pos)};
     point_t target_position;
 
     if (trajectory_is_cartesian(&robot->traj)) {

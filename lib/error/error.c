@@ -19,7 +19,6 @@
  *
  */
 
-
 #include <string.h>
 #include <stdint.h>
 
@@ -33,9 +32,7 @@ void error_init(void)
     memset(&g_error_fct, 0, sizeof(g_error_fct));
 }
 
-
-struct error error_generate(uint8_t severity, const char * t,
-                            const char * f, uint16_t l)
+struct error error_generate(uint8_t severity, const char* t, const char* f, uint16_t l)
 {
     struct error e;
 
@@ -46,9 +43,9 @@ struct error error_generate(uint8_t severity, const char * t,
     return e;
 }
 
-const char *error_severity_get_name(uint8_t severity)
+const char* error_severity_get_name(uint8_t severity)
 {
-    char *result;
+    char* result;
     switch (severity) {
         case ERROR_SEVERITY_ERROR:
             result = "ERROR";
@@ -75,25 +72,25 @@ const char *error_severity_get_name(uint8_t severity)
 }
 
 /** Register log function for ERROR level */
-void error_register_error(void (*f)(struct error *, ...))
+void error_register_error(void (*f)(struct error*, ...))
 {
     g_error_fct.error = f;
 }
 
 /** Register log function for WARNING level */
-void error_register_warning(void (*f)(struct error *, ...))
+void error_register_warning(void (*f)(struct error*, ...))
 {
     g_error_fct.warning = f;
 }
 
 /** Register log function for NOTICE level */
-void error_register_notice(void (*f)(struct error *, ...))
+void error_register_notice(void (*f)(struct error*, ...))
 {
     g_error_fct.notice = f;
 }
 
 /** Register log function for DEBUG level */
-void error_register_debug(void (*f)(struct error *, ...))
+void error_register_debug(void (*f)(struct error*, ...))
 {
     g_error_fct.debug = f;
 }

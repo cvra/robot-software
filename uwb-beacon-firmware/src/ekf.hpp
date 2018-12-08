@@ -10,33 +10,36 @@ namespace EKF {
  * Its two templates arguments are the dimension of the state and the
  * dimension of the control input.
  */
-template <int N, int M> class Predictor {
+template <int N, int M>
+class Predictor {
 public:
     typedef Eigen::Matrix<float, N, 1> State;
     typedef Eigen::Matrix<float, N, N> Covariance;
     typedef Eigen::Matrix<float, M, 1> Input;
     typedef Eigen::Matrix<float, N, N> Jacobian;
 
-    Predictor(Covariance process_noise) : R(process_noise)
+    Predictor(Covariance process_noise)
+        : R(process_noise)
     {
     }
 
-    Predictor() : R(Covariance::Zero())
+    Predictor()
+        : R(Covariance::Zero())
     {
     }
 
     /** State update function. */
     virtual State g(State state, Input input)
     {
-        (void) input;
+        (void)input;
         return state;
     }
 
     /** Returns the Jacobian of the state update function. */
     virtual Jacobian G(State state, Input input)
     {
-        (void) input;
-        (void) state;
+        (void)input;
+        (void)state;
         return Jacobian::Identity();
     }
 
@@ -48,6 +51,7 @@ public:
 
         return std::pair<State, Covariance>(mu, sigma);
     }
+
 private:
     Covariance R; // < Process covariance
 };
@@ -57,7 +61,8 @@ private:
  * The two template arguments are the dimension of the state and the dimension
  * of the measurement.
  */
-template <int N, int M> class Corrector {
+template <int N, int M>
+class Corrector {
 public:
     typedef Eigen::Matrix<float, M, 1> Measurement;
     typedef Eigen::Matrix<float, N, 1> State;
@@ -67,10 +72,10 @@ public:
     virtual Measurement h(State) = 0;
     virtual Jacobian H(State) = 0;
 
-    Corrector(Measurement variance) : Q(variance)
+    Corrector(Measurement variance)
+        : Q(variance)
     {
     }
-
 
     std::pair<State, Covariance> correct(State mu, Covariance sigma, Measurement z)
     {
@@ -86,6 +91,6 @@ private:
     Measurement Q;
 };
 
-};
+}; // namespace EKF
 
 #endif

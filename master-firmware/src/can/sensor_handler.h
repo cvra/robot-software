@@ -3,6 +3,6 @@
 
 #include <uavcan/uavcan.hpp>
 
-int sensor_handler_init(uavcan::INode &node);
+int sensor_handler_init(uavcan::INode& node);
 
 #endif /* SENSOR_HANDLER_H */

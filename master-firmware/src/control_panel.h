@@ -2,13 +2,13 @@
 #define CONTROL_PANEL_H
 
 enum control_panel_input {
-    BUTTON_YELLOW=0,
+    BUTTON_YELLOW = 0,
     BUTTON_GREEN,
     STARTER
 };
 
 enum control_panel_output {
-    LED_READY=0,
+    LED_READY = 0,
     LED_DEBUG,
     LED_ERROR,
     LED_POWER,

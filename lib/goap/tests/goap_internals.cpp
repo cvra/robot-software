@@ -5,13 +5,11 @@
 
 using namespace goap;
 
-struct MyState
-{
+struct MyState {
     bool dummy;
 };
 
-TEST_GROUP(InternalVisitedListState)
-{
+TEST_GROUP (InternalVisitedListState) {
     std::array<VisitedState<MyState>, 10> nodes;
 };
 
@@ -20,16 +18,16 @@ TEST(InternalVisitedListState, CanConvertToLinkedList)
     visited_states_array_to_list<MyState>(nodes.data(), nodes.size());
 
     for (auto i = 0u; i < nodes.size() - 1; i++) {
-        POINTERS_EQUAL(&nodes[i+1], nodes[i].next);
+        POINTERS_EQUAL(&nodes[i + 1], nodes[i].next);
     }
-    POINTERS_EQUAL(nullptr, nodes[nodes.size()-1].next);
+    POINTERS_EQUAL(nullptr, nodes[nodes.size() - 1].next);
 }
 
 TEST(InternalVisitedListState, CanPopMinimumPriorityEvent)
 {
     visited_states_array_to_list<MyState>(nodes.data(), nodes.size());
 
-    for (auto & p : nodes) {
+    for (auto& p : nodes) {
         p.priority = 42;
     }
 
@@ -86,7 +84,7 @@ TEST(InternalVisitedListState, CanPushListHead)
 TEST(InternalVisitedListState, CanPushEmptyList)
 {
     VisitedState<MyState> new_elem;
-    VisitedState<MyState> *head=nullptr;
+    VisitedState<MyState>* head = nullptr;
 
     list_push_head<MyState>(head, &new_elem);
     POINTERS_EQUAL(&new_elem, head);

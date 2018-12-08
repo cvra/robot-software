@@ -13,21 +13,20 @@ extern "C" {
 
 void scara_time_set(int32_t time);
 
-void set_motor_pos(void *m, float value)
+void set_motor_pos(void* m, float value)
 {
-    *(float *)m = value;
+    *(float*)m = value;
 }
 
-void set_motor_vel(void *m, float value)
+void set_motor_vel(void* m, float value)
 {
-    *(float *)m = value;
+    *(float*)m = value;
 }
 
-float get_motor_pos(void *m)
+float get_motor_pos(void* m)
 {
-    return *(float *)m;
+    return *(float*)m;
 }
-
 
 TEST_BASE(ArmTestGroupBase)
 {
@@ -35,7 +34,7 @@ TEST_BASE(ArmTestGroupBase)
     scara_trajectory_t traj;
     float arbitraryLengths[2] = {100, 50};
     float z_pos, shoulder_angle, elbow_angle;
-    velocity_3d_t max_vel = {.x=10, .y=10, .z=10};
+    velocity_3d_t max_vel = {.x = 10, .y = 10, .z = 10};
 
     void setup()
     {
@@ -62,8 +61,7 @@ TEST_BASE(ArmTestGroupBase)
     }
 };
 
-TEST_GROUP_BASE(AScaraArm, ArmTestGroupBase)
-{
+TEST_GROUP_BASE(AScaraArm, ArmTestGroupBase){
 
 };
 
@@ -218,7 +216,6 @@ TEST(AScaraArm, SelectsCorrectPointWhenGivenTrajectoryInTableCoordinateSystem)
     scara_set_related_robot_pos(&arm, &pos);
     position_set(&pos, -10, -10, 0);
 
-
     scara_trajectory_append_point(&traj, {0, 0, 0}, COORDINATE_TABLE, max_vel, arbitraryLengths);
     scara_trajectory_append_point(&traj, {10, 20, 0}, COORDINATE_TABLE, {1, 2, 1}, arbitraryLengths);
     scara_do_trajectory(&arm, &traj);
@@ -261,40 +258,38 @@ TEST(AScaraArm, InterpolatesLengthsWhenTheyChangeBetweenWaypoints)
     DOUBLES_EQUAL(arbitraryLengths[1] * 1.5, result.length[1], 0.1);
 }
 
-
-TEST_GROUP_BASE(AScaraArmPause, ArmTestGroupBase)
-{
-    void doTrajectory()
-    {
+TEST_GROUP_BASE(AScaraArmPause, ArmTestGroupBase){
+    void doTrajectory(){
         scara_trajectory_append_point(&traj, {1, 2, 3}, COORDINATE_ARM, max_vel, arbitraryLengths);
-        scara_trajectory_append_point(&traj, {2, 4, 6}, COORDINATE_ARM, max_vel, arbitraryLengths);
-        scara_trajectory_append_point(&traj, {4, 8, 12}, COORDINATE_ARM, max_vel, arbitraryLengths);
-        scara_do_trajectory(&arm, &traj);
+scara_trajectory_append_point(&traj, {2, 4, 6}, COORDINATE_ARM, max_vel, arbitraryLengths);
+scara_trajectory_append_point(&traj, {4, 8, 12}, COORDINATE_ARM, max_vel, arbitraryLengths);
+scara_do_trajectory(&arm, &traj);
 
-        scara_time_set(1e6); // reached 2nd waypoint
-        scara_manage(&arm);
+scara_time_set(1e6); // reached 2nd waypoint
+scara_manage(&arm);
+}
+
+void checkFrameEqual(scara_waypoint_t a, scara_waypoint_t b)
+{
+    CHECK_EQUAL(a.position.x, b.position.x);
+    CHECK_EQUAL(a.position.y, b.position.y);
+    CHECK_EQUAL(a.position.z, b.position.z);
+    CHECK_EQUAL(a.date, b.date);
+    CHECK_EQUAL(a.coordinate_type, b.coordinate_type);
+    CHECK_EQUAL(a.length[0], b.length[0]);
+    CHECK_EQUAL(a.length[1], b.length[1]);
+}
+
+void checkTrajectoryEqual(scara_trajectory_t a, scara_trajectory_t b)
+{
+    CHECK_EQUAL(a.frame_count, b.frame_count);
+
+    for (int i = 0; i < a.frame_count; i++) {
+        checkFrameEqual(a.frames[i], b.frames[i]);
     }
-
-    void checkFrameEqual(scara_waypoint_t a, scara_waypoint_t b)
-    {
-        CHECK_EQUAL(a.position.x, b.position.x);
-        CHECK_EQUAL(a.position.y, b.position.y);
-        CHECK_EQUAL(a.position.z, b.position.z);
-        CHECK_EQUAL(a.date, b.date);
-        CHECK_EQUAL(a.coordinate_type, b.coordinate_type);
-        CHECK_EQUAL(a.length[0], b.length[0]);
-        CHECK_EQUAL(a.length[1], b.length[1]);
-    }
-
-    void checkTrajectoryEqual(scara_trajectory_t a, scara_trajectory_t b)
-    {
-        CHECK_EQUAL(a.frame_count, b.frame_count);
-
-        for (int i = 0; i < a.frame_count; i++) {
-            checkFrameEqual(a.frames[i], b.frames[i]);
-        }
-    }
-};
+}
+}
+;
 
 TEST(AScaraArmPause, PauseCachesTime)
 {
@@ -399,10 +394,7 @@ IGNORE_TEST(AScaraArmPause, ContinueStartsBackAtPausedWaypoint)
     checkFrameEqual(traj.frames[1], frame);
 }
 
-
-TEST_GROUP(AScaraJacobian)
-{
-
+TEST_GROUP (AScaraJacobian) {
 };
 
 /* See doc/Debra Kinematics.ipynb for values. */
@@ -432,15 +424,14 @@ TEST(AScaraJacobian, ComputesCorrectlyCloseToSingularity)
     DOUBLES_EQUAL(0.00384607, torque_beta, 1e-3);
 }
 
-TEST_GROUP_BASE(AScaraArmInverseKinematicsController, ArmTestGroupBase)
-{
-    void setup()
-    {
+TEST_GROUP_BASE(AScaraArmInverseKinematicsController, ArmTestGroupBase){
+    void setup(){
         ArmTestGroupBase::setup();
 
-        scara_control_mode_cartesian(&arm); // Run IK controller
-    }
-};
+scara_control_mode_cartesian(&arm); // Run IK controller
+}
+}
+;
 
 TEST(AScaraArmInverseKinematicsController, sendsSetpointsToJoints)
 {

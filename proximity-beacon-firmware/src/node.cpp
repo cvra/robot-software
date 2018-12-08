@@ -20,29 +20,29 @@
 
 #include "stream.h"
 
-#define CAN_BITRATE             1000000
+#define CAN_BITRATE 1000000
 
 uavcan_stm32::CanInitHelper<128> can;
 
 // Used to signal when the node init is complete
 BSEMAPHORE_DECL(node_init_complete, true);
 
-void uavcan_failure(const char *reason)
+void uavcan_failure(const char* reason)
 {
     chSysHalt(reason);
 }
 
-static int uavcan_node_start(Node &node)
+static int uavcan_node_start(Node& node)
 {
     return node.start();
 }
 
 /** Start all UAVCAN services. */
-static void uavcan_services_start(Node &node)
+static void uavcan_services_start(Node& node)
 {
     const struct {
-        int (*start)(Node &);
-        const char *name;
+        int (*start)(Node&);
+        const char* name;
     } services[] = {
         {uavcan_node_start, "Node start"},
         {Reboot_handler_start, "Reboot subscriber"},
@@ -63,8 +63,8 @@ static void uavcan_services_start(Node &node)
 static THD_WORKING_AREA(uavcan_node_wa, 8000);
 static THD_FUNCTION(uavcan_node, arg)
 {
-    struct uavcan_node_arg *node_arg;
-    node_arg = (struct uavcan_node_arg *)arg;
+    struct uavcan_node_arg* node_arg;
+    node_arg = (struct uavcan_node_arg*)arg;
 
     chRegSetThreadName(__FUNCTION__);
 
@@ -106,20 +106,16 @@ static THD_FUNCTION(uavcan_node, arg)
             node.getNodeStatusProvider().setHealthOk();
         }
 
-
         uavcan_streams_spin(node);
     }
 }
 
-extern "C"
-void uavcan_node_start(void *arg)
+extern "C" void uavcan_node_start(void* arg)
 {
     chThdCreateStatic(uavcan_node_wa, sizeof(uavcan_node_wa), NORMALPRIO, uavcan_node, arg);
 }
 
-extern "C"
-void uavcan_init_complete(void)
+extern "C" void uavcan_init_complete(void)
 {
     chBSemSignal(&node_init_complete);
 }
-

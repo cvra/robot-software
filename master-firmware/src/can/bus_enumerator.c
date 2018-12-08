@@ -2,7 +2,6 @@
 #include <string.h>
 #include "bus_enumerator.h"
 
-
 static uint16_t midpoint(uint16_t min, uint16_t max)
 {
     if (min < max) {
@@ -12,7 +11,7 @@ static uint16_t midpoint(uint16_t min, uint16_t max)
     }
 }
 
-static uint16_t index_by_str_id(const bus_enumerator_t *en, const char *str_id)
+static uint16_t index_by_str_id(const bus_enumerator_t* en, const char* str_id)
 {
     uint16_t imin = 0, imax = en->nb_entries_str_to_can, imid;
 
@@ -31,7 +30,7 @@ static uint16_t index_by_str_id(const bus_enumerator_t *en, const char *str_id)
     return BUS_ENUMERATOR_INDEX_NOT_FOUND;
 }
 
-static uint16_t index_by_can_id(const bus_enumerator_t *en, uint8_t can_id)
+static uint16_t index_by_can_id(const bus_enumerator_t* en, uint8_t can_id)
 {
     uint16_t imin = 0, imax = en->nb_entries_can_to_str, imid;
 
@@ -50,8 +49,8 @@ static uint16_t index_by_can_id(const bus_enumerator_t *en, uint8_t can_id)
     return BUS_ENUMERATOR_INDEX_NOT_FOUND;
 }
 
-void bus_enumerator_init(bus_enumerator_t *en,
-                         struct bus_enumerator_entry_allocator *buffer,
+void bus_enumerator_init(bus_enumerator_t* en,
+                         struct bus_enumerator_entry_allocator* buffer,
                          uint16_t buffer_len)
 {
     en->str_to_can = (bus_enumerator_entry_t*)buffer;
@@ -61,7 +60,7 @@ void bus_enumerator_init(bus_enumerator_t *en,
     en->nb_entries_can_to_str = 0;
 }
 
-void bus_enumerator_add_node(bus_enumerator_t *en, const char *str_id, void *driver)
+void bus_enumerator_add_node(bus_enumerator_t* en, const char* str_id, void* driver)
 {
     if (en->nb_entries_str_to_can < en->buffer_len) {
         uint16_t imin = 0, imax = en->nb_entries_str_to_can, imid;
@@ -88,15 +87,13 @@ void bus_enumerator_add_node(bus_enumerator_t *en, const char *str_id, void *dri
     }
 }
 
-void bus_enumerator_update_node_info(bus_enumerator_t *en, const char *str_id, uint8_t can_id)
+void bus_enumerator_update_node_info(bus_enumerator_t* en, const char* str_id, uint8_t can_id)
 {
     uint16_t index;
 
     index = index_by_str_id(en, str_id);
 
-    if (index != BUS_ENUMERATOR_INDEX_NOT_FOUND &&
-        en->str_to_can[index].can_id == BUS_ENUMERATOR_CAN_ID_NOT_SET) {
-
+    if (index != BUS_ENUMERATOR_INDEX_NOT_FOUND && en->str_to_can[index].can_id == BUS_ENUMERATOR_CAN_ID_NOT_SET) {
         // set CAN ID in string_ID->CAN_ID buffer
         en->str_to_can[index].can_id = can_id;
 
@@ -125,24 +122,24 @@ void bus_enumerator_update_node_info(bus_enumerator_t *en, const char *str_id, u
     }
 }
 
-uint16_t bus_enumerator_total_nodes_count(bus_enumerator_t *en)
+uint16_t bus_enumerator_total_nodes_count(bus_enumerator_t* en)
 {
     return en->nb_entries_str_to_can;
 }
 
-uint16_t bus_enumerator_discovered_nodes_count(bus_enumerator_t *en)
+uint16_t bus_enumerator_discovered_nodes_count(bus_enumerator_t* en)
 {
     unsigned int i;
     unsigned int cnt = 0;
     for (i = 0; i < en->nb_entries_str_to_can; i++) {
         if (en->str_to_can[i].can_id != BUS_ENUMERATOR_CAN_ID_NOT_SET) {
-            cnt ++;
+            cnt++;
         }
     }
     return cnt;
 }
 
-uint8_t bus_enumerator_get_can_id(bus_enumerator_t *en, const char *str_id)
+uint8_t bus_enumerator_get_can_id(bus_enumerator_t* en, const char* str_id)
 {
     uint16_t index;
     index = index_by_str_id(en, str_id);
@@ -154,7 +151,7 @@ uint8_t bus_enumerator_get_can_id(bus_enumerator_t *en, const char *str_id)
     }
 }
 
-void *bus_enumerator_get_driver(bus_enumerator_t *en, const char *str_id)
+void* bus_enumerator_get_driver(bus_enumerator_t* en, const char* str_id)
 {
     uint16_t index;
     index = index_by_str_id(en, str_id);
@@ -166,7 +163,7 @@ void *bus_enumerator_get_driver(bus_enumerator_t *en, const char *str_id)
     }
 }
 
-void *bus_enumerator_get_driver_by_can_id(bus_enumerator_t *en, uint8_t can_id)
+void* bus_enumerator_get_driver_by_can_id(bus_enumerator_t* en, uint8_t can_id)
 {
     uint16_t index;
     index = index_by_can_id(en, can_id);
@@ -178,7 +175,7 @@ void *bus_enumerator_get_driver_by_can_id(bus_enumerator_t *en, uint8_t can_id)
     }
 }
 
-const char *bus_enumerator_get_str_id(bus_enumerator_t *en, uint8_t can_id)
+const char* bus_enumerator_get_str_id(bus_enumerator_t* en, uint8_t can_id)
 {
     uint16_t index;
     index = index_by_can_id(en, can_id);

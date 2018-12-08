@@ -6,13 +6,13 @@ extern "C" {
 #endif
 
 struct proximity_beacon_signal {
-    float start_angle;  // [rad]
-    float length;       // [rad]
+    float start_angle; // [rad]
+    float length; // [rad]
 };
 
 void proximity_beacon_init(void);
-struct proximity_beacon_signal *proximity_beacon_signal_get(void);
-void proximity_beacon_signal_delete(struct proximity_beacon_signal *sp);
+struct proximity_beacon_signal* proximity_beacon_signal_get(void);
+void proximity_beacon_signal_delete(struct proximity_beacon_signal* sp);
 
 #ifdef __cplusplus
 }

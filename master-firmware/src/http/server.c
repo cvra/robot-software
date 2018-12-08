@@ -19,10 +19,10 @@ static const char http_index_html[] =
 
 /** Serve one HTTP connection accepted in the http thread */
 static void
-http_server_netconn_serve(struct netconn *conn)
+http_server_netconn_serve(struct netconn* conn)
 {
-    struct netbuf *inbuf;
-    char *buf;
+    struct netbuf* inbuf;
+    char* buf;
     u16_t buflen;
     err_t err;
 
@@ -38,13 +38,7 @@ http_server_netconn_serve(struct netconn *conn)
 
     /* Is this an HTTP GET command? (only check the first 5 chars, since
        there are other formats for GET, and we're keeping it very simple )*/
-    if (buflen >= 5 &&
-            buf[0] == 'G' &&
-            buf[1] == 'E' &&
-            buf[2] == 'T' &&
-            buf[3] == ' ' &&
-            buf[4] == '/' ) {
-
+    if (buflen >= 5 && buf[0] == 'G' && buf[1] == 'E' && buf[2] == 'T' && buf[3] == ' ' && buf[4] == '/') {
         FRESULT err;
         FIL logfile_fp;
         err = f_open(&logfile_fp, "/log.txt", FA_READ);
@@ -63,7 +57,7 @@ http_server_netconn_serve(struct netconn *conn)
                 UINT byte_count;
                 f_read(&logfile_fp, buffer, sizeof(buffer), &byte_count);
                 err = netconn_write(conn, buffer, byte_count, NETCONN_COPY);
-            } while(!f_eof(&logfile_fp) && err == ERR_OK);
+            } while (!f_eof(&logfile_fp) && err == ERR_OK);
         }
     }
 

@@ -3,6 +3,6 @@
 
 #include <uavcan/uavcan.hpp>
 
-int motor_driver_uavcan_init(uavcan::INode &node);
+int motor_driver_uavcan_init(uavcan::INode& node);
 
 #endif /* MOTOR_DRIVER_UAVCAN_HPP */

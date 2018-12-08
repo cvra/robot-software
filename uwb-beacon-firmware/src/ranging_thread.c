@@ -12,20 +12,19 @@
 #include "trace_points.h"
 
 /** Speed of light in Decawave units */
-#define SPEED_OF_LIGHT                   (299792458.0 / (128 * 499.2e6))
+#define SPEED_OF_LIGHT (299792458.0 / (128 * 499.2e6))
 
 /* Antenna delay for our UWB board. */
-#define RX_ANT_DLY                       32915
+#define RX_ANT_DLY 32915
 
-#define EVENT_UWB_INT                    (1 << 0)
-#define EVENT_ADVERTISE_TIMER            (1 << 1)
-#define EVENT_ANCHOR_POSITION_TIMER      (1 << 2)
-#define EVENT_TAG_POSITION_TIMER         (1 << 3)
+#define EVENT_UWB_INT (1 << 0)
+#define EVENT_ADVERTISE_TIMER (1 << 1)
+#define EVENT_ANCHOR_POSITION_TIMER (1 << 2)
+#define EVENT_TAG_POSITION_TIMER (1 << 3)
 
 /* TODO: Put this in parameters. */
 #define UWB_ANCHOR_POSITION_TIMER_PERIOD TIME_S2I(1)
-#define UWB_TAG_POSITION_TIMER_PERIOD    TIME_MS2I(300)
-
+#define UWB_TAG_POSITION_TIMER_PERIOD TIME_MS2I(300)
 
 static uwb_protocol_handler_t handler;
 
@@ -64,7 +63,7 @@ static struct {
     } anchor;
 } uwb_params;
 
-static void ranging_thread(void *p);
+static void ranging_thread(void* p);
 static void ranging_found_cb(uint16_t addr, uint64_t time);
 static void anchor_position_received_cb(uint16_t addr, float x, float y, float z);
 static void tag_position_received_cb(uint16_t addr, float x, float y);
@@ -73,13 +72,13 @@ static void parameters_init(void);
 static void hardware_init(void);
 static void events_init(void);
 
-static void advertise_timer_cb(void *t);
-static void anchor_position_timer_cb(void *t);
-static void tag_position_timer_cb(void *t);
-static void frame_tx_done_cb(const dwt_cb_data_t *data);
-static void frame_rx_cb(const dwt_cb_data_t *data);
-static void frame_rx_timeout_cb(const dwt_cb_data_t *data);
-static void frame_rx_error_cb(const dwt_cb_data_t *data);
+static void advertise_timer_cb(void* t);
+static void anchor_position_timer_cb(void* t);
+static void tag_position_timer_cb(void* t);
+static void frame_tx_done_cb(const dwt_cb_data_t* data);
+static void frame_rx_cb(const dwt_cb_data_t* data);
+static void frame_rx_timeout_cb(const dwt_cb_data_t* data);
+static void frame_rx_error_cb(const dwt_cb_data_t* data);
 
 void ranging_start(void)
 {
@@ -87,9 +86,9 @@ void ranging_start(void)
     chThdCreateStatic(ranging_wa, sizeof(ranging_wa), HIGHPRIO, ranging_thread, NULL);
 }
 
-static void ranging_thread(void *p)
+static void ranging_thread(void* p)
 {
-    (void) p;
+    (void)p;
     chRegSetThreadName("ranging");
 
     uwb_protocol_handler_init(&handler);
@@ -153,7 +152,6 @@ static void ranging_thread(void *p)
             z = parameter_scalar_get(&uwb_params.anchor.position.z);
 
             uwb_send_anchor_position(&handler, x, y, z, frame);
-
         }
 
         if (flags & EVENT_UWB_INT) {
@@ -161,17 +159,16 @@ static void ranging_thread(void *p)
             dwt_isr();
         }
     }
-
 }
 
-static void frame_tx_done_cb(const dwt_cb_data_t *data)
+static void frame_tx_done_cb(const dwt_cb_data_t* data)
 {
-    (void) data;
+    (void)data;
     trace(TRACE_POINT_UWB_TX_DONE);
 }
 
 /* TODO: Handle RX errors as well, especially timeouts. */
-static void frame_rx_cb(const dwt_cb_data_t *data)
+static void frame_rx_cb(const dwt_cb_data_t* data)
 {
     static uint8_t frame[1024];
     trace(TRACE_POINT_UWB_RX);
@@ -184,17 +181,17 @@ static void frame_rx_cb(const dwt_cb_data_t *data)
     dwt_rxenable(DWT_START_RX_IMMEDIATE);
 }
 
-static void frame_rx_timeout_cb(const dwt_cb_data_t *data)
+static void frame_rx_timeout_cb(const dwt_cb_data_t* data)
 {
-    (void) data;
+    (void)data;
 
     board_led_toggle(BOARD_LED_DEBUG);
     dwt_rxenable(DWT_START_RX_IMMEDIATE);
 }
 
-static void frame_rx_error_cb(const dwt_cb_data_t *data)
+static void frame_rx_error_cb(const dwt_cb_data_t* data)
 {
-    (void) data;
+    (void)data;
 
     board_led_toggle(BOARD_LED_DEBUG);
     dwt_rxenable(DWT_START_RX_IMMEDIATE);
@@ -244,9 +241,9 @@ static void ranging_found_cb(uint16_t addr, uint64_t time)
     messagebus_topic_publish(&ranging_topic, &msg, sizeof(msg));
 }
 
-static void advertise_timer_cb(void *t)
+static void advertise_timer_cb(void* t)
 {
-    virtual_timer_t *timer = (virtual_timer_t *)t;
+    virtual_timer_t* timer = (virtual_timer_t*)t;
 
     chSysLockFromISR();
     int period = uwb_params.anchor.advertisement_period_ms.value.i;
@@ -255,9 +252,9 @@ static void advertise_timer_cb(void *t)
     chSysUnlockFromISR();
 }
 
-static void anchor_position_timer_cb(void *t)
+static void anchor_position_timer_cb(void* t)
 {
-    virtual_timer_t *timer = (virtual_timer_t *)t;
+    virtual_timer_t* timer = (virtual_timer_t*)t;
 
     chSysLockFromISR();
     chVTSetI(timer, UWB_ANCHOR_POSITION_TIMER_PERIOD, anchor_position_timer_cb, t);
@@ -265,16 +262,15 @@ static void anchor_position_timer_cb(void *t)
     chSysUnlockFromISR();
 }
 
-static void tag_position_timer_cb(void *t)
+static void tag_position_timer_cb(void* t)
 {
-    virtual_timer_t *timer = (virtual_timer_t *)t;
+    virtual_timer_t* timer = (virtual_timer_t*)t;
 
     chSysLockFromISR();
     chVTSetI(timer, UWB_TAG_POSITION_TIMER_PERIOD, tag_position_timer_cb, t);
     chEvtBroadcastI(&tag_position_timer_event);
     chSysUnlockFromISR();
 }
-
 
 static void parameters_init(void)
 {
@@ -340,9 +336,7 @@ static void hardware_init(void)
 {
     decawave_start();
 
-    dwt_setinterrupt(DWT_INT_RFCG | DWT_INT_TFRS |
-                     DWT_INT_RPHE | DWT_INT_SFDT | DWT_INT_RFSL | DWT_INT_RFCE | DWT_INT_ARFE |
-                     DWT_INT_RFTO | DWT_INT_RXPTO, true);
+    dwt_setinterrupt(DWT_INT_RFCG | DWT_INT_TFRS | DWT_INT_RPHE | DWT_INT_SFDT | DWT_INT_RFSL | DWT_INT_RFCE | DWT_INT_ARFE | DWT_INT_RFTO | DWT_INT_RXPTO, true);
     dwt_setcallbacks(frame_tx_done_cb, frame_rx_cb, frame_rx_timeout_cb, frame_rx_error_cb);
 
     dwt_setrxantennadelay(parameter_integer_get(&uwb_params.antenna_delay));
@@ -370,7 +364,7 @@ static void events_init(void)
 
     /* Register event listeners */
     static event_listener_t uwb_int_listener, advertise_timer_listener, anchor_position_listener,
-                            tag_position_listener;
+        tag_position_listener;
     chEvtRegisterMask(&uwb_event, &uwb_int_listener, EVENT_UWB_INT);
     chEvtRegisterMask(&advertise_timer_event, &advertise_timer_listener, EVENT_ADVERTISE_TIMER);
     chEvtRegisterMask(&anchor_position_timer_event,
@@ -380,5 +374,4 @@ static void events_init(void)
     chEvtRegisterMask(&tag_position_timer_event,
                       &tag_position_listener,
                       EVENT_TAG_POSITION_TIMER);
-
 }

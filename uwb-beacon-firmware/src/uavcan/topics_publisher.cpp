@@ -17,10 +17,10 @@
 using RadioRange = cvra::uwb_beacon::RadioRange;
 using TagPosition = cvra::uwb_beacon::TagPosition;
 
-uavcan::LazyConstructor<uavcan::Publisher<uavcan::equipment::ahrs::RawIMU> > raw_imu_pub;
-uavcan::LazyConstructor<uavcan::Publisher<uavcan::equipment::ahrs::Solution> > attitude_pub;
-uavcan::LazyConstructor<uavcan::Publisher<RadioRange> > range_pub;
-uavcan::LazyConstructor<uavcan::Publisher<TagPosition> > tag_pos_pub;
+uavcan::LazyConstructor<uavcan::Publisher<uavcan::equipment::ahrs::RawIMU>> raw_imu_pub;
+uavcan::LazyConstructor<uavcan::Publisher<uavcan::equipment::ahrs::Solution>> attitude_pub;
+uavcan::LazyConstructor<uavcan::Publisher<RadioRange>> range_pub;
+uavcan::LazyConstructor<uavcan::Publisher<TagPosition>> tag_pos_pub;
 
 static BSEMAPHORE_DECL(imu_topic_signaled, true);
 static BSEMAPHORE_DECL(attitude_topic_signaled, true);
@@ -33,10 +33,9 @@ static parameter_t publish_range;
 static parameter_t publish_tag_pos;
 static parameter_namespace_t publish_ns;
 
-
-static void topics_watcher(void *p)
+static void topics_watcher(void* p)
 {
-    (void) p;
+    (void)p;
 
     chRegSetThreadName(__FUNCTION__);
 
@@ -68,7 +67,7 @@ static void topics_watcher(void *p)
 
     while (1) {
         /* Wait for a topic publication. */
-        messagebus_topic_t *topic;
+        messagebus_topic_t* topic;
         topic = messagebus_watchgroup_wait(&watchgroup.group);
 
         if (topic == imu_topic && parameter_boolean_get(&publish_imu)) {
@@ -83,7 +82,7 @@ static void topics_watcher(void *p)
     }
 }
 
-void topics_publisher_start(Node &node)
+void topics_publisher_start(Node& node)
 {
     parameter_namespace_declare(&publish_ns, &parameter_root, "publish");
     parameter_boolean_declare_with_default(&publish_imu, &publish_ns, "imu", false);
@@ -91,19 +90,19 @@ void topics_publisher_start(Node &node)
     parameter_boolean_declare_with_default(&publish_range, &publish_ns, "range", false);
     parameter_boolean_declare_with_default(&publish_tag_pos, &publish_ns, "tag_positions", false);
 
-    raw_imu_pub.construct<Node &>(node);
+    raw_imu_pub.construct<Node&>(node);
     int res = raw_imu_pub->init();
     chDbgAssert(res == 0, "publisher failed");
 
-    attitude_pub.construct<Node &>(node);
+    attitude_pub.construct<Node&>(node);
     res = attitude_pub->init();
     chDbgAssert(res == 0, "publisher failed");
 
-    range_pub.construct<Node &>(node);
+    range_pub.construct<Node&>(node);
     res = range_pub->init();
     chDbgAssert(res == 0, "publisher failed");
 
-    tag_pos_pub.construct<Node &>(node);
+    tag_pos_pub.construct<Node&>(node);
     res = tag_pos_pub->init();
     chDbgAssert(res == 0, "publisher failed");
 
@@ -113,12 +112,12 @@ void topics_publisher_start(Node &node)
                       topics_watcher, NULL);
 }
 
-void topics_publisher_spin(Node &node)
+void topics_publisher_spin(Node& node)
 {
-    (void) node;
+    (void)node;
 
     if (chBSemWaitTimeout(&imu_topic_signaled, TIME_IMMEDIATE) == MSG_OK) {
-        messagebus_topic_t *topic;
+        messagebus_topic_t* topic;
         imu_msg_t imu_data;
         topic = messagebus_find_topic(&bus, "/imu");
         messagebus_topic_read(topic, &imu_data, sizeof(imu_data));
@@ -139,7 +138,7 @@ void topics_publisher_spin(Node &node)
     }
 
     if (chBSemWaitTimeout(&attitude_topic_signaled, TIME_IMMEDIATE) == MSG_OK) {
-        messagebus_topic_t *topic;
+        messagebus_topic_t* topic;
         attitude_msg_t attitude;
 
         topic = messagebus_find_topic(&bus, "/attitude");
@@ -154,8 +153,8 @@ void topics_publisher_spin(Node &node)
         attitude_pub->broadcast(msg);
     }
 
-     if (chBSemWaitTimeout(&range_topic_signaled, TIME_IMMEDIATE) == MSG_OK) {
-        messagebus_topic_t *topic;
+    if (chBSemWaitTimeout(&range_topic_signaled, TIME_IMMEDIATE) == MSG_OK) {
+        messagebus_topic_t* topic;
         range_msg_t range_msg;
 
         topic = messagebus_find_topic(&bus, "/range");
@@ -168,8 +167,8 @@ void topics_publisher_spin(Node &node)
         range_pub->broadcast(msg);
     }
 
-     if (chBSemWaitTimeout(&tag_pos_topic_signaled, TIME_IMMEDIATE) == MSG_OK) {
-        messagebus_topic_t *topic;
+    if (chBSemWaitTimeout(&tag_pos_topic_signaled, TIME_IMMEDIATE) == MSG_OK) {
+        messagebus_topic_t* topic;
         position_estimation_msg_t tag_pos_msg;
 
         topic = messagebus_find_topic(&bus, "/ekf/state");
@@ -181,5 +180,4 @@ void topics_publisher_spin(Node &node)
         msg.y = tag_pos_msg.y;
         tag_pos_pub->broadcast(msg);
     }
-
 }

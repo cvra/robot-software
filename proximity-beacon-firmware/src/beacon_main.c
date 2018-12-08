@@ -20,7 +20,7 @@ parameter_namespace_t parameter_root_ns;
 
 void panic_hook(const char* reason)
 {
-    palClearPad(GPIOA, GPIOA_LED);      // turn on LED (active low)
+    palClearPad(GPIOA, GPIOA_LED); // turn on LED (active low)
     motor_pwm_disable();
     static BlockingUARTDriver blocking_uart_stream;
     blocking_uart_init(&blocking_uart_stream, USART3, 115200);
@@ -28,13 +28,13 @@ void panic_hook(const char* reason)
     int i;
     while (1) {
         for (i = 10000000; i > 0; i--) {
-            __asm__ volatile ("nop");
+            __asm__ volatile("nop");
         }
         chprintf(uart, "Panic: %s\n", reason);
     }
 }
 
-void __assert_func(const char *_file, int _line, const char *_func, const char *_expr )
+void __assert_func(const char* _file, int _line, const char* _func, const char* _expr)
 {
     (void)_file;
     (void)_line;
@@ -118,7 +118,6 @@ int main(void)
 
     chprintf(ch_stdout, "boot\n");
     chprintf(ch_stdout, "%s: %d\n", config.board_name, config.ID);
-
 
     control_init();
 

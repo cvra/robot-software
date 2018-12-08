@@ -33,31 +33,30 @@ extern "C" {
 
 /** A line defined by the equation a*x + b*y + c = 0 */
 typedef struct _line {
-    float a;    /**< a*x + b*y + c = 0 */
-    float b;    /**< a*x + b*y + c = 0 */
-    float c;    /**< a*x + b*y + c = 0 */
+    float a; /**< a*x + b*y + c = 0 */
+    float b; /**< a*x + b*y + c = 0 */
+    float c; /**< a*x + b*y + c = 0 */
 } line_t;
-
 
 /** Converts 2 points to a line.
  * @param [in] *p1 Point one
  * @param [in] *p2 Point two
  * @param [out] *l Resulting line
  */
-void pts2line(const point_t *p1, const point_t *p2, line_t *l);
+void pts2line(const point_t* p1, const point_t* p2, line_t* l);
 
 /** Projects a point on a line.
  * @param [in] *p Point to project
  * @param [in] *l Line to project on
  * @param [out] *p_out Resulting point
  */
-void proj_pt_line(const point_t *p, const line_t *l, point_t *p_out);
+void proj_pt_line(const point_t* p, const line_t* l, point_t* p_out);
 
 /** Checks if 2 lines are intersecting.
  * @return 0 if l1 & l2 dont cross, 1 if they cross, 2 if they are the same lines.
  * @param [in] l1, l2 The two line to intersect.
  * @param [out] p The intersection point, only meaningful for result 1. */
-int intersect_line(const line_t *l1, const line_t *l2, point_t *p);
+int intersect_line(const line_t* l1, const line_t* l2, point_t* p);
 
 /** Intersects 2 segments.
  * @return 0 dont cross, 1 cross, 2 cross on point, 3 parallel and one point in
@@ -66,16 +65,14 @@ int intersect_line(const line_t *l1, const line_t *l2, point_t *p);
  * @param [out] p The crossing point coordinates (dummy for 0 1 or 3
  * result).
  */
-int intersect_segment(const point_t *s1, const point_t *s2,
-                          const point_t *t1, const point_t *t2,
-                          point_t *p);
+int intersect_segment(const point_t* s1, const point_t* s2, const point_t* t1, const point_t* t2, point_t* p);
 
 /** @brief Translate the line.
  *
  * Translates the line by a given vector.
  * @param l The line to translate.
  * @param v The translation vector. */
-void line_translate(line_t *l, vect_t *v);
+void line_translate(line_t* l, vect_t* v);
 
 #ifdef __cplusplus
 }

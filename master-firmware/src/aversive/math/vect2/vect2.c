@@ -25,7 +25,6 @@ void vect2_cart2pol(vect2_cart* vc, vect2_pol* vp)
     vp->theta = (float)atan2(vc->y, vc->x);
 }
 
-
 /* Add 2 polar vectors and return the result */
 void vect2_add_pol(vect2_pol* vp1, vect2_pol* vp2, vect2_pol* vresult)
 {
@@ -48,7 +47,6 @@ void vect2_add_cart(vect2_cart* vc1, vect2_cart* vc2, vect2_cart* vresult)
     vresult->x = vc1->x + vc2->x;
     vresult->y = vc1->y + vc2->y;
 }
-
 
 /* Substract 2 polar vectors and return the result */
 void vect2_sub_pol(vect2_pol* vp1, vect2_pol* vp2, vect2_pol* vresult)
@@ -73,7 +71,6 @@ void vect2_sub_cart(vect2_cart* vc1, vect2_cart* vc2, vect2_cart* vresult)
     vresult->y = vc1->y - vc2->y;
 }
 
-
 /* Multiply a cartesian vector by a scalar and return the result */
 void vect2_scale_cart(vect2_cart* vc1, float alpha, vect2_cart* vresult)
 {
@@ -88,13 +85,13 @@ void vect2_scale_pol(vect2_pol* vp1, float alpha, vect2_pol* vresult)
 }
 
 /* Norm of a cartesian vector. */
-float vect2_norm_cart(vect2_cart *vc)
+float vect2_norm_cart(vect2_cart* vc)
 {
     return sqrtf((vc->x * vc->x) + (vc->y * vc->y));
 }
 
 /* Distance between two cartesian vectors. */
-float vect2_dist_cart(vect2_cart *vc1, vect2_cart *vc2)
+float vect2_dist_cart(vect2_cart* vc1, vect2_cart* vc2)
 {
     vect2_cart vcd;
     vect2_sub_cart(vc1, vc2, &vcd);
@@ -103,13 +100,13 @@ float vect2_dist_cart(vect2_cart *vc1, vect2_cart *vc2)
 }
 
 /* Inner product of two cartesian vectors. */
-float vect2_dot_product_cart(vect2_cart *vc1, vect2_cart *vc2)
+float vect2_dot_product_cart(vect2_cart* vc1, vect2_cart* vc2)
 {
     return vc1->x * vc2->x + vc1->y * vc2->y;
 }
 
 /* Angle between two cartesian vectors in radian. */
-float vect2_angle_2vec_rad_cart(vect2_cart *vc1, vect2_cart *vc2)
+float vect2_angle_2vec_rad_cart(vect2_cart* vc1, vect2_cart* vc2)
 {
     float nvc1 = vect2_norm_cart(vc1);
     float nvc2 = vect2_norm_cart(vc2);
@@ -118,7 +115,7 @@ float vect2_angle_2vec_rad_cart(vect2_cart *vc1, vect2_cart *vc2)
 }
 
 /* Angle between vector and x-axis. */
-float vect2_angle_vec_x_rad_cart(vect2_cart *vc)
+float vect2_angle_vec_x_rad_cart(vect2_cart* vc)
 {
     return atan2f(vc->y, vc->x);
 }

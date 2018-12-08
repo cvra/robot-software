@@ -14,7 +14,6 @@ int32_t scara_time_get_impl(void)
 
 void scara_panic_impl(void)
 {
-
 }
 
 int32_t (*scara_time_get)(void) = scara_time_get_impl;

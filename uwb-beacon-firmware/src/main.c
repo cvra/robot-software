@@ -31,12 +31,11 @@ void __late_init(void)
     chSysInit();
 }
 
-
 int main(void)
 {
     static const SerialConfig serial_config = {38400, 0, USART_CR2_STOP1_BITS, 0};
     sdStart(&SD2, &serial_config);
-    chprintf((BaseSequentialStream *)&SD2, "boot\r\n");
+    chprintf((BaseSequentialStream*)&SD2, "boot\r\n");
 
     bootloader_config_t boot_config;
 
@@ -60,19 +59,19 @@ int main(void)
     /* Starts USB, this takes about 1 second, as we have to disconnect and
      * reconnect the device. */
     usb_start(boot_config.ID);
-    shell_start((BaseSequentialStream *)&SDU1);
+    shell_start((BaseSequentialStream*)&SDU1);
 
     /* All services should be initialized by now, we can load the config. */
     parameter_flash_storage_load(&parameter_root, &_config_start);
 
-    while(true) {
+    while (true) {
         chThdSleepMilliseconds(1000);
     }
 }
 
-static void blink_thd(void *p)
+static void blink_thd(void* p)
 {
-    (void) p;
+    (void)p;
 
     while (1) {
         board_led_toggle(BOARD_LED_STATUS);

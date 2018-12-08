@@ -15,8 +15,7 @@
 #include "MadgwickAHRS.h"
 #include <math.h>
 
-
-void madgwick_filter_init(madgwick_filter_t *f)
+void madgwick_filter_init(madgwick_filter_t* f)
 {
     f->q[0] = 1.;
     f->q[1] = 0.;
@@ -29,17 +28,17 @@ void madgwick_filter_init(madgwick_filter_t *f)
 
 float invSqrt(float x);
 
-void madgwick_filter_set_gain(madgwick_filter_t *f, float b)
+void madgwick_filter_set_gain(madgwick_filter_t* f, float b)
 {
     f->beta = b;
 }
 
-void madgwick_filter_set_sample_frequency(madgwick_filter_t *f, float freq)
+void madgwick_filter_set_sample_frequency(madgwick_filter_t* f, float freq)
 {
     f->sample_frequency = freq;
 }
 
-void madgwick_filter_update(madgwick_filter_t *f,
+void madgwick_filter_update(madgwick_filter_t* f,
                             float gx,
                             float gy,
                             float gz,
@@ -55,7 +54,7 @@ void madgwick_filter_update(madgwick_filter_t *f,
     float qDot1, qDot2, qDot3, qDot4;
     float hx, hy;
     float _2q0mx, _2q0my, _2q0mz, _2q1mx, _2bx, _2bz, _4bx, _4bz, _2q0, _2q1, _2q2, _2q3, _2q0q2,
-          _2q2q3, q0q0, q0q1, q0q2, q0q3, q1q1, q1q2, q1q3, q2q2, q2q3, q3q3;
+        _2q2q3, q0q0, q0q1, q0q2, q0q3, q1q1, q1q2, q1q3, q2q2, q2q3, q3q3;
 
     // Use IMU algorithm if magnetometer measurement invalid (avoids NaN in magnetometer normalisation)
     if ((mx == 0.0f) && (my == 0.0f) && (mz == 0.0f)) {
@@ -71,7 +70,6 @@ void madgwick_filter_update(madgwick_filter_t *f,
 
     // Compute feedback only if accelerometer measurement valid (avoids NaN in accelerometer normalisation)
     if (!((ax == 0.0f) && (ay == 0.0f) && (az == 0.0f))) {
-
         // Normalise accelerometer measurement
         recipNorm = invSqrt(ax * ax + ay * ay + az * az);
         ax *= recipNorm;
@@ -107,49 +105,18 @@ void madgwick_filter_update(madgwick_filter_t *f,
         q3q3 = f->q[3] * f->q[3];
 
         // Reference direction of Earth's magnetic field
-        hx = mx * q0q0 - _2q0my * f->q[3] + _2q0mz * f->q[2] + mx * q1q1 + _2q1 * my * f->q[2] +
-             _2q1 * mz * f->q[3] -
-             mx * q2q2 - mx * q3q3;
-        hy = _2q0mx * f->q[3] + my * q0q0 - _2q0mz * f->q[1] + _2q1mx * f->q[2] - my * q1q1 + my *
-             q2q2 + _2q2 *
-             mz * f->q[3] - my * q3q3;
+        hx = mx * q0q0 - _2q0my * f->q[3] + _2q0mz * f->q[2] + mx * q1q1 + _2q1 * my * f->q[2] + _2q1 * mz * f->q[3] - mx * q2q2 - mx * q3q3;
+        hy = _2q0mx * f->q[3] + my * q0q0 - _2q0mz * f->q[1] + _2q1mx * f->q[2] - my * q1q1 + my * q2q2 + _2q2 * mz * f->q[3] - my * q3q3;
         _2bx = sqrt(hx * hx + hy * hy);
-        _2bz = -_2q0mx * f->q[2] + _2q0my * f->q[1] + mz * q0q0 + _2q1mx * f->q[3] - mz * q1q1 +
-               _2q2 * my * f->q[3] -
-               mz * q2q2 + mz * q3q3;
+        _2bz = -_2q0mx * f->q[2] + _2q0my * f->q[1] + mz * q0q0 + _2q1mx * f->q[3] - mz * q1q1 + _2q2 * my * f->q[3] - mz * q2q2 + mz * q3q3;
         _4bx = 2.0f * _2bx;
         _4bz = 2.0f * _2bz;
 
         // Gradient decent algorithm corrective step
-        s0 = -_2q2 * (2.0f * q1q3 - _2q0q2 - ax) + _2q1 * (2.0f * q0q1 + _2q2q3 - ay) - _2bz *
-             f->q[2] *
-             (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - mx) +
-             (-_2bx * f->q[3] + _2bz * f->q[1]) *
-             (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - my) + _2bx * f->q[2] *
-             (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - mz);
-        s1 = _2q3 * (2.0f * q1q3 - _2q0q2 - ax) + _2q0 * (2.0f * q0q1 + _2q2q3 - ay) - 4.0f *
-             f->q[1] *
-             (1 - 2.0f * q1q1 - 2.0f * q2q2 - az) + _2bz * f->q[3] *
-             (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - mx) +
-             (_2bx * f->q[2] + _2bz * f->q[0]) *
-             (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - my) +
-             (_2bx * f->q[3] - _4bz * f->q[1]) *
-             (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - mz);
-        s2 = -_2q0 * (2.0f * q1q3 - _2q0q2 - ax) + _2q3 * (2.0f * q0q1 + _2q2q3 - ay) - 4.0f *
-             f->q[2] *
-             (1 - 2.0f * q1q1 - 2.0f * q2q2 - az) + (-_4bx * f->q[2] - _2bz * f->q[0]) *
-             (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - mx) +
-             (_2bx * f->q[1] + _2bz * f->q[3]) *
-             (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - my) +
-             (_2bx * f->q[0] - _4bz * f->q[2]) *
-             (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - mz);
-        s3 = _2q1 * (2.0f * q1q3 - _2q0q2 - ax) + _2q2 * (2.0f * q0q1 + _2q2q3 - ay) +
-             (-_4bx * f->q[3] + _2bz * f->q[1]) *
-             (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - mx) +
-             (-_2bx * f->q[0] + _2bz * f->q[2]) *
-             (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - my) + _2bx *
-             f->q[1] *
-             (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - mz);
+        s0 = -_2q2 * (2.0f * q1q3 - _2q0q2 - ax) + _2q1 * (2.0f * q0q1 + _2q2q3 - ay) - _2bz * f->q[2] * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - mx) + (-_2bx * f->q[3] + _2bz * f->q[1]) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - my) + _2bx * f->q[2] * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - mz);
+        s1 = _2q3 * (2.0f * q1q3 - _2q0q2 - ax) + _2q0 * (2.0f * q0q1 + _2q2q3 - ay) - 4.0f * f->q[1] * (1 - 2.0f * q1q1 - 2.0f * q2q2 - az) + _2bz * f->q[3] * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - mx) + (_2bx * f->q[2] + _2bz * f->q[0]) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - my) + (_2bx * f->q[3] - _4bz * f->q[1]) * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - mz);
+        s2 = -_2q0 * (2.0f * q1q3 - _2q0q2 - ax) + _2q3 * (2.0f * q0q1 + _2q2q3 - ay) - 4.0f * f->q[2] * (1 - 2.0f * q1q1 - 2.0f * q2q2 - az) + (-_4bx * f->q[2] - _2bz * f->q[0]) * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - mx) + (_2bx * f->q[1] + _2bz * f->q[3]) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - my) + (_2bx * f->q[0] - _4bz * f->q[2]) * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - mz);
+        s3 = _2q1 * (2.0f * q1q3 - _2q0q2 - ax) + _2q2 * (2.0f * q0q1 + _2q2q3 - ay) + (-_4bx * f->q[3] + _2bz * f->q[1]) * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - mx) + (-_2bx * f->q[0] + _2bz * f->q[2]) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - my) + _2bx * f->q[1] * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - mz);
         recipNorm = invSqrt(s0 * s0 + s1 * s1 + s2 * s2 + s3 * s3); // normalise step magnitude
         s0 *= recipNorm;
         s1 *= recipNorm;
@@ -178,7 +145,7 @@ void madgwick_filter_update(madgwick_filter_t *f,
     f->q[3] *= recipNorm;
 }
 
-void madgwick_filter_updateIMU(madgwick_filter_t *f,
+void madgwick_filter_updateIMU(madgwick_filter_t* f,
                                float gx,
                                float gy,
                                float gz,
@@ -199,7 +166,6 @@ void madgwick_filter_updateIMU(madgwick_filter_t *f,
 
     // Compute feedback only if accelerometer measurement valid (avoids NaN in accelerometer normalisation)
     if (!((ax == 0.0f) && (ay == 0.0f) && (az == 0.0f))) {
-
         // Normalise accelerometer measurement
         recipNorm = invSqrt(ax * ax + ay * ay + az * az);
         ax *= recipNorm;
@@ -223,12 +189,8 @@ void madgwick_filter_updateIMU(madgwick_filter_t *f,
 
         // Gradient decent algorithm corrective step
         s0 = _4q0 * q2q2 + _2q2 * ax + _4q0 * q1q1 - _2q1 * ay;
-        s1 = _4q1 * q3q3 - _2q3 * ax + 4.0f * q0q0 * f->q[1] - _2q0 * ay - _4q1 + _8q1 * q1q1 +
-             _8q1 *
-             q2q2 + _4q1 * az;
-        s2 = 4.0f * q0q0 * f->q[2] + _2q0 * ax + _4q2 * q3q3 - _2q3 * ay - _4q2 + _8q2 * q1q1 +
-             _8q2 *
-             q2q2 + _4q2 * az;
+        s1 = _4q1 * q3q3 - _2q3 * ax + 4.0f * q0q0 * f->q[1] - _2q0 * ay - _4q1 + _8q1 * q1q1 + _8q1 * q2q2 + _4q1 * az;
+        s2 = 4.0f * q0q0 * f->q[2] + _2q0 * ax + _4q2 * q3q3 - _2q3 * ay - _4q2 + _8q2 * q1q1 + _8q2 * q2q2 + _4q2 * az;
         s3 = 4.0f * q1q1 * f->q[3] - _2q1 * ax + 4.0f * q2q2 * f->q[3] - _2q2 * ay;
         recipNorm = invSqrt(s0 * s0 + s1 * s1 + s2 * s2 + s3 * s3); // normalise step magnitude
         s0 *= recipNorm;

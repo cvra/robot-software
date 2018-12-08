@@ -2,6 +2,6 @@
 #define VOLTAGE_HANDLER_HPP
 
 #include "uavcan_node.h"
-int Voltage_handler_start(Node &node);
+int Voltage_handler_start(Node& node);
 
 #endif

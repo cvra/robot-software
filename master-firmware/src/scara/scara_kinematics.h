@@ -18,7 +18,7 @@ typedef enum {
  * @param [out] p1, p2 The possible positions.
  * @returns The number of possible positons (0, 1 or 2).
  */
-int scara_num_possible_elbow_positions(point_t target, float l1, float l2, point_t *p1, point_t *p2);
+int scara_num_possible_elbow_positions(point_t target, float l1, float l2, point_t* p1, point_t* p2);
 
 /** Inverts the shoulder mode depending on wheter the arm is facing the
  * left or right side of the robot. This is needed as "forward" and "backward"
@@ -38,7 +38,6 @@ point_t scara_forward_kinematics(float alpha, float beta, float length[2]);
 float scara_compute_shoulder_angle(point_t elbow, point_t hand);
 float scara_compute_elbow_angle(point_t elbow, point_t hand);
 
-bool scara_compute_joint_angles(position_3d_t position, shoulder_mode_t mode,
-                                float *length, float *alpha, float *beta);
+bool scara_compute_joint_angles(position_3d_t position, shoulder_mode_t mode, float* length, float* alpha, float* beta);
 
 #endif /* SCARA_KINEMATICS_H */

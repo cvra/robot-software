@@ -20,7 +20,6 @@ void beacon_cartesian_convert(struct robot_position* robot_pos,
                               float* x,
                               float* y);
 
-
 #ifdef __cplusplus
 }
 #endif

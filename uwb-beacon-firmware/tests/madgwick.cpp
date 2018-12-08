@@ -2,15 +2,13 @@
 #include <CppUTestExt/MockSupport.h>
 #include "MadgwickAHRS.h"
 
-TEST_GROUP(MadgwickTestGroup)
-{
+TEST_GROUP (MadgwickTestGroup) {
     madgwick_filter_t f;
 
     void setup(void)
     {
         madgwick_filter_init(&f);
     }
-
 };
 
 TEST(MadgwickTestGroup, InitFilter)

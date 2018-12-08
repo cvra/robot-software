@@ -39,23 +39,20 @@
 /** \brief Cartesian vector structure
 **/
 typedef struct _vect2_cart {
-    float x;     /**< x-coordinate */
-    float y;     /**< y-coordinate */
+    float x; /**< x-coordinate */
+    float y; /**< y-coordinate */
 
 } vect2_cart;
-
 
 /** \brief Polar vector structure
 **/
 typedef struct _vect2_pol {
-    float r;     /**< Radius */
+    float r; /**< Radius */
     float theta; /**< Angle */
 
 } vect2_pol;
 
 /************************ Begin prototyping ************************/
-
-
 
 /** \brief Convert a polar vector to a cartesian one
  * \param vp reference to target polar vector to convert from.
@@ -65,7 +62,6 @@ typedef struct _vect2_pol {
  **/
 void vect2_pol2cart(vect2_pol* vp, vect2_cart* vc);
 
-
 /** \brief Convert a cartesian vector to a polar one
  * \param vc reference to target cartesian vector to convert from.
  * \param vp reference to target polar vector where the function write the result.
@@ -73,7 +69,6 @@ void vect2_pol2cart(vect2_pol* vp, vect2_cart* vc);
  *
  **/
 void vect2_cart2pol(vect2_cart* vc, vect2_pol* vp);
-
 
 /** \brief Add 2 polar vectors and return the result
  * \param v1 Reference to a polar vector to sum.
@@ -87,7 +82,6 @@ void vect2_cart2pol(vect2_cart* vc, vect2_pol* vp);
  **/
 void vect2_add_pol(vect2_pol* v1, vect2_pol* v2, vect2_pol* vresult);
 
-
 /** \brief Add 2 cartesian vectors and return the result
  * \param v1 Reference to a cartesian vector to sum.
  * \param v2 Reference to a cartesian vector to sum.
@@ -97,7 +91,6 @@ void vect2_add_pol(vect2_pol* v1, vect2_pol* v2, vect2_pol* vresult);
  * \f[ \vec V_{result} = \vec V_1 + \vec V_2 \f]
  **/
 void vect2_add_cart(vect2_cart* v1, vect2_cart* v2, vect2_cart* vresult);
-
 
 /** \brief Substract 2 polar vectors and return the result
  * \param v1 Reference to a polar vector to substract.
@@ -123,7 +116,6 @@ void vect2_sub_pol(vect2_pol* v1, vect2_pol* v2, vect2_pol* vresult);
  **/
 void vect2_sub_cart(vect2_cart* v1, vect2_cart* v2, vect2_cart* vresult);
 
-
 /** \brief Multiply a cartesian vector by a scalar and return the result
  * \param v1 Reference to a cartesian vector.
  * \param alpha The multiplying scalar.
@@ -147,32 +139,31 @@ void vect2_scale_pol(vect2_pol* v1, float alpha, vect2_pol* vresult);
 /** @brief Norm of a cartesian vector.
  * @param vc Reference to a cartesian vector.
  **/
-float vect2_norm_cart(vect2_cart *vc);
+float vect2_norm_cart(vect2_cart* vc);
 
 /** @brief Distance between two cartesian vectors.
  * @param vc1 Reference to a cartesian vector.
  * @param vc2 Reference to a cartesian vector.
  **/
-float vect2_dist_cart(vect2_cart *vc1, vect2_cart *vc2);
+float vect2_dist_cart(vect2_cart* vc1, vect2_cart* vc2);
 
 /** @brief Inner product of two cartesian vectors.
  * @param vc1 Reference to a cartesian vector.
  * @param vc2 Reference to a cartesian vector.
  **/
-float vect2_dot_product_cart(vect2_cart *vc1, vect2_cart *vc2);
+float vect2_dot_product_cart(vect2_cart* vc1, vect2_cart* vc2);
 
 /** @brief Angle between two cartesian vectors in radian.
  * @param vc1 Reference to a cartesian vector.
  * @param vc2 Reference to a cartesian vector.
  **/
-float vect2_angle_2vec_rad_cart(vect2_cart *vc1, vect2_cart *vc2);
+float vect2_angle_2vec_rad_cart(vect2_cart* vc1, vect2_cart* vc2);
 
 /** @brief Angle between vector and x-axis.
  * @param vc Reference to a cartesian vector.
  **/
-float vect2_angle_vec_x_rad_cart(vect2_cart *vc);
+float vect2_angle_vec_x_rad_cart(vect2_cart* vc);
 
 /** @} */
-
 
 #endif /*_VECT2_H_*/

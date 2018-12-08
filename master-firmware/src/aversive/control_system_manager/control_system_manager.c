@@ -9,10 +9,10 @@
  * - else apply filter
  */
 static inline uint32_t
-safe_filter(int32_t (*f)(void *, int32_t), void * param, int32_t value)
+safe_filter(int32_t (*f)(void*, int32_t), void* param, int32_t value)
 {
-    int32_t (*f_tmp)(void *, int32_t);
-    void * param_tmp;
+    int32_t (*f_tmp)(void*, int32_t);
+    void* param_tmp;
     f_tmp = f;
     param_tmp = param;
     if (f_tmp) {
@@ -29,10 +29,10 @@ safe_filter(int32_t (*f)(void *, int32_t), void * param, int32_t value)
  * - else return the value processed by the function
  */
 static inline uint32_t
-safe_getprocessout(int32_t (*f)(void *), void * param)
+safe_getprocessout(int32_t (*f)(void*), void* param)
 {
-    int32_t (*f_tmp)(void *);
-    void * param_tmp;
+    int32_t (*f_tmp)(void*);
+    void* param_tmp;
     f_tmp = f;
     param_tmp = param;
     if (f_tmp) {
@@ -49,10 +49,10 @@ safe_getprocessout(int32_t (*f)(void *), void * param)
  * - else call the processin with the parameters
  */
 static inline void
-safe_setprocessin(void (*f)(void *, int32_t), void * param, int32_t value)
+safe_setprocessin(void (*f)(void*, int32_t), void* param, int32_t value)
 {
-    void (*f_tmp)(void *, int32_t);
-    void * param_tmp;
+    void (*f_tmp)(void*, int32_t);
+    void* param_tmp;
     f_tmp = f;
     param_tmp = param;
     if (f_tmp) {
@@ -68,43 +68,30 @@ void cs_init(struct cs* cs)
     cs->enabled = 1;
 }
 
-
-void cs_set_consign_filter(struct cs* cs, int32_t (*consign_filter)(void*,
-                                                                    int32_t),
-                           void* consign_filter_params)
+void cs_set_consign_filter(struct cs* cs, int32_t (*consign_filter)(void*, int32_t), void* consign_filter_params)
 {
     cs->consign_filter = consign_filter;
     cs->consign_filter_params = consign_filter_params;
 }
 
-
-
-void cs_set_correct_filter(struct cs* cs, int32_t (*correct_filter)(void*,
-                                                                    int32_t),
-                           void* correct_filter_params)
+void cs_set_correct_filter(struct cs* cs, int32_t (*correct_filter)(void*, int32_t), void* correct_filter_params)
 {
     cs->correct_filter = correct_filter;
     cs->correct_filter_params = correct_filter_params;
 }
 
-
-void cs_set_feedback_filter(struct cs* cs, int32_t (*feedback_filter)(void*,
-                                                                      int32_t),
-                            void* feedback_filter_params)
+void cs_set_feedback_filter(struct cs* cs, int32_t (*feedback_filter)(void*, int32_t), void* feedback_filter_params)
 {
     cs->feedback_filter = feedback_filter;
     cs->feedback_filter_params = feedback_filter_params;
 }
 
 /** Set the cs output_filter fields in the cs structure */
-void  cs_set_output_filter(struct cs* cs, int32_t (*output_filter)(void*,
-                                                                   int32_t),
-                           void* output_filter_params)
+void cs_set_output_filter(struct cs* cs, int32_t (*output_filter)(void*, int32_t), void* output_filter_params)
 {
     cs->output_filter = output_filter;
     cs->output_filter_params = output_filter_params;
 }
-
 
 void cs_set_process_in(struct cs* cs, void (*process_in)(void*, int32_t), void* process_in_params)
 {
@@ -112,15 +99,11 @@ void cs_set_process_in(struct cs* cs, void (*process_in)(void*, int32_t), void* 
     cs->process_in_params = process_in_params;
 }
 
-
-
 void cs_set_process_out(struct cs* cs, int32_t (*process_out)(void*), void* process_out_params)
 {
     cs->process_out = process_out;
     cs->process_out_params = process_out_params;
 }
-
-
 
 int32_t cs_do_process(struct cs* cs, int32_t consign)
 {
@@ -153,15 +136,11 @@ int32_t cs_do_process(struct cs* cs, int32_t consign)
     return cs->out_value;
 }
 
-
-
-void cs_manage(void * data)
+void cs_manage(void* data)
 {
     struct cs* cs = data;
     cs_do_process(cs, cs->consign_value);
 }
-
-
 
 int32_t cs_get_out(struct cs* cs)
 {
@@ -172,8 +151,6 @@ int32_t cs_get_error(struct cs* cs)
 {
     return cs->error_value;
 }
-
-
 
 int32_t cs_get_consign(struct cs* cs)
 {
@@ -200,12 +177,12 @@ void cs_set_consign(struct cs* cs, int32_t v)
     cs->consign_value = v;
 }
 
-void cs_enable(struct cs * cs)
+void cs_enable(struct cs* cs)
 {
     cs->enabled = 1;
 }
 
-void cs_disable(struct cs * cs)
+void cs_disable(struct cs* cs)
 {
     cs->enabled = 0;
 }

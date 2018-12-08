@@ -18,7 +18,7 @@
 
 /** The data structure used by the control_system_manager module */
 struct cs {
-    int32_t (*consign_filter)(void *, int32_t); /**< Callback function for the consign filter, eg: ramp. */
+    int32_t (*consign_filter)(void*, int32_t); /**< Callback function for the consign filter, eg: ramp. */
     void* consign_filter_params; /**< Parameter for consign_filter, will be passed as 1st param. */
 
     int32_t (*correct_filter)(void*, int32_t); /**< Callback function for the correct filter, eg: PID. */
@@ -37,7 +37,6 @@ struct cs {
 
     void (*process_in)(void*, int32_t); /**< Callback function to set process in, eg: PWM. */
     void* process_in_params; /**< Parameter for process_out, will be passed as 1st param. */
-
 
     int32_t consign_value; /**< Consign value for the control system. */
     /** Feedback from the process after going through feedback_filter() */
@@ -72,27 +71,27 @@ void cs_set_consign_filter(struct cs* cs,
  * @param [in] *correct_filer_params The first parameter of consign_filter.
  *
  */
-void  cs_set_correct_filter(struct cs* cs,
-                            int32_t (*correct_filter)(void*, int32_t),
-                            void* correct_filer_params);
+void cs_set_correct_filter(struct cs* cs,
+                           int32_t (*correct_filter)(void*, int32_t),
+                           void* correct_filer_params);
 
 /** Set the cs feedback_filter fields in the cs structure.
  * @param [in] cs A cs structure instance.
  * @param [in] *feedback_filter The feedback filter function.
  * @param [in] *feedback_filer_params The first parameter of feedback_filter.
  */
-void  cs_set_feedback_filter(struct cs* cs,
-                             int32_t (*feedback_filter)(void*, int32_t),
-                             void* feedback_filer_params);
+void cs_set_feedback_filter(struct cs* cs,
+                            int32_t (*feedback_filter)(void*, int32_t),
+                            void* feedback_filer_params);
 
 /** Set the cs output_filter fields in the cs structure.
  * @param [in] cs A cs structure instance.
  * @param [in] *output_filter The output filter function.
  * @param [in] *output_filter_params The first parameter of output_filter.
  */
-void  cs_set_output_filter(struct cs* cs,
-                           int32_t (*output_filter)(void*, int32_t),
-                           void* output_filer_params);
+void cs_set_output_filter(struct cs* cs,
+                          int32_t (*output_filter)(void*, int32_t),
+                          void* output_filer_params);
 
 /** Set the cs process_in fields in the cs structure.
  * @param [in] cs A cs structure instance.
@@ -111,7 +110,6 @@ void cs_set_process_in(struct cs* cs,
 void cs_set_process_out(struct cs* cs,
                         int32_t (*process_out)(void*),
                         void* process_out_params);
-
 
 /** \brief This function do the main loop of the control system process.
  *
@@ -136,7 +134,7 @@ int32_t cs_do_process(struct cs* cs, int32_t consign);
  *  @note This is the same as cs_do_process except it takes the consign from
  *  the structure field.
  */
-void cs_manage(void * cs);
+void cs_manage(void* cs);
 
 /** Return the last output sent to process.
  * @param [in] cs A cs structure instance.
@@ -167,7 +165,6 @@ int32_t cs_get_filtered_consign(struct cs* cs);
  */
 int32_t cs_get_filtered_feedback(struct cs* cs);
 
-
 /** Gets the feedback value, with no filter
  *
  * @warning This function calls the process_out callback, so be careful if it has
@@ -192,15 +189,13 @@ void cs_set_consign(struct cs* cs, int32_t v);
  * @param [in] cs A control system instance.
  * @sa cs_enable().
  */
-void cs_disable(struct cs *cs);
+void cs_disable(struct cs* cs);
 
 /** Enables the control system (return to normal operation).
  * @param [in] cs A control system instance.
  * @sa cs_disable().
  */
-void cs_enable(struct cs * cs);
-
-
+void cs_enable(struct cs* cs);
 
 /** @} */
 

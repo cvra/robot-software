@@ -8,17 +8,27 @@ extern "C" {
 
 #if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
 
-#define RPM_LOCK() {}
+#define RPM_LOCK() \
+    {              \
+    }
 
-#define RPM_UNLOCK() {}
+#define RPM_UNLOCK() \
+    {                \
+    }
 
 #else
 
 #include <ch.h>
 
-#define RPM_LOCK() {chSysLock();}
+#define RPM_LOCK()   \
+    {                \
+        chSysLock(); \
+    }
 
-#define RPM_UNLOCK() {chSysUnlock();}
+#define RPM_UNLOCK()   \
+    {                  \
+        chSysUnlock(); \
+    }
 
 #endif
 
@@ -27,4 +37,3 @@ extern "C" {
 #endif
 
 #endif /* RPM_PORT_H */
-

@@ -4,8 +4,7 @@
 
 #include "ballgun/ball_sensor.h"
 
-TEST_GROUP(ABallSensor)
-{
+TEST_GROUP (ABallSensor) {
     ball_sensor_t sensor;
 
     void setup()

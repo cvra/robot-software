@@ -22,38 +22,38 @@ using namespace cvra::motor;
 
 /*** Sends a setpoint to the motor board, picking the message type according to
  * the current value. */
-static void motor_driver_uavcan_send_setpoint(motor_driver_t *d);
+static void motor_driver_uavcan_send_setpoint(motor_driver_t* d);
 
 /** Send new parameters from the global tree to the motor board. */
-static int motor_driver_uavcan_update_config(motor_driver_t *d);
+static int motor_driver_uavcan_update_config(motor_driver_t* d);
 
 /** Logs an error in case the UAVCAN RPC failed.
  *
  * It is parametrized to adapt to any type of RPC. */
-template<typename T>
+template <typename T>
 static void assert_call_successful(const ServiceCallResult<T>& call_result);
 
-static LazyConstructor<ServiceClient<uavcan::protocol::param::GetSet> > feedback_stream_client;
-static LazyConstructor<Publisher<control::Velocity> > velocity_pub;
-static LazyConstructor<Publisher<control::Position> > position_pub;
-static LazyConstructor<Publisher<control::Torque> > torque_pub;
-static LazyConstructor<Publisher<control::Voltage> > voltage_pub;
+static LazyConstructor<ServiceClient<uavcan::protocol::param::GetSet>> feedback_stream_client;
+static LazyConstructor<Publisher<control::Velocity>> velocity_pub;
+static LazyConstructor<Publisher<control::Position>> position_pub;
+static LazyConstructor<Publisher<control::Torque>> torque_pub;
+static LazyConstructor<Publisher<control::Voltage>> voltage_pub;
 
-int motor_driver_uavcan_init(INode &node)
+int motor_driver_uavcan_init(INode& node)
 {
     int res;
 
-    feedback_stream_client.construct<INode &>(node);
+    feedback_stream_client.construct<INode&>(node);
     res = feedback_stream_client->init();
     if (res != 0) {
         return res;
     }
     feedback_stream_client->setCallback(assert_call_successful<uavcan::protocol::param::GetSet>);
 
-    velocity_pub.construct<INode &>(node);
-    position_pub.construct<INode &>(node);
-    torque_pub.construct<INode &>(node);
-    voltage_pub.construct<INode &>(node);
+    velocity_pub.construct<INode&>(node);
+    position_pub.construct<INode&>(node);
+    torque_pub.construct<INode&>(node);
+    voltage_pub.construct<INode&>(node);
 
     /* Setup a timer that will send the config & setpoints to the motor boards
      * periodically.
@@ -62,29 +62,28 @@ int motor_driver_uavcan_init(INode &node)
      * */
     static Timer periodic_timer(node);
     periodic_timer.setCallback(
-        [&](const TimerEvent &event)
-    {
-        (void) event;
+        [&](const TimerEvent& event) {
+            (void)event;
 
-        motor_driver_t *drv_list;
-        uint16_t drv_list_len;
+            motor_driver_t* drv_list;
+            uint16_t drv_list_len;
 
-        motor_manager_get_list(&motor_manager, &drv_list, &drv_list_len);
+            motor_manager_get_list(&motor_manager, &drv_list, &drv_list_len);
 
-        control_panel_clear(LED_BUS);
+            control_panel_clear(LED_BUS);
 
-        for (int i = 0; i < drv_list_len; i++) {
-            /* Only update one motor per 50 ms to avoid overloading the bus. */
-            if (motor_driver_uavcan_update_config(&drv_list[i])) {
-                control_panel_set(LED_BUS);
-                break;
+            for (int i = 0; i < drv_list_len; i++) {
+                /* Only update one motor per 50 ms to avoid overloading the bus. */
+                if (motor_driver_uavcan_update_config(&drv_list[i])) {
+                    control_panel_set(LED_BUS);
+                    break;
+                }
             }
-        }
 
-        for (int i = 0; i < drv_list_len; i++) {
-            motor_driver_uavcan_send_setpoint(&drv_list[i]);
-        }
-    });
+            for (int i = 0; i < drv_list_len; i++) {
+                motor_driver_uavcan_send_setpoint(&drv_list[i]);
+            }
+        });
 
     /* Starts the periodic timer. Its rate must be at least every 300 ms,
      * otherwise the motor boards disable their output. Packet drop also needs
@@ -94,7 +93,7 @@ int motor_driver_uavcan_init(INode &node)
     return 0;
 }
 
-static void update_motor_can_id(motor_driver_t *d)
+static void update_motor_can_id(motor_driver_t* d)
 {
     int node_id = motor_driver_get_can_id(d);
     if (node_id == CAN_ID_NOT_SET) {
@@ -116,7 +115,7 @@ static void send_stream_config(int node_id, float frequency, const char* request
     feedback_stream_client->call(node_id, request);
 }
 
-static int motor_driver_uavcan_update_config(motor_driver_t *d)
+static int motor_driver_uavcan_update_config(motor_driver_t* d)
 {
     update_motor_can_id(d);
     int node_id = motor_driver_get_can_id(d);
@@ -158,7 +157,7 @@ static int motor_driver_uavcan_update_config(motor_driver_t *d)
     return 0;
 }
 
-static void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
+static void motor_driver_uavcan_send_setpoint(motor_driver_t* d)
 {
     control::Position position_setpoint;
     control::Velocity velocity_setpoint;
@@ -208,7 +207,7 @@ static void motor_driver_uavcan_send_setpoint(motor_driver_t *d)
     motor_driver_unlock(d);
 }
 
-template<typename T>
+template <typename T>
 static void assert_call_successful(const ServiceCallResult<T>& call_result)
 {
     if (!call_result.isSuccessful()) {

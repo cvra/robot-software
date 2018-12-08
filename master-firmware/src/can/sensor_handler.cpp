@@ -13,7 +13,7 @@ static void sensor_distance_cb(const uavcan::ReceivedDataStructure<cvra::sensor:
 {
     if (msg.status == cvra::sensor::DistanceVL6180X::STATUS_OK) {
         Range dist;
-        dist.distance =  msg.distance_mm / 1000.f;
+        dist.distance = msg.distance_mm / 1000.f;
         dist.type = Range_RangeType_LASER;
         messagebus_topic_publish(&hand_distance_topic.topic, &dist, sizeof(dist));
     } else {
@@ -21,7 +21,7 @@ static void sensor_distance_cb(const uavcan::ReceivedDataStructure<cvra::sensor:
     }
 }
 
-int sensor_handler_init(uavcan::INode &node)
+int sensor_handler_init(uavcan::INode& node)
 {
     messagebus_advertise_topic(&bus, &hand_distance_topic.topic, "/hand_distance");
 
@@ -29,4 +29,3 @@ int sensor_handler_init(uavcan::INode &node)
 
     return distance_sub.start(sensor_distance_cb);
 }
-

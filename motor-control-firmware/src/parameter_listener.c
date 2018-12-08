@@ -6,14 +6,14 @@
 #include <serial-datagram/serial_datagram.h>
 #include "main.h"
 
-static void error_cb(void *arg, const char *id, const char *err)
+static void error_cb(void* arg, const char* id, const char* err)
 {
     (void)arg;
     (void)id;
     (void)err;
 }
 
-static void parameter_decode_cb(const void *dtgrm, size_t len, void *arg)
+static void parameter_decode_cb(const void* dtgrm, size_t len, void* arg)
 {
     int ret = parameter_msgpack_read(&parameter_root_ns, (char*)dtgrm, len, error_cb, arg);
     chprintf(ch_stdout, "ok %d\n", ret);
@@ -36,7 +36,7 @@ static THD_FUNCTION(parameter_listener, arg)
     }
 }
 
-void parameter_listener_start(BaseSequentialStream *dev)
+void parameter_listener_start(BaseSequentialStream* dev)
 {
     chThdCreateStatic(parameter_listener_wa, sizeof(parameter_listener_wa), LOWPRIO, parameter_listener, dev);
 }

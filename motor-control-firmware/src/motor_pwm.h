@@ -5,7 +5,6 @@
 extern "C" {
 #endif
 
-
 void motor_pwm_setup(void);
 
 /*

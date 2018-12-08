@@ -3,8 +3,7 @@
 #include <CppUTestExt/MockSupport.h>
 #include <utility>
 
-TEST_GROUP(StateEstimationTestGroup)
-{
+TEST_GROUP (StateEstimationTestGroup) {
 };
 
 TEST(StateEstimationTestGroup, PositionSetter)

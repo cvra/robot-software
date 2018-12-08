@@ -1,24 +1,23 @@
 #include "CppUTest/TestHarness.h"
 
 extern "C" {
-    #include "../src/rpm.h"
+#include "../src/rpm.h"
 
-    static timestamp_t delta_t = 100000;
-    timestamp_t timestamp_get(void)
-    {
-        static timestamp_t timestamp = 0;
-        timestamp += delta_t;
-        return timestamp;
-    }
+static timestamp_t delta_t = 100000;
+timestamp_t timestamp_get(void)
+{
+    static timestamp_t timestamp = 0;
+    timestamp += delta_t;
+    return timestamp;
+}
 }
 
-
-TEST_GROUP(RPM)
-{};
+TEST_GROUP (RPM) {
+};
 
 TEST(RPM, VelocityConstant)
 {
-    delta_t = 100000;   // period of 0.1 sec => 10Hz
+    delta_t = 100000; // period of 0.1 sec => 10Hz
     rpm_barrier_crossing(timestamp_get());
     rpm_barrier_crossing(timestamp_get());
     delta_t = 50000;
@@ -28,7 +27,7 @@ TEST(RPM, VelocityConstant)
 
 TEST(RPM, VelocityDecelerating)
 {
-    delta_t = 100000;   // period of 0.1 sec => 10Hz
+    delta_t = 100000; // period of 0.1 sec => 10Hz
     rpm_barrier_crossing(timestamp_get());
     rpm_barrier_crossing(timestamp_get());
     delta_t = 200000;
@@ -38,7 +37,7 @@ TEST(RPM, VelocityDecelerating)
 
 TEST(RPM, PositionConstant)
 {
-    delta_t = 100000;   // period of 0.1 sec => 10Hz
+    delta_t = 100000; // period of 0.1 sec => 10Hz
     rpm_barrier_crossing(timestamp_get());
     rpm_barrier_crossing(timestamp_get());
     delta_t = 50000;
@@ -48,7 +47,7 @@ TEST(RPM, PositionConstant)
 
 TEST(RPM, PositionDecelerating)
 {
-    delta_t = 100000;   // period of 0.1 sec => 10Hz
+    delta_t = 100000; // period of 0.1 sec => 10Hz
     rpm_barrier_crossing(timestamp_get());
     rpm_barrier_crossing(timestamp_get());
     delta_t = 200000;
@@ -59,7 +58,7 @@ TEST(RPM, PositionDecelerating)
 TEST(RPM, VelocityAndPosition)
 {
     float velocity, position;
-    delta_t = 100000;   // period of 0.1 sec => 10Hz
+    delta_t = 100000; // period of 0.1 sec => 10Hz
     rpm_barrier_crossing(timestamp_get());
     rpm_barrier_crossing(timestamp_get());
     delta_t = 50000;

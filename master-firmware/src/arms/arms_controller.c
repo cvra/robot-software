@@ -12,15 +12,12 @@
 
 #include "arms_controller.h"
 
-
 #define ARMS_CONTROLLER_STACKSIZE 2048
-
 
 scara_t main_arm;
 hand_t main_hand;
 wrist_t main_wrist;
 char* WRIST_SERVO_NAME = "wrist-servo";
-
 
 static void set_index_stream_frequency(char* motor, float freq)
 {
@@ -112,11 +109,11 @@ static void wrist_update_params(parameter_namespace_t* ns, wrist_t* wrist)
 
 static THD_FUNCTION(arms_ctrl_thd, arg)
 {
-    (void) arg;
+    (void)arg;
     chRegSetThreadName(__FUNCTION__);
 
-    parameter_namespace_t *main_arm_control_params = parameter_namespace_find(&master_config, "main_arm/control");
-    parameter_namespace_t *main_wrist_params = parameter_namespace_find(&master_config, "wrist");
+    parameter_namespace_t* main_arm_control_params = parameter_namespace_find(&master_config, "main_arm/control");
+    parameter_namespace_t* main_wrist_params = parameter_namespace_find(&master_config, "wrist");
 
     NOTICE("Start arm control");
     while (true) {
@@ -167,7 +164,7 @@ void arms_auto_index(cvra_arm_motor_t** motors, float* motor_speeds, size_t num_
         motor_finished[i] = false;
         motors[i]->index = 0.f;
         index_counts[i] = drivers[i]->stream.value_stream_index_update_count;
-        set_motor_velocity(motors[i], - motors[i]->direction * motor_speeds[i]);
+        set_motor_velocity(motors[i], -motors[i]->direction * motor_speeds[i]);
         NOTICE("Moving %s axis...", motors[i]->id);
     }
 
@@ -194,7 +191,7 @@ void arms_auto_index(cvra_arm_motor_t** motors, float* motor_speeds, size_t num_
 
     /* Move away from index positions */
     for (size_t i = 0; i < num_motors; i++) {
-        set_motor_velocity(motors[i], - motors[i]->direction * motor_speeds[i]);
+        set_motor_velocity(motors[i], -motors[i]->direction * motor_speeds[i]);
     }
 #ifndef TESTS
     chThdSleepMilliseconds(1000);

@@ -2,12 +2,9 @@
 #include "../src/setpoint.h"
 #include "../src/setpoint.c"
 
+#define FLOAT_TOLERANCE 1e-6
 
-#define FLOAT_TOLERANCE     1e-6
-
-
-TEST_GROUP(Setpoint)
-{
+TEST_GROUP (Setpoint) {
     struct setpoint_s setpoint;
     setpoint_interpolator_t interpolator;
 
@@ -107,9 +104,7 @@ TEST(Setpoint, UpdatePosition)
     // TODO
 }
 
-TEST_GROUP(SetpointInterpolation)
-{
-
+TEST_GROUP (SetpointInterpolation) {
 };
 
 TEST(SetpointInterpolation, PositionConstant)
@@ -171,16 +166,13 @@ TEST(SetpointInterpolation, Velocity)
     float acc = 2;
     float delta_t = 0.1;
 
-
     DOUBLES_EQUAL(1.2, vel + acc * delta_t, FLOAT_TOLERANCE);
     DOUBLES_EQUAL(vel + acc * delta_t,
                   vel_setpt_interpolation(vel, acc, delta_t),
                   FLOAT_TOLERANCE);
 }
 
-TEST_GROUP(SetpointVelocityRamp)
-{
-
+TEST_GROUP (SetpointVelocityRamp) {
 };
 
 TEST(SetpointVelocityRamp, Static)
@@ -248,7 +240,7 @@ TEST(SetpointVelocityRamp, VeryClose)
     float target_pos = pos + max_acc * delta_t * delta_t / 2;
     float max_vel = 3;
 
-    DOUBLES_EQUAL(- max_acc / 2,
+    DOUBLES_EQUAL(-max_acc / 2,
                   vel_ramp(pos, vel, target_pos, delta_t, max_vel, max_acc, false),
                   FLOAT_TOLERANCE);
 }
@@ -276,7 +268,7 @@ TEST(SetpointVelocityRamp, Overshot)
     float vel = max_acc * delta_t / 2;
     float max_vel = 3;
 
-    DOUBLES_EQUAL(- max_acc / 2,
+    DOUBLES_EQUAL(-max_acc / 2,
                   vel_ramp(pos, vel, target_pos, delta_t, max_vel, max_acc, false),
                   FLOAT_TOLERANCE);
 }

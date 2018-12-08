@@ -6,15 +6,15 @@ extern "C" {
 #include "scara/scara.h"
 }
 
-#define CHECK_FRAME_EQ(a, b) do {               \
-    CHECK_EQUAL(a.position.x, b.position.x);    \
-    CHECK_EQUAL(a.position.y, b.position.y);    \
-    CHECK_EQUAL(a.position.z, b.position.z);    \
-    CHECK_EQUAL(a.coordinate, b.coordinate);    \
-} while(0)
+#define CHECK_FRAME_EQ(a, b)                     \
+    do {                                         \
+        CHECK_EQUAL(a.position.x, b.position.x); \
+        CHECK_EQUAL(a.position.y, b.position.y); \
+        CHECK_EQUAL(a.position.z, b.position.z); \
+        CHECK_EQUAL(a.coordinate, b.coordinate); \
+    } while (0)
 
-TEST_GROUP(ArmTrajectory)
-{
+TEST_GROUP (ArmTrajectory) {
     scara_t arm;
 
     void setup()

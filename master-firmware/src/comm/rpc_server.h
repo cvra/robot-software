@@ -1,7 +1,6 @@
 #ifndef RPC_SERVER_H
 #define RPC_SERVER_H
 
-
 #define RPC_SERVER_PORT 20001
 #define MSG_SERVER_PORT 20000
 
@@ -24,18 +23,14 @@ void rpc_server_init(void);
  *
  * @return Number of bytes written to output_buffer or -1 in case of error.
  */
-size_t rpc_transmit(uint8_t *input_buffer, size_t input_buffer_size,
-                    uint8_t *output_buffer, size_t output_buffer_size,
-                    ip_addr_t *addr, uint16_t port);
+size_t rpc_transmit(uint8_t* input_buffer, size_t input_buffer_size, uint8_t* output_buffer, size_t output_buffer_size, ip_addr_t* addr, uint16_t port);
 
-void message_transmit(uint8_t *input_buffer, size_t input_buffer_size, ip_addr_t *addr, uint16_t port);
+void message_transmit(uint8_t* input_buffer, size_t input_buffer_size, ip_addr_t* addr, uint16_t port);
 
 void message_server_init(void);
-
 
 #ifdef __cplusplus
 }
 #endif
-
 
 #endif
