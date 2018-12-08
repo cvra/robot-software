@@ -40,7 +40,7 @@ TEST(ErrorLogging, MockWorks)
 TEST(ErrorLogging, GeneratesError)
 {
     error_register_error(error_mock);
-    mock().expectOneCall("error").withIntParameter("severity", ERROR_SEVERITY_ERROR).withIntParameter("line", __LINE__ + 4).withStringParameter("text", "foo").withStringParameter("file", __FILE__);
+    mock().expectOneCall("error").withIntParameter("severity", ERROR_SEVERITY_ERROR).withIntParameter("line", __LINE__ + 2).withStringParameter("text", "foo").withStringParameter("file", __FILE__);
 
     ERROR("foo");
 }
@@ -48,7 +48,7 @@ TEST(ErrorLogging, GeneratesError)
 TEST(ErrorLogging, GeneratesWarning)
 {
     error_register_warning(error_mock);
-    mock().expectOneCall("error").withIntParameter("severity", ERROR_SEVERITY_WARNING).withIntParameter("line", __LINE__ + 4).withStringParameter("text", "foo").withStringParameter("file", __FILE__);
+    mock().expectOneCall("error").withIntParameter("severity", ERROR_SEVERITY_WARNING).withIntParameter("line", __LINE__ + 2).withStringParameter("text", "foo").withStringParameter("file", __FILE__);
 
     WARNING("foo");
 }
@@ -56,7 +56,7 @@ TEST(ErrorLogging, GeneratesWarning)
 TEST(ErrorLogging, GeneratesNotice)
 {
     error_register_notice(error_mock);
-    mock().expectOneCall("error").withIntParameter("severity", ERROR_SEVERITY_NOTICE).withIntParameter("line", __LINE__ + 4).withStringParameter("text", "foo").withStringParameter("file", __FILE__);
+    mock().expectOneCall("error").withIntParameter("severity", ERROR_SEVERITY_NOTICE).withIntParameter("line", __LINE__ + 2).withStringParameter("text", "foo").withStringParameter("file", __FILE__);
 
     NOTICE("foo");
 }
@@ -64,7 +64,7 @@ TEST(ErrorLogging, GeneratesNotice)
 TEST(ErrorLogging, GeneratesDebug)
 {
     error_register_debug(error_mock);
-    mock().expectOneCall("error").withIntParameter("severity", ERROR_SEVERITY_DEBUG).withIntParameter("line", __LINE__ + 4).withStringParameter("text", "foo").withStringParameter("file", __FILE__);
+    mock().expectOneCall("error").withIntParameter("severity", ERROR_SEVERITY_DEBUG).withIntParameter("line", __LINE__ + 2).withStringParameter("text", "foo").withStringParameter("file", __FILE__);
 
     DEBUG("foo");
 }
