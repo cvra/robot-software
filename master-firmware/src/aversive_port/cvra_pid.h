@@ -13,9 +13,8 @@ typedef struct {
     float divider;
 } cvra_pid_t;
 
-void cvra_pid_set_out_divider(void *pid, float divider);
-int32_t cvra_pid_process(void *pid, int32_t error);
-
+void cvra_pid_set_out_divider(void* pid, float divider);
+int32_t cvra_pid_process(void* pid, int32_t error);
 
 #ifdef __cplusplus
 }

@@ -4,11 +4,10 @@ extern "C" {
 #include "blocking_detection_manager/blocking_detection_manager.h"
 }
 
-#define ERROR_THRESHOLD         10
-#define ERROR_COUNT_THRESHOLD   1
+#define ERROR_THRESHOLD 10
+#define ERROR_COUNT_THRESHOLD 1
 
-TEST_GROUP(ABlockingDetectionManager)
-{
+TEST_GROUP (ABlockingDetectionManager) {
     blocking_detection blocking_detection_manager;
 
     void setup()

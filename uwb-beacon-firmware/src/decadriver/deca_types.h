@@ -60,7 +60,7 @@ typedef signed long int32;
 #endif
 
 #ifndef NULL
-#define NULL ((void *)0UL)
+#define NULL ((void*)0UL)
 #endif
 
 #ifdef __cplusplus
@@ -68,5 +68,3 @@ typedef signed long int32;
 #endif
 
 #endif /* DECA_TYPES_H_ */
-
-

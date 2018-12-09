@@ -14,7 +14,7 @@ extern "C" {
 
 /** Special value to indicate to uwb_transmit_frame that the frame should be
  * sent as soon as possible. */
-#define UWB_TX_TIMESTAMP_IMMEDIATE  UINT64_MAX
+#define UWB_TX_TIMESTAMP_IMMEDIATE UINT64_MAX
 
 /** Object handling all the UWB protocol interactions. */
 typedef struct {
@@ -41,7 +41,7 @@ size_t uwb_mac_encapsulate_frame(uint16_t pan_id,
                                  uint16_t src_addr,
                                  uint16_t dst_addr,
                                  uint8_t seq_number,
-                                 uint8_t *frame,
+                                 uint8_t* frame,
                                  size_t frame_size);
 
 /** Extracts frame data from a 802.15.4 MAC data frame.
@@ -54,39 +54,38 @@ size_t uwb_mac_encapsulate_frame(uint16_t pan_id,
  *
  * @returns Payload size in bytes.
  */
-size_t uwb_mac_decapsulate_frame(uint16_t *pan_id,
-                                 uint16_t *src_addr,
-                                 uint16_t *dst_addr,
-                                 uint8_t *seq,
-                                 uint8_t *frame,
+size_t uwb_mac_decapsulate_frame(uint16_t* pan_id,
+                                 uint16_t* src_addr,
+                                 uint16_t* dst_addr,
+                                 uint8_t* seq,
+                                 uint8_t* frame,
                                  size_t frame_size);
 
-void uwb_protocol_handler_init(uwb_protocol_handler_t *handler);
+void uwb_protocol_handler_init(uwb_protocol_handler_t* handler);
 
 /** Prepares a measurement frame.
  *
  * @returns Number of byte in frame (including MAC header & 2 byte placeholder
  * for CRC).
  */
-size_t uwb_protocol_prepare_measurement_advertisement(uwb_protocol_handler_t *handler,
+size_t uwb_protocol_prepare_measurement_advertisement(uwb_protocol_handler_t* handler,
                                                       uint64_t tx_timestamp,
-                                                      uint8_t *frame);
+                                                      uint8_t* frame);
 
-void uwb_send_measurement_advertisement(uwb_protocol_handler_t *handler, uint8_t *buffer);
+void uwb_send_measurement_advertisement(uwb_protocol_handler_t* handler, uint8_t* buffer);
 
 /** Broadcasts the anchor's position to every connected beacon. */
-void uwb_send_anchor_position(uwb_protocol_handler_t *handler,
+void uwb_send_anchor_position(uwb_protocol_handler_t* handler,
                               float x,
                               float y,
                               float z,
-                              uint8_t *buffer);
+                              uint8_t* buffer);
 
 /** Broadcasts the tag's position to every connected beacon. */
-void uwb_send_tag_position(uwb_protocol_handler_t *handler, float x, float y, uint8_t *buffer);
+void uwb_send_tag_position(uwb_protocol_handler_t* handler, float x, float y, uint8_t* buffer);
 
-
-void uwb_process_incoming_frame(uwb_protocol_handler_t *handler,
-                                uint8_t *frame,
+void uwb_process_incoming_frame(uwb_protocol_handler_t* handler,
+                                uint8_t* frame,
                                 size_t frame_size,
                                 uint64_t rx_ts);
 
@@ -94,26 +93,24 @@ void uwb_process_incoming_frame(uwb_protocol_handler_t *handler,
  *
  * @returns Number of bytes in frame.
  */
-size_t uwb_protocol_prepare_anchor_position(uwb_protocol_handler_t *handler,
+size_t uwb_protocol_prepare_anchor_position(uwb_protocol_handler_t* handler,
                                             float x,
                                             float y,
                                             float z,
-                                            uint8_t *frame);
+                                            uint8_t* frame);
 
 /** Prepares a frame used to transmit a tag position.
  *
  * @returns Number of bytes in frame.
  */
-size_t uwb_protocol_prepare_tag_position(uwb_protocol_handler_t *handler,
+size_t uwb_protocol_prepare_tag_position(uwb_protocol_handler_t* handler,
                                          float x,
                                          float y,
-                                         uint8_t *frame);
+                                         uint8_t* frame);
 
-
-void uwb_initiate_measurement(uwb_protocol_handler_t *handler,
-                              uint8_t *buffer,
+void uwb_initiate_measurement(uwb_protocol_handler_t* handler,
+                              uint8_t* buffer,
                               uint16_t anchor_addr);
-
 
 /** @group UWB Board specific API
  *
@@ -128,7 +125,7 @@ void uwb_initiate_measurement(uwb_protocol_handler_t *handler,
  * @note if tx_timestamp is UWB_TX_TIMESTAMP_IMMEDIATE, the frame should be
  * transmitted as soon as possible.
  */
-extern void uwb_transmit_frame(uint64_t tx_timestamp, uint8_t *frame, size_t frame_size);
+extern void uwb_transmit_frame(uint64_t tx_timestamp, uint8_t* frame, size_t frame_size);
 
 /** Reads the current value of the UWB module clock. */
 extern uint64_t uwb_timestamp_get(void);

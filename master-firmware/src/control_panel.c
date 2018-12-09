@@ -29,11 +29,11 @@ void control_panel_init(bool is_active_high)
 {
     active_high = is_active_high;
 
-    for (unsigned i = 0; i < sizeof(output_pins)/sizeof(output_pins[0]); i++) {
+    for (unsigned i = 0; i < sizeof(output_pins) / sizeof(output_pins[0]); i++) {
         palSetPadMode(output_pins[i].port, output_pins[i].pin, PAL_MODE_OUTPUT_PUSHPULL);
     }
 
-    for (unsigned i = 0; i < sizeof(input_pins)/sizeof(input_pins[0]); i++) {
+    for (unsigned i = 0; i < sizeof(input_pins) / sizeof(input_pins[0]); i++) {
         if (active_high) {
             palSetPadMode(input_pins[i].port, input_pins[i].pin, PAL_MODE_INPUT_PULLUP);
         } else {

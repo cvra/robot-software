@@ -3,7 +3,7 @@
 #include "DigitalInput_pub.hpp"
 #include <cvra/io/DigitalInput.hpp>
 
-void read_inputs(bool *result)
+void read_inputs(bool* result)
 {
     // Workaround the lack of inputs
     palSetPadMode(GPIOB, GPIOB_DEBUG_RX, PAL_STM32_MODE_INPUT);
@@ -19,7 +19,7 @@ void read_inputs(bool *result)
     result[7] = palReadPad(GPIOB, GPIOB_DEBUG_RX);
 }
 
-void digital_input_publish(uavcan::INode &node)
+void digital_input_publish(uavcan::INode& node)
 {
     static uavcan::Publisher<cvra::io::DigitalInput> pub(node);
 

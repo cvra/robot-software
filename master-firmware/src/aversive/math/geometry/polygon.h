@@ -38,8 +38,8 @@ extern "C" {
  * algorithms to work.
  */
 typedef struct _poly {
-    point_t * pts;  /**< Array of corner-points */
-    int l;      /**< Length of the array of points */
+    point_t* pts; /**< Array of corner-points */
+    int l; /**< Length of the array of points */
 } poly_t;
 
 /** Checks if a point belongs to a polygon
@@ -48,7 +48,7 @@ typedef struct _poly {
  * @return 0 if outside, 1 if inside, 2 if on edge.
  * @sa is_point_in_poly
  */
-int is_in_poly(const point_t *p, poly_t *pol);
+int is_in_poly(const point_t* p, poly_t* pol);
 
 /** Checks if a point belongs to a polygon
  * @param [in] *pol Polygon to check
@@ -57,7 +57,7 @@ int is_in_poly(const point_t *p, poly_t *pol);
  * @return 0 if outside, 1 if inside, 2 if on edge.
  * @sa is_in_poly
  */
-int is_point_in_poly(poly_t *pol, int16_t x, int16_t y);
+int is_point_in_poly(poly_t* pol, int16_t x, int16_t y);
 
 /** Checks if a segment is crossing a polygon
  * @param [in] p1, p2 The two points defining the segment.
@@ -66,9 +66,7 @@ int is_point_in_poly(poly_t *pol, int16_t x, int16_t y);
  * @returns 0 dont cross, 1 cross, 2 on a side,
  *  3 touch out (a segment boundary is on a polygon edge,
  *  and the second segment boundary is out of the polygon) */
-int
-is_crossing_poly(point_t p1, point_t p2, point_t *intersect_pt,
-                 poly_t *pol);
+int is_crossing_poly(point_t p1, point_t p2, point_t* intersect_pt, poly_t* pol);
 
 /** Set coordinates of bounding box.
  * @param [in] x1 x-coordinate bottom-left corner
@@ -81,7 +79,7 @@ void polygon_set_boundingbox(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 /** Checks if a point is in the bounding box.
  * @param [in] *p Point to check
  * @return 1 if p is in the bounding box. */
-int is_in_boundingbox(const point_t *p);
+int is_in_boundingbox(const point_t* p);
 
 /** @brief Constructs the visibility ray graph.
  *
@@ -106,8 +104,7 @@ int is_in_boundingbox(const point_t *p);
  * @return Number of rays
  */
 
-int
-calc_rays(poly_t *polys, int npolys, int *rays);
+int calc_rays(poly_t* polys, int npolys, int* rays);
 
 /** Compute the weight of every rays: the length of the rays is used
  * here.
@@ -121,9 +118,7 @@ calc_rays(poly_t *polys, int npolys, int *rays);
  * @param [in] ray_n Number of rays in the array
  * @param [out] *weight List of the weights of each ray
  * */
-void
-calc_rays_weight(poly_t *polys, int npolys, int *rays,
-                 int ray_n, int *weight);
+void calc_rays_weight(poly_t* polys, int npolys, int* rays, int ray_n, int* weight);
 
 #ifdef __cplusplus
 }

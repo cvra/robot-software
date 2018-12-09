@@ -63,11 +63,10 @@ extern "C" {
 #include <math/geometry/lines.h>
 #include <math/geometry/circles.h>
 
-#define MAX_POLY 20        /**< The maximal number of obstacles in the area. */
-#define MAX_PTS 200         /**< The maximal number of polygon vertices. */
-#define MAX_RAYS 1000       /**< The maximal number of rays. */
-#define MAX_CHKPOINTS 100   /**< Maximal length of the path. */
-
+#define MAX_POLY 20 /**< The maximal number of obstacles in the area. */
+#define MAX_PTS 200 /**< The maximal number of polygon vertices. */
+#define MAX_RAYS 1000 /**< The maximal number of rays. */
+#define MAX_CHKPOINTS 100 /**< Maximal length of the path. */
 
 /** @struct obstacle_avoidance
  * @brief Instance of the obstacle avoidance system.
@@ -96,7 +95,7 @@ extern "C" {
  * (in the oa_poly_t structure)
  */
 struct obstacle_avoidance {
-    poly_t polys[MAX_POLY];  /**< Array of polygons (obstacles). */
+    poly_t polys[MAX_POLY]; /**< Array of polygons (obstacles). */
     point_t points[MAX_PTS]; /**< Array of points, referenced by polys */
     int valid[MAX_PTS]; /**< Used by the Dijkstra algorithm to say if a point was visited. */
     int32_t pweight[MAX_PTS]; /**< Weight of a point in Dijkstra. */
@@ -117,7 +116,7 @@ struct obstacle_avoidance {
 void oa_init(void);
 
 /** Copies the obstacle avoidance state */
-void oa_copy(struct obstacle_avoidance *copy);
+void oa_copy(struct obstacle_avoidance* copy);
 
 /** Set the start and destination point. */
 void oa_start_end_points(int32_t st_x, int32_t st_y, int32_t en_x, int32_t en_y);
@@ -127,7 +126,7 @@ void oa_start_end_points(int32_t st_x, int32_t st_y, int32_t en_x, int32_t en_y)
  * @return NULL on error.
  * @return Adress of the polygon if OK.
  */
-poly_t *oa_new_poly(int size);
+poly_t* oa_new_poly(int size);
 void oa_new_poly_(int size, poly_t* poly);
 void oa_add_poly_obstacle(circle_t circle, int samples, float angle_offset);
 void oa_get_poly(int i, poly_t* poly);
@@ -140,8 +139,7 @@ void oa_dump(void);
  * @param [in] x,y The coordinates of the point, in mm.
  * @param [in] i The index of the point.
  */
-void oa_poly_set_point(poly_t *pol, int32_t x, int32_t y, int i);
-
+void oa_poly_set_point(poly_t* pol, int32_t x, int32_t y, int i);
 
 /** Processes the path.
  * @returns The number of points in the path on sucess
@@ -153,8 +151,7 @@ int8_t oa_process(void);
  *
  * @returns An array of points, giving the path from start to end.
  */
-int oa_get_path(point_t **path);
-
+int oa_get_path(point_t** path);
 
 /** Checks if a segment is intersecting any obstacle.
  * @param [in] p1, p2 THe two points defining the segment.

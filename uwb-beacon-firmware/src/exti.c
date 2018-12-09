@@ -6,7 +6,7 @@
 EVENTSOURCE_DECL(imu_event);
 EVENTSOURCE_DECL(uwb_event);
 
-static void imu_cb(void *arg)
+static void imu_cb(void* arg)
 {
     (void)arg;
 
@@ -17,7 +17,7 @@ static void imu_cb(void *arg)
     chSysUnlockFromISR();
 }
 
-static void uwb_cb(void *arg)
+static void uwb_cb(void* arg)
 {
     (void)arg;
     trace(TRACE_POINT_UWB_IRQ);

@@ -24,9 +24,9 @@ typedef struct {
 void hand_init(hand_t* hand);
 
 /* Set pump driver callback */
-void hand_set_pump_callback(hand_t *hand,
-                            void (*set_pump_voltage)(void *, float),
-                            void *pump_args);
+void hand_set_pump_callback(hand_t* hand,
+                            void (*set_pump_voltage)(void*, float),
+                            void* pump_args);
 
 /* Set pump position of a hand */
 void hand_set_pump(hand_t* hand, pump_state_t state);

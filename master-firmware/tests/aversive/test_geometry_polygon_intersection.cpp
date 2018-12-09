@@ -3,8 +3,7 @@
 #include <iostream>
 #include <CppUTest/TestHarness.h>
 
-TEST_GROUP(SegmentIntersection)
-{
+TEST_GROUP (SegmentIntersection) {
 };
 
 TEST(SegmentIntersection, DoNotIntersectWhenParallel)
@@ -53,9 +52,7 @@ TEST(SegmentIntersection, Colinear)
     CHECK_EQUAL(3, res);
 }
 
-
-TEST_GROUP(PolygonIntersection)
-{
+TEST_GROUP (PolygonIntersection) {
     poly_t poly;
     point_t poly_points[4];
 
@@ -107,8 +104,7 @@ TEST(PolygonIntersection, Cross)
     CHECK_EQUAL(1, res);
 }
 
-TEST_GROUP(RayCastingTestGroup)
-{
+TEST_GROUP (RayCastingTestGroup) {
     poly_t polygons[5];
     point_t obstacle[4];
 

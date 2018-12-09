@@ -4,17 +4,17 @@
 
 float periodic_error(float err)
 {
-    err = fmodf(err, 2*M_PI);
+    err = fmodf(err, 2 * M_PI);
     if (err > M_PI) {
-        return err - 2*M_PI;
+        return err - 2 * M_PI;
     }
     if (err < -M_PI) {
-        return err + 2*M_PI;
+        return err + 2 * M_PI;
     }
     return err;
 }
 
-void pid_cascade_control(struct pid_cascade_s *ctrl)
+void pid_cascade_control(struct pid_cascade_s* ctrl)
 {
     // position control
     float pos_ctrl_vel;
@@ -55,4 +55,3 @@ void pid_cascade_control(struct pid_cascade_s *ctrl)
     ctrl->current_error = ctrl->current - current_setpt;
     ctrl->motor_voltage = pid_process(&ctrl->current_pid, ctrl->current_error);
 }
-

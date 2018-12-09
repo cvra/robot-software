@@ -17,7 +17,7 @@ static void scara_unlock(mutex_t* mutex)
     chMtxUnlock(mutex);
 }
 
-void scara_init(scara_t *arm)
+void scara_init(scara_t* arm)
 {
     memset(arm, 0, sizeof(scara_t));
 
@@ -33,7 +33,7 @@ void scara_init(scara_t *arm)
     chMtxObjectInit(&arm->lock);
 }
 
-void scara_set_physical_parameters(scara_t *arm, float upperarm_length, float forearm_length)
+void scara_set_physical_parameters(scara_t* arm, float upperarm_length, float forearm_length)
 {
     arm->length[0] = upperarm_length;
     arm->length[1] = forearm_length;
@@ -61,11 +61,10 @@ void scara_control_mode_disabled(scara_t* arm)
     arm->control_mode = CONTROL_DISABLED;
 }
 
-
 void scara_hold_position(scara_t* arm, scara_coordinate_t system)
 {
     position_3d_t current_pos = scara_position(arm, system);
-    velocity_3d_t max_vel = {.x=300, .y=300, .z=1000};
+    velocity_3d_t max_vel = {.x = 300, .y = 300, .z = 1000};
     scara_goto(arm, current_pos, system, max_vel);
 }
 
@@ -83,7 +82,7 @@ void scara_move_z(scara_t* arm, float z_new, scara_coordinate_t system, float ma
 {
     position_3d_t pos = scara_position(arm, system);
     pos.z = z_new;
-    velocity_3d_t max_vel = {.x=0, .y=0, .z=max_vel_z};
+    velocity_3d_t max_vel = {.x = 0, .y = 0, .z = max_vel_z};
     scara_goto(arm, pos, system, max_vel);
 }
 
@@ -97,8 +96,7 @@ position_3d_t scara_position(scara_t* arm, scara_coordinate_t system)
     } else if (system == COORDINATE_TABLE) {
         pos = scara_coordinate_arm2robot(pos, arm->offset_xy, arm->offset_rotation);
 
-        point_t robot_xy = {.x = position_get_x_float(arm->robot_pos), .y = position_get_y_float(
-                                arm->robot_pos)};
+        point_t robot_xy = {.x = position_get_x_float(arm->robot_pos), .y = position_get_y_float(arm->robot_pos)};
         float robot_a = position_get_a_rad_float(arm->robot_pos);
 
         pos = scara_coordinate_robot2table(pos, robot_xy, robot_a);
@@ -108,14 +106,14 @@ position_3d_t scara_position(scara_t* arm, scara_coordinate_t system)
     return position;
 }
 
-void scara_do_trajectory(scara_t *arm, scara_trajectory_t *traj)
+void scara_do_trajectory(scara_t* arm, scara_trajectory_t* traj)
 {
     scara_lock(&arm->lock);
     scara_trajectory_copy(&arm->trajectory, traj);
     scara_unlock(&arm->lock);
 }
 
-void scara_manage(scara_t *arm)
+void scara_manage(scara_t* arm)
 {
     int32_t current_date = scara_time_get() + arm->time_offset;
 
@@ -156,7 +154,7 @@ void scara_manage(scara_t *arm)
     scara_unlock(&arm->lock);
 }
 
-static scara_waypoint_t scara_convert_waypoint_coordinate(scara_t *arm, scara_waypoint_t key)
+static scara_waypoint_t scara_convert_waypoint_coordinate(scara_t* arm, scara_waypoint_t key)
 {
     point_t pos = {.x = key.position.x, .y = key.position.y};
 
@@ -178,7 +176,7 @@ static scara_waypoint_t scara_convert_waypoint_coordinate(scara_t *arm, scara_wa
     return key;
 }
 
-scara_waypoint_t scara_position_for_date(scara_t *arm, int32_t date)
+scara_waypoint_t scara_position_for_date(scara_t* arm, int32_t date)
 {
     int i = 0;
     scara_waypoint_t k1, k2;
@@ -199,12 +197,12 @@ scara_waypoint_t scara_position_for_date(scara_t *arm, int32_t date)
     return scara_trajectory_interpolate_waypoints(k1, k2, date);
 }
 
-void scara_set_related_robot_pos(scara_t *arm, struct robot_position *pos)
+void scara_set_related_robot_pos(scara_t* arm, struct robot_position* pos)
 {
     arm->robot_pos = pos;
 }
 
-void scara_shutdown(scara_t *arm)
+void scara_shutdown(scara_t* arm)
 {
     scara_trajectory_delete(&arm->trajectory);
 }

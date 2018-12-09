@@ -14,9 +14,9 @@ using TagPosition = cvra::uwb_beacon::TagPosition;
 TOPIC_DECL(allied_position_topic, AlliedPosition);
 TOPIC_DECL(last_panel_contact_topic, Timestamp);
 
-static uavcan::LazyConstructor<uavcan::Publisher<TagPosition> > publisher;
+static uavcan::LazyConstructor<uavcan::Publisher<TagPosition>> publisher;
 
-static void position_cb(const uavcan::ReceivedDataStructure<TagPosition> &msg)
+static void position_cb(const uavcan::ReceivedDataStructure<TagPosition>& msg)
 {
     AlliedPosition pos;
     pos.x = msg.x;
@@ -33,7 +33,7 @@ static void position_cb(const uavcan::ReceivedDataStructure<TagPosition> &msg)
     }
 }
 
-int uwb_position_handler_init(uavcan::INode &node)
+int uwb_position_handler_init(uavcan::INode& node)
 {
     messagebus_advertise_topic(&bus, &allied_position_topic.topic, "/allied_position");
     messagebus_advertise_topic(&bus, &last_panel_contact_topic.topic, "/panel_contact_us");
@@ -45,12 +45,11 @@ int uwb_position_handler_init(uavcan::INode &node)
         return res;
     }
 
-    publisher.construct<uavcan::INode &>(node);
+    publisher.construct<uavcan::INode&>(node);
 
     static uavcan::Timer periodic_timer(node);
-    periodic_timer.setCallback([](const uavcan::TimerEvent &event)
-    {
-        (void) event;
+    periodic_timer.setCallback([](const uavcan::TimerEvent& event) {
+        (void)event;
         TagPosition msg;
         msg.x = position_get_x_double(&robot.pos);
         msg.y = position_get_y_double(&robot.pos);

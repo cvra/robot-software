@@ -2,7 +2,6 @@
 
 #include "lie_groups.h"
 
-
 so2_t so2_create(float angle)
 {
     so2_t rotation = {.angle = angle};
@@ -24,7 +23,7 @@ point_t so2_rotate(so2_t rotation, point_t point)
 
 point_t so2_inverse_rotate(so2_t rotation, point_t point)
 {
-    return so2_rotate(so2_create(- rotation.angle), point);
+    return so2_rotate(so2_create(-rotation.angle), point);
 }
 
 vect_t translation_2d(float x, float y)
@@ -83,9 +82,9 @@ se2_t se2_inverse(se2_t transform)
     translation = so2_inverse_rotate(transform.rotation, translation);
 
     se2_t res;
-    res.rotation.angle = - transform.rotation.angle;
-    res.translation.x = - translation.x;
-    res.translation.y = - translation.y;
+    res.rotation.angle = -transform.rotation.angle;
+    res.translation.x = -translation.x;
+    res.translation.y = -translation.y;
 
     return res;
 }

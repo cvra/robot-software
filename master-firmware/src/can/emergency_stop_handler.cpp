@@ -5,11 +5,11 @@
 
 static void emergency_stop_cb(const uavcan::ReceivedDataStructure<cvra::motor::EmergencyStop>& msg)
 {
-    (void) msg;
+    (void)msg;
     NVIC_SystemReset();
 }
 
-int emergency_stop_init(uavcan::INode &node)
+int emergency_stop_init(uavcan::INode& node)
 {
     uavcan::Subscriber<cvra::motor::EmergencyStop> emergency_stop_sub(node);
     return emergency_stop_sub.start(emergency_stop_cb);

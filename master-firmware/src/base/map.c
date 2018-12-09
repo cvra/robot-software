@@ -6,8 +6,14 @@
 #define TABLE_POINT_X(x) math_clamp_value(x, 0, MAP_SIZE_X_MM)
 #define TABLE_POINT_Y(y) math_clamp_value(y, 0, MAP_SIZE_Y_MM)
 
-static void map_lock(mutex_t *lock) { chMtxLock(lock); }
-static void map_unlock(mutex_t *lock) { chMtxUnlock(lock); }
+static void map_lock(mutex_t* lock)
+{
+    chMtxLock(lock);
+}
+static void map_unlock(mutex_t* lock)
+{
+    chMtxUnlock(lock);
+}
 
 void map_init(struct _map* map, int robot_size)
 {
@@ -16,8 +22,8 @@ void map_init(struct _map* map, int robot_size)
     chMtxObjectInit(&map->lock);
 
     /* Define table borders */
-    polygon_set_boundingbox(robot_size/2, robot_size/2,
-                            MAP_SIZE_X_MM - robot_size/2, MAP_SIZE_Y_MM - robot_size/2);
+    polygon_set_boundingbox(robot_size / 2, robot_size / 2,
+                            MAP_SIZE_X_MM - robot_size / 2, MAP_SIZE_Y_MM - robot_size / 2);
 
     /* Add ally obstacle at origin */
     map->ally = oa_new_poly(MAP_NUM_ALLY_EDGES);
@@ -44,10 +50,10 @@ void map_init(struct _map* map, int robot_size)
     for (int i = 0; i < MAP_NUM_WATER_DISPENSER; i++) {
         map->water_dispenser[i] = oa_new_poly(MAP_NUM_WATER_DISPENSER_EDGES);
     }
-    map_set_rectangular_obstacle(map->water_dispenser[0],   50,  840, 120,  60, robot_size);
-    map_set_rectangular_obstacle(map->water_dispenser[1], 2950,  840, 120,  60, robot_size);
-    map_set_rectangular_obstacle(map->water_dispenser[2],  610, 1950,  60, 120, robot_size);
-    map_set_rectangular_obstacle(map->water_dispenser[3], 2390, 1950,  60, 120, robot_size);
+    map_set_rectangular_obstacle(map->water_dispenser[0], 50, 840, 120, 60, robot_size);
+    map_set_rectangular_obstacle(map->water_dispenser[1], 2950, 840, 120, 60, robot_size);
+    map_set_rectangular_obstacle(map->water_dispenser[2], 610, 1950, 60, 120, robot_size);
+    map_set_rectangular_obstacle(map->water_dispenser[3], 2390, 1950, 60, 120, robot_size);
 
     /* Setup tower obstacles */
     for (int i = 0; i < MAP_NUM_TOWERS; i++) {
@@ -61,7 +67,7 @@ void map_set_ally_obstacle(struct _map* map, int32_t x, int32_t y, int32_t ally_
     circle_t ally;
     ally.x = x;
     ally.y = y;
-    ally.r = MAP_ALLY_SIZE_FACTOR * (robot_size + ally_size)/2;
+    ally.r = MAP_ALLY_SIZE_FACTOR * (robot_size + ally_size) / 2;
     map_lock(&map->lock);
     discretize_circle(map->ally, ally, MAP_NUM_ALLY_EDGES, 0);
     map_unlock(&map->lock);
@@ -122,8 +128,7 @@ void map_set_cubes_obstacle(struct _map* map, int index, int x, int y, int robot
     map_unlock(&map->lock);
 }
 
-void map_set_tower_obstacle(struct _map *map, int index, int x, int y,
-                            int robot_size)
+void map_set_tower_obstacle(struct _map* map, int index, int x, int y, int robot_size)
 {
     map_lock(&map->lock);
     map_set_rectangular_obstacle(map->tower[index], x, y, MAP_TOWER_SIZE, MAP_TOWER_SIZE, robot_size);

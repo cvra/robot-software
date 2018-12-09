@@ -3,6 +3,6 @@
 
 #include "uavcan_node.h"
 
-int position_handler_init(Node &node);
+int position_handler_init(Node& node);
 
 #endif

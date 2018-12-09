@@ -21,7 +21,7 @@ void parameter_port_assert(int condition)
     chDbgAssert(condition, __FUNCTION__);
 }
 
-void *parameter_port_buffer_alloc(size_t size)
+void* parameter_port_buffer_alloc(size_t size)
 {
     parameter_port_lock();
     parameter_port_assert(buffer_allocated == 0);
@@ -32,7 +32,7 @@ void *parameter_port_buffer_alloc(size_t size)
     return buffer;
 }
 
-void parameter_port_buffer_free(void *p)
+void parameter_port_buffer_free(void* p)
 {
     parameter_port_lock();
     parameter_port_assert(buffer_allocated == 1);
@@ -40,5 +40,3 @@ void parameter_port_buffer_free(void *p)
     buffer_allocated = 0;
     parameter_port_unlock();
 }
-
-

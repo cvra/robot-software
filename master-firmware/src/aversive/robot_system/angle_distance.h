@@ -44,7 +44,7 @@ struct rs_polar {
  * @param [in] w_src The source state, in left / right format.
  * @param [out] p_dst The destination state, in distance / angle format.
  */
-void rs_get_polar_from_wheels(struct rs_polar * p_dst, struct rs_wheels * w_src);
+void rs_get_polar_from_wheels(struct rs_polar* p_dst, struct rs_wheels* w_src);
 
 /** @brief Converts the state of two encoders or pwm.
  *
@@ -53,6 +53,6 @@ void rs_get_polar_from_wheels(struct rs_polar * p_dst, struct rs_wheels * w_src)
  * @param [in] p_src The source state in distance / angle format.
  * @param [out] The destination state in left / right format.
  */
-void rs_get_wheels_from_polar(struct rs_wheels * w_dst, struct rs_polar * p_src);
+void rs_get_wheels_from_polar(struct rs_wheels* w_dst, struct rs_polar* p_src);
 
 #endif

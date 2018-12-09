@@ -9,9 +9,8 @@ extern "C" {
 #include "robot_helpers/math_helpers.h"
 #include "robot_helpers/strategy_helpers.h"
 
-TEST_GROUP(ACubePositionComputer)
-{
-    void POINT_EQUAL(point_t lhs, point_t rhs, double tolerance=0.01)
+TEST_GROUP (ACubePositionComputer) {
+    void POINT_EQUAL(point_t lhs, point_t rhs, double tolerance = 0.01)
     {
         DOUBLES_EQUAL(lhs.x, rhs.x, tolerance);
         DOUBLES_EQUAL(lhs.y, rhs.y, tolerance);
@@ -22,22 +21,22 @@ TEST(ACubePositionComputer, FindsPositionOfTrivialBlocksPose)
 {
     se2_t cubes_pose = se2_create_xya(0, 0, RADIANS(0));
 
-    POINT_EQUAL({  0,   0}, strategy_cube_pos(cubes_pose, CUBE_YELLOW, YELLOW));
-    POINT_EQUAL({-60,   0}, strategy_cube_pos(cubes_pose, CUBE_GREEN, YELLOW));
-    POINT_EQUAL({  0,  60}, strategy_cube_pos(cubes_pose, CUBE_BLUE, YELLOW));
-    POINT_EQUAL({ 60,   0}, strategy_cube_pos(cubes_pose, CUBE_ORANGE, YELLOW));
-    POINT_EQUAL({  0, -60}, strategy_cube_pos(cubes_pose, CUBE_BLACK, YELLOW));
+    POINT_EQUAL({0, 0}, strategy_cube_pos(cubes_pose, CUBE_YELLOW, YELLOW));
+    POINT_EQUAL({-60, 0}, strategy_cube_pos(cubes_pose, CUBE_GREEN, YELLOW));
+    POINT_EQUAL({0, 60}, strategy_cube_pos(cubes_pose, CUBE_BLUE, YELLOW));
+    POINT_EQUAL({60, 0}, strategy_cube_pos(cubes_pose, CUBE_ORANGE, YELLOW));
+    POINT_EQUAL({0, -60}, strategy_cube_pos(cubes_pose, CUBE_BLACK, YELLOW));
 }
 
 TEST(ACubePositionComputer, FindsMirroredPositionOfTrivialBlocksPose)
 {
     se2_t cubes_pose = se2_create_xya(0, 0, RADIANS(0));
 
-    POINT_EQUAL({  0,   0}, strategy_cube_pos(cubes_pose, CUBE_YELLOW, BLUE));
-    POINT_EQUAL({ 60,   0}, strategy_cube_pos(cubes_pose, CUBE_GREEN, BLUE));
-    POINT_EQUAL({  0,  60}, strategy_cube_pos(cubes_pose, CUBE_BLUE, BLUE));
-    POINT_EQUAL({-60,   0}, strategy_cube_pos(cubes_pose, CUBE_ORANGE, BLUE));
-    POINT_EQUAL({  0, -60}, strategy_cube_pos(cubes_pose, CUBE_BLACK, BLUE));
+    POINT_EQUAL({0, 0}, strategy_cube_pos(cubes_pose, CUBE_YELLOW, BLUE));
+    POINT_EQUAL({60, 0}, strategy_cube_pos(cubes_pose, CUBE_GREEN, BLUE));
+    POINT_EQUAL({0, 60}, strategy_cube_pos(cubes_pose, CUBE_BLUE, BLUE));
+    POINT_EQUAL({-60, 0}, strategy_cube_pos(cubes_pose, CUBE_ORANGE, BLUE));
+    POINT_EQUAL({0, -60}, strategy_cube_pos(cubes_pose, CUBE_BLACK, BLUE));
 }
 
 TEST(ACubePositionComputer, FindsPositionOfNonTrivialBlocksPose)
@@ -45,23 +44,22 @@ TEST(ACubePositionComputer, FindsPositionOfNonTrivialBlocksPose)
     se2_t cubes_pose = se2_create_xya(100, 200, RADIANS(45));
     float offset = 60.f / sqrtf(2);
 
-    POINT_EQUAL({100,          200         }, strategy_cube_pos(cubes_pose, CUBE_YELLOW, BLUE));
+    POINT_EQUAL({100, 200}, strategy_cube_pos(cubes_pose, CUBE_YELLOW, BLUE));
     POINT_EQUAL({100 + offset, 200 + offset}, strategy_cube_pos(cubes_pose, CUBE_GREEN, BLUE));
     POINT_EQUAL({100 - offset, 200 + offset}, strategy_cube_pos(cubes_pose, CUBE_BLUE, BLUE));
     POINT_EQUAL({100 - offset, 200 - offset}, strategy_cube_pos(cubes_pose, CUBE_ORANGE, BLUE));
     POINT_EQUAL({100 + offset, 200 - offset}, strategy_cube_pos(cubes_pose, CUBE_BLACK, BLUE));
 }
 
-TEST_GROUP(ABlockPositionComputer)
-{
+TEST_GROUP (ABlockPositionComputer) {
     se2_t poses[4] = {
         se2_create_xya(850 - 160, 540 - 160, -45),
-        se2_create_xya(850 + 160, 540 - 160,  45),
+        se2_create_xya(850 + 160, 540 - 160, 45),
         se2_create_xya(850 + 160, 540 + 160, 135),
         se2_create_xya(850 - 160, 540 + 160, 225),
     };
 
-    void SE2_EQUAL(se2_t lhs, se2_t rhs, double tolerance=0.01)
+    void SE2_EQUAL(se2_t lhs, se2_t rhs, double tolerance = 0.01)
     {
         DOUBLES_EQUAL(lhs.translation.x, rhs.translation.x, tolerance);
         DOUBLES_EQUAL(lhs.translation.y, rhs.translation.y, tolerance);
@@ -121,8 +119,7 @@ TEST(ABlockPositionComputer, FindsClosestPositionToCubesCase4)
     SE2_EQUAL(poses[1], candidates[3]);
 }
 
-TEST_GROUP(ADistanceToTargetPosition)
-{
+TEST_GROUP (ADistanceToTargetPosition) {
     void setup()
     {
         oa_init();
@@ -163,12 +160,11 @@ TEST(ADistanceToTargetPosition, ComputesPathLengthAroundObstacle)
 
     float distance = strategy_distance_to_goal(pos, goal);
 
-    float expected_distance = sqrtf(powf(600-200 ,2) + powf(400-200 ,2)) + sqrtf(powf(800-600 ,2) + powf(800-400 ,2));
+    float expected_distance = sqrtf(powf(600 - 200, 2) + powf(400 - 200, 2)) + sqrtf(powf(800 - 600, 2) + powf(800 - 400, 2));
     DOUBLES_EQUAL(expected_distance, distance, 0.01);
 }
 
-TEST_GROUP(AShoulderModeSelector)
-{
+TEST_GROUP (AShoulderModeSelector) {
 };
 
 TEST(AShoulderModeSelector, SelectsSameModeOnYellow)
@@ -183,8 +179,7 @@ TEST(AShoulderModeSelector, MirrorsModeOnBlue)
     CHECK_EQUAL(SHOULDER_BACK, MIRROR_SHOULDER(BLUE, SHOULDER_FRONT));
 }
 
-TEST_GROUP(ALeverSideSelector)
-{
+TEST_GROUP (ALeverSideSelector) {
 };
 
 TEST(ALeverSideSelector, SelectsSameModeOnYellow)

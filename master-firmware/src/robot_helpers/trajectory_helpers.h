@@ -15,20 +15,19 @@ extern "C" {
 /** Duration of a game in seconds. */
 #define GAME_DURATION 100
 
-#define TRAJ_MIN_DISTANCE_TO_OPPONENT           0.9f  // we stop if there is 60cm or less to opponent
-#define TRAJ_MIN_DIRECTION_TO_OPPONENT          0.5f  // defines cone in which to consider opponents (cone is double the angle in size)
-#define TRAJ_MAX_TIME_DELAY_OPPONENT_DETECTION  0.25f // if delay bigger that this, beacon signal is discarded
-#define TRAJ_MAX_TIME_DELAY_ALLY_DETECTION      1.0f  // if delay bigger that this, ally position is discarded
+#define TRAJ_MIN_DISTANCE_TO_OPPONENT 0.9f // we stop if there is 60cm or less to opponent
+#define TRAJ_MIN_DIRECTION_TO_OPPONENT 0.5f // defines cone in which to consider opponents (cone is double the angle in size)
+#define TRAJ_MAX_TIME_DELAY_OPPONENT_DETECTION 0.25f // if delay bigger that this, beacon signal is discarded
+#define TRAJ_MAX_TIME_DELAY_ALLY_DETECTION 1.0f // if delay bigger that this, ally position is discarded
 
-#define TRAJ_END_GOAL_REACHED   (1 << 0)
-#define TRAJ_END_COLLISION      (1 << 1)
-#define TRAJ_END_OPPONENT_NEAR  (1 << 2)
-#define TRAJ_END_TIMER          (1 << 3)
-#define TRAJ_END_ALLY_NEAR      (1 << 4)
-#define TRAJ_END_NEAR_GOAL      (1 << 5)
+#define TRAJ_END_GOAL_REACHED (1 << 0)
+#define TRAJ_END_COLLISION (1 << 1)
+#define TRAJ_END_OPPONENT_NEAR (1 << 2)
+#define TRAJ_END_TIMER (1 << 3)
+#define TRAJ_END_ALLY_NEAR (1 << 4)
+#define TRAJ_END_NEAR_GOAL (1 << 5)
 
-#define TRAJ_FLAGS_ALL (TRAJ_END_GOAL_REACHED | TRAJ_END_COLLISION | TRAJ_END_OPPONENT_NEAR | \
-                        TRAJ_END_TIMER | TRAJ_END_ALLY_NEAR)
+#define TRAJ_FLAGS_ALL (TRAJ_END_GOAL_REACHED | TRAJ_END_COLLISION | TRAJ_END_OPPONENT_NEAR | TRAJ_END_TIMER | TRAJ_END_ALLY_NEAR)
 
 #define TRAJ_FLAGS_SHORT_DISTANCE (TRAJ_END_GOAL_REACHED | TRAJ_END_TIMER)
 #define TRAJ_FLAGS_ROTATION (TRAJ_END_GOAL_REACHED | TRAJ_END_COLLISION | TRAJ_END_TIMER)
@@ -98,7 +97,6 @@ int trajectory_get_time_ms(void);
 /** Tell if time is up
  */
 bool trajectory_game_has_ended(void);
-
 
 #ifdef __cplusplus
 }

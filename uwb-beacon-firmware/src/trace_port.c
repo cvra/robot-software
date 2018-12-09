@@ -21,6 +21,5 @@ extern int32_t trace_timestamp_ms_get(void)
 #undef C
 #define C(x) #x,
 
-const char *trace_point_names[] = {
-    TRACE_POINTS
-};
+const char* trace_point_names[] = {
+    TRACE_POINTS};

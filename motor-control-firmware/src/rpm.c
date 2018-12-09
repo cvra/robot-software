@@ -35,7 +35,6 @@ float rpm_get_position(void)
         // can't handle non-constant speed -> return 0 'till next barrier crossing
         return 0;
     }
-
 }
 
 float rpm_get_velocity(void)
@@ -55,7 +54,7 @@ float rpm_get_velocity(void)
     }
 }
 
-void rpm_get_velocity_and_position(float *velocity, float *position)
+void rpm_get_velocity_and_position(float* velocity, float* position)
 {
     timestamp_t t = timestamp_get();
     RPM_LOCK();

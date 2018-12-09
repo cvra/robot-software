@@ -22,7 +22,6 @@
 #include <math.h>
 #include <stdint.h>
 
-
 #include "math/geometry/vect_base.h"
 #include "math/geometry/circles.h"
 
@@ -31,7 +30,7 @@ static inline float sq(float x)
     return x * x;
 }
 
-int pt_is_inside_circle(const point_t *p, circle_t *c)
+int pt_is_inside_circle(const point_t* p, circle_t* c)
 {
     vect_t v;
     v.x = p->x - c->x;
@@ -52,13 +51,11 @@ int pt_is_inside_circle(const point_t *p, circle_t *c)
  *  p2 are dummy for 0 result. When result is 1, p1 and p2 are set to
  *  the same value.
  */
-int circle_intersect(const circle_t *c1, const circle_t *c2,
-                     point_t *p1, point_t *p2)
+int circle_intersect(const circle_t* c1, const circle_t* c2, point_t* p1, point_t* p2)
 {
     circle_t ca, cb;
     float a, b, c, d, e;
     int ret = 0;
-
 
     /* We have to assume that either delta_x or delta_y is not zero to avoid
      * the corner case of the two coincident circles. If we assume that, for
@@ -96,16 +93,14 @@ int circle_intersect(const circle_t *c1, const circle_t *c2,
     a = 2.0f * cb.x;
     b = 2.0f * cb.y;
     c = sq(cb.x) + sq(cb.y) - sq(cb.r) + sq(ca.r);
-    d = sq(2.0f * a * c) -
-        (4.0f * (sq(a) + sq(b)) * (sq(c) - sq(b) * sq(ca.r)));
+    d = sq(2.0f * a * c) - (4.0f * (sq(a) + sq(b)) * (sq(c) - sq(b) * sq(ca.r)));
 
     /* no intersection */
     if (d < 0.0f) {
         return 0;
     }
 
-
-    if (fabsf(b) <  0.0001f) {
+    if (fabsf(b) < 0.0001f) {
         /* special case */
         e = sq(cb.r) - sq((2.0f * c - sq(a)) / (2.0f * a));
 

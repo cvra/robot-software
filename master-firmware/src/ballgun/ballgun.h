@@ -35,18 +35,18 @@ typedef struct {
     ballgun_state_t state;
     ballgun_turbine_state_t turbine_state;
 
-    float servo_retracted_pwm;  // pwm duty cycle in seconds to retract servo
-    float servo_deployed_pwm;   // pwm duty cycle in seconds to deploy servo
+    float servo_retracted_pwm; // pwm duty cycle in seconds to retract servo
+    float servo_deployed_pwm; // pwm duty cycle in seconds to deploy servo
     float servo_deployed_fully_pwm; // pwm duty cycle in seconds to deploy servo fully
     float servo_deployed_charge_pwm; // pwm duty cycle in seconds to deploy servo before charge
 
-    float turbine_armed_pwm;    // pwm duty cycle in seconds to arm the turbine ESC
-    float turbine_charge_pwm;   // pwm duty cycle in seconds to charge by sucking up
-    float turbine_fire_pwm;     // pwm duty cycle in seconds to fire by sucking up
+    float turbine_armed_pwm; // pwm duty cycle in seconds to arm the turbine ESC
+    float turbine_charge_pwm; // pwm duty cycle in seconds to charge by sucking up
+    float turbine_fire_pwm; // pwm duty cycle in seconds to fire by sucking up
     float turbine_slowfire_pwm; // pwm duty cycle in seconds to slowfire by sucking up
 
-    float accelerator_charge;   // accelerator voltage to get balls in
-    float accelerator_fire;     // accelerator voltage to get balls out
+    float accelerator_charge; // accelerator voltage to get balls in
+    float accelerator_fire; // accelerator voltage to get balls out
     float accelerator_slowfire; // accelerator voltage to get balls out slowly
 
     mutex_t lock;
@@ -55,14 +55,13 @@ typedef struct {
 /* Initialize ballgun */
 void ballgun_init(ballgun_t* ballgun);
 void ballgun_set_servo_range(ballgun_t* ballgun, float retracted, float deployed, float deployed_fully, float deployed_charge);
-void ballgun_set_turbine_range(ballgun_t *ballgun, float armed, float charge, float fire, float slowfire);
-void ballgun_set_accelerator_range(ballgun_t *ballgun, float charge, float fire, float slowfire);
+void ballgun_set_turbine_range(ballgun_t* ballgun, float armed, float charge, float fire, float slowfire);
+void ballgun_set_accelerator_range(ballgun_t* ballgun, float charge, float fire, float slowfire);
 
 /* Actuator callbacks */
 void ballgun_set_callbacks(ballgun_t* ballgun, void (*set_ballgun)(void*, float), void* ballgun_args);
 void ballgun_set_turbine_callbacks(ballgun_t* ballgun, void (*set_turbine)(void*, float), void* turbine_args);
-void ballgun_set_accelerator_callbacks(ballgun_t* ballgun, void (*set_accelerator)(void*, float),
-                                       void* accelerator_args);
+void ballgun_set_accelerator_callbacks(ballgun_t* ballgun, void (*set_accelerator)(void*, float), void* accelerator_args);
 
 /* Deploy ballgun */
 void ballgun_deploy(ballgun_t* ballgun);

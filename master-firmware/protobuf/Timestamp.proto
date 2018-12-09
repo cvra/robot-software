@@ -2,8 +2,7 @@ syntax = "proto2";
 
 import "nanopb.proto";
 
-message Timestamp
-{
+message Timestamp {
     // Timestamp might not required a msgid but we use it quite a lot in the
     // tests
     option (nanopb_msgopt).msgid = 1;

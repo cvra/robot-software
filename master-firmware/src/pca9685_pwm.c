@@ -3,25 +3,25 @@
 #include <error/error.h>
 #include "pca9685_pwm.h"
 
-#define PCA9685_25MHZ_CLOCK     25000000 // Hz
-#define PCA9685_PRESCALER_MAX   256
-#define PWM_COUNT_MAX           4095
-#define PCA9685_NB_PWM          16
+#define PCA9685_25MHZ_CLOCK 25000000 // Hz
+#define PCA9685_PRESCALER_MAX 256
+#define PWM_COUNT_MAX 4095
+#define PCA9685_NB_PWM 16
 
-#define PCA9685_I2C_ADDR        0b01000000
+#define PCA9685_I2C_ADDR 0b01000000
 
-#define PCA9685_MODE1           0x00
-#define PCA9685_MODE2           0x01
-#define PCA9685_LED0_ON         0x06
-#define PCA9685_LED0_ON_L       0x06
-#define PCA9685_LED0_OFF        0x08
-#define PCA9685_LED0_OFF_L      0x08
-#define PCA9685_PRE_SCALE       0xFE
+#define PCA9685_MODE1 0x00
+#define PCA9685_MODE2 0x01
+#define PCA9685_LED0_ON 0x06
+#define PCA9685_LED0_ON_L 0x06
+#define PCA9685_LED0_OFF 0x08
+#define PCA9685_LED0_OFF_L 0x08
+#define PCA9685_PRE_SCALE 0xFE
 
-#define PCA9685_MODE1_SLEEP     (1 << 4)
-#define PCA9685_MODE1_AI        (1 << 5)
-#define PCA9685_MODE2_OUTDRV    (1 << 2)
-#define PCA9685_MODE2_OCH       (1 << 3)
+#define PCA9685_MODE1_SLEEP (1 << 4)
+#define PCA9685_MODE1_AI (1 << 5)
+#define PCA9685_MODE2_OUTDRV (1 << 2)
+#define PCA9685_MODE2_OCH (1 << 3)
 
 static float pca9685_pwm_period = 0.0;
 

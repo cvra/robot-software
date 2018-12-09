@@ -1,28 +1,27 @@
 #include "CppUTest/TestHarness.h"
 #include "bus_enumerator.h"
 
-#define SMALL_STR_ID    "bar"
-#define MEDIUM_STR_ID   "foo"
-#define LARGE_STR_ID    "zajebiscie"
+#define SMALL_STR_ID "bar"
+#define MEDIUM_STR_ID "foo"
+#define LARGE_STR_ID "zajebiscie"
 
-#define SMALL_CAN_ID    1
-#define MEDIUM_CAN_ID   13
-#define LARGE_CAN_ID    42
+#define SMALL_CAN_ID 1
+#define MEDIUM_CAN_ID 13
+#define LARGE_CAN_ID 42
 
 #define DRIVER_POINTER (void*)42
 
-TEST_GROUP(BusEnumeratorTestGroup)
-{
+TEST_GROUP (BusEnumeratorTestGroup) {
     bus_enumerator_t en;
 
     static const uint16_t buffer_len = 21;
-    bus_enumerator_entry_allocator *buffer = NULL;
+    bus_enumerator_entry_allocator* buffer = NULL;
 
     void setup(void)
     {
         // allocate the list of bus enumerators
         buffer = (struct bus_enumerator_entry_allocator*)
-                 malloc(buffer_len * sizeof(struct bus_enumerator_entry_allocator));
+            malloc(buffer_len * sizeof(struct bus_enumerator_entry_allocator));
         bus_enumerator_init(&en, buffer, buffer_len);
     }
 };
@@ -35,7 +34,6 @@ TEST(BusEnumeratorTestGroup, Init)
     CHECK_EQUAL(0, en.nb_entries_str_to_can);
     CHECK_EQUAL(0, en.nb_entries_can_to_str);
 }
-
 
 TEST(BusEnumeratorTestGroup, AddNode)
 {
@@ -50,7 +48,6 @@ TEST(BusEnumeratorTestGroup, AddNode)
 
 TEST(BusEnumeratorTestGroup, AddTwoNodes)
 {
-
     bus_enumerator_add_node(&en, SMALL_STR_ID, DRIVER_POINTER);
     bus_enumerator_add_node(&en, LARGE_STR_ID, DRIVER_POINTER);
 
@@ -218,18 +215,17 @@ TEST(BusEnumeratorTestGroup, GetStringId)
     STRCMP_EQUAL(MEDIUM_STR_ID, bus_enumerator_get_str_id(&en, MEDIUM_CAN_ID));
 }
 
-TEST_GROUP(BusEnumeratorBufferLengthTestGroup)
-{
+TEST_GROUP (BusEnumeratorBufferLengthTestGroup) {
     bus_enumerator_t en;
 
     static const uint16_t buffer_len = 2;
-    bus_enumerator_entry_allocator *buffer = NULL;
+    bus_enumerator_entry_allocator* buffer = NULL;
 
     void setup(void)
     {
         // allocate the list of bus enumerators
         buffer = (struct bus_enumerator_entry_allocator*)
-                 malloc(buffer_len * sizeof(struct bus_enumerator_entry_allocator));
+            malloc(buffer_len * sizeof(struct bus_enumerator_entry_allocator));
         bus_enumerator_init(&en, buffer, buffer_len);
     }
 };

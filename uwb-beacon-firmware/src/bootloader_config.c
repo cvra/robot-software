@@ -1,7 +1,7 @@
 #include <string.h>
 #include "bootloader_config.h"
 
-bool config_get(bootloader_config_t *cfg)
+bool config_get(bootloader_config_t* cfg)
 {
 #if !defined(CONFIG_ADDR)
     // not compiled for bootloader, use default config
@@ -13,7 +13,7 @@ bool config_get(bootloader_config_t *cfg)
     cfg->update_count = 0;
     return true;
 #else
-    uint8_t *p = (uint8_t *) CONFIG_ADDR;
+    uint8_t* p = (uint8_t*)CONFIG_ADDR;
     // first config page
     if (config_is_valid(p, CONFIG_PAGE_SIZE)) {
         *cfg = config_read(p, CONFIG_PAGE_SIZE);

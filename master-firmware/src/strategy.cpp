@@ -38,7 +38,6 @@
 #include "protobuf/sensors.pb.h"
 #include "protobuf/strategy.pb.h"
 
-
 static goap::Planner<RobotState, GOAP_SPACE_SIZE> planner;
 
 static enum strat_color_t wait_for_color_selection(void);
@@ -55,8 +54,7 @@ static enum strat_color_t wait_for_color_selection(void)
 {
     strat_color_t color = YELLOW;
 
-    while (!control_panel_button_is_pressed(BUTTON_YELLOW) &&
-           !control_panel_button_is_pressed(BUTTON_GREEN)) {
+    while (!control_panel_button_is_pressed(BUTTON_YELLOW) && !control_panel_button_is_pressed(BUTTON_GREEN)) {
         control_panel_set(LED_YELLOW);
         control_panel_set(LED_GREEN);
         strategy_wait_ms(100);
@@ -134,14 +132,13 @@ bool strategy_goto_avoid(int x_mm, int y_mm, int a_deg, int traj_end_flags)
 {
     /* Compute path */
     const point_t start = {
-            position_get_x_float(&robot.pos),
-            position_get_y_float(&robot.pos)
-        };
+        position_get_x_float(&robot.pos),
+        position_get_y_float(&robot.pos)};
     oa_start_end_points(start.x, start.y, x_mm, y_mm);
     oa_process();
 
     /* Retrieve path */
-    point_t *points;
+    point_t* points;
     int num_points = oa_get_path(&points);
     DEBUG("Path to (%d, %d) computed with %d points", x_mm, y_mm, num_points);
     if (num_points <= 0) {
@@ -217,9 +214,9 @@ bool strategy_goto_avoid_retry(int x_mm, int y_mm, int a_deg, int traj_end_flags
     return finished;
 }
 
-static void update_panel_state_from_uwb(RobotState &state)
+static void update_panel_state_from_uwb(RobotState& state)
 {
-    messagebus_topic_t *topic;
+    messagebus_topic_t* topic;
     timestamp_t last_contact;
     topic = messagebus_find_topic(&bus, "/panel_contact_us");
 
@@ -240,13 +237,13 @@ static void update_panel_state_from_uwb(RobotState &state)
 }
 
 struct IndexArms : actions::IndexArms {
-    bool execute(RobotState &state)
+    bool execute(RobotState& state)
     {
         NOTICE("Indexing arms!");
 
         /* Z axis indexing */
         cvra_arm_motor_t* z_motors[] = {
-            (cvra_arm_motor_t *)main_arm.hw_interface.z_joint.args,
+            (cvra_arm_motor_t*)main_arm.hw_interface.z_joint.args,
         };
         float z_speeds[] = {-20};
         arms_auto_index(z_motors, z_speeds, sizeof(z_speeds) / sizeof(float));
@@ -255,8 +252,8 @@ struct IndexArms : actions::IndexArms {
 
         /* Arm indexing */
         cvra_arm_motor_t* motors[] = {
-            (cvra_arm_motor_t *)main_arm.hw_interface.shoulder_joint.args,
-            (cvra_arm_motor_t *)main_arm.hw_interface.elbow_joint.args,
+            (cvra_arm_motor_t*)main_arm.hw_interface.shoulder_joint.args,
+            (cvra_arm_motor_t*)main_arm.hw_interface.elbow_joint.args,
         };
         float motor_speeds[] = {0.8, 0.8};
         arms_auto_index(motors, motor_speeds, sizeof(motor_speeds) / sizeof(float));
@@ -277,7 +274,7 @@ struct RetractArms : actions::RetractArms {
     {
     }
 
-    bool execute(RobotState &state)
+    bool execute(RobotState& state)
     {
         NOTICE("Retracting arms!");
         state.arms_are_deployed = false;
@@ -433,7 +430,7 @@ bool strat_lever_is_full(enum lever_side_t lever_side)
     return true; // Temporarily disable this, investigating logic issues
 
     SwitchStatus status;
-    messagebus_topic_t *topic;
+    messagebus_topic_t* topic;
 
     if (lever_side == LEVER_SIDE_LEFT) {
         topic = messagebus_find_topic(&bus, "/lever/left");
@@ -463,7 +460,7 @@ struct PickupCubesLeft : actions::PickupCubesLeft {
     {
     }
 
-    bool can_run(const RobotState &state)
+    bool can_run(const RobotState& state)
     {
         bool ok = state.arms_are_deployed == false
             && state.lever_full_left == false
@@ -476,7 +473,7 @@ struct PickupCubesLeft : actions::PickupCubesLeft {
         return ok && !is_broken;
     }
 
-    bool execute(RobotState &state)
+    bool execute(RobotState& state)
     {
         const int x_mm = BLOCK_OF_CUBES_POS[blocks_id][0];
         const int y_mm = BLOCK_OF_CUBES_POS[blocks_id][1];
@@ -488,7 +485,7 @@ struct PickupCubesLeft : actions::PickupCubesLeft {
         se2_t cubes_pose = se2_create_xya(MIRROR_X(m_color, x_mm), y_mm, 0);
         std::array<se2_t, 4> pickup_poses = {
             se2_create_xya(MIRROR_X(m_color, x_mm - 155), y_mm - 155, MIRROR_A(m_color, -45)),
-            se2_create_xya(MIRROR_X(m_color, x_mm + 155), y_mm - 155, MIRROR_A(m_color,  45)),
+            se2_create_xya(MIRROR_X(m_color, x_mm + 155), y_mm - 155, MIRROR_A(m_color, 45)),
             se2_create_xya(MIRROR_X(m_color, x_mm + 155), y_mm + 155, MIRROR_A(m_color, 135)),
             se2_create_xya(MIRROR_X(m_color, x_mm - 155), y_mm + 155, MIRROR_A(m_color, 225)),
         };
@@ -525,7 +522,6 @@ struct PickupCubesLeft : actions::PickupCubesLeft {
     }
 };
 
-
 struct PickupCubesRight : actions::PickupCubesRight {
     enum strat_color_t m_color;
 
@@ -535,7 +531,7 @@ struct PickupCubesRight : actions::PickupCubesRight {
     {
     }
 
-    bool can_run(const RobotState &state)
+    bool can_run(const RobotState& state)
     {
         bool ok = state.arms_are_deployed == false
             && state.lever_full_right == false
@@ -548,7 +544,7 @@ struct PickupCubesRight : actions::PickupCubesRight {
         return ok && !is_broken;
     }
 
-    bool execute(RobotState &state)
+    bool execute(RobotState& state)
     {
         const int x_mm = BLOCK_OF_CUBES_POS[blocks_id][0];
         const int y_mm = BLOCK_OF_CUBES_POS[blocks_id][1];
@@ -560,7 +556,7 @@ struct PickupCubesRight : actions::PickupCubesRight {
         se2_t cubes_pose = se2_create_xya(MIRROR_X(m_color, x_mm), y_mm, 0);
         std::array<se2_t, 4> pickup_poses = {
             se2_create_xya(MIRROR_X(m_color, x_mm - 155), y_mm - 155, MIRROR_A(m_color, -45)),
-            se2_create_xya(MIRROR_X(m_color, x_mm + 155), y_mm - 155, MIRROR_A(m_color,  45)),
+            se2_create_xya(MIRROR_X(m_color, x_mm + 155), y_mm - 155, MIRROR_A(m_color, 45)),
             se2_create_xya(MIRROR_X(m_color, x_mm + 155), y_mm + 155, MIRROR_A(m_color, 135)),
             se2_create_xya(MIRROR_X(m_color, x_mm - 155), y_mm + 155, MIRROR_A(m_color, 225)),
         };
@@ -600,24 +596,27 @@ struct PickupCubesRight : actions::PickupCubesRight {
 void strat_push_switch_on(float x, float y, float z, float y_push)
 {
     const position_3d_t last_pos = scara_position(&main_arm, COORDINATE_TABLE);
-    strat_scara_goto_blocking({x,      y, last_pos.z}, COORDINATE_TABLE, {300, 300, 300});
-    strat_scara_goto_blocking({x,      y,          z}, COORDINATE_TABLE, {300, 300, 300});
-    strat_scara_push_y(                        y_push, COORDINATE_TABLE, {300, 300, 300});
-    strat_scara_goto_blocking({x,      y,          z}, COORDINATE_TABLE, {300, 300, 300});
-    strat_scara_goto_blocking({x,      y, last_pos.z}, COORDINATE_TABLE, {300, 300, 300});
+    strat_scara_goto_blocking({x, y, last_pos.z}, COORDINATE_TABLE, {300, 300, 300});
+    strat_scara_goto_blocking({x, y, z}, COORDINATE_TABLE, {300, 300, 300});
+    strat_scara_push_y(y_push, COORDINATE_TABLE, {300, 300, 300});
+    strat_scara_goto_blocking({x, y, z}, COORDINATE_TABLE, {300, 300, 300});
+    strat_scara_goto_blocking({x, y, last_pos.z}, COORDINATE_TABLE, {300, 300, 300});
 }
 
 struct TurnSwitchOn : public actions::TurnSwitchOn {
     enum strat_color_t m_color;
 
-    TurnSwitchOn(enum strat_color_t color) : m_color(color) {}
+    TurnSwitchOn(enum strat_color_t color)
+        : m_color(color)
+    {
+    }
 
     bool execute(RobotState& state)
     {
         NOTICE("Turning switch on");
 
         if (!strategy_goto_avoid(MIRROR_X(m_color, 1130), 250, MIRROR_A(m_color, 90),
-            TRAJ_END_GOAL_REACHED | TRAJ_END_OPPONENT_NEAR | TRAJ_END_TIMER | TRAJ_END_ALLY_NEAR)) {
+                                 TRAJ_END_GOAL_REACHED | TRAJ_END_OPPONENT_NEAR | TRAJ_END_TIMER | TRAJ_END_ALLY_NEAR)) {
             return false;
         }
 
@@ -632,7 +631,10 @@ struct TurnSwitchOn : public actions::TurnSwitchOn {
 struct TurnOpponentSwitchOff : public actions::TurnOpponentSwitchOff {
     enum strat_color_t m_color;
 
-    TurnOpponentSwitchOff(enum strat_color_t color) : m_color(color) {}
+    TurnOpponentSwitchOff(enum strat_color_t color)
+        : m_color(color)
+    {
+    }
 
     bool execute(RobotState& state)
     {
@@ -648,7 +650,6 @@ struct TurnOpponentSwitchOff : public actions::TurnOpponentSwitchOff {
         state.opponent_panel_on = false;
         state.should_push_opponent_panel = false;
         scara_hold_position(&main_arm, COORDINATE_ARM);
-
 
         int res;
         do {
@@ -687,7 +688,10 @@ struct TurnOpponentSwitchOff : public actions::TurnOpponentSwitchOff {
 struct DeployTheBee : public actions::DeployTheBee {
     enum strat_color_t m_color;
 
-    DeployTheBee(enum strat_color_t color) : m_color(color) {}
+    DeployTheBee(enum strat_color_t color)
+        : m_color(color)
+    {
+    }
 
     bool execute(RobotState& state)
     {
@@ -723,9 +727,13 @@ struct DepositCubes : actions::DepositCubes {
     enum strat_color_t m_color;
 
     DepositCubes(enum strat_color_t color, int zone_id)
-        : actions::DepositCubes(zone_id), m_color(color) {}
+        : actions::DepositCubes(zone_id)
+        , m_color(color)
+    {
+    }
 
-    bool execute(RobotState &state) {
+    bool execute(RobotState& state)
+    {
         const int x_mm = DEPOSIT_ZONE_POSE[construction_zone_id][0];
         const int y_mm = DEPOSIT_ZONE_POSE[construction_zone_id][1];
         int a_deg = DEPOSIT_ZONE_POSE[construction_zone_id][2];
@@ -784,9 +792,13 @@ struct BuildTowerLevel : actions::BuildTowerLevel {
     enum strat_color_t m_color;
 
     BuildTowerLevel(enum strat_color_t color, int zone_id, int level)
-        : actions::BuildTowerLevel(zone_id, level), m_color(color) {}
+        : actions::BuildTowerLevel(zone_id, level)
+        , m_color(color)
+    {
+    }
 
-    bool execute(RobotState &state) {
+    bool execute(RobotState& state)
+    {
         const int x_mm = DEPOSIT_ZONE_POSE[construction_zone_id][0];
         const int y_mm = DEPOSIT_ZONE_POSE[construction_zone_id][1];
         const int a_deg = CONSTRUCTION_HEADING[construction_zone_id];
@@ -842,7 +854,7 @@ void strat_collect_wastewater(enum strat_color_t color, float heading)
     trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE /*TRAJ_FLAGS_ROTATION*/);
 
     // open dispenser
-    trajectory_a_abs(&robot.traj, MIRROR_A(color, heading + SHAKE_AMPLITUDE_DEG+3));
+    trajectory_a_abs(&robot.traj, MIRROR_A(color, heading + SHAKE_AMPLITUDE_DEG + 3));
     strategy_wait_ms(500);
 
     // move closer
@@ -871,9 +883,12 @@ struct EmptyMonocolorWasteWaterCollector : actions::EmptyMonocolorWasteWaterColl
     enum strat_color_t m_color;
 
     EmptyMonocolorWasteWaterCollector(enum strat_color_t color)
-        : m_color(color) {}
+        : m_color(color)
+    {
+    }
 
-    bool execute(RobotState &state) {
+    bool execute(RobotState& state)
+    {
         const int x_mm = 0 + 240;
         const int y_mm = 840;
         NOTICE("Emptying monocolor waste water collector at %d %d", x_mm, y_mm);
@@ -899,9 +914,12 @@ struct EmptyMulticolorWasteWaterCollector : actions::EmptyMulticolorWasteWaterCo
     enum strat_color_t m_color;
 
     EmptyMulticolorWasteWaterCollector(enum strat_color_t color)
-        : m_color(color) {}
+        : m_color(color)
+    {
+    }
 
-    bool execute(RobotState &state) {
+    bool execute(RobotState& state)
+    {
         const int x_mm = 2395;
         const int y_mm = 2000 - 240;
         NOTICE("Emptying multicolor waste water collector at %d %d", x_mm, y_mm);
@@ -950,9 +968,12 @@ struct FireBallGunIntoWaterTower : actions::FireBallGunIntoWaterTower {
     enum strat_color_t m_color;
 
     FireBallGunIntoWaterTower(enum strat_color_t color)
-        : m_color(color) {}
+        : m_color(color)
+    {
+    }
 
-    bool execute(RobotState &state) {
+    bool execute(RobotState& state)
+    {
         const int x_mm = 430; // tuned by experience
         const int y_mm = 410;
         const int heading_deg = 247;
@@ -994,9 +1015,12 @@ struct FireBallGunIntoWasteWaterTreatmentPlant : actions::FireBallGunIntoWasteWa
     enum strat_color_t m_color;
 
     FireBallGunIntoWasteWaterTreatmentPlant(enum strat_color_t color)
-        : m_color(color) {}
+        : m_color(color)
+    {
+    }
 
-    bool execute(RobotState &state) {
+    bool execute(RobotState& state)
+    {
         const int x_mm = 2360;
         const int y_mm = 1758;
         const int heading_deg = 170;
@@ -1017,7 +1041,7 @@ struct FireBallGunIntoWasteWaterTreatmentPlant : actions::FireBallGunIntoWasteWa
         do {
             const int retreat_x_mm = 2390;
             const int retreat_y_mm = 2000 - 240 - 200;
-            trajectory_goto_backward_xy_abs(&robot. traj, MIRROR_X(m_color, retreat_x_mm), retreat_y_mm);
+            trajectory_goto_backward_xy_abs(&robot.traj, MIRROR_X(m_color, retreat_x_mm), retreat_y_mm);
             res = trajectory_wait_for_end(TRAJ_FLAGS_ALL);
         } while (res != TRAJ_END_GOAL_REACHED && res != TRAJ_END_TIMER);
 
@@ -1036,14 +1060,11 @@ void strategy_read_color_sequence(RobotState& state)
             state.tower_sequence[i] = static_cast<enum cube_color>(sequence.sequence[i]);
         }
 
-        if (state.tower_sequence[0] != CUBE_UNKNOWN &&
-            state.tower_sequence[1] != CUBE_UNKNOWN &&
-            state.tower_sequence[2] != CUBE_UNKNOWN) {
+        if (state.tower_sequence[0] != CUBE_UNKNOWN && state.tower_sequence[1] != CUBE_UNKNOWN && state.tower_sequence[2] != CUBE_UNKNOWN) {
             NOTICE("Received a valid color sequence");
             state.tower_sequence_known = true;
         }
     }
-
 
     cube_color_fill_unknown(&state.tower_sequence[0], tower_sequence_len);
 
@@ -1077,32 +1098,39 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
     IndexArms index_arms;
     RetractArms retract_arms(color);
     PickupCubesRight pickup_cubes_r[2] = {
-        PickupCubesRight(color, 1), PickupCubesRight(color, 2),
+        PickupCubesRight(color, 1),
+        PickupCubesRight(color, 2),
     };
     PickupCubesLeft pickup_cubes_l[2] = {
-        PickupCubesLeft(color, 1), PickupCubesLeft(color, 2),
+        PickupCubesLeft(color, 1),
+        PickupCubesLeft(color, 2),
     };
     DeployTheBee deploy_the_bee(color);
     DepositCubes deposit_cubes[2] = {
-        DepositCubes(color, 0), DepositCubes(color, 1),
+        DepositCubes(color, 0),
+        DepositCubes(color, 1),
     };
     BuildTowerLevel build_tower_lvl[2][4] = {
         {
-            BuildTowerLevel(color, 0, 0), BuildTowerLevel(color, 0, 1),
-            BuildTowerLevel(color, 0, 2), BuildTowerLevel(color, 0, 3),
+            BuildTowerLevel(color, 0, 0),
+            BuildTowerLevel(color, 0, 1),
+            BuildTowerLevel(color, 0, 2),
+            BuildTowerLevel(color, 0, 3),
         },
         {
-            BuildTowerLevel(color, 1, 0), BuildTowerLevel(color, 1, 1),
-            BuildTowerLevel(color, 1, 2), BuildTowerLevel(color, 1, 3),
+            BuildTowerLevel(color, 1, 0),
+            BuildTowerLevel(color, 1, 1),
+            BuildTowerLevel(color, 1, 2),
+            BuildTowerLevel(color, 1, 3),
         },
     };
     EmptyMonocolorWasteWaterCollector empty_wastewater(color);
     FireBallGunIntoWaterTower fill_watertower(color);
 
     const int max_path_len = 10;
-    goap::Action<RobotState> *path[max_path_len] = {nullptr};
+    goap::Action<RobotState>* path[max_path_len] = {nullptr};
 
-    goap::Action<RobotState> *actions[] = {
+    goap::Action<RobotState>* actions[] = {
         &index_arms,
         &retract_arms,
         &pickup_cubes_r[0],
@@ -1213,33 +1241,40 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     IndexArms index_arms;
     RetractArms retract_arms(color);
     PickupCubesRight pickup_cubes_r[2] = {
-        PickupCubesRight(color, 0), PickupCubesRight(color, 3),
+        PickupCubesRight(color, 0),
+        PickupCubesRight(color, 3),
     };
     PickupCubesLeft pickup_cubes_l[2] = {
-        PickupCubesLeft(color, 0), PickupCubesLeft(color, 3),
+        PickupCubesLeft(color, 0),
+        PickupCubesLeft(color, 3),
     };
     TurnSwitchOn turn_switch_on(color);
     EmptyMulticolorWasteWaterCollector empty_wastewater_multicolor(color);
     FireBallGunIntoWasteWaterTreatmentPlant fill_wasterwater_plant(color);
     DepositCubes deposit_cubes[2] = {
-        DepositCubes(color, 2), DepositCubes(color, 3),
+        DepositCubes(color, 2),
+        DepositCubes(color, 3),
     };
     BuildTowerLevel build_tower_lvl[2][4] = {
         {
-            BuildTowerLevel(color, 2, 0), BuildTowerLevel(color, 2, 1),
-            BuildTowerLevel(color, 2, 2), BuildTowerLevel(color, 2, 3),
+            BuildTowerLevel(color, 2, 0),
+            BuildTowerLevel(color, 2, 1),
+            BuildTowerLevel(color, 2, 2),
+            BuildTowerLevel(color, 2, 3),
         },
         {
-            BuildTowerLevel(color, 3, 0), BuildTowerLevel(color, 3, 1),
-            BuildTowerLevel(color, 3, 2), BuildTowerLevel(color, 3, 3),
+            BuildTowerLevel(color, 3, 0),
+            BuildTowerLevel(color, 3, 1),
+            BuildTowerLevel(color, 3, 2),
+            BuildTowerLevel(color, 3, 3),
         },
     };
     TurnOpponentSwitchOff turn_opponent_switch_off(color);
 
     const int max_path_len = 10;
-    goap::Action<RobotState> *path[max_path_len] = {nullptr};
+    goap::Action<RobotState>* path[max_path_len] = {nullptr};
 
-    goap::Action<RobotState> *actions[] = {
+    goap::Action<RobotState>* actions[] = {
         &index_arms,
         &retract_arms,
         &pickup_cubes_r[0],
@@ -1345,9 +1380,9 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     }
 }
 
-void strategy_play_game(void *p)
+void strategy_play_game(void* p)
 {
-    (void) p;
+    (void)p;
     chRegSetThreadName("strategy");
 
     NOTICE("Strategy starting...");

@@ -6,11 +6,11 @@
 typedef int __guard;
 
 extern "C" {
-int __cxa_guard_acquire(__guard *);
-void __cxa_guard_release(__guard *);
-void __cxa_guard_abort(__guard *);
+int __cxa_guard_acquire(__guard*);
+void __cxa_guard_release(__guard*);
+void __cxa_guard_abort(__guard*);
 void __cxa_pure_virtual();
-void *__dso_handle = NULL;
+void* __dso_handle = NULL;
 void _exit(int status);
 pid_t _getpid(void);
 int _kill(int pid, int sig);
@@ -45,7 +45,7 @@ void operator delete[](void*)
 
 void _exit(int status)
 {
-    (void) status;
+    (void)status;
     osalSysHalt("Unrealized");
     while (TRUE) {
     }
@@ -71,10 +71,9 @@ void _open_r(void)
     return;
 }
 
-namespace std
+namespace std {
+void __throw_bad_function_call(void)
 {
-    void __throw_bad_function_call(void)
-    {
-        osalSysHalt("Bad function call");
-    }
+    osalSysHalt("Bad function call");
 }
+} // namespace std

@@ -11,52 +11,56 @@ const struct BaseSequentialStreamVMT blocking_uart_put_vmt = {
     blocking_uart_get,
 };
 
-msg_t blocking_uart_put(void *instance, uint8_t b)
+msg_t blocking_uart_put(void* instance, uint8_t b)
 {
-    USART_TypeDef *uart = ((BlockingUARTDriver *)instance)->dev;
+    USART_TypeDef* uart = ((BlockingUARTDriver*)instance)->dev;
     // wait until TX register empty
-    while ((uart->ISR & USART_ISR_TXE) == 0);
+    while ((uart->ISR & USART_ISR_TXE) == 0)
+        ;
     // write data
     uart->TDR = b;
     return 0;
 }
 
-msg_t blocking_uart_get(void *instance)
+msg_t blocking_uart_get(void* instance)
 {
-    USART_TypeDef *uart = ((BlockingUARTDriver *)instance)->dev;
+    USART_TypeDef* uart = ((BlockingUARTDriver*)instance)->dev;
     // wait until RX register not empty
-    while ((uart->ISR & USART_ISR_RXNE) == 0);
+    while ((uart->ISR & USART_ISR_RXNE) == 0)
+        ;
     // return byte
     return uart->RDR & USART_RDR_RDR;
 }
 
-size_t blocking_uart_write(void *instance, const uint8_t *bp, size_t n)
+size_t blocking_uart_write(void* instance, const uint8_t* bp, size_t n)
 {
-    USART_TypeDef *uart = ((BlockingUARTDriver *)instance)->dev;
+    USART_TypeDef* uart = ((BlockingUARTDriver*)instance)->dev;
     size_t i;
     for (i = 0; i < n; i++) {
         // wait until TX register empty
-        while ((uart->ISR & USART_ISR_TXE) == 0);
+        while ((uart->ISR & USART_ISR_TXE) == 0)
+            ;
         // write data
         uart->TDR = bp[i];
     }
     return n;
 }
 
-size_t blocking_uart_read(void *instance, uint8_t *bp, size_t n)
+size_t blocking_uart_read(void* instance, uint8_t* bp, size_t n)
 {
-    USART_TypeDef *uart = ((BlockingUARTDriver *)instance)->dev;
+    USART_TypeDef* uart = ((BlockingUARTDriver*)instance)->dev;
     size_t i;
     for (i = 0; i < n; i++) {
         // wait until RX register not empty
-        while ((uart->ISR & USART_ISR_RXNE) == 0);
+        while ((uart->ISR & USART_ISR_RXNE) == 0)
+            ;
         // read byte
-        bp[i] = (uint8_t) uart->RDR;
+        bp[i] = (uint8_t)uart->RDR;
     }
     return n;
 }
 
-void blocking_uart_init(BlockingUARTDriver *driver, USART_TypeDef *uart, uint32_t baud)
+void blocking_uart_init(BlockingUARTDriver* driver, USART_TypeDef* uart, uint32_t baud)
 {
     driver->dev = uart;
     driver->vmt = &blocking_uart_put_vmt;

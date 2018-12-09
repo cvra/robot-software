@@ -9,7 +9,6 @@ extern "C" {
 #include "pid/pid.h"
 #include "setpoint.h"
 
-
 struct pid_cascade_s {
     // contorllers:
     pid_ctrl_t current_pid;
@@ -41,12 +40,10 @@ struct pid_cascade_s {
     float torque;
 };
 
-
 // todo this should not be here
 float periodic_error(float err);
 
-void pid_cascade_control(struct pid_cascade_s *ctrl);
-
+void pid_cascade_control(struct pid_cascade_s* ctrl);
 
 #ifdef __cplusplus
 }

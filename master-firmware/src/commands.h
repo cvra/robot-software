@@ -3,6 +3,6 @@
 
 #include <hal.h>
 
-void shell_spawn(BaseSequentialStream *stream);
+void shell_spawn(BaseSequentialStream* stream);
 
 #endif

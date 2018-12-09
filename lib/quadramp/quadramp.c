@@ -26,20 +26,19 @@
 
 #include "quadramp.h"
 
-void quadramp_init(struct quadramp_filter *q)
+void quadramp_init(struct quadramp_filter* q)
 {
     memset(q, 0, sizeof(*q));
 }
 
-
-void quadramp_reset(struct quadramp_filter *q)
+void quadramp_reset(struct quadramp_filter* q)
 {
     q->previous_var = 0;
     q->previous_out = 0;
     q->previous_in = 0;
 }
 
-void quadramp_set_2nd_order_vars(struct quadramp_filter *q,
+void quadramp_set_2nd_order_vars(struct quadramp_filter* q,
                                  double var_2nd_ord_pos,
                                  double var_2nd_ord_neg)
 {
@@ -47,7 +46,7 @@ void quadramp_set_2nd_order_vars(struct quadramp_filter *q,
     q->var_2nd_ord_neg = var_2nd_ord_neg;
 }
 
-void quadramp_set_1st_order_vars(struct quadramp_filter *q,
+void quadramp_set_1st_order_vars(struct quadramp_filter* q,
                                  double var_1st_ord_pos,
                                  double var_1st_ord_neg)
 {
@@ -55,22 +54,20 @@ void quadramp_set_1st_order_vars(struct quadramp_filter *q,
     q->var_1st_ord_neg = var_1st_ord_neg;
 }
 
-
-void quadramp_set_position(struct quadramp_filter *q, int32_t pos)
+void quadramp_set_position(struct quadramp_filter* q, int32_t pos)
 {
     q->previous_out = pos;
     q->previous_var = 0;
 }
 
-uint8_t quadramp_is_finished(struct quadramp_filter *q)
+uint8_t quadramp_is_finished(struct quadramp_filter* q)
 {
-    return (int32_t)q->previous_out == q->previous_in &&
-           q->previous_var == 0;
+    return (int32_t)q->previous_out == q->previous_in && q->previous_var == 0;
 }
 
-int32_t quadramp_do_filter(void * data, int32_t in)
+int32_t quadramp_do_filter(void* data, int32_t in)
 {
-    struct quadramp_filter * q = data;
+    struct quadramp_filter* q = data;
     int32_t d; /* remaining distance */
     int32_t pos_target;
     double var_1st_ord_pos = q->var_1st_ord_pos;
@@ -99,9 +96,7 @@ int32_t quadramp_do_filter(void * data, int32_t in)
     if (d > 0 && var_2nd_ord_neg) {
         double ramp_pos;
         /* var_2nd_ord_neg < 0 */
-        ramp_pos = sqrt((var_2nd_ord_neg * var_2nd_ord_neg) / 4 -
-                        2 * d_float * var_2nd_ord_neg) +
-                   var_2nd_ord_neg / 2;
+        ramp_pos = sqrt((var_2nd_ord_neg * var_2nd_ord_neg) / 4 - 2 * d_float * var_2nd_ord_neg) + var_2nd_ord_neg / 2;
 
         if (ramp_pos < var_1st_ord_pos) {
             var_1st_ord_pos = ramp_pos;
@@ -110,9 +105,7 @@ int32_t quadramp_do_filter(void * data, int32_t in)
         double ramp_neg;
 
         /* var_2nd_ord_pos > 0 */
-        ramp_neg = -sqrt((var_2nd_ord_pos * var_2nd_ord_pos) / 4 -
-                         2 * d_float * var_2nd_ord_pos ) -
-                   var_2nd_ord_pos / 2;
+        ramp_neg = -sqrt((var_2nd_ord_pos * var_2nd_ord_pos) / 4 - 2 * d_float * var_2nd_ord_pos) - var_2nd_ord_pos / 2;
 
         /* ramp_neg < 0 */
         if (ramp_neg > var_1st_ord_neg) {
@@ -126,8 +119,7 @@ int32_t quadramp_do_filter(void * data, int32_t in)
         /* acceleration would be to high, we reduce the speed */
         /* si rampe acceleration active ET qu'on ne peut pas atteindre Vmax,
          * on sature Vmax a Vcourante + acceleration */
-        if (var_2nd_ord_pos &&
-            (var_1st_ord_pos - previous_var) > var_2nd_ord_pos) {
+        if (var_2nd_ord_pos && (var_1st_ord_pos - previous_var) > var_2nd_ord_pos) {
             var_1st_ord_pos = previous_var + var_2nd_ord_pos;
         }
     }
@@ -136,8 +128,7 @@ int32_t quadramp_do_filter(void * data, int32_t in)
         /* deceleration would be to high, we increase the speed */
         /* si rampe deceleration active ET qu'on ne peut pas atteindre Vmax,
          * on sature Vmax a Vcourante + deceleration */
-        if (var_2nd_ord_neg &&
-            (var_1st_ord_pos - previous_var) < var_2nd_ord_neg) {
+        if (var_2nd_ord_neg && (var_1st_ord_pos - previous_var) < var_2nd_ord_neg) {
             var_1st_ord_pos = previous_var + var_2nd_ord_neg;
         }
     }
@@ -148,8 +139,7 @@ int32_t quadramp_do_filter(void * data, int32_t in)
         /* acceleration would be to high, we reduce the speed */
         /* si rampe deceleration active ET qu'on ne peut pas atteindre Vmin,
          * on sature Vmax a Vcourante + deceleration */
-        if (var_2nd_ord_neg &&
-            (var_1st_ord_neg - previous_var) < var_2nd_ord_neg) {
+        if (var_2nd_ord_neg && (var_1st_ord_neg - previous_var) < var_2nd_ord_neg) {
             var_1st_ord_neg = previous_var + var_2nd_ord_neg;
         }
     }
@@ -158,8 +148,7 @@ int32_t quadramp_do_filter(void * data, int32_t in)
         /* deceleration would be to high, we increase the speed */
         /* si rampe acceleration active ET qu'on ne peut pas atteindre Vmin,
          * on sature Vmax a Vcourante + deceleration */
-        if (var_2nd_ord_pos &&
-            (var_1st_ord_neg - previous_var) > var_2nd_ord_pos) {
+        if (var_2nd_ord_pos && (var_1st_ord_neg - previous_var) > var_2nd_ord_pos) {
             var_1st_ord_neg = previous_var + var_2nd_ord_pos;
         }
     }

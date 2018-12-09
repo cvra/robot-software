@@ -4,6 +4,6 @@
 #include <uavcan/uavcan.hpp>
 #include <cvra/io/ServoPWM.hpp>
 
-void ServoPWM_handler(const uavcan::ReceivedDataStructure<cvra::io::ServoPWM> &);
+void ServoPWM_handler(const uavcan::ReceivedDataStructure<cvra::io::ServoPWM>&);
 
 #endif

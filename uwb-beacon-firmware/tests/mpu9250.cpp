@@ -7,8 +7,7 @@
 
 #include "mpu9250.h"
 
-TEST_GROUP(MPU9250Init)
-{
+TEST_GROUP (MPU9250Init) {
     mpu9250_t dev;
 };
 
@@ -19,13 +18,12 @@ TEST(MPU9250Init, SetSPIDriver)
     POINTERS_EQUAL(&drv, dev.spi);
 }
 
-TEST_GROUP(MPU9250Protocol)
-{
+TEST_GROUP (MPU9250Protocol) {
     mpu9250_t dev;
     SPIDriver drv;
 
-    std::vector<std::array<uint8_t, 2> > writes;
-    std::vector<std::array<uint8_t, 2> > reads;
+    std::vector<std::array<uint8_t, 2>> writes;
+    std::vector<std::array<uint8_t, 2>> reads;
 
     void setup()
     {
@@ -41,8 +39,7 @@ TEST_GROUP(MPU9250Protocol)
         writes.push_back(cmd);
 
         mock("spi").expectOneCall("select").withPointerParameter("drv", &drv);
-        mock("spi").expectOneCall("send").withPointerParameter("drv", &drv)
-            .withMemoryBufferParameter("buf", writes.back().data(), 2);
+        mock("spi").expectOneCall("send").withPointerParameter("drv", &drv).withMemoryBufferParameter("buf", writes.back().data(), 2);
         mock("spi").expectOneCall("unselect").withPointerParameter("drv", &drv);
     }
 
@@ -53,16 +50,10 @@ TEST_GROUP(MPU9250Protocol)
 
         reads.push_back(cmd);
         mock("spi").expectOneCall("select").withPointerParameter("drv", &drv);
-        mock("spi").expectOneCall("send").withPointerParameter("drv", &drv)
-            .withMemoryBufferParameter("buf", &(reads.back().data()[0]), 1);
-        mock("spi").expectOneCall("receive")
-            .withPointerParameter("drv", &drv)
-            .withParameter("n", 1)
-            .withOutputParameterReturning("buf", &(reads.back().data()[1]), 1);
+        mock("spi").expectOneCall("send").withPointerParameter("drv", &drv).withMemoryBufferParameter("buf", &(reads.back().data()[0]), 1);
+        mock("spi").expectOneCall("receive").withPointerParameter("drv", &drv).withParameter("n", 1).withOutputParameterReturning("buf", &(reads.back().data()[1]), 1);
         mock("spi").expectOneCall("unselect").withPointerParameter("drv", &drv);
     }
-
-
 };
 
 TEST(MPU9250Protocol, Reset)
@@ -192,7 +183,6 @@ TEST(MPU9250Protocol, CanInitMagnetometer)
 
     mock("ch").ignoreOtherCalls();
 
-
     mpu9250_enable_magnetometer(&dev);
 }
 
@@ -203,7 +193,7 @@ TEST(MPU9250Protocol, ReadMagnetometer)
         expect_read(73 + i, i);
     }
 
-    float x,y,z;
+    float x, y, z;
     mpu9250_mag_read(&dev, &x, &y, &z);
 
     DOUBLES_EQUAL(0x0001 * sensitivity, x, 0.1);

@@ -3,6 +3,6 @@
 
 #include <uavcan/uavcan.hpp>
 
-int emergency_stop_init(uavcan::INode &node);
+int emergency_stop_init(uavcan::INode& node);
 
 #endif

@@ -5,14 +5,11 @@ import "nanopb.proto";
 // Header used to indicate the size of the following protobuf message.
 // As we cannot give information about the size of this message, only constant
 // size types should be used here.
-message MessageSize
-{
+message MessageSize {
     required fixed32 bytes = 1; // Message size in bytes
 }
 
-
-message TopicHeader
-{
+message TopicHeader {
     required uint32 msgid = 1; // Type information, expressed as a nanopb msgid
     required string name = 2 [ (nanopb).max_size = 64 ];
 }

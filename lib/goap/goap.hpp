@@ -13,54 +13,53 @@
 
 namespace goap {
 
-template<typename State>
+template <typename State>
 class Action {
 public:
     /** Checks if the given state allows this action to proceed. */
-    virtual bool can_run(const State &state) = 0;
+    virtual bool can_run(const State& state) = 0;
 
     /** Plans the effects of this action on the state */
-    virtual void plan_effects(State &state) = 0;
+    virtual void plan_effects(State& state) = 0;
 
     /** Tries to execute the task and returns true if it suceeded. */
-    virtual bool execute(State &state) = 0;
+    virtual bool execute(State& state) = 0;
 
     virtual ~Action() = default;
 };
 
-template<typename State>
+template <typename State>
 class Goal {
 public:
     /** Checks if the goal is reached for the given state. */
-    virtual bool is_reached(const State &state) const
+    virtual bool is_reached(const State& state) const
     {
         return distance_to(state) == 0;
     }
 
     /** Computes the distance from state to goal. */
-    virtual int distance_to(const State &state) const = 0;
+    virtual int distance_to(const State& state) const = 0;
 
     virtual ~Goal() = default;
 };
 
-template<typename State, int N = 100>
+template <typename State, int N = 100>
 class Planner {
     VisitedState<State> nodes[N];
+
 public:
     /** Finds a plan from state to goal and returns its length.
      *
      * If path is given, then the found path is stored there.
      */
-    int plan(const State &state, Goal<State> &goal,
-             Action<State> *actions[], unsigned action_count,
-             Action<State> **path = nullptr, int path_len = 10)
+    int plan(const State& state, Goal<State>& goal, Action<State>* actions[], unsigned action_count, Action<State>** path = nullptr, int path_len = 10)
     {
         visited_states_array_to_list(nodes, N);
 
         auto free_nodes = &nodes[0];
 
         auto open = list_pop_head(free_nodes);
-        VisitedState<State> *close = nullptr;
+        VisitedState<State>* close = nullptr;
 
         open->state = state;
         open->cost = 0;
@@ -75,7 +74,7 @@ public:
             if (goal.is_reached(current->state)) {
                 auto len = 0;
                 for (auto p = current->parent; p; p = p->parent) {
-                    len ++;
+                    len++;
                 }
 
                 auto i = len - 1;
@@ -85,13 +84,13 @@ public:
                             path[i] = p->action;
                         }
                     }
-                    i --;
+                    i--;
                 }
 
                 return len;
             }
 
-            for (auto i = 0u; i < action_count; i ++) {
+            for (auto i = 0u; i < action_count; i++) {
                 auto action = actions[i];
 
                 if (action->can_run(current->state)) {
@@ -99,7 +98,7 @@ public:
                     if (free_nodes == nullptr) {
                         // Garbage collect the node that is most unlikely to be
                         // visited (i.e. lowest priority)
-                        VisitedState<State> *gc, *gc_prev = nullptr;
+                        VisitedState<State>*gc, *gc_prev = nullptr;
                         for (gc = open; gc && gc->next; gc = gc->next) {
                             gc_prev = gc;
                         }
@@ -148,22 +147,19 @@ public:
                     } else {
                         list_push_head(free_nodes, neighbor);
                     }
-
                 }
-
             }
-
         }
 
         // No path was found
         return -1;
     }
-
 };
 
 // Distance class, used to build distance metrics that read easily
 class Distance {
     int distance;
+
 public:
     Distance shouldBeTrue(bool var)
     {
@@ -183,10 +179,11 @@ public:
         return *this;
     }
 
-    operator int() {
+    operator int()
+    {
         return distance;
     }
 };
-};
+}; // namespace goap
 
 #endif

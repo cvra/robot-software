@@ -4,7 +4,7 @@
 
 void page_root_init(void* arg)
 {
-    page_root_t *page = (page_root_t *)arg;
+    page_root_t* page = (page_root_t*)arg;
     GWidgetInit wi;
     gwinWidgetClearInit(&wi);
     wi.g.show = TRUE;
@@ -17,15 +17,15 @@ void page_root_init(void* arg)
     gwinSetText(*page->label, "Hand sensor", TRUE);
 }
 
-void page_root_load(void *arg)
+void page_root_load(void* arg)
 {
-    page_root_t *page = (page_root_t *)arg;
+    page_root_t* page = (page_root_t*)arg;
     gdispClear(COLOR_BACKGROUND);
     gwinSetText(*page->label, "hope", TRUE);
 }
 
-void page_root_delete(void *arg)
+void page_root_delete(void* arg)
 {
-    page_root_t *page = (page_root_t *)arg;
+    page_root_t* page = (page_root_t*)arg;
     gwinSetText(*page->label, "deleted", TRUE);
 }

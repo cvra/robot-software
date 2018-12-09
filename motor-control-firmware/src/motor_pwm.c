@@ -3,17 +3,14 @@
 #include <stdlib.h>
 #include <math.h>
 
+#define PWM_PERIOD 2880
+#define PWM_DIRECTION_CHANNEL 0
+#define PWM_POWER_CHANNEL 1
 
-#define PWM_PERIOD                  2880
-#define PWM_DIRECTION_CHANNEL       0
-#define PWM_POWER_CHANNEL           1
-
-#define DIRECTION_DC_LOW            0
-#define DIRECTION_DC_HIGH           PWM_PERIOD
-#define DIRECTION_DC_RECHARGE       (0.75 * PWM_PERIOD)     // 10us
+#define DIRECTION_DC_LOW 0
+#define DIRECTION_DC_HIGH PWM_PERIOD
+#define DIRECTION_DC_RECHARGE (0.75 * PWM_PERIOD) // 10us
 #define POWR_DC_RECHARGE_CORRECTION (PWM_PERIOD - DIRECTION_DC_RECHARGE)
-
-
 
 /*
  * To prevent common-mode steps on the current measurement shunt resistor,
@@ -30,11 +27,10 @@
  * samples taken during the recharge cycle)
  */
 
-
 static int32_t power_pwm;
 static bool recharge_flag = false;
 
-void pwm_counter_reset(PWMDriver *pwmd)
+void pwm_counter_reset(PWMDriver* pwmd)
 {
     if (power_pwm >= 0) { // forward direction (no magic)
         pwmd->tim->CCR[PWM_DIRECTION_CHANNEL] = DIRECTION_DC_LOW;
@@ -67,23 +63,21 @@ void pwm_counter_reset(PWMDriver *pwmd)
             pwmDisablePeriodicNotificationI(&PWMD1);
             chSysUnlockFromISR();
         }
-
     }
 }
 
 static const PWMConfig pwm_cfg = {
     72000000,
-    PWM_PERIOD,           // 25kHz
+    PWM_PERIOD, // 25kHz
     pwm_counter_reset,
     // activate channel 1 and 2
     {
         {PWM_OUTPUT_ACTIVE_HIGH, NULL},
         {PWM_OUTPUT_ACTIVE_HIGH, NULL},
         {PWM_OUTPUT_DISABLED, NULL},
-        {PWM_OUTPUT_DISABLED, NULL}
-    },
-    0,                  // TIMx_CR2 value
-    0                   // TIMx_DIER value
+        {PWM_OUTPUT_DISABLED, NULL}},
+    0, // TIMx_CR2 value
+    0 // TIMx_DIER value
 };
 
 void motor_pwm_setup(void)
@@ -95,7 +89,7 @@ void motor_pwm_set(float dc)
 {
     if (dc > 0.95) {
         dc = 0.95;
-    } else if (dc < -0.95){
+    } else if (dc < -0.95) {
         dc = -0.95;
     }
 

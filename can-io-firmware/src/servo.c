@@ -4,10 +4,10 @@
 #include "servo.h"
 #include "quadramp/quadramp.h"
 
-#define SERVO_PWM_THREAD_FREQ   1000    // 1kHz
-#define SERVO_PWM_TIMER_FREQ    1000000 // 1MHz
-#define SERVO_PWM_PERIOD        20000   // 20 ms period
-#define SERVO_PWM_RAMP_SCALE    (SERVO_PWM_TIMER_FREQ / SERVO_PWM_THREAD_FREQ)
+#define SERVO_PWM_THREAD_FREQ 1000 // 1kHz
+#define SERVO_PWM_TIMER_FREQ 1000000 // 1MHz
+#define SERVO_PWM_PERIOD 20000 // 20 ms period
+#define SERVO_PWM_RAMP_SCALE (SERVO_PWM_TIMER_FREQ / SERVO_PWM_THREAD_FREQ)
 
 typedef struct {
     float setpoint; // Duty cycle setpoint
@@ -76,7 +76,7 @@ void servo_init(void)
 
 THD_FUNCTION(servo_thd, arg)
 {
-    (void) arg;
+    (void)arg;
     uint32_t pulsewidth[4];
 
     while (1) {

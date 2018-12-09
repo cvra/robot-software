@@ -3,17 +3,16 @@
 
 #include "robot_helpers/eurobot2018.h"
 
-TEST_GROUP(ACubeColorParser)
-{
+TEST_GROUP (ACubeColorParser) {
 };
 
 TEST(ACubeColorParser, FindsColorsFromValidCharacters)
 {
     CHECK_EQUAL(CUBE_YELLOW, cube_color_from_character('Y'));
-    CHECK_EQUAL( CUBE_GREEN, cube_color_from_character('G'));
-    CHECK_EQUAL(  CUBE_BLUE, cube_color_from_character('B'));
+    CHECK_EQUAL(CUBE_GREEN, cube_color_from_character('G'));
+    CHECK_EQUAL(CUBE_BLUE, cube_color_from_character('B'));
     CHECK_EQUAL(CUBE_ORANGE, cube_color_from_character('O'));
-    CHECK_EQUAL( CUBE_BLACK, cube_color_from_character('K'));
+    CHECK_EQUAL(CUBE_BLACK, cube_color_from_character('K'));
 }
 
 TEST(ACubeColorParser, DoesNotKnowColorGivenInvalidCharacters)

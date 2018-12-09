@@ -5,8 +5,8 @@
 extern "C" {
 #endif
 
-#define MAX_NB_MOTOR_DRIVERS            20
-#define MAX_NB_BUS_ENUMERATOR_ENTRIES   21
+#define MAX_NB_MOTOR_DRIVERS 20
+#define MAX_NB_BUS_ENUMERATOR_ENTRIES 21
 
 #include "motor_manager.h"
 #include "msgbus_protobuf.h"

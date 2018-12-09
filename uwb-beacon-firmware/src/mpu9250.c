@@ -14,21 +14,21 @@
 
 #define AK8963_MAG_SENSITIVITY (4912.0f / 32760)
 
-static uint8_t mpu9250_reg_read(mpu9250_t *dev, uint8_t reg);
-static void mpu9250_reg_write(mpu9250_t *dev, uint8_t reg, uint8_t val);
+static uint8_t mpu9250_reg_read(mpu9250_t* dev, uint8_t reg);
+static void mpu9250_reg_write(mpu9250_t* dev, uint8_t reg, uint8_t val);
 
-void mpu9250_init(mpu9250_t *dev, SPIDriver *spi_dev)
+void mpu9250_init(mpu9250_t* dev, SPIDriver* spi_dev)
 {
     dev->spi = spi_dev;
 }
 
-bool mpu9250_ping(mpu9250_t *dev)
+bool mpu9250_ping(mpu9250_t* dev)
 {
     int id = mpu9250_reg_read(dev, MPU9250_REG_WHO_AM_I);
     return id == 0x71;
 }
 
-void mpu9250_configure(mpu9250_t *dev)
+void mpu9250_configure(mpu9250_t* dev)
 {
     /* No FIFO, no external sync, gyroscope sample at 1 kHz, bandwidth 184 Hz */
     mpu9250_reg_write(dev, MPU9250_REG_CONFIG, 0x01);
@@ -59,13 +59,13 @@ void mpu9250_configure(mpu9250_t *dev)
                       MPU9250_REG_USER_CTRL_FIFO_EN | MPU9250_REG_USER_CTRL_FIFO_RST);
 }
 
-void mpu9250_reset(mpu9250_t *dev)
+void mpu9250_reset(mpu9250_t* dev)
 {
     /* Sets the H_RESET bit. */
     mpu9250_reg_write(dev, MPU9250_REG_PWR_MGMT_1, 0x80);
 }
 
-void mpu9250_enable_magnetometer(mpu9250_t *dev)
+void mpu9250_enable_magnetometer(mpu9250_t* dev)
 {
     /* Enable I2C module. */
     uint8_t ctrl = mpu9250_reg_read(dev, MPU9250_REG_USER_CTRL);
@@ -99,13 +99,13 @@ void mpu9250_enable_magnetometer(mpu9250_t *dev)
     mpu9250_reg_write(dev, MPU9250_REG_I2C_SLV0_CTRL, (1 << 7) + 0x7);
 }
 
-uint8_t mpu9250_interrupt_read_and_clear(mpu9250_t *dev)
+uint8_t mpu9250_interrupt_read_and_clear(mpu9250_t* dev)
 {
     /* Reading the interrupt status register clears it automatically. */
     return mpu9250_reg_read(dev, MPU9250_REG_INT_STATUS);
 }
 
-void mpu9250_gyro_read(mpu9250_t *dev, float *x, float *y, float *z)
+void mpu9250_gyro_read(mpu9250_t* dev, float* x, float* y, float* z)
 {
     uint8_t xh, xl, yh, yl, zh, zl;
     int16_t mes_x, mes_y, mes_z;
@@ -125,7 +125,7 @@ void mpu9250_gyro_read(mpu9250_t *dev, float *x, float *y, float *z)
     *z = mes_z * MPU9250_GYRO_SENSITIVITY;
 }
 
-void mpu9250_acc_read(mpu9250_t *dev, float *x, float *y, float *z)
+void mpu9250_acc_read(mpu9250_t* dev, float* x, float* y, float* z)
 {
     uint8_t xh, xl, yh, yl, zh, zl;
     int16_t mes_x, mes_y, mes_z;
@@ -145,7 +145,7 @@ void mpu9250_acc_read(mpu9250_t *dev, float *x, float *y, float *z)
     *z = mes_z * MPU9250_ACCEL_SENSITIVITY;
 }
 
-float mpu9250_temp_read(mpu9250_t *dev)
+float mpu9250_temp_read(mpu9250_t* dev)
 {
     uint8_t th, tl;
     int16_t temp;
@@ -158,9 +158,9 @@ float mpu9250_temp_read(mpu9250_t *dev)
     return MPU9250_TEMP_OFFSET + temp * MPU9250_TEMP_SENSITIVITY;
 }
 
-void mpu9250_mag_read(mpu9250_t *dev, float *x, float *y, float *z)
+void mpu9250_mag_read(mpu9250_t* dev, float* x, float* y, float* z)
 {
-    int16_t raw_x=0, raw_y=0, raw_z=0;
+    int16_t raw_x = 0, raw_y = 0, raw_z = 0;
 
     raw_x = mpu9250_reg_read(dev, MPU9250_REG_EXT_SENS_DATA_01);
     raw_x <<= 8;
@@ -179,7 +179,7 @@ void mpu9250_mag_read(mpu9250_t *dev, float *x, float *y, float *z)
     *z = raw_z * AK8963_MAG_SENSITIVITY;
 }
 
-static uint8_t mpu9250_reg_read(mpu9250_t *dev, uint8_t reg)
+static uint8_t mpu9250_reg_read(mpu9250_t* dev, uint8_t reg)
 {
     uint8_t ret = 0;
 
@@ -194,7 +194,7 @@ static uint8_t mpu9250_reg_read(mpu9250_t *dev, uint8_t reg)
     return ret;
 }
 
-static void mpu9250_reg_write(mpu9250_t *dev, uint8_t reg, uint8_t val)
+static void mpu9250_reg_write(mpu9250_t* dev, uint8_t reg, uint8_t val)
 {
     uint8_t cmd[] = {reg, val};
 

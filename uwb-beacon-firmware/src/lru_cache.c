@@ -1,29 +1,29 @@
 #include <unistd.h>
 #include "lru_cache.h"
 
-void cache_init(cache_t *cache, cache_entry_t *entries, unsigned entries_count)
+void cache_init(cache_t* cache, cache_entry_t* entries, unsigned entries_count)
 {
     unsigned i;
     cache->free_list = entries;
 
-    for (i=0;i<entries_count;i++) {
-        entries[i].next = &entries[i+1];
+    for (i = 0; i < entries_count; i++) {
+        entries[i].next = &entries[i + 1];
     }
 
-    entries[entries_count-1].next = NULL;
+    entries[entries_count - 1].next = NULL;
 
     cache->used_list = NULL;
 }
 
-cache_entry_t *cache_entry_allocate(cache_t *cache, uint32_t key)
+cache_entry_t* cache_entry_allocate(cache_t* cache, uint32_t key)
 {
-    cache_entry_t *ret;
+    cache_entry_t* ret;
 
     /* First case, we still have unused elements in the cache list */
     if (cache->free_list != NULL) {
         ret = cache->free_list;
         cache->free_list = cache->free_list->next;
-    /* Otherwise, use the oldest element. */
+        /* Otherwise, use the oldest element. */
     } else {
         cache_entry_t *prev, *cur;
         cur = cache->used_list;
@@ -47,7 +47,7 @@ cache_entry_t *cache_entry_allocate(cache_t *cache, uint32_t key)
     return ret;
 }
 
-cache_entry_t *cache_entry_get(cache_t *cache, uint32_t key)
+cache_entry_t* cache_entry_get(cache_t* cache, uint32_t key)
 {
     cache_entry_t *prev, *current;
 
@@ -67,5 +67,3 @@ cache_entry_t *cache_entry_get(cache_t *cache, uint32_t key)
 
     return current;
 }
-
-

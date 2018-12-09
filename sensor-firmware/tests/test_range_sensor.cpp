@@ -4,24 +4,17 @@
 #include "vl6180x/vl6180x.h"
 #include "vl6180x/vl6180x_registers.h"
 
-extern "C"
-uint8_t vl6180x_read_register(vl6180x_t *dev, uint16_t reg)
+extern "C" uint8_t vl6180x_read_register(vl6180x_t* dev, uint16_t reg)
 {
-    return mock().actualCall(__FUNCTION__)
-           .withIntParameter("reg", reg)
-           .returnIntValue();
+    return mock().actualCall(__FUNCTION__).withIntParameter("reg", reg).returnIntValue();
 }
 
-extern "C"
-void vl6180x_write_register(vl6180x_t *dev, uint16_t reg, uint8_t val)
+extern "C" void vl6180x_write_register(vl6180x_t* dev, uint16_t reg, uint8_t val)
 {
-    mock().actualCall(__FUNCTION__)
-    .withIntParameter("reg", reg)
-    .withIntParameter("val", val);
+    mock().actualCall(__FUNCTION__).withIntParameter("reg", reg).withIntParameter("val", val);
 }
 
-TEST_GROUP(VL6180XRegisterTestGroup)
-{
+TEST_GROUP (VL6180XRegisterTestGroup) {
     vl6180x_t dev;
     int i2c;
 
@@ -39,16 +32,12 @@ TEST_GROUP(VL6180XRegisterTestGroup)
 
     void expect_write(uint16_t reg, uint8_t val)
     {
-        mock().expectOneCall("vl6180x_write_register")
-        .withIntParameter("reg", reg)
-        .withIntParameter("val", val);
+        mock().expectOneCall("vl6180x_write_register").withIntParameter("reg", reg).withIntParameter("val", val);
     }
 
     void expect_read(uint16_t reg, uint8_t val)
     {
-        mock().expectOneCall("vl6180x_read_register")
-        .withIntParameter("reg", reg)
-        .andReturnValue(val);
+        mock().expectOneCall("vl6180x_read_register").withIntParameter("reg", reg).andReturnValue(val);
     }
 };
 
@@ -71,7 +60,6 @@ TEST(VL6180XRegisterTestGroup, CanReadRegister)
 
 TEST(VL6180XRegisterTestGroup, CanWriteRegister)
 {
-
     expect_write(0xaabb, 0xff);
 
     vl6180x_write_register(&dev, 0xaabb, 0xff);

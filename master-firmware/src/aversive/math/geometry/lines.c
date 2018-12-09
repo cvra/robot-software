@@ -19,7 +19,6 @@
  *
  */
 
-
 #include <stdint.h>
 #include <inttypes.h>
 #include <stdlib.h>
@@ -32,9 +31,9 @@
 #define DEBUG 0
 
 #if DEBUG == 1
-#define debug_printf(args ...) printf(args)
+#define debug_printf(args...) printf(args)
 #else
-#define debug_printf(args ...)
+#define debug_printf(args...)
 #endif
 
 /* return values :
@@ -45,7 +44,7 @@
  *  p argument is the crossing point coordinates (dummy for 0 or 2
  *  result)
  */
-int intersect_line(const line_t *l1, const line_t *l2, point_t *p)
+int intersect_line(const line_t* l1, const line_t* l2, point_t* p)
 {
     float tmp1, tmp2;
 
@@ -112,7 +111,7 @@ int intersect_line(const line_t *l1, const line_t *l2, point_t *p)
     return 1;
 }
 
-void pts2line(const point_t *p1, const point_t *p2, line_t *l)
+void pts2line(const point_t* p1, const point_t* p2, line_t* l)
 {
     float p1x, p1y, p2x, p2y;
 
@@ -121,16 +120,15 @@ void pts2line(const point_t *p1, const point_t *p2, line_t *l)
     p2x = p2->x;
     p2y = p2->y;
 
-
     l->a = -(p2y - p1y);
-    l->b =  (p2x - p1x);
+    l->b = (p2x - p1x);
     l->c = -(l->a * p1x + l->b * p1y);
 
     debug_printf("%s: %2.2f, %2.2f, %2.2f\r\n",
                  __FUNCTION__, l->a, l->b, l->c);
 }
 
-void proj_pt_line(const point_t * p, const line_t * l, point_t * p_out)
+void proj_pt_line(const point_t* p, const line_t* l, point_t* p_out)
 {
     line_t l_tmp;
 
@@ -140,10 +138,7 @@ void proj_pt_line(const point_t * p, const line_t * l, point_t * p_out)
 
     p_out->y = (l_tmp.a * l->c - l->a * l_tmp.c) / (l->a * l_tmp.b - l_tmp.a * l->b);
     p_out->x = (l->b * l_tmp.c - l_tmp.b * l->c) / (l->a * l_tmp.b - l_tmp.a * l->b);
-
 }
-
-
 
 /* return values:
  *  0 dont cross
@@ -154,10 +149,7 @@ void proj_pt_line(const point_t * p, const line_t * l, point_t * p_out)
  *  p argument is the crossing point coordinates (dummy for 0 1 or 3
  *  result)
  */
-int
-intersect_segment(const point_t *s1, const point_t *s2,
-                  const point_t *t1, const point_t *t2,
-                  point_t *p)
+int intersect_segment(const point_t* s1, const point_t* s2, const point_t* t1, const point_t* t2, point_t* p)
 {
     line_t l1, l2;
     int ret;
@@ -165,7 +157,7 @@ intersect_segment(const point_t *s1, const point_t *s2,
     vect_t v, w;
 
     debug_printf("s1:%" PRIi32 ",%" PRIi32 " s2:%" PRIi32 ",%" PRIi32 " "
-                                                                      "t1:%" PRIi32 ",%" PRIi32 " t2:%" PRIi32 ",%" PRIi32 "\r\n",
+                 "t1:%" PRIi32 ",%" PRIi32 " t2:%" PRIi32 ",%" PRIi32 "\r\n",
                  s1->x,
                  s1->y,
                  s2->x,
@@ -203,7 +195,6 @@ intersect_segment(const point_t *s1, const point_t *s2,
         return 0;
     }
 
-
     /* if points equal */
     if (s1->x == t1->x && s1->y == t1->y) {
         *p = *s1;
@@ -234,7 +225,7 @@ intersect_segment(const point_t *s1, const point_t *s2,
     v.y = p->y - s1->y;
     w.x = p->x - s2->x;
     w.y = p->y - s2->y;
-    u1 = vect_pscal_sign(&v, &w );
+    u1 = vect_pscal_sign(&v, &w);
 
     v.x = p->x - t1->x;
     v.y = p->y - t1->y;
@@ -253,9 +244,8 @@ intersect_segment(const point_t *s1, const point_t *s2,
     }
 
     return 1;
-
 }
-void line_translate(line_t *l, vect_t *v)
+void line_translate(line_t* l, vect_t* v)
 {
     l->c -= (l->a * v->x + l->b * v->y);
 }

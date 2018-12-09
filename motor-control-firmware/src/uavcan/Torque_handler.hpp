@@ -2,6 +2,6 @@
 #define TORQUE_HANDLER_HPP
 
 #include "uavcan_node.h"
-int Torque_handler_start(Node &node);
+int Torque_handler_start(Node& node);
 
 #endif

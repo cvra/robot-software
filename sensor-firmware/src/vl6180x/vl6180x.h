@@ -11,7 +11,7 @@ extern "C" {
 #define VL6180X_DEFAULT_ADDRESS 0x29
 
 typedef struct {
-    void *i2c;
+    void* i2c;
     uint8_t address;
 } vl6180x_t;
 
@@ -24,23 +24,23 @@ typedef struct {
  * @parameter address The device address to use. Unless you changed the address
  * in software, it should be VL6180X_DEFAULT_ADDRESS.
  * */
-void vl6180x_init(vl6180x_t *dev, void *i2c_dev, uint8_t address);
+void vl6180x_init(vl6180x_t* dev, void* i2c_dev, uint8_t address);
 
 /** Returns 0 if the distance was measured correctly, the error code otherwise. */
-uint8_t vl6180x_measure_distance(vl6180x_t *dev, uint8_t *out_mm);
+uint8_t vl6180x_measure_distance(vl6180x_t* dev, uint8_t* out_mm);
 
 /** Sends initial configuration to device. */
-void vl6180x_configure(vl6180x_t *dev);
+void vl6180x_configure(vl6180x_t* dev);
 
 /** Change default I2C address */
-void vl6180x_change_i2c_address(vl6180x_t *dev, uint8_t address);
+void vl6180x_change_i2c_address(vl6180x_t* dev, uint8_t address);
 
 /** Check if sensor is present on I2C */
-bool vl6180x_ping(vl6180x_t *dev);
+bool vl6180x_ping(vl6180x_t* dev);
 
 /** Those functions are hardware specific and must be provided by the user. */
-extern uint8_t vl6180x_read_register(vl6180x_t *dev, uint16_t reg);
-extern void vl6180x_write_register(vl6180x_t *dev, uint16_t reg, uint8_t val);
+extern uint8_t vl6180x_read_register(vl6180x_t* dev, uint16_t reg);
+extern void vl6180x_write_register(vl6180x_t* dev, uint16_t reg, uint8_t val);
 
 #ifdef __cplusplus
 }

@@ -11,11 +11,8 @@ extern event_source_t uwb_event;
 /** Starts the external interrupt processing service. */
 void exti_start(void);
 
-
 #ifdef __cplusplus
 }
 #endif
-
-
 
 #endif /* EXTI_H */

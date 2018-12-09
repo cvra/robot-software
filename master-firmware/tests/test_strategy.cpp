@@ -5,57 +5,69 @@
 #include "strategy/goals.h"
 #include "strategy/actions.h"
 
-bool dummy_execute(goap::Action<RobotState>* action, RobotState &state)
+bool dummy_execute(goap::Action<RobotState>* action, RobotState& state)
 {
     action->plan_effects(state);
     return true;
 }
 
 struct IndexArms : actions::IndexArms {
-    bool execute(RobotState &state) { return dummy_execute(this, state); }
+    bool execute(RobotState& state) { return dummy_execute(this, state); }
 };
 struct RetractArms : actions::RetractArms {
-    bool execute(RobotState &state) { return dummy_execute(this, state); }
+    bool execute(RobotState& state) { return dummy_execute(this, state); }
 };
 struct PickupCubesRight : actions::PickupCubesRight {
-    PickupCubesRight(int id) : actions::PickupCubesRight(id) {}
-    bool execute(RobotState &state) { return dummy_execute(this, state); }
+    PickupCubesRight(int id)
+        : actions::PickupCubesRight(id)
+    {
+    }
+    bool execute(RobotState& state) { return dummy_execute(this, state); }
 };
 struct PickupCubesLeft : actions::PickupCubesLeft {
-    PickupCubesLeft(int id) : actions::PickupCubesLeft(id) {}
-    bool execute(RobotState &state) { return dummy_execute(this, state); }
+    PickupCubesLeft(int id)
+        : actions::PickupCubesLeft(id)
+    {
+    }
+    bool execute(RobotState& state) { return dummy_execute(this, state); }
 };
 struct TurnSwitchOn : actions::TurnSwitchOn {
-    bool execute(RobotState &state) { return dummy_execute(this, state); }
+    bool execute(RobotState& state) { return dummy_execute(this, state); }
 };
 struct DeployTheBee : actions::DeployTheBee {
-    bool execute(RobotState &state) { return dummy_execute(this, state); }
+    bool execute(RobotState& state) { return dummy_execute(this, state); }
 };
 struct DepositCubes : actions::DepositCubes {
-    DepositCubes(int id) : actions::DepositCubes(id) {}
-    bool execute(RobotState &state) { return dummy_execute(this, state); }
+    DepositCubes(int id)
+        : actions::DepositCubes(id)
+    {
+    }
+    bool execute(RobotState& state) { return dummy_execute(this, state); }
 };
 struct BuildTowerLevel : actions::BuildTowerLevel {
-    BuildTowerLevel(int id, int level) : actions::BuildTowerLevel(id, level) {}
-    bool execute(RobotState &state) { return dummy_execute(this, state); }
+    BuildTowerLevel(int id, int level)
+        : actions::BuildTowerLevel(id, level)
+    {
+    }
+    bool execute(RobotState& state) { return dummy_execute(this, state); }
 };
 struct FireBallGunIntoWaterTower : actions::FireBallGunIntoWaterTower {
-    bool execute(RobotState &state) { return dummy_execute(this, state); }
+    bool execute(RobotState& state) { return dummy_execute(this, state); }
 };
 struct FireBallGunIntoWasteWaterTreatmentPlant : actions::FireBallGunIntoWasteWaterTreatmentPlant {
-    bool execute(RobotState &state) { return dummy_execute(this, state); }
+    bool execute(RobotState& state) { return dummy_execute(this, state); }
 };
 struct EmptyMonocolorWasteWaterCollector : actions::EmptyMonocolorWasteWaterCollector {
-    bool execute(RobotState &state) { return dummy_execute(this, state); }
+    bool execute(RobotState& state) { return dummy_execute(this, state); }
 };
 struct EmptyMulticolorWasteWaterCollector : actions::EmptyMulticolorWasteWaterCollector {
-    bool execute(RobotState &state) { return dummy_execute(this, state); }
+    bool execute(RobotState& state) { return dummy_execute(this, state); }
 };
 struct TurnOpponentSwitchOff : actions::TurnOpponentSwitchOff {
-    bool execute(RobotState &state) { return dummy_execute(this, state); }
+    bool execute(RobotState& state) { return dummy_execute(this, state); }
 };
 
-TEST_GROUP(Strategy) {
+TEST_GROUP (Strategy) {
     RobotState state;
 
     IndexArms index_arms;
@@ -120,10 +132,10 @@ TEST_GROUP(Strategy) {
         };
     }
 
-    int compute_and_execute_plan(goap::Goal<RobotState>& goal, RobotState& state)
+    int compute_and_execute_plan(goap::Goal<RobotState> & goal, RobotState & state)
     {
         const int max_path_len = 10;
-        goap::Action<RobotState> *path[max_path_len] = {nullptr};
+        goap::Action<RobotState>* path[max_path_len] = {nullptr};
         goap::Planner<RobotState, GOAP_SPACE_SIZE> planner;
         auto actions = availableActions();
 
@@ -164,7 +176,6 @@ TEST(Strategy, CanNotPushTheInterruptorWhenPanelIsNotOnTheMap)
 
     CHECK_TRUE(len < 0);
 }
-
 
 TEST(Strategy, CanPushTheBee)
 {

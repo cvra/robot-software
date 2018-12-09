@@ -40,15 +40,14 @@
 
 #if DEBUG_OA == 1
 #include "log.h"
-#define DEBUG_OA_PRINTF(a, ...) log_message(a, ## __VA_ARGS__)
+#define DEBUG_OA_PRINTF(a, ...) log_message(a, ##__VA_ARGS__)
 #else
-#define DEBUG_OA_PRINTF(args ...)
+#define DEBUG_OA_PRINTF(args...)
 #endif
 
 static struct obstacle_avoidance oa;
 
-static void __oa_start_end_points(int32_t st_x, int32_t st_y,
-                                  int32_t en_x, int32_t en_y);
+static void __oa_start_end_points(int32_t st_x, int32_t st_y, int32_t en_x, int32_t en_y);
 
 /* reset oa without reseting points coord */
 static void oa_reset(void)
@@ -83,7 +82,7 @@ void oa_init(void)
     oa.cur_poly_idx = 1;
 }
 
-void oa_copy(struct obstacle_avoidance *copy)
+void oa_copy(struct obstacle_avoidance* copy)
 {
     memset(copy, 0, sizeof(oa));
     memcpy(copy, &oa, sizeof(oa));
@@ -92,8 +91,7 @@ void oa_copy(struct obstacle_avoidance *copy)
 /**
  * Set the start and destination point. Return 0 on sucess
  */
-static void __oa_start_end_points(int32_t st_x, int32_t st_y,
-                                  int32_t en_x, int32_t en_y)
+static void __oa_start_end_points(int32_t st_x, int32_t st_y, int32_t en_x, int32_t en_y)
 {
     /* we always use the first 2 points of the table for start and end */
     oa.points[0].x = en_x;
@@ -118,18 +116,16 @@ static void __oa_start_end_points(int32_t st_x, int32_t st_y,
 /**
  * Set the start and destination point. Return 0 on sucess
  */
-void oa_start_end_points(int32_t st_x, int32_t st_y,
-                         int32_t en_x, int32_t en_y)
+void oa_start_end_points(int32_t st_x, int32_t st_y, int32_t en_x, int32_t en_y)
 {
     DEBUG_OA_PRINTF("%s() (%ld,%ld) (%ld,%ld)\r", __FUNCTION__, st_x, st_y, en_x, en_y);
     __oa_start_end_points(st_x, st_y, en_x, en_y);
 }
 
-
 /**
  * Create a new obstacle polygon. Return NULL on error.
  */
-poly_t *oa_new_poly(int size)
+poly_t* oa_new_poly(int size)
 {
     DEBUG_OA_PRINTF("%s(size=%d)\r", __FUNCTION__, size);
 
@@ -162,8 +158,10 @@ int oa_segment_intersect_obstacle(point_t p1, point_t p2)
 /**
  * Add a point to the polygon.
  */
-void oa_poly_set_point(poly_t *pol,
-                       int32_t x, int32_t y, int i)
+void oa_poly_set_point(poly_t* pol,
+                       int32_t x,
+                       int32_t y,
+                       int i)
 {
     DEBUG_OA_PRINTF("%s() (%ld,%ld)\r", "oa_s_p", x, y);
 
@@ -173,7 +171,7 @@ void oa_poly_set_point(poly_t *pol,
     oa.pweight[GET_PT(pol->pts[i])] = 0;
 }
 
-int oa_get_path(point_t **path)
+int oa_get_path(point_t** path)
 {
     *path = oa.res;
     return oa.res_len;
@@ -183,8 +181,8 @@ void oa_dump(void)
 {
 #if DEBUG_OA == 1
     int i, j;
-    poly_t *poly;
-    point_t *pt;
+    poly_t* poly;
+    point_t* pt;
 
     DEBUG_OA_PRINTF("-- OA dump --\r");
     DEBUG_OA_PRINTF("nb_polys: %d\r", oa.cur_poly_idx);
@@ -216,8 +214,7 @@ void oa_dump(void)
  * When the algo finds a shorter path to reach a point B from point A,
  * it will store in (p, pt) the parent point. This is important to
  * remenber and extract the solution path. */
-void
-dijkstra(int start_p, uint8_t start)
+void dijkstra(int start_p, uint8_t start)
 {
     int i;
     int8_t add;
@@ -245,7 +242,6 @@ dijkstra(int start_p, uint8_t start)
                  * ray array is (poly_num, point_num)
                  * we wtep 2 by 2. */
                 for (i = 0; i < oa.ray_n; i += 2) {
-
                     /* If index is even in the
                      * aray, we have a start point
                      * ray, so connected point is
@@ -260,11 +256,7 @@ dijkstra(int start_p, uint8_t start)
                         continue;
                     }
 
-                    if ((oa.pweight[GET_PT(oa.polys[oa.rays[i + add]].pts[oa.rays[i + add + 1]])] !=
-                         0) &&
-                        (oa.pweight[GET_PT(oa.polys[start_p].pts[start])] + oa.weight[i / 4] >=
-                         oa.pweight[GET_PT(oa.polys[oa.rays[i + add]].pts[oa.rays[i + add +
-                                                                                  1]])])) {
+                    if ((oa.pweight[GET_PT(oa.polys[oa.rays[i + add]].pts[oa.rays[i + add + 1]])] != 0) && (oa.pweight[GET_PT(oa.polys[start_p].pts[start])] + oa.weight[i / 4] >= oa.pweight[GET_PT(oa.polys[oa.rays[i + add]].pts[oa.rays[i + add + 1]])])) {
                         continue;
                     }
 
@@ -286,19 +278,15 @@ dijkstra(int start_p, uint8_t start)
 
                                     oa.polys[oa.rays[i + add]].pts[oa.rays[i + add + 1]].x,
                                     oa.polys[oa.rays[i + add]].pts[oa.rays[i + add + 1]].y,
-                                    oa.pweight[GET_PT(oa.polys[oa.rays[i + add]].pts[oa.rays[i +
-                                                                                             add +
-                                                                                             1]])]
-                                    );
+                                    oa.pweight[GET_PT(oa.polys[oa.rays[i + add]].pts[oa.rays[i + add + 1]])]);
                 }
             }
         }
     }
 }
 
-
 /* display the path */
-int8_t get_path(poly_t *polys)
+int8_t get_path(poly_t* polys)
 {
     int p, pt, p1, pt1, i;
 
@@ -309,22 +297,22 @@ int8_t get_path(poly_t *polys)
     /* forget the first point */
 
     while (!(p == 0 && pt == 0)) {
-
         if (i >= MAX_CHKPOINTS) {
             return -1;
         }
 
         if (oa.valid[GET_PT(polys[p].pts[pt])] == 0) {
-            DEBUG_OA_PRINTF( "invalid path!\r");
+            DEBUG_OA_PRINTF("invalid path!\r");
             return -2;
         }
 
         p1 = oa.p[GET_PT(polys[p].pts[pt])];
-        pt1 =  oa.pt[GET_PT(polys[p].pts[pt])];
-        p = p1; pt = pt1;
+        pt1 = oa.pt[GET_PT(polys[p].pts[pt])];
+        p = p1;
+        pt = pt1;
         oa.res[i].x = polys[p].pts[pt].x;
         oa.res[i].y = polys[p].pts[pt].y;
-        DEBUG_OA_PRINTF( "result[%d]: %2.0f, %2.0f\r", i, oa.res[i].x, oa.res[i].y);
+        DEBUG_OA_PRINTF("result[%d]: %2.0f, %2.0f\r", i, oa.res[i].x, oa.res[i].y);
         i++;
     }
 
@@ -366,7 +354,7 @@ oa_process(void)
     /* We aplly dijkstra on the visibility graph from the start
      * point (point 0 of the polygon 0) */
     oa.ray_n = ret;
-    DEBUG_OA_PRINTF( "dijkstra ray_n = %d\r", ret);
+    DEBUG_OA_PRINTF("dijkstra ray_n = %d\r", ret);
     dijkstra(0, 0);
 
     /* As dijkstra sets the parent points in the resulting graph,

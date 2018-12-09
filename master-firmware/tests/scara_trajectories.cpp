@@ -7,12 +7,10 @@ extern "C" {
 
 extern void scara_time_set(int32_t time);
 
-
-TEST_GROUP(AnArmTrajectory)
-{
+TEST_GROUP (AnArmTrajectory) {
     scara_trajectory_t traj;
     float arbitraryLengths[2] = {100, 50};
-    velocity_3d_t max_vel = {.x=1, .y=1, .z=1};
+    velocity_3d_t max_vel = {.x = 1, .y = 1, .z = 1};
 
     void setup()
     {
@@ -26,14 +24,12 @@ TEST_GROUP(AnArmTrajectory)
 
     void make_trajectory_of_length(int number_of_points)
     {
-        for (auto i = 0; i < number_of_points; i++)
-        {
+        for (auto i = 0; i < number_of_points; i++) {
             float j = i;
             scara_trajectory_append_point(&traj, {j, j, j}, COORDINATE_ARM, max_vel, arbitraryLengths);
         }
     }
 };
-
 
 TEST(AnArmTrajectory, AppendsOnePoint)
 {
@@ -50,15 +46,14 @@ TEST(AnArmTrajectory, AppendsMultiplePoints)
     CHECK_EQUAL(traj.frames[1].date, 1000000);
 }
 
-
 TEST(AnArmTrajectory, ComputesDateCorrectly)
 {
     scara_trajectory_append_point(&traj, {10, 10, 10}, COORDINATE_ARM, max_vel, arbitraryLengths);
     scara_trajectory_append_point(&traj, {20, 20, 20}, COORDINATE_ARM, max_vel, arbitraryLengths);
     scara_trajectory_append_point(&traj, {35, 35, 35}, COORDINATE_ARM, max_vel, arbitraryLengths);
 
-    CHECK_EQUAL(traj.frames[1].date, 10*1000000);
-    CHECK_EQUAL(traj.frames[2].date, 25*1000000);
+    CHECK_EQUAL(traj.frames[1].date, 10 * 1000000);
+    CHECK_EQUAL(traj.frames[2].date, 25 * 1000000);
 }
 
 TEST(AnArmTrajectory, DeletesTrajectory)
@@ -136,8 +131,7 @@ TEST(AnArmTrajectory, IsNotEmptyWhenFilledWithPoints)
     CHECK_FALSE(scara_trajectory_is_empty(&traj));
 }
 
-TEST_GROUP(AnArmTrajectoryDuration)
-{
+TEST_GROUP (AnArmTrajectoryDuration) {
     position_3d_t start = {0, 0, 0};
 };
 

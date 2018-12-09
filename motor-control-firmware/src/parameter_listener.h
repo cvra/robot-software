@@ -7,7 +7,7 @@ extern "C" {
 
 #include <ch.h>
 
-void parameter_listener_start(BaseSequentialStream *dev);
+void parameter_listener_start(BaseSequentialStream* dev);
 
 #ifdef __cplusplus
 }

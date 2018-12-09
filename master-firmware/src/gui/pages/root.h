@@ -10,7 +10,7 @@ typedef struct {
 } page_root_t;
 
 void page_root_init(void* arg);
-void page_root_load(void *arg);
-void page_root_delete(void *arg);
+void page_root_load(void* arg);
+void page_root_delete(void* arg);
 
 #endif /* GUI_PAGE_ROOT_H */

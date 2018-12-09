@@ -32,11 +32,11 @@ typedef struct {
     lever_state_t state;
     lever_pump_state_t pump_state;
 
-    se2_t robot_pose_at_pickup;     // Robot pose at pickup (table frame)
-    se2_t blocks_pose_at_pickup;    // Blocks pose at pickup (table frame)
+    se2_t robot_pose_at_pickup; // Robot pose at pickup (table frame)
+    se2_t blocks_pose_at_pickup; // Blocks pose at pickup (table frame)
 
-    float servo_retracted_pwm;  // pwm duty cycle in seconds to retract servo
-    float servo_deployed_pwm;   // pwm duty cycle in seconds to deploy servo
+    float servo_retracted_pwm; // pwm duty cycle in seconds to retract servo
+    float servo_deployed_pwm; // pwm duty cycle in seconds to deploy servo
     mutex_t lock;
 } lever_t;
 

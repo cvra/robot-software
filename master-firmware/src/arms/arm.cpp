@@ -1,7 +1,8 @@
 #include "arm.h"
 
 ArmTrajectory::ArmTrajectory(scara_t* arm)
-    : m_arm(arm), m_duration(0.)
+    : m_arm(arm)
+    , m_duration(0.)
 {
     scara_trajectory_init(&m_trajectory);
 }
@@ -27,7 +28,7 @@ ArmTrajectory& ArmTrajectory::startAt(const ArmTrajectoryFrame& frame)
     scara_trajectory_init(&m_trajectory);
     scara_trajectory_append_point(&m_trajectory, frame.position,
                                   frame.coordinate,
-                                  {.x=500.f, .y=500.f, .z=1000.f},
+                                  {.x = 500.f, .y = 500.f, .z = 1000.f},
                                   m_arm->length);
     m_duration = 0.f;
     return *this;
@@ -37,7 +38,7 @@ ArmTrajectory& ArmTrajectory::goThrough(const ArmTrajectoryFrame& frame)
 {
     scara_trajectory_append_point(&m_trajectory, frame.position,
                                   frame.coordinate,
-                                  {.x=500.f, .y=500.f, .z=1000.f},
+                                  {.x = 500.f, .y = 500.f, .z = 1000.f},
                                   m_arm->length);
     m_duration += 1.f;
     return *this;

@@ -63,7 +63,7 @@ static void ballgun_update_settings(ballgun_t* ballgun, parameter_namespace_t* n
 
 static THD_FUNCTION(ballgun_module_thd, arg)
 {
-    (void) arg;
+    (void)arg;
     chRegSetThreadName(__FUNCTION__);
 
     /* Run auxiliary thread to read ball sensor */

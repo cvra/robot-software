@@ -3,9 +3,7 @@
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
 
-
-TEST_GROUP(KalmanPredictor)
-{
+TEST_GROUP (KalmanPredictor) {
     typedef EKF::Predictor<5, 1> Predictor;
 };
 
@@ -34,10 +32,10 @@ TEST(KalmanPredictor, DefaultJacobianIsIdentity)
 TEST(KalmanPredictor, CanPredictCorrectlyNewState)
 {
     // Sample class showing how to implement a specific Kalman model
-    class MyPredictor : public EKF::Predictor<1, 1>
-    {
-public:
-        MyPredictor() : EKF::Predictor<1, 1>(0.1 * Covariance::Identity())
+    class MyPredictor : public EKF::Predictor<1, 1> {
+    public:
+        MyPredictor()
+            : EKF::Predictor<1, 1>(0.1 * Covariance::Identity())
         {
         }
 
@@ -66,15 +64,15 @@ public:
     DOUBLES_EQUAL(0.2, sigma(0, 0), 0.001);
 }
 
-TEST_GROUP(KalmanCorrector)
-{
+TEST_GROUP (KalmanCorrector) {
 };
 
 TEST(KalmanCorrector, MeasurementModel)
 {
     class MyCorrector : public EKF::Corrector<1, 1> {
-public:
-        MyCorrector(float noise) : EKF::Corrector<1, 1>(noise * Measurement::Identity())
+    public:
+        MyCorrector(float noise)
+            : EKF::Corrector<1, 1>(noise * Measurement::Identity())
         {
         }
 

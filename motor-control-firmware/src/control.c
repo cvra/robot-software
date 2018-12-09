@@ -26,8 +26,6 @@ struct pid_param_s {
     parameter_t i_limit;
 };
 
-
-
 struct feedback_s control_feedback;
 motor_protection_t control_motor_protection;
 
@@ -131,8 +129,7 @@ void control_update_torque_setpoint(float torque)
     ctrl.current_setpoint = torque * ctrl.motor_current_constant;
 }
 
-void control_update_trajectory_setpoint(float pos, float vel, float acc,
-                                        float torque, timestamp_t ts)
+void control_update_trajectory_setpoint(float pos, float vel, float acc, float torque, timestamp_t ts)
 {
     chBSemWait(&setpoint_interpolation_lock);
     setpoint_update_trajectory(&setpoint_interpolation, pos, vel, acc, torque, ts);
@@ -151,7 +148,6 @@ void control_update_voltage_setpoint(float voltage)
     chBSemSignal(&setpoint_interpolation_lock);
     last_setpoint_update = timestamp_get();
 }
-
 
 float control_get_motor_voltage(void)
 {
@@ -218,15 +214,13 @@ float control_get_position_setpoint(void)
     return ctrl.position_setpoint;
 }
 
-
 static void set_motor_voltage(float u)
 {
     float u_batt = analog_get_battery_voltage();
     motor_pwm_set(u / u_batt);
 }
 
-
-static void pid_param_declare(struct pid_param_s *p, parameter_namespace_t *ns)
+static void pid_param_declare(struct pid_param_s* p, parameter_namespace_t* ns)
 {
     parameter_scalar_declare_with_default(&p->kp, ns, "kp", 0);
     parameter_scalar_declare_with_default(&p->ki, ns, "ki", 0);
@@ -234,21 +228,18 @@ static void pid_param_declare(struct pid_param_s *p, parameter_namespace_t *ns)
     parameter_scalar_declare_with_default(&p->i_limit, ns, "i_limit", INFINITY);
 }
 
-static void pid_param_update(struct pid_param_s *p, pid_ctrl_t *ctrl)
+static void pid_param_update(struct pid_param_s* p, pid_ctrl_t* ctrl)
 {
-    if (parameter_changed(&p->kp) ||
-        parameter_changed(&p->ki) ||
-        parameter_changed(&p->kd)) {
+    if (parameter_changed(&p->kp) || parameter_changed(&p->ki) || parameter_changed(&p->kd)) {
         pid_set_gains(ctrl, parameter_scalar_get(&p->kp),
-                            parameter_scalar_get(&p->ki),
-                            parameter_scalar_get(&p->kd));
+                      parameter_scalar_get(&p->ki),
+                      parameter_scalar_get(&p->kd));
         pid_reset_integral(ctrl);
     }
     if (parameter_changed(&p->i_limit)) {
         pid_set_integral_limit(ctrl, parameter_scalar_get(&p->i_limit));
     }
 }
-
 
 static void declare_parameters(void)
 {
@@ -302,7 +293,6 @@ static void declare_parameters(void)
     parameter_scalar_declare_with_default(&rpm_params.phase, &rpm_params.ns, "phase", 0.);
 }
 
-
 void control_init(void)
 {
     declare_parameters();
@@ -328,8 +318,6 @@ void control_init(void)
 
     last_setpoint_update = timestamp_get();
 }
-
-
 
 static void update_parameters(void)
 {
@@ -379,7 +367,7 @@ static void update_parameters(void)
     if (parameter_namespace_contains_changed(&motor_params.ns)) {
         if (parameter_changed(&motor_params.torque_cst)) {
             float transmission = (float)control_feedback.primary_encoder.transmission_p / control_feedback.primary_encoder.transmission_q;
-            ctrl.motor_current_constant = 1/(parameter_scalar_get(&motor_params.torque_cst) / transmission);
+            ctrl.motor_current_constant = 1 / (parameter_scalar_get(&motor_params.torque_cst) / transmission);
         }
     }
     if (parameter_namespace_contains_changed(&thermal_params.ns)) {
@@ -389,7 +377,6 @@ static void update_parameters(void)
                               parameter_scalar_get(&thermal_params.Cth),
                               parameter_scalar_get(&thermal_params.current_gain));
     }
-
 }
 
 #define CONTROL_WAKEUP_EVENT 1
@@ -407,10 +394,8 @@ static THD_FUNCTION(control_loop, arg)
                                (eventmask_t)CONTROL_WAKEUP_EVENT,
                                (eventflags_t)ANALOG_EVENT_CONVERSION_DONE);
 
-
-    const float delta_t = 1/(float)ANALOG_CONVERSION_FREQUENCY;
+    const float delta_t = 1 / (float)ANALOG_CONVERSION_FREQUENCY;
     while (!control_request_termination) {
-
         update_parameters();
 
         // sensor feedback
@@ -427,7 +412,6 @@ static THD_FUNCTION(control_loop, arg)
         ctrl.current = analog_get_motor_current();
         ctrl.torque = ctrl.current / ctrl.motor_current_constant;
         // ctrl.current_limit = motor_protection_update(&control_motor_protection, ctrl.current, delta_t);
-
 
         timestamp_t now = timestamp_get();
         if (analog_get_battery_voltage() < low_batt_th

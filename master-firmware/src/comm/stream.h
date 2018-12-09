@@ -3,7 +3,7 @@
 
 #include <ch.h>
 
-#define STREAM_TIMESTEP_MS  10
+#define STREAM_TIMESTEP_MS 10
 
 #ifdef __cplusplus
 extern "C" {

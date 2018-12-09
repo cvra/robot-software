@@ -12,11 +12,10 @@ typedef int semaphore_t;
 
 void lock_mocks_enable(bool enabled);
 
-void chMtxObjectInit(mutex_t *mp);
-void chMtxLock(mutex_t *lock);
-void chMtxUnlock(mutex_t *lock);
+void chMtxObjectInit(mutex_t* mp);
+void chMtxLock(mutex_t* lock);
+void chMtxUnlock(mutex_t* lock);
 void chThdSleepMilliseconds(int milliseconds);
-
 
 #ifdef __cplusplus
 }

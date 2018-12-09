@@ -13,8 +13,7 @@ void POINT_EQUAL(point_t expected, point_t actual)
     CHECK_EQUAL(expected.y, actual.y);
 }
 
-TEST_GROUP(MapRectangularObstacle)
-{
+TEST_GROUP (MapRectangularObstacle) {
     point_t opponent_points[4];
     poly_t opponent;
 
@@ -53,9 +52,7 @@ TEST(MapRectangularObstacle, setsRectangularPolygonAtClampedPosition)
     POINT_EQUAL({250, 0}, opponent.pts[0]);
 };
 
-
-TEST_GROUP(MapOpponentObstacleSetter)
-{
+TEST_GROUP (MapOpponentObstacleSetter) {
     struct _map map;
     const int arbitrary_pos_x = 700;
     const int arbitrary_pos_y = 800;
@@ -79,9 +76,7 @@ TEST(MapOpponentObstacleSetter, setsSquarePolygonObstacleAtRobotPositionInCounte
     POINT_EQUAL({950, 550}, opponent->pts[0]);
 };
 
-
-TEST_GROUP(MapOpponentObstacleUpdater)
-{
+TEST_GROUP (MapOpponentObstacleUpdater) {
     struct _map map;
     const int arbitrary_pos_x = 700;
     const int arbitrary_pos_y = 800;
@@ -132,8 +127,7 @@ TEST(MapOpponentObstacleUpdater, loopsBackAfterMaximumNumberOfOpponentsReached)
     POINT_EQUAL({950, 550}, opponent->pts[0]);
 };
 
-TEST_GROUP(MapEurobot2017)
-{
+TEST_GROUP (MapEurobot2017) {
     struct _map map;
     const int arbitrary_robot_size = 260;
 
@@ -141,18 +135,17 @@ TEST_GROUP(MapEurobot2017)
     {
         map_init(&map, arbitrary_robot_size);
     }
-
 };
 
 TEST(MapEurobot2017, canMoveOnYellowGoOut)
 {
-    point_t start = {.x = 890, .y=200};
-    point_t end = {.x =1200 , .y=400};
+    point_t start = {.x = 890, .y = 200};
+    point_t end = {.x = 1200, .y = 400};
 
     oa_start_end_points(start.x, start.y, end.x, end.y);
     oa_process();
 
-    point_t *points;
+    point_t* points;
     auto point_cnt = oa_get_path(&points);
 
     CHECK_EQUAL(1, point_cnt);
@@ -161,21 +154,20 @@ TEST(MapEurobot2017, canMoveOnYellowGoOut)
 
 TEST(MapEurobot2017, canMoveOnBlueGoOut)
 {
-    point_t start = {.x = 2110, .y=200};
-    point_t end = {.x =1800 , .y=400};
+    point_t start = {.x = 2110, .y = 200};
+    point_t end = {.x = 1800, .y = 400};
 
     oa_start_end_points(start.x, start.y, end.x, end.y);
     oa_process();
 
-    point_t *points;
+    point_t* points;
     auto point_cnt = oa_get_path(&points);
 
     CHECK_EQUAL(1, point_cnt);
     POINT_EQUAL(end, points[0]);
 };
 
-TEST_GROUP(AMap)
-{
+TEST_GROUP (AMap) {
     struct _map map;
 
     void setup()

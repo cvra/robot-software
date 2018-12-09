@@ -3,7 +3,7 @@
 #include "servo.h"
 #include "main.h"
 
-void ServoPWM_handler(const uavcan::ReceivedDataStructure<cvra::io::ServoPWM> &msg)
+void ServoPWM_handler(const uavcan::ReceivedDataStructure<cvra::io::ServoPWM>& msg)
 {
     float pos[4];
     float vel[4];

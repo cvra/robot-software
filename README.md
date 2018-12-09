@@ -31,3 +31,10 @@ Other important software components can be found in this repo:
 - `user-guide` contains high-level documentation about software and electronics components used on our robots
 
 The [user guide](http://cvra.ch/robot-software) is generated using mdbook from [doc/user-guide](/doc/user-guide)
+
+# Coding style
+
+We use `clang-format` (tested with version 7 or greater) to enforce proper source code formatting.
+You can use the `format-all.sh` script in the root directory to format the whole source tree.
+You can also use `clang-format -i --style=file src/foo.c` to format a particular file.
+Finally, some editors include support for `clang-format` through plugin, check for yourself.

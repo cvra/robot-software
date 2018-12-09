@@ -72,16 +72,16 @@ limitations under the License.
 #include "netif/etharp.h"
 #include "netif/ppp/pppoe.h"
 
-#define PERIODIC_TIMER_ID       1
-#define FRAME_RECEIVED_ID       2
+#define PERIODIC_TIMER_ID 1
+#define FRAME_RECEIVED_ID 2
 
 static sys_sem_t lwip_init_done;
-
 
 /*
  * Initialization.
  */
-static void low_level_init(struct netif *netif) {
+static void low_level_init(struct netif* netif)
+{
     /* set MAC hardware address length */
     netif->hwaddr_len = ETHARP_HWADDR_LEN;
 
@@ -98,8 +98,9 @@ static void low_level_init(struct netif *netif) {
 /*
  * Transmits a frame.
  */
-static err_t low_level_output(struct netif *netif, struct pbuf *p) {
-    struct pbuf *q;
+static err_t low_level_output(struct netif* netif, struct pbuf* p)
+{
+    struct pbuf* q;
     MACTransmitDescriptor td;
 
     (void)netif;
@@ -108,17 +109,17 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p) {
     }
 
 #if ETH_PAD_SIZE
-    pbuf_header(p, -ETH_PAD_SIZE);        /* drop the padding word */
+    pbuf_header(p, -ETH_PAD_SIZE); /* drop the padding word */
 #endif
 
     /* Iterates through the pbuf chain. */
-    for(q = p; q != NULL; q = q->next) {
-        macWriteTransmitDescriptor(&td, (uint8_t *)q->payload, (size_t)q->len);
+    for (q = p; q != NULL; q = q->next) {
+        macWriteTransmitDescriptor(&td, (uint8_t*)q->payload, (size_t)q->len);
     }
     macReleaseTransmitDescriptor(&td);
 
 #if ETH_PAD_SIZE
-    pbuf_header(p, ETH_PAD_SIZE);         /* reclaim the padding word */
+    pbuf_header(p, ETH_PAD_SIZE); /* reclaim the padding word */
 #endif
 
     LINK_STATS_INC(link.xmit);
@@ -129,7 +130,8 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p) {
 /*
  * Receives a frame.
  */
-static struct pbuf *low_level_input(struct netif *netif) {
+static struct pbuf* low_level_input(struct netif* netif)
+{
     MACReceiveDescriptor rd;
     struct pbuf *p, *q;
     u16_t len;
@@ -139,21 +141,20 @@ static struct pbuf *low_level_input(struct netif *netif) {
         len = (u16_t)rd.size;
 
 #if ETH_PAD_SIZE
-        len += ETH_PAD_SIZE;        /* allow room for Ethernet padding */
+        len += ETH_PAD_SIZE; /* allow room for Ethernet padding */
 #endif
 
         /* We allocate a pbuf chain of pbufs from the pool. */
         p = pbuf_alloc(PBUF_RAW, len, PBUF_POOL);
 
         if (p != NULL) {
-
 #if ETH_PAD_SIZE
             pbuf_header(p, -ETH_PAD_SIZE); /* drop the padding word */
 #endif
 
             /* Iterates through the pbuf chain. */
-            for(q = p; q != NULL; q = q->next) {
-                macReadReceiveDescriptor(&rd, (uint8_t *)q->payload, (size_t)q->len);
+            for (q = p; q != NULL; q = q->next) {
+                macReadReceiveDescriptor(&rd, (uint8_t*)q->payload, (size_t)q->len);
             }
             macReleaseReceiveDescriptor(&rd);
 
@@ -162,8 +163,7 @@ static struct pbuf *low_level_input(struct netif *netif) {
 #endif
 
             LINK_STATS_INC(link.recv);
-        }
-        else {
+        } else {
             macReleaseReceiveDescriptor(&rd);
             LINK_STATS_INC(link.memerr);
             LINK_STATS_INC(link.drop);
@@ -176,7 +176,8 @@ static struct pbuf *low_level_input(struct netif *netif) {
 /*
  * Initialization.
  */
-static err_t ethernetif_init(struct netif *netif) {
+static err_t ethernetif_init(struct netif* netif)
+{
 #if LWIP_NETIF_HOSTNAME
     /* Initialize interface hostname */
     netif->hostname = "lwip";
@@ -205,9 +206,9 @@ static err_t ethernetif_init(struct netif *netif) {
     return ERR_OK;
 }
 
-void ipinit_done_cb(void *a)
+void ipinit_done_cb(void* a)
 {
-    (void) a;
+    (void)a;
     sys_sem_signal(&lwip_init_done);
 }
 
@@ -217,14 +218,15 @@ void ipinit_done_cb(void *a)
  * @param[in] p pointer to a @p lwipthread_opts structure or @p NULL
  * @return The function does not return.
  */
-void lwip_thread(void *p) {
+void lwip_thread(void* p)
+{
     event_timer_t evt;
     event_listener_t el0, el1;
     ip_addr_t ip, gateway, netmask;
     static struct netif thisif;
     static const MACConfig mac_config = {thisif.hwaddr};
 
-    (void) p;
+    (void)p;
 
     chRegSetThreadName("lwip");
 
@@ -268,17 +270,17 @@ void lwip_thread(void *p) {
             bool current_link_status = macPollLinkStatus(&ETHD1);
             if (current_link_status != netif_is_link_up(&thisif)) {
                 if (current_link_status)
-                    tcpip_callback_with_block((tcpip_callback_fn) netif_set_link_up,
-                            &thisif, 0);
+                    tcpip_callback_with_block((tcpip_callback_fn)netif_set_link_up,
+                                              &thisif, 0);
                 else
-                    tcpip_callback_with_block((tcpip_callback_fn) netif_set_link_down,
-                            &thisif, 0);
+                    tcpip_callback_with_block((tcpip_callback_fn)netif_set_link_down,
+                                              &thisif, 0);
             }
         }
         if (mask & FRAME_RECEIVED_ID) {
-            struct pbuf *p;
+            struct pbuf* p;
             while ((p = low_level_input(&thisif)) != NULL) {
-                struct eth_hdr *ethhdr = p->payload;
+                struct eth_hdr* ethhdr = p->payload;
                 switch (htons(ethhdr->type)) {
                     /* IP or ARP packet? */
                     case ETHTYPE_IP:

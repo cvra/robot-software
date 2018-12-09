@@ -8,11 +8,10 @@
 
 #define ENCODER_STACKSIZE 512
 
-#define MAX_16BIT      65535
+#define MAX_16BIT 65535
 #define MAX_16BIT_DIV2 32767
 
-static void setup_timer(stm32_tim_t *tmr);
-
+static void setup_timer(stm32_tim_t* tmr);
 
 uint32_t encoder_get_left(void)
 {
@@ -45,7 +44,7 @@ int encoder_tick_diff(uint32_t enc_old, uint32_t enc_new)
 
 static THD_FUNCTION(encoders_thd, arg)
 {
-    (void) arg;
+    (void)arg;
     chRegSetThreadName(__FUNCTION__);
 
     /* Setup and advertise encoders topic */
@@ -85,19 +84,19 @@ static THD_FUNCTION(encoders_thd, arg)
     }
 }
 
-static void setup_timer(stm32_tim_t *tmr)
+static void setup_timer(stm32_tim_t* tmr)
 {
-    tmr->CR2    = 0;
-    tmr->PSC    = 0;                         // Prescaler value.
-    tmr->SR     = 0;                         // Clear pending IRQs.
-    tmr->DIER   = 0;                         // DMA-related DIER bits.
-    tmr->SMCR   = STM32_TIM_SMCR_SMS(3);     // count on both edges
-    tmr->CCMR1  = STM32_TIM_CCMR1_CC1S(1);   // CC1 channel is input, IC1 is mapped on TI1
-    tmr->CCMR1 |= STM32_TIM_CCMR1_CC2S(1);   // CC2 channel is input, IC2 is mapped on TI2
-    tmr->CCMR1 |= STM32_TIM_CCMR1_IC1F(3);   // Activate some input filtering
-    tmr->CCER   = 0;
-    tmr->ARR    = 0xFFFF;
-    tmr->CR1    = 1;                         // start
+    tmr->CR2 = 0;
+    tmr->PSC = 0; // Prescaler value.
+    tmr->SR = 0; // Clear pending IRQs.
+    tmr->DIER = 0; // DMA-related DIER bits.
+    tmr->SMCR = STM32_TIM_SMCR_SMS(3); // count on both edges
+    tmr->CCMR1 = STM32_TIM_CCMR1_CC1S(1); // CC1 channel is input, IC1 is mapped on TI1
+    tmr->CCMR1 |= STM32_TIM_CCMR1_CC2S(1); // CC2 channel is input, IC2 is mapped on TI2
+    tmr->CCMR1 |= STM32_TIM_CCMR1_IC1F(3); // Activate some input filtering
+    tmr->CCER = 0;
+    tmr->ARR = 0xFFFF;
+    tmr->CR1 = 1; // start
 }
 
 void encoder_start(void)

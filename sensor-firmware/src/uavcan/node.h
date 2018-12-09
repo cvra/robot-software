@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-void uavcan_start(unsigned int node_id, const char *node_name);
+void uavcan_start(unsigned int node_id, const char* node_name);
 
 #ifdef __cplusplus
 }

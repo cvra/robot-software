@@ -10,8 +10,7 @@
 #include "uwb_protocol.h"
 #include "usbconf.h"
 
-int readfromspi(uint16 headerLength, const uint8 *headerBuffer, uint32 readlength,
-                uint8 *readBuffer)
+int readfromspi(uint16 headerLength, const uint8* headerBuffer, uint32 readlength, uint8* readBuffer)
 {
     spiSelect(&SPID1);
     spiSend(&SPID1, headerLength, headerBuffer);
@@ -22,8 +21,7 @@ int readfromspi(uint16 headerLength, const uint8 *headerBuffer, uint32 readlengt
     return 0;
 }
 
-int writetospi(uint16 headerLength, const uint8 *headerBuffer,
-               uint32 bodyLength, const uint8 *bodyBuffer)
+int writetospi(uint16 headerLength, const uint8* headerBuffer, uint32 bodyLength, const uint8* bodyBuffer)
 {
     spiSelect(&SPID1);
 
@@ -49,9 +47,8 @@ decaIrqStatus_t decamutexon(void)
 
 void decamutexoff(decaIrqStatus_t enable_irq)
 {
-    (void) enable_irq;
+    (void)enable_irq;
 }
-
 
 uint64_t uwb_timestamp_get(void)
 {
@@ -71,7 +68,7 @@ uint64_t decawave_get_rx_timestamp_u64(void)
     return ts;
 }
 
-void uwb_transmit_frame(uint64_t tx_timestamp, uint8_t *frame, size_t frame_size)
+void uwb_transmit_frame(uint64_t tx_timestamp, uint8_t* frame, size_t frame_size)
 {
     dwt_writetxdata(frame_size, frame, 0); /* Zero offset in TX buffer. */
     dwt_writetxfctrl(frame_size, 0, 0); /* Zero offset in TX buffer. */
@@ -82,10 +79,9 @@ void uwb_transmit_frame(uint64_t tx_timestamp, uint8_t *frame, size_t frame_size
         dwt_starttx(DWT_RESPONSE_EXPECTED);
     } else {
         dwt_setdelayedtrxtime(tx_timestamp >> 8);
-        dwt_starttx(DWT_START_TX_DELAYED | DWT_RESPONSE_EXPECTED );
+        dwt_starttx(DWT_START_TX_DELAYED | DWT_RESPONSE_EXPECTED);
     }
 }
-
 
 void decawave_start(void)
 {
@@ -95,8 +91,7 @@ void decawave_start(void)
         .ssport = GPIOA,
         .sspad = GPIOA_UWB_CS_N,
         /* 2.65 Mhz */
-        .cr1 = SPI_CR1_BR_2
-    };
+        .cr1 = SPI_CR1_BR_2};
 
     spiStart(&SPID1, &spi_cfg);
 
@@ -110,22 +105,21 @@ void decawave_start(void)
     /* Configuration example taken straight from decawave's example. */
     /* TODO: Make it a bit more easy to configure */
     static dwt_config_t config = {
-        5,               /* Channel number. */
-        DWT_PRF_64M,     /* Pulse repetition frequency. */
-        DWT_PLEN_64,     /* Preamble length. Used in TX only. */
-        DWT_PAC8,        /* Preamble acquisition chunk size. Used in RX only. */
-        9, 9,            /* Preamble codes (RX, TX) */
-        1,               /* Non standard Start Frame Delimiter */
-        DWT_BR_6M8,      /* Data rate. */
+        5, /* Channel number. */
+        DWT_PRF_64M, /* Pulse repetition frequency. */
+        DWT_PLEN_64, /* Preamble length. Used in TX only. */
+        DWT_PAC8, /* Preamble acquisition chunk size. Used in RX only. */
+        9, 9, /* Preamble codes (RX, TX) */
+        1, /* Non standard Start Frame Delimiter */
+        DWT_BR_6M8, /* Data rate. */
         DWT_PHRMODE_EXT, /* PHY header mode. */
         /* SFD timeout (preamble length + 1 + SFD length - PAC size). Used in RX only. */
-        (64 + 64 - 8)
-    };
+        (64 + 64 - 8)};
 
     dwt_configure(&config);
 
     static dwt_txconfig_t txconfig = {
-        0xC0,       /* Pulse generator delay value */
+        0xC0, /* Pulse generator delay value */
         0x25456585, /* TX power, Channel 5 and 64Mhz smart power enabled */
     };
 

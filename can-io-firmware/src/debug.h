@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-void debug_msg(const char *fmt, ...);
+void debug_msg(const char* fmt, ...);
 void debug_init(void);
 
 #ifdef __cplusplus

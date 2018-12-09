@@ -7,9 +7,9 @@ extern "C" {
 
 #include <stdint.h>
 
-#define UAVCAN_SPIN_FREQUENCY   200
+#define UAVCAN_SPIN_FREQUENCY 200
 
-void uavcan_node_start(uint8_t id, const char *name);
+void uavcan_node_start(uint8_t id, const char* name);
 
 #ifdef __cplusplus
 }

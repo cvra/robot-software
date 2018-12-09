@@ -33,7 +33,7 @@ static void lever_update_settings(lever_t* lever, parameter_namespace_t* ns)
 
 static THD_FUNCTION(lever_module_thd, arg)
 {
-    (void) arg;
+    (void)arg;
     chRegSetThreadName(__FUNCTION__);
 
     parameter_namespace_t* right_lever_params = parameter_namespace_find(&master_config, "lever/right");

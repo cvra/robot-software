@@ -3,7 +3,7 @@
 
 #define T_AMBIENT 25
 
-void motor_protection_init(motor_protection_t *p, float t_max, float r_th, float c_th, float current_gain)
+void motor_protection_init(motor_protection_t* p, float t_max, float r_th, float c_th, float current_gain)
 {
     p->t = T_AMBIENT;
     p->t_ambient = T_AMBIENT;
@@ -13,7 +13,7 @@ void motor_protection_init(motor_protection_t *p, float t_max, float r_th, float
     p->current_gain = current_gain;
 }
 
-float motor_protection_update(motor_protection_t *p, float current, float delta_t)
+float motor_protection_update(motor_protection_t* p, float current, float delta_t)
 {
     float P_in = current * p->current_gain;
     float P_out = (p->t - p->t_ambient) / p->r_th;

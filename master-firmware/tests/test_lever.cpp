@@ -4,18 +4,17 @@
 #include <lever/lever.h>
 #include <robot_helpers/math_helpers.h>
 
-void set_servo_pos(void *s, float value)
+void set_servo_pos(void* s, float value)
 {
-    *(float *)s = value;
+    *(float*)s = value;
 }
 
-void set_pump_voltage(void *p, float value)
+void set_pump_voltage(void* p, float value)
 {
-    *(float *)p = value;
+    *(float*)p = value;
 }
 
-TEST_GROUP(ALever)
-{
+TEST_GROUP (ALever) {
     lever_t lever;
     float lever_servo_pos;
     float lever_pump1_voltage, lever_pump2_voltage;
@@ -34,7 +33,7 @@ TEST_GROUP(ALever)
         lock_mocks_enable(false);
     }
 
-    void POSE_EQUAL(se2_t lhs, se2_t rhs, double tolerance=0.01)
+    void POSE_EQUAL(se2_t lhs, se2_t rhs, double tolerance = 0.01)
     {
         DOUBLES_EQUAL(lhs.translation.x, rhs.translation.x, tolerance);
         DOUBLES_EQUAL(lhs.translation.y, rhs.translation.y, tolerance);

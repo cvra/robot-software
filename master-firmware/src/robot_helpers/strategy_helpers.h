@@ -16,7 +16,7 @@ extern "C" {
 /** Team color
  */
 enum strat_color_t {
-    YELLOW=0,
+    YELLOW = 0,
     BLUE
 };
 
@@ -30,7 +30,7 @@ enum lever_side_t {
  */
 #define MIRROR_X(color, x) (color == YELLOW ? (x) : 3000. - (x))
 #define MIRROR_A(color, a_deg) (color == YELLOW ? (a_deg) : 180. - (a_deg))
-#define MIRROR(color, value) (color == YELLOW ? (value) : - (value))
+#define MIRROR(color, value) (color == YELLOW ? (value) : -(value))
 shoulder_mode_t MIRROR_SHOULDER(enum strat_color_t color, shoulder_mode_t mode);
 enum lever_side_t MIRROR_LEVER(enum strat_color_t color, enum lever_side_t side);
 
@@ -52,8 +52,7 @@ float strategy_flight_distance_to_goal(point_t pos, point_t goal);
 float strategy_distance_to_goal(point_t pos, point_t goal);
 
 /** Sort positions to pickup cubes from closest to farthest */
-void strategy_sort_poses_by_distance(se2_t current_pose, se2_t* pickup_poses, int num_poses,
-                                     float (*distance_metric)(point_t, point_t));
+void strategy_sort_poses_by_distance(se2_t current_pose, se2_t* pickup_poses, int num_poses, float (*distance_metric)(point_t, point_t));
 
 #ifdef __cplusplus
 }

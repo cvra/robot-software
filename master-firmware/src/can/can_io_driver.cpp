@@ -9,7 +9,7 @@
 #include "can_io_driver.h"
 #include "protobuf/sensors.pb.h"
 
-static uavcan::LazyConstructor<uavcan::Publisher<cvra::io::ServoPWM> > can_io_pwm_pub;
+static uavcan::LazyConstructor<uavcan::Publisher<cvra::io::ServoPWM>> can_io_pwm_pub;
 
 TOPIC_DECL(lever_left_topic, SwitchStatus);
 TOPIC_DECL(lever_right_topic, SwitchStatus);
@@ -27,10 +27,10 @@ static void io_input_cb(const uavcan::ReceivedDataStructure<cvra::io::DigitalInp
     }
 }
 
-int can_io_init(uavcan::INode &node)
+int can_io_init(uavcan::INode& node)
 {
     if (!can_io_pwm_pub.isConstructed()) {
-        can_io_pwm_pub.construct<uavcan::INode &>(node);
+        can_io_pwm_pub.construct<uavcan::INode&>(node);
     }
 
     messagebus_advertise_topic(&bus, &lever_left_topic.topic, "/lever/left");
@@ -42,7 +42,7 @@ int can_io_init(uavcan::INode &node)
 
 extern "C" {
 
-void can_io_set_pwm(const char *can_io_name, int channel, float pwm)
+void can_io_set_pwm(const char* can_io_name, int channel, float pwm)
 {
     uint8_t node_id = bus_enumerator_get_can_id(&bus_enumerator, can_io_name);
     if (node_id == BUS_ENUMERATOR_CAN_ID_NOT_SET || node_id == BUS_ENUMERATOR_STRING_ID_NOT_FOUND) {
@@ -55,5 +55,4 @@ void can_io_set_pwm(const char *can_io_name, int channel, float pwm)
     pwm_signals.servo_pos[channel] = pwm;
     can_io_pwm_pub->broadcast(pwm_signals);
 }
-
 }

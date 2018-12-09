@@ -14,16 +14,15 @@
 
 #define OUTPUT_STREAM ((BaseSequentialStream*)&SD7)
 
-
 MUTEX_DECL(log_lock);
 
 static FIL logfile_fp;
 static bool log_file_enabled = false;
 
-static void vuart_log_message(struct error *e, va_list args);
-static void vlogfile_log_message(struct error *e, va_list args);
-static void vpanic_message(struct error *e, va_list args);
-static unsigned int get_level_parameter(parameter_t *p);
+static void vuart_log_message(struct error* e, va_list args);
+static void vlogfile_log_message(struct error* e, va_list args);
+static void vpanic_message(struct error* e, va_list args);
+static unsigned int get_level_parameter(parameter_t* p);
 
 static struct {
     parameter_namespace_t ns;
@@ -34,7 +33,7 @@ static struct {
     } uart, sdcard;
 } params;
 
-static void log_message(struct error *e, ...)
+static void log_message(struct error* e, ...)
 {
     va_list va;
 
@@ -59,9 +58,9 @@ static void log_message(struct error *e, ...)
     chMtxUnlock(&log_lock);
 }
 
-static const char *get_thread_name(void)
+static const char* get_thread_name(void)
 {
-    const char *thread_name;
+    const char* thread_name;
 
     thread_name = chRegGetThreadNameX(chThdGetSelfX());
     if (thread_name == NULL) {
@@ -71,7 +70,7 @@ static const char *get_thread_name(void)
     return thread_name;
 }
 
-static unsigned int get_level_parameter(parameter_t *p)
+static unsigned int get_level_parameter(parameter_t* p)
 {
     char buf[10];
     parameter_string_get(p, buf, sizeof(buf));
@@ -93,7 +92,7 @@ static unsigned int get_level_parameter(parameter_t *p)
     return result;
 }
 
-static void vuart_log_message(struct error *e, va_list args)
+static void vuart_log_message(struct error* e, va_list args)
 {
     if (e->severity < get_level_parameter(&params.uart.level)) {
         return;
@@ -120,16 +119,15 @@ static void vuart_log_message(struct error *e, va_list args)
     chprintf(OUTPUT_STREAM, "\n");
 }
 
-static void vlogfile_log_message(struct error *e, va_list args)
+static void vlogfile_log_message(struct error* e, va_list args)
 {
-
     if (get_level_parameter(&params.sdcard.level) > e->severity) {
         return;
     }
 
     static char buffer[256];
     UINT dummy;
-    const char *thread_name = NULL;
+    const char* thread_name = NULL;
 
     uint32_t ts = timestamp_get();
     uint32_t s = ts / 1000000;
@@ -162,7 +160,7 @@ static void vlogfile_log_message(struct error *e, va_list args)
     f_sync(&logfile_fp);
 }
 
-static void vpanic_message(struct error *e, va_list args)
+static void vpanic_message(struct error* e, va_list args)
 {
     static char buffer[256];
     vsnprintf(buffer, sizeof(buffer), e->text, args);

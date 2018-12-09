@@ -12,10 +12,9 @@
 
 #include "base_controller.h"
 
-#define BASE_CONTROLLER_STACKSIZE    1024
-#define POSITION_MANAGER_STACKSIZE   1024
+#define BASE_CONTROLLER_STACKSIZE 1024
+#define POSITION_MANAGER_STACKSIZE 1024
 #define TRAJECTORY_MANAGER_STACKSIZE 2048
-
 
 struct _robot robot;
 
@@ -25,8 +24,8 @@ void robot_init(void)
     robot.base_speed = BASE_SPEED_SLOW;
 
     /* Motors */
-    static cvra_motor_t left_wheel_motor = {.m=&motor_manager, .direction=1.};
-    static cvra_motor_t right_wheel_motor = {.m=&motor_manager, .direction=-1.};
+    static cvra_motor_t left_wheel_motor = {.m = &motor_manager, .direction = 1.};
+    static cvra_motor_t right_wheel_motor = {.m = &motor_manager, .direction = -1.};
     cvra_encoder_init();
 
     robot.angle_pid.divider = 100;
@@ -41,7 +40,7 @@ void robot_init(void)
     rs_set_left_ext_encoder(&robot.rs, cvra_encoder_get_left_ext, NULL,
                             config_get_scalar("master/odometry/left_wheel_correction_factor"));
     rs_set_right_ext_encoder(&robot.rs, cvra_encoder_get_right_ext, NULL,
-                            config_get_scalar("master/odometry/right_wheel_correction_factor"));
+                             config_get_scalar("master/odometry/right_wheel_correction_factor"));
 
     /* Position manager */
     position_init(&robot.pos);
@@ -100,20 +99,19 @@ void robot_init(void)
 
     /* Set some defaultj speed and acc. */
     trajectory_set_speed(&robot.traj,
-            speed_mm2imp(&robot.traj, 600.),
-            speed_rd2imp(&robot.traj, 6.));
+                         speed_mm2imp(&robot.traj, 600.),
+                         speed_rd2imp(&robot.traj, 6.));
     trajectory_set_acc(&robot.traj,
-            acc_mm2imp(&robot.traj, 3000.),
-            acc_rd2imp(&robot.traj, 30.));
+                       acc_mm2imp(&robot.traj, 3000.),
+                       acc_rd2imp(&robot.traj, 30.));
 }
-
 
 static THD_FUNCTION(base_ctrl_thd, arg)
 {
-    (void) arg;
+    (void)arg;
     chRegSetThreadName(__FUNCTION__);
 
-    parameter_namespace_t *control_params = parameter_namespace_find(&master_config, "aversive/control");
+    parameter_namespace_t* control_params = parameter_namespace_find(&master_config, "aversive/control");
     while (1) {
         rs_update(&robot.rs);
 
@@ -166,31 +164,31 @@ static THD_FUNCTION(base_ctrl_thd, arg)
         switch (robot.base_speed) {
             case BASE_SPEED_INIT:
                 trajectory_set_speed(&robot.traj,
-                        1000 * speed_mm2imp(&robot.traj, config_get_scalar("master/aversive/trajectories/distance/speed/init")),
-                        speed_rd2imp(&robot.traj, config_get_scalar("master/aversive/trajectories/angle/speed/init")));
+                                     1000 * speed_mm2imp(&robot.traj, config_get_scalar("master/aversive/trajectories/distance/speed/init")),
+                                     speed_rd2imp(&robot.traj, config_get_scalar("master/aversive/trajectories/angle/speed/init")));
 
                 trajectory_set_acc(&robot.traj,
-                        1000 * acc_mm2imp(&robot.traj, config_get_scalar("master/aversive/trajectories/distance/acceleration/init")),
-                        acc_rd2imp(&robot.traj, config_get_scalar("master/aversive/trajectories/angle/acceleration/init")));
+                                   1000 * acc_mm2imp(&robot.traj, config_get_scalar("master/aversive/trajectories/distance/acceleration/init")),
+                                   acc_rd2imp(&robot.traj, config_get_scalar("master/aversive/trajectories/angle/acceleration/init")));
                 break;
 
             case BASE_SPEED_SLOW:
                 trajectory_set_speed(&robot.traj,
-                        1000 * speed_mm2imp(&robot.traj, config_get_scalar("master/aversive/trajectories/distance/speed/slow")),
-                        speed_rd2imp(&robot.traj, config_get_scalar("master/aversive/trajectories/angle/speed/slow")));
+                                     1000 * speed_mm2imp(&robot.traj, config_get_scalar("master/aversive/trajectories/distance/speed/slow")),
+                                     speed_rd2imp(&robot.traj, config_get_scalar("master/aversive/trajectories/angle/speed/slow")));
 
                 trajectory_set_acc(&robot.traj,
-                        1000 * acc_mm2imp(&robot.traj, config_get_scalar("master/aversive/trajectories/distance/acceleration/slow")),
-                        acc_rd2imp(&robot.traj, config_get_scalar("master/aversive/trajectories/angle/acceleration/slow")));
+                                   1000 * acc_mm2imp(&robot.traj, config_get_scalar("master/aversive/trajectories/distance/acceleration/slow")),
+                                   acc_rd2imp(&robot.traj, config_get_scalar("master/aversive/trajectories/angle/acceleration/slow")));
                 break;
 
             case BASE_SPEED_FAST:
                 trajectory_set_speed(&robot.traj,
-                        1000 * speed_mm2imp(&robot.traj, config_get_scalar("master/aversive/trajectories/distance/speed/fast")),
-                        speed_rd2imp(&robot.traj, config_get_scalar("master/aversive/trajectories/angle/speed/fast")));
+                                     1000 * speed_mm2imp(&robot.traj, config_get_scalar("master/aversive/trajectories/distance/speed/fast")),
+                                     speed_rd2imp(&robot.traj, config_get_scalar("master/aversive/trajectories/angle/speed/fast")));
                 trajectory_set_acc(&robot.traj,
-                        1000 * acc_mm2imp(&robot.traj, config_get_scalar("master/aversive/trajectories/distance/acceleration/fast")),
-                        acc_rd2imp(&robot.traj, config_get_scalar("master/aversive/trajectories/angle/acceleration/fast")));
+                                   1000 * acc_mm2imp(&robot.traj, config_get_scalar("master/aversive/trajectories/distance/acceleration/fast")),
+                                   acc_rd2imp(&robot.traj, config_get_scalar("master/aversive/trajectories/angle/acceleration/fast")));
                 break;
             default:
                 WARNING("Unknown speed type, going back to safe!");
@@ -211,7 +209,7 @@ void base_controller_start(void)
 
 static THD_FUNCTION(position_manager_thd, arg)
 {
-    (void) arg;
+    (void)arg;
     chRegSetThreadName(__FUNCTION__);
 
     while (1) {

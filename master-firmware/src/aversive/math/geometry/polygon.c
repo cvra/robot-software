@@ -32,9 +32,9 @@
 #define DEBUG 0
 
 #if DEBUG == 1
-#define debug_printf(args ...) printf(args)
+#define debug_printf(args...) printf(args)
 #else
-#define debug_printf(args ...)
+#define debug_printf(args...)
 #endif
 
 /* default bounding box is (0,0) (100,100) */
@@ -42,7 +42,6 @@ static int32_t bbox_x1 = 0;
 static int32_t bbox_y1 = 0;
 static int32_t bbox_x2 = 100;
 static int32_t bbox_y2 = 100;
-
 
 void polygon_set_boundingbox(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 {
@@ -52,12 +51,9 @@ void polygon_set_boundingbox(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
     bbox_y2 = y2;
 }
 
-int is_in_boundingbox(const point_t *p)
+int is_in_boundingbox(const point_t* p)
 {
-    if (p->x >= bbox_x1 &&
-        p->x <= bbox_x2 &&
-        p->y >= bbox_y1 &&
-        p->y <= bbox_y2) {
+    if (p->x >= bbox_x1 && p->x <= bbox_x2 && p->y >= bbox_y1 && p->y <= bbox_y2) {
         return 1;
     }
     return 0;
@@ -68,8 +64,7 @@ int is_in_boundingbox(const point_t *p)
  *  1 inside
  *  2 on edge
  */
-int
-is_in_poly(const point_t *p, poly_t *pol)
+int is_in_poly(const point_t* p, poly_t* pol)
 {
     int i;
     int ii;
@@ -85,13 +80,12 @@ is_in_poly(const point_t *p, poly_t *pol)
     }
 
     for (i = 0; i < pol->l; i++) {
-
         ii = (i + 1) % pol->l;
         v.x = pol->pts[ii].x - p->x;
         v.y = pol->pts[ii].y - p->y;
         w.x = pol->pts[i].x - p->x;
         w.y = pol->pts[i].y - p->y;
-        z = vect_pvect_sign(&v, &w );
+        z = vect_pvect_sign(&v, &w);
         if (z > 0) {
             return 0;
         }
@@ -104,7 +98,7 @@ is_in_poly(const point_t *p, poly_t *pol)
 }
 
 /* public wrapper for is_in_poly() */
-int is_point_in_poly(poly_t *pol, int16_t x, int16_t y)
+int is_point_in_poly(poly_t* pol, int16_t x, int16_t y)
 {
     point_t p;
     p.x = x;
@@ -119,9 +113,7 @@ int is_point_in_poly(poly_t *pol, int16_t x, int16_t y)
  *  3 touch out (a segment boundary is on a polygon edge,
  *  and the second segment boundary is out of the polygon)
  */
-int
-is_crossing_poly(point_t p1, point_t p2, point_t *intersect_pt,
-                 poly_t *pol)
+int is_crossing_poly(point_t p1, point_t p2, point_t* intersect_pt, poly_t* pol)
 {
     int i;
     int ret;
@@ -140,9 +132,9 @@ is_crossing_poly(point_t p1, point_t p2, point_t *intersect_pt,
     for (i = 0; i < pol->l; i++) {
         ret = intersect_segment(&p1, &p2, &pol->pts[i], &pol->pts[(i + 1) % pol->l], &p);
         debug_printf("%" PRIi32 ",%" PRIi32 " -> %" PRIi32 ",%" PRIi32
-                     " return %d\n", pol->pts[i].x, pol->pts[i].y,
+                     " return %d\n",
+                     pol->pts[i].x, pol->pts[i].y,
                      pol->pts[(i + 1) % pol->l].x, pol->pts[(i + 1) % pol->l].y, ret);
-
 
         switch (ret) {
             case 0:
@@ -183,14 +175,12 @@ is_crossing_poly(point_t p1, point_t p2, point_t *intersect_pt,
 
     debug_printf("p intersect: %" PRIi32 " %" PRIi32 "\r\n", p.x, p.y);
 
-
     if (cpt == 0) {
         if (ret1 == 1 || ret2 == 1) {
             return 1;
         }
         return 0;
     }
-
 
     if (cpt == 1) {
         if (ret1 == 1 || ret2 == 1) {
@@ -227,8 +217,7 @@ is_crossing_poly(point_t p1, point_t p2, point_t *intersect_pt,
  *  are used to compute visibility to start/stop points)
  */
 
-int
-calc_rays(poly_t *polys, int npolys, int *rays)
+int calc_rays(poly_t* polys, int npolys, int* rays)
 {
     int i, ii, index;
     int ray_n = 0;
@@ -257,17 +246,16 @@ calc_rays(poly_t *polys, int npolys, int *rays)
                 continue;
             }
 
-
             /* check if a polygon cross our ray */
             for (index = 1; index < npolys; index++) {
-
                 /* don't check polygon against itself */
                 if (index == i) {
                     continue;
                 }
 
                 if (is_crossing_poly(polys[i].pts[ii], polys[i].pts[n], NULL,
-                                     &polys[index]) == 1) {
+                                     &polys[index])
+                    == 1) {
                     is_ok = 0;
                     debug_printf("is_crossing_poly() returned 1\n");
                     break;
@@ -283,14 +271,12 @@ calc_rays(poly_t *polys, int npolys, int *rays)
         }
     }
 
-
     /* 2: calc inter polygon rays.
      * Visibility of inter-polygon vertices.*/
 
     /* For all poly */
     for (i = 0; i < npolys - 1; i++) {
         for (pt1 = 0; pt1 < polys[i].l; pt1++) {
-
             if (!(is_in_boundingbox(&polys[i].pts[pt1]))) {
                 continue;
             }
@@ -298,7 +284,6 @@ calc_rays(poly_t *polys, int npolys, int *rays)
             /* for next poly */
             for (ii = i + 1; ii < npolys; ii++) {
                 for (pt2 = 0; pt2 < polys[ii].l; pt2++) {
-
                     if (!(is_in_boundingbox(&polys[ii].pts[pt2]))) {
                         continue;
                     }
@@ -308,7 +293,8 @@ calc_rays(poly_t *polys, int npolys, int *rays)
                     for (index = 1; index < npolys; index++) {
                         if (is_crossing_poly(polys[i].pts[pt1],
                                              polys[ii].pts[pt2], NULL,
-                                             &polys[index]) == 1) {
+                                             &polys[index])
+                            == 1) {
                             is_ok = 0;
                             break;
                         }
@@ -325,7 +311,6 @@ calc_rays(poly_t *polys, int npolys, int *rays)
         }
     }
 
-
     return ray_n;
 }
 
@@ -335,11 +320,9 @@ calc_rays(poly_t *polys, int npolys, int *rays)
  * Note the +1 is a little hack to introduce a preference between to
  * possiblity path: If we have 3 checpoint aligned in a path (say A,
  * B, C) the algorithm will prefer (A, C) instead of (A, B, C) */
-void
-calc_rays_weight(poly_t *polys, int npolys,
-                 int *rays, int ray_n, int *weight)
+void calc_rays_weight(poly_t* polys, int npolys, int* rays, int ray_n, int* weight)
 {
-    (void) npolys;
+    (void)npolys;
     int i;
     vect_t v;
 

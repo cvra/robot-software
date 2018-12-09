@@ -4,7 +4,6 @@
 #include <CppUTestExt/MockSupport.h>
 #include "../goap.hpp"
 
-
 struct TestState {
     bool has_wood;
     bool has_axe;
@@ -17,17 +16,17 @@ bool operator==(const TestState& lhs, const TestState& rhs)
 
 class CutWood : public goap::Action<TestState> {
 public:
-    bool can_run(const TestState &state)
+    bool can_run(const TestState& state)
     {
         return state.has_axe;
     }
 
-    void plan_effects(TestState &state)
+    void plan_effects(TestState& state)
     {
         state.has_wood = true;
     }
 
-    bool execute(TestState &state)
+    bool execute(TestState& state)
     {
         state.has_wood = true;
         return true;
@@ -35,38 +34,35 @@ public:
 };
 
 struct GrabAxe : public goap::Action<TestState> {
-    bool can_run(const TestState &state)
+    bool can_run(const TestState& state)
     {
-        (void) state;
+        (void)state;
         return true;
     }
 
-    void plan_effects(TestState &state)
+    void plan_effects(TestState& state)
     {
         state.has_axe = true;
     }
 
-    bool execute(TestState &state)
+    bool execute(TestState& state)
     {
         state.has_axe = true;
         return true;
     }
 };
 
-struct SimpleGoal : goap::Goal<TestState>
-{
-    virtual int distance_to(const TestState &state) const
+struct SimpleGoal : goap::Goal<TestState> {
+    virtual int distance_to(const TestState& state) const
     {
         return state.has_wood ? 0 : 1;
     }
 };
 
-TEST_GROUP(SimpleScenarioHelpers)
-{
+TEST_GROUP (SimpleScenarioHelpers) {
     CutWood action;
     TestState state;
     SimpleGoal goal;
-
 };
 
 TEST(SimpleScenarioHelpers, CutWoodChecksForAxe)
@@ -96,9 +92,7 @@ TEST(SimpleScenarioHelpers, CanPredictWoodCuttingEffects)
     CHECK_TRUE(state.has_wood);
 }
 
-
-TEST_GROUP(SimpleScenario)
-{
+TEST_GROUP (SimpleScenario) {
     SimpleGoal goal;
     TestState state;
     CutWood cut_wood_action;
@@ -108,7 +102,7 @@ TEST_GROUP(SimpleScenario)
 TEST(SimpleScenario, CompletedGoalDoesNotRequireAnyAction)
 {
     int action_count = 1;
-    goap::Action<TestState> *actions[] = {&cut_wood_action};
+    goap::Action<TestState>* actions[] = {&cut_wood_action};
     goap::Planner<TestState> planner;
 
     state.has_wood = true;
@@ -122,7 +116,7 @@ TEST(SimpleScenario, CompletedGoalDoesNotRequireAnyAction)
 TEST(SimpleScenario, DirectActionLeadsToSolution)
 {
     int action_count = 1;
-    goap::Action<TestState> *actions[] = {&cut_wood_action};
+    goap::Action<TestState>* actions[] = {&cut_wood_action};
     goap::Planner<TestState> planner;
 
     state.has_axe = true;
@@ -136,7 +130,7 @@ TEST(SimpleScenario, DirectActionLeadsToSolution)
 TEST(SimpleScenario, RespectActionConstrains)
 {
     int action_count = 2;
-    goap::Action<TestState> *actions[] = {&cut_wood_action, &grab_axe_action};
+    goap::Action<TestState>* actions[] = {&cut_wood_action, &grab_axe_action};
 
     goap::Planner<TestState> planner;
 
@@ -148,10 +142,10 @@ TEST(SimpleScenario, RespectActionConstrains)
 TEST(SimpleScenario, GetPath)
 {
     int action_count = 2;
-    goap::Action<TestState> *actions[] = {&cut_wood_action, &grab_axe_action};
+    goap::Action<TestState>* actions[] = {&cut_wood_action, &grab_axe_action};
 
     const int max_path_len = 10;
-    goap::Action<TestState> *path[max_path_len] = {nullptr};
+    goap::Action<TestState>* path[max_path_len] = {nullptr};
 
     goap::Planner<TestState> planner;
 
@@ -167,7 +161,7 @@ TEST(SimpleScenario, GetPath)
 TEST(SimpleScenario, MinimizeCost)
 {
     int action_count = 2;
-    goap::Action<TestState> *actions[] = {&grab_axe_action, &cut_wood_action};
+    goap::Action<TestState>* actions[] = {&grab_axe_action, &cut_wood_action};
     goap::Planner<TestState> planner;
 
     /* We have two paths: one costing 2 and one costing 1 */
@@ -179,12 +173,12 @@ TEST(SimpleScenario, MinimizeCost)
 TEST(SimpleScenario, WhatHappensIfThereIsNoPath)
 {
     int action_count = 1;
-    goap::Action<TestState> *actions[] = {&cut_wood_action};
+    goap::Action<TestState>* actions[] = {&cut_wood_action};
 
     goap::Planner<TestState> planner;
 
     const int max_path_len = 10;
-    goap::Action<TestState> *path[max_path_len] = {nullptr};
+    goap::Action<TestState>* path[max_path_len] = {nullptr};
 
     auto cost = planner.plan(state, goal, actions, action_count, path, max_path_len);
     CHECK_EQUAL(-1, cost);
@@ -195,30 +189,29 @@ struct FarAwayState {
 };
 
 struct FarAwayGoal : goap::Goal<FarAwayState> {
-    int distance_to(const FarAwayState &s) const
+    int distance_to(const FarAwayState& s) const
     {
         return s.farDistance;
     }
 };
 
 struct FarAwayAction : goap::Action<FarAwayState> {
-    bool can_run(const FarAwayState &state)
+    bool can_run(const FarAwayState& state)
     {
-        (void) state;
+        (void)state;
         return true;
     }
 
-    void plan_effects(FarAwayState &state)
+    void plan_effects(FarAwayState& state)
     {
         state.farDistance--;
     }
 
-    bool execute(FarAwayState &s)
+    bool execute(FarAwayState& s)
     {
         s.farDistance--;
         return true;
     }
-
 };
 
 bool operator==(const FarAwayState& lhs, const FarAwayState& rhs)
@@ -226,8 +219,7 @@ bool operator==(const FarAwayState& lhs, const FarAwayState& rhs)
     return !memcmp(&lhs, &rhs, sizeof(FarAwayState));
 }
 
-TEST_GROUP(TooLongPathTestGroup)
-{
+TEST_GROUP (TooLongPathTestGroup) {
 };
 
 TEST(TooLongPathTestGroup, DoNotFindFarAwayPlan)
@@ -237,7 +229,7 @@ TEST(TooLongPathTestGroup, DoNotFindFarAwayPlan)
     state.farDistance = 1000;
     FarAwayAction a;
     FarAwayGoal goal;
-    goap::Action<FarAwayState> *actions[] = {&a};
+    goap::Action<FarAwayState>* actions[] = {&a};
 
     // And feed it to a planner than can do path of at most 10 actions
     goap::Planner<FarAwayState> planner;
@@ -247,8 +239,7 @@ TEST(TooLongPathTestGroup, DoNotFindFarAwayPlan)
     CHECK_EQUAL(-2, cost);
 }
 
-TEST_GROUP(InternalDistanceGroup)
-{
+TEST_GROUP (InternalDistanceGroup) {
 };
 
 TEST(InternalDistanceGroup, CanSetupBoolDistance)

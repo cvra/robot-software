@@ -15,21 +15,18 @@ associates the ID.
 
  */
 
-
 #include <stdint.h>
-
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define BUS_ENUMERATOR_CAN_ID_NOT_SET       0xFF
-#define BUS_ENUMERATOR_STRING_ID_NOT_FOUND  0xFE
-#define BUS_ENUMERATOR_INDEX_NOT_FOUND      0xFFFF
-
+#define BUS_ENUMERATOR_CAN_ID_NOT_SET 0xFF
+#define BUS_ENUMERATOR_STRING_ID_NOT_FOUND 0xFE
+#define BUS_ENUMERATOR_INDEX_NOT_FOUND 0xFFFF
 
 typedef struct {
-    const char *str_id;
+    const char* str_id;
     uint8_t can_id;
     void* driver;
 
@@ -42,43 +39,41 @@ struct bus_enumerator_entry_allocator {
 };
 
 typedef struct {
-    bus_enumerator_entry_t *str_to_can;
-    bus_enumerator_entry_t *can_to_str;
+    bus_enumerator_entry_t* str_to_can;
+    bus_enumerator_entry_t* can_to_str;
     uint16_t buffer_len;
     uint16_t nb_entries_str_to_can;
     uint16_t nb_entries_can_to_str;
 } bus_enumerator_t;
 
-void bus_enumerator_init(bus_enumerator_t *en,
-                         struct bus_enumerator_entry_allocator *buffer,
+void bus_enumerator_init(bus_enumerator_t* en,
+                         struct bus_enumerator_entry_allocator* buffer,
                          uint16_t buffer_len);
 
 // only a reference of str_id is stored
-void bus_enumerator_add_node(bus_enumerator_t *en, const char *str_id, void *driver);
+void bus_enumerator_add_node(bus_enumerator_t* en, const char* str_id, void* driver);
 
 // called by the CAN driver
-void bus_enumerator_update_node_info(bus_enumerator_t *en, const char *str_id, uint8_t can_id);
+void bus_enumerator_update_node_info(bus_enumerator_t* en, const char* str_id, uint8_t can_id);
 
 /** Returns the total number of nodes.
  *
  * This function returns the total number of nodes, i.e. the number of time
  * bus_enumerator_add_node was called.
  */
-uint16_t bus_enumerator_total_nodes_count(bus_enumerator_t *en);
+uint16_t bus_enumerator_total_nodes_count(bus_enumerator_t* en);
 
 /** Returns the number of discovered nodes.
  *
  * This function returns the number of nodes that were discovered, i.e. where
  * we have a mapping from string to CAN ID.
  */
-uint16_t bus_enumerator_discovered_nodes_count(bus_enumerator_t *en);
+uint16_t bus_enumerator_discovered_nodes_count(bus_enumerator_t* en);
 
-uint8_t bus_enumerator_get_can_id(bus_enumerator_t *en, const char *str_id);
-void *bus_enumerator_get_driver(bus_enumerator_t *en, const char *str_id);
-void *bus_enumerator_get_driver_by_can_id(bus_enumerator_t *en, uint8_t can_id);
-const char *bus_enumerator_get_str_id(bus_enumerator_t *en, uint8_t can_id);
-
-
+uint8_t bus_enumerator_get_can_id(bus_enumerator_t* en, const char* str_id);
+void* bus_enumerator_get_driver(bus_enumerator_t* en, const char* str_id);
+void* bus_enumerator_get_driver_by_can_id(bus_enumerator_t* en, uint8_t can_id);
+const char* bus_enumerator_get_str_id(bus_enumerator_t* en, uint8_t can_id);
 
 #ifdef __cplusplus
 }

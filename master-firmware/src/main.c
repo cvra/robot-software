@@ -42,7 +42,6 @@
 #include "gui.h"
 #include "ballgun/ballgun_module.h"
 
-
 void init_base_motors(void);
 void init_arm_motors(void);
 void init_lever_motors(void);
@@ -56,10 +55,9 @@ static const SerialConfig debug_uart_config = {
     .speed = DEBUG_UART_BAUDRATE,
     .cr1 = 0,
     .cr2 = USART_CR2_STOP1_BITS | USART_CR2_LINEN,
-    .cr3 = 0
-};
+    .cr3 = 0};
 
-void fault_printf(const char *fmt, ...)
+void fault_printf(const char* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
@@ -75,7 +73,7 @@ CONDVAR_DECL(bus_condvar);
 /**
  * Function called on a kernel panic.
  * @param [in] reaon Kernel panic message.  */
-void panic_hook(const char *reason)
+void panic_hook(const char* reason)
 {
     trace(TRACE_POINT_PANIC);
 
@@ -104,14 +102,14 @@ void panic_hook(const char *reason)
     blocking_uart_init(&panic_uart, UART7, DEBUG_UART_BAUDRATE);
 
     // block to preserve fault state
-    const char *msg = panic_log_read();
+    const char* msg = panic_log_read();
     while (1) {
         if (msg != NULL) {
-            chprintf((BaseSequentialStream *)&panic_uart, "kernel panic:\n%s\n", msg);
+            chprintf((BaseSequentialStream*)&panic_uart, "kernel panic:\n%s\n", msg);
         }
         unsigned int i = 100000000;
         while (i--) {
-            __asm__ volatile ("nop");
+            __asm__ volatile("nop");
         }
     }
 }
@@ -150,7 +148,7 @@ void __late_init(void)
     malloc_lock_init();
 }
 
-void config_load_err_cb(void *arg, const char *id, const char *err)
+void config_load_err_cb(void* arg, const char* id, const char* err)
 {
     (void)arg;
     WARNING("parameter %s: %s", id == NULL ? "(...)" : id, err);
@@ -176,9 +174,9 @@ void config_load_from_flash(void)
     parameter_msgpack_read_cmp(&global_config, &cmp, config_load_err_cb, NULL);
 }
 
-static void blink_thd(void *p)
+static void blink_thd(void* p)
 {
-    (void) p;
+    (void)p;
 
     while (true) {
         control_panel_toggle(LED_PC);
@@ -227,7 +225,6 @@ int main(void)
                         bus_enum_entries_alloc,
                         MAX_NB_BUS_ENUMERATOR_ENTRIES);
 
-
     static __attribute__((section(".ccm"))) motor_driver_t motor_driver_buffer[MAX_NB_MOTOR_DRIVERS];
 
     motor_manager_init(&motor_manager,
@@ -247,7 +244,7 @@ int main(void)
     control_panel_init(config_get_boolean("master/control_panel_active_high"));
 
     /* Start IP over Ethernet */
-    struct netif *ethernet_if;
+    struct netif* ethernet_if;
 
     ip_thread_init();
 
@@ -303,7 +300,7 @@ int main(void)
 
     /* main thread, spawns a shell on USB connection. */
     while (1) {
-        shell_spawn((BaseSequentialStream *)&SDU1);
+        shell_spawn((BaseSequentialStream*)&SDU1);
         chThdSleepMilliseconds(500);
     }
 }
@@ -346,9 +343,9 @@ void __stack_chk_fail(void)
     ERROR("Stack smashing detected");
 }
 
-void context_switch_hook(void *ntp, void *otp)
+void context_switch_hook(void* ntp, void* otp)
 {
-    (void) otp;
+    (void)otp;
 
     /* The main thread does not have the same memory layout as the other ones
        (it uses the process stack instead of its own stack), so we ignore it. */
@@ -366,7 +363,7 @@ void context_switch_hook(void *ntp, void *otp)
                          AP_NO_NO, /* no permission */
                          false);
 
-    const char *name = ((thread_t *)ntp)->name;
+    const char* name = ((thread_t*)ntp)->name;
     if (name == NULL) {
         name = "no name";
     }

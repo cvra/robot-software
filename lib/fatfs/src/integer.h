@@ -5,12 +5,12 @@
 #ifndef _FF_INTEGER
 #define _FF_INTEGER
 
-#ifdef _WIN32   /* FatFs development platform */
+#ifdef _WIN32 /* FatFs development platform */
 
 #include <windows.h>
 #include <tchar.h>
 
-#else           /* Embedded platform */
+#else /* Embedded platform */
 
 /* This type MUST be 8 bit */
 typedef unsigned char BYTE;

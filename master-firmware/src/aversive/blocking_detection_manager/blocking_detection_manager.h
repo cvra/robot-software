@@ -27,7 +27,6 @@
 
 #include <stdint.h>
 
-
 /**@brief Detect blocking based on motor current.
  *
  * Triggers the blocking if:
@@ -45,26 +44,25 @@
  */
 struct blocking_detection {
     uint16_t cpt_thres; /**< Number of err_thres surpasses to trigger blocking */
-    uint16_t cpt;       /**< Number of times that the current surpassed the threshold */
+    uint16_t cpt; /**< Number of times that the current surpassed the threshold */
     uint32_t err_thres; /**< Current threshold */
-    uint32_t err_max;   /**< Highest current measured */
+    uint32_t err_max; /**< Highest current measured */
 };
 
 /** init module */
-void bd_init(struct blocking_detection *bd);
+void bd_init(struct blocking_detection* bd);
 
-
-void bd_set_thresholds(struct blocking_detection *bd, uint32_t err_thres, uint16_t cpt_thres);
+void bd_set_thresholds(struct blocking_detection* bd, uint32_t err_thres, uint16_t cpt_thres);
 
 /** reset the blocking */
-void bd_reset(struct blocking_detection *bd);
+void bd_reset(struct blocking_detection* bd);
 
 /** function to be called periodically */
-void bd_manage(struct blocking_detection *bd, uint32_t err);
+void bd_manage(struct blocking_detection* bd, uint32_t err);
 
 /** get value of blocking detection */
-uint8_t bd_get(struct blocking_detection *bd);
+uint8_t bd_get(struct blocking_detection* bd);
 
 /** get value of blocking detection maximale value, reseted each time it's read*/
-int32_t bd_get_max(struct blocking_detection * bd);
+int32_t bd_get_max(struct blocking_detection* bd);
 #endif

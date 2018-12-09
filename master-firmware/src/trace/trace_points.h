@@ -3,11 +3,11 @@
 
 #include "trace.h"
 
-#define TRACE_POINTS \
-    C(TRACE_POINT_PANIC) \
-    C(TRACE_POINT_CONTEXT_SWITCH) \
+#define TRACE_POINTS               \
+    C(TRACE_POINT_PANIC)           \
+    C(TRACE_POINT_CONTEXT_SWITCH)  \
     C(TRACE_POINT_RPC_MESSAGE_RCV) \
-    C(TRACE_POINT_RPC_MESSAGE_SEND) \
+    C(TRACE_POINT_RPC_MESSAGE_SEND)
 
 /* List of all trace points in numerical format. */
 #undef C

@@ -2,14 +2,14 @@
 #include "cc.h"
 #include <lwip/err.h>
 
-err_t sys_sem_new(sys_sem_t *pSem, u8_t count)
+err_t sys_sem_new(sys_sem_t* pSem, u8_t count)
 {
     chSemObjectInit(&pSem->sem, count);
     pSem->is_valid = true;
     return ERR_OK;
 }
 
-u32_t sys_arch_sem_wait(sys_sem_t *sem, u32_t timeout)
+u32_t sys_arch_sem_wait(sys_sem_t* sem, u32_t timeout)
 {
     systime_t timeout_chibios, time;
     LWIP_ASSERT("semaphore is invalid", sem->is_valid);
@@ -31,29 +31,29 @@ u32_t sys_arch_sem_wait(sys_sem_t *sem, u32_t timeout)
     return TIME_I2MS(time);
 }
 
-void sys_sem_signal(sys_sem_t *sem)
+void sys_sem_signal(sys_sem_t* sem)
 {
     LWIP_ASSERT("semaphore is invalid", sem->is_valid);
     chSemSignal(&sem->sem);
 }
 
-int sys_sem_valid(sys_sem_t *sem)
+int sys_sem_valid(sys_sem_t* sem)
 {
     return (int)sem->is_valid;
 }
 
-void sys_sem_set_invalid(sys_sem_t *sem)
+void sys_sem_set_invalid(sys_sem_t* sem)
 {
     sem->is_valid = false;
 }
 
-void sys_sem_free (sys_sem_t *sem)
+void sys_sem_free(sys_sem_t* sem)
 {
     /* Semaphores are stack allocated, so no need to do anything to free them. */
-    (void) sem;
+    (void)sem;
 }
 
-err_t sys_mbox_new(sys_mbox_t *mbox, int size)
+err_t sys_mbox_new(sys_mbox_t* mbox, int size)
 {
     LWIP_ASSERT("Mailbox too big", size <= SYS_ARCH_Q_SIZE);
     chMBObjectInit(&mbox->mb, mbox->buf, size);
@@ -61,13 +61,13 @@ err_t sys_mbox_new(sys_mbox_t *mbox, int size)
     return ERR_OK;
 }
 
-void sys_mbox_post(sys_mbox_t *mbox, void *msg)
+void sys_mbox_post(sys_mbox_t* mbox, void* msg)
 {
     LWIP_ASSERT("Message box is invalid", mbox->is_valid);
     chMBPostTimeout(&mbox->mb, (msg_t)msg, TIME_INFINITE);
 }
 
-err_t sys_mbox_trypost(sys_mbox_t *mbox, void *msg)
+err_t sys_mbox_trypost(sys_mbox_t* mbox, void* msg)
 {
     msg_t ret;
     LWIP_ASSERT("Message box is invalid", mbox->is_valid);
@@ -80,7 +80,7 @@ err_t sys_mbox_trypost(sys_mbox_t *mbox, void *msg)
     return ERR_OK;
 }
 
-u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeout)
+u32_t sys_arch_mbox_fetch(sys_mbox_t* mbox, void** msg, u32_t timeout)
 {
     systime_t timeout_chibios, time;
     msg_t ret;
@@ -94,7 +94,7 @@ u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeout)
         timeout_chibios = TIME_MS2I(timeout);
     }
 
-    ret = chMBFetchTimeout(&mbox->mb, (msg_t *)msg, timeout_chibios);
+    ret = chMBFetchTimeout(&mbox->mb, (msg_t*)msg, timeout_chibios);
 
     if (ret == MSG_TIMEOUT) {
         return SYS_ARCH_TIMEOUT;
@@ -105,38 +105,37 @@ u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeout)
     return TIME_I2MS(time);
 }
 
-u32_t sys_arch_mbox_tryfetch(sys_mbox_t *mbox, void **msg)
+u32_t sys_arch_mbox_tryfetch(sys_mbox_t* mbox, void** msg)
 {
     msg_t ret;
     LWIP_ASSERT("Message box is invalid", mbox->is_valid);
 
-    ret = chMBFetchTimeout(&mbox->mb, (msg_t *)msg, TIME_IMMEDIATE);
+    ret = chMBFetchTimeout(&mbox->mb, (msg_t*)msg, TIME_IMMEDIATE);
     if (ret == MSG_TIMEOUT) {
         return SYS_MBOX_EMPTY;
     }
     return 0;
 }
 
-int sys_mbox_valid(sys_mbox_t *mbox)
+int sys_mbox_valid(sys_mbox_t* mbox)
 {
     return mbox->is_valid;
 }
 
-void sys_mbox_set_invalid(sys_mbox_t *mbox)
+void sys_mbox_set_invalid(sys_mbox_t* mbox)
 {
     mbox->is_valid = false;
 }
 
-void sys_mbox_free(sys_mbox_t *mbox)
+void sys_mbox_free(sys_mbox_t* mbox)
 {
     /* Stack allocated, nothing special is needed to free it. */
-    (void) mbox;
+    (void)mbox;
 }
 
-sys_thread_t sys_thread_new(const char *name, lwip_thread_fn thread,
-        void *arg, int stacksize, int prio)
+sys_thread_t sys_thread_new(const char* name, lwip_thread_fn thread, void* arg, int stacksize, int prio)
 {
-    (void) name;
+    (void)name;
     sys_thread_t thd = chThdCreateFromHeap(NULL, stacksize, "lwip_spawn", prio,
                                            (tfunc_t)thread, arg);
     return thd;
@@ -146,8 +145,6 @@ u32_t sys_now(void)
 {
     return TIME_I2MS(chVTGetSystemTimeX());
 }
-
-
 
 void sys_init(void)
 {

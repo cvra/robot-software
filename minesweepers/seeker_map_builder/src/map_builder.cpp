@@ -2,7 +2,7 @@
 #include <seeker_msgs/MineInfo.h>
 #include <seeker_msgs/MineMap.h>
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     ros::init(argc, argv, "map_builder");
 
@@ -16,13 +16,11 @@ int main(int argc, char **argv)
             ROS_DEBUG("I've seen it first, that mine is mine!");
 
             map.mines.push_back(*msg);
-        }
-    );
+        });
     ros::Subscriber sub = node.subscribe("mine_detection", 1000, on_new_mine_detection);
 
     ros::Rate loop_rate(10);
-    while (ros::ok())
-    {
+    while (ros::ok()) {
         pub.publish(map);
         ros::spinOnce();
         loop_rate.sleep();

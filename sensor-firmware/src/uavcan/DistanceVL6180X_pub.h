@@ -3,6 +3,6 @@
 
 #include <uavcan/uavcan.hpp>
 
-void distance_publish(uavcan::INode &node);
+void distance_publish(uavcan::INode& node);
 
 #endif

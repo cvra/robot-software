@@ -19,38 +19,35 @@ static uint8_t output_buffer[1024];
 static bool method_called;
 static size_t output_bytes_written;
 
-static void netconn_serial_datagram_tx_adapter(void *arg, const void *buffer, size_t buffer_len)
+static void netconn_serial_datagram_tx_adapter(void* arg, const void* buffer, size_t buffer_len)
 {
-    struct netconn *conn = (struct netconn *)arg;
+    struct netconn* conn = (struct netconn*)arg;
 
     /* We don't know the lifetime of buffer so we must use NETCONN_COPY. */
     netconn_write(conn, buffer, buffer_len, NETCONN_COPY);
 }
 
-
-
 /* Callback fired when a serial datagram is received via TCP. */
-static void serial_datagram_recv_cb(const void *data, size_t len, void *arg)
+static void serial_datagram_recv_cb(const void* data, size_t len, void* arg)
 {
-    (void) arg;
+    (void)arg;
     method_called = true;
 
     output_bytes_written = service_call_process(data, len, output_buffer,
                                                 sizeof output_buffer,
                                                 service_call_callbacks,
                                                 service_call_callbacks_len);
-
 }
 
-void rpc_server_thread(void *p)
+void rpc_server_thread(void* p)
 {
     struct netconn *conn, *client_conn;
     int error;
 
     (void)p;
 
-    struct netbuf *buf;
-    char *data;
+    struct netbuf* buf;
+    char* data;
     u16_t len;
     err_t err;
 
@@ -93,7 +90,7 @@ void rpc_server_thread(void *p)
             }
 
             do {
-                netbuf_data(buf, (void **)&data, &len);
+                netbuf_data(buf, (void**)&data, &len);
                 err = serial_datagram_receive(&handler, data, len);
                 if (err != SERIAL_DATAGRAM_RCV_NO_ERROR) {
                     ERROR("rpc buffer too small");
@@ -120,21 +117,17 @@ void rpc_server_init(void)
                       NULL);
 }
 
-
-size_t rpc_transmit(uint8_t *input_buffer, size_t input_buffer_size,
-                    uint8_t *output_buffer, size_t output_buffer_size,
-                    ip_addr_t *addr, uint16_t port)
+size_t rpc_transmit(uint8_t* input_buffer, size_t input_buffer_size, uint8_t* output_buffer, size_t output_buffer_size, ip_addr_t* addr, uint16_t port)
 {
-    struct netconn *conn;
+    struct netconn* conn;
     int err;
 
     cmp_ctx_t ctx; /* For cmp_mem_access. */
     cmp_mem_access_t mem;
-    struct netbuf *buf;
+    struct netbuf* buf;
 
     u16_t len;
-    char *data;
-
+    char* data;
 
     conn = netconn_new(NETCONN_TCP);
 
@@ -148,8 +141,8 @@ size_t rpc_transmit(uint8_t *input_buffer, size_t input_buffer_size,
         goto fail;
     }
 
-    serial_datagram_send((void *)input_buffer, input_buffer_size,
-                         netconn_serial_datagram_tx_adapter, (void *)conn);
+    serial_datagram_send((void*)input_buffer, input_buffer_size,
+                         netconn_serial_datagram_tx_adapter, (void*)conn);
 
     if (output_buffer == NULL) {
         goto fail;
@@ -165,7 +158,7 @@ size_t rpc_transmit(uint8_t *input_buffer, size_t input_buffer_size,
         }
 
         do {
-            netbuf_data(buf, (void **)&data, &len);
+            netbuf_data(buf, (void**)&data, &len);
 
             /* Append data to buffer. */
             int wlen = ctx.write(&ctx, data, len);
@@ -185,10 +178,10 @@ fail:
     return -1;
 }
 
-void message_server_thread(void *arg)
+void message_server_thread(void* arg)
 {
-    struct netconn *conn;
-    struct netbuf *buf;
+    struct netconn* conn;
+    struct netbuf* buf;
     static uint8_t buffer[4096];
     err_t err;
     LWIP_UNUSED_ARG(arg);
@@ -224,13 +217,12 @@ void message_server_init(void)
                       RPC_SERVER_PRIO,
                       message_server_thread,
                       NULL);
-
 }
 
-void message_transmit(uint8_t *input_buffer, size_t input_buffer_size, ip_addr_t *addr, uint16_t port)
+void message_transmit(uint8_t* input_buffer, size_t input_buffer_size, ip_addr_t* addr, uint16_t port)
 {
-    struct netconn *conn;
-    struct netbuf *buf;
+    struct netconn* conn;
+    struct netbuf* buf;
 
     conn = netconn_new(NETCONN_UDP);
 

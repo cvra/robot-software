@@ -10,8 +10,7 @@ extern "C" {
 #include "position_manager/position_manager.h"
 }
 
-TEST_GROUP(TrajectoryManagerTestGroup)
-{
+TEST_GROUP (TrajectoryManagerTestGroup) {
     struct trajectory traj;
     struct cs distance_cs, angle_cs;
     struct quadramp_filter distance_qr, angle_qr;

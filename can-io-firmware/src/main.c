@@ -9,7 +9,7 @@
 
 THD_FUNCTION(blinker, arg)
 {
-    (void) arg;
+    (void)arg;
     while (1) {
         palSetPad(GPIOA, GPIOA_LED);
         chThdSleepMilliseconds(100);
