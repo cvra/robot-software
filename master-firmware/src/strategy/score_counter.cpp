@@ -33,17 +33,6 @@ static THD_FUNCTION(score_counter_thd, arg)
         Score msg;
         msg.score = 0;
 
-        if (config_get_boolean("master/is_main_robot")) {
-            msg.score += score_count_bee_on_map(state);
-            msg.score += score_count_panel_on_map(state);
-        }
-        msg.score += score_count_bee(state);
-        msg.score += score_count_switch(state);
-        msg.score += score_count_tower(state);
-        msg.score += score_count_tower_bonus(state);
-        msg.score += score_count_balls(state);
-        msg.score += score_count_wastewater_bonus(state);
-
         messagebus_topic_publish(&score_topic.topic, &msg, sizeof(msg));
     }
 }

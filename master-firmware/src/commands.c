@@ -1212,56 +1212,6 @@ static void cmd_lever(BaseSequentialStream* chp, int argc, char* argv[])
              blocks_pose.translation.x, blocks_pose.translation.y, blocks_pose.rotation.angle);
 }
 
-static void cmd_pick_cube(BaseSequentialStream* chp, int argc, char* argv[])
-{
-    if (argc != 2) {
-        chprintf(chp, "Usage: pick x y\r\n");
-        return;
-    }
-    float x = atof(argv[0]);
-    float y = atof(argv[1]);
-
-    chprintf(chp, "Picking cube at x:%f y:%f\r\n", x, y);
-    if (strat_pick_cube(x, y)) {
-        chprintf(chp, "Mission success \\o/\r\nPicked up requested cube, awaiting new orders, master.\r\n");
-    } else {
-        chprintf(chp, "Mission failed :(\r\nThe cube was a lie!\r\n");
-    }
-}
-
-static void cmd_deposit_cube(BaseSequentialStream* chp, int argc, char* argv[])
-{
-    if (argc != 3) {
-        chprintf(chp, "Usage: deposit x y num_cubes\r\n");
-        return;
-    }
-    float x = atof(argv[0]);
-    float y = atof(argv[1]);
-    int num_cubes = atoi(argv[2]);
-
-    chprintf(chp, "Depositing cube on tower x:%f y:%f holding %f cubes\r\n", x, y, num_cubes);
-    if (strat_deposit_cube(x, y, num_cubes)) {
-        chprintf(chp, "Mission success :)\nTower now has %d cubes\r\n", num_cubes + 1);
-    } else {
-        chprintf(chp, "Mission failed :(\n");
-    }
-}
-
-static void cmd_push_y(BaseSequentialStream* chp, int argc, char* argv[])
-{
-    if (argc != 4) {
-        chprintf(chp, "Usage: push_y x y z y_push\r\n");
-        return;
-    }
-    float x = atof(argv[0]);
-    float y = atof(argv[1]);
-    float z = atof(argv[2]);
-    float y_push = atof(argv[3]);
-
-    chprintf(chp, "Pushing from x:%f y:%f z:%f to x:%f y:%f z:%f \r\n", x, y, z, x, y_push, z);
-    strat_push_switch_on(x, y, z, y_push);
-}
-
 #include "can/can_io_driver.h"
 
 static void cmd_canio(BaseSequentialStream* chp, int argc, char* argv[])
@@ -1340,53 +1290,6 @@ static void cmd_motor_sin(BaseSequentialStream* chp, int argc, char* argv[])
     }
 }
 
-static void cmd_push_the_bee(BaseSequentialStream* chp, int argc, char* argv[])
-{
-    if (argc != 5) {
-        chprintf(chp, "Usage: bee x_start y_start x_end y_end bee_height\r\n");
-        return;
-    }
-    float x_start = atof(argv[0]);
-    float y_start = atof(argv[1]);
-    float x_end = atof(argv[2]);
-    float y_end = atof(argv[3]);
-    float bee_height = atof(argv[4]);
-
-    point_t start = {x_start, y_start};
-    point_t end = {x_end, y_end};
-
-    strat_push_the_bee(start, end, bee_height);
-}
-
-static void cmd_push_the_bee_v2(BaseSequentialStream* chp, int argc, char* argv[])
-{
-    if (argc != 4) {
-        chprintf(chp, "Usage: bee2 x_start y_start bee_height forward_motion\r\n");
-        return;
-    }
-    float x_start = atof(argv[0]);
-    float y_start = atof(argv[1]);
-    float bee_height = atof(argv[2]);
-    float forward_motion = atof(argv[3]);
-
-    point_t start = {x_start, y_start};
-    strat_push_the_bee_v2(start, bee_height, forward_motion);
-}
-
-static void cmd_check_dist(BaseSequentialStream* chp, int argc, char* argv[])
-{
-    if (argc != 1) {
-        chprintf(chp, "Usage: check_dist expected\r\n");
-        return;
-    }
-    float expected = atof(argv[0]);
-    if (strat_check_distance_to_hand_lower_than(expected)) {
-        chprintf(chp, "Success: Measured distance was lower than %f\r\n", expected);
-    } else {
-        chprintf(chp, "Failure: Measured distance was higher than %f\r\n", expected);
-    }
-}
-
 static void cmd_ballgun(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc != 1) {
@@ -1447,7 +1350,6 @@ static void cmd_ballsense(BaseSequentialStream* chp, int argc, char* argv[])
     chprintf(chp, "Ball sensor value %d | Ball count %u\r\n", sense, count);
 }
 
-// Copy of strat_fill_wastewater_treatment_plant()
 static void cmd_slowfire(BaseSequentialStream* chp, int argc, char* argv[])
 {
     (void)chp;
@@ -1465,37 +1367,6 @@ static void cmd_slowfire(BaseSequentialStream* chp, int argc, char* argv[])
     chThdSleepMilliseconds(2000);
 
     ballgun_tidy(&main_ballgun);
-}
-
-static void cmd_wastewater(BaseSequentialStream* chp, int argc, char* argv[])
-{
-    if (argc != 1) {
-        chprintf(chp, "Usage: wastewater yellow|green\r\n");
-        return;
-    }
-    if (strcmp("yellow", argv[0]) == 0) {
-        strat_collect_wastewater(YELLOW, 0);
-    } else if (strcmp("green", argv[0]) == 0) {
-        strat_collect_wastewater(BLUE, 0);
-    } else {
-        chprintf(chp, "Invalid color: %s", argv[0]);
-    }
-}
-
-static void cmd_watertower(BaseSequentialStream* chp, int argc, char* argv[])
-{
-    (void)chp;
-    (void)argc;
-    (void)argv;
-    strat_fill_watertower();
-}
-
-static void cmd_watertower_plant(BaseSequentialStream* chp, int argc, char* argv[])
-{
-    (void)chp;
-    (void)argc;
-    (void)argv;
-    strat_fill_wastewater_treatment_plant();
 }
 
 static void cmd_wrist(BaseSequentialStream* chp, int argc, char* argv[])
@@ -1532,15 +1403,6 @@ static void cmd_speed(BaseSequentialStream* chp, int argc, char* argv[])
     } else {
         chprintf(chp, "Invalid base speed: %s", argv[0]);
     }
-}
-
-static void cmd_lever_full(BaseSequentialStream* chp, int argc, char* argv[])
-{
-    (void)argc;
-    (void)argv;
-
-    chprintf(chp, "left lever: %d\r\n", strat_lever_is_full(LEVER_SIDE_LEFT));
-    chprintf(chp, "right lever: %d\r\n", strat_lever_is_full(LEVER_SIDE_RIGHT));
 }
 
 static void cmd_panel_status(BaseSequentialStream* chp, int argc, char* argv[])
@@ -1627,24 +1489,14 @@ const ShellCommand commands[] = {
     {"trace", cmd_trace},
     {"servo", cmd_servo},
     {"lever", cmd_lever},
-    {"pick", cmd_pick_cube},
-    {"deposit", cmd_deposit_cube},
-    {"push_y", cmd_push_y},
     {"canio", cmd_canio},
     {"dist", cmd_hand_dist},
     {"arm_bd", cmd_arm_bd},
     {"motor_sin", cmd_motor_sin},
-    {"bee", cmd_push_the_bee},
-    {"bee2", cmd_push_the_bee_v2},
-    {"check_dist", cmd_check_dist},
     {"ballgun", cmd_ballgun},
     {"slowfire", cmd_slowfire},
-    {"wastewater", cmd_wastewater},
-    {"watertower", cmd_watertower},
-    {"watertower_plant", cmd_watertower_plant},
     {"wrist", cmd_wrist},
     {"speed", cmd_speed},
-    {"lever_full", cmd_lever_full},
     {"ballsense", cmd_ballsense},
     {"panel", cmd_panel_status},
     {"beacon", cmd_proximity_beacon},

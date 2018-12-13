@@ -26,6 +26,7 @@ static struct {
 static THD_FUNCTION(map_server_thd, arg)
 {
     enum strat_color_t color = *(enum strat_color_t*)arg;
+    (void)color;
     chRegSetThreadName(__FUNCTION__);
 
     int robot_size = config_get_integer("master/robot_size_x_mm");
@@ -92,28 +93,6 @@ static THD_FUNCTION(map_server_thd, arg)
             }
         }
 
-        /* Update cube blocks obstacles on map depending on state */
-        messagebus_topic_read(strategy_state_topic, &state, sizeof(state));
-        for (int i = 0; i < MAP_NUM_BLOCKS_CUBE; i++) {
-            if (state.blocks_on_map[i]) {
-                const int x = BLOCK_OF_CUBES_POS[i][0];
-                const int y = BLOCK_OF_CUBES_POS[i][1];
-                map_set_cubes_obstacle(map, i, MIRROR_X(color, x), y, robot_size);
-            } else {
-                map_set_cubes_obstacle(map, i, 0, 0, 0);
-            }
-        }
-        for (const auto& construction_zone : state.construction_zone) {
-            if (construction_zone.tower_level > 0) {
-                const int x = construction_zone.tower_pos[0];
-                const int y = construction_zone.tower_pos[1];
-                map_set_tower_obstacle(map, 0, x, y, robot_size);
-            } else {
-                map_set_tower_obstacle(map, 0, 0, 0, 0);
-            }
-        }
-
-        map_server_map_release(map);
         messagebus_watchgroup_wait(&watchgroup.group);
     }
 }
