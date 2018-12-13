@@ -1670,7 +1670,7 @@ static void cmd_touchscreen(BaseSequentialStream* chp, int argc, char* argv[])
 
     i2cStart(&I2CD2, &config);
     uint8_t reg = 0x00;
-    uint16_t answer;
+    uint8_t answer;
     msg_t msg = i2cMasterTransmitTimeout(&I2CD2, 0x41, &reg, sizeof(reg),
                                          &answer, sizeof(answer), TIME_MS2I(100));
 
