@@ -363,7 +363,10 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
     NOTICE("Positioning robot");
 
     robot.base_speed = BASE_SPEED_INIT;
-    strategy_auto_position(MIRROR_X(color, 200), 520, MIRROR_A(color, -90), color);
+    strategy_auto_position(MIRROR_X(color, 250), 450, MIRROR_A(color, -90), color);
+
+    trajectory_a_abs(&robot.traj, MIRROR_A(color, 180));
+    trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
 
     robot.base_speed = BASE_SPEED_FAST;
     NOTICE("Robot positioned at x: %d[mm], y: %d[mm], a: %d[deg]",
@@ -442,7 +445,7 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     NOTICE("Positioning robot");
 
     robot.base_speed = BASE_SPEED_INIT;
-    strategy_auto_position(MIRROR_X(color, 200), 180, MIRROR_A(color, -90), color);
+    strategy_auto_position(MIRROR_X(color, 250), 750, MIRROR_A(color, -90), color);
 
     trajectory_a_abs(&robot.traj, MIRROR_A(color, 180));
     trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
