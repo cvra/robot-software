@@ -1,0 +1,20 @@
+{% extends 'CMakeLists.txt.jinja' %}
+
+
+{% block additional_targets %}
+
+{% for demo_name in target.keys() %}
+add_executable(
+    {{ demo_name }}
+    {% for file in source -%}
+    {{ file }}
+    {% endfor -%}
+
+    {% for file in target[demo_name] -%}
+    {{ file }}
+    {% endfor -%}
+    )
+{% endfor %}
+
+
+{% endblock %}

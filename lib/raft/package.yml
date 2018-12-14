@@ -1,0 +1,23 @@
+templates:
+    CMakeLists.demo.jinja: CMakeLists.txt
+
+depends:
+  - test-runner
+  - error
+
+tests:
+  - tests/test_leader_election.cpp
+  - tests/messages_comparator.cpp
+  - tests/test_log_replication.cpp
+  - tests/test_log.cpp
+  - tests/test_state_machine_commit.cpp
+
+target.demo_leader_election:
+  - demos/leader_election.cpp
+  - demos/error_handlers.c
+  - demos/udp_transport.cpp
+
+target.demo_log_replication:
+  - demos/log_replication.cpp
+  - demos/error_handlers.c
+  - demos/udp_transport.cpp
