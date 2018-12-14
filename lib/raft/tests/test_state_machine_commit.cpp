@@ -3,15 +3,15 @@
 
 #include "../raft.hpp"
 
-class MockCommitMachine
-{
-    public:
+class MockCommitMachine {
+public:
     enum class Operation {
         ZERO = 0,
         ONE,
     };
 
-    void apply(Operation op) {
+    void apply(Operation op)
+    {
         auto o = static_cast<int>(op);
         mock().actualCall("commit").withParameter("operation", o);
     }
@@ -19,12 +19,11 @@ class MockCommitMachine
 
 using TestMessage = raft::Message<MockCommitMachine>;
 
-TEST_GROUP(StateMachineCommitTestGroup)
-{
+TEST_GROUP (StateMachineCommitTestGroup) {
     MockCommitMachine fsm;
     raft::State<MockCommitMachine> state{fsm, 42, nullptr, 0};
 
-    void replicate(MockCommitMachine::Operation operation, raft::Index commit=0)
+    void replicate(MockCommitMachine::Operation operation, raft::Index commit = 0)
     {
         TestMessage msg;
         raft::LogEntry<MockCommitMachine::Operation> entry;
@@ -50,18 +49,15 @@ TEST(StateMachineCommitTestGroup, EntriesGetCommited)
     replicate(MockCommitMachine::Operation::ONE);
 
     // The first entry will now be commited
-    mock().expectOneCall("commit")
-          .withParameter("operation", static_cast<int>(MockCommitMachine::Operation::ONE));
+    mock().expectOneCall("commit").withParameter("operation", static_cast<int>(MockCommitMachine::Operation::ONE));
 
     replicate(MockCommitMachine::Operation::ZERO, 1);
 }
 
 TEST(StateMachineCommitTestGroup, OnlyCommitOnceEveryEntry)
 {
-    mock().expectOneCall("commit")
-          .withParameter("operation", static_cast<int>(MockCommitMachine::Operation::ONE));
-    mock().expectOneCall("commit")
-          .withParameter("operation", static_cast<int>(MockCommitMachine::Operation::ZERO));
+    mock().expectOneCall("commit").withParameter("operation", static_cast<int>(MockCommitMachine::Operation::ONE));
+    mock().expectOneCall("commit").withParameter("operation", static_cast<int>(MockCommitMachine::Operation::ZERO));
 
     replicate(MockCommitMachine::Operation::ONE);
     replicate(MockCommitMachine::Operation::ZERO, 1);

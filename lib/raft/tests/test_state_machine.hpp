@@ -2,9 +2,8 @@
 
 #include "../raft.hpp"
 
-class TestStateMachine
-{
-    public:
+class TestStateMachine {
+public:
     enum class Operation {
         FOO = 0xca,
         BAR = 0xfe,
@@ -12,7 +11,7 @@ class TestStateMachine
 
     void apply(Operation op)
     {
-        (void) op;
+        (void)op;
     }
 };
 

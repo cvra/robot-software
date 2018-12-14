@@ -18,7 +18,7 @@ using Term = int;
 using Index = int;
 
 enum class NodeState {
-    Follower=0,
+    Follower = 0,
     Candidate,
     Leader
 };
@@ -31,8 +31,7 @@ struct LogEntry {
 };
 
 template <typename Operation, int N>
-class Log
-{
+class Log {
     int m_size;
     LogEntry<Operation> entries[N];
 
@@ -40,8 +39,7 @@ class Log
     {
         for (auto i = 0; i < size(); i++) {
             for (auto j = 0; j < entry_count; j++) {
-                if (new_entries[j].index == entries[i].index &&
-                    entries[i].term < new_entries[j].term) {
+                if (new_entries[j].index == entries[i].index && entries[i].term < new_entries[j].term) {
                     keep_until(i);
                     return;
                 }
@@ -50,7 +48,8 @@ class Log
     }
 
 public:
-    Log() : m_size(0)
+    Log()
+        : m_size(0)
     {
     }
 
@@ -63,7 +62,7 @@ public:
     {
         if (m_size < N) {
             entries[m_size] = entry;
-            m_size ++;
+            m_size++;
         } else {
             // This should not happen if log compaction is ran often enough
             // Note: This error does not threaten the consistency of the log,
@@ -93,7 +92,6 @@ public:
         }
 
         return 0;
-
     }
 
     LogEntry<Operation>* find_entry(Term term, Index index)
@@ -128,7 +126,7 @@ public:
 template <typename StateMachine>
 struct Message {
     enum class Type {
-        VoteRequest=0,
+        VoteRequest = 0,
         VoteReply,
         AppendEntriesRequest,
         AppendEntriesReply,
@@ -172,13 +170,12 @@ struct Message {
 template <typename StateMachine>
 class Peer {
 public:
-    Peer(NodeId id) : id(id)
+    Peer(NodeId id)
+        : id(id)
     {
     }
-    virtual void send(const Message<StateMachine> &msg) = 0;
-    virtual ~Peer()
-    {
-    };
+    virtual void send(const Message<StateMachine>& msg) = 0;
+    virtual ~Peer(){};
 
     NodeId id;
 
@@ -194,7 +191,7 @@ public:
     using Message = raft::Message<StateMachine>;
     using Peer = raft::Peer<StateMachine>;
     NodeId id;
-    Peer **peers;
+    Peer** peers;
     int peer_count;
     Term term;
     int vote_count;
@@ -205,20 +202,27 @@ public:
     Log<typename StateMachine::Operation, LOG_SIZE> log;
     Index commit_index;
 
-    StateMachine &state_machine;
+    StateMachine& state_machine;
 
-    State(StateMachine &state_machine, NodeId id, Peer **peers, int peer_count) :
-        id(id), peers(peers), peer_count(peer_count), term(0), voted_for(0),
-        node_state(NodeState::Follower), heartbeat_timer(0),
-        election_timer(ELECTION_TIMEOUT_MAX), log(), commit_index(0),
-        state_machine(state_machine)
+    State(StateMachine& state_machine, NodeId id, Peer** peers, int peer_count)
+        : id(id)
+        , peers(peers)
+        , peer_count(peer_count)
+        , term(0)
+        , voted_for(0)
+        , node_state(NodeState::Follower)
+        , heartbeat_timer(0)
+        , election_timer(ELECTION_TIMEOUT_MAX)
+        , log()
+        , commit_index(0)
+        , state_machine(state_machine)
     {
         for (auto i = 0; i < peer_count; i++) {
             peers[i]->match_index = 0;
         }
     }
 
-    bool process(const Message& msg, Message &reply)
+    bool process(const Message& msg, Message& reply)
     {
         reply.from_id = id;
 
@@ -254,7 +258,7 @@ public:
                 }
 
                 if (msg.vote_reply.vote_granted) {
-                    vote_count ++;
+                    vote_count++;
                     // Reminder: total number of votes = vote_count + 1 because
                     // we also voted for ourselves
                     if (2 * vote_count >= peer_count) {
@@ -266,7 +270,6 @@ public:
                     voted_for = 0;
                     reset_election_timer();
                 }
-
 
                 break;
             }
@@ -336,7 +339,7 @@ public:
                 } else {
                     for (auto i = 0; i < peer_count; i++) {
                         if (peers[i]->id == msg.from_id) {
-                            peers[i]->next_index --;
+                            peers[i]->next_index--;
                         }
                     }
                 }
@@ -355,7 +358,7 @@ public:
 
         NOTICE("Starting election...");
         node_state = NodeState::Candidate;
-        term ++;
+        term++;
         vote_count = 0;
         voted_for = id;
 
@@ -404,7 +407,7 @@ private:
     void tick_heartbeat()
     {
         if (heartbeat_timer > 0) {
-            heartbeat_timer --;
+            heartbeat_timer--;
         } else {
             DEBUG("Sending heartbeat");
             for (auto i = 0; i < peer_count; i++) {
@@ -424,7 +427,7 @@ private:
                     if (log[j].index >= next_index) {
                         for (auto k = 0; k + j < log.size(); k++) {
                             msg.append_entries_request.entries[k] = log[k + j];
-                            msg.append_entries_request.count ++;
+                            msg.append_entries_request.count++;
                         }
                         break;
                     }
@@ -443,7 +446,7 @@ private:
     void tick_election()
     {
         if (election_timer > 0) {
-            election_timer --;
+            election_timer--;
         } else {
             start_election();
             reset_election_timer();
@@ -468,16 +471,16 @@ private:
         // Step 1 sort the peers according to their match index.
         // This allows us to take N as the median value of the match index,
         // ensuring that a majority of nodes have a match_index of at least N
-        std::qsort(peers, peer_count, sizeof(peers[0]), [](const void *a, const void *b) {
-                Peer *pa = (Peer *)a;
-                Peer *pb = (Peer *)b;
-                if (pa->match_index < pb->match_index) {
-                    return 1;
-                } else if (pa->match_index > pb->match_index) {
-                    return -1;
-                }
-                return 0;
-            });
+        std::qsort(peers, peer_count, sizeof(peers[0]), [](const void* a, const void* b) {
+            Peer* pa = (Peer*)a;
+            Peer* pb = (Peer*)b;
+            if (pa->match_index < pb->match_index) {
+                return 1;
+            } else if (pa->match_index > pb->match_index) {
+                return -1;
+            }
+            return 0;
+        });
 
         const auto median_peer = std::max(peer_count / 2 - 1, 0);
         auto N = peers[median_peer]->match_index;
@@ -506,9 +509,9 @@ private:
         }
 
         // Then commit all new entries
-        for (; commit_index < new_index; commit_index ++, i ++) {
+        for (; commit_index < new_index; commit_index++, i++) {
             state_machine.apply(log[i].operation);
         }
     }
 };
-}
+} // namespace raft

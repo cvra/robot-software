@@ -6,8 +6,8 @@
 bool RaftMessageComparator::isEqual(const void* object1, const void* object2)
 {
     using MessageType = TestMessage::Type;
-    auto m1 = static_cast<const TestMessage *>(object1);
-    auto m2 = static_cast<const TestMessage *>(object2);
+    auto m1 = static_cast<const TestMessage*>(object1);
+    auto m2 = static_cast<const TestMessage*>(object2);
 
     if (m1->type != m2->type) {
         return false;
@@ -39,7 +39,6 @@ bool RaftMessageComparator::isEqual(const void* object1, const void* object2)
                                 &m2->append_entries_reply,
                                 sizeof(m1->append_entries_reply));
             break;
-
     }
 
     return true;
@@ -48,7 +47,7 @@ bool RaftMessageComparator::isEqual(const void* object1, const void* object2)
 SimpleString RaftMessageComparator::valueToString(const void* object)
 {
     char buffer[256];
-    auto msg = static_cast<const TestMessage *>(object);
+    auto msg = static_cast<const TestMessage*>(object);
     using MessageType = TestMessage::Type;
 
     buffer[0] = 0;
@@ -92,8 +91,7 @@ SimpleString RaftMessageComparator::valueToString(const void* object)
     return buffer;
 }
 
-TEST_GROUP(MessageComparatorTestGroup)
-{
+TEST_GROUP (MessageComparatorTestGroup) {
     RaftMessageComparator cmp;
 };
 
@@ -110,11 +108,10 @@ TEST(MessageComparatorTestGroup, WrongTerm)
 {
     TestMessage m1;
     TestMessage m2 = m1;
-    m2.term ++;
+    m2.term++;
 
     CHECK_FALSE(cmp.isEqual(&m1, &m2));
 }
-
 
 TEST(MessageComparatorTestGroup, CompareVoteRequest)
 {
@@ -154,7 +151,6 @@ TEST(MessageComparatorTestGroup, StringForVoteReply)
 
     STRCMP_EQUAL(s2, "VoteReply(term=12, vote_granted=1)");
 }
-
 
 SimpleString StringFrom(TestMessage::Type type)
 {

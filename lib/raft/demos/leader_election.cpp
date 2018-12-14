@@ -21,14 +21,13 @@ struct EmptyStateMachine {
 
     void apply(Operation op)
     {
-        (void) op;
+        (void)op;
     }
 };
 
 using Peer = UDPPeer<EmptyStateMachine>;
 
-
-std::vector<Peer> make_peers(char **argv, int argc)
+std::vector<Peer> make_peers(char** argv, int argc)
 {
     std::vector<Peer> peers;
     for (auto i = 2; i < argc; i++) {
@@ -39,7 +38,7 @@ std::vector<Peer> make_peers(char **argv, int argc)
     return peers;
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     register_error_handlers();
 
@@ -52,8 +51,8 @@ int main(int argc, char **argv)
 
     auto peers = make_peers(argv, argc);
 
-    vector<raft::Peer<EmptyStateMachine> *> peers_ptrs;
-    for (auto &p : peers) {
+    vector<raft::Peer<EmptyStateMachine>*> peers_ptrs;
+    for (auto& p : peers) {
         peers_ptrs.push_back(&p);
     }
 

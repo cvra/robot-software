@@ -4,12 +4,12 @@
 
 #include <error/error.h>
 
-static void mylog(struct error *e, ...)
+static void mylog(struct error* e, ...)
 {
     va_list va;
     va_start(va, e);
 
-    const char *filename_start = strrchr(e->file, '/') + 1;
+    const char* filename_start = strrchr(e->file, '/') + 1;
 
     printf("%s:%d: %s: ", filename_start, e->line, error_severity_get_name(e->severity));
     vprintf(e->text, va);

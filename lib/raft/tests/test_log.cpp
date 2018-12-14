@@ -5,8 +5,7 @@
 
 using LogEntry = raft::LogEntry<TestStateMachine::Operation>;
 
-TEST_GROUP(LogOperations)
-{
+TEST_GROUP (LogOperations) {
     raft::Log<TestStateMachine::Operation, 10> log;
 
     LogEntry make_entry(TestStateMachine::Operation op, raft::Term term, raft::Index i)

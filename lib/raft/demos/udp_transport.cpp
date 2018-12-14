@@ -14,7 +14,6 @@ int make_receive_socket(int port)
         ERROR("Could not bind socket");
     }
 
-
     struct timeval read_timeout;
     read_timeout.tv_sec = 0;
     read_timeout.tv_usec = 10;

@@ -8,10 +8,11 @@ using TestRaftState = raft::State<TestStateMachine>;
 
 class DummyPeer : public TestPeer {
 public:
-    DummyPeer() : TestPeer(0)
+    DummyPeer()
+        : TestPeer(0)
     {
     }
-    virtual void send(const TestMessage &msg)
+    virtual void send(const TestMessage& msg)
     {
         mock().actualCall("send").withParameterOfType("raft::Message", "msg", &msg);
     }
@@ -41,12 +42,11 @@ TestMessage make_vote_request(raft::Term term,
     return msg;
 }
 
-TEST_GROUP(LeaderElectionTestGroup)
-{
+TEST_GROUP (LeaderElectionTestGroup) {
     DummyPeer peers[2];
-    DummyPeer *peers_ptrs[2] = {&peers[0], &peers[1]};
+    DummyPeer* peers_ptrs[2] = {&peers[0], &peers[1]};
     TestStateMachine fsm;
-    TestRaftState state{fsm, 42, (TestPeer **)&peers_ptrs[0], 2};
+    TestRaftState state{fsm, 42, (TestPeer**)&peers_ptrs[0], 2};
     RaftMessageComparator cmp;
     TestMessage reply;
 
@@ -153,16 +153,15 @@ TEST(LeaderElectionTestGroup, DoNotCastVotesIfWeAreAlreadyLeader)
     mock().checkExpectations();
 }
 
-
 TEST(LeaderElectionTestGroup, DeniedVotesAreNotCounted)
 {
     DummyPeer peers[4];
-    DummyPeer *peers_ptrs[4];
+    DummyPeer* peers_ptrs[4];
     for (auto i = 0; i < 4; i++) {
         peers_ptrs[i] = &peers[i];
     }
     TestStateMachine fsm;
-    TestRaftState state{fsm, 42, (TestPeer **)&peers_ptrs[0], 4};
+    TestRaftState state{fsm, 42, (TestPeer**)&peers_ptrs[0], 4};
 
     // Since only one peer replied with a vote we will not be elected
     auto m1 = make_vote_reply(false);
@@ -187,7 +186,6 @@ TEST(LeaderElectionTestGroup, LeaderSendsHeartBeat)
     state.process(vote_reply, reply);
 
     mock().clear();
-
 
     TestMessage msg;
     msg.term = 1;

@@ -4,21 +4,20 @@
 #include "test_state_machine.hpp"
 #include "messages_comparator.hpp"
 
-class DummyPeer : public TestPeer
-{
+class DummyPeer : public TestPeer {
 public:
-    DummyPeer() : TestPeer(0)
+    DummyPeer()
+        : TestPeer(0)
     {
     }
-    virtual void send(const TestMessage &msg)
+    virtual void send(const TestMessage& msg)
     {
     }
 };
 
-TEST_GROUP(LogReplicationTestGroup)
-{
+TEST_GROUP (LogReplicationTestGroup) {
     DummyPeer peer;
-    TestPeer *peers[1] = {&peer};
+    TestPeer* peers[1] = {&peer};
     TestStateMachine fsm;
     TestRaftState state{fsm, 42, peers, 1};
     RaftMessageComparator cmp;
@@ -334,7 +333,7 @@ TEST(LogReplicationTestGroup, NonReplicatedEntriesAreSentAgainOnHeartbeat)
 TEST(LogReplicationTestGroup, UpdateCommitIndexWhenMajorityReplicatedIt)
 {
     DummyPeer p2;
-    TestPeer *peers[] = {&peer, &p2};
+    TestPeer* peers[] = {&peer, &p2};
     TestRaftState state{fsm, 42, peers, 2};
     state.become_leader();
     state.replicate(TestStateMachine::Operation::FOO);
