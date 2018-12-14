@@ -253,9 +253,10 @@ public:
                     break;
                 }
 
-                vote_count ++;
-
                 if (msg.vote_reply.vote_granted) {
+                    vote_count ++;
+                    // Reminder: total number of votes = vote_count + 1 because
+                    // we also voted for ourselves
                     if (2 * vote_count >= peer_count) {
                         become_leader();
                     }

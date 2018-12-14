@@ -156,12 +156,24 @@ TEST(LeaderElectionTestGroup, DoNotCastVotesIfWeAreAlreadyLeader)
 
 TEST(LeaderElectionTestGroup, DeniedVotesAreNotCounted)
 {
+    DummyPeer peers[4];
+    DummyPeer *peers_ptrs[4];
+    for (auto i = 0; i < 4; i++) {
+        peers_ptrs[i] = &peers[i];
+    }
+    TestStateMachine fsm;
+    TestRaftState state{fsm, 42, (TestPeer **)&peers_ptrs[0], 4};
+
+    // Since only one peer replied with a vote we will not be elected
     auto m1 = make_vote_reply(false);
     auto m2 = make_vote_reply(false);
+    auto m3 = make_vote_reply(true);
+
     mock().ignoreOtherCalls();
     state.start_election();
     state.process(m1, reply);
     state.process(m2, reply);
+    state.process(m3, reply);
     CHECK_TRUE(state.node_state != raft::NodeState::Leader);
 }
 
