@@ -10,6 +10,9 @@ const auto HEARTBEAT_PERIOD = 10;
 const auto ELECTION_TIMEOUT_MAX = 500;
 const auto ELECTION_TIMEOUT_MIN = 100;
 
+// TODO: How many entries ?
+const auto LOG_SIZE = 10u;
+
 using NodeId = int;
 using Term = int;
 using Index = int;
@@ -62,6 +65,9 @@ public:
             entries[m_size] = entry;
             m_size ++;
         } else {
+            // This should not happen if log compaction is ran often enough
+            // Note: This error does not threaten the consistency of the log,
+            // the request will be dropped silently
             WARNING("log is already full");
         }
     }
@@ -147,8 +153,7 @@ struct Message {
             Index leader_commit;
             Term previous_entry_term;
             Index previous_entry_index;
-            // TODO: How many entries
-            LogEntry<typename StateMachine::Operation> entries[10];
+            LogEntry<typename StateMachine::Operation> entries[LOG_SIZE];
         } append_entries_request;
 
         struct {
@@ -197,8 +202,7 @@ public:
     NodeState node_state;
     int heartbeat_timer;
     int election_timer;
-    // TODO: How many entries
-    Log<typename StateMachine::Operation, 10> log;
+    Log<typename StateMachine::Operation, LOG_SIZE> log;
     Index commit_index;
 
     StateMachine &state_machine;
@@ -226,12 +230,9 @@ public:
 
                 const auto req_lli = msg.vote_request.last_log_index;
                 const auto req_llt = msg.vote_request.last_log_term;
-
-                if ((msg.term > term && log.last_index() <= req_lli && log.last_term() <= req_llt)
-                    ||
-                    (msg.term == term &&
-                     msg.from_id == voted_for)) {
-
+                auto valid_candidate = msg.term > term && log.last_index() <= req_lli && log.last_term() <= req_llt;
+                auto same_candidate = msg.term == term && msg.from_id == voted_for;
+                if (valid_candidate || same_candidate) {
                     reply.vote_reply.vote_granted = true;
                     term = msg.term;
                     voted_for = msg.from_id;
