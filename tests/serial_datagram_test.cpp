@@ -117,7 +117,7 @@ extern "C" void rcv_cb(const void *dtgrm, size_t len, void *arg)
     POINTERS_EQUAL(expected_arg, arg);
     const char *dtgrm_byte = (const char*)dtgrm;
     CHECK_EQUAL(expected_dtgrm_len, len);
-    for (int i = 0; i < len; i++) {
+    for (auto i = 0u; i < len; i++) {
         BYTES_EQUAL(expected_dtgrm[i], dtgrm_byte[i]);
     }
     rcv_nb_calls++;
