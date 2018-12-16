@@ -142,7 +142,7 @@ TEST(SerialDatagramRcvTestGroup, RcvHandlerInit)
     CHECK_EQUAL((void*)buffer, (void*)h.buffer);
     CHECK_EQUAL(sizeof(buffer), h.size);
     CHECK_EQUAL(0, h.write_index);
-    CHECK_EQUAL(&rcv_cb, h.callback_fn);
+    POINTERS_EQUAL(rcv_cb, h.callback_fn);
     CHECK_FALSE(h.error_flag);
     CHECK_FALSE(h.esc_flag);
 }
