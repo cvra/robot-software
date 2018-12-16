@@ -142,11 +142,11 @@ TEST(MapEurobot2017, canMoveOnYellowGoOut)
     point_t start = {.x = 890, .y = 200};
     point_t end = {.x = 1200, .y = 400};
 
-    oa_start_end_points(start.x, start.y, end.x, end.y);
-    oa_process();
+    oa_start_end_points(&map.oa, start.x, start.y, end.x, end.y);
+    oa_process(&map.oa);
 
     point_t* points;
-    auto point_cnt = oa_get_path(&points);
+    auto point_cnt = oa_get_path(&map.oa, &points);
 
     CHECK_EQUAL(1, point_cnt);
     POINT_EQUAL(end, points[0]);
@@ -157,11 +157,11 @@ TEST(MapEurobot2017, canMoveOnBlueGoOut)
     point_t start = {.x = 2110, .y = 200};
     point_t end = {.x = 1800, .y = 400};
 
-    oa_start_end_points(start.x, start.y, end.x, end.y);
-    oa_process();
+    oa_start_end_points(&map.oa, start.x, start.y, end.x, end.y);
+    oa_process(&map.oa);
 
     point_t* points;
-    auto point_cnt = oa_get_path(&points);
+    auto point_cnt = oa_get_path(&map.oa, &points);
 
     CHECK_EQUAL(1, point_cnt);
     POINT_EQUAL(end, points[0]);

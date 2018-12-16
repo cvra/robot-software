@@ -113,51 +113,51 @@ struct obstacle_avoidance {
 };
 
 /** Init the obstacle avoidance structure. */
-void oa_init(void);
+void oa_init(struct obstacle_avoidance* oa);
 
 /** Copies the obstacle avoidance state */
-void oa_copy(struct obstacle_avoidance* copy);
+void oa_copy(struct obstacle_avoidance* dst, const struct obstacle_avoidance* oa);
 
 /** Set the start and destination point. */
-void oa_start_end_points(int32_t st_x, int32_t st_y, int32_t en_x, int32_t en_y);
+void oa_start_end_points(struct obstacle_avoidance* oa, int32_t st_x, int32_t st_y, int32_t en_x, int32_t en_y);
 
 /** Create a new obstacle polygon.
  * @param [in] size Number of point in the polygon.
  * @return NULL on error.
  * @return Adress of the polygon if OK.
  */
-poly_t* oa_new_poly(int size);
-void oa_new_poly_(int size, poly_t* poly);
-void oa_add_poly_obstacle(circle_t circle, int samples, float angle_offset);
-void oa_get_poly(int i, poly_t* poly);
+poly_t* oa_new_poly(struct obstacle_avoidance* oa, int size);
+void oa_new_poly_(struct obstacle_avoidance* oa, int size, poly_t* poly);
+void oa_add_poly_obstacle(struct obstacle_avoidance* oa, circle_t circle, int samples, float angle_offset);
+void oa_get_poly(struct obstacle_avoidance* oa, int i, poly_t* poly);
 
 /** Dump status of the obstacle avoidance. */
-void oa_dump(void);
+void oa_dump(struct obstacle_avoidance* oa);
 
 /** Set a point of the polygon.
  * @param [in] pol The polygon who is being set.
  * @param [in] x,y The coordinates of the point, in mm.
  * @param [in] i The index of the point.
  */
-void oa_poly_set_point(poly_t* pol, int32_t x, int32_t y, int i);
+void oa_poly_set_point(struct obstacle_avoidance* oa, poly_t* pol, int32_t x, int32_t y, int i);
 
 /** Processes the path.
  * @returns The number of points in the path on sucess
  * @returns An error code < 0 in case of failure.
  */
-int8_t oa_process(void);
+int8_t oa_process(struct obstacle_avoidance* oa);
 
 /** Gets the computed path.
  *
  * @returns An array of points, giving the path from start to end.
  */
-int oa_get_path(point_t** path);
+int oa_get_path(struct obstacle_avoidance* oa, point_t** path);
 
 /** Checks if a segment is intersecting any obstacle.
  * @param [in] p1, p2 THe two points defining the segment.
  * @returns 1 if the segment intersects an obstacle, 0 otherwise.
  */
-int oa_segment_intersect_obstacle(point_t p1, point_t p2);
+int oa_segment_intersect_obstacle(struct obstacle_avoidance* oa, point_t p1, point_t p2);
 
 #ifdef __cplusplus
 }

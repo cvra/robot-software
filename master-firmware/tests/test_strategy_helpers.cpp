@@ -8,6 +8,7 @@ extern "C" {
 
 #include "robot_helpers/math_helpers.h"
 #include "robot_helpers/strategy_helpers.h"
+#include "base/map_server.h"
 
 TEST_GROUP (ACubePositionComputer) {
     void POINT_EQUAL(point_t lhs, point_t rhs, double tolerance = 0.01)
@@ -119,13 +120,24 @@ TEST(ABlockPositionComputer, FindsClosestPositionToCubesCase4)
     SE2_EQUAL(poses[1], candidates[3]);
 }
 
+static struct _map map;
+struct _map* map_server_map_lock_and_get(void)
+{
+    return &map;
+}
+
+void map_server_map_release(struct _map* map_ptr)
+{
+    POINTERS_EQUAL(&map, map_ptr);
+}
+
 TEST_GROUP (ADistanceToTargetPosition) {
     void setup()
     {
-        oa_init();
+        oa_init(&map.oa);
         polygon_set_boundingbox(0, 0, 3000, 2000);
 
-        poly_t* obstacle = oa_new_poly(4);
+        poly_t* obstacle = oa_new_poly(&map.oa, 4);
         obstacle->pts[0] = {400, 400};
         obstacle->pts[1] = {600, 400};
         obstacle->pts[2] = {600, 600};

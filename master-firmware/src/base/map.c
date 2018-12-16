@@ -18,7 +18,7 @@ static void map_unlock(mutex_t* lock)
 void map_init(struct _map* map, int robot_size)
 {
     // Initialise obstacle avoidance state
-    oa_init();
+    oa_init(&map->oa);
     chMtxObjectInit(&map->lock);
 
     /* Define table borders */
@@ -26,29 +26,29 @@ void map_init(struct _map* map, int robot_size)
                             MAP_SIZE_X_MM - robot_size / 2, MAP_SIZE_Y_MM - robot_size / 2);
 
     /* Add ally obstacle at origin */
-    map->ally = oa_new_poly(MAP_NUM_ALLY_EDGES);
+    map->ally = oa_new_poly(&map->oa, MAP_NUM_ALLY_EDGES);
     map_set_ally_obstacle(map, 0, 0, 0, 0);
 
     /* Add opponent obstacle as points at origin */
     for (int i = 0; i < MAP_NUM_OPPONENT; i++) {
-        map->opponents[i] = oa_new_poly(MAP_NUM_OPPONENT_EDGES);
+        map->opponents[i] = oa_new_poly(&map->oa, MAP_NUM_OPPONENT_EDGES);
         map_set_opponent_obstacle(map, i, 0, 0, 0, 0);
     }
     map->last_opponent_index = 0;
 
     /* Add wastewater obstacle */
-    map->wastewater_obstacle = oa_new_poly(4);
+    map->wastewater_obstacle = oa_new_poly(&map->oa, 4);
     map_set_rectangular_obstacle(map->wastewater_obstacle, 1500, 1875, 1212, 250, robot_size);
 
     /* Setup cube obstacles */
     for (int i = 0; i < MAP_NUM_BLOCKS_CUBE; i++) {
-        map->blocks_cube[i] = oa_new_poly(MAP_NUM_BLOCKS_CUBE_EDGES);
+        map->blocks_cube[i] = oa_new_poly(&map->oa, MAP_NUM_BLOCKS_CUBE_EDGES);
         map_set_cubes_obstacle(map, i, 0, 0, 0);
     }
 
     /* Setup water dispenser obstacles */
     for (int i = 0; i < MAP_NUM_WATER_DISPENSER; i++) {
-        map->water_dispenser[i] = oa_new_poly(MAP_NUM_WATER_DISPENSER_EDGES);
+        map->water_dispenser[i] = oa_new_poly(&map->oa, MAP_NUM_WATER_DISPENSER_EDGES);
     }
     map_set_rectangular_obstacle(map->water_dispenser[0], 50, 840, 120, 60, robot_size);
     map_set_rectangular_obstacle(map->water_dispenser[1], 2950, 840, 120, 60, robot_size);
@@ -57,7 +57,7 @@ void map_init(struct _map* map, int robot_size)
 
     /* Setup tower obstacles */
     for (int i = 0; i < MAP_NUM_TOWERS; i++) {
-        map->tower[i] = oa_new_poly(MAP_NUM_TOWERS_EDGES);
+        map->tower[i] = oa_new_poly(&map->oa, MAP_NUM_TOWERS_EDGES);
         map_set_tower_obstacle(map, i, 0, 0, 0);
     }
 }

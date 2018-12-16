@@ -37,6 +37,7 @@ struct _map {
     uint8_t last_opponent_index;
 
     mutex_t lock;
+    struct obstacle_avoidance oa;
 };
 
 /** Initialize the map of the Eurobot table with the static obstacles and

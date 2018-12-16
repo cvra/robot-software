@@ -130,20 +130,23 @@ void strategy_stop_robot(void)
 
 bool strategy_goto_avoid(int x_mm, int y_mm, int a_deg, int traj_end_flags)
 {
+    auto map = map_server_map_lock_and_get();
+
     /* Compute path */
     const point_t start = {
         position_get_x_float(&robot.pos),
         position_get_y_float(&robot.pos)};
-    oa_start_end_points(start.x, start.y, x_mm, y_mm);
-    oa_process();
+    oa_start_end_points(&map->oa, start.x, start.y, x_mm, y_mm);
+    oa_process(&map->oa);
 
     /* Retrieve path */
     point_t* points;
-    int num_points = oa_get_path(&points);
+    int num_points = oa_get_path(&map->oa, &points);
     DEBUG("Path to (%d, %d) computed with %d points", x_mm, y_mm, num_points);
     if (num_points <= 0) {
         WARNING("No path found!");
         strategy_stop_robot();
+        map_server_map_release(map);
         return false;
     }
 
@@ -172,6 +175,7 @@ bool strategy_goto_avoid(int x_mm, int y_mm, int a_deg, int traj_end_flags)
         trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
 
         DEBUG("Goal reached successfully");
+        map_server_map_release(map);
 
         return true;
     } else if (end_reason == TRAJ_END_OPPONENT_NEAR) {
@@ -191,6 +195,7 @@ bool strategy_goto_avoid(int x_mm, int y_mm, int a_deg, int traj_end_flags)
         WARNING("Trajectory ended with reason %d", end_reason);
     }
 
+    map_server_map_release(map);
     return false;
 }
 

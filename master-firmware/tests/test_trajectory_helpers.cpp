@@ -128,7 +128,8 @@ TEST(TrajectorySetGameMode, EnablesSimultaneousAngleAndDistanceControl)
 
 TEST_GROUP (CurrentTrajectoryCheck) {
     struct _robot robot;
-    poly_t* opponent;
+    point_t pts[4];
+    poly_t opponent;
 
     const int arbitrary_max_speed = 10;
     const int arbitrary_max_acc = 10;
@@ -175,8 +176,8 @@ TEST_GROUP (CurrentTrajectoryCheck) {
         robot.opponent_size = 0;
 
         // Opponent obstacle
-        oa_init();
-        opponent = oa_new_poly(4);
+        opponent.l = sizeof(pts) / sizeof(pts[0]);
+        opponent.pts = pts;
     }
 
     void goto_xy(int x_mm, int y_mm)
@@ -195,7 +196,7 @@ TEST_GROUP (CurrentTrajectoryCheck) {
 
     void set_opponent_position(int x, int y)
     {
-        map_set_rectangular_obstacle(opponent, x, y, robot.opponent_size, robot.opponent_size, robot.robot_size);
+        map_set_rectangular_obstacle(&opponent, x, y, robot.opponent_size, robot.opponent_size, robot.robot_size);
     }
 };
 
@@ -207,7 +208,7 @@ TEST(CurrentTrajectoryCheck, CurrentPathDoesntCrossWithObstacle)
     set_opponent_position(400, 400);
     goto_xy(200, 200);
 
-    CHECK_FALSE(trajectory_crosses_obstacle(&robot, opponent, &intersection));
+    CHECK_FALSE(trajectory_crosses_obstacle(&robot, &opponent, &intersection));
 }
 
 TEST(CurrentTrajectoryCheck, CurrentPathCrossesWithObstacle)
@@ -218,7 +219,7 @@ TEST(CurrentTrajectoryCheck, CurrentPathCrossesWithObstacle)
     set_opponent_position(240, 250);
     goto_xy(200, 200);
 
-    CHECK_TRUE(trajectory_crosses_obstacle(&robot, opponent, &intersection));
+    CHECK_TRUE(trajectory_crosses_obstacle(&robot, &opponent, &intersection));
 }
 
 TEST(CurrentTrajectoryCheck, DetectsPathCrossingIfPathInsideObstacle)
@@ -229,7 +230,7 @@ TEST(CurrentTrajectoryCheck, DetectsPathCrossingIfPathInsideObstacle)
     set_opponent_position(250, 250);
     goto_xy(200, 200);
 
-    CHECK_TRUE(trajectory_crosses_obstacle(&robot, opponent, &intersection));
+    CHECK_TRUE(trajectory_crosses_obstacle(&robot, &opponent, &intersection));
 }
 
 TEST(CurrentTrajectoryCheck, DetectsPathNotCrossingInPolarMode)
@@ -241,7 +242,7 @@ TEST(CurrentTrajectoryCheck, DetectsPathNotCrossingInPolarMode)
     trajectory_d_rel(&robot.traj, 100);
     robot_manage();
 
-    CHECK_FALSE(trajectory_crosses_obstacle(&robot, opponent, &intersection));
+    CHECK_FALSE(trajectory_crosses_obstacle(&robot, &opponent, &intersection));
 }
 
 TEST(CurrentTrajectoryCheck, DetectsPathCrossingInPolarMode)
@@ -253,7 +254,7 @@ TEST(CurrentTrajectoryCheck, DetectsPathCrossingInPolarMode)
     trajectory_d_rel(&robot.traj, 400);
     robot_manage();
 
-    CHECK_TRUE(trajectory_crosses_obstacle(&robot, opponent, &intersection));
+    CHECK_TRUE(trajectory_crosses_obstacle(&robot, &opponent, &intersection));
 }
 
 TEST(CurrentTrajectoryCheck, IsNotOnCollisionPathWithObstacle)

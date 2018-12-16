@@ -474,100 +474,6 @@ static void cmd_goto_avoid(BaseSequentialStream* chp, int argc, char* argv[])
     }
 }
 
-void add_rectangular_obstacle(int x, int y, int half_dx, int half_dy)
-{
-    poly_t* obstacle = oa_new_poly(4);
-
-    oa_poly_set_point(obstacle, x - half_dx, y - half_dy, 3);
-    oa_poly_set_point(obstacle, x - half_dx, y + half_dy, 2);
-    oa_poly_set_point(obstacle, x + half_dx, y + half_dy, 1);
-    oa_poly_set_point(obstacle, x + half_dx, y - half_dy, 0);
-}
-
-static void cmd_pathplanner(BaseSequentialStream* chp, int argc, char* argv[])
-{
-    if (argc == 3) {
-        /* Get goal pos */
-        int x, y;
-        float a;
-        x = atoi(argv[0]);
-        y = atoi(argv[1]);
-        a = atof(argv[2]);
-        chprintf(chp, "Going to x: %dmm y: %dmm a: %.1fdeg\r\n", x, y, a);
-
-        add_rectangular_obstacle(750, 1150, 350, 200);
-
-        /* Compute a path */
-        oa_start_end_points(
-            position_get_x_s16(&robot.pos), position_get_x_s16(&robot.pos),
-            x, y);
-        oa_process();
-
-        /* Fetch the computed path */
-        point_t* p;
-        int len = oa_get_path(&p);
-        chprintf(chp, "Found path of length %d\r\n", len);
-
-        /* Checks if a path was found. */
-        if (len < 0) {
-            chprintf(chp, "Cannot find a suitable path.\r\n");
-            return;
-        } else {
-            chprintf(chp, "Path found contains %d points\r\n", len);
-        }
-
-        /* For all the points in the path. */
-        for (int i = 0; i < len; i++) {
-            /* Goes to the point. */
-            trajectory_goto_forward_xy_abs(&robot.traj, p->x, p->y);
-            chprintf(chp, "Going to x: %.1fmm y: %.1fmm\r\n", p->x, p->y);
-
-            /* Waits for the completion of the trajectory. */
-            chThdSleepMilliseconds(100);
-            trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
-
-            /* Increments pointer to load next point. */
-            p++;
-        }
-
-        trajectory_a_abs(&robot.traj, a);
-    } else {
-        chprintf(chp, "Usage: path x y a\r\n");
-    }
-}
-
-static void cmd_oa_dump(BaseSequentialStream* chp, int argc, char* argv[])
-{
-    (void)chp;
-    (void)argc;
-    (void)argv;
-
-    oa_dump();
-}
-
-static void cmd_create_static_obstacle(BaseSequentialStream* chp, int argc, char* argv[])
-{
-    if (argc == 3) {
-        /* Get obstacle properties */
-        float x, y, half_size;
-        x = atof(argv[0]);
-        y = atof(argv[1]);
-        half_size = atof(argv[2]);
-
-        oa_init();
-        float robot_size = 260;
-        polygon_set_boundingbox(robot_size / 2, robot_size / 2, 3000 - robot_size / 2, 2000 - robot_size / 2);
-
-        /* Create obstacle */
-        add_rectangular_obstacle(x, y, half_size, half_size);
-
-        chprintf(chp, "Created square obstacle at x: %.1fmm y: %.1fmm of half size: %.1fmm\r\n", x, y, half_size);
-        oa_dump();
-    } else {
-        chprintf(chp, "Usage: obs x y size\r\n");
-    }
-}
-
 static void cmd_pid(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc == 2) {
@@ -1699,10 +1605,7 @@ const ShellCommand commands[] = {
     {"pid", cmd_pid},
     {"pid_tune", cmd_pid_tune},
     {"goto", cmd_traj_goto},
-    {"path", cmd_pathplanner},
     {"goto_avoid", cmd_goto_avoid},
-    {"oa_dump", cmd_oa_dump},
-    {"obs", cmd_create_static_obstacle},
     {"bdconf", cmd_blocking_detection_config},
     {"wheel_calib", cmd_wheel_calibration},
     {"wheel_corr", cmd_wheel_correction},
