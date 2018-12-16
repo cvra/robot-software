@@ -9,6 +9,7 @@
 #include "beacon_helpers.h"
 
 #include "strategy_helpers.h"
+#include "base/map_server.h"
 
 void strategy_auto_position(int32_t x, int32_t y, int32_t heading, enum strat_color_t robot_color)
 {
@@ -114,20 +115,24 @@ float strategy_flight_distance_to_goal(point_t pos, point_t goal)
 
 float strategy_distance_to_goal(point_t pos, point_t goal)
 {
-    oa_start_end_points(pos.x, pos.y, goal.x, goal.y);
-    oa_process();
+    float distance;
+    struct _map* map = map_server_map_lock_and_get();
+    oa_start_end_points(&map->oa, pos.x, pos.y, goal.x, goal.y);
+    oa_process(&map->oa);
 
     point_t* points;
-    int num_points = oa_get_path(&points);
+    int num_points = oa_get_path(&map->oa, &points);
 
     if (num_points <= 0) {
-        return INFINITY;
+        distance = INFINITY;
+    } else {
+        distance = pt_norm(&pos, &points[0]);
+        for (int i = 1; i < num_points; i++) {
+            distance += pt_norm(&points[i - 1], &points[i]);
+        }
     }
 
-    float distance = pt_norm(&pos, &points[0]);
-    for (int i = 1; i < num_points; i++) {
-        distance += pt_norm(&points[i - 1], &points[i]);
-    }
+    map_server_map_release(map);
 
     return distance;
 }
