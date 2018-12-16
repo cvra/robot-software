@@ -34,11 +34,16 @@ public:
 
 class TestPage : public Page {
     GHandle button;
+    const char *name;
 
 public:
+    TestPage(const char *name) : Page(), name(name)
+    {
+    }
+
     virtual const char* get_name()
     {
-        return "test_page";
+        return name;
     }
 
     virtual void on_enter(GHandle parent)
@@ -88,13 +93,25 @@ class Menu {
         gwinDestroy(page_container);
     }
 
-    void pop_page()
+
+    void switch_to_page(Page *page)
     {
         delete_container();
         create_container();
-        page = page->get_previous_page();
+        this->page = page;
+
+        if (this->page->get_previous_page()) {
+            gwinEnable(back_button);
+        } else {
+            gwinDisable(back_button);
+        }
         this->page->on_enter(page_container);
         gwinSetText(page_title, page->get_name(), FALSE);
+    }
+
+    void pop_page()
+    {
+        switch_to_page(page->get_previous_page());
     }
 
 public:
@@ -146,13 +163,8 @@ public:
 
     void enter_page(Page* page)
     {
-        delete_container();
-        create_container();
         page->set_previous_page(this->page);
-        this->page = page;
-
-        gwinSetText(page_title, page->get_name(), FALSE);
-        this->page->on_enter(page_container);
+        switch_to_page(page);
     }
 };
 
@@ -240,10 +252,24 @@ int main(int argc, char* argv[])
 
     gwinSetDefaultFont(gdispOpenFont("DejaVuSans32"));
 
-    auto p = TestPage();
     Menu m;
-    auto mp = MenuPage(m, "Robot", &p, &p, &p, &p);
-    m.enter_page(&mp);
+
+    auto move_page = TestPage("move");
+    auto odometry_page = TestPage("odometry");
+    auto autoposition = TestPage("autoposition");
+    auto base_menu = MenuPage(m, "Base", &move_page, &odometry_page, &autoposition);
+
+    auto index_page = TestPage("index");
+    auto pickup_puck = TestPage("pickup");
+    auto arm_menu = MenuPage(m, "Arms", &index_page, &pickup_puck);
+
+    auto align_page = TestPage("puck_align");
+    auto pickup_action = TestPage("puck_pickup");
+    auto actions = MenuPage(m, "Actions", &align_page, &pickup_action);
+    auto strat_menu = MenuPage(m, "Strat", &actions);
+
+    auto root_page = MenuPage(m, "Robot", &strat_menu, &base_menu, &arm_menu);
+    m.enter_page(&root_page);
     m.on_enter();
 
     while (1) {
