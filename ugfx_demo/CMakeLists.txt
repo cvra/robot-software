@@ -47,6 +47,15 @@ add_library(ugfx
     ${UGFX}/src/gwin/gwin_image.c
     ${UGFX}/src/gwin/gwin_label.c
     ${UGFX}/src/gwin/gwin_radio.c
+    ${UGFX}/src/gwin/gwin_list.c
+    ${UGFX}/src/gwin/gwin_progressbar.c
+    ${UGFX}/src/gwin/gwin_container.c
+    ${UGFX}/src/gwin/gwin_frame.c
+    ${UGFX}/src/gwin/gwin_tabset.c
+    ${UGFX}/src/gwin/gwin_gl3d.c
+    ${UGFX}/src/gwin/gwin_keyboard.c
+    ${UGFX}/src/gwin/gwin_keyboard_layout.c
+    ${UGFX}/src/gwin/gwin_textedit.c
     ${UGFX}/src/ginput/ginput.c
     ${UGFX}/src/ginput/ginput_mouse.c
     ${UGFX}/src/ginput/ginput_keyboard.c
@@ -65,7 +74,7 @@ target_include_directories(ugfx PUBLIC ${UGFX} ${UGFX}/src ${UGFX}/drivers/multi
 target_link_libraries(ugfx ${SDL2_LIBRARIES})
 
 add_executable(test
-    main.c
+    main.cpp
 )
 
 target_link_libraries(test ugfx)

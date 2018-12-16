@@ -27,10 +27,11 @@
 // #define GDISP_NEED_PIXMAP                            GFXOFF
 //    #define GDISP_NEED_PIXMAP_IMAGE                  GFXOFF
 
+#define GDISP_NEED_CONVEX_POLYGON GFXON
 #define GDISP_DEFAULT_ORIENTATION GDISP_ROTATE_270
 // #define GDISP_LINEBUF_SIZE                           128
 // #define GDISP_STARTUP_COLOR                          Black
-#define GDISP_NEED_STARTUP_LOGO GFXOFF
+#define GDISP_NEED_STARTUP_LOGO GFXON
 
 ///////////////////////////////////////////////////////////////////////////
 // GWIN                                                                  //
@@ -64,8 +65,8 @@
 //    #define GWIN_FLAT_STYLING GFXON
 //    #define GWIN_WIDGET_TAGS                         GFXOFF
 
-// #define GWIN_NEED_CONTAINERS                         GFXOFF
-//    #define GWIN_NEED_CONTAINER                      GFXOFF
+#define GWIN_NEED_CONTAINERS GFXON
+#define GWIN_NEED_CONTAINER GFXON
 //    #define GWIN_NEED_FRAME                          GFXOFF
 //    #define GWIN_NEED_TABSET                         GFXOFF
 //        #define GWIN_TABSET_TABHEIGHT                18
