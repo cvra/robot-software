@@ -134,7 +134,7 @@ TEST_GROUP (Strategy) {
 
     int compute_and_execute_plan(goap::Goal<RobotState> & goal, RobotState & state)
     {
-        const int max_path_len = 10;
+        const int max_path_len = 40;
         goap::Action<RobotState>* path[max_path_len] = {nullptr};
         goap::Planner<RobotState, GOAP_SPACE_SIZE> planner;
         auto actions = availableActions();
