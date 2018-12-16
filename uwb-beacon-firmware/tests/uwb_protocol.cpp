@@ -45,7 +45,7 @@ TEST(MACLayerTestCase, EncodeFrame)
     CHECK_EQUAL(0xca, frame[9]);
     CHECK_EQUAL(0xfe, frame[10]);
 
-    int hdr_size = 9, checksum_size = 2;
+    auto hdr_size = 9u, checksum_size = 2u;
     CHECK_EQUAL(hdr_size + 2 + checksum_size, size);
 
     // Check that the placeholders for the checksum were zerod
