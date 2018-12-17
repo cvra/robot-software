@@ -75,6 +75,8 @@ target_link_libraries(ugfx ${SDL2_LIBRARIES})
 
 add_executable(test
     main.cpp
+    Menu.cpp
+    MenuPage.cpp
 )
 
 target_link_libraries(test ugfx)
