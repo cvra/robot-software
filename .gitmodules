@@ -61,6 +61,3 @@
 [submodule "lib/nanopb/nanopb"]
 	path = lib/nanopb/nanopb
 	url = https://github.com/nanopb/nanopb
-[submodule "coding-style"]
-	path = coding-style
-	url = https://github.com/cvra/coding-style
