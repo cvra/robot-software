@@ -8,6 +8,8 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     python-software-properties \
     software-properties-common \
+    unzip \
+    wget \
  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN pip3 install \
@@ -21,3 +23,14 @@ RUN add-apt-repository ppa:team-gcc-arm-embedded/ppa && \
     gcc-arm-embedded \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+RUN (cd /usr/local \
+  && wget https://github.com/google/protobuf/releases/download/v3.5.1/protoc-3.5.1-linux-x86_64.zip \
+  && unzip protoc*.zip \
+  && chmod +x bin/protoc \
+  && rm protoc*.zip \
+)
+
+RUN apt-get update && apt-get install -y \
+    python-pip \
+ && apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN pip install --upgrade protobuf
