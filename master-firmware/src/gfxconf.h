@@ -4,6 +4,8 @@
 ///////////////////////////////////////////////////////////////////////////
 // GDISP                                                                 //
 ///////////////////////////////////////////////////////////////////////////
+#define SCREEN_WIDTH 480
+#define SCREEN_HEIGHT 320
 #define GFX_USE_GDISP GFXON
 #define GDISP_NEED_VALIDATION GFXON
 #define GDISP_NEED_CLIP GFXON
@@ -12,7 +14,7 @@
 // #define GDISP_NEED_ELLIPSE                           GFXOFF
 // #define GDISP_NEED_ARC                               GFXOFF
 // #define GDISP_NEED_ARCSECTORS                        GFXOFF
-// #define GDISP_NEED_CONVEX_POLYGON                    GFXOFF
+#define GDISP_NEED_CONVEX_POLYGON                    GFXON
 // #define GDISP_NEED_SCROLL                            GFXOFF
 // #define GDISP_NEED_PIXELREAD                         GFXOFF
 #define GDISP_NEED_CONTROL GFXON
@@ -85,8 +87,8 @@
 //    #define GWIN_FLAT_STYLING GFXON
 //    #define GWIN_WIDGET_TAGS                         GFXOFF
 
-// #define GWIN_NEED_CONTAINERS                         GFXOFF
-//    #define GWIN_NEED_CONTAINER                      GFXOFF
+#define GWIN_NEED_CONTAINERS                     GFXON
+#define GWIN_NEED_CONTAINER                      GFXON
 //    #define GWIN_NEED_FRAME                          GFXOFF
 //    #define GWIN_NEED_TABSET                         GFXOFF
 //        #define GWIN_TABSET_TABHEIGHT                18

@@ -16,8 +16,8 @@ void Menu::create_container()
 {
     GWidgetInit wi;
     gwinWidgetClearInit(&wi);
-    wi.g.width = GDISP_SCREEN_WIDTH;
-    wi.g.height = GDISP_SCREEN_HEIGHT - 60;
+    wi.g.width = SCREEN_WIDTH;
+    wi.g.height = SCREEN_HEIGHT - 60;
     wi.g.y = 60;
     wi.g.x = 0;
     wi.g.show = TRUE;
@@ -86,7 +86,7 @@ void Menu::create_page_title()
 {
     GWidgetInit wi;
     gwinWidgetClearInit(&wi);
-    wi.g.width = GDISP_SCREEN_WIDTH - 60;
+    wi.g.width = SCREEN_WIDTH - 60;
     wi.g.height = 60;
     wi.g.y = 0;
     wi.g.x = 60;
