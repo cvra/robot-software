@@ -1,7 +1,7 @@
 #include "gfx.h"
-#include "Menu.h"
-#include "MenuPage.h"
-#include "Page.h"
+#include "gui/Menu.h"
+#include "gui/MenuPage.h"
+#include "gui/Page.h"
 #include <string.h>
 #include <iostream>
 

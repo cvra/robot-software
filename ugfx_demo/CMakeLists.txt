@@ -8,6 +8,7 @@ set(UGFX ../lib/ugfx)
 find_package(SDL2 REQUIRED)
 
 include_directories(.)
+include_directories(../master-firmware/src/)
 include_directories(${SDL2_INCLUDE_DIRS})
 
 add_definitions(-DGFX_USE_OS_OSX=GFXON -DGFX_OS_PRE_INIT_FUNCTION=sdl_driver_init -DGDISP_SCREEN_WIDTH=480 -DGDISP_SCREEN_HEIGHT=320)
@@ -75,8 +76,8 @@ target_link_libraries(ugfx ${SDL2_LIBRARIES})
 
 add_executable(test
     main.cpp
-    Menu.cpp
-    MenuPage.cpp
+    ../master-firmware/src/gui/Menu.cpp
+    ../master-firmware/src/gui/MenuPage.cpp
 )
 
 target_link_libraries(test ugfx)
