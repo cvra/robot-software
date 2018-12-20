@@ -26,7 +26,7 @@ TEST(LeastRecentlyUsedCacheTestGroup, InitPutsEverythingInTheFreeList)
 
 TEST(LeastRecentlyUsedCacheTestGroup, CanGrabEntriesFromTheFreelist)
 {
-    for (int i = 0; i < 3; i++) {
+    for (auto i = 0u; i < 3; i++) {
         auto entry = cache_entry_allocate(&cache, i);
         POINTERS_EQUAL(&entries[i], entry);
         CHECK_EQUAL(entry->key, i);

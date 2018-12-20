@@ -110,11 +110,14 @@ typedef signed long int32;
 #define DWT_RESPONSE_EXPECTED 2
 
 #define DWT_START_RX_IMMEDIATE 0
-#define DWT_START_RX_DELAYED 1 // Set up delayed RX, if "late" error triggers, then the RX will be enabled immediately
-#define DWT_IDLE_ON_DLY_ERR 2 // If delayed RX failed due to "late" error then if this \
-    // flag is set the RX will not be re-enabled immediately, and device will be in IDLE when function exits
-#define DWT_NO_SYNC_PTRS 4 // Do not try to sync IC side and Host side buffer pointers when enabling RX. This is used to perform manual RX \
-    // re-enabling when receiving a frame in double buffer mode.
+// Set up delayed RX, if "late" error triggers, then the RX will be enabled immediately
+#define DWT_START_RX_DELAYED 1
+// If delayed RX failed due to "late" error then if this
+// flag is set the RX will not be re-enabled immediately, and device will be in IDLE when function exits
+#define DWT_IDLE_ON_DLY_ERR 2
+// Do not try to sync IC side and Host side buffer pointers when enabling RX. This is used to perform manual RX
+// re-enabling when receiving a frame in double buffer mode.
+#define DWT_NO_SYNC_PTRS 4
 
 // Defined constants for "mode" bit field parameter passed to dwt_setleds() function.
 #define DWT_LEDS_DISABLE 0x00

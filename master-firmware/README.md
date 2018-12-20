@@ -22,17 +22,10 @@ Now the board should be pingable at 192.168.3.20.
 ### Kernel panics
 If there is a kernel panic, the board will turn on all LEDs and continuously print debug information over UART3 at 921600 baud.
 
-## Build options
-
-When using `make` to build the firmware, you can specify the following options:
-
-- `ROBOT=debra` or `ROBOT=sandoi` will tell the makefile to use the correct config file (Debra: `../config_debra.yaml`, Sandoi: `../config.yaml`.
-
-When switching from one configuration to another, do not forget to run `make clean` to prevent weird errors.
-
 ## Hardware configuration
 
 The firmware for the two robots is the same.
 The hardware jumper `ROBOT_SELECT` on the Nucleo shield tells the software on which robot it runs.
 Jumper position 1 selects *Order*, jumper position 2 selects *Chaos*.
 The default configuration (i.e. no jumper present) selects *Order*.
+The configuration of both robots is compiled, the right one is selected at runtime based on the jumper configuration.
