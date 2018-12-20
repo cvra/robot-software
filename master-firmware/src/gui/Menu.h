@@ -8,6 +8,7 @@ class Menu {
     GHandle page_container;
     GHandle page_title;
     GHandle back_button;
+    GTimer periodic_timer;
     GListener listener;
 
     /// Create page_container used to hold a page's content
@@ -24,6 +25,9 @@ class Menu {
 
     /// Goes one page back in history
     void pop_page();
+
+    /// Timer callback
+    void on_timer();
 
 public:
     Menu();

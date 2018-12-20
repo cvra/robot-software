@@ -9,8 +9,8 @@ MenuPage::MenuPage(Menu& menu,
                    Page* p5,
                    Page* p6)
     : Page()
-    , name(name)
     , menu(menu)
+    , name(name)
 {
     next_page[0] = p1;
     next_page[1] = p2;

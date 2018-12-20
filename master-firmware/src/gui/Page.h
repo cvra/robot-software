@@ -14,6 +14,11 @@ public:
     {
     }
 
+    /** Event called periodically */
+    virtual void on_timer()
+    {
+    }
+
     /** Called when an event occured. */
     virtual void on_event(GEvent* event) = 0;
 
@@ -27,5 +32,9 @@ public:
     Page* get_previous_page() const
     {
         return history_previous;
+    }
+
+    virtual ~Page()
+    {
     }
 };

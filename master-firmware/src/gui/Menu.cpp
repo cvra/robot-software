@@ -50,6 +50,11 @@ void Menu::pop_page()
     switch_to_page(page->get_previous_page());
 }
 
+void Menu::on_timer()
+{
+    page->on_timer();
+}
+
 void Menu::enter_page(Page* page)
 {
     page->set_previous_page(this->page);
@@ -58,6 +63,12 @@ void Menu::enter_page(Page* page)
 
 void Menu::event_loop()
 {
+    gtimerInit(&periodic_timer);
+    gtimerStart(&periodic_timer, [](void *p) {
+        Menu *m = reinterpret_cast<Menu *>(p);
+        m->on_timer();
+    }, this, TRUE, 100);
+
     while (true) {
         GEvent* event = geventEventWait(&listener, TIME_INFINITE);
 

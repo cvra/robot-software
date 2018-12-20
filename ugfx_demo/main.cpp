@@ -8,11 +8,13 @@
 class TestPage : public Page {
     GHandle button;
     const char* name;
+    int counter;
 
 public:
     TestPage(const char* name)
         : Page()
         , name(name)
+        , counter(0)
     {
     }
 
@@ -35,6 +37,14 @@ public:
         wi.g.x = 5;
         button = gwinButtonCreate(0, &wi);
         gwinSetText(button, "foobar", FALSE);
+    }
+
+    virtual void on_timer()
+    {
+        char msg[30];
+        sprintf(msg, "val: %d", counter);
+        counter ++;
+        gwinSetText(button, msg, TRUE);
     }
 
     virtual void on_event(GEvent* event)
