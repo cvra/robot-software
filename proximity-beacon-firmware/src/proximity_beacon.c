@@ -86,8 +86,8 @@ void proximity_beacon_init(void)
     palSetLineCallback(PAL_LINE(GPIOB, 4U), hall_sensor_cb, NULL);
 
     // Enable event on light sensor pin, PA12
-    palEnableLineEvent(PAL_LINE(GPIOB, 12U), PAL_EVENT_MODE_BOTH_EDGES);
-    palSetLineCallback(PAL_LINE(GPIOB, 12U), light_sensor_cb, NULL);
+    palEnableLineEvent(PAL_LINE(GPIOA, 12U), PAL_EVENT_MODE_BOTH_EDGES);
+    palSetLineCallback(PAL_LINE(GPIOA, 12U), light_sensor_cb, NULL);
 }
 
 struct proximity_beacon_signal* proximity_beacon_signal_get(void)
