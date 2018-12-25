@@ -1568,11 +1568,16 @@ static void cmd_panel_status(BaseSequentialStream* chp, int argc, char* argv[])
 
 static void cmd_proximity_beacon(BaseSequentialStream* chp, int argc, char* argv[])
 {
+    (void)argc;
+    (void)argv;
+
     BeaconSignal beacon_signal;
     messagebus_topic_t* proximity_beacon_topic = messagebus_find_topic_blocking(&bus, "/proximity_beacon");
 
     messagebus_topic_wait(proximity_beacon_topic, &beacon_signal, sizeof(beacon_signal));
-    chprintf(chp, "beacon signal: range: %.2f\r\n", beacon_signal.range);
+    chprintf(chp, "beacon signal: range: %4.1fmm %3.1fdeg\r\n",
+             beacon_signal.range.range.distance * 1000.f,
+             beacon_signal.range.angle * (180.f / 3.1415f));
 }
 
 const ShellCommand commands[] = {
