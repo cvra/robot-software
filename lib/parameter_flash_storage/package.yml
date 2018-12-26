@@ -1,0 +1,17 @@
+depends:
+  - parameter
+  - crc
+  - test-runner
+
+source:
+  - parameter_flash_storage.c
+
+target.stm32f4:
+  - flash_f4.c
+
+target.stm32f3:
+  - flash_f3.c
+
+tests:
+  - tests/flash_mock.cpp
+  - tests/parameter_flash_storage.cpp

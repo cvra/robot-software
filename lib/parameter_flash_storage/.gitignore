@@ -1,0 +1,18 @@
+# ChibiOS build files
+.dep/*
+build/
+debug/
+*.elf
+*.a
+
+
+# Vim swap
+*.swp
+
+# Packager files
+CMakeLists.txt
+src/src.mk
+
+.tags*
+
+env
