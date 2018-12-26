@@ -34,9 +34,6 @@
 [submodule "src/pid"]
 	path = lib/pid
 	url = https://github.com/cvra/pid.git
-[submodule "src/arm-cortex-tools"]
-	path = lib/arm-cortex-tools
-	url = https://github.com/cvra/arm-cortex-tools.git
 [submodule "src/msgbus"]
 	path = lib/msgbus
 	url = https://github.com/cvra/msgbus
