@@ -1,0 +1,7 @@
+build
+dependencies
+tags
+CMakeLists.txt
+
+# vim swap files
+*.sw[op]
