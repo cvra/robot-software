@@ -21,6 +21,13 @@
 
 /* Trajectory Manager v3 - zer0 - for Eurobot 2010 */
 
+#ifndef TRAJECTORY_MANAGER_CORE_H
+#define TRAJECTORY_MANAGER_CORE_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * update angle and/or distance
  * this function is not called directly by the user
@@ -144,3 +151,9 @@ int8_t trajectory_clitoid(struct trajectory* traj,
                           double beta_deg,
                           double R_mm,
                           double d_inter_mm);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* TRAJECTORY_MANAGER_CORE_H */

@@ -24,6 +24,10 @@
 
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** Stores the state of two encoders or pwm in the left / right format. */
 struct rs_wheels {
     int32_t left; /**< The left encoder value. */
@@ -54,5 +58,9 @@ void rs_get_polar_from_wheels(struct rs_polar* p_dst, struct rs_wheels* w_src);
  * @param [out] The destination state in left / right format.
  */
 void rs_get_wheels_from_polar(struct rs_wheels* w_dst, struct rs_polar* p_src);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -39,6 +39,10 @@
  * of the motor)
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**@brief Stores settings for blocking detection.
  *
  */
@@ -65,4 +69,9 @@ uint8_t bd_get(struct blocking_detection* bd);
 
 /** get value of blocking detection maximale value, reseted each time it's read*/
 int32_t bd_get_max(struct blocking_detection* bd);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

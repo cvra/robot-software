@@ -1,6 +1,10 @@
 #ifndef JOINT_H
 #define JOINT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** Joint data struct */
 typedef struct {
     void (*set_position)(void*, float);
@@ -25,4 +29,8 @@ typedef struct {
 
 void joint_set(joint_t* joint, joint_setpoint_t setpoint);
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif /* JOINT_H */

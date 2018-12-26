@@ -1,10 +1,6 @@
 #ifndef STRATEGY_HELPERS_H
 #define STRATEGY_HELPERS_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <msgbus/messagebus.h>
 #include "trajectory_manager/trajectory_manager.h"
 #include "blocking_detection_manager/blocking_detection_manager.h"
@@ -12,6 +8,10 @@ extern "C" {
 #include "math/lie_groups.h"
 #include "robot_helpers/eurobot2018.h"
 #include "scara/scara_kinematics.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /** Team color
  */

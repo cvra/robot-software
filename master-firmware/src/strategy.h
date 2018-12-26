@@ -1,11 +1,11 @@
 #ifndef STRATEGY_H
 #define STRATEGY_H
 
+#include "robot_helpers/strategy_helpers.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "robot_helpers/strategy_helpers.h"
 
 void strategy_start(void);
 

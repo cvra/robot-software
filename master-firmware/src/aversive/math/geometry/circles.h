@@ -29,6 +29,10 @@
  * @{
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** Coordinates and radius of a circle */
 typedef struct _circle {
     float x; /**< x-coordinate */
@@ -55,5 +59,9 @@ int pt_is_inside_circle(const point_t* p, circle_t* c);
 int circle_intersect(const circle_t* c1, const circle_t* c2, point_t* p1, point_t* p2);
 
 /** @} */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _CIRCLES_H_ */

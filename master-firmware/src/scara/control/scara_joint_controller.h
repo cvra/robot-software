@@ -1,8 +1,12 @@
-#ifndef SCARA_CONTROL__JOINT_CONTROLLER_H
-#define SCARA_CONTROL__JOINT_CONTROLLER_H
+#ifndef SCARA_CONTROL_JOINT_CONTROLLER_H
+#define SCARA_CONTROL_JOINT_CONTROLLER_H
 
 #include "scara/scara_hardware_interface.h"
 #include "scara/scara_kinematics.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct {
     float length[2];
@@ -20,4 +24,8 @@ scara_joint_controller_process(scara_joint_controller_t* controller,
                                position_3d_t desired,
                                scara_joint_positions_t measured);
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif /* SCARA_CONTROL_JOINT_CONTROLLER_H */

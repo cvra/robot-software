@@ -4,6 +4,10 @@
 #include <aversive/math/vect2/vect2.h>
 #include <aversive/math/geometry/vect_base.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Special Orientation group 2 (SO2) defines a 2D rotation
 typedef struct {
     float angle;
@@ -35,4 +39,8 @@ se2_t se2_chain(se2_t lhs, se2_t rhs);
 // Returns the inverse of input transform
 se2_t se2_inverse(se2_t transform);
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif /* LIE_GROUPS_H */

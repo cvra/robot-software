@@ -3,6 +3,10 @@
 #ifndef PANIC_LOG_H_
 #define PANIC_LOG_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** Formatted print a massage to the panic log. */
 void panic_log_printf(const char* fmt, ...);
 void panic_log_vprintf(const char* fmt, va_list ap);
@@ -22,5 +26,9 @@ const char* panic_log_read(void);
  * @note Any further call to panic_log_read() will return NULL.
  */
 void panic_log_clear(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

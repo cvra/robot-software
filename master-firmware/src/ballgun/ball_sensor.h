@@ -1,11 +1,11 @@
 #ifndef BALL_SENSOR_H
 #define BALL_SENSOR_H
 
+#include <stdbool.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <stdbool.h>
 
 enum ball_sensor_state_t {
     BALL_SENSOR_LOW = 0,

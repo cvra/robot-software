@@ -5,6 +5,10 @@
 
 #include <gfx.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
     GHandle* label;
 } page_position_t;
@@ -12,5 +16,9 @@ typedef struct {
 void page_position_init(void* arg);
 void page_position_load(void* arg);
 void page_position_delete(void* arg);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* GUI_PAGE_POSITION_H */

@@ -17,6 +17,10 @@
 #include "control/scara_joint_controller.h"
 #include "control/scara_inverse_kinematics_controller.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** Control mode of the scara arm. */
 typedef enum {
     CONTROL_JOINT = 0, /**< Control the motors in position directly, ugly performance, but safe. */
@@ -88,4 +92,8 @@ void scara_shutdown(scara_t* arm);
 void scara_pause(scara_t* arm);
 void scara_continue(scara_t* arm);
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif /* SCARA_H */

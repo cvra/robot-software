@@ -1,11 +1,11 @@
 #ifndef ENCODER_H
 #define ENCODER_H
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <stdint.h>
 
 /* Encoders use Timer 3 & 4 */
 void encoder_start(void);

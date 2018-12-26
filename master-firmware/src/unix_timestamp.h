@@ -45,4 +45,4 @@ int timestamp_unix_compare(unix_timestamp_t a, unix_timestamp_t b);
 }
 #endif
 
-#endif
+#endif /* UNIX_TIMESTAMP_H */
