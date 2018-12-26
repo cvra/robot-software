@@ -7,9 +7,6 @@
 [submodule "dependencies/test-runner"]
 	path = lib/test-runner
 	url = https://github.com/cvra/test-runner
-[submodule "src/simplerpc"]
-	path = lib/simplerpc
-	url = https://github.com/cvra/simplerpc
 [submodule "uavcan"]
 	path = lib/uavcan
 	url = https://github.com/cvra/uavcan.git
