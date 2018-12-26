@@ -4,9 +4,6 @@
 [submodule "lwip"]
 	path = lib/lwip/lwip
 	url = https://git.savannah.nongnu.org/git/lwip.git
-[submodule "dependencies/crc"]
-	path = lib/crc
-	url = https://github.com/cvra/crc
 [submodule "dependencies/test-runner"]
 	path = lib/test-runner
 	url = https://github.com/cvra/test-runner
