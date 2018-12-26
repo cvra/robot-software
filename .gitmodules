@@ -7,9 +7,6 @@
 [submodule "dependencies/test-runner"]
 	path = lib/test-runner
 	url = https://github.com/cvra/test-runner
-[submodule "src/serial-datagram"]
-	path = lib/serial-datagram
-	url = https://github.com/cvra/serial-datagram
 [submodule "src/simplerpc"]
 	path = lib/simplerpc
 	url = https://github.com/cvra/simplerpc
