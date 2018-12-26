@@ -1,0 +1,11 @@
+depends:
+    - test-runner
+
+source:
+    - timestamp.c
+
+target.arm:
+    - timestamp_stm32.c
+
+tests:
+    - timestamp_test.cpp
