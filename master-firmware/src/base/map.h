@@ -1,11 +1,12 @@
 #ifndef MAP_H
 #define MAP_H
 
+#include "obstacle_avoidance/obstacle_avoidance.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "obstacle_avoidance/obstacle_avoidance.h"
 #include <ch.h>
 
 #define MAP_SIZE_X_MM 3000

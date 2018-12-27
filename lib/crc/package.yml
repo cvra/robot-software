@@ -1,0 +1,10 @@
+depends:
+    - test-runner
+
+source:
+    - crc32.c
+    - crc16.c
+
+tests:
+    - test/crc32_test.cpp
+    - test/crc16_test.cpp

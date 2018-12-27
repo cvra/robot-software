@@ -6,6 +6,10 @@
 #include "math/geometry/circles.h"
 #include "math/geometry/polygon.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Computes polygon inscribed in given circle.
  * The first point of the polygon starts at angle offset.
  *
@@ -17,5 +21,9 @@
  * @return true if successfully computed discrete circle, false otherwise
  */
 bool discretize_circle(poly_t* poly, circle_t circle, int samples, float angle_offset);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* AVERSIVE_MATH_GEOMETRY_DISCRETE_CIRCLES_H */

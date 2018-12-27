@@ -1,0 +1,29 @@
+depends:
+    - test-runner
+
+source:
+    - messagebus.c
+
+tests:
+    - tests/mocks/synchronization.cpp
+    - tests/atomicity.cpp
+    - tests/msgbus.cpp
+    - tests/signaling.cpp
+    - tests/foreach.cpp
+    - tests/watchgroups.cpp
+    - tests/new_topic_callbacks.cpp
+    - tests/test_cpp_interface.cpp
+
+target.demo:
+    - examples/posix/demo.c
+    - examples/posix/port.c
+
+target.demo_watchgroups:
+    - examples/posix/demo_watchgroups.c
+    - examples/posix/port.c
+
+target.arm:
+    - examples/chibios/port.c
+
+templates:
+    demo.jinja: CMakeLists.txt

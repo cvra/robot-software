@@ -1,16 +1,16 @@
 #ifndef MAIN_H
 #define MAIN_H
 
+#include "motor_manager.h"
+#include "msgbus_protobuf.h"
+#include <parameter/parameter.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #define MAX_NB_MOTOR_DRIVERS 20
 #define MAX_NB_BUS_ENUMERATOR_ENTRIES 21
-
-#include "motor_manager.h"
-#include "msgbus_protobuf.h"
-#include <parameter/parameter.h>
 
 /** Robot wide interthread bus. */
 extern messagebus_t bus;

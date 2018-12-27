@@ -1,0 +1,4 @@
+target.arm:
+    - mpu.c
+    - fault.c
+    - fault_v7m.s

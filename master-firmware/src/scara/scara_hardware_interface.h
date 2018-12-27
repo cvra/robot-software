@@ -3,6 +3,10 @@
 
 #include "joint.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
     joint_t z_joint;
     joint_t shoulder_joint;
@@ -27,4 +31,8 @@ scara_joint_positions_t scara_hw_read_joint_positions(scara_hardware_interface_t
 
 void scara_hw_set_joints(scara_hardware_interface_t* hw_interface, scara_joint_setpoints_t setpoints);
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif /* SCARA_HARDWARE_INTERFACE_H */

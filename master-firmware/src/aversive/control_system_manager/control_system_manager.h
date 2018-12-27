@@ -16,6 +16,10 @@
  * @{
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** The data structure used by the control_system_manager module */
 struct cs {
     int32_t (*consign_filter)(void*, int32_t); /**< Callback function for the consign filter, eg: ramp. */
@@ -198,5 +202,9 @@ void cs_disable(struct cs* cs);
 void cs_enable(struct cs* cs);
 
 /** @} */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* #ifndef _CONTROL_SYSTEM_MANAGER_ */

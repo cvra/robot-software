@@ -1,11 +1,11 @@
 #ifndef BALLGUN_MODULE_H
 #define BALLGUN_MODULE_H
 
+#include "ballgun.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "ballgun.h"
 
 #define BALLGUN_FREQUENCY 10
 

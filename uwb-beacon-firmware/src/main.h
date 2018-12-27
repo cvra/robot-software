@@ -1,12 +1,12 @@
 #ifndef MAIN_H
 #define MAIN_H
 
+#include <msgbus/messagebus.h>
+#include <parameter/parameter.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <msgbus/messagebus.h>
-#include <parameter/parameter.h>
 
 extern messagebus_t bus;
 extern parameter_namespace_t parameter_root;
@@ -18,4 +18,4 @@ extern int _config_start, _config_end;
 }
 #endif
 
-#endif
+#endif /* MAIN_H */

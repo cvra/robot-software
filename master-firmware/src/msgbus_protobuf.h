@@ -69,4 +69,5 @@ void messagebus_inject_encoded_message(messagebus_t* bus, uint8_t* buf, size_t l
 #ifdef __cplusplus
 }
 #endif
-#endif
+
+#endif /* MSGBUS_PROTOBUF_H */

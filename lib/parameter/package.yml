@@ -1,0 +1,16 @@
+source:
+    - parameter.c
+    - parameter_msgpack.c
+    - parameter_print.c
+
+depends:
+    - cmp_mem_access:
+        fork: stapelzeiger
+    - test-runner
+    - cmp
+
+tests:
+    - tests/parameter_test.cpp
+    - tests/parameter_types_test.cpp
+    - tests/parameter_print_test.cpp
+    - tests/msgpack_test.cpp

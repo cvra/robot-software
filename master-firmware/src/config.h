@@ -1,3 +1,6 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+
 #include <parameter/parameter.h>
 
 #ifdef __cplusplus
@@ -25,3 +28,5 @@ bool config_get_boolean(const char* id);
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* CONFIG_H */

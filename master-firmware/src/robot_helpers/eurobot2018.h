@@ -1,11 +1,11 @@
 #ifndef EUROBOT2018_H
 #define EUROBOT2018_H
 
+#include "protobuf/strategy.pb.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "protobuf/strategy.pb.h"
 
 /** Cubes color (short name) */
 enum cube_color {

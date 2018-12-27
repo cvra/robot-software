@@ -36,6 +36,10 @@
 #ifndef _VECT2_H_
 #define _VECT2_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** \brief Cartesian vector structure
 **/
 typedef struct _vect2_cart {
@@ -165,5 +169,9 @@ float vect2_angle_2vec_rad_cart(vect2_cart* vc1, vect2_cart* vc2);
 float vect2_angle_vec_x_rad_cart(vect2_cart* vc);
 
 /** @} */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /*_VECT2_H_*/

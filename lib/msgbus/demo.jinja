@@ -1,0 +1,30 @@
+{% extends "CMakeLists.txt.jinja" %}
+
+{% block additional_targets %}
+add_executable(
+    demo
+    {% for s in source + target.demo -%}
+    {{ s }}
+    {% endfor %}
+    )
+
+target_link_libraries(
+    demo
+    pthread
+    )
+
+add_executable(
+    demo_watchgroups
+    {% for s in source + target.demo_watchgroups -%}
+    {{ s }}
+    {% endfor %}
+    )
+
+target_link_libraries(
+    demo
+    pthread
+    )
+
+
+
+{% endblock %}

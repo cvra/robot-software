@@ -1,16 +1,15 @@
 #ifndef TRAJECTORY_HELPERS_H
 #define TRAJECTORY_HELPERS_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <msgbus/messagebus.h>
-
 #include "trajectory_manager/trajectory_manager.h"
 #include "blocking_detection_manager/blocking_detection_manager.h"
 #include "obstacle_avoidance/obstacle_avoidance.h"
 #include "base/base_controller.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /** Duration of a game in seconds. */
 #define GAME_DURATION 100

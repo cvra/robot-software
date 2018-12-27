@@ -33,6 +33,10 @@
  * @{
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @brief Enables centrifugal force compensation.
  *
@@ -282,5 +286,9 @@ double position_get_a_rad_double(struct robot_position* pos);
 float position_get_a_rad_float(struct robot_position* pos);
 
 /** @} */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

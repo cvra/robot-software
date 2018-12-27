@@ -1,12 +1,12 @@
 #ifndef SCARA_TRAJECTORIES_H
 #define SCARA_TRAJECTORIES_H
 
+#include <stdbool.h>
+#include "scara_waypoint.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <stdbool.h>
-#include "scara_waypoint.h"
 
 /** Adds a point to a given trajectory.
  * @param [in, out] traj The trajectory structure to add the point to.

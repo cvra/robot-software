@@ -7,4 +7,4 @@ extern const USBConfig usbcfg;
 extern const SerialUSBConfig serusbcfg;
 extern SerialUSBDriver SDU1;
 
-#endif
+#endif /* USBCONF_H */

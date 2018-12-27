@@ -9,4 +9,4 @@ void scara_jacobian_compute(float f_x, float f_y, float alpha, float beta, float
 }
 #endif
 
-#endif
+#endif /* SCARA_JACOBIAN_H */
