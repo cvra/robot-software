@@ -3,8 +3,8 @@
 [![Build Status](https://travis-ci.org/cvra/robot-software.svg?branch=master)](https://travis-ci.org/cvra/robot-software)
 
 This repo contains all the software used on our robots:
-- `can-io-firmware` contains the firmware that runs on the [IO board](http://www.cvra.ch/technologies/io_board.html)
-- `motor-control-firmware` contains the firmware that runs on the [motor board](http://www.cvra.ch/technologies/motor_board.html)
+- `can-io-firmware` contains the firmware that runs on the [IO board](http://www.cvra.ch/robot-software/io.html)
+- `motor-control-firmware` contains the firmware that runs on the [motor board](http://www.cvra.ch/robot-software/motor.html)
 - `proximity-beacon-firmware` contains the firmware that runs on the proximity beacon, it's the same code as the motor board but with a different application that is tailored to the needs of our proximity beacon module
 - `master-firmware` contains the software that runs on the master board, it interfaces all the other boards over CAN and runs the robot's "intelligence".
 - `eurobt` contains documentation and cofiguration files specific to the Eurobot competition
@@ -30,7 +30,7 @@ Other important software components can be found in this repo:
 - `ci` groups scripts and Docker files for our continuous integration server
 - `user-guide` contains high-level documentation about software and electronics components used on our robots
 
-The [user guide](http://cvra.ch/robot-software) is generated using mdbook from [doc/user-guide](/doc/user-guide)
+The [user guide](http://cvra.ch/robot-software) is generated using mdbook from [doc/user-guide](user-guide/user-guide)
 
 # Coding style
 
