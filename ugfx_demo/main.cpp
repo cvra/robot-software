@@ -35,14 +35,14 @@ public:
         wi.g.height = 50;
         wi.g.y = 10;
         wi.g.x = 5;
-        button = gwinButtonCreate(0, &wi);
+        button = gwinLabelCreate(0, &wi);
         gwinSetText(button, "foobar", FALSE);
     }
 
     virtual void on_timer()
     {
         char msg[30];
-        sprintf(msg, "val: %d", counter);
+        sprintf(msg, "x: %02d", counter);
         counter ++;
         gwinSetText(button, msg, TRUE);
     }
