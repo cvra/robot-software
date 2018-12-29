@@ -10,7 +10,6 @@
 #include "main.h"
 #include "gui/Menu.h"
 #include "gui/MenuPage.h"
-#include "gui/pages/PositionPage.h"
 
 // from https://wiki.ugfx.io/index.php/Touchscreen_Calibration
 gBool LoadMouseCalibration(unsigned instance, void* data, gMemSize sz)
@@ -50,9 +49,7 @@ static void gui_thread(void* p)
     auto foo_menu = MenuPage(m, "foo", &base_menu);
     auto bar_menu = MenuPage(m, "bar", &base_menu);
     auto baz_menu = MenuPage(m, "baz", &base_menu);
-    auto position_page = PositionPage();
-    auto cvra_menu = MenuPage(m, "cvra", &base_menu, &position_page);
-    auto root_page = MenuPage(m, "Robot", &base_menu, &arm_menu, &foo_menu, &bar_menu, &baz_menu, &cvra_menu);
+    auto root_page = MenuPage(m, "Robot", &base_menu, &arm_menu, &foo_menu, &bar_menu, &baz_menu);
 
     m.enter_page(&root_page);
     m.event_loop();
