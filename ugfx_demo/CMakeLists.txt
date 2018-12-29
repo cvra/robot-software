@@ -11,9 +11,19 @@ include_directories(.)
 include_directories(../master-firmware/src/)
 include_directories(${SDL2_INCLUDE_DIRS})
 
-add_definitions(-DGFX_USE_OS_OSX=GFXON -DGFX_OS_PRE_INIT_FUNCTION=sdl_driver_init -DGDISP_SCREEN_WIDTH=480 -DGDISP_SCREEN_HEIGHT=320)
+if (APPLE) # MacOS
+    add_definitions(-DGFX_USE_OS_OSX=GFXON)
+elseif (UNIX) # Linux
+    add_definitions(-DGFX_USE_OS_LINUX=GFXON)
+else()
+    message(FATAL_ERROR "Supported platforms: Linux and MacOS")
+endif()
 
-add_library(ugfx
+add_definitions(-DGFX_OS_PRE_INIT_FUNCTION=sdl_driver_init)
+add_definitions(-DGDISP_SCREEN_WIDTH=480)
+add_definitions(-DGDISP_SCREEN_HEIGHT=320)
+
+set(SOURCES
     ${UGFX}/src/gfx.c
     ${UGFX}/src/gos/gos_osx.c
     ${UGFX}/src/gdriver/gdriver.c
@@ -71,6 +81,16 @@ add_library(ugfx
     ${UGFX}/drivers/multiple/SDL/gdisp_lld_SDL.c
 )
 
+if (APPLE) # MacOS
+    set(SOURCES ${SOURCES} ${UGFX}/src/gos/gos_osx.c)
+elseif (UNIX) # Linux
+    set(SOURCES ${SOURCES} ${UGFX}/src/gos/gos_linux.c)
+else()
+    message(FATAL_ERROR "Supported platforms: Linux and MacOS")
+endif()
+
+add_library(ugfx ${SOURCES})
+
 target_include_directories(ugfx PUBLIC ${UGFX} ${UGFX}/src ${UGFX}/drivers/multiple/SDL)
 target_link_libraries(ugfx ${SDL2_LIBRARIES})
 
@@ -81,3 +101,7 @@ add_executable(simulator
 )
 
 target_link_libraries(simulator ugfx)
+
+if (UNIX AND NOT APPLE)
+    target_link_libraries(simulator pthread)
+endif()
