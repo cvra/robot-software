@@ -74,10 +74,10 @@ add_library(ugfx
 target_include_directories(ugfx PUBLIC ${UGFX} ${UGFX}/src ${UGFX}/drivers/multiple/SDL)
 target_link_libraries(ugfx ${SDL2_LIBRARIES})
 
-add_executable(test
+add_executable(simulator
     main.cpp
     ../master-firmware/src/gui/Menu.cpp
     ../master-firmware/src/gui/MenuPage.cpp
 )
 
-target_link_libraries(test ugfx)
+target_link_libraries(simulator ugfx)
