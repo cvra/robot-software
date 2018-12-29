@@ -4,36 +4,13 @@
 ///////////////////////////////////////////////////////////////////////////
 // GDISP                                                                 //
 ///////////////////////////////////////////////////////////////////////////
-#define SCREEN_WIDTH 480
-#define SCREEN_HEIGHT 320
 #define GFX_USE_GDISP GFXON
 #define GDISP_NEED_VALIDATION GFXON
 #define GDISP_NEED_CLIP GFXON
-// #define GDISP_NEED_CIRCLE                            GFXOFF
-// #define GDISP_NEED_DUALCIRCLE                        GFXOFF
-// #define GDISP_NEED_ELLIPSE                           GFXOFF
-// #define GDISP_NEED_ARC                               GFXOFF
-// #define GDISP_NEED_ARCSECTORS                        GFXOFF
-#define GDISP_NEED_CONVEX_POLYGON                    GFXON
-// #define GDISP_NEED_SCROLL                            GFXOFF
-// #define GDISP_NEED_PIXELREAD                         GFXOFF
 #define GDISP_NEED_CONTROL GFXON
-// #define GDISP_NEED_QUERY                             GFXOFF
 #define GDISP_NEED_MULTITHREAD GFXON
-// #define GDISP_NEED_STREAMING                         GFXOFF
 #define GDISP_NEED_TEXT GFXON
-//    #define GDISP_NEED_TEXT_WORDWRAP                 GFXOFF
-//    #define GDISP_NEED_ANTIALIAS                     GFXOFF
-//    #define GDISP_NEED_UTF8                          GFXOFF
-//    #define GDISP_NEED_TEXT_KERNING                  GFXOFF
-//    #define GDISP_INCLUDE_FONT_UI1                   GFXOFF
-//    #define GDISP_INCLUDE_FONT_UI2                   GFXON		// The smallest preferred font.
-//    #define GDISP_INCLUDE_FONT_LARGENUMBERS          GFXOFF
-//    #define GDISP_INCLUDE_FONT_DEJAVUSANS10          GFXOFF
 #define GDISP_INCLUDE_FONT_DEJAVUSANS12 GFXON
-//    #define GDISP_INCLUDE_FONT_DEJAVUSANS16          GFXOFF
-//    #define GDISP_INCLUDE_FONT_DEJAVUSANS20          GFXOFF
-//    #define GDISP_INCLUDE_FONT_DEJAVUSANS24          GFXON
 #define GDISP_INCLUDE_FONT_DEJAVUSANS32 GFXON
 //    #define GDISP_INCLUDE_FONT_DEJAVUSANSBOLD12      GFXOFF
 //    #define GDISP_INCLUDE_FONT_FIXED_10X20           GFXOFF
@@ -50,10 +27,11 @@
 // #define GDISP_NEED_PIXMAP                            GFXOFF
 //    #define GDISP_NEED_PIXMAP_IMAGE                  GFXOFF
 
+#define GDISP_NEED_CONVEX_POLYGON GFXON
 #define GDISP_DEFAULT_ORIENTATION GDISP_ROTATE_270
 // #define GDISP_LINEBUF_SIZE                           128
 // #define GDISP_STARTUP_COLOR                          Black
-#define GDISP_NEED_STARTUP_LOGO GFXOFF
+#define GDISP_NEED_STARTUP_LOGO GFXON
 
 ///////////////////////////////////////////////////////////////////////////
 // GWIN                                                                  //
@@ -87,13 +65,14 @@
 //    #define GWIN_FLAT_STYLING GFXON
 //    #define GWIN_WIDGET_TAGS                         GFXOFF
 
-#define GWIN_NEED_CONTAINERS                     GFXON
-#define GWIN_NEED_CONTAINER                      GFXON
+#define GWIN_NEED_CONTAINERS GFXON
+#define GWIN_NEED_CONTAINER GFXON
 //    #define GWIN_NEED_FRAME                          GFXOFF
 //    #define GWIN_NEED_TABSET                         GFXOFF
 //        #define GWIN_TABSET_TABHEIGHT                18
 
 #define GWIN_REDRAW_IMMEDIATE GFXON
+
 
 ///////////////////////////////////////////////////////////////////////////
 // GEVENT                                                                //
@@ -109,7 +88,7 @@
 ///////////////////////////////////////////////////////////////////////////
 #define GFX_USE_GTIMER GFXON
 
-#define GTIMER_THREAD_PRIORITY NORMALPRIO
+#define GTIMER_THREAD_PRIORITY 1
 #define GTIMER_THREAD_WORKAREA_SIZE 2048
 
 ///////////////////////////////////////////////////////////////////////////
@@ -135,7 +114,7 @@
 //    #define GINPUT_MOUSE_POLL_PERIOD                 25
 //    #define GINPUT_MOUSE_CLICK_TIME                  300
 //    #define GINPUT_TOUCH_CXTCLICK_TIME               700
-#define GINPUT_TOUCH_USER_CALIBRATION_LOAD GFXON
+#define GINPUT_TOUCH_USER_CALIBRATION_LOAD GFXOFF
 #define GINPUT_TOUCH_USER_CALIBRATION_SAVE GFXOFF
 //    #define GMOUSE_DRIVER_LIST                       GMOUSEVMT_Win32, GMOUSEVMT_Win32
 // #define GINPUT_NEED_TOGGLE                           GFXOFF
@@ -148,4 +127,9 @@
 //    #define GADC_MAX_LOWSPEED_DEVICES                4
 #define GOS_NEED_X_THREADS GFXOFF
 #define GOX_NEED_X_HEAP GFXOFF
+
+#define SCREEN_WIDTH GDISP_SCREEN_WIDTH
+#define SCREEN_HEIGHT GDISP_SCREEN_HEIGHT
+
+
 #endif /* _GFXCONF_H */
