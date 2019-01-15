@@ -82,6 +82,9 @@ class ParameterTreeModel(NodeStatusMonitor):
         request = uavcan.protocol.param.ExecuteOpcode.Request(opcode=OPCODE_SAVE)
         self.node.request(request, target_id, self._save_params_callback)
         self.logger.info('Asked node {} to save its parameters on flash'.format(target_id))
+        for k, v in self.params.items():
+            for x,y in v.items():
+                print("{}:{}".format(x,y))
 
     def _save_params_callback(self, event):
         if not event: self.logger.warning('Unable to save parameters')
