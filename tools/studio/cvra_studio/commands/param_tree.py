@@ -94,12 +94,6 @@ class ParameterTreeModel(NodeStatusMonitor):
                         for x,y in val.items():
                             print("\t\t{}: {}".format(x,y))
                     else: print("\t{}: {}".format(key,val))
-    #def myprint(self,d):
-    #    for k, v in d.items():
-    #        if isinstance(v, dict):
-    #            self.myprint(v)
-    #        else:
-    #            print("{0} : {1}".format(k, v))
 
     def _save_params_callback(self, event):
         if not event: self.logger.warning('Unable to save parameters')
