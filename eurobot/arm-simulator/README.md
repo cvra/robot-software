@@ -39,3 +39,9 @@ pendulum = System(f, M, U)
 
 From that we can query the time derivatives of the generalized coordinates `q` and its conjugate moment `p`.
 Which allows us to simulate the system.
+
+## Examples
+
+A few examples are provided under the examples folder
+- [Double pendulum](examples/pendulum-double.ipynb)
+- [Triple pendulum](examples/pendulum-triple.ipynb)
