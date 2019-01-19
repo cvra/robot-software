@@ -36,6 +36,7 @@ class ParameterTreeModel(NodeStatusMonitor):
         self.param_lock = threading.RLock()
         self.params = NestedDict()
         self._clear_queue()
+        self.target_name = ''
         threading.Thread(target=self.run).start()
 
     def run(self):
@@ -56,10 +57,11 @@ class ParameterTreeModel(NodeStatusMonitor):
     def on_new_params(self, callback):
         self.new_params_cb = callback
 
-    def fetch_params(self, target_id):
+    def fetch_params(self, target_id, target_name):
         # overwrite current request by new one
         if self.q.qsize() > 0: self._clear_queue()
         self.q.put(target_id, block=False)
+        self.target_name = target_name
 
     def _clear_queue(self):
         self.q = queue.Queue(maxsize=1)
@@ -85,15 +87,18 @@ class ParameterTreeModel(NodeStatusMonitor):
         self.print_params()
 
     def print_params(self):
+        print("========================================TADA========================================")
+        print("    {}:".format(self.target_name))
         for k, v in self.params.items():
             for ke,va in v.items():
-                print("{}".format(ke))
+                print("        {}:".format(ke))
                 for key,val in va.items():
                     if isinstance(val,dict):
-                        print("\t{}".format(key))
+                        print("            {}:".format(key))
                         for x,y in val.items():
-                            print("\t\t{}: {}".format(x,y))
-                    else: print("\t{}: {}".format(key,val))
+                            print("                {}: {}".format(x,y))
+                    else: print("           {}: {}".format(key,val))
+        print("========================================TADA========================================")
 
     def _save_params_callback(self, event):
         if not event: self.logger.warning('Unable to save parameters')
@@ -142,7 +147,8 @@ class ParameterWidget(QWidget):
 
     def _change_selected_node(self, i):
         self.selected_node = self.node_ids[i]
-        self.model.fetch_params(self.node_ids[self.node_selector.currentIndex()].id)
+        node = self.node_ids[self.node_selector.currentIndex()]
+        self.model.fetch_params(node.id, node.name)
 
     def _on_param_change(self, item):
         keys = self.model.item_to_path(item)
