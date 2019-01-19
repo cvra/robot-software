@@ -73,8 +73,9 @@ class ParameterTreeModel(NodeStatusMonitor):
 
     def _param_changed(self, event):
         if not event: raise Exception('ParameterTree Set Timeout')
-        self.logger.info('Changed parameter {name} to {value}'.format(
-            name=event.response.name, value=extract_value(event.response.value)))
+        name, value = str(event.response.name), extract_value(event.response.value)[0]
+        self.params.set(name.split('/'), value)
+        self.logger.info('Changed parameter {name} to {value}'.format(name=name, value=value))
 
     def save_params(self, target_id):
         OPCODE_SAVE = 0
