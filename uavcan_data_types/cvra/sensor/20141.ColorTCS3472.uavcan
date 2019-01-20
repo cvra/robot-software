@@ -1,0 +1,8 @@
+#
+# AMS TCS3472 Color Sensor
+#
+
+uint16 red
+uint16 green
+uint16 blue
+uint16 clear
