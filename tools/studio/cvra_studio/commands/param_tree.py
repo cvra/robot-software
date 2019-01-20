@@ -4,6 +4,7 @@ import queue
 import threading
 import time
 import sys
+import yaml
 
 import uavcan
 from PyQt5.QtGui import QFont
@@ -17,6 +18,11 @@ from ..viewers.Selector import Selector
 from ..viewers.helpers import vstack, hstack
 
 from collections import namedtuple
+
+def param_presenter(dumper, data):
+    return dumper.represent_scalar('tag:yaml.org,2002:str', str(data))
+
+yaml.add_representer(Parameter, param_presenter)
 
 NodeInfo = namedtuple('NodeInfo', ['name', 'id'])
 
@@ -87,18 +93,9 @@ class ParameterTreeModel(NodeStatusMonitor):
         self.print_params()
 
     def print_params(self):
-        print("========================================TADA========================================")
-        print("    {}:".format(self.target_name))
-        for k, v in self.params.items():
-            for ke,va in v.items():
-                print("        {}:".format(ke))
-                for key,val in va.items():
-                    if isinstance(val,dict):
-                        print("            {}:".format(key))
-                        for x,y in val.items():
-                            print("                {}: {}".format(x,y))
-                    else: print("           {}: {}".format(key,val))
-        print("========================================TADA========================================")
+        print("=========================YAML=========================")
+        print(yaml.dump(self.params.to_dict(), default_flow_style=False))
+        print("=========================YAML=========================")
 
     def _save_params_callback(self, event):
         if not event: self.logger.warning('Unable to save parameters')
