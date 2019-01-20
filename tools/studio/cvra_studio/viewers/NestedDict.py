@@ -21,6 +21,15 @@ class NestedDict(defaultdict):
     def __repr__(self):
         return str(dict(self))
 
+    def to_dict(self):
+        if self:
+            return {
+                key: value.to_dict() if isinstance(value, NestedDict) else value
+                for key, value in self.items()
+            }
+        else:
+            return {}
+
 class NestedDictView(QTreeView):
     def __init__(self):
         super().__init__()

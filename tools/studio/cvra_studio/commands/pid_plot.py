@@ -203,7 +203,7 @@ class PidPlotController:
         self.model.tracked_node = self.model.nodes[i]
         self.model.clear()
         self.logger.info('Selected node {}'.format(self.model.tracked_node))
-        self.model.params_model.fetch_params(self.selected_node_id())
+        self.model.params_model.fetch_params(self.selected_node_id(), self.model.tracked_node)
         self.model.setpt_pub.update_motor(self.selected_node_id())
 
     def _change_selected_pid_loop(self, i):

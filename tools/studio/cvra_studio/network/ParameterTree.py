@@ -31,6 +31,16 @@ def value_to_uavcan(value, value_type):
     elif value_type == str:   return uavcan.protocol.param.Value(string_value=str(value))
     else:                     return uavcan.protocol.param.Value()
 
+def parameter_to_yaml(dumper, data):
+    """
+    Given a YAML dumper and a Parameter data, returns a properly formatted value
+    """
+    if   data.type == bool:  return dumper.represent_scalar('tag:yaml.org,2002:bool', str(data))
+    elif data.type == int:   return dumper.represent_scalar('tag:yaml.org,2002:int', str(data))
+    elif data.type == float: return dumper.represent_scalar('tag:yaml.org,2002:float', str(data))
+    elif data.type == str:   return dumper.represent_scalar('tag:yaml.org,2002:str', str(data))
+    else:                    raise TypeError('Unsupported type {} for parameter'.format(data.type))
+
 class ParameterTree:
     """
     Iterator for accessing a UAVCAN node's parameters
