@@ -11,18 +11,13 @@ from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QApplication, QPushButton, QVBoxLayout, QWidget
 
 from ..network.NodeStatusMonitor import NodeStatusMonitor
-from ..network.ParameterTree import ParameterTree, Parameter, extract_value, value_to_uavcan
+from ..network.ParameterTree import ParameterTree, Parameter, extract_value, value_to_uavcan, parameter_to_yaml
 from ..network.UavcanNode import UavcanNode
 from ..viewers.NestedDict import NestedDict, NestedDictView
 from ..viewers.Selector import Selector
 from ..viewers.helpers import vstack, hstack
 
 from collections import namedtuple
-
-def param_presenter(dumper, data):
-    return dumper.represent_scalar('tag:yaml.org,2002:str', str(data))
-
-yaml.add_representer(Parameter, param_presenter)
 
 NodeInfo = namedtuple('NodeInfo', ['name', 'id'])
 
@@ -93,6 +88,8 @@ class ParameterTreeModel(NodeStatusMonitor):
         self.print_params()
 
     def print_params(self):
+        yaml.add_representer(Parameter, parameter_to_yaml)
+
         print("=========================YAML=========================")
         print(yaml.dump(self.params.to_dict(), default_flow_style=False))
         print("=========================YAML=========================")
