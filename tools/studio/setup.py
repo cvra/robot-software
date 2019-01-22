@@ -21,7 +21,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'cvra_studio=cvra_studio.cli:main',
+            'cvra=cvra_studio.cli:main',
         ],
     },
 )

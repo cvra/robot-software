@@ -4,13 +4,14 @@ import queue
 import threading
 import time
 import sys
+import yaml
 
 import uavcan
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QApplication, QPushButton, QVBoxLayout, QWidget
 
 from ..network.NodeStatusMonitor import NodeStatusMonitor
-from ..network.ParameterTree import ParameterTree, Parameter, extract_value, value_to_uavcan
+from ..network.ParameterTree import ParameterTree, Parameter, extract_value, value_to_uavcan, parameter_to_yaml
 from ..network.UavcanNode import UavcanNode
 from ..viewers.NestedDict import NestedDict, NestedDictView
 from ..viewers.Selector import Selector
@@ -36,6 +37,7 @@ class ParameterTreeModel(NodeStatusMonitor):
         self.param_lock = threading.RLock()
         self.params = NestedDict()
         self._clear_queue()
+        self.target_name = ''
         threading.Thread(target=self.run).start()
 
     def run(self):
@@ -56,10 +58,11 @@ class ParameterTreeModel(NodeStatusMonitor):
     def on_new_params(self, callback):
         self.new_params_cb = callback
 
-    def fetch_params(self, target_id):
+    def fetch_params(self, target_id, target_name):
         # overwrite current request by new one
         if self.q.qsize() > 0: self._clear_queue()
         self.q.put(target_id, block=False)
+        self.target_name = target_name
 
     def _clear_queue(self):
         self.q = queue.Queue(maxsize=1)
@@ -73,14 +76,23 @@ class ParameterTreeModel(NodeStatusMonitor):
 
     def _param_changed(self, event):
         if not event: raise Exception('ParameterTree Set Timeout')
-        self.logger.info('Changed parameter {name} to {value}'.format(
-            name=event.response.name, value=extract_value(event.response.value)))
+        name, value = str(event.response.name), extract_value(event.response.value)[0]
+        self.params.set(name.split('/'), value)
+        self.logger.info('Changed parameter {name} to {value}'.format(name=name, value=value))
 
     def save_params(self, target_id):
         OPCODE_SAVE = 0
         request = uavcan.protocol.param.ExecuteOpcode.Request(opcode=OPCODE_SAVE)
         self.node.request(request, target_id, self._save_params_callback)
         self.logger.info('Asked node {} to save its parameters on flash'.format(target_id))
+        self.print_params()
+
+    def print_params(self):
+        yaml.add_representer(Parameter, parameter_to_yaml)
+
+        print("=========================YAML=========================")
+        print(yaml.dump(self.params.to_dict(), default_flow_style=False))
+        print("=========================YAML=========================")
 
     def _save_params_callback(self, event):
         if not event: self.logger.warning('Unable to save parameters')
@@ -129,7 +141,8 @@ class ParameterWidget(QWidget):
 
     def _change_selected_node(self, i):
         self.selected_node = self.node_ids[i]
-        self.model.fetch_params(self.node_ids[self.node_selector.currentIndex()].id)
+        node = self.node_ids[self.node_selector.currentIndex()]
+        self.model.fetch_params(node.id, node.name)
 
     def _on_param_change(self, item):
         keys = self.model.item_to_path(item)
