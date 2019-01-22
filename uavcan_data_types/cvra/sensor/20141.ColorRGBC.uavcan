@@ -1,5 +1,5 @@
 #
-# AMS TCS3472 Color Sensor
+# 16bit RGBC color reading
 #
 
 uint16 red

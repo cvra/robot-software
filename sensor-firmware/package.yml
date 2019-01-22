@@ -23,7 +23,7 @@ target.arm:
   - src/stubs.cpp
   - src/uavcan/node.cpp
   - src/uavcan/DistanceVL6180X_pub.cpp
-  - src/uavcan/ColorTCS3472_pub.cpp
+  - src/uavcan/ColorRGBC_pub.cpp
   - src/bootloader_config.c
   - ../lib/can-bootloader/config.c
 

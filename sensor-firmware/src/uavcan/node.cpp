@@ -5,7 +5,7 @@
 #include <uavcan_stm32/uavcan_stm32.hpp>
 #include <uavcan/protocol/NodeStatus.hpp>
 #include "DistanceVL6180X_pub.h"
-#include "ColorTCS3472_pub.h"
+#include "ColorRGBC_pub.h"
 
 #include "node.h"
 

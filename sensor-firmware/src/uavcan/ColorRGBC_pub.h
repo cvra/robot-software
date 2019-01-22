@@ -1,5 +1,5 @@
-#ifndef COLOR_TCS3472_PUB_H
-#define COLOR_TCS3472_PUB_H
+#ifndef COLOR_RGBC_PUB_H
+#define COLOR_RGBC_PUB_H
 
 #include <uavcan/uavcan.hpp>
 
