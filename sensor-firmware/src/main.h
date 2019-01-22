@@ -5,6 +5,8 @@
 extern "C" {
 #endif
 
+#define USE_COLOR_SENSOR 1
+
 #include <bootloader_config.h>
 extern bootloader_config_t config;
 

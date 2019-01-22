@@ -65,8 +65,6 @@ void tof_distance_init(void)
 
 TCS3472_t color_sensor;
 
-#define LED_WHITE PAL_LINE(GPIOA, 4)
-
 void color_sensor_init(void)
 {
     palSetLineMode(LED_WHITE, PAL_STM32_MODE_OUTPUT);
@@ -131,8 +129,9 @@ int main(void)
     NOTICE("I2C init");
 
     tof_distance_init();
+#if USE_COLOR_SENSOR
     color_sensor_init();
-
+#endif
     // Never returns
     uavcan_start(config.ID, config.board_name);
 
