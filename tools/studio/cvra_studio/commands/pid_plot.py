@@ -29,6 +29,7 @@ def argparser(parser=None):
 
     return parser
 
+
 class PidViewer(QtGui.QWidget):
     def __init__(self, parent = None):
         super(PidViewer, self).__init__(parent)
@@ -39,9 +40,9 @@ class PidViewer(QtGui.QWidget):
         self.params_view = NestedDictView()
         self.save_button = QtGui.QPushButton('Save')
 
-        self.topic =  ComboBox(title="Topic       \t", callback=None, items=list(ControlTopic), parent=parent)
-        self.value_min =  LineEdit(title="Value min   \t", callback=None, parent=parent)
-        self.value_max =  LineEdit(title="Value max   \t", callback=None, parent=parent)
+        self.topic = ComboBox(title="Topic       \t", callback=None, items=list(ControlTopic), parent=parent)
+        self.value_min = LineEdit(title="Value min   \t", callback=None, parent=parent)
+        self.value_max = LineEdit(title="Value max   \t", callback=None, parent=parent)
         self.period = LineEdit(title="Period [s]  \t", callback=None, parent=parent)
 
         self.setLayout(vstack([
@@ -63,6 +64,7 @@ class PidViewer(QtGui.QWidget):
         ]))
         self.setWindowTitle("PID Plotter")
         self.show()
+
 
 class SetpointPublisherModel:
     def __init__(self, node, topic, motor, value_min, value_max, period):
@@ -88,6 +90,7 @@ class SetpointPublisherModel:
         self.publisher.period = float(value)
         self.publisher.update()
 
+
 class PidFeedbackRecorder():
     nodes = []
     on_new_node_callback = None
@@ -96,8 +99,8 @@ class PidFeedbackRecorder():
     PID_LOOPS = ['Current', 'Velocity', 'Position']
     tracked_pid_loop = PID_LOOPS[0]
 
-    EMPTY_DATA = { 'setpoint': { 'time': np.array([]), 'value': np.array([]) },
-                   'measured': { 'time': np.array([]), 'value': np.array([]) }, }
+    EMPTY_DATA = {'setpoint': {'time': np.array([]), 'value': np.array([])},
+                  'measured': {'time': np.array([]), 'value': np.array([])}, }
     data = EMPTY_DATA
 
     def __init__(self, node):
@@ -208,7 +211,10 @@ class PidPlotController:
 
     def _change_selected_pid_loop(self, i):
         self.model.tracked_pid_loop = self.model.PID_LOOPS[i]
-        self.model.clear()
+        self.model.data = {
+            'setpoint': {'time': np.array([]), 'value': np.array([])},
+            'measured': {'time': np.array([]), 'value': np.array([])},
+        }
         self.logger.info('Selected PID loop {}'.format(self.model.tracked_pid_loop))
 
     def _on_param_edit(self, item):
@@ -247,6 +253,7 @@ def main(args):
 
     if (sys.flags.interactive != 1) or not hasattr(QtCore, 'PYQT_VERSION'):
         QtGui.QApplication.instance().exec_()
+
 
 if __name__ == '__main__':
     args = argparser().parse_args()
