@@ -11,6 +11,13 @@ class Parameter(_Parameter):
     def __repr__(self):
         return str(self.value)
 
+def value_to_parameter(value, name=''):
+    if isinstance(value, bool):    return Parameter(name, value, bool)
+    elif isinstance(value, int):   return Parameter(name, value, int)
+    elif isinstance(value, float): return Parameter(name, value, float)
+    elif isinstance(value, str):   return Parameter(name, value, str)
+    else:                          return None
+
 def extract_value(value):
     """
     Given UAVCAN Value object, returns the value and its type
