@@ -72,6 +72,8 @@
 #define GPIOB_PIN14                 14U
 #define GPIOB_PIN15                 15U
 
+#define LED_WHITE PAL_LINE(GPIOA, 4)
+
 /*
  * I/O ports initial setup, this configuration is established soon after reset
  * in the initialization code.

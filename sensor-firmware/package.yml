@@ -19,9 +19,11 @@ target.arm:
   - src/debug.c
   - src/board.c
   - src/vl6180x/vl6180x_chibios.c
+  - src/TCS3472.c
   - src/stubs.cpp
   - src/uavcan/node.cpp
   - src/uavcan/DistanceVL6180X_pub.cpp
+  - src/uavcan/ColorRGBC_pub.cpp
   - src/bootloader_config.c
   - ../lib/can-bootloader/config.c
 
