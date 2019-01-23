@@ -8,6 +8,7 @@
 #include "analog.h"
 #include "encoder.h"
 #include "parameter/parameter.h"
+#include "parameter_flash_storage/parameter_flash_storage.h"
 #include "bootloader_config.h"
 #include "uavcan/uavcan_node.h"
 #include "timestamp/timestamp_stm32.h"
@@ -17,6 +18,9 @@
 
 BaseSequentialStream* ch_stdout;
 parameter_namespace_t parameter_root_ns;
+
+/* Addresses provided by the linker script. */
+extern int _config_start, _config_end;
 
 void panic_hook(const char* reason)
 {
@@ -133,8 +137,10 @@ int main(void)
     /* Wait for all services to boot, then try to load config. */
     chThdSleepMilliseconds(300);
 
-    uavcan_init_complete();
-    control_start();
+    if (parameter_flash_storage_load(&parameter_root_ns, &_config_start)) {
+        uavcan_init_complete();
+        control_start();
+    }
 
     while (1) {
         chThdSleepMilliseconds(1000);
