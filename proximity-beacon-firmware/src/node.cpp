@@ -15,7 +15,10 @@
 
 #include "Reboot_handler.hpp"
 #include "EmergencyStop_handler.hpp"
-
+#include "Velocity_handler.hpp"
+#include "Position_handler.hpp"
+#include "Torque_handler.hpp"
+#include "Voltage_handler.hpp"
 #include "proximity_beacon_publisher.hpp"
 
 #include "stream.h"
@@ -50,6 +53,10 @@ static void uavcan_services_start(Node& node)
         {proximity_beacon_start, "proximity beacon"},
         {parameter_server_start, "UAVCAN parameter server"},
         {uavcan_streams_start, "UAVCAN state streamer"},
+        {Velocity_handler_start, "cvra::motor::control::Velocity subscriber"},
+        {Position_handler_start, "cvra::motor::control::Position subscriber"},
+        {Torque_handler_start, "cvra::motor::control::Torque subscriber"},
+        {Voltage_handler_start, "cvra::motor::control::Voltage subscriber"},
         {NULL, NULL} /* Must be last */
     };
 

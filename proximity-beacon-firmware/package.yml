@@ -27,6 +27,10 @@ target.arm:
     - ../motor-control-firmware/src/reboot.c
     - ../motor-control-firmware/src/uavcan/Reboot_handler.cpp
     - ../motor-control-firmware/src/uavcan/EmergencyStop_handler.cpp
+    - ../motor-control-firmware/src/uavcan/Velocity_handler.cpp
+    - ../motor-control-firmware/src/uavcan/Position_handler.cpp
+    - ../motor-control-firmware/src/uavcan/Torque_handler.cpp
+    - ../motor-control-firmware/src/uavcan/Voltage_handler.cpp
     - ../motor-control-firmware/src/uavcan/parameter_server.cpp
     - ../motor-control-firmware/src/uavcan/uavcan_streams.cpp
     - ../motor-control-firmware/src/libstubs.cpp
