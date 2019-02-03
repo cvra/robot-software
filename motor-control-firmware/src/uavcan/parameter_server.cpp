@@ -25,6 +25,7 @@ static const char* exposed_parameters[] = {
     "/control/low_batt_th",
 
     "/motor/torque_cst",
+    "/motor/current_offset",
 
     "/encoders/primary/p",
     "/encoders/primary/q",

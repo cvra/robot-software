@@ -16,6 +16,7 @@ struct pid_cascade_s {
     pid_ctrl_t position_pid;
     // parameters:
     float motor_current_constant;
+    float motor_current_offset; // constant offset introduced by wiring flaws
     float velocity_limit;
     float torque_limit;
     float current_limit;

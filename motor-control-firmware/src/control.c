@@ -55,6 +55,7 @@ static struct {
 static struct {
     parameter_namespace_t ns;
     parameter_t torque_cst;
+    parameter_t current_offset;
 } motor_params;
 
 /* Thermal protection parameters */
@@ -261,6 +262,7 @@ static void declare_parameters(void)
     /* Motor parameters. */
     parameter_namespace_declare(&motor_params.ns, &parameter_root_ns, "motor");
     parameter_scalar_declare_with_default(&motor_params.torque_cst, &motor_params.ns, "torque_cst", 1.);
+    parameter_scalar_declare_with_default(&motor_params.current_offset, &motor_params.ns, "current_offset", 0.);
 
     /* Thermal */
     parameter_namespace_declare(&thermal_params.ns, &parameter_root_ns, "thermal");
@@ -369,6 +371,9 @@ static void update_parameters(void)
             float transmission = (float)control_feedback.primary_encoder.transmission_p / control_feedback.primary_encoder.transmission_q;
             ctrl.motor_current_constant = 1 / (parameter_scalar_get(&motor_params.torque_cst) / transmission);
         }
+        if (parameter_changed(&motor_params.current_offset)) {
+            ctrl.motor_current_offset = parameter_scalar_get(&motor_params.current_offset);
+        }
     }
     if (parameter_namespace_contains_changed(&thermal_params.ns)) {
         motor_protection_init(&control_motor_protection,
@@ -409,7 +414,7 @@ static THD_FUNCTION(control_loop, arg)
         ctrl.periodic_actuator = control_feedback.output.actuator_is_periodic;
         ctrl.position = control_feedback.output.position;
         ctrl.velocity = ctrl.velocity * 0.9 + control_feedback.output.velocity * 0.1;
-        ctrl.current = analog_get_motor_current();
+        ctrl.current = analog_get_motor_current() - ctrl.motor_current_offset;
         ctrl.torque = ctrl.current / ctrl.motor_current_constant;
         // ctrl.current_limit = motor_protection_update(&control_motor_protection, ctrl.current, delta_t);
 
