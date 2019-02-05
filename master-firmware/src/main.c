@@ -199,7 +199,7 @@ int main(void)
     /* Initialize global objects. */
     config_init();
 
-    gui_start();
+    // gui_start();
     blink_start();
 
     /* Try to mount the filesystem. */
