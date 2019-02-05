@@ -17,18 +17,23 @@ struct IndexArms : actions::IndexArms {
 struct RetractArms : actions::RetractArms {
     bool execute(RobotState& state) { return dummy_execute(this, state); }
 };
+struct TakePuck : actions::TakePuck {
+    bool execute(RobotState& state) { return dummy_execute(this, state); }
+};
 
 TEST_GROUP (Strategy) {
     RobotState state;
 
     IndexArms index_arms;
     RetractArms retract_arms;
+    TakePuck take_puck;
 
     std::vector<goap::Action<RobotState>*> availableActions()
     {
         return std::vector<goap::Action<RobotState>*>{
             &index_arms,
             &retract_arms,
+            &take_puck,
         };
     }
 
@@ -56,4 +61,14 @@ TEST(Strategy, CanInitArms)
 
     CHECK_TRUE(len > 0);
     CHECK_TRUE(init_goal.is_reached(state));
+}
+
+TEST(Strategy, CanTakeFirstPuck)
+{
+    FirstPuckGoal goal;
+
+    int len = compute_and_execute_plan(goal, state);
+
+    CHECK_TRUE(len > 0);
+    CHECK_TRUE(goal.is_reached(state));
 }

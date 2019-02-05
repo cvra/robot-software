@@ -268,10 +268,34 @@ struct RetractArms : actions::RetractArms {
         scara_goto(&main_arm, {170., 0., 295.}, COORDINATE_ARM, {300, 300, 300});
         strategy_wait_ms(500);
 
-        scara_goto(&main_arm, {20., MIRROR(m_color, 90.), 295.}, COORDINATE_ROBOT, {300, 300, 300});
+        scara_goto(&main_arm, {20.f, MIRROR(m_color, 90.f), 295.f}, COORDINATE_ROBOT, {300, 300, 300});
         strategy_wait_ms(500);
 
         scara_control_mode_cartesian(&main_arm);
+
+        return true;
+    }
+};
+
+struct TakePuck : actions::TakePuck {
+    enum strat_color_t m_color;
+
+    TakePuck(enum strat_color_t color)
+        : m_color(color)
+    {
+    }
+
+    bool execute(RobotState& state)
+    {
+        NOTICE("Going for the puck!");
+
+        if (!strategy_goto_avoid(MIRROR_X(m_color, 450), 500, MIRROR_A(m_color, 0), TRAJ_FLAGS_ALL)) {
+            NOTICE("Failed to reach position!");
+            return false;
+        }
+
+        state.arms_are_deployed = true;
+        state.has_puck = true;
 
         return true;
     }
@@ -330,11 +354,14 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
     messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
     InitGoal init_goal;
+    FirstPuckGoal first_puck_goal;
     goap::Goal<RobotState>* goals[] = {
+        &first_puck_goal,
     };
 
     IndexArms index_arms;
     RetractArms retract_arms(color);
+    TakePuck take_puck(color);
 
     const int max_path_len = 10;
     goap::Action<RobotState>* path[max_path_len] = {nullptr};
@@ -342,6 +369,7 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
     goap::Action<RobotState>* actions[] = {
         &index_arms,
         &retract_arms,
+        &take_puck,
     };
 
     const auto action_count = sizeof(actions) / sizeof(actions[0]);
@@ -412,11 +440,14 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
     InitGoal init_goal;
+    FirstPuckGoal first_puck_goal;
     goap::Goal<RobotState>* goals[] = {
+        &first_puck_goal,
     };
 
     IndexArms index_arms;
     RetractArms retract_arms(color);
+    TakePuck take_puck(color);
 
     const int max_path_len = 10;
     goap::Action<RobotState>* path[max_path_len] = {nullptr};
@@ -424,6 +455,7 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     goap::Action<RobotState>* actions[] = {
         &index_arms,
         &retract_arms,
+        &take_puck,
     };
 
     const auto action_count = sizeof(actions) / sizeof(actions[0]);

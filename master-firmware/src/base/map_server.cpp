@@ -93,6 +93,7 @@ static THD_FUNCTION(map_server_thd, arg)
             }
         }
 
+        map_server_map_release(map);
         messagebus_watchgroup_wait(&watchgroup.group);
     }
 }

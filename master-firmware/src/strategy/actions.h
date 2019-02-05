@@ -34,6 +34,19 @@ struct RetractArms : public goap::Action<RobotState> {
         state.arms_are_deployed = false;
     }
 };
+
+struct TakePuck : public goap::Action<RobotState> {
+    bool can_run(const RobotState& state)
+    {
+        return state.arms_are_indexed;
+    }
+
+    void plan_effects(RobotState& state)
+    {
+        state.has_puck = true;
+        state.arms_are_deployed = true;
+    }
+};
 } // namespace actions
 
 #endif /* STRATEGY_ACTIONS_H */
