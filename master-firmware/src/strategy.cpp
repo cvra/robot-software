@@ -219,6 +219,72 @@ bool strategy_goto_avoid_retry(int x_mm, int y_mm, int a_deg, int traj_end_flags
     return finished;
 }
 
+bool strat_check_distance_to_hand_lower_than(float expected_value)
+{
+    bool success = true;
+    Range range;
+
+    messagebus_topic_t* topic = messagebus_find_topic_blocking(&bus, "/hand_distance");
+
+    if (messagebus_topic_read(topic, &range, sizeof(range))) {
+        WARNING("Hand distance: %f", range.distance);
+        success = (range.distance < expected_value);
+    } else {
+        WARNING("Hand distance sensor is not publishing");
+    }
+
+    return success;
+}
+
+
+void strat_scara_goto(position_3d_t pos, scara_coordinate_t system, velocity_3d_t max_vel, int watched_events)
+{
+    NOTICE("Moving arm to %.1f %.1f %.1f in system %d", pos.x, pos.y, pos.z, (int)system);
+    scara_goto(&main_arm, pos, system, max_vel);
+    arm_traj_wait_for_event(watched_events);
+
+    position_3d_t arm_pos = scara_position(&main_arm, system);
+    NOTICE("Arm at %.1f %.1f %.1f in system %d", arm_pos.x, arm_pos.y, arm_pos.z, (int)system);
+}
+
+void strat_scara_goto_blocking(position_3d_t pos, scara_coordinate_t system, velocity_3d_t max_vel)
+{
+    NOTICE("Moving arm to %.1f %.1f %.1f in system %d", pos.x, pos.y, pos.z, (int)system);
+    scara_goto(&main_arm, pos, system, max_vel);
+    arm_traj_wait_for_end();
+
+    position_3d_t arm_pos = scara_position(&main_arm, system);
+    NOTICE("Arm at %.1f %.1f %.1f in system %d", arm_pos.x, arm_pos.y, arm_pos.z, (int)system);
+}
+
+void strat_scara_push_x(float dx, scara_coordinate_t system, velocity_3d_t max_vel)
+{
+    const position_3d_t last_pos = scara_position(&main_arm, system);
+    strat_scara_goto({last_pos.x + dx, last_pos.y, last_pos.z}, system, max_vel, ARM_READY | ARM_BLOCKED_XY);
+}
+
+void strat_scara_push_y(float dy, scara_coordinate_t system, velocity_3d_t max_vel)
+{
+    const position_3d_t last_pos = scara_position(&main_arm, system);
+    strat_scara_goto({last_pos.x, last_pos.y + dy, last_pos.z}, system, max_vel, ARM_READY | ARM_BLOCKED_XY);
+}
+
+float safe_z(float z)
+{
+    return fminf(z, 300.f);
+}
+
+void strat_scara_force_shoulder_mode(shoulder_mode_t shoulder_mode)
+{
+    scara_control_mode_joint(&main_arm);
+
+    main_arm.shoulder_mode = shoulder_mode;
+    scara_goto(&main_arm, {170., 0., 295.}, COORDINATE_ARM, {300, 300, 300});
+    strategy_wait_ms(500);
+
+    scara_control_mode_cartesian(&main_arm);
+}
+
 struct IndexArms : actions::IndexArms {
     bool execute(RobotState& state)
     {
@@ -289,10 +355,23 @@ struct TakePuck : actions::TakePuck {
     {
         NOTICE("Going for the puck!");
 
-        if (!strategy_goto_avoid(MIRROR_X(m_color, 450), 500, MIRROR_A(m_color, 0), TRAJ_FLAGS_ALL)) {
+        if (!strategy_goto_avoid(MIRROR_X(m_color, 250), 450, MIRROR_A(m_color, 180), TRAJ_FLAGS_ALL)) {
             NOTICE("Failed to reach position!");
             return false;
         }
+
+        const position_3d_t start_pos = scara_position(&main_arm, COORDINATE_TABLE);
+        strat_scara_goto({MIRROR_X(m_color, 500), 450, start_pos.z}, COORDINATE_TABLE, {300, 300, 300}, ARM_READY);
+
+        strat_scara_goto({MIRROR_X(m_color, 500), 450, 25}, COORDINATE_TABLE, {300, 300, 300}, ARM_READY);
+
+        bool puck_is_present = strat_check_distance_to_hand_lower_than(0.05f);
+        if (puck_is_present) {
+            hand_set_pump(&main_hand, PUMP_ON);
+            strategy_wait_ms(500);
+        }
+
+        strat_scara_goto({MIRROR_X(m_color, 500), 450, start_pos.z}, COORDINATE_TABLE, {300, 300, 300}, ARM_READY);
 
         state.arms_are_deployed = true;
         state.has_puck = true;
@@ -300,54 +379,6 @@ struct TakePuck : actions::TakePuck {
         return true;
     }
 };
-
-void strat_scara_goto(position_3d_t pos, scara_coordinate_t system, velocity_3d_t max_vel, int watched_events)
-{
-    NOTICE("Moving arm to %.1f %.1f %.1f in system %d", pos.x, pos.y, pos.z, (int)system);
-    scara_goto(&main_arm, pos, system, max_vel);
-    arm_traj_wait_for_event(watched_events);
-
-    position_3d_t arm_pos = scara_position(&main_arm, system);
-    NOTICE("Arm at %.1f %.1f %.1f in system %d", arm_pos.x, arm_pos.y, arm_pos.z, (int)system);
-}
-
-void strat_scara_goto_blocking(position_3d_t pos, scara_coordinate_t system, velocity_3d_t max_vel)
-{
-    NOTICE("Moving arm to %.1f %.1f %.1f in system %d", pos.x, pos.y, pos.z, (int)system);
-    scara_goto(&main_arm, pos, system, max_vel);
-    arm_traj_wait_for_end();
-
-    position_3d_t arm_pos = scara_position(&main_arm, system);
-    NOTICE("Arm at %.1f %.1f %.1f in system %d", arm_pos.x, arm_pos.y, arm_pos.z, (int)system);
-}
-
-void strat_scara_push_x(float dx, scara_coordinate_t system, velocity_3d_t max_vel)
-{
-    const position_3d_t last_pos = scara_position(&main_arm, system);
-    strat_scara_goto({last_pos.x + dx, last_pos.y, last_pos.z}, system, max_vel, ARM_READY | ARM_BLOCKED_XY);
-}
-
-void strat_scara_push_y(float dy, scara_coordinate_t system, velocity_3d_t max_vel)
-{
-    const position_3d_t last_pos = scara_position(&main_arm, system);
-    strat_scara_goto({last_pos.x, last_pos.y + dy, last_pos.z}, system, max_vel, ARM_READY | ARM_BLOCKED_XY);
-}
-
-float safe_z(float z)
-{
-    return fminf(z, 300.f);
-}
-
-void strat_scara_force_shoulder_mode(shoulder_mode_t shoulder_mode)
-{
-    scara_control_mode_joint(&main_arm);
-
-    main_arm.shoulder_mode = shoulder_mode;
-    scara_goto(&main_arm, {170., 0., 295.}, COORDINATE_ARM, {300, 300, 300});
-    strategy_wait_ms(500);
-
-    scara_control_mode_cartesian(&main_arm);
-}
 
 void strategy_order_play_game(enum strat_color_t color, RobotState& state)
 {
