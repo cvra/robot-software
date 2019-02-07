@@ -127,7 +127,7 @@
 ///////////////////////////////////////////////////////////////////////////
 #define GFX_USE_GINPUT GFXON
 
-#define GINPUT_NEED_MOUSE GFXON
+#define GINPUT_NEED_MOUSE GFXOFF
 #define GINPUT_TOUCH_STARTRAW GFXOFF
 //    #define GINPUT_TOUCH_NOTOUCH                     GFXOFF
 //    #define GINPUT_TOUCH_NOCALIBRATE                 GFXON
