@@ -20,8 +20,6 @@
 #include "arms/arms_controller.h"
 #include "arms/arm_trajectory_manager.h"
 #include "arms/arm.h"
-#include "ballgun/ballgun_module.h"
-#include "ballgun/ball_sense.h"
 #include "config.h"
 #include "control_panel.h"
 #include "main.h"
@@ -401,7 +399,6 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
 
     const auto action_count = sizeof(actions) / sizeof(actions[0]);
 
-    ballgun_tidy(&main_ballgun);
     wrist_set_horizontal(&main_wrist);
 
     NOTICE("Getting arms ready...");
@@ -451,9 +448,6 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
         strategy_wait_ms(10);
     }
 
-    // Avoid burning the ball gun by deploying it
-    ballgun_deploy(&main_ballgun);
-
     NOTICE("Game ended!");
     while (true) {
         strategy_wait_ms(1000);
@@ -485,7 +479,6 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
 
     const auto action_count = sizeof(actions) / sizeof(actions[0]);
 
-    ballgun_tidy(&main_ballgun);
     wrist_set_horizontal(&main_wrist);
 
     NOTICE("Getting arms ready...");
@@ -541,9 +534,6 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
 
         strategy_wait_ms(10);
     }
-
-    // Avoid burning the ball gun by deploying it
-    ballgun_deploy(&main_ballgun);
 
     // Check that opponent didn't switch off our panel
     strategy_wait_ms(5000);

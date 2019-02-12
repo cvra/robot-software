@@ -65,8 +65,6 @@ target.arm:
     - src/parameter_port.c
     - src/strategy/score_counter.cpp
     - src/strategy/color_sequence_server.c
-    - src/ballgun/ballgun_module.c
-    - src/ballgun/ball_sense.c
 
 source:
     - src/unix_timestamp.c
@@ -110,8 +108,6 @@ source:
     - src/strategy/state.cpp
     - src/strategy/score.cpp
     - src/msgbus_protobuf.c
-    - src/ballgun/ballgun.c
-    - src/ballgun/ball_sensor.c
 
 include_directories:
     - src/
@@ -157,9 +153,7 @@ tests:
     - tests/aversive/test_geometry_polygon_intersection.cpp
     - tests/strategy/test_score.cpp
     - tests/test_eurobot2018.cpp
-    - tests/test_ballgun.cpp
     - tests/test_wrist.cpp
-    - tests/test_ball_sensor.cpp
     - tests/msgbus_protobuf.cpp
 
 templates:

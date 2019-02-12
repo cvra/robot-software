@@ -38,8 +38,6 @@
 #include "strategy.h"
 #include <trace/trace.h>
 #include "pca9685_pwm.h"
-#include "ballgun/ballgun_module.h"
-#include "ballgun/ball_sense.h"
 #include "protobuf/sensors.pb.h"
 #include "protobuf/encoders.pb.h"
 
@@ -1226,85 +1224,6 @@ static void cmd_motor_sin(BaseSequentialStream* chp, int argc, char* argv[])
     }
 }
 
-static void cmd_ballgun(BaseSequentialStream* chp, int argc, char* argv[])
-{
-    if (argc != 1) {
-        chprintf(chp, "Usage: ballgun deploy|deploy_charge|deploy_fully|retract|arm|charge|fire|slowfire|tidy|empty|spin\r\n");
-        return;
-    }
-
-    ballgun_t* ballgun = &main_ballgun;
-    ball_sense_reset_count();
-
-    if (strcmp("deploy", argv[0]) == 0) {
-        ballgun_deploy(ballgun);
-    } else if (strcmp("deploy_charge", argv[0]) == 0) {
-        ballgun_deploy_charge(ballgun);
-    } else if (strcmp("deploy_fully", argv[0]) == 0) {
-        ballgun_deploy_fully(ballgun);
-    } else if (strcmp("retract", argv[0]) == 0) {
-        ballgun_retract(ballgun);
-    } else if (strcmp("arm", argv[0]) == 0) {
-        ballgun_arm(ballgun);
-    } else if (strcmp("charge", argv[0]) == 0) {
-        ballgun_charge(ballgun);
-    } else if (strcmp("fire", argv[0]) == 0) {
-        ballgun_spin(ballgun);
-        chThdSleepMilliseconds(500);
-        ballgun_fire(ballgun);
-    } else if (strcmp("slowfire", argv[0]) == 0) {
-        ballgun_slowfire(ballgun);
-    } else if (strcmp("tidy", argv[0]) == 0) {
-        ballgun_tidy(ballgun);
-    } else if (strcmp("empty", argv[0]) == 0) {
-        ballgun_deploy_fully(ballgun);
-        ballgun_slowfire(ballgun);
-    } else if (strcmp("spin", argv[0]) == 0) {
-        ballgun_spin(ballgun);
-    } else {
-        chprintf(chp, "Invalid command: %s", argv[0]);
-    }
-
-    chprintf(chp, "\r\n");
-    while (chnGetTimeout((BaseChannel*)chp, TIME_IMMEDIATE) != 'c') {
-        chprintf(chp, "%d", (int)palReadPad(GPIOG, GPIOG_PIN9));
-        chThdSleepMilliseconds(1);
-    }
-    chprintf(chp, "\r\n");
-    chprintf(chp, "Ball count %u\r\n", ball_sense_count());
-}
-
-static void cmd_ballsense(BaseSequentialStream* chp, int argc, char* argv[])
-{
-    if (argc == 1 && strcmp("reset", argv[0]) == 0) {
-        ball_sense_reset_count();
-    }
-
-    bool sense = palReadPad(GPIOG, GPIOG_PIN9);
-    unsigned count = ball_sense_count();
-
-    chprintf(chp, "Ball sensor value %d | Ball count %u\r\n", sense, count);
-}
-
-static void cmd_slowfire(BaseSequentialStream* chp, int argc, char* argv[])
-{
-    (void)chp;
-    (void)argc;
-    (void)argv;
-
-    ballgun_tidy(&main_ballgun);
-    ballgun_deploy_fully(&main_ballgun);
-    chThdSleepMilliseconds(1000);
-
-    // pre-spin "ball-accelerator" motor with ~5V to ensure that it's not blocking
-    ball_accelerator_voltage(5.0f);
-    chThdSleepMilliseconds(500);
-    ballgun_slowfire(&main_ballgun);
-    chThdSleepMilliseconds(2000);
-
-    ballgun_tidy(&main_ballgun);
-}
-
 static void cmd_wrist(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc != 1) {
@@ -1428,11 +1347,8 @@ const ShellCommand commands[] = {
     {"dist", cmd_hand_dist},
     {"arm_bd", cmd_arm_bd},
     {"motor_sin", cmd_motor_sin},
-    {"ballgun", cmd_ballgun},
-    {"slowfire", cmd_slowfire},
     {"wrist", cmd_wrist},
     {"speed", cmd_speed},
-    {"ballsense", cmd_ballsense},
     {"panel", cmd_panel_status},
     {"beacon", cmd_proximity_beacon},
     {NULL, NULL}};

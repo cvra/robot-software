@@ -39,11 +39,9 @@
 #include "http/server.h"
 #include "pca9685_pwm.h"
 #include "gui.h"
-#include "ballgun/ballgun_module.h"
 
 void init_base_motors(void);
 void init_arm_motors(void);
-void init_ballgun_motors(void);
 
 motor_manager_t motor_manager;
 
@@ -233,7 +231,6 @@ int main(void)
     /* Initialize motors */
     init_base_motors();
     init_arm_motors();
-    init_ballgun_motors();
 
     /* Load stored robot config */
     config_load_from_flash();
@@ -266,9 +263,6 @@ int main(void)
     arms_init();
     arms_controller_start();
     arm_trajectory_manager_start(&main_arm);
-
-    /* Ball gun module start */
-    ballgun_module_start();
 
     /* Initialize strategy thread, will wait for signal to begin game */
     strategy_start();
@@ -314,11 +308,6 @@ void init_arm_motors(void)
     motor_manager_create_driver(&motor_manager, "elbow-joint");
     motor_manager_create_driver(&motor_manager, "arm-pump");
     bus_enumerator_add_node(&bus_enumerator, "wrist-servo", NULL);
-}
-
-void init_ballgun_motors(void)
-{
-    motor_manager_create_driver(&motor_manager, "ball-accelerator");
 }
 
 void __stack_chk_fail(void)

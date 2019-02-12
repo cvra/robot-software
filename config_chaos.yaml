@@ -57,28 +57,6 @@ master:
     wrist:
         horizontal: 0.0008
         vertical: 0.00225
-    ballgun:
-        servo:
-            deployed_charge: 0.00197
-            deployed_fully: 0.00141
-            deployed: 0.00182 # 1.9 for throw
-            retracted: 0.00234
-            channel: 1
-        turbine:
-            arm: 0.00154
-            charge: 0.00181
-            fire: 0.00131
-            slowfire: 0.00141
-            channel: 0
-        accelerator:
-            mode: "velocity"
-            charge: -100.
-            fire: 200.
-            slowfire: 20.
-        sense:
-            detect_on: true
-            low_threshold: 3
-            high_threshold: 3
     main_arm:
         control:
             x:
