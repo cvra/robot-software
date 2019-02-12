@@ -57,21 +57,6 @@ master:
     wrist:
         horizontal: 0.0008
         vertical: 0.00225
-    lever:
-        right:
-            offset_x: 0.    # in mm
-            offset_y: -217.5 # in mm
-            offset_a: 0.    # in rad
-            servo:
-                deployed: 0.0008
-                retracted: 0.00207
-        left:
-            offset_x: 0.    # in mm
-            offset_y: 217.5 # in mm
-            offset_a: 0.    # in rad
-            servo:
-                deployed: 0.0022
-                retracted: 0.00088
     ballgun:
         servo:
             deployed_charge: 0.00197

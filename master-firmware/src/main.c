@@ -33,7 +33,6 @@
 #include "base/base_controller.h"
 #include "arms/arms_controller.h"
 #include "arms/arm_trajectory_manager.h"
-#include "lever/lever_module.h"
 #include "trace/trace_points.h"
 #include "strategy.h"
 #include "filesystem.h"
@@ -44,7 +43,6 @@
 
 void init_base_motors(void);
 void init_arm_motors(void);
-void init_lever_motors(void);
 void init_ballgun_motors(void);
 
 motor_manager_t motor_manager;
@@ -235,7 +233,6 @@ int main(void)
     /* Initialize motors */
     init_base_motors();
     init_arm_motors();
-    init_lever_motors();
     init_ballgun_motors();
 
     /* Load stored robot config */
@@ -269,9 +266,6 @@ int main(void)
     arms_init();
     arms_controller_start();
     arm_trajectory_manager_start(&main_arm);
-
-    /* Lever arms init */
-    lever_module_start();
 
     /* Ball gun module start */
     ballgun_module_start();
@@ -320,17 +314,6 @@ void init_arm_motors(void)
     motor_manager_create_driver(&motor_manager, "elbow-joint");
     motor_manager_create_driver(&motor_manager, "arm-pump");
     bus_enumerator_add_node(&bus_enumerator, "wrist-servo", NULL);
-}
-
-void init_lever_motors(void)
-{
-    bus_enumerator_add_node(&bus_enumerator, "right-lever", NULL);
-    motor_manager_create_driver(&motor_manager, "right-pump-1");
-    motor_manager_create_driver(&motor_manager, "right-pump-2");
-
-    bus_enumerator_add_node(&bus_enumerator, "left-lever", NULL);
-    motor_manager_create_driver(&motor_manager, "left-pump-1");
-    motor_manager_create_driver(&motor_manager, "left-pump-2");
 }
 
 void init_ballgun_motors(void)

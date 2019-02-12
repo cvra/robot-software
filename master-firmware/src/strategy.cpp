@@ -20,7 +20,6 @@
 #include "arms/arms_controller.h"
 #include "arms/arm_trajectory_manager.h"
 #include "arms/arm.h"
-#include "lever/lever_module.h"
 #include "ballgun/ballgun_module.h"
 #include "ballgun/ball_sense.h"
 #include "config.h"
@@ -46,9 +45,6 @@ static void wait_for_starter(void);
 static void strategy_wait_ms(int ms);
 
 void strategy_play_game(void);
-
-#define MIRROR_RIGHT_LEVER(color) (color == YELLOW ? (&right_lever) : (&left_lever))
-#define MIRROR_LEFT_LEVER(color) (color == YELLOW ? (&left_lever) : (&right_lever))
 
 static enum strat_color_t wait_for_color_selection(void)
 {
@@ -405,8 +401,6 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
 
     const auto action_count = sizeof(actions) / sizeof(actions[0]);
 
-    lever_retract(&right_lever);
-    lever_retract(&left_lever);
     ballgun_tidy(&main_ballgun);
     wrist_set_horizontal(&main_wrist);
 
@@ -491,8 +485,6 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
 
     const auto action_count = sizeof(actions) / sizeof(actions[0]);
 
-    lever_retract(&right_lever);
-    lever_retract(&left_lever);
     ballgun_tidy(&main_ballgun);
     wrist_set_horizontal(&main_wrist);
 

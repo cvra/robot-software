@@ -62,7 +62,6 @@ target.arm:
     - src/http/server.c
     - src/control_panel.c
     - src/pca9685_pwm.c
-    - src/lever/lever_module.c
     - src/parameter_port.c
     - src/strategy/score_counter.cpp
     - src/strategy/color_sequence_server.c
@@ -107,7 +106,6 @@ source:
     - src/arms/arm.cpp
     - src/hand/hand.c
     - src/hand/wrist.c
-    - src/lever/lever.c
     - src/base/base_helpers.c
     - src/strategy/state.cpp
     - src/strategy/score.cpp
@@ -149,7 +147,6 @@ tests:
     - tests/scara_inverse_kinematics_controller.cpp
     - tests/scara.cpp
     - tests/test_hand.cpp
-    - tests/test_lever.cpp
     - tests/lie_groups.cpp
     - tests/test_arm.cpp
     - tests/test_base_helpers.cpp

@@ -11,20 +11,9 @@
 
 static uavcan::LazyConstructor<uavcan::Publisher<cvra::io::ServoPWM>> can_io_pwm_pub;
 
-TOPIC_DECL(lever_left_topic, SwitchStatus);
-TOPIC_DECL(lever_right_topic, SwitchStatus);
-
 static void io_input_cb(const uavcan::ReceivedDataStructure<cvra::io::DigitalInput>& msg)
 {
-    int can_id = msg.getSrcNodeID().get();
-    SwitchStatus status;
-    status.switched = (msg.pin[0] == 0);
-
-    if (can_id == bus_enumerator_get_can_id(&bus_enumerator, "left-lever")) {
-        messagebus_topic_publish(&lever_left_topic.topic, &status, sizeof(status));
-    } else if (can_id == bus_enumerator_get_can_id(&bus_enumerator, "right-lever")) {
-        messagebus_topic_publish(&lever_right_topic.topic, &status, sizeof(status));
-    }
+    (void)msg;
 }
 
 int can_io_init(uavcan::INode& node)
@@ -32,9 +21,6 @@ int can_io_init(uavcan::INode& node)
     if (!can_io_pwm_pub.isConstructed()) {
         can_io_pwm_pub.construct<uavcan::INode&>(node);
     }
-
-    messagebus_advertise_topic(&bus, &lever_left_topic.topic, "/lever/left");
-    messagebus_advertise_topic(&bus, &lever_right_topic.topic, "/lever/right");
 
     static uavcan::Subscriber<cvra::io::DigitalInput> io_input_sub(node);
     return io_input_sub.start(io_input_cb);

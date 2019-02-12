@@ -171,12 +171,3 @@ shoulder_mode_t MIRROR_SHOULDER(enum strat_color_t color, shoulder_mode_t mode)
         return mode == SHOULDER_BACK ? SHOULDER_FRONT : SHOULDER_BACK;
     }
 }
-
-enum lever_side_t MIRROR_LEVER(enum strat_color_t color, enum lever_side_t side)
-{
-    if (color == YELLOW) {
-        return side;
-    } else {
-        return side == LEVER_SIDE_LEFT ? LEVER_SIDE_RIGHT : LEVER_SIDE_LEFT;
-    }
-}

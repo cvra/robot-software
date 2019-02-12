@@ -38,7 +38,6 @@
 #include "strategy.h"
 #include <trace/trace.h>
 #include "pca9685_pwm.h"
-#include "lever/lever_module.h"
 #include "ballgun/ballgun_module.h"
 #include "ballgun/ball_sense.h"
 #include "protobuf/sensors.pb.h"
@@ -1149,69 +1148,6 @@ static void cmd_servo(BaseSequentialStream* chp, int argc, char* argv[])
     pca9685_pwm_set_pulse_width(n, pw / 1000);
 }
 
-static void cmd_lever(BaseSequentialStream* chp, int argc, char* argv[])
-{
-    if (argc != 2) {
-        chprintf(chp, "Usage: lever right|left deploy|retract|pickup|deposit|retpush|tidy\r\n");
-        return;
-    }
-
-    lever_t* lever;
-    if (strcmp("right", argv[0]) == 0) {
-        lever = &right_lever;
-    } else if (strcmp("left", argv[0]) == 0) {
-        lever = &left_lever;
-    } else {
-        chprintf(chp, "Invalid lever side %s", argv[0]);
-        return;
-    }
-
-    se2_t robot_pose = base_get_robot_pose(&robot.pos);
-    se2_t lever_offset;
-    if (strcmp("right", argv[0]) == 0) {
-        lever_offset = se2_create_xya(
-            parameter_scalar_get(parameter_find(&master_config, "lever/right/offset_x")),
-            parameter_scalar_get(parameter_find(&master_config, "lever/right/offset_y")),
-            parameter_scalar_get(parameter_find(&master_config, "lever/right/offset_a")));
-    } else {
-        lever_offset = se2_create_xya(
-            parameter_scalar_get(parameter_find(&master_config, "lever/left/offset_x")),
-            parameter_scalar_get(parameter_find(&master_config, "lever/left/offset_y")),
-            parameter_scalar_get(parameter_find(&master_config, "lever/left/offset_a")));
-    }
-    se2_t blocks_pose = se2_chain(robot_pose, lever_offset);
-
-    if (strcmp("deploy", argv[1]) == 0) {
-        lever_deploy(lever);
-    } else if (strcmp("retract", argv[1]) == 0) {
-        lever_retract(lever);
-    } else if (strcmp("pickup", argv[1]) == 0) {
-        lever_pickup(lever, robot_pose, blocks_pose);
-    } else if (strcmp("deposit", argv[1]) == 0) {
-        blocks_pose = lever_deposit(lever, robot_pose);
-    } else if (strcmp("retpush", argv[1]) == 0) {
-        lever_push_and_retract(lever);
-    } else if (strcmp("tidy", argv[1]) == 0) {
-        lever_tidy(lever);
-    } else if (strcmp("get", argv[1]) == 0) {
-        lever_deploy(lever);
-        lever_pickup(lever, robot_pose, blocks_pose);
-        chThdSleepMilliseconds(1000);
-        lever_retract(lever);
-    } else if (strcmp("put", argv[1]) == 0) {
-        lever_deploy(lever);
-        chThdSleepMilliseconds(500);
-        blocks_pose = lever_deposit(lever, robot_pose);
-        chThdSleepMilliseconds(500);
-        lever_push_and_retract(lever);
-    } else {
-        chprintf(chp, "Invalid command: %s", argv[1]);
-    }
-
-    chprintf(chp, "Blocks at x:%f y:%f a:%f\r\n",
-             blocks_pose.translation.x, blocks_pose.translation.y, blocks_pose.rotation.angle);
-}
-
 #include "can/can_io_driver.h"
 
 static void cmd_canio(BaseSequentialStream* chp, int argc, char* argv[])
@@ -1488,7 +1424,6 @@ const ShellCommand commands[] = {
     {"state", cmd_state},
     {"trace", cmd_trace},
     {"servo", cmd_servo},
-    {"lever", cmd_lever},
     {"canio", cmd_canio},
     {"dist", cmd_hand_dist},
     {"arm_bd", cmd_arm_bd},
