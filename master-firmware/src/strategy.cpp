@@ -362,6 +362,7 @@ void strategy_play_game(void* p)
     NOTICE("Waiting for color selection...");
     strategy.color = wait_for_color_selection();
     map_server_start(strategy.color);
+    motion_planner_start();
     score_counter_start();
 
     if (config_get_boolean("master/is_main_robot")) {

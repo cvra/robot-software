@@ -14,11 +14,13 @@
 
 #include "rs_port.h"
 #include "base_controller.h"
+#include "map_server.h"
 #include "protobuf/position.pb.h"
 
 #define BASE_CONTROLLER_STACKSIZE 1024
 #define POSITION_MANAGER_STACKSIZE 1024
 #define TRAJECTORY_MANAGER_STACKSIZE 2048
+#define MOTION_PLANNER_STACKSIZE 2048
 
 struct _robot robot;
 
@@ -263,4 +265,59 @@ void trajectory_manager_start(void)
 {
     static THD_WORKING_AREA(trajectory_thd_wa, TRAJECTORY_MANAGER_STACKSIZE);
     chThdCreateStatic(trajectory_thd_wa, sizeof(trajectory_thd_wa), TRAJECTORY_MANAGER_PRIO, trajectory_manager_thd, &(robot.traj));
+}
+
+static struct {
+    int x_mm;
+    int y_mm;
+    int a_deg;
+} goal;
+
+void motion_planner_set_goal(int x_mm, int y_mm)
+{
+    goal.x_mm = x_mm;
+    goal.y_mm = y_mm;
+}
+
+static THD_FUNCTION(motion_planner_thd, arg)
+{
+    (void)arg;
+    chRegSetThreadName(__FUNCTION__);
+
+    while (1) {
+        chThdSleepMilliseconds(100);
+
+        const point_t start = {position_get_x_float(&robot.pos), position_get_y_float(&robot.pos)};
+        if (((start.x - goal.x_mm) * (start.x - goal.x_mm) + (start.y - goal.y_mm) * (start.y - goal.y_mm)) < 100) {
+            NOTICE("Close enough!");
+            continue;
+        }
+
+        struct _map* map = map_server_map_lock_and_get();
+
+        /* Compute path */
+        oa_start_end_points(&map->oa, start.x, start.y, goal.x_mm, goal.y_mm);
+        oa_process(&map->oa);
+
+        /* Retrieve path */
+        point_t* points;
+        int num_points = oa_get_path(&map->oa, &points);
+        DEBUG("Path to (%d, %d) computed with %d points", goal.x_mm, goal.y_mm, num_points);
+
+        if (num_points == 0) {
+            NOTICE("Done!");
+        } else if (num_points > 0) {
+            trajectory_goto_xy_abs(&robot.traj, points[0].x, points[0].y);
+        } else {
+            WARNING("No path found!");
+        }
+
+        map_server_map_release(map);
+    }
+}
+
+void motion_planner_start(void)
+{
+    static THD_WORKING_AREA(motion_planner_thd_wa, MOTION_PLANNER_STACKSIZE);
+    chThdCreateStatic(motion_planner_thd_wa, sizeof(motion_planner_thd_wa), MOTION_PLANNER_PRIO, motion_planner_thd, NULL);
 }

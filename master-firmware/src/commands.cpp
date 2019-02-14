@@ -513,6 +513,18 @@ static void cmd_reset_timer(BaseSequentialStream* chp, int argc, char* argv[])
     trajectory_game_timer_reset();
 }
 
+static void cmd_motion_plan(BaseSequentialStream* chp, int argc, char* argv[])
+{
+    if (argc == 2) {
+        int32_t x = atoi(argv[0]);
+        int32_t y = atoi(argv[1]);
+
+        motion_planner_set_goal(x, y);
+    } else {
+        chprintf(chp, "Usage: plan x y\r\n");
+    }
+}
+
 static void cmd_pid(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc == 2) {
@@ -1500,4 +1512,5 @@ ShellCommand commands[] = {
     {"electron", cmd_electron},
     {"goal", cmd_goal},
     {"reset_timer", cmd_reset_timer},
+    {"plan", cmd_motion_plan},
     {NULL, NULL}};
