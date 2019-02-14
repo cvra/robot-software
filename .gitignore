@@ -47,6 +47,7 @@ tags
 
 # generated config
 master-firmware/src/config_msgpack.c
+master-firmware/src/config_private.h
 
 # generated files
 */libssp.a
