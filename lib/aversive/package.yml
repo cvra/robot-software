@@ -6,6 +6,7 @@ depends:
 
 source:
     - blocking_detection_manager/blocking_detection_manager.c
+    - control_system_manager/control_system_manager.c
 
 tests:
     - tests/test_blocking_detection_manager.cpp

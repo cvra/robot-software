@@ -36,7 +36,7 @@
 #include <math/geometry/lines.h>
 #include <position_manager/position_manager.h>
 #include <robot_system/robot_system.h>
-#include <control_system_manager/control_system_manager.h>
+#include <aversive/control_system_manager/control_system_manager.h>
 #include <trajectory_manager/trajectory_manager.h>
 #include <trajectory_manager/trajectory_manager_utils.h>
 #include <trajectory_manager/trajectory_manager_core.h>

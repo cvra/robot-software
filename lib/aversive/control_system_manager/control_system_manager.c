@@ -1,6 +1,6 @@
 #include <string.h>
 
-#include <control_system_manager/control_system_manager.h>
+#include <aversive/control_system_manager/control_system_manager.h>
 
 /** Call a filter() pointer :
  * - lock the interrupts
