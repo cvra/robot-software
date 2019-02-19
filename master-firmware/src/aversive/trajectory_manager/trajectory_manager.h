@@ -42,7 +42,7 @@ extern "C" {
 #include <aversive/math/vect2/vect2.h>
 #include <aversive/math/geometry/vect_base.h>
 #include <aversive/math/geometry/lines.h>
-#include <robot_system/robot_system.h>
+#include <aversive/robot_system/robot_system.h>
 
 /** State of the trajectory manager. */
 enum trajectory_state {

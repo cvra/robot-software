@@ -79,8 +79,6 @@ source:
     - src/robot_helpers/trajectory_helpers.c
     - src/robot_helpers/strategy_helpers.c
     - src/aversive/obstacle_avoidance/obstacle_avoidance.c
-    - src/aversive/robot_system/angle_distance.c
-    - src/aversive/robot_system/robot_system.c
     - src/aversive/position_manager/position_manager.c
     - src/aversive/trajectory_manager/trajectory_manager.c
     - src/aversive/trajectory_manager/trajectory_manager_core.c

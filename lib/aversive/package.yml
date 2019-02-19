@@ -13,6 +13,8 @@ source:
     - math/geometry/polygon.c
     - math/geometry/vect_base.c
     - math/vect2/vect2.c
+    - robot_system/robot_system.c
+    - robot_system/angle_distance.c
 
 tests:
     - tests/test_blocking_detection_manager.cpp

@@ -27,7 +27,7 @@
 
 #include <aversive/math/vect2/vect2.h>
 
-#include <robot_system/robot_system.h>
+#include <aversive/robot_system/robot_system.h>
 
 /** \addtogroup Odometry
  * This module manages the encoders to compute the robot's position.
