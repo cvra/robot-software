@@ -44,8 +44,8 @@ target.arm:
     - src/can/uwb_position_handler.cpp
     - src/malloc_lock.c
     - src/usbconf.c
-    - src/aversive_port/cvra_motors.c
-    - src/aversive_port/cvra_pid.c
+    - src/aversive_port/rs_port.c
+    - src/aversive_port/cs_port.c
     - src/base/encoder.c
     - src/gui.cpp
     - src/gui/Menu.cpp

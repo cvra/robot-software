@@ -17,7 +17,7 @@
 #include <stdio.h>
 #include "msgbus/messagebus.h"
 #include "main.h"
-#include "aversive_port/cvra_motors.h"
+#include "aversive_port/rs_port.h"
 #include "base/encoder.h"
 #include "base/base_controller.h"
 #include "base/base_helpers.h"
@@ -691,10 +691,10 @@ static void cmd_wheel_correction(BaseSequentialStream* chp, int argc, char* argv
     if (argc == 2) {
         if (!strcmp("left", argv[0])) {
             float left = atof(argv[1]);
-            rs_set_left_ext_encoder(&robot.rs, cvra_encoder_get_left_ext, NULL, left);
+            rs_set_left_ext_encoder(&robot.rs, rs_encoder_get_left_ext, NULL, left);
         } else if (!strcmp("right", argv[0])) {
             float right = atof(argv[1]);
-            rs_set_right_ext_encoder(&robot.rs, cvra_encoder_get_right_ext, NULL, right);
+            rs_set_right_ext_encoder(&robot.rs, rs_encoder_get_right_ext, NULL, right);
         }
     } else {
         chprintf(chp, "Usage: wheel_corr {left|right} factor\r\n");

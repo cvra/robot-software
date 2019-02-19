@@ -9,7 +9,7 @@
 #include <aversive/robot_system/robot_system.h>
 #include <aversive/trajectory_manager/trajectory_manager.h>
 
-#include "aversive_port/cvra_pid.h"
+#include "aversive_port/cs_port.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -63,8 +63,8 @@ struct _robot {
 
     struct cs angle_cs; // Control system manager for angle
     struct cs distance_cs; // Control system manager for distance
-    cvra_pid_t angle_pid;
-    cvra_pid_t distance_pid;
+    cs_pid_t angle_pid;
+    cs_pid_t distance_pid;
     struct quadramp_filter angle_qr;
     struct quadramp_filter distance_qr;
 

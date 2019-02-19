@@ -6,16 +6,15 @@
 #include <aversive/control_system_manager/control_system_manager.h>
 #include <aversive/math/vect2/vect2.h>
 #include <aversive/position_manager/position_manager.h>
-#include <aversive_port/cvra_pid.h>
 #include <error/error.h>
-
 #include <pid/pid.h>
 
+#include "aversive_port/cs_port.h"
+#include "control/scara_joint_controller.h"
+#include "control/scara_inverse_kinematics_controller.h"
 #include "scara_hardware_interface.h"
 #include "scara_kinematics.h"
 #include "scara_waypoint.h"
-#include "control/scara_joint_controller.h"
-#include "control/scara_inverse_kinematics_controller.h"
 
 #ifdef __cplusplus
 extern "C" {

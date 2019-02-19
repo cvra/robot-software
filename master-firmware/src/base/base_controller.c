@@ -11,7 +11,7 @@
 #include "main.h"
 #include "config.h"
 #include "priorities.h"
-#include "aversive_port/cvra_motors.h"
+#include "aversive_port/rs_port.h"
 #include "base_controller.h"
 
 #define BASE_CONTROLLER_STACKSIZE 1024
@@ -26,9 +26,9 @@ void robot_init(void)
     robot.base_speed = BASE_SPEED_SLOW;
 
     /* Motors */
-    static cvra_motor_t left_wheel_motor = {.m = &motor_manager, .direction = 1.};
-    static cvra_motor_t right_wheel_motor = {.m = &motor_manager, .direction = -1.};
-    cvra_encoder_init();
+    static rs_motor_t left_wheel_motor = {.m = &motor_manager, .direction = 1.};
+    static rs_motor_t right_wheel_motor = {.m = &motor_manager, .direction = -1.};
+    rs_encoder_init();
 
     robot.angle_pid.divider = 100;
     robot.distance_pid.divider = 100;
@@ -37,11 +37,11 @@ void robot_init(void)
     rs_init(&robot.rs);
     rs_set_flags(&robot.rs, RS_USE_EXT);
 
-    rs_set_left_pwm(&robot.rs, cvra_motor_left_wheel_set_torque, &left_wheel_motor);
-    rs_set_right_pwm(&robot.rs, cvra_motor_right_wheel_set_torque, &right_wheel_motor);
-    rs_set_left_ext_encoder(&robot.rs, cvra_encoder_get_left_ext, NULL,
+    rs_set_left_pwm(&robot.rs, rs_left_wheel_set_torque, &left_wheel_motor);
+    rs_set_right_pwm(&robot.rs, rs_right_wheel_set_torque, &right_wheel_motor);
+    rs_set_left_ext_encoder(&robot.rs, rs_encoder_get_left_ext, NULL,
                             config_get_scalar("master/odometry/left_wheel_correction_factor"));
-    rs_set_right_ext_encoder(&robot.rs, cvra_encoder_get_right_ext, NULL,
+    rs_set_right_ext_encoder(&robot.rs, rs_encoder_get_right_ext, NULL,
                              config_get_scalar("master/odometry/right_wheel_correction_factor"));
 
     /* Position manager */
@@ -59,7 +59,7 @@ void robot_init(void)
 
     cs_init(&robot.angle_cs);
     cs_set_consign_filter(&robot.angle_cs, quadramp_do_filter, &robot.angle_qr); // Filter acceleration
-    cs_set_correct_filter(&robot.angle_cs, cvra_pid_process, &robot.angle_pid.pid);
+    cs_set_correct_filter(&robot.angle_cs, cs_pid_process, &robot.angle_pid.pid);
     cs_set_process_in(&robot.angle_cs, rs_set_angle, &robot.rs); // Output on angular virtual pwm
     cs_set_process_out(&robot.angle_cs, rs_get_ext_angle, &robot.rs); // Read angular virtuan encoder
     cs_set_consign(&robot.angle_cs, 0);
@@ -70,7 +70,7 @@ void robot_init(void)
 
     cs_init(&robot.distance_cs);
     cs_set_consign_filter(&robot.distance_cs, quadramp_do_filter, &robot.distance_qr); // Filter acceleration
-    cs_set_correct_filter(&robot.distance_cs, cvra_pid_process, &robot.distance_pid.pid);
+    cs_set_correct_filter(&robot.distance_cs, cs_pid_process, &robot.distance_pid.pid);
     cs_set_process_in(&robot.distance_cs, rs_set_distance, &robot.rs); // Output on distance virtual pwm
     cs_set_process_out(&robot.distance_cs, rs_get_ext_distance, &robot.rs); // Read distance virtuan encoder
     cs_set_consign(&robot.distance_cs, 0);
