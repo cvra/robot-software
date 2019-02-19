@@ -21,12 +21,12 @@
  *  Integration in Aversive: Olivier MATZ <zer0@droids-corp.org>
  */
 
-#include <error/error.h>
-
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include <error/error.h>
 
 #include <math/geometry/vect_base.h>
 #include <math/geometry/lines.h>

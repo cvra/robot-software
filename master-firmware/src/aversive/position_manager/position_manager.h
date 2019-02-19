@@ -22,11 +22,12 @@
 #ifndef _ROBOT_POSITION_MANAGER_H_
 #define _ROBOT_POSITION_MANAGER_H_
 
-#include <ch.h>
 #include <stdint.h>
 #include <math.h>
-#include "robot_system/robot_system.h"
-#include "math/vect2/vect2.h"
+
+#include <math/vect2/vect2.h>
+
+#include <robot_system/robot_system.h>
 
 /** \addtogroup Odometry
  * This module manages the encoders to compute the robot's position.

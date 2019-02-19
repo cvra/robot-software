@@ -1,15 +1,17 @@
 #include <ch.h>
+
 #include <math.h>
 
 #include <error/error.h>
+
+#include <trajectory_manager/trajectory_manager.h>
+#include <trajectory_manager/trajectory_manager_utils.h>
+#include <trajectory_manager/trajectory_manager_core.h>
+
 #include "main.h"
 #include "config.h"
 #include "priorities.h"
 #include "aversive_port/cvra_motors.h"
-#include "trajectory_manager/trajectory_manager.h"
-#include "trajectory_manager/trajectory_manager_utils.h"
-#include "trajectory_manager/trajectory_manager_core.h"
-
 #include "base_controller.h"
 
 #define BASE_CONTROLLER_STACKSIZE 1024

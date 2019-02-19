@@ -25,15 +25,14 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <math/vect2/vect2.h>
+#include <quadramp/quadramp.h>
 
+#include <math/vect2/vect2.h>
 #include <position_manager/position_manager.h>
 #include <robot_system/robot_system.h>
 #include <control_system_manager/control_system_manager.h>
-#include <quadramp/quadramp.h>
-
 #include <trajectory_manager/trajectory_manager.h>
-#include "trajectory_manager/trajectory_manager_utils.h"
+#include <trajectory_manager/trajectory_manager_utils.h>
 
 /************ INIT FUNCS */
 

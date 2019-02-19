@@ -25,8 +25,8 @@
 #include <stdio.h>
 #include <math.h>
 
-#include "math/geometry/vect_base.h"
-#include "math/geometry/lines.h"
+#include <math/geometry/vect_base.h>
+#include <math/geometry/lines.h>
 
 #define DEBUG 0
 

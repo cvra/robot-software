@@ -21,7 +21,8 @@
 
 #include <stdint.h>
 #include <math.h>
-#include "math/geometry/vect_base.h"
+
+#include <math/geometry/vect_base.h>
 
 /* Return scalar product */
 float vect_pscal(vect_t* v, vect_t* w)

@@ -27,19 +27,19 @@
 #include <stdint.h>
 #include <math.h>
 
-#include "math/vect2/vect2.h"
-#include "math/geometry/vect_base.h"
-#include "math/geometry/lines.h"
-#include "error/error.h"
+#include <error/error.h>
 
-#include "position_manager/position_manager.h"
-#include "robot_system/robot_system.h"
-#include "control_system_manager/control_system_manager.h"
-#include "quadramp/quadramp.h"
+#include <quadramp/quadramp.h>
 
+#include <math/vect2/vect2.h>
+#include <math/geometry/vect_base.h>
+#include <math/geometry/lines.h>
+#include <position_manager/position_manager.h>
+#include <robot_system/robot_system.h>
+#include <control_system_manager/control_system_manager.h>
 #include <trajectory_manager/trajectory_manager.h>
-#include "trajectory_manager/trajectory_manager_utils.h"
-#include "trajectory_manager/trajectory_manager_core.h"
+#include <trajectory_manager/trajectory_manager_utils.h>
+#include <trajectory_manager/trajectory_manager_core.h>
 
 /************ SIMPLE TRAJS, NO EVENT */
 

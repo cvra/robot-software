@@ -33,9 +33,9 @@
 #include <control_system_manager/control_system_manager.h>
 #include <quadramp/quadramp.h>
 
-#include "trajectory_manager/trajectory_manager.h"
-#include "trajectory_manager/trajectory_manager_utils.h"
-#include "trajectory_manager/trajectory_manager_core.h"
+#include <trajectory_manager/trajectory_manager.h>
+#include <trajectory_manager/trajectory_manager_utils.h>
+#include <trajectory_manager/trajectory_manager_core.h>
 
 /** set speed consign in quadramp filter */
 void set_quadramp_speed(struct trajectory* traj, double d_speed, double a_speed)
