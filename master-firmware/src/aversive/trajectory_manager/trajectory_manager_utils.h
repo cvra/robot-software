@@ -35,9 +35,6 @@ extern "C" {
 #define DEG(x) ((x) * (180.0 / M_PI))
 #define RAD(x) ((x) * (M_PI / 180.0))
 
-#define TRAJ_EVT_PERIOD 10 /* ms */
-#define TRAJ_EVT_PRIO 23
-
 /** set speed consign in quadramp filter */
 void set_quadramp_speed(struct trajectory* traj, double d_speed, double a_speed);
 

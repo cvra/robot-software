@@ -112,8 +112,8 @@ void trajectory_manager_xy_event(struct trajectory* traj);
 /* trajectory event for circles */
 void trajectory_manager_circle_event(struct trajectory* traj);
 
-/* trajectory event */
-void trajectory_manager_thd(void* param);
+/* trajectory manage events */
+void trajectory_manager_manage(struct trajectory* traj);
 
 /*********** *CIRCLE */
 

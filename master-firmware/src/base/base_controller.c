@@ -224,6 +224,16 @@ void position_manager_start(void)
     chThdCreateStatic(position_thd_wa, sizeof(position_thd_wa), POSITION_MANAGER_PRIO, position_manager_thd, NULL);
 }
 
+void trajectory_manager_thd(void* param)
+{
+    struct trajectory* traj = (struct trajectory*)param;
+
+    while (1) {
+        trajectory_manager_manage(traj);
+        chThdSleepMilliseconds(1000 / TRAJECTORY_EVENT_FREQUENCY);
+    }
+}
+
 void trajectory_manager_start(void)
 {
     static THD_WORKING_AREA(trajectory_thd_wa, TRAJECTORY_MANAGER_STACKSIZE);

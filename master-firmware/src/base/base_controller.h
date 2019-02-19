@@ -16,6 +16,7 @@ extern "C" {
 /** Frequency of the regulation loop and odometry loop (in Hz) */
 #define ASSERV_FREQUENCY 100
 #define ODOM_FREQUENCY 100
+#define TRAJECTORY_EVENT_FREQUENCY 100
 
 /**
  @brief Type of the regulators
