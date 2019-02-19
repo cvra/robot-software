@@ -31,15 +31,15 @@
 
 #include <quadramp/quadramp.h>
 
-#include <aversive/math/vect2/vect2.h>
-#include <aversive/math/geometry/vect_base.h>
+#include <aversive/control_system_manager/control_system_manager.h>
 #include <aversive/math/geometry/lines.h>
+#include <aversive/math/geometry/vect_base.h>
+#include <aversive/math/vect2/vect2.h>
 #include <aversive/position_manager/position_manager.h>
 #include <aversive/robot_system/robot_system.h>
-#include <aversive/control_system_manager/control_system_manager.h>
-#include <trajectory_manager/trajectory_manager.h>
-#include <trajectory_manager/trajectory_manager_utils.h>
-#include <trajectory_manager/trajectory_manager_core.h>
+#include <aversive/trajectory_manager/trajectory_manager.h>
+#include <aversive/trajectory_manager/trajectory_manager_utils.h>
+#include <aversive/trajectory_manager/trajectory_manager_core.h>
 
 /************ SIMPLE TRAJS, NO EVENT */
 

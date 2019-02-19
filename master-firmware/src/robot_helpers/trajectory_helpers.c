@@ -3,8 +3,8 @@
 #include <timestamp/timestamp.h>
 #include <error/error.h>
 
-#include "trajectory_manager/trajectory_manager_utils.h"
-#include "trajectory_manager/trajectory_manager_core.h"
+#include <aversive/trajectory_manager/trajectory_manager_utils.h>
+#include <aversive/trajectory_manager/trajectory_manager_core.h>
 #include "base/map.h"
 #include "math_helpers.h"
 #include "beacon_helpers.h"

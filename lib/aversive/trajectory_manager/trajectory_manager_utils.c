@@ -26,16 +26,15 @@
 #include <stdint.h>
 #include <math.h>
 
-#include <aversive/math/vect2/vect2.h>
-
-#include <aversive/position_manager/position_manager.h>
-#include <aversive/robot_system/robot_system.h>
-#include <aversive/control_system_manager/control_system_manager.h>
 #include <quadramp/quadramp.h>
 
-#include <trajectory_manager/trajectory_manager.h>
-#include <trajectory_manager/trajectory_manager_utils.h>
-#include <trajectory_manager/trajectory_manager_core.h>
+#include <aversive/control_system_manager/control_system_manager.h>
+#include <aversive/math/vect2/vect2.h>
+#include <aversive/position_manager/position_manager.h>
+#include <aversive/robot_system/robot_system.h>
+#include <aversive/trajectory_manager/trajectory_manager.h>
+#include <aversive/trajectory_manager/trajectory_manager_utils.h>
+#include <aversive/trajectory_manager/trajectory_manager_core.h>
 
 /** set speed consign in quadramp filter */
 void set_quadramp_speed(struct trajectory* traj, double d_speed, double a_speed)

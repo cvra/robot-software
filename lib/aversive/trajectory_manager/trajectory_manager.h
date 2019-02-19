@@ -39,6 +39,7 @@ extern "C" {
 
 #include <stdint.h>
 #include <stdbool.h>
+
 #include <aversive/math/vect2/vect2.h>
 #include <aversive/math/geometry/vect_base.h>
 #include <aversive/math/geometry/lines.h>

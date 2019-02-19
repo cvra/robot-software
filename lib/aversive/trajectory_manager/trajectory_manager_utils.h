@@ -28,7 +28,7 @@
 extern "C" {
 #endif
 
-#include <trajectory_manager/trajectory_manager.h>
+#include <aversive/trajectory_manager/trajectory_manager.h>
 
 #define M_2PI (2 * M_PI)
 

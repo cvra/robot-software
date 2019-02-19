@@ -5,7 +5,7 @@
 #include <error/error.h>
 #include <aversive/blocking_detection_manager/blocking_detection_manager.h>
 
-#include <trajectory_manager/trajectory_manager_utils.h>
+#include <aversive/trajectory_manager/trajectory_manager_utils.h>
 #include <obstacle_avoidance/obstacle_avoidance.h>
 #include <goap/goap.hpp>
 

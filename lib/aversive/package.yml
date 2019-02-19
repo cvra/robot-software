@@ -2,6 +2,7 @@ dependency-dir: ../
 
 depends:
     - error
+    - quadramp
     - test-runner
 
 source:
@@ -16,6 +17,9 @@ source:
     - position_manager/position_manager.c
     - robot_system/robot_system.c
     - robot_system/angle_distance.c
+    - trajectory_manager/trajectory_manager.c
+    - trajectory_manager/trajectory_manager_core.c
+    - trajectory_manager/trajectory_manager_utils.c
 
 tests:
     - tests/test_blocking_detection_manager.cpp

@@ -7,8 +7,7 @@
 #include <aversive/control_system_manager/control_system_manager.h>
 #include <aversive/position_manager/position_manager.h>
 #include <aversive/robot_system/robot_system.h>
-
-#include <trajectory_manager/trajectory_manager.h>
+#include <aversive/trajectory_manager/trajectory_manager.h>
 
 #include "aversive_port/cvra_pid.h"
 

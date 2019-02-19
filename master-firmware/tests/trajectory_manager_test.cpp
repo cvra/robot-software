@@ -2,12 +2,13 @@
 #include <CppUTestExt/MockSupport.h>
 
 extern "C" {
-#include "trajectory_manager/trajectory_manager.h"
-#include "trajectory_manager/trajectory_manager_core.h"
-#include "trajectory_manager/trajectory_manager_utils.h"
+#include <aversive/position_manager/position_manager.h>
+#include <aversive/trajectory_manager/trajectory_manager_utils.h>
+
+#include <aversive/trajectory_manager/trajectory_manager.h>
+#include <aversive/trajectory_manager/trajectory_manager_core.h>
 #include "control_system_manager/control_system_manager.h"
 #include "quadramp/quadramp.h"
-#include <aversive/position_manager/position_manager.h>
 }
 
 TEST_GROUP (TrajectoryManagerTestGroup) {

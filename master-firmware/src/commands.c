@@ -21,7 +21,7 @@
 #include "base/encoder.h"
 #include "base/base_controller.h"
 #include "base/base_helpers.h"
-#include "trajectory_manager/trajectory_manager_utils.h"
+#include <aversive/trajectory_manager/trajectory_manager_utils.h>
 #include "robot_helpers/beacon_helpers.h"
 #include "protobuf/beacons.pb.h"
 #include "obstacle_avoidance/obstacle_avoidance.h"

@@ -4,9 +4,9 @@
 
 #include <error/error.h>
 
-#include <trajectory_manager/trajectory_manager.h>
-#include <trajectory_manager/trajectory_manager_utils.h>
-#include <trajectory_manager/trajectory_manager_core.h>
+#include <aversive/trajectory_manager/trajectory_manager.h>
+#include <aversive/trajectory_manager/trajectory_manager_utils.h>
+#include <aversive/trajectory_manager/trajectory_manager_core.h>
 
 #include "main.h"
 #include "config.h"
