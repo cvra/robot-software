@@ -78,7 +78,6 @@ source:
     - src/robot_helpers/eurobot2018.c
     - src/robot_helpers/trajectory_helpers.c
     - src/robot_helpers/strategy_helpers.c
-    - src/aversive/obstacle_avoidance/obstacle_avoidance.c
     - src/scara/joint.c
     - src/scara/scara_hardware_interface.c
     - src/scara/scara_utils.c

@@ -3,7 +3,7 @@
 #include <math.h>
 
 extern "C" {
-#include "obstacle_avoidance/obstacle_avoidance.h"
+#include <aversive/obstacle_avoidance/obstacle_avoidance.h>
 }
 
 #include "robot_helpers/math_helpers.h"

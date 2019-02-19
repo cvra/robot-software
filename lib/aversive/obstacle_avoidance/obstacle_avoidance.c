@@ -31,8 +31,7 @@
 #include <aversive/math/geometry/vect_base.h>
 #include <aversive/math/geometry/lines.h>
 #include <aversive/math/geometry/polygon.h>
-
-#include <obstacle_avoidance/obstacle_avoidance.h>
+#include <aversive/obstacle_avoidance/obstacle_avoidance.h>
 
 #define GET_PT(a) (&(a) - &(oa->points[0]))
 

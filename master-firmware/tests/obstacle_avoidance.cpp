@@ -2,7 +2,7 @@
 #include <CppUTestExt/MockSupport.h>
 
 extern "C" {
-#include <obstacle_avoidance/obstacle_avoidance.h>
+#include <aversive/obstacle_avoidance/obstacle_avoidance.h>
 }
 
 TEST_GROUP (ObstacleAvoidance) {

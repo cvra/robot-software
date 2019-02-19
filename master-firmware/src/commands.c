@@ -24,7 +24,7 @@
 #include <aversive/trajectory_manager/trajectory_manager_utils.h>
 #include "robot_helpers/beacon_helpers.h"
 #include "protobuf/beacons.pb.h"
-#include "obstacle_avoidance/obstacle_avoidance.h"
+#include <aversive/obstacle_avoidance/obstacle_avoidance.h>
 #include "robot_helpers/math_helpers.h"
 #include "robot_helpers/trajectory_helpers.h"
 #include "robot_helpers/strategy_helpers.h"

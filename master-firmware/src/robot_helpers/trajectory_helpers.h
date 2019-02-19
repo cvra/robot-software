@@ -5,7 +5,7 @@
 #include <aversive/blocking_detection_manager/blocking_detection_manager.h>
 
 #include <aversive/trajectory_manager/trajectory_manager.h>
-#include "obstacle_avoidance/obstacle_avoidance.h"
+#include <aversive/obstacle_avoidance/obstacle_avoidance.h>
 #include "base/base_controller.h"
 
 #ifdef __cplusplus

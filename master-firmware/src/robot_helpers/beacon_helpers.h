@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 #include <aversive/position_manager/position_manager.h>
-#include "obstacle_avoidance/obstacle_avoidance.h"
+#include <aversive/obstacle_avoidance/obstacle_avoidance.h>
 
 /** Compute beacon angle from beacon signal values
  */

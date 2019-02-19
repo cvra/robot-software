@@ -14,7 +14,7 @@
 #include "priorities.h"
 #include "base/base_controller.h"
 
-#include "obstacle_avoidance/obstacle_avoidance.h"
+#include <aversive/obstacle_avoidance/obstacle_avoidance.h>
 
 #define STREAM_STACKSIZE 2048
 #define TOPIC_NAME_LEN 40

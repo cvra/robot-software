@@ -13,7 +13,7 @@ extern "C" {
 #include "control_system_manager/control_system_manager.h"
 #include "quadramp/quadramp.h"
 #include <aversive/position_manager/position_manager.h>
-#include "obstacle_avoidance/obstacle_avoidance.h"
+#include <aversive/obstacle_avoidance/obstacle_avoidance.h>
 }
 
 #include "protobuf/beacons.pb.h"

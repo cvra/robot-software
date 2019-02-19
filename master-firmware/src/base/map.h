@@ -1,7 +1,7 @@
 #ifndef MAP_H
 #define MAP_H
 
-#include "obstacle_avoidance/obstacle_avoidance.h"
+#include <aversive/obstacle_avoidance/obstacle_avoidance.h>
 
 #ifdef __cplusplus
 extern "C" {

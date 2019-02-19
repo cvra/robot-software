@@ -3,7 +3,7 @@
 
 #include <aversive/position_manager/position_manager.h>
 #include <aversive/trajectory_manager/trajectory_manager_utils.h>
-#include "obstacle_avoidance/obstacle_avoidance.h"
+#include <aversive/obstacle_avoidance/obstacle_avoidance.h>
 
 #include "math_helpers.h"
 #include "trajectory_helpers.h"

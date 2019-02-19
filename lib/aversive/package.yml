@@ -14,6 +14,7 @@ source:
     - math/geometry/polygon.c
     - math/geometry/vect_base.c
     - math/vect2/vect2.c
+    - obstacle_avoidance/obstacle_avoidance.c
     - position_manager/position_manager.c
     - robot_system/robot_system.c
     - robot_system/angle_distance.c
