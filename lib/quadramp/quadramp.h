@@ -22,6 +22,8 @@
 #ifndef _QUADRAMP_H_
 #define _QUADRAMP_H_
 
+#include <stdint.h>
+
 /** @file quadramp.h
  * This module is responsible for making speed ramps to avoid large accelerations.
  * Its functions are compatible with control_system_manager.
