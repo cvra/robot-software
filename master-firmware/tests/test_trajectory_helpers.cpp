@@ -6,14 +6,13 @@
 
 extern "C" {
 #include <aversive/blocking_detection_manager/blocking_detection_manager.h>
-
+#include <aversive/control_system_manager/control_system_manager.h>
 #include <aversive/trajectory_manager/trajectory_manager.h>
 #include <aversive/trajectory_manager/trajectory_manager_core.h>
 #include <aversive/trajectory_manager/trajectory_manager_utils.h>
-#include "control_system_manager/control_system_manager.h"
-#include "quadramp/quadramp.h"
 #include <aversive/position_manager/position_manager.h>
 #include <aversive/obstacle_avoidance/obstacle_avoidance.h>
+#include <quadramp/quadramp.h>
 }
 
 #include "protobuf/beacons.pb.h"

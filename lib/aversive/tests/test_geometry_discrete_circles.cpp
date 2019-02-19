@@ -3,7 +3,7 @@
 #include <math.h>
 
 extern "C" {
-#include "math/geometry/discrete_circles.h"
+#include <aversive/math/geometry/discrete_circles.h>
 }
 
 void POINT_EQUAL(point_t expected, point_t actual, double tolerance)

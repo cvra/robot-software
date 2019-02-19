@@ -1,7 +1,8 @@
-#include <aversive/math/geometry/lines.h>
-#include <aversive/math/geometry/polygon.h>
 #include <iostream>
 #include <CppUTest/TestHarness.h>
+
+#include <aversive/math/geometry/lines.h>
+#include <aversive/math/geometry/polygon.h>
 
 TEST_GROUP (SegmentIntersection) {
 };
