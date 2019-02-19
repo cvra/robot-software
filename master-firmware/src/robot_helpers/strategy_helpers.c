@@ -1,7 +1,8 @@
 #include <error/error.h>
+#include <aversive/blocking_detection_manager/blocking_detection_manager.h>
+
 #include "position_manager/position_manager.h"
 #include "trajectory_manager/trajectory_manager_utils.h"
-#include "blocking_detection_manager/blocking_detection_manager.h"
 #include "obstacle_avoidance/obstacle_avoidance.h"
 
 #include "math_helpers.h"

@@ -26,8 +26,10 @@
 #include <string.h>
 #include <math.h>
 #include <stdint.h>
+
 #include <error/error.h>
-#include <blocking_detection_manager/blocking_detection_manager.h>
+
+#include <aversive/blocking_detection_manager/blocking_detection_manager.h>
 
 /** init module, give the robot system to use as a parameter */
 void bd_init(struct blocking_detection* bd)

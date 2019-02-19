@@ -1,0 +1,11 @@
+dependency-dir: ../
+
+depends:
+    - error
+    - test-runner
+
+source:
+    - blocking_detection_manager/blocking_detection_manager.c
+
+tests:
+    - tests/test_blocking_detection_manager.cpp

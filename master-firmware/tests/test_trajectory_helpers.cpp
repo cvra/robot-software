@@ -5,11 +5,12 @@
 #include "../../lib/msgbus/examples/posix/port.h"
 
 extern "C" {
+#include <aversive/blocking_detection_manager/blocking_detection_manager.h>
+
 #include "trajectory_manager/trajectory_manager.h"
 #include "trajectory_manager/trajectory_manager_core.h"
 #include "trajectory_manager/trajectory_manager_utils.h"
 #include "control_system_manager/control_system_manager.h"
-#include "blocking_detection_manager/blocking_detection_manager.h"
 #include "quadramp/quadramp.h"
 #include "position_manager/position_manager.h"
 #include "obstacle_avoidance/obstacle_avoidance.h"

@@ -15,6 +15,7 @@ depends:
     - error
     - goap
     - quadramp
+    - aversive
 
 target.arm:
     - src/main.c
@@ -77,7 +78,6 @@ source:
     - src/robot_helpers/eurobot2018.c
     - src/robot_helpers/trajectory_helpers.c
     - src/robot_helpers/strategy_helpers.c
-    - src/aversive/blocking_detection_manager/blocking_detection_manager.c
     - src/aversive/obstacle_avoidance/obstacle_avoidance.c
     - src/aversive/math/geometry/circles.c
     - src/aversive/math/geometry/discrete_circles.c
@@ -148,7 +148,6 @@ tests:
     - tests/test_base_helpers.cpp
     - tests/test_strategy_helpers.cpp
     - tests/test_strategy.cpp
-    - tests/aversive/test_blocking_detection_manager.cpp
     - tests/aversive/test_geometry_discrete_circles.cpp
     - tests/aversive/test_geometry_polygon_intersection.cpp
     - tests/strategy/test_score.cpp

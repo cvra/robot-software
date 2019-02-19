@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include "blocking_detection_manager/blocking_detection_manager.h"
+#include <aversive/blocking_detection_manager/blocking_detection_manager.h>
 
 #include "scara/scara_waypoint.h"
 #include "scara/scara.h"

@@ -2,8 +2,9 @@
 #define TRAJECTORY_HELPERS_H
 
 #include <msgbus/messagebus.h>
+#include <aversive/blocking_detection_manager/blocking_detection_manager.h>
+
 #include "trajectory_manager/trajectory_manager.h"
-#include "blocking_detection_manager/blocking_detection_manager.h"
 #include "obstacle_avoidance/obstacle_avoidance.h"
 #include "base/base_controller.h"
 
