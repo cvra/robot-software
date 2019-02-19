@@ -1,6 +1,6 @@
 #include <math.h>
 
-#include <math/geometry/discrete_circles.h>
+#include <aversive/math/geometry/discrete_circles.h>
 
 bool discretize_circle(poly_t* poly, circle_t circle, int samples, float angle_offset)
 {

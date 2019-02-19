@@ -7,6 +7,14 @@ depends:
 source:
     - blocking_detection_manager/blocking_detection_manager.c
     - control_system_manager/control_system_manager.c
+    - math/geometry/circles.c
+    - math/geometry/discrete_circles.c
+    - math/geometry/lines.c
+    - math/geometry/polygon.c
+    - math/geometry/vect_base.c
+    - math/vect2/vect2.c
 
 tests:
     - tests/test_blocking_detection_manager.cpp
+    - tests/test_geometry_discrete_circles.cpp
+    - tests/test_geometry_polygon_intersection.cpp

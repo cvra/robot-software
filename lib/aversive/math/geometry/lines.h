@@ -19,7 +19,7 @@
  *
  */
 
-#include <math/geometry/vect_base.h>
+#include <aversive/math/geometry/vect_base.h>
 
 #ifndef _LINES_H_
 #define _LINES_H_

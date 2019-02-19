@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include <math.h>
 
-#include <math/vect2/vect2.h>
+#include <aversive/math/vect2/vect2.h>
 
 #include <robot_system/robot_system.h>
 

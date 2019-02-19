@@ -1,4 +1,5 @@
-#include "math/geometry/discrete_circles.h"
+#include <aversive/math/geometry/discrete_circles.h>
+
 #include "robot_helpers/math_helpers.h"
 #include "base_controller.h"
 #include "map.h"

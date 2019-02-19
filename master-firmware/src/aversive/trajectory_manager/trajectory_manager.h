@@ -39,9 +39,9 @@ extern "C" {
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <math/vect2/vect2.h>
-#include <math/geometry/vect_base.h>
-#include <math/geometry/lines.h>
+#include <aversive/math/vect2/vect2.h>
+#include <aversive/math/geometry/vect_base.h>
+#include <aversive/math/geometry/lines.h>
 #include <robot_system/robot_system.h>
 
 /** State of the trajectory manager. */

@@ -22,7 +22,7 @@
 #ifndef _CIRCLES_H_
 #define _CIRCLES_H_
 
-#include <math/geometry/vect_base.h>
+#include <aversive/math/geometry/vect_base.h>
 
 /** \addtogroup Geometrie
  * This module does some simple calculation on circles, lines, and polygons.

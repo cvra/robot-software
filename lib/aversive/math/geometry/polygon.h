@@ -26,7 +26,7 @@
 extern "C" {
 #endif
 
-#include <math/geometry/vect_base.h>
+#include <aversive/math/geometry/vect_base.h>
 
 /** \addtogroup Geometrie
  * @{ */

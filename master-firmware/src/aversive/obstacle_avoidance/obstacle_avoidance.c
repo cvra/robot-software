@@ -28,9 +28,9 @@
 
 #include <error/error.h>
 
-#include <math/geometry/vect_base.h>
-#include <math/geometry/lines.h>
-#include <math/geometry/polygon.h>
+#include <aversive/math/geometry/vect_base.h>
+#include <aversive/math/geometry/lines.h>
+#include <aversive/math/geometry/polygon.h>
 
 #include <obstacle_avoidance/obstacle_avoidance.h>
 

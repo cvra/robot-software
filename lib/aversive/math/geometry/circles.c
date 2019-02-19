@@ -22,8 +22,8 @@
 #include <math.h>
 #include <stdint.h>
 
-#include <math/geometry/vect_base.h>
-#include <math/geometry/circles.h>
+#include <aversive/math/geometry/vect_base.h>
+#include <aversive/math/geometry/circles.h>
 
 static inline float sq(float x)
 {

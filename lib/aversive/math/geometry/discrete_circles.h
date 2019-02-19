@@ -3,8 +3,8 @@
 
 #include <stdbool.h>
 
-#include <math/geometry/circles.h>
-#include <math/geometry/polygon.h>
+#include <aversive/math/geometry/circles.h>
+#include <aversive/math/geometry/polygon.h>
 
 #ifdef __cplusplus
 extern "C" {

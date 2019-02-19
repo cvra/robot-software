@@ -58,10 +58,10 @@
 extern "C" {
 #endif
 
-#include <math/geometry/polygon.h>
-#include <math/geometry/vect_base.h>
-#include <math/geometry/lines.h>
-#include <math/geometry/circles.h>
+#include <aversive/math/geometry/polygon.h>
+#include <aversive/math/geometry/vect_base.h>
+#include <aversive/math/geometry/lines.h>
+#include <aversive/math/geometry/circles.h>
 
 #define MAX_POLY 20 /**< The maximal number of obstacles in the area. */
 #define MAX_PTS 200 /**< The maximal number of polygon vertices. */
