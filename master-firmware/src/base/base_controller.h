@@ -5,9 +5,9 @@
 
 #include <aversive/blocking_detection_manager/blocking_detection_manager.h>
 #include <aversive/control_system_manager/control_system_manager.h>
+#include <aversive/position_manager/position_manager.h>
 #include <aversive/robot_system/robot_system.h>
 
-#include <position_manager/position_manager.h>
 #include <trajectory_manager/trajectory_manager.h>
 
 #include "aversive_port/cvra_pid.h"

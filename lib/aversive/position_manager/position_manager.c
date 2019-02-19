@@ -22,8 +22,8 @@
 #include <string.h>
 #include <math.h>
 
+#include <aversive/position_manager/position_manager.h>
 #include <aversive/robot_system/robot_system.h>
-#include <position_manager/position_manager.h>
 
 /** initialization of the robot_position pos, everthing is set to 0 */
 void position_init(struct robot_position* pos)

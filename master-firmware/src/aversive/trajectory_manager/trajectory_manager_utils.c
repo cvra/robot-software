@@ -28,7 +28,7 @@
 
 #include <aversive/math/vect2/vect2.h>
 
-#include <position_manager/position_manager.h>
+#include <aversive/position_manager/position_manager.h>
 #include <aversive/robot_system/robot_system.h>
 #include <aversive/control_system_manager/control_system_manager.h>
 #include <quadramp/quadramp.h>

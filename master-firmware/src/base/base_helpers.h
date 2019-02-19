@@ -1,7 +1,7 @@
 #ifndef BASE_HELPERS_H
 #define BASE_HELPERS_H
 
-#include "position_manager/position_manager.h"
+#include <aversive/position_manager/position_manager.h>
 #include "math/lie_groups.h"
 
 #ifdef __cplusplus
