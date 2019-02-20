@@ -1,0 +1,5 @@
+uint16 MAC_BROADCAST = 0xFFFF
+
+uint16 src_addr
+uint16 dst_addr
+uint8[<1024] data

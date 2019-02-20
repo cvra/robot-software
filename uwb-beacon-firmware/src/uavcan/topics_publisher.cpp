@@ -11,26 +11,31 @@
 #include <uavcan/equipment/ahrs/Solution.hpp>
 #include <cvra/uwb_beacon/RadioRange.hpp>
 #include <cvra/uwb_beacon/TagPosition.hpp>
+#include <cvra/uwb_beacon/DataPacket.hpp>
 
 #define WATCHED_TOPIC_CNT 4
 
 using RadioRange = cvra::uwb_beacon::RadioRange;
 using TagPosition = cvra::uwb_beacon::TagPosition;
+using DataPacket = cvra::uwb_beacon::DataPacket;
 
 uavcan::LazyConstructor<uavcan::Publisher<uavcan::equipment::ahrs::RawIMU>> raw_imu_pub;
 uavcan::LazyConstructor<uavcan::Publisher<uavcan::equipment::ahrs::Solution>> attitude_pub;
 uavcan::LazyConstructor<uavcan::Publisher<RadioRange>> range_pub;
 uavcan::LazyConstructor<uavcan::Publisher<TagPosition>> tag_pos_pub;
+uavcan::LazyConstructor<uavcan::Publisher<DataPacket>> data_packets_pub;
 
 static BSEMAPHORE_DECL(imu_topic_signaled, true);
 static BSEMAPHORE_DECL(attitude_topic_signaled, true);
 static BSEMAPHORE_DECL(range_topic_signaled, true);
 static BSEMAPHORE_DECL(tag_pos_topic_signaled, true);
+static BSEMAPHORE_DECL(data_packet_topic_signaled, true);
 
 static parameter_t publish_imu;
 static parameter_t publish_attitude;
 static parameter_t publish_range;
 static parameter_t publish_tag_pos;
+static parameter_t publish_data_packets;
 static parameter_namespace_t publish_ns;
 
 static void topics_watcher(void* p)
@@ -47,7 +52,7 @@ static void topics_watcher(void* p)
         messagebus_watchgroup_t group;
     } watchgroup;
 
-    static messagebus_topic_t *imu_topic, *attitude_topic, *range_topic, *tag_pos_topic;
+    static messagebus_topic_t *imu_topic, *attitude_topic, *range_topic, *tag_pos_topic, *data_packet_topic;
 
     /* Create a watchgroup. */
     chMtxObjectInit(&watchgroup.lock);
@@ -65,6 +70,11 @@ static void topics_watcher(void* p)
                                 &watchgroup.group,
                                 tag_pos_topic);
 
+    data_packet_topic = messagebus_find_topic_blocking(&bus, "/uwb_data");
+    messagebus_watchgroup_watch(&watchers[1],
+                                &watchgroup.group,
+                                data_packet_topic);
+
     while (1) {
         /* Wait for a topic publication. */
         messagebus_topic_t* topic;
@@ -78,6 +88,8 @@ static void topics_watcher(void* p)
             chBSemSignal(&range_topic_signaled);
         } else if (topic == tag_pos_topic && parameter_boolean_get(&publish_tag_pos)) {
             chBSemSignal(&tag_pos_topic_signaled);
+        } else if (topic == data_packet_topic && parameter_boolean_get(&publish_data_packets)) {
+            chBSemSignal(&data_packet_topic_signaled);
         }
     }
 }
@@ -89,6 +101,7 @@ void topics_publisher_start(Node& node)
     parameter_boolean_declare_with_default(&publish_attitude, &publish_ns, "attitude", false);
     parameter_boolean_declare_with_default(&publish_range, &publish_ns, "range", false);
     parameter_boolean_declare_with_default(&publish_tag_pos, &publish_ns, "tag_positions", false);
+    parameter_boolean_declare_with_default(&publish_data_packets, &publish_ns, "data_packets", true);
 
     raw_imu_pub.construct<Node&>(node);
     int res = raw_imu_pub->init();
@@ -104,6 +117,10 @@ void topics_publisher_start(Node& node)
 
     tag_pos_pub.construct<Node&>(node);
     res = tag_pos_pub->init();
+    chDbgAssert(res == 0, "publisher failed");
+
+    data_packets_pub.construct<Node&>(node);
+    res = data_packets_pub->init();
     chDbgAssert(res == 0, "publisher failed");
 
     static THD_WORKING_AREA(thd_wa, 256);
@@ -179,5 +196,22 @@ void topics_publisher_spin(Node& node)
         msg.x = tag_pos_msg.x;
         msg.y = tag_pos_msg.y;
         tag_pos_pub->broadcast(msg);
+    }
+
+    if (chBSemWaitTimeout(&data_packet_topic_signaled, TIME_IMMEDIATE) == MSG_OK) {
+        messagebus_topic_t* topic;
+        static data_packet_msg_t data_msg;
+
+        topic = messagebus_find_topic(&bus, "/uwb_data");
+        messagebus_topic_read(topic, &data_msg, sizeof(data_msg));
+
+        DataPacket msg;
+        msg.src_addr = data_msg.src_mac;
+        msg.dst_addr = data_msg.dst_mac;
+
+        for (auto i = 0u; i < data_msg.data_size; i++) {
+            msg.data[i] = data_msg.data[i];
+        }
+        data_packets_pub->broadcast(msg);
     }
 }
