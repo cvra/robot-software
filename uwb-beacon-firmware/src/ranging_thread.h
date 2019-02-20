@@ -29,6 +29,14 @@ typedef struct {
     float y;
 } tag_position_msg_t;
 
+/** Struct used on the data packet topic */
+typedef struct {
+    uint16_t src_mac;
+    uint16_t dst_mac;
+    size_t data_size;
+    uint8_t data[1024];
+} data_packet_msg_t;
+
 void ranging_start(void);
 
 /** Asks the ranging thread to send this data packet when possible.

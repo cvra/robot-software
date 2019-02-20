@@ -1,5 +1,7 @@
 #include <ch.h>
 
+#include <string.h>
+
 #include "decadriver/deca_device_api.h"
 #include "decadriver/deca_regs.h"
 
@@ -44,6 +46,11 @@ static MUTEX_DECL(tag_position_topic_lock);
 static CONDVAR_DECL(tag_position_topic_condvar);
 static tag_position_msg_t tag_position_topic_buffer;
 
+static messagebus_topic_t data_packet_topic;
+static MUTEX_DECL(data_packet_topic_lock);
+static CONDVAR_DECL(data_packet_topic_condvar);
+static data_packet_msg_t data_packet_topic_buffer;
+
 static EVENTSOURCE_DECL(advertise_timer_event);
 static EVENTSOURCE_DECL(anchor_position_timer_event);
 static EVENTSOURCE_DECL(tag_position_timer_event);
@@ -74,6 +81,7 @@ static struct {
 static void ranging_thread(void* p);
 static void ranging_found_cb(uint16_t addr, uint64_t time);
 static void anchor_position_received_cb(uint16_t addr, float x, float y, float z);
+static void data_packet_received_cb(const uint8_t* msg, size_t size, uint16_t src, uint16_t dst);
 static void tag_position_received_cb(uint16_t addr, float x, float y);
 static void topics_init(void);
 static void parameters_init(void);
@@ -103,6 +111,7 @@ static void ranging_thread(void* p)
     handler.ranging_found_cb = ranging_found_cb;
     handler.anchor_position_received_cb = anchor_position_received_cb;
     handler.tag_position_received_cb = tag_position_received_cb;
+    handler.user_data_received_cb = data_packet_received_cb;
 
     parameters_init();
     topics_init();
@@ -254,6 +263,17 @@ static void ranging_found_cb(uint16_t addr, uint64_t time)
     messagebus_topic_publish(&ranging_topic, &msg, sizeof(msg));
 }
 
+static void data_packet_received_cb(const uint8_t* data, size_t size, uint16_t src, uint16_t dst)
+{
+    static data_packet_msg_t msg;
+
+    msg.dst_mac = dst;
+    msg.src_mac = src;
+    memcpy(msg.data, data, size);
+
+    messagebus_topic_publish(&data_packet_topic, &msg, sizeof(msg));
+}
+
 static void advertise_timer_cb(void* t)
 {
     virtual_timer_t* timer = (virtual_timer_t*)t;
@@ -343,6 +363,14 @@ static void topics_init(void)
                           &tag_position_topic_buffer,
                           sizeof(tag_position_topic_buffer));
     messagebus_advertise_topic(&bus, &tag_position_topic, "/tags_pos");
+
+    /* Prepare topic for received data packets */
+    messagebus_topic_init(&data_packet_topic,
+                          &data_packet_topic_lock,
+                          &data_packet_topic_condvar,
+                          &data_packet_topic_buffer,
+                          sizeof(data_packet_topic_buffer));
+    messagebus_advertise_topic(&bus, &data_packet_topic, "/uwb_data");
 }
 
 static void hardware_init(void)
