@@ -456,6 +456,20 @@ static void cmd_set_pos(BaseSequentialStream* chp, int argc, char* argv[])
     messagebus_topic_publish(topic, &msg, sizeof(msg));
 }
 
+static void cmd_data_packet(BaseSequentialStream* chp, int argc, char* argv[])
+{
+    if (argc < 1) {
+        chprintf(chp, "Usage : data_packet msg\r\n");
+        return;
+    }
+
+    char* msg = argv[1];
+
+    chprintf(chp, "Sending packet...\r\n");
+    ranging_send_data_packet((uint8_t*)msg, strlen(msg) + 1, MAC_802_15_4_BROADCAST_ADDR);
+    chprintf(chp, "done\r\n");
+}
+
 static ShellConfig shell_cfg;
 const ShellCommand shell_commands[] = {
     {"reboot", cmd_reboot},
@@ -474,6 +488,7 @@ const ShellCommand shell_commands[] = {
     {"config_load", cmd_config_load},
     {"config_erase", cmd_config_erase},
     {"set_pos", cmd_set_pos},
+    {"data_packet", cmd_data_packet},
     {NULL, NULL}};
 
 #if SHELL_USE_HISTORY == TRUE
