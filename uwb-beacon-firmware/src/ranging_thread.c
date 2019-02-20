@@ -21,6 +21,7 @@
 #define EVENT_ADVERTISE_TIMER (1 << 1)
 #define EVENT_ANCHOR_POSITION_TIMER (1 << 2)
 #define EVENT_TAG_POSITION_TIMER (1 << 3)
+#define EVENT_DATA_PACKET_READY (1 << 4)
 
 /* TODO: Put this in parameters. */
 #define UWB_ANCHOR_POSITION_TIMER_PERIOD TIME_S2I(1)
@@ -46,6 +47,13 @@ static tag_position_msg_t tag_position_topic_buffer;
 static EVENTSOURCE_DECL(advertise_timer_event);
 static EVENTSOURCE_DECL(anchor_position_timer_event);
 static EVENTSOURCE_DECL(tag_position_timer_event);
+static EVENTSOURCE_DECL(data_packet_ready_event);
+
+static BSEMAPHORE_DECL(data_packet_sent, true);
+static MUTEX_DECL(data_packet_lock);
+static const uint8_t* data_packet;
+static uint16_t data_packet_dst_mac;
+static size_t data_packet_size;
 
 static struct {
     parameter_namespace_t ns;
@@ -101,7 +109,7 @@ static void ranging_thread(void* p)
     hardware_init();
     events_init();
 
-    static uint8_t frame[64];
+    static uint8_t frame[1024];
 
     int current_anchor_mac_index = 0;
     uint16_t anchor_macs[] = {7, 10, 11, 14};
@@ -152,6 +160,11 @@ static void ranging_thread(void* p)
             z = parameter_scalar_get(&uwb_params.anchor.position.z);
 
             uwb_send_anchor_position(&handler, x, y, z, frame);
+        }
+
+        if (flags & EVENT_DATA_PACKET_READY) {
+            dwt_forcetrxoff();
+            uwb_send_data_packet(&handler, data_packet_dst_mac, data_packet, data_packet_size, frame);
         }
 
         if (flags & EVENT_UWB_INT) {
@@ -364,14 +377,34 @@ static void events_init(void)
 
     /* Register event listeners */
     static event_listener_t uwb_int_listener, advertise_timer_listener, anchor_position_listener,
-        tag_position_listener;
+        tag_position_listener, data_packet_ready_listener;
     chEvtRegisterMask(&uwb_event, &uwb_int_listener, EVENT_UWB_INT);
     chEvtRegisterMask(&advertise_timer_event, &advertise_timer_listener, EVENT_ADVERTISE_TIMER);
     chEvtRegisterMask(&anchor_position_timer_event,
                       &anchor_position_listener,
                       EVENT_ANCHOR_POSITION_TIMER);
 
+    chEvtRegisterMask(&data_packet_ready_event, &data_packet_ready_listener, EVENT_DATA_PACKET_READY);
+
     chEvtRegisterMask(&tag_position_timer_event,
                       &tag_position_listener,
                       EVENT_TAG_POSITION_TIMER);
+}
+
+void ranging_send_data_packet(const uint8_t* data, size_t data_size, uint16_t dst_mac)
+{
+    chMtxLock(&data_packet_lock);
+
+    data_packet = data;
+    data_packet_size = data_size;
+
+    data_packet_dst_mac = dst_mac;
+
+    /* Tell the ranging thread that we want to send a packet. */
+    chEvtBroadcastI(&data_packet_ready_event);
+
+    /* wait for the data packet to be handled by the module */
+    chBSemWait(&data_packet_sent);
+
+    chMtxUnlock(&data_packet_lock);
 }
