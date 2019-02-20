@@ -538,3 +538,52 @@ TEST(TagPositionBroadcast, ReceiveTagPosition)
     // Pass 0 as the RX timestamp is not used
     uwb_process_incoming_frame(&handler, frame, size, 1);
 }
+
+TEST_GROUP (DataPacket) {
+    uwb_protocol_handler_t handler;
+    uint8_t frame[128];
+
+    uint16_t src, dst, pan_id;
+    uint8_t seq;
+    size_t size;
+
+    void setup(void)
+    {
+        uwb_protocol_handler_init(&handler);
+        handler.address = 1234;
+        handler.pan_id = 4321;
+        memset(frame, 0, sizeof(frame));
+    }
+};
+
+TEST(DataPacket, CanCreateDataPacket)
+{
+    const char* msg = "hello";
+    const auto dst_addr = 42u;
+    size = uwb_protocol_prepare_data_packet(&handler, dst_addr, reinterpret_cast<const uint8_t*>(msg), strlen(msg) + 1, frame);
+
+    size = uwb_mac_decapsulate_frame(&pan_id, &src, &dst, &seq, frame, size);
+
+    CHECK_EQUAL(size, strlen(msg) + 1);
+    MEMCMP_EQUAL(msg, frame, size);
+    CHECK_EQUAL(100, seq);
+    CHECK_EQUAL(42, dst);
+}
+
+static void user_data_packet_received_cb(const uint8_t* data, size_t size, uint16_t src, uint16_t dst)
+{
+    mock().actualCall("data_rx").withMemoryBufferParameter("data", data, size).withIntParameter("src", src).withIntParameter("dst", dst);
+}
+
+TEST(DataPacket, CanReceiveDataPacket)
+{
+    const char* msg = "hello";
+    const auto dst_addr = MAC_802_15_4_BROADCAST_ADDR;
+    auto msg_buf = reinterpret_cast<const uint8_t*>(msg);
+    size = uwb_protocol_prepare_data_packet(&handler, dst_addr, msg_buf, strlen(msg) + 1, frame);
+
+    handler.user_data_received_cb = user_data_packet_received_cb;
+
+    mock().expectOneCall("data_rx").withMemoryBufferParameter("data", msg_buf, 6).withIntParameter("src", handler.address).withIntParameter("dst", MAC_802_15_4_BROADCAST_ADDR);
+    uwb_process_incoming_frame(&handler, frame, size, 1);
+}

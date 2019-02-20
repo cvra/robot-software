@@ -15,6 +15,7 @@
 #define UWB_SEQ_NUM_ANCHOR_POSITION 3
 #define UWB_SEQ_NUM_TAG_POSITION 4
 #define UWB_SEQ_NUM_INITIATE_MEASUREMENT 5
+#define UWB_SEQ_NUM_USER_DATA 100
 
 #define UWB_DELAY (1000 * 65536)
 #define MASK_40BIT 0xfffffffe00
@@ -181,6 +182,21 @@ size_t uwb_protocol_prepare_tag_position(uwb_protocol_handler_t* handler,
                                      8);
 }
 
+size_t uwb_protocol_prepare_data_packet(uwb_protocol_handler_t* handler,
+                                        uint16_t dst_addr,
+                                        const uint8_t* msg,
+                                        size_t msg_size,
+                                        uint8_t* frame)
+{
+    memcpy(frame, msg, msg_size);
+    return uwb_mac_encapsulate_frame(handler->pan_id,
+                                     handler->address,
+                                     dst_addr,
+                                     UWB_SEQ_NUM_USER_DATA,
+                                     frame,
+                                     msg_size);
+}
+
 void uwb_send_anchor_position(uwb_protocol_handler_t* handler,
                               float x,
                               float y,
@@ -201,6 +217,15 @@ void uwb_send_tag_position(uwb_protocol_handler_t* handler, float x, float y, ui
     size = uwb_protocol_prepare_tag_position(handler, x, y, buffer);
 
     uwb_transmit_frame(UWB_TX_TIMESTAMP_IMMEDIATE, buffer, size);
+}
+
+void uwb_send_data_packet(uwb_protocol_handler_t* handler, uint16_t dst_addr, const uint8_t* msg, size_t msg_size, uint8_t* frame)
+{
+    size_t size;
+
+    size = uwb_protocol_prepare_data_packet(handler, dst_addr, msg, msg_size, frame);
+
+    uwb_transmit_frame(UWB_TX_TIMESTAMP_IMMEDIATE, frame, size);
 }
 
 void uwb_process_incoming_frame(uwb_protocol_handler_t* handler,
@@ -315,6 +340,10 @@ void uwb_process_incoming_frame(uwb_protocol_handler_t* handler,
         handler->tag_position_received_cb(src_addr, x, y);
     } else if (seq_num == UWB_SEQ_NUM_INITIATE_MEASUREMENT) {
         uwb_send_measurement_advertisement(handler, frame);
+    } else if (seq_num == UWB_SEQ_NUM_USER_DATA) {
+        if (handler->user_data_received_cb) {
+            handler->user_data_received_cb(frame, frame_size, src_addr, dst_addr);
+        }
     }
 }
 
