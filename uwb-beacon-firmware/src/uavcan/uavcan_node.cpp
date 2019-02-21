@@ -11,6 +11,7 @@
 #include "uavcan/parameter_server.hpp"
 #include "uavcan/restart_server.hpp"
 #include "uavcan/position_handler.hpp"
+#include "uavcan/data_packet_handler.hpp"
 
 #define CAN_BITRATE 1000000
 
@@ -58,6 +59,7 @@ static THD_FUNCTION(uavcan_node, arg)
     parameter_server_start(node);
     restart_server_start(node);
     position_handler_init(node);
+    data_packet_handler_init(node);
 
     /* Spin forever */
     while (true) {

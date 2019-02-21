@@ -31,6 +31,7 @@ target.arm:
   - src/uavcan/parameter_server.cpp
   - src/uavcan/restart_server.cpp
   - src/uavcan/position_handler.cpp
+  - src/uavcan/data_packet_handler.cpp
   - src/decawave_interface.c
   - src/ranging_thread.c
   - src/parameter_port.c
