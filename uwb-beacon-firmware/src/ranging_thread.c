@@ -173,6 +173,8 @@ static void ranging_thread(void* p)
         if (flags & EVENT_DATA_PACKET_READY) {
             dwt_forcetrxoff();
             uwb_send_data_packet(&handler, data_packet_dst_mac, data_packet, data_packet_size, frame);
+
+            chBSemSignal(&data_packet_sent);
         }
 
         if (flags & EVENT_UWB_INT) {
@@ -429,7 +431,7 @@ void ranging_send_data_packet(const uint8_t* data, size_t data_size, uint16_t ds
     data_packet_dst_mac = dst_mac;
 
     /* Tell the ranging thread that we want to send a packet. */
-    chEvtBroadcastI(&data_packet_ready_event);
+    chEvtBroadcast(&data_packet_ready_event);
 
     /* wait for the data packet to be handled by the module */
     chBSemWait(&data_packet_sent);
