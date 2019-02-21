@@ -463,7 +463,7 @@ static void cmd_data_packet(BaseSequentialStream* chp, int argc, char* argv[])
         return;
     }
 
-    char* msg = argv[1];
+    char* msg = argv[0];
 
     chprintf(chp, "Sending packet...\r\n");
     ranging_send_data_packet((uint8_t*)msg, strlen(msg) + 1, MAC_802_15_4_BROADCAST_ADDR);

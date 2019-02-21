@@ -268,6 +268,7 @@ static void data_packet_received_cb(const uint8_t* data, size_t size, uint16_t s
 
     msg.dst_mac = dst;
     msg.src_mac = src;
+    msg.data_size = size;
     memcpy(msg.data, data, size);
 
     messagebus_topic_publish(&data_packet_topic, &msg, sizeof(msg));

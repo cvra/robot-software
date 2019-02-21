@@ -210,7 +210,7 @@ void topics_publisher_spin(Node& node)
         msg.dst_addr = data_msg.dst_mac;
 
         for (auto i = 0u; i < data_msg.data_size; i++) {
-            msg.data[i] = data_msg.data[i];
+            msg.data.push_back(data_msg.data[i]);
         }
         data_packets_pub->broadcast(msg);
     }
