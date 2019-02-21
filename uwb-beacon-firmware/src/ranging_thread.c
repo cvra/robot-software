@@ -139,7 +139,6 @@ static void ranging_thread(void* p)
 
         if (flags & EVENT_ADVERTISE_TIMER) {
             if (!handler.is_anchor && nb_anchor_macs > 0) {
-                board_led_toggle(BOARD_LED_STATUS);
                 /* First disable transceiver */
                 dwt_forcetrxoff();
 
