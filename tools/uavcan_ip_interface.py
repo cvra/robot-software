@@ -25,14 +25,14 @@ def parse_args():
         "-a",
         default="10.0.0.1/24",
         help="IP address of this interface (default 10.0.0.1/24)")
-    parser.add_argument("--tap", "-t", help="Num of the tap to use (default 0)", type=int, default=0)
     parser.add_argument("--dsdl", help="Path to DSDL directory", default=DSDL_DIR)
 
 
     return parser.parse_args()
 
 def open_tun_interface(tap_index, ip_addr):
-    tap = "tap{}".format(tap_index)
+    # TODO: Port this from macOS to Linux.
+    tap = "tap0"
     fd = os.open("/dev/" + tap, os.O_RDWR)
     subprocess.call("ifconfig {} {}".format(tap, ip_addr).split())
     return fd
@@ -46,7 +46,6 @@ def rx_thread(tun_fd, queue):
 def node_thread(tun_fd, node, can_to_tap, tap_to_can):
     def msg_callback(event):
         msg = event.message
-        print("Received msg from {}: {}".format(msg.src_addr, msg.data))
         can_to_tap.put(msg.data)
 
     node.add_handler(uavcan.thirdparty.cvra.uwb_beacon.DataPacket, msg_callback)
@@ -57,6 +56,7 @@ def node_thread(tun_fd, node, can_to_tap, tap_to_can):
         try:
             node.spin(timeout=0)
         except uavcan.transport.TransferError:
+            print("uavcan exception, ignoring...")
             pass
 
         try:
@@ -64,17 +64,15 @@ def node_thread(tun_fd, node, can_to_tap, tap_to_can):
         except Empty:
             continue
 
+        # Checks that the packet fits in a UWB frame
         assert len(packet) < 1024
 
-        ethertype = packet[12:14]
-        print("ethertype: {}".format(list(ethertype)))
-
+        # Finally send it over CAN
         msg = uavcan.thirdparty.cvra.uwb_beacon.DataPacket()
         msg.dst_addr = 0xffff # broadcast
         msg.data = list(packet)
 
         node.broadcast(msg)
-        print("broad")
 
 def tx_thread(tun_fd, queue):
     while True:
@@ -89,13 +87,13 @@ def main():
 
     uavcan.load_dsdl(args.dsdl)
 
-    tun_fd = open_tun_interface(args.tap, args.ip_address)
+    tun_fd = open_tun_interface(args.ip_address)
     node = uavcan.make_node(args.interface, node_id=42)
 
     tap_to_can = Queue()
     can_to_tap = Queue()
 
-    print("communication established!")
+    print("waiting for packets, press 3x Ctrl-C to stop...")
 
     rx_thd = threading.Thread(target=rx_thread, args=(tun_fd, tap_to_can))
     tx_thd = threading.Thread(target=tx_thread, args=(tun_fd, can_to_tap))
