@@ -82,7 +82,7 @@ void oa_init(struct obstacle_avoidance* oa)
 void oa_copy(struct obstacle_avoidance* dst, const struct obstacle_avoidance* oa)
 {
     memset(dst, 0, sizeof(struct obstacle_avoidance));
-    memcpy(dst, &oa, sizeof(struct obstacle_avoidance));
+    memcpy(dst, oa, sizeof(struct obstacle_avoidance));
 }
 
 /**
