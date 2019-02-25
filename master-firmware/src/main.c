@@ -303,6 +303,10 @@ void init_base_motors(void)
 
 void init_arm_motors(void)
 {
+    motor_manager_create_driver(&motor_manager, "theta-1");
+    motor_manager_create_driver(&motor_manager, "theta-2");
+    motor_manager_create_driver(&motor_manager, "theta-3");
+
     motor_manager_create_driver(&motor_manager, "z-joint");
     motor_manager_create_driver(&motor_manager, "shoulder-joint");
     motor_manager_create_driver(&motor_manager, "elbow-joint");
