@@ -23,6 +23,7 @@ typedef struct {
     void (*ranging_found_cb)(uint16_t anchor_addr, uint64_t time);
     void (*anchor_position_received_cb)(uint16_t anchor_addr, float x, float y, float z);
     void (*tag_position_received_cb)(uint16_t tag_addr, float x, float y);
+    void (*user_data_received_cb)(const uint8_t* msg, size_t size, uint16_t src, uint16_t dst);
     bool is_anchor;
 } uwb_protocol_handler_t;
 
@@ -84,6 +85,9 @@ void uwb_send_anchor_position(uwb_protocol_handler_t* handler,
 /** Broadcasts the tag's position to every connected beacon. */
 void uwb_send_tag_position(uwb_protocol_handler_t* handler, float x, float y, uint8_t* buffer);
 
+/** Sends a packet containing user defined packet */
+void uwb_send_data_packet(uwb_protocol_handler_t* handler, uint16_t dst_addr, const uint8_t* msg, size_t msg_size, uint8_t* frame);
+
 void uwb_process_incoming_frame(uwb_protocol_handler_t* handler,
                                 uint8_t* frame,
                                 size_t frame_size,
@@ -107,6 +111,19 @@ size_t uwb_protocol_prepare_tag_position(uwb_protocol_handler_t* handler,
                                          float x,
                                          float y,
                                          uint8_t* frame);
+
+/** Creates a packet containing application specific data.
+ *
+ * @note The maximum size of a UWB packet is 1023 bytes. Given the header, this
+ * means we can have up to 1014 bytes in a data packet.
+ *
+ * @returns Size of frame in bytes
+ */
+size_t uwb_protocol_prepare_data_packet(uwb_protocol_handler_t* handler,
+                                        uint16_t dst_addr,
+                                        const uint8_t* msg,
+                                        size_t msg_size,
+                                        uint8_t* frame);
 
 void uwb_initiate_measurement(uwb_protocol_handler_t* handler,
                               uint8_t* buffer,

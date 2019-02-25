@@ -456,6 +456,40 @@ static void cmd_set_pos(BaseSequentialStream* chp, int argc, char* argv[])
     messagebus_topic_publish(topic, &msg, sizeof(msg));
 }
 
+static void cmd_data_tx(BaseSequentialStream* chp, int argc, char* argv[])
+{
+    if (argc < 1) {
+        chprintf(chp, "Usage : data_tx msg\r\n");
+        return;
+    }
+
+    char* msg = argv[0];
+
+    chprintf(chp, "Sending packet...\r\n");
+    ranging_send_data_packet((uint8_t*)msg, strlen(msg) + 1, MAC_802_15_4_BROADCAST_ADDR);
+    chprintf(chp, "done\r\n");
+}
+
+static void cmd_data_rx(BaseSequentialStream* chp, int argc, char* argv[])
+{
+    (void) argc;
+    (void) argv;
+
+    messagebus_topic_t* topic = messagebus_find_topic(&bus, "/uwb_data");
+
+    data_packet_msg_t msg;
+
+    if (!topic) {
+        chprintf(chp, "could not find topic\r\n");
+        return;
+    }
+
+    messagebus_topic_wait(topic, &msg, sizeof(msg));
+
+    msg.data[msg.data_size + 1] = 0;
+    chprintf(chp, "got %d bytes: %s\n", msg.data_size, msg.data);
+}
+
 static ShellConfig shell_cfg;
 const ShellCommand shell_commands[] = {
     {"reboot", cmd_reboot},
@@ -474,6 +508,8 @@ const ShellCommand shell_commands[] = {
     {"config_load", cmd_config_load},
     {"config_erase", cmd_config_erase},
     {"set_pos", cmd_set_pos},
+    {"data_tx", cmd_data_tx},
+    {"data_rx", cmd_data_rx},
     {NULL, NULL}};
 
 #if SHELL_USE_HISTORY == TRUE
