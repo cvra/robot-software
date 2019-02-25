@@ -1297,6 +1297,50 @@ static void cmd_proximity_beacon(BaseSequentialStream* chp, int argc, char* argv
              beacon_signal.range.angle * (180.f / 3.1415f));
 }
 
+static void cmd_shake_the_arm(BaseSequentialStream* chp, int argc, char* argv[])
+{
+    if (argc != 3) {
+        chprintf(chp, "Usage: shake tau1[Nm] tau2[Nm] tau3[Nm]\r\n");
+        return;
+    }
+
+    float tau1 = atof(argv[0]);
+    float tau2 = atof(argv[1]);
+    float tau3 = atof(argv[2]);
+
+    int cycle = 10 /* ms */;
+    int period = 500 /* ms */ / cycle; // flip sign periodically
+    int counter = period;
+
+    chprintf(chp, "Shaking arm at tau1: %.3f[Nm] tau2: %.3f[Nm] tau3: %.3f[Nm]\r\n", tau1, tau2, tau3);
+    chprintf(chp, "Press q to exit\r\n");
+
+    while (true) {
+        // CTRL-D was pressed -> exit
+        if (chnGetTimeout((BaseChannel*)chp, TIME_IMMEDIATE) == 'q') {
+            chprintf(chp, "Aborting...\r\n");
+            motor_manager_set_torque(&motor_manager, "theta-1", 0);
+            motor_manager_set_torque(&motor_manager, "theta-2", 0);
+            motor_manager_set_torque(&motor_manager, "theta-3", 0);
+            return;
+        }
+
+        // flip sign periodically
+        if (counter == 0) {
+            counter = period;
+            tau1 *= -1.f;
+            tau2 *= -1.f;
+            tau3 *= -1.f;
+        }
+        counter--;
+
+        motor_manager_set_torque(&motor_manager, "theta-1", tau1);
+        motor_manager_set_torque(&motor_manager, "theta-2", tau2);
+        motor_manager_set_torque(&motor_manager, "theta-3", tau3);
+        chThdSleepMilliseconds(cycle);
+    }
+}
+
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
@@ -1351,4 +1395,5 @@ const ShellCommand commands[] = {
     {"speed", cmd_speed},
     {"panel", cmd_panel_status},
     {"beacon", cmd_proximity_beacon},
+    {"shake", cmd_shake_the_arm},
     {NULL, NULL}};
