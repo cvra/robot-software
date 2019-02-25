@@ -114,6 +114,9 @@ size_t uwb_protocol_prepare_tag_position(uwb_protocol_handler_t* handler,
 
 /** Creates a packet containing application specific data.
  *
+ * @note The maximum size of a UWB packet is 1023 bytes. Given the header, this
+ * means we can have up to 1014 bytes in a data packet.
+ *
  * @returns Size of frame in bytes
  */
 size_t uwb_protocol_prepare_data_packet(uwb_protocol_handler_t* handler,

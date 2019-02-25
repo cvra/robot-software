@@ -105,23 +105,23 @@ void topics_publisher_start(Node& node)
 
     raw_imu_pub.construct<Node&>(node);
     int res = raw_imu_pub->init();
-    chDbgAssert(res == 0, "publisher failed");
+    chDbgAssert(res == 0, "imu publisher failed");
 
     attitude_pub.construct<Node&>(node);
     res = attitude_pub->init();
-    chDbgAssert(res == 0, "publisher failed");
+    chDbgAssert(res == 0, "attitude publisher failed");
 
     range_pub.construct<Node&>(node);
     res = range_pub->init();
-    chDbgAssert(res == 0, "publisher failed");
+    chDbgAssert(res == 0, "range publisher failed");
 
     tag_pos_pub.construct<Node&>(node);
     res = tag_pos_pub->init();
-    chDbgAssert(res == 0, "publisher failed");
+    chDbgAssert(res == 0, "pos publisher failed");
 
     data_packets_pub.construct<Node&>(node);
     res = data_packets_pub->init();
-    chDbgAssert(res == 0, "publisher failed");
+    chDbgAssert(res == 0, "data publisher failed");
 
     static THD_WORKING_AREA(thd_wa, 256);
     chThdCreateStatic(thd_wa, sizeof(thd_wa),
