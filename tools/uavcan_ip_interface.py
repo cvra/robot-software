@@ -6,6 +6,7 @@ UAVCAN to TUN network adapter.
 import argparse
 import os
 import sys
+import fcntl
 import uavcan
 import subprocess
 from queue import Queue, Empty
@@ -31,11 +32,30 @@ def parse_args():
     return parser.parse_args()
 
 def open_tun_interface(tap_index, ip_addr):
-    # TODO: Port this from macOS to Linux.
-    tap = "tap0"
-    fd = os.open("/dev/" + tap, os.O_RDWR)
-    subprocess.call("ifconfig {} {}".format(tap, ip_addr).split())
-    return fd
+    if sys.platform == 'linux':
+        fd = os.open("/dev/net/tun", os.O_RDWR)
+
+        # Values obtained with a test C program
+        IFF_TAP = 0x2
+        TUNSETIFF = 0x400454ca
+
+        # See man netdevice for struct ifreq
+        val = struct.pack("16sh15x", "tap0".encode(), IFF_TAP)
+        fcntl.ioctl(tun_fd, TUNSETIFF, val)
+
+        subprocess.check_call("ip link set dev tap0 up".split())
+        subprocess.check_call("ip addr add dev tap0 {}".format(ip_addr).split())
+
+        return fd
+
+    elif sys.platform == 'darwin': # macOS
+        tap = "tap0"
+        fd = os.open("/dev/" + tap, os.O_RDWR)
+        subprocess.call("ifconfig {} {}".format(tap, ip_addr).split())
+        return fd
+    else:
+        raise RuntimeError("supports mac and linux only")
+
 
 
 def rx_thread(tun_fd, queue):
