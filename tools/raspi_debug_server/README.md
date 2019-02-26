@@ -53,3 +53,7 @@ scp fun pi@192.168.43.229:test/. && ssh pi@192.168.43.229 "mv test/* ."
 ___
 ___
 ![hey](https://i.imgflip.com/2uhb5u.jpg)
+
+# note:
+https://www.st.com/content/ccc/resource/technical/document/user_manual/group0/26/49/90/2e/33/0d/4a/da/DM00244518/files/DM00244518.pdf/jcr:content/translations/en.DM00244518.pdf
+p.19 -> gpio for flash
