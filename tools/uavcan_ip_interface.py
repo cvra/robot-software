@@ -5,13 +5,16 @@ UAVCAN to TUN network adapter.
 
 import argparse
 import os
+import struct
 import sys
+import fcntl
 import uavcan
 import subprocess
 from queue import Queue, Empty
 import threading
 
 DSDL_DIR = os.path.join(os.path.dirname(__file__), '../uavcan_data_types/cvra')
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -27,21 +30,41 @@ def parse_args():
         help="IP address of this interface (default 10.0.0.1/24)")
     parser.add_argument("--dsdl", help="Path to DSDL directory", default=DSDL_DIR)
 
-
     return parser.parse_args()
 
-def open_tun_interface(tap_index, ip_addr):
-    # TODO: Port this from macOS to Linux.
-    tap = "tap0"
-    fd = os.open("/dev/" + tap, os.O_RDWR)
-    subprocess.call("ifconfig {} {}".format(tap, ip_addr).split())
-    return fd
+
+def open_tun_interface(ip_addr):
+    if sys.platform == 'linux':
+        fd = os.open("/dev/net/tun", os.O_RDWR)
+
+        # Values obtained with a test C program
+        IFF_TAP = 0x2
+        IFF_NO_PI = 4096
+        TUNSETIFF = 0x400454ca
+
+        # See man netdevice for struct ifreq
+        val = struct.pack("16sh15x", "tap0".encode(), IFF_TAP | IFF_NO_PI)
+        fcntl.ioctl(fd, TUNSETIFF, val)
+
+        subprocess.check_call("ip link set dev tap0 up".split())
+        subprocess.check_call("ip addr add dev tap0 {}".format(ip_addr).split())
+
+        return fd
+
+    elif sys.platform == 'darwin':  # macOS
+        tap = "tap0"
+        fd = os.open("/dev/" + tap, os.O_RDWR)
+        subprocess.call("ifconfig {} {}".format(tap, ip_addr).split())
+        return fd
+    else:
+        raise RuntimeError("supports mac and linux only")
 
 
 def rx_thread(tun_fd, queue):
     while True:
         packet = os.read(tun_fd, 1500)
         queue.put(packet)
+
 
 def node_thread(tun_fd, node, can_to_tap, tap_to_can):
     def msg_callback(event):
@@ -69,15 +92,17 @@ def node_thread(tun_fd, node, can_to_tap, tap_to_can):
 
         # Finally send it over CAN
         msg = uavcan.thirdparty.cvra.uwb_beacon.DataPacket()
-        msg.dst_addr = 0xffff # broadcast
+        msg.dst_addr = 0xffff  # broadcast
         msg.data = list(packet)
 
         node.broadcast(msg)
+
 
 def tx_thread(tun_fd, queue):
     while True:
         packet = queue.get()
         os.write(tun_fd, bytes(packet))
+
 
 def main():
     args = parse_args()
@@ -106,7 +131,6 @@ def main():
     node_thd.join()
     rx_thd.join()
     tx_thd.join()
-
 
 
 if __name__ == '__main__':
