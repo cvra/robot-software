@@ -7,10 +7,7 @@ This repo contains all the software used on our robots:
 - `motor-control-firmware` contains the firmware that runs on the [motor board](http://www.cvra.ch/robot-software/motor.html)
 - `proximity-beacon-firmware` contains the firmware that runs on the proximity beacon, it's the same code as the motor board but with a different application that is tailored to the needs of our proximity beacon module
 - `master-firmware` contains the software that runs on the master board, it interfaces all the other boards over CAN and runs the robot's "intelligence".
-- `eurobt` contains documentation and cofiguration files specific to the Eurobot competition
-- `minesweepers` contains all code specific to our rover for the Minesweepers competition
-    * `minesweepers/doc` contains design documentation
-    * `minesweepers/techreport` contains the technical report source files
+- `eurobot` contains documentation and cofiguration files specific to the Eurobot competition
 - `sensor-firmware` contains code running on the [sensor board](https://www.cvra.ch/robot-software/sensor.html)
 - `uwb-beacon-firmware` contains code and documentation that runs on the [UWB beacon board](https://www.cvra.ch/robot-software/beacon.html)
 
