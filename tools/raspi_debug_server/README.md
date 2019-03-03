@@ -57,3 +57,15 @@ ___
 # note:
 https://www.st.com/content/ccc/resource/technical/document/user_manual/group0/26/49/90/2e/33/0d/4a/da/DM00244518/files/DM00244518.pdf/jcr:content/translations/en.DM00244518.pdf
 p.19 -> gpio for flash
+
+
+
+/////
+gdb port 3333
+
+Lire transfert
+lire .elf
+
+sudo openocd -f oocd_raspberry.cfg -c "program ch.elf verify reset" -c "shutdown"
+gdb:
+    arm-none-eabi-gdb build/ch.elf -ex "target remote 192.168.43.96:3333" -ex "load" -ex "detach -ex "quit"
