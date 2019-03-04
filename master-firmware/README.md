@@ -19,6 +19,18 @@ By default it assumes you are using a ST-Link V2. You can change this in the Mak
 
 Now the board should be pingable at 192.168.3.20.
 
+Build and run unit tests
+
+```bash
+    packager
+    make protoc
+    make dsdlc
+    mkdir build
+    cd build
+    cmake ..
+    make check
+```
+
 ### Kernel panics
 If there is a kernel panic, the board will turn on all LEDs and continuously print debug information over UART3 at 921600 baud.
 
