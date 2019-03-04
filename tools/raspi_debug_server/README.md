@@ -69,3 +69,9 @@ lire .elf
 sudo openocd -f oocd_raspberry.cfg -c "program ch.elf verify reset" -c "shutdown"
 gdb:
     arm-none-eabi-gdb build/ch.elf -ex "target remote 192.168.43.96:3333" -ex "load" -ex "detach -ex "quit"
+
+ssh pi@192.168.43.96 -l pi -t "python3 -m serial.tools.miniterm /dev/serial/by-id/usb-CVRA_ChibiOS_RT_Virtual_COM_Port_master-if00" 
+
+
+
+systemd services -> sur le raspi pour lancer openocd au démarage
