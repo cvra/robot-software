@@ -2,24 +2,36 @@
 
 Features :
  * Firmware upload
- * (done) Acces the USB shell                                          
- * (done) Connect to the CAN traffic                                   
- * (try with gpio first) the STLink for firmware upload                               
- * (done) power the raspi through the CAN bus                          
- * use openocd GPIO adapter instead of st link, might work better?
+ * Acces the USB shell                                          
+ * Connect to the CAN traffic 
+
+Raspberry:
+ * port 3333 : gdb
+ * port 4444 : telnet
 
  To do:
- * find how to flash via pi gpio
- * Try to scp build and flash it
  * build a small thing for can-bus (so it doesn't break the chain)
+ * make services work for openocd
+ * launch the ./shell-shh.sh script via a cvra cmd
+ * modify the script so we can launch other commande too (bootloader_*)
 
+
+# Command (from your computer) 
+Flash remotly
+```BASH
+make flash-pi
+```
+Get chibios shell
+```BASH
+./shell-shh.sh
+```
 
 # Setup rasppi
-### Update and upgrade the pi
+## Update and upgrade the pi
 ```BASH
 sudo apt update -y && sudo apt upgrade -y
 ```
-### Install Python3 and Co
+## Install Python3 and Co
 ```BASH
 sudo apt install python3
 ```
@@ -29,30 +41,38 @@ sudo apt install python3-pip && pip3 install cvra-bootloader
 ```BASH
 pip3 install pyserial
 ```
-### Update $PATH to find python
+Update $PATH to find python
 ```BASH
 vim ~/.bashrc 
 ```
-### and add at the end of the file
+by adding this at the eof
 ```BASH
 export PATH=$PATH:~/.local/bin/
 ```
-```BASH
-sudo apt install openocd
-```
-Check if I really had to install libqueue
 
-# On your computer 
-To save your public to the raspberry.
+## Setup a service (with systemd) to launch our openocd at boot
 ```BASH
-ssh-copy-id <USERNAME>@<IP-ADDRESS>
+sudo mv openocd-remote.service /lib/systemd/system/.
 ```
 ```BASH
-scp fun pi@192.168.43.229:test/. && ssh pi@192.168.43.229 "mv test/* ."
+sudo systemctl daemon-reload
 ```
-___
-___
-![hey](https://i.imgflip.com/2uhb5u.jpg)
+```BASH
+sudo systemctl enable openocd-remote.service
+```
+Check if it is enabled:
+```BASH
+sudo systemctl list-unit-files | grep enabled
+```
+then
+```BASH
+sudo systemctl start openocd-remote.service
+```
+or 
+```BASH
+reboot
+```
+
 
 # note:
 https://www.st.com/content/ccc/resource/technical/document/user_manual/group0/26/49/90/2e/33/0d/4a/da/DM00244518/files/DM00244518.pdf/jcr:content/translations/en.DM00244518.pdf
@@ -75,3 +95,9 @@ ssh pi@192.168.43.96 -l pi -t "python3 -m serial.tools.miniterm /dev/serial/by-i
 
 
 systemd services -> sur le raspi pour lancer openocd au démarage
+https://www.tanzolab.it/systemd
+___
+___
+___
+___
+![hey](https://i.imgflip.com/2uhb5u.jpg)
