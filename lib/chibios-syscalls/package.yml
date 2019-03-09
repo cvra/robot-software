@@ -2,3 +2,4 @@ target.arm:
     - malloc_lock.c
     - newlib_syscalls.c
     - cpp_stubs.cpp
+    - dynamic_alloc_stubs.cpp
