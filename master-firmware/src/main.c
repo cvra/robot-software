@@ -244,6 +244,7 @@ int main(void)
 
     chThdSleepMilliseconds(1000);
     ethernet_if = netif_find("en0");
+    (void)ethernet_if; // temporarily not used for now
 
     // rpc_server_init();
     // message_server_init();
