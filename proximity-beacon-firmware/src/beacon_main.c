@@ -1,16 +1,19 @@
 #include <ch.h>
 #include <hal.h>
 #include <chprintf.h>
-#include <blocking_uart_driver.h>
+
+#include <chibios-syscalls/malloc_lock.h>
+#include <parameter/parameter.h>
+#include <timestamp/timestamp_stm32.h>
+
+#include "blocking_uart_driver.h"
 #include "motor_pwm.h"
 #include "control.h"
 #include "setpoint.h"
 #include "analog.h"
 #include "encoder.h"
-#include "parameter/parameter.h"
 #include "bootloader_config.h"
 #include "uavcan/uavcan_node.h"
-#include "timestamp/timestamp_stm32.h"
 #include "index.h"
 #include "uart_stream.h"
 #include "parameter_listener.h"
@@ -85,15 +88,17 @@ static THD_FUNCTION(led_thread, arg)
     }
 }
 
-void _fini(void)
+/** Late init hook, called before c++ static constructors. */
+void __late_init(void)
 {
+    /* C++ Static initializer requires working chibios. */
+    halInit();
+    chSysInit();
+    malloc_lock_init();
 }
 
 int main(void)
 {
-    halInit();
-    chSysInit();
-
     static bootloader_config_t config;
     if (!config_get(&config)) {
         chSysHalt("invalid config");

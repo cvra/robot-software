@@ -1,20 +1,35 @@
 #include <ch.h>
+#include <hal.h>
+
 #include <malloc.h>
 
-static MUTEX_DECL(lock);
+static bool lock_initialized = false;
+static mutex_t lock;
 
 #if !CH_CFG_USE_MUTEXES_RECURSIVE
 #error "Malloc lock must be recursive, please enable CH_CFG_USE_MUTEXES_RECURSIVE"
 #endif
 
-void __malloc_lock (struct _reent *reent)
+void malloc_lock_init(void)
 {
-    (void) reent;
-    chMtxLock(&lock);
+    chMtxObjectInit(&lock);
+    lock_initialized = true;
 }
 
-void __malloc_unlock (struct _reent *reent)
+void __malloc_lock(struct _reent* reent)
 {
-    (void) reent;
-    chMtxUnlock(&lock);
+    (void)reent;
+    if (lock_initialized) {
+        chMtxLock(&lock);
+    } else {
+        osalSysHalt("use of malloc before lock init");
+    }
+}
+
+void __malloc_unlock(struct _reent* reent)
+{
+    (void)reent;
+    if (lock_initialized) {
+        chMtxUnlock(&lock);
+    }
 }

@@ -25,7 +25,7 @@
 #include <cmp_mem_access/cmp_mem_access.h>
 #include "motor_manager.h"
 #include "stream.h"
-#include "malloc_lock.h"
+#include <chibios-syscalls/malloc_lock.h>
 #include "lwipthread.h"
 #include <error/error.h>
 #include "usbconf.h"
@@ -117,11 +117,6 @@ void _unhandled_exception(void)
     while (true) {
         /* wait forever */
     }
-}
-
-void _fini(void)
-{
-    /* empty */
 }
 
 /** Late init hook, called before c++ static constructors. */

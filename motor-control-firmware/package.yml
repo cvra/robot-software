@@ -38,6 +38,7 @@ target.arm:
     - ../lib/can-bootloader/config.c
 
 depends:
+    - chibios-syscalls
     - pid
     - serial-datagram
     - cmp_mem_access
