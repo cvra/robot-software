@@ -25,7 +25,6 @@
 #include <cmp_mem_access/cmp_mem_access.h>
 #include "motor_manager.h"
 #include "stream.h"
-#include <chibios-syscalls/malloc_lock.h>
 #include "lwipthread.h"
 #include <error/error.h>
 #include "usbconf.h"
@@ -136,7 +135,6 @@ void __late_init(void)
     /* C++ Static initializer requires working chibios. */
     halInit();
     chSysInit();
-    malloc_lock_init();
 }
 
 void config_load_err_cb(void* arg, const char* id, const char* err)

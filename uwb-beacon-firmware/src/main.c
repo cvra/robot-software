@@ -2,7 +2,6 @@
 #include <hal.h>
 #include <chprintf.h>
 #include <parameter_flash_storage/parameter_flash_storage.h>
-#include <chibios-syscalls/malloc_lock.h>
 
 #include "main.h"
 #include "usbconf.h"
@@ -30,7 +29,6 @@ void __late_init(void)
     /* C++ Static initializer requires working chibios. */
     halInit();
     chSysInit();
-    malloc_lock_init();
 }
 
 int main(void)
