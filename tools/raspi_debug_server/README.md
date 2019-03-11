@@ -10,8 +10,6 @@ Raspberry:
  * port 4444 : telnet
 
  To do:
- * build a small thing for can-bus (so it doesn't break the chain)
- * make services work for openocd
  * launch the ./shell-shh.sh script via a cvra cmd
  * modify the script so we can launch other commande too (bootloader_*)
 
