@@ -93,7 +93,6 @@ include $(CHIBIOS)/os/rt/rt.mk
 include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
 include $(CHIBIOS)/os/hal/ports/STM32/STM32F3xx/platform.mk
 # include $(CHIBIOS)/test/rt/test.mk
-include $(CHIBIOS)/os/various/cpp_wrappers/chcpp.mk
 
 ifeq ($(USE_BOOTLOADER),)
   USE_BOOTLOADER = yes
@@ -122,8 +121,7 @@ CSRC = $(PORTSRC) \
        $(STARTUPSRC) \
        $(CHIBIOS)/os/hal/lib/streams/chprintf.c \
        $(CHIBIOS)/os/hal/lib/streams/memstreams.c \
-       $(CHIBIOS)/os/various/syscalls.c \
-	   src/version.c \
+       src/version.c \
        $(PROJCSRC)
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
@@ -158,6 +156,10 @@ INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
          $(HALINC) $(OSALINC) $(PLATFORMINC) $(STARTUPINC) ./board \
          $(CHIBIOS)/os/various $(CHIBIOS)/os/hal/lib/streams ./src \
          $(CHCPPINC) $(CHIBIOS)/os/license
+
+# ChibiOS C++ bindings
+CPPSRC += $(CHIBIOS)/os/various/cpp_wrappers/ch.cpp
+INCDIR += $(CHIBIOS)/os/various/cpp_wrappers
 
 #
 # Project, sources and paths

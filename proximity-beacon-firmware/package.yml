@@ -37,6 +37,7 @@ target.arm:
     - ../motor-control-firmware/../lib/can-bootloader/config.c
 
 depends:
+    - chibios-syscalls
     - pid
     - serial-datagram
     - cmp_mem_access
@@ -49,4 +50,4 @@ depends:
         fork: Stapelzeiger
 
 templates:
-    Makefile.include.jinja: src/src.mk
+    Makefile.include.jinja: src/app_src.mk
