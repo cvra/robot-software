@@ -49,7 +49,7 @@ sudo systemctl daemon-reload
 sudo systemctl enable openocd-remote.service
 
 # check if it is enabled:
-sudo systemctl list-unit-files | grep enabled
+systemctl status openocd-remote.service
 
 # start and reboot
 sudo systemctl start openocd-remote.service
