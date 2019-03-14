@@ -171,8 +171,7 @@ CPPC = $(TRGT)g++
 #       runtime support makes code size explode.
 #LD   = $(TRGT)gcc
 LD   = $(TRGT)g++
-CP   = $(TRGT)objcopy -j startup -j constructors -j destructors -j .text \
-		-j .ARM.extab -j .ARM.exidx -j .eh_frame_hdr -j .eh_frame -j .textalign -j .data
+CP   = $(TRGT)objcopy
 AS   = $(TRGT)gcc -x assembler-with-cpp
 AR   = $(TRGT)ar
 OD   = $(TRGT)objdump
