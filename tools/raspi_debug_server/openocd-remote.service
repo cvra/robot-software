@@ -1,0 +1,15 @@
+[Unit]
+Description=Launch openocd script(cvra)
+After=network.target
+
+[Service]
+Type=idle
+ExecStart=+/usr/local/bin/openocd -f /home/pi/src/oocd_raspberry.cfg
+Restart=always
+User=pi
+RemainAfterExit=no
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target

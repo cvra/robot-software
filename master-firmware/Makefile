@@ -276,6 +276,10 @@ endif
 flash: $(BUILDDIR)/$(PROJECT).elf
 	openocd -f $(OPENOCD_CFG) -c "program $(BUILDDIR)/$(PROJECT).elf verify reset" -c "shutdown"
 
+.PHONY: flash-pi
+flash-pi: $(BUILDDIR)/$(PROJECT).elf
+	arm-none-eabi-gdb $(BUILDDIR)/$(PROJECT).elf -ex "target remote 192.168.1.129:3333" -ex "load" -ex "detach" -ex "quit"
+
 # run uavcan dsdl compiler
 .PHONY: dsdlc
 dsdlc:
