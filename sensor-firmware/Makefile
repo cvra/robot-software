@@ -138,9 +138,9 @@ INCDIR = $(STARTUPINC) $(KERNINC) $(PORTINC) $(OSALINC) \
 
 include app_src.mk
 
-include $(CHIBIOS)/os/various/cpp_wrappers/chcpp.mk
+# ChibiOS C++ bindings
 CPPSRC += $(CHIBIOS)/os/various/cpp_wrappers/ch.cpp
-INCDIR += $(CHCPPINC)
+INCDIR += $(CHIBIOS)/os/various/cpp_wrappers/
 
 UAVCAN = ../lib/uavcan
 
@@ -204,7 +204,7 @@ CPPWARN = -Wall -Wextra -Wundef
 #
 
 # List all user C define here, like -D_DEBUG=1
-UDEFS =
+UDEFS = -DCVRA_NO_DYNAMIC_ALLOCATION=1  # disables new/delete
 
 # Define ASM defines here
 UADEFS =

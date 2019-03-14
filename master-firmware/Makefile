@@ -93,9 +93,6 @@ include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
 # Other files (optional).
 #include $(CHIBIOS)/test/rt/test.mk
 
-# ChibiOS C++ bindings
-include $(CHIBIOS)/os/various/cpp_wrappers/chcpp.mk
-
 # Target board
 include src/board/board.mk
 
@@ -123,7 +120,6 @@ CSRC = $(PORTSRC) \
 	   $(CHIBIOS)/os/various/evtimer.c \
 	   $(CHIBIOS)/os/hal/lib/streams/memstreams.c \
 	   $(CHIBIOS)/os/hal/lib/streams/chprintf.c \
-	   $(CHIBIOS)/os/various/syscalls.c \
 	   $(CHIBIOS)/os/various/fatfs_bindings/fatfs_diskio.c \
 	   $(BOARDSRC) \
 	   $(GFXSRC) \
@@ -152,6 +148,10 @@ INCDIR += $(CHIBIOS)/os/license \
 		  $(TESTINC) \
 		  $(BOARDINC) \
 		  $(GFXINC)
+
+# ChibiOS C++ bindings
+CPPSRC += $(CHIBIOS)/os/various/cpp_wrappers/ch.cpp
+INCDIR += $(CHIBIOS)/os/various/cpp_wrappers
 
 #
 # Project, sources and paths

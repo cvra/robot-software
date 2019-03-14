@@ -110,9 +110,6 @@ include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
 # Other files (optional).
 #include $(CHIBIOS)/test/rt/test.mk
 
-# ChibiOS C++ bindings
-include $(CHIBIOS)/os/various/cpp_wrappers/chcpp.mk
-
 # Shell module
 include $(CHIBIOS)/os/various/shell/shell.mk
 
@@ -151,6 +148,10 @@ INCDIR = $(STARTUPINC) \
          $(CHIBIOS)/os/hal/lib/streams \
 		 $(CHIBIOS)/os/license \
 		 $(CHIBIOS)/os/various
+
+# ChibiOS C++ bindings
+CPPSRC += $(CHIBIOS)/os/various/cpp_wrappers/ch.cpp
+INCDIR += $(CHIBIOS)/os/various/cpp_wrappers
 
 #
 # Project, sources and paths
