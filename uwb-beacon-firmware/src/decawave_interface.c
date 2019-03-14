@@ -95,6 +95,10 @@ void decawave_start(void)
 
     spiStart(&SPID1, &spi_cfg);
 
+    palClearPad(GPIOC, GPIOC_UWB_RST_N);
+    chThdSleepMilliseconds(3); // DW1000 reset cycle
+    palSetPad(GPIOC, GPIOC_UWB_RST_N);
+
     res = dwt_initialise(DWT_LOADUCODE);
     chDbgAssert(res == DWT_SUCCESS, "dwm1000 init fail");
 

@@ -359,7 +359,7 @@
  * GPIOC_PIN6                       (input floating).
  * GPIOC_PIN7                       (input floating).
  * GPIOC_PIN8                       (input floating).
- * GPIOC_UWB_RST_N                  (output floating).
+ * GPIOC_UWB_RST_N                  (output opendrain). // "RSTn should never be driven high by an external source."
  * GPIOC_PIN10                      (input floating).
  * GPIOC_PIN11                      (input floating).
  * GPIOC_PIN12                      (input floating).
@@ -392,7 +392,7 @@
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN6) | \
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN7) | \
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN8) | \
-                                     PIN_OTYPE_PUSHPULL(GPIOC_UWB_RST_N) | \
+                                     PIN_OTYPE_OPENDRAIN(GPIOC_UWB_RST_N) | \
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN10) | \
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN11) | \
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN12) | \
