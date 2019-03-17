@@ -9,6 +9,13 @@ static FATFS SDC_FS;
 void filesystem_start(void)
 {
     FRESULT err;
+
+    /* Enable SD power if card present */
+    if (!palReadPad(GPIOA, GPIOA_SD_DETECT)) {
+        palClearPad(GPIOA, GPIOA_SD_PWR);
+        chThdSleepMilliseconds(100);
+    }
+
     sdcStart(&SDCD1, NULL);
     sdcConnect(&SDCD1);
 
