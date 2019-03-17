@@ -462,10 +462,10 @@
                                      PIN_PUPDR_FLOATING(GPIOC_ETH_RMII_RXD1) | \
                                      PIN_PUPDR_PULLUP(GPIOC_ENCODER_RIGHT_CHA) | \
                                      PIN_PUPDR_PULLUP(GPIOC_ENCODER_RIGHT_CHB) | \
-                                     PIN_PUPDR_FLOATING(GPIOC_SD_D0) | \
-                                     PIN_PUPDR_FLOATING(GPIOC_SD_D1) | \
-                                     PIN_PUPDR_FLOATING(GPIOC_SD_D2) | \
-                                     PIN_PUPDR_FLOATING(GPIOC_SD_D3) | \
+                                     PIN_PUPDR_PULLUP(GPIOC_SD_D0) | \
+                                     PIN_PUPDR_PULLUP(GPIOC_SD_D1) | \
+                                     PIN_PUPDR_PULLUP(GPIOC_SD_D2) | \
+                                     PIN_PUPDR_PULLUP(GPIOC_SD_D3) | \
                                      PIN_PUPDR_FLOATING(GPIOC_SD_CLK) | \
                                      PIN_PUPDR_FLOATING(GPIOC_USER_BUTTON) | \
                                      PIN_PUPDR_FLOATING(GPIOC_OSC32_IN) | \
@@ -556,7 +556,7 @@
                                      PIN_OSPEED_100M(GPIOD_PIN15))
 #define VAL_GPIOD_PUPDR             (PIN_PUPDR_FLOATING(GPIOD_CAN1_RX) | \
                                      PIN_PUPDR_FLOATING(GPIOD_CAN1_TX) | \
-                                     PIN_PUPDR_FLOATING(GPIOD_SD_CMD) | \
+                                     PIN_PUPDR_PULLUP(GPIOD_SD_CMD) | \
                                      PIN_PUPDR_FLOATING(GPIOD_PIN3) | \
                                      PIN_PUPDR_FLOATING(GPIOD_PIN4) | \
                                      PIN_PUPDR_FLOATING(GPIOD_UART2_TX) | \
