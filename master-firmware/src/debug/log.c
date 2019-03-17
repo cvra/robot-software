@@ -126,6 +126,14 @@ static void vlogfile_log_message(struct error* e, va_list args)
         return;
     }
 
+    if (!palReadPad(GPIOA, GPIOA_SD_DETECT)) {
+        /* Indicate SD activity */
+        palTogglePad(GPIOB, GPIOB_LED_SD);
+    } else {
+        /* Card was removed */
+        return;
+    }
+
     static char buffer[256];
     UINT dummy;
     const char* thread_name = NULL;
