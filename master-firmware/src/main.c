@@ -38,6 +38,7 @@
 #include "http/server.h"
 #include "pca9685_pwm.h"
 #include "gui.h"
+#include "udp_topic_broadcaster.h"
 
 void init_base_motors(void);
 void init_arm_motors(void);
@@ -242,6 +243,7 @@ int main(void)
     // rpc_server_init();
     // message_server_init();
     // http_server_start();
+    udp_topic_broadcast_start();
 
     /* Initiaze UAVCAN communication */
     uavcan_node_start(10);
@@ -261,9 +263,7 @@ int main(void)
     /* Initialize strategy thread, will wait for signal to begin game */
     strategy_start();
 
-    stream_init();
-
-    /* Initializes a serial-over-USB CDC driver.  */
+    // Initializes a serial-over-USB CDC driver.
     sduObjectInit(&SDU1);
     sduStart(&SDU1, &serusbcfg);
 
