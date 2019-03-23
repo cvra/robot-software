@@ -2,8 +2,9 @@
 
 #include <lwip/api.h>
 
+#include <error/error.h>
+
 #include "main.h"
-#include "error/error.h"
 #include "msgbus_protobuf.h"
 #include "udp_topic_broadcaster.h"
 
@@ -11,7 +12,7 @@ static messagebus_watchgroup_t watchgroup;
 static MUTEX_DECL(watchgroup_lock);
 static CONDVAR_DECL(watchgroup_condvar);
 
-#define MSG_MAX_LENGTH 128
+#define MSG_MAX_LENGTH (128 - 2) // -2 because we need the struct to be a power of 2 in total size
 #define MSG_BUF_SIZE 16
 
 struct encoded_message {
@@ -19,7 +20,7 @@ struct encoded_message {
     uint8_t buf[MSG_MAX_LENGTH];
 };
 
-static struct encoded_message msg_buffer[MSG_BUF_SIZE];
+static struct encoded_message msg_buffer[MSG_BUF_SIZE] __attribute__((aligned(PORT_NATURAL_ALIGN)));
 static char *msg_mailbox_buf[MSG_BUF_SIZE];
 static MAILBOX_DECL(msg_mailbox, msg_mailbox_buf, MSG_BUF_SIZE);
 static MEMORYPOOL_DECL(msg_pool, sizeof(struct encoded_message), PORT_NATURAL_ALIGN, NULL);
