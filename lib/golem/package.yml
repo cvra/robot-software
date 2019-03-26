@@ -1,0 +1,5 @@
+depends:
+    - test-runner
+
+tests:
+    - tests/test_system.cpp
