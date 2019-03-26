@@ -3,3 +3,4 @@ depends:
 
 tests:
     - tests/test_system.cpp
+    - tests/test_state_estimator.cpp
