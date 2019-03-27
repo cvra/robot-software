@@ -1,42 +1,15 @@
 #include <CppUTest/TestHarness.h>
 
-#include <math.h>
+#include "pendulum.h"
 
 #include "../state_estimator.h"
-
-namespace {
-struct Position2D {
-    float x{};
-    float y{};
-};
-struct PendulumStateEstimator {
-    float length;
-    Position2D pos{};
-
-    PendulumStateEstimator(float l)
-        : length(l)
-    {
-        update(0);
-    }
-
-    Position2D get() const
-    {
-        return pos;
-    }
-    void update(const float& angle)
-    {
-        pos.x = length * std::cos(angle);
-        pos.y = length * std::sin(angle);
-    }
-};
-} // namespace
 
 TEST_GROUP (APendulumStateEstimator) {
 };
 
 TEST(APendulumStateEstimator, initializesSystemState)
 {
-    golem::StateEstimator<Position2D, float> se = PendulumStateEstimator(42.f);
+    golem::StateEstimator<Position2D, float> se = pendulum::Kinematics();
 
     auto pos = se.get();
 
@@ -46,7 +19,7 @@ TEST(APendulumStateEstimator, initializesSystemState)
 
 TEST(APendulumStateEstimator, tracksSystemState)
 {
-    golem::StateEstimator<Position2D, float> se = PendulumStateEstimator(42.f);
+    golem::StateEstimator<Position2D, float> se = pendulum::Kinematics();
 
     se.update(M_PI * 0.5);
     auto pos = se.get();
