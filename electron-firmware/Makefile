@@ -204,7 +204,7 @@ CPPWARN = -Wall -Wextra -Wundef
 #
 
 # List all user C define here, like -D_DEBUG=1
-UDEFS =
+UDEFS = -DCVRA_NO_DYNAMIC_ALLOCATION=1  # disables new/delete
 
 # Define ASM defines here
 UADEFS =

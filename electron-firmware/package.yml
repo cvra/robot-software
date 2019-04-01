@@ -13,7 +13,6 @@ target.arm:
   - src/main.c
   - src/debug.c
   - src/board.c
-  - src/stubs.cpp
   - src/uavcan/node.cpp
   - src/uavcan/MotorVoltage_pub.cpp
   - src/bootloader_config.c
