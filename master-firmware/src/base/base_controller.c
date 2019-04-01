@@ -13,6 +13,7 @@
 #include "priorities.h"
 #include "aversive_port/rs_port.h"
 #include "base_controller.h"
+#include "protobuf/position.pb.h"
 
 #define BASE_CONTROLLER_STACKSIZE 1024
 #define POSITION_MANAGER_STACKSIZE 1024
@@ -214,8 +215,17 @@ static THD_FUNCTION(position_manager_thd, arg)
     (void)arg;
     chRegSetThreadName(__FUNCTION__);
 
+    static TOPIC_DECL(position_topic, RobotPosition);
+
+    messagebus_advertise_topic(&bus, &position_topic.topic, "/position");
+
+    RobotPosition pos = RobotPosition_init_zero;
+
     while (1) {
         position_manage(&robot.pos);
+        pos.x = position_get_x_float(&robot.pos);
+        pos.y = position_get_y_float(&robot.pos);
+        messagebus_topic_publish(&position_topic.topic, &pos, sizeof(pos));
         chThdSleepMilliseconds(1000 / ODOM_FREQUENCY);
     }
 }

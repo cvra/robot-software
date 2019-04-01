@@ -1,0 +1,9 @@
+syntax = "proto2";
+
+import "nanopb.proto";
+
+message RobotPosition {
+    option (nanopb_msgopt).msgid = 10;
+    required float x = 1;
+    required float y = 2;
+}
