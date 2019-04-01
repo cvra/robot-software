@@ -278,7 +278,7 @@ flash: $(BUILDDIR)/$(PROJECT).elf
 
 .PHONY: flash-pi
 flash-pi: $(BUILDDIR)/$(PROJECT).elf
-	arm-none-eabi-gdb $(BUILDDIR)/$(PROJECT).elf -ex "target remote 192.168.1.129:3333" -ex "load" -ex "detach" -ex "quit"
+	arm-none-eabi-gdb $(BUILDDIR)/$(PROJECT).elf -ex "target remote 192.168.1.201:3333" -ex "load" -ex "detach" -ex "quit"
 
 # run uavcan dsdl compiler
 .PHONY: dsdlc
