@@ -9,8 +9,8 @@
 namespace manipulator {
 // Simply solves forward kinematics for the system
 struct StateEstimator {
-    std::array<float, 3> lengths{0.f, 0.f, 0.f};
-    std::array<float, 3> angles{0.f, 0.f, 0.f};
+    std::array<float, 3> lengths = {{0.f, 0.f, 0.f}};
+    std::array<float, 3> angles = {{0.f, 0.f, 0.f}};
 
     explicit StateEstimator(const std::array<float, 3>& link_lengths);
     Pose2D get() const;

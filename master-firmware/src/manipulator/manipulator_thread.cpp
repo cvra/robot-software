@@ -25,7 +25,7 @@ static THD_FUNCTION(manipulator_thd, arg)
     (void)arg;
     chRegSetThreadName(__FUNCTION__);
 
-    const ArmLengths link_lengths{0.5, 0.4, 0.3};
+    const ArmLengths link_lengths = {{0.5, 0.4, 0.3}};
 
     golem::System<Angles, Angles> sys = manipulator::System();
     golem::StateEstimator<Pose2D, Angles> estimator = manipulator::StateEstimator(link_lengths);

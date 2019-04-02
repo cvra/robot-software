@@ -17,7 +17,7 @@ void ANGLES_EQUAL(const Angles& lhs, const Angles rhs)
 } // namespace
 
 TEST_GROUP (APendulumWith3Joints) {
-    ArmLengths lengths{1.0f, 0.5, 0.2f};
+    ArmLengths lengths = {{1.0f, 0.5, 0.2f}};
 };
 
 TEST(APendulumWith3Joints, IsFlat)

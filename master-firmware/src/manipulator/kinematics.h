@@ -8,9 +8,9 @@ using Angles = std::array<float, 3>;
 using ArmLengths = std::array<float, 3>;
 
 struct Pose2D {
-    float x{0.f};
-    float y{0.f};
-    float heading{0.f};
+    float x = 0.f;
+    float y = 0.f;
+    float heading = 0.f;
 };
 Pose2D operator-(const Pose2D& lhs, const Pose2D& rhs);
 
