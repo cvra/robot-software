@@ -13,6 +13,7 @@
 #include "can_io_driver.h"
 #include "sensor_handler.h"
 #include "uwb_position_handler.h"
+#include "can_uwb_ip_netif.hpp"
 #include "config.h"
 #include "uavcan_node.h"
 #include "priorities.h"
@@ -151,6 +152,10 @@ static void main(void* arg)
         ERROR("BusEnumeratorAdapter");
     }
 
+    if (can_uwb_ip_netif_init(node) < 0) {
+        ERROR("CAN UWB netif");
+    }
+
     // Mark the node as correctly initialized
     node.getNodeStatusProvider().setModeOperational();
     node.getNodeStatusProvider().setHealthOk();
@@ -159,6 +164,10 @@ static void main(void* arg)
         res = node.spin(uavcan::MonotonicDuration::fromMSec(1000 / UAVCAN_SPIN_FREQ));
         if (res < 0) {
             WARNING("UAVCAN spin warning %d", res);
+        }
+
+        if (can_uwb_ip_netif_spin(node) < 0) {
+            WARNING("UWB canif warning %d", res);
         }
     }
 }

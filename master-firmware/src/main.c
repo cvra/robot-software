@@ -234,6 +234,11 @@ int main(void)
     /* Start IP over Ethernet */
     struct netif* ethernet_if;
 
+    /* Initiaze UAVCAN communication */
+    uavcan_node_start(10);
+
+
+    chThdSleepMilliseconds(100);
     ip_thread_init();
 
     chThdSleepMilliseconds(1000);
@@ -244,9 +249,6 @@ int main(void)
     // message_server_init();
     // http_server_start();
     udp_topic_broadcast_start();
-
-    /* Initiaze UAVCAN communication */
-    uavcan_node_start(10);
 
     /* Base init */
     encoder_start();
