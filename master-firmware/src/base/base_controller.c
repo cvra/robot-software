@@ -225,6 +225,7 @@ static THD_FUNCTION(position_manager_thd, arg)
         position_manage(&robot.pos);
         pos.x = position_get_x_float(&robot.pos);
         pos.y = position_get_y_float(&robot.pos);
+        pos.a = position_get_a_rad_float(&robot.pos);
         messagebus_topic_publish(&position_topic.topic, &pos, sizeof(pos));
         chThdSleepMilliseconds(1000 / ODOM_FREQUENCY);
     }

@@ -6,4 +6,5 @@ message RobotPosition {
     option (nanopb_msgopt).msgid = 10;
     required float x = 1;
     required float y = 2;
+    required float a = 3;
 }
