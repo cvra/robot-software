@@ -26,6 +26,10 @@ Get chibios shell
 ```BASH
 ./shell-ssh.sh
 ```
+Copy your ssh id for autologing
+```BASH
+ssh-copy-id pi@192.168.1.201
+```
 
 # Setup rasppi
 ## Update and upgrade the pi
