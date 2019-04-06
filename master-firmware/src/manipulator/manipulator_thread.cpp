@@ -31,11 +31,26 @@ static THD_FUNCTION(manipulator_thd, arg)
     manipulator::StateEstimator estimator(link_lengths);
     manipulator::Controller ctrl(link_lengths);
 
+    Pose2D pose;
+    pose.x = 1.f;
+    pose.y = -0.5f;
+    pose.heading = -1.f;
+    ctrl.set(pose);
+
+    int counter = 0;
     NOTICE("Start manipulator thread");
     while (true) {
+        if (counter >= MANIPULATOR_FREQUENCY) {
+            counter = 0;
+            pose.y *= -1.f;
+            pose.heading *= -1.f;
+            ctrl.set(pose);
+        }
+
         estimator.update(sys.measure());
         sys.apply(ctrl.update(estimator.get()));
 
+        counter++;
         chThdSleepMilliseconds(1000 / MANIPULATOR_FREQUENCY);
     }
 }
