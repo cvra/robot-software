@@ -2,14 +2,12 @@
 
 #include "pendulum.h"
 
-#include "../state_estimator.h"
-
 TEST_GROUP (APendulumStateEstimator) {
 };
 
 TEST(APendulumStateEstimator, initializesSystemState)
 {
-    golem::StateEstimator<Position2D, float> se = pendulum::Kinematics();
+    pendulum::Kinematics se;
 
     auto pos = se.get();
 
@@ -19,7 +17,7 @@ TEST(APendulumStateEstimator, initializesSystemState)
 
 TEST(APendulumStateEstimator, tracksSystemState)
 {
-    golem::StateEstimator<Position2D, float> se = pendulum::Kinematics();
+    pendulum::Kinematics se;
 
     se.update(M_PI * 0.5);
     auto pos = se.get();

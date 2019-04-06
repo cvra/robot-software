@@ -3,15 +3,14 @@
 #include "../system.h"
 
 namespace {
-template <typename T>
-struct PerfectSystem {
-    T hidden{};
+struct PerfectSystem : public golem::System<PerfectSystem, int, int> {
+    int hidden{};
 
-    T measure() const
+    int measure_feedback() const
     {
         return hidden;
     }
-    void apply(const T& in)
+    void apply_input(const int& in)
     {
         hidden = in;
     }
@@ -23,7 +22,7 @@ TEST_GROUP (APerfectGolemSystem) {
 
 TEST(APerfectGolemSystem, measuredFeedbackMatchesAppliedInput)
 {
-    golem::System<int, int> sys = PerfectSystem<int>();
+    PerfectSystem sys;
 
     sys.apply(42);
 

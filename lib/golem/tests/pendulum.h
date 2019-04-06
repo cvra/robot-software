@@ -1,5 +1,7 @@
 #include <math.h>
 
+#include "../golem.h"
+
 struct Position2D {
     float x{};
     float y{};
@@ -11,22 +13,23 @@ const float MASS = 1.f;
 const float LENGTH = 42.f;
 const float FRICTION = 0.1f;
 
-template <size_t frequency>
-struct System {
+struct System : public golem::System<System, float, float> {
+    float frequency;
     float angle;
     float velocity;
 
-    System(float starting_angle, float starting_velocity)
-        : angle(starting_angle)
+    System(float refresh_frequency, float starting_angle, float starting_velocity)
+        : frequency(refresh_frequency)
+        , angle(starting_angle)
         , velocity(starting_velocity)
     {
     }
 
-    float measure() const
+    float measure_feedback() const
     {
         return angle;
     }
-    void apply(const float& torque)
+    void apply_input(const float& torque)
     {
         const float inertia = MASS * LENGTH * LENGTH;
         const float acceleration = torque / inertia - GRAVITY * sinf(angle) / LENGTH - FRICTION * velocity;
@@ -35,7 +38,7 @@ struct System {
     }
 };
 
-struct Kinematics {
+struct Kinematics : public golem::StateEstimator<Kinematics, Position2D, float> {
     Position2D pos;
 
     Kinematics()
@@ -43,18 +46,18 @@ struct Kinematics {
         update(0);
     }
 
-    Position2D get() const
+    Position2D get_state() const
     {
         return pos;
     }
-    void update(const float& angle)
+    void update_state(const float& angle)
     {
         pos.x = LENGTH * cosf(angle);
         pos.y = LENGTH * sinf(angle);
     }
 };
 
-struct ProportionalController {
+struct ProportionalController : public golem::Controller<ProportionalController, float, float, float> {
     float kp;
 
     float target{0};
@@ -65,16 +68,16 @@ struct ProportionalController {
     {
     }
 
-    void set(const float& t)
+    void set_consign(const float& t)
     {
         target = t;
     }
-    float update(const float& state)
+    float compute_input(const float& state)
     {
         measured = state;
         return kp * error();
     }
-    float error() const
+    float control_error() const
     {
         return target - measured;
     }
