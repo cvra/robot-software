@@ -21,16 +21,16 @@ float read_motor_position(const char* name)
 } // namespace
 
 namespace manipulator {
-std::array<float, 3> System::measure() const
+Angles System::measure_feedback() const
 {
-    std::array<float, 3> angles;
+    Angles angles;
     for (size_t i = 0; i < 3; i++) {
         angles[i] = directions[i] * read_motor_position(motors[i]) - offsets[i];
     }
     return angles;
 }
 
-void System::apply(const std::array<float, 3>& angles)
+void System::apply_input(const Angles& angles)
 {
     for (size_t i = 0; i < 3; i++) {
         motor_driver_set_position(get_motor_driver(motors[i]), directions[i] * angles[i] + offsets[i]);

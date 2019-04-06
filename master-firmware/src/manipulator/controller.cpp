@@ -6,19 +6,19 @@ Controller::Controller(const std::array<float, 3>& link_lengths)
 {
 }
 
-void Controller::set(const Pose2D& target_pose)
+void Controller::set_consign(const Pose2D& target_pose)
 {
     target = target_pose;
     target_angles = inverse_kinematics(lengths, target_pose);
 }
 
-std::array<float, 3> Controller::update(const Pose2D& state)
+Angles Controller::compute_input(const Pose2D& state)
 {
     measured = state;
     return target_angles;
 }
 
-Pose2D Controller::error() const
+Pose2D Controller::control_error() const
 {
     return target - measured;
 }

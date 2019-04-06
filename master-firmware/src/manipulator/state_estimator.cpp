@@ -8,12 +8,12 @@ StateEstimator::StateEstimator(const std::array<float, 3>& link_lengths)
 {
 }
 
-Pose2D StateEstimator::get() const
+Pose2D StateEstimator::get_state() const
 {
     return forward_kinematics(lengths, angles);
 }
 
-void StateEstimator::update(const std::array<float, 3>& new_angles)
+void StateEstimator::update_state(const Angles& new_angles)
 {
     angles = new_angles;
 }

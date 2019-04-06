@@ -27,9 +27,9 @@ static THD_FUNCTION(manipulator_thd, arg)
 
     const ArmLengths link_lengths = {{0.5, 0.4, 0.3}};
 
-    golem::System<Angles, Angles> sys = manipulator::System();
-    golem::StateEstimator<Pose2D, Angles> estimator = manipulator::StateEstimator(link_lengths);
-    golem::Controller<Pose2D, Pose2D, Angles> ctrl = manipulator::Controller(link_lengths);
+    manipulator::System sys;
+    manipulator::StateEstimator estimator(link_lengths);
+    manipulator::Controller ctrl(link_lengths);
 
     NOTICE("Start manipulator thread");
     while (true) {
