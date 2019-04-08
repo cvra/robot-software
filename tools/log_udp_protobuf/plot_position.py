@@ -53,13 +53,22 @@ def main(args):
                 return
 
             with data_lock:
-                print(msg.x, msg.y)
-                data.update({'robot': {
+                print(msg.x, msg.y, msg.a)
+                data.update({
+                'robot': {
                     'x': msg.x,
                     'y': msg.y,
-                    'a': 0,
+                    'a': (msg.a*180)/3.14,
                     'r': 150,
                     'n': 6,
+                    'fill': 'cvra'
+                },
+                'rampe' : {
+                    'x': 100,
+                    'y': 100,
+                    'a': 45,
+                    'r': 150,
+                    'n': 4,
                     'fill': 'cvra'
                 }})
 
