@@ -76,7 +76,7 @@ point_t scara_forward_kinematics(float alpha, float beta, float length[2])
     return result;
 }
 
-bool scara_compute_joint_angles(position_3d_t position, shoulder_mode_t mode, float* length, float* alpha, float* beta)
+bool scara_compute_joint_angles(position_3d_t position, shoulder_mode_t mode, const float* length, float* alpha, float* beta)
 {
     point_t target = {.x = position.x, .y = position.y};
 

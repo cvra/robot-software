@@ -39,6 +39,7 @@
 #include "pca9685_pwm.h"
 #include "gui.h"
 #include "udp_topic_broadcaster.h"
+#include "manipulator/manipulator_thread.h"
 
 void init_base_motors(void);
 void init_arm_motors(void);
@@ -261,6 +262,8 @@ int main(void)
     arms_init();
     arms_controller_start();
     arm_trajectory_manager_start(&main_arm);
+
+    manipulator_start();
 
     /* Initialize strategy thread, will wait for signal to begin game */
     strategy_start();
