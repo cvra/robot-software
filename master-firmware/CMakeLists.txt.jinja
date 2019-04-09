@@ -1,7 +1,10 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.0)
 
 project(cvra-build)
 set(CMAKE_BUILD_TYPE Debug)
+
+set(CXX_STANDARD 11)
+set(C_STANDARD 11)
 
 FILE(GLOB messages build/protobuf/*.pb.c)
 
@@ -13,8 +16,8 @@ include_directories(
     ./tests/
     )
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DTESTS -std=c++0x -Wall -Wextra")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DTESTS -std=gnu99 -Wall -Wextra -Wno-char-subscripts")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DTESTS -Wall -Wextra")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DTESTS -Wall -Wextra -Wno-char-subscripts")
 
 add_executable(
     tests
