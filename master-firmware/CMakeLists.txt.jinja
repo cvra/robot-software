@@ -1,10 +1,10 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.2)
 
 project(cvra-build)
 set(CMAKE_BUILD_TYPE Debug)
 
-set(CXX_STANDARD 11)
-set(C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_C_STANDARD 11)
 
 FILE(GLOB messages build/protobuf/*.pb.c)
 
