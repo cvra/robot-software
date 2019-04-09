@@ -4,6 +4,9 @@ namespace manipulator {
 Controller::Controller(const std::array<float, 3>& link_lengths)
     : lengths(link_lengths)
 {
+    // for (auto& filter : filters) {
+
+    // }
 }
 
 void Controller::set_consign(const Pose2D& target_pose)

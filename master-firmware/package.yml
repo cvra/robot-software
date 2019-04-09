@@ -81,8 +81,6 @@ source:
     - src/robot_helpers/trajectory_helpers.c
     - src/robot_helpers/strategy_helpers.c
     - src/scara/scara_kinematics.c
-    - src/hand/hand.c
-    - src/hand/wrist.c
     - src/base/base_helpers.c
     - src/strategy/state.cpp
     - src/strategy/score.cpp
@@ -114,7 +112,6 @@ tests:
     - tests/trace_points.c
     - tests/trajectory_manager_test.cpp
     - tests/test_scara_kinematics.cpp
-    - tests/test_hand.cpp
     - tests/lie_groups.cpp
     - tests/test_base_helpers.cpp
     - tests/test_strategy_helpers.cpp
