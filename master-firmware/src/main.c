@@ -30,8 +30,6 @@
 #include "usbconf.h"
 #include "base/encoder.h"
 #include "base/base_controller.h"
-#include "arms/arms_controller.h"
-#include "arms/arm_trajectory_manager.h"
 #include "trace/trace_points.h"
 #include "strategy.h"
 #include "filesystem.h"
@@ -238,7 +236,6 @@ int main(void)
     /* Initiaze UAVCAN communication */
     uavcan_node_start(10);
 
-
     chThdSleepMilliseconds(100);
     ip_thread_init();
 
@@ -259,10 +256,6 @@ int main(void)
     trajectory_manager_start();
 
     /* Arms init */
-    arms_init();
-    arms_controller_start();
-    arm_trajectory_manager_start(&main_arm);
-
     manipulator_start();
 
     /* Initialize strategy thread, will wait for signal to begin game */
@@ -303,12 +296,6 @@ void init_arm_motors(void)
     motor_manager_create_driver(&motor_manager, "theta-1");
     motor_manager_create_driver(&motor_manager, "theta-2");
     motor_manager_create_driver(&motor_manager, "theta-3");
-
-    motor_manager_create_driver(&motor_manager, "z-joint");
-    motor_manager_create_driver(&motor_manager, "shoulder-joint");
-    motor_manager_create_driver(&motor_manager, "elbow-joint");
-    motor_manager_create_driver(&motor_manager, "arm-pump");
-    bus_enumerator_add_node(&bus_enumerator, "wrist-servo", NULL);
 }
 
 void __stack_chk_fail(void)

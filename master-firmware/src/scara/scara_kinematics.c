@@ -1,7 +1,6 @@
 #include <math.h>
 #include <aversive/math/geometry/circles.h>
 
-#include "scara_port.h"
 #include "scara_kinematics.h"
 
 int scara_num_possible_elbow_positions(point_t target, float l1, float l2, point_t* p1, point_t* p2)
