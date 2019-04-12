@@ -53,7 +53,6 @@ def main(args):
                 return
 
             with data_lock:
-                print(msg.x, msg.y, msg.a)
                 data.update({
                 'robot': {
                     'x': msg.x,

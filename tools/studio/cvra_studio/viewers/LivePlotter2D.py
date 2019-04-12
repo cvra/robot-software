@@ -56,7 +56,7 @@ class LivePlotter2D:
                                 data[variable].get('a', 0))
                     color = data[variable].get('color', 'k')
                     fill = data[variable].get('fill', None)
-                    plt.addItem(PolygonItem(pts, COLORS[color], COLORS[fill]))
+                    plt.addItem(PolygonItem(pts, COLORS[color], COLORS.get(fill, None)))
             except queue.Empty:
                 pass
             except Exception:
