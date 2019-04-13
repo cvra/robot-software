@@ -11,7 +11,8 @@
 #include "main.h"
 #include "config.h"
 #include "priorities.h"
-#include "aversive_port/rs_port.h"
+
+#include "rs_port.h"
 #include "base_controller.h"
 
 #define BASE_CONTROLLER_STACKSIZE 1024
