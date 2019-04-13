@@ -4,15 +4,13 @@
 #include "manipulator/kinematics.h"
 
 #include <golem/controller.h>
-// #include <quadramp/quadramp.h>
 
 namespace manipulator {
 // Cartesian controller of the arm manipulator
 struct Controller : public golem::Controller<Controller, Pose2D, Pose2D, Angles> {
     Pose2D target, measured;
     Angles target_angles = {{0.f, 0.f, 0.f}};
-    std::array<float, 3> lengths = {{0.f, 0.f, 0.f}};
-    // std::array<struct quadramp_filter, 3> filters;
+    std::array<float, 3> lengths;
 
     explicit Controller(const std::array<float, 3>& link_lengths);
 
