@@ -2,7 +2,7 @@
 #include <math.h>
 
 extern "C" {
-#include "scara/scara_kinematics.h"
+#include "manipulator/scara_kinematics.h"
 }
 
 #define RAD(x) ((x / 180.) * M_PI)
@@ -131,16 +131,11 @@ TEST_GROUP (AScaraJointAnglesComputer) {
     void setup()
     {
     }
-
-    position_3d_t target(float x, float y)
-    {
-        return {x, y, 0};
-    }
 };
 
 TEST(AScaraJointAnglesComputer, failsWhenNoSolutionFound)
 {
-    position_3d_t unreachable_target = target(200, 0);
+    point_t unreachable_target = {200, 0};
 
     bool solution_found = scara_compute_joint_angles(unreachable_target, mode,
                                                      length, &alpha, &beta);
@@ -150,7 +145,7 @@ TEST(AScaraJointAnglesComputer, failsWhenNoSolutionFound)
 
 TEST(AScaraJointAnglesComputer, choosesASolutionWhenMoreThanOnePossibility)
 {
-    position_3d_t ambiguous_target = target(120, 0);
+    point_t ambiguous_target = {120, 0};
 
     bool solution_found = scara_compute_joint_angles(ambiguous_target, mode,
                                                      length, &alpha, &beta);
@@ -162,7 +157,7 @@ TEST(AScaraJointAnglesComputer, choosesASolutionWhenMoreThanOnePossibility)
 
 TEST(AScaraJointAnglesComputer, wrapsBetaWhenLowerThanMinusPi)
 {
-    position_3d_t valid_target = target(-length[0], length[1]);
+    point_t valid_target = {-length[0], length[1]};
 
     bool solution_found = scara_compute_joint_angles(valid_target, mode,
                                                      length, &alpha, &beta);
@@ -173,7 +168,7 @@ TEST(AScaraJointAnglesComputer, wrapsBetaWhenLowerThanMinusPi)
 
 TEST(AScaraJointAnglesComputer, wrapsBetaWhenHigherThanMinusPi)
 {
-    position_3d_t valid_target = target(-length[0], -length[1]);
+    point_t valid_target = {-length[0], -length[1]};
 
     bool solution_found = scara_compute_joint_angles(valid_target, mode,
                                                      length, &alpha, &beta);

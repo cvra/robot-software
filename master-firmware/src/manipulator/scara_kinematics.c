@@ -75,10 +75,8 @@ point_t scara_forward_kinematics(float alpha, float beta, float length[2])
     return result;
 }
 
-bool scara_compute_joint_angles(position_3d_t position, shoulder_mode_t mode, const float* length, float* alpha, float* beta)
+bool scara_compute_joint_angles(point_t target, shoulder_mode_t mode, const float* length, float* alpha, float* beta)
 {
-    point_t target = {.x = position.x, .y = position.y};
-
     point_t p1, p2;
     int kinematics_solution_count = scara_num_possible_elbow_positions(target, length[0], length[1], &p1, &p2);
 

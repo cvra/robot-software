@@ -1,5 +1,5 @@
 #include "manipulator/kinematics.h"
-#include "scara/scara_kinematics.h"
+#include "manipulator/scara_kinematics.h"
 
 #include <error/error.h>
 
@@ -39,7 +39,7 @@ Angles inverse_kinematics(const ArmLengths& lengths, const Pose2D& pose)
 
     // now we can solve inverse kinematics in 2D
     shoulder_mode_t mode = y < 0 ? SHOULDER_BACK : SHOULDER_FRONT;
-    if (!scara_compute_joint_angles({x, y, 0}, mode, lengths.data(), &angles[0], &angles[1])) {
+    if (!scara_compute_joint_angles({x, y}, mode, lengths.data(), &angles[0], &angles[1])) {
         WARNING("No inverse kinematics solution found");
     }
     angles[2] = pose.heading - (angles[0] + angles[1]);

@@ -78,11 +78,11 @@ source:
     - src/robot_helpers/eurobot2018.c
     - src/robot_helpers/trajectory_helpers.c
     - src/robot_helpers/strategy_helpers.c
-    - src/scara/scara_kinematics.c
     - src/base/base_helpers.c
     - src/strategy/state.cpp
     - src/strategy/score.cpp
     - src/msgbus_protobuf.c
+    - src/manipulator/scara_kinematics.c
     - src/manipulator/kinematics.cpp
     - src/manipulator/state_estimator.cpp
     - src/manipulator/controller.cpp

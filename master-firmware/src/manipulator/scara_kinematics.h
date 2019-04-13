@@ -8,8 +8,6 @@
 extern "C" {
 #endif
 
-#include "scara_waypoint.h"
-
 typedef enum {
     SHOULDER_FRONT,
     SHOULDER_BACK,
@@ -42,7 +40,7 @@ point_t scara_forward_kinematics(float alpha, float beta, float length[2]);
 float scara_compute_shoulder_angle(point_t elbow, point_t hand);
 float scara_compute_elbow_angle(point_t elbow, point_t hand);
 
-bool scara_compute_joint_angles(position_3d_t position, shoulder_mode_t mode, const float* length, float* alpha, float* beta);
+bool scara_compute_joint_angles(point_t target, shoulder_mode_t mode, const float* length, float* alpha, float* beta);
 
 #ifdef __cplusplus
 }
