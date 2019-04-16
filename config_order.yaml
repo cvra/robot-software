@@ -167,6 +167,11 @@ actuator:
             torque_limit: 2.6 # Nm after transmission, before 0.0100, datasheet: 10.0 mNm
             mode: 3 # bounded
             low_batt_th: 5.
+            current:
+                i_limit: 50.0
+                kd: 0.0
+                ki: 600.0
+                kp: 2.0
     theta-2:
     # motor: 2232 U009 SR
         streams:
@@ -189,6 +194,11 @@ actuator:
             torque_limit: 2.6 # Nm after transmission, before 0.0100, datasheet: 10.0 mNm
             mode: 3 # bounded
             low_batt_th: 5.
+            current:
+                i_limit: 50.0
+                kd: 0.0
+                ki: 600.0
+                kp: 2.0
     theta-3:
     # motor: 1524 U012 SR
         streams:
@@ -211,3 +221,8 @@ actuator:
             torque_limit: 0.7 # Nm after transmission, before 0.0029, datasheet: 2.9 mNm
             mode: 3 # bounded
             low_batt_th: 5.
+            current:
+                i_limit: 50.0
+                kd: 0.0
+                ki: 700.0
+                kp: 5.0
