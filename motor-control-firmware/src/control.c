@@ -359,6 +359,7 @@ static void update_parameters(void)
         }
         if (parameter_changed(&control_params.limits.torque)) {
             ctrl.torque_limit = parameter_scalar_get(&control_params.limits.torque);
+            ctrl.current_limit = ctrl.torque_limit / parameter_scalar_get(&motor_params.torque_cst);
         }
         if (parameter_changed(&control_params.limits.acc)) {
             chBSemWait(&setpoint_interpolation_lock);
