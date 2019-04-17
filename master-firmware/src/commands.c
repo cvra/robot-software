@@ -1,12 +1,10 @@
 #include <lwip/api.h>
-#include <simplerpc/service_call.h>
 #include <ff.h>
 #include <lwip/netif.h>
 #include <hal.h>
 #include <chprintf.h>
 #include <string.h>
 #include <shell.h>
-#include "rpc_server.h"
 #include "config.h"
 #include "commands.h"
 #include "panic_log.h"
@@ -155,30 +153,6 @@ static void cmd_time(BaseSequentialStream* chp, int argc, char** argv)
     ts.s = ts.s % 60;
 
     chprintf(chp, "Current time: %02d:%02d:%02d\r\n", h, m, ts.s);
-}
-
-static void cmd_rpc_client_test(BaseSequentialStream* chp, int argc, char** argv)
-{
-    uint8_t request[30];
-    uint8_t output[30];
-
-    cmp_ctx_t ctx;
-    cmp_mem_access_t mem;
-    ip_addr_t server;
-
-    (void)chp;
-    (void)argc;
-    (void)argv;
-
-    const int port = 20001;
-
-    IP4_ADDR(&server, 192, 168, 2, 1);
-
-    service_call_write_header(&ctx, &mem, request, sizeof request, "demo");
-    cmp_write_nil(&ctx);
-
-    rpc_transmit(request, cmp_mem_access_get_pos(&mem), output, sizeof output,
-                 &server, port);
 }
 
 static void tree_indent(BaseSequentialStream* out, int indent)
@@ -1054,7 +1028,6 @@ const ShellCommand commands[] = {
     {"allied_pos", cmd_allied_position},
     {"reboot", cmd_reboot},
     {"rotate", cmd_traj_rotate},
-    {"rpc_client_demo", cmd_rpc_client_test},
     {"threads", cmd_threads},
     {"time", cmd_time},
     {"topics", cmd_topics},

@@ -17,14 +17,12 @@
 #include <arm-cortex-tools/mpu.h>
 #include <arm-cortex-tools/fault.h>
 #include "blocking_uart.h"
-#include "rpc_server.h"
 #include "uavcan_node.h"
 #include <timestamp/timestamp_stm32.h>
 #include "config.h"
 #include <parameter/parameter_msgpack.h>
 #include <cmp_mem_access/cmp_mem_access.h>
 #include "motor_manager.h"
-#include "stream.h"
 #include "lwipthread.h"
 #include <error/error.h>
 #include "usbconf.h"
@@ -243,8 +241,6 @@ int main(void)
     ethernet_if = netif_find("en0");
     (void)ethernet_if; // temporarily not used for now
 
-    // rpc_server_init();
-    // message_server_init();
     // http_server_start();
     udp_topic_broadcast_start();
 
