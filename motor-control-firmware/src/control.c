@@ -359,6 +359,7 @@ static void update_parameters(void)
         }
         if (parameter_changed(&control_params.limits.torque)) {
             ctrl.torque_limit = parameter_scalar_get(&control_params.limits.torque);
+            ctrl.current_limit = ctrl.torque_limit / parameter_scalar_get(&motor_params.torque_cst);
         }
         if (parameter_changed(&control_params.limits.acc)) {
             chBSemWait(&setpoint_interpolation_lock);
@@ -369,7 +370,7 @@ static void update_parameters(void)
     if (parameter_namespace_contains_changed(&motor_params.ns)) {
         if (parameter_changed(&motor_params.torque_cst)) {
             float transmission = (float)control_feedback.primary_encoder.transmission_p / control_feedback.primary_encoder.transmission_q;
-            ctrl.motor_current_constant = 1 / (parameter_scalar_get(&motor_params.torque_cst) / transmission);
+            ctrl.motor_current_constant = 1.f / (parameter_scalar_get(&motor_params.torque_cst) * transmission);
         }
         if (parameter_changed(&motor_params.current_offset)) {
             ctrl.motor_current_offset = parameter_scalar_get(&motor_params.current_offset);
