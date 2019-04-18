@@ -172,6 +172,15 @@ actuator:
                 kd: 0.0
                 ki: 600.0
                 kp: 2.0
+            position:
+                kd: 0.0
+                ki: 3.0
+                kp: 20.0
+            velocity:
+                i_limit: 1.0
+                kd: 0.0
+                ki: 1.0
+                kp: 0.1
     theta-2:
     # motor: 2232 U009 SR
         streams:
@@ -199,6 +208,15 @@ actuator:
                 kd: 0.0
                 ki: 600.0
                 kp: 2.0
+            position:
+                kd: 0.0
+                ki: 1.0
+                kp: 10.0
+            velocity:
+                i_limit: 1.0
+                kd: 0.0
+                ki: 1.0
+                kp: 0.1
     theta-3:
     # motor: 1524 U012 SR
         streams:
@@ -226,3 +244,12 @@ actuator:
                 kd: 0.0
                 ki: 700.0
                 kp: 5.0
+            position:
+                kd: 2.0
+                ki: 1.0
+                kp: 6.0
+            velocity:
+                i_limit: 2.0
+                kd: 0.0
+                ki: 0.6
+                kp: 0.1
