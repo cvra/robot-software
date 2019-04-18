@@ -245,11 +245,12 @@ actuator:
                 ki: 700.0
                 kp: 5.0
             position:
-                kd: 2.0
-                ki: 1.0
-                kp: 6.0
+                i_limit: 100.0
+                kd: 5.0
+                ki: 10.0
+                kp: 200.0
             velocity:
-                i_limit: 2.0
+                i_limit: 10.0
                 kd: 0.0
-                ki: 0.6
-                kp: 0.1
+                ki: 5.0
+                kp: 0.3
