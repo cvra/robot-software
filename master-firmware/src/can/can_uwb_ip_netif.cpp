@@ -48,13 +48,14 @@ static void data_packet_cb(const uavcan::ReceivedDataStructure<DataPacket>& msg)
     chEvtBroadcast(&event_rx);
 }
 
-/* TODO: Call this from lwipthread */
 err_t lwip_uwb_ip_netif_init(struct netif* interface)
 {
     osalDbgAssert((interface != NULL), "netif != NULL");
     interface->state = NULL;
     interface->name[0] = 'w';
     interface->name[1] = 'l';
+
+    /* Must be smaller than 1k */
     interface->mtu = 750;
     interface->hwaddr_len = ETHARP_HWADDR_LEN;
     interface->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_LINK_UP;

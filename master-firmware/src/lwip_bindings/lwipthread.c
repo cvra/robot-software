@@ -333,7 +333,6 @@ void lwip_thread(void* p)
                         pbuf_free(p);
                 }
             }
-            WARNING("Had a CAN data frame yes !");
         }
     }
 }

@@ -4,8 +4,6 @@
 
 #include <hal.h>
 #include <chprintf.h>
-#include <lwip/netif.h>
-#include <lwip/dhcp.h>
 
 #include "main.h"
 #include "control_panel.h"
@@ -228,18 +226,13 @@ int main(void)
 
     control_panel_init(config_get_boolean("master/control_panel_active_high"));
 
-    /* Start IP over Ethernet */
-    struct netif* ethernet_if;
-
     /* Initiaze UAVCAN communication */
     uavcan_node_start(10);
 
+    /* IP thread will talk over UAVCAN so we just give it some time to boot. */
     chThdSleepMilliseconds(100);
     ip_thread_init();
 
-    chThdSleepMilliseconds(1000);
-    ethernet_if = netif_find("en0");
-    (void)ethernet_if; // temporarily not used for now
 
     // http_server_start();
     udp_topic_broadcast_start();
