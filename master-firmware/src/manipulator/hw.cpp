@@ -50,5 +50,8 @@ void System::apply_input(const Angles& angles)
         target[i] *= directions[i];
         motor_driver_set_position(get_motor_driver(motors[i]), target[i]);
     }
+
+    last_raw = angles;
+    last = target;
 }
 } // namespace manipulator

@@ -55,14 +55,18 @@ static THD_FUNCTION(manipulator_thd, arg)
         }
 
         estimator.update(sys.measure());
-        sys.apply(ctrl.update(estimator.get()));
+        Angles input = ctrl.update(estimator.get());
+        sys.apply(input);
 
-        state.x = estimator.get().x;
-        state.y = estimator.get().y;
-        state.heading = estimator.get().heading;
-        state.th1 = sys.measure()[0];
-        state.th2 = sys.measure()[1];
-        state.th3 = sys.measure()[2];
+        state.pose.x = estimator.get().x;
+        state.pose.y = estimator.get().y;
+        state.pose.heading = estimator.get().heading;
+        state.measured.q1 = sys.measure()[0];
+        state.measured.q2 = sys.measure()[1];
+        state.measured.q3 = sys.measure()[2];
+        state.input.q1 = input[0];
+        state.input.q2 = input[1];
+        state.input.q3 = input[2];
         messagebus_topic_publish(&manipulator_topic.topic, &state, sizeof(state));
 
         counter++;
