@@ -14,6 +14,8 @@
 
 #include "manipulator/manipulator_thread.h"
 
+#include "protobuf/manipulator.pb.h"
+
 #define MANIPULATOR_THREAD_STACKSIZE 2048
 
 using manipulator::Angles;
@@ -24,6 +26,11 @@ static THD_FUNCTION(manipulator_thd, arg)
 {
     (void)arg;
     chRegSetThreadName(__FUNCTION__);
+
+    /* Setup and advertise encoders topic */
+    static TOPIC_DECL(manipulator_topic, Manipulator);
+    messagebus_advertise_topic(&bus, &manipulator_topic.topic, "/manipulator");
+    Manipulator state = Manipulator_init_zero;
 
     const ArmLengths link_lengths = {{0.137, 0.097, 0.072}};
 
@@ -49,6 +56,14 @@ static THD_FUNCTION(manipulator_thd, arg)
 
         estimator.update(sys.measure());
         sys.apply(ctrl.update(estimator.get()));
+
+        state.x = estimator.get().x;
+        state.y = estimator.get().y;
+        state.heading = estimator.get().heading;
+        state.th1 = sys.measure()[0];
+        state.th2 = sys.measure()[1];
+        state.th3 = sys.measure()[2];
+        messagebus_topic_publish(&manipulator_topic.topic, &state, sizeof(state));
 
         counter++;
         chThdSleepMilliseconds(1000 / MANIPULATOR_FREQUENCY);

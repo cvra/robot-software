@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+import "nanopb.proto";
+
+message Manipulator {
+    option (nanopb_msgopt).msgid = 10;
+    required float x = 1;
+    required float y = 2;
+    required float heading = 3;
+    required float th1 = 4;
+    required float th2 = 5;
+    required float th3 = 6;
+}
