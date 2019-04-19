@@ -27,7 +27,7 @@ static THD_FUNCTION(manipulator_thd, arg)
     (void)arg;
     chRegSetThreadName(__FUNCTION__);
 
-    /* Setup and advertise encoders topic */
+    /* Setup and advertise manipulator state topic */
     static TOPIC_DECL(manipulator_topic, Manipulator);
     messagebus_advertise_topic(&bus, &manipulator_topic.topic, "/manipulator");
     Manipulator state = Manipulator_init_zero;
