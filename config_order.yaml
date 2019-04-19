@@ -173,6 +173,7 @@ actuator:
                 ki: 600.0
                 kp: 2.0
             position:
+                i_limit: 1000.0
                 kd: 0.0
                 ki: 3.0
                 kp: 20.0
@@ -209,6 +210,7 @@ actuator:
                 ki: 600.0
                 kp: 2.0
             position:
+                i_limit: 1000.0
                 kd: 0.0
                 ki: 1.0
                 kp: 10.0
