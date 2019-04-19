@@ -22,7 +22,21 @@ def argparser(parser=None):
 
     return parser
 
+def fwd_kinematics(origin, links, th1, th2, th3):
+    angles = [th1, th1 + th2, th1 + th2 + th3]
+    angles = [a * -1 for a in angles]
 
+    p1 = (origin[0] + links[0] * sin(angles[0]), origin[1] - links[0] * cos(angles[0]))
+    p2 = (p1[0] + links[1] * sin(angles[1]), p1[1] - links[1] * cos(angles[1]))
+    p3 = (p2[0] + links[2] * sin(angles[2]), p2[1] - links[2] * cos(angles[2]))
+
+    avg = lambda x, y: (0.5 * (x[0] + y[0]), 0.5 * (x[1] + y[1]))
+
+    l1 = avg(origin, p1)
+    l2 = avg(p1, p2)
+    l3 = avg(p2, p3)
+
+    return l1, l2, l3, angles
 
 def main(args):
     logging.basicConfig(level=max(logging.CRITICAL - (10 * args.verbose), 0))
@@ -58,23 +72,16 @@ def main(args):
                 return
 
             with data_lock:
-                angles = [msg.measured.q1, msg.measured.q1 + msg.measured.q2, msg.measured.q1 + msg.measured.q2 + msg.measured.q3]
-                angles = [a * -1 for a in angles]
-
                 origin = (max_x / 2, max_y)
-                p1 = (origin[0] + links[0] * sin(angles[0]), origin[1] - links[0] * cos(angles[0]))
-                p2 = (p1[0] + links[1] * sin(angles[1]), p1[1] - links[1] * cos(angles[1]))
-                p3 = (p2[0] + links[2] * sin(angles[2]), p2[1] - links[2] * cos(angles[2]))
-
-                avg = lambda x, y: (0.5 * (x[0] + y[0]), 0.5 * (x[1] + y[1]))
-
-                l1 = avg(origin, p1)
-                l2 = avg(p1, p2)
-                l3 = avg(p2, p3)
+                l1, l2, l3, angles = fwd_kinematics(origin, links, msg.measured.q1, msg.measured.q2, msg.measured.q3)
+                i1, i2, i3, inputs = fwd_kinematics(origin, links, msg.input.q1, msg.input.q2, msg.input.q3)
 
                 data['l1'] = {'x': l1[0], 'y': l1[1], 'w': 15, 'h': links[0], 'a': angles[0], 'color': 'cvra', 'fill': 'cvra'}
                 data['l2'] = {'x': l2[0], 'y': l2[1], 'w': 12, 'h': links[1], 'a': angles[1], 'color': 'cvra', 'fill': 'cvra'}
                 data['l3'] = {'x': l3[0], 'y': l3[1], 'w': 10, 'h': links[2], 'a': angles[2], 'color': 'cvra', 'fill': 'cvra'}
+                data['i1'] = {'x': i1[0], 'y': i1[1], 'w': 15, 'h': links[0], 'a': inputs[0], 'color': 'g', 'fill': 'g'}
+                data['i2'] = {'x': i2[0], 'y': i2[1], 'w': 12, 'h': links[1], 'a': inputs[1], 'color': 'g', 'fill': 'g'}
+                data['i3'] = {'x': i3[0], 'y': i3[1], 'w': 10, 'h': links[2], 'a': inputs[2], 'color': 'g', 'fill': 'g'}
 
 
     def udp_listener():
