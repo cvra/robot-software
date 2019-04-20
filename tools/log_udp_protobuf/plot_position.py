@@ -8,6 +8,7 @@ import time
 from google.protobuf import text_format
 import numpy as np
 from pyqtgraph.Qt import QtCore, QtGui
+from math import degrees
 
 from cvra_studio.viewers.LivePlotter2D import LivePlotter2D
 import messages
@@ -30,30 +31,7 @@ def main(args):
     app.setFont(QtGui.QFont('Open Sans', pointSize=20))
 
     data_lock = threading.RLock()
-    data = dict()
-
-    plot = LivePlotter2D((3000, 2000))
-    plot.widget.show()
-
-    curve = plot.getPort()
-
-    def live_plot():
-        while True:
-            curve.put(data)
-            time.sleep(0.1)
-
-    threading.Thread(target=live_plot).start()
-
-    class Handler(socketserver.BaseRequestHandler):
-        def handle(self):
-            req = self.request[0]
-            header, msg = parse_packet(req)
-
-            if header.name != '/position':
-                return
-
-            with data_lock:
-                data.update({
+    data = {
                 'Start1' : {
                     'pts' : [(0,300),(0,600),(450,600),(450,300)],
                     'fill': 'r'
@@ -78,30 +56,54 @@ def main(args):
                     'pts' : [(2550,900),(2550,1200),(3000,1200),(3000,900)],
                     'fill': 'b'
                 },
-                'Rampe' : {
+                'Ramp' : {
                     'pts' : [(450,2000),(450,1622),(2550,1622),(2550,2000)],
                     'fill': 'o'
                 },
-                'Rampe2' : {
+                'Ramp2' : {
                     'pts' : [(1228,2000),(1228,1622),(1772,1622),(1772,2000)],
                     'fill': 'o'
                 },
-                'BaliseCentral' : {
+                'MidBeacon' : {
                     'pts' : [(1300,0),(1700,0),(1700,-222),(1300,-222)],
                     'fill': 'grey'
                 },
-                'Experience1' : {
+                'Experiment1' : {
                     'pts' : [(0,0),(0,-222),(450,-222),(450,0)],
                     'fill': 'grey'
                 },
-                'Experience2' : {
+                'Experiment2' : {
                     'pts' : [(2550,0),(2550,-222),(3000,-222),(3000,0)],
                     'fill': 'grey'
                 },
+                }
+
+    plot = LivePlotter2D((3000, 2000))
+    plot.widget.show()
+
+    curve = plot.getPort()
+
+    def live_plot():
+        while True:
+            curve.put(data)
+            time.sleep(0.1)
+
+    threading.Thread(target=live_plot).start()
+
+    class Handler(socketserver.BaseRequestHandler):
+        def handle(self):
+            req = self.request[0]
+            header, msg = parse_packet(req)
+
+            if header.name != '/position':
+                return
+
+            with data_lock:
+                data.update({
                 'robot': {
                     'x': msg.x,
                     'y': msg.y,
-                    'a': (msg.a*180)/3.14,
+                    'a': degrees(msg.a),
                     'r': 150,
                     'n': 6,
                     'fill': 'cvra'
