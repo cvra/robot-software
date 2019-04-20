@@ -15,6 +15,7 @@ target.arm:
   - src/board.c
   - src/uavcan/node.cpp
   - src/uavcan/MotorVoltage_pub.cpp
+  - src/uavcan/data_packet_handler.cpp
   - src/bootloader_config.c
   - ../lib/can-bootloader/config.c
 
