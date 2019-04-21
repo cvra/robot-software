@@ -155,6 +155,11 @@ DDEFS += -DUAVCAN_TOSTRING=0 \
 		 -DUAVCAN_STM32_CHIBIOS=1 \
 		 -DUAVCAN_TINY=1
 
+ifeq ($(USE_COLOR_SENSOR), yes)
+  DDEFS += -DUSE_COLOR_SENSOR=1
+else
+  DDEFS += -DUSE_COLOR_SENSOR=0
+endif
 
 #
 # Project, sources and paths
