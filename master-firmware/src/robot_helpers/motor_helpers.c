@@ -21,7 +21,7 @@ float motor_wait_for_index(motor_driver_t* motor, float motor_speed)
     return motor_driver_get_and_clear_stream_value(motor, MOTOR_STREAM_INDEX);
 }
 
-float motor_auto_index(motor_driver_t* motor, int motor_dir, float motor_speed)
+float motor_auto_index_sym(motor_driver_t* motor, int motor_dir, float motor_speed)
 {
     float index_rising = motor_wait_for_index(motor, -motor_dir * motor_speed);
 
