@@ -27,7 +27,7 @@
 #include "robot_helpers/trajectory_helpers.h"
 #include "robot_helpers/strategy_helpers.h"
 #include "robot_helpers/motor_helpers.h"
-#include "robot_helpers/math_helpers.h"
+#include "robot_helpers/arm_helpers.h"
 #include "strategy.h"
 #include <trace/trace.h>
 #include "pca9685_pwm.h"
@@ -815,6 +815,24 @@ static void cmd_motor_index(BaseSequentialStream* chp, int argc, char* argv[])
     chprintf(chp, "Index at %.4f\r\n", index);
 }
 
+static void cmd_arm_index(BaseSequentialStream* chp, int argc, char* argv[])
+{
+    (void)argc;
+    (void)argv;
+    chprintf(chp, "Please stand by while we index the arm...\r\n");
+
+    const char* motors[3] = {"theta-1", "theta-2", "theta-3"};
+    const float directions[3] = {1.f, 1.f, -1.f};
+    const float speeds[3] = {1.f, 1.f, 1.f};
+    float offsets[3];
+
+    arm_motors_index(motors, directions, speeds, offsets);
+
+    chprintf(chp, "Index of theta-1 at %.4f\r\n", offsets[0]);
+    chprintf(chp, "Index of theta-2 at %.4f\r\n", offsets[1]);
+    chprintf(chp, "Index of theta-3 at %.4f\r\n", offsets[2]);
+}
+
 static void cmd_base_mode(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc != 1) {
@@ -1058,6 +1076,7 @@ const ShellCommand commands[] = {
     {"motor_voltage", cmd_motor_voltage},
     {"motor_index", cmd_motor_index},
     {"motor_index_sym", cmd_motor_index_sym},
+    {"arm_index", cmd_arm_index},
     {"motors", cmd_motors},
     {"base_mode", cmd_base_mode},
     {"state", cmd_state},
