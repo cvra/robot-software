@@ -56,7 +56,7 @@ static THD_FUNCTION(manipulator_thd, arg)
 
         estimator.update(sys.measure());
         Angles input = ctrl.update(estimator.get());
-        sys.apply(input);
+        // sys.apply(input);
 
         state.pose.x = estimator.get().x;
         state.pose.y = estimator.get().y;
