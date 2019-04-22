@@ -102,7 +102,7 @@ static void wait_for_starter(void)
 
 static void wait_for_autoposition_signal(void)
 {
-    wait_for_starter();
+    // wait_for_starter();
 }
 
 static void strategy_wait_ms(int ms)
