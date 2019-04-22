@@ -801,6 +801,20 @@ static void cmd_motor_index_sym(BaseSequentialStream* chp, int argc, char* argv[
     chprintf(chp, "Average index is %.4f\r\n", index);
 }
 
+static void cmd_motor_index(BaseSequentialStream* chp, int argc, char* argv[])
+{
+    if (argc < 3) {
+        chprintf(chp, "Usage: motor_index motor_name direction speed\r\n");
+        return;
+    }
+    int motor_dir = atoi(argv[1]);
+    float motor_speed = atof(argv[2]);
+
+    chprintf(chp, "Searching for index of motor %s...\r\n", argv[0]);
+    float index = motor_auto_index(argv[0], motor_dir, motor_speed);
+    chprintf(chp, "Index at %.4f\r\n", index);
+}
+
 static void cmd_base_mode(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc != 1) {
@@ -1042,6 +1056,7 @@ const ShellCommand commands[] = {
     {"autopos", cmd_autopos},
     {"motor_pos", cmd_motor_pos},
     {"motor_voltage", cmd_motor_voltage},
+    {"motor_index", cmd_motor_index},
     {"motor_index_sym", cmd_motor_index_sym},
     {"motors", cmd_motors},
     {"base_mode", cmd_base_mode},

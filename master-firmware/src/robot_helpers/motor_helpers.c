@@ -1,6 +1,7 @@
-#include "main.h"
+#include <error/error.h>
+
 #include "motor_helpers.h"
-#include "error/error.h"
+#include "main.h"
 
 // By how many radians we overshoot the index, in order to detect the hysteresis
 static const float MOTOR_INDEX_ANGLE_OVERSHOOT = 0.6; // in rad
@@ -14,7 +15,7 @@ float motor_wait_for_index(motor_driver_t* motor, float motor_speed)
 
     while (motor->stream.value_stream_index_update_count == index_count) {
 #ifndef TESTS
-        chThdSleepMilliseconds(50);
+        chThdSleepMilliseconds(1);
 #endif
     }
 
@@ -41,4 +42,22 @@ float motor_auto_index_sym(motor_driver_t* motor, int motor_dir, float motor_spe
     float index_avg = 0.5f * (index_rising + index_falling);
 
     return index_avg;
+}
+
+float motor_auto_index(const char* motor_name, int motor_dir, float motor_speed)
+{
+    // get motor driver
+    motor_driver_t* motor = bus_enumerator_get_driver(motor_manager.bus_enumerator, motor_name);
+    if (motor == NULL) {
+        ERROR("Motor \"%s\" doesn't exist", motor_name);
+    }
+
+    // move until index is found
+    float index = motor_wait_for_index(motor, motor_dir * motor_speed);
+    NOTICE("Seen index at %.4f!", index);
+
+    // stop moving
+    motor_driver_set_velocity(motor, 0);
+
+    return index;
 }
