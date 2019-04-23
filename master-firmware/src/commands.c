@@ -812,6 +812,7 @@ static void cmd_motor_index(BaseSequentialStream* chp, int argc, char* argv[])
 
     chprintf(chp, "Searching for index of motor %s...\r\n", argv[0]);
     float index = motor_auto_index(argv[0], motor_dir, motor_speed);
+    motor_manager_set_torque(&motor_manager, argv[0], 0);
     chprintf(chp, "Index at %.4f\r\n", index);
 }
 
