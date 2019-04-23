@@ -218,7 +218,7 @@ struct IndexArms : actions::IndexArms {
 
         const char* motors[3] = {"theta-1", "theta-2", "theta-3"};
         const float directions[3] = {-1, -1, 1};
-        const float speeds[3] = {0.03, 0.12, 0.06};
+        const float speeds[3] = {0.15, 0.12, 0.06};
         float offsets[3];
 
         arm_motors_index(motors, directions, speeds, offsets);
