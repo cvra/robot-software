@@ -817,13 +817,15 @@ static void cmd_motor_index(BaseSequentialStream* chp, int argc, char* argv[])
 
 static void cmd_arm_index(BaseSequentialStream* chp, int argc, char* argv[])
 {
-    (void)argc;
-    (void)argv;
+    if (argc < 3) {
+        chprintf(chp, "Usage: arm_index t1 t2 t3\r\n");
+        return;
+    }
     chprintf(chp, "Please stand by while we index the arm...\r\n");
 
     const char* motors[3] = {"theta-1", "theta-2", "theta-3"};
-    const float directions[3] = {1.f, 1.f, -1.f};
-    const float speeds[3] = {1.f, 1.f, 1.f};
+    const float directions[3] = {-1.f, -1.f, 1.f};
+    const float speeds[3] = {atof(argv[0]), atof(argv[1]), atof(argv[2])};
     float offsets[3];
 
     arm_motors_index(motors, directions, speeds, offsets);
