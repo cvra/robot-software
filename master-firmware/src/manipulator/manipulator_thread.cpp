@@ -27,16 +27,28 @@ static THD_FUNCTION(manipulator_thd, arg)
     (void)arg;
     chRegSetThreadName(__FUNCTION__);
 
+    parameter_namespace_t* right_arm_params = parameter_namespace_find(&master_config, "arms/right");
+
     /* Setup and advertise manipulator state topic */
     static TOPIC_DECL(manipulator_topic, Manipulator);
     messagebus_advertise_topic(&bus, &manipulator_topic.topic, "/manipulator");
     Manipulator state = Manipulator_init_zero;
 
-    const ArmLengths link_lengths = {{0.137, 0.097, 0.072}};
+    const ArmLengths link_lengths = {{
+        config_get_scalar("master/arms/right/lengths/l1"),
+        config_get_scalar("master/arms/right/lengths/l2"),
+        config_get_scalar("master/arms/right/lengths/l3"),
+    }};
 
     manipulator::System sys;
     manipulator::StateEstimator estimator(link_lengths);
     manipulator::Controller ctrl(link_lengths);
+
+    sys.offsets = {
+        config_get_scalar("master/arms/right/offsets/q1"),
+        config_get_scalar("master/arms/right/offsets/q2"),
+        config_get_scalar("master/arms/right/offsets/q3"),
+    };
 
     Pose2D pose;
     pose.x = 0.17f;
@@ -52,6 +64,14 @@ static THD_FUNCTION(manipulator_thd, arg)
             pose.y *= -1.f;
             pose.heading *= -1.f;
             ctrl.set(pose);
+        }
+
+        if (parameter_namespace_contains_changed(right_arm_params)) {
+            sys.offsets = {
+                config_get_scalar("master/arms/right/offsets/q1"),
+                config_get_scalar("master/arms/right/offsets/q2"),
+                config_get_scalar("master/arms/right/offsets/q3"),
+            };
         }
 
         estimator.update(sys.measure());

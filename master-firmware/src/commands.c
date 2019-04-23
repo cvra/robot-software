@@ -830,6 +830,10 @@ static void cmd_arm_index(BaseSequentialStream* chp, int argc, char* argv[])
 
     arm_motors_index(motors, directions, speeds, offsets);
 
+    parameter_scalar_set(PARAMETER("master/arms/right/offsets/q1"), offsets[0]);
+    parameter_scalar_set(PARAMETER("master/arms/right/offsets/q2"), offsets[1]);
+    parameter_scalar_set(PARAMETER("master/arms/right/offsets/q3"), offsets[2]);
+
     chprintf(chp, "Index of theta-1 at %.4f\r\n", offsets[0]);
     chprintf(chp, "Index of theta-2 at %.4f\r\n", offsets[1]);
     chprintf(chp, "Index of theta-3 at %.4f\r\n", offsets[2]);

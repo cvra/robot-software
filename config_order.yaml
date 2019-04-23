@@ -54,32 +54,16 @@ master:
                 distance: 100.
                 angle: 40.
                 angle_start: 40.
-    wrist:
-        horizontal: 0.00077
-        vertical: 0.00215
-    main_arm:
-        control:
-            x:
-                kp: 3.
-                ki: 0.
-                kd: 0.
-                i_limit: 100.
-            y:
-                kp: 3.
-                ki: 0.
-                kd: 0.
-                i_limit: 100.
     arms:
-        upperarm_length: 100. # in mm
-        forearm_length: 98. # in mm
-        main_arm:
-            offset_x: -100.  # in mm
-            offset_y: 0.     # in mm
-            offset_a: 3.1415 # in radians
-        motor_offsets:
-            z-joint: -275. # in mm
-            shoulder-joint: 0.054184257 # in radians
-            elbow-joint: 0.014701783 # in radians
+        right:
+            lengths:
+                l1: 0.137
+                l2: 0.097
+                l3: 0.072
+            offsets: # calibrated before a game
+                q1: 0.
+                q2: 0.
+                q3: 0.
     screen:
         ax: 0.089231252
         ay: -0.001139728
