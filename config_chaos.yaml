@@ -117,7 +117,6 @@ actuator:
             acceleration_limit: 200.
             velocity_limit: 50.
             torque_limit: 30.
-
     right-wheel:
         encoders:
           primary:
@@ -147,145 +146,114 @@ actuator:
             acceleration_limit: 200.
             velocity_limit: 50.
             torque_limit: 30.
-
-    z-joint:
+    theta-1:
+    # motor: 2232 U009 SR
         streams:
             motor_pos: 50.
-        motor:
-            torque_cst: 0.016 # Nm/A
+            current: 20.
+            velocity: 20.
+            position: 20.
         encoders:
             primary:
-                # motor: 1516SR
                 ticks_per_rev: 4096
-                # transmission: motor: 1/1 gears: 16/42
-                p: 8
-                q: 21
+                # transmission: motor: 175/14976 x gears: 1/3
+                p: 1 # 175
+                q: 257 # 44928
+        motor:
+            current_offset: 0
+            torque_cst: 2.952 # Nm/A after transmission, before 0.0115, datasheet: 11.5 mNm/A
         control:
+            acceleration_limit: 2936.9 # rad/s^2 after transmission, before 753982.2, datasheet: 120 10^3 rad/s^2
+            velocity_limit: 2.4 # rad/s after transmission, before 608.4, datasheet: 5810 /min
+            torque_limit: 2.6 # Nm after transmission, before 0.0100, datasheet: 10.0 mNm
             mode: 3 # bounded
-            current:
-                kp: 3.
-                ki: 500.
-                kd: 0.
-                i_limit: 100.
-            velocity:
-                kp: 0.005
-                ki: 0.2
-                kd: 0.
-                i_limit: 100.
-            position:
-                kp: 10.
-                ki: 10.
-                kd: 0.
-                i_limit: 1000.
             low_batt_th: 5.
-            acceleration_limit: 2500.
-            velocity_limit: 2000.
-            torque_limit: 1.3
-    shoulder-joint:
+            current:
+                i_limit: 50.0
+                kd: 0.0
+                ki: 600.0
+                kp: 2.0
+            position:
+                i_limit: 1000.0
+                kd: 0.0
+                ki: 0.0
+                kp: 100.0
+            velocity:
+                i_limit: 100.0
+                kd: 0.0
+                ki: 0.0
+                kp: 0.1
+    theta-2:
+    # motor: 2232 U009 SR
         streams:
             motor_pos: 50.
+            current: 20.
+            velocity: 20.
+            position: 20.
         encoders:
             primary:
-                # motor: 1516SR
-                ticks_per_rev: 2048
-                # transmission: motor: 1/76 gears: 20/80
-                p: 1
-                q: 304
+                ticks_per_rev: 4096
+                # transmission: motor: 175/14976 x gears: 1/3
+                p: 1 # 175
+                q: 257 # 44928
         motor:
-            torque_cst: 0.00826 # Nm/A
+            current_offset: 0
+            torque_cst: 2.952 # Nm/A after transmission, before 0.0115, datasheet: 11.5 mNm/A
         control:
+            acceleration_limit: 2936.9 # rad/s^2 after transmission, before 753982.2, datasheet: 120 10^3 rad/s^2
+            velocity_limit: 2.4 # rad/s after transmission, before 608.4, datasheet: 5810 /min
+            torque_limit: 2.6 # Nm after transmission, before 0.0100, datasheet: 10.0 mNm
             mode: 3 # bounded
-            current:
-                kp: 24.
-                ki: 5000.
-                kd: 0.
-                i_limit: 100.
-            velocity:
-                kp: 0.2
-                ki: 0.8
-                kd: 0.
-                i_limit: 0.13
-            position:
-                kp: 6.
-                ki: 1.
-                kd: 2.
             low_batt_th: 5.
-            acceleration_limit: 100.
-            velocity_limit: 10.
-            torque_limit: 1.
-    elbow-joint:
+            current:
+                i_limit: 50.0
+                kd: 0.0
+                ki: 600.0
+                kp: 2.0
+            position:
+                i_limit: 1000.0
+                kd: 0.0
+                ki: 1.0
+                kp: 10.0
+            velocity:
+                i_limit: 1.0
+                kd: 0.0
+                ki: 1.0
+                kp: 0.1
+    theta-3:
+    # motor: 1524 U012 SR
         streams:
             motor_pos: 50.
-        motor:
-            torque_cst: 0.00826 # Nm/A
+            current: 20.
+            velocity: 20.
+            position: 20.
         encoders:
             primary:
-                # motor: 1516SR
-                ticks_per_rev: 2048
-                # transmission: motor: 1/76 gears: 20/60
-                p: 1
-                q: 228
-        control:
-            mode: 3 # bounded
-            current:
-                kp: 24.
-                ki: 5000.
-                kd: 0.
-                i_limit: 100.
-            velocity:
-                kp: 8.
-                ki: 1.
-                kd: 0.
-                i_limit: 0.5
-            position:
-                kp: 12
-                ki: 0.
-                kd: 0.
-            low_batt_th: 5.
-            acceleration_limit: 100.
-            velocity_limit: 10.
-            torque_limit: 3.
-    arm-pump:
-        control:
-            mode: 0 # openloop
-            low_batt_th: 5.
-    right-pump-1:
-        control:
-            mode: 0 # openloop
-            low_batt_th: 5.
-    right-pump-2:
-        control:
-            mode: 0 # openloop
-            low_batt_th: 5.
-    left-pump-1:
-        control:
-            mode: 0 # openloop
-            low_batt_th: 5.
-    left-pump-2:
-        control:
-            mode: 0 # openloop
-            low_batt_th: 5.
-    ball-accelerator:
-        encoders:
-          primary:
-            p: 1
-            q: 1
-            ticks_per_rev: 4096
+                ticks_per_rev: 4096
+                # transmission: motor: 5103/387283 x gears: 1/3
+                p: 1 # 1701
+                q: 228 # 387283
         motor:
-            torque_cst: 17.3
+            current_offset: 0
+            torque_cst: 2.618 # Nm/A after transmission, before 0.0115, datasheet: 11.5 mNm/A
         control:
-            mode: 2
-            current:
-                kp: 1.0
-                ki: 200.
-                kd: 0.
-                i_limit: 200.
-            velocity:
-                kp: 3.
-                ki: 0.
-                kd: 0.
-                i_limit: 0.
+            acceleration_limit: 3422.0 # rad/s^2 after transmission, before 779115.0, datasheet: 124 10^3 rad/s^2
+            velocity_limit: 1.9 # rad/s after transmission, before 432.5, datasheet: 4130 /min
+            torque_limit: 0.7 # Nm after transmission, before 0.0029, datasheet: 2.9 mNm
+            mode: 3 # bounded
             low_batt_th: 5.
-            acceleration_limit: 5000.
-            velocity_limit: 550.
-            torque_limit: 40.
+            current:
+                i_limit: 50.0
+                kd: 0.0
+                ki: 700.0
+                kp: 5.0
+            position:
+                i_limit: 100.0
+                kd: 5.0
+                ki: 10.0
+                kp: 200.0
+            velocity:
+                i_limit: 10.0
+                kd: 0.0
+                ki: 5.0
+                kp: 0.3
