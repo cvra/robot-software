@@ -13,6 +13,7 @@
 #include "robot_helpers/math_helpers.h"
 #include "robot_helpers/trajectory_helpers.h"
 #include "robot_helpers/strategy_helpers.h"
+#include "robot_helpers/arm_helpers.h"
 #include "base/base_controller.h"
 #include "base/base_helpers.h"
 #include "base/map.h"
@@ -210,11 +211,22 @@ bool strategy_goto_avoid_retry(int x_mm, int y_mm, int a_deg, int traj_end_flags
     return finished;
 }
 
-
 struct IndexArms : actions::IndexArms {
     bool execute(RobotState& state)
     {
         NOTICE("Indexing arms!");
+
+        const char* motors[3] = {"theta-1", "theta-2", "theta-3"};
+        const float directions[3] = {-1, -1, 1};
+        const float speeds[3] = {0.03, 0.12, 0.06};
+        float offsets[3];
+
+        arm_motors_index(motors, directions, speeds, offsets);
+
+        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q1"), offsets[0]);
+        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q2"), offsets[1]);
+        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q3"), offsets[2]);
+
         state.arms_are_indexed = true;
         return true;
     }
@@ -241,8 +253,7 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
     // messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
     InitGoal init_goal;
-    goap::Goal<RobotState>* goals[] = {
-    };
+    goap::Goal<RobotState>* goals[] = {};
 
     IndexArms index_arms;
     RetractArms retract_arms(color);
@@ -315,8 +326,7 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     // messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
     InitGoal init_goal;
-    goap::Goal<RobotState>* goals[] = {
-    };
+    goap::Goal<RobotState>* goals[] = {};
 
     IndexArms index_arms;
     RetractArms retract_arms(color);
