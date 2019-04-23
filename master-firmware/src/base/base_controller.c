@@ -115,6 +115,7 @@ static THD_FUNCTION(base_ctrl_thd, arg)
     chRegSetThreadName(__FUNCTION__);
 
     parameter_namespace_t* control_params = parameter_namespace_find(&master_config, "aversive/control");
+    parameter_namespace_t* odometry_params = parameter_namespace_find(&master_config, "odometry");
     while (1) {
         rs_update(&robot.rs);
 
@@ -162,6 +163,16 @@ static THD_FUNCTION(base_ctrl_thd, arg)
             ilim = parameter_scalar_get(parameter_find(control_params, "distance/i_limit"));
             pid_set_gains(&robot.distance_pid.pid, kp, ki, kd);
             pid_set_integral_limit(&robot.distance_pid.pid, ilim);
+        }
+        if (parameter_namespace_contains_changed(odometry_params)) {
+            rs_set_left_ext_encoder(&robot.rs, rs_encoder_get_left_ext, NULL,
+                                    config_get_scalar("master/odometry/left_wheel_correction_factor"));
+            rs_set_right_ext_encoder(&robot.rs, rs_encoder_get_right_ext, NULL,
+                                     config_get_scalar("master/odometry/right_wheel_correction_factor"));
+
+            position_set_physical_params(&robot.pos,
+                                         config_get_scalar("master/odometry/external_track_mm"),
+                                         config_get_scalar("master/odometry/external_encoder_ticks_per_mm"));
         }
 
         switch (robot.base_speed) {
