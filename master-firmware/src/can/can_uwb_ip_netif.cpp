@@ -31,7 +31,6 @@ static DataPacket tx_packet, rx_packet;
 static MUTEX_DECL(lock_rx_packet);
 static BSEMAPHORE_DECL(sem_rx_available, true);
 static EVENTSOURCE_DECL(event_rx);
-static pbuf* rx_pbuf;
 
 uavcan::LazyConstructor<uavcan::Publisher<DataPacket>> data_pub;
 
@@ -76,6 +75,7 @@ int can_uwb_ip_netif_init(uavcan::INode& node)
 
 static err_t low_level_output(struct netif* netif, struct pbuf* p)
 {
+    (void) netif;
     /* First, copy all the data */
     tx_packet = DataPacket();
     for (auto q = p; q != NULL; q = q->next) {
@@ -96,6 +96,7 @@ static err_t low_level_output(struct netif* netif, struct pbuf* p)
 
 bool lwip_uwb_ip_read(struct netif* netif, struct pbuf** pbuf)
 {
+    (void) netif;
     if (chBSemWaitTimeout(&sem_rx_available, TIME_IMMEDIATE) != MSG_OK) {
         return false;
     }
@@ -122,6 +123,7 @@ bool lwip_uwb_ip_read(struct netif* netif, struct pbuf** pbuf)
 
 int can_uwb_ip_netif_spin(uavcan::INode& node)
 {
+    (void) node;
     /* Check if data is available for transmit */
     if (chBSemWaitTimeout(&sem_tx_ready, TIME_IMMEDIATE) == MSG_OK) {
         data_pub->broadcast(tx_packet);
