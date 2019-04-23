@@ -11,13 +11,15 @@ float motor_wait_for_index(motor_driver_t* motor, float motor_speed)
     uint32_t index_count = motor->stream.value_stream_index_update_count;
 
     NOTICE("Moving axis...");
-    motor_driver_set_velocity(motor, motor_speed);
 
     while (motor->stream.value_stream_index_update_count == index_count) {
+        motor_driver_set_torque(motor, motor_speed);
 #ifndef TESTS
-        chThdSleepMilliseconds(1);
+        chThdSleepMilliseconds(10);
 #endif
     }
+
+    chThdSleepMilliseconds(100);
 
     return motor_driver_get_and_clear_stream_value(motor, MOTOR_STREAM_INDEX);
 }
@@ -55,9 +57,6 @@ float motor_auto_index(const char* motor_name, int motor_dir, float motor_speed)
     // move until index is found
     float index = motor_wait_for_index(motor, motor_dir * motor_speed);
     NOTICE("Seen index at %.4f!", index);
-
-    // stop moving
-    motor_driver_set_velocity(motor, 0);
 
     return index;
 }
