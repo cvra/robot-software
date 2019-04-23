@@ -650,21 +650,17 @@ static void cmd_wheel_calibration(BaseSequentialStream* chp, int argc, char* arg
     chprintf(chp, "Suggested factors :\n");
     chprintf(chp, "Left : %.8f (old gain was %f)\n", left_gain, robot.rs.left_ext_gain);
     chprintf(chp, "Right : %.8f (old gain was %f)\n", right_gain, robot.rs.right_ext_gain);
-}
 
-static void cmd_wheel_correction(BaseSequentialStream* chp, int argc, char* argv[])
-{
-    if (argc == 2) {
-        if (!strcmp("left", argv[0])) {
-            float left = atof(argv[1]);
-            rs_set_left_ext_encoder(&robot.rs, rs_encoder_get_left_ext, NULL, left);
-        } else if (!strcmp("right", argv[0])) {
-            float right = atof(argv[1]);
-            rs_set_right_ext_encoder(&robot.rs, rs_encoder_get_right_ext, NULL, right);
-        }
-    } else {
-        chprintf(chp, "Usage: wheel_corr {left|right} factor\r\n");
+    static char line[2];
+    chprintf(chp, "Press y to apply, any other key to discard\r\n");
+    if (shellGetLine(&shell_cfg, line, sizeof(line), NULL) || line[0] != 'y') {
+        /* CTRL-D was pressed or any key that is not 'y' */
+        return;
     }
+
+    parameter_scalar_set(PARAMETER("master/odometry/left_wheel_correction_factor"), left_gain);
+    parameter_scalar_set(PARAMETER("master/odometry/right_wheel_correction_factor"), right_gain);
+    chprintf(chp, "New wheel correction factors set\r\n");
 }
 
 static void cmd_track_calibration(BaseSequentialStream* chp, int argc, char* argv[])
@@ -703,19 +699,21 @@ static void cmd_track_calibration(BaseSequentialStream* chp, int argc, char* arg
     float delta_angle = angle_delta(0., end_angle - start_angle);
     float track_calibrated = (float)robot.pos.phys.track_mm * (1 + (delta_angle / (2. * M_PI * (float)count)));
 
+    trajectory_d_rel(&robot.traj, -robot.calibration_direction * 50);
+
     chprintf(chp, "Start angle %f, End angle : %f\n", DEGREES(start_angle), DEGREES(end_angle));
     chprintf(chp, "Angle difference : %f\n", DEGREES(delta_angle));
     chprintf(chp, "Suggested track : %.8f mm\n", track_calibrated);
-}
 
-static void cmd_track_correction(BaseSequentialStream* chp, int argc, char* argv[])
-{
-    if (argc < 1) {
-        chprintf(chp, "Usage: track_corr factor\r\n");
+    static char line[2];
+    chprintf(chp, "Press y to apply, any other key to discard\r\n");
+    if (shellGetLine(&shell_cfg, line, sizeof(line), NULL) || line[0] != 'y') {
+        /* CTRL-D was pressed or any key that is not 'y' */
         return;
     }
-    float track = atof(argv[0]);
-    position_set_physical_params(&robot.pos, track, robot.pos.phys.distance_imp_per_mm);
+
+    parameter_scalar_set(PARAMETER("master/odometry/external_track_mm"), track_calibrated);
+    chprintf(chp, "New track set\r\n");
 }
 
 static void cmd_autopos(BaseSequentialStream* chp, int argc, char* argv[])
@@ -1037,9 +1035,7 @@ const ShellCommand commands[] = {
     {"goto_avoid", cmd_goto_avoid},
     {"bdconf", cmd_blocking_detection_config},
     {"wheel_calib", cmd_wheel_calibration},
-    {"wheel_corr", cmd_wheel_correction},
     {"track_calib", cmd_track_calibration},
-    {"track_corr", cmd_track_correction},
     {"autopos", cmd_autopos},
     {"motor_pos", cmd_motor_pos},
     {"motor_voltage", cmd_motor_voltage},
