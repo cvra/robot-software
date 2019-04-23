@@ -633,6 +633,7 @@ static void cmd_wheel_calibration(BaseSequentialStream* chp, int argc, char* arg
     //trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
 
     /* Take reference again at the wall */
+    trajectory_set_mode_aligning(&robot.mode, &robot.traj, &robot.distance_bd, &robot.angle_bd);
     trajectory_align_with_wall();
 
     /* Compute correction factors */
@@ -692,6 +693,8 @@ static void cmd_track_calibration(BaseSequentialStream* chp, int argc, char* arg
     trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
 
     /* Take reference at the wall */
+    trajectory_set_mode_aligning(&robot.mode, &robot.traj, &robot.distance_bd, &robot.angle_bd);
+
     trajectory_align_with_wall();
     float end_angle = pos_imp2rd(&robot.traj, rs_get_angle(&robot.rs));
 
