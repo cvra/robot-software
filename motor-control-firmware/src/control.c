@@ -300,9 +300,6 @@ void control_init(void)
     declare_parameters();
 
     ctrl.motor_current_constant = 1;
-    ctrl.velocity_limit = 0;
-    ctrl.torque_limit = 0;
-    ctrl.current_limit = INFINITY;
     pid_init(&ctrl.current_pid);
     pid_init(&ctrl.velocity_pid);
     pid_init(&ctrl.position_pid);
@@ -319,6 +316,16 @@ void control_init(void)
     control_feedback.secondary_encoder.accumulator = 0;
 
     last_setpoint_update = timestamp_get();
+
+    control_feedback.primary_encoder.transmission_p = parameter_integer_get(&encoder_params.primary.p);
+    control_feedback.primary_encoder.transmission_q = parameter_integer_get(&encoder_params.primary.q);
+
+    ctrl.torque_limit = parameter_scalar_get(&control_params.limits.torque);
+    ctrl.current_limit = ctrl.torque_limit / parameter_scalar_get(&motor_params.torque_cst);
+    ctrl.velocity_limit = parameter_scalar_get(&control_params.limits.vel);
+
+    float transmission = (float)control_feedback.primary_encoder.transmission_p / control_feedback.primary_encoder.transmission_q;
+    ctrl.motor_current_constant = 1.f / (parameter_scalar_get(&motor_params.torque_cst) * transmission);
 }
 
 static void update_parameters(void)
