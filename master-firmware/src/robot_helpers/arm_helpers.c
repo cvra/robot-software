@@ -1,5 +1,7 @@
 #include <ch.h>
 
+#include <math.h>
+
 #include <error/error.h>
 
 #include "motor_manager.h"
@@ -60,4 +62,19 @@ void arm_motors_index(const char** motors, const float* directions, const float*
         set_motor_torque(motors[i], 0);
         set_index_stream_frequency(motors[i], 0);
     }
+
+    float references[3] = {
+        M_PI_2, // theta 1 indexes: at 90deg
+        -M_PI, // theta 2 indexes: at -180deg
+        M_PI, // theta 2 indexes: at 180deg
+    };
+
+    // axis are decoupled
+    references[1] += references[0];
+    references[2] += references[1];
+
+    // We don't index at angle 0
+    offsets[0] = directions[0] * offsets[0] - references[0];
+    offsets[1] = directions[1] * offsets[1] - references[1];
+    offsets[2] = directions[2] * offsets[2] - references[2];
 }
