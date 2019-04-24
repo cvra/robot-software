@@ -48,6 +48,11 @@ void arm_motors_index(const char** motors, const float* directions, const float*
         set_index_stream_frequency(motors[i], 0);
     }
 
+    arm_compute_offsets(directions, offsets);
+}
+
+void arm_compute_offsets(const float* directions, float* offsets)
+{
     float references[3] = {
         M_PI_2, // theta 1 indexes: at 90deg
         -M_PI, // theta 2 indexes: at -180deg
