@@ -432,10 +432,6 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
 
     trajectory_game_timer_reset();
 
-    NOTICE("Moving out of Order's way. Time for Chaos!");
-    trajectory_d_rel(&robot.traj, -400);
-    trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
-
     NOTICE("Starting game...");
 
     while (!trajectory_game_has_ended()) {
