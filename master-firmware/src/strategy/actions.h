@@ -38,12 +38,26 @@ struct RetractArms : public goap::Action<RobotState> {
 struct TakePuck : public goap::Action<RobotState> {
     bool can_run(const RobotState& state)
     {
-        return state.arms_are_indexed;
+        return state.arms_are_indexed && state.puck_available;
     }
 
     void plan_effects(RobotState& state)
     {
+        state.puck_available = false;
         state.has_puck = true;
+        state.arms_are_deployed = true;
+    }
+};
+
+struct DepositPuck : public goap::Action<RobotState> {
+    bool can_run(const RobotState& state)
+    {
+        return state.has_puck;
+    }
+
+    void plan_effects(RobotState& state)
+    {
+        state.pucks_in_red_zone++;
         state.arms_are_deployed = true;
     }
 };

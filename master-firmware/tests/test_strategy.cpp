@@ -20,6 +20,9 @@ struct RetractArms : actions::RetractArms {
 struct TakePuck : actions::TakePuck {
     bool execute(RobotState& state) { return dummy_execute(this, state); }
 };
+struct DepositPuck : actions::DepositPuck {
+    bool execute(RobotState& state) { return dummy_execute(this, state); }
+};
 
 TEST_GROUP (Strategy) {
     RobotState state;
@@ -27,6 +30,7 @@ TEST_GROUP (Strategy) {
     IndexArms index_arms;
     RetractArms retract_arms;
     TakePuck take_puck;
+    DepositPuck deposit_puck;
 
     std::vector<goap::Action<RobotState>*> availableActions()
     {
@@ -34,6 +38,7 @@ TEST_GROUP (Strategy) {
             &index_arms,
             &retract_arms,
             &take_puck,
+            &deposit_puck,
         };
     }
 

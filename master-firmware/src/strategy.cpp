@@ -18,6 +18,7 @@
 #include "base/base_helpers.h"
 #include "base/map.h"
 #include "base/map_server.h"
+#include "manipulator/manipulator_thread.h"
 #include "config.h"
 #include "control_panel.h"
 #include "main.h"
@@ -248,6 +249,61 @@ struct RetractArms : actions::RetractArms {
     }
 };
 
+struct TakePuck : actions::TakePuck {
+    enum strat_color_t m_color;
+
+    TakePuck(enum strat_color_t color)
+        : m_color(color)
+    {
+    }
+
+    bool execute(RobotState& state)
+    {
+        if (!strategy_goto_avoid(MIRROR_X(m_color, 320), 390, MIRROR_A(m_color, 180), TRAJ_FLAGS_ALL)) {
+            return false;
+        }
+
+        float pick_angles[3] = {0.9315, -0.7538, -0.2395};
+        manipulator_angles_set(pick_angles);
+        manipulator_gripper_set(GRIPPER_ACQUIRE);
+
+        strategy_wait_ms(500);
+        float lift_angles[3] = {0.7585, 0.4314, -1.2529};
+        manipulator_angles_set(lift_angles);
+
+        state.arms_are_deployed = true;
+
+        state.puck_available = false;
+        state.has_puck = true;
+        return true;
+    }
+};
+
+struct DepositPuck : actions::DepositPuck {
+    enum strat_color_t m_color;
+
+    DepositPuck(enum strat_color_t color)
+        : m_color(color)
+    {
+    }
+
+    bool execute(RobotState& state)
+    {
+        if (!strategy_goto_avoid(MIRROR_X(m_color, 320), 390, MIRROR_A(m_color, 0), TRAJ_FLAGS_ALL)) {
+            return false;
+        }
+        manipulator_gripper_set(GRIPPER_RELEASE);
+        strategy_wait_ms(100);
+
+        manipulator_gripper_set(GRIPPER_OFF);
+
+        state.has_puck = false;
+        state.pucks_in_red_zone++;
+        state.arms_are_deployed = true;
+        return true;
+    }
+};
+
 void strategy_order_play_game(enum strat_color_t color, RobotState& state)
 {
     // messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
@@ -326,10 +382,15 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     // messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
     InitGoal init_goal;
-    goap::Goal<RobotState>* goals[] = {};
+    FirstPuckGoal first_puck_goal;
+    goap::Goal<RobotState>* goals[] = {
+        &first_puck_goal,
+    };
 
     IndexArms index_arms;
     RetractArms retract_arms(color);
+    TakePuck take_puck(color);
+    DepositPuck deposit_puck(color);
 
     const int max_path_len = 10;
     goap::Action<RobotState>* path[max_path_len] = {nullptr};
@@ -337,6 +398,8 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     goap::Action<RobotState>* actions[] = {
         &index_arms,
         &retract_arms,
+        &take_puck,
+        &deposit_puck,
     };
 
     const auto action_count = sizeof(actions) / sizeof(actions[0]);
