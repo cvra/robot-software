@@ -37,8 +37,10 @@
 
 #define STMPE610_I2C_ADDR 0x41
 
-static bool_t init_board(GMouse* m, unsigned driverinstance)
+static bool init_board(GMouse* m, unsigned driverinstance)
 {
+    (void) m;
+    (void) driverinstance;
     static I2CConfig config;
     config.op_mode = OPMODE_I2C;
     config.clock_speed = 100 * 1000;
@@ -51,16 +53,19 @@ static bool_t init_board(GMouse* m, unsigned driverinstance)
 
 static void aquire_bus(GMouse* m)
 {
+    (void) m;
     //   i2cAcquireBus(&I2CD2);
 }
 
 static void release_bus(GMouse* m)
 {
+    (void) m;
     //    i2cReleaseBus(&I2CD2);
 }
 
 static void write_reg(GMouse* m, uint8_t reg, uint8_t val)
 {
+    (void) m;
     uint8_t buffer[2] = {reg, val};
     i2cMasterTransmitTimeout(&I2CD2, STMPE610_I2C_ADDR, buffer, sizeof(buffer),
                              NULL, 0, TIME_MS2I(10));
@@ -68,6 +73,7 @@ static void write_reg(GMouse* m, uint8_t reg, uint8_t val)
 
 static uint8_t read_byte(GMouse* m, uint8_t reg)
 {
+    (void) m;
     uint8_t reply;
     i2cMasterTransmitTimeout(&I2CD2, STMPE610_I2C_ADDR, &reg, sizeof(reg),
                              &reply, sizeof(reply), TIME_MS2I(10));
@@ -77,8 +83,9 @@ static uint8_t read_byte(GMouse* m, uint8_t reg)
 
 static uint16_t read_word(GMouse* m, uint8_t reg)
 {
+    (void) m;
     uint8_t reply[2];
-    i2cMasterTransmitTimeout(&I2CD2, 0x41, &reg, sizeof(reg), &reply, sizeof(reply), TIME_MS2I(10));
+    i2cMasterTransmitTimeout(&I2CD2, 0x41, &reg, sizeof(reg), reply, sizeof(reply), TIME_MS2I(10));
     uint16_t result;
     result = reply[0];
     result <<= 8;

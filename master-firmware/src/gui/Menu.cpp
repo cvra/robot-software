@@ -20,7 +20,7 @@ void Menu::create_container()
     wi.g.height = SCREEN_HEIGHT - 60;
     wi.g.y = 60;
     wi.g.x = 0;
-    wi.g.show = TRUE;
+    wi.g.show = gTrue;
     wi.customDraw = gwinContainerDraw_Transparent;
     page_container = gwinContainerCreate(0, &wi, 0);
 }
@@ -42,7 +42,7 @@ void Menu::switch_to_page(Page* page)
         gwinDisable(back_button);
     }
     this->page->on_enter(page_container);
-    gwinSetText(page_title, page->get_name(), FALSE);
+    gwinSetText(page_title, page->get_name(), gFalse);
 }
 
 void Menu::pop_page()
@@ -67,10 +67,10 @@ void Menu::event_loop()
     gtimerStart(&periodic_timer, [](void *p) {
         Menu *m = reinterpret_cast<Menu *>(p);
         m->on_timer();
-    }, this, TRUE, 100);
+    }, this, gTrue, 100);
 
     while (true) {
-        GEvent* event = geventEventWait(&listener, TIME_INFINITE);
+        GEvent* event = geventEventWait(&listener, gDelayForever);
 
         if (event->type == GEVENT_GWIN_BUTTON && reinterpret_cast<GEventGWinButton*>(event)->gwin == back_button) {
             pop_page();
@@ -88,7 +88,7 @@ void Menu::create_back_button()
     wi.g.height = 40;
     wi.g.y = 10;
     wi.g.x = 10;
-    wi.g.show = TRUE;
+    wi.g.show = gTrue;
     wi.customDraw = gwinButtonDraw_ArrowLeft;
     back_button = gwinButtonCreate(0, &wi);
 }
@@ -101,6 +101,6 @@ void Menu::create_page_title()
     wi.g.height = 60;
     wi.g.y = 0;
     wi.g.x = 60;
-    wi.g.show = TRUE;
+    wi.g.show = gTrue;
     page_title = gwinLabelCreate(0, &wi);
 }

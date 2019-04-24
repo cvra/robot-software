@@ -38,8 +38,8 @@ static void gui_thread(void* p)
     gfxInit();
     gwinSetDefaultStyle(&WhiteWidgetStyle, GFXOFF);
     gwinSetDefaultFont(gdispOpenFont("DejaVuSans32"));
-    gdispClear(Silver);
-    gwinSetDefaultBgColor(Silver);
+    gdispClear(GFX_SILVER);
+    gwinSetDefaultBgColor(GFX_SILVER);
 
     WARNING("GUI init done");
 

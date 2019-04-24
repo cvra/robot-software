@@ -50,7 +50,7 @@
 // #define GDISP_NEED_PIXMAP                            GFXOFF
 //    #define GDISP_NEED_PIXMAP_IMAGE                  GFXOFF
 
-#define GDISP_DEFAULT_ORIENTATION GDISP_ROTATE_270
+#define GDISP_DEFAULT_ORIENTATION gOrientation270
 // #define GDISP_LINEBUF_SIZE                           128
 // #define GDISP_STARTUP_COLOR                          Black
 #define GDISP_NEED_STARTUP_LOGO GFXOFF
@@ -75,7 +75,7 @@
 // #define GWIN_FOCUS_HIGHLIGHT_WIDTH                   1
 #define GWIN_NEED_LABEL GFXON
 #define GWIN_NEED_BUTTON GFXON
-//        #define GWIN_BUTTON_LAZY_RELEASE             GFXOFF
+#define GWIN_BUTTON_LAZY_RELEASE             GFXON
 #define GWIN_NEED_SLIDER GFXON
 #define GWIN_SLIDER_NOSNAP GFXON
 //        #define GWIN_SLIDER_DEAD_BAND                5
@@ -148,4 +148,6 @@
 //    #define GADC_MAX_LOWSPEED_DEVICES                4
 #define GOS_NEED_X_THREADS GFXOFF
 #define GOX_NEED_X_HEAP GFXOFF
+
+#define GFX_COMPAT_V2 GFXOFF
 #endif /* _GFXCONF_H */

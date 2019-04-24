@@ -22,6 +22,7 @@ endif()
 add_definitions(-DGFX_OS_PRE_INIT_FUNCTION=sdl_driver_init)
 add_definitions(-DGDISP_SCREEN_WIDTH=480)
 add_definitions(-DGDISP_SCREEN_HEIGHT=320)
+add_definitions(-DGUI_SIMULATOR)
 
 set(SOURCES
     ${UGFX}/src/gfx.c

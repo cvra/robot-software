@@ -18,7 +18,7 @@ static void set_viewport(GDisplay* g);
 static void write_reg(GDisplay* g, uint16_t index, uint16_t data);
 static void write_cache_data16(GDisplay* g, uint16_t data);
 
-LLDSPEC bool_t gdisp_lld_init(GDisplay* g)
+LLDSPEC gBool gdisp_lld_init(GDisplay* g)
 {
     // No private area for this controller
     g->priv = 0;
@@ -139,8 +139,8 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay* g)
     /* Initialise the GDISP structure */
     g->g.Width = GDISP_SCREEN_WIDTH;
     g->g.Height = GDISP_SCREEN_HEIGHT;
-    g->g.Orientation = GDISP_ROTATE_0;
-    g->g.Powermode = powerOn;
+    g->g.Orientation = gOrientation0;
+    g->g.Powermode = gPowerOn;
     g->g.Backlight = 100;
     g->g.Contrast = 100;
     return TRUE;
@@ -167,12 +167,12 @@ LLDSPEC void gdisp_lld_control(GDisplay* g)
 {
     switch (g->p.x) {
         case GDISP_CONTROL_ORIENTATION:
-            if (g->g.Orientation == (orientation_t)g->p.ptr) {
+            if (g->g.Orientation == (gOrientation)g->p.ptr) {
                 return;
             }
-            switch ((orientation_t)g->p.ptr) {
+            switch ((gOrientation)g->p.ptr) {
                 /* X and Y axes non-inverted */
-                case GDISP_ROTATE_0:
+                case gOrientation0:
                     hx8357_acquire_bus(g);
                     write_reg(g, HX8357_MADCTL, HX8357_MADCTL_MY | HX8357_MADCTL_MX);
                     hx8357_release_bus(g);
@@ -181,7 +181,7 @@ LLDSPEC void gdisp_lld_control(GDisplay* g)
                     break;
 
                 /* Invert X and Y axes */
-                case GDISP_ROTATE_90:
+                case gOrientation90:
                     hx8357_acquire_bus(g);
                     write_reg(g, HX8357_MADCTL, HX8357_MADCTL_MY | HX8357_MADCTL_MV);
                     hx8357_release_bus(g);
@@ -189,7 +189,7 @@ LLDSPEC void gdisp_lld_control(GDisplay* g)
                     g->g.Width = GDISP_SCREEN_HEIGHT;
                     break;
 
-                case GDISP_ROTATE_180:
+                case gOrientation180:
                     hx8357_acquire_bus(g);
                     write_reg(g, HX8357_MADCTL, 0x00);
                     hx8357_release_bus(g);
@@ -197,7 +197,7 @@ LLDSPEC void gdisp_lld_control(GDisplay* g)
                     g->g.Width = GDISP_SCREEN_WIDTH;
                     break;
 
-                case GDISP_ROTATE_270:
+                case gOrientation270:
                     hx8357_acquire_bus(g);
                     write_reg(g, HX8357_MADCTL, HX8357_MADCTL_MX | HX8357_MADCTL_MV);
                     hx8357_release_bus(g);
@@ -208,7 +208,7 @@ LLDSPEC void gdisp_lld_control(GDisplay* g)
                 default:
                     return;
             }
-            g->g.Orientation = (orientation_t)g->p.ptr;
+            g->g.Orientation = (gOrientation)g->p.ptr;
             return;
 
         default:

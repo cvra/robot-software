@@ -29,14 +29,14 @@ public:
 
         gwinWidgetClearInit(&wi);
 
-        wi.g.show = TRUE;
+        wi.g.show = gTrue;
         wi.g.parent = parent;
         wi.g.width = 100;
         wi.g.height = 50;
         wi.g.y = 10;
         wi.g.x = 5;
         button = gwinLabelCreate(0, &wi);
-        gwinSetText(button, "foobar", FALSE);
+        gwinSetText(button, "foobar", gFalse);
     }
 
     virtual void on_timer()
@@ -44,7 +44,7 @@ public:
         char msg[30];
         sprintf(msg, "x: %02d", counter);
         counter ++;
-        gwinSetText(button, msg, TRUE);
+        gwinSetText(button, msg, gTrue);
     }
 
     virtual void on_event(GEvent* event)
@@ -59,8 +59,8 @@ int main(int argc, char* argv[])
     (void)argv;
 
     gfxInit();
-    gdispClear(Silver);
-    gwinSetDefaultBgColor(Silver);
+    gdispClear(GFX_SILVER);
+    gwinSetDefaultBgColor(GFX_SILVER);
 
     gwinSetDefaultFont(gdispOpenFont("DejaVuSans32"));
 
