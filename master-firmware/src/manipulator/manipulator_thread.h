@@ -10,6 +10,14 @@ void manipulator_start(void);
 void manipulator_angles(float* angles);
 void manipulator_angles_set(float* angles);
 
+typedef enum {
+    GRIPPER_OFF,
+    GRIPPER_ACQUIRE,
+    GRIPPER_RELEASE,
+} gripper_state_t;
+
+void manipulator_gripper_set(gripper_state_t state);
+
 #ifdef __cplusplus
 }
 #endif

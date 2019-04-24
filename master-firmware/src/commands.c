@@ -1113,6 +1113,25 @@ static void cmd_arm(BaseSequentialStream* chp, int argc, char* argv[])
     }
 }
 
+static void cmd_grip(BaseSequentialStream* chp, int argc, char* argv[])
+{
+    if (argc != 1) {
+        chprintf(chp, "Usage: grip -1|0|1\r\n");
+        return;
+    }
+    int state = atoi(argv[0]);
+    if (state > 0) {
+        manipulator_gripper_set(GRIPPER_ACQUIRE);
+        chprintf(chp, "Acquire gripper\r\n");
+    } else if (state < 0) {
+        manipulator_gripper_set(GRIPPER_RELEASE);
+        chprintf(chp, "Release gripper\r\n");
+    } else {
+        manipulator_gripper_set(GRIPPER_OFF);
+        chprintf(chp, "Disable gripper\r\n");
+    }
+}
+
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
@@ -1156,4 +1175,5 @@ const ShellCommand commands[] = {
     {"beacon", cmd_proximity_beacon},
     {"shake", cmd_shake_the_arm},
     {"arm", cmd_arm},
+    {"grip", cmd_grip},
     {NULL, NULL}};

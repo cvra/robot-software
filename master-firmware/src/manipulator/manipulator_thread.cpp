@@ -58,6 +58,17 @@ void manipulator_angles_set(float* angles)
     right_arm.apply(input);
 }
 
+void manipulator_gripper_set(gripper_state_t state)
+{
+    if (state == GRIPPER_ACQUIRE) {
+        right_arm.gripper.acquire();
+    } else if (state == GRIPPER_RELEASE) {
+        right_arm.gripper.release();
+    } else {
+        right_arm.gripper.disable();
+    }
+}
+
 static THD_FUNCTION(manipulator_thd, arg)
 {
     (void)arg;
