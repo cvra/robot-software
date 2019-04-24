@@ -28,6 +28,7 @@
 #include "robot_helpers/strategy_helpers.h"
 #include "robot_helpers/motor_helpers.h"
 #include "robot_helpers/arm_helpers.h"
+#include "manipulator/manipulator_thread.h"
 #include "strategy.h"
 #include <trace/trace.h>
 #include "pca9685_pwm.h"
