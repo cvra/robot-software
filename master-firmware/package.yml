@@ -62,6 +62,7 @@ target.arm:
     - src/strategy/color_sequence_server.c
     - src/udp_topic_broadcaster.c
     - src/manipulator/hw.cpp
+    - src/manipulator/gripper.cpp
     - src/manipulator/manipulator_thread.cpp
     - src/uid.c
 
