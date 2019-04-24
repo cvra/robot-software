@@ -89,6 +89,9 @@ static THD_FUNCTION(manipulator_thd, arg)
                 config_get_scalar("master/arms/right/offsets/q2"),
                 config_get_scalar("master/arms/right/offsets/q3"),
             });
+
+            right_arm.gripper.configure(config_get_scalar("master/arms/right/gripper/release"),
+                                        config_get_scalar("master/arms/right/gripper/acquire"));
         }
 
         Pose2D pose = right_arm.update();

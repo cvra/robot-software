@@ -4,17 +4,20 @@
 #include "manipulator/controller.h"
 #include "manipulator/hw.h"
 #include "manipulator/state_estimator.h"
+#include "manipulator/gripper.h"
 
 namespace manipulator {
 template <class LockGuard>
 class Manipulator {
-private:
+public:
     manipulator::System sys;
     manipulator::StateEstimator estimator;
     manipulator::Controller ctrl;
     void* mutex;
 
 public:
+    manipulator::Gripper gripper;
+
     Manipulator(const std::array<float, 3>& link_lengths, void* _mutex)
         : estimator(link_lengths)
         , ctrl(link_lengths)

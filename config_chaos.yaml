@@ -71,6 +71,9 @@ master:
                 q1: 0.
                 q2: 0.
                 q3: 0.
+            gripper:
+                release: -3.
+                acquire: 6.
     screen:
         ax: 0.089231252
         ay: -0.001139728
