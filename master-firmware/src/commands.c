@@ -1083,7 +1083,7 @@ static void cmd_shake_the_arm(BaseSequentialStream* chp, int argc, char* argv[])
     }
 }
 
-static void cmd_arm_angles(BaseSequentialStream* chp, int argc, char* argv[])
+static void cmd_arm(BaseSequentialStream* chp, int argc, char* argv[])
 {
     float angles[3];
 
@@ -1100,10 +1100,16 @@ static void cmd_arm_angles(BaseSequentialStream* chp, int argc, char* argv[])
 
         chprintf(chp, "Measured angles: %.4f %.4f %.4f\r\n", angles[0], angles[1], angles[2]);
     } else {
-        motor_manager_set_voltage(&motor_manager, "theta-1", 0);
-        motor_manager_set_voltage(&motor_manager, "theta-2", 0);
-        motor_manager_set_voltage(&motor_manager, "theta-3", 0);
-        chprintf(chp, "Disabled arm\r\n");
+        if (!strcmp(argv[0], "hold")) {
+            manipulator_angles(angles);
+            manipulator_angles_set(angles);
+            chprintf(chp, "Holding angles: %.4f %.4f %.4f\r\n", angles[0], angles[1], angles[2]);
+        } else {
+            motor_manager_set_voltage(&motor_manager, "theta-1", 0);
+            motor_manager_set_voltage(&motor_manager, "theta-2", 0);
+            motor_manager_set_voltage(&motor_manager, "theta-3", 0);
+            chprintf(chp, "Disabled arm\r\n");
+        }
     }
 }
 
@@ -1149,5 +1155,5 @@ const ShellCommand commands[] = {
     {"panel", cmd_panel_status},
     {"beacon", cmd_proximity_beacon},
     {"shake", cmd_shake_the_arm},
-    {"arm_angles", cmd_arm_angles},
+    {"arm", cmd_arm},
     {NULL, NULL}};
