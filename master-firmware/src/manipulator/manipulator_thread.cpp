@@ -13,13 +13,35 @@
 
 #include "protobuf/manipulator.pb.h"
 
+#define MANIPULATOR_FREQUENCY 50
+#define MANIPULATOR_TRAJECTORY_FREQUENCY 50
+
 #define MANIPULATOR_THREAD_STACKSIZE 2048
+#define MANIPULATOR_TRAJECTORY_THREAD_STACKSIZE 1024
 
 using manipulator::Angles;
 using manipulator::ArmLengths;
 using manipulator::Pose2D;
 
-manipulator::Manipulator right_arm{{0,0,0}};
+// RAII to manage locks on the manipulator
+class ManipulatorLockGuard {
+private:
+    mutex_t* lock;
+
+public:
+    ManipulatorLockGuard(void* l)
+        : lock((mutex_t*)l)
+    {
+        chMtxLock(lock);
+    }
+    ~ManipulatorLockGuard()
+    {
+        chMtxUnlock(lock);
+    }
+};
+
+MUTEX_DECL(right_lock);
+manipulator::Manipulator<ManipulatorLockGuard> right_arm{{0, 0, 0}, &right_lock};
 
 static THD_FUNCTION(manipulator_thd, arg)
 {
