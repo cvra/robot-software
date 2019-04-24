@@ -289,13 +289,17 @@ struct TakePuck : actions::TakePuck {
         strategy_wait_ms(2000);
         wait_for_color_selection();
 
-        manipulator_angles_set(0.9956, -0.4678, -0.3084);
+        manipulator_angles_set(config_get_scalar("master/arms/right/pos/pick/q1"),
+                               config_get_scalar("master/arms/right/pos/pick/q2"),
+                               config_get_scalar("master/arms/right/pos/pick/q3"));
         strategy_wait_ms(2000);
         manipulator_gripper_set(GRIPPER_ACQUIRE);
         strategy_wait_ms(500);
         wait_for_color_selection();
 
-        manipulator_angles_set(0.7585, 0.4314, -1.2529);
+        manipulator_angles_set(config_get_scalar("master/arms/right/pos/lift/q1"),
+                               config_get_scalar("master/arms/right/pos/lift/q2"),
+                               config_get_scalar("master/arms/right/pos/lift/q3"));
         strategy_wait_ms(2000);
         wait_for_color_selection();
 
