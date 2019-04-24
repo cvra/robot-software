@@ -9,6 +9,7 @@ namespace manipulator {
 Angles System::measure_feedback() const
 {
     Angles angles;
+
     for (size_t i = 0; i < 3; i++) {
         angles[i] = directions[i] * motor_get_position(motors[i]) - offsets[i];
     }
@@ -21,16 +22,11 @@ Angles System::measure_feedback() const
 
 void System::apply_input(const Angles& angles)
 {
-    Angles target;
-    for (size_t i = 0; i < 3; i++) {
-        target[i] = angles[i] + offsets[i];
-    }
-
     // axis are decoupled
-    target = axes_decouple(target);
+    Angles target = axes_decouple(angles);
 
     for (size_t i = 0; i < 3; i++) {
-        target[i] *= directions[i];
+        target[i] = directions[i] * (target[i] + offsets[i]);
         motor_manager_set_position(&motor_manager, motors[i], target[i]);
     }
 
