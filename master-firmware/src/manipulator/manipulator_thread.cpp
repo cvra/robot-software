@@ -51,10 +51,9 @@ void manipulator_angles(float* angles)
     std::copy_n(std::begin(measured), 3, angles);
 }
 
-void manipulator_angles_set(float* angles)
+void manipulator_angles_set(float q1, float q2, float q3)
 {
-    Angles input;
-    std::copy_n(angles, 3, std::begin(input));
+    Angles input = {q1, q2, q3};
     right_arm.apply(input);
 }
 

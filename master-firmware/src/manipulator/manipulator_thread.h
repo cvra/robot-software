@@ -8,7 +8,7 @@ extern "C" {
 void manipulator_start(void);
 
 void manipulator_angles(float* angles);
-void manipulator_angles_set(float* angles);
+void manipulator_angles_set(float q1, float q2, float q3);
 
 typedef enum {
     GRIPPER_OFF,

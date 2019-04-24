@@ -258,8 +258,7 @@ struct RetractArms : actions::RetractArms {
     {
         NOTICE("Retracting arms!");
 
-        float angles[3] = {1.2878, -2.4896, 2.4};
-        manipulator_angles_set(angles);
+        manipulator_angles_set(1.2878, -2.4896, 2.4);
         strategy_wait_ms(1000);
         wait_for_color_selection();
 
@@ -282,24 +281,21 @@ struct TakePuck : actions::TakePuck {
             return false;
         }
 
-        float start_angles[3] = {1.2221, -0.9355, 1.3385};
-        manipulator_angles_set(start_angles);
+        manipulator_angles_set(1.2221, -0.9355, 1.3385);
         strategy_wait_ms(2000);
         wait_for_color_selection();
 
-        float intermediate_angles[3] = {1.3344, -0.2057, -1.0742};
-        manipulator_angles_set(intermediate_angles);
+        manipulator_angles_set(1.3344, -0.2057, -1.0742);
         strategy_wait_ms(2000);
         wait_for_color_selection();
 
-        float pick_angles[3] = {0.9824, -0.5274, -0.2135};
-        manipulator_angles_set(pick_angles);
+        manipulator_angles_set(0.9956, -0.4678, -0.3084);
+        strategy_wait_ms(2000);
         manipulator_gripper_set(GRIPPER_ACQUIRE);
-        strategy_wait_ms(2000);
+        strategy_wait_ms(500);
         wait_for_color_selection();
 
-        float lift_angles[3] = {0.7585, 0.4314, -1.2529};
-        manipulator_angles_set(lift_angles);
+        manipulator_angles_set(0.7585, 0.4314, -1.2529);
         strategy_wait_ms(2000);
         wait_for_color_selection();
 

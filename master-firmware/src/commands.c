@@ -1092,7 +1092,7 @@ static void cmd_arm(BaseSequentialStream* chp, int argc, char* argv[])
         angles[1] = atof(argv[1]);
         angles[2] = atof(argv[2]);
 
-        manipulator_angles_set(angles);
+        manipulator_angles_set(angles[0], angles[1], angles[2]);
 
         chprintf(chp, "Set angles: %.4f %.4f %.4f\r\n", angles[0], angles[1], angles[2]);
     } else if (argc == 0) { // read angles
@@ -1102,7 +1102,7 @@ static void cmd_arm(BaseSequentialStream* chp, int argc, char* argv[])
     } else {
         if (!strcmp(argv[0], "hold")) {
             manipulator_angles(angles);
-            manipulator_angles_set(angles);
+            manipulator_angles_set(angles[0], angles[1], angles[2]);
             chprintf(chp, "Holding angles: %.4f %.4f %.4f\r\n", angles[0], angles[1], angles[2]);
         } else {
             motor_manager_set_voltage(&motor_manager, "theta-1", 0);
