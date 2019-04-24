@@ -1068,10 +1068,15 @@ static void cmd_arm_angles(BaseSequentialStream* chp, int argc, char* argv[])
         manipulator_angles_set(angles);
 
         chprintf(chp, "Set angles: %.4f %.4f %.4f\r\n", angles[0], angles[1], angles[2]);
-    } else { // read angles
+    } else if (argc == 0) { // read angles
         manipulator_angles(angles);
 
         chprintf(chp, "Measured angles: %.4f %.4f %.4f\r\n", angles[0], angles[1], angles[2]);
+    } else {
+        motor_manager_set_voltage(&motor_manager, "theta-1", 0);
+        motor_manager_set_voltage(&motor_manager, "theta-2", 0);
+        motor_manager_set_voltage(&motor_manager, "theta-3", 0);
+        chprintf(chp, "Disabled arm\r\n");
     }
 }
 
