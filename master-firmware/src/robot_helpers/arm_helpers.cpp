@@ -1,9 +1,11 @@
 #include <ch.h>
 
+#include <array>
 #include <math.h>
 
 #include <error/error.h>
 
+#include "manipulator/kinematics.h"
 #include "motor_manager.h"
 #include "motor_helpers.h"
 #include "main.h"
@@ -53,15 +55,14 @@ void arm_motors_index(const char** motors, const float* directions, const float*
 
 void arm_compute_offsets(const float* directions, float* offsets)
 {
-    float references[3] = {
+    std::array<float, 3> references = {
         M_PI_2, // theta 1 indexes: at 90deg
         -M_PI, // theta 2 indexes: at -180deg
         M_PI, // theta 2 indexes: at 180deg
     };
 
     // axis are decoupled
-    references[1] += references[0];
-    references[2] += references[1];
+    references = manipulator::axes_decouple(references);
 
     // We don't index at angle 0
     offsets[0] = directions[0] * offsets[0] - references[0];

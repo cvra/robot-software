@@ -55,3 +55,23 @@ TEST(APendulumWith3Joints, IsNegativelyCurvedAtExpectedAngles)
 
     ANGLES_EQUAL(original_angles, angles);
 }
+
+TEST(APendulumWith3Joints, CouplesAxis)
+{
+    const Angles decoupled = {RAD(10.f), RAD(20.f), RAD(30.f)};
+    const Angles expected = {RAD(10.f), RAD(10.f), RAD(10.f)};
+
+    const Angles coupled = axes_couple(decoupled);
+
+    ANGLES_EQUAL(coupled, expected);
+}
+
+TEST(APendulumWith3Joints, DecouplesAxis)
+{
+    const Angles coupled = {RAD(10.f), RAD(10.f), RAD(10.f)};
+    const Angles expected = {RAD(10.f), RAD(20.f), RAD(30.f)};
+
+    const Angles decoupled = axes_decouple(coupled);
+
+    ANGLES_EQUAL(decoupled, expected);
+}

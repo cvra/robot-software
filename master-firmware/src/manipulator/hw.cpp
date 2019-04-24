@@ -14,8 +14,7 @@ Angles System::measure_feedback() const
     }
 
     // axis are decoupled
-    angles[2] -= angles[1];
-    angles[1] -= angles[0];
+    angles = axes_couple(angles);
 
     return angles;
 }
@@ -28,8 +27,7 @@ void System::apply_input(const Angles& angles)
     }
 
     // axis are decoupled
-    target[1] += target[0];
-    target[2] += target[1];
+    target = axes_decouple(target);
 
     for (size_t i = 0; i < 3; i++) {
         target[i] *= directions[i];
