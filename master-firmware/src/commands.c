@@ -841,6 +841,33 @@ static void cmd_arm_index(BaseSequentialStream* chp, int argc, char* argv[])
     chprintf(chp, "Index of theta-3 at %.4f\r\n", offsets[2]);
 }
 
+static void cmd_arm_index_manual(BaseSequentialStream* chp, int argc, char* argv[])
+{
+    (void)argc;
+    (void)argv;
+
+    const float directions[3] = {-1.f, -1.f, 1.f};
+    float offsets[3];
+
+    parameter_scalar_set(PARAMETER("master/arms/right/offsets/q1"), 0);
+    parameter_scalar_set(PARAMETER("master/arms/right/offsets/q2"), 0);
+    parameter_scalar_set(PARAMETER("master/arms/right/offsets/q3"), 0);
+    chThdSleepMilliseconds(100);
+
+    offsets[0] = motor_get_position("theta-1");
+    offsets[1] = motor_get_position("theta-2");
+    offsets[2] = motor_get_position("theta-3");
+    arm_compute_offsets(directions, offsets);
+
+    parameter_scalar_set(PARAMETER("master/arms/right/offsets/q1"), offsets[0]);
+    parameter_scalar_set(PARAMETER("master/arms/right/offsets/q2"), offsets[1]);
+    parameter_scalar_set(PARAMETER("master/arms/right/offsets/q3"), offsets[2]);
+
+    chprintf(chp, "Index of theta-1 at %.4f\r\n", offsets[0]);
+    chprintf(chp, "Index of theta-2 at %.4f\r\n", offsets[1]);
+    chprintf(chp, "Index of theta-3 at %.4f\r\n", offsets[2]);
+}
+
 static void cmd_base_mode(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc != 1) {
@@ -1109,6 +1136,7 @@ const ShellCommand commands[] = {
     {"motor_index", cmd_motor_index},
     {"motor_index_sym", cmd_motor_index_sym},
     {"arm_index", cmd_arm_index},
+    {"arm_index_manual", cmd_arm_index_manual},
     {"motors", cmd_motors},
     {"base_mode", cmd_base_mode},
     {"state", cmd_state},
