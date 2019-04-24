@@ -251,3 +251,11 @@ actuator:
                 kd: 0.0
                 ki: 5.0
                 kp: 0.3
+    pump-1:
+        control:
+            mode: 0 # openloop
+            low_batt_th: 5.
+    pump-2:
+        control:
+            mode: 0 # openloop
+            low_batt_th: 5.
