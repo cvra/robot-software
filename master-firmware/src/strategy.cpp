@@ -13,6 +13,7 @@
 #include "robot_helpers/math_helpers.h"
 #include "robot_helpers/trajectory_helpers.h"
 #include "robot_helpers/strategy_helpers.h"
+#include "robot_helpers/motor_helpers.h"
 #include "robot_helpers/arm_helpers.h"
 #include "base/base_controller.h"
 #include "base/base_helpers.h"
@@ -218,16 +219,26 @@ struct IndexArms : actions::IndexArms {
     {
         NOTICE("Indexing arms!");
 
-        const char* motors[3] = {"theta-1", "theta-2", "theta-3"};
+        // const char* motors[3] = {"theta-1", "theta-2", "theta-3"};
+        // const float speeds[3] = {0.15, 0.12, 0.06};
         const float directions[3] = {-1, -1, 1};
-        const float speeds[3] = {0.15, 0.12, 0.06};
         float offsets[3];
 
-        arm_motors_index(motors, directions, speeds, offsets);
+        // arm_motors_index(motors, directions, speeds, offsets);
+
+        // set index when user presses color button, so indexing is done manually
+        wait_for_color_selection();
+        offsets[0] = motor_get_position("theta-1");
+        offsets[1] = motor_get_position("theta-2");
+        offsets[2] = motor_get_position("theta-3");
+        arm_compute_offsets(directions, offsets);
 
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q1"), offsets[0]);
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q2"), offsets[1]);
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q3"), offsets[2]);
+
+        strategy_wait_ms(500);
+        wait_for_color_selection();
 
         state.arms_are_indexed = true;
         return true;
