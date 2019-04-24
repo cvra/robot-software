@@ -8,10 +8,7 @@
 #include "main.h"
 #include "config.h"
 
-#include "manipulator/controller.h"
-#include "manipulator/hw.h"
-#include "manipulator/state_estimator.h"
-
+#include "manipulator/manipulator.h"
 #include "manipulator/manipulator_thread.h"
 
 #include "protobuf/manipulator.pb.h"
@@ -21,6 +18,8 @@
 using manipulator::Angles;
 using manipulator::ArmLengths;
 using manipulator::Pose2D;
+
+manipulator::Manipulator right_arm{{0,0,0}};
 
 static THD_FUNCTION(manipulator_thd, arg)
 {
@@ -34,27 +33,22 @@ static THD_FUNCTION(manipulator_thd, arg)
     messagebus_advertise_topic(&bus, &manipulator_topic.topic, "/manipulator");
     Manipulator state = Manipulator_init_zero;
 
-    const ArmLengths link_lengths = {{
+    right_arm.set_lengths({
         config_get_scalar("master/arms/right/lengths/l1"),
         config_get_scalar("master/arms/right/lengths/l2"),
         config_get_scalar("master/arms/right/lengths/l3"),
-    }};
-
-    manipulator::System sys;
-    manipulator::StateEstimator estimator(link_lengths);
-    manipulator::Controller ctrl(link_lengths);
-
-    sys.offsets = {
+    });
+    right_arm.set_offsets({
         config_get_scalar("master/arms/right/offsets/q1"),
         config_get_scalar("master/arms/right/offsets/q2"),
         config_get_scalar("master/arms/right/offsets/q3"),
-    };
+    });
 
     Pose2D pose;
     pose.x = 0.17f;
     pose.y = 0.22f;
     pose.heading = 1.57f;
-    ctrl.set(pose);
+    right_arm.set_target(pose);
 
     int counter = 0;
     NOTICE("Start manipulator thread");
@@ -63,27 +57,27 @@ static THD_FUNCTION(manipulator_thd, arg)
             counter = 0;
             pose.y *= -1.f;
             pose.heading *= -1.f;
-            ctrl.set(pose);
+            right_arm.set_target(pose);
         }
 
         if (parameter_namespace_contains_changed(right_arm_params)) {
-            sys.offsets = {
+            right_arm.set_offsets({
                 config_get_scalar("master/arms/right/offsets/q1"),
                 config_get_scalar("master/arms/right/offsets/q2"),
                 config_get_scalar("master/arms/right/offsets/q3"),
-            };
+            });
         }
 
-        estimator.update(sys.measure());
-        Angles input = ctrl.update(estimator.get());
-        // sys.apply(input);
+        Pose2D pose = right_arm.update();
+        Angles input = right_arm.compute_control();
+        // right_arm.apply(input);
 
-        state.pose.x = estimator.get().x;
-        state.pose.y = estimator.get().y;
-        state.pose.heading = estimator.get().heading;
-        state.measured.q1 = sys.measure()[0];
-        state.measured.q2 = sys.measure()[1];
-        state.measured.q3 = sys.measure()[2];
+        state.pose.x = pose.x;
+        state.pose.y = pose.y;
+        state.pose.heading = pose.heading;
+        state.measured.q1 = right_arm.angles()[0];
+        state.measured.q2 = right_arm.angles()[1];
+        state.measured.q3 = right_arm.angles()[2];
         state.input.q1 = input[0];
         state.input.q2 = input[1];
         state.input.q3 = input[2];
