@@ -7,6 +7,9 @@ extern "C" {
 
 void manipulator_start(void);
 
+void manipulator_angles(float* angles);
+void manipulator_angles_set(float* angles);
+
 #ifdef __cplusplus
 }
 #endif

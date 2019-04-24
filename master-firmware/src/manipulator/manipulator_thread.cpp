@@ -1,6 +1,8 @@
 #include <ch.h>
 #include <hal.h>
 
+#include <algorithm>
+
 #include <error/error.h>
 #include <golem/golem.h>
 
@@ -42,6 +44,19 @@ public:
 
 MUTEX_DECL(right_lock);
 manipulator::Manipulator<ManipulatorLockGuard> right_arm{{0, 0, 0}, &right_lock};
+
+void manipulator_angles(float* angles)
+{
+    auto measured = right_arm.angles();
+    std::copy_n(std::begin(measured), 3, angles);
+}
+
+void manipulator_angles_set(float* angles)
+{
+    Angles input;
+    std::copy_n(angles, 3, std::begin(input));
+    right_arm.apply(input);
+}
 
 static THD_FUNCTION(manipulator_thd, arg)
 {
@@ -100,23 +115,23 @@ static THD_FUNCTION(manipulator_trajectory_thd, arg)
     (void)arg;
     chRegSetThreadName(__FUNCTION__);
 
-    Pose2D pose;
-    pose.x = 0.17f;
-    pose.y = 0.22f;
-    pose.heading = 1.57f;
-    right_arm.set_target(pose);
+    // Pose2D pose;
+    // pose.x = 0.17f;
+    // pose.y = 0.22f;
+    // pose.heading = 1.57f;
+    // right_arm.set_target(pose);
 
-    int counter = 0;
+    // int counter = 0;
 
     NOTICE("Start manipulator trajectory manager thread");
     while (true) {
-        if (counter >= 2 * MANIPULATOR_FREQUENCY) {
-            counter = 0;
-            pose.y *= -1.f;
-            pose.heading *= -1.f;
-            right_arm.set_target(pose);
-        }
-        counter++;
+        // if (counter >= 2 * MANIPULATOR_FREQUENCY) {
+        //     counter = 0;
+        //     pose.y *= -1.f;
+        //     pose.heading *= -1.f;
+        //     right_arm.set_target(pose);
+        // }
+        // counter++;
         chThdSleepMilliseconds(1000 / MANIPULATOR_TRAJECTORY_FREQUENCY);
     }
 }
