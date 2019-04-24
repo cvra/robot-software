@@ -269,11 +269,19 @@ struct TakePuck : actions::TakePuck {
             return false;
         }
 
+        float start_angles[3] = {1.2576, -0.7082, 0.9565};
+        manipulator_angles_set(start_angles);
+        strategy_wait_ms(500);
+
+        float intermediate_angles[3] = {1.4515, -0.2358, -0.9695};
+        manipulator_angles_set(intermediate_angles);
+        strategy_wait_ms(500);
+
         float pick_angles[3] = {0.9315, -0.7538, -0.2395};
         manipulator_angles_set(pick_angles);
         manipulator_gripper_set(GRIPPER_ACQUIRE);
-
         strategy_wait_ms(500);
+
         float lift_angles[3] = {0.7585, 0.4314, -1.2529};
         manipulator_angles_set(lift_angles);
 
