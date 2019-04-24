@@ -33,7 +33,7 @@ void System::apply_input(const Angles& angles)
 
     for (size_t i = 0; i < 3; i++) {
         target[i] *= directions[i];
-        motor_driver_set_position(get_motor_driver(motors[i]), target[i]);
+        motor_manager_set_position(&motor_manager, motors[i], target[i]);
     }
 
     last_raw = angles;

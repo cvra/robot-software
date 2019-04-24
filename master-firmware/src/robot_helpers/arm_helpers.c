@@ -30,21 +30,6 @@ static void set_index_stream_frequency(const char* motor, float freq)
     }
 }
 
-static void set_motor_position(const char* name, float pos)
-{
-    motor_driver_set_position(get_motor_driver(name), pos);
-}
-
-static void set_motor_velocity(const char* name, float vel)
-{
-    motor_driver_set_velocity(get_motor_driver(name), vel);
-}
-
-static void set_motor_torque(const char* name, float torque)
-{
-    motor_driver_set_torque(get_motor_driver(name), torque);
-}
-
 void arm_motors_index(const char** motors, const float* directions, const float* speeds, float* offsets)
 {
     /* Enable index stream over CAN */
@@ -59,7 +44,7 @@ void arm_motors_index(const char** motors, const float* directions, const float*
 
     /* Disable index stream over CAN */
     for (size_t i = 0; i < 3; i++) {
-        set_motor_torque(motors[i], 0);
+        motor_manager_set_torque(&motor_manager, motors[i], 0);
         set_index_stream_frequency(motors[i], 0);
     }
 
