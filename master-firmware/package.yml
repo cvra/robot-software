@@ -63,6 +63,7 @@ target.arm:
     - src/udp_topic_broadcaster.c
     - src/manipulator/hw.cpp
     - src/manipulator/manipulator_thread.cpp
+    - src/uid.c
 
 source:
     - src/unix_timestamp.c
