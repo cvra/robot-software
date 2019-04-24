@@ -245,6 +245,11 @@ struct RetractArms : actions::RetractArms {
     bool execute(RobotState& state)
     {
         NOTICE("Retracting arms!");
+
+        float angles[3] = {1.2033, -2.7484, 1.5925};
+        manipulator_angles_set(angles);
+        strategy_wait_ms(500);
+
         state.arms_are_deployed = false;
         return true;
     }
