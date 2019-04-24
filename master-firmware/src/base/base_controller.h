@@ -9,7 +9,7 @@
 #include <aversive/robot_system/robot_system.h>
 #include <aversive/trajectory_manager/trajectory_manager.h>
 
-#include "aversive_port/cs_port.h"
+#include "cs_port.h"
 
 #ifdef __cplusplus
 extern "C" {

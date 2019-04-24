@@ -4,8 +4,6 @@
 
 #include <hal.h>
 #include <chprintf.h>
-#include <lwip/netif.h>
-#include <lwip/dhcp.h>
 
 #include "main.h"
 #include "control_panel.h"
@@ -17,21 +15,17 @@
 #include <arm-cortex-tools/mpu.h>
 #include <arm-cortex-tools/fault.h>
 #include "blocking_uart.h"
-#include "rpc_server.h"
 #include "uavcan_node.h"
 #include <timestamp/timestamp_stm32.h>
 #include "config.h"
 #include <parameter/parameter_msgpack.h>
 #include <cmp_mem_access/cmp_mem_access.h>
 #include "motor_manager.h"
-#include "stream.h"
 #include "lwipthread.h"
 #include <error/error.h>
 #include "usbconf.h"
 #include "base/encoder.h"
 #include "base/base_controller.h"
-#include "arms/arms_controller.h"
-#include "arms/arm_trajectory_manager.h"
 #include "trace/trace_points.h"
 #include "strategy.h"
 #include "filesystem.h"
@@ -39,6 +33,7 @@
 #include "pca9685_pwm.h"
 #include "gui.h"
 #include "udp_topic_broadcaster.h"
+#include "manipulator/manipulator_thread.h"
 
 void init_base_motors(void);
 void init_arm_motors(void);
@@ -189,7 +184,6 @@ int main(void)
     /* Initialize global objects. */
     config_init();
 
-    gui_start();
     blink_start();
 
     /* Try to mount the filesystem. */
@@ -230,23 +224,18 @@ int main(void)
     config_load_from_flash();
 
     control_panel_init(config_get_boolean("master/control_panel_active_high"));
-
-    /* Start IP over Ethernet */
-    struct netif* ethernet_if;
-
-    ip_thread_init();
-
-    chThdSleepMilliseconds(1000);
-    ethernet_if = netif_find("en0");
-    (void)ethernet_if; // temporarily not used for now
-
-    // rpc_server_init();
-    // message_server_init();
-    // http_server_start();
-    udp_topic_broadcast_start();
+    gui_start();
 
     /* Initiaze UAVCAN communication */
     uavcan_node_start(10);
+
+    /* IP thread will talk over UAVCAN so we just give it some time to boot. */
+    chThdSleepMilliseconds(100);
+    ip_thread_init();
+
+
+    // http_server_start();
+    udp_topic_broadcast_start();
 
     /* Base init */
     encoder_start();
@@ -256,9 +245,7 @@ int main(void)
     trajectory_manager_start();
 
     /* Arms init */
-    arms_init();
-    arms_controller_start();
-    arm_trajectory_manager_start(&main_arm);
+    manipulator_start();
 
     /* Initialize strategy thread, will wait for signal to begin game */
     strategy_start();
@@ -298,12 +285,6 @@ void init_arm_motors(void)
     motor_manager_create_driver(&motor_manager, "theta-1");
     motor_manager_create_driver(&motor_manager, "theta-2");
     motor_manager_create_driver(&motor_manager, "theta-3");
-
-    motor_manager_create_driver(&motor_manager, "z-joint");
-    motor_manager_create_driver(&motor_manager, "shoulder-joint");
-    motor_manager_create_driver(&motor_manager, "elbow-joint");
-    motor_manager_create_driver(&motor_manager, "arm-pump");
-    bus_enumerator_add_node(&bus_enumerator, "wrist-servo", NULL);
 }
 
 void __stack_chk_fail(void)

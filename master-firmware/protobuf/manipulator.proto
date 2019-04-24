@@ -1,0 +1,24 @@
+syntax = "proto2";
+
+import "nanopb.proto";
+
+message Joints {
+    option (nanopb_msgopt).msgid = 10;
+    required float q1 = 1;
+    required float q2 = 2;
+    required float q3 = 3;
+}
+
+message Pose {
+    option (nanopb_msgopt).msgid = 11;
+    required float x = 1;
+    required float y = 2;
+    required float heading = 3;
+}
+
+message Manipulator {
+    option (nanopb_msgopt).msgid = 12;
+    required Pose pose = 1;
+    required Joints measured = 2;
+    required Joints input = 3;
+}

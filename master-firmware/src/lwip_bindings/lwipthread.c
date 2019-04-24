@@ -71,9 +71,11 @@ limitations under the License.
 #include <lwip/tcpip.h>
 #include "netif/etharp.h"
 #include "netif/ppp/pppoe.h"
+#include "can/can_uwb_ip_netif.hpp"
 
-#define PERIODIC_TIMER_ID 1
-#define FRAME_RECEIVED_ID 2
+#define PERIODIC_TIMER_ID (1 << 0)
+#define FRAME_RECEIVED_ID (1 << 1)
+#define CAN_FRAME_RECEIVED_ID (1 << 2)
 
 static sys_sem_t lwip_init_done;
 
@@ -218,12 +220,13 @@ void ipinit_done_cb(void* a)
  * @param[in] p pointer to a @p lwipthread_opts structure or @p NULL
  * @return The function does not return.
  */
+static struct netif thisif, canif;
 void lwip_thread(void* p)
 {
     event_timer_t evt;
-    event_listener_t el0, el1;
+    event_listener_t el0, el1, el2;
     ip_addr_t ip, gateway, netmask;
-    static struct netif thisif;
+    ip_addr_t can_ip, can_netmask;
     static const MACConfig mac_config = {thisif.hwaddr};
 
     (void)p;
@@ -244,22 +247,35 @@ void lwip_thread(void* p)
     thisif.hwaddr[3] = LWIP_ETHADDR_3;
     thisif.hwaddr[4] = LWIP_ETHADDR_4;
     thisif.hwaddr[5] = LWIP_ETHADDR_5;
-    LWIP_IPADDR(&ip);
+
+    LWIP_ETHERNET_IPADDR(&ip);
+    LWIP_ETHERNET_NETMASK(&netmask);
     LWIP_GATEWAY(&gateway);
-    LWIP_NETMASK(&netmask);
+
+    LWIP_CAN_IPADDR(&can_ip);
+    LWIP_CAN_NETMASK(&can_netmask);
 
     macStart(&ETHD1, &mac_config);
     netif_add(&thisif, &ip, &netmask, &gateway, NULL, ethernetif_init, tcpip_input);
+    netif_add(&canif, &can_ip, &can_netmask, &gateway, NULL, lwip_uwb_ip_netif_init, tcpip_input);
+    canif.hwaddr[0] = LWIP_ETHADDR_0 + 1;
+    canif.hwaddr[1] = LWIP_ETHADDR_1 + 1;
+    canif.hwaddr[2] = LWIP_ETHADDR_2 + 1;
+    canif.hwaddr[3] = LWIP_ETHADDR_3 + 1;
+    canif.hwaddr[4] = LWIP_ETHADDR_4 + 1;
+    canif.hwaddr[5] = LWIP_ETHADDR_5 + 1;
 
     netif_set_default(&thisif);
     netif_set_up(&thisif);
+    netif_set_up(&canif);
 
     /* Setup event sources.*/
     evtObjectInit(&evt, LWIP_LINK_POLL_INTERVAL);
     evtStart(&evt);
     chEvtRegisterMask(&evt.et_es, &el0, PERIODIC_TIMER_ID);
     chEvtRegisterMask(macGetReceiveEventSource(&ETHD1), &el1, FRAME_RECEIVED_ID);
-    chEvtAddEvents(PERIODIC_TIMER_ID | FRAME_RECEIVED_ID);
+    chEvtRegisterMask(can_uwb_ip_netif_get_event_source(), &el2, CAN_FRAME_RECEIVED_ID);
+    chEvtAddEvents(PERIODIC_TIMER_ID | FRAME_RECEIVED_ID | CAN_FRAME_RECEIVED_ID);
 
     /* Goes to the final priority after initialization.*/
     chThdSetPriority(LWIP_THREAD_PRIORITY);
@@ -291,9 +307,28 @@ void lwip_thread(void* p)
                     case ETHTYPE_PPPOE:
 #endif /* PPPOE_SUPPORT */
                         /* full packet send to tcpip_thread to process */
-                        if (thisif.input(p, &thisif) == ERR_OK)
-                            break;
-                        LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error\n"));
+                        if (thisif.input(p, &thisif) != ERR_OK) {
+                            LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error\n"));
+                            pbuf_free(p);
+                        }
+                        break;
+                    default:
+                        pbuf_free(p);
+                }
+            }
+        }
+        if (mask & CAN_FRAME_RECEIVED_ID) {
+            struct pbuf* p;
+            while (lwip_uwb_ip_read(&canif, &p)) {
+                struct eth_hdr* ethhdr = p->payload;
+                switch (htons(ethhdr->type)) {
+                    case ETHTYPE_IP:
+                    case ETHTYPE_ARP:
+                        if (canif.input(p, &canif) != ERR_OK) {
+                            LWIP_DEBUGF(NETIF_DEBUG, ("canif_input: IP input error\n"));
+                            pbuf_free(p);
+                        }
+                        break;
                     default:
                         pbuf_free(p);
                 }

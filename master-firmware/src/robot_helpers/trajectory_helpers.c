@@ -186,14 +186,14 @@ void trajectory_set_mode_aligning(
     *robot_mode = BOARD_MODE_DISTANCE_ONLY;
 
     /* Decrease sensitivity to collision */
-    bd_set_thresholds(distance_blocking, 5000, 2);
+    bd_set_thresholds(distance_blocking, 7000, 2);
 
     /* Slow down motion speed/acceleration */
     trajectory_set_speed(robot_traj,
-                         speed_mm2imp(robot_traj, 100.),
+                         speed_mm2imp(robot_traj, 30.),
                          speed_rd2imp(robot_traj, 0.75));
     trajectory_set_acc(robot_traj,
-                       acc_mm2imp(robot_traj, 150.),
+                       acc_mm2imp(robot_traj, 30.),
                        acc_rd2imp(robot_traj, 1.57));
 }
 

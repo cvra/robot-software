@@ -28,10 +28,6 @@ target.arm:
     - src/lwip_bindings/lwipthread.c
     - src/lwip_bindings/arch/sys_arch.c
     - src/commands.c
-    - src/comm/rpc_server.c
-    - src/comm/rpc_callbacks.c
-    - src/comm/msg_callbacks.c
-    - src/comm/stream.c
     - src/config.c
     - src/can/uavcan_node.cpp
     - src/can/motor_driver.c
@@ -43,20 +39,18 @@ target.arm:
     - src/can/can_io_driver.cpp
     - src/can/sensor_handler.cpp
     - src/can/uwb_position_handler.cpp
+    - src/can/can_uwb_ip_netif.cpp
     - src/usbconf.c
-    - src/aversive_port/rs_port.c
-    - src/aversive_port/cs_port.c
+    - src/base/rs_port.c
+    - src/base/cs_port.c
     - src/base/encoder.c
     - src/gui.cpp
     - src/gui/Menu.cpp
     - src/gui/MenuPage.cpp
     - src/base/base_controller.c
     - src/base/map_server.cpp
-    - src/arms/cvra_arm_motors.c
-    - src/arms/scara_port.c
-    - src/arms/arms_controller.c
-    - src/arms/arm_trajectory_manager.c
     - src/robot_helpers/motor_helpers.c
+    - src/robot_helpers/arm_helpers.c
     - src/trace/trace_points.c
     - src/strategy.cpp
     - src/filesystem.c
@@ -67,6 +61,8 @@ target.arm:
     - src/strategy/score_counter.cpp
     - src/strategy/color_sequence_server.c
     - src/udp_topic_broadcaster.c
+    - src/manipulator/hw.cpp
+    - src/manipulator/manipulator_thread.cpp
 
 source:
     - src/unix_timestamp.c
@@ -79,22 +75,14 @@ source:
     - src/robot_helpers/eurobot2018.c
     - src/robot_helpers/trajectory_helpers.c
     - src/robot_helpers/strategy_helpers.c
-    - src/scara/joint.c
-    - src/scara/scara_hardware_interface.c
-    - src/scara/scara_utils.c
-    - src/scara/scara_trajectories.c
-    - src/scara/scara_kinematics.c
-    - src/scara/scara.c
-    - src/scara/scara_jacobian.cpp
-    - src/scara/control/scara_joint_controller.c
-    - src/scara/control/scara_inverse_kinematics_controller.c
-    - src/arms/arm.cpp
-    - src/hand/hand.c
-    - src/hand/wrist.c
     - src/base/base_helpers.c
     - src/strategy/state.cpp
     - src/strategy/score.cpp
     - src/msgbus_protobuf.c
+    - src/manipulator/scara_kinematics.c
+    - src/manipulator/kinematics.cpp
+    - src/manipulator/state_estimator.cpp
+    - src/manipulator/controller.cpp
 
 include_directories:
     - src/
@@ -120,25 +108,16 @@ tests:
     - tests/trace_test.cpp
     - tests/trace_points.c
     - tests/trajectory_manager_test.cpp
-    - tests/scara_port_mock.cpp
-    - tests/scara_utils.cpp
-    - tests/scara_trajectories.cpp
-    - tests/scara_kinematics.cpp
-    - tests/scara_kinematics_integration.cpp
-    - tests/scara_hardware_interface.cpp
-    - tests/scara_joint_controller.cpp
-    - tests/scara_inverse_kinematics_controller.cpp
-    - tests/scara.cpp
-    - tests/test_hand.cpp
+    - tests/test_scara_kinematics.cpp
     - tests/lie_groups.cpp
-    - tests/test_arm.cpp
     - tests/test_base_helpers.cpp
     - tests/test_strategy_helpers.cpp
     - tests/test_strategy.cpp
     - tests/strategy/test_score.cpp
     - tests/test_eurobot2018.cpp
-    - tests/test_wrist.cpp
     - tests/msgbus_protobuf.cpp
+    - tests/test_3dof_pendulum_kinematics.cpp
+    - tests/test_manipulator_control.cpp
 
 templates:
     app_src.mk.jinja: app_src.mk

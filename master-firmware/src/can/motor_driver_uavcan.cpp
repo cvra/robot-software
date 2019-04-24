@@ -123,38 +123,7 @@ static int motor_driver_uavcan_update_config(motor_driver_t* d)
         return 0;
     }
 
-    if (parameter_namespace_contains_changed(&d->config.stream)) {
-        if (parameter_changed(&d->config.current_pid_stream)) {
-            send_stream_config(node_id, parameter_scalar_get(&d->config.current_pid_stream), "/streams/current");
-            return 1;
-        }
-        if (parameter_changed(&d->config.velocity_pid_stream)) {
-            send_stream_config(node_id, parameter_scalar_get(&d->config.velocity_pid_stream), "/streams/velocity");
-            return 1;
-        }
-        if (parameter_changed(&d->config.position_pid_stream)) {
-            send_stream_config(node_id, parameter_scalar_get(&d->config.position_pid_stream), "/streams/position");
-            return 1;
-        }
-        if (parameter_changed(&d->config.index_stream)) {
-            send_stream_config(node_id, parameter_scalar_get(&d->config.index_stream), "/streams/index");
-            return 1;
-        }
-        if (parameter_changed(&d->config.encoder_pos_stream)) {
-            send_stream_config(node_id, parameter_scalar_get(&d->config.encoder_pos_stream), "/streams/encoders");
-            return 1;
-        }
-        if (parameter_changed(&d->config.motor_pos_stream)) {
-            send_stream_config(node_id, parameter_scalar_get(&d->config.motor_pos_stream), "/streams/motor_pos");
-            return 1;
-        }
-        if (parameter_changed(&d->config.motor_torque_stream)) {
-            send_stream_config(node_id, parameter_scalar_get(&d->config.motor_torque_stream), "/streams/motor_torque");
-            return 1;
-        }
-    }
-
-    return 0;
+    return 1;
 }
 
 static void motor_driver_uavcan_send_setpoint(motor_driver_t* d)

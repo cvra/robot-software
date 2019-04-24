@@ -50,6 +50,12 @@ class LivePlotter2D:
                 for index, variable in enumerate(data):
                     if 'pts' in data[variable].keys():
                         pts = data[variable]['pts']
+                    elif 'w' in data[variable].keys():
+                        pts = createRect(
+                                (data[variable]['x'], data[variable]['y']),
+                                data[variable].get('w', 200),
+                                data[variable].get('h', 100),
+                                data[variable].get('a', 0))
                     else:
                         pts = createPoly(
                                 (data[variable]['x'], data[variable]['y']),
@@ -69,6 +75,13 @@ def createPoly(center, n, r, s):
     return [(center[0] + r*math.cos(math.radians(t)),
              center[1] + r*math.sin(math.radians(t)))
             for t in list(map(lambda i: i*360/n + s, range(n)))]
+
+def createRect(center, w, h, s):
+    rect = [(- w/2, - h/2), (+ w/2, - h/2), (+ w/2, + h/2), (- w/2, + h/2)]
+
+    return [(center[0] + p[0] * math.cos(s) - p[1] * math.sin(s),
+             center[1] + p[0] * math.sin(s) + p[1] * math.cos(s))
+            for p in rect]
 
 
 class PolygonItem(pg.GraphicsObject):
