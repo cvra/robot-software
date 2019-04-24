@@ -236,6 +236,7 @@ struct IndexArms : actions::IndexArms {
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q1"), offsets[0]);
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q2"), offsets[1]);
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q3"), offsets[2]);
+        wait_for_color_selection();
 
         strategy_wait_ms(500);
         wait_for_color_selection();
@@ -257,9 +258,10 @@ struct RetractArms : actions::RetractArms {
     {
         NOTICE("Retracting arms!");
 
-        float angles[3] = {1.2033, -2.7484, 1.5925};
+        float angles[3] = {1.2878, -2.4896, 2.4};
         manipulator_angles_set(angles);
-        strategy_wait_ms(500);
+        strategy_wait_ms(1000);
+        wait_for_color_selection();
 
         state.arms_are_deployed = false;
         return true;
@@ -280,22 +282,26 @@ struct TakePuck : actions::TakePuck {
             return false;
         }
 
-        float start_angles[3] = {1.2576, -0.7082, 0.9565};
+        float start_angles[3] = {1.2221, -0.9355, 1.3385};
         manipulator_angles_set(start_angles);
-        strategy_wait_ms(500);
+        strategy_wait_ms(2000);
+        wait_for_color_selection();
 
-        float intermediate_angles[3] = {1.4515, -0.2358, -0.9695};
+        float intermediate_angles[3] = {1.3344, -0.2057, -1.0742};
         manipulator_angles_set(intermediate_angles);
-        strategy_wait_ms(1000);
+        strategy_wait_ms(2000);
+        wait_for_color_selection();
 
-        float pick_angles[3] = {0.9315, -0.7538, -0.2395};
+        float pick_angles[3] = {0.9824, -0.5274, -0.2135};
         manipulator_angles_set(pick_angles);
         manipulator_gripper_set(GRIPPER_ACQUIRE);
-        strategy_wait_ms(1000);
+        strategy_wait_ms(2000);
+        wait_for_color_selection();
 
         float lift_angles[3] = {0.7585, 0.4314, -1.2529};
         manipulator_angles_set(lift_angles);
-        strategy_wait_ms(1000);
+        strategy_wait_ms(2000);
+        wait_for_color_selection();
 
         state.arms_are_deployed = true;
 
