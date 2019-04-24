@@ -5,8 +5,6 @@
 extern "C" {
 #endif
 
-#define MANIPULATOR_FREQUENCY 50
-
 void manipulator_start(void);
 
 #ifdef __cplusplus
