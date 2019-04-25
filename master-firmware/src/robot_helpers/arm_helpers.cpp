@@ -56,9 +56,9 @@ void arm_motors_index(const char** motors, const float* directions, const float*
 void arm_compute_offsets(const float* directions, float* offsets)
 {
     std::array<float, 3> references = {
-        M_PI_2, // theta 1 indexes: at 90deg
-        -M_PI, // theta 2 indexes: at -180deg
-        M_PI, // theta 2 indexes: at 180deg
+        M_PI_2, // theta 1 indexes at 90deg
+        -M_PI, // theta 2 indexes at -180deg from theta 1
+        M_PI, // theta 3 indexes at 180deg from theta 2
     };
 
     // axis are decoupled
