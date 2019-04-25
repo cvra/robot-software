@@ -14,16 +14,17 @@ Angles System::measure_feedback() const
         angles[i] = directions[i] * motor_get_position(motors[i]) - offsets[i];
     }
 
-    // axis are decoupled
-    angles = axes_couple(angles);
+    // // axis are decoupled
+    // angles = axes_couple(angles);
 
     return angles;
 }
 
 void System::apply_input(const Angles& angles)
 {
-    // axis are decoupled
-    Angles target = axes_decouple(angles);
+    // // axis are decoupled
+    // Angles target = axes_decouple(angles);
+    Angles target = angles;
 
     for (size_t i = 0; i < 3; i++) {
         target[i] = directions[i] * (target[i] + offsets[i]);
