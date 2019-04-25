@@ -68,6 +68,7 @@ int dijkstra(Node* nodes, int node_count, Node& start, Node& end)
         nodes[i].visited = false;
         nodes[i].distance = INT_MAX;
         nodes[i].parent = nullptr;
+        nodes[i].path_next = nullptr;
     }
 
     start.distance = 0;
