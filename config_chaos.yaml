@@ -71,6 +71,10 @@ master:
                 q1: 0.
                 q2: 0.
                 q3: 0.
+            tolerance:
+                q1: 0.02
+                q2: 0.02
+                q3: 0.02
             gripper:
                 release: -6.
                 acquire: 12.

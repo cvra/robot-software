@@ -107,6 +107,11 @@ static THD_FUNCTION(manipulator_thd, arg)
         config_get_scalar("master/arms/right/offsets/q2"),
         config_get_scalar("master/arms/right/offsets/q3"),
     });
+    right_arm.set_tolerance({
+        config_get_scalar("master/arms/right/tolerance/q1"),
+        config_get_scalar("master/arms/right/tolerance/q2"),
+        config_get_scalar("master/arms/right/tolerance/q3"),
+    });
 
     NOTICE("Start manipulator thread");
     while (true) {
@@ -115,6 +120,11 @@ static THD_FUNCTION(manipulator_thd, arg)
                 config_get_scalar("master/arms/right/offsets/q1"),
                 config_get_scalar("master/arms/right/offsets/q2"),
                 config_get_scalar("master/arms/right/offsets/q3"),
+            });
+            right_arm.set_tolerance({
+                config_get_scalar("master/arms/right/tolerance/q1"),
+                config_get_scalar("master/arms/right/tolerance/q2"),
+                config_get_scalar("master/arms/right/tolerance/q3"),
             });
 
             right_arm.gripper.configure(config_get_scalar("master/arms/right/gripper/release"),
