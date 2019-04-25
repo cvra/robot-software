@@ -220,12 +220,6 @@ int main(void)
     init_base_motors();
     init_arm_motors();
 
-    /* Load stored robot config */
-    config_load_from_flash();
-
-    control_panel_init(config_get_boolean("master/control_panel_active_high"));
-    gui_start();
-
     /* Initiaze UAVCAN communication */
     uavcan_node_start(10);
 
@@ -233,6 +227,11 @@ int main(void)
     chThdSleepMilliseconds(100);
     ip_thread_init();
 
+    /* Load stored robot config */
+    config_load_from_flash();
+
+    control_panel_init(config_get_boolean("master/control_panel_active_high"));
+    gui_start();
 
     // http_server_start();
     udp_topic_broadcast_start();
@@ -285,6 +284,9 @@ void init_arm_motors(void)
     motor_manager_create_driver(&motor_manager, "theta-1");
     motor_manager_create_driver(&motor_manager, "theta-2");
     motor_manager_create_driver(&motor_manager, "theta-3");
+
+    motor_manager_create_driver(&motor_manager, "pump-1");
+    motor_manager_create_driver(&motor_manager, "pump-2");
 }
 
 void __stack_chk_fail(void)

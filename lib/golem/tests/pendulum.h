@@ -82,4 +82,23 @@ struct ProportionalController : public golem::Controller<ProportionalController,
         return target - measured;
     }
 };
+
+struct TrajectoryManager : public golem::TrajectoryManager<TrajectoryManager, float, float> {
+    float target_margin = 0.f; // how far we allow the real state to be from the target to announce the target was reached.
+
+    TrajectoryManager(float margin)
+        : target_margin(margin)
+    {
+    }
+
+    float set_target(const float& target)
+    {
+        return target;
+    }
+    golem::TrajectoryManagerStatus manage_trajectory(const float& state)
+    {
+        float error = fabsf(current_target - state);
+        return (error > target_margin) ? golem::TrajectoryManagerStatus::Moving : golem::TrajectoryManagerStatus::Ready;
+    }
+};
 } // namespace pendulum

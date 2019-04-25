@@ -1,6 +1,8 @@
 #include <ch.h>
 #include <hal.h>
 
+#include <algorithm>
+
 #include <error/error.h>
 #include <golem/golem.h>
 
@@ -8,19 +10,63 @@
 #include "main.h"
 #include "config.h"
 
-#include "manipulator/controller.h"
-#include "manipulator/hw.h"
-#include "manipulator/state_estimator.h"
-
+#include "manipulator/manipulator.h"
 #include "manipulator/manipulator_thread.h"
 
 #include "protobuf/manipulator.pb.h"
 
+#define MANIPULATOR_FREQUENCY 50
+#define MANIPULATOR_TRAJECTORY_FREQUENCY 50
+
 #define MANIPULATOR_THREAD_STACKSIZE 2048
+#define MANIPULATOR_TRAJECTORY_THREAD_STACKSIZE 1024
 
 using manipulator::Angles;
 using manipulator::ArmLengths;
 using manipulator::Pose2D;
+
+// RAII to manage locks on the manipulator
+class ManipulatorLockGuard {
+private:
+    mutex_t* lock;
+
+public:
+    ManipulatorLockGuard(void* l)
+        : lock((mutex_t*)l)
+    {
+        chMtxLock(lock);
+    }
+    ~ManipulatorLockGuard()
+    {
+        chMtxUnlock(lock);
+    }
+};
+
+MUTEX_DECL(right_lock);
+manipulator::Manipulator<ManipulatorLockGuard> right_arm{{0, 0, 0}, &right_lock};
+
+void manipulator_angles(float* angles)
+{
+    auto measured = right_arm.angles();
+    std::copy_n(std::begin(measured), 3, angles);
+}
+
+void manipulator_angles_set(float q1, float q2, float q3)
+{
+    Angles input = {q1, q2, q3};
+    right_arm.apply(input);
+}
+
+void manipulator_gripper_set(gripper_state_t state)
+{
+    if (state == GRIPPER_ACQUIRE) {
+        right_arm.gripper.acquire();
+    } else if (state == GRIPPER_RELEASE) {
+        right_arm.gripper.release();
+    } else {
+        right_arm.gripper.disable();
+    }
+}
 
 static THD_FUNCTION(manipulator_thd, arg)
 {
@@ -34,63 +80,72 @@ static THD_FUNCTION(manipulator_thd, arg)
     messagebus_advertise_topic(&bus, &manipulator_topic.topic, "/manipulator");
     Manipulator state = Manipulator_init_zero;
 
-    const ArmLengths link_lengths = {{
+    right_arm.set_lengths({
         config_get_scalar("master/arms/right/lengths/l1"),
         config_get_scalar("master/arms/right/lengths/l2"),
         config_get_scalar("master/arms/right/lengths/l3"),
-    }};
-
-    manipulator::System sys;
-    manipulator::StateEstimator estimator(link_lengths);
-    manipulator::Controller ctrl(link_lengths);
-
-    sys.offsets = {
+    });
+    right_arm.set_offsets({
         config_get_scalar("master/arms/right/offsets/q1"),
         config_get_scalar("master/arms/right/offsets/q2"),
         config_get_scalar("master/arms/right/offsets/q3"),
-    };
+    });
 
-    Pose2D pose;
-    pose.x = 0.17f;
-    pose.y = 0.22f;
-    pose.heading = 1.57f;
-    ctrl.set(pose);
-
-    int counter = 0;
     NOTICE("Start manipulator thread");
     while (true) {
-        if (counter >= 2. * MANIPULATOR_FREQUENCY) {
-            counter = 0;
-            pose.y *= -1.f;
-            pose.heading *= -1.f;
-            ctrl.set(pose);
-        }
-
         if (parameter_namespace_contains_changed(right_arm_params)) {
-            sys.offsets = {
+            right_arm.set_offsets({
                 config_get_scalar("master/arms/right/offsets/q1"),
                 config_get_scalar("master/arms/right/offsets/q2"),
                 config_get_scalar("master/arms/right/offsets/q3"),
-            };
+            });
+
+            right_arm.gripper.configure(config_get_scalar("master/arms/right/gripper/release"),
+                                        config_get_scalar("master/arms/right/gripper/acquire"));
         }
 
-        estimator.update(sys.measure());
-        Angles input = ctrl.update(estimator.get());
-        // sys.apply(input);
+        Pose2D pose = right_arm.update();
+        Angles input = right_arm.compute_control();
+        // right_arm.apply(input);
 
-        state.pose.x = estimator.get().x;
-        state.pose.y = estimator.get().y;
-        state.pose.heading = estimator.get().heading;
-        state.measured.q1 = sys.measure()[0];
-        state.measured.q2 = sys.measure()[1];
-        state.measured.q3 = sys.measure()[2];
-        state.input.q1 = input[0];
-        state.input.q2 = input[1];
-        state.input.q3 = input[2];
+        state.pose.x = pose.x;
+        state.pose.y = pose.y;
+        state.pose.heading = pose.heading;
+        state.measured.q1 = right_arm.angles()[0];
+        state.measured.q2 = right_arm.angles()[1];
+        state.measured.q3 = right_arm.angles()[2];
+        state.input.q1 = right_arm.sys.last_raw[0];
+        state.input.q2 = right_arm.sys.last_raw[1];
+        state.input.q3 = right_arm.sys.last_raw[2];
         messagebus_topic_publish(&manipulator_topic.topic, &state, sizeof(state));
 
-        counter++;
         chThdSleepMilliseconds(1000 / MANIPULATOR_FREQUENCY);
+    }
+}
+
+static THD_FUNCTION(manipulator_trajectory_thd, arg)
+{
+    (void)arg;
+    chRegSetThreadName(__FUNCTION__);
+
+    // Pose2D pose;
+    // pose.x = 0.17f;
+    // pose.y = 0.22f;
+    // pose.heading = 1.57f;
+    // right_arm.set_target(pose);
+
+    // int counter = 0;
+
+    NOTICE("Start manipulator trajectory manager thread");
+    while (true) {
+        // if (counter >= 2 * MANIPULATOR_FREQUENCY) {
+        //     counter = 0;
+        //     pose.y *= -1.f;
+        //     pose.heading *= -1.f;
+        //     right_arm.set_target(pose);
+        // }
+        // counter++;
+        chThdSleepMilliseconds(1000 / MANIPULATOR_TRAJECTORY_FREQUENCY);
     }
 }
 
@@ -101,5 +156,12 @@ void manipulator_start(void)
                       sizeof(manipulator_thd_wa),
                       MANIPULATOR_THREAD_PRIO,
                       manipulator_thd,
+                      NULL);
+
+    static THD_WORKING_AREA(manipulator_trajectory_thd_wa, MANIPULATOR_TRAJECTORY_THREAD_STACKSIZE);
+    chThdCreateStatic(manipulator_trajectory_thd_wa,
+                      sizeof(manipulator_trajectory_thd_wa),
+                      MANIPULATOR_TRAJECTORY_THREAD_PRIO,
+                      manipulator_trajectory_thd,
                       NULL);
 }

@@ -28,6 +28,7 @@
 #include "robot_helpers/strategy_helpers.h"
 #include "robot_helpers/motor_helpers.h"
 #include "robot_helpers/arm_helpers.h"
+#include "manipulator/manipulator_thread.h"
 #include "strategy.h"
 #include <trace/trace.h>
 #include "pca9685_pwm.h"
@@ -840,6 +841,33 @@ static void cmd_arm_index(BaseSequentialStream* chp, int argc, char* argv[])
     chprintf(chp, "Index of theta-3 at %.4f\r\n", offsets[2]);
 }
 
+static void cmd_arm_index_manual(BaseSequentialStream* chp, int argc, char* argv[])
+{
+    (void)argc;
+    (void)argv;
+
+    const float directions[3] = {-1.f, -1.f, 1.f};
+    float offsets[3];
+
+    parameter_scalar_set(PARAMETER("master/arms/right/offsets/q1"), 0);
+    parameter_scalar_set(PARAMETER("master/arms/right/offsets/q2"), 0);
+    parameter_scalar_set(PARAMETER("master/arms/right/offsets/q3"), 0);
+    chThdSleepMilliseconds(100);
+
+    offsets[0] = motor_get_position("theta-1");
+    offsets[1] = motor_get_position("theta-2");
+    offsets[2] = motor_get_position("theta-3");
+    arm_compute_offsets(directions, offsets);
+
+    parameter_scalar_set(PARAMETER("master/arms/right/offsets/q1"), offsets[0]);
+    parameter_scalar_set(PARAMETER("master/arms/right/offsets/q2"), offsets[1]);
+    parameter_scalar_set(PARAMETER("master/arms/right/offsets/q3"), offsets[2]);
+
+    chprintf(chp, "Index of theta-1 at %.4f\r\n", offsets[0]);
+    chprintf(chp, "Index of theta-2 at %.4f\r\n", offsets[1]);
+    chprintf(chp, "Index of theta-3 at %.4f\r\n", offsets[2]);
+}
+
 static void cmd_base_mode(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc != 1) {
@@ -1055,6 +1083,55 @@ static void cmd_shake_the_arm(BaseSequentialStream* chp, int argc, char* argv[])
     }
 }
 
+static void cmd_arm(BaseSequentialStream* chp, int argc, char* argv[])
+{
+    float angles[3];
+
+    if (argc == 3) { // set angles
+        angles[0] = atof(argv[0]);
+        angles[1] = atof(argv[1]);
+        angles[2] = atof(argv[2]);
+
+        manipulator_angles_set(angles[0], angles[1], angles[2]);
+
+        chprintf(chp, "Set angles: %.4f, %.4f, %.4f\r\n", angles[0], angles[1], angles[2]);
+    } else if (argc == 0) { // read angles
+        manipulator_angles(angles);
+
+        chprintf(chp, "Measured angles: %.4f, %.4f, %.4f\r\n", angles[0], angles[1], angles[2]);
+    } else {
+        if (!strcmp(argv[0], "hold")) {
+            manipulator_angles(angles);
+            manipulator_angles_set(angles[0], angles[1], angles[2]);
+            chprintf(chp, "Holding angles: %.4f, %.4f, %.4f\r\n", angles[0], angles[1], angles[2]);
+        } else {
+            motor_manager_set_voltage(&motor_manager, "theta-1", 0);
+            motor_manager_set_voltage(&motor_manager, "theta-2", 0);
+            motor_manager_set_voltage(&motor_manager, "theta-3", 0);
+            chprintf(chp, "Disabled arm\r\n");
+        }
+    }
+}
+
+static void cmd_grip(BaseSequentialStream* chp, int argc, char* argv[])
+{
+    if (argc != 1) {
+        chprintf(chp, "Usage: grip -1|0|1\r\n");
+        return;
+    }
+    int state = atoi(argv[0]);
+    if (state > 0) {
+        manipulator_gripper_set(GRIPPER_ACQUIRE);
+        chprintf(chp, "Acquire gripper\r\n");
+    } else if (state < 0) {
+        manipulator_gripper_set(GRIPPER_RELEASE);
+        chprintf(chp, "Release gripper\r\n");
+    } else {
+        manipulator_gripper_set(GRIPPER_OFF);
+        chprintf(chp, "Disable gripper\r\n");
+    }
+}
+
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
@@ -1084,6 +1161,7 @@ const ShellCommand commands[] = {
     {"motor_index", cmd_motor_index},
     {"motor_index_sym", cmd_motor_index_sym},
     {"arm_index", cmd_arm_index},
+    {"arm_index_manual", cmd_arm_index_manual},
     {"motors", cmd_motors},
     {"base_mode", cmd_base_mode},
     {"state", cmd_state},
@@ -1096,4 +1174,6 @@ const ShellCommand commands[] = {
     {"panel", cmd_panel_status},
     {"beacon", cmd_proximity_beacon},
     {"shake", cmd_shake_the_arm},
+    {"arm", cmd_arm},
+    {"grip", cmd_grip},
     {NULL, NULL}};

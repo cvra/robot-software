@@ -58,6 +58,8 @@ limitations under the License.
 #include "hal.h"
 #include "evtimer.h"
 
+#include <crc/crc16.h>
+
 #include "lwipthread.h"
 
 #include "lwip/opt.h"
@@ -69,19 +71,39 @@ limitations under the License.
 #include <lwip/stats.h>
 #include <lwip/snmp.h>
 #include <lwip/tcpip.h>
+#include <parameter/parameter.h>
 #include "netif/etharp.h"
 #include "netif/ppp/pppoe.h"
 #include "can/can_uwb_ip_netif.hpp"
+#include "main.h"
+#include "uid.h"
 
 #define PERIODIC_TIMER_ID (1 << 0)
 #define FRAME_RECEIVED_ID (1 << 1)
 #define CAN_FRAME_RECEIVED_ID (1 << 2)
 
+#define CANIF_MAC_PREFIX 0x42
+#define ETHERNET_MAC_PREFIX 0x43
+
+#define LWIP_IFNAME0 'e'
+#define LWIP_IFNAME1 'n'
+
 static sys_sem_t lwip_init_done;
 
-/*
- * Initialization.
- */
+static struct {
+    parameter_t address;
+    char address_buffer[IP4ADDR_STRLEN_MAX];
+    parameter_t netmask;
+    char netmask_buffer[IP4ADDR_STRLEN_MAX];
+    parameter_namespace_t ns;
+} canif_params, etherif_params;
+
+static parameter_namespace_t ip_ns;
+
+/** Reads parameters from the given parameter namespace and applies them to the
+ * given namespace. */
+static void update_parameters(struct netif *netif, parameter_namespace_t *ns);
+
 static void low_level_init(struct netif* netif)
 {
     /* set MAC hardware address length */
@@ -214,6 +236,13 @@ void ipinit_done_cb(void* a)
     sys_sem_signal(&lwip_init_done);
 }
 
+static uint16_t local_id(void)
+{
+    uint8_t id[UID_LENGTH];
+    uid_read(id);
+    return crc16(0xcafe, id, sizeof(id));
+}
+
 /**
  * @brief LWIP handling thread.
  *
@@ -227,6 +256,7 @@ void lwip_thread(void* p)
     event_listener_t el0, el1, el2;
     ip_addr_t ip, gateway, netmask;
     ip_addr_t can_ip, can_netmask;
+    uint16_t id;
     static const MACConfig mac_config = {thisif.hwaddr};
 
     (void)p;
@@ -241,12 +271,13 @@ void lwip_thread(void* p)
     sys_sem_wait(&lwip_init_done);
     sys_sem_free(&lwip_init_done);
 
-    thisif.hwaddr[0] = LWIP_ETHADDR_0;
-    thisif.hwaddr[1] = LWIP_ETHADDR_1;
-    thisif.hwaddr[2] = LWIP_ETHADDR_2;
-    thisif.hwaddr[3] = LWIP_ETHADDR_3;
-    thisif.hwaddr[4] = LWIP_ETHADDR_4;
-    thisif.hwaddr[5] = LWIP_ETHADDR_5;
+    /* Set a locally administered address derived from the hardware */
+    id = local_id();
+    memset(thisif.hwaddr, 0, ETHARP_HWADDR_LEN);
+    thisif.hwaddr[3] = ETHERNET_MAC_PREFIX;
+    thisif.hwaddr[4] = id & 0xff;
+    thisif.hwaddr[5] = (id >> 8) & 0xff;
+
 
     LWIP_ETHERNET_IPADDR(&ip);
     LWIP_ETHERNET_NETMASK(&netmask);
@@ -258,12 +289,11 @@ void lwip_thread(void* p)
     macStart(&ETHD1, &mac_config);
     netif_add(&thisif, &ip, &netmask, &gateway, NULL, ethernetif_init, tcpip_input);
     netif_add(&canif, &can_ip, &can_netmask, &gateway, NULL, lwip_uwb_ip_netif_init, tcpip_input);
-    canif.hwaddr[0] = LWIP_ETHADDR_0 + 1;
-    canif.hwaddr[1] = LWIP_ETHADDR_1 + 1;
-    canif.hwaddr[2] = LWIP_ETHADDR_2 + 1;
-    canif.hwaddr[3] = LWIP_ETHADDR_3 + 1;
-    canif.hwaddr[4] = LWIP_ETHADDR_4 + 1;
-    canif.hwaddr[5] = LWIP_ETHADDR_5 + 1;
+    memset(canif.hwaddr, 0, ETHARP_HWADDR_LEN);
+    canif.hwaddr[3] = CANIF_MAC_PREFIX;
+    canif.hwaddr[4] = id & 0xff;
+    canif.hwaddr[5] = (id >> 8) & 0xff;
+
 
     netif_set_default(&thisif);
     netif_set_up(&thisif);
@@ -282,6 +312,9 @@ void lwip_thread(void* p)
 
     while (TRUE) {
         eventmask_t mask = chEvtWaitAny(ALL_EVENTS);
+
+        update_parameters(&canif, &canif_params.ns);
+        update_parameters(&thisif, &etherif_params.ns);
         if (mask & PERIODIC_TIMER_ID) {
             bool current_link_status = macPollLinkStatus(&ETHD1);
             if (current_link_status != netif_is_link_up(&thisif)) {
@@ -337,9 +370,49 @@ void lwip_thread(void* p)
     }
 }
 
+static void parameter_init(void)
+{
+    parameter_namespace_declare(&ip_ns, &global_config, "ip");
+    parameter_namespace_declare(&canif_params.ns, &ip_ns, "uwb");
+    parameter_string_declare_with_default(&canif_params.address, &canif_params.ns, "address", canif_params.address_buffer, sizeof(canif_params.address_buffer), "192.168.4.20");
+    parameter_string_declare_with_default(&canif_params.netmask, &canif_params.ns, "netmask", canif_params.netmask_buffer, sizeof(canif_params.netmask_buffer), "255.255.255.0");
+    parameter_namespace_declare(&etherif_params.ns, &ip_ns, "ethernet");
+    parameter_string_declare_with_default(&etherif_params.address, &etherif_params.ns, "address", etherif_params.address_buffer, sizeof(etherif_params.address_buffer), "192.168.3.20");
+    parameter_string_declare_with_default(&etherif_params.netmask, &etherif_params.ns, "netmask", etherif_params.netmask_buffer, sizeof(etherif_params.netmask_buffer), "255.255.255.0");
+}
+
+static int ip_from_parameter(parameter_t *p, ip4_addr_t *addr)
+{
+    char buffer[IP4ADDR_STRLEN_MAX];
+    parameter_string_get(p, buffer, sizeof(buffer));
+    int success = ip4addr_aton(buffer, addr);
+    if (success == 0) {
+        WARNING("\"%s\" is not a valid IP.", buffer);
+    }
+
+    return success;
+}
+
+static void update_parameters(struct netif *netif, parameter_namespace_t *ns)
+{
+    if (parameter_namespace_contains_changed(ns)) {
+        parameter_t *addr_p, *netmask_p;
+        addr_p = parameter_find(ns, "address");
+        netmask_p = parameter_find(ns, "netmask");
+        if (addr_p && netmask_p) {
+            ip4_addr_t addr, mask;
+            if (ip_from_parameter(addr_p, &addr) && ip_from_parameter(netmask_p, &mask)) {
+                netif_set_ipaddr(netif, &addr);
+                netif_set_netmask(netif, &mask);
+            }
+        }
+    }
+}
+
 void ip_thread_init(void)
 {
     static THD_WORKING_AREA(wa_lwip_thread, LWIP_THREAD_STACK_SIZE);
+    parameter_init();
     /* Creates the LWIP threads (it changes priority internally).  */
     chThdCreateStatic(wa_lwip_thread,
                       LWIP_THREAD_STACK_SIZE,

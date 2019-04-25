@@ -16,6 +16,9 @@ float motor_auto_index_sym(motor_driver_t* motor, int motor_dir, float torque);
 /* Moves motor forward to get index and returns the position of index */
 float motor_auto_index(const char* motor_name, int motor_dir, float torque);
 
+/* Read motor position */
+float motor_get_position(const char* name);
+
 #ifdef __cplusplus
 }
 #endif

@@ -46,4 +46,26 @@ Angles inverse_kinematics(const ArmLengths& lengths, const Pose2D& pose)
 
     return angles;
 }
+
+Angles axes_couple(const Angles& decoupled)
+{
+    Angles coupled;
+
+    coupled[0] = decoupled[0];
+    coupled[1] = decoupled[1] - coupled[0];
+    coupled[2] = decoupled[2] - coupled[1] - coupled[0];
+
+    return coupled;
+}
+
+Angles axes_decouple(const Angles& coupled)
+{
+    Angles decoupled;
+
+    decoupled[0] = coupled[0];
+    decoupled[1] = coupled[1] + coupled[0];
+    decoupled[2] = coupled[2] + coupled[1] + coupled[0];
+
+    return decoupled;
+}
 } // namespace manipulator

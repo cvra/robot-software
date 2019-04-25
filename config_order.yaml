@@ -4,6 +4,13 @@ logging:
     level: "notice"
   sdcard:
     level: "notice" # changing this to debug slows down things too much and causes panic
+ip:
+  ethernet:
+    address: "192.168.3.20"
+    netmask: "255.255.255.0"
+  uwb:
+    address: "10.0.0.20"
+    netmask: "255.255.255.0"
 master:
     is_main_robot: true
     control_panel_active_high: false
@@ -64,6 +71,9 @@ master:
                 q1: 0.
                 q2: 0.
                 q3: 0.
+            gripper:
+                release: -3.
+                acquire: 6.
     screen:
         ax: 0.089231252
         ay: -0.001139728

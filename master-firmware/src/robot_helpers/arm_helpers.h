@@ -10,6 +10,11 @@ extern "C" {
 // Returns the offset positions at which the index was detected for each axis
 void arm_motors_index(const char** motors, const float* directions, const float* speeds, float* offsets);
 
+// Computes offsets for manual arm indexing
+// @param[in] directions direction of the motors to move in positive trigonometric direction
+// @param[in, out] offsets inputs are the values measured, will be transformed taking robot geometry into account
+void arm_compute_offsets(const float* directions, float* offsets);
+
 #ifdef __cplusplus
 }
 #endif

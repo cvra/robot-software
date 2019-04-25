@@ -4,6 +4,13 @@ logging:
     level: "notice"
   sdcard:
     level: "notice" # changing this to debug slows down things too much and causes panic
+ip:
+  ethernet:
+    address: "192.168.3.20"
+    netmask: "255.255.255.0"
+  uwb:
+    address: "10.0.0.10"
+    netmask: "255.255.255.0"
 master:
     is_main_robot: false
     control_panel_active_high: true
@@ -13,9 +20,9 @@ master:
     calibration_direction: 1 # calibration side is on the front
     odometry:
         external_encoder_ticks_per_mm: 162.974661726 # Computed 162.974661726
-        external_track_mm: 201.51564025
-        left_wheel_correction_factor: -0.99925196
-        right_wheel_correction_factor: 1.00074827
+        external_track_mm: 201.329696655
+        left_wheel_correction_factor: -0.99942505
+        right_wheel_correction_factor: 1.00057482
     beacon:
         reflector_radius: 0.04 # in meters
         angular_offset: 0. # in radians
@@ -64,6 +71,9 @@ master:
                 q1: 0.
                 q2: 0.
                 q3: 0.
+            gripper:
+                release: -6.
+                acquire: 12.
     screen:
         ax: 0.089231252
         ay: -0.001139728
@@ -241,3 +251,11 @@ actuator:
                 kd: 0.0
                 ki: 5.0
                 kp: 0.3
+    pump-1:
+        control:
+            mode: 0 # openloop
+            low_batt_th: 5.
+    pump-2:
+        control:
+            mode: 0 # openloop
+            low_batt_th: 5.

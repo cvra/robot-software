@@ -13,11 +13,13 @@
 #include "robot_helpers/math_helpers.h"
 #include "robot_helpers/trajectory_helpers.h"
 #include "robot_helpers/strategy_helpers.h"
+#include "robot_helpers/motor_helpers.h"
 #include "robot_helpers/arm_helpers.h"
 #include "base/base_controller.h"
 #include "base/base_helpers.h"
 #include "base/map.h"
 #include "base/map_server.h"
+#include "manipulator/manipulator_thread.h"
 #include "config.h"
 #include "control_panel.h"
 #include "main.h"
@@ -73,32 +75,33 @@ static enum strat_color_t wait_for_color_selection(void)
 
 static void wait_for_starter(void)
 {
-    const long STARTER_MIN_ARMED_TIME_MS = 1000;
-    unsigned long starter_armed_time_ms;
+    wait_for_color_selection();
+    // const long STARTER_MIN_ARMED_TIME_MS = 1000;
+    // unsigned long starter_armed_time_ms;
 
-    control_panel_clear(LED_READY);
+    // control_panel_clear(LED_READY);
 
-    while (1) {
-        starter_armed_time_ms = 0;
+    // while (1) {
+    //     starter_armed_time_ms = 0;
 
-        /* Wait for a rising edge */
-        while (control_panel_read(STARTER)) {
-            strategy_wait_ms(10);
-        }
-        while (!control_panel_read(STARTER)) {
-            strategy_wait_ms(10);
-            starter_armed_time_ms += 10;
+    //     /* Wait for a rising edge */
+    //     while (control_panel_read(STARTER)) {
+    //         strategy_wait_ms(10);
+    //     }
+    //     while (!control_panel_read(STARTER)) {
+    //         strategy_wait_ms(10);
+    //         starter_armed_time_ms += 10;
 
-            /* indicate that starter is armed */
-            if (starter_armed_time_ms >= STARTER_MIN_ARMED_TIME_MS) {
-                control_panel_set(LED_READY);
-            }
-        }
+    //         /* indicate that starter is armed */
+    //         if (starter_armed_time_ms >= STARTER_MIN_ARMED_TIME_MS) {
+    //             control_panel_set(LED_READY);
+    //         }
+    //     }
 
-        if (starter_armed_time_ms >= STARTER_MIN_ARMED_TIME_MS) {
-            break;
-        }
-    }
+    //     if (starter_armed_time_ms >= STARTER_MIN_ARMED_TIME_MS) {
+    //         break;
+    //     }
+    // }
 }
 
 static void wait_for_autoposition_signal(void)
@@ -216,16 +219,27 @@ struct IndexArms : actions::IndexArms {
     {
         NOTICE("Indexing arms!");
 
-        const char* motors[3] = {"theta-1", "theta-2", "theta-3"};
+        // const char* motors[3] = {"theta-1", "theta-2", "theta-3"};
+        // const float speeds[3] = {0.15, 0.12, 0.06};
         const float directions[3] = {-1, -1, 1};
-        const float speeds[3] = {0.15, 0.12, 0.06};
         float offsets[3];
 
-        arm_motors_index(motors, directions, speeds, offsets);
+        // arm_motors_index(motors, directions, speeds, offsets);
+
+        // set index when user presses color button, so indexing is done manually
+        wait_for_color_selection();
+        offsets[0] = motor_get_position("theta-1");
+        offsets[1] = motor_get_position("theta-2");
+        offsets[2] = motor_get_position("theta-3");
+        arm_compute_offsets(directions, offsets);
 
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q1"), offsets[0]);
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q2"), offsets[1]);
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q3"), offsets[2]);
+        wait_for_color_selection();
+
+        strategy_wait_ms(500);
+        wait_for_color_selection();
 
         state.arms_are_indexed = true;
         return true;
@@ -243,7 +257,77 @@ struct RetractArms : actions::RetractArms {
     bool execute(RobotState& state)
     {
         NOTICE("Retracting arms!");
+
+        manipulator_angles_set(1.2878, -1.2018, 1.1982);
+        strategy_wait_ms(1000);
+        wait_for_color_selection();
+
         state.arms_are_deployed = false;
+        return true;
+    }
+};
+
+struct TakePuck : actions::TakePuck {
+    enum strat_color_t m_color;
+
+    TakePuck(enum strat_color_t color)
+        : m_color(color)
+    {
+    }
+
+    bool execute(RobotState& state)
+    {
+        if (!strategy_goto_avoid(MIRROR_X(m_color, 330), 378, MIRROR_A(m_color, 180), TRAJ_FLAGS_ALL)) {
+            return false;
+        }
+
+        manipulator_angles_set(1.2221, 0.2866, 1.6251);
+        strategy_wait_ms(2000);
+        wait_for_color_selection();
+
+        manipulator_angles_set(1.3344, 1.1287, 0.0);
+        strategy_wait_ms(2000);
+        wait_for_color_selection();
+
+        manipulator_angles_set(0.9956, 0.5278, 0.);
+        strategy_wait_ms(2000);
+        manipulator_gripper_set(GRIPPER_ACQUIRE);
+        strategy_wait_ms(500);
+        wait_for_color_selection();
+
+        manipulator_angles_set(1.3344, 1.1287, 0.0);
+        strategy_wait_ms(2000);
+        wait_for_color_selection();
+
+        state.arms_are_deployed = true;
+
+        state.puck_available = false;
+        state.has_puck = true;
+        return true;
+    }
+};
+
+struct DepositPuck : actions::DepositPuck {
+    enum strat_color_t m_color;
+
+    DepositPuck(enum strat_color_t color)
+        : m_color(color)
+    {
+    }
+
+    bool execute(RobotState& state)
+    {
+        if (!strategy_goto_avoid(MIRROR_X(m_color, 320), 390, MIRROR_A(m_color, 0), TRAJ_FLAGS_ALL)) {
+            return false;
+        }
+        manipulator_gripper_set(GRIPPER_RELEASE);
+        strategy_wait_ms(100);
+
+        manipulator_gripper_set(GRIPPER_OFF);
+
+        state.has_puck = false;
+        state.pucks_in_red_zone++;
+        state.arms_are_deployed = true;
         return true;
     }
 };
@@ -326,10 +410,15 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     // messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
     InitGoal init_goal;
-    goap::Goal<RobotState>* goals[] = {};
+    FirstPuckGoal first_puck_goal;
+    goap::Goal<RobotState>* goals[] = {
+        &first_puck_goal,
+    };
 
     IndexArms index_arms;
     RetractArms retract_arms(color);
+    TakePuck take_puck(color);
+    DepositPuck deposit_puck(color);
 
     const int max_path_len = 10;
     goap::Action<RobotState>* path[max_path_len] = {nullptr};
@@ -337,6 +426,8 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     goap::Action<RobotState>* actions[] = {
         &index_arms,
         &retract_arms,
+        &take_puck,
+        &deposit_puck,
     };
 
     const auto action_count = sizeof(actions) / sizeof(actions[0]);
@@ -353,7 +444,7 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     NOTICE("Positioning robot");
 
     robot.base_speed = BASE_SPEED_INIT;
-    strategy_auto_position(MIRROR_X(color, 250), 750, MIRROR_A(color, -90), color);
+    strategy_auto_position(MIRROR_X(color, 250), 450, MIRROR_A(color, -90), color);
 
     trajectory_a_abs(&robot.traj, MIRROR_A(color, 180));
     trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
@@ -367,10 +458,6 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     wait_for_starter();
 
     trajectory_game_timer_reset();
-
-    NOTICE("Moving out of Order's way. Time for Chaos!");
-    trajectory_d_rel(&robot.traj, -400);
-    trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
 
     NOTICE("Starting game...");
 

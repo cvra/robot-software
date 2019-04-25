@@ -23,7 +23,7 @@ def argparser(parser=None):
     return parser
 
 def fwd_kinematics(origin, links, th1, th2, th3):
-    angles = [th1, th1 + th2, th1 + th2 + th3]
+    angles = [th1, th2, th3]
 
     p1 = (origin[0] + links[0] * sin(angles[0]), origin[1] - links[0] * cos(angles[0]))
     p2 = (p1[0] + links[1] * sin(angles[1]), p1[1] - links[1] * cos(angles[1]))

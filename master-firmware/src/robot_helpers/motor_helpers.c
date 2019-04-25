@@ -6,6 +6,15 @@
 // By how many radians we overshoot the index, in order to detect the hysteresis
 static const float MOTOR_INDEX_ANGLE_OVERSHOOT = 0.6; // in rad
 
+static motor_driver_t* get_motor_driver(const char* name)
+{
+    motor_driver_t* motor = (motor_driver_t*)bus_enumerator_get_driver(motor_manager.bus_enumerator, name);
+    if (motor == NULL) {
+        ERROR("Motor \"%s\" doesn't exist", name);
+    }
+    return motor;
+}
+
 float motor_wait_for_index(motor_driver_t* motor, float torque)
 {
     uint32_t index_count = motor->stream.value_stream_index_update_count;
@@ -48,15 +57,15 @@ float motor_auto_index_sym(motor_driver_t* motor, int motor_dir, float torque)
 
 float motor_auto_index(const char* motor_name, int motor_dir, float torque)
 {
-    // get motor driver
-    motor_driver_t* motor = bus_enumerator_get_driver(motor_manager.bus_enumerator, motor_name);
-    if (motor == NULL) {
-        ERROR("Motor \"%s\" doesn't exist", motor_name);
-    }
-
     // move until index is found
-    float index = motor_wait_for_index(motor, motor_dir * torque);
+    float index = motor_wait_for_index(get_motor_driver(motor_name), motor_dir * torque);
+
     NOTICE("Seen index at %.4f!", index);
 
     return index;
+}
+
+float motor_get_position(const char* name)
+{
+    return motor_driver_get_and_clear_stream_value(get_motor_driver(name), MOTOR_STREAM_POSITION);
 }

@@ -50,7 +50,7 @@ target.arm:
     - src/base/base_controller.c
     - src/base/map_server.cpp
     - src/robot_helpers/motor_helpers.c
-    - src/robot_helpers/arm_helpers.c
+    - src/robot_helpers/arm_helpers.cpp
     - src/trace/trace_points.c
     - src/strategy.cpp
     - src/filesystem.c
@@ -62,7 +62,9 @@ target.arm:
     - src/strategy/color_sequence_server.c
     - src/udp_topic_broadcaster.c
     - src/manipulator/hw.cpp
+    - src/manipulator/gripper.cpp
     - src/manipulator/manipulator_thread.cpp
+    - src/uid.c
 
 source:
     - src/unix_timestamp.c

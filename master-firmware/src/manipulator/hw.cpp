@@ -3,52 +3,32 @@
 #include <error/error.h>
 
 #include "main.h"
-
-namespace {
-motor_driver_t* get_motor_driver(const char* name)
-{
-    motor_driver_t* motor = (motor_driver_t*)bus_enumerator_get_driver(motor_manager.bus_enumerator, name);
-    if (motor == NULL) {
-        ERROR("Motor \"%s\" doesn't exist", name);
-    }
-    return motor;
-}
-
-float read_motor_position(const char* name)
-{
-    return motor_driver_get_and_clear_stream_value(get_motor_driver(name), MOTOR_STREAM_POSITION);
-}
-} // namespace
+#include "robot_helpers/motor_helpers.h"
 
 namespace manipulator {
 Angles System::measure_feedback() const
 {
     Angles angles;
+
     for (size_t i = 0; i < 3; i++) {
-        angles[i] = directions[i] * read_motor_position(motors[i]) - offsets[i];
+        angles[i] = directions[i] * motor_get_position(motors[i]) - offsets[i];
     }
 
-    // axis are decoupled
-    angles[2] -= angles[1];
-    angles[1] -= angles[0];
+    // // axis are decoupled
+    // angles = axes_couple(angles);
 
     return angles;
 }
 
 void System::apply_input(const Angles& angles)
 {
-    Angles target;
-    for (size_t i = 0; i < 3; i++) {
-        target[i] = angles[i] + offsets[i];
-    }
-
-    // axis are decoupled
-    target[1] += target[0];
-    target[2] += target[1];
+    // // axis are decoupled
+    // Angles target = axes_decouple(angles);
+    Angles target = angles;
 
     for (size_t i = 0; i < 3; i++) {
-        target[i] *= directions[i];
-        motor_driver_set_position(get_motor_driver(motors[i]), target[i]);
+        target[i] = directions[i] * (target[i] + offsets[i]);
+        motor_manager_set_position(&motor_manager, motors[i], target[i]);
     }
 
     last_raw = angles;
