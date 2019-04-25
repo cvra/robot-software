@@ -123,7 +123,7 @@ static void main(void* arg)
         ERROR("CAN IO driver");
     }
 
-    if (sensor_handler_init(node) < 0) {
+    if (sensor_handler_init(node, &bus_enumerator) < 0) {
         ERROR("sensor init");
     }
 

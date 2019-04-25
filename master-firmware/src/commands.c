@@ -298,10 +298,21 @@ static void cmd_node(BaseSequentialStream* chp, int argc, char** argv)
 {
     if (argc != 1) {
         chprintf(chp, "usage: node node_name.\r\n");
+        chprintf(chp, "or node -a to show all nodes");
         return;
     }
-    uint8_t id = bus_enumerator_get_can_id(&bus_enumerator, argv[0]);
-    chprintf(chp, "Node ID: %s = %d.\r\n", argv[0], id);
+
+    if (!strcmp(argv[0], "-a")) {
+        for (int i = 0; i < 128; i++) {
+            char *s = bus_enumerator_get_str_id(&bus_enumerator, i);
+            if (s) {
+                chprintf(chp, "%02d: %s\n", i, s);
+            }
+        }
+    } else {
+        uint8_t id = bus_enumerator_get_can_id(&bus_enumerator, argv[0]);
+        chprintf(chp, "Node ID: %s = %d.\r\n", argv[0], id);
+    }
 }
 
 static void cmd_topics(BaseSequentialStream* chp, int argc, char* argv[])
@@ -946,22 +957,6 @@ static void cmd_canio(BaseSequentialStream* chp, int argc, char* argv[])
     chprintf(chp, "Set CAN-IO %s Channel %d PWM %f\r\n", argv[0], channel, pwm);
 }
 
-static void cmd_hand_dist(BaseSequentialStream* chp, int argc, char* argv[])
-{
-    (void)argc;
-    (void)argv;
-
-    messagebus_topic_t* topic;
-    Range range;
-
-    topic = messagebus_find_topic_blocking(&bus, "/hand_distance");
-    if (messagebus_topic_read(topic, &range, sizeof(range))) {
-        chprintf(chp, "hand_distance: %f\r\n", range.distance);
-    } else {
-        chprintf(chp, "topic was never published\r\n");
-    }
-}
-
 static void cmd_motor_sin(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc != 4) {
@@ -1168,7 +1163,6 @@ const ShellCommand commands[] = {
     {"trace", cmd_trace},
     {"servo", cmd_servo},
     {"canio", cmd_canio},
-    {"dist", cmd_hand_dist},
     {"motor_sin", cmd_motor_sin},
     {"speed", cmd_speed},
     {"panel", cmd_panel_status},

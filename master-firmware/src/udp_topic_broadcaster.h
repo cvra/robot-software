@@ -22,6 +22,7 @@ extern "C" {
 #endif
 
 void udp_topic_broadcast_start(void);
+void udp_topic_register_callbacks(void);
 
 #ifdef __cplusplus
 }
