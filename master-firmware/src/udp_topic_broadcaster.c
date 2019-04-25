@@ -114,14 +114,16 @@ static void udp_topic_send_thd(void *p)
     }
 }
 
-void udp_topic_broadcast_start(void)
+void udp_topic_register_callbacks(void)
 {
     chPoolLoadArray(&msg_pool, msg_buffer, MSG_BUF_SIZE);
-
     static messagebus_new_topic_cb_t cb;
     messagebus_watchgroup_init(&watchgroup, &watchgroup_lock, &watchgroup_condvar);
     messagebus_new_topic_callback_register(&bus, &cb, new_topic_cb, NULL);
+}
 
+void udp_topic_broadcast_start(void)
+{
     static THD_WORKING_AREA(encode_wa, 2048);
     chThdCreateStatic(encode_wa, sizeof(encode_wa), HIGHPRIO, udp_topic_encode_thd, NULL);
 

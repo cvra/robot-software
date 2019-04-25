@@ -196,6 +196,8 @@ int main(void)
     /* Initialize the interthread communication bus. */
     messagebus_init(&bus, &bus_lock, &bus_condvar);
 
+    udp_topic_register_callbacks();
+
     /* Initialise timestamp module */
     timestamp_stm32_init();
 
@@ -233,7 +235,6 @@ int main(void)
     control_panel_init(config_get_boolean("master/control_panel_active_high"));
     gui_start();
 
-    // http_server_start();
     udp_topic_broadcast_start();
 
     /* Base init */
