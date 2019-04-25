@@ -279,8 +279,9 @@ struct TakePuck : actions::TakePuck {
 
         manipulator_angles_goto_timeout(1.2221, 0.2866, 1.6251, MANIPULATOR_DEFAULT_TIMEOUT_MS);
         manipulator_angles_goto_timeout(1.3344, 1.1287, 0.0, MANIPULATOR_DEFAULT_TIMEOUT_MS);
-        manipulator_angles_goto_timeout(0.9956, 0.5278, 0.0, MANIPULATOR_DEFAULT_TIMEOUT_MS);
+
         manipulator_gripper_set(GRIPPER_ACQUIRE);
+        manipulator_angles_goto_timeout(0.9956, 0.5278, 0.0, MANIPULATOR_DEFAULT_TIMEOUT_MS);
         strategy_wait_ms(500);
 
         manipulator_angles_goto_timeout(1.3344, 1.1287, 0.0, MANIPULATOR_DEFAULT_TIMEOUT_MS);
