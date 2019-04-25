@@ -114,9 +114,9 @@ static THD_FUNCTION(manipulator_thd, arg)
         state.measured.q1 = right_arm.angles()[0];
         state.measured.q2 = right_arm.angles()[1];
         state.measured.q3 = right_arm.angles()[2];
-        state.input.q1 = input[0];
-        state.input.q2 = input[1];
-        state.input.q3 = input[2];
+        state.input.q1 = right_arm.sys.last_raw[0];
+        state.input.q2 = right_arm.sys.last_raw[1];
+        state.input.q3 = right_arm.sys.last_raw[2];
         messagebus_topic_publish(&manipulator_topic.topic, &state, sizeof(state));
 
         chThdSleepMilliseconds(1000 / MANIPULATOR_FREQUENCY);
