@@ -514,7 +514,7 @@ void strategy_play_game(void* p)
     NOTICE("Strategy starting...");
 
     /* Prepare state publisher */
-    RobotState state;
+    RobotState state = RobotState_init_default;
 
     // static messagebus_topic_t state_topic;
     // static MUTEX_DECL(state_lock);
