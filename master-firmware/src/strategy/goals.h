@@ -21,7 +21,7 @@ struct FirstPuckGoal : goap::Goal<RobotState> {
 struct AcceleratorGoal : goap::Goal<RobotState> {
     virtual int distance_to(const RobotState& state) const
     {
-        return goap::Distance().shouldBeEqual(state.accelerator_is_done, 1);
+        return goap::Distance().shouldBeTrue(state.accelerator_is_done);
     }
 };
 
