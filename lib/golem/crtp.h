@@ -8,12 +8,6 @@ class Crtp {
 public:
     T& underlying() { return static_cast<T&>(*this); }
     const T& underlying() const { return static_cast<const T&>(*this); }
-
-private:
-    Crtp() {}
-
-    template <typename...>
-    friend class crtpType;
 };
 
 #endif /* GOLEM_IMPL_CRTP_HELPER_H */
