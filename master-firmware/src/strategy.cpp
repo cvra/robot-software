@@ -258,7 +258,7 @@ struct RetractArms : actions::RetractArms {
     {
         NOTICE("Retracting arms!");
 
-        manipulator_angles_set(1.2878, -2.4896, 2.4);
+        manipulator_angles_set(1.2878, -1.2018, 1.1982);
         strategy_wait_ms(1000);
         wait_for_color_selection();
 
@@ -281,11 +281,11 @@ struct TakePuck : actions::TakePuck {
             return false;
         }
 
-        manipulator_angles_set(1.2221, -0.9355, 1.3385);
+        manipulator_angles_set(1.2221, 0.2866, 1.6251);
         strategy_wait_ms(2000);
         wait_for_color_selection();
 
-        manipulator_angles_set(1.3344, -0.2057, -1.0742);
+        manipulator_angles_set(1.3344, 1.1287, 0.0);
         strategy_wait_ms(2000);
         wait_for_color_selection();
 
