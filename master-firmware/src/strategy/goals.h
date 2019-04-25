@@ -18,4 +18,11 @@ struct FirstPuckGoal : goap::Goal<RobotState> {
     }
 };
 
+struct AcceleratorGoal : goap::Goal<RobotState> {
+    virtual int distance_to(const RobotState& state) const
+    {
+        return goap::Distance().shouldBeTrue(state.accelerator_is_done);
+    }
+};
+
 #endif /* STRATEGY_GOALS_H */

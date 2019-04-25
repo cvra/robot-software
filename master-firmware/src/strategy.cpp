@@ -315,6 +315,35 @@ struct DepositPuck : actions::DepositPuck {
     }
 };
 
+struct LaunchAccelerator : actions::LaunchAccelerator {
+    enum strat_color_t m_color;
+
+    LaunchAccelerator(enum strat_color_t color)
+        : m_color(color)
+    {
+    }
+
+    bool execute(RobotState& state)
+    {
+        if (!strategy_goto_avoid(MIRROR_X(m_color, 1300), 320, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
+            return false;
+        }
+
+        state.arms_are_deployed = true;
+        manipulator_goto(MANIPULATOR_DEPLOY_FULLY);
+        if (!strategy_goto_avoid(MIRROR_X(m_color, 1305), 300, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
+            return false;
+        }
+        strategy_wait_ms(100);
+
+        trajectory_a_rel(&robot.traj, 13);
+        trajectory_wait_for_end(TRAJ_FLAGS_ROTATION);
+
+        state.accelerator_is_done = true;
+        return true;
+    }
+};
+
 void strategy_order_play_game(enum strat_color_t color, RobotState& state)
 {
     // messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
@@ -394,14 +423,17 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
 
     InitGoal init_goal;
     FirstPuckGoal first_puck_goal;
+    AcceleratorGoal accelerator_goal;
     goap::Goal<RobotState>* goals[] = {
         &first_puck_goal,
+        &accelerator_goal,
     };
 
     IndexArms index_arms;
     RetractArms retract_arms(color);
     TakePuck take_puck(color);
     DepositPuck deposit_puck(color);
+    LaunchAccelerator launch_accelerator(color);
 
     const int max_path_len = 10;
     goap::Action<RobotState>* path[max_path_len] = {nullptr};
@@ -411,6 +443,7 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
         &retract_arms,
         &take_puck,
         &deposit_puck,
+        &launch_accelerator,
     };
 
     const auto action_count = sizeof(actions) / sizeof(actions[0]);

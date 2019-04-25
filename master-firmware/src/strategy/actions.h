@@ -61,6 +61,19 @@ struct DepositPuck : public goap::Action<RobotState> {
         state.arms_are_deployed = true;
     }
 };
+
+struct LaunchAccelerator : public goap::Action<RobotState> {
+    bool can_run(const RobotState& state)
+    {
+        return !state.accelerator_is_done && !state.arms_are_deployed;
+    }
+
+    void plan_effects(RobotState& state)
+    {
+        state.accelerator_is_done = true;
+    }
+};
+
 } // namespace actions
 
 #endif /* STRATEGY_ACTIONS_H */
