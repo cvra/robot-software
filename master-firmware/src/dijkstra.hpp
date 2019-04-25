@@ -41,6 +41,15 @@ public:
     Data data;
 };
 
+/** Connects two nodes in both directions
+ */
+template <typename Data>
+void connect_bidirectional(Node<Data>& lhs, Node<Data>& rhs)
+{
+    lhs.connect(rhs);
+    rhs.connect(lhs);
+}
+
 /** Computes the shortest path in the given graph.
  *
  * The path will be stored in the nodes themselves as a linked list. To traverse the path, follow the path_next pointer.

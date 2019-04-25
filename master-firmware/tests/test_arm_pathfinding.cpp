@@ -46,8 +46,7 @@ TEST(ArmPathFindingTestGroup, MoreComplexSituation)
     };
 
     for (auto i = 0; i < PICK; i++) {
-        nodes[i].connect(nodes[i + 1]);
-        nodes[i + 1].connect(nodes[i]);
+        connect_bidirectional(nodes[i], nodes[i + 1]);
     }
 
     auto n = dijkstra(nodes, COUNT, nodes[DEPOSIT], nodes[PICK]);
