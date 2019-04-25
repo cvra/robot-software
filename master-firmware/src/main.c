@@ -37,6 +37,7 @@
 
 void init_base_motors(void);
 void init_arm_motors(void);
+void init_sensor_nodes(void);
 
 motor_manager_t motor_manager;
 
@@ -221,6 +222,7 @@ int main(void)
     /* Initialize motors */
     init_base_motors();
     init_arm_motors();
+    init_sensor_nodes();
 
     /* Initiaze UAVCAN communication */
     uavcan_node_start(10);
@@ -288,6 +290,14 @@ void init_arm_motors(void)
 
     motor_manager_create_driver(&motor_manager, "pump-1");
     motor_manager_create_driver(&motor_manager, "pump-2");
+}
+
+void init_sensor_nodes(void)
+{
+    bus_enumerator_add_node(&bus_enumerator, "front-left-sensor", NULL);
+    bus_enumerator_add_node(&bus_enumerator, "front-right-sensor", NULL);
+    bus_enumerator_add_node(&bus_enumerator, "back-left-sensor", NULL);
+    bus_enumerator_add_node(&bus_enumerator, "back-right-sensor", NULL);
 }
 
 void __stack_chk_fail(void)
