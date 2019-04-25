@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+int score_count_red_atom_zone(const RobotState& state);
+
 #ifdef __cplusplus
 }
 #endif

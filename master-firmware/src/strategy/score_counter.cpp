@@ -33,6 +33,8 @@ static THD_FUNCTION(score_counter_thd, arg)
         Score msg;
         msg.score = 0;
 
+        msg.score += score_count_red_atom_zone(state);
+
         messagebus_topic_publish(&score_topic.topic, &msg, sizeof(msg));
     }
 }
