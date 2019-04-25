@@ -13,6 +13,9 @@ void manipulator_angles(float* angles);
 void manipulator_angles_set(float q1, float q2, float q3);
 void manipulator_angles_wait_for_traj_end(uint16_t timeout_ms);
 
+// Set angles and wait until motion finished
+void manipulator_angles_goto_timeout(float q1, float q2, float q3, uint16_t timeout_ms);
+
 typedef enum {
     GRIPPER_OFF,
     GRIPPER_ACQUIRE,

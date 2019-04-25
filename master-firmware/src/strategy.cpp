@@ -256,8 +256,7 @@ struct RetractArms : actions::RetractArms {
     {
         NOTICE("Retracting arms!");
 
-        manipulator_angles_set(1.2878, -1.2018, 1.1982);
-        manipulator_angles_wait_for_traj_end(MANIPULATOR_DEFAULT_TIMEOUT_MS);
+        manipulator_angles_goto_timeout(1.2878, -1.2018, 1.1982, MANIPULATOR_DEFAULT_TIMEOUT_MS);
 
         state.arms_are_deployed = false;
         return true;
@@ -278,19 +277,13 @@ struct TakePuck : actions::TakePuck {
             return false;
         }
 
-        manipulator_angles_set(1.2221, 0.2866, 1.6251);
-        manipulator_angles_wait_for_traj_end(MANIPULATOR_DEFAULT_TIMEOUT_MS);
-
-        manipulator_angles_set(1.3344, 1.1287, 0.0);
-        manipulator_angles_wait_for_traj_end(MANIPULATOR_DEFAULT_TIMEOUT_MS);
-
-        manipulator_angles_set(0.9956, 0.5278, 0.);
-        manipulator_angles_wait_for_traj_end(MANIPULATOR_DEFAULT_TIMEOUT_MS);
+        manipulator_angles_goto_timeout(1.2221, 0.2866, 1.6251, MANIPULATOR_DEFAULT_TIMEOUT_MS);
+        manipulator_angles_goto_timeout(1.3344, 1.1287, 0.0, MANIPULATOR_DEFAULT_TIMEOUT_MS);
+        manipulator_angles_goto_timeout(0.9956, 0.5278, 0.0, MANIPULATOR_DEFAULT_TIMEOUT_MS);
         manipulator_gripper_set(GRIPPER_ACQUIRE);
         strategy_wait_ms(500);
 
-        manipulator_angles_set(1.3344, 1.1287, 0.0);
-        manipulator_angles_wait_for_traj_end(MANIPULATOR_DEFAULT_TIMEOUT_MS);
+        manipulator_angles_goto_timeout(1.3344, 1.1287, 0.0, MANIPULATOR_DEFAULT_TIMEOUT_MS);
 
         state.arms_are_deployed = true;
 
