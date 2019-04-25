@@ -128,23 +128,8 @@ static THD_FUNCTION(manipulator_trajectory_thd, arg)
     (void)arg;
     chRegSetThreadName(__FUNCTION__);
 
-    // Pose2D pose;
-    // pose.x = 0.17f;
-    // pose.y = 0.22f;
-    // pose.heading = 1.57f;
-    // right_arm.set_target(pose);
-
-    // int counter = 0;
-
     NOTICE("Start manipulator trajectory manager thread");
     while (true) {
-        // if (counter >= 2 * MANIPULATOR_FREQUENCY) {
-        //     counter = 0;
-        //     pose.y *= -1.f;
-        //     pose.heading *= -1.f;
-        //     right_arm.set_target(pose);
-        // }
-        // counter++;
         chThdSleepMilliseconds(1000 / MANIPULATOR_TRAJECTORY_FREQUENCY);
     }
 }
