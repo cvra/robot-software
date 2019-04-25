@@ -12,6 +12,7 @@
 
 #include "manipulator/manipulator.h"
 #include "manipulator/manipulator_thread.h"
+#include "dijkstra.hpp"
 
 #include "protobuf/manipulator.pb.h"
 
@@ -72,6 +73,24 @@ void manipulator_angles_goto_timeout(float q1, float q2, float q3, uint16_t time
 {
     manipulator_angles_set(q1, q2, q3);
     manipulator_angles_wait_for_traj_end(timeout_ms);
+}
+
+bool manipulator_goto(manipulator_state_t target)
+{
+    int n = pathfinding::dijkstra(right_arm.nodes, MANIPULATOR_COUNT,
+                                  right_arm.nodes[right_arm.state],
+                                  right_arm.nodes[target]);
+
+    pathfinding::Node<manipulator::Point>* node = &right_arm.nodes[right_arm.state];
+
+    for (int i = 0; i < n; i++) {
+        node = node->path_next;
+        manipulator_angles_set(node->data.angles[0], node->data.angles[1], node->data.angles[2]);
+        manipulator_angles_wait_for_traj_end(MANIPULATOR_DEFAULT_TIMEOUT_MS);
+    }
+
+    right_arm.state = target;
+    return true;
 }
 
 void manipulator_gripper_set(gripper_state_t state)
