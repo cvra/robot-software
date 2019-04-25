@@ -2,12 +2,12 @@
 #include <hal.h>
 #include <array>
 
-#include <error/error.h>
 #include <aversive/blocking_detection_manager/blocking_detection_manager.h>
-
-#include <aversive/trajectory_manager/trajectory_manager_utils.h>
 #include <aversive/obstacle_avoidance/obstacle_avoidance.h>
+#include <aversive/trajectory_manager/trajectory_manager_utils.h>
+#include <error/error.h>
 #include <goap/goap.hpp>
+#include <timestamp/timestamp.h>
 
 #include "priorities.h"
 #include "robot_helpers/math_helpers.h"
@@ -29,10 +29,8 @@
 #include "strategy/goals.h"
 #include "strategy/state.h"
 #include "strategy/score_counter.h"
-#include "timestamp/timestamp.h"
 
 #include "protobuf/sensors.pb.h"
-#include "protobuf/strategy.pb.h"
 
 static goap::Planner<RobotState, GOAP_SPACE_SIZE> planner;
 
@@ -345,7 +343,7 @@ struct LaunchAccelerator : actions::LaunchAccelerator {
 
 void strategy_order_play_game(enum strat_color_t color, RobotState& state)
 {
-    // messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
+    messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
     InitGoal init_goal;
     goap::Goal<RobotState>* goals[] = {};
@@ -367,7 +365,7 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
     int len = planner.plan(state, init_goal, actions, action_count, path, max_path_len);
     for (int i = 0; i < len; i++) {
         path[i]->execute(state);
-        // messagebus_topic_publish(state_topic, &state, sizeof(state));
+        messagebus_topic_publish(state_topic, &state, sizeof(state));
     }
 
     /* Autoposition robot */
@@ -394,7 +392,7 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
             int len = planner.plan(state, *goal, actions, action_count, path, max_path_len);
             for (int i = 0; i < len; i++) {
                 bool success = path[i]->execute(state);
-                // messagebus_topic_publish(state_topic, &state, sizeof(state));
+                messagebus_topic_publish(state_topic, &state, sizeof(state));
                 chThdYield();
                 if (success == false) {
                     break; // Break on failure
@@ -418,7 +416,7 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
 
 void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
 {
-    // messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
+    messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
     InitGoal init_goal;
     FirstPuckGoal first_puck_goal;
@@ -451,7 +449,7 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     int len = planner.plan(state, init_goal, actions, action_count, path, max_path_len);
     for (int i = 0; i < len; i++) {
         path[i]->execute(state);
-        // messagebus_topic_publish(state_topic, &state, sizeof(state));
+        messagebus_topic_publish(state_topic, &state, sizeof(state));
     }
 
     /* Autoposition robot */
@@ -481,7 +479,7 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
             int len = planner.plan(state, *goal, actions, action_count, path, max_path_len);
             for (int i = 0; i < len; i++) {
                 bool success = path[i]->execute(state);
-                // messagebus_topic_publish(state_topic, &state, sizeof(state));
+                messagebus_topic_publish(state_topic, &state, sizeof(state));
                 if (success == false) {
                     break; // Break on failure
                 }
@@ -516,12 +514,8 @@ void strategy_play_game(void* p)
     /* Prepare state publisher */
     RobotState state = RobotState_init_default;
 
-    // static messagebus_topic_t state_topic;
-    // static MUTEX_DECL(state_lock);
-    // static CONDVAR_DECL(state_condvar);
-    // static RobotState state_topic_content;
-    // messagebus_topic_init(&state_topic, &state_lock, &state_condvar, &state_topic_content, sizeof(state));
-    // messagebus_advertise_topic(&bus, &state_topic, "/state");
+    static TOPIC_DECL(state_topic, RobotState);
+    messagebus_advertise_topic(&bus, &state_topic.topic, "/state");
 
     NOTICE("Waiting for color selection...");
     enum strat_color_t color = wait_for_color_selection();
