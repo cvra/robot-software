@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iterator>
-#include <cstdint>
+#include <climits>
 
 namespace pathfinding {
 
