@@ -6,12 +6,17 @@
 #include "debug.h"
 #include "main.h"
 
+#define STATUS_LED PAL_LINE(GPIOA, GPIOA_SERVO0)
+
 THD_FUNCTION(blinker, arg)
 {
+    palSetLineMode(STATUS_LED, PAL_MODE_OUTPUT_PUSHPULL);
     (void)arg;
     while (1) {
+        palSetLine(STATUS_LED);
         palSetPad(GPIOA, GPIOA_LED);
         chThdSleepMilliseconds(100);
+        palClearLine(STATUS_LED);
         palClearPad(GPIOA, GPIOA_LED);
         chThdSleepMilliseconds(100);
     }

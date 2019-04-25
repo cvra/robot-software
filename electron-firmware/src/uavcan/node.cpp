@@ -62,6 +62,15 @@ void main(unsigned int id, const char* name)
 
     while (true) {
         node.spin(uavcan::MonotonicDuration::fromMSec(1000 / UAVCAN_SPIN_FREQ));
+
+        if (!palReadPad(GPIOA, GPIOA_PIN0)) {
+            motor_voltage_set(6.0f);
+        } else if (!palReadPad(GPIOA, GPIOA_PIN1)) {
+            motor_voltage_set(-6.0f);
+        } else {
+            motor_voltage_set(0.0f);
+        }
+
         motor_voltage_publish(node);
     }
 }
