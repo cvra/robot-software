@@ -330,8 +330,7 @@ struct LaunchAccelerator : actions::LaunchAccelerator {
         }
 
         state.arms_are_deployed = true;
-        manipulator_angles_goto_timeout(1.2221, 0.2866, 1.6251, MANIPULATOR_DEFAULT_TIMEOUT_MS);
-        manipulator_angles_goto_timeout(1.2705, 1.5002, 1.4614, MANIPULATOR_DEFAULT_TIMEOUT_MS);
+        manipulator_goto(MANIPULATOR_DEPLOY_FULLY);
         if (!strategy_goto_avoid(MIRROR_X(m_color, 1305), 300, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
             return false;
         }
