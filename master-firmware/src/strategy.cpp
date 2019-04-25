@@ -227,7 +227,6 @@ struct IndexArms : actions::IndexArms {
         // arm_motors_index(motors, directions, speeds, offsets);
 
         // set index when user presses color button, so indexing is done manually
-        wait_for_color_selection();
         offsets[0] = motor_get_position("theta-1");
         offsets[1] = motor_get_position("theta-2");
         offsets[2] = motor_get_position("theta-3");
@@ -236,7 +235,6 @@ struct IndexArms : actions::IndexArms {
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q1"), offsets[0]);
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q2"), offsets[1]);
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q3"), offsets[2]);
-        wait_for_color_selection();
 
         strategy_wait_ms(500);
         wait_for_color_selection();
@@ -260,7 +258,6 @@ struct RetractArms : actions::RetractArms {
 
         manipulator_angles_set(1.2878, -1.2018, 1.1982);
         strategy_wait_ms(1000);
-        wait_for_color_selection();
 
         state.arms_are_deployed = false;
         return true;
@@ -283,21 +280,17 @@ struct TakePuck : actions::TakePuck {
 
         manipulator_angles_set(1.2221, 0.2866, 1.6251);
         strategy_wait_ms(2000);
-        wait_for_color_selection();
 
         manipulator_angles_set(1.3344, 1.1287, 0.0);
         strategy_wait_ms(2000);
-        wait_for_color_selection();
 
         manipulator_angles_set(0.9956, 0.5278, 0.);
         strategy_wait_ms(2000);
         manipulator_gripper_set(GRIPPER_ACQUIRE);
         strategy_wait_ms(500);
-        wait_for_color_selection();
 
         manipulator_angles_set(1.3344, 1.1287, 0.0);
         strategy_wait_ms(2000);
-        wait_for_color_selection();
 
         state.arms_are_deployed = true;
 
