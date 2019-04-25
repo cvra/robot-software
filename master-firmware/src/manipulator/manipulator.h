@@ -5,10 +5,17 @@
 #include "manipulator/hw.h"
 #include "manipulator/state_estimator.h"
 #include "manipulator/gripper.h"
+#include "manipulator/path.h"
+
+#include "dijkstra.hpp"
 
 #include <math.h>
 
 namespace manipulator {
+struct Point {
+    float angles[3];
+};
+
 template <class LockGuard>
 class Manipulator {
 public:
@@ -18,6 +25,15 @@ public:
     manipulator::Angles target_tolerance;
     void* mutex;
 
+    pathfinding::Node<Point> nodes[MANIPULATOR_COUNT] = {
+        /* MANIPULATOR_INIT */ {{0, 0, 0}},
+        /* MANIPULATOR_RETRACT */ {{1.2878, -1.2018, 1.1982}},
+        /* MANIPULATOR_DEPLOY */ {{1.2221, 0.2866, 1.6251}},
+        /* MANIPULATOR_LIFT_HORZ */ {{1.3344, 1.1287, 0.0}},
+        /* MANIPULATOR_PICK_HORZ */ {{0.9956, 0.5278, 0.0}},
+    };
+    manipulator_state_t state;
+
 public:
     manipulator::Gripper gripper;
 
@@ -25,7 +41,14 @@ public:
         : estimator(link_lengths)
         , ctrl(link_lengths)
         , mutex(_mutex)
+        , state(MANIPULATOR_INIT)
     {
+        // from initial position, we can only retract
+        nodes[MANIPULATOR_INIT].connect(nodes[MANIPULATOR_RETRACT]);
+
+        pathfinding::connect_bidirectional(nodes[MANIPULATOR_RETRACT], nodes[MANIPULATOR_DEPLOY]);
+        pathfinding::connect_bidirectional(nodes[MANIPULATOR_DEPLOY], nodes[MANIPULATOR_LIFT_HORZ]);
+        pathfinding::connect_bidirectional(nodes[MANIPULATOR_LIFT_HORZ], nodes[MANIPULATOR_PICK_HORZ]);
     }
 
     void set_lengths(const std::array<float, 3>& link_lengths)
@@ -79,10 +102,8 @@ public:
         const Angles measured = sys.measure();
         const Angles consign = sys.last_raw;
 
-        for (size_t i = 0; i < 3; i++)
-        {
-            if (fabsf(measured[i] - consign[i]) > target_tolerance[i])
-            {
+        for (size_t i = 0; i < 3; i++) {
+            if (fabsf(measured[i] - consign[i]) > target_tolerance[i]) {
                 return false;
             }
         }
