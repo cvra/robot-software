@@ -277,7 +277,7 @@ struct TakePuck : actions::TakePuck {
 
     bool execute(RobotState& state)
     {
-        if (!strategy_goto_avoid(MIRROR_X(m_color, 320), 390, MIRROR_A(m_color, 180), TRAJ_FLAGS_ALL)) {
+        if (!strategy_goto_avoid(MIRROR_X(m_color, 330), 378, MIRROR_A(m_color, 180), TRAJ_FLAGS_ALL)) {
             return false;
         }
 
@@ -295,7 +295,7 @@ struct TakePuck : actions::TakePuck {
         strategy_wait_ms(500);
         wait_for_color_selection();
 
-        manipulator_angles_set(0.7585, 1.1899, 0.);
+        manipulator_angles_set(1.3344, 1.1287, 0.0);
         strategy_wait_ms(2000);
         wait_for_color_selection();
 
