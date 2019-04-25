@@ -18,40 +18,6 @@ TEST_GROUP (ACubePositionComputer) {
     }
 };
 
-TEST(ACubePositionComputer, FindsPositionOfTrivialBlocksPose)
-{
-    se2_t cubes_pose = se2_create_xya(0, 0, RADIANS(0));
-
-    POINT_EQUAL({0, 0}, strategy_cube_pos(cubes_pose, CUBE_YELLOW, YELLOW));
-    POINT_EQUAL({-60, 0}, strategy_cube_pos(cubes_pose, CUBE_GREEN, YELLOW));
-    POINT_EQUAL({0, 60}, strategy_cube_pos(cubes_pose, CUBE_BLUE, YELLOW));
-    POINT_EQUAL({60, 0}, strategy_cube_pos(cubes_pose, CUBE_ORANGE, YELLOW));
-    POINT_EQUAL({0, -60}, strategy_cube_pos(cubes_pose, CUBE_BLACK, YELLOW));
-}
-
-TEST(ACubePositionComputer, FindsMirroredPositionOfTrivialBlocksPose)
-{
-    se2_t cubes_pose = se2_create_xya(0, 0, RADIANS(0));
-
-    POINT_EQUAL({0, 0}, strategy_cube_pos(cubes_pose, CUBE_YELLOW, BLUE));
-    POINT_EQUAL({60, 0}, strategy_cube_pos(cubes_pose, CUBE_GREEN, BLUE));
-    POINT_EQUAL({0, 60}, strategy_cube_pos(cubes_pose, CUBE_BLUE, BLUE));
-    POINT_EQUAL({-60, 0}, strategy_cube_pos(cubes_pose, CUBE_ORANGE, BLUE));
-    POINT_EQUAL({0, -60}, strategy_cube_pos(cubes_pose, CUBE_BLACK, BLUE));
-}
-
-TEST(ACubePositionComputer, FindsPositionOfNonTrivialBlocksPose)
-{
-    se2_t cubes_pose = se2_create_xya(100, 200, RADIANS(45));
-    float offset = 60.f / sqrtf(2);
-
-    POINT_EQUAL({100, 200}, strategy_cube_pos(cubes_pose, CUBE_YELLOW, BLUE));
-    POINT_EQUAL({100 + offset, 200 + offset}, strategy_cube_pos(cubes_pose, CUBE_GREEN, BLUE));
-    POINT_EQUAL({100 - offset, 200 + offset}, strategy_cube_pos(cubes_pose, CUBE_BLUE, BLUE));
-    POINT_EQUAL({100 - offset, 200 - offset}, strategy_cube_pos(cubes_pose, CUBE_ORANGE, BLUE));
-    POINT_EQUAL({100 + offset, 200 - offset}, strategy_cube_pos(cubes_pose, CUBE_BLACK, BLUE));
-}
-
 TEST_GROUP (ABlockPositionComputer) {
     se2_t poses[4] = {
         se2_create_xya(850 - 160, 540 - 160, -45),

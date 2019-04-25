@@ -7,7 +7,6 @@
 
 #include "base/base_controller.h"
 #include "math/lie_groups.h"
-#include "robot_helpers/eurobot2018.h"
 #include "manipulator/scara_kinematics.h"
 
 #ifdef __cplusplus
@@ -35,9 +34,6 @@ void strategy_auto_position(int32_t x, int32_t y, int32_t heading, enum strat_co
 
 /** Align on y axis */
 void strategy_align_y(int32_t y);
-
-/** Compute cube position given pose of cubes block in table frame and cube color */
-point_t strategy_cube_pos(se2_t cubes_pose, enum cube_color color, enum strat_color_t robot_color);
 
 /** Compute flight distance to goal (not accounting for obstacles) */
 float strategy_flight_distance_to_goal(point_t pos, point_t goal);

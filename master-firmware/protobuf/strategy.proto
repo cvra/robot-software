@@ -2,22 +2,6 @@ syntax = "proto2";
 
 import "nanopb.proto";
 
-enum CubeColor {
-    YELLOW = 0;
-    GREEN = 1;
-    BLUE = 2;
-    ORANGE = 3;
-    BLACK = 4;
-
-    /* Although not a color, we still can represent it */
-    UNKNOWN = 5;
-};
-
-message ColorSequence {
-    option (nanopb_msgopt).msgid = 7;
-    repeated CubeColor sequence = 1 [ packed = true, (nanopb).max_count = 5 ];
-}
-
 message Score {
     option (nanopb_msgopt).msgid = 8;
     required int32 score = 1;

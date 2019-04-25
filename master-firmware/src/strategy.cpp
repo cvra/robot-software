@@ -29,7 +29,6 @@
 #include "strategy/goals.h"
 #include "strategy/state.h"
 #include "strategy/score_counter.h"
-#include "strategy/color_sequence_server.h"
 #include "timestamp/timestamp.h"
 
 #include "protobuf/sensors.pb.h"
@@ -528,7 +527,6 @@ void strategy_play_game(void* p)
     enum strat_color_t color = wait_for_color_selection();
     map_server_start(color);
     score_counter_start();
-    color_sequence_server_start();
 
     if (config_get_boolean("master/is_main_robot")) {
         NOTICE("First, Order...");
