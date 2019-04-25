@@ -14,6 +14,10 @@
 namespace manipulator {
 struct Point {
     float angles[3];
+    Point(float a, float b, float c)
+        : angles{a, b, c}
+    {
+    }
 };
 
 template <class LockGuard>
