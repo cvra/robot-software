@@ -329,9 +329,9 @@ struct LaunchAccelerator : actions::LaunchAccelerator {
             return false;
         }
 
+        state.arms_are_deployed = true;
         manipulator_angles_goto_timeout(1.2221, 0.2866, 1.6251, MANIPULATOR_DEFAULT_TIMEOUT_MS);
         manipulator_angles_goto_timeout(1.2705, 1.5002, 1.4614, MANIPULATOR_DEFAULT_TIMEOUT_MS);
-
         if (!strategy_goto_avoid(MIRROR_X(m_color, 1305), 300, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
             return false;
         }
@@ -340,7 +340,6 @@ struct LaunchAccelerator : actions::LaunchAccelerator {
         trajectory_a_rel(&robot.traj, 13);
         trajectory_wait_for_end(TRAJ_FLAGS_ROTATION);
 
-        state.arms_are_deployed = true;
         state.accelerator_is_done = true;
         return true;
     }
