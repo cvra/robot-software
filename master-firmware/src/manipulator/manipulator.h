@@ -6,6 +6,8 @@
 #include "manipulator/state_estimator.h"
 #include "manipulator/gripper.h"
 
+#include <math.h>
+
 namespace manipulator {
 template <class LockGuard>
 class Manipulator {
@@ -13,6 +15,7 @@ public:
     manipulator::System sys;
     manipulator::StateEstimator estimator;
     manipulator::Controller ctrl;
+    manipulator::Angles target_tolerance;
     void* mutex;
 
 public:
@@ -41,6 +44,11 @@ public:
         LockGuard lock(mutex);
         ctrl.set(pose);
     }
+    void set_tolerance(const Angles& tolerances)
+    {
+        LockGuard lock(mutex);
+        target_tolerance = tolerances;
+    }
 
     Pose2D update(void)
     {
@@ -63,6 +71,22 @@ public:
     {
         LockGuard lock(mutex);
         return sys.measure();
+    }
+    bool reached_target(void) const
+    {
+        LockGuard lock(mutex);
+
+        const Angles measured = sys.measure();
+        const Angles consign = sys.last_raw;
+
+        for (size_t i = 0; i < 3; i++)
+        {
+            if (fabsf(measured[i] - consign[i]) > target_tolerance[i])
+            {
+                return false;
+            }
+        }
+        return true;
     }
 };
 } // namespace manipulator

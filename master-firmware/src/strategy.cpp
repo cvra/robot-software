@@ -257,7 +257,7 @@ struct RetractArms : actions::RetractArms {
         NOTICE("Retracting arms!");
 
         manipulator_angles_set(1.2878, -1.2018, 1.1982);
-        strategy_wait_ms(1000);
+        manipulator_angles_wait_for_traj_end(MANIPULATOR_DEFAULT_TIMEOUT_MS);
 
         state.arms_are_deployed = false;
         return true;
@@ -279,18 +279,18 @@ struct TakePuck : actions::TakePuck {
         }
 
         manipulator_angles_set(1.2221, 0.2866, 1.6251);
-        strategy_wait_ms(2000);
+        manipulator_angles_wait_for_traj_end(MANIPULATOR_DEFAULT_TIMEOUT_MS);
 
         manipulator_angles_set(1.3344, 1.1287, 0.0);
-        strategy_wait_ms(2000);
+        manipulator_angles_wait_for_traj_end(MANIPULATOR_DEFAULT_TIMEOUT_MS);
 
         manipulator_angles_set(0.9956, 0.5278, 0.);
-        strategy_wait_ms(2000);
+        manipulator_angles_wait_for_traj_end(MANIPULATOR_DEFAULT_TIMEOUT_MS);
         manipulator_gripper_set(GRIPPER_ACQUIRE);
         strategy_wait_ms(500);
 
         manipulator_angles_set(1.3344, 1.1287, 0.0);
-        strategy_wait_ms(2000);
+        manipulator_angles_wait_for_traj_end(MANIPULATOR_DEFAULT_TIMEOUT_MS);
 
         state.arms_are_deployed = true;
 

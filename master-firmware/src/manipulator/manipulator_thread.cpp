@@ -57,6 +57,18 @@ void manipulator_angles_set(float q1, float q2, float q3)
     right_arm.apply(input);
 }
 
+void manipulator_angles_wait_for_traj_end(uint16_t timeout_ms)
+{
+    uint16_t time_since_start_ms = 0;
+    const uint16_t poll_time_step_ms = 10;
+
+    while (!right_arm.reached_target() && time_since_start_ms < timeout_ms)
+    {
+        chThdSleepMilliseconds(poll_time_step_ms);
+        time_since_start_ms += poll_time_step_ms;
+    }
+}
+
 void manipulator_gripper_set(gripper_state_t state)
 {
     if (state == GRIPPER_ACQUIRE) {
