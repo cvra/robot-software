@@ -3,11 +3,13 @@
 
 #include <stdint.h>
 
+
 struct RobotState {
     bool arms_are_indexed{false};
     bool arms_are_deployed{true};
     bool puck_available{true};
     bool has_puck{false};
+    bool accelerator_is_done{false};
     uint8_t pucks_in_red_zone{0};
 };
 
