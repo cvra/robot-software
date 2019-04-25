@@ -34,6 +34,7 @@ static THD_FUNCTION(score_counter_thd, arg)
         msg.score = 0;
 
         msg.score += score_count_red_atom_zone(state);
+        msg.score += score_count_accelerator(state);
 
         messagebus_topic_publish(&score_topic.topic, &msg, sizeof(msg));
     }
