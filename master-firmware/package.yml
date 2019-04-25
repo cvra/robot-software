@@ -120,6 +120,7 @@ tests:
     - tests/msgbus_protobuf.cpp
     - tests/test_3dof_pendulum_kinematics.cpp
     - tests/test_manipulator_control.cpp
+    - tests/test_arm_pathfinding.cpp
 
 templates:
     app_src.mk.jinja: app_src.mk
