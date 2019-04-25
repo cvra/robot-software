@@ -74,15 +74,6 @@ master:
             gripper:
                 release: -3.
                 acquire: 6.
-            pos:
-                pick:
-                    q1: 0.9956
-                    q2: -0.4678
-                    q3: -0.3084
-                lift:
-                    q1: 0.7585
-                    q2: 0.4314
-                    q3: -1.2529
     screen:
         ax: 0.089231252
         ay: -0.001139728
