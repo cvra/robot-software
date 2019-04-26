@@ -11,10 +11,10 @@ struct InitGoal : goap::Goal<RobotState> {
     }
 };
 
-struct FirstPuckGoal : goap::Goal<RobotState> {
+struct RedPucksGoal : goap::Goal<RobotState> {
     virtual int distance_to(const RobotState& state) const
     {
-        return goap::Distance().shouldBeEqual(state.pucks_in_red_zone, 1);
+        return goap::Distance().shouldBeEqual(state.pucks_in_red_zone, 2);
     }
 };
 

@@ -36,6 +36,12 @@ struct RetractArms : public goap::Action<RobotState> {
 };
 
 struct TakePuck : public goap::Action<RobotState> {
+    size_t puck_id;
+
+    TakePuck(size_t id)
+        : puck_id(id)
+    {
+    }
     bool can_run(const RobotState& state)
     {
         return state.arms_are_indexed && state.puck_available[0];
@@ -43,7 +49,7 @@ struct TakePuck : public goap::Action<RobotState> {
 
     void plan_effects(RobotState& state)
     {
-        state.puck_available[0] = false;
+        state.puck_available[puck_id] = false;
         state.has_puck = true;
         state.arms_are_deployed = true;
     }

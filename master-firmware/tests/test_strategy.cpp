@@ -1,27 +1,30 @@
 #include <CppUTest/TestHarness.h>
 #include <vector>
 #include <array>
+#include <iostream>
 
 #include "strategy/goals.h"
 #include "strategy/actions.h"
 
-bool dummy_execute(goap::Action<RobotState>* action, RobotState& state)
+bool dummy_execute(goap::Action<RobotState>* action, RobotState& state, const std::string& name)
 {
+    std::cout << name << std::endl;
     action->plan_effects(state);
     return true;
 }
 
 struct IndexArms : actions::IndexArms {
-    bool execute(RobotState& state) { return dummy_execute(this, state); }
+    bool execute(RobotState& state) { return dummy_execute(this, state, "IndexArms"); }
 };
 struct RetractArms : actions::RetractArms {
-    bool execute(RobotState& state) { return dummy_execute(this, state); }
+    bool execute(RobotState& state) { return dummy_execute(this, state, "RetractArms"); }
 };
 struct TakePuck : actions::TakePuck {
-    bool execute(RobotState& state) { return dummy_execute(this, state); }
+    TakePuck(size_t id) : actions::TakePuck(id) {}
+    bool execute(RobotState& state) { return dummy_execute(this, state, "TakePuck " + std::to_string(puck_id)); }
 };
 struct DepositPuck : actions::DepositPuck {
-    bool execute(RobotState& state) { return dummy_execute(this, state); }
+    bool execute(RobotState& state) { return dummy_execute(this, state, "DepositPuck"); }
 };
 
 TEST_GROUP (Strategy) {
@@ -29,7 +32,7 @@ TEST_GROUP (Strategy) {
 
     IndexArms index_arms;
     RetractArms retract_arms;
-    TakePuck take_puck;
+    TakePuck take_pucks[2] = {{0}, {1}};
     DepositPuck deposit_puck;
 
     std::vector<goap::Action<RobotState>*> availableActions()
@@ -37,13 +40,15 @@ TEST_GROUP (Strategy) {
         return std::vector<goap::Action<RobotState>*>{
             &index_arms,
             &retract_arms,
-            &take_puck,
+            &take_pucks[0],
+            &take_pucks[1],
             &deposit_puck,
         };
     }
 
     int compute_and_execute_plan(goap::Goal<RobotState> & goal, RobotState & state)
     {
+        std::cout << "--- Plan ---" << std::endl;
         const int max_path_len = 40;
         goap::Action<RobotState>* path[max_path_len] = {nullptr};
         goap::Planner<RobotState, GOAP_SPACE_SIZE> planner;
@@ -68,9 +73,9 @@ TEST(Strategy, CanInitArms)
     CHECK_TRUE(init_goal.is_reached(state));
 }
 
-TEST(Strategy, CanTakeFirstPuck)
+TEST(Strategy, CanFillRedPuckArea)
 {
-    FirstPuckGoal goal;
+    RedPucksGoal goal;
 
     int len = compute_and_execute_plan(goal, state);
 

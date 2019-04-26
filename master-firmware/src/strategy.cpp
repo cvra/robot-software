@@ -263,14 +263,19 @@ struct RetractArms : actions::RetractArms {
 struct TakePuck : actions::TakePuck {
     enum strat_color_t m_color;
 
-    TakePuck(enum strat_color_t color)
-        : m_color(color)
+    TakePuck(enum strat_color_t color, size_t id)
+        : actions::TakePuck(id)
+        , m_color(color)
     {
     }
 
     bool execute(RobotState& state)
     {
-        if (!strategy_goto_avoid(MIRROR_X(m_color, 330), 378, MIRROR_A(m_color, 180), TRAJ_FLAGS_ALL)) {
+        float x = MIRROR_X(m_color, pucks[puck_id].pos_x_mm - 170);
+        float y = pucks[puck_id].pos_y_mm - 72;
+        float a = MIRROR_A(m_color, 180);
+
+        if (!strategy_goto_avoid(x, y, a, TRAJ_FLAGS_ALL)) {
             return false;
         }
 
@@ -281,7 +286,7 @@ struct TakePuck : actions::TakePuck {
         strategy_wait_ms(500);
         manipulator_goto(MANIPULATOR_LIFT_HORZ);
 
-        state.puck_available[0] = false;
+        state.puck_available[puck_id] = false;
         state.has_puck = true;
         return true;
     }
@@ -420,16 +425,16 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
     InitGoal init_goal;
-    FirstPuckGoal first_puck_goal;
+    RedPucksGoal red_pucks_goal;
     AcceleratorGoal accelerator_goal;
     goap::Goal<RobotState>* goals[] = {
-        &first_puck_goal,
+        &red_pucks_goal,
         &accelerator_goal,
     };
 
     IndexArms index_arms;
     RetractArms retract_arms(color);
-    TakePuck take_puck(color);
+    TakePuck take_pucks[] = {{color, 0}, {color, 1}};
     DepositPuck deposit_puck(color);
     LaunchAccelerator launch_accelerator(color);
 
@@ -439,7 +444,8 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     goap::Action<RobotState>* actions[] = {
         &index_arms,
         &retract_arms,
-        &take_puck,
+        &take_pucks[0],
+        &take_pucks[1],
         &deposit_puck,
         &launch_accelerator,
     };
