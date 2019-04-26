@@ -92,3 +92,19 @@ TEST(Strategy, CanFillGreenPuckArea)
     CHECK_TRUE(len > 0);
     CHECK_TRUE(goal.is_reached(state));
 }
+
+TEST(Strategy, CanFillPuckAreas)
+{
+    RedPucksGoal goal1;
+    GreenPucksGoal goal2;
+
+    int len = compute_and_execute_plan(goal1, state);
+
+    CHECK_TRUE(len > 0);
+    CHECK_TRUE(goal1.is_reached(state));
+
+    len = compute_and_execute_plan(goal2, state);
+
+    CHECK_TRUE(len > 0);
+    CHECK_TRUE(goal2.is_reached(state));
+}
