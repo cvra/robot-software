@@ -9,6 +9,7 @@ extern "C" {
 
 int score_count_atoms_in_zone(const RobotState& state, PuckColor color);
 int score_count_accelerator(const RobotState& state);
+int score_count_experiment(const RobotState& state);
 
 #ifdef __cplusplus
 }

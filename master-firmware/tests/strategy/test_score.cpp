@@ -24,3 +24,11 @@ TEST(AScore, AcceleratorCountsWhenActivated)
     state.accelerator_is_done = true;
     CHECK_EQUAL(20, score_count_accelerator(state));
 }
+
+TEST(AScore, ExperimentCountsWhenLaunched)
+{
+    CHECK_EQUAL(5, score_count_experiment(state));
+
+    state.electron_launched = true;
+    CHECK_EQUAL(20, score_count_experiment(state));
+}
