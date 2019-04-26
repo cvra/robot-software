@@ -78,7 +78,7 @@ include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
 # Define linker script file here
 
 ifeq ($(USE_BOOTLOADER), )
-	USE_BOOTLOADER = no
+	USE_BOOTLOADER = yes
 endif
 
 ifeq ($(USE_BOOTLOADER), yes)
