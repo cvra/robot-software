@@ -333,7 +333,7 @@ struct LaunchAccelerator : actions::LaunchAccelerator {
 
     bool execute(RobotState& state)
     {
-        float x = m_color == BLUE ? 1595:1305;
+        float x = (m_color == YELLOW) ? 1595 : 1305;
 
         if (!strategy_goto_avoid(MIRROR_X(m_color, x), 320, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
             return false;
@@ -345,7 +345,7 @@ struct LaunchAccelerator : actions::LaunchAccelerator {
 
         trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
 
-        trajectory_a_rel(&robot.traj, MIRROR(m_color,13));
+        trajectory_a_rel(&robot.traj, MIRROR(m_color, 13));
         trajectory_wait_for_end(TRAJ_FLAGS_ROTATION);
 
         state.accelerator_is_done = true;
