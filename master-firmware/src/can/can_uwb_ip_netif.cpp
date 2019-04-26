@@ -32,7 +32,7 @@ static MUTEX_DECL(lock_rx_packet);
 static BSEMAPHORE_DECL(sem_rx_available, true);
 static EVENTSOURCE_DECL(event_rx);
 
-uavcan::LazyConstructor<uavcan::Publisher<DataPacket>> data_pub;
+static uavcan::LazyConstructor<uavcan::Publisher<DataPacket>> data_pub;
 
 static err_t low_level_output(struct netif* netif, struct pbuf* p);
 

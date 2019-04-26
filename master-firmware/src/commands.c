@@ -11,6 +11,7 @@
 #include "unix_timestamp.h"
 #include "timestamp/timestamp.h"
 #include "bus_enumerator.h"
+#include "electron_starter.hpp"
 #include "uavcan_node.h"
 #include <stdio.h>
 #include "msgbus/messagebus.h"
@@ -1127,6 +1128,11 @@ static void cmd_grip(BaseSequentialStream* chp, int argc, char* argv[])
     }
 }
 
+static void cmd_electron(BaseSequentialStream* chp, int argc, char* argv[])
+{
+    electron_starter_start();
+}
+
 const ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
@@ -1170,4 +1176,5 @@ const ShellCommand commands[] = {
     {"shake", cmd_shake_the_arm},
     {"arm", cmd_arm},
     {"grip", cmd_grip},
+    {"electron", cmd_electron},
     {NULL, NULL}};
