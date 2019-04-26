@@ -1130,6 +1130,9 @@ static void cmd_grip(BaseSequentialStream* chp, int argc, char* argv[])
 
 static void cmd_electron(BaseSequentialStream* chp, int argc, char* argv[])
 {
+    (void)chp;
+    (void)argc;
+    (void)argv;
     electron_starter_start();
 }
 
