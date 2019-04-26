@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-int score_count_red_atom_zone(const RobotState& state);
+int score_count_atoms_in_zone(const RobotState& state, PuckColor color);
 int score_count_accelerator(const RobotState& state);
 
 #ifdef __cplusplus

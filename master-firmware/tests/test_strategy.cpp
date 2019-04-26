@@ -18,27 +18,32 @@ struct RetractArms : actions::RetractArms {
     bool execute(RobotState& state) { return dummy_execute(this, state); }
 };
 struct TakePuck : actions::TakePuck {
+    TakePuck(size_t id) : actions::TakePuck(id) {}
     bool execute(RobotState& state) { return dummy_execute(this, state); }
 };
 struct DepositPuck : actions::DepositPuck {
+    DepositPuck(PuckColor color) : actions::DepositPuck(color) {}
     bool execute(RobotState& state) { return dummy_execute(this, state); }
 };
 
 TEST_GROUP (Strategy) {
-    RobotState state = RobotState_init_default;
+    RobotState state = initial_state();
 
     IndexArms index_arms;
     RetractArms retract_arms;
-    TakePuck take_puck;
-    DepositPuck deposit_puck;
+    TakePuck take_pucks[3] = {{0}, {1}, {2}};
+    DepositPuck deposit_puck[2] = {{PuckColor_RED}, {PuckColor_GREEN}};
 
     std::vector<goap::Action<RobotState>*> availableActions()
     {
         return std::vector<goap::Action<RobotState>*>{
             &index_arms,
             &retract_arms,
-            &take_puck,
-            &deposit_puck,
+            &take_pucks[0],
+            &take_pucks[1],
+            &take_pucks[2],
+            &deposit_puck[0],
+            &deposit_puck[1],
         };
     }
 
@@ -68,12 +73,38 @@ TEST(Strategy, CanInitArms)
     CHECK_TRUE(init_goal.is_reached(state));
 }
 
-TEST(Strategy, CanTakeFirstPuck)
+TEST(Strategy, CanFillRedPuckArea)
 {
-    FirstPuckGoal goal;
+    RedPucksGoal goal;
 
     int len = compute_and_execute_plan(goal, state);
 
     CHECK_TRUE(len > 0);
     CHECK_TRUE(goal.is_reached(state));
+}
+
+TEST(Strategy, CanFillGreenPuckArea)
+{
+    GreenPucksGoal goal;
+
+    int len = compute_and_execute_plan(goal, state);
+
+    CHECK_TRUE(len > 0);
+    CHECK_TRUE(goal.is_reached(state));
+}
+
+TEST(Strategy, CanFillPuckAreas)
+{
+    RedPucksGoal goal1;
+    GreenPucksGoal goal2;
+
+    int len = compute_and_execute_plan(goal1, state);
+
+    CHECK_TRUE(len > 0);
+    CHECK_TRUE(goal1.is_reached(state));
+
+    len = compute_and_execute_plan(goal2, state);
+
+    CHECK_TRUE(len > 0);
+    CHECK_TRUE(goal2.is_reached(state));
 }

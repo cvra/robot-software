@@ -22,7 +22,7 @@ static THD_FUNCTION(score_counter_thd, arg)
 
     messagebus_advertise_topic(&bus, &score_topic.topic, "/score");
 
-    RobotState state = RobotState_init_default;
+    RobotState state = initial_state();
     messagebus_topic_t* strategy_state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
     NOTICE("Score initialized");
@@ -33,7 +33,8 @@ static THD_FUNCTION(score_counter_thd, arg)
         Score msg;
         msg.score = 0;
 
-        msg.score += score_count_red_atom_zone(state);
+        msg.score += score_count_atoms_in_zone(state, PuckColor_RED);
+        msg.score += score_count_atoms_in_zone(state, PuckColor_GREEN);
         msg.score += score_count_accelerator(state);
 
         messagebus_topic_publish(&score_topic.topic, &msg, sizeof(msg));

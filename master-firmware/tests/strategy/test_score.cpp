@@ -8,13 +8,13 @@ TEST_GROUP (AScore) {
 
 TEST(AScore, RedAtomZoneIsPropotionalToAmountOfPucks)
 {
-    CHECK_EQUAL(0, score_count_red_atom_zone(state));
+    CHECK_EQUAL(0, score_count_atoms_in_zone(state, PuckColor_RED));
 
-    state.pucks_in_red_zone++;
-    CHECK_EQUAL(6, score_count_red_atom_zone(state));
+    state.pucks_in_deposit_zone[PuckColor_RED]++;
+    CHECK_EQUAL(6, score_count_atoms_in_zone(state, PuckColor_RED));
 
-    state.pucks_in_red_zone++;
-    CHECK_EQUAL(12, score_count_red_atom_zone(state));
+    state.pucks_in_deposit_zone[PuckColor_RED]++;
+    CHECK_EQUAL(12, score_count_atoms_in_zone(state, PuckColor_RED));
 }
 
 TEST(AScore, AcceleratorCountsWhenActivated)
