@@ -21,9 +21,9 @@ struct DepositArea {
 };
 
 static const DepositArea areas[] = {
-    /* Red   */ {320, 390},
-    /* Green */ {320, 690},
-    /* Blue  */ {320, 990},
+    /* Red   */ {320, 450},
+    /* Green */ {320, 750},
+    /* Blue  */ {320, 1050},
 };
 
 #endif /* STRATEGY_TABLE_H */

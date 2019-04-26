@@ -274,7 +274,7 @@ struct TakePuck : actions::TakePuck {
     bool execute(RobotState& state)
     {
         float x = MIRROR_X(m_color, pucks[puck_id].pos_x_mm - 170);
-        float y = pucks[puck_id].pos_y_mm - 72;
+        float y = pucks[puck_id].pos_y_mm + MIRROR(m_color, 50);
         float a = MIRROR_A(m_color, 180);
 
         if (!strategy_goto_avoid(x, y, a, TRAJ_FLAGS_ALL)) {
