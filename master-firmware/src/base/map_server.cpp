@@ -40,7 +40,7 @@ static THD_FUNCTION(map_server_thd, arg)
 
     messagebus_topic_t* allied_position_topic = messagebus_find_topic_blocking(&bus, "/allied_position");
 
-    RobotState state = RobotState_init_default;
+    RobotState state = initial_state();
     messagebus_topic_t* strategy_state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
     static messagebus_watcher_t watchers[3];

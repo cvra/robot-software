@@ -281,7 +281,7 @@ struct TakePuck : actions::TakePuck {
         strategy_wait_ms(500);
         manipulator_goto(MANIPULATOR_LIFT_HORZ);
 
-        state.puck_available = false;
+        state.puck_available[0] = false;
         state.has_puck = true;
         return true;
     }
@@ -513,7 +513,7 @@ void strategy_play_game(void* p)
     NOTICE("Strategy starting...");
 
     /* Prepare state publisher */
-    RobotState state = RobotState_init_default;
+    RobotState state = initial_state();
 
     static TOPIC_DECL(state_topic, RobotState);
     messagebus_advertise_topic(&bus, &state_topic.topic, "/state");

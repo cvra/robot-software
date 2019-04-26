@@ -25,7 +25,7 @@ struct DepositPuck : actions::DepositPuck {
 };
 
 TEST_GROUP (Strategy) {
-    RobotState state = RobotState_init_default;
+    RobotState state = initial_state();
 
     IndexArms index_arms;
     RetractArms retract_arms;
