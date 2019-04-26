@@ -58,8 +58,8 @@ static enum strat_color_t wait_for_color_selection(void)
     if (control_panel_button_is_pressed(BUTTON_GREEN)) {
         control_panel_clear(LED_YELLOW);
         control_panel_set(LED_GREEN);
-        color = BLUE;
-        NOTICE("Color set to blue");
+        color = VIOLET;
+        NOTICE("Color set to violet");
     } else {
         control_panel_set(LED_YELLOW);
         control_panel_clear(LED_GREEN);
@@ -342,7 +342,7 @@ struct LaunchAccelerator : actions::LaunchAccelerator {
         state.arms_are_deployed = true;
         manipulator_goto(MANIPULATOR_DEPLOY_FULLY);
         trajectory_d_rel(&robot.traj, -20);
-        
+
         trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
 
         trajectory_a_rel(&robot.traj, MIRROR(m_color,13));

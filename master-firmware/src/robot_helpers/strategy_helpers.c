@@ -79,12 +79,6 @@ void strategy_align_y(int32_t y)
     trajectory_set_mode_game(&robot.mode, &robot.traj, &robot.distance_bd, &robot.angle_bd);
 }
 
-static point_t point(float x, float y)
-{
-    point_t res = {.x = x, .y = y};
-    return res;
-}
-
 float strategy_flight_distance_to_goal(point_t pos, point_t goal)
 {
     return pt_norm(&pos, &goal);
@@ -137,14 +131,5 @@ void strategy_sort_poses_by_distance(se2_t current_pose, se2_t* pickup_poses, in
         se2_t min_pose = pickup_poses[min_index];
         pickup_poses[min_index] = pickup_poses[i];
         pickup_poses[i] = min_pose;
-    }
-}
-
-shoulder_mode_t MIRROR_SHOULDER(enum strat_color_t color, shoulder_mode_t mode)
-{
-    if (color == YELLOW) {
-        return mode;
-    } else {
-        return mode == SHOULDER_BACK ? SHOULDER_FRONT : SHOULDER_BACK;
     }
 }

@@ -17,15 +17,14 @@ extern "C" {
  */
 enum strat_color_t {
     YELLOW = 0,
-    BLUE
+    VIOLET
 };
 
 /** Compute the symmetrical position depending on color
  */
-#define MIRROR_X(color, x) (color == YELLOW ? (x) : 3000.f - (x))
-#define MIRROR_A(color, a_deg) (color == YELLOW ? (a_deg) : 180.f - (a_deg))
-#define MIRROR(color, value) (color == YELLOW ? (value) : -(value))
-shoulder_mode_t MIRROR_SHOULDER(enum strat_color_t color, shoulder_mode_t mode);
+#define MIRROR_X(color, x) (color == VIOLET ? (x) : 3000.f - (x))
+#define MIRROR_A(color, a_deg) (color == VIOLET ? (a_deg) : 180.f - (a_deg))
+#define MIRROR(color, value) (color == VIOLET ? (value) : -(value))
 
 /** Auto position robot at requested location, and ensure the correct
  *  position is reached by aligning against walls.

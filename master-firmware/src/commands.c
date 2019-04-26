@@ -735,17 +735,17 @@ static void cmd_track_calibration(BaseSequentialStream* chp, int argc, char* arg
 static void cmd_autopos(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc < 4) {
-        chprintf(chp, "Usage: autopos {yellow|blue} x y a\r\n");
+        chprintf(chp, "Usage: autopos {yellow|violet} x y a\r\n");
         return;
     }
 
-    enum strat_color_t color = BLUE;
-    if (strcmp("blue", argv[0]) == 0) {
-        color = BLUE;
+    enum strat_color_t color = YELLOW;
+    if (strcmp("violet", argv[0]) == 0) {
+        color = VIOLET;
     } else if (strcmp("yellow", argv[0]) == 0) {
         color = YELLOW;
     } else {
-        chprintf(chp, "Unknown color, please chose either yellow or blue\r\n");
+        chprintf(chp, "Unknown color, please chose either yellow or violet\r\n");
         return;
     }
 
