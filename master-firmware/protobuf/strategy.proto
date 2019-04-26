@@ -23,4 +23,5 @@ message RobotState {
     required PuckColor has_puck_color = 5;
     required bool accelerator_is_done = 6 [default=false];
     repeated uint32 pucks_in_deposit_zone = 7 [(nanopb).fixed_count=true, (nanopb).max_count=3, packed=true];
+    required bool electron_launched = 8 [default=false];
 }

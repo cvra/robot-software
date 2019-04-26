@@ -2,6 +2,8 @@
 #include <hal.h>
 #include <array>
 
+#include "electron_starter.hpp"
+
 #include <aversive/blocking_detection_manager/blocking_detection_manager.h>
 #include <aversive/obstacle_avoidance/obstacle_avoidance.h>
 #include <aversive/trajectory_manager/trajectory_manager_utils.h>
@@ -488,6 +490,9 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     wait_for_starter();
 
     trajectory_game_timer_reset();
+
+    electron_starter_start();
+    state.electron_launched = true;
 
     NOTICE("Starting game...");
 
