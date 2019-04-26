@@ -44,7 +44,7 @@ struct TakePuck : public goap::Action<RobotState> {
     }
     bool can_run(const RobotState& state)
     {
-        return state.arms_are_indexed && state.puck_available[0];
+        return !state.arms_are_deployed && state.puck_available[puck_id] && !state.has_puck;
     }
 
     void plan_effects(RobotState& state)
