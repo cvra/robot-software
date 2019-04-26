@@ -5,4 +5,6 @@
 
 int data_packet_handler_init(uavcan::INode& node);
 
+bool data_packet_start_signal_received(void);
+
 #endif
