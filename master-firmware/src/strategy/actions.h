@@ -58,6 +58,7 @@ struct DepositPuck : public goap::Action<RobotState> {
     void plan_effects(RobotState& state)
     {
         state.pucks_in_red_zone++;
+        state.has_puck = false;
         state.arms_are_deployed = true;
     }
 };
