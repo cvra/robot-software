@@ -322,18 +322,19 @@ struct LaunchAccelerator : actions::LaunchAccelerator {
 
     bool execute(RobotState& state)
     {
-        if (!strategy_goto_avoid(MIRROR_X(m_color, 1300), 320, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
+        float x = m_color == BLUE ? 1595:1305;
+
+        if (!strategy_goto_avoid(MIRROR_X(m_color, x), 320, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
             return false;
         }
 
         state.arms_are_deployed = true;
         manipulator_goto(MANIPULATOR_DEPLOY_FULLY);
-        if (!strategy_goto_avoid(MIRROR_X(m_color, 1305), 300, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
-            return false;
-        }
-        strategy_wait_ms(100);
+        trajectory_d_rel(&robot.traj, -20);
+        
+        trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
 
-        trajectory_a_rel(&robot.traj, 13);
+        trajectory_a_rel(&robot.traj, MIRROR(m_color,13));
         trajectory_wait_for_end(TRAJ_FLAGS_ROTATION);
 
         state.accelerator_is_done = true;
