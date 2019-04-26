@@ -10,10 +10,10 @@ TEST(AScore, RedAtomZoneIsPropotionalToAmountOfPucks)
 {
     CHECK_EQUAL(0, score_count_red_atom_zone(state));
 
-    state.pucks_in_red_zone++;
+    state.pucks_in_deposit_zone[PuckColor_RED]++;
     CHECK_EQUAL(6, score_count_red_atom_zone(state));
 
-    state.pucks_in_red_zone++;
+    state.pucks_in_deposit_zone[PuckColor_RED]++;
     CHECK_EQUAL(12, score_count_red_atom_zone(state));
 }
 

@@ -7,12 +7,20 @@ message Score {
     required int32 score = 1;
 }
 
+enum PuckColor {
+    RED = 0;
+    GREEN = 1;
+    BLUE = 2;
+    WHITE = 3;
+}
+
 message RobotState {
     option (nanopb_msgopt).msgid = 14;
     required bool arms_are_indexed = 1 [default=false];
     required bool arms_are_deployed = 2 [default=true];
     repeated bool puck_available = 3 [(nanopb).fixed_count=true, (nanopb).max_count=3, packed=true];
     required bool has_puck = 4 [default=false];
-    required bool accelerator_is_done = 5 [default=false];
-    required uint32 pucks_in_red_zone = 6 [default=0];
+    required PuckColor has_puck_color = 5;
+    required bool accelerator_is_done = 6 [default=false];
+    repeated uint32 pucks_in_deposit_zone = 7 [(nanopb).fixed_count=true, (nanopb).max_count=3, packed=true];
 }

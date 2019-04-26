@@ -1,12 +1,7 @@
 #ifndef STRATEGY_TABLE_H
 #define STRATEGY_TABLE_H
 
-enum class PuckColor : int {
-    Red,
-    Green,
-    Blue,
-    White,
-};
+#include "protobuf/strategy.pb.h"
 
 struct Puck {
     PuckColor color;
@@ -15,9 +10,9 @@ struct Puck {
 };
 
 static const Puck pucks[] = {
-    {PuckColor::Red, 500, 450},
-    {PuckColor::Red, 500, 750},
-    {PuckColor::Green, 500, 1050},
+    {PuckColor_RED, 500, 450},
+    {PuckColor_RED, 500, 750},
+    {PuckColor_GREEN, 500, 1050},
 };
 
 struct DepositArea {
