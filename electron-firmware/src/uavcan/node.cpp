@@ -19,7 +19,6 @@ using Node = uavcan::Node<UAVCAN_MEMORY_POOL_SIZE>;
 using CanInterface = uavcan_stm32::CanInitHelper<UAVCAN_RX_QUEUE_SIZE>;
 using SystemClock = uavcan_stm32::SystemClock;
 
-/* TODO: Check which one is front */
 bool front_hall_sensor(void)
 {
     return !palReadPad(GPIOA, GPIOA_PIN0);

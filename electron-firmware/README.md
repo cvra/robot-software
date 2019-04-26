@@ -1,4 +1,6 @@
-# CAN IO firmware
+# Electron firmware
+
+Only used for Eurobot 2019.
 
 ## Loading via bootloader
 
