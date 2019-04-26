@@ -32,3 +32,11 @@ TEST(AScore, ExperimentCountsWhenLaunched)
     state.electron_launched = true;
     CHECK_EQUAL(20, score_count_experiment(state));
 }
+
+TEST(AScore, ElectronCountsWhenLaunched)
+{
+    CHECK_EQUAL(0, score_count_electron(state));
+
+    state.electron_launched = true;
+    CHECK_EQUAL(20, score_count_electron(state));
+}
