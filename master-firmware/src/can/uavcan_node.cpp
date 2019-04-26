@@ -14,6 +14,7 @@
 #include "sensor_handler.h"
 #include "uwb_position_handler.h"
 #include "can_uwb_ip_netif.hpp"
+#include "electron_starter.hpp"
 #include "config.h"
 #include "uavcan_node.h"
 #include "priorities.h"
@@ -155,6 +156,11 @@ static void main(void* arg)
     if (can_uwb_ip_netif_init(node) < 0) {
         ERROR("CAN UWB netif");
     }
+
+    if (electron_starter_init(node) < 0) {
+        ERROR("electron starter");
+    }
+
 
     // Mark the node as correctly initialized
     node.getNodeStatusProvider().setModeOperational();

@@ -14,6 +14,7 @@ ip:
 master:
     is_main_robot: false
     control_panel_active_high: true
+    electron_uwb_mac: 42
     robot_size_x_mm: 260 # Robot diameter
     robot_alignment_length_mm: 135 # robot length from center to alignement border
     opponent_size_x_mm_default: 400

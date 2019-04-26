@@ -40,6 +40,7 @@ target.arm:
     - src/can/sensor_handler.cpp
     - src/can/uwb_position_handler.cpp
     - src/can/can_uwb_ip_netif.cpp
+    - src/can/electron_starter.cpp
     - src/usbconf.c
     - src/base/rs_port.c
     - src/base/cs_port.c
