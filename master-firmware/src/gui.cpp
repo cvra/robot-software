@@ -52,6 +52,7 @@ static void gui_thread(void* p)
     auto root_page = MenuPage(m, "Robot", &base_menu, &score_page, &position_page);
 
     m.enter_page(&root_page);
+    m.enter_page(&score_page);
     m.event_loop();
 
     while (true) {
