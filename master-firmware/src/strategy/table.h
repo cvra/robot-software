@@ -31,14 +31,15 @@ static const Puck pucks[] = {
 };
 
 typedef struct {
+    PuckColor color;
     float pos_x_mm;
     float pos_y_mm;
 } DepositArea;
 
 static const DepositArea areas[] = {
-    /* Red   */ {320, 600},
-    /* Green */ {420, 600},
-    /* Blue  */ {320, 1050},
+    {PuckColor_RED, 320, 600},
+    {PuckColor_GREEN, 420, 600},
+    {PuckColor_BLUE, 320, 1050},
 };
 
 #endif /* STRATEGY_TABLE_H */

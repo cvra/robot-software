@@ -299,16 +299,16 @@ struct TakePuck : actions::TakePuck {
 struct DepositPuck : actions::DepositPuck {
     enum strat_color_t m_color;
 
-    DepositPuck(enum strat_color_t color, PuckColor zone_color)
-        : actions::DepositPuck(zone_color)
+    DepositPuck(enum strat_color_t color, size_t zone_id)
+        : actions::DepositPuck(zone_id)
         , m_color(color)
     {
     }
 
     bool execute(RobotState& state)
     {
-        float x = MIRROR_X(m_color, areas[zone_color].pos_x_mm);
-        float y = areas[zone_color].pos_y_mm - MIRROR(m_color, 50);
+        float x = MIRROR_X(m_color, areas[zone_id].pos_x_mm);
+        float y = areas[zone_id].pos_y_mm - MIRROR(m_color, 50);
         float a = MIRROR_A(m_color, 0);
 
         if (!strategy_goto_avoid(x, y, a, TRAJ_FLAGS_ALL)) {
@@ -320,7 +320,7 @@ struct DepositPuck : actions::DepositPuck {
         manipulator_gripper_set(GRIPPER_OFF);
 
         state.has_puck = false;
-        state.pucks_in_deposit_zone[zone_color]++;
+        state.pucks_in_deposit_zone[areas[zone_id].color]++;
         state.arms_are_deployed = true;
         return true;
     }
@@ -446,7 +446,7 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     IndexArms index_arms;
     RetractArms retract_arms(color);
     TakePuck take_pucks[] = {{color, 0}, {color, 1}, {color, 2}};
-    DepositPuck deposit_puck[] = {{color, PuckColor_RED}, {color, PuckColor_GREEN}};
+    DepositPuck deposit_puck[] = {{color, 0}, {color, 1}};
     LaunchAccelerator launch_accelerator(color);
 
     const int max_path_len = 10;

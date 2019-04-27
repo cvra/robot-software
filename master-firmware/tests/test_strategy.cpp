@@ -22,7 +22,7 @@ struct TakePuck : actions::TakePuck {
     bool execute(RobotState& state) { return dummy_execute(this, state); }
 };
 struct DepositPuck : actions::DepositPuck {
-    DepositPuck(PuckColor color) : actions::DepositPuck(color) {}
+    DepositPuck(size_t id) : actions::DepositPuck(id) {}
     bool execute(RobotState& state) { return dummy_execute(this, state); }
 };
 
@@ -32,7 +32,7 @@ TEST_GROUP (Strategy) {
     IndexArms index_arms;
     RetractArms retract_arms;
     TakePuck take_pucks[3] = {{0}, {1}, {2}};
-    DepositPuck deposit_puck[2] = {{PuckColor_RED}, {PuckColor_GREEN}};
+    DepositPuck deposit_puck[2] = {{0}, {1}};
 
     std::vector<goap::Action<RobotState>*> availableActions()
     {
