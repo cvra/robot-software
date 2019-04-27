@@ -398,7 +398,6 @@ struct TakeGoldonium : actions::TakeGoldonium {
 
         state.goldonium_in_house = false;
         state.has_goldonium = true;
-        state.arms_are_deployed = true;
         return true;
     }
 };
