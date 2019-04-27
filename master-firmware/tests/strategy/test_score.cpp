@@ -6,15 +6,21 @@ TEST_GROUP (AScore) {
     RobotState state = RobotState_init_default;
 };
 
-TEST(AScore, RedAtomZoneIsPropotionalToAmountOfPucks)
+TEST(AScore, AtomZoneIsPropotionalToAmountOfPucks)
 {
-    CHECK_EQUAL(0, score_count_atoms_in_zone(state, PuckColor_RED));
+    CHECK_EQUAL(0, score_count_classified_atoms(state));
 
     state.pucks_in_deposit_zone[PuckColor_RED]++;
-    CHECK_EQUAL(6, score_count_atoms_in_zone(state, PuckColor_RED));
+    CHECK_EQUAL(6, score_count_classified_atoms(state));
 
     state.pucks_in_deposit_zone[PuckColor_RED]++;
-    CHECK_EQUAL(12, score_count_atoms_in_zone(state, PuckColor_RED));
+    CHECK_EQUAL(12, score_count_classified_atoms(state));
+
+    state.pucks_in_deposit_zone[PuckColor_BLUE]++;
+    CHECK_EQUAL(18, score_count_classified_atoms(state));
+
+    state.pucks_in_deposit_zone[PuckColor_GREEN]++;
+    CHECK_EQUAL(24, score_count_classified_atoms(state));
 }
 
 TEST(AScore, AcceleratorCountsWhenActivated)

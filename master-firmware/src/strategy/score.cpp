@@ -1,9 +1,11 @@
 #include "table.h"
 #include "score.h"
 
-int score_count_atoms_in_zone(const RobotState& state, PuckColor color)
+int score_count_classified_atoms(const RobotState& state)
 {
-    return state.pucks_in_deposit_zone[color] * 6;
+    return 6 * (state.pucks_in_deposit_zone[PuckColor_RED]
+                + state.pucks_in_deposit_zone[PuckColor_GREEN]
+                + state.pucks_in_deposit_zone[PuckColor_BLUE]);
 }
 
 int score_count_accelerator(const RobotState& state)
