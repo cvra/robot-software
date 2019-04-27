@@ -196,6 +196,21 @@ TEST(MapEurobot2019, goesAroundTheWall)
     POINT_EQUAL(end, points[point_cnt - 1]);
 };
 
+TEST(MapEurobot2019, goesAroundThePuck)
+{
+    point_t start = {.x = 250, .y = 450};
+    point_t end = {.x = 1500, .y = 400};
+
+    oa_start_end_points(&map.oa, start.x, start.y, end.x, end.y);
+    oa_process(&map.oa);
+
+    point_t* points;
+    auto point_cnt = oa_get_path(&map.oa, &points);
+
+    CHECK_TRUE(point_cnt > 1);
+    POINT_EQUAL(end, points[point_cnt - 1]);
+};
+
 TEST_GROUP (AMap) {
     struct _map map;
 

@@ -16,7 +16,12 @@ extern "C" {
 #define MAP_NUM_OPPONENT 2
 #define MAP_NUM_OPPONENT_EDGES 4
 
+#define MAP_NUM_PUCK 3
+#define MAP_NUM_PUCK_EDGES 4
+
 struct _map {
+    poly_t* pucks[MAP_NUM_PUCK];
+
     poly_t* the_wall;
     poly_t* ramp_obstacle;
 
@@ -53,6 +58,9 @@ void map_update_opponent_obstacle(struct _map* map, int32_t x, int32_t y, int32_
 /** Set the points of a rectangle given its center position and size
  */
 void map_set_rectangular_obstacle(poly_t* opponent, int center_x, int center_y, int size_x, int size_y, int robot_size);
+
+poly_t* map_get_puck_obstacle(struct _map* map, int index);
+void map_set_puck_obstacle(struct _map* map, int index, int x, int y, int robot_size);
 
 #ifdef __cplusplus
 }

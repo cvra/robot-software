@@ -3,17 +3,17 @@
 
 #include "protobuf/strategy.pb.h"
 
-enum PuckOrientiation {
+typedef enum {
     PuckOrientiation_HORIZONTAL = 0,
     PuckOrientiation_VERTICAL,
-};
+} PuckOrientiation;
 
-struct Puck {
+typedef struct {
     PuckColor color;
     PuckOrientiation orientation;
     float pos_x_mm;
     float pos_y_mm;
-};
+} Puck;
 
 static const Puck pucks[] = {
     /* in front of start zone */
@@ -30,10 +30,10 @@ static const Puck pucks[] = {
     {PuckColor_GREEN, PuckOrientiation_VERTICAL, 1000, 1543},
 };
 
-struct DepositArea {
+typedef struct {
     float pos_x_mm;
     float pos_y_mm;
-};
+} DepositArea;
 
 static const DepositArea areas[] = {
     /* Red   */ {320, 600},
