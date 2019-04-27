@@ -28,6 +28,9 @@ struct DepositPuck : actions::DepositPuck {
         return dummy_execute(this, state);
     }
 };
+struct LaunchAccelerator : actions::LaunchAccelerator {
+    bool execute(RobotState& state) { return dummy_execute(this, state); }
+};
 
 TEST_GROUP (Strategy) {
     RobotState state = initial_state();
@@ -36,6 +39,7 @@ TEST_GROUP (Strategy) {
     RetractArms retract_arms;
     TakePuck take_pucks[3] = {{0}, {1}, {2}};
     DepositPuck deposit_puck[2] = {{0}, {1}};
+    LaunchAccelerator launch_accelerator;
 
     std::vector<goap::Action<RobotState>*> availableActions()
     {
@@ -47,6 +51,7 @@ TEST_GROUP (Strategy) {
             &take_pucks[2],
             &deposit_puck[0],
             &deposit_puck[1],
+            &launch_accelerator,
         };
     }
 
@@ -96,18 +101,20 @@ TEST(Strategy, CanFillGreenPuckArea)
     CHECK_TRUE(goal.is_reached(state));
 }
 
-TEST(Strategy, CanFillPuckAreas)
+TEST(Strategy, CanRunAllGoals)
 {
-    RedPucksGoal goal1;
-    GreenPucksGoal goal2;
+    RedPucksGoal red_pucks;
+    GreenPucksGoal green_pucks;
+    AcceleratorGoal accelerator;
+    goap::Goal<RobotState>* goals[] = {
+        &red_pucks,
+        &green_pucks,
+        &accelerator,
+    };
 
-    int len = compute_and_execute_plan(goal1, state);
-
-    CHECK_TRUE(len > 0);
-    CHECK_TRUE(goal1.is_reached(state));
-
-    len = compute_and_execute_plan(goal2, state);
-
-    CHECK_TRUE(len > 0);
-    CHECK_TRUE(goal2.is_reached(state));
+    for (auto& goal : goals) {
+        int len = compute_and_execute_plan(*goal, state);
+        CHECK_TRUE(len > 0);
+        CHECK_TRUE(goal->is_reached(state));
+    }
 }
