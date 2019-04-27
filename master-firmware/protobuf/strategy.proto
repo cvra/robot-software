@@ -24,4 +24,6 @@ message RobotState {
     required bool accelerator_is_done = 6 [default=false];
     repeated uint32 pucks_in_deposit_zone = 7 [(nanopb).fixed_count=true, (nanopb).max_count=3, packed=true];
     required bool electron_launched = 8 [default=false];
+    required bool goldonium_in_house = 9 [default=true];
+    required bool has_goldonium = 10 [default=false];
 }

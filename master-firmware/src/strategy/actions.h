@@ -86,9 +86,23 @@ struct LaunchAccelerator : public goap::Action<RobotState> {
     void plan_effects(RobotState& state)
     {
         state.accelerator_is_done = true;
+        state.arms_are_deployed = true;
     }
 };
 
+struct TakeGoldonium : public goap::Action<RobotState> {
+    bool can_run(const RobotState& state)
+    {
+        return state.accelerator_is_done && !state.arms_are_deployed && state.goldonium_in_house;
+    }
+
+    void plan_effects(RobotState& state)
+    {
+        state.has_goldonium = true;
+        state.goldonium_in_house = false;
+        state.arms_are_deployed = true;
+    }
+};
 } // namespace actions
 
 #endif /* STRATEGY_ACTIONS_H */

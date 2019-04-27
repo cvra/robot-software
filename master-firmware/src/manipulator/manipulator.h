@@ -37,7 +37,10 @@ public:
         /* MANIPULATOR_LIFT_HORZ */ {{1.3344, 1.1287, 0.0}},
         /* MANIPULATOR_PICK_HORZ */ {{0.9956, 0.5278, 0.0}},
         /* MANIPULATOR_PICK_VERT */ {{0.8870, 1.2443, 1.5708}},
+        /* MANIPULATOR_PICK_GOLDONIUM */ {{0.935233, 2.005595, 1.570796}},
+        /* MANIPULATOR_PICK_GOLDONIUM_2 */ {{0.8, 3, 1.5908}},
     };
+
     manipulator_state_t state;
 
 public:
@@ -59,6 +62,10 @@ public:
         pathfinding::connect_bidirectional(nodes[MANIPULATOR_DEPLOY], nodes[MANIPULATOR_DEPLOY_FULLY]);
 
         pathfinding::connect_bidirectional(nodes[MANIPULATOR_DEPLOY], nodes[MANIPULATOR_PICK_VERT]);
+
+        pathfinding::connect_bidirectional(nodes[MANIPULATOR_DEPLOY], nodes[MANIPULATOR_PICK_GOLDONIUM]);
+        pathfinding::connect_bidirectional(nodes[MANIPULATOR_DEPLOY], nodes[MANIPULATOR_PICK_GOLDONIUM]);
+        pathfinding::connect_bidirectional(nodes[MANIPULATOR_PICK_GOLDONIUM], nodes[MANIPULATOR_PICK_GOLDONIUM_2]);
     }
 
     void set_lengths(const std::array<float, 3>& link_lengths)

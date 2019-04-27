@@ -350,20 +350,55 @@ struct LaunchAccelerator : actions::LaunchAccelerator {
     {
         float x = (m_color == VIOLET) ? 1695 : 1405;
 
-        if (!strategy_goto_avoid(x, 320, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
+        if (!strategy_goto_avoid(x, 330, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
             return false;
         }
 
         state.arms_are_deployed = true;
         manipulator_goto(MANIPULATOR_DEPLOY_FULLY);
-        trajectory_d_rel(&robot.traj, -20);
+        trajectory_d_rel(&robot.traj, -30);
 
         trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
 
         trajectory_a_rel(&robot.traj, MIRROR(m_color, 13));
         trajectory_wait_for_end(TRAJ_FLAGS_ROTATION);
-
+        trajectory_d_rel(&robot.traj, 40);
+        trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
         state.accelerator_is_done = true;
+        return true;
+    }
+};
+
+struct TakeGoldonium : actions::TakeGoldonium {
+    enum strat_color_t m_color;
+
+    TakeGoldonium(enum strat_color_t color)
+        : m_color(color)
+    {
+    }
+
+    bool execute(RobotState& state)
+    {
+        float x = (m_color == VIOLET) ? 2275 : 825;
+
+        if (!strategy_goto_avoid(x, 400, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
+            return false;
+        }
+
+        state.arms_are_deployed = true;
+        manipulator_goto(MANIPULATOR_PICK_GOLDONIUM);
+
+        if (!strategy_goto_avoid(x, 330, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
+            return false;
+        }
+        manipulator_gripper_set(GRIPPER_ACQUIRE);
+        trajectory_d_rel(&robot.traj, -17);
+        trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
+        manipulator_goto(MANIPULATOR_PICK_GOLDONIUM_2);
+
+        state.goldonium_in_house = false;
+        state.has_goldonium = true;
+        state.arms_are_deployed = true;
         return true;
     }
 };
@@ -450,10 +485,12 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     GreenPucksGoal green_pucks_goal;
     BluePucksGoal blue_pucks_goal;
     AcceleratorGoal accelerator_goal;
+    TakeGoldoniumGoal take_goldonium_goal;
     goap::Goal<RobotState>* goals[] = {
         &red_pucks_goal,
         &green_pucks_goal,
         &accelerator_goal,
+        &take_goldonium_goal,
         &blue_pucks_goal,
     };
 
@@ -462,6 +499,7 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     TakePuck take_pucks[] = {{color, 0}, {color, 1}, {color, 2}, {color, 6}};
     DepositPuck deposit_puck[] = {{color, 0}, {color, 1}, {color, 2}};
     LaunchAccelerator launch_accelerator(color);
+    TakeGoldonium take_goldonium(color);
 
     const int max_path_len = 10;
     goap::Action<RobotState>* path[max_path_len] = {nullptr};
@@ -477,6 +515,7 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
         &deposit_puck[1],
         &deposit_puck[2],
         &launch_accelerator,
+        &take_goldonium,
     };
 
     const auto action_count = sizeof(actions) / sizeof(actions[0]);
