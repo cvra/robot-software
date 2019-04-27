@@ -274,18 +274,29 @@ struct TakePuck : actions::TakePuck {
 
     bool execute(RobotState& state)
     {
-        float x = MIRROR_X(m_color, pucks[puck_id].pos_x_mm - 170);
-        float y = pucks[puck_id].pos_y_mm + MIRROR(m_color, 50);
-        float a = MIRROR_A(m_color, 180);
+        float x, y, a;
+        if (pucks[puck_id].orientation == PuckOrientiation_HORIZONTAL) {
+            x = MIRROR_X(m_color, pucks[puck_id].pos_x_mm - 170);
+            y = pucks[puck_id].pos_y_mm + MIRROR(m_color, 50);
+            a = MIRROR_A(m_color, 180);
+        } else {
+            x = MIRROR_X(m_color, pucks[puck_id].pos_x_mm) + MIRROR(m_color, 50);
+            y = pucks[puck_id].pos_y_mm - 260;
+            a = MIRROR_A(m_color, -90);
+        }
 
         if (!strategy_goto_avoid(x, y, a, TRAJ_FLAGS_ALL)) {
             return false;
         }
 
         state.arms_are_deployed = true;
-
         manipulator_gripper_set(GRIPPER_ACQUIRE);
-        manipulator_goto(MANIPULATOR_PICK_HORZ);
+
+        if (pucks[puck_id].orientation == PuckOrientiation_HORIZONTAL) {
+            manipulator_goto(MANIPULATOR_PICK_HORZ);
+        } else {
+            manipulator_goto(MANIPULATOR_PICK_VERT);
+        }
         strategy_wait_ms(500);
         manipulator_goto(MANIPULATOR_LIFT_HORZ);
 
@@ -437,17 +448,19 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     InitGoal init_goal;
     RedPucksGoal red_pucks_goal;
     GreenPucksGoal green_pucks_goal;
+    BluePucksGoal blue_pucks_goal;
     AcceleratorGoal accelerator_goal;
     goap::Goal<RobotState>* goals[] = {
         &red_pucks_goal,
         &green_pucks_goal,
         &accelerator_goal,
+        &blue_pucks_goal,
     };
 
     IndexArms index_arms;
     RetractArms retract_arms(color);
-    TakePuck take_pucks[] = {{color, 0}, {color, 1}, {color, 2}};
-    DepositPuck deposit_puck[] = {{color, 0}, {color, 1}};
+    TakePuck take_pucks[] = {{color, 0}, {color, 1}, {color, 2}, {color, 6}};
+    DepositPuck deposit_puck[] = {{color, 0}, {color, 1}, {color, 2}};
     LaunchAccelerator launch_accelerator(color);
 
     const int max_path_len = 10;
@@ -459,8 +472,10 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
         &take_pucks[0],
         &take_pucks[1],
         &take_pucks[2],
+        &take_pucks[3],
         &deposit_puck[0],
         &deposit_puck[1],
+        &deposit_puck[2],
         &launch_accelerator,
     };
 
