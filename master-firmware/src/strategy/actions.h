@@ -58,6 +58,7 @@ struct TakePuck : public goap::Action<RobotState> {
 
 struct DepositPuck : public goap::Action<RobotState> {
     size_t zone_id;
+    size_t pucks_in_area{0};
 
     DepositPuck(size_t id)
         : zone_id(id)
@@ -65,7 +66,7 @@ struct DepositPuck : public goap::Action<RobotState> {
     }
     bool can_run(const RobotState& state)
     {
-        return state.has_puck && state.has_puck_color == areas[zone_id].color;
+        return (pucks_in_area < 2) && state.has_puck && (state.has_puck_color == areas[zone_id].color);
     }
 
     void plan_effects(RobotState& state)

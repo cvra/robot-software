@@ -23,7 +23,10 @@ struct TakePuck : actions::TakePuck {
 };
 struct DepositPuck : actions::DepositPuck {
     DepositPuck(size_t id) : actions::DepositPuck(id) {}
-    bool execute(RobotState& state) { return dummy_execute(this, state); }
+    bool execute(RobotState& state) {
+        pucks_in_area++;
+        return dummy_execute(this, state);
+    }
 };
 
 TEST_GROUP (Strategy) {

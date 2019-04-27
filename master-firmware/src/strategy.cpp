@@ -319,6 +319,7 @@ struct DepositPuck : actions::DepositPuck {
 
         manipulator_gripper_set(GRIPPER_OFF);
 
+        pucks_in_area++;
         state.has_puck = false;
         state.pucks_in_deposit_zone[areas[zone_id].color]++;
         state.arms_are_deployed = true;
@@ -336,7 +337,7 @@ struct LaunchAccelerator : actions::LaunchAccelerator {
 
     bool execute(RobotState& state)
     {
-        float x = (m_color == VIOLET) ? 1695 : 1405 ;
+        float x = (m_color == VIOLET) ? 1695 : 1405;
 
         if (!strategy_goto_avoid(x, 320, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
             return false;
