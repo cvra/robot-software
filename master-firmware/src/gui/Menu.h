@@ -3,6 +3,10 @@
 #include "Page.h"
 #include <gfx.h>
 
+#ifndef GUI_SIMULATOR
+#include <ch.h>
+#endif
+
 class Menu {
     Page* page;
     GHandle page_container;
@@ -28,6 +32,10 @@ class Menu {
 
     /// Timer callback
     void on_timer();
+
+#ifndef GUI_SIMULATOR
+    mutex_t menu_lock;
+#endif
 
 public:
     Menu();

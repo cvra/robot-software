@@ -10,6 +10,8 @@
 #include "main.h"
 #include "gui/Menu.h"
 #include "gui/MenuPage.h"
+#include "gui/ScorePage.h"
+#include "gui/PositionPage.h"
 
 // from https://wiki.ugfx.io/index.php/Touchscreen_Calibration
 gBool LoadMouseCalibration(unsigned instance, void* data, gMemSize sz)
@@ -38,20 +40,19 @@ static void gui_thread(void* p)
     gfxInit();
     gwinSetDefaultStyle(&WhiteWidgetStyle, GFXOFF);
     gwinSetDefaultFont(gdispOpenFont("DejaVuSans32"));
-    gdispClear(Silver);
-    gwinSetDefaultBgColor(Silver);
+    gdispClear(GFX_SILVER);
+    gwinSetDefaultBgColor(GFX_SILVER);
 
     WARNING("GUI init done");
 
     Menu m;
     auto base_menu = MenuPage(m, "Base", nullptr);
-    auto arm_menu = MenuPage(m, "Arms", &base_menu);
-    auto foo_menu = MenuPage(m, "foo", &base_menu);
-    auto bar_menu = MenuPage(m, "bar", &base_menu);
-    auto baz_menu = MenuPage(m, "baz", &base_menu);
-    auto root_page = MenuPage(m, "Robot", &base_menu, &arm_menu, &foo_menu, &bar_menu, &baz_menu);
+    auto score_page = ScorePage();
+    auto position_page = PositionPage();
+    auto root_page = MenuPage(m, "Robot", &base_menu, &score_page, &position_page);
 
     m.enter_page(&root_page);
+    m.enter_page(&score_page);
     m.event_loop();
 
     while (true) {

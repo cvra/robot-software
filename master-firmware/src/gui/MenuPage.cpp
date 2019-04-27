@@ -25,21 +25,20 @@ void MenuPage::on_enter(GHandle parent)
     auto i = 0;
     for (auto x = 0; x < 2; x++) {
         for (auto y = 0; y < 3; y++) {
-            if (!next_page[i]) {
-                continue;
+            if (next_page[i]) {
+                GWidgetInit wi;
+
+                gwinWidgetClearInit(&wi);
+
+                wi.g.show = gTrue;
+                wi.g.parent = parent;
+                wi.g.width = 225;
+                wi.g.height = 70;
+                wi.g.y = 15 + (wi.g.height + 15) * y;
+                wi.g.x = 10 + (wi.g.width + 10) * x;
+                wi.text = next_page[i]->get_name();
+                buttons[i] = gwinButtonCreate(0, &wi);
             }
-            GWidgetInit wi;
-
-            gwinWidgetClearInit(&wi);
-
-            wi.g.show = TRUE;
-            wi.g.parent = parent;
-            wi.g.width = 225;
-            wi.g.height = 70;
-            wi.g.y = 15 + (wi.g.height + 15) * y;
-            wi.g.x = 10 + (wi.g.width + 10) * x;
-            buttons[i] = gwinButtonCreate(0, &wi);
-            gwinSetText(buttons[i], next_page[i]->get_name(), FALSE);
             i++;
         }
     }

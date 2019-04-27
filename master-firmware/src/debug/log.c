@@ -7,6 +7,7 @@
 #include <error/error.h>
 #include <parameter/parameter.h>
 #include "main.h"
+#include "chibios-syscalls/stdio_lock.h"
 
 #include "log.h"
 #include "usbconf.h"
@@ -138,6 +139,7 @@ static void vlogfile_log_message(struct error* e, va_list args)
             strlen(error_severity_get_name(e->severity)), &dummy);
 
     /* Write time stamp */
+    stdio_lock();
     snprintf(buffer, sizeof(buffer), "[%4ld.%06ld]\t", s, us);
     f_write(&logfile_fp, buffer, strlen(buffer), &dummy);
     f_write(&logfile_fp, "\t", 1, &dummy);
@@ -154,6 +156,7 @@ static void vlogfile_log_message(struct error* e, va_list args)
     /* Write error message */
     vsnprintf(buffer, sizeof(buffer), e->text, args);
     f_write(&logfile_fp, buffer, strlen(buffer), &dummy);
+    stdio_unlock();
 
     /* Forces the data to be written. */
     f_write(&logfile_fp, "\n", 1, &dummy);

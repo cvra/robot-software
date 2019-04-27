@@ -1,6 +1,7 @@
 #include "Menu.h"
 #include <gfx.h>
 
+
 Menu::Menu()
     : page(nullptr)
 {
@@ -10,6 +11,10 @@ Menu::Menu()
 
     geventListenerInit(&listener);
     gwinAttachListener(&listener);
+
+#ifndef GUI_SIMULATOR
+    chMtxObjectInit(&menu_lock);
+#endif
 }
 
 void Menu::create_container()
@@ -20,7 +25,7 @@ void Menu::create_container()
     wi.g.height = SCREEN_HEIGHT - 60;
     wi.g.y = 60;
     wi.g.x = 0;
-    wi.g.show = TRUE;
+    wi.g.show = gTrue;
     wi.customDraw = gwinContainerDraw_Transparent;
     page_container = gwinContainerCreate(0, &wi, 0);
 }
@@ -42,7 +47,7 @@ void Menu::switch_to_page(Page* page)
         gwinDisable(back_button);
     }
     this->page->on_enter(page_container);
-    gwinSetText(page_title, page->get_name(), FALSE);
+    gwinSetText(page_title, page->get_name(), gFalse);
 }
 
 void Menu::pop_page()
@@ -66,17 +71,29 @@ void Menu::event_loop()
     gtimerInit(&periodic_timer);
     gtimerStart(&periodic_timer, [](void *p) {
         Menu *m = reinterpret_cast<Menu *>(p);
+#ifndef GUI_SIMULATOR
+        chMtxLock(&m->menu_lock);
+#endif
         m->on_timer();
-    }, this, TRUE, 100);
+#ifndef GUI_SIMULATOR
+        chMtxUnlock(&m->menu_lock);
+#endif
+    }, this, gTrue, 100);
 
     while (true) {
-        GEvent* event = geventEventWait(&listener, TIME_INFINITE);
+        GEvent* event = geventEventWait(&listener, gDelayForever);
 
+#ifndef GUI_SIMULATOR
+        chMtxLock(&menu_lock);
+#endif
         if (event->type == GEVENT_GWIN_BUTTON && reinterpret_cast<GEventGWinButton*>(event)->gwin == back_button) {
             pop_page();
         } else {
             page->on_event(event);
         }
+#ifndef GUI_SIMULATOR
+        chMtxUnlock(&menu_lock);
+#endif
     }
 }
 
@@ -88,7 +105,7 @@ void Menu::create_back_button()
     wi.g.height = 40;
     wi.g.y = 10;
     wi.g.x = 10;
-    wi.g.show = TRUE;
+    wi.g.show = gTrue;
     wi.customDraw = gwinButtonDraw_ArrowLeft;
     back_button = gwinButtonCreate(0, &wi);
 }
@@ -101,6 +118,6 @@ void Menu::create_page_title()
     wi.g.height = 60;
     wi.g.y = 0;
     wi.g.x = 60;
-    wi.g.show = TRUE;
+    wi.g.show = gTrue;
     page_title = gwinLabelCreate(0, &wi);
 }
