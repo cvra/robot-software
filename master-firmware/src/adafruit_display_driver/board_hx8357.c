@@ -20,6 +20,12 @@ void hx8357_init_board(void* g)
 
     };
     spiStart(&LCD_SPID, &spi_cfg);
+
+    /* Reset the LCD */
+    palWritePad(GPIOE, GPIOE_LCD_RSTN, 0);
+    chThdSleepMilliseconds(200);
+    palWritePad(GPIOE, GPIOE_LCD_RSTN, 1);
+    chThdSleepMilliseconds(200);
 }
 
 void hx8357_acquire_bus(void* g)
