@@ -254,6 +254,7 @@ struct RetractArms : actions::RetractArms {
     {
         NOTICE("Retracting arms!");
 
+        manipulator_gripper_set(GRIPPER_OFF);
         manipulator_goto(MANIPULATOR_RETRACT);
 
         state.arms_are_deployed = false;
