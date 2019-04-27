@@ -336,7 +336,7 @@ struct LaunchAccelerator : actions::LaunchAccelerator {
     {
         float x = (m_color == YELLOW) ? 1595 : 1305;
 
-        if (!strategy_goto_avoid(MIRROR_X(m_color, x), 320, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
+        if (!strategy_goto_avoid(x, 320, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
             return false;
         }
 
