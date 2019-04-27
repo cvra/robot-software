@@ -37,6 +37,9 @@ void map_init(struct _map* map, int robot_size)
     }
     map->last_opponent_index = 0;
 
+    /* Add ramp as obstacle */
+    map->ramp_obstacle = oa_new_poly(&map->oa, 4);
+    map_set_rectangular_obstacle(map->ramp_obstacle, 1500, 1775, 2100, 450, robot_size);
 }
 
 void map_set_ally_obstacle(struct _map* map, int32_t x, int32_t y, int32_t ally_size, int32_t robot_size)
