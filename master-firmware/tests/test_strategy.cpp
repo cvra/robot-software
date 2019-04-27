@@ -37,8 +37,8 @@ TEST_GROUP (Strategy) {
 
     IndexArms index_arms;
     RetractArms retract_arms;
-    TakePuck take_pucks[3] = {{0}, {1}, {2}};
-    DepositPuck deposit_puck[2] = {{0}, {1}};
+    TakePuck take_pucks[4] = {{0}, {1}, {2}, {6}};
+    DepositPuck deposit_puck[3] = {{0}, {1}, {2}};
     LaunchAccelerator launch_accelerator;
 
     std::vector<goap::Action<RobotState>*> availableActions()
@@ -49,8 +49,10 @@ TEST_GROUP (Strategy) {
             &take_pucks[0],
             &take_pucks[1],
             &take_pucks[2],
+            &take_pucks[3],
             &deposit_puck[0],
             &deposit_puck[1],
+            &deposit_puck[2],
             &launch_accelerator,
         };
     }
@@ -94,6 +96,16 @@ TEST(Strategy, CanFillRedPuckArea)
 TEST(Strategy, CanFillGreenPuckArea)
 {
     GreenPucksGoal goal;
+
+    int len = compute_and_execute_plan(goal, state);
+
+    CHECK_TRUE(len > 0);
+    CHECK_TRUE(goal.is_reached(state));
+}
+
+TEST(Strategy, CanFillBluePuckArea)
+{
+    BluePucksGoal goal;
 
     int len = compute_and_execute_plan(goal, state);
 
