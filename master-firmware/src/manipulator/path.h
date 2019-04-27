@@ -14,7 +14,7 @@ typedef enum {
     MANIPULATOR_PICK_HORZ,
     MANIPULATOR_PICK_VERT,
     MANIPULATOR_PICK_GOLDONIUM,
-    MANIPULATOR_PICK_GOLDONIUM_2,
+    MANIPULATOR_LIFT_GOLDONIUM,
     MANIPULATOR_COUNT // Dummy, used for last element
 } manipulator_state_t;
 
