@@ -21,8 +21,8 @@ struct DepositArea {
 };
 
 static const DepositArea areas[] = {
-    /* Red   */ {320, 450},
-    /* Green */ {320, 750},
+    /* Red   */ {320, 600},
+    /* Green */ {420, 600},
     /* Blue  */ {320, 1050},
 };
 

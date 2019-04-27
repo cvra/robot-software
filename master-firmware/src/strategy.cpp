@@ -306,7 +306,7 @@ struct DepositPuck : actions::DepositPuck {
     bool execute(RobotState& state)
     {
         float x = MIRROR_X(m_color, areas[zone_color].pos_x_mm);
-        float y = areas[zone_color].pos_y_mm;
+        float y = areas[zone_color].pos_y_mm - MIRROR(m_color, 50);
         float a = MIRROR_A(m_color, 0);
 
         if (!strategy_goto_avoid(x, y, a, TRAJ_FLAGS_ALL)) {
