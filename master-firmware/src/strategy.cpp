@@ -334,7 +334,7 @@ struct LaunchAccelerator : actions::LaunchAccelerator {
 
     bool execute(RobotState& state)
     {
-        float x = (m_color == VIOLET) ? 1595 : 1405 ;
+        float x = (m_color == VIOLET) ? 1695 : 1405 ;
 
         if (!strategy_goto_avoid(x, 320, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
             return false;
