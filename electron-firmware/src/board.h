@@ -334,10 +334,13 @@
 extern "C" {
 #endif
 void boardInit(void);
+int front_hall_sensor(void);
+int back_hall_sensor(void);
+#endif /* _FROM_ASM_ */
 #ifdef __cplusplus
 }
 #endif
-#endif /* _FROM_ASM_ */
+
 
 #endif /* _BOARD_H_ */
 /* clang-format on */

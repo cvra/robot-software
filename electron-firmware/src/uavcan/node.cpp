@@ -19,16 +19,6 @@ using Node = uavcan::Node<UAVCAN_MEMORY_POOL_SIZE>;
 using CanInterface = uavcan_stm32::CanInitHelper<UAVCAN_RX_QUEUE_SIZE>;
 using SystemClock = uavcan_stm32::SystemClock;
 
-bool front_hall_sensor(void)
-{
-    return !palReadPad(GPIOA, GPIOA_PIN0);
-}
-
-bool back_hall_sensor(void)
-{
-    return !palReadPad(GPIOA, GPIOA_PIN1);
-}
-
 void main(unsigned int id, const char* name)
 {
     int res;
@@ -73,10 +63,10 @@ void main(unsigned int id, const char* name)
     while (true) {
         node.spin(uavcan::MonotonicDuration::fromMSec(1000 / UAVCAN_SPIN_FREQ));
 
+        const auto voltage = 10.f;
+
         if (data_packet_start_signal_received() && !front_hall_sensor()) {
-            motor_voltage_set(6.0f);
-        } else if (!data_packet_start_signal_received() && !back_hall_sensor()) {
-            motor_voltage_set(-6.0f);
+            motor_voltage_set(voltage);
         } else {
             motor_voltage_set(0.0f);
         }

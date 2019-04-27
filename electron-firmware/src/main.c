@@ -13,11 +13,17 @@ THD_FUNCTION(blinker, arg)
     palSetLineMode(STATUS_LED, PAL_MODE_OUTPUT_PUSHPULL);
     (void)arg;
     while (1) {
-        palSetLine(STATUS_LED);
-        palSetPad(GPIOA, GPIOA_LED);
+        /* Turn off the external led when we reached the end */
+        if (!front_hall_sensor()) {
+            palSetLine(STATUS_LED);
+            palSetPad(GPIOA, GPIOA_LED);
+        }
+
         chThdSleepMilliseconds(100);
         palClearLine(STATUS_LED);
+
         palClearPad(GPIOA, GPIOA_LED);
+
         chThdSleepMilliseconds(100);
     }
 }

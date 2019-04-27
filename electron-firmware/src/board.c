@@ -100,3 +100,14 @@ void __early_init(void)
 void boardInit(void)
 {
 }
+
+int front_hall_sensor(void)
+{
+    return !palReadPad(GPIOA, GPIOA_PIN0);
+}
+
+int back_hall_sensor(void)
+{
+    return !palReadPad(GPIOA, GPIOA_PIN1);
+}
+
