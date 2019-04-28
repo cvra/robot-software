@@ -318,7 +318,9 @@ struct TakePuck : actions::TakePuck {
             return false;
         }
 
-        strategy_align_front_sensors();
+        if (pucks[puck_id].orientation == PuckOrientiation_VERTICAL) {
+            strategy_align_front_sensors();
+        }
 
         state.arms_are_deployed = true;
         manipulator_gripper_set(GRIPPER_ACQUIRE);
