@@ -280,7 +280,7 @@ struct TakePuck : actions::TakePuck {
             y = pucks[puck_id].pos_y_mm + MIRROR(m_color, 50);
             a = MIRROR_A(m_color, 180);
         } else {
-            x = MIRROR_X(m_color, pucks[puck_id].pos_x_mm) + MIRROR(m_color, 50);
+            x = MIRROR_X(m_color, pucks[puck_id].pos_x_mm) - 50;
             y = pucks[puck_id].pos_y_mm - 260;
             a = MIRROR_A(m_color, -90);
         }
@@ -404,6 +404,11 @@ struct TakeGoldonium : actions::TakeGoldonium {
     }
 };
 
+void strategy_shutdown_endgame(void)
+{
+    manipulator_gripper_set(GRIPPER_OFF);
+}
+
 void strategy_order_play_game(enum strat_color_t color, RobotState& state)
 {
     messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
@@ -470,6 +475,7 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
         }
         strategy_wait_ms(10);
     }
+    strategy_shutdown_endgame();
 
     NOTICE("Game ended!");
     while (true) {
@@ -573,6 +579,7 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
 
         strategy_wait_ms(10);
     }
+    strategy_shutdown_endgame();
 
     // Check that opponent didn't switch off our panel
     strategy_wait_ms(5000);
