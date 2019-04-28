@@ -41,6 +41,9 @@ static void wait_for_autoposition_signal(void);
 static void wait_for_starter(void);
 static void strategy_wait_ms(int ms);
 
+/** Put the robot 90 degrees from the wall facing the front sensors */
+static void strategy_align_front_sensors(void);
+
 void strategy_play_game(void);
 
 static enum strat_color_t wait_for_color_selection(void)
@@ -119,6 +122,26 @@ void strategy_stop_robot(void)
     robot.mode = BOARD_MODE_FREE;
     strategy_wait_ms(200);
     robot.mode = BOARD_MODE_ANGLE_DISTANCE;
+}
+
+static void strategy_align_front_sensors(void)
+{
+    messagebus_topic_t *left, *right;
+    Range left_range, right_range;
+
+    const float width = 0.1f;
+
+    left = messagebus_find_topic_blocking(&bus, "/distance/front_left");
+    right = messagebus_find_topic_blocking(&bus, "/distance/front_right");
+
+    messagebus_topic_wait(left, &left_range, sizeof(Range));
+    messagebus_topic_wait(right, &right_range, sizeof(Range));
+
+    float dx = left_range.distance - right_range.distance;
+    float alpha = atan2f(dx, width);
+
+    trajectory_a_rel(&robot.traj, DEGREES(-alpha));
+    trajectory_wait_for_end(TRAJ_FLAGS_ROTATION);
 }
 
 bool strategy_goto_avoid(int x_mm, int y_mm, int a_deg, int traj_end_flags)
@@ -295,6 +318,8 @@ struct TakePuck : actions::TakePuck {
             return false;
         }
 
+        strategy_align_front_sensors();
+
         state.arms_are_deployed = true;
         manipulator_gripper_set(GRIPPER_ACQUIRE);
 
@@ -402,6 +427,9 @@ struct TakeGoldonium : actions::TakeGoldonium {
         if (!strategy_goto_avoid(x, 330, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
             return false;
         }
+
+        strategy_align_front_sensors();
+
         manipulator_gripper_set(GRIPPER_ACQUIRE);
         trajectory_d_rel(&robot.traj, -27);
         strategy_wait_ms(1500);
