@@ -63,8 +63,9 @@ public:
 
         pathfinding::connect_bidirectional(nodes[MANIPULATOR_DEPLOY], nodes[MANIPULATOR_PICK_VERT]);
 
-        pathfinding::connect_bidirectional(nodes[MANIPULATOR_DEPLOY], nodes[MANIPULATOR_PICK_GOLDONIUM]);
-        pathfinding::connect_bidirectional(nodes[MANIPULATOR_PICK_GOLDONIUM], nodes[MANIPULATOR_LIFT_GOLDONIUM]);
+        nodes[MANIPULATOR_DEPLOY].connect(nodes[MANIPULATOR_PICK_GOLDONIUM]);
+        nodes[MANIPULATOR_PICK_GOLDONIUM].connect(nodes[MANIPULATOR_LIFT_GOLDONIUM]);
+        nodes[MANIPULATOR_LIFT_GOLDONIUM].connect(nodes[MANIPULATOR_RETRACT]);
     }
 
     void set_lengths(const std::array<float, 3>& link_lengths)
