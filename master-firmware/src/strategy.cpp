@@ -280,7 +280,7 @@ struct TakePuck : actions::TakePuck {
             y = pucks[puck_id].pos_y_mm + MIRROR(m_color, 50);
             a = MIRROR_A(m_color, 180);
         } else {
-            x = MIRROR_X(m_color, pucks[puck_id].pos_x_mm) + MIRROR(m_color, 50);
+            x = MIRROR_X(m_color, pucks[puck_id].pos_x_mm) - 50;
             y = pucks[puck_id].pos_y_mm - 260;
             a = MIRROR_A(m_color, -90);
         }
