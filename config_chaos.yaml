@@ -17,7 +17,7 @@ master:
     electron_uwb_mac: 42
     robot_size_x_mm: 260 # Robot diameter
     robot_alignment_length_mm: 135 # robot length from center to alignement border
-    opponent_size_x_mm_default: 500
+    opponent_size_x_mm_default: 400
     calibration_direction: 1 # calibration side is on the front
     odometry:
         external_encoder_ticks_per_mm: 162.974661726 # Computed 162.974661726
@@ -26,7 +26,7 @@ master:
         right_wheel_correction_factor: 1.00057482
     beacon:
         reflector_radius: 0.04 # in meters
-        angular_offset: 0. # in radians
+        angular_offset: 1.57 # in radians
     aversive:
         control:
             angle:
