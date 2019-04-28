@@ -402,6 +402,11 @@ struct TakeGoldonium : actions::TakeGoldonium {
     }
 };
 
+void strategy_shutdown_endgame(void)
+{
+    manipulator_gripper_set(GRIPPER_OFF);
+}
+
 void strategy_order_play_game(enum strat_color_t color, RobotState& state)
 {
     messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
@@ -468,6 +473,7 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
         }
         strategy_wait_ms(10);
     }
+    strategy_shutdown_endgame();
 
     NOTICE("Game ended!");
     while (true) {
@@ -571,6 +577,7 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
 
         strategy_wait_ms(10);
     }
+    strategy_shutdown_endgame();
 
     // Check that opponent didn't switch off our panel
     strategy_wait_ms(5000);
