@@ -36,6 +36,7 @@ public:
         /* MANIPULATOR_DEPLOY_FULLY */ {{1.2705, 1.5002, 1.4614}},
         /* MANIPULATOR_LIFT_HORZ */ {{1.3344, 1.1287, 0.0}},
         /* MANIPULATOR_PICK_HORZ */ {{0.9956, 0.5278, 0.0}},
+        /* MANIPULATOR_PICK_VERT */ {{0.8870, 1.2443, 1.5708}},
     };
     manipulator_state_t state;
 
@@ -56,6 +57,8 @@ public:
         pathfinding::connect_bidirectional(nodes[MANIPULATOR_LIFT_HORZ], nodes[MANIPULATOR_PICK_HORZ]);
 
         pathfinding::connect_bidirectional(nodes[MANIPULATOR_DEPLOY], nodes[MANIPULATOR_DEPLOY_FULLY]);
+
+        pathfinding::connect_bidirectional(nodes[MANIPULATOR_DEPLOY], nodes[MANIPULATOR_PICK_VERT]);
     }
 
     void set_lengths(const std::array<float, 3>& link_lengths)

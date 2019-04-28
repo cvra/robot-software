@@ -35,6 +35,7 @@ static THD_FUNCTION(score_counter_thd, arg)
 
         msg.score += score_count_atoms_in_zone(state, PuckColor_RED);
         msg.score += score_count_atoms_in_zone(state, PuckColor_GREEN);
+        msg.score += score_count_atoms_in_zone(state, PuckColor_BLUE);
         msg.score += score_count_accelerator(state);
         msg.score += score_count_experiment(state);
         msg.score += score_count_electron(state);

@@ -22,7 +22,13 @@ struct TakePuck : actions::TakePuck {
     bool execute(RobotState& state) { return dummy_execute(this, state); }
 };
 struct DepositPuck : actions::DepositPuck {
-    DepositPuck(PuckColor color) : actions::DepositPuck(color) {}
+    DepositPuck(size_t id) : actions::DepositPuck(id) {}
+    bool execute(RobotState& state) {
+        pucks_in_area++;
+        return dummy_execute(this, state);
+    }
+};
+struct LaunchAccelerator : actions::LaunchAccelerator {
     bool execute(RobotState& state) { return dummy_execute(this, state); }
 };
 
@@ -31,8 +37,9 @@ TEST_GROUP (Strategy) {
 
     IndexArms index_arms;
     RetractArms retract_arms;
-    TakePuck take_pucks[3] = {{0}, {1}, {2}};
-    DepositPuck deposit_puck[2] = {{PuckColor_RED}, {PuckColor_GREEN}};
+    TakePuck take_pucks[4] = {{0}, {1}, {2}, {6}};
+    DepositPuck deposit_puck[3] = {{0}, {1}, {2}};
+    LaunchAccelerator launch_accelerator;
 
     std::vector<goap::Action<RobotState>*> availableActions()
     {
@@ -42,8 +49,11 @@ TEST_GROUP (Strategy) {
             &take_pucks[0],
             &take_pucks[1],
             &take_pucks[2],
+            &take_pucks[3],
             &deposit_puck[0],
             &deposit_puck[1],
+            &deposit_puck[2],
+            &launch_accelerator,
         };
     }
 
@@ -93,18 +103,30 @@ TEST(Strategy, CanFillGreenPuckArea)
     CHECK_TRUE(goal.is_reached(state));
 }
 
-TEST(Strategy, CanFillPuckAreas)
+TEST(Strategy, CanFillBluePuckArea)
 {
-    RedPucksGoal goal1;
-    GreenPucksGoal goal2;
+    BluePucksGoal goal;
 
-    int len = compute_and_execute_plan(goal1, state);
-
-    CHECK_TRUE(len > 0);
-    CHECK_TRUE(goal1.is_reached(state));
-
-    len = compute_and_execute_plan(goal2, state);
+    int len = compute_and_execute_plan(goal, state);
 
     CHECK_TRUE(len > 0);
-    CHECK_TRUE(goal2.is_reached(state));
+    CHECK_TRUE(goal.is_reached(state));
+}
+
+TEST(Strategy, CanRunAllGoals)
+{
+    RedPucksGoal red_pucks;
+    GreenPucksGoal green_pucks;
+    AcceleratorGoal accelerator;
+    goap::Goal<RobotState>* goals[] = {
+        &red_pucks,
+        &green_pucks,
+        &accelerator,
+    };
+
+    for (auto& goal : goals) {
+        int len = compute_and_execute_plan(*goal, state);
+        CHECK_TRUE(len > 0);
+        CHECK_TRUE(goal->is_reached(state));
+    }
 }

@@ -12,6 +12,7 @@ typedef enum {
     MANIPULATOR_DEPLOY_FULLY,
     MANIPULATOR_LIFT_HORZ,
     MANIPULATOR_PICK_HORZ,
+    MANIPULATOR_PICK_VERT,
     MANIPULATOR_COUNT // Dummy, used for last element
 } manipulator_state_t;
 

@@ -127,7 +127,7 @@ TEST(MapOpponentObstacleUpdater, loopsBackAfterMaximumNumberOfOpponentsReached)
     POINT_EQUAL({950, 550}, opponent->pts[0]);
 };
 
-TEST_GROUP (MapEurobot2017) {
+TEST_GROUP (MapEurobot2019) {
     struct _map map;
     const int arbitrary_robot_size = 260;
 
@@ -137,10 +137,10 @@ TEST_GROUP (MapEurobot2017) {
     }
 };
 
-TEST(MapEurobot2017, canMoveOnYellowGoOut)
+TEST(MapEurobot2019, canMoveOnYellowGoOut)
 {
-    point_t start = {.x = 890, .y = 200};
-    point_t end = {.x = 1200, .y = 400};
+    point_t start = {.x = 2750, .y = 450};
+    point_t end = {.x = 1500, .y = 400};
 
     oa_start_end_points(&map.oa, start.x, start.y, end.x, end.y);
     oa_process(&map.oa);
@@ -148,14 +148,14 @@ TEST(MapEurobot2017, canMoveOnYellowGoOut)
     point_t* points;
     auto point_cnt = oa_get_path(&map.oa, &points);
 
-    CHECK_EQUAL(1, point_cnt);
-    POINT_EQUAL(end, points[0]);
+    CHECK_TRUE(point_cnt > 0);
+    POINT_EQUAL(end, points[point_cnt - 1]);
 };
 
-TEST(MapEurobot2017, canMoveOnBlueGoOut)
+TEST(MapEurobot2019, canMoveOnVioletGoOut)
 {
-    point_t start = {.x = 2110, .y = 200};
-    point_t end = {.x = 1800, .y = 400};
+    point_t start = {.x = 250, .y = 450};
+    point_t end = {.x = 1500, .y = 400};
 
     oa_start_end_points(&map.oa, start.x, start.y, end.x, end.y);
     oa_process(&map.oa);
@@ -163,8 +163,52 @@ TEST(MapEurobot2017, canMoveOnBlueGoOut)
     point_t* points;
     auto point_cnt = oa_get_path(&map.oa, &points);
 
-    CHECK_EQUAL(1, point_cnt);
-    POINT_EQUAL(end, points[0]);
+    CHECK_TRUE(point_cnt > 0);
+    POINT_EQUAL(end, points[point_cnt - 1]);
+};
+
+TEST(MapEurobot2019, doesNotGoOnTheRamp)
+{
+    point_t start = {.x = 250, .y = 450};
+    point_t end = {.x = 834, .y = 1800};
+
+    oa_start_end_points(&map.oa, start.x, start.y, end.x, end.y);
+    oa_process(&map.oa);
+
+    point_t* points;
+    auto point_cnt = oa_get_path(&map.oa, &points);
+
+    CHECK_TRUE(point_cnt < 0);
+};
+
+TEST(MapEurobot2019, goesAroundTheWall)
+{
+    point_t start = {.x = 1200, .y = 1400};
+    point_t end = {.x = 1800, .y = 1400};
+
+    oa_start_end_points(&map.oa, start.x, start.y, end.x, end.y);
+    oa_process(&map.oa);
+
+    point_t* points;
+    auto point_cnt = oa_get_path(&map.oa, &points);
+
+    CHECK_TRUE(point_cnt > 1);
+    POINT_EQUAL(end, points[point_cnt - 1]);
+};
+
+TEST(MapEurobot2019, goesAroundThePuck)
+{
+    point_t start = {.x = 250, .y = 450};
+    point_t end = {.x = 1500, .y = 400};
+
+    oa_start_end_points(&map.oa, start.x, start.y, end.x, end.y);
+    oa_process(&map.oa);
+
+    point_t* points;
+    auto point_cnt = oa_get_path(&map.oa, &points);
+
+    CHECK_TRUE(point_cnt > 1);
+    POINT_EQUAL(end, points[point_cnt - 1]);
 };
 
 TEST_GROUP (AMap) {
@@ -196,20 +240,4 @@ TEST(AMap, canUpdateOpponentObstacleAtomically)
     mock().expectOneCall("chMtxUnlock").withPointerParameter("lock", &map.lock);
 
     map_update_opponent_obstacle(&map, 0, 0, 0, 0);
-}
-
-TEST(AMap, canSetCubesObstacleAtomically)
-{
-    mock().expectOneCall("chMtxLock").withPointerParameter("lock", &map.lock);
-    mock().expectOneCall("chMtxUnlock").withPointerParameter("lock", &map.lock);
-
-    map_set_cubes_obstacle(&map, 0, 0, 0, 0);
-}
-
-TEST(AMap, canSetTowerObstacleAtomically)
-{
-    mock().expectOneCall("chMtxLock").withPointerParameter("lock", &map.lock);
-    mock().expectOneCall("chMtxUnlock").withPointerParameter("lock", &map.lock);
-
-    map_set_tower_obstacle(&map, 0, 0, 0, 0);
 }

@@ -3,6 +3,7 @@
 #include "robot_helpers/math_helpers.h"
 #include "base_controller.h"
 #include "map.h"
+#include "strategy/table.h"
 
 #define TABLE_POINT_X(x) math_clamp_value(x, 0, MAP_SIZE_X_MM)
 #define TABLE_POINT_Y(y) math_clamp_value(y, 0, MAP_SIZE_Y_MM)
@@ -37,29 +38,18 @@ void map_init(struct _map* map, int robot_size)
     }
     map->last_opponent_index = 0;
 
-    /* Add wastewater obstacle */
-    map->wastewater_obstacle = oa_new_poly(&map->oa, 4);
-    map_set_rectangular_obstacle(map->wastewater_obstacle, 1500, 1875, 1212, 250, robot_size);
+    /* Add the wall separating the two balances*/
+    map->the_wall = oa_new_poly(&map->oa, 4);
+    map_set_rectangular_obstacle(map->the_wall, 1500, 1450, 40, 200, robot_size);
 
-    /* Setup cube obstacles */
-    for (int i = 0; i < MAP_NUM_BLOCKS_CUBE; i++) {
-        map->blocks_cube[i] = oa_new_poly(&map->oa, MAP_NUM_BLOCKS_CUBE_EDGES);
-        map_set_cubes_obstacle(map, i, 0, 0, 0);
-    }
+    /* Add ramp as obstacle */
+    map->ramp_obstacle = oa_new_poly(&map->oa, 4);
+    map_set_rectangular_obstacle(map->ramp_obstacle, 1500, 1775, 2100, 450, robot_size);
 
-    /* Setup water dispenser obstacles */
-    for (int i = 0; i < MAP_NUM_WATER_DISPENSER; i++) {
-        map->water_dispenser[i] = oa_new_poly(&map->oa, MAP_NUM_WATER_DISPENSER_EDGES);
-    }
-    map_set_rectangular_obstacle(map->water_dispenser[0], 50, 840, 120, 60, robot_size);
-    map_set_rectangular_obstacle(map->water_dispenser[1], 2950, 840, 120, 60, robot_size);
-    map_set_rectangular_obstacle(map->water_dispenser[2], 610, 1950, 60, 120, robot_size);
-    map_set_rectangular_obstacle(map->water_dispenser[3], 2390, 1950, 60, 120, robot_size);
-
-    /* Setup tower obstacles */
-    for (int i = 0; i < MAP_NUM_TOWERS; i++) {
-        map->tower[i] = oa_new_poly(&map->oa, MAP_NUM_TOWERS_EDGES);
-        map_set_tower_obstacle(map, i, 0, 0, 0);
+    /* Add pucks from the starting area as obstacles, to avoid moving them */
+    for (int i = 0; i < MAP_NUM_PUCK; i++) {
+        map->pucks[i] = oa_new_poly(&map->oa, MAP_NUM_PUCK_EDGES);
+        map_set_puck_obstacle(map, i, pucks[i].pos_x_mm, pucks[i].pos_y_mm, robot_size);
     }
 }
 
@@ -114,24 +104,17 @@ void map_update_opponent_obstacle(struct _map* map, int32_t x, int32_t y, int32_
     map_unlock(&map->lock);
 }
 
-poly_t* map_get_cubes_obstacle(struct _map* map, int index)
+poly_t* map_get_puck_obstacle(struct _map* map, int index)
 {
-    return map->blocks_cube[index];
+    return map->pucks[index];
 }
 
-void map_set_cubes_obstacle(struct _map* map, int index, int x, int y, int robot_size)
+void map_set_puck_obstacle(struct _map* map, int index, int x, int y, int robot_size)
 {
-    const int CUBES_BLOCK_SIZE = 180;
-    circle_t circle = {.x = x, .y = y, .r = 0.5f * (CUBES_BLOCK_SIZE + robot_size)};
+    const int PUCK_SIZE = 80;
+    circle_t circle = {.x = x, .y = y, .r = 0.5f * (PUCK_SIZE + robot_size)};
 
     map_lock(&map->lock);
-    discretize_circle(map_get_cubes_obstacle(map, index), circle, MAP_NUM_BLOCKS_CUBE_EDGES, 0.125f * M_PI);
-    map_unlock(&map->lock);
-}
-
-void map_set_tower_obstacle(struct _map* map, int index, int x, int y, int robot_size)
-{
-    map_lock(&map->lock);
-    map_set_rectangular_obstacle(map->tower[index], x, y, MAP_TOWER_SIZE, MAP_TOWER_SIZE, robot_size);
+    discretize_circle(map_get_puck_obstacle(map, index), circle, MAP_NUM_PUCK_EDGES, 0.125f * M_PI);
     map_unlock(&map->lock);
 }
