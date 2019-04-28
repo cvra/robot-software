@@ -25,6 +25,9 @@ target.arm:
     - ../motor-control-firmware/src/rpm.c
     - ../motor-control-firmware/src/bootloader_config.c
     - ../motor-control-firmware/src/reboot.c
+    - ../motor-control-firmware/src/uavcan/Velocity_handler.cpp
+    - ../motor-control-firmware/src/uavcan/Position_handler.cpp
+    - ../motor-control-firmware/src/uavcan/Torque_handler.cpp
     - ../motor-control-firmware/src/uavcan/Reboot_handler.cpp
     - ../motor-control-firmware/src/uavcan/EmergencyStop_handler.cpp
     - ../motor-control-firmware/src/uavcan/parameter_server.cpp
