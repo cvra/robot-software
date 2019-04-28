@@ -18,7 +18,7 @@ message RobotState {
     option (nanopb_msgopt).msgid = 14;
     required bool arms_are_indexed = 1 [default=false];
     required bool arms_are_deployed = 2 [default=true];
-    repeated bool puck_available = 3 [(nanopb).fixed_count=true, (nanopb).max_count=3, packed=true];
+    repeated bool puck_available = 3 [(nanopb).fixed_count=true, (nanopb).max_count=12, packed=true];
     required bool has_puck = 4 [default=false];
     required PuckColor has_puck_color = 5;
     required bool accelerator_is_done = 6 [default=false];

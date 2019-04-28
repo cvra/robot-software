@@ -28,6 +28,11 @@ static const Puck pucks[] = {
     {PuckColor_BLUE, PuckOrientiation_VERTICAL, 800, 1543},
     {PuckColor_RED, PuckOrientiation_VERTICAL, 900, 1543},
     {PuckColor_GREEN, PuckOrientiation_VERTICAL, 1000, 1543},
+
+    /* distributor of 3 */
+    {PuckColor_BLUE, PuckOrientiation_VERTICAL, 125, 2000},
+    {PuckColor_GREEN, PuckOrientiation_VERTICAL, 225, 2000},
+    {PuckColor_RED, PuckOrientiation_VERTICAL, 325, 2000},
 };
 
 typedef struct {

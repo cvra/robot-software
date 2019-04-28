@@ -542,17 +542,22 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     AcceleratorGoal accelerator_goal;
     TakeGoldoniumGoal take_goldonium_goal;
     ClassifyBluePucksGoal classify_blue_pucks_goal;
+    ClassifyGreenPucksGoal classify_green_pucks_goal;
+    ClassifyRedPucksGoal classify_red_pucks_goal;
     goap::Goal<RobotState>* goals[] = {
         &classify_start_pucks_goal,
         &accelerator_goal,
         &take_goldonium_goal,
         &classify_blue_pucks_goal,
+        &classify_green_pucks_goal,
+        &classify_red_pucks_goal,
     };
 
     IndexArms index_arms;
     RetractArms retract_arms(color);
-    TakePuck take_pucks[] = {{color, 0}, {color, 1}, {color, 2}, {color, 6}};
-    DepositPuck deposit_puck[] = {{color, 0}, {color, 1}, {color, 2}};
+    TakePuck take_pucks[] = {{color, 0}, {color, 1}, {color, 2}, {color, 3}, {color, 4}, {color, 5},
+                             {color, 6}, {color, 7}, {color, 8}, {color, 9}, {color, 10}, {color, 11}};
+    DepositPuck deposit_puck[] = {{color, 0}, {color, 1}, {color, 2}, {color, 3}, {color, 4}};
     LaunchAccelerator launch_accelerator(color);
     TakeGoldonium take_goldonium(color);
 
