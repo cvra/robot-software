@@ -19,8 +19,9 @@ static void timer_cb(const uavcan::TimerEvent& event)
         proximity_beacon_signal_delete(pbs);
     }
 
-    /* periodic setpoint update to keep the motor running */
-    control_update_voltage_setpoint(-4.0);
+    /* Rotate at 10 Hz */
+    const auto setpoint = -10 * 2 * 3.14f;
+    control_update_velocity_setpoint(setpoint);
 }
 
 int proximity_beacon_start(Node& node)
