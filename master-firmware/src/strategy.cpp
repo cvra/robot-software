@@ -392,9 +392,11 @@ struct TakeGoldonium : actions::TakeGoldonium {
             return false;
         }
         manipulator_gripper_set(GRIPPER_ACQUIRE);
-        trajectory_d_rel(&robot.traj, -17);
-        trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
+        trajectory_d_rel(&robot.traj, -27);
+        strategy_wait_ms(1500);
         manipulator_goto(MANIPULATOR_LIFT_GOLDONIUM);
+        strategy_wait_ms(500);
+        manipulator_gripper_set(GRIPPER_OFF);
 
         state.goldonium_in_house = false;
         state.has_goldonium = true;
