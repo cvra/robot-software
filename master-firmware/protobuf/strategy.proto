@@ -11,7 +11,7 @@ enum PuckColor {
     RED = 0;
     GREEN = 1;
     BLUE = 2;
-    WHITE = 3;
+    REDGREEN = 3;
 }
 
 message RobotState {
@@ -22,7 +22,7 @@ message RobotState {
     required bool has_puck = 4 [default=false];
     required PuckColor has_puck_color = 5;
     required bool accelerator_is_done = 6 [default=false];
-    repeated uint32 pucks_in_deposit_zone = 7 [(nanopb).fixed_count=true, (nanopb).max_count=3, packed=true];
+    repeated uint32 classified_pucks = 7 [(nanopb).fixed_count=true, (nanopb).max_count=4, packed=true];
     required bool electron_launched = 8 [default=false];
     required bool goldonium_in_house = 9 [default=true];
     required bool has_goldonium = 10 [default=false];

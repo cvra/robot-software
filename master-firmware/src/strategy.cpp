@@ -371,7 +371,7 @@ struct DepositPuck : actions::DepositPuck {
 
         pucks_in_area++;
         state.has_puck = false;
-        state.pucks_in_deposit_zone[areas[zone_id].color]++;
+        state.classified_pucks[areas[zone_id].color]++;
         state.arms_are_deployed = true;
         return true;
     }
@@ -538,17 +538,15 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
     InitGoal init_goal;
-    RedPucksGoal red_pucks_goal;
-    GreenPucksGoal green_pucks_goal;
-    BluePucksGoal blue_pucks_goal;
+    ClassifyStartPucksGoal classify_start_pucks_goal;
     AcceleratorGoal accelerator_goal;
     TakeGoldoniumGoal take_goldonium_goal;
+    ClassifyBluePucksGoal classify_blue_pucks_goal;
     goap::Goal<RobotState>* goals[] = {
-        &red_pucks_goal,
-        &green_pucks_goal,
+        &classify_start_pucks_goal,
         &accelerator_goal,
         &take_goldonium_goal,
-        &blue_pucks_goal,
+        &classify_blue_pucks_goal,
     };
 
     IndexArms index_arms;

@@ -17,9 +17,9 @@ typedef struct {
 
 static const Puck pucks[] = {
     /* in front of start zone */
-    {PuckColor_RED, PuckOrientiation_HORIZONTAL, 500, 450},
-    {PuckColor_RED, PuckOrientiation_HORIZONTAL, 500, 750},
-    {PuckColor_GREEN, PuckOrientiation_HORIZONTAL, 500, 1050},
+    {PuckColor_REDGREEN, PuckOrientiation_HORIZONTAL, 500, 450},
+    {PuckColor_REDGREEN, PuckOrientiation_HORIZONTAL, 500, 750},
+    {PuckColor_REDGREEN, PuckOrientiation_HORIZONTAL, 500, 1050},
 
     /* distributor of 6 */
     {PuckColor_RED, PuckOrientiation_VERTICAL, 500, 1543},
@@ -37,9 +37,11 @@ typedef struct {
 } DepositArea;
 
 static const DepositArea areas[] = {
-    {PuckColor_RED, 320, 600},
-    {PuckColor_GREEN, 420, 600},
-    {PuckColor_BLUE, 320, 1050},
+    {PuckColor_REDGREEN, 320, 600},
+    {PuckColor_REDGREEN, 420, 600},
+    {PuckColor_RED, 450, 450},
+    {PuckColor_GREEN, 450, 750},
+    {PuckColor_BLUE, 450, 1050},
 };
 
 #endif /* STRATEGY_TABLE_H */

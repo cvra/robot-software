@@ -6,7 +6,7 @@
 
 /** Number of states goap can visit before giving up. Increasing it means a
  * solution is found on more complex problems at the expense of RAM use. */
-#define GOAP_SPACE_SIZE 40
+#define GOAP_SPACE_SIZE 50
 
 namespace actions {
 
@@ -71,7 +71,7 @@ struct DepositPuck : public goap::Action<RobotState> {
 
     void plan_effects(RobotState& state)
     {
-        state.pucks_in_deposit_zone[areas[zone_id].color]++;
+        state.classified_pucks[areas[zone_id].color]++;
         state.has_puck = false;
         state.arms_are_deployed = true;
     }
