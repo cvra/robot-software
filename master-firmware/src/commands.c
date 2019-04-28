@@ -1120,6 +1120,13 @@ static void cmd_grip(BaseSequentialStream* chp, int argc, char* argv[])
         manipulator_gripper_set(GRIPPER_ACQUIRE);
         chprintf(chp, "Acquire gripper\r\n");
 
+        for (int i = 0; i < 20; i++) {
+            float c1 = motor_get_current("pump-1");
+            float c2 = motor_get_current("pump-2");
+            chprintf(chp, "Current on pump: %.4f %.4f\r\n", c1, c2);
+            chThdSleepMilliseconds(100);
+        }
+
         if (strategy_puck_is_picked()) {
             chprintf(chp, "I got the puck!\r\n");
 
