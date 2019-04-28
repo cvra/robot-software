@@ -11,6 +11,8 @@ void strategy_start(void);
 
 bool strategy_goto_avoid(int x_mm, int y_mm, int a_deg, int traj_end_flags);
 
+bool strategy_puck_is_picked(void);
+
 #ifdef __cplusplus
 }
 #endif

@@ -305,7 +305,7 @@ static void cmd_node(BaseSequentialStream* chp, int argc, char** argv)
 
     if (!strcmp(argv[0], "-a")) {
         for (int i = 0; i < 128; i++) {
-            char *s = bus_enumerator_get_str_id(&bus_enumerator, i);
+            char* s = bus_enumerator_get_str_id(&bus_enumerator, i);
             if (s) {
                 chprintf(chp, "%02d: %s\n", i, s);
             }
@@ -1119,6 +1119,14 @@ static void cmd_grip(BaseSequentialStream* chp, int argc, char* argv[])
     if (state > 0) {
         manipulator_gripper_set(GRIPPER_ACQUIRE);
         chprintf(chp, "Acquire gripper\r\n");
+
+        if (strategy_puck_is_picked()) {
+            chprintf(chp, "I got the puck!\r\n");
+
+        } else {
+            chprintf(chp, "Mission failed, abort!\r\n");
+        }
+
     } else if (state < 0) {
         manipulator_gripper_set(GRIPPER_RELEASE);
         chprintf(chp, "Release gripper\r\n");
