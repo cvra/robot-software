@@ -331,12 +331,13 @@ struct TakePuck : actions::TakePuck {
         strategy_wait_ms(500);
         manipulator_goto(MANIPULATOR_LIFT_HORZ);
 
+        state.puck_available[puck_id] = false;
+
         if (!strategy_puck_is_picked()) {
             manipulator_gripper_set(GRIPPER_OFF);
             return false;
         }
 
-        state.puck_available[puck_id] = false;
         state.has_puck = true;
         state.has_puck_color = pucks[puck_id].color;
         return true;
