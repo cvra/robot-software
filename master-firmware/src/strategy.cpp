@@ -431,8 +431,6 @@ struct TakeGoldonium : actions::TakeGoldonium {
             return false;
         }
 
-        strategy_align_front_sensors();
-
         manipulator_gripper_set(GRIPPER_ACQUIRE);
         trajectory_d_rel(&robot.traj, -27);
         strategy_wait_ms(1500);
