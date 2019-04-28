@@ -11,6 +11,11 @@ int score_count_accelerator(const RobotState& state)
     return state.accelerator_is_done ? 20 : 0;
 }
 
+int score_count_goldenium(const RobotState& state)
+{
+    return state.goldonium_in_house ? 0 : 20;
+}
+
 int score_count_experiment(const RobotState& state)
 {
     return state.electron_launched ? 20 : 5;

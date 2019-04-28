@@ -25,6 +25,14 @@ TEST(AScore, AcceleratorCountsWhenActivated)
     CHECK_EQUAL(20, score_count_accelerator(state));
 }
 
+TEST(AScore, GoldeniumCountsWhenRemoved)
+{
+    CHECK_EQUAL(0, score_count_goldenium(state));
+
+    state.goldonium_in_house = false;
+    CHECK_EQUAL(20, score_count_goldenium(state));
+}
+
 TEST(AScore, ExperimentCountsWhenLaunched)
 {
     CHECK_EQUAL(5, score_count_experiment(state));
