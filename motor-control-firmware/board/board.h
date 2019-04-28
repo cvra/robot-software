@@ -286,8 +286,8 @@
                                      PIN_PUPDR_PULLDOWN(GPIOB_NC_3) |       \
                                      PIN_PUPDR_FLOATING(GPIOB_GPIO_A) |     \
                                      PIN_PUPDR_FLOATING(GPIOB_GPIO_B) |     \
-                                     PIN_PUPDR_FLOATING(GPIOB_QUAD_ENC_A) | \
-                                     PIN_PUPDR_FLOATING(GPIOB_QUAD_ENC_B) | \
+                                     PIN_PUPDR_PULLUP(GPIOB_QUAD_ENC_A) | \
+                                     PIN_PUPDR_PULLUP(GPIOB_QUAD_ENC_B) | \
                                      PIN_PUPDR_FLOATING(GPIOB_CAN_RX) |     \
                                      PIN_PUPDR_FLOATING(GPIOB_CAN_TX) |     \
                                      PIN_PUPDR_FLOATING(GPIOB_USART3_TX) |  \
