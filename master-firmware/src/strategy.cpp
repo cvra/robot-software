@@ -212,6 +212,12 @@ bool strategy_goto_avoid_retry(int x_mm, int y_mm, int a_deg, int traj_end_flags
     return finished;
 }
 
+bool strategy_puck_is_picked(void)
+{
+    return motor_get_current("pump-1") > config_get_scalar("master/arms/right/gripper/current_thres")
+        && motor_get_current("pump-2") > config_get_scalar("master/arms/right/gripper/current_thres");
+}
+
 struct IndexArms : actions::IndexArms {
     bool execute(RobotState& state)
     {
@@ -299,6 +305,11 @@ struct TakePuck : actions::TakePuck {
         }
         strategy_wait_ms(500);
         manipulator_goto(MANIPULATOR_LIFT_HORZ);
+
+        if (!strategy_puck_is_picked()) {
+            manipulator_gripper_set(GRIPPER_OFF);
+            return false;
+        }
 
         state.puck_available[puck_id] = false;
         state.has_puck = true;

@@ -69,3 +69,8 @@ float motor_get_position(const char* name)
 {
     return motor_driver_get_and_clear_stream_value(get_motor_driver(name), MOTOR_STREAM_POSITION);
 }
+
+float motor_get_current(const char* name)
+{
+    return motor_driver_get_and_clear_stream_value(get_motor_driver(name), MOTOR_STREAM_CURRENT);
+}

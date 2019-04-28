@@ -79,6 +79,7 @@ master:
             gripper:
                 release: -6.
                 acquire: 14.
+                current_thres: 0.24 # [A] pump current beyond which we consider the puck is picked
     screen:
         ax: 0.089231252
         ay: -0.001139728
@@ -260,7 +261,11 @@ actuator:
         control:
             mode: 0 # openloop
             low_batt_th: 5.
+        streams:
+            current: 10
     pump-2:
         control:
             mode: 0 # openloop
             low_batt_th: 5.
+        streams:
+            current: 10
