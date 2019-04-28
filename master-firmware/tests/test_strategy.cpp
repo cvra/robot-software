@@ -31,6 +31,9 @@ struct DepositPuck : actions::DepositPuck {
 struct LaunchAccelerator : actions::LaunchAccelerator {
     bool execute(RobotState& state) { return dummy_execute(this, state); }
 };
+struct TakeGoldonium : actions::TakeGoldonium {
+    bool execute(RobotState& state) { return dummy_execute(this, state); }
+};
 
 TEST_GROUP (Strategy) {
     RobotState state = initial_state();
@@ -40,6 +43,7 @@ TEST_GROUP (Strategy) {
     TakePuck take_pucks[4] = {{0}, {1}, {2}, {6}};
     DepositPuck deposit_puck[3] = {{0}, {1}, {2}};
     LaunchAccelerator launch_accelerator;
+    TakeGoldonium take_goldonium;
 
     std::vector<goap::Action<RobotState>*> availableActions()
     {
@@ -54,6 +58,7 @@ TEST_GROUP (Strategy) {
             &deposit_puck[1],
             &deposit_puck[2],
             &launch_accelerator,
+            &take_goldonium,
         };
     }
 
@@ -129,4 +134,13 @@ TEST(Strategy, CanRunAllGoals)
         CHECK_TRUE(len > 0);
         CHECK_TRUE(goal->is_reached(state));
     }
+}
+TEST(Strategy, CanGetGoldenium)
+{
+    TakeGoldoniumGoal goal;
+
+    int len = compute_and_execute_plan(goal, state);
+
+    CHECK_TRUE(len > 0);
+    CHECK_TRUE(goal.is_reached(state));
 }
