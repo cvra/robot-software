@@ -57,7 +57,7 @@ public:
         create_label(parent);
     }
 
-    virtual void on_event(GEvent *event) override
+    virtual void on_event(GEvent*) override
     {
     }
 
@@ -70,7 +70,7 @@ public:
         if (topic) {
             Score msg;
             if (messagebus_topic_read(topic, &msg, sizeof(msg))) {
-                sprintf(score, "%d", msg.score);
+                sprintf(score, "%ld", msg.score);
             }
         }
 #endif

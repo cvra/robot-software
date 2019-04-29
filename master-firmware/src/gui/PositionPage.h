@@ -43,7 +43,7 @@ public:
         create_label(parent);
     }
 
-    virtual void on_event(GEvent *event) override
+    virtual void on_event(GEvent*) override
     {
     }
 
