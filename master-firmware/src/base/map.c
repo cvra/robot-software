@@ -46,11 +46,6 @@ void map_init(struct _map* map, int robot_size)
     map->ramp_obstacle = oa_new_poly(&map->oa, 4);
     map_set_rectangular_obstacle(map->ramp_obstacle, 1500, 1775, 2100, 450, robot_size);
 
-    map->chaos_zone[0] =  oa_new_poly(&map->oa, 4);
-    map_set_rectangular_obstacle(map->chaos_zone[0], 1000, 1200, 300, 300, robot_size);
-    map->chaos_zone[1] =  oa_new_poly(&map->oa, 4);
-    map_set_rectangular_obstacle(map->chaos_zone[1], 2000, 1200, 300, 300, robot_size);
-
     /* Add pucks from the starting area as obstacles, to avoid moving them */
     for (int i = 0; i < MAP_NUM_PUCK; i++) {
         map->pucks[i] = oa_new_poly(&map->oa, MAP_NUM_PUCK_EDGES);

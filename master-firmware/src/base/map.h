@@ -24,7 +24,6 @@ struct _map {
 
     poly_t* the_wall;
     poly_t* ramp_obstacle;
-    poly_t* chaos_zone[2];
 
     poly_t* ally;
 
