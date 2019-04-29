@@ -148,6 +148,7 @@ def parse_args():
         "config_file", help="Config file in yml", type=argparse.FileType())
     parser.add_argument("--verbose", "-v", action='store_true')
     parser.add_argument("--dsdl", "-d", help="DSDL path", required=True)
+    parser.add_argument('-b','--board', action='append', help='Boards to consider, defaults to all')
 
     return parser.parse_args()
 
@@ -166,7 +167,13 @@ def main():
     uavcan.load_dsdl(args.dsdl)
 
     uploader = ConfigUploader(args.interface)
-    uploader.upload_config(config['actuator'])
+
+    if args.board is not None:
+        configs = {board: config['actuator'][board] for board in args.board}
+    else:
+        configs = config['actuator']
+
+    uploader.upload_config(configs)
     uploader.shouldQuit = True
 
 
