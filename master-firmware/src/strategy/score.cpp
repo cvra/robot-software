@@ -3,9 +3,10 @@
 
 int score_count_classified_atoms(const RobotState& state)
 {
-    return 6 * (state.pucks_in_deposit_zone[PuckColor_RED]
-                + state.pucks_in_deposit_zone[PuckColor_GREEN]
-                + state.pucks_in_deposit_zone[PuckColor_BLUE]);
+    return 6 * (state.classified_pucks[PuckColor_RED]
+                + state.classified_pucks[PuckColor_GREEN]
+                + state.classified_pucks[PuckColor_BLUE]
+                + state.classified_pucks[PuckColor_RED_OR_GREEN]);
 }
 
 int score_count_accelerator(const RobotState& state)

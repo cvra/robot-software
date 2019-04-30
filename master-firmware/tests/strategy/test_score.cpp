@@ -10,16 +10,16 @@ TEST(AScore, AtomZoneIsPropotionalToAmountOfPucks)
 {
     CHECK_EQUAL(0, score_count_classified_atoms(state));
 
-    state.pucks_in_deposit_zone[PuckColor_RED]++;
+    state.classified_pucks[PuckColor_RED]++;
     CHECK_EQUAL(6, score_count_classified_atoms(state));
 
-    state.pucks_in_deposit_zone[PuckColor_RED]++;
+    state.classified_pucks[PuckColor_RED]++;
     CHECK_EQUAL(12, score_count_classified_atoms(state));
 
-    state.pucks_in_deposit_zone[PuckColor_BLUE]++;
+    state.classified_pucks[PuckColor_BLUE]++;
     CHECK_EQUAL(18, score_count_classified_atoms(state));
 
-    state.pucks_in_deposit_zone[PuckColor_GREEN]++;
+    state.classified_pucks[PuckColor_GREEN]++;
     CHECK_EQUAL(24, score_count_classified_atoms(state));
 }
 

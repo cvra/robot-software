@@ -23,7 +23,8 @@ struct TakePuck : actions::TakePuck {
 };
 struct DepositPuck : actions::DepositPuck {
     DepositPuck(size_t id) : actions::DepositPuck(id) {}
-    bool execute(RobotState& state) {
+    bool execute(RobotState& state)
+    {
         pucks_in_area++;
         return dummy_execute(this, state);
     }
@@ -40,8 +41,8 @@ TEST_GROUP (Strategy) {
 
     IndexArms index_arms;
     RetractArms retract_arms;
-    TakePuck take_pucks[4] = {{0}, {1}, {2}, {6}};
-    DepositPuck deposit_puck[3] = {{0}, {1}, {2}};
+    TakePuck take_pucks[12] = {{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}};
+    DepositPuck deposit_puck[5] = {{0}, {1}, {2}, {3}, {4}};
     LaunchAccelerator launch_accelerator;
     TakeGoldonium take_goldonium;
 
@@ -54,9 +55,16 @@ TEST_GROUP (Strategy) {
             &take_pucks[1],
             &take_pucks[2],
             &take_pucks[3],
+            &take_pucks[4],
+            &take_pucks[5],
+            &take_pucks[6],
+            &take_pucks[7],
+            &take_pucks[8],
             &deposit_puck[0],
             &deposit_puck[1],
             &deposit_puck[2],
+            &deposit_puck[3],
+            &deposit_puck[4],
             &launch_accelerator,
             &take_goldonium,
         };
@@ -88,9 +96,9 @@ TEST(Strategy, CanInitArms)
     CHECK_TRUE(init_goal.is_reached(state));
 }
 
-TEST(Strategy, CanFillRedPuckArea)
+TEST(Strategy, CanFillClassifyStartPucks)
 {
-    RedPucksGoal goal;
+    ClassifyStartPucksGoal goal;
 
     int len = compute_and_execute_plan(goal, state);
 
@@ -98,9 +106,9 @@ TEST(Strategy, CanFillRedPuckArea)
     CHECK_TRUE(goal.is_reached(state));
 }
 
-TEST(Strategy, CanFillGreenPuckArea)
+TEST(Strategy, CanFillClassifyRedPucks)
 {
-    GreenPucksGoal goal;
+    ClassifyRedPucksGoal goal;
 
     int len = compute_and_execute_plan(goal, state);
 
@@ -108,9 +116,19 @@ TEST(Strategy, CanFillGreenPuckArea)
     CHECK_TRUE(goal.is_reached(state));
 }
 
-TEST(Strategy, CanFillBluePuckArea)
+TEST(Strategy, CanFillClassifyGreenPucks)
 {
-    BluePucksGoal goal;
+    ClassifyGreenPucksGoal goal;
+
+    int len = compute_and_execute_plan(goal, state);
+
+    CHECK_TRUE(len > 0);
+    CHECK_TRUE(goal.is_reached(state));
+}
+
+TEST(Strategy, CanFillClassifyBluePucks)
+{
+    ClassifyBluePucksGoal goal;
 
     int len = compute_and_execute_plan(goal, state);
 
@@ -120,13 +138,18 @@ TEST(Strategy, CanFillBluePuckArea)
 
 TEST(Strategy, CanRunAllGoals)
 {
-    RedPucksGoal red_pucks;
-    GreenPucksGoal green_pucks;
+    ClassifyStartPucksGoal classify_start_pucks;
     AcceleratorGoal accelerator;
+    ClassifyRedPucksGoal classify_red_pucks;
+    ClassifyGreenPucksGoal classify_green_pucks;
+    ClassifyBluePucksGoal classify_blue_pucks;
+
     goap::Goal<RobotState>* goals[] = {
-        &red_pucks,
-        &green_pucks,
+        &classify_start_pucks,
         &accelerator,
+        &classify_blue_pucks,
+        &classify_red_pucks,
+        &classify_green_pucks,
     };
 
     for (auto& goal : goals) {
