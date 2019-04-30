@@ -14,7 +14,7 @@ struct InitGoal : goap::Goal<RobotState> {
 struct ClassifyStartPucksGoal : goap::Goal<RobotState> {
     virtual int distance_to(const RobotState& state) const
     {
-        return goap::Distance().shouldBeEqual(state.classified_pucks[PuckColor_REDGREEN], 3);
+        return goap::Distance().shouldBeEqual(state.classified_pucks[PuckColor_RED_OR_GREEN], 3);
     }
 };
 
