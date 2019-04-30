@@ -36,7 +36,8 @@ public:
         /* MANIPULATOR_DEPLOY_FULLY */ {{1.2705, 1.5002, 1.4614}},
         /* MANIPULATOR_LIFT_HORZ */ {{1.3344, 1.1287, 0.0}},
         /* MANIPULATOR_PICK_HORZ */ {{0.9956, 0.5278, 0.0}},
-        /* MANIPULATOR_PICK_VERT */ {{0.8870, 1.2443, 1.5708}},
+        /* MANIPULATOR_PICK_VERT */ {{0.97, 1.32, 1.5708}},
+        /* MANIPULATOR_LIFT_VERT */ {{1.4116, 0.0572, 2.2754}},
         /* MANIPULATOR_PICK_GOLDONIUM */ {{0.935233, 2.005595, 1.570796}},
         /* MANIPULATOR_LIFT_GOLDONIUM */ {{0.8, 3, 1.5908}},
     };
@@ -61,7 +62,9 @@ public:
 
         pathfinding::connect_bidirectional(nodes[MANIPULATOR_DEPLOY], nodes[MANIPULATOR_DEPLOY_FULLY]);
 
-        pathfinding::connect_bidirectional(nodes[MANIPULATOR_DEPLOY], nodes[MANIPULATOR_PICK_VERT]);
+        nodes[MANIPULATOR_DEPLOY].connect(nodes[MANIPULATOR_PICK_VERT]);
+        nodes[MANIPULATOR_PICK_VERT].connect(nodes[MANIPULATOR_LIFT_VERT]);
+        nodes[MANIPULATOR_LIFT_VERT].connect(nodes[MANIPULATOR_DEPLOY]);
 
         nodes[MANIPULATOR_DEPLOY].connect(nodes[MANIPULATOR_PICK_GOLDONIUM]);
         nodes[MANIPULATOR_PICK_GOLDONIUM].connect(nodes[MANIPULATOR_LIFT_GOLDONIUM]);

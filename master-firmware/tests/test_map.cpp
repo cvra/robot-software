@@ -7,11 +7,35 @@ extern "C" {
 
 #include "base/map.h"
 
+#include <vector>
+
+namespace {
 void POINT_EQUAL(point_t expected, point_t actual)
 {
     CHECK_EQUAL(expected.x, actual.x);
     CHECK_EQUAL(expected.y, actual.y);
 }
+
+void CHECK_PATH_REACHES_GOAL(const std::vector<point_t>& path, point_t goal)
+{
+    CHECK_TRUE(path.size() > 0);
+    POINT_EQUAL(goal, path.back());
+}
+
+std::vector<point_t> find_the_path(struct _map* map, const point_t& start, const point_t& end)
+{
+    oa_start_end_points(&map->oa, start.x, start.y, end.x, end.y);
+    oa_process(&map->oa);
+
+    point_t* points;
+    auto point_cnt = oa_get_path(&map->oa, &points);
+
+    std::vector<point_t> path;
+    path.assign(points, points + (point_cnt > 0 ? point_cnt : 0));
+    return path;
+}
+
+} // namespace
 
 TEST_GROUP (MapRectangularObstacle) {
     point_t opponent_points[4];
@@ -130,6 +154,7 @@ TEST(MapOpponentObstacleUpdater, loopsBackAfterMaximumNumberOfOpponentsReached)
 TEST_GROUP (MapEurobot2019) {
     struct _map map;
     const int arbitrary_robot_size = 260;
+    const point_t start = {.x = 250, .y = 450};
 
     void setup(void)
     {
@@ -142,29 +167,18 @@ TEST(MapEurobot2019, canMoveOnYellowGoOut)
     point_t start = {.x = 2750, .y = 450};
     point_t end = {.x = 1500, .y = 400};
 
-    oa_start_end_points(&map.oa, start.x, start.y, end.x, end.y);
-    oa_process(&map.oa);
+    auto path = find_the_path(&map, start, end);
 
-    point_t* points;
-    auto point_cnt = oa_get_path(&map.oa, &points);
-
-    CHECK_TRUE(point_cnt > 0);
-    POINT_EQUAL(end, points[point_cnt - 1]);
+    CHECK_PATH_REACHES_GOAL(path, end);
 };
 
 TEST(MapEurobot2019, canMoveOnVioletGoOut)
 {
-    point_t start = {.x = 250, .y = 450};
     point_t end = {.x = 1500, .y = 400};
 
-    oa_start_end_points(&map.oa, start.x, start.y, end.x, end.y);
-    oa_process(&map.oa);
+    auto path = find_the_path(&map, start, end);
 
-    point_t* points;
-    auto point_cnt = oa_get_path(&map.oa, &points);
-
-    CHECK_TRUE(point_cnt > 0);
-    POINT_EQUAL(end, points[point_cnt - 1]);
+    CHECK_PATH_REACHES_GOAL(path, end);
 };
 
 TEST(MapEurobot2019, doesNotGoOnTheRamp)
@@ -172,13 +186,9 @@ TEST(MapEurobot2019, doesNotGoOnTheRamp)
     point_t start = {.x = 250, .y = 450};
     point_t end = {.x = 834, .y = 1800};
 
-    oa_start_end_points(&map.oa, start.x, start.y, end.x, end.y);
-    oa_process(&map.oa);
+    auto path = find_the_path(&map, start, end);
 
-    point_t* points;
-    auto point_cnt = oa_get_path(&map.oa, &points);
-
-    CHECK_TRUE(point_cnt < 0);
+    CHECK_EQUAL(0, path.size());
 };
 
 TEST(MapEurobot2019, goesAroundTheWall)
@@ -186,29 +196,52 @@ TEST(MapEurobot2019, goesAroundTheWall)
     point_t start = {.x = 1200, .y = 1400};
     point_t end = {.x = 1800, .y = 1400};
 
-    oa_start_end_points(&map.oa, start.x, start.y, end.x, end.y);
-    oa_process(&map.oa);
+    auto path = find_the_path(&map, start, end);
 
-    point_t* points;
-    auto point_cnt = oa_get_path(&map.oa, &points);
-
-    CHECK_TRUE(point_cnt > 1);
-    POINT_EQUAL(end, points[point_cnt - 1]);
+    CHECK_PATH_REACHES_GOAL(path, end);
+    CHECK_TRUE(path.size() > 1);
 };
 
 TEST(MapEurobot2019, goesAroundThePuck)
 {
-    point_t start = {.x = 250, .y = 450};
     point_t end = {.x = 1500, .y = 400};
 
-    oa_start_end_points(&map.oa, start.x, start.y, end.x, end.y);
-    oa_process(&map.oa);
+    auto path = find_the_path(&map, start, end);
 
-    point_t* points;
-    auto point_cnt = oa_get_path(&map.oa, &points);
+    CHECK_PATH_REACHES_GOAL(path, end);
+    CHECK_TRUE(path.size() > 1);
+};
 
-    CHECK_TRUE(point_cnt > 1);
-    POINT_EQUAL(end, points[point_cnt - 1]);
+TEST(MapEurobot2019, goesToThePuckBehindTheRamp)
+{
+    std::vector<point_t> ends = {
+        {.x = 2725, .y = 1740},
+        {.x = 2825, .y = 1740},
+    };
+
+    for (const auto& end : ends) {
+        auto path = find_the_path(&map, start, end);
+
+        CHECK_PATH_REACHES_GOAL(path, end);
+    }
+};
+
+TEST(MapEurobot2019, goesToThePuckInFrontOfTheRamp)
+{
+    std::vector<point_t> ends = {
+        {.x = 450, .y = 1383},
+        {.x = 550, .y = 1383},
+        {.x = 650, .y = 1383},
+        {.x = 750, .y = 1383},
+        {.x = 850, .y = 1383},
+        {.x = 950, .y = 1383},
+    };
+
+    for (const auto& end : ends) {
+        auto path = find_the_path(&map, start, end);
+
+        CHECK_PATH_REACHES_GOAL(path, end);
+    }
 };
 
 TEST_GROUP (AMap) {
