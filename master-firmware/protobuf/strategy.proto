@@ -16,14 +16,15 @@ enum PuckColor {
 
 message RobotState {
     option (nanopb_msgopt).msgid = 14;
+    option (nanopb_msgopt).packed_struct = true;
     required bool arms_are_indexed = 1 [default=false];
     required bool arms_are_deployed = 2 [default=true];
-    repeated bool puck_available = 3 [(nanopb).fixed_count=true, (nanopb).max_count=12, packed=true];
+    repeated bool puck_available = 3 [(nanopb).fixed_count=true, (nanopb).max_count=12];
     required bool has_puck = 4 [default=false];
-    required PuckColor has_puck_color = 5;
-    required bool accelerator_is_done = 6 [default=false];
-    repeated uint32 classified_pucks = 7 [(nanopb).fixed_count=true, (nanopb).max_count=4, packed=true];
-    required bool electron_launched = 8 [default=false];
-    required bool goldonium_in_house = 9 [default=true];
-    required bool has_goldonium = 10 [default=false];
+    required bool accelerator_is_done = 5 [default=false];
+    required bool electron_launched = 6 [default=false];
+    required bool goldonium_in_house = 7 [default=true];
+    required bool has_goldonium = 8 [default=false];
+    required PuckColor has_puck_color = 9;
+    repeated uint32 classified_pucks = 10 [(nanopb).fixed_count=true, (nanopb).max_count=4, packed=true];
 }
