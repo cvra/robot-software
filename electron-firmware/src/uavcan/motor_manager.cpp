@@ -88,3 +88,8 @@ void motor_voltage_set(float voltage)
         motor_voltage = voltage * MOTOR_VOLTAGE_FORWARD_SIGN;
     }
 }
+
+bool motor_ready(void)
+{
+    return motor_found;
+}
