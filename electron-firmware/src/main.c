@@ -8,23 +8,64 @@
 
 #define STATUS_LED PAL_LINE(GPIOA, GPIOA_SERVO0)
 
+void led_clear(void)
+{
+    palSetLine(STATUS_LED);
+    palSetPad(GPIOA, GPIOA_LED);
+}
+
+void led_set(void)
+{
+    palClearLine(STATUS_LED);
+    palClearPad(GPIOA, GPIOA_LED);
+}
+
 THD_FUNCTION(blinker, arg)
 {
     palSetLineMode(STATUS_LED, PAL_MODE_OUTPUT_PUSHPULL);
     (void)arg;
     while (1) {
-        /* Turn off the external led when we reached the end */
-        if (!front_hall_sensor()) {
-            palSetLine(STATUS_LED);
-            palSetPad(GPIOA, GPIOA_LED);
+        if (electron_state == INIT) {
+            led_clear();
+            chThdSleepMilliseconds(40);
+            led_set();
+            chThdSleepMilliseconds(40);
+
+            led_clear();
+            chThdSleepMilliseconds(40);
+            led_set();
+            chThdSleepMilliseconds(40);
+
+            led_clear();
+            chThdSleepMilliseconds(40);
+            led_set();
+            chThdSleepMilliseconds(40);
+
+            led_clear();
+            chThdSleepMilliseconds(40);
+            led_set();
+
+            chThdSleepMilliseconds(720);
+        } else if (electron_state == READY) {
+            led_clear();
+            chThdSleepMilliseconds(80);
+            led_set();
+            chThdSleepMilliseconds(80);
+            led_clear();
+            chThdSleepMilliseconds(80);
+            led_set();
+            chThdSleepMilliseconds(760);
+        } else if (electron_state == RUNNING) {
+            led_set();
+            chThdSleepMilliseconds(100);
+            led_clear();
+            chThdSleepMilliseconds(100);
+        } else {
+            led_set();
+            chThdSleepMilliseconds(1000);
+            led_clear();
+            chThdSleepMilliseconds(1000);
         }
-
-        chThdSleepMilliseconds(100);
-        palClearLine(STATUS_LED);
-
-        palClearPad(GPIOA, GPIOA_LED);
-
-        chThdSleepMilliseconds(100);
     }
 }
 
