@@ -19,6 +19,19 @@ using Node = uavcan::Node<UAVCAN_MEMORY_POOL_SIZE>;
 using CanInterface = uavcan_stm32::CanInitHelper<UAVCAN_RX_QUEUE_SIZE>;
 using SystemClock = uavcan_stm32::SystemClock;
 
+static void timeout_cb(void *flag_p)
+{
+    *(bool*)flag_p = true;
+}
+
+static void start_timer(unsigned int timeout_sec, bool* flag_p)
+{
+    static virtual_timer_t timer;
+    const sysinterval_t timeout = OSAL_S2I(timeout_sec);
+    chVTObjectInit(&timer);
+    chVTDoSetI(&timer, timeout, timeout_cb, flag_p);
+}
+
 void main(unsigned int id, const char* name)
 {
     int res;
@@ -60,14 +73,35 @@ void main(unsigned int id, const char* name)
     node.getNodeStatusProvider().setModeOperational();
     node.getNodeStatusProvider().setHealthOk();
 
+    bool timed_out = false;
+    const unsigned int timeout = 30; // seconds
     while (true) {
         node.spin(uavcan::MonotonicDuration::fromMSec(1000 / UAVCAN_SPIN_FREQ));
 
         const auto voltage = 10.f;
 
-        if (data_packet_start_signal_received() && !front_hall_sensor()) {
-            motor_voltage_set(voltage);
-        } else {
+        if (electron_state == INIT && motor_ready()) {
+            electron_state = READY;
+        }
+
+        if (electron_state == READY && data_packet_start_signal_received() && !front_hall_sensor()) {
+            electron_state = RUNNING;
+            start_timer(timeout, &timed_out);
+        }
+
+        if (electron_state == RUNNING) {
+            if (data_packet_start_signal_received() && !front_hall_sensor()) {
+                motor_voltage_set(voltage);
+            } else {
+                motor_voltage_set(0.0f);
+            }
+
+            if (front_hall_sensor() && timed_out) {
+                electron_state = ARRIVED;
+            }
+        }
+
+        if (electron_state == ARRIVED) {
             motor_voltage_set(0.0f);
         }
 
@@ -75,6 +109,8 @@ void main(unsigned int id, const char* name)
     }
 }
 } // namespace uavcan_node
+
+int electron_state = INIT;
 
 void uavcan_start(unsigned int node_id, const char* node_name)
 {
