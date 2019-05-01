@@ -290,6 +290,13 @@ void init_arm_motors(void)
 
     motor_manager_create_driver(&motor_manager, "pump-1");
     motor_manager_create_driver(&motor_manager, "pump-2");
+
+    motor_manager_create_driver(&motor_manager, "left-theta-1");
+    motor_manager_create_driver(&motor_manager, "left-theta-2");
+    motor_manager_create_driver(&motor_manager, "left-theta-3");
+
+    motor_manager_create_driver(&motor_manager, "left-pump-1");
+    motor_manager_create_driver(&motor_manager, "left-pump-2");
 }
 
 void init_sensor_nodes(void)
