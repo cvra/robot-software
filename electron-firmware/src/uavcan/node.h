@@ -9,7 +9,8 @@ enum {
     INIT,
     READY,
     RUNNING,
-    ARRIVED
+    ARRIVED,
+    TIMED_OUT
 };
 extern int electron_state;
 
