@@ -47,8 +47,9 @@ public:
 public:
     manipulator::Gripper gripper;
 
-    Manipulator(const std::array<float, 3>& link_lengths, void* _mutex)
-        : estimator(link_lengths)
+    Manipulator(const std::array<const char*, 3>& motors, const std::array<float, 3>& link_lengths, void* _mutex)
+        : sys(motors)
+        , estimator(link_lengths)
         , ctrl(link_lengths)
         , mutex(_mutex)
         , state(MANIPULATOR_INIT)

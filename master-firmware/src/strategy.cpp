@@ -283,8 +283,8 @@ struct RetractArms : actions::RetractArms {
     {
         NOTICE("Retracting arms!");
 
-        manipulator_gripper_set(GRIPPER_OFF);
-        manipulator_goto(MANIPULATOR_RETRACT);
+        manipulator_gripper_set(RIGHT, GRIPPER_OFF);
+        manipulator_goto(RIGHT, MANIPULATOR_RETRACT);
 
         state.has_puck = false;
         state.arms_are_deployed = false;
@@ -323,20 +323,20 @@ struct TakePuck : actions::TakePuck {
         }
 
         state.arms_are_deployed = true;
-        manipulator_gripper_set(GRIPPER_ACQUIRE);
+        manipulator_gripper_set(RIGHT, GRIPPER_ACQUIRE);
 
         if (pucks[puck_id].orientation == PuckOrientiation_HORIZONTAL) {
-            manipulator_goto(MANIPULATOR_PICK_HORZ);
+            manipulator_goto(RIGHT, MANIPULATOR_PICK_HORZ);
         } else {
-            manipulator_goto(MANIPULATOR_PICK_VERT);
+            manipulator_goto(RIGHT, MANIPULATOR_PICK_VERT);
         }
         strategy_wait_ms(500);
-        manipulator_goto(MANIPULATOR_LIFT_HORZ);
+        manipulator_goto(RIGHT, MANIPULATOR_LIFT_HORZ);
 
         state.puck_available[puck_id] = false;
 
         if (!strategy_puck_is_picked()) {
-            manipulator_gripper_set(GRIPPER_OFF);
+            manipulator_gripper_set(RIGHT, GRIPPER_OFF);
             return false;
         }
 
@@ -364,10 +364,10 @@ struct DepositPuck : actions::DepositPuck {
         if (!strategy_goto_avoid(x, y, a, TRAJ_FLAGS_ALL)) {
             return false;
         }
-        manipulator_gripper_set(GRIPPER_RELEASE);
+        manipulator_gripper_set(RIGHT, GRIPPER_RELEASE);
         strategy_wait_ms(100);
 
-        manipulator_gripper_set(GRIPPER_OFF);
+        manipulator_gripper_set(RIGHT, GRIPPER_OFF);
 
         pucks_in_area++;
         state.has_puck = false;
@@ -394,7 +394,7 @@ struct LaunchAccelerator : actions::LaunchAccelerator {
         }
 
         state.arms_are_deployed = true;
-        manipulator_goto(MANIPULATOR_DEPLOY_FULLY);
+        manipulator_goto(RIGHT, MANIPULATOR_DEPLOY_FULLY);
         trajectory_d_rel(&robot.traj, -30);
 
         trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
@@ -425,26 +425,26 @@ struct TakeGoldonium : actions::TakeGoldonium {
         }
 
         state.arms_are_deployed = true;
-        manipulator_goto(MANIPULATOR_PICK_GOLDONIUM);
+        manipulator_goto(RIGHT, MANIPULATOR_PICK_GOLDONIUM);
 
         if (!strategy_goto_avoid(x, 330, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
             return false;
         }
 
-        manipulator_gripper_set(GRIPPER_ACQUIRE);
+        manipulator_gripper_set(RIGHT, GRIPPER_ACQUIRE);
         trajectory_d_rel(&robot.traj, -27);
         strategy_wait_ms(1500);
 
         if (!strategy_puck_is_picked()) {
-            manipulator_gripper_set(GRIPPER_OFF);
+            manipulator_gripper_set(RIGHT, GRIPPER_OFF);
             trajectory_d_rel(&robot.traj, 80);
             trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
             return false;
         }
 
-        manipulator_goto(MANIPULATOR_LIFT_GOLDONIUM);
+        manipulator_goto(RIGHT, MANIPULATOR_LIFT_GOLDONIUM);
         strategy_wait_ms(500);
-        manipulator_gripper_set(GRIPPER_OFF);
+        manipulator_gripper_set(RIGHT, GRIPPER_OFF);
         trajectory_d_rel(&robot.traj, 80);
         trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
 
@@ -456,7 +456,7 @@ struct TakeGoldonium : actions::TakeGoldonium {
 
 void strategy_shutdown_endgame(void)
 {
-    manipulator_gripper_set(GRIPPER_OFF);
+    manipulator_gripper_set(BOTH, GRIPPER_OFF);
 }
 
 void strategy_order_play_game(enum strat_color_t color, RobotState& state)

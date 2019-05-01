@@ -1088,17 +1088,17 @@ static void cmd_arm(BaseSequentialStream* chp, int argc, char* argv[])
         angles[1] = atof(argv[1]);
         angles[2] = atof(argv[2]);
 
-        manipulator_angles_set(angles[0], angles[1], angles[2]);
+        manipulator_angles_set(RIGHT, angles[0], angles[1], angles[2]);
 
         chprintf(chp, "Set angles: %.4f, %.4f, %.4f\r\n", angles[0], angles[1], angles[2]);
     } else if (argc == 0) { // read angles
-        manipulator_angles(angles);
+        manipulator_angles(RIGHT, angles);
 
         chprintf(chp, "Measured angles: %.4f, %.4f, %.4f\r\n", angles[0], angles[1], angles[2]);
     } else {
         if (!strcmp(argv[0], "hold")) {
-            manipulator_angles(angles);
-            manipulator_angles_set(angles[0], angles[1], angles[2]);
+            manipulator_angles(RIGHT, angles);
+            manipulator_angles_set(RIGHT, angles[0], angles[1], angles[2]);
             chprintf(chp, "Holding angles: %.4f, %.4f, %.4f\r\n", angles[0], angles[1], angles[2]);
         } else {
             motor_manager_set_voltage(&motor_manager, "theta-1", 0);
@@ -1117,7 +1117,7 @@ static void cmd_grip(BaseSequentialStream* chp, int argc, char* argv[])
     }
     int state = atoi(argv[0]);
     if (state > 0) {
-        manipulator_gripper_set(GRIPPER_ACQUIRE);
+        manipulator_gripper_set(RIGHT, GRIPPER_ACQUIRE);
         chprintf(chp, "Acquire gripper\r\n");
 
         for (int i = 0; i < 20; i++) {
@@ -1135,10 +1135,10 @@ static void cmd_grip(BaseSequentialStream* chp, int argc, char* argv[])
         }
 
     } else if (state < 0) {
-        manipulator_gripper_set(GRIPPER_RELEASE);
+        manipulator_gripper_set(RIGHT, GRIPPER_RELEASE);
         chprintf(chp, "Release gripper\r\n");
     } else {
-        manipulator_gripper_set(GRIPPER_OFF);
+        manipulator_gripper_set(RIGHT, GRIPPER_OFF);
         chprintf(chp, "Disable gripper\r\n");
     }
 }
