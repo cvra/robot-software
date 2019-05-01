@@ -96,12 +96,16 @@ void main(unsigned int id, const char* name)
                 motor_voltage_set(0.0f);
             }
 
-            if (front_hall_sensor() && timed_out) {
-                electron_state = ARRIVED;
+            if (timed_out) {
+                if (front_hall_sensor()) {
+                    electron_state = ARRIVED;
+                } else {
+                    electron_state = TIMED_OUT;
+                }
             }
         }
 
-        if (electron_state == ARRIVED) {
+        if (electron_state == ARRIVED || electron_state == TIMED_OUT) {
             motor_voltage_set(0.0f);
         }
 
