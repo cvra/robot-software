@@ -399,7 +399,7 @@ struct LaunchAccelerator : actions::LaunchAccelerator {
 
         trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
 
-        trajectory_a_rel(&robot.traj, MIRROR(m_color, 13));
+        trajectory_a_rel(&robot.traj, MIRROR(m_color, 20));
         trajectory_wait_for_end(TRAJ_FLAGS_ROTATION);
         trajectory_d_rel(&robot.traj, 40);
         trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
