@@ -251,13 +251,13 @@ struct IndexArms : actions::IndexArms {
         const float directions[3] = {-1, -1, 1};
         float offsets[3];
 
-        // arm_motors_index(motors, directions, speeds, offsets);
+        // arm_motors_index(RIGHT_ARM_REFS, motors, directions, speeds, offsets);
 
         // set index when user presses color button, so indexing is done manually
         offsets[0] = motor_get_position("theta-1");
         offsets[1] = motor_get_position("theta-2");
         offsets[2] = motor_get_position("theta-3");
-        arm_compute_offsets(directions, offsets);
+        arm_compute_offsets(RIGHT_ARM_REFS, directions, offsets);
 
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q1"), offsets[0]);
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q2"), offsets[1]);

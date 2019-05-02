@@ -1,5 +1,6 @@
 #include <ch.h>
 
+#include <algorithm>
 #include <array>
 #include <math.h>
 
@@ -32,7 +33,7 @@ static void set_index_stream_frequency(const char* motor, float freq)
     }
 }
 
-void arm_motors_index(const char** motors, const float* directions, const float* speeds, float* offsets)
+void arm_motors_index(const char** motors, const float* references, const float* directions, const float* speeds, float* offsets)
 {
     /* Enable index stream over CAN */
     for (size_t i = 0; i < 3; i++) {
@@ -50,16 +51,13 @@ void arm_motors_index(const char** motors, const float* directions, const float*
         set_index_stream_frequency(motors[i], 0);
     }
 
-    arm_compute_offsets(directions, offsets);
+    arm_compute_offsets(references, directions, offsets);
 }
 
-void arm_compute_offsets(const float* directions, float* offsets)
+void arm_compute_offsets(const float* ref, const float* directions, float* offsets)
 {
-    std::array<float, 3> references = {
-        M_PI_2, // theta 1 indexes at 90deg
-        -M_PI, // theta 2 indexes at -180deg from theta 1
-        M_PI, // theta 3 indexes at 180deg from theta 2
-    };
+    std::array<float, 3> references;
+    std::copy_n(ref, 3, std::begin(references));
 
     // axis are decoupled
     references = manipulator::axes_decouple(references);
