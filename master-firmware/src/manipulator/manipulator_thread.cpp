@@ -71,10 +71,27 @@ void manipulator_angles_wait_for_traj_end(manipulator_side_t side, uint16_t time
     const uint16_t poll_time_step_ms = 10;
 
     while (time_since_start_ms < timeout_ms) {
-        if (USE_RIGHT(side) && !right_arm.reached_target())
+        if (USE_RIGHT(side) && right_arm.reached_target())
             break;
 
-        if (USE_LEFT(side) && !left_arm.reached_target())
+        if (USE_LEFT(side) && left_arm.reached_target())
+            break;
+
+        chThdSleepMilliseconds(poll_time_step_ms);
+        time_since_start_ms += poll_time_step_ms;
+    }
+}
+
+void manipulator_angles_wait_for_traj_end_near(manipulator_side_t side, uint16_t timeout_ms)
+{
+    uint16_t time_since_start_ms = 0;
+    const uint16_t poll_time_step_ms = 10;
+
+    while (time_since_start_ms < timeout_ms) {
+        if (USE_RIGHT(side) && right_arm.near_target())
+            break;
+
+        if (USE_LEFT(side) && left_arm.near_target())
             break;
 
         chThdSleepMilliseconds(poll_time_step_ms);
@@ -106,7 +123,9 @@ bool manipulator_goto(manipulator_side_t side, manipulator_state_t target)
     if ((side == BOTH) && (right_len != left_len))
         return false;
 
-    for (int i = 0; i < right_len; i++) {
+    int len = USE_RIGHT(side) ? right_len : left_len;
+
+    for (int i = 0; i < len; i++) {
         if (USE_RIGHT(side)) {
             right_node = right_node->path_next;
             manipulator_angles_set(RIGHT, right_node->data.angles[0], right_node->data.angles[1], right_node->data.angles[2]);
@@ -116,10 +135,17 @@ bool manipulator_goto(manipulator_side_t side, manipulator_state_t target)
             manipulator_angles_set(LEFT, left_node->data.angles[0], left_node->data.angles[1], left_node->data.angles[2]);
         }
 
-        if (USE_RIGHT(side))
-            manipulator_angles_wait_for_traj_end(RIGHT, MANIPULATOR_DEFAULT_TIMEOUT_MS);
-        if (USE_LEFT(side))
-            manipulator_angles_wait_for_traj_end(LEFT, MANIPULATOR_DEFAULT_TIMEOUT_MS);
+        if (i == (len - 1)) { // last point
+            if (USE_RIGHT(side))
+                manipulator_angles_wait_for_traj_end(RIGHT, MANIPULATOR_DEFAULT_TIMEOUT_MS);
+            if (USE_LEFT(side))
+                manipulator_angles_wait_for_traj_end(LEFT, MANIPULATOR_DEFAULT_TIMEOUT_MS);
+        } else {
+            if (USE_RIGHT(side))
+                manipulator_angles_wait_for_traj_end_near(RIGHT, MANIPULATOR_DEFAULT_TIMEOUT_MS);
+            if (USE_LEFT(side))
+                manipulator_angles_wait_for_traj_end_near(LEFT, MANIPULATOR_DEFAULT_TIMEOUT_MS);
+        }
     }
 
     right_arm.state = target;
@@ -163,6 +189,11 @@ static void init_arm_parameters(manipulator::Manipulator<ManipulatorLockGuard>* 
         parameter_scalar_get(parameter_find(ns, "tolerance/q2")),
         parameter_scalar_get(parameter_find(ns, "tolerance/q3")),
     });
+    arm->set_window({
+        parameter_scalar_get(parameter_find(ns, "window/q1")),
+        parameter_scalar_get(parameter_find(ns, "window/q2")),
+        parameter_scalar_get(parameter_find(ns, "window/q3")),
+    });
 }
 
 static void update_arm_parameters(manipulator::Manipulator<ManipulatorLockGuard>* arm, parameter_namespace_t* ns)
@@ -176,6 +207,11 @@ static void update_arm_parameters(manipulator::Manipulator<ManipulatorLockGuard>
         parameter_scalar_get(parameter_find(ns, "tolerance/q1")),
         parameter_scalar_get(parameter_find(ns, "tolerance/q2")),
         parameter_scalar_get(parameter_find(ns, "tolerance/q3")),
+    });
+    arm->set_window({
+        parameter_scalar_get(parameter_find(ns, "window/q1")),
+        parameter_scalar_get(parameter_find(ns, "window/q2")),
+        parameter_scalar_get(parameter_find(ns, "window/q3")),
     });
 
     arm->gripper.configure(parameter_scalar_get(parameter_find(ns, "gripper/release")),

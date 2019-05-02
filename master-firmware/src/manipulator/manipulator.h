@@ -26,7 +26,7 @@ public:
     manipulator::System sys;
     manipulator::StateEstimator estimator;
     manipulator::Controller ctrl;
-    manipulator::Angles target_tolerance;
+    manipulator::Angles target_tolerance, target_near_window;
     void* mutex;
 
     pathfinding::Node<Point> nodes[MANIPULATOR_COUNT] = {
@@ -93,6 +93,11 @@ public:
         LockGuard lock(mutex);
         target_tolerance = tolerances;
     }
+    void set_window(const Angles& tolerances)
+    {
+        LockGuard lock(mutex);
+        target_near_window = tolerances;
+    }
 
     Pose2D update(void)
     {
@@ -125,6 +130,20 @@ public:
 
         for (size_t i = 0; i < 3; i++) {
             if (fabsf(measured[i] - consign[i]) > target_tolerance[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+    bool near_target(void) const
+    {
+        LockGuard lock(mutex);
+
+        const Angles measured = sys.measure();
+        const Angles consign = sys.last_raw;
+
+        for (size_t i = 0; i < 3; i++) {
+            if (fabsf(measured[i] - consign[i]) > target_near_window[i]) {
                 return false;
             }
         }
