@@ -91,7 +91,8 @@ void manipulator_angles_goto_timeout(manipulator_side_t side, float q1, float q2
 bool manipulator_goto(manipulator_side_t side, manipulator_state_t target)
 {
     int right_len, left_len;
-    pathfinding::Node<manipulator::Point>* right_node, *left_node;
+    pathfinding::Node<manipulator::Point>* right_node;
+    pathfinding::Node<manipulator::Point>* left_node;
 
     if (USE_RIGHT(side)) {
         right_len = pathfinding::dijkstra(right_arm.nodes, MANIPULATOR_COUNT, right_arm.nodes[right_arm.state], right_arm.nodes[target]);
@@ -145,50 +146,65 @@ void manipulator_gripper_set(manipulator_side_t side, gripper_state_t state)
     }
 }
 
+static void init_arm_parameters(manipulator::Manipulator<ManipulatorLockGuard>* arm, parameter_namespace_t* ns)
+{
+    arm->set_lengths({
+        parameter_scalar_get(parameter_find(ns, "lengths/l1")),
+        parameter_scalar_get(parameter_find(ns, "lengths/l2")),
+        parameter_scalar_get(parameter_find(ns, "lengths/l3")),
+    });
+    arm->set_offsets({
+        parameter_scalar_get(parameter_find(ns, "offsets/q1")),
+        parameter_scalar_get(parameter_find(ns, "offsets/q2")),
+        parameter_scalar_get(parameter_find(ns, "offsets/q3")),
+    });
+    arm->set_tolerance({
+        parameter_scalar_get(parameter_find(ns, "tolerance/q1")),
+        parameter_scalar_get(parameter_find(ns, "tolerance/q2")),
+        parameter_scalar_get(parameter_find(ns, "tolerance/q3")),
+    });
+}
+
+static void update_arm_parameters(manipulator::Manipulator<ManipulatorLockGuard>* arm, parameter_namespace_t* ns)
+{
+    arm->set_offsets({
+        parameter_scalar_get(parameter_find(ns, "offsets/q1")),
+        parameter_scalar_get(parameter_find(ns, "offsets/q2")),
+        parameter_scalar_get(parameter_find(ns, "offsets/q3")),
+    });
+    arm->set_tolerance({
+        parameter_scalar_get(parameter_find(ns, "tolerance/q1")),
+        parameter_scalar_get(parameter_find(ns, "tolerance/q2")),
+        parameter_scalar_get(parameter_find(ns, "tolerance/q3")),
+    });
+
+    arm->gripper.configure(parameter_scalar_get(parameter_find(ns, "gripper/release")),
+                           parameter_scalar_get(parameter_find(ns, "gripper/acquire")));
+}
+
 static THD_FUNCTION(manipulator_thd, arg)
 {
     (void)arg;
     chRegSetThreadName(__FUNCTION__);
 
     parameter_namespace_t* right_arm_params = parameter_namespace_find(&master_config, "arms/right");
+    parameter_namespace_t* left_arm_params = parameter_namespace_find(&master_config, "arms/left");
 
     /* Setup and advertise manipulator state topic */
     static TOPIC_DECL(manipulator_topic, Manipulator);
     messagebus_advertise_topic(&bus, &manipulator_topic.topic, "/manipulator");
     Manipulator state = Manipulator_init_zero;
 
-    right_arm.set_lengths({
-        config_get_scalar("master/arms/right/lengths/l1"),
-        config_get_scalar("master/arms/right/lengths/l2"),
-        config_get_scalar("master/arms/right/lengths/l3"),
-    });
-    right_arm.set_offsets({
-        config_get_scalar("master/arms/right/offsets/q1"),
-        config_get_scalar("master/arms/right/offsets/q2"),
-        config_get_scalar("master/arms/right/offsets/q3"),
-    });
-    right_arm.set_tolerance({
-        config_get_scalar("master/arms/right/tolerance/q1"),
-        config_get_scalar("master/arms/right/tolerance/q2"),
-        config_get_scalar("master/arms/right/tolerance/q3"),
-    });
+    init_arm_parameters(&right_arm, right_arm_params);
+    init_arm_parameters(&left_arm, left_arm_params);
 
     NOTICE("Start manipulator thread");
     while (true) {
         if (parameter_namespace_contains_changed(right_arm_params)) {
-            right_arm.set_offsets({
-                config_get_scalar("master/arms/right/offsets/q1"),
-                config_get_scalar("master/arms/right/offsets/q2"),
-                config_get_scalar("master/arms/right/offsets/q3"),
-            });
-            right_arm.set_tolerance({
-                config_get_scalar("master/arms/right/tolerance/q1"),
-                config_get_scalar("master/arms/right/tolerance/q2"),
-                config_get_scalar("master/arms/right/tolerance/q3"),
-            });
-
-            right_arm.gripper.configure(config_get_scalar("master/arms/right/gripper/release"),
-                                        config_get_scalar("master/arms/right/gripper/acquire"));
+            update_arm_parameters(&right_arm, right_arm_params);
+        }
+        if (parameter_namespace_contains_changed(left_arm_params)) {
+            update_arm_parameters(&left_arm, right_arm_params);
         }
 
         Pose2D pose = right_arm.update();

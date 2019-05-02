@@ -80,6 +80,23 @@ master:
                 release: -6.
                 acquire: 14.
                 current_thres: 0.24 # [A] pump current beyond which we consider the puck is picked
+        left:
+            lengths:
+                l1: 0.137
+                l2: 0.097
+                l3: 0.072
+            offsets: # calibrated before a game
+                q1: 0.
+                q2: 0.
+                q3: 0.
+            tolerance:
+                q1: 0.02
+                q2: 0.02
+                q3: 0.02
+            gripper:
+                release: -6.
+                acquire: 14.
+                current_thres: 0.24 # [A] pump current beyond which we consider the puck is picked
     screen:
         ax: 0.089231252
         ay: -0.001139728
