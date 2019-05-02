@@ -246,22 +246,31 @@ struct IndexArms : actions::IndexArms {
     {
         NOTICE("Indexing arms!");
 
-        // const char* motors[3] = {"theta-1", "theta-2", "theta-3"};
-        // const float speeds[3] = {0.15, 0.12, 0.06};
-        const float directions[3] = {-1, -1, 1};
+        // set index when user presses color button, so indexing is done manually
         float offsets[3];
 
-        // arm_motors_index(RIGHT_ARM_REFS, motors, directions, speeds, offsets);
-
-        // set index when user presses color button, so indexing is done manually
         offsets[0] = motor_get_position("theta-1");
         offsets[1] = motor_get_position("theta-2");
         offsets[2] = motor_get_position("theta-3");
-        arm_compute_offsets(RIGHT_ARM_REFS, directions, offsets);
+        float right_directions[3] = {-1, -1, 1};
+        arm_compute_offsets(RIGHT_ARM_REFS, right_directions, offsets);
 
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q1"), offsets[0]);
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q2"), offsets[1]);
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q3"), offsets[2]);
+
+        strategy_wait_ms(500);
+        wait_for_color_selection();
+
+        offsets[0] = motor_get_position("left-theta-1");
+        offsets[1] = motor_get_position("left-theta-2");
+        offsets[2] = motor_get_position("left-theta-3");
+        float left_directions[3] = {1, 1, -1};
+        arm_compute_offsets(LEFT_ARM_REFS, left_directions, offsets);
+
+        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q1"), offsets[0]);
+        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q2"), offsets[1]);
+        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q3"), offsets[2]);
 
         strategy_wait_ms(500);
         wait_for_color_selection();

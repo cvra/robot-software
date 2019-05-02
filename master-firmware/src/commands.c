@@ -831,53 +831,98 @@ static void cmd_motor_index(BaseSequentialStream* chp, int argc, char* argv[])
 
 static void cmd_arm_index(BaseSequentialStream* chp, int argc, char* argv[])
 {
-    if (argc < 3) {
-        chprintf(chp, "Usage: arm_index t1 t2 t3\r\n");
+    if (argc < 4) {
+        chprintf(chp, "Usage: index left|right t1 t2 t3\r\n");
         return;
     }
-    chprintf(chp, "Please stand by while we index the arm...\r\n");
 
-    const char* motors[3] = {"theta-1", "theta-2", "theta-3"};
-    const float directions[3] = {-1.f, -1.f, 1.f};
-    const float speeds[3] = {atof(argv[0]), atof(argv[1]), atof(argv[2])};
-    float offsets[3];
+    if (strcmp("left", argv[0]) == 0) {
+        chprintf(chp, "Please stand by while we index the left arm...\r\n");
 
-    arm_motors_index(RIGHT_ARM_REFS, motors, directions, speeds, offsets);
+        const char* motors[3] = {"left-theta-1", "left-theta-2", "left-theta-3"};
+        const float directions[3] = {1, 1, -1};
+        const float speeds[3] = {atof(argv[1]), atof(argv[2]), atof(argv[3])};
+        float offsets[3];
 
-    parameter_scalar_set(PARAMETER("master/arms/right/offsets/q1"), offsets[0]);
-    parameter_scalar_set(PARAMETER("master/arms/right/offsets/q2"), offsets[1]);
-    parameter_scalar_set(PARAMETER("master/arms/right/offsets/q3"), offsets[2]);
+        arm_motors_index(LEFT_ARM_REFS, motors, directions, speeds, offsets);
 
-    chprintf(chp, "Index of theta-1 at %.4f\r\n", offsets[0]);
-    chprintf(chp, "Index of theta-2 at %.4f\r\n", offsets[1]);
-    chprintf(chp, "Index of theta-3 at %.4f\r\n", offsets[2]);
+        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q1"), offsets[0]);
+        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q2"), offsets[1]);
+        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q3"), offsets[2]);
+
+        chprintf(chp, "Index of left theta-1 at %.4f\r\n", offsets[0]);
+        chprintf(chp, "Index of left theta-2 at %.4f\r\n", offsets[1]);
+        chprintf(chp, "Index of left theta-3 at %.4f\r\n", offsets[2]);
+    } else {
+        chprintf(chp, "Please stand by while we index the right arm...\r\n");
+
+        const char* motors[3] = {"theta-1", "theta-2", "theta-3"};
+        const float directions[3] = {-1, -1, 1};
+        const float speeds[3] = {atof(argv[1]), atof(argv[2]), atof(argv[3])};
+        float offsets[3];
+
+        arm_motors_index(RIGHT_ARM_REFS, motors, directions, speeds, offsets);
+
+        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q1"), offsets[0]);
+        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q2"), offsets[1]);
+        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q3"), offsets[2]);
+
+        chprintf(chp, "Index of right theta-1 at %.4f\r\n", offsets[0]);
+        chprintf(chp, "Index of right theta-2 at %.4f\r\n", offsets[1]);
+        chprintf(chp, "Index of right theta-3 at %.4f\r\n", offsets[2]);
+    }
 }
 
 static void cmd_arm_index_manual(BaseSequentialStream* chp, int argc, char* argv[])
 {
-    (void)argc;
-    (void)argv;
+    if (argc < 1) {
+        chprintf(chp, "Usage: index_manual left|right\r\n");
+        return;
+    }
 
-    const float directions[3] = {-1.f, -1.f, 1.f};
-    float offsets[3];
+    if (strcmp("left", argv[0]) == 0) {
+        const float directions[3] = {1, 1, -1};
+        float offsets[3];
 
-    parameter_scalar_set(PARAMETER("master/arms/right/offsets/q1"), 0);
-    parameter_scalar_set(PARAMETER("master/arms/right/offsets/q2"), 0);
-    parameter_scalar_set(PARAMETER("master/arms/right/offsets/q3"), 0);
-    chThdSleepMilliseconds(100);
+        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q1"), 0);
+        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q2"), 0);
+        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q3"), 0);
+        chThdSleepMilliseconds(100);
 
-    offsets[0] = motor_get_position("theta-1");
-    offsets[1] = motor_get_position("theta-2");
-    offsets[2] = motor_get_position("theta-3");
-    arm_compute_offsets(RIGHT_ARM_REFS, directions, offsets);
+        offsets[0] = motor_get_position("left-theta-1");
+        offsets[1] = motor_get_position("left-theta-2");
+        offsets[2] = motor_get_position("left-theta-3");
+        arm_compute_offsets(RIGHT_ARM_REFS, directions, offsets);
 
-    parameter_scalar_set(PARAMETER("master/arms/right/offsets/q1"), offsets[0]);
-    parameter_scalar_set(PARAMETER("master/arms/right/offsets/q2"), offsets[1]);
-    parameter_scalar_set(PARAMETER("master/arms/right/offsets/q3"), offsets[2]);
+        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q1"), offsets[0]);
+        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q2"), offsets[1]);
+        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q3"), offsets[2]);
 
-    chprintf(chp, "Index of theta-1 at %.4f\r\n", offsets[0]);
-    chprintf(chp, "Index of theta-2 at %.4f\r\n", offsets[1]);
-    chprintf(chp, "Index of theta-3 at %.4f\r\n", offsets[2]);
+        chprintf(chp, "Index of left theta-1 at %.4f\r\n", offsets[0]);
+        chprintf(chp, "Index of left theta-2 at %.4f\r\n", offsets[1]);
+        chprintf(chp, "Index of left theta-3 at %.4f\r\n", offsets[2]);
+    } else {
+        const float directions[3] = {-1, -1, 1};
+        float offsets[3];
+
+        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q1"), 0);
+        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q2"), 0);
+        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q3"), 0);
+        chThdSleepMilliseconds(100);
+
+        offsets[0] = motor_get_position("theta-1");
+        offsets[1] = motor_get_position("theta-2");
+        offsets[2] = motor_get_position("theta-3");
+        arm_compute_offsets(RIGHT_ARM_REFS, directions, offsets);
+
+        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q1"), offsets[0]);
+        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q2"), offsets[1]);
+        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q3"), offsets[2]);
+
+        chprintf(chp, "Index of right theta-1 at %.4f\r\n", offsets[0]);
+        chprintf(chp, "Index of right theta-2 at %.4f\r\n", offsets[1]);
+        chprintf(chp, "Index of right theta-3 at %.4f\r\n", offsets[2]);
+    }
 }
 
 static void cmd_base_mode(BaseSequentialStream* chp, int argc, char* argv[])
@@ -1191,8 +1236,8 @@ const ShellCommand commands[] = {
     {"motor_voltage", cmd_motor_voltage},
     {"motor_index", cmd_motor_index},
     {"motor_index_sym", cmd_motor_index_sym},
-    {"arm_index", cmd_arm_index},
-    {"arm_index_manual", cmd_arm_index_manual},
+    {"index", cmd_arm_index},
+    {"index_manual", cmd_arm_index_manual},
     {"motors", cmd_motors},
     {"base_mode", cmd_base_mode},
     {"state", cmd_state},
