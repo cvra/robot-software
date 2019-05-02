@@ -1100,6 +1100,18 @@ static void cmd_arm(BaseSequentialStream* chp, int argc, char* argv[])
             manipulator_angles(RIGHT, angles);
             manipulator_angles_set(RIGHT, angles[0], angles[1], angles[2]);
             chprintf(chp, "Holding angles: %.4f, %.4f, %.4f\r\n", angles[0], angles[1], angles[2]);
+        } else if (!strcmp(argv[0], "retract")) {
+            manipulator_goto(RIGHT, MANIPULATOR_RETRACT);
+        } else if (!strcmp(argv[0], "deploy")) {
+            manipulator_goto(RIGHT, MANIPULATOR_DEPLOY);
+        } else if (!strcmp(argv[0], "lift_h")) {
+            manipulator_goto(RIGHT, MANIPULATOR_LIFT_HORZ);
+        } else if (!strcmp(argv[0], "pick_h")) {
+            manipulator_goto(RIGHT, MANIPULATOR_PICK_HORZ);
+        } else if (!strcmp(argv[0], "pick_v")) {
+            manipulator_goto(RIGHT, MANIPULATOR_PICK_VERT);
+        } else if (!strcmp(argv[0], "lift_v")) {
+            manipulator_goto(RIGHT, MANIPULATOR_LIFT_VERT);
         } else {
             motor_manager_set_voltage(&motor_manager, "theta-1", 0);
             motor_manager_set_voltage(&motor_manager, "theta-2", 0);
