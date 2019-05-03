@@ -6,7 +6,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 #define MANIPULATOR_DEFAULT_TIMEOUT_MS 2000
 
 void manipulator_start(void);

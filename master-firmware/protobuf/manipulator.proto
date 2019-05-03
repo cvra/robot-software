@@ -19,6 +19,12 @@ message Pose {
 message Manipulator {
     option (nanopb_msgopt).msgid = 12;
     required Pose pose = 1;
-    required Joints measured = 2;
-    required Joints input = 3;
+    required Joints position = 2;
+    required Joints velocity = 3;
+    required Joints torque = 4;
+    required Joints control = 5;
+    required Joints reference = 6;
+    required Joints lqr_control = 7;
+    required Joints gravity_compensation = 8;
+    required Joints friction_compensation = 9;
 }
