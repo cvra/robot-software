@@ -72,8 +72,8 @@ def main(args):
 
             with data_lock:
                 origin = (max_x / 2, max_y)
-                l1, l2, l3, angles = fwd_kinematics(origin, links, msg.measured.q1, msg.measured.q2, msg.measured.q3)
-                i1, i2, i3, inputs = fwd_kinematics(origin, links, msg.input.q1, msg.input.q2, msg.input.q3)
+                l1, l2, l3, angles = fwd_kinematics(origin, links, msg.position.q1, msg.position.q2, msg.position.q3)
+                i1, i2, i3, inputs = fwd_kinematics(origin, links, msg.control.q1, msg.control.q2, msg.control.q3)
 
                 data['l1'] = {'x': l1[0], 'y': l1[1], 'w': 15, 'h': links[0], 'a': angles[0], 'color': 'cvra', 'fill': 'cvra'}
                 data['l2'] = {'x': l2[0], 'y': l2[1], 'w': 12, 'h': links[1], 'a': angles[1], 'color': 'cvra', 'fill': 'cvra'}

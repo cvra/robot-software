@@ -24,6 +24,7 @@ bool math_point_is_in_square(poly_t* square, int x, int y);
 /** Clamp the value to fit in the specified interval
  */
 int math_clamp_value(int value, int min, int max);
+float math_clamp_value_f(float value, float min, float max);
 
 /** Compute index of smallest value in array of values */
 int argmin(float* values, int num_values);

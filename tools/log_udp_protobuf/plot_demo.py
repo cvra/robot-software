@@ -31,11 +31,15 @@ def main(args):
 
     data_lock = threading.RLock()
     data = {
-        'left': {'time': np.array([0]), 'value': np.array([0])},
-        'right': {'time': np.array([0]), 'value': np.array([0])},
+        'q1': {'time': np.array([]), 'value': np.array([])},
+        'q2': {'time': np.array([]), 'value': np.array([])},
+        'q3': {'time': np.array([]), 'value': np.array([])},
+        'ref1': {'time': np.array([]), 'value': np.array([])},
+        'ref2': {'time': np.array([]), 'value': np.array([])},
+        'ref3': {'time': np.array([]), 'value': np.array([])},
     }
 
-    plot = LivePlotter(10)
+    plot = LivePlotter(300)
     plot.widget.show()
 
     curve = plot.getPort()
@@ -52,11 +56,22 @@ def main(args):
             req = self.request[0]
             header, msg = parse_packet(req)
 
+            if header.name != '/manipulator':
+                return
+
             with data_lock:
-                data['left']['time'] = np.append(data['left']['time'], time.clock())
-                data['right']['time'] = np.append(data['right']['time'], time.clock())
-                data['left']['value'] = np.append(data['left']['value'], msg.left)
-                data['right']['value'] = np.append(data['right']['value'], msg.right)
+                data['q1']['time'] = np.append(data['q1']['time'], time.clock())
+                data['q1']['value'] = np.append(data['q1']['value'], msg.position.q1)
+                data['q2']['time'] = np.append(data['q2']['time'], time.clock())
+                data['q2']['value'] = np.append(data['q2']['value'], msg.position.q2)
+                data['q3']['time'] = np.append(data['q3']['time'], time.clock())
+                data['q3']['value'] = np.append(data['q3']['value'], msg.position.q3)
+                data['ref1']['time'] = np.append(data['ref1']['time'], time.clock())
+                data['ref1']['value'] = np.append(data['ref1']['value'], msg.reference.q1)
+                data['ref2']['time'] = np.append(data['ref2']['time'], time.clock())
+                data['ref2']['value'] = np.append(data['ref2']['value'], msg.reference.q2)
+                data['ref3']['time'] = np.append(data['ref3']['time'], time.clock())
+                data['ref3']['value'] = np.append(data['ref3']['value'], msg.reference.q3)
 
 
     def udp_listener():

@@ -34,6 +34,17 @@ int math_clamp_value(int value, int min, int max)
     }
 }
 
+float math_clamp_value_f(float value, float min, float max)
+{
+    if (value < min) {
+        return min;
+    } else if (value > max) {
+        return max;
+    } else {
+        return value;
+    }
+}
+
 int argmin(float* values, int num_values)
 {
     int min_index = 0;

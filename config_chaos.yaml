@@ -62,6 +62,37 @@ master:
                 distance: 100.
                 angle: 40.
                 angle_start: 40.
+    wrist:
+        horizontal: 0.0008
+        vertical: 0.00225
+    main_arm:
+        length:
+            segment_1: 0.137
+            segment_2: 0.097
+            segment_3: 0.072
+        mass:
+            segment_1: 0.04
+            segment_2: 0.03
+            segment_3: 0.01
+        control:
+            ctrl: 0
+            # cost matrix's diagonal values
+            Q_1: 30.0
+            Q_2: 0.1
+            Q_3: 30.0
+            Q_4: 0.1
+            Q_5: 30.0
+            Q_6: 0.05
+            # control input cost matrix's diagonal values
+            R_1: 0.001
+            R_2: 0.001
+            R_3: 0.001
+        ref1:
+            angle: 0.0
+        ref2:
+            angle: 0.0
+        ref3:
+            angle: 0.0
     arms:
         right:
             lengths:

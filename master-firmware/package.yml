@@ -111,6 +111,8 @@ tests:
     - tests/trajectory_manager_test.cpp
     - tests/test_scara_kinematics.cpp
     - tests/lie_groups.cpp
+    - tests/test_arm_controller.cpp
+    - tests/test_arm_trajectory.cpp
     - tests/test_base_helpers.cpp
     - tests/test_strategy_helpers.cpp
     - tests/test_strategy.cpp
@@ -119,6 +121,7 @@ tests:
     - tests/test_3dof_pendulum_kinematics.cpp
     - tests/test_manipulator_control.cpp
     - tests/test_arm_pathfinding.cpp
+    - tests/test_lqr.cpp
 
 templates:
     app_src.mk.jinja: app_src.mk
