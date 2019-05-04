@@ -19,6 +19,7 @@ def argparser(parser=None):
 
     parser.add_argument('--port', '-p', default=10000, help='Port to listen on (10000)')
     parser.add_argument('--verbose', '-v', action='count', default=0)
+    parser.add_argument('--topic', '-t', default='/position', help='Topic name to listen for the robot position')
 
     return parser
 
@@ -95,7 +96,7 @@ def main(args):
             req = self.request[0]
             header, msg = parse_packet(req)
 
-            if header.name != '/position':
+            if header.name != args.topic:
                 return
 
             with data_lock:
