@@ -63,7 +63,7 @@ static bool simulated_goto_xya(void* ctx, int x_mm, int y_mm, int a_deg)
     pos.a = a_deg;
     messagebus_topic_publish(position_topic, &pos, sizeof(pos));
 
-    chThdSleepMilliseconds(500);
+    chThdSleepMilliseconds(100);
 
     return true;
 }

@@ -1226,6 +1226,7 @@ static void cmd_electron(BaseSequentialStream* chp, int argc, char* argv[])
 
 static void cmd_goal(BaseSequentialStream* chp, int argc, char* argv[])
 {
+    static char line[20];
     RobotState state = initial_state();
     enum strat_color_t color = YELLOW;
     strategy_simulated_init();
@@ -1235,13 +1236,16 @@ static void cmd_goal(BaseSequentialStream* chp, int argc, char* argv[])
     AcceleratorGoal accelerator_goal;
     TakeGoldoniumGoal take_goldenium_goal;
 
-    if (argc != 2) {
-        chprintf(chp, "Usage: goal y|v accelerator|goldenium\r\n");
+    if (argc != 1) {
+        chprintf(chp, "Usage: goal y|v\r\n");
         return;
     }
 
     if (!strcmp(argv[0], "v")) {
+        chprintf(chp, "Playing in violet\r\n");
         color = VIOLET;
+    } else {
+        chprintf(chp, "Playing in yellow\r\n");
     }
 
     state.arms_are_indexed = true;
@@ -1268,27 +1272,40 @@ static void cmd_goal(BaseSequentialStream* chp, int argc, char* argv[])
     };
     const auto action_count = sizeof(actions) / sizeof(actions[0]);
 
-    if (!strcmp(argv[1], "accelerator")) {
-        goal = &accelerator_goal;
-    } else if (!strcmp(argv[1], "goldenium")) {
-        goal = &take_goldenium_goal;
-    } else {
-        chprintf(chp, "Unknown goal %s\r\n", argv[1]);
-        return;
-    }
+    while (true) {
+        // CTRL-D was pressed -> exit
+        if (shellGetLine(&shell_cfg, line, sizeof(line), NULL) || line[0] == 'q') {
+            chprintf(chp, "Exiting...\r\n");
+            motor_manager_set_torque(&motor_manager, "theta-1", 0);
+            motor_manager_set_torque(&motor_manager, "theta-2", 0);
+            motor_manager_set_torque(&motor_manager, "theta-3", 0);
+            return;
+        }
 
-    const int max_path_len = 10;
-    goap::Action<RobotState>* path[max_path_len] = {nullptr};
-    static goap::Planner<RobotState, GOAP_SPACE_SIZE> planner;
-    int len = planner.plan(state, *goal, actions, action_count, path, max_path_len);
-    chprintf(chp, "Found a path of length %d to achieve the %s goal\r\n", len, argv[1]);
-    messagebus_topic_publish(state_topic, &state, sizeof(state));
-    for (int i = 0; i < len; i++) {
-        bool success = path[i]->execute(state);
+        if (!strcmp(line, "accelerator")) {
+            goal = &accelerator_goal;
+        } else if (!strcmp(line, "goldenium")) {
+            goal = &take_goldenium_goal;
+        } else {
+            chprintf(chp, "Unknown goal %s\r\n", line);
+            continue;
+        }
+
+        const int max_path_len = 10;
+        goap::Action<RobotState>* path[max_path_len] = {nullptr};
+        static goap::Planner<RobotState, GOAP_SPACE_SIZE> planner;
+        int len = planner.plan(state, *goal, actions, action_count, path, max_path_len);
+        chprintf(chp, "Found a path of length %d to achieve the %s goal\r\n", len, line);
         messagebus_topic_publish(state_topic, &state, sizeof(state));
-        if (success == false) {
-            chprintf(chp, "Failed to execute action #%d\r\n", i);
-            break; // Break on failure
+        for (int i = 0; i < len; i++) {
+            bool success = path[i]->execute(state);
+            messagebus_topic_publish(state_topic, &state, sizeof(state));
+            if (success == false) {
+                chprintf(chp, "Failed to execute action #%d\r\n", i);
+                break; // Break on failure
+            } else {
+                chprintf(chp, "Action #%d succeeded\r\n", i);
+            }
         }
     }
 }
