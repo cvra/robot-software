@@ -305,7 +305,7 @@ static void cmd_node(BaseSequentialStream* chp, int argc, char** argv)
 
     if (!strcmp(argv[0], "-a")) {
         for (int i = 0; i < 128; i++) {
-            char* s = bus_enumerator_get_str_id(&bus_enumerator, i);
+            const char* s = bus_enumerator_get_str_id(&bus_enumerator, i);
             if (s) {
                 chprintf(chp, "%02d: %s\n", i, s);
             }
