@@ -66,6 +66,7 @@ target.arm:
     - src/manipulator/manipulator_thread.cpp
     - src/uid.c
     - src/strategy_impl.cpp
+    - src/strategy_simulated.cpp
 
 source:
     - src/unix_timestamp.c
