@@ -92,6 +92,8 @@ strategy_context_t* strategy_simulated_impl(enum strat_color_t color)
     return &strategy_simulated;
 }
 
+static TOPIC_DECL(position_topic, RobotPosition);
+
 void strategy_simulated_init(void)
 {
     rs_init(&robot_simulated.rs);
@@ -122,6 +124,7 @@ void strategy_simulated_init(void)
     int arbitrary_max_speed = 10;
     trajectory_set_speed(&robot_simulated.traj, arbitrary_max_speed, arbitrary_max_speed);
 
-    static TOPIC_DECL(state_topic, RobotPosition);
-    messagebus_advertise_topic(&bus, &state_topic.topic, "/simulated/position");
+    if (messagebus_find_topic(&bus, "/simulated/position") == NULL) {
+        messagebus_advertise_topic(&bus, &position_topic.topic, "/simulated/position");
+    }
 }

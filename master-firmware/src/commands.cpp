@@ -1226,7 +1226,7 @@ static void cmd_electron(BaseSequentialStream* chp, int argc, char* argv[])
 
 static void cmd_goal(BaseSequentialStream* chp, int argc, char* argv[])
 {
-    static RobotState state = initial_state();
+    RobotState state = initial_state();
     enum strat_color_t color = YELLOW;
     strategy_simulated_init();
     goap::Goal<RobotState>* goal = nullptr;
