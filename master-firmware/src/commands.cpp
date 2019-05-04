@@ -1288,10 +1288,16 @@ static void cmd_goal(BaseSequentialStream* chp, int argc, char* argv[])
         // CTRL-D was pressed -> exit
         if (shellGetLine(&shell_cfg, line, sizeof(line), NULL) || line[0] == 'q') {
             chprintf(chp, "Exiting...\r\n");
-            motor_manager_set_torque(&motor_manager, "theta-1", 0);
-            motor_manager_set_torque(&motor_manager, "theta-2", 0);
-            motor_manager_set_torque(&motor_manager, "theta-3", 0);
             return;
+        }
+
+        if (!strcmp(line, "help")) {
+            chprintf(chp, "Welcome to the help menu, here are the commands available:\r\n");
+            chprintf(chp, "- reset\r\n");
+            for (size_t i = 0; i < goal_count; i++) {
+                chprintf(chp, "- %s\r\n", goal_names[i]);
+            }
+            continue;
         }
 
         if (!strcmp(line, "reset")) {
