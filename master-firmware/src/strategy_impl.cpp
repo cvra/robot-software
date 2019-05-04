@@ -188,3 +188,47 @@ bool RetractArms::execute(RobotState& state)
     state.arms_are_deployed = false;
     return true;
 }
+
+bool TakePuck::execute(RobotState& state)
+{
+    float x, y, a;
+    if (pucks[puck_id].orientation == PuckOrientiation_HORIZONTAL) {
+        x = MIRROR_X(strat->color, pucks[puck_id].pos_x_mm - 170);
+        y = pucks[puck_id].pos_y_mm + MIRROR(strat->color, 50);
+        a = MIRROR_A(strat->color, 180);
+    } else {
+        x = MIRROR_X(strat->color, pucks[puck_id].pos_x_mm) - 50;
+        y = pucks[puck_id].pos_y_mm - 260;
+        a = MIRROR_A(strat->color, -90);
+    }
+
+    if (!strategy_goto_avoid(strat, x, y, a, TRAJ_FLAGS_ALL)) {
+        return false;
+    }
+
+    if (pucks[puck_id].orientation == PuckOrientiation_VERTICAL) {
+        strategy_align_front_sensors(strat);
+    }
+
+    state.arms_are_deployed = true;
+    strat->gripper_set(RIGHT, GRIPPER_ACQUIRE);
+
+    if (pucks[puck_id].orientation == PuckOrientiation_HORIZONTAL) {
+        strat->manipulator_goto(RIGHT, MANIPULATOR_PICK_HORZ);
+    } else {
+        strat->manipulator_goto(RIGHT, MANIPULATOR_PICK_VERT);
+    }
+    strat->wait_ms(500);
+    strat->manipulator_goto(RIGHT, MANIPULATOR_LIFT_HORZ);
+
+    state.puck_available[puck_id] = false;
+
+    if (!strat->puck_is_picked()) {
+        strat->gripper_set(RIGHT, GRIPPER_OFF);
+        return false;
+    }
+
+    state.has_puck = true;
+    state.has_puck_color = pucks[puck_id].color;
+    return true;
+}

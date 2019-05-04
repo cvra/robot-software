@@ -5,16 +5,19 @@
 extern "C" {
 #endif
 
+#include "robot_helpers/strategy_helpers.h"
 #include "manipulator/manipulator_thread.h"
 
 typedef struct {
     struct _robot* robot;
+    enum strat_color_t color;
 
     void (*wait_ms)(int);
     void (*wait_for_user_input)(void);
 
     bool (*manipulator_goto)(manipulator_side_t side, manipulator_state_t target);
     void (*gripper_set)(manipulator_side_t side, gripper_state_t state);
+    bool (*puck_is_picked)(void);
 } strategy_context_t;
 
 /** Stop moving */
@@ -49,6 +52,15 @@ struct RetractArms : actions::RetractArms {
     strategy_context_t* strat;
     RetractArms(strategy_context_t* strat)
         : strat(strat)
+    {
+    }
+    bool execute(RobotState& state);
+};
+struct TakePuck : actions::TakePuck {
+    strategy_context_t* strat;
+    TakePuck(strategy_context_t* strat, size_t id)
+        : actions::TakePuck(id)
+        , strat(strat)
     {
     }
     bool execute(RobotState& state);

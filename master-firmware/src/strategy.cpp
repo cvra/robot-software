@@ -37,7 +37,6 @@ static enum strat_color_t wait_for_color_selection(void);
 static void wait_for_autoposition_signal(void);
 static void wait_for_starter(void);
 static void wait_for_user_input(void);
-
 void strategy_play_game(void);
 
 static void strategy_wait_ms(int ms)
@@ -47,10 +46,12 @@ static void strategy_wait_ms(int ms)
 
 static strategy_context_t strategy = {
     /*robot*/ &robot,
+    /*color*/ YELLOW,
     /*wait_ms*/ strategy_wait_ms,
     /*wait_for_user_input*/ wait_for_user_input,
     /*manipulator_goto*/ manipulator_goto,
     /*gripper_set*/ manipulator_gripper_set,
+    /*puck_is_picked*/ strategy_puck_is_picked,
 };
 
 strategy_context_t* strategy_impl(void)
@@ -132,60 +133,6 @@ bool strategy_puck_is_picked(void)
     return motor_get_current("pump-1") > config_get_scalar("master/arms/right/gripper/current_thres")
         && motor_get_current("pump-2") > config_get_scalar("master/arms/right/gripper/current_thres");
 }
-
-struct TakePuck : actions::TakePuck {
-    enum strat_color_t m_color;
-
-    TakePuck(enum strat_color_t color, size_t id)
-        : actions::TakePuck(id)
-        , m_color(color)
-    {
-    }
-
-    bool execute(RobotState& state)
-    {
-        float x, y, a;
-        if (pucks[puck_id].orientation == PuckOrientiation_HORIZONTAL) {
-            x = MIRROR_X(m_color, pucks[puck_id].pos_x_mm - 170);
-            y = pucks[puck_id].pos_y_mm + MIRROR(m_color, 50);
-            a = MIRROR_A(m_color, 180);
-        } else {
-            x = MIRROR_X(m_color, pucks[puck_id].pos_x_mm) - 50;
-            y = pucks[puck_id].pos_y_mm - 260;
-            a = MIRROR_A(m_color, -90);
-        }
-
-        if (!strategy_goto_avoid(&strategy, x, y, a, TRAJ_FLAGS_ALL)) {
-            return false;
-        }
-
-        if (pucks[puck_id].orientation == PuckOrientiation_VERTICAL) {
-            strategy_align_front_sensors(&strategy);
-        }
-
-        state.arms_are_deployed = true;
-        manipulator_gripper_set(RIGHT, GRIPPER_ACQUIRE);
-
-        if (pucks[puck_id].orientation == PuckOrientiation_HORIZONTAL) {
-            manipulator_goto(RIGHT, MANIPULATOR_PICK_HORZ);
-        } else {
-            manipulator_goto(RIGHT, MANIPULATOR_PICK_VERT);
-        }
-        strategy_wait_ms(500);
-        manipulator_goto(RIGHT, MANIPULATOR_LIFT_HORZ);
-
-        state.puck_available[puck_id] = false;
-
-        if (!strategy_puck_is_picked()) {
-            manipulator_gripper_set(RIGHT, GRIPPER_OFF);
-            return false;
-        }
-
-        state.has_puck = true;
-        state.has_puck_color = pucks[puck_id].color;
-        return true;
-    }
-};
 
 struct DepositPuck : actions::DepositPuck {
     enum strat_color_t m_color;
@@ -301,7 +248,7 @@ void strategy_shutdown_endgame(void)
     manipulator_gripper_set(BOTH, GRIPPER_OFF);
 }
 
-void strategy_order_play_game(enum strat_color_t color, RobotState& state)
+void strategy_order_play_game(RobotState& state)
 {
     messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
@@ -333,9 +280,9 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
     NOTICE("Positioning robot");
 
     robot.base_speed = BASE_SPEED_INIT;
-    strategy_auto_position(MIRROR_X(color, 250), 450, MIRROR_A(color, -90), color);
+    strategy_auto_position(MIRROR_X(strategy.color, 250), 450, MIRROR_A(strategy.color, -90), strategy.color);
 
-    trajectory_a_abs(&robot.traj, MIRROR_A(color, 180));
+    trajectory_a_abs(&robot.traj, MIRROR_A(strategy.color, 180));
     trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
 
     robot.base_speed = BASE_SPEED_FAST;
@@ -375,7 +322,7 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
     }
 }
 
-void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
+void strategy_chaos_play_game(RobotState& state)
 {
     messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
@@ -397,10 +344,10 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
 
     IndexArms index_arms(&strategy);
     RetractArms retract_arms(&strategy);
-    TakePuck take_pucks[] = {{color, 0}, {color, 1}, {color, 2}, {color, 3}, {color, 4}, {color, 5}, {color, 6}, {color, 7}, {color, 8}, {color, 9}, {color, 10}, {color, 11}};
-    DepositPuck deposit_puck[] = {{color, 0}, {color, 1}, {color, 2}, {color, 3}, {color, 4}};
-    LaunchAccelerator launch_accelerator(color);
-    TakeGoldonium take_goldonium(color);
+    TakePuck take_pucks[] = {{&strategy, 0}, {&strategy, 1}, {&strategy, 2}, {&strategy, 3}, {&strategy, 4}, {&strategy, 5}, {&strategy, 6}, {&strategy, 7}, {&strategy, 8}, {&strategy, 9}, {&strategy, 10}, {&strategy, 11}};
+    DepositPuck deposit_puck[] = {{strategy.color, 0}, {strategy.color, 1}, {strategy.color, 2}, {strategy.color, 3}, {strategy.color, 4}};
+    LaunchAccelerator launch_accelerator(strategy.color);
+    TakeGoldonium take_goldonium(strategy.color);
 
     const int max_path_len = 10;
     goap::Action<RobotState>* path[max_path_len] = {nullptr};
@@ -433,9 +380,9 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     NOTICE("Positioning robot");
 
     robot.base_speed = BASE_SPEED_INIT;
-    strategy_auto_position(MIRROR_X(color, 250), 450, MIRROR_A(color, -90), color);
+    strategy_auto_position(MIRROR_X(strategy.color, 250), 450, MIRROR_A(strategy.color, -90), strategy.color);
 
-    trajectory_a_abs(&robot.traj, MIRROR_A(color, 180));
+    trajectory_a_abs(&robot.traj, MIRROR_A(strategy.color, 180));
     trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
 
     robot.base_speed = BASE_SPEED_FAST;
@@ -498,16 +445,16 @@ void strategy_play_game(void* p)
     messagebus_advertise_topic(&bus, &state_topic.topic, "/state");
 
     NOTICE("Waiting for color selection...");
-    enum strat_color_t color = wait_for_color_selection();
-    map_server_start(color);
+    strategy.color = wait_for_color_selection();
+    map_server_start(strategy.color);
     score_counter_start();
 
     if (config_get_boolean("master/is_main_robot")) {
         NOTICE("First, Order...");
-        strategy_order_play_game(color, state);
+        strategy_order_play_game(state);
     } else {
         NOTICE("Then, Chaos!");
-        strategy_chaos_play_game(color, state);
+        strategy_chaos_play_game(state);
     }
 }
 
