@@ -1230,11 +1230,23 @@ static void cmd_goal(BaseSequentialStream* chp, int argc, char* argv[])
     RobotState state = initial_state();
     enum strat_color_t color = YELLOW;
     strategy_simulated_init();
-    goap::Goal<RobotState>* goal = nullptr;
     messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
     AcceleratorGoal accelerator_goal;
     TakeGoldoniumGoal take_goldenium_goal;
+    ClassifyBluePucksGoal classify_blue_goal;
+
+    goap::Goal<RobotState>* goals[] = {
+        &accelerator_goal,
+        &take_goldenium_goal,
+        &classify_blue_goal,
+    };
+    const char* goal_names[] = {
+        "accelerator",
+        "goldenium",
+        "blue",
+    };
+    const size_t goal_count = sizeof(goals) / sizeof(goap::Goal<RobotState>*);
 
     if (argc != 1) {
         chprintf(chp, "Usage: goal y|v\r\n");
@@ -1273,6 +1285,7 @@ static void cmd_goal(BaseSequentialStream* chp, int argc, char* argv[])
     const auto action_count = sizeof(actions) / sizeof(actions[0]);
 
     while (true) {
+
         // CTRL-D was pressed -> exit
         if (shellGetLine(&shell_cfg, line, sizeof(line), NULL) || line[0] == 'q') {
             chprintf(chp, "Exiting...\r\n");
@@ -1282,11 +1295,13 @@ static void cmd_goal(BaseSequentialStream* chp, int argc, char* argv[])
             return;
         }
 
-        if (!strcmp(line, "accelerator")) {
-            goal = &accelerator_goal;
-        } else if (!strcmp(line, "goldenium")) {
-            goal = &take_goldenium_goal;
-        } else {
+        goap::Goal<RobotState>* goal = nullptr;
+        for (size_t i = 0; i < goal_count; i++) {
+            if (!strcmp(line, goal_names[i])) {
+                goal = goals[i];
+            }
+        }
+        if (goal == nullptr) {
             chprintf(chp, "Unknown goal %s\r\n", line);
             continue;
         }
