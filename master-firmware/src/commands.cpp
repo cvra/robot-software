@@ -1285,7 +1285,6 @@ static void cmd_goal(BaseSequentialStream* chp, int argc, char* argv[])
     const auto action_count = sizeof(actions) / sizeof(actions[0]);
 
     while (true) {
-
         // CTRL-D was pressed -> exit
         if (shellGetLine(&shell_cfg, line, sizeof(line), NULL) || line[0] == 'q') {
             chprintf(chp, "Exiting...\r\n");
@@ -1293,6 +1292,14 @@ static void cmd_goal(BaseSequentialStream* chp, int argc, char* argv[])
             motor_manager_set_torque(&motor_manager, "theta-2", 0);
             motor_manager_set_torque(&motor_manager, "theta-3", 0);
             return;
+        }
+
+        if (!strcmp(line, "reset")) {
+            state = initial_state();
+            state.arms_are_indexed = true;
+            ctx->goto_xya(ctx, MIRROR_X(color, 250), 450, MIRROR_A(ctx->color, -90));
+            chprintf(chp, "Reset to factory settings: done\r\n");
+            continue;
         }
 
         goap::Goal<RobotState>* goal = nullptr;
