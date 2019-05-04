@@ -12,8 +12,8 @@ typedef struct {
     float direction;
 } rs_motor_t;
 
-void rs_left_wheel_set_torque(void* motor, int32_t torque);
-void rs_right_wheel_set_torque(void* motor, int32_t torque);
+void rs_left_wheel_set_voltage(void* motor, int32_t voltage);
+void rs_right_wheel_set_voltage(void* motor, int32_t voltage);
 
 void rs_encoder_init(void);
 int32_t rs_encoder_get_left_ext(void* nothing);

@@ -39,8 +39,8 @@ void robot_init(void)
     rs_init(&robot.rs);
     rs_set_flags(&robot.rs, RS_USE_EXT);
 
-    rs_set_left_pwm(&robot.rs, rs_left_wheel_set_torque, &left_wheel_motor);
-    rs_set_right_pwm(&robot.rs, rs_right_wheel_set_torque, &right_wheel_motor);
+    rs_set_left_pwm(&robot.rs, rs_left_wheel_set_voltage, &left_wheel_motor);
+    rs_set_right_pwm(&robot.rs, rs_right_wheel_set_voltage, &right_wheel_motor);
     rs_set_left_ext_encoder(&robot.rs, rs_encoder_get_left_ext, NULL,
                             config_get_scalar("master/odometry/left_wheel_correction_factor"));
     rs_set_right_ext_encoder(&robot.rs, rs_encoder_get_right_ext, NULL,
