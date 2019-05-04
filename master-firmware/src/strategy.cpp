@@ -31,20 +31,30 @@
 #include "strategy/goals.h"
 #include "strategy/state.h"
 #include "strategy/score_counter.h"
-
-#include "protobuf/sensors.pb.h"
+#include "strategy_impl.h"
 
 static goap::Planner<RobotState, GOAP_SPACE_SIZE> planner;
+
+static void strategy_wait_ms(int ms)
+{
+    chThdSleepMilliseconds(ms);
+}
+
+static strategy_impl_t strategy = {
+    /*robot*/ &robot,
+    /*wait_ms*/ strategy_wait_ms,
+};
 
 static enum strat_color_t wait_for_color_selection(void);
 static void wait_for_autoposition_signal(void);
 static void wait_for_starter(void);
-static void strategy_wait_ms(int ms);
-
-/** Put the robot 90 degrees from the wall facing the front sensors */
-static void strategy_align_front_sensors(void);
 
 void strategy_play_game(void);
+
+strategy_impl_t* strategy_impl(void)
+{
+    return &strategy;
+}
 
 static enum strat_color_t wait_for_color_selection(void)
 {
@@ -108,131 +118,6 @@ static void wait_for_starter(void)
 static void wait_for_autoposition_signal(void)
 {
     wait_for_color_selection();
-}
-
-static void strategy_wait_ms(int ms)
-{
-    chThdSleepMilliseconds(ms);
-}
-
-void strategy_stop_robot(void)
-{
-    trajectory_stop(&robot.traj);
-    strategy_wait_ms(200);
-    robot.mode = BOARD_MODE_FREE;
-    strategy_wait_ms(200);
-    robot.mode = BOARD_MODE_ANGLE_DISTANCE;
-}
-
-static void strategy_align_front_sensors(void)
-{
-    messagebus_topic_t *left, *right;
-    Range left_range, right_range;
-
-    const float width = 0.1f;
-
-    left = messagebus_find_topic_blocking(&bus, "/distance/front_left");
-    right = messagebus_find_topic_blocking(&bus, "/distance/front_right");
-
-    messagebus_topic_wait(left, &left_range, sizeof(Range));
-    messagebus_topic_wait(right, &right_range, sizeof(Range));
-
-    float dx = left_range.distance - right_range.distance;
-    float alpha = atan2f(dx, width);
-
-    trajectory_a_rel(&robot.traj, DEGREES(-alpha));
-    trajectory_wait_for_end(TRAJ_FLAGS_ROTATION);
-}
-
-bool strategy_goto_avoid(int x_mm, int y_mm, int a_deg, int traj_end_flags)
-{
-    auto map = map_server_map_lock_and_get();
-
-    /* Compute path */
-    const point_t start = {
-        position_get_x_float(&robot.pos),
-        position_get_y_float(&robot.pos)};
-    oa_start_end_points(&map->oa, start.x, start.y, x_mm, y_mm);
-    oa_process(&map->oa);
-
-    /* Retrieve path */
-    point_t* points;
-    int num_points = oa_get_path(&map->oa, &points);
-    DEBUG("Path to (%d, %d) computed with %d points", x_mm, y_mm, num_points);
-    if (num_points <= 0) {
-        WARNING("No path found!");
-        strategy_stop_robot();
-        map_server_map_release(map);
-        return false;
-    }
-
-    /* Execute path, one waypoint at a time */
-    int end_reason = 0;
-
-    for (int i = 0; i < num_points; i++) {
-        DEBUG("Going to x: %.1fmm y: %.1fmm", points[i].x, points[i].y);
-
-        trajectory_goto_xy_abs(&robot.traj, points[i].x, points[i].y);
-
-        if (i == num_points - 1) /* last point */ {
-            end_reason = trajectory_wait_for_end(traj_end_flags);
-        } else {
-            end_reason = trajectory_wait_for_end(traj_end_flags | TRAJ_END_NEAR_GOAL);
-        }
-
-        if (end_reason != TRAJ_END_GOAL_REACHED && end_reason != TRAJ_END_NEAR_GOAL) {
-            break;
-        }
-    }
-
-    if (end_reason == TRAJ_END_GOAL_REACHED) {
-        strategy_wait_ms(200);
-        trajectory_a_abs(&robot.traj, a_deg);
-        trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
-
-        DEBUG("Goal reached successfully");
-        map_server_map_release(map);
-
-        return true;
-    } else if (end_reason == TRAJ_END_OPPONENT_NEAR) {
-        control_panel_set(LED_PC);
-        strategy_stop_robot();
-        strategy_wait_ms(100);
-        strategy_stop_robot();
-        control_panel_clear(LED_PC);
-        WARNING("Stopping robot because opponent too close");
-    } else if (end_reason == TRAJ_END_COLLISION) {
-        strategy_stop_robot();
-        WARNING("Stopping robot because collision detected");
-    } else if (end_reason == TRAJ_END_TIMER) {
-        strategy_stop_robot();
-        WARNING("Stopping robot because game has ended !");
-    } else {
-        WARNING("Trajectory ended with reason %d", end_reason);
-    }
-
-    map_server_map_release(map);
-    return false;
-}
-
-bool strategy_goto_avoid_retry(int x_mm, int y_mm, int a_deg, int traj_end_flags, int num_retries)
-{
-    bool finished = false;
-    int counter = 0;
-
-    while (!finished) {
-        DEBUG("Try #%d", counter);
-        finished = strategy_goto_avoid(x_mm, y_mm, a_deg, traj_end_flags);
-        counter++;
-
-        // Exit when maximum number of retries is reached
-        // Negative number of retries means infinite number of retries
-        if (num_retries >= 0 && counter > num_retries) {
-            break;
-        }
-    }
-
-    return finished;
 }
 
 bool strategy_puck_is_picked(void)
@@ -323,12 +208,12 @@ struct TakePuck : actions::TakePuck {
             a = MIRROR_A(m_color, -90);
         }
 
-        if (!strategy_goto_avoid(x, y, a, TRAJ_FLAGS_ALL)) {
+        if (!strategy_goto_avoid(&strategy, x, y, a, TRAJ_FLAGS_ALL)) {
             return false;
         }
 
         if (pucks[puck_id].orientation == PuckOrientiation_VERTICAL) {
-            strategy_align_front_sensors();
+            strategy_align_front_sensors(&strategy);
         }
 
         state.arms_are_deployed = true;
@@ -370,7 +255,7 @@ struct DepositPuck : actions::DepositPuck {
         float y = areas[zone_id].pos_y_mm - MIRROR(m_color, 50);
         float a = MIRROR_A(m_color, 0);
 
-        if (!strategy_goto_avoid(x, y, a, TRAJ_FLAGS_ALL)) {
+        if (!strategy_goto_avoid(&strategy, x, y, a, TRAJ_FLAGS_ALL)) {
             return false;
         }
         manipulator_gripper_set(RIGHT, GRIPPER_RELEASE);
@@ -398,7 +283,7 @@ struct LaunchAccelerator : actions::LaunchAccelerator {
     {
         float x = (m_color == VIOLET) ? 1695 : 1405;
 
-        if (!strategy_goto_avoid(x, 330, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
+        if (!strategy_goto_avoid(&strategy, x, 330, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
             return false;
         }
 
@@ -429,14 +314,14 @@ struct TakeGoldonium : actions::TakeGoldonium {
     {
         float x = (m_color == VIOLET) ? 2275 : 825;
 
-        if (!strategy_goto_avoid(x, 400, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
+        if (!strategy_goto_avoid(&strategy, x, 400, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
             return false;
         }
 
         state.arms_are_deployed = true;
         manipulator_goto(RIGHT, MANIPULATOR_PICK_GOLDONIUM);
 
-        if (!strategy_goto_avoid(x, 330, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
+        if (!strategy_goto_avoid(&strategy, x, 330, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
             return false;
         }
 
@@ -454,6 +339,7 @@ struct TakeGoldonium : actions::TakeGoldonium {
         manipulator_goto(RIGHT, MANIPULATOR_LIFT_GOLDONIUM);
         strategy_wait_ms(500);
         manipulator_gripper_set(RIGHT, GRIPPER_OFF);
+
         trajectory_d_rel(&robot.traj, 80);
         trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
 

@@ -1,7 +1,7 @@
 #ifndef STRATEGY_H
 #define STRATEGY_H
 
-#include "robot_helpers/strategy_helpers.h"
+#include "strategy_impl.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -9,8 +9,7 @@ extern "C" {
 
 void strategy_start(void);
 
-bool strategy_goto_avoid(int x_mm, int y_mm, int a_deg, int traj_end_flags);
-
+strategy_impl_t* strategy_impl(void);
 bool strategy_puck_is_picked(void);
 
 #ifdef __cplusplus
