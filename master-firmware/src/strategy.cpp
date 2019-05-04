@@ -49,6 +49,8 @@ static strategy_impl_t strategy = {
     /*robot*/ &robot,
     /*wait_ms*/ strategy_wait_ms,
     /*wait_for_user_input*/ wait_for_user_input,
+    /*manipulator_goto*/ manipulator_goto,
+    /*gripper_set*/ manipulator_gripper_set,
 };
 
 strategy_impl_t* strategy_impl(void)
@@ -130,27 +132,6 @@ bool strategy_puck_is_picked(void)
     return motor_get_current("pump-1") > config_get_scalar("master/arms/right/gripper/current_thres")
         && motor_get_current("pump-2") > config_get_scalar("master/arms/right/gripper/current_thres");
 }
-
-struct RetractArms : actions::RetractArms {
-    enum strat_color_t m_color;
-
-    RetractArms(enum strat_color_t color)
-        : m_color(color)
-    {
-    }
-
-    bool execute(RobotState& state)
-    {
-        NOTICE("Retracting arms!");
-
-        manipulator_gripper_set(RIGHT, GRIPPER_OFF);
-        manipulator_goto(RIGHT, MANIPULATOR_RETRACT);
-
-        state.has_puck = false;
-        state.arms_are_deployed = false;
-        return true;
-    }
-};
 
 struct TakePuck : actions::TakePuck {
     enum strat_color_t m_color;
@@ -328,7 +309,7 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
     goap::Goal<RobotState>* goals[] = {};
 
     IndexArms index_arms(&strategy);
-    RetractArms retract_arms(color);
+    RetractArms retract_arms(&strategy);
 
     const int max_path_len = 10;
     goap::Action<RobotState>* path[max_path_len] = {nullptr};
@@ -415,7 +396,7 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
     };
 
     IndexArms index_arms(&strategy);
-    RetractArms retract_arms(color);
+    RetractArms retract_arms(&strategy);
     TakePuck take_pucks[] = {{color, 0}, {color, 1}, {color, 2}, {color, 3}, {color, 4}, {color, 5}, {color, 6}, {color, 7}, {color, 8}, {color, 9}, {color, 10}, {color, 11}};
     DepositPuck deposit_puck[] = {{color, 0}, {color, 1}, {color, 2}, {color, 3}, {color, 4}};
     LaunchAccelerator launch_accelerator(color);

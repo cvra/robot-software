@@ -5,10 +5,16 @@
 extern "C" {
 #endif
 
+#include "manipulator/manipulator_thread.h"
+
 typedef struct {
     struct _robot* robot;
+
     void (*wait_ms)(int);
     void (*wait_for_user_input)(void);
+
+    bool (*manipulator_goto)(manipulator_side_t side, manipulator_state_t target);
+    void (*gripper_set)(manipulator_side_t side, gripper_state_t state);
 } strategy_impl_t;
 
 /** Stop moving */
@@ -34,6 +40,14 @@ void strategy_align_front_sensors(strategy_impl_t* strat);
 struct IndexArms : actions::IndexArms {
     strategy_impl_t* strat;
     IndexArms(strategy_impl_t* strat)
+        : strat(strat)
+    {
+    }
+    bool execute(RobotState& state);
+};
+struct RetractArms : actions::RetractArms {
+    strategy_impl_t* strat;
+    RetractArms(strategy_impl_t* strat)
         : strat(strat)
     {
     }

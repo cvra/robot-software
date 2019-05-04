@@ -176,3 +176,15 @@ bool IndexArms::execute(RobotState& state)
     state.arms_are_indexed = true;
     return true;
 }
+
+bool RetractArms::execute(RobotState& state)
+{
+    NOTICE("Retracting arms!");
+
+    strat->gripper_set(RIGHT, GRIPPER_OFF);
+    strat->manipulator_goto(RIGHT, MANIPULATOR_RETRACT);
+
+    state.has_puck = false;
+    state.arms_are_deployed = false;
+    return true;
+}
