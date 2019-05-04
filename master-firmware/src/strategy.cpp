@@ -45,7 +45,7 @@ static void strategy_wait_ms(int ms)
     chThdSleepMilliseconds(ms);
 }
 
-static strategy_impl_t strategy = {
+static strategy_context_t strategy = {
     /*robot*/ &robot,
     /*wait_ms*/ strategy_wait_ms,
     /*wait_for_user_input*/ wait_for_user_input,
@@ -53,7 +53,7 @@ static strategy_impl_t strategy = {
     /*gripper_set*/ manipulator_gripper_set,
 };
 
-strategy_impl_t* strategy_impl(void)
+strategy_context_t* strategy_impl(void)
 {
     return &strategy;
 }

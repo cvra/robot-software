@@ -9,7 +9,7 @@ extern "C" {
 
 void strategy_start(void);
 
-strategy_impl_t* strategy_impl(void);
+strategy_context_t* strategy_impl(void);
 bool strategy_puck_is_picked(void);
 
 #ifdef __cplusplus

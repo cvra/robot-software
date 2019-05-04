@@ -15,21 +15,21 @@ typedef struct {
 
     bool (*manipulator_goto)(manipulator_side_t side, manipulator_state_t target);
     void (*gripper_set)(manipulator_side_t side, gripper_state_t state);
-} strategy_impl_t;
+} strategy_context_t;
 
 /** Stop moving */
-void strategy_stop_robot(strategy_impl_t* strat);
+void strategy_stop_robot(strategy_context_t* strat);
 
 /** Go to x,y,a position, avoiding any obstacle/opponent on the way
   * Returns false on failure, true otherwise
   */
-bool strategy_goto_avoid(strategy_impl_t* strat, int x_mm, int y_mm, int a_deg, int traj_end_flags);
+bool strategy_goto_avoid(strategy_context_t* strat, int x_mm, int y_mm, int a_deg, int traj_end_flags);
 
 /** Same as above, but can be asked to retry a few times */
-bool strategy_goto_avoid_retry(strategy_impl_t* strat, int x_mm, int y_mm, int a_deg, int traj_end_flags, int num_retries);
+bool strategy_goto_avoid_retry(strategy_context_t* strat, int x_mm, int y_mm, int a_deg, int traj_end_flags, int num_retries);
 
 /** Put the robot 90 degrees from the wall facing the front sensors */
-void strategy_align_front_sensors(strategy_impl_t* strat);
+void strategy_align_front_sensors(strategy_context_t* strat);
 
 #ifdef __cplusplus
 }
@@ -38,16 +38,16 @@ void strategy_align_front_sensors(strategy_impl_t* strat);
 #include "strategy/state.h"
 
 struct IndexArms : actions::IndexArms {
-    strategy_impl_t* strat;
-    IndexArms(strategy_impl_t* strat)
+    strategy_context_t* strat;
+    IndexArms(strategy_context_t* strat)
         : strat(strat)
     {
     }
     bool execute(RobotState& state);
 };
 struct RetractArms : actions::RetractArms {
-    strategy_impl_t* strat;
-    RetractArms(strategy_impl_t* strat)
+    strategy_context_t* strat;
+    RetractArms(strategy_context_t* strat)
         : strat(strat)
     {
     }

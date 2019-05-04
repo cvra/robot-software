@@ -20,7 +20,7 @@
 
 #include "strategy_impl.h"
 
-void strategy_stop_robot(strategy_impl_t* strat)
+void strategy_stop_robot(strategy_context_t* strat)
 {
     trajectory_stop(&strat->robot->traj);
     strat->wait_ms(200);
@@ -29,7 +29,7 @@ void strategy_stop_robot(strategy_impl_t* strat)
     strat->robot->mode = BOARD_MODE_ANGLE_DISTANCE;
 }
 
-bool strategy_goto_avoid(strategy_impl_t* strat, int x_mm, int y_mm, int a_deg, int traj_end_flags)
+bool strategy_goto_avoid(strategy_context_t* strat, int x_mm, int y_mm, int a_deg, int traj_end_flags)
 {
     auto map = map_server_map_lock_and_get();
 
@@ -100,7 +100,7 @@ bool strategy_goto_avoid(strategy_impl_t* strat, int x_mm, int y_mm, int a_deg, 
     return false;
 }
 
-bool strategy_goto_avoid_retry(strategy_impl_t* strat, int x_mm, int y_mm, int a_deg, int traj_end_flags, int num_retries)
+bool strategy_goto_avoid_retry(strategy_context_t* strat, int x_mm, int y_mm, int a_deg, int traj_end_flags, int num_retries)
 {
     bool finished = false;
     int counter = 0;
@@ -120,7 +120,7 @@ bool strategy_goto_avoid_retry(strategy_impl_t* strat, int x_mm, int y_mm, int a
     return finished;
 }
 
-void strategy_align_front_sensors(strategy_impl_t* strat)
+void strategy_align_front_sensors(strategy_context_t* strat)
 {
     messagebus_topic_t *left, *right;
     Range left_range, right_range;
