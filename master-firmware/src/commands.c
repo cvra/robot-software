@@ -844,7 +844,7 @@ static void cmd_arm_index(BaseSequentialStream* chp, int argc, char* argv[])
         const float speeds[3] = {atof(argv[1]), atof(argv[2]), atof(argv[3])};
         float offsets[3];
 
-        arm_motors_index(LEFT_ARM_REFS, motors, directions, speeds, offsets);
+        arm_motors_index(motors, LEFT_ARM_REFS, directions, speeds, offsets);
 
         parameter_scalar_set(PARAMETER("master/arms/left/offsets/q1"), offsets[0]);
         parameter_scalar_set(PARAMETER("master/arms/left/offsets/q2"), offsets[1]);
@@ -861,7 +861,7 @@ static void cmd_arm_index(BaseSequentialStream* chp, int argc, char* argv[])
         const float speeds[3] = {atof(argv[1]), atof(argv[2]), atof(argv[3])};
         float offsets[3];
 
-        arm_motors_index(RIGHT_ARM_REFS, motors, directions, speeds, offsets);
+        arm_motors_index(motors, RIGHT_ARM_REFS, directions, speeds, offsets);
 
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q1"), offsets[0]);
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q2"), offsets[1]);
