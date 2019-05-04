@@ -139,15 +139,15 @@ void strategy_shutdown_endgame(void)
     manipulator_gripper_set(BOTH, GRIPPER_OFF);
 }
 
-void strategy_order_play_game(RobotState& state)
+void strategy_order_play_game(strategy_context_t* ctx, RobotState& state)
 {
     messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
     InitGoal init_goal;
     goap::Goal<RobotState>* goals[] = {};
 
-    IndexArms index_arms(&strategy);
-    RetractArms retract_arms(&strategy);
+    IndexArms index_arms(ctx);
+    RetractArms retract_arms(ctx);
 
     const int max_path_len = 10;
     goap::Action<RobotState>* path[max_path_len] = {nullptr};
@@ -171,9 +171,9 @@ void strategy_order_play_game(RobotState& state)
     NOTICE("Positioning robot");
 
     robot.base_speed = BASE_SPEED_INIT;
-    strategy_auto_position(MIRROR_X(strategy.color, 250), 450, MIRROR_A(strategy.color, -90), strategy.color);
+    strategy_auto_position(MIRROR_X(ctx->color, 250), 450, MIRROR_A(ctx->color, -90), ctx->color);
 
-    trajectory_a_abs(&robot.traj, MIRROR_A(strategy.color, 180));
+    trajectory_a_abs(&robot.traj, MIRROR_A(ctx->color, 180));
     trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
 
     robot.base_speed = BASE_SPEED_FAST;
@@ -213,7 +213,7 @@ void strategy_order_play_game(RobotState& state)
     }
 }
 
-void strategy_chaos_play_game(RobotState& state)
+void strategy_chaos_play_game(strategy_context_t* ctx, RobotState& state)
 {
     messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
@@ -233,12 +233,12 @@ void strategy_chaos_play_game(RobotState& state)
         &classify_red_pucks_goal,
     };
 
-    IndexArms index_arms(&strategy);
-    RetractArms retract_arms(&strategy);
-    TakePuck take_pucks[] = {{&strategy, 0}, {&strategy, 1}, {&strategy, 2}, {&strategy, 3}, {&strategy, 4}, {&strategy, 5}, {&strategy, 6}, {&strategy, 7}, {&strategy, 8}, {&strategy, 9}, {&strategy, 10}, {&strategy, 11}};
-    DepositPuck deposit_puck[] = {{&strategy, 0}, {&strategy, 1}, {&strategy, 2}, {&strategy, 3}, {&strategy, 4}};
-    LaunchAccelerator launch_accelerator(&strategy);
-    TakeGoldonium take_goldonium(&strategy);
+    IndexArms index_arms(ctx);
+    RetractArms retract_arms(ctx);
+    TakePuck take_pucks[] = {{ctx, 0}, {ctx, 1}, {ctx, 2}, {ctx, 3}, {ctx, 4}, {ctx, 5}, {ctx, 6}, {ctx, 7}, {ctx, 8}, {ctx, 9}, {ctx, 10}, {ctx, 11}};
+    DepositPuck deposit_puck[] = {{ctx, 0}, {ctx, 1}, {ctx, 2}, {ctx, 3}, {ctx, 4}};
+    LaunchAccelerator launch_accelerator(ctx);
+    TakeGoldonium take_goldonium(ctx);
 
     const int max_path_len = 10;
     goap::Action<RobotState>* path[max_path_len] = {nullptr};
@@ -271,9 +271,9 @@ void strategy_chaos_play_game(RobotState& state)
     NOTICE("Positioning robot");
 
     robot.base_speed = BASE_SPEED_INIT;
-    strategy_auto_position(MIRROR_X(strategy.color, 250), 450, MIRROR_A(strategy.color, -90), strategy.color);
+    strategy_auto_position(MIRROR_X(ctx->color, 250), 450, MIRROR_A(ctx->color, -90), ctx->color);
 
-    trajectory_a_abs(&robot.traj, MIRROR_A(strategy.color, 180));
+    trajectory_a_abs(&robot.traj, MIRROR_A(ctx->color, 180));
     trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
 
     robot.base_speed = BASE_SPEED_FAST;
@@ -342,10 +342,10 @@ void strategy_play_game(void* p)
 
     if (config_get_boolean("master/is_main_robot")) {
         NOTICE("First, Order...");
-        strategy_order_play_game(state);
+        strategy_order_play_game(&strategy, state);
     } else {
         NOTICE("Then, Chaos!");
-        strategy_chaos_play_game(state);
+        strategy_chaos_play_game(&strategy, state);
     }
 }
 
