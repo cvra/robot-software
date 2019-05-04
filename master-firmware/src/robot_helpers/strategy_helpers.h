@@ -1,10 +1,6 @@
 #ifndef STRATEGY_HELPERS_H
 #define STRATEGY_HELPERS_H
 
-#include <msgbus/messagebus.h>
-#include <aversive/blocking_detection_manager/blocking_detection_manager.h>
-#include <aversive/trajectory_manager/trajectory_manager.h>
-
 #include "base/base_controller.h"
 #include "math/lie_groups.h"
 #include "manipulator/scara_kinematics.h"
