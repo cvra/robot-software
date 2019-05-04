@@ -134,37 +134,6 @@ bool strategy_puck_is_picked(void)
         && motor_get_current("pump-2") > config_get_scalar("master/arms/right/gripper/current_thres");
 }
 
-struct DepositPuck : actions::DepositPuck {
-    enum strat_color_t m_color;
-
-    DepositPuck(enum strat_color_t color, size_t zone_id)
-        : actions::DepositPuck(zone_id)
-        , m_color(color)
-    {
-    }
-
-    bool execute(RobotState& state)
-    {
-        float x = MIRROR_X(m_color, areas[zone_id].pos_x_mm);
-        float y = areas[zone_id].pos_y_mm - MIRROR(m_color, 50);
-        float a = MIRROR_A(m_color, 0);
-
-        if (!strategy_goto_avoid(&strategy, x, y, a, TRAJ_FLAGS_ALL)) {
-            return false;
-        }
-        manipulator_gripper_set(RIGHT, GRIPPER_RELEASE);
-        strategy_wait_ms(100);
-
-        manipulator_gripper_set(RIGHT, GRIPPER_OFF);
-
-        pucks_in_area++;
-        state.has_puck = false;
-        state.classified_pucks[areas[zone_id].color]++;
-        state.arms_are_deployed = true;
-        return true;
-    }
-};
-
 struct LaunchAccelerator : actions::LaunchAccelerator {
     enum strat_color_t m_color;
 
@@ -345,7 +314,7 @@ void strategy_chaos_play_game(RobotState& state)
     IndexArms index_arms(&strategy);
     RetractArms retract_arms(&strategy);
     TakePuck take_pucks[] = {{&strategy, 0}, {&strategy, 1}, {&strategy, 2}, {&strategy, 3}, {&strategy, 4}, {&strategy, 5}, {&strategy, 6}, {&strategy, 7}, {&strategy, 8}, {&strategy, 9}, {&strategy, 10}, {&strategy, 11}};
-    DepositPuck deposit_puck[] = {{strategy.color, 0}, {strategy.color, 1}, {strategy.color, 2}, {strategy.color, 3}, {strategy.color, 4}};
+    DepositPuck deposit_puck[] = {{&strategy, 0}, {&strategy, 1}, {&strategy, 2}, {&strategy, 3}, {&strategy, 4}};
     LaunchAccelerator launch_accelerator(strategy.color);
     TakeGoldonium take_goldonium(strategy.color);
 

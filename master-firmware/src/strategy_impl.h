@@ -65,6 +65,15 @@ struct TakePuck : actions::TakePuck {
     }
     bool execute(RobotState& state);
 };
+struct DepositPuck : actions::DepositPuck {
+    strategy_context_t* strat;
+    DepositPuck(strategy_context_t* strat, size_t zone_id)
+        : actions::DepositPuck(zone_id)
+        , strat(strat)
+    {
+    }
+    bool execute(RobotState& state);
+};
 #endif
 
 #endif /* STRATEGY_IMPL_H */

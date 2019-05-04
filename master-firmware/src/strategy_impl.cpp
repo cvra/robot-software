@@ -232,3 +232,23 @@ bool TakePuck::execute(RobotState& state)
     state.has_puck_color = pucks[puck_id].color;
     return true;
 }
+bool DepositPuck::execute(RobotState& state)
+{
+    float x = MIRROR_X(strat->color, areas[zone_id].pos_x_mm);
+    float y = areas[zone_id].pos_y_mm - MIRROR(strat->color, 50);
+    float a = MIRROR_A(strat->color, 0);
+
+    if (!strategy_goto_avoid(strat, x, y, a, TRAJ_FLAGS_ALL)) {
+        return false;
+    }
+    strat->gripper_set(RIGHT, GRIPPER_RELEASE);
+    strat->wait_ms(100);
+
+    strat->gripper_set(RIGHT, GRIPPER_OFF);
+
+    pucks_in_area++;
+    state.has_puck = false;
+    state.classified_pucks[areas[zone_id].color]++;
+    state.arms_are_deployed = true;
+    return true;
+}
