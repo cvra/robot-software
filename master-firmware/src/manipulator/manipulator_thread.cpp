@@ -50,8 +50,13 @@ manipulator::Manipulator<ManipulatorLockGuard> left_arm{{"left-theta-1", "left-t
 
 void manipulator_angles(manipulator_side_t side, float* angles)
 {
-    auto measured = right_arm.angles();
-    std::copy_n(std::begin(measured), 3, angles);
+    if (USE_LEFT(side)) {
+        auto measured = left_arm.angles();
+        std::copy_n(std::begin(measured), 3, angles);
+    } else {
+        auto measured = right_arm.angles();
+        std::copy_n(std::begin(measured), 3, angles);
+    }
 }
 
 void manipulator_angles_set(manipulator_side_t side, float q1, float q2, float q3)
