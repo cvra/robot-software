@@ -74,6 +74,14 @@ struct DepositPuck : actions::DepositPuck {
     }
     bool execute(RobotState& state);
 };
+struct LaunchAccelerator : actions::LaunchAccelerator {
+    strategy_context_t* strat;
+    LaunchAccelerator(strategy_context_t* strat)
+        : strat(strat)
+    {
+    }
+    bool execute(RobotState& state);
+};
 #endif
 
 #endif /* STRATEGY_IMPL_H */

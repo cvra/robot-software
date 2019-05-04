@@ -232,6 +232,7 @@ bool TakePuck::execute(RobotState& state)
     state.has_puck_color = pucks[puck_id].color;
     return true;
 }
+
 bool DepositPuck::execute(RobotState& state)
 {
     float x = MIRROR_X(strat->color, areas[zone_id].pos_x_mm);
@@ -250,5 +251,28 @@ bool DepositPuck::execute(RobotState& state)
     state.has_puck = false;
     state.classified_pucks[areas[zone_id].color]++;
     state.arms_are_deployed = true;
+    return true;
+}
+
+bool LaunchAccelerator::execute(RobotState& state)
+{
+    float x = (strat->color == VIOLET) ? 1695 : 1405;
+
+    if (!strategy_goto_avoid(strat, x, 330, MIRROR_A(strat->color, 90), TRAJ_FLAGS_ALL)) {
+        return false;
+    }
+
+    state.arms_are_deployed = true;
+    strat->manipulator_goto(RIGHT, MANIPULATOR_DEPLOY_FULLY);
+    trajectory_d_rel(&strat->robot->traj, -30);
+
+    trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
+
+    trajectory_a_rel(&strat->robot->traj, MIRROR(strat->color, 20));
+    trajectory_wait_for_end(TRAJ_FLAGS_ROTATION);
+    trajectory_d_rel(&strat->robot->traj, 40);
+    trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
+
+    state.accelerator_is_done = true;
     return true;
 }
