@@ -136,8 +136,7 @@ void strategy_align_front_sensors(strategy_context_t* strat)
     float dx = left_range.distance - right_range.distance;
     float alpha = atan2f(dx, width);
 
-    trajectory_a_rel(&strat->robot->traj, DEGREES(-alpha));
-    trajectory_wait_for_end(TRAJ_FLAGS_ROTATION);
+    strat->rotate(strat, DEGREES(-alpha));
 }
 
 bool IndexArms::execute(RobotState& state)
@@ -202,7 +201,7 @@ bool TakePuck::execute(RobotState& state)
         a = MIRROR_A(strat->color, -90);
     }
 
-    if (!strategy_goto_avoid(strat, x, y, a, TRAJ_FLAGS_ALL)) {
+    if (!strat->goto_xya(strat, x, y, a)) {
         return false;
     }
 
@@ -239,7 +238,7 @@ bool DepositPuck::execute(RobotState& state)
     float y = areas[zone_id].pos_y_mm - MIRROR(strat->color, 50);
     float a = MIRROR_A(strat->color, 0);
 
-    if (!strategy_goto_avoid(strat, x, y, a, TRAJ_FLAGS_ALL)) {
+    if (!strat->goto_xya(strat, x, y, a)) {
         return false;
     }
     strat->gripper_set(RIGHT, GRIPPER_RELEASE);
@@ -258,20 +257,16 @@ bool LaunchAccelerator::execute(RobotState& state)
 {
     float x = (strat->color == VIOLET) ? 1695 : 1405;
 
-    if (!strategy_goto_avoid(strat, x, 330, MIRROR_A(strat->color, 90), TRAJ_FLAGS_ALL)) {
+    if (!strat->goto_xya(strat, x, 330, MIRROR_A(strat->color, 90))) {
         return false;
     }
 
     state.arms_are_deployed = true;
     strat->manipulator_goto(RIGHT, MANIPULATOR_DEPLOY_FULLY);
-    trajectory_d_rel(&strat->robot->traj, -30);
 
-    trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
-
-    trajectory_a_rel(&strat->robot->traj, MIRROR(strat->color, 20));
-    trajectory_wait_for_end(TRAJ_FLAGS_ROTATION);
-    trajectory_d_rel(&strat->robot->traj, 40);
-    trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
+    strat->forward(strat, -30);
+    strat->rotate(strat, MIRROR(strat->color, 20));
+    strat->forward(strat, 40);
 
     state.accelerator_is_done = true;
     return true;
@@ -281,25 +276,24 @@ bool TakeGoldonium::execute(RobotState& state)
 {
     float x = (strat->color == VIOLET) ? 2275 : 825;
 
-    if (!strategy_goto_avoid(strat, x, 400, MIRROR_A(strat->color, 90), TRAJ_FLAGS_ALL)) {
+    if (!strat->goto_xya(strat, x, 400, MIRROR_A(strat->color, 90))) {
         return false;
     }
 
     state.arms_are_deployed = true;
     strat->manipulator_goto(RIGHT, MANIPULATOR_PICK_GOLDONIUM);
 
-    if (!strategy_goto_avoid(strat, x, 330, MIRROR_A(strat->color, 90), TRAJ_FLAGS_ALL)) {
+    if (!strat->goto_xya(strat, x, 330, MIRROR_A(strat->color, 90))) {
         return false;
     }
 
     strat->gripper_set(RIGHT, GRIPPER_ACQUIRE);
-    trajectory_d_rel(&strat->robot->traj, -27);
+    strat->forward(strat, -27);
     strat->wait_ms(1500);
 
     if (!strat->puck_is_picked()) {
         strat->gripper_set(RIGHT, GRIPPER_OFF);
-        trajectory_d_rel(&strat->robot->traj, 80);
-        trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
+        strat->forward(strat, 80);
         return false;
     }
 
@@ -307,8 +301,7 @@ bool TakeGoldonium::execute(RobotState& state)
     strat->wait_ms(500);
     strat->gripper_set(RIGHT, GRIPPER_OFF);
 
-    trajectory_d_rel(&strat->robot->traj, 80);
-    trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
+    strat->forward(strat, 80);
 
     state.goldonium_in_house = false;
     state.has_goldonium = true;

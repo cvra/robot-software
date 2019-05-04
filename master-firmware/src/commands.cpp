@@ -20,7 +20,7 @@ extern "C" {
 #include "electron_starter.hpp"
 #include "uavcan_node.h"
 #include <stdio.h>
-#include "msgbus/messagebus.h"
+#include "msgbus_protobuf.h"
 #include "main.h"
 #include "base/rs_port.h"
 #include "base/encoder.h"
@@ -36,11 +36,14 @@ extern "C" {
 #include "robot_helpers/arm_helpers.h"
 #include "manipulator/manipulator_thread.h"
 #include "strategy.h"
+#include "strategy_simulated.h"
+#include "strategy/goals.h"
+#include "strategy/state.h"
 #include <trace/trace.h>
+#include <error/error.h>
 #include "pca9685_pwm.h"
 #include "protobuf/sensors.pb.h"
 #include "protobuf/encoders.pb.h"
-#include <error/error.h>
 
 extern ShellCommand commands[];
 
@@ -1221,6 +1224,76 @@ static void cmd_electron(BaseSequentialStream* chp, int argc, char* argv[])
     electron_starter_start();
 }
 
+static void cmd_goal(BaseSequentialStream* chp, int argc, char* argv[])
+{
+    static RobotState state = initial_state();
+    enum strat_color_t color = YELLOW;
+    strategy_simulated_init();
+    goap::Goal<RobotState>* goal = nullptr;
+    messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
+
+
+    AcceleratorGoal accelerator_goal;
+    TakeGoldoniumGoal take_goldenium_goal;
+
+    if (argc != 2) {
+        chprintf(chp, "Usage: goal y|v accelerator|goldenium\r\n");
+        return;
+    }
+
+    if (!strcmp(argv[0], "v")) {
+        color = VIOLET;
+    }
+
+    state.arms_are_indexed = true;
+    strategy_context_t* ctx = strategy_simulated_impl(color);
+    position_set(&ctx->robot->pos, MIRROR_X(color, 250), 450, MIRROR_A(ctx->color, -90));
+
+    RetractArms retract_arms(ctx);
+    TakePuck take_pucks[] = {{ctx, 0}, {ctx, 1}, {ctx, 2}, {ctx, 3}, {ctx, 4}, {ctx, 5}, {ctx, 6}, {ctx, 7}, {ctx, 8}, {ctx, 9}, {ctx, 10}, {ctx, 11}};
+    DepositPuck deposit_puck[] = {{ctx, 0}, {ctx, 1}, {ctx, 2}, {ctx, 3}, {ctx, 4}};
+    LaunchAccelerator launch_accelerator(ctx);
+    TakeGoldonium take_goldonium(ctx);
+
+    goap::Action<RobotState>* actions[] = {
+        &retract_arms,
+        &take_pucks[0],
+        &take_pucks[1],
+        &take_pucks[2],
+        &take_pucks[3],
+        &deposit_puck[0],
+        &deposit_puck[1],
+        &deposit_puck[2],
+        &launch_accelerator,
+        &take_goldonium,
+    };
+    const auto action_count = sizeof(actions) / sizeof(actions[0]);
+
+    if (!strcmp(argv[1], "accelerator")) {
+        goal = &accelerator_goal;
+    } else if (!strcmp(argv[1], "goldenium")) {
+        goal = &take_goldenium_goal;
+    } else {
+        chprintf(chp, "Unknown goal %s\r\n", argv[1]);
+        return;
+    }
+
+    const int max_path_len = 10;
+    goap::Action<RobotState>* path[max_path_len] = {nullptr};
+    static goap::Planner<RobotState, GOAP_SPACE_SIZE> planner;
+    int len = planner.plan(state, *goal, actions, action_count, path, max_path_len);
+    chprintf(chp, "Found a path of length %d to achieve the %s goal\r\n", len, argv[1]);
+    messagebus_topic_publish(state_topic, &state, sizeof(state));
+    for (int i = 0; i < len; i++) {
+        bool success = path[i]->execute(state);
+        messagebus_topic_publish(state_topic, &state, sizeof(state));
+        if (success == false) {
+            chprintf(chp, "Failed to execute action #%d\r\n", i);
+            break; // Break on failure
+        }
+    }
+}
+
 ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
@@ -1265,4 +1338,5 @@ ShellCommand commands[] = {
     {"arm", cmd_arm},
     {"grip", cmd_grip},
     {"electron", cmd_electron},
+    {"goal", cmd_goal},
     {NULL, NULL}};

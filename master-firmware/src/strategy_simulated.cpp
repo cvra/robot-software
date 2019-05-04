@@ -25,6 +25,37 @@ static bool simulated_puck_is_picked(void)
     return true;
 }
 
+static void simulated_rotate(void* ctx, int relative_angle_deg)
+{
+    strategy_context_t* strat = (strategy_context_t*)ctx;
+
+    int x = position_get_x_s16(&strat->robot->pos);
+    int y = position_get_y_s16(&strat->robot->pos);
+    int a = position_get_a_deg_s16(&strat->robot->pos);
+
+    position_set(&strat->robot->pos, x, y, a + relative_angle_deg);
+}
+
+static void simulated_forward(void* ctx, int relative_distance_mm)
+{
+    strategy_context_t* strat = (strategy_context_t*)ctx;
+
+    int x = position_get_x_s16(&strat->robot->pos);
+    int y = position_get_y_s16(&strat->robot->pos);
+    int a = position_get_a_deg_s16(&strat->robot->pos);
+
+    int dx = relative_distance_mm * cosf(a);
+    int dy = relative_distance_mm * sinf(a);
+    position_set(&strat->robot->pos, x + dx, y + dy, a);
+}
+
+static bool simulated_goto_xya(void* ctx, int x_mm, int y_mm, int a_deg)
+{
+    strategy_context_t* strat = (strategy_context_t*)ctx;
+    position_set(&strat->robot->pos, x_mm, y_mm, a_deg);
+    return true;
+}
+
 struct _robot robot_simulated;
 
 strategy_context_t strategy_simulated = {
@@ -33,6 +64,10 @@ strategy_context_t strategy_simulated = {
 
     simulated_wait_ms,
     simulated_wait_for_user_input,
+
+    simulated_forward,
+    simulated_rotate,
+    simulated_goto_xya,
 
     simulated_manipulator_goto,
     simulated_gripper_set,

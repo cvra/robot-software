@@ -44,11 +44,34 @@ static void strategy_wait_ms(int ms)
     chThdSleepMilliseconds(ms);
 }
 
+static void strategy_rotate(void* ctx, int relative_angle_deg)
+{
+    strategy_context_t* strat = (strategy_context_t*)ctx;
+    trajectory_a_rel(&strat->robot->traj, relative_angle_deg);
+    trajectory_wait_for_end(TRAJ_FLAGS_ROTATION);
+}
+
+static void strategy_forward(void* ctx, int relative_distance_mm)
+{
+    strategy_context_t* strat = (strategy_context_t*)ctx;
+    trajectory_d_rel(&strat->robot->traj, relative_distance_mm);
+    trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
+}
+
+static bool strategy_goto_xya(void* ctx, int x_mm, int y_mm, int a_deg)
+{
+    strategy_context_t* strat = (strategy_context_t*)ctx;
+    return strategy_goto_avoid(strat, x_mm, y_mm, a_deg, TRAJ_FLAGS_ALL);
+}
+
 static strategy_context_t strategy = {
     /*robot*/ &robot,
     /*color*/ YELLOW,
     /*wait_ms*/ strategy_wait_ms,
     /*wait_for_user_input*/ wait_for_user_input,
+    /*forward*/ strategy_forward,
+    /*rotate*/ strategy_rotate,
+    /*goto_xya*/ strategy_goto_xya,
     /*manipulator_goto*/ manipulator_goto,
     /*gripper_set*/ manipulator_gripper_set,
     /*puck_is_picked*/ strategy_puck_is_picked,
