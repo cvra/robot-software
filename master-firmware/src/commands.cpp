@@ -1,4 +1,10 @@
 #include <lwip/api.h>
+
+extern "C" {
+#include <aversive/robot_system/robot_system.h>
+#include <aversive/trajectory_manager/trajectory_manager_utils.h>
+}
+
 #include <ff.h>
 #include <lwip/netif.h>
 #include <hal.h>
@@ -20,7 +26,6 @@
 #include "base/encoder.h"
 #include "base/base_controller.h"
 #include "base/base_helpers.h"
-#include <aversive/trajectory_manager/trajectory_manager_utils.h>
 #include "robot_helpers/beacon_helpers.h"
 #include "protobuf/beacons.pb.h"
 #include <aversive/obstacle_avoidance/obstacle_avoidance.h>
@@ -35,8 +40,9 @@
 #include "pca9685_pwm.h"
 #include "protobuf/sensors.pb.h"
 #include "protobuf/encoders.pb.h"
+#include <error/error.h>
 
-const ShellCommand commands[];
+extern ShellCommand commands[];
 
 #if SHELL_USE_HISTORY == TRUE
 static char sc_histbuf[SHELL_MAX_HIST_BUFF];
@@ -118,7 +124,7 @@ static void cmd_crashme(BaseSequentialStream* chp, int argc, char** argv)
     (void)argc;
     (void)chp;
 
-    ERROR("You asked for it!, uptime=%d ms", TIME_I2MS(chVTGetSystemTime()));
+    // ERROR("You asked for it!, uptime=%d ms", TIME_I2MS(chVTGetSystemTime()));
 }
 
 static void cmd_reboot(BaseSequentialStream* chp, int argc, char** argv)
@@ -536,14 +542,6 @@ static void cmd_pid_tune(BaseSequentialStream* chp, int argc, char* argv[])
             /* q or CTRL-D was pressed */
             return;
         }
-        char* type = line;
-        if (!strcmp(type, "1")) {
-            type = "current";
-        } else if (!strcmp(type, "2")) {
-            type = "velocity";
-        } else if (!strcmp(type, "3")) {
-            type = "position";
-        }
         ns = parameter_namespace_find(&motors[index].config.control, line);
     } else {
         chprintf(chp, "tune %s\n", extra[index - len]);
@@ -572,22 +570,22 @@ static void cmd_pid_tune(BaseSequentialStream* chp, int argc, char* argv[])
         float val = strtof(p + 1, NULL);
 
         /* shortcut for kp ki kd */
-        char* name = line;
-        if (!strcmp(name, "i")) {
+        std::string name = line;
+        if (!strcmp(name.c_str(), "i")) {
             name = "ki";
-        } else if (!strcmp(name, "p")) {
+        } else if (!strcmp(name.c_str(), "p")) {
             name = "kp";
-        } else if (!strcmp(name, "d")) {
+        } else if (!strcmp(name.c_str(), "d")) {
             name = "kd";
         }
 
         parameter_t* param;
-        param = parameter_find(ns, name);
+        param = parameter_find(ns, name.c_str());
         if (param == NULL) {
             chprintf(chp, "parameter not found\n");
             continue;
         }
-        chprintf(chp, "%s = %f\n", name, val);
+        chprintf(chp, "%s = %f\n", name.c_str(), val);
         parameter_scalar_set(param, val);
     }
 }
@@ -802,7 +800,7 @@ static void cmd_motor_index_sym(BaseSequentialStream* chp, int argc, char* argv[
     int motor_dir = atoi(argv[1]);
     float motor_speed = atof(argv[2]);
 
-    motor_driver_t* motor = bus_enumerator_get_driver(motor_manager.bus_enumerator, argv[0]);
+    motor_driver_t* motor = (motor_driver_t*)bus_enumerator_get_driver(motor_manager.bus_enumerator, argv[0]);
     if (motor == NULL) {
         chprintf(chp, "Motor %s doesn't exist\r\n", argv[0]);
         return;
@@ -841,7 +839,7 @@ static void cmd_arm_index(BaseSequentialStream* chp, int argc, char* argv[])
 
         const char* motors[3] = {"left-theta-1", "left-theta-2", "left-theta-3"};
         const float directions[3] = {1, 1, -1};
-        const float speeds[3] = {atof(argv[1]), atof(argv[2]), atof(argv[3])};
+        const float speeds[3] = {(float)atof(argv[1]), (float)atof(argv[2]), (float)atof(argv[3])};
         float offsets[3];
 
         arm_motors_index(motors, LEFT_ARM_REFS, directions, speeds, offsets);
@@ -858,7 +856,7 @@ static void cmd_arm_index(BaseSequentialStream* chp, int argc, char* argv[])
 
         const char* motors[3] = {"theta-1", "theta-2", "theta-3"};
         const float directions[3] = {-1, -1, 1};
-        const float speeds[3] = {atof(argv[1]), atof(argv[2]), atof(argv[3])};
+        const float speeds[3] = {(float)atof(argv[1]), (float)atof(argv[2]), (float)atof(argv[3])};
         float offsets[3];
 
         arm_motors_index(motors, RIGHT_ARM_REFS, directions, speeds, offsets);
@@ -1223,7 +1221,7 @@ static void cmd_electron(BaseSequentialStream* chp, int argc, char* argv[])
     electron_starter_start();
 }
 
-const ShellCommand commands[] = {
+ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
     {"config_set", cmd_config_set},

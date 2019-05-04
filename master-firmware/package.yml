@@ -27,7 +27,7 @@ target.arm:
     - src/debug/blocking_uart.c
     - src/lwip_bindings/lwipthread.c
     - src/lwip_bindings/arch/sys_arch.c
-    - src/commands.c
+    - src/commands.cpp
     - src/config.c
     - src/can/uavcan_node.cpp
     - src/can/motor_driver.c
@@ -91,7 +91,6 @@ include_directories:
     - src/
     - src/lwip_bindings
     - src/adafruit_display_driver/
-    - src/aversive/
     - src/board/
     - src/debug/
     - src/can/
