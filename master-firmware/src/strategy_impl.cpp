@@ -276,3 +276,41 @@ bool LaunchAccelerator::execute(RobotState& state)
     state.accelerator_is_done = true;
     return true;
 }
+
+bool TakeGoldonium::execute(RobotState& state)
+{
+    float x = (strat->color == VIOLET) ? 2275 : 825;
+
+    if (!strategy_goto_avoid(strat, x, 400, MIRROR_A(strat->color, 90), TRAJ_FLAGS_ALL)) {
+        return false;
+    }
+
+    state.arms_are_deployed = true;
+    strat->manipulator_goto(RIGHT, MANIPULATOR_PICK_GOLDONIUM);
+
+    if (!strategy_goto_avoid(strat, x, 330, MIRROR_A(strat->color, 90), TRAJ_FLAGS_ALL)) {
+        return false;
+    }
+
+    strat->gripper_set(RIGHT, GRIPPER_ACQUIRE);
+    trajectory_d_rel(&strat->robot->traj, -27);
+    strat->wait_ms(1500);
+
+    if (!strat->puck_is_picked()) {
+        strat->gripper_set(RIGHT, GRIPPER_OFF);
+        trajectory_d_rel(&strat->robot->traj, 80);
+        trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
+        return false;
+    }
+
+    strat->manipulator_goto(RIGHT, MANIPULATOR_LIFT_GOLDONIUM);
+    strat->wait_ms(500);
+    strat->gripper_set(RIGHT, GRIPPER_OFF);
+
+    trajectory_d_rel(&strat->robot->traj, 80);
+    trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
+
+    state.goldonium_in_house = false;
+    state.has_goldonium = true;
+    return true;
+}

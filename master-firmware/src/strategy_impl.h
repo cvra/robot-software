@@ -82,6 +82,14 @@ struct LaunchAccelerator : actions::LaunchAccelerator {
     }
     bool execute(RobotState& state);
 };
+struct TakeGoldonium : actions::TakeGoldonium {
+    strategy_context_t* strat;
+    TakeGoldonium(strategy_context_t* strat)
+        : strat(strat)
+    {
+    }
+    bool execute(RobotState& state);
+};
 #endif
 
 #endif /* STRATEGY_IMPL_H */

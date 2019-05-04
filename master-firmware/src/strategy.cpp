@@ -134,53 +134,6 @@ bool strategy_puck_is_picked(void)
         && motor_get_current("pump-2") > config_get_scalar("master/arms/right/gripper/current_thres");
 }
 
-struct TakeGoldonium : actions::TakeGoldonium {
-    enum strat_color_t m_color;
-
-    TakeGoldonium(enum strat_color_t color)
-        : m_color(color)
-    {
-    }
-
-    bool execute(RobotState& state)
-    {
-        float x = (m_color == VIOLET) ? 2275 : 825;
-
-        if (!strategy_goto_avoid(&strategy, x, 400, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
-            return false;
-        }
-
-        state.arms_are_deployed = true;
-        manipulator_goto(RIGHT, MANIPULATOR_PICK_GOLDONIUM);
-
-        if (!strategy_goto_avoid(&strategy, x, 330, MIRROR_A(m_color, 90), TRAJ_FLAGS_ALL)) {
-            return false;
-        }
-
-        manipulator_gripper_set(RIGHT, GRIPPER_ACQUIRE);
-        trajectory_d_rel(&robot.traj, -27);
-        strategy_wait_ms(1500);
-
-        if (!strategy_puck_is_picked()) {
-            manipulator_gripper_set(RIGHT, GRIPPER_OFF);
-            trajectory_d_rel(&robot.traj, 80);
-            trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
-            return false;
-        }
-
-        manipulator_goto(RIGHT, MANIPULATOR_LIFT_GOLDONIUM);
-        strategy_wait_ms(500);
-        manipulator_gripper_set(RIGHT, GRIPPER_OFF);
-
-        trajectory_d_rel(&robot.traj, 80);
-        trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
-
-        state.goldonium_in_house = false;
-        state.has_goldonium = true;
-        return true;
-    }
-};
-
 void strategy_shutdown_endgame(void)
 {
     manipulator_gripper_set(BOTH, GRIPPER_OFF);
@@ -285,7 +238,7 @@ void strategy_chaos_play_game(RobotState& state)
     TakePuck take_pucks[] = {{&strategy, 0}, {&strategy, 1}, {&strategy, 2}, {&strategy, 3}, {&strategy, 4}, {&strategy, 5}, {&strategy, 6}, {&strategy, 7}, {&strategy, 8}, {&strategy, 9}, {&strategy, 10}, {&strategy, 11}};
     DepositPuck deposit_puck[] = {{&strategy, 0}, {&strategy, 1}, {&strategy, 2}, {&strategy, 3}, {&strategy, 4}};
     LaunchAccelerator launch_accelerator(&strategy);
-    TakeGoldonium take_goldonium(strategy.color);
+    TakeGoldonium take_goldonium(&strategy);
 
     const int max_path_len = 10;
     goap::Action<RobotState>* path[max_path_len] = {nullptr};
