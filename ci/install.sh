@@ -29,8 +29,8 @@ popd
 
 if [ "$BUILD_TYPE" == "build" ]
 then
-    wget https://launchpad.net/gcc-arm-embedded/4.9/4.9-2014-q4-major/+download/gcc-arm-none-eabi-4_9-2014q4-20141203-linux.tar.bz2
-    tar -xf gcc-arm-none-eabi-4_9-2014q4-20141203-linux.tar.bz2
+    wget https://developer.arm.com/-/media/Files/downloads/gnu-rm/8-2018q4/gcc-arm-none-eabi-8-2018-q4-major-linux.tar.bz2 -O arm-gcc-linux.tar.bz2
+    tar -xf arm-gcc-linux.tar.bz2
 fi
 
 if [ "$BUILD_TYPE" == "tests" ]
