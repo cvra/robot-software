@@ -8,6 +8,7 @@ extern "C" {
 typedef struct {
     struct _robot* robot;
     void (*wait_ms)(int);
+    void (*wait_for_user_input)(void);
 } strategy_impl_t;
 
 /** Stop moving */
@@ -26,6 +27,18 @@ void strategy_align_front_sensors(strategy_impl_t* strat);
 
 #ifdef __cplusplus
 }
+
+#include "strategy/actions.h"
+#include "strategy/state.h"
+
+struct IndexArms : actions::IndexArms {
+    strategy_impl_t* strat;
+    IndexArms(strategy_impl_t* strat)
+        : strat(strat)
+    {
+    }
+    bool execute(RobotState& state);
+};
 #endif
 
 #endif /* STRATEGY_IMPL_H */

@@ -27,13 +27,18 @@
 #include "main.h"
 
 #include "strategy.h"
-#include "strategy/actions.h"
 #include "strategy/goals.h"
-#include "strategy/state.h"
 #include "strategy/score_counter.h"
 #include "strategy_impl.h"
 
 static goap::Planner<RobotState, GOAP_SPACE_SIZE> planner;
+
+static enum strat_color_t wait_for_color_selection(void);
+static void wait_for_autoposition_signal(void);
+static void wait_for_starter(void);
+static void wait_for_user_input(void);
+
+void strategy_play_game(void);
 
 static void strategy_wait_ms(int ms)
 {
@@ -43,17 +48,17 @@ static void strategy_wait_ms(int ms)
 static strategy_impl_t strategy = {
     /*robot*/ &robot,
     /*wait_ms*/ strategy_wait_ms,
+    /*wait_for_user_input*/ wait_for_user_input,
 };
-
-static enum strat_color_t wait_for_color_selection(void);
-static void wait_for_autoposition_signal(void);
-static void wait_for_starter(void);
-
-void strategy_play_game(void);
 
 strategy_impl_t* strategy_impl(void)
 {
     return &strategy;
+}
+
+static void wait_for_user_input(void)
+{
+    wait_for_color_selection();
 }
 
 static enum strat_color_t wait_for_color_selection(void)
@@ -125,45 +130,6 @@ bool strategy_puck_is_picked(void)
     return motor_get_current("pump-1") > config_get_scalar("master/arms/right/gripper/current_thres")
         && motor_get_current("pump-2") > config_get_scalar("master/arms/right/gripper/current_thres");
 }
-
-struct IndexArms : actions::IndexArms {
-    bool execute(RobotState& state)
-    {
-        NOTICE("Indexing arms!");
-
-        // set index when user presses color button, so indexing is done manually
-        float offsets[3];
-
-        offsets[0] = motor_get_position("theta-1");
-        offsets[1] = motor_get_position("theta-2");
-        offsets[2] = motor_get_position("theta-3");
-        float right_directions[3] = {-1, -1, 1};
-        arm_compute_offsets(RIGHT_ARM_REFS, right_directions, offsets);
-
-        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q1"), offsets[0]);
-        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q2"), offsets[1]);
-        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q3"), offsets[2]);
-
-        strategy_wait_ms(500);
-        wait_for_color_selection();
-
-        offsets[0] = motor_get_position("left-theta-1");
-        offsets[1] = motor_get_position("left-theta-2");
-        offsets[2] = motor_get_position("left-theta-3");
-        float left_directions[3] = {1, 1, -1};
-        arm_compute_offsets(LEFT_ARM_REFS, left_directions, offsets);
-
-        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q1"), offsets[0]);
-        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q2"), offsets[1]);
-        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q3"), offsets[2]);
-
-        strategy_wait_ms(500);
-        wait_for_color_selection();
-
-        state.arms_are_indexed = true;
-        return true;
-    }
-};
 
 struct RetractArms : actions::RetractArms {
     enum strat_color_t m_color;
@@ -361,7 +327,7 @@ void strategy_order_play_game(enum strat_color_t color, RobotState& state)
     InitGoal init_goal;
     goap::Goal<RobotState>* goals[] = {};
 
-    IndexArms index_arms;
+    IndexArms index_arms(&strategy);
     RetractArms retract_arms(color);
 
     const int max_path_len = 10;
@@ -448,10 +414,9 @@ void strategy_chaos_play_game(enum strat_color_t color, RobotState& state)
         &classify_red_pucks_goal,
     };
 
-    IndexArms index_arms;
+    IndexArms index_arms(&strategy);
     RetractArms retract_arms(color);
-    TakePuck take_pucks[] = {{color, 0}, {color, 1}, {color, 2}, {color, 3}, {color, 4}, {color, 5},
-                             {color, 6}, {color, 7}, {color, 8}, {color, 9}, {color, 10}, {color, 11}};
+    TakePuck take_pucks[] = {{color, 0}, {color, 1}, {color, 2}, {color, 3}, {color, 4}, {color, 5}, {color, 6}, {color, 7}, {color, 8}, {color, 9}, {color, 10}, {color, 11}};
     DepositPuck deposit_puck[] = {{color, 0}, {color, 1}, {color, 2}, {color, 3}, {color, 4}};
     LaunchAccelerator launch_accelerator(color);
     TakeGoldonium take_goldonium(color);

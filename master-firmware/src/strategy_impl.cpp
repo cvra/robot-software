@@ -9,13 +9,16 @@
 #include "robot_helpers/trajectory_helpers.h"
 #include "robot_helpers/beacon_helpers.h"
 #include "robot_helpers/strategy_helpers.h"
+#include "robot_helpers/motor_helpers.h"
+#include "robot_helpers/arm_helpers.h"
 
 #include "control_panel.h"
 #include "base/map_server.h"
 #include "protobuf/sensors.pb.h"
+#include "config.h"
+#include "main.h"
 
 #include "strategy_impl.h"
-#include "main.h"
 
 void strategy_stop_robot(strategy_impl_t* strat)
 {
@@ -135,4 +138,41 @@ void strategy_align_front_sensors(strategy_impl_t* strat)
 
     trajectory_a_rel(&strat->robot->traj, DEGREES(-alpha));
     trajectory_wait_for_end(TRAJ_FLAGS_ROTATION);
+}
+
+bool IndexArms::execute(RobotState& state)
+{
+    NOTICE("Indexing arms!");
+
+    // set index when user presses color button, so indexing is done manually
+    float offsets[3];
+
+    offsets[0] = motor_get_position("theta-1");
+    offsets[1] = motor_get_position("theta-2");
+    offsets[2] = motor_get_position("theta-3");
+    float right_directions[3] = {-1, -1, 1};
+    arm_compute_offsets(RIGHT_ARM_REFS, right_directions, offsets);
+
+    parameter_scalar_set(PARAMETER("master/arms/right/offsets/q1"), offsets[0]);
+    parameter_scalar_set(PARAMETER("master/arms/right/offsets/q2"), offsets[1]);
+    parameter_scalar_set(PARAMETER("master/arms/right/offsets/q3"), offsets[2]);
+
+    strat->wait_ms(500);
+    strat->wait_for_user_input();
+
+    offsets[0] = motor_get_position("left-theta-1");
+    offsets[1] = motor_get_position("left-theta-2");
+    offsets[2] = motor_get_position("left-theta-3");
+    float left_directions[3] = {1, 1, -1};
+    arm_compute_offsets(LEFT_ARM_REFS, left_directions, offsets);
+
+    parameter_scalar_set(PARAMETER("master/arms/left/offsets/q1"), offsets[0]);
+    parameter_scalar_set(PARAMETER("master/arms/left/offsets/q2"), offsets[1]);
+    parameter_scalar_set(PARAMETER("master/arms/left/offsets/q3"), offsets[2]);
+
+    strat->wait_ms(500);
+    strat->wait_for_user_input();
+
+    state.arms_are_indexed = true;
+    return true;
 }
