@@ -1232,7 +1232,6 @@ static void cmd_goal(BaseSequentialStream* chp, int argc, char* argv[])
     goap::Goal<RobotState>* goal = nullptr;
     messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
-
     AcceleratorGoal accelerator_goal;
     TakeGoldoniumGoal take_goldenium_goal;
 
@@ -1247,7 +1246,7 @@ static void cmd_goal(BaseSequentialStream* chp, int argc, char* argv[])
 
     state.arms_are_indexed = true;
     strategy_context_t* ctx = strategy_simulated_impl(color);
-    position_set(&ctx->robot->pos, MIRROR_X(color, 250), 450, MIRROR_A(ctx->color, -90));
+    ctx->goto_xya(ctx, MIRROR_X(color, 250), 450, MIRROR_A(ctx->color, -90));
 
     RetractArms retract_arms(ctx);
     TakePuck take_pucks[] = {{ctx, 0}, {ctx, 1}, {ctx, 2}, {ctx, 3}, {ctx, 4}, {ctx, 5}, {ctx, 6}, {ctx, 7}, {ctx, 8}, {ctx, 9}, {ctx, 10}, {ctx, 11}};

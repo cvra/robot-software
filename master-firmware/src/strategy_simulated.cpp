@@ -1,6 +1,8 @@
 #include "strategy_simulated.h"
 
 #include "base/base_controller.h"
+#include "main.h"
+#include "protobuf/position.pb.h"
 
 static void simulated_wait_ms(int ms)
 {
@@ -53,6 +55,16 @@ static bool simulated_goto_xya(void* ctx, int x_mm, int y_mm, int a_deg)
 {
     strategy_context_t* strat = (strategy_context_t*)ctx;
     position_set(&strat->robot->pos, x_mm, y_mm, a_deg);
+
+    messagebus_topic_t* position_topic = messagebus_find_topic_blocking(&bus, "/simulated/position");
+    RobotPosition pos = RobotPosition_init_zero;
+    pos.x = x_mm;
+    pos.y = y_mm;
+    pos.a = a_deg;
+    messagebus_topic_publish(position_topic, &pos, sizeof(pos));
+
+    chThdSleepMilliseconds(500);
+
     return true;
 }
 
@@ -109,4 +121,7 @@ void strategy_simulated_init(void)
 
     int arbitrary_max_speed = 10;
     trajectory_set_speed(&robot_simulated.traj, arbitrary_max_speed, arbitrary_max_speed);
+
+    static TOPIC_DECL(state_topic, RobotPosition);
+    messagebus_advertise_topic(&bus, &state_topic.topic, "/simulated/position");
 }
