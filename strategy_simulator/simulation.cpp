@@ -58,11 +58,11 @@ static void simulated_forward(void* ctx, int relative_distance_mm)
 
     int x = position_get_x_s16(&strat->robot->pos);
     int y = position_get_y_s16(&strat->robot->pos);
-    int a = position_get_a_deg_s16(&strat->robot->pos);
+    float a_rad = position_get_a_rad_float(&strat->robot->pos);
 
-    int dx = relative_distance_mm * cosf(a);
-    int dy = relative_distance_mm * sinf(a);
-    position_set(&strat->robot->pos, x + dx, y + dy, a);
+    int dx = relative_distance_mm * cosf(a_rad);
+    int dy = relative_distance_mm * sinf(a_rad);
+    position_set(&strat->robot->pos, x + dx, y + dy, position_get_a_deg_s16(&strat->robot->pos));
 
     std::string pos_str = "["
         + std::to_string(position_get_x_s16(&strat->robot->pos)) + ", "
