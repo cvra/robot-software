@@ -22,6 +22,8 @@ typedef struct {
     bool (*manipulator_goto)(manipulator_side_t side, manipulator_state_t target);
     void (*gripper_set)(manipulator_side_t side, gripper_state_t state);
     bool (*puck_is_picked)(void);
+
+    float (*motor_position)(const char*);
 } strategy_context_t;
 
 /** Stop moving */

@@ -9,7 +9,6 @@
 #include "robot_helpers/trajectory_helpers.h"
 #include "robot_helpers/beacon_helpers.h"
 #include "robot_helpers/strategy_helpers.h"
-#include "robot_helpers/motor_helpers.h"
 #include "robot_helpers/arm_helpers.h"
 
 #include "control_panel.h"
@@ -146,9 +145,9 @@ bool IndexArms::execute(RobotState& state)
     // set index when user presses color button, so indexing is done manually
     float offsets[3];
 
-    offsets[0] = motor_get_position("theta-1");
-    offsets[1] = motor_get_position("theta-2");
-    offsets[2] = motor_get_position("theta-3");
+    offsets[0] = strat->motor_position("theta-1");
+    offsets[1] = strat->motor_position("theta-2");
+    offsets[2] = strat->motor_position("theta-3");
     float right_directions[3] = {-1, -1, 1};
     arm_compute_offsets(RIGHT_ARM_REFS, right_directions, offsets);
 
@@ -159,9 +158,9 @@ bool IndexArms::execute(RobotState& state)
     strat->wait_ms(500);
     strat->wait_for_user_input();
 
-    offsets[0] = motor_get_position("left-theta-1");
-    offsets[1] = motor_get_position("left-theta-2");
-    offsets[2] = motor_get_position("left-theta-3");
+    offsets[0] = strat->motor_position("left-theta-1");
+    offsets[1] = strat->motor_position("left-theta-2");
+    offsets[2] = strat->motor_position("left-theta-3");
     float left_directions[3] = {1, 1, -1};
     arm_compute_offsets(LEFT_ARM_REFS, left_directions, offsets);
 
