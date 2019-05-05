@@ -1,4 +1,10 @@
 #include <lwip/api.h>
+
+extern "C" {
+#include <aversive/robot_system/robot_system.h>
+#include <aversive/trajectory_manager/trajectory_manager_utils.h>
+}
+
 #include <ff.h>
 #include <lwip/netif.h>
 #include <hal.h>
@@ -14,13 +20,12 @@
 #include "electron_starter.hpp"
 #include "uavcan_node.h"
 #include <stdio.h>
-#include "msgbus/messagebus.h"
+#include "msgbus_protobuf.h"
 #include "main.h"
 #include "base/rs_port.h"
 #include "base/encoder.h"
 #include "base/base_controller.h"
 #include "base/base_helpers.h"
-#include <aversive/trajectory_manager/trajectory_manager_utils.h>
 #include "robot_helpers/beacon_helpers.h"
 #include "protobuf/beacons.pb.h"
 #include <aversive/obstacle_avoidance/obstacle_avoidance.h>
@@ -31,12 +36,19 @@
 #include "robot_helpers/arm_helpers.h"
 #include "manipulator/manipulator_thread.h"
 #include "strategy.h"
+#include "strategy/goals.h"
+#include "strategy/state.h"
+#include "strategy_impl/base.h"
+#include "strategy_impl/actions.h"
+#include "strategy_impl/simulation.h"
 #include <trace/trace.h>
+#include <error/error.h>
 #include "pca9685_pwm.h"
 #include "protobuf/sensors.pb.h"
 #include "protobuf/encoders.pb.h"
+#include "usbconf.h"
 
-const ShellCommand commands[];
+extern ShellCommand commands[];
 
 #if SHELL_USE_HISTORY == TRUE
 static char sc_histbuf[SHELL_MAX_HIST_BUFF];
@@ -118,7 +130,7 @@ static void cmd_crashme(BaseSequentialStream* chp, int argc, char** argv)
     (void)argc;
     (void)chp;
 
-    ERROR("You asked for it!, uptime=%d ms", TIME_I2MS(chVTGetSystemTime()));
+    // ERROR("You asked for it!, uptime=%d ms", TIME_I2MS(chVTGetSystemTime()));
 }
 
 static void cmd_reboot(BaseSequentialStream* chp, int argc, char** argv)
@@ -449,7 +461,7 @@ static void cmd_goto_avoid(BaseSequentialStream* chp, int argc, char* argv[])
         int32_t y = atoi(argv[1]);
         int32_t a = atoi(argv[2]);
 
-        strategy_goto_avoid(x, y, a, TRAJ_END_GOAL_REACHED | TRAJ_END_COLLISION | TRAJ_END_OPPONENT_NEAR);
+        strategy_goto_avoid(strategy_impl(), x, y, a, TRAJ_END_GOAL_REACHED | TRAJ_END_COLLISION | TRAJ_END_OPPONENT_NEAR);
     } else {
         chprintf(chp, "Usage: goto_avoid x y a\r\n");
     }
@@ -536,14 +548,6 @@ static void cmd_pid_tune(BaseSequentialStream* chp, int argc, char* argv[])
             /* q or CTRL-D was pressed */
             return;
         }
-        char* type = line;
-        if (!strcmp(type, "1")) {
-            type = "current";
-        } else if (!strcmp(type, "2")) {
-            type = "velocity";
-        } else if (!strcmp(type, "3")) {
-            type = "position";
-        }
         ns = parameter_namespace_find(&motors[index].config.control, line);
     } else {
         chprintf(chp, "tune %s\n", extra[index - len]);
@@ -572,22 +576,22 @@ static void cmd_pid_tune(BaseSequentialStream* chp, int argc, char* argv[])
         float val = strtof(p + 1, NULL);
 
         /* shortcut for kp ki kd */
-        char* name = line;
-        if (!strcmp(name, "i")) {
+        std::string name = line;
+        if (!strcmp(name.c_str(), "i")) {
             name = "ki";
-        } else if (!strcmp(name, "p")) {
+        } else if (!strcmp(name.c_str(), "p")) {
             name = "kp";
-        } else if (!strcmp(name, "d")) {
+        } else if (!strcmp(name.c_str(), "d")) {
             name = "kd";
         }
 
         parameter_t* param;
-        param = parameter_find(ns, name);
+        param = parameter_find(ns, name.c_str());
         if (param == NULL) {
             chprintf(chp, "parameter not found\n");
             continue;
         }
-        chprintf(chp, "%s = %f\n", name, val);
+        chprintf(chp, "%s = %f\n", name.c_str(), val);
         parameter_scalar_set(param, val);
     }
 }
@@ -802,7 +806,7 @@ static void cmd_motor_index_sym(BaseSequentialStream* chp, int argc, char* argv[
     int motor_dir = atoi(argv[1]);
     float motor_speed = atof(argv[2]);
 
-    motor_driver_t* motor = bus_enumerator_get_driver(motor_manager.bus_enumerator, argv[0]);
+    motor_driver_t* motor = (motor_driver_t*)bus_enumerator_get_driver(motor_manager.bus_enumerator, argv[0]);
     if (motor == NULL) {
         chprintf(chp, "Motor %s doesn't exist\r\n", argv[0]);
         return;
@@ -841,7 +845,7 @@ static void cmd_arm_index(BaseSequentialStream* chp, int argc, char* argv[])
 
         const char* motors[3] = {"left-theta-1", "left-theta-2", "left-theta-3"};
         const float directions[3] = {1, 1, -1};
-        const float speeds[3] = {atof(argv[1]), atof(argv[2]), atof(argv[3])};
+        const float speeds[3] = {(float)atof(argv[1]), (float)atof(argv[2]), (float)atof(argv[3])};
         float offsets[3];
 
         arm_motors_index(motors, LEFT_ARM_REFS, directions, speeds, offsets);
@@ -858,7 +862,7 @@ static void cmd_arm_index(BaseSequentialStream* chp, int argc, char* argv[])
 
         const char* motors[3] = {"theta-1", "theta-2", "theta-3"};
         const float directions[3] = {-1, -1, 1};
-        const float speeds[3] = {atof(argv[1]), atof(argv[2]), atof(argv[3])};
+        const float speeds[3] = {(float)atof(argv[1]), (float)atof(argv[2]), (float)atof(argv[3])};
         float offsets[3];
 
         arm_motors_index(motors, RIGHT_ARM_REFS, directions, speeds, offsets);
@@ -881,47 +885,25 @@ static void cmd_arm_index_manual(BaseSequentialStream* chp, int argc, char* argv
     }
 
     if (strcmp("left", argv[0]) == 0) {
-        const float directions[3] = {1, 1, -1};
-        float offsets[3];
-
         parameter_scalar_set(PARAMETER("master/arms/left/offsets/q1"), 0);
         parameter_scalar_set(PARAMETER("master/arms/left/offsets/q2"), 0);
         parameter_scalar_set(PARAMETER("master/arms/left/offsets/q3"), 0);
         chThdSleepMilliseconds(100);
+        arm_manual_index(LEFT);
 
-        offsets[0] = motor_get_position("left-theta-1");
-        offsets[1] = motor_get_position("left-theta-2");
-        offsets[2] = motor_get_position("left-theta-3");
-        arm_compute_offsets(RIGHT_ARM_REFS, directions, offsets);
-
-        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q1"), offsets[0]);
-        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q2"), offsets[1]);
-        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q3"), offsets[2]);
-
-        chprintf(chp, "Index of left theta-1 at %.4f\r\n", offsets[0]);
-        chprintf(chp, "Index of left theta-2 at %.4f\r\n", offsets[1]);
-        chprintf(chp, "Index of left theta-3 at %.4f\r\n", offsets[2]);
+        chprintf(chp, "Index of left theta-1 at %.4f\r\n", config_get_scalar("master/arms/left/offsets/q1"));
+        chprintf(chp, "Index of left theta-2 at %.4f\r\n", config_get_scalar("master/arms/left/offsets/q2"));
+        chprintf(chp, "Index of left theta-3 at %.4f\r\n", config_get_scalar("master/arms/left/offsets/q3"));
     } else {
-        const float directions[3] = {-1, -1, 1};
-        float offsets[3];
-
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q1"), 0);
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q2"), 0);
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q3"), 0);
         chThdSleepMilliseconds(100);
+        arm_manual_index(RIGHT);
 
-        offsets[0] = motor_get_position("theta-1");
-        offsets[1] = motor_get_position("theta-2");
-        offsets[2] = motor_get_position("theta-3");
-        arm_compute_offsets(RIGHT_ARM_REFS, directions, offsets);
-
-        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q1"), offsets[0]);
-        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q2"), offsets[1]);
-        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q3"), offsets[2]);
-
-        chprintf(chp, "Index of right theta-1 at %.4f\r\n", offsets[0]);
-        chprintf(chp, "Index of right theta-2 at %.4f\r\n", offsets[1]);
-        chprintf(chp, "Index of right theta-3 at %.4f\r\n", offsets[2]);
+        chprintf(chp, "Index of right theta-1 at %.4f\r\n", config_get_scalar("master/arms/right/offsets/q1"));
+        chprintf(chp, "Index of right theta-2 at %.4f\r\n", config_get_scalar("master/arms/right/offsets/q2"));
+        chprintf(chp, "Index of right theta-3 at %.4f\r\n", config_get_scalar("master/arms/right/offsets/q3"));
     }
 }
 
@@ -1223,7 +1205,125 @@ static void cmd_electron(BaseSequentialStream* chp, int argc, char* argv[])
     electron_starter_start();
 }
 
-const ShellCommand commands[] = {
+static void simulation_logger(const char* msg)
+{
+    chprintf((BaseSequentialStream*)&SDU1, "%s\r\n", msg);
+}
+
+static void cmd_goal(BaseSequentialStream* chp, int argc, char* argv[])
+{
+    static char line[20];
+    RobotState state = initial_state();
+    enum strat_color_t color = YELLOW;
+    strategy_simulated_init();
+    messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
+
+    AcceleratorGoal accelerator_goal;
+    TakeGoldoniumGoal take_goldenium_goal;
+    ClassifyBluePucksGoal classify_blue_goal;
+
+    goap::Goal<RobotState>* goals[] = {
+        &accelerator_goal,
+        &take_goldenium_goal,
+        &classify_blue_goal,
+    };
+    const char* goal_names[] = {
+        "accelerator",
+        "goldenium",
+        "blue",
+    };
+    const size_t goal_count = sizeof(goals) / sizeof(goap::Goal<RobotState>*);
+
+    if (argc != 1) {
+        chprintf(chp, "Usage: goal y|v\r\n");
+        return;
+    }
+
+    if (!strcmp(argv[0], "v")) {
+        chprintf(chp, "Playing in violet\r\n");
+        color = VIOLET;
+    } else {
+        chprintf(chp, "Playing in yellow\r\n");
+    }
+
+    state.arms_are_indexed = true;
+    strategy_context_t* ctx = strategy_simulated_impl(color);
+    ctx->goto_xya(ctx, MIRROR_X(color, 250), 450, MIRROR_A(ctx->color, -90));
+    ctx->log = simulation_logger;
+
+    RetractArms retract_arms(ctx);
+    TakePuck take_pucks[] = {{ctx, 0}, {ctx, 1}, {ctx, 2}, {ctx, 3}, {ctx, 4}, {ctx, 5}, {ctx, 6}, {ctx, 7}, {ctx, 8}, {ctx, 9}, {ctx, 10}, {ctx, 11}};
+    DepositPuck deposit_puck[] = {{ctx, 0}, {ctx, 1}, {ctx, 2}, {ctx, 3}, {ctx, 4}};
+    LaunchAccelerator launch_accelerator(ctx);
+    TakeGoldonium take_goldonium(ctx);
+
+    goap::Action<RobotState>* actions[] = {
+        &retract_arms,
+        &take_pucks[0],
+        &take_pucks[1],
+        &take_pucks[2],
+        &take_pucks[3],
+        &deposit_puck[0],
+        &deposit_puck[1],
+        &deposit_puck[2],
+        &launch_accelerator,
+        &take_goldonium,
+    };
+    const auto action_count = sizeof(actions) / sizeof(actions[0]);
+
+    while (true) {
+        // CTRL-D was pressed -> exit
+        if (shellGetLine(&shell_cfg, line, sizeof(line), NULL) || line[0] == 'q') {
+            chprintf(chp, "Exiting...\r\n");
+            return;
+        }
+
+        if (!strcmp(line, "help")) {
+            chprintf(chp, "Welcome to the help menu, here are the commands available:\r\n");
+            chprintf(chp, "- reset\r\n");
+            for (size_t i = 0; i < goal_count; i++) {
+                chprintf(chp, "- %s\r\n", goal_names[i]);
+            }
+            continue;
+        }
+
+        if (!strcmp(line, "reset")) {
+            state = initial_state();
+            state.arms_are_indexed = true;
+            ctx->goto_xya(ctx, MIRROR_X(color, 250), 450, MIRROR_A(ctx->color, -90));
+            chprintf(chp, "Reset to factory settings: done\r\n");
+            continue;
+        }
+
+        goap::Goal<RobotState>* goal = nullptr;
+        for (size_t i = 0; i < goal_count; i++) {
+            if (!strcmp(line, goal_names[i])) {
+                goal = goals[i];
+            }
+        }
+        if (goal == nullptr) {
+            chprintf(chp, "Unknown goal %s\r\n", line);
+            continue;
+        }
+
+        const int max_path_len = 10;
+        goap::Action<RobotState>* path[max_path_len] = {nullptr};
+        static goap::Planner<RobotState, GOAP_SPACE_SIZE> planner;
+        int len = planner.plan(state, *goal, actions, action_count, path, max_path_len);
+        chprintf(chp, "Found a path of length %d to achieve the %s goal\r\n", len, line);
+        messagebus_topic_publish(state_topic, &state, sizeof(state));
+        for (int i = 0; i < len; i++) {
+            bool success = path[i]->execute(state);
+            messagebus_topic_publish(state_topic, &state, sizeof(state));
+            if (success == false) {
+                chprintf(chp, "Failed to execute action #%d\r\n", i);
+                break; // Break on failure
+            }
+        }
+    }
+}
+
+ShellCommand commands[] = {
     {"crashme", cmd_crashme},
     {"config_tree", cmd_config_tree},
     {"config_set", cmd_config_set},
@@ -1267,4 +1367,5 @@ const ShellCommand commands[] = {
     {"arm", cmd_arm},
     {"grip", cmd_grip},
     {"electron", cmd_electron},
+    {"goal", cmd_goal},
     {NULL, NULL}};

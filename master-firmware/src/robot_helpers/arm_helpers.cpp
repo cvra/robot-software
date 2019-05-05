@@ -9,6 +9,7 @@
 #include "manipulator/kinematics.h"
 #include "motor_manager.h"
 #include "motor_helpers.h"
+#include "config.h"
 #include "main.h"
 
 #include "arm_helpers.h"
@@ -66,4 +67,31 @@ void arm_compute_offsets(const float* ref, const float* directions, float* offse
     offsets[0] = directions[0] * offsets[0] - references[0];
     offsets[1] = directions[1] * offsets[1] - references[1];
     offsets[2] = directions[2] * offsets[2] - references[2];
+}
+
+void arm_manual_index(manipulator_side_t side)
+{
+    float offsets[3];
+
+    if (side == RIGHT) {
+        offsets[0] = motor_get_position("theta-1");
+        offsets[1] = motor_get_position("theta-2");
+        offsets[2] = motor_get_position("theta-3");
+        float right_directions[3] = {-1, -1, 1};
+        arm_compute_offsets(RIGHT_ARM_REFS, right_directions, offsets);
+
+        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q1"), offsets[0]);
+        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q2"), offsets[1]);
+        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q3"), offsets[2]);
+    } else if (side == LEFT) {
+        offsets[0] = motor_get_position("left-theta-1");
+        offsets[1] = motor_get_position("left-theta-2");
+        offsets[2] = motor_get_position("left-theta-3");
+        float left_directions[3] = {1, 1, -1};
+        arm_compute_offsets(LEFT_ARM_REFS, left_directions, offsets);
+
+        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q1"), offsets[0]);
+        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q2"), offsets[1]);
+        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q3"), offsets[2]);
+    }
 }
