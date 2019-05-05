@@ -40,6 +40,11 @@ static void wait_for_starter(void);
 static void wait_for_user_input(void);
 void strategy_play_game(void);
 
+static void strategy_log(const char* log)
+{
+    NOTICE(log);
+}
+
 static void strategy_wait_ms(int ms)
 {
     chThdSleepMilliseconds(ms);
@@ -68,6 +73,7 @@ static bool strategy_goto_xya(void* ctx, int x_mm, int y_mm, int a_deg)
 static strategy_context_t strategy = {
     /*robot*/ &robot,
     /*color*/ YELLOW,
+    /*log*/ strategy_log,
     /*wait_ms*/ strategy_wait_ms,
     /*wait_for_user_input*/ wait_for_user_input,
     /*forward*/ strategy_forward,

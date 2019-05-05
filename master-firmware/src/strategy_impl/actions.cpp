@@ -1,4 +1,3 @@
-#include <error/error.h>
 #include <aversive/blocking_detection_manager/blocking_detection_manager.h>
 
 #include <aversive/position_manager/position_manager.h>
@@ -18,7 +17,7 @@
 
 bool IndexArms::execute(RobotState& state)
 {
-    NOTICE("Indexing arms!");
+    strat->log("Indexing arms!");
 
     // set index when user presses color button, so indexing is done manually
 
@@ -36,7 +35,7 @@ bool IndexArms::execute(RobotState& state)
 
 bool RetractArms::execute(RobotState& state)
 {
-    NOTICE("Retracting arms!");
+    strat->log("Retracting arms!");
 
     strat->gripper_set(RIGHT, GRIPPER_OFF);
     strat->manipulator_goto(RIGHT, MANIPULATOR_RETRACT);
@@ -48,6 +47,21 @@ bool RetractArms::execute(RobotState& state)
 
 bool TakePuck::execute(RobotState& state)
 {
+    switch (pucks[puck_id].color) {
+        case PuckColor_RED:
+            strat->log("Taking red puck");
+            break;
+        case PuckColor_GREEN:
+            strat->log("Taking green puck");
+            break;
+        case PuckColor_BLUE:
+            strat->log("Taking blue puck");
+            break;
+        case PuckColor_RED_OR_GREEN:
+            strat->log("Taking red/green puck");
+            break;
+    }
+
     float x, y, a;
     if (pucks[puck_id].orientation == PuckOrientiation_HORIZONTAL) {
         x = MIRROR_X(strat->color, pucks[puck_id].pos_x_mm - 170);
@@ -88,6 +102,8 @@ bool TakePuck::execute(RobotState& state)
 
 bool DepositPuck::execute(RobotState& state)
 {
+    strat->log("Depositing puck");
+
     float x = MIRROR_X(strat->color, areas[zone_id].pos_x_mm);
     float y = areas[zone_id].pos_y_mm - MIRROR(strat->color, 50);
     float a = MIRROR_A(strat->color, 0);
@@ -109,6 +125,8 @@ bool DepositPuck::execute(RobotState& state)
 
 bool LaunchAccelerator::execute(RobotState& state)
 {
+    strat->log("Pushing puck to launch accelerator");
+
     float x = (strat->color == VIOLET) ? 1695 : 1405;
 
     if (!strat->goto_xya(strat, x, 330, MIRROR_A(strat->color, 90))) {
@@ -128,6 +146,8 @@ bool LaunchAccelerator::execute(RobotState& state)
 
 bool TakeGoldonium::execute(RobotState& state)
 {
+    strat->log("Taking goldenium");
+
     float x = (strat->color == VIOLET) ? 2275 : 825;
 
     if (!strat->goto_xya(strat, x, 400, MIRROR_A(strat->color, 90))) {

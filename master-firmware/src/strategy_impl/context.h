@@ -12,6 +12,7 @@ typedef struct {
     struct _robot* robot;
     enum strat_color_t color;
 
+    void (*log)(const char*);
     void (*wait_ms)(int);
     void (*wait_for_user_input)(void);
 

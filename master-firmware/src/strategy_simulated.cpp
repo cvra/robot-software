@@ -3,7 +3,12 @@
 #include "base/base_controller.h"
 #include "main.h"
 #include "protobuf/position.pb.h"
+#include <error/error.h>
 
+static void strategy_log(const char* log)
+{
+    NOTICE(log);
+}
 static void simulated_wait_ms(int ms)
 {
     (void)ms;
@@ -74,6 +79,7 @@ strategy_context_t strategy_simulated = {
     &robot_simulated,
     YELLOW,
 
+    strategy_log,
     simulated_wait_ms,
     simulated_wait_for_user_input,
 

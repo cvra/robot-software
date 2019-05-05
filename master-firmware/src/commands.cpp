@@ -46,6 +46,7 @@ extern "C" {
 #include "pca9685_pwm.h"
 #include "protobuf/sensors.pb.h"
 #include "protobuf/encoders.pb.h"
+#include "usbconf.h"
 
 extern ShellCommand commands[];
 
@@ -1204,6 +1205,11 @@ static void cmd_electron(BaseSequentialStream* chp, int argc, char* argv[])
     electron_starter_start();
 }
 
+static void simulation_logger(const char* msg)
+{
+    chprintf((BaseSequentialStream*)&SDU1, "%s\r\n", msg);
+}
+
 static void cmd_goal(BaseSequentialStream* chp, int argc, char* argv[])
 {
     static char line[20];
@@ -1243,6 +1249,7 @@ static void cmd_goal(BaseSequentialStream* chp, int argc, char* argv[])
     state.arms_are_indexed = true;
     strategy_context_t* ctx = strategy_simulated_impl(color);
     ctx->goto_xya(ctx, MIRROR_X(color, 250), 450, MIRROR_A(ctx->color, -90));
+    ctx->log = simulation_logger;
 
     RetractArms retract_arms(ctx);
     TakePuck take_pucks[] = {{ctx, 0}, {ctx, 1}, {ctx, 2}, {ctx, 3}, {ctx, 4}, {ctx, 5}, {ctx, 6}, {ctx, 7}, {ctx, 8}, {ctx, 9}, {ctx, 10}, {ctx, 11}};
@@ -1311,8 +1318,6 @@ static void cmd_goal(BaseSequentialStream* chp, int argc, char* argv[])
             if (success == false) {
                 chprintf(chp, "Failed to execute action #%d\r\n", i);
                 break; // Break on failure
-            } else {
-                chprintf(chp, "Action #%d succeeded\r\n", i);
             }
         }
     }

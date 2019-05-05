@@ -159,8 +159,6 @@ int main(int argc, char* argv[])
             if (success == false) {
                 std::cout << "Failed to execute action #" << std::to_string(i) << std::endl;
                 break; // Break on failure
-            } else {
-                std::cout << "Action #" << std::to_string(i) << " succeeded" << std::endl;
             }
         }
     }
