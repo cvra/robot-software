@@ -249,20 +249,12 @@ void strategy_chaos_play_game(strategy_context_t* ctx, RobotState& state)
     messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
     InitGoal init_goal;
-    ClassifyStartPucksGoal classify_start_pucks_goal;
     AcceleratorGoal accelerator_goal;
     TakeGoldoniumGoal take_goldonium_goal;
-    ClassifyBluePucksGoal classify_blue_pucks_goal;
-    ClassifyGreenPucksGoal classify_green_pucks_goal;
-    ClassifyRedPucksGoal classify_red_pucks_goal;
     StockPuckGoal stock_puck_goal;
     goap::Goal<RobotState>* goals[] = {
-        &classify_start_pucks_goal,
         &accelerator_goal,
         &take_goldonium_goal,
-        &classify_blue_pucks_goal,
-        &classify_green_pucks_goal,
-        &classify_red_pucks_goal,
         &stock_puck_goal,
     };
 

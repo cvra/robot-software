@@ -1222,17 +1222,14 @@ static void cmd_goal(BaseSequentialStream* chp, int argc, char* argv[])
 
     AcceleratorGoal accelerator_goal;
     TakeGoldoniumGoal take_goldenium_goal;
-    ClassifyBluePucksGoal classify_blue_goal;
 
     goap::Goal<RobotState>* goals[] = {
         &accelerator_goal,
         &take_goldenium_goal,
-        &classify_blue_goal,
     };
     const char* goal_names[] = {
         "accelerator",
         "goldenium",
-        "blue",
     };
     const size_t goal_count = sizeof(goals) / sizeof(goap::Goal<RobotState>*);
 
