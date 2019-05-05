@@ -23,7 +23,7 @@ typedef struct {
     void (*gripper_set)(manipulator_side_t side, gripper_state_t state);
     bool (*puck_is_picked)(void);
 
-    float (*motor_position)(const char*);
+    void (*arm_manual_index)(manipulator_side_t side);
 } strategy_context_t;
 
 #ifdef __cplusplus

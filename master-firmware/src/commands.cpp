@@ -884,47 +884,25 @@ static void cmd_arm_index_manual(BaseSequentialStream* chp, int argc, char* argv
     }
 
     if (strcmp("left", argv[0]) == 0) {
-        const float directions[3] = {1, 1, -1};
-        float offsets[3];
-
         parameter_scalar_set(PARAMETER("master/arms/left/offsets/q1"), 0);
         parameter_scalar_set(PARAMETER("master/arms/left/offsets/q2"), 0);
         parameter_scalar_set(PARAMETER("master/arms/left/offsets/q3"), 0);
         chThdSleepMilliseconds(100);
+        arm_manual_index(LEFT);
 
-        offsets[0] = motor_get_position("left-theta-1");
-        offsets[1] = motor_get_position("left-theta-2");
-        offsets[2] = motor_get_position("left-theta-3");
-        arm_compute_offsets(RIGHT_ARM_REFS, directions, offsets);
-
-        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q1"), offsets[0]);
-        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q2"), offsets[1]);
-        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q3"), offsets[2]);
-
-        chprintf(chp, "Index of left theta-1 at %.4f\r\n", offsets[0]);
-        chprintf(chp, "Index of left theta-2 at %.4f\r\n", offsets[1]);
-        chprintf(chp, "Index of left theta-3 at %.4f\r\n", offsets[2]);
+        chprintf(chp, "Index of left theta-1 at %.4f\r\n", config_get_scalar("master/arms/left/offsets/q1"));
+        chprintf(chp, "Index of left theta-2 at %.4f\r\n", config_get_scalar("master/arms/left/offsets/q2"));
+        chprintf(chp, "Index of left theta-3 at %.4f\r\n", config_get_scalar("master/arms/left/offsets/q3"));
     } else {
-        const float directions[3] = {-1, -1, 1};
-        float offsets[3];
-
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q1"), 0);
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q2"), 0);
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q3"), 0);
         chThdSleepMilliseconds(100);
+        arm_manual_index(RIGHT);
 
-        offsets[0] = motor_get_position("theta-1");
-        offsets[1] = motor_get_position("theta-2");
-        offsets[2] = motor_get_position("theta-3");
-        arm_compute_offsets(RIGHT_ARM_REFS, directions, offsets);
-
-        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q1"), offsets[0]);
-        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q2"), offsets[1]);
-        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q3"), offsets[2]);
-
-        chprintf(chp, "Index of right theta-1 at %.4f\r\n", offsets[0]);
-        chprintf(chp, "Index of right theta-2 at %.4f\r\n", offsets[1]);
-        chprintf(chp, "Index of right theta-3 at %.4f\r\n", offsets[2]);
+        chprintf(chp, "Index of right theta-1 at %.4f\r\n", config_get_scalar("master/arms/right/offsets/q1"));
+        chprintf(chp, "Index of right theta-2 at %.4f\r\n", config_get_scalar("master/arms/right/offsets/q2"));
+        chprintf(chp, "Index of right theta-3 at %.4f\r\n", config_get_scalar("master/arms/right/offsets/q3"));
     }
 }
 

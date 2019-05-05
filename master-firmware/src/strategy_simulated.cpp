@@ -84,6 +84,8 @@ strategy_context_t strategy_simulated = {
     simulated_manipulator_goto,
     simulated_gripper_set,
     simulated_puck_is_picked,
+
+    arm_manual_index,
 };
 
 strategy_context_t* strategy_simulated_impl(enum strat_color_t color)
