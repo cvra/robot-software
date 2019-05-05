@@ -82,11 +82,14 @@ bool TakePuck::execute(RobotState& state)
 
     if (pucks[puck_id].orientation == PuckOrientiation_HORIZONTAL) {
         strat->manipulator_goto(RIGHT, MANIPULATOR_PICK_HORZ);
+        strat->wait_ms(500);
+        strat->manipulator_goto(RIGHT, MANIPULATOR_LIFT_HORZ);
     } else {
         strat->manipulator_goto(RIGHT, MANIPULATOR_PICK_VERT);
+        strat->forward(strat, -30);
+        strat->wait_ms(500);
+        strat->manipulator_goto(RIGHT, MANIPULATOR_LIFT_VERT);
     }
-    strat->wait_ms(500);
-    strat->manipulator_goto(RIGHT, MANIPULATOR_LIFT_HORZ);
 
     state.puck_available[puck_id] = false;
 
