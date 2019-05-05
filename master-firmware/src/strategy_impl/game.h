@@ -48,7 +48,9 @@
     LaunchAccelerator launch_accelerator(ctx);         \
     TakeGoldonium take_goldonium(ctx);                 \
     StockPuckInStorage stock_puck(ctx);                \
+    PutPuckInScale put_puck_in_scale(ctx);             \
     goap::Action<RobotState>* actions[] = {            \
+        &index_arms,                                   \
         &retract_arms,                                 \
         &take_pucks[0],                                \
         &take_pucks[1],                                \
@@ -70,6 +72,7 @@
         &launch_accelerator,                           \
         &take_goldonium,                               \
         &stock_puck,                                   \
+        &put_puck_in_scale,                            \
     };                                                 \
     const auto action_count = sizeof(actions) / sizeof(actions[0]);
 
@@ -78,17 +81,20 @@
     TakeGoldoniumGoal take_goldonium_goal;              \
     RushHeavyPucksGoal rush_heavy_pucks_goal;           \
     StockPuckGoal stock_puck_goal;                      \
+    PuckInScaleGoal puck_in_scale_goal;                 \
     goap::Goal<RobotState>* goals[] = {                 \
         &accelerator_goal,                              \
         &take_goldonium_goal,                           \
         &rush_heavy_pucks_goal,                         \
         &stock_puck_goal,                               \
+        &puck_in_scale_goal,                            \
     };                                                  \
     const char* goal_names[] = {                        \
         "accelerator",                                  \
         "goldenium",                                    \
         "rush",                                         \
         "stock",                                        \
+        "scale",                                        \
     };                                                  \
     const size_t goal_count = sizeof(goals) / sizeof(goap::Goal<RobotState>*);
 

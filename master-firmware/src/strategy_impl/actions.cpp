@@ -193,3 +193,21 @@ bool StockPuckInStorage::execute(RobotState& state)
     state.arms_are_deployed = true;
     return true;
 }
+
+bool PutPuckInScale::execute(RobotState& state)
+{
+    strat->log("Puttig puck in balance !");
+    if (!strat->goto_xya(strat, MIRROR_X(strat->color,1362), 1200, MIRROR_A(strat->color, 270))) {
+        return false;
+    }
+    strat->manipulator_goto(RIGHT, MANIPULATOR_SCALE);
+    if (!strat->goto_xya(strat, MIRROR_X(strat->color,1362), 1430, MIRROR_A(strat->color, 270))) {
+        return false;
+    }
+    strat->gripper_set(RIGHT, GRIPPER_OFF);
+    strat ->forward(strat,200);
+    state.arms_are_deployed = true;
+    state.has_puck = false;
+    state.puck_in_scale[0] = state.has_puck_color;
+    return true;
+}

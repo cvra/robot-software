@@ -30,4 +30,5 @@ message RobotState {
     required PuckColor has_puck_color = 9;
     repeated uint32 classified_pucks = 10 [(nanopb).fixed_count=true, (nanopb).max_count=4, packed=true];
     repeated PuckColor storage_right = 11 [(nanopb).fixed_count=true, (nanopb).max_count=4, packed=true];
+    repeated PuckColor puck_in_scale = 12 [(nanopb).fixed_count=true, (nanopb).max_count=6, packed=true];
 }

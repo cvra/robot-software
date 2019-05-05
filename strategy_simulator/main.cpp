@@ -26,6 +26,12 @@ void reset(void)
     position_set(&sim::ctx->robot->pos, MIRROR_X(sim::color, 250), 450, -90);
 
     std::cout << "Reset to factory settings: done" << std::endl;
+    std::cout << "State pucks ";
+    size_t num_pucks_scale = sizeof(sim::state.puck_in_scale) / sizeof(PuckColor);
+    for (int i = 0; i < num_pucks_scale; i++) {
+        std::cout << sim::state.puck_in_scale[i] << " ";
+    }
+    std::cout << std::endl;
 }
 } // namespace sim
 

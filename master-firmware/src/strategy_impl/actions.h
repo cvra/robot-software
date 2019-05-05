@@ -66,4 +66,12 @@ struct StockPuckInStorage : actions::StockPuckInStorage {
     bool execute(RobotState& state);
 };
 
+struct PutPuckInScale : actions::PutPuckInScale {
+    strategy_context_t* strat;
+    PutPuckInScale(strategy_context_t* strat)
+        : strat(strat)
+    {
+    }
+    bool execute(RobotState& state);
+};
 #endif /* STRATEGY_IMPL_ACTIONS_H */

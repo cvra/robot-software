@@ -19,6 +19,12 @@ RobotState initial_state(void)
         state.storage_right[i] = PuckColor_EMPTY;
     }
 
+    size_t num_pucks_scale = sizeof(state.puck_in_scale) / sizeof(PuckColor);
+    for (size_t i = 0; i < num_pucks_scale; i++)
+    {
+        state.puck_in_scale[i] = PuckColor_EMPTY;
+    }
+
     return state;
 }
 

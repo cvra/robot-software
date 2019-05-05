@@ -18,6 +18,7 @@ typedef enum {
     MANIPULATOR_LIFT_GOLDONIUM,
     MANIPULATOR_STORE_1,
     MANIPULATOR_LIFT_VERT_TO_STORE,
+    MANIPULATOR_SCALE,
     MANIPULATOR_COUNT // Dummy, used for last element
 } manipulator_state_t;
 
