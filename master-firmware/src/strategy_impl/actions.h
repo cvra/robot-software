@@ -57,4 +57,13 @@ struct TakeGoldonium : actions::TakeGoldonium {
     bool execute(RobotState& state);
 };
 
+struct StockPuckInStorage : actions::StockPuckInStorage {
+    strategy_context_t* strat;
+    StockPuckInStorage(strategy_context_t* strat)
+        : strat(strat)
+    {
+    }
+    bool execute(RobotState& state);
+};
+
 #endif /* STRATEGY_IMPL_ACTIONS_H */

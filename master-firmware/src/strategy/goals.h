@@ -64,4 +64,11 @@ struct TakeGoldoniumGoal : goap::Goal<RobotState> {
     }
 };
 
+struct StockPuckGoal : goap::Goal<RobotState> {
+    virtual int distance_to(const RobotState& state) const
+    {
+        return goap::Distance().shouldBeTrue(state.storage_right[0] == PuckColor_RED);
+    }
+};
+
 #endif /* STRATEGY_GOALS_H */

@@ -16,17 +16,20 @@ AcceleratorGoal accelerator_goal;
 TakeGoldoniumGoal take_goldenium_goal;
 ClassifyBluePucksGoal classify_blue_goal;
 RushHeavyPucksGoal rush_heavy_pucks_goal;
+StockPuckGoal stock_puck_goal;
 goap::Goal<RobotState>* goals[] = {
     &accelerator_goal,
     &take_goldenium_goal,
     &classify_blue_goal,
     &rush_heavy_pucks_goal,
+    &stock_puck_goal,
 };
 const char* goal_names[] = {
     "accelerator",
     "goldenium",
     "blue",
     "rush",
+    "stock",
 };
 const size_t goal_count = sizeof(goals) / sizeof(goap::Goal<RobotState>*);
 
@@ -57,6 +60,7 @@ DepositPuck deposit_puck[] = {
 };
 LaunchAccelerator launch_accelerator(ctx);
 TakeGoldonium take_goldonium(ctx);
+StockPuckInStorage stock_puck(ctx);
 goap::Action<RobotState>* actions[] = {
     &retract_arms,
     &take_pucks[0],
@@ -78,6 +82,7 @@ goap::Action<RobotState>* actions[] = {
     &deposit_puck[4],
     &launch_accelerator,
     &take_goldonium,
+    &stock_puck,
 };
 const auto action_count = sizeof(actions) / sizeof(actions[0]);
 
@@ -146,6 +151,7 @@ int main(int argc, char* argv[])
                 goal = sim::goals[i];
             }
         }
+        std::cout << "----------------------------------" << std::endl;
         if (goal == nullptr) {
             std::cout << "Unknown goal " << line << std::endl;
             continue;

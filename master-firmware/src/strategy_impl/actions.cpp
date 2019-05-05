@@ -69,7 +69,7 @@ bool TakePuck::execute(RobotState& state)
         a = MIRROR_A(strat->color, 180);
     } else {
         x = MIRROR_X(strat->color, pucks[puck_id].pos_x_mm) - 50;
-        y = pucks[puck_id].pos_y_mm - 260;
+        y = pucks[puck_id].pos_y_mm - 275;
         a = MIRROR_A(strat->color, -90);
     }
 
@@ -166,7 +166,7 @@ bool TakeGoldonium::execute(RobotState& state)
 
     strat->gripper_set(RIGHT, GRIPPER_ACQUIRE);
     strat->forward(strat, -27);
-    strat->wait_ms(1500);
+    strat->wait_ms(500);
 
     if (!strat->puck_is_picked()) {
         strat->gripper_set(RIGHT, GRIPPER_OFF);
@@ -182,5 +182,18 @@ bool TakeGoldonium::execute(RobotState& state)
 
     state.goldonium_in_house = false;
     state.has_goldonium = true;
+    return true;
+}
+
+bool StockPuckInStorage::execute(RobotState& state)
+{
+    strat->log("Storing puck");
+    strat->forward(strat, 40);    
+    strat->manipulator_goto(RIGHT, MANIPULATOR_STORE_1);
+    strat->gripper_set(RIGHT, GRIPPER_OFF);
+    
+    state.storage_right[puck_position] = state.has_puck_color;
+    state.has_puck = false;
+    state.arms_are_deployed = true;
     return true;
 }
