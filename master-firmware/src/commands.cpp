@@ -39,6 +39,8 @@ extern "C" {
 #include "strategy_simulated.h"
 #include "strategy/goals.h"
 #include "strategy/state.h"
+#include "strategy_impl/base.h"
+#include "strategy_impl/actions.h"
 #include <trace/trace.h>
 #include <error/error.h>
 #include "pca9685_pwm.h"

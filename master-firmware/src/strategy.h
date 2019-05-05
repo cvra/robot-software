@@ -1,7 +1,7 @@
 #ifndef STRATEGY_H
 #define STRATEGY_H
 
-#include "strategy_impl.h"
+#include "strategy_impl/context.h"
 
 #ifdef __cplusplus
 extern "C" {
