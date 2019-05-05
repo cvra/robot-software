@@ -15,15 +15,18 @@ RobotState state;
 AcceleratorGoal accelerator_goal;
 TakeGoldoniumGoal take_goldenium_goal;
 ClassifyBluePucksGoal classify_blue_goal;
+RushHeavyPucksGoal rush_heavy_pucks_goal;
 goap::Goal<RobotState>* goals[] = {
     &accelerator_goal,
     &take_goldenium_goal,
     &classify_blue_goal,
+    &rush_heavy_pucks_goal,
 };
 const char* goal_names[] = {
     "accelerator",
     "goldenium",
     "blue",
+    "rush",
 };
 const size_t goal_count = sizeof(goals) / sizeof(goap::Goal<RobotState>*);
 
