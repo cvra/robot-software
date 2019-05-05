@@ -82,12 +82,12 @@ int main(int argc, char* argv[])
     static TOPIC_DECL(state_topic, RobotState);
     messagebus_advertise_topic(&bus, &state_topic.topic, "/state");
 
-    if (argc != 1) {
-        std::cout << "Usage: goal y|v" << std::endl;
+    if (argc != 2) {
+        std::cout << "Usage: simulator y|v" << std::endl;
         return 0;
     }
 
-    if (!strcmp(argv[0], "v")) {
+    if (!strcmp(argv[1], "v")) {
         std::cout << "Playing in violet" << std::endl;
         sim::color = VIOLET;
     } else {
