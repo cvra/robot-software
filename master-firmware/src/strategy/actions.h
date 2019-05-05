@@ -103,6 +103,33 @@ struct TakeGoldonium : public goap::Action<RobotState> {
         state.arms_are_deployed = true;
     }
 };
+
+struct StockPuckInStorage : public goap::Action<RobotState> {
+    uint8_t puck_position = 0;
+
+    bool can_run(const RobotState& state)
+    {
+        if (state.has_puck){
+            size_t num_slots = sizeof(state.storage_right) / sizeof(PuckColor);
+            for (size_t i = 0; i < num_slots; i++)
+            {
+                if (state.storage_right[i] == PuckColor_EMPTY)
+                {
+                    puck_position = i;
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    void plan_effects(RobotState& state)
+    {
+        state.storage_right[puck_position] = state.has_puck_color;
+        state.has_puck = false;
+        state.arms_are_deployed = true;
+    }
+};
 } // namespace actions
 
 #endif /* STRATEGY_ACTIONS_H */

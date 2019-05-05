@@ -40,6 +40,8 @@ public:
         /* MANIPULATOR_LIFT_VERT */ {{1.4116, 0.0572, 2.2754}},
         /* MANIPULATOR_PICK_GOLDONIUM */ {{0.935233, 2.005595, 1.570796}},
         /* MANIPULATOR_LIFT_GOLDONIUM */ {{0.8, 3, 1.5908}},
+        /* MANIPULATOR_STORE_1 */ {{1.40768914, -1.14273806,0}},
+        /* MANIPULATOR_LIFT_VERT_TO_STORE */ {{1.5228, -0.8982, 1.4338}},
     };
 
     manipulator_state_t state;
@@ -63,9 +65,12 @@ public:
 
         pathfinding::connect_bidirectional(nodes[MANIPULATOR_DEPLOY], nodes[MANIPULATOR_DEPLOY_FULLY]);
 
-        nodes[MANIPULATOR_DEPLOY].connect(nodes[MANIPULATOR_PICK_VERT]);
-        nodes[MANIPULATOR_PICK_VERT].connect(nodes[MANIPULATOR_LIFT_VERT]);
-        nodes[MANIPULATOR_LIFT_VERT].connect(nodes[MANIPULATOR_DEPLOY]);
+        pathfinding::connect_bidirectional(nodes[MANIPULATOR_DEPLOY], nodes[MANIPULATOR_PICK_VERT]);
+        pathfinding::connect_bidirectional(nodes[MANIPULATOR_PICK_VERT], nodes[MANIPULATOR_LIFT_VERT]);
+        nodes[MANIPULATOR_LIFT_VERT].connect(nodes[MANIPULATOR_RETRACT]);
+        nodes[MANIPULATOR_LIFT_VERT].connect(nodes[MANIPULATOR_LIFT_VERT_TO_STORE]);
+        nodes[MANIPULATOR_LIFT_VERT_TO_STORE].connect(nodes[MANIPULATOR_STORE_1]);
+        nodes[MANIPULATOR_STORE_1].connect(nodes[MANIPULATOR_RETRACT]);
 
         nodes[MANIPULATOR_DEPLOY].connect(nodes[MANIPULATOR_PICK_GOLDONIUM]);
         nodes[MANIPULATOR_PICK_GOLDONIUM].connect(nodes[MANIPULATOR_LIFT_GOLDONIUM]);

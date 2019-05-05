@@ -22,34 +22,6 @@ struct RushHeavyPucksGoal : goap::Goal<RobotState> {
     }
 };
 
-struct ClassifyStartPucksGoal : goap::Goal<RobotState> {
-    virtual int distance_to(const RobotState& state) const
-    {
-        return goap::Distance().shouldBeEqual(state.classified_pucks[PuckColor_RED_OR_GREEN], 3);
-    }
-};
-
-struct ClassifyBluePucksGoal : goap::Goal<RobotState> {
-    virtual int distance_to(const RobotState& state) const
-    {
-        return goap::Distance().shouldBeEqual(state.classified_pucks[PuckColor_BLUE], 1);
-    }
-};
-
-struct ClassifyGreenPucksGoal : goap::Goal<RobotState> {
-    virtual int distance_to(const RobotState& state) const
-    {
-        return goap::Distance().shouldBeEqual(state.classified_pucks[PuckColor_GREEN], 2);
-    }
-};
-
-struct ClassifyRedPucksGoal : goap::Goal<RobotState> {
-    virtual int distance_to(const RobotState& state) const
-    {
-        return goap::Distance().shouldBeEqual(state.classified_pucks[PuckColor_RED], 2);
-    }
-};
-
 struct AcceleratorGoal : goap::Goal<RobotState> {
     virtual int distance_to(const RobotState& state) const
     {
@@ -61,6 +33,13 @@ struct TakeGoldoniumGoal : goap::Goal<RobotState> {
     virtual int distance_to(const RobotState& state) const
     {
         return goap::Distance().shouldBeTrue(state.has_goldonium);
+    }
+};
+
+struct StockPuckGoal : goap::Goal<RobotState> {
+    virtual int distance_to(const RobotState& state) const
+    {
+        return goap::Distance().shouldBeTrue(state.storage_right[0] == PuckColor_RED);
     }
 };
 

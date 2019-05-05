@@ -31,14 +31,14 @@ master:
         control:
             angle:
                 kp: 1.5
-                ki: 0.2
+                ki: 0.5
                 kd: 10.
-                i_limit: 1000.
+                i_limit: 10.
             distance:
                 kp: 1.5
                 ki: 0.5
                 kd: 20.
-                i_limit: 50.
+                i_limit: 10.
         trajectories:
             angle:
                 speed: # in rad / s

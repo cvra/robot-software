@@ -13,6 +13,12 @@ RobotState initial_state(void)
         state.puck_available[i] = true;
     }
 
+    size_t num_slots = sizeof(state.storage_right) / sizeof(PuckColor);
+    for (size_t i = 0; i < num_slots; i++)
+    {
+        state.storage_right[i] = PuckColor_EMPTY;
+    }
+
     return state;
 }
 

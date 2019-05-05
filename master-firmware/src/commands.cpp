@@ -1147,6 +1147,8 @@ static void cmd_arm(BaseSequentialStream* chp, int argc, char* argv[])
             manipulator_goto(side, MANIPULATOR_PICK_VERT);
         } else if (!strcmp(argv[1], "lift_v")) {
             manipulator_goto(side, MANIPULATOR_LIFT_VERT);
+        } else if (!strcmp(argv[1], "store_v")) {
+            manipulator_goto(side, MANIPULATOR_STORE_1);
         } else {
             if (side == RIGHT) {
                 motor_manager_set_voltage(&motor_manager, "theta-1", 0);
@@ -1220,17 +1222,14 @@ static void cmd_goal(BaseSequentialStream* chp, int argc, char* argv[])
 
     AcceleratorGoal accelerator_goal;
     TakeGoldoniumGoal take_goldenium_goal;
-    ClassifyBluePucksGoal classify_blue_goal;
 
     goap::Goal<RobotState>* goals[] = {
         &accelerator_goal,
         &take_goldenium_goal,
-        &classify_blue_goal,
     };
     const char* goal_names[] = {
         "accelerator",
         "goldenium",
-        "blue",
     };
     const size_t goal_count = sizeof(goals) / sizeof(goap::Goal<RobotState>*);
 

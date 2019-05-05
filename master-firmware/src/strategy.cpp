@@ -249,19 +249,13 @@ void strategy_chaos_play_game(strategy_context_t* ctx, RobotState& state)
     messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
     InitGoal init_goal;
-    ClassifyStartPucksGoal classify_start_pucks_goal;
     AcceleratorGoal accelerator_goal;
     TakeGoldoniumGoal take_goldonium_goal;
-    ClassifyBluePucksGoal classify_blue_pucks_goal;
-    ClassifyGreenPucksGoal classify_green_pucks_goal;
-    ClassifyRedPucksGoal classify_red_pucks_goal;
+    StockPuckGoal stock_puck_goal;
     goap::Goal<RobotState>* goals[] = {
-        &classify_start_pucks_goal,
         &accelerator_goal,
         &take_goldonium_goal,
-        &classify_blue_pucks_goal,
-        &classify_green_pucks_goal,
-        &classify_red_pucks_goal,
+        &stock_puck_goal,
     };
 
     IndexArms index_arms(ctx);
@@ -270,6 +264,7 @@ void strategy_chaos_play_game(strategy_context_t* ctx, RobotState& state)
     DepositPuck deposit_puck[] = {{ctx, 0}, {ctx, 1}, {ctx, 2}, {ctx, 3}, {ctx, 4}};
     LaunchAccelerator launch_accelerator(ctx);
     TakeGoldonium take_goldonium(ctx);
+    StockPuckInStorage stock_puck_in_storage(ctx);
 
     const int max_path_len = 10;
     goap::Action<RobotState>* path[max_path_len] = {nullptr};
@@ -296,6 +291,7 @@ void strategy_chaos_play_game(strategy_context_t* ctx, RobotState& state)
         &deposit_puck[4],
         &launch_accelerator,
         &take_goldonium,
+        &stock_puck_in_storage,
     };
 
     const auto action_count = sizeof(actions) / sizeof(actions[0]);
