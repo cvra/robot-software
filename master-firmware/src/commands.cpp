@@ -36,11 +36,11 @@ extern "C" {
 #include "robot_helpers/arm_helpers.h"
 #include "manipulator/manipulator_thread.h"
 #include "strategy.h"
-#include "strategy_simulated.h"
 #include "strategy/goals.h"
 #include "strategy/state.h"
 #include "strategy_impl/base.h"
 #include "strategy_impl/actions.h"
+#include "strategy_impl/simulation.h"
 #include <trace/trace.h>
 #include <error/error.h>
 #include "pca9685_pwm.h"

@@ -1,5 +1,5 @@
-#ifndef STRATEGY_SIMULATED_H
-#define STRATEGY_SIMULATED_H
+#ifndef STRATEGY_IMPL_SIMULATION_H
+#define STRATEGY_IMPL_SIMULATION_H
 
 #include "strategy_impl/context.h"
 
@@ -14,4 +14,4 @@ void strategy_simulated_init(void);
 }
 #endif
 
-#endif /* STRATEGY_SIMULATED_H */
+#endif /* STRATEGY_IMPL_SIMULATION_H */

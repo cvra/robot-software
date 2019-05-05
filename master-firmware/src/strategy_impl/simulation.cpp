@@ -1,4 +1,4 @@
-#include "strategy_simulated.h"
+#include "strategy_impl/simulation.h"
 
 #include "base/base_controller.h"
 #include "main.h"

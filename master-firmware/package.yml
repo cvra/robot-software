@@ -67,7 +67,7 @@ target.arm:
     - src/uid.c
     - src/strategy_impl/actions.cpp
     - src/strategy_impl/base.cpp
-    - src/strategy_simulated.cpp
+    - src/strategy_impl/simulation.cpp
 
 source:
     - src/unix_timestamp.c
