@@ -230,16 +230,17 @@ static THD_FUNCTION(manipulator_thd, arg)
     });
     
     /* LQR init */
+    
     const float link_lengths[3] = {
-        parameter_scalar_get(parameter_find(l_params, "segment(0)")),
-        parameter_scalar_get(parameter_find(l_params, "segment(1)")),
-        parameter_scalar_get(parameter_find(l_params, "segment(2)"))
+        parameter_scalar_get(parameter_find(l_params, "segment_1")),
+        parameter_scalar_get(parameter_find(l_params, "segment_2")),
+        parameter_scalar_get(parameter_find(l_params, "segment_3"))
     };
 
     const float mass[3] = {
-        parameter_scalar_get(parameter_find(mass_params, "segment(0)")),
-        parameter_scalar_get(parameter_find(mass_params, "segment(1)")),
-        parameter_scalar_get(parameter_find(mass_params, "segment(2)"))
+        parameter_scalar_get(parameter_find(mass_params, "segment_1")),
+        parameter_scalar_get(parameter_find(mass_params, "segment_2")),
+        parameter_scalar_get(parameter_find(mass_params, "segment_3"))
     };
 
     static LQRController<6, 3, 10> lqr;
@@ -263,7 +264,7 @@ static THD_FUNCTION(manipulator_thd, arg)
     RefTracking<2> ref2{r2,max_accel};
     RefTracking<2> ref3{r3,max_accel};
 
-    float state[6];
+    float state[6] = {0.f,0.f,0.f,0.f,0.f,0.f};
     float t[3] = {0.f,0.f,0.f};
     float estimate_time_to_target[3] = {0.f,0.f,0.f};
     float segment_inertia[3] = 
@@ -327,6 +328,7 @@ static THD_FUNCTION(manipulator_thd, arg)
         }
 
         /* Select PID or LQR controller */
+        
         if(ctrl == PID)
         {
             Pose2D pose = right_arm.update();
@@ -381,6 +383,7 @@ static THD_FUNCTION(manipulator_thd, arg)
             t[2] += lqr.sampling_period;
 
             /* Ensure proper convergence to the target angle in case tuning is approximative */
+            
             if(abs(t[0] - estimate_time_to_target[0]) < 2*lqr.sampling_period)
             {
                 r1 << parameter_scalar_get(parameter_find(ref1_params, "angle")) - state[0], 0;

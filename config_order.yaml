@@ -75,7 +75,7 @@ master:
             segment_2: 0.035
             segment_3: 0.010
         control:
-            ctrl: 0
+            ctrl: 0.
             # cost matrix's diagonal values
             Q_1: 9.0
             Q_2: 0.1
@@ -93,6 +93,8 @@ master:
             angle: 0.0
         ref3:
             angle: 0.0
+        puck:
+            mass: 0.
     arms:
         right:
             lengths:
