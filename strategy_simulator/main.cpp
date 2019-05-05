@@ -69,6 +69,14 @@ goap::Action<RobotState>* actions[] = {
 const auto action_count = sizeof(actions) / sizeof(actions[0]);
 
 const int max_path_len = 10;
+
+void reset(void)
+{
+    sim::state = initial_state();
+    sim::state.arms_are_indexed = true;
+    sim::ctx->goto_xya(sim::ctx, MIRROR_X(sim::color, 250), 450, MIRROR_A(sim::ctx->color, -90));
+    std::cout << "Reset to factory settings: done" << std::endl;
+}
 } // namespace sim
 
 int main(int argc, char* argv[])
@@ -77,8 +85,9 @@ int main(int argc, char* argv[])
     condvar_wrapper_t bus_sync = {PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER};
     messagebus_init(&bus, &bus_sync, &bus_sync);
 
-    sim::state = initial_state();
     simulation_init();
+    sim::reset();
+
     static TOPIC_DECL(state_topic, RobotState);
     messagebus_advertise_topic(&bus, &state_topic.topic, "/state");
 
@@ -93,9 +102,6 @@ int main(int argc, char* argv[])
     } else {
         std::cout << "Playing in yellow" << std::endl;
     }
-
-    sim::state.arms_are_indexed = true;
-    sim::ctx->goto_xya(sim::ctx, MIRROR_X(sim::color, 250), 450, MIRROR_A(sim::ctx->color, -90));
 
     while (true) {
         std::string line;
@@ -117,10 +123,7 @@ int main(int argc, char* argv[])
         }
 
         if (!strcmp(line.c_str(), "reset")) {
-            sim::state = initial_state();
-            sim::state.arms_are_indexed = true;
-            sim::ctx->goto_xya(sim::ctx, MIRROR_X(sim::color, 250), 450, MIRROR_A(sim::ctx->color, -90));
-            std::cout << "Reset to factory settings: done" << std::endl;
+            sim::reset();
             continue;
         }
 
