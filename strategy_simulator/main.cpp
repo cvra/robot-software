@@ -54,6 +54,9 @@ int main(int argc, char* argv[])
     }
 
     while (true) {
+        std::cout << "----------------------------------" << std::endl;
+        std::cout << "> ";
+
         std::string line;
         std::getline(std::cin, line);
 
@@ -89,7 +92,6 @@ int main(int argc, char* argv[])
                 goal = sim::goals[i];
             }
         }
-        std::cout << "----------------------------------" << std::endl;
         if (goal == nullptr) {
             std::cout << "Unknown goal " << line << std::endl;
             continue;
