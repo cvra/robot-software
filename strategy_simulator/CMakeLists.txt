@@ -8,8 +8,11 @@ set(SOURCES
     simulation.cpp
     msgbus_port.cpp
     parameter_port.cpp
+    ch.cpp
     ../master-firmware/src/strategy_impl/actions.cpp
     ../master-firmware/src/strategy/state.cpp
+    ../master-firmware/src/base/map.c
+    ../master-firmware/src/robot_helpers/math_helpers.c
     ../master-firmware/build/protobuf/protocol.pb.c
     ../master-firmware/build/protobuf/position.pb.c
     ../master-firmware/build/protobuf/strategy.pb.c
@@ -40,6 +43,7 @@ set(SOURCES
 add_executable(simulator ${SOURCES} )
 target_include_directories(simulator
     PUBLIC
+        .
         ../master-firmware/src/
         ../master-firmware/build/
         ../lib/

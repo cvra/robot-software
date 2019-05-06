@@ -23,7 +23,8 @@ void reset(void)
 {
     sim::state = initial_state();
     sim::state.arms_are_indexed = true;
-    sim::ctx->goto_xya(sim::ctx, MIRROR_X(sim::color, 250), 450, MIRROR_A(sim::ctx->color, -90));
+    position_set(&sim::ctx->robot->pos, MIRROR_X(sim::color, 250), 450, -90);
+
     std::cout << "Reset to factory settings: done" << std::endl;
 }
 } // namespace sim
