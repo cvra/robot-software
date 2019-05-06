@@ -253,7 +253,7 @@ static THD_FUNCTION(manipulator_thd, arg)
             update_arm_parameters(&right_arm, right_arm_params);
         }
         if (parameter_namespace_contains_changed(left_arm_params)) {
-            update_arm_parameters(&left_arm, right_arm_params);
+            update_arm_parameters(&left_arm, left_arm_params);
         }
 
         Pose2D pose = right_arm.update();
