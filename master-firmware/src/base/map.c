@@ -39,12 +39,12 @@ void map_init(struct _map* map, int robot_size)
     map->last_opponent_index = 0;
 
     /* Add the wall separating the two balances*/
-    //map->the_wall = oa_new_poly(&map->oa, 4);
-    //map_set_rectangular_obstacle(map->the_wall, 1500, 1450, 40, 200, robot_size);
+    // map->the_wall = oa_new_poly(&map->oa, 4);
+    // map_set_rectangular_obstacle(map->the_wall, 1500, 1450, 40, 200, robot_size);
 
     /* Add ramp as obstacle */
     map->ramp_obstacle = oa_new_poly(&map->oa, 4);
-    map_set_rectangular_obstacle(map->ramp_obstacle, 1500, 1775, 2100, 450, robot_size);
+    map_set_rectangular_obstacle(map->ramp_obstacle, 1500, 1789, 2100, 422, robot_size);
 
     /* Add pucks from the starting area as obstacles, to avoid moving them */
     for (int i = 0; i < MAP_NUM_PUCK; i++) {
