@@ -38,9 +38,15 @@ void map_init(struct _map* map, int robot_size)
     }
     map->last_opponent_index = 0;
 
-    /* Add the wall separating the two balances*/
+    /* Add the wall separating the two balances */
     // map->the_wall = oa_new_poly(&map->oa, 4);
     // map_set_rectangular_obstacle(map->the_wall, 1500, 1450, 40, 200, robot_size);
+
+    /* Add the distributors ahead of the ramp */
+    map->distributor_obstacle[0] = oa_new_poly(&map->oa, 4);
+    map->distributor_obstacle[1] = oa_new_poly(&map->oa, 4);
+    map_set_rectangular_obstacle_from_corners(map->distributor_obstacle[0], 450, 1543, 1050, 1578, robot_size);
+    map_set_rectangular_obstacle_from_corners(map->distributor_obstacle[1], 1950, 1543, 2550, 1578, robot_size);
 
     /* Add ramp as obstacle */
     map->ramp_obstacle = oa_new_poly(&map->oa, 4);
