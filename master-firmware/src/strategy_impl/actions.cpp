@@ -37,8 +37,8 @@ bool RetractArms::execute(RobotState& state)
 {
     strat->log("Retracting arms!");
 
-    strat->gripper_set(RIGHT, GRIPPER_OFF);
-    strat->manipulator_goto(RIGHT, MANIPULATOR_RETRACT);
+    strat->gripper_set(BOTH, GRIPPER_OFF);
+    strat->manipulator_goto(BOTH, MANIPULATOR_RETRACT);
 
     state.has_puck = false;
     state.arms_are_deployed = false;
