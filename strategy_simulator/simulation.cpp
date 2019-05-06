@@ -37,6 +37,22 @@ static bool simulated_puck_is_picked(void)
     return true;
 }
 
+void publish_pos(strategy_context_t* strat)
+{
+    messagebus_topic_t* position_topic = messagebus_find_topic_blocking(&bus, "/simulated/position");
+    RobotPosition pos = RobotPosition_init_zero;
+    pos.x = position_get_x_s16(&strat->robot->pos);
+    pos.y = position_get_y_s16(&strat->robot->pos);
+    pos.a = position_get_a_deg_s16(&strat->robot->pos);
+    messagebus_topic_publish(position_topic, &pos, sizeof(pos));
+
+    std::string pos_str = "Pos: ["
+        + std::to_string(position_get_x_s16(&strat->robot->pos)) + ", "
+        + std::to_string(position_get_y_s16(&strat->robot->pos)) + ", "
+        + std::to_string(position_get_a_deg_s16(&strat->robot->pos)) + "]";
+    strat->log(pos_str.c_str());
+}
+
 static void simulated_rotate(void* ctx, int relative_angle_deg)
 {
     strategy_context_t* strat = (strategy_context_t*)ctx;
@@ -46,12 +62,7 @@ static void simulated_rotate(void* ctx, int relative_angle_deg)
     int a = position_get_a_deg_s16(&strat->robot->pos);
 
     position_set(&strat->robot->pos, x, y, a + relative_angle_deg);
-
-    std::string pos_str = "["
-        + std::to_string(position_get_x_s16(&strat->robot->pos)) + ", "
-        + std::to_string(position_get_y_s16(&strat->robot->pos)) + ","
-        + std::to_string(position_get_a_deg_s16(&strat->robot->pos)) + "]";
-    strat->log(pos_str.c_str());
+    publish_pos(strat);
 }
 
 static void simulated_forward(void* ctx, int relative_distance_mm)
@@ -65,28 +76,7 @@ static void simulated_forward(void* ctx, int relative_distance_mm)
     int dx = relative_distance_mm * cosf(a_rad);
     int dy = relative_distance_mm * sinf(a_rad);
     position_set(&strat->robot->pos, x + dx, y + dy, position_get_a_deg_s16(&strat->robot->pos));
-
-    std::string pos_str = "["
-        + std::to_string(position_get_x_s16(&strat->robot->pos)) + ", "
-        + std::to_string(position_get_y_s16(&strat->robot->pos)) + ","
-        + std::to_string(position_get_a_deg_s16(&strat->robot->pos)) + "]";
-    strat->log(pos_str.c_str());
-}
-
-static void publish_pos(strategy_context_t* strat)
-{
-    messagebus_topic_t* position_topic = messagebus_find_topic_blocking(&bus, "/simulated/position");
-    RobotPosition pos = RobotPosition_init_zero;
-    pos.x = position_get_x_s16(&strat->robot->pos);
-    pos.y = position_get_y_s16(&strat->robot->pos);
-    pos.a = position_get_a_deg_s16(&strat->robot->pos);
-    messagebus_topic_publish(position_topic, &pos, sizeof(pos));
-
-    std::string pos_str = "["
-        + std::to_string(position_get_x_s16(&strat->robot->pos)) + ", "
-        + std::to_string(position_get_y_s16(&strat->robot->pos)) + ","
-        + std::to_string(position_get_a_deg_s16(&strat->robot->pos)) + "]";
-    strat->log(pos_str.c_str());
+    publish_pos(strat);
 }
 
 static bool simulated_goto_xya(void* ctx, int x_mm, int y_mm, int a_deg)
@@ -114,7 +104,7 @@ static bool simulated_goto_xya(void* ctx, int x_mm, int y_mm, int a_deg)
     }
 
     for (int i = 0; i < num_points; i++) {
-        std::cout << "Going to (" << points[i].x << ", " << points[i].y << ")" << std::endl;
+        std::cout << "  Going to (" << points[i].x << ", " << points[i].y << ")" << std::endl;
         position_set(&strat->robot->pos, points[i].x, points[i].y, a_deg);
     }
 

@@ -66,6 +66,7 @@ int main(int argc, char* argv[])
         if (!strcmp(line.c_str(), "help")) {
             std::cout << "Welcome to the help menu, here are the commands available:" << std::endl;
             std::cout << "- reset" << std::endl;
+            std::cout << "- pos" << std::endl;
             for (size_t i = 0; i < sim::goal_count; i++) {
                 std::cout << "- " << sim::goal_names[i] << std::endl;
             }
@@ -74,6 +75,11 @@ int main(int argc, char* argv[])
 
         if (!strcmp(line.c_str(), "reset")) {
             sim::reset();
+            continue;
+        }
+
+        if (!strcmp(line.c_str(), "pos")) {
+            publish_pos(sim::ctx);
             continue;
         }
 
