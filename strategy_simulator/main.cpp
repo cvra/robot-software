@@ -7,84 +7,15 @@
 #include "strategy.h"
 #include "strategy/goals.h"
 #include "strategy/state.h"
-#include "strategy_impl/actions.h"
+#include "strategy_impl/game.h"
 
 namespace sim {
 RobotState state;
-
-AcceleratorGoal accelerator_goal;
-TakeGoldoniumGoal take_goldenium_goal;
-ClassifyBluePucksGoal classify_blue_goal;
-RushHeavyPucksGoal rush_heavy_pucks_goal;
-StockPuckGoal stock_puck_goal;
-goap::Goal<RobotState>* goals[] = {
-    &accelerator_goal,
-    &take_goldenium_goal,
-    &classify_blue_goal,
-    &rush_heavy_pucks_goal,
-    &stock_puck_goal,
-};
-const char* goal_names[] = {
-    "accelerator",
-    "goldenium",
-    "blue",
-    "rush",
-    "stock",
-};
-const size_t goal_count = sizeof(goals) / sizeof(goap::Goal<RobotState>*);
-
 enum strat_color_t color = YELLOW;
 strategy_context_t* ctx = strategy_simulated_impl(color);
 
-RetractArms retract_arms(ctx);
-TakePuck take_pucks[] = {
-    {ctx, 0},
-    {ctx, 1},
-    {ctx, 2},
-    {ctx, 3},
-    {ctx, 4},
-    {ctx, 5},
-    {ctx, 6},
-    {ctx, 7},
-    {ctx, 8},
-    {ctx, 9},
-    {ctx, 10},
-    {ctx, 11},
-};
-DepositPuck deposit_puck[] = {
-    {ctx, 0},
-    {ctx, 1},
-    {ctx, 2},
-    {ctx, 3},
-    {ctx, 4},
-};
-LaunchAccelerator launch_accelerator(ctx);
-TakeGoldonium take_goldonium(ctx);
-StockPuckInStorage stock_puck(ctx);
-goap::Action<RobotState>* actions[] = {
-    &retract_arms,
-    &take_pucks[0],
-    &take_pucks[1],
-    &take_pucks[2],
-    &take_pucks[3],
-    &take_pucks[4],
-    &take_pucks[5],
-    &take_pucks[6],
-    &take_pucks[7],
-    &take_pucks[8],
-    &take_pucks[9],
-    &take_pucks[10],
-    &take_pucks[11],
-    &deposit_puck[0],
-    &deposit_puck[1],
-    &deposit_puck[2],
-    &deposit_puck[3],
-    &deposit_puck[4],
-    &launch_accelerator,
-    &take_goldonium,
-    &stock_puck,
-};
-const auto action_count = sizeof(actions) / sizeof(actions[0]);
+GAME_GOALS_CHAOS(goals, goal_names, goal_count);
+GAME_ACTIONS_CHAOS(actions, action_count, ctx);
 
 const int max_path_len = 10;
 

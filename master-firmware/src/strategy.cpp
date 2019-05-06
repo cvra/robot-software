@@ -30,7 +30,7 @@
 #include "strategy/goals.h"
 #include "strategy/score_counter.h"
 #include "strategy_impl/base.h"
-#include "strategy_impl/actions.h"
+#include "strategy_impl/game.h"
 
 static goap::Planner<RobotState, GOAP_SPACE_SIZE> planner;
 
@@ -174,21 +174,15 @@ void strategy_order_play_game(strategy_context_t* ctx, RobotState& state)
 {
     messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
-    InitGoal init_goal;
-    goap::Goal<RobotState>* goals[] = {};
-
-    IndexArms index_arms(ctx);
-    RetractArms retract_arms(ctx);
-
     const int max_path_len = 10;
     goap::Action<RobotState>* path[max_path_len] = {nullptr};
 
-    goap::Action<RobotState>* actions[] = {
-        &index_arms,
-        &retract_arms,
-    };
+    InitGoal init_goal;
+    GAME_GOALS_ORDER(goals, goal_names, goal_count);
+    GAME_ACTIONS_ORDER(actions, action_count, ctx);
 
-    const auto action_count = sizeof(actions) / sizeof(actions[0]);
+    (void)goal_names;
+    (void)goal_count;
 
     NOTICE("Getting arms ready...");
     int len = planner.plan(state, init_goal, actions, action_count, path, max_path_len);
@@ -248,53 +242,15 @@ void strategy_chaos_play_game(strategy_context_t* ctx, RobotState& state)
 {
     messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
-    InitGoal init_goal;
-    AcceleratorGoal accelerator_goal;
-    TakeGoldoniumGoal take_goldonium_goal;
-    StockPuckGoal stock_puck_goal;
-    goap::Goal<RobotState>* goals[] = {
-        &accelerator_goal,
-        &take_goldonium_goal,
-        &stock_puck_goal,
-    };
-
-    IndexArms index_arms(ctx);
-    RetractArms retract_arms(ctx);
-    TakePuck take_pucks[] = {{ctx, 0}, {ctx, 1}, {ctx, 2}, {ctx, 3}, {ctx, 4}, {ctx, 5}, {ctx, 6}, {ctx, 7}, {ctx, 8}, {ctx, 9}, {ctx, 10}, {ctx, 11}};
-    DepositPuck deposit_puck[] = {{ctx, 0}, {ctx, 1}, {ctx, 2}, {ctx, 3}, {ctx, 4}};
-    LaunchAccelerator launch_accelerator(ctx);
-    TakeGoldonium take_goldonium(ctx);
-    StockPuckInStorage stock_puck_in_storage(ctx);
-
     const int max_path_len = 10;
     goap::Action<RobotState>* path[max_path_len] = {nullptr};
 
-    goap::Action<RobotState>* actions[] = {
-        &index_arms,
-        &retract_arms,
-        &take_pucks[0],
-        &take_pucks[1],
-        &take_pucks[2],
-        &take_pucks[3],
-        &take_pucks[4],
-        &take_pucks[5],
-        &take_pucks[6],
-        &take_pucks[7],
-        &take_pucks[8],
-        &take_pucks[9],
-        &take_pucks[10],
-        &take_pucks[11],
-        &deposit_puck[0],
-        &deposit_puck[1],
-        &deposit_puck[2],
-        &deposit_puck[3],
-        &deposit_puck[4],
-        &launch_accelerator,
-        &take_goldonium,
-        &stock_puck_in_storage,
-    };
+    InitGoal init_goal;
+    GAME_GOALS_CHAOS(goals, goal_names, goal_count);
+    GAME_ACTIONS_CHAOS(actions, action_count, ctx);
 
-    const auto action_count = sizeof(actions) / sizeof(actions[0]);
+    (void)goal_names;
+    (void)goal_count;
 
     NOTICE("Getting arms ready...");
     int len = planner.plan(state, init_goal, actions, action_count, path, max_path_len);
