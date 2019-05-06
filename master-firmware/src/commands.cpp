@@ -1086,25 +1086,28 @@ static void cmd_arm(BaseSequentialStream* chp, int argc, char* argv[])
         chprintf(chp, "Measured left angles: %.4f, %.4f, %.4f\r\n", angles[0], angles[1], angles[2]);
     } else if (argc == 2) {
         manipulator_side_t side = (!strcmp(argv[0], "left")) ? LEFT : (!strcmp(argv[0], "right")) ? RIGHT : BOTH;
+        chprintf(chp, "Use r: %d, l: %d\r\n", int(USE_RIGHT(side)), int(USE_LEFT(side)));
+
+        bool res = true;
 
         if (!strcmp(argv[1], "hold")) {
             manipulator_angles(side, angles);
             manipulator_angles_set(side, angles[0], angles[1], angles[2]);
             chprintf(chp, "Holding angles: %.4f, %.4f, %.4f\r\n", angles[0], angles[1], angles[2]);
         } else if (!strcmp(argv[1], "retract")) {
-            manipulator_goto(side, MANIPULATOR_RETRACT);
+            res = manipulator_goto(side, MANIPULATOR_RETRACT);
         } else if (!strcmp(argv[1], "deploy")) {
-            manipulator_goto(side, MANIPULATOR_DEPLOY);
+            res = manipulator_goto(side, MANIPULATOR_DEPLOY);
         } else if (!strcmp(argv[1], "lift_h")) {
-            manipulator_goto(side, MANIPULATOR_LIFT_HORZ);
+            res = manipulator_goto(side, MANIPULATOR_LIFT_HORZ);
         } else if (!strcmp(argv[1], "pick_h")) {
-            manipulator_goto(side, MANIPULATOR_PICK_HORZ);
+            res = manipulator_goto(side, MANIPULATOR_PICK_HORZ);
         } else if (!strcmp(argv[1], "pick_v")) {
-            manipulator_goto(side, MANIPULATOR_PICK_VERT);
+            res = manipulator_goto(side, MANIPULATOR_PICK_VERT);
         } else if (!strcmp(argv[1], "lift_v")) {
-            manipulator_goto(side, MANIPULATOR_LIFT_VERT);
+            res = manipulator_goto(side, MANIPULATOR_LIFT_VERT);
         } else if (!strcmp(argv[1], "store_v")) {
-            manipulator_goto(side, MANIPULATOR_STORE_1);
+            res = manipulator_goto(side, MANIPULATOR_STORE_1);
         } else {
             if (side == RIGHT) {
                 motor_manager_set_voltage(&motor_manager, "theta-1", 0);
@@ -1117,6 +1120,11 @@ static void cmd_arm(BaseSequentialStream* chp, int argc, char* argv[])
                 motor_manager_set_voltage(&motor_manager, "theta-3", 0);
                 chprintf(chp, "Disabled right arm\r\n");
             }
+        }
+        if (res) {
+            chprintf(chp, "Operation successful\r\n");
+        } else {
+            chprintf(chp, "Operation failed\r\n");
         }
     }
 }
