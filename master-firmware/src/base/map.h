@@ -14,7 +14,7 @@ extern "C" {
 #define MAP_NUM_ALLY_EDGES 6
 #define MAP_ALLY_SIZE_FACTOR 1.1547005384f // for hexagon: 1/sin(60)
 #define MAP_NUM_OPPONENT 2
-#define MAP_NUM_OPPONENT_EDGES 4
+#define MAP_NUM_OPPONENT_EDGES 8
 
 #define MAP_NUM_PUCK 3
 #define MAP_NUM_PUCK_EDGES 4
