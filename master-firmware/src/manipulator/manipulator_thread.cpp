@@ -44,9 +44,17 @@ public:
 };
 
 MUTEX_DECL(right_lock);
-manipulator::Manipulator<ManipulatorLockGuard> right_arm{{"theta-1", "theta-2", "theta-3"}, {-1, -1, 1}, &right_lock};
+manipulator::Manipulator<ManipulatorLockGuard> right_arm{
+    {"theta-1", "theta-2", "theta-3"},
+    {-1, -1, 1},
+    {"pump-1", "pump-2"},
+    &right_lock};
 MUTEX_DECL(left_lock);
-manipulator::Manipulator<ManipulatorLockGuard> left_arm{{"left-theta-1", "left-theta-2", "left-theta-3"}, {1, 1, -1}, &left_lock};
+manipulator::Manipulator<ManipulatorLockGuard> left_arm{
+    {"left-theta-1", "left-theta-2", "left-theta-3"},
+    {1, 1, -1},
+    {"left-pump-1", "left-pump-2"},
+    &left_lock};
 
 void manipulator_angles(manipulator_side_t side, float* angles)
 {

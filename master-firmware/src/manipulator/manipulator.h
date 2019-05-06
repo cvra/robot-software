@@ -40,7 +40,7 @@ public:
         /* MANIPULATOR_LIFT_VERT */ {{1.4116, 0.0572, 2.2754}},
         /* MANIPULATOR_PICK_GOLDONIUM */ {{0.935233, 2.005595, 1.570796}},
         /* MANIPULATOR_LIFT_GOLDONIUM */ {{0.8, 3, 1.5908}},
-        /* MANIPULATOR_STORE_1 */ {{1.40768914, -1.14273806,0}},
+        /* MANIPULATOR_STORE_1 */ {{1.40768914, -1.14273806, 0}},
         /* MANIPULATOR_LIFT_VERT_TO_STORE */ {{1.5228, -0.8982, 1.4338}},
     };
 
@@ -49,12 +49,16 @@ public:
 public:
     manipulator::Gripper gripper;
 
-    Manipulator(const std::array<const char*, 3>& motors, const std::array<float, 3>& directions, void* _mutex)
+    Manipulator(const std::array<const char*, 3>& motors,
+                const std::array<float, 3>& directions,
+                const std::array<const char*, 2>& pumps,
+                void* _mutex)
         : sys(motors, directions)
         , estimator({0, 0, 0})
         , ctrl({0, 0, 0})
         , mutex(_mutex)
         , state(MANIPULATOR_INIT)
+        , gripper(pumps)
     {
         // from initial position, we can only retract
         nodes[MANIPULATOR_INIT].connect(nodes[MANIPULATOR_RETRACT]);
