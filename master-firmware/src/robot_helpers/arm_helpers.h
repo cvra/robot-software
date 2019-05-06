@@ -10,8 +10,8 @@ typedef enum {
     LEFT = (0b10),
     BOTH = (0b11),
 } manipulator_side_t;
-#define USE_RIGHT(side) (side & RIGHT)
-#define USE_LEFT(side) (side & LEFT)
+#define USE_RIGHT(side) ((side & RIGHT) > 0)
+#define USE_LEFT(side) ((side & LEFT) > 0)
 
 typedef enum {
     GRIPPER_OFF,

@@ -161,7 +161,10 @@ bool manipulator_goto(manipulator_side_t side, manipulator_state_t target)
         }
     }
 
-    right_arm.state = target;
+    if (USE_RIGHT(side))
+        right_arm.state = target;
+    if (USE_LEFT(side))
+        left_arm.state = target;
     return true;
 }
 
