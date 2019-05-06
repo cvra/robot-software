@@ -58,6 +58,7 @@ void map_update_opponent_obstacle(struct _map* map, int32_t x, int32_t y, int32_
 /** Set the points of a rectangle given its center position and size
  */
 void map_set_rectangular_obstacle(poly_t* opponent, int center_x, int center_y, int size_x, int size_y, int robot_size);
+void map_set_rectangular_obstacle_from_corners(poly_t* opponent, int bottom_left_x, int bottom_left_y, int32_t top_right_x, int32_t top_right_y, int robot_size);
 
 poly_t* map_get_puck_obstacle(struct _map* map, int index);
 void map_set_puck_obstacle(struct _map* map, int index, int x, int y, int robot_size);

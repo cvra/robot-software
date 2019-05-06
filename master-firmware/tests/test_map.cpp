@@ -52,6 +52,18 @@ TEST_GROUP (MapRectangularObstacle) {
     }
 };
 
+TEST(MapRectangularObstacle, setsRectangularPolygonAtGivenPositionInCounterClockWiseDirectionFromCorners)
+{
+    point_t top_right = {850, 950};
+    point_t bottom_left = {550, 650};
+    map_set_rectangular_obstacle_from_corners(&opponent, bottom_left.x, bottom_left.y, top_right.x, top_right.y, arbitrary_robot_size);
+
+    POINT_EQUAL({450, 550}, opponent.pts[3]);
+    POINT_EQUAL({450, 1050}, opponent.pts[2]);
+    POINT_EQUAL({950, 1050}, opponent.pts[1]);
+    POINT_EQUAL({950, 550}, opponent.pts[0]);
+};
+
 TEST(MapRectangularObstacle, setsRectangularPolygonAtGivenPositionInCounterClockWiseDirection)
 {
     int arbitrary_center_x = 700;

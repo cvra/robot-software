@@ -44,7 +44,7 @@ void map_init(struct _map* map, int robot_size)
 
     /* Add ramp as obstacle */
     map->ramp_obstacle = oa_new_poly(&map->oa, 4);
-    map_set_rectangular_obstacle(map->ramp_obstacle, 1500, 1789, 2100, 422, robot_size);
+    map_set_rectangular_obstacle_from_corners(map->ramp_obstacle, 450, 1578, 2550, 2000, robot_size);
 
     /* Add pucks from the starting area as obstacles, to avoid moving them */
     for (int i = 0; i < MAP_NUM_PUCK; i++) {
@@ -89,6 +89,24 @@ void map_set_rectangular_obstacle(poly_t* opponent, int center_x, int center_y, 
 
     opponent->pts[3].x = TABLE_POINT_X(center_x - (size_x + robot_size) / 2);
     opponent->pts[3].y = TABLE_POINT_Y(center_y - (size_y + robot_size) / 2);
+}
+
+void map_set_rectangular_obstacle_from_corners(poly_t* opponent, int bottom_left_x, int bottom_left_y, int32_t top_right_x, int32_t top_right_y, int robot_size)
+{
+    int32_t inflation_radius = robot_size / 2;
+
+    opponent->pts[0].x = TABLE_POINT_X(top_right_x + inflation_radius);
+    opponent->pts[0].y = TABLE_POINT_Y(bottom_left_y - inflation_radius);
+
+    opponent->pts[1].x = TABLE_POINT_X(top_right_x + inflation_radius);
+    opponent->pts[1].y = TABLE_POINT_Y(top_right_y + inflation_radius);
+
+    opponent->pts[2].x = TABLE_POINT_X(bottom_left_x - inflation_radius);
+    opponent->pts[2].y = TABLE_POINT_Y(top_right_y + inflation_radius);
+
+    opponent->pts[3].x = TABLE_POINT_X(bottom_left_x - inflation_radius);
+    opponent->pts[3].y = TABLE_POINT_Y(bottom_left_y - inflation_radius);
+
 }
 
 void map_update_opponent_obstacle(struct _map* map, int32_t x, int32_t y, int32_t opponent_size, int32_t robot_size)
