@@ -240,8 +240,10 @@ static THD_FUNCTION(manipulator_thd, arg)
     parameter_namespace_t* left_arm_params = parameter_namespace_find(&master_config, "arms/left");
 
     /* Setup and advertise manipulator state topic */
-    static TOPIC_DECL(manipulator_topic, Manipulator);
-    messagebus_advertise_topic(&bus, &manipulator_topic.topic, "/manipulator");
+    static TOPIC_DECL(manipulator_right_topic, Manipulator);
+    messagebus_advertise_topic(&bus, &manipulator_right_topic.topic, "/manipulator/right");
+    static TOPIC_DECL(manipulator_left_topic, Manipulator);
+    messagebus_advertise_topic(&bus, &manipulator_left_topic.topic, "/manipulator/left");
     Manipulator state = Manipulator_init_zero;
 
     init_arm_parameters(&right_arm, right_arm_params);
@@ -256,20 +258,39 @@ static THD_FUNCTION(manipulator_thd, arg)
             update_arm_parameters(&left_arm, left_arm_params);
         }
 
-        Pose2D pose = right_arm.update();
-        /*Angles input =*/ right_arm.compute_control();
-        // right_arm.apply(input);
+        {
+            Pose2D pose = right_arm.update();
+            /*Angles input =*/right_arm.compute_control();
+            // right_arm.apply(input);
 
-        state.pose.x = pose.x;
-        state.pose.y = pose.y;
-        state.pose.heading = pose.heading;
-        state.measured.q1 = right_arm.angles()[0];
-        state.measured.q2 = right_arm.angles()[1];
-        state.measured.q3 = right_arm.angles()[2];
-        state.input.q1 = right_arm.sys.last_raw[0];
-        state.input.q2 = right_arm.sys.last_raw[1];
-        state.input.q3 = right_arm.sys.last_raw[2];
-        messagebus_topic_publish(&manipulator_topic.topic, &state, sizeof(state));
+            state.pose.x = pose.x;
+            state.pose.y = pose.y;
+            state.pose.heading = pose.heading;
+            state.measured.q1 = right_arm.angles()[0];
+            state.measured.q2 = right_arm.angles()[1];
+            state.measured.q3 = right_arm.angles()[2];
+            state.input.q1 = right_arm.sys.last_raw[0];
+            state.input.q2 = right_arm.sys.last_raw[1];
+            state.input.q3 = right_arm.sys.last_raw[2];
+            messagebus_topic_publish(&manipulator_right_topic.topic, &state, sizeof(state));
+        }
+
+        {
+            Pose2D pose = left_arm.update();
+            /*Angles input =*/left_arm.compute_control();
+            // left_arm.apply(input);
+
+            state.pose.x = pose.x;
+            state.pose.y = pose.y;
+            state.pose.heading = pose.heading;
+            state.measured.q1 = left_arm.angles()[0];
+            state.measured.q2 = left_arm.angles()[1];
+            state.measured.q3 = left_arm.angles()[2];
+            state.input.q1 = left_arm.sys.last_raw[0];
+            state.input.q2 = left_arm.sys.last_raw[1];
+            state.input.q3 = left_arm.sys.last_raw[2];
+            messagebus_topic_publish(&manipulator_left_topic.topic, &state, sizeof(state));
+        }
 
         chThdSleepMilliseconds(1000 / MANIPULATOR_FREQUENCY);
     }
