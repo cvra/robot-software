@@ -201,13 +201,13 @@ actuator:
             position:
                 i_limit: 1000.0
                 kd: 0.0
-                ki: 0.0
-                kp: 100.0
+                ki: 1.0
+                kp: 50.0
             velocity:
                 i_limit: 100.0
                 kd: 0.0
-                ki: 0.0
-                kp: 0.1
+                ki: 0.05
+                kp: 0.2
     theta-2:
     # motor: 2232 U009 SR
         streams:
@@ -238,8 +238,8 @@ actuator:
             position:
                 i_limit: 1000.0
                 kd: 0.0
-                ki: 1.0
-                kp: 10.0
+                ki: 0.5
+                kp: 15.0
             velocity:
                 i_limit: 1.0
                 kd: 0.0
@@ -281,7 +281,7 @@ actuator:
                 i_limit: 10.0
                 kd: 0.0
                 ki: 5.0
-                kp: 0.3
+                kp: 10.0
     pump-1:
         control:
             mode: 0 # openloop
@@ -325,7 +325,7 @@ actuator:
                 i_limit: 1000.0
                 kd: 0.0
                 ki: 1.0
-                kp: 70.0
+                kp: 50.0
             velocity:
                 i_limit: 100.0
                 kd: 0.0
@@ -362,7 +362,7 @@ actuator:
                 i_limit: 1000.0
                 kd: 0.0
                 ki: 0.5
-                kp: 20.0
+                kp: 15.0
             velocity:
                 i_limit: 1.0
                 kd: 0.0
