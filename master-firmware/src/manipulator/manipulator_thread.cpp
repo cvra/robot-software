@@ -257,7 +257,7 @@ static THD_FUNCTION(manipulator_thd, arg)
         }
 
         Pose2D pose = right_arm.update();
-        Angles input = right_arm.compute_control();
+        /*Angles input =*/ right_arm.compute_control();
         // right_arm.apply(input);
 
         state.pose.x = pose.x;

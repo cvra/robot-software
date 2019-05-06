@@ -47,20 +47,16 @@ bool RetractArms::execute(RobotState& state)
 
 bool TakePuck::execute(RobotState& state)
 {
-    switch (pucks[puck_id].color) {
-        case PuckColor_RED:
-            strat->log("Taking red puck");
-            break;
-        case PuckColor_GREEN:
-            strat->log("Taking green puck");
-            break;
-        case PuckColor_BLUE:
-            strat->log("Taking blue puck");
-            break;
-        case PuckColor_RED_OR_GREEN:
-            strat->log("Taking red/green puck");
-            break;
-    }
+    if (pucks[puck_id].color == PuckColor_RED)
+        strat->log("Taking red puck");
+    if (pucks[puck_id].color == PuckColor_GREEN)
+        strat->log("Taking green puck");
+    if (pucks[puck_id].color == PuckColor_BLUE)
+        strat->log("Taking blue puck");
+    if (pucks[puck_id].color == PuckColor_RED_OR_GREEN)
+        strat->log("Taking red/green puck");
+    if (pucks[puck_id].color == PuckColor_GOLDENIUM)
+        strat->log("Taking golden puck");
 
     float x, y, a;
     if (pucks[puck_id].orientation == PuckOrientiation_HORIZONTAL) {
@@ -188,10 +184,10 @@ bool TakeGoldonium::execute(RobotState& state)
 bool StockPuckInStorage::execute(RobotState& state)
 {
     strat->log("Storing puck");
-    strat->forward(strat, 40);    
+    strat->forward(strat, 40);
     strat->manipulator_goto(RIGHT, MANIPULATOR_STORE_1);
     strat->gripper_set(RIGHT, GRIPPER_OFF);
-    
+
     state.storage_right[puck_position] = state.has_puck_color;
     state.has_puck = false;
     state.arms_are_deployed = true;
