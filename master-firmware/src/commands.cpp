@@ -860,7 +860,7 @@ static void cmd_arm_index(BaseSequentialStream* chp, int argc, char* argv[])
     } else {
         chprintf(chp, "Please stand by while we index the right arm...\r\n");
 
-        const char* motors[3] = {"theta-1", "theta-2", "theta-3"};
+        const char* motors[3] = {"right-theta-1", "right-theta-2", "right-theta-3"};
         const float directions[3] = {-1, -1, 1};
         const float speeds[3] = {(float)atof(argv[1]), (float)atof(argv[2]), (float)atof(argv[3])};
         float offsets[3];
@@ -1110,15 +1110,15 @@ static void cmd_arm(BaseSequentialStream* chp, int argc, char* argv[])
             res = manipulator_goto(side, MANIPULATOR_STORE_1);
         } else {
             if (side == RIGHT) {
-                motor_manager_set_voltage(&motor_manager, "theta-1", 0);
-                motor_manager_set_voltage(&motor_manager, "theta-2", 0);
-                motor_manager_set_voltage(&motor_manager, "theta-3", 0);
+                motor_manager_set_voltage(&motor_manager, "right-theta-1", 0);
+                motor_manager_set_voltage(&motor_manager, "right-theta-2", 0);
+                motor_manager_set_voltage(&motor_manager, "right-theta-3", 0);
                 chprintf(chp, "Disabled right arm\r\n");
             } else {
-                motor_manager_set_voltage(&motor_manager, "theta-1", 0);
-                motor_manager_set_voltage(&motor_manager, "theta-2", 0);
-                motor_manager_set_voltage(&motor_manager, "theta-3", 0);
-                chprintf(chp, "Disabled right arm\r\n");
+                motor_manager_set_voltage(&motor_manager, "left-theta-1", 0);
+                motor_manager_set_voltage(&motor_manager, "left-theta-2", 0);
+                motor_manager_set_voltage(&motor_manager, "left-theta-3", 0);
+                chprintf(chp, "Disabled left arm\r\n");
             }
         }
         if (res) {

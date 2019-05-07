@@ -45,9 +45,9 @@ public:
 
 MUTEX_DECL(right_lock);
 manipulator::Manipulator<ManipulatorLockGuard> right_arm{
-    {"theta-1", "theta-2", "theta-3"},
+    {"right-theta-1", "right-theta-2", "right-theta-3"},
     {-1, -1, 1},
-    {"pump-1", "pump-2"},
+    {"right-pump-1", "right-pump-2"},
     &right_lock};
 MUTEX_DECL(left_lock);
 manipulator::Manipulator<ManipulatorLockGuard> left_arm{

@@ -171,7 +171,7 @@ actuator:
             acceleration_limit: 200.
             velocity_limit: 50.
             torque_limit: 30.
-    theta-1:
+    right-theta-1:
     # motor: 2232 U009 SR
         streams:
             motor_pos: 50.
@@ -208,7 +208,7 @@ actuator:
                 kd: 0.0
                 ki: 0.05
                 kp: 0.2
-    theta-2:
+    right-theta-2:
     # motor: 2232 U009 SR
         streams:
             motor_pos: 50.
@@ -245,7 +245,7 @@ actuator:
                 kd: 0.0
                 ki: 1.0
                 kp: 0.1
-    theta-3:
+    right-theta-3:
     # motor: 1524 U012 SR
         streams:
             motor_pos: 50.
@@ -282,13 +282,13 @@ actuator:
                 kd: 0.0
                 ki: 5.0
                 kp: 10.0
-    pump-1:
+    right-pump-1:
         control:
             mode: 0 # openloop
             low_batt_th: 5.
         streams:
             current: 10
-    pump-2:
+    right-pump-2:
         control:
             mode: 0 # openloop
             low_batt_th: 5.
