@@ -68,6 +68,7 @@ target.arm:
     - src/strategy_impl/actions.cpp
     - src/strategy_impl/base.cpp
     - src/strategy_impl/simulation.cpp
+    - src/ally_position_service.c
 
 source:
     - src/unix_timestamp.c
