@@ -24,8 +24,8 @@ struct RetractArms : actions::RetractArms {
 };
 struct TakePuck : actions::TakePuck {
     strategy_context_t* strat;
-    TakePuck(strategy_context_t* strat, size_t id)
-        : actions::TakePuck(id)
+    TakePuck(strategy_context_t* strat, size_t id, manipulator_side_t side)
+        : actions::TakePuck(id, side)
         , strat(strat)
     {
     }
@@ -33,8 +33,8 @@ struct TakePuck : actions::TakePuck {
 };
 struct DepositPuck : actions::DepositPuck {
     strategy_context_t* strat;
-    DepositPuck(strategy_context_t* strat, size_t zone_id)
-        : actions::DepositPuck(zone_id)
+    DepositPuck(strategy_context_t* strat, size_t zone_id, manipulator_side_t side)
+        : actions::DepositPuck(zone_id, side)
         , strat(strat)
     {
     }
@@ -59,8 +59,9 @@ struct TakeGoldonium : actions::TakeGoldonium {
 
 struct StockPuckInStorage : actions::StockPuckInStorage {
     strategy_context_t* strat;
-    StockPuckInStorage(strategy_context_t* strat)
-        : strat(strat)
+    StockPuckInStorage(strategy_context_t* strat, manipulator_side_t side)
+        : actions::StockPuckInStorage(side)
+        , strat(strat)
     {
     }
     bool execute(RobotState& state);
@@ -68,8 +69,9 @@ struct StockPuckInStorage : actions::StockPuckInStorage {
 
 struct PutPuckInScale : actions::PutPuckInScale {
     strategy_context_t* strat;
-    PutPuckInScale(strategy_context_t* strat)
-        : strat(strat)
+    PutPuckInScale(strategy_context_t* strat, manipulator_side_t side)
+        : actions::PutPuckInScale(side)
+        , strat(strat)
     {
     }
     bool execute(RobotState& state);

@@ -1132,12 +1132,13 @@ static void cmd_arm(BaseSequentialStream* chp, int argc, char* argv[])
 static void cmd_grip(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc != 1) {
-        chprintf(chp, "Usage: grip -1|0|1\r\n");
+        chprintf(chp, "Usage: grip l|r -1|0|1\r\n");
         return;
     }
-    int state = atoi(argv[0]);
+    int state = atoi(argv[1]);
+    manipulator_side_t side = (!strcmp(argv[0], "l")) ? LEFT : RIGHT;
     if (state > 0) {
-        manipulator_gripper_set(RIGHT, GRIPPER_ACQUIRE);
+        manipulator_gripper_set(side, GRIPPER_ACQUIRE);
         chprintf(chp, "Acquire gripper\r\n");
 
         for (int i = 0; i < 20; i++) {
@@ -1147,7 +1148,7 @@ static void cmd_grip(BaseSequentialStream* chp, int argc, char* argv[])
             chThdSleepMilliseconds(100);
         }
 
-        if (strategy_puck_is_picked()) {
+        if (strategy_puck_is_picked(side)) {
             chprintf(chp, "I got the puck!\r\n");
 
         } else {

@@ -1,23 +1,11 @@
 #ifndef ARM_HELPERS_H
 #define ARM_HELPERS_H
 
+#include "robot_helpers/robot.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-typedef enum {
-    RIGHT = (0b01),
-    LEFT = (0b10),
-    BOTH = (0b11),
-} manipulator_side_t;
-#define USE_RIGHT(side) ((side & RIGHT) > 0)
-#define USE_LEFT(side) ((side & LEFT) > 0)
-
-typedef enum {
-    GRIPPER_OFF,
-    GRIPPER_ACQUIRE,
-    GRIPPER_RELEASE,
-} gripper_state_t;
 
 // Moves the arm motors one after the other to index them.
 // Assumes 3 axis. So all pointers must point to C-arrays of length 3.

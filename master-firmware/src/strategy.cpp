@@ -159,10 +159,18 @@ static void wait_for_autoposition_signal(void)
     wait_for_color_selection();
 }
 
-bool strategy_puck_is_picked(void)
+bool strategy_puck_is_picked(manipulator_side_t side)
 {
-    return motor_get_current("pump-1") > config_get_scalar("master/arms/right/gripper/current_thres")
-        && motor_get_current("pump-2") > config_get_scalar("master/arms/right/gripper/current_thres");
+    bool res = true;
+    if (USE_LEFT(side)) {
+        res &= motor_get_current("left-pump-1") > config_get_scalar("master/arms/left/gripper/current_thres")
+            && motor_get_current("left-pump-2") > config_get_scalar("master/arms/left/gripper/current_thres");
+    }
+    if (USE_RIGHT(side)) {
+        res &= motor_get_current("pump-1") > config_get_scalar("master/arms/right/gripper/current_thres")
+            && motor_get_current("pump-2") > config_get_scalar("master/arms/right/gripper/current_thres");
+    }
+    return res;
 }
 
 void strategy_shutdown_endgame(void)

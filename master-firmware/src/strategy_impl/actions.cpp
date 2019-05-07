@@ -37,11 +37,14 @@ bool RetractArms::execute(RobotState& state)
 {
     strat->log("Retracting arms!");
 
-    strat->gripper_set(RIGHT, GRIPPER_OFF);
-    strat->manipulator_goto(RIGHT, MANIPULATOR_RETRACT);
+    strat->gripper_set(BOTH, GRIPPER_OFF);
+    strat->manipulator_goto(BOTH, MANIPULATOR_RETRACT);
 
-    state.has_puck = false;
+    state.right_has_puck = false;
+    state.left_has_puck = false;
+
     state.arms_are_deployed = false;
+
     return true;
 }
 
@@ -58,13 +61,15 @@ bool TakePuck::execute(RobotState& state)
     if (pucks[puck_id].color == PuckColor_GOLDENIUM)
         strat->log("Taking golden puck !");
 
+    strat->log((side == LEFT) ? "\tUsing left arm" : "\tUsing right arm");
+
     float x, y, a;
     if (pucks[puck_id].orientation == PuckOrientiation_HORIZONTAL) {
         x = MIRROR_X(strat->color, pucks[puck_id].pos_x_mm - 170);
-        y = pucks[puck_id].pos_y_mm + MIRROR(strat->color, 50);
+        y = pucks[puck_id].pos_y_mm + MIRROR_ARM(side, MIRROR(strat->color, 50));
         a = MIRROR_A(strat->color, 180);
     } else {
-        x = MIRROR_X(strat->color, pucks[puck_id].pos_x_mm) - 50;
+        x = MIRROR_X(strat->color, pucks[puck_id].pos_x_mm) - MIRROR_ARM(side, 50);
         y = pucks[puck_id].pos_y_mm - 275;
         a = MIRROR_A(strat->color, -90);
     }
@@ -74,49 +79,59 @@ bool TakePuck::execute(RobotState& state)
     }
 
     state.arms_are_deployed = true;
-    strat->gripper_set(RIGHT, GRIPPER_ACQUIRE);
+    strat->gripper_set(side, GRIPPER_ACQUIRE);
 
     if (pucks[puck_id].orientation == PuckOrientiation_HORIZONTAL) {
-        strat->manipulator_goto(RIGHT, MANIPULATOR_PICK_HORZ);
+        strat->manipulator_goto(side, MANIPULATOR_PICK_HORZ);
         strat->wait_ms(500);
-        strat->manipulator_goto(RIGHT, MANIPULATOR_LIFT_HORZ);
+        strat->manipulator_goto(side, MANIPULATOR_LIFT_HORZ);
     } else {
-        strat->manipulator_goto(RIGHT, MANIPULATOR_PICK_VERT);
+        strat->manipulator_goto(side, MANIPULATOR_PICK_VERT);
         strat->forward(strat, -30);
         strat->wait_ms(500);
-        strat->manipulator_goto(RIGHT, MANIPULATOR_LIFT_VERT);
+        strat->manipulator_goto(side, MANIPULATOR_LIFT_VERT);
     }
 
     state.puck_available[puck_id] = false;
 
-    if (!strat->puck_is_picked()) {
-        strat->gripper_set(RIGHT, GRIPPER_OFF);
+    if (!strat->puck_is_picked(side)) {
+        strat->gripper_set(side, GRIPPER_OFF);
         return false;
     }
 
-    state.has_puck = true;
-    state.has_puck_color = pucks[puck_id].color;
+    if (side == LEFT) {
+        state.left_has_puck = true;
+        state.left_puck_color = pucks[puck_id].color;
+    } else {
+        state.right_has_puck = true;
+        state.right_puck_color = pucks[puck_id].color;
+    }
     return true;
 }
 
 bool DepositPuck::execute(RobotState& state)
 {
     strat->log("Depositing puck !");
+    strat->log((side == LEFT) ? "\tUsing left arm" : "\tUsing right arm");
 
     float x = MIRROR_X(strat->color, areas[zone_id].pos_x_mm);
-    float y = areas[zone_id].pos_y_mm - MIRROR(strat->color, 50);
+    float y = areas[zone_id].pos_y_mm - MIRROR_ARM(side, MIRROR(strat->color, 50));
     float a = MIRROR_A(strat->color, 0);
 
     if (!strat->goto_xya(strat, x, y, a)) {
         return false;
     }
-    strat->gripper_set(RIGHT, GRIPPER_RELEASE);
+    strat->gripper_set(side, GRIPPER_RELEASE);
     strat->wait_ms(100);
 
-    strat->gripper_set(RIGHT, GRIPPER_OFF);
+    strat->gripper_set(side, GRIPPER_OFF);
 
     pucks_in_area++;
-    state.has_puck = false;
+    if (side == LEFT) {
+        state.left_has_puck = false;
+    } else {
+        state.right_has_puck = false;
+    }
     state.classified_pucks[areas[zone_id].color]++;
     state.arms_are_deployed = true;
     return true;
@@ -164,7 +179,7 @@ bool TakeGoldonium::execute(RobotState& state)
     strat->forward(strat, -27);
     strat->wait_ms(500);
 
-    if (!strat->puck_is_picked()) {
+    if (!strat->puck_is_picked(RIGHT)) {
         strat->gripper_set(RIGHT, GRIPPER_OFF);
         strat->forward(strat, 80);
         return false;
@@ -184,39 +199,57 @@ bool TakeGoldonium::execute(RobotState& state)
 bool StockPuckInStorage::execute(RobotState& state)
 {
     strat->log("Storing puck !");
-    strat->forward(strat, 40);
-    strat->manipulator_goto(RIGHT, MANIPULATOR_STORE_1);
-    strat->gripper_set(RIGHT, GRIPPER_OFF);
+    strat->log((side == LEFT) ? "\tUsing left arm" : "\tUsing right arm");
 
-    state.storage_right[puck_position] = state.has_puck_color;
-    state.has_puck = false;
+    strat->forward(strat, 40);
+    strat->manipulator_goto(side, MANIPULATOR_STORE_1);
+    strat->gripper_set(side, GRIPPER_OFF);
+
+    if (side == LEFT) {
+        state.left_storage[puck_position] = state.left_puck_color;
+        state.left_has_puck = false;
+
+    } else {
+        state.right_storage[puck_position] = state.right_puck_color;
+        state.right_has_puck = false;
+    }
     state.arms_are_deployed = true;
     return true;
 }
 
 bool PutPuckInScale::execute(RobotState& state)
 {
-    strat->log("Puttig puck in scale !");
+    strat->log("Putting puck in scale !");
+    strat->log((side == LEFT) ? "\tUsing left arm" : "\tUsing right arm");
+
     if (!strat->goto_xya(strat, MIRROR_X(strat->color, 1362), 1200, MIRROR_A(strat->color, 270))) {
         return false;
     }
-    strat->manipulator_goto(RIGHT, MANIPULATOR_SCALE);
+    strat->manipulator_goto(side, MANIPULATOR_SCALE);
     if (!strat->goto_xya(strat, MIRROR_X(strat->color, 1362), 1430, MIRROR_A(strat->color, 270))) {
         return false;
     }
-    strat->gripper_set(RIGHT, GRIPPER_RELEASE);
+    strat->gripper_set(side, GRIPPER_RELEASE);
     strat->wait_ms(200);
-    strat->gripper_set(RIGHT, GRIPPER_OFF);
+    strat->gripper_set(side, GRIPPER_OFF);
     strat->forward(strat, 50);
     state.arms_are_deployed = true;
-    state.has_puck = false;
-    state.puck_in_scale[0] = state.has_puck_color;
+
+    if (side == LEFT) {
+        state.left_has_puck = false;
+        state.puck_in_scale[puck_position] = state.left_puck_color;
+    } else {
+        state.right_has_puck = false;
+        state.puck_in_scale[puck_position] = state.right_puck_color;
+    }
+
     return true;
 }
 
 bool PutPuckInAccelerator::execute(RobotState& state)
 {
-    strat->log("Puttig puck in accelerator !");
+    strat->log("Putting puck in accelerator !");
+
     if (!strat->goto_xya(strat, MIRROR_X(strat->color, 1950), 300, MIRROR_A(strat->color, 90))) {
         return false;
     }
@@ -228,7 +261,8 @@ bool PutPuckInAccelerator::execute(RobotState& state)
     strat->manipulator_goto(RIGHT, MANIPULATOR_PUT_ACCELERATOR_DOWN);
     strat->gripper_set(RIGHT, GRIPPER_OFF);
     strat->forward(strat, 130);
-    state.has_puck = false;
+
+    state.right_has_puck = false;
     state.puck_in_accelerator++;
     return true;
 }
