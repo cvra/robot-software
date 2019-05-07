@@ -53,9 +53,7 @@
     goap::Action<RobotState>* actions[] = {            \
         &index_arms,                                   \
         &retract_arms,                                 \
-        &take_pucks[0],                                \
-        &take_pucks[1],                                \
-        &take_pucks[2],                                \
+        /* &take_pucks[0],&take_pucks[1],&take_pucks[2], */  \
         &take_pucks[3],                                \
         &take_pucks[4],                                \
         &take_pucks[5],                                \
