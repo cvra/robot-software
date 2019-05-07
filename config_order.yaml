@@ -281,6 +281,18 @@ actuator:
                 kd: 0.0
                 ki: 5.0
                 kp: 10.0
+    right-pump-1:
+        control:
+            mode: 0 # openloop
+            low_batt_th: 5.
+        streams:
+            current: 10
+    right-pump-2:
+        control:
+            mode: 0 # openloop
+            low_batt_th: 5.
+        streams:
+            current: 10
     left-theta-1:
     # motor: 2232 U009 SR
         streams:
