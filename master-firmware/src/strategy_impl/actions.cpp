@@ -48,15 +48,15 @@ bool RetractArms::execute(RobotState& state)
 bool TakePuck::execute(RobotState& state)
 {
     if (pucks[puck_id].color == PuckColor_RED)
-        strat->log("Taking red puck");
+        strat->log("Taking red puck !");
     if (pucks[puck_id].color == PuckColor_GREEN)
-        strat->log("Taking green puck");
+        strat->log("Taking green puck !");
     if (pucks[puck_id].color == PuckColor_BLUE)
-        strat->log("Taking blue puck");
+        strat->log("Taking blue puck !");
     if (pucks[puck_id].color == PuckColor_RED_OR_GREEN)
-        strat->log("Taking red/green puck");
+        strat->log("Taking red/green puck !");
     if (pucks[puck_id].color == PuckColor_GOLDENIUM)
-        strat->log("Taking golden puck");
+        strat->log("Taking golden puck !");
 
     float x, y, a;
     if (pucks[puck_id].orientation == PuckOrientiation_HORIZONTAL) {
@@ -101,7 +101,7 @@ bool TakePuck::execute(RobotState& state)
 
 bool DepositPuck::execute(RobotState& state)
 {
-    strat->log("Depositing puck");
+    strat->log("Depositing puck !");
 
     float x = MIRROR_X(strat->color, areas[zone_id].pos_x_mm);
     float y = areas[zone_id].pos_y_mm - MIRROR(strat->color, 50);
@@ -124,7 +124,7 @@ bool DepositPuck::execute(RobotState& state)
 
 bool LaunchAccelerator::execute(RobotState& state)
 {
-    strat->log("Pushing puck to launch accelerator");
+    strat->log("Push/launch accelerator !");
 
     float x = (strat->color == VIOLET) ? 1695 : 1405;
 
@@ -145,7 +145,7 @@ bool LaunchAccelerator::execute(RobotState& state)
 
 bool TakeGoldonium::execute(RobotState& state)
 {
-    strat->log("Taking goldenium");
+    strat->log("Taking goldenium !");
 
     float x = (strat->color == VIOLET) ? 2275 : 825;
 
@@ -183,7 +183,7 @@ bool TakeGoldonium::execute(RobotState& state)
 
 bool StockPuckInStorage::execute(RobotState& state)
 {
-    strat->log("Storing puck");
+    strat->log("Storing puck !");
     strat->forward(strat, 40);
     strat->manipulator_goto(RIGHT, MANIPULATOR_STORE_1);
     strat->gripper_set(RIGHT, GRIPPER_OFF);
@@ -196,7 +196,7 @@ bool StockPuckInStorage::execute(RobotState& state)
 
 bool PutPuckInScale::execute(RobotState& state)
 {
-    strat->log("Puttig puck in balance !");
+    strat->log("Puttig puck in scale !");
     if (!strat->goto_xya(strat, MIRROR_X(strat->color, 1362), 1200, MIRROR_A(strat->color, 270))) {
         return false;
     }
