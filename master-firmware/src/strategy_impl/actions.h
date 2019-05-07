@@ -69,8 +69,9 @@ struct StockPuckInStorage : actions::StockPuckInStorage {
 
 struct PutPuckInScale : actions::PutPuckInScale {
     strategy_context_t* strat;
-    PutPuckInScale(strategy_context_t* strat)
-        : strat(strat)
+    PutPuckInScale(strategy_context_t* strat, manipulator_side_t side)
+        : actions::PutPuckInScale(side)
+        , strat(strat)
     {
     }
     bool execute(RobotState& state);
