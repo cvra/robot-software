@@ -68,7 +68,8 @@
     };                                                 \
     LaunchAccelerator launch_accelerator(ctx);         \
     TakeGoldonium take_goldonium(ctx);                 \
-    StockPuckInStorage stock_puck(ctx);                \
+    StockPuckInStorage stock_puck_right(ctx, RIGHT);   \
+    StockPuckInStorage stock_puck_left(ctx, LEFT);     \
     PutPuckInScale put_puck_in_scale(ctx);             \
     PutPuckInAccelerator put_puck_in_accelerator(ctx); \
     goap::Action<RobotState>* actions[] = {            \
@@ -102,7 +103,8 @@
         &deposit_puck_left[4],                         \
         &launch_accelerator,                           \
         &take_goldonium,                               \
-        &stock_puck,                                   \
+        &stock_puck_right,                             \
+        &stock_puck_left,                              \
         &put_puck_in_scale,                            \
         &put_puck_in_accelerator,                      \
     };                                                 \

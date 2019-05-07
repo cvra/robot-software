@@ -203,11 +203,17 @@ bool StockPuckInStorage::execute(RobotState& state)
 {
     strat->log("Storing puck !");
     strat->forward(strat, 40);
-    strat->manipulator_goto(RIGHT, MANIPULATOR_STORE_1);
-    strat->gripper_set(RIGHT, GRIPPER_OFF);
+    strat->manipulator_goto(side, MANIPULATOR_STORE_1);
+    strat->gripper_set(side, GRIPPER_OFF);
 
-    state.storage_right[puck_position] = state.right_puck_color;
-    state.right_has_puck = false;
+    if (side == LEFT) {
+        state.left_storage[puck_position] = state.left_puck_color;
+        state.left_has_puck = false;
+
+    } else {
+        state.right_storage[puck_position] = state.right_puck_color;
+        state.right_has_puck = false;
+    }
     state.arms_are_deployed = true;
     return true;
 }
