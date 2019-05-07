@@ -61,11 +61,7 @@ bool TakePuck::execute(RobotState& state)
     if (pucks[puck_id].color == PuckColor_GOLDENIUM)
         strat->log("Taking golden puck !");
 
-    if (side == LEFT) {
-        strat->log("\tUsing left arm");
-    } else {
-        strat->log("\tUsing right arm");
-    }
+    strat->log((side == LEFT) ? "\tUsing left arm" : "\tUsing right arm");
 
     float x, y, a;
     if (pucks[puck_id].orientation == PuckOrientiation_HORIZONTAL) {
@@ -116,6 +112,7 @@ bool TakePuck::execute(RobotState& state)
 bool DepositPuck::execute(RobotState& state)
 {
     strat->log("Depositing puck !");
+    strat->log((side == LEFT) ? "\tUsing left arm" : "\tUsing right arm");
 
     float x = MIRROR_X(strat->color, areas[zone_id].pos_x_mm);
     float y = areas[zone_id].pos_y_mm - MIRROR_ARM(side, MIRROR(strat->color, 50));
@@ -202,6 +199,8 @@ bool TakeGoldonium::execute(RobotState& state)
 bool StockPuckInStorage::execute(RobotState& state)
 {
     strat->log("Storing puck !");
+    strat->log((side == LEFT) ? "\tUsing left arm" : "\tUsing right arm");
+
     strat->forward(strat, 40);
     strat->manipulator_goto(side, MANIPULATOR_STORE_1);
     strat->gripper_set(side, GRIPPER_OFF);
@@ -220,7 +219,9 @@ bool StockPuckInStorage::execute(RobotState& state)
 
 bool PutPuckInScale::execute(RobotState& state)
 {
-    strat->log("Puttig puck in scale !");
+    strat->log("Putting puck in scale !");
+    strat->log((side == LEFT) ? "\tUsing left arm" : "\tUsing right arm");
+
     if (!strat->goto_xya(strat, MIRROR_X(strat->color, 1362), 1200, MIRROR_A(strat->color, 270))) {
         return false;
     }
