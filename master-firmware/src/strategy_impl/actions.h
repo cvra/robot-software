@@ -24,8 +24,8 @@ struct RetractArms : actions::RetractArms {
 };
 struct TakePuck : actions::TakePuck {
     strategy_context_t* strat;
-    TakePuck(strategy_context_t* strat, size_t id)
-        : actions::TakePuck(id)
+    TakePuck(strategy_context_t* strat, size_t id, manipulator_side_t side)
+        : actions::TakePuck(id, side)
         , strat(strat)
     {
     }

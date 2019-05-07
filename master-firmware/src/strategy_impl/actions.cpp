@@ -41,7 +41,10 @@ bool RetractArms::execute(RobotState& state)
     strat->manipulator_goto(BOTH, MANIPULATOR_RETRACT);
 
     state.right_has_puck = false;
+    state.left_has_puck = false;
+
     state.arms_are_deployed = false;
+
     return true;
 }
 
@@ -58,13 +61,19 @@ bool TakePuck::execute(RobotState& state)
     if (pucks[puck_id].color == PuckColor_GOLDENIUM)
         strat->log("Taking golden puck !");
 
+    if (side == LEFT) {
+        strat->log("\tUsing left arm");
+    } else {
+        strat->log("\tUsing right arm");
+    }
+
     float x, y, a;
     if (pucks[puck_id].orientation == PuckOrientiation_HORIZONTAL) {
         x = MIRROR_X(strat->color, pucks[puck_id].pos_x_mm - 170);
-        y = pucks[puck_id].pos_y_mm + MIRROR(strat->color, 50);
+        y = pucks[puck_id].pos_y_mm + MIRROR_ARM(side, MIRROR(strat->color, 50));
         a = MIRROR_A(strat->color, 180);
     } else {
-        x = MIRROR_X(strat->color, pucks[puck_id].pos_x_mm) - 50;
+        x = MIRROR_X(strat->color, pucks[puck_id].pos_x_mm) - MIRROR_ARM(side, 50);
         y = pucks[puck_id].pos_y_mm - 275;
         a = MIRROR_A(strat->color, -90);
     }
@@ -74,28 +83,33 @@ bool TakePuck::execute(RobotState& state)
     }
 
     state.arms_are_deployed = true;
-    strat->gripper_set(RIGHT, GRIPPER_ACQUIRE);
+    strat->gripper_set(side, GRIPPER_ACQUIRE);
 
     if (pucks[puck_id].orientation == PuckOrientiation_HORIZONTAL) {
-        strat->manipulator_goto(RIGHT, MANIPULATOR_PICK_HORZ);
+        strat->manipulator_goto(side, MANIPULATOR_PICK_HORZ);
         strat->wait_ms(500);
-        strat->manipulator_goto(RIGHT, MANIPULATOR_LIFT_HORZ);
+        strat->manipulator_goto(side, MANIPULATOR_LIFT_HORZ);
     } else {
-        strat->manipulator_goto(RIGHT, MANIPULATOR_PICK_VERT);
+        strat->manipulator_goto(side, MANIPULATOR_PICK_VERT);
         strat->forward(strat, -30);
         strat->wait_ms(500);
-        strat->manipulator_goto(RIGHT, MANIPULATOR_LIFT_VERT);
+        strat->manipulator_goto(side, MANIPULATOR_LIFT_VERT);
     }
 
     state.puck_available[puck_id] = false;
 
     if (!strat->puck_is_picked()) {
-        strat->gripper_set(RIGHT, GRIPPER_OFF);
+        strat->gripper_set(side, GRIPPER_OFF);
         return false;
     }
 
-    state.right_has_puck = true;
-    state.right_puck_color = pucks[puck_id].color;
+    if (side == LEFT) {
+        state.left_has_puck = true;
+        state.left_puck_color = pucks[puck_id].color;
+    } else {
+        state.right_has_puck = true;
+        state.right_puck_color = pucks[puck_id].color;
+    }
     return true;
 }
 

@@ -32,26 +32,36 @@ struct RetractArms : public goap::Action<RobotState> {
     void plan_effects(RobotState& state)
     {
         state.arms_are_deployed = false;
+        state.right_has_puck = false;
+        state.left_has_puck = false;
     }
 };
 
 struct TakePuck : public goap::Action<RobotState> {
     size_t puck_id;
+    manipulator_side_t side;
 
-    TakePuck(size_t id)
+    TakePuck(size_t id, manipulator_side_t side)
         : puck_id(id)
+        , side(side)
     {
     }
     bool can_run(const RobotState& state)
     {
-        return !state.arms_are_deployed && state.puck_available[puck_id] && !state.right_has_puck;
+        bool arm_is_free = (side == LEFT) ? !state.left_has_puck : !state.right_has_puck;
+        return !state.arms_are_deployed && state.puck_available[puck_id] && arm_is_free;
     }
 
     void plan_effects(RobotState& state)
     {
         state.puck_available[puck_id] = false;
-        state.right_has_puck = true;
-        state.right_puck_color = pucks[puck_id].color;
+        if (side == LEFT) {
+            state.left_has_puck = true;
+            state.left_puck_color = pucks[puck_id].color;
+        } else {
+            state.right_has_puck = true;
+            state.right_puck_color = pucks[puck_id].color;
+        }
         state.arms_are_deployed = true;
     }
 };

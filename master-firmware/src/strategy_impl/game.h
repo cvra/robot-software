@@ -24,19 +24,33 @@
 #define GAME_ACTIONS_CHAOS(actions, action_count, ctx) \
     IndexArms index_arms(ctx);                         \
     RetractArms retract_arms(ctx);                     \
-    TakePuck take_pucks[] = {                          \
-        {ctx, 0},                                      \
-        {ctx, 1},                                      \
-        {ctx, 2},                                      \
-        {ctx, 3},                                      \
-        {ctx, 4},                                      \
-        {ctx, 5},                                      \
-        {ctx, 6},                                      \
-        {ctx, 7},                                      \
-        {ctx, 8},                                      \
-        {ctx, 9},                                      \
-        {ctx, 10},                                     \
-        {ctx, 11},                                     \
+    TakePuck take_pucks_right[] = {                    \
+        {ctx, 0, RIGHT},                               \
+        {ctx, 1, RIGHT},                               \
+        {ctx, 2, RIGHT},                               \
+        {ctx, 3, RIGHT},                               \
+        {ctx, 4, RIGHT},                               \
+        {ctx, 5, RIGHT},                               \
+        {ctx, 6, RIGHT},                               \
+        {ctx, 7, RIGHT},                               \
+        {ctx, 8, RIGHT},                               \
+        {ctx, 9, RIGHT},                               \
+        {ctx, 10, RIGHT},                              \
+        {ctx, 11, RIGHT},                              \
+    };                                                 \
+    TakePuck take_pucks_left[] = {                     \
+        {ctx, 0, LEFT},                                \
+        {ctx, 1, LEFT},                                \
+        {ctx, 2, LEFT},                                \
+        {ctx, 3, LEFT},                                \
+        {ctx, 4, LEFT},                                \
+        {ctx, 5, LEFT},                                \
+        {ctx, 6, LEFT},                                \
+        {ctx, 7, LEFT},                                \
+        {ctx, 8, LEFT},                                \
+        {ctx, 9, LEFT},                                \
+        {ctx, 10, LEFT},                               \
+        {ctx, 11, LEFT},                               \
     };                                                 \
     DepositPuck deposit_puck[] = {                     \
         {ctx, 0},                                      \
@@ -53,15 +67,22 @@
     goap::Action<RobotState>* actions[] = {            \
         &index_arms,                                   \
         &retract_arms,                                 \
-        /* &take_pucks[0],&take_pucks[1],&take_pucks[2], */  \
-        &take_pucks[3],                                \
-        &take_pucks[4],                                \
-        &take_pucks[5],                                \
-        &take_pucks[6],                                \
-        &take_pucks[7],                                \
-        &take_pucks[8],                                \
-        &take_pucks[9],                                \
-        &take_pucks[10], /* &take_pucks[11], */        \
+        &take_pucks_right[3],                          \
+        &take_pucks_right[4],                          \
+        &take_pucks_right[5],                          \
+        &take_pucks_right[6],                          \
+        &take_pucks_right[7],                          \
+        &take_pucks_right[8],                          \
+        &take_pucks_right[9],                          \
+        &take_pucks_right[10],                         \
+        &take_pucks_left[3],                           \
+        &take_pucks_left[4],                           \
+        &take_pucks_left[5],                           \
+        &take_pucks_left[6],                           \
+        &take_pucks_left[7],                           \
+        &take_pucks_left[8],                           \
+        &take_pucks_left[9],                           \
+        &take_pucks_left[10],                          \
         &deposit_puck[0],                              \
         &deposit_puck[1],                              \
         &deposit_puck[2],                              \
