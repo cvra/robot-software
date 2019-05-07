@@ -87,7 +87,7 @@ void arm_manual_index(manipulator_side_t side)
         offsets[0] = motor_get_position("left-theta-1");
         offsets[1] = motor_get_position("left-theta-2");
         offsets[2] = motor_get_position("left-theta-3");
-        float left_directions[3] = {-1, -1, 1};
+        float left_directions[3] = {1, 1, -1};
         arm_compute_offsets(LEFT_ARM_REFS, left_directions, offsets);
 
         parameter_scalar_set(PARAMETER("master/arms/left/offsets/q1"), offsets[0]);
