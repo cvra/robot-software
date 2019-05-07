@@ -68,21 +68,32 @@ struct TakePuck : public goap::Action<RobotState> {
 
 struct DepositPuck : public goap::Action<RobotState> {
     size_t zone_id;
+    manipulator_side_t side;
     size_t pucks_in_area{0};
 
-    DepositPuck(size_t id)
+    DepositPuck(size_t id, manipulator_side_t side)
         : zone_id(id)
+        , side(side)
     {
     }
     bool can_run(const RobotState& state)
     {
-        return (pucks_in_area < 2) && state.right_has_puck && (state.right_puck_color == areas[zone_id].color);
+        bool valid = (pucks_in_area < 2);
+        if (side == LEFT) {
+            return valid && state.left_has_puck && (state.left_puck_color == areas[zone_id].color);
+        } else {
+            return valid && state.right_has_puck && (state.right_puck_color == areas[zone_id].color);
+        }
     }
 
     void plan_effects(RobotState& state)
     {
         state.classified_pucks[areas[zone_id].color]++;
-        state.right_has_puck = false;
+        if (side == LEFT) {
+            state.left_has_puck = false;
+        } else {
+            state.right_has_puck = false;
+        }
         state.arms_are_deployed = true;
     }
 };

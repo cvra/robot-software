@@ -118,19 +118,23 @@ bool DepositPuck::execute(RobotState& state)
     strat->log("Depositing puck !");
 
     float x = MIRROR_X(strat->color, areas[zone_id].pos_x_mm);
-    float y = areas[zone_id].pos_y_mm - MIRROR(strat->color, 50);
+    float y = areas[zone_id].pos_y_mm - MIRROR_ARM(side, MIRROR(strat->color, 50));
     float a = MIRROR_A(strat->color, 0);
 
     if (!strat->goto_xya(strat, x, y, a)) {
         return false;
     }
-    strat->gripper_set(RIGHT, GRIPPER_RELEASE);
+    strat->gripper_set(side, GRIPPER_RELEASE);
     strat->wait_ms(100);
 
-    strat->gripper_set(RIGHT, GRIPPER_OFF);
+    strat->gripper_set(side, GRIPPER_OFF);
 
     pucks_in_area++;
-    state.right_has_puck = false;
+    if (side == LEFT) {
+        state.left_has_puck = false;
+    } else {
+        state.right_has_puck = false;
+    }
     state.classified_pucks[areas[zone_id].color]++;
     state.arms_are_deployed = true;
     return true;

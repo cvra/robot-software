@@ -33,8 +33,8 @@ struct TakePuck : actions::TakePuck {
 };
 struct DepositPuck : actions::DepositPuck {
     strategy_context_t* strat;
-    DepositPuck(strategy_context_t* strat, size_t zone_id)
-        : actions::DepositPuck(zone_id)
+    DepositPuck(strategy_context_t* strat, size_t zone_id, manipulator_side_t side)
+        : actions::DepositPuck(zone_id, side)
         , strat(strat)
     {
     }

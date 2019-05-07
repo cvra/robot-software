@@ -52,12 +52,19 @@
         {ctx, 10, LEFT},                               \
         {ctx, 11, LEFT},                               \
     };                                                 \
-    DepositPuck deposit_puck[] = {                     \
-        {ctx, 0},                                      \
-        {ctx, 1},                                      \
-        {ctx, 2},                                      \
-        {ctx, 3},                                      \
-        {ctx, 4},                                      \
+    DepositPuck deposit_puck_right[] = {               \
+        {ctx, 0, RIGHT},                               \
+        {ctx, 1, RIGHT},                               \
+        {ctx, 2, RIGHT},                               \
+        {ctx, 3, RIGHT},                               \
+        {ctx, 4, RIGHT},                               \
+    };                                                 \
+    DepositPuck deposit_puck_left[] = {                \
+        {ctx, 0, LEFT},                                \
+        {ctx, 1, LEFT},                                \
+        {ctx, 2, LEFT},                                \
+        {ctx, 3, LEFT},                                \
+        {ctx, 4, LEFT},                                \
     };                                                 \
     LaunchAccelerator launch_accelerator(ctx);         \
     TakeGoldonium take_goldonium(ctx);                 \
@@ -83,11 +90,16 @@
         &take_pucks_left[8],                           \
         &take_pucks_left[9],                           \
         &take_pucks_left[10],                          \
-        &deposit_puck[0],                              \
-        &deposit_puck[1],                              \
-        &deposit_puck[2],                              \
-        &deposit_puck[3],                              \
-        &deposit_puck[4],                              \
+        &deposit_puck_right[0],                        \
+        &deposit_puck_right[1],                        \
+        &deposit_puck_right[2],                        \
+        &deposit_puck_right[3],                        \
+        &deposit_puck_right[4],                        \
+        &deposit_puck_left[0],                         \
+        &deposit_puck_left[1],                         \
+        &deposit_puck_left[2],                         \
+        &deposit_puck_left[3],                         \
+        &deposit_puck_left[4],                         \
         &launch_accelerator,                           \
         &take_goldonium,                               \
         &stock_puck,                                   \
