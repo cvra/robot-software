@@ -1131,7 +1131,7 @@ static void cmd_arm(BaseSequentialStream* chp, int argc, char* argv[])
 
 static void cmd_grip(BaseSequentialStream* chp, int argc, char* argv[])
 {
-    if (argc != 1) {
+    if (argc != 2) {
         chprintf(chp, "Usage: grip l|r -1|0|1\r\n");
         return;
     }
@@ -1142,8 +1142,14 @@ static void cmd_grip(BaseSequentialStream* chp, int argc, char* argv[])
         chprintf(chp, "Acquire gripper\r\n");
 
         for (int i = 0; i < 20; i++) {
-            float c1 = motor_get_current("pump-1");
-            float c2 = motor_get_current("pump-2");
+            float c1, c2;
+            if (side == LEFT) {
+                c1 = motor_get_current("left-pump-1");
+                c2 = motor_get_current("left-pump-2");
+            } else {
+                c1 = motor_get_current("right-pump-1");
+                c2 = motor_get_current("right-pump-2");
+            }
             chprintf(chp, "Current on pump: %.4f %.4f\r\n", c1, c2);
             chThdSleepMilliseconds(100);
         }
@@ -1156,10 +1162,10 @@ static void cmd_grip(BaseSequentialStream* chp, int argc, char* argv[])
         }
 
     } else if (state < 0) {
-        manipulator_gripper_set(RIGHT, GRIPPER_RELEASE);
+        manipulator_gripper_set(side, GRIPPER_RELEASE);
         chprintf(chp, "Release gripper\r\n");
     } else {
-        manipulator_gripper_set(RIGHT, GRIPPER_OFF);
+        manipulator_gripper_set(side, GRIPPER_OFF);
         chprintf(chp, "Disable gripper\r\n");
     }
 }
