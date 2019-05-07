@@ -213,3 +213,12 @@ bool PutPuckInScale::execute(RobotState& state)
     state.puck_in_scale[0] = state.has_puck_color;
     return true;
 }
+
+bool PutPuckInAccelerator::execute(RobotState& state)
+{
+    strat->log("Puttig puck in accelerator !");
+    strat->gripper_set(RIGHT, GRIPPER_OFF);
+    state.arms_are_deployed = true;
+    state.has_puck = false;
+    state.puck_in_accelerator ++;
+}

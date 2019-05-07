@@ -49,6 +49,7 @@
     TakeGoldonium take_goldonium(ctx);                 \
     StockPuckInStorage stock_puck(ctx);                \
     PutPuckInScale put_puck_in_scale(ctx);             \
+    PutPuckInAccelerator put_puck_in_accelerator(ctx); \
     goap::Action<RobotState>* actions[] = {            \
         &index_arms,                                   \
         &retract_arms,                                 \
@@ -73,6 +74,7 @@
         &take_goldonium,                               \
         &stock_puck,                                   \
         &put_puck_in_scale,                            \
+        &put_puck_in_accelerator,                      \
     };                                                 \
     const auto action_count = sizeof(actions) / sizeof(actions[0]);
 
@@ -82,12 +84,14 @@
     RushHeavyPucksGoal rush_heavy_pucks_goal;           \
     StockPuckGoal stock_puck_goal;                      \
     PuckInScaleGoal puck_in_scale_goal;                 \
+    PuckInAcceleratorGoal puck_in_accelerator_goal;     \
     goap::Goal<RobotState>* goals[] = {                 \
         &accelerator_goal,                              \
         &take_goldonium_goal,                           \
         &rush_heavy_pucks_goal,                         \
         &stock_puck_goal,                               \
         &puck_in_scale_goal,                            \
+        &puck_in_accelerator_goal,                      \
     };                                                  \
     const char* goal_names[] = {                        \
         "accelerator",                                  \
@@ -95,6 +99,7 @@
         "rush",                                         \
         "stock",                                        \
         "scale",                                        \
+        "accelerator",                                  \
     };                                                  \
     const size_t goal_count = sizeof(goals) / sizeof(goap::Goal<RobotState>*);
 

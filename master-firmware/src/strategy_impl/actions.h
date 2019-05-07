@@ -74,4 +74,14 @@ struct PutPuckInScale : actions::PutPuckInScale {
     }
     bool execute(RobotState& state);
 };
+
+struct PutPuckInAccelerator : actions::PutPuckInAccelerator {
+    strategy_context_t* strat;
+    PutPuckInAccelerator(strategy_context_t* strat)
+        : strat(strat)
+    {
+    }
+    bool execute(RobotState& state);
+};
+
 #endif /* STRATEGY_IMPL_ACTIONS_H */
