@@ -46,7 +46,7 @@ void publish_pos(strategy_context_t* strat)
     pos.a = position_get_a_deg_s16(&strat->robot->pos);
     messagebus_topic_publish(position_topic, &pos, sizeof(pos));
 
-    std::string pos_str = "Pos: ["
+    std::string pos_str = "\t    Pos: ["
         + std::to_string(position_get_x_s16(&strat->robot->pos)) + ", "
         + std::to_string(position_get_y_s16(&strat->robot->pos)) + ", "
         + std::to_string(position_get_a_deg_s16(&strat->robot->pos)) + "]";
@@ -94,17 +94,19 @@ static bool simulated_goto_xya(void* ctx, int x_mm, int y_mm, int a_deg)
     /* Retrieve path */
     point_t* points;
     int num_points = oa_get_path(&map->oa, &points);
-    std::cout << "Path "
+    std::cout << "\t"
+              << "Path "
               << " from (" << std::to_string(int(start.x)) << ", " << std::to_string(int(start.y)) << ")"
               << " to (" << std::to_string(x_mm) << ", " << std::to_string(y_mm) << ")"
               << " computed with " << std::to_string(num_points) << " points" << std::endl;
     if (num_points <= 0) {
-        std::cout << "No path found!" << std::endl;
+        std::cout << "\t"
+                  << "No path found!" << std::endl;
         return false;
     }
 
     for (int i = 0; i < num_points; i++) {
-        std::cout << "  Going to (" << points[i].x << ", " << points[i].y << ")" << std::endl;
+        std::cout << "\t  Going to (" << points[i].x << ", " << points[i].y << ")" << std::endl;
         position_set(&strat->robot->pos, points[i].x, points[i].y, a_deg);
     }
 

@@ -109,6 +109,8 @@ int main(int argc, char* argv[])
         std::cout << "Found a path of length " << std::to_string(len) << " to achieve the " << line << " goal" << std::endl;
         messagebus_topic_publish(&state_topic.topic, &sim::state, sizeof(sim::state));
         for (int i = 0; i < len; i++) {
+            std::cout << std::endl
+                      << "#" << std::to_string(i);
             bool success = path[i]->execute(sim::state);
             messagebus_topic_publish(&state_topic.topic, &sim::state, sizeof(sim::state));
             if (success == false) {
