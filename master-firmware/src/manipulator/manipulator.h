@@ -88,6 +88,7 @@ public:
         pathfinding::connect_bidirectional(nodes[MANIPULATOR_DEPLOY], nodes[MANIPULATOR_PUT_ACCELERATOR]);
         nodes[MANIPULATOR_LIFT_VERT].connect(nodes[MANIPULATOR_PUT_ACCELERATOR]);
         nodes[MANIPULATOR_PUT_ACCELERATOR].connect(nodes[MANIPULATOR_PUT_ACCELERATOR_DOWN]);
+        nodes[MANIPULATOR_PUT_ACCELERATOR_DOWN].connect(nodes[MANIPULATOR_RETRACT]);
 
 
         nodes[MANIPULATOR_DEPLOY].connect(nodes[MANIPULATOR_PICK_GOLDONIUM]);
