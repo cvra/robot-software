@@ -19,6 +19,8 @@ typedef enum {
     MANIPULATOR_STORE_1,
     MANIPULATOR_LIFT_VERT_TO_STORE,
     MANIPULATOR_SCALE,
+    MANIPULATOR_PUT_ACCELERATOR,
+    MANIPULATOR_PUT_ACCELERATOR_DOWN,
     MANIPULATOR_COUNT // Dummy, used for last element
 } manipulator_state_t;
 

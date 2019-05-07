@@ -43,6 +43,8 @@ public:
         /* MANIPULATOR_STORE_1 */ {{1.40768914, -1.14273806, 0}},
         /* MANIPULATOR_LIFT_VERT_TO_STORE */ {{1.4499, 2.5307, 1.5786}},
         /* MANIPULATOR_SCALE */ {{1.4499, 2.5307, 1.5786}},
+        /* MANIPULATOR_PUT_ACCELERATOR*/ {{0.5522, 2.8653, 1.5605}},
+        /* MANIPULATOR_PUT_ACCELERATOR_DOWN*/{{0.2617, 2.4874, 1.6114}},
     };
 
     manipulator_state_t state;
@@ -77,8 +79,16 @@ public:
         nodes[MANIPULATOR_LIFT_VERT_TO_STORE].connect(nodes[MANIPULATOR_STORE_1]);
         nodes[MANIPULATOR_STORE_1].connect(nodes[MANIPULATOR_RETRACT]);
 
+        //put puck in scale
         nodes[MANIPULATOR_LIFT_VERT].connect(nodes[MANIPULATOR_SCALE]);
         nodes[MANIPULATOR_SCALE].connect(nodes[MANIPULATOR_RETRACT]);
+
+
+        //put puck in accelerator
+        pathfinding::connect_bidirectional(nodes[MANIPULATOR_DEPLOY], nodes[MANIPULATOR_PUT_ACCELERATOR]);
+        nodes[MANIPULATOR_LIFT_VERT].connect(nodes[MANIPULATOR_PUT_ACCELERATOR]);
+        nodes[MANIPULATOR_PUT_ACCELERATOR].connect(nodes[MANIPULATOR_PUT_ACCELERATOR_DOWN]);
+
 
         nodes[MANIPULATOR_DEPLOY].connect(nodes[MANIPULATOR_PICK_GOLDONIUM]);
         nodes[MANIPULATOR_PICK_GOLDONIUM].connect(nodes[MANIPULATOR_LIFT_GOLDONIUM]);

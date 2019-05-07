@@ -217,8 +217,18 @@ bool PutPuckInScale::execute(RobotState& state)
 bool PutPuckInAccelerator::execute(RobotState& state)
 {
     strat->log("Puttig puck in accelerator !");
-    strat->gripper_set(RIGHT, GRIPPER_OFF);
+    if (!strat->goto_xya(strat, MIRROR_X(strat->color, 1950), 300, MIRROR_A(strat->color, 90))) {
+        return false;
+    }
     state.arms_are_deployed = true;
+    strat->manipulator_goto(RIGHT, MANIPULATOR_PUT_ACCELERATOR);
+    if (!strat->goto_xya(strat, MIRROR_X(strat->color, 1950), 180, MIRROR_A(strat->color, 90))) {
+        return false;
+    }
+    strat->manipulator_goto(RIGHT, MANIPULATOR_PUT_ACCELERATOR_DOWN);
+    strat->gripper_set(RIGHT, GRIPPER_OFF);
+    strat->forward(strat, 20);
     state.has_puck = false;
-    state.puck_in_accelerator ++;
+    state.puck_in_accelerator++;
+    return true;
 }
