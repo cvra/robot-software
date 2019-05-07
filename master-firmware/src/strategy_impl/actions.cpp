@@ -98,7 +98,7 @@ bool TakePuck::execute(RobotState& state)
 
     state.puck_available[puck_id] = false;
 
-    if (!strat->puck_is_picked()) {
+    if (!strat->puck_is_picked(side)) {
         strat->gripper_set(side, GRIPPER_OFF);
         return false;
     }
@@ -178,7 +178,7 @@ bool TakeGoldonium::execute(RobotState& state)
     strat->forward(strat, -27);
     strat->wait_ms(500);
 
-    if (!strat->puck_is_picked()) {
+    if (!strat->puck_is_picked(RIGHT)) {
         strat->gripper_set(RIGHT, GRIPPER_OFF);
         strat->forward(strat, 80);
         return false;
