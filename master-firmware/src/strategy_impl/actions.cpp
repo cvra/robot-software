@@ -40,7 +40,7 @@ bool RetractArms::execute(RobotState& state)
     strat->gripper_set(BOTH, GRIPPER_OFF);
     strat->manipulator_goto(BOTH, MANIPULATOR_RETRACT);
 
-    state.has_puck = false;
+    state.right_has_puck = false;
     state.arms_are_deployed = false;
     return true;
 }
@@ -94,8 +94,8 @@ bool TakePuck::execute(RobotState& state)
         return false;
     }
 
-    state.has_puck = true;
-    state.has_puck_color = pucks[puck_id].color;
+    state.right_has_puck = true;
+    state.right_puck_color = pucks[puck_id].color;
     return true;
 }
 
@@ -116,7 +116,7 @@ bool DepositPuck::execute(RobotState& state)
     strat->gripper_set(RIGHT, GRIPPER_OFF);
 
     pucks_in_area++;
-    state.has_puck = false;
+    state.right_has_puck = false;
     state.classified_pucks[areas[zone_id].color]++;
     state.arms_are_deployed = true;
     return true;
@@ -188,8 +188,8 @@ bool StockPuckInStorage::execute(RobotState& state)
     strat->manipulator_goto(RIGHT, MANIPULATOR_STORE_1);
     strat->gripper_set(RIGHT, GRIPPER_OFF);
 
-    state.storage_right[puck_position] = state.has_puck_color;
-    state.has_puck = false;
+    state.storage_right[puck_position] = state.right_puck_color;
+    state.right_has_puck = false;
     state.arms_are_deployed = true;
     return true;
 }
@@ -209,14 +209,15 @@ bool PutPuckInScale::execute(RobotState& state)
     strat->gripper_set(RIGHT, GRIPPER_OFF);
     strat->forward(strat, 50);
     state.arms_are_deployed = true;
-    state.has_puck = false;
-    state.puck_in_scale[0] = state.has_puck_color;
+    state.right_has_puck = false;
+    state.puck_in_scale[0] = state.right_puck_color;
     return true;
 }
 
 bool PutPuckInAccelerator::execute(RobotState& state)
 {
-    strat->log("Puttig puck in accelerator !");
+    strat->log("Putting puck in accelerator !");
+
     if (!strat->goto_xya(strat, MIRROR_X(strat->color, 1950), 300, MIRROR_A(strat->color, 90))) {
         return false;
     }
@@ -228,7 +229,8 @@ bool PutPuckInAccelerator::execute(RobotState& state)
     strat->manipulator_goto(RIGHT, MANIPULATOR_PUT_ACCELERATOR_DOWN);
     strat->gripper_set(RIGHT, GRIPPER_OFF);
     strat->forward(strat, 130);
-    state.has_puck = false;
+
+    state.right_has_puck = false;
     state.puck_in_accelerator++;
     return true;
 }

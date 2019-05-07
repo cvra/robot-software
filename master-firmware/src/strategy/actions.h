@@ -44,14 +44,14 @@ struct TakePuck : public goap::Action<RobotState> {
     }
     bool can_run(const RobotState& state)
     {
-        return !state.arms_are_deployed && state.puck_available[puck_id] && !state.has_puck;
+        return !state.arms_are_deployed && state.puck_available[puck_id] && !state.right_has_puck;
     }
 
     void plan_effects(RobotState& state)
     {
         state.puck_available[puck_id] = false;
-        state.has_puck = true;
-        state.has_puck_color = pucks[puck_id].color;
+        state.right_has_puck = true;
+        state.right_puck_color = pucks[puck_id].color;
         state.arms_are_deployed = true;
     }
 };
@@ -66,13 +66,13 @@ struct DepositPuck : public goap::Action<RobotState> {
     }
     bool can_run(const RobotState& state)
     {
-        return (pucks_in_area < 2) && state.has_puck && (state.has_puck_color == areas[zone_id].color);
+        return (pucks_in_area < 2) && state.right_has_puck && (state.right_puck_color == areas[zone_id].color);
     }
 
     void plan_effects(RobotState& state)
     {
         state.classified_pucks[areas[zone_id].color]++;
-        state.has_puck = false;
+        state.right_has_puck = false;
         state.arms_are_deployed = true;
     }
 };
@@ -108,12 +108,10 @@ struct StockPuckInStorage : public goap::Action<RobotState> {
     uint8_t puck_position = 0;
     bool can_run(const RobotState& state)
     {
-        if (state.has_puck){
+        if (state.right_has_puck) {
             size_t num_slots = sizeof(state.storage_right) / sizeof(PuckColor);
-            for (size_t i = 0; i < num_slots; i++)
-            {
-                if (state.storage_right[i] == PuckColor_EMPTY)
-                {
+            for (size_t i = 0; i < num_slots; i++) {
+                if (state.storage_right[i] == PuckColor_EMPTY) {
                     puck_position = i;
                     return true;
                 }
@@ -124,8 +122,8 @@ struct StockPuckInStorage : public goap::Action<RobotState> {
 
     void plan_effects(RobotState& state)
     {
-        state.storage_right[puck_position] = state.has_puck_color;
-        state.has_puck = false;
+        state.storage_right[puck_position] = state.right_puck_color;
+        state.right_has_puck = false;
         state.arms_are_deployed = true;
     }
 };
@@ -134,12 +132,10 @@ struct PutPuckInScale : public goap::Action<RobotState> {
     uint8_t puck_position = 0;
     bool can_run(const RobotState& state)
     {
-        if (state.has_puck){
+        if (state.right_has_puck) {
             size_t num_slots = sizeof(state.puck_in_scale) / sizeof(PuckColor);
-            for (size_t i = 0; i < num_slots; i++)
-            {
-                if (state.puck_in_scale[i] == PuckColor_EMPTY)
-                {
+            for (size_t i = 0; i < num_slots; i++) {
+                if (state.puck_in_scale[i] == PuckColor_EMPTY) {
                     puck_position = i;
                     return true;
                 }
@@ -151,8 +147,8 @@ struct PutPuckInScale : public goap::Action<RobotState> {
     void plan_effects(RobotState& state)
     {
         state.arms_are_deployed = true;
-        state.has_puck = false;
-        state.puck_in_scale[puck_position] = state.has_puck_color;
+        state.right_has_puck = false;
+        state.puck_in_scale[puck_position] = state.right_puck_color;
     }
 };
 
@@ -160,14 +156,14 @@ struct PutPuckInAccelerator : public goap::Action<RobotState> {
     uint8_t puck_position = 0;
     bool can_run(const RobotState& state)
     {
-        return (state.puck_in_accelerator < 10) && state.has_puck /* && !state.arms_are_deployed */;
+        return (state.puck_in_accelerator < 10) && state.right_has_puck /* && !state.arms_are_deployed */;
     }
 
     void plan_effects(RobotState& state)
     {
         state.arms_are_deployed = true;
-        state.has_puck = false;
-        state.puck_in_accelerator ++;
+        state.right_has_puck = false;
+        state.puck_in_accelerator++;
     }
 };
 
