@@ -227,7 +227,7 @@ bool PutPuckInAccelerator::execute(RobotState& state)
     }
     strat->manipulator_goto(RIGHT, MANIPULATOR_PUT_ACCELERATOR_DOWN);
     strat->gripper_set(RIGHT, GRIPPER_OFF);
-    strat->forward(strat, 20);
+    strat->forward(strat, 130);
     state.has_puck = false;
     state.puck_in_accelerator++;
     return true;
