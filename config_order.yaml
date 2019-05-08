@@ -65,7 +65,8 @@ master:
     arms:
         right:
             lengths:
-                l1: 0.137
+                origin: 0.2428
+                l1: 0.132
                 l2: 0.097
                 l3: 0.072
             offsets: # calibrated before a game
@@ -86,7 +87,8 @@ master:
                 current_thres: 0.24 # [A] pump current beyond which we consider the puck is picked
         left:
             lengths:
-                l1: 0.137
+                origin: 0.2428
+                l1: 0.132
                 l2: 0.097
                 l3: 0.072
             offsets: # calibrated before a game
