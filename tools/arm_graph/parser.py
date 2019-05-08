@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from graphviz import Digraph
-import sys, getopt
+import sys
+import argparse
 
 
 def parse(file):
@@ -40,22 +41,15 @@ def export_fig(result,file):
     
     dot.view()
 
-def main(argv):
-    inputfile = '../../master-firmware/src/manipulator/manipulator.h'
-    try:
-        opts, args = getopt.getopt(argv,"hi:o:",["ifile="])
-    except getopt.GetoptError:
-        print('parser.py -i <inputfile>')
-        sys.exit(2)
-    for opt, arg in opts:
-        if opt == '-h':
-            print('parser.py -i <inputfile>')
-            sys.exit()
-        elif opt in ("-i", "--ifile"):
-            inputfile = arg
-    
-    result = parse(inputfile)
-    export_fig(result,inputfile)
+def parse_args():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("file", help="<path/to/file>")
+    return parser.parse_args()
+
+def main():
+    args = parse_args()    
+    result = parse(args.file)
+    export_fig(result,args.file)
 
 if __name__ == "__main__":
-   main(sys.argv[1:])
+   main()
