@@ -204,7 +204,7 @@ struct PutPuckInAccelerator : public goap::Action<RobotState> {
     uint8_t puck_position = 0;
     bool can_run(const RobotState& state)
     {
-        return (state.puck_in_accelerator < 10) && state.right_has_puck /* && !state.arms_are_deployed */;
+        return (state.puck_in_accelerator < 10) && state.right_has_puck;
     }
 
     void plan_effects(RobotState& state)
