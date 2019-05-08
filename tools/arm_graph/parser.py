@@ -18,7 +18,7 @@ def parse(file):
 
 def export_fig(result,file):
     output = file + '.gv'
-    dot = Digraph(comment='Graph export', filename=output, format='dot')
+    dot = Digraph(comment='Graph export', filename=output)
 
     for i in range(len(result)):
         result[i] = result[i].replace(' ','')
@@ -41,7 +41,7 @@ def export_fig(result,file):
     dot.view()
 
 def main(argv):
-    inputfile = 'manipulator.h'
+    inputfile = '../../master-firmware/src/manipulator/manipulator.h'
     try:
         opts, args = getopt.getopt(argv,"hi:o:",["ifile="])
     except getopt.GetoptError:
