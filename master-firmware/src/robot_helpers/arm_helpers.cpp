@@ -61,7 +61,7 @@ void arm_compute_offsets(const float* ref, const float* directions, float* offse
     std::copy_n(ref, 3, std::begin(references));
 
     // axis are decoupled
-    references = manipulator::axes_decouple(references);
+    // references = manipulator::axes_decouple(references);
 
     // We don't index at angle 0
     offsets[0] = directions[0] * offsets[0] - references[0];
