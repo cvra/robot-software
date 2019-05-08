@@ -295,6 +295,8 @@ static void declare_parameters(void)
     parameter_scalar_declare_with_default(&rpm_params.phase, &rpm_params.ns, "phase", 0.);
 }
 
+static void update_parameters(void);
+
 void control_init(void)
 {
     declare_parameters();
@@ -326,6 +328,8 @@ void control_init(void)
 
     float transmission = (float)control_feedback.primary_encoder.transmission_p / control_feedback.primary_encoder.transmission_q;
     ctrl.motor_current_constant = 1.f / (parameter_scalar_get(&motor_params.torque_cst) * transmission);
+
+    update_parameters();
 }
 
 static void update_parameters(void)
