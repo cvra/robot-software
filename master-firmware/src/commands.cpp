@@ -1106,8 +1106,18 @@ static void cmd_arm(BaseSequentialStream* chp, int argc, char* argv[])
             res = manipulator_goto(side, MANIPULATOR_PICK_VERT);
         } else if (!strcmp(argv[1], "lift_v")) {
             res = manipulator_goto(side, MANIPULATOR_LIFT_VERT);
-        } else if (!strcmp(argv[1], "store_v")) {
-            res = manipulator_goto(side, MANIPULATOR_STORE_1);
+        } else if (!strcmp(argv[1], "storeF1")) {
+            res = manipulator_goto(side, MANIPULATOR_STORE_FRONT_1);
+        } else if (!strcmp(argv[1], "storeF2")) {
+            res = manipulator_goto(side, MANIPULATOR_STORE_FRONT_2);
+        } else if (!strcmp(argv[1], "storeF3")) {
+            res = manipulator_goto(side, MANIPULATOR_STORE_FRONT_3);
+        } else if (!strcmp(argv[1], "storeF0")) {
+            res = manipulator_goto(side, MANIPULATOR_STORE_FRONT_0);
+        } else if (!strcmp(argv[1], "storeFH")) {
+            res = manipulator_goto(side, MANIPULATOR_STORE_FRONT_HIGH);
+        } else if (!strcmp(argv[1], "storeFL")) {
+            res = manipulator_goto(side, MANIPULATOR_STORE_FRONT_LOW);
         } else {
             if (side == RIGHT) {
                 motor_manager_set_voltage(&motor_manager, "right-theta-1", 0);
