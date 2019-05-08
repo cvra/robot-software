@@ -69,6 +69,10 @@ master:
                 l1: 0.132
                 l2: 0.097
                 l3: 0.072
+            homing:
+                q1: 1.5707
+                q2: -3.1415
+                q3: 3.1415
             offsets: # calibrated before a game
                 q1: 0.
                 q2: 0.
@@ -91,6 +95,10 @@ master:
                 l1: 0.132
                 l2: 0.097
                 l3: 0.072
+            homing:
+                q1: -1.5707
+                q2: 3.1415
+                q3: -3.1415
             offsets: # calibrated before a game
                 q1: 0.
                 q2: 0.

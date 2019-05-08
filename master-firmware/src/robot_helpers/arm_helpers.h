@@ -19,18 +19,6 @@ void arm_compute_offsets(const float* references, const float* directions, float
 
 void arm_manual_index(manipulator_side_t side);
 
-const float RIGHT_ARM_REFS[3] = {
-    M_PI_2, // theta 1 indexes at 90deg
-    -M_PI, // theta 2 indexes at -180deg from theta 1
-    M_PI, // theta 3 indexes at 180deg from theta 2
-};
-// left is the mirror of the right side
-const float LEFT_ARM_REFS[3] = {
-    -M_PI_2,
-    M_PI,
-    -M_PI,
-};
-
 #ifdef __cplusplus
 }
 #endif

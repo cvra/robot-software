@@ -72,13 +72,17 @@ void arm_compute_offsets(const float* ref, const float* directions, float* offse
 void arm_manual_index(manipulator_side_t side)
 {
     float offsets[3];
+    float references[3];
 
     if (side == RIGHT) {
         offsets[0] = motor_get_position("right-theta-1");
         offsets[1] = motor_get_position("right-theta-2");
         offsets[2] = motor_get_position("right-theta-3");
+        references[0] = config_get_scalar("master/arms/right/homing/q1");
+        references[1] = config_get_scalar("master/arms/right/homing/q2");
+        references[2] = config_get_scalar("master/arms/right/homing/q3");
         float right_directions[3] = {-1, -1, 1};
-        arm_compute_offsets(RIGHT_ARM_REFS, right_directions, offsets);
+        arm_compute_offsets(references, right_directions, offsets);
 
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q1"), offsets[0]);
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q2"), offsets[1]);
@@ -87,8 +91,11 @@ void arm_manual_index(manipulator_side_t side)
         offsets[0] = motor_get_position("left-theta-1");
         offsets[1] = motor_get_position("left-theta-2");
         offsets[2] = motor_get_position("left-theta-3");
+        references[0] = config_get_scalar("master/arms/left/homing/q1");
+        references[1] = config_get_scalar("master/arms/left/homing/q2");
+        references[2] = config_get_scalar("master/arms/left/homing/q3");
         float left_directions[3] = {1, 1, -1};
-        arm_compute_offsets(LEFT_ARM_REFS, left_directions, offsets);
+        arm_compute_offsets(references, left_directions, offsets);
 
         parameter_scalar_set(PARAMETER("master/arms/left/offsets/q1"), offsets[0]);
         parameter_scalar_set(PARAMETER("master/arms/left/offsets/q2"), offsets[1]);

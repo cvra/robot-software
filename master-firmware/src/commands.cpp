@@ -843,37 +843,19 @@ static void cmd_arm_index(BaseSequentialStream* chp, int argc, char* argv[])
     if (strcmp("left", argv[0]) == 0) {
         chprintf(chp, "Please stand by while we index the left arm...\r\n");
 
-        const char* motors[3] = {"left-theta-1", "left-theta-2", "left-theta-3"};
-        const float directions[3] = {1, 1, -1};
-        const float speeds[3] = {(float)atof(argv[1]), (float)atof(argv[2]), (float)atof(argv[3])};
-        float offsets[3];
+        arm_manual_index(LEFT);
 
-        arm_motors_index(motors, LEFT_ARM_REFS, directions, speeds, offsets);
-
-        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q1"), offsets[0]);
-        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q2"), offsets[1]);
-        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q3"), offsets[2]);
-
-        chprintf(chp, "Index of left theta-1 at %.4f\r\n", offsets[0]);
-        chprintf(chp, "Index of left theta-2 at %.4f\r\n", offsets[1]);
-        chprintf(chp, "Index of left theta-3 at %.4f\r\n", offsets[2]);
+        chprintf(chp, "Index of left theta-1 at %.4f\r\n", config_get_scalar("master/arms/left/offsets/q1"));
+        chprintf(chp, "Index of left theta-2 at %.4f\r\n", config_get_scalar("master/arms/left/offsets/q2"));
+        chprintf(chp, "Index of left theta-3 at %.4f\r\n", config_get_scalar("master/arms/left/offsets/q3"));
     } else {
         chprintf(chp, "Please stand by while we index the right arm...\r\n");
 
-        const char* motors[3] = {"right-theta-1", "right-theta-2", "right-theta-3"};
-        const float directions[3] = {-1, -1, 1};
-        const float speeds[3] = {(float)atof(argv[1]), (float)atof(argv[2]), (float)atof(argv[3])};
-        float offsets[3];
+        arm_manual_index(RIGHT);
 
-        arm_motors_index(motors, RIGHT_ARM_REFS, directions, speeds, offsets);
-
-        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q1"), offsets[0]);
-        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q2"), offsets[1]);
-        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q3"), offsets[2]);
-
-        chprintf(chp, "Index of right theta-1 at %.4f\r\n", offsets[0]);
-        chprintf(chp, "Index of right theta-2 at %.4f\r\n", offsets[1]);
-        chprintf(chp, "Index of right theta-3 at %.4f\r\n", offsets[2]);
+        chprintf(chp, "Index of right theta-1 at %.4f\r\n", config_get_scalar("master/arms/right/offsets/q1"));
+        chprintf(chp, "Index of right theta-2 at %.4f\r\n", config_get_scalar("master/arms/right/offsets/q2"));
+        chprintf(chp, "Index of right theta-3 at %.4f\r\n", config_get_scalar("master/arms/right/offsets/q3"));
     }
 }
 
@@ -1188,10 +1170,16 @@ static void cmd_arm_offset_calib(BaseSequentialStream* chp, int argc, char* argv
     }
 
     if (side == LEFT) {
+        parameter_scalar_set(PARAMETER("master/arms/left/homing/q1"), config_get_scalar("master/arms/left/homing/q1") + diff[0]);
+        parameter_scalar_set(PARAMETER("master/arms/left/homing/q2"), config_get_scalar("master/arms/left/homing/q2") + diff[1]);
+        parameter_scalar_set(PARAMETER("master/arms/left/homing/q3"), config_get_scalar("master/arms/left/homing/q3") + diff[2]);
         parameter_scalar_set(PARAMETER("master/arms/left/offsets/q1"), config_get_scalar("master/arms/left/offsets/q1") + diff[0]);
         parameter_scalar_set(PARAMETER("master/arms/left/offsets/q2"), config_get_scalar("master/arms/left/offsets/q2") + diff[1]);
         parameter_scalar_set(PARAMETER("master/arms/left/offsets/q3"), config_get_scalar("master/arms/left/offsets/q3") + diff[2]);
     } else {
+        parameter_scalar_set(PARAMETER("master/arms/right/homing/q1"), config_get_scalar("master/arms/right/homing/q1") + diff[0]);
+        parameter_scalar_set(PARAMETER("master/arms/right/homing/q2"), config_get_scalar("master/arms/right/homing/q2") + diff[1]);
+        parameter_scalar_set(PARAMETER("master/arms/right/homing/q3"), config_get_scalar("master/arms/right/homing/q3") + diff[2]);
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q1"), config_get_scalar("master/arms/right/offsets/q1") + diff[0]);
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q2"), config_get_scalar("master/arms/right/offsets/q2") + diff[1]);
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q3"), config_get_scalar("master/arms/right/offsets/q3") + diff[2]);
