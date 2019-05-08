@@ -415,13 +415,13 @@ static void cmd_position_reset(BaseSequentialStream* chp, int argc, char* argv[]
     }
 }
 
-static void cmd_allied_position(BaseSequentialStream* chp, int argc, char* argv[])
+static void cmd_ally_position(BaseSequentialStream* chp, int argc, char* argv[])
 {
     (void)argc;
     (void)argv;
     point_t pos;
     messagebus_topic_t* topic;
-    const char* topic_name = "/allied_position";
+    const char* topic_name = "/ally_pos";
 
     topic = messagebus_find_topic(&bus, topic_name);
 
@@ -1391,7 +1391,7 @@ ShellCommand commands[] = {
     {"node", cmd_node},
     {"pos", cmd_position},
     {"pos_reset", cmd_position_reset},
-    {"allied_pos", cmd_allied_position},
+    {"ally_pos", cmd_ally_position},
     {"reboot", cmd_reboot},
     {"rotate", cmd_traj_rotate},
     {"threads", cmd_threads},
