@@ -37,7 +37,7 @@ master:
             distance:
                 kp: 1.5
                 ki: 0.5
-                kd: 20.
+                kd: 10.
                 i_limit: 10.
         trajectories:
             angle:
@@ -65,7 +65,8 @@ master:
     arms:
         right:
             lengths:
-                l1: 0.137
+                origin: 0.2428
+                l1: 0.132
                 l2: 0.097
                 l3: 0.072
             offsets: # calibrated before a game
@@ -86,7 +87,8 @@ master:
                 current_thres: 0.3 # [A] pump current beyond which we consider the puck is picked
         left:
             lengths:
-                l1: 0.137
+                origin: 0.2428
+                l1: 0.132
                 l2: 0.097
                 l3: 0.072
             offsets: # calibrated before a game
@@ -171,7 +173,7 @@ actuator:
             acceleration_limit: 200.
             velocity_limit: 50.
             torque_limit: 30.
-    theta-1:
+    right-theta-1:
     # motor: 2232 U009 SR
         streams:
             motor_pos: 50.
@@ -189,7 +191,7 @@ actuator:
             torque_cst: 2.952 # Nm/A after transmission, before 0.0115, datasheet: 11.5 mNm/A
         control:
             acceleration_limit: 2936.9 # rad/s^2 after transmission, before 753982.2, datasheet: 120 10^3 rad/s^2
-            velocity_limit: 2.4 # rad/s after transmission, before 608.4, datasheet: 5810 /min
+            velocity_limit: 3.14 # rad/s
             torque_limit: 2.6 # Nm after transmission, before 0.0100, datasheet: 10.0 mNm
             mode: 3 # bounded
             low_batt_th: 5.
@@ -208,7 +210,7 @@ actuator:
                 kd: 0.0
                 ki: 0.05
                 kp: 0.2
-    theta-2:
+    right-theta-2:
     # motor: 2232 U009 SR
         streams:
             motor_pos: 50.
@@ -226,7 +228,7 @@ actuator:
             torque_cst: 2.952 # Nm/A after transmission, before 0.0115, datasheet: 11.5 mNm/A
         control:
             acceleration_limit: 2936.9 # rad/s^2 after transmission, before 753982.2, datasheet: 120 10^3 rad/s^2
-            velocity_limit: 2.4 # rad/s after transmission, before 608.4, datasheet: 5810 /min
+            velocity_limit: 3.14 # rad/s
             torque_limit: 2.6 # Nm after transmission, before 0.0100, datasheet: 10.0 mNm
             mode: 3 # bounded
             low_batt_th: 5.
@@ -245,7 +247,7 @@ actuator:
                 kd: 0.0
                 ki: 1.0
                 kp: 0.1
-    theta-3:
+    right-theta-3:
     # motor: 1524 U012 SR
         streams:
             motor_pos: 50.
@@ -263,7 +265,7 @@ actuator:
             torque_cst: 2.618 # Nm/A after transmission, before 0.0115, datasheet: 11.5 mNm/A
         control:
             acceleration_limit: 3422.0 # rad/s^2 after transmission, before 779115.0, datasheet: 124 10^3 rad/s^2
-            velocity_limit: 1.9 # rad/s after transmission, before 432.5, datasheet: 4130 /min
+            velocity_limit: 3.14 # rad/s
             torque_limit: 0.7 # Nm after transmission, before 0.0029, datasheet: 2.9 mNm
             mode: 3 # bounded
             low_batt_th: 5.
@@ -282,13 +284,13 @@ actuator:
                 kd: 0.0
                 ki: 5.0
                 kp: 10.0
-    pump-1:
+    right-pump-1:
         control:
             mode: 0 # openloop
             low_batt_th: 5.
         streams:
             current: 10
-    pump-2:
+    right-pump-2:
         control:
             mode: 0 # openloop
             low_batt_th: 5.
@@ -312,7 +314,7 @@ actuator:
             torque_cst: 2.952 # Nm/A after transmission, before 0.0115, datasheet: 11.5 mNm/A
         control:
             acceleration_limit: 2936.9 # rad/s^2 after transmission, before 753982.2, datasheet: 120 10^3 rad/s^2
-            velocity_limit: 2.4 # rad/s after transmission, before 608.4, datasheet: 5810 /min
+            velocity_limit: 3.14 # rad/s
             torque_limit: 2.6 # Nm after transmission, before 0.0100, datasheet: 10.0 mNm
             mode: 3 # bounded
             low_batt_th: 5.
@@ -349,7 +351,7 @@ actuator:
             torque_cst: 2.952 # Nm/A after transmission, before 0.0115, datasheet: 11.5 mNm/A
         control:
             acceleration_limit: 2936.9 # rad/s^2 after transmission, before 753982.2, datasheet: 120 10^3 rad/s^2
-            velocity_limit: 2.4 # rad/s after transmission, before 608.4, datasheet: 5810 /min
+            velocity_limit: 3.14 # rad/s
             torque_limit: 2.6 # Nm after transmission, before 0.0100, datasheet: 10.0 mNm
             mode: 3 # bounded
             low_batt_th: 5.
@@ -386,7 +388,7 @@ actuator:
             torque_cst: 2.618 # Nm/A after transmission, before 0.0115, datasheet: 11.5 mNm/A
         control:
             acceleration_limit: 3422.0 # rad/s^2 after transmission, before 779115.0, datasheet: 124 10^3 rad/s^2
-            velocity_limit: 1.9 # rad/s after transmission, before 432.5, datasheet: 4130 /min
+            velocity_limit: 3.14 # rad/s
             torque_limit: 0.7 # Nm after transmission, before 0.0029, datasheet: 2.9 mNm
             mode: 3 # bounded
             low_batt_th: 5.

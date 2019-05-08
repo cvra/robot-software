@@ -22,7 +22,7 @@ typedef struct {
 
     bool (*manipulator_goto)(manipulator_side_t side, manipulator_state_t target);
     void (*gripper_set)(manipulator_side_t side, gripper_state_t state);
-    bool (*puck_is_picked)(void);
+    bool (*puck_is_picked)(manipulator_side_t side);
 
     void (*arm_manual_index)(manipulator_side_t side);
 } strategy_context_t;

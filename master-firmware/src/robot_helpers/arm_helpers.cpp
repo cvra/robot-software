@@ -74,9 +74,9 @@ void arm_manual_index(manipulator_side_t side)
     float offsets[3];
 
     if (side == RIGHT) {
-        offsets[0] = motor_get_position("theta-1");
-        offsets[1] = motor_get_position("theta-2");
-        offsets[2] = motor_get_position("theta-3");
+        offsets[0] = motor_get_position("right-theta-1");
+        offsets[1] = motor_get_position("right-theta-2");
+        offsets[2] = motor_get_position("right-theta-3");
         float right_directions[3] = {-1, -1, 1};
         arm_compute_offsets(RIGHT_ARM_REFS, right_directions, offsets);
 

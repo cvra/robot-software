@@ -32,7 +32,7 @@ static void simulated_gripper_set(manipulator_side_t side, gripper_state_t state
     (void)side;
     (void)state;
 }
-static bool simulated_puck_is_picked(void)
+static bool simulated_puck_is_picked(manipulator_side_t)
 {
     return true;
 }

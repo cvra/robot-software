@@ -2,6 +2,7 @@
 #include <vector>
 #include <array>
 
+#include "robot_helpers/robot.h"
 #include "strategy/goals.h"
 #include "strategy/actions.h"
 
@@ -18,11 +19,11 @@ struct RetractArms : actions::RetractArms {
     bool execute(RobotState& state) { return dummy_execute(this, state); }
 };
 struct TakePuck : actions::TakePuck {
-    TakePuck(size_t id) : actions::TakePuck(id) {}
+    TakePuck(size_t id) : actions::TakePuck(id, RIGHT) {}
     bool execute(RobotState& state) { return dummy_execute(this, state); }
 };
 struct DepositPuck : actions::DepositPuck {
-    DepositPuck(size_t id) : actions::DepositPuck(id) {}
+    DepositPuck(size_t id) : actions::DepositPuck(id, RIGHT) {}
     bool execute(RobotState& state)
     {
         pucks_in_area++;
@@ -36,6 +37,7 @@ struct TakeGoldonium : actions::TakeGoldonium {
     bool execute(RobotState& state) { return dummy_execute(this, state); }
 };
 struct StockPuckInStorage : actions::StockPuckInStorage {
+    StockPuckInStorage() : actions::StockPuckInStorage(RIGHT) {}
     bool execute(RobotState& state) { return dummy_execute(this, state); }
 };
 

@@ -860,7 +860,7 @@ static void cmd_arm_index(BaseSequentialStream* chp, int argc, char* argv[])
     } else {
         chprintf(chp, "Please stand by while we index the right arm...\r\n");
 
-        const char* motors[3] = {"theta-1", "theta-2", "theta-3"};
+        const char* motors[3] = {"right-theta-1", "right-theta-2", "right-theta-3"};
         const float directions[3] = {-1, -1, 1};
         const float speeds[3] = {(float)atof(argv[1]), (float)atof(argv[2]), (float)atof(argv[3])};
         float offsets[3];
@@ -1110,15 +1110,15 @@ static void cmd_arm(BaseSequentialStream* chp, int argc, char* argv[])
             res = manipulator_goto(side, MANIPULATOR_STORE_1);
         } else {
             if (side == RIGHT) {
-                motor_manager_set_voltage(&motor_manager, "theta-1", 0);
-                motor_manager_set_voltage(&motor_manager, "theta-2", 0);
-                motor_manager_set_voltage(&motor_manager, "theta-3", 0);
+                motor_manager_set_voltage(&motor_manager, "right-theta-1", 0);
+                motor_manager_set_voltage(&motor_manager, "right-theta-2", 0);
+                motor_manager_set_voltage(&motor_manager, "right-theta-3", 0);
                 chprintf(chp, "Disabled right arm\r\n");
             } else {
-                motor_manager_set_voltage(&motor_manager, "theta-1", 0);
-                motor_manager_set_voltage(&motor_manager, "theta-2", 0);
-                motor_manager_set_voltage(&motor_manager, "theta-3", 0);
-                chprintf(chp, "Disabled right arm\r\n");
+                motor_manager_set_voltage(&motor_manager, "left-theta-1", 0);
+                motor_manager_set_voltage(&motor_manager, "left-theta-2", 0);
+                motor_manager_set_voltage(&motor_manager, "left-theta-3", 0);
+                chprintf(chp, "Disabled left arm\r\n");
             }
         }
         if (res) {
@@ -1129,25 +1129,97 @@ static void cmd_arm(BaseSequentialStream* chp, int argc, char* argv[])
     }
 }
 
-static void cmd_grip(BaseSequentialStream* chp, int argc, char* argv[])
+static void cmd_arm_offset_calib(BaseSequentialStream* chp, int argc, char* argv[])
 {
-    if (argc != 1) {
-        chprintf(chp, "Usage: grip -1|0|1\r\n");
+    if (argc != 4) {
+        chprintf(chp, "Usage: arm_calib l|r d1[mm] d2[mm] d3[mm]\r\n");
         return;
     }
-    int state = atoi(argv[0]);
+
+    manipulator_side_t side = (!strcmp(argv[0], "l")) ? LEFT : RIGHT;
+    float d1 = atof(argv[1]) / 1000.f;
+    float d2 = atof(argv[2]) / 1000.f;
+    float d3 = atof(argv[3]) / 1000.f;
+
+    float d0, l1, l2, l3;
+    if (side == LEFT) {
+        d0 = config_get_scalar("master/arms/left/lengths/origin");
+        l1 = config_get_scalar("master/arms/left/lengths/l1");
+        l2 = config_get_scalar("master/arms/left/lengths/l2");
+        l3 = config_get_scalar("master/arms/left/lengths/l3");
+    } else {
+        d0 = config_get_scalar("master/arms/right/lengths/origin");
+        l1 = config_get_scalar("master/arms/right/lengths/l1");
+        l2 = config_get_scalar("master/arms/right/lengths/l2");
+        l3 = config_get_scalar("master/arms/right/lengths/l3");
+    }
+
+    float a1 = acosf((d0 - d1) / l1);
+    float a2 = acosf((d1 - d2) / l2);
+    float a3 = acosf((d2 - d3) / l3);
+
+    float angles[3];
+    manipulator_angles(side, angles);
+
+    float diff[3];
+    diff[0] = angles[0] - a1;
+    diff[1] = angles[1] - a2;
+    diff[2] = angles[2] - a3;
+
+    chprintf(chp, "The real measured angles are %.3f %.3f %.3f\r\n", a1, a2, a3);
+    chprintf(chp, "The bot thinks the angles are %.3f %.3f %.3f\r\n", angles[0], angles[1], angles[2]);
+    chprintf(chp, "The differences of angles are %.3f %.3f %.3f\r\n", diff[0], diff[1], diff[2]);
+
+    static char line[2];
+    chprintf(chp, "Press y to apply, any other key to discard\r\n");
+    if (shellGetLine(&shell_cfg, line, sizeof(line), NULL) || line[0] != 'y') {
+        /* CTRL-D was pressed or any key that is not 'y' */
+        return;
+    }
+
+    if (side == LEFT) {
+        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q1"), config_get_scalar("master/arms/left/offsets/q1") + diff[0]);
+        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q2"), config_get_scalar("master/arms/left/offsets/q2") + diff[1]);
+        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q3"), config_get_scalar("master/arms/left/offsets/q3") + diff[2]);
+    } else {
+        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q1"), config_get_scalar("master/arms/right/offsets/q1") + diff[0]);
+        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q2"), config_get_scalar("master/arms/right/offsets/q2") + diff[1]);
+        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q3"), config_get_scalar("master/arms/right/offsets/q3") + diff[2]);
+    }
+
+    // Give it time to update parameters
+    chThdSleepMilliseconds(100);
+
+    manipulator_angles(side, angles);
+    chprintf(chp, "After correction, the bot thinks the angles are %.3f %.3f %.3f\r\n", angles[0], angles[1], angles[2]);
+}
+
+static void cmd_grip(BaseSequentialStream* chp, int argc, char* argv[])
+{
+    if (argc != 2) {
+        chprintf(chp, "Usage: grip l|r -1|0|1\r\n");
+        return;
+    }
+    int state = atoi(argv[1]);
+    manipulator_side_t side = (!strcmp(argv[0], "l")) ? LEFT : RIGHT;
     if (state > 0) {
-        manipulator_gripper_set(RIGHT, GRIPPER_ACQUIRE);
+        manipulator_gripper_set(side, GRIPPER_ACQUIRE);
         chprintf(chp, "Acquire gripper\r\n");
 
         for (int i = 0; i < 20; i++) {
-            float c1 = motor_get_current("pump-1");
-            float c2 = motor_get_current("pump-2");
+            float c1, c2;
+            if (side == LEFT) {
+                c1 = motor_get_current("left-pump-1");
+                c2 = motor_get_current("left-pump-2");
+            } else {
+                c1 = motor_get_current("right-pump-1");
+                c2 = motor_get_current("right-pump-2");
+            }
             chprintf(chp, "Current on pump: %.4f %.4f\r\n", c1, c2);
             chThdSleepMilliseconds(100);
         }
 
-        if (strategy_puck_is_picked()) {
+        if (strategy_puck_is_picked(side)) {
             chprintf(chp, "I got the puck!\r\n");
 
         } else {
@@ -1155,10 +1227,10 @@ static void cmd_grip(BaseSequentialStream* chp, int argc, char* argv[])
         }
 
     } else if (state < 0) {
-        manipulator_gripper_set(RIGHT, GRIPPER_RELEASE);
+        manipulator_gripper_set(side, GRIPPER_RELEASE);
         chprintf(chp, "Release gripper\r\n");
     } else {
-        manipulator_gripper_set(RIGHT, GRIPPER_OFF);
+        manipulator_gripper_set(side, GRIPPER_OFF);
         chprintf(chp, "Disable gripper\r\n");
     }
 }
@@ -1297,6 +1369,7 @@ ShellCommand commands[] = {
     {"panel", cmd_panel_status},
     {"beacon", cmd_proximity_beacon},
     {"arm", cmd_arm},
+    {"arm_calib", cmd_arm_offset_calib},
     {"grip", cmd_grip},
     {"electron", cmd_electron},
     {"goal", cmd_goal},
