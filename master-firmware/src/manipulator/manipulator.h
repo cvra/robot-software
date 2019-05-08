@@ -36,15 +36,22 @@ public:
         /* MANIPULATOR_DEPLOY_FULLY */ {{1.2705, 1.5002, 1.4614}},
         /* MANIPULATOR_LIFT_HORZ */ {{1.3344, 1.1287, 0.0}},
         /* MANIPULATOR_PICK_HORZ */ {{0.9956, 0.5278, 0.0}},
-        /* MANIPULATOR_PICK_VERT */ {{0.88701,1.24429,1.57079}},
+        /* MANIPULATOR_PICK_VERT */ {{0.88701, 1.24429, 1.57079}},
         /* MANIPULATOR_LIFT_VERT */ {{1.4116, 0.0572, 2.2754}},
         /* MANIPULATOR_PICK_GOLDONIUM */ {{0.935233, 2.005595, 1.570796}},
         /* MANIPULATOR_LIFT_GOLDONIUM */ {{0.8, 3, 1.5908}},
-        /* MANIPULATOR_STORE_1 */ {{1.40768914, -1.14273806, 0}},
-        /* MANIPULATOR_LIFT_VERT_TO_STORE */ {{1.4499, 2.5307, 1.5786}},
         /* MANIPULATOR_SCALE */ {{1.4499, 2.5307, 1.5786}},
         /* MANIPULATOR_PUT_ACCELERATOR*/ {{0.5522, 2.8653, 1.5605}},
-        /* MANIPULATOR_PUT_ACCELERATOR_DOWN*/{{0.2617, 2.4874, 1.6114}},
+        /* MANIPULATOR_PUT_ACCELERATOR_DOWN*/ {{0.2617, 2.4874, 1.6114}},
+        /* MANIPUKATOR_STORE_FRONT_0 */ {{1.0351, 2.5056, 0.5945}},
+        /* MANIPULATOR_STORE_FRONT_1 */ {{0.40241, 3.1415 - 0.70691, 0}},
+        /* MANIPULATOR_STORE_FRONT_2*/ {{0.09823, 3.1415 - 0.36589, 0.34102}},
+        /* MANIPULATOR_STORE_FRONT_3*/ {{-0.13224, 3.1415 - 0.3823, 0.32461}},
+        /* MANIPULATOR_STORE_FRONT_HIGH */ {{-0.34545, 3.1415 - 1.10574, 0}},
+        /* MANIPULATOR_STORE_FRONT_LOW */ {{-0.42031, 3.1415 - 1.4175, 0}},
+        /* MANIPULATOR_STORE_BACK_1 */ {{0.40241, 3.1415 - 0.70691, 0}}, //waiting for correct coo
+        /* MANIPULATOR_STORE_BACK_2*/ {{0.09823, 3.1415 - 0.36589, 0.34102}}, //waiting for correct coo
+        /* MANIPULATOR_STORE_BACK_3*/ {{-0.13224, 3.1415 - 0.3823, 0.32461}}, //waiting for correct coo
     };
 
     manipulator_state_t state;
@@ -72,24 +79,33 @@ public:
 
         pathfinding::connect_bidirectional(nodes[MANIPULATOR_DEPLOY], nodes[MANIPULATOR_DEPLOY_FULLY]);
 
+        //stock and mixed with things..
         pathfinding::connect_bidirectional(nodes[MANIPULATOR_DEPLOY], nodes[MANIPULATOR_PICK_VERT]);
         pathfinding::connect_bidirectional(nodes[MANIPULATOR_PICK_VERT], nodes[MANIPULATOR_LIFT_VERT]);
         nodes[MANIPULATOR_LIFT_VERT].connect(nodes[MANIPULATOR_RETRACT]);
-        nodes[MANIPULATOR_LIFT_VERT].connect(nodes[MANIPULATOR_LIFT_VERT_TO_STORE]);
-        nodes[MANIPULATOR_LIFT_VERT_TO_STORE].connect(nodes[MANIPULATOR_STORE_1]);
-        nodes[MANIPULATOR_STORE_1].connect(nodes[MANIPULATOR_RETRACT]);
+
+        //stock front
+        pathfinding::connect_bidirectional(nodes[MANIPULATOR_LIFT_VERT], nodes[MANIPULATOR_STORE_FRONT_0]);
+        pathfinding::connect_bidirectional(nodes[MANIPULATOR_STORE_FRONT_0], nodes[MANIPULATOR_STORE_FRONT_1]);
+        pathfinding::connect_bidirectional(nodes[MANIPULATOR_STORE_FRONT_1], nodes[MANIPULATOR_STORE_FRONT_2]);
+        pathfinding::connect_bidirectional(nodes[MANIPULATOR_STORE_FRONT_2], nodes[MANIPULATOR_STORE_FRONT_3]);
+        //stock picking front
+        pathfinding::connect_bidirectional(nodes[MANIPULATOR_STORE_FRONT_3], nodes[MANIPULATOR_STORE_FRONT_HIGH]);
+        pathfinding::connect_bidirectional(nodes[MANIPULATOR_STORE_FRONT_HIGH], nodes[MANIPULATOR_STORE_FRONT_LOW]);
+        //stock back
+        pathfinding::connect_bidirectional(nodes[MANIPULATOR_STORE_FRONT_3], nodes[MANIPULATOR_STORE_BACK_1]);
+        pathfinding::connect_bidirectional(nodes[MANIPULATOR_STORE_BACK_1], nodes[MANIPULATOR_STORE_BACK_2]);
+        pathfinding::connect_bidirectional(nodes[MANIPULATOR_STORE_BACK_2], nodes[MANIPULATOR_STORE_BACK_3]);
 
         //put puck in scale
         nodes[MANIPULATOR_LIFT_VERT].connect(nodes[MANIPULATOR_SCALE]);
         nodes[MANIPULATOR_SCALE].connect(nodes[MANIPULATOR_RETRACT]);
-
 
         //put puck in accelerator
         pathfinding::connect_bidirectional(nodes[MANIPULATOR_DEPLOY], nodes[MANIPULATOR_PUT_ACCELERATOR]);
         nodes[MANIPULATOR_LIFT_VERT].connect(nodes[MANIPULATOR_PUT_ACCELERATOR]);
         nodes[MANIPULATOR_PUT_ACCELERATOR].connect(nodes[MANIPULATOR_PUT_ACCELERATOR_DOWN]);
         nodes[MANIPULATOR_PUT_ACCELERATOR_DOWN].connect(nodes[MANIPULATOR_RETRACT]);
-
 
         nodes[MANIPULATOR_DEPLOY].connect(nodes[MANIPULATOR_PICK_GOLDONIUM]);
         nodes[MANIPULATOR_PICK_GOLDONIUM].connect(nodes[MANIPULATOR_LIFT_GOLDONIUM]);

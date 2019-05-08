@@ -198,12 +198,25 @@ bool TakeGoldonium::execute(RobotState& state)
 
 bool StockPuckInStorage::execute(RobotState& state)
 {
+    const PuckColor* storage = (side == LEFT) ? state.left_storage : state.right_storage;
+    size_t num_slots = sizeof(storage) / sizeof(PuckColor);
+    for (size_t i = 0; i < num_slots; i++) {
+        if (storage[i] == PuckColor_EMPTY) {
+            puck_position = i;
+            break;
+        }
+    }
     strat->log("Storing puck !");
     strat->log((side == LEFT) ? "\tUsing left arm" : "\tUsing right arm");
 
-    strat->forward(strat, 40);
-    strat->manipulator_goto(side, MANIPULATOR_STORE_1);
-    strat->gripper_set(side, GRIPPER_OFF);
+    strat->forward(strat, 60);
+    state.arms_are_deployed = true;
+    if (puck_position < 3) {
+        strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_3);
+    } else {
+        strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_3);
+    }
+    strat->gripper_set(side, GRIPPER_OFF);   
 
     if (side == LEFT) {
         state.left_storage[puck_position] = state.left_puck_color;

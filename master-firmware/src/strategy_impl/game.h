@@ -84,24 +84,6 @@
         &take_pucks_right[8],                           \
         &take_pucks_right[9],                           \
         &take_pucks_right[10],                          \
-        &take_pucks_left[3],                            \
-        &take_pucks_left[4],                            \
-        &take_pucks_left[5],                            \
-        &take_pucks_left[6],                            \
-        &take_pucks_left[7],                            \
-        &take_pucks_left[8],                            \
-        &take_pucks_left[9],                            \
-        &take_pucks_left[10],                           \
-        &deposit_puck_right[0],                         \
-        &deposit_puck_right[1],                         \
-        &deposit_puck_right[2],                         \
-        &deposit_puck_right[3],                         \
-        &deposit_puck_right[4],                         \
-        &deposit_puck_left[0],                          \
-        &deposit_puck_left[1],                          \
-        &deposit_puck_left[2],                          \
-        &deposit_puck_left[3],                          \
-        &deposit_puck_left[4],                          \
         &launch_accelerator,                            \
         &take_goldonium,                                \
         &stock_puck_right,                              \
@@ -120,12 +102,10 @@
     PuckInScaleGoal puck_in_scale_goal;                 \
     PuckInAcceleratorGoal puck_in_accelerator_goal;     \
     goap::Goal<RobotState>* goals[] = {                 \
-        &puck_in_accelerator_goal,                      \
-        &puck_in_scale_goal,                            \
+        &stock_puck_goal,                               \
     };                                                  \
     const char* goal_names[] = {                        \
-        "accelerator",                                  \
-        "scale",                                        \
+        "stock",                                        \
     };                                                  \
     const size_t goal_count = sizeof(goals) / sizeof(goap::Goal<RobotState>*);
 
