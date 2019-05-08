@@ -201,13 +201,13 @@ actuator:
             position:
                 i_limit: 1000.0
                 kd: 0.0
-                ki: 0.0
-                kp: 100.0
+                ki: 1.0
+                kp: 50.0
             velocity:
                 i_limit: 100.0
                 kd: 0.0
-                ki: 0.0
-                kp: 0.1
+                ki: 2.0
+                kp: 30
     theta-2:
     # motor: 2232 U009 SR
         streams:
@@ -239,12 +239,12 @@ actuator:
                 i_limit: 1000.0
                 kd: 0.0
                 ki: 1.0
-                kp: 10.0
+                kp: 25.0
             velocity:
                 i_limit: 1.0
                 kd: 0.0
-                ki: 1.0
-                kp: 0.1
+                ki: 4.0
+                kp: 20.0
     theta-3:
     # motor: 1524 U012 SR
         streams:
@@ -280,8 +280,8 @@ actuator:
             velocity:
                 i_limit: 10.0
                 kd: 0.0
-                ki: 5.0
-                kp: 0.3
+                ki: 0.1
+                kp: 25.0
     pump-1:
         control:
             mode: 0 # openloop
@@ -325,12 +325,12 @@ actuator:
                 i_limit: 1000.0
                 kd: 0.0
                 ki: 1.0
-                kp: 70.0
+                kp: 50.0
             velocity:
                 i_limit: 100.0
                 kd: 0.0
-                ki: 0.05
-                kp: 0.2
+                ki: 2.0
+                kp: 30
     left-theta-2:
     # motor: 2232 U009 SR
         streams:
@@ -361,13 +361,13 @@ actuator:
             position:
                 i_limit: 1000.0
                 kd: 0.0
-                ki: 0.5
-                kp: 20.0
+                ki: 1.0
+                kp: 25.0
             velocity:
                 i_limit: 1.0
                 kd: 0.0
-                ki: 1.0
-                kp: 0.1
+                ki: 4.0
+                kp: 20.0
     left-theta-3:
     # motor: 1524 U012 SR
         streams:
@@ -403,8 +403,8 @@ actuator:
             velocity:
                 i_limit: 10.0
                 kd: 0.0
-                ki: 5.0
-                kp: 10.0
+                ki: 0.1
+                kp: 25.0
     left-pump-1:
         control:
             mode: 0 # openloop
