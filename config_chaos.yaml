@@ -37,7 +37,7 @@ master:
             distance:
                 kp: 1.5
                 ki: 0.5
-                kd: 20.
+                kd: 10.
                 i_limit: 10.
         trajectories:
             angle:
