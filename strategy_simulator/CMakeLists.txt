@@ -11,6 +11,7 @@ set(SOURCES
     ch.cpp
     ../master-firmware/src/strategy_impl/actions.cpp
     ../master-firmware/src/strategy/state.cpp
+    ../master-firmware/src/strategy/score.cpp
     ../master-firmware/src/base/map.c
     ../master-firmware/src/robot_helpers/math_helpers.c
     ../master-firmware/build/protobuf/protocol.pb.c

@@ -7,6 +7,7 @@
 #include "strategy.h"
 #include "strategy/goals.h"
 #include "strategy/state.h"
+#include "strategy/score.h"
 #include "strategy_impl/game.h"
 
 namespace sim {
@@ -35,6 +36,18 @@ void reset(void)
     std::cout << std::endl;
 }
 
+int count_score(const RobotState& state)
+{
+    int score = 0;
+    score += score_count_classified_atoms(state);
+    score += score_count_accelerator(state);
+    score += score_count_goldenium(state);
+    score += score_count_experiment(state);
+    score += score_count_electron(state);
+    score += score_count_scale(state);
+    return score;
+}
+
 void run_goal(goap::Goal<RobotState>* goal, std::string name)
 {
     goap::Action<RobotState>* path[sim::max_path_len] = {nullptr};
@@ -52,6 +65,7 @@ void run_goal(goap::Goal<RobotState>* goal, std::string name)
             break; // Break on failure
         }
     }
+    std::cout << "Score estimate: " << std::to_string(count_score(state)) << std::endl;
 }
 } // namespace sim
 
