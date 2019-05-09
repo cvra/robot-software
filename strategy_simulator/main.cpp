@@ -17,6 +17,7 @@ strategy_context_t* ctx = strategy_simulated_impl(color);
 GAME_GOALS_CHAOS(goals, goal_names, goal_count);
 GAME_ACTIONS_CHAOS(actions, action_count, ctx);
 
+static TOPIC_DECL(state_topic, RobotState);
 const int max_path_len = 10;
 
 void reset(void)
@@ -33,6 +34,25 @@ void reset(void)
     }
     std::cout << std::endl;
 }
+
+void run_goal(goap::Goal<RobotState>* goal, std::string name)
+{
+    goap::Action<RobotState>* path[sim::max_path_len] = {nullptr};
+    static goap::Planner<RobotState, GOAP_SPACE_SIZE> planner;
+    int len = planner.plan(sim::state, *goal, sim::actions, sim::action_count, path, sim::max_path_len);
+    std::cout << "Found a path of length " << std::to_string(len) << " to achieve the " << name << " goal" << std::endl;
+    messagebus_topic_publish(&sim::state_topic.topic, &sim::state, sizeof(sim::state));
+    for (int i = 0; i < len; i++) {
+        std::cout << std::endl
+                  << "#" << std::to_string(i);
+        bool success = path[i]->execute(sim::state);
+        messagebus_topic_publish(&sim::state_topic.topic, &sim::state, sizeof(sim::state));
+        if (success == false) {
+            std::cout << "Failed to execute action #" << std::to_string(i) << std::endl;
+            break; // Break on failure
+        }
+    }
+}
 } // namespace sim
 
 int main(int argc, char* argv[])
@@ -44,8 +64,7 @@ int main(int argc, char* argv[])
     simulation_init();
     sim::reset();
 
-    static TOPIC_DECL(state_topic, RobotState);
-    messagebus_advertise_topic(&bus, &state_topic.topic, "/state");
+    messagebus_advertise_topic(&bus, &sim::state_topic.topic, "/state");
 
     if (argc != 2) {
         std::cout << "Usage: simulator y|v" << std::endl;
@@ -74,8 +93,9 @@ int main(int argc, char* argv[])
 
         if (!strcmp(line.c_str(), "help")) {
             std::cout << "Welcome to the help menu, here are the commands available:" << std::endl;
-            std::cout << "- reset" << std::endl;
-            std::cout << "- pos" << std::endl;
+            std::cout << "- reset [Reset game state]" << std::endl;
+            std::cout << "- pos [Show current bot position]" << std::endl;
+            std::cout << "- all [Run all goals]" << std::endl;
             for (size_t i = 0; i < sim::goal_count; i++) {
                 std::cout << "- " << sim::goal_names[i] << std::endl;
             }
@@ -92,6 +112,15 @@ int main(int argc, char* argv[])
             continue;
         }
 
+        if (!strcmp(line.c_str(), "all")) {
+            for (size_t i = 0; i < sim::goal_count; i++) {
+                sim::run_goal(sim::goals[i], sim::goal_names[i]);
+                std::cout << "----------------------------------" << std::endl;
+            }
+            std::cout << "Ran through all goals" << std::endl;
+            continue;
+        }
+
         goap::Goal<RobotState>* goal = nullptr;
         for (size_t i = 0; i < sim::goal_count; i++) {
             if (!strcmp(line.c_str(), sim::goal_names[i])) {
@@ -102,22 +131,7 @@ int main(int argc, char* argv[])
             std::cout << "Unknown goal " << line << std::endl;
             continue;
         }
-
-        goap::Action<RobotState>* path[sim::max_path_len] = {nullptr};
-        static goap::Planner<RobotState, GOAP_SPACE_SIZE> planner;
-        int len = planner.plan(sim::state, *goal, sim::actions, sim::action_count, path, sim::max_path_len);
-        std::cout << "Found a path of length " << std::to_string(len) << " to achieve the " << line << " goal" << std::endl;
-        messagebus_topic_publish(&state_topic.topic, &sim::state, sizeof(sim::state));
-        for (int i = 0; i < len; i++) {
-            std::cout << std::endl
-                      << "#" << std::to_string(i);
-            bool success = path[i]->execute(sim::state);
-            messagebus_topic_publish(&state_topic.topic, &sim::state, sizeof(sim::state));
-            if (success == false) {
-                std::cout << "Failed to execute action #" << std::to_string(i) << std::endl;
-                break; // Break on failure
-            }
-        }
+        sim::run_goal(goal, line);
     }
     return 0;
 }
