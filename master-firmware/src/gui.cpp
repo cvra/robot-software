@@ -62,6 +62,6 @@ static void gui_thread(void* p)
 
 void gui_start()
 {
-    static THD_WORKING_AREA(wa, 4096);
+    static THD_WORKING_AREA(wa, 4096 + 1024);
     chThdCreateStatic(wa, sizeof(wa), LOWPRIO, gui_thread, NULL);
 }
