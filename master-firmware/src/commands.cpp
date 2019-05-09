@@ -1100,6 +1100,16 @@ static void cmd_arm(BaseSequentialStream* chp, int argc, char* argv[])
             res = manipulator_goto(side, MANIPULATOR_STORE_FRONT_HIGH);
         } else if (!strcmp(argv[1], "storeFL")) {
             res = manipulator_goto(side, MANIPULATOR_STORE_FRONT_LOW);
+        } else if (!strcmp(argv[1], "storeB1")) {
+            res = manipulator_goto(side, MANIPULATOR_STORE_BACK_1);
+        } else if (!strcmp(argv[1], "storeB2")) {
+            res = manipulator_goto(side, MANIPULATOR_STORE_BACK_2);
+        } else if (!strcmp(argv[1], "storeB3")) {
+            res = manipulator_goto(side, MANIPULATOR_STORE_BACK_3);
+        } else if (!strcmp(argv[1], "storeBH")) {
+            res = manipulator_goto(side, MANIPULATOR_STORE_BACK_HIGH);
+        } else if (!strcmp(argv[1], "storeBL")) {
+            res = manipulator_goto(side, MANIPULATOR_STORE_BACK_LOW);
         } else {
             arm_turn_off(side);
             if (side == RIGHT) {

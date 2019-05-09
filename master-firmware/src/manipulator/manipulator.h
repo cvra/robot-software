@@ -43,15 +43,18 @@ public:
         /* MANIPULATOR_SCALE */ {{1.4499, 2.5307, 1.5786}},
         /* MANIPULATOR_PUT_ACCELERATOR*/ {{0.5522, 2.8653, 1.5605}},
         /* MANIPULATOR_PUT_ACCELERATOR_DOWN*/ {{0.2617, 2.4874, 1.6114}},
-        /* MANIPUKATOR_STORE_FRONT_0 */ {{1.0351, 2.5056, 0.5945}},
-        /* MANIPULATOR_STORE_FRONT_1 */ {{0.40241, 3.1415 - 0.70691, 0}},
-        /* MANIPULATOR_STORE_FRONT_2*/ {{0.09823, 3.1415 - 0.36589, 0.34102}},
-        /* MANIPULATOR_STORE_FRONT_3*/ {{-0.13224, 3.1415 - 0.3823, 0.32461}},
-        /* MANIPULATOR_STORE_FRONT_HIGH */ {{-0.35403161 , 2.01076878 , 0}},
-        /* MANIPULATOR_STORE_FRONT_LOW */ {{-0.4226222 , 1.70403752 , 0}},
-        /* MANIPULATOR_STORE_BACK_1 */ {{0.40241, 3.1415 - 0.70691, 0}}, //waiting for correct coo
-        /* MANIPULATOR_STORE_BACK_2*/ {{0.09823, 3.1415 - 0.36589, 0.34102}}, //waiting for correct coo
-        /* MANIPULATOR_STORE_BACK_3*/ {{-0.13224, 3.1415 - 0.3823, 0.32461}}, //waiting for correct coo
+        /* MANIPUKATOR_STORE_FRONT_SAFE */ {{1.0351, 2.5056, 0.5945}},
+        /* MANIPUKATOR_STORE_FRONT_0 */ {{0.55592904, 2.29990897, 0}},
+        /* MANIPULATOR_STORE_FRONT_1 */ {{0.44061324, 2.40559601, 0}},
+        /* MANIPULATOR_STORE_FRONT_2*/ {{0.15942326, 2.76071548, 0.35511947}},
+        /* MANIPULATOR_STORE_FRONT_3*/ {{-0.14048151, 2.77174001, 0.366144}},
+        /* MANIPULATOR_STORE_FRONT_HIGH */ {{-0.35403161, 2.01076878, 0}},
+        /* MANIPULATOR_STORE_FRONT_LOW */ {{-0.4226222, 1.70403752, 0}},
+        /* MANIPULATOR_STORE_BACK_1 */ {{-0.44061324, 2.40559601, 0}},
+        /* MANIPULATOR_STORE_BACK_2*/ {{-0.98944966, 1.83134011, 0}},
+        /* MANIPULATOR_STORE_BACK_3*/ {{-1.49246682, 1.17753052, 0}},
+        /* MANIPULATOR_STORE_BACK_HIGH */ {{-1.29581933, 1.06898106, 0}},
+        /* MANIPULATOR_STORE_BACK_LOW */ {{-1.1675452, 0.95911452, 0}},
     };
     manipulator_state_t state;
 
@@ -84,7 +87,8 @@ public:
         nodes[MANIPULATOR_LIFT_VERT].connect(nodes[MANIPULATOR_RETRACT]);
 
         //stock front
-        pathfinding::connect_bidirectional(nodes[MANIPULATOR_LIFT_VERT], nodes[MANIPULATOR_STORE_FRONT_0]);
+        pathfinding::connect_bidirectional(nodes[MANIPULATOR_LIFT_VERT], nodes[MANIPULATOR_STORE_FRONT_SAFE]);
+        pathfinding::connect_bidirectional(nodes[MANIPULATOR_STORE_FRONT_SAFE], nodes[MANIPULATOR_STORE_FRONT_0]);
         pathfinding::connect_bidirectional(nodes[MANIPULATOR_STORE_FRONT_0], nodes[MANIPULATOR_STORE_FRONT_1]);
         pathfinding::connect_bidirectional(nodes[MANIPULATOR_STORE_FRONT_1], nodes[MANIPULATOR_STORE_FRONT_2]);
         pathfinding::connect_bidirectional(nodes[MANIPULATOR_STORE_FRONT_2], nodes[MANIPULATOR_STORE_FRONT_3]);
@@ -95,6 +99,9 @@ public:
         pathfinding::connect_bidirectional(nodes[MANIPULATOR_STORE_FRONT_3], nodes[MANIPULATOR_STORE_BACK_1]);
         pathfinding::connect_bidirectional(nodes[MANIPULATOR_STORE_BACK_1], nodes[MANIPULATOR_STORE_BACK_2]);
         pathfinding::connect_bidirectional(nodes[MANIPULATOR_STORE_BACK_2], nodes[MANIPULATOR_STORE_BACK_3]);
+        //stock picking front
+        pathfinding::connect_bidirectional(nodes[MANIPULATOR_STORE_BACK_3], nodes[MANIPULATOR_STORE_BACK_HIGH]);
+        pathfinding::connect_bidirectional(nodes[MANIPULATOR_STORE_BACK_HIGH], nodes[MANIPULATOR_STORE_BACK_LOW]);
 
         //put puck in scale
         nodes[MANIPULATOR_LIFT_VERT].connect(nodes[MANIPULATOR_SCALE]);
