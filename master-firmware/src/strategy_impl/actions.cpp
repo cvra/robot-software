@@ -79,7 +79,7 @@ bool TakePuck::execute(RobotState& state)
         a = MIRROR_A(strat->color, 180);
     } else {
         x = MIRROR_X(strat->color, pucks[puck_id].pos_x_mm) - MIRROR_ARM(side, 50);
-        y = pucks[puck_id].pos_y_mm - 275;
+        y = pucks[puck_id].pos_y_mm - 220;
         a = MIRROR_A(strat->color, -90);
     }
 
@@ -96,7 +96,7 @@ bool TakePuck::execute(RobotState& state)
         strat->manipulator_goto(side, MANIPULATOR_LIFT_HORZ);
     } else {
         strat->manipulator_goto(side, MANIPULATOR_PICK_VERT);
-        strat->forward(strat, -30);
+        strat->forward(strat, -20);
         strat->wait_ms(500);
         strat->manipulator_goto(side, MANIPULATOR_LIFT_VERT);
     }
