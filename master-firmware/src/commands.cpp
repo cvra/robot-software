@@ -866,12 +866,23 @@ static void cmd_arm_index_manual(BaseSequentialStream* chp, int argc, char* argv
         return;
     }
 
+    arm_turn_off(LEFT);
+    arm_turn_off(RIGHT);
+    static char line[2];
+
     if (strcmp("left", argv[0]) == 0) {
         parameter_scalar_set(PARAMETER("master/arms/left/offsets/q1"), 0);
         parameter_scalar_set(PARAMETER("master/arms/left/offsets/q2"), 0);
         parameter_scalar_set(PARAMETER("master/arms/left/offsets/q3"), 0);
-        chThdSleepMilliseconds(100);
+
+        manipulator_gripper_set(LEFT, GRIPPER_ACQUIRE);
+
+        chThdSleepMilliseconds(1000);
+        chprintf(chp, "Press any key to continue\r\n");
+        shellGetLine(&shell_cfg, line, sizeof(line), NULL);
         arm_manual_index(LEFT);
+
+        manipulator_gripper_set(LEFT, GRIPPER_OFF);
 
         chprintf(chp, "Index of left theta-1 at %.4f\r\n", config_get_scalar("master/arms/left/offsets/q1"));
         chprintf(chp, "Index of left theta-2 at %.4f\r\n", config_get_scalar("master/arms/left/offsets/q2"));
@@ -880,8 +891,15 @@ static void cmd_arm_index_manual(BaseSequentialStream* chp, int argc, char* argv
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q1"), 0);
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q2"), 0);
         parameter_scalar_set(PARAMETER("master/arms/right/offsets/q3"), 0);
-        chThdSleepMilliseconds(100);
+
+        manipulator_gripper_set(RIGHT, GRIPPER_ACQUIRE);
+
+        chThdSleepMilliseconds(1000);
+        chprintf(chp, "Press any key to continue\r\n");
+        shellGetLine(&shell_cfg, line, sizeof(line), NULL);
         arm_manual_index(RIGHT);
+
+        manipulator_gripper_set(RIGHT, GRIPPER_OFF);
 
         chprintf(chp, "Index of right theta-1 at %.4f\r\n", config_get_scalar("master/arms/right/offsets/q1"));
         chprintf(chp, "Index of right theta-2 at %.4f\r\n", config_get_scalar("master/arms/right/offsets/q2"));
