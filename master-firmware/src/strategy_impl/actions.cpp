@@ -21,14 +21,23 @@ bool IndexArms::execute(RobotState& state)
 
     // set index when user presses color button, so indexing is done manually
 
+    strat->manipulator_disable(RIGHT);
+    strat->manipulator_disable(LEFT);
+
+    strat->gripper_set(RIGHT, GRIPPER_ACQUIRE);
+    strat->wait_ms(1000);
+    strat->wait_for_user_input(); // wait for user to align the right arm
     strat->arm_manual_index(RIGHT);
-    strat->wait_ms(500);
-    strat->wait_for_user_input();
+    strat->gripper_set(RIGHT, GRIPPER_OFF);
 
+    strat->gripper_set(LEFT, GRIPPER_ACQUIRE);
+    strat->wait_ms(1000);
+    strat->wait_for_user_input(); // wait for user to align the left arm
     strat->arm_manual_index(LEFT);
-    strat->wait_ms(500);
-    strat->wait_for_user_input();
+    strat->gripper_set(LEFT, GRIPPER_OFF);
 
+    strat->wait_ms(1000);
+    strat->wait_for_user_input(); // wait for user to remove the alignment part
     state.arms_are_indexed = true;
     return true;
 }

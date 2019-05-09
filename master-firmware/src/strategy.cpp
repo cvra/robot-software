@@ -80,6 +80,7 @@ static strategy_context_t strategy = {
     /*rotate*/ strategy_rotate,
     /*goto_xya*/ strategy_goto_xya,
     /*manipulator_goto*/ manipulator_goto,
+    /*manipulator_disable*/ arm_turn_off,
     /*gripper_set*/ manipulator_gripper_set,
     /*puck_is_picked*/ strategy_puck_is_picked,
     /*arm_manual_index*/ arm_manual_index,

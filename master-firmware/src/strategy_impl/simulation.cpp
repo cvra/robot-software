@@ -22,6 +22,10 @@ static bool simulated_manipulator_goto(manipulator_side_t side, manipulator_stat
     (void)target;
     return true;
 }
+static void simulated_manipulator_turn_off(manipulator_side_t side)
+{
+    (void)side;
+}
 static void simulated_gripper_set(manipulator_side_t side, gripper_state_t state)
 {
     (void)side;
@@ -88,6 +92,7 @@ strategy_context_t strategy_simulated = {
     simulated_goto_xya,
 
     simulated_manipulator_goto,
+    simulated_manipulator_turn_off,
     simulated_gripper_set,
     simulated_puck_is_picked,
 

@@ -21,6 +21,7 @@ typedef struct {
     bool (*goto_xya)(void*, int, int, int);
 
     bool (*manipulator_goto)(manipulator_side_t side, manipulator_state_t target);
+    void (*manipulator_disable)(manipulator_side_t side);
     void (*gripper_set)(manipulator_side_t side, gripper_state_t state);
     bool (*puck_is_picked)(manipulator_side_t side);
 

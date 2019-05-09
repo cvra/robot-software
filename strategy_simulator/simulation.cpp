@@ -36,6 +36,10 @@ static bool simulated_puck_is_picked(manipulator_side_t)
 {
     return true;
 }
+static void simulated_manipulator_turn_off(manipulator_side_t side)
+{
+    (void)side;
+}
 
 void publish_pos(strategy_context_t* strat)
 {
@@ -129,6 +133,7 @@ strategy_context_t strategy_simulated = {
     simulated_goto_xya,
 
     simulated_manipulator_goto,
+    simulated_manipulator_turn_off,
     simulated_gripper_set,
     simulated_puck_is_picked,
 };
