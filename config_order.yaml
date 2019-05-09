@@ -86,8 +86,8 @@ master:
                 q2: 0.02
                 q3: 0.1
             gripper:
-                release: -6.
-                acquire: 14.
+                release: 6.
+                acquire: -14.
                 current_thres: 0.24 # [A] pump current beyond which we consider the puck is picked
         left:
             lengths:
