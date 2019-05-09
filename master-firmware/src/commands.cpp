@@ -1374,10 +1374,9 @@ static void cmd_goal(BaseSequentialStream* chp, int argc, char* argv[])
             continue;
         }
 
-        const int max_path_len = 10;
-        goap::Action<RobotState>* path[max_path_len] = {nullptr};
+        goap::Action<RobotState>* path[MAX_GOAP_PATH_LEN] = {nullptr};
         static goap::Planner<RobotState, GOAP_SPACE_SIZE> planner;
-        int len = planner.plan(state, *goal, actions, action_count, path, max_path_len);
+        int len = planner.plan(state, *goal, actions, action_count, path, MAX_GOAP_PATH_LEN);
         chprintf(chp, "Found a path of length %d to achieve the %s goal\r\n", len, line);
         messagebus_topic_publish(state_topic, &state, sizeof(state));
         for (int i = 0; i < len; i++) {

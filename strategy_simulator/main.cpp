@@ -19,7 +19,6 @@ GAME_GOALS_CHAOS(goals, goal_names, goal_count);
 GAME_ACTIONS_CHAOS(actions, action_count, ctx);
 
 static TOPIC_DECL(state_topic, RobotState);
-const int max_path_len = 10;
 
 void reset(void)
 {
@@ -50,9 +49,9 @@ int count_score(const RobotState& state)
 
 void run_goal(goap::Goal<RobotState>* goal, std::string name)
 {
-    goap::Action<RobotState>* path[sim::max_path_len] = {nullptr};
+    goap::Action<RobotState>* path[MAX_GOAP_PATH_LEN] = {nullptr};
     static goap::Planner<RobotState, GOAP_SPACE_SIZE> planner;
-    int len = planner.plan(sim::state, *goal, sim::actions, sim::action_count, path, sim::max_path_len);
+    int len = planner.plan(sim::state, *goal, sim::actions, sim::action_count, path, MAX_GOAP_PATH_LEN);
     std::cout << "Found a path of length " << std::to_string(len) << " to achieve the " << name << " goal" << std::endl;
     messagebus_topic_publish(&sim::state_topic.topic, &sim::state, sizeof(sim::state));
     for (int i = 0; i < len; i++) {

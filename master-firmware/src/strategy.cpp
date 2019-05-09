@@ -184,8 +184,7 @@ void strategy_order_play_game(strategy_context_t* ctx, RobotState& state)
 {
     messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
-    const int max_path_len = 10;
-    goap::Action<RobotState>* path[max_path_len] = {nullptr};
+    goap::Action<RobotState>* path[MAX_GOAP_PATH_LEN] = {nullptr};
 
     InitGoal init_goal;
     GAME_GOALS_ORDER(goals, goal_names, goal_count);
@@ -195,7 +194,7 @@ void strategy_order_play_game(strategy_context_t* ctx, RobotState& state)
     (void)goal_count;
 
     NOTICE("Getting arms ready...");
-    int len = planner.plan(state, init_goal, actions, action_count, path, max_path_len);
+    int len = planner.plan(state, init_goal, actions, action_count, path, MAX_GOAP_PATH_LEN);
     for (int i = 0; i < len; i++) {
         path[i]->execute(state);
         messagebus_topic_publish(state_topic, &state, sizeof(state));
@@ -222,7 +221,7 @@ void strategy_order_play_game(strategy_context_t* ctx, RobotState& state)
     NOTICE("Starting game...");
     while (!trajectory_game_has_ended()) {
         for (auto goal : goals) {
-            int len = planner.plan(state, *goal, actions, action_count, path, max_path_len);
+            int len = planner.plan(state, *goal, actions, action_count, path, MAX_GOAP_PATH_LEN);
             for (int i = 0; i < len; i++) {
                 bool success = path[i]->execute(state);
                 messagebus_topic_publish(state_topic, &state, sizeof(state));
@@ -252,8 +251,7 @@ void strategy_chaos_play_game(strategy_context_t* ctx, RobotState& state)
 {
     messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
-    const int max_path_len = 10;
-    goap::Action<RobotState>* path[max_path_len] = {nullptr};
+    goap::Action<RobotState>* path[MAX_GOAP_PATH_LEN] = {nullptr};
 
     InitGoal init_goal;
     GAME_GOALS_CHAOS(goals, goal_names, goal_count);
@@ -263,7 +261,7 @@ void strategy_chaos_play_game(strategy_context_t* ctx, RobotState& state)
     (void)goal_count;
 
     NOTICE("Getting arms ready...");
-    int len = planner.plan(state, init_goal, actions, action_count, path, max_path_len);
+    int len = planner.plan(state, init_goal, actions, action_count, path, MAX_GOAP_PATH_LEN);
     for (int i = 0; i < len; i++) {
         path[i]->execute(state);
         messagebus_topic_publish(state_topic, &state, sizeof(state));
@@ -296,7 +294,7 @@ void strategy_chaos_play_game(strategy_context_t* ctx, RobotState& state)
 
     while (!trajectory_game_has_ended()) {
         for (auto goal : goals) {
-            int len = planner.plan(state, *goal, actions, action_count, path, max_path_len);
+            int len = planner.plan(state, *goal, actions, action_count, path, MAX_GOAP_PATH_LEN);
             for (int i = 0; i < len; i++) {
                 bool success = path[i]->execute(state);
                 messagebus_topic_publish(state_topic, &state, sizeof(state));

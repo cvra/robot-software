@@ -3,6 +3,8 @@
 
 #include "strategy_impl/actions.h"
 
+const int MAX_GOAP_PATH_LEN = 10;
+
 /********* Order *********/
 
 #define GAME_ACTIONS_ORDER(actions, action_count, ctx) \
