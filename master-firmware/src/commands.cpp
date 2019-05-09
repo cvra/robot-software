@@ -1142,8 +1142,8 @@ static void cmd_arm(BaseSequentialStream* chp, int argc, char* argv[])
             res = manipulator_goto(side, MANIPULATOR_STORE_FRONT_1);
         } else if (!strcmp(argv[1], "storeF2")) {
             res = manipulator_goto(side, MANIPULATOR_STORE_FRONT_2);
-        } else if (!strcmp(argv[1], "storeF3")) {
-            res = manipulator_goto(side, MANIPULATOR_STORE_FRONT_3);
+        } else if (!strcmp(argv[1], "storeFS")) {
+            res = manipulator_goto(side, MANIPULATOR_STORE_FRONT_STORE);
         } else if (!strcmp(argv[1], "storeF0")) {
             res = manipulator_goto(side, MANIPULATOR_STORE_FRONT_0);
         } else if (!strcmp(argv[1], "storeFH")) {
@@ -1154,8 +1154,8 @@ static void cmd_arm(BaseSequentialStream* chp, int argc, char* argv[])
             res = manipulator_goto(side, MANIPULATOR_STORE_BACK_1);
         } else if (!strcmp(argv[1], "storeB2")) {
             res = manipulator_goto(side, MANIPULATOR_STORE_BACK_2);
-        } else if (!strcmp(argv[1], "storeB3")) {
-            res = manipulator_goto(side, MANIPULATOR_STORE_BACK_3);
+        } else if (!strcmp(argv[1], "storeBS")) {
+            res = manipulator_goto(side, MANIPULATOR_STORE_BACK_STORE);
         } else if (!strcmp(argv[1], "storeBH")) {
             res = manipulator_goto(side, MANIPULATOR_STORE_BACK_HIGH);
         } else if (!strcmp(argv[1], "storeBL")) {

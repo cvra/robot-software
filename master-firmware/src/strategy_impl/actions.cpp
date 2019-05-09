@@ -221,9 +221,9 @@ bool StockPuckInStorage::execute(RobotState& state)
     strat->forward(strat, 60);
     state.arms_are_deployed = true;
     if (puck_position < 3) {
-        strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_3);
+        strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_STORE);
     } else {
-        strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_3);
+        strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_STORE);
     }
     strat->gripper_set(side, GRIPPER_RELEASE);
     strat->wait_ms(200);
@@ -295,7 +295,7 @@ bool PickUpStorage::execute(RobotState& state)
 {
     strat->log("Picking up from storage !");
     state.arms_are_deployed = true;
-    strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_3);
+    strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_STORE);
     strat->gripper_set(RIGHT, GRIPPER_ACQUIRE);
     strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_LOW);
     strat->wait_ms(400);
