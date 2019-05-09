@@ -106,6 +106,38 @@ static void cmd_threads(BaseSequentialStream* chp, int argc, char* argv[])
     } while (tp != NULL);
 }
 
+static void cmd_stack(BaseSequentialStream* chp, int argc, char* argv[])
+{
+#if (CH_DBG_FILL_THREADS != TRUE) || (CH_CFG_USE_REGISTRY != TRUE) || (CH_DBG_ENABLE_STACK_CHECK != TRUE)
+#error "Requires: CH_DBG_FILL_THREADS CH_CFG_USE_REGISTRY CH_DBG_ENABLE_STACK_CHECK"
+#endif
+    const uint32_t STACK_FILL = 0x55555555;
+    uint32_t p, sp, limit, wabase;
+    const char* name;
+    thread_t *tp;
+
+    chprintf(chp, "stackptr  stacktop  stklimit  free   name\n");
+
+    tp = chRegFirstThread();
+    while(tp) {
+        sp = (uint32_t)tp->ctx.sp;
+        wabase = (uint32_t)tp->wabase;
+        name = tp->name == NULL ? "NULL" : tp->name;
+
+        uint32_t limit = wabase + sizeof(thread_t);
+
+        for (p = limit; p < sp; p += 4) {
+            if (STACK_FILL != *(uint32_t*)p) {
+                break;
+            }
+        }
+
+        chprintf(chp, "%08lx  %08lx  %08lx  %5lu  %s\n", sp, p, limit, p - limit, name);
+
+        tp = chRegNextThread(tp);
+    }
+}
+
 static void cmd_ip(BaseSequentialStream* chp, int argc, char** argv)
 {
     (void)argv;
@@ -1363,6 +1395,7 @@ ShellCommand commands[] = {
     {"reboot", cmd_reboot},
     {"rotate", cmd_traj_rotate},
     {"threads", cmd_threads},
+    {"stack", cmd_stack},
     {"time", cmd_time},
     {"topics", cmd_topics},
     {"pid", cmd_pid},
