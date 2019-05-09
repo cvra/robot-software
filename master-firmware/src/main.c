@@ -198,7 +198,7 @@ int main(void)
     /* Initialize the interthread communication bus. */
     messagebus_init(&bus, &bus_lock, &bus_condvar);
 
-    udp_topic_register_callbacks();
+    // udp_topic_register_callbacks();
 
     /* Initialise timestamp module */
     timestamp_stm32_init();
