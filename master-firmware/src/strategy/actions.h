@@ -215,6 +215,36 @@ struct PutPuckInAccelerator : public goap::Action<RobotState> {
     }
 };
 
+struct PickUpStorage : public goap::Action<RobotState> {
+    size_t storage_id;
+    manipulator_side_t side;
+
+    PickUpStorage(size_t id, manipulator_side_t side)
+        : storage_id(id)
+        , side(side)
+    {
+    }
+    bool can_run(const RobotState& state)
+    {
+        const bool has_puck = (side == LEFT) ? state.left_has_puck : state.right_has_puck;
+        PuckColor puck_color = (side == LEFT) ? state.left_storage[storage_id] : state.right_storage[storage_id];
+        return !has_puck && !(puck_color == PuckColor_EMPTY);
+    }
+
+    void plan_effects(RobotState& state)
+    {
+        if (side == LEFT) {
+            state.left_has_puck = true;
+            state.left_puck_color = state.left_storage[storage_id];
+            state.left_storage[storage_id] = PuckColor_EMPTY;
+        } else {
+            state.right_has_puck = true;
+            state.right_puck_color = state.right_storage[storage_id];
+            state.right_storage[storage_id] = PuckColor_EMPTY;
+        }
+        state.take_storage = true;
+    }
+};
 } // namespace actions
 
 #endif /* STRATEGY_ACTIONS_H */

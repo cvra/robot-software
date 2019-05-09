@@ -57,4 +57,10 @@ struct PuckInAcceleratorGoal : goap::Goal<RobotState> {
     }
 };
 
+struct TakeFromStorage : goap::Goal<RobotState> {
+    virtual int distance_to(const RobotState& state) const
+    {
+        return goap::Distance().shouldBeTrue(state.take_storage);
+    }
+};
 #endif /* STRATEGY_GOALS_H */

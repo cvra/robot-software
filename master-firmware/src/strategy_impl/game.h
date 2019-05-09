@@ -66,6 +66,18 @@
         {ctx, 3, LEFT},                                 \
         {ctx, 4, LEFT},                                 \
     };                                                  \
+    PickUpStorage pick_up_storage_right[] = {           \
+        {ctx, 0, RIGHT},                                \
+        {ctx, 1, RIGHT},                                \
+        {ctx, 2, RIGHT},                                \
+        {ctx, 3, RIGHT},                                \
+    };                                                  \
+    PickUpStorage pick_up_storage_left[] = {            \
+        {ctx, 0, LEFT},                                 \
+        {ctx, 1, LEFT},                                 \
+        {ctx, 2, LEFT},                                 \
+        {ctx, 3, LEFT},                                 \
+    };                                                  \
     LaunchAccelerator launch_accelerator(ctx);          \
     TakeGoldonium take_goldonium(ctx);                  \
     StockPuckInStorage stock_puck_right(ctx, RIGHT);    \
@@ -91,6 +103,14 @@
         &put_puck_in_scale_right,                       \
         &put_puck_in_scale_left,                        \
         &put_puck_in_accelerator,                       \
+        &pick_up_storage_left[0],                       \
+        &pick_up_storage_left[1],                       \
+        &pick_up_storage_left[2],                       \
+        &pick_up_storage_left[3],                       \
+        &pick_up_storage_right[0],                      \
+        &pick_up_storage_right[1],                      \
+        &pick_up_storage_right[2],                      \
+        &pick_up_storage_right[3],                      \
     };                                                  \
     const auto action_count = sizeof(actions) / sizeof(actions[0]);
 
@@ -101,11 +121,12 @@
     StockPuckGoal stock_puck_goal;                      \
     PuckInScaleGoal puck_in_scale_goal;                 \
     PuckInAcceleratorGoal puck_in_accelerator_goal;     \
+    TakeFromStorage take_from_storage;                  \
     goap::Goal<RobotState>* goals[] = {                 \
-        &stock_puck_goal,                               \
+        &take_from_storage,                             \
     };                                                  \
     const char* goal_names[] = {                        \
-        "stock",                                        \
+        "take_storage",                                 \
     };                                                  \
     const size_t goal_count = sizeof(goals) / sizeof(goap::Goal<RobotState>*);
 

@@ -216,7 +216,9 @@ bool StockPuckInStorage::execute(RobotState& state)
     } else {
         strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_3);
     }
-    strat->gripper_set(side, GRIPPER_OFF);   
+    strat->gripper_set(side, GRIPPER_RELEASE);
+    strat->wait_ms(200);
+    strat->gripper_set(side, GRIPPER_OFF);
 
     if (side == LEFT) {
         state.left_storage[puck_position] = state.left_puck_color;
@@ -277,5 +279,29 @@ bool PutPuckInAccelerator::execute(RobotState& state)
 
     state.right_has_puck = false;
     state.puck_in_accelerator++;
+    return true;
+}
+
+bool PickUpStorage::execute(RobotState& state)
+{
+    strat->log("Picking up from storage !");
+    state.arms_are_deployed = true;
+    strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_3);
+    strat->gripper_set(RIGHT, GRIPPER_ACQUIRE);
+    strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_LOW);
+    strat->wait_ms(400);
+    strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_0);
+
+    if (side == LEFT) {
+        state.left_has_puck = true;
+        state.left_puck_color = state.left_storage[storage_id];
+        state.left_storage[storage_id] = PuckColor_EMPTY;
+    } else {
+        state.right_has_puck = true;
+        state.right_puck_color = state.right_storage[storage_id];
+        state.right_storage[storage_id] = PuckColor_EMPTY;
+    }
+    state.take_storage = true;
+    strat->gripper_set(RIGHT, GRIPPER_OFF);
     return true;
 }

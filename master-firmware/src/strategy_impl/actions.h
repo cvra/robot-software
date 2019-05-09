@@ -86,4 +86,13 @@ struct PutPuckInAccelerator : actions::PutPuckInAccelerator {
     bool execute(RobotState& state);
 };
 
+struct PickUpStorage : actions::PickUpStorage {
+    strategy_context_t* strat;
+    PickUpStorage(strategy_context_t* strat, size_t id, manipulator_side_t side)
+        : actions::PickUpStorage(id, side)
+        , strat(strat)
+    {
+    }
+    bool execute(RobotState& state);
+};
 #endif /* STRATEGY_IMPL_ACTIONS_H */
