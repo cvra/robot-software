@@ -53,7 +53,7 @@ master:
                 speed: # in m / s
                     init: 0.1
                     slow: 0.2
-                    fast: 0.3
+                    fast: 0.5
                 acceleration: # in m / s^2
                     init: 0.15
                     slow: 0.5
