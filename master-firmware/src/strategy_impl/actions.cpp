@@ -290,7 +290,6 @@ bool PickUpStorage::execute(RobotState& state)
     strat->gripper_set(RIGHT, GRIPPER_ACQUIRE);
     strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_LOW);
     strat->wait_ms(400);
-    strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_0);
 
     if (side == LEFT) {
         state.left_has_puck = true;
@@ -302,6 +301,5 @@ bool PickUpStorage::execute(RobotState& state)
         state.right_storage[storage_id] = PuckColor_EMPTY;
     }
     state.take_storage = true;
-    strat->gripper_set(RIGHT, GRIPPER_OFF);
     return true;
 }

@@ -123,10 +123,14 @@
     PuckInAcceleratorGoal puck_in_accelerator_goal;     \
     TakeFromStorage take_from_storage;                  \
     goap::Goal<RobotState>* goals[] = {                 \
+        &rush_heavy_pucks_goal,                         \
         &take_from_storage,                             \
+        &puck_in_accelerator_goal,                      \
     };                                                  \
     const char* goal_names[] = {                        \
+        "rush",                                         \
         "take_storage",                                 \
+        "accel",                                        \
     };                                                  \
     const size_t goal_count = sizeof(goals) / sizeof(goap::Goal<RobotState>*);
 

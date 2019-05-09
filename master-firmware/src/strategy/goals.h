@@ -16,8 +16,7 @@ struct RushHeavyPucksGoal : goap::Goal<RobotState> {
     {
         // clang-format off
         return goap::Distance()
-                .shouldBeFalse(state.puck_available[6])
-                .shouldBeFalse(state.puck_available[8]);
+                .shouldBeEqual(state.right_storage[0],PuckColor_RED);
         // clang-format on
     }
 };
