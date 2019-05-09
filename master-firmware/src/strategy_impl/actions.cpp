@@ -154,7 +154,7 @@ bool LaunchAccelerator::execute(RobotState& state)
     strat->rotate(strat, MIRROR(strat->color, 20));
     strat->forward(strat, 40);
 
-    state.accelerator_is_done = true;
+    state.puck_in_accelerator++;
     return true;
 }
 

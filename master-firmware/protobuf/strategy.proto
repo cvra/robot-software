@@ -24,17 +24,15 @@ message RobotState {
     repeated bool puck_available = 3 [(nanopb).fixed_count=true, (nanopb).max_count=12];
     required bool right_has_puck = 4 [default=false];
     required bool left_has_puck = 5 [default=false];
-    required bool accelerator_is_done = 6 [default=false];
-    required bool electron_launched = 7 [default=false];
-    required bool goldonium_in_house = 8 [default=true];
-    required bool has_goldonium = 9 [default=false];
-    required PuckColor right_puck_color = 10;
-    required PuckColor left_puck_color = 11;
-    repeated uint32 classified_pucks = 12 [(nanopb).fixed_count=true, (nanopb).max_count=4, packed=true];
-    repeated PuckColor right_storage = 13 [(nanopb).fixed_count=true, (nanopb).max_count=4, packed=true];
-    repeated PuckColor left_storage = 14 [(nanopb).fixed_count=true, (nanopb).max_count=4, packed=true];
-    repeated PuckColor puck_in_scale = 15 [(nanopb).fixed_count=true, (nanopb).max_count=6, packed=true];
-    required uint32 puck_in_accelerator = 16 [default=0];
-    required bool take_storage = 17 [default=false];
-
+    required bool electron_launched = 6 [default=false];
+    required bool goldonium_in_house = 7 [default=true];
+    required bool has_goldonium = 8 [default=false];
+    required PuckColor right_puck_color = 9;
+    required PuckColor left_puck_color = 10;
+    repeated uint32 classified_pucks = 11 [(nanopb).fixed_count=true, (nanopb).max_count=4, packed=true];
+    repeated PuckColor right_storage = 12 [(nanopb).fixed_count=true, (nanopb).max_count=4, packed=true];
+    repeated PuckColor left_storage = 13 [(nanopb).fixed_count=true, (nanopb).max_count=4, packed=true];
+    repeated PuckColor puck_in_scale = 14 [(nanopb).fixed_count=true, (nanopb).max_count=6, packed=true];
+    required uint32 puck_in_accelerator = 15 [default=0];
+    required bool take_storage = 16 [default=false];
 }

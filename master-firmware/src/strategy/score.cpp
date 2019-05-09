@@ -3,15 +3,21 @@
 
 int score_count_classified_atoms(const RobotState& state)
 {
+    // clang-format off
     return 6 * (state.classified_pucks[PuckColor_RED]
                 + state.classified_pucks[PuckColor_GREEN]
                 + state.classified_pucks[PuckColor_BLUE]
                 + state.classified_pucks[PuckColor_RED_OR_GREEN]);
+    // clang-format on
 }
 
 int score_count_accelerator(const RobotState& state)
 {
-    return state.accelerator_is_done ? 20 : 0;
+    int count = state.puck_in_accelerator * 10;
+    if (count > 0) {
+        count += 10;
+    }
+    return count;
 }
 
 int score_count_goldenium(const RobotState& state)

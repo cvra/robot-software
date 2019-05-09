@@ -101,12 +101,12 @@ struct DepositPuck : public goap::Action<RobotState> {
 struct LaunchAccelerator : public goap::Action<RobotState> {
     bool can_run(const RobotState& state)
     {
-        return !state.accelerator_is_done && !state.arms_are_deployed;
+        return (state.puck_in_accelerator == 0) && !state.arms_are_deployed;
     }
 
     void plan_effects(RobotState& state)
     {
-        state.accelerator_is_done = true;
+        state.puck_in_accelerator++;
         state.arms_are_deployed = true;
     }
 };
@@ -114,7 +114,7 @@ struct LaunchAccelerator : public goap::Action<RobotState> {
 struct TakeGoldonium : public goap::Action<RobotState> {
     bool can_run(const RobotState& state)
     {
-        return state.accelerator_is_done && !state.arms_are_deployed && state.goldonium_in_house;
+        return (state.puck_in_accelerator > 0) && !state.arms_are_deployed && state.goldonium_in_house;
     }
 
     void plan_effects(RobotState& state)

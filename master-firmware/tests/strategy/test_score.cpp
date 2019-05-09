@@ -27,8 +27,14 @@ TEST(AScore, AcceleratorCountsWhenActivated)
 {
     CHECK_EQUAL(0, score_count_accelerator(state));
 
-    state.accelerator_is_done = true;
+    state.puck_in_accelerator++;
     CHECK_EQUAL(20, score_count_accelerator(state));
+
+    state.puck_in_accelerator++;
+    CHECK_EQUAL(30, score_count_accelerator(state));
+
+    state.puck_in_accelerator++;
+    CHECK_EQUAL(40, score_count_accelerator(state));
 }
 
 TEST(AScore, GoldeniumCountsWhenRemoved)
