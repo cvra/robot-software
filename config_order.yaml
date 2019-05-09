@@ -11,6 +11,7 @@ ip:
   uwb:
     address: "10.0.0.20"
     netmask: "255.255.255.0"
+  ally_address: "10.0.0.10"
 master:
     is_main_robot: true
     control_panel_active_high: false

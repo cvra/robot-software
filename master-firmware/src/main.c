@@ -33,6 +33,7 @@
 #include "pca9685_pwm.h"
 #include "gui.h"
 #include "udp_topic_broadcaster.h"
+#include "ally_position_service.h"
 #include "manipulator/manipulator_thread.h"
 
 void init_base_motors(void);
@@ -231,13 +232,15 @@ int main(void)
     chThdSleepMilliseconds(100);
     ip_thread_init();
 
+    /* Those service communicate over IP so must be started afterward */
+    udp_topic_broadcast_start();
+    ally_position_start();
+
     /* Load stored robot config */
     config_load_from_flash();
 
     control_panel_init(config_get_boolean("master/control_panel_active_high"));
     gui_start();
-
-    udp_topic_broadcast_start();
 
     /* Base init */
     encoder_start();

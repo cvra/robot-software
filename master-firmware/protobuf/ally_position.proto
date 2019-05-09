@@ -1,0 +1,10 @@
+syntax = "proto2";
+
+import "nanopb.proto";
+
+message AllyPosition {
+    option (nanopb_msgopt).msgid = 15;
+    required float x = 1;
+    required float y = 2;
+    required float a = 3;
+};

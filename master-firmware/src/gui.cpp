@@ -12,6 +12,7 @@
 #include "gui/MenuPage.h"
 #include "gui/ScorePage.h"
 #include "gui/PositionPage.h"
+#include "gui/AllyPage.h"
 
 // from https://wiki.ugfx.io/index.php/Touchscreen_Calibration
 gBool LoadMouseCalibration(unsigned instance, void* data, gMemSize sz)
@@ -52,7 +53,8 @@ static void gui_thread(void* p)
     auto base_menu = MenuPage(m, "Base", nullptr);
     auto score_page = ScorePage();
     auto position_page = PositionPage();
-    auto root_page = MenuPage(m, "Robot", &base_menu, &score_page, &position_page);
+    auto ally_page = AllyPage();
+    auto root_page = MenuPage(m, "Robot", &base_menu, &score_page, &position_page, &ally_page);
 
     m.enter_page(&root_page);
     m.enter_page(&score_page);
