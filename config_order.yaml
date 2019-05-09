@@ -189,7 +189,7 @@ actuator:
             current_offset: 0
             torque_cst: 2.952 # Nm/A after transmission, before 0.0115, datasheet: 11.5 mNm/A
         control:
-            acceleration_limit: 2936.9 # rad/s^2 after transmission, before 753982.2, datasheet: 120 10^3 rad/s^2
+            acceleration_limit: 20 # rad/s^2
             velocity_limit: 3.14 # rad/s
             torque_limit: 2.6 # Nm after transmission, before 0.0100, datasheet: 10.0 mNm
             mode: 3 # bounded
@@ -226,7 +226,7 @@ actuator:
             current_offset: 0
             torque_cst: 2.952 # Nm/A after transmission, before 0.0115, datasheet: 11.5 mNm/A
         control:
-            acceleration_limit: 2936.9 # rad/s^2 after transmission, before 753982.2, datasheet: 120 10^3 rad/s^2
+            acceleration_limit: 20 # rad/s^2
             velocity_limit: 3.14 # rad/s
             torque_limit: 2.6 # Nm after transmission, before 0.0100, datasheet: 10.0 mNm
             mode: 3 # bounded
@@ -263,7 +263,7 @@ actuator:
             current_offset: 0
             torque_cst: 2.618 # Nm/A after transmission, before 0.0115, datasheet: 11.5 mNm/A
         control:
-            acceleration_limit: 3422.0 # rad/s^2 after transmission, before 779115.0, datasheet: 124 10^3 rad/s^2
+            acceleration_limit: 20 # rad/s^2
             velocity_limit: 3.14 # rad/s
             torque_limit: 0.7 # Nm after transmission, before 0.0029, datasheet: 2.9 mNm
             mode: 3 # bounded
@@ -312,7 +312,7 @@ actuator:
             current_offset: 0
             torque_cst: 2.952 # Nm/A after transmission, before 0.0115, datasheet: 11.5 mNm/A
         control:
-            acceleration_limit: 2936.9 # rad/s^2 after transmission, before 753982.2, datasheet: 120 10^3 rad/s^2
+            acceleration_limit: 20 # rad/s^2
             velocity_limit: 3.14 # rad/s
             torque_limit: 2.6 # Nm after transmission, before 0.0100, datasheet: 10.0 mNm
             mode: 3 # bounded
@@ -349,7 +349,7 @@ actuator:
             current_offset: 0
             torque_cst: 2.952 # Nm/A after transmission, before 0.0115, datasheet: 11.5 mNm/A
         control:
-            acceleration_limit: 2936.9 # rad/s^2 after transmission, before 753982.2, datasheet: 120 10^3 rad/s^2
+            acceleration_limit: 20 # rad/s^2
             velocity_limit: 3.14 # rad/s
             torque_limit: 2.6 # Nm after transmission, before 0.0100, datasheet: 10.0 mNm
             mode: 3 # bounded
@@ -386,7 +386,7 @@ actuator:
             current_offset: 0
             torque_cst: 2.618 # Nm/A after transmission, before 0.0115, datasheet: 11.5 mNm/A
         control:
-            acceleration_limit: 3422.0 # rad/s^2 after transmission, before 779115.0, datasheet: 124 10^3 rad/s^2
+            acceleration_limit: 20 # rad/s^2
             velocity_limit: 3.14 # rad/s
             torque_limit: 0.7 # Nm after transmission, before 0.0029, datasheet: 2.9 mNm
             mode: 3 # bounded
