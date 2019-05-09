@@ -242,7 +242,6 @@ struct PickUpStorage : public goap::Action<RobotState> {
             state.right_puck_color = state.right_storage[storage_id];
             state.right_storage[storage_id] = PuckColor_EMPTY;
         }
-        state.take_storage = true;
     }
 };
 } // namespace actions

@@ -309,6 +309,5 @@ bool PickUpStorage::execute(RobotState& state)
         state.right_puck_color = state.right_storage[storage_id];
         state.right_storage[storage_id] = PuckColor_EMPTY;
     }
-    state.take_storage = true;
     return true;
 }

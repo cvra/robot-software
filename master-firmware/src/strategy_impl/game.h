@@ -129,7 +129,6 @@
     StockPuckGoal stock_puck_goal;                      \
     PuckInScaleGoal puck_in_scale_goal;                 \
     PuckInAcceleratorGoal puck_in_accelerator_goal;     \
-    TakeFromStorage take_from_storage;                  \
     goap::Goal<RobotState>* goals[] = {                 \
         &rush_heavy_pucks_goal,                         \
         &puck_in_accelerator_goal,                      \
