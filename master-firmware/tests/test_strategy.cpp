@@ -128,13 +128,3 @@ TEST(Strategy, CanGetGoldenium)
     CHECK_TRUE(len > 0);
     CHECK_TRUE(goal.is_reached(state));
 }
-
-TEST(Strategy, CanStorePuck)
-{
-    StockPuckGoal goal;
-
-    int len = compute_and_execute_plan(goal, state);
-
-    CHECK_TRUE(len > 0);
-    CHECK_TRUE(goal.is_reached(state));
-}
