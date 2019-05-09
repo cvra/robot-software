@@ -96,6 +96,14 @@
         &take_pucks_right[8],                           \
         &take_pucks_right[9],                           \
         &take_pucks_right[10],                          \
+        &take_pucks_left[3],                            \
+        &take_pucks_left[4],                            \
+        &take_pucks_left[5],                            \
+        &take_pucks_left[6],                            \
+        &take_pucks_left[7],                            \
+        &take_pucks_left[8],                            \
+        &take_pucks_left[9],                            \
+        &take_pucks_left[10],                           \
         &launch_accelerator,                            \
         &take_goldonium,                                \
         &stock_puck_right,                              \
