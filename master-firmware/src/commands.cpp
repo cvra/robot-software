@@ -1101,15 +1101,10 @@ static void cmd_arm(BaseSequentialStream* chp, int argc, char* argv[])
         } else if (!strcmp(argv[1], "storeFL")) {
             res = manipulator_goto(side, MANIPULATOR_STORE_FRONT_LOW);
         } else {
+            arm_turn_off(side);
             if (side == RIGHT) {
-                motor_manager_set_voltage(&motor_manager, "right-theta-1", 0);
-                motor_manager_set_voltage(&motor_manager, "right-theta-2", 0);
-                motor_manager_set_voltage(&motor_manager, "right-theta-3", 0);
                 chprintf(chp, "Disabled right arm\r\n");
             } else {
-                motor_manager_set_voltage(&motor_manager, "left-theta-1", 0);
-                motor_manager_set_voltage(&motor_manager, "left-theta-2", 0);
-                motor_manager_set_voltage(&motor_manager, "left-theta-3", 0);
                 chprintf(chp, "Disabled left arm\r\n");
             }
         }

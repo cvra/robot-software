@@ -102,3 +102,16 @@ void arm_manual_index(manipulator_side_t side)
         parameter_scalar_set(PARAMETER("master/arms/left/offsets/q3"), offsets[2]);
     }
 }
+
+void arm_turn_off(manipulator_side_t side)
+{
+    if (side == RIGHT) {
+        motor_manager_set_torque(&motor_manager, "right-theta-1", 0);
+        motor_manager_set_torque(&motor_manager, "right-theta-2", 0);
+        motor_manager_set_torque(&motor_manager, "right-theta-3", 0);
+    } else if (side == LEFT) {
+        motor_manager_set_torque(&motor_manager, "left-theta-1", 0);
+        motor_manager_set_torque(&motor_manager, "left-theta-2", 0);
+        motor_manager_set_torque(&motor_manager, "left-theta-3", 0);
+    }
+}

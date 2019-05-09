@@ -19,6 +19,9 @@ void arm_compute_offsets(const float* references, const float* directions, float
 
 void arm_manual_index(manipulator_side_t side);
 
+// Turn off the arm control, so it can be moved manually
+void arm_turn_off(manipulator_side_t side);
+
 #ifdef __cplusplus
 }
 #endif
