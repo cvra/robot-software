@@ -3,6 +3,7 @@
 
 #include <goap/goap.hpp>
 #include "state.h"
+#include "color.h"
 
 /** Number of states goap can visit before giving up. Increasing it means a
  * solution is found on more complex problems at the expense of RAM use. */

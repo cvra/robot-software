@@ -4,23 +4,11 @@
 #include "base/base_controller.h"
 #include "math/lie_groups.h"
 #include "manipulator/scara_kinematics.h"
+#include "strategy/color.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/** Team color
- */
-enum strat_color_t {
-    YELLOW = 0,
-    VIOLET
-};
-
-/** Compute the symmetrical position depending on color
- */
-#define MIRROR_X(color, x) (color == VIOLET ? (x) : 3000.f - (x))
-#define MIRROR_A(color, a_deg) (color == VIOLET ? (a_deg) : 180.f - (a_deg))
-#define MIRROR(color, value) (color == VIOLET ? (value) : -(value))
 
 /** Auto position robot at requested location, and ensure the correct
  *  position is reached by aligning against walls.
