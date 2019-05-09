@@ -114,12 +114,12 @@ static void cmd_stack(BaseSequentialStream* chp, int argc, char* argv[])
     const uint32_t STACK_FILL = 0x55555555;
     uint32_t p, sp, limit, wabase;
     const char* name;
-    thread_t *tp;
+    thread_t* tp;
 
     chprintf(chp, "stackptr  stacktop  stklimit  free   name\n");
 
     tp = chRegFirstThread();
-    while(tp) {
+    while (tp) {
         sp = (uint32_t)tp->ctx.sp;
         wabase = (uint32_t)tp->wabase;
         name = tp->name == NULL ? "NULL" : tp->name;
@@ -1126,10 +1126,6 @@ static void cmd_arm(BaseSequentialStream* chp, int argc, char* argv[])
             manipulator_angles(side, angles);
             manipulator_angles_set(side, angles[0], angles[1], angles[2]);
             chprintf(chp, "Holding angles: %.4f, %.4f, %.4f\r\n", angles[0], angles[1], angles[2]);
-        } else if (!strcmp(argv[1], "retract")) {
-            res = manipulator_goto(side, MANIPULATOR_RETRACT);
-        } else if (!strcmp(argv[1], "deploy")) {
-            res = manipulator_goto(side, MANIPULATOR_DEPLOY);
         } else if (!strcmp(argv[1], "lift_h")) {
             res = manipulator_goto(side, MANIPULATOR_LIFT_HORZ);
         } else if (!strcmp(argv[1], "pick_h")) {
@@ -1160,6 +1156,20 @@ static void cmd_arm(BaseSequentialStream* chp, int argc, char* argv[])
             res = manipulator_goto(side, MANIPULATOR_STORE_BACK_HIGH);
         } else if (!strcmp(argv[1], "storeBL")) {
             res = manipulator_goto(side, MANIPULATOR_STORE_BACK_LOW);
+        } else if (!strcmp(argv[1], "accelerator_down")) {
+            res = manipulator_goto(side, MANIPULATOR_PUT_ACCELERATOR_DOWN);
+        } else if (!strcmp(argv[1], "goldonium")) {
+            res = manipulator_goto(side, MANIPULATOR_LIFT_GOLDONIUM);
+        } else if (!strcmp(argv[1], "scale")) {
+            res = manipulator_goto(side, MANIPULATOR_SCALE);
+        } else if (!strcmp(argv[1], "check_all")) {
+            res = manipulator_goto(side, MANIPULATOR_PICK_HORZ);
+            res = manipulator_goto(side, MANIPULATOR_DEPLOY_FULLY);
+            res = manipulator_goto(side, MANIPULATOR_STORE_FRONT_LOW);
+            res = manipulator_goto(side, MANIPULATOR_STORE_BACK_LOW);
+            res = manipulator_goto(side, MANIPULATOR_PUT_ACCELERATOR);
+            res = manipulator_goto(side, MANIPULATOR_LIFT_GOLDONIUM);
+            res = manipulator_goto(side, MANIPULATOR_LIFT_VERT);
         } else {
             arm_turn_off(side);
             if (side == RIGHT) {
