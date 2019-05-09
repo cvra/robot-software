@@ -4,6 +4,8 @@
 #include <goap/goap.hpp>
 #include "state.h"
 
+#define PUCK_IS_GREEN_OR_BLUE(puck) (((puck) == PuckColor_BLUE) || ((puck) == PuckColor_GREEN))
+
 struct InitGoal : goap::Goal<RobotState> {
     virtual int distance_to(const RobotState& state) const
     {
@@ -11,12 +13,13 @@ struct InitGoal : goap::Goal<RobotState> {
     }
 };
 
-struct RushHeavyPucksGoal : goap::Goal<RobotState> {
+struct RushHeavyPuckGoal : goap::Goal<RobotState> {
     virtual int distance_to(const RobotState& state) const
     {
         // clang-format off
         return goap::Distance()
-                .shouldBeEqual(state.right_storage[0],PuckColor_RED);
+                .shouldBeTrue(PUCK_IS_GREEN_OR_BLUE(state.right_storage[0]))
+                .shouldBeTrue(PUCK_IS_GREEN_OR_BLUE(state.left_storage[0]));
         // clang-format on
     }
 };
@@ -45,7 +48,11 @@ struct StockPuckGoal : goap::Goal<RobotState> {
 struct PuckInScaleGoal : goap::Goal<RobotState> {
     virtual int distance_to(const RobotState& state) const
     {
-        return goap::Distance().shouldBeTrue(state.puck_in_scale[0] == PuckColor_GREEN).shouldBeTrue(state.puck_in_scale[1] == PuckColor_RED);
+        // clang-format off
+        return goap::Distance()
+                .shouldBeTrue(PUCK_IS_GREEN_OR_BLUE(state.puck_in_scale[0]))
+                .shouldBeTrue(PUCK_IS_GREEN_OR_BLUE(state.puck_in_scale[1]));
+        // clang-format on
     }
 };
 

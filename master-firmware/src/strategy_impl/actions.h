@@ -31,6 +31,15 @@ struct TakePuck : actions::TakePuck {
     }
     bool execute(RobotState& state);
 };
+struct TakeTwoPucks : actions::TakeTwoPucks {
+    strategy_context_t* strat;
+    TakeTwoPucks(strategy_context_t* strat)
+        : actions::TakeTwoPucks(strat->color)
+        , strat(strat)
+    {
+    }
+    bool execute(RobotState& state);
+};
 struct DepositPuck : actions::DepositPuck {
     strategy_context_t* strat;
     DepositPuck(strategy_context_t* strat, size_t zone_id, manipulator_side_t side)

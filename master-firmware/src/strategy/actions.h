@@ -67,6 +67,38 @@ struct TakePuck : public goap::Action<RobotState> {
     }
 };
 
+struct TakeTwoPucks : public goap::Action<RobotState> {
+    size_t puck_id_right, puck_id_left;
+
+    TakeTwoPucks(enum strat_color_t color)
+    {
+        if (color == YELLOW) {
+            puck_id_right = 9;
+            puck_id_left = 10;
+        } else {
+            puck_id_right = 10;
+            puck_id_left = 9;
+        }
+    }
+    bool can_run(const RobotState& state)
+    {
+        bool arms_are_free = !state.left_has_puck && !state.right_has_puck;
+        bool pucks_are_available = state.puck_available[puck_id_left] && state.puck_available[puck_id_right];
+        return !state.arms_are_deployed && arms_are_free && pucks_are_available;
+    }
+
+    void plan_effects(RobotState& state)
+    {
+        state.puck_available[puck_id_left] = false;
+        state.puck_available[puck_id_right] = false;
+        state.left_has_puck = true;
+        state.right_has_puck = true;
+        state.left_puck_color = pucks[puck_id_left].color;
+        state.right_puck_color = pucks[puck_id_right].color;
+        state.arms_are_deployed = true;
+    }
+};
+
 struct DepositPuck : public goap::Action<RobotState> {
     size_t zone_id;
     manipulator_side_t side;
