@@ -49,6 +49,7 @@ public:
         /* MANIPULATOR_STORE_FRONT_2*/ {{0.15942326, 2.76071548, 0.35511947}},
         /* MANIPULATOR_STORE_FRONT_3*/ {{-0.14048151, 2.77174001, 0.366144}},
         /* MANIPULATOR_STORE_FRONT_HIGH */ {{-0.35403161, 2.01076878, 0}},
+        /* MANIPULATOR_STORE_FRONT_HIGH_1 */ {{-0.18604025, 2.38740067, 0}},
         /* MANIPULATOR_STORE_FRONT_LOW */ {{-0.4226222, 1.70403752, 0}},
         /* MANIPULATOR_STORE_BACK_1 */ {{-0.44061324, 2.40559601, 0}},
         /* MANIPULATOR_STORE_BACK_2*/ {{-0.98944966, 1.83134011, 0}},
@@ -93,7 +94,8 @@ public:
         pathfinding::connect_bidirectional(nodes[MANIPULATOR_STORE_FRONT_1], nodes[MANIPULATOR_STORE_FRONT_2]);
         pathfinding::connect_bidirectional(nodes[MANIPULATOR_STORE_FRONT_2], nodes[MANIPULATOR_STORE_FRONT_3]);
         //stock picking front
-        pathfinding::connect_bidirectional(nodes[MANIPULATOR_STORE_FRONT_3], nodes[MANIPULATOR_STORE_FRONT_HIGH]);
+        pathfinding::connect_bidirectional(nodes[MANIPULATOR_STORE_FRONT_3], nodes[MANIPULATOR_STORE_FRONT_HIGH_1]);
+        pathfinding::connect_bidirectional(nodes[MANIPULATOR_STORE_FRONT_HIGH_1], nodes[MANIPULATOR_STORE_FRONT_HIGH]);
         pathfinding::connect_bidirectional(nodes[MANIPULATOR_STORE_FRONT_HIGH], nodes[MANIPULATOR_STORE_FRONT_LOW]);
         //stock back
         pathfinding::connect_bidirectional(nodes[MANIPULATOR_STORE_FRONT_3], nodes[MANIPULATOR_STORE_BACK_1]);
