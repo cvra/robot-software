@@ -33,5 +33,6 @@ message RobotState {
     repeated PuckColor right_storage = 12 [(nanopb).fixed_count=true, (nanopb).max_count=4, packed=true];
     repeated PuckColor left_storage = 13 [(nanopb).fixed_count=true, (nanopb).max_count=4, packed=true];
     repeated PuckColor puck_in_scale = 14 [(nanopb).fixed_count=true, (nanopb).max_count=6, packed=true];
-    required uint32 puck_in_accelerator = 15 [default=0];
+    required uint32 num_pucks_in_scale = 15 [default=0];
+    required uint32 puck_in_accelerator = 16 [default=0];
 }

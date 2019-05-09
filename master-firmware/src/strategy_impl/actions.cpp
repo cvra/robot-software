@@ -295,11 +295,12 @@ bool PutPuckInScale::execute(RobotState& state)
 
     if (side == LEFT) {
         state.left_has_puck = false;
-        state.puck_in_scale[puck_position] = state.left_puck_color;
+        state.puck_in_scale[state.num_pucks_in_scale] = state.left_puck_color;
     } else {
         state.right_has_puck = false;
-        state.puck_in_scale[puck_position] = state.right_puck_color;
+        state.puck_in_scale[state.num_pucks_in_scale] = state.right_puck_color;
     }
+    state.num_pucks_in_scale++;
 
     return true;
 }

@@ -3,6 +3,8 @@
 
 #include "protobuf/strategy.pb.h"
 
+const uint32_t MAX_PUCKS_IN_SCALE = 6;
+
 typedef enum {
     PuckOrientiation_HORIZONTAL = 0,
     PuckOrientiation_VERTICAL,

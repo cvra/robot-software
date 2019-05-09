@@ -31,6 +31,7 @@
 #include "strategy/score_counter.h"
 #include "strategy_impl/base.h"
 #include "strategy_impl/game.h"
+#include "strategy/state.h"
 
 static goap::Planner<RobotState, GOAP_SPACE_SIZE> planner;
 
