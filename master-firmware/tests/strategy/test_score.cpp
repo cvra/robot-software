@@ -4,6 +4,10 @@
 
 TEST_GROUP (AScore) {
     RobotState state = RobotState_init_default;
+
+    void setup(void) {
+        state = initial_state();
+    }
 };
 
 TEST(AScore, AtomZoneIsPropotionalToAmountOfPucks)
@@ -59,4 +63,25 @@ TEST(AScore, ElectronCountsWhenLaunched)
 
     state.electron_launched = true;
     CHECK_EQUAL(20, score_count_electron(state));
+}
+
+TEST(AScore, ScaleCountsWhenFilled)
+{
+    CHECK_EQUAL(0, score_count_scale(state));
+
+    state.puck_in_scale[0] = PuckColor_RED;
+    CHECK_EQUAL(4, score_count_scale(state));
+
+    state.puck_in_scale[0] = PuckColor_GREEN;
+    CHECK_EQUAL(8, score_count_scale(state));
+
+    state.puck_in_scale[0] = PuckColor_BLUE;
+    CHECK_EQUAL(12, score_count_scale(state));
+
+    state.puck_in_scale[0] = PuckColor_GOLDENIUM;
+    CHECK_EQUAL(24, score_count_scale(state));
+
+    state.puck_in_scale[0] = PuckColor_BLUE;
+    state.puck_in_scale[1] = PuckColor_BLUE;
+    CHECK_EQUAL(24, score_count_scale(state));
 }

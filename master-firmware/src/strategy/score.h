@@ -12,6 +12,7 @@ int score_count_accelerator(const RobotState& state);
 int score_count_goldenium(const RobotState& state);
 int score_count_experiment(const RobotState& state);
 int score_count_electron(const RobotState& state);
+int score_count_scale(const RobotState& state);
 
 #ifdef __cplusplus
 }
