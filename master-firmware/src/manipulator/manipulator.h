@@ -47,13 +47,12 @@ public:
         /* MANIPULATOR_STORE_FRONT_1 */ {{0.40241, 3.1415 - 0.70691, 0}},
         /* MANIPULATOR_STORE_FRONT_2*/ {{0.09823, 3.1415 - 0.36589, 0.34102}},
         /* MANIPULATOR_STORE_FRONT_3*/ {{-0.13224, 3.1415 - 0.3823, 0.32461}},
-        /* MANIPULATOR_STORE_FRONT_HIGH */ {{-0.34545, 3.1415 - 1.10574, 0}},
-        /* MANIPULATOR_STORE_FRONT_LOW */ {{-0.42031, 3.1415 - 1.4175, 0}},
+        /* MANIPULATOR_STORE_FRONT_HIGH */ {{-0.35403161 , 2.01076878 , 0}},
+        /* MANIPULATOR_STORE_FRONT_LOW */ {{-0.4226222 , 1.70403752 , 0}},
         /* MANIPULATOR_STORE_BACK_1 */ {{0.40241, 3.1415 - 0.70691, 0}}, //waiting for correct coo
         /* MANIPULATOR_STORE_BACK_2*/ {{0.09823, 3.1415 - 0.36589, 0.34102}}, //waiting for correct coo
         /* MANIPULATOR_STORE_BACK_3*/ {{-0.13224, 3.1415 - 0.3823, 0.32461}}, //waiting for correct coo
     };
-
     manipulator_state_t state;
 
 public:
