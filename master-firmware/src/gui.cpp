@@ -42,6 +42,9 @@ static void gui_thread(void* p)
     gwinSetDefaultFont(gdispOpenFont("DejaVuSans32"));
     gdispClear(GFX_SILVER);
     gwinSetDefaultBgColor(GFX_SILVER);
+    if (config_get_boolean("master/is_main_robot")) {
+        gdispSetOrientation(gOrientation90);
+    }
 
     WARNING("GUI init done");
 
