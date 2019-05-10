@@ -79,8 +79,7 @@ struct PuckInScaleGoal : goap::Goal<RobotState> {
     {
         // clang-format off
         return goap::Distance()
-                .shouldBeTrue(PUCK_IS_GREEN_OR_BLUE(state.puck_in_scale[id]))
-                .shouldBeFalse(state.arms_are_deployed);
+                .shouldBeTrue(PUCK_IS_GREEN_OR_BLUE(state.puck_in_scale[id]));
         // clang-format on
     }
 };

@@ -198,17 +198,24 @@ struct PutPuckInScale : public goap::Action<RobotState> {
     }
     bool can_run(const RobotState& state)
     {
-        const bool has_puck = (side == LEFT) ? state.left_has_puck : state.right_has_puck;
+        bool has_puck = true;
+        if (USE_LEFT(side)) {
+            has_puck &= state.left_has_puck;
+        }
+        if (USE_RIGHT(side)) {
+            has_puck &= state.right_has_puck;
+        }
         return has_puck && (state.num_pucks_in_scale < MAX_PUCKS_IN_SCALE);
     }
 
     void plan_effects(RobotState& state)
     {
         state.arms_are_deployed = true;
-        if (side == LEFT) {
+        if (USE_LEFT(side)) {
             state.left_has_puck = false;
             state.puck_in_scale[state.num_pucks_in_scale] = state.left_puck_color;
-        } else {
+        }
+        if (USE_RIGHT(side)) {
             state.right_has_puck = false;
             state.puck_in_scale[state.num_pucks_in_scale] = state.right_puck_color;
         }
