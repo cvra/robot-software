@@ -129,7 +129,6 @@ const int MAX_GOAP_PATH_LEN = 10;
     const auto action_count = sizeof(actions) / sizeof(actions[0]);
 
 #define GAME_GOALS_CHAOS(goals, goal_names, goal_count) \
-    RushHeavyPuckBackGoal rush_heavy_puck_back;         \
     PuckInScaleGoal puck_in_scale_goal[] = {            \
         {0},                                            \
         {1},                                            \
@@ -138,7 +137,6 @@ const int MAX_GOAP_PATH_LEN = 10;
         {4},                                            \
     };                                                  \
     goap::Goal<RobotState>* goals[] = {                 \
-        &rush_heavy_puck_back,                          \
         &puck_in_scale_goal[0],                         \
         &puck_in_scale_goal[1],                         \
         &puck_in_scale_goal[2],                         \
@@ -146,7 +144,6 @@ const int MAX_GOAP_PATH_LEN = 10;
         &puck_in_scale_goal[4],                         \
     };                                                  \
     const char* goal_names[] = {                        \
-        "rush_back",                                    \
         "scale_0",                                      \
         "scale_1",                                      \
         "scale_2",                                      \
