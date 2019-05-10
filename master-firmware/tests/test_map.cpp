@@ -214,16 +214,6 @@ IGNORE_TEST(MapEurobot2019, goesAroundTheWall)
     CHECK_TRUE(path.size() > 1);
 };
 
-TEST(MapEurobot2019, goesAroundThePuck)
-{
-    point_t end = {.x = 1500, .y = 400};
-
-    auto path = find_the_path(&map, start, end);
-
-    CHECK_PATH_REACHES_GOAL(path, end);
-    CHECK_TRUE(path.size() > 1);
-};
-
 TEST(MapEurobot2019, goesToThePuckBehindTheRamp)
 {
     std::vector<point_t> ends = {

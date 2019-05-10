@@ -92,18 +92,6 @@ static THD_FUNCTION(map_server_thd, arg)
             map_set_ally_obstacle(map, 0, 0, 0, 0); // reset ally position
         }
 
-        /* Update cube blocks obstacles on map depending on state */
-        messagebus_topic_read(strategy_state_topic, &state, sizeof(state));
-        for (int i = 0; i < MAP_NUM_PUCK; i++) {
-            if (state.puck_available[i]) {
-                const int x = pucks[i].pos_x_mm;
-                const int y = pucks[i].pos_y_mm;
-                map_set_puck_obstacle(map, i, MIRROR_X(color, x), y, robot_size);
-            } else {
-                map_set_puck_obstacle(map, i, 0, 0, 0);
-            }
-        }
-
         map_server_map_release(map);
         messagebus_watchgroup_wait(&watchgroup.group);
     }
