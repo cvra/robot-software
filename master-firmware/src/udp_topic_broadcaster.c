@@ -40,7 +40,7 @@ static void udp_topic_encode_thd(void *p)
 
     messagebus_topic_t *topic;
 
-    uint8_t object_buf[512];
+    static uint8_t object_buf[512];
 
     /* We need to have max priority to avoid skipping messages */
     chThdSetPriority(HIGHPRIO);
@@ -49,14 +49,14 @@ static void udp_topic_encode_thd(void *p)
     NOTICE("UDP topic broadcaster is ready!");
 
     while (true) {
+        topic = messagebus_watchgroup_wait(&watchgroup);
+
         struct encoded_message *msg = chPoolAlloc(&msg_pool);
 
         if (msg == NULL) {
             WARNING("Dropping a messsage.");
             continue;
         }
-
-        topic = messagebus_watchgroup_wait(&watchgroup);
 
         msg->len = messagebus_encode_topic_message(topic,
                                                    msg->buf,

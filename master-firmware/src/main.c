@@ -236,7 +236,7 @@ int main(void)
     ip_thread_init();
 
     /* Those service communicate over IP so must be started afterward */
-    udp_topic_broadcast_start();
+    // udp_topic_broadcast_start();
     ally_position_start();
 
     /* Load stored robot config */
