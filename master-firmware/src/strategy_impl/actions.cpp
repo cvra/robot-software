@@ -282,7 +282,7 @@ bool StockPuckInStorage::execute(RobotState& state)
 bool PutPuckInScale::execute(RobotState& state)
 {
     strat->log("Putting puck in scale !");
-    strat->log((side == LEFT) ? "\tUsing left arm" : "\tUsing right arm");
+    strat->log((side == LEFT) ? "\tUsing left arm" : ((side == RIGHT) ? "\tUsing right arm" : "\tUsing both arms"));
 
     if (!strat->goto_xya(strat, MIRROR_X(strat->color, 1362), 1200, MIRROR_A(strat->color, 270))) {
         return false;
