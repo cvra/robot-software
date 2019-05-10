@@ -158,7 +158,10 @@ void config_load_from_flash(void)
     } else {
         cmp_mem_access_ro_init(&cmp, &mem, msgpack_config_chaos, msgpack_config_chaos_size);
     }
-    parameter_msgpack_read_cmp(&global_config, &cmp, config_load_err_cb, NULL);
+    int ret = parameter_msgpack_read_cmp(&global_config, &cmp, config_load_err_cb, NULL);
+    if (ret != 0) {
+        ERROR("parameter_msgpack_read_cmp failed");
+    }
 }
 
 static void blink_thd(void* p)
