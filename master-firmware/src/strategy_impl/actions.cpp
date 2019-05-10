@@ -47,7 +47,10 @@ bool RetractArms::execute(RobotState& state)
     strat->log("Retracting arms!");
 
     strat->gripper_set(BOTH, GRIPPER_OFF);
-    strat->manipulator_goto(BOTH, MANIPULATOR_STORE_FRONT_2);
+    if (!strat->manipulator_goto(BOTH, MANIPULATOR_STORE_FRONT_2)) {
+        strat->manipulator_goto(RIGHT, MANIPULATOR_STORE_FRONT_2);
+        strat->manipulator_goto(LEFT, MANIPULATOR_STORE_FRONT_2);
+    }
 
     state.right_has_puck = false;
     state.left_has_puck = false;
@@ -96,7 +99,7 @@ bool TakePuck::execute(RobotState& state)
         strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_0);
     } else {
         strat->manipulator_goto(side, MANIPULATOR_PICK_VERT);
-        strat->forward(strat, -20);
+        strat->forward(strat, -30);
         strat->wait_ms(500);
         strat->manipulator_goto(side, MANIPULATOR_LIFT_VERT);
         strat->forward(strat, 60);
@@ -242,7 +245,6 @@ bool TakeGoldonium::execute(RobotState& state)
     strat->manipulator_goto(RIGHT, MANIPULATOR_LIFT_GOLDONIUM);
     strat->wait_ms(500);
     strat->gripper_set(RIGHT, GRIPPER_OFF);
-
     strat->forward(strat, 80);
 
     state.goldonium_in_house = false;
