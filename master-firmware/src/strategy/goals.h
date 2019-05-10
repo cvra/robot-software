@@ -38,7 +38,11 @@ struct RushStartPuckGoal : goap::Goal<RobotState> {
 struct AcceleratorGoal : goap::Goal<RobotState> {
     virtual int distance_to(const RobotState& state) const
     {
-        return goap::Distance().shouldBeTrue(state.puck_in_accelerator > 0).shouldBeFalse(state.arms_are_deployed);
+        // clang-format off
+        return goap::Distance()
+                .shouldBeFalse(state.puck_available[12])
+                .shouldBeFalse(state.arms_are_deployed);
+        // clang-format on
     }
 };
 

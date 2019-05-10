@@ -35,6 +35,9 @@ static const Puck pucks[] = {
     {PuckColor_BLUE, PuckOrientiation_VERTICAL, 125, 2000},
     {PuckColor_GREEN, PuckOrientiation_VERTICAL, 225, 2000},
     {PuckColor_RED, PuckOrientiation_VERTICAL, 325, 2000},
+
+    /* accelerator */
+    {PuckColor_BLUE, PuckOrientiation_VERTICAL, 1700, 22}, // todo: double check puck position
 };
 
 typedef struct {

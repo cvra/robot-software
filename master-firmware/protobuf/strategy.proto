@@ -21,7 +21,7 @@ message RobotState {
     option (nanopb_msgopt).packed_struct = true;
     required bool arms_are_indexed = 1 [default=false];
     required bool arms_are_deployed = 2 [default=true];
-    repeated bool puck_available = 3 [(nanopb).fixed_count=true, (nanopb).max_count=12];
+    repeated bool puck_available = 3 [(nanopb).fixed_count=true, (nanopb).max_count=13];
     required bool right_has_puck = 4 [default=false];
     required bool left_has_puck = 5 [default=false];
     required bool electron_launched = 6 [default=false];
