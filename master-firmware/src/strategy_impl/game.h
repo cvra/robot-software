@@ -40,6 +40,9 @@ const int MAX_GOAP_PATH_LEN = 10;
         &index_arms,                                                \
         &retract_arms,                                              \
         &take_pucks_right[0],                                       \
+        &take_pucks_right[1],                                       \
+        &take_pucks_left[0],                                        \
+        &take_pucks_left[1],                                        \
         &launch_accelerator,                                        \
         &take_goldonium,                                            \
         &stock_puck_right[0],                                       \
