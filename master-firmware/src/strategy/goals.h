@@ -45,7 +45,7 @@ struct AcceleratorGoal : goap::Goal<RobotState> {
 struct TakeGoldoniumGoal : goap::Goal<RobotState> {
     virtual int distance_to(const RobotState& state) const
     {
-        return goap::Distance().shouldBeTrue(state.has_goldonium);
+        return goap::Distance().shouldBeTrue(state.has_goldonium).shouldBeFalse(state.arms_are_deployed);
     }
 };
 

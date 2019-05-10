@@ -215,12 +215,12 @@ bool TakeGoldonium::execute(RobotState& state)
     state.arms_are_deployed = true;
     strat->manipulator_goto(RIGHT, MANIPULATOR_PICK_GOLDONIUM);
 
-    if (!strat->goto_xya(strat, x, 330, MIRROR_A(strat->color, 90))) {
+    if (!strat->goto_xya(strat, x, 300, MIRROR_A(strat->color, 90))) {
         return false;
     }
 
     strat->gripper_set(RIGHT, GRIPPER_ACQUIRE);
-    strat->forward(strat, -27);
+    strat->forward(strat, -50);
     strat->wait_ms(500);
 
     if (!strat->puck_is_picked(RIGHT)) {
