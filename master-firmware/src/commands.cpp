@@ -1100,6 +1100,53 @@ static void cmd_proximity_beacon(BaseSequentialStream* chp, int argc, char* argv
              beacon_signal.range.angle * (180.f / 3.1415f));
 }
 
+static void cmd_beacon_calib(BaseSequentialStream* chp, int argc, char* argv[])
+{
+    (void)argc;
+    (void)argv;
+    float r_meas;
+
+    if (argc == 1) {
+        r_meas = atof(argv[0]);
+    } else {
+        chprintf(chp, "Usage: beacon_calib d[mm]\r\n");
+        return;
+    }
+
+    robot.mode = BOARD_MODE_FREE; // move robot by hand
+
+    BeaconSignal beacon_signal;
+    messagebus_topic_t* proximity_beacon_topic = messagebus_find_topic_blocking(&bus, "/proximity_beacon");
+
+    float x, y, a, tx, ty;
+    x = position_get_x_float(&robot.pos); // [mm]
+    y = position_get_y_float(&robot.pos); // [mm]
+    a = position_get_a_rad_float(&robot.pos); // [rad]
+
+    messagebus_topic_wait(proximity_beacon_topic, &beacon_signal, sizeof(beacon_signal));
+
+    tx = x + r_meas*cosf(a + beacon_signal.range.angle);
+    ty = y + r_meas*sinf(a + beacon_signal.range.angle);
+
+    chprintf(chp, "Target position [mm]: %5.1f, %5.1f\n", tx, ty);
+
+    chprintf(chp, "Distance [mm]\n");
+    chprintf(chp, "odom, beacon\n");
+    for (int i = 0; i < 100; i++) {
+        float dx, dy, d, r;
+
+        messagebus_topic_wait(proximity_beacon_topic, &beacon_signal, sizeof(beacon_signal));
+
+        dx = tx - position_get_x_float(&robot.pos);
+        dy = ty - position_get_y_float(&robot.pos);
+        d = sqrt(dx*dx + dy*dy);
+        r = 1000 * beacon_signal.range.range.distance;
+
+        chprintf(chp, "%5.1f, %5.1f\n", d, r);
+        chThdSleepMilliseconds(50);
+    }
+}
+
 static void cmd_arm(BaseSequentialStream* chp, int argc, char* argv[])
 {
     float angles[3];
@@ -1438,6 +1485,7 @@ ShellCommand commands[] = {
     {"speed", cmd_speed},
     {"panel", cmd_panel_status},
     {"beacon", cmd_proximity_beacon},
+    {"beacon_calib", cmd_beacon_calib},
     {"arm", cmd_arm},
     {"arm_calib", cmd_arm_offset_calib},
     {"grip", cmd_grip},
