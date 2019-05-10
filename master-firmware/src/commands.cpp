@@ -111,8 +111,12 @@ static void cmd_stack(BaseSequentialStream* chp, int argc, char* argv[])
 #if (CH_DBG_FILL_THREADS != TRUE) || (CH_CFG_USE_REGISTRY != TRUE) || (CH_DBG_ENABLE_STACK_CHECK != TRUE)
 #error "Requires: CH_DBG_FILL_THREADS CH_CFG_USE_REGISTRY CH_DBG_ENABLE_STACK_CHECK"
 #endif
+
+    (void)argv;
+    (void)argc;
+
     const uint32_t STACK_FILL = 0x55555555;
-    uint32_t p, sp, limit, wabase;
+    uint32_t p, sp, wabase;
     const char* name;
     thread_t* tp;
 

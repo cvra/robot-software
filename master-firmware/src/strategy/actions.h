@@ -160,8 +160,8 @@ struct TakeGoldonium : public goap::Action<RobotState> {
 };
 
 struct StockPuckInStorage : public goap::Action<RobotState> {
-    manipulator_side_t side;
     uint8_t storage_id = 0;
+    manipulator_side_t side;
 
     StockPuckInStorage(size_t id, manipulator_side_t side)
         : storage_id(id)
@@ -170,7 +170,6 @@ struct StockPuckInStorage : public goap::Action<RobotState> {
     }
     bool can_run(const RobotState& state)
     {
-        const size_t num_slots = ((side == LEFT) ? sizeof(state.left_storage) : sizeof(state.right_storage)) / sizeof(PuckColor);
         const bool has_puck = (side == LEFT) ? state.left_has_puck : state.right_has_puck;
         const PuckColor* storage = (side == LEFT) ? state.left_storage : state.right_storage;
 

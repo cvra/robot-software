@@ -253,7 +253,6 @@ bool TakeGoldonium::execute(RobotState& state)
 bool StockPuckInStorage::execute(RobotState& state)
 {
     const PuckColor* storage = (side == LEFT) ? state.left_storage : state.right_storage;
-    size_t num_slots = sizeof(storage) / sizeof(PuckColor);
 
     strat->log("Storing puck !");
     strat->log((side == LEFT) ? "\tUsing left arm" : "\tUsing right arm");
