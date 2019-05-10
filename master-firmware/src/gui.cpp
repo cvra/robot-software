@@ -37,6 +37,7 @@ gBool LoadMouseCalibration(unsigned instance, void* data, gMemSize sz)
 static void gui_thread(void* p)
 {
     (void)p;
+    chRegSetThreadName(__FUNCTION__);
 
     gfxInit();
     gwinSetDefaultStyle(&WhiteWidgetStyle, GFXOFF);

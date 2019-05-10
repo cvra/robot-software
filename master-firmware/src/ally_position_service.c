@@ -36,7 +36,7 @@ static void position_send_thread(void* p)
     struct netconn* conn;
     conn = netconn_new(NETCONN_UDP);
 
-    uint8_t object_buf[AllyPosition_size];
+    static uint8_t object_buf[AllyPosition_size];
 
     while (true) {
         AllyPosition pos;
@@ -74,6 +74,7 @@ TOPIC_DECL(ally_position_topic, AllyPosition);
 static void position_receive_thread(void *p)
 {
     (void)p;
+    chRegSetThreadName(__FUNCTION__);
 
     struct netconn *conn;
 
