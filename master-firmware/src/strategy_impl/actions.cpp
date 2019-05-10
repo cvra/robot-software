@@ -233,7 +233,7 @@ bool TakeGoldonium::execute(RobotState& state)
     }
 
     strat->gripper_set(RIGHT, GRIPPER_ACQUIRE);
-    strat->forward(strat, -50);
+    strat->forward(strat, -70);
     strat->wait_ms(500);
 
     if (!strat->puck_is_picked(RIGHT)) {
