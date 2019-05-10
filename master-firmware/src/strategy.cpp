@@ -218,6 +218,9 @@ void strategy_order_play_game(strategy_context_t* ctx, RobotState& state)
     wait_for_starter();
     trajectory_game_timer_reset();
 
+    electron_starter_start();
+    state.electron_launched = true;
+
     NOTICE("Wait for Chaos to move away...");
 
     strategy_wait_ms(5000); // Wait a bit for Chaos to move away
