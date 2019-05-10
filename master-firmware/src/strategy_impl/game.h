@@ -127,22 +127,28 @@ const int MAX_GOAP_PATH_LEN = 10;
     const auto action_count = sizeof(actions) / sizeof(actions[0]);
 
 #define GAME_GOALS_CHAOS(goals, goal_names, goal_count) \
-    AcceleratorGoal accelerator_goal;                   \
-    TakeGoldoniumGoal take_goldonium_goal;              \
     RushHeavyPuckBackGoal rush_heavy_puck_back_goal;    \
-    RushHeavyPuckFrontGoal rush_heavy_puck_front_goal;  \
     StockPuckGoal stock_puck_goal;                      \
-    PuckInScaleGoal puck_in_scale_goal;                 \
+    PuckInScaleGoal puck_in_scale_goal[] = {            \
+        {2},                                            \
+        {3},                                            \
+        {4},                                            \
+        {5},                                            \
+    };                                                  \
     PuckInAcceleratorGoal puck_in_accelerator_goal;     \
     goap::Goal<RobotState>* goals[] = {                 \
         &rush_heavy_puck_back_goal,                     \
-        &rush_heavy_puck_front_goal,                    \
-        &puck_in_scale_goal,                            \
+        &puck_in_scale_goal[0],                         \
+        &puck_in_scale_goal[1],                         \
+        &puck_in_scale_goal[2],                         \
+        &puck_in_scale_goal[3],                         \
     };                                                  \
     const char* goal_names[] = {                        \
         "rush_back",                                    \
-        "rush_front",                                   \
-        "scale",                                        \
+        "scale_2",                                      \
+        "scale_3",                                      \
+        "scale_4",                                      \
+        "scale_5",                                      \
     };                                                  \
     const size_t goal_count = sizeof(goals) / sizeof(goap::Goal<RobotState>*);
 
