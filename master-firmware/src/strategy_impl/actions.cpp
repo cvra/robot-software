@@ -81,7 +81,7 @@ bool TakePuck::execute(RobotState& state)
         y = pucks[puck_id].pos_y_mm + MIRROR_ARM(side, MIRROR(strat->color, 55));
         a = MIRROR_A(strat->color, 180);
     } else {
-        x = MIRROR_X(strat->color, pucks[puck_id].pos_x_mm) - MIRROR_ARM(side, 50);
+        x = MIRROR_X(strat->color, pucks[puck_id].pos_x_mm) - MIRROR_ARM(side, 55);
         y = pucks[puck_id].pos_y_mm - 220;
         a = MIRROR_A(strat->color, -90);
     }
