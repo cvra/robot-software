@@ -225,16 +225,27 @@ struct PutPuckInScale : public goap::Action<RobotState> {
 };
 
 struct PutPuckInAccelerator : public goap::Action<RobotState> {
+    manipulator_side_t side;
     uint8_t puck_position = 0;
+
+    PutPuckInAccelerator(manipulator_side_t side)
+        : side(side)
+    {
+    }
     bool can_run(const RobotState& state)
     {
-        return (state.puck_in_accelerator < 10) && state.right_has_puck;
+        const bool has_puck = (side == LEFT) ? state.left_has_puck : state.right_has_puck;
+        return (state.puck_in_accelerator < 10) && has_puck;
     }
 
     void plan_effects(RobotState& state)
     {
         state.arms_are_deployed = true;
-        state.right_has_puck = false;
+        if (side == LEFT) {
+            state.left_has_puck = false;
+        } else {
+            state.right_has_puck = false;
+        }
         state.puck_in_accelerator++;
     }
 };

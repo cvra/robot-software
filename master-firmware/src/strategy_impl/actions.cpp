@@ -309,19 +309,24 @@ bool PutPuckInAccelerator::execute(RobotState& state)
 {
     strat->log("Putting puck in accelerator !");
 
-    if (!strat->goto_xya(strat, MIRROR_X(strat->color, 1950), 300, MIRROR_A(strat->color, 90))) {
+    float x = 2000 - MIRROR_ARM(side, 50);
+    if (!strat->goto_xya(strat, MIRROR_X(strat->color, x), 300, MIRROR_A(strat->color, 90))) {
         return false;
     }
     state.arms_are_deployed = true;
-    strat->manipulator_goto(RIGHT, MANIPULATOR_PUT_ACCELERATOR);
+    strat->manipulator_goto(side, MANIPULATOR_PUT_ACCELERATOR);
     if (!strat->goto_xya(strat, MIRROR_X(strat->color, 1950), 180, MIRROR_A(strat->color, 90))) {
         return false;
     }
-    strat->manipulator_goto(RIGHT, MANIPULATOR_PUT_ACCELERATOR_DOWN);
-    strat->gripper_set(RIGHT, GRIPPER_OFF);
+    strat->manipulator_goto(side, MANIPULATOR_PUT_ACCELERATOR_DOWN);
+    strat->gripper_set(side, GRIPPER_OFF);
     strat->forward(strat, 130);
 
-    state.right_has_puck = false;
+    if (side == LEFT) {
+        state.left_has_puck = false;
+    } else {
+        state.right_has_puck = false;
+    }
     state.puck_in_accelerator++;
     return true;
 }
@@ -331,9 +336,14 @@ bool PickUpStorage::execute(RobotState& state)
     strat->log("Picking up from storage !");
     state.arms_are_deployed = true;
     strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_STORE);
-    strat->gripper_set(RIGHT, GRIPPER_ACQUIRE);
+    strat->gripper_set(side, GRIPPER_ACQUIRE);
     strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_LOW);
     strat->wait_ms(400);
+
+    if (!strat->puck_is_picked(side)) {
+        strat->gripper_set(side, GRIPPER_OFF);
+        return false;
+    }
 
     if (side == LEFT) {
         state.left_has_puck = true;

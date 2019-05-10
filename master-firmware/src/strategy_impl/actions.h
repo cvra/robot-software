@@ -88,8 +88,9 @@ struct PutPuckInScale : actions::PutPuckInScale {
 
 struct PutPuckInAccelerator : actions::PutPuckInAccelerator {
     strategy_context_t* strat;
-    PutPuckInAccelerator(strategy_context_t* strat)
-        : strat(strat)
+    PutPuckInAccelerator(strategy_context_t* strat, manipulator_side_t side)
+        : actions::PutPuckInAccelerator(side)
+        , strat(strat)
     {
     }
     bool execute(RobotState& state);
