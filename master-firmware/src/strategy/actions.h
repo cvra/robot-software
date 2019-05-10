@@ -192,7 +192,6 @@ struct StockPuckInStorage : public goap::Action<RobotState> {
 
 struct PutPuckInScale : public goap::Action<RobotState> {
     manipulator_side_t side;
-    uint8_t puck_position = 0;
 
     PutPuckInScale(manipulator_side_t side)
         : side(side)
@@ -201,8 +200,7 @@ struct PutPuckInScale : public goap::Action<RobotState> {
     bool can_run(const RobotState& state)
     {
         const bool has_puck = (side == LEFT) ? state.left_has_puck : state.right_has_puck;
-        PuckColor color = (side == LEFT) ? state.left_puck_color : state.right_puck_color;
-        return has_puck && state.num_pucks_in_scale < MAX_PUCKS_IN_SCALE && !(color == PuckColor_RED);
+        return has_puck && (state.num_pucks_in_scale < MAX_PUCKS_IN_SCALE) && ();
     }
 
     void plan_effects(RobotState& state)

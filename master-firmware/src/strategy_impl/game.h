@@ -161,7 +161,6 @@ const int MAX_GOAP_PATH_LEN = 10;
         &take_pucks_left[6],                            \
         &take_pucks_left[7],                            \
         &take_pucks_left[8],                            \
-        &take_two_pucks,                                \
         &launch_accelerator,                            \
         &take_goldonium,                                \
         &put_puck_in_scale_right,                       \
@@ -184,13 +183,9 @@ const int MAX_GOAP_PATH_LEN = 10;
     PuckInScaleGoal puck_in_scale_goal;                 \
     PuckInAcceleratorGoal puck_in_accelerator_goal;     \
     goap::Goal<RobotState>* goals[] = {                 \
-        &rush_heavy_puck_front_goal,                    \
-        &rush_heavy_puck_back_goal,                     \
         &puck_in_scale_goal,                            \
     };                                                  \
     const char* goal_names[] = {                        \
-        "rush_front",                                   \
-        "rush_back",                                    \
         "scale",                                        \
     };                                                  \
     const size_t goal_count = sizeof(goals) / sizeof(goap::Goal<RobotState>*);
