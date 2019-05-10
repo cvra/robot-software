@@ -4,6 +4,7 @@ import "nanopb.proto";
 import "Timestamp.proto";
 import "sensors.proto";
 
+// Deprecated message, please use AllyPosition
 message AlliedPosition {
     option (nanopb_msgopt).msgid = 2;
     required Timestamp timestamp = 1;
