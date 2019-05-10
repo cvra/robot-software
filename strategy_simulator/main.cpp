@@ -75,7 +75,6 @@ int main(int argc, char* argv[])
     messagebus_init(&bus, &bus_sync, &bus_sync);
 
     simulation_init();
-    sim::reset();
 
     messagebus_advertise_topic(&bus, &sim::state_topic.topic, "/state");
 
@@ -87,10 +86,12 @@ int main(int argc, char* argv[])
     if (!strcmp(argv[1], "v")) {
         std::cout << "Playing in violet" << std::endl;
         sim::color = VIOLET;
+        sim::ctx->color = sim::color;
     } else {
         std::cout << "Playing in yellow" << std::endl;
     }
 
+    sim::reset();
     while (true) {
         std::cout << "----------------------------------" << std::endl;
         std::cout << "> ";
