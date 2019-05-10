@@ -103,7 +103,7 @@ bool TakePuck::execute(RobotState& state)
         strat->wait_ms(500);
         strat->manipulator_goto(side, MANIPULATOR_LIFT_VERT);
         strat->forward(strat, 60);
-        strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_0);
+        strat->manipulator_goto(side, MANIPULATOR_SCALE_INTERMEDIATE);
     }
 
     state.puck_available[puck_id] = false;
@@ -143,7 +143,7 @@ bool TakeTwoPucks::execute(RobotState& state)
     strat->wait_ms(500);
     strat->forward(strat, 100);
     strat->manipulator_goto(BOTH, MANIPULATOR_LIFT_VERT);
-    strat->manipulator_goto(BOTH, MANIPULATOR_STORE_FRONT_0);
+    strat->manipulator_goto(BOTH, MANIPULATOR_SCALE_INTERMEDIATE);
 
     state.puck_available[puck_id_left] = false;
     state.puck_available[puck_id_right] = false;
@@ -284,19 +284,26 @@ bool PutPuckInScale::execute(RobotState& state)
     strat->log("Putting puck in scale !");
     strat->log((side == LEFT) ? "\tUsing left arm" : ((side == RIGHT) ? "\tUsing right arm" : "\tUsing both arms"));
 
-    if (!strat->goto_xya(strat, MIRROR_X(strat->color, 1362), 1200, MIRROR_A(strat->color, 270))) {
+    if (!strat->goto_xya(strat, MIRROR_X(strat->color, 1330), 1359, MIRROR_A(strat->color, 255))) {
         return false;
+    }
+    if (strat->color == VIOLET) {
+        if (side == RIGHT) {
+            strat->rotate(strat, MIRROR(strat->color, 20));
+        }
+    } else {
+        if (side == LEFT) {
+            strat->rotate(strat, MIRROR(strat->color, 20));
+        }
     }
     strat->manipulator_goto(side, MANIPULATOR_SCALE);
-    if (!strat->goto_xya(strat, MIRROR_X(strat->color, 1362), 1430, MIRROR_A(strat->color, 270))) {
-        return false;
-    }
+    strat->forward(strat, -65);
     strat->gripper_set(side, GRIPPER_RELEASE);
     strat->wait_ms(200);
     strat->gripper_set(side, GRIPPER_OFF);
-    strat->forward(strat, 50);
     state.arms_are_deployed = true;
-
+    strat->forward(strat, 40);
+    strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_2);
     if (side == LEFT) {
         state.left_has_puck = false;
         state.puck_in_scale[state.num_pucks_in_scale] = state.left_puck_color;

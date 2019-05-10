@@ -37,7 +37,8 @@ public:
         /* MANIPULATOR_LIFT_VERT */ {{0.35136038, 2.16511662, 1.57079633}},
         /* MANIPULATOR_PICK_GOLDONIUM */ {{0.59695668, 2.36765084, 1.57079633}},
         /* MANIPULATOR_LIFT_GOLDONIUM */ {{0.59695668, 3.14, 1.57079633}},
-        /* MANIPULATOR_SCALE */ {{1.3967, 2.4702, 0.7734}},
+        /* MANIPULATOR_SCALE_INTERMEDIATE */ {{-0.1901, 2.1626, 1.57}},
+        /* MANIPULATOR_SCALE */ {{0.8674, 2.1626, 2.1580}},
         /* MANIPULATOR_PUT_ACCELERATOR*/ {{0.5522, 2.8653, 1.5605}},
         /* MANIPULATOR_PUT_ACCELERATOR_DOWN*/ {{0.2617, 2.4874, 1.6114}},
         /* MANIPULATOR_STORE_FRONT_0 */ {{0.55592904, 2.29990897, 0}},
@@ -98,7 +99,8 @@ public:
         pathfinding::connect_bidirectional(nodes[MANIPULATOR_STORE_BACK_STORE], nodes[MANIPULATOR_STORE_BACK_HIGH]);
         pathfinding::connect_bidirectional(nodes[MANIPULATOR_STORE_BACK_HIGH], nodes[MANIPULATOR_STORE_BACK_LOW]);
         //put puck in scale
-        pathfinding::connect_bidirectional(nodes[MANIPULATOR_STORE_FRONT_0], nodes[MANIPULATOR_SCALE]);
+        pathfinding::connect_bidirectional(nodes[MANIPULATOR_STORE_FRONT_0], nodes[MANIPULATOR_SCALE_INTERMEDIATE]);
+        pathfinding::connect_bidirectional(nodes[MANIPULATOR_SCALE_INTERMEDIATE], nodes[MANIPULATOR_SCALE]);
         //put puck in accelerator
         pathfinding::connect_bidirectional(nodes[MANIPULATOR_STORE_FRONT_0], nodes[MANIPULATOR_PUT_ACCELERATOR]);
         pathfinding::connect_bidirectional(nodes[MANIPULATOR_PUT_ACCELERATOR], nodes[MANIPULATOR_PUT_ACCELERATOR_DOWN]);
@@ -184,7 +186,7 @@ public:
         }
         return true;
     }
-};
+}; // namespace manipulator
 } // namespace manipulator
 
 #endif /* MANIPULATOR_MANIPULATOR_H */
