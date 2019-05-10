@@ -78,7 +78,7 @@ bool TakePuck::execute(RobotState& state)
     float x, y, a;
     if (pucks[puck_id].orientation == PuckOrientiation_HORIZONTAL) {
         x = MIRROR_X(strat->color, pucks[puck_id].pos_x_mm - 160);
-        y = pucks[puck_id].pos_y_mm + MIRROR_ARM(side, MIRROR(strat->color, 50));
+        y = pucks[puck_id].pos_y_mm + MIRROR_ARM(side, MIRROR(strat->color, 55));
         a = MIRROR_A(strat->color, 180);
     } else {
         x = MIRROR_X(strat->color, pucks[puck_id].pos_x_mm) - MIRROR_ARM(side, 50);
@@ -254,8 +254,6 @@ bool TakeGoldonium::execute(RobotState& state)
 
 bool StockPuckInStorage::execute(RobotState& state)
 {
-    const PuckColor* storage = (side == LEFT) ? state.left_storage : state.right_storage;
-
     strat->log("Storing puck !");
     strat->log((side == LEFT) ? "\tUsing left arm" : "\tUsing right arm");
 
