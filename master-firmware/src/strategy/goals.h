@@ -4,8 +4,6 @@
 #include <goap/goap.hpp>
 #include "state.h"
 
-#define PUCK_IS_GREEN_OR_BLUE(puck) (((puck) == PuckColor_BLUE) || ((puck) == PuckColor_GREEN))
-
 struct InitGoal : goap::Goal<RobotState> {
     virtual int distance_to(const RobotState& state) const
     {

@@ -118,6 +118,7 @@ tests:
     - tests/test_strategy_helpers.cpp
     - tests/test_strategy.cpp
     - tests/strategy/test_score.cpp
+    - tests/strategy/test_state.cpp
     - tests/msgbus_protobuf.cpp
     - tests/test_3dof_pendulum_kinematics.cpp
     - tests/test_manipulator_control.cpp

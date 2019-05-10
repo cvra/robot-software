@@ -33,3 +33,45 @@ bool operator==(const RobotState& lhs, const RobotState& rhs)
 {
     return !memcmp(&lhs, &rhs, sizeof(RobotState));
 }
+
+int state_count_heavy_pucks_in_robot(const RobotState& state)
+{
+    int count = 0;
+
+    size_t num_right_slots = sizeof(state.right_storage) / sizeof(PuckColor);
+    for (size_t i = 0; i < num_right_slots; i++) {
+        if (PUCK_IS_GREEN_OR_BLUE(state.right_storage[i])) {
+            count++;
+        }
+    }
+
+    size_t num_left_slots = sizeof(state.left_storage) / sizeof(PuckColor);
+    for (size_t i = 0; i < num_left_slots; i++) {
+        if (PUCK_IS_GREEN_OR_BLUE(state.left_storage[i])) {
+            count++;
+        }
+    }
+
+    return count;
+}
+
+int state_count_pucks_in_robot(const RobotState& state)
+{
+    int count = 0;
+
+    size_t num_right_slots = sizeof(state.right_storage) / sizeof(PuckColor);
+    for (size_t i = 0; i < num_right_slots; i++) {
+        if (state.right_storage[i] != PuckColor_EMPTY) {
+            count++;
+        }
+    }
+
+    size_t num_left_slots = sizeof(state.left_storage) / sizeof(PuckColor);
+    for (size_t i = 0; i < num_left_slots; i++) {
+        if (state.left_storage[i] != PuckColor_EMPTY) {
+            count++;
+        }
+    }
+
+    return count;
+}
