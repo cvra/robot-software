@@ -36,10 +36,6 @@ struct LaunchAccelerator : actions::LaunchAccelerator {
 struct TakeGoldonium : actions::TakeGoldonium {
     bool execute(RobotState& state) { return dummy_execute(this, state); }
 };
-struct StockPuckInStorage : actions::StockPuckInStorage {
-    StockPuckInStorage() : actions::StockPuckInStorage(RIGHT) {}
-    bool execute(RobotState& state) { return dummy_execute(this, state); }
-};
 
 TEST_GROUP (Strategy) {
     RobotState state = initial_state();
@@ -50,7 +46,6 @@ TEST_GROUP (Strategy) {
     DepositPuck deposit_puck[5] = {{0}, {1}, {2}, {3}, {4}};
     LaunchAccelerator launch_accelerator;
     TakeGoldonium take_goldonium;
-    StockPuckInStorage stock_puck_in_storage;
 
     std::vector<goap::Action<RobotState>*> availableActions()
     {
@@ -73,7 +68,6 @@ TEST_GROUP (Strategy) {
             &deposit_puck[4],
             &launch_accelerator,
             &take_goldonium,
-            &stock_puck_in_storage,
         };
     }
 
