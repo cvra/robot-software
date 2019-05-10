@@ -1,6 +1,7 @@
 #include "strategy_impl/simulation.h"
 
 #include "base/base_controller.h"
+#include "base/map_server.h"
 #include "main.h"
 #include "protobuf/position.pb.h"
 #include <error/error.h>
@@ -60,19 +61,47 @@ static void simulated_forward(void* ctx, int relative_distance_mm)
     position_set(&strat->robot->pos, x + dx, y + dy, position_get_a_deg_s16(&strat->robot->pos));
 }
 
+static void publish_pos(strategy_context_t* strat)
+{
+    messagebus_topic_t* position_topic = messagebus_find_topic_blocking(&bus, "/simulated/position");
+    RobotPosition pos = RobotPosition_init_zero;
+    pos.x = position_get_x_s16(&strat->robot->pos);
+    pos.y = position_get_y_s16(&strat->robot->pos);
+    pos.a = position_get_a_deg_s16(&strat->robot->pos);
+    messagebus_topic_publish(position_topic, &pos, sizeof(pos));
+    position_set(&strat->robot->pos, pos.x, pos.y, pos.a);
+}
+
 static bool simulated_goto_xya(void* ctx, int x_mm, int y_mm, int a_deg)
 {
     strategy_context_t* strat = (strategy_context_t*)ctx;
-    position_set(&strat->robot->pos, x_mm, y_mm, a_deg);
 
-    messagebus_topic_t* position_topic = messagebus_find_topic_blocking(&bus, "/simulated/position");
-    RobotPosition pos = RobotPosition_init_zero;
-    pos.x = x_mm;
-    pos.y = y_mm;
-    pos.a = a_deg;
-    messagebus_topic_publish(position_topic, &pos, sizeof(pos));
+    auto map = map_server_map_lock_and_get();
 
-    chThdSleepMilliseconds(100);
+    /* Compute path */
+    const point_t start = {
+        position_get_x_float(&strat->robot->pos),
+        position_get_y_float(&strat->robot->pos)};
+    oa_start_end_points(&map->oa, start.x, start.y, x_mm, y_mm);
+    oa_process(&map->oa);
+
+    /* Retrieve path */
+    point_t* points;
+    int num_points = oa_get_path(&map->oa, &points);
+    if (num_points <= 0) {
+        strat->log("No path found!");
+        map_server_map_release(map);
+        return false;
+    }
+
+    for (int i = 0; i < num_points; i++) {
+        publish_pos(strat);
+    }
+
+    strat->wait_ms(200);
+    publish_pos(strat);
+    strat->log("Goal reached successfully");
+    map_server_map_release(map);
 
     return true;
 }

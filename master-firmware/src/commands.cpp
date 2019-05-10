@@ -26,6 +26,7 @@ extern "C" {
 #include "base/encoder.h"
 #include "base/base_controller.h"
 #include "base/base_helpers.h"
+#include "base/map_server.h"
 #include "robot_helpers/beacon_helpers.h"
 #include "protobuf/beacons.pb.h"
 #include <aversive/obstacle_avoidance/obstacle_avoidance.h>
@@ -38,6 +39,7 @@ extern "C" {
 #include "strategy.h"
 #include "strategy/goals.h"
 #include "strategy/state.h"
+#include "strategy/score_counter.h"
 #include "strategy_impl/base.h"
 #include "strategy_impl/game.h"
 #include "strategy_impl/simulation.h"
@@ -1332,6 +1334,9 @@ static void cmd_goal(BaseSequentialStream* chp, int argc, char* argv[])
     } else {
         chprintf(chp, "Playing in yellow\r\n");
     }
+
+    map_server_start(color);
+    score_counter_start();
 
     state.arms_are_indexed = true;
     strategy_context_t* ctx = strategy_simulated_impl(color);
