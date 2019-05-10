@@ -333,7 +333,7 @@ bool PutPuckInAccelerator::execute(RobotState& state)
     }
     state.arms_are_deployed = true;
     strat->manipulator_goto(side, MANIPULATOR_PUT_ACCELERATOR);
-    if (!strat->goto_xya(strat, MIRROR_X(strat->color, 1950), 180, MIRROR_A(strat->color, 90))) {
+    if (!strat->goto_xya(strat, MIRROR_X(strat->color, x), 180, MIRROR_A(strat->color, 90))) {
         return false;
     }
     strat->manipulator_goto(side, MANIPULATOR_PUT_ACCELERATOR_DOWN);
