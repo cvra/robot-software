@@ -21,19 +21,19 @@ master:
     opponent_size_x_mm_default: 400
     calibration_direction: 1 # calibration side is on the front
     odometry:
-        external_encoder_ticks_per_mm: 163.62917844 # Computed 162.974661726
-        external_track_mm: 202.43815612
-        left_wheel_correction_factor: 1.00033247    # Calibrated
-        right_wheel_correction_factor: -0.99966681 # Calibrated
+        external_encoder_ticks_per_mm: 162.974661726 # Computed 162.974661726
+        external_track_mm: 202.75294494
+        left_wheel_correction_factor: 1.00038814    # Calibrated
+        right_wheel_correction_factor: -0.99961113 # Calibrated
     beacon:
         reflector_radius: 0.04 # in meters
         angular_offset: 1.57 # in radians
     aversive:
         control:
             angle:
-                kp: 1.5
-                ki: 0.5
-                kd: 10.
+                kp: 4.
+                ki: 0.
+                kd: 25.
                 i_limit: 10.
             distance:
                 kp: 1.5
