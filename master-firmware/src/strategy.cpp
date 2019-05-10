@@ -272,7 +272,7 @@ void strategy_chaos_play_game(strategy_context_t* ctx, RobotState& state)
     NOTICE("Positioning robot");
 
     robot.base_speed = BASE_SPEED_INIT;
-    strategy_auto_position(MIRROR_X(ctx->color, 250), 450, MIRROR_A(ctx->color, -90), ctx->color);
+    strategy_auto_position(MIRROR_X(ctx->color, 250), 750, MIRROR_A(ctx->color, -90), ctx->color);
 
     trajectory_a_abs(&robot.traj, MIRROR_A(ctx->color, 180));
     trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);

@@ -99,6 +99,7 @@ bool TakePuck::execute(RobotState& state)
         strat->forward(strat, -20);
         strat->wait_ms(500);
         strat->manipulator_goto(side, MANIPULATOR_LIFT_VERT);
+        strat->forward(strat, 60);
     }
 
     state.puck_available[puck_id] = false;
@@ -123,7 +124,7 @@ bool TakeTwoPucks::execute(RobotState& state)
     strat->log("Taking two pucks: blue and green !");
 
     float x = MIRROR_X(strat->color, pucks[puck_id_left].pos_x_mm - 50);
-    float y = pucks[puck_id_left].pos_y_mm - 275;
+    float y = pucks[puck_id_left].pos_y_mm - 220;
     float a = MIRROR_A(strat->color, -90);
 
     if (!strat->goto_xya(strat, x, y, a)) {
@@ -136,6 +137,7 @@ bool TakeTwoPucks::execute(RobotState& state)
     strat->manipulator_goto(BOTH, MANIPULATOR_PICK_VERT);
     strat->forward(strat, -30);
     strat->wait_ms(500);
+    strat->forward(strat, 100);
     strat->manipulator_goto(BOTH, MANIPULATOR_LIFT_VERT);
 
     state.puck_available[puck_id_left] = false;
@@ -252,34 +254,27 @@ bool StockPuckInStorage::execute(RobotState& state)
 {
     const PuckColor* storage = (side == LEFT) ? state.left_storage : state.right_storage;
     size_t num_slots = sizeof(storage) / sizeof(PuckColor);
-    for (size_t i = 0; i < num_slots; i++) {
-        if (storage[i] == PuckColor_EMPTY) {
-            puck_position = i;
-            break;
-        }
-    }
+
     strat->log("Storing puck !");
     strat->log((side == LEFT) ? "\tUsing left arm" : "\tUsing right arm");
 
-    strat->forward(strat, 60);
     state.arms_are_deployed = true;
-    if (puck_position < 3) {
+    if (storage_id < 3) {
         strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_STORE);
     } else {
-        strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_STORE);
+        strat->manipulator_goto(side, MANIPULATOR_STORE_BACK_STORE);
     }
     strat->gripper_set(side, GRIPPER_RELEASE);
     strat->wait_ms(200);
     strat->gripper_set(side, GRIPPER_OFF);
 
     if (side == LEFT) {
-        state.left_storage[puck_position] = state.left_puck_color;
+        state.left_storage[storage_id] = state.left_puck_color;
         state.left_has_puck = false;
     } else {
-        state.right_storage[puck_position] = state.right_puck_color;
+        state.right_storage[storage_id] = state.right_puck_color;
         state.right_has_puck = false;
     }
-    state.arms_are_deployed = true;
     return true;
 }
 
@@ -345,7 +340,15 @@ bool PickUpStorage::execute(RobotState& state)
     state.arms_are_deployed = true;
     strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_STORE);
     strat->gripper_set(side, GRIPPER_ACQUIRE);
-    strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_LOW);
+    if (!strat->puck_is_picked(side)) {
+        strat->gripper_set(side, GRIPPER_OFF);
+        return false;
+    }
+    if (storage_id < 3) {
+        strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_LOW);
+    } else {
+        strat->manipulator_goto(side, MANIPULATOR_STORE_BACK_LOW);
+    }
     strat->wait_ms(400);
 
     if (!strat->puck_is_picked(side)) {

@@ -11,13 +11,24 @@ struct InitGoal : goap::Goal<RobotState> {
     }
 };
 
-struct RushHeavyPuckGoal : goap::Goal<RobotState> {
+struct RushHeavyPuckFrontGoal : goap::Goal<RobotState> {
     virtual int distance_to(const RobotState& state) const
     {
         // clang-format off
         return goap::Distance()
-                .shouldBeTrue(PUCK_IS_GREEN_OR_BLUE(state.right_storage[0]))
-                .shouldBeTrue(PUCK_IS_GREEN_OR_BLUE(state.left_storage[0]));
+                .shouldBeTrue(PUCK_IS_GREEN_OR_BLUE(state.right_storage[1]))
+                .shouldBeTrue(PUCK_IS_GREEN_OR_BLUE(state.left_storage[1]));
+        // clang-format on
+    }
+};
+
+struct RushHeavyPuckBackGoal : goap::Goal<RobotState> {
+    virtual int distance_to(const RobotState& state) const
+    {
+        // clang-format off
+        return goap::Distance()
+                .shouldBeTrue(PUCK_IS_GREEN_OR_BLUE(state.right_storage[3]))
+                .shouldBeTrue(PUCK_IS_GREEN_OR_BLUE(state.left_storage[3]));
         // clang-format on
     }
 };

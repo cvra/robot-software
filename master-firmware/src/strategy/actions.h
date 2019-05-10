@@ -161,10 +161,11 @@ struct TakeGoldonium : public goap::Action<RobotState> {
 
 struct StockPuckInStorage : public goap::Action<RobotState> {
     manipulator_side_t side;
-    uint8_t puck_position = 0;
+    uint8_t storage_id = 0;
 
-    StockPuckInStorage(manipulator_side_t side)
-        : side(side)
+    StockPuckInStorage(size_t id, manipulator_side_t side)
+        : storage_id(id)
+        , side(side)
     {
     }
     bool can_run(const RobotState& state)
@@ -173,24 +174,16 @@ struct StockPuckInStorage : public goap::Action<RobotState> {
         const bool has_puck = (side == LEFT) ? state.left_has_puck : state.right_has_puck;
         const PuckColor* storage = (side == LEFT) ? state.left_storage : state.right_storage;
 
-        if (has_puck) {
-            for (size_t i = 0; i < num_slots; i++) {
-                if (storage[i] == PuckColor_EMPTY) {
-                    puck_position = i;
-                    return true;
-                }
-            }
-        }
-        return false;
+        return has_puck && (storage[storage_id] == PuckColor_EMPTY);
     }
 
     void plan_effects(RobotState& state)
     {
         if (side == LEFT) {
-            state.left_storage[puck_position] = state.left_puck_color;
+            state.left_storage[storage_id] = state.left_puck_color;
             state.left_has_puck = false;
         } else {
-            state.right_storage[puck_position] = state.right_puck_color;
+            state.right_storage[storage_id] = state.right_puck_color;
             state.right_has_puck = false;
         }
         state.arms_are_deployed = true;
@@ -208,7 +201,8 @@ struct PutPuckInScale : public goap::Action<RobotState> {
     bool can_run(const RobotState& state)
     {
         const bool has_puck = (side == LEFT) ? state.left_has_puck : state.right_has_puck;
-        return has_puck && state.num_pucks_in_scale < MAX_PUCKS_IN_SCALE;
+        PuckColor color = (side == LEFT) ? state.left_puck_color : state.right_puck_color;
+        return has_puck && state.num_pucks_in_scale < MAX_PUCKS_IN_SCALE && !(color == PuckColor_RED);
     }
 
     void plan_effects(RobotState& state)

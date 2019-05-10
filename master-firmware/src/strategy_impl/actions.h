@@ -68,8 +68,8 @@ struct TakeGoldonium : actions::TakeGoldonium {
 
 struct StockPuckInStorage : actions::StockPuckInStorage {
     strategy_context_t* strat;
-    StockPuckInStorage(strategy_context_t* strat, manipulator_side_t side)
-        : actions::StockPuckInStorage(side)
+    StockPuckInStorage(strategy_context_t* strat, size_t id, manipulator_side_t side)
+        : actions::StockPuckInStorage(id, side)
         , strat(strat)
     {
     }
