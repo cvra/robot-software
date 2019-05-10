@@ -345,17 +345,19 @@ bool PutPuckInAccelerator::execute(RobotState& state)
 bool PickUpStorage::execute(RobotState& state)
 {
     strat->log("Picking up from storage !");
+
     state.arms_are_deployed = true;
-    strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_STORE);
     strat->gripper_set(side, GRIPPER_ACQUIRE);
-    if (!strat->puck_is_picked(side)) {
-        strat->gripper_set(side, GRIPPER_OFF);
-        return false;
-    }
-    if (storage_id < 3) {
+    if (storage_id == 0) {
         strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_LOW);
-    } else {
+    } else if (storage_id == 1) {
+        strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_HIGH);
+    } else if (storage_id == 2) {
         strat->manipulator_goto(side, MANIPULATOR_STORE_BACK_LOW);
+    } else if (storage_id == 3) {
+        strat->manipulator_goto(side, MANIPULATOR_STORE_BACK_HIGH);
+    } else {
+        return false;
     }
     strat->wait_ms(400);
 
