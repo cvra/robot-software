@@ -10,15 +10,68 @@ const int MAX_GOAP_PATH_LEN = 10;
 #define GAME_ACTIONS_ORDER(actions, action_count, ctx) \
     IndexArms index_arms(ctx);                         \
     RetractArms retract_arms(ctx);                     \
+    TakePuck take_pucks_right[] = {                    \
+        {ctx, 0, RIGHT},                               \
+        {ctx, 1, RIGHT},                               \
+        {ctx, 2, RIGHT},                               \
+    };                                                 \
+    TakePuck take_pucks_left[] = {                     \
+        {ctx, 0, LEFT},                                \
+        {ctx, 1, LEFT},                                \
+        {ctx, 2, LEFT},                                \
+    };                                                 \
+    PickUpStorage pick_up_storage_right[] = {          \
+        {ctx, 0, RIGHT},                               \
+        {ctx, 1, RIGHT},                               \
+        {ctx, 2, RIGHT},                               \
+        {ctx, 3, RIGHT},                               \
+    };                                                 \
+    PickUpStorage pick_up_storage_left[] = {           \
+        {ctx, 0, LEFT},                                \
+        {ctx, 1, LEFT},                                \
+        {ctx, 2, LEFT},                                \
+        {ctx, 3, LEFT},                                \
+    };                                                 \
+    LaunchAccelerator launch_accelerator(ctx);         \
+    TakeGoldonium take_goldonium(ctx);                 \
+    StockPuckInStorage stock_puck_right(ctx, RIGHT);   \
+    StockPuckInStorage stock_puck_left(ctx, LEFT);     \
+    PutPuckInAccelerator put_puck_in_accelerator(ctx); \
     goap::Action<RobotState>* actions[] = {            \
         &index_arms,                                   \
         &retract_arms,                                 \
+        &take_pucks_right[0],                          \
+        &take_pucks_right[1],                          \
+        &take_pucks_right[2],                          \
+        &take_pucks_left[0],                           \
+        &take_pucks_left[1],                           \
+        &take_pucks_left[2],                           \
+        &launch_accelerator,                           \
+        &take_goldonium,                               \
+        &stock_puck_right,                             \
+        &stock_puck_left,                              \
+        &put_puck_in_accelerator,                      \
+        &pick_up_storage_left[0],                      \
+        &pick_up_storage_left[1],                      \
+        &pick_up_storage_left[2],                      \
+        &pick_up_storage_left[3],                      \
+        &pick_up_storage_right[0],                     \
+        &pick_up_storage_right[1],                     \
+        &pick_up_storage_right[2],                     \
+        &pick_up_storage_right[3],                     \
     };                                                 \
     const auto action_count = sizeof(actions) / sizeof(actions[0]);
 
 #define GAME_GOALS_ORDER(goals, goal_names, goal_count) \
-    goap::Goal<RobotState>* goals[] = {};               \
-    const char* goal_names[] = {};                      \
+    AcceleratorGoal accelerator_goal;                   \
+    TakeGoldoniumGoal take_goldonium_goal;              \
+    PuckInAcceleratorGoal puck_in_accelerator_goal;     \
+    goap::Goal<RobotState>* goals[] = {                 \
+        &puck_in_accelerator_goal,                      \
+    };                                                  \
+    const char* goal_names[] = {                        \
+        "accel",                                        \
+    };                                                  \
     const size_t goal_count = sizeof(goals) / sizeof(goap::Goal<RobotState>*);
 
 /********* Chaos *********/

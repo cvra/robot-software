@@ -15,8 +15,8 @@ RobotState state;
 enum strat_color_t color = YELLOW;
 strategy_context_t* ctx = strategy_simulated_impl(color);
 
-GAME_GOALS_CHAOS(goals, goal_names, goal_count);
-GAME_ACTIONS_CHAOS(actions, action_count, ctx);
+GAME_GOALS_ORDER(goals, goal_names, goal_count);
+GAME_ACTIONS_ORDER(actions, action_count, ctx);
 
 static TOPIC_DECL(state_topic, RobotState);
 
