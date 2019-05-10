@@ -88,19 +88,19 @@ const int MAX_GOAP_PATH_LEN = 10;
     };                                                  \
     PickUpStorage pick_up_storage_right[] = {           \
         {ctx, 0, RIGHT},                                \
-        {ctx, 1, RIGHT},                                \
+        {ctx, 2, RIGHT},                                \
     };                                                  \
     PickUpStorage pick_up_storage_left[] = {            \
         {ctx, 0, LEFT},                                 \
-        {ctx, 1, LEFT},                                 \
+        {ctx, 2, LEFT},                                 \
     };                                                  \
     StockPuckInStorage stock_storage_right[] = {        \
         {ctx, 0, RIGHT},                                \
-        {ctx, 1, RIGHT},                                \
+        {ctx, 2, RIGHT},                                \
     };                                                  \
     StockPuckInStorage stock_storage_left[] = {         \
         {ctx, 0, LEFT},                                 \
-        {ctx, 1, LEFT},                                 \
+        {ctx, 2, LEFT},                                 \
     };                                                  \
     PutPuckInScale put_puck_in_scale_right(ctx, RIGHT); \
     PutPuckInScale put_puck_in_scale_left(ctx, LEFT);   \
