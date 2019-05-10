@@ -77,7 +77,7 @@ struct PuckInScaleGoal : goap::Goal<RobotState> {
     }
     virtual int distance_to(const RobotState& state) const
     {
-        return goap::Distance().shouldBeEqual(state.num_pucks_in_scale, num_pucks_in_scale);
+        return goap::Distance().shouldBeEqual(state.num_pucks_in_scale, num_pucks_in_scale).shouldBeFalse(state.arms_are_deployed);
     }
 };
 
