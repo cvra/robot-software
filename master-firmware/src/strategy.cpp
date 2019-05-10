@@ -218,6 +218,10 @@ void strategy_order_play_game(strategy_context_t* ctx, RobotState& state)
     wait_for_starter();
     trajectory_game_timer_reset();
 
+    NOTICE("Wait for Chaos to move away...");
+
+    strategy_wait_ms(5000); // Wait a bit for Chaos to move away
+
     NOTICE("Starting game...");
     while (!trajectory_game_has_ended()) {
         for (auto goal : goals) {
@@ -289,6 +293,14 @@ void strategy_chaos_play_game(strategy_context_t* ctx, RobotState& state)
 
     electron_starter_start();
     state.electron_launched = true;
+
+    NOTICE("Moving away from Order...");
+
+    trajectory_a_abs(&robot.traj, -90);
+    trajectory_wait_for_end(TRAJ_FLAGS_ROTATION);
+
+    trajectory_d_rel(&robot.traj, -300);
+    trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
 
     NOTICE("Starting game...");
 
