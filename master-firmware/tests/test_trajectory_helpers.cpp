@@ -16,6 +16,7 @@ extern "C" {
 }
 
 #include "protobuf/beacons.pb.h"
+#include "protobuf/ally_position.pb.h"
 #include "base/map.h"
 #include "robot_helpers/math_helpers.h"
 #include "robot_helpers/trajectory_helpers.h"
@@ -375,18 +376,17 @@ TEST_GROUP (TrajectoryHasEnded) {
 
     void msgbus_advertise_ally()
     {
-        static AlliedPosition pos;
-        pos = AlliedPosition_init_default;
+        static AllyPosition pos;
+        pos = AllyPosition_init_default;
         messagebus_topic_init(&ally_position_topic, nullptr, nullptr, &pos,
                               sizeof(pos));
 
-        messagebus_advertise_topic(&bus, &ally_position_topic, "/allied_position");
+        messagebus_advertise_topic(&bus, &ally_position_topic, "/ally_pos");
     }
 
-    void publish_allied_position(uint32_t timestamp, point_t pos)
+    void publish_allied_position(point_t pos)
     {
-        AlliedPosition msg;
-        msg.timestamp.us = timestamp;
+        AllyPosition msg;
         msg.x = pos.x;
         msg.y = pos.y;
         messagebus_topic_publish(&ally_position_topic, &msg, sizeof(msg));
@@ -619,24 +619,14 @@ TEST(TrajectoryHasEnded, IgnoresOpponentIfOutOfTheWayEvenIfTooBig)
 
 TEST(TrajectoryHasEnded, DoesStopWhenAllyIsOnTheWay)
 {
-    publish_allied_position(timestamp_now, {100, 100});
+    publish_allied_position({100, 100});
     auto reason = trajectory_has_ended(TRAJ_END_ALLY_NEAR);
     CHECK_EQUAL(TRAJ_END_ALLY_NEAR, reason);
 }
 
 TEST(TrajectoryHasEnded, DoesNotStopWhenAllyIsNotOnPath)
 {
-    publish_allied_position(timestamp_now, {1000, 1000});
-    auto reason = trajectory_has_ended(TRAJ_END_ALLY_NEAR);
-    CHECK_EQUAL(0, reason);
-}
-
-TEST(TrajectoryHasEnded, DoesNotStopWhenAllyPositionIsTooOld)
-{
-    // Timestamp 20 seconds in the past
-    const auto age = 20;
-    const auto timestamp = timestamp_now - age * 1000000;
-    publish_allied_position(timestamp, {100, 100});
+    publish_allied_position({1000, 1000});
     auto reason = trajectory_has_ended(TRAJ_END_ALLY_NEAR);
     CHECK_EQUAL(0, reason);
 }

@@ -8,7 +8,9 @@
 #include "base/map.h"
 #include "math_helpers.h"
 #include "beacon_helpers.h"
+
 #include "protobuf/beacons.pb.h"
+#include "protobuf/ally_position.pb.h"
 
 #include "trajectory_helpers.h"
 
@@ -73,16 +75,12 @@ int trajectory_has_ended(int watched_end_reasons)
     }
 
     if (watched_end_reasons & TRAJ_END_ALLY_NEAR) {
-        messagebus_topic_t* topic = messagebus_find_topic(&bus, "/allied_position");
-        AlliedPosition pos;
+        messagebus_topic_t* topic = messagebus_find_topic(&bus, "/ally_pos");
+        AllyPosition pos;
 
         if (topic && messagebus_topic_read(topic, &pos, sizeof(pos))) {
-            uint32_t age = timestamp_duration_s(pos.timestamp.us, timestamp_get());
-
-            if (age < TRAJ_MAX_TIME_DELAY_OPPONENT_DETECTION) {
-                if (trajectory_is_on_collision_path(&robot, pos.x, pos.y)) {
-                    return TRAJ_END_ALLY_NEAR;
-                }
+            if (trajectory_is_on_collision_path(&robot, pos.x, pos.y)) {
+                return TRAJ_END_ALLY_NEAR;
             }
         }
     }

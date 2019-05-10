@@ -14,7 +14,9 @@
 #include "robot_helpers/beacon_helpers.h"
 #include "robot_helpers/trajectory_helpers.h"
 #include "strategy/state.h"
+
 #include "protobuf/beacons.pb.h"
+#include "protobuf/ally_position.pb.h"
 
 #define MAP_SERVER_STACKSIZE 1024
 
@@ -36,8 +38,7 @@ static THD_FUNCTION(map_server_thd, arg)
     BeaconSignal beacon_signal;
     messagebus_topic_t* proximity_beacon_topic = messagebus_find_topic_blocking(&bus, "/proximity_beacon");
 
-    AlliedPosition allied_position;
-
+    AllyPosition ally_position;
     messagebus_topic_t* allied_position_topic = messagebus_find_topic_blocking(&bus, "/ally_pos");
 
     RobotState state = initial_state();
@@ -80,17 +81,15 @@ static THD_FUNCTION(map_server_thd, arg)
             }
         }
 
-        /* Create obstacle at allied position */
-        if (messagebus_topic_read(allied_position_topic, &allied_position, sizeof(allied_position))) {
-            if (timestamp_duration_s(allied_position.timestamp.us, timestamp_get()) < TRAJ_MAX_TIME_DELAY_ALLY_DETECTION) {
-                map_set_ally_obstacle(map,
-                                      allied_position.x,
-                                      allied_position.y,
-                                      robot_size,
-                                      robot_size);
-            } else {
-                map_set_ally_obstacle(map, 0, 0, 0, 0); // reset ally position
-            }
+        /* Create obstacle at ally position */
+        if (messagebus_topic_read(allied_position_topic, &ally_position, sizeof(ally_position))) {
+            map_set_ally_obstacle(map,
+                                  ally_position.x,
+                                  ally_position.y,
+                                  robot_size,
+                                  robot_size);
+        } else {
+            map_set_ally_obstacle(map, 0, 0, 0, 0); // reset ally position
         }
 
         /* Update cube blocks obstacles on map depending on state */
