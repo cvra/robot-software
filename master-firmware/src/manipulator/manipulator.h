@@ -32,8 +32,7 @@ public:
     pathfinding::Node<Point> nodes[MANIPULATOR_COUNT] = {
         /* MANIPULATOR_INIT */ {{0, 0, 0}},
         /* MANIPULATOR_DEPLOY_FULLY */ {{1.2705, 1.5002, 1.4614}},
-        /* MANIPULATOR_LIFT_HORZ */ {{1.3344, 1.1287, 0.0}},
-        /* MANIPULATOR_PICK_HORZ */ {{0.9956, 0.5278, 0.0}},
+        /* MANIPULATOR_PICK_HORZ */ {{0.57912659, 1.13070901, 0.0}},
         /* MANIPULATOR_PICK_VERT */ {{0.35136038, 1.66511662, 1.57079633}},
         /* MANIPULATOR_LIFT_VERT */ {{0.35136038, 2.16511662, 1.57079633}},
         /* MANIPULATOR_PICK_GOLDONIUM */ {{0.935233, 2.005595, 1.570796}},
@@ -76,8 +75,7 @@ public:
         // from initial position, we can only retract
         nodes[MANIPULATOR_INIT].connect(nodes[MANIPULATOR_STORE_FRONT_0]);
         //pick Horz
-        pathfinding::connect_bidirectional(nodes[MANIPULATOR_STORE_FRONT_0], nodes[MANIPULATOR_LIFT_HORZ]);
-        pathfinding::connect_bidirectional(nodes[MANIPULATOR_LIFT_HORZ], nodes[MANIPULATOR_PICK_HORZ]);
+        pathfinding::connect_bidirectional(nodes[MANIPULATOR_STORE_FRONT_0], nodes[MANIPULATOR_PICK_HORZ]);
         //deploy fully (remove later)
         pathfinding::connect_bidirectional(nodes[MANIPULATOR_STORE_FRONT_0], nodes[MANIPULATOR_DEPLOY_FULLY]);
         //stock and mixed with things..

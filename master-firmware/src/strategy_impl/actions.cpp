@@ -74,7 +74,7 @@ bool TakePuck::execute(RobotState& state)
 
     float x, y, a;
     if (pucks[puck_id].orientation == PuckOrientiation_HORIZONTAL) {
-        x = MIRROR_X(strat->color, pucks[puck_id].pos_x_mm - 170);
+        x = MIRROR_X(strat->color, pucks[puck_id].pos_x_mm - 160);
         y = pucks[puck_id].pos_y_mm + MIRROR_ARM(side, MIRROR(strat->color, 50));
         a = MIRROR_A(strat->color, 180);
     } else {
@@ -93,7 +93,7 @@ bool TakePuck::execute(RobotState& state)
     if (pucks[puck_id].orientation == PuckOrientiation_HORIZONTAL) {
         strat->manipulator_goto(side, MANIPULATOR_PICK_HORZ);
         strat->wait_ms(500);
-        strat->manipulator_goto(side, MANIPULATOR_LIFT_HORZ);
+        strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_0);
     } else {
         strat->manipulator_goto(side, MANIPULATOR_PICK_VERT);
         strat->forward(strat, -20);

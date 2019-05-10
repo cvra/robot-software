@@ -1126,8 +1126,6 @@ static void cmd_arm(BaseSequentialStream* chp, int argc, char* argv[])
             manipulator_angles(side, angles);
             manipulator_angles_set(side, angles[0], angles[1], angles[2]);
             chprintf(chp, "Holding angles: %.4f, %.4f, %.4f\r\n", angles[0], angles[1], angles[2]);
-        } else if (!strcmp(argv[1], "lift_h")) {
-            res = manipulator_goto(side, MANIPULATOR_LIFT_HORZ);
         } else if (!strcmp(argv[1], "pick_h")) {
             res = manipulator_goto(side, MANIPULATOR_PICK_HORZ);
         } else if (!strcmp(argv[1], "pick_v")) {
