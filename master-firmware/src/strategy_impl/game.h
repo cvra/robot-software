@@ -124,6 +124,7 @@ const int MAX_GOAP_PATH_LEN = 10;
         &stock_storage_left[1],                         \
         &stock_storage_right[0],                        \
         &stock_storage_right[1],                        \
+        &take_two_pucks,                                \
     };                                                  \
     const auto action_count = sizeof(actions) / sizeof(actions[0]);
 

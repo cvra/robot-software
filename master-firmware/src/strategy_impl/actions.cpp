@@ -126,7 +126,7 @@ bool TakeTwoPucks::execute(RobotState& state)
 {
     strat->log("Taking two pucks: blue and green !");
 
-    float x = MIRROR_X(strat->color, pucks[puck_id_left].pos_x_mm - 50);
+    float x = MIRROR_X(strat->color, 175);
     float y = pucks[puck_id_left].pos_y_mm - 220;
     float a = MIRROR_A(strat->color, -90);
 
