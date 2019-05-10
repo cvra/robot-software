@@ -141,15 +141,21 @@ bool TakeTwoPucks::execute(RobotState& state)
     state.puck_available[puck_id_left] = false;
     state.puck_available[puck_id_right] = false;
 
-    if (!strat->puck_is_picked(BOTH)) {
+    if (strat->puck_is_picked(RIGHT)) {
+        state.right_has_puck = true;
+        state.right_puck_color = pucks[puck_id_right].color;
+    }
+    if (strat->puck_is_picked(LEFT)) {
+        state.left_has_puck = true;
+        state.left_puck_color = pucks[puck_id_left].color;
+    }
+
+    // if no puck taken, fail!
+    if (!state.right_has_puck && !state.left_has_puck) {
         strat->gripper_set(BOTH, GRIPPER_OFF);
         return false;
     }
 
-    state.left_has_puck = true;
-    state.right_has_puck = true;
-    state.left_puck_color = pucks[puck_id_left].color;
-    state.right_puck_color = pucks[puck_id_right].color;
     return true;
 }
 
