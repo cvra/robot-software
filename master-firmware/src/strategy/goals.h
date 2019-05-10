@@ -70,14 +70,18 @@ struct StockPuckGoal : goap::Goal<RobotState> {
 };
 
 struct PuckInScaleGoal : goap::Goal<RobotState> {
-    int num_pucks_in_scale;
-    PuckInScaleGoal(int num_pucks_in_scale)
-        : num_pucks_in_scale(num_pucks_in_scale)
+    int id;
+    PuckInScaleGoal(int id)
+        : id(id)
     {
     }
     virtual int distance_to(const RobotState& state) const
     {
-        return goap::Distance().shouldBeEqual(state.num_pucks_in_scale, num_pucks_in_scale).shouldBeFalse(state.arms_are_deployed);
+        // clang-format off
+        return goap::Distance()
+                .shouldBeTrue(PUCK_IS_GREEN_OR_BLUE(state.puck_in_scale[id]))
+                .shouldBeFalse(state.arms_are_deployed);
+        // clang-format on
     }
 };
 
