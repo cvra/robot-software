@@ -364,6 +364,7 @@ bool PickUpStorage::execute(RobotState& state)
     } else if (storage_id == 3) {
         strat->manipulator_goto(side, MANIPULATOR_STORE_BACK_HIGH);
     } else {
+        strat->log("\tPicking in this storage position is impossible");
         return false;
     }
     strat->wait_ms(400);
