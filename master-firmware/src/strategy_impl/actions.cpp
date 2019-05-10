@@ -260,10 +260,17 @@ bool StockPuckInStorage::execute(RobotState& state)
     strat->log((side == LEFT) ? "\tUsing left arm" : "\tUsing right arm");
 
     state.arms_are_deployed = true;
-    if (storage_id < 3) {
+    if (storage_id == 0) {
+        strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_HIGH);
+    } else if (storage_id == 1) {
         strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_STORE);
-    } else {
+    } else if (storage_id == 2) {
+        strat->manipulator_goto(side, MANIPULATOR_STORE_BACK_HIGH);
+    } else if (storage_id == 3) {
         strat->manipulator_goto(side, MANIPULATOR_STORE_BACK_STORE);
+    } else {
+        strat->log("\tStorage in this position is impossible");
+        return false;
     }
     strat->gripper_set(side, GRIPPER_RELEASE);
     strat->wait_ms(200);
