@@ -22,6 +22,17 @@ struct RushHeavyPuckGoal : goap::Goal<RobotState> {
     }
 };
 
+struct RushStartPuckGoal : goap::Goal<RobotState> {
+    virtual int distance_to(const RobotState& state) const
+    {
+        // clang-format off
+        return goap::Distance()
+                .shouldBeTrue(state.right_storage[0] == PuckColor_RED_OR_GREEN)
+                .shouldBeTrue(state.left_storage[0] == PuckColor_RED_OR_GREEN);
+        // clang-format on
+    }
+};
+
 struct AcceleratorGoal : goap::Goal<RobotState> {
     virtual int distance_to(const RobotState& state) const
     {
