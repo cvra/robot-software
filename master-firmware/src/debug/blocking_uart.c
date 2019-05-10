@@ -9,6 +9,7 @@
 
 // Virtual Methods Table
 const struct BaseSequentialStreamVMT blocking_uart_put_vmt = {
+    0,
     blocking_uart_write,
     blocking_uart_read,
     blocking_uart_put,
