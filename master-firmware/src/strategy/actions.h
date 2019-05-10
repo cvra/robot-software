@@ -200,7 +200,7 @@ struct PutPuckInScale : public goap::Action<RobotState> {
     bool can_run(const RobotState& state)
     {
         const bool has_puck = (side == LEFT) ? state.left_has_puck : state.right_has_puck;
-        return has_puck && (state.num_pucks_in_scale < MAX_PUCKS_IN_SCALE) && ();
+        return has_puck && (state.num_pucks_in_scale < MAX_PUCKS_IN_SCALE);
     }
 
     void plan_effects(RobotState& state)
