@@ -34,6 +34,7 @@
 #include "gui.h"
 #include "udp_topic_broadcaster.h"
 #include "ally_position_service.h"
+#include "ally_position_bluetooth.h"
 #include "manipulator/manipulator_thread.h"
 
 void init_base_motors(void);
@@ -237,7 +238,8 @@ int main(void)
 
     /* Those service communicate over IP so must be started afterward */
     // udp_topic_broadcast_start();
-    ally_position_start();
+    // ally_position_start();
+    ally_position_bluetooth_start();
 
     /* Load stored robot config */
     config_load_from_flash();

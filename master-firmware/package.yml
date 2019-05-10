@@ -69,6 +69,7 @@ target.arm:
     - src/strategy_impl/base.cpp
     - src/strategy_impl/simulation.cpp
     - src/ally_position_service.c
+    - src/ally_position_bluetooth.c
 
 source:
     - src/unix_timestamp.c
