@@ -36,8 +36,10 @@ static THD_FUNCTION(score_counter_thd, arg)
         msg.score += score_count_classified_atoms(state);
         msg.score += score_count_accelerator(state);
         msg.score += score_count_goldenium(state);
-        msg.score += score_count_experiment(state);
-        msg.score += score_count_electron(state);
+        if (config_get_boolean("master/is_main_robot")) {
+            msg.score += score_count_experiment(state);
+            msg.score += score_count_electron(state);
+        }
         msg.score += score_count_scale(state);
 
         messagebus_topic_publish(&score_topic.topic, &msg, sizeof(msg));
