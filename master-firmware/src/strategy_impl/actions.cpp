@@ -96,24 +96,22 @@ bool TakePuck::execute(RobotState& state)
     if (pucks[puck_id].orientation == PuckOrientiation_HORIZONTAL) {
         strat->manipulator_goto(side, MANIPULATOR_PICK_HORZ);
         strat->wait_ms(500);
-        strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_0);
-        state.arms_are_deployed = false;
     } else {
         strat->manipulator_goto(side, MANIPULATOR_PICK_VERT);
         strat->forward(strat, -30);
         strat->wait_ms(500);
         strat->manipulator_goto(side, MANIPULATOR_LIFT_VERT);
         strat->forward(strat, 60);
-        strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_0);
-        state.arms_are_deployed = false;
     }
 
     state.puck_available[puck_id] = false;
-
     if (!strat->puck_is_picked(side)) {
         strat->gripper_set(side, GRIPPER_OFF);
         return false;
     }
+
+    strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_0);
+    state.arms_are_deployed = false;
 
     if (side == LEFT) {
         state.left_has_puck = true;
@@ -407,11 +405,6 @@ bool PickUpStorage::execute(RobotState& state)
         return false;
     }
     strat->wait_ms(400);
-
-    if (!strat->puck_is_picked(side)) {
-        strat->gripper_set(side, GRIPPER_OFF);
-        return false;
-    }
 
     if (side == LEFT) {
         state.left_has_puck = true;
