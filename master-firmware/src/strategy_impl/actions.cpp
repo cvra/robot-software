@@ -400,7 +400,6 @@ bool PickUpStorage::execute(RobotState& state)
 {
     strat->log("Picking up from storage !");
 
-    state.arms_are_deployed = true;
     strat->gripper_set(side, GRIPPER_ACQUIRE);
     if (storage_id == 0) {
         strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_LOW);

@@ -282,7 +282,6 @@ struct PickUpStorage : public goap::Action<RobotState> {
 
     void plan_effects(RobotState& state)
     {
-        state.arms_are_deployed = true;
         if (side == LEFT) {
             state.left_has_puck = true;
             state.left_puck_color = state.left_storage[storage_id];
