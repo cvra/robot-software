@@ -164,8 +164,8 @@ bool trajectory_is_on_collision_path(struct _robot* robot, int x, int y)
     map_set_rectangular_obstacle(&opponent,
                                  x,
                                  y,
-                                 robot->opponent_size * 1.25,
-                                 robot->opponent_size * 1.25,
+                                 robot->opponent_size * 1.4,
+                                 robot->opponent_size * 1.4,
                                  robot->robot_size);
 
     point_t intersection;
