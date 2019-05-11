@@ -210,6 +210,7 @@ bool LaunchAccelerator::execute(RobotState& state)
     strat->rotate(strat, MIRROR(strat->color, 20));
     strat->forward(strat, 40);
     strat->manipulator_goto(RIGHT, MANIPULATOR_STORE_FRONT_0);
+    state.arms_are_deployed = false;
 
     state.puck_in_accelerator++;
     state.puck_available[12] = false;

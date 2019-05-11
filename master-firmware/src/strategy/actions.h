@@ -138,7 +138,6 @@ struct LaunchAccelerator : public goap::Action<RobotState> {
     {
         state.puck_in_accelerator++;
         state.puck_available[12] = false;
-        state.arms_are_deployed = true;
     }
 };
 

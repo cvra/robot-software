@@ -87,8 +87,7 @@ struct AcceleratorGoal : goap::Goal<RobotState> {
     {
         // clang-format off
         return goap::Distance()
-                .shouldBeFalse(state.puck_available[12])
-                .shouldBeFalse(state.arms_are_deployed);
+                .shouldBeFalse(state.puck_available[12]);
         // clang-format on
     }
 };
