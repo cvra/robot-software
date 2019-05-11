@@ -81,10 +81,10 @@ master:
             tolerance:
                 q1: 0.02
                 q2: 0.02
-                q3: 0.1
+                q3: 0.02
             window:
-                q1: 0.02
-                q2: 0.02
+                q1: 0.1
+                q2: 0.1
                 q3: 0.1
             gripper:
                 release: 6.
