@@ -127,7 +127,6 @@ const int MAX_GOAP_PATH_LEN = 10;
     };                                                  \
     PutPuckInScale put_puck_in_scale_right(ctx, RIGHT); \
     PutPuckInScale put_puck_in_scale_left(ctx, LEFT);   \
-    PutPuckInScale put_puck_in_scale_both(ctx, BOTH);   \
     goap::Action<RobotState>* actions[] = {             \
         &index_arms,                                    \
         &retract_arms,                                  \
