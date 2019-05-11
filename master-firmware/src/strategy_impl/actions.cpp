@@ -234,6 +234,7 @@ bool TakeGoldonium::execute(RobotState& state)
     strat->manipulator_goto(RIGHT, MANIPULATOR_PICK_GOLDONIUM);
 
     if (!strat->goto_xya(strat, x, 300, MIRROR_A(strat->color, 90))) {
+        strat->forward(strat, 80);
         return false;
     }
 
@@ -247,6 +248,9 @@ bool TakeGoldonium::execute(RobotState& state)
     }
 
     strat->manipulator_goto(RIGHT, MANIPULATOR_LIFT_GOLDONIUM);
+    strat->wait_ms(500);
+    strat->gripper_set(RIGHT, GRIPPER_OFF);
+    strat->forward(strat, 80);
 
     state.goldonium_in_house = false;
     state.has_goldonium = true;
