@@ -29,6 +29,21 @@ struct ClassifyGoal : goap::Goal<RobotState> {
     }
 };
 
+struct ClassifyAnyPuckGoal : goap::Goal<RobotState> {
+    int id;
+    ClassifyAnyPuckGoal(int id)
+        : id(id)
+    {
+    }
+    virtual int distance_to(const RobotState& state) const
+    {
+        // clang-format off
+        return goap::Distance()
+                .shouldBeEqual(state.classified_pucks[id], 1);
+        // clang-format on
+    }
+};
+
 struct RushHeavyPuckBackGoal : goap::Goal<RobotState> {
     virtual int distance_to(const RobotState& state) const
     {

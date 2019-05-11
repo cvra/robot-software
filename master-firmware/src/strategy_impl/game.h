@@ -111,8 +111,11 @@ const int MAX_GOAP_PATH_LEN = 10;
     RetractArms retract_arms(ctx);                      \
     TakeTwoPucks take_two_pucks(ctx);                   \
     TakePuck take_pucks_right[] = {                     \
+        {ctx, 3, RIGHT},                                \
         {ctx, 4, RIGHT},                                \
+        {ctx, 5, RIGHT},                                \
         {ctx, 6, RIGHT},                                \
+        {ctx, 7, RIGHT},                                \
         {ctx, 8, RIGHT},                                \
     };                                                  \
     TakePuck take_pucks_left[] = {                      \
@@ -138,6 +141,9 @@ const int MAX_GOAP_PATH_LEN = 10;
     };                                                  \
     PutPuckInScale put_puck_in_scale_right(ctx, RIGHT); \
     PutPuckInScale put_puck_in_scale_left(ctx, LEFT);   \
+    DepositPuck deposit_puck_right[] = {                \
+        {ctx, 3, RIGHT},                                \
+    };                                                  \
     goap::Action<RobotState>* actions[] = {             \
         &index_arms,                                    \
         &retract_arms,                                  \
@@ -145,6 +151,9 @@ const int MAX_GOAP_PATH_LEN = 10;
         &take_pucks_right[0],                           \
         &take_pucks_right[1],                           \
         &take_pucks_right[2],                           \
+        &take_pucks_right[3],                           \
+        &take_pucks_right[4],                           \
+        &take_pucks_right[5],                           \
         &take_pucks_left[0],                            \
         &take_pucks_left[1],                            \
         &take_pucks_left[2],                            \
@@ -159,6 +168,7 @@ const int MAX_GOAP_PATH_LEN = 10;
         &stock_storage_right[0],                        \
         &stock_storage_right[1],                        \
         &take_two_pucks,                                \
+        &deposit_puck_right[0],                         \
     };                                                  \
     const auto action_count = sizeof(actions) / sizeof(actions[0]);
 
@@ -172,6 +182,9 @@ const int MAX_GOAP_PATH_LEN = 10;
     };                                                  \
     RushHeavyPuckBackGoal rush_heavy_puck_back_goal;    \
     RushHeavyPuckFrontGoal rush_heavy_puck_front_goal;  \
+    ClassifyAnyPuckGoal classify_any_puck_goal[] = {    \
+        {3},                                            \
+    };                                                  \
     goap::Goal<RobotState>* goals[] = {                 \
         &rush_heavy_puck_back_goal,                     \
         &rush_heavy_puck_front_goal,                    \
@@ -180,6 +193,7 @@ const int MAX_GOAP_PATH_LEN = 10;
         &puck_in_scale_goal[2],                         \
         &puck_in_scale_goal[3],                         \
         &puck_in_scale_goal[4],                         \
+        &classify_any_puck_goal[0],                     \
     };                                                  \
     const char* goal_names[] = {                        \
         "rush1",                                        \
@@ -189,6 +203,7 @@ const int MAX_GOAP_PATH_LEN = 10;
         "scale_2",                                      \
         "scale_3",                                      \
         "scale_4",                                      \
+        "classify_3",                                   \
     };                                                  \
     const size_t goal_count = sizeof(goals) / sizeof(goap::Goal<RobotState>*);
 

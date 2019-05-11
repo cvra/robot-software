@@ -26,7 +26,6 @@ struct DepositPuck : actions::DepositPuck {
     DepositPuck(size_t id) : actions::DepositPuck(id, RIGHT) {}
     bool execute(RobotState& state)
     {
-        pucks_in_area++;
         return dummy_execute(this, state);
     }
 };
