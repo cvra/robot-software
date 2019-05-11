@@ -158,7 +158,11 @@ const int MAX_GOAP_PATH_LEN = 10;
         {3},                                            \
         {4},                                            \
     };                                                  \
+    RushHeavyPuckBackGoal rush_heavy_puck_back_goal;    \
+    RushHeavyPuckFrontGoal rush_heavy_puck_front_goal;  \
     goap::Goal<RobotState>* goals[] = {                 \
+        &rush_heavy_puck_back_goal,                     \
+        &rush_heavy_puck_front_goal,                    \
         &puck_in_scale_goal[0],                         \
         &puck_in_scale_goal[1],                         \
         &puck_in_scale_goal[2],                         \
@@ -166,6 +170,8 @@ const int MAX_GOAP_PATH_LEN = 10;
         &puck_in_scale_goal[4],                         \
     };                                                  \
     const char* goal_names[] = {                        \
+        "rush1",                                        \
+        "rush2",                                        \
         "scale_0",                                      \
         "scale_1",                                      \
         "scale_2",                                      \
