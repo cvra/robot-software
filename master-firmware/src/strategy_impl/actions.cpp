@@ -243,17 +243,50 @@ bool TakeGoldonium::execute(RobotState& state)
 
     if (!strat->puck_is_picked(RIGHT)) {
         strat->gripper_set(RIGHT, GRIPPER_OFF);
-        strat->forward(strat, 80);
         return false;
     }
 
     strat->manipulator_goto(RIGHT, MANIPULATOR_LIFT_GOLDONIUM);
-    strat->wait_ms(500);
-    strat->gripper_set(RIGHT, GRIPPER_OFF);
-    strat->forward(strat, 80);
 
     state.goldonium_in_house = false;
     state.has_goldonium = true;
+    return true;
+}
+
+bool PutGoldoniumInScale::execute(RobotState& state)
+{
+    strat->log("Goldenium to the scale !");
+
+    if (!strat->goto_xya(strat, MIRROR_X(strat->color, 1300), 1000, MIRROR_A(strat->color, 270))) {
+        return false;
+    }
+    if (!strat->goto_xya(strat, MIRROR_X(strat->color, 1330), 1359, MIRROR_A(strat->color, 255))) {
+        return false;
+    }
+    if (strat->color == VIOLET) {
+        strat->rotate(strat, MIRROR(strat->color, 20));
+    }
+
+    state.arms_are_deployed = true;
+
+    if (!strat->puck_is_picked(RIGHT)) {
+        strat->log("I lost the Goldenium on the way !");
+        strat->gripper_set(RIGHT, GRIPPER_OFF);
+        return false;
+    }
+
+    strat->manipulator_goto(RIGHT, MANIPULATOR_SCALE);
+    strat->forward(strat, -65);
+    strat->gripper_set(RIGHT, GRIPPER_RELEASE);
+    strat->wait_ms(200);
+    strat->gripper_set(RIGHT, GRIPPER_OFF);
+    strat->forward(strat, 40);
+    strat->manipulator_goto(RIGHT, MANIPULATOR_STORE_FRONT_2);
+    state.arms_are_deployed = false;
+
+    state.has_goldonium = false;
+    state.puck_in_scale[0] = PuckColor_GOLDENIUM;
+    state.num_pucks_in_scale++;
     return true;
 }
 

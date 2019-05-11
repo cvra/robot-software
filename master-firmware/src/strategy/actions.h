@@ -157,6 +157,22 @@ struct TakeGoldonium : public goap::Action<RobotState> {
     }
 };
 
+struct PutGoldoniumInScale : public goap::Action<RobotState> {
+    bool can_run(const RobotState& state)
+    {
+        return state.has_goldonium;
+    }
+
+    // Only works if the bot only puts the goldenium in the scale
+    void plan_effects(RobotState& state)
+    {
+        state.has_goldonium = false;
+        state.arms_are_deployed = true;
+        state.puck_in_scale[0] = PuckColor_GOLDENIUM;
+        state.num_pucks_in_scale++;
+    }
+};
+
 struct StockPuckInStorage : public goap::Action<RobotState> {
     uint8_t storage_id = 0;
     manipulator_side_t side;

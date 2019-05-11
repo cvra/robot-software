@@ -40,6 +40,7 @@ const int MAX_GOAP_PATH_LEN = 10;
     };                                                              \
     PutPuckInAccelerator put_puck_in_accelerator_right(ctx, RIGHT); \
     PutPuckInAccelerator put_puck_in_accelerator_left(ctx, LEFT);   \
+    PutGoldoniumInScale put_goldenium_in_scale(ctx);                \
     goap::Action<RobotState>* actions[] = {                         \
         &index_arms,                                                \
         &retract_arms,                                              \
@@ -61,6 +62,7 @@ const int MAX_GOAP_PATH_LEN = 10;
         &pick_up_storage_left[1],                                   \
         &pick_up_storage_right[0],                                  \
         &pick_up_storage_right[1],                                  \
+        &put_goldenium_in_scale,                                    \
     };                                                              \
     const auto action_count = sizeof(actions) / sizeof(actions[0]);
 

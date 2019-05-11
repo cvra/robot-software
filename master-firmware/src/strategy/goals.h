@@ -61,7 +61,11 @@ struct AcceleratorGoal : goap::Goal<RobotState> {
 struct TakeGoldoniumGoal : goap::Goal<RobotState> {
     virtual int distance_to(const RobotState& state) const
     {
-        return goap::Distance().shouldBeTrue(state.has_goldonium).shouldBeFalse(state.arms_are_deployed);
+        // clang-format off
+        return goap::Distance()
+                .shouldBeTrue(state.puck_in_scale[0] == PuckColor_GOLDENIUM)
+                .shouldBeFalse(state.arms_are_deployed);
+        // clang-format on
     }
 };
 
