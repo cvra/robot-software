@@ -146,7 +146,8 @@ struct LaunchAccelerator : public goap::Action<RobotState> {
 struct TakeGoldonium : public goap::Action<RobotState> {
     bool can_run(const RobotState& state)
     {
-        return (state.puck_in_accelerator > 0) && !state.arms_are_deployed && state.goldonium_in_house;
+        const bool arms_are_free = !state.right_has_puck && !state.left_has_puck && !state.has_goldonium;
+        return arms_are_free && (state.puck_in_accelerator > 0) && !state.arms_are_deployed && state.goldonium_in_house;
     }
 
     void plan_effects(RobotState& state)

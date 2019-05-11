@@ -63,6 +63,7 @@ struct TakeGoldoniumGoal : goap::Goal<RobotState> {
     {
         // clang-format off
         return goap::Distance()
+                .shouldBeFalse(state.goldonium_in_house)
                 .shouldBeTrue(state.puck_in_scale[0] == PuckColor_GOLDENIUM)
                 .shouldBeFalse(state.arms_are_deployed);
         // clang-format on

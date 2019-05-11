@@ -267,6 +267,7 @@ bool PutGoldoniumInScale::execute(RobotState& state)
         strat->rotate(strat, MIRROR(strat->color, 20));
     }
 
+    state.has_goldonium = false;
     state.arms_are_deployed = true;
 
     if (!strat->puck_is_picked(RIGHT)) {
@@ -284,7 +285,6 @@ bool PutGoldoniumInScale::execute(RobotState& state)
     strat->manipulator_goto(RIGHT, MANIPULATOR_STORE_FRONT_2);
     state.arms_are_deployed = false;
 
-    state.has_goldonium = false;
     state.puck_in_scale[0] = PuckColor_GOLDENIUM;
     state.num_pucks_in_scale++;
     return true;
