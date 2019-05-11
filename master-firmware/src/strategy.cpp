@@ -71,6 +71,12 @@ static bool strategy_goto_xya(void* ctx, int x_mm, int y_mm, int a_deg)
     return strategy_goto_avoid(strat, x_mm, y_mm, a_deg, TRAJ_FLAGS_ALL);
 }
 
+static bool strategy_goto_xya_ignore_opponent(void* ctx, int x_mm, int y_mm, int a_deg)
+{
+    strategy_context_t* strat = (strategy_context_t*)ctx;
+    return strategy_goto_avoid(strat, x_mm, y_mm, a_deg, TRAJ_FLAGS_ALL_IGNORE_OPPONENT);
+}
+
 static strategy_context_t strategy = {
     /*robot*/ &robot,
     /*color*/ YELLOW,
@@ -80,6 +86,7 @@ static strategy_context_t strategy = {
     /*forward*/ strategy_forward,
     /*rotate*/ strategy_rotate,
     /*goto_xya*/ strategy_goto_xya,
+    /*goto_xya_ignore_opponent*/ strategy_goto_xya_ignore_opponent,
     /*manipulator_goto*/ manipulator_goto,
     /*manipulator_disable*/ arm_turn_off,
     /*gripper_set*/ manipulator_gripper_set,

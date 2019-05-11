@@ -53,6 +53,8 @@ void map_init(struct _map* map, int robot_size, bool enable_wall)
     /* Add ramp as obstacle */
     map->ramp_obstacle = oa_new_poly(&map->oa, 4);
     map_set_rectangular_obstacle_from_corners(map->ramp_obstacle, 450, 1578, 2550, 2000, robot_size);
+
+    map->enable_opponent = true;
 }
 
 void map_set_ally_obstacle(struct _map* map, int32_t x, int32_t y, int32_t ally_size, int32_t robot_size)

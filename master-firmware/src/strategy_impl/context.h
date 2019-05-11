@@ -19,6 +19,7 @@ typedef struct {
     void (*forward)(void*, int);
     void (*rotate)(void*, int);
     bool (*goto_xya)(void*, int, int, int);
+    bool (*goto_xya_ignore_opponent)(void*, int, int, int);
 
     bool (*manipulator_goto)(manipulator_side_t side, manipulator_state_t target);
     void (*manipulator_disable)(manipulator_side_t side);

@@ -12,6 +12,8 @@ void map_server_start(enum strat_color_t color);
 struct _map* map_server_map_lock_and_get(void);
 void map_server_map_release(struct _map* map);
 
+void map_server_enable_opponent(struct _map* map_ptr, bool enable);
+
 #ifdef __cplusplus
 }
 #endif

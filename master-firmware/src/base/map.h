@@ -28,6 +28,8 @@ struct _map {
 
     mutex_t lock;
     struct obstacle_avoidance oa;
+
+    bool enable_opponent;
 };
 
 /** Initialize the map of the Eurobot table with the static obstacles and

@@ -332,7 +332,10 @@ bool PutPuckInScale::execute(RobotState& state)
         return false;
     }
 
-    if (!strat->goto_xya(strat, MIRROR_X(strat->color, 1330), 1359, MIRROR_A(strat->color, 255))) {
+    if (!strat->goto_xya(strat, MIRROR_X(strat->color, 1200), 1200, MIRROR_A(strat->color, 255))) {
+        return false;
+    }
+    if (!strat->goto_xya_ignore_opponent(strat, MIRROR_X(strat->color, 1330), 1359, MIRROR_A(strat->color, 255))) {
         return false;
     }
     if (strat->color == VIOLET) {

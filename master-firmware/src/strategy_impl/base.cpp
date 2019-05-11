@@ -41,12 +41,23 @@ bool strategy_goto_avoid(strategy_context_t* strat, int x_mm, int y_mm, int a_de
 {
     auto map = map_server_map_lock_and_get();
 
+    // Dangerous mode: removes opponent
+    if (traj_end_flags == TRAJ_FLAGS_ALL_IGNORE_OPPONENT) {
+        WARNING("Ignoring opponent, lalala");
+        map_server_enable_opponent(map, false);
+    }
+
     /* Compute path */
     const point_t start = {
         position_get_x_float(&strat->robot->pos),
         position_get_y_float(&strat->robot->pos)};
     oa_start_end_points(&map->oa, start.x, start.y, x_mm, y_mm);
     oa_process(&map->oa);
+
+    // Disable the dangerous mode that removes opponent
+    if (traj_end_flags == TRAJ_FLAGS_ALL_IGNORE_OPPONENT) {
+        map_server_enable_opponent(map, true);
+    }
 
     /* Retrieve path */
     point_t* points;

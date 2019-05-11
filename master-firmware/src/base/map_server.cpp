@@ -116,3 +116,8 @@ void map_server_map_release(struct _map* map_ptr)
     osalDbgAssert(map_ptr == &map_data.map, "wrong map ptr");
     chMtxUnlock(&map_data.map_lock);
 }
+
+void map_server_enable_opponent(struct _map* map_ptr, bool enable)
+{
+    map_ptr->enable_opponent = enable;
+}

@@ -131,6 +131,7 @@ strategy_context_t strategy_simulated = {
     simulated_forward,
     simulated_rotate,
     simulated_goto_xya,
+    simulated_goto_xya,
 
     simulated_manipulator_goto,
     simulated_manipulator_turn_off,
