@@ -257,9 +257,6 @@ bool PutGoldoniumInScale::execute(RobotState& state)
 {
     strat->log("Goldenium to the scale !");
 
-    if (!strat->goto_xya(strat, MIRROR_X(strat->color, 1300), 1000, MIRROR_A(strat->color, 270))) {
-        return false;
-    }
     if (!strat->goto_xya(strat, MIRROR_X(strat->color, 1330), 1359, MIRROR_A(strat->color, 255))) {
         return false;
     }
