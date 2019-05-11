@@ -308,16 +308,27 @@ bool StockPuckInStorage::execute(RobotState& state)
         strat->log("\tStorage in this position is impossible");
         return false;
     }
+
+    if (side == LEFT) {
+        state.left_has_puck = false;
+    } else {
+        state.right_has_puck = false;
+    }
+
+    if (!strat->puck_is_picked(side)) {
+        strat->log("\tOups, I lost the puck on my way to the storage...");
+        strat->gripper_set(side, GRIPPER_OFF);
+        return true;
+    }
+
     strat->gripper_set(side, GRIPPER_RELEASE);
     strat->wait_ms(200);
     strat->gripper_set(side, GRIPPER_OFF);
 
     if (side == LEFT) {
         state.left_storage[storage_id] = state.left_puck_color;
-        state.left_has_puck = false;
     } else {
         state.right_storage[storage_id] = state.right_puck_color;
-        state.right_has_puck = false;
     }
     return true;
 }
