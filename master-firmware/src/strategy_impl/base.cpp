@@ -28,6 +28,15 @@ void strategy_stop_robot(strategy_context_t* strat)
     strat->robot->mode = BOARD_MODE_ANGLE_DISTANCE;
 }
 
+void strategy_hardstop_robot(strategy_context_t* strat)
+{
+    trajectory_hardstop(&strat->robot->traj);
+    strat->wait_ms(200);
+    strat->robot->mode = BOARD_MODE_FREE;
+    strat->wait_ms(200);
+    strat->robot->mode = BOARD_MODE_ANGLE_DISTANCE;
+}
+
 bool strategy_goto_avoid(strategy_context_t* strat, int x_mm, int y_mm, int a_deg, int traj_end_flags)
 {
     auto map = map_server_map_lock_and_get();
@@ -80,13 +89,13 @@ bool strategy_goto_avoid(strategy_context_t* strat, int x_mm, int y_mm, int a_de
         return true;
     } else if (end_reason == TRAJ_END_OPPONENT_NEAR) {
         control_panel_set(LED_PC);
-        strategy_stop_robot(strat);
+        strategy_hardstop_robot(strat);
         strat->wait_ms(100);
-        strategy_stop_robot(strat);
+        strategy_hardstop_robot(strat);
         control_panel_clear(LED_PC);
         WARNING("Stopping robot because opponent too close");
     } else if (end_reason == TRAJ_END_COLLISION) {
-        strategy_stop_robot(strat);
+        strategy_hardstop_robot(strat);
         WARNING("Stopping robot because collision detected");
     } else if (end_reason == TRAJ_END_TIMER) {
         strategy_stop_robot(strat);
