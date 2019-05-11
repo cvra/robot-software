@@ -38,8 +38,10 @@ struct RushStartPuckGoal : goap::Goal<RobotState> {
         return goap::Distance()
                 .shouldBeFalse(state.puck_available[0])
                 .shouldBeFalse(state.puck_available[1])
+                .shouldBeFalse(state.puck_available[2])
                 .shouldBeTrue(state.right_storage[0] == PuckColor_RED_OR_GREEN)
                 .shouldBeTrue(state.left_storage[0] == PuckColor_RED_OR_GREEN)
+                .shouldBeTrue(state.right_storage[2] == PuckColor_RED_OR_GREEN || (state.left_storage[2] == PuckColor_RED_OR_GREEN))
                 .shouldBeFalse(state.arms_are_deployed);
         // clang-format on
     }
@@ -86,9 +88,18 @@ struct PuckInScaleGoal : goap::Goal<RobotState> {
 };
 
 struct PuckInAcceleratorGoal : goap::Goal<RobotState> {
+    int count;
+    PuckInAcceleratorGoal(int count)
+        : count(count)
+    {
+    }
     virtual int distance_to(const RobotState& state) const
     {
-        return goap::Distance().shouldBeEqual(state.puck_in_accelerator, 3).shouldBeFalse(state.arms_are_deployed);
+        // clang-format off
+        return goap::Distance()
+                .shouldBeEqual(state.puck_in_accelerator, count)
+                .shouldBeFalse(state.arms_are_deployed);
+        // clang-format on
     }
 };
 #endif /* STRATEGY_GOALS_H */
