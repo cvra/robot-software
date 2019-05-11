@@ -41,7 +41,7 @@ struct RushStartPuckGoal : goap::Goal<RobotState> {
                 .shouldBeFalse(state.puck_available[2])
                 .shouldBeTrue(state.right_storage[0] == PuckColor_RED_OR_GREEN)
                 .shouldBeTrue(state.left_storage[0] == PuckColor_RED_OR_GREEN)
-                .shouldBeTrue(state.right_storage[2] == PuckColor_RED_OR_GREEN || (state.left_storage[2] == PuckColor_RED_OR_GREEN))
+                .shouldBeTrue(state.right_storage[2] == PuckColor_RED_OR_GREEN)
                 .shouldBeFalse(state.arms_are_deployed);
         // clang-format on
     }
