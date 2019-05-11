@@ -17,7 +17,7 @@ static void map_unlock(mutex_t* lock)
     chMtxUnlock(lock);
 }
 
-void map_init(struct _map* map, int robot_size)
+void map_init(struct _map* map, int robot_size, bool enable_wall)
 {
     // Initialise obstacle avoidance state
     oa_init(&map->oa);
@@ -39,8 +39,10 @@ void map_init(struct _map* map, int robot_size)
     map->last_opponent_index = 0;
 
     /* Add the wall separating the two balances */
-    map->the_wall = oa_new_poly(&map->oa, 4);
-    map_set_rectangular_obstacle(map->the_wall, 1500, 1450, 40, 200, robot_size);
+    if (enable_wall) {
+        map->the_wall = oa_new_poly(&map->oa, 4);
+        map_set_rectangular_obstacle(map->the_wall, 1500, 1450, 40, 200, robot_size);
+    }
 
     /* Add the distributors ahead of the ramp */
     map->distributor_obstacle[0] = oa_new_poly(&map->oa, 4);
@@ -106,7 +108,6 @@ void map_set_rectangular_obstacle_from_corners(poly_t* opponent, int bottom_left
 
     opponent->pts[3].x = TABLE_POINT_X(bottom_left_x - inflation_radius);
     opponent->pts[3].y = TABLE_POINT_Y(bottom_left_y - inflation_radius);
-
 }
 
 void map_update_opponent_obstacle(struct _map* map, int32_t x, int32_t y, int32_t opponent_size, int32_t robot_size)

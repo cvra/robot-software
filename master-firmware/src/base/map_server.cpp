@@ -33,7 +33,8 @@ static THD_FUNCTION(map_server_thd, arg)
 
     int robot_size = config_get_integer("master/robot_size_x_mm");
     int opponent_size = config_get_integer("master/opponent_size_x_mm_default");
-    map_init(&map_data.map, robot_size);
+    bool enable_wall = config_get_boolean("master/is_main_robot");
+    map_init(&map_data.map, robot_size, enable_wall);
 
     BeaconSignal beacon_signal;
     messagebus_topic_t* proximity_beacon_topic = messagebus_find_topic_blocking(&bus, "/proximity_beacon");

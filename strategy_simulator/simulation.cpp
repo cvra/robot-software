@@ -180,5 +180,5 @@ void simulation_init(void)
         messagebus_advertise_topic(&bus, &position_topic.topic, "/simulated/position");
     }
 
-    map_init(&table_map, 260);
+    map_init(&table_map, 260, true);
 }

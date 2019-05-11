@@ -33,7 +33,7 @@ struct _map {
 /** Initialize the map of the Eurobot table with the static obstacles and
  * opponents
  */
-void map_init(struct _map* map, int robot_size);
+void map_init(struct _map* map, int robot_size, bool enable_wall);
 
 /** Set the position of the ally
  */

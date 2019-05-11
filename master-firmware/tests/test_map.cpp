@@ -97,7 +97,7 @@ TEST_GROUP (MapOpponentObstacleSetter) {
 
     void setup(void)
     {
-        map_init(&map, arbitrary_robot_size);
+        map_init(&map, arbitrary_robot_size, true);
     }
 };
 
@@ -121,7 +121,7 @@ TEST_GROUP (MapOpponentObstacleUpdater) {
 
     void setup(void)
     {
-        map_init(&map, arbitrary_robot_size);
+        map_init(&map, arbitrary_robot_size, true);
     }
 };
 
@@ -170,7 +170,7 @@ TEST_GROUP (MapEurobot2019) {
 
     void setup(void)
     {
-        map_init(&map, arbitrary_robot_size);
+        map_init(&map, arbitrary_robot_size, true);
     }
 };
 
@@ -251,7 +251,7 @@ TEST_GROUP (AMap) {
 
     void setup()
     {
-        map_init(&map, 0);
+        map_init(&map, 0, true);
         lock_mocks_enable(true);
     }
 
