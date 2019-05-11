@@ -330,7 +330,7 @@ bool PutPuckInAccelerator::execute(RobotState& state)
 {
     strat->log("Putting puck in accelerator !");
 
-    float x = 2000 - MIRROR_ARM(side, 50);
+    float x = 1900 + MIRROR_ARM(side, 50);
     if (!strat->goto_xya(strat, MIRROR_X(strat->color, x), 300, MIRROR_A(strat->color, 90))) {
         return false;
     }
