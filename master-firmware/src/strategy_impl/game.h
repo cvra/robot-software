@@ -41,6 +41,11 @@ const int MAX_GOAP_PATH_LEN = 10;
     PutPuckInAccelerator put_puck_in_accelerator_right(ctx, RIGHT); \
     PutPuckInAccelerator put_puck_in_accelerator_left(ctx, LEFT);   \
     PutGoldoniumInScale put_goldenium_in_scale(ctx);                \
+    DepositPuck deposit_puck_right[] = {                            \
+        {ctx, 0, RIGHT},                                            \
+        {ctx, 1, RIGHT},                                            \
+        {ctx, 2, RIGHT},                                            \
+    };                                                              \
     goap::Action<RobotState>* actions[] = {                         \
         &index_arms,                                                \
         &retract_arms,                                              \
@@ -63,6 +68,9 @@ const int MAX_GOAP_PATH_LEN = 10;
         &pick_up_storage_right[0],                                  \
         &pick_up_storage_right[1],                                  \
         &put_goldenium_in_scale,                                    \
+        &deposit_puck_right[0],                                     \
+        &deposit_puck_right[1],                                     \
+        &deposit_puck_right[2],                                     \
     };                                                              \
     const auto action_count = sizeof(actions) / sizeof(actions[0]);
 
@@ -75,20 +83,23 @@ const int MAX_GOAP_PATH_LEN = 10;
         {4},                                             \
     };                                                   \
     RushStartPuckGoal rush_start_pucks;                  \
+    ClassifyGoal classify_goal[] = {                     \
+        {0, 0},                                          \
+        {1, 1},                                          \
+        {2, 2},                                          \
+    };                                                   \
     goap::Goal<RobotState>* goals[] = {                  \
-        &rush_start_pucks,                               \
+        &classify_goal[0],                               \
+        &classify_goal[1],                               \
+        &classify_goal[2],                               \
         &accelerator_goal,                               \
-        &puck_in_accelerator_goal[0],                    \
-        &puck_in_accelerator_goal[1],                    \
-        &puck_in_accelerator_goal[2],                    \
         &take_goldonium_goal,                            \
     };                                                   \
     const char* goal_names[] = {                         \
-        "rush",                                          \
+        "classify_0",                                    \
+        "classify_1",                                    \
+        "classify_2",                                    \
         "launch",                                        \
-        "accel_2",                                       \
-        "accel_3",                                       \
-        "accel_4",                                       \
         "goldenium",                                     \
     };                                                   \
     const size_t goal_count = sizeof(goals) / sizeof(goap::Goal<RobotState>*);

@@ -100,7 +100,6 @@ struct TakeTwoPucks : public goap::Action<RobotState> {
 struct DepositPuck : public goap::Action<RobotState> {
     size_t zone_id;
     manipulator_side_t side;
-    size_t pucks_in_area{0};
 
     DepositPuck(size_t id, manipulator_side_t side)
         : zone_id(id)
@@ -109,7 +108,7 @@ struct DepositPuck : public goap::Action<RobotState> {
     }
     bool can_run(const RobotState& state)
     {
-        bool valid = (pucks_in_area < 2);
+        bool valid = (state.classified_pucks[zone_id] == 0);
         if (side == LEFT) {
             return valid && state.left_has_puck && (state.left_puck_color == areas[zone_id].color);
         } else {
@@ -119,7 +118,7 @@ struct DepositPuck : public goap::Action<RobotState> {
 
     void plan_effects(RobotState& state)
     {
-        state.classified_pucks[areas[zone_id].color]++;
+        state.classified_pucks[zone_id]++;
         if (side == LEFT) {
             state.left_has_puck = false;
         } else {

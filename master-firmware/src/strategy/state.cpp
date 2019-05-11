@@ -7,6 +7,11 @@ RobotState initial_state(void)
     RobotState state;
     state = RobotState_init_default;
 
+    size_t num_classified = sizeof(state.classified_pucks) / sizeof(uint32_t);
+    for (size_t i = 0; i < num_classified; i++) {
+        state.classified_pucks[i] = 0;
+    }
+
     size_t num_pucks = sizeof(state.puck_available) / sizeof(bool);
     for (size_t i = 0; i < num_pucks; i++) {
         state.puck_available[i] = true;

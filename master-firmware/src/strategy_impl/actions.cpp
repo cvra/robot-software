@@ -177,18 +177,18 @@ bool DepositPuck::execute(RobotState& state)
     if (!strat->goto_xya(strat, x, y, a)) {
         return false;
     }
+    strat->manipulator_goto(side, MANIPULATOR_PICK_HORZ);
     strat->gripper_set(side, GRIPPER_RELEASE);
     strat->wait_ms(100);
 
     strat->gripper_set(side, GRIPPER_OFF);
 
-    pucks_in_area++;
     if (side == LEFT) {
         state.left_has_puck = false;
     } else {
         state.right_has_puck = false;
     }
-    state.classified_pucks[areas[zone_id].color]++;
+    state.classified_pucks[zone_id]++;
     state.arms_are_deployed = true;
     return true;
 }

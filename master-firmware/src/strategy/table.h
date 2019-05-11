@@ -49,6 +49,7 @@ typedef struct {
 static const DepositArea areas[] = {
     {PuckColor_RED_OR_GREEN, 320, 600},
     {PuckColor_RED_OR_GREEN, 420, 600},
+    {PuckColor_RED_OR_GREEN, 520, 600},
     {PuckColor_RED, 450, 450},
     {PuckColor_GREEN, 450, 750},
     {PuckColor_BLUE, 450, 1050},
