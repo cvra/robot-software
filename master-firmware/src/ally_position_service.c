@@ -8,12 +8,12 @@
 
 #include "parameter/parameter.h"
 #include "main.h"
+#include "control_panel.h"
 
 #define ALLY_POSITION_PORT 3000
 
 static parameter_t ally_ip;
 char ally_ip_buffer[IP4ADDR_STRLEN_MAX];
-
 
 static int ip_from_parameter(parameter_t* p, ip4_addr_t* addr)
 {
@@ -71,12 +71,12 @@ static void position_send_thread(void* p)
 
 TOPIC_DECL(ally_position_topic, AllyPosition);
 
-static void position_receive_thread(void *p)
+static void position_receive_thread(void* p)
 {
     (void)p;
     chRegSetThreadName(__FUNCTION__);
 
-    struct netconn *conn;
+    struct netconn* conn;
 
     messagebus_advertise_topic(&bus, &ally_position_topic.topic, "/ally_pos");
 
@@ -85,7 +85,7 @@ static void position_receive_thread(void *p)
     netconn_bind(conn, IPADDR_ANY, ALLY_POSITION_PORT);
 
     while (true) {
-        struct netbuf *buf;
+        struct netbuf* buf;
         static uint8_t pos_buf[AllyPosition_size];
         AllyPosition pos;
         pb_istream_t istream;
@@ -100,6 +100,7 @@ static void position_receive_thread(void *p)
         istream = pb_istream_from_buffer(pos_buf, sizeof(pos_buf));
         pb_decode(&istream, AllyPosition_fields, &pos);
 
+        control_panel_toggle(LED_READY);
         messagebus_topic_publish(&ally_position_topic.topic, &pos, sizeof(pos));
 
         netbuf_delete(buf);
