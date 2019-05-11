@@ -112,13 +112,3 @@ TEST(Strategy, CanRunAllGoals)
         CHECK_TRUE(goal->is_reached(state));
     }
 }
-
-TEST(Strategy, CanGetGoldenium)
-{
-    TakeGoldoniumGoal goal;
-
-    int len = compute_and_execute_plan(goal, state);
-
-    CHECK_TRUE(len > 0);
-    CHECK_TRUE(goal.is_reached(state));
-}
