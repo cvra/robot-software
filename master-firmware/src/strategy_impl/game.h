@@ -195,12 +195,20 @@ const int MAX_GOAP_PATH_LEN = 10;
     ClassifyAnyPuckGoal classify_any_puck_goal[] = {     \
         {3},                                             \
     };                                                   \
+    PuckInAcceleratorGoal puck_in_accelerator_goal[] = { \
+        {1},                                             \
+        {2},                                             \
+        {3},                                             \
+    };                                                   \
     goap::Goal<RobotState>* goals[] = {                  \
         &puck_in_scale_goal[0],                          \
         &puck_in_scale_goal[1],                          \
         &puck_in_scale_goal[2],                          \
         &puck_in_scale_goal[3],                          \
         &puck_in_scale_goal[4],                          \
+        &puck_in_accelerator_goal[0],                    \
+        &puck_in_accelerator_goal[1],                    \
+        &puck_in_accelerator_goal[2],                    \
     };                                                   \
     const char* goal_names[] = {                         \
         "scale_0",                                       \
@@ -208,6 +216,9 @@ const int MAX_GOAP_PATH_LEN = 10;
         "scale_2",                                       \
         "scale_3",                                       \
         "scale_4",                                       \
+        "accel_0",                                       \
+        "accel_1",                                       \
+        "accel_2",                                       \
     };                                                   \
     const size_t goal_count = sizeof(goals) / sizeof(goap::Goal<RobotState>*);
 
