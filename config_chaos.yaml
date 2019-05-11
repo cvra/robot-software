@@ -115,7 +115,7 @@ master:
             gripper:
                 release: -6.
                 acquire: 14.
-                current_thres: 0.3 # [A] pump current beyond which we consider the puck is picked
+                current_thres: 0.28 # [A] pump current beyond which we consider the puck is picked
     screen:
         ax: 0.089231252
         ay: -0.001139728
