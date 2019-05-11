@@ -59,6 +59,8 @@ struct RushHeavyPuckFrontGoal : goap::Goal<RobotState> {
     {
         // clang-format off
         return goap::Distance()
+                .shouldBeFalse(state.puck_available[4])
+                .shouldBeFalse(state.puck_available[6])
                 .shouldBeEqual(state_count_pucks_in_robot(state), 4);
         // clang-format on
     }
