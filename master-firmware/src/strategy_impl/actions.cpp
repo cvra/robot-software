@@ -97,13 +97,15 @@ bool TakePuck::execute(RobotState& state)
         strat->manipulator_goto(side, MANIPULATOR_PICK_HORZ);
         strat->wait_ms(500);
         strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_0);
+        state.arms_are_deployed = false;
     } else {
         strat->manipulator_goto(side, MANIPULATOR_PICK_VERT);
         strat->forward(strat, -30);
         strat->wait_ms(500);
         strat->manipulator_goto(side, MANIPULATOR_LIFT_VERT);
         strat->forward(strat, 60);
-        strat->manipulator_goto(side, MANIPULATOR_SCALE_INTERMEDIATE);
+        strat->manipulator_goto(side, MANIPULATOR_STORE_FRONT_0);
+        state.arms_are_deployed = false;
     }
 
     state.puck_available[puck_id] = false;
@@ -143,7 +145,8 @@ bool TakeTwoPucks::execute(RobotState& state)
     strat->wait_ms(500);
     strat->forward(strat, 100);
     strat->manipulator_goto(BOTH, MANIPULATOR_LIFT_VERT);
-    strat->manipulator_goto(BOTH, MANIPULATOR_SCALE_INTERMEDIATE);
+    strat->manipulator_goto(BOTH, MANIPULATOR_STORE_FRONT_0);
+    state.arms_are_deployed = false;
 
     state.puck_available[puck_id_left] = false;
     state.puck_available[puck_id_right] = false;

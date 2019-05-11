@@ -63,7 +63,6 @@ struct TakePuck : public goap::Action<RobotState> {
             state.right_has_puck = true;
             state.right_puck_color = pucks[puck_id].color;
         }
-        state.arms_are_deployed = true;
     }
 };
 
@@ -95,7 +94,6 @@ struct TakeTwoPucks : public goap::Action<RobotState> {
         state.right_has_puck = true;
         state.left_puck_color = pucks[puck_id_left].color;
         state.right_puck_color = pucks[puck_id_right].color;
-        state.arms_are_deployed = true;
     }
 };
 
