@@ -27,7 +27,7 @@ struct IndexArms : public goap::Action<RobotState> {
 struct RetractArms : public goap::Action<RobotState> {
     bool can_run(const RobotState& state)
     {
-        return state.arms_are_indexed;
+        return state.arms_are_indexed && !state.has_goldonium;
     }
 
     void plan_effects(RobotState& state)
