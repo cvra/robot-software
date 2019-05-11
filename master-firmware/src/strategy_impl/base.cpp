@@ -97,6 +97,9 @@ bool strategy_goto_avoid(strategy_context_t* strat, int x_mm, int y_mm, int a_de
     } else if (end_reason == TRAJ_END_COLLISION) {
         strategy_hardstop_robot(strat);
         WARNING("Stopping robot because collision detected");
+    } else if (end_reason == TRAJ_END_ALLY_NEAR) {
+        strategy_hardstop_robot(strat);
+        WARNING("Stopping robot because ally to close");
     } else if (end_reason == TRAJ_END_TIMER) {
         strategy_stop_robot(strat);
         WARNING("Stopping robot because game has ended !");
