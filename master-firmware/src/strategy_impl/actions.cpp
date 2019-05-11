@@ -255,6 +255,12 @@ bool PutGoldoniumInScale::execute(RobotState& state)
 {
     strat->log("Goldenium to the scale !");
 
+    if (!strat->puck_is_picked(RIGHT)) {
+        strat->log("\tOups, I lied, I don't have a puck...");
+        strat->gripper_set(RIGHT, GRIPPER_OFF);
+        return false;
+    }
+
     if (!strat->goto_xya(strat, MIRROR_X(strat->color, 1330), 1359, MIRROR_A(strat->color, 255))) {
         return false;
     }
@@ -300,25 +306,15 @@ bool StockPuckInStorage::execute(RobotState& state)
         return false;
     }
 
-    if (side == LEFT) {
-        state.left_has_puck = false;
-    } else {
-        state.right_has_puck = false;
-    }
-
-    if (!strat->puck_is_picked(side)) {
-        strat->log("\tOups, I lost the puck on my way to the storage...");
-        strat->gripper_set(side, GRIPPER_OFF);
-        return true;
-    }
-
     strat->gripper_set(side, GRIPPER_RELEASE);
     strat->wait_ms(200);
     strat->gripper_set(side, GRIPPER_OFF);
 
     if (side == LEFT) {
+        state.left_has_puck = false;
         state.left_storage[storage_id] = state.left_puck_color;
     } else {
+        state.right_has_puck = false;
         state.right_storage[storage_id] = state.right_puck_color;
     }
     return true;
@@ -328,6 +324,12 @@ bool PutPuckInScale::execute(RobotState& state)
 {
     strat->log("Putting puck in scale !");
     strat->log((side == LEFT) ? "\tUsing left arm" : ((side == RIGHT) ? "\tUsing right arm" : "\tUsing both arms"));
+
+    if (!strat->puck_is_picked(side)) {
+        strat->log("\tOups, I lied, I don't have a puck...");
+        strat->gripper_set(side, GRIPPER_OFF);
+        return false;
+    }
 
     if (!strat->goto_xya(strat, MIRROR_X(strat->color, 1330), 1359, MIRROR_A(strat->color, 255))) {
         return false;
@@ -364,6 +366,12 @@ bool PutPuckInScale::execute(RobotState& state)
 bool PutPuckInAccelerator::execute(RobotState& state)
 {
     strat->log("Putting puck in accelerator !");
+
+    if (!strat->puck_is_picked(side)) {
+        strat->log("\tOups, I lied, I don't have a puck...");
+        strat->gripper_set(side, GRIPPER_OFF);
+        return false;
+    }
 
     float x = MIRROR_X(strat->color, 1900) + MIRROR_ARM(side, 55);
     if (!strat->goto_xya(strat, x, 300, MIRROR_A(strat->color, 90))) {
