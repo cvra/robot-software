@@ -378,13 +378,13 @@ bool PutPuckInAccelerator::execute(RobotState& state)
 {
     strat->log("Putting puck in accelerator !");
 
-    float x = 1900 + MIRROR_ARM(side, 50);
-    if (!strat->goto_xya(strat, MIRROR_X(strat->color, x), 300, MIRROR_A(strat->color, 90))) {
+    float x = MIRROR_X(strat->color, 1900) + MIRROR_ARM(side, 55);
+    if (!strat->goto_xya(strat, x, 300, MIRROR_A(strat->color, 90))) {
         return false;
     }
     state.arms_are_deployed = true;
     strat->manipulator_goto(side, MANIPULATOR_PUT_ACCELERATOR);
-    if (!strat->goto_xya(strat, MIRROR_X(strat->color, x), 180, MIRROR_A(strat->color, 90))) {
+    if (!strat->goto_xya(strat, x, 180, MIRROR_A(strat->color, 90))) {
         return false;
     }
     strat->manipulator_goto(side, MANIPULATOR_PUT_ACCELERATOR_DOWN);
