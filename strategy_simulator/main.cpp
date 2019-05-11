@@ -41,8 +41,6 @@ int count_score(const RobotState& state)
     score += score_count_classified_atoms(state);
     score += score_count_accelerator(state);
     score += score_count_goldenium(state);
-    score += score_count_experiment(state);
-    score += score_count_electron(state);
     score += score_count_scale(state);
     return score;
 }
