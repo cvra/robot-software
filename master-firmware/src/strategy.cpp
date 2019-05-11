@@ -244,6 +244,7 @@ void strategy_order_play_game(strategy_context_t* ctx, RobotState& state)
                 break;
             }
         }
+        strategy_goto_avoid(strat, 1500, 600, 0, TRAJ_FLAGS_ALL);
         strategy_wait_ms(10);
     }
     strategy_shutdown_endgame();
