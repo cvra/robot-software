@@ -111,11 +111,8 @@ const int MAX_GOAP_PATH_LEN = 10;
     RetractArms retract_arms(ctx);                      \
     TakeTwoPucks take_two_pucks(ctx);                   \
     TakePuck take_pucks_right[] = {                     \
-        {ctx, 3, RIGHT},                                \
         {ctx, 4, RIGHT},                                \
-        {ctx, 5, RIGHT},                                \
         {ctx, 6, RIGHT},                                \
-        {ctx, 7, RIGHT},                                \
         {ctx, 8, RIGHT},                                \
     };                                                  \
     TakePuck take_pucks_left[] = {                      \
@@ -151,9 +148,6 @@ const int MAX_GOAP_PATH_LEN = 10;
         &take_pucks_right[0],                           \
         &take_pucks_right[1],                           \
         &take_pucks_right[2],                           \
-        &take_pucks_right[3],                           \
-        &take_pucks_right[4],                           \
-        &take_pucks_right[5],                           \
         &take_pucks_left[0],                            \
         &take_pucks_left[1],                            \
         &take_pucks_left[2],                            \
