@@ -373,7 +373,7 @@ bool PutPuckInAccelerator::execute(RobotState& state)
         return false;
     }
 
-    float x = MIRROR_X(strat->color, 1900) + MIRROR_ARM(side, 55);
+    float x = MIRROR_X(strat->color, 1900) + MIRROR_ARM(side, 50);
     if (!strat->goto_xya(strat, x, 300, MIRROR_A(strat->color, 90))) {
         return false;
     }
