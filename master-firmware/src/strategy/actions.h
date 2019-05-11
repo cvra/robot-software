@@ -131,7 +131,8 @@ struct DepositPuck : public goap::Action<RobotState> {
 struct LaunchAccelerator : public goap::Action<RobotState> {
     bool can_run(const RobotState& state)
     {
-        return state.puck_available[12] && !state.arms_are_deployed;
+        bool arms_are_free = !state.arms_are_deployed && !state.left_has_puck && !state.right_has_puck;
+        return state.puck_available[12] && arms_are_free;
     }
 
     void plan_effects(RobotState& state)
