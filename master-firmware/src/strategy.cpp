@@ -244,7 +244,7 @@ void strategy_order_play_game(strategy_context_t* ctx, RobotState& state)
                 break;
             }
         }
-        strategy_goto_avoid(ctx, 1500, 600, 0, TRAJ_FLAGS_ALL);
+        strategy_goto_avoid(ctx, MIRROR_X(ctx->color, 1500), 600, 0, TRAJ_FLAGS_ALL);
         strategy_wait_ms(10);
     }
     strategy_shutdown_endgame();
@@ -325,7 +325,7 @@ void strategy_chaos_play_game(strategy_context_t* ctx, RobotState& state)
                 break;
             }
         }
-
+        strategy_goto_avoid(ctx, MIRROR_X(ctx->color, 800), 1200, 0, TRAJ_FLAGS_ALL);
         strategy_wait_ms(10);
     }
     strategy_shutdown_endgame();
