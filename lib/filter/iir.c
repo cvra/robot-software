@@ -1,7 +1,7 @@
 #include <math.h>
 #include <string.h>
 
-#include "iir.h"
+#include "filter/iir.h"
 
 /** IIR filter
  *
