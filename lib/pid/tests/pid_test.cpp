@@ -1,7 +1,7 @@
 #include "CppUTest/TestHarness.h"
 
 extern "C" {
-#include "../pid.h"
+#include "pid/pid.h"
 }
 
 TEST_GROUP (PIDTestGroup) {
