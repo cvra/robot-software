@@ -5,7 +5,6 @@ depends:
     - serial-datagram
     - parameter
     - nanopb
-    - simplerpc
     - pid
     - arm-cortex-tools
     - timestamp
