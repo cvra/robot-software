@@ -31,7 +31,6 @@ target.arm:
     - ../motor-control-firmware/src/uavcan/uavcan_streams.cpp
     - ../motor-control-firmware/src/libstubs.cpp
     - ../motor-control-firmware/src/stream.c
-    - ../motor-control-firmware/src/parameter_listener.c
     - ../motor-control-firmware/src/parameter_port.c
     - ../motor-control-firmware/../lib/can-bootloader/config.c
 
