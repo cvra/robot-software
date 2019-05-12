@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <math.h>
-#include "pid.h"
+#include "pid/pid.h"
 
 void pid_init(pid_ctrl_t* pid)
 {

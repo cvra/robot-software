@@ -89,3 +89,4 @@ add_library(uavcan_linux INTERFACE)
 target_include_directories(uavcan_linux INTERFACE uavcan/libuavcan_drivers/linux/include/)
 
 add_subdirectory(test-runner)
+add_subdirectory(pid)
