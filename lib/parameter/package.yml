@@ -4,10 +4,10 @@ source:
     - parameter_print.c
 
 depends:
-    - cmp_mem_access:
-        fork: stapelzeiger
+    - cmp_mem_access
     - test-runner
     - cmp
+    - cmp_mem_access
 
 tests:
     - tests/parameter_test.cpp

@@ -1,6 +1,6 @@
 #include "CppUTest/TestHarness.h"
-#include "../parameter.h"
-#include "../parameter_print.h"
+#include "parameter/parameter.h"
+#include "parameter/parameter_print.h"
 
 static int outbuffer_pos;
 static char outbuffer[1000];

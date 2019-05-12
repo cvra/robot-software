@@ -1,7 +1,7 @@
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
-#include "../parameter.h"
-#include "../parameter_msgpack.h"
+#include "parameter/parameter.h"
+#include "parameter/parameter_msgpack.h"
 #include <cmp_mem_access/cmp_mem_access.h>
 #include <cmp/cmp.h>
 #include <string>
