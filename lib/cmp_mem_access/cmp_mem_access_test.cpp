@@ -1,5 +1,5 @@
 #include "CppUTest/TestHarness.h"
-#include "cmp_mem_access.h"
+#include "cmp_mem_access/cmp_mem_access.h"
 #include "cmp/cmp.h"
 
 TEST_GROUP (CMPMemAccess) {

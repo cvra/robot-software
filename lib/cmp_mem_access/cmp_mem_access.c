@@ -1,5 +1,5 @@
 #include <string.h>
-#include "cmp_mem_access.h"
+#include "cmp_mem_access/cmp_mem_access.h"
 
 static bool cmp_mem_reader(struct cmp_ctx_s* ctx, void* data, size_t len)
 {
