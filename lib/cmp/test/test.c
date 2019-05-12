@@ -9,7 +9,7 @@
 #include "utils.h"
 #include "buf.h"
 
-#include "cmp.h"
+#include "cmp/cmp.h"
 
 #ifdef __GNUC__
 static void error_printf(const char* msg, ...)
