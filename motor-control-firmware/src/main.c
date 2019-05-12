@@ -15,7 +15,6 @@
 #include "bootloader_config.h"
 #include "uavcan/uavcan_node.h"
 #include "index.h"
-#include "parameter_listener.h"
 #include "main.h"
 
 BaseSequentialStream* ch_stdout;
@@ -136,7 +135,6 @@ int main(void)
 
     index_init();
 
-    parameter_listener_start(ch_stdout);
     chThdCreateStatic(led_thread_wa, sizeof(led_thread_wa), LOWPRIO, led_thread, NULL);
 
     static struct uavcan_node_arg node_arg;
