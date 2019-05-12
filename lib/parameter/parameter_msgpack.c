@@ -1,7 +1,7 @@
 #include <string.h>
 #include <cmp_mem_access/cmp_mem_access.h>
-#include "parameter_port.h"
-#include "parameter_msgpack.h"
+#include "parameter/parameter_port.h"
+#include "parameter/parameter_msgpack.h"
 
 static int discard_msgpack_element(cmp_object_t* obj,
                                    cmp_ctx_t* cmp,

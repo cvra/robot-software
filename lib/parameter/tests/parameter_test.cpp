@@ -1,6 +1,6 @@
 #include "CppUTest/TestHarness.h"
-#include "../parameter.h"
-#include "../parameter_port.h"
+#include "parameter/parameter.h"
+#include "parameter/parameter_port.h"
 #include <cstdlib>
 
 void parameter_port_lock(void)

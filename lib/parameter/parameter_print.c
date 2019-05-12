@@ -1,5 +1,5 @@
-#include "parameter.h"
-#include "parameter_print.h"
+#include "parameter/parameter.h"
+#include "parameter/parameter_print.h"
 
 #define MALLOC_FAILED_WARNING "# warning: malloc failed during serialization!"
 
