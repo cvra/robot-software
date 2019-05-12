@@ -14,7 +14,6 @@
 #include "bootloader_config.h"
 #include "uavcan/uavcan_node.h"
 #include "index.h"
-#include "uart_stream.h"
 #include "parameter_listener.h"
 
 BaseSequentialStream* ch_stdout;
