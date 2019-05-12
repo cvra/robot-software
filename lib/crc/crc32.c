@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include <stdlib.h>
-#include "crc32.h"
+#include "crc/crc32.h"
 
 #define CRC32_POLYNOMIAL 0xEDB88320 // bit reversed 0x04C11DB7
 
