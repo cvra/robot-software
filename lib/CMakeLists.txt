@@ -87,3 +87,5 @@ target_include_directories(uavcan PUBLIC ${DSDLC_OUTPUT})
 
 add_library(uavcan_linux INTERFACE)
 target_include_directories(uavcan_linux INTERFACE uavcan/libuavcan_drivers/linux/include/)
+
+add_subdirectory(test-runner)
