@@ -91,3 +91,4 @@ target_include_directories(uavcan_linux INTERFACE uavcan/libuavcan_drivers/linux
 add_subdirectory(test-runner)
 add_subdirectory(pid)
 add_subdirectory(filter)
+add_subdirectory(cmp)
