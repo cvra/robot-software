@@ -38,7 +38,6 @@ target.arm:
 depends:
     - chibios-syscalls
     - pid
-    - serial-datagram
     - cmp_mem_access
     - version
     - parameter_flash_storage
