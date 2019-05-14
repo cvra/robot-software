@@ -7,16 +7,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   
-  <link rel="shortcut icon" href="./img/favicon.ico">
-  <title>CVRA Robot Software</title>
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>Positioning system - CVRA Robot Software</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
-  <link rel="stylesheet" href="./css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="./css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
   
-  <script src="./js/jquery-2.1.1.min.js" defer></script>
-  <script src="./js/modernizr-2.8.3.min.js" defer></script>
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Positioning system";
+    var mkdocs_page_input_path = "can/positioning.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../../js/modernizr-2.8.3.min.js" defer></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
   <script>hljs.initHighlightingOnLoad();</script> 
   
@@ -29,9 +36,9 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
       <div class="wy-side-nav-search">
-        <a href="./." class="icon icon-home"> CVRA Robot Software</a>
+        <a href="../.." class="icon icon-home"> CVRA Robot Software</a>
         <div role="search">
-  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
   </form>
 </div>
@@ -43,7 +50,7 @@
           
             <li class="toctree-l1">
 		
-    <a class="" href="./.">Home</a>
+    <a class="" href="../..">Home</a>
 	    </li>
           
             <li class="toctree-l1">
@@ -52,31 +59,31 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="./can/intro/">CAN Ecosystem</a>
+    <a class="" href="../intro/">CAN Ecosystem</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="./can/motor/">Motor board</a>
+    <a class="" href="../motor/">Motor board</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="./can/io/">IO board</a>
+    <a class="" href="../io/">IO board</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="./can/sensor/">Sensor board</a>
+    <a class="" href="../sensor/">Sensor board</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="./can/beacon/">Beacon board</a>
+    <a class="" href="../beacon/">Beacon board</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="./can/adapter/">CAN USB adapter</a>
+    <a class="" href="../adapter/">CAN USB adapter</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="./can/bootloader/">CAN bootloader</a>
+    <a class="" href="../bootloader/">CAN bootloader</a>
                 </li>
     </ul>
 	    </li>
@@ -85,9 +92,15 @@
 		
     <span class="caption-text">Systems</span>
     <ul class="subnav">
-                <li class="">
+                <li class=" current">
                     
-    <a class="" href="./can/positioning/">Positioning system</a>
+    <a class="current" href="./">Positioning system</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l3"><a href="#positioning-system">Positioning system</a></li>
+    
+
+    </ul>
                 </li>
     </ul>
 	    </li>
@@ -102,7 +115,7 @@
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="./.">CVRA Robot Software</a>
+        <a href="../..">CVRA Robot Software</a>
       </nav>
 
       
@@ -110,9 +123,15 @@
         <div class="rst-content">
           <div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href="./.">Docs</a> &raquo;</li>
+    <li><a href="../..">Docs</a> &raquo;</li>
     
+      
+        
+          <li>Systems &raquo;</li>
+        
+      
     
+    <li>Positioning system</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -122,22 +141,31 @@
           <div role="main">
             <div class="section">
               
-
-  <h1 id="search">Search Results</h1>
-
-  <form id="content_search" action="search.html">
-    <span role="status" aria-live="polite" class="ui-helper-hidden-accessible"></span>
-    <input name="q" id="mkdocs-search-query" type="text" class="search_input search-query ui-autocomplete-input" placeholder="Search the Docs" autocomplete="off" autofocus title="Type search term here">
-  </form>
-
-  <div id="mkdocs-search-results" class="search-results">
-    Searching...
-  </div>
-
-
+                <h1 id="positioning-system">Positioning system</h1>
+<p>Using our <a href="../beacon/">beacon board</a>, we can build a positionning system.
+To do so, we will need a few fixed anchors whose positions are known.
+Then, we can use a moving tag that measures its distance to the anchors.
+Finally, a Kalman filter fuses those measurements into an absolute position.
+This principle is similar to the operation of GPS receivers.</p>
+<p><img alt="Positioning system diagram" src="../images/positioning_diagram.png" /></p>
+<p>We tested this system both indoor and outdoor, on small (3mx2m) and larger (20mx20m) maps.
+It provides the position within 5 cm accuracy, at up to 50 Hz when using a single tag.
+We noticed that having 4 fixed anchors conditions the positioning better when using a non-coplanar constellation.</p>
+<p>This system is not too expensive compared to similar solutions.
+To get a 3D position we need 4 anchors and one tag per robot.
+Each board is 50$, for a total cost of 250$.</p>
+<p>For more information see the <a href="https://github.com/cvra/robot-software/tree/master/uwb-beacon-firmware/doc/report.pdf">technical report</a>.</p>
+              
             </div>
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="../bootloader/" class="btn btn-neutral" title="CAN bootloader"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>
@@ -161,12 +189,14 @@
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
+        <span><a href="../bootloader/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
       
     </span>
 </div>
-    <script>var base_url = '.';</script>
-    <script src="./js/theme.js" defer></script>
-      <script src="./search/main.js" defer></script>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
 
 </body>
 </html>

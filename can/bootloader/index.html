@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>CAN bootloader - CVRA Robot Software</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "CAN bootloader";
+    var mkdocs_page_input_path = "can/bootloader.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> CVRA Robot Software</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">CAN</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../intro/">CAN Ecosystem</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../motor/">Motor board</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../io/">IO board</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../sensor/">Sensor board</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../beacon/">Beacon board</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../adapter/">CAN USB adapter</a>
+                </li>
+                <li class=" current">
+                    
+    <a class="current" href="./">CAN bootloader</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l3"><a href="#can-bootloader">CAN bootloader</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l4" href="#links">Links</a></li>
+        
+        </ul>
+    
+
+    </ul>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Systems</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../positioning/">Positioning system</a>
+                </li>
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">CVRA Robot Software</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>CAN &raquo;</li>
+        
+      
+    
+    <li>CAN bootloader</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="can-bootloader">CAN bootloader</h1>
+<p>The bootloader is a general purpose bootloader, that we use on all our CAN boards.</p>
+<p>It allows us to flash them with application firmwares over CAN, thus removing the need to intervene directly on the boards (via debugger).
+And it stores a small config in the microcontroller's flash that makes it easily trackable (ID, board type).</p>
+<p>Its main features are:</p>
+<ul>
+<li>Firmware flashing over CAN, without intervention on the board directly.</li>
+<li>Firmware flashing is fast, a typical firmware (few hundred kilobytes) is written in a few seconds over a 1Mbps CAN interface.</li>
+<li>Parallel firmware flashing (using multicast) when several boards are flashed with the same firmware.</li>
+<li>Board tracking through small config containing ID, name, board type, and number of times the flash was erased.</li>
+<li>On power up, it waits for a few seconds for the user to input commands before jumping to the application.</li>
+<li>Application code is checked by CRC at boot, invalid applications are not loaded.</li>
+</ul>
+<p>Currently supported platforms are:</p>
+<ul>
+<li>All our boards at CVRA: motor, IO, sensor, and beacon boards.</li>
+<li>ST Nucleo STM32F103RB board</li>
+<li>ST Nucleo STM32F334R8 board</li>
+<li>Olimex E407 board (with STM32F407 onboard)</li>
+</ul>
+<h2 id="links">Links</h2>
+<ul>
+<li><a href="https://github.com/cvra/can-bootloader">Bootloader source code</a></li>
+<li><a href="https://github.com/cvra/can-bootloader/tree/master/platform">Supported platforms</a></li>
+</ul>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../positioning/" class="btn btn-neutral float-right" title="Positioning system">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../adapter/" class="btn btn-neutral" title="CAN USB adapter"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../adapter/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../positioning/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+
+</body>
+</html>
