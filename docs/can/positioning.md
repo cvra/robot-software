@@ -1,6 +1,6 @@
 # Positioning system
 
-Using our [beacon board](./beacon.html), we can build a positionning system.
+Using our [beacon board](./beacon.md), we can build a positionning system.
 To do so, we will need a few fixed anchors whose positions are known.
 Then, we can use a moving tag that measures its distance to the anchors.
 Finally, a Kalman filter fuses those measurements into an absolute position.

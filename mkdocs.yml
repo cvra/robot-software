@@ -2,3 +2,13 @@ site_name: CVRA Robot Software
 theme: readthedocs
 nav:
   - Home: index.md
+  - CAN:
+      - 'CAN Ecosystem': can/intro.md
+      - can/motor.md
+      - can/io.md
+      - can/sensor.md
+      - can/beacon.md
+      - can/adapter.md
+      - can/bootloader.md
+  - Systems:
+      - can/positioning.md
