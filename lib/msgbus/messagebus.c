@@ -1,4 +1,4 @@
-#include "messagebus.h"
+#include "msgbus/messagebus.h"
 #include <string.h>
 
 static messagebus_topic_t* topic_by_name(messagebus_t* bus, const char* name)
