@@ -1,0 +1,4 @@
+site_name: CVRA Robot Software
+theme: readthedocs
+nav:
+  - Home: index.md
