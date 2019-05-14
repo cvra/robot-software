@@ -1,292 +1,181 @@
-<!DOCTYPE HTML>
-<html lang="en" class="sidebar-visible no-js">
-    <head>
-        <!-- Book generated using mdBook -->
-        <meta charset="UTF-8">
-        <title>Introduction - CVRA's Robotics CAN Ecosystem</title>
-        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="theme-color" content="#ffffff" />
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="None">
+  
+  <link rel="shortcut icon" href="img/favicon.ico">
+  <title>Home - CVRA Robot Software</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
-        <link rel="shortcut icon" href="favicon.png">
-        <link rel="stylesheet" href="css/variables.css">
-        <link rel="stylesheet" href="css/general.css">
-        <link rel="stylesheet" href="css/chrome.css">
-        <link rel="stylesheet" href="css/print.css" media="print">
+  <link rel="stylesheet" href="css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Home";
+    var mkdocs_page_input_path = "index.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="js/jquery-2.1.1.min.js" defer></script>
+  <script src="js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
 
-        <!-- Fonts -->
-        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
-        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+<body class="wy-body-for-nav" role="document">
 
-        <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" href="highlight.css">
-        <link rel="stylesheet" href="tomorrow-night.css">
-        <link rel="stylesheet" href="ayu-highlight.css">
+  <div class="wy-grid-for-nav">
 
-        <!-- Custom theme stylesheets -->
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="." class="icon icon-home"> CVRA Robot Software</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href=".">Home</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#robot-software-stack">Robot software stack</a></li>
+    
+        <ul>
         
-
+            <li><a class="toctree-l3" href="#content">Content</a></li>
         
-    </head>
-    <body class="light">
-        <!-- Provide site root to javascript -->
-        <script type="text/javascript">var path_to_root = "";</script>
+            <li><a class="toctree-l3" href="#coding-style">Coding style</a></li>
+        
+        </ul>
+    
 
-        <!-- Work around some values being stored in localStorage wrapped in quotes -->
-        <script type="text/javascript">
-            try {
-                var theme = localStorage.getItem('mdbook-theme');
-                var sidebar = localStorage.getItem('mdbook-sidebar');
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
 
-                if (theme.startsWith('"') && theme.endsWith('"')) {
-                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
-                }
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
-                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
-                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
-                }
-            } catch (e) { }
-        </script>
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href=".">CVRA Robot Software</a>
+      </nav>
 
-        <!-- Set the theme before any content is loaded, prevents flash -->
-        <script type="text/javascript">
-            var theme;
-            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { } 
-            if (theme === null || theme === undefined) { theme = 'light'; }
-            document.body.className = theme;
-            document.querySelector('html').className = theme + ' js';
-        </script>
-
-        <!-- Hide / unhide sidebar before it is displayed -->
-        <script type="text/javascript">
-            var html = document.querySelector('html');
-            var sidebar = 'hidden';
-            if (document.body.clientWidth >= 1080) {
-                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
-                sidebar = sidebar || 'visible';
-            }
-            html.classList.remove('sidebar-visible');
-            html.classList.add("sidebar-" + sidebar);
-        </script>
-
-        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="intro.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><a href="presentation.html"><strong aria-hidden="true">2.</strong> Presentation</a></li><li><a href="boards.html"><strong aria-hidden="true">3.</strong> Boards</a></li><li><ol class="section"><li><a href="motor.html"><strong aria-hidden="true">3.1.</strong> Motor board</a></li><li><a href="io.html"><strong aria-hidden="true">3.2.</strong> IO board</a></li><li><a href="sensor.html"><strong aria-hidden="true">3.3.</strong> Sensor board</a></li><li><a href="beacon.html"><strong aria-hidden="true">3.4.</strong> Beacon board</a></li><li><a href="adapter.html"><strong aria-hidden="true">3.5.</strong> CAN USB adapter</a></li></ol></li><li><a href="systems.html"><strong aria-hidden="true">4.</strong> Systems</a></li><li><ol class="section"><li><a href="positioning.html"><strong aria-hidden="true">4.1.</strong> Positioning system</a></li></ol></li><li><a href="bootloader.html"><strong aria-hidden="true">5.</strong> CAN bootloader</a></li></ol>
-        </nav>
-
-        <div id="page-wrapper" class="page-wrapper">
-
-            <div class="page">
-                
-                <div id="menu-bar" class="menu-bar">
-                    <div id="menu-bar-sticky-container">
-                        <div class="left-buttons">
-                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
-                                <i class="fa fa-bars"></i>
-                            </button>
-                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
-                                <i class="fa fa-paint-brush"></i>
-                            </button>
-                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                                <li role="none"><button role="menuitem" class="theme" id="light">Light <span class="default">(default)</span></button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
-                            </ul>
-                            
-                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
-                                <i class="fa fa-search"></i>
-                            </button>
-                            
-                        </div>
-
-                        <h1 class="menu-title">CVRA's Robotics CAN Ecosystem</h1> 
-
-                        <div class="right-buttons">
-                            <a href="print.html" title="Print this book" aria-label="Print this book">
-                                <i id="print-button" class="fa fa-print"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                
-                <div id="search-wrapper" class="hidden">
-                    <form id="searchbar-outer" class="searchbar-outer">
-                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
-                    </form>
-                    <div id="searchresults-outer" class="searchresults-outer hidden">
-                        <div id="searchresults-header" class="searchresults-header"></div>
-                        <ul id="searchresults">
-                        </ul>
-                    </div>
-                </div>
-                
-
-                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
-                <script type="text/javascript">
-                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
-                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
-                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
-                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
-                    });
-                </script>
-
-                <div id="content" class="content">
-                    <main>
-                        <p><center>
-<h1>
-CVRA's Robotics CAN Ecosystem
-</h1>
-<span>
-<font size="4">
-<em>
-An open-source panoply of UAVCAN connected boards to enable smart<br>
-sensors and actuators for modular robotics development
-</em>
-</font>
-</span>
-</center></p>
-<div class="album">
-<div class="row">
-    <div class="large-6 columns container">
-        <a href="./motor.html">
-            <img src="./images/motor-board.jpg" class="image">
-            <div class="overlay">
-                <div class="text">Motor board</div>
-            </div>
-        </a>
-    </div>
-    <div class="large-6 columns container">
-        <a href="./io.html">
-            <img src="./images/io-board.jpg" class="image">
-            <div class="overlay">
-                <div class="text">IO board</div>
-            </div>
-        </a>
-    </div>
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Home</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
 </div>
-<div class="row">
-    <div class="large-6 columns container">
-        <a href="./sensor.html">
-            <img src="./images/sensor-board.jpg" class="image">
-            <div class="overlay">
-                <div class="text">Sensor board</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="robot-software-stack">Robot software stack</h1>
+<p><a href="https://travis-ci.org/cvra/robot-software"><img alt="Build Status" src="https://travis-ci.org/cvra/robot-software.svg?branch=master" /></a></p>
+<h2 id="content">Content</h2>
+<p>This repo contains all the software used on our robots:</p>
+<ul>
+<li><code>can-io-firmware</code> contains the firmware that runs on the <a href="http://www.cvra.ch/robot-software/io.html">IO board</a></li>
+<li><code>motor-control-firmware</code> contains the firmware that runs on the <a href="http://www.cvra.ch/robot-software/motor.html">motor board</a></li>
+<li><code>proximity-beacon-firmware</code> contains the firmware that runs on the proximity beacon, it's the same code as the motor board but with a different application that is tailored to the needs of our proximity beacon module</li>
+<li><code>master-firmware</code> contains the software that runs on the master board, it interfaces all the other boards over CAN and runs the robot's "intelligence".</li>
+<li><code>eurobot</code> contains documentation and cofiguration files specific to the Eurobot competition</li>
+<li><code>sensor-firmware</code> contains code running on the <a href="https://www.cvra.ch/robot-software/sensor.html">sensor board</a></li>
+<li><code>uwb-beacon-firmware</code> contains code and documentation that runs on the <a href="https://www.cvra.ch/robot-software/beacon.html">UWB beacon board</a></li>
+</ul>
+<p>Other important software components can be found in this repo:</p>
+<ul>
+<li><code>lib</code> contains all the libraries and building blocks we use on multiple boards, which includes:<ul>
+<li><code>lib/can-bootloader</code> the bootloader that allows us to update our boards (IO and motor) over CAN</li>
+<li><code>lib/ChibiOS</code> the RTOS/HAL we use on all our boards</li>
+<li><code>lib/uavcan</code> the CAN communication library we use on all our boards</li>
+<li><code>lib/error</code> a logging library</li>
+<li><code>lib/parameter</code> a library to create and manage configurations of boards</li>
+<li><code>lib/msgbus</code> a publish/subscribe library for inter thread communication</li>
+<li>and more.</li>
+</ul>
+</li>
+<li><code>tools</code> groups all tools we use to develop on the robot including:<ul>
+<li><code>tools/pid-tuner</code> a GUI to tune PID gains of motor boards over CAN, written using Python and Qt</li>
+<li><code>tools/studio</code> a set of introspection tools written in Python and Qt to debug our robots</li>
+</ul>
+</li>
+<li><code>uavcan_data_types</code> contains the custom message definitions (DSDL) for the UAVCAN communication protocol</li>
+<li><code>ci</code> groups scripts and Docker files for our continuous integration server</li>
+<li><code>user-guide</code> contains high-level documentation about software and electronics components used on our robots</li>
+</ul>
+<h2 id="coding-style">Coding style</h2>
+<p>We use <code>clang-format</code> (tested with version 7 or greater) to enforce proper source code formatting.
+You can use the <code>format-all.sh</code> script in the root directory to format the whole source tree.
+You can also use <code>clang-format -i --style=file src/foo.c</code> to format a particular file.
+Finally, some editors include support for <code>clang-format</code> through plugin, check for yourself.</p>
+              
             </div>
-        </a>
-    </div>
-    <div class="large-6 columns container">
-        <a href="./beacon.html">
-            <img src="./images/beacon-board.jpg" class="image">
-            <div class="overlay">
-                <div class="text">Beacon board</div>
-            </div>
-        </a>
-    </div>
-</div>
-<div class="row">
-    <div class="large-6 columns container">
-        <a href="./adapter.html">
-            <img src="./images/can-adapter.jpg" class="image">
-            <div class="overlay">
-                <div class="text">CAN adapter</div>
-            </div>
-        </a>
-    </div>
-    <div class="large-6 columns container">
-        <a href="./bootloader.html">
-            <img src="./images/bootloader.png" class="image">
-            <div class="overlay">
-                <div class="text">CAN bootloader</div>
-            </div>
-        </a>
-    </div>
-</div>
-</div>
-<style media="screen" type="text/css">
-.container {
-    position: relative;
-    width: 50%;
-    white-space: nowrap;
-    display: table-cell;
-    padding-right: 5px;
-}
+          </div>
+          <footer>
+  
 
-.image {
-    display: inline;
-    width: 100%;
-}
+  <hr/>
 
-.overlay {
-    position: absolute;
-    top: 0;
-    bottom: 5px;
-    left: 0;
-    right: 5px;
-    opacity: 0;
-    transition: .5s ease;
-    background-color: #264d73;
-}
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
 
-.container:hover .overlay {
-    opacity: 0.8;
-}
-
-.text {
-    color: white;
-    font-size: 24px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    -ms-transform: translate(-50%, -50%);
-    text-align: center;
-}
-</style>
-
-                    </main>
-
-                    <nav class="nav-wrapper" aria-label="Page navigation">
-                        <!-- Mobile navigation buttons -->
-                        
-
-                        
-
-                        <div style="clear: both"></div>
-                    </nav>
-                </div>
-            </div>
-
-            <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                
-
-                
-            </nav>
-
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
         </div>
+      </div>
 
-        
+    </section>
 
-        
+  </div>
 
-        
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+      
+    </span>
+</div>
+    <script>var base_url = '.';</script>
+    <script src="js/theme.js" defer></script>
+      <script src="search/main.js" defer></script>
 
-        
-        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
-        
-
-        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
-        <script src="book.js" type="text/javascript" charset="utf-8"></script>
-
-        <!-- Custom JS scripts -->
-        
-
-        
-
-    </body>
+</body>
 </html>
+
+<!--
+MkDocs version : 1.0.4
+Build Date UTC : 2019-05-14 21:55:30
+-->
