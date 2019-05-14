@@ -1,6 +1,9 @@
 project(cvra)
 cmake_minimum_required(VERSION 3.14)
 
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_CXX_STANDARD 14)
+
 # Generate a test exec given test sources and their dependencies
 # Called like cvra_add_test(TARGET foo_test SOURCES foo_test.cpp DEPENDENCIES foo_lib)
 function(cvra_add_test)
