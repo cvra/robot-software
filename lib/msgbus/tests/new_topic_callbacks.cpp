@@ -1,6 +1,6 @@
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
-#include "../messagebus.h"
+#include "msgbus/messagebus.h"
 
 TEST_GROUP (NewTopicCallback) {
     messagebus_t bus;

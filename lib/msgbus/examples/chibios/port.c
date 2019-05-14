@@ -1,5 +1,5 @@
 #include <ch.h>
-#include "../../messagebus.h"
+#include "msgbus/messagebus.h"
 
 void messagebus_lock_acquire(void* p)
 {
