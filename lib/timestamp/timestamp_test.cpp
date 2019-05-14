@@ -1,5 +1,5 @@
 #include "CppUTest/TestHarness.h"
-#include "timestamp.h"
+#include "timestamp/timestamp.h"
 
 TEST_GROUP (Timestamp) {
 };
