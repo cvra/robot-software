@@ -1,7 +1,7 @@
 #include <string.h>
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
-#include "../trace.h"
+#include "trace/trace.h"
 #include "trace_points.h"
 
 extern volatile struct trace_buffer_struct trace_buffer;
