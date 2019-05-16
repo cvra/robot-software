@@ -17,7 +17,7 @@ class PositionPage : public Page
 {
     GHandle button;
     GHandle page_title;
-    char msg[20];
+    char msg[30];
 
     void create_label(GHandle parent)
     {
