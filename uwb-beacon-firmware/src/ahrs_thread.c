@@ -51,10 +51,6 @@ static void ahrs_thd(void* p)
         imu_msg_t imu;
         messagebus_topic_wait(imu_topic, &imu, sizeof(imu));
 
-        madgwick_filter_update(&filter,
-                               imu.gyro.x, imu.gyro.y, imu.gyro.z,
-                               imu.acc.x, imu.acc.y, imu.acc.z,
-                               imu.mag.x, imu.mag.y, imu.mag.z);
 
         attitude_msg_t msg;
 

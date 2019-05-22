@@ -9,17 +9,18 @@ target_include_directories(parameter PUBLIC include)
 
 target_link_libraries(parameter
     cmp_mem_access
-    
     cmp
-    
     cmp_mem_access
     )
 
-add_library(parameter_port_dummy
-    tests/parameter_port_dummy.cpp
-)
 
-target_link_libraries(parameter_port_dummy parameter)
+if(NOT ${CMAKE_CROSSCOMPILING})
+    add_library(parameter_port_dummy
+        tests/parameter_port_dummy.cpp
+    )
+
+    target_link_libraries(parameter_port_dummy parameter)
+endif()
 
 
 cvra_add_test(TARGET parameter_test SOURCES 
