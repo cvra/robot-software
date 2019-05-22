@@ -88,4 +88,7 @@ REGION_ALIAS("HEAP_RAM", ram0);
 _config_start = ORIGIN(config);
 _config_end = ORIGIN(config) + LENGTH(config);
 
+__process_stack_size__ = 0x400;
+__main_stack_size__ = 0x400;
+
 INCLUDE rules.ld

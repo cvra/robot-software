@@ -45,6 +45,9 @@ static void imu_reader_thd(void* p)
     event_listener_t imu_int;
     chEvtRegisterMask(&imu_event, &imu_int, (eventmask_t)IMU_INTERRUPT_EVENT);
 
+    chRegSetThreadName("IMU");
+
+
     imu_init_hardware(&mpu);
 
     /* Creates the IMU topic */

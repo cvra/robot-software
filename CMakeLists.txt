@@ -3,20 +3,23 @@ cmake_minimum_required(VERSION 3.14)
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 14)
+enable_language(ASM)
 
-# Generate a test exec given test sources and their dependencies
-# Called like cvra_add_test(TARGET foo_test SOURCES foo_test.cpp DEPENDENCIES foo_lib)
-function(cvra_add_test)
-    set(options)
-    set(oneValueArgs TARGET)
-    set(multiValueArgs SOURCES DEPENDENCIES)
-    cmake_parse_arguments(TEST_EXECUTABLE "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
-    add_executable(${TEST_EXECUTABLE_TARGET} ${TEST_EXECUTABLE_SOURCES})
+# enable all useful warnings
+set(WARN_FLAGS "-Wall -Wextra -Wundef \
+    -Wduplicated-branches -Wduplicated-cond \
+    -Wlogical-op \
+    -Wnull-dereference \
+    -Wshadow \
+    ")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WARN_FLAGS} -Wstrict-prototypes")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARN_FLAGS}")
 
-    target_link_libraries(${TEST_EXECUTABLE_TARGET} ${TEST_EXECUTABLE_DEPENDENCIES} test-runner)
-    add_test(${TEST_EXECUTABLE_TARGET} ${TEST_EXECUTABLE_TARGET})
-endfunction()
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+
+include(cvra)
 
 enable_testing()
 
 add_subdirectory(lib)
+add_subdirectory(uwb-beacon-firmware)
