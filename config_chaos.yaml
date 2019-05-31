@@ -18,7 +18,7 @@ master:
     electron_uwb_mac: 42
     robot_size_x_mm: 260 # Robot diameter
     robot_alignment_length_mm: 135 # robot length from center to alignement border
-    opponent_size_x_mm_default: 400
+    opponent_size_x_mm_default: 500
     calibration_direction: 1 # calibration side is on the front
     odometry:
         external_encoder_ticks_per_mm: 162.974661726 # Computed 162.974661726

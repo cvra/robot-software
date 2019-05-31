@@ -76,7 +76,7 @@ static THD_FUNCTION(map_server_thd, arg)
                                          1000 * beacon_signal.range.range.distance,
                                          beacon_signal.range.angle,
                                          &x_opp, &y_opp);
-                map_update_opponent_obstacle(map, x_opp, y_opp, opponent_size * 1.25, robot_size);
+                map_update_opponent_obstacle(map, x_opp, y_opp, opponent_size, robot_size);
             } else {
                 map_update_opponent_obstacle(map, 0, 0, 0, 0); // reset opponent position
             }
