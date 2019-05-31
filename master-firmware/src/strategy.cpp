@@ -68,13 +68,43 @@ static void strategy_forward(void* ctx, int relative_distance_mm)
 static bool strategy_goto_xya(void* ctx, int x_mm, int y_mm, int a_deg)
 {
     strategy_context_t* strat = (strategy_context_t*)ctx;
-    return strategy_goto_avoid(strat, x_mm, y_mm, a_deg, TRAJ_FLAGS_ALL);
+
+    motion_planner_set_goal(x_mm, y_mm, a_deg);
+    auto end_reason_xy = trajectory_wait_for_end(TRAJ_FLAGS_ALL);
+
+    if (end_reason_xy == TRAJ_END_GOAL_REACHED) {
+        // wait again for rotation
+        strat->wait_ms(200);
+        auto end_reason_a = trajectory_wait_for_end(TRAJ_FLAGS_ALL);
+
+        return end_reason_a == TRAJ_END_GOAL_REACHED;
+    }
+    return false;
 }
 
 static bool strategy_goto_xya_ignore_opponent(void* ctx, int x_mm, int y_mm, int a_deg)
 {
     strategy_context_t* strat = (strategy_context_t*)ctx;
-    return strategy_goto_avoid(strat, x_mm, y_mm, a_deg, TRAJ_FLAGS_ALL_IGNORE_OPPONENT);
+
+    struct _map* map = map_server_map_lock_and_get();
+    map_server_enable_opponent(map, false);
+    map_server_map_release(map);
+
+    motion_planner_set_goal(x_mm, y_mm, a_deg);
+    auto end_reason_xy = trajectory_wait_for_end(TRAJ_FLAGS_ALL);
+
+    map = map_server_map_lock_and_get();
+    map_server_enable_opponent(map, true);
+    map_server_map_release(map);
+
+    if (end_reason_xy == TRAJ_END_GOAL_REACHED) {
+        // wait again for rotation
+        strat->wait_ms(200);
+        auto end_reason_a = trajectory_wait_for_end(TRAJ_FLAGS_ALL);
+
+        return end_reason_a == TRAJ_END_GOAL_REACHED;
+    }
+    return false;
 }
 
 static strategy_context_t strategy = {

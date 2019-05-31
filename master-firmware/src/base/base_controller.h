@@ -95,7 +95,7 @@ void position_manager_start(void);
 void trajectory_manager_start(void);
 
 void motion_planner_start(void);
-void motion_planner_set_goal(int x_mm, int y_mm);
+void motion_planner_set_goal(int x_mm, int y_mm, int a_deg);
 
 #ifdef __cplusplus
 }

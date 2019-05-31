@@ -274,10 +274,11 @@ static struct {
     int a_deg;
 } goal;
 
-void motion_planner_set_goal(int x_mm, int y_mm)
+void motion_planner_set_goal(int x_mm, int y_mm, int a_deg)
 {
     goal.x_mm = x_mm;
     goal.y_mm = y_mm;
+    goal.a_deg = a_deg;
 }
 
 static THD_FUNCTION(motion_planner_thd, arg)
@@ -306,6 +307,8 @@ static THD_FUNCTION(motion_planner_thd, arg)
         DEBUG("Path to (%d, %d) computed with %d points", goal.x_mm, goal.y_mm, num_points);
 
         if (num_points == 0) {
+            chThdSleepMilliseconds(200);
+            trajectory_a_abs(&robot.traj, goal.a_deg);
             NOTICE("Done!");
         } else if (num_points > 0) {
             trajectory_goto_xy_abs(&robot.traj, points[0].x, points[0].y);

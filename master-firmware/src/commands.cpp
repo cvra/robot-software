@@ -515,13 +515,14 @@ static void cmd_reset_timer(BaseSequentialStream* chp, int argc, char* argv[])
 
 static void cmd_motion_plan(BaseSequentialStream* chp, int argc, char* argv[])
 {
-    if (argc == 2) {
+    if (argc == 3) {
         int32_t x = atoi(argv[0]);
         int32_t y = atoi(argv[1]);
+        int32_t a = atoi(argv[2]);
 
-        motion_planner_set_goal(x, y);
+        motion_planner_set_goal(x, y, a);
     } else {
-        chprintf(chp, "Usage: plan x y\r\n");
+        chprintf(chp, "Usage: plan x y a\r\n");
     }
 }
 
