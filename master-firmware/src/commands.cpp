@@ -505,6 +505,14 @@ static void cmd_goto_avoid(BaseSequentialStream* chp, int argc, char* argv[])
     }
 }
 
+static void cmd_reset_timer(BaseSequentialStream* chp, int argc, char* argv[])
+{
+    (void)chp;
+    (void)argc;
+    (void)argv;
+    trajectory_game_timer_reset();
+}
+
 static void cmd_pid(BaseSequentialStream* chp, int argc, char* argv[])
 {
     if (argc == 2) {
@@ -1125,8 +1133,8 @@ static void cmd_beacon_calib(BaseSequentialStream* chp, int argc, char* argv[])
 
     messagebus_topic_wait(proximity_beacon_topic, &beacon_signal, sizeof(beacon_signal));
 
-    tx = x + r_meas*cosf(a + beacon_signal.range.angle);
-    ty = y + r_meas*sinf(a + beacon_signal.range.angle);
+    tx = x + r_meas * cosf(a + beacon_signal.range.angle);
+    ty = y + r_meas * sinf(a + beacon_signal.range.angle);
 
     chprintf(chp, "Target position [mm]: %5.1f, %5.1f\n", tx, ty);
 
@@ -1139,7 +1147,7 @@ static void cmd_beacon_calib(BaseSequentialStream* chp, int argc, char* argv[])
 
         dx = tx - position_get_x_float(&robot.pos);
         dy = ty - position_get_y_float(&robot.pos);
-        d = sqrt(dx*dx + dy*dy);
+        d = sqrt(dx * dx + dy * dy);
         r = 1000 * beacon_signal.range.range.distance;
 
         chprintf(chp, "%5.1f, %5.1f\n", d, r);
@@ -1491,4 +1499,5 @@ ShellCommand commands[] = {
     {"grip", cmd_grip},
     {"electron", cmd_electron},
     {"goal", cmd_goal},
+    {"reset_timer", cmd_reset_timer},
     {NULL, NULL}};
