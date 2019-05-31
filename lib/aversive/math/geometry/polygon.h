@@ -42,6 +42,14 @@ typedef struct _poly {
     int l; /**< Length of the array of points */
 } poly_t;
 
+/** Computes center of polygon
+ */
+point_t poly_center(poly_t* poly);
+
+/** Computes radius of polygon
+ */
+float poly_radius(poly_t* poly);
+
 /** Checks if a point belongs to a polygon
  * @param [in] *p Point to check
  * @param [in] *pol Polygon to check

@@ -43,6 +43,32 @@ static int32_t bbox_y1 = 0;
 static int32_t bbox_x2 = 100;
 static int32_t bbox_y2 = 100;
 
+point_t poly_center(poly_t* poly)
+{
+    point_t center = {0.f, 0.f};
+    for (int i = 0; i < poly->l; i++) {
+        center.x += poly->pts[i].x;
+        center.y += poly->pts[i].y;
+    }
+    center.x /= poly->l;
+    center.y /= poly->l;
+    return center;
+}
+
+float poly_radius(poly_t* poly)
+{
+    point_t center = poly_center(poly);
+    float radius = 0.f;
+    for (int i = 0; i < poly->l; i++) {
+        vect_t v;
+        v.x = center.x - poly->pts[i].x;
+        v.y = center.y - poly->pts[i].y;
+        radius += vect_norm(&v);
+    }
+    radius /= poly->l;
+    return radius;
+}
+
 void polygon_set_boundingbox(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 {
     bbox_x1 = x1;
