@@ -60,6 +60,10 @@ void trajectory_align_with_wall(void);
  */
 void trajectory_move_to(int32_t x_mm, int32_t y_mm, int32_t a_deg);
 
+/** Check if robot is currently inside given obstacle
+ */
+bool trajectory_robot_inside_obstacle(struct _robot* robot, poly_t* opponent);
+
 /** Check if current trajectory segment crosses the passed obstacle
  */
 bool trajectory_crosses_obstacle(struct _robot* robot, poly_t* opponent, point_t* intersection);

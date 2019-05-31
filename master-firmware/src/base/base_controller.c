@@ -15,6 +15,7 @@
 #include "rs_port.h"
 #include "base_controller.h"
 #include "map_server.h"
+#include "robot_helpers/trajectory_helpers.h"
 #include "protobuf/position.pb.h"
 
 #define BASE_CONTROLLER_STACKSIZE 1024
@@ -310,6 +311,10 @@ static THD_FUNCTION(motion_planner_thd, arg)
             trajectory_goto_xy_abs(&robot.traj, points[0].x, points[0].y);
         } else {
             WARNING("No path found!");
+            poly_t* opponent = map_get_opponent_obstacle(map, 0);
+            if (trajectory_robot_inside_obstacle(&robot, opponent)) {
+                WARNING("Inside opponent!");
+            }
         }
 
         map_server_map_release(map);

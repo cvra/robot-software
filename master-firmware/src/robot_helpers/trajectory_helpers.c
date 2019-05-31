@@ -125,6 +125,11 @@ static bool trajectory_is_cartesian(struct trajectory* traj)
     return traj->state == RUNNING_XY_START || traj->state == RUNNING_XY_ANGLE || traj->state == RUNNING_XY_ANGLE_OK || traj->state == RUNNING_XY_F_START || traj->state == RUNNING_XY_F_ANGLE || traj->state == RUNNING_XY_F_ANGLE_OK || traj->state == RUNNING_XY_B_START || traj->state == RUNNING_XY_B_ANGLE || traj->state == RUNNING_XY_B_ANGLE_OK;
 }
 
+bool trajectory_robot_inside_obstacle(struct _robot* robot, poly_t* opponent)
+{
+    return math_point_is_in_square(opponent, position_get_x_s16(&robot->pos), position_get_y_s16(&robot->pos));
+}
+
 bool trajectory_crosses_obstacle(struct _robot* robot, poly_t* opponent, point_t* intersection)
 {
     point_t current_position = {
@@ -151,8 +156,7 @@ bool trajectory_crosses_obstacle(struct _robot* robot, poly_t* opponent, point_t
     }
 
     uint8_t path_crosses_obstacle = is_crossing_poly(current_position, target_position, intersection, opponent);
-    bool current_pos_inside_obstacle =
-        math_point_is_in_square(opponent, position_get_x_s16(&robot->pos), position_get_y_s16(&robot->pos));
+    bool current_pos_inside_obstacle = trajectory_robot_inside_obstacle(robot, opponent);
 
     return path_crosses_obstacle == 1 || current_pos_inside_obstacle;
 }
