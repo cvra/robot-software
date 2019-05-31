@@ -150,15 +150,18 @@ bool TakeTwoPucks::execute(RobotState& state)
     if (strat->puck_is_picked(RIGHT)) {
         state.right_has_puck = true;
         state.right_puck_color = pucks[puck_id_right].color;
+    } else {
+        strat->gripper_set(RIGHT, GRIPPER_OFF);
     }
     if (strat->puck_is_picked(LEFT)) {
         state.left_has_puck = true;
         state.left_puck_color = pucks[puck_id_left].color;
+    } else {
+        strat->gripper_set(LEFT, GRIPPER_OFF);
     }
 
     // if no puck taken, fail!
     if (!state.right_has_puck && !state.left_has_puck) {
-        strat->gripper_set(BOTH, GRIPPER_OFF);
         return false;
     }
 
