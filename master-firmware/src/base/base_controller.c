@@ -314,6 +314,14 @@ static THD_FUNCTION(motion_planner_thd, arg)
             poly_t* opponent = map_get_opponent_obstacle(map, 0);
             if (trajectory_robot_inside_obstacle(&robot, opponent)) {
                 WARNING("Inside opponent!");
+
+                vect2_pol traj = trajectory_relative_motion_out_of_obstacle(&robot, opponent);
+
+                trajectory_a_rel(&robot.traj, traj.theta);
+                trajectory_wait_for_end(TRAJ_FLAGS_ROTATION);
+
+                trajectory_d_rel(&robot.traj, -(traj.r + 20));
+                trajectory_wait_for_end(TRAJ_FLAGS_SHORT_DISTANCE);
             }
         }
 

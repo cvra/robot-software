@@ -176,6 +176,26 @@ bool trajectory_is_on_collision_path(struct _robot* robot, int x, int y)
     return trajectory_crosses_obstacle(robot, &opponent, &intersection);
 }
 
+vect2_pol trajectory_relative_motion_out_of_obstacle(struct _robot* robot, poly_t* opponent)
+{
+    vect2_pol trajectory = {0, 0}; // mm & deg
+
+    point_t opponent_center = poly_center(opponent);
+    vect_t opponent_position = {opponent_center.x, opponent_center.y};
+    vect_t robot_position = {position_get_x_s16(&robot->pos), position_get_y_s16(&robot->pos)};
+    float robot_angle = position_get_a_deg_s16(&robot->pos);
+
+    float radius_2_opponent = poly_radius(opponent);
+    vect_t delta_robot_2_opponent = {opponent_position.x - robot_position.x, opponent_position.y - robot_position.y};
+    float robot_2_opponent = vect_norm(&delta_robot_2_opponent);
+    vect_t robot_heading = {100 * cosf(RADIANS(robot_angle)), 100 * sinf(RADIANS(robot_angle))};
+
+    trajectory.theta = DEGREES(vect_get_angle(&robot_heading, &delta_robot_2_opponent));
+    trajectory.r = radius_2_opponent - robot_2_opponent;
+
+    return trajectory;
+}
+
 void trajectory_set_mode_aligning(
     enum board_mode_t* robot_mode,
     struct trajectory* robot_traj,

@@ -6,6 +6,7 @@
 
 #include <aversive/trajectory_manager/trajectory_manager.h>
 #include <aversive/obstacle_avoidance/obstacle_avoidance.h>
+#include <aversive/math/vect2/vect2.h>
 #include "base/base_controller.h"
 
 #ifdef __cplusplus
@@ -72,6 +73,10 @@ bool trajectory_crosses_obstacle(struct _robot* robot, poly_t* opponent, point_t
     seen at position (x,y)
  */
 bool trajectory_is_on_collision_path(struct _robot* robot, int x, int y);
+
+/** Given that the robot is inside an obstacle, compute a polar trajectory to get out
+ */
+vect2_pol trajectory_relative_motion_out_of_obstacle(struct _robot* robot, poly_t* opponent);
 
 /** Prepare robot for aligning by settings its dynamics accordingly
  * ie. slower and less sensitive to collisions

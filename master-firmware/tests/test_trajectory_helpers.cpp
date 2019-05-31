@@ -308,6 +308,51 @@ TEST(CurrentTrajectoryCheck, DetectsCollisionIfPathIsCompletelyInsideObstacle)
     CHECK_TRUE(trajectory_is_on_collision_path(&robot, 250, 250));
 }
 
+TEST(CurrentTrajectoryCheck, ComputesMotionOutOfObstacleWhenBehind)
+{
+    robot.opponent_size = 400;
+
+    position_set(&robot.pos, 100, 100, 90);
+    set_opponent_position(250, 250);
+    float center_2_center = (250 - 100) * sqrtf(2);
+
+    vect2_pol traj = trajectory_relative_motion_out_of_obstacle(&robot, &opponent);
+
+    float radiuses = (robot.opponent_size + robot.robot_size) * sqrtf(2) / 2;
+    DOUBLES_EQUAL(radiuses - center_2_center, traj.r, 1e-3);
+    DOUBLES_EQUAL(45, traj.theta, 1e-3);
+}
+
+TEST(CurrentTrajectoryCheck, ComputesMotionOutOfObstacleWhenAhead)
+{
+    robot.opponent_size = 400;
+
+    position_set(&robot.pos, 400, 400, 90);
+    set_opponent_position(250, 250);
+    float center_2_center = (400 - 250) * sqrtf(2);
+
+    vect2_pol traj = trajectory_relative_motion_out_of_obstacle(&robot, &opponent);
+
+    float radiuses = (robot.opponent_size + robot.robot_size) * sqrtf(2) / 2;
+    DOUBLES_EQUAL(radiuses - center_2_center, traj.r, 1e-3);
+    DOUBLES_EQUAL(135, traj.theta, 1e-3);
+}
+
+TEST(CurrentTrajectoryCheck, ComputesMotionOutOfObstacleWhenAlreadyAligned)
+{
+    robot.opponent_size = 400;
+
+    position_set(&robot.pos, 400, 400, -135);
+    set_opponent_position(250, 250);
+    float center_2_center = (400 - 250) * sqrtf(2);
+
+    vect2_pol traj = trajectory_relative_motion_out_of_obstacle(&robot, &opponent);
+
+    float radiuses = (robot.opponent_size + robot.robot_size) * sqrtf(2) / 2;
+    DOUBLES_EQUAL(radiuses - center_2_center, traj.r, 1e-3);
+    DOUBLES_EQUAL(0, traj.theta, 1e-3);
+}
+
 TEST_GROUP (TrajectoryHasEnded) {
     messagebus_topic_t proximity_beacon_topic;
     messagebus_topic_t ally_position_topic;
