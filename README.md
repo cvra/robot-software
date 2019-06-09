@@ -30,6 +30,27 @@ Other important software components can be found in this repo:
 
 The [user guide](http://cvra.ch/robot-software) is generated using mdbook from [doc/user-guide](user-guide/user-guide)
 
+# Building with CMake
+
+To build one platform with cmake, for example here our UWB beacon board:
+
+```bash
+mkdir build-uwb && cd build-uwb
+cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/uwb-beacon.cmake
+make
+
+# The resulting firmware is at `uwb-beacon-firmware/uwb-beacon-firmware.elf`.
+```
+
+To build the unit tests for all the boards:
+
+```bash
+mkdir build
+cd build
+cmake ..
+make all test
+```
+
 # Coding style
 
 We use `clang-format` (tested with version 7 or greater) to enforce proper source code formatting.
