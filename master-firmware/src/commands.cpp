@@ -59,7 +59,7 @@ static char sc_histbuf[SHELL_MAX_HIST_BUFF];
 
 static ShellConfig shell_cfg = {
     NULL,
-    _shell_commands,
+    __shell_commands_start,
 #if SHELL_USE_HISTORY == TRUE
     sc_histbuf,
     sizeof(sc_histbuf),
