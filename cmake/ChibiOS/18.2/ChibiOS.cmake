@@ -3,7 +3,7 @@ IF(NOT ChibiOS_FIND_COMPONENTS)
     MESSAGE(STATUS "No ChibiOS components specified, using default: ${ChibiOS_FIND_COMPONENTS}")
 ENDIF()
 
-SET (CHIBIOS_COMPONENTS nil rt hal streams shell)
+SET (CHIBIOS_COMPONENTS nil rt hal streams shell cppwrappers)
 
 LIST(FIND ChibiOS_FIND_COMPONENTS nil ChibiOS_FIND_COMPONENTS_nil)
 LIST(FIND ChibiOS_FIND_COMPONENTS rt ChibiOS_FIND_COMPONENTS_rt)
@@ -79,6 +79,14 @@ SET (CHIBIOS_INCLUDES_shell
 set (CHIBIOS_SOURCES_shell
     os/various/shell/shell.c
     os/various/shell/shell_cmd.c
+)
+
+SET (CHIBIOS_INCLUDES_cppwrappers
+    os/various/cpp_wrappers
+)
+
+set (CHIBIOS_SOURCES_cppwrappers
+    os/various/cpp_wrappers/ch.cpp
 )
 
 MESSAGE(STATUS "RTOS sources: ")

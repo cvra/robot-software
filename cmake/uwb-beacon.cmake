@@ -59,6 +59,7 @@ set(CMAKE_MODULE_LINKER_FLAGS "${HARDWARE_FLAGS}" CACHE INTERNAL "module linker 
 set(CMAKE_SHARED_LINKER_FLAGS "${HARDWARE_FLAGS}" CACHE INTERNAL "shared linker flags")
 
 add_compile_definitions("CORTEX_USE_FPU=TRUE;THUMB")
+add_compile_definitions("UAVCAN_STM32_TIMER_NUMBER=2")
 
 # TODO: HSE Value -> Appears to be defined in board.h
 # TODO: #define chip types
