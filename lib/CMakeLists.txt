@@ -180,6 +180,18 @@ add_library(uavcan
 )
 
 target_include_directories(uavcan PUBLIC uavcan/libuavcan/include)
-target_compile_definitions(uavcan PUBLIC "UAVCAN_CPP_VERSION=UAVCAN_CPP11")
+target_compile_definitions(uavcan PUBLIC "UAVCAN_CPP_VERSION=UAVCAN_CPP11;UAVCAN_TOSTRING=0;UAVCAN_DEBUG=0")
 target_include_directories(uavcan PUBLIC ${DSDLC_OUTPUT})
 add_dependencies(uavcan dsdlc)
+
+if (${CMAKE_CROSSCOMPILING})
+    add_library(uavcan_stm32
+        uavcan/libuavcan_drivers/stm32/driver/src/uc_stm32_clock.cpp
+        uavcan/libuavcan_drivers/stm32/driver/src/uc_stm32_can.cpp
+        uavcan/libuavcan_drivers/stm32/driver/src/uc_stm32_thread.cpp
+    )
+    target_include_directories(uavcan_stm32 PUBLIC uavcan/libuavcan_drivers/stm32/driver/include)
+    target_compile_definitions(uavcan_stm32 PUBLIC "UAVCAN_STM32_CHIBIOS=1;UAVCAN_STM32_NUM_IFACES=1")
+
+    target_link_libraries(uavcan_stm32 uavcan chibios)
+endif()
