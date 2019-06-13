@@ -104,46 +104,49 @@ add_subdirectory(trace)
 add_library(Eigen INTERFACE)
 target_include_directories(Eigen INTERFACE eigen/)
 
-# TODO(antoinealb): I am not completely sure if this is the best way to
-# implement the import of the UAVCAN library into our build system. It appears
-# UAVCAN has some level of support for CMake but I have yet to investigate
-# this.
-
-# Build UAVCAN list
 set(DSDLC_INPUTS uavcan/dsdl/uavcan ../uavcan_data_types/cvra)
 set(DSDLC_OUTPUT ${CMAKE_BINARY_DIR}/dsdlc_generated)
 
-set(DSDLC_INPUT_FILES "")
-set(DSDLC_OUTPUT_HEADERS )
-foreach(DSDLC_INPUT ${DSDLC_INPUTS})
-    file(GLOB_RECURSE DSDLC_NEW_INPUT_FILES ${CMAKE_CURRENT_SOURCE_DIR} "${DSDLC_INPUT}/*.uavcan")
-    get_filename_component(DSDL_NAMESPACE ${DSDLC_INPUT} NAME_WE)
-    message(STATUS "UAVCAN namespace: ${DSDL_NAMESPACE}")
-    foreach(NEW_FILE ${DSDLC_NEW_INPUT_FILES})
-        get_filename_component(DSDLC_INPUT ${DSDLC_INPUT} ABSOLUTE)
-        file(RELATIVE_PATH NEW_FILE ${DSDLC_INPUT} ${NEW_FILE})
-        message(STATUS ${NEW_FILE})
-        string(REGEX REPLACE "\\.uavcan$" "" NEW_FILE ${NEW_FILE})
-        message(STATUS ${NEW_FILE})
-        string(REGEX REPLACE "[0-9]+\\." "" NEW_FILE ${NEW_FILE})
-        message(STATUS ${NEW_FILE})
-        set(NEW_FILE "${DSDLC_OUTPUT}/${DSDL_NAMESPACE}/${NEW_FILE}.hpp")
-        message(STATUS ${NEW_FILE})
-        list(APPEND DSDLC_OUTPUT_HEADERS ${NEW_FILE})
-    endforeach()
-    set(DSDLC_INPUT_FILES ${DSDLC_INPUT_FILES} ${DSDLC_NEW_INPUT_FILES})
+# Build list of UAVCAN inputs and outputs
+execute_process(
+    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/list_uavcan_dsdl.py ${DSDLC_INPUTS}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    OUTPUT_VARIABLE UAVCAN_FILES
+    RESULT_VARIABLE RETURN_VALUE
+)
+if (NOT RETURN_VALUE EQUAL 0)
+    message(FATAL_ERROR "Failed to get the dependencies (error ${RETURN_VALUE})")
+endif()
+
+execute_process(
+    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/list_uavcan_dsdl.py ${DSDLC_INPUTS} --output-dir ${DSDLC_OUTPUT}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    OUTPUT_VARIABLE UAVCAN_HEADERS
+    RESULT_VARIABLE RETURN_VALUE
+)
+if (NOT RETURN_VALUE EQUAL 0)
+    message(FATAL_ERROR "Failed to get the dependencies (error ${RETURN_VALUE})")
+endif()
+
+message(STATUS "Found the following UAVCAN files...")
+foreach(F ${UAVCAN_FILES})
+    message(STATUS ${F})
+endforeach()
+
+message(STATUS "Which generate the following headers...")
+foreach(F ${UAVCAN_HEADERS})
+    message(STATUS ${F})
 endforeach()
 
 
-
 add_custom_command(COMMAND ${PYTHON} uavcan/libuavcan/dsdl_compiler/libuavcan_dsdlc ${DSDLC_INPUTS} -O${DSDLC_OUTPUT}
-                   OUTPUT ${DSDLC_OUTPUT_HEADERS}
-                   DEPENDS ${DSDLC_INPUT_FILES}
-                   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                   COMMENT "Running dsdl compiler")
+    OUTPUT ${UAVCAN_HEADERS}
+    DEPENDS ${UAVCAN_FILES}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMENT "Running dsdl compiler")
 
-add_library(dsdlc INTERFACE)
-target_sources(dsdlc INTERFACE ${DSDLC_OUTPUT_HEADERS})
+add_custom_target(dsdlc DEPENDS ${UAVCAN_HEADERS})
+
 
 add_library(uavcan
     uavcan/libuavcan/src/driver/uc_can.cpp
@@ -173,9 +176,10 @@ add_library(uavcan
     uavcan/libuavcan/src/uc_data_type.cpp
     uavcan/libuavcan/src/uc_dynamic_memory.cpp
     uavcan/libuavcan/src/uc_error.cpp
+    ${UAVCAN_HEADERS}
 )
 
 target_include_directories(uavcan PUBLIC uavcan/libuavcan/include)
 target_compile_definitions(uavcan PUBLIC "UAVCAN_CPP_VERSION=UAVCAN_CPP11")
 target_include_directories(uavcan PUBLIC ${DSDLC_OUTPUT})
-target_link_libraries(uavcan dsdlc)
+add_dependencies(uavcan dsdlc)
