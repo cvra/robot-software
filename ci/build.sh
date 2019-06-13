@@ -21,44 +21,18 @@ export LDFLAGS="$CXXFLAGS -L $HOME/cpputest/lib/"
 
 case $BUILD_TYPE in
     tests)
-        pushd master-firmware
-        packager
-        make protoc
-        mkdir -p build
-        cd build
+        mkdir build
+        pushd build
         cmake ..
-        make check
-        popd
-
-        pushd motor-control-firmware
-        packager
-        mkdir -p build
-        cd build
-        cmake ..
-        make check
-        popd
-
-        pushd uwb-beacon-firmware
-        packager
-        mkdir -p build
-        cd build
-        cmake ..
-        make check
-        popd
-
+        make
+        make test
+        pop
         ;;
 
     build)
-        echo "build $PLATFORM"
-        pushd $PLATFORM
-        packager
-        make dsdlc
-
-        if [ "$PLATFORM" == "master-firmware" ]
-        then
-            make protoc
-        fi
-
+        mkdir build
+        pushd build
+        cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/${PLATFORM}.cmake  -G Ninja
         make
         popd
         ;;
