@@ -90,3 +90,5 @@ REGION_ALIAS("CCM_RAM", ram4);
 
 /* Generic rules inclusion.*/
 INCLUDE rules.ld
+
+INCLUDE shell_commands.ld

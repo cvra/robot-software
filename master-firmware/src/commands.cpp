@@ -49,8 +49,9 @@ extern "C" {
 #include "protobuf/sensors.pb.h"
 #include "protobuf/encoders.pb.h"
 #include "usbconf.h"
+#include "shell_commands.h"
 
-extern ShellCommand commands[];
+SHELL_COMMAND_END();
 
 #if SHELL_USE_HISTORY == TRUE
 static char sc_histbuf[SHELL_MAX_HIST_BUFF];
@@ -58,7 +59,7 @@ static char sc_histbuf[SHELL_MAX_HIST_BUFF];
 
 static ShellConfig shell_cfg = {
     NULL,
-    commands,
+    __shell_commands_start,
 #if SHELL_USE_HISTORY == TRUE
     sc_histbuf,
     sizeof(sc_histbuf),
@@ -81,7 +82,7 @@ void shell_spawn(BaseSequentialStream* stream)
     }
 }
 
-static void cmd_threads(BaseSequentialStream* chp, int argc, char* argv[])
+SHELL_COMMAND(threads, chp, argc, argv)
 {
     static const char* states[] = {CH_STATE_NAMES};
     thread_t* tp;
@@ -108,7 +109,7 @@ static void cmd_threads(BaseSequentialStream* chp, int argc, char* argv[])
     } while (tp != NULL);
 }
 
-static void cmd_stack(BaseSequentialStream* chp, int argc, char* argv[])
+SHELL_COMMAND(stack, chp, argc, argv)
 {
 #if (CH_DBG_FILL_THREADS != TRUE) || (CH_CFG_USE_REGISTRY != TRUE) || (CH_DBG_ENABLE_STACK_CHECK != TRUE)
 #error "Requires: CH_DBG_FILL_THREADS CH_CFG_USE_REGISTRY CH_DBG_ENABLE_STACK_CHECK"
@@ -144,7 +145,7 @@ static void cmd_stack(BaseSequentialStream* chp, int argc, char* argv[])
     }
 }
 
-static void cmd_ip(BaseSequentialStream* chp, int argc, char** argv)
+SHELL_COMMAND(ip, chp, argc, argv)
 {
     (void)argv;
     (void)argc;
@@ -162,7 +163,7 @@ static void cmd_ip(BaseSequentialStream* chp, int argc, char** argv)
     }
 }
 
-static void cmd_crashme(BaseSequentialStream* chp, int argc, char** argv)
+SHELL_COMMAND(crashme, chp, argc, argv)
 {
     (void)argv;
     (void)argc;
@@ -171,7 +172,7 @@ static void cmd_crashme(BaseSequentialStream* chp, int argc, char** argv)
     // ERROR("You asked for it!, uptime=%d ms", TIME_I2MS(chVTGetSystemTime()));
 }
 
-static void cmd_reboot(BaseSequentialStream* chp, int argc, char** argv)
+SHELL_COMMAND(reboot, chp, argc, argv)
 {
     (void)argv;
     (void)argc;
@@ -179,7 +180,7 @@ static void cmd_reboot(BaseSequentialStream* chp, int argc, char** argv)
     NVIC_SystemReset();
 }
 
-static void cmd_time(BaseSequentialStream* chp, int argc, char** argv)
+SHELL_COMMAND(time, chp, argc, argv)
 {
     (void)argv;
     (void)argc;
@@ -263,7 +264,7 @@ static void show_config_tree(BaseSequentialStream* out, parameter_namespace_t* n
     }
 }
 
-static void cmd_config_tree(BaseSequentialStream* chp, int argc, char** argv)
+SHELL_COMMAND(config_tree, chp, argc, argv)
 {
     parameter_namespace_t* ns;
     if (argc != 1) {
@@ -286,7 +287,7 @@ static void cmd_config_tree(BaseSequentialStream* chp, int argc, char** argv)
     show_config_tree(chp, ns, 0);
 }
 
-static void cmd_config_set(BaseSequentialStream* chp, int argc, char** argv)
+SHELL_COMMAND(config_set, chp, argc, argv)
 {
     parameter_t* param;
     int value_i;
@@ -345,7 +346,7 @@ static void cmd_config_set(BaseSequentialStream* chp, int argc, char** argv)
     }
 }
 
-static void cmd_node(BaseSequentialStream* chp, int argc, char** argv)
+SHELL_COMMAND(node, chp, argc, argv)
 {
     if (argc != 1) {
         chprintf(chp, "usage: node node_name.\r\n");
@@ -366,7 +367,7 @@ static void cmd_node(BaseSequentialStream* chp, int argc, char** argv)
     }
 }
 
-static void cmd_topics(BaseSequentialStream* chp, int argc, char* argv[])
+SHELL_COMMAND(topics, chp, argc, argv)
 {
     (void)argc;
     (void)argv;
@@ -378,7 +379,7 @@ static void cmd_topics(BaseSequentialStream* chp, int argc, char* argv[])
     }
 }
 
-static void cmd_encoders(BaseSequentialStream* chp, int argc, char* argv[])
+SHELL_COMMAND(encoders, chp, argc, argv)
 {
     (void)argc;
     (void)argv;
@@ -392,7 +393,8 @@ static void cmd_encoders(BaseSequentialStream* chp, int argc, char* argv[])
     chprintf(chp, "left: %ld\r\nright: %ld\r\n", values.left, values.right);
 }
 
-static void cmd_position(BaseSequentialStream* chp, int argc, char* argv[])
+/* position */
+SHELL_COMMAND(pos, chp, argc, argv)
 {
     (void)argc;
     (void)argv;
@@ -406,7 +408,8 @@ static void cmd_position(BaseSequentialStream* chp, int argc, char* argv[])
     chprintf(chp, "x: %f [mm]\r\ny: %f [mm]\r\na: %f [rad]\r\n", x, y, a);
 }
 
-static void cmd_position_reset(BaseSequentialStream* chp, int argc, char* argv[])
+/* position_reset */
+SHELL_COMMAND(pos_reset, chp, argc, argv)
 {
     if (argc == 3) {
         float x = atof(argv[0]);
@@ -421,7 +424,8 @@ static void cmd_position_reset(BaseSequentialStream* chp, int argc, char* argv[]
     }
 }
 
-static void cmd_ally_position(BaseSequentialStream* chp, int argc, char* argv[])
+/* ally_position */
+SHELL_COMMAND(ally_pos, chp, argc, argv)
 {
     (void)argc;
     (void)argv;
@@ -443,7 +447,8 @@ static void cmd_ally_position(BaseSequentialStream* chp, int argc, char* argv[])
     }
 }
 
-static void cmd_traj_forward(BaseSequentialStream* chp, int argc, char* argv[])
+/* traj_forward */
+SHELL_COMMAND(forward, chp, argc, argv)
 {
     if (argc == 1) {
         robot.mode = BOARD_MODE_ANGLE_DISTANCE;
@@ -462,7 +467,7 @@ static void cmd_traj_forward(BaseSequentialStream* chp, int argc, char* argv[])
     }
 }
 
-static void cmd_traj_rotate(BaseSequentialStream* chp, int argc, char* argv[])
+SHELL_COMMAND(rotate, chp, argc, argv)
 {
     if (argc == 1) {
         robot.mode = BOARD_MODE_ANGLE_DISTANCE;
@@ -477,7 +482,8 @@ static void cmd_traj_rotate(BaseSequentialStream* chp, int argc, char* argv[])
     }
 }
 
-static void cmd_traj_goto(BaseSequentialStream* chp, int argc, char* argv[])
+/* traj_goto */
+SHELL_COMMAND(goto, chp, argc, argv)
 {
     if (argc == 3) {
         int32_t x, y, a;
@@ -492,7 +498,7 @@ static void cmd_traj_goto(BaseSequentialStream* chp, int argc, char* argv[])
     }
 }
 
-static void cmd_goto_avoid(BaseSequentialStream* chp, int argc, char* argv[])
+SHELL_COMMAND(goto_avoid, chp, argc, argv)
 {
     if (argc == 3) {
         int32_t x = atoi(argv[0]);
@@ -505,7 +511,7 @@ static void cmd_goto_avoid(BaseSequentialStream* chp, int argc, char* argv[])
     }
 }
 
-static void cmd_reset_timer(BaseSequentialStream* chp, int argc, char* argv[])
+SHELL_COMMAND(reset_timer, chp, argc, argv)
 {
     (void)chp;
     (void)argc;
@@ -513,7 +519,7 @@ static void cmd_reset_timer(BaseSequentialStream* chp, int argc, char* argv[])
     trajectory_game_timer_reset();
 }
 
-static void cmd_pid(BaseSequentialStream* chp, int argc, char* argv[])
+SHELL_COMMAND(pid, chp, argc, argv)
 {
     if (argc == 2) {
         float kp, ki, kd, ilim;
@@ -542,7 +548,7 @@ static void cmd_pid(BaseSequentialStream* chp, int argc, char* argv[])
     }
 }
 
-static void cmd_pid_tune(BaseSequentialStream* chp, int argc, char* argv[])
+SHELL_COMMAND(pid_tune, chp, argc, argv)
 {
     (void)argc;
     (void)argv;
@@ -642,7 +648,8 @@ static void cmd_pid_tune(BaseSequentialStream* chp, int argc, char* argv[])
     }
 }
 
-static void cmd_blocking_detection_config(BaseSequentialStream* chp, int argc, char* argv[])
+/* blocking_detection_config */
+SHELL_COMMAND(bdconf, chp, argc, argv)
 {
     if (argc == 3) {
         uint32_t err_th = atoi(argv[1]);
@@ -657,7 +664,8 @@ static void cmd_blocking_detection_config(BaseSequentialStream* chp, int argc, c
     }
 }
 
-static void cmd_wheel_calibration(BaseSequentialStream* chp, int argc, char* argv[])
+/* wheel_calibration */
+SHELL_COMMAND(wheel_calib, chp, argc, argv)
 {
     int count;
     if (argc < 1) {
@@ -727,7 +735,8 @@ static void cmd_wheel_calibration(BaseSequentialStream* chp, int argc, char* arg
     chprintf(chp, "New wheel correction factors set\r\n");
 }
 
-static void cmd_track_calibration(BaseSequentialStream* chp, int argc, char* argv[])
+/* track_calibration */
+SHELL_COMMAND(track_calib, chp, argc, argv)
 {
     int count;
     if (argc < 1) {
@@ -782,7 +791,7 @@ static void cmd_track_calibration(BaseSequentialStream* chp, int argc, char* arg
     chprintf(chp, "New track set\r\n");
 }
 
-static void cmd_autopos(BaseSequentialStream* chp, int argc, char* argv[])
+SHELL_COMMAND(autopos, chp, argc, argv)
 {
     if (argc < 4) {
         chprintf(chp, "Usage: autopos {yellow|violet} x y a\r\n");
@@ -808,7 +817,7 @@ static void cmd_autopos(BaseSequentialStream* chp, int argc, char* argv[])
     strategy_auto_position(x, y, a, color);
 }
 
-static void cmd_motors(BaseSequentialStream* chp, int argc, char* argv[])
+SHELL_COMMAND(motors, chp, argc, argv)
 {
     (void)argc;
     (void)argv;
@@ -821,7 +830,7 @@ static void cmd_motors(BaseSequentialStream* chp, int argc, char* argv[])
     }
 }
 
-static void cmd_motor_pos(BaseSequentialStream* chp, int argc, char* argv[])
+SHELL_COMMAND(motor_pos, chp, argc, argv)
 {
     if (argc < 2) {
         chprintf(chp, "Usage: motor_pos motor_name position\r\n");
@@ -832,7 +841,7 @@ static void cmd_motor_pos(BaseSequentialStream* chp, int argc, char* argv[])
     motor_manager_set_position(&motor_manager, argv[0], position);
 }
 
-static void cmd_motor_voltage(BaseSequentialStream* chp, int argc, char* argv[])
+SHELL_COMMAND(motor_voltage, chp, argc, argv)
 {
     if (argc < 2) {
         chprintf(chp, "Usage: motor_voltage motor_name voltage\r\n");
@@ -843,7 +852,7 @@ static void cmd_motor_voltage(BaseSequentialStream* chp, int argc, char* argv[])
     motor_manager_set_voltage(&motor_manager, argv[0], voltage);
 }
 
-static void cmd_motor_index_sym(BaseSequentialStream* chp, int argc, char* argv[])
+SHELL_COMMAND(motor_index_sym, chp, argc, argv)
 {
     if (argc < 3) {
         chprintf(chp, "Usage: motor_index_sym motor_name direction speed\r\n");
@@ -864,7 +873,7 @@ static void cmd_motor_index_sym(BaseSequentialStream* chp, int argc, char* argv[
     chprintf(chp, "Average index is %.4f\r\n", index);
 }
 
-static void cmd_motor_index(BaseSequentialStream* chp, int argc, char* argv[])
+SHELL_COMMAND(motor_index, chp, argc, argv)
 {
     if (argc < 3) {
         chprintf(chp, "Usage: motor_index motor_name direction speed\r\n");
@@ -879,7 +888,8 @@ static void cmd_motor_index(BaseSequentialStream* chp, int argc, char* argv[])
     chprintf(chp, "Index at %.4f\r\n", index);
 }
 
-static void cmd_arm_index(BaseSequentialStream* chp, int argc, char* argv[])
+/* arm_index */
+SHELL_COMMAND(index, chp, argc, argv)
 {
     if (argc < 4) {
         chprintf(chp, "Usage: index left|right t1 t2 t3\r\n");
@@ -905,7 +915,8 @@ static void cmd_arm_index(BaseSequentialStream* chp, int argc, char* argv[])
     }
 }
 
-static void cmd_arm_index_manual(BaseSequentialStream* chp, int argc, char* argv[])
+/* arm_index_manual */
+SHELL_COMMAND(index_manual, chp, argc, argv)
 {
     if (argc < 1) {
         chprintf(chp, "Usage: index_manual left|right\r\n");
@@ -953,7 +964,7 @@ static void cmd_arm_index_manual(BaseSequentialStream* chp, int argc, char* argv
     }
 }
 
-static void cmd_base_mode(BaseSequentialStream* chp, int argc, char* argv[])
+SHELL_COMMAND(base_mode, chp, argc, argv)
 {
     if (argc != 1) {
         chprintf(chp, "Usage: base_mode {all,angle,distance,free}\r\n");
@@ -971,7 +982,7 @@ static void cmd_base_mode(BaseSequentialStream* chp, int argc, char* argv[])
     }
 }
 
-static void cmd_state(BaseSequentialStream* chp, int argc, char* argv[])
+SHELL_COMMAND(state, chp, argc, argv)
 {
     (void)argc;
     (void)argv;
@@ -991,7 +1002,7 @@ static void print_fn(void* arg, const char* fmt, ...)
     va_end(ap);
 }
 
-static void cmd_trace(BaseSequentialStream* chp, int argc, char* argv[])
+SHELL_COMMAND(trace, chp, argc, argv)
 {
     if (argc != 1) {
         chprintf(chp, "Usage: trace dump|clear\r\n");
@@ -1004,7 +1015,7 @@ static void cmd_trace(BaseSequentialStream* chp, int argc, char* argv[])
     }
 }
 
-static void cmd_servo(BaseSequentialStream* chp, int argc, char* argv[])
+SHELL_COMMAND(servo, chp, argc, argv)
 {
     if (argc != 2) {
         chprintf(chp, "Usage: servo N PULSE_MS\r\n");
@@ -1018,7 +1029,7 @@ static void cmd_servo(BaseSequentialStream* chp, int argc, char* argv[])
 
 #include "can/can_io_driver.h"
 
-static void cmd_canio(BaseSequentialStream* chp, int argc, char* argv[])
+SHELL_COMMAND(canio, chp, argc, argv)
 {
     if (argc != 3) {
         chprintf(chp, "Usage: canio name channel pwm\r\n");
@@ -1031,7 +1042,7 @@ static void cmd_canio(BaseSequentialStream* chp, int argc, char* argv[])
     chprintf(chp, "Set CAN-IO %s Channel %d PWM %f\r\n", argv[0], channel, pwm);
 }
 
-static void cmd_motor_sin(BaseSequentialStream* chp, int argc, char* argv[])
+SHELL_COMMAND(motor_sin, chp, argc, argv)
 {
     if (argc != 4) {
         chprintf(chp, "Usage: motor_sin motor amplitude period times\r\n");
@@ -1053,7 +1064,7 @@ static void cmd_motor_sin(BaseSequentialStream* chp, int argc, char* argv[])
     }
 }
 
-static void cmd_speed(BaseSequentialStream* chp, int argc, char* argv[])
+SHELL_COMMAND(speed, chp, argc, argv)
 {
     if (argc != 1) {
         chprintf(chp, "Usage: speed init|slow|fast\r\n");
@@ -1071,7 +1082,8 @@ static void cmd_speed(BaseSequentialStream* chp, int argc, char* argv[])
     }
 }
 
-static void cmd_panel_status(BaseSequentialStream* chp, int argc, char* argv[])
+/* panel_status */
+SHELL_COMMAND(panel, chp, argc, argv)
 {
     (void)argc;
     (void)argv;
@@ -1094,7 +1106,8 @@ static void cmd_panel_status(BaseSequentialStream* chp, int argc, char* argv[])
     }
 }
 
-static void cmd_proximity_beacon(BaseSequentialStream* chp, int argc, char* argv[])
+/* proximity_beacon */
+SHELL_COMMAND(beacon, chp, argc, argv)
 {
     (void)argc;
     (void)argv;
@@ -1108,7 +1121,7 @@ static void cmd_proximity_beacon(BaseSequentialStream* chp, int argc, char* argv
              beacon_signal.range.angle * (180.f / 3.1415f));
 }
 
-static void cmd_beacon_calib(BaseSequentialStream* chp, int argc, char* argv[])
+SHELL_COMMAND(beacon_calib, chp, argc, argv)
 {
     (void)argc;
     (void)argv;
@@ -1155,7 +1168,7 @@ static void cmd_beacon_calib(BaseSequentialStream* chp, int argc, char* argv[])
     }
 }
 
-static void cmd_arm(BaseSequentialStream* chp, int argc, char* argv[])
+SHELL_COMMAND(arm, chp, argc, argv)
 {
     float angles[3];
 
@@ -1245,7 +1258,8 @@ static void cmd_arm(BaseSequentialStream* chp, int argc, char* argv[])
     }
 }
 
-static void cmd_arm_offset_calib(BaseSequentialStream* chp, int argc, char* argv[])
+/* arm_offset_calib */
+SHELL_COMMAND(arm_calib, chp, argc, argv)
 {
     if (argc != 4) {
         chprintf(chp, "Usage: arm_calib l|r d1[mm] d2[mm] d3[mm]\r\n");
@@ -1316,7 +1330,7 @@ static void cmd_arm_offset_calib(BaseSequentialStream* chp, int argc, char* argv
     chprintf(chp, "After correction, the bot thinks the angles are %.3f %.3f %.3f\r\n", angles[0], angles[1], angles[2]);
 }
 
-static void cmd_grip(BaseSequentialStream* chp, int argc, char* argv[])
+SHELL_COMMAND(grip, chp, argc, argv)
 {
     if (argc != 2) {
         chprintf(chp, "Usage: grip l|r -1|0|1\r\n");
@@ -1357,7 +1371,7 @@ static void cmd_grip(BaseSequentialStream* chp, int argc, char* argv[])
     }
 }
 
-static void cmd_electron(BaseSequentialStream* chp, int argc, char* argv[])
+SHELL_COMMAND(electron, chp, argc, argv)
 {
     (void)chp;
     (void)argc;
@@ -1370,7 +1384,7 @@ static void simulation_logger(const char* msg)
     chprintf((BaseSequentialStream*)&SDU1, "%s\r\n", msg);
 }
 
-static void cmd_goal(BaseSequentialStream* chp, int argc, char* argv[])
+SHELL_COMMAND(goal, chp, argc, argv)
 {
     static char line[20];
     RobotState state = initial_state();
@@ -1451,53 +1465,3 @@ static void cmd_goal(BaseSequentialStream* chp, int argc, char* argv[])
         }
     }
 }
-
-ShellCommand commands[] = {
-    {"crashme", cmd_crashme},
-    {"config_tree", cmd_config_tree},
-    {"config_set", cmd_config_set},
-    {"encoders", cmd_encoders},
-    {"forward", cmd_traj_forward},
-    {"ip", cmd_ip},
-    {"node", cmd_node},
-    {"pos", cmd_position},
-    {"pos_reset", cmd_position_reset},
-    {"ally_pos", cmd_ally_position},
-    {"reboot", cmd_reboot},
-    {"rotate", cmd_traj_rotate},
-    {"threads", cmd_threads},
-    {"stack", cmd_stack},
-    {"time", cmd_time},
-    {"topics", cmd_topics},
-    {"pid", cmd_pid},
-    {"pid_tune", cmd_pid_tune},
-    {"goto", cmd_traj_goto},
-    {"goto_avoid", cmd_goto_avoid},
-    {"bdconf", cmd_blocking_detection_config},
-    {"wheel_calib", cmd_wheel_calibration},
-    {"track_calib", cmd_track_calibration},
-    {"autopos", cmd_autopos},
-    {"motor_pos", cmd_motor_pos},
-    {"motor_voltage", cmd_motor_voltage},
-    {"motor_index", cmd_motor_index},
-    {"motor_index_sym", cmd_motor_index_sym},
-    {"index", cmd_arm_index},
-    {"index_manual", cmd_arm_index_manual},
-    {"motors", cmd_motors},
-    {"base_mode", cmd_base_mode},
-    {"state", cmd_state},
-    {"trace", cmd_trace},
-    {"servo", cmd_servo},
-    {"canio", cmd_canio},
-    {"motor_sin", cmd_motor_sin},
-    {"speed", cmd_speed},
-    {"panel", cmd_panel_status},
-    {"beacon", cmd_proximity_beacon},
-    {"beacon_calib", cmd_beacon_calib},
-    {"arm", cmd_arm},
-    {"arm_calib", cmd_arm_offset_calib},
-    {"grip", cmd_grip},
-    {"electron", cmd_electron},
-    {"goal", cmd_goal},
-    {"reset_timer", cmd_reset_timer},
-    {NULL, NULL}};
