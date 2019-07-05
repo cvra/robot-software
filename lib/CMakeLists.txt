@@ -145,9 +145,6 @@ add_custom_command(COMMAND ${PYTHON} uavcan/libuavcan/dsdl_compiler/libuavcan_ds
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     COMMENT "Running dsdl compiler")
 
-add_custom_target(dsdlc DEPENDS ${UAVCAN_HEADERS})
-
-
 add_library(uavcan
     uavcan/libuavcan/src/driver/uc_can.cpp
     uavcan/libuavcan/src/marshal/uc_bit_array_copy.cpp
@@ -182,7 +179,6 @@ add_library(uavcan
 target_include_directories(uavcan PUBLIC uavcan/libuavcan/include)
 target_compile_definitions(uavcan PUBLIC "UAVCAN_CPP_VERSION=UAVCAN_CPP11;UAVCAN_TOSTRING=0;UAVCAN_DEBUG=0")
 target_include_directories(uavcan PUBLIC ${DSDLC_OUTPUT})
-add_dependencies(uavcan dsdlc)
 
 if (${CMAKE_CROSSCOMPILING})
     add_library(uavcan_stm32
