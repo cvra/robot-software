@@ -32,7 +32,7 @@ case $BUILD_TYPE in
     build)
         mkdir build
         pushd build
-        cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/${PLATFORM}.cmake  -G Ninja
+        cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/${PLATFORM}.cmake
         make ${PLATFORM}-firmware.elf
         popd
         ;;
