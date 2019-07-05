@@ -75,7 +75,7 @@ else()
     target_link_libraries(mpu9250 chibios)
 endif()
 
-if (${CMAKE_CROSSCOMPILING} AND (${CVRA_BOARD_NAME} STREQUAL "uwb-beacon"))
+if (${CMAKE_CROSSCOMPILING} AND "${CVRA_BOARD_NAME}" STREQUAL "uwb-beacon")
     set(CHIBIOS_HALCONF_FILE src/halconf.h)
     set(CHIBIOS_CHCONF_FILE src/chconf.h)
 
