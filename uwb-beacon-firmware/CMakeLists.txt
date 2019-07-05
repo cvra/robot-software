@@ -1,5 +1,4 @@
 # TODO: This should not be a global include directory
-include_directories(src)
 
 add_library(state_estimation
     src/state_estimation.cpp
@@ -76,7 +75,7 @@ else()
     target_link_libraries(mpu9250 chibios)
 endif()
 
-if (${CMAKE_CROSSCOMPILING})
+if (${CMAKE_CROSSCOMPILING} AND (${CVRA_BOARD_NAME} STREQUAL "uwb-beacon"))
     set(CHIBIOS_HALCONF_FILE src/halconf.h)
     set(CHIBIOS_CHCONF_FILE src/chconf.h)
 
@@ -135,6 +134,8 @@ if (${CMAKE_CROSSCOMPILING})
         uavcan
         uavcan_stm32
     )
+
+    target_include_directories(uwb-beacon-firmware.elf PUBLIC src)
 
     stm32_set_linker_script(uwb-beacon-firmware.elf STM32F405xG.ld)
 
