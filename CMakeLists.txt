@@ -17,6 +17,7 @@ endif ()
 
 # enable all useful warnings
 set(WARN_FLAGS "-Wall -Wextra -Wundef \
+    -Wno-error=unknown-warning \
     -Wduplicated-branches -Wduplicated-cond \
     -Wlogical-op \
     -Wnull-dereference \
