@@ -4,6 +4,8 @@
 #include "parameter/parameter_port.h"
 #include <stdlib.h>
 
+extern "C" {
+
 void parameter_port_lock(void)
 {
 }
@@ -25,4 +27,5 @@ void *parameter_port_buffer_alloc(size_t size)
 void parameter_port_buffer_free(void *buffer)
 {
     free(buffer);
+}
 }
