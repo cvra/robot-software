@@ -1,6 +1,13 @@
 project(cvra)
 cmake_minimum_required(VERSION 3.12)
 
+
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+include(cvra)
+
+include(AddCXXCompilerFlag)
+include(AddCCompilerFlag)
+
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 14)
 enable_language(ASM)
@@ -15,20 +22,18 @@ if (${FORCE_COLORED_OUTPUT})
     endif ()
 endif ()
 
+
 # enable all useful warnings
-set(WARN_FLAGS "-Wall -Wextra -Wundef \
-    -Wno-error=unknown-warning \
-    -Wduplicated-branches -Wduplicated-cond \
-    -Wlogical-op \
-    -Wnull-dereference \
-    -Wshadow \
-    ")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WARN_FLAGS} -Wstrict-prototypes")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARN_FLAGS}")
-
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
-
-include(cvra)
+add_c_cxx_compiler_flag("-Wall")
+add_c_cxx_compiler_flag("-Wextra")
+add_c_cxx_compiler_flag("-Wundef")
+add_c_cxx_compiler_flag("-Wduplicated-branches")
+add_c_cxx_compiler_flag("-Wduplicated-cond")
+add_c_cxx_compiler_flag("-Wlogical-op")
+add_c_cxx_compiler_flag("-Wnull-dereference")
+add_c_cxx_compiler_flag("-Wshadow")
+add_c_compiler_flag("-Wstrict-prototypes")
+add_c_compiler_flag("-Wfoobar-prototypes")
 
 enable_testing()
 
