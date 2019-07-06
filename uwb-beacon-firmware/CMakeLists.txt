@@ -1,8 +1,8 @@
-# TODO: This should not be a global include directory
-
 add_library(state_estimation
     src/state_estimation.cpp
 )
+
+target_include_directories(state_estimation PUBLIC src)
 
 target_link_libraries(state_estimation
     Eigen
@@ -20,6 +20,8 @@ add_library(lru_cache
     src/lru_cache.c
 )
 
+target_include_directories(lru_cache PUBLIC src)
+
 cvra_add_test(TARGET lru_cache_test SOURCES
     tests/lru_cache.cpp
     DEPENDENCIES
@@ -30,6 +32,8 @@ add_library(mpu9250
     src/mpu9250.c
 )
 
+target_include_directories(mpu9250 PUBLIC src)
+
 cvra_add_test(TARGET mpu9250_test SOURCES
     tests/mpu9250.cpp
     DEPENDENCIES
@@ -39,6 +43,8 @@ cvra_add_test(TARGET mpu9250_test SOURCES
 add_library(madgwick
     src/MadgwickAHRS.c
 )
+
+target_include_directories(madgwick PUBLIC src)
 
 cvra_add_test(TARGET madgwick_test SOURCES
     tests/madgwick.cpp
@@ -51,6 +57,8 @@ add_library(decawave
     src/decadriver/deca_params_init.c
 )
 
+target_include_directories(decawave PUBLIC src)
+
 cvra_add_test(TARGET decawave_api_test SOURCES
     tests/decawave.cpp
     DEPENDENCIES
@@ -60,6 +68,8 @@ cvra_add_test(TARGET decawave_api_test SOURCES
 add_library(uwb_protocol
     src/uwb_protocol.c
 )
+
+target_include_directories(uwb_protocol PUBLIC src)
 
 cvra_add_test(TARGET uwb_protocol_test SOURCES
     tests/uwb_protocol.cpp
