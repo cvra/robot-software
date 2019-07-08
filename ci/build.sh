@@ -27,7 +27,7 @@ case $BUILD_TYPE in
 
         make
         make test
-        pop
+        popd
         ;;
 
     build)
