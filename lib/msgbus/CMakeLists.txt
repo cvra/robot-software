@@ -23,19 +23,31 @@ if(${CMAKE_CROSSCOMPILING})
     )
     target_link_libraries(msgbus_chibios msgbus chibios)
 else()
+    find_package (Threads)
+
     add_library(msgbus_posix
         examples/posix/port.c
     )
 
-    target_link_libraries(msgbus_posix msgbus)
+    target_link_libraries(msgbus_posix
+       msgbus
+       ${CMAKE_THREAD_LIBS_INIT}
+    )
 
     add_executable(msgbus_demo
         examples/posix/demo.c
     )
-    target_link_libraries(msgbus_demo msgbus_posix)
+    target_link_libraries(msgbus_demo
+        msgbus
+        msgbus_posix
+    )
 
     add_executable(msgbus_demo_watchgroups
         examples/posix/demo_watchgroups.c
     )
-    target_link_libraries(msgbus_demo_watchgroups msgbus_posix)
+
+    target_link_libraries(msgbus_demo_watchgroups 
+        msgbus
+        msgbus_posix
+    )
 endif()

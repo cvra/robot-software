@@ -13,6 +13,7 @@ cvra_add_test(TARGET parameter_flash_storage_test SOURCES
     tests/flash_mock.cpp
     tests/parameter_flash_storage.cpp
     DEPENDENCIES
+    parameter
     parameter_flash_storage
     parameter_port_dummy
 )
