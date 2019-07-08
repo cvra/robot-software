@@ -26,7 +26,7 @@ case $BUILD_TYPE in
         cmake ..
         make
         make test
-        pop
+        popd
         ;;
 
     build)
