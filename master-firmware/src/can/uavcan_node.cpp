@@ -7,7 +7,7 @@
 #include "emergency_stop_handler.hpp"
 #include "motor_feedback_streams_handler.hpp"
 #include "beacon_signal_handler.hpp"
-#include "error/error.h"
+#include <error/error.h>
 #include "motor_driver.h"
 #include "motor_driver_uavcan.hpp"
 #include "can_io_driver.h"
@@ -16,7 +16,7 @@
 #include "can_uwb_ip_netif.hpp"
 #include "electron_starter.hpp"
 #include "config.h"
-#include "uavcan_node.h"
+#include <uavcan_node.h>
 #include "priorities.h"
 #include "control_panel.h"
 #include "main.h"

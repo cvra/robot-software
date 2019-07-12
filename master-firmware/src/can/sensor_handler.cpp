@@ -5,7 +5,7 @@
 #include <error/error.h>
 #include "main.h"
 #include "protobuf/sensors.pb.h"
-#include "msgbus_protobuf.h"
+#include <msgbus_protobuf.h>
 
 static TOPIC_DECL(front_left_topic, Range);
 static TOPIC_DECL(front_right_topic, Range);

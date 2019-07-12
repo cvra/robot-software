@@ -2,7 +2,7 @@
 #define SETPOINT_H
 
 #include <stdbool.h>
-#include "timestamp/timestamp.h"
+#include <timestamp/timestamp.h>
 
 #ifdef __cplusplus
 extern "C" {

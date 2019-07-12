@@ -6,12 +6,12 @@
 #include <uavcan_stm32/uavcan_stm32.hpp>
 
 #include <main.h>
-#include "uavcan/uavcan_node.h"
-#include "uavcan/topics_publisher.hpp"
-#include "uavcan/parameter_server.hpp"
-#include "uavcan/restart_server.hpp"
-#include "uavcan/position_handler.hpp"
-#include "uavcan/data_packet_handler.hpp"
+#include "./uavcan/uavcan_node.h"
+#include "./uavcan/topics_publisher.hpp"
+#include "./uavcan/parameter_server.hpp"
+#include "./uavcan/restart_server.hpp"
+#include "./uavcan/position_handler.hpp"
+#include "./uavcan/data_packet_handler.hpp"
 
 #define CAN_BITRATE 1000000
 

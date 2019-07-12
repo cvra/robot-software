@@ -1,4 +1,4 @@
-#include "timestamp/timestamp.h"
+#include <timestamp/timestamp.h>
 
 int32_t timestamp_duration_us(timestamp_t t1, timestamp_t t2)
 {

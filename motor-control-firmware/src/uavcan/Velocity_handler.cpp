@@ -1,7 +1,7 @@
 #include <cvra/motor/control/Velocity.hpp>
 #include "Velocity_handler.hpp"
 #include "uavcan_node.h"
-#include "timestamp/timestamp.h"
+#include <timestamp/timestamp.h>
 #include "control.h"
 
 int Velocity_handler_start(Node& node)

@@ -1,6 +1,6 @@
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
-#include "msgbus/messagebus.h"
+#include <msgbus/messagebus.h>
 
 static bool lock_enabled = false;
 static bool condvar_enabled = false;

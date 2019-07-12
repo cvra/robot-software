@@ -1,5 +1,5 @@
 #include "CppUTest/TestHarness.h"
-#include "filter/iir.h"
+#include <filter/iir.h>
 
 TEST_GROUP (IIRFilter) {
     filter_iir_t iir_filter;

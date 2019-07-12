@@ -1,6 +1,6 @@
 #include <ch.h>
 #include <hal.h>
-#include "msgbus/messagebus.h"
+#include <msgbus/messagebus.h>
 #include "main.h"
 #include "priorities.h"
 #include "encoder.h"

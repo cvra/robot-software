@@ -1,7 +1,7 @@
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
-#include "parameter/parameter.h"
-#include "parameter/parameter_port.h"
+#include <parameter/parameter.h>
+#include <parameter/parameter_port.h>
 #include <stdlib.h>
 
 extern "C" {

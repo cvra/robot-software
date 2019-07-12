@@ -16,7 +16,7 @@ extern "C" {
 #include "commands.h"
 #include "panic_log.h"
 #include "unix_timestamp.h"
-#include "timestamp/timestamp.h"
+#include <timestamp/timestamp.h>
 #include "bus_enumerator.h"
 #include "electron_starter.hpp"
 #include "uavcan_node.h"

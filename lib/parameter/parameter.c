@@ -1,6 +1,6 @@
 #include <string.h>
-#include "parameter/parameter.h"
-#include "parameter/parameter_port.h"
+#include <parameter/parameter.h>
+#include <parameter/parameter_port.h>
 
 /*
  * Synchronization is implemented using the parameter_port_lock() and

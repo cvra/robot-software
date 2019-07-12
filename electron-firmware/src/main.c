@@ -1,8 +1,8 @@
 #include <ch.h>
 #include <hal.h>
-#include "uavcan/node.h"
+#include <uavcan/node.h>
 #include "bootloader_config.h"
-#include "error/error.h"
+#include <error/error.h>
 #include "debug.h"
 #include "main.h"
 

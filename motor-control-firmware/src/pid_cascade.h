@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 #include <stdbool.h>
-#include "pid/pid.h"
+#include <pid/pid.h>
 #include "setpoint.h"
 
 struct pid_cascade_s {

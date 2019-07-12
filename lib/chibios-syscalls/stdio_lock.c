@@ -1,7 +1,7 @@
 #include <ch.h>
 #include <hal.h>
 
-#include "chibios-syscalls/stdio_lock.h"
+#include <chibios-syscalls/stdio_lock.h>
 
 static MUTEX_DECL(lock);
 

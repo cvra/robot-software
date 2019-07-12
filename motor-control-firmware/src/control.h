@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include "timestamp/timestamp.h"
+#include <timestamp/timestamp.h>
 #include "motor_protection.h"
 #include "feedback.h"
 

@@ -19,7 +19,7 @@
  *
  */
 
-#include "aversive/robot_system/angle_distance.h"
+#include <aversive/robot_system/angle_distance.h>
 
 /**
  * convert the values of wheels encoders (left, right) into (distance,

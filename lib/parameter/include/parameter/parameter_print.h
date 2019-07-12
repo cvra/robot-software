@@ -1,7 +1,7 @@
 #ifndef PARAMETER_PRINT_H
 #define PARAMETER_PRINT_H
 
-#include "parameter.h"
+#include <parameter/parameter.h>
 
 #ifdef __cplusplus
 extern "C" {

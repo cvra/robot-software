@@ -1,6 +1,6 @@
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
-#include "msgbus/messagebus.h"
+#include <msgbus/messagebus.h>
 
 TEST_GROUP (MessagebusCppInterface) {
     messagebus_topic_t raw_topic;

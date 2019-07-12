@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include <stddef.h>
-#include "crc/crc16.h"
+#include <crc/crc16.h>
 
 #define CRC16_POLYNOMIAL 0xA001 // bit reversed 0x8005
 

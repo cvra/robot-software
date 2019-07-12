@@ -2,7 +2,7 @@
 #ifndef RPM_H
 #define RPM_H
 
-#include "timestamp/timestamp.h"
+#include <timestamp/timestamp.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include <stdbool.h>
-#include "parameter_flash_storage/flash.h"
+#include <parameter_flash_storage/flash.h>
 
 /* Flash registers. Copied here to avoid dependencies on either libopencm3 or
  * ChibiOS. */

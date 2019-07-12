@@ -4,7 +4,7 @@
 #include <cvra/io/DigitalInput.hpp>
 #include <error/error.h>
 #include <msgbus/messagebus.h>
-#include "uavcan_node.h"
+#include <uavcan_node.h>
 #include "main.h"
 #include "can_io_driver.h"
 #include "protobuf/sensors.pb.h"

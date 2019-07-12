@@ -2,7 +2,7 @@
 
 #include "pwm.h"
 #include "servo.h"
-#include "quadramp/quadramp.h"
+#include <quadramp/quadramp.h>
 
 #define SERVO_PWM_THREAD_FREQ 1000 // 1kHz
 #define SERVO_PWM_TIMER_FREQ 1000000 // 1MHz

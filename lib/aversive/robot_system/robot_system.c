@@ -28,8 +28,8 @@
 
 #include <string.h>
 
-#include "aversive/robot_system/angle_distance.h"
-#include "aversive/robot_system/robot_system.h"
+#include <aversive/robot_system/angle_distance.h>
+#include <aversive/robot_system/robot_system.h>
 
 /** @brief Call a pwm pointer :
  *

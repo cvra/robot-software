@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "cmp.h"
+#include <cmp.h>
 
 static bool read_bytes(void* data, size_t sz, FILE* fh)
 {

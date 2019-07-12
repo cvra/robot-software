@@ -1,6 +1,6 @@
 #include "CppUTest/TestHarness.h"
-#include "parameter/parameter.h"
-#include "parameter/parameter_port.h"
+#include <parameter/parameter.h>
+#include <parameter/parameter_port.h>
 #include <cstdlib>
 
 TEST_GROUP(ParameterNamespaceInit)

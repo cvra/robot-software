@@ -11,7 +11,7 @@
 #include <cstdio>
 
 #ifndef GUI_SIMULATOR
-#include "chibios-syscalls/stdio_lock.h"
+#include <chibios-syscalls/stdio_lock.h>
 #include "protobuf/strategy.pb.h"
 #endif
 

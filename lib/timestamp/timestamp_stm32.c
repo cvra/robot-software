@@ -7,7 +7,7 @@ static volatile uint32_t time_us_high;
 // ChibiOS specific begin
 #include <ch.h>
 #include <hal.h>
-#include "timestamp/timestamp.h"
+#include <timestamp/timestamp.h>
 
 // settings
 #include <timestamp_stm32_settings.h>

@@ -1,6 +1,6 @@
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
-#include "uavcan/parameter_enumeration.hpp"
+#include "../src/uavcan/parameter_enumeration.hpp"
 
 TEST_GROUP (ParameterByIndexTestGroup) {
     parameter_namespace_t ns;
