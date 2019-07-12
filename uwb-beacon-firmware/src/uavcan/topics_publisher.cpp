@@ -1,7 +1,7 @@
 #include <ch.h>
 #include <hal.h>
 #include "main.h"
-#include "uavcan/topics_publisher.hpp"
+#include "topics_publisher.hpp"
 #include "imu_thread.h"
 #include "ahrs_thread.h"
 #include "ranging_thread.h"

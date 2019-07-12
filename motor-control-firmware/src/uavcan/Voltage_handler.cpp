@@ -1,7 +1,7 @@
 #include <cvra/motor/control/Voltage.hpp>
 #include "Voltage_handler.hpp"
 #include "uavcan_node.h"
-#include "timestamp/timestamp.h"
+#include <timestamp/timestamp.h>
 #include "control.h"
 
 int Voltage_handler_start(Node& node)

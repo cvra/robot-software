@@ -115,8 +115,8 @@
    /                   Fixed LFN entry is not deleted on delete/rename an object with lossy converted SFN.
    /---------------------------------------------------------------------------*/
 
-#include "fatfs/ff.h" /* Declarations of FatFs API */
-#include "fatfs/diskio.h" /* Declarations of disk I/O functions */
+#include <fatfs/ff.h> /* Declarations of FatFs API */
+#include <fatfs/diskio.h> /* Declarations of disk I/O functions */
 
 /*--------------------------------------------------------------------------
 

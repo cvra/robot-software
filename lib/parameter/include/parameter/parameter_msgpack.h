@@ -1,7 +1,7 @@
 #ifndef PARAMETER_MSGPACK_H
 #define PARAMETER_MSGPACK_H
 
-#include "parameter.h"
+#include <parameter/parameter.h>
 
 #ifdef __cplusplus
 extern "C" {

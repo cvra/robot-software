@@ -1,7 +1,7 @@
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
 
-#include "msgbus/messagebus.h"
+#include <msgbus/messagebus.h>
 #include "mocks/synchronization.hpp"
 
 TEST_GROUP (MsgBusForeachTestGroup) {
