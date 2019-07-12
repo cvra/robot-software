@@ -24,7 +24,7 @@
 #include <math.h>
 #include <stdint.h>
 
-#include "quadramp.h"
+#include "quadramp/quadramp.h"
 
 void quadramp_init(struct quadramp_filter* q)
 {

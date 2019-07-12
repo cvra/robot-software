@@ -3,7 +3,7 @@
 #include <math.h>
 #include <stdint.h>
 #include <hal.h>
-#include "mpu.h"
+#include "arm-cortex-tools/mpu.h"
 
 void mpu_enable(void)
 {
