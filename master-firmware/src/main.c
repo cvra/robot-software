@@ -26,7 +26,7 @@
 #include "usbconf.h"
 #include "base/encoder.h"
 #include "base/base_controller.h"
-#include "trace/trace_points.h"
+#include <trace/trace_points.h>
 #include "strategy.h"
 #include "filesystem.h"
 #include "http/server.h"

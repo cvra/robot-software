@@ -1,7 +1,7 @@
 #include <cvra/motor/control/Trajectory.hpp>
 #include "Trajectory_handler.hpp"
 #include "uavcan_node.h"
-#include "timestamp/timestamp.h"
+#include <timestamp/timestamp.h>
 #include "control.h"
 
 int Trajectory_handler_start(Node& node)

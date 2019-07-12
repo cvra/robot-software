@@ -1,6 +1,6 @@
 #include "port.h"
 
-#include "msgbus/messagebus.h"
+#include <msgbus/messagebus.h>
 
 void messagebus_lock_acquire(void* p)
 {

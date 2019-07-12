@@ -13,7 +13,7 @@
 #include "analog.h"
 #include "encoder.h"
 #include "bootloader_config.h"
-#include "uavcan/uavcan_node.h"
+#include "./uavcan/uavcan_node.h"
 #include "index.h"
 #include "main.h"
 

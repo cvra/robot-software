@@ -3,11 +3,11 @@
 #include <fatfs/ff.h>
 #include <stdio.h>
 #include <string.h>
-#include "timestamp/timestamp.h"
+#include <timestamp/timestamp.h>
 #include <error/error.h>
 #include <parameter/parameter.h>
 #include "main.h"
-#include "chibios-syscalls/stdio_lock.h"
+#include <chibios-syscalls/stdio_lock.h>
 
 #include "log.h"
 #include "usbconf.h"

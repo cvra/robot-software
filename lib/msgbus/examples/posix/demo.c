@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <pthread.h>
-#include "msgbus/messagebus.h"
+#include <msgbus/messagebus.h>
 #include "port.h"
 
 messagebus_t bus;

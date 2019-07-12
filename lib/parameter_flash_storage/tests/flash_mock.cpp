@@ -1,6 +1,6 @@
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
-#include "parameter_flash_storage/flash.h"
+#include <parameter_flash_storage/flash.h>
 #include <cstring>
 
 extern "C" {

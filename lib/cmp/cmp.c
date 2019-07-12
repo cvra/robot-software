@@ -2,7 +2,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "cmp/cmp.h"
+#include <cmp/cmp.h>
 
 static const uint32_t version = 10;
 static const uint32_t mp_version = 5;

@@ -11,7 +11,7 @@
 #include "exti.h"
 #include "imu_thread.h"
 #include "ahrs_thread.h"
-#include "uavcan/uavcan_node.h"
+#include "./uavcan/uavcan_node.h"
 #include "ranging_thread.h"
 #include "state_estimation_thread.h"
 #include "anchor_position_cache.h"

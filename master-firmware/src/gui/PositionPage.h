@@ -10,7 +10,7 @@
 #ifndef GUI_SIMULATOR
 #include "base/base_controller.h"
 #include "base/base_helpers.h"
-#include "chibios-syscalls/stdio_lock.h"
+#include <chibios-syscalls/stdio_lock.h>
 #endif
 
 class PositionPage : public Page {
