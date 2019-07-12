@@ -1,7 +1,7 @@
 #include "CppUTest/TestHarness.h"
 
 extern "C" {
-#include "../quadramp.h"
+#include "quadramp/quadramp.h"
 }
 
 TEST_GROUP (AQuadRamp) {
