@@ -19,13 +19,6 @@ export CFLAGS="$CFLAGS -I $HOME/cpputest/include/"
 export CXXFLAGS="$CXXFLAGS -I $HOME/cpputest/include/"
 export LDFLAGS="$CXXFLAGS -L $HOME/cpputest/lib/"
 
-ROBOT_FLAG=""
-if [ -n "$ROBOT" ]
-then
-    ROBOT_FLAG="ROBOT=$ROBOT"
-fi
-
-
 case $BUILD_TYPE in
     tests)
         pushd master-firmware
@@ -59,14 +52,14 @@ case $BUILD_TYPE in
         echo "build $PLATFORM"
         pushd $PLATFORM
         packager
-        make $ROBOT_FLAG dsdlc
+        make dsdlc
 
         if [ "$PLATFORM" == "master-firmware" ]
         then
             make protoc
         fi
 
-        make $ROBOT_FLAG
+        make
         popd
         ;;
     *)
