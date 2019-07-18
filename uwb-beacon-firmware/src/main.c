@@ -2,6 +2,7 @@
 #include <hal.h>
 #include <chprintf.h>
 #include <parameter_flash_storage/parameter_flash_storage.h>
+#include <trace/trace.h>
 
 #include "main.h"
 #include "usbconf.h"
@@ -29,6 +30,9 @@ void __late_init(void)
     /* C++ Static initializer requires working chibios. */
     halInit();
     chSysInit();
+
+    trace_init();
+    trace_enable();
 }
 
 int main(void)
