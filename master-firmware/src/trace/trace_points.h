@@ -1,7 +1,7 @@
 #ifndef TRACE_POINTS_H
 #define TRACE_POINTS_H
 
-#include "trace.h"
+#include <trace/trace.h>
 
 #define TRACE_POINTS               \
     C(TRACE_POINT_PANIC)           \
