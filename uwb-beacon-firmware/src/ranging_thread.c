@@ -139,6 +139,7 @@ static void ranging_thread(void* p)
 
         if (flags & EVENT_ADVERTISE_TIMER) {
             if (!handler.is_anchor && nb_anchor_macs > 0) {
+                trace(TRACE_POINT_UWB_SEND_ADVERTISEMENT);
                 /* First disable transceiver */
                 dwt_forcetrxoff();
 

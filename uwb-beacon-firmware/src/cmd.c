@@ -414,7 +414,7 @@ static void cmd_config_load(BaseSequentialStream* chp, int argc, char** argv)
     }
 }
 
-static void print_fn_foo(void* arg, const char* fmt, ...)
+static void print_fn_base_seq_stream(void* arg, const char* fmt, ...)
 {
     BaseSequentialStream* chp = (BaseSequentialStream*)arg;
     va_list ap;
@@ -428,7 +428,7 @@ static void cmd_trace(BaseSequentialStream* chp, int argc, char* argv[])
     (void)argc;
     (void)argv;
 
-    trace_print(print_fn_foo, chp);
+    trace_print(print_fn_base_seq_stream, chp);
     trace_clear();
 }
 
@@ -472,8 +472,8 @@ static void cmd_data_tx(BaseSequentialStream* chp, int argc, char* argv[])
 
 static void cmd_data_rx(BaseSequentialStream* chp, int argc, char* argv[])
 {
-    (void) argc;
-    (void) argv;
+    (void)argc;
+    (void)argv;
 
     messagebus_topic_t* topic = messagebus_find_topic(&bus, "/uwb_data");
 

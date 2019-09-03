@@ -1,5 +1,7 @@
 #include <string.h>
 #include "uwb_protocol.h"
+#include <trace/trace.h>
+#include "trace_points.h"
 
 #define MAC_802_15_4_FC_DATA_FRAME (0x1 << 0)
 #define MAC_802_15_4_FC_PAN_ID_COMPRESS (0x1 << 6)
@@ -254,6 +256,8 @@ void uwb_process_incoming_frame(uwb_protocol_handler_t* handler,
     if (dst_addr != handler->address && dst_addr != MAC_802_15_4_BROADCAST_ADDR) {
         return;
     }
+
+    trace_integer(TRACE_POINT_UWB_PROCESS_FRAME, seq_num);
 
     /* Measurement advertisement */
     if (seq_num == UWB_SEQ_NUM_ADVERTISEMENT) {
