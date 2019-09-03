@@ -24,10 +24,12 @@
 #define EVENT_ANCHOR_POSITION_TIMER (1 << 2)
 #define EVENT_TAG_POSITION_TIMER (1 << 3)
 #define EVENT_DATA_PACKET_READY (1 << 4)
+#define EVENT_TEMPERATURE_READ_TIMER (1 << 10)
 
 /* TODO: Put this in parameters. */
 #define UWB_ANCHOR_POSITION_TIMER_PERIOD TIME_S2I(1)
 #define UWB_TAG_POSITION_TIMER_PERIOD TIME_MS2I(300)
+#define UWB_TEMPERATURE_READ_TIMER_PERIOD TIME_S2I(1)
 
 static uwb_protocol_handler_t handler;
 
@@ -51,9 +53,15 @@ static MUTEX_DECL(data_packet_topic_lock);
 static CONDVAR_DECL(data_packet_topic_condvar);
 static data_packet_msg_t data_packet_topic_buffer;
 
+static messagebus_topic_t dw1000_temp_topic;
+static MUTEX_DECL(dw1000_temp_topic_lock);
+static CONDVAR_DECL(dw1000_temp_topic_condvar);
+static dw1000_temp_msg_t dw1000_temp_topic_buffer;
+
 static EVENTSOURCE_DECL(advertise_timer_event);
 static EVENTSOURCE_DECL(anchor_position_timer_event);
 static EVENTSOURCE_DECL(tag_position_timer_event);
+static EVENTSOURCE_DECL(temperature_read_timer_event);
 static EVENTSOURCE_DECL(data_packet_ready_event);
 
 static BSEMAPHORE_DECL(data_packet_sent, true);
@@ -91,6 +99,7 @@ static void events_init(void);
 static void advertise_timer_cb(void* t);
 static void anchor_position_timer_cb(void* t);
 static void tag_position_timer_cb(void* t);
+static void temperature_read_timer_cb(void* t);
 static void frame_tx_done_cb(const dwt_cb_data_t* data);
 static void frame_rx_cb(const dwt_cb_data_t* data);
 static void frame_rx_timeout_cb(const dwt_cb_data_t* data);
@@ -100,6 +109,33 @@ void ranging_start(void)
 {
     static THD_WORKING_AREA(ranging_wa, 512);
     chThdCreateStatic(ranging_wa, sizeof(ranging_wa), HIGHPRIO, ranging_thread, NULL);
+}
+
+/** Read the temperature from the radio and publish it on msgbus */
+static void publish_dw1000_temperature(void)
+{
+    dw1000_temp_msg_t msg;
+    /* SPI bus speed is lower than 3 Mhz */
+    const int fast_spi = 0;
+    uint16_t result = dwt_readtempvbat(fast_spi);
+
+    /* See doc of dwt_readtempvbat in deca_device.c for explanations */
+    uint8_t temp_raw, v_raw;
+    temp_raw = result >> 8;
+    v_raw = result & 0xff;
+    msg.voltage = 0.057f * v_raw + 2.3f;
+    msg.temperature = 1.13f * temp_raw - 113.f;
+
+#if 0
+        /* TODO: For some reason the macro ST2US creates an overflow. */
+        uint32_t ts = ST2US(chVTGetSystemTime());
+#else
+    uint32_t ts = chVTGetSystemTime() * (1000000 / CH_CFG_ST_FREQUENCY);
+#endif
+
+    msg.timestamp = ts;
+
+    messagebus_topic_publish(&dw1000_temp_topic, &msg, sizeof(msg));
 }
 
 static void ranging_thread(void* p)
@@ -176,6 +212,10 @@ static void ranging_thread(void* p)
             uwb_send_data_packet(&handler, data_packet_dst_mac, data_packet, data_packet_size, frame);
 
             chBSemSignal(&data_packet_sent);
+        }
+
+        if (flags & EVENT_TEMPERATURE_READ_TIMER) {
+            publish_dw1000_temperature();
         }
 
         if (flags & EVENT_UWB_INT) {
@@ -308,6 +348,16 @@ static void tag_position_timer_cb(void* t)
     chSysUnlockFromISR();
 }
 
+static void temperature_read_timer_cb(void* t)
+{
+    virtual_timer_t* timer = (virtual_timer_t*)t;
+
+    chSysLockFromISR();
+    chVTSetI(timer, UWB_TEMPERATURE_READ_TIMER_PERIOD, temperature_read_timer_cb, t);
+    chEvtBroadcastI(&temperature_read_timer_event);
+    chSysUnlockFromISR();
+}
+
 static void parameters_init(void)
 {
     /* Prepare parameters. */
@@ -374,6 +424,14 @@ static void topics_init(void)
                           &data_packet_topic_buffer,
                           sizeof(data_packet_topic_buffer));
     messagebus_advertise_topic(&bus, &data_packet_topic, "/uwb_data");
+
+    /* Prepare topic for DWM1000 temperature info */
+    messagebus_topic_init(&dw1000_temp_topic,
+                          &dw1000_temp_topic_lock,
+                          &dw1000_temp_topic_condvar,
+                          &dw1000_temp_topic_buffer,
+                          sizeof(dw1000_temp_topic_buffer));
+    messagebus_advertise_topic(&bus, &dw1000_temp_topic, "/dw1000/temperature");
 }
 
 static void hardware_init(void)
@@ -406,9 +464,14 @@ static void events_init(void)
     chVTObjectInit(&tag_position_timer);
     chVTSet(&tag_position_timer, TIME_MS2I(400), tag_position_timer_cb, &tag_position_timer);
 
+    /* Setup a virtual timer once a second to read the temperature and voltage from the DW1000 */
+    static virtual_timer_t temperature_read_timer;
+    chVTObjectInit(&temperature_read_timer);
+    chVTSet(&temperature_read_timer, UWB_TEMPERATURE_READ_TIMER_PERIOD, temperature_read_timer_cb, &temperature_read_timer);
+
     /* Register event listeners */
     static event_listener_t uwb_int_listener, advertise_timer_listener, anchor_position_listener,
-        tag_position_listener, data_packet_ready_listener;
+        tag_position_listener, data_packet_ready_listener, temperature_read_listener;
     chEvtRegisterMask(&uwb_event, &uwb_int_listener, EVENT_UWB_INT);
     chEvtRegisterMask(&advertise_timer_event, &advertise_timer_listener, EVENT_ADVERTISE_TIMER);
     chEvtRegisterMask(&anchor_position_timer_event,
@@ -420,6 +483,9 @@ static void events_init(void)
     chEvtRegisterMask(&tag_position_timer_event,
                       &tag_position_listener,
                       EVENT_TAG_POSITION_TIMER);
+    chEvtRegisterMask(&temperature_read_timer_event,
+                      &temperature_read_listener,
+                      EVENT_TEMPERATURE_READ_TIMER);
 }
 
 void ranging_send_data_packet(const uint8_t* data, size_t data_size, uint16_t dst_mac)

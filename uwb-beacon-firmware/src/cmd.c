@@ -126,17 +126,30 @@ static void cmd_temp(BaseSequentialStream* chp, int argc, char** argv)
     temperature_topic = messagebus_find_topic(&bus, "/imu/temperature");
 
     if (temperature_topic == NULL) {
-        chprintf(chp, "Could not find temperature topic.\r\n");
-        return;
+        chprintf(chp, "Could not find IMU temperature topic.\r\n");
+    } else {
+        if (messagebus_topic_read(temperature_topic, &msg, sizeof(msg))) {
+            chprintf(chp, "timestamp: %.3f s\r\n", msg.timestamp * 1e-6);
+            chprintf(chp, "IMU temperature: %d\r\n", (int)msg.temperature);
+        } else {
+            chprintf(chp, "No IMU temperature data available.\r\n");
+        }
     }
 
-    if (!messagebus_topic_read(temperature_topic, &msg, sizeof(msg))) {
-        chprintf(chp, "No temperature data available.\r\n");
-        return;
+    dw1000_temp_msg_t dw1000_msg;
+    temperature_topic = messagebus_find_topic(&bus, "/dw1000/temperature");
+
+    if (temperature_topic == NULL) {
+        chprintf(chp, "Could not find DW1000 temperature topic.\r\n");
+    } else {
+        if (messagebus_topic_read(temperature_topic, &dw1000_msg, sizeof(dw1000_msg))) {
+            chprintf(chp, "timestamp: %.3f s\r\n", dw1000_msg.timestamp * 1e-6);
+            chprintf(chp, "DW1000 temperature: %d\r\n", (int)dw1000_msg.temperature);
+        } else {
+            chprintf(chp, "No DW1000 temperature data available.\r\n");
+        }
     }
 
-    chprintf(chp, "timestamp: %.3f s\r\n", msg.timestamp * 1e-6);
-    chprintf(chp, "IMU temperature: %d\r\n", (int)msg.temperature);
 }
 
 static void cmd_ahrs(BaseSequentialStream* chp, int argc, char** argv)

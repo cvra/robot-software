@@ -37,6 +37,13 @@ typedef struct {
     uint8_t data[1024];
 } data_packet_msg_t;
 
+/** Struct used on the DWM1000 stats topics */
+typedef struct {
+    uint32_t timestamp; /**< Timestamp in us since boot. */
+    float temperature; /**< DW1000 Chip temperature in deg C */
+    float voltage; /**< Chip voltage in V */
+} dw1000_temp_msg_t;
+
 void ranging_start(void);
 
 /** Asks the ranging thread to send this data packet when possible.
