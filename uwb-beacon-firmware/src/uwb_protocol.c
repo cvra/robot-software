@@ -19,7 +19,7 @@
 #define UWB_SEQ_NUM_INITIATE_MEASUREMENT 5
 #define UWB_SEQ_NUM_USER_DATA 100
 
-#define UWB_DELAY (1000 * 65536)
+#define UWB_DELAY (800 * 65536)
 #define MASK_40BIT 0xfffffffe00
 
 static void write_40bit_int(uint64_t val, uint8_t* bytes);
