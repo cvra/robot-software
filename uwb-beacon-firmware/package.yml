@@ -14,6 +14,7 @@ depends:
   - parameter_flash_storage
   - chibios-syscalls
   - trace
+  - error
 
 target.arm:
   - src/board.c
@@ -37,6 +38,7 @@ target.arm:
   - src/parameter_port.c
   - src/state_estimation_thread.cpp
   - src/anchor_position_cache.c
+  - src/log.c
 
 target.stm32f4: []
 
