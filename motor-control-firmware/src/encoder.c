@@ -22,6 +22,9 @@ void encoder_init_primary(void)
     STM32_TIM4->SMCR = STM32_TIM_SMCR_SMS(3); // count on both edges
     STM32_TIM4->CCMR1 = STM32_TIM_CCMR1_CC1S(1); // CC1 channel is input, IC1 is mapped on TI1
     STM32_TIM4->CCMR1 |= STM32_TIM_CCMR1_CC2S(1); // CC2 channel is input, IC2 is mapped on TI2
+    /* enable filtering, clock prescaler 32, 8 samples */
+    STM32_TIM4->CCMR1 |= STM32_TIM_CCMR1_IC1F(0xf);
+    STM32_TIM4->CCMR1 |= STM32_TIM_CCMR1_IC2F(0xf);
     STM32_TIM4->CCER = 0;
     STM32_TIM4->ARR = 0xFFFF;
     STM32_TIM4->CR1 = 1; // start
@@ -41,6 +44,11 @@ void encoder_init_secondary(void)
     STM32_TIM3->SMCR = STM32_TIM_SMCR_SMS(3); // count on both edges
     STM32_TIM3->CCMR1 = STM32_TIM_CCMR1_CC1S(1); // CC1 channel is input, IC1 is mapped on TI1
     STM32_TIM3->CCMR1 |= STM32_TIM_CCMR1_CC2S(1); // CC2 channel is input, IC2 is mapped on TI2
+
+    /* enable filtering, clock prescaler 32, 8 samples */
+    STM32_TIM3->CCMR1 |= STM32_TIM_CCMR1_IC1F(0xf);
+    STM32_TIM3->CCMR1 |= STM32_TIM_CCMR1_IC2F(0xf);
+
     STM32_TIM3->CCER = 0;
     STM32_TIM3->ARR = 0xFFFF;
     STM32_TIM3->CR1 = 1; // start
