@@ -34,17 +34,24 @@ static struct {
     } uart, sdcard;
 } params;
 
+static int already_inside_logging = 0;
+
 static void log_message(struct error* e, ...)
 {
     va_list va;
+
+    chMtxLock(&log_lock);
+    if (already_inside_logging) {
+        chMtxUnlock(&log_lock);
+        return;
+    }
+    already_inside_logging = 1;
 
     if (e->severity == ERROR_SEVERITY_ERROR) {
         va_start(va, e);
         vpanic_message(e, va);
         va_end(va);
     }
-
-    chMtxLock(&log_lock);
 
     va_start(va, e);
     vuart_log_message(e, va);
@@ -56,6 +63,7 @@ static void log_message(struct error* e, ...)
         va_end(va);
     }
 
+    already_inside_logging = 0;
     chMtxUnlock(&log_lock);
 }
 
