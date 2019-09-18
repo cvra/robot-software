@@ -3,6 +3,7 @@
 #include <chprintf.h>
 #include <parameter_flash_storage/parameter_flash_storage.h>
 #include <trace/trace.h>
+#include <error/error.h>
 
 #include "main.h"
 #include "usbconf.h"
@@ -15,6 +16,7 @@
 #include "ranging_thread.h"
 #include "state_estimation_thread.h"
 #include "anchor_position_cache.h"
+#include "log.h"
 
 messagebus_t bus;
 MUTEX_DECL(bus_lock);
@@ -37,15 +39,20 @@ void __late_init(void)
 
 int main(void)
 {
-    static const SerialConfig serial_config = {38400, 0, USART_CR2_STOP1_BITS, 0};
-    sdStart(&SD2, &serial_config);
-    chprintf((BaseSequentialStream*)&SD2, "boot\r\n");
 
     bootloader_config_t boot_config;
 
     if (!config_get(&boot_config)) {
         chSysHalt("Could not read config!");
     }
+
+    usb_start(boot_config.ID);
+
+    /* Starts USB, this takes about 1 second, as we have to disconnect and
+     * reconnect the device. */
+    log_init();
+
+    NOTICE("boot");
 
     messagebus_init(&bus, &bus_lock, &bus_condvar);
     parameter_namespace_declare(&parameter_root, NULL, NULL);
@@ -58,14 +65,12 @@ int main(void)
     anchor_position_cache_start();
     state_estimation_start();
 
-    uavcan_node_start(boot_config.ID, boot_config.board_name);
-
-    /* Starts USB, this takes about 1 second, as we have to disconnect and
-     * reconnect the device. */
-    usb_start(boot_config.ID);
     shell_start((BaseSequentialStream*)&SDU1);
 
+    uavcan_node_start(boot_config.ID, boot_config.board_name);
+
     /* All services should be initialized by now, we can load the config. */
+    chThdSleepMilliseconds(1000);
     parameter_flash_storage_load(&parameter_root, &_config_start);
 
     while (true) {
