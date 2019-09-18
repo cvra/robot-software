@@ -15,6 +15,7 @@ depends:
     - quadramp
     - aversive
     - chibios-syscalls
+    - trace
 
 target.arm:
     - src/main.c
@@ -51,6 +52,7 @@ target.arm:
     - src/robot_helpers/motor_helpers.c
     - src/robot_helpers/arm_helpers.cpp
     - src/trace/trace_points.c
+    - src/trace/trace_port.c
     - src/strategy.cpp
     - src/filesystem.c
     - src/http/server.c
@@ -71,7 +73,6 @@ target.arm:
 source:
     - src/unix_timestamp.c
     - src/can/bus_enumerator.c
-    - src/trace/trace.c
     - src/math/lie_groups.c
     - src/base/map.c
     - src/robot_helpers/math_helpers.c
@@ -107,8 +108,6 @@ tests:
     - tests/test_beacon_helpers.cpp
     - tests/test_trajectory_helpers.cpp
     - tests/obstacle_avoidance.cpp
-    - tests/trace_test.cpp
-    - tests/trace_points.c
     - tests/trajectory_manager_test.cpp
     - tests/test_scara_kinematics.cpp
     - tests/lie_groups.cpp
