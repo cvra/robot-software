@@ -10,6 +10,7 @@ This repo contains all the software used on our robots:
 - `eurobot` contains documentation and cofiguration files specific to the Eurobot competition
 - `sensor-firmware` contains code running on the [sensor board](https://www.cvra.ch/robot-software/sensor.html)
 - `uwb-beacon-firmware` contains code and documentation that runs on the [UWB beacon board](https://www.cvra.ch/robot-software/beacon.html)
+- `hitl` contains code to support Hardware In The Loop testing of the master board firmware.
 
 Other important software components can be found in this repo:
 - `lib` contains all the libraries and building blocks we use on multiple boards, which includes:
