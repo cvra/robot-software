@@ -6,5 +6,7 @@ add_executable(motor_board_emulator
 target_link_libraries(motor_board_emulator
     uavcan
     uavcan_linux
+    absl::flags
+    absl::flags_parse
 )
 
