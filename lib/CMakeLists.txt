@@ -1,3 +1,7 @@
+add_subdirectory(abseil)
+
+# UAVCAN stuff
+
 set(DSDLC_INPUTS uavcan/dsdl/uavcan ../uavcan_data_types/cvra)
 set(DSDLC_OUTPUT ${CMAKE_BINARY_DIR}/dsdlc_generated)
 
