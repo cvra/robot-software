@@ -73,3 +73,6 @@ add_library(uavcan
 target_include_directories(uavcan PUBLIC uavcan/libuavcan/include)
 target_compile_definitions(uavcan PUBLIC "UAVCAN_CPP_VERSION=UAVCAN_CPP11;UAVCAN_TOSTRING=0;UAVCAN_DEBUG=0")
 target_include_directories(uavcan PUBLIC ${DSDLC_OUTPUT})
+
+add_library(uavcan_linux INTERFACE)
+target_include_directories(uavcan_linux INTERFACE uavcan/libuavcan_drivers/linux/include/)
