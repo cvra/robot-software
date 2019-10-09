@@ -1,5 +1,12 @@
 add_subdirectory(abseil)
 
+add_library(error
+    error/error.c
+    error/error.h
+)
+
+target_include_directories(error PUBLIC .)
+
 # UAVCAN stuff
 
 set(DSDLC_INPUTS uavcan/dsdl/uavcan ../uavcan_data_types/cvra)

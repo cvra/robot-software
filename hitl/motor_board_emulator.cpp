@@ -3,6 +3,7 @@
 #include "absl/flags/flag.h"
 #include "absl/flags/parse.h"
 #include "absl/flags/usage.h"
+#include "logging.h"
 
 constexpr unsigned NodeMemoryPoolSize = 16384;
 
@@ -19,6 +20,7 @@ int main(int argc, char** argv)
     absl::SetProgramUsageMessage("Emulates one of CVRA "
                                  "motor control board over UAVCAN");
     absl::ParseCommandLine(argc, argv);
+    logging_init();
 
     Node node(getCanDriver(), getSystemClock());
 
