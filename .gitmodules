@@ -19,3 +19,6 @@
 [submodule "lib/nanopb/nanopb"]
 	path = lib/nanopb/nanopb
 	url = https://github.com/nanopb/nanopb
+[submodule "lib/abseil"]
+	path = lib/abseil
+	url = https://github.com/abseil/abseil-cpp.git
