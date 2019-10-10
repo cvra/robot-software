@@ -17,33 +17,47 @@ ABSL_FLAG(int, first_uavcan_id, 42, "UAVCAN ID of the first board."
 ABSL_FLAG(std::vector<std::string>, uavcan_names, {"example-board"}, "Comma separated list of motor boards to emulate.");
 ABSL_FLAG(std::string, can_iface, "vcan0", "SocketCAN interface to connect the emulation to");
 
-uavcan::ISystemClock& getSystemClock();
-uavcan::ICanDriver& getCanDriver();
-
-void node_thread(int id, std::string board_name)
-{
-    NOTICE("Starting CAN thread for '%s'", board_name.c_str());
+class UavcanMotorEmulator {
     uavcan_linux::SystemClock clock;
-    uavcan_linux::SocketCanDriver driver(clock);
+    uavcan_linux::SocketCanDriver driver;
+    std::unique_ptr<Node> node;
+    std::thread thread_;
 
-    auto iface = absl::GetFlag(FLAGS_can_iface).c_str();
-    if (driver.addIface(iface) < 0) {
-        ERROR("Failed to add iface %s", iface);
+public:
+    UavcanMotorEmulator(std::string can_iface, std::string board_name, int node_number)
+        : driver(clock)
+    {
+        NOTICE("Motor board emulator on %s", can_iface.c_str());
+        if (driver.addIface(can_iface) < 0) {
+            ERROR("Failed to add iface %s", can_iface.c_str());
+        }
+        node = std::make_unique<Node>(driver, clock);
+        node->setHealthOk();
+        node->setModeOperational();
+        if (!node->setNodeID(node_number)) {
+            ERROR("Invalid node number %d", node_number);
+        }
+        node->setName(board_name.c_str());
     }
 
-    Node node(driver, clock);
-    node.setNodeID(id);
-    node.setName(board_name.c_str());
+    void start()
+    {
+        std::thread new_thread(&UavcanMotorEmulator::spin, this);
+        std::swap(new_thread, thread_);
+    }
 
-    node.start();
-
-    while (true) {
-        const int res = node.spin(uavcan::MonotonicDuration::fromMSec(1000));
-        if (res < 0) {
-            WARNING("UAVCAN failure (%s): %d", board_name.c_str(), res);
+private:
+    void spin()
+    {
+        node->start();
+        while (true) {
+            const int res = node->spin(uavcan::MonotonicDuration::fromMSec(1000));
+            if (res < 0) {
+                WARNING("UAVCAN failure: %d", res);
+            }
         }
     }
-}
+};
 
 int main(int argc, char** argv)
 {
@@ -54,16 +68,19 @@ int main(int argc, char** argv)
 
     int n = absl::GetFlag(FLAGS_first_uavcan_id);
 
-    std::vector<std::thread> threads;
-
-    for (auto& name : absl::GetFlag(FLAGS_uavcan_names)) {
-        std::thread t(node_thread, n, name);
-        threads.push_back(std::move(t));
+    std::vector<std::unique_ptr<UavcanMotorEmulator>> emulators;
+    for (auto name : absl::GetFlag(FLAGS_uavcan_names)) {
+        auto emu = std::make_unique<UavcanMotorEmulator>(absl::GetFlag(FLAGS_can_iface), name, n);
+        emulators.push_back(std::move(emu));
         n++;
     }
 
-    for (auto& thread : threads) {
-        thread.join();
+    for (auto& emu : emulators) {
+        emu->start();
+    }
+
+    while (true) {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
     return 0;
