@@ -1,4 +1,4 @@
-#include <cvra/motor/EmergencyStop.hpp>
+#include <cvra/motor/control/Voltage.hpp>
 #include <uavcan_linux/uavcan_linux.hpp>
 #include <thread>
 #include <vector>
@@ -23,6 +23,9 @@ class UavcanMotorEmulator {
     std::unique_ptr<Node> node;
     std::thread thread_;
 
+    using VoltageSub = uavcan::Subscriber<cvra::motor::control::Voltage>;
+    std::unique_ptr<VoltageSub> voltage_sub;
+
 public:
     UavcanMotorEmulator(std::string can_iface, std::string board_name, int node_number)
         : driver(clock)
@@ -38,6 +41,11 @@ public:
             ERROR("Invalid node number %d", node_number);
         }
         node->setName(board_name.c_str());
+
+        voltage_sub = std::make_unique<VoltageSub>(*node);
+        voltage_sub->start([&](const uavcan::ReceivedDataStructure<cvra::motor::control::Voltage>& msg) {
+            DEBUG("Received voltage setpoint %.2f for board %d", msg.voltage, msg.node_id);
+        });
     }
 
     void start()

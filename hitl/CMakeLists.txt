@@ -21,3 +21,16 @@ target_link_libraries(hitl_logging
     error
 )
 
+add_executable(voltage_injector
+    voltage_injector.cpp
+)
+
+target_link_libraries(voltage_injector
+    absl::flags
+    absl::flags_parse
+    hitl_logging
+    error
+    uavcan
+    uavcan_linux
+)
+
