@@ -10,6 +10,9 @@ static void udp_topic_injector_thd(void *p)
 
     struct netconn *conn;
 
+    chThdSetPriority(HIGHPRIO);
+    chRegSetThreadName(__FUNCTION__);
+
     /* Listens to UDP on port 10'000 */
     conn = netconn_new(NETCONN_UDP);
     chDbgAssert(conn != NULL, "Cannot create a connection object");
