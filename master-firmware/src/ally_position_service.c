@@ -113,6 +113,6 @@ void ally_position_start(void)
     static THD_WORKING_AREA(receive_wa, 2048);
     parameter_namespace_t* ip_ns = parameter_namespace_find(&global_config, "/ip");
     parameter_string_declare(&ally_ip, ip_ns, "ally_address", ally_ip_buffer, sizeof(ally_ip_buffer));
-    chThdCreateStatic(send_wa, sizeof(send_wa), NORMALPRIO, position_send_thread, NULL);
-    chThdCreateStatic(receive_wa, sizeof(receive_wa), NORMALPRIO, position_receive_thread, NULL);
+    // chThdCreateStatic(send_wa, sizeof(send_wa), NORMALPRIO, position_send_thread, NULL);
+    // chThdCreateStatic(receive_wa, sizeof(receive_wa), NORMALPRIO, position_receive_thread, NULL);
 }

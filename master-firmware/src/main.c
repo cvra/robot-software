@@ -185,6 +185,8 @@ int main(void)
 {
     /* Initializes a serial driver.  */
     sdStart(&SD7, &debug_uart_config);
+    palSetPadMode(GPIOD, GPIOD_PIN8, PAL_MODE_ALTERNATE(7) | PAL_STM32_PUPDR_PULLUP); // ST-Link UART3 TX
+    sdStart(&SD3, &debug_uart_config);
 
     /* Initialize global objects. */
     config_init();
@@ -206,7 +208,7 @@ int main(void)
     /* Initialise timestamp module */
     timestamp_stm32_init();
 
-    pca9685_pwm_init(0.0212);
+    // pca9685_pwm_init(0.0212);
 
     /* bus enumerator init */
     static __attribute__((section(".ccm"))) struct bus_enumerator_entry_allocator
@@ -244,7 +246,7 @@ int main(void)
     config_load_from_flash();
 
     control_panel_init(config_get_boolean("master/control_panel_active_high"));
-    gui_start();
+    // gui_start();
 
     /* Base init */
     encoder_start();

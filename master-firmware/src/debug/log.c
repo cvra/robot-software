@@ -13,7 +13,7 @@
 #include "usbconf.h"
 #include "gui.h"
 
-#define OUTPUT_STREAM ((BaseSequentialStream*)&SD7)
+#define OUTPUT_STREAM ((BaseSequentialStream*)&SD3)
 
 MUTEX_DECL(log_lock);
 
