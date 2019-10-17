@@ -33,6 +33,7 @@
 #include "pca9685_pwm.h"
 #include "gui.h"
 #include "udp_topic_broadcaster.h"
+#include "udp_topic_injector.h"
 #include "ally_position_service.h"
 
 void init_base_motors(void);
@@ -200,7 +201,7 @@ int main(void)
     /* Initialize the interthread communication bus. */
     messagebus_init(&bus, &bus_lock, &bus_condvar);
 
-    // udp_topic_register_callbacks();
+    udp_topic_register_callbacks();
 
     /* Initialise timestamp module */
     timestamp_stm32_init();
@@ -235,7 +236,8 @@ int main(void)
     ip_thread_init();
 
     /* Those service communicate over IP so must be started afterward */
-    // udp_topic_broadcast_start();
+    udp_topic_broadcast_start();
+    udp_topic_injector_start();
     ally_position_start();
 
     /* Load stored robot config */

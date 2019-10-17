@@ -61,6 +61,7 @@ target.arm:
     - src/parameter_port.c
     - src/strategy/score_counter.cpp
     - src/udp_topic_broadcaster.c
+    - src/udp_topic_injector.c
     - src/uid.c
     - src/ally_position_service.c
 
