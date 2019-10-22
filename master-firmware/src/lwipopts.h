@@ -12,6 +12,9 @@
 #define LWIP_DBG_TYPES_ON LWIP_DBG_ON
 #define LWIP_COMPAT_MUTEX_ALLOWED
 
+/* Disabling TCP reduces flash usage by aout 27 kB.*/
+#define LWIP_TCP 0
+
 /* See lwip/src/include/lwip/opt.h for reference. */
 
 #define MEM_ALIGNMENT 4
