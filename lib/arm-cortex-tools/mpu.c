@@ -15,8 +15,7 @@ void mpu_disable(void)
     MPU->CTRL &= ~MPU_CTRL_ENABLE_Msk;
 }
 
-void mpu_configure_region(int region, void *addr, size_t len,
-                          access_permission_t ap, bool executable)
+void mpu_configure_region(int region, void* addr, size_t len, access_permission_t ap, bool executable)
 {
     int32_t rasr = 0;
 
@@ -24,7 +23,7 @@ void mpu_configure_region(int region, void *addr, size_t len,
 
     /* Extract region and address information. */
     region = region & MPU_RBAR_REGION_Msk;
-    addr = (void *)((uint32_t)addr & MPU_RBAR_ADDR_Msk);
+    addr = (void*)((uint32_t)addr & MPU_RBAR_ADDR_Msk);
 
     /* If the region is not executable add the eXecute Never flag. */
     if (!executable) {
@@ -61,7 +60,7 @@ void mpu_init(void)
      *
      * We can use a fixed address range for RAM because it is a standard define
      * by ARM. */
-    void *ram_base = (void *)0x20000000;
+    void* ram_base = (void*)0x20000000;
     int ram_size_pow2 = 29; /* 2^29 = 0.5GB. */
     mpu_configure_region(0, ram_base, ram_size_pow2, AP_RW_RW, false);
 

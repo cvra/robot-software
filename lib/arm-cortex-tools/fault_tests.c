@@ -3,7 +3,7 @@
 
 void null_pointer_fault(void)
 {
-    int *addr = NULL;
+    int* addr = NULL;
     *addr = 42; // NULL pointer dereference
 
     // won't be here
@@ -16,7 +16,7 @@ void execute_never_fault(void)
     /* The last false means that memory is non executable. */
     mpu_configure_region(1, &buffer[128], 5, AP_RW_RW, false);
 
-    void (*foo)(void) = (void(*)(void))&buffer[128];
+    void (*foo)(void) = (void (*)(void)) & buffer[128];
     foo(); // Jump to non executable memory
 
     // won't be here
@@ -26,7 +26,7 @@ void check_register_values(void)
 {
     /* Test if the register values in the fault context log are correct.
      * r0 = 0, r1 = 0, r3 = 0 ..., r12 = 12 */
-    __asm__ volatile (
+    __asm__ volatile(
         "ldr r0, =0x0 \n\t"
         "ldr r1, =0x1 \n\t"
         "ldr r2, =0x2 \n\t"

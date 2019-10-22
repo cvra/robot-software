@@ -1,8 +1,7 @@
 #include "CppUTest/TestHarness.h"
 #include "../parameter.h"
 
-TEST_GROUP(IntegerParamter)
-{
+TEST_GROUP (IntegerParamter) {
     parameter_namespace_t ns;
     parameter_t p;
 
@@ -47,10 +46,7 @@ TEST(IntegerParamter, CanDeclareWithDefault)
     CHECK_EQUAL(1337, parameter_integer_get(&p_default));
 }
 
-
-
-TEST_GROUP(StringParamter)
-{
+TEST_GROUP (StringParamter) {
     parameter_namespace_t ns;
     parameter_t p;
     char str_buffer[8];
@@ -124,8 +120,7 @@ TEST(StringParamter, CanDeclareWithDefault)
     CHECK_TRUE(parameter_changed(&p_default));
 }
 
-TEST_GROUP(BoolParameter)
-{
+TEST_GROUP (BoolParameter) {
     parameter_namespace_t ns;
     parameter_t p;
 

@@ -4,8 +4,7 @@
 #include "../messagebus.h"
 #include "mocks/synchronization.hpp"
 
-TEST_GROUP(Watchgroups)
-{
+TEST_GROUP (Watchgroups) {
     messagebus_watchgroup_t group;
     messagebus_topic_t topic;
     int lock, condvar;
@@ -79,7 +78,6 @@ TEST(Watchgroups, GroupIsWokeUpOnPublish)
     mock().expectOneCall("messagebus_condvar_broadcast").withPointerParameter("var", group.condvar);
     mock().expectOneCall("messagebus_lock_release").withPointerParameter("lock", group.lock);
 
-
     mock().expectOneCall("messagebus_lock_release").withPointerParameter("lock", topic.lock);
 
     lock_mocks_enable(true);
@@ -110,7 +108,6 @@ TEST(Watchgroups, AllGroupsAreSignaled)
     mock().expectOneCall("messagebus_lock_acquire").withPointerParameter("lock", topic.lock);
     mock().expectOneCall("messagebus_condvar_broadcast").withPointerParameter("var", topic.condvar);
 
-
     /* First group */
     mock().expectOneCall("messagebus_lock_acquire").withPointerParameter("lock", group.lock);
     mock().expectOneCall("messagebus_condvar_broadcast").withPointerParameter("var", group.condvar);
@@ -127,7 +124,6 @@ TEST(Watchgroups, AllGroupsAreSignaled)
     condvar_mocks_enable(true);
 
     messagebus_topic_publish(&topic, NULL, 0);
-
 }
 
 /* This test checks that we can have several group containing the same topics. */
@@ -142,7 +138,6 @@ TEST(Watchgroups, GroupCanBeLinkedInMultipleTopics)
     messagebus_watchgroup_init(&group2, &lock2, &var2);
     messagebus_watchgroup_init(&group3, NULL, NULL);
 
-
     /* Adds the first topic to two groups. */
     messagebus_watcher_t watcher2;
     messagebus_watchgroup_watch(&watcher, &group, &topic);
@@ -156,7 +151,6 @@ TEST(Watchgroups, GroupCanBeLinkedInMultipleTopics)
     /* Normal publish on first topic */
     mock().expectOneCall("messagebus_lock_acquire").withPointerParameter("lock", topic.lock);
     mock().expectOneCall("messagebus_condvar_broadcast").withPointerParameter("var", topic.condvar);
-
 
     /* Published topic belongs to groups 1 & 2, lets start with group1. */
     mock().expectOneCall("messagebus_lock_acquire").withPointerParameter("lock", group.lock);

@@ -8,16 +8,14 @@
 
 using namespace std;
 
-
-static void msgpack_error_cb(void *arg, const char *id, const char *err)
+static void msgpack_error_cb(void* arg, const char* id, const char* err)
 {
-    (void) arg;
-    (void) id;
+    (void)arg;
+    (void)id;
     FAIL(err);
 }
 
-TEST_GROUP(MessagePackTestGroup)
-{
+TEST_GROUP (MessagePackTestGroup) {
     parameter_namespace_t rootns;
     parameter_namespace_t a;
     parameter_t a_foo;
@@ -325,10 +323,10 @@ TEST(MessagePackTestGroup, TestBooleanRead)
     CHECK_EQUAL(true, parameter_boolean_get(&a_foo));
 }
 
-void log_problematic_id_callback(void *p, const char *id, const char *err)
+void log_problematic_id_callback(void* p, const char* id, const char* err)
 {
-    (void) p;
-    (void) err;
+    (void)p;
+    (void)err;
 
     mock().actualCall("error").withParameter("id", id);
 }

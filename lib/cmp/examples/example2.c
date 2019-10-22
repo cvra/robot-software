@@ -8,25 +8,30 @@
 
 #include "cmp.h"
 
-static bool read_bytes(void *data, size_t sz, FILE *fh) {
+static bool read_bytes(void* data, size_t sz, FILE* fh)
+{
     return fread(data, sizeof(uint8_t), sz, fh) == (sz * sizeof(uint8_t));
 }
 
-static bool file_reader(cmp_ctx_t *ctx, void *data, size_t limit) {
-    return read_bytes(data, limit, (FILE *)ctx->buf);
+static bool file_reader(cmp_ctx_t* ctx, void* data, size_t limit)
+{
+    return read_bytes(data, limit, (FILE*)ctx->buf);
 }
 
-static size_t file_writer(cmp_ctx_t *ctx, const void *data, size_t count) {
-    return fwrite(data, sizeof(uint8_t), count, (FILE *)ctx->buf);
+static size_t file_writer(cmp_ctx_t* ctx, const void* data, size_t count)
+{
+    return fwrite(data, sizeof(uint8_t), count, (FILE*)ctx->buf);
 }
 
-void error_and_exit(const char *msg) {
+void error_and_exit(const char* msg)
+{
     fprintf(stderr, "%s\n\n", msg);
     exit(EXIT_FAILURE);
 }
 
-int main(void) {
-    FILE *fh = NULL;
+int main(void)
+{
+    FILE* fh = NULL;
     cmp_ctx_t cmp;
     uint16_t year = 1983;
     uint8_t month = 5;
@@ -381,11 +386,9 @@ int main(void) {
                         error_and_exit(strerror(errno));
 
                     printf("Date: %u/%u/%u\n", year, month, day);
-                }
-                else {
+                } else {
                     printf("Extended type {%d, %u}: ",
-                        obj.as.ext.type, obj.as.ext.size
-                    );
+                           obj.as.ext.type, obj.as.ext.size);
                     while (obj.as.ext.size--) {
                         read_bytes(sbuf, sizeof(uint8_t), fh);
                         printf("%02x ", sbuf[0]);
@@ -431,4 +434,3 @@ int main(void) {
 
     return EXIT_SUCCESS;
 }
-

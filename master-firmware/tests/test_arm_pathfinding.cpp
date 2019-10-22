@@ -28,7 +28,10 @@ TEST(ArmPathFindingTestGroup, MoreComplexSituation)
 {
     struct Point {
         float angles[3];
-        Point(float a, float b, float c) : angles{a, b, c} {}
+        Point(float a, float b, float c)
+            : angles{a, b, c}
+        {
+        }
     };
     enum {
         DEPOSIT = 0,
@@ -42,8 +45,7 @@ TEST(ArmPathFindingTestGroup, MoreComplexSituation)
         {{0., 0., 0.}},
         {{0., 0., 0.}},
         {{0., 0., 0.}},
-        {{0., 0., 0.}}
-    };
+        {{0., 0., 0.}}};
 
     for (auto i = 0; i < PICK; i++) {
         connect_bidirectional(nodes[i], nodes[i + 1]);

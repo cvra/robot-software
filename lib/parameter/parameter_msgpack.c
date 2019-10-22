@@ -3,12 +3,11 @@
 #include "parameter_port.h"
 #include "parameter_msgpack.h"
 
-
-static int discard_msgpack_element(cmp_object_t *obj,
-                                   cmp_ctx_t *cmp,
+static int discard_msgpack_element(cmp_object_t* obj,
+                                   cmp_ctx_t* cmp,
                                    parameter_msgpack_err_cb err_cb,
-                                   void *err_arg,
-                                   const char *err_id)
+                                   void* err_arg,
+                                   const char* err_id)
 {
     (void)cmp; // ignore unused variable warning. todo
     switch (obj->type) {
@@ -35,8 +34,7 @@ static int discard_msgpack_element(cmp_object_t *obj,
     }
 }
 
-
-static bool get_float(cmp_object_t *obj, float *out)
+static bool get_float(cmp_object_t* obj, float* out)
 {
     float valf;
     int64_t vali;
@@ -50,7 +48,7 @@ static bool get_float(cmp_object_t *obj, float *out)
     return false;
 }
 
-static bool get_int(cmp_object_t *obj, int32_t *out)
+static bool get_int(cmp_object_t* obj, int32_t* out)
 {
     if (cmp_object_as_int(obj, out)) {
         return true;
@@ -58,7 +56,7 @@ static bool get_int(cmp_object_t *obj, int32_t *out)
     return false;
 }
 
-static bool get_bool(cmp_object_t *obj, bool *out)
+static bool get_bool(cmp_object_t* obj, bool* out)
 {
     if (cmp_object_as_bool(obj, out)) {
         return true;
@@ -66,12 +64,12 @@ static bool get_bool(cmp_object_t *obj, bool *out)
     return false;
 }
 
-static int get_vector(cmp_ctx_t *cmp,
-                      float *buf,
+static int get_vector(cmp_ctx_t* cmp,
+                      float* buf,
                       int len,
                       parameter_msgpack_err_cb err_cb,
-                      void *err_arg,
-                      const char *err_id)
+                      void* err_arg,
+                      const char* err_id)
 {
     bool err = false;
     int i;
@@ -102,11 +100,11 @@ static int get_vector(cmp_ctx_t *cmp,
     }
 }
 
-static int read_parameter_scalar(parameter_t *p,
-                                 cmp_object_t *obj,
-                                 cmp_ctx_t *cmp,
+static int read_parameter_scalar(parameter_t* p,
+                                 cmp_object_t* obj,
+                                 cmp_ctx_t* cmp,
                                  parameter_msgpack_err_cb err_cb,
-                                 void *err_arg)
+                                 void* err_arg)
 {
     float v;
     if (get_float(obj, &v)) {
@@ -121,11 +119,11 @@ static int read_parameter_scalar(parameter_t *p,
     return 0;
 }
 
-static int read_parameter_integer(parameter_t *p,
-                                  cmp_object_t *obj,
-                                  cmp_ctx_t *cmp,
+static int read_parameter_integer(parameter_t* p,
+                                  cmp_object_t* obj,
+                                  cmp_ctx_t* cmp,
                                   parameter_msgpack_err_cb err_cb,
-                                  void *err_arg)
+                                  void* err_arg)
 {
     int32_t v;
     if (get_int(obj, &v)) {
@@ -140,11 +138,11 @@ static int read_parameter_integer(parameter_t *p,
     return 0;
 }
 
-static bool read_parameter_boolean(parameter_t *p,
-                                   cmp_object_t *obj,
-                                   cmp_ctx_t *cmp,
+static bool read_parameter_boolean(parameter_t* p,
+                                   cmp_object_t* obj,
+                                   cmp_ctx_t* cmp,
                                    parameter_msgpack_err_cb err_cb,
-                                   void *err_arg)
+                                   void* err_arg)
 {
     bool v;
     if (get_bool(obj, &v)) {
@@ -159,11 +157,11 @@ static bool read_parameter_boolean(parameter_t *p,
     return 0;
 }
 
-static int read_parameter_vector(parameter_t *p,
-                                 cmp_object_t *obj,
-                                 cmp_ctx_t *cmp,
+static int read_parameter_vector(parameter_t* p,
+                                 cmp_object_t* obj,
+                                 cmp_ctx_t* cmp,
                                  parameter_msgpack_err_cb err_cb,
-                                 void *err_arg)
+                                 void* err_arg)
 {
     uint32_t array_size;
     if (cmp_object_as_array(obj, &array_size)) {
@@ -174,7 +172,7 @@ static int read_parameter_vector(parameter_t *p,
                 return ret;
             }
         }
-        float *buf = parameter_port_buffer_alloc(array_size * sizeof(float));
+        float* buf = parameter_port_buffer_alloc(array_size * sizeof(float));
         if (buf == NULL) {
             err_cb(err_arg, p->id, "warning: allocation failed");
             int ret = discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
@@ -199,11 +197,11 @@ static int read_parameter_vector(parameter_t *p,
     return 0;
 }
 
-static int read_parameter_var_vector(parameter_t *p,
-                                     cmp_object_t *obj,
-                                     cmp_ctx_t *cmp,
+static int read_parameter_var_vector(parameter_t* p,
+                                     cmp_object_t* obj,
+                                     cmp_ctx_t* cmp,
                                      parameter_msgpack_err_cb err_cb,
-                                     void *err_arg)
+                                     void* err_arg)
 {
     uint32_t array_size;
     if (cmp_object_as_array(obj, &array_size)) {
@@ -214,7 +212,7 @@ static int read_parameter_var_vector(parameter_t *p,
                 return ret;
             }
         }
-        float *buf = parameter_port_buffer_alloc(array_size * sizeof(float));
+        float* buf = parameter_port_buffer_alloc(array_size * sizeof(float));
         if (buf == NULL) {
             err_cb(err_arg, p->id, "warning: allocation failed");
             int ret = discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
@@ -239,12 +237,11 @@ static int read_parameter_var_vector(parameter_t *p,
     return 0;
 }
 
-
-static int read_parameter_string(parameter_t *p,
-                                 cmp_object_t *obj,
-                                 cmp_ctx_t *cmp,
+static int read_parameter_string(parameter_t* p,
+                                 cmp_object_t* obj,
+                                 cmp_ctx_t* cmp,
                                  parameter_msgpack_err_cb err_cb,
-                                 void *err_arg)
+                                 void* err_arg)
 {
     uint32_t str_len;
     if (!cmp_object_as_str(obj, &str_len)) {
@@ -255,7 +252,7 @@ static int read_parameter_string(parameter_t *p,
         err_cb(err_arg, p->id, "warning: string is too long");
         return discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
     }
-    char *str_buf = parameter_port_buffer_alloc(str_len);
+    char* str_buf = parameter_port_buffer_alloc(str_len);
     if (str_buf == NULL) {
         err_cb(err_arg, p->id, "warning: allocation failed");
         return discard_msgpack_element(obj, cmp, err_cb, err_arg, p->id);
@@ -270,11 +267,11 @@ static int read_parameter_string(parameter_t *p,
     return 0;
 }
 
-static int read_parameter(parameter_t *p,
-                          cmp_object_t *obj,
-                          cmp_ctx_t *cmp,
+static int read_parameter(parameter_t* p,
+                          cmp_object_t* obj,
+                          cmp_ctx_t* cmp,
                           parameter_msgpack_err_cb err_cb,
-                          void *err_arg)
+                          void* err_arg)
 {
     switch (p->type) {
         case _PARAM_TYPE_SCALAR:
@@ -301,12 +298,11 @@ static int read_parameter(parameter_t *p,
     }
 }
 
-
-static int read_namespace(parameter_namespace_t *ns,
+static int read_namespace(parameter_namespace_t* ns,
                           uint32_t map_size,
-                          cmp_ctx_t *cmp,
+                          cmp_ctx_t* cmp,
                           parameter_msgpack_err_cb err_cb,
-                          void *err_arg)
+                          void* err_arg)
 {
     uint32_t i;
     for (i = 0; i < map_size; i++) {
@@ -315,7 +311,7 @@ static int read_namespace(parameter_namespace_t *ns,
             err_cb(err_arg, NULL, "could not read id");
             return -1;
         }
-        char *id = parameter_port_buffer_alloc(id_size + 1); // +1 for nul term.
+        char* id = parameter_port_buffer_alloc(id_size + 1); // +1 for nul term.
         if (id == NULL) {
             err_cb(err_arg, NULL, "allocation failed");
             return -1;
@@ -334,7 +330,7 @@ static int read_namespace(parameter_namespace_t *ns,
             return -1;
         }
         if (cmp_object_is_map(&obj)) { // namespace
-            parameter_namespace_t *sub = _parameter_namespace_find_w_id_len(ns, id, id_size);
+            parameter_namespace_t* sub = _parameter_namespace_find_w_id_len(ns, id, id_size);
             if (sub == NULL) {
                 err_cb(err_arg, id, "warning: namespace doesn't exist");
             }
@@ -353,7 +349,7 @@ static int read_namespace(parameter_namespace_t *ns,
                 }
             }
         } else { // parameter
-            parameter_t *p = _parameter_find_w_id_len(ns, id, id_size);
+            parameter_t* p = _parameter_find_w_id_len(ns, id, id_size);
             if (p == NULL) {
                 err_cb(err_arg, id, "warning: parameter doesn't exist");
             }
@@ -374,19 +370,17 @@ static int read_namespace(parameter_namespace_t *ns,
     return 0;
 }
 
-
-static void err_ignore_cb(void *arg, const char *id, const char *err)
+static void err_ignore_cb(void* arg, const char* id, const char* err)
 {
     (void)arg;
     (void)id;
     (void)err;
 }
 
-
-int parameter_msgpack_read_cmp(parameter_namespace_t *ns,
-                               cmp_ctx_t *cmp,
+int parameter_msgpack_read_cmp(parameter_namespace_t* ns,
+                               cmp_ctx_t* cmp,
                                parameter_msgpack_err_cb err_cb,
-                               void *err_arg)
+                               void* err_arg)
 {
     if (err_cb == NULL) {
         err_cb = err_ignore_cb;
@@ -399,12 +393,11 @@ int parameter_msgpack_read_cmp(parameter_namespace_t *ns,
     return read_namespace(ns, map_size, cmp, err_cb, err_arg);
 }
 
-
-int parameter_msgpack_read(parameter_namespace_t *ns,
-                           const void *buf,
+int parameter_msgpack_read(parameter_namespace_t* ns,
+                           const void* buf,
                            size_t size,
                            parameter_msgpack_err_cb err_cb,
-                           void *err_arg)
+                           void* err_arg)
 {
     cmp_ctx_t cmp;
     cmp_mem_access_t mem;
@@ -412,26 +405,25 @@ int parameter_msgpack_read(parameter_namespace_t *ns,
     return parameter_msgpack_read_cmp(ns, &cmp, err_cb, err_arg);
 }
 
-
-static void parameter_msgpack_write_subtree(const parameter_namespace_t *ns,
-                                            cmp_ctx_t *cmp,
+static void parameter_msgpack_write_subtree(const parameter_namespace_t* ns,
+                                            cmp_ctx_t* cmp,
                                             parameter_msgpack_err_cb err_cb,
-                                            void *err_arg)
+                                            void* err_arg)
 {
     uint32_t map_size = 0;
     uint32_t i;
 
-    parameter_namespace_t *child;
-    parameter_t *param;
+    parameter_namespace_t* child;
+    parameter_t* param;
     bool success;
 
     for (child = ns->subspaces; child != NULL; child = child->next) {
-        map_size ++;
+        map_size++;
     }
 
     for (param = ns->parameter_list; param != NULL; param = param->next) {
         if (param->defined) {
-            map_size ++;
+            map_size++;
         }
     }
 
@@ -493,10 +485,10 @@ static void parameter_msgpack_write_subtree(const parameter_namespace_t *ns,
     }
 }
 
-void parameter_msgpack_write_cmp(const parameter_namespace_t *ns,
-                                 cmp_ctx_t *cmp,
+void parameter_msgpack_write_cmp(const parameter_namespace_t* ns,
+                                 cmp_ctx_t* cmp,
                                  parameter_msgpack_err_cb err_cb,
-                                 void *err_arg)
+                                 void* err_arg)
 {
     parameter_port_lock();
     parameter_msgpack_write_subtree(ns, cmp, err_cb, err_arg);
@@ -504,11 +496,11 @@ void parameter_msgpack_write_cmp(const parameter_namespace_t *ns,
 }
 
 /** Saves the given parameter tree to the given buffer as MessagePack. */
-void parameter_msgpack_write(const parameter_namespace_t *ns,
-                             void *buf,
+void parameter_msgpack_write(const parameter_namespace_t* ns,
+                             void* buf,
                              size_t size,
                              parameter_msgpack_err_cb err_cb,
-                             void *err_arg)
+                             void* err_arg)
 {
     cmp_ctx_t cmp;
     cmp_mem_access_t mem;

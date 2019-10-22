@@ -19,11 +19,17 @@ struct RetractArms : actions::RetractArms {
     bool execute(RobotState& state) { return dummy_execute(this, state); }
 };
 struct TakePuck : actions::TakePuck {
-    TakePuck(size_t id) : actions::TakePuck(id, RIGHT) {}
+    TakePuck(size_t id)
+        : actions::TakePuck(id, RIGHT)
+    {
+    }
     bool execute(RobotState& state) { return dummy_execute(this, state); }
 };
 struct DepositPuck : actions::DepositPuck {
-    DepositPuck(size_t id) : actions::DepositPuck(id, RIGHT) {}
+    DepositPuck(size_t id)
+        : actions::DepositPuck(id, RIGHT)
+    {
+    }
     bool execute(RobotState& state)
     {
         return dummy_execute(this, state);
@@ -95,7 +101,6 @@ TEST(Strategy, CanInitArms)
     CHECK_TRUE(len > 0);
     CHECK_TRUE(init_goal.is_reached(state));
 }
-
 
 TEST(Strategy, CanRunAllGoals)
 {

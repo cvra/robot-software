@@ -1,9 +1,7 @@
 #include "CppUTest/TestHarness.h"
 #include "timestamp.h"
 
-TEST_GROUP(Timestamp)
-{
-
+TEST_GROUP (Timestamp) {
 };
 
 TEST(Timestamp, DurationPositive)
@@ -39,7 +37,7 @@ TEST(Timestamp, DurationMax)
     timestamp_t t1 = 0;
     timestamp_t t2 = INT32_MAX;
     CHECK_EQUAL(INT32_MAX, timestamp_duration_us(t1, t2));
-    t1 = (uint32_t)INT32_MAX+1;
+    t1 = (uint32_t)INT32_MAX + 1;
     t2 = UINT32_MAX;
     CHECK_EQUAL(INT32_MAX, timestamp_duration_us(t1, t2));
 }
@@ -68,11 +66,7 @@ TEST(Timestamp, DurationNegativeFloatSeconds)
     CHECK_EQUAL(-0.1f, timestamp_duration_s(t1, t2));
 }
 
-
-
-TEST_GROUP(LongTimestamp)
-{
-
+TEST_GROUP (LongTimestamp) {
 };
 
 TEST(LongTimestamp, DurationPositive)
@@ -108,7 +102,7 @@ TEST(LongTimestamp, DurationMax)
     ltimestamp_t t1 = 0;
     ltimestamp_t t2 = INT64_MAX;
     CHECK(INT64_MAX == ltimestamp_duration_us(t1, t2));
-    t1 = (uint64_t)INT64_MAX+1;
+    t1 = (uint64_t)INT64_MAX + 1;
     t2 = UINT64_MAX;
     CHECK(INT64_MAX == ltimestamp_duration_us(t1, t2));
 }

@@ -12,31 +12,31 @@
 #if (__CORTEX_M == 0x03 || __CORTEX_M == 0x04)
 // ARMv7-M Architecture Reference Manual, Chapter B1.5.14 Fault behavior, p. 669
 // MemManage Status Register, MMFSR
-#define MMFSR_IACCVIOL      (1<<0) // Instruction access violation
-#define MMFSR_DACCVIOL      (1<<1) // Data access violation
-#define MMFSR_MUNSTKERR     (1<<3) // Unstacking error
-#define MMFSR_MSTKERR       (1<<4) // Stacking error
-#define MMFSR_MLSPERR       (1<<5) // MemManage Fault during FP lazy state preservation
-#define MMFSR_MMARVALID     (1<<7) // Memory Manage Address Register address valid flag
+#define MMFSR_IACCVIOL (1 << 0) // Instruction access violation
+#define MMFSR_DACCVIOL (1 << 1) // Data access violation
+#define MMFSR_MUNSTKERR (1 << 3) // Unstacking error
+#define MMFSR_MSTKERR (1 << 4) // Stacking error
+#define MMFSR_MLSPERR (1 << 5) // MemManage Fault during FP lazy state preservation
+#define MMFSR_MMARVALID (1 << 7) // Memory Manage Address Register address valid flag
 // BusFault Status Register, BFSR
-#define BFSR_IBUSERR        (1<<0) // Instruction bus error flag
-#define BFSR_PRECISERR      (1<<1) // Precise data bus error
-#define BFSR_IMPRECISERR    (1<<2) // Imprecise data bus error
-#define BFSR_UNSTKERR       (1<<3) // Unstacking error
-#define BFSR_STKERR         (1<<4) // Stacking error
-#define BFSR_LSPERR         (1<<5) // Bus Fault during FP lazy state preservation
-#define BFSR_BFARVALID      (1<<7) // Bus Fault Address Register address valid flag
+#define BFSR_IBUSERR (1 << 0) // Instruction bus error flag
+#define BFSR_PRECISERR (1 << 1) // Precise data bus error
+#define BFSR_IMPRECISERR (1 << 2) // Imprecise data bus error
+#define BFSR_UNSTKERR (1 << 3) // Unstacking error
+#define BFSR_STKERR (1 << 4) // Stacking error
+#define BFSR_LSPERR (1 << 5) // Bus Fault during FP lazy state preservation
+#define BFSR_BFARVALID (1 << 7) // Bus Fault Address Register address valid flag
 // UsageFault Status Register, UFSR
-#define UFSR_UNDEFINSTR     (1<<0) // The processor attempt to execute an undefined instruction
-#define UFSR_INVSTATE       (1<<1) // Invalid combination of EPSR and instruction
-#define UFSR_INVPC          (1<<2) // Attempt to load EXC_RETURN into pc illegally
-#define UFSR_NOCP           (1<<3) // Attempt to use a coprocessor instruction
-#define UFSR_UNALIGNED      (1<<8) // Fault occurs when there is an attempt to make an unaligned memory access
-#define UFSR_DIVBYZERO      (1<<9) // Fault occurs when SDIV or DIV instruction is used with a divisor of 0
+#define UFSR_UNDEFINSTR (1 << 0) // The processor attempt to execute an undefined instruction
+#define UFSR_INVSTATE (1 << 1) // Invalid combination of EPSR and instruction
+#define UFSR_INVPC (1 << 2) // Attempt to load EXC_RETURN into pc illegally
+#define UFSR_NOCP (1 << 3) // Attempt to use a coprocessor instruction
+#define UFSR_UNALIGNED (1 << 8) // Fault occurs when there is an attempt to make an unaligned memory access
+#define UFSR_DIVBYZERO (1 << 9) // Fault occurs when SDIV or DIV instruction is used with a divisor of 0
 // HardFault Status Register, HFSR
-#define HFSR_VECTTBL        (1<<1)  // Fault occurs because of vector table read on exception processing
-#define HFSR_FORCED         (1<<30) // Hard Fault activated when a configurable Fault was received and cannot activate
-#define HFSR_DEBUGEVT       (1<<31) // Fault related to debug
+#define HFSR_VECTTBL (1 << 1) // Fault occurs because of vector table read on exception processing
+#define HFSR_FORCED (1 << 30) // Hard Fault activated when a configurable Fault was received and cannot activate
+#define HFSR_DEBUGEVT (1 << 31) // Fault related to debug
 #endif
 
 // software saved stack frame
@@ -105,14 +105,14 @@ struct arm_irq_frame {
 };
 
 // must be implemented by user
-extern void fault_printf(const char *fmt, ...);
+extern void fault_printf(const char* fmt, ...);
 
-static const char *fault_name(void)
+static const char* fault_name(void)
 {
 #if (__CORTEX_M == 0x00)
     return "HardFault";
 #elif (__CORTEX_M == 0x03 || __CORTEX_M == 0x04)
-    static const char *faults[] = {"HardFault", "MemManageFault", "BusFault", "UsageFault"};
+    static const char* faults[] = {"HardFault", "MemManageFault", "BusFault", "UsageFault"};
     uint32_t isr = __get_IPSR();
     if (isr >= 3 && isr <= 6) {
         return faults[isr - 3];
@@ -122,22 +122,22 @@ static const char *fault_name(void)
 #endif
 }
 
-void fault_handler(struct arm_soft_frame *soft_frame, void *msp, void *psp)
+void fault_handler(struct arm_soft_frame* soft_frame, void* msp, void* psp)
 {
     // stack pointer
-    void *sp = ((soft_frame->lr_irq & 0x4) == 0) ? msp : psp;
-    struct arm_irq_frame *irq_frame = (struct arm_irq_frame *) sp;
+    void* sp = ((soft_frame->lr_irq & 0x4) == 0) ? msp : psp;
+    struct arm_irq_frame* irq_frame = (struct arm_irq_frame*)sp;
 
     uint32_t fault_stack = (uint32_t)sp + 0x20;
     // see ARMv7-M, Chapter B1.5.8 Exception return behavior, p. 652
-    if (!(soft_frame->lr_irq & (1<<4))) {
+    if (!(soft_frame->lr_irq & (1 << 4))) {
         fault_stack += 0x68; // extended frame with FPU registers
     }
-    if (irq_frame->psr & (1<<9)) {
+    if (irq_frame->psr & (1 << 9)) {
         fault_stack += 0x04; // 8-byte auto alignment
     }
 
-    const char *fault = fault_name();
+    const char* fault = fault_name();
     fault_printf("%s at %08x, stack: %08x, called from %08x\n", fault,
                  irq_frame->pc, fault_stack, irq_frame->lr);
     fault_printf("r0-r7:  %08x %08x %08x %08x %08x %08x %08x %08x\n",
@@ -147,7 +147,7 @@ void fault_handler(struct arm_soft_frame *soft_frame, void *msp, void *psp)
                  soft_frame->r9, soft_frame->r10, soft_frame->r11, irq_frame->r12);
     fault_printf("msp: %08x psp: %08x lr: %08x pc: %08x lr (IRQ): %08x\n",
                  (uint32_t)msp, (uint32_t)psp, irq_frame->lr, irq_frame->pc,
-                  soft_frame->lr_irq);
+                 soft_frame->lr_irq);
 
     // FPU state
 #if (__FPU_PRESENT && __FPU_USED && ARM_CORTEX_FAULT_FPU_DEBUG)
@@ -202,9 +202,7 @@ void fault_init(void)
 #if (__CORTEX_M == 0x03 || __CORTEX_M == 0x04)
     chSysLock();
     // enable UsageFault, BusFault, MemManageFault
-    SCB->SHCSR |= SCB_SHCSR_USGFAULTENA_Msk |
-                  SCB_SHCSR_BUSFAULTENA_Msk |
-                  SCB_SHCSR_MEMFAULTENA_Msk;
+    SCB->SHCSR |= SCB_SHCSR_USGFAULTENA_Msk | SCB_SHCSR_BUSFAULTENA_Msk | SCB_SHCSR_MEMFAULTENA_Msk;
     // enable fault on division by zero
     SCB->CCR |= SCB_CCR_DIV_0_TRP_Msk;
     chSysUnlock();

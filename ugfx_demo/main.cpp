@@ -43,7 +43,7 @@ public:
     {
         char msg[30];
         sprintf(msg, "x: %02d", counter);
-        counter ++;
+        counter++;
         gwinSetText(button, msg, gTrue);
     }
 

@@ -9,7 +9,7 @@ extern "C" {
 #endif
 
 // CRC-16-ANSI/IBM algorithm
-uint16_t crc16(uint16_t init, const void *data, size_t length);
+uint16_t crc16(uint16_t init, const void* data, size_t length);
 
 #ifdef __cplusplus
 }

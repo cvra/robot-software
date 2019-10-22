@@ -16,18 +16,17 @@ void parameter_port_assert(int condition)
     CHECK_TRUE(condition);
 }
 
-void *parameter_port_buffer_alloc(size_t size)
+void* parameter_port_buffer_alloc(size_t size)
 {
     return malloc(size);
 }
 
-void parameter_port_buffer_free(void *buffer)
+void parameter_port_buffer_free(void* buffer)
 {
     free(buffer);
 }
 
-TEST_GROUP(ParameterNamespaceInit)
-{
+TEST_GROUP (ParameterNamespaceInit) {
     parameter_namespace_t rootns;
     void setup(void)
     {
@@ -61,7 +60,6 @@ TEST(ParameterNamespaceInit, NamespaceCreate)
     POINTERS_EQUAL(&ns, rootns.subspaces);
 }
 
-
 TEST(ParameterNamespaceInit, NamespaceCreateMultiple)
 {
     parameter_namespace_t ns1;
@@ -76,9 +74,7 @@ TEST(ParameterNamespaceInit, NamespaceCreateMultiple)
     POINTERS_EQUAL(&ns2, rootns.subspaces);
 }
 
-
-TEST_GROUP(ParameterInit)
-{
+TEST_GROUP (ParameterInit) {
     parameter_namespace_t ns;
     void setup(void)
     {
@@ -113,9 +109,7 @@ TEST(ParameterInit, ParameterCreateMulitple)
     POINTERS_EQUAL(&p2, ns.parameter_list);
 }
 
-
-TEST_GROUP(ParameterTree)
-{
+TEST_GROUP (ParameterTree) {
     parameter_namespace_t rootns;
     parameter_namespace_t a;
     parameter_namespace_t a1;

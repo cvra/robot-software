@@ -104,4 +104,3 @@ int dijkstra(Node* nodes, int node_count, Node& start, Node& end)
     return len;
 }
 } // namespace pathfinding
-

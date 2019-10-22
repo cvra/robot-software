@@ -15,7 +15,7 @@ void flash_unlock(void)
     mock("flash").actualCall("unlock");
 }
 
-void flash_sector_erase(void *p)
+void flash_sector_erase(void* p)
 {
     mock("flash").actualCall("erase").withParameter("sector", p);
 
@@ -23,15 +23,15 @@ void flash_sector_erase(void *p)
     memset(p, 0, 1);
 }
 
-void flash_write(void *addr, const void *data, size_t len)
+void flash_write(void* addr, const void* data, size_t len)
 {
     memcpy(addr, data, len);
     mock("flash").actualCall("write");
 }
 
-uint8_t flash_addr_to_sector(void *addr)
+uint8_t flash_addr_to_sector(void* addr)
 {
-    (void) addr;
+    (void)addr;
     return mock("flash").actualCall("addr_to_sector").returnIntValueOrDefault(0);
 }
 
@@ -39,13 +39,9 @@ void flash_sector_erase_number(uint8_t number)
 {
     mock("flash").actualCall("erase").withParameter("sector_number", number);
 }
-
 }
 
-
-TEST_GROUP(FlashMockTestCase)
-{
-
+TEST_GROUP (FlashMockTestCase) {
 };
 
 TEST(FlashMockTestCase, TestFlashLock)

@@ -39,14 +39,14 @@
  * @brief   System time counter resolution.
  * @note    Allowed values are 16 or 32 bits.
  */
-#define CH_CFG_ST_RESOLUTION                32
+#define CH_CFG_ST_RESOLUTION 32
 
 /**
  * @brief   System tick frequency.
  * @details Frequency of the system timer that drives the system ticks. This
  *          setting also defines the system tick time unit.
  */
-#define CH_CFG_ST_FREQUENCY                 10000
+#define CH_CFG_ST_FREQUENCY 10000
 
 /**
  * @brief   Time delta constant for the tick-less mode.
@@ -56,7 +56,7 @@
  *          The value one is not valid, timeouts are rounded up to
  *          this value.
  */
-#define CH_CFG_ST_TIMEDELTA                 2
+#define CH_CFG_ST_TIMEDELTA 2
 
 /** @} */
 
@@ -79,7 +79,7 @@
  * @note    The round robin preemption is not supported in tickless mode and
  *          must be set to zero in that case.
  */
-#define CH_CFG_TIME_QUANTUM                 0
+#define CH_CFG_TIME_QUANTUM 0
 
 /**
  * @brief   Managed RAM size.
@@ -92,7 +92,7 @@
  *          provide the @p __heap_base__ and @p __heap_end__ symbols.
  * @note    Requires @p CH_CFG_USE_MEMCORE.
  */
-#define CH_CFG_MEMCORE_SIZE                 0
+#define CH_CFG_MEMCORE_SIZE 0
 
 /**
  * @brief   Idle thread automatic spawn suppression.
@@ -101,7 +101,7 @@
  *          function becomes the idle thread and must implement an
  *          infinite loop.
  */
-#define CH_CFG_NO_IDLE_THREAD               FALSE
+#define CH_CFG_NO_IDLE_THREAD FALSE
 
 /** @} */
 
@@ -120,7 +120,7 @@
  * @note    This is not related to the compiler optimization options.
  * @note    The default is @p TRUE.
  */
-#define CH_CFG_OPTIMIZE_SPEED               TRUE
+#define CH_CFG_OPTIMIZE_SPEED TRUE
 
 /** @} */
 
@@ -138,7 +138,7 @@
  *
  * @note    The default is @p TRUE.
  */
-#define CH_CFG_USE_TM                       TRUE
+#define CH_CFG_USE_TM TRUE
 
 /**
  * @brief   Threads registry APIs.
@@ -146,7 +146,7 @@
  *
  * @note    The default is @p TRUE.
  */
-#define CH_CFG_USE_REGISTRY                 TRUE
+#define CH_CFG_USE_REGISTRY TRUE
 
 /**
  * @brief   Threads synchronization APIs.
@@ -155,7 +155,7 @@
  *
  * @note    The default is @p TRUE.
  */
-#define CH_CFG_USE_WAITEXIT                 TRUE
+#define CH_CFG_USE_WAITEXIT TRUE
 
 /**
  * @brief   Semaphores APIs.
@@ -163,7 +163,7 @@
  *
  * @note    The default is @p TRUE.
  */
-#define CH_CFG_USE_SEMAPHORES               TRUE
+#define CH_CFG_USE_SEMAPHORES TRUE
 
 /**
  * @brief   Semaphores queuing mode.
@@ -174,7 +174,7 @@
  *          requirements.
  * @note    Requires @p CH_CFG_USE_SEMAPHORES.
  */
-#define CH_CFG_USE_SEMAPHORES_PRIORITY      FALSE
+#define CH_CFG_USE_SEMAPHORES_PRIORITY FALSE
 
 /**
  * @brief   Mutexes APIs.
@@ -182,7 +182,7 @@
  *
  * @note    The default is @p TRUE.
  */
-#define CH_CFG_USE_MUTEXES                  TRUE
+#define CH_CFG_USE_MUTEXES TRUE
 
 /**
  * @brief   Enables recursive behavior on mutexes.
@@ -192,7 +192,7 @@
  * @note    The default is @p FALSE.
  * @note    Requires @p CH_CFG_USE_MUTEXES.
  */
-#define CH_CFG_USE_MUTEXES_RECURSIVE        FALSE
+#define CH_CFG_USE_MUTEXES_RECURSIVE FALSE
 
 /**
  * @brief   Conditional Variables APIs.
@@ -202,7 +202,7 @@
  * @note    The default is @p TRUE.
  * @note    Requires @p CH_CFG_USE_MUTEXES.
  */
-#define CH_CFG_USE_CONDVARS                 TRUE
+#define CH_CFG_USE_CONDVARS TRUE
 
 /**
  * @brief   Conditional Variables APIs with timeout.
@@ -212,7 +212,7 @@
  * @note    The default is @p TRUE.
  * @note    Requires @p CH_CFG_USE_CONDVARS.
  */
-#define CH_CFG_USE_CONDVARS_TIMEOUT         TRUE
+#define CH_CFG_USE_CONDVARS_TIMEOUT TRUE
 
 /**
  * @brief   Events Flags APIs.
@@ -220,7 +220,7 @@
  *
  * @note    The default is @p TRUE.
  */
-#define CH_CFG_USE_EVENTS                   TRUE
+#define CH_CFG_USE_EVENTS TRUE
 
 /**
  * @brief   Events Flags APIs with timeout.
@@ -230,7 +230,7 @@
  * @note    The default is @p TRUE.
  * @note    Requires @p CH_CFG_USE_EVENTS.
  */
-#define CH_CFG_USE_EVENTS_TIMEOUT           TRUE
+#define CH_CFG_USE_EVENTS_TIMEOUT TRUE
 
 /**
  * @brief   Synchronous Messages APIs.
@@ -239,7 +239,7 @@
  *
  * @note    The default is @p TRUE.
  */
-#define CH_CFG_USE_MESSAGES                 TRUE
+#define CH_CFG_USE_MESSAGES TRUE
 
 /**
  * @brief   Synchronous Messages queuing mode.
@@ -250,7 +250,7 @@
  *          requirements.
  * @note    Requires @p CH_CFG_USE_MESSAGES.
  */
-#define CH_CFG_USE_MESSAGES_PRIORITY        FALSE
+#define CH_CFG_USE_MESSAGES_PRIORITY FALSE
 
 /**
  * @brief   Mailboxes APIs.
@@ -260,7 +260,7 @@
  * @note    The default is @p TRUE.
  * @note    Requires @p CH_CFG_USE_SEMAPHORES.
  */
-#define CH_CFG_USE_MAILBOXES                TRUE
+#define CH_CFG_USE_MAILBOXES TRUE
 
 /**
  * @brief   I/O Queues APIs.
@@ -268,7 +268,7 @@
  *
  * @note    The default is @p TRUE.
  */
-#define CH_CFG_USE_QUEUES                   TRUE
+#define CH_CFG_USE_QUEUES TRUE
 
 /**
  * @brief   Core Memory Manager APIs.
@@ -277,7 +277,7 @@
  *
  * @note    The default is @p TRUE.
  */
-#define CH_CFG_USE_MEMCORE                  TRUE
+#define CH_CFG_USE_MEMCORE TRUE
 
 /**
  * @brief   Heap Allocator APIs.
@@ -289,7 +289,7 @@
  *          @p CH_CFG_USE_SEMAPHORES.
  * @note    Mutexes are recommended.
  */
-#define CH_CFG_USE_HEAP                     TRUE
+#define CH_CFG_USE_HEAP TRUE
 
 /**
  * @brief   Memory Pools Allocator APIs.
@@ -298,7 +298,7 @@
  *
  * @note    The default is @p TRUE.
  */
-#define CH_CFG_USE_MEMPOOLS                 TRUE
+#define CH_CFG_USE_MEMPOOLS TRUE
 
 /**
  * @brief   Dynamic Threads APIs.
@@ -309,7 +309,7 @@
  * @note    Requires @p CH_CFG_USE_WAITEXIT.
  * @note    Requires @p CH_CFG_USE_HEAP and/or @p CH_CFG_USE_MEMPOOLS.
  */
-#define CH_CFG_USE_DYNAMIC                  TRUE
+#define CH_CFG_USE_DYNAMIC TRUE
 
 /** @} */
 
@@ -325,7 +325,7 @@
  *
  * @note    The default is @p FALSE.
  */
-#define CH_DBG_STATISTICS                   FALSE
+#define CH_DBG_STATISTICS FALSE
 
 /**
  * @brief   Debug option, system state check.
@@ -334,7 +334,7 @@
  *
  * @note    The default is @p FALSE.
  */
-#define CH_DBG_SYSTEM_STATE_CHECK           FALSE
+#define CH_DBG_SYSTEM_STATE_CHECK FALSE
 
 /**
  * @brief   Debug option, parameters checks.
@@ -343,7 +343,7 @@
  *
  * @note    The default is @p FALSE.
  */
-#define CH_DBG_ENABLE_CHECKS                FALSE
+#define CH_DBG_ENABLE_CHECKS FALSE
 
 /**
  * @brief   Debug option, consistency checks.
@@ -353,7 +353,7 @@
  *
  * @note    The default is @p FALSE.
  */
-#define CH_DBG_ENABLE_ASSERTS               FALSE
+#define CH_DBG_ENABLE_ASSERTS FALSE
 
 /**
  * @brief   Debug option, trace buffer.
@@ -362,7 +362,7 @@
  *
  * @note    The default is @p FALSE.
  */
-#define CH_DBG_ENABLE_TRACE                 FALSE
+#define CH_DBG_ENABLE_TRACE FALSE
 
 /**
  * @brief   Debug option, stack checks.
@@ -374,7 +374,7 @@
  * @note    The default failure mode is to halt the system with the global
  *          @p panic_msg variable set to @p NULL.
  */
-#define CH_DBG_ENABLE_STACK_CHECK           FALSE
+#define CH_DBG_ENABLE_STACK_CHECK FALSE
 
 /**
  * @brief   Debug option, stacks initialization.
@@ -384,7 +384,7 @@
  *
  * @note    The default is @p FALSE.
  */
-#define CH_DBG_FILL_THREADS                 FALSE
+#define CH_DBG_FILL_THREADS FALSE
 
 /**
  * @brief   Debug option, threads profiling.
@@ -395,7 +395,7 @@
  * @note    This debug option is not currently compatible with the
  *          tickless mode.
  */
-#define CH_DBG_THREADS_PROFILING            FALSE
+#define CH_DBG_THREADS_PROFILING FALSE
 
 /** @} */
 
@@ -410,8 +410,8 @@
  * @brief   Threads descriptor structure extension.
  * @details User fields added to the end of the @p thread_t structure.
  */
-#define CH_CFG_THREAD_EXTRA_FIELDS                                          \
-  /* Add threads custom fields here.*/
+#define CH_CFG_THREAD_EXTRA_FIELDS \
+    /* Add threads custom fields here.*/
 
 /**
  * @brief   Threads initialization hook.
@@ -420,9 +420,10 @@
  * @note    It is invoked from within @p chThdInit() and implicitly from all
  *          the threads creation APIs.
  */
-#define CH_CFG_THREAD_INIT_HOOK(tp) {                                       \
-  /* Add threads initialization code here.*/                                \
-}
+#define CH_CFG_THREAD_INIT_HOOK(tp)                \
+    {                                              \
+        /* Add threads initialization code here.*/ \
+    }
 
 /**
  * @brief   Threads finalization hook.
@@ -432,17 +433,19 @@
  * @note    It is also invoked when the threads simply return in order to
  *          terminate.
  */
-#define CH_CFG_THREAD_EXIT_HOOK(tp) {                                       \
-  /* Add threads finalization code here.*/                                  \
-}
+#define CH_CFG_THREAD_EXIT_HOOK(tp)              \
+    {                                            \
+        /* Add threads finalization code here.*/ \
+    }
 
 /**
  * @brief   Context switch hook.
  * @details This hook is invoked just before switching between threads.
  */
-#define CH_CFG_CONTEXT_SWITCH_HOOK(ntp, otp) {                              \
-  /* Context switch code here.*/                                            \
-}
+#define CH_CFG_CONTEXT_SWITCH_HOOK(ntp, otp) \
+    {                                        \
+        /* Context switch code here.*/       \
+    }
 
 /**
  * @brief   Idle thread enter hook.
@@ -450,8 +453,9 @@
  *          should be invoked from here.
  * @note    This macro can be used to activate a power saving mode.
  */
-#define CH_CFG_IDLE_ENTER_HOOK() {                                          \
-}
+#define CH_CFG_IDLE_ENTER_HOOK() \
+    {                            \
+    }
 
 /**
  * @brief   Idle thread leave hook.
@@ -459,34 +463,38 @@
  *          should be invoked from here.
  * @note    This macro can be used to deactivate a power saving mode.
  */
-#define CH_CFG_IDLE_LEAVE_HOOK() {                                          \
-}
+#define CH_CFG_IDLE_LEAVE_HOOK() \
+    {                            \
+    }
 
 /**
  * @brief   Idle Loop hook.
  * @details This hook is continuously invoked by the idle thread loop.
  */
-#define CH_CFG_IDLE_LOOP_HOOK() {                                           \
-  /* Idle loop code here.*/                                                 \
-}
+#define CH_CFG_IDLE_LOOP_HOOK()   \
+    {                             \
+        /* Idle loop code here.*/ \
+    }
 
 /**
  * @brief   System tick event hook.
  * @details This hook is invoked in the system tick handler immediately
  *          after processing the virtual timers queue.
  */
-#define CH_CFG_SYSTEM_TICK_HOOK() {                                         \
-  /* System tick event code here.*/                                         \
-}
+#define CH_CFG_SYSTEM_TICK_HOOK()         \
+    {                                     \
+        /* System tick event code here.*/ \
+    }
 
 /**
  * @brief   System halt hook.
  * @details This hook is invoked in case to a system halting error before
  *          the system is halted.
  */
-#define CH_CFG_SYSTEM_HALT_HOOK(reason) {                                   \
-  /* System halt code here.*/                                               \
-}
+#define CH_CFG_SYSTEM_HALT_HOOK(reason) \
+    {                                   \
+        /* System halt code here.*/     \
+    }
 
 /** @} */
 
@@ -494,6 +502,6 @@
 /* Port-specific settings (override port settings defaulted in chcore.h).    */
 /*===========================================================================*/
 
-#endif  /* _CHCONF_H_ */
+#endif /* _CHCONF_H_ */
 
 /** @} */

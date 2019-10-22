@@ -92,8 +92,7 @@ static bool simulated_goto_xya(void* ctx, int x_mm, int y_mm, int a_deg)
         strat->log("No path found!");
         map_server_map_release(map);
         return false;
-    }
-    else {
+    } else {
         position_set(&strat->robot->pos, x_mm, y_mm, a_deg);
     }
 

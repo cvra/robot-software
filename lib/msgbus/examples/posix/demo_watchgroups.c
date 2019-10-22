@@ -8,12 +8,12 @@
 
 messagebus_t bus;
 
-static void* producer(void *p)
+static void* producer(void* p)
 {
-    messagebus_topic_t *topic;
+    messagebus_topic_t* topic;
     int counter = 0;
 
-    char *topic_name = (char *)p;
+    char* topic_name = (char*)p;
 
     printf("[publisher] waiting for topic \"%s\"\n", topic_name);
 
@@ -28,7 +28,7 @@ static void* producer(void *p)
     return NULL;
 }
 
-static void *observer(void *p)
+static void* observer(void* p)
 {
     messagebus_watchgroup_t group;
 
@@ -45,7 +45,7 @@ static void *observer(void *p)
                                 messagebus_find_topic_blocking(&bus, "bar"));
 
     while (1) {
-        messagebus_topic_t *topic;
+        messagebus_topic_t* topic;
         topic = messagebus_watchgroup_wait(&group);
         printf("[observer] Received a message of size %ld on \"%s\"\n",
                topic->buffer_len,
@@ -53,11 +53,11 @@ static void *observer(void *p)
     }
 }
 
-static void create_topic(const char *name)
+static void create_topic(const char* name)
 {
-    messagebus_topic_t *topic = malloc(sizeof(messagebus_topic_t));
-    int *buffer = malloc(sizeof(int));
-    condvar_wrapper_t *sync = malloc(sizeof(condvar_wrapper_t));
+    messagebus_topic_t* topic = malloc(sizeof(messagebus_topic_t));
+    int* buffer = malloc(sizeof(int));
+    condvar_wrapper_t* sync = malloc(sizeof(condvar_wrapper_t));
     pthread_mutex_init(&sync->mutex, NULL);
     pthread_cond_init(&sync->cond, NULL);
 
@@ -65,10 +65,10 @@ static void create_topic(const char *name)
     messagebus_advertise_topic(&bus, topic, name);
 }
 
-int main(int argc, const char **argv)
+int main(int argc, const char** argv)
 {
-    (void) argc;
-    (void) argv;
+    (void)argc;
+    (void)argv;
 
     /* Create the message bus. */
     condvar_wrapper_t bus_sync = {PTHREAD_MUTEX_INITIALIZER,

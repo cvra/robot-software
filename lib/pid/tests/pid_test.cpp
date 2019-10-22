@@ -4,8 +4,7 @@ extern "C" {
 #include "../pid.h"
 }
 
-TEST_GROUP(PIDTestGroup)
-{
+TEST_GROUP (PIDTestGroup) {
     pid_ctrl_t pid;
 
     /** Processes a given input in the PID controller and compares it against
@@ -30,8 +29,8 @@ TEST(PIDTestGroup, IntegralValueIsZeroAtInit)
 
 TEST(PIDTestGroup, PControllerAtInit)
 {
-    float kp,ki,kd;
-    pid_get_gains(&pid,&kp,&ki,&kd);
+    float kp, ki, kd;
+    pid_get_gains(&pid, &kp, &ki, &kd);
     CHECK_EQUAL(1., kp);
     CHECK_EQUAL(0., ki);
     CHECK_EQUAL(0., kd);
@@ -40,9 +39,9 @@ TEST(PIDTestGroup, PControllerAtInit)
 
 TEST(PIDTestGroup, CanSetGains)
 {
-    float kp,ki,kd;
+    float kp, ki, kd;
     pid_set_gains(&pid, 10., 20., 30.);
-    pid_get_gains(&pid,&kp,&ki,&kd);
+    pid_get_gains(&pid, &kp, &ki, &kd);
     CHECK_EQUAL(10., kp);
     CHECK_EQUAL(20., ki);
     CHECK_EQUAL(30., kd);
@@ -50,13 +49,13 @@ TEST(PIDTestGroup, CanSetGains)
 
 TEST(PIDTestGroup, CanSetLimit)
 {
-    pid_set_integral_limit(&pid,100.);
+    pid_set_integral_limit(&pid, 100.);
     CHECK_EQUAL(100., pid_get_integral_limit(&pid));
 }
 
 TEST(PIDTestGroup, CanSetFrequency)
 {
-    pid_set_frequency(&pid,100.);
+    pid_set_frequency(&pid, 100.);
     CHECK_EQUAL(100., pid_get_frequency(&pid));
 }
 
@@ -130,7 +129,7 @@ TEST(PIDTestGroup, CanResetIntegrator)
     process_and_expect(20., -40.);
 
     pid_reset_integral(&pid);
-    process_and_expect(20.,- 20.);
+    process_and_expect(20., -20.);
 }
 
 TEST(PIDTestGroup, FrequencyChangeIntegrator)
@@ -148,4 +147,3 @@ TEST(PIDTestGroup, FrequencyChangeDerivative)
     process_and_expect(20., -200.);
     process_and_expect(20., 0.);
 }
-

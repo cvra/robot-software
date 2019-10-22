@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include "mean.h"
 
-
 float mean(float* set, size_t n)
 {
     float ret = 0.0f;
@@ -13,7 +12,6 @@ float mean(float* set, size_t n)
 
     return ret / n;
 }
-
 
 int mean_int16(int16_t* set, size_t n)
 {

@@ -7,8 +7,7 @@
 #include <cstring>
 #include "crc/crc32.h"
 
-TEST_GROUP(ConfigSaveTestCase)
-{
+TEST_GROUP (ConfigSaveTestCase) {
     uint8_t data[128];
     parameter_namespace_t ns;
 
@@ -46,11 +45,11 @@ TEST(ConfigSaveTestCase, SavingConfigLockUnlock)
     mock("flash").checkExpectations();
 }
 
-static void err_cb(void *p, const char *id, const char *err)
+static void err_cb(void* p, const char* id, const char* err)
 {
-    (void) p;
-    (void) id;
-    (void) err;
+    (void)p;
+    (void)id;
+    (void)err;
     char msg[128];
     snprintf(msg, sizeof msg, "MessagePack error on item \"%s\": \"%s\"", id, err);
 
@@ -77,7 +76,7 @@ TEST(ConfigSaveTestCase, SavingConfigWorks)
     // Loads the config back from saved state
     // We add an offset to skip the CRC and the block length
     parameter_msgpack_read(&ns,
-                           (char *)(&data[PARAMETER_FLASH_STORAGE_HEADER_SIZE]),
+                           (char*)(&data[PARAMETER_FLASH_STORAGE_HEADER_SIZE]),
                            sizeof(data) - PARAMETER_FLASH_STORAGE_HEADER_SIZE,
                            err_cb, NULL);
 
@@ -85,8 +84,7 @@ TEST(ConfigSaveTestCase, SavingConfigWorks)
     CHECK_EQUAL(10, parameter_integer_get(parameter_find(&ns, "/foo")));
 }
 
-TEST_GROUP(ConfigLoadTestCase)
-{
+TEST_GROUP (ConfigLoadTestCase) {
     uint8_t data[128];
     parameter_namespace_t ns;
     parameter_t foo;
@@ -152,8 +150,7 @@ TEST(ConfigLoadTestCase, FailsIfParameterTreeLayoutDoesNotMatchSavedStructure)
     CHECK_FALSE(res);
 }
 
-TEST_GROUP(BlockValidityTestGroup)
-{
+TEST_GROUP (BlockValidityTestGroup) {
     uint8_t block[256 + PARAMETER_FLASH_STORAGE_HEADER_SIZE];
 
     void setup()
@@ -162,11 +159,9 @@ TEST_GROUP(BlockValidityTestGroup)
 
         mock("flash").disable();
         parameter_flash_storage_write_block_header(block,
-                                                   sizeof(block) -
-                                                   PARAMETER_FLASH_STORAGE_HEADER_SIZE);
+                                                   sizeof(block) - PARAMETER_FLASH_STORAGE_HEADER_SIZE);
         mock("flash").enable();
     }
-
 };
 
 TEST(BlockValidityTestGroup, DefaultBlockIsValid)
@@ -199,8 +194,7 @@ TEST(BlockValidityTestGroup, FreshFlashIsInvalid)
     CHECK_FALSE(parameter_flash_storage_block_is_valid(block));
 }
 
-TEST_GROUP(BlockGetLengthTestCase)
-{
+TEST_GROUP (BlockGetLengthTestCase) {
     uint8_t block[10 + PARAMETER_FLASH_STORAGE_HEADER_SIZE];
 };
 
@@ -215,8 +209,7 @@ TEST(BlockGetLengthTestCase, CanGetBlockLength)
     CHECK_EQUAL(10, res);
 }
 
-TEST_GROUP(FindFirstValidBlockTestGroup)
-{
+TEST_GROUP (FindFirstValidBlockTestGroup) {
     uint8_t block[256];
 };
 
@@ -249,8 +242,7 @@ TEST(FindFirstValidBlockTestGroup, FindLastUsedBlock)
     POINTERS_EQUAL(block, parameter_flash_storage_block_find_last_used(block));
 }
 
-TEST_GROUP(ConfigLoadBalancingTestGroup)
-{
+TEST_GROUP (ConfigLoadBalancingTestGroup) {
     parameter_namespace_t ns;
     uint8_t block[256];
 
@@ -259,7 +251,6 @@ TEST_GROUP(ConfigLoadBalancingTestGroup)
         mock("flash").ignoreOtherCalls();
         parameter_namespace_declare(&ns, NULL, NULL);
     }
-
 };
 
 TEST(ConfigLoadBalancingTestGroup, ConfigSavingIsLoadBalanced)

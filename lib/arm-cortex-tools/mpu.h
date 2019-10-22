@@ -10,13 +10,13 @@ extern "C" {
  * The first group is for priviledged code, the second for unpriviledged code.
  */
 typedef enum {
-    AP_NO_NO=0x0,
-    AP_RW_NO=0x1,
-    AP_RW_RO=0x2,
-    AP_RW_RW=0x3,
-    AP_RESERVED=0x4,
-    AP_RO_NO=0x5,
-    AP_RO_RO=0x6,
+    AP_NO_NO = 0x0,
+    AP_RW_NO = 0x1,
+    AP_RW_RO = 0x2,
+    AP_RW_RW = 0x3,
+    AP_RESERVED = 0x4,
+    AP_RO_NO = 0x5,
+    AP_RO_RO = 0x6,
 } access_permission_t;
 
 /** Initializes the Memory Protection Unit.
@@ -47,9 +47,7 @@ void mpu_disable(void);
  * not peripheral space (B flag=0).
  * @warning This function is not thread-safe.
  */
-void mpu_configure_region(int region, void *addr, size_t log2_len,
-                          access_permission_t ap, bool executable);
-
+void mpu_configure_region(int region, void* addr, size_t log2_len, access_permission_t ap, bool executable);
 
 #ifdef __cplusplus
 }

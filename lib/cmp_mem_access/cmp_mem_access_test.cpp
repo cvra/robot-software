@@ -2,8 +2,7 @@
 #include "cmp_mem_access.h"
 #include "cmp/cmp.h"
 
-TEST_GROUP(CMPMemAccess)
-{
+TEST_GROUP (CMPMemAccess) {
     cmp_mem_access_t ma;
     cmp_ctx_t cmp;
 };
@@ -32,7 +31,7 @@ TEST(CMPMemAccess, Read)
 TEST(CMPMemAccess, ReadOverBufferEnd)
 {
     static char testbuf[] = {'\x93', 0x01, 0x02, 0x03}; // [1, 2, 3]
-    cmp_mem_access_init(&cmp, &ma, &testbuf, sizeof(testbuf)-1);
+    cmp_mem_access_init(&cmp, &ma, &testbuf, sizeof(testbuf) - 1);
     bool err = false;
     uint32_t arr_size;
     err = !cmp_read_array(&cmp, &arr_size);

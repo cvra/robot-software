@@ -11,22 +11,21 @@ extern "C" {
 
 /** Erase config sector.
  */
-void parameter_flash_storage_erase(void *dst);
+void parameter_flash_storage_erase(void* dst);
 
 /** Writes the given parameter namespace to flash , prepending it with a CRC
  * for integrity checks.
  */
-void parameter_flash_storage_save(void *dst, size_t dst_len, parameter_namespace_t *ns);
+void parameter_flash_storage_save(void* dst, size_t dst_len, parameter_namespace_t* ns);
 
 /** Loads the configuration from the flash
  *
  * @returns true if the operation was successful.
  * @note If no valid block is found the parameter tree is unchanged.
  */
-bool parameter_flash_storage_load(parameter_namespace_t *ns, void *src);
+bool parameter_flash_storage_load(parameter_namespace_t* ns, void* src);
 #ifdef __cplusplus
 }
 #endif
-
 
 #endif

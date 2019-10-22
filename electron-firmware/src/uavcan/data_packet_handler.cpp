@@ -26,4 +26,3 @@ int data_packet_handler_init(uavcan::INode& node)
 
     return subscriber.start(data_packet_cb);
 }
-

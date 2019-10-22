@@ -47,5 +47,4 @@
 #define STREAM_PORT 20042
 #define BUTTON_PRESS_PUBLISHER_PORT 20042
 
-
 #endif /* __LWIPOPT_H__ */

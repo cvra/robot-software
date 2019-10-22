@@ -110,4 +110,3 @@ int back_hall_sensor(void)
 {
     return !palReadPad(GPIOA, GPIOA_PIN1);
 }
-

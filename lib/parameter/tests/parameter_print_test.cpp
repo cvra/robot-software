@@ -5,10 +5,7 @@
 static int outbuffer_pos;
 static char outbuffer[1000];
 
-TEST_GROUP(Print)
-{
-
-
+TEST_GROUP (Print) {
     parameter_namespace_t rootns;
     parameter_t param_scalar;
     parameter_t param_integer;
@@ -52,9 +49,9 @@ TEST_GROUP(Print)
     }
 };
 
-int printfn(void *arg, const char *fmt, ...)
+int printfn(void* arg, const char* fmt, ...)
 {
-    (void) arg;
+    (void)arg;
 
     va_list args;
     va_start(args, fmt);
@@ -67,8 +64,7 @@ int printfn(void *arg, const char *fmt, ...)
     return 0;
 }
 
-
-const char *expected =
+const char* expected =
     "param_boolean: true\n"
     "param_integer: 42\n"
     "param_scalar: 3.141593\n"
