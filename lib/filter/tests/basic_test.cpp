@@ -1,8 +1,7 @@
 #include "CppUTest/TestHarness.h"
 #include "../basic.h"
 
-TEST_GROUP(Limit)
-{
+TEST_GROUP (Limit) {
     const float min = -5;
     const float max = 99;
 };

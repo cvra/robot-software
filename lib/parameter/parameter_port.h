@@ -23,14 +23,13 @@ extern void parameter_port_assert(int condition);
  * namespace name or the largest parameter array, matrix or string, whichever
  * is the largest.
  */
-extern void *parameter_port_buffer_alloc(size_t size);
+extern void* parameter_port_buffer_alloc(size_t size);
 
 /** Frees a buffer allocated by parameter_port_buffer_alloc. */
-extern void parameter_port_buffer_free(void *buffer);
+extern void parameter_port_buffer_free(void* buffer);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* PARAMETER_PORT_H */
-

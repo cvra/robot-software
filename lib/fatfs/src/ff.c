@@ -5313,7 +5313,7 @@ int f_printf(
                     : ((d == 'D') ? (DWORD)(long)va_arg(arp,
                                                         int)
                                   : (DWORD)va_arg(
-                                        arp, unsigned int));
+                                      arp, unsigned int));
         if (d == 'D' && (v & 0x80000000)) {
             v = 0 - v;
             f |= 8;

@@ -21,24 +21,24 @@ struct encoded_message {
 };
 
 static struct encoded_message msg_buffer[MSG_BUF_SIZE] __attribute__((aligned(PORT_NATURAL_ALIGN)));
-static char *msg_mailbox_buf[MSG_BUF_SIZE];
+static char* msg_mailbox_buf[MSG_BUF_SIZE];
 static MAILBOX_DECL(msg_mailbox, msg_mailbox_buf, MSG_BUF_SIZE);
 static MEMORYPOOL_DECL(msg_pool, sizeof(struct encoded_message), PORT_NATURAL_ALIGN, NULL);
 
-static void new_topic_cb(messagebus_t *bus, messagebus_topic_t *topic, void *arg)
+static void new_topic_cb(messagebus_t* bus, messagebus_topic_t* topic, void* arg)
 {
     (void)bus;
     (void)arg;
-    topic_metadata_t *metadata = (topic_metadata_t *)topic->metadata;
+    topic_metadata_t* metadata = (topic_metadata_t*)topic->metadata;
     NOTICE("Registered topic: %s", topic->name);
     messagebus_watchgroup_watch(&metadata->udp_watcher, &watchgroup, topic);
 }
 
-static void udp_topic_encode_thd(void *p)
+static void udp_topic_encode_thd(void* p)
 {
     (void)p;
 
-    messagebus_topic_t *topic;
+    messagebus_topic_t* topic;
 
     static uint8_t object_buf[512];
 
@@ -51,7 +51,7 @@ static void udp_topic_encode_thd(void *p)
     while (true) {
         topic = messagebus_watchgroup_wait(&watchgroup);
 
-        struct encoded_message *msg = chPoolAlloc(&msg_pool);
+        struct encoded_message* msg = chPoolAlloc(&msg_pool);
 
         if (msg == NULL) {
             WARNING("Dropping a messsage.");
@@ -72,22 +72,22 @@ static void udp_topic_encode_thd(void *p)
     }
 }
 
-static void udp_topic_send_thd(void *p)
+static void udp_topic_send_thd(void* p)
 {
     (void)p;
     chThdSetPriority(NORMALPRIO);
     chRegSetThreadName(__FUNCTION__);
 
-    struct netconn *conn;
+    struct netconn* conn;
     conn = netconn_new(NETCONN_UDP);
 
     chDbgAssert(conn != NULL, "Could not create connection");
 
     while (true) {
-        struct encoded_message *msg;
-        struct netbuf *buf;
+        struct encoded_message* msg;
+        struct netbuf* buf;
 
-        msg_t res = chMBFetchTimeout(&msg_mailbox, (msg_t *)&msg, TIME_INFINITE);
+        msg_t res = chMBFetchTimeout(&msg_mailbox, (msg_t*)&msg, TIME_INFINITE);
 
         if (res != MSG_OK) {
             continue;

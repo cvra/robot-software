@@ -13,7 +13,7 @@ parameter_namespace_t master_config;
 
 void config_init(void)
 {
-    config_master_init();  // Generated, see config_private.h
+    config_master_init(); // Generated, see config_private.h
 
     // Initialize public facing namespaces from private config
     memcpy(&global_config, &config.ns, sizeof(parameter_namespace_t));

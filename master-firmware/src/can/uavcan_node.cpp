@@ -161,7 +161,6 @@ static void main(void* arg)
         ERROR("electron starter");
     }
 
-
     // Mark the node as correctly initialized
     node.getNodeStatusProvider().setModeOperational();
     node.getNodeStatusProvider().setHealthOk();

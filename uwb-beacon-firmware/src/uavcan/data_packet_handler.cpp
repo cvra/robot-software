@@ -23,4 +23,3 @@ int data_packet_handler_init(Node& node)
 
     return subscriber.start(data_packet_cb);
 }
-

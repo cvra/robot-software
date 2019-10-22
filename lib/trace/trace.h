@@ -16,7 +16,6 @@ enum {
     TRACE_TYPE_INTEGER,
 };
 
-
 struct trace_event {
     uint32_t event_id : 8;
     uint32_t type : 2;

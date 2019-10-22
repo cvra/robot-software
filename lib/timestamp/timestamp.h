@@ -13,18 +13,15 @@ typedef uint32_t timestamp_t;
  */
 typedef uint64_t ltimestamp_t;
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 /*
  * Obtain current timestamp
  */
 timestamp_t timestamp_get(void);
 ltimestamp_t ltimestamp_get(void);
-
 
 /*
  * Compute duration between two timestamps
@@ -40,7 +37,6 @@ float timestamp_duration_s(timestamp_t t1, timestamp_t t2);
 
 int64_t ltimestamp_duration_us(ltimestamp_t t1, ltimestamp_t t2);
 float ltimestamp_duration_s(ltimestamp_t t1, ltimestamp_t t2);
-
 
 #ifdef __cplusplus
 }

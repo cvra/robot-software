@@ -23,12 +23,11 @@
  * check for the changed count correctly handles the signed integer counter)
  */
 
-
 /* find the length of the next element in hierarchical id
  * returns number of characters until the first '/' or the entire
  * length if no '/' is found)
  */
-static int id_split(const char *id, int id_len)
+static int id_split(const char* id, int id_len)
 {
     int i = 0;
     for (i = 0; i < id_len; i++) {
@@ -39,19 +38,18 @@ static int id_split(const char *id, int id_len)
     return id_len;
 }
 
-
 /*
  * get a sub-namespace of a namespace by id. search depth is only one level
  */
-static parameter_namespace_t *get_subnamespace(parameter_namespace_t *ns,
-                                               const char *ns_id,
+static parameter_namespace_t* get_subnamespace(parameter_namespace_t* ns,
+                                               const char* ns_id,
                                                size_t ns_id_len)
 {
     if (ns_id_len == 0) {
         return ns; // this allows to start with a '/' or have '//' instead of '/'
     }
     parameter_port_lock();
-    parameter_namespace_t *i = ns->subspaces;
+    parameter_namespace_t* i = ns->subspaces;
     parameter_port_unlock();
     while (i != NULL) {
         if (strncmp(ns_id, i->id, ns_id_len) == 0 && i->id[ns_id_len] == '\0') {
@@ -67,14 +65,13 @@ static parameter_namespace_t *get_subnamespace(parameter_namespace_t *ns,
 /*
  * get a parameter of a namespace by id. search depth is only one level
  */
-static parameter_t *get_parameter(parameter_namespace_t *ns, const char *id,
-                                  size_t param_id_len)
+static parameter_t* get_parameter(parameter_namespace_t* ns, const char* id, size_t param_id_len)
 {
     if (param_id_len == 0) {
         return NULL;
     }
     parameter_port_lock();
-    parameter_t *i = ns->parameter_list;
+    parameter_t* i = ns->parameter_list;
     parameter_port_unlock();
     while (i != NULL) {
         if (strncmp(id, i->id, param_id_len) == 0 && i->id[param_id_len] == '\0') {
@@ -87,9 +84,9 @@ static parameter_t *get_parameter(parameter_namespace_t *ns, const char *id,
     return i;
 }
 
-void parameter_namespace_declare(parameter_namespace_t *ns,
-                                 parameter_namespace_t *parent,
-                                 const char *id)
+void parameter_namespace_declare(parameter_namespace_t* ns,
+                                 parameter_namespace_t* parent,
+                                 const char* id)
 {
     ns->id = id;
     ns->changed_cnt = 0;
@@ -107,11 +104,11 @@ void parameter_namespace_declare(parameter_namespace_t *ns,
     }
 }
 
-
-parameter_namespace_t *_parameter_namespace_find_w_id_len(parameter_namespace_t *ns,
-                                                          const char *id, size_t id_len)
+parameter_namespace_t* _parameter_namespace_find_w_id_len(parameter_namespace_t* ns,
+                                                          const char* id,
+                                                          size_t id_len)
 {
-    parameter_namespace_t *nret = ns;
+    parameter_namespace_t* nret = ns;
     uint32_t i = 0;
     while (nret != NULL && i < id_len) {
         int id_elem_len = id_split(&id[i], id_len - i);
@@ -121,16 +118,17 @@ parameter_namespace_t *_parameter_namespace_find_w_id_len(parameter_namespace_t 
     return nret;
 }
 
-parameter_namespace_t *parameter_namespace_find(parameter_namespace_t *ns,
-                                                const char *id)
+parameter_namespace_t* parameter_namespace_find(parameter_namespace_t* ns,
+                                                const char* id)
 {
     return _parameter_namespace_find_w_id_len(ns, id, strlen(id));
 }
 
-parameter_t *_parameter_find_w_id_len(parameter_namespace_t *ns,
-                                      const char *id, size_t id_len)
+parameter_t* _parameter_find_w_id_len(parameter_namespace_t* ns,
+                                      const char* id,
+                                      size_t id_len)
 {
-    parameter_namespace_t *pns = ns;
+    parameter_namespace_t* pns = ns;
     uint32_t i = 0;
     while (pns != NULL) {
         int id_elem_len = id_split(&id[i], id_len - i);
@@ -144,13 +142,12 @@ parameter_t *_parameter_find_w_id_len(parameter_namespace_t *ns,
     return NULL;
 }
 
-parameter_t *parameter_find(parameter_namespace_t *ns, const char *id)
+parameter_t* parameter_find(parameter_namespace_t* ns, const char* id)
 {
     return _parameter_find_w_id_len(ns, id, strlen(id));
 }
 
-void _parameter_declare(parameter_t *p, parameter_namespace_t *ns,
-                        const char *id)
+void _parameter_declare(parameter_t* p, parameter_namespace_t* ns, const char* id)
 {
     p->id = id;
     p->ns = ns;
@@ -163,7 +160,7 @@ void _parameter_declare(parameter_t *p, parameter_namespace_t *ns,
     parameter_port_unlock();
 }
 
-bool parameter_namespace_contains_changed(const parameter_namespace_t *ns)
+bool parameter_namespace_contains_changed(const parameter_namespace_t* ns)
 {
     parameter_port_lock();
     uint32_t changed_cnt = ns->changed_cnt;
@@ -171,7 +168,7 @@ bool parameter_namespace_contains_changed(const parameter_namespace_t *ns)
     return changed_cnt > 0;
 }
 
-bool parameter_changed(const parameter_t *p)
+bool parameter_changed(const parameter_t* p)
 {
     parameter_port_lock();
     bool changed = p->changed;
@@ -179,7 +176,7 @@ bool parameter_changed(const parameter_t *p)
     return changed;
 }
 
-bool parameter_defined(const parameter_t *p)
+bool parameter_defined(const parameter_t* p)
 {
     if (p == NULL) {
         return false;
@@ -190,7 +187,7 @@ bool parameter_defined(const parameter_t *p)
     return defined;
 }
 
-void _parameter_changed_set(parameter_t *p)
+void _parameter_changed_set(parameter_t* p)
 {
     parameter_port_lock();
     bool changed_was_set = p->changed;
@@ -201,7 +198,7 @@ void _parameter_changed_set(parameter_t *p)
     }
     // if the above "compare and set" passes, the changed count can safely
     // be incremented for the namespaces
-    parameter_namespace_t *ns = p->ns;
+    parameter_namespace_t* ns = p->ns;
     while (ns != NULL) {
         parameter_port_lock();
         ns->changed_cnt++;
@@ -211,7 +208,7 @@ void _parameter_changed_set(parameter_t *p)
     p->defined = true;
 }
 
-void _parameter_changed_clear(parameter_t *p)
+void _parameter_changed_clear(parameter_t* p)
 {
     parameter_port_lock();
     bool changed_was_set = p->changed;
@@ -222,7 +219,7 @@ void _parameter_changed_clear(parameter_t *p)
     }
     // if the above "compare and set" passes, the changed count can safely
     // be decremented for the namespaces
-    parameter_namespace_t *ns = p->ns;
+    parameter_namespace_t* ns = p->ns;
     while (ns != NULL) {
         parameter_port_lock();
         ns->changed_cnt--; // here change counts can temporarily become negative
@@ -235,16 +232,15 @@ void _parameter_changed_clear(parameter_t *p)
  * Scalar type parameter
  */
 
-void parameter_scalar_declare(parameter_t *p, parameter_namespace_t *ns,
-                              const char *id)
+void parameter_scalar_declare(parameter_t* p, parameter_namespace_t* ns, const char* id)
 {
     p->type = _PARAM_TYPE_SCALAR;
     _parameter_declare(p, ns, id);
 }
 
-void parameter_scalar_declare_with_default(parameter_t *p,
-                                           parameter_namespace_t *ns,
-                                           const char *id,
+void parameter_scalar_declare_with_default(parameter_t* p,
+                                           parameter_namespace_t* ns,
+                                           const char* id,
                                            float default_val)
 {
     p->value.s = default_val;
@@ -253,13 +249,13 @@ void parameter_scalar_declare_with_default(parameter_t *p,
     _parameter_changed_set(p);
 }
 
-float parameter_scalar_get(parameter_t *p)
+float parameter_scalar_get(parameter_t* p)
 {
     _parameter_changed_clear(p);
     return parameter_scalar_read(p);
 }
 
-float parameter_scalar_read(parameter_t *p)
+float parameter_scalar_read(parameter_t* p)
 {
     parameter_port_assert(p->type == _PARAM_TYPE_SCALAR);
     parameter_port_lock();
@@ -269,7 +265,7 @@ float parameter_scalar_read(parameter_t *p)
     return ret;
 }
 
-void parameter_scalar_set(parameter_t *p, float value)
+void parameter_scalar_set(parameter_t* p, float value)
 {
     parameter_port_assert(p->type == _PARAM_TYPE_SCALAR);
     parameter_port_lock();
@@ -278,21 +274,19 @@ void parameter_scalar_set(parameter_t *p, float value)
     _parameter_changed_set(p);
 }
 
-
 /*
  * Integer type parameter
  */
 
-void parameter_integer_declare(parameter_t *p, parameter_namespace_t *ns,
-                               const char *id)
+void parameter_integer_declare(parameter_t* p, parameter_namespace_t* ns, const char* id)
 {
     p->type = _PARAM_TYPE_INTEGER;
     _parameter_declare(p, ns, id);
 }
 
-void parameter_integer_declare_with_default(parameter_t *p,
-                                            parameter_namespace_t *ns,
-                                            const char *id,
+void parameter_integer_declare_with_default(parameter_t* p,
+                                            parameter_namespace_t* ns,
+                                            const char* id,
                                             int32_t default_val)
 {
     p->value.i = default_val;
@@ -301,13 +295,13 @@ void parameter_integer_declare_with_default(parameter_t *p,
     _parameter_changed_set(p);
 }
 
-int32_t parameter_integer_get(parameter_t *p)
+int32_t parameter_integer_get(parameter_t* p)
 {
     _parameter_changed_clear(p);
     return parameter_integer_read(p);
 }
 
-int32_t parameter_integer_read(parameter_t *p)
+int32_t parameter_integer_read(parameter_t* p)
 {
     parameter_port_assert(p->type == _PARAM_TYPE_INTEGER);
     parameter_port_lock();
@@ -317,7 +311,7 @@ int32_t parameter_integer_read(parameter_t *p)
     return ret;
 }
 
-void parameter_integer_set(parameter_t *p, int32_t value)
+void parameter_integer_set(parameter_t* p, int32_t value)
 {
     parameter_port_assert(p->type == _PARAM_TYPE_INTEGER);
     parameter_port_lock();
@@ -328,15 +322,15 @@ void parameter_integer_set(parameter_t *p, int32_t value)
 
 /* Boolean type parameter. */
 
-void parameter_boolean_declare(parameter_t *p, parameter_namespace_t *ns, const char *id)
+void parameter_boolean_declare(parameter_t* p, parameter_namespace_t* ns, const char* id)
 {
     p->type = _PARAM_TYPE_BOOLEAN;
     _parameter_declare(p, ns, id);
 }
 
-void parameter_boolean_declare_with_default(parameter_t *p,
-                                            parameter_namespace_t *ns,
-                                            const char *id,
+void parameter_boolean_declare_with_default(parameter_t* p,
+                                            parameter_namespace_t* ns,
+                                            const char* id,
                                             bool default_val)
 {
     p->value.b = default_val;
@@ -345,7 +339,7 @@ void parameter_boolean_declare_with_default(parameter_t *p,
     _parameter_changed_set(p);
 }
 
-void parameter_boolean_set(parameter_t *p, bool value)
+void parameter_boolean_set(parameter_t* p, bool value)
 {
     parameter_port_assert(p->type == _PARAM_TYPE_BOOLEAN);
 
@@ -355,13 +349,13 @@ void parameter_boolean_set(parameter_t *p, bool value)
     _parameter_changed_set(p);
 }
 
-bool parameter_boolean_get(parameter_t *p)
+bool parameter_boolean_get(parameter_t* p)
 {
     _parameter_changed_clear(p);
     return parameter_boolean_read(p);
 }
 
-bool parameter_boolean_read(parameter_t *p)
+bool parameter_boolean_read(parameter_t* p)
 {
     parameter_port_assert(p->type == _PARAM_TYPE_BOOLEAN);
     parameter_port_lock();
@@ -371,13 +365,11 @@ bool parameter_boolean_read(parameter_t *p)
     return ret;
 }
 
-
 /*
  * Vector type parameter
  */
 
-void parameter_vector_declare(parameter_t *p, parameter_namespace_t *ns,
-                              const char *id, float *buf, uint16_t dim)
+void parameter_vector_declare(parameter_t* p, parameter_namespace_t* ns, const char* id, float* buf, uint16_t dim)
 {
     p->type = _PARAM_TYPE_VECTOR;
     p->value.vect.buf = buf;
@@ -385,29 +377,29 @@ void parameter_vector_declare(parameter_t *p, parameter_namespace_t *ns,
     _parameter_declare(p, ns, id);
 }
 
-void parameter_vector_declare_with_default(parameter_t *p,
-                                           parameter_namespace_t *ns,
-                                           const char *id,
-                                           float *buf,
+void parameter_vector_declare_with_default(parameter_t* p,
+                                           parameter_namespace_t* ns,
+                                           const char* id,
+                                           float* buf,
                                            uint16_t dim)
 {
     parameter_vector_declare(p, ns, id, buf, dim);
     _parameter_changed_set(p);
 }
 
-uint16_t parameter_vector_dim(parameter_t *p)
+uint16_t parameter_vector_dim(parameter_t* p)
 {
     parameter_port_assert(p->type == _PARAM_TYPE_VECTOR);
     return p->value.vect.dim;
 }
 
-void parameter_vector_get(parameter_t *p, float *out)
+void parameter_vector_get(parameter_t* p, float* out)
 {
     _parameter_changed_clear(p);
     parameter_vector_read(p, out);
 }
 
-void parameter_vector_read(parameter_t *p, float *out)
+void parameter_vector_read(parameter_t* p, float* out)
 {
     parameter_port_assert(p->type == _PARAM_TYPE_VECTOR);
     parameter_port_lock();
@@ -419,7 +411,7 @@ void parameter_vector_read(parameter_t *p, float *out)
     parameter_port_unlock();
 }
 
-void parameter_vector_set(parameter_t *p, const float *v)
+void parameter_vector_set(parameter_t* p, const float* v)
 {
     parameter_port_assert(p->type == _PARAM_TYPE_VECTOR);
     parameter_port_lock();
@@ -431,15 +423,14 @@ void parameter_vector_set(parameter_t *p, const float *v)
     _parameter_changed_set(p);
 }
 
-
 /*
  * Variable size vector type parameter
  */
 
-void parameter_variable_vector_declare(parameter_t *p,
-                                       parameter_namespace_t *ns,
-                                       const char *id,
-                                       float *buf,
+void parameter_variable_vector_declare(parameter_t* p,
+                                       parameter_namespace_t* ns,
+                                       const char* id,
+                                       float* buf,
                                        uint16_t buf_size)
 {
     p->type = _PARAM_TYPE_VAR_VECTOR;
@@ -448,10 +439,10 @@ void parameter_variable_vector_declare(parameter_t *p,
     _parameter_declare(p, ns, id);
 }
 
-void parameter_variable_vector_declare_with_default(parameter_t *p,
-                                                    parameter_namespace_t *ns,
-                                                    const char *id,
-                                                    float *buf,
+void parameter_variable_vector_declare_with_default(parameter_t* p,
+                                                    parameter_namespace_t* ns,
+                                                    const char* id,
+                                                    float* buf,
                                                     uint16_t buf_size,
                                                     uint16_t init_size)
 {
@@ -461,19 +452,19 @@ void parameter_variable_vector_declare_with_default(parameter_t *p,
     _parameter_changed_set(p);
 }
 
-uint16_t parameter_variable_vector_max_dim(parameter_t *p)
+uint16_t parameter_variable_vector_max_dim(parameter_t* p)
 {
     parameter_port_assert(p->type == _PARAM_TYPE_VAR_VECTOR);
     return p->value.vect.buf_dim;
 }
 
-uint16_t parameter_variable_vector_get(parameter_t *p, float *out)
+uint16_t parameter_variable_vector_get(parameter_t* p, float* out)
 {
     _parameter_changed_clear(p);
     return parameter_variable_vector_read(p, out);
 }
 
-uint16_t parameter_variable_vector_read(parameter_t *p, float *out)
+uint16_t parameter_variable_vector_read(parameter_t* p, float* out)
 {
     parameter_port_assert(p->type == _PARAM_TYPE_VAR_VECTOR);
     parameter_port_lock();
@@ -487,7 +478,7 @@ uint16_t parameter_variable_vector_read(parameter_t *p, float *out)
     return ret;
 }
 
-void parameter_variable_vector_set(parameter_t *p, const float *v, uint16_t dim)
+void parameter_variable_vector_set(parameter_t* p, const float* v, uint16_t dim)
 {
     parameter_port_assert(p->type == _PARAM_TYPE_VAR_VECTOR);
     parameter_port_lock();
@@ -501,15 +492,14 @@ void parameter_variable_vector_set(parameter_t *p, const float *v, uint16_t dim)
     _parameter_changed_set(p);
 }
 
-
 /*
  * String type parameter
  */
 
-void parameter_string_declare(parameter_t *p,
-                              parameter_namespace_t *ns,
-                              const char *id,
-                              char *buf,
+void parameter_string_declare(parameter_t* p,
+                              parameter_namespace_t* ns,
+                              const char* id,
+                              char* buf,
                               uint16_t buf_size)
 {
     p->type = _PARAM_TYPE_STRING;
@@ -518,12 +508,12 @@ void parameter_string_declare(parameter_t *p,
     _parameter_declare(p, ns, id);
 }
 
-void parameter_string_declare_with_default(parameter_t *p,
-                                           parameter_namespace_t *ns,
-                                           const char *id,
-                                           char *buf,
+void parameter_string_declare_with_default(parameter_t* p,
+                                           parameter_namespace_t* ns,
+                                           const char* id,
+                                           char* buf,
                                            uint16_t buf_size,
-                                           const char *default_str)
+                                           const char* default_str)
 {
     parameter_string_declare(p, ns, id, buf, buf_size);
     p->value.str.len = strlen(default_str);
@@ -532,19 +522,19 @@ void parameter_string_declare_with_default(parameter_t *p,
     _parameter_changed_set(p);
 }
 
-uint16_t parameter_string_max_len(parameter_t *p)
+uint16_t parameter_string_max_len(parameter_t* p)
 {
     parameter_port_assert(p->type == _PARAM_TYPE_STRING);
     return p->value.str.buf_len + 1; // +1 for '\0' terminator
 }
 
-uint16_t parameter_string_get(parameter_t *p, char *out, uint16_t out_size)
+uint16_t parameter_string_get(parameter_t* p, char* out, uint16_t out_size)
 {
     _parameter_changed_clear(p);
     return parameter_string_read(p, out, out_size);
 }
 
-uint16_t parameter_string_read(parameter_t *p, char *out, uint16_t out_size)
+uint16_t parameter_string_read(parameter_t* p, char* out, uint16_t out_size)
 {
     parameter_port_assert(p->type == _PARAM_TYPE_STRING);
     parameter_port_lock();
@@ -561,12 +551,12 @@ uint16_t parameter_string_read(parameter_t *p, char *out, uint16_t out_size)
     return len;
 }
 
-void parameter_string_set(parameter_t *p, const char *str)
+void parameter_string_set(parameter_t* p, const char* str)
 {
     parameter_string_set_w_len(p, str, strlen(str));
 }
 
-void parameter_string_set_w_len(parameter_t *p, const char *str, uint16_t len)
+void parameter_string_set_w_len(parameter_t* p, const char* str, uint16_t len)
 {
     parameter_port_assert(p->type == _PARAM_TYPE_STRING);
     parameter_port_lock();

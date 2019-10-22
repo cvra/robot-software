@@ -11,10 +11,9 @@
  * which makes empty flash pages valid. */
 #define CRC_INITIAL_VALUE 0xdeadbeef
 
-
-static size_t cmp_flash_writer(struct cmp_ctx_s *ctx, const void *data, size_t len)
+static size_t cmp_flash_writer(struct cmp_ctx_s* ctx, const void* data, size_t len)
 {
-    cmp_mem_access_t *mem = (cmp_mem_access_t*)ctx->buf;
+    cmp_mem_access_t* mem = (cmp_mem_access_t*)ctx->buf;
     if (mem->index + len <= mem->size) {
         flash_write(&mem->buf[mem->index], data, len);
         mem->index += len;
@@ -24,30 +23,30 @@ static size_t cmp_flash_writer(struct cmp_ctx_s *ctx, const void *data, size_t l
     }
 }
 
-void parameter_flash_storage_erase(void *dst)
+void parameter_flash_storage_erase(void* dst)
 {
     flash_unlock();
     flash_sector_erase(dst);
     flash_lock();
 }
 
-static void err_mark_false(void *arg, const char *id, const char *err)
+static void err_mark_false(void* arg, const char* id, const char* err)
 {
-    (void) id;
-    (void) err;
+    (void)id;
+    (void)err;
 
-    bool *b = (bool *)arg;
+    bool* b = (bool*)arg;
     *b = false;
 }
 
-void parameter_flash_storage_save(void *dst, size_t dst_len, parameter_namespace_t *ns)
+void parameter_flash_storage_save(void* dst, size_t dst_len, parameter_namespace_t* ns)
 {
     cmp_ctx_t cmp;
     cmp_mem_access_t mem;
     size_t len;
     bool success = true;
 
-    void *orig_dst = dst;
+    void* orig_dst = dst;
 
     flash_unlock();
 
@@ -92,10 +91,10 @@ void parameter_flash_storage_save(void *dst, size_t dst_len, parameter_namespace
     // On STM32F3s we have to make sure we wrote a multiple of 16 bits because
     // the flash controller does not support single byte writes.
     if (len % 2 == 1) {
-        uint8_t *end = dst + len + PARAMETER_FLASH_STORAGE_HEADER_SIZE + 1;
+        uint8_t* end = dst + len + PARAMETER_FLASH_STORAGE_HEADER_SIZE + 1;
         uint8_t data = 0x00;
         flash_write(end, &data, 1);
-        len ++;
+        len++;
     }
 
     parameter_flash_storage_write_block_header(dst, len);
@@ -103,7 +102,7 @@ void parameter_flash_storage_save(void *dst, size_t dst_len, parameter_namespace
     flash_lock();
 }
 
-bool parameter_flash_storage_load(parameter_namespace_t *ns, void *src)
+bool parameter_flash_storage_load(parameter_namespace_t* ns, void* src)
 {
     int res;
     uint32_t src_len;
@@ -128,9 +127,9 @@ bool parameter_flash_storage_load(parameter_namespace_t *ns, void *src)
     return successful;
 }
 
-bool parameter_flash_storage_block_is_valid(void *p)
+bool parameter_flash_storage_block_is_valid(void* p)
 {
-    uint8_t *block = (uint8_t *)p;
+    uint8_t* block = (uint8_t*)p;
     uint32_t crc, length;
     size_t offset = 0;
 
@@ -159,7 +158,7 @@ bool parameter_flash_storage_block_is_valid(void *p)
     return true;
 }
 
-void parameter_flash_storage_write_block_header(void *dst, uint32_t len)
+void parameter_flash_storage_write_block_header(void* dst, uint32_t len)
 {
     uint32_t crc;
     size_t offset = 0;
@@ -178,7 +177,7 @@ void parameter_flash_storage_write_block_header(void *dst, uint32_t len)
     flash_write(dst + offset, &crc, sizeof(uint32_t));
 }
 
-uint32_t parameter_flash_storage_block_get_length(void *block)
+uint32_t parameter_flash_storage_block_get_length(void* block)
 {
     uint32_t header[2];
     memcpy(header, block, sizeof header);
@@ -186,10 +185,10 @@ uint32_t parameter_flash_storage_block_get_length(void *block)
     return header[1];
 }
 
-void *parameter_flash_storage_block_find_last_used(void *p)
+void* parameter_flash_storage_block_find_last_used(void* p)
 {
-    uint8_t *block = (uint8_t *)p;
-    uint8_t *last = NULL;
+    uint8_t* block = (uint8_t*)p;
+    uint8_t* last = NULL;
 
     while (parameter_flash_storage_block_is_valid(block)) {
         last = block;
@@ -200,9 +199,9 @@ void *parameter_flash_storage_block_find_last_used(void *p)
     return last;
 }
 
-void *parameter_flash_storage_block_find_first_free(void *p)
+void* parameter_flash_storage_block_find_first_free(void* p)
 {
-    uint8_t *block = (uint8_t *)p;
+    uint8_t* block = (uint8_t*)p;
 
     while (parameter_flash_storage_block_is_valid(block)) {
         block += parameter_flash_storage_block_get_length(block);

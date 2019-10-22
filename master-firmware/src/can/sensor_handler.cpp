@@ -17,7 +17,7 @@ static bus_enumerator_t* enumerator;
 static void sensor_distance_cb(const uavcan::ReceivedDataStructure<cvra::sensor::DistanceVL6180X>& msg)
 {
     int id = msg.getSrcNodeID().get();
-    messagebus_topic_t *topic = NULL;
+    messagebus_topic_t* topic = NULL;
 
     if (id == bus_enumerator_get_can_id(enumerator, "front-left-sensor")) {
         topic = &front_left_topic.topic;

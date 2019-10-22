@@ -149,7 +149,6 @@ static void cmd_temp(BaseSequentialStream* chp, int argc, char** argv)
             chprintf(chp, "No DW1000 temperature data available.\r\n");
         }
     }
-
 }
 
 static void cmd_ahrs(BaseSequentialStream* chp, int argc, char** argv)

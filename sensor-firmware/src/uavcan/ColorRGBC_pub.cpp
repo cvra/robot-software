@@ -4,7 +4,7 @@
 #include <cvra/sensor/ColorRGBC.hpp>
 #include "main.h"
 
-void color_publish(uavcan::INode &node)
+void color_publish(uavcan::INode& node)
 {
     static uavcan::Publisher<cvra::sensor::ColorRGBC> pub(node);
 

@@ -75,7 +75,7 @@ int can_uwb_ip_netif_init(uavcan::INode& node)
 
 static err_t low_level_output(struct netif* netif, struct pbuf* p)
 {
-    (void) netif;
+    (void)netif;
     /* First, copy all the data */
     tx_packet = DataPacket();
     for (auto q = p; q != NULL; q = q->next) {
@@ -96,7 +96,7 @@ static err_t low_level_output(struct netif* netif, struct pbuf* p)
 
 bool lwip_uwb_ip_read(struct netif* netif, struct pbuf** pbuf)
 {
-    (void) netif;
+    (void)netif;
     if (chBSemWaitTimeout(&sem_rx_available, TIME_IMMEDIATE) != MSG_OK) {
         return false;
     }
@@ -123,7 +123,7 @@ bool lwip_uwb_ip_read(struct netif* netif, struct pbuf** pbuf)
 
 int can_uwb_ip_netif_spin(uavcan::INode& node)
 {
-    (void) node;
+    (void)node;
     /* Check if data is available for transmit */
     if (chBSemWaitTimeout(&sem_tx_ready, TIME_IMMEDIATE) == MSG_OK) {
         data_pub->broadcast(tx_packet);

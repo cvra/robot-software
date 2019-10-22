@@ -13,8 +13,7 @@
 #include "chibios-syscalls/stdio_lock.h"
 #endif
 
-class PositionPage : public Page
-{
+class PositionPage : public Page {
     GHandle button;
     GHandle page_title;
     char msg[30];

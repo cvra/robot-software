@@ -8,28 +8,30 @@
 
 #include "utils.h"
 
-void error_and_exit(const char *msg) {
-  fprintf(stderr, "%s\n", msg);
-  exit(EXIT_FAILURE);
+void error_and_exit(const char* msg)
+{
+    fprintf(stderr, "%s\n", msg);
+    exit(EXIT_FAILURE);
 }
 
-void errorf_and_exit(const char *msg, ...) {
-  va_list args;
+void errorf_and_exit(const char* msg, ...)
+{
+    va_list args;
 
-  va_start(args, msg);
-  vfprintf(stderr, msg, args);
-  va_end(args);
+    va_start(args, msg);
+    vfprintf(stderr, msg, args);
+    va_end(args);
 
-  exit(EXIT_FAILURE);
+    exit(EXIT_FAILURE);
 }
 
-char* _strdup(const char *s) {
-  char *out = calloc(strlen(s) + 1, sizeof(char));
+char* _strdup(const char* s)
+{
+    char* out = calloc(strlen(s) + 1, sizeof(char));
 
-  strcpy(out, s);
+    strcpy(out, s);
 
-  return out;
+    return out;
 }
 
 /* vi: set et ts=2 sw=2: */
-

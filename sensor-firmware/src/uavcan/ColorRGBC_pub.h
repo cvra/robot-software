@@ -3,6 +3,6 @@
 
 #include <uavcan/uavcan.hpp>
 
-void color_publish(uavcan::INode &node);
+void color_publish(uavcan::INode& node);
 
 #endif

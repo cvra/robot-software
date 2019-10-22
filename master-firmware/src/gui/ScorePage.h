@@ -15,8 +15,7 @@
 #include "protobuf/strategy.pb.h"
 #endif
 
-class ScorePage : public Page
-{
+class ScorePage : public Page {
     GHandle button;
     GHandle score_label;
     GHandle score_text;

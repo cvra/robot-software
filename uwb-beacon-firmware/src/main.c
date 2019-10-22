@@ -39,7 +39,6 @@ void __late_init(void)
 
 int main(void)
 {
-
     bootloader_config_t boot_config;
 
     if (!config_get(&boot_config)) {

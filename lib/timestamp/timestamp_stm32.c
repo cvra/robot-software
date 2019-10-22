@@ -15,10 +15,10 @@ static volatile uint32_t time_us_high;
 static inline uint32_t timer_read(void)
 {
     uint32_t tim_reg = TIMER_REG->CNT;
-    while (TIMER_REG->SR & STM32_TIM_SR_UIF); // make sure there is no interrupt pending TODO won't work in interrupts
+    while (TIMER_REG->SR & STM32_TIM_SR_UIF)
+        ; // make sure there is no interrupt pending TODO won't work in interrupts
     return tim_reg;
 }
-
 
 CH_FAST_IRQ_HANDLER(TIMER_IRQ_NAME)
 {
@@ -40,7 +40,6 @@ void timestamp_stm32_init(void)
     TIMER_REG->CR1 |= STM32_TIM_CR1_CEN; // enable timer
 }
 // ChibiOS specific end
-
 
 timestamp_t timestamp_get()
 {

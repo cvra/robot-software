@@ -73,7 +73,6 @@
 
 #define GWIN_REDRAW_IMMEDIATE GFXON
 
-
 ///////////////////////////////////////////////////////////////////////////
 // GEVENT                                                                //
 ///////////////////////////////////////////////////////////////////////////
@@ -130,7 +129,6 @@
 
 #define SCREEN_WIDTH GDISP_SCREEN_WIDTH
 #define SCREEN_HEIGHT GDISP_SCREEN_HEIGHT
-
 
 #define GFX_COMPAT_V2 GFXOFF
 #endif /* _GFXCONF_H */

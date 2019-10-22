@@ -2,8 +2,7 @@
 #include <CppUTestExt/MockSupport.h>
 #include "../messagebus.h"
 
-TEST_GROUP(MessageBusTestGroup)
-{
+TEST_GROUP (MessageBusTestGroup) {
     messagebus_t bus;
     int bus_lock;
     int bus_condvar;
@@ -87,7 +86,7 @@ TEST(MessageBusTestGroup, CanScanBus)
 
 TEST(MessageBusTestGroup, FindTopicBlocking)
 {
-    messagebus_topic_t *res;
+    messagebus_topic_t* res;
     /* This is a partial test only: we cannot test that the behavior is correct
      * when the topic is not on the bus yes without additional thread and I
      * don't like threading in tests. */
@@ -120,7 +119,7 @@ TEST(MessageBusTestGroup, WontPublishTooBigMessage)
 
 TEST(MessageBusTestGroup, CanRead)
 {
-    int tx=42, rx;
+    int tx = 42, rx;
     bool res;
 
     messagebus_topic_publish(&topic, &tx, sizeof(int));
@@ -141,7 +140,7 @@ TEST(MessageBusTestGroup, WontReadUnpublishedtopic)
 
 TEST(MessageBusTestGroup, WaitForUpdate)
 {
-    int tx=42, rx;
+    int tx = 42, rx;
 
     messagebus_topic_publish(&topic, &tx, sizeof(int));
     messagebus_topic_wait(&topic, &rx, sizeof(int));

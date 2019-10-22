@@ -9,8 +9,8 @@
 #include "node.h"
 
 #define UAVCAN_SPIN_FREQ 10 // [Hz]
-#define UAVCAN_RX_QUEUE_SIZE    32
-#define UAVCAN_CAN_BITRATE      1000000UL
+#define UAVCAN_RX_QUEUE_SIZE 32
+#define UAVCAN_CAN_BITRATE 1000000UL
 #define UAVCAN_MEMORY_POOL_SIZE 4096
 
 namespace uavcan_node {
@@ -19,7 +19,7 @@ using Node = uavcan::Node<UAVCAN_MEMORY_POOL_SIZE>;
 using CanInterface = uavcan_stm32::CanInitHelper<UAVCAN_RX_QUEUE_SIZE>;
 using SystemClock = uavcan_stm32::SystemClock;
 
-static void timeout_cb(void *flag_p)
+static void timeout_cb(void* flag_p)
 {
     *(bool*)flag_p = true;
 }

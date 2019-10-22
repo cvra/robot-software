@@ -17,6 +17,7 @@ template <typename TrajectoryManagerImpl, typename State, typename Consign>
 class TrajectoryManager : public Crtp<TrajectoryManagerImpl, TrajectoryManager> {
 protected:
     State current_target;
+
 public:
     Consign set(const State& target)
     {

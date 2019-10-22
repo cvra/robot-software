@@ -3,39 +3,35 @@
 #include "../../../messagebus.h"
 #include <string.h>
 
-
 messagebus_t bus;
 MUTEX_DECL(bus_lock);
 CONDVAR_DECL(bus_condvar);
 
-
-int send_command(int command, void *message)
+int send_command(int command, void* message)
 {
     int ret;
     asm volatile("mov r0, %[cmd];"
-       "mov r1, %[msg];"
-       "bkpt #0xAB;"
-       "mov %[ret], r0;"
-         : [ret] "=r" (ret)
-         : [cmd] "r" (command), [msg] "r" (message)
-         : "r0", "r1", "memory");
+                 "mov r1, %[msg];"
+                 "bkpt #0xAB;"
+                 "mov %[ret], r0;"
+                 : [ret] "=r"(ret)
+                 : [cmd] "r"(command), [msg] "r"(message)
+                 : "r0", "r1", "memory");
     return ret;
 }
 
-void print(const char *string)
+void print(const char* string)
 {
-
-    uint32_t m[] = {1/*stdout*/, (uint32_t)string, strlen(string)};
+    uint32_t m[] = {1 /*stdout*/, (uint32_t)string, strlen(string)};
     send_command(0x05, m);
 }
 
 static THD_FUNCTION(button_thread, arg)
 {
-
     (void)arg;
     chRegSetThreadName(__FUNCTION__);
 
-    messagebus_topic_t *button_topic;
+    messagebus_topic_t* button_topic;
     button_topic = messagebus_find_topic_blocking(&bus, "/button_pressed");
 
     while (true) {
@@ -54,7 +50,7 @@ static THD_FUNCTION(led_thread, arg)
 {
     (void)arg;
     chRegSetThreadName(__FUNCTION__);
-    messagebus_topic_t *button_topic;
+    messagebus_topic_t* button_topic;
 
     button_topic = messagebus_find_topic_blocking(&bus, "/button_pressed");
     while (true) {
@@ -67,7 +63,7 @@ static THD_FUNCTION(console_thread, arg)
 {
     (void)arg;
     chRegSetThreadName(__FUNCTION__);
-    messagebus_topic_t *button_topic;
+    messagebus_topic_t* button_topic;
 
     print("waiting for topic\n");
     button_topic = messagebus_find_topic_blocking(&bus, "/button_pressed");
@@ -78,7 +74,8 @@ static THD_FUNCTION(console_thread, arg)
     }
 }
 
-int main(void) {
+int main(void)
+{
     halInit();
     chSysInit();
     print("==boot==");
@@ -104,7 +101,7 @@ int main(void) {
 
     static THD_WORKING_AREA(console_thread_wa, 128);
     chThdCreateStatic(console_thread_wa, sizeof(console_thread_wa),
-                      NORMALPRIO+1, console_thread, NULL);
+                      NORMALPRIO + 1, console_thread, NULL);
 
     while (true) {
         chThdSleepMilliseconds(500);

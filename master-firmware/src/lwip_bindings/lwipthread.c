@@ -102,7 +102,7 @@ static parameter_namespace_t ip_ns;
 
 /** Reads parameters from the given parameter namespace and applies them to the
  * given namespace. */
-static void update_parameters(struct netif *netif, parameter_namespace_t *ns);
+static void update_parameters(struct netif* netif, parameter_namespace_t* ns);
 
 static void low_level_init(struct netif* netif)
 {
@@ -278,7 +278,6 @@ void lwip_thread(void* p)
     thisif.hwaddr[4] = id & 0xff;
     thisif.hwaddr[5] = (id >> 8) & 0xff;
 
-
     LWIP_ETHERNET_IPADDR(&ip);
     LWIP_ETHERNET_NETMASK(&netmask);
     LWIP_GATEWAY(&gateway);
@@ -293,7 +292,6 @@ void lwip_thread(void* p)
     canif.hwaddr[3] = CANIF_MAC_PREFIX;
     canif.hwaddr[4] = id & 0xff;
     canif.hwaddr[5] = (id >> 8) & 0xff;
-
 
     netif_set_default(&thisif);
     netif_set_up(&thisif);
@@ -381,7 +379,7 @@ static void parameter_init(void)
     parameter_string_declare_with_default(&etherif_params.netmask, &etherif_params.ns, "netmask", etherif_params.netmask_buffer, sizeof(etherif_params.netmask_buffer), "255.255.255.0");
 }
 
-static int ip_from_parameter(parameter_t *p, ip4_addr_t *addr)
+static int ip_from_parameter(parameter_t* p, ip4_addr_t* addr)
 {
     char buffer[IP4ADDR_STRLEN_MAX];
     parameter_string_get(p, buffer, sizeof(buffer));
@@ -393,7 +391,7 @@ static int ip_from_parameter(parameter_t *p, ip4_addr_t *addr)
     return success;
 }
 
-static void update_parameters(struct netif *netif, parameter_namespace_t *ns)
+static void update_parameters(struct netif* netif, parameter_namespace_t* ns)
 {
     if (parameter_namespace_contains_changed(ns)) {
         parameter_t *addr_p, *netmask_p;

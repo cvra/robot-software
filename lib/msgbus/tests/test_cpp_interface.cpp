@@ -2,9 +2,7 @@
 #include <CppUTestExt/MockSupport.h>
 #include "../messagebus.h"
 
-
-TEST_GROUP(MessagebusCppInterface)
-{
+TEST_GROUP (MessagebusCppInterface) {
     messagebus_topic_t raw_topic;
     int topic_content;
     messagebus_t bus;

@@ -1,7 +1,6 @@
 #include "Menu.h"
 #include <gfx.h>
 
-
 Menu::Menu()
     : page(nullptr)
 {
@@ -69,16 +68,18 @@ void Menu::enter_page(Page* page)
 void Menu::event_loop()
 {
     gtimerInit(&periodic_timer);
-    gtimerStart(&periodic_timer, [](void *p) {
-        Menu *m = reinterpret_cast<Menu *>(p);
+    gtimerStart(
+        &periodic_timer, [](void* p) {
+            Menu* m = reinterpret_cast<Menu*>(p);
 #ifndef GUI_SIMULATOR
-        chMtxLock(&m->menu_lock);
+            chMtxLock(&m->menu_lock);
 #endif
-        m->on_timer();
+            m->on_timer();
 #ifndef GUI_SIMULATOR
-        chMtxUnlock(&m->menu_lock);
+            chMtxUnlock(&m->menu_lock);
 #endif
-    }, this, gTrue, 100);
+        },
+        this, gTrue, 100);
 
     while (true) {
         GEvent* event = geventEventWait(&listener, gDelayForever);

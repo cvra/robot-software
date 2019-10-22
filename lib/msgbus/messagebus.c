@@ -1,9 +1,9 @@
 #include "messagebus.h"
 #include <string.h>
 
-static messagebus_topic_t *topic_by_name(messagebus_t *bus, const char *name)
+static messagebus_topic_t* topic_by_name(messagebus_t* bus, const char* name)
 {
-    messagebus_topic_t *t;
+    messagebus_topic_t* t;
     for (t = bus->topics.head; t != NULL; t = t->next) {
         if (!strcmp(name, t->name)) {
             return t;
@@ -13,15 +13,14 @@ static messagebus_topic_t *topic_by_name(messagebus_t *bus, const char *name)
     return NULL;
 }
 
-void messagebus_init(messagebus_t *bus, void *lock, void *condvar)
+void messagebus_init(messagebus_t* bus, void* lock, void* condvar)
 {
     memset(bus, 0, sizeof(messagebus_t));
     bus->lock = lock;
     bus->condvar = condvar;
 }
 
-void messagebus_topic_init(messagebus_topic_t *topic, void *topic_lock, void *topic_condvar,
-                           void *buffer, size_t buffer_len)
+void messagebus_topic_init(messagebus_topic_t* topic, void* topic_lock, void* topic_condvar, void* buffer, size_t buffer_len)
 {
     memset(topic, 0, sizeof(messagebus_topic_t));
     topic->buffer = buffer;
@@ -30,7 +29,7 @@ void messagebus_topic_init(messagebus_topic_t *topic, void *topic_lock, void *to
     topic->condvar = topic_condvar;
 }
 
-void messagebus_advertise_topic(messagebus_t *bus, messagebus_topic_t *topic, const char *name)
+void messagebus_advertise_topic(messagebus_t* bus, messagebus_topic_t* topic, const char* name)
 {
     memset(topic->name, 0, sizeof(topic->name));
     strncpy(topic->name, name, TOPIC_NAME_MAX_LENGTH);
@@ -42,7 +41,7 @@ void messagebus_advertise_topic(messagebus_t *bus, messagebus_topic_t *topic, co
     }
     bus->topics.head = topic;
 
-    for (messagebus_new_topic_cb_t *cb = bus->new_topic_callback_list; cb != NULL; cb = cb->next) {
+    for (messagebus_new_topic_cb_t* cb = bus->new_topic_callback_list; cb != NULL; cb = cb->next) {
         cb->callback(bus, topic, cb->callback_arg);
     }
 
@@ -51,9 +50,9 @@ void messagebus_advertise_topic(messagebus_t *bus, messagebus_topic_t *topic, co
     messagebus_lock_release(bus->lock);
 }
 
-messagebus_topic_t *messagebus_find_topic(messagebus_t *bus, const char *name)
+messagebus_topic_t* messagebus_find_topic(messagebus_t* bus, const char* name)
 {
-    messagebus_topic_t *res;
+    messagebus_topic_t* res;
 
     messagebus_lock_acquire(bus->lock);
 
@@ -64,9 +63,9 @@ messagebus_topic_t *messagebus_find_topic(messagebus_t *bus, const char *name)
     return res;
 }
 
-messagebus_topic_t *messagebus_find_topic_blocking(messagebus_t *bus, const char *name)
+messagebus_topic_t* messagebus_find_topic_blocking(messagebus_t* bus, const char* name)
 {
-    messagebus_topic_t *res = NULL;
+    messagebus_topic_t* res = NULL;
 
     messagebus_lock_acquire(bus->lock);
 
@@ -83,7 +82,7 @@ messagebus_topic_t *messagebus_find_topic_blocking(messagebus_t *bus, const char
     return res;
 }
 
-bool messagebus_topic_publish(messagebus_topic_t *topic, const void *buf, size_t buf_len)
+bool messagebus_topic_publish(messagebus_topic_t* topic, const void* buf, size_t buf_len)
 {
     if (topic->buffer_len < buf_len) {
         return false;
@@ -95,7 +94,7 @@ bool messagebus_topic_publish(messagebus_topic_t *topic, const void *buf, size_t
     topic->published = true;
     messagebus_condvar_broadcast(topic->condvar);
 
-    messagebus_watcher_t *w;
+    messagebus_watcher_t* w;
     for (w = topic->watchers; w != NULL; w = w->next) {
         messagebus_lock_acquire(w->group->lock);
         w->group->published_topic = topic;
@@ -108,7 +107,7 @@ bool messagebus_topic_publish(messagebus_topic_t *topic, const void *buf, size_t
     return true;
 }
 
-bool messagebus_topic_read(messagebus_topic_t *topic, void *buf, size_t buf_len)
+bool messagebus_topic_read(messagebus_topic_t* topic, void* buf, size_t buf_len)
 {
     bool success = false;
     messagebus_lock_acquire(topic->lock);
@@ -123,7 +122,7 @@ bool messagebus_topic_read(messagebus_topic_t *topic, void *buf, size_t buf_len)
     return success;
 }
 
-void messagebus_topic_wait(messagebus_topic_t *topic, void *buf, size_t buf_len)
+void messagebus_topic_wait(messagebus_topic_t* topic, void* buf, size_t buf_len)
 {
     messagebus_lock_acquire(topic->lock);
     messagebus_condvar_wait(topic->condvar);
@@ -133,16 +132,15 @@ void messagebus_topic_wait(messagebus_topic_t *topic, void *buf, size_t buf_len)
     messagebus_lock_release(topic->lock);
 }
 
-void messagebus_watchgroup_init(messagebus_watchgroup_t *group, void *lock,
-                                void *condvar)
+void messagebus_watchgroup_init(messagebus_watchgroup_t* group, void* lock, void* condvar)
 {
     group->lock = lock;
     group->condvar = condvar;
 }
 
-void messagebus_watchgroup_watch(messagebus_watcher_t *watcher,
-                                 messagebus_watchgroup_t *group,
-                                 messagebus_topic_t *topic)
+void messagebus_watchgroup_watch(messagebus_watcher_t* watcher,
+                                 messagebus_watchgroup_t* group,
+                                 messagebus_topic_t* topic)
 {
     messagebus_lock_acquire(topic->lock);
     messagebus_lock_acquire(group->lock);
@@ -156,9 +154,9 @@ void messagebus_watchgroup_watch(messagebus_watcher_t *watcher,
     messagebus_lock_release(topic->lock);
 }
 
-messagebus_topic_t *messagebus_watchgroup_wait(messagebus_watchgroup_t *group)
+messagebus_topic_t* messagebus_watchgroup_wait(messagebus_watchgroup_t* group)
 {
-    messagebus_topic_t *res;
+    messagebus_topic_t* res;
 
     messagebus_lock_acquire(group->lock);
     messagebus_condvar_wait(group->condvar);
@@ -170,12 +168,12 @@ messagebus_topic_t *messagebus_watchgroup_wait(messagebus_watchgroup_t *group)
     return res;
 }
 
-void messagebus_new_topic_callback_register(messagebus_t *bus,
-                                            messagebus_new_topic_cb_t *cb,
-                                            void (*cb_fun)(messagebus_t *,
-                                                           messagebus_topic_t *,
-                                                           void *),
-                                            void *arg)
+void messagebus_new_topic_callback_register(messagebus_t* bus,
+                                            messagebus_new_topic_cb_t* cb,
+                                            void (*cb_fun)(messagebus_t*,
+                                                           messagebus_topic_t*,
+                                                           void*),
+                                            void* arg)
 {
     messagebus_lock_acquire(bus->lock);
     cb->callback = cb_fun;

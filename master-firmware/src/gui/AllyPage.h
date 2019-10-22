@@ -20,14 +20,13 @@ static AllyPosition ally_get_position(void)
     const char* topic_name = "/ally_pos";
 
     topic = messagebus_find_topic(&bus, topic_name);
-    if(topic != nullptr)
+    if (topic != nullptr)
         messagebus_topic_read(topic, &pos, sizeof(pos));
 
     return pos;
 }
 
-class AllyPage : public Page
-{
+class AllyPage : public Page {
     GHandle button;
     GHandle page_title;
     char msg[40];

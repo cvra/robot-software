@@ -1,8 +1,7 @@
 #include "CppUTest/TestHarness.h"
 #include "../iir.h"
 
-TEST_GROUP(IIRFilter)
-{
+TEST_GROUP (IIRFilter) {
     filter_iir_t iir_filter;
     const float b[4] = {0.1, 0.2, 0.3, 0.4};
     const float a[3] = {0.1, 0.1, 0.1};
@@ -40,8 +39,7 @@ TEST(IIRFilter, ApplyStep)
     y2 = filter_iir_apply(&iir_filter, x);
     DOUBLES_EQUAL(b[0] * x + b[1] * x - a[0] * y1, y2, 1.0e-7);
     y3 = filter_iir_apply(&iir_filter, x);
-    DOUBLES_EQUAL(b[0]*x + b[1]*x + b[2]*x - a[0]*y2 - a[1]*y1, y3, 1.0e-7);
-
+    DOUBLES_EQUAL(b[0] * x + b[1] * x + b[2] * x - a[0] * y2 - a[1] * y1, y3, 1.0e-7);
 }
 
 TEST(IIRFilter, StepResponse)
