@@ -10,6 +10,11 @@ message(STATUS "    libraries: ${OpenCV_LIBS}")
 message(STATUS "    include path: ${OpenCV_INCLUDE_DIRS}")
 
 set(CMAKE_CXX_STANDARD 11)
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 
 add_executable(example example.cpp)
 target_link_libraries(example LINK_PRIVATE ${OpenCV_LIBS})
+
+
+add_executable(robot_tracking robot_tracking.cpp)
+target_link_libraries(robot_tracking LINK_PRIVATE ${OpenCV_LIBS})
