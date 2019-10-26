@@ -35,7 +35,7 @@ def main():
 
     previous_code = None
     for file in args.config_file:
-        config = yaml.load(file)
+        config = yaml.safe_load(file)
         config = sanitize_keys(config)
         config = {'master': config['master']}  # Only generate code for master config
 

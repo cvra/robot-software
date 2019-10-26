@@ -27,7 +27,7 @@ def main():
                         help='Name of the MessagePack encoded output file')
     args = parser.parse_args()
 
-    config = yaml.load(args.config_file)
+    config = yaml.safe_load(args.config_file)
     config = keys_to_str(config)
     binary = msgpack.packb(config, use_single_float=True)
 
