@@ -1,0 +1,25 @@
+dependency-dir: ../lib
+
+depends:
+  - chibios-syscalls
+  - cmp
+  - cmp_mem_access
+  - error
+  - crc
+  - version
+  - quadramp
+
+target.arm:
+  - src/main.c
+  - src/debug.c
+  - src/board.c
+  - src/uavcan/node.cpp
+  - src/uavcan/ServoPWM_handler.cpp
+  - src/uavcan/DigitalInput_pub.cpp
+  - src/bootloader_config.c
+  - src/pwm.c
+  - src/servo.c
+  - ../lib/can-bootloader/config.c
+
+templates:
+    app_src.mk.jinja: app_src.mk
