@@ -14,7 +14,6 @@ target.arm:
   - src/debug.c
   - src/board.c
   - src/uavcan/node.cpp
-  - src/uavcan/ServoPWM_handler.cpp
   - src/bootloader_config.c
   - src/pwm.c
   - src/servo.c
