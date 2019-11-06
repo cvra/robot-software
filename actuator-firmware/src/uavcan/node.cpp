@@ -4,7 +4,6 @@
 #include <version/version.h>
 #include <uavcan_stm32/uavcan_stm32.hpp>
 #include <uavcan/protocol/NodeStatus.hpp>
-#include "ServoPWM_handler.hpp"
 
 #include "node.h"
 
@@ -68,11 +67,6 @@ void main(unsigned int id, const char* name)
 
     node.getNodeStatusProvider().setModeOperational();
     node.getNodeStatusProvider().setHealthOk();
-
-    uavcan::Subscriber<cvra::io::ServoPWM> servo_pwm_sub(node);
-    if (servo_pwm_sub.start(ServoPWM_handler)) {
-        ERROR("Cannot start servo PWM handler!");
-    }
 
     while (true) {
         node.spin(uavcan::MonotonicDuration::fromMSec(1000 / UAVCAN_SPIN_FREQ));
