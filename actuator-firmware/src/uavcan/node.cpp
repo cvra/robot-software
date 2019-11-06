@@ -5,7 +5,6 @@
 #include <uavcan_stm32/uavcan_stm32.hpp>
 #include <uavcan/protocol/NodeStatus.hpp>
 #include "ServoPWM_handler.hpp"
-#include "DigitalInput_pub.hpp"
 
 #include "node.h"
 
@@ -77,7 +76,6 @@ void main(unsigned int id, const char* name)
 
     while (true) {
         node.spin(uavcan::MonotonicDuration::fromMSec(1000 / UAVCAN_SPIN_FREQ));
-        digital_input_publish(node);
     }
 }
 } // namespace uavcan_node
