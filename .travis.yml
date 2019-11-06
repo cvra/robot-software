@@ -30,6 +30,8 @@ matrix:
         - compiler: gcc
           env: BUILD_TYPE="build" PLATFORM="can-io-firmware"
         - compiler: gcc
+          env: BUILD_TYPE="build" PLATFORM="actuator-firmware"
+        - compiler: gcc
           env: BUILD_TYPE="build" PLATFORM="proximity-beacon-firmware"
         - compiler: gcc
           env: BUILD_TYPE="build" PLATFORM="uwb-beacon-firmware"
