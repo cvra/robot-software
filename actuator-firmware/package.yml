@@ -1,5 +1,8 @@
 dependency-dir: ../lib
 
+source:
+  - src/pressure_sensor.c
+
 depends:
   - chibios-syscalls
   - cmp
@@ -18,6 +21,9 @@ target.arm:
   - src/pwm.c
   - src/servo.c
   - ../lib/can-bootloader/config.c
+
+tests:
+  - tests/pressure_sensor_driver_test.cpp
 
 templates:
     app_src.mk.jinja: app_src.mk
