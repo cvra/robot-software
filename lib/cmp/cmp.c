@@ -1251,6 +1251,7 @@ bool cmp_read_char(cmp_ctx_t* ctx, int8_t* c)
                 *c = obj.as.u8;
                 return true;
             }
+            /* falls through */
         default:
             ctx->error = INVALID_TYPE_ERROR;
             return false;
@@ -1281,6 +1282,7 @@ bool cmp_read_short(cmp_ctx_t* ctx, int16_t* s)
                 *s = obj.as.u16;
                 return true;
             }
+            /* falls through */
         default:
             ctx->error = INVALID_TYPE_ERROR;
             return false;
@@ -1317,6 +1319,7 @@ bool cmp_read_int(cmp_ctx_t* ctx, int32_t* i)
                 *i = obj.as.u32;
                 return true;
             }
+            /* falls through */
         default:
             ctx->error = INVALID_TYPE_ERROR;
             return false;
@@ -1359,6 +1362,7 @@ bool cmp_read_long(cmp_ctx_t* ctx, int64_t* d)
                 *d = obj.as.u64;
                 return true;
             }
+            /* falls through */
         default:
             ctx->error = INVALID_TYPE_ERROR;
             return false;
@@ -2509,6 +2513,7 @@ bool cmp_object_as_char(cmp_object_t* obj, int8_t* c)
                 *c = obj->as.s8;
                 return true;
             }
+            /* falls through */
         default:
             return false;
     }
@@ -2533,6 +2538,7 @@ bool cmp_object_as_short(cmp_object_t* obj, int16_t* s)
                 *s = obj->as.u16;
                 return true;
             }
+            /* falls through */
         default:
             return false;
     }
@@ -2563,6 +2569,7 @@ bool cmp_object_as_int(cmp_object_t* obj, int32_t* i)
                 *i = obj->as.u32;
                 return true;
             }
+            /* falls through */
         default:
             return false;
     }
@@ -2599,6 +2606,7 @@ bool cmp_object_as_long(cmp_object_t* obj, int64_t* d)
                 *d = obj->as.u64;
                 return true;
             }
+            /* falls through */
         default:
             return false;
     }
