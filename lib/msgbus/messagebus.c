@@ -92,6 +92,7 @@ bool messagebus_topic_publish(messagebus_topic_t* topic, const void* buf, size_t
 
     memcpy(topic->buffer, buf, buf_len);
     topic->published = true;
+    topic->stats.messages += 1;
     messagebus_condvar_broadcast(topic->condvar);
 
     messagebus_watcher_t* w;
@@ -183,4 +184,11 @@ void messagebus_new_topic_callback_register(messagebus_t* bus,
     bus->new_topic_callback_list = cb;
 
     messagebus_lock_release(bus->lock);
+}
+
+void messagebus_topic_stats_get(messagebus_topic_t* topic, messagebus_topic_stats_t* out)
+{
+    messagebus_lock_acquire(topic->lock);
+    memcpy(out, &topic->stats, sizeof(messagebus_topic_stats_t));
+    messagebus_lock_release(topic->lock);
 }
