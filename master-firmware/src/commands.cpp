@@ -371,7 +371,9 @@ SHELL_COMMAND(topics, chp, argc, argv)
     chprintf(chp, "available topics:\r\n");
 
     MESSAGEBUS_TOPIC_FOREACH (&bus, topic) {
-        chprintf(chp, "%s\r\n", topic->name);
+        messagebus_topic_stats_t stats;
+        messagebus_topic_stats_get(topic, &stats);
+        chprintf(chp, "%s:%d messages\r\n", topic->name, stats.messages);
     }
 }
 
