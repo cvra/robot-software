@@ -61,18 +61,14 @@ static void cmd_topics(BaseSequentialStream* chp, int argc, char* argv[])
             return;
         }
 
+        messagebus_topic_stats_t old, new;
+        int message_counter;
+
+        messagebus_topic_stats_get(topic, &old);
         chprintf(chp, "Waiting for publish for 5 seconds...\r\n");
-
-        systime_t start = chVTGetSystemTime();
-        unsigned int message_counter = 0;
-
-        while (chVTGetSystemTime() < start + TIME_MS2I(5000)) {
-            chMtxLock(topic->lock);
-            if (chCondWaitTimeout(topic->condvar, TIME_MS2I(10)) != MSG_TIMEOUT) {
-                message_counter++;
-                chMtxUnlock(topic->lock);
-            }
-        }
+        chThdSleepSeconds(5);
+        messagebus_topic_stats_get(topic, &new);
+        message_counter = new.messages - old.messages;
 
         if (message_counter == 0) {
             chprintf(chp, "No messages.\r\n");
