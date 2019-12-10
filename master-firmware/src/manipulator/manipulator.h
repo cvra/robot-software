@@ -7,7 +7,7 @@
 #include "manipulator/gripper.h"
 #include "manipulator/path.h"
 
-#include "dijkstra.hpp"
+#include "dijkstra/dijkstra.hpp"
 
 #include <math.h>
 

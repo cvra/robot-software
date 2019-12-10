@@ -12,7 +12,7 @@
 
 #include "manipulator/manipulator.h"
 #include "manipulator/manipulator_thread.h"
-#include "dijkstra.hpp"
+#include "dijkstra/dijkstra.hpp"
 
 #include "protobuf/manipulator.pb.h"
 
