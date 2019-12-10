@@ -15,7 +15,7 @@
 	url = https://github.com/cvra/eigen
 [submodule "lib/ugfx"]
 	path = lib/ugfx
-	url = https://git.ugfx.io/uGFX/uGFX.git
+	url = https://github.com/cvra/ugfx
 [submodule "lib/nanopb/nanopb"]
 	path = lib/nanopb/nanopb
 	url = https://github.com/nanopb/nanopb
