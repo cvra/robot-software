@@ -65,9 +65,6 @@ target.arm:
     - src/manipulator/gripper.cpp
     - src/manipulator/manipulator_thread.cpp
     - src/uid.c
-    - src/strategy_impl/actions.cpp
-    - src/strategy_impl/base.cpp
-    - src/strategy_impl/simulation.cpp
     - src/ally_position_service.c
 
 source:
