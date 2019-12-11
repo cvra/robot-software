@@ -9,6 +9,12 @@ class LighthouseEnabled : public goap::Goal<StrategyState> {
 public:
     int distance_to(const StrategyState& state) const override;
 };
+
+class WindsocksUp : public goap::Goal<StrategyState> {
+public:
+    int distance_to(const StrategyState& state) const override;
+};
+
 } // namespace goals
 
 // TODO(all): Write goals

@@ -17,10 +17,10 @@ TEST(Score, CanScorePointWithTheWindsocks)
 {
     CHECK_EQUAL(0, compute_score(state, not_main_robot));
 
-    state.windsock_near_is_up = true;
+    state.windsocks_are_up[0] = true;
     CHECK_EQUAL(5, compute_score(state, not_main_robot));
 
-    state.windsock_far_is_up = true;
+    state.windsocks_are_up[1] = true;
     CHECK_EQUAL(15, compute_score(state, not_main_robot));
 }
 

@@ -2,11 +2,11 @@
 
 static int compute_windsocks(const StrategyState &state)
 {
-    if (state.windsock_near_is_up && state.windsock_far_is_up) {
+    if (state.windsocks_are_up[0] && state.windsocks_are_up[1]) {
         return 15;
     }
 
-    if (state.windsock_near_is_up || state.windsock_far_is_up) {
+    if (state.windsocks_are_up[0] || state.windsocks_are_up[1]) {
         return 5;
     }
 

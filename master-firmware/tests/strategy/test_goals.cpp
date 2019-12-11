@@ -18,4 +18,17 @@ TEST(LighthouseEnabledTestCase, ReachedOnlyWhenLighthouseEnabled)
     CHECK_EQUAL(0, goal.distance_to(state));
 }
 
+TEST_GROUP(WindsocksUpTestCase)
+{
+    goals::WindsocksUp goal;
+    StrategyState state;
+};
 
+TEST(WindsocksUpTestCase, ReachedOnlyWhenBothSocksUp)
+{
+    CHECK_FALSE(goal.is_reached(state));
+    state.windsocks_are_up[0] = true;
+    CHECK_FALSE(goal.is_reached(state));
+    state.windsocks_are_up[1] = true;
+    CHECK_TRUE(goal.is_reached(state));
+}
