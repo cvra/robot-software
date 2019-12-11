@@ -2,14 +2,14 @@
 
 #include "state.h"
 
-RobotState initial_state(void)
+StrategyState initial_state(void)
 {
-    RobotState state;
+    StrategyState state;
 
     return state;
 }
 
-bool operator==(const RobotState& lhs, const RobotState& rhs)
+bool operator==(const StrategyState& lhs, const StrategyState& rhs)
 {
-    return !memcmp(&lhs, &rhs, sizeof(RobotState));
+    return !memcmp(&lhs, &rhs, sizeof(StrategyState));
 }
