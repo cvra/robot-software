@@ -12,7 +12,4 @@
 RobotState initial_state(void);
 bool operator==(const RobotState& lhs, const RobotState& rhs);
 
-int state_count_heavy_pucks_in_robot(const RobotState& state);
-int state_count_pucks_in_robot(const RobotState& state);
-
 #endif /* STRATEGY_STATE_H */

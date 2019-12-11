@@ -26,21 +26,11 @@ static THD_FUNCTION(score_counter_thd, arg)
     messagebus_topic_t* strategy_state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
     NOTICE("Score initialized");
+
     while (true) {
         messagebus_topic_wait(strategy_state_topic, &state, sizeof(state));
-        NOTICE("Received strategy state");
 
         Score msg;
-        msg.score = 0;
-
-        msg.score += score_count_classified_atoms(state);
-        msg.score += score_count_accelerator(state);
-        msg.score += score_count_goldenium(state);
-        if (config_get_boolean("master/is_main_robot")) {
-            msg.score += score_count_experiment(state);
-            msg.score += score_count_electron(state);
-        }
-        msg.score += score_count_scale(state);
 
         messagebus_topic_publish(&score_topic.topic, &msg, sizeof(msg));
     }
