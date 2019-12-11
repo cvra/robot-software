@@ -3,12 +3,6 @@
 
 #include "strategy/state.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#ifdef __cplusplus
-}
-#endif
+int compute_score(const StrategyState &state, bool is_main_robot);
 
 #endif /* SCORE_H */
