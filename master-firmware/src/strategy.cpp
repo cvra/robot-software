@@ -111,8 +111,8 @@ void strategy_order_play_game(RobotState& state, enum strat_color_t color)
 
     goap::Action<RobotState>* path[MAX_GOAP_PATH_LEN] = {nullptr};
 
-    std::array<goap::Goal<RobotState> *, 0> goals;
-    std::array<goap::Action<RobotState> *, 0> actions;
+    std::array<goap::Goal<RobotState>*, 0> goals;
+    std::array<goap::Action<RobotState>*, 0> actions;
 
     /* Autoposition robot */
     wait_for_autoposition_signal();

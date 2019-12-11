@@ -1074,4 +1074,3 @@ SHELL_COMMAND(beacon_calib, chp, argc, argv)
         chThdSleepMilliseconds(50);
     }
 }
-
