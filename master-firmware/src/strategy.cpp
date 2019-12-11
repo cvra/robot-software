@@ -34,7 +34,7 @@
 // TODO(antoinealb): Move GOAP defines to something shared with unit tests
 const int MAX_GOAP_PATH_LEN = 10;
 
-static goap::Planner<RobotState, GOAP_SPACE_SIZE> planner;
+static goap::Planner<StrategyState, GOAP_SPACE_SIZE> planner;
 
 static enum strat_color_t wait_for_color_selection(void);
 static void wait_for_autoposition_signal(void);
@@ -105,11 +105,11 @@ static void wait_for_autoposition_signal(void)
     wait_for_color_selection();
 }
 
-void strategy_order_play_game(RobotState& state, enum strat_color_t color)
+void strategy_order_play_game(StrategyState& state, enum strat_color_t color)
 {
     messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
-    goap::Action<RobotState>* path[MAX_GOAP_PATH_LEN] = {nullptr};
+    goap::Action<StrategyState>* path[MAX_GOAP_PATH_LEN] = {nullptr};
 
     std::array<goap::Goal<RobotState>*, 0> goals;
     std::array<goap::Action<RobotState>*, 0> actions;
@@ -167,9 +167,9 @@ void strategy_play_game(void* p)
     NOTICE("Strategy starting...");
 
     /* Prepare state publisher */
-    RobotState state = initial_state();
+    StrategyState state = initial_state();
 
-    static TOPIC_DECL(state_topic, RobotState);
+    static TOPIC_DECL(state_topic, StrategyState);
     messagebus_advertise_topic(&bus, &state_topic.topic, "/state");
 
     NOTICE("Waiting for color selection...");

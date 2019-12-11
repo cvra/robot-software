@@ -7,16 +7,51 @@ message Score {
     required int32 score = 1;
 }
 
-enum PuckColor {
-    RED = 0;
-    GREEN = 1;
-    BLUE = 2;
-    RED_OR_GREEN = 3;
-    GOLDENIUM = 4;
-    EMPTY = 5;
+enum GlassColor {
+    UNKNOWN = 0;
+    RED = 1;
+    GREEN = 2;
 }
+/* Global state on which GOAP plans */
+message StrategyState {
+    /* State related to buoys */
+    required RobotState robot = 1;
+    required DispenserState our_dispenser = 2;
+    required DispenserState shared_dispenser_near = 3;
+    required DispenserState shared_dispenser_far = 4;
+    required TableGlassStates table_glasses = 5;
+    /* State related to windsocks */
+    required bool windsock_near_is_up = 6;
+    required bool windsock_far_is_up = 7;
+    /* State related to the lighthouse */
+    required bool lighthouse_is_on = 8;
 
-message RobotState {
     option (nanopb_msgopt).msgid = 14;
     option (nanopb_msgopt).packed_struct = true;
 }
+/* State of the actuators of this robot. */
+message RobotState {
+    optional GlassColor front_left_glass = 1;
+    optional GlassColor front_center_glass = 2;
+    optional GlassColor front_right = 3;
+    optional GlassColor back_left_glass = 4;
+    optional GlassColor back_center_glass = 5;
+    optional GlassColor back_right = 6;
+
+    option (nanopb_msgopt).packed_struct = true;
+}
+/* State of the glasses in one dispenser / reef */
+message DispenserState {
+    repeated GlassColor glasses = 1
+        [ (nanopb).fixed_count = true, (nanopb).max_count = 6 ];
+
+    option (nanopb_msgopt).packed_struct = true;
+}
+/* State of the drifting buoys */
+message TableGlassStates {
+    repeated GlassColor glasses = 1
+        [ (nanopb).fixed_count = true, (nanopb).max_count = 6 ];
+
+    option (nanopb_msgopt).packed_struct = true;
+}
+

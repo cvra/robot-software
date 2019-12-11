@@ -7,18 +7,18 @@
 #include "strategy/actions.h"
 
 TEST_GROUP (Strategy) {
-    RobotState state = initial_state();
+    StrategyState state = initial_state();
 
-    std::vector<goap::Action<RobotState>*> availableActions()
+    std::vector<goap::Action<StrategyState>*> availableActions()
     {
-        return std::vector<goap::Action<RobotState>*>{};
+        return std::vector<goap::Action<StrategyState>*>{};
     }
 
-    int compute_and_execute_plan(goap::Goal<RobotState> & goal, RobotState & state)
+    int compute_and_execute_plan(goap::Goal<StrategyState> & goal, StrategyState & state)
     {
         const int max_path_len = 40;
-        goap::Action<RobotState>* path[max_path_len] = {nullptr};
-        goap::Planner<RobotState, GOAP_SPACE_SIZE> planner;
+        goap::Action<StrategyState>* path[max_path_len] = {nullptr};
+        goap::Planner<StrategyState, GOAP_SPACE_SIZE> planner;
         auto actions = availableActions();
 
         int len = planner.plan(state, goal, actions.data(), actions.size(), path, max_path_len);
@@ -33,7 +33,7 @@ TEST_GROUP (Strategy) {
 TEST(Strategy, CanRunAllGoals)
 {
     // TODO (all): Test more goals
-    goap::Goal<RobotState>* goals[] = {};
+    goap::Goal<StrategyState>* goals[] = {};
 
     for (auto& goal : goals) {
         int len = compute_and_execute_plan(*goal, state);
