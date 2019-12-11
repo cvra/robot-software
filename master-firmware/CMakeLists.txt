@@ -8,6 +8,8 @@ add_library(master_lib
     src/base/base_helpers.c
     src/strategy/state.cpp
     src/strategy/score.cpp
+    src/strategy/actions_goap.cpp
+    src/strategy/goals.cpp
     src/msgbus_protobuf.c
 )
 
@@ -34,6 +36,8 @@ cvra_add_test(TARGET master_test
     tests/test_base_helpers.cpp
     tests/test_strategy.cpp
     tests/strategy/test_score.cpp
+    tests/strategy/test_actions.cpp
+    tests/strategy/test_goals.cpp
     tests/msgbus_protobuf.cpp
     # TODO: The following tests depend on injecting a fake ch.h which is harder
     # to do using CMake, so they should be refactored not to depend on it.
