@@ -34,7 +34,6 @@
 #include "gui.h"
 #include "udp_topic_broadcaster.h"
 #include "ally_position_service.h"
-#include "manipulator/manipulator_thread.h"
 
 void init_base_motors(void);
 void init_arm_motors(void);
@@ -251,9 +250,6 @@ int main(void)
     base_controller_start();
     position_manager_start();
     trajectory_manager_start();
-
-    /* Arms init */
-    manipulator_start();
 
     /* Initialize strategy thread, will wait for signal to begin game */
     strategy_start();

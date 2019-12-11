@@ -35,8 +35,6 @@ extern "C" {
 #include "robot_helpers/trajectory_helpers.h"
 #include "robot_helpers/strategy_helpers.h"
 #include "robot_helpers/motor_helpers.h"
-#include "robot_helpers/arm_helpers.h"
-#include "manipulator/manipulator_thread.h"
 #include "strategy.h"
 #include "strategy/goals.h"
 #include "strategy/state.h"
@@ -871,82 +869,6 @@ SHELL_COMMAND(motor_index, chp, argc, argv)
     float index = motor_auto_index(argv[0], motor_dir, motor_speed);
     motor_manager_set_torque(&motor_manager, argv[0], 0);
     chprintf(chp, "Index at %.4f\r\n", index);
-}
-
-/* arm_index */
-SHELL_COMMAND(index, chp, argc, argv)
-{
-    if (argc < 4) {
-        chprintf(chp, "Usage: index left|right t1 t2 t3\r\n");
-        return;
-    }
-
-    if (strcmp("left", argv[0]) == 0) {
-        chprintf(chp, "Please stand by while we index the left arm...\r\n");
-
-        arm_manual_index(LEFT);
-
-        chprintf(chp, "Index of left theta-1 at %.4f\r\n", config_get_scalar("master/arms/left/offsets/q1"));
-        chprintf(chp, "Index of left theta-2 at %.4f\r\n", config_get_scalar("master/arms/left/offsets/q2"));
-        chprintf(chp, "Index of left theta-3 at %.4f\r\n", config_get_scalar("master/arms/left/offsets/q3"));
-    } else {
-        chprintf(chp, "Please stand by while we index the right arm...\r\n");
-
-        arm_manual_index(RIGHT);
-
-        chprintf(chp, "Index of right theta-1 at %.4f\r\n", config_get_scalar("master/arms/right/offsets/q1"));
-        chprintf(chp, "Index of right theta-2 at %.4f\r\n", config_get_scalar("master/arms/right/offsets/q2"));
-        chprintf(chp, "Index of right theta-3 at %.4f\r\n", config_get_scalar("master/arms/right/offsets/q3"));
-    }
-}
-
-/* arm_index_manual */
-SHELL_COMMAND(index_manual, chp, argc, argv)
-{
-    if (argc < 1) {
-        chprintf(chp, "Usage: index_manual left|right\r\n");
-        return;
-    }
-
-    arm_turn_off(LEFT);
-    arm_turn_off(RIGHT);
-    static char line[2];
-
-    if (strcmp("left", argv[0]) == 0) {
-        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q1"), 0);
-        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q2"), 0);
-        parameter_scalar_set(PARAMETER("master/arms/left/offsets/q3"), 0);
-
-        manipulator_gripper_set(LEFT, GRIPPER_ACQUIRE);
-
-        chThdSleepMilliseconds(1000);
-        chprintf(chp, "Press any key to continue\r\n");
-        shellGetLine(&shell_cfg, line, sizeof(line), NULL);
-        arm_manual_index(LEFT);
-
-        manipulator_gripper_set(LEFT, GRIPPER_OFF);
-
-        chprintf(chp, "Index of left theta-1 at %.4f\r\n", config_get_scalar("master/arms/left/offsets/q1"));
-        chprintf(chp, "Index of left theta-2 at %.4f\r\n", config_get_scalar("master/arms/left/offsets/q2"));
-        chprintf(chp, "Index of left theta-3 at %.4f\r\n", config_get_scalar("master/arms/left/offsets/q3"));
-    } else {
-        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q1"), 0);
-        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q2"), 0);
-        parameter_scalar_set(PARAMETER("master/arms/right/offsets/q3"), 0);
-
-        manipulator_gripper_set(RIGHT, GRIPPER_ACQUIRE);
-
-        chThdSleepMilliseconds(1000);
-        chprintf(chp, "Press any key to continue\r\n");
-        shellGetLine(&shell_cfg, line, sizeof(line), NULL);
-        arm_manual_index(RIGHT);
-
-        manipulator_gripper_set(RIGHT, GRIPPER_OFF);
-
-        chprintf(chp, "Index of right theta-1 at %.4f\r\n", config_get_scalar("master/arms/right/offsets/q1"));
-        chprintf(chp, "Index of right theta-2 at %.4f\r\n", config_get_scalar("master/arms/right/offsets/q2"));
-        chprintf(chp, "Index of right theta-3 at %.4f\r\n", config_get_scalar("master/arms/right/offsets/q3"));
-    }
 }
 
 SHELL_COMMAND(base_mode, chp, argc, argv)
