@@ -21,9 +21,10 @@ message StrategyState {
     required DispenserState shared_dispenser_far = 4;
     required TableGlassStates table_glasses = 5;
 
-    /* State related to windsocks */
-    required bool windsock_near_is_up = 6;
-    required bool windsock_far_is_up = 7;
+    /* State related to windsocks.
+     * The windsocks are ordered starting from the starting area. */
+    repeated bool windsocks_are_up = 6
+        [ (nanopb).fixed_count = true, (nanopb).max_count = 2 ];
 
     /* State related to the lighthouse */
     required bool lighthouse_is_on = 8;

@@ -28,14 +28,20 @@ TEST(Strategy, CanRunAllGoals)
 {
     // TODO (all): Test more goals
     actions::EnableLighthouse enable_lighthouse;
+    actions::RaiseWindsock windsock_far{1}, windsock_near{0};
 
     std::vector<goap::Action<StrategyState>*> actions = {
         &enable_lighthouse,
+        &windsock_far,
+        &windsock_near,
     };
 
     goals::LighthouseEnabled lighthouse;
+    goals::WindsocksUp windsocks;
     goap::Goal<StrategyState>* goals[] = {
-        &lighthouse};
+        &lighthouse,
+        &windsocks
+    };
 
     for (auto& goal : goals) {
         int len = compute_and_execute_plan(*goal, state, actions);
