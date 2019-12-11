@@ -76,6 +76,8 @@ source:
     - src/base/base_helpers.c
     - src/strategy/state.cpp
     - src/strategy/score.cpp
+    - src/strategy/actions_goap.cpp
+    - src/strategy/goals.cpp
     - src/msgbus_protobuf.c
 
 include_directories:
@@ -104,6 +106,8 @@ tests:
     - tests/test_strategy_helpers.cpp
     - tests/test_strategy.cpp
     - tests/strategy/test_score.cpp
+    - tests/strategy/test_actions.cpp
+    - tests/strategy/test_goals.cpp
     - tests/msgbus_protobuf.cpp
 
 templates:
