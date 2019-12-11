@@ -1,9 +1,0 @@
-depends:
-    - test-runner
-
-tests:
-    - tests/test_system.cpp
-    - tests/test_state_estimator.cpp
-    - tests/test_controller.cpp
-    - tests/test_trajectory_manager.cpp
-    - tests/test_e2e_pendulum.cpp

@@ -99,7 +99,6 @@ tests:
     - tests/test_trajectory_helpers.cpp
     - tests/obstacle_avoidance.cpp
     - tests/trajectory_manager_test.cpp
-    - tests/test_scara_kinematics.cpp
     - tests/lie_groups.cpp
     - tests/test_base_helpers.cpp
     - tests/test_strategy_helpers.cpp
@@ -107,7 +106,6 @@ tests:
     - tests/strategy/test_score.cpp
     - tests/strategy/test_state.cpp
     - tests/msgbus_protobuf.cpp
-    - tests/test_3dof_pendulum_kinematics.cpp
 
 templates:
     app_src.mk.jinja: app_src.mk
