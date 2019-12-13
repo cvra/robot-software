@@ -2,6 +2,7 @@ dependency-dir: ../lib
 
 depends:
     - crc
+    - dijkstra
     - parameter
     - nanopb
     - pid
@@ -50,7 +51,6 @@ target.arm:
     - src/base/base_controller.c
     - src/base/map_server.cpp
     - src/robot_helpers/motor_helpers.c
-    - src/robot_helpers/arm_helpers.cpp
     - src/trace/trace_points.c
     - src/trace/trace_port.c
     - src/strategy.cpp
@@ -61,13 +61,7 @@ target.arm:
     - src/parameter_port.c
     - src/strategy/score_counter.cpp
     - src/udp_topic_broadcaster.c
-    - src/manipulator/hw.cpp
-    - src/manipulator/gripper.cpp
-    - src/manipulator/manipulator_thread.cpp
     - src/uid.c
-    - src/strategy_impl/actions.cpp
-    - src/strategy_impl/base.cpp
-    - src/strategy_impl/simulation.cpp
     - src/ally_position_service.c
 
 source:
@@ -83,10 +77,6 @@ source:
     - src/strategy/state.cpp
     - src/strategy/score.cpp
     - src/msgbus_protobuf.c
-    - src/manipulator/scara_kinematics.c
-    - src/manipulator/kinematics.cpp
-    - src/manipulator/state_estimator.cpp
-    - src/manipulator/controller.cpp
 
 include_directories:
     - src/
@@ -109,17 +99,12 @@ tests:
     - tests/test_trajectory_helpers.cpp
     - tests/obstacle_avoidance.cpp
     - tests/trajectory_manager_test.cpp
-    - tests/test_scara_kinematics.cpp
     - tests/lie_groups.cpp
     - tests/test_base_helpers.cpp
     - tests/test_strategy_helpers.cpp
     - tests/test_strategy.cpp
     - tests/strategy/test_score.cpp
-    - tests/strategy/test_state.cpp
     - tests/msgbus_protobuf.cpp
-    - tests/test_3dof_pendulum_kinematics.cpp
-    - tests/test_manipulator_control.cpp
-    - tests/test_arm_pathfinding.cpp
 
 templates:
     app_src.mk.jinja: app_src.mk

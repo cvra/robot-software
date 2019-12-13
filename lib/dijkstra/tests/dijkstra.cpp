@@ -1,11 +1,11 @@
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
-#include "dijkstra.hpp"
+#include "dijkstra/dijkstra.hpp"
 
-TEST_GROUP (ArmPathFindingTestGroup) {
+TEST_GROUP (DijkstraTestGroup) {
 };
 
-TEST(ArmPathFindingTestGroup, CanConnect)
+TEST(DijkstraTestGroup, CanConnect)
 {
     pathfinding::Node<int> p1(0);
     pathfinding::Node<int> p2(1);
@@ -13,7 +13,7 @@ TEST(ArmPathFindingTestGroup, CanConnect)
     p1.connect(p2);
 }
 
-TEST(ArmPathFindingTestGroup, CanFindPath)
+TEST(DijkstraTestGroup, CanFindPath)
 {
     pathfinding::Node<int> nodes[] = {{0}, {0}};
     nodes[0].connect(nodes[1]);
@@ -24,7 +24,7 @@ TEST(ArmPathFindingTestGroup, CanFindPath)
     POINTERS_EQUAL(nodes[0].path_next->path_next, nullptr);
 }
 
-TEST(ArmPathFindingTestGroup, MoreComplexSituation)
+TEST(DijkstraTestGroup, MoreComplexSituation)
 {
     struct Point {
         float angles[3];

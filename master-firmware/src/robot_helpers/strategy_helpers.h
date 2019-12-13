@@ -3,7 +3,6 @@
 
 #include "base/base_controller.h"
 #include "math/lie_groups.h"
-#include "manipulator/scara_kinematics.h"
 #include "strategy/color.h"
 
 #ifdef __cplusplus
