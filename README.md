@@ -37,7 +37,9 @@ To build one platform with cmake, for example here our UWB beacon board:
 ```bash
 mkdir build-uwb && cd build-uwb
 cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/uwb-beacon.cmake
-make
+
+# WARNING: Make all or make without target does not work.
+make uwb-beacon-firmware.elf
 
 # The resulting firmware is at `uwb-beacon-firmware/uwb-beacon-firmware.elf`.
 ```

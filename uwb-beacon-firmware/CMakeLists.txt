@@ -70,11 +70,13 @@ add_library(uwb_protocol
 )
 
 target_include_directories(uwb_protocol PUBLIC src)
+target_link_libraries(uwb_protocol trace)
 
 cvra_add_test(TARGET uwb_protocol_test SOURCES
     tests/uwb_protocol.cpp
     DEPENDENCIES
     uwb_protocol
+    trace_platform_mocks
 )
 
 if (NOT ${CMAKE_CROSSCOMPILING})
@@ -110,6 +112,7 @@ if (${CMAKE_CROSSCOMPILING} AND "${CVRA_BOARD_NAME}" STREQUAL "uwb-beacon")
         src/decawave_interface.c
         src/exti.c
         src/imu_thread.c
+        src/log.c
         src/main.c
         src/parameter_port.c
         src/ranging_thread.c
@@ -127,22 +130,24 @@ if (${CMAKE_CROSSCOMPILING} AND "${CVRA_BOARD_NAME}" STREQUAL "uwb-beacon")
     )
 
     target_link_libraries(uwb-beacon-firmware.elf
-        chibios
-        parameter_flash_storage
-        msgbus
-        msgbus_chibios
-        lru_cache
-        trace
         Eigen
-        state_estimation
+        error
+        chibios
+        chibios-syscalls
+        decawave
+        lru_cache
         madgwick
         mpu9250
-        decawave
+        msgbus
+        msgbus_chibios
+        parameter_flash_storage
+        # Must be after parameter_flash_storage
         parameter_flash_f4
-        uwb_protocol
-        chibios-syscalls
+        state_estimation
+        trace
         uavcan
         uavcan_stm32
+        uwb_protocol
     )
 
     target_include_directories(uwb-beacon-firmware.elf PUBLIC src)
