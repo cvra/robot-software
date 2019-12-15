@@ -336,9 +336,9 @@ static int read_namespace(parameter_namespace_t* ns,
             }
             parameter_port_buffer_free(id);
             if (sub != NULL) {
-                uint32_t map_size;
-                cmp_object_as_map(&obj, &map_size);
-                int ret = read_namespace(sub, map_size, cmp, err_cb, err_arg);
+                uint32_t inner_map_size;
+                cmp_object_as_map(&obj, &inner_map_size);
+                int ret = read_namespace(sub, inner_map_size, cmp, err_cb, err_arg);
                 if (ret != 0) {
                     return ret;
                 }
