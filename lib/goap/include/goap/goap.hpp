@@ -8,7 +8,7 @@
 
 #include <cstdint>
 #include <cstdlib>
-#include <goap_internals.hpp>
+#include <goap/goap_internals.hpp>
 #include <cstring>
 
 namespace goap {
