@@ -200,6 +200,7 @@ if (${CMAKE_CROSSCOMPILING} AND "${CVRA_BOARD_NAME}" STREQUAL "master")
         # TODO: Should this be in its own library ?
         ../lib/ChibiOS/os/various/fatfs_bindings/fatfs_diskio.c
         ../lib/ChibiOS/os/various/fatfs_bindings/fatfs_syscall.c
+        ../lib/chibios-syscalls/newlib_syscalls.c
 
         # TODO: Those files should be unit tested but depend on injecting fake
         # header files, which is harder to do now with cmake
