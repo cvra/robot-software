@@ -6,7 +6,7 @@ extern "C" {
 #include <aversive/trajectory_manager/trajectory_manager_utils.h>
 }
 
-#include <ff.h>
+#include <fatfs/ff.h>
 #include <lwip/netif.h>
 #include <hal.h>
 #include <chprintf.h>

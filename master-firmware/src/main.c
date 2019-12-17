@@ -232,7 +232,7 @@ int main(void)
 
     /* IP thread will talk over UAVCAN so we just give it some time to boot. */
     chThdSleepMilliseconds(100);
-    ip_thread_init();
+    ip_thread_init(&global_config);
 
     /* Those service communicate over IP so must be started afterward */
     // udp_topic_broadcast_start();
@@ -242,7 +242,8 @@ int main(void)
     config_load_from_flash();
 
     control_panel_init(config_get_boolean("master/control_panel_active_high"));
-    gui_start();
+    // TODO: Re-enable GUI
+    // gui_start();
 
     /* Base init */
     encoder_start();

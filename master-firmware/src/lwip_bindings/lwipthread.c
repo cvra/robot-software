@@ -75,7 +75,6 @@ limitations under the License.
 #include "netif/etharp.h"
 #include "netif/ppp/pppoe.h"
 #include "can/can_uwb_ip_netif.hpp"
-#include "main.h"
 #include "uid.h"
 
 #define PERIODIC_TIMER_ID (1 << 0)
@@ -368,9 +367,9 @@ void lwip_thread(void* p)
     }
 }
 
-static void parameter_init(void)
+static void parameter_init(parameter_namespace_t *global_config)
 {
-    parameter_namespace_declare(&ip_ns, &global_config, "ip");
+    parameter_namespace_declare(&ip_ns, global_config, "ip");
     parameter_namespace_declare(&canif_params.ns, &ip_ns, "uwb");
     parameter_string_declare_with_default(&canif_params.address, &canif_params.ns, "address", canif_params.address_buffer, sizeof(canif_params.address_buffer), "192.168.4.20");
     parameter_string_declare_with_default(&canif_params.netmask, &canif_params.ns, "netmask", canif_params.netmask_buffer, sizeof(canif_params.netmask_buffer), "255.255.255.0");
@@ -407,10 +406,10 @@ static void update_parameters(struct netif* netif, parameter_namespace_t* ns)
     }
 }
 
-void ip_thread_init(void)
+void ip_thread_init(parameter_namespace_t *global_config)
 {
     static THD_WORKING_AREA(wa_lwip_thread, LWIP_THREAD_STACK_SIZE);
-    parameter_init();
+    parameter_init(global_config);
     /* Creates the LWIP threads (it changes priority internally).  */
     chThdCreateStatic(wa_lwip_thread,
                       LWIP_THREAD_STACK_SIZE,
