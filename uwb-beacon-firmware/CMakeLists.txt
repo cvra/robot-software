@@ -93,7 +93,7 @@ if (${CMAKE_CROSSCOMPILING} AND "${CVRA_BOARD_NAME}" STREQUAL "uwb-beacon")
 
 
     set(CHIBIOS_ROOT ../lib/ChibiOS)
-    find_package(ChibiOS COMPONENTS rt hal streams shell cppwrappers REQUIRED)
+    find_package(ChibiOS COMPONENTS rt hal streams shell cppwrappers evtimer REQUIRED)
 
 
     add_library(chibios ${ChibiOS_SOURCES})
