@@ -113,6 +113,7 @@ add_subdirectory(quadramp)
 add_subdirectory(test-runner)
 add_subdirectory(timestamp)
 add_subdirectory(trace)
+add_subdirectory(version)
 
 add_library(Eigen INTERFACE)
 target_include_directories(Eigen INTERFACE eigen/)
