@@ -39,3 +39,4 @@ enable_testing()
 
 add_subdirectory(lib)
 add_subdirectory(uwb-beacon-firmware)
+add_subdirectory(master-firmware)

@@ -4,8 +4,13 @@ add_library(msgbus
 
 target_include_directories(msgbus PUBLIC include)
 
-cvra_add_test(TARGET msgbus_test SOURCES
+add_library(msgbus_mocks_synchronization
     tests/mocks/synchronization.cpp
+)
+
+target_link_libraries(msgbus_mocks_synchronization msgbus)
+
+cvra_add_test(TARGET msgbus_test SOURCES
     tests/atomicity.cpp
     tests/msgbus.cpp
     tests/signaling.cpp
@@ -15,6 +20,7 @@ cvra_add_test(TARGET msgbus_test SOURCES
     tests/test_cpp_interface.cpp
     DEPENDENCIES
     msgbus
+    msgbus_mocks_synchronization
 )
 
 if(${CMAKE_CROSSCOMPILING})

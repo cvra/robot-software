@@ -25,6 +25,7 @@
 #define _LWIPTHREAD_H_
 
 #include <lwip/opt.h>
+#include <parameter/parameter.h>
 
 /** @brief MAC thread priority.*/
 #ifndef LWIP_THREAD_PRIORITY
@@ -110,7 +111,7 @@
 extern "C" {
 #endif
 
-void ip_thread_init(void);
+void ip_thread_init(parameter_namespace_t *global_config);
 
 #ifdef __cplusplus
 }
