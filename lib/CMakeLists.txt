@@ -116,6 +116,17 @@ add_subdirectory(timestamp)
 add_subdirectory(trace)
 add_subdirectory(version)
 
+# bootloader config
+add_library(bootloader_config
+    can-bootloader/config.c
+)
+target_include_directories(bootloader_config PUBLIC can-bootloader)
+target_link_libraries(bootloader_config
+    cmp
+    cmp_mem_access
+    crc
+)
+
 add_library(Eigen INTERFACE)
 target_include_directories(Eigen INTERFACE eigen/)
 

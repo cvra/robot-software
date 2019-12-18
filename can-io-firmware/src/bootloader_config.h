@@ -7,7 +7,8 @@ extern "C" {
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <can-bootloader/config.h>
+// #include <can-bootloader/config.h>
+#include <config.h>
 
 // returns true if config read was successful
 bool config_get(bootloader_config_t* cfg);

@@ -33,6 +33,18 @@ void _unhandled_exception(void)
     }
 }
 
+void __assert_func(const char* _file, int _line, const char* _func, const char* _expr)
+{
+    (void)_file;
+    (void)_line;
+    (void)_func;
+    (void)_expr;
+
+    chSysHalt("assertion failed");
+    while (1) {
+    }
+}
+
 bootloader_config_t config;
 
 int main(void)
