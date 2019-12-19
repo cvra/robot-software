@@ -1,9 +1,6 @@
 #include <ch.h>
 #include <hal.h>
 
-#include <stdio.h>
-#include <errno.h>
-
 #ifndef CVRA_NO_DYNAMIC_ALLOCATION
 #define CVRA_NO_DYNAMIC_ALLOCATION 0
 #endif
@@ -29,5 +26,33 @@ void operator delete(void*)
 void operator delete[](void*)
 {
     osalSysHalt("operator delete[]");
+}
+#else
+void* operator new(size_t s)
+{
+    void* p = malloc(s);
+    if (!p) {
+        osalSysHalt("operator new");
+    }
+    return p;
+}
+
+void* operator new[](size_t s)
+{
+    void* p = malloc(s);
+    if (!p) {
+        osalSysHalt("operator new[]");
+    }
+    return p;
+}
+
+void operator delete(void* p)
+{
+    free(p);
+}
+
+void operator delete[](void* p)
+{
+    free(p);
 }
 #endif /* CVRA_NO_DYNAMIC_ALLOCATION */
