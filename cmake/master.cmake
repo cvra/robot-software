@@ -2,11 +2,11 @@
 get_filename_component(stm32_cmake_dir ${CMAKE_CURRENT_LIST_FILE} DIRECTORY)
 set(CMAKE_MODULE_PATH ${stm32_cmake_dir} ${CMAKE_MODULE_PATH})
 
-set(STM32_CHIP "STM32F405GT" CACHE STRING "STM32 chip to build for")
+set(STM32_CHIP "STM32F429ZI" CACHE STRING "STM32 chip to build for")
 set(STM32_FAMILY "F4" CACHE INTERNAL "stm32 family")
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR arm)
-set(CVRA_BOARD_NAME uwb-beacon)
+set(CVRA_BOARD_NAME master)
 
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 set(CMAKE_C_COMPILER "arm-none-eabi-gcc")
@@ -34,8 +34,10 @@ set(COMMON_FLAGS "${HARDWARE_FLAGS} \
     -ffunction-sections -fdata-sections \
     -fomit-frame-pointer \
     -fno-unroll-loops \
-    -ffast-math \
     -ftree-vectorize \
+    -frename-registers \
+    -freorder-blocks \
+    -fconserve-stack \
     -Os \
     " CACHE INTERNAL "common C and C++ flags")
 
@@ -63,7 +65,6 @@ add_compile_definitions("CORTEX_USE_FPU=TRUE;THUMB")
 add_compile_definitions("UAVCAN_STM32_TIMER_NUMBER=2")
 
 # TODO: #define chip types
-# TODO: Stacksizes using defsym -> Done by FindChibiOS
 # TODO: Generate a .bin using objcopy
 
 include(stm32_common)
