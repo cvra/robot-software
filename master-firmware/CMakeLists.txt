@@ -69,7 +69,6 @@ add_custom_target(protoc)
 
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/protobuf/protobuf/)
 
-# TODO Inputs
 add_custom_command(
     COMMAND protoc
         --plugin=protoc-gen-nanopb=../lib/nanopb/nanopb/generator/protoc-gen-nanopb
@@ -81,6 +80,7 @@ add_custom_command(
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     OUTPUT ${PROTOCSRC}
     COMMENT "Running protobuf compiler..."
+    DEPENDS ${PROTOSRC}
 )
 
 add_library(master_proto
@@ -200,6 +200,8 @@ if (${CMAKE_CROSSCOMPILING} AND "${CVRA_BOARD_NAME}" STREQUAL "master")
         # TODO: Should this be in its own library ?
         ../lib/ChibiOS/os/various/fatfs_bindings/fatfs_diskio.c
         ../lib/ChibiOS/os/various/fatfs_bindings/fatfs_syscall.c
+
+        # TODO: probably put that in a lib ?
         ../lib/chibios-syscalls/newlib_syscalls.c
 
         # TODO: Those files should be unit tested but depend on injecting fake
