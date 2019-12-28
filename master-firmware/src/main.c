@@ -242,8 +242,7 @@ int main(void)
     config_load_from_flash();
 
     control_panel_init(config_get_boolean("master/control_panel_active_high"));
-    // TODO: Re-enable GUI
-    // gui_start();
+    gui_start();
 
     /* Base init */
     encoder_start();

@@ -93,6 +93,7 @@ if (${CMAKE_CROSSCOMPILING})
     target_link_libraries(uavcan_stm32 uavcan chibios)
 endif()
 
+include(ugfx.cmake)
 add_subdirectory(arm-cortex-tools)
 add_subdirectory(aversive)
 add_subdirectory(chibios-syscalls)
