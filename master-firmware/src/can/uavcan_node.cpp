@@ -16,7 +16,7 @@
 #include "can_uwb_ip_netif.hpp"
 #include "electron_starter.hpp"
 #include "config.h"
-#include <uavcan_node.h>
+#include <can/uavcan_node.h>
 #include "priorities.h"
 #include "control_panel.h"
 #include "main.h"

@@ -14,12 +14,12 @@ extern "C" {
 #include <shell.h>
 #include "config.h"
 #include "commands.h"
-#include "panic_log.h"
+#include "debug/panic_log.h"
 #include "unix_timestamp.h"
 #include <timestamp/timestamp.h>
-#include "bus_enumerator.h"
-#include "electron_starter.hpp"
-#include "uavcan_node.h"
+#include "can/bus_enumerator.h"
+#include "can/electron_starter.hpp"
+#include "can/uavcan_node.h"
 #include <stdio.h>
 #include "msgbus_protobuf.h"
 #include "main.h"
