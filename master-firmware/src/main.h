@@ -1,7 +1,7 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#include "motor_manager.h"
+#include "can/motor_manager.h"
 #include "msgbus_protobuf.h"
 #include <parameter/parameter.h>
 

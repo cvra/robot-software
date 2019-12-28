@@ -1,7 +1,7 @@
 #ifndef MOTOR_HELPERS_H
 #define MOTOR_HELPERS_H
 
-#include "motor_manager.h"
+#include "can/motor_manager.h"
 
 #ifdef __cplusplus
 extern "C" {
