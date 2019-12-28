@@ -88,6 +88,12 @@ REGION_ALIAS("NOINIT_RAM", ram0);
 /* core coupled memory region */
 REGION_ALIAS("CCM_RAM", ram4);
 
+/* stack size for main task */
+__process_stack_size__ = 3000;
+
+/* Stack size for interrupts */
+__main_stack_size__ = 0x400;
+
 /* Generic rules inclusion.*/
 INCLUDE rules.ld
 

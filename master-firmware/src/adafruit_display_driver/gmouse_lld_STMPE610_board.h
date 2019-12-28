@@ -8,8 +8,6 @@
 #ifndef _GINPUT_LLD_MOUSE_BOARD_H
 #define _GINPUT_LLD_MOUSE_BOARD_H
 
-#include <error/error.h>
-
 // Resolution and Accuracy Settings
 #define GMOUSE_STMPE610_PEN_CALIBRATE_ERROR 8
 #define GMOUSE_STMPE610_PEN_CLICK_ERROR 6

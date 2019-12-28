@@ -181,9 +181,9 @@ if (${CMAKE_CROSSCOMPILING} AND "${CVRA_BOARD_NAME}" STREQUAL "master")
         src/debug/log.c
         src/debug/panic_log.c
         src/filesystem.c
-        #src/gui.cpp
-        #src/gui/Menu.cpp
-        #src/gui/MenuPage.cpp
+        src/gui.cpp
+        src/gui/Menu.cpp
+        src/gui/MenuPage.cpp
         src/http/server.c
         src/main.c
         src/parameter_port.c
@@ -201,7 +201,7 @@ if (${CMAKE_CROSSCOMPILING} AND "${CVRA_BOARD_NAME}" STREQUAL "master")
         ../lib/ChibiOS/os/various/fatfs_bindings/fatfs_diskio.c
         ../lib/ChibiOS/os/various/fatfs_bindings/fatfs_syscall.c
 
-        # TODO: probably put that in a lib ?
+        # TODO: This cannot go in a lib because of linking order issues
         ../lib/chibios-syscalls/newlib_syscalls.c
 
         # TODO: Those files should be unit tested but depend on injecting fake
@@ -235,11 +235,29 @@ if (${CMAKE_CROSSCOMPILING} AND "${CVRA_BOARD_NAME}" STREQUAL "master")
         crc
         master_lib
         config_data
+        ugfx
+        adafruit_display_driver
+
+        # touchscreen driver
+        stmpe610_driver
     )
 
     add_library(lwipopt INTERFACE)
     target_include_directories(lwipopt INTERFACE src/)
     target_link_libraries(lwipopt INTERFACE chibios)
+
+    add_library(gfxconf INTERFACE)
+    target_include_directories(gfxconf INTERFACE
+        src/
+        src/adafruit_display_driver/
+    )
+
+    add_library(adafruit_display_driver
+        src/adafruit_display_driver/gdisp_lld_hx8357.c
+        src/adafruit_display_driver/board_hx8357.c
+    )
+
+    target_link_libraries(adafruit_display_driver ugfx)
 
     add_library(lwip_bindings
         src/lwip_bindings/lwipthread.c
@@ -267,3 +285,5 @@ if (${CMAKE_CROSSCOMPILING} AND "${CVRA_BOARD_NAME}" STREQUAL "master")
     stm32_set_linker_script(master-firmware.elf linker/STM32F429xI.ld)
     stm32_dfu_upload(master-firmware.elf)
 endif()
+
+
