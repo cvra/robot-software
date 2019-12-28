@@ -273,14 +273,7 @@ if (${CMAKE_CROSSCOMPILING} AND "${CVRA_BOARD_NAME}" STREQUAL "master")
         parameter
     )
 
-    target_include_directories(master-firmware.elf PUBLIC
-        src
-        # TODO delete the includes below and rather prefix them in include
-        # statements
-        src/can
-        src/debug
-        src/lwip_bindings
-    )
+    target_include_directories(master-firmware.elf PUBLIC src)
 
     stm32_set_linker_script(master-firmware.elf linker/STM32F429xI.ld)
     stm32_dfu_upload(master-firmware.elf)
