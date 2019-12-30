@@ -13,19 +13,18 @@ endfunction()
 function(stm32_make_bin ELF_FILE)
     get_filename_component(BASENAME ${ELF_FILE} NAME_WE)
     set(BIN_FILE ${BASENAME}.bin)
-    add_custom_command(OUTPUT ${BIN_FILE}
-        COMMAND ${CMAKE_OBJCOPY} ARGS -O binary ${ELF_FILE} ${BIN_FILE}
+    add_custom_target(${BIN_FILE}
+        COMMAND ${CMAKE_OBJCOPY} -O binary ${ELF_FILE} ${BIN_FILE}
         DEPENDS ${ELF_FILE}
         COMMENT "Generating ${BIN_FILE}"
     )
-
 endfunction()
 
 function(stm32_dfu_upload ELF_FILE)
     stm32_make_bin(${ELF_FILE})
     get_filename_component(BASENAME ${ELF_FILE} NAME_WE)
     set(BIN_FILE ${BASENAME}.bin)
-    add_custom_target(dfu 
+    add_custom_target(dfu
         dfu-util -a 0 -d 0483:df11 --dfuse-address 0x08000000 -D ${BIN_FILE}
     )
 endfunction()

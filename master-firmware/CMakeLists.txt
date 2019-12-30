@@ -276,7 +276,6 @@ if (${CMAKE_CROSSCOMPILING} AND "${CVRA_BOARD_NAME}" STREQUAL "master")
     target_include_directories(master-firmware.elf PUBLIC src)
 
     stm32_set_linker_script(master-firmware.elf linker/STM32F429xI.ld)
-    stm32_dfu_upload(master-firmware.elf)
 endif()
 
 
