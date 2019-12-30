@@ -63,7 +63,5 @@ add_compile_definitions("CORTEX_USE_FPU=TRUE;THUMB")
 add_compile_definitions("UAVCAN_STM32_TIMER_NUMBER=2")
 
 # TODO: #define chip types
-# TODO: Stacksizes using defsym -> Done by FindChibiOS
-# TODO: Generate a .bin using objcopy
 
 include(stm32_common)
