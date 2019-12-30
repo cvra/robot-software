@@ -19,12 +19,12 @@ void parameter_port_assert(int condition)
     CHECK_TRUE(condition);
 }
 
-void *parameter_port_buffer_alloc(size_t size)
+void* parameter_port_buffer_alloc(size_t size)
 {
     return malloc(size);
 }
 
-void parameter_port_buffer_free(void *buffer)
+void parameter_port_buffer_free(void* buffer)
 {
     free(buffer);
 }

@@ -3,8 +3,7 @@
 #include <parameter/parameter_port.h>
 #include <cstdlib>
 
-TEST_GROUP(ParameterNamespaceInit)
-{
+TEST_GROUP (ParameterNamespaceInit) {
     parameter_namespace_t rootns;
     void setup(void)
     {

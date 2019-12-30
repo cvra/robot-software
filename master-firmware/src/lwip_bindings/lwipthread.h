@@ -111,7 +111,7 @@
 extern "C" {
 #endif
 
-void ip_thread_init(parameter_namespace_t *global_config);
+void ip_thread_init(parameter_namespace_t* global_config);
 
 #ifdef __cplusplus
 }

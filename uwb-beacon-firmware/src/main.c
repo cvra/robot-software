@@ -38,7 +38,6 @@ void __late_init(void)
 
 int main(void)
 {
-
     /* Starts USB, this takes about 1 second, as we have to disconnect and
      * reconnect the device. */
     usb_start(42);
