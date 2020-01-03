@@ -111,8 +111,10 @@ void strategy_order_play_game(StrategyState& state, enum strat_color_t color)
 
     goap::Action<StrategyState>* path[MAX_GOAP_PATH_LEN] = {nullptr};
 
-    std::array<goap::Goal<RobotState>*, 0> goals;
-    std::array<goap::Action<RobotState>*, 0> actions;
+    goals::LighthouseEnabled lighthouse_enabled;
+    actions::EnableLighthouse enable_lighthouse;
+    std::array<goap::Goal<StrategyState>*, 1> goals = {&lighthouse_enabled};
+    std::array<goap::Action<StrategyState>*, 1> actions = {&enable_lighthouse};
 
     /* Autoposition robot */
     wait_for_autoposition_signal();
