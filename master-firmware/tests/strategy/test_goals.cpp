@@ -1,8 +1,7 @@
 #include <CppUTest/TestHarness.h>
 #include "strategy/goals.h"
 
-TEST_GROUP(LighthouseEnabledTestCase)
-{
+TEST_GROUP (LighthouseEnabledTestCase) {
     goals::LighthouseEnabled goal;
     StrategyState state;
 };
@@ -18,8 +17,7 @@ TEST(LighthouseEnabledTestCase, ReachedOnlyWhenLighthouseEnabled)
     CHECK_EQUAL(0, goal.distance_to(state));
 }
 
-TEST_GROUP(WindsocksUpTestCase)
-{
+TEST_GROUP (WindsocksUpTestCase) {
     goals::WindsocksUp goal;
     StrategyState state;
 };

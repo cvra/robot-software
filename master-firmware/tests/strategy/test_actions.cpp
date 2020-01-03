@@ -3,13 +3,13 @@
 
 using namespace actions;
 
-bool EnableLighthouse::execute(StrategyState &state) {
+bool EnableLighthouse::execute(StrategyState& state)
+{
     plan_effects(state);
     return true;
 }
 
-TEST_GROUP(EnableLighthouseTestCase)
-{
+TEST_GROUP (EnableLighthouseTestCase) {
     StrategyState state;
     EnableLighthouse action;
 };
@@ -31,8 +31,7 @@ bool RaiseWindsock::execute(StrategyState& state)
     return true;
 }
 
-TEST_GROUP(RaiseWindsockTestCase)
-{
+TEST_GROUP (RaiseWindsockTestCase) {
     StrategyState state;
     RaiseWindsock far{1}, near{0};
 };

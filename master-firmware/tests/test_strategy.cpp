@@ -40,8 +40,7 @@ TEST(Strategy, CanRunAllGoals)
     goals::WindsocksUp windsocks;
     goap::Goal<StrategyState>* goals[] = {
         &lighthouse,
-        &windsocks
-    };
+        &windsocks};
 
     for (auto& goal : goals) {
         int len = compute_and_execute_plan(*goal, state, actions);
