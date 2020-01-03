@@ -85,9 +85,6 @@ limitations under the License.
 #define CANIF_MAC_PREFIX 0x42
 #define ETHERNET_MAC_PREFIX 0x43
 
-#define LWIP_IFNAME0 'e'
-#define LWIP_IFNAME1 'n'
-
 static sys_sem_t lwip_init_done;
 
 static struct {

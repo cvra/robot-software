@@ -98,12 +98,12 @@
 
 /** @brief Interface name byte 0. */
 #if !defined(LWIP_IFNAME0) || defined(__DOXYGEN__)
-#define LWIP_IFNAME0 'm'
+#define LWIP_IFNAME0 'e'
 #endif
 
 /** @brief Interface name byte 1. */
 #if !defined(LWIP_IFNAME1) || defined(__DOXYGEN__)
-#define LWIP_IFNAME1 's'
+#define LWIP_IFNAME1 'n'
 #endif
 
 #ifdef __cplusplus
