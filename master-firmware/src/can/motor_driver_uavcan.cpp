@@ -27,13 +27,6 @@ static void motor_driver_uavcan_send_setpoint(motor_driver_t* d);
 /** Send new parameters from the global tree to the motor board. */
 static int motor_driver_uavcan_update_config(motor_driver_t* d);
 
-/** Logs an error in case the UAVCAN RPC failed.
- *
- * It is parametrized to adapt to any type of RPC. */
-template <typename T>
-static void assert_call_successful(const ServiceCallResult<T>& call_result);
-
-static LazyConstructor<ServiceClient<uavcan::protocol::param::GetSet>> feedback_stream_client;
 static LazyConstructor<Publisher<control::Velocity>> velocity_pub;
 static LazyConstructor<Publisher<control::Position>> position_pub;
 static LazyConstructor<Publisher<control::Torque>> torque_pub;
@@ -41,15 +34,6 @@ static LazyConstructor<Publisher<control::Voltage>> voltage_pub;
 
 int motor_driver_uavcan_init(INode& node)
 {
-    int res;
-
-    feedback_stream_client.construct<INode&>(node);
-    res = feedback_stream_client->init();
-    if (res != 0) {
-        return res;
-    }
-    feedback_stream_client->setCallback(assert_call_successful<uavcan::protocol::param::GetSet>);
-
     velocity_pub.construct<INode&>(node);
     position_pub.construct<INode&>(node);
     torque_pub.construct<INode&>(node);
@@ -103,16 +87,6 @@ static void update_motor_can_id(motor_driver_t* d)
             motor_driver_set_can_id(d, node_id);
         }
     }
-}
-
-static void send_stream_config(int node_id, float frequency, const char* request_name)
-{
-    uavcan::protocol::param::GetSet::Request request;
-
-    request.name = request_name;
-    request.value.to<uavcan::protocol::param::Value::Tag::real_value>() = frequency;
-
-    feedback_stream_client->call(node_id, request);
 }
 
 static int motor_driver_uavcan_update_config(motor_driver_t* d)
@@ -174,12 +148,4 @@ static void motor_driver_uavcan_send_setpoint(motor_driver_t* d)
             break;
     }
     motor_driver_unlock(d);
-}
-
-template <typename T>
-static void assert_call_successful(const ServiceCallResult<T>& call_result)
-{
-    if (!call_result.isSuccessful()) {
-        ERROR("uavcan service call timeout %d", call_result.getCallID().server_node_id.get());
-    }
 }
