@@ -9,6 +9,10 @@ extern "C" {
 
 #define TOPIC_NAME_MAX_LENGTH 64
 
+typedef struct {
+    int messages;
+} messagebus_topic_stats_t;
+
 typedef struct topic_s {
     void* buffer;
     size_t buffer_len;
@@ -19,6 +23,7 @@ typedef struct topic_s {
     struct messagebus_watcher_s* watchers;
     struct topic_s* next;
     void* metadata;
+    messagebus_topic_stats_t stats;
 } messagebus_topic_t;
 
 typedef struct {
@@ -164,6 +169,9 @@ void messagebus_new_topic_callback_register(messagebus_t* bus,
                                                            messagebus_topic_t*,
                                                            void*),
                                             void* arg);
+
+/** Copies stats from the topic to the provided stat object. */
+void messagebus_topic_stats_get(messagebus_topic_t* topic, messagebus_topic_stats_t* out);
 
 /** @defgroup portable Portable functions, platform specific.
  * @{*/

@@ -129,3 +129,14 @@ TEST(MessageBusAtomicityTestGroup, RegisterNewTopicCallback)
 
     messagebus_new_topic_callback_register(&bus, &cb, nullptr, nullptr);
 }
+
+TEST(MessageBusAtomicityTestGroup, ReadStats)
+{
+    messagebus_topic_stats_t stats;
+
+    mock().expectOneCall("messagebus_lock_acquire").withPointerParameter("lock", topic.lock);
+    mock().expectOneCall("messagebus_lock_release").withPointerParameter("lock", topic.lock);
+
+    lock_mocks_enable(true);
+    messagebus_topic_stats_get(&topic, &stats);
+}
