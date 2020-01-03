@@ -52,16 +52,16 @@ typedef struct messagebus_new_topic_cb_s {
     struct messagebus_new_topic_cb_s* next;
 } messagebus_new_topic_cb_t;
 
-#define MESSAGEBUS_TOPIC_FOREACH(_bus, _topic_var_name)                        \
-    for (int __control = -1; __control < 2; __control++)                       \
-        if (__control < 0) {                                                   \
-            messagebus_lock_acquire((_bus)->lock);                             \
-        } else if (__control > 0) {                                            \
-            messagebus_lock_release((_bus)->lock);                             \
-        } else                                                                 \
-            for (messagebus_topic_t * (_topic_var_name) = (_bus)->topics.head; \
-                 topic != NULL;                                                \
-                 (_topic_var_name) = (_topic_var_name)->next)
+#define MESSAGEBUS_TOPIC_FOREACH(_bus, _topic_var_name)                     \
+    for (int __control = -1; __control < 2; __control++)                    \
+        if (__control < 0) {                                                \
+            messagebus_lock_acquire((_bus)->lock);                          \
+        } else if (__control > 0) {                                         \
+            messagebus_lock_release((_bus)->lock);                          \
+        } else                                                              \
+            for (messagebus_topic_t* _topic_var_name = (_bus)->topics.head; \
+                 topic != NULL;                                             \
+                 _topic_var_name = _topic_var_name->next)
 
 /** Initializes a topic object
  *
