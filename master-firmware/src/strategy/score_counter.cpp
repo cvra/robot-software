@@ -2,6 +2,8 @@
 #include <hal.h>
 #include <error/error.h>
 
+#include "parameter/parameter.h"
+#include "chthreads.h"
 #include "main.h"
 #include "priorities.h"
 #include "config.h"
@@ -30,7 +32,15 @@ static THD_FUNCTION(score_counter_thd, arg)
     while (true) {
         messagebus_topic_wait(strategy_state_topic, &state, sizeof(state));
 
+        bool is_main_robot;
+        parameter_t *p = parameter_find(&global_config, "/master/is_main_robot");
+
+        if (p != nullptr) {
+            is_main_robot = parameter_boolean_get(p);
+        }
+
         Score msg;
+        msg.score = compute_score(state, is_main_robot);
 
         messagebus_topic_publish(&score_topic.topic, &msg, sizeof(msg));
     }
