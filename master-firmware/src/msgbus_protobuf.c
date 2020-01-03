@@ -106,7 +106,7 @@ static size_t encode_topic_header(const messagebus_topic_t* topic, uint8_t* buf,
     MessageSize header_size;
 
     /* First populate information in the header */
-    strncpy(header.name, topic->name, sizeof(header.name) - 1);
+    strncpy(header.name, topic->name, sizeof(header.name));
     header.msgid = metadata->msgid;
 
     /* Then encode header, skipping enough bytes to store the message size before. */
