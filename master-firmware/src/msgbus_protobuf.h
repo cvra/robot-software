@@ -45,7 +45,7 @@ typedef struct {
 
 #define _MESSAGEBUS_TOPIC_DATA(topic, lock, condvar, buffer, buffer_size, metadata) \
     {                                                                               \
-        buffer, buffer_size, &lock, &condvar, "", 0, NULL, NULL, &metadata,         \
+        buffer, buffer_size, &lock, &condvar, "", 0, NULL, NULL, &metadata, {0},    \
     }
 
 /* Wraps the topic information in a header (in protobuf format) to be sent over
