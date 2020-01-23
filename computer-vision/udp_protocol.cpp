@@ -21,7 +21,7 @@ void udp_send_result(std::string dst, int port, ComputerVisionResult result)
     struct sockaddr_in si;
     memset(&si, 0, sizeof(si));
     si.sin_family = AF_INET;
-	si.sin_port = htons(port);
+    si.sin_port = htons(port);
 
     if (inet_aton(dst.c_str(), &si.sin_addr) != 0) {
         ERROR("Invalid destination %s", dst.c_str());
@@ -34,7 +34,7 @@ void udp_send_result(std::string dst, int port, ComputerVisionResult result)
     }
 
     TopicHeader header;
-     // TODO do not hardcode those
+    // TODO do not hardcode those
     header.set_msgid(16);
     header.set_name("/camera");
 
@@ -50,6 +50,6 @@ void udp_send_result(std::string dst, int port, ComputerVisionResult result)
     msg_size.SerializeToString(&msg_size_encoded);
 
     msg = header_size_encoded + header_encoded + msg_size_encoded + msg;
-    sendto(fd, msg.data(), msg.size(), 0, (struct sockaddr *)&si, sizeof(si));
+    sendto(fd, msg.data(), msg.size(), 0, (struct sockaddr*)&si, sizeof(si));
     close(fd);
 }
