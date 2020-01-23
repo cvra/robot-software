@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 project(robot_tracking VERSION 0.1.0 LANGUAGES C CXX)
 
+find_package(Protobuf REQUIRED)
 find_package(OpenCV REQUIRED)
 
 message(STATUS "OpenCV library status:")
@@ -48,7 +49,7 @@ add_custom_command(
 add_library(master_proto
     ${PROTOCSRC}
 )
-target_include_directories(master_proto PUBLIC ${CMAKE_BINARY_DIR}/protobuf)
+target_include_directories(master_proto PUBLIC ${Protobuf_INCLUDE_DIRS} ${CMAKE_BINARY_DIR}/protobuf)
 
 add_library(error ../lib/error/error.c)
 target_include_directories(error PUBLIC ../lib/)
@@ -60,6 +61,6 @@ add_executable(robot_tracking
 target_link_libraries(robot_tracking
     ${OpenCV_LIBS}
     master_proto
-    protobuf
+    ${Protobuf_LIBRARIES}
     error
 )
