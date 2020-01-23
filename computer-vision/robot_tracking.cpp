@@ -4,6 +4,8 @@
 
 #include "protobuf/protocol.pb.h"
 #include "protobuf/computer_vision.pb.h"
+#include "error/error.h"
+#include "logging.h"
 
 #define ARUCO_CENTER 42
 #define ARUCO_BLUE_FIRST 1
@@ -80,8 +82,9 @@ void processImage(cv::Mat& image, RobotTrackingSettings& settings, bool display 
 
 int main(int argc, char* argv[])
 {
+    logging_init();
     if (argc < 2) {
-        printf("usage: %s config.yaml image.jpg\n", argv[0]);
+        ERROR("usage: %s config.yaml image.jpg\n", argv[0]);
         return -1;
     }
 
