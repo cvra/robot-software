@@ -1,5 +1,7 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/aruco.hpp>
+#include <opencv2/calib3d.hpp>
+
 #include <iostream>
 
 #include "protobuf/protocol.pb.h"
@@ -8,10 +10,7 @@
 #include "logging.h"
 
 #define ARUCO_CENTER 42
-#define ARUCO_BLUE_FIRST 1
-#define ARUCO_BLUE_LAST 5
-#define ARUCO_YELLOW_FIRST 6
-#define ARUCO_YELLOW_LAST 10
+#define ARUCO_WEATHERVANE 17
 
 struct RobotTrackingSettings {
     int image_width;
@@ -30,6 +29,26 @@ struct RobotTrackingSettings {
         cv::read(fs["distortion_coefficients"], distortion_coefficients);
     }
 };
+
+enum WeathiervaneDirection {
+    NORTH = 0,
+    SOUTH = 1
+};
+
+WeathiervaneDirection weathervane_direction(cv::Vec3d rvec, cv::Vec3d tvec)
+{
+    cv::Mat R;
+    cv::Rodrigues(rvec, R);
+    cv::Vec3d e2 = {0, 1, 0};
+    cv::Vec3d v = cv::Mat(R * e2);
+
+    // check if facing down
+    if (v[1] > 0) {
+        return SOUTH;
+    } else {
+        return NORTH;
+    }
+}
 
 void processImage(cv::Mat& image, RobotTrackingSettings& settings, bool display = false)
 {
@@ -58,6 +77,23 @@ void processImage(cv::Mat& image, RobotTrackingSettings& settings, bool display 
         std::cout << ids[i] << std::endl;
         std::cout << rvecs[i] << std::endl;
         std::cout << tvecs[i] << std::endl;
+    }
+
+    int dir = -1;
+    for (size_t i = 0; i < ids.size(); i++) {
+        if (ids[i] == ARUCO_WEATHERVANE) {
+            dir = weathervane_direction(rvecs[i], tvecs[i]);
+            break;
+        }
+    }
+
+    switch (dir) {
+        case NORTH:
+            printf("NORTH\n");
+            break;
+        case SOUTH:
+            printf("SOUTH\n");
+            break;
     }
 
     if (display) {
