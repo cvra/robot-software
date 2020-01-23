@@ -8,6 +8,7 @@
 #include "protobuf/computer_vision.pb.h"
 #include "error/error.h"
 #include "logging.h"
+#include "udp_protocol.h"
 
 #define ARUCO_CENTER 42
 #define ARUCO_WEATHERVANE 17
@@ -144,7 +145,7 @@ int main(int argc, char* argv[])
         while (inputVideo.grab()) {
             inputVideo.retrieve(image);
             auto result = processImage(image, settings, true);
-            DEBUG("%s", result.DebugString().c_str());
+            udp_send_result("localhost", 5001, result);
             char key = (char)cv::waitKey(10);
             if (key == 27) {
                 break;
@@ -153,7 +154,7 @@ int main(int argc, char* argv[])
     } else {
         image = cv::imread(argv[2], cv::IMREAD_COLOR);
         auto result = processImage(image, settings, true);
-        DEBUG("%s", result.DebugString().c_str());
+        udp_send_result("localhost", 5001, result);
         while (true) {
             char key = (char)cv::waitKey(10);
             if (key == 27) {

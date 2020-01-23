@@ -57,6 +57,7 @@ target_include_directories(error PUBLIC ../lib/)
 add_executable(robot_tracking
     robot_tracking.cpp
     logging.cpp
+    udp_protocol.cpp
 )
 target_link_libraries(robot_tracking
     ${OpenCV_LIBS}
