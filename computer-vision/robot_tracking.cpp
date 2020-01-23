@@ -50,7 +50,7 @@ WeathiervaneDirection weathervane_direction(cv::Vec3d rvec, cv::Vec3d tvec)
     }
 }
 
-void processImage(cv::Mat& image, RobotTrackingSettings& settings, bool display = false)
+ComputerVisionResult processImage(cv::Mat& image, RobotTrackingSettings& settings, bool display = false)
 {
     float markerLength = 0.1;
     const int dictionaryId = 1; // DICT_4X4_100=1
@@ -114,6 +114,10 @@ void processImage(cv::Mat& image, RobotTrackingSettings& settings, bool display 
         // cv::imwrite("out.jpg", imageCopy);
         cv::imshow("out", imageCopy);
     }
+
+    ComputerVisionResult result;
+    result.set_weather_vane_orientation(ComputerVisionResult::NORTH);
+    return result;
 }
 
 int main(int argc, char* argv[])
@@ -132,10 +136,6 @@ int main(int argc, char* argv[])
     std::cout << settings.camera_matrix << std::endl;
     std::cout << settings.distortion_coefficients << std::endl;
 
-    ComputerVisionResult result;
-    result.set_weather_vane_orientation(ComputerVisionResult::NORTH);
-    std::cout << result.DebugString() << std::endl;
-
     cv::Mat image;
     if (argc == 2) {
         const int camId = 0;
@@ -143,7 +143,8 @@ int main(int argc, char* argv[])
         inputVideo.open(camId);
         while (inputVideo.grab()) {
             inputVideo.retrieve(image);
-            processImage(image, settings, true);
+            auto result = processImage(image, settings, true);
+            DEBUG("%s", result.DebugString().c_str());
             char key = (char)cv::waitKey(10);
             if (key == 27) {
                 break;
@@ -151,7 +152,8 @@ int main(int argc, char* argv[])
         }
     } else {
         image = cv::imread(argv[2], cv::IMREAD_COLOR);
-        processImage(image, settings, true);
+        auto result = processImage(image, settings, true);
+        DEBUG("%s", result.DebugString().c_str());
         while (true) {
             char key = (char)cv::waitKey(10);
             if (key == 27) {
