@@ -13,6 +13,10 @@ void udp_send_result(std::string dst, int port, ComputerVisionResult result)
     int fd;
     std::string msg;
 
+    if (!result.has_weather_vane_orientation()) {
+        return;
+    }
+
     if (!result.SerializeToString(&msg)) {
         ERROR("Could not serialize result message");
         return;

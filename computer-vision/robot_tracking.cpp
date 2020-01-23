@@ -88,15 +88,6 @@ ComputerVisionResult processImage(cv::Mat& image, RobotTrackingSettings& setting
         }
     }
 
-    switch (dir) {
-        case NORTH:
-            printf("NORTH\n");
-            break;
-        case SOUTH:
-            printf("SOUTH\n");
-            break;
-    }
-
     if (display) {
         cv::Mat imageCopy;
         // draw results
@@ -117,7 +108,15 @@ ComputerVisionResult processImage(cv::Mat& image, RobotTrackingSettings& setting
     }
 
     ComputerVisionResult result;
-    result.set_weather_vane_orientation(ComputerVisionResult::NORTH);
+    switch (dir) {
+        case NORTH:
+            result.set_weather_vane_orientation(ComputerVisionResult::NORTH);
+            break;
+        case SOUTH:
+            result.set_weather_vane_orientation(ComputerVisionResult::SOUTH);
+            break;
+    }
+
     return result;
 }
 
