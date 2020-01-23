@@ -2,6 +2,8 @@
 #include <opencv2/aruco.hpp>
 #include <iostream>
 
+#include "protobuf/protocol.pb.h"
+
 #define ARUCO_CENTER 42
 #define ARUCO_BLUE_FIRST 1
 #define ARUCO_BLUE_LAST 5

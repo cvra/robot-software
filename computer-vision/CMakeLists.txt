@@ -15,6 +15,39 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 add_executable(example example.cpp)
 target_link_libraries(example LINK_PRIVATE ${OpenCV_LIBS})
 
+# List of all protobuf files
+set(PROTODIR ../master-firmware/protobuf)
+set(PROTOSRC
+    ${PROTODIR}/protocol.proto
+    ../lib/nanopb/nanopb/generator/proto/nanopb.proto
+)
+
+# Generater .pb.cc filenames from .proto filenames
+foreach (F ${PROTOSRC})
+    get_filename_component(basename ${F} NAME_WE)
+    list(APPEND PROTOCSRC ${CMAKE_BINARY_DIR}/protobuf/protobuf/${basename}.pb.cc)
+endforeach()
+
+add_custom_target(protoc)
+
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/protobuf/protobuf/)
+
+add_custom_command(
+    COMMAND protoc
+        -I ${PROTODIR}
+        -I ../lib/nanopb/nanopb/generator/proto
+        --cpp_out=${CMAKE_BINARY_DIR}/protobuf/protobuf
+        ${PROTOSRC}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    OUTPUT ${PROTOCSRC}
+    COMMENT "Running protobuf compiler..."
+    DEPENDS ${PROTOSRC}
+)
+
+add_library(master_proto
+    ${PROTOCSRC}
+)
+target_include_directories(master_proto PUBLIC ${CMAKE_BINARY_DIR}/protobuf)
 
 add_executable(robot_tracking robot_tracking.cpp)
-target_link_libraries(robot_tracking LINK_PRIVATE ${OpenCV_LIBS})
+target_link_libraries(robot_tracking LINK_PRIVATE ${OpenCV_LIBS} master_proto)
