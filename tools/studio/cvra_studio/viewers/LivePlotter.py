@@ -4,6 +4,7 @@ import numpy as np
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore
 
+
 class LivePlotter:
     def __init__(self, buffer_size):
         self.ports = []
@@ -33,11 +34,16 @@ class LivePlotter:
                 self.ax.addLegend()
                 for index, variable in enumerate(data):
                     plt.plot(
-                        np.asarray(data[variable]['time'][-self.buffer_size:]).flatten(),
-                        np.asarray(data[variable]['value'][-self.buffer_size:]).flatten(),
+                        np.asarray(
+                            data[variable]["time"][-self.buffer_size :]
+                        ).flatten(),
+                        np.asarray(
+                            data[variable]["value"][-self.buffer_size :]
+                        ).flatten(),
                         name=variable,
-                        pen=(index, len(data)), symbol="o",
-                        symbolSize=1
+                        pen=(index, len(data)),
+                        symbol="o",
+                        symbolSize=1,
                     )
             except queue.Empty:
                 pass

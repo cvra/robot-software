@@ -8,12 +8,26 @@ import importlib
 import sys
 from google.protobuf.message import Message
 
-msgdir = os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                      '..', '..', 'master-firmware', 'build', 'protobuf')
-nanopbdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..',
-                         'lib', 'nanopb', 'nanopb', 'generator', 'proto')
+msgdir = os.path.join(
+    os.path.abspath(os.path.dirname(__file__)),
+    "..",
+    "..",
+    "master-firmware",
+    "build",
+    "protobuf",
+)
+nanopbdir = os.path.join(
+    os.path.abspath(os.path.dirname(__file__)),
+    "..",
+    "..",
+    "lib",
+    "nanopb",
+    "nanopb",
+    "generator",
+    "proto",
+)
 
-modules = glob.glob(os.path.join(msgdir, '*.py'))
+modules = glob.glob(os.path.join(msgdir, "*.py"))
 
 
 sys.path.insert(0, msgdir)
@@ -27,7 +41,7 @@ for f in modules:
     if not os.path.isfile(f):
         continue
 
-    if f.endswith('__init__.py'):
+    if f.endswith("__init__.py"):
         continue
 
     name = os.path.basename(f)[:-3]

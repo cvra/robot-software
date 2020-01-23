@@ -16,14 +16,14 @@ class CircleTrajectoryGenerator(TestCase):
         Checks that two points are close.
         """
         self.assertAlmostEqual(
-            0, sqrt((a[0] - b[0])**2 + (a[1] - b[1])**2), places=places)
+            0, sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2), places=places
+        )
 
     def test_trajectory_point(self):
         """
         Checks that we can initialize a simple trajectory point.
         """
-        p = TrajectoryPoint(
-            timestamp=1.2, pos=(0, 0), omega=1.2, acc=(0, 0), theta=0.)
+        p = TrajectoryPoint(timestamp=1.2, pos=(0, 0), omega=1.2, acc=(0, 0), theta=0.0)
 
     def test_generate_trajectory(self):
         """
@@ -38,10 +38,8 @@ class CircleTrajectoryGenerator(TestCase):
         Checks for a few trajectory points that they are on a circle.
         """
         # Check that the first hundred points are at 1.5 m from the origin
-        for _, p in zip(
-                range(100), generate_circular_traj(r=1.5, omega=2, dt=0.1)):
-            self.assertAlmostEqual(
-                1.5, sqrt(p.pos[0]**2 + p.pos[1]**2), places=2)
+        for _, p in zip(range(100), generate_circular_traj(r=1.5, omega=2, dt=0.1)):
+            self.assertAlmostEqual(1.5, sqrt(p.pos[0] ** 2 + p.pos[1] ** 2), places=2)
 
     def test_timestamps(self):
         """

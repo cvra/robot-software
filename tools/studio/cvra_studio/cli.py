@@ -13,7 +13,7 @@ from cvra_studio.commands import *
 
 def main():
     parser = argparse.ArgumentParser(__doc__)
-    parser.add_argument('--version', '-v', action='version', version=__version__)
+    parser.add_argument("--version", "-v", action="version", version=__version__)
 
     subparsers = parser.add_subparsers()
     parsers = {}
@@ -23,7 +23,7 @@ def main():
         parsers[command].set_defaults(func=command_main.main)
 
     args = parser.parse_args()
-    if hasattr(args, 'func'):
+    if hasattr(args, "func"):
         args.func(args)
     else:
         parser.print_help()

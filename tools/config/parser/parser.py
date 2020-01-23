@@ -4,19 +4,19 @@ class Parameter:
         self.indent = indent
         self.parents = parents
         self.value = value
-        self.var = self.name.replace('-', '_')
+        self.var = self.name.replace("-", "_")
 
     def to_struct(self):
-        indent = '    ' * self.indent
-        s = indent + 'parameter_t {var};'
+        indent = "    " * self.indent
+        s = indent + "parameter_t {var};"
 
         if isinstance(self.value, str):
-            s += '\n' + indent + 'char {var}_buffer[16];'
+            s += "\n" + indent + "char {var}_buffer[16];"
 
         return s.format(var=self.var)
 
     def to_init_code(self):
-        s = '    '
+        s = "    "
         if isinstance(self.value, bool):
             s += 'parameter_boolean_declare(&{parent}.{var}, &{parent}.ns, "{name}");'
         elif isinstance(self.value, int):
@@ -26,9 +26,9 @@ class Parameter:
         elif isinstance(self.value, str):
             s += 'parameter_string_declare(&{parent}.{var}, &{parent}.ns, "{name}", {parent}.{name}_buffer, sizeof({parent}.{name}_buffer));'
         else:
-            raise TypeError('[Parameter] Unsupported type: {}'.format(type(self.value)))
+            raise TypeError("[Parameter] Unsupported type: {}".format(type(self.value)))
 
-        return s.format(var=self.var, name=self.name, parent='.'.join(self.parents))
+        return s.format(var=self.var, name=self.name, parent=".".join(self.parents))
 
 
 class ParameterNamespace:
@@ -37,53 +37,58 @@ class ParameterNamespace:
         self.params = params
         self.indent = indent
         self.parents = parents
-        self.var = self.name.replace('-', '_')
+        self.var = self.name.replace("-", "_")
 
     def _struct_header(self):
         return [
-            'struct {',
-            '    parameter_namespace_t ns;',
+            "struct {",
+            "    parameter_namespace_t ns;",
         ]
 
     def _struct_footer(self):
         return [
-            '} ' + self.name + ';',
+            "} " + self.name + ";",
         ]
 
     def to_struct(self):
-        string = list(map(lambda i: '    ' * self.indent + i, self._struct_header()))
+        string = list(map(lambda i: "    " * self.indent + i, self._struct_header()))
 
         if self.params is not None:
             for param in self.params:
                 string += [param.to_struct()]
 
-        string += list(map(lambda i: '    ' * self.indent + i, self._struct_footer()))
+        string += list(map(lambda i: "    " * self.indent + i, self._struct_footer()))
 
-        return '\n'.join(string)
+        return "\n".join(string)
 
     def _is_root(self):
         return len(self.parents) == 0
 
     def _code_parent_ns(self):
-        return '&{}.ns'.format('.'.join(self.parents))
+        return "&{}.ns".format(".".join(self.parents))
 
     def _code_name(self):
         return '"{}"'.format(self.name)
 
     def _code_ns(self):
-        return '&{}.ns'.format('.'.join(self.parents + [self.var]))
+        return "&{}.ns".format(".".join(self.parents + [self.var]))
 
-    def to_init_code(self, function_name='config_init'):
+    def to_init_code(self, function_name="config_init"):
         if self._is_root():
             string = [
-                'void {}(void)'.format(function_name),
-                '{',
-                '    parameter_namespace_declare({struct}, NULL, NULL);'.format(struct=self._code_ns()),
+                "void {}(void)".format(function_name),
+                "{",
+                "    parameter_namespace_declare({struct}, NULL, NULL);".format(
+                    struct=self._code_ns()
+                ),
             ]
         else:
             string = [
-                '    parameter_namespace_declare({struct}, {parent}, {name});'.format(
-                    struct=self._code_ns(), parent=self._code_parent_ns(), name=self._code_name())
+                "    parameter_namespace_declare({struct}, {parent}, {name});".format(
+                    struct=self._code_ns(),
+                    parent=self._code_parent_ns(),
+                    name=self._code_name(),
+                )
             ]
 
         if self.params is not None:
@@ -91,9 +96,9 @@ class ParameterNamespace:
                 string += [param.to_init_code()]
 
         if self._is_root():
-            string += ['}']
+            string += ["}"]
 
-        return '\n'.join(string)
+        return "\n".join(string)
 
 
 def depth(d, level=1):
@@ -106,9 +111,17 @@ def depth(d, level=1):
             return 0
 
 
-def parse_tree(config, name='config', level=0, parents=list()):
+def parse_tree(config, name="config", level=0, parents=list()):
     if depth(config) == 1:
-        return ParameterNamespace(name, [Parameter(key, config[key], parents + [name], level + 1) for key in config], parents, level)
+        return ParameterNamespace(
+            name,
+            [
+                Parameter(key, config[key], parents + [name], level + 1)
+                for key in config
+            ],
+            parents,
+            level,
+        )
     elif depth(config) > 1:
         children = list()
         for k, v in config.items():

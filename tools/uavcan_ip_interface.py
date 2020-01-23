@@ -13,7 +13,7 @@ import subprocess
 from queue import Queue, Empty
 import threading
 
-DSDL_DIR = os.path.join(os.path.dirname(__file__), '../uavcan_data_types/cvra')
+DSDL_DIR = os.path.join(os.path.dirname(__file__), "../uavcan_data_types/cvra")
 
 
 def parse_args():
@@ -22,25 +22,27 @@ def parse_args():
         "--interface",
         "-i",
         help="CAN Interface to use (e.g. can0 or /dev/ttyUSB0",
-        required=True)
+        required=True,
+    )
     parser.add_argument(
         "--ip-address",
         "-a",
         default="10.0.0.1/24",
-        help="IP address of this interface (default 10.0.0.1/24)")
+        help="IP address of this interface (default 10.0.0.1/24)",
+    )
     parser.add_argument("--dsdl", help="Path to DSDL directory", default=DSDL_DIR)
 
     return parser.parse_args()
 
 
 def open_tun_interface(ip_addr):
-    if sys.platform == 'linux':
+    if sys.platform == "linux":
         fd = os.open("/dev/net/tun", os.O_RDWR)
 
         # Values obtained with a test C program
         IFF_TAP = 0x2
         IFF_NO_PI = 4096
-        TUNSETIFF = 0x400454ca
+        TUNSETIFF = 0x400454CA
 
         # See man netdevice for struct ifreq
         val = struct.pack("16sh15x", "tap0".encode(), IFF_TAP | IFF_NO_PI)
@@ -51,7 +53,7 @@ def open_tun_interface(ip_addr):
 
         return fd
 
-    elif sys.platform == 'darwin':  # macOS
+    elif sys.platform == "darwin":  # macOS
         tap = "tap0"
         fd = os.open("/dev/" + tap, os.O_RDWR)
         subprocess.call("ifconfig {} {}".format(tap, ip_addr).split())
@@ -92,7 +94,7 @@ def node_thread(tun_fd, node, can_to_tap, tap_to_can):
 
         # Finally send it over CAN
         msg = uavcan.thirdparty.cvra.uwb_beacon.DataPacket()
-        msg.dst_addr = 0xffff  # broadcast
+        msg.dst_addr = 0xFFFF  # broadcast
         msg.data = list(packet)
 
         node.broadcast(msg)
@@ -122,7 +124,9 @@ def main():
 
     rx_thd = threading.Thread(target=rx_thread, args=(tun_fd, tap_to_can))
     tx_thd = threading.Thread(target=tx_thread, args=(tun_fd, can_to_tap))
-    node_thd = threading.Thread(target=node_thread, args=(tun_fd, node, can_to_tap, tap_to_can))
+    node_thd = threading.Thread(
+        target=node_thread, args=(tun_fd, node, can_to_tap, tap_to_can)
+    )
 
     rx_thd.start()
     tx_thd.start()
@@ -133,5 +137,5 @@ def main():
     tx_thd.join()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

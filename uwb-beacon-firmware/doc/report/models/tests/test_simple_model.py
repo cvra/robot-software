@@ -42,7 +42,7 @@ class SimpleModelTest(TestCase):
         x, y = 1, 1  # ground truth passed to the model for computing beacon pos
 
         def distance(bx, by):
-            return np.sqrt((bx - x)**2 + (by - y)**2)
+            return np.sqrt((bx - x) ** 2 + (by - y) ** 2)
 
         beacons = [
             (3, 3),

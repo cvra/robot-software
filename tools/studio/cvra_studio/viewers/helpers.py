@@ -8,19 +8,23 @@ def vstack(items):
         stack(item, layout)
     return layout
 
+
 def hstack(items):
     layout = QHBoxLayout()
     for item in items:
         stack(item, layout)
     return layout
 
+
 @singledispatch
 def stack(item, layout):
-    raise Exception('Non valid item of type', type(item))
+    raise Exception("Non valid item of type", type(item))
+
 
 @stack.register(QBoxLayout)
 def _(item, layout):
     layout.addLayout(item)
+
 
 @stack.register(QWidget)
 def _(item, layout):

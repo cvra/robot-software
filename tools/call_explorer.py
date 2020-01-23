@@ -24,15 +24,20 @@ import subprocess
 
 NAME_PATTERN = "^[0-9A-Fa-f]+ <(\w+)>"
 
+
 def parse_args():
-    parser = argparse.ArgumentParser(description=__doc__,
-                                     formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("list_file", type=argparse.FileType(),
-                        help="List file (disassembly)")
-    parser.add_argument("callee_pattern",
-                        help="Regular expression for the callee function name.")
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument(
+        "list_file", type=argparse.FileType(), help="List file (disassembly)"
+    )
+    parser.add_argument(
+        "callee_pattern", help="Regular expression for the callee function name."
+    )
 
     return parser.parse_args()
+
 
 def unmangle_names(funcs):
     """
@@ -52,6 +57,7 @@ def unmangle_names(funcs):
     callees = subprocess.check_output(command).decode().splitlines()
 
     return list(zip(callers, callees))
+
 
 def main():
     args = parse_args()
@@ -77,13 +83,16 @@ def main():
     callees = unmangle_names(callees)
 
     # Sort by called functions then callees
-    callees.sort(key=lambda s:(s[1], s[0]))
+    callees.sort(key=lambda s: (s[1], s[0]))
 
     # Find longest function name
     longest_function_len = max(len(f) for f, _ in callees)
 
     for current_function, func_name in callees:
-        print("{} -> {}".format(current_function.ljust(longest_function_len), func_name))
+        print(
+            "{} -> {}".format(current_function.ljust(longest_function_len), func_name)
+        )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

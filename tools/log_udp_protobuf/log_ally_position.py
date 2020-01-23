@@ -15,10 +15,12 @@ import messages
 
 PORT = 3000
 
+
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
 
     return parser.parse_args()
+
 
 def main():
     args = parse_args()
@@ -28,12 +30,13 @@ def main():
             data = self.request[0]
             msg = messages.AllyPosition()
             msg.ParseFromString(data)
-            print("({:.03f} mm;{:.03f} mm;{:.03f}°)".format(msg.x, msg.y, degrees(msg.a)))
+            print(
+                "({:.03f} mm;{:.03f} mm;{:.03f}°)".format(msg.x, msg.y, degrees(msg.a))
+            )
 
     with socketserver.UDPServer(("0.0.0.0", PORT), Handler) as server:
         server.serve_forever()
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

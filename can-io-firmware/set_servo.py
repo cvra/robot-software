@@ -7,39 +7,61 @@ import argparse
 import uavcan
 import os
 
-DSDL_DIR = os.path.join(os.path.dirname(__file__), '../uavcan_data_types/cvra')
+DSDL_DIR = os.path.join(os.path.dirname(__file__), "../uavcan_data_types/cvra")
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "port",
-        help="SocketCAN interface (e.g. can0) or SLCAN serial port (e.g. /dev/ttyACM0)"
+        help="SocketCAN interface (e.g. can0) or SLCAN serial port (e.g. /dev/ttyACM0)",
     )
 
     parser.add_argument("id", help="ID of the board to target", type=int)
 
     parser.add_argument("servo", help="Servo output to be controlled", type=int)
-    parser.add_argument("pos", help="Desired duty cycle on the servo output", type=float)
-    parser.add_argument("vel", help="Desired duty cycle rate of change", nargs='?', default=0, type=float)
-    parser.add_argument("acc", help="Desired duty cycle rate of rate of change", nargs='?', default=0, type=float)
+    parser.add_argument(
+        "pos", help="Desired duty cycle on the servo output", type=float
+    )
+    parser.add_argument(
+        "vel",
+        help="Desired duty cycle rate of change",
+        nargs="?",
+        default=0,
+        type=float,
+    )
+    parser.add_argument(
+        "acc",
+        help="Desired duty cycle rate of rate of change",
+        nargs="?",
+        default=0,
+        type=float,
+    )
 
     return parser.parse_args()
 
+
 def set_servo(node, dst_id, values):
-    msg = uavcan.thirdparty.cvra.io.ServoPWM(node_id=dst_id, servo_pos=values['pos'], servo_vel=values['vel'], servo_acc=values['acc'])
+    msg = uavcan.thirdparty.cvra.io.ServoPWM(
+        node_id=dst_id,
+        servo_pos=values["pos"],
+        servo_vel=values["vel"],
+        servo_acc=values["acc"],
+    )
     node.broadcast(msg, priority=uavcan.TRANSFER_PRIORITY_HIGHEST)
+
 
 def servo_setpoint(servo, pos, vel, acc):
     setpoint = {
-        'pos': [0, 0, 0, 0],
-        'vel': [0, 0, 0, 0],
-        'acc': [0, 0, 0, 0],
+        "pos": [0, 0, 0, 0],
+        "vel": [0, 0, 0, 0],
+        "acc": [0, 0, 0, 0],
     }
-    setpoint['pos'][servo] = pos
-    setpoint['vel'][servo] = vel
-    setpoint['acc'][servo] = acc
+    setpoint["pos"][servo] = pos
+    setpoint["vel"][servo] = vel
+    setpoint["acc"][servo] = acc
     return setpoint
+
 
 def main():
     args = parse_args()
@@ -54,5 +76,5 @@ def main():
     node.close()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

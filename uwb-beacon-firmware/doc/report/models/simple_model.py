@@ -2,29 +2,41 @@ import numpy as np
 import ekf
 
 # Dynamics model
-g = lambda dt: \
-    lambda mu, u: mu + dt * np.array([mu[3],
-                                      mu[4],
-                                      0,
-                                      np.cos(mu[2]) * u[0] - np.sin(mu[2]) * u[1],
-                                      np.sin(mu[2]) * u[0] + np.cos(mu[2]) * u[1]]).T
+g = (
+    lambda dt: lambda mu, u: mu
+    + dt
+    * np.array(
+        [
+            mu[3],
+            mu[4],
+            0,
+            np.cos(mu[2]) * u[0] - np.sin(mu[2]) * u[1],
+            np.sin(mu[2]) * u[0] + np.cos(mu[2]) * u[1],
+        ]
+    ).T
+)
 
-G = lambda dt: \
-    lambda mu, u: np.identity(5) + dt * np.array([
+G = lambda dt: lambda mu, u: np.identity(5) + dt * np.array(
+    [
         [0, 0, 0, 1, 0],
         [0, 0, 0, 0, 1],
         [0, 0, 0, 0, 0],
-        [0, 0, - u[0] * np.sin(mu[2]) - u[1] * np.cos(mu[2]), 0, 0],
-        [0, 0,   u[0] * np.cos(mu[2]) - u[1] * np.sin(mu[2]), 0, 0]
-])
+        [0, 0, -u[0] * np.sin(mu[2]) - u[1] * np.cos(mu[2]), 0, 0],
+        [0, 0, u[0] * np.cos(mu[2]) - u[1] * np.sin(mu[2]), 0, 0],
+    ]
+)
 
 # Angle measurement functions
 h = lambda mu: np.array([mu[2]])
 H = lambda mu: np.array([[0, 0, 1, 0, 0]])
 
 # Distance measurement function
-h_b = lambda bx, by: lambda mu: np.array([np.sqrt((bx-mu[0])**2+(by-mu[1])**2)])
-H_b = lambda bx, by: lambda mu: (1 / np.sqrt((bx-mu[0])**2+(by-mu[1])**2)) * np.array([[mu[0]-bx , mu[1]-by, 0, 0, 0]])
+h_b = lambda bx, by: lambda mu: np.array(
+    [np.sqrt((bx - mu[0]) ** 2 + (by - mu[1]) ** 2)]
+)
+H_b = lambda bx, by: lambda mu: (
+    1 / np.sqrt((bx - mu[0]) ** 2 + (by - mu[1]) ** 2)
+) * np.array([[mu[0] - bx, mu[1] - by, 0, 0, 0]])
 
 
 class SimpleModel:
@@ -63,8 +75,7 @@ class SimpleModel:
         Corrects with the distance measurement provided from the given beacon
         position.
         """
-        corr = ekf.Corrector(
-            h_b(beacon_x, beacon_y), H_b(beacon_x, beacon_y), self.Q_b)
+        corr = ekf.Corrector(h_b(beacon_x, beacon_y), H_b(beacon_x, beacon_y), self.Q_b)
 
         z = np.array([distance])
         self.mu, self.sigma = corr(self.mu, self.sigma, z)

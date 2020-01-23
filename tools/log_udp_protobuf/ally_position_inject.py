@@ -45,5 +45,5 @@ def main():
     send(args.x, args.y, args.a)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

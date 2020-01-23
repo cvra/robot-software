@@ -9,21 +9,22 @@ import uavcan
 from ..network.UavcanNode import UavcanNode
 from ..network.NodeStatusMonitor import NodeStatusMonitor
 
+
 class NodeStatusViewer:
     def __init__(self):
         self._previous_print_len = 0
         self.status_messages = {
-            uavcan.protocol.NodeStatus().MODE_OPERATIONAL: 'OPERATIONAL',
-            uavcan.protocol.NodeStatus().MODE_INITIALIZATION: 'INITIALIZATION',
-            uavcan.protocol.NodeStatus().MODE_MAINTENANCE: 'MAINTENANCE',
-            uavcan.protocol.NodeStatus().MODE_SOFTWARE_UPDATE: 'SOFTWARE_UPDATE',
-            uavcan.protocol.NodeStatus().MODE_OFFLINE: 'OFFLINE',
+            uavcan.protocol.NodeStatus().MODE_OPERATIONAL: "OPERATIONAL",
+            uavcan.protocol.NodeStatus().MODE_INITIALIZATION: "INITIALIZATION",
+            uavcan.protocol.NodeStatus().MODE_MAINTENANCE: "MAINTENANCE",
+            uavcan.protocol.NodeStatus().MODE_SOFTWARE_UPDATE: "SOFTWARE_UPDATE",
+            uavcan.protocol.NodeStatus().MODE_OFFLINE: "OFFLINE",
         }
         self.health_messages = {
-            uavcan.protocol.NodeStatus().HEALTH_OK: 'OK',
-            uavcan.protocol.NodeStatus().HEALTH_WARNING: 'WARNING',
-            uavcan.protocol.NodeStatus().HEALTH_ERROR: 'ERROR',
-            uavcan.protocol.NodeStatus().HEALTH_CRITICAL: 'CRITICAL',
+            uavcan.protocol.NodeStatus().HEALTH_OK: "OK",
+            uavcan.protocol.NodeStatus().HEALTH_WARNING: "WARNING",
+            uavcan.protocol.NodeStatus().HEALTH_ERROR: "ERROR",
+            uavcan.protocol.NodeStatus().HEALTH_CRITICAL: "CRITICAL",
         }
 
     def display(self, nodes):
@@ -31,11 +32,17 @@ class NodeStatusViewer:
         formatted_line = "{:5} {:20} {:20} {:20} {:10}"
         print(formatted_line.format("ID", "Name", "Status", "Health", "Uptime"))
         for node in nodes:
-            name = nodes[node].get('name', '')
-            status = nodes[node].get('status', 'UNKNOWN')
-            print(formatted_line.format(node, name, self._display_status(status.mode),
-                                        self._display_health(status.health),
-                                        self._display_uptime(status.uptime_sec)))
+            name = nodes[node].get("name", "")
+            status = nodes[node].get("status", "UNKNOWN")
+            print(
+                formatted_line.format(
+                    node,
+                    name,
+                    self._display_status(status.mode),
+                    self._display_health(status.health),
+                    self._display_uptime(status.uptime_sec),
+                )
+            )
         self._previous_print_len = 1 + len(nodes)
 
     def _delete_previous_print(self):
@@ -43,7 +50,7 @@ class NodeStatusViewer:
         Delete all previously printed lines one by one
         """
         for i in range(self._previous_print_len):
-            sys.stdout.write("\033[F") # delete current line
+            sys.stdout.write("\033[F")  # delete current line
 
     def _display_status(self, status):
         return self.status_messages[status]
@@ -53,6 +60,7 @@ class NodeStatusViewer:
 
     def _display_uptime(self, uptime_sec):
         return str(datetime.timedelta(seconds=uptime_sec))
+
 
 class NodeStatusController:
     def __init__(self, model, viewer):
@@ -65,6 +73,7 @@ class NodeStatusController:
             self.viewer.display(self.model.known_nodes)
             time.sleep(1)
 
+
 def argparser(parser=None):
     parser = parser or argparse.ArgumentParser(description=__doc__)
     parser.add_argument("interface", help="Serial port or SocketCAN interface")
@@ -72,6 +81,7 @@ def argparser(parser=None):
     parser.add_argument("--node_id", "-n", help="UAVCAN Node ID", default=127)
 
     return parser
+
 
 def main(args):
     uavcan.load_dsdl(args.dsdl)
@@ -84,6 +94,7 @@ def main(args):
 
     node.spin()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     args = argparser().parse_args()
     main(args)
