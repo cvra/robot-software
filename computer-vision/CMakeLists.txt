@@ -19,6 +19,7 @@ target_link_libraries(example LINK_PRIVATE ${OpenCV_LIBS})
 set(PROTODIR ../master-firmware/protobuf)
 set(PROTOSRC
     ${PROTODIR}/protocol.proto
+    ${PROTODIR}/computer_vision.proto
     ../lib/nanopb/nanopb/generator/proto/nanopb.proto
 )
 
@@ -50,4 +51,4 @@ add_library(master_proto
 target_include_directories(master_proto PUBLIC ${CMAKE_BINARY_DIR}/protobuf)
 
 add_executable(robot_tracking robot_tracking.cpp)
-target_link_libraries(robot_tracking LINK_PRIVATE ${OpenCV_LIBS} master_proto)
+target_link_libraries(robot_tracking LINK_PRIVATE ${OpenCV_LIBS} master_proto protobuf)

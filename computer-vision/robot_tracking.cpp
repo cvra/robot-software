@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "protobuf/protocol.pb.h"
+#include "protobuf/computer_vision.pb.h"
 
 #define ARUCO_CENTER 42
 #define ARUCO_BLUE_FIRST 1
@@ -91,6 +92,10 @@ int main(int argc, char* argv[])
     std::cout << settings.image_height << std::endl;
     std::cout << settings.camera_matrix << std::endl;
     std::cout << settings.distortion_coefficients << std::endl;
+
+    ComputerVisionResult result;
+    result.set_weather_vane_orientation(ComputerVisionResult::NORTH);
+    std::cout << result.DebugString() << std::endl;
 
     cv::Mat image;
     if (argc == 2) {

@@ -1,0 +1,12 @@
+syntax = "proto2";
+
+import "nanopb.proto";
+
+message ComputerVisionResult {
+    option (nanopb_msgopt).msgid = 16;
+    enum WeatherVaneOrientation {
+        NORTH = 0;
+        SOUTH = 1;
+    }
+    required WeatherVaneOrientation weather_vane_orientation = 1;
+}
