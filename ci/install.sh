@@ -3,7 +3,7 @@
 # Make the script fail if any command in it fail
 set -e
 
-python3.5 -m venv env --without-pip
+python3 -m venv env --without-pip
 source env/bin/activate
 python --version
 wget https://bootstrap.pypa.io/get-pip.py
