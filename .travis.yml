@@ -7,6 +7,7 @@ addons:
             - python3-dev
             - python-pip
             - python-virtualenv
+            - protobuf-compiler
 
 language: cpp
 
