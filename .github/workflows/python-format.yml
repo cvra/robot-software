@@ -1,0 +1,11 @@
+on: push
+name: Black Python Code Formatter
+jobs:
+  lint:
+    name: Black Python Code Formatter
+    runs-on: ubuntu-latest
+    steps:
+    - name: Black Python Code Formatter
+      uses: cvra/python-format-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 

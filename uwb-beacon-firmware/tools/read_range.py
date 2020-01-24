@@ -16,9 +16,15 @@ def parse_args():
         "--output",
         "-o",
         help="Log range messages to a file in CSV",
-        type=argparse.FileType('w'))
+        type=argparse.FileType("w"),
+    )
 
-    parser.add_argument("--anchor", "-a", help="Accept only ranging coming from the given anchor ID", type=int)
+    parser.add_argument(
+        "--anchor",
+        "-a",
+        help="Accept only ranging coming from the given anchor ID",
+        type=int,
+    )
 
     return parser.parse_args()
 
@@ -31,8 +37,7 @@ def range_cb(event):
 def main():
     args = parse_args()
     if args.output:
-        output_file = csv.DictWriter(args.output,
-                                     ['ts', 'anchor_addr', 'range'])
+        output_file = csv.DictWriter(args.output, ["ts", "anchor_addr", "range"])
         output_file.writeheader()
 
     def range_cb(event):
@@ -41,14 +46,15 @@ def main():
         if args.anchor and msg.anchor_addr != args.anchor:
             return
 
-        print("Received a range from {}: {:.3f}".format(
-            msg.anchor_addr, msg.range))
+        print("Received a range from {}: {:.3f}".format(msg.anchor_addr, msg.range))
         if args.output:
-            output_file.writerow({
-                'ts': msg.timestamp.usec,
-                'range': msg.range,
-                'anchor_addr': msg.anchor_addr
-            })
+            output_file.writerow(
+                {
+                    "ts": msg.timestamp.usec,
+                    "range": msg.range,
+                    "anchor_addr": msg.anchor_addr,
+                }
+            )
 
             args.output.flush()
 
@@ -56,14 +62,14 @@ def main():
 
     # TODO This path is a bit too hardcoded
     dsdl_path = os.path.join(
-        os.path.dirname(__file__), '..', '..', 'uavcan_data_types', 'cvra', 'uwb_beacon')
+        os.path.dirname(__file__), "..", "..", "uavcan_data_types", "cvra", "uwb_beacon"
+    )
     uavcan.load_dsdl(dsdl_path)
 
-    node.add_handler(uavcan.thirdparty.uwb_beacon.RadioRange,
-                     range_cb)
+    node.add_handler(uavcan.thirdparty.uwb_beacon.RadioRange, range_cb)
 
     node.spin()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -16,7 +16,8 @@ class NestedDict(defaultdict):
         return reduce(operator.getitem, mapList, self)
 
     def set(self, mapList, value):
-        with self.lock: self.get(mapList[:-1])[mapList[-1]] = value
+        with self.lock:
+            self.get(mapList[:-1])[mapList[-1]] = value
 
     def __repr__(self):
         return str(dict(self))
@@ -30,14 +31,17 @@ class NestedDict(defaultdict):
         else:
             return {}
 
+
 class NestedDictView(QTreeView):
     def __init__(self):
         super().__init__()
 
         self.model = QStandardItemModel()
-        self.model.setHorizontalHeaderLabels(['Key', 'Value'])
+        self.model.setHorizontalHeaderLabels(["Key", "Value"])
 
-        self.header().setSectionResizeMode(3) # QHeaderView::ResizeMode = ResizeToContents
+        self.header().setSectionResizeMode(
+            3
+        )  # QHeaderView::ResizeMode = ResizeToContents
         self.setModel(self.model)
 
         self.table = NestedDict()
@@ -56,7 +60,7 @@ class NestedDictView(QTreeView):
 
         for k, v in sorted(data.items()):
             if type(v) is NestedDict:
-                parent.appendRow([QStandardItem(k), QStandardItem('')])
+                parent.appendRow([QStandardItem(k), QStandardItem("")])
                 entry = parent.child(parent.rowCount() - 1)
                 parent_node[k] = NestedDict()
                 self.set(v, parent=entry, parent_node=parent_node[k])
@@ -65,6 +69,7 @@ class NestedDictView(QTreeView):
                 parent_node[k] = parent
 
         self.expand(parent.index())
+
 
 class NestedDictViewWidget(QWidget):
     def __init__(self):

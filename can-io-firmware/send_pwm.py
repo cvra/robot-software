@@ -7,23 +7,21 @@ import argparse
 import uavcan
 import os
 
-DSDL_DIR = os.path.join(os.path.dirname(__file__), '../uavcan_data_types/cvra')
+DSDL_DIR = os.path.join(os.path.dirname(__file__), "../uavcan_data_types/cvra")
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "port",
-        help="SocketCAN interface (e.g. can0) or SLCAN serial port (e.g. /dev/ttyACM0)"
+        help="SocketCAN interface (e.g. can0) or SLCAN serial port (e.g. /dev/ttyACM0)",
     )
 
     parser.add_argument("id", help="ID of the board to target", type=int)
 
     parser.add_argument(
-        "value",
-        help="Values to set the PWM channels to (4 items)",
-        type=float,
-        nargs=4)
+        "value", help="Values to set the PWM channels to (4 items)", type=float, nargs=4
+    )
 
     return parser.parse_args()
 
@@ -46,5 +44,5 @@ def main():
     node.close()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -2,6 +2,7 @@ import threading
 import time
 import uavcan
 
+
 class UavcanNode:
     def __init__(self, interface, node_id):
         self.handlers = []
@@ -31,11 +32,10 @@ class UavcanNode:
                     self.node.spin(0.1)
                 time.sleep(0.01)
             except uavcan.UAVCANException as ex:
-                print('Node error:', ex)
+                print("Node error:", ex)
                 # self._uavcan_exit()
                 # return
 
     def _uavcan_exit(self):
         for handler in self.handlers:
             handler.remove()
-

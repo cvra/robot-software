@@ -7,16 +7,17 @@ import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui
 
 COLORS = {
-  'y': (247, 181, 0),
-  'k': (14, 14, 16),
-  'b': (0, 124, 176),
-  'g': (97, 153, 59),
-  'o': (208, 93, 40),
-  'r': (215,0,0),
-  'beige': (245, 245, 220),
-  'cvra': (0, 83, 135),
-  'grey': (128,128,128),
+    "y": (247, 181, 0),
+    "k": (14, 14, 16),
+    "b": (0, 124, 176),
+    "g": (97, 153, 59),
+    "o": (208, 93, 40),
+    "r": (215, 0, 0),
+    "beige": (245, 245, 220),
+    "cvra": (0, 83, 135),
+    "grey": (128, 128, 128),
 }
+
 
 class LivePlotter2D:
     def __init__(self, size):
@@ -33,7 +34,12 @@ class LivePlotter2D:
         self.ax.setYRange(0, size[1])
 
     def boundingRect(self):
-        return [[0, 0], [self.size[0], 0], [self.size[0], self.size[1]], [0, self.size[1]]]
+        return [
+            [0, 0],
+            [self.size[0], 0],
+            [self.size[0], self.size[1]],
+            [0, self.size[1]],
+        ]
 
     def getPort(self):
         q = queue.Queue()
@@ -46,24 +52,28 @@ class LivePlotter2D:
             try:
                 data = q.get(block=False)
                 plt.clear()
-                plt.addItem(PolygonItem(self.boundingRect(), COLORS['k'], COLORS['beige']))
+                plt.addItem(
+                    PolygonItem(self.boundingRect(), COLORS["k"], COLORS["beige"])
+                )
                 for index, variable in enumerate(data):
-                    if 'pts' in data[variable].keys():
-                        pts = data[variable]['pts']
-                    elif 'w' in data[variable].keys():
+                    if "pts" in data[variable].keys():
+                        pts = data[variable]["pts"]
+                    elif "w" in data[variable].keys():
                         pts = createRect(
-                                (data[variable]['x'], data[variable]['y']),
-                                data[variable].get('w', 200),
-                                data[variable].get('h', 100),
-                                data[variable].get('a', 0))
+                            (data[variable]["x"], data[variable]["y"]),
+                            data[variable].get("w", 200),
+                            data[variable].get("h", 100),
+                            data[variable].get("a", 0),
+                        )
                     else:
                         pts = createPoly(
-                                (data[variable]['x'], data[variable]['y']),
-                                data[variable].get('n', 6),
-                                data[variable].get('r', 100),
-                                data[variable].get('a', 0))
-                    color = data[variable].get('color', 'k')
-                    fill = data[variable].get('fill', None)
+                            (data[variable]["x"], data[variable]["y"]),
+                            data[variable].get("n", 6),
+                            data[variable].get("r", 100),
+                            data[variable].get("a", 0),
+                        )
+                    color = data[variable].get("color", "k")
+                    fill = data[variable].get("fill", None)
                     plt.addItem(PolygonItem(pts, COLORS[color], COLORS.get(fill, None)))
             except queue.Empty:
                 pass
@@ -72,20 +82,29 @@ class LivePlotter2D:
 
 
 def createPoly(center, n, r, s):
-    return [(center[0] + r*math.cos(math.radians(t)),
-             center[1] + r*math.sin(math.radians(t)))
-            for t in list(map(lambda i: i*360/n + s, range(n)))]
+    return [
+        (
+            center[0] + r * math.cos(math.radians(t)),
+            center[1] + r * math.sin(math.radians(t)),
+        )
+        for t in list(map(lambda i: i * 360 / n + s, range(n)))
+    ]
+
 
 def createRect(center, w, h, s):
-    rect = [(- w/2, - h/2), (+ w/2, - h/2), (+ w/2, + h/2), (- w/2, + h/2)]
+    rect = [(-w / 2, -h / 2), (+w / 2, -h / 2), (+w / 2, +h / 2), (-w / 2, +h / 2)]
 
-    return [(center[0] + p[0] * math.cos(s) - p[1] * math.sin(s),
-             center[1] + p[0] * math.sin(s) + p[1] * math.cos(s))
-            for p in rect]
+    return [
+        (
+            center[0] + p[0] * math.cos(s) - p[1] * math.sin(s),
+            center[1] + p[0] * math.sin(s) + p[1] * math.cos(s),
+        )
+        for p in rect
+    ]
 
 
 class PolygonItem(pg.GraphicsObject):
-    def __init__(self, data, color='w', fill=None):
+    def __init__(self, data, color="w", fill=None):
         pg.GraphicsObject.__init__(self)
         self.data = data
         # pre-computing a QPicture object allows paint() to run much more quickly,
@@ -93,7 +112,8 @@ class PolygonItem(pg.GraphicsObject):
         self.picture = QtGui.QPicture()
         p = QtGui.QPainter(self.picture)
         p.setPen(pg.mkPen(color=color))
-        if fill is not None: p.setBrush(pg.mkBrush(color=fill))
+        if fill is not None:
+            p.setBrush(pg.mkBrush(color=fill))
 
         self.points = []
         for item in self.data:

@@ -7,7 +7,8 @@ import logging
 import os.path
 import time
 
-MASTER_BOARD_SERVICE_ADDR = ('192.168.3.20', 20001)
+MASTER_BOARD_SERVICE_ADDR = ("192.168.3.20", 20001)
+
 
 def keys_to_str(to_convert):
     """
@@ -24,7 +25,10 @@ def create_actuator(name):
     """
     Creates the actuator to receive the config.
     """
-    return cvra_rpc.service_call.call(MASTER_BOARD_SERVICE_ADDR, 'actuator_create_driver', name)
+    return cvra_rpc.service_call.call(
+        MASTER_BOARD_SERVICE_ADDR, "actuator_create_driver", name
+    )
+
 
 def config_split(config):
     """
@@ -35,10 +39,11 @@ def config_split(config):
     if "actuator" in config:
         for name in config["actuator"]:
             split.append({"actuator": {name: config["actuator"][name]}})
-        del(config["actuator"])
+        del config["actuator"]
 
     split.append(config)
     return split
+
 
 def send_config_file(config_file):
     config = yaml.load(config_file)
@@ -49,7 +54,9 @@ def send_config_file(config_file):
             create_actuator(name)
 
     for config in config_split(config):
-        ret = cvra_rpc.service_call.call(MASTER_BOARD_SERVICE_ADDR, 'config_update', config)
+        ret = cvra_rpc.service_call.call(
+            MASTER_BOARD_SERVICE_ADDR, "config_update", config
+        )
         if ret is not None:
             logging.warning(ret)
 
@@ -57,9 +64,9 @@ def send_config_file(config_file):
 def main():
     parser = argparse.ArgumentParser("Sends the robot config to the master board.")
     parser.add_argument("config", help="YAML file containing robot config.")
-    parser.add_argument("-w", "--watch",
-                        help="Watch config file for changes.",
-                        action="store_true")
+    parser.add_argument(
+        "-w", "--watch", help="Watch config file for changes.", action="store_true"
+    )
     args = parser.parse_args()
 
     # wait until services list received
@@ -87,6 +94,7 @@ def main():
                 break
             except:
                 logging.exception("Unexpected error occured.")
+
 
 if __name__ == "__main__":
     main()

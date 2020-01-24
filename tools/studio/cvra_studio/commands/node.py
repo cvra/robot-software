@@ -3,6 +3,7 @@ import random
 import time
 import uavcan
 
+
 def argparser(parser=None):
     parser = parser or argparse.ArgumentParser(description=__doc__)
     parser.add_argument("interface", help="Serial port or SocketCAN interface")
@@ -12,8 +13,10 @@ def argparser(parser=None):
 
     return parser
 
+
 def step(scale, divider=1, max_value=1, min_value=0):
     return max_value if (round(time.time() / divider)) % 2 else min_value
+
 
 def main(args):
     if args.dsdl is not None:
@@ -26,19 +29,28 @@ def main(args):
         node.broadcast(msg, priority=uavcan.TRANSFER_PRIORITY_LOWEST)
 
     def publish_current():
-        publish(uavcan.thirdparty.cvra.motor.feedback.CurrentPID(
-            current_setpoint=step(scale=1, divider=0.5),
-            current=random.uniform(0, 1)))
+        publish(
+            uavcan.thirdparty.cvra.motor.feedback.CurrentPID(
+                current_setpoint=step(scale=1, divider=0.5),
+                current=random.uniform(0, 1),
+            )
+        )
 
     def publish_velocity():
-        publish(uavcan.thirdparty.cvra.motor.feedback.VelocityPID(
-            velocity_setpoint=step(scale=1, divider=1),
-            velocity=random.uniform(0, 1)))
+        publish(
+            uavcan.thirdparty.cvra.motor.feedback.VelocityPID(
+                velocity_setpoint=step(scale=1, divider=1),
+                velocity=random.uniform(0, 1),
+            )
+        )
 
     def publish_position():
-        publish(uavcan.thirdparty.cvra.motor.feedback.PositionPID(
-            position_setpoint=step(scale=1, divider=2),
-            position=random.uniform(0, 1)))
+        publish(
+            uavcan.thirdparty.cvra.motor.feedback.PositionPID(
+                position_setpoint=step(scale=1, divider=2),
+                position=random.uniform(0, 1),
+            )
+        )
 
     if args.dsdl is not None:
         handle_current = node.periodic(0.01, publish_current)
@@ -49,8 +61,9 @@ def main(args):
         try:
             node.spin(1)
         except uavcan.UAVCANException as ex:
-            print('Node error:', ex)
+            print("Node error:", ex)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     args = argparser().parse_args()
     main(args)

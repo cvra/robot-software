@@ -1,5 +1,5 @@
 __all__ = [
-    'NodeStatusMonitor',
-    'ParameterTree',
-    'UavcanNode',
+    "NodeStatusMonitor",
+    "ParameterTree",
+    "UavcanNode",
 ]

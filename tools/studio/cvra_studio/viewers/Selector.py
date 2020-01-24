@@ -1,5 +1,6 @@
 from pyqtgraph.Qt import QtGui
 
+
 class Selector(QtGui.QComboBox):
     def __init__(self):
         super(Selector, self).__init__()
@@ -15,8 +16,9 @@ class Selector(QtGui.QComboBox):
     def set_callback(self, callback):
         self.currentIndexChanged.connect(callback)
 
+
 class SelectorWidget(QtGui.QWidget):
-    def __init__(self, parent=None, title=''):
+    def __init__(self, parent=None, title=""):
         super(SelectorWidget, self).__init__(parent)
 
         layout = QtGui.QHBoxLayout()

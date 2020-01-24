@@ -39,10 +39,10 @@ def parse_packet(data):
 
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--port", "-p", default=10000, help="Port to listen on (10000)")
     parser.add_argument(
-        "--port", "-p", default=10000, help="Port to listen on (10000)")
-    parser.add_argument(
-        "--filter", "-f", help="Filter regexp to apply on the topic name")
+        "--filter", "-f", help="Filter regexp to apply on the topic name"
+    )
 
     return parser.parse_args()
 
@@ -73,5 +73,5 @@ def main():
         server.serve_forever()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

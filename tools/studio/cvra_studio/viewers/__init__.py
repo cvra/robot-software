@@ -1,6 +1,6 @@
 __all__ = [
-    'LivePlotter',
-    'NestedDict',
-    'Selector',
-    'helpers',
+    "LivePlotter",
+    "NestedDict",
+    "Selector",
+    "helpers",
 ]
