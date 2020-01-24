@@ -1,16 +1,11 @@
-# ArUco Robot Tracking
+# CVRA 2019 Computer vision
 
 
 Requirements:
 
-- detect 4 robot markers (7cm 4x4 ArUco, blue: 1-5, yellow: 6-10)
-- detect 1 central marker for position reference (10cm 4x4 ArUco Nb 42, centred at coordinates [1500,1250])
-- optionally: detect weathervane marker for "to determine wind direction" (6cm 4x4 ArUco Nb 17 at [1500,0])
-- Transform robot marker position to table reference frame.
-- Send position to both robots via radio link (UWB or WiFI)
-- outlier rejection (e.g. ignore markers outside of game area, ignore all markers that do not belong to the game)
-
-The tracking system should communicate only the marker label and position in the table coordinate frame. The ArUco label assignment can happen on robot as the robots know their own position and color at start of the game.
+- Detect weathervane orientation using its Aruco marker (6cm 4x4 ArUco Nb 17 at [1500,0])
+- Detect the random reefs configuration
+- Send this to the master firmware
 
 ## Camera calibration
 
