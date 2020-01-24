@@ -125,7 +125,7 @@ int main(int argc, char* argv[])
     logging_init();
     if (argc < 2) {
         ERROR("usage: %s config.yaml image.jpg\n", argv[0]);
-        return -1;
+        return EXIT_FAILURE;
     }
 
     RobotTrackingSettings settings;
