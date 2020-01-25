@@ -8,7 +8,9 @@ import cv2
 
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("images", nargs="+", required=True, help="Images to process, in jpg format.")
+    parser.add_argument("--show", action='store_true', help="Show detected chessboard.")
+    parser.add_argument("-c", "--config", help="Output config file path.", default="config.yaml")
+    parser.add_argument("images", nargs="+", help="Images to process, in jpg format.")
 
     return parser.parse_args()
 
@@ -41,17 +43,27 @@ def main():
             corners2 = cv2.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
             imgpoints.append(corners2)
 
-            # Draw and display the corners
-            img = cv2.drawChessboardCorners(img, (6,9), corners2,ret)
-            cv2.imshow('img',img)
-            cv2.waitKey(500)
+            if args.show:
+                # Draw and display the corners
+                img = cv2.drawChessboardCorners(img, (6,9), corners2,ret)
+                cv2.imshow('img',img)
+                cv2.waitKey(1000)
 
     cv2.destroyAllWindows()
 
-    err, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1],None,None)
+    shape = gray.shape[::-1]
+    err, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, shape, None, None)
 
-    print('cameraMatrix\n', mtx)
-    print('distCoeffs\n', dist)
+    print("shape\n", shape)
+    print("camera_matrix\n", mtx)
+    print("distortion_coefficients\n", dist)
+
+    fs = cv2.FileStorage(args.config, cv2.FileStorage_WRITE)
+    fs.write("image_width", shape[0])
+    fs.write("image_height", shape[1])
+    fs.write("camera_matrix", mtx)
+    fs.write("distortion_coefficients", dist)
+    fs.release()
 
 if __name__ == '__main__':
     main()
