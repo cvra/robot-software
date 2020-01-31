@@ -36,12 +36,7 @@ struct RobotTrackingSettings {
     }
 };
 
-enum WeathiervaneDirection {
-    NORTH = 0,
-    SOUTH = 1
-};
-
-WeathiervaneDirection weathervane_direction(cv::Vec3d rvec, cv::Vec3d tvec)
+ComputerVisionResult::WeatherVaneOrientation weathervane_direction(cv::Vec3d rvec, cv::Vec3d tvec)
 {
     cv::Mat R;
     cv::Rodrigues(rvec, R);
@@ -50,9 +45,9 @@ WeathiervaneDirection weathervane_direction(cv::Vec3d rvec, cv::Vec3d tvec)
 
     // check if facing down
     if (v[1] > 0) {
-        return SOUTH;
+        return ComputerVisionResult::SOUTH;
     } else {
-        return NORTH;
+        return ComputerVisionResult::NORTH;
     }
 }
 
@@ -60,6 +55,7 @@ ComputerVisionResult processImage(cv::Mat& image, RobotTrackingSettings& setting
 {
     float markerLength = 0.1;
     const int dictionaryId = 1; // DICT_4X4_100=1
+    ComputerVisionResult result;
 
     const cv::Mat& M = settings.camera_matrix;
     const cv::Mat& D = settings.distortion_coefficients;
@@ -85,10 +81,10 @@ ComputerVisionResult processImage(cv::Mat& image, RobotTrackingSettings& setting
         std::cout << tvecs[i] << std::endl;
     }
 
-    int dir = -1;
     for (size_t i = 0; i < ids.size(); i++) {
         if (ids[i] == ARUCO_WEATHERVANE) {
-            dir = weathervane_direction(rvecs[i], tvecs[i]);
+            auto dir = weathervane_direction(rvecs[i], tvecs[i]);
+            result.set_weather_vane_orientation(dir);
             break;
         }
     }
@@ -110,16 +106,6 @@ ComputerVisionResult processImage(cv::Mat& image, RobotTrackingSettings& setting
 
         // cv::imwrite("out.jpg", imageCopy);
         cv::imshow("out", imageCopy);
-    }
-
-    ComputerVisionResult result;
-    switch (dir) {
-        case NORTH:
-            result.set_weather_vane_orientation(ComputerVisionResult::NORTH);
-            break;
-        case SOUTH:
-            result.set_weather_vane_orientation(ComputerVisionResult::SOUTH);
-            break;
     }
 
     return result;
