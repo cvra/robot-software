@@ -27,7 +27,7 @@ void udp_send_result(std::string dst, int port, ComputerVisionResult result)
     si.sin_family = AF_INET;
     si.sin_port = htons(port);
 
-    if (inet_aton(dst.c_str(), &si.sin_addr) != 0) {
+    if (inet_aton(dst.c_str(), &si.sin_addr) == 0) {
         ERROR("Invalid destination %s", dst.c_str());
         return;
     }

@@ -16,6 +16,8 @@
 struct RobotTrackingSettings {
     int image_width;
     int image_height;
+    std::string destination_ip;
+    int destination_port;
     cv::Mat camera_matrix;
     cv::Mat distortion_coefficients;
 
@@ -28,6 +30,9 @@ struct RobotTrackingSettings {
         cv::read(fs["image_height"], image_height, -1);
         cv::read(fs["camera_matrix"], camera_matrix);
         cv::read(fs["distortion_coefficients"], distortion_coefficients);
+
+        destination_ip = (std::string)fs["destination_ip"];
+        destination_port = (int)fs["destination_port"];
     }
 };
 
@@ -144,7 +149,7 @@ int main(int argc, char* argv[])
         while (inputVideo.grab()) {
             inputVideo.retrieve(image);
             auto result = processImage(image, settings, true);
-            udp_send_result("localhost", 5001, result);
+            udp_send_result(settings.destination_ip, settings.destination_port, result);
             char key = (char)cv::waitKey(10);
             if (key == 27) {
                 break;
@@ -153,7 +158,7 @@ int main(int argc, char* argv[])
     } else {
         image = cv::imread(argv[2], cv::IMREAD_COLOR);
         auto result = processImage(image, settings, true);
-        udp_send_result("localhost", 5001, result);
+        udp_send_result(settings.destination_ip, settings.destination_port, result);
         while (true) {
             char key = (char)cv::waitKey(10);
             if (key == 27) {

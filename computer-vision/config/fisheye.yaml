@@ -1,5 +1,7 @@
 %YAML:1.0
 ---
+destination_ip: "127.0.0.1"
+destination_port: 5001
 image_width: 1920
 image_height: 1080
 camera_matrix: !!opencv-matrix
