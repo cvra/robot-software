@@ -3,20 +3,13 @@
 # Make the script fail if any command in it fail
 set -e
 
-python3.5 -m venv env --without-pip
+python3 -m venv env --without-pip
 source env/bin/activate
 python --version
 wget https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
 pip install cvra-packager~=1.0.0
 pip install msgpack-python==0.4.8 PyYAML==3.11
-
-echo "Installing protobuf..."
-mkdir protoc
-pushd protoc
-wget https://github.com/google/protobuf/releases/download/v3.5.1/protoc-3.5.1-linux-x86_64.zip
-unzip protoc*.zip
-popd
 pip install --upgrade protobuf
 
 pushd lib/uavcan/libuavcan/dsdl_compiler/pyuavcan/
