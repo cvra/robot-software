@@ -7,6 +7,22 @@ Requirements:
 - Detect the random reefs configuration
 - Send this to the master firmware
 
+## How to run
+
+The project requires OpenCV and Protobuf.
+It is packaged as a cmake project, so to run it, run the following:
+
+```sh
+cd computer-vision
+mkdir build
+cd build
+cmake ..
+
+# On subsequent builds, only the following are required
+make
+./robot_tracking ../config/iphone.yaml
+```
+
 ## Camera calibration
 
 Follow the OpenCV tutorial: [Camera calibration With OpenCV](https://docs.opencv.org/2.4/doc/tutorials/calib3d/camera_calibration/camera_calibration.html).
