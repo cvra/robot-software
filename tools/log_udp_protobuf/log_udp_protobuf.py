@@ -40,9 +40,11 @@ def parse_packet(data):
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--port", "-p", default=10000, help="Port to listen on (10000)", type=int)
+        "--port", "-p", default=10000, help="Port to listen on (10000)", type=int
+    )
     parser.add_argument(
-        "--filter", "-f", help="Filter regexp to apply on the topic name")
+        "--filter", "-f", help="Filter regexp to apply on the topic name"
+    )
 
     return parser.parse_args()
 
