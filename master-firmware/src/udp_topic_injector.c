@@ -4,11 +4,11 @@
 #include "msgbus_protobuf.h"
 #include "main.h"
 
-static void udp_topic_injector_thd(void *p)
+static void udp_topic_injector_thd(void* p)
 {
     (void)p;
 
-    struct netconn *conn;
+    struct netconn* conn;
 
     chThdSetPriority(HIGHPRIO);
     chRegSetThreadName(__FUNCTION__);
@@ -19,7 +19,7 @@ static void udp_topic_injector_thd(void *p)
     netconn_bind(conn, IPADDR_ANY, 10000);
 
     while (true) {
-        struct netbuf *buf;
+        struct netbuf* buf;
 
         /* Read a datagram */
         if (netconn_recv(conn, &buf) != ERR_OK) {
