@@ -4,7 +4,7 @@
 
 StrategyState initial_state(void)
 {
-    StrategyState state;
+    StrategyState state = StrategyState_init_default;
 
     return state;
 }
