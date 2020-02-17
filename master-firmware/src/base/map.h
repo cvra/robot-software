@@ -17,9 +17,7 @@ extern "C" {
 #define MAP_NUM_OPPONENT_EDGES 4
 
 struct _map {
-    poly_t* the_wall;
-    poly_t* ramp_obstacle;
-    poly_t* distributor_obstacle[2];
+    poly_t* rocky_area_obstacle[3];
 
     poly_t* ally;
 

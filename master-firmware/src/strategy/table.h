@@ -3,7 +3,7 @@
 
 #include "protobuf/strategy.pb.h"
 
-const uint32_t MAX_PUCKS_IN_SCALE = 6;
+// Cup color for the green side, the yellow side is reversed
 
 typedef enum {
     CupColor_GREEN = 0,
