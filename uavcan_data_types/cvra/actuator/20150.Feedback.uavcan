@@ -1,0 +1,7 @@
+#
+# Feedback coming from actuator-firmware nodes
+#
+
+float16[2] pressure       # [Pascal]
+float16[2] analog_input   # [V]
+bool       digital_input
