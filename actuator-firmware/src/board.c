@@ -100,3 +100,15 @@ void __early_init(void)
 void boardInit(void)
 {
 }
+
+void board_set_led(int state)
+{
+    palWritePad(GPIOB, GPIOB_LED, state);
+}
+
+void board_reset_pressure_sensors(void)
+{
+    palClearPad(GPIOA, GPIOA_PRESSURE_RST);
+    chThdSleepMilliseconds(1);
+    palSetPad(GPIOA, GPIOA_PRESSURE_RST);
+}

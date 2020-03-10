@@ -11,9 +11,9 @@ THD_FUNCTION(blinker, arg)
 {
     (void)arg;
     while (1) {
-        palSetPad(GPIOA, GPIOA_LED);
+        board_set_led(true);
         chThdSleepMilliseconds(100);
-        palClearPad(GPIOA, GPIOA_LED);
+        board_set_led(false);
         chThdSleepMilliseconds(100);
     }
 }
@@ -33,6 +33,7 @@ void _unhandled_exception(void)
     }
 }
 
+
 bootloader_config_t config;
 
 int main(void)
@@ -42,6 +43,8 @@ int main(void)
 
     debug_init();
     NOTICE("boot");
+
+    board_reset_pressure_sensors();
 
     blinker_start();
 

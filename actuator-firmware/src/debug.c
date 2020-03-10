@@ -72,7 +72,7 @@ void debug_init(void)
 
 void panic_handler(void)
 {
-    palSetPad(GPIOA, GPIOA_LED);
+    board_set_led(true);
     while (1) {
     }
 }
