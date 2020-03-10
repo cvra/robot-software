@@ -7,6 +7,8 @@ extern "C" {
 
 void uavcan_start(unsigned int node_id, const char* node_name);
 
+void uavcan_set_node_is_ok(int ok);
+
 #ifdef __cplusplus
 }
 #endif

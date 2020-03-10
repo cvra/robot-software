@@ -13,6 +13,8 @@ namespace uavcan_node {
 static const int RxQueueSize = 32;
 static const uint32_t BitRate = 1000000;
 
+static bool node_ok = true;
+
 const unsigned NodeMemoryPoolSize = 4096;
 typedef uavcan::Node<NodeMemoryPoolSize> Node;
 
@@ -66,9 +68,14 @@ void main(unsigned int id, const char* name)
     }
 
     node.getNodeStatusProvider().setModeOperational();
-    node.getNodeStatusProvider().setHealthOk();
 
     while (true) {
+        if (node_ok) {
+            node.getNodeStatusProvider().setHealthOk();
+        } else {
+            node.getNodeStatusProvider().setHealthError();
+        }
+
         node.spin(uavcan::MonotonicDuration::fromMSec(1000 / UAVCAN_SPIN_FREQ));
     }
 }
@@ -77,4 +84,9 @@ void main(unsigned int id, const char* name)
 void uavcan_start(unsigned int node_id, const char* node_name)
 {
     uavcan_node::main(node_id, node_name);
+}
+
+void uavcan_set_node_is_ok(int ok)
+{
+    uavcan_node::node_ok = static_cast<bool>(ok);
 }

@@ -49,7 +49,7 @@ int main(void)
     servo_start();
 
     if (!config_get(&config)) {
-        chSysHalt("Cannot load config");
+        uavcan_set_node_is_ok(false);
     }
 
     NOTICE("Board name=\"%s\", ID=%d", config.board_name, config.ID);
