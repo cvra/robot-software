@@ -7,6 +7,9 @@
 
 #include "node.h"
 
+#include "pressure_sensor.h"
+#include "pressure_sensor_interface.h"
+
 #define UAVCAN_SPIN_FREQ 10 // [Hz]
 
 namespace uavcan_node {
@@ -43,6 +46,18 @@ static Node& getNode()
     return node;
 }
 
+static void pressure_sensor_spin(Node& node)
+{
+    uint8_t status = 0;
+    for (auto i = 0; i < 2; i++) {
+        if (mpr_status_is_error(mpr_read_status(&pressure_sensors[i]))) {
+            uavcan_set_node_is_ok(false);
+            status |= 1 << i;
+        }
+    }
+    node.getNodeStatusProvider().setVendorSpecificStatusCode(status);
+}
+
 void main(unsigned int id, const char* name)
 {
     chRegSetThreadName("uavcan");
@@ -75,8 +90,8 @@ void main(unsigned int id, const char* name)
         } else {
             node.getNodeStatusProvider().setHealthError();
         }
-
         node.spin(uavcan::MonotonicDuration::fromMSec(1000 / UAVCAN_SPIN_FREQ));
+        pressure_sensor_spin(node);
     }
 }
 } // namespace uavcan_node
