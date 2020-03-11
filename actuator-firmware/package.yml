@@ -21,6 +21,7 @@ target.arm:
   - src/pwm.c
   - src/servo.c
   - src/pressure_sensor_interface.c
+  - src/analog_input.c
   - ../lib/can-bootloader/config.c
 
 tests:
