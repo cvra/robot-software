@@ -336,6 +336,10 @@ extern "C" {
 void boardInit(void);
 void board_set_led(int state);
 void board_reset_pressure_sensors(void);
+
+/* Read the digital-only input for external sensors. */
+int board_digital_input_read(void);
+
 #ifdef __cplusplus
 }
 #endif

@@ -9,6 +9,7 @@
 
 #include "pressure_sensor.h"
 #include "pressure_sensor_interface.h"
+#include "feedback_publisher.h"
 
 #define UAVCAN_SPIN_FREQ 10 // [Hz]
 
@@ -92,6 +93,7 @@ void main(unsigned int id, const char* name)
         }
         node.spin(uavcan::MonotonicDuration::fromMSec(1000 / UAVCAN_SPIN_FREQ));
         pressure_sensor_spin(node);
+        feedback_publish(node);
     }
 }
 } // namespace uavcan_node
