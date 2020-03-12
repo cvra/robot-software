@@ -33,7 +33,6 @@ void _unhandled_exception(void)
     }
 }
 
-
 bootloader_config_t config;
 
 int main(void)

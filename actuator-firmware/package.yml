@@ -17,10 +17,12 @@ target.arm:
   - src/debug.c
   - src/board.c
   - src/uavcan/node.cpp
+  - src/uavcan/feedback_publisher.cpp
   - src/bootloader_config.c
   - src/pwm.c
   - src/servo.c
   - src/pressure_sensor_interface.c
+  - src/analog_input.c
   - ../lib/can-bootloader/config.c
 
 tests:

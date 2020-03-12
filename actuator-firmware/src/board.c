@@ -14,8 +14,10 @@
     limitations under the License.
  */
 
+#include "board.h"
 #include "hal.h"
 
+#include "hal_pal.h"
 /**
  * @brief   Type of STM32 GPIO port setup.
  */
@@ -111,4 +113,9 @@ void board_reset_pressure_sensors(void)
     palClearPad(GPIOA, GPIOA_PRESSURE_RST);
     chThdSleepMilliseconds(1);
     palSetPad(GPIOA, GPIOA_PRESSURE_RST);
+}
+
+int board_digital_input_read(void)
+{
+    return palReadPad(GPIOB, GPIOB_DEBUG_RX);
 }
