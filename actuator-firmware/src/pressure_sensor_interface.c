@@ -5,22 +5,28 @@
 
 static void mpr_select(void* arg)
 {
+    static SPIConfig config = {
+        false,
+        NULL,
+        GPIOA,
+        GPIOA_CS1,
+        SPI_CR1_BR_2 | SPI_CR1_BR_1,
+        SPI_CR2_DS_2 | SPI_CR2_DS_1 | SPI_CR2_DS_0};
+
     spiAcquireBus(&SPID3);
     if ((int)arg == 0) {
-        palClearPad(GPIOA, GPIOA_CS1);
+        config.sspad = GPIOA_CS1;
     } else {
-        palClearPad(GPIOA, GPIOA_CS2);
+        config.sspad = GPIOA_CS2;
     }
+    spiStart(&SPID3, &config);
+    spiSelect(&SPID3);
 }
 
 static void mpr_unselect(void* arg)
 {
-    if ((int)arg == 0) {
-        palSetPad(GPIOA, GPIOA_CS1);
-    } else {
-        palSetPad(GPIOA, GPIOA_CS2);
-    }
-    spiAcquireBus(&SPID3);
+    spiUnselect(&SPID3);
+    spiReleaseBus(&SPID3);
 }
 
 static void mpr_transmit(void* arg, const uint8_t* tx, uint8_t* rx, size_t n)
