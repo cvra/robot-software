@@ -22,6 +22,12 @@ static const ADCConversionGroup group = {
 
 void analog_input_read(float voltages[2])
 {
+    static bool initialized = false;
+    if (!initialized) {
+        adcStart(&ADCD1, NULL);
+        initialized = false;
+    }
+
     adcsample_t samples[2];
     adcAcquireBus(&ADCD1);
     /* Blocking conversion */

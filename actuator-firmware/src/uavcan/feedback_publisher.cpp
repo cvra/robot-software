@@ -10,7 +10,7 @@ void feedback_publish(uavcan::INode& node)
     static uavcan::Publisher<cvra::actuator::Feedback> pub(node);
     float analog[2];
 
-    // analog_input_read(analog);
+    analog_input_read(analog);
 
     cvra::actuator::Feedback msg;
 
