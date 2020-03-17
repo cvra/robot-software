@@ -56,6 +56,11 @@ int mpr_status_is_error(uint8_t status)
         return 1;
     }
 
+    /* Check if unused bits are set to 0 */
+    if ((status & 0b10011000)) {
+        return 1;
+    }
+
     return 0;
 }
 

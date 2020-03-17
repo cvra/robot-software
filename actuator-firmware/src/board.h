@@ -171,14 +171,14 @@
                                      PIN_PUPDR_PULLUP(GPIOA_POWER_ENABLE) | \
                                      PIN_PUPDR_PULLUP(GPIOA_PWM0) | \
                                      PIN_PUPDR_PULLUP(GPIOA_PWM1) | \
-                                     PIN_PUPDR_PULLUP(GPIOA_CS1) | \
+                                     PIN_PUPDR_FLOATING(GPIOA_CS1) | \
                                      PIN_PUPDR_PULLUP(GPIOA_PWM2) | \
                                      PIN_PUPDR_PULLUP(GPIOA_PWM3) | \
                                      PIN_PUPDR_PULLUP(GPIOA_CAN_RX) | \
                                      PIN_PUPDR_PULLUP(GPIOA_CAN_TX) | \
                                      PIN_PUPDR_PULLUP(GPIOA_SWDIO) | \
                                      PIN_PUPDR_PULLDOWN(GPIOA_SWCLK) | \
-                                     PIN_PUPDR_PULLUP(GPIOA_CS2))
+                                     PIN_PUPDR_FLOATING(GPIOA_CS2))
 #define VAL_GPIOA_ODR               (PIN_ODR_LOW(GPIOA_GPIO_ANALOG0) | \
                                      PIN_ODR_LOW(GPIOA_GPIO_ANALOG1) | \
                                      PIN_ODR_LOW(GPIOA_SOLENOID0) | \
