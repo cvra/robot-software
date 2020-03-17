@@ -46,7 +46,7 @@ int main(void)
 
     board_reset_pressure_sensors();
 
-    blinker_start();
+    // blinker_start();
 
     servo_start();
     pump_init();

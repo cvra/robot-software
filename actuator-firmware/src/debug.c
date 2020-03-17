@@ -67,7 +67,7 @@ void debug_init(void)
     error_register_notice(log_message);
 
     /* Disabled by default to avoid verbose messages. */
-    // error_register_debug(log_message);
+    error_register_debug(log_message);
 }
 
 void panic_handler(void)
