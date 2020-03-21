@@ -5,9 +5,16 @@
 extern "C" {
 #endif
 
-void servo_init(void);
+#define SERVO_COUNT 2
+
 void servo_start(void);
-void servo_set(const float pos[4], const float vel[4], const float acc[4]);
+
+/** Sets the servo motors setpoint, as well as its trajectory parameters.
+ *
+ * The position is unitless and varies between 0 and 1. The velocity have a
+ * unit of per second, and acceleration per second squared.
+ */
+void servo_set(const float pos[SERVO_COUNT], const float vel[SERVO_COUNT], const float acc[SERVO_COUNT]);
 
 #ifdef __cplusplus
 }
