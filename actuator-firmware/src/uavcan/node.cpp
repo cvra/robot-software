@@ -10,6 +10,7 @@
 #include "pressure_sensor.h"
 #include "pressure_sensor_interface.h"
 #include "feedback_publisher.h"
+#include "Command_handler.hpp"
 
 #define UAVCAN_SPIN_FREQ 10 // [Hz]
 
@@ -63,6 +64,8 @@ void main(unsigned int id, const char* name)
 {
     chRegSetThreadName("uavcan");
 
+    NOTICE("starting UAVCAN thread");
+
     Node& node = getNode();
 
     node.setNodeID(uavcan::NodeID(id));
@@ -80,7 +83,11 @@ void main(unsigned int id, const char* name)
     node.setName(name);
 
     if (node.start() < 0) {
-        chSysHalt("node start");
+        ERROR("node start");
+    }
+
+    if (Command_handler_start(node) < 0) {
+        ERROR("Command_handler_start");
     }
 
     node.getNodeStatusProvider().setModeOperational();

@@ -29,7 +29,7 @@ static uint32_t duty_cycle(float pos)
     } else if (pos < 0) {
         pos = 0;
     }
-    return (uint32_t)(pos * SERVO_PWM_TIMER_FREQ);
+    return (uint32_t)(pos * SERVO_PWM_PERIOD);
 }
 
 static void set_quadramp_coefficients(struct quadramp_filter* filter, float vel, float acc)
@@ -38,14 +38,12 @@ static void set_quadramp_coefficients(struct quadramp_filter* filter, float vel,
     quadramp_set_2nd_order_vars(filter, acc * SERVO_PWM_RAMP_SCALE, acc * SERVO_PWM_RAMP_SCALE);
 }
 
-void servo_set(const float pos[SERVO_COUNT], const float vel[SERVO_COUNT], const float acc[SERVO_COUNT])
+void servo_set(int index, float pos, float vel, float acc)
 {
     chMtxLock(&servo_mutex);
 
-    for (int i = 0; i < SERVO_COUNT; i++) {
-        servo[i].setpoint = pos[i];
-        set_quadramp_coefficients(&servo[i].filter, vel[i], acc[i]);
-    }
+    servo[index].setpoint = pos;
+    set_quadramp_coefficients(&servo[index].filter, vel, acc);
 
     chMtxUnlock(&servo_mutex);
 }
@@ -53,10 +51,10 @@ void servo_set(const float pos[SERVO_COUNT], const float vel[SERVO_COUNT], const
 static void timer_init(void)
 {
     /* Timer1 channel 2 and 3 are connected to the servomotors. */
+    rccEnableAPB2(RCC_APB2ENR_TIM1EN, true);
     rccResetAPB2(RCC_APB2RSTR_TIM1RST);
-    rccEnableAPB2(RCC_APB2ENR_TIM1EN, false);
     pwm_setup_channels(STM32_TIM1,
-                       PWM_CHANNEL(2) || PWM_CHANNEL(3),
+                       PWM_CHANNEL(2) | PWM_CHANNEL(3),
                        STM32_TIMCLK2,
                        SERVO_PWM_TIMER_FREQ,
                        SERVO_PWM_PERIOD);
@@ -79,6 +77,8 @@ THD_FUNCTION(servo_thd, arg)
     (void)arg;
     uint32_t pulsewidth;
 
+    chRegSetThreadName("servo");
+
     while (1) {
         chMtxLock(&servo_mutex);
 
@@ -95,7 +95,7 @@ THD_FUNCTION(servo_thd, arg)
 
 void servo_start(void)
 {
-    static THD_WORKING_AREA(servo_thd_wa, 256);
+    static THD_WORKING_AREA(servo_thd_wa, 512);
 
     servo_init();
 

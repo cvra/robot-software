@@ -18,6 +18,7 @@ target.arm:
   - src/board.c
   - src/uavcan/node.cpp
   - src/uavcan/feedback_publisher.cpp
+  - src/uavcan/Command_handler.cpp
   - src/bootloader_config.c
   - src/pwm.c
   - src/servo.c
