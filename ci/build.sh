@@ -46,6 +46,14 @@ case $BUILD_TYPE in
         make check
         popd
 
+        pushd actuator-firmware
+        packager
+        mkdir -p build
+        cd build
+        cmake ..
+        make check
+        popd
+
         ;;
 
     build)
