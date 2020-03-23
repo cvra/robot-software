@@ -69,6 +69,57 @@ TEST(ErrorLogging, GeneratesDebug)
     DEBUG("foo");
 }
 
+TEST(ErrorLogging, GeneratesWarningEvery10)
+{
+    error_register_warning(error_mock);
+
+    // We only expect two calls to occur
+    mock().expectOneCall("error").withStringParameter("text", "foo").ignoreOtherParameters();
+    mock().expectOneCall("error").withStringParameter("text", "bar").ignoreOtherParameters();
+    mock().expectOneCall("error").withStringParameter("text", "foo").ignoreOtherParameters();
+    mock().expectOneCall("error").withStringParameter("text", "bar").ignoreOtherParameters();
+
+    for (int i = 0; i < 20; i++) {
+        // Log every 10 loop iteration
+        WARNING_EVERY_N(10, "foo");
+        WARNING_EVERY_N(10, "bar");
+    }
+}
+
+TEST(ErrorLogging, GeneratesNoticeEvery10)
+{
+    error_register_notice(error_mock);
+
+    // We only expect two calls to occur
+    mock().expectOneCall("error").withStringParameter("text", "foo").ignoreOtherParameters();
+    mock().expectOneCall("error").withStringParameter("text", "bar").ignoreOtherParameters();
+    mock().expectOneCall("error").withStringParameter("text", "foo").ignoreOtherParameters();
+    mock().expectOneCall("error").withStringParameter("text", "bar").ignoreOtherParameters();
+
+    for (int i = 0; i < 20; i++) {
+        // Log every 10 loop iteration
+        NOTICE_EVERY_N(10, "foo");
+        NOTICE_EVERY_N(10, "bar");
+    }
+}
+
+TEST(ErrorLogging, GeneratesDebugEvery10)
+{
+    error_register_debug(error_mock);
+
+    // We only expect two calls to occur
+    mock().expectOneCall("error").withStringParameter("text", "foo").ignoreOtherParameters();
+    mock().expectOneCall("error").withStringParameter("text", "bar").ignoreOtherParameters();
+    mock().expectOneCall("error").withStringParameter("text", "foo").ignoreOtherParameters();
+    mock().expectOneCall("error").withStringParameter("text", "bar").ignoreOtherParameters();
+
+    for (int i = 0; i < 20; i++) {
+        // Log every 10 loop iteration
+        DEBUG_EVERY_N(10, "foo");
+        DEBUG_EVERY_N(10, "bar");
+    }
+}
+
 TEST(ErrorLogging, ErrorName)
 {
     auto name = error_severity_get_name(ERROR_SEVERITY_ERROR);
@@ -92,6 +143,7 @@ TEST(ErrorLogging, DebugName)
     auto name = error_severity_get_name(ERROR_SEVERITY_DEBUG);
     STRCMP_EQUAL("DEBUG", name);
 }
+
 TEST(ErrorLogging, UnknownName)
 {
     auto invalid_severity = 42;

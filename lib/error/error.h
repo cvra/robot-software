@@ -99,6 +99,19 @@ const char* error_severity_get_name(uint8_t severity);
         }                                                           \
     } while (0)
 
+/** Call this macro to only log one out of N occurence. This is useful in tight call loops. */
+#define WARNING_EVERY_N(n, text, ...)                               \
+    do {                                                            \
+        static int _cnt = 0;                                        \
+        if ((_cnt++ % n) == 0 && g_error_fct.warning) {             \
+            struct error e = error_generate(ERROR_SEVERITY_WARNING, \
+                                            (text),                 \
+                                            (__FILE__),             \
+                                            __LINE__);              \
+            g_error_fct.warning(&e, ##__VA_ARGS__);                 \
+        }                                                           \
+    } while (0)
+
 /** Call this macro to log NOTICE events */
 #define NOTICE(text, ...)                                          \
     do {                                                           \
@@ -111,10 +124,36 @@ const char* error_severity_get_name(uint8_t severity);
         }                                                          \
     } while (0)
 
+/** Call this macro to only log one out of N occurence. This is useful in tight call loops. */
+#define NOTICE_EVERY_N(n, text, ...)                               \
+    do {                                                           \
+        static int _cnt = 0;                                       \
+        if ((_cnt++ % n) == 0 && g_error_fct.notice) {             \
+            struct error e = error_generate(ERROR_SEVERITY_NOTICE, \
+                                            (text),                \
+                                            (__FILE__),            \
+                                            __LINE__);             \
+            g_error_fct.notice(&e, ##__VA_ARGS__);                 \
+        }                                                          \
+    } while (0)
+
 /** Call this macro to log DEBUG events */
 #define DEBUG(text, ...)                                          \
     do {                                                          \
         if (g_error_fct.debug) {                                  \
+            struct error e = error_generate(ERROR_SEVERITY_DEBUG, \
+                                            (text),               \
+                                            (__FILE__),           \
+                                            __LINE__);            \
+            g_error_fct.debug(&e, ##__VA_ARGS__);                 \
+        }                                                         \
+    } while (0)
+
+/** Call this macro to only log one out of N occurence. This is useful in tight call loops. */
+#define DEBUG_EVERY_N(n, text, ...)                               \
+    do {                                                          \
+        static int _cnt = 0;                                      \
+        if ((_cnt++ % n) == 0 && g_error_fct.debug) {             \
             struct error e = error_generate(ERROR_SEVERITY_DEBUG, \
                                             (text),               \
                                             (__FILE__),           \
