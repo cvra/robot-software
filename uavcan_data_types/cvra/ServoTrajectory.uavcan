@@ -1,0 +1,13 @@
+# Type representing a setpoint for a single RC servomotor control
+# The positions, velocity and acceleration are all between 0 and 1,
+# corresponding to 0-100% PWM.
+#
+# The period is fixed to 20 ms.
+#
+# Note that a typical range for a servo motor would be between 1 and 2 ms on
+# time, therefore having a duty cycle of between 5 to 10%
+
+
+float16 position        # dimensionless, between 0 and 1
+float16 velocity        # dimensionless, unit is s^-1
+float16 acceleration    # dimensionless, unit is s^-2

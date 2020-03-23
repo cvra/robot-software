@@ -7,3 +7,6 @@ uint7 node_id
 
 float16[2] pump     # PWM in range 0-1
 bool[2]    solenoid # Power output for solenoids
+
+cvra.ServoTrajectory[2] servo_trajectories
+
