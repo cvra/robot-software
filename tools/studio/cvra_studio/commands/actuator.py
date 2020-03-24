@@ -83,6 +83,34 @@ class PumpInputWidget(QtGui.QWidget):
         return bool(self._solenoid_widget.checkState())
 
 
+class StatusOutputWidget(QtGui.QWidget):
+    def __init__(self, parent=None):
+        super(StatusOutputWidget, self).__init__(parent)
+        self._uptime_widget = LineEdit(
+            title="Uptime [s]",
+            parent=parent,
+            initial_value="0",
+        )
+        self._uptime_widget.line.readOnly = True
+        self._health_widget = LineEdit(
+            title="Node health",
+            parent=parent,
+            initial_value="0",
+        )
+        self._health_widget.line.readOnly = True
+
+        self.setLayout(vstack([self._uptime_widget, self._health_widget]))
+        self.show()
+
+    def set_uptime(self, uptime):
+        self._uptime_widget.line.setText(str(uptime))
+
+    def set_health(self, health):
+        health_map = {0: "OK", 1: "WARNING", 2: "ERROR", 3: "CRITICAL"}
+        health = health_map.get(health, "UNKNOWN")
+        self._health_widget.line.setText(health)
+
+
 class ActuatorBoardView(QtGui.QWidget):
     def __init__(self, parent=None):
         super(ActuatorBoardView, self).__init__(parent)
@@ -103,7 +131,11 @@ class ActuatorBoardView(QtGui.QWidget):
         for s, sb in zip(self.pump, self.pump_box):
             sb.setLayout(vstack([s]))
 
-        self.setLayout(vstack([hstack(self.servo_box), hstack(self.pump_box),]))
+        self.status = StatusOutputWidget(parent)
+        self.status_box = QtGui.QGroupBox("Node status")
+        self.status_box.setLayout(vstack([self.status]))
+
+        self.setLayout(vstack([hstack(self.servo_box), hstack(self.pump_box), self.status_box]))
         self.show()
 
 
@@ -114,9 +146,17 @@ class ActuatorBoardController:
         self.dst_id = dst_id
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self._send)
+        node.add_handler(uavcan.protocol.NodeStatus, self._node_status_callback)
 
     def start(self):
         self.timer.start(100)
+
+    def _node_status_callback(self, event):
+        if event.transfer.source_node_id != self.dst_id:
+            return
+
+        self.view.status.set_uptime(event.message.uptime_sec)
+        self.view.status.set_health(event.message.health)
 
     def _send(self):
         try:
