@@ -1,8 +1,10 @@
 #include <string.h>
+#include <error/error.h>
 
 #include "pwm.h"
 #include "servo.h"
 #include "quadramp/quadramp.h"
+#include "safety.h"
 
 #define SERVO_PWM_THREAD_FREQ 100 /* hz */
 #define SERVO_PWM_TIMER_FREQ 1000000 /* hz */
@@ -92,6 +94,11 @@ THD_FUNCTION(servo_thd, arg)
 
         for (int i = 0; i < SERVO_COUNT; i++) {
             pulsewidth = quadramp_do_filter(&servo[i].filter, duty_cycle(servo[i].setpoint));
+
+            if (!safety_motion_is_allowed()) {
+                WARNING_EVERY_N(1000, "safety in place, disabling servo output");
+                pulsewidth = 0;
+            }
             pwm_set_pulsewidth(STM32_TIM1, pwm_channels[i], pulsewidth);
         }
 

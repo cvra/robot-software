@@ -4,6 +4,7 @@
 
 #include "servo.h"
 #include "pump.h"
+#include "safety.h"
 
 #include <error/error.h>
 
@@ -42,7 +43,6 @@ int Command_handler_start(uavcan::INode& node)
             pump_set_solenoid(0, msg.solenoid[0]);
             pump_set_solenoid(1, msg.solenoid[1]);
 
-            /* TODO: This should be handled by the safety module */
-            board_power_output_enable();
+            safety_timer_restart();
         });
 }

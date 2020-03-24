@@ -22,6 +22,7 @@ target.arm:
   - src/pressure_sensor_interface.c
   - src/pump.c
   - src/pwm.c
+  - src/safety.c
   - src/servo.c
   - src/uavcan/Command_handler.cpp
   - src/uavcan/feedback_publisher.cpp
