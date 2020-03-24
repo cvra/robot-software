@@ -16,6 +16,9 @@ class LineEdit(QWidget):
         if self.callback:
             self.callback(self.line.text())
 
+    def text(self):
+        return self.line.text()
+
 
 class ComboBox(QWidget):
     def __init__(self, title, items=[], parent=None, callback=None):

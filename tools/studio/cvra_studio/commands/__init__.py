@@ -1,4 +1,5 @@
 __all__ = [
+    "actuator",
     "cmd_vel",
     "node",
     "node_discovery",
