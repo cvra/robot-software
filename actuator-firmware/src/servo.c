@@ -40,6 +40,14 @@ static void set_quadramp_coefficients(struct quadramp_filter* filter, float vel,
 
 void servo_set(int index, float pos, float vel, float acc)
 {
+    if (pos < 0.) {
+        pos = 0.f;
+    }
+
+    if (pos > 1.) {
+        pos = 1.f;
+    }
+
     chMtxLock(&servo_mutex);
 
     servo[index].setpoint = pos;
