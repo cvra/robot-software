@@ -91,15 +91,15 @@ class StatusOutputWidget(QtGui.QWidget):
             parent=parent,
             initial_value="0",
         )
-        self._uptime_widget.line.readOnly = True
+        self._uptime_widget.line.setReadOnly(True)
         self._health_widget = LineEdit(
             title="Node health",
             parent=parent,
             initial_value="0",
         )
-        self._health_widget.line.readOnly = True
+        self._health_widget.line.setReadOnly(True)
 
-        self.setLayout(vstack([self._uptime_widget, self._health_widget]))
+        self.setLayout(hstack([self._uptime_widget, self._health_widget]))
         self.show()
 
     def set_uptime(self, uptime):
@@ -109,6 +109,46 @@ class StatusOutputWidget(QtGui.QWidget):
         health_map = {0: "OK", 1: "WARNING", 2: "ERROR", 3: "CRITICAL"}
         health = health_map.get(health, "UNKNOWN")
         self._health_widget.line.setText(health)
+
+
+class ActuatorFeedbackWidget(QtGui.QWidget):
+    def __init__(self, parent=None):
+        super(ActuatorFeedbackWidget, self).__init__(parent)
+        self._pressure_widgets = [LineEdit(
+            title="Pressure {} [Pa]".format(i+1),
+            parent=parent,
+            initial_value="0",
+        ) for i in range(2)]
+
+        self._analog_input_widgets = [LineEdit(
+            title="Analog {} [V]".format(i+1),
+            parent=parent,
+            initial_value="0.0",
+        ) for i in range(2)]
+
+        self._digital_input_widget = QtGui.QCheckBox("Digital in", parent=self)
+        self._digital_input_widget.setEnabled(False)
+
+        for w in self._pressure_widgets + self._analog_input_widgets:
+            w.line.setReadOnly(True)
+
+        self.setLayout(vstack([
+            hstack(self._pressure_widgets),
+            hstack(self._analog_input_widgets),
+            self._digital_input_widget]))
+
+        self.show()
+
+    def set_analog_inputs(self, inputs):
+        for v, w in zip(inputs, self._analog_input_widgets):
+            w.line.setText("{:.1f}".format(v))
+
+    def set_pressures(self, inputs):
+        for v, w in zip(inputs, self._pressure_widgets):
+            w.line.setText("{:.0f}".format(v))
+
+    def set_digital_input(self, input):
+        self._digital_input_widget.setChecked(input)
 
 
 class ActuatorBoardView(QtGui.QWidget):
@@ -135,7 +175,11 @@ class ActuatorBoardView(QtGui.QWidget):
         self.status_box = QtGui.QGroupBox("Node status")
         self.status_box.setLayout(vstack([self.status]))
 
-        self.setLayout(vstack([hstack(self.servo_box), hstack(self.pump_box), self.status_box]))
+        self.feedback = ActuatorFeedbackWidget(parent)
+        self.feedback_box = QtGui.QGroupBox("Sensor feedback")
+        self.feedback_box.setLayout(vstack([self.feedback]))
+
+        self.setLayout(vstack([hstack(self.servo_box), hstack(self.pump_box), self.feedback_box, self.status_box]))
         self.show()
 
 
@@ -147,9 +191,7 @@ class ActuatorBoardController:
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self._send)
         node.add_handler(uavcan.protocol.NodeStatus, self._node_status_callback)
-
-    def start(self):
-        self.timer.start(100)
+        node.add_handler(uavcan.thirdparty.cvra.actuator.Feedback, self._feedback_callback)
 
     def _node_status_callback(self, event):
         if event.transfer.source_node_id != self.dst_id:
@@ -157,6 +199,17 @@ class ActuatorBoardController:
 
         self.view.status.set_uptime(event.message.uptime_sec)
         self.view.status.set_health(event.message.health)
+
+    def _feedback_callback(self, event):
+        if event.transfer.source_node_id != self.dst_id:
+            return
+
+        self.view.feedback.set_pressures(event.message.pressure)
+        self.view.feedback.set_analog_inputs(event.message.analog_input)
+        self.view.feedback.set_digital_input(event.message.digital_input)
+
+    def start(self):
+        self.timer.start(100)
 
     def _send(self):
         try:
