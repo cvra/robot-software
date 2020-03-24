@@ -13,18 +13,19 @@ depends:
   - quadramp
 
 target.arm:
-  - src/main.c
-  - src/debug.c
+  - ../lib/can-bootloader/config.c
+  - src/analog_input.c
   - src/board.c
-  - src/uavcan/node.cpp
-  - src/uavcan/feedback_publisher.cpp
-  - src/uavcan/Command_handler.cpp
   - src/bootloader_config.c
+  - src/debug.c
+  - src/main.c
+  - src/pressure_sensor_interface.c
+  - src/pump.c
   - src/pwm.c
   - src/servo.c
-  - src/pressure_sensor_interface.c
-  - src/analog_input.c
-  - ../lib/can-bootloader/config.c
+  - src/uavcan/Command_handler.cpp
+  - src/uavcan/feedback_publisher.cpp
+  - src/uavcan/node.cpp
 
 tests:
   - tests/pressure_sensor_driver_test.cpp

@@ -119,3 +119,13 @@ int board_digital_input_read(void)
 {
     return palReadPad(GPIOB, GPIOB_DEBUG_RX);
 }
+
+void board_power_output_enable(void)
+{
+    palSetPad(GPIOA, GPIOA_POWER_ENABLE);
+}
+
+void board_power_output_disable(void)
+{
+    palClearPad(GPIOA, GPIOA_POWER_ENABLE);
+}

@@ -1,11 +1,13 @@
+#include <ch.h>
+#include <hal.h>
 #include "Command_handler.hpp"
+
 #include "servo.h"
+#include "pump.h"
 
 #include <error/error.h>
 
 #include <cvra/actuator/Command.hpp>
-
-#include "uavcan/build_config.hpp"
 
 int Command_handler_start(uavcan::INode& node)
 {
@@ -20,13 +22,27 @@ int Command_handler_start(uavcan::INode& node)
                 return;
             }
             /* TODO: Implement a watchdog to stop the movements if no setpoints come from master */
-            /* TODO: Handle commands other than servomotors. */
 
             UAVCAN_ASSERT(SERVO_COUNT == msg.servo_trajectories.size());
 
+            /* Servomotors commands */
             for (int i = 0; i < SERVO_COUNT; i++) {
                 servo_set(i, msg.servo_trajectories[i].position, msg.servo_trajectories[i].velocity, msg.servo_trajectories[i].acceleration);
                 DEBUG_EVERY_N(10, "received setpoint %03d for servo %d", static_cast<int>(msg.servo_trajectories[i].position * 1000), i);
             }
+
+            /* Pump commands */
+            DEBUG_EVERY_N(10, "pumps: [%03d; %03d], solenoids: [%d; %d]",
+                          static_cast<int>(msg.pump[0] * 1000),
+                          static_cast<int>(msg.pump[1] * 1000),
+                          msg.solenoid[0],
+                          msg.solenoid[1]);
+            pump_set_pwm(0, msg.pump[0]);
+            pump_set_pwm(1, msg.pump[1]);
+            pump_set_solenoid(0, msg.solenoid[0]);
+            pump_set_solenoid(1, msg.solenoid[1]);
+
+            /* TODO: This should be handled by the safety module */
+            board_power_output_enable();
         });
 }

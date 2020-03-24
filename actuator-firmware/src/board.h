@@ -41,10 +41,10 @@
  */
 #define GPIOA_GPIO_ANALOG0          0U
 #define GPIOA_GPIO_ANALOG1          1U
-#define GPIOA_PIN2                  2U
-#define GPIOA_PIN3                  3U
+#define GPIOA_SOLENOID0             2U
+#define GPIOA_SOLENOID1             3U
 #define GPIOA_PRESSURE_RST          4U
-#define GPIOA_PIN5                  5U
+#define GPIOA_POWER_ENABLE          5U
 #define GPIOA_PWM0                  6U
 #define GPIOA_PWM1                  7U
 #define GPIOA_CS1                   8U
@@ -100,13 +100,13 @@
  *
  * PA0  - GPIOA_GPIO_ANALOG0        (analog floating).
  * PA1  - GPIOA_GPIO_ANALOG1        (analog floating).
- * PA2  - GPIOA_PIN2                (input pullup).
- * PA3  - GPIOA_PIN3                (input pullup).
+ * PA2  - GPIOA_SOLENOID0           (output low, solenoid 0 state).
+ * PA3  - GPIOA_SOLENOID1           (output low, solenoid 1 state).
  * PA4  - GPIOA_PRESSURE_RST        (output high, reset for pressure sensor).
- * PA5  - GPIOA_PIN5                (input pullup).
+ * PA5  - GPIOA_POWER_ENABLE        (output high, enable power output for h bridge).
  * PA6  - GPIOA_PWM0                (alternate 1 (TIM16_CH1)).
  * PA7  - GPIOA_PWM1                (alternate 1 (TIM17_CH1)).
- * PA8  - GPIOA_CS1                 (output high, CS line of pressure sensor #1)
+ * PA8  - GPIOA_CS1                 (output low, CS line of pressure sensor #1)
  * PA9  - GPIOA_PWM2                (alternate 6 (TIM1_CH2)).
  * PA10 - GPIOA_PWM3                (alternate 6 (TIM1_CH3)).
  * PA11 - GPIOA_CAN_RX              (alternate 9).
@@ -117,10 +117,10 @@
  */
 #define VAL_GPIOA_MODER             (PIN_MODE_ANALOG(GPIOA_GPIO_ANALOG0) | \
                                      PIN_MODE_ANALOG(GPIOA_GPIO_ANALOG1) | \
-                                     PIN_MODE_INPUT(GPIOA_PIN2) | \
-                                     PIN_MODE_INPUT(GPIOA_PIN3) | \
+                                     PIN_MODE_OUTPUT(GPIOA_SOLENOID0) | \
+                                     PIN_MODE_OUTPUT(GPIOA_SOLENOID1) | \
                                      PIN_MODE_OUTPUT(GPIOA_PRESSURE_RST) | \
-                                     PIN_MODE_INPUT(GPIOA_PIN5) | \
+                                     PIN_MODE_OUTPUT(GPIOA_POWER_ENABLE) | \
                                      PIN_MODE_ALTERNATE(GPIOA_PWM0) | \
                                      PIN_MODE_ALTERNATE(GPIOA_PWM1) | \
                                      PIN_MODE_OUTPUT(GPIOA_CS1) | \
@@ -133,10 +133,10 @@
                                      PIN_MODE_OUTPUT(GPIOA_CS2))
 #define VAL_GPIOA_OTYPER            (PIN_OTYPE_PUSHPULL(GPIOA_GPIO_ANALOG0) | \
                                      PIN_OTYPE_PUSHPULL(GPIOA_GPIO_ANALOG1) | \
-                                     PIN_OTYPE_PUSHPULL(GPIOA_PIN2) | \
-                                     PIN_OTYPE_PUSHPULL(GPIOA_PIN3) | \
+                                     PIN_OTYPE_PUSHPULL(GPIOA_SOLENOID0) | \
+                                     PIN_OTYPE_PUSHPULL(GPIOA_SOLENOID1) | \
                                      PIN_OTYPE_PUSHPULL(GPIOA_PRESSURE_RST) | \
-                                     PIN_OTYPE_PUSHPULL(GPIOA_PIN5) | \
+                                     PIN_OTYPE_PUSHPULL(GPIOA_POWER_ENABLE) | \
                                      PIN_OTYPE_PUSHPULL(GPIOA_PWM0) | \
                                      PIN_OTYPE_PUSHPULL(GPIOA_PWM1) | \
                                      PIN_OTYPE_PUSHPULL(GPIOA_CS1) | \
@@ -149,10 +149,10 @@
                                      PIN_OTYPE_PUSHPULL(GPIOA_CS2))
 #define VAL_GPIOA_OSPEEDR           (PIN_OSPEED_100M(GPIOA_GPIO_ANALOG0) | \
                                      PIN_OSPEED_100M(GPIOA_GPIO_ANALOG1) | \
-                                     PIN_OSPEED_100M(GPIOA_PIN2) | \
-                                     PIN_OSPEED_100M(GPIOA_PIN3) | \
+                                     PIN_OSPEED_2M(GPIOA_SOLENOID0) | \
+                                     PIN_OSPEED_2M(GPIOA_SOLENOID1) | \
                                      PIN_OSPEED_2M(GPIOA_PRESSURE_RST) | \
-                                     PIN_OSPEED_100M(GPIOA_PIN5) | \
+                                     PIN_OSPEED_100M(GPIOA_POWER_ENABLE) | \
                                      PIN_OSPEED_100M(GPIOA_PWM0) | \
                                      PIN_OSPEED_100M(GPIOA_PWM1) | \
                                      PIN_OSPEED_100M(GPIOA_CS1) | \
@@ -165,10 +165,10 @@
                                      PIN_OSPEED_100M(GPIOA_CS2))
 #define VAL_GPIOA_PUPDR             (PIN_PUPDR_FLOATING(GPIOA_GPIO_ANALOG0) | \
                                      PIN_PUPDR_FLOATING(GPIOA_GPIO_ANALOG1) | \
-                                     PIN_PUPDR_PULLUP(GPIOA_PIN2) | \
-                                     PIN_PUPDR_PULLUP(GPIOA_PIN3) | \
+                                     PIN_PUPDR_PULLUP(GPIOA_SOLENOID0) | \
+                                     PIN_PUPDR_PULLUP(GPIOA_SOLENOID1) | \
                                      PIN_PUPDR_FLOATING(GPIOA_PRESSURE_RST) | \
-                                     PIN_PUPDR_PULLUP(GPIOA_PIN5) | \
+                                     PIN_PUPDR_PULLUP(GPIOA_POWER_ENABLE) | \
                                      PIN_PUPDR_PULLUP(GPIOA_PWM0) | \
                                      PIN_PUPDR_PULLUP(GPIOA_PWM1) | \
                                      PIN_PUPDR_PULLUP(GPIOA_CS1) | \
@@ -181,10 +181,10 @@
                                      PIN_PUPDR_PULLUP(GPIOA_CS2))
 #define VAL_GPIOA_ODR               (PIN_ODR_LOW(GPIOA_GPIO_ANALOG0) | \
                                      PIN_ODR_LOW(GPIOA_GPIO_ANALOG1) | \
-                                     PIN_ODR_LOW(GPIOA_PIN2) | \
-                                     PIN_ODR_LOW(GPIOA_PIN3) | \
+                                     PIN_ODR_LOW(GPIOA_SOLENOID0) | \
+                                     PIN_ODR_LOW(GPIOA_SOLENOID1) | \
                                      PIN_ODR_HIGH(GPIOA_PRESSURE_RST) | \
-                                     PIN_ODR_LOW(GPIOA_PIN5) | \
+                                     PIN_ODR_LOW(GPIOA_POWER_ENABLE) | \
                                      PIN_ODR_LOW(GPIOA_PWM0) | \
                                      PIN_ODR_LOW(GPIOA_PWM1) | \
                                      PIN_ODR_HIGH(GPIOA_CS1) | \
@@ -197,10 +197,10 @@
                                      PIN_ODR_HIGH(GPIOA_CS2))
 #define VAL_GPIOA_AFRL              (PIN_AFIO_AF(GPIOA_GPIO_ANALOG0, 0) | \
                                      PIN_AFIO_AF(GPIOA_GPIO_ANALOG1, 0) | \
-                                     PIN_AFIO_AF(GPIOA_PIN2, 0) | \
-                                     PIN_AFIO_AF(GPIOA_PIN3, 0) | \
+                                     PIN_AFIO_AF(GPIOA_SOLENOID0, 0) | \
+                                     PIN_AFIO_AF(GPIOA_SOLENOID1, 0) | \
                                      PIN_AFIO_AF(GPIOA_PRESSURE_RST, 0) | \
-                                     PIN_AFIO_AF(GPIOA_PIN5, 0) | \
+                                     PIN_AFIO_AF(GPIOA_POWER_ENABLE, 0) | \
                                      PIN_AFIO_AF(GPIOA_PWM0, 1) | \
                                      PIN_AFIO_AF(GPIOA_PWM1, 1))
 #define VAL_GPIOA_AFRH              (PIN_AFIO_AF(GPIOA_CS1, 0) | \
@@ -339,6 +339,12 @@ void board_reset_pressure_sensors(void);
 
 /* Read the digital-only input for external sensors. */
 int board_digital_input_read(void);
+
+/** Enables the H-Bridge outputs */
+void board_power_output_enable(void);
+
+/** Disables the H-Bridge outputs */
+void board_power_output_disable(void);
 
 #ifdef __cplusplus
 }
