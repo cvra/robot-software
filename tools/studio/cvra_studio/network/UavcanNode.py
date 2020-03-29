@@ -16,8 +16,12 @@ class UavcanNode:
         with self.node_lock:
             self.node.request(request, node_id, callback)
 
-    def publish(self, msg, priority):
-        self.node.broadcast(msg, priority=priority)
+    def publish(self, msg, priority=uavcan.TRANSFER_PRIORITY_HIGHEST):
+        self.broadcast(msg, priority)
+
+    def broadcast(self, msg, priority=uavcan.TRANSFER_PRIORITY_HIGHEST):
+        with self.node_lock:
+            self.node.broadcast(msg, priority=priority)
 
     def publish_periodically(self, period, publish_cmd):
         self.node.periodic(period, publish_cmd)

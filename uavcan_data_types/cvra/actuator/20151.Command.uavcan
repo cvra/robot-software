@@ -1,9 +1,12 @@
-#
 # Command for an actuator board
 #
+# This message instructs a single actuator board of what it should do. Note
+# that the actuator board have a timeout mechanism: If they do not receive a
+# Command in some amount of time (see actuator-firmware/src/safety.c for the
+# value), then the outputs are disabled. To avoid this, send the message at
+# least 5 times as often as the timeout.
 
-# UAVCAN node ID for unicast addressing
-uint7 node_id
+uint7 node_id       # UAVCAN node ID for unicast addressing
 
 float16[2] pump     # PWM in range 0-1
 bool[2]    solenoid # Power output for solenoids

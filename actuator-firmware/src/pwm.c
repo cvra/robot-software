@@ -55,24 +55,3 @@ void pwm_set_pulsewidth(stm32_tim_t* tim, uint8_t channel, uint32_t width)
 {
     tim->CCR[channel] = width;
 }
-
-void pwm_init(uint32_t frequency, uint32_t period)
-{
-    /* Timer16 channel 1 */
-    rccResetAPB2(RCC_APB2RSTR_TIM16RST);
-    rccEnableAPB2(RCC_APB2ENR_TIM16EN, false);
-    pwm_setup_channels(STM32_TIM16,
-                       PWM_CHANNEL(1),
-                       STM32_TIMCLK2,
-                       frequency,
-                       period);
-
-    /* Timer17 channel 1 */
-    rccResetAPB2(RCC_APB2RSTR_TIM17RST);
-    rccEnableAPB2(RCC_APB2ENR_TIM17EN, false);
-    pwm_setup_channels(STM32_TIM17,
-                       PWM_CHANNEL(1),
-                       STM32_TIMCLK2,
-                       frequency,
-                       period);
-}

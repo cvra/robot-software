@@ -5,6 +5,7 @@
 #include "error/error.h"
 #include "debug.h"
 #include "servo.h"
+#include "pump.h"
 #include "main.h"
 
 THD_FUNCTION(blinker, arg)
@@ -48,6 +49,7 @@ int main(void)
     blinker_start();
 
     servo_start();
+    pump_init();
 
     if (!config_get(&config)) {
         uavcan_set_node_is_ok(false);
