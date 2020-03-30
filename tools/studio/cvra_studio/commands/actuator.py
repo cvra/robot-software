@@ -87,26 +87,24 @@ class StatusOutputWidget(QtGui.QWidget):
     def __init__(self, parent=None):
         super(StatusOutputWidget, self).__init__(parent)
         self._uptime_widget = LineEdit(
-            title="Uptime [s]",
-            parent=parent,
-            initial_value="0",
+            title="Uptime [s]", parent=parent, initial_value="0",
         )
         self._uptime_widget.line.setReadOnly(True)
         self._health_widget = LineEdit(
-            title="Node health",
-            parent=parent,
-            initial_value="0",
+            title="Node health", parent=parent, initial_value="0",
         )
         self._health_widget.line.setReadOnly(True)
 
         self._vendor_status_widget = LineEdit(
-            title="Vendor status code",
-            parent=parent,
-            initial_value="0",
+            title="Vendor status code", parent=parent, initial_value="0",
         )
         self._vendor_status_widget.line.setReadOnly(True)
 
-        self.setLayout(hstack([self._uptime_widget, self._health_widget, self._vendor_status_widget]))
+        self.setLayout(
+            hstack(
+                [self._uptime_widget, self._health_widget, self._vendor_status_widget]
+            )
+        )
         self.show()
 
     def set_uptime(self, uptime):
@@ -124,17 +122,21 @@ class StatusOutputWidget(QtGui.QWidget):
 class ActuatorFeedbackWidget(QtGui.QWidget):
     def __init__(self, parent=None):
         super(ActuatorFeedbackWidget, self).__init__(parent)
-        self._pressure_widgets = [LineEdit(
-            title="Pressure {} [Pa]".format(i+1),
-            parent=parent,
-            initial_value="0",
-        ) for i in range(2)]
+        self._pressure_widgets = [
+            LineEdit(
+                title="Pressure {} [Pa]".format(i + 1),
+                parent=parent,
+                initial_value="0",
+            )
+            for i in range(2)
+        ]
 
-        self._analog_input_widgets = [LineEdit(
-            title="Analog {} [V]".format(i+1),
-            parent=parent,
-            initial_value="0.0",
-        ) for i in range(2)]
+        self._analog_input_widgets = [
+            LineEdit(
+                title="Analog {} [V]".format(i + 1), parent=parent, initial_value="0.0",
+            )
+            for i in range(2)
+        ]
 
         self._digital_input_widget = QtGui.QCheckBox("Digital in", parent=self)
         self._digital_input_widget.setEnabled(False)
@@ -142,10 +144,15 @@ class ActuatorFeedbackWidget(QtGui.QWidget):
         for w in self._pressure_widgets + self._analog_input_widgets:
             w.line.setReadOnly(True)
 
-        self.setLayout(vstack([
-            hstack(self._pressure_widgets),
-            hstack(self._analog_input_widgets),
-            self._digital_input_widget]))
+        self.setLayout(
+            vstack(
+                [
+                    hstack(self._pressure_widgets),
+                    hstack(self._analog_input_widgets),
+                    self._digital_input_widget,
+                ]
+            )
+        )
 
         self.show()
 
@@ -189,7 +196,16 @@ class ActuatorBoardView(QtGui.QWidget):
         self.feedback_box = QtGui.QGroupBox("Sensor feedback")
         self.feedback_box.setLayout(vstack([self.feedback]))
 
-        self.setLayout(vstack([hstack(self.servo_box), hstack(self.pump_box), self.feedback_box, self.status_box]))
+        self.setLayout(
+            vstack(
+                [
+                    hstack(self.servo_box),
+                    hstack(self.pump_box),
+                    self.feedback_box,
+                    self.status_box,
+                ]
+            )
+        )
         self.show()
 
 
@@ -201,7 +217,9 @@ class ActuatorBoardController:
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self._send)
         node.add_handler(uavcan.protocol.NodeStatus, self._node_status_callback)
-        node.add_handler(uavcan.thirdparty.cvra.actuator.Feedback, self._feedback_callback)
+        node.add_handler(
+            uavcan.thirdparty.cvra.actuator.Feedback, self._feedback_callback
+        )
 
     def _node_status_callback(self, event):
         if event.transfer.source_node_id != self.dst_id:
