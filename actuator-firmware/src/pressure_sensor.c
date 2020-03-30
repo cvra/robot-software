@@ -64,3 +64,13 @@ int mpr_status_is_busy(uint8_t status)
 {
     return (status & (1 << 5));
 }
+
+
+float mpr_pressure_raw_to_pascal(uint32_t raw_pressure)
+{
+    /* See page 19 of the MPR datasheet */
+    const float p_max = 103422; /* 15 psi, in pascal */
+    const float out_max = 0xe66666, out_min = 0x19999A;
+
+    return (raw_pressure - out_min) / (out_max - out_min) * p_max;
+}
