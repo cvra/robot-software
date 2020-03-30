@@ -22,8 +22,6 @@ int Command_handler_start(uavcan::INode& node)
                       static_cast<int>(msg.node_id));
                 return;
             }
-            /* TODO: Implement a watchdog to stop the movements if no setpoints come from master */
-
             UAVCAN_ASSERT(SERVO_COUNT == msg.servo_trajectories.size());
 
             /* Servomotors commands */
