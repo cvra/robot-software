@@ -45,6 +45,9 @@ static void mpr_transmit(void* arg, const uint8_t* tx, uint8_t* rx, size_t n)
 {
     (void)arg;
     spiExchange(&SPID3, n, tx, rx);
+
+    // TODO(antoinealb): Why does spiExchange not wait for completion of transfer ?
+    chThdSleepMilliseconds(10);
 }
 
 mpr_driver_t pressure_sensors[2] = {{.arg = (void*)0,
