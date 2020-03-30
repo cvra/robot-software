@@ -1,6 +1,7 @@
 #include <ch.h>
 #include <hal.h>
 #include <uavcan/node.h>
+#include "analog_input.h"
 #include "bootloader_config.h"
 #include <error/error.h>
 #include "debug.h"
@@ -46,7 +47,8 @@ int main(void)
 
     board_reset_pressure_sensors();
 
-    // blinker_start();
+    analog_start();
+    blinker_start();
 
     servo_start();
     pump_init();
