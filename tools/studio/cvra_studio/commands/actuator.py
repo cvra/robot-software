@@ -99,7 +99,14 @@ class StatusOutputWidget(QtGui.QWidget):
         )
         self._health_widget.line.setReadOnly(True)
 
-        self.setLayout(hstack([self._uptime_widget, self._health_widget]))
+        self._vendor_status_widget = LineEdit(
+            title="Vendor status code",
+            parent=parent,
+            initial_value="0",
+        )
+        self._vendor_status_widget.line.setReadOnly(True)
+
+        self.setLayout(hstack([self._uptime_widget, self._health_widget, self._vendor_status_widget]))
         self.show()
 
     def set_uptime(self, uptime):
@@ -109,6 +116,9 @@ class StatusOutputWidget(QtGui.QWidget):
         health_map = {0: "OK", 1: "WARNING", 2: "ERROR", 3: "CRITICAL"}
         health = health_map.get(health, "UNKNOWN")
         self._health_widget.line.setText(health)
+
+    def set_vendor_status(self, vendor_status):
+        self._vendor_status_widget.line.setText(bin(vendor_status))
 
 
 class ActuatorFeedbackWidget(QtGui.QWidget):
@@ -199,6 +209,7 @@ class ActuatorBoardController:
 
         self.view.status.set_uptime(event.message.uptime_sec)
         self.view.status.set_health(event.message.health)
+        self.view.status.set_vendor_status(event.message.vendor_specific_status_code)
 
     def _feedback_callback(self, event):
         if event.transfer.source_node_id != self.dst_id:
