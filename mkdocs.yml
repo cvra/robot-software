@@ -2,6 +2,8 @@ site_name: CVRA Robot Software
 theme: readthedocs
 nav:
   - Home: index.md
+  - Robot architecture:
+    - '2020 hardware architecture': architecture/hardware2020.md
   - CAN:
       - 'CAN Ecosystem': can/intro.md
       - can/motor.md
