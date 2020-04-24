@@ -1,5 +1,7 @@
 site_name: CVRA Robot Software
-theme: readthedocs
+theme:
+  name: gitbook
+plugins: []
 nav:
   - Home: index.md
   - Robot architecture:
