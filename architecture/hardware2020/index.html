@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<title>2020 hardware architecture - CVRA Robot Software</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta name="generator" content="mkdocs-1.1, mkdocs-gitbook-1.0.7">
+
+<link rel="shortcut icon" href="../../images/favicon.ico" type="image/x-icon">
+<meta name="HandheldFriendly" content="true"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta rel="next" href="" />
+<link href="../../css/style.min.css" rel="stylesheet"> 
+</head>
+
+<body>
+<div class="book">
+<div class="book-summary">
+
+<nav role="navigation">
+<ul class="summary">
+<li>
+<a href="../.." target="_blank" class="custom-link">CVRA Robot Software</a>
+</li>
+<li class="divider"></li>
+<li class="chapter" data-path="">
+<a href="../..">Home</a>
+<li class="header">Robot architecture</li>
+
+<li>
+<a href="./" class="active">2020 hardware architecture</a>
+</li>
+
+<li>
+<a href="../life-of-a-motion/" class="">Life of a motion</a>
+</li>
+
+<li class="header">CAN</li>
+
+<li>
+<a href="../../can/intro/" class="">CAN Ecosystem</a>
+</li>
+
+<li>
+<a href="../../can/motor/" class="">Motor board</a>
+</li>
+
+<li>
+<a href="../../can/io/" class="">IO board</a>
+</li>
+
+<li>
+<a href="../../can/sensor/" class="">Sensor board</a>
+</li>
+
+<li>
+<a href="../../can/beacon/" class="">Beacon board</a>
+</li>
+
+<li>
+<a href="../../can/adapter/" class="">CAN USB adapter</a>
+</li>
+
+<li>
+<a href="../../can/bootloader/" class="">CAN bootloader</a>
+</li>
+
+<li class="header">Systems</li>
+
+<li>
+<a href="../../can/positioning/" class="">Positioning system</a>
+</li>
+
+<li class="divider"></li>
+
+
+
+<li><a href="http://www.mkdocs.org">
+Published with MkDocs
+</a></li>
+
+<li><a href="https://github.com/GitbookIO/theme-default">
+Theme by GitBook
+</a></li>
+</ul>
+
+</nav>
+
+</div> <!-- end of book-summary -->
+
+<div class="book-body">
+<div class="body-inner">
+<div class="book-header" role="navigation">
+
+<!-- Title -->
+<h1>
+<i class="fa fa-circle-o-notch fa-spin"></i>
+<a href="." ></a>
+</h1>
+
+</div> <!-- end of book-header -->
+
+<div class="page-wrapper" tabindex="-1" role="main">
+<div class="page-inner">
+
+<section class="normal markdown-section">
+
+
+
+<h1 id="hardware-architecture-overview-2020-edition">Hardware architecture overview (2020 edition)</h1>
+<p><img alt="2020 hardware architecture overview" src="../hardware2020.png" /></p>
+<p>The robot is organized around a master board running a STM32F4.
+This board is responsible for most of the high-level tasks in the robot:</p>
+<ul>
+<li>Odometry</li>
+<li>High level control &amp; pathfinding</li>
+<li>Game script</li>
+<li>User interface</li>
+</ul>
+<p>The low-level functions are delegated to simpler boards, running smaller microcontrollers.
+Board exchange messages over CAN bus using the UAVCAN protocol.</p>
+<ol>
+<li>Our motor boards are responsible for PID control of a single motor.
+    In 2020, they are used only for the wheelbase, but they are very generic and can be used for other purposes, e.g. controlling a robot's arm.</li>
+<li>To handle the objects used by the 2020 rules, we chose to use suction cups and vacuum pumps.
+    In order to control those, we designed a specific actuator board.
+    This board also integrates vacuum sensor to detect if an object was correctly taken.
+    An optical sensor allows this board to detect if an object is close.
+    Finally, it can control standard RC servomotors, as we needed those this year.</li>
+<li>The robot detects opponents by using a beacon system based on light reflection.
+    The beacon mast emits a beam of light, which is reflected by a circular catadiopter fitted on each opponent.
+    By rotating the sensor, the Debra platform measures the apparent size of the reflector, which provides an approximation of the distance.
+    This information is then sent back to the master board over CAN.</li>
+<li>The two robots in a team can communicate together and with the lighthouse using UWB radio.
+    To do so, we re-use the modules developed for positioning but only for data transmission.</li>
+</ol>
+
+
+</section>
+
+</div> <!-- end of page-inner -->
+</div> <!-- end of page-wrapper -->
+
+</div> <!-- end of body-inner -->
+
+</div> <!-- end of book-body -->
+<script src="../../js/main.js"></script>
+<script src="../../js/gitbook.min.js"></script>
+<script src="../../js/theme.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<title>Life of a motion - CVRA Robot Software</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta name="generator" content="mkdocs-1.1, mkdocs-gitbook-1.0.7">
+
+<link rel="shortcut icon" href="../../images/favicon.ico" type="image/x-icon">
+<meta name="HandheldFriendly" content="true"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta rel="next" href="" />
+<link href="../../css/style.min.css" rel="stylesheet"> 
+</head>
+
+<body>
+<div class="book">
+<div class="book-summary">
+
+<nav role="navigation">
+<ul class="summary">
+<li>
+<a href="../.." target="_blank" class="custom-link">CVRA Robot Software</a>
+</li>
+<li class="divider"></li>
+<li class="chapter" data-path="">
+<a href="../..">Home</a>
+<li class="header">Robot architecture</li>
+
+<li>
+<a href="../hardware2020/" class="">2020 hardware architecture</a>
+</li>
+
+<li>
+<a href="./" class="active">Life of a motion</a>
+</li>
+
+<li class="header">CAN</li>
+
+<li>
+<a href="../../can/intro/" class="">CAN Ecosystem</a>
+</li>
+
+<li>
+<a href="../../can/motor/" class="">Motor board</a>
+</li>
+
+<li>
+<a href="../../can/io/" class="">IO board</a>
+</li>
+
+<li>
+<a href="../../can/sensor/" class="">Sensor board</a>
+</li>
+
+<li>
+<a href="../../can/beacon/" class="">Beacon board</a>
+</li>
+
+<li>
+<a href="../../can/adapter/" class="">CAN USB adapter</a>
+</li>
+
+<li>
+<a href="../../can/bootloader/" class="">CAN bootloader</a>
+</li>
+
+<li class="header">Systems</li>
+
+<li>
+<a href="../../can/positioning/" class="">Positioning system</a>
+</li>
+
+<li class="divider"></li>
+
+
+
+<li><a href="http://www.mkdocs.org">
+Published with MkDocs
+</a></li>
+
+<li><a href="https://github.com/GitbookIO/theme-default">
+Theme by GitBook
+</a></li>
+</ul>
+
+</nav>
+
+</div> <!-- end of book-summary -->
+
+<div class="book-body">
+<div class="body-inner">
+<div class="book-header" role="navigation">
+
+<!-- Title -->
+<h1>
+<i class="fa fa-circle-o-notch fa-spin"></i>
+<a href="." ></a>
+</h1>
+
+</div> <!-- end of book-header -->
+
+<div class="page-wrapper" tabindex="-1" role="main">
+<div class="page-inner">
+
+<section class="normal markdown-section">
+
+
+
+<h2 id="life-of-a-movement">Life of a movement</h2>
+<p>Game strategy says <code>goto(1500mm, 1500mm)</code>.
+What happens next?</p>
+<p><img alt="Steps involved in life of a motion" src="../life-of-a-motion.png" /></p>
+<ol>
+<li>The strategy uses the <code>obstacle_avoidance</code> to compute a path that intersect no obstacles.</li>
+<li>The strategy gives the first point to <code>trajectory_manager</code>, which computes an angle and a distance to reach that point.
+    To do so, it asks the <code>position_manager</code> what the current position of the robot is.</li>
+<li>The angle and distance are used as setpoint for the <code>base_controller</code> control systems.
+    They are first filtered through a quadramp to limit angular/linear velocities &amp; accelerations.
+    Then, <code>robot_system</code> computes the current angular and linear positions by reading encoders position from hardware and summing/subtracting them.
+    Those current positions and desired filtered position are used as inputs for the PIDs, who give back angular &amp; linear speeds.
+    <code>robot_system</code> is used again, to convert those to left and right wheel speeds.
+    The left and right wheel are sent to <code>motor_manager</code></li>
+<li>Periodically, <code>motor_manager</code> sends to the left and right motor boards the new speed setpoints.
+    It must first convert the names of the board to CAN IDs by reading the mapping stored by the <code>bus_enumerator</code> on the boot of the robot.</li>
+<li>The motor boards apply this new speed setpoints to the wheels using their internal control, which causes the robot to move.
+    This moves the external encoders wheels, which send their positions to the master board using standard AB quadrature channels.</li>
+<li>Periodically, <code>position_manager</code> reads the new encoders positions and computes the new (XY, angle) position of the robot.</li>
+<li>The process starts over at step 2, until the path is complete.
+    For intermediate points, the strategy decides if it can move to the next waypoint by computing distance to the current point and comparing to a threshold.
+    For the final point, <code>trajectory_manager</code> decides if he arrived by looking at whether the filtered angle and distance speeds are zero (meaning we are stopped).</li>
+</ol>
+<h2 id="useful-references">Useful references</h2>
+<ul>
+<li><a href="https://www.rcva.fr/10-ans-dexperience/9/">Cours d'asservissement de RCVA, in French</a></li>
+<li><a href="https://wiki.droids-corp.org/articles/a/v/e/Aversive/Asservissement_Microb_2008.html">Microb Technology control system design, in French</a></li>
+</ul>
+
+
+</section>
+
+</div> <!-- end of page-inner -->
+</div> <!-- end of page-wrapper -->
+
+</div> <!-- end of body-inner -->
+
+</div> <!-- end of book-body -->
+<script src="../../js/main.js"></script>
+<script src="../../js/gitbook.min.js"></script>
+<script src="../../js/theme.min.js"></script>
+</body>
+</html>
