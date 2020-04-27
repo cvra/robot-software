@@ -23,6 +23,7 @@ source:
     - trajectory_manager/trajectory_manager_utils.c
 
 tests:
-    - tests/test_blocking_detection_manager.cpp
-    - tests/test_geometry_discrete_circles.cpp
-    - tests/test_geometry_polygon_intersection.cpp
+  - tests/test_blocking_detection_manager.cpp
+  - tests/test_geometry_discrete_circles.cpp
+  - tests/test_geometry_polygon_intersection.cpp
+  - tests/obstacle_avoidance.cpp
