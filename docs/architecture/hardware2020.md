@@ -26,3 +26,18 @@ Board exchange messages over CAN bus using the UAVCAN protocol.
     This information is then sent back to the master board over CAN.
 4. The two robots in a team can communicate together and with the lighthouse using UWB radio.
     To do so, we re-use the modules developed for positioning but only for data transmission.
+
+## Why so many boards?
+
+In 2010, we arrived at the conclusion that modular electronics were the best long term solution for the club.
+That's because our members stay at the club for a relatively long time, compared to a school's club, where a high turnover is expected.
+That means that we can afford to see in the longer term, even if it is not ready.
+
+We first started with putting one single FPGA in the robot, and our hope was to change the logic inside it depending on what we wanted.
+For example we could add PWM and encoder channels if we had more motors in the robot.
+This worked for a while, but the overall pin count in an FPGA is fixed, which limits modularity.
+Also, programming FPGA is hard and the only engineer doing that in the club had limited time.
+
+In 2015, we decided to go with horizontal scaling: instead of one big controller, put many small ones and connect them with a network.
+This gives almost unlimited flexibility: "just" add new board to add new capabilities.
+It allows us to develop new hardware each year, without throwing away everything we did previously.
