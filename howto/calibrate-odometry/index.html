@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<title>Calibrate the odometry - CVRA Robot Software</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta name="generator" content="mkdocs-1.1, mkdocs-gitbook-1.0.7">
+
+<link rel="shortcut icon" href="../../images/favicon.ico" type="image/x-icon">
+<meta name="HandheldFriendly" content="true"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta rel="next" href="" />
+<link href="../../css/style.min.css" rel="stylesheet"> 
+</head>
+
+<body>
+<div class="book">
+<div class="book-summary">
+
+<nav role="navigation">
+<ul class="summary">
+<li>
+<a href="../.." target="_blank" class="custom-link">CVRA Robot Software</a>
+</li>
+<li class="divider"></li>
+<li class="chapter" data-path="">
+<a href="../..">Home</a>
+<li class="header">Robot architecture</li>
+
+<li>
+<a href="../../architecture/hardware2020/" class="">2020 hardware architecture</a>
+</li>
+
+<li>
+<a href="../../architecture/life-of-a-motion/" class="">Life of a motion</a>
+</li>
+
+<li class="header">CAN</li>
+
+<li>
+<a href="../../can/intro/" class="">CAN Ecosystem</a>
+</li>
+
+<li>
+<a href="../../can/motor/" class="">Motor board</a>
+</li>
+
+<li>
+<a href="../../can/io/" class="">IO board</a>
+</li>
+
+<li>
+<a href="../../can/sensor/" class="">Sensor board</a>
+</li>
+
+<li>
+<a href="../../can/beacon/" class="">Beacon board</a>
+</li>
+
+<li>
+<a href="../../can/adapter/" class="">CAN USB adapter</a>
+</li>
+
+<li>
+<a href="../../can/bootloader/" class="">CAN bootloader</a>
+</li>
+
+<li class="header">How to</li>
+
+<li>
+<a href="./" class="active">Calibrate the odometry</a>
+</li>
+
+<li class="header">Systems</li>
+
+<li>
+<a href="../../can/positioning/" class="">Positioning system</a>
+</li>
+
+<li class="divider"></li>
+
+
+
+<li><a href="http://www.mkdocs.org">
+Published with MkDocs
+</a></li>
+
+<li><a href="https://github.com/GitbookIO/theme-default">
+Theme by GitBook
+</a></li>
+</ul>
+
+</nav>
+
+</div> <!-- end of book-summary -->
+
+<div class="book-body">
+<div class="body-inner">
+<div class="book-header" role="navigation">
+
+<!-- Title -->
+<h1>
+<i class="fa fa-circle-o-notch fa-spin"></i>
+<a href="." ></a>
+</h1>
+
+</div> <!-- end of book-header -->
+
+<div class="page-wrapper" tabindex="-1" role="main">
+<div class="page-inner">
+
+<section class="normal markdown-section">
+
+
+
+<h1 id="odometry-calibration">Odometry calibration</h1>
+<p>Most robots in Eurobot use dead reckoning to position themselves on the playing table.
+This technique integrates small displacements of the robot to compute the position from a reference point.
+The issue with integrating is that error accumulates over time, leading to a lack of precision.</p>
+<p>Our dead reckoning implementation has three parameters that must be tweaked:</p>
+<ol>
+<li>number of encoder steps per mm,</li>
+<li>distance between the encoders, called the robot's <em>track</em>.</li>
+<li>and finally, the diameter difference between the left encoder's wheel and the right one.</li>
+</ol>
+<p><strong>Insérer une estimation de l'erreur produite par un déplacement</strong></p>
+<p>We developed an automatic procedure to calibrate those three values.
+Here are what you will need:</p>
+<ul>
+<li>A flat surface, about 2m long.</li>
+<li>A straight edge, attached to the flat surface (for example using clamps).</li>
+<li>Your robot, with tuned PID gains.</li>
+<li>A 2m ruler.</li>
+</ul>
+<p>First, configure your dead reckoning code using design values (such as CAD drawings).
+The goal is not to be precise, but to be roughly able to navigate.
+Configure your robot for a slow speed, in order to avoid damage and have a good accuracy.</p>
+<h2 id="wheel-diameter-difference-calibration">Wheel diameter difference calibration</h2>
+<p>The first parameter that we will calibrate is the wheel diameter difference.
+To do so, write a program asking your robot to do the following:</p>
+<p><img alt="Trajectory for wheel diameter difference calculation" src="../odometry-wheel-difference-trajectory.png" /></p>
+<ol>
+<li>Move back until the robot hits the straight edge with enough force to be accurate.</li>
+<li>Reset the heading of the robot to zero.</li>
+<li>Move forward as much as possible, we do 1m.</li>
+<li>Turn 180° in one direction.</li>
+<li>Move forward in the same distance.</li>
+<li>Turn -180° (in <strong>the other direction</strong>).</li>
+<li>Move back until the robot hits the reference edge again.</li>
+</ol>
+<p>At this point, we know that we are at the same angle we started at, since we have a solid reference.
+Any angle observed by the dead reckoning will be the result of the difference in wheel diameter.
+Any inaccuracy in track would be compensated by doing 180° one way then the other way.
+Similarly, any inaccuracy in the pulse per mm does not matter.
+At this point, you can compute the wheel diameter error using the following formula:</p>
+<pre><code class="cpp">// total_distance is the average between the pulse count of the left wheel and the right wheel.
+// delta_angle is the difference between the pulse count of the left wheel and the right wheel.
+float factor = delta_angle / total_distance;
+float new_left_gain = (1. + factor) * old_left_gain;
+float new_right_gain = (1. - factor) * old_right_gain;
+</code></pre>
+
+<p>Once you have a rough working estimation, you can repeat the measurement but repeating steps 3 to 6 a few times to increase the error.
+We usually stop once the gains start to oscillate around a value, meaning that we hit the resolution limit for the method.
+Using this approach, we were able to measure very small diameter difference, around 0.05%.</p>
+<h2 id="number-of-encoder-steps-per-mm">Number of encoder steps per mm</h2>
+<p>This step is quite trivial to do: we ask the robot to move forward for 2 meters and we measure the real distance it moved.
+We can then compute the new number of pulses using:</p>
+<pre><code>new_pulse_per_mm = old_pulse_per_mm * (real_distance / asked_distance).
+</code></pre>
+
+<p>This method is accurate to about 0.1% (2 mm over 2 meters), but it is also the least important parameter here.</p>
+<h2 id="track-of-the-robot">Track of the robot</h2>
+<p>For this step we will reuse our reference edge.
+Program your robot to do the following:</p>
+<ol>
+<li>Go back until it hits the reference edge.</li>
+<li>Reset the heading of the robot.</li>
+<li>Move away from the reference edge enough to be able to rotate.</li>
+<li>Turn 360°</li>
+<li>Move back again until it hits the reference edge.</li>
+</ol>
+<p>You can now compute the new track of the robot using the angle measured by the odometry:</p>
+<pre><code>// count = number of turns done by the robot, start with 1
+float new_track = old_track * (1 + (delta_angle / (2. * M_PI * count)));
+</code></pre>
+
+<p>Once calibrated you can restart the experiment and do more than one full turn, we usually stop at 10 turns.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>This method, once automated properly, can be done very quickly.
+The calibration must be redone every time you disassemble the wheelbase, as the track might change.</p>
+<p>You can find on Github the code for our <a href="https://github.com/cvra/robot-software/blob/7e81ac9ca49aa92bd2dd3b5b4d32021eec529c44/master-firmware/src/commands.cpp#L724-L777">track calibration</a>
+and <a href="https://github.com/cvra/robot-software/blob/7e81ac9ca49aa92bd2dd3b5b4d32021eec529c44/master-firmware/src/commands.cpp#L653-L721">wheel diameter difference calibration</a>.</p>
+
+
+</section>
+
+</div> <!-- end of page-inner -->
+</div> <!-- end of page-wrapper -->
+
+</div> <!-- end of body-inner -->
+
+</div> <!-- end of book-body -->
+<script src="../../js/main.js"></script>
+<script src="../../js/gitbook.min.js"></script>
+<script src="../../js/theme.min.js"></script>
+</body>
+</html>
