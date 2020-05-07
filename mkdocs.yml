@@ -15,5 +15,7 @@ nav:
       - can/beacon.md
       - can/adapter.md
       - can/bootloader.md
+  - 'How to':
+    - 'Calibrate the odometry': howto/calibrate-odometry.md
   - Systems:
       - can/positioning.md
