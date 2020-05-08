@@ -46,8 +46,8 @@ Similarly, any inaccuracy in the pulse per mm does not matter.
 At this point, you can compute the wheel diameter error using the following formula:
 
 ```cpp
-// total_distance is the average between the pulse count of the left wheel and the right wheel.
-// delta_angle is the difference between the pulse count of the left wheel and the right wheel.
+// total_distance is the average between the left wheel and right wheel distance (0.5 * (left_pulse * left_gain + right_pulse * right_gain)).
+// delta_angle is the difference between the pulse count of the left wheel and the right wheel, also taking wheel gain into account.
 float factor = delta_angle / total_distance;
 float new_left_gain = (1. + factor) * old_left_gain;
 float new_right_gain = (1. - factor) * old_right_gain;
