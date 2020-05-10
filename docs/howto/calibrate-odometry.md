@@ -88,6 +88,15 @@ float new_track = old_track * (1 + (delta_angle / (2. * M_PI * count)));
 
 Once calibrated you can restart the experiment and do more than one full turn, we usually stop at 10 turns.
 
+## Video demo
+
+Nicolas, from team *Robotic System* made a video to show this procedure, which can be found below.
+Many thanks to him!
+
+<div class="ytvideo">
+<iframe width="1280" height="720" src="https://www.youtube.com/embed/X5PMFvVecXU" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+
 ## Conclusion
 
 This method, once automated properly, can be done very quickly.
