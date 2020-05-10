@@ -9,6 +9,7 @@ nav:
   - Robot architecture:
     - '2020 hardware architecture': architecture/hardware2020.md
     - 'Life of a motion': architecture/life-of-a-motion.md
+    - 'Master firmware on Linux': design/linux-master.md
   - CAN:
       - 'CAN Ecosystem': can/intro.md
       - can/motor.md
