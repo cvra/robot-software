@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<title>Master firmware on Linux - CVRA Robot Software</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta name="generator" content="mkdocs-1.1.1, mkdocs-gitbook-1.0.7">
+
+<link rel="shortcut icon" href="../../images/favicon.ico" type="image/x-icon">
+<meta name="HandheldFriendly" content="true"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta rel="next" href="" />
+<link href="../../css/style.min.css" rel="stylesheet">
+<link href="../../ytvideo.css" rel="stylesheet"> 
+</head>
+
+<body>
+<div class="book">
+<div class="book-summary">
+
+<nav role="navigation">
+<ul class="summary">
+<li>
+<a href="../.." target="_blank" class="custom-link">CVRA Robot Software</a>
+</li>
+<li class="divider"></li>
+<li class="chapter" data-path="">
+<a href="../..">Home</a>
+<li class="header">Robot architecture</li>
+
+<li>
+<a href="../../architecture/hardware2020/" class="">2020 hardware architecture</a>
+</li>
+
+<li>
+<a href="../../architecture/life-of-a-motion/" class="">Life of a motion</a>
+</li>
+
+<li>
+<a href="./" class="active">Master firmware on Linux</a>
+</li>
+
+<li class="header">CAN</li>
+
+<li>
+<a href="../../can/intro/" class="">CAN Ecosystem</a>
+</li>
+
+<li>
+<a href="../../can/motor/" class="">Motor board</a>
+</li>
+
+<li>
+<a href="../../can/io/" class="">IO board</a>
+</li>
+
+<li>
+<a href="../../can/sensor/" class="">Sensor board</a>
+</li>
+
+<li>
+<a href="../../can/beacon/" class="">Beacon board</a>
+</li>
+
+<li>
+<a href="../../can/adapter/" class="">CAN USB adapter</a>
+</li>
+
+<li>
+<a href="../../can/bootloader/" class="">CAN bootloader</a>
+</li>
+
+<li class="header">How to</li>
+
+<li>
+<a href="../../howto/calibrate-odometry/" class="">Calibrate the odometry</a>
+</li>
+
+<li class="header">Systems</li>
+
+<li>
+<a href="../../can/positioning/" class="">Positioning system</a>
+</li>
+
+<li class="divider"></li>
+
+
+
+<li><a href="http://www.mkdocs.org">
+Published with MkDocs
+</a></li>
+
+<li><a href="https://github.com/GitbookIO/theme-default">
+Theme by GitBook
+</a></li>
+</ul>
+
+</nav>
+
+</div> <!-- end of book-summary -->
+
+<div class="book-body">
+<div class="body-inner">
+<div class="book-header" role="navigation">
+
+<!-- Title -->
+<h1>
+<i class="fa fa-circle-o-notch fa-spin"></i>
+<a href="." ></a>
+</h1>
+
+</div> <!-- end of book-header -->
+
+<div class="page-wrapper" tabindex="-1" role="main">
+<div class="page-inner">
+
+<section class="normal markdown-section">
+
+
+
+<h1 id="running-master-firmware-on-linux">Running master-firmware on Linux</h1>
+<h2 id="background">Background</h2>
+<p>Currently, most of our high level code runs on an STM32F4 microcontroller, running on a Nucleo board.
+It is responsible for control of the wheelbase, communication, HMI, etc.
+The board has relatively low RAM for all the functionality that we want: everything has to be packed in 256 kB of RAM.</p>
+<p>On the other hand, we have now modern Single Board Computers (SBCs) such as the Raspberry Pi which pack several GB of RAM in a similar footprint.</p>
+<h2 id="objective">Objective</h2>
+<p>Replace the Nucleo running ChibiOS by a Raspberry Pi running Linux and custom software.
+This simplifies our setup, and makes it more accessible to new members by using common hardware and operating system.</p>
+<h2 id="risks">Risks</h2>
+<p>In the past, the club tried to use Linux in the robots, which was largely <a href="https://cvra.ch/blog/2016/goldorak-post-mortem">a failure</a>.
+However, those projects were trying to do something sensibly more complex than our proposal: typical solutions involved dynamic languages (Python), complicated multi-process solutions (ROS) and complex algorithms (navigation stack).
+The new approach is much simpler as more of the code resides in a single binary, which is still written in C++ and compiled on the developer's laptop.
+The approach is more similar to a very fast microcontroller than it is to a normal Linux-based robot.</p>
+<p>Another issue we had in the past was the reliance on manual processes for building and deploying software on the embedded computer.
+A lot of the time it was required to SSH into the robot to start a script, and some of the time editing code on the robot directly was done.
+This can be avoided by restraining ourselves to a very minimalist Linux distribution, such as Buildroot.
+The image running on the robot would not have development tools, which reduces the human interest in running those issue.</p>
+<p>The last remaining risk is the reliability one: a very nice features of microcontrollers is that they do not suffer from boot disk corruption and that they are quick to restart in case of a bug.
+The first issue can be mitigated by using modern filesystems (such as ext4) which are resilient to that type of issues.
+The second one is also mitigated by having a custom Linux distribution which can be optimized for boot speed.
+The <a href="http://himeshp.blogspot.com/2018/08/fast-boot-with-raspberry-pi.html">internet</a> mentions it is possible to get boot time down to 4 seconds.
+One very explicit goal of this project is that <strong>the time from power on to wheelbase control should be 10 seconds max.</strong>
+This follows from the fact that the bootloader installed on the motor control board take 10 seconds to boot, and the robot cannot be controlled faster than this.</p>
+<h2 id="rough-technical-design">Rough technical design</h2>
+<p>This project can be divided in several parts: hardware, Linux setup and software.</p>
+<h3 id="hardware">Hardware</h3>
+<p>On the hardware side, once a board is picked (probably a Pi 3 or 4 for convenience), an extension board needs to be designed.
+This extension board would be plugged in the extension connector and provide the following services:</p>
+<ul>
+<li>CAN adapter, such as Microchip's MCP2515 (&lt; 2$)</li>
+<li>Expose the GPIO required for the front panel.
+    Note that if not enough GPIOs are exposed, an I2C GPIO expander is trivial to use under Linux.</li>
+<li>Reading the encoders from the wheel base.
+    This could be done using a separate microcontroller on a CAN or SPI bus.</li>
+<li>Interfacing our current LCD to the chosen board.
+    This required both a SPI interface (for the display) and an I2C interface (for the touchscreen controller).</li>
+<li>Provide power to the Pi.
+    Raspberry Pis can draw <a href="https://www.raspberrypi.org/documentation/faqs/#pi-power">up to 3A</a> on their 5V lines.
+    This is way more than what we used on the Nucleo, and therefore it cannot be powered through the bus.
+    Therefore, the board would require its own DC/DC to go from Vbat to 5V.</li>
+</ul>
+<h3 id="linux-setup">Linux setup</h3>
+<p>On the Linux setup side, we would build a custom Linux distribution using the <a href="http://buildroot.org">Buildroot</a> framework.
+This framework enables easy customization of target system, while being very reproducible.
+Some customization to the Linux kernel are required: in particular enabling drivers for things like the CAN driver and the LCD screen.
+In addition to this, we need to write <a href="https://www.raspberrypi.org/documentation/configuration/device-tree.md">Device Tree Overlays</a> so that the kernel knows about our custom hardware.</p>
+<p>We will need a way to deploy our software to the Linux system and to start it at boot.
+The deploy can be done over the network, while the automatic starting can be done using the init system (we will use systemd).
+To make this as streamlined as possible, the build system will generate a package for <a href="https://openwrt.org/docs/guide-user/additional-software/opkg">opkg</a>.
+A binary running on the robot can receive this package over the network and install it.
+This is a very flexible mechanism as everything is contained in the package and can be easily re-used, for example for OS upgrades.</p>
+<h3 id="software-changes">Software changes</h3>
+<p>Finally, we need to do the following changes to the master firmware code:</p>
+<ol>
+<li>(in parallel with the rest) Port to CMake build, to use the cross compiler easily.</li>
+<li>Port all threading code to use Linux threads (with pthread probably).</li>
+<li>Change code that reads GPIO for front panel to read them using Linux API (sysfs).</li>
+<li>Read encoders from CAN</li>
+<li>Change uGFX drivers to use SDL and start on the embedded touchscreen.</li>
+<li>Rewrite the shell to listen on a TCP port instead.</li>
+</ol>
+<h2 id="alternatives-considered">Alternatives considered</h2>
+<p>The first alternative considered would be to keep the same platform.
+This worked fine for the first years, but is a cost that much be paid each time we want to add a complex feature.
+We also learnt enough about embedded Linux in the meantime to have a good chance of having something stable now.</p>
+<p>Another option would be to migrate to a bigger microcontroller such as the STM32F7 series.
+Those offer a lot of RAM and could still be used with ChibiOS, reducing the porting effort.
+While this makes development of complex applications easier, it is a small bandaid, where we would be better served by making a bigger leap to another platform.
+Migrating to Linux is also a one time cost, while upgrading to the next microcontroller family bears a significant cost.</p>
+<p>The last option would be to rewrite all the high level code of the robot, perhaps using a framework such as <a href="https://index.ros.org/doc/ros2/">ROS2</a>.
+However, this is a much bigger endeavour, with a lot of risks.
+We know that our current wheelbase stack is well performing and a lot of effort was invested into it.
+Rewriting it from scratch is probably not a wise use of our (limited) time.</p>
+<h2 id="opportunities-enabled-by-this-proposal">Opportunities enabled by this proposal</h2>
+<h3 id="rewriting-libraries-to-use-dynamic-memory-allocation">Rewriting libraries to use dynamic memory allocation</h3>
+<p>Some of the code running on master firmware is made more complicated or limited by the fact that we currently cannot use dynamic memory.
+Systems that would benefit from this include:</p>
+<ul>
+<li>GOAP, whose implementation is made more complicated by the refusal to use dynamic memory allocation.
+    Note that we could also afford to explore bigger plans if we had more RAM, making it easier to write strategies.</li>
+<li>Bus enumerator, which could be replaced by a very simple <code>std::unordered_map</code>.
+    We could also remove the need to register each board in advance.</li>
+<li>UDP topic broadcasting, which has a queue of bounded size and could just use a unbounded FIFO.</li>
+</ul>
+<p>Such examples are many in our code base, and should be easy to convert.</p>
+<h3 id="enhanced-logging">Enhanced logging</h3>
+<p>The first step would be to write the program's logs to stdout to be caught by systemd.
+However, it could be interesting to have an easy way to retrieve logs from the program, for example through an HTTP server.</p>
+<h3 id="better-hmi">Better HMI</h3>
+<p>Currently, we use uGFX to display information on the onboard screen, which is a very lightweight system intended to run on microcontrollers.
+However, it is also not very friendly to use.
+On the other hand, modern frameworks such as Qt have tools such as interface designers that would make the process of designing new panels much easier.</p>
+<p>We could also migrate from our low resolution display to a better one using the MIPI interface.
+This interface is used for high bandwidth display information but put restrictions on the maximum cable length.</p>
+<h3 id="static-analysis">Static analysis</h3>
+<p>Using modern compilers along with a more standard setup would allow us to do more complex static analysis.
+For example Clang can check at compile time that <a href="https://clang.llvm.org/docs/ThreadSafetyAnalysis.html">locks are correctly used to protect shared variables</a>.
+This could increase the safety of our code, at a very low cost.</p>
+<h3 id="wireless-debug">Wireless debug</h3>
+<p>Some Raspberry Pi boards have onboard support for Wifi.
+We could potentially have the robot generate a hotspot, to which we could connect for debugging while the robot is running.</p>
+<h2 id="tasks-effort-estimates">Tasks &amp; effort estimates</h2>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Owner</th>
+<th>Work estimate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Electronics</strong></td>
+<td></td>
+<td><strong>Total: 6</strong></td>
+</tr>
+<tr>
+<td>Schematic for hardware extension for Pi</td>
+<td></td>
+<td>2</td>
+</tr>
+<tr>
+<td>Routing the PCB</td>
+<td></td>
+<td>2</td>
+</tr>
+<tr>
+<td>PCB Assembly</td>
+<td></td>
+<td>1</td>
+</tr>
+<tr>
+<td>Write a firmware to read wheelbase encoders and send it over CAN (running on nucleo)</td>
+<td></td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>Linux setup</strong></td>
+<td></td>
+<td><strong>Total: 10</strong></td>
+</tr>
+<tr>
+<td>Get Buildroot to boot on chosen SBC</td>
+<td>antoinealb</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Modify kernel to for our custom hardware</td>
+<td>antoinealb</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Setup ethernet networking &amp; SSH</td>
+<td></td>
+<td>1</td>
+</tr>
+<tr>
+<td>Optimize boot time to stay under 10 seconds</td>
+<td></td>
+<td>??</td>
+</tr>
+<tr>
+<td>Deployement scripts and autostart of CVRA software</td>
+<td>antoinealb</td>
+<td>3</td>
+</tr>
+<tr>
+<td><strong>Master firmware modifications</strong></td>
+<td></td>
+<td><strong>Total: 11</strong></td>
+</tr>
+<tr>
+<td>Port enough of the master-firmware to have the uavcan part running on Linux</td>
+<td></td>
+<td>3</td>
+</tr>
+<tr>
+<td>Rewrite debug shell to listen over TCP instead of UART</td>
+<td></td>
+<td>2</td>
+</tr>
+<tr>
+<td>Read encoders from CAN instead of from hardware directly.</td>
+<td></td>
+<td>1</td>
+</tr>
+<tr>
+<td>Port rest of the code required for wheelbase control.</td>
+<td></td>
+<td>1</td>
+</tr>
+<tr>
+<td>Manipulate buttons and LEDs using sysfs instead of ChibiOS API</td>
+<td></td>
+<td>1</td>
+</tr>
+<tr>
+<td>Port rest of the code required to play a match</td>
+<td></td>
+<td>2</td>
+</tr>
+<tr>
+<td>Change HMI backend to use SDL API (might require Linux setup on Pi)</td>
+<td></td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+
+
+</section>
+
+</div> <!-- end of page-inner -->
+</div> <!-- end of page-wrapper -->
+
+</div> <!-- end of body-inner -->
+
+</div> <!-- end of book-body -->
+<script src="../../js/main.js"></script>
+<script src="../../js/gitbook.min.js"></script>
+<script src="../../js/theme.min.js"></script>
+</body>
+</html>
