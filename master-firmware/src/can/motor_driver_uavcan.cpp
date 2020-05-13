@@ -1,6 +1,3 @@
-#include <ch.h>
-#include <hal.h>
-
 #include <uavcan/uavcan.hpp>
 #include <uavcan/protocol/NodeStatus.hpp>
 #include <uavcan/protocol/param/GetSet.hpp>
@@ -14,6 +11,7 @@
 #include <can/uavcan_node.h>
 #include "motor_driver.h"
 #include "motor_driver_uavcan.hpp"
+#include "motor_manager.h"
 #include "control_panel.h"
 #include "main.h"
 
@@ -54,12 +52,9 @@ int motor_driver_uavcan_init(INode& node)
 
             motor_manager_get_list(&motor_manager, &drv_list, &drv_list_len);
 
-            control_panel_clear(LED_BUS);
-
             for (int i = 0; i < drv_list_len; i++) {
                 /* Only update one motor per 50 ms to avoid overloading the bus. */
                 if (motor_driver_uavcan_update_config(&drv_list[i])) {
-                    control_panel_set(LED_BUS);
                     break;
                 }
             }

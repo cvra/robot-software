@@ -1,28 +1,28 @@
-#include <unistd.h>
-#include <ch.h>
-#include <hal.h>
-#include <uavcan_stm32/uavcan_stm32.hpp>
-#include <uavcan/protocol/NodeStatus.hpp>
+//#include <unistd.h>
+//#include <ch.h>
+//#include <hal.h>
+#include <thread>
+#include <uavcan_linux/uavcan_linux.hpp>
+//#include <uavcan/protocol/NodeStatus.hpp>
 #include <uavcan/protocol/node_info_retriever.hpp>
-#include "emergency_stop_handler.hpp"
-#include "motor_feedback_streams_handler.hpp"
-#include "beacon_signal_handler.hpp"
-#include <error/error.h>
+//#include "emergency_stop_handler.hpp"
+//#include "motor_feedback_streams_handler.hpp"
+//#include "beacon_signal_handler.hpp"
 #include "motor_driver.h"
 #include "motor_driver_uavcan.hpp"
-#include "can_io_driver.h"
-#include "sensor_handler.h"
-#include "uwb_position_handler.h"
-#include "can_uwb_ip_netif.hpp"
-#include "electron_starter.hpp"
-#include "config.h"
+//#include "can_io_driver.h"
+//#include "sensor_handler.h"
+//#include "uwb_position_handler.h"
+//#include "can_uwb_ip_netif.hpp"
+//#include "electron_starter.hpp"
+//#include "config.h"
 #include <can/uavcan_node.h>
-#include "priorities.h"
+//#include "priorities.h"
 #include "control_panel.h"
-#include "main.h"
-#include <timestamp/timestamp.h>
+//#include "main.h"
+//#include <timestamp/timestamp.h>
 
-#include <errno.h>
+#include <error/error.h>
 
 #define UAVCAN_SPIN_FREQ 500 // [Hz]
 
@@ -49,12 +49,10 @@ class BusEnumeratorNodeInfoAdapter final : public uavcan::INodeInfoListener {
         if (bus_enumerator_get_str_id(&bus_enumerator, can_id) == NULL) {
             bus_enumerator_update_node_info(&bus_enumerator, node_info.name.c_str(), can_id);
 
-            /* Signal that we received one answer. */
-            control_panel_set(LED_DEBUG);
-
             /* If we received as many nodes as expected, signal it using the
              * ready LED. */
             if (bus_enumerator_discovered_nodes_count(&bus_enumerator) == bus_enumerator_total_nodes_count(&bus_enumerator)) {
+                NOTICE("Everything ready!");
                 control_panel_set(LED_READY);
             }
         }
@@ -66,22 +64,31 @@ class BusEnumeratorNodeInfoAdapter final : public uavcan::INodeInfoListener {
     }
 };
 
-static void main(void* arg)
+uavcan::ISystemClock& getSystemClock()
 {
-    chRegSetThreadName("uavcan");
-    int res;
-    unsigned int id = (unsigned int)arg;
+    static uavcan_linux::SystemClock clock;
+    return clock;
+}
 
-    /* Inits the hardware CAN interface. */
-    static uavcan_stm32::CanInitHelper<UAVCAN_RX_QUEUE_SIZE> can_interface;
-    res = can_interface.init(UAVCAN_CAN_BITRATE);
-
-    if (res < 0) {
-        ERROR("Hardware interface init");
+uavcan::ICanDriver& getCanDriver()
+{
+    std::string iface = "vcan0";
+    static uavcan_linux::SocketCanDriver driver(dynamic_cast<const uavcan_linux::SystemClock&>(getSystemClock()));
+    if (driver.getNumIfaces() == 0) // Will be executed once
+    {
+        if (driver.addIface(iface) < 0) {
+            ERROR("Failed to add iface '%s'", iface.c_str());
+        }
     }
+    return driver;
+}
 
-    static uavcan::Node<UAVCAN_MEMORY_POOL_SIZE> node(can_interface.driver,
-                                                      uavcan_stm32::SystemClock::instance());
+static void main(uint8_t id)
+{
+    int res;
+
+    uavcan::Node<UAVCAN_MEMORY_POOL_SIZE> node(getCanDriver(),
+                                               getSystemClock());
 
     node.setNodeID(uavcan::NodeID(id));
     node.setName("cvra.master");
@@ -105,6 +112,12 @@ static void main(void* arg)
         ERROR("NodeStatus subscribe");
     }
 
+    res = motor_driver_uavcan_init(node);
+    if (res < 0) {
+        ERROR("motor driver");
+    }
+
+#if 0
     res = motor_feedback_stream_handler_init(node, &bus_enumerator);
     if (res < 0) {
         ERROR("motor feedback");
@@ -113,11 +126,6 @@ static void main(void* arg)
     res = beacon_signal_handler_init(node);
     if (res < 0) {
         ERROR("beacon signal handler");
-    }
-
-    res = motor_driver_uavcan_init(node);
-    if (res < 0) {
-        ERROR("motor driver");
     }
 
     if (can_io_init(node) < 0) {
@@ -136,29 +144,19 @@ static void main(void* arg)
     if (res != 0) {
         ERROR("Emergency stop handler");
     }
+#endif
 
-    static uavcan::NodeInfoRetriever retriever(node);
+    uavcan::NodeInfoRetriever retriever(node);
 
     res = retriever.start();
     if (res < 0) {
         ERROR("NodeInfoRetriever");
     }
 
-    /*
-     * This class is defined above in this file.
-     */
-    static BusEnumeratorNodeInfoAdapter collector;
+    BusEnumeratorNodeInfoAdapter collector;
     res = retriever.addListener(&collector);
     if (res < 0) {
         ERROR("BusEnumeratorAdapter");
-    }
-
-    if (can_uwb_ip_netif_init(node) < 0) {
-        ERROR("CAN UWB netif");
-    }
-
-    if (electron_starter_init(node) < 0) {
-        ERROR("electron starter");
     }
 
     // Mark the node as correctly initialized
@@ -170,10 +168,6 @@ static void main(void* arg)
         if (res < 0) {
             WARNING("UAVCAN spin warning %d", res);
         }
-
-        if (can_uwb_ip_netif_spin(node) < 0) {
-            WARNING("UWB canif warning %d", res);
-        }
     }
 }
 
@@ -182,21 +176,17 @@ static void node_status_cb(const uavcan::ReceivedDataStructure<uavcan::protocol:
     if (msg.health != uavcan::protocol::NodeStatus::HEALTH_OK) {
         WARNING("UAVCAN node %u health", msg.getSrcNodeID().get());
     }
+    DEBUG("UAVCAN node %u health", msg.getSrcNodeID().get());
 }
 
 } // namespace uavcan_node
 
 extern "C" {
 
-void uavcan_node_start(uint8_t id)
+void uavcan_node_start(uint8_t node_id)
 {
-    unsigned int node_id = id;
-    static THD_WORKING_AREA(thread_wa, UAVCAN_NODE_STACK_SIZE);
-    chThdCreateStatic(thread_wa,
-                      UAVCAN_NODE_STACK_SIZE,
-                      UAVCAN_PRIO,
-                      uavcan_node::main,
-                      (void*)node_id);
+    std::thread uavcan_thread(uavcan_node::main, node_id);
+    uavcan_thread.detach();
 }
 
 } // extern "C"

@@ -1,5 +1,4 @@
-#include <ch.h>
-
+#include <thread>
 #include <math.h>
 
 #include <error/error.h>
@@ -19,6 +18,8 @@
 #define BASE_CONTROLLER_STACKSIZE 1024
 #define POSITION_MANAGER_STACKSIZE 1024
 #define TRAJECTORY_MANAGER_STACKSIZE 2048
+
+using namespace std::chrono_literals;
 
 struct _robot robot;
 
@@ -41,6 +42,7 @@ void robot_init(void)
 
     rs_set_left_pwm(&robot.rs, rs_left_wheel_set_voltage, &left_wheel_motor);
     rs_set_right_pwm(&robot.rs, rs_right_wheel_set_voltage, &right_wheel_motor);
+
     rs_set_left_ext_encoder(&robot.rs, rs_encoder_get_left_ext, NULL,
                             config_get_scalar("master/odometry/left_wheel_correction_factor"));
     rs_set_right_ext_encoder(&robot.rs, rs_encoder_get_right_ext, NULL,
@@ -110,13 +112,11 @@ void robot_init(void)
                        acc_rd2imp(&robot.traj, 30.));
 }
 
-static THD_FUNCTION(base_ctrl_thd, arg)
+static void base_ctrl_thd(void)
 {
-    (void)arg;
-    chRegSetThreadName(__FUNCTION__);
-
     parameter_namespace_t* control_params = parameter_namespace_find(&master_config, "aversive/control");
     parameter_namespace_t* odometry_params = parameter_namespace_find(&master_config, "odometry");
+
     while (1) {
         rs_update(&robot.rs);
 
@@ -212,55 +212,51 @@ static THD_FUNCTION(base_ctrl_thd, arg)
         }
 
         /* Wait until next regulation loop */
-        chThdSleepMilliseconds(1000 / ASSERV_FREQUENCY);
+        std::this_thread::sleep_for(1s / ASSERV_FREQUENCY);
     }
 }
 
-void base_controller_start(void)
+void base_controller_start()
 {
-    static THD_WORKING_AREA(base_ctrl_thd_wa, BASE_CONTROLLER_STACKSIZE);
-    chThdCreateStatic(base_ctrl_thd_wa, sizeof(base_ctrl_thd_wa), BASE_CONTROLLER_PRIO, base_ctrl_thd, NULL);
+    std::thread ctrl_thd(base_ctrl_thd);
+    ctrl_thd.detach();
 }
 
-static THD_FUNCTION(position_manager_thd, arg)
+static void position_manager_thd()
 {
-    (void)arg;
-    chRegSetThreadName(__FUNCTION__);
+    //static TOPIC_DECL(position_topic, RobotPosition);
 
-    static TOPIC_DECL(position_topic, RobotPosition);
+    //messagebus_advertise_topic(&bus, &position_topic.topic, "/position");
 
-    messagebus_advertise_topic(&bus, &position_topic.topic, "/position");
-
-    RobotPosition pos = RobotPosition_init_zero;
+    //RobotPosition pos = RobotPosition_init_zero;
 
     while (1) {
         position_manage(&robot.pos);
-        pos.x = position_get_x_float(&robot.pos);
-        pos.y = position_get_y_float(&robot.pos);
-        pos.a = position_get_a_rad_float(&robot.pos);
-        messagebus_topic_publish(&position_topic.topic, &pos, sizeof(pos));
-        chThdSleepMilliseconds(1000 / ODOM_FREQUENCY);
+        //pos.x = position_get_x_float(&robot.pos);
+        //pos.y = position_get_y_float(&robot.pos);
+        //pos.a = position_get_a_rad_float(&robot.pos);
+        //messagebus_topic_publish(&position_topic.topic, &pos, sizeof(pos));
+        std::this_thread::sleep_for(1s / ODOM_FREQUENCY);
     }
 }
 
-void position_manager_start(void)
+void position_manager_start()
 {
-    static THD_WORKING_AREA(position_thd_wa, POSITION_MANAGER_STACKSIZE);
-    chThdCreateStatic(position_thd_wa, sizeof(position_thd_wa), POSITION_MANAGER_PRIO, position_manager_thd, NULL);
+    std::thread pos_thd(position_manager_thd);
+    pos_thd.detach();
 }
 
-void trajectory_manager_thd(void* param)
-{
-    struct trajectory* traj = (struct trajectory*)param;
 
+void trajectory_manager_thd()
+{
     while (1) {
-        trajectory_manager_manage(traj);
-        chThdSleepMilliseconds(1000 / TRAJECTORY_EVENT_FREQUENCY);
+        trajectory_manager_manage(&robot.traj);
+        std::this_thread::sleep_for(1s / ODOM_FREQUENCY);
     }
 }
 
-void trajectory_manager_start(void)
+void trajectory_manager_start()
 {
-    static THD_WORKING_AREA(trajectory_thd_wa, TRAJECTORY_MANAGER_STACKSIZE);
-    chThdCreateStatic(trajectory_thd_wa, sizeof(trajectory_thd_wa), TRAJECTORY_MANAGER_PRIO, trajectory_manager_thd, &(robot.traj));
+    std::thread traj_thd(trajectory_manager_thd);
+    traj_thd.detach();
 }

@@ -1,9 +1,8 @@
 #ifndef MOTOR_DRIVER_H
 #define MOTOR_DRIVER_H
 
-#include <ch.h>
 #include <parameter/parameter.h>
-#include "unix_timestamp.h"
+#include <pthread.h>
 
 #define MOTOR_ID_MAX_LEN 24
 #define MOTOR_ID_MAX_LEN_WITH_NUL (MOTOR_ID_MAX_LEN + 1) // terminated C string buffer
@@ -37,7 +36,9 @@ struct pid_parameter_s {
 typedef struct {
     char id[MOTOR_ID_MAX_LEN + 1];
     int can_id;
-    binary_semaphore_t lock;
+
+    // TODO replace this with a c++ mutex
+    pthread_mutex_t lock;
 
     float update_period;
     int control_mode;

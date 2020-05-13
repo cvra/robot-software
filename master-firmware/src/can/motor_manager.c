@@ -1,4 +1,3 @@
-#include <ch.h>
 #include <string.h>
 #include "motor_manager.h"
 #include "config.h"

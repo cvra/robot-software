@@ -1,3 +1,4 @@
+find_package (Threads)
 add_library(msgbus
     messagebus.c
 )
@@ -23,37 +24,36 @@ cvra_add_test(TARGET msgbus_test SOURCES
     msgbus_mocks_synchronization
 )
 
+add_library(msgbus_posix
+    examples/posix/port.c
+)
+
+target_link_libraries(msgbus_posix
+   msgbus
+   Threads::Threads
+)
+
+add_executable(msgbus_demo
+    examples/posix/demo.c
+)
+target_link_libraries(msgbus_demo
+    msgbus
+    msgbus_posix
+)
+
+add_executable(msgbus_demo_watchgroups
+    examples/posix/demo_watchgroups.c
+)
+
+target_link_libraries(msgbus_demo_watchgroups 
+    msgbus
+    msgbus_posix
+)
+
 if(${CMAKE_CROSSCOMPILING})
     add_library(msgbus_chibios
         examples/chibios/port.c
     )
     target_link_libraries(msgbus_chibios msgbus chibios)
-else()
-    find_package (Threads)
-
-    add_library(msgbus_posix
-        examples/posix/port.c
-    )
-
-    target_link_libraries(msgbus_posix
-       msgbus
-       ${CMAKE_THREAD_LIBS_INIT}
-    )
-
-    add_executable(msgbus_demo
-        examples/posix/demo.c
-    )
-    target_link_libraries(msgbus_demo
-        msgbus
-        msgbus_posix
-    )
-
-    add_executable(msgbus_demo_watchgroups
-        examples/posix/demo_watchgroups.c
-    )
-
-    target_link_libraries(msgbus_demo_watchgroups 
-        msgbus
-        msgbus_posix
-    )
 endif()
+

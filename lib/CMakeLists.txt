@@ -79,7 +79,7 @@ target_compile_definitions(uavcan PUBLIC "UAVCAN_CPP_VERSION=UAVCAN_CPP11;UAVCAN
 target_include_directories(uavcan PUBLIC ${DSDLC_OUTPUT})
 
 add_library(uavcan_linux INTERFACE)
-target_include_directories(uavcan_linux INTERFACE uavcan/libuavcan_drivers/linux/include/)
+target_include_directories(uavcan_linux INTERFACE uavcan/libuavcan_drivers/linux/include)
 
 if (${CMAKE_CROSSCOMPILING})
     add_library(uavcan_stm32

@@ -9,8 +9,8 @@ int32_t left_encoder_value, right_encoder_value;
 
 void rs_encoder_init(void)
 {
-    left_encoder_prev = encoder_get_left();
-    right_encoder_prev = encoder_get_right();
+    left_encoder_prev = 0;
+    right_encoder_prev = 0;
     left_encoder_value = left_encoder_prev;
     right_encoder_value = right_encoder_prev;
 }
@@ -37,17 +37,13 @@ void rs_right_wheel_set_voltage(void* motor, int32_t voltage)
 int32_t rs_encoder_get_left_ext(void* nothing)
 {
     (void)nothing;
-    uint32_t left_encoder = encoder_get_left();
-    left_encoder_value += encoder_tick_diff(left_encoder_prev, left_encoder);
-    left_encoder_prev = left_encoder;
-    return left_encoder_value;
+    // TODO: Read encoders from CAN instead
+    return 0;
 }
 
 int32_t rs_encoder_get_right_ext(void* nothing)
 {
     (void)nothing;
-    uint32_t right_encoder = encoder_get_right();
-    right_encoder_value += encoder_tick_diff(right_encoder_prev, right_encoder);
-    right_encoder_prev = right_encoder;
-    return right_encoder_value;
+    // TODO: Read encoders from CAN instead
+    return 0;
 }

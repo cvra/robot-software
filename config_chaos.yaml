@@ -1,17 +1,3 @@
-logging:
-  # level can be "debug", "notice" "warning" or "error"
-  uart:
-    level: "notice"
-  sdcard:
-    level: "notice" # changing this to debug slows down things too much and causes panic
-ip:
-  ethernet:
-    address: "192.168.3.20"
-    netmask: "255.255.255.0"
-  uwb:
-    address: "10.0.0.10"
-    netmask: "255.255.255.0"
-  ally_address: "10.0.0.20"
 master:
     is_main_robot: false
     control_panel_active_high: true

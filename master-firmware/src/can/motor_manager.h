@@ -13,7 +13,6 @@
 
  */
 
-#include <ch.h>
 #include <stdint.h>
 #include "motor_driver.h"
 #include "bus_enumerator.h"

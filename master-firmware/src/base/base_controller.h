@@ -1,6 +1,10 @@
 #ifndef BASE_CONTROLLER_H
 #define BASE_CONTROLLER_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <quadramp/quadramp.h>
 
 #include <aversive/blocking_detection_manager/blocking_detection_manager.h>
@@ -10,10 +14,6 @@
 #include <aversive/trajectory_manager/trajectory_manager.h>
 
 #include "cs_port.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /** Frequency of the regulation loop and odometry loop (in Hz) */
 #define ASSERV_FREQUENCY 100

@@ -1,3 +1,4 @@
+find_package(Threads)
 add_library(master_lib
     src/unix_timestamp.c
     src/can/bus_enumerator.c
@@ -127,6 +128,35 @@ add_library(config_data
 )
 target_include_directories(config_data PUBLIC ${CMAKE_BINARY_DIR}/config)
 
+add_executable(master-firmware
+    src/main.cpp
+    src/debug/log.c
+    src/can/uavcan_node.cpp
+    src/can/motor_manager.c
+    src/can/motor_driver.c
+    src/can/motor_driver_uavcan.cpp
+    src/control_panel.c
+    src/config.c
+    src/parameter_port.cpp
+    src/base/base_controller.cpp
+    src/base/rs_port.c
+    src/base/cs_port.c
+)
+
+target_link_libraries(master-firmware PUBLIC
+    error
+    uavcan
+    uavcan_linux
+    msgbus
+    msgbus_posix
+    Threads::Threads
+    master_lib
+    parameter
+    config_data
+)
+
+target_include_directories(master-firmware PUBLIC src)
+
 if (${CMAKE_CROSSCOMPILING} AND "${CVRA_BOARD_NAME}" STREQUAL "master")
     set(CHIBIOS_HALCONF_FILE src/halconf.h)
     set(CHIBIOS_CHCONF_FILE src/chconf.h)
@@ -153,7 +183,7 @@ if (${CMAKE_CROSSCOMPILING} AND "${CVRA_BOARD_NAME}" STREQUAL "master")
         #src/adafruit_display_driver/board_hx8357.c
         #src/adafruit_display_driver/gdisp_lld_hx8357.c
         src/ally_position_service.c
-        src/base/base_controller.c
+        src/base/base_controller.cpp
         src/base/cs_port.c
         src/base/encoder.c
         src/base/map_server.cpp
@@ -224,7 +254,6 @@ if (${CMAKE_CROSSCOMPILING} AND "${CVRA_BOARD_NAME}" STREQUAL "master")
         timestamp_stm32
         lwip
         quadramp
-        aversive
         pid
         trace
         master_proto

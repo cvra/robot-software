@@ -33,4 +33,3 @@ target_link_libraries(voltage_injector
     uavcan
     uavcan_linux
 )
-
