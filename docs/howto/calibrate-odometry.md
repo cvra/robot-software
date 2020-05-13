@@ -10,7 +10,34 @@ Our dead reckoning implementation has three parameters that must be tweaked:
 2. distance between the encoders, called the robot's *track*.
 3. and finally, the diameter difference between the left encoder's wheel and the right one.
 
-**Insérer une estimation de l'erreur produite par un déplacement**
+## Does wheel diameter error matter ?
+
+If your robot does not have identical wheel diameters, it will believe it moves in a straight line, but will actually follow a circle (see image below).
+
+![Error due to wheel diameter difference](odometry-wheel-difference-error.png)
+
+If we wrte `delta_l` the distance travelled by the left wheel, `delta_r` the distance travelled by the right wheel and `k` the factor between the wheel diameters, we have the following:
+
+```
+delta_l = k * delta_r
+delta_r = R * theta
+delta_l = (R + L) * theta
+
+-> k * delta_r = (R + L) * delta_r / R
+-> R = L / (k - 1)
+-> theta = (k - 1) / L
+-> delta_x = R * (1 - cos theta)
+```
+
+If we do a numerical evaluation with the following parameters:
+
+* `L` = 30 cm
+* Wheel diameter error = 0.1%
+* DeltaR = 3m (crossing an Eurobot table)
+
+This gives `R = 300m`, and `delta_x`, the positioning error is 1.5 cm.
+
+## How to calibrate the odometry ?
 
 We developed an automatic procedure to calibrate those three values.
 Here are what you will need:
