@@ -6,7 +6,6 @@
 
 extern volatile struct trace_buffer_struct trace_buffer;
 
-
 TEST_GROUP (TraceTestGroup) {
     void setup()
     {
