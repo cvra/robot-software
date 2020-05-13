@@ -141,9 +141,13 @@ add_executable(master-firmware
     src/base/base_controller.cpp
     src/base/rs_port.c
     src/base/cs_port.c
+    src/gui.cpp
+    src/gui/Menu.cpp
+    src/gui/MenuPage.cpp
 )
 
 target_link_libraries(master-firmware PUBLIC
+    absl::strings
     error
     uavcan
     uavcan_linux
@@ -152,10 +156,28 @@ target_link_libraries(master-firmware PUBLIC
     Threads::Threads
     master_lib
     parameter
+    ugfx
     config_data
 )
 
-target_include_directories(master-firmware PUBLIC src)
+target_include_directories(master-firmware PUBLIC src
+)
+
+add_library(gfxconf INTERFACE)
+target_include_directories(gfxconf INTERFACE
+    ../ugfx_demo
+)
+
+if (APPLE) # MacOS
+    add_definitions(-DGFX_USE_OS_OSX=GFXON)
+elseif (UNIX) # Linux
+    add_definitions(-DGFX_USE_OS_LINUX=GFXON)
+else()
+    message(FATAL_ERROR "Supported platforms: Linux and MacOS")
+endif()
+
+target_include_directories(ugfx PUBLIC ../lib/ugfx/drivers/multiple/SDL)
+
 
 if (${CMAKE_CROSSCOMPILING} AND "${CVRA_BOARD_NAME}" STREQUAL "master")
     set(CHIBIOS_HALCONF_FILE src/halconf.h)

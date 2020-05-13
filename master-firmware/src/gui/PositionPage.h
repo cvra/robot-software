@@ -4,19 +4,14 @@
 #include "gui/Menu.h"
 #include "gui/MenuPage.h"
 #include "gui/Page.h"
+#include "absl/strings/str_cat.h"
 
-#include <cstdio>
-
-#ifndef GUI_SIMULATOR
 #include "base/base_controller.h"
 #include "base/base_helpers.h"
-#include <chibios-syscalls/stdio_lock.h>
-#endif
 
 class PositionPage : public Page {
     GHandle button;
     GHandle page_title;
-    char msg[30];
 
     void create_label(GHandle parent)
     {
@@ -50,17 +45,12 @@ public:
     {
         auto x = 0, y = 0, a = 0;
 
-#ifndef GUI_SIMULATOR
         x = position_get_x_s16(&robot.pos);
         y = position_get_y_s16(&robot.pos);
         a = position_get_a_deg_s16(&robot.pos);
-        stdio_lock();
-#endif
-        sprintf(msg, "x: %03d y: %03d a: %03d deg", x, y, a);
-#ifndef GUI_SIMULATOR
-        stdio_unlock();
-#endif
 
-        gwinSetText(page_title, msg, gFalse);
+        std::string msg = absl::StrCat("x: ", x, " y: ", y, " a: ", a, " deg");
+
+        gwinSetText(page_title, msg.c_str(), true);
     }
 };

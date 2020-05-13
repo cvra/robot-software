@@ -10,10 +10,6 @@ Menu::Menu()
 
     geventListenerInit(&listener);
     gwinAttachListener(&listener);
-
-#ifndef GUI_SIMULATOR
-    chMtxObjectInit(&menu_lock);
-#endif
 }
 
 void Menu::create_container()
@@ -71,30 +67,18 @@ void Menu::event_loop()
     gtimerStart(
         &periodic_timer, [](void* p) {
             Menu* m = reinterpret_cast<Menu*>(p);
-#ifndef GUI_SIMULATOR
-            chMtxLock(&m->menu_lock);
-#endif
             m->on_timer();
-#ifndef GUI_SIMULATOR
-            chMtxUnlock(&m->menu_lock);
-#endif
         },
         this, gTrue, 100);
 
     while (true) {
         GEvent* event = geventEventWait(&listener, gDelayForever);
 
-#ifndef GUI_SIMULATOR
-        chMtxLock(&menu_lock);
-#endif
         if (event->type == GEVENT_GWIN_BUTTON && reinterpret_cast<GEventGWinButton*>(event)->gwin == back_button) {
             pop_page();
         } else {
             page->on_event(event);
         }
-#ifndef GUI_SIMULATOR
-        chMtxUnlock(&menu_lock);
-#endif
     }
 }
 

@@ -22,7 +22,7 @@
 //#include <trace/trace_points.h>
 //#include "strategy.h"
 //#include "http/server.h"
-//#include "gui.h"
+#include "gui.h"
 //#include "udp_topic_broadcaster.h"
 //#include "ally_position_service.h"
 //
@@ -126,7 +126,7 @@ int main(void)
     config_load_from_flash();
 
     //control_panel_init(config_get_boolean("master/control_panel_active_high"));
-    //gui_start();
+    gui_start();
 
     /* Base init */
     //encoder_start();

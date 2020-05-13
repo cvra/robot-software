@@ -1,92 +1,85 @@
-add_library(ugfx
-    ugfx/src/gfx.c
-    ugfx/src/gos/gos_chibios.c
-    ugfx/src/gos/gos_linux.c
-    ugfx/src/gos/gos_osx.c
-    ugfx/src/gdriver/gdriver.c
-    ugfx/src/gqueue/gqueue.c
-    ugfx/src/gdisp/gdisp.c
-    ugfx/src/gdisp/gdisp_fonts.c
-    ugfx/src/gdisp/gdisp_pixmap.c
-    ugfx/src/gdisp/gdisp_image.c
-    ugfx/src/gdisp/gdisp_image_native.c
-    ugfx/src/gdisp/gdisp_image_gif.c
-    ugfx/src/gdisp/gdisp_image_bmp.c
-    ugfx/src/gdisp/gdisp_image_jpg.c
-    ugfx/src/gdisp/gdisp_image_png.c
-    ugfx/src/gdisp/mcufont/mf_encoding.c
-    ugfx/src/gdisp/mcufont/mf_font.c
-    ugfx/src/gdisp/mcufont/mf_justify.c
-    ugfx/src/gdisp/mcufont/mf_kerning.c
-    ugfx/src/gdisp/mcufont/mf_rlefont.c
-    ugfx/src/gdisp/mcufont/mf_bwfont.c
-    ugfx/src/gdisp/mcufont/mf_scaledfont.c
-    ugfx/src/gdisp/mcufont/mf_wordwrap.c
-    ugfx/src/gevent/gevent.c
-    ugfx/src/gtimer/gtimer.c
-    ugfx/src/gwin/gwin.c
-    ugfx/src/gwin/gwin_widget.c
-    ugfx/src/gwin/gwin_wm.c
-    ugfx/src/gwin/gwin_console.c
-    ugfx/src/gwin/gwin_graph.c
-    ugfx/src/gwin/gwin_button.c
-    ugfx/src/gwin/gwin_slider.c
-    ugfx/src/gwin/gwin_checkbox.c
-    ugfx/src/gwin/gwin_image.c
-    ugfx/src/gwin/gwin_label.c
-    ugfx/src/gwin/gwin_radio.c
-    ugfx/src/gwin/gwin_list.c
-    ugfx/src/gwin/gwin_progressbar.c
-    ugfx/src/gwin/gwin_container.c
-    ugfx/src/gwin/gwin_frame.c
-    ugfx/src/gwin/gwin_tabset.c
-    ugfx/src/gwin/gwin_gl3d.c
-    ugfx/src/gwin/gwin_keyboard.c
-    ugfx/src/gwin/gwin_keyboard_layout.c
-    ugfx/src/gwin/gwin_textedit.c
+find_package(SDL2 REQUIRED)
 
-    ugfx/src/ginput/ginput.c
-    ugfx/src/ginput/ginput_mouse.c
-    ugfx/src/ginput/ginput_keyboard.c
-    ugfx/src/ginput/ginput_keyboard_microcode.c
-    ugfx/src/ginput/ginput_toggle.c
-    ugfx/src/ginput/ginput_dial.c
-    ugfx/src/gadc/gadc.c
-    ugfx/src/gaudio/gaudio.c
-    ugfx/src/gmisc/gmisc.c
-    ugfx/src/gmisc/gmisc_arrayops.c
-    ugfx/src/gmisc/gmisc_matrix2d.c
-    ugfx/src/gmisc/gmisc_trig.c
-    ugfx/src/gmisc/gmisc_hittest.c
-    ugfx/src/gfile/gfile.c
-    ugfx/src/gfile/gfile_fs_native.c
-    ugfx/src/gfile/gfile_fs_ram.c
-    ugfx/src/gfile/gfile_fs_rom.c
-    ugfx/src/gfile/gfile_fs_fatfs.c
-    ugfx/src/gfile/gfile_fs_petitfs.c
-    ugfx/src/gfile/gfile_fs_mem.c
-    ugfx/src/gfile/gfile_fs_chibios.c
-    ugfx/src/gfile/gfile_fs_strings.c
-    ugfx/src/gfile/gfile_printg.c
-    ugfx/src/gfile/gfile_scang.c
-    ugfx/src/gfile/gfile_stdio.c
-    ugfx/src/gfile/gfile_fatfs_wrapper.c
-    ugfx/src/gfile/gfile_fatfs_diskio_chibios.c
-    ugfx/src/gfile/gfile_petitfs_wrapper.c
-    ugfx/src/gfile/gfile_petitfs_diskio_chibios.c
-    ugfx/src/gtrans/gtrans.c
+add_definitions(-DGFX_OS_PRE_INIT_FUNCTION=sdl_driver_init)
+add_definitions(-DGDISP_SCREEN_WIDTH=480)
+add_definitions(-DGDISP_SCREEN_HEIGHT=320)
+
+set(UGFX ugfx)
+
+set(SOURCES
+    ${UGFX}/src/gfx.c
+    ${UGFX}/src/gdriver/gdriver.c
+    ${UGFX}/src/gqueue/gqueue.c
+    ${UGFX}/src/gdisp/gdisp.c
+    ${UGFX}/src/gdisp/gdisp_fonts.c
+    ${UGFX}/src/gdisp/gdisp_pixmap.c
+    ${UGFX}/src/gdisp/gdisp_image.c
+    ${UGFX}/src/gdisp/gdisp_image_native.c
+    ${UGFX}/src/gdisp/gdisp_image_gif.c
+    ${UGFX}/src/gdisp/gdisp_image_bmp.c
+    ${UGFX}/src/gdisp/gdisp_image_jpg.c
+    ${UGFX}/src/gdisp/gdisp_image_png.c
+    ${UGFX}/src/gdisp/mcufont/mf_encoding.c
+    ${UGFX}/src/gdisp/mcufont/mf_font.c
+    ${UGFX}/src/gdisp/mcufont/mf_justify.c
+    ${UGFX}/src/gdisp/mcufont/mf_kerning.c
+    ${UGFX}/src/gdisp/mcufont/mf_rlefont.c
+    ${UGFX}/src/gdisp/mcufont/mf_bwfont.c
+    ${UGFX}/src/gdisp/mcufont/mf_scaledfont.c
+    ${UGFX}/src/gdisp/mcufont/mf_wordwrap.c
+    ${UGFX}/src/gevent/gevent.c
+    ${UGFX}/src/gtimer/gtimer.c
+    ${UGFX}/src/gwin/gwin.c
+    ${UGFX}/src/gwin/gwin_widget.c
+    ${UGFX}/src/gwin/gwin_wm.c
+    ${UGFX}/src/gwin/gwin_console.c
+    ${UGFX}/src/gwin/gwin_graph.c
+    ${UGFX}/src/gwin/gwin_button.c
+    ${UGFX}/src/gwin/gwin_slider.c
+    ${UGFX}/src/gwin/gwin_checkbox.c
+    ${UGFX}/src/gwin/gwin_image.c
+    ${UGFX}/src/gwin/gwin_label.c
+    ${UGFX}/src/gwin/gwin_radio.c
+    ${UGFX}/src/gwin/gwin_list.c
+    ${UGFX}/src/gwin/gwin_progressbar.c
+    ${UGFX}/src/gwin/gwin_container.c
+    ${UGFX}/src/gwin/gwin_frame.c
+    ${UGFX}/src/gwin/gwin_tabset.c
+    ${UGFX}/src/gwin/gwin_gl3d.c
+    ${UGFX}/src/gwin/gwin_keyboard.c
+    ${UGFX}/src/gwin/gwin_keyboard_layout.c
+    ${UGFX}/src/gwin/gwin_textedit.c
+    ${UGFX}/src/ginput/ginput.c
+    ${UGFX}/src/ginput/ginput_mouse.c
+    ${UGFX}/src/ginput/ginput_keyboard.c
+    ${UGFX}/src/ginput/ginput_keyboard_microcode.c
+    ${UGFX}/src/ginput/ginput_toggle.c
+    ${UGFX}/src/ginput/ginput_dial.c
+    ${UGFX}/src/gmisc/gmisc.c
+    ${UGFX}/src/gmisc/gmisc_arrayops.c
+    ${UGFX}/src/gmisc/gmisc_matrix2d.c
+    ${UGFX}/src/gmisc/gmisc_trig.c
+    ${UGFX}/src/gmisc/gmisc_hittest.c
+    ${UGFX}/drivers/multiple/SDL/gdisp_lld_SDL.c
 )
 
-target_include_directories(ugfx PUBLIC ugfx)
+if (APPLE) # MacOS
+    set(SOURCES ${SOURCES} ${UGFX}/src/gos/gos_osx.c)
+elseif (UNIX) # Linux
+    set(SOURCES ${SOURCES} ${UGFX}/src/gos/gos_linux.c)
+else()
+    message(FATAL_ERROR "Supported platforms: Linux and MacOS")
+endif()
+
+add_library(ugfx ${SOURCES})
+
+target_include_directories(ugfx PUBLIC ${UGFX} ${UGFX}/src ${UGFX}/drivers/multiple/SDL)
+target_link_libraries(ugfx SDL2::SDL2)
 
 # Defined in other projects
 target_link_libraries(ugfx gfxconf)
 
-if (${CMAKE_CROSSCOMPILING})
-    target_compile_definitions(ugfx PUBLIC "GFX_USE_OS_CHIBIOS=GFXON")
-    target_link_libraries(ugfx chibios)
-elseif (APPLE)
-    # TODO: Test this
+if(APPLE)
     target_compile_definitions(ugfx PUBLIC "GFX_USE_OS_OSX=GFXON")
 elseif (UNIX) # Linux
     target_compile_definitions(ugfx PUBLIC "GFX_USE_OS_LINUX=GFXON")
@@ -94,8 +87,3 @@ else()
     message(FATAL_ERROR "Supported platforms: Linux and MacOS and ChibiOS")
 endif()
 
-add_library(stmpe610_driver
-    ugfx/drivers/ginput/touch/STMPE610/gmouse_lld_STMPE610.c
-)
-
-target_link_libraries(stmpe610_driver ugfx)
