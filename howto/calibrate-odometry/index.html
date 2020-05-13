@@ -132,7 +132,28 @@ The issue with integrating is that error accumulates over time, leading to a lac
 <li>distance between the encoders, called the robot's <em>track</em>.</li>
 <li>and finally, the diameter difference between the left encoder's wheel and the right one.</li>
 </ol>
-<p><strong>Insérer une estimation de l'erreur produite par un déplacement</strong></p>
+<h2 id="does-wheel-diameter-error-matter">Does wheel diameter error matter ?</h2>
+<p>If your robot does not have identical wheel diameters, it will believe it moves in a straight line, but will actually follow a circle (see image below).</p>
+<p><img alt="Error due to wheel diameter difference" src="../odometry-wheel-difference-error.png" /></p>
+<p>If we wrte <code>delta_l</code> the distance travelled by the left wheel, <code>delta_r</code> the distance travelled by the right wheel and <code>k</code> the factor between the wheel diameters, we have the following:</p>
+<pre><code>delta_l = k * delta_r
+delta_r = R * theta
+delta_l = (R + L) * theta
+
+-&gt; k * delta_r = (R + L) * delta_r / R
+-&gt; R = L / (k - 1)
+-&gt; theta = (k - 1) / L
+-&gt; delta_x = R * (1 - cos theta)
+</code></pre>
+
+<p>If we do a numerical evaluation with the following parameters:</p>
+<ul>
+<li><code>L</code> = 30 cm</li>
+<li>Wheel diameter error = 0.1%</li>
+<li>DeltaR = 3m (crossing an Eurobot table)</li>
+</ul>
+<p>This gives <code>R = 300m</code>, and <code>delta_x</code>, the positioning error is 1.5 cm.</p>
+<h2 id="how-to-calibrate-the-odometry">How to calibrate the odometry ?</h2>
 <p>We developed an automatic procedure to calibrate those three values.
 Here are what you will need:</p>
 <ul>
