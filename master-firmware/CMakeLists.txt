@@ -148,6 +148,8 @@ add_executable(master-firmware
 
 target_link_libraries(master-firmware PUBLIC
     absl::strings
+    absl::flags
+    absl::flags_parse
     error
     uavcan
     uavcan_linux

@@ -3,6 +3,10 @@
 #include <math.h>
 
 #include <thread>
+#include <absl/flags/flag.h>
+#include <absl/flags/parse.h>
+#include <absl/flags/usage.h>
+
 
 #include "main.h"
 #include "control_panel.h"
@@ -40,6 +44,8 @@ motor_manager_t motor_manager;
 messagebus_t bus;
 static pthread_mutex_t bus_lock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t bus_condvar = PTHREAD_COND_INITIALIZER;
+
+ABSL_FLAG(std::string, can_iface, "vcan0", "SocketCAN interface to use");
 
 /** Late init hook, called before c++ static constructors. */
 void __late_init(void)
@@ -82,8 +88,12 @@ static void blink_start(void)
 }
 
 /** Application entry point.  */
-int main(void)
+int main(int argc, char** argv)
 {
+    absl::SetProgramUsageMessage("Program responsible for running main"
+                                 "functions of the robot");
+    absl::ParseCommandLine(argc, argv);
+
     /* Initialize global objects. */
     config_init();
 
@@ -116,7 +126,7 @@ int main(void)
     init_base_motors();
 
     /* Initiaze UAVCAN communication */
-    uavcan_node_start(10);
+    uavcan_node_start(absl::GetFlag(FLAGS_can_iface), 10);
 
     /* Those service communicate over IP so must be started afterward */
     // udp_topic_broadcast_start();

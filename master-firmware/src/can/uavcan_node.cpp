@@ -1,6 +1,7 @@
 //#include <unistd.h>
 //#include <ch.h>
 //#include <hal.h>
+#include <string>
 #include <thread>
 #include <uavcan_linux/uavcan_linux.hpp>
 //#include <uavcan/protocol/NodeStatus.hpp>
@@ -70,9 +71,8 @@ uavcan::ISystemClock& getSystemClock()
     return clock;
 }
 
-uavcan::ICanDriver& getCanDriver()
+uavcan::ICanDriver& getCanDriver(std::string iface)
 {
-    std::string iface = "vcan0";
     static uavcan_linux::SocketCanDriver driver(dynamic_cast<const uavcan_linux::SystemClock&>(getSystemClock()));
     if (driver.getNumIfaces() == 0) // Will be executed once
     {
@@ -83,11 +83,11 @@ uavcan::ICanDriver& getCanDriver()
     return driver;
 }
 
-static void main(uint8_t id)
+static void main(std::string can_iface, uint8_t id)
 {
     int res;
 
-    uavcan::Node<UAVCAN_MEMORY_POOL_SIZE> node(getCanDriver(),
+    uavcan::Node<UAVCAN_MEMORY_POOL_SIZE> node(getCanDriver(can_iface),
                                                getSystemClock());
 
     node.setNodeID(uavcan::NodeID(id));
@@ -181,12 +181,9 @@ static void node_status_cb(const uavcan::ReceivedDataStructure<uavcan::protocol:
 
 } // namespace uavcan_node
 
-extern "C" {
-
-void uavcan_node_start(uint8_t node_id)
+void uavcan_node_start(std::string can_iface, uint8_t id)
 {
-    std::thread uavcan_thread(uavcan_node::main, node_id);
+    std::thread uavcan_thread(uavcan_node::main, can_iface, id);
     uavcan_thread.detach();
 }
 
-} // extern "C"
