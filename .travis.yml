@@ -8,6 +8,7 @@ addons:
             - python-pip
             - python-virtualenv
             - protobuf-compiler
+            - libsdl2-dev
 
 language: cpp
 
