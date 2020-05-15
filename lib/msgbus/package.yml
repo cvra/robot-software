@@ -28,3 +28,5 @@ target.arm:
 
 templates:
     demo.jinja: CMakeLists.txt
+
+include_directories: [include]

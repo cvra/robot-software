@@ -14,3 +14,5 @@ tests:
     - tests/parameter_types_test.cpp
     - tests/parameter_print_test.cpp
     - tests/msgpack_test.cpp
+
+include_directories: [include]

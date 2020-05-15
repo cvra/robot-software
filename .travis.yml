@@ -1,5 +1,4 @@
 sudo: false
-<<<<<<< HEAD
 dist: bionic
 addons:
     apt:
@@ -17,7 +16,20 @@ matrix:
         - compiler: gcc
           env: BUILD_TYPE="tests"
         - compiler: gcc
-          env: BUILD_TYPE="build" PLATFORM="uwb-beacon"
+          env: BUILD_TYPE="build-cmake" PLATFORM="uwb-beacon"
+        - compiler: gcc
+          env: BUILD_TYPE="build-packager" PLATFORM="actuator"
+        - compiler: gcc
+          env: BUILD_TYPE="build-packager" PLATFORM="can-io"
+        - compiler: gcc
+          env: BUILD_TYPE="build-packager" PLATFORM="motor-control"
+        - compiler: gcc
+          env: BUILD_TYPE="build-packager" PLATFORM="proximity-beacon"
+        - compiler: gcc
+          env: BUILD_TYPE="build-packager" PLATFORM="sensor"
+        - compiler: gcc
+          env: BUILD_TYPE="build-packager" PLATFORM="uwb-beacon"
+
 
 before_install:
     - git submodule update --init --recursive

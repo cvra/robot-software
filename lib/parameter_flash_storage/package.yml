@@ -15,3 +15,5 @@ target.stm32f3:
 tests:
   - tests/flash_mock.cpp
   - tests/parameter_flash_storage.cpp
+
+include_directories: [include]

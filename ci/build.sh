@@ -33,13 +33,20 @@ case $BUILD_TYPE in
         tools/include_bracket_enforcer.py --check
         ;;
 
-    build)
+    build-cmake)
         mkdir build
         pushd build
         cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/${PLATFORM}.cmake
         make ${PLATFORM}-firmware.elf
         popd
         ;;
+    build-packager)
+        pushd ${PLATFORM}-firmware
+        make dsdlc
+        make
+        popd
+        ;;
+
     *)
         echo "Unknown build type $BUILD_TYPE"
         exit 1
