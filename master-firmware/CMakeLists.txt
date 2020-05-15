@@ -89,6 +89,31 @@ add_library(master_proto
     ${PROTOCSRC}
 )
 
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/config_private/)
+add_custom_command(
+    COMMAND ../tools/config/config_to_c.py
+    ../config_order.yaml
+    ../config_chaos.yaml
+    ${CMAKE_CURRENT_BINARY_DIR}/config_private/config_private.h
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/config_private/config_private.h
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMENT "Generating config structure"
+    DEPENDS ../config_order.yaml ../config_chaos.yaml
+)
+
+add_custom_target(master_config_header ALL DEPENDS
+    ${CMAKE_CURRENT_BINARY_DIR}/config_private/config_private.h
+)
+
+add_library(master_config_structure INTERFACE)
+
+target_include_directories(master_config_structure INTERFACE
+    ${CMAKE_CURRENT_BINARY_DIR}/config_private/
+)
+
+add_dependencies(master_config_structure master_config_header)
+
+
 target_link_libraries(master_proto nanopb)
 target_include_directories(master_proto PUBLIC ${CMAKE_BINARY_DIR}/protobuf)
 
@@ -161,6 +186,7 @@ target_link_libraries(master-firmware PUBLIC
     parameter
     ugfx
     config_data
+    master_config_structure
 )
 
 target_include_directories(master-firmware PUBLIC src
