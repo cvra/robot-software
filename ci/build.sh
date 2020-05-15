@@ -40,8 +40,10 @@ case $BUILD_TYPE in
         make ${PLATFORM}-firmware.elf
         popd
         ;;
+
     build-packager)
         pushd ${PLATFORM}-firmware
+        packager
         make dsdlc
         make
         popd
