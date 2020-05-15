@@ -74,7 +74,8 @@ endif()
 add_library(ugfx ${SOURCES})
 
 target_include_directories(ugfx PUBLIC ${UGFX} ${UGFX}/src ${UGFX}/drivers/multiple/SDL)
-target_link_libraries(ugfx SDL2::Main)
+target_link_libraries(ugfx ${SDL2_LIBRARY})
+target_include_directories(ugfx PUBLIC ${SDL2_INCLUDE_DIR})
 
 # Defined in other projects
 target_link_libraries(ugfx gfxconf)
