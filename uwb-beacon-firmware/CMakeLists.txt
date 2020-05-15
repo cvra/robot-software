@@ -76,6 +76,7 @@ cvra_add_test(TARGET uwb_protocol_test SOURCES
     tests/uwb_protocol.cpp
     DEPENDENCIES
     uwb_protocol
+    trace
     trace_platform_mocks
 )
 

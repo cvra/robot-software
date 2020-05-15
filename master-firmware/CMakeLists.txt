@@ -44,6 +44,7 @@ cvra_add_test(TARGET master_test
     # tests/test_map.cpp
     DEPENDENCIES
     master_lib
+    msgbus
     msgbus_mocks_synchronization
 )
 

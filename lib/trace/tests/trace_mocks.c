@@ -1,5 +1,7 @@
 #include <stdint.h>
 
+#include "trace/trace.h"
+
 int32_t trace_timestamp_ms_get(void)
 {
     return 1234;
