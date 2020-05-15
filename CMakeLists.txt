@@ -27,13 +27,13 @@ endif ()
 add_c_cxx_compiler_flag("-Wall")
 add_c_cxx_compiler_flag("-Wextra")
 add_c_cxx_compiler_flag("-Wundef")
-add_c_cxx_compiler_flag("-Wduplicated-branches")
+# Removed as it causes an insane amount of warnings in Eigen
+# add_c_cxx_compiler_flag("-Wduplicated-branches")
 add_c_cxx_compiler_flag("-Wduplicated-cond")
 add_c_cxx_compiler_flag("-Wlogical-op")
 add_c_cxx_compiler_flag("-Wnull-dereference")
 add_c_cxx_compiler_flag("-Wshadow")
 add_c_compiler_flag("-Wstrict-prototypes")
-add_c_compiler_flag("-Wfoobar-prototypes")
 
 enable_testing()
 

@@ -5,7 +5,7 @@
 #include "absl/flags/flag.h"
 #include "absl/flags/parse.h"
 #include "absl/flags/usage.h"
-#include "error/error.h"
+#include <error/error.h>
 #include "logging.h"
 
 constexpr unsigned NodeMemoryPoolSize = 16384;

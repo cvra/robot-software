@@ -3,7 +3,7 @@
 
 #include "pwm.h"
 #include "servo.h"
-#include "quadramp/quadramp.h"
+#include <quadramp/quadramp.h>
 #include "safety.h"
 
 #define SERVO_PWM_THREAD_FREQ 100 /* hz */

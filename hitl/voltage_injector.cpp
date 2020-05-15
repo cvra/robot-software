@@ -3,7 +3,7 @@
 #include "absl/flags/flag.h"
 #include "absl/flags/parse.h"
 #include "absl/flags/usage.h"
-#include "error/error.h"
+#include <error/error.h>
 #include "logging.h"
 
 typedef uavcan::Node<16384> Node;

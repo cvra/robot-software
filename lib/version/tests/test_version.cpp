@@ -1,6 +1,6 @@
 #include <CppUTest/TestHarness.h>
 #include <string>
-#include "version/version.h"
+#include <version/version.h>
 
 TEST_GROUP(VersionTestGroup)
 {
