@@ -73,8 +73,10 @@ Similarly, any inaccuracy in the pulse per mm does not matter.
 At this point, you can compute the wheel diameter error using the following formula:
 
 ```cpp
-// total_distance is the average between the left wheel and right wheel distance (0.5 * (left_pulse * left_gain + right_pulse * right_gain)).
-// delta_angle is the difference between the pulse count of the left wheel and the right wheel, also taking wheel gain into account.
+// total_distance is the average between the left wheel and right wheel
+// distance (0.5 * (left_pulse * left_gain + right_pulse * right_gain)).
+// delta_angle is the difference between the pulse count of the left wheel
+// and the right wheel, also taking wheel gain into account.
 float factor = delta_angle / total_distance;
 float new_left_gain = (1. + factor) * old_left_gain;
 float new_right_gain = (1. - factor) * old_right_gain;
@@ -89,8 +91,8 @@ Using this approach, we were able to measure very small diameter difference, aro
 This step is quite trivial to do: we ask the robot to move forward for 2 meters and we measure the real distance it moved.
 We can then compute the new number of pulses using:
 
-```
-new_pulse_per_mm = old_pulse_per_mm * (real_distance / asked_distance).
+```cpp
+new_pulse_per_mm = old_pulse_per_mm * (real_distance / asked_distance);
 ```
 
 This method is accurate to about 0.1% (2 mm over 2 meters), but it is also the least important parameter here.
@@ -108,7 +110,7 @@ Program your robot to do the following:
 
 You can now compute the new track of the robot using the angle measured by the odometry:
 
-```
+```cpp
 // count = number of turns done by the robot, start with 1
 float new_track = old_track * (1 + (delta_angle / (2. * M_PI * count)));
 ```

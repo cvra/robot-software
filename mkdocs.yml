@@ -2,8 +2,14 @@ site_name: CVRA Robot Software
 theme:
   name: gitbook
 plugins: []
+markdown_extensions:
+  - codehilite:
+      guess_lang: False
+
 extra_css:
   - ytvideo.css
+  - styles.css
+
 nav:
   - Home: index.md
   - Robot architecture:

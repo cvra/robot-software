@@ -8,4 +8,4 @@ jobs:
     - name: Clang Code Formatter
       uses: cvra/clang-format-action@master
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

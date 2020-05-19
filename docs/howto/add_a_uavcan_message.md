@@ -16,6 +16,7 @@ However, we want this to happen through CAN, in order to learn how to implement 
 Go to the `can-io-firmware`, and edit `main.c` to disable the blinker thread:
 
 ```
+:::c++
 int main(void)
 {
     halInit();
@@ -31,6 +32,7 @@ int main(void)
 Then, rebuild the new firmware for the CAN IO board, by running the following commands:
 
 ```
+:::bash
 cd can-io-firmware/
 packager
 make dsdlc
@@ -40,6 +42,7 @@ make USE_BOOTLOADER=yes
 We can now power the bus through USB, and to flash the board:
 
 ```
+:::bash
 # Note that the path to the serial port (/dev/...) changes from computer
 # to computer.
 can_dongle_power /dev/tty.usbmodem3031 on
@@ -52,6 +55,7 @@ You should get the following output.
 If you get an error you can retry, as it can get stuck.
 
 ```
+:::json
 {
     "1": {
         "ID": 1,
@@ -76,6 +80,7 @@ It is not erased when reflashing and can be read from the application.
 Now that we know the ID of our board we can flash it with our fresh firmware:
 
 ```
+:::bash
 bootloader_flash --port /dev/tty.usbmodem3031 \
     --binary build/ch.bin \
     --base-address 0x08003800 \
@@ -118,6 +123,7 @@ This will generate the C++ code required to serialize and interpret our new mess
 Create a new C++ file `can-io-firmware/src/uavcan/LEDCommand_handler.cpp` with the following content
 
 ```
+:::c++
 /* For accessing the GPIO functions */
 #include <hal.h>
 
@@ -153,6 +159,7 @@ Also create the associated header, `can-io-firmware/src/uavcan/LEDCommand_handle
 In this file we will put the prototype of our handler:
 
 ```
+:::c++
 #ifndef LEDCOMMAND_HANDLER_HPP
 #define LEDCOMMAND_HANDLER_HPP
 
@@ -169,6 +176,7 @@ void LEDCommand_handler(
 We can then add this new file to the build system, in `can-io-firmware/package.yml`:
 
 ```
+:::yaml
 # [...]
 target.arm:
 # [...]
@@ -181,6 +189,7 @@ target.arm:
 Now you can regenerate the Makefiles (`packager`) and rebuild the binary:
 
 ```
+:::bash
 packager
 make USE_BOOTLOADER=yes
 ```
@@ -195,15 +204,16 @@ Put the following in `can-io-firmware/blink.py`.
 You can run it by running `cd can-io-firmware && python blink.py`.
 
 ```
+:::python
 import uavcan
 
 # Reads our new custom message definition
-uavcan.load_dsdl('../uavcan_data_types/cvra')
+uavcan.load_dsdl("../uavcan_data_types/cvra")
 
 # Creates a UAVCAN device with address 123.
 # As before, you might have to change the serial port to which your CAN adapter
 # is connected.
-node = uavcan.make_node('/dev/tty.usbmodem3031', node_id=123)
+node = uavcan.make_node("/dev/tty.usbmodem3031", node_id=123)
 BOARD_ID = 1
 
 led_status = True
@@ -213,18 +223,23 @@ led_status = True
 def led_command_reply_received(event):
     print("reponse data", event.response.data)
 
+
 while True:
     try:
         # Process UAVCAN messages for 1 second, then returns.
         node.spin(1)
 
         # Sends a request to set the LED status to our target board.
-        node.request(uavcan.thirdparty.cvra.io.LEDCommand.Request(led_status=led_status), BOARD_ID, led_command_reply_received)
+        node.request(
+            uavcan.thirdparty.cvra.io.LEDCommand.Request(led_status=led_status),
+            BOARD_ID,
+            led_command_reply_received,
+        )
 
         # Finally, invert the LED state so that it changes once a second.
         led_status = not led_status
     except uavcan.UAVCANException as ex:
-        print('Node error:', ex)
+        print("Node error:", ex)
 ```
 
 ## Conclusion
