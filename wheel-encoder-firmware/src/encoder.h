@@ -7,10 +7,10 @@
 extern "C" {
 #endif
 
-uint32_t encoder_get_primary(void);
-uint32_t encoder_get_secondary(void);
-void encoder_init_primary(void);
-void encoder_init_secondary(void);
+int32_t encoder_get_right(void);
+int32_t encoder_get_left(void);
+int32_t encoder_tick_diff(uint32_t enc_old, uint32_t enc_new);
+void encoder_init(void);
 
 #ifdef __cplusplus
 }
