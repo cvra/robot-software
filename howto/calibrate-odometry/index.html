@@ -15,7 +15,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta rel="next" href="" />
 <link href="../../css/style.min.css" rel="stylesheet">
-<link href="../../ytvideo.css" rel="stylesheet"> 
+<link href="../../ytvideo.css" rel="stylesheet">
+<link href="../../styles.css" rel="stylesheet"> 
 </head>
 
 <body>
@@ -140,7 +141,7 @@ The issue with integrating is that error accumulates over time, leading to a lac
 <p>If your robot does not have identical wheel diameters, it will believe it moves in a straight line, but will actually follow a circle (see image below).</p>
 <p><img alt="Error due to wheel diameter difference" src="../odometry-wheel-difference-error.png" /></p>
 <p>If we wrte <code>delta_l</code> the distance travelled by the left wheel, <code>delta_r</code> the distance travelled by the right wheel and <code>k</code> the factor between the wheel diameters, we have the following:</p>
-<pre><code>delta_l = k * delta_r
+<div class="codehilite"><pre><span></span><code>delta_l = k * delta_r
 delta_r = R * theta
 delta_l = (R + L) * theta
 
@@ -148,7 +149,8 @@ delta_l = (R + L) * theta
 -&gt; R = L / (k - 1)
 -&gt; theta = (k - 1) / L
 -&gt; delta_x = R * (1 - cos theta)
-</code></pre>
+</code></pre></div>
+
 
 <p>If we do a numerical evaluation with the following parameters:</p>
 <ul>
@@ -187,12 +189,15 @@ Any angle observed by the dead reckoning will be the result of the difference in
 Any inaccuracy in track would be compensated by doing 180° one way then the other way.
 Similarly, any inaccuracy in the pulse per mm does not matter.
 At this point, you can compute the wheel diameter error using the following formula:</p>
-<pre><code class="cpp">// total_distance is the average between the left wheel and right wheel distance (0.5 * (left_pulse * left_gain + right_pulse * right_gain)).
-// delta_angle is the difference between the pulse count of the left wheel and the right wheel, also taking wheel gain into account.
-float factor = delta_angle / total_distance;
-float new_left_gain = (1. + factor) * old_left_gain;
-float new_right_gain = (1. - factor) * old_right_gain;
-</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="c1">// total_distance is the average between the left wheel and right wheel</span>
+<span class="c1">// distance (0.5 * (left_pulse * left_gain + right_pulse * right_gain)).</span>
+<span class="c1">// delta_angle is the difference between the pulse count of the left wheel</span>
+<span class="c1">// and the right wheel, also taking wheel gain into account.</span>
+<span class="kt">float</span> <span class="n">factor</span> <span class="o">=</span> <span class="n">delta_angle</span> <span class="o">/</span> <span class="n">total_distance</span><span class="p">;</span>
+<span class="kt">float</span> <span class="n">new_left_gain</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">factor</span><span class="p">)</span> <span class="o">*</span> <span class="n">old_left_gain</span><span class="p">;</span>
+<span class="kt">float</span> <span class="n">new_right_gain</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">factor</span><span class="p">)</span> <span class="o">*</span> <span class="n">old_right_gain</span><span class="p">;</span>
+</code></pre></div>
+
 
 <p>Once you have a rough working estimation, you can repeat the measurement but repeating steps 3 to 6 a few times to increase the error.
 We usually stop once the gains start to oscillate around a value, meaning that we hit the resolution limit for the method.
@@ -200,8 +205,9 @@ Using this approach, we were able to measure very small diameter difference, aro
 <h2 id="number-of-encoder-steps-per-mm">Number of encoder steps per mm</h2>
 <p>This step is quite trivial to do: we ask the robot to move forward for 2 meters and we measure the real distance it moved.
 We can then compute the new number of pulses using:</p>
-<pre><code>new_pulse_per_mm = old_pulse_per_mm * (real_distance / asked_distance).
-</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="n">new_pulse_per_mm</span> <span class="o">=</span> <span class="n">old_pulse_per_mm</span> <span class="o">*</span> <span class="p">(</span><span class="n">real_distance</span> <span class="o">/</span> <span class="n">asked_distance</span><span class="p">);</span>
+</code></pre></div>
+
 
 <p>This method is accurate to about 0.1% (2 mm over 2 meters), but it is also the least important parameter here.</p>
 <h2 id="track-of-the-robot">Track of the robot</h2>
@@ -215,9 +221,10 @@ Program your robot to do the following:</p>
 <li>Move back again until it hits the reference edge.</li>
 </ol>
 <p>You can now compute the new track of the robot using the angle measured by the odometry:</p>
-<pre><code>// count = number of turns done by the robot, start with 1
-float new_track = old_track * (1 + (delta_angle / (2. * M_PI * count)));
-</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="c1">// count = number of turns done by the robot, start with 1</span>
+<span class="kt">float</span> <span class="n">new_track</span> <span class="o">=</span> <span class="n">old_track</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">delta_angle</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.</span> <span class="o">*</span> <span class="n">M_PI</span> <span class="o">*</span> <span class="n">count</span><span class="p">)));</span>
+</code></pre></div>
+
 
 <p>Once calibrated you can restart the experiment and do more than one full turn, we usually stop at 10 turns.</p>
 <h2 id="video-demo">Video demo</h2>
