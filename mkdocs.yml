@@ -20,5 +20,6 @@ nav:
       - can/bootloader.md
   - 'How to':
     - 'Calibrate the odometry': howto/calibrate-odometry.md
+    - howto/add_a_uavcan_message.md
   - Systems:
       - can/positioning.md
