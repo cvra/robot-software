@@ -6,6 +6,7 @@
 #include <uavcan/protocol/NodeStatus.hpp>
 #include "ServoPWM_handler.hpp"
 #include "DigitalInput_pub.hpp"
+#include "LEDCommand_handler.hpp"
 
 #include "node.h"
 
@@ -73,6 +74,11 @@ void main(unsigned int id, const char* name)
     uavcan::Subscriber<cvra::io::ServoPWM> servo_pwm_sub(node);
     if (servo_pwm_sub.start(ServoPWM_handler)) {
         ERROR("Cannot start servo PWM handler!");
+    }
+
+    uavcan::ServiceServer<cvra::io::LEDCommand> led_srv(node);
+    if (led_srv.start(LEDCommand_handler)) {
+        ERROR("Cannot start LED handler!");
     }
 
     while (true) {

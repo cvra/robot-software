@@ -43,7 +43,7 @@ int main(void)
     debug_init();
     NOTICE("boot");
 
-    blinker_start();
+//    blinker_start();
 
     servo_init();
     servo_start();
