@@ -222,7 +222,7 @@
  * PB4  - GPIOB_SPI_MISO            (alternate 6, SPI3).
  * PB5  - GPIOB_SPI_MOSI            (alternate 6, SPI3).
  * PB6  - GPIOB_DEBUG_TX            (alternate 7 (UART1 TX)).
- * PB7  - GPIOB_DEBUG_RX            (alternate 7 (UART1 RX)).
+ * PB7  - GPIOB_DEBUG_RX            (input pullup).
  * PB8  - GPIOB_PIN8                (input floating).
  * PB9  - GPIOB_PIN9                (input floating).
  * PB10 - GPIOB_PIN10               (input floating).
@@ -239,7 +239,7 @@
                                      PIN_MODE_ALTERNATE(GPIOB_SPI_MISO) | \
                                      PIN_MODE_ALTERNATE(GPIOB_SPI_MOSI) | \
                                      PIN_MODE_ALTERNATE(GPIOB_DEBUG_TX) | \
-                                     PIN_MODE_ALTERNATE(GPIOB_DEBUG_RX) | \
+                                     PIN_MODE_INPUT(GPIOB_DEBUG_RX) | \
                                      PIN_MODE_INPUT(GPIOB_PIN8) | \
                                      PIN_MODE_INPUT(GPIOB_PIN9) | \
                                      PIN_MODE_INPUT(GPIOB_PIN10) | \
