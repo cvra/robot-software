@@ -46,6 +46,7 @@ static pthread_mutex_t bus_lock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t bus_condvar = PTHREAD_COND_INITIALIZER;
 
 ABSL_FLAG(std::string, can_iface, "vcan0", "SocketCAN interface to use");
+ABSL_FLAG(bool, verbose, false, "Enable verbose output");
 
 /** Late init hook, called before c++ static constructors. */
 void __late_init(void)
@@ -99,7 +100,7 @@ int main(int argc, char** argv)
 
     blink_start();
 
-    log_init();
+    log_init(absl::GetFlag(FLAGS_verbose));
 
     NOTICE("boot");
 

@@ -27,10 +27,13 @@ static void log_message(struct error* e, ...)
     }
 }
 
-void log_init(void)
+void log_init(int enable_verbose)
 {
     error_register_error(log_message);
     error_register_warning(log_message);
     error_register_notice(log_message);
-    //error_register_debug(log_message);
+
+    if (enable_verbose) {
+        error_register_debug(log_message);
+    }
 }
