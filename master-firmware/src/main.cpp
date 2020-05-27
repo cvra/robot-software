@@ -138,7 +138,9 @@ int main(int argc, char** argv)
     config_load_from_flash();
 
     control_panel_init(false);
-    gui_start();
+    if (absl::GetFlag(FLAGS_enable_gui)) {
+        gui_start();
+    }
 
     /* Base init */
     //encoder_start();
