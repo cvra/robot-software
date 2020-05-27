@@ -4,15 +4,20 @@
 #include <string.h>
 #include <error/error.h>
 #include <signal.h>
+#include <pthread.h>
 
 #include "log.h"
 
+static pthread_mutex_t log_lock = PTHREAD_MUTEX_INITIALIZER;
+
 static void log_message(struct error* e, ...)
 {
+    pthread_mutex_lock(&log_lock);
     va_list va;
 
-    printf("%s:%d\t", strrchr(e->file, '/') + 1, e->line);
+    printf("%ld\t", time(NULL));
     printf("%s\t", error_severity_get_name(e->severity));
+    printf("%s:%d\t", strrchr(e->file, '/') + 1, e->line);
 
     va_start(va, e);
     vprintf(e->text, va);
@@ -25,6 +30,7 @@ static void log_message(struct error* e, ...)
         raise(SIGINT);
         exit(1);
     }
+    pthread_mutex_unlock(&log_lock);
 }
 
 void log_init(int enable_verbose)
