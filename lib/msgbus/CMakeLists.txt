@@ -33,6 +33,11 @@ target_link_libraries(msgbus_posix
    Threads::Threads
 )
 
+target_include_directories(msgbus_posix
+    PUBLIC
+    examples/posix/include
+)
+
 add_executable(msgbus_demo
     examples/posix/demo.c
 )
