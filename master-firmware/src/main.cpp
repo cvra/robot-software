@@ -47,6 +47,7 @@ static pthread_cond_t bus_condvar = PTHREAD_COND_INITIALIZER;
 
 ABSL_FLAG(std::string, can_iface, "vcan0", "SocketCAN interface to use");
 ABSL_FLAG(bool, verbose, false, "Enable verbose output");
+ABSL_FLAG(bool, enable_gui, true, "Enable on-robot GUI");
 
 /** Late init hook, called before c++ static constructors. */
 void __late_init(void)
@@ -136,7 +137,7 @@ int main(int argc, char** argv)
     /* Load stored robot config */
     config_load_from_flash();
 
-    //control_panel_init(config_get_boolean("master/control_panel_active_high"));
+    control_panel_init(false);
     gui_start();
 
     /* Base init */
