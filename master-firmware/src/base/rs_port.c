@@ -1,4 +1,3 @@
-#include "base/encoder.h"
 
 #include "rs_port.h"
 

@@ -9,7 +9,6 @@
 
 #include "main.h"
 #include "config.h"
-#include "priorities.h"
 
 #include "rs_port.h"
 #include "base_controller.h"
