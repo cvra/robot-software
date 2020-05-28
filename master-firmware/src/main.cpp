@@ -7,13 +7,13 @@
 #include <absl/flags/parse.h>
 #include <absl/flags/usage.h>
 
-
 #include "main.h"
 #include "control_panel.h"
 //#include <shell.h>
 //#include "commands.h"
 #include "debug/log.h"
 #include "can/bus_enumerator.h"
+#include <msgbus/posix/port.h>
 #include "can/uavcan_node.h"
 #include "config.h"
 #include <parameter/parameter_msgpack.h>
@@ -42,8 +42,7 @@ motor_manager_t motor_manager;
 
 /* Bus related declarations */
 messagebus_t bus;
-static pthread_mutex_t bus_lock = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t bus_condvar = PTHREAD_COND_INITIALIZER;
+static MESSAGEBUS_POSIX_SYNC_DECL(bus_sync);
 
 ABSL_FLAG(std::string, can_iface, "vcan0", "SocketCAN interface to use");
 ABSL_FLAG(bool, verbose, false, "Enable verbose output");
@@ -106,7 +105,7 @@ int main(int argc, char** argv)
     NOTICE("boot");
 
     /* Initialize the interthread communication bus. */
-    messagebus_init(&bus, &bus_lock, &bus_condvar);
+    messagebus_init(&bus, &bus_sync, &bus_sync);
 
     // udp_topic_register_callbacks();
 

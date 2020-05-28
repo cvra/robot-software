@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <msgbus/messagebus.h>
-#include "port.h"
+#include <msgbus/posix/port.h>
 
 messagebus_t bus;
 

@@ -13,10 +13,9 @@ extern "C" {
 #define MAX_NB_BUS_ENUMERATOR_ENTRIES 21
 
 /** Robot wide interthread bus. */
-//extern messagebus_t bus;
-//
-extern motor_manager_t motor_manager;
+extern messagebus_t bus;
 
+extern motor_manager_t motor_manager;
 extern parameter_namespace_t global_config;
 
 #ifdef __cplusplus
