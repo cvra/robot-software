@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <error/error.h>
 #include <mutex>
 #include <parameter/parameter_port.h>

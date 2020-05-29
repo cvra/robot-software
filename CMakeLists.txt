@@ -27,13 +27,15 @@ endif ()
 add_c_cxx_compiler_flag("-Wall")
 add_c_cxx_compiler_flag("-Wextra")
 add_c_cxx_compiler_flag("-Wundef")
-# Removed as it causes an insane amount of warnings in Eigen
-# add_c_cxx_compiler_flag("-Wduplicated-branches")
 add_c_cxx_compiler_flag("-Wduplicated-cond")
 add_c_cxx_compiler_flag("-Wlogical-op")
 add_c_cxx_compiler_flag("-Wnull-dereference")
 add_c_cxx_compiler_flag("-Wshadow")
 add_c_compiler_flag("-Wstrict-prototypes")
+
+# The following flags are causing issues with Eigen
+add_cxx_compiler_flag("-Wno-duplicated-branches")
+add_cxx_compiler_flag("-Wno-deprecated-copy")
 
 enable_testing()
 
