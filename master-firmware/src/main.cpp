@@ -142,7 +142,6 @@ int main(int argc, char** argv)
     }
 
     /* Base init */
-    //encoder_start();
     robot_init();
     base_controller_start();
     position_manager_start();

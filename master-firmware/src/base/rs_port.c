@@ -1,3 +1,6 @@
+#include "protobuf/encoders.pb.h"
+#include <error/error.h>
+#include "main.h"
 
 #include "rs_port.h"
 
@@ -33,16 +36,31 @@ void rs_right_wheel_set_voltage(void* motor, int32_t voltage)
     motor_set_voltage("right-wheel", motor, voltage);
 }
 
+static WheelEncodersPulse read_encoders_topic(void)
+{
+    WheelEncodersPulse msg = WheelEncodersPulse_init_zero;
+    messagebus_topic_t* topic = messagebus_find_topic(&bus, "/encoders");
+
+    if (topic == NULL) {
+        WARNING_EVERY_N(1000, "Could not find encoders topic");
+        return msg;
+    }
+
+    if (!messagebus_topic_read(topic, &msg, sizeof(msg))) {
+        WARNING_EVERY_N(1000, "no encoders message received");
+    }
+
+    return msg;
+}
+
 int32_t rs_encoder_get_left_ext(void* nothing)
 {
     (void)nothing;
-    // TODO: Read encoders from CAN instead
-    return 0;
+    return read_encoders_topic().left;
 }
 
 int32_t rs_encoder_get_right_ext(void* nothing)
 {
     (void)nothing;
-    // TODO: Read encoders from CAN instead
-    return 0;
+    return read_encoders_topic().right;
 }

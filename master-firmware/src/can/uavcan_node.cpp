@@ -11,6 +11,7 @@
 //#include "beacon_signal_handler.hpp"
 #include "motor_driver.h"
 #include "motor_driver_uavcan.hpp"
+#include "wheel_encoders_handler.hpp"
 //#include "can_io_driver.h"
 //#include "sensor_handler.h"
 //#include "uwb_position_handler.h"
@@ -29,8 +30,8 @@
 
 #define UAVCAN_NODE_STACK_SIZE 8192
 
-#define UAVCAN_MEMORY_POOL_SIZE 16384
-#define UAVCAN_RX_QUEUE_SIZE 64
+#define UAVCAN_MEMORY_POOL_SIZE 65536
+#define UAVCAN_RX_QUEUE_SIZE 256
 #define UAVCAN_CAN_BITRATE 1000000UL
 
 bus_enumerator_t bus_enumerator;
@@ -116,6 +117,13 @@ static void main(std::string can_iface, uint8_t id)
     if (res < 0) {
         ERROR("motor driver");
     }
+
+
+    res = wheel_encoder_handler_init(node);
+    if (res < 0) {
+        ERROR("wheel encoder");
+    }
+
 
 #if 0
     res = motor_feedback_stream_handler_init(node, &bus_enumerator);
