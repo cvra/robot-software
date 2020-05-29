@@ -29,7 +29,6 @@ cvra_add_test(TARGET master_test
     tests/bus_enumerator.cpp
     tests/test_math_helpers.cpp
     tests/test_beacon_helpers.cpp
-    tests/obstacle_avoidance.cpp
     tests/trajectory_manager_test.cpp
     tests/lie_groups.cpp
     tests/test_base_helpers.cpp
