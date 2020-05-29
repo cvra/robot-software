@@ -131,7 +131,7 @@ void control_panel_toggle(enum control_panel_output out)
 {
     auto led = led_infos.find(out);
     if (led == led_infos.end()) {
-        WARNING_EVERY_N(1, "could not read back state for %s", control_panel_output[out]);
+        WARNING_EVERY_N(10, "could not read back state for %s", control_panel_output[out]);
         return;
     }
 

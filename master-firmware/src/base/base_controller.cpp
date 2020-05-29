@@ -211,7 +211,7 @@ static void base_ctrl_thd(void)
         }
 
         /* Wait until next regulation loop */
-        std::this_thread::sleep_for(1s / ASSERV_FREQUENCY);
+        std::this_thread::sleep_for(1000ms / ASSERV_FREQUENCY);
     }
 }
 
@@ -235,6 +235,11 @@ static void position_manager_thd()
         //pos.y = position_get_y_float(&robot.pos);
         //pos.a = position_get_a_rad_float(&robot.pos);
         //messagebus_topic_publish(&position_topic.topic, &pos, sizeof(pos));
+        DEBUG_EVERY_N(ODOM_FREQUENCY, "pos: %d %d %d",
+                position_get_x_s16(&robot.pos),
+                position_get_y_s16(&robot.pos),
+                position_get_a_deg_s16(&robot.pos)
+                );
         std::this_thread::sleep_for(1s / ODOM_FREQUENCY);
     }
 }
