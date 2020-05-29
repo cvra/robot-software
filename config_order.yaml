@@ -49,67 +49,6 @@ master:
                 distance: 100.
                 angle: 40.
                 angle_start: 40.
-    arms:
-        right:
-            lengths:
-                origin: 0.2428
-                l1: 0.132
-                l2: 0.097
-                l3: 0.072
-            homing:
-                q1: -0.40763
-                q2: 1.53969
-                q3: 0.0
-            offsets: # calibrated before a game
-                q1: 0.
-                q2: 0.
-                q3: 0.
-            tolerance:
-                q1: 0.02
-                q2: 0.02
-                q3: 0.02
-            window:
-                q1: 0.1
-                q2: 0.1
-                q3: 0.1
-            gripper:
-                release: 6.
-                acquire: -14.
-                current_thres: 0.24 # [A] pump current beyond which we consider the puck is picked
-        left:
-            lengths:
-                origin: 0.2428
-                l1: 0.132
-                l2: 0.097
-                l3: 0.072
-            homing:
-                q1: -0.40763
-                q2: 1.53969
-                q3: 0.0
-            offsets: # calibrated before a game
-                q1: 0.
-                q2: 0.
-                q3: 0.
-            tolerance:
-                q1: 0.02
-                q2: 0.02
-                q3: 0.02
-            window:
-                q1: 0.1
-                q2: 0.1
-                q3: 0.1
-            gripper:
-                release: -6.
-                acquire: 14.
-                current_thres: 0.24 # [A] pump current beyond which we consider the puck is picked
-    screen:
-        ax: 0.089231252
-        ay: -0.001139728
-        bx: 0.000522375
-        by: 0.127720847
-        cx: -22.532257080
-        cy: -28.272106170
-
 actuator:
     left-wheel:
         encoders:

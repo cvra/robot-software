@@ -67,10 +67,10 @@ void config_load_from_flash(void)
     cmp_ctx_t cmp;
     cmp_mem_access_t mem;
 
-    extern unsigned char msgpack_config_order[];
-    extern const size_t msgpack_config_order_size;
+    extern unsigned char msgpack_config_chaos[];
+    extern const size_t msgpack_config_chaos_size;
 
-    cmp_mem_access_ro_init(&cmp, &mem, msgpack_config_order, msgpack_config_order_size);
+    cmp_mem_access_ro_init(&cmp, &mem, msgpack_config_chaos, msgpack_config_chaos_size);
     int ret = parameter_msgpack_read_cmp(&global_config, &cmp, config_load_err_cb, NULL);
     if (ret != 0) {
         ERROR("parameter_msgpack_read_cmp failed");
