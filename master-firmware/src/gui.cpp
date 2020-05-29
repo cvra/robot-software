@@ -5,13 +5,8 @@
 #include <gfx.h>
 #include "gui/Menu.h"
 #include "gui/PositionPage.h"
+#include "gui/MovePage.h"
 #include "gui/MenuPage.h"
-
-// from https://wiki.ugfx.io/index.php/Touchscreen_Calibration
-gBool LoadMouseCalibration(unsigned instance, void* data, gMemSize sz)
-{
-    return GFXON;
-}
 
 static void gui_thread()
 {
@@ -25,8 +20,9 @@ static void gui_thread()
     WARNING("GUI init done");
 
     Menu m;
-    auto position_page = PositionPage();
-    auto base_menu = MenuPage(m, "Base", &position_page);
+    auto base_position_page = PositionPage();
+    auto base_move_page = MovePage();
+    auto base_menu = MenuPage(m, "Base", &base_position_page, &base_move_page);
     auto root_page = MenuPage(m, "Robot", &base_menu);
 
     m.enter_page(&root_page);

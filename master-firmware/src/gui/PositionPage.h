@@ -1,5 +1,6 @@
 #pragma once
 #include "gfx.h"
+#include <error/error.h>
 
 #include "gui/Menu.h"
 #include "gui/MenuPage.h"
@@ -10,7 +11,6 @@
 #include "base/base_helpers.h"
 
 class PositionPage : public Page {
-    GHandle button;
     GHandle page_title;
 
     void create_label(GHandle parent)
