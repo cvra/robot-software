@@ -1,5 +1,7 @@
 add_executable(motor_board_emulator
+    main.cpp
     motor_board_emulator.cpp
+    wheel_encoders_emulator.cpp
 )
 
 target_link_libraries(motor_board_emulator

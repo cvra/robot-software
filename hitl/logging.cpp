@@ -5,7 +5,7 @@
 #include "absl/synchronization/mutex.h"
 
 ABSL_FLAG(bool, verbose, false, "Enable verbose logging.");
-static ABSL_CONST_INIT absl::Mutex logging_lock(absl::kConstInit);
+static absl::Mutex logging_lock;
 
 static void log_message(struct error* e, ...)
 {
