@@ -47,7 +47,6 @@ static void imu_reader_thd(void* p)
 
     chRegSetThreadName("IMU");
 
-
     imu_init_hardware(&mpu);
 
     /* Creates the IMU topic */

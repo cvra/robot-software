@@ -364,7 +364,7 @@ void lwip_thread(void* p)
     }
 }
 
-static void parameter_init(parameter_namespace_t *global_config)
+static void parameter_init(parameter_namespace_t* global_config)
 {
     parameter_namespace_declare(&ip_ns, global_config, "ip");
     parameter_namespace_declare(&canif_params.ns, &ip_ns, "uwb");
@@ -403,7 +403,7 @@ static void update_parameters(struct netif* netif, parameter_namespace_t* ns)
     }
 }
 
-void ip_thread_init(parameter_namespace_t *global_config)
+void ip_thread_init(parameter_namespace_t* global_config)
 {
     static THD_WORKING_AREA(wa_lwip_thread, LWIP_THREAD_STACK_SIZE);
     parameter_init(global_config);

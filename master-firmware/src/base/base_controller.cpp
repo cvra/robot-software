@@ -236,10 +236,9 @@ static void position_manager_thd()
         //pos.a = position_get_a_rad_float(&robot.pos);
         //messagebus_topic_publish(&position_topic.topic, &pos, sizeof(pos));
         DEBUG_EVERY_N(ODOM_FREQUENCY, "pos: %d %d %d",
-                position_get_x_s16(&robot.pos),
-                position_get_y_s16(&robot.pos),
-                position_get_a_deg_s16(&robot.pos)
-                );
+                      position_get_x_s16(&robot.pos),
+                      position_get_y_s16(&robot.pos),
+                      position_get_a_deg_s16(&robot.pos));
         std::this_thread::sleep_for(1s / ODOM_FREQUENCY);
     }
 }
@@ -249,7 +248,6 @@ void position_manager_start()
     std::thread pos_thd(position_manager_thd);
     pos_thd.detach();
 }
-
 
 void trajectory_manager_thd()
 {

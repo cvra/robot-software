@@ -51,7 +51,6 @@ static void ahrs_thd(void* p)
         imu_msg_t imu;
         messagebus_topic_wait(imu_topic, &imu, sizeof(imu));
 
-
         attitude_msg_t msg;
 
         msg.q.w = filter.q[0];

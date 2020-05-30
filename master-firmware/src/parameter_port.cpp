@@ -29,6 +29,6 @@ void* parameter_port_buffer_alloc(size_t size)
 
 void parameter_port_buffer_free(void* buffer)
 {
-    uint8_t *ptr = (uint8_t *)buffer;
-    delete [] ptr;
+    uint8_t* ptr = (uint8_t*)buffer;
+    delete[] ptr;
 }

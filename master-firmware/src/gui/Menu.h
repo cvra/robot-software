@@ -29,7 +29,6 @@ class Menu {
     /// Timer callback
     void on_timer();
 
-
 public:
     Menu();
 

@@ -118,12 +118,10 @@ static void main(std::string can_iface, uint8_t id)
         ERROR("motor driver");
     }
 
-
     res = wheel_encoder_handler_init(node);
     if (res < 0) {
         ERROR("wheel encoder");
     }
-
 
 #if 0
     res = motor_feedback_stream_handler_init(node, &bus_enumerator);
@@ -194,4 +192,3 @@ void uavcan_node_start(std::string can_iface, uint8_t id)
     std::thread uavcan_thread(uavcan_node::main, can_iface, id);
     uavcan_thread.detach();
 }
-

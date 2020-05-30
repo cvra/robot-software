@@ -58,7 +58,6 @@ static void set_output(enum control_panel_output out, bool value)
     led_info->second.out_status = value;
 }
 
-
 static void open_led(enum control_panel_output led_num, std::string path)
 {
     FILE* f;
