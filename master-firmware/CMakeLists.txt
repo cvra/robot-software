@@ -1,6 +1,11 @@
 find_package(Threads)
+
+add_library(parameter_port src/parameter_port.cpp)
+target_link_libraries(parameter_port error)
+
 add_library(master_lib
     src/unix_timestamp.c
+    src/can/actuator_driver.c
     src/can/bus_enumerator.c
     src/math/lie_groups.c
     src/robot_helpers/math_helpers.c
@@ -23,12 +28,15 @@ target_link_libraries(master_lib
     nanopb
     timestamp
     goap
+    parameter
+    parameter_port
 )
 
 cvra_add_test(TARGET master_test
     SOURCES
     tests/unix-timestamp.cpp
     tests/bus_enumerator.cpp
+    tests/can/actuator_driver.cpp
     tests/test_math_helpers.cpp
     tests/test_beacon_helpers.cpp
     tests/trajectory_manager_test.cpp
@@ -190,9 +198,9 @@ add_executable(master-firmware
     src/can/sensor_handler.cpp
     src/can/actuator_handler.cpp
     src/can/can_io_driver.cpp
+    src/can/actuator_driver_uavcan.cpp
     src/control_panel.cpp
     src/config.c
-    src/parameter_port.cpp
     src/base/base_controller.cpp
     src/base/rs_port.c
     src/base/cs_port.c
