@@ -113,6 +113,11 @@ static void main(std::string can_iface, uint8_t id)
         ERROR("wheel encoder");
     }
 
+    res = actuator_driver_uavcan_init(node);
+    if (res < 0) {
+        ERROR("actuator");
+    }
+
     res = motor_feedback_stream_handler_init(node, &bus_enumerator);
     if (res < 0) {
         ERROR("motor feedback");

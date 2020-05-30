@@ -1,9 +1,12 @@
+#include <error/error.h>
+#include "can/actuator_driver_uavcan.hpp"
 #include <uavcan/uavcan.hpp>
 #include <cvra/actuator/Command.hpp>
 #include "can/actuator_driver.h"
 
 /* for bus_enumerator */
 #include "can/uavcan_node.h"
+#include "main.h"
 
 void publish_command(actuator_driver_t* drv, uavcan::Publisher<cvra::actuator::Command>& pub)
 {
@@ -44,9 +47,12 @@ int actuator_driver_uavcan_init(uavcan::INode& node)
 
     periodic_timer.setCallback([&](const uavcan::TimerEvent& event) {
         (void)event;
-        /* TODO: get the actuators list from somewhere. */
-        //actuator_driver_t* front_left_driver = nullptr;
-        //publish_command(front_left_driver, pub);
+        publish_command(&actuator_front_left, pub);
+        publish_command(&actuator_front_center, pub);
+        publish_command(&actuator_front_right, pub);
+        publish_command(&actuator_back_left, pub);
+        publish_command(&actuator_back_center, pub);
+        publish_command(&actuator_back_right, pub);
     });
 
     periodic_timer.startPeriodic(uavcan::MonotonicDuration::fromMSec(100));

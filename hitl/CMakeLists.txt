@@ -18,6 +18,7 @@ add_executable(motor_board_emulator
     actuator_board_emulator.cpp
     viewer.cpp
     png_loader.cpp
+    actuator_board_emulator.cpp
 )
 
 target_link_libraries(motor_board_emulator

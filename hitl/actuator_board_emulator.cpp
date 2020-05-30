@@ -1,4 +1,5 @@
 #include "actuator_board_emulator.h"
+#include <thread>
 #include <error/error.h>
 
 ActuatorBoardEmulator::ActuatorBoardEmulator(std::string can_iface, std::string board_name, int node_number)
@@ -8,7 +9,8 @@ ActuatorBoardEmulator::ActuatorBoardEmulator(std::string can_iface, std::string 
     pressure_pa[0] = 0.f;
     pressure_pa[1] = 0.f;
 
-    NOTICE("actuator board emulator on %s", can_iface.c_str());
+    NOTICE("Actuator board emulator on %s", can_iface.c_str());
+
     if (driver.addIface(can_iface) < 0) {
         ERROR("Failed to add iface %s", can_iface.c_str());
     }
@@ -36,6 +38,16 @@ ActuatorBoardEmulator::ActuatorBoardEmulator(std::string can_iface, std::string 
             feedback_pub->broadcast(msg);
         });
     publish_timer->startPeriodic(uavcan::MonotonicDuration::fromMSec(100));
+
+    command_sub = std::make_unique<ActuatorBoardEmulator::CommandSub>(*node);
+    command_sub->start([&](const uavcan::ReceivedDataStructure<cvra::actuator::Command>& msg) {
+        if (msg.node_id != node->getNodeID().get()) {
+            DEBUG("dropping message. msg.node_id is %d, ours is %d", msg.node_id, node->getNodeID().get());
+            return;
+        }
+
+        // TODO(antoinealb): Do something with the message
+    });
 }
 
 void ActuatorBoardEmulator::start()

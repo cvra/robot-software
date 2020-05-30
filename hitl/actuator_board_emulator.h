@@ -5,6 +5,7 @@
 #include <uavcan_linux/uavcan_linux.hpp>
 #include "uavcan_node.h"
 #include <cvra/actuator/Feedback.hpp>
+#include <cvra/actuator/Command.hpp>
 
 class ActuatorBoardEmulator {
     uavcan_linux::SystemClock clock;
@@ -15,6 +16,9 @@ class ActuatorBoardEmulator {
 
     using ActuatorFeedbackPub = uavcan::Publisher<cvra::actuator::Feedback>;
     std::unique_ptr<ActuatorFeedbackPub> feedback_pub;
+
+    using CommandSub = uavcan::Subscriber<cvra::actuator::Command>;
+    std::unique_ptr<CommandSub> command_sub;
 
     absl::Mutex lock;
 

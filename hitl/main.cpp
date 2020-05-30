@@ -10,6 +10,7 @@
 #include "absl/flags/parse.h"
 #include "absl/flags/usage.h"
 #include "motor_board_emulator.h"
+#include "actuator_board_emulator.h"
 #include "wheel_encoders_emulator.h"
 #include "sensor_board_emulator.h"
 #include "actuator_board_emulator.h"
@@ -217,7 +218,7 @@ int main(int argc, char** argv)
     SensorBoardEmulator sensor(iface, "front-left-sensor", board_id++);
     sensor.set_distance(42);
 
-    ActuatorBoardEmulator actuator(iface, "actuator-front-center", board_id++);
+    ActuatorBoardEmulator actuator(iface, "actuator-front-left", board_id++);
 
     float pressure[2] = {50e3, 80e3};
     actuator.set_pressure(pressure);
