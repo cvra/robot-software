@@ -94,7 +94,6 @@ def build_control_archive(
             for k, v in metadata.items():
                 f.write("{}: {}\n".format(k, v))
 
-
         for dst, src in install_scripts.items():
             if dst not in ALLOWED_SCRIPTS:
                 logging.warning("Unknown install script %s", dst)
