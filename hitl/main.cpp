@@ -40,8 +40,8 @@ int main(int argc, char** argv)
 
         // fake value, for testing
         const float speed_const = 400;
-        left -= left_motor.get_voltage() * dt * speed_const;
-        right -= right_motor.get_voltage() * dt * speed_const;
+        left += left_motor.get_voltage() * dt * speed_const;
+        right += right_motor.get_voltage() * dt * speed_const;
 
         wheels.set_encoders(left, right);
     }
