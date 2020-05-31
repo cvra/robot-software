@@ -19,6 +19,8 @@ target_link_libraries(motor_board_emulator
     error
     uavcan
     uavcan_linux
+    box2d
+    PhysicsRobot
 )
 
 add_library(hitl_logging
@@ -43,3 +45,4 @@ target_link_libraries(voltage_injector
     uavcan
     uavcan_linux
 )
+

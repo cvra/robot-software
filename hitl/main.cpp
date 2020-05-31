@@ -1,6 +1,7 @@
 #include <absl/synchronization/mutex.h>
 #include <cvra/motor/control/Voltage.hpp>
 #include <cvra/odometry/WheelEncoder.hpp>
+#include <box2d/box2d.h>
 #include <uavcan_linux/uavcan_linux.hpp>
 #include <thread>
 #include "absl/flags/flag.h"
@@ -10,6 +11,7 @@
 #include "wheel_encoders_emulator.h"
 #include <error/error.h>
 #include "logging.h"
+#include "PhysicsRobot.h"
 
 ABSL_FLAG(int, first_uavcan_id, 42, "UAVCAN ID of the first board."
                                     " Subsequent ones will be incremented by 1 each.");
@@ -20,6 +22,13 @@ int main(int argc, char** argv)
     absl::SetProgramUsageMessage("Emulates one of CVRA "
                                  "motor control board over UAVCAN");
     absl::ParseCommandLine(argc, argv);
+
+    b2Vec2 gravity(0.0f, 0.0f);
+    b2World world(gravity);
+
+    // TODO: Smoother configuration
+    PhysicsRobot robot(world, 0.212, 0.212, 4, 162);
+
     logging_init();
 
     int board_id = absl::GetFlag(FLAGS_first_uavcan_id);
@@ -33,16 +42,21 @@ int main(int argc, char** argv)
     left_motor.start();
     wheels.start();
 
-    float left = 0.f, right = 0.f;
     while (true) {
         const float dt = 0.01;
         std::this_thread::sleep_for(dt * std::chrono::seconds(1));
 
-        // fake value, for testing
-        const float speed_const = 400;
-        left += left_motor.get_voltage() * dt * speed_const;
-        right += right_motor.get_voltage() * dt * speed_const;
+        robot.ApplyWheelbaseForces(left_motor.get_voltage(), right_motor.get_voltage());
 
+        // number of iterations taken from box2d manual
+        const int velocityIterations = 8;
+        const int posIterations = 3;
+
+        world.Step(dt, velocityIterations, posIterations);
+        robot.AccumulateWheelEncoders(dt);
+
+        int left, right;
+        robot.GetWheelEncoders(left, right);
         wheels.set_encoders(left, right);
     }
 
