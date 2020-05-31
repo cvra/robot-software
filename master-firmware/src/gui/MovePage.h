@@ -9,12 +9,11 @@
 
 #include "base/base_controller.h"
 
-#define BUTTON_HEIGHT 70
-#define BUTTON_WIDTH 225
-
 class MovePage : public Page {
     GHandle forward_button, backward_button, plus_90_button, minus_90_button, center_table_button;
 
+    static const int BUTTON_HEIGHT = 70;
+    static const int BUTTON_WIDTH = 225;
 public:
     virtual const char* get_name() override
     {
