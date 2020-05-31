@@ -96,6 +96,7 @@ endif()
 include(ugfx.cmake)
 add_subdirectory(arm-cortex-tools)
 add_subdirectory(aversive)
+add_subdirectory(box2d/src)
 add_subdirectory(chibios-syscalls)
 add_subdirectory(cmp)
 add_subdirectory(cmp_mem_access)
@@ -118,4 +119,3 @@ add_subdirectory(version)
 
 add_library(Eigen INTERFACE)
 target_include_directories(Eigen INTERFACE eigen/)
-

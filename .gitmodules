@@ -22,3 +22,6 @@
 [submodule "lib/abseil"]
 	path = lib/abseil
 	url = https://github.com/abseil/abseil-cpp.git
+[submodule "lib/box2d"]
+	path = lib/box2d
+	url = https://github.com/erincatto/box2d.git

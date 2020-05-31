@@ -1,3 +1,11 @@
+add_library(PhysicsRobot PhysicsRobot.cpp)
+target_link_libraries(PhysicsRobot PUBLIC box2d)
+
+cvra_add_test(TARGET box2d_test
+    SOURCES tests/box2d.cpp
+    DEPENDENCIES PhysicsRobot
+)
+
 add_executable(motor_board_emulator
     main.cpp
     motor_board_emulator.cpp
