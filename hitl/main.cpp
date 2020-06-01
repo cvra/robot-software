@@ -12,10 +12,22 @@
 #include <error/error.h>
 #include "logging.h"
 #include "PhysicsRobot.h"
+#include <iostream>
+#include <fstream>
 
 ABSL_FLAG(int, first_uavcan_id, 42, "UAVCAN ID of the first board."
                                     " Subsequent ones will be incremented by 1 each.");
 ABSL_FLAG(std::string, can_iface, "vcan0", "SocketCAN interface to connect the emulation to");
+ABSL_FLAG(std::string, position_log, "robot_pos.txt", "File in which to write the position log.");
+
+float clamp(float min, float val, float max)
+{
+    if (val > max)
+        return val;
+    if (val < min)
+        return min;
+    return val;
+}
 
 int main(int argc, char** argv)
 {
@@ -23,11 +35,16 @@ int main(int argc, char** argv)
                                  "motor control board over UAVCAN");
     absl::ParseCommandLine(argc, argv);
 
+    std::ofstream position_log;
+    position_log.open(absl::GetFlag(FLAGS_position_log), std::ios::trunc);
+
     b2Vec2 gravity(0.0f, 0.0f);
     b2World world(gravity);
 
     // TODO: Smoother configuration
-    PhysicsRobot robot(world, 0.212, 0.212, 4, 162);
+    auto size = 0.212f;
+    auto mass = 4.;
+    PhysicsRobot robot(world, size, size, mass, 162);
 
     logging_init();
 
@@ -46,18 +63,31 @@ int main(int argc, char** argv)
         const float dt = 0.01;
         std::this_thread::sleep_for(dt * std::chrono::seconds(1));
 
-        robot.ApplyWheelbaseForces(left_motor.get_voltage(), right_motor.get_voltage());
+        const float f_max = 8.;
+        robot.ApplyWheelbaseForces(
+            clamp(-f_max, -left_motor.get_voltage(), f_max),
+            clamp(-f_max, right_motor.get_voltage(), f_max));
 
         // number of iterations taken from box2d manual
-        const int velocityIterations = 8;
-        const int posIterations = 3;
+        const int velocityIterations = 10;
+        const int posIterations = 30;
 
         world.Step(dt, velocityIterations, posIterations);
+
         robot.AccumulateWheelEncoders(dt);
 
         int left, right;
         robot.GetWheelEncoders(left, right);
-        wheels.set_encoders(left, right);
+        wheels.set_encoders(-left, right);
+
+        auto pos = robot.GetPosition();
+        auto vel = robot.GetLinearVelocity();
+
+        NOTICE_EVERY_N(10, "pos: %.3f %.3f", pos.x, pos.y);
+        position_log << pos.x << ",";
+        position_log << pos.y << ",";
+        position_log << vel.x << ",";
+        position_log << vel.y << std::endl;
     }
 
     return 0;

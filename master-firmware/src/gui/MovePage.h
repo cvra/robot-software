@@ -14,7 +14,7 @@
 #define BUTTON_WIDTH 225
 
 class MovePage : public Page {
-    GHandle forward_button, backward_button, plus_90_button, minus_90_button;
+    GHandle forward_button, backward_button, plus_90_button, minus_90_button, center_table_button;
 
 public:
     virtual const char* get_name() override
@@ -80,6 +80,20 @@ public:
             wi.text = "-90 deg";
             minus_90_button = gwinButtonCreate(0, &wi);
         }
+        {
+            GWidgetInit wi;
+
+            gwinWidgetClearInit(&wi);
+
+            wi.g.show = gTrue;
+            wi.g.parent = parent;
+            wi.g.width = BUTTON_WIDTH;
+            wi.g.height = BUTTON_HEIGHT;
+            wi.g.y = 15 + 2 * (15 + BUTTON_HEIGHT);
+            wi.g.x = 10;
+            wi.text = "Center";
+            center_table_button = gwinButtonCreate(0, &wi);
+        }
     }
 
     virtual void on_event(GEvent* event) override
@@ -102,6 +116,11 @@ public:
                 NOTICE("clicked on -90 degrees button");
                 trajectory_a_rel(&robot.traj, -90);
             }
+            if (wevent->gwin == center_table_button) {
+                NOTICE("Going to the middle of the table");
+                trajectory_goto_forward_xy_abs(&robot.traj, 1500, 1000);
+            }
+
         }
     }
 
