@@ -3,6 +3,7 @@
 #include <box2d/box2d.h>
 
 class PhysicsRobot {
+protected:
     float size_y;
     float pulse_per_mm;
     float pos_left, pos_right;
@@ -17,6 +18,11 @@ public:
     b2Vec2 GetPosition() const
     {
         return robotBody->GetPosition();
+    }
+
+    b2Vec2 GetLinearVelocity() const
+    {
+        return robotBody->GetLinearVelocity();
     }
 
     float GetAngle() const

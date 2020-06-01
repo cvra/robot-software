@@ -68,3 +68,31 @@ TEST(PhysicsRobotTestGroup, CanReadEncodersWhenTurning)
     CHECK_EQUAL(expected, right);
     CHECK_EQUAL(-expected, left);
 }
+
+class TestRobot : public PhysicsRobot {
+public:
+    void SetLinearVelocity(b2Vec2 vel)
+    {
+        robotBody->SetLinearVelocity(vel);
+    }
+
+    TestRobot(b2World& world, float size_x, float size_y, float mass, float pulse_per_mm)
+        : PhysicsRobot(world, size_x, size_y, mass, pulse_per_mm)
+    {
+    }
+};
+
+TEST(PhysicsRobotTestGroup, DoesNotDriftSideways)
+{
+    TestRobot robot(*world, 0.3, 0.3, robot_mass, pulse_per_mm);
+
+    // Apply a sideways velocity, tire friction should keep it zero
+    robot.SetLinearVelocity({0, 1});
+
+    for (int i = 0; i < 10; i++) {
+        robot.ApplyWheelbaseForces(0., 0.);
+        world->Step(timestep, velocityIterations, posIterations);
+    }
+
+    DOUBLES_EQUAL(0., robot.GetLinearVelocity().y, 0.01);
+}

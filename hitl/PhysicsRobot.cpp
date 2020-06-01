@@ -24,6 +24,13 @@ void PhysicsRobot::ApplyWheelbaseForces(float left, float right)
 
     robotBody->ApplyForce(left_wheel_force, left_wheel_pos, true);
     robotBody->ApplyForce(right_wheel_force, right_wheel_pos, true);
+
+    // Apply the tires sideways friction
+    // https://www.iforce2d.net/b2dtut/top-down-car
+    b2Vec2 rightNormal = robotBody->GetWorldVector({0, 1});
+    b2Vec2 lateralVelocity = b2Dot(rightNormal, robotBody->GetLinearVelocity()) * rightNormal;
+    b2Vec2 impulse = robotBody->GetMass() * -lateralVelocity;
+    robotBody->ApplyLinearImpulse(impulse, robotBody->GetWorldCenter(), true);
 }
 
 void PhysicsRobot::AccumulateWheelEncoders(float dt)
@@ -41,7 +48,7 @@ void PhysicsRobot::AccumulateWheelEncoders(float dt)
 
 void PhysicsRobot::GetWheelEncoders(int& left, int& right) const
 {
-    left = 1000 * pulse_per_mm *  pos_left;
+    left = 1000 * pulse_per_mm * pos_left;
     right = 1000 * pulse_per_mm * pos_right;
 }
 
