@@ -41,6 +41,7 @@ target.arm:
     - src/can/uwb_position_handler.cpp
     - src/can/can_uwb_ip_netif.cpp
     - src/can/electron_starter.cpp
+    - src/can/WheelEncoder_pub.cpp
     - src/usbconf.c
     - src/base/rs_port.c
     - src/base/cs_port.c

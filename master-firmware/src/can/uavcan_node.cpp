@@ -6,6 +6,7 @@
 #include <uavcan/protocol/node_info_retriever.hpp>
 #include "emergency_stop_handler.hpp"
 #include "motor_feedback_streams_handler.hpp"
+#include "WheelEncoder_pub.hpp"
 #include "beacon_signal_handler.hpp"
 #include "error/error.h"
 #include "motor_driver.h"
@@ -115,9 +116,8 @@ static void main(void* arg)
         ERROR("beacon signal handler");
     }
 
-    res = motor_driver_uavcan_init(node);
-    if (res < 0) {
-        ERROR("motor driver");
+    if (wheel_encoder_init(node) < 0) {
+        ERROR("wheel encoder");
     }
 
     if (can_io_init(node) < 0) {

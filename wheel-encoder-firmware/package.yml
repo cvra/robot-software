@@ -1,0 +1,28 @@
+dependency-dir: ../lib
+
+include_directories:
+  - src/
+  - src/board
+
+target.stm32f3: []
+target.arm:
+    - src/board/board.c
+    - src/main.c
+    - src/encoder.c
+    - src/bootloader_config.c
+    - src/uavcan/uavcan_node.cpp
+    - src/uavcan/WheelEncoder_pub.cpp
+    - src/libstubs.cpp
+    - ../lib/can-bootloader/config.c
+
+depends:
+    - chibios-syscalls
+    - cmp_mem_access
+    - crc
+    - cmp
+    - version
+
+tests: []
+
+templates:
+    Makefile.include.jinja: src/src.mk
