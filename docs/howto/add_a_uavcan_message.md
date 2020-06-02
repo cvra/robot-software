@@ -1,3 +1,9 @@
+---
+freshness:
+  - owner: antoinealb
+    reviewed: 2020-05-19
+---
+
 # How to handle a new UAVCAN message type?
 
 Things you will need for this tutorial:
