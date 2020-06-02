@@ -1,3 +1,6 @@
+find_package(OpenGL)
+find_package(GLUT)
+
 add_library(PhysicsRobot PhysicsRobot.cpp)
 target_link_libraries(PhysicsRobot PUBLIC box2d)
 
@@ -10,6 +13,7 @@ add_executable(motor_board_emulator
     main.cpp
     motor_board_emulator.cpp
     wheel_encoders_emulator.cpp
+    viewer.cpp
 )
 
 target_link_libraries(motor_board_emulator
@@ -21,6 +25,8 @@ target_link_libraries(motor_board_emulator
     uavcan_linux
     box2d
     PhysicsRobot
+    ${OPENGL_gl_LIBRARY}
+    ${GLUT_LIBRARIES}
 )
 
 add_library(hitl_logging

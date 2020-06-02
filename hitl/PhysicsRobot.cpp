@@ -8,9 +8,15 @@ PhysicsRobot::PhysicsRobot(b2World& world, float size_x, float size_y, float mas
 {
     b2BodyDef robotDef;
     robotDef.type = b2_dynamicBody;
+
+    // TODO: Remove this or make it easier to set ?
+    robotDef.position = {0.6, 0.6};
+    robotDef.angle = 0.1;
+
     robotBody = world.CreateBody(&robotDef);
     b2PolygonShape robotBox;
     robotBox.SetAsBox(size_x / 2, size_y / 2);
+
     robotBody->CreateFixture(&robotBox, mass / (size_x * size_y));
 }
 

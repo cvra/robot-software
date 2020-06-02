@@ -1,3 +1,5 @@
+#include <iostream>
+#include <fstream>
 #include <absl/synchronization/mutex.h>
 #include <cvra/motor/control/Voltage.hpp>
 #include <cvra/odometry/WheelEncoder.hpp>
@@ -11,9 +13,8 @@
 #include "wheel_encoders_emulator.h"
 #include <error/error.h>
 #include "logging.h"
+#include "viewer.h"
 #include "PhysicsRobot.h"
-#include <iostream>
-#include <fstream>
 
 ABSL_FLAG(int, first_uavcan_id, 42, "UAVCAN ID of the first board."
                                     " Subsequent ones will be incremented by 1 each.");
@@ -29,6 +30,63 @@ float clamp(float min, float val, float max)
     return val;
 }
 
+void makeBorders(b2World& world)
+{
+    // horizontal borders
+    float size_x = 3.f, size_y = 2.f;
+    {
+        b2BodyDef def;
+        def.type = b2_staticBody;
+        def.position.Set(0.5 * size_x, -0.1);
+
+        b2Body* borderBody = world.CreateBody(&def);
+
+        b2PolygonShape box;
+        box.SetAsBox(0.5 * size_x, 0.1);
+
+        borderBody->CreateFixture(&box, 1.);
+    }
+
+    {
+        b2BodyDef def;
+        def.type = b2_staticBody;
+        def.position.Set(0.5 * size_x, size_y + 0.1);
+
+        b2Body* borderBody = world.CreateBody(&def);
+
+        b2PolygonShape box;
+        box.SetAsBox(0.5 * size_x, 0.1);
+
+        borderBody->CreateFixture(&box, 1.);
+    }
+
+    {
+        b2BodyDef def;
+        def.type = b2_staticBody;
+        def.position.Set(-0.1, 0.5 * size_y);
+
+        b2Body* borderBody = world.CreateBody(&def);
+
+        b2PolygonShape box;
+        box.SetAsBox(0.1, 0.5 * size_y);
+
+        borderBody->CreateFixture(&box, 1.);
+    }
+
+    {
+        b2BodyDef def;
+        def.type = b2_staticBody;
+        def.position.Set(size_x + 0.1, 0.5 * size_y);
+
+        b2Body* borderBody = world.CreateBody(&def);
+
+        b2PolygonShape box;
+        box.SetAsBox(0.1, 0.5 * size_y);
+
+        borderBody->CreateFixture(&box, 1.);
+    }
+}
+
 int main(int argc, char** argv)
 {
     absl::SetProgramUsageMessage("Emulates one of CVRA "
@@ -40,6 +98,8 @@ int main(int argc, char** argv)
 
     b2Vec2 gravity(0.0f, 0.0f);
     b2World world(gravity);
+
+    makeBorders(world);
 
     // TODO: Smoother configuration
     auto size = 0.212f;
@@ -59,36 +119,40 @@ int main(int argc, char** argv)
     left_motor.start();
     wheels.start();
 
-    while (true) {
-        const float dt = 0.01;
-        std::this_thread::sleep_for(dt * std::chrono::seconds(1));
+    std::thread world_update([&]() {
+        while (true) {
+            const float dt = 0.01;
+            std::this_thread::sleep_for(dt * std::chrono::seconds(1));
 
-        const float f_max = 8.;
-        robot.ApplyWheelbaseForces(
-            clamp(-f_max, -left_motor.get_voltage(), f_max),
-            clamp(-f_max, right_motor.get_voltage(), f_max));
+            const float f_max = 8.;
+            robot.ApplyWheelbaseForces(
+                clamp(-f_max, -left_motor.get_voltage(), f_max),
+                clamp(-f_max, right_motor.get_voltage(), f_max));
 
-        // number of iterations taken from box2d manual
-        const int velocityIterations = 10;
-        const int posIterations = 30;
+            // number of iterations taken from box2d manual
+            const int velocityIterations = 10;
+            const int posIterations = 30;
 
-        world.Step(dt, velocityIterations, posIterations);
+            world.Step(dt, velocityIterations, posIterations);
 
-        robot.AccumulateWheelEncoders(dt);
+            robot.AccumulateWheelEncoders(dt);
 
-        int left, right;
-        robot.GetWheelEncoders(left, right);
-        wheels.set_encoders(-left, right);
+            int left, right;
+            robot.GetWheelEncoders(left, right);
+            wheels.set_encoders(-left, right);
 
-        auto pos = robot.GetPosition();
-        auto vel = robot.GetLinearVelocity();
+            auto pos = robot.GetPosition();
+            auto vel = robot.GetLinearVelocity();
 
-        NOTICE_EVERY_N(10, "pos: %.3f %.3f", pos.x, pos.y);
-        position_log << pos.x << ",";
-        position_log << pos.y << ",";
-        position_log << vel.x << ",";
-        position_log << vel.y << std::endl;
-    }
+            NOTICE_EVERY_N(10, "pos: %.3f %.3f", pos.x, pos.y);
+            position_log << pos.x << ",";
+            position_log << pos.y << ",";
+            position_log << vel.x << ",";
+            position_log << vel.y << std::endl;
+        }
+    });
+
+    startRendering(argc, argv, robot);
 
     return 0;
 }
