@@ -1,6 +1,9 @@
 ---
 title: Porting master-firmware to Linux
 author: "antoinealb"
+freshness:
+  - owner: antoinealb
+    reviewed: 2020-05-14
 ---
 
 # Running master-firmware on Linux
