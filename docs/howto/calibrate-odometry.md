@@ -1,3 +1,9 @@
+---
+freshness:
+  - owner: antoinealb
+    reviewed: 2020-05-19
+---
+
 # Odometry calibration
 
 Most robots in Eurobot use dead reckoning to position themselves on the playing table.
