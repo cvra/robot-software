@@ -16,6 +16,11 @@ nav:
     - '2020 hardware architecture': architecture/hardware2020.md
     - 'Life of a motion': architecture/life-of-a-motion.md
     - 'Master firmware on Linux': design/linux-master.md
+  - 'How to':
+    - 'Calibrate the odometry': howto/calibrate-odometry.md
+    - howto/add_a_uavcan_message.md
+  - Systems:
+      - can/positioning.md
   - CAN:
       - 'CAN Ecosystem': can/intro.md
       - can/motor.md
@@ -24,8 +29,3 @@ nav:
       - can/beacon.md
       - can/adapter.md
       - can/bootloader.md
-  - 'How to':
-    - 'Calibrate the odometry': howto/calibrate-odometry.md
-    - howto/add_a_uavcan_message.md
-  - Systems:
-      - can/positioning.md
