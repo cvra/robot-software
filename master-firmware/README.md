@@ -1,43 +1,34 @@
+---
+freshness:
+  - owner: antoinealb
+    reviewed: : 2020-06-05
+  - owner: nuft
+    reviewed: : 2020-06-05
+---
 # Master Board
 
 This is the firmware for the "master" board of the robot, which is used for hard realtime tasks such as control and odometry.
-It runs on an Olimex E407 board or a ST Nucleo F429ZI, and communicates with the embedded PC via Ethernet/IP.
+It currently is being ported to Linux, and we intend to run it on a Raspberry Pi 4 running Buildroot.
+The firmware is **always** cross-compiled: the robot does not have a compiler installed on it.
 
-### Quickstart
-This requires a working ARM toolchain and OpenOCD.
-It also requires CVRA's packager system, you can install it by running `sudo pip3 install cvra-packager==1.0.0`.
-By default it assumes you are using a ST-Link V2. You can change this in the Makefile.
+## Quickstart
 
+The easiest way to get started is with the Dockerfile that contains the cross-compiler.
+It will soon be available online, for now we assume it was built with the name `cvra-sdk`.
+
+The following setup has to be done **once**:
 ```bash
-    git submodule update --init --recursive
-    packager
-    make protoc
-    make dsdlc
-    make
-    make flash
+git submodule update --init --recursive
+docker run -it -v $(pwd):/src -w /src/lib/nanopb/nanopb/generator/proto cvra-sdk make
+mkdir build-docker
+docker run -it -v $(pwd):/src -w /src/build-docker cvra-sdk cmake .. -DCMAKE_TOOLCHAIN_FILE=/aarch64-buildroot-linux-gnu_sdk-buildroot/share/buildroot/toolchainfile.cmake
 ```
 
-Now the board should be pingable at 192.168.3.20.
-
-Build and run unit tests
+Now, to build the package that can be installed on the robot, you need to run the following command.
+Note that only this command is required after changing source file.
 
 ```bash
-    packager
-    make protoc
-    make dsdlc
-    mkdir build
-    cd build
-    cmake ..
-    make check
+docker run -it -v $(pwd):/src -w /src/build-docker cvra-sdk make master-firmware.ipk
 ```
 
-### Kernel panics
-If there is a kernel panic, the board will turn on all LEDs and continuously print debug information over UART3 at 921600 baud.
-
-## Hardware configuration
-
-The firmware for the two robots is the same.
-The hardware jumper `ROBOT_SELECT` on the Nucleo shield tells the software on which robot it runs.
-Jumper position 1 selects *Order*, jumper position 2 selects *Chaos*.
-The default configuration (i.e. no jumper present) selects *Order*.
-The configuration of both robots is compiled, the right one is selected at runtime based on the jumper configuration.
+The resulting file is `build/master-firmware/master-firmware.ipk`.
