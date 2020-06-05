@@ -1,7 +1,7 @@
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
 #include <array>
-#include "../goap_internals.hpp"
+#include <goap/goap_internals.hpp>
 
 using namespace goap;
 

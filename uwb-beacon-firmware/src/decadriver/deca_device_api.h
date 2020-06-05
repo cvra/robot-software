@@ -525,8 +525,8 @@ void dwt_setsmarttxpower(int enable);
  *                         standard PHR mode allows up to 127 bytes
  *                         if > 127 is programmed, DWT_PHRMODE_EXT needs to be set in the phrMode configuration
  *                         see dwt_configure function
- * @param txFrameBytes   - Pointer to the user뭩 buffer containing the data to send.
- * @param txBufferOffset - This specifies an offset in the DW1000뭩 TX Buffer at which to start writing data.
+ * @param txFrameBytes   - Pointer to the users buffer containing the data to send.
+ * @param txBufferOffset - This specifies an offset in the DW1000s TX Buffer at which to start writing data.
  *
  * output parameters
  *
@@ -753,7 +753,7 @@ int dwt_rxenable(int mode);
  * @param enable - 1 to enable SNIFF mode, 0 to disable. When 0, all other parameters are not taken into account.
  * @param timeOn - duration of receiver ON phase, expressed in multiples of PAC size. The counter automatically adds 1 PAC
  *                 size to the value set. Min value that can be set is 1 (i.e. an ON time of 2 PAC size), max value is 15.
- * @param timeOff - duration of receiver OFF phase, expressed in multiples of 128/125 탎 (~1 탎). Max value is 255.
+ * @param timeOff - duration of receiver OFF phase, expressed in multiples of 128/125 us (~1 us). Max value is 255.
  *
  * output parameters
  *
@@ -799,9 +799,9 @@ void dwt_setlowpowerlistening(int enable);
  * @brief Set duration of "short sleep" phase when in low-power listening mode.
  *
  * input parameters:
- * @param snooze_time - "short sleep" phase duration, expressed in multiples of 512/19.2 탎 (~26.7 탎). The counter
+ * @param snooze_time - "short sleep" phase duration, expressed in multiples of 512/19.2 us (~26.7 us). The counter
  *                      automatically adds 1 to the value set. The smallest working value that should be set is 1,
- *                      i.e. giving a snooze time of 2 units (or ~53 탎).
+ *                      i.e. giving a snooze time of 2 units (or ~53 us).
  *
  * output parameters
  *

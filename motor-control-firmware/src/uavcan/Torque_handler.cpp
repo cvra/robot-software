@@ -1,7 +1,7 @@
 #include <cvra/motor/control/Torque.hpp>
 #include "Torque_handler.hpp"
 #include "uavcan_node.h"
-#include "timestamp/timestamp.h"
+#include <timestamp/timestamp.h>
 #include "control.h"
 
 int Torque_handler_start(Node& node)

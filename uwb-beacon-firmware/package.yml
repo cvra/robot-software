@@ -68,4 +68,7 @@ tests:
 
 templates:
   app_src.mk.jinja: app_src.mk
-  include_dirs_tests.cmake.jinja: CMakeLists.txt
+
+# Since uwb-beacon-firmware already has a cmake version, we do not want to
+# overwrite it with a machine-generated CMakeLists.txt
+render_cmakelists_for_tests: false

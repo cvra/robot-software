@@ -1,6 +1,6 @@
 #include "ch.h"
 #include "hal.h"
-#include "../../../messagebus.h"
+#include "../msgbus/messagebus.h"
 #include <string.h>
 
 messagebus_t bus;

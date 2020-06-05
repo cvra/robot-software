@@ -6,3 +6,5 @@ source:
 
 tests:
     - tests/quadramp.cpp
+
+include_directories: [include]

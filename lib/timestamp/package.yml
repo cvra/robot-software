@@ -9,3 +9,5 @@ target.arm:
 
 tests:
     - timestamp_test.cpp
+
+include_directories: [include]

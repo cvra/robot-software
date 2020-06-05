@@ -7,7 +7,7 @@
 #include "base/base_controller.h"
 #include "control_panel.h"
 #include "protobuf/beacons.pb.h"
-#include "timestamp/timestamp.h"
+#include <timestamp/timestamp.h>
 
 using TagPosition = cvra::uwb_beacon::TagPosition;
 

@@ -6,3 +6,5 @@ source:
 
 tests:
   - tests/error.cpp
+
+include_directories: [include]

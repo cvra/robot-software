@@ -8,11 +8,10 @@
 #include "main.h"
 #include "usbconf.h"
 #include "cmd.h"
-#include "bootloader_config.h"
 #include "exti.h"
 #include "imu_thread.h"
 #include "ahrs_thread.h"
-#include "uavcan/uavcan_node.h"
+#include "./uavcan/uavcan_node.h"
 #include "ranging_thread.h"
 #include "state_estimation_thread.h"
 #include "anchor_position_cache.h"
@@ -39,16 +38,9 @@ void __late_init(void)
 
 int main(void)
 {
-    bootloader_config_t boot_config;
-
-    if (!config_get(&boot_config)) {
-        chSysHalt("Could not read config!");
-    }
-
-    usb_start(boot_config.ID);
-
     /* Starts USB, this takes about 1 second, as we have to disconnect and
      * reconnect the device. */
+    usb_start(42);
     log_init();
 
     NOTICE("boot");
@@ -64,9 +56,9 @@ int main(void)
     anchor_position_cache_start();
     state_estimation_start();
 
-    shell_start((BaseSequentialStream*)&SDU1);
+    //uavcan_node_start(42, "uwb-beacon");
 
-    uavcan_node_start(boot_config.ID, boot_config.board_name);
+    shell_start((BaseSequentialStream*)&SDU1);
 
     /* All services should be initialized by now, we can load the config. */
     chThdSleepMilliseconds(1000);

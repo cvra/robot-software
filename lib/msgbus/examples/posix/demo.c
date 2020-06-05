@@ -2,8 +2,8 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <pthread.h>
-#include "../../messagebus.h"
-#include "port.h"
+#include <msgbus/messagebus.h>
+#include <msgbus/posix/port.h>
 
 messagebus_t bus;
 
@@ -11,7 +11,7 @@ static void* producer(void* p)
 {
     messagebus_topic_t* topic;
     int counter = 0;
-    int producer_number = (int)p;
+    int producer_number = (intptr_t)p;
 
     printf("[publisher %d] waiting for topic myint\n", producer_number);
 
@@ -31,7 +31,7 @@ static void* consumer(void* p)
 {
     messagebus_topic_t* topic;
     int received;
-    int consumer_number = (int)p;
+    int consumer_number = (intptr_t)p;
 
     printf("[consumer %d] waiting for topic myint\n", consumer_number);
 

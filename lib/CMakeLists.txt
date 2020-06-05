@@ -1,12 +1,5 @@
 add_subdirectory(abseil)
 
-add_library(error
-    error/error.c
-    error/error.h
-)
-
-target_include_directories(error PUBLIC .)
-
 # UAVCAN stuff
 
 set(DSDLC_INPUTS uavcan/dsdl/uavcan ../uavcan_data_types/cvra)
@@ -86,4 +79,43 @@ target_compile_definitions(uavcan PUBLIC "UAVCAN_CPP_VERSION=UAVCAN_CPP11;UAVCAN
 target_include_directories(uavcan PUBLIC ${DSDLC_OUTPUT})
 
 add_library(uavcan_linux INTERFACE)
-target_include_directories(uavcan_linux INTERFACE uavcan/libuavcan_drivers/linux/include/)
+target_include_directories(uavcan_linux INTERFACE uavcan/libuavcan_drivers/linux/include)
+
+if (${CMAKE_CROSSCOMPILING})
+    add_library(uavcan_stm32
+        uavcan/libuavcan_drivers/stm32/driver/src/uc_stm32_clock.cpp
+        uavcan/libuavcan_drivers/stm32/driver/src/uc_stm32_can.cpp
+        uavcan/libuavcan_drivers/stm32/driver/src/uc_stm32_thread.cpp
+    )
+    target_include_directories(uavcan_stm32 PUBLIC uavcan/libuavcan_drivers/stm32/driver/include)
+    target_compile_definitions(uavcan_stm32 PUBLIC "UAVCAN_STM32_CHIBIOS=1;UAVCAN_STM32_NUM_IFACES=1")
+
+    target_link_libraries(uavcan_stm32 uavcan chibios)
+endif()
+
+include(ugfx.cmake)
+add_subdirectory(arm-cortex-tools)
+add_subdirectory(aversive)
+add_subdirectory(chibios-syscalls)
+add_subdirectory(cmp)
+add_subdirectory(cmp_mem_access)
+add_subdirectory(crc)
+add_subdirectory(error)
+add_subdirectory(fatfs)
+add_subdirectory(filter)
+add_subdirectory(goap)
+add_subdirectory(lwip)
+add_subdirectory(msgbus)
+add_subdirectory(nanopb)
+add_subdirectory(parameter)
+add_subdirectory(parameter_flash_storage)
+add_subdirectory(pid)
+add_subdirectory(quadramp)
+add_subdirectory(test-runner)
+add_subdirectory(timestamp)
+add_subdirectory(trace)
+add_subdirectory(version)
+
+add_library(Eigen INTERFACE)
+target_include_directories(Eigen INTERFACE eigen/)
+

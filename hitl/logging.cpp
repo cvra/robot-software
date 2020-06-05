@@ -1,11 +1,11 @@
 #include <cstdio>
 #include <cstdarg>
-#include "error/error.h"
+#include <error/error.h>
 #include "absl/flags/flag.h"
 #include "absl/synchronization/mutex.h"
 
 ABSL_FLAG(bool, verbose, false, "Enable verbose logging.");
-static ABSL_CONST_INIT absl::Mutex logging_lock(absl::kConstInit);
+static absl::Mutex logging_lock;
 
 static void log_message(struct error* e, ...)
 {

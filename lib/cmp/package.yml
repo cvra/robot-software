@@ -1,2 +1,4 @@
 source:
     - cmp.c
+
+include_directories: [include]

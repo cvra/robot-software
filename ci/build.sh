@@ -21,55 +21,34 @@ export LDFLAGS="$CXXFLAGS -L $HOME/cpputest/lib/"
 
 case $BUILD_TYPE in
     tests)
-        pushd master-firmware
-        packager
-        make protoc
-        mkdir -p build
-        cd build
+        mkdir build
+        pushd build
         cmake ..
-        make check
+
+        make
+        make test
         popd
 
-        pushd motor-control-firmware
-        packager
-        mkdir -p build
-        cd build
-        cmake ..
-        make check
-        popd
-
-        pushd uwb-beacon-firmware
-        packager
-        mkdir -p build
-        cd build
-        cmake ..
-        make check
-        popd
-
-        pushd actuator-firmware
-        packager
-        mkdir -p build
-        cd build
-        cmake ..
-        make check
-        popd
-
+        # Check that the includes are correct
+        tools/include_bracket_enforcer.py --check
         ;;
 
-    build)
-        echo "build $PLATFORM"
-        pushd $PLATFORM
+    build-cmake)
+        mkdir build
+        pushd build
+        cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/${PLATFORM}.cmake
+        make ${PLATFORM}-firmware.elf
+        popd
+        ;;
+
+    build-packager)
+        pushd ${PLATFORM}-firmware
         packager
         make dsdlc
-
-        if [ "$PLATFORM" == "master-firmware" ]
-        then
-            make protoc
-        fi
-
         make
         popd
         ;;
+
     *)
         echo "Unknown build type $BUILD_TYPE"
         exit 1

@@ -1,6 +1,8 @@
 #ifndef CONTROL_PANEL_H
 #define CONTROL_PANEL_H
 
+#include <stdbool.h>
+
 enum control_panel_input {
     BUTTON_YELLOW = 0,
     BUTTON_GREEN,

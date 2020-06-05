@@ -8,3 +8,5 @@ source:
 tests:
     - tests/iir_test.cpp
     - tests/basic_test.cpp
+
+include_directories: [include]

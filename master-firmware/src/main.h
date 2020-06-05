@@ -1,9 +1,9 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#include "motor_manager.h"
-#include "msgbus_protobuf.h"
+#include "can/motor_manager.h"
 #include <parameter/parameter.h>
+#include "msgbus_protobuf.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,7 +16,6 @@ extern "C" {
 extern messagebus_t bus;
 
 extern motor_manager_t motor_manager;
-
 extern parameter_namespace_t global_config;
 
 #ifdef __cplusplus

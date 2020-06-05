@@ -8,25 +8,30 @@ addons:
             - python-pip
             - python-virtualenv
             - protobuf-compiler
+            - libsdl2-dev
 
 language: cpp
 
 matrix:
     include:
         - compiler: gcc
-          env: BUILD_TYPE="tests"
+          env: BUILD_TYPE="tests" # compiles everything on linux, including master-firmware
+# Disabled until we figure out what to do with the cmake cross compile story
+#        - compiler: gcc
+#          env: BUILD_TYPE="build-cmake" PLATFORM="uwb-beacon"
         - compiler: gcc
-          env: BUILD_TYPE="build" PLATFORM="master-firmware"
+          env: BUILD_TYPE="build-packager" PLATFORM="actuator"
         - compiler: gcc
-          env: BUILD_TYPE="build" PLATFORM="motor-control-firmware"
+          env: BUILD_TYPE="build-packager" PLATFORM="can-io"
         - compiler: gcc
-          env: BUILD_TYPE="build" PLATFORM="can-io-firmware"
+          env: BUILD_TYPE="build-packager" PLATFORM="motor-control"
         - compiler: gcc
-          env: BUILD_TYPE="build" PLATFORM="actuator-firmware"
+          env: BUILD_TYPE="build-packager" PLATFORM="proximity-beacon"
         - compiler: gcc
-          env: BUILD_TYPE="build" PLATFORM="proximity-beacon-firmware"
+          env: BUILD_TYPE="build-packager" PLATFORM="sensor"
         - compiler: gcc
-          env: BUILD_TYPE="build" PLATFORM="uwb-beacon-firmware"
+          env: BUILD_TYPE="build-packager" PLATFORM="uwb-beacon"
+
 
 before_install:
     - git submodule update --init --recursive

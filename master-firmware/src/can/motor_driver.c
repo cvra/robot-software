@@ -1,9 +1,8 @@
-#include <ch.h>
 #include <string.h>
 #include "motor_driver.h"
 
 #include <error/error.h>
-#include "timestamp/timestamp.h"
+#include <timestamp/timestamp.h>
 
 static void pid_register(struct pid_parameter_s* pid,
                          parameter_namespace_t* parent,
@@ -20,7 +19,9 @@ void motor_driver_init(motor_driver_t* d,
                        const char* actuator_id,
                        parameter_namespace_t* ns)
 {
-    chBSemObjectInit(&d->lock, false);
+    if (pthread_mutex_init(&d->lock, NULL)) {
+        ERROR("pthread_mutex_init()");
+    }
 
     strncpy(d->id, actuator_id, MOTOR_ID_MAX_LEN);
     d->id[MOTOR_ID_MAX_LEN] = '\0';
@@ -70,41 +71,41 @@ const char* motor_driver_get_id(motor_driver_t* d)
 
 void motor_driver_set_position(motor_driver_t* d, float position)
 {
-    chBSemWait(&d->lock);
+    motor_driver_lock(d);
     d->control_mode = MOTOR_CONTROL_MODE_POSITION;
     d->setpt.position = position;
-    chBSemSignal(&d->lock);
+    motor_driver_unlock(d);
 }
 
 void motor_driver_set_velocity(motor_driver_t* d, float velocity)
 {
-    chBSemWait(&d->lock);
+    motor_driver_lock(d);
     d->control_mode = MOTOR_CONTROL_MODE_VELOCITY;
     d->setpt.velocity = velocity;
-    chBSemSignal(&d->lock);
+    motor_driver_unlock(d);
 }
 
 void motor_driver_set_torque(motor_driver_t* d, float torque)
 {
-    chBSemWait(&d->lock);
+    motor_driver_lock(d);
     d->control_mode = MOTOR_CONTROL_MODE_TORQUE;
     d->setpt.torque = torque;
-    chBSemSignal(&d->lock);
+    motor_driver_unlock(d);
 }
 
 void motor_driver_set_voltage(motor_driver_t* d, float voltage)
 {
-    chBSemWait(&d->lock);
+    motor_driver_lock(d);
     d->control_mode = MOTOR_CONTROL_MODE_VOLTAGE;
     d->setpt.voltage = voltage;
-    chBSemSignal(&d->lock);
+    motor_driver_unlock(d);
 }
 
 void motor_driver_disable(motor_driver_t* d)
 {
-    chBSemWait(&d->lock);
+    motor_driver_lock(d);
     d->control_mode = MOTOR_CONTROL_MODE_DISABLED;
-    chBSemSignal(&d->lock);
+    motor_driver_unlock(d);
 }
 
 void motor_driver_set_can_id(motor_driver_t* d, int can_id)
@@ -119,12 +120,12 @@ int motor_driver_get_can_id(motor_driver_t* d)
 
 void motor_driver_lock(motor_driver_t* d)
 {
-    chBSemWait(&d->lock);
+    pthread_mutex_lock(&d->lock);
 }
 
 void motor_driver_unlock(motor_driver_t* d)
 {
-    chBSemSignal(&d->lock);
+    pthread_mutex_unlock(&d->lock);
 }
 
 int motor_driver_get_control_mode(motor_driver_t* d)

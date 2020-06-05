@@ -2,7 +2,7 @@
 #include <chprintf.h>
 #include <stdarg.h>
 #include <string.h>
-#include "error/error.h"
+#include <error/error.h>
 
 #define OUTPUT_STREAM ((BaseSequentialStream*)&SD1)
 

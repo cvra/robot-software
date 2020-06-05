@@ -4,3 +4,5 @@ target.arm:
     - cpp_stubs.cpp
     - dynamic_alloc_stubs.cpp
     - stdio_lock.c
+
+include_directories: [include]

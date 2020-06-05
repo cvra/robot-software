@@ -2,7 +2,7 @@
 #include <cstring>
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
-#include "../goap.hpp"
+#include <goap/goap.hpp>
 
 struct TestState {
     bool has_wood;

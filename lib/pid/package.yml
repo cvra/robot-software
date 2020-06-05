@@ -7,3 +7,4 @@ source:
 tests:
     - tests/pid_test.cpp
 
+include_directories: [include]

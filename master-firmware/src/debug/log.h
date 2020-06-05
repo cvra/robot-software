@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-void log_init(void);
+void log_init(int enable_verbose);
 
 #ifdef __cplusplus
 }
