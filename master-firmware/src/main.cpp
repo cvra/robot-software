@@ -44,7 +44,7 @@ motor_manager_t motor_manager;
 messagebus_t bus;
 static MESSAGEBUS_POSIX_SYNC_DECL(bus_sync);
 
-ABSL_FLAG(std::string, can_iface, "vcan0", "SocketCAN interface to use");
+ABSL_FLAG(std::string, can_iface, "vcan0", "SocketCAN interface to use. If empty, disable UAVCAN.");
 ABSL_FLAG(bool, verbose, false, "Enable verbose output");
 ABSL_FLAG(bool, enable_gui, true, "Enable on-robot GUI");
 
@@ -127,7 +127,11 @@ int main(int argc, char** argv)
     init_base_motors();
 
     /* Initiaze UAVCAN communication */
-    uavcan_node_start(absl::GetFlag(FLAGS_can_iface), 10);
+
+    if (!absl::GetFlag(FLAGS_can_iface).empty()) {
+        NOTICE("starting UAVCAN on %s", absl::GetFlag(FLAGS_can_iface).c_str());
+        uavcan_node_start(absl::GetFlag(FLAGS_can_iface), 10);
+    }
 
     /* Those service communicate over IP so must be started afterward */
     // udp_topic_broadcast_start();
