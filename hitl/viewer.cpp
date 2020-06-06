@@ -79,14 +79,28 @@ void CupRenderer::render()
 
 void TableRenderer::render()
 {
-    // TODO(antoinealb): Do use texture there
+    glEnable(GL_TEXTURE_2D);
+    glColor3f(1., 1., 1.);
+
+    glBindTexture(GL_TEXTURE_2D, texture_id);
+
     glBegin(GL_QUADS);
-    hexColor(0x4d, 0xd4, 0xff);
+
+    glTexCoord2f(0., 1.);
     glVertex2f(0.f, 2.f);
+
+    glTexCoord2f(0., 0.);
     glVertex2f(0.f, 0.f);
+
+    glTexCoord2f(1., 0.);
     glVertex2f(3.f, 0.f);
+
+    glTexCoord2f(1., 1.);
     glVertex2f(3.f, 2.f);
+
     glEnd();
+
+    glDisable(GL_TEXTURE_2D);
 }
 
 void display()
@@ -97,7 +111,7 @@ void display()
     glLoadIdentity();
     glOrtho(0, 3., 0, 2., -1., 1.);
 
-    // Do a rotation around the table center, to convert OpenGL to CVRA convention 
+    // Do a rotation around the table center, to convert OpenGL to CVRA convention
     glRotatef(180, 0., 0., 1.);
     glTranslatef(-3., -2., 0.);
 
@@ -114,7 +128,7 @@ void on_timer(int /*value*/)
     glutTimerFunc(33, on_timer, 0);
 }
 
-void startRendering(int argc, char** argv, std::vector<Renderable*>* r)
+void viewer_init(int argc, char **argv)
 {
     glutInit(&argc, argv);
     glutInitWindowSize(1500, 1000);
@@ -123,6 +137,10 @@ void startRendering(int argc, char** argv, std::vector<Renderable*>* r)
 
     glutDisplayFunc(display);
     glutTimerFunc(33, on_timer, 0);
+}
+
+void startRendering(std::vector<Renderable*>* r)
+{
 
     renderables = r;
 

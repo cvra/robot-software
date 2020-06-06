@@ -16,11 +16,13 @@
 #include "viewer.h"
 #include "PhysicsRobot.h"
 #include "PhysicsCup.h"
+#include "png_loader.h"
 
 ABSL_FLAG(int, first_uavcan_id, 42, "UAVCAN ID of the first board."
                                     " Subsequent ones will be incremented by 1 each.");
 ABSL_FLAG(std::string, can_iface, "vcan0", "SocketCAN interface to connect the emulation to");
 ABSL_FLAG(std::string, position_log, "robot_pos.txt", "File in which to write the position log.");
+ABSL_FLAG(std::string, table_texture, "hitl/table.png", "File to use as table texture (PNG format).");
 
 float clamp(float min, float val, float max)
 {
@@ -108,8 +110,7 @@ std::vector<CupRenderer> create_cups(b2World& world)
         {CupColor::RED, {1.065, 1.65}},
         {CupColor::GREEN, {1.335, 1.65}},
         {CupColor::GREEN, {1.005, 1.955}},
-        {CupColor::RED, {1.395, 1.955}}
-    };
+        {CupColor::RED, {1.395, 1.955}}};
 
     auto symmetry = [](cup_init_s init) {
         cup_init_s res;
@@ -157,7 +158,7 @@ int main(int argc, char** argv)
     auto size = 0.212f;
     auto mass = 4.;
     b2Vec2 initial_pos(0.2, 1.0);
-    float initial_heading = 0.1;
+    float initial_heading = 0.;
     float pulse_per_mm = 162;
     PhysicsRobot robot(world, size, size, mass, pulse_per_mm, initial_pos, initial_heading);
 
@@ -209,7 +210,19 @@ int main(int argc, char** argv)
         }
     });
 
-    TableRenderer table_renderer;
+
+    viewer_init(argc, argv);
+
+    int width, height;
+    int texture_id = texture_load(absl::GetFlag(FLAGS_table_texture).c_str(), &width, &height);
+
+    NOTICE("%d, %d", width, height);
+
+    if (texture_id == 0) {
+        ERROR("Could not load table texture");
+    }
+
+    TableRenderer table_renderer(texture_id);
     RobotRenderer robot_renderer(robot);
     std::vector<Renderable*> renderables{&table_renderer, &robot_renderer};
 
@@ -217,9 +230,10 @@ int main(int argc, char** argv)
         renderables.push_back(&cup);
     }
 
-    startRendering(argc, argv, &renderables);
+    startRendering(&renderables);
 
-    while (true) {}
+    while (true) {
+    }
 
     return 0;
 }
