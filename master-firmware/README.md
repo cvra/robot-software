@@ -32,3 +32,21 @@ docker run -it -v $(pwd):/src -w /src/build-docker cvra-sdk make master-firmware
 ```
 
 The resulting file is `build/master-firmware/master-firmware.ipk`.
+
+## Flashing the result to the Pi
+
+**Note:** This is for a Raspberry Pi running our [Buildroot setup](https://github.com/cvra/buildroot), it will not work on Raspian or any other operating systems.
+
+If you connect your computer to the Pi through the USB-C connector, a virtual Ethernet device will be created.
+A DHCP server is running on that interface, meaning you should not have to configure anything on the network side.
+The Pi will always have `10.1.1.1` as its IP address.
+You can then transfer the package to the Pi and install it by running the following commands:
+
+```bash
+scp master-firmware/master-firmware.ipk root@10.1.1.1:
+ssh root@10.1.1.1 "okg install --force-reinstall master-firmware.ipk"
+```
+
+At this point, the code will start, and blink the red led on the Pi.
+The package contains all the required configuration to start automatically at boot.
+No additional work is required. 
