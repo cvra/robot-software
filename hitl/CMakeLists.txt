@@ -1,12 +1,13 @@
 find_package(OpenGL)
 find_package(GLUT)
 
-add_library(PhysicsRobot PhysicsRobot.cpp)
-target_link_libraries(PhysicsRobot PUBLIC box2d)
+add_library(physics PhysicsRobot.cpp PhysicsCup.cpp)
+target_link_libraries(physics PUBLIC box2d)
+
 
 cvra_add_test(TARGET box2d_test
     SOURCES tests/box2d.cpp
-    DEPENDENCIES PhysicsRobot
+    DEPENDENCIES physics
 )
 
 add_executable(motor_board_emulator
@@ -24,7 +25,7 @@ target_link_libraries(motor_board_emulator
     uavcan
     uavcan_linux
     box2d
-    PhysicsRobot
+    physics
     ${OPENGL_gl_LIBRARY}
     ${GLUT_LIBRARIES}
 )

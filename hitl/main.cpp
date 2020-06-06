@@ -15,6 +15,7 @@
 #include "logging.h"
 #include "viewer.h"
 #include "PhysicsRobot.h"
+#include "PhysicsCup.h"
 
 ABSL_FLAG(int, first_uavcan_id, 42, "UAVCAN ID of the first board."
                                     " Subsequent ones will be incremented by 1 each.");
@@ -87,6 +88,57 @@ void makeBorders(b2World& world)
     }
 }
 
+std::vector<CupRenderer> create_cups(b2World& world)
+{
+    struct cup_init_s {
+        CupColor color;
+        b2Vec2 pos;
+    };
+
+    std::vector<cup_init_s> cup_init = {
+        {CupColor::GREEN, {0.3, 0.4}},
+        {CupColor::RED, {0.3, 1.2}},
+        {CupColor::RED, {0.45, 0.51}},
+        {CupColor::GREEN, {0.45, 1.08}},
+        {CupColor::GREEN, {0.67, 0.1}},
+        {CupColor::RED, {0.95, 0.4}},
+        {CupColor::GREEN, {1.1, 0.8}},
+        {CupColor::RED, {1.27, 1.2}},
+
+        {CupColor::RED, {1.065, 1.65}},
+        {CupColor::GREEN, {1.335, 1.65}},
+        {CupColor::GREEN, {1.005, 1.955}},
+        {CupColor::RED, {1.395, 1.955}}
+    };
+
+    auto symmetry = [](cup_init_s init) {
+        cup_init_s res;
+        if (init.color == CupColor::RED) {
+            res.color = CupColor::GREEN;
+        } else {
+            res.color = CupColor::RED;
+        }
+
+        res.pos.x = 3. - init.pos.x;
+        res.pos.y = init.pos.y;
+        return res;
+    };
+
+    int initial_size = cup_init.size();
+    for (int i = 0; i < initial_size; i++) {
+        cup_init.push_back(symmetry(cup_init[i]));
+    }
+
+    std::vector<CupRenderer> renderers;
+
+    for (auto init : cup_init) {
+        auto cup = std::make_shared<PhysicsCup>(world, init.pos);
+        renderers.emplace_back(cup, init.color);
+    }
+
+    return renderers;
+}
+
 int main(int argc, char** argv)
 {
     absl::SetProgramUsageMessage("Emulates one of CVRA "
@@ -104,7 +156,7 @@ int main(int argc, char** argv)
     // TODO: Smoother configuration
     auto size = 0.212f;
     auto mass = 4.;
-    b2Vec2 initial_pos(0.6, 0.6);
+    b2Vec2 initial_pos(0.2, 1.0);
     float initial_heading = 0.1;
     float pulse_per_mm = 162;
     PhysicsRobot robot(world, size, size, mass, pulse_per_mm, initial_pos, initial_heading);
@@ -121,6 +173,8 @@ int main(int argc, char** argv)
     right_motor.start();
     left_motor.start();
     wheels.start();
+
+    auto cups = create_cups(world);
 
     std::thread world_update([&]() {
         while (true) {
@@ -157,8 +211,15 @@ int main(int argc, char** argv)
 
     TableRenderer table_renderer;
     RobotRenderer robot_renderer(robot);
-    std::vector<Renderable *> renderables {&table_renderer, &robot_renderer};
+    std::vector<Renderable*> renderables{&table_renderer, &robot_renderer};
+
+    for (auto& cup : cups) {
+        renderables.push_back(&cup);
+    }
+
     startRendering(argc, argv, &renderables);
+
+    while (true) {}
 
     return 0;
 }
