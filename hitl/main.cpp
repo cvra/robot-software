@@ -104,7 +104,10 @@ int main(int argc, char** argv)
     // TODO: Smoother configuration
     auto size = 0.212f;
     auto mass = 4.;
-    PhysicsRobot robot(world, size, size, mass, 162);
+    b2Vec2 initial_pos(0.6, 0.6);
+    float initial_heading = 0.1;
+    float pulse_per_mm = 162;
+    PhysicsRobot robot(world, size, size, mass, pulse_per_mm, initial_pos, initial_heading);
 
     logging_init();
 

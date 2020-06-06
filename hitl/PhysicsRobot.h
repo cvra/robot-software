@@ -10,7 +10,7 @@ protected:
     b2Body* robotBody;
 
 public:
-    PhysicsRobot(b2World& world, float size_x, float size_y, float mass, float pulse_per_mm);
+    PhysicsRobot(b2World& world, float size_x, float size_y, float mass, float pulse_per_mm, b2Vec2 initial_pos, float heading);
     void ApplyWheelbaseForces(float left, float right);
     void AccumulateWheelEncoders(float dt);
     void GetWheelEncoders(int& left, int& right) const;

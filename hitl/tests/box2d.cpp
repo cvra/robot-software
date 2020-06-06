@@ -22,7 +22,7 @@ TEST_GROUP (PhysicsRobotTestGroup) {
 
 TEST(PhysicsRobotTestGroup, RobotMovesAccordingToPhysics)
 {
-    PhysicsRobot robot(*world, 0.3, 0.3, robot_mass, pulse_per_mm);
+    PhysicsRobot robot(*world, 0.3, 0.3, robot_mass, pulse_per_mm, {0., 0.}, 0.);
 
     for (int i = 0; i < 100; i++) {
         robot.ApplyWheelbaseForces(1., 1.);
@@ -35,7 +35,7 @@ TEST(PhysicsRobotTestGroup, RobotMovesAccordingToPhysics)
 
 TEST(PhysicsRobotTestGroup, CanReadEncodersWhenMovingStraight)
 {
-    PhysicsRobot robot(*world, 0.3, 0.3, robot_mass, pulse_per_mm);
+    PhysicsRobot robot(*world, 0.3, 0.3, robot_mass, pulse_per_mm, {0., 0.}, 0.);
 
     for (int i = 0; i < 100; i++) {
         robot.ApplyWheelbaseForces(1., 1.);
@@ -52,7 +52,7 @@ TEST(PhysicsRobotTestGroup, CanReadEncodersWhenMovingStraight)
 
 TEST(PhysicsRobotTestGroup, CanReadEncodersWhenTurning)
 {
-    PhysicsRobot robot(*world, 0.3, 0.3, robot_mass, pulse_per_mm);
+    PhysicsRobot robot(*world, 0.3, 0.3, robot_mass, pulse_per_mm, {0., 0.}, 0.);
 
     for (int i = 0; i < 100; i++) {
         robot.ApplyWheelbaseForces(-1., 1.);
@@ -77,7 +77,7 @@ public:
     }
 
     TestRobot(b2World& world, float size_x, float size_y, float mass, float pulse_per_mm)
-        : PhysicsRobot(world, size_x, size_y, mass, pulse_per_mm)
+        : PhysicsRobot(world, size_x, size_y, mass, pulse_per_mm, {0., 0.}, 0.)
     {
     }
 };

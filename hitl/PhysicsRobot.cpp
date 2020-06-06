@@ -1,6 +1,6 @@
 #include "PhysicsRobot.h"
 
-PhysicsRobot::PhysicsRobot(b2World& world, float size_x, float size_y, float mass, float pulse_per_mm)
+PhysicsRobot::PhysicsRobot(b2World& world, float size_x, float size_y, float mass, float pulse_per_mm, b2Vec2 initial_pos, float heading)
     : size_y(size_y)
     , pulse_per_mm(pulse_per_mm)
     , pos_left(0.f)
@@ -9,9 +9,8 @@ PhysicsRobot::PhysicsRobot(b2World& world, float size_x, float size_y, float mas
     b2BodyDef robotDef;
     robotDef.type = b2_dynamicBody;
 
-    // TODO: Remove this or make it easier to set ?
-    robotDef.position = {0.6, 0.6};
-    robotDef.angle = 0.1;
+    robotDef.position = initial_pos;
+    robotDef.angle = heading;
 
     robotBody = world.CreateBody(&robotDef);
     b2PolygonShape robotBox;
