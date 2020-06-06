@@ -155,7 +155,10 @@ int main(int argc, char** argv)
         }
     });
 
-    startRendering(argc, argv, robot);
+    TableRenderer table_renderer;
+    RobotRenderer robot_renderer(robot);
+    std::vector<Renderable *> renderables {&table_renderer, &robot_renderer};
+    startRendering(argc, argv, &renderables);
 
     return 0;
 }
