@@ -1,0 +1,5 @@
+#!/bin/sh
+
+systemctl daemon-reload
+systemctl enable cvra-master
+systemctl start cvra-master

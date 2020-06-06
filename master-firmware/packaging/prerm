@@ -1,0 +1,4 @@
+#!/bin/sh
+
+systemctl stop cvra-master
+systemctl disable cvra-master

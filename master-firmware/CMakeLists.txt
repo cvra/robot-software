@@ -196,7 +196,10 @@ add_custom_target(master-firmware.ipk
     COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/../tools/build_opkg_package.py
     --name master-firmware
     --output master-firmware.ipk
-    master-firmware:/usr/bin/cvra-master
+    master-firmware:/bin/cvra-master
+    ${CMAKE_CURRENT_SOURCE_DIR}/packaging/cvra-master.service:/usr/lib/systemd/system/cvra-master.service
+    --postinst ${CMAKE_CURRENT_SOURCE_DIR}/packaging/postinst
+    --prerm ${CMAKE_CURRENT_SOURCE_DIR}/packaging/prerm
     DEPENDS master-firmware
     COMMENT "Packaging master-firmware.ipk"
 )
