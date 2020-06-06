@@ -15,8 +15,7 @@ static void log_message(struct error* e, ...)
     pthread_mutex_lock(&log_lock);
     va_list va;
 
-    printf("%ld\t", time(NULL));
-    printf("%s\t", error_severity_get_name(e->severity));
+    printf("%7s ", error_severity_get_name(e->severity));
     printf("%s:%d\t", strrchr(e->file, '/') + 1, e->line);
 
     va_start(va, e);
@@ -24,6 +23,8 @@ static void log_message(struct error* e, ...)
     va_end(va);
 
     printf("\n");
+
+    fflush(stdout);
 
     if (e->severity >= ERROR_SEVERITY_ERROR) {
         /* break if run under a debugger */
