@@ -14,6 +14,7 @@ class MovePage : public Page {
 
     static const int BUTTON_HEIGHT = 70;
     static const int BUTTON_WIDTH = 225;
+
 public:
     virtual const char* get_name() override
     {
