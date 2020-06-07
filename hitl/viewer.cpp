@@ -103,13 +103,31 @@ void TableRenderer::render()
     glDisable(GL_TEXTURE_2D);
 }
 
+void system_resize(int width, int height)
+{
+    float a = (float)width / (float)height;
+
+    glViewport(0, 0, width, height);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+
+    if (a < 3. / 2) {
+        glOrtho(0, 3, 0, 3 / a, -1, 1);
+    } else {
+        glOrtho(0, 2 * a, 0, 2, -1, 1);
+    }
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+}
+
 void display()
 {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
+    glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    glOrtho(0, 3., 0, 2., -1., 1.);
 
     // Do a rotation around the table center, to convert OpenGL to CVRA convention
     glRotatef(180, 0., 0., 1.);
@@ -128,20 +146,20 @@ void on_timer(int /*value*/)
     glutTimerFunc(33, on_timer, 0);
 }
 
-void viewer_init(int argc, char **argv)
+void viewer_init(int argc, char** argv)
 {
     glutInit(&argc, argv);
-    glutInitWindowSize(1500, 1000);
+    glutInitWindowSize(600, 400);
     glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
     glutCreateWindow("CVRA");
 
     glutDisplayFunc(display);
     glutTimerFunc(33, on_timer, 0);
+    glutReshapeFunc(system_resize);
 }
 
 void startRendering(std::vector<Renderable*>* r)
 {
-
     renderables = r;
 
     glutMainLoop();
