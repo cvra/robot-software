@@ -116,7 +116,7 @@ static void base_ctrl_thd()
     parameter_namespace_t* control_params = parameter_namespace_find(&master_config, "aversive/control");
     parameter_namespace_t* odometry_params = parameter_namespace_find(&master_config, "odometry");
 
-    while (1) {
+    while (true) {
         rs_update(&robot.rs);
 
         /* Control system manage */
@@ -229,7 +229,7 @@ static void position_manager_thd()
 
     //RobotPosition pos = RobotPosition_init_zero;
 
-    while (1) {
+    while (true) {
         position_manage(&robot.pos);
         //pos.x = position_get_x_float(&robot.pos);
         //pos.y = position_get_y_float(&robot.pos);
@@ -251,7 +251,7 @@ void position_manager_start()
 
 void trajectory_manager_thd()
 {
-    while (1) {
+    while (true) {
         trajectory_manager_manage(&robot.traj);
         std::this_thread::sleep_for(1s / ODOM_FREQUENCY);
     }

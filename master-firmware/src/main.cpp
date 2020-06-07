@@ -159,7 +159,7 @@ int main(int argc, char** argv)
 
     //trajectory_d_rel(&robot.traj, 300);
     /* just a simple test case */
-    while (1) {
+    while (true) {
         std::this_thread::sleep_for(1s);
     }
 }

@@ -107,13 +107,13 @@ void control_panel_init(bool is_active_high)
 bool control_panel_read(enum control_panel_input in)
 {
     WARNING_EVERY_N(100, "%s(%s) not implemented yet.", __FUNCTION__, control_panel_input[in]);
-    return 0;
+    return false;
 }
 
 bool control_panel_button_is_pressed(enum control_panel_input in)
 {
     WARNING_EVERY_N(100, "%s(%s) not implemented yet.", __FUNCTION__, control_panel_input[in]);
-    return 0;
+    return false;
 }
 
 void control_panel_set(enum control_panel_output out)
