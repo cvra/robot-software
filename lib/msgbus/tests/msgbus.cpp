@@ -16,7 +16,7 @@ TEST_GROUP (MessageBusTestGroup) {
     {
         messagebus_init(&bus, &bus_lock, &bus_condvar);
         messagebus_topic_init(&topic, &topic_lock, &topic_condvar, buffer, sizeof buffer);
-        messagebus_topic_init(&second_topic, NULL, NULL, NULL, 0);
+        messagebus_topic_init(&second_topic, nullptr, nullptr, nullptr, 0);
     }
 };
 

@@ -29,7 +29,7 @@ TEST_GROUP (Print) {
         vectbuf[2] = 3;
         varvectbuf[0] = 33;
         varvectbuf[1] = 44;
-        parameter_namespace_declare(&rootns, NULL, NULL);
+        parameter_namespace_declare(&rootns, nullptr, nullptr);
         parameter_scalar_declare_with_default(&param_scalar, &rootns, "param_scalar", 3.1415926536);
         parameter_integer_declare_with_default(&param_integer, &rootns, "param_integer", 42);
         parameter_boolean_declare_with_default(&param_boolean, &rootns, "param_boolean", true);
@@ -78,7 +78,7 @@ const char* expected =
 
 TEST(Print, tst1)
 {
-    parameter_print(&rootns, (parameter_printfn_t)printfn, (void*)NULL);
+    parameter_print(&rootns, (parameter_printfn_t)printfn, (void*)nullptr);
     outbuffer[outbuffer_pos] = '\0';
     // printf("%s", outbuffer);
     STRCMP_EQUAL(expected, outbuffer);

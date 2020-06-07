@@ -14,7 +14,7 @@ TEST_GROUP (ConfigSaveTestCase) {
     void setup() override
     {
         mock("flash").ignoreOtherCalls();
-        parameter_namespace_declare(&ns, NULL, NULL);
+        parameter_namespace_declare(&ns, nullptr, nullptr);
     }
 };
 
@@ -78,7 +78,7 @@ TEST(ConfigSaveTestCase, SavingConfigWorks)
     parameter_msgpack_read(&ns,
                            (char*)(&data[PARAMETER_FLASH_STORAGE_HEADER_SIZE]),
                            sizeof(data) - PARAMETER_FLASH_STORAGE_HEADER_SIZE,
-                           err_cb, NULL);
+                           err_cb, nullptr);
 
     // Check that the parameter has the same value as saved
     CHECK_EQUAL(10, parameter_integer_get(parameter_find(&ns, "/foo")));
@@ -92,7 +92,7 @@ TEST_GROUP (ConfigLoadTestCase) {
     void setup() override
     {
         mock("flash").ignoreOtherCalls();
-        parameter_namespace_declare(&ns, NULL, NULL);
+        parameter_namespace_declare(&ns, nullptr, nullptr);
         parameter_integer_declare(&foo, &ns, "foo");
     }
 };
@@ -140,7 +140,7 @@ TEST(ConfigLoadTestCase, FailsIfParameterTreeLayoutDoesNotMatchSavedStructure)
     parameter_flash_storage_save(data, sizeof(data), &ns);
 
     // Create a new different tree
-    parameter_namespace_declare(&ns, NULL, NULL);
+    parameter_namespace_declare(&ns, nullptr, nullptr);
     parameter_integer_declare(&foo, &ns, "bar");
 
     // Try to load it
@@ -249,7 +249,7 @@ TEST_GROUP (ConfigLoadBalancingTestGroup) {
     void setup() override
     {
         mock("flash").ignoreOtherCalls();
-        parameter_namespace_declare(&ns, NULL, NULL);
+        parameter_namespace_declare(&ns, nullptr, nullptr);
     }
 };
 

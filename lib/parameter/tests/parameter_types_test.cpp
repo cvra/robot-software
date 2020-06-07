@@ -7,7 +7,7 @@ TEST_GROUP (IntegerParamter) {
 
     void setup() override
     {
-        parameter_namespace_declare(&ns, NULL, NULL);
+        parameter_namespace_declare(&ns, nullptr, nullptr);
         parameter_integer_declare(&p, &ns, "int");
     }
 };
@@ -53,7 +53,7 @@ TEST_GROUP (StringParamter) {
 
     void setup() override
     {
-        parameter_namespace_declare(&ns, NULL, NULL);
+        parameter_namespace_declare(&ns, nullptr, nullptr);
         parameter_string_declare(&p, &ns, "str", str_buffer, sizeof(str_buffer));
     }
 };
@@ -126,7 +126,7 @@ TEST_GROUP (BoolParameter) {
 
     void setup() override
     {
-        parameter_namespace_declare(&ns, NULL, NULL);
+        parameter_namespace_declare(&ns, nullptr, nullptr);
         parameter_boolean_declare(&p, &ns, "bool");
     }
 };

@@ -11,9 +11,9 @@ TEST_GROUP (MsgBusForeachTestGroup) {
     void setup() override
     {
         int bus_lock;
-        messagebus_init(&bus, &bus_lock, NULL);
-        messagebus_topic_init(&foo, NULL, NULL, NULL, 0);
-        messagebus_topic_init(&bar, NULL, NULL, NULL, 0);
+        messagebus_init(&bus, &bus_lock, nullptr);
+        messagebus_topic_init(&foo, nullptr, nullptr, nullptr, 0);
+        messagebus_topic_init(&bar, nullptr, nullptr, nullptr, 0);
         messagebus_advertise_topic(&bus, &foo, "foo");
         messagebus_advertise_topic(&bus, &bar, "bar");
     }

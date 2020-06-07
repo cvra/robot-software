@@ -68,7 +68,7 @@ static void open_led(enum control_panel_output led_num, std::string path)
     // First, get the maximum brightness level for this LED
     std::string max_brightness_path = path + "/max_brightness";
     f = fopen(max_brightness_path.c_str(), "r");
-    if (f == NULL) {
+    if (f == nullptr) {
         WARNING("could not open '%s' for led %d: %s", max_brightness_path.c_str(), led_num, strerror(errno));
         return;
     }

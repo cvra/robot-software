@@ -15,7 +15,7 @@ TEST_GROUP (BusEnumeratorTestGroup) {
     bus_enumerator_t en;
 
     static const uint16_t buffer_len = 21;
-    bus_enumerator_entry_allocator* buffer = NULL;
+    bus_enumerator_entry_allocator* buffer = nullptr;
 
     void setup() override
     {
@@ -195,9 +195,9 @@ TEST(BusEnumeratorTestGroup, GetCanIdWithSeveralEntries)
 
 TEST(BusEnumeratorTestGroup, GetDriver)
 {
-    bus_enumerator_add_node(&en, LARGE_STR_ID, NULL);
+    bus_enumerator_add_node(&en, LARGE_STR_ID, nullptr);
     bus_enumerator_add_node(&en, MEDIUM_STR_ID, DRIVER_POINTER);
-    bus_enumerator_add_node(&en, SMALL_STR_ID, NULL);
+    bus_enumerator_add_node(&en, SMALL_STR_ID, nullptr);
 
     POINTERS_EQUAL(DRIVER_POINTER, bus_enumerator_get_driver(&en, MEDIUM_STR_ID));
 }
@@ -219,7 +219,7 @@ TEST_GROUP (BusEnumeratorBufferLengthTestGroup) {
     bus_enumerator_t en;
 
     static const uint16_t buffer_len = 2;
-    bus_enumerator_entry_allocator* buffer = NULL;
+    bus_enumerator_entry_allocator* buffer = nullptr;
 
     void setup() override
     {

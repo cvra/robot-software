@@ -77,7 +77,7 @@ TEST(PolygonIntersection, DoNotInteresect)
     poly.pts[3] = {0, 10};
 
     point_t p1 = {0, 20}, p2 = {20, 20};
-    auto res = is_crossing_poly(p1, p2, NULL, &poly);
+    auto res = is_crossing_poly(p1, p2, nullptr, &poly);
     CHECK_EQUAL(0, res);
 }
 
@@ -89,7 +89,7 @@ TEST(PolygonIntersection, IntersectCompletely)
     poly.pts[3] = {0, 10};
 
     point_t p1 = {-20, 0}, p2 = {20, 0};
-    auto res = is_crossing_poly(p1, p2, NULL, &poly);
+    auto res = is_crossing_poly(p1, p2, nullptr, &poly);
     CHECK_EQUAL(2, res);
 }
 
@@ -101,7 +101,7 @@ TEST(PolygonIntersection, Cross)
     poly.pts[3] = {0, 10};
 
     point_t p1 = {0, 10}, p2 = {20, 0};
-    auto res = is_crossing_poly(p1, p2, NULL, &poly);
+    auto res = is_crossing_poly(p1, p2, nullptr, &poly);
     CHECK_EQUAL(1, res);
 }
 

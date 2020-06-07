@@ -6,10 +6,10 @@
 TEST_GROUP (ErrorLogging) {
     void teardown() override
     {
-        error_register_error(NULL);
-        error_register_warning(NULL);
-        error_register_notice(NULL);
-        error_register_debug(NULL);
+        error_register_error(nullptr);
+        error_register_warning(nullptr);
+        error_register_notice(nullptr);
+        error_register_debug(nullptr);
     }
 };
 

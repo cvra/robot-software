@@ -42,9 +42,9 @@ void robot_init(void)
     rs_set_left_pwm(&robot.rs, rs_left_wheel_set_voltage, &left_wheel_motor);
     rs_set_right_pwm(&robot.rs, rs_right_wheel_set_voltage, &right_wheel_motor);
 
-    rs_set_left_ext_encoder(&robot.rs, rs_encoder_get_left_ext, NULL,
+    rs_set_left_ext_encoder(&robot.rs, rs_encoder_get_left_ext, nullptr,
                             config_get_scalar("master/odometry/left_wheel_correction_factor"));
-    rs_set_right_ext_encoder(&robot.rs, rs_encoder_get_right_ext, NULL,
+    rs_set_right_ext_encoder(&robot.rs, rs_encoder_get_right_ext, nullptr,
                              config_get_scalar("master/odometry/right_wheel_correction_factor"));
 
     /* Position manager */
@@ -165,9 +165,9 @@ static void base_ctrl_thd()
             pid_set_integral_limit(&robot.distance_pid.pid, ilim);
         }
         if (parameter_namespace_contains_changed(odometry_params)) {
-            rs_set_left_ext_encoder(&robot.rs, rs_encoder_get_left_ext, NULL,
+            rs_set_left_ext_encoder(&robot.rs, rs_encoder_get_left_ext, nullptr,
                                     config_get_scalar("master/odometry/left_wheel_correction_factor"));
-            rs_set_right_ext_encoder(&robot.rs, rs_encoder_get_right_ext, NULL,
+            rs_set_right_ext_encoder(&robot.rs, rs_encoder_get_right_ext, nullptr,
                                      config_get_scalar("master/odometry/right_wheel_correction_factor"));
 
             position_set_physical_params(&robot.pos,

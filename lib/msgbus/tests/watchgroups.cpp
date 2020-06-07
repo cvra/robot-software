@@ -12,7 +12,7 @@ TEST_GROUP (Watchgroups) {
 
     void setup() override
     {
-        messagebus_topic_init(&topic, NULL, NULL, NULL, 0);
+        messagebus_topic_init(&topic, nullptr, nullptr, nullptr, 0);
         messagebus_watchgroup_init(&group, &lock, &condvar);
     }
 
@@ -39,7 +39,7 @@ TEST(Watchgroups, CanAddTopicToDifferentGroups)
 {
     messagebus_watcher_t w2;
     messagebus_watchgroup_t second_group;
-    messagebus_watchgroup_init(&second_group, NULL, NULL);
+    messagebus_watchgroup_init(&second_group, nullptr, nullptr);
 
     messagebus_watchgroup_watch(&watcher, &group, &topic);
     messagebus_watchgroup_watch(&w2, &second_group, &topic);
@@ -83,13 +83,13 @@ TEST(Watchgroups, GroupIsWokeUpOnPublish)
     lock_mocks_enable(true);
     condvar_mocks_enable(true);
 
-    messagebus_topic_publish(&topic, NULL, 0);
+    messagebus_topic_publish(&topic, nullptr, 0);
 }
 
 TEST(Watchgroups, GroupHasTopic)
 {
     messagebus_watchgroup_watch(&watcher, &group, &topic);
-    messagebus_topic_publish(&topic, NULL, 0);
+    messagebus_topic_publish(&topic, nullptr, 0);
     POINTERS_EQUAL(&topic, group.published_topic);
 }
 
@@ -123,20 +123,20 @@ TEST(Watchgroups, AllGroupsAreSignaled)
     lock_mocks_enable(true);
     condvar_mocks_enable(true);
 
-    messagebus_topic_publish(&topic, NULL, 0);
+    messagebus_topic_publish(&topic, nullptr, 0);
 }
 
 /* This test checks that we can have several group containing the same topics. */
 TEST(Watchgroups, GroupCanBeLinkedInMultipleTopics)
 {
     messagebus_topic_t topic2;
-    messagebus_topic_init(&topic2, NULL, NULL, NULL, 0);
+    messagebus_topic_init(&topic2, nullptr, nullptr, nullptr, 0);
 
     messagebus_watchgroup_t group2, group3;
     int lock2, var2;
 
     messagebus_watchgroup_init(&group2, &lock2, &var2);
-    messagebus_watchgroup_init(&group3, NULL, NULL);
+    messagebus_watchgroup_init(&group3, nullptr, nullptr);
 
     /* Adds the first topic to two groups. */
     messagebus_watcher_t watcher2;
@@ -168,7 +168,7 @@ TEST(Watchgroups, GroupCanBeLinkedInMultipleTopics)
     /* Finally, do the actuall publish. */
     lock_mocks_enable(true);
     condvar_mocks_enable(true);
-    messagebus_topic_publish(&topic, NULL, 0);
+    messagebus_topic_publish(&topic, nullptr, 0);
 }
 
 TEST(Watchgroups, WatcherAnAlreadyWatchedTopicIsInitialized)
@@ -189,5 +189,5 @@ TEST(Watchgroups, WatcherAnAlreadyWatchedTopicIsInitialized)
     POINTERS_EQUAL(NULL, second_watcher.next);
 
     // It will crash if the watchers are not properly initialized
-    messagebus_topic_publish(&topic, NULL, 0);
+    messagebus_topic_publish(&topic, nullptr, 0);
 }
