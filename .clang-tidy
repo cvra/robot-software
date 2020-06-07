@@ -1,0 +1,7 @@
+---
+Checks:          '-*,readability-braces-around-statements'
+WarningsAsErrors: ''
+HeaderFilterRegex: ''
+FormatStyle:     'file'
+CheckOptions: []
+...
