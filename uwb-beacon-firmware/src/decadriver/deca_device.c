@@ -1281,9 +1281,7 @@ void dwt_otpread(uint32 address, uint32* array, uint8 length)
         array[i] = _dwt_otpread(address + i);
     }
 
-    _dwt_enableclocks(ENABLE_ALL_SEQ); // Restore system clock to PLL
-
-    return;
+    _dwt_enableclocks(ENABLE_ALL_SEQ);
 }
 
 /*! ------------------------------------------------------------------------------------------------------------------
