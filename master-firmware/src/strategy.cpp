@@ -58,13 +58,13 @@ static enum strat_color_t wait_for_color_selection(void)
     if (control_panel_button_is_pressed(BUTTON_GREEN)) {
         control_panel_clear(LED_YELLOW);
         control_panel_set(LED_GREEN);
-        color = VIOLET;
-        NOTICE("Color set to violet");
+        color = YELLOW;
+        NOTICE("Color set to yellow");
     } else {
         control_panel_set(LED_YELLOW);
         control_panel_clear(LED_GREEN);
-        color = YELLOW;
-        NOTICE("Color set to yellow");
+        color = BLUE;
+        NOTICE("Color set to blue");
     }
 
     return color;
