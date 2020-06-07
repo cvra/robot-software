@@ -608,8 +608,9 @@ static void error_printbin(const char* data, size_t size)
     size_t i;
 
     printf("[ ");
-    for (i = 0; i < size; i++)
+    for (i = 0; i < size; i++) {
         error_printf(" %02X", data[i]);
+    }
     printf(" ]");
 }
 
@@ -665,10 +666,11 @@ static void error_print_object(cmp_object_t* obj)
             error_printf("NULL");
             break;
         case CMP_TYPE_BOOLEAN:
-            if (obj->as.boolean)
+            if (obj->as.boolean) {
                 error_printf("bool: true");
-            else
+            } else {
                 error_printf("bool: false");
+            }
             break;
         case CMP_TYPE_EXT8:
             error_printf("ext8: {%d, %u}", obj->as.ext.type, obj->as.ext.size);
