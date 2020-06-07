@@ -5,7 +5,7 @@ TEST_GROUP (IntegerParamter) {
     parameter_namespace_t ns;
     parameter_t p;
 
-    void setup(void)
+    void setup()
     {
         parameter_namespace_declare(&ns, NULL, NULL);
         parameter_integer_declare(&p, &ns, "int");
@@ -51,7 +51,7 @@ TEST_GROUP (StringParamter) {
     parameter_t p;
     char str_buffer[8];
 
-    void setup(void)
+    void setup()
     {
         parameter_namespace_declare(&ns, NULL, NULL);
         parameter_string_declare(&p, &ns, "str", str_buffer, sizeof(str_buffer));
@@ -124,7 +124,7 @@ TEST_GROUP (BoolParameter) {
     parameter_namespace_t ns;
     parameter_t p;
 
-    void setup(void)
+    void setup()
     {
         parameter_namespace_declare(&ns, NULL, NULL);
         parameter_boolean_declare(&p, &ns, "bool");

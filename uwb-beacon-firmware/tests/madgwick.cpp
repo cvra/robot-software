@@ -5,7 +5,7 @@
 TEST_GROUP (MadgwickTestGroup) {
     madgwick_filter_t f;
 
-    void setup(void)
+    void setup()
     {
         madgwick_filter_init(&f);
     }

@@ -5,7 +5,7 @@
 
 TEST_GROUP (ParameterNamespaceInit) {
     parameter_namespace_t rootns;
-    void setup(void)
+    void setup()
     {
         parameter_namespace_declare(&rootns, NULL, NULL);
     }
@@ -53,7 +53,7 @@ TEST(ParameterNamespaceInit, NamespaceCreateMultiple)
 
 TEST_GROUP (ParameterInit) {
     parameter_namespace_t ns;
-    void setup(void)
+    void setup()
     {
         parameter_namespace_declare(&ns, NULL, NULL);
     }
@@ -100,7 +100,7 @@ TEST_GROUP (ParameterTree) {
     parameter_t p_a2_z;
     parameter_t p_root_x;
     parameter_t p_b1i_x;
-    void setup(void)
+    void setup()
     {
         parameter_namespace_declare(&rootns, NULL, NULL);
         parameter_namespace_declare(&a, &rootns, "test_a");

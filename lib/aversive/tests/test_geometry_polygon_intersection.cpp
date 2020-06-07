@@ -57,7 +57,7 @@ TEST_GROUP (PolygonIntersection) {
     poly_t poly;
     point_t poly_points[4];
 
-    void setup(void)
+    void setup()
     {
         poly.pts = poly_points;
         poly.l = 4;
@@ -110,7 +110,7 @@ TEST_GROUP (RayCastingTestGroup) {
     point_t obstacle[4];
 
     point_t startstop[2];
-    void setup(void)
+    void setup()
     {
         polygons[0].pts = startstop;
         polygons[0].l = 2;

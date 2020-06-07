@@ -17,7 +17,7 @@ TEST_GROUP (BusEnumeratorTestGroup) {
     static const uint16_t buffer_len = 21;
     bus_enumerator_entry_allocator* buffer = NULL;
 
-    void setup(void)
+    void setup()
     {
         // allocate the list of bus enumerators
         buffer = (struct bus_enumerator_entry_allocator*)
@@ -221,7 +221,7 @@ TEST_GROUP (BusEnumeratorBufferLengthTestGroup) {
     static const uint16_t buffer_len = 2;
     bus_enumerator_entry_allocator* buffer = NULL;
 
-    void setup(void)
+    void setup()
     {
         // allocate the list of bus enumerators
         buffer = (struct bus_enumerator_entry_allocator*)

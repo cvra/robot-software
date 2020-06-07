@@ -58,7 +58,7 @@ void RadioPositionEstimator::processDistanceMeasurement(const float anchor_posit
     std::tie(state, covariance) = m.correct(state, covariance, z);
 }
 
-void RadioPositionEstimator::predict(void)
+void RadioPositionEstimator::predict()
 {
     IdentityPredictor p(processVariance);
     Eigen::Matrix<float, 0, 1> u;

@@ -21,7 +21,7 @@ TEST_GROUP (Print) {
     char strbuf[10];
     float vectbuf[3];
     float varvectbuf[10];
-    void setup(void)
+    void setup()
     {
         outbuffer_pos = 0;
         vectbuf[0] = 1;

@@ -111,7 +111,7 @@ void robot_init(void)
                        acc_rd2imp(&robot.traj, 30.));
 }
 
-static void base_ctrl_thd(void)
+static void base_ctrl_thd()
 {
     parameter_namespace_t* control_params = parameter_namespace_find(&master_config, "aversive/control");
     parameter_namespace_t* odometry_params = parameter_namespace_find(&master_config, "odometry");

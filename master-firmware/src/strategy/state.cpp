@@ -2,7 +2,7 @@
 
 #include "state.h"
 
-RobotState initial_state(void)
+RobotState initial_state()
 {
     RobotState state;
 
