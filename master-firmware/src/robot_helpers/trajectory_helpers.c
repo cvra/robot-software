@@ -229,24 +229,36 @@ void trajectory_set_mode_game(
                        acc_rd2imp(robot_traj, 6.));
 }
 
-#if USE_TIMESTAMP
 void trajectory_game_timer_reset(void)
 {
+#if USE_TIMESTAMP
     robot.start_time = timestamp_get();
+#endif
 }
 
 int trajectory_get_time(void)
 {
+#if USE_TIMESTAMP
     return timestamp_duration_s(robot.start_time, timestamp_get());
+#else
+    return 0;
+#endif
 }
 
 int trajectory_get_time_ms(void)
 {
+#if USE_TIMESTAMP
     return timestamp_duration_us(robot.start_time, timestamp_get()) / 1000;
+#else
+    return 0;
+#endif
 }
 
 bool trajectory_game_has_ended(void)
 {
+#if USE_TIMESTAMP
     return trajectory_get_time() >= GAME_DURATION;
-}
+#else
+    return false;
 #endif
+}

@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-void strategy_start(void);
+void strategy_play_game();
 
 #ifdef __cplusplus
 }

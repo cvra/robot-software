@@ -176,6 +176,7 @@ add_executable(master-firmware
     src/gui/Menu.cpp
     src/gui/MenuPage.cpp
     src/strategy/actions_impl.cpp
+    src/strategy.cpp
     src/robot_helpers/trajectory_helpers.c
 )
 
