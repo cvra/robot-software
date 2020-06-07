@@ -45,8 +45,8 @@ TEST(MessagebusProtobufIntegration, CanCreateTopic)
 {
     TOPIC_DECL(topic, Timestamp);
 
-    POINTERS_EQUAL(&topic.lock, topic.topic.lock);
-    POINTERS_EQUAL(&topic.condvar, topic.topic.condvar);
+    POINTERS_EQUAL(&topic.var, topic.topic.lock);
+    POINTERS_EQUAL(&topic.var, topic.topic.condvar);
     POINTERS_EQUAL(&topic.value, topic.topic.buffer);
     CHECK_EQUAL(sizeof(Timestamp), topic.topic.buffer_len);
 

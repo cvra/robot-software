@@ -19,6 +19,7 @@ target_link_libraries(master_lib
     aversive
     pid
     msgbus
+    msgbus_posix
     master_proto
     nanopb
     timestamp
