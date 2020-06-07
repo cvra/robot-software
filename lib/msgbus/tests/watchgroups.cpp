@@ -60,7 +60,7 @@ TEST(Watchgroups, CanWaitOnGroup)
     mock().expectOneCall("messagebus_condvar_wait").withPointerParameter("var", group.condvar);
     mock().expectOneCall("messagebus_lock_release").withPointerParameter("lock", group.lock);
 
-    auto res = messagebus_watchgroup_wait(&group);
+    auto* res = messagebus_watchgroup_wait(&group);
     POINTERS_EQUAL(&topic, res);
 }
 

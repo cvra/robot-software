@@ -579,7 +579,7 @@ TEST(DataPacket, CanReceiveDataPacket)
 {
     const char* msg = "hello";
     const auto dst_addr = MAC_802_15_4_BROADCAST_ADDR;
-    auto msg_buf = reinterpret_cast<const uint8_t*>(msg);
+    const auto* msg_buf = reinterpret_cast<const uint8_t*>(msg);
     size = uwb_protocol_prepare_data_packet(&handler, dst_addr, msg_buf, strlen(msg) + 1, frame);
 
     handler.user_data_received_cb = user_data_packet_received_cb;

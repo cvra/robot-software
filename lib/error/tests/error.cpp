@@ -122,31 +122,31 @@ TEST(ErrorLogging, GeneratesDebugEvery10)
 
 TEST(ErrorLogging, ErrorName)
 {
-    auto name = error_severity_get_name(ERROR_SEVERITY_ERROR);
+    const auto* name = error_severity_get_name(ERROR_SEVERITY_ERROR);
     STRCMP_EQUAL("ERROR", name);
 }
 
 TEST(ErrorLogging, WarningName)
 {
-    auto name = error_severity_get_name(ERROR_SEVERITY_WARNING);
+    const auto* name = error_severity_get_name(ERROR_SEVERITY_WARNING);
     STRCMP_EQUAL("WARNING", name);
 }
 
 TEST(ErrorLogging, NoticeName)
 {
-    auto name = error_severity_get_name(ERROR_SEVERITY_NOTICE);
+    const auto* name = error_severity_get_name(ERROR_SEVERITY_NOTICE);
     STRCMP_EQUAL("NOTICE", name);
 }
 
 TEST(ErrorLogging, DebugName)
 {
-    auto name = error_severity_get_name(ERROR_SEVERITY_DEBUG);
+    const auto* name = error_severity_get_name(ERROR_SEVERITY_DEBUG);
     STRCMP_EQUAL("DEBUG", name);
 }
 
 TEST(ErrorLogging, UnknownName)
 {
     auto invalid_severity = 42;
-    auto name = error_severity_get_name(invalid_severity);
+    const auto* name = error_severity_get_name(invalid_severity);
     STRCMP_EQUAL("UNKNOWN", name);
 }

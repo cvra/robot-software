@@ -215,7 +215,7 @@ TEST_GROUP (FindFirstValidBlockTestGroup) {
 
 TEST(FindFirstValidBlockTestGroup, ReturnsFirstPartofTheBlock)
 {
-    auto first_block = parameter_flash_storage_block_find_first_free(block);
+    auto* first_block = parameter_flash_storage_block_find_first_free(block);
     POINTERS_EQUAL(&block[0], first_block);
 }
 
@@ -223,14 +223,14 @@ TEST(FindFirstValidBlockTestGroup, SkipsAlreadyUsedBlocks)
 {
     mock("flash").disable();
     parameter_flash_storage_write_block_header(block, 10);
-    auto first_block = parameter_flash_storage_block_find_first_free(block);
+    auto* first_block = parameter_flash_storage_block_find_first_free(block);
 
     POINTERS_EQUAL(&block[10 + PARAMETER_FLASH_STORAGE_HEADER_SIZE], first_block);
 }
 
 TEST(FindFirstValidBlockTestGroup, FindNoUsedBlockReturnsNULL)
 {
-    auto last_block = parameter_flash_storage_block_find_last_used(block);
+    auto* last_block = parameter_flash_storage_block_find_last_used(block);
     POINTERS_EQUAL(NULL, last_block);
 }
 
@@ -268,7 +268,7 @@ TEST(ConfigLoadBalancingTestGroup, ConfigSavingIsLoadBalanced)
     POINTERS_EQUAL(block, parameter_flash_storage_block_find_last_used(block));
 
     // Checks that the second save is on the second block
-    auto second_block = parameter_flash_storage_block_find_first_free(block);
+    auto* second_block = parameter_flash_storage_block_find_first_free(block);
     parameter_flash_storage_save(block, sizeof(block), &ns);
     POINTERS_EQUAL(second_block, parameter_flash_storage_block_find_last_used(block));
 }
