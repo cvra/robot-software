@@ -1,6 +1,6 @@
 #include "PhysicsCup.h"
 
-PhysicsCup::PhysicsCup(b2World &world, b2Vec2 pos)
+PhysicsCup::PhysicsCup(b2World& world, b2Vec2 pos)
 {
     b2BodyDef def;
     def.type = b2_dynamicBody;

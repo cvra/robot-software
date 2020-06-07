@@ -120,7 +120,6 @@ public:
                 NOTICE("Going to the middle of the table");
                 trajectory_goto_forward_xy_abs(&robot.traj, 1500, 1000);
             }
-
         }
     }
 

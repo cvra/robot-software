@@ -56,4 +56,3 @@ void PhysicsRobot::GetWheelEncoders(int& left, int& right) const
     left = 1000 * pulse_per_mm * pos_left;
     right = 1000 * pulse_per_mm * pos_right;
 }
-

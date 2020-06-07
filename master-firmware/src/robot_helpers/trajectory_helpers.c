@@ -2,7 +2,7 @@
 // ifdefs
 #define USE_MAP 0
 
-// TODO: Define this once timestamp is converted to Linux, then delete all 
+// TODO: Define this once timestamp is converted to Linux, then delete all
 // ifdefs
 #define USE_TIMESTAMP 0
 

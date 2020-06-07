@@ -41,10 +41,14 @@ public:
 
 class TableRenderer : public Renderable {
     int texture_id;
+
 public:
-    explicit TableRenderer(int texture_id) : texture_id(texture_id) {}
+    explicit TableRenderer(int texture_id)
+        : texture_id(texture_id)
+    {
+    }
     void render() override;
 };
 
-void viewer_init(int argc, char **argv);
+void viewer_init(int argc, char** argv);
 void startRendering(std::vector<Renderable*>* renderables);

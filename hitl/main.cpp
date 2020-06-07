@@ -249,7 +249,6 @@ int main(int argc, char** argv)
         }
     });
 
-
     viewer_init(argc, argv);
 
     int width, height;
