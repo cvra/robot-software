@@ -1,5 +1,5 @@
 ---
-Checks:          '-*,readability-braces-around-statements'
+Checks:          '-*,readability-braces-around-statements,bugprone-macro-parentheses'
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
 FormatStyle:     'file'
