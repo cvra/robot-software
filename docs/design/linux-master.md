@@ -143,24 +143,25 @@ We could potentially have the robot generate a hotspot, to which we could connec
 
 ## Tasks & effort estimates
 
-Task                                                                      | Owner      | Work estimate
---------------------------------------------------------------------------|------------|---------------
-**Electronics**                                                                      |            | **Total: 6**
-Schematic for hardware extension for Pi                                              |            | 2
-Routing the PCB                                                                      |            | 2
-PCB Assembly                                                                         |            | 1
-Write a firmware to read wheelbase encoders and send it over CAN (running on nucleo) | nuft       | 1
-**Linux setup**                                                                      |            | **Total: 10**
-Get Buildroot to boot on chosen SBC (done)                                           | antoinealb | 1
-Modify kernel to for our custom hardware                                             | antoinealb | 2
-Setup ethernet networking & SSH (done)                                               |            | 1
-Optimize boot time to stay under 10 seconds                                          |            | ??
-Deployement scripts and autostart of CVRA software (done)                            | antoinealb | 3
-**Master firmware modifications**                                                    |            | **Total: 11**
-Port enough of the master-firmware to have the uavcan part running on Linux (done)   | antoinealb | 3
-Rewrite debug shell to listen over TCP instead of UART                               |            | 2
-Read encoders from CAN instead of from hardware directly. (done)                     |            | 1
-Port rest of the code required for wheelbase control. (done)                         |            | 1
-Manipulate buttons and LEDs using sysfs instead of ChibiOS API                       |            | 1
-Port rest of the code required to play a match                                       |            | 2
-Change HMI backend to use SDL API (might require Linux setup on Pi)                  | antoinealb | 1
+Task                                                                      | Done | Owner      | Work estimate
+--------------------------------------------------------------------------|-|-----------|---------------
+**Electronics**                                                                      |   |            | **Total: 6**
+Schematic for hardware extension for Pi                                              |   |            | 2
+Routing the PCB                                                                      |   |            | 2
+PCB Assembly                                                                         |   |            | 1
+Write a firmware to read wheelbase encoders and send it over CAN (running on nucleo) |   | nuft       | 1
+**Linux setup**                                                                      |   |            | **Total: 10**
+Get Buildroot to boot on chosen SBC                                                  | ✔️ | antoinealb | 1
+Modify kernel to for our custom hardware                                             |   |  antoinealb | 2
+Setup ethernet networking & SSH                                                      | ✔️ |            | 1
+Optimize boot time to stay under 10 seconds                                          |   |             | ??
+Deployement scripts and autostart of CVRA software                                   | ✔️ | antoinealb | 3
+**Master firmware modifications**                                                    |   |             | **Total: 11**
+Port enough of the master-firmware to have the uavcan part running on Linux          | ✔️ | antoinealb | 3
+Rewrite debug shell to listen over TCP instead of UART                               |   |             | 2
+Read encoders from CAN instead of from hardware directly.                            | ✔️ |            | 1
+Port rest of the code required for wheelbase control.                                | ✔️ |            | 1
+Manipulate LEDs using sysfs instead of ChibiOS API                                   | ✔️  | antoinealb | 1
+Reads front panel buttons using sysfs instead of ChibiOS API                         |   |            | 1
+Port rest of the code required to play a match                                       |   |            | 2
+Change HMI backend to use SDL API (might require Linux setup on Pi)                  |   | antoinealb | 1
