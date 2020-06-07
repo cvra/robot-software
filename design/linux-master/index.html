@@ -234,6 +234,7 @@ We could potentially have the robot generate a hotspot, to which we could connec
 <thead>
 <tr>
 <th>Task</th>
+<th>Done</th>
 <th>Owner</th>
 <th>Work estimate</th>
 </tr>
@@ -242,95 +243,120 @@ We could potentially have the robot generate a hotspot, to which we could connec
 <tr>
 <td><strong>Electronics</strong></td>
 <td></td>
+<td></td>
 <td><strong>Total: 6</strong></td>
 </tr>
 <tr>
 <td>Schematic for hardware extension for Pi</td>
+<td></td>
 <td></td>
 <td>2</td>
 </tr>
 <tr>
 <td>Routing the PCB</td>
 <td></td>
+<td></td>
 <td>2</td>
 </tr>
 <tr>
 <td>PCB Assembly</td>
 <td></td>
+<td></td>
 <td>1</td>
 </tr>
 <tr>
 <td>Write a firmware to read wheelbase encoders and send it over CAN (running on nucleo)</td>
+<td></td>
 <td>nuft</td>
 <td>1</td>
 </tr>
 <tr>
 <td><strong>Linux setup</strong></td>
 <td></td>
+<td></td>
 <td><strong>Total: 10</strong></td>
 </tr>
 <tr>
-<td>Get Buildroot to boot on chosen SBC (done)</td>
+<td>Get Buildroot to boot on chosen SBC</td>
+<td>✔️</td>
 <td>antoinealb</td>
 <td>1</td>
 </tr>
 <tr>
 <td>Modify kernel to for our custom hardware</td>
+<td></td>
 <td>antoinealb</td>
 <td>2</td>
 </tr>
 <tr>
-<td>Setup ethernet networking &amp; SSH (done)</td>
+<td>Setup ethernet networking &amp; SSH</td>
+<td>✔️</td>
 <td></td>
 <td>1</td>
 </tr>
 <tr>
 <td>Optimize boot time to stay under 10 seconds</td>
 <td></td>
+<td></td>
 <td>??</td>
 </tr>
 <tr>
-<td>Deployement scripts and autostart of CVRA software (done)</td>
+<td>Deployement scripts and autostart of CVRA software</td>
+<td>✔️</td>
 <td>antoinealb</td>
 <td>3</td>
 </tr>
 <tr>
 <td><strong>Master firmware modifications</strong></td>
 <td></td>
+<td></td>
 <td><strong>Total: 11</strong></td>
 </tr>
 <tr>
-<td>Port enough of the master-firmware to have the uavcan part running on Linux (done)</td>
+<td>Port enough of the master-firmware to have the uavcan part running on Linux</td>
+<td>✔️</td>
 <td>antoinealb</td>
 <td>3</td>
 </tr>
 <tr>
 <td>Rewrite debug shell to listen over TCP instead of UART</td>
 <td></td>
+<td></td>
 <td>2</td>
 </tr>
 <tr>
-<td>Read encoders from CAN instead of from hardware directly. (done)</td>
+<td>Read encoders from CAN instead of from hardware directly.</td>
+<td>✔️</td>
 <td></td>
 <td>1</td>
 </tr>
 <tr>
-<td>Port rest of the code required for wheelbase control. (done)</td>
+<td>Port rest of the code required for wheelbase control.</td>
+<td>✔️</td>
 <td></td>
 <td>1</td>
 </tr>
 <tr>
-<td>Manipulate buttons and LEDs using sysfs instead of ChibiOS API</td>
+<td>Manipulate LEDs using sysfs instead of ChibiOS API</td>
+<td>✔️</td>
+<td>antoinealb</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Reads front panel buttons using sysfs instead of ChibiOS API</td>
+<td></td>
 <td></td>
 <td>1</td>
 </tr>
 <tr>
 <td>Port rest of the code required to play a match</td>
 <td></td>
+<td></td>
 <td>2</td>
 </tr>
 <tr>
 <td>Change HMI backend to use SDL API (might require Linux setup on Pi)</td>
+<td></td>
 <td>antoinealb</td>
 <td>1</td>
 </tr>
