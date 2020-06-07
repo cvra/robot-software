@@ -12,7 +12,7 @@ TEST_GROUP (MessageBusTestGroup) {
     int topic_condvar;
     messagebus_topic_t second_topic;
 
-    void setup()
+    void setup() override
     {
         messagebus_init(&bus, &bus_lock, &bus_condvar);
         messagebus_topic_init(&topic, &topic_lock, &topic_condvar, buffer, sizeof buffer);

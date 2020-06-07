@@ -25,7 +25,7 @@ TEST_GROUP (MPU9250Protocol) {
     std::vector<std::array<uint8_t, 2>> writes;
     std::vector<std::array<uint8_t, 2>> reads;
 
-    void setup()
+    void setup() override
     {
         mpu9250_init(&dev, &drv);
         writes.reserve(100);

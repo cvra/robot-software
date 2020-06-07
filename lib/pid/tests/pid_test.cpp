@@ -16,7 +16,7 @@ TEST_GROUP (PIDTestGroup) {
         DOUBLES_EQUAL(expected_output, output, 1e-3);
     }
 
-    void setup()
+    void setup() override
     {
         pid_init(&pid);
     }

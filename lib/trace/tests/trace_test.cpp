@@ -7,7 +7,7 @@
 extern volatile struct trace_buffer_struct trace_buffer;
 
 TEST_GROUP (TraceTestGroup) {
-    void setup()
+    void setup() override
     {
         trace_init();
         trace_enable();
@@ -123,7 +123,7 @@ extern "C" void print_fn(void* p, const char* fmt, ...)
 TEST_GROUP (TracePrintTestGroup) {
     char buffer[1000];
     void* arg;
-    void setup()
+    void setup() override
     {
         memset(buffer, 0, sizeof(buffer));
         arg = buffer;

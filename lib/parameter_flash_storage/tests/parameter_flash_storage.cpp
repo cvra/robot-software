@@ -11,7 +11,7 @@ TEST_GROUP (ConfigSaveTestCase) {
     uint8_t data[128];
     parameter_namespace_t ns;
 
-    void setup()
+    void setup() override
     {
         mock("flash").ignoreOtherCalls();
         parameter_namespace_declare(&ns, NULL, NULL);
@@ -89,7 +89,7 @@ TEST_GROUP (ConfigLoadTestCase) {
     parameter_namespace_t ns;
     parameter_t foo;
 
-    void setup()
+    void setup() override
     {
         mock("flash").ignoreOtherCalls();
         parameter_namespace_declare(&ns, NULL, NULL);
@@ -153,7 +153,7 @@ TEST(ConfigLoadTestCase, FailsIfParameterTreeLayoutDoesNotMatchSavedStructure)
 TEST_GROUP (BlockValidityTestGroup) {
     uint8_t block[256 + PARAMETER_FLASH_STORAGE_HEADER_SIZE];
 
-    void setup()
+    void setup() override
     {
         memset(block, 0, sizeof(block));
 
@@ -246,7 +246,7 @@ TEST_GROUP (ConfigLoadBalancingTestGroup) {
     parameter_namespace_t ns;
     uint8_t block[256];
 
-    void setup()
+    void setup() override
     {
         mock("flash").ignoreOtherCalls();
         parameter_namespace_declare(&ns, NULL, NULL);

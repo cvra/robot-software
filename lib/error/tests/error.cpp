@@ -4,7 +4,7 @@
 #include <error/error.h>
 
 TEST_GROUP (ErrorLogging) {
-    void teardown()
+    void teardown() override
     {
         error_register_error(NULL);
         error_register_warning(NULL);

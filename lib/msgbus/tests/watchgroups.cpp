@@ -10,13 +10,13 @@ TEST_GROUP (Watchgroups) {
     int lock, condvar;
     messagebus_watcher_t watcher;
 
-    void setup()
+    void setup() override
     {
         messagebus_topic_init(&topic, NULL, NULL, NULL, 0);
         messagebus_watchgroup_init(&group, &lock, &condvar);
     }
 
-    void teardown()
+    void teardown() override
     {
         lock_mocks_enable(false);
         condvar_mocks_enable(false);

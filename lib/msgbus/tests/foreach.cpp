@@ -8,7 +8,7 @@ TEST_GROUP (MsgBusForeachTestGroup) {
     messagebus_t bus;
     messagebus_topic_t foo, bar;
 
-    void setup()
+    void setup() override
     {
         int bus_lock;
         messagebus_init(&bus, &bus_lock, NULL);
@@ -18,7 +18,7 @@ TEST_GROUP (MsgBusForeachTestGroup) {
         messagebus_advertise_topic(&bus, &bar, "bar");
     }
 
-    void teardown()
+    void teardown() override
     {
         lock_mocks_enable(false);
         mock().checkExpectations();

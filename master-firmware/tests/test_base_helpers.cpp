@@ -9,13 +9,13 @@ TEST_GROUP (ABasePositionGetter) {
     const int ARBITRARY_ENCODER_TICKS_PER_MM = 10000;
     struct robot_position robot_pos;
 
-    void setup()
+    void setup() override
     {
         position_init(&robot_pos);
         position_set_physical_params(&robot_pos, ARBITRARY_TRACK_LENGTH_MM, ARBITRARY_ENCODER_TICKS_PER_MM);
     }
 
-    void teardown()
+    void teardown() override
     {
     }
 };

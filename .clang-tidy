@@ -1,5 +1,5 @@
 ---
-Checks:          '-*,readability-braces-around-statements,bugprone-macro-parentheses,modernize-redundant-void-arg,modernize-use-bool-literals'
+Checks:          '-*,readability-braces-around-statements,bugprone-macro-parentheses,modernize-redundant-void-arg,modernize-use-bool-literals,modernize-use-override'
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
 FormatStyle:     'file'

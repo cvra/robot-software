@@ -64,7 +64,7 @@ TEST_GROUP (PointIsInPolyGon) {
     const int arbitrary_y = 200;
     const int arbitrary_size = 200;
 
-    void setup()
+    void setup() override
     {
         polygon = {.pts = points, .l = 4};
     }

@@ -7,7 +7,7 @@ extern "C" {
 TEST_GROUP (AQuadRamp) {
     struct quadramp_filter filter;
 
-    void setup()
+    void setup() override
     {
         quadramp_init(&filter);
     }

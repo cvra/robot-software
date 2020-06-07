@@ -7,7 +7,7 @@ TEST_GROUP (MessagebusCppInterface) {
     int topic_content;
     messagebus_t bus;
     messagebus::TopicWrapper<int> topic{&raw_topic};
-    void setup()
+    void setup() override
     {
         messagebus_topic_init(&raw_topic, nullptr, nullptr, &topic_content, sizeof(topic_content));
         messagebus_init(&bus, nullptr, nullptr);

@@ -26,7 +26,7 @@ TEST_GROUP (MessagePackTestGroup) {
     cmp_mem_access_t mem;
     cmp_ctx_t ctx;
 
-    void setup()
+    void setup() override
     {
         parameter_namespace_declare(&rootns, NULL, NULL);
         parameter_namespace_declare(&a, &rootns, "a");
@@ -37,7 +37,7 @@ TEST_GROUP (MessagePackTestGroup) {
         cmp_mem_access_init(&ctx, &mem, buffer, sizeof buffer);
     }
 
-    void teardown()
+    void teardown() override
     {
         mock().clear();
     }

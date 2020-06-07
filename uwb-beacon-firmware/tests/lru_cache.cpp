@@ -7,7 +7,7 @@ TEST_GROUP (LeastRecentlyUsedCacheTestGroup) {
     cache_entry_t entries[3];
     cache_t cache;
 
-    void setup()
+    void setup() override
     {
         memset(entries, 0x55, sizeof(entries));
         memset(&cache, 0x55, sizeof(cache));

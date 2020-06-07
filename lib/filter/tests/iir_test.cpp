@@ -7,7 +7,7 @@ TEST_GROUP (IIRFilter) {
     const float a[3] = {0.1, 0.1, 0.1};
     float buffer[3];
 
-    void setup()
+    void setup() override
     {
         filter_iir_init(&iir_filter, b, a, 3, buffer);
     }

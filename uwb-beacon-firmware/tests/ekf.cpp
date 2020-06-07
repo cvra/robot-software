@@ -39,12 +39,12 @@ TEST(KalmanPredictor, CanPredictCorrectlyNewState)
         {
         }
 
-        State g(State mu, Input u)
+        State g(State mu, Input u) override
         {
             return mu + u;
         }
 
-        Jacobian G(State mu, Input u)
+        Jacobian G(State mu, Input u) override
         {
             return Jacobian::Identity();
         }
@@ -76,12 +76,12 @@ TEST(KalmanCorrector, MeasurementModel)
         {
         }
 
-        Measurement h(State mu)
+        Measurement h(State mu) override
         {
             return mu;
         }
 
-        Jacobian H(State mu)
+        Jacobian H(State mu) override
         {
             return Jacobian::Identity();
         }
