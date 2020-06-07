@@ -88,6 +88,45 @@ void makeBorders(b2World& world)
 
         borderBody->CreateFixture(&box, 1.);
     }
+
+    // Borders on the table
+    const float border_width = 0.022;
+    {
+        b2BodyDef def;
+        def.type = b2_staticBody;
+        def.position.Set(0.9, 1.925);
+
+        b2Body* borderBody = world.CreateBody(&def);
+
+        b2PolygonShape box;
+        box.SetAsBox(border_width * 0.5, 0.075);
+
+        borderBody->CreateFixture(&box, 1.);
+    }
+    {
+        b2BodyDef def;
+        def.type = b2_staticBody;
+        def.position.Set(2.1, 1.925);
+
+        b2Body* borderBody = world.CreateBody(&def);
+
+        b2PolygonShape box;
+        box.SetAsBox(border_width * 0.5, 0.075);
+
+        borderBody->CreateFixture(&box, 1.);
+    }
+    {
+        b2BodyDef def;
+        def.type = b2_staticBody;
+        def.position.Set(1.5, 1850);
+
+        b2Body* borderBody = world.CreateBody(&def);
+
+        b2PolygonShape box;
+        box.SetAsBox(border_width * 0.5, 0.150);
+
+        borderBody->CreateFixture(&box, 1.);
+    }
 }
 
 std::vector<CupRenderer> create_cups(b2World& world)
