@@ -151,28 +151,11 @@ int main(int argc, char** argv)
     position_manager_start();
     trajectory_manager_start();
 
-    /* Initialize strategy thread, will wait for signal to begin game */
-    //strategy_start();
-
     // Shell manager initialization.
     //shellInit();
     //   shell_spawn((BaseSequentialStream*)&SDU1);
 
-    std::this_thread::sleep_for(2s);
-
-#if 0
-    trajectory_goto_forward_xy_abs(&robot.traj, 1900, 1000);
-    trajectory_wait_for_end(TRAJ_FLAGS_ALL);
-    trajectory_a_abs(&robot.traj, 90);
-    trajectory_wait_for_end(TRAJ_FLAGS_ALL);
-    trajectory_goto_forward_xy_abs(&robot.traj, 1900, 1700);
-    trajectory_wait_for_end(TRAJ_FLAGS_ALL);
-    trajectory_goto_backward_xy_abs(&robot.traj, 1700, 1000);
-    trajectory_wait_for_end(TRAJ_FLAGS_ALL);
-    trajectory_goto_forward_xy_abs(&robot.traj, 1700, 1700);
-#else
     strategy_play_game();
-#endif
 
     //trajectory_d_rel(&robot.traj, 300);
     /* just a simple test case */

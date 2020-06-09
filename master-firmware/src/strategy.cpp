@@ -27,7 +27,7 @@
 #if USE_MAP
 #include "base/map.h"
 #include "base/map_server.h"
-#endif 
+#endif
 
 #include "config.h"
 #include "control_panel.h"
@@ -37,7 +37,6 @@
 #include "strategy/color.h"
 #include "strategy/actions.h"
 #include "strategy/goals.h"
-#include "strategy/score_counter.h"
 #include "strategy/state.h"
 
 using namespace std::chrono_literals;
@@ -147,7 +146,12 @@ void strategy_order_play_game(StrategyState& state, enum strat_color_t color)
            position_get_x_s16(&robot.pos), position_get_y_s16(&robot.pos), position_get_a_deg_s16(&robot.pos));
 
     /* Wait for starter to begin */
-    //wait_for_starter();
+#if 0
+    wait_for_starter();
+#else
+    std::this_thread::sleep_for(2s);
+#endif
+
 #if USE_TIMESTAMP
     trajectory_game_timer_reset();
 #endif
@@ -190,7 +194,6 @@ void strategy_play_game()
 #if USE_MAP
     map_server_start(color);
 #endif
-    //score_counter_start();
 
     strategy_order_play_game(state, YELLOW);
 }
