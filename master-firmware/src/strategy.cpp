@@ -170,6 +170,12 @@ void strategy_order_play_game(StrategyState& state, enum strat_color_t color)
         }
     }
 
+    NOTICE("Deploying flags");
+    WARNING("Unimplemented");
+
+    state.robot.flags_deployed = true;
+    messagebus_topic_publish(state_topic, &state, sizeof(state));
+
     NOTICE("Game ended!");
 }
 

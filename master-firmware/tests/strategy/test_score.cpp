@@ -34,3 +34,20 @@ TEST(Score, CanScorePointWithTheLighthouse)
     state.lighthouse_is_on = true;
     CHECK_EQUAL(15, compute_score(state, main_robot));
 }
+
+TEST(Score, FlagsAreCountedByTheMainRobot)
+{
+    auto initial_score = compute_score(state, main_robot);
+    state.robot.flags_deployed = true;
+    auto score_flags = compute_score(state, main_robot) - initial_score;
+    CHECK_EQUAL(10, score_flags);
+}
+
+TEST(Score, FlagsDoNotBringPointsToTheSmallRobot)
+{
+    auto initial_score = compute_score(state, not_main_robot);
+    state.robot.flags_deployed = true;
+    auto score_flags = compute_score(state, not_main_robot) - initial_score;
+    CHECK_EQUAL(0, score_flags);
+}
+

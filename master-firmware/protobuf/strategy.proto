@@ -41,6 +41,8 @@ message RobotState {
     optional GlassColor back_center_glass = 5;
     optional GlassColor back_right = 6;
 
+    optional bool flags_deployed = 7;
+
     option (nanopb_msgopt).packed_struct = true;
 }
 /* State of the glasses in one dispenser / reef */
