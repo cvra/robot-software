@@ -25,7 +25,6 @@
 #include "base/base_controller.h"
 //#include <trace/trace_points.h>
 //#include "strategy.h"
-//#include "http/server.h"
 #include "gui.h"
 //#include "udp_topic_broadcaster.h"
 //#include "ally_position_service.h"
