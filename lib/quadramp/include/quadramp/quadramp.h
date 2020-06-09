@@ -22,6 +22,10 @@
 #ifndef _QUADRAMP_H_
 #define _QUADRAMP_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 /** @file quadramp.h
@@ -100,4 +104,10 @@ uint8_t quadramp_is_finished(struct quadramp_filter* q);
  */
 int32_t quadramp_do_filter(void* data, int32_t in);
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif
+
+

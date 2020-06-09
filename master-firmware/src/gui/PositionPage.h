@@ -45,9 +45,12 @@ public:
     {
         auto x = 0, y = 0, a = 0;
 
-        x = position_get_x_s16(&robot.pos);
-        y = position_get_y_s16(&robot.pos);
-        a = position_get_a_deg_s16(&robot.pos);
+        {
+            absl::MutexLock l(&robot.lock);
+            x = position_get_x_s16(&robot.pos);
+            y = position_get_y_s16(&robot.pos);
+            a = position_get_a_deg_s16(&robot.pos);
+        }
 
         std::string msg = absl::StrCat("x: ", x, " y: ", y, " a: ", a, " deg");
 

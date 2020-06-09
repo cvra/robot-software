@@ -24,6 +24,8 @@ struct _robot robot;
 
 void robot_init(void)
 {
+    absl::MutexLock _(&robot.lock);
+
     robot.mode = BOARD_MODE_ANGLE_DISTANCE;
     robot.base_speed = BASE_SPEED_FAST;
 
@@ -119,6 +121,7 @@ static void base_ctrl_thd()
     parameter_namespace_t* odometry_params = parameter_namespace_find(&master_config, "odometry");
 
     while (true) {
+        robot.lock.Lock();
         rs_update(&robot.rs);
 
         /* Control system manage */
@@ -212,6 +215,8 @@ static void base_ctrl_thd()
                 break;
         }
 
+        robot.lock.Unlock();
+
         /* Wait until next regulation loop */
         std::this_thread::sleep_for(1000ms / ASSERV_FREQUENCY);
     }
@@ -225,22 +230,15 @@ void base_controller_start()
 
 static void position_manager_thd()
 {
-    //static TOPIC_DECL(position_topic, RobotPosition);
-
-    //messagebus_advertise_topic(&bus, &position_topic.topic, "/position");
-
-    //RobotPosition pos = RobotPosition_init_zero;
-
     while (true) {
-        position_manage(&robot.pos);
-        //pos.x = position_get_x_float(&robot.pos);
-        //pos.y = position_get_y_float(&robot.pos);
-        //pos.a = position_get_a_rad_float(&robot.pos);
-        //messagebus_topic_publish(&position_topic.topic, &pos, sizeof(pos));
-        DEBUG_EVERY_N(ODOM_FREQUENCY, "pos: %d %d %d",
-                      position_get_x_s16(&robot.pos),
-                      position_get_y_s16(&robot.pos),
-                      position_get_a_deg_s16(&robot.pos));
+        {
+            absl::MutexLock _(&robot.lock);
+            position_manage(&robot.pos);
+            DEBUG_EVERY_N(ODOM_FREQUENCY, "pos: %d %d %d",
+                          position_get_x_s16(&robot.pos),
+                          position_get_y_s16(&robot.pos),
+                          position_get_a_deg_s16(&robot.pos));
+        }
         std::this_thread::sleep_for(1s / ODOM_FREQUENCY);
     }
 }
@@ -254,7 +252,10 @@ void position_manager_start()
 void trajectory_manager_thd()
 {
     while (true) {
-        trajectory_manager_manage(&robot.traj);
+        {
+            absl::MutexLock _(&robot.lock);
+            trajectory_manager_manage(&robot.traj);
+        }
         std::this_thread::sleep_for(1s / ODOM_FREQUENCY);
     }
 }

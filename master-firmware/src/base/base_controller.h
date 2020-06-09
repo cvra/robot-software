@@ -1,9 +1,7 @@
 #ifndef BASE_CONTROLLER_H
 #define BASE_CONTROLLER_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <absl/synchronization/mutex.h>
 
 #include <quadramp/quadramp.h>
 
@@ -80,6 +78,7 @@ struct _robot {
     int opponent_size;
 
     uint32_t start_time; // Time since the beginning of the match, in microseconds
+    absl::Mutex lock;
 };
 
 extern struct _robot robot;
@@ -93,9 +92,5 @@ void base_controller_start(void);
 void position_manager_start(void);
 
 void trajectory_manager_start(void);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* BASE_CONTROLLER_H */
