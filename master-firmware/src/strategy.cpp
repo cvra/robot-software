@@ -1,10 +1,6 @@
 // TODO: Enable this once map is ported
 #define USE_MAP 0
 
-// TODO: Define this once timestamp is converted to Linux, then delete all 
-// ifdefs
-#define USE_TIMESTAMP 0
-
 #include <array>
 #include <thread>
 
@@ -152,9 +148,7 @@ void strategy_order_play_game(StrategyState& state, enum strat_color_t color)
     std::this_thread::sleep_for(2s);
 #endif
 
-#if USE_TIMESTAMP
     trajectory_game_timer_reset();
-#endif
 
     NOTICE("Starting game...");
     while (!trajectory_game_has_ended()) {
