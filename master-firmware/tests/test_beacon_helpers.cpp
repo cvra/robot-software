@@ -64,7 +64,7 @@ TEST_GROUP (BeaconCartesianConvert) {
     float x, y;
     struct robot_position robot_pos;
 
-    void setup()
+    void setup() override
     {
         x = 0;
         y = 0;

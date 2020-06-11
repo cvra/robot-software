@@ -7,7 +7,7 @@ TEST_GROUP (LeastRecentlyUsedCacheTestGroup) {
     cache_entry_t entries[3];
     cache_t cache;
 
-    void setup(void)
+    void setup() override
     {
         memset(entries, 0x55, sizeof(entries));
         memset(&cache, 0x55, sizeof(cache));
@@ -27,7 +27,7 @@ TEST(LeastRecentlyUsedCacheTestGroup, InitPutsEverythingInTheFreeList)
 TEST(LeastRecentlyUsedCacheTestGroup, CanGrabEntriesFromTheFreelist)
 {
     for (auto i = 0u; i < 3; i++) {
-        auto entry = cache_entry_allocate(&cache, i);
+        auto* entry = cache_entry_allocate(&cache, i);
         POINTERS_EQUAL(&entries[i], entry);
         CHECK_EQUAL(entry->key, i);
     }
@@ -45,16 +45,16 @@ TEST(LeastRecentlyUsedCacheTestGroup, EntriesAreAddedAtTheBeginningOfTheList)
 TEST(LeastRecentlyUsedCacheTestGroup, CanFetchByKey)
 {
     const uint32_t key = 42, invalid_key = 100;
-    auto entry = cache_entry_allocate(&cache, key);
-    auto result = cache_entry_get(&cache, 42);
+    auto* entry = cache_entry_allocate(&cache, key);
+    auto* result = cache_entry_get(&cache, 42);
     POINTERS_EQUAL(entry, result);
     POINTERS_EQUAL(NULL, cache_entry_get(&cache, invalid_key));
 }
 
 TEST(LeastRecentlyUsedCacheTestGroup, FetchMovesTheEntryToTheBeginningOfTheUsedList)
 {
-    auto entry = cache_entry_allocate(&cache, 42);
-    auto entry2 = cache_entry_allocate(&cache, 43);
+    auto* entry = cache_entry_allocate(&cache, 42);
+    auto* entry2 = cache_entry_allocate(&cache, 43);
 
     cache_entry_get(&cache, 42);
     POINTERS_EQUAL(entry, cache.used_list);
@@ -64,7 +64,7 @@ TEST(LeastRecentlyUsedCacheTestGroup, FetchMovesTheEntryToTheBeginningOfTheUsedL
 
 TEST(LeastRecentlyUsedCacheTestGroup, NewEntryAreCreatedFromTheEndOfTheUsedList)
 {
-    auto oldest = cache_entry_allocate(&cache, 0);
+    auto* oldest = cache_entry_allocate(&cache, 0);
     cache_entry_allocate(&cache, 1);
     cache_entry_allocate(&cache, 2);
 

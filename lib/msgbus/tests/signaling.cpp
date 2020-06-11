@@ -11,14 +11,14 @@ TEST_GROUP (SignalingTestGroup) {
     int topic_lock;
     int topic_condvar;
 
-    void setup()
+    void setup() override
     {
         mock().strictOrder();
         messagebus_init(&bus, &bus_lock, &bus_condvar);
         messagebus_topic_init(&topic, &topic_lock, &topic_condvar, buffer, sizeof buffer);
     }
 
-    void teardown()
+    void teardown() override
     {
         lock_mocks_enable(false);
         condvar_mocks_enable(false);

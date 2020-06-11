@@ -4,12 +4,12 @@
 #include <error/error.h>
 
 TEST_GROUP (ErrorLogging) {
-    void teardown(void)
+    void teardown() override
     {
-        error_register_error(NULL);
-        error_register_warning(NULL);
-        error_register_notice(NULL);
-        error_register_debug(NULL);
+        error_register_error(nullptr);
+        error_register_warning(nullptr);
+        error_register_notice(nullptr);
+        error_register_debug(nullptr);
     }
 };
 
@@ -122,31 +122,31 @@ TEST(ErrorLogging, GeneratesDebugEvery10)
 
 TEST(ErrorLogging, ErrorName)
 {
-    auto name = error_severity_get_name(ERROR_SEVERITY_ERROR);
+    const auto* name = error_severity_get_name(ERROR_SEVERITY_ERROR);
     STRCMP_EQUAL("ERROR", name);
 }
 
 TEST(ErrorLogging, WarningName)
 {
-    auto name = error_severity_get_name(ERROR_SEVERITY_WARNING);
+    const auto* name = error_severity_get_name(ERROR_SEVERITY_WARNING);
     STRCMP_EQUAL("WARNING", name);
 }
 
 TEST(ErrorLogging, NoticeName)
 {
-    auto name = error_severity_get_name(ERROR_SEVERITY_NOTICE);
+    const auto* name = error_severity_get_name(ERROR_SEVERITY_NOTICE);
     STRCMP_EQUAL("NOTICE", name);
 }
 
 TEST(ErrorLogging, DebugName)
 {
-    auto name = error_severity_get_name(ERROR_SEVERITY_DEBUG);
+    const auto* name = error_severity_get_name(ERROR_SEVERITY_DEBUG);
     STRCMP_EQUAL("DEBUG", name);
 }
 
 TEST(ErrorLogging, UnknownName)
 {
     auto invalid_severity = 42;
-    auto name = error_severity_get_name(invalid_severity);
+    const auto* name = error_severity_get_name(invalid_severity);
     STRCMP_EQUAL("UNKNOWN", name);
 }

@@ -32,8 +32,8 @@ TEST(InternalVisitedListState, CanPopMinimumPriorityEvent)
     }
 
     nodes[2].priority = 10;
-    auto head = nodes.data();
-    auto p = priority_list_pop<MyState>(head);
+    auto* head = nodes.data();
+    auto* p = priority_list_pop<MyState>(head);
 
     CHECK_EQUAL(p, &nodes[2]);
 
@@ -45,7 +45,7 @@ TEST(InternalVisitedListState, CanPopMinimumPriorityEvent)
 TEST(InternalVisitedListState, CanPopPriorityEventHead)
 {
     visited_states_array_to_list<MyState>(nodes.data(), 1);
-    auto head = nodes.data();
+    auto* head = nodes.data();
     priority_list_pop<MyState>(head);
 
     POINTERS_EQUAL(nullptr, head);
@@ -54,9 +54,9 @@ TEST(InternalVisitedListState, CanPopPriorityEventHead)
 TEST(InternalVisitedListState, CanPopFromListHead)
 {
     visited_states_array_to_list<MyState>(nodes.data(), nodes.size());
-    auto head = nodes.data();
+    auto* head = nodes.data();
 
-    auto p = list_pop_head<MyState>(head);
+    auto* p = list_pop_head<MyState>(head);
     CHECK_EQUAL(&nodes[0], p);
     CHECK_EQUAL(&nodes[1], head);
     POINTERS_EQUAL(nullptr, p->next);
@@ -65,7 +65,7 @@ TEST(InternalVisitedListState, CanPopFromListHead)
 TEST(InternalVisitedListState, CanPopLastElement)
 {
     visited_states_array_to_list<MyState>(nodes.data(), 1);
-    auto head = nodes.data();
+    auto* head = nodes.data();
     list_pop_head<MyState>(head);
     POINTERS_EQUAL(nullptr, head);
 }
@@ -74,7 +74,7 @@ TEST(InternalVisitedListState, CanPushListHead)
 {
     visited_states_array_to_list<MyState>(nodes.data(), nodes.size());
     VisitedState<MyState> new_elem;
-    auto head = nodes.data();
+    auto* head = nodes.data();
 
     list_push_head<MyState>(head, &new_elem);
     POINTERS_EQUAL(&new_elem, head);

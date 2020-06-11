@@ -7,10 +7,10 @@ TEST_GROUP (NewTopicCallback) {
     messagebus_topic_t topic;
     messagebus_new_topic_cb_t cb;
 
-    void setup()
+    void setup() override
     {
-        messagebus_init(&bus, NULL, NULL);
-        messagebus_topic_init(&topic, NULL, NULL, NULL, 0);
+        messagebus_init(&bus, nullptr, nullptr);
+        messagebus_topic_init(&topic, nullptr, nullptr, nullptr, 0);
     }
 };
 

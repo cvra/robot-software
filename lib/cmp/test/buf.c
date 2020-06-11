@@ -33,16 +33,18 @@
 
 static void check_cursor(buf_t* buf)
 {
-    if (buf->cursor > buf->size)
+    if (buf->cursor > buf->size) {
         buf->size = buf->cursor;
+    }
 }
 
 buf_t* M_BufferNew(void)
 {
     buf_t* buf = calloc(1, sizeof(buf_t));
 
-    if (buf == NULL)
+    if (buf == NULL) {
         error_and_exit("M_BufferNew: Calloc returned NULL.");
+    }
 
     M_BufferInit(buf);
 
@@ -53,8 +55,9 @@ buf_t* M_BufferNewWithCapacity(size_t capacity)
 {
     buf_t* buf = calloc(1, sizeof(buf_t));
 
-    if (buf == NULL)
+    if (buf == NULL) {
         error_and_exit("M_BufferNew: calloc returned NULL");
+    }
 
     M_BufferInitWithCapacity(buf, capacity);
 
@@ -125,8 +128,9 @@ void M_BufferEnsureTotalCapacity(buf_t* buf, size_t capacity)
         buf->capacity = capacity;
         buf->data = realloc(buf->data, buf->capacity * sizeof(uint8_t));
 
-        if (buf->data == NULL)
+        if (buf->data == NULL) {
             error_and_exit("M_BufferEnsureCapacity: Allocating buffer data failed");
+        }
 
         memset(buf->data + old_capacity, 0, buf->capacity - old_capacity);
     }
@@ -147,8 +151,9 @@ void M_BufferCursorCopy(buf_t* dst, buf_t* src)
 
 bool M_BufferMove(buf_t* buf, size_t dpos, size_t spos, size_t count)
 {
-    if ((spos + count) > M_BufferGetSize(buf))
+    if ((spos + count) > M_BufferGetSize(buf)) {
         return false;
+    }
 
     M_BufferEnsureTotalCapacity(buf, dpos + count);
 
@@ -176,8 +181,9 @@ bool M_BufferSetFile(buf_t* buf, const char* filename)
     size_t length = 0;
     bool out = false;
 
-    if ((fp = fopen(filename, "rb")) == NULL)
+    if ((fp = fopen(filename, "rb")) == NULL) {
         return false;
+    }
 
     fseek(fp, 0, SEEK_END);
     length = ftell(fp);
@@ -201,8 +207,9 @@ bool M_BufferSetFile(buf_t* buf, const char* filename)
 
 bool M_BufferSeek(buf_t* buf, size_t pos)
 {
-    if (pos > buf->size)
+    if (pos > buf->size) {
         return false;
+    }
 
     buf->cursor = pos;
     return true;
@@ -210,8 +217,9 @@ bool M_BufferSeek(buf_t* buf, size_t pos)
 
 bool M_BufferSeekBackward(buf_t* buf, size_t count)
 {
-    if (count > buf->cursor)
+    if (count > buf->cursor) {
         return false;
+    }
 
     buf->cursor -= count;
     return true;
@@ -219,8 +227,9 @@ bool M_BufferSeekBackward(buf_t* buf, size_t count)
 
 bool M_BufferSeekForward(buf_t* buf, size_t count)
 {
-    if (buf->cursor + count > buf->size)
+    if (buf->cursor + count > buf->size) {
         return false;
+    }
 
     buf->cursor += count;
     return true;
@@ -372,40 +381,46 @@ void M_BufferWriteZeros(buf_t* buf, size_t count)
 {
     M_BufferEnsureCapacity(buf, count);
 
-    for (size_t i = 0; i < count; i++)
+    for (size_t i = 0; i < count; i++) {
         buf->data[buf->cursor++] = 0;
+    }
 
     check_cursor(buf);
 }
 
 bool M_BufferEqualsString(buf_t* buf, const char* s)
 {
-    if (strncmp(buf->data + buf->cursor, s, buf->size - buf->cursor) == 0)
+    if (strncmp(buf->data + buf->cursor, s, buf->size - buf->cursor) == 0) {
         return true;
+    }
 
     return false;
 }
 
 bool M_BufferEqualsData(buf_t* buf, const void* d, size_t size)
 {
-    if (buf->cursor + size > buf->size)
+    if (buf->cursor + size > buf->size) {
         return false;
+    }
 
-    if (memcmp(buf->data + buf->cursor, d, size) == 0)
+    if (memcmp(buf->data + buf->cursor, d, size) == 0) {
         return true;
+    }
 
     return false;
 }
 
 bool M_BufferRead(buf_t* buf, void* data, size_t size)
 {
-    if (buf->cursor + size > buf->size)
+    if (buf->cursor + size > buf->size) {
         return false;
+    }
 
-    if (size == 1)
+    if (size == 1) {
         *((char*)data) = *(buf->data + buf->cursor);
-    else
+    } else {
         memcpy(data, buf->data + buf->cursor, size);
+    }
 
     buf->cursor += size;
 
@@ -532,8 +547,9 @@ bool M_BufferReadStringDup(buf_t* buf, char** s)
     char* d = buf->data + buf->cursor;
     size_t length = strlen(d);
 
-    if (buf->cursor + length > buf->size)
+    if (buf->cursor + length > buf->size) {
         return false;
+    }
 
     (*s) = strdup(buf->data + buf->cursor);
     return true;
@@ -544,8 +560,9 @@ bool M_BufferCopyString(buf_t* dst, buf_t* src)
     char* s = src->data + src->cursor;
     size_t length = strlen(s);
 
-    if (src->cursor + length >= src->size)
+    if (src->cursor + length >= src->size) {
         return false;
+    }
 
     M_BufferWriteString(dst, s, length);
     return true;
@@ -556,15 +573,17 @@ void M_BufferCompact(buf_t* buf)
     if (buf->size < buf->capacity) {
         char* new_buf = calloc(buf->size, sizeof(uint8_t));
 
-        if (buf->data == NULL)
+        if (buf->data == NULL) {
             error_and_exit("M_BufferCompact: Allocating new buffer data failed");
+        }
 
         memcpy(new_buf, buf->data, buf->size);
         free(buf->data);
         buf->data = new_buf;
         buf->capacity = buf->size;
-        if (buf->cursor > buf->size)
+        if (buf->cursor > buf->size) {
             buf->cursor = buf->size;
+        }
     }
 }
 
@@ -572,14 +591,16 @@ void M_BufferTruncate(buf_t* buf, size_t new_size)
 {
     size_t old_size = buf->size;
 
-    if (new_size >= buf->size)
+    if (new_size >= buf->size) {
         errorf_and_exit("M_BufferTruncate: %zu >= %zu.", new_size, buf->size);
+    }
 
     memset(buf->data + new_size, 0, old_size - new_size);
     buf->size = new_size;
 
-    if (buf->cursor >= buf->size)
+    if (buf->cursor >= buf->size) {
         buf->cursor = buf->size - 1;
+    }
 }
 
 void M_BufferZero(buf_t* buf)
@@ -611,8 +632,9 @@ void M_BufferPrint(buf_t* buf)
     for (size_t i = 0; i < MIN(64, buf->size); i++) {
         printf("%02X ", (unsigned char)buf->data[i]);
 
-        if ((i > 0) && (((i + 1) % 25) == 0))
+        if ((i > 0) && (((i + 1) % 25) == 0)) {
             printf("\n");
+        }
     }
 
     printf("\n");
@@ -628,8 +650,9 @@ void M_BufferPrintAll(buf_t* buf)
     for (size_t i = 0; i < buf->size; i++) {
         printf("%02X ", (unsigned char)buf->data[i]);
 
-        if ((i > 0) && (((i + 1) % 25) == 0))
+        if ((i > 0) && (((i + 1) % 25) == 0)) {
             printf("\n");
+        }
     }
 
     printf("\n");

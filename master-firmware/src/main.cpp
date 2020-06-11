@@ -33,9 +33,9 @@
 
 using namespace std::chrono_literals;
 
-void init_base_motors(void);
-void init_arm_motors(void);
-void init_sensor_nodes(void);
+void init_base_motors();
+void init_arm_motors();
+void init_sensor_nodes();
 
 motor_manager_t motor_manager;
 
@@ -48,7 +48,7 @@ ABSL_FLAG(bool, verbose, false, "Enable verbose output");
 ABSL_FLAG(bool, enable_gui, true, "Enable on-robot GUI");
 
 /** Late init hook, called before c++ static constructors. */
-void __late_init(void)
+void __late_init()
 {
     /* Initialize and enable trace system */
     //trace_init();
@@ -61,7 +61,7 @@ void config_load_err_cb(void* arg, const char* id, const char* err)
     ERROR("parameter %s: %s", id == NULL ? "(...)" : id, err);
 }
 
-void config_load_from_flash(void)
+void config_load_from_flash()
 {
     cmp_ctx_t cmp;
     cmp_mem_access_t mem;
@@ -70,13 +70,13 @@ void config_load_from_flash(void)
     extern const size_t msgpack_config_chaos_size;
 
     cmp_mem_access_ro_init(&cmp, &mem, msgpack_config_chaos, msgpack_config_chaos_size);
-    int ret = parameter_msgpack_read_cmp(&global_config, &cmp, config_load_err_cb, NULL);
+    int ret = parameter_msgpack_read_cmp(&global_config, &cmp, config_load_err_cb, nullptr);
     if (ret != 0) {
         ERROR("parameter_msgpack_read_cmp failed");
     }
 }
 
-static void blink_start(void)
+static void blink_start()
 {
     std::thread blink([]() {
         while (true) {
@@ -159,12 +159,12 @@ int main(int argc, char** argv)
 
     //trajectory_d_rel(&robot.traj, 300);
     /* just a simple test case */
-    while (1) {
+    while (true) {
         std::this_thread::sleep_for(1s);
     }
 }
 
-void init_base_motors(void)
+void init_base_motors()
 {
     motor_manager_create_driver(&motor_manager, "left-wheel");
     motor_manager_create_driver(&motor_manager, "right-wheel");

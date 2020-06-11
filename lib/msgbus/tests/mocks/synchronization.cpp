@@ -46,13 +46,13 @@ void condvar_mocks_enable(bool enabled)
 TEST_GROUP (LockTestGroup) {
     int lock;
 
-    void setup()
+    void setup() override
     {
         lock_mocks_enable(true);
         condvar_mocks_enable(true);
     }
 
-    void teardown()
+    void teardown() override
     {
         lock_mocks_enable(false);
         condvar_mocks_enable(false);

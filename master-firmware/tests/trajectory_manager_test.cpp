@@ -20,7 +20,7 @@ TEST_GROUP (TrajectoryManagerTestGroup) {
 
     const int arbitrary_max_speed = 10;
 
-    void setup()
+    void setup() override
     {
         quadramp_init(&angle_qr);
         quadramp_init(&distance_qr);

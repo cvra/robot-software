@@ -11,10 +11,10 @@ TEST_GROUP (ConfigSaveTestCase) {
     uint8_t data[128];
     parameter_namespace_t ns;
 
-    void setup()
+    void setup() override
     {
         mock("flash").ignoreOtherCalls();
-        parameter_namespace_declare(&ns, NULL, NULL);
+        parameter_namespace_declare(&ns, nullptr, nullptr);
     }
 };
 
@@ -78,7 +78,7 @@ TEST(ConfigSaveTestCase, SavingConfigWorks)
     parameter_msgpack_read(&ns,
                            (char*)(&data[PARAMETER_FLASH_STORAGE_HEADER_SIZE]),
                            sizeof(data) - PARAMETER_FLASH_STORAGE_HEADER_SIZE,
-                           err_cb, NULL);
+                           err_cb, nullptr);
 
     // Check that the parameter has the same value as saved
     CHECK_EQUAL(10, parameter_integer_get(parameter_find(&ns, "/foo")));
@@ -89,10 +89,10 @@ TEST_GROUP (ConfigLoadTestCase) {
     parameter_namespace_t ns;
     parameter_t foo;
 
-    void setup()
+    void setup() override
     {
         mock("flash").ignoreOtherCalls();
-        parameter_namespace_declare(&ns, NULL, NULL);
+        parameter_namespace_declare(&ns, nullptr, nullptr);
         parameter_integer_declare(&foo, &ns, "foo");
     }
 };
@@ -140,7 +140,7 @@ TEST(ConfigLoadTestCase, FailsIfParameterTreeLayoutDoesNotMatchSavedStructure)
     parameter_flash_storage_save(data, sizeof(data), &ns);
 
     // Create a new different tree
-    parameter_namespace_declare(&ns, NULL, NULL);
+    parameter_namespace_declare(&ns, nullptr, nullptr);
     parameter_integer_declare(&foo, &ns, "bar");
 
     // Try to load it
@@ -153,7 +153,7 @@ TEST(ConfigLoadTestCase, FailsIfParameterTreeLayoutDoesNotMatchSavedStructure)
 TEST_GROUP (BlockValidityTestGroup) {
     uint8_t block[256 + PARAMETER_FLASH_STORAGE_HEADER_SIZE];
 
-    void setup()
+    void setup() override
     {
         memset(block, 0, sizeof(block));
 
@@ -215,7 +215,7 @@ TEST_GROUP (FindFirstValidBlockTestGroup) {
 
 TEST(FindFirstValidBlockTestGroup, ReturnsFirstPartofTheBlock)
 {
-    auto first_block = parameter_flash_storage_block_find_first_free(block);
+    auto* first_block = parameter_flash_storage_block_find_first_free(block);
     POINTERS_EQUAL(&block[0], first_block);
 }
 
@@ -223,14 +223,14 @@ TEST(FindFirstValidBlockTestGroup, SkipsAlreadyUsedBlocks)
 {
     mock("flash").disable();
     parameter_flash_storage_write_block_header(block, 10);
-    auto first_block = parameter_flash_storage_block_find_first_free(block);
+    auto* first_block = parameter_flash_storage_block_find_first_free(block);
 
     POINTERS_EQUAL(&block[10 + PARAMETER_FLASH_STORAGE_HEADER_SIZE], first_block);
 }
 
 TEST(FindFirstValidBlockTestGroup, FindNoUsedBlockReturnsNULL)
 {
-    auto last_block = parameter_flash_storage_block_find_last_used(block);
+    auto* last_block = parameter_flash_storage_block_find_last_used(block);
     POINTERS_EQUAL(NULL, last_block);
 }
 
@@ -246,10 +246,10 @@ TEST_GROUP (ConfigLoadBalancingTestGroup) {
     parameter_namespace_t ns;
     uint8_t block[256];
 
-    void setup()
+    void setup() override
     {
         mock("flash").ignoreOtherCalls();
-        parameter_namespace_declare(&ns, NULL, NULL);
+        parameter_namespace_declare(&ns, nullptr, nullptr);
     }
 };
 
@@ -268,7 +268,7 @@ TEST(ConfigLoadBalancingTestGroup, ConfigSavingIsLoadBalanced)
     POINTERS_EQUAL(block, parameter_flash_storage_block_find_last_used(block));
 
     // Checks that the second save is on the second block
-    auto second_block = parameter_flash_storage_block_find_first_free(block);
+    auto* second_block = parameter_flash_storage_block_find_first_free(block);
     parameter_flash_storage_save(block, sizeof(block), &ns);
     POINTERS_EQUAL(second_block, parameter_flash_storage_block_find_last_used(block));
 }

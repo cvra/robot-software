@@ -4,8 +4,9 @@
 
 bool discretize_circle(poly_t* poly, circle_t circle, int samples, float angle_offset)
 {
-    if (samples != poly->l)
+    if (samples != poly->l) {
         return false; // Number of samples doesn't match size of polygon
+    }
 
     float angle_increment = 2.f * M_PI / (float)samples;
 

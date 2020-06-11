@@ -721,10 +721,11 @@ int32 dwt_readcarrierintegrator(void)
         regval = (regval << 8) + buffer[j];
     }
 
-    if (regval & B20_SIGN_EXTEND_TEST)
+    if (regval & B20_SIGN_EXTEND_TEST) {
         regval |= B20_SIGN_EXTEND_MASK; // sign extend bit #20 to whole word
-    else
+    } else {
         regval &= DRX_CARRIER_INT_MASK; // make sure upper bits are clear if not sign extending
+    }
 
     return (int32)regval; // cast unsigned value to signed quantity.
 }
@@ -1280,9 +1281,7 @@ void dwt_otpread(uint32 address, uint32* array, uint8 length)
         array[i] = _dwt_otpread(address + i);
     }
 
-    _dwt_enableclocks(ENABLE_ALL_SEQ); // Restore system clock to PLL
-
-    return;
+    _dwt_enableclocks(ENABLE_ALL_SEQ);
 }
 
 /*! ------------------------------------------------------------------------------------------------------------------
@@ -3242,12 +3241,13 @@ uint32 dwt_calcbandwidthtempadj(uint16 target_count)
         }
 
         // Test the count results
-        if (raw_count > target_count)
+        if (raw_count > target_count) {
             // Count was lower, BW was lower so increase PG DELAY
             curr_bw = curr_bw | bit_field;
-        else
+        } else {
             // Count was higher
             curr_bw = curr_bw & (~(bit_field));
+        }
     }
 
     // Restore old register values

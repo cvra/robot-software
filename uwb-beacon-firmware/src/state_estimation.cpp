@@ -9,13 +9,13 @@ struct UWBOnlyModel : EKF::Corrector<3, 1> {
     {
     }
 
-    Measurement h(State mu)
+    Measurement h(State mu) override
     {
         float dst = (mu - anchor_pos).norm();
         return dst * Measurement::Identity();
     }
 
-    Jacobian H(State mu)
+    Jacobian H(State mu) override
     {
         float dst = (mu - anchor_pos).norm();
         return (mu - anchor_pos).transpose() * 1 / dst;
@@ -58,7 +58,7 @@ void RadioPositionEstimator::processDistanceMeasurement(const float anchor_posit
     std::tie(state, covariance) = m.correct(state, covariance, z);
 }
 
-void RadioPositionEstimator::predict(void)
+void RadioPositionEstimator::predict()
 {
     IdentityPredictor p(processVariance);
     Eigen::Matrix<float, 0, 1> u;

@@ -5,16 +5,16 @@
 
 TEST_GROUP (ParameterNamespaceInit) {
     parameter_namespace_t rootns;
-    void setup(void)
+    void setup() override
     {
-        parameter_namespace_declare(&rootns, NULL, NULL);
+        parameter_namespace_declare(&rootns, nullptr, nullptr);
     }
 };
 
 TEST(ParameterNamespaceInit, NamespaceCreateRoot)
 {
     parameter_namespace_t ns;
-    parameter_namespace_declare(&ns, NULL, NULL);
+    parameter_namespace_declare(&ns, nullptr, nullptr);
     POINTERS_EQUAL(NULL, ns.id);
     POINTERS_EQUAL(NULL, ns.parent);
     POINTERS_EQUAL(NULL, ns.subspaces);
@@ -53,9 +53,9 @@ TEST(ParameterNamespaceInit, NamespaceCreateMultiple)
 
 TEST_GROUP (ParameterInit) {
     parameter_namespace_t ns;
-    void setup(void)
+    void setup() override
     {
-        parameter_namespace_declare(&ns, NULL, NULL);
+        parameter_namespace_declare(&ns, nullptr, nullptr);
     }
 };
 
@@ -100,9 +100,9 @@ TEST_GROUP (ParameterTree) {
     parameter_t p_a2_z;
     parameter_t p_root_x;
     parameter_t p_b1i_x;
-    void setup(void)
+    void setup() override
     {
-        parameter_namespace_declare(&rootns, NULL, NULL);
+        parameter_namespace_declare(&rootns, nullptr, nullptr);
         parameter_namespace_declare(&a, &rootns, "test_a");
         parameter_namespace_declare(&a1, &a, "eins");
         parameter_namespace_declare(&a2, &a, "zwei");

@@ -16,17 +16,17 @@ bool operator==(const TestState& lhs, const TestState& rhs)
 
 class CutWood : public goap::Action<TestState> {
 public:
-    bool can_run(const TestState& state)
+    bool can_run(const TestState& state) override
     {
         return state.has_axe;
     }
 
-    void plan_effects(TestState& state)
+    void plan_effects(TestState& state) override
     {
         state.has_wood = true;
     }
 
-    bool execute(TestState& state)
+    bool execute(TestState& state) override
     {
         state.has_wood = true;
         return true;
@@ -34,18 +34,18 @@ public:
 };
 
 struct GrabAxe : public goap::Action<TestState> {
-    bool can_run(const TestState& state)
+    bool can_run(const TestState& state) override
     {
         (void)state;
         return true;
     }
 
-    void plan_effects(TestState& state)
+    void plan_effects(TestState& state) override
     {
         state.has_axe = true;
     }
 
-    bool execute(TestState& state)
+    bool execute(TestState& state) override
     {
         state.has_axe = true;
         return true;
@@ -53,7 +53,7 @@ struct GrabAxe : public goap::Action<TestState> {
 };
 
 struct SimpleGoal : goap::Goal<TestState> {
-    virtual int distance_to(const TestState& state) const
+    int distance_to(const TestState& state) const override
     {
         return state.has_wood ? 0 : 1;
     }
@@ -189,25 +189,25 @@ struct FarAwayState {
 };
 
 struct FarAwayGoal : goap::Goal<FarAwayState> {
-    int distance_to(const FarAwayState& s) const
+    int distance_to(const FarAwayState& s) const override
     {
         return s.farDistance;
     }
 };
 
 struct FarAwayAction : goap::Action<FarAwayState> {
-    bool can_run(const FarAwayState& state)
+    bool can_run(const FarAwayState& state) override
     {
         (void)state;
         return true;
     }
 
-    void plan_effects(FarAwayState& state)
+    void plan_effects(FarAwayState& state) override
     {
         state.farDistance--;
     }
 
-    bool execute(FarAwayState& s)
+    bool execute(FarAwayState& s) override
     {
         s.farDistance--;
         return true;

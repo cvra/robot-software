@@ -25,7 +25,7 @@ TEST_GROUP (MessagebusProtobufIntegration) {
     Timestamp topic_content;
     topic_metadata_t metadata;
 
-    void setup()
+    void setup() override
     {
         messagebus_init(&bus, &bus_lock, &bus_condvar);
         messagebus_topic_init(&mytopic,
@@ -203,7 +203,7 @@ TEST_GROUP (MessagebusProtobufMessageInjection) {
         return encoded_message;
     }
 
-    void setup()
+    void setup() override
     {
         messagebus_init(&bus, nullptr, nullptr);
     }

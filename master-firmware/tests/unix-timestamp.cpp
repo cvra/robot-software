@@ -2,7 +2,7 @@
 #include "../src/unix_timestamp.h"
 
 TEST_GROUP (UnixTimeStampTestGroup) {
-    void setup(void)
+    void setup() override
     {
         // Reset time reference
         timestamp_set_reference({.s = 0, .us = 0}, 0);
@@ -74,7 +74,7 @@ TEST(UnixTimeStampTestGroup, OverflowsGracefully)
 TEST_GROUP (UnixTimeStampCompareTestGroup) {
     unix_timestamp_t a, b;
 
-    void setup(void)
+    void setup() override
     {
         a.s = a.us = 0;
         b.s = b.us = 0;

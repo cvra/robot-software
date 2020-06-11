@@ -68,7 +68,7 @@ static void open_led(enum control_panel_output led_num, std::string path)
     // First, get the maximum brightness level for this LED
     std::string max_brightness_path = path + "/max_brightness";
     f = fopen(max_brightness_path.c_str(), "r");
-    if (f == NULL) {
+    if (f == nullptr) {
         WARNING("could not open '%s' for led %d: %s", max_brightness_path.c_str(), led_num, strerror(errno));
         return;
     }
@@ -107,13 +107,13 @@ void control_panel_init(bool is_active_high)
 bool control_panel_read(enum control_panel_input in)
 {
     WARNING_EVERY_N(100, "%s(%s) not implemented yet.", __FUNCTION__, control_panel_input[in]);
-    return 0;
+    return false;
 }
 
 bool control_panel_button_is_pressed(enum control_panel_input in)
 {
     WARNING_EVERY_N(100, "%s(%s) not implemented yet.", __FUNCTION__, control_panel_input[in]);
-    return 0;
+    return false;
 }
 
 void control_panel_set(enum control_panel_output out)

@@ -10,7 +10,7 @@ extern "C" {
 TEST_GROUP (ABlockingDetectionManager) {
     blocking_detection blocking_detection_manager;
 
-    void setup()
+    void setup() override
     {
         bd_init(&blocking_detection_manager);
         bd_set_thresholds(&blocking_detection_manager, ERROR_THRESHOLD, ERROR_COUNT_THRESHOLD);

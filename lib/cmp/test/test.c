@@ -54,7 +54,7 @@ static void error_printf(const char* msg, ...);
                      #wfunc, #in, cmp_strerror(&cmp));                         \
         return false;                                                          \
     }                                                                          \
-    if (obj.as.otype != in) {                                                  \
+    if (obj.as.otype != (in)) {                                                \
         error_printf("%s:%d ", __func__, __LINE__);                            \
         error_printf("Input/Output mismatch: %s(&cmp, %s) != ",                \
                      #wfunc, #in);                                             \
@@ -71,7 +71,7 @@ static void error_printf(const char* msg, ...);
                          #wfunc, #in, cmp_strerror(&cmp));                     \
             return false;                                                      \
         }                                                                      \
-        if (in != value) {                                                     \
+        if ((in) != value) {                                                   \
             error_printf("%s:%d ", __func__, __LINE__);                        \
             error_printf("Input/Output mismatch: %s(&cmp, %s) != ",            \
                          #wfunc, #in);                                         \
@@ -120,7 +120,7 @@ static void error_printf(const char* msg, ...);
         error_printf(", %d): %s\n", len, cmp_strerror(&cmp));                  \
         return false;                                                          \
     }                                                                          \
-    if (obj.as.otype != len) {                                                 \
+    if (obj.as.otype != (len)) {                                               \
         error_printf("%s:%d ", __func__, __LINE__);                            \
         error_printf("Input/Output mismatch: %s(&cmp, ", #wfunc);              \
         error_printbin(in, len);                                               \
@@ -131,8 +131,8 @@ static void error_printf(const char* msg, ...);
     }                                                                          \
     M_BufferSeek(&buf, 0);                                                     \
     do {                                                                       \
-        char ldata[len + 1];                                                   \
-        uint32_t data_length = len + 1;                                        \
+        char ldata[(len) + 1];                                                 \
+        uint32_t data_length = (len) + 1;                                      \
         memset(ldata, 0, sizeof(ldata));                                       \
         if (!rfunc(&cmp, ldata, &data_length)) {                               \
             error_printf("%s:%d ", __func__, __LINE__);                        \
@@ -141,7 +141,7 @@ static void error_printf(const char* msg, ...);
             error_printf(", %d): %s\n", len, cmp_strerror(&cmp));              \
             return false;                                                      \
         }                                                                      \
-        if (data_length != len) {                                              \
+        if (data_length != (len)) {                                            \
             error_printf("%s:%d ", __func__, __LINE__);                        \
             error_printf("Error reading object written by %s(&cmp, ", #wfunc); \
             error_printbin(in, len);                                           \
@@ -150,10 +150,10 @@ static void error_printf(const char* msg, ...);
         if (memcmp(ldata, in, len) != 0) {                                     \
             error_printf("%s:%d ", __func__, __LINE__);                        \
             error_printf("Input/Output mismatch: %s(&cmp, [ ", #wfunc);        \
-            for (int i = 0; i < len; i++)                                      \
-                error_printf(" %02X", data[i]);                                \
+            for (int i = 0; i < (len); i++)                                    \
+                error_printf(" %02X", (data)[i]);                              \
             error_printf(" ], %s, %d) != [", #in, len);                        \
-            for (int i = 0; i < len; i++)                                      \
+            for (int i = 0; i < (len); i++)                                    \
                 error_printf(" %02X", ldata[i]);                               \
             error_printf(" ]\n");                                              \
             return false;                                                      \
@@ -180,7 +180,7 @@ static void error_printf(const char* msg, ...);
                      #wfunc, cmp_strerror(&cmp));                            \
         return false;                                                        \
     }                                                                        \
-    if (obj.as.otype != out) {                                               \
+    if (obj.as.otype != (out)) {                                             \
         error_printf("Input/Output mismatch: %s(&cmp) != %s\n",              \
                      #wfunc, #out);                                          \
         error_print_object(&obj);                                            \
@@ -214,7 +214,7 @@ static void error_printf(const char* msg, ...);
         error_printf("): %s\n", cmp_strerror(&cmp));                           \
         return false;                                                          \
     }                                                                          \
-    if (obj.as.ext.type != etype || obj.as.ext.size != esize) {                \
+    if (obj.as.ext.type != (etype) || obj.as.ext.size != (esize)) {            \
         error_printf("Input/Output mismatch: %s(&cmp, %d, ",                   \
                      #wfunc, etype);                                           \
         error_printbin(in, esize);                                             \
@@ -234,13 +234,13 @@ static void error_printf(const char* msg, ...);
             error_printf("): %s\n", cmp_strerror(&cmp));                       \
             return false;                                                      \
         }                                                                      \
-        if (dummy_type != etype) {                                             \
+        if (dummy_type != (etype)) {                                           \
             error_printf("Error reading object written by %s(&cmp, %d, %u, ",  \
                          #wfunc, etype, esize);                                \
             error_printbin(in, esize);                                         \
             error_printf("): %d != %d.\n", dummy_type, etype);                 \
         }                                                                      \
-        if (dummy_size != esize) {                                             \
+        if (dummy_size != (esize)) {                                           \
             error_printf("Error reading object written by %s(&cmp, %d, %u, ",  \
                          #wfunc, etype, esize);                                \
             error_printbin(in, esize);                                         \
@@ -283,7 +283,7 @@ static void error_printf(const char* msg, ...);
         error_printf("): %s\n", cmp_strerror(&cmp));                           \
         return false;                                                          \
     }                                                                          \
-    if (obj.as.ext.type != etype || obj.as.ext.size != esize) {                \
+    if (obj.as.ext.type != (etype) || obj.as.ext.size != (esize)) {            \
         error_printf("Input/Output mismatch: %s(&cmp, %d, %u, ",               \
                      #wfunc, etype, esize);                                    \
         error_printbin(in, esize);                                             \
@@ -302,13 +302,13 @@ static void error_printf(const char* msg, ...);
             error_printf("): %s\n", cmp_strerror(&cmp));                       \
             return false;                                                      \
         }                                                                      \
-        if (dummy_type != etype) {                                             \
+        if (dummy_type != (etype)) {                                           \
             error_printf("Error reading object written by %s(&cmp, %d, %u, ",  \
                          #wfunc, etype, esize);                                \
             error_printbin(in, esize);                                         \
             error_printf("): %d != %d.\n", dummy_type, etype);                 \
         }                                                                      \
-        if (dummy_size != esize) {                                             \
+        if (dummy_size != (esize)) {                                           \
             error_printf("Error reading object written by %s(&cmp, %d, %u, ",  \
                          #wfunc, etype, esize);                                \
             error_printbin(in, esize);                                         \
@@ -355,7 +355,7 @@ static void error_printf(const char* msg, ...);
                          #type, cmp_strerror(&cmp));         \
             return false;                                    \
         }                                                    \
-        if (var != val) {                                    \
+        if (var != (val)) {                                  \
             error_printf("%s:%d ", __func__, __LINE__);      \
             error_printf("Value was not " #val " \n");       \
             return false;                                    \
@@ -398,7 +398,7 @@ static void error_printf(const char* msg, ...);
                          cmp_strerror(&cmp));                                   \
             return false;                                                       \
         }                                                                       \
-        if (length != inlength) {                                               \
+        if (length != (inlength)) {                                             \
             error_printf("%s:%d ", __func__, __LINE__);                         \
             error_printf("Mismatched lengths: %d != %d\n", inlength, length);   \
             return false;                                                       \
@@ -442,12 +442,12 @@ static void error_printf(const char* msg, ...);
             error_printf("Error reading second array value\n");                   \
             return false;                                                         \
         }                                                                         \
-        if (var1 != val1) {                                                       \
+        if (var1 != (val1)) {                                                     \
             error_printf("%s:%d ", __func__, __LINE__);                           \
             error_printf("First array value != %d (%" PRIu64 ")\n", val1, var1);  \
             return false;                                                         \
         }                                                                         \
-        if (var2 != val2) {                                                       \
+        if (var2 != (val2)) {                                                     \
             error_printf("%s:%d ", __func__, __LINE__);                           \
             error_printf("Second array value != %d (%" PRIu64 ")\n", val2, var2); \
             return false;                                                         \
@@ -485,12 +485,12 @@ static void error_printf(const char* msg, ...);
             error_printf("Error reading value\n");            \
             return false;                                     \
         }                                                     \
-        if (key != inkey) {                                   \
+        if (key != (inkey)) {                                 \
             error_printf("%s:%d ", __func__, __LINE__);       \
             error_printf("Key != %d\n", inkey);               \
             return false;                                     \
         }                                                     \
-        if (value != invalue) {                               \
+        if (value != (invalue)) {                             \
             error_printf("%s:%d ", __func__, __LINE__);       \
             error_printf("Key != %d\n", invalue);             \
             return false;                                     \
@@ -528,12 +528,12 @@ static void error_printf(const char* msg, ...);
             error_printf("Error reading value\n");               \
             return false;                                        \
         }                                                        \
-        if (key != inkey) {                                      \
+        if (key != (inkey)) {                                    \
             error_printf("%s:%d ", __func__, __LINE__);          \
             error_printf("Key != %s\n", inkey);                  \
             return false;                                        \
         }                                                        \
-        if (value != invalue) {                                  \
+        if (value != (invalue)) {                                \
             error_printf("%s:%d ", __func__, __LINE__);          \
             error_printf("Key != %s\n", invalue);                \
             return false;                                        \
@@ -608,8 +608,9 @@ static void error_printbin(const char* data, size_t size)
     size_t i;
 
     printf("[ ");
-    for (i = 0; i < size; i++)
+    for (i = 0; i < size; i++) {
         error_printf(" %02X", data[i]);
+    }
     printf(" ]");
 }
 
@@ -665,10 +666,11 @@ static void error_print_object(cmp_object_t* obj)
             error_printf("NULL");
             break;
         case CMP_TYPE_BOOLEAN:
-            if (obj->as.boolean)
+            if (obj->as.boolean) {
                 error_printf("bool: true");
-            else
+            } else {
                 error_printf("bool: false");
+            }
             break;
         case CMP_TYPE_EXT8:
             error_printf("ext8: {%d, %u}", obj->as.ext.type, obj->as.ext.size);

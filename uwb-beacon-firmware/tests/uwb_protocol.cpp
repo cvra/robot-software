@@ -108,7 +108,7 @@ TEST_GROUP (RangingProtocol) {
     uint8_t reply_frame[64];
     uint8_t final_frame[64];
 
-    void setup(void)
+    void setup() override
     {
         uwb_protocol_handler_init(&handler);
         uwb_protocol_handler_init(&tx_handler);
@@ -390,7 +390,7 @@ TEST_GROUP (AnchorPositionBroadcast) {
     const float x = 10, y = 20, z = 30;
     float rx, ry, rz;
 
-    void setup(void)
+    void setup() override
     {
         uwb_protocol_handler_init(&handler);
         handler.address = 1234;
@@ -478,7 +478,7 @@ TEST_GROUP (TagPositionBroadcast) {
 
     const float x = 10, y = 20;
 
-    void setup(void)
+    void setup() override
     {
         uwb_protocol_handler_init(&handler);
         handler.address = 1234;
@@ -547,7 +547,7 @@ TEST_GROUP (DataPacket) {
     uint8_t seq;
     size_t size;
 
-    void setup(void)
+    void setup() override
     {
         uwb_protocol_handler_init(&handler);
         handler.address = 1234;
@@ -579,7 +579,7 @@ TEST(DataPacket, CanReceiveDataPacket)
 {
     const char* msg = "hello";
     const auto dst_addr = MAC_802_15_4_BROADCAST_ADDR;
-    auto msg_buf = reinterpret_cast<const uint8_t*>(msg);
+    const auto* msg_buf = reinterpret_cast<const uint8_t*>(msg);
     size = uwb_protocol_prepare_data_packet(&handler, dst_addr, msg_buf, strlen(msg) + 1, frame);
 
     handler.user_data_received_cb = user_data_packet_received_cb;

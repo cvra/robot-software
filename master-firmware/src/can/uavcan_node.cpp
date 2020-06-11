@@ -48,7 +48,7 @@ class BusEnumeratorNodeInfoAdapter final : public uavcan::INodeInfoListener {
     {
         uint8_t can_id = node_id.get();
         NOTICE("Discovered node \"%s\" -> %d", node_info.name.c_str(), node_id.get());
-        if (bus_enumerator_get_str_id(&bus_enumerator, can_id) == NULL) {
+        if (bus_enumerator_get_str_id(&bus_enumerator, can_id) == nullptr) {
             bus_enumerator_update_node_info(&bus_enumerator, node_info.name.c_str(), can_id);
 
             /* If we received as many nodes as expected, signal it using the

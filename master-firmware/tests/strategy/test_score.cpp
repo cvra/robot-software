@@ -5,7 +5,7 @@
 TEST_GROUP (AScore) {
     RobotState state = RobotState_init_default;
 
-    void setup(void)
+    void setup() override
     {
         state = initial_state();
     }

@@ -22,7 +22,7 @@ void Menu::create_container()
     wi.g.x = 0;
     wi.g.show = gTrue;
     wi.customDraw = gwinContainerDraw_Transparent;
-    page_container = gwinContainerCreate(0, &wi, 0);
+    page_container = gwinContainerCreate(nullptr, &wi, 0);
 }
 
 void Menu::delete_container()
@@ -92,7 +92,7 @@ void Menu::create_back_button()
     wi.g.x = 10;
     wi.g.show = gTrue;
     wi.customDraw = gwinButtonDraw_ArrowLeft;
-    back_button = gwinButtonCreate(0, &wi);
+    back_button = gwinButtonCreate(nullptr, &wi);
 }
 
 void Menu::create_page_title()
@@ -104,5 +104,5 @@ void Menu::create_page_title()
     wi.g.y = 0;
     wi.g.x = 60;
     wi.g.show = gTrue;
-    page_title = gwinLabelCreate(0, &wi);
+    page_title = gwinLabelCreate(nullptr, &wi);
 }

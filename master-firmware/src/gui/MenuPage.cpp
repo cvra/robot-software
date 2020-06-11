@@ -37,7 +37,7 @@ void MenuPage::on_enter(GHandle parent)
                 wi.g.y = 15 + (wi.g.height + 15) * y;
                 wi.g.x = 10 + (wi.g.width + 10) * x;
                 wi.text = next_page[i]->get_name();
-                buttons[i] = gwinButtonCreate(0, &wi);
+                buttons[i] = gwinButtonCreate(nullptr, &wi);
             }
             i++;
         }
@@ -47,7 +47,7 @@ void MenuPage::on_enter(GHandle parent)
 void MenuPage::on_event(GEvent* event)
 {
     if (event->type == GEVENT_GWIN_BUTTON) {
-        auto wevent = reinterpret_cast<GEventGWinButton*>(event);
+        auto* wevent = reinterpret_cast<GEventGWinButton*>(event);
         for (auto i = 0; i < 6; i++) {
             if (!next_page[i]) {
                 continue;

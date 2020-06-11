@@ -26,9 +26,9 @@ TEST_GROUP (MessagePackTestGroup) {
     cmp_mem_access_t mem;
     cmp_ctx_t ctx;
 
-    void setup(void)
+    void setup() override
     {
-        parameter_namespace_declare(&rootns, NULL, NULL);
+        parameter_namespace_declare(&rootns, nullptr, nullptr);
         parameter_namespace_declare(&a, &rootns, "a");
         parameter_scalar_declare(&a_foo, &a, "foo");
         parameter_scalar_declare(&a_bar, &a, "bar");
@@ -37,7 +37,7 @@ TEST_GROUP (MessagePackTestGroup) {
         cmp_mem_access_init(&ctx, &mem, buffer, sizeof buffer);
     }
 
-    void teardown()
+    void teardown() override
     {
         mock().clear();
     }
@@ -67,7 +67,7 @@ TEST(MessagePackTestGroup, CanChangeParameter)
     CHECK_FALSE(parameter_namespace_contains_changed(&rootns));
 
     // Update the parameter namespace
-    parameter_msgpack_read_cmp(&rootns, &ctx, msgpack_error_cb, NULL);
+    parameter_msgpack_read_cmp(&rootns, &ctx, msgpack_error_cb, nullptr);
 
     // Check that the namespace was changed
     CHECK_TRUE(parameter_namespace_contains_changed(&rootns));
@@ -96,7 +96,7 @@ TEST(MessagePackTestGroup, CanChangeMultipleParameters)
     cmp_mem_access_set_pos(&mem, 0);
 
     // Update the parameter namespace
-    parameter_msgpack_read_cmp(&rootns, &ctx, msgpack_error_cb, NULL);
+    parameter_msgpack_read_cmp(&rootns, &ctx, msgpack_error_cb, nullptr);
 
     CHECK_EQUAL(12., parameter_scalar_get(&a_foo));
     CHECK_EQUAL(24., parameter_scalar_get(&a_bar));
@@ -114,7 +114,7 @@ TEST(MessagePackTestGroup, TestWrite)
     parameter_scalar_set(&a_bar, 60);
     parameter_integer_set(&a_baz, 50);
 
-    parameter_msgpack_write_cmp(&rootns, &ctx, msgpack_error_cb, NULL);
+    parameter_msgpack_write_cmp(&rootns, &ctx, msgpack_error_cb, nullptr);
 
     cmp_mem_access_set_pos(&mem, 0);
 
@@ -161,7 +161,7 @@ TEST(MessagePackTestGroup, TestUndefinedValuesAreIgnored)
     CHECK_FALSE(parameter_defined(&a_baz));
     CHECK_TRUE(parameter_defined(&a_bar));
 
-    parameter_msgpack_write_cmp(&a, &ctx, msgpack_error_cb, NULL);
+    parameter_msgpack_write_cmp(&a, &ctx, msgpack_error_cb, nullptr);
     cmp_mem_access_set_pos(&mem, 0);
 
     CHECK_TRUE(cmp_read_map(&ctx, &size));
@@ -182,12 +182,12 @@ TEST(MessagePackTestGroup, TestWriteVector)
     float array_val[3];
     float array_init[] = {1., 2., 3.};
 
-    parameter_namespace_declare(&rootns, NULL, NULL);
+    parameter_namespace_declare(&rootns, nullptr, nullptr);
     parameter_namespace_declare(&a, &rootns, "a");
     parameter_vector_declare(&array, &a, "array", array_val, 3);
     parameter_vector_set(&array, array_init);
 
-    parameter_msgpack_write_cmp(&rootns, &ctx, msgpack_error_cb, NULL);
+    parameter_msgpack_write_cmp(&rootns, &ctx, msgpack_error_cb, nullptr);
 
     cmp_mem_access_set_pos(&mem, 0);
 
@@ -221,13 +221,13 @@ TEST(MessagePackTestGroup, TestWriteVariableVector)
     float array_val[5];
     float array_init[] = {1., 2., 3.};
 
-    parameter_namespace_declare(&rootns, NULL, NULL);
+    parameter_namespace_declare(&rootns, nullptr, nullptr);
     parameter_namespace_declare(&a, &rootns, "a");
     parameter_variable_vector_declare(&array, &a, "array", array_val, 5);
 
     parameter_variable_vector_set(&array, array_init, 3);
 
-    parameter_msgpack_write_cmp(&rootns, &ctx, msgpack_error_cb, NULL);
+    parameter_msgpack_write_cmp(&rootns, &ctx, msgpack_error_cb, nullptr);
 
     cmp_mem_access_set_pos(&mem, 0);
 
@@ -261,14 +261,14 @@ TEST(MessagePackTestGroup, TestWriteString)
 
     char name[128];
 
-    parameter_namespace_declare(&rootns, NULL, NULL);
+    parameter_namespace_declare(&rootns, nullptr, nullptr);
 
     parameter_string_declare(&array, &rootns, "str",
                              array_value, sizeof(array_value));
 
     parameter_string_set(&array, "hello");
 
-    parameter_msgpack_write_cmp(&rootns, &ctx, msgpack_error_cb, NULL);
+    parameter_msgpack_write_cmp(&rootns, &ctx, msgpack_error_cb, nullptr);
 
     cmp_mem_access_set_pos(&mem, 0);
 
@@ -288,11 +288,11 @@ TEST(MessagePackTestGroup, TestBooleanWrite)
 {
     char name[128];
 
-    parameter_namespace_declare(&rootns, NULL, NULL);
+    parameter_namespace_declare(&rootns, nullptr, nullptr);
     parameter_boolean_declare(&a_foo, &rootns, "foo");
     parameter_boolean_set(&a_foo, true);
 
-    parameter_msgpack_write_cmp(&rootns, &ctx, msgpack_error_cb, NULL);
+    parameter_msgpack_write_cmp(&rootns, &ctx, msgpack_error_cb, nullptr);
 
     cmp_mem_access_set_pos(&mem, 0);
 
@@ -309,7 +309,7 @@ TEST(MessagePackTestGroup, TestBooleanWrite)
 
 TEST(MessagePackTestGroup, TestBooleanRead)
 {
-    parameter_namespace_declare(&rootns, NULL, NULL);
+    parameter_namespace_declare(&rootns, nullptr, nullptr);
     parameter_boolean_declare(&a_foo, &rootns, "foo");
 
     cmp_write_map(&ctx, 1);
@@ -318,7 +318,7 @@ TEST(MessagePackTestGroup, TestBooleanRead)
 
     cmp_mem_access_set_pos(&mem, 0);
 
-    parameter_msgpack_read_cmp(&rootns, &ctx, msgpack_error_cb, NULL);
+    parameter_msgpack_read_cmp(&rootns, &ctx, msgpack_error_cb, nullptr);
     CHECK_TRUE(parameter_defined(&a_foo));
     CHECK_EQUAL(true, parameter_boolean_get(&a_foo));
 }
@@ -335,7 +335,7 @@ TEST(MessagePackTestGroup, TestWriteUnknownParameter)
 {
     parameter_t bad_param;
 
-    parameter_namespace_declare(&rootns, NULL, NULL);
+    parameter_namespace_declare(&rootns, nullptr, nullptr);
 
     parameter_integer_declare_with_default(&bad_param, &rootns, "bad_param", 40);
 
@@ -343,7 +343,7 @@ TEST(MessagePackTestGroup, TestWriteUnknownParameter)
     bad_param.type = 99;
 
     mock().expectOneCall("error").withParameter("id", "bad_param");
-    parameter_msgpack_write_cmp(&rootns, &ctx, log_problematic_id_callback, NULL);
+    parameter_msgpack_write_cmp(&rootns, &ctx, log_problematic_id_callback, nullptr);
 
     mock().checkExpectations();
 }
@@ -355,13 +355,13 @@ TEST(MessagePackTestGroup, TestWriteNotEnoughSpaceLeft)
     // Have a fake write buffer with only 2 bytes left
     cmp_mem_access_init(&ctx, &mem, buffer, 2);
 
-    parameter_namespace_declare(&rootns, NULL, NULL);
+    parameter_namespace_declare(&rootns, nullptr, nullptr);
 
     parameter_integer_declare(&param, &rootns, "param");
     parameter_integer_set(&param, 14);
 
     mock().expectOneCall("error").withParameter("id", "param");
-    parameter_msgpack_write_cmp(&rootns, &ctx, log_problematic_id_callback, NULL);
+    parameter_msgpack_write_cmp(&rootns, &ctx, log_problematic_id_callback, nullptr);
 
     mock().checkExpectations();
 }
@@ -372,14 +372,14 @@ TEST(MessagePackTestGroup, TestBackAndForth)
     parameter_integer_set(&a_baz, 42);
 
     // Save it as messagepack
-    parameter_msgpack_write_cmp(&rootns, &ctx, msgpack_error_cb, NULL);
+    parameter_msgpack_write_cmp(&rootns, &ctx, msgpack_error_cb, nullptr);
     cmp_mem_access_set_pos(&mem, 0);
 
     // Change it
     parameter_integer_set(&a_baz, 99);
 
     // Load it from messagepack
-    parameter_msgpack_read_cmp(&rootns, &ctx, msgpack_error_cb, NULL);
+    parameter_msgpack_read_cmp(&rootns, &ctx, msgpack_error_cb, nullptr);
 
     // Check that it had its old value
     CHECK_EQUAL(42, parameter_integer_get(&a_baz));
@@ -399,7 +399,7 @@ TEST(MessagePackTestGroup, IgnoresUnknownParameters)
 
     cmp_mem_access_set_pos(&mem, 0);
 
-    parameter_msgpack_read_cmp(&rootns, &ctx, NULL, NULL);
+    parameter_msgpack_read_cmp(&rootns, &ctx, nullptr, nullptr);
 
     CHECK_EQUAL(12., parameter_scalar_get(&a_foo));
 }

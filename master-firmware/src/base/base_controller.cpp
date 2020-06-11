@@ -42,9 +42,9 @@ void robot_init(void)
     rs_set_left_pwm(&robot.rs, rs_left_wheel_set_voltage, &left_wheel_motor);
     rs_set_right_pwm(&robot.rs, rs_right_wheel_set_voltage, &right_wheel_motor);
 
-    rs_set_left_ext_encoder(&robot.rs, rs_encoder_get_left_ext, NULL,
+    rs_set_left_ext_encoder(&robot.rs, rs_encoder_get_left_ext, nullptr,
                             config_get_scalar("master/odometry/left_wheel_correction_factor"));
-    rs_set_right_ext_encoder(&robot.rs, rs_encoder_get_right_ext, NULL,
+    rs_set_right_ext_encoder(&robot.rs, rs_encoder_get_right_ext, nullptr,
                              config_get_scalar("master/odometry/right_wheel_correction_factor"));
 
     /* Position manager */
@@ -111,12 +111,12 @@ void robot_init(void)
                        acc_rd2imp(&robot.traj, 30.));
 }
 
-static void base_ctrl_thd(void)
+static void base_ctrl_thd()
 {
     parameter_namespace_t* control_params = parameter_namespace_find(&master_config, "aversive/control");
     parameter_namespace_t* odometry_params = parameter_namespace_find(&master_config, "odometry");
 
-    while (1) {
+    while (true) {
         rs_update(&robot.rs);
 
         /* Control system manage */
@@ -165,9 +165,9 @@ static void base_ctrl_thd(void)
             pid_set_integral_limit(&robot.distance_pid.pid, ilim);
         }
         if (parameter_namespace_contains_changed(odometry_params)) {
-            rs_set_left_ext_encoder(&robot.rs, rs_encoder_get_left_ext, NULL,
+            rs_set_left_ext_encoder(&robot.rs, rs_encoder_get_left_ext, nullptr,
                                     config_get_scalar("master/odometry/left_wheel_correction_factor"));
-            rs_set_right_ext_encoder(&robot.rs, rs_encoder_get_right_ext, NULL,
+            rs_set_right_ext_encoder(&robot.rs, rs_encoder_get_right_ext, nullptr,
                                      config_get_scalar("master/odometry/right_wheel_correction_factor"));
 
             position_set_physical_params(&robot.pos,
@@ -229,7 +229,7 @@ static void position_manager_thd()
 
     //RobotPosition pos = RobotPosition_init_zero;
 
-    while (1) {
+    while (true) {
         position_manage(&robot.pos);
         //pos.x = position_get_x_float(&robot.pos);
         //pos.y = position_get_y_float(&robot.pos);
@@ -251,7 +251,7 @@ void position_manager_start()
 
 void trajectory_manager_thd()
 {
-    while (1) {
+    while (true) {
         trajectory_manager_manage(&robot.traj);
         std::this_thread::sleep_for(1s / ODOM_FREQUENCY);
     }
