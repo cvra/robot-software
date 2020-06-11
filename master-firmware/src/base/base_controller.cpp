@@ -25,7 +25,7 @@ struct _robot robot;
 void robot_init(void)
 {
     robot.mode = BOARD_MODE_ANGLE_DISTANCE;
-    robot.base_speed = BASE_SPEED_SLOW;
+    robot.base_speed = BASE_SPEED_FAST;
 
     /* Motors */
     static rs_motor_t left_wheel_motor = {.m = &motor_manager, .direction = 1.};
@@ -55,6 +55,8 @@ void robot_init(void)
                                  config_get_scalar("master/odometry/external_track_mm"),
                                  config_get_scalar("master/odometry/external_encoder_ticks_per_mm"));
     position_use_ext(&robot.pos);
+
+    position_set(&robot.pos, 200, 1000, 0);
 
     /* Base angle controller */
     pid_init(&robot.angle_pid.pid);

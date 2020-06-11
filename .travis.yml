@@ -3,12 +3,13 @@ dist: bionic
 addons:
     apt:
         packages:
+            - freeglut3-dev
+            - libsdl2-dev
+            - protobuf-compiler
             - python
-            - python3-dev
             - python-pip
             - python-virtualenv
-            - protobuf-compiler
-            - libsdl2-dev
+            - python3-dev
 
 language: cpp
 

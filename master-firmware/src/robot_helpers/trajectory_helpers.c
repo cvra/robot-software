@@ -1,11 +1,21 @@
-#include <ch.h>
+// TODO: Define this once map is converted to Linux, then delete all USE_MAP
+// ifdefs
+#define USE_MAP 0
+
+// TODO: Define this once timestamp is converted to Linux, then delete all
+// ifdefs
+#define USE_TIMESTAMP 0
 
 #include <timestamp/timestamp.h>
 #include <error/error.h>
 
 #include <aversive/trajectory_manager/trajectory_manager_utils.h>
 #include <aversive/trajectory_manager/trajectory_manager_core.h>
+
+#if USE_MAP
 #include "base/map.h"
+#endif
+
 #include "math_helpers.h"
 #include "beacon_helpers.h"
 
@@ -13,22 +23,16 @@
 #include "protobuf/ally_position.pb.h"
 
 #include "trajectory_helpers.h"
-
-// TODO Fix this, this should live in a header somewhere probably
-extern messagebus_t bus;
+#include "main.h"
 
 int trajectory_wait_for_end(int watched_end_reasons)
 {
-#ifndef TESTS
-    chThdSleepMilliseconds(100);
-#endif
+    usleep(100 * 1000);
 
     int traj_end_reason = 0;
     while (traj_end_reason == 0) {
         traj_end_reason = trajectory_has_ended(watched_end_reasons);
-#ifndef TESTS
-        chThdSleepMilliseconds(1);
-#endif
+        usleep(1000);
     }
     NOTICE("End of trajectory reason %d at %d %d %d",
            traj_end_reason, position_get_x_s16(&robot.pos), position_get_y_s16(&robot.pos),
@@ -55,6 +59,7 @@ int trajectory_has_ended(int watched_end_reasons)
         return TRAJ_END_COLLISION;
     }
 
+#if USE_TIMESTAMP && USE_MAP
     if (watched_end_reasons & TRAJ_END_OPPONENT_NEAR) {
         BeaconSignal beacon_signal;
         messagebus_topic_t* proximity_beacon_topic = messagebus_find_topic_blocking(&bus, "/proximity_beacon");
@@ -73,7 +78,9 @@ int trajectory_has_ended(int watched_end_reasons)
             }
         }
     }
+#endif
 
+#if USE_MAP
     if (watched_end_reasons & TRAJ_END_ALLY_NEAR) {
         messagebus_topic_t* topic = messagebus_find_topic(&bus, "/ally_pos");
         AllyPosition pos;
@@ -84,11 +91,14 @@ int trajectory_has_ended(int watched_end_reasons)
             }
         }
     }
+#endif
 
+#if USE_TIMESTAMP
     if (watched_end_reasons & TRAJ_END_TIMER && trajectory_get_time() >= GAME_DURATION) {
         trajectory_hardstop(&robot.traj);
         return TRAJ_END_TIMER;
     }
+#endif
 
     return 0;
 }
@@ -157,6 +167,7 @@ bool trajectory_crosses_obstacle(struct _robot* robot, poly_t* opponent, point_t
     return path_crosses_obstacle == 1 || current_pos_inside_obstacle;
 }
 
+#if USE_MAP
 bool trajectory_is_on_collision_path(struct _robot* robot, int x, int y)
 {
     point_t points[4];
@@ -171,6 +182,7 @@ bool trajectory_is_on_collision_path(struct _robot* robot, int x, int y)
     point_t intersection;
     return trajectory_crosses_obstacle(robot, &opponent, &intersection);
 }
+#endif
 
 void trajectory_set_mode_aligning(
     enum board_mode_t* robot_mode,
@@ -217,6 +229,7 @@ void trajectory_set_mode_game(
                        acc_rd2imp(robot_traj, 6.));
 }
 
+#if USE_TIMESTAMP
 void trajectory_game_timer_reset(void)
 {
     robot.start_time = timestamp_get();
@@ -236,3 +249,4 @@ bool trajectory_game_has_ended(void)
 {
     return trajectory_get_time() >= GAME_DURATION;
 }
+#endif

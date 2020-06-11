@@ -170,6 +170,7 @@ add_executable(master-firmware
     src/gui.cpp
     src/gui/Menu.cpp
     src/gui/MenuPage.cpp
+    src/robot_helpers/trajectory_helpers.c
 )
 
 target_link_libraries(master-firmware PUBLIC

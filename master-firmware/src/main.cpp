@@ -23,6 +23,7 @@
 #include <error/error.h>
 //#include "base/encoder.h"
 #include "base/base_controller.h"
+#include "robot_helpers/trajectory_helpers.h"
 //#include <trace/trace_points.h>
 //#include "strategy.h"
 #include "gui.h"
@@ -156,6 +157,18 @@ int main(int argc, char** argv)
     // Shell manager initialization.
     //shellInit();
     //   shell_spawn((BaseSequentialStream*)&SDU1);
+
+    std::this_thread::sleep_for(2s);
+
+    trajectory_goto_forward_xy_abs(&robot.traj, 1900, 1000);
+    trajectory_wait_for_end(TRAJ_FLAGS_ALL);
+    trajectory_a_abs(&robot.traj, 90);
+    trajectory_wait_for_end(TRAJ_FLAGS_ALL);
+    trajectory_goto_forward_xy_abs(&robot.traj, 1900, 1700);
+    trajectory_wait_for_end(TRAJ_FLAGS_ALL);
+    trajectory_goto_backward_xy_abs(&robot.traj, 1700, 1000);
+    trajectory_wait_for_end(TRAJ_FLAGS_ALL);
+    trajectory_goto_forward_xy_abs(&robot.traj, 1700, 1700);
 
     //trajectory_d_rel(&robot.traj, 300);
     /* just a simple test case */
