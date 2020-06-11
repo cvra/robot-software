@@ -7,6 +7,7 @@
 #include "gui/PositionPage.h"
 #include "gui/MovePage.h"
 #include "gui/MenuPage.h"
+#include "gui/ScorePage.h"
 
 static void gui_thread()
 {
@@ -20,12 +21,14 @@ static void gui_thread()
     WARNING("GUI init done");
 
     Menu m;
-    auto base_position_page = PositionPage();
-    auto base_move_page = MovePage();
+    PositionPage base_position_page;
+    MovePage base_move_page;
+    ScorePage score_page;
     auto base_menu = MenuPage(m, "Base", &base_position_page, &base_move_page);
-    auto root_page = MenuPage(m, "Robot", &base_menu);
+    auto root_page = MenuPage(m, "Robot", &base_menu, &score_page);
 
     m.enter_page(&root_page);
+    m.enter_page(&score_page);
     m.event_loop();
 
     while (true) {

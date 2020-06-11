@@ -8,15 +8,15 @@ extern "C" {
 /** Team color
  */
 enum strat_color_t {
-    YELLOW = 0,
-    VIOLET
+    BLUE = 0,
+    YELLOW
 };
 
 /** Compute the symmetrical position depending on color
  */
-#define MIRROR_X(color, x) (color == VIOLET ? (x) : 3000.f - (x))
-#define MIRROR_A(color, a_deg) (color == VIOLET ? (a_deg) : 180.f - (a_deg))
-#define MIRROR(color, value) (color == VIOLET ? (value) : -(value))
+#define MIRROR_X(color, x) (color == YELLOW ? (x) : 3000.f - (x))
+#define MIRROR_A(color, a_deg) (color == YELLOW ? (a_deg) : 180.f - (a_deg))
+#define MIRROR(color, value) (color == YELLOW ? (value) : -(value))
 
 #ifdef __cplusplus
 }

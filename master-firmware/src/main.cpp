@@ -25,7 +25,7 @@
 #include "base/base_controller.h"
 #include "robot_helpers/trajectory_helpers.h"
 //#include <trace/trace_points.h>
-//#include "strategy.h"
+#include "strategy.h"
 #include "gui.h"
 //#include "udp_topic_broadcaster.h"
 //#include "ally_position_service.h"
@@ -151,24 +151,11 @@ int main(int argc, char** argv)
     position_manager_start();
     trajectory_manager_start();
 
-    /* Initialize strategy thread, will wait for signal to begin game */
-    //strategy_start();
-
     // Shell manager initialization.
     //shellInit();
     //   shell_spawn((BaseSequentialStream*)&SDU1);
 
-    std::this_thread::sleep_for(2s);
-
-    trajectory_goto_forward_xy_abs(&robot.traj, 1900, 1000);
-    trajectory_wait_for_end(TRAJ_FLAGS_ALL);
-    trajectory_a_abs(&robot.traj, 90);
-    trajectory_wait_for_end(TRAJ_FLAGS_ALL);
-    trajectory_goto_forward_xy_abs(&robot.traj, 1900, 1700);
-    trajectory_wait_for_end(TRAJ_FLAGS_ALL);
-    trajectory_goto_backward_xy_abs(&robot.traj, 1700, 1000);
-    trajectory_wait_for_end(TRAJ_FLAGS_ALL);
-    trajectory_goto_forward_xy_abs(&robot.traj, 1700, 1700);
+    strategy_play_game();
 
     //trajectory_d_rel(&robot.traj, 300);
     /* just a simple test case */

@@ -102,22 +102,27 @@ public:
             auto wevent = reinterpret_cast<GEventGWinButton*>(event);
             if (wevent->gwin == forward_button) {
                 NOTICE("clicked on move forward button");
+                absl::MutexLock _(&robot.lock);
                 trajectory_d_rel(&robot.traj, 300);
             }
             if (wevent->gwin == backward_button) {
                 NOTICE("clicked on move backward button");
+                absl::MutexLock _(&robot.lock);
                 trajectory_d_rel(&robot.traj, -300);
             }
             if (wevent->gwin == plus_90_button) {
                 NOTICE("clicked on +90 degrees button");
+                absl::MutexLock _(&robot.lock);
                 trajectory_a_rel(&robot.traj, 90);
             }
             if (wevent->gwin == minus_90_button) {
                 NOTICE("clicked on -90 degrees button");
+                absl::MutexLock _(&robot.lock);
                 trajectory_a_rel(&robot.traj, -90);
             }
             if (wevent->gwin == center_table_button) {
                 NOTICE("Going to the middle of the table");
+                absl::MutexLock _(&robot.lock);
                 trajectory_goto_forward_xy_abs(&robot.traj, 1500, 1000);
             }
         }

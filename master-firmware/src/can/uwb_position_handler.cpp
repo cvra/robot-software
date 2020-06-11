@@ -51,8 +51,11 @@ int uwb_position_handler_init(uavcan::INode& node)
     periodic_timer.setCallback([](const uavcan::TimerEvent& event) {
         (void)event;
         TagPosition msg;
-        msg.x = position_get_x_double(&robot.pos);
-        msg.y = position_get_y_double(&robot.pos);
+        {
+            absl::MutexLock l(&robot.lock);
+            msg.x = position_get_x_double(&robot.pos);
+            msg.y = position_get_y_double(&robot.pos);
+        }
         publisher->broadcast(msg);
     });
 

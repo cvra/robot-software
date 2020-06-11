@@ -1,12 +1,10 @@
 // TODO: Define this once map is converted to Linux, then delete all USE_MAP
 // ifdefs
 #define USE_MAP 0
+#include <absl/time/time.h>
+#include <absl/synchronization/mutex.h>
+#include <thread>
 
-// TODO: Define this once timestamp is converted to Linux, then delete all
-// ifdefs
-#define USE_TIMESTAMP 0
-
-#include <timestamp/timestamp.h>
 #include <error/error.h>
 
 #include <aversive/trajectory_manager/trajectory_manager_utils.h>
@@ -25,14 +23,15 @@
 #include "trajectory_helpers.h"
 #include "main.h"
 
+using namespace std::chrono_literals;
+
 int trajectory_wait_for_end(int watched_end_reasons)
 {
-    usleep(100 * 1000);
-
+    std::this_thread::sleep_for(100ms);
     int traj_end_reason = 0;
     while (traj_end_reason == 0) {
         traj_end_reason = trajectory_has_ended(watched_end_reasons);
-        usleep(1000);
+        std::this_thread::sleep_for(1ms);
     }
     NOTICE("End of trajectory reason %d at %d %d %d",
            traj_end_reason, position_get_x_s16(&robot.pos), position_get_y_s16(&robot.pos),
@@ -43,6 +42,7 @@ int trajectory_wait_for_end(int watched_end_reasons)
 
 int trajectory_has_ended(int watched_end_reasons)
 {
+    absl::MutexLock _(&robot.lock);
     if ((watched_end_reasons & TRAJ_END_GOAL_REACHED) && trajectory_finished(&robot.traj)) {
         return TRAJ_END_GOAL_REACHED;
     }
@@ -59,7 +59,7 @@ int trajectory_has_ended(int watched_end_reasons)
         return TRAJ_END_COLLISION;
     }
 
-#if USE_TIMESTAMP && USE_MAP
+#if USE_MAP
     if (watched_end_reasons & TRAJ_END_OPPONENT_NEAR) {
         BeaconSignal beacon_signal;
         messagebus_topic_t* proximity_beacon_topic = messagebus_find_topic_blocking(&bus, "/proximity_beacon");
@@ -93,12 +93,10 @@ int trajectory_has_ended(int watched_end_reasons)
     }
 #endif
 
-#if USE_TIMESTAMP
-    if (watched_end_reasons & TRAJ_END_TIMER && trajectory_get_time() >= GAME_DURATION) {
+    if (watched_end_reasons & TRAJ_END_TIMER && trajectory_game_has_ended()) {
         trajectory_hardstop(&robot.traj);
         return TRAJ_END_TIMER;
     }
-#endif
 
     return 0;
 }
@@ -229,24 +227,28 @@ void trajectory_set_mode_game(
                        acc_rd2imp(robot_traj, 6.));
 }
 
-#if USE_TIMESTAMP
+static absl::Time game_start_time;
+static absl::Mutex game_start_time_lock;
+
 void trajectory_game_timer_reset(void)
 {
-    robot.start_time = timestamp_get();
+    absl::MutexLock _(&game_start_time_lock);
+    game_start_time = absl::Now();
 }
 
 int trajectory_get_time(void)
 {
-    return timestamp_duration_s(robot.start_time, timestamp_get());
+    absl::MutexLock _(&game_start_time_lock);
+    return absl::ToInt64Seconds(absl::Now() - game_start_time);
 }
 
 int trajectory_get_time_ms(void)
 {
-    return timestamp_duration_us(robot.start_time, timestamp_get()) / 1000;
+    absl::MutexLock _(&game_start_time_lock);
+    return absl::ToInt64Milliseconds(absl::Now() - game_start_time);
 }
 
 bool trajectory_game_has_ended(void)
 {
     return trajectory_get_time() >= GAME_DURATION;
 }
-#endif

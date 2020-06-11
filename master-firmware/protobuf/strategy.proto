@@ -7,32 +7,56 @@ message Score {
     required int32 score = 1;
 }
 
-enum PuckColor {
-    RED = 0;
-    GREEN = 1;
-    BLUE = 2;
-    RED_OR_GREEN = 3;
-    GOLDENIUM = 4;
-    EMPTY = 5;
+enum GlassColor {
+    UNKNOWN = 0;
+    RED = 1;
+    GREEN = 2;
 }
+/* Global state on which GOAP plans */
+message StrategyState {
+    /* State related to buoys */
+    required RobotState robot = 1;
+    required DispenserState our_dispenser = 2;
+    required DispenserState shared_dispenser_near = 3;
+    required DispenserState shared_dispenser_far = 4;
+    required TableGlassStates table_glasses = 5;
 
-message RobotState {
+    /* State related to windsocks.
+     * The windsocks are ordered starting from the starting area. */
+    repeated bool windsocks_are_up = 6
+        [ (nanopb).fixed_count = true, (nanopb).max_count = 2 ];
+
+    /* State related to the lighthouse */
+    required bool lighthouse_is_on = 8;
+
     option (nanopb_msgopt).msgid = 14;
     option (nanopb_msgopt).packed_struct = true;
-    required bool arms_are_indexed = 1 [default=false];
-    required bool arms_are_deployed = 2 [default=true];
-    repeated bool puck_available = 3 [(nanopb).fixed_count=true, (nanopb).max_count=13];
-    required bool right_has_puck = 4 [default=false];
-    required bool left_has_puck = 5 [default=false];
-    required bool electron_launched = 6 [default=false];
-    required bool goldonium_in_house = 7 [default=true];
-    required bool has_goldonium = 8 [default=false];
-    required PuckColor right_puck_color = 9;
-    required PuckColor left_puck_color = 10;
-    repeated uint32 classified_pucks = 11 [(nanopb).fixed_count=true, (nanopb).max_count=4, packed=true];
-    repeated PuckColor right_storage = 12 [(nanopb).fixed_count=true, (nanopb).max_count=4, packed=true];
-    repeated PuckColor left_storage = 13 [(nanopb).fixed_count=true, (nanopb).max_count=4, packed=true];
-    repeated PuckColor puck_in_scale = 14 [(nanopb).fixed_count=true, (nanopb).max_count=6, packed=true];
-    required uint32 num_pucks_in_scale = 15 [default=0];
-    required uint32 puck_in_accelerator = 16 [default=0];
 }
+/* State of the actuators of this robot. */
+message RobotState {
+    optional GlassColor front_left_glass = 1;
+    optional GlassColor front_center_glass = 2;
+    optional GlassColor front_right = 3;
+    optional GlassColor back_left_glass = 4;
+    optional GlassColor back_center_glass = 5;
+    optional GlassColor back_right = 6;
+
+    optional bool flags_deployed = 7;
+
+    option (nanopb_msgopt).packed_struct = true;
+}
+/* State of the glasses in one dispenser / reef */
+message DispenserState {
+    repeated GlassColor glasses = 1
+        [ (nanopb).fixed_count = true, (nanopb).max_count = 6 ];
+
+    option (nanopb_msgopt).packed_struct = true;
+}
+/* State of the drifting buoys */
+message TableGlassStates {
+    repeated GlassColor glasses = 1
+        [ (nanopb).fixed_count = true, (nanopb).max_count = 6 ];
+
+    option (nanopb_msgopt).packed_struct = true;
+}
+

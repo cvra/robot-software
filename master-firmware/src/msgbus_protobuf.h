@@ -5,6 +5,7 @@
 
 #include <pb.h>
 #include <msgbus/messagebus.h>
+#include <msgbus/posix/port.h>
 
 #include <unistd.h>
 #include <stdbool.h>
@@ -19,28 +20,26 @@ typedef struct {
     messagebus_watcher_t udp_watcher;
 } topic_metadata_t;
 
-#define TOPIC_DECL(name, type)                 \
-    struct {                                   \
-        messagebus_topic_t topic;              \
-        mutex_t lock;                          \
-        condition_variable_t condvar;          \
-        type value;                            \
-        topic_metadata_t metadata;             \
-    } name = {                                 \
-        _MESSAGEBUS_TOPIC_DATA(name.topic,     \
-                               name.lock,      \
-                               name.condvar,   \
-                               &name.value,    \
-                               sizeof(type),   \
-                               name.metadata), \
-        _MUTEX_DATA(name.lock),                \
-        _CONDVAR_DATA(name.condvar),           \
-        type##_init_default,                   \
-        {                                      \
-            type##_fields,                     \
-            type##_msgid,                      \
-            {NULL, NULL},                      \
-        },                                     \
+#define TOPIC_DECL(name, type)                                 \
+    struct {                                                   \
+        messagebus_topic_t topic;                              \
+        condvar_wrapper_t var;                                 \
+        type value;                                            \
+        topic_metadata_t metadata;                             \
+    } name = {                                                 \
+        _MESSAGEBUS_TOPIC_DATA(name.topic,                     \
+                               name.var,                       \
+                               name.var,                       \
+                               &name.value,                    \
+                               sizeof(type),                   \
+                               name.metadata),                 \
+        {PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER}, \
+        type##_init_default,                                   \
+        {                                                      \
+            type##_fields,                                     \
+            type##_msgid,                                      \
+            {NULL, NULL},                                      \
+        },                                                     \
     }
 
 #define _MESSAGEBUS_TOPIC_DATA(topic, lock, condvar, buffer, buffer_size, metadata) \

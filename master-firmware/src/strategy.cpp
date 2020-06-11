@@ -1,6 +1,8 @@
-#include <ch.h>
-#include <hal.h>
+// TODO: Enable this once map is ported
+#define USE_MAP 0
+
 #include <array>
+#include <thread>
 
 #include "can/electron_starter.hpp"
 
@@ -11,15 +13,18 @@
 #include <goap/goap.hpp>
 #include <timestamp/timestamp.h>
 
-#include "priorities.h"
 #include "robot_helpers/math_helpers.h"
 #include "robot_helpers/trajectory_helpers.h"
 #include "robot_helpers/strategy_helpers.h"
 #include "robot_helpers/motor_helpers.h"
 #include "base/base_controller.h"
 #include "base/base_helpers.h"
+
+#if USE_MAP
 #include "base/map.h"
 #include "base/map_server.h"
+#endif
+
 #include "config.h"
 #include "control_panel.h"
 #include "main.h"
@@ -28,13 +33,14 @@
 #include "strategy/color.h"
 #include "strategy/actions.h"
 #include "strategy/goals.h"
-#include "strategy/score_counter.h"
 #include "strategy/state.h"
+
+using namespace std::chrono_literals;
 
 // TODO(antoinealb): Move GOAP defines to something shared with unit tests
 const int MAX_GOAP_PATH_LEN = 10;
 
-static goap::Planner<RobotState, GOAP_SPACE_SIZE> planner;
+static goap::Planner<StrategyState, GOAP_SPACE_SIZE> planner;
 
 static enum strat_color_t wait_for_color_selection(void);
 static void wait_for_autoposition_signal(void);
@@ -48,23 +54,22 @@ static enum strat_color_t wait_for_color_selection(void)
     while (!control_panel_button_is_pressed(BUTTON_YELLOW) && !control_panel_button_is_pressed(BUTTON_GREEN)) {
         control_panel_set(LED_YELLOW);
         control_panel_set(LED_GREEN);
-        chThdSleepMilliseconds(100);
-
+        std::this_thread::sleep_for(100ms);
         control_panel_clear(LED_YELLOW);
         control_panel_clear(LED_GREEN);
-        chThdSleepMilliseconds(100);
+        std::this_thread::sleep_for(100ms);
     }
 
     if (control_panel_button_is_pressed(BUTTON_GREEN)) {
         control_panel_clear(LED_YELLOW);
         control_panel_set(LED_GREEN);
-        color = VIOLET;
-        NOTICE("Color set to violet");
+        color = YELLOW;
+        NOTICE("Color set to yellow");
     } else {
         control_panel_set(LED_YELLOW);
         control_panel_clear(LED_GREEN);
-        color = YELLOW;
-        NOTICE("Color set to yellow");
+        color = BLUE;
+        NOTICE("Color set to blue");
     }
 
     return color;
@@ -82,10 +87,10 @@ static void wait_for_starter(void)
 
         /* Wait for a rising edge */
         while (control_panel_read(STARTER)) {
-            chThdSleepMilliseconds(10);
+            std::this_thread::sleep_for(10ms);
         }
         while (!control_panel_read(STARTER)) {
-            chThdSleepMilliseconds(10);
+            std::this_thread::sleep_for(10ms);
             starter_armed_time_ms += 10;
 
             /* indicate that starter is armed */
@@ -105,16 +110,23 @@ static void wait_for_autoposition_signal(void)
     wait_for_color_selection();
 }
 
-void strategy_order_play_game(RobotState& state, enum strat_color_t color)
+void strategy_order_play_game(StrategyState& state, enum strat_color_t color)
 {
     messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
-    goap::Action<RobotState>* path[MAX_GOAP_PATH_LEN] = {nullptr};
+    goap::Action<StrategyState>* path[MAX_GOAP_PATH_LEN] = {nullptr};
 
-    std::array<goap::Goal<RobotState>*, 0> goals;
-    std::array<goap::Action<RobotState>*, 0> actions;
+    goals::LighthouseEnabled lighthouse_enabled;
+    actions::EnableLighthouse enable_lighthouse;
+    goals::WindsocksUp windsocks_raised;
+
+    actions::RaiseWindsock windsocks[2] = {{0}, {1}};
+
+    std::array<goap::Goal<StrategyState>*, 2> goals = {&lighthouse_enabled, &windsocks_raised};
+    std::array<goap::Action<StrategyState>*, 3> actions = {&enable_lighthouse, &windsocks[0], &windsocks[1]};
 
     /* Autoposition robot */
+#if 0
     wait_for_autoposition_signal();
     NOTICE("Positioning robot");
 
@@ -123,13 +135,19 @@ void strategy_order_play_game(RobotState& state, enum strat_color_t color)
 
     trajectory_a_abs(&robot.traj, MIRROR_A(color, 180));
     trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
+#endif
 
     robot.base_speed = BASE_SPEED_FAST;
     NOTICE("Robot positioned at x: %d[mm], y: %d[mm], a: %d[deg]",
            position_get_x_s16(&robot.pos), position_get_y_s16(&robot.pos), position_get_a_deg_s16(&robot.pos));
 
     /* Wait for starter to begin */
+#if 0
     wait_for_starter();
+#else
+    std::this_thread::sleep_for(2s);
+#endif
+
     trajectory_game_timer_reset();
 
     NOTICE("Starting game...");
@@ -139,7 +157,6 @@ void strategy_order_play_game(RobotState& state, enum strat_color_t color)
             for (int i = 0; i < len; i++) {
                 bool success = path[i]->execute(state);
                 messagebus_topic_publish(state_topic, &state, sizeof(state));
-                chThdYield();
                 if (success == false) {
                     break; // Break on failure
                 }
@@ -153,35 +170,30 @@ void strategy_order_play_game(RobotState& state, enum strat_color_t color)
         }
     }
 
+    NOTICE("Deploying flags");
+    WARNING("Unimplemented");
+
+    state.robot.flags_deployed = true;
+    messagebus_topic_publish(state_topic, &state, sizeof(state));
+
     NOTICE("Game ended!");
-    while (true) {
-        chThdSleepMilliseconds(1000);
-    }
 }
 
-void strategy_play_game(void* p)
+void strategy_play_game()
 {
-    (void)p;
-    chRegSetThreadName("strategy");
-
     NOTICE("Strategy starting...");
 
     /* Prepare state publisher */
-    RobotState state = initial_state();
+    StrategyState state = initial_state();
 
-    static TOPIC_DECL(state_topic, RobotState);
+    static TOPIC_DECL(state_topic, StrategyState);
     messagebus_advertise_topic(&bus, &state_topic.topic, "/state");
 
     NOTICE("Waiting for color selection...");
-    auto color = wait_for_color_selection();
+    //auto color = wait_for_color_selection();
+#if USE_MAP
     map_server_start(color);
-    score_counter_start();
+#endif
 
-    strategy_order_play_game(state, color);
-}
-
-void strategy_start(void)
-{
-    static THD_WORKING_AREA(strategy_thd_wa, 4096);
-    chThdCreateStatic(strategy_thd_wa, sizeof(strategy_thd_wa), STRATEGY_PRIO, strategy_play_game, NULL);
+    strategy_order_play_game(state, YELLOW);
 }
