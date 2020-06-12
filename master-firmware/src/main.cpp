@@ -24,7 +24,6 @@
 //#include "base/encoder.h"
 #include "base/base_controller.h"
 #include "robot_helpers/trajectory_helpers.h"
-//#include <trace/trace_points.h>
 #include "strategy.h"
 #include "gui.h"
 //#include "udp_topic_broadcaster.h"
@@ -48,14 +47,6 @@ ABSL_FLAG(std::string, can_iface, "vcan0", "SocketCAN interface to use. If empty
 ABSL_FLAG(bool, verbose, false, "Enable verbose output");
 ABSL_FLAG(bool, enable_gui, true, "Enable on-robot GUI");
 ABSL_FLAG(std::string, robot_config, "simulation", "Which config to load, can be order, chaos or simulation.");
-
-/** Late init hook, called before c++ static constructors. */
-void __late_init()
-{
-    /* Initialize and enable trace system */
-    //trace_init();
-    //trace_enable();
-}
 
 void config_load_err_cb(void* arg, const char* id, const char* err)
 {
