@@ -23,6 +23,7 @@ ABSL_FLAG(int, first_uavcan_id, 42, "UAVCAN ID of the first board."
 ABSL_FLAG(std::string, can_iface, "vcan0", "SocketCAN interface to connect the emulation to");
 ABSL_FLAG(std::string, position_log, "robot_pos.txt", "File in which to write the position log.");
 ABSL_FLAG(std::string, table_texture, "hitl/table.png", "File to use as table texture (PNG format).");
+ABSL_FLAG(bool, enable_gui, true, "Enables or not the graphical view.");
 
 float clamp(float min, float val, float max)
 {
@@ -251,26 +252,28 @@ int main(int argc, char** argv)
         }
     });
 
-    viewer_init(argc, argv);
+    if (absl::GetFlag(FLAGS_enable_gui)) {
+        viewer_init(argc, argv);
 
-    int width, height;
-    int texture_id = texture_load(absl::GetFlag(FLAGS_table_texture).c_str(), &width, &height);
+        int width, height;
+        int texture_id = texture_load(absl::GetFlag(FLAGS_table_texture).c_str(), &width, &height);
 
-    NOTICE("%d, %d", width, height);
+        NOTICE("%d, %d", width, height);
 
-    if (texture_id == 0) {
-        ERROR("Could not load table texture");
+        if (texture_id == 0) {
+            ERROR("Could not load table texture");
+        }
+
+        TableRenderer table_renderer(texture_id);
+        RobotRenderer robot_renderer(robot);
+        std::vector<Renderable*> renderables{&table_renderer, &robot_renderer};
+
+        for (auto& cup : cups) {
+            renderables.push_back(&cup);
+        }
+
+        startRendering(&renderables);
     }
-
-    TableRenderer table_renderer(texture_id);
-    RobotRenderer robot_renderer(robot);
-    std::vector<Renderable*> renderables{&table_renderer, &robot_renderer};
-
-    for (auto& cup : cups) {
-        renderables.push_back(&cup);
-    }
-
-    startRendering(&renderables);
 
     while (true) {
     }
