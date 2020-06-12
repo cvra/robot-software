@@ -26,10 +26,12 @@ ABSL_FLAG(std::string, table_texture, "hitl/table.png", "File to use as table te
 
 float clamp(float min, float val, float max)
 {
-    if (val > max)
+    if (val > max) {
         return val;
-    if (val < min)
+    }
+    if (val < min) {
         return min;
+    }
     return val;
 }
 

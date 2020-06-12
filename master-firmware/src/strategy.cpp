@@ -42,12 +42,12 @@ const int MAX_GOAP_PATH_LEN = 10;
 
 static goap::Planner<StrategyState, GOAP_SPACE_SIZE> planner;
 
-static enum strat_color_t wait_for_color_selection(void);
-static void wait_for_autoposition_signal(void);
-static void wait_for_starter(void);
+static enum strat_color_t wait_for_color_selection();
+static void wait_for_autoposition_signal();
+static void wait_for_starter();
 void strategy_play_game(void);
 
-static enum strat_color_t wait_for_color_selection(void)
+static enum strat_color_t wait_for_color_selection()
 {
     strat_color_t color = YELLOW;
 
@@ -75,14 +75,14 @@ static enum strat_color_t wait_for_color_selection(void)
     return color;
 }
 
-static void wait_for_starter(void)
+static void wait_for_starter()
 {
     const long STARTER_MIN_ARMED_TIME_MS = 1000;
     unsigned long starter_armed_time_ms;
 
     control_panel_clear(LED_READY);
 
-    while (1) {
+    while (true) {
         starter_armed_time_ms = 0;
 
         /* Wait for a rising edge */
@@ -105,7 +105,7 @@ static void wait_for_starter(void)
     }
 }
 
-static void wait_for_autoposition_signal(void)
+static void wait_for_autoposition_signal()
 {
     wait_for_color_selection();
 }
@@ -152,12 +152,12 @@ void strategy_order_play_game(StrategyState& state, enum strat_color_t color)
 
     NOTICE("Starting game...");
     while (!trajectory_game_has_ended()) {
-        for (auto goal : goals) {
+        for (auto* goal : goals) {
             int len = planner.plan(state, *goal, actions.data(), actions.size(), path, MAX_GOAP_PATH_LEN);
             for (int i = 0; i < len; i++) {
                 bool success = path[i]->execute(state);
                 messagebus_topic_publish(state_topic, &state, sizeof(state));
-                if (success == false) {
+                if (!success) {
                     break; // Break on failure
                 }
                 if (trajectory_game_has_ended()) {

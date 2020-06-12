@@ -2,7 +2,7 @@
 
 #include "state.h"
 
-StrategyState initial_state(void)
+StrategyState initial_state()
 {
     StrategyState state = StrategyState_init_default;
 

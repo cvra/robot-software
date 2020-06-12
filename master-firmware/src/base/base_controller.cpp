@@ -22,7 +22,7 @@ using namespace std::chrono_literals;
 
 struct _robot robot;
 
-void robot_init(void)
+void robot_init()
 {
     absl::MutexLock _(&robot.lock);
 

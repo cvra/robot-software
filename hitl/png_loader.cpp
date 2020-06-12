@@ -27,23 +27,23 @@ int texture_load(const char* file, int* width, int* height)
         fclose(f);
         return 0;
     }
-    png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL,
-                                     NULL, NULL);
+    png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr,
+                                     nullptr, nullptr);
     if (!png_ptr) {
         fclose(f);
         return 0;
     }
     info_ptr = png_create_info_struct(png_ptr);
     if (!info_ptr) {
-        png_destroy_read_struct(&png_ptr, (png_infopp)NULL,
-                                (png_infopp)NULL);
+        png_destroy_read_struct(&png_ptr, (png_infopp) nullptr,
+                                (png_infopp) nullptr);
         fclose(f);
         return 0;
     }
     end_info = png_create_info_struct(png_ptr);
     if (!end_info) {
-        png_destroy_read_struct(&png_ptr, (png_infopp)NULL,
-                                (png_infopp)NULL);
+        png_destroy_read_struct(&png_ptr, (png_infopp) nullptr,
+                                (png_infopp) nullptr);
         fclose(f);
         return 0;
     }
@@ -56,7 +56,7 @@ int texture_load(const char* file, int* width, int* height)
     png_set_sig_bytes(png_ptr, 8);
     png_read_info(png_ptr, info_ptr);
     png_get_IHDR(png_ptr, info_ptr, &t_width, &t_height, &bit_depth,
-                 &color_type, NULL, NULL, NULL);
+                 &color_type, nullptr, nullptr, nullptr);
     *width = t_width;
     *height = t_height;
     png_read_update_info(png_ptr, info_ptr);
