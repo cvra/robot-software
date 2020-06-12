@@ -4,8 +4,6 @@
 #include <array>
 #include <thread>
 
-#include "can/electron_starter.hpp"
-
 #include <aversive/blocking_detection_manager/blocking_detection_manager.h>
 #include <aversive/obstacle_avoidance/obstacle_avoidance.h>
 #include <aversive/trajectory_manager/trajectory_manager_utils.h>
