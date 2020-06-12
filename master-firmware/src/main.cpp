@@ -47,6 +47,7 @@ static MESSAGEBUS_POSIX_SYNC_DECL(bus_sync);
 ABSL_FLAG(std::string, can_iface, "vcan0", "SocketCAN interface to use. If empty, disable UAVCAN.");
 ABSL_FLAG(bool, verbose, false, "Enable verbose output");
 ABSL_FLAG(bool, enable_gui, true, "Enable on-robot GUI");
+ABSL_FLAG(std::string, robot_config, "simulation", "Which config to load, can be order, chaos or simulation.");
 
 /** Late init hook, called before c++ static constructors. */
 void __late_init()
@@ -69,8 +70,24 @@ void config_load_from_flash()
 
     extern unsigned char msgpack_config_chaos[];
     extern const size_t msgpack_config_chaos_size;
+    extern unsigned char msgpack_config_order[];
+    extern const size_t msgpack_config_order_size;
+    extern unsigned char msgpack_config_simulation[];
+    extern const size_t msgpack_config_simulation_size;
 
-    cmp_mem_access_ro_init(&cmp, &mem, msgpack_config_chaos, msgpack_config_chaos_size);
+    if (absl::GetFlag(FLAGS_robot_config) == "chaos") {
+        NOTICE("Loading msgpack config for Chaos");
+        cmp_mem_access_ro_init(&cmp, &mem, msgpack_config_chaos, msgpack_config_chaos_size);
+    } else if (absl::GetFlag(FLAGS_robot_config) == "order") {
+        NOTICE("Loading msgpack config for order");
+        cmp_mem_access_ro_init(&cmp, &mem, msgpack_config_order, msgpack_config_order_size);
+    } else if (absl::GetFlag(FLAGS_robot_config) == "simulation") {
+        NOTICE("Loading msgpack config for the simulator");
+        cmp_mem_access_ro_init(&cmp, &mem, msgpack_config_simulation, msgpack_config_simulation_size);
+    } else {
+        ERROR("Unknown robot_config value %s", absl::GetFlag(FLAGS_robot_config).c_str());
+    }
+
     int ret = parameter_msgpack_read_cmp(&global_config, &cmp, config_load_err_cb, nullptr);
     if (ret != 0) {
         ERROR("parameter_msgpack_read_cmp failed");

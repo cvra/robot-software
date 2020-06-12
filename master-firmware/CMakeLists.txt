@@ -98,11 +98,12 @@ add_custom_command(
     COMMAND ../tools/config/config_to_c.py
     ../config_order.yaml
     ../config_chaos.yaml
+    ../config_simulation.yaml
     ${CMAKE_CURRENT_BINARY_DIR}/config_private/config_private.h
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/config_private/config_private.h
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     COMMENT "Generating config structure"
-    DEPENDS ../config_order.yaml ../config_chaos.yaml
+    DEPENDS ../config_order.yaml ../config_chaos.yaml ../config_simulation.yaml
 )
 
 add_custom_target(master_config_header ALL DEPENDS
@@ -144,17 +145,19 @@ add_custom_command(
     COMMENT "Generating Chaos config"
 )
 add_custom_command(
-    COMMAND tools/config/config_to_c.py
-            config_chaos.yaml
-            ${CMAKE_BINARY_DIR}/config/config_private.h
-    OUTPUT ${CMAKE_BINARY_DIR}/config/config_private.h
+    COMMAND tools/config/config_to_msgpack.py
+            --name=msgpack_config_simulation
+            config_simulation.yaml
+            ${CMAKE_BINARY_DIR}/config/config_simulation.c
+    OUTPUT ${CMAKE_BINARY_DIR}/config/config_simulation.c
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-    MAIN_DEPENDENCY ../config_chaos.yaml
-    COMMENT "Generating config structure"
+    MAIN_DEPENDENCY ../config_simulation.yaml
+    COMMENT "Generating simulation config"
 )
 add_library(config_data
     ${CMAKE_BINARY_DIR}/config/config_order.c
     ${CMAKE_BINARY_DIR}/config/config_chaos.c
+    ${CMAKE_BINARY_DIR}/config/config_simulation.c
 )
 target_include_directories(config_data PUBLIC ${CMAKE_BINARY_DIR}/config)
 
