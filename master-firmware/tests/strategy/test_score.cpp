@@ -50,4 +50,3 @@ TEST(Score, FlagsDoNotBringPointsToTheSmallRobot)
     auto score_flags = compute_score(state, not_main_robot) - initial_score;
     CHECK_EQUAL(0, score_flags);
 }
-

@@ -126,4 +126,3 @@ bool actions::RaiseWindsock::execute(StrategyState& state)
 
     return true;
 }
-

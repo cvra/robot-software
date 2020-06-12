@@ -59,4 +59,3 @@ message TableGlassStates {
 
     option (nanopb_msgopt).packed_struct = true;
 }
-

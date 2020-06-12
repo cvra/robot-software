@@ -109,5 +109,3 @@ int32_t quadramp_do_filter(void* data, int32_t in);
 #endif
 
 #endif
-
-

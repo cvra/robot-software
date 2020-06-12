@@ -24,6 +24,7 @@ public:
  * common. */
 class RaiseWindsock : public goap::Action<StrategyState> {
     int windsock_index;
+
 public:
     /* Windsocks are indexed starting from the starting area. */
     RaiseWindsock(int windsock_index);

@@ -5,5 +5,4 @@
 
 // TODO(all): Write the table content here
 
-
 #endif /* STRATEGY_TABLE_H */
