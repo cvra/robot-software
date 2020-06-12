@@ -28,9 +28,6 @@ case $BUILD_TYPE in
         make
         make test
         popd
-
-        # Check that the includes are correct
-        tools/include_bracket_enforcer.py --check
         ;;
 
     build-cmake)
