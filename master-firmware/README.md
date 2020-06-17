@@ -19,16 +19,16 @@ It will soon be available online, for now we assume it was built with the name `
 The following setup has to be done **once**:
 ```bash
 git submodule update --init --recursive
-docker run -it -v $(pwd):/src -w /src/lib/nanopb/nanopb/generator/proto cvra-sdk make
+docker run -it -v $(pwd):/src -w /src/lib/nanopb/nanopb/generator/proto antoinealb/cvra-sdk make
 mkdir build-docker
-docker run -it -v $(pwd):/src -w /src/build-docker cvra-sdk cmake .. -DCMAKE_TOOLCHAIN_FILE=/aarch64-buildroot-linux-gnu_sdk-buildroot/share/buildroot/toolchainfile.cmake
+docker run -it -v $(pwd):/src -w /src/build-docker antoinealb/cvra-sdk cmake .. -DCMAKE_TOOLCHAIN_FILE=/aarch64-buildroot-linux-gnu_sdk-buildroot/share/buildroot/toolchainfile.cmake
 ```
 
 Now, to build the package that can be installed on the robot, you need to run the following command.
 Note that only this command is required after changing source file.
 
 ```bash
-docker run -it -v $(pwd):/src -w /src/build-docker cvra-sdk make master-firmware.ipk
+docker run -it -v $(pwd):/src -w /src/build-docker antoinealb/cvra-sdk make master-firmware.ipk
 ```
 
 The resulting file is `build/master-firmware/master-firmware.ipk`.
