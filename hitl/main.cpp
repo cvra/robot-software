@@ -14,6 +14,7 @@
 #include "wheel_encoders_emulator.h"
 #include "sensor_board_emulator.h"
 #include "actuator_board_emulator.h"
+#include "ProximityBeaconEmulator.h"
 #include <error/error.h>
 #include "logging.h"
 #include "viewer.h"
@@ -228,11 +229,14 @@ int main(int argc, char** argv)
     float pressure[2] = {50e3, 80e3};
     actuator.set_pressure(pressure);
 
+    ProximityBeaconEmulator proximity_beacon(iface, "proximity-beacon", board_id++);
+
     right_motor.start();
     left_motor.start();
     wheels.start();
     sensor.start();
     actuator.start();
+    proximity_beacon.start();
 
     auto cups = create_cups(world);
 
@@ -252,11 +256,14 @@ int main(int argc, char** argv)
 
             world.Step(dt, velocityIterations, posIterations);
 
+            // Publish wheel encoders
             robot.AccumulateWheelEncoders(dt);
-
             int left, right;
             robot.GetWheelEncoders(left, right);
             wheels.set_encoders(-left, right);
+
+            // Publish beacon signal
+            proximity_beacon.set_positions(robot.GetPosition(), robot.GetAngle(), opponent.GetPosition());
 
             auto pos = robot.GetPosition();
             auto vel = robot.GetLinearVelocity();
