@@ -189,6 +189,7 @@ add_executable(master-firmware
     src/main.cpp
     src/debug/log.c
     src/can/uavcan_node.cpp
+    src/can/beacon_signal_handler.cpp
     src/can/motor_manager.c
     src/can/motor_driver.c
     src/can/motor_driver_uavcan.cpp

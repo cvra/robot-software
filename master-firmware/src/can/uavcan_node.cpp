@@ -4,8 +4,8 @@
 #include <uavcan/protocol/node_info_retriever.hpp>
 #include "emergency_stop_handler.hpp"
 #include "motor_feedback_streams_handler.hpp"
-//#include "beacon_signal_handler.hpp"
 #include "actuator_driver_uavcan.hpp"
+#include "beacon_signal_handler.hpp"
 #include "motor_driver.h"
 #include "motor_driver_uavcan.hpp"
 #include "wheel_encoders_handler.hpp"
@@ -124,17 +124,14 @@ static void main(std::string can_iface, uint8_t id)
         ERROR("motor feedback");
     }
 
-    if (can_io_init(node) < 0) {
-        ERROR("CAN IO driver");
-    }
-
-#if 0
     res = beacon_signal_handler_init(node);
     if (res < 0) {
         ERROR("beacon signal handler");
     }
 
-#endif
+    if (can_io_init(node) < 0) {
+        ERROR("CAN IO driver");
+    }
 
     if (sensor_handler_init(node, &bus_enumerator) < 0) {
         ERROR("sensor init");
