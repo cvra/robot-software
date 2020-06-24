@@ -71,12 +71,15 @@ int trajectory_has_ended(int watched_end_reasons)
         return TRAJ_END_NEAR_GOAL;
     }
 
-    if ((watched_end_reasons & TRAJ_END_COLLISION) && bd_get(&robot.distance_bd)) {
-        return TRAJ_END_COLLISION;
-    }
+    if (watched_end_reasons & TRAJ_END_COLLISION) {
+        if (bd_get(&robot.angle_bd) || bd_get(&robot.distance_bd)) {
+            WARNING("Stopping because of a collision");
 
-    if ((watched_end_reasons & TRAJ_END_COLLISION) && bd_get(&robot.angle_bd)) {
-        return TRAJ_END_COLLISION;
+            trajectory_hardstop(&robot.traj);
+            bd_reset(&robot.distance_bd);
+            bd_reset(&robot.angle_bd);
+            return TRAJ_END_COLLISION;
+        }
     }
 
 #if USE_MAP

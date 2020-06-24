@@ -113,6 +113,8 @@ void robot_init()
     trajectory_set_acc(&robot.traj,
                        acc_mm2imp(&robot.traj, 3000.),
                        acc_rd2imp(&robot.traj, 30.));
+    bd_set_thresholds(&robot.distance_bd, 15000, 1);
+    bd_set_thresholds(&robot.angle_bd, 15000, 1);
 }
 
 static void base_ctrl_thd()
@@ -142,14 +144,6 @@ static void base_ctrl_thd()
         /* Blocking detection manage */
         bd_manage(&robot.angle_bd, abs(cs_get_error(&robot.angle_cs)));
         bd_manage(&robot.distance_bd, abs(cs_get_error(&robot.distance_cs)));
-
-        /* Collision detected */
-        if (bd_get(&robot.distance_bd)) {
-            WARNING("Collision detected in distance !");
-        }
-        if (bd_get(&robot.angle_bd)) {
-            WARNING("Collision detected in angle !");
-        }
 
         if (parameter_namespace_contains_changed(control_params)) {
             float kp, ki, kd, ilim;
