@@ -187,6 +187,7 @@ target_link_libraries(master-firmware PUBLIC
     absl::strings
     absl::flags
     absl::flags_parse
+    absl::synchronization
     error
     uavcan
     uavcan_linux

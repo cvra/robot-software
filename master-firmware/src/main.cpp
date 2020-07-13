@@ -6,6 +6,7 @@
 #include <absl/flags/flag.h>
 #include <absl/flags/parse.h>
 #include <absl/flags/usage.h>
+#include <absl/synchronization/mutex.h>
 
 #include "main.h"
 #include "control_panel.h"
@@ -96,9 +97,16 @@ static void blink_start()
     blink.detach();
 }
 
+static void enable_deadlock_detection()
+{
+    absl::SetMutexDeadlockDetectionMode(absl::OnDeadlockCycle::kReport);
+}
+
 /** Application entry point.  */
 int main(int argc, char** argv)
 {
+    enable_deadlock_detection();
+
     absl::SetProgramUsageMessage("Program responsible for running main"
                                  "functions of the robot");
     absl::ParseCommandLine(argc, argv);
