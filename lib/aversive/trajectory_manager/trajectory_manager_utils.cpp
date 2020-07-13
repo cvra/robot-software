@@ -27,11 +27,11 @@
 #include <math.h>
 
 #include <quadramp/quadramp.h>
+#include <aversive/position_manager/position_manager.h>
 
 extern "C" {
 #include <aversive/control_system_manager/control_system_manager.h>
 #include <aversive/math/vect2/vect2.h>
-#include <aversive/position_manager/position_manager.h>
 #include <aversive/robot_system/robot_system.h>
 }
 
@@ -121,8 +121,8 @@ uint8_t is_robot_in_xy_window(struct trajectory* traj, double d_win)
 {
     double x1 = traj->target.cart.x;
     double y1 = traj->target.cart.y;
-    double x2 = position_get_x_double(traj->position);
-    double y2 = position_get_y_double(traj->position);
+    double x2 = position_get_x_double_unsafe(traj->position);
+    double y2 = position_get_y_double_unsafe(traj->position);
     return sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)) < d_win;
 }
 
@@ -172,31 +172,37 @@ int trajectory_turning(struct trajectory* traj)
 
 double pos_mm2imp(struct trajectory* traj, double pos)
 {
+    absl::ReaderMutexLock l(&traj->position->lock_);
     return pos * traj->position->phys.distance_imp_per_mm;
 }
 
 double pos_imp2mm(struct trajectory* traj, double pos)
 {
+    absl::ReaderMutexLock l(&traj->position->lock_);
     return pos / traj->position->phys.distance_imp_per_mm;
 }
 
 double speed_mm2imp(struct trajectory* traj, double speed)
 {
+    absl::ReaderMutexLock l(&traj->position->lock_);
     return speed * traj->position->phys.distance_imp_per_mm / traj->cs_hz;
 }
 
 double speed_imp2mm(struct trajectory* traj, double speed)
 {
+    absl::ReaderMutexLock l(&traj->position->lock_);
     return speed * traj->cs_hz / traj->position->phys.distance_imp_per_mm;
 }
 
 double acc_mm2imp(struct trajectory* traj, double acc)
 {
+    absl::ReaderMutexLock l(&traj->position->lock_);
     return acc * traj->position->phys.distance_imp_per_mm / (traj->cs_hz * traj->cs_hz);
 }
 
 double acc_imp2mm(struct trajectory* traj, double acc)
 {
+    absl::ReaderMutexLock l(&traj->position->lock_);
     return acc * traj->cs_hz * traj->cs_hz / traj->position->phys.distance_imp_per_mm;
 }
 
@@ -204,30 +210,36 @@ double acc_imp2mm(struct trajectory* traj, double acc)
 
 double pos_rd2imp(struct trajectory* traj, double pos)
 {
+    absl::ReaderMutexLock l(&traj->position->lock_);
     return pos * (traj->position->phys.distance_imp_per_mm * traj->position->phys.track_mm / 2.);
 }
 
 double pos_imp2rd(struct trajectory* traj, double pos)
 {
+    absl::ReaderMutexLock l(&traj->position->lock_);
     return pos / (traj->position->phys.distance_imp_per_mm * traj->position->phys.track_mm / 2.);
 }
 
 double speed_rd2imp(struct trajectory* traj, double speed)
 {
+    absl::ReaderMutexLock l(&traj->position->lock_);
     return speed * (traj->position->phys.distance_imp_per_mm * traj->position->phys.track_mm / (2. * traj->cs_hz));
 }
 
 double speed_imp2rd(struct trajectory* traj, double speed)
 {
+    absl::ReaderMutexLock l(&traj->position->lock_);
     return speed / (traj->position->phys.distance_imp_per_mm * traj->position->phys.track_mm / (2. * traj->cs_hz));
 }
 
 double acc_rd2imp(struct trajectory* traj, double acc)
 {
+    absl::ReaderMutexLock l(&traj->position->lock_);
     return acc * (traj->position->phys.distance_imp_per_mm * traj->position->phys.track_mm / (2. * traj->cs_hz * traj->cs_hz));
 }
 
 double acc_imp2rd(struct trajectory* traj, double acc)
 {
+    absl::ReaderMutexLock l(&traj->position->lock_);
     return acc / (traj->position->phys.distance_imp_per_mm * traj->position->phys.track_mm / (2. * traj->cs_hz * traj->cs_hz));
 }

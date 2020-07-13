@@ -56,15 +56,15 @@ double simple_modulo_2pi(double a);
 double modulo_2pi(double a);
 
 /** near the target (dist) ? */
-uint8_t is_robot_in_dist_window(struct trajectory* traj, double d_win) EXCLUSIVE_LOCKS_REQUIRED(traj->lock_);
+uint8_t is_robot_in_dist_window(struct trajectory* traj, double d_win) EXCLUSIVE_LOCKS_REQUIRED(traj->lock_) SHARED_LOCKS_REQUIRED(traj->position->lock_);
 
 /** near the target (dist in x,y) ? */
-uint8_t is_robot_in_xy_window(struct trajectory* traj, double d_win) EXCLUSIVE_LOCKS_REQUIRED(traj->lock_);
+uint8_t is_robot_in_xy_window(struct trajectory* traj, double d_win) EXCLUSIVE_LOCKS_REQUIRED(traj->lock_) SHARED_LOCKS_REQUIRED(traj->position->lock_);
 
 /** near the angle target in radian ? Only valid if
  *  traj->target.pol.angle is set (i.e. an angle command, not an xy
  *  command) */
-uint8_t is_robot_in_angle_window(struct trajectory* traj, double a_win_rad) EXCLUSIVE_LOCKS_REQUIRED(traj->lock_);
+uint8_t is_robot_in_angle_window(struct trajectory* traj, double a_win_rad) EXCLUSIVE_LOCKS_REQUIRED(traj->lock_) SHARED_LOCKS_REQUIRED(traj->position->lock_);
 
 double pos_mm2imp(struct trajectory* traj, double pos);
 double pos_imp2mm(struct trajectory* traj, double pos);

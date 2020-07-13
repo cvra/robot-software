@@ -16,7 +16,6 @@
 #include "robot_helpers/strategy_helpers.h"
 #include "robot_helpers/motor_helpers.h"
 #include "base/base_controller.h"
-#include "base/base_helpers.h"
 
 #if USE_MAP
 #include "base/map.h"

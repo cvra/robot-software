@@ -79,6 +79,10 @@
 #ifndef _ROBOT_SYSTEM_H_
 #define _ROBOT_SYSTEM_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* flags */
 /** This flags tells the module to use the external encoders. */
 #define RS_USE_EXT 1
@@ -411,5 +415,9 @@ void rs_update(void* rs);
  * @sa RS_IGNORE_MOT_GAIN
  */
 void rs_set_flags(struct robot_system* rs, uint8_t flags);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* #ifndef _ROBOT_SYSTEM */

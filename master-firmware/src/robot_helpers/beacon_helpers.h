@@ -1,10 +1,6 @@
 #ifndef BEACON_HELPERS_H
 #define BEACON_HELPERS_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <aversive/position_manager/position_manager.h>
 #include <aversive/obstacle_avoidance/obstacle_avoidance.h>
 
@@ -19,9 +15,5 @@ void beacon_cartesian_convert(struct robot_position* robot_pos,
                               float angle,
                               float* x,
                               float* y);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* BEACON_HELPERS_H */

@@ -32,7 +32,7 @@
  *   a_rad : angle in radian
  *   flags : what to update (UPDATE_A, UPDATE_D)
  */
-void __trajectory_goto_d_a_rel(struct trajectory* traj, double d_mm, double a_rad, enum trajectory_state state, uint8_t flags) EXCLUSIVE_LOCKS_REQUIRED(traj->lock_);
+void __trajectory_goto_d_a_rel(struct trajectory* traj, double d_mm, double a_rad, enum trajectory_state state, uint8_t flags) EXCLUSIVE_LOCKS_REQUIRED(traj->lock_) SHARED_LOCKS_REQUIRED(traj->position->lock_);
 
 /** go straight forward (d is in mm) */
 void trajectory_d_rel(struct trajectory* traj, double d_mm) LOCKS_EXCLUDED(traj->lock_);
@@ -103,10 +103,10 @@ uint8_t trajectory_in_window(struct trajectory* traj, double d_win, double a_win
 
 /** event called for xy trajectories */
 
-void trajectory_manager_xy_event(struct trajectory* traj) EXCLUSIVE_LOCKS_REQUIRED(traj->lock_);
+void trajectory_manager_xy_event(struct trajectory* traj) EXCLUSIVE_LOCKS_REQUIRED(traj->lock_) SHARED_LOCKS_REQUIRED(traj->position->lock_);
 
 /* trajectory event for circles */
-void trajectory_manager_circle_event(struct trajectory* traj) EXCLUSIVE_LOCKS_REQUIRED(traj->lock_);
+void trajectory_manager_circle_event(struct trajectory* traj) EXCLUSIVE_LOCKS_REQUIRED(traj->lock_) SHARED_LOCKS_REQUIRED(traj->position->lock_);
 
 /* trajectory manage events */
 void trajectory_manager_manage(struct trajectory* traj) LOCKS_EXCLUDED(traj->lock_);

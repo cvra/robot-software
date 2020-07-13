@@ -36,12 +36,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include <aversive/position_manager/position_manager.h>
+
 extern "C" {
 #include <aversive/math/vect2/vect2.h>
 #include <aversive/math/geometry/vect_base.h>
 #include <aversive/math/geometry/lines.h>
 #include <aversive/robot_system/robot_system.h>
-#include <aversive/position_manager/position_manager.h>
 #include <aversive/control_system_manager/control_system_manager.h>
 }
 
@@ -474,7 +475,7 @@ void trajectory_circle_rel(struct trajectory* traj, double x, double y, double r
 void circle_get_speed_from_radius(struct trajectory* traj,
                                   double radius_mm,
                                   double* speed_d,
-                                  double* speed_a) EXCLUSIVE_LOCKS_REQUIRED(traj->lock_);
+                                  double* speed_a) EXCLUSIVE_LOCKS_REQUIRED(traj->lock_) SHARED_LOCKS_REQUIRED(traj->position->lock_);
 
 /** @brief Do a line.
  *

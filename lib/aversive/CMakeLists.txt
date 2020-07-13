@@ -8,7 +8,7 @@ add_library(aversive
     math/geometry/vect_base.c
     math/vect2/vect2.c
     obstacle_avoidance/obstacle_avoidance.c
-    position_manager/position_manager.c
+    position_manager/position_manager.cpp
     robot_system/robot_system.c
     robot_system/angle_distance.c
     trajectory_manager/trajectory_manager.cpp

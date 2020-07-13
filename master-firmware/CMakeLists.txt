@@ -4,8 +4,7 @@ add_library(master_lib
     src/can/bus_enumerator.c
     src/math/lie_groups.c
     src/robot_helpers/math_helpers.c
-    src/robot_helpers/beacon_helpers.c
-    src/base/base_helpers.c
+    src/robot_helpers/beacon_helpers.cpp
     src/strategy/state.cpp
     src/strategy/score.cpp
     src/strategy/actions_goap.cpp
@@ -34,7 +33,6 @@ cvra_add_test(TARGET master_test
     tests/test_beacon_helpers.cpp
     tests/trajectory_manager_test.cpp
     tests/lie_groups.cpp
-    tests/test_base_helpers.cpp
     tests/test_strategy.cpp
     tests/strategy/test_score.cpp
     tests/strategy/test_actions.cpp

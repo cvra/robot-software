@@ -25,6 +25,8 @@
 #include <stdint.h>
 #include <math.h>
 
+#include <absl/synchronization/mutex.h>
+
 #include <aversive/math/vect2/vect2.h>
 
 #include <aversive/robot_system/robot_system.h>
@@ -33,10 +35,6 @@
  * This module manages the encoders to compute the robot's position.
  * @{
  */
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * @brief Enables centrifugal force compensation.
@@ -132,15 +130,16 @@ struct xya_position_s16 {
  * position of the robot.
  */
 struct robot_position {
-    uint8_t use_ext; /**< Only useful when we have 2 sets of encoders. */
-    struct robot_physical_params phys; /**< The physical parameters of the robot. */
-    struct xya_position pos_d; /**< Position of the robot in double. */
-    struct xya_position_s16 pos_s16; /**< Position of the robot in integers. */
-    struct rs_polar prev_encoders; /**< Previous state of the encoders. */
-    struct robot_system* rs; /**< Robot system used for the computations. */
+    absl::Mutex lock_;
+    uint8_t use_ext GUARDED_BY(lock_); /**< Only useful when we have 2 sets of encoders. */
+    struct robot_physical_params phys GUARDED_BY(lock_); /**< The physical parameters of the robot. */
+    struct xya_position pos_d GUARDED_BY(lock_); /**< Position of the robot in double. */
+    struct xya_position_s16 pos_s16 GUARDED_BY(lock_); /**< Position of the robot in integers. */
+    struct rs_polar prev_encoders GUARDED_BY(lock_); /**< Previous state of the encoders. */
+    struct robot_system* rs GUARDED_BY(lock_); /**< Robot system used for the computations. */
 
 #ifdef CONFIG_MODULE_COMPENSATE_CENTRIFUGAL_FORCE
-    double centrifugal_coef; /**< Coefficient for the centrifugal computation */
+    double centrifugal_coef GUARDED_BY(lock_); /**< Coefficient for the centrifugal computation */
 #endif
 };
 
@@ -159,7 +158,7 @@ void position_init(struct robot_position* pos);
  * @param [in] coef The centrifugal force coefficient.
  * @sa CONFIG_MODULE_COMPENSATE_CENTRIFUGAL_FORCE
  */
-void position_set_centrifugal_coef(struct robot_position* pos, double coef);
+void position_set_centrifugal_coef(struct robot_position* pos, double coef) LOCKS_EXCLUDED(pos->lock_);
 #endif
 
 /** @brief Set a new robot position.
@@ -167,7 +166,7 @@ void position_set_centrifugal_coef(struct robot_position* pos, double coef);
  * @param [in] x, y The new coordinate of the robot, in mm.
  * @param [in] a_deg The new angle of the robot, in degree.
  */
-void position_set(struct robot_position* pos, int16_t x, int16_t y, double a_deg);
+void position_set(struct robot_position* pos, int16_t x, int16_t y, double a_deg) LOCKS_EXCLUDED(pos->lock_);
 
 /** @brief Tells the robot to use the separate wheels encoders.
  *
@@ -177,20 +176,20 @@ void position_set(struct robot_position* pos, int16_t x, int16_t y, double a_deg
  * @param [in] pos The odometry instance.
  * @note By default the odometry system uses the separate wheel encoders.
  */
-void position_use_ext(struct robot_position* pos);
+void position_use_ext(struct robot_position* pos) LOCKS_EXCLUDED(pos->lock_);
 
 /** @brief Tells the robot to use the motor encoders.
  *
  * @param [in] pos The odometry instance.
  * @sa position_use_ext */
-void position_use_mot(struct robot_position* pos);
+void position_use_mot(struct robot_position* pos) LOCKS_EXCLUDED(pos->lock_);
 
 /** @brief Sets the physical parameters of the robot.
  * @param [in] pos The robot_position instance to configure.
  * @param [in] track_mm The distance between the wheels, in mm.
  * @param [in] distance_imp_per_mm The number of encoder pulses for one mm.
  */
-void position_set_physical_params(struct robot_position* pos, double track_mm, double distance_imp_per_mm);
+void position_set_physical_params(struct robot_position* pos, double track_mm, double distance_imp_per_mm) LOCKS_EXCLUDED(pos->lock_);
 
 /** @brief Set related robot_system structure.
  *
@@ -201,7 +200,7 @@ void position_set_physical_params(struct robot_position* pos, double track_mm, d
  * @param [in] pos The odometry system instance.
  * @param [in] rs The robot_system instance.
  */
-void position_set_related_robot_system(struct robot_position* pos, struct robot_system* rs);
+void position_set_related_robot_system(struct robot_position* pos, struct robot_system* rs) LOCKS_EXCLUDED(pos->lock_);
 
 /** @brief Updates the position.
  *
@@ -214,82 +213,83 @@ void position_set_related_robot_system(struct robot_position* pos, struct robot_
  * @note This function should be called at a fixed interval to ensure good
  * results.
  */
-void position_manage(struct robot_position* pos);
+void position_manage(struct robot_position* pos) LOCKS_EXCLUDED(pos->lock_);
 
 /** @brief Get current X.
  *
  * @param [in] pos The odometry system instance.
  * @return Current x in mm in integer.
  */
-int16_t position_get_x_s16(struct robot_position* pos);
+int16_t position_get_x_s16(struct robot_position* pos) LOCKS_EXCLUDED(pos->lock_);
 
 /** @brief Get current Y.
  *
  * @param [in] pos The odometry system instance.
  * @return Current Y in mm in integer.
  */
-int16_t position_get_y_s16(struct robot_position* pos);
+int16_t position_get_y_s16(struct robot_position* pos) LOCKS_EXCLUDED(pos->lock_);
 
 /** @brief Get current angle.
  *
  * @param [in] pos The odometry system instance.
  * @return Current angle in degrees in integer.
  */
-int16_t position_get_a_deg_s16(struct robot_position* pos);
+int16_t position_get_a_deg_s16(struct robot_position* pos) LOCKS_EXCLUDED(pos->lock_);
 
 /** @brief Get current X.
  *
  * @param [in] pos The odometry system instance.
  * @return Current x in mm in double.
  */
-double position_get_x_double(struct robot_position* pos);
+double position_get_x_double(struct robot_position* pos) LOCKS_EXCLUDED(pos->lock_);
+
+/* Like position_get_x_double but does not acquire the lock. */
+double position_get_x_double_unsafe(struct robot_position* pos) SHARED_LOCKS_REQUIRED(pos->lock_);
 
 /** @brief Get current X.
  *
  * @param [in] pos The odometry system instance.
  * @return Current x in mm in float.
  */
-float position_get_x_float(struct robot_position* pos);
+float position_get_x_float(struct robot_position* pos) LOCKS_EXCLUDED(pos->lock_);
 
 /** @brief Get current Y.
  *
  * @param [in] pos The odometry system instance.
  * @return Current Y in mm in double.
  */
-double position_get_y_double(struct robot_position* pos);
+double position_get_y_double(struct robot_position* pos) LOCKS_EXCLUDED(pos->lock_);
+double position_get_y_double_unsafe(struct robot_position* pos) SHARED_LOCKS_REQUIRED(pos->lock_);
 
 /** @brief Get current Y.
  *
  * @param [in] pos The odometry system instance.
  * @return Current Y in mm in float.
  */
-float position_get_y_float(struct robot_position* pos);
+float position_get_y_float(struct robot_position* pos) LOCKS_EXCLUDED(pos->lock_);
 
 /** @brief Get current position
  *
  * @param [in] pos The odometry system instance.
  * @returns current position stored in a vect2_cart.
  */
-vect2_cart position_get_xy_vect(struct robot_position* pos);
+vect2_cart position_get_xy_vect(struct robot_position* pos) LOCKS_EXCLUDED(pos->lock_);
 
 /** @brief Returns current angle.
  *
  * @param [in] pos The odometry system instance.
  * @returns Current angle in radians in double.
  */
-double position_get_a_rad_double(struct robot_position* pos);
+double position_get_a_rad_double(struct robot_position* pos) LOCKS_EXCLUDED(pos->lock_);
+double position_get_a_rad_double_unsafe(struct robot_position* pos) SHARED_LOCKS_REQUIRED(pos->lock_);
 
 /** @brief Returns current angle.
  *
  * @param [in] pos The odometry system instance.
  * @returns Current angle in radians in float.
  */
-float position_get_a_rad_float(struct robot_position* pos);
+float position_get_a_rad_float(struct robot_position* pos) LOCKS_EXCLUDED(pos->lock_);
 
 /** @} */
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

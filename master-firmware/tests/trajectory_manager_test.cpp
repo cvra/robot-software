@@ -4,10 +4,10 @@
 #include <aversive/trajectory_manager/trajectory_manager_utils.h>
 #include <aversive/trajectory_manager/trajectory_manager.h>
 #include <aversive/trajectory_manager/trajectory_manager_core.h>
+#include <aversive/position_manager/position_manager.h>
 
 extern "C" {
 #include <aversive/control_system_manager/control_system_manager.h>
-#include <aversive/position_manager/position_manager.h>
 
 #include <quadramp/quadramp.h>
 }
@@ -66,6 +66,7 @@ TEST(TrajectoryManagerTestGroup, SchedulesTrajectoryEventFirst)
 TEST(TrajectoryManagerTestGroup, ChangesToInPlaceRotation)
 {
     absl::MutexLock l(&traj.lock_);
+    absl::ReaderMutexLock lp(&traj.position->lock_);
     // Checks that the robot starts rotating in place
     trajectory_manager_xy_event(&traj);
 
@@ -78,10 +79,11 @@ TEST(TrajectoryManagerTestGroup, ChangesToInPlaceRotation)
 
 TEST(TrajectoryManagerTestGroup, ChangesToDriving)
 {
-    absl::MutexLock l(&traj.lock_);
-
     /* The robot turned enough, now check that we are moving. */
     position_set(&pos, 0, 0, 45);
+
+    absl::MutexLock l(&traj.lock_);
+    absl::ReaderMutexLock lp(&traj.position->lock_);
 
     trajectory_manager_xy_event(&traj);
     trajectory_manager_xy_event(&traj);
@@ -96,16 +98,23 @@ TEST(TrajectoryManagerTestGroup, ChangesToDriving)
 
 TEST(TrajectoryManagerTestGroup, RemovesEventWhenInWindow)
 {
-    absl::MutexLock l(&traj.lock_);
-    trajectory_manager_xy_event(&traj);
-    trajectory_manager_xy_event(&traj);
+    {
+        absl::MutexLock l(&traj.lock_);
+        absl::ReaderMutexLock lp(&traj.position->lock_);
+        trajectory_manager_xy_event(&traj);
+        trajectory_manager_xy_event(&traj);
+    }
 
     // Moves the robot in the destination window, which means it should not
     // update the trajectory
     position_set(&pos, 199, 199, 45);
-    trajectory_manager_xy_event(&traj);
 
-    CHECK_FALSE(traj.scheduled);
+    {
+        absl::MutexLock l(&traj.lock_);
+        absl::ReaderMutexLock lp(&traj.position->lock_);
+        trajectory_manager_xy_event(&traj);
+        CHECK_FALSE(traj.scheduled);
+    }
 }
 
 TEST(TrajectoryManagerTestGroup, StartsTrajectoryInDistance)

@@ -23,17 +23,20 @@
 #include <math.h>
 
 #include <aversive/position_manager/position_manager.h>
+
+extern "C" {
 #include <aversive/robot_system/robot_system.h>
+}
 
 /** initialization of the robot_position pos, everthing is set to 0 */
-void position_init(struct robot_position* pos)
+void position_init(struct robot_position*)
 {
-    memset(pos, 0, sizeof(struct robot_position));
 }
 
 /** Set a new robot position */
 void position_set(struct robot_position* pos, int16_t x, int16_t y, double a_deg)
 {
+    absl::MutexLock l(&pos->lock_);
     pos->pos_d.a = (a_deg * M_PI) / 180.0;
     pos->pos_d.x = x;
     pos->pos_d.y = y;
@@ -45,6 +48,7 @@ void position_set(struct robot_position* pos, int16_t x, int16_t y, double a_deg
 #ifdef CONFIG_MODULE_COMPENSATE_CENTRIFUGAL_FORCE
 void position_set_centrifugal_coef(struct robot_position* pos, double coef)
 {
+    absl::MutexLock l(&pos->lock_);
     pos->centrifugal_coef = coef;
 }
 #endif
@@ -56,6 +60,7 @@ void position_set_centrifugal_coef(struct robot_position* pos, double coef)
  */
 void position_set_related_robot_system(struct robot_position* pos, struct robot_system* rs)
 {
+    absl::MutexLock l(&pos->lock_);
     pos->rs = rs;
 }
 
@@ -66,12 +71,14 @@ void position_set_related_robot_system(struct robot_position* pos, struct robot_
  */
 void position_set_physical_params(struct robot_position* pos, double track_mm, double distance_imp_per_mm)
 {
+    absl::MutexLock l(&pos->lock_);
     pos->phys.track_mm = track_mm;
     pos->phys.distance_imp_per_mm = distance_imp_per_mm;
 }
 
 void position_use_ext(struct robot_position* pos)
 {
+    absl::MutexLock l(&pos->lock_);
     struct rs_polar encoders;
 
     encoders.distance = rs_get_ext_distance(pos->rs);
@@ -83,6 +90,7 @@ void position_use_ext(struct robot_position* pos)
 #ifdef CONFIG_MODULE_ROBOT_SYSTEM_MOT_AND_EXT
 void position_use_mot(struct robot_position* pos)
 {
+    absl::MutexLock l(&pos->lock_);
     struct rs_polar encoders;
 
     encoders.distance = rs_get_mot_distance(pos->rs);
@@ -99,6 +107,7 @@ void position_use_mot(struct robot_position* pos)
  */
 void position_manage(struct robot_position* pos)
 {
+    absl::MutexLock l(&pos->lock_);
     double x, y, a, r, arc_angle;
     double dx, dy;
     int16_t x_s16, y_s16, a_s16;
@@ -206,6 +215,7 @@ void position_manage(struct robot_position* pos)
  */
 int16_t position_get_x_s16(struct robot_position* pos)
 {
+    absl::ReaderMutexLock l(&pos->lock_);
     return pos->pos_s16.x;
 }
 
@@ -214,6 +224,7 @@ int16_t position_get_x_s16(struct robot_position* pos)
  */
 int16_t position_get_y_s16(struct robot_position* pos)
 {
+    absl::ReaderMutexLock l(&pos->lock_);
     return pos->pos_s16.y;
 }
 
@@ -222,6 +233,7 @@ int16_t position_get_y_s16(struct robot_position* pos)
  */
 int16_t position_get_a_deg_s16(struct robot_position* pos)
 {
+    absl::ReaderMutexLock l(&pos->lock_);
     return pos->pos_s16.a;
 }
 
@@ -232,10 +244,18 @@ int16_t position_get_a_deg_s16(struct robot_position* pos)
  */
 double position_get_x_double(struct robot_position* pos)
 {
+    absl::ReaderMutexLock l(&pos->lock_);
     return pos->pos_d.x;
 }
+
+double position_get_x_double_unsafe(struct robot_position* pos)
+{
+    return pos->pos_d.x;
+}
+
 float position_get_x_float(struct robot_position* pos)
 {
+    absl::ReaderMutexLock l(&pos->lock_);
     return (float)pos->pos_d.x;
 }
 
@@ -244,15 +264,24 @@ float position_get_x_float(struct robot_position* pos)
  */
 double position_get_y_double(struct robot_position* pos)
 {
+    absl::ReaderMutexLock l(&pos->lock_);
     return pos->pos_d.y;
 }
+
+double position_get_y_double_unsafe(struct robot_position* pos)
+{
+    return pos->pos_d.y;
+}
+
 float position_get_y_float(struct robot_position* pos)
 {
+    absl::ReaderMutexLock l(&pos->lock_);
     return (float)pos->pos_d.y;
 }
 
 vect2_cart position_get_xy_vect(struct robot_position* pos)
 {
+    absl::ReaderMutexLock l(&pos->lock_);
     vect2_cart r;
     r.x = (float)pos->pos_d.x;
     r.y = (float)pos->pos_d.y;
@@ -263,6 +292,12 @@ vect2_cart position_get_xy_vect(struct robot_position* pos)
  */
 double position_get_a_rad_double(struct robot_position* pos)
 {
+    absl::ReaderMutexLock l(&pos->lock_);
+    return pos->pos_d.a;
+}
+
+double position_get_a_rad_double_unsafe(struct robot_position* pos)
+{
     return pos->pos_d.a;
 }
 
@@ -271,5 +306,6 @@ double position_get_a_rad_double(struct robot_position* pos)
  */
 float position_get_a_rad_float(struct robot_position* pos)
 {
+    absl::ReaderMutexLock l(&pos->lock_);
     return (float)(pos->pos_d.a);
 }
