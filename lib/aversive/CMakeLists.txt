@@ -1,5 +1,5 @@
 add_library(aversive
-    blocking_detection_manager/blocking_detection_manager.c
+    blocking_detection_manager/blocking_detection_manager.cpp
     control_system_manager/control_system_manager.c
     math/geometry/circles.c
     math/geometry/discrete_circles.c

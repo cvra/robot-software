@@ -29,7 +29,7 @@ extern "C" {
 }
 
 /** initialization of the robot_position pos, everthing is set to 0 */
-void position_init(struct robot_position*)
+void position_init(struct robot_position* pos)
 {
 }
 

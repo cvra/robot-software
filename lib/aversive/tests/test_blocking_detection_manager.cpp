@@ -1,8 +1,6 @@
 #include <CppUTest/TestHarness.h>
 
-extern "C" {
 #include <aversive/blocking_detection_manager/blocking_detection_manager.h>
-}
 
 #define ERROR_THRESHOLD 10
 #define ERROR_COUNT_THRESHOLD 1

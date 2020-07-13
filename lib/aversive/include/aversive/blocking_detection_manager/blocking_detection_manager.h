@@ -26,6 +26,7 @@
 #define BLOCKING_DETECTION_MANAGER_H_
 
 #include <stdint.h>
+#include <absl/synchronization/mutex.h>
 
 /**@brief Detect blocking based on motor current.
  *
@@ -39,39 +40,29 @@
  * of the motor)
  */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/**@brief Stores settings for blocking detection.
- *
- */
 struct blocking_detection {
-    uint16_t cpt_thres; /**< Number of err_thres surpasses to trigger blocking */
-    uint16_t cpt; /**< Number of times that the current surpassed the threshold */
-    uint32_t err_thres; /**< Current threshold */
-    uint32_t err_max; /**< Highest current measured */
+    absl::Mutex lock_;
+    uint16_t cpt_thres GUARDED_BY(lock_); /**< Number of err_thres surpasses to trigger blocking */
+    uint16_t cpt GUARDED_BY(lock_); /**< Number of times that the current surpassed the threshold */
+    uint32_t err_thres GUARDED_BY(lock_); /**< Current threshold */
+    uint32_t err_max GUARDED_BY(lock_); /**< Highest current measured */
 };
 
 /** init module */
 void bd_init(struct blocking_detection* bd);
 
-void bd_set_thresholds(struct blocking_detection* bd, uint32_t err_thres, uint16_t cpt_thres);
+void bd_set_thresholds(struct blocking_detection* bd, uint32_t err_thres, uint16_t cpt_thres) LOCKS_EXCLUDED(bd->lock_);
 
 /** reset the blocking */
-void bd_reset(struct blocking_detection* bd);
+void bd_reset(struct blocking_detection* bd) LOCKS_EXCLUDED(bd->lock_);
 
 /** function to be called periodically */
-void bd_manage(struct blocking_detection* bd, uint32_t err);
+void bd_manage(struct blocking_detection* bd, uint32_t err) LOCKS_EXCLUDED(bd->lock_);
 
 /** get value of blocking detection */
-uint8_t bd_get(struct blocking_detection* bd);
+uint8_t bd_get(struct blocking_detection* bd) LOCKS_EXCLUDED(bd->lock_);
 
 /** get value of blocking detection maximale value, reseted each time it's read*/
-int32_t bd_get_max(struct blocking_detection* bd);
-
-#ifdef __cplusplus
-}
-#endif
+int32_t bd_get_max(struct blocking_detection* bd) LOCKS_EXCLUDED(bd->lock_);
 
 #endif
