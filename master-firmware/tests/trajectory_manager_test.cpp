@@ -1,12 +1,13 @@
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
 
-extern "C" {
-#include <aversive/control_system_manager/control_system_manager.h>
-#include <aversive/position_manager/position_manager.h>
 #include <aversive/trajectory_manager/trajectory_manager_utils.h>
 #include <aversive/trajectory_manager/trajectory_manager.h>
 #include <aversive/trajectory_manager/trajectory_manager_core.h>
+
+extern "C" {
+#include <aversive/control_system_manager/control_system_manager.h>
+#include <aversive/position_manager/position_manager.h>
 
 #include <quadramp/quadramp.h>
 }
@@ -57,12 +58,14 @@ TEST(TrajectoryManagerTestGroup, SchedulesTrajectoryEventFirst)
 {
     // Checks that the trajectory manager is running, and turning to align
     // itself with the target point.
+    absl::MutexLock l(&traj.lock_);
     CHECK_TRUE(traj.scheduled);
     CHECK_EQUAL(RUNNING_XY_F_START, traj.state);
 }
 
 TEST(TrajectoryManagerTestGroup, ChangesToInPlaceRotation)
 {
+    absl::MutexLock l(&traj.lock_);
     // Checks that the robot starts rotating in place
     trajectory_manager_xy_event(&traj);
 
@@ -75,6 +78,8 @@ TEST(TrajectoryManagerTestGroup, ChangesToInPlaceRotation)
 
 TEST(TrajectoryManagerTestGroup, ChangesToDriving)
 {
+    absl::MutexLock l(&traj.lock_);
+
     /* The robot turned enough, now check that we are moving. */
     position_set(&pos, 0, 0, 45);
 
@@ -91,6 +96,7 @@ TEST(TrajectoryManagerTestGroup, ChangesToDriving)
 
 TEST(TrajectoryManagerTestGroup, RemovesEventWhenInWindow)
 {
+    absl::MutexLock l(&traj.lock_);
     trajectory_manager_xy_event(&traj);
     trajectory_manager_xy_event(&traj);
 
@@ -106,12 +112,16 @@ TEST(TrajectoryManagerTestGroup, StartsTrajectoryInDistance)
 {
     trajectory_d_rel(&traj, 100);
 
+    absl::MutexLock l(&traj.lock_);
+
     CHECK_EQUAL(RUNNING_D, traj.state);
 }
 
 TEST(TrajectoryManagerTestGroup, StartsTrajectoryInAngle)
 {
     trajectory_a_rel(&traj, 10);
+
+    absl::MutexLock l(&traj.lock_);
 
     CHECK_EQUAL(RUNNING_A, traj.state);
 }

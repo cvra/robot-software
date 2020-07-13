@@ -128,7 +128,7 @@ void trajectory_move_to(int32_t x_mm, int32_t y_mm, int32_t a_deg)
     trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
 }
 
-static bool trajectory_is_cartesian(struct trajectory* traj)
+static bool trajectory_is_cartesian(struct trajectory* traj) EXCLUSIVE_LOCKS_REQUIRED(traj->lock_)
 {
     return traj->state == RUNNING_XY_START || traj->state == RUNNING_XY_ANGLE || traj->state == RUNNING_XY_ANGLE_OK || traj->state == RUNNING_XY_F_START || traj->state == RUNNING_XY_F_ANGLE || traj->state == RUNNING_XY_F_ANGLE_OK || traj->state == RUNNING_XY_B_START || traj->state == RUNNING_XY_B_ANGLE || traj->state == RUNNING_XY_B_ANGLE_OK;
 }
@@ -140,6 +140,7 @@ bool trajectory_crosses_obstacle(struct _robot* robot, poly_t* opponent, point_t
         position_get_y_float(&robot->pos)};
     point_t target_position;
 
+    absl::MutexLock l(&robot->traj.lock_);
     if (trajectory_is_cartesian(&robot->traj)) {
         target_position.x = robot->traj.target.cart.x;
         target_position.y = robot->traj.target.cart.y;

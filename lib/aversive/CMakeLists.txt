@@ -11,13 +11,13 @@ add_library(aversive
     position_manager/position_manager.c
     robot_system/robot_system.c
     robot_system/angle_distance.c
-    trajectory_manager/trajectory_manager.c
-    trajectory_manager/trajectory_manager_core.c
-    trajectory_manager/trajectory_manager_utils.c
+    trajectory_manager/trajectory_manager.cpp
+    trajectory_manager/trajectory_manager_core.cpp
+    trajectory_manager/trajectory_manager_utils.cpp
 )
 
 target_include_directories(aversive PUBLIC include)
-target_link_libraries(aversive error quadramp)
+target_link_libraries(aversive error quadramp absl::synchronization)
 
 cvra_add_test(TARGET aversive_test SOURCES
     tests/test_blocking_detection_manager.cpp

@@ -33,17 +33,19 @@
 #ifndef TRAJECTORY_MANAGER
 #define TRAJECTORY_MANAGER
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdint.h>
 #include <stdbool.h>
 
+extern "C" {
 #include <aversive/math/vect2/vect2.h>
 #include <aversive/math/geometry/vect_base.h>
 #include <aversive/math/geometry/lines.h>
 #include <aversive/robot_system/robot_system.h>
+#include <aversive/position_manager/position_manager.h>
+#include <aversive/control_system_manager/control_system_manager.h>
+}
+
+#include <absl/synchronization/mutex.h>
 
 /** State of the trajectory manager. */
 enum trajectory_state {
@@ -104,16 +106,17 @@ struct line_target {
 
 /** A complete instance of the trajectory manager. */
 struct trajectory {
-    bool scheduled; // Is any trajectory related action is scheduled
+    absl::Mutex lock_;
+    bool scheduled GUARDED_BY(lock_); // Is any trajectory related action is scheduled
 
-    enum trajectory_state state; /**< describe the type of target, and if we reached the target */
+    enum trajectory_state state GUARDED_BY(lock_); /**< describe the type of target, and if we reached the target */
 
     union {
         vect2_cart cart; /**< target, if it is a x,y vector */
         struct rs_polar pol; /**< target, if it is a d,a vector */
         struct circle_target circle; /**< target, if it is a circle */
         struct line_target line; /**< target, if it is a line */
-    } target; /**< Target of the movement. */
+    } target GUARDED_BY(lock_); /**< Target of the movement. */
 
     double d_win; /**<< distance window (for END_NEAR) */
     double a_win_rad; /**<< angle window (for END_NEAR) */
@@ -170,7 +173,7 @@ void trajectory_set_robot_params(struct trajectory* traj,
  * @sa speed_mm2imp
  * @sa speed_rd2imp
  */
-void trajectory_set_speed(struct trajectory* traj, double d_speed, double a_speed);
+void trajectory_set_speed(struct trajectory* traj, double d_speed, double a_speed) LOCKS_EXCLUDED(traj->lock_);
 
 /** @brief Set acceleration consign.
  *
@@ -181,7 +184,7 @@ void trajectory_set_speed(struct trajectory* traj, double d_speed, double a_spee
  * @sa acc_mm2imp
  * @sa acc_rd2imp
  */
-void trajectory_set_acc(struct trajectory* traj, double d_acc, double a_acc);
+void trajectory_set_acc(struct trajectory* traj, double d_acc, double a_acc) LOCKS_EXCLUDED(traj->lock_);
 
 /** @brief Set windows for trajectory.
  *
@@ -197,35 +200,35 @@ void trajectory_set_acc(struct trajectory* traj, double d_acc, double a_acc);
  * @param [in] a_win_deg The angular window in degrees.
  * @param [in] a_start_deg The angular start window in degrees.
  */
-void trajectory_set_windows(struct trajectory* traj, double d_win, double a_win_deg, double a_start_deg);
+void trajectory_set_windows(struct trajectory* traj, double d_win, double a_win_deg, double a_start_deg) LOCKS_EXCLUDED(traj->lock_);
 
 /** @brief Get trajectory manager state.
  *
  * @param [in] traj The trajectory manager instance.
  * @return The state of the trajectory manager.
  */
-enum trajectory_state trajectory_get_state(struct trajectory* traj);
+enum trajectory_state trajectory_get_state(struct trajectory* traj) LOCKS_EXCLUDED(traj->lock_);
 
 /** @brief Returns true if the trajectory is finished.
  *
  * @param [in] traj The trajectory manager instance.
  * @return 1 if the current trajectory is finished, 0 otherwise.
  */
-uint8_t trajectory_finished(struct trajectory* traj);
+uint8_t trajectory_finished(struct trajectory* traj) LOCKS_EXCLUDED(traj->lock_);
 
 /** @brief Returns true if the trajectory has reached its final angle.
  *
  * @param [in] traj The trajectory manager instance.
  * @return 1 if the current trajectory has reached its angle, 0 otherwise.
  */
-uint8_t trajectory_angle_finished(struct trajectory* traj);
+uint8_t trajectory_angle_finished(struct trajectory* traj) LOCKS_EXCLUDED(traj->lock_);
 
 /** @brief Returns true if the trajectory has reached its final distance.
  *
  * @param [in] traj The trajectory manager instance.
  * @return 1 if the current trajectory has reached its distance, 0 otherwise.
  */
-uint8_t trajectory_distance_finished(struct trajectory* traj);
+uint8_t trajectory_distance_finished(struct trajectory* traj) LOCKS_EXCLUDED(traj->lock_);
 
 /** @brief Returns true if the trajectory is in the given window.
  *
@@ -237,7 +240,7 @@ uint8_t trajectory_distance_finished(struct trajectory* traj);
  * @param [in] a_win_rad The angle window in rad.
  * @return 1 if the trajectory manager is in the given windows.
  */
-uint8_t trajectory_in_window(struct trajectory* traj, double d_win, double a_win_rad);
+uint8_t trajectory_in_window(struct trajectory* traj, double d_win, double a_win_rad) LOCKS_EXCLUDED(traj->lock_);
 
 /* simple commands */
 
@@ -250,7 +253,7 @@ uint8_t trajectory_in_window(struct trajectory* traj, double d_win, double a_win
  * @note This function takes some time to stop the robot completely. For fast
  * stopping use trajectory_hardstop() instead.
  */
-void trajectory_stop(struct trajectory* traj);
+void trajectory_stop(struct trajectory* traj) LOCKS_EXCLUDED(traj->lock_);
 
 /** @brief Do an emergency stop
  *
@@ -260,7 +263,7 @@ void trajectory_stop(struct trajectory* traj);
  *
  * @param [in] traj The trajectory manager instance.
  */
-void trajectory_hardstop(struct trajectory* traj);
+void trajectory_hardstop(struct trajectory* traj) LOCKS_EXCLUDED(traj->lock_);
 
 /** @brief Goes straight.
  *
@@ -276,7 +279,7 @@ void trajectory_hardstop(struct trajectory* traj);
  * @param [in] traj The trajectory manager instance.
  * @param [in] d_mm The distance, in mm.
  */
-void trajectory_d_rel(struct trajectory* traj, double d_mm);
+void trajectory_d_rel(struct trajectory* traj, double d_mm) LOCKS_EXCLUDED(traj->lock_);
 
 /** @brief Goes straight.
  *
@@ -288,7 +291,7 @@ void trajectory_d_rel(struct trajectory* traj, double d_mm);
  * @param [in] traj The trajectory manager instance.
  * @param [in] d_mm The distance consign in mm.
  */
-void trajectory_only_d_rel(struct trajectory* traj, double d_mm);
+void trajectory_only_d_rel(struct trajectory* traj, double d_mm) LOCKS_EXCLUDED(traj->lock_);
 
 /** @brief Turn by a given angle.
  *
@@ -300,7 +303,7 @@ void trajectory_only_d_rel(struct trajectory* traj, double d_mm);
  * @sa trajectory_only_a_abs
  * @sa trajectory_only_a_rel
  */
-void trajectory_a_rel(struct trajectory* traj, double a_deg);
+void trajectory_a_rel(struct trajectory* traj, double a_deg) LOCKS_EXCLUDED(traj->lock_);
 
 /** @brief Turn to a given angle.
  *
@@ -310,7 +313,7 @@ void trajectory_a_rel(struct trajectory* traj, double a_deg);
  * @param [in] a_deg The angle in degrees.
  * @sa trajectory_a_rel
  */
-void trajectory_a_abs(struct trajectory* traj, double a_deg);
+void trajectory_a_abs(struct trajectory* traj, double a_deg) LOCKS_EXCLUDED(traj->lock_);
 
 /** @brief Makes the robot face a given point.
  *
@@ -320,7 +323,7 @@ void trajectory_a_abs(struct trajectory* traj, double a_deg);
  * @param [in] x_abs_mm, y_abs_mm The coordinate of the point in mm.
  * @sa trajectory_turnto_xy_behind
  */
-void trajectory_turnto_xy(struct trajectory* traj, double x_abs_mm, double y_abs_mm);
+void trajectory_turnto_xy(struct trajectory* traj, double x_abs_mm, double y_abs_mm) LOCKS_EXCLUDED(traj->lock_);
 
 /** @brief Makes the robot turn its back to a given point.
  *
@@ -330,7 +333,7 @@ void trajectory_turnto_xy(struct trajectory* traj, double x_abs_mm, double y_abs
  * @param [in] x_abs_mm, y_abs_mm The coordinate of the point in mm.
  * @sa trajectory_turnto_xy_behind
  */
-void trajectory_turnto_xy_behind(struct trajectory* traj, double x_abs_mm, double y_abs_mm);
+void trajectory_turnto_xy_behind(struct trajectory* traj, double x_abs_mm, double y_abs_mm) LOCKS_EXCLUDED(traj->lock_);
 
 /** @brief Makes the robot turn by given angle.
  *
@@ -344,7 +347,7 @@ void trajectory_turnto_xy_behind(struct trajectory* traj, double x_abs_mm, doubl
  * @sa trajectory_a_rel
  * @sa trajectory_only_a_abs
  */
-void trajectory_only_a_rel(struct trajectory* traj, double a_deg);
+void trajectory_only_a_rel(struct trajectory* traj, double a_deg) LOCKS_EXCLUDED(traj->lock_);
 
 /** @brief Makes the robot turn to given angle.
  *
@@ -358,7 +361,7 @@ void trajectory_only_a_rel(struct trajectory* traj, double a_deg);
  * @sa trajectory_a_rel
  * @sa trajectory_only_a_rel
  */
-void trajectory_only_a_abs(struct trajectory* traj, double a_deg);
+void trajectory_only_a_abs(struct trajectory* traj, double a_deg) LOCKS_EXCLUDED(traj->lock_);
 
 /** @brief Makes the robot move and turn.
  *
@@ -372,7 +375,7 @@ void trajectory_only_a_abs(struct trajectory* traj, double a_deg);
  * @param [in] d_mm The distance to go, in mm.
  * @param [in] a_deg The angle to turn, in degrees.
  */
-void trajectory_d_a_rel(struct trajectory* traj, double d_mm, double a_deg);
+void trajectory_d_a_rel(struct trajectory* traj, double d_mm, double a_deg) LOCKS_EXCLUDED(traj->lock_);
 
 /* commands using events */
 
@@ -389,7 +392,7 @@ void trajectory_d_a_rel(struct trajectory* traj, double d_mm, double a_deg);
  * @sa trajectory_goto_forward_xy_abs
  * @sa trajectory_goto_backward_xy_abs
  */
-void trajectory_goto_xy_abs(struct trajectory* traj, double x_abs_mm, double y_abs_mm);
+void trajectory_goto_xy_abs(struct trajectory* traj, double x_abs_mm, double y_abs_mm) LOCKS_EXCLUDED(traj->lock_);
 
 /** @brief Go to a point
  *
@@ -400,7 +403,7 @@ void trajectory_goto_xy_abs(struct trajectory* traj, double x_abs_mm, double y_a
  * @param [in] x_abs_mm, y_abs_mm The coordinate of the point.
  * @sa trajectory_goto_xy_abs
  */
-void trajectory_goto_forward_xy_abs(struct trajectory* traj, double x_abs_mm, double y_abs_mm);
+void trajectory_goto_forward_xy_abs(struct trajectory* traj, double x_abs_mm, double y_abs_mm) LOCKS_EXCLUDED(traj->lock_);
 
 /** @brief Go to a point
  *
@@ -411,7 +414,7 @@ void trajectory_goto_forward_xy_abs(struct trajectory* traj, double x_abs_mm, do
  * @param [in] x_abs_mm, y_abs_mm The coordinate of the point.
  * @sa trajectory_goto_xy_abs
  */
-void trajectory_goto_backward_xy_abs(struct trajectory* traj, double x_abs_mm, double y_abs_mm);
+void trajectory_goto_backward_xy_abs(struct trajectory* traj, double x_abs_mm, double y_abs_mm) LOCKS_EXCLUDED(traj->lock_);
 
 /** @brief Go to a point given in polar coordinates.
  *
@@ -421,7 +424,7 @@ void trajectory_goto_backward_xy_abs(struct trajectory* traj, double x_abs_mm, d
  * @param [in] d The distance in mm.
  * @param [in] a The angle in degrees.
  */
-void trajectory_goto_d_a_rel(struct trajectory* traj, double d, double a);
+void trajectory_goto_d_a_rel(struct trajectory* traj, double d, double a) LOCKS_EXCLUDED(traj->lock_);
 
 /** @brief Go to a relative point.
  *
@@ -432,7 +435,7 @@ void trajectory_goto_d_a_rel(struct trajectory* traj, double d, double a);
  * @param [in] traj The trajectory manager instance.
  * @param [in] x_rel_mm, y_rel_mm The coordinate of the point, in mm.
  */
-void trajectory_goto_xy_rel(struct trajectory* traj, double x_rel_mm, double y_rel_mm);
+void trajectory_goto_xy_rel(struct trajectory* traj, double x_rel_mm, double y_rel_mm) LOCKS_EXCLUDED(traj->lock_);
 
 /** make the robot orbiting around (x,y) on a circle whose radius is
  * radius_mm, and exit when relative destination angle is reached. The
@@ -457,12 +460,8 @@ void trajectory_goto_xy_rel(struct trajectory* traj, double x_rel_mm, double y_r
  * @sa FORWARD
  * @sa TRIGO
  */
-void trajectory_circle_rel(struct trajectory* traj, double x, double y, double radius_mm, double rel_a_deg, uint8_t flags);
+void trajectory_circle_rel(struct trajectory* traj, double x, double y, double radius_mm, double rel_a_deg, uint8_t flags) LOCKS_EXCLUDED(traj->lock_);
 
-/*
- * Compute the fastest distance and angle speeds matching the radius
- * from current traj_speed
- */
 /** @brief Computes the best speed doable to stay on the circle.
  *
  * This function computes the fastest distance and angle speeds matching the given radius
@@ -475,7 +474,7 @@ void trajectory_circle_rel(struct trajectory* traj, double x, double y, double r
 void circle_get_speed_from_radius(struct trajectory* traj,
                                   double radius_mm,
                                   double* speed_d,
-                                  double* speed_a);
+                                  double* speed_a) EXCLUSIVE_LOCKS_REQUIRED(traj->lock_);
 
 /** @brief Do a line.
  *
@@ -494,9 +493,6 @@ void circle_get_speed_from_radius(struct trajectory* traj,
  *
  * @todo Test this function.
  */
-void trajectory_line_abs(struct trajectory* traj, double x1, double y1, double x2, double y2, double advance);
+void trajectory_line_abs(struct trajectory* traj, double x1, double y1, double x2, double y2, double advance) LOCKS_EXCLUDED(traj->lock_);
 
-#ifdef __cplusplus
-}
-#endif
 #endif // TRAJECTORY_MANAGER
