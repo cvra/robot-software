@@ -130,7 +130,23 @@ void trajectory_move_to(int32_t x_mm, int32_t y_mm, int32_t a_deg)
 
 static bool trajectory_is_cartesian(struct trajectory* traj) EXCLUSIVE_LOCKS_REQUIRED(traj->lock_)
 {
-    return traj->state == RUNNING_XY_START || traj->state == RUNNING_XY_ANGLE || traj->state == RUNNING_XY_ANGLE_OK || traj->state == RUNNING_XY_F_START || traj->state == RUNNING_XY_F_ANGLE || traj->state == RUNNING_XY_F_ANGLE_OK || traj->state == RUNNING_XY_B_START || traj->state == RUNNING_XY_B_ANGLE || traj->state == RUNNING_XY_B_ANGLE_OK;
+    switch (traj->state) {
+        case RUNNING_XY_START:
+        case RUNNING_XY_ANGLE:
+        case RUNNING_XY_ANGLE_OK:
+        case RUNNING_XY_F_START:
+        case RUNNING_XY_F_ANGLE:
+        case RUNNING_XY_F_ANGLE_OK:
+        case RUNNING_XY_B_START:
+        case RUNNING_XY_B_ANGLE:
+        case RUNNING_XY_B_ANGLE_OK:
+            return true;
+
+        default:
+            return false;
+    }
+
+    return false;
 }
 
 bool trajectory_crosses_obstacle(struct _robot* robot, poly_t* opponent, point_t* intersection)
