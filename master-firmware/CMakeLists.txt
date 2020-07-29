@@ -161,6 +161,12 @@ add_library(config_data
 )
 target_include_directories(config_data PUBLIC ${CMAKE_BINARY_DIR}/config)
 
+add_library(gpioinput
+    src/gpio_input.cpp
+)
+
+target_link_libraries(gpioinput PUBLIC gpiod error absl::base)
+
 add_executable(master-firmware
     src/main.cpp
     src/debug/log.c
@@ -198,6 +204,7 @@ target_link_libraries(master-firmware PUBLIC
     ugfx
     config_data
     master_config_structure
+    gpioinput
 )
 
 target_include_directories(master-firmware PUBLIC src

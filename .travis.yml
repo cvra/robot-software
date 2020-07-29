@@ -4,6 +4,7 @@ addons:
     apt:
         packages:
             - freeglut3-dev
+            - libgpiod-dev
             - libsdl2-dev
             - protobuf-compiler
             - python

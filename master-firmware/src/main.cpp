@@ -148,7 +148,7 @@ int main(int argc, char** argv)
     /* Load stored robot config */
     config_load_from_flash();
 
-    control_panel_init(false);
+    control_panel_init();
     if (absl::GetFlag(FLAGS_enable_gui)) {
         gui_start();
     }
