@@ -45,5 +45,5 @@ absl::optional<GpioInput> GpioInput::open(std::string chipname, int line_num)
         return {};
     }
 
-    return result;
+    return {std::move(result)};
 }
