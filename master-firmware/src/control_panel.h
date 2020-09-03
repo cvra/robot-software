@@ -24,7 +24,7 @@ enum control_panel_output {
 extern "C" {
 #endif
 
-void control_panel_init(bool is_active_high);
+void control_panel_init(void);
 bool control_panel_read(enum control_panel_input in);
 void control_panel_set(enum control_panel_output out);
 void control_panel_clear(enum control_panel_output out);

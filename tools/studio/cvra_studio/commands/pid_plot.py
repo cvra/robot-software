@@ -66,7 +66,12 @@ class PidViewer(QtGui.QWidget):
                                     self.period,
                                 ]
                             ),
-                            vstack([self.pid_loop_selector, self.plot.widget,]),
+                            vstack(
+                                [
+                                    self.pid_loop_selector,
+                                    self.plot.widget,
+                                ]
+                            ),
                         ]
                     ),
                 ]

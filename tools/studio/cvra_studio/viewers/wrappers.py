@@ -10,7 +10,14 @@ class LineEdit(QWidget):
         self.line = QLineEdit(str(initial_value), parent=parent)
         self.line.returnPressed.connect(self._on_value_change)
         self.callback = callback
-        self.setLayout(hstack([self.label, self.line,]))
+        self.setLayout(
+            hstack(
+                [
+                    self.label,
+                    self.line,
+                ]
+            )
+        )
 
     def _on_value_change(self):
         if self.callback:
@@ -29,7 +36,14 @@ class ComboBox(QWidget):
             self.combo.addItem(str(item))
         self.combo.currentTextChanged.connect(self._on_value_change)
         self.callback = callback
-        self.setLayout(hstack([self.label, self.combo,]))
+        self.setLayout(
+            hstack(
+                [
+                    self.label,
+                    self.combo,
+                ]
+            )
+        )
 
     def _on_value_change(self):
         if self.callback:
