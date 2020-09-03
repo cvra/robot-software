@@ -34,6 +34,8 @@ public:
     {
         chip = other.chip;
         line = other.line;
+        other.chip = nullptr;
+        other.line = nullptr;
     }
 
     GpioInput& operator=(GpioInput&& other)

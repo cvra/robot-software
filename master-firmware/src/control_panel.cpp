@@ -113,7 +113,7 @@ static void open_input(enum control_panel_input input_num, std::string gpiochip,
 
     auto res = GpioInput::open(gpiochip, line);
     if (res) {
-        gpio_inputs[input_num] = {}; //std::move(res.value());
+        gpio_inputs[input_num] = std::move(res.value());
     } else {
         WARNING("Could not open input %s", control_panel_input[input_num]);
     }
