@@ -25,7 +25,7 @@ public:
 
     // The copy constructor and operator must be deleted, as handles to GPIOs
     // cannot be copied (they need to be re-opened separately).
-    GpioInput(const GpioInput&) = delete; // cannot be copied
+    GpioInput(const GpioInput&) = delete;
     GpioInput& operator=(const GpioInput& other) = delete;
 
     GpioInput(GpioInput&& other)

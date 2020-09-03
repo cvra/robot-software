@@ -136,8 +136,6 @@ bool control_panel_read(enum control_panel_input in)
 {
     auto input = gpio_inputs.find(in);
 
-    WARNING("reading %d", in);
-
     if (input == gpio_inputs.end()) {
         DEBUG_EVERY_N(10, "could not read input %d", in);
         return false;
