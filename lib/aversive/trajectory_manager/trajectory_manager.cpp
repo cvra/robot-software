@@ -39,7 +39,7 @@
 /** structure initialization */
 void trajectory_manager_init(struct trajectory* traj, double cs_hz)
 {
-    memset(traj, 0, sizeof(struct trajectory));
+    absl::MutexLock l(&traj->lock_);
     traj->cs_hz = cs_hz;
     traj->state = READY;
 }

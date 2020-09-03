@@ -1,5 +1,6 @@
 // TODO: Define this once map is converted to Linux, then delete all USE_MAP
 // ifdefs
+#include <unordered_map>
 #define USE_MAP 0
 #include <absl/time/time.h>
 #include <absl/synchronization/mutex.h>
@@ -25,6 +26,16 @@
 
 using namespace std::chrono_literals;
 
+// keep in sync with trajectory_helpers.h
+static const std::unordered_map<int, std::string> trajectory_reasons = {
+    {TRAJ_END_GOAL_REACHED, "goal reached"},
+    {TRAJ_END_NEAR_GOAL, "goal close"},
+    {TRAJ_END_COLLISION, "collision"},
+    {TRAJ_END_OPPONENT_NEAR, "opponent nearby"},
+    {TRAJ_END_TIMER, "end of game timer"},
+    {TRAJ_END_ALLY_NEAR, "ally nearby"},
+};
+
 int trajectory_wait_for_end(int watched_end_reasons)
 {
     std::this_thread::sleep_for(100ms);
@@ -33,9 +44,18 @@ int trajectory_wait_for_end(int watched_end_reasons)
         traj_end_reason = trajectory_has_ended(watched_end_reasons);
         std::this_thread::sleep_for(1ms);
     }
-    NOTICE("End of trajectory reason %d at %d %d %d",
-           traj_end_reason, position_get_x_s16(&robot.pos), position_get_y_s16(&robot.pos),
-           position_get_a_deg_s16(&robot.pos));
+
+    auto reason = trajectory_reasons.find(traj_end_reason);
+
+    if (reason == trajectory_reasons.end()) {
+        NOTICE("End of trajectory, UNKNOWN reason %d at %d %d %d",
+               traj_end_reason, position_get_x_s16(&robot.pos), position_get_y_s16(&robot.pos),
+               position_get_a_deg_s16(&robot.pos));
+    } else {
+        NOTICE("End of trajectory: %s at %d %d %d",
+               reason->second.c_str(), position_get_x_s16(&robot.pos), position_get_y_s16(&robot.pos),
+               position_get_a_deg_s16(&robot.pos));
+    }
 
     return traj_end_reason;
 }
@@ -128,9 +148,25 @@ void trajectory_move_to(int32_t x_mm, int32_t y_mm, int32_t a_deg)
     trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
 }
 
-static bool trajectory_is_cartesian(struct trajectory* traj)
+static bool trajectory_is_cartesian(struct trajectory* traj) EXCLUSIVE_LOCKS_REQUIRED(traj->lock_)
 {
-    return traj->state == RUNNING_XY_START || traj->state == RUNNING_XY_ANGLE || traj->state == RUNNING_XY_ANGLE_OK || traj->state == RUNNING_XY_F_START || traj->state == RUNNING_XY_F_ANGLE || traj->state == RUNNING_XY_F_ANGLE_OK || traj->state == RUNNING_XY_B_START || traj->state == RUNNING_XY_B_ANGLE || traj->state == RUNNING_XY_B_ANGLE_OK;
+    switch (traj->state) {
+        case RUNNING_XY_START:
+        case RUNNING_XY_ANGLE:
+        case RUNNING_XY_ANGLE_OK:
+        case RUNNING_XY_F_START:
+        case RUNNING_XY_F_ANGLE:
+        case RUNNING_XY_F_ANGLE_OK:
+        case RUNNING_XY_B_START:
+        case RUNNING_XY_B_ANGLE:
+        case RUNNING_XY_B_ANGLE_OK:
+            return true;
+
+        default:
+            return false;
+    }
+
+    return false;
 }
 
 bool trajectory_crosses_obstacle(struct _robot* robot, poly_t* opponent, point_t* intersection)
@@ -140,6 +176,7 @@ bool trajectory_crosses_obstacle(struct _robot* robot, poly_t* opponent, point_t
         position_get_y_float(&robot->pos)};
     point_t target_position;
 
+    absl::MutexLock l(&robot->traj.lock_);
     if (trajectory_is_cartesian(&robot->traj)) {
         target_position.x = robot->traj.target.cart.x;
         target_position.y = robot->traj.target.cart.y;

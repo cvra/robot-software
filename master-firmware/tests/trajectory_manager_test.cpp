@@ -1,12 +1,13 @@
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
 
-extern "C" {
-#include <aversive/control_system_manager/control_system_manager.h>
-#include <aversive/position_manager/position_manager.h>
 #include <aversive/trajectory_manager/trajectory_manager_utils.h>
 #include <aversive/trajectory_manager/trajectory_manager.h>
 #include <aversive/trajectory_manager/trajectory_manager_core.h>
+#include <aversive/position_manager/position_manager.h>
+
+extern "C" {
+#include <aversive/control_system_manager/control_system_manager.h>
 
 #include <quadramp/quadramp.h>
 }
@@ -57,12 +58,15 @@ TEST(TrajectoryManagerTestGroup, SchedulesTrajectoryEventFirst)
 {
     // Checks that the trajectory manager is running, and turning to align
     // itself with the target point.
+    absl::MutexLock l(&traj.lock_);
     CHECK_TRUE(traj.scheduled);
     CHECK_EQUAL(RUNNING_XY_F_START, traj.state);
 }
 
 TEST(TrajectoryManagerTestGroup, ChangesToInPlaceRotation)
 {
+    absl::MutexLock l(&traj.lock_);
+    absl::ReaderMutexLock lp(&traj.position->lock_);
     // Checks that the robot starts rotating in place
     trajectory_manager_xy_event(&traj);
 
@@ -78,6 +82,9 @@ TEST(TrajectoryManagerTestGroup, ChangesToDriving)
     /* The robot turned enough, now check that we are moving. */
     position_set(&pos, 0, 0, 45);
 
+    absl::MutexLock l(&traj.lock_);
+    absl::ReaderMutexLock lp(&traj.position->lock_);
+
     trajectory_manager_xy_event(&traj);
     trajectory_manager_xy_event(&traj);
     trajectory_manager_xy_event(&traj);
@@ -91,20 +98,30 @@ TEST(TrajectoryManagerTestGroup, ChangesToDriving)
 
 TEST(TrajectoryManagerTestGroup, RemovesEventWhenInWindow)
 {
-    trajectory_manager_xy_event(&traj);
-    trajectory_manager_xy_event(&traj);
+    {
+        absl::MutexLock l(&traj.lock_);
+        absl::ReaderMutexLock lp(&traj.position->lock_);
+        trajectory_manager_xy_event(&traj);
+        trajectory_manager_xy_event(&traj);
+    }
 
     // Moves the robot in the destination window, which means it should not
     // update the trajectory
     position_set(&pos, 199, 199, 45);
-    trajectory_manager_xy_event(&traj);
 
-    CHECK_FALSE(traj.scheduled);
+    {
+        absl::MutexLock l(&traj.lock_);
+        absl::ReaderMutexLock lp(&traj.position->lock_);
+        trajectory_manager_xy_event(&traj);
+        CHECK_FALSE(traj.scheduled);
+    }
 }
 
 TEST(TrajectoryManagerTestGroup, StartsTrajectoryInDistance)
 {
     trajectory_d_rel(&traj, 100);
+
+    absl::MutexLock l(&traj.lock_);
 
     CHECK_EQUAL(RUNNING_D, traj.state);
 }
@@ -112,6 +129,8 @@ TEST(TrajectoryManagerTestGroup, StartsTrajectoryInDistance)
 TEST(TrajectoryManagerTestGroup, StartsTrajectoryInAngle)
 {
     trajectory_a_rel(&traj, 10);
+
+    absl::MutexLock l(&traj.lock_);
 
     CHECK_EQUAL(RUNNING_A, traj.state);
 }

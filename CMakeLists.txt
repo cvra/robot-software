@@ -32,6 +32,7 @@ add_c_cxx_compiler_flag("-Wlogical-op")
 add_c_cxx_compiler_flag("-Wnull-dereference")
 add_c_cxx_compiler_flag("-Wshadow")
 add_c_compiler_flag("-Wstrict-prototypes")
+add_cxx_compiler_flag("-Wthread-safety -Werror=thread-safety")
 
 # The following flags are causing issues with Eigen
 add_cxx_compiler_flag("-Wno-duplicated-branches")

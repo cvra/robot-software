@@ -34,27 +34,30 @@
 /** init module, give the robot system to use as a parameter */
 void bd_init(struct blocking_detection* bd)
 {
-    memset(bd, 0, sizeof(*bd));
+    absl::MutexLock l(&bd->lock_);
+    bd->cpt_thres = 0;
+    bd->cpt = 0;
+    bd->err_thres = 0;
+    bd->err_max = 0;
 }
 
 /** reset current blocking */
 void bd_reset(struct blocking_detection* bd)
 {
+    absl::MutexLock l(&bd->lock_);
     bd->cpt = 0;
 }
 
-/**
- *
- */
 void bd_set_thresholds(struct blocking_detection* bd, uint32_t err_thres, uint16_t cpt_thres)
 {
+    absl::MutexLock l(&bd->lock_);
     bd->cpt_thres = cpt_thres;
     bd->err_thres = err_thres;
 }
 
-/** function to be called periodically */
 void bd_manage(struct blocking_detection* bd, uint32_t err)
 {
+    absl::MutexLock l(&bd->lock_);
     if (bd->err_thres == 0) {
         return;
     }
@@ -73,12 +76,14 @@ void bd_manage(struct blocking_detection* bd, uint32_t err)
 /** get value of blocking detection */
 uint8_t bd_get(struct blocking_detection* bd)
 {
+    absl::ReaderMutexLock l(&bd->lock_);
     return bd->cpt_thres && (bd->cpt >= bd->cpt_thres);
 }
 
 /** get value of blocking detection maximale value, reseted each time it's read*/
 int32_t bd_get_max(struct blocking_detection* bd)
 {
+    absl::MutexLock l(&bd->lock_);
     int32_t ret;
     ret = bd->err_max;
     bd->err_max = 0;

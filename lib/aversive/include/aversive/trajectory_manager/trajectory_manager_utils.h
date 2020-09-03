@@ -24,10 +24,6 @@
 #ifndef TRAJECTORY_MANAGER_UTILS_H
 #define TRAJECTORY_MANAGER_UTILS_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <aversive/trajectory_manager/trajectory_manager.h>
 
 #define M_2PI (2 * M_PI)
@@ -48,10 +44,10 @@ double get_quadramp_angle_speed(struct trajectory* traj);
 double get_quadramp_distance_speed(struct trajectory* traj);
 
 /** remove event if any */
-void delete_event(struct trajectory* traj);
+void delete_event(struct trajectory* traj) EXCLUSIVE_LOCKS_REQUIRED(traj->lock_);
 
 /** schedule the trajectory event */
-void schedule_event(struct trajectory* traj);
+void schedule_event(struct trajectory* traj) EXCLUSIVE_LOCKS_REQUIRED(traj->lock_);
 
 /** do a modulo 2.pi -> [-Pi,+Pi], knowing that 'a' is in [-3Pi,+3Pi] */
 double simple_modulo_2pi(double a);
@@ -60,15 +56,15 @@ double simple_modulo_2pi(double a);
 double modulo_2pi(double a);
 
 /** near the target (dist) ? */
-uint8_t is_robot_in_dist_window(struct trajectory* traj, double d_win);
+uint8_t is_robot_in_dist_window(struct trajectory* traj, double d_win) EXCLUSIVE_LOCKS_REQUIRED(traj->lock_) SHARED_LOCKS_REQUIRED(traj->position->lock_);
 
 /** near the target (dist in x,y) ? */
-uint8_t is_robot_in_xy_window(struct trajectory* traj, double d_win);
+uint8_t is_robot_in_xy_window(struct trajectory* traj, double d_win) EXCLUSIVE_LOCKS_REQUIRED(traj->lock_) SHARED_LOCKS_REQUIRED(traj->position->lock_);
 
 /** near the angle target in radian ? Only valid if
  *  traj->target.pol.angle is set (i.e. an angle command, not an xy
  *  command) */
-uint8_t is_robot_in_angle_window(struct trajectory* traj, double a_win_rad);
+uint8_t is_robot_in_angle_window(struct trajectory* traj, double a_win_rad) EXCLUSIVE_LOCKS_REQUIRED(traj->lock_) SHARED_LOCKS_REQUIRED(traj->position->lock_);
 
 double pos_mm2imp(struct trajectory* traj, double pos);
 double pos_imp2mm(struct trajectory* traj, double pos);
@@ -85,9 +81,5 @@ double acc_imp2rd(struct trajectory* traj, double acc);
 int trajectory_moving_backward(struct trajectory* traj);
 int trajectory_moving_forward(struct trajectory* traj);
 int trajectory_turning(struct trajectory* traj);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

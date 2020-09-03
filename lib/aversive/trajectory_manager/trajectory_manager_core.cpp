@@ -31,12 +31,14 @@
 
 #include <quadramp/quadramp.h>
 
+extern "C" {
 #include <aversive/control_system_manager/control_system_manager.h>
 #include <aversive/math/geometry/lines.h>
 #include <aversive/math/geometry/vect_base.h>
 #include <aversive/math/vect2/vect2.h>
-#include <aversive/position_manager/position_manager.h>
 #include <aversive/robot_system/robot_system.h>
+}
+#include <aversive/position_manager/position_manager.h>
 #include <aversive/trajectory_manager/trajectory_manager.h>
 #include <aversive/trajectory_manager/trajectory_manager_utils.h>
 #include <aversive/trajectory_manager/trajectory_manager_core.h>
@@ -56,7 +58,7 @@ static uint8_t evt_debug_cpt = 0;
         }                                      \
     } while (0)
 
-static void start_clitoid(struct trajectory* traj);
+static void start_clitoid(struct trajectory* traj) EXCLUSIVE_LOCKS_REQUIRED(traj->lock_) SHARED_LOCKS_REQUIRED(traj->position->lock_);
 
 /** @brief Update angle and/or distance
  *
@@ -66,7 +68,7 @@ static void start_clitoid(struct trajectory* traj);
  * @param [in] a_rad Angle in radians.
  * @param [in] flags What to update (UPDATE_A, UPDATE_D)
  */
-void __trajectory_goto_d_a_rel(struct trajectory* traj, double d_mm, double a_rad, uint8_t state, uint8_t flags)
+void __trajectory_goto_d_a_rel(struct trajectory* traj, double d_mm, double a_rad, enum trajectory_state state, uint8_t flags)
 {
     int32_t a_consign, d_consign;
 
@@ -98,25 +100,32 @@ void __trajectory_goto_d_a_rel(struct trajectory* traj, double d_mm, double a_ra
 
 void trajectory_d_rel(struct trajectory* traj, double d_mm)
 {
+    absl::MutexLock l(&traj->lock_);
+    absl::MutexLock lp(&traj->position->lock_);
     __trajectory_goto_d_a_rel(traj, d_mm, 0, RUNNING_D,
                               UPDATE_D | UPDATE_A | RESET_A);
 }
 
 void trajectory_only_d_rel(struct trajectory* traj, double d_mm)
 {
+    absl::MutexLock l(&traj->lock_);
+    absl::MutexLock lp(&traj->position->lock_);
     __trajectory_goto_d_a_rel(traj, d_mm, 0, RUNNING_D, UPDATE_D);
 }
 
 void trajectory_a_rel(struct trajectory* traj, double a_deg_rel)
 {
-    // printf("%d\n", (int)a_deg_rel);
+    absl::MutexLock l(&traj->lock_);
+    absl::MutexLock lp(&traj->position->lock_);
     __trajectory_goto_d_a_rel(traj, 0, RAD(a_deg_rel), RUNNING_A,
                               UPDATE_A | UPDATE_D | RESET_D);
 }
 
 void trajectory_a_abs(struct trajectory* traj, double a_deg_abs)
 {
-    double posa = position_get_a_rad_double(traj->position);
+    absl::MutexLock l(&traj->lock_);
+    absl::MutexLock lp(&traj->position->lock_);
+    double posa = position_get_a_rad_double_unsafe(traj->position);
     double a;
 
     a = RAD(a_deg_abs) - posa;
@@ -127,9 +136,11 @@ void trajectory_a_abs(struct trajectory* traj, double a_deg_abs)
 
 void trajectory_turnto_xy(struct trajectory* traj, double x_abs_mm, double y_abs_mm)
 {
-    double posx = position_get_x_double(traj->position);
-    double posy = position_get_y_double(traj->position);
-    double posa = position_get_a_rad_double(traj->position);
+    absl::MutexLock l(&traj->lock_);
+    absl::MutexLock lp(&traj->position->lock_);
+    double posx = position_get_x_double_unsafe(traj->position);
+    double posy = position_get_y_double_unsafe(traj->position);
+    double posa = position_get_a_rad_double_unsafe(traj->position);
 
     DEBUG("Goto Turn To xy %f %f", x_abs_mm, y_abs_mm);
     __trajectory_goto_d_a_rel(traj, 0,
@@ -140,9 +151,11 @@ void trajectory_turnto_xy(struct trajectory* traj, double x_abs_mm, double y_abs
 
 void trajectory_turnto_xy_behind(struct trajectory* traj, double x_abs_mm, double y_abs_mm)
 {
-    double posx = position_get_x_double(traj->position);
-    double posy = position_get_y_double(traj->position);
-    double posa = position_get_a_rad_double(traj->position);
+    absl::MutexLock l(&traj->lock_);
+    absl::MutexLock lp(&traj->position->lock_);
+    double posx = position_get_x_double_unsafe(traj->position);
+    double posy = position_get_y_double_unsafe(traj->position);
+    double posa = position_get_a_rad_double_unsafe(traj->position);
 
     DEBUG("Goto Turn To xy %f %f", x_abs_mm, y_abs_mm);
     __trajectory_goto_d_a_rel(traj, 0,
@@ -153,13 +166,17 @@ void trajectory_turnto_xy_behind(struct trajectory* traj, double x_abs_mm, doubl
 
 void trajectory_only_a_rel(struct trajectory* traj, double a_deg)
 {
+    absl::MutexLock l(&traj->lock_);
+    absl::MutexLock lp(&traj->position->lock_);
     __trajectory_goto_d_a_rel(traj, 0, RAD(a_deg), RUNNING_A,
                               UPDATE_A);
 }
 
 void trajectory_only_a_abs(struct trajectory* traj, double a_deg_abs)
 {
-    double posa = position_get_a_rad_double(traj->position);
+    absl::MutexLock l(&traj->lock_);
+    absl::MutexLock lp(&traj->position->lock_);
+    double posa = position_get_a_rad_double_unsafe(traj->position);
     double a;
 
     a = RAD(a_deg_abs) - posa;
@@ -169,6 +186,8 @@ void trajectory_only_a_abs(struct trajectory* traj, double a_deg_abs)
 
 void trajectory_d_a_rel(struct trajectory* traj, double d_mm, double a_deg)
 {
+    absl::MutexLock l(&traj->lock_);
+    absl::MutexLock lp(&traj->position->lock_);
     __trajectory_goto_d_a_rel(traj, d_mm, RAD(a_deg),
                               RUNNING_AD, UPDATE_A | UPDATE_D);
 }
@@ -176,6 +195,8 @@ void trajectory_d_a_rel(struct trajectory* traj, double d_mm, double a_deg)
 void trajectory_stop(struct trajectory* traj)
 {
     DEBUG("stop");
+    absl::MutexLock l(&traj->lock_);
+    absl::MutexLock lp(&traj->position->lock_);
     __trajectory_goto_d_a_rel(traj, 0, 0, READY,
                               UPDATE_A | UPDATE_D | RESET_D | RESET_A);
 }
@@ -186,8 +207,11 @@ void trajectory_hardstop(struct trajectory* traj)
 
     DEBUG("hardstop");
 
-    q_d = traj->csm_distance->consign_filter_params;
-    q_a = traj->csm_angle->consign_filter_params;
+    absl::MutexLock l(&traj->lock_);
+    absl::MutexLock lp(&traj->position->lock_);
+
+    q_d = reinterpret_cast<struct quadramp_filter*>(traj->csm_distance->consign_filter_params);
+    q_a = reinterpret_cast<struct quadramp_filter*>(traj->csm_angle->consign_filter_params);
     __trajectory_goto_d_a_rel(traj, 0, 0, READY,
                               UPDATE_A | UPDATE_D | RESET_D | RESET_A);
 
@@ -200,6 +224,7 @@ void trajectory_hardstop(struct trajectory* traj)
 void trajectory_goto_xy_abs(struct trajectory* traj, double x, double y)
 {
     DEBUG("Goto XY");
+    absl::MutexLock l(&traj->lock_);
     delete_event(traj);
     traj->target.cart.x = x;
     traj->target.cart.y = y;
@@ -210,6 +235,8 @@ void trajectory_goto_xy_abs(struct trajectory* traj, double x, double y)
 void trajectory_goto_forward_xy_abs(struct trajectory* traj, double x, double y)
 {
     DEBUG("Goto XY_F");
+
+    absl::MutexLock l(&traj->lock_);
     delete_event(traj);
     traj->target.cart.x = x;
     traj->target.cart.y = y;
@@ -220,6 +247,7 @@ void trajectory_goto_forward_xy_abs(struct trajectory* traj, double x, double y)
 void trajectory_goto_backward_xy_abs(struct trajectory* traj, double x, double y)
 {
     DEBUG("Goto XY_B");
+    absl::MutexLock l(&traj->lock_);
     delete_event(traj);
     traj->target.cart.x = x;
     traj->target.cart.y = y;
@@ -229,11 +257,12 @@ void trajectory_goto_backward_xy_abs(struct trajectory* traj, double x, double y
 
 void trajectory_goto_d_a_rel(struct trajectory* traj, double d, double a)
 {
+    DEBUG("Goto DA rel");
+
+    absl::MutexLock l(&traj->lock_);
     vect2_pol p;
     double x = position_get_x_double(traj->position);
     double y = position_get_y_double(traj->position);
-
-    DEBUG("Goto DA rel");
 
     delete_event(traj);
     p.r = d;
@@ -248,6 +277,7 @@ void trajectory_goto_d_a_rel(struct trajectory* traj, double d, double a)
 
 void trajectory_goto_xy_rel(struct trajectory* traj, double x_rel_mm, double y_rel_mm)
 {
+    absl::MutexLock l(&traj->lock_);
     vect2_cart c;
     vect2_pol p;
     double x = position_get_x_double(traj->position);
@@ -261,7 +291,6 @@ void trajectory_goto_xy_rel(struct trajectory* traj, double x_rel_mm, double y_r
 
     vect2_cart2pol(&c, &p);
     p.theta += position_get_a_rad_double(traj->position);
-    ;
     vect2_pol2cart(&p, &traj->target.cart);
 
     traj->target.cart.x += x;
@@ -278,6 +307,7 @@ uint8_t trajectory_angle_finished(struct trajectory* traj)
 
 uint8_t trajectory_distance_finished(struct trajectory* traj)
 {
+    absl::MutexLock l(&traj->lock_);
     if (traj->state == RUNNING_CLITOID_CURVE) {
         return 1;
     }
@@ -301,6 +331,8 @@ uint8_t trajectory_nearly_finished(struct trajectory* traj)
 /** return true if traj is nearly finished */
 uint8_t trajectory_in_window(struct trajectory* traj, double d_win, double a_win_rad)
 {
+    absl::MutexLock l(&traj->lock_);
+    absl::MutexLock lp(&traj->position->lock_);
     switch (traj->state) {
         case RUNNING_XY_ANGLE_OK:
         case RUNNING_XY_F_ANGLE_OK:
@@ -334,9 +366,9 @@ uint8_t trajectory_in_window(struct trajectory* traj, double d_win, double a_win
 void trajectory_manager_xy_event(struct trajectory* traj)
 {
     double coef = 1.0;
-    double x = position_get_x_double(traj->position);
-    double y = position_get_y_double(traj->position);
-    double a = position_get_a_rad_double(traj->position);
+    double x = position_get_x_double_unsafe(traj->position);
+    double y = position_get_y_double_unsafe(traj->position);
+    double a = position_get_a_rad_double_unsafe(traj->position);
     int32_t d_consign = 0, a_consign = 0;
 
     /* These vectors contain target position of the robot in
@@ -415,7 +447,7 @@ void trajectory_manager_xy_event(struct trajectory* traj)
         case RUNNING_XY_B_START:
             /* START -> ANGLE */
             DEBUG("-> ANGLE");
-            traj->state++;
+            traj->state = static_cast<enum trajectory_state>(static_cast<int>(traj->state) + 1);
             break;
 
         case RUNNING_XY_ANGLE:
@@ -427,7 +459,7 @@ void trajectory_manager_xy_event(struct trajectory* traj)
                     delete_event(traj);
                 }
                 /* ANGLE -> ANGLE_OK */
-                traj->state++;
+                traj->state = static_cast<enum trajectory_state>(static_cast<int>(traj->state) + 1);
                 DEBUG("-> ANGLE_OK");
             }
             break;
@@ -490,9 +522,9 @@ void circle_get_speed_from_radius(struct trajectory* traj,
 void trajectory_manager_circle_event(struct trajectory* traj)
 {
     double radius;
-    double x = position_get_x_double(traj->position);
-    double y = position_get_y_double(traj->position);
-    double a = position_get_a_rad_double(traj->position);
+    double x = position_get_x_double_unsafe(traj->position);
+    double y = position_get_y_double_unsafe(traj->position);
+    double a = position_get_a_rad_double_unsafe(traj->position);
     int32_t d_consign = 0, a_consign = 0;
     double angle_to_center_rad;
     double coef_p, coef_d;
@@ -555,11 +587,11 @@ void trajectory_manager_circle_event(struct trajectory* traj)
 }
 
 /* trajectory event for lines */
-static void trajectory_manager_line_event(struct trajectory* traj)
+static void trajectory_manager_line_event(struct trajectory* traj) EXCLUSIVE_LOCKS_REQUIRED(traj->lock_) SHARED_LOCKS_REQUIRED(traj->position->lock_)
 {
-    double x = position_get_x_double(traj->position);
-    double y = position_get_y_double(traj->position);
-    double a = position_get_a_rad_double(traj->position);
+    double x = position_get_x_double_unsafe(traj->position);
+    double y = position_get_y_double_unsafe(traj->position);
+    double a = position_get_a_rad_double_unsafe(traj->position);
     double advance, dist_to_line;
     point_t robot, proj, target_pt;
     int32_t d_consign = 0, a_consign = 0;
@@ -619,6 +651,8 @@ static void trajectory_manager_line_event(struct trajectory* traj)
 /* trajectory manage events */
 void trajectory_manager_manage(struct trajectory* traj)
 {
+    absl::MutexLock l(&traj->lock_);
+    absl::ReaderMutexLock lp(&traj->position->lock_);
     if (traj->scheduled) {
         switch (traj->state) {
             case RUNNING_XY_START:
@@ -660,7 +694,10 @@ void trajectory_circle_rel(struct trajectory* traj,
                            double rel_a_deg,
                            uint8_t flags)
 {
-    double dst_angle, dst_distance;
+    absl::MutexLock l(&traj->lock_);
+    absl::ReaderMutexLock lp(&traj->position->lock_);
+    double dst_angle,
+        dst_distance;
 
     delete_event(traj);
 
@@ -703,7 +740,7 @@ static void __trajectory_line_abs(struct trajectory* traj,
                                   double y1,
                                   double x2,
                                   double y2,
-                                  double advance)
+                                  double advance) EXCLUSIVE_LOCKS_REQUIRED(traj->lock_)
 {
     point_t p1, p2;
 
@@ -733,6 +770,7 @@ void trajectory_line_abs(struct trajectory* traj,
                          double y2,
                          double advance)
 {
+    absl::MutexLock l(&traj->lock_);
     delete_event(traj);
     __trajectory_line_abs(traj, x1, y1, x2, y2, advance);
     traj->state = RUNNING_LINE;
@@ -928,7 +966,9 @@ static void start_clitoid(struct trajectory* traj)
     delete_event(traj);
     d = fabs(R_mm * a_rad);
     d *= 3.; /* margin to avoid deceleration */
-    trajectory_d_a_rel(traj, d, DEG(a_rad));
+    __trajectory_goto_d_a_rel(traj, d, a_rad,
+                              RUNNING_AD, UPDATE_A | UPDATE_D);
+
     set_quadramp_acc(traj, traj->d_acc, Aa);
     set_quadramp_speed(traj, traj->d_speed, Va);
     traj->state = RUNNING_CLITOID_CURVE;
@@ -967,6 +1007,7 @@ int8_t trajectory_clitoid(struct trajectory* traj,
                           double R_mm,
                           double d_inter_mm)
 {
+    absl::MutexLock l(&traj->lock_);
     double remain = 0, Aa = 0, Va = 0, Vd;
     double turnx, turny;
     double a_rad = RAD(a_deg);

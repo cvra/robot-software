@@ -239,7 +239,7 @@ static void position_manager_thd()
                           position_get_y_s16(&robot.pos),
                           position_get_a_deg_s16(&robot.pos));
         }
-        std::this_thread::sleep_for(1s / ODOM_FREQUENCY);
+        std::this_thread::sleep_for(1000ms / ODOM_FREQUENCY);
     }
 }
 
@@ -256,7 +256,7 @@ void trajectory_manager_thd()
             absl::MutexLock _(&robot.lock);
             trajectory_manager_manage(&robot.traj);
         }
-        std::this_thread::sleep_for(1s / ODOM_FREQUENCY);
+        std::this_thread::sleep_for(1000ms / ODOM_FREQUENCY);
     }
 }
 
