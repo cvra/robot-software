@@ -11,6 +11,17 @@ setup(
     url="http://cvra.ch",
     license="BSD",
     packages=find_packages(exclude=["contrib", "docs", "tests*"]),
-    install_requires=["docopt", "PyQt5", "pyserial", "pyqtgraph", "numpy", "uavcan",],
-    entry_points={"console_scripts": ["cvra=cvra_studio.cli:main",],},
+    install_requires=[
+        "docopt",
+        "PyQt5",
+        "pyserial",
+        "pyqtgraph",
+        "numpy",
+        "uavcan",
+    ],
+    entry_points={
+        "console_scripts": [
+            "cvra=cvra_studio.cli:main",
+        ],
+    },
 )

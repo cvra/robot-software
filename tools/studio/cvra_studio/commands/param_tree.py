@@ -147,7 +147,15 @@ class ParameterWidget(QWidget):
         self.save_button = QPushButton("Save")
         self.save_button.clicked.connect(self._save_params)
 
-        self.setLayout(vstack([self.node_selector, self.tree_view, self.save_button,]))
+        self.setLayout(
+            vstack(
+                [
+                    self.node_selector,
+                    self.tree_view,
+                    self.save_button,
+                ]
+            )
+        )
 
         self.model = ParameterTreeModel(node)
         self.model.on_new_node(self._update_nodes)

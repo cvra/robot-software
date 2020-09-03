@@ -18,5 +18,7 @@ setup(
     url="http://cvra.ch",
     license="BSD",
     packages=find_packages(exclude=["contrib", "docs", "tests*"]),
-    install_requires=["autograd",],
+    install_requires=[
+        "autograd",
+    ],
 )

@@ -71,7 +71,16 @@ class SetpointPublisherWidget(QWidget):
             title="Period [s]  \t", callback=self.model.update_period, parent=parent
         )
 
-        self.setLayout(vstack([self.motor, self.topic, self.value, self.period,]))
+        self.setLayout(
+            vstack(
+                [
+                    self.motor,
+                    self.topic,
+                    self.value,
+                    self.period,
+                ]
+            )
+        )
 
 
 def main(args):

@@ -30,7 +30,12 @@ class TestCodeGenerator(unittest.TestCase):
         self.assertEqual(tree, expected_code)
 
     def test_has_one_namespace_with_entries(self):
-        config = {"controller": {"kp": 10, "ki": 0.1,}}
+        config = {
+            "controller": {
+                "kp": 10,
+                "ki": 0.1,
+            }
+        }
         expected_code = [
             "struct {",
             "    parameter_namespace_t ns;",
@@ -47,7 +52,14 @@ class TestCodeGenerator(unittest.TestCase):
         self.assertEqual(tree, expected_code)
 
     def test_has_depth_three(self):
-        config = {"robot": {"controller": {"kp": 10, "ki": 0.1,}}}
+        config = {
+            "robot": {
+                "controller": {
+                    "kp": 10,
+                    "ki": 0.1,
+                }
+            }
+        }
         expected_code = [
             "struct {",
             "    parameter_namespace_t ns;",
@@ -67,7 +79,15 @@ class TestCodeGenerator(unittest.TestCase):
         self.assertEqual(tree, expected_code)
 
     def test_has_depth_max_three(self):
-        config = {"robot": {"controller": {"kp": 10, "ki": 0.1,}, "so": 1337,}}
+        config = {
+            "robot": {
+                "controller": {
+                    "kp": 10,
+                    "ki": 0.1,
+                },
+                "so": 1337,
+            }
+        }
         expected_code = [
             "struct {",
             "    parameter_namespace_t ns;",

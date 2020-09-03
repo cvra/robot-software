@@ -55,7 +55,15 @@ class ServoInputWidget(QtGui.QWidget):
             callback=change_callback,
         )
 
-        self.setLayout(vstack([self.pos, self.vel, self.acc,]))
+        self.setLayout(
+            vstack(
+                [
+                    self.pos,
+                    self.vel,
+                    self.acc,
+                ]
+            )
+        )
         self.show()
 
 
@@ -87,16 +95,22 @@ class StatusOutputWidget(QtGui.QWidget):
     def __init__(self, parent=None):
         super(StatusOutputWidget, self).__init__(parent)
         self._uptime_widget = LineEdit(
-            title="Uptime [s]", parent=parent, initial_value="0",
+            title="Uptime [s]",
+            parent=parent,
+            initial_value="0",
         )
         self._uptime_widget.line.setReadOnly(True)
         self._health_widget = LineEdit(
-            title="Node health", parent=parent, initial_value="0",
+            title="Node health",
+            parent=parent,
+            initial_value="0",
         )
         self._health_widget.line.setReadOnly(True)
 
         self._vendor_status_widget = LineEdit(
-            title="Vendor status code", parent=parent, initial_value="0",
+            title="Vendor status code",
+            parent=parent,
+            initial_value="0",
         )
         self._vendor_status_widget.line.setReadOnly(True)
 
@@ -133,7 +147,9 @@ class ActuatorFeedbackWidget(QtGui.QWidget):
 
         self._analog_input_widgets = [
             LineEdit(
-                title="Analog {} [V]".format(i + 1), parent=parent, initial_value="0.0",
+                title="Analog {} [V]".format(i + 1),
+                parent=parent,
+                initial_value="0.0",
             )
             for i in range(2)
         ]
