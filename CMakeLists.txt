@@ -43,4 +43,7 @@ enable_testing()
 add_subdirectory(lib)
 add_subdirectory(uwb-beacon-firmware)
 add_subdirectory(master-firmware)
-add_subdirectory(hitl)
+
+if (NOT ${CMAKE_CROSSCOMPILING})
+    add_subdirectory(hitl)
+endif()
