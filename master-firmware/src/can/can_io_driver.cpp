@@ -1,13 +1,10 @@
-#include <ch.h>
 #include <uavcan/uavcan.hpp>
 #include <cvra/io/ServoPWM.hpp>
 #include <cvra/io/DigitalInput.hpp>
 #include <error/error.h>
 #include <msgbus/messagebus.h>
 #include <can/uavcan_node.h>
-#include "main.h"
 #include "can_io_driver.h"
-#include "protobuf/sensors.pb.h"
 
 static uavcan::LazyConstructor<uavcan::Publisher<cvra::io::ServoPWM>> can_io_pwm_pub;
 
