@@ -174,6 +174,7 @@ add_executable(master-firmware
     src/can/motor_driver_uavcan.cpp
     src/can/wheel_encoders_handler.cpp
     src/can/emergency_stop_handler.cpp
+    src/can/motor_feedback_streams_handler.cpp
     src/control_panel.cpp
     src/config.c
     src/parameter_port.cpp
