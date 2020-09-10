@@ -6,7 +6,7 @@
 #include <uavcan_linux/uavcan_linux.hpp>
 //#include <uavcan/protocol/NodeStatus.hpp>
 #include <uavcan/protocol/node_info_retriever.hpp>
-//#include "emergency_stop_handler.hpp"
+#include "emergency_stop_handler.hpp"
 //#include "motor_feedback_streams_handler.hpp"
 //#include "beacon_signal_handler.hpp"
 #include "motor_driver.h"
@@ -145,12 +145,12 @@ static void main(std::string can_iface, uint8_t id)
     if (uwb_position_handler_init(node) < 0) {
         ERROR("UWB TagPosition init");
     }
+#endif
 
     res = emergency_stop_init(node);
     if (res != 0) {
         ERROR("Emergency stop handler");
     }
-#endif
 
     uavcan::NodeInfoRetriever retriever(node);
 
