@@ -10,7 +10,6 @@
 #include "wheel_encoders_handler.hpp"
 #include "can_io_driver.h"
 //#include "sensor_handler.h"
-//#include "uwb_position_handler.h"
 #include <can/uavcan_node.h>
 #include "control_panel.h"
 
@@ -130,10 +129,6 @@ static void main(std::string can_iface, uint8_t id)
 
     if (sensor_handler_init(node, &bus_enumerator) < 0) {
         ERROR("sensor init");
-    }
-
-    if (uwb_position_handler_init(node) < 0) {
-        ERROR("UWB TagPosition init");
     }
 #endif
 
