@@ -27,7 +27,10 @@ template <
     uint32_t TopicMsgId>
 class UavcanToMessagebusProxy {
     struct TopicData {
-        TopicMessage data;
+        // we store a pointer to data, as TopicData itself might be moved as we
+        // add more topics, but we do not want to move the data buffer, as it
+        // is also referenced in other places
+        std::unique_ptr<TopicMessage> data;
         condvar_wrapper_t var;
         messagebus_topic_t topic;
     };
@@ -44,9 +47,9 @@ public:
     // Constructor. Takes a bus enumerator that will be used to gather the
     // sender's board name from received messages, as well as the messagebus to
     // send messages to.
-    UavcanToMessagebusProxy(bus_enumerator_t* be, messagebus_t* bus)
+    UavcanToMessagebusProxy(bus_enumerator_t* be, messagebus_t* bus_)
         : bus_enumerator(be)
-        , msgbus(bus)
+        , msgbus(bus_)
     {
         metadata.fields = TopicFields;
         metadata.msgid = TopicMsgId;
@@ -66,10 +69,10 @@ public:
 
     // Starts a listener for the provided UAVCAN type on the node, and starts
     // forwarding messages.
-    void start(uavcan::INode& node)
+    int start(uavcan::INode& node)
     {
         subscriber = std::make_unique<uavcan::Subscriber<UavcanMessage>>(node);
-        subscriber->start([&](const uavcan::ReceivedDataStructure<UavcanMessage>& msg) {
+        return subscriber->start([&](const uavcan::ReceivedDataStructure<UavcanMessage>& msg) {
             process(msg, msg.getSrcNodeID().get());
         });
     }
@@ -98,19 +101,19 @@ protected:
 
     messagebus_topic_t* find_or_create_topic(std::string topic_name)
     {
-        // If the topic already exists, return it immediately
         auto elem = topic_map.find(topic_name);
         if (elem != topic_map.end()) {
             return &elem->second.topic;
         }
 
         // Otherwise create it from scratch and store it in the map
-        topic_map.insert({topic_name, {}});
+        topic_map.insert({topic_name, TopicData()});
+        topic_map[topic_name].data = std::make_unique<TopicMessage>();
 
         messagebus_topic_init(&topic_map[topic_name].topic,
                               &topic_map[topic_name].var,
                               &topic_map[topic_name].var,
-                              &topic_map[topic_name].data, sizeof(TopicMessage));
+                              topic_map[topic_name].data.get(), sizeof(TopicMessage));
         topic_map[topic_name].topic.metadata = &metadata;
         messagebus_advertise_topic(msgbus, &topic_map[topic_name].topic, topic_name.c_str());
 
