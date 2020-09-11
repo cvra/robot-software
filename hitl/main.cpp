@@ -11,6 +11,7 @@
 #include "absl/flags/usage.h"
 #include "motor_board_emulator.h"
 #include "wheel_encoders_emulator.h"
+#include "sensor_board_emulator.h"
 #include <error/error.h>
 #include "logging.h"
 #include "viewer.h"
@@ -212,10 +213,13 @@ int main(int argc, char** argv)
     UavcanMotorEmulator left_motor(iface, "left-wheel", board_id++);
     UavcanMotorEmulator right_motor(iface, "right-wheel", board_id++);
     WheelEncoderEmulator wheels(iface, "encoders", board_id++);
+    SensorBoardEmulator sensor(iface, "front-left-sensor", board_id++);
+    sensor.set_distance(42);
 
     right_motor.start();
     left_motor.start();
     wheels.start();
+    sensor.start();
 
     auto cups = create_cups(world);
 

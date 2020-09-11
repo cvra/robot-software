@@ -14,6 +14,7 @@ add_executable(motor_board_emulator
     main.cpp
     motor_board_emulator.cpp
     wheel_encoders_emulator.cpp
+    sensor_board_emulator.cpp
     viewer.cpp
     png_loader.cpp
 )
