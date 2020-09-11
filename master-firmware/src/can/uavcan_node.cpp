@@ -9,7 +9,7 @@
 #include "motor_driver_uavcan.hpp"
 #include "wheel_encoders_handler.hpp"
 #include "can_io_driver.h"
-//#include "sensor_handler.h"
+#include "sensor_handler.h"
 #include <can/uavcan_node.h>
 #include "control_panel.h"
 
@@ -127,10 +127,11 @@ static void main(std::string can_iface, uint8_t id)
         ERROR("beacon signal handler");
     }
 
+#endif
+
     if (sensor_handler_init(node, &bus_enumerator) < 0) {
         ERROR("sensor init");
     }
-#endif
 
     res = emergency_stop_init(node);
     if (res != 0) {

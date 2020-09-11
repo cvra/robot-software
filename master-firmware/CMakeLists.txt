@@ -186,6 +186,7 @@ add_executable(master-firmware
     src/can/wheel_encoders_handler.cpp
     src/can/emergency_stop_handler.cpp
     src/can/motor_feedback_streams_handler.cpp
+    src/can/sensor_handler.cpp
     src/can/can_io_driver.cpp
     src/control_panel.cpp
     src/config.c
