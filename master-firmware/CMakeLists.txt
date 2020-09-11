@@ -50,6 +50,17 @@ cvra_add_test(TARGET master_test
     msgbus_mocks_synchronization
 )
 
+cvra_add_test(TARGET uavcan_tests
+    SOURCES
+    tests/uavcan_to_messagebus_test.cpp
+    DEPENDENCIES
+    master_lib
+    uavcan
+    uavcan_linux
+    msgbus
+    msgbus_mocks_synchronization
+)
+
 # List of all protobuf files
 set(PROTOSRC
     protobuf/ally_position.proto
