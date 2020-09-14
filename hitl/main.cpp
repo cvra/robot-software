@@ -12,6 +12,7 @@
 #include "motor_board_emulator.h"
 #include "wheel_encoders_emulator.h"
 #include "sensor_board_emulator.h"
+#include "actuator_board_emulator.h"
 #include <error/error.h>
 #include "logging.h"
 #include "viewer.h"
@@ -216,10 +217,16 @@ int main(int argc, char** argv)
     SensorBoardEmulator sensor(iface, "front-left-sensor", board_id++);
     sensor.set_distance(42);
 
+    ActuatorBoardEmulator actuator(iface, "actuator-front-center", board_id++);
+
+    float pressure[2] = {50e3, 80e3};
+    actuator.set_pressure(pressure);
+
     right_motor.start();
     left_motor.start();
     wheels.start();
     sensor.start();
+    actuator.start();
 
     auto cups = create_cups(world);
 

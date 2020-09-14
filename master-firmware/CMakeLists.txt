@@ -72,6 +72,7 @@ set(PROTOSRC
     protobuf/sensors.proto
     protobuf/strategy.proto
     protobuf/Timestamp.proto
+    protobuf/actuators.proto
 )
 
 # Generater .pb.c filenames from .proto filenames
@@ -187,6 +188,7 @@ add_executable(master-firmware
     src/can/emergency_stop_handler.cpp
     src/can/motor_feedback_streams_handler.cpp
     src/can/sensor_handler.cpp
+    src/can/actuator_handler.cpp
     src/can/can_io_driver.cpp
     src/control_panel.cpp
     src/config.c

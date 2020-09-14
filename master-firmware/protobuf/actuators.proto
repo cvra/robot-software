@@ -1,0 +1,10 @@
+syntax = "proto2";
+
+import "nanopb.proto";
+
+message ActuatorFeedback {
+    option (nanopb_msgopt).msgid = 16;
+    repeated float pressure = 1
+        [ (nanopb).fixed_count = true, (nanopb).max_count = 2 ];
+    required bool digital_input = 2;
+};
