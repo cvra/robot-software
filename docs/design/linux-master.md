@@ -146,8 +146,8 @@ We could potentially have the robot generate a hotspot, to which we could connec
 Task                                                                      | Done | Owner      | Work estimate
 --------------------------------------------------------------------------|-|-----------|---------------
 **Electronics**                                                                      |   |            | **Total: 6**
-Schematic for hardware extension for Pi                                              |   |            | 2
-Routing the PCB                                                                      |   |            | 2
+Schematic for hardware extension for Pi                                              | ✔️ |            | 2
+Routing the PCB                                                                      | ✔️ |            | 2
 PCB Assembly                                                                         |   |            | 1
 Write a firmware to read wheelbase encoders and send it over CAN (running on nucleo) |   | nuft       | 1
 **Linux setup**                                                                      |   |            | **Total: 10**
@@ -162,6 +162,6 @@ Rewrite debug shell to listen over TCP instead of UART                          
 Read encoders from CAN instead of from hardware directly.                            | ✔️ |            | 1
 Port rest of the code required for wheelbase control.                                | ✔️ |            | 1
 Manipulate LEDs using sysfs instead of ChibiOS API                                   | ✔️  | antoinealb | 1
-Reads front panel buttons using sysfs instead of ChibiOS API                         |   |            | 1
+Reads front panel buttons using libgpiod instead of ChibiOS API                         | ✔️ |            | 1
 Port rest of the code required to play a match                                       |   |            | 2
 Change HMI backend to use SDL API (might require Linux setup on Pi)                  |   | antoinealb | 1
