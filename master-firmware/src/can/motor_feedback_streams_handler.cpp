@@ -18,7 +18,7 @@ static void current_pid_cb(const ReceivedDataStructure<feedback::CurrentPID>& ms
     int id = msg.getSrcNodeID().get();
     motor_driver_t* driver;
     driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(enumerator, id);
-    if (driver != NULL) {
+    if (driver != nullptr) {
         motor_driver_set_stream_value(driver, MOTOR_STREAM_CURRENT, msg.current);
         motor_driver_set_stream_value(driver, MOTOR_STREAM_CURRENT_SETPT, msg.current_setpoint);
         motor_driver_set_stream_value(driver, MOTOR_STREAM_MOTOR_VOLTAGE, msg.motor_voltage);
@@ -31,7 +31,7 @@ static void velocity_pid_cb(const ReceivedDataStructure<feedback::VelocityPID>& 
     motor_driver_t* driver;
     driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(enumerator, id);
 
-    if (driver != NULL) {
+    if (driver != nullptr) {
         motor_driver_set_stream_value(driver, MOTOR_STREAM_VELOCITY, msg.velocity);
         motor_driver_set_stream_value(driver,
                                       MOTOR_STREAM_VELOCITY_SETPT,
@@ -44,7 +44,7 @@ static void position_pid_cb(const ReceivedDataStructure<feedback::PositionPID>& 
     int id = msg.getSrcNodeID().get();
     motor_driver_t* driver;
     driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(enumerator, id);
-    if (driver != NULL) {
+    if (driver != nullptr) {
         motor_driver_set_stream_value(driver, MOTOR_STREAM_POSITION, msg.position);
         motor_driver_set_stream_value(driver,
                                       MOTOR_STREAM_POSITION_SETPT,
@@ -57,7 +57,7 @@ static void index_cb(const ReceivedDataStructure<feedback::Index>& msg)
     int id = msg.getSrcNodeID().get();
     motor_driver_t* driver;
     driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(enumerator, id);
-    if (driver != NULL) {
+    if (driver != nullptr) {
         motor_driver_set_stream_value(driver, MOTOR_STREAM_INDEX, msg.position);
         driver->stream.value_stream_index_update_count = msg.update_count;
     }
@@ -68,7 +68,7 @@ static void motor_pos_cb(const ReceivedDataStructure<feedback::MotorPosition>& m
     int id = msg.getSrcNodeID().get();
     motor_driver_t* driver;
     driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(enumerator, id);
-    if (driver != NULL) {
+    if (driver != nullptr) {
         motor_driver_set_stream_value(driver, MOTOR_STREAM_POSITION, msg.position);
         motor_driver_set_stream_value(driver, MOTOR_STREAM_VELOCITY, msg.velocity);
     }
@@ -79,7 +79,7 @@ static void torque_cb(const ReceivedDataStructure<feedback::MotorTorque>& msg)
     int id = msg.getSrcNodeID().get();
     motor_driver_t* driver;
     driver = (motor_driver_t*)bus_enumerator_get_driver_by_can_id(enumerator, id);
-    if (driver != NULL) {
+    if (driver != nullptr) {
         motor_driver_set_stream_value(driver, MOTOR_STREAM_MOTOR_TORQUE, msg.torque);
         motor_driver_set_stream_value(driver, MOTOR_STREAM_POSITION, msg.position);
     }

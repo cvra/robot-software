@@ -34,7 +34,7 @@ TEST(PIDTestGroup, PControllerAtInit)
     CHECK_EQUAL(1., kp);
     CHECK_EQUAL(0., ki);
     CHECK_EQUAL(0., kd);
-    CHECK_EQUAL(1., pid_get_frequency(&pid))
+    CHECK_EQUAL(1., pid_get_frequency(&pid));
 }
 
 TEST(PIDTestGroup, CanSetGains)

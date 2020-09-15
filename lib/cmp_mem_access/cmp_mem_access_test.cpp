@@ -110,7 +110,7 @@ TEST(CMPMemAccess, PosValid)
 {
     static char testbuf[4] = {0, 0, 0, 0};
     cmp_mem_access_init(&cmp, &ma, &testbuf, sizeof(testbuf));
-    CHECK_TRUE(cmp_mem_access_pos_is_valid(&ma, 0))
-    CHECK_TRUE(cmp_mem_access_pos_is_valid(&ma, 3))
-    CHECK_FALSE(cmp_mem_access_pos_is_valid(&ma, 4))
+    CHECK_TRUE(cmp_mem_access_pos_is_valid(&ma, 0));
+    CHECK_TRUE(cmp_mem_access_pos_is_valid(&ma, 3));
+    CHECK_FALSE(cmp_mem_access_pos_is_valid(&ma, 4));
 }

@@ -45,7 +45,7 @@ TEST_GROUP (ProxyTestGroup) {
     Proxy proxy{&be, &bus};
     cvra::proximity_beacon::Signal signal;
 
-    void setup()
+    void setup() override
     {
         bus_enumerator_init(&be, bea, 10);
         bus_enumerator_add_node(&be, "myboard", nullptr);

@@ -117,7 +117,7 @@ void position_manage(struct robot_position* pos)
 
     rs = pos->rs;
     /* here we could raise an error */
-    if (rs == NULL) {
+    if (rs == nullptr) {
         return;
     }
 
