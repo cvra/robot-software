@@ -6,30 +6,32 @@
 #include "gui/MenuPage.h"
 #include "gui/Page.h"
 #include "absl/strings/str_cat.h"
+#include "absl/strings/str_replace.h"
+#include "protobuf/actuators.pb.h"
+
+#include "main.h"
 
 #include "can/actuator_driver.h"
-
 class ActuatorPage : public Page {
     static const int BUTTON_HEIGHT = 70;
     static const int BUTTON_WIDTH = 145;
 
     GHandle pump0_button, pump1_button;
+    GHandle digital_in_label;
     GHandle pressure0_label, pressure1_label;
     GHandle table_button, reef_button, high_button;
-    actuator_driver_t* driver;
-    char name[32];
+    std::string board_name;
 
 public:
-    ActuatorPage(actuator_driver_t* drv, const char* _name)
+    ActuatorPage(const char* _name)
+        : board_name(_name)
     {
-        memset(name, 0, sizeof(name));
-        strncpy(name, _name, sizeof(name) - 1);
-        driver = drv;
     }
 
     virtual const char* get_name() override
     {
-        return name;
+        std::string prefix = "actuator-";
+        return board_name.c_str() + prefix.length();
     }
 
     virtual void on_enter(GHandle parent) override
@@ -132,10 +134,28 @@ public:
             wi.text = "XX kPa";
             pressure1_label = gwinLabelCreate(nullptr, &wi);
         }
+
+        {
+            GWidgetInit wi;
+
+            gwinWidgetClearInit(&wi);
+
+            wi.g.show = gTrue;
+            wi.g.parent = parent;
+            wi.g.width = BUTTON_WIDTH;
+            wi.g.height = BUTTON_HEIGHT;
+            wi.g.y = 15 + 2 * (15 + BUTTON_HEIGHT);
+            wi.g.x = 10 + 1 * (10 + BUTTON_WIDTH);
+            wi.text = "UNKNOWN";
+            digital_in_label = gwinLabelCreate(nullptr, &wi);
+        }
     }
 
     virtual void on_event(GEvent* event) override
     {
+        extern bus_enumerator_t bus_enumerator;
+        auto* driver = reinterpret_cast<actuator_driver_t*>(bus_enumerator_get_driver(&bus_enumerator, board_name.c_str()));
+
         if (event->type == GEVENT_GWIN_BUTTON) {
             auto wevent = reinterpret_cast<GEventGWinButton*>(event);
             if (wevent->gwin == pump0_button) {
@@ -158,5 +178,41 @@ public:
 
     virtual void on_timer() override
     {
+        std::string topic_name = absl::StrReplaceAll(board_name, {{"actuator-", "/actuator/"}});
+        auto* topic = messagebus_find_topic(&bus, topic_name.c_str());
+
+        ActuatorFeedback msg;
+
+        if (!topic) {
+            const char* err = "no topic";
+            gwinSetText(pressure0_label, err, false);
+            gwinSetText(pressure1_label, err, false);
+            gwinSetText(digital_in_label, err, false);
+            return;
+        }
+
+        bool success = messagebus_topic_read(topic, &msg, sizeof(msg));
+
+        if (!success) {
+            const char* err = "no data";
+            gwinSetText(pressure0_label, err, false);
+            gwinSetText(pressure1_label, err, false);
+            gwinSetText(digital_in_label, err, false);
+            return;
+        }
+
+        std::string text;
+
+        text = absl::StrCat(msg.pressure[0] / 1000, " kPa");
+        gwinSetText(pressure0_label, text.c_str(), true);
+
+        text = absl::StrCat(msg.pressure[1] / 1000, " kPa");
+        gwinSetText(pressure1_label, text.c_str(), true);
+
+        if (msg.digital_input) {
+            gwinSetText(digital_in_label, "HIGH", false);
+        } else {
+            gwinSetText(digital_in_label, "LOW", false);
+        }
     }
 };

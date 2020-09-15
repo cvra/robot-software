@@ -46,7 +46,14 @@ ActuatorBoardEmulator::ActuatorBoardEmulator(std::string can_iface, std::string 
             return;
         }
 
-        // TODO(antoinealb): Do something with the message
+        {
+            absl::MutexLock _(&lock);
+            for (int i = 0; i < 2; i++) {
+                pump_pwm[i] = msg.pump[i];
+                solenoid[i] = msg.solenoid[i];
+                servo_pos[i] = msg.servo_trajectories[i].position;
+            }
+        }
     });
 }
 

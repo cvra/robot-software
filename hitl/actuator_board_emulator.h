@@ -25,6 +25,10 @@ class ActuatorBoardEmulator {
     int pressure_pa[2] GUARDED_BY(lock);
     bool digital_input GUARDED_BY(lock);
 
+    float pump_pwm[2] GUARDED_BY(lock);
+    bool solenoid[2] GUARDED_BY(lock);
+    float servo_pos[2] GUARDED_BY(lock);
+
 public:
     ActuatorBoardEmulator(std::string can_iface, std::string board_name, int node_number);
     void start();
@@ -38,6 +42,24 @@ public:
     {
         absl::MutexLock _(&lock);
         digital_input = val;
+    }
+
+    float get_pwm(int index)
+    {
+        absl::ReaderMutexLock _(&lock);
+        return pump_pwm[index];
+    }
+
+    bool get_solenoid(int index)
+    {
+        absl::ReaderMutexLock _(&lock);
+        return solenoid[index];
+    }
+
+    float get_servo_pos(int index)
+    {
+        absl::ReaderMutexLock _(&lock);
+        return servo_pos[index];
     }
 
 private:

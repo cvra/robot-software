@@ -29,12 +29,12 @@ static void gui_thread()
 
     auto base_menu = MenuPage(m, "Base", &base_position_page, &base_move_page);
 
-    auto front_left_page = ActuatorPage(&actuator_front_left, "Front left");
-    auto front_center_page = ActuatorPage(&actuator_front_center, "Front center");
-    auto front_right_page = ActuatorPage(&actuator_front_right, "Front right");
-    auto back_left_page = ActuatorPage(&actuator_back_left, "Back left");
-    auto back_center_page = ActuatorPage(&actuator_back_center, "Back center");
-    auto back_right_page = ActuatorPage(&actuator_back_right, "Back right");
+    auto front_left_page = ActuatorPage("actuator-front-left");
+    auto front_center_page = ActuatorPage("actuator-front-center");
+    auto front_right_page = ActuatorPage("actuator-front-right");
+    auto back_left_page = ActuatorPage("actuator-back-left");
+    auto back_center_page = ActuatorPage("actuator-back-left");
+    auto back_right_page = ActuatorPage("actuator-back-right");
 
     auto actuator_menu = MenuPage(m, "Actuators",
                                   &front_left_page,

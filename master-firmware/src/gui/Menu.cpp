@@ -42,7 +42,7 @@ void Menu::switch_to_page(Page* page)
         gwinDisable(back_button);
     }
     this->page->on_enter(page_container);
-    gwinSetText(page_title, page->get_name(), gFalse);
+    gwinSetText(page_title, page->get_name(), false);
 }
 
 void Menu::pop_page()

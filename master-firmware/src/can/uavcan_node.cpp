@@ -5,6 +5,7 @@
 #include "emergency_stop_handler.hpp"
 #include "motor_feedback_streams_handler.hpp"
 //#include "beacon_signal_handler.hpp"
+#include "actuator_driver_uavcan.hpp"
 #include "motor_driver.h"
 #include "motor_driver_uavcan.hpp"
 #include "wheel_encoders_handler.hpp"

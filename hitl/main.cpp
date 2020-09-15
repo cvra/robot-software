@@ -261,6 +261,15 @@ int main(int argc, char** argv)
             position_log << pos.y << ",";
             position_log << vel.x << ",";
             position_log << vel.y << std::endl;
+
+            /* Dummy simulation, to test that the integration works. */
+            float pressures[2];
+            pressures[0] = actuator.get_servo_pos(0) * 1000 * 50e3;
+            pressures[1] = actuator.get_pwm(0) * 50e3;
+            actuator.set_pressure(pressures);
+            actuator.set_digital_input(actuator.get_solenoid(0));
+
+            NOTICE("pressure %.3f %.3f", pressures[0], pressures[1]);
         }
     });
 
