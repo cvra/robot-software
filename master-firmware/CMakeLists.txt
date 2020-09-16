@@ -248,7 +248,7 @@ add_custom_target(master-firmware.ipk
 
 add_library(gfxconf INTERFACE)
 target_include_directories(gfxconf INTERFACE
-    ../ugfx_demo
+    src/gfxconf
 )
 
 if (APPLE) # MacOS
