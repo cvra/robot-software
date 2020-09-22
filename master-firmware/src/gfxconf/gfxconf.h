@@ -53,7 +53,7 @@
 // #define GWIN_FOCUS_HIGHLIGHT_WIDTH                   1
 #define GWIN_NEED_LABEL GFXON
 #define GWIN_NEED_BUTTON GFXON
-#define GWIN_BUTTON_LAZY_RELEASE             GFXON
+#define GWIN_BUTTON_LAZY_RELEASE GFXON
 #define GWIN_NEED_SLIDER GFXON
 #define GWIN_SLIDER_NOSNAP GFXON
 //        #define GWIN_SLIDER_DEAD_BAND                5

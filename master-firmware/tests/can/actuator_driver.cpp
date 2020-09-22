@@ -28,13 +28,13 @@ TEST(ActuatorDriverTestGroup, CanRegisterCANName)
     STRCMP_EQUAL(name, drv.can_name);
 
     /* checks that this is known to the bus enumerator */
-    auto *p = bus_enumerator_get_driver(&be, name);
+    auto* p = bus_enumerator_get_driver(&be, name);
     POINTERS_EQUAL(&drv, p);
 }
 
 TEST(ActuatorDriverTestGroup, RegisterCreatesParameters)
 {
-    auto *p = parameter_namespace_find(&ns, name);
+    auto* p = parameter_namespace_find(&ns, name);
     CHECK_TRUE(p != nullptr);
 
     std::vector<std::string> expected_params = {"high_position", "table_pickup_position", "reef_pickup_position", "pump_pwm"};
