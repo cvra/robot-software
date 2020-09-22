@@ -20,14 +20,22 @@ pushd lib/uavcan/libuavcan/dsdl_compiler/
 python setup.py install
 popd
 
-pushd lib/nanopb/nanopb/generator/proto
-make
-popd
+if [ "$BUILD_TYPE" != "raspberry" ]
+then
+    pushd lib/nanopb/nanopb/generator/proto
+    make
+    popd
+fi
 
 if [ "$BUILD_TYPE" == "build-cmake" -o "$BUILD_TYPE" == "build-packager" ]
 then
     wget https://developer.arm.com/-/media/Files/downloads/gnu-rm/8-2018q4/gcc-arm-none-eabi-8-2018-q4-major-linux.tar.bz2 -O arm-gcc-linux.tar.bz2
     tar -xf arm-gcc-linux.tar.bz2
+fi
+
+if [ "$BUILD_TYPE" == "raspberry" ]
+then
+    docker pull antoinealb/cvra-sdk
 fi
 
 if [ "$BUILD_TYPE" == "tests" ]
