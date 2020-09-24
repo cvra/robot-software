@@ -348,7 +348,7 @@
  * @note    Disabling this option saves both code and data space.
  */
 #if !defined(SPI_USE_CIRCULAR) || defined(__DOXYGEN__)
-#define SPI_USE_CIRCULAR                    FALSE
+#define SPI_USE_CIRCULAR FALSE
 #endif
 
 /**
