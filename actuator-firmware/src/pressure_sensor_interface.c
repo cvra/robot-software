@@ -18,7 +18,9 @@ void mpr_start(void)
 
 static void mpr_select(void* arg)
 {
+#if SPI_USE_MUTUAL_EXCLUSION == TRUE
     spiAcquireBus(&SPID3);
+#endif
 
     if ((int)arg == 0) {
         palClearPad(GPIOA, GPIOA_CS1);
@@ -36,7 +38,9 @@ static void mpr_unselect(void* arg)
         palSetPad(GPIOA, GPIOA_CS2);
     }
 
+#if SPI_USE_MUTUAL_EXCLUSION == TRUE
     spiReleaseBus(&SPID3);
+#endif
 }
 
 static void mpr_transmit(void* arg, const uint8_t* tx, uint8_t* rx, size_t n)
