@@ -106,9 +106,22 @@ void main(unsigned int id, const char* name)
 }
 } // namespace uavcan_node
 
+struct uavcan_args {
+    unsigned int node_id;
+    const char* node_name;
+};
+
+static void uavcan_main(void* arg)
+{
+    struct uavcan_args* args = static_cast<struct uavcan_args*>(arg);
+    uavcan_node::main(args->node_id, args->node_name);
+}
+
 void uavcan_start(unsigned int node_id, const char* node_name)
 {
-    uavcan_node::main(node_id, node_name);
+    static THD_WORKING_AREA(uavcan_wa, 4500);
+    static struct uavcan_args args = {node_id, node_name};
+    chThdCreateStatic(uavcan_wa, sizeof(uavcan_wa), HIGHPRIO, uavcan_main, &args);
 }
 
 void uavcan_set_node_is_ok(int ok)
