@@ -21,12 +21,6 @@ THD_FUNCTION(blinker, arg)
     }
 }
 
-static void blinker_start(void)
-{
-    static THD_WORKING_AREA(blinker_wa, 256);
-    chThdCreateStatic(blinker_wa, sizeof(blinker_wa), LOWPRIO, blinker, NULL);
-}
-
 void _unhandled_exception(void)
 {
     chSysHalt("unhandled exception");
@@ -49,7 +43,6 @@ int main(void)
     board_reset_pressure_sensors();
 
     analog_start();
-    blinker_start();
 
     servo_start();
     mpr_start();
@@ -61,8 +54,10 @@ int main(void)
 
     NOTICE("Board name=\"%s\", ID=%d", config.board_name, config.ID);
 
-    // Never returns
     uavcan_start(config.ID, config.board_name);
+
+    // Never returns
+    blinker(NULL);
 
     return 0;
 }
