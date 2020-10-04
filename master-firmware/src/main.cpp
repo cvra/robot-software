@@ -10,8 +10,8 @@
 
 #include "main.h"
 #include "control_panel.h"
-//#include <shell.h>
-//#include "commands.h"
+#include "shell/shell.h"
+#include "shell/commands.h"
 #include "debug/log.h"
 #include "can/bus_enumerator.h"
 #include <msgbus/posix/port.h>
@@ -48,6 +48,7 @@ ABSL_FLAG(std::string, can_iface, "vcan0", "SocketCAN interface to use. If empty
 ABSL_FLAG(bool, verbose, false, "Enable verbose output");
 ABSL_FLAG(bool, enable_gui, true, "Enable on-robot GUI");
 ABSL_FLAG(std::string, robot_config, "simulation", "Which config to load, can be order, chaos or simulation.");
+ABSL_FLAG(int, shell_port, 1234, "TCP port to use for debug shell.");
 
 void config_load_err_cb(void* arg, const char* id, const char* err)
 {
@@ -122,6 +123,8 @@ int main(int argc, char** argv)
 
     /* Initialize the interthread communication bus. */
     messagebus_init(&bus, &bus_sync, &bus_sync);
+
+    shell_tcp_serve(shell_commands, absl::GetFlag(FLAGS_shell_port));
 
     // udp_topic_register_callbacks();
 

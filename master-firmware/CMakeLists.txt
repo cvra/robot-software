@@ -216,6 +216,7 @@ add_executable(master-firmware
     src/strategy/actions_impl.cpp
     src/strategy.cpp
     src/robot_helpers/trajectory_helpers.cpp
+    src/shell/commands.cpp
 )
 
 target_link_libraries(master-firmware PUBLIC
@@ -235,6 +236,7 @@ target_link_libraries(master-firmware PUBLIC
     config_data
     master_config_structure
     gpioinput
+    shell
 )
 
 target_include_directories(master-firmware PUBLIC src
