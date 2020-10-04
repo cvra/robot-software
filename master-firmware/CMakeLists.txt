@@ -185,6 +185,12 @@ add_library(gpioinput
 
 target_link_libraries(gpioinput PUBLIC gpiod error absl::base)
 
+add_library(shell
+    src/shell/shell.cpp
+)
+
+target_link_libraries(shell PUBLIC error absl::container absl::strings)
+
 add_executable(master-firmware
     src/main.cpp
     src/debug/log.c
