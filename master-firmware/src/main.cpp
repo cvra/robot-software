@@ -124,7 +124,7 @@ int main(int argc, char** argv)
     /* Initialize the interthread communication bus. */
     messagebus_init(&bus, &bus_sync, &bus_sync);
 
-    shell_tcp_serve(shell_commands, absl::GetFlag(FLAGS_shell_port));
+    std::thread shell_thread(shell_tcp_serve, shell_commands, absl::GetFlag(FLAGS_shell_port));
 
     // udp_topic_register_callbacks();
 
