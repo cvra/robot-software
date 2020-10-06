@@ -111,3 +111,21 @@ TEST(PressureSensorDriverTestGroup, CheckIfBusy)
     CHECK_TRUE(mpr_status_is_busy(0x60));
     CHECK_FALSE(mpr_status_is_busy(0x40));
 }
+
+TEST_GROUP (ConversionTestGroup) {
+};
+
+TEST(ConversionTestGroup, ConvertMinPressure)
+{
+    uint32_t original = 0x19999A;
+    float pa = mpr_pressure_raw_to_pascal(original);
+    DOUBLES_EQUAL(0., pa, 0.001);
+}
+
+TEST(ConversionTestGroup, ConvertMaxPressure)
+{
+    uint32_t original = 0xe66666;
+    float pa = mpr_pressure_raw_to_pascal(original);
+    float pmax_in_pascal = 103421;
+    DOUBLES_EQUAL(pmax_in_pascal, pa, 0.001);
+}

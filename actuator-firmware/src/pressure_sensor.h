@@ -44,6 +44,8 @@ int mpr_status_is_error(uint8_t status);
 /** Returns true if the given device status represents a busy device. */
 int mpr_status_is_busy(uint8_t status);
 
+float mpr_pressure_raw_to_pascal(uint32_t raw_pressure);
+
 #ifdef __cplusplus
 }
 #endif
