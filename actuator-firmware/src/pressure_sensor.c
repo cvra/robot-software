@@ -70,7 +70,6 @@ int mpr_status_is_busy(uint8_t status)
     return (status & (1 << 5));
 }
 
-
 float mpr_pressure_raw_to_pascal(uint32_t raw_pressure)
 {
     /* See page 19 of the MPR datasheet */

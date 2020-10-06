@@ -11,12 +11,10 @@ void mpr_start(void)
         .circular = false,
         .end_cb = NULL,
         .cr1 = SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_BR_0,
-        .cr2 = SPI_CR2_DS_2 | SPI_CR2_DS_1 | SPI_CR2_DS_0
-    };
+        .cr2 = SPI_CR2_DS_2 | SPI_CR2_DS_1 | SPI_CR2_DS_0};
 
     spiStart(&SPID3, &config);
 }
-
 
 static void mpr_select(void* arg)
 {
