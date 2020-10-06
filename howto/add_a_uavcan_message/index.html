@@ -152,14 +152,12 @@ However, we want this to happen through CAN, in order to learn how to implement 
     <span class="c1">// blinker_start();</span>
 </code></pre></div>
 
-
 <p>Then, rebuild the new firmware for the CAN IO board, by running the following commands:</p>
 <div class="codehilite"><pre><span></span><code><span class="nb">cd</span> can-io-firmware/
 packager
 make dsdlc
 make <span class="nv">USE_BOOTLOADER</span><span class="o">=</span>yes
 </code></pre></div>
-
 
 <p>We can now power the bus through USB, and to flash the board:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Note that the path to the serial port (/dev/...) changes from computer</span>
@@ -169,7 +167,6 @@ can_dongle_power /dev/tty.usbmodem3031 on
 <span class="c1"># Check that the board is detected</span>
 bootloader_read_config --all /dev/tty.usbmodem3031
 </code></pre></div>
-
 
 <p>You should get the following output.
 If you get an error you can retry, as it can get stuck.</p>
@@ -184,7 +181,6 @@ If you get an error you can retry, as it can get stuck.</p>
     <span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
-
 
 <p>This is the configuration of the bootloader for this board.
 It is not erased when reflashing and can be read from the application.</p>
@@ -203,7 +199,6 @@ It is not erased when reflashing and can be read from the application.</p>
     --run <span class="se">\</span>
     <span class="m">1</span>
 </code></pre></div>
-
 
 <p>As you can see the bootloader requires a few flags to flash the board.
 Fortunately most of them do not change very often, or are easy to find.
@@ -225,7 +220,6 @@ The request here contains just a single boolean, to indicate the desired LED sta
 ---
 int32 data
 </code></pre></div>
-
 
 <p>Now we must run <code>make dsdlc</code> again.
 This will generate the C++ code required to serialize and interpret our new message type.</p>
@@ -262,7 +256,6 @@ This will generate the C++ code required to serialize and interpret our new mess
 <span class="p">}</span>
 </code></pre></div>
 
-
 <p>Also create the associated header, <code>can-io-firmware/src/uavcan/LEDCommand_handler.hpp</code>.
 In this file we will put the prototype of our handler:</p>
 <div class="codehilite"><pre><span></span><code><span class="cp">#ifndef LEDCOMMAND_HANDLER_HPP</span>
@@ -278,7 +271,6 @@ In this file we will put the prototype of our handler:</p>
 <span class="cp">#endif</span>
 </code></pre></div>
 
-
 <p>We can then add this new file to the build system, in <code>can-io-firmware/package.yml</code>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># [...]</span>
 <span class="nt">target.arm</span><span class="p">:</span>
@@ -289,12 +281,10 @@ In this file we will put the prototype of our handler:</p>
 <span class="c1"># [...]</span>
 </code></pre></div>
 
-
 <p>Now you can regenerate the Makefiles (<code>packager</code>) and rebuild the binary:</p>
 <div class="codehilite"><pre><span></span><code>packager
 make <span class="nv">USE_BOOTLOADER</span><span class="o">=</span>yes
 </code></pre></div>
-
 
 <p>Finally, reflash it.
 You can use the same command as before, but you need to power cycle the board first, to put it back in bootloader mode.</p>
@@ -338,7 +328,6 @@ You can run it by running <code>cd can-io-firmware &amp;&amp; python blink.py</c
     <span class="k">except</span> <span class="n">uavcan</span><span class="o">.</span><span class="n">UAVCANException</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Node error:&quot;</span><span class="p">,</span> <span class="n">ex</span><span class="p">)</span>
 </code></pre></div>
-
 
 <h2 id="conclusion">Conclusion</h2>
 <p>In this tutorial, we saw how to define and use a custom message type for a new application.
