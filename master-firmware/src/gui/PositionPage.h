@@ -26,21 +26,21 @@ class PositionPage : public Page {
     }
 
 public:
-    virtual const char* get_name() override
+    const char* get_name() override
     {
         return "Position";
     }
 
-    virtual void on_enter(GHandle parent) override
+    void on_enter(GHandle parent) override
     {
         create_label(parent);
     }
 
-    virtual void on_event(GEvent*) override
+    void on_event(GEvent*) override
     {
     }
 
-    virtual void on_timer() override
+    void on_timer() override
     {
         auto x = 0, y = 0, a = 0;
 

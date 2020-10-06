@@ -168,14 +168,8 @@ int main(int argc, char** argv)
     position_manager_start();
     trajectory_manager_start();
 
-    // Shell manager initialization.
-    //shellInit();
-    //   shell_spawn((BaseSequentialStream*)&SDU1);
+    //strategy_play_game();
 
-    strategy_play_game();
-
-    //trajectory_d_rel(&robot.traj, 300);
-    /* just a simple test case */
     while (true) {
         std::this_thread::sleep_for(1s);
     }

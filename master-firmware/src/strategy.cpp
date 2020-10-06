@@ -107,20 +107,29 @@ static void wait_for_autoposition_signal()
     wait_for_color_selection();
 }
 
+goals::LighthouseEnabled lighthouse_enabled;
+actions::EnableLighthouse enable_lighthouse;
+goals::WindsocksUp windsocks_raised;
+
+actions::RaiseWindsock windsocks[2] = {{0}, {1}};
+
+std::vector<actions::NamedAction<StrategyState>*> strategy_get_actions()
+{
+    // Put all the actions the robot should consider in here.
+    return {{
+        &enable_lighthouse,
+        &windsocks[0],
+        &windsocks[1],
+    }};
+}
+
 void strategy_order_play_game(StrategyState& state, enum strat_color_t color)
 {
     messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
     goap::Action<StrategyState>* path[MAX_GOAP_PATH_LEN] = {nullptr};
 
-    goals::LighthouseEnabled lighthouse_enabled;
-    actions::EnableLighthouse enable_lighthouse;
-    goals::WindsocksUp windsocks_raised;
-
-    actions::RaiseWindsock windsocks[2] = {{0}, {1}};
-
     std::array<goap::Goal<StrategyState>*, 2> goals = {&lighthouse_enabled, &windsocks_raised};
-    std::array<goap::Action<StrategyState>*, 3> actions = {&enable_lighthouse, &windsocks[0], &windsocks[1]};
 
     /* Autoposition robot */
 #if 0
@@ -148,9 +157,19 @@ void strategy_order_play_game(StrategyState& state, enum strat_color_t color)
     trajectory_game_timer_reset();
 
     NOTICE("Starting game...");
+
+    auto actions = strategy_get_actions();
+    std::vector<goap::Action<StrategyState>*> action_ptrs;
+    std::transform(actions.begin(), actions.end(), std::back_inserter(action_ptrs),
+                   [](actions::NamedAction<StrategyState>* p) { return p; });
+
+    // Always find a non complete goal, find actions to fulfill it, then apply
+    // those actions.
     while (!trajectory_game_has_ended()) {
         for (auto* goal : goals) {
-            int len = planner.plan(state, *goal, actions.data(), actions.size(), path, MAX_GOAP_PATH_LEN);
+            int len = planner.plan(state, *goal,
+                                   action_ptrs.data(),
+                                   action_ptrs.size(), path, MAX_GOAP_PATH_LEN);
             for (int i = 0; i < len; i++) {
                 bool success = path[i]->execute(state);
                 messagebus_topic_publish(state_topic, &state, sizeof(state));

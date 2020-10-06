@@ -1,14 +1,11 @@
 #ifndef STRATEGY_H
 #define STRATEGY_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <vector>
+#include "strategy/actions.h"
 
 void strategy_play_game();
 
-#ifdef __cplusplus
-}
-#endif
+std::vector<actions::NamedAction<StrategyState>*> strategy_get_actions();
 
 #endif /* STRATEGY_H */

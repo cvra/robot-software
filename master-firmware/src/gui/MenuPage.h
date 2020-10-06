@@ -3,6 +3,7 @@
 #include <gfx.h>
 #include "Menu.h"
 #include "Page.h"
+#include <vector>
 
 class MenuPage : public Page {
     GHandle buttons[6];
