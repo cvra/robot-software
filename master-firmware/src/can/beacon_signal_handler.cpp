@@ -28,7 +28,9 @@ static void beacon_cb(const uavcan::ReceivedDataStructure<cvra::proximity_beacon
     angular_offset = parameter_scalar_get(angular_offset_p);
 
     BeaconSignal data;
-    data.timestamp.us = timestamp_get();
+
+    // TODO: replace this once the timestamp module is ported
+    data.timestamp.us = 0;
     data.range.range.distance = reflector_radius / tanf(msg.length / 2.);
     data.range.range.type = Range_RangeType_OTHER;
     data.range.angle = beacon_get_angle(msg.start_angle + angular_offset, msg.length);

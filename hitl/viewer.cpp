@@ -3,9 +3,12 @@
 #include <box2d/box2d.h>
 #include "viewer.h"
 #include <thread>
+#include "main.h"
 #include <GL/glut.h>
 
 std::vector<Renderable*>* renderables;
+
+int window_width, window_height;
 
 // Helper function to pass hex colors to OpenGL, as this is the most common
 // format when taking color from screens
@@ -41,6 +44,33 @@ void RobotRenderer::render()
     glVertex2f(0., 0.);
     glVertex2f(0.12, 0.);
     glEnd();
+    glPopMatrix();
+}
+
+void OpponentRenderer::render()
+{
+    b2Vec2 pos = opponent.GetPosition();
+
+    DEBUG_EVERY_N(10, "draw robot at %.3f, %.3f", pos.x, pos.y);
+
+    glPushMatrix();
+
+    glTranslatef(pos.x, pos.y, 0.);
+
+    const int sides = 100;
+
+    glBegin(GL_POLYGON);
+    hexColor(0xc0, 0x39, 0x2b);
+
+    for (int i = 0; i < sides; i++) {
+        float angle = 2 * M_PI * (float)i / sides;
+        float x = OpponentRobot::radius * cosf(angle);
+        float y = OpponentRobot::radius * sinf(angle);
+        glVertex2f(x, y);
+    }
+
+    glEnd();
+
     glPopMatrix();
 }
 
@@ -119,6 +149,9 @@ void system_resize(int width, int height)
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+
+    window_width = width;
+    window_height = height;
 }
 
 void display()
@@ -146,14 +179,28 @@ void on_timer(int /*value*/)
     glutTimerFunc(33, on_timer, 0);
 }
 
+void on_mouse(int button, int state, int x, int y)
+{
+    if (button != GLUT_LEFT_BUTTON || state != GLUT_DOWN) {
+        return;
+    }
+
+    float opp_x = 3. - 3. * x / window_width;
+    float opp_y = 2. * y / window_height;
+    opponent_set_position(opp_x, opp_y);
+}
+
 void viewer_init(int argc, char** argv)
 {
     glutInit(&argc, argv);
     glutInitWindowSize(600, 400);
+    window_width = 600;
+    window_height = 400;
     glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
     glutCreateWindow("CVRA");
 
     glutDisplayFunc(display);
+    glutMouseFunc(on_mouse);
     glutTimerFunc(33, on_timer, 0);
     glutReshapeFunc(system_resize);
 }

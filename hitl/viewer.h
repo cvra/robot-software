@@ -2,6 +2,7 @@
 
 #include "PhysicsRobot.h"
 #include "PhysicsCup.h"
+#include "OpponentRobot.h"
 #include <vector>
 #include <memory>
 
@@ -48,7 +49,21 @@ public:
     {
     }
     void render() override;
+    virtual ~TableRenderer() = default;
+};
+
+class OpponentRenderer : public Renderable {
+    OpponentRobot& opponent;
+
+public:
+    OpponentRenderer(OpponentRobot& opponent)
+        : opponent(opponent)
+    {
+    }
+
+    void render() override;
+    virtual ~OpponentRenderer() = default;
 };
 
 void viewer_init(int argc, char** argv);
-void startRendering(std::vector<Renderable*>* renderables);
+void startRendering(std::vector<Renderable*>* r);

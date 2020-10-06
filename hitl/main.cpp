@@ -14,10 +14,12 @@
 #include "wheel_encoders_emulator.h"
 #include "sensor_board_emulator.h"
 #include "actuator_board_emulator.h"
+#include "ProximityBeaconEmulator.h"
 #include <error/error.h>
 #include "logging.h"
 #include "viewer.h"
 #include "PhysicsRobot.h"
+#include "OpponentRobot.h"
 #include "PhysicsCup.h"
 #include "png_loader.h"
 
@@ -27,6 +29,8 @@ ABSL_FLAG(std::string, can_iface, "vcan0", "SocketCAN interface to connect the e
 ABSL_FLAG(std::string, position_log, "robot_pos.txt", "File in which to write the position log.");
 ABSL_FLAG(std::string, table_texture, "hitl/table.png", "File to use as table texture (PNG format).");
 ABSL_FLAG(bool, enable_gui, true, "Enables or not the graphical view.");
+
+OpponentRobot* opponent_robot = nullptr;
 
 float clamp(float min, float val, float max)
 {
@@ -206,6 +210,8 @@ int main(int argc, char** argv)
     float initial_heading = 0.;
     float pulse_per_mm = 162;
     PhysicsRobot robot(world, size, size, mass, pulse_per_mm, initial_pos, initial_heading);
+    OpponentRobot opponent(world, {3.f, 0.f});
+    opponent_robot = &opponent;
 
     logging_init();
 
@@ -223,11 +229,14 @@ int main(int argc, char** argv)
     float pressure[2] = {50e3, 80e3};
     actuator.set_pressure(pressure);
 
+    ProximityBeaconEmulator proximity_beacon(iface, "proximity-beacon", board_id++);
+
     right_motor.start();
     left_motor.start();
     wheels.start();
     sensor.start();
     actuator.start();
+    proximity_beacon.start();
 
     auto cups = create_cups(world);
 
@@ -242,16 +251,19 @@ int main(int argc, char** argv)
                 clamp(-f_max, right_motor.get_voltage(), f_max));
 
             // number of iterations taken from box2d manual
-            const int velocityIterations = 10;
-            const int posIterations = 30;
+            const int velocityIterations = 8;
+            const int posIterations = 3;
 
             world.Step(dt, velocityIterations, posIterations);
 
+            // Publish wheel encoders
             robot.AccumulateWheelEncoders(dt);
-
             int left, right;
             robot.GetWheelEncoders(left, right);
             wheels.set_encoders(-left, right);
+
+            // Publish beacon signal
+            proximity_beacon.set_positions(robot.GetPosition(), robot.GetAngle(), opponent.GetPosition());
 
             auto pos = robot.GetPosition();
             auto vel = robot.GetLinearVelocity();
@@ -287,7 +299,8 @@ int main(int argc, char** argv)
 
         TableRenderer table_renderer(texture_id);
         RobotRenderer robot_renderer(robot);
-        std::vector<Renderable*> renderables{&table_renderer, &robot_renderer};
+        OpponentRenderer opponent_renderer(opponent);
+        std::vector<Renderable*> renderables{&table_renderer, &robot_renderer, &opponent_renderer};
 
         for (auto& cup : cups) {
             renderables.push_back(&cup);
@@ -300,4 +313,10 @@ int main(int argc, char** argv)
     }
 
     return 0;
+}
+
+void opponent_set_position(float x, float y)
+{
+    NOTICE("opponent moved to %.2f; %.2f", x, y);
+    opponent_robot->SetPosition({x, y});
 }

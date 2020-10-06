@@ -13,7 +13,7 @@ master:
         right_wheel_correction_factor: 1.
     beacon:
         reflector_radius: 0.04 # in meters
-        angular_offset: 1.57 # in radians
+        angular_offset: 0. # in radians
     aversive:
         control:
             angle:

@@ -2,7 +2,7 @@ find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
 find_package(PNG REQUIRED)
 
-add_library(physics PhysicsRobot.cpp PhysicsCup.cpp)
+add_library(physics PhysicsRobot.cpp PhysicsCup.cpp OpponentRobot.cpp)
 target_link_libraries(physics PUBLIC box2d)
 
 cvra_add_test(TARGET box2d_test
@@ -19,6 +19,7 @@ add_executable(motor_board_emulator
     viewer.cpp
     png_loader.cpp
     actuator_board_emulator.cpp
+    ProximityBeaconEmulator.cpp
 )
 
 target_link_libraries(motor_board_emulator
