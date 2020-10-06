@@ -4,6 +4,7 @@
 #define USE_MAP 0
 #include <absl/time/time.h>
 #include <absl/synchronization/mutex.h>
+#include <absl/types/optional.h>
 #include <thread>
 
 #include <error/error.h>
@@ -267,28 +268,38 @@ void trajectory_set_mode_game(
                        acc_rd2imp(robot_traj, 6.));
 }
 
-static absl::Time game_start_time;
+static absl::optional<absl::Time> game_start_time;
 static absl::Mutex game_start_time_lock;
 
-void trajectory_game_timer_reset(void)
+void trajectory_game_timer_reset()
 {
     absl::MutexLock _(&game_start_time_lock);
     game_start_time = absl::Now();
 }
 
-int trajectory_get_time(void)
+int trajectory_get_time()
 {
     absl::MutexLock _(&game_start_time_lock);
-    return absl::ToInt64Seconds(absl::Now() - game_start_time);
+
+    if (!game_start_time.has_value()) {
+        return 0;
+    }
+
+    return absl::ToInt64Seconds(absl::Now() - *game_start_time);
 }
 
-int trajectory_get_time_ms(void)
+int trajectory_get_time_ms()
 {
     absl::MutexLock _(&game_start_time_lock);
-    return absl::ToInt64Milliseconds(absl::Now() - game_start_time);
+
+    if (!game_start_time.has_value()) {
+        return 0;
+    }
+
+    return absl::ToInt64Milliseconds(absl::Now() - *game_start_time);
 }
 
-bool trajectory_game_has_ended(void)
+bool trajectory_game_has_ended()
 {
     return trajectory_get_time() >= GAME_DURATION;
 }
