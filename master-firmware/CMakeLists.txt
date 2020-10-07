@@ -4,7 +4,6 @@ add_library(parameter_port src/parameter_port.cpp)
 target_link_libraries(parameter_port error)
 
 add_library(master_lib
-    src/unix_timestamp.c
     src/can/actuator_driver.c
     src/can/bus_enumerator.c
     src/math/lie_groups.c
@@ -34,7 +33,6 @@ target_link_libraries(master_lib
 
 cvra_add_test(TARGET master_test
     SOURCES
-    tests/unix-timestamp.cpp
     tests/bus_enumerator.cpp
     tests/can/actuator_driver.cpp
     tests/test_math_helpers.cpp
