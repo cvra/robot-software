@@ -43,6 +43,40 @@ static int compute_flags(const StrategyState& state, bool is_main_robot)
     return 0;
 }
 
+static int compute_port(const StrategyState& state)
+{
+    int score = 0;
+
+    const int N = sizeof(state.port_state.green_line) / sizeof(state.port_state.green_line[0]);
+    for (int i = 0; i < N; i++) {
+        // Each glass in the area gives us one point
+        if (state.port_state.green_line[i] != GlassColor_UNKNOWN) {
+            score += 1;
+        }
+
+        if (state.port_state.red_line[i] != GlassColor_UNKNOWN) {
+            score += 1;
+        }
+
+        // In addition, each glass on the correct side gives us one more point
+        if (state.port_state.green_line[i] == GlassColor_GREEN) {
+            score += 1;
+        }
+
+        if (state.port_state.red_line[i] == GlassColor_RED) {
+            score += 1;
+        }
+
+        // In addition, each valid pair is worth 2 extra points
+        if (state.port_state.red_line[i] == GlassColor_RED
+            && state.port_state.green_line[i] == GlassColor_GREEN) {
+            score += 2;
+        }
+    }
+
+    return score;
+}
+
 int compute_score(const StrategyState& state, bool is_main_robot)
 {
     int score = 0;
@@ -50,6 +84,7 @@ int compute_score(const StrategyState& state, bool is_main_robot)
     score += compute_windsocks(state);
     score += compute_lighthouse(state, is_main_robot);
     score += compute_flags(state, is_main_robot);
+    score += compute_port(state);
 
     return score;
 }

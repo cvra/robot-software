@@ -50,3 +50,41 @@ TEST(Score, FlagsDoNotBringPointsToTheSmallRobot)
     auto score_flags = compute_score(state, not_main_robot) - initial_score;
     CHECK_EQUAL(0, score_flags);
 }
+
+TEST(Score, CanCountRedGlassesThatAreJustThere)
+{
+    state.port_state.green_line[0] = GlassColor_RED;
+    state.port_state.green_line[1] = GlassColor_RED;
+
+    auto score = compute_score(state, not_main_robot);
+    CHECK_EQUAL(2, score);
+}
+
+TEST(Score, CanCountGreenGlassesThatAreJustThere)
+{
+    state.port_state.red_line[0] = GlassColor_GREEN;
+    state.port_state.red_line[1] = GlassColor_GREEN;
+
+    auto score = compute_score(state, not_main_robot);
+    CHECK_EQUAL(2, score);
+}
+
+TEST(Score, GlassesOnTheCorrectSideAreWorthMore)
+{
+    state.port_state.green_line[0] = GlassColor_GREEN;
+    state.port_state.green_line[1] = GlassColor_GREEN;
+
+    auto score = compute_score(state, not_main_robot);
+    CHECK_EQUAL(4, score);
+}
+
+TEST(Score, MatchingPairsAreWorthMore)
+{
+    state.port_state.green_line[0] = GlassColor_GREEN;
+    state.port_state.green_line[1] = GlassColor_GREEN;
+    state.port_state.red_line[0] = GlassColor_RED;
+    state.port_state.red_line[1] = GlassColor_RED;
+
+    auto score = compute_score(state, not_main_robot);
+    CHECK_EQUAL(12, score);
+}

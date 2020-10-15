@@ -29,6 +29,8 @@ message StrategyState {
     /* State related to the lighthouse */
     required bool lighthouse_is_on = 8;
 
+    required PortState port_state = 9;
+
     option (nanopb_msgopt).msgid = 14;
     option (nanopb_msgopt).packed_struct = true;
 }
@@ -55,6 +57,16 @@ message DispenserState {
 /* State of the drifting buoys */
 message TableGlassStates {
     repeated GlassColor glasses = 1
+        [ (nanopb).fixed_count = true, (nanopb).max_count = 6 ];
+
+    option (nanopb_msgopt).packed_struct = true;
+}
+
+message PortState {
+    // TODO: Check max number of glasses
+    repeated GlassColor green_line = 1
+        [ (nanopb).fixed_count = true, (nanopb).max_count = 6 ];
+    repeated GlassColor red_line = 2
         [ (nanopb).fixed_count = true, (nanopb).max_count = 6 ];
 
     option (nanopb_msgopt).packed_struct = true;
