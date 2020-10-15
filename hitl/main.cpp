@@ -280,8 +280,6 @@ int main(int argc, char** argv)
             pressures[1] = actuator.get_pwm(0) * 50e3;
             actuator.set_pressure(pressures);
             actuator.set_digital_input(actuator.get_solenoid(0));
-
-            NOTICE("pressure %.3f %.3f", pressures[0], pressures[1]);
         }
     });
 

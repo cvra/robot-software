@@ -34,7 +34,6 @@ ActuatorBoardEmulator::ActuatorBoardEmulator(std::string can_iface, std::string 
                 msg.pressure[1] = pressure_pa[1];
                 msg.digital_input = digital_input;
             }
-            WARNING("pub");
             feedback_pub->broadcast(msg);
         });
     publish_timer->startPeriodic(uavcan::MonotonicDuration::fromMSec(100));
