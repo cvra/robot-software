@@ -36,10 +36,10 @@ message StrategyState {
 message RobotState {
     optional GlassColor front_left_glass = 1;
     optional GlassColor front_center_glass = 2;
-    optional GlassColor front_right = 3;
+    optional GlassColor front_right_glass = 3;
     optional GlassColor back_left_glass = 4;
     optional GlassColor back_center_glass = 5;
-    optional GlassColor back_right = 6;
+    optional GlassColor back_right_glass = 6;
 
     optional bool flags_deployed = 7;
 
@@ -48,7 +48,7 @@ message RobotState {
 /* State of the glasses in one dispenser / reef */
 message DispenserState {
     repeated GlassColor glasses = 1
-        [ (nanopb).fixed_count = true, (nanopb).max_count = 6 ];
+        [ (nanopb).fixed_count = true, (nanopb).max_count = 5 ];
 
     option (nanopb_msgopt).packed_struct = true;
 }

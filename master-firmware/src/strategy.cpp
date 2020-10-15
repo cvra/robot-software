@@ -110,6 +110,7 @@ static void wait_for_autoposition_signal()
 goals::LighthouseEnabled lighthouse_enabled;
 actions::EnableLighthouse enable_lighthouse;
 goals::WindsocksUp windsocks_raised;
+actions::BackwardReefPickup backward_reef_pickup;
 
 actions::RaiseWindsock windsocks[2] = {{0}, {1}};
 
@@ -120,6 +121,7 @@ std::vector<actions::NamedAction<StrategyState>*> strategy_get_actions()
         &enable_lighthouse,
         &windsocks[0],
         &windsocks[1],
+        &backward_reef_pickup,
     }};
 }
 

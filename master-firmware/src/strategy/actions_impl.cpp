@@ -1,6 +1,9 @@
+#include <thread>
 #include <error/error.h>
 #include "actions.h"
 #include "robot_helpers/trajectory_helpers.h"
+
+using namespace std::chrono_literals;
 
 bool actions::EnableLighthouse::execute(StrategyState& state)
 {
@@ -96,6 +99,55 @@ bool actions::RaiseWindsock::execute(StrategyState& state)
     }
 
     state.windsocks_are_up[windsock_index] = true;
+
+    return true;
+}
+
+bool actions::BackwardReefPickup::execute(StrategyState& state)
+{
+    WARNING("picking up glasses at our dispenser");
+    trajectory_goto_xy_abs(&robot.traj, 500, 1525);
+
+    auto res = trajectory_wait_for_end(TRAJ_FLAGS_ALL);
+    if (res != TRAJ_END_GOAL_REACHED) {
+        WARNING("Could not go in front of reef");
+        return false;
+    }
+
+    NOTICE("TODO: Setting up the arms, turning on the pumps");
+
+    trajectory_a_abs(&robot.traj, 0);
+
+    res = trajectory_wait_for_end(TRAJ_FLAGS_ALL);
+    if (res != TRAJ_END_GOAL_REACHED) {
+        return false;
+    }
+
+    // Give the robot some time to converge
+    std::this_thread::sleep_for(500ms);
+
+    // TODO: Check that this distance is enough
+    trajectory_d_rel(&robot.traj, -300);
+    res = trajectory_wait_for_end(TRAJ_FLAGS_ALL);
+    if (res != TRAJ_END_GOAL_REACHED) {
+        return false;
+    }
+
+    // give time to catch the glasses
+    std::this_thread::sleep_for(400ms);
+
+    state.robot.back_left_glass = state.our_dispenser.glasses[0];
+    state.robot.back_center_glass = state.our_dispenser.glasses[1];
+    state.robot.back_right_glass = state.our_dispenser.glasses[2];
+    state.our_dispenser.glasses[0] = GlassColor_UNKNOWN;
+    state.our_dispenser.glasses[1] = GlassColor_UNKNOWN;
+    state.our_dispenser.glasses[2] = GlassColor_UNKNOWN;
+
+    trajectory_d_rel(&robot.traj, 100);
+    res = trajectory_wait_for_end(TRAJ_FLAGS_ALL);
+    if (res != TRAJ_END_GOAL_REACHED) {
+        return false;
+    }
 
     return true;
 }

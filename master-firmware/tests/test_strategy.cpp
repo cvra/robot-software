@@ -1,10 +1,11 @@
-#include <CppUTest/TestHarness.h>
 #include <vector>
 #include <array>
 
 #include "robot_helpers/robot.h"
 #include "strategy/goals.h"
 #include "strategy/actions.h"
+
+#include <CppUTest/TestHarness.h>
 
 TEST_GROUP (Strategy) {
     StrategyState state = initial_state();

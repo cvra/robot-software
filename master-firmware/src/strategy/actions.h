@@ -49,7 +49,17 @@ public:
     }
 };
 
-// TODO(all): Write actions
+class BackwardReefPickup : public NamedAction<StrategyState> {
+public:
+    bool can_run(const StrategyState& state) override;
+    void plan_effects(StrategyState& state) override;
+    bool execute(StrategyState& state) override;
+
+    std::string get_name() override
+    {
+        return "BwRePckp";
+    }
+};
 
 } // namespace actions
 

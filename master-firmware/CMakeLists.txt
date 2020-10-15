@@ -29,6 +29,8 @@ target_link_libraries(master_lib
     goap
     parameter
     parameter_port
+    absl::strings
+    absl::str_format
 )
 
 cvra_add_test(TARGET master_test

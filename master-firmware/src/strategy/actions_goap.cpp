@@ -34,3 +34,34 @@ void RaiseWindsock::plan_effects(StrategyState& state)
 {
     state.windsocks_are_up[windsock_index] = true;
 }
+
+bool BackwardReefPickup::can_run(const StrategyState& state)
+{
+    if (state.robot.back_center_glass != GlassColor_UNKNOWN
+        || state.robot.back_center_glass != GlassColor_UNKNOWN
+        || state.robot.back_center_glass != GlassColor_UNKNOWN) {
+        return false;
+    }
+
+    // If there are no glasses to pickup, we cannot run
+    if (state.our_dispenser.glasses[0] == GlassColor_UNKNOWN
+        && state.our_dispenser.glasses[0] == GlassColor_UNKNOWN
+        && state.our_dispenser.glasses[0] == GlassColor_UNKNOWN) {
+        return false;
+    }
+
+    return true;
+}
+
+void BackwardReefPickup::plan_effects(StrategyState& state)
+{
+    // Glasses are now on the robot, and dispenser has been emptied
+
+    state.robot.back_left_glass = state.our_dispenser.glasses[0];
+    state.robot.back_center_glass = state.our_dispenser.glasses[1];
+    state.robot.back_right_glass = state.our_dispenser.glasses[2];
+
+    state.our_dispenser.glasses[0] = GlassColor_UNKNOWN;
+    state.our_dispenser.glasses[1] = GlassColor_UNKNOWN;
+    state.our_dispenser.glasses[2] = GlassColor_UNKNOWN;
+}
