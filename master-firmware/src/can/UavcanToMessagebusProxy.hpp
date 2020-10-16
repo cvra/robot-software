@@ -77,6 +77,10 @@ public:
         });
     }
 
+    virtual ~UavcanToMessagebusProxy()
+    {
+    }
+
 protected:
     void process(const UavcanMessage& msg, uint8_t src_id)
     {
