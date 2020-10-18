@@ -1,5 +1,4 @@
-# CVRA 2019 Computer vision
-
+# CVRA 2020 Computer vision
 
 Requirements:
 
@@ -9,19 +8,20 @@ Requirements:
 
 ## How to run
 
-The project requires OpenCV and Protobuf.
-It is packaged as a cmake project, so to run it, run the following:
+The project requires OpenCV (tested with 4.5) and Protobuf.
+It is integrated in the club's CMake build system, so you can run the following:
 
 ```sh
-cd computer-vision
 mkdir build
 cd build
 cmake ..
 
 # On subsequent builds, only the following are required
-make
-./robot_tracking ../config/iphone.yaml
+make robot_tracking
+./computer_vision/robot_tracking ../config/iphone.yaml
 ```
+
+See [master-firwmare's README](../master-firmware/README.md) for instructions on how to compile using the Buildroot SDK for the Raspberry Pi.
 
 ## Camera calibration
 

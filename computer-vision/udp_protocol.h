@@ -1,6 +1,6 @@
 #pragma once
 
-#include "protobuf/computer_vision.pb.h"
+#include "computer_vision.pb.h"
 
 #include <string>
 

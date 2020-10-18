@@ -71,16 +71,17 @@ cvra_add_test(TARGET uavcan_tests
 
 # List of all protobuf files
 set(PROTOSRC
+    protobuf/Timestamp.proto
+    protobuf/actuators.proto
     protobuf/ally_position.proto
     protobuf/beacons.proto
+    protobuf/computer_vision.proto
     protobuf/encoders.proto
     protobuf/manipulator.proto
     protobuf/position.proto
     protobuf/protocol.proto
     protobuf/sensors.proto
     protobuf/strategy.proto
-    protobuf/Timestamp.proto
-    protobuf/actuators.proto
 )
 
 # Generater .pb.c filenames from .proto filenames

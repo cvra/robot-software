@@ -4,7 +4,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include "protobuf/protocol.pb.h"
+#include "protocol.pb.h"
 
 void udp_send_result(std::string dst, int port, ComputerVisionResult result)
 {

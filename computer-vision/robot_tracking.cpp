@@ -4,8 +4,8 @@
 
 #include <iostream>
 
-#include "protobuf/protocol.pb.h"
-#include "protobuf/computer_vision.pb.h"
+#include "protocol.pb.h"
+#include "computer_vision.pb.h"
 #include "error/error.h"
 #include "logging.h"
 #include "udp_protocol.h"
