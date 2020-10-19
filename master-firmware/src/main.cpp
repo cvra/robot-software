@@ -20,15 +20,12 @@
 #include <parameter/parameter_msgpack.h>
 #include <cmp_mem_access/cmp_mem_access.h>
 #include "can/motor_manager.h"
-//#include "lwipthread.h"
 #include <error/error.h>
-//#include "base/encoder.h"
 #include "base/base_controller.h"
 #include "robot_helpers/trajectory_helpers.h"
 #include "strategy.h"
 #include "gui.h"
 //#include "udp_topic_broadcaster.h"
-//#include "ally_position_service.h"
 //
 #include <aversive/trajectory_manager/trajectory_manager.h>
 
@@ -152,7 +149,6 @@ int main(int argc, char** argv)
 
     /* Those service communicate over IP so must be started afterward */
     // udp_topic_broadcast_start();
-    //ally_position_start();
 
     /* Load stored robot config */
     config_load_from_flash();
