@@ -60,7 +60,7 @@ static void set_output(enum control_panel_output out, bool value)
         return;
     }
 
-    std::string msg = std::to_string(value * led_info->second.max_brightness);
+    std::string msg = std::to_string(value * (led_info->second.max_brightness - 1));
     fwrite(msg.c_str(), msg.length(), 1, led_info->second.brightness_file);
     fflush(led_info->second.brightness_file);
     DEBUG("writing '%s' to out %d", msg.c_str(), out);
