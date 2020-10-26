@@ -247,6 +247,26 @@ add_custom_target(master-firmware.ipk
     COMMENT "Packaging master-firmware.ipk"
 )
 
+
+add_executable(uavcan_monitor
+    ../lib/uavcan/libuavcan_drivers/linux/apps/uavcan_monitor.cpp
+)
+target_link_libraries(uavcan_monitor uavcan uavcan_linux rt Threads::Threads)
+
+add_executable(uavcan_nodetool
+    ../lib/uavcan/libuavcan_drivers/linux/apps/uavcan_nodetool.cpp
+)
+target_link_libraries(uavcan_nodetool uavcan uavcan_linux rt Threads::Threads)
+add_custom_target(uavcan-tools.ipk
+    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/../tools/build_opkg_package.py
+    --name uavcan-tools
+    --output uavcan-tools.ipk
+    uavcan_nodetool:/bin/uavcan_nodetool
+    uavcan_monitor:/bin/uavcan_monitor
+    DEPENDS uavcan_nodetool uavcan_monitor
+    COMMENT "Packaging uavcan-tools.ipk"
+)
+
 add_library(gfxconf INTERFACE)
 target_include_directories(gfxconf INTERFACE
     src/gfxconf

@@ -49,4 +49,6 @@ ssh root@10.1.1.1 "okg install --force-reinstall master-firmware.ipk"
 
 At this point, the code will start, and blink the red led on the Pi.
 The package contains all the required configuration to start automatically at boot.
-No additional work is required. 
+No additional work is required.
+
+**Note**: The build system can also be used to build `uavcan-tools.ipk` which contains two debug tools to inspect the UAVCAN bus: `uavcan_monitor` and `uavcan_nodetool`.
