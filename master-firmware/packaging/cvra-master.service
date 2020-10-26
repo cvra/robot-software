@@ -4,7 +4,7 @@ Description=Eurobot master control firmware
 [Service]
 Type=simple
 User=root
-ExecStart=/bin/cvra-master --noenable_gui --can_iface="" --led_pc_path=/sys/class/leds/onboard
+ExecStart=/bin/xinit /bin/cvra-master --enable_gui --can_iface="can0" --led_pc_path=/sys/class/leds/onboard
 Restart=on-failure
 
 
