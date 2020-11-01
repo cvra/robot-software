@@ -31,6 +31,17 @@ extern "C" {
 /** initialization of the robot_position pos, everthing is set to 0 */
 void position_init(struct robot_position* pos)
 {
+    absl::MutexLock l(&pos->lock_);
+    pos->use_ext = 0;
+    memset(&pos->phys, 0, sizeof(pos->phys));
+    memset(&pos->pos_d, 0, sizeof(pos->pos_d));
+    memset(&pos->pos_s16, 0, sizeof(pos->pos_s16));
+    memset(&pos->prev_encoders, 0, sizeof(pos->prev_encoders));
+    pos->rs = nullptr;
+
+#ifdef CONFIG_MODULE_COMPENSATE_CENTRIFUGAL_FORCE
+    pos->centrifugal_coef = 0.;
+#endif
 }
 
 /** Set a new robot position */

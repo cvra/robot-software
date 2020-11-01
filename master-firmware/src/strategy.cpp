@@ -125,7 +125,7 @@ std::vector<actions::NamedAction<StrategyState>*> strategy_get_actions()
     }};
 }
 
-void strategy_order_play_game(StrategyState& state, enum strat_color_t color)
+void strategy_order_play_game(StrategyState& state, enum strat_color_t /*color*/)
 {
     messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
 

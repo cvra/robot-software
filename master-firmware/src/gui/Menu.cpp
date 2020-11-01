@@ -30,11 +30,11 @@ void Menu::delete_container()
     gwinDestroy(page_container);
 }
 
-void Menu::switch_to_page(Page* page)
+void Menu::switch_to_page(Page* newpage)
 {
     delete_container();
     create_container();
-    this->page = page;
+    this->page = newpage;
 
     if (this->page->get_previous_page()) {
         gwinEnable(back_button);
@@ -42,7 +42,7 @@ void Menu::switch_to_page(Page* page)
         gwinDisable(back_button);
     }
     this->page->on_enter(page_container);
-    gwinSetText(page_title, page->get_name(), false);
+    gwinSetText(page_title, newpage->get_name(), false);
 }
 
 void Menu::pop_page()
@@ -55,10 +55,10 @@ void Menu::on_timer()
     page->on_timer();
 }
 
-void Menu::enter_page(Page* page)
+void Menu::enter_page(Page* newpage)
 {
-    page->set_previous_page(this->page);
-    switch_to_page(page);
+    newpage->set_previous_page(this->page);
+    switch_to_page(newpage);
 }
 
 void Menu::event_loop()
