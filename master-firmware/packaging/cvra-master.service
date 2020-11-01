@@ -11,11 +11,7 @@ ExecStart=/bin/xinit /bin/cvra-master --enable_gui --can_iface="can0" \
     --led_debug_path=/sys/class/leds/debug \
     --led_bus_path=/sys/class/leds/bus \
     --led_error_path=/sys/class/leds/error \
-    --led_power_path=/sys/class/leds/power \
-    --led_ready_path=/sys/class/leds/ready \
-    --led_ready_path=/sys/class/leds/ready \
-    --led_ready_path=/sys/class/leds/ready \
-    --led_ready_path=/sys/class/leds/ready
+    --led_power_path=/sys/class/leds/power
 Restart=on-failure
 
 
