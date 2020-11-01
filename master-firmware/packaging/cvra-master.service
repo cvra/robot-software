@@ -4,7 +4,18 @@ Description=Eurobot master control firmware
 [Service]
 Type=simple
 User=root
-ExecStart=/bin/xinit /bin/cvra-master --enable_gui --can_iface="can0" --led_pc_path=/sys/class/leds/onboard
+# TODO(antoinealb): What do we want to do with the onboard LED?
+ExecStart=/bin/xinit /bin/cvra-master --enable_gui --can_iface="can0" \
+    --led_comm_path=/sys/class/leds/onboard \
+    --led_ready_path=/sys/class/leds/ready \
+    --led_debug_path=/sys/class/leds/debug \
+    --led_bus_path=/sys/class/leds/bus \
+    --led_error_path=/sys/class/leds/error \
+    --led_power_path=/sys/class/leds/power \
+    --led_ready_path=/sys/class/leds/ready \
+    --led_ready_path=/sys/class/leds/ready \
+    --led_ready_path=/sys/class/leds/ready \
+    --led_ready_path=/sys/class/leds/ready
 Restart=on-failure
 
 

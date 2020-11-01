@@ -8,12 +8,12 @@
 #include <cerrno>
 #include "gpio_input.h"
 
-ABSL_FLAG(std::string, led_ready_path, "/sys/class/leds/ready", "Path in sysfs used to control LED_READY.");
-ABSL_FLAG(std::string, led_debug_path, "/sys/class/leds/debug", "Path in sysfs used to control LED_DEBUG.");
-ABSL_FLAG(std::string, led_error_path, "/sys/class/leds/error", "Path in sysfs used to control LED_ERROR.");
-ABSL_FLAG(std::string, led_power_path, "/sys/class/leds/power", "Path in sysfs used to control LED_POWER.");
-ABSL_FLAG(std::string, led_pc_path, "/sys/class/leds/pc", "Path in sysfs used to control LED_PC.");
-ABSL_FLAG(std::string, led_bus_path, "/sys/class/leds/bus", "Path in sysfs used to control LED_BUS.");
+ABSL_FLAG(std::string, led_ready_path, "", "Path in sysfs used to control LED_READY.");
+ABSL_FLAG(std::string, led_debug_path, "", "Path in sysfs used to control LED_DEBUG.");
+ABSL_FLAG(std::string, led_error_path, "", "Path in sysfs used to control LED_ERROR.");
+ABSL_FLAG(std::string, led_power_path, "", "Path in sysfs used to control LED_POWER.");
+ABSL_FLAG(std::string, led_comm_path, "", "Path in sysfs used to control led_comm.");
+ABSL_FLAG(std::string, led_bus_path, "", "Path in sysfs used to control LED_BUS.");
 ABSL_FLAG(std::string, gpiochip_starter, "", "Path used to control the gpio chip for the start hall sensor (e.g. 'gpiochip0').");
 ABSL_FLAG(std::string, gpiochip_team_a, "", "Path used to control the gpio chip for the team A button (e.g. 'gpiochip0').");
 ABSL_FLAG(std::string, gpiochip_team_b, "", "Path used to control the gpio chip for the team B button (e.g. 'gpiochip0').");
@@ -43,7 +43,7 @@ const char* control_panel_output[] = {
     "LED_DEBUG",
     "LED_ERROR",
     "LED_POWER",
-    "LED_PC",
+    "LED_COMM",
     "LED_BUS",
     "LED_YELLOW",
     "LED_GREEN",
@@ -72,6 +72,10 @@ static void open_led(enum control_panel_output led_num, std::string path)
 {
     FILE* f;
     LedInfo led_info;
+
+    if (path.empty()) {
+        return;
+    }
 
     DEBUG("output %d is at %s", led_num, path.c_str());
 
@@ -125,7 +129,7 @@ void control_panel_init(void)
     open_led(LED_DEBUG, absl::GetFlag(FLAGS_led_debug_path));
     open_led(LED_ERROR, absl::GetFlag(FLAGS_led_error_path));
     open_led(LED_POWER, absl::GetFlag(FLAGS_led_power_path));
-    open_led(LED_PC, absl::GetFlag(FLAGS_led_pc_path));
+    open_led(LED_COMM, absl::GetFlag(FLAGS_led_comm_path));
     open_led(LED_BUS, absl::GetFlag(FLAGS_led_bus_path));
     open_input(STARTER, absl::GetFlag(FLAGS_gpiochip_starter), absl::GetFlag(FLAGS_gpioline_starter));
     open_input(BUTTON_YELLOW, absl::GetFlag(FLAGS_gpiochip_team_a), absl::GetFlag(FLAGS_gpioline_team_a));

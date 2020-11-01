@@ -14,7 +14,7 @@ enum control_panel_output {
     LED_DEBUG,
     LED_ERROR,
     LED_POWER,
-    LED_PC,
+    LED_COMM,
     LED_BUS,
     LED_YELLOW,
     LED_GREEN

@@ -87,7 +87,7 @@ static void blink_start()
 {
     std::thread blink([]() {
         while (true) {
-            control_panel_toggle(LED_PC);
+            control_panel_toggle(LED_COMM);
             std::this_thread::sleep_for(500ms);
         }
     });
