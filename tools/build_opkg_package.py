@@ -14,6 +14,7 @@ import shutil
 import contextlib
 import logging
 
+logger = logging.getLogger(os.path.basename(__file__))
 
 @contextlib.contextmanager
 def cd(path):
@@ -79,7 +80,7 @@ def build_control_archive(
     See https://www.debian.org/doc/debian-policy/ch-controlfields.html
     """
     ALLOWED_SCRIPTS = ["postinst", "postrm", "preinst", "prerm"]
-    logging.info("Creating metadata archive...")
+    logger.info("Creating metadata archive...")
     metadata = {
         "Package": pkg_name,
         "Depends": "",
@@ -96,8 +97,8 @@ def build_control_archive(
 
         for dst, src in install_scripts.items():
             if dst not in ALLOWED_SCRIPTS:
-                logging.warning("Unknown install script %s", dst)
-            logging.debug("Copying %s to %s", src, dst)
+                logger.warning("Unknown install script %s", dst)
+            logger.debug("Copying %s to %s", src, dst)
             shutil.copy(src, os.path.join(control_dir, dst))
             files.append(dst)
 
@@ -112,7 +113,7 @@ def build_data_archive(output_dir, files):
     Files is a dict mapping file paths on the build machine to files in the
     installed machine, for example {'sshd.conf': '/etc/sshd/sshd.conf'}
     """
-    logging.info("Creating data archive...")
+    logger.info("Creating data archive...")
     archive_files = []
     with tempfile.TemporaryDirectory() as data_dir:
         # Prepare the file definitions
@@ -125,7 +126,7 @@ def build_data_archive(output_dir, files):
 
             folder = os.path.dirname(dst)
             folder = os.path.join(data_dir, folder)
-            logging.debug("Creating %s", folder)
+            logger.debug("Creating %s", folder)
             os.makedirs(folder, exist_ok=True)
             shutil.copy(src, os.path.join(data_dir, dst))
 
@@ -172,11 +173,11 @@ def main():
         with open(os.path.join(build_dir, "debian-binary"), "w") as f:
             f.write("2.0")
 
-        logging.info("Building final package...")
+        logger.info("Building final package...")
         with cd(build_dir):
             archive("package.ipk", ["debian-binary", "control.tar.gz", "data.tar.gz"])
 
-        logging.info('Copying package to "%s"', args.output)
+        logger.info('Copying package to "%s"', args.output)
         shutil.move(os.path.join(build_dir, "package.ipk"), args.output)
 
 
@@ -187,7 +188,7 @@ def archive(output, files):
     cmd = "tar --numeric-owner --group=0 --owner=0 -czf {} {}".format(
         output, " ".join(files)
     )
-    logging.debug('About to run "%s"', cmd)
+    logger.debug('About to run "%s"', cmd)
     subprocess.call(cmd.split())
 
 
