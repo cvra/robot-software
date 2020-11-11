@@ -8,7 +8,7 @@ freshness:
 
 ![2020 hardware architecture overview](hardware2020.png)
 
-The robot is organized around a master board running a STM32F4.
+The robot is organized around a master board, which is a shield for a Raspberry Pi 4.
 This board is responsible for most of the high-level tasks in the robot:
 
 * Odometry
@@ -16,7 +16,7 @@ This board is responsible for most of the high-level tasks in the robot:
 * Game script
 * User interface
 
-The low-level functions are delegated to simpler boards, running smaller microcontrollers.
+The low-level functions are delegated to simpler boards, running microcontrollers.
 Board exchange messages over CAN bus using the UAVCAN protocol.
 
 1. Our motor boards are responsible for PID control of a single motor.
@@ -47,3 +47,7 @@ Also, programming FPGA is hard and the only engineer doing that in the club had 
 In 2015, we decided to go with horizontal scaling: instead of one big controller, put many small ones and connect them with a network.
 This gives almost unlimited flexibility: "just" add new board to add new capabilities.
 It allows us to develop new hardware each year, without throwing away everything we did previously.
+
+In 2020, we realized that we were spending too much time writing low level code on the master firmware for things like memory management.
+The system was complicated and alien, meaning it was hard to onboard new developers.
+Switching to a Linux platform while still programming in C++ simplified our life, without requiring complex architures (à la ROS) or major rewrites.
