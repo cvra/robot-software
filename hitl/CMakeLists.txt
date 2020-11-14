@@ -36,6 +36,24 @@ target_link_libraries(motor_board_emulator
     PNG::PNG
 )
 
+add_library(hitl_lib
+    motor_board_emulator.cpp
+    wheel_encoders_emulator.cpp
+    sensor_board_emulator.cpp
+    actuator_board_emulator.cpp
+)
+
+target_link_libraries(hitl_lib
+    hitl_logging
+    error
+    uavcan
+    uavcan_linux
+)
+
+target_include_directories(hitl_lib PUBLIC .)
+
+
+
 configure_file(table.png table.png COPYONLY)
 
 add_library(hitl_logging
