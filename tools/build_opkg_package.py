@@ -16,6 +16,7 @@ import logging
 
 logger = logging.getLogger(os.path.basename(__file__))
 
+
 @contextlib.contextmanager
 def cd(path):
     cwd = os.getcwd()

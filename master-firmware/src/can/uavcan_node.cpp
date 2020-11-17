@@ -1,3 +1,4 @@
+#include <absl/container/flat_hash_map.h>
 #include <string>
 #include <thread>
 #include <uavcan_linux/uavcan_linux.hpp>
@@ -25,7 +26,11 @@
 #define UAVCAN_RX_QUEUE_SIZE 256
 #define UAVCAN_CAN_BITRATE 1000000UL
 
+#define CVRA_STATUS_CODE_NO_POWER (1 << 2)
+
 bus_enumerator_t bus_enumerator;
+
+static absl::flat_hash_map<uint8_t, uavcan::protocol::NodeStatus> node_health_statuses;
 
 namespace uavcan_node {
 
@@ -168,14 +173,22 @@ static void main(std::string can_iface, uint8_t id)
         if (res < 0) {
             WARNING("UAVCAN spin warning %d", res);
         }
+
+        // Set the "power failure" LED to true if any node reports an issue
+        // with power.
+        control_panel_clear(LED_POWER);
+        for (const auto& elem : node_health_statuses) {
+            if (elem.second.health != uavcan::protocol::NodeStatus::HEALTH_OK
+                && elem.second.vendor_specific_status_code & CVRA_STATUS_CODE_NO_POWER) {
+                control_panel_set(LED_POWER);
+            }
+        }
     }
 }
 
 static void node_status_cb(const uavcan::ReceivedDataStructure<uavcan::protocol::NodeStatus>& msg)
 {
-    if (msg.health != uavcan::protocol::NodeStatus::HEALTH_OK) {
-        WARNING("UAVCAN node %u health", msg.getSrcNodeID().get());
-    }
+    node_health_statuses[msg.getSrcNodeID().get()] = msg;
     DEBUG("UAVCAN node %u health", msg.getSrcNodeID().get());
 }
 

@@ -21,13 +21,15 @@
 #include "Torque_handler.hpp"
 #include "Voltage_handler.hpp"
 #include "stream.h"
+#include "analog.h"
 
 #define CAN_BITRATE 1000000
+#define CVRA_STATUS_CODE_NO_POWER (1 << 2)
 
 uavcan_stm32::CanInitHelper<128> can;
 
 // Used to signal when the node init is complete
-BSEMAPHORE_DECL(node_init_complete, true);
+static bool node_init_complete = true;
 
 void uavcan_failure(const char* reason)
 {
@@ -105,9 +107,14 @@ static THD_FUNCTION(uavcan_node, arg)
             uavcan_failure("UAVCAN spin");
         }
 
-        if (chBSemWaitTimeout(&node_init_complete, TIME_IMMEDIATE) == MSG_OK) {
+        if (node_init_complete) {
             node.getNodeStatusProvider().setModeOperational();
-            node.getNodeStatusProvider().setHealthOk();
+            if (analog_get_battery_voltage() < 12.f) {
+                node.getNodeStatusProvider().setHealthWarning();
+                node.getNodeStatusProvider().setVendorSpecificStatusCode(CVRA_STATUS_CODE_NO_POWER);
+            } else {
+                node.getNodeStatusProvider().setHealthOk();
+            }
         }
 
         uavcan_streams_spin(node);
@@ -121,5 +128,7 @@ extern "C" void uavcan_node_start(void* arg)
 
 extern "C" void uavcan_init_complete(void)
 {
-    chBSemSignal(&node_init_complete);
+    chSysLock();
+    node_init_complete = true;
+    chSysUnlock();
 }
