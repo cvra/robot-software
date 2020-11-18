@@ -201,14 +201,16 @@ It is not erased when reflashing and can be read from the application.</p>
 </code></pre></div>
 
 <p>As you can see the bootloader requires a few flags to flash the board.
-Fortunately most of them do not change very often, or are easy to find.
-<code>--port</code> is the name of the serial port.
-<code>--binary</code> is the path to the binary we want to flash.
-<code>--base-address</code> is the address of the beginning of the application memory.
-    You can find it in the linker script (<code>can-io-firmware/linker/STM32F302x8_bootloader.ld</code>), look for <code>flash0</code>.
-<code>--device-class</code> must match the one stored in the config.
-<code>--run</code> asks the board to run the application once the firmware upload is done.
-Finally, we put the list of the boards to update (just <code>1</code> here).</p>
+Fortunately most of them do not change very often, or are easy to find.</p>
+<ul>
+<li><code>--port</code> is the name of the serial port on which the CAN dongle is connected.</li>
+<li><code>--binary</code> is the path to the binary we want to flash.</li>
+<li><code>--base-address</code> is the address of the beginning of the application memory.
+    You can find it in the linker script <a href="https://github.com/cvra/robot-software/blob/master/can-io-firmware/linker/STM32F302x8_bootloader.ld#L8"><code>can-io-firmware/linker/STM32F302x8_bootloader.ld</code></a>, look for <code>flash0</code>.</li>
+<li><code>--device-class</code> must match the one stored in the config.</li>
+<li><code>--run</code> asks the board to run the application once the firmware upload is done.</li>
+</ul>
+<p>Finally, we put the list of board IDs to update (just <code>1</code> here).</p>
 <p>You should get a progress bar, with <code>Verifying firmware... OK</code> at the end.
 Your application will start and the LED should be off.</p>
 <h2 id="defining-a-new-uavcan-message-type">Defining a new UAVCAN message type</h2>
@@ -258,8 +260,7 @@ This will generate the C++ code required to serialize and interpret our new mess
 
 <p>Also create the associated header, <code>can-io-firmware/src/uavcan/LEDCommand_handler.hpp</code>.
 In this file we will put the prototype of our handler:</p>
-<div class="codehilite"><pre><span></span><code><span class="cp">#ifndef LEDCOMMAND_HANDLER_HPP</span>
-<span class="cp">#define LEDCOMMAND_HANDLER_HPP</span>
+<div class="codehilite"><pre><span></span><code><span class="cp">#pragma once</span>
 
 <span class="cp">#include</span> <span class="cpf">&lt;uavcan/uavcan.hpp&gt;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&lt;cvra/io/LEDCommand.hpp&gt;</span><span class="cp"></span>
@@ -267,8 +268,6 @@ In this file we will put the prototype of our handler:</p>
 <span class="kt">void</span> <span class="nf">LEDCommand_handler</span><span class="p">(</span>
     <span class="k">const</span> <span class="n">uavcan</span><span class="o">::</span><span class="n">ReceivedDataStructure</span><span class="o">&lt;</span><span class="n">cvra</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">LEDCommand</span><span class="o">::</span><span class="n">Request</span><span class="o">&gt;&amp;</span> <span class="n">req</span><span class="p">,</span>
     <span class="n">cvra</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">LEDCommand</span><span class="o">::</span><span class="n">Response</span> <span class="o">&amp;</span><span class="n">rsp</span><span class="p">);</span>
-
-<span class="cp">#endif</span>
 </code></pre></div>
 
 <p>We can then add this new file to the build system, in <code>can-io-firmware/package.yml</code>:</p>

@@ -151,7 +151,7 @@ The second one is also mitigated by having a custom Linux distribution which can
 The <a href="http://himeshp.blogspot.com/2018/08/fast-boot-with-raspberry-pi.html">internet</a> mentions it is possible to get boot time down to 4 seconds.
 One very explicit goal of this project is that <strong>the time from power on to wheelbase control should be 10 seconds max.</strong>
 This follows from the fact that the bootloader installed on the motor control board take 10 seconds to boot, and the robot cannot be controlled faster than this.</p>
-<h2 id="rough-technical-design">Rough technical design</h2>
+<h2 id="technical-design">Technical design</h2>
 <p>This project can be divided in several parts: hardware, Linux setup and software.</p>
 <h3 id="hardware">Hardware</h3>
 <p>On the hardware side, once a board is picked (probably a Pi 3 or 4 for convenience), an extension board needs to be designed.
@@ -260,7 +260,7 @@ We could potentially have the robot generate a hotspot, to which we could connec
 </tr>
 <tr>
 <td>PCB Assembly</td>
-<td></td>
+<td>✔️</td>
 <td></td>
 <td>1</td>
 </tr>
@@ -284,7 +284,7 @@ We could potentially have the robot generate a hotspot, to which we could connec
 </tr>
 <tr>
 <td>Modify kernel to for our custom hardware</td>
-<td></td>
+<td>✔️</td>
 <td>antoinealb</td>
 <td>2</td>
 </tr>
@@ -296,7 +296,7 @@ We could potentially have the robot generate a hotspot, to which we could connec
 </tr>
 <tr>
 <td>Optimize boot time to stay under 10 seconds</td>
-<td></td>
+<td>✔️</td>
 <td></td>
 <td>??</td>
 </tr>
@@ -356,7 +356,7 @@ We could potentially have the robot generate a hotspot, to which we could connec
 </tr>
 <tr>
 <td>Change HMI backend to use SDL API (might require Linux setup on Pi)</td>
-<td></td>
+<td>✔️</td>
 <td>antoinealb</td>
 <td>1</td>
 </tr>
