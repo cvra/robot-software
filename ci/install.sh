@@ -29,7 +29,7 @@ fi
 
 if [ "$BUILD_TYPE" == "build-cmake" -o "$BUILD_TYPE" == "build-packager" ]
 then
-    wget https://developer.arm.com/-/media/Files/downloads/gnu-rm/8-2018q4/gcc-arm-none-eabi-8-2018-q4-major-linux.tar.bz2 -O arm-gcc-linux.tar.bz2
+    wget https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2020q2/gcc-arm-none-eabi-9-2020-q2-update-x86_64-linux.tar.bz2 -O arm-gcc-linux.tar.bz2
     tar -xf arm-gcc-linux.tar.bz2
 fi
 

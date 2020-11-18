@@ -12,7 +12,7 @@ fi
 source env/bin/activate
 PROJPATH=$(pwd)
 
-export PATH=$PROJPATH/gcc-arm-none-eabi-8-2018-q4-major/bin/:$PATH
+export PATH=$PROJPATH/gcc-arm-none-eabi-9-2020-q2-update/bin/:$PATH
 export PATH=$PROJPATH/protoc/bin/:$PATH
 
 export CFLAGS="$CFLAGS -I $HOME/cpputest/include/"
