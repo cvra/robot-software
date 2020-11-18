@@ -1,7 +1,7 @@
 ---
 freshness:
   - owner: antoinealb
-    reviewed: 2020-05-19
+    reviewed: 2020-11-18
 ---
 
 # How to handle a new UAVCAN message type?
@@ -97,13 +97,15 @@ bootloader_flash --port /dev/tty.usbmodem3031 \
 
 As you can see the bootloader requires a few flags to flash the board.
 Fortunately most of them do not change very often, or are easy to find.
-`--port` is the name of the serial port.
-`--binary` is the path to the binary we want to flash.
-`--base-address` is the address of the beginning of the application memory.
-    You can find it in the linker script (`can-io-firmware/linker/STM32F302x8_bootloader.ld`), look for `flash0`.
-`--device-class` must match the one stored in the config.
-`--run` asks the board to run the application once the firmware upload is done.
-Finally, we put the list of the boards to update (just `1` here).
+
+* `--port` is the name of the serial port on which the CAN dongle is connected.
+* `--binary` is the path to the binary we want to flash.
+* `--base-address` is the address of the beginning of the application memory.
+    You can find it in the linker script [`can-io-firmware/linker/STM32F302x8_bootloader.ld`](https://github.com/cvra/robot-software/blob/master/can-io-firmware/linker/STM32F302x8_bootloader.ld#L8), look for `flash0`.
+* `--device-class` must match the one stored in the config.
+* `--run` asks the board to run the application once the firmware upload is done.
+
+Finally, we put the list of board IDs to update (just `1` here).
 
 You should get a progress bar, with `Verifying firmware... OK` at the end.
 Your application will start and the LED should be off.
@@ -166,8 +168,7 @@ In this file we will put the prototype of our handler:
 
 ```
 :::c++
-#ifndef LEDCOMMAND_HANDLER_HPP
-#define LEDCOMMAND_HANDLER_HPP
+#pragma once
 
 #include <uavcan/uavcan.hpp>
 #include <cvra/io/LEDCommand.hpp>
@@ -175,8 +176,6 @@ In this file we will put the prototype of our handler:
 void LEDCommand_handler(
     const uavcan::ReceivedDataStructure<cvra::io::LEDCommand::Request>& req,
     cvra::io::LEDCommand::Response &rsp);
-
-#endif
 ```
 
 We can then add this new file to the build system, in `can-io-firmware/package.yml`:

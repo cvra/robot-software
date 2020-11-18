@@ -3,7 +3,7 @@ title: Porting master-firmware to Linux
 author: "antoinealb"
 freshness:
   - owner: antoinealb
-    reviewed: 2020-05-14
+    reviewed: 2020-11-18
 ---
 
 # Running master-firmware on Linux
@@ -40,7 +40,7 @@ The [internet](http://himeshp.blogspot.com/2018/08/fast-boot-with-raspberry-pi.h
 One very explicit goal of this project is that **the time from power on to wheelbase control should be 10 seconds max.**
 This follows from the fact that the bootloader installed on the motor control board take 10 seconds to boot, and the robot cannot be controlled faster than this.
 
-## Rough technical design
+## Technical design
 
 This project can be divided in several parts: hardware, Linux setup and software.
 
@@ -148,20 +148,20 @@ Task                                                                      | Done
 **Electronics**                                                                      |   |            | **Total: 6**
 Schematic for hardware extension for Pi                                              | ✔️ |            | 2
 Routing the PCB                                                                      | ✔️ |            | 2
-PCB Assembly                                                                         |   |            | 1
+PCB Assembly                                                                         | ✔️ |            | 1
 Write a firmware to read wheelbase encoders and send it over CAN (running on nucleo) |   | nuft       | 1
 **Linux setup**                                                                      |   |            | **Total: 10**
 Get Buildroot to boot on chosen SBC                                                  | ✔️ | antoinealb | 1
-Modify kernel to for our custom hardware                                             |   |  antoinealb | 2
+Modify kernel to for our custom hardware                                             | ✔️ |  antoinealb | 2
 Setup ethernet networking & SSH                                                      | ✔️ |            | 1
-Optimize boot time to stay under 10 seconds                                          |   |             | ??
+Optimize boot time to stay under 10 seconds                                          | ✔️ |             | ??
 Deployement scripts and autostart of CVRA software                                   | ✔️ | antoinealb | 3
 **Master firmware modifications**                                                    |   |             | **Total: 11**
 Port enough of the master-firmware to have the uavcan part running on Linux          | ✔️ | antoinealb | 3
 Rewrite debug shell to listen over TCP instead of UART                               |   |             | 2
 Read encoders from CAN instead of from hardware directly.                            | ✔️ |            | 1
 Port rest of the code required for wheelbase control.                                | ✔️ |            | 1
-Manipulate LEDs using sysfs instead of ChibiOS API                                   | ✔️  | antoinealb | 1
-Reads front panel buttons using libgpiod instead of ChibiOS API                         | ✔️ |            | 1
+Manipulate LEDs using sysfs instead of ChibiOS API                                   | ✔️ | antoinealb | 1
+Reads front panel buttons using libgpiod instead of ChibiOS API                      | ✔️ |            | 1
 Port rest of the code required to play a match                                       |   |            | 2
-Change HMI backend to use SDL API (might require Linux setup on Pi)                  |   | antoinealb | 1
+Change HMI backend to use SDL API (might require Linux setup on Pi)                  | ✔️ | antoinealb | 1
