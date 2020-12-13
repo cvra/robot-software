@@ -51,7 +51,7 @@ static void gui_thread()
     auto front_center_page = ActuatorPage("actuator-front-center");
     auto front_right_page = ActuatorPage("actuator-front-right");
     auto back_left_page = ActuatorPage("actuator-back-left");
-    auto back_center_page = ActuatorPage("actuator-back-left");
+    auto back_center_page = ActuatorPage("actuator-back-center");
     auto back_right_page = ActuatorPage("actuator-back-right");
 
     auto actuator_menu = MenuPage(m, "Actuators",
