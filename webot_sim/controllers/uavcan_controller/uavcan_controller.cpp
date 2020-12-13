@@ -34,10 +34,8 @@ int main(int /*argc*/, char** /*argv*/)
     const std::string iface = "vcan0";
     int board_id = 42;
 
-    Motor* leftMotor = robot.getMotor("left wheel motor");
-    Motor* rightMotor = robot.getMotor("right wheel motor");
-    DistanceSensor* distanceSensor = robot.getDistanceSensor("front ultrasonic sensor");
-    LED* led = robot.getLED("front left led");
+    Motor* leftMotor = robot.getMotor("left-wheel-motor");
+    Motor* rightMotor = robot.getMotor("right-wheel-motor");
 
     UavcanMotorEmulator left_motor_board(iface, "left-wheel", board_id++);
     UavcanMotorEmulator right_motor_board(iface, "right-wheel", board_id++);
@@ -57,16 +55,6 @@ int main(int /*argc*/, char** /*argv*/)
     leftMotor->getPositionSensor()->enable(100);
     rightMotor->getPositionSensor()->enable(100);
 
-    if (distanceSensor) {
-        std::cerr << "Found distance sensor" << std::endl;
-        distanceSensor->enable(100);
-        distanceSensor->getValue();
-    }
-
-    if (led) {
-        std::cerr << "Found LED" << std::endl;
-    }
-
     while (robot.step(timeStep) != -1) {
         update_speed(leftMotor, left_motor_board, -1);
         update_speed(rightMotor, right_motor_board, 1);
@@ -82,17 +70,6 @@ int main(int /*argc*/, char** /*argv*/)
         const float pulse_per_radian = wheel_diam_mm * pulse_per_mm / 2;
 
         wheels.set_encoders(leftpos * pulse_per_radian, rightpos * pulse_per_radian);
-
-        if (distanceSensor) {
-            float pressure[2];
-            pressure[0] = 0.;
-            pressure[1] = distanceSensor->getValue() * 1000;
-            actuator_front_left.set_pressure(pressure);
-        }
-
-        if (led) {
-            led->set(255 * actuator_front_left.get_solenoid(0));
-        }
     };
 
     return 0;
