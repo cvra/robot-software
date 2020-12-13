@@ -1,0 +1,32 @@
+#VRML_SIM R2020b utf8
+# license: Creative Commons Attribution 4.0 International License.
+# license url: https://creativecommons.org/licenses/by/4.0/legalcode
+# RockyArea
+
+PROTO RockyArea [
+  field SFVec3f    translation     -1.275 0.058 -1.122
+  #field SFRotation rotation        0 1 0 0
+  field SFString   name            "RockyArea"
+  field SFColor{0 0.360784 0.901961, 1 0.74902 0}    TeamColor       0 0.360784 0.901961
+]
+
+{
+Solid {
+      translation IS translation
+      children [
+        DEF RockyAreaShape Shape {
+          appearance PBRAppearance {
+            baseColor IS TeamColor
+            roughness 1
+            metalness 0
+          }
+          geometry Box {
+            size 0.45 0.022 0.2
+          }
+          isPickable FALSE
+        }
+      ]
+      boundingObject USE RockyAreaShape
+      name IS name
+    }
+}

@@ -1,0 +1,33 @@
+#VRML_SIM R2020b utf8
+# license: Creative Commons Attribution 4.0 International License.
+# license url: https://creativecommons.org/licenses/by/4.0/legalcode
+# Cleats configurable 22x22mm
+
+PROTO Cleats22x22 [
+  field SFVec3f    translation     0 0.011 0
+  field SFRotation rotation        0 1 0 0
+  field SFString   name            "Cleats22x22"
+  field SFFloat    length          0.3
+]
+
+{
+ Solid {
+      translation IS translation
+      rotation IS rotation
+      children [
+        DEF Cleats Shape {
+          appearance PBRAppearance {
+            baseColor 0.678431 0.721569 0.6
+            roughness 1
+            metalness 0
+          }
+          geometry Box {
+            size 0.022 0.022 %{= fields.length.value }%
+          }
+          isPickable FALSE
+        }
+      ]
+      name IS name
+      boundingObject USE Cleats
+    }
+}

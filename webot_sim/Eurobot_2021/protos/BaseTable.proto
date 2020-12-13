@@ -1,0 +1,45 @@
+#VRML_SIM R2020b utf8
+# license: Creative Commons Attribution 4.0 International License.
+# license url: https://creativecommons.org/licenses/by/4.0/legalcode
+# Base Table
+
+PROTO BaseTable [
+  #field SFVec3f    translation     0 0 0
+  #field SFRotation rotation        0 1 0 0
+  #field SFString   name            "BaseTable"
+]
+{
+Group {
+  children [
+    GameArea {
+    }
+    CentralPlatform {
+    }
+    LeftBeaconSupport {
+      translation -1.594 0 0
+    }
+    LeftBeaconSupport {
+      translation -1.594 0 0.95
+      name "LeftBeaconSupport(1)"
+      TeamColor 1 0.74902 0
+    }
+    LeftBeaconSupport {
+      translation -1.594 0 -0.95
+      name "LeftBeaconSupport(2)"
+      TeamColor 1 0.74902 0
+    }
+    RightBeaconSupport {
+      translation 1.594 0 0
+      TeamColor 1 0.74902 0
+    }
+    RightBeaconSupport {
+      translation 1.594 0 0.95
+      name "RightBeaconSupport(1)"
+    }
+    RightBeaconSupport {
+      translation 1.594 0 -0.95
+      name "RightBeaconSupport(2)"
+    }
+  ]
+}
+}

@@ -1,0 +1,361 @@
+#VRML_SIM R2020b utf8
+# license: Creative Commons Attribution 4.0 International License.
+# license url: https://creativecommons.org/licenses/by/4.0/legalcode
+# Table 2021
+
+PROTO Table2021 [
+  #field SFVec3f    translation     0 0.011 0
+  #field SFRotation rotation        0 1 0 0
+  #field SFString   name            "Table2021WithObject"
+  field SFFloat    BeaconAngle     0
+]
+
+{
+Group {
+  children [
+Transform {
+  translation 1.5 0 1
+  children [
+    BaseTable {
+    }
+    WeatherVane {
+      BeaconAngle IS BeaconAngle
+    }
+    RockyArea {
+    }
+    RockyArea {
+      translation 1.275 0.058 -1.122
+      name "RockyArea(1)"
+      TeamColor 1 0.74902 0
+    }
+    GroundedZone {
+      translation -1.522 0.07 0.6
+      rotation 0 1 0 1.5707996938995747
+    }
+    GroundedZone {
+      translation 1.522 0.07 0.6
+      rotation 0 1 0 -1.570795613280012
+      name "GroundedZone(2)"
+    }
+    GroundedZone {
+      translation -0.65 0.07 -1.022
+      name "GroundedZone(1)"
+    }
+    GroundedZone {
+      translation 0.65 0.07 -1.022
+      name "GroundedZone(3)"
+    }
+    Cleats22x22 {
+      translation 0 0.011 0.85
+    }
+    Cleats22x22 {
+      translation 0.6 0.011 0.925
+      name "Cleats22x22(1)"
+      length 0.15
+    }
+    Cleats22x22 {
+      translation -0.6 0.011 0.925
+      name "Cleats22x22(2)"
+      length 0.15
+    }
+    Windsock {
+      translation -1.27 0.045 1.033
+      isPickable TRUE
+    }
+    Windsock {
+      translation -0.865 0.045 1.033
+      name "Windsock(1)"
+      isPickable TRUE
+    }
+    Windsock {
+      translation 0.865 0.045 1.033
+      rotation 0 1 0 3.141592653589793
+      name "Windsock(2)"
+      isPickable TRUE
+    }
+    Windsock {
+      translation 1.27 0.045 1.033
+      rotation 0 1 0 3.141592653589793
+      name "Windsock(3)"
+      isPickable TRUE
+    }
+  ]
+}
+Transform {
+  translation 1.005 0 1.955
+  children [
+    Buoy {
+    }
+    Buoy {
+      translation 0.06 0 -0.3
+      baseColor 0 0.666667 0.0705882
+      name "Buoy(1)"
+    }
+    Buoy {
+      translation 0.33 0 -0.3
+      name "Buoy(2)"
+    }
+    Buoy {
+      translation 0.39 0 0
+      baseColor 0 0.666667 0.0705882
+      name "Buoy(3)"
+    }
+  ]
+}
+Transform {
+  translation 1.605 0 1.955
+  children [
+    Buoy {
+      name "Buoy(4)"
+    }
+    Buoy {
+      translation 0.06 0 -0.3
+      baseColor 0 0.666667 0.0705882
+      name "Buoy(5)"
+    }
+    Buoy {
+      translation 0.33 0 -0.3
+      name "Buoy(6)"
+    }
+    Buoy {
+      translation 0.39 0 0
+      baseColor 0 0.666667 0.0705882
+      name "Buoy(7)"
+    }
+  ]
+}
+Transform {
+  translation 0.3 0 0.4
+  children [
+    Buoy {
+      name "Buoy(8)"
+    }
+    Buoy {
+      translation 0.145 0 0.115
+      baseColor 0 0.666667 0.0705882
+      name "Buoy(9)"
+    }
+    Buoy {
+      translation 0.145 0 0.685
+      name "Buoy(10)"
+    }
+    Buoy {
+      translation 0 0 0.8
+      baseColor 0 0.666667 0.0705882
+      name "Buoy(11)"
+    }
+  ]
+}
+Transform {
+  translation 2.7 0 1.2
+  rotation 0 1 0 3.141592653589793
+  children [
+    Buoy {
+      name "Buoy(12)"
+    }
+    Buoy {
+      translation 0.145 0 0.115
+      baseColor 0 0.666667 0.0705882
+      name "Buoy(13)"
+    }
+    Buoy {
+      translation 0.145 0 0.685
+      name "Buoy(14)"
+    }
+    Buoy {
+      translation 0 0 0.8
+      baseColor 0 0.666667 0.0705882
+      name "Buoy(15)"
+    }
+  ]
+}
+Transform {
+  children [
+    Buoy {
+      translation 0.67 0 0.1
+      name "Buoy(16)"
+    }
+    Buoy {
+      translation 0.956 0 0.4
+      baseColor 0 0.666667 0.0705882
+      name "Buoy(17)"
+    }
+    Buoy {
+      translation 1.1 0 0.8
+      name "Buoy(18)"
+    }
+    Buoy {
+      translation 1.27 0 1.2
+      baseColor 0 0.666667 0.0705882
+      name "Buoy(19)"
+    }
+  ]
+}
+Transform {
+  children [
+    Buoy {
+      translation 2.33 0 0.1
+      baseColor 0 0.666667 0.0705882
+      name "Buoy(20)"
+    }
+    Buoy {
+      translation 2.044 0 0.4
+      name "Buoy(21)"
+    }
+    Buoy {
+      translation 1.9 0 0.8
+      baseColor 0 0.666667 0.0705882
+      name "Buoy(22)"
+    }
+    Buoy {
+      translation 1.73 0 1.2
+      name "Buoy(23)"
+    }
+  ]
+}
+Transform {
+  translation -0.067 0.13 1.6
+  rotation 0 0 1 3.141592653589793
+  children [
+    Buoy {
+      translation 0 0 -0.15
+      name "Buoy(24)"
+    }
+    Buoy {
+      translation 0 0 -0.075
+      baseColor 0 0.666667 0.0705882
+      name "Buoy(25)"
+    }
+    Buoy {
+      name "Buoy(26)"
+    }
+    Buoy {
+      translation 0 0 0.075
+      baseColor 0 0.666667 0.0705882
+      name "Buoy(27)"
+    }
+    Buoy {
+      translation 0 0 0.15
+      name "Buoy(28)"
+    }
+  ]
+}
+Transform {
+  translation 3.067 0.13 1.6
+  rotation 0 0 1 3.141592653589793
+  children [
+    Buoy {
+      translation 0 0 -0.15
+      baseColor 0 0.666667 0.0705882
+      name "Buoy(44)"
+    }
+    Buoy {
+      translation 0 0 -0.075
+      name "Buoy(30)"
+    }
+    Buoy {
+      baseColor 0 0.666667 0.0705882
+      name "Buoy(31)"
+    }
+    Buoy {
+      translation 0 0 0.075
+      name "Buoy(32)"
+    }
+    Buoy {
+      translation 0 0 0.15
+      baseColor 0 0.666667 0.0705882
+      name "Buoy(33)"
+    }
+  ]
+}
+Transform {
+  translation 0.85 0.13 -0.067
+  rotation 0 0 1 3.141592653589793
+  children [
+    Buoy {
+      translation -0.15 0 0
+      name "Buoy(43)"
+    }
+    Buoy {
+      translation -0.075 0 0
+      baseColor 0 0.666667 0.0705882
+      name "Buoy(34)"
+    }
+    Buoy {
+      baseColor 0 0.666667 0.0705882
+      name "Buoy(35)"
+    }
+    Buoy {
+      translation 0.075 0 0
+      name "Buoy(36)"
+    }
+    Buoy {
+      translation 0.15 0 0
+      baseColor 0 0.666667 0.0705882
+      name "Buoy(37)"
+    }
+  ]
+}
+Transform {
+  translation 2.15 0.13 -0.067
+  rotation 0 0 1 3.141592653589793
+  children [
+    Buoy {
+      translation -0.15 0 0
+      name "Buoy(38)"
+    }
+    Buoy {
+      translation -0.075 0 0
+      baseColor 0 0.666667 0.0705882
+      name "Buoy(39)"
+    }
+    Buoy {
+      name "Buoy(40)"
+    }
+    Buoy {
+      translation 0.075 0 0
+      name "Buoy(41)"
+    }
+    Buoy {
+      translation 0.15 0 0
+      baseColor 0 0.666667 0.0705882
+      name "Buoy(42)"
+    }
+  ]
+}
+
+Transform {
+  children [
+    Buoy {
+      translation 1.68 0 0.34
+      name "Buoy(29)"
+    }
+    Buoy {
+      translation 1.91 0 0.16
+      baseColor 0 0.666667 0.0705882
+      name "Buoy(45)"
+    }
+    Buoy {
+      translation 1.61 0 0.15
+      name "Buoy(46)"
+    }
+    Buoy {
+      translation 1.26 0 0.21
+      name "Buoy(47)"
+    }
+    Buoy {
+      translation 1.27 0 0.37
+      baseColor 0 0.666667 0.0705882
+      name "Buoy(48)"
+    }
+    Buoy {
+      translation 1.1 0 0.14
+      baseColor 0 0.666667 0.0705882
+      name "Buoy(49)"
+    }
+  ]
+}
+  ]
+}
+
+}
