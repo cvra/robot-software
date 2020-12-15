@@ -16,7 +16,7 @@ using namespace webots;
 
 void update_speed(Motor* m, UavcanMotorEmulator& u, int direction)
 {
-    constexpr float max_speed = 47.6;
+    constexpr float max_speed = 10;
     float speed = u.get_voltage() / 10.f * max_speed;
 
     // Clamp the speed
@@ -121,7 +121,7 @@ int main(int /*argc*/, char** /*argv*/)
         auto leftpos = -leftMotor->getPositionSensor()->getValue();
         auto rightpos = rightMotor->getPositionSensor()->getValue();
 
-        const float wheel_diam_mm = 42;
+        const float wheel_diam_mm = 37;
         const float pulse_per_mm = 162;
 
         // Complete rotation of the wheel for 2 * pi radians is pi * diam * pulse_per_mm

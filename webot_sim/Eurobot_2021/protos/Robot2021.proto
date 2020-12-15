@@ -45,6 +45,7 @@ Robot {
                 }
               ]
               endPoint Solid {
+                contactMaterial "material-wheel"
                 translation -1.3665868262232704e-42 -1.3487827124625262e-07 0
                 rotation 1 -1.0778640945013372e-09 1.0778677237886823e-09 1.5707996938995747
                 children [
@@ -82,6 +83,7 @@ Robot {
                 }
               ]
               endPoint Solid {
+                contactMaterial "material-wheel"
                 translation -4.270583831947717e-44 -1.3487827124625262e-07 0
                 rotation 1 -8.990247527514376e-10 8.990277798669842e-10 1.5707996938995747
                 children [
@@ -220,8 +222,8 @@ Robot {
                   }
                 ]
                 name "solid(17)"
-                boundingObject USE free-encoder
-                physics USE WheelPhys
+                #boundingObject USE free-encoder
+                #physics USE WheelPhys
               }
             }
           ]
@@ -245,8 +247,8 @@ Robot {
                   USE free-encoder
                 ]
                 name "solid(18)"
-                boundingObject USE free-encoder
-                physics USE WheelPhys
+                #boundingObject USE free-encoder
+                #physics USE WheelPhys
               }
             }
           ]

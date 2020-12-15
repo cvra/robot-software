@@ -8,7 +8,7 @@ master:
     calibration_direction: 1 # calibration side is on the front
     odometry:
         external_encoder_ticks_per_mm: 162.
-        external_track_mm: 108.
+        external_track_mm: 174.
         left_wheel_correction_factor: -1.
         right_wheel_correction_factor: 1.
     beacon:
@@ -17,12 +17,12 @@ master:
     aversive:
         control:
             angle:
-                kp: 0.2
+                kp: 2.5
                 ki: 0.
                 kd: 0.
                 i_limit: 10.
             distance:
-                kp: 0.2
+                kp: 1.5
                 ki: 0.
                 kd: 0.
                 i_limit: 10.
