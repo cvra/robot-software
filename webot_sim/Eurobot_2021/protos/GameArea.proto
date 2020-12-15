@@ -13,6 +13,8 @@ PROTO GameArea [
 Solid {
 #translation IS translation
 #rotation IS rotation
+  contactMaterial "material-table"
+
   children [
     DEF GameAreaWall Group {
       children [

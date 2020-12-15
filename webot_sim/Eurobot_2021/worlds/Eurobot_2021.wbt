@@ -1,6 +1,16 @@
 #VRML_SIM R2020b utf8
 WorldInfo {
   coordinateSystem "NUE"
+  contactProperties [
+    ContactProperties {
+      material1 "material-table"
+      material2 "material-frotteur"
+      coulombFriction [
+        0
+      ]
+      bounce 0
+    }
+  ]
 }
 Viewpoint {
   orientation -0.9727184491234067 -0.212934802214316 -0.09207382223468694 0.8365937549692825

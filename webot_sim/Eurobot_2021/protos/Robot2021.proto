@@ -96,6 +96,7 @@ Robot {
         Solid {
           translation 0.0865 0.0053 0.110325
           rotation 1 0 0 3.141592653589793
+          contactMaterial "material-frotteur"
           children [
             DEF FrotteurShape Shape {
               appearance Appearance {
@@ -139,6 +140,7 @@ Robot {
         Solid {
           translation 0.0865 0.0053 -0.110325
           rotation 1 0 0 3.141592653589793
+          contactMaterial "material-frotteur"
           children [
             USE FrotteurShape
           ]
@@ -157,6 +159,7 @@ Robot {
         Solid {
           translation -0.0865 0.0053 0.110325
           rotation 1 0 0 3.141592653589793
+          contactMaterial "material-frotteur"
           children [
             USE FrotteurShape
           ]
@@ -175,6 +178,7 @@ Robot {
         Solid {
           translation -0.0865 0.0053 -0.110325
           rotation 1 0 0 3.141592653589793
+          contactMaterial "material-frotteur"
           children [
             USE FrotteurShape
           ]
