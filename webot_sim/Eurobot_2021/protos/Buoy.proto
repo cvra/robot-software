@@ -42,6 +42,154 @@ Solid {
       }
       isPickable IS isPickable
     }
+       Connector {
+      translation 0 0.115 0
+      rotation 1 0 0 -1.5708003061004252
+      model "ventouse"
+      type "passive"
+      autoLock TRUE
+      distanceTolerance 0.006
+      axisTolerance 0.1
+      rotationTolerance 0
+      numberOfRotations 0
+    }
+    Transform {
+      rotation 0 1 0 -1.5708003061004252
+      children [
+        Connector {
+          translation 0 0.038 0.03386
+          rotation 1 0 0 -0.0781017
+          name "connector(1)"
+          model "ventouse"
+          type "passive"
+          autoLock TRUE
+          distanceTolerance 0.006
+          axisTolerance 0.1
+          rotationTolerance 0
+          numberOfRotations 0
+        }
+      ]
+    }
+    Transform {
+      rotation 0 1 0 -1.5707996938995747
+      children [
+        Connector {
+          translation 0 0.023 0.03386
+          rotation 1 0 0 -0.0781017
+          name "connector(2)"
+          model "ventouse"
+          type "passive"
+          autoLock TRUE
+          distanceTolerance 0.006
+          axisTolerance 0.1
+          rotationTolerance 0
+          numberOfRotations 0
+        }
+      ]
+    }
+    Transform {
+      rotation 0 1 0 3.141592653589793
+      children [
+        Connector {
+          translation 0 0.023 0.03386
+          rotation 1 0 0 -0.0781017
+          name "connector(3)"
+          model "ventouse"
+          type "passive"
+          autoLock TRUE
+          distanceTolerance 0.006
+          axisTolerance 0.1
+          rotationTolerance 0
+          numberOfRotations 0
+        }
+      ]
+    }
+    Transform {
+      rotation 0 1 0 3.141592653589793
+      children [
+        Connector {
+          translation 0 0.038 0.03386
+          rotation 1 0 0 -0.0781017
+          name "connector(4)"
+          model "ventouse"
+          type "passive"
+          autoLock TRUE
+          distanceTolerance 0.006
+          axisTolerance 0.1
+          rotationTolerance 0
+          numberOfRotations 0
+        }
+      ]
+    }
+    Transform {
+      rotation 0 1 0 1.5707996938995747
+      children [
+        Connector {
+          translation 0 0.038 0.03386
+          rotation 1 0 0 -0.0781017
+          name "connector(5)"
+          model "ventouse"
+          type "passive"
+          autoLock TRUE
+          distanceTolerance 0.006
+          axisTolerance 0.1
+          rotationTolerance 0
+          numberOfRotations 0
+        }
+      ]
+    }
+    Transform {
+      rotation 0 1 0 1.5707996938995747
+      children [
+        Connector {
+          translation 0 0.023 0.03386
+          rotation 1 0 0 -0.0781017
+          name "connector(6)"
+          model "ventouse"
+          type "passive"
+          autoLock TRUE
+          distanceTolerance 0.006
+          axisTolerance 0.1
+          rotationTolerance 0
+          numberOfRotations 0
+        }
+      ]
+    }
+    Transform {
+      children [
+        Connector {
+          translation 0 0.038 0.03386
+          rotation 1 0 0 -0.0781017
+          name "connector(7)"
+          model "ventouse"
+          type "passive"
+          autoLock TRUE
+          distanceTolerance 0.006
+          axisTolerance 0.1
+          rotationTolerance 0
+          numberOfRotations 0
+        }
+      ]
+    }
+    Transform {
+      children [
+        Connector {
+          translation 0 0.023 0.03386
+          rotation 1 0 0 -0.0781017
+          name "connector(8)"
+          model "ventouse"
+          type "passive"
+          autoLock TRUE
+          distanceTolerance 0.006
+          axisTolerance 0.1
+          rotationTolerance 0
+          numberOfRotations 0
+        }
+      ]
+    } 
+    
+ 
+    
   ]
   name IS name
   boundingObject IndexedFaceSet {
