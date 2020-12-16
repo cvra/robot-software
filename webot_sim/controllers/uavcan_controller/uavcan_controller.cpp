@@ -10,6 +10,7 @@
 #include "absl/strings/str_replace.h"
 #include "absl/types/optional.h"
 #include "actuator_board_emulator.h"
+#include "servo_board_emulator.h"
 #include <string>
 
 using namespace webots;
@@ -86,6 +87,7 @@ int main(int /*argc*/, char** /*argv*/)
     UavcanMotorEmulator left_motor_board(iface, "left-wheel", board_id++);
     UavcanMotorEmulator right_motor_board(iface, "right-wheel", board_id++);
     WheelEncoderEmulator wheels(iface, "encoders", board_id++);
+    ServoBoardEmulator bar_servos(iface, "bar-servos", board_id++);
 
     std::vector<std::string> actuator_names{
         "actuator-front-left", "actuator-front-right", "actuator-front-center",
@@ -96,6 +98,7 @@ int main(int /*argc*/, char** /*argv*/)
     left_motor_board.start();
     right_motor_board.start();
     wheels.start();
+    bar_servos.start();
 
     if (!leftMotor || !rightMotor) {
         std::cerr << "Could not find the robot's motors" << std::endl;
@@ -114,6 +117,14 @@ int main(int /*argc*/, char** /*argv*/)
     leftMotor->getPositionSensor()->enable(100);
     rightMotor->getPositionSensor()->enable(100);
 
+    Motor* leftBarMotor = robot.getMotor("left-bar-motor");
+    Motor* rightBarMotor = robot.getMotor("right-bar-motor");
+
+    if (!leftBarMotor || !rightBarMotor) {
+        std::cerr << "Could not find the bar's motors" << std::endl;
+        return 1;
+    }
+
     while (robot.step(timeStep) != -1) {
         update_speed(leftMotor, left_motor_board, -1);
         update_speed(rightMotor, right_motor_board, 1);
@@ -123,6 +134,9 @@ int main(int /*argc*/, char** /*argv*/)
 
         const float wheel_diam_mm = 37;
         const float pulse_per_mm = 162;
+
+        leftBarMotor->setPosition(bar_servos.get_servo_pos(0));
+        rightBarMotor->setPosition(bar_servos.get_servo_pos(1));
 
         // Complete rotation of the wheel for 2 * pi radians is pi * diam * pulse_per_mm
         // -> rotation for 1 radian is diam * pulse_per_mm / 2

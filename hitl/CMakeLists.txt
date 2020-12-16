@@ -41,6 +41,7 @@ add_library(hitl_lib
     wheel_encoders_emulator.cpp
     sensor_board_emulator.cpp
     actuator_board_emulator.cpp
+    servo_board_emulator.cpp
 )
 
 target_link_libraries(hitl_lib
