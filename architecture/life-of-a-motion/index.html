@@ -128,7 +128,7 @@ Theme by GitBook
 
 
 <h2 id="life-of-a-movement">Life of a movement</h2>
-<p>Game strategy says <code>goto(1500mm, 1500mm)</code>.
+<p>The game AI says <code>goto(1500mm, 1500mm)</code>.
 What happens next?</p>
 <p><img alt="Steps involved in life of a motion" src="../life-of-a-motion.png" /></p>
 <ol>
@@ -140,20 +140,21 @@ What happens next?</p>
     Then, <code>robot_system</code> computes the current angular and linear positions by reading encoders position from hardware and summing/subtracting them.
     Those current positions and desired filtered position are used as inputs for the PIDs, who give back angular &amp; linear speeds.
     <code>robot_system</code> is used again, to convert those to left and right wheel speeds.
-    The left and right wheel are sent to <code>motor_manager</code></li>
+    The left and right wheel are sent to <code>motor_manager</code>, which stores the required velocity for each motor board.</li>
 <li>Periodically, <code>motor_manager</code> sends to the left and right motor boards the new speed setpoints.
     It must first convert the names of the board to CAN IDs by reading the mapping stored by the <code>bus_enumerator</code> on the boot of the robot.</li>
 <li>The motor boards apply this new speed setpoints to the wheels using their internal control, which causes the robot to move.
     This moves the external encoders wheels, which send their positions to the master board using standard AB quadrature channels.</li>
 <li>Periodically, <code>position_manager</code> reads the new encoders positions and computes the new (XY, angle) position of the robot.</li>
-<li>The process starts over at step 2, until the path is complete.
+<li>The process starts over until the path is complete.
     For intermediate points, the strategy decides if it can move to the next waypoint by computing distance to the current point and comparing to a threshold.
     For the final point, <code>trajectory_manager</code> decides if he arrived by looking at whether the filtered angle and distance speeds are zero (meaning we are stopped).</li>
 </ol>
 <h2 id="useful-references">Useful references</h2>
 <ul>
 <li><a href="https://www.rcva.fr/10-ans-dexperience/9/">Cours d'asservissement de RCVA, in French</a></li>
-<li><a href="https://wiki.droids-corp.org/articles/a/v/e/Aversive/Asservissement_Microb_2008.html">Microb Technology control system design, in French</a></li>
+<li><a href="https://wiki.droids-corp.org/articles/a/v/e/Aversive/Asservissement_Microb_2008.html">Microb Technology control system design, in French</a>.
+    We are using most of their control system implementation (with some changes) so it is a good introduction on how to use our system.</li>
 </ul>
 
 
