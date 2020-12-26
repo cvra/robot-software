@@ -1,0 +1,21 @@
+name: Raspberry Pi build
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: 'recursive'
+    - name: Prepare CMake project
+      uses: docker://antoinealb/cvra-sdk:latest
+      with:
+        args: bash -c "cd /github/workspace && mkdir build && cd build && cmake .. -DCMAKE_TOOLCHAIN_FILE=/aarch64-buildroot-linux-gnu_sdk-buildroot/share/buildroot/toolchainfile.cmake"
+    - name: Prepare Nanopb
+      uses: docker://antoinealb/cvra-sdk:latest
+      with:
+        args: bash -c "cd /github/workspace/lib/nanopb/nanopb/generator/proto && make"
+    - name: Build
+      uses: docker://antoinealb/cvra-sdk:latest
+      with:
+        args: bash -c "cd /github/workspace/build && make master-firmware.ipk"

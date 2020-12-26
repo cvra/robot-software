@@ -22,8 +22,6 @@ matrix:
     include:
         - compiler: gcc
           env: BUILD_TYPE="tests" # compiles everything on linux, including master-firmware
-        - compiler: gcc
-          env: BUILD_TYPE="raspberry" # compiles master-firmware using the raspberry pi cross compiler
 # Disabled until we figure out what to do with the cmake cross compile story
 #        - compiler: gcc
 #          env: BUILD_TYPE="build-cmake" PLATFORM="uwb-beacon"

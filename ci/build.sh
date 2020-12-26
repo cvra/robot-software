@@ -30,19 +30,6 @@ case $BUILD_TYPE in
         popd
         ;;
 
-    raspberry)
-        docker run -it \
-            --volume $(pwd):/src \
-            -w /src/lib/nanopb/nanopb/generator/proto antoinealb/cvra-sdk make
-        mkdir build
-        docker run -it -v $(pwd):/src \
-            -w /src/build-docker antoinealb/cvra-sdk \
-            cmake .. -DCMAKE_TOOLCHAIN_FILE=/aarch64-buildroot-linux-gnu_sdk-buildroot/share/buildroot/toolchainfile.cmake
-        docker run -it -v $(pwd):/src \
-        -w /src/build-docker antoinealb/cvra-sdk \
-        make master-firmware.ipk
-        ;;
-
     build-cmake)
         mkdir build
         pushd build
