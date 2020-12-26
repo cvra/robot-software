@@ -19,12 +19,6 @@ addons:
 language: cpp
 
 matrix:
-    include:
-        - compiler: gcc
-          env: BUILD_TYPE="tests" # compiles everything on linux, including master-firmware
-# Disabled until we figure out what to do with the cmake cross compile story
-#        - compiler: gcc
-#          env: BUILD_TYPE="build-cmake" PLATFORM="uwb-beacon"
         - compiler: gcc
           env: BUILD_TYPE="build-packager" PLATFORM="actuator"
         - compiler: gcc

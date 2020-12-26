@@ -29,16 +29,3 @@ then
     wget https://developer.arm.com/-/media/Files/downloads/gnu-rm/8-2018q4/gcc-arm-none-eabi-8-2018-q4-major-linux.tar.bz2 -O arm-gcc-linux.tar.bz2
     tar -xf arm-gcc-linux.tar.bz2
 fi
-
-if [ "$BUILD_TYPE" == "tests" ]
-then
-    # Install cpputest
-    pushd ..
-    wget "https://github.com/cpputest/cpputest/releases/download/v3.8/cpputest-3.8.tar.gz" -O cpputest.tar.gz
-    tar -xzf cpputest.tar.gz
-    cd cpputest-3.8/
-    ./configure --prefix=$HOME/cpputest
-    make
-    make install
-    popd
-fi
