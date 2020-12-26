@@ -1,0 +1,34 @@
+name: STM32 builds
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        board:
+          - actuator
+          - can-io
+          - motor-control
+          - proximity-beacon
+          - sensor
+          - uwb-beacon
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: 'recursive'
+    - name: Monkeypatch python3
+      run: |
+        cd $GITHUB_WORKSPACE/lib/uavcan/libuavcan/dsdl_compiler
+        sed -i s/python/python3/ libuavcan_dsdlc
+    - name: Run packager
+      uses: docker://antoinealb/cvra-ci:latest
+      with:
+        args: bash -c "cd /github/workspace/${{ matrix.board }}-firmware && packager"
+    - name: Generate DSDL files
+      uses: docker://antoinealb/cvra-ci:latest
+      with:
+        args: bash -c "cd /github/workspace/${{ matrix.board }}-firmware && make dsdlc"
+    - name: Build
+      uses: docker://antoinealb/cvra-ci:latest
+      with:
+        args: bash -c "cd /github/workspace/${{ matrix.board }}-firmware && make"
