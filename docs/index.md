@@ -1,7 +1,5 @@
 # Robot software stack
 
-[![Build Status](https://travis-ci.org/cvra/robot-software.svg?branch=master)](https://travis-ci.org/cvra/robot-software)
-
 ## Content
 
 This repo contains all the software used on our robots:

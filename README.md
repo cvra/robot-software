@@ -1,6 +1,10 @@
 # Robot software stack
 
-[![Build Status](https://travis-ci.org/cvra/robot-software.svg?branch=master)](https://travis-ci.org/cvra/robot-software)
+![Unit tests](https://github.com/cvra/robot-software/workflows/Unit%20tests/badge.svg)
+
+![STM32 builds](https://github.com/cvra/robot-software/workflows/STM32%20builds/badge.svg)
+
+![Raspberry Pi build](https://github.com/cvra/robot-software/workflows/Raspberry%20Pi%20build/badge.svg)
 
 This repo contains all the software used on our robots:
 - `can-io-firmware` contains the firmware that runs on the [IO board](http://www.cvra.ch/robot-software/io.html)
