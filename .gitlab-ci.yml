@@ -1,0 +1,18 @@
+# Just automatically builds the docker image used for CI purpose.
+# The actual build is done by Github actions
+image: gcr.io/kaniko-project/executor:debug
+
+stages:
+  - package
+
+build-docker:
+  stage: package
+  only:
+    refs:
+      - master
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - echo "{\"auths\":{\"https://index.docker.io/v1/\":{\"auth\":\"$CI_HUB_SECRET\"}}}" > /kaniko/.docker/config.json
+    - /kaniko/executor --context $CI_PROJECT_DIR/output/images --dockerfile $CI_PROJECT_DIR/ci/Dockerfile --destination antoinealb/cvra-ci:latest
