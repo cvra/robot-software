@@ -128,6 +128,6 @@ To build the example you will need CMake as well as a recent C++ compiler:
 ```
 mkdir build && cd build
 cmake ..
-make
+make example
 ./example
 ```
