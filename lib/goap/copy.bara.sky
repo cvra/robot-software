@@ -1,0 +1,29 @@
+core.workflow(
+    name = "default",
+    mode = "ITERATIVE",
+    origin = git.origin(
+        url = "https://github.com/cvra/robot-software.git",
+        ref = "master",
+    ),
+    destination = git.destination(
+        # url = "git@github.com:cvra/goap-cpp.git",
+        url = "file:///tmp/foo",
+        fetch = "master",
+        push = "master",
+    ),
+    origin_files = glob([
+        "LICENSE",
+        "lib/goap/*.demo.txt",
+        "lib/goap/**.cpp",
+        "lib/goap/**.hpp",
+        "lib/goap/**.md",
+        "lib/test-runner/main.cpp",
+    ]),
+    destination_files = glob(["**"]),
+    authoring = authoring.pass_thru("Copybara <noreply@cvra.ch>"),
+    transformations = [
+        core.move("lib/goap/CMakeLists.demo.txt", "CMakeLists.txt"),
+        core.move("lib/goap", "", paths = glob(["**.cpp", "**.hpp", "**.md"])),
+        core.move("lib/test-runner", "tests"),
+    ],
+)
