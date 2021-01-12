@@ -239,6 +239,21 @@ TEST(TooLongPathTestGroup, DoNotFindFarAwayPlan)
     CHECK_EQUAL(-2, cost);
 }
 
+TEST(TooLongPathTestGroup, RespectsMaxOutputLength)
+{
+    FarAwayState state;
+    state.farDistance = 11;
+    FarAwayAction a;
+    FarAwayGoal goal;
+    goap::Action<FarAwayState>* actions[] = {&a};
+
+    constexpr int max_path_len = 10;
+    goap::Planner<FarAwayState, 1000> planner;
+    goap::Action<FarAwayState>* path[max_path_len];
+    auto cost = planner.plan(state, goal, actions, 1, path, max_path_len);
+    CHECK_TEXT(cost < 0, "Should not have found a path");
+}
+
 TEST_GROUP (InternalDistanceGroup) {
 };
 

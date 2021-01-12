@@ -77,14 +77,15 @@ public:
                     len++;
                 }
 
-                auto i = len - 1;
-                for (auto p = current; p->parent; p = p->parent) {
-                    if (path) {
-                        if (i < path_len) {
-                            path[i] = p->action;
-                        }
+                if (len > path_len) {
+                    return -1;
+                }
+
+                if (path) {
+                    auto i = len - 1;
+                    for (auto p = current; p->parent; p = p->parent, i--) {
+                        path[i] = p->action;
                     }
-                    i--;
                 }
 
                 return len;
