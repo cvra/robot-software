@@ -1,9 +1,6 @@
 [submodule "ChibiOS"]
 	path = lib/ChibiOS
 	url = https://github.com/cvra/ChibiOS
-[submodule "lwip"]
-	path = lib/lwip/lwip
-	url = https://git.savannah.nongnu.org/git/lwip.git
 [submodule "uavcan"]
 	path = lib/uavcan
 	url = https://github.com/cvra/uavcan.git
