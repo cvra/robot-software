@@ -1,0 +1,99 @@
+#VRML_SIM R2020b utf8
+# license: Creative Commons Attribution 4.0 International License.
+# license url: https://creativecommons.org/licenses/by/4.0/legalcode
+# Eurobot games area
+
+PROTO GameArea [
+  #field SFVec3f    translation        0 0 0
+  #field SFRotation rotation           0 1 0 0
+  #field SFString   name               "GameArea"
+]
+
+{
+Solid {
+#translation IS translation
+#rotation IS rotation
+  contactMaterial "material-table"
+
+  children [
+    DEF GameAreaWall Group {
+      children [
+        Transform {
+          rotation 0 1 0 3.141592653589793
+          children [
+            Shape {
+              appearance PBRAppearance {
+                baseColorMap ImageTexture {
+                  url [
+                    "textures/vinyl_texture.jpg"
+                  ]
+                }
+                roughness 1
+                metalness 0
+                emissiveColorMap ImageTexture {
+                  url [
+                    "textures/vinyl_texture.jpg"
+                  ]
+                }
+                emissiveIntensity -0.5
+              }
+              geometry Plane {
+                size 3 2
+              }
+            
+            }
+          ]
+        }
+        Transform {
+          translation 1.511 0.035 0
+          children [
+            DEF SmallWall Shape {
+              appearance DEF WallAppearance PBRAppearance {
+                baseColor 0.678431 0.721569 0.6
+                roughness 1
+                metalness 0
+              }
+              geometry Box {
+                size 0.022 0.07 2.044
+              }
+              
+            }
+          ]
+        }
+        Transform {
+          translation -1.511 0.035 0
+          children [
+            USE SmallWall
+          ]
+        }
+        Transform {
+          translation 0 0.035 1.011
+          children [
+            DEF BigWall Shape {
+              appearance USE WallAppearance
+              geometry Box {
+                size 3 0.07 0.022
+              }
+              
+            }
+          ]
+        }
+        Transform {
+          translation 0 0.035 -1.011
+          children [
+            USE BigWall
+          ]
+        }
+      ]
+    }
+    
+  ]
+  
+  
+  boundingObject USE GameAreaWall
+  name "GameArea"
+  #name IS name
+}
+   
+
+}

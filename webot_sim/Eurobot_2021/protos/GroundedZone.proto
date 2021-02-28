@@ -1,0 +1,73 @@
+#VRML_SIM R2020b utf8
+# license: Creative Commons Attribution 4.0 International License.
+# license url: https://creativecommons.org/licenses/by/4.0/legalcode
+# GroundedZone
+
+PROTO GroundedZone [
+  field SFVec3f    translation     0 0 0
+  field SFRotation rotation        0 1 0 0
+  field SFString   name            "GroundedZone"
+]
+
+{
+
+    Solid {
+          translation IS translation
+      rotation IS rotation
+      children [
+        DEF ShapeWall Group {
+          children [
+            Transform {
+              translation 0 -0.066 -0.056
+              children [
+                Shape {
+                  appearance DEF WallColor PBRAppearance {
+                    baseColor 0.678431 0.721569 0.6
+                    roughness 1
+                    metalness 0
+                  }
+                  geometry Box {
+                    size 0.419 0.022 0.112
+                  }
+                }
+              ]
+            }
+            Transform {
+              translation 0 -0.0275 -0.101
+              children [
+                Shape {
+                  appearance USE WallColor
+                  geometry Box {
+                    size 0.419 0.055 0.022
+                  }
+                  isPickable FALSE
+                }
+              ]
+            }
+            Transform {
+              translation 0.1985 -0.0275 -0.045
+              children [
+                DEF sidewall Shape {
+                  appearance USE WallColor
+                  geometry Box {
+                    size 0.022 0.055 0.09
+                  }
+                  isPickable FALSE
+                }
+              ]
+            }
+            Transform {
+              translation -0.1985 -0.0275 -0.045
+              children [
+                USE sidewall
+              ]
+            }
+          ]
+        }
+      ]
+              name IS name
+      boundingObject USE ShapeWall
+    }
+
+}
+

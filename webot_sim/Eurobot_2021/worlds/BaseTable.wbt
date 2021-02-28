@@ -1,0 +1,45 @@
+#VRML_SIM R2020b utf8
+WorldInfo {
+  coordinateSystem "NUE"
+}
+Viewpoint {
+  orientation -0.9141127208702192 -0.37946886686523984 -0.14283316359744783 0.781220627443311
+  position -1.1991722470800064 3.4914545006495543 3.689079355491769
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+Group {
+  children [
+    GameArea {
+    }
+    CentralPlatform {
+    }
+    LeftBeaconSupport {
+      translation -1.594 0 0
+    }
+    LeftBeaconSupport {
+      translation -1.594 0 0.95
+      name "LeftBeaconSupport(1)"
+      TeamColor 1 0.74902 0
+    }
+    LeftBeaconSupport {
+      translation -1.594 0 -0.95
+      name "LeftBeaconSupport(2)"
+      TeamColor 1 0.74902 0
+    }
+    RightBeaconSupport {
+      translation 1.594 0 0
+      TeamColor 1 0.74902 0
+    }
+    RightBeaconSupport {
+      translation 1.594 0 0.95
+      name "RightBeaconSupport(1)"
+    }
+    RightBeaconSupport {
+      translation 1.594 0 -0.95
+      name "RightBeaconSupport(2)"
+    }
+  ]
+}

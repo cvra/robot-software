@@ -8,7 +8,7 @@ master:
     calibration_direction: 1 # calibration side is on the front
     odometry:
         external_encoder_ticks_per_mm: 162.
-        external_track_mm: 212.
+        external_track_mm: 174.
         left_wheel_correction_factor: -1.
         right_wheel_correction_factor: 1.
     beacon:
@@ -17,14 +17,14 @@ master:
     aversive:
         control:
             angle:
-                kp: 1.
+                kp: 2.5
                 ki: 0.
-                kd: 30.
+                kd: 0.
                 i_limit: 10.
             distance:
-                kp: 0.1
+                kp: 1.5
                 ki: 0.
-                kd: 30.
+                kd: 0.
                 i_limit: 10.
         trajectories:
             angle:
@@ -49,61 +49,29 @@ master:
                 distance: 100.
                 angle: 1.
                 angle_start: 40.
-actuator:
-    left-wheel:
-        encoders:
-          primary:
-            p: 49
-            q: 676
-            ticks_per_rev: 4096
-        motor:
-            torque_cst: 1.
-        control:
-            mode: 2
-            current:
-                kp: 4.
-                ki: 1500.
-                kd: 0.
-                i_limit: 50.
-            velocity:
-                kp: 20.
-                ki: 50.
-                kd: 0.
-                i_limit: 1000.
-            position:
-                kp: 0.1
-                ki: 0.5
-                kd: 0.
-            low_batt_th: 5.
-            acceleration_limit: 200.
-            velocity_limit: 50.
-            torque_limit: 30.
-    right-wheel:
-        encoders:
-          primary:
-            p: 49
-            q: 676
-            ticks_per_rev: 4096
-        motor:
-            torque_cst: 1.
-        control:
-            mode: 2
-            current:
-                kp: 4.
-                ki: 1500.
-                kd: 0.
-                i_limit: 50.
-            velocity:
-                kp: 20.
-                ki: 50.
-                kd: 0.
-                i_limit: 1000.
-            position:
-                kp: 0.1
-                ki: 0.5
-                kd: 0.
-
-            low_batt_th: 5.
-            acceleration_limit: 200.
-            velocity_limit: 50.
-            torque_limit: 30.
+actuators:
+  # In simulation, those are directly angles
+  actuator-front-left:
+    high_position: 0.1
+    table_pickup_position: 1.017
+    reef_pickup_position: 1.671
+  actuator-front-center:
+    high_position: 0.1
+    table_pickup_position: 1.017
+    reef_pickup_position: 1.671
+  actuator-front-right:
+    high_position: 0.1
+    table_pickup_position: 1.017
+    reef_pickup_position: 1.671
+  actuator-back-left:
+    high_position: 0.1
+    table_pickup_position: 1.017
+    reef_pickup_position: 1.671
+  actuator-back-center:
+    high_position: 0.1
+    table_pickup_position: 1.017
+    reef_pickup_position: 1.671
+  actuator-back-right:
+    high_position: 0.1
+    table_pickup_position: 1.017
+    reef_pickup_position: 1.671
