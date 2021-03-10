@@ -14,7 +14,7 @@ The firmware is **always** cross-compiled: the robot does not have a compiler in
 ## Quickstart
 
 The easiest way to get started is with the Dockerfile that contains the cross-compiler.
-It will soon be available online, for now we assume it was built with the name `cvra-sdk`.
+It is available online, under the name `antoinealb/cvra-sdk`.
 
 The following setup has to be done **once**:
 ```bash
