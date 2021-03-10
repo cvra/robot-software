@@ -16,7 +16,7 @@ The firmware is **always** cross-compiled: the robot does not have a compiler in
 The easiest way to get started is with the Dockerfile that contains the cross-compiler.
 It is available online, under the name `antoinealb/cvra-sdk`.
 
-The following setup has to be done **once**:
+The following setup has to be done **once**. The commands must be run from the `robot-software` folder, **not** `master-firmware`.
 ```bash
 git submodule update --init --recursive
 docker run -it -v $(pwd):/src -w /src/lib/nanopb/nanopb/generator/proto antoinealb/cvra-sdk make
