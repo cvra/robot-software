@@ -1,7 +1,7 @@
 ---
 freshness:
   - owner: antoinealb
-    reviewed: 2020-11-11
+    reviewed: 2021-05-19  
 ---
 
 # Hardware architecture overview (2020 edition)
