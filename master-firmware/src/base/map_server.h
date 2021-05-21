@@ -1,7 +1,7 @@
 #ifndef MAP_SERVER_H
 #define MAP_SERVER_H
 
-#include "robot_helpers/strategy_helpers.h"
+#include "robot_helpers/autoposition.h"
 #include "base/map.h"
 
 #ifdef __cplusplus

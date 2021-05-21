@@ -4,6 +4,8 @@
 #include <array>
 #include <thread>
 
+#include <absl/flags/flag.h>
+
 #include <aversive/blocking_detection_manager/blocking_detection_manager.h>
 #include <aversive/obstacle_avoidance/obstacle_avoidance.h>
 #include <aversive/trajectory_manager/trajectory_manager_utils.h>
@@ -13,7 +15,7 @@
 
 #include "robot_helpers/math_helpers.h"
 #include "robot_helpers/trajectory_helpers.h"
-#include "robot_helpers/strategy_helpers.h"
+#include "robot_helpers/autoposition.h"
 #include "robot_helpers/motor_helpers.h"
 #include "base/base_controller.h"
 
@@ -31,6 +33,9 @@
 #include "strategy/actions.h"
 #include "strategy/goals.h"
 #include "strategy/state.h"
+
+ABSL_FLAG(bool, strat_autoposition, false, "Automatically calibrate the robot's position on the table. Not intended for simulation.");
+ABSL_FLAG(bool, strat_wait_for_starter, false, "Wait for starter input before going off.");
 
 using namespace std::chrono_literals;
 
@@ -125,7 +130,7 @@ std::vector<actions::NamedAction<StrategyState>*> strategy_get_actions()
     }};
 }
 
-void strategy_order_play_game(StrategyState& state, enum strat_color_t /*color*/)
+void strategy_order_play_game(StrategyState& state, enum strat_color_t color)
 {
     messagebus_topic_t* state_topic = messagebus_find_topic_blocking(&bus, "/state");
 
@@ -134,27 +139,27 @@ void strategy_order_play_game(StrategyState& state, enum strat_color_t /*color*/
     std::array<goap::Goal<StrategyState>*, 2> goals = {&lighthouse_enabled, &windsocks_raised};
 
     /* Autoposition robot */
-#if 0
-    wait_for_autoposition_signal();
-    NOTICE("Positioning robot");
+    if (absl::GetFlag(FLAGS_strat_autoposition)) {
+        wait_for_autoposition_signal();
+        NOTICE("Positioning robot");
 
-    robot.base_speed = BASE_SPEED_INIT;
-    strategy_auto_position(MIRROR_X(color, 250), 450, MIRROR_A(color, -90), color);
+        robot.base_speed = BASE_SPEED_INIT;
+        strategy_auto_position(MIRROR_X(color, 250), 450, MIRROR_A(color, -90), color);
 
-    trajectory_a_abs(&robot.traj, MIRROR_A(color, 180));
-    trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
-#endif
+        trajectory_a_abs(&robot.traj, MIRROR_A(color, 180));
+        trajectory_wait_for_end(TRAJ_END_GOAL_REACHED);
 
-    robot.base_speed = BASE_SPEED_FAST;
-    NOTICE("Robot positioned at x: %d[mm], y: %d[mm], a: %d[deg]",
-           position_get_x_s16(&robot.pos), position_get_y_s16(&robot.pos), position_get_a_deg_s16(&robot.pos));
+        robot.base_speed = BASE_SPEED_FAST;
+        NOTICE("Robot positioned at x: %d[mm], y: %d[mm], a: %d[deg]",
+               position_get_x_s16(&robot.pos), position_get_y_s16(&robot.pos), position_get_a_deg_s16(&robot.pos));
+    }
 
     /* Wait for starter to begin */
-#if 0
-    wait_for_starter();
-#else
-    std::this_thread::sleep_for(2s);
-#endif
+    if (absl::GetFlag(FLAGS_strat_wait_for_starter)) {
+        wait_for_starter();
+    } else {
+        std::this_thread::sleep_for(2s);
+    }
 
     trajectory_game_timer_reset();
 

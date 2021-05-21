@@ -211,6 +211,7 @@ add_executable(master-firmware
     src/strategy/actions_impl.cpp
     src/strategy.cpp
     src/robot_helpers/trajectory_helpers.cpp
+    src/robot_helpers/autoposition.cpp
 )
 
 target_link_libraries(master-firmware PUBLIC

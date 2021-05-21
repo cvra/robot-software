@@ -34,7 +34,7 @@ extern "C" {
 #include <aversive/obstacle_avoidance/obstacle_avoidance.h>
 #include "robot_helpers/math_helpers.h"
 #include "robot_helpers/trajectory_helpers.h"
-#include "robot_helpers/strategy_helpers.h"
+#include "robot_helpers/autoposition.h"
 #include "robot_helpers/motor_helpers.h"
 #include "strategy.h"
 #include "strategy/goals.h"

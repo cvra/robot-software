@@ -8,7 +8,7 @@
 #include "robot_helpers/math_helpers.h"
 #include "robot_helpers/trajectory_helpers.h"
 #include "robot_helpers/beacon_helpers.h"
-#include "robot_helpers/strategy_helpers.h"
+#include "robot_helpers/autoposition.h"
 #include "robot_helpers/arm_helpers.h"
 
 #include "control_panel.h"

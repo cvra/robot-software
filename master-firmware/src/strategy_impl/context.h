@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include "robot_helpers/strategy_helpers.h"
+#include "robot_helpers/autoposition.h"
 #include "manipulator/manipulator_thread.h"
 
 typedef struct {
