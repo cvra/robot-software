@@ -30,11 +30,15 @@ static void beacon_cb(const uavcan::ReceivedDataStructure<cvra::proximity_beacon
     BeaconSignal data;
 
     // TODO: replace this once the timestamp module is ported
+    // TODO: Keep a running buffer of 2 samples in case there are multiple opponents.
     data.timestamp.us = 0;
     data.range.range.distance = reflector_radius / tanf(msg.length / 2.);
     data.range.range.type = Range_RangeType_OTHER;
     data.range.angle = beacon_get_angle(msg.start_angle + angular_offset, msg.length);
 
+    beacon_cartesian_convert(&robot.pos,
+                             data.range.range.distance, data.range.angle,
+                             &data.x, &data.y);
     messagebus_topic_publish(&proximity_beacon_topic.topic, &data, sizeof(data));
 
     DEBUG("Opponent detected at: %.3fm, %.3frad \traw signal: %.3f, %.3f",
