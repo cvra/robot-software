@@ -140,6 +140,26 @@ poly_t* oa_new_poly(struct obstacle_avoidance* oa, int size)
     return &oa->polys[oa->cur_poly_idx++];
 }
 
+poly_t* oa_add_poly_obstacle(struct obstacle_avoidance* oa, circle_t circle, int samples, float angle_offset)
+{
+    int i;
+    float theta, delta;
+    poly_t* p = oa_new_poly(oa, samples);
+    if (!p) {
+        return NULL;
+    }
+
+    theta = angle_offset;
+    delta = 2 * M_PI / samples;
+    for (i = 0; i < samples; i++) {
+        p->pts[i].x = circle.x + circle.r * cosf(theta);
+        p->pts[i].y = circle.y + circle.r * sinf(theta);
+        theta += delta;
+    }
+
+    return p;
+}
+
 int oa_segment_intersect_obstacle(struct obstacle_avoidance* oa, point_t p1, point_t p2)
 {
     int i;

@@ -128,7 +128,17 @@ void oa_start_end_points(struct obstacle_avoidance* oa, int32_t st_x, int32_t st
  */
 poly_t* oa_new_poly(struct obstacle_avoidance* oa, int size);
 void oa_new_poly_(struct obstacle_avoidance* oa, int size, poly_t* poly);
-void oa_add_poly_obstacle(struct obstacle_avoidance* oa, circle_t circle, int samples, float angle_offset);
+
+/** Creates an approximation of a circular obstacle, by a N-sided polygon.
+ *
+ * The angle_offset_rad parameter is used to define where the first point of
+ * the polygon should be. If at zero, the first point of the polygon will be on
+ * the X-axis.
+ *
+ * @return NULL on error.
+ * @return Adress of the polygon if OK.
+ */
+poly_t* oa_add_poly_obstacle(struct obstacle_avoidance* oa, circle_t circle, int samples, float angle_offset_rad);
 void oa_get_poly(struct obstacle_avoidance* oa, int i, poly_t* poly);
 
 /** Dump status of the obstacle avoidance. */
