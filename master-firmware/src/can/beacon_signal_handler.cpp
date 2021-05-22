@@ -6,6 +6,7 @@
 #include "main.h"
 #include "config.h"
 #include "robot_helpers/beacon_helpers.h"
+#include "base/base_controller.h"
 #include "protobuf/beacons.pb.h"
 
 static TOPIC_DECL(proximity_beacon_topic, BeaconSignal);
@@ -19,7 +20,7 @@ static void beacon_cb(const uavcan::ReceivedDataStructure<cvra::proximity_beacon
     reflector_radius_p = parameter_find(&global_config, "/master/beacon/reflector_radius");
     angular_offset_p = parameter_find(&global_config, "/master/beacon/angular_offset");
 
-    if (reflector_radius_p == NULL || angular_offset_p == NULL) {
+    if (!reflector_radius_p || !angular_offset_p) {
         WARNING("Cound not find beacon parameters!");
         return;
     }
