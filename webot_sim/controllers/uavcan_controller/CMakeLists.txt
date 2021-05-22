@@ -1,4 +1,5 @@
 add_executable(uavcan_controller
+    EXCLUDE_FROM_ALL
     uavcan_controller.cpp
 )
 
