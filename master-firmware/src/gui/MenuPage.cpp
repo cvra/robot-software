@@ -9,8 +9,8 @@ MenuPage::MenuPage(Menu& menu,
                    Page* p5,
                    Page* p6)
     : Page()
-    , menu(menu)
-    , name(name)
+    , menu_(menu)
+    , name_(name)
 {
     next_page[0] = p1;
     next_page[1] = p2;
@@ -53,7 +53,7 @@ void MenuPage::on_event(GEvent* event)
                 continue;
             }
             if (wevent->gwin == buttons[i]) {
-                menu.enter_page(next_page[i]);
+                menu_.enter_page(next_page[i]);
             }
         }
     }

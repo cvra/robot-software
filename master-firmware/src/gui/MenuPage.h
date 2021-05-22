@@ -8,8 +8,8 @@
 class MenuPage : public Page {
     GHandle buttons[6];
     Page* next_page[6];
-    Menu& menu;
-    const char* name;
+    Menu& menu_;
+    const char* name_;
 
 public:
     /// Creates a page linking to up to 6 subpages
@@ -28,6 +28,6 @@ public:
 
     virtual const char* get_name()
     {
-        return name;
+        return name_;
     }
 };
