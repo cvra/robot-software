@@ -34,7 +34,7 @@ public:
 /** Common class for all windsock raising operations as they have a lot in
  * common. */
 class RaiseWindsock : public NamedAction<StrategyState> {
-    int windsock_index;
+    int windsock_index_;
 
 public:
     /* Windsocks are indexed starting from the starting area. */
@@ -45,7 +45,7 @@ public:
 
     std::string get_name() override
     {
-        return absl::StrFormat("windsock#%d", windsock_index);
+        return absl::StrFormat("windsock#%d", windsock_index_);
     }
 };
 

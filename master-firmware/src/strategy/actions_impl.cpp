@@ -58,12 +58,12 @@ bool actions::EnableLighthouse::execute(StrategyState& state)
 bool actions::RaiseWindsock::execute(StrategyState& state)
 {
     (void)state;
-    NOTICE("Raising windsock #%d", windsock_index);
+    NOTICE("Raising windsock #%d", windsock_index_);
 
     int windsock_x;
     int res;
 
-    if (windsock_index == 0) {
+    if (windsock_index_ == 0) {
         windsock_x = 2770;
     } else {
         windsock_x = 2365;
@@ -98,7 +98,7 @@ bool actions::RaiseWindsock::execute(StrategyState& state)
         return false;
     }
 
-    state.windsocks_are_up[windsock_index] = true;
+    state.windsocks_are_up[windsock_index_] = true;
 
     return true;
 }

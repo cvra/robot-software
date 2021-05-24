@@ -71,7 +71,7 @@ TEST_GROUP (BackwardReefPickupGroup) {
     StrategyState state;
     BackwardReefPickup pickup;
 
-    void setup()
+    void setup() override
     {
         // Initial situation: empty robot, glasses on the dispenser
         state.robot.back_center_glass = GlassColor_UNKNOWN;

@@ -46,7 +46,7 @@ static goap::Planner<StrategyState, GOAP_SPACE_SIZE> planner;
 static enum strat_color_t wait_for_color_selection();
 static void wait_for_autoposition_signal();
 static void wait_for_starter();
-void strategy_play_game(void);
+void strategy_play_game();
 
 static enum strat_color_t wait_for_color_selection()
 {

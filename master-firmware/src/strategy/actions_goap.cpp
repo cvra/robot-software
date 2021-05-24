@@ -20,33 +20,33 @@ void EnableLighthouse::plan_effects(StrategyState& state)
 }
 
 RaiseWindsock::RaiseWindsock(int windsock_index)
-    : windsock_index(windsock_index)
+    : windsock_index_(windsock_index)
 {
 }
 
 bool RaiseWindsock::can_run(const StrategyState& state)
 {
     /* We don't want to retry a windsock which is already up. */
-    return !state.windsocks_are_up[windsock_index];
+    return !state.windsocks_are_up[windsock_index_];
 }
 
 void RaiseWindsock::plan_effects(StrategyState& state)
 {
-    state.windsocks_are_up[windsock_index] = true;
+    state.windsocks_are_up[windsock_index_] = true;
 }
 
 bool BackwardReefPickup::can_run(const StrategyState& state)
 {
     if (state.robot.back_center_glass != GlassColor_UNKNOWN
-        || state.robot.back_center_glass != GlassColor_UNKNOWN
-        || state.robot.back_center_glass != GlassColor_UNKNOWN) {
+        || state.robot.back_left_glass != GlassColor_UNKNOWN
+        || state.robot.back_right_glass != GlassColor_UNKNOWN) {
         return false;
     }
 
     // If there are no glasses to pickup, we cannot run
     if (state.our_dispenser.glasses[0] == GlassColor_UNKNOWN
-        && state.our_dispenser.glasses[0] == GlassColor_UNKNOWN
-        && state.our_dispenser.glasses[0] == GlassColor_UNKNOWN) {
+        && state.our_dispenser.glasses[1] == GlassColor_UNKNOWN
+        && state.our_dispenser.glasses[2] == GlassColor_UNKNOWN) {
         return false;
     }
 
