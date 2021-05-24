@@ -11,7 +11,6 @@
 #include <aversive/trajectory_manager/trajectory_manager_utils.h>
 #include <error/error.h>
 #include <goap/goap.hpp>
-#include <timestamp/timestamp.h>
 
 #include "robot_helpers/math_helpers.h"
 #include "robot_helpers/trajectory_helpers.h"

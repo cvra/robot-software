@@ -1,13 +1,13 @@
 #include "beacon_signal_handler.hpp"
 #include <cvra/proximity_beacon/Signal.hpp>
 #include <error/error.h>
-#include <timestamp/timestamp.h>
 
 #include "main.h"
 #include "config.h"
 #include "robot_helpers/beacon_helpers.h"
 #include "base/base_controller.h"
 #include "protobuf/beacons.pb.h"
+#include "timestamp.h"
 
 static TOPIC_DECL(proximity_beacon_topic, BeaconSignal);
 
@@ -30,9 +30,8 @@ static void beacon_cb(const uavcan::ReceivedDataStructure<cvra::proximity_beacon
 
     BeaconSignal data;
 
-    // TODO: replace this once the timestamp module is ported
     // TODO: Keep a running buffer of 2 samples in case there are multiple opponents.
-    data.timestamp.us = 0;
+    data.timestamp.us = timestamp_get_us();
     data.range.range.distance = reflector_radius / tanf(msg.length / 2.);
     data.range.range.type = Range_RangeType_OTHER;
     data.range.angle = beacon_get_angle(msg.start_angle + angular_offset, msg.length);

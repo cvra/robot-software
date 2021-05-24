@@ -7,7 +7,6 @@
 #include <cvra/motor/control/Voltage.hpp>
 
 #include <error/error.h>
-#include <timestamp/timestamp.h>
 #include <can/uavcan_node.h>
 #include "motor_driver.h"
 #include "motor_driver_uavcan.hpp"

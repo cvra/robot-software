@@ -14,6 +14,7 @@ add_library(master_lib
     src/strategy/actions_goap.cpp
     src/strategy/goals.cpp
     src/msgbus_protobuf.c
+    src/timestamp.cpp
 )
 
 target_include_directories(master_lib PUBLIC src)
@@ -25,7 +26,6 @@ target_link_libraries(master_lib
     msgbus_posix
     master_proto
     nanopb
-    timestamp
     goap
     parameter
     parameter_port

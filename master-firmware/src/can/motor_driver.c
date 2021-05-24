@@ -2,7 +2,6 @@
 #include "motor_driver.h"
 
 #include <error/error.h>
-#include <timestamp/timestamp.h>
 
 static void pid_register(struct pid_parameter_s* pid,
                          parameter_namespace_t* parent,
