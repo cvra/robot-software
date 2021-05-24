@@ -62,7 +62,7 @@ TEST(RaiseWindsockTestCase, RaisesSock)
     CHECK_TRUE(state.windsocks_are_up[1]);
 }
 
-bool BackwardReefPickup::execute(StrategyState& state)
+bool BackwardReefPickup::execute(StrategyState& /*state*/)
 {
     return true;
 }
