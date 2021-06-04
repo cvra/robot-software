@@ -1,7 +1,7 @@
 ---
 freshness:
   - owner: antoinealb
-    reviewed: 2020-11-18
+    reviewed: 2021-06-04
 ---
 
 # Odometry calibration
