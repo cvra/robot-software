@@ -149,7 +149,7 @@ Task                                                                      | Done
 Schematic for hardware extension for Pi                                              | ✔️ |            | 2
 Routing the PCB                                                                      | ✔️ |            | 2
 PCB Assembly                                                                         | ✔️ |            | 1
-Write a firmware to read wheelbase encoders and send it over CAN (running on nucleo) |   | nuft       | 1
+Write a firmware to read wheelbase encoders and send it over CAN (running on nucleo) | ✔️ | nuft       | 1
 **Linux setup**                                                                      |   |            | **Total: 10**
 Get Buildroot to boot on chosen SBC                                                  | ✔️ | antoinealb | 1
 Modify kernel to for our custom hardware                                             | ✔️ |  antoinealb | 2
