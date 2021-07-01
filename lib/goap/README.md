@@ -1,7 +1,7 @@
 ---
 freshness:
   - owner: antoinealb
-    reviewed: 2020-12-26
+    reviewed: 2021-07-01
 ---
 
 # GOAP C++ implementation
@@ -94,6 +94,31 @@ public:
 };
 ```
 
+Similarly, we can define an action used to pickup an axe:
+
+```cpp
+class GrabAxe : public goap::Action<LumberjackState> {
+public:
+    bool can_run(const TestState& /*state*/) override
+    {
+        // We can always grab an axe
+        return true;
+    }
+
+    void plan_effects(TestState& state) override
+    {
+        state.has_axe = true;
+    }
+
+    bool execute(TestState& state) override
+    {
+        std::cout << "Grabbing my axe!" << std::endl;
+        state.has_axe = true;
+        return true;
+    }
+};
+```
+
 ### Computing a plan
 
 Now that we have everything required, we can finally compute a plan, and check that our plan indeed respect our constrains.
@@ -118,6 +143,9 @@ Now that we have everything required, we can finally compute a plan, and check t
         path[i]->execute(state);
     }
 ```
+
+We should see in the console that the AI decided that the correct sequencing was to first pickup an axe, then cut wood.
+This respects our constrains and is the optimal path.
 
 ### Conclusion
 
