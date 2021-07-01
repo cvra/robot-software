@@ -6,17 +6,17 @@
 <title>Calibrate the odometry - CVRA Robot Software</title>
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-<meta name="generator" content="mkdocs-1.1.2, mkdocs-gitbook-1.0.7">
+<meta name="generator" content="mkdocs-1.2.1, mkdocs-gitbook-1.0.7">
 
-<link rel="shortcut icon" href="../../images/favicon.ico" type="image/x-icon">
+<link rel="shortcut icon" href="../images/favicon.ico" type="image/x-icon">
 <meta name="HandheldFriendly" content="true"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta rel="next" href="" />
-<link href="../../css/style.min.css" rel="stylesheet">
-<link href="../../ytvideo.css" rel="stylesheet">
-<link href="../../styles.css" rel="stylesheet"> 
+<link href="../css/style.min.css" rel="stylesheet">
+<link href="../ytvideo.css" rel="stylesheet">
+<link href="../styles.css" rel="stylesheet"> 
 </head>
 
 <body>
@@ -26,69 +26,69 @@
 <nav role="navigation">
 <ul class="summary">
 <li>
-<a href="../.." target="_blank" class="custom-link">CVRA Robot Software</a>
+<a href="../index.html" target="_blank" class="custom-link">CVRA Robot Software</a>
 </li>
 <li class="divider"></li>
-<li class="chapter" data-path="">
-<a href="../..">Home</a>
+<li class="chapter" data-path="index.html">
+<a href="../index.html">Home</a>
 <li class="header">Robot architecture</li>
 
 <li>
-<a href="../../architecture/hardware2020/" class="">2020 hardware architecture</a>
+<a href="../architecture/hardware2020.html" class="">2020 hardware architecture</a>
 </li>
 
 <li>
-<a href="../../architecture/life-of-a-motion/" class="">Life of a motion</a>
+<a href="../architecture/life-of-a-motion.html" class="">Life of a motion</a>
 </li>
 
 <li>
-<a href="../../design/linux-master/" class="">Master firmware on Linux</a>
+<a href="../design/linux-master.html" class="">Master firmware on Linux</a>
 </li>
 
 <li class="header">How to</li>
 
 <li>
-<a href="./" class="active">Calibrate the odometry</a>
+<a href="calibrate-odometry.html" class="active">Calibrate the odometry</a>
 </li>
 
 <li>
-<a href="../add_a_uavcan_message/" class="">How to handle a new UAVCAN message type?</a>
+<a href="add_a_uavcan_message.html" class="">How to handle a new UAVCAN message type?</a>
 </li>
 
 <li class="header">Systems</li>
 
 <li>
-<a href="../../can/positioning/" class="">Positioning system</a>
+<a href="../can/positioning.html" class="">Positioning system</a>
 </li>
 
 <li class="header">CAN</li>
 
 <li>
-<a href="../../can/intro/" class="">CAN Ecosystem</a>
+<a href="../can/intro.html" class="">CAN Ecosystem</a>
 </li>
 
 <li>
-<a href="../../can/motor/" class="">Motor board</a>
+<a href="../can/motor.html" class="">Motor board</a>
 </li>
 
 <li>
-<a href="../../can/io/" class="">IO board</a>
+<a href="../can/io.html" class="">IO board</a>
 </li>
 
 <li>
-<a href="../../can/sensor/" class="">Sensor board</a>
+<a href="../can/sensor.html" class="">Sensor board</a>
 </li>
 
 <li>
-<a href="../../can/beacon/" class="">Beacon board</a>
+<a href="../can/beacon.html" class="">Beacon board</a>
 </li>
 
 <li>
-<a href="../../can/adapter/" class="">CAN USB adapter</a>
+<a href="../can/adapter.html" class="">CAN USB adapter</a>
 </li>
 
 <li>
-<a href="../../can/bootloader/" class="">CAN bootloader</a>
+<a href="../can/bootloader.html" class="">CAN bootloader</a>
 </li>
 
 <li class="divider"></li>
@@ -139,7 +139,7 @@ The issue with integrating is that error accumulates over time, leading to a lac
 </ol>
 <h2 id="does-wheel-diameter-error-matter">Does wheel diameter error matter ?</h2>
 <p>If your robot does not have identical wheel diameters, it will believe it moves in a straight line, but will actually follow a circle (see image below).</p>
-<p><img alt="Error due to wheel diameter difference" src="../odometry-wheel-difference-error.png" /></p>
+<p><img alt="Error due to wheel diameter difference" src="odometry-wheel-difference-error.png" /></p>
 <p>If we wrte <code>delta_l</code> the distance travelled by the left wheel, <code>delta_r</code> the distance travelled by the right wheel and <code>k</code> the factor between the wheel diameters, we have the following:</p>
 <div class="codehilite"><pre><span></span><code>delta_l = k * delta_r
 delta_r = R * theta
@@ -173,7 +173,7 @@ Configure your robot for a slow speed, in order to avoid damage and have a good 
 <h2 id="wheel-diameter-difference-calibration">Wheel diameter difference calibration</h2>
 <p>The first parameter that we will calibrate is the wheel diameter difference.
 To do so, write a program asking your robot to do the following:</p>
-<p><img alt="Trajectory for wheel diameter difference calculation" src="../odometry-wheel-difference-trajectory.png" /></p>
+<p><img alt="Trajectory for wheel diameter difference calculation" src="odometry-wheel-difference-trajectory.png" /></p>
 <ol>
 <li>Move back until the robot hits the straight edge with enough force to be accurate.</li>
 <li>Reset the heading of the robot to zero.</li>
@@ -245,8 +245,8 @@ and <a href="https://github.com/cvra/robot-software/blob/7e81ac9ca49aa92bd2dd3b5
 </div> <!-- end of body-inner -->
 
 </div> <!-- end of book-body -->
-<script src="../../js/main.js"></script>
-<script src="../../js/gitbook.min.js"></script>
-<script src="../../js/theme.min.js"></script>
+<script src="../js/main.js"></script>
+<script src="../js/gitbook.min.js"></script>
+<script src="../js/theme.min.js"></script>
 </body>
 </html>
