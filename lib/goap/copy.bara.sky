@@ -6,8 +6,7 @@ core.workflow(
         ref = "master",
     ),
     destination = git.destination(
-        # url = "git@github.com:cvra/goap-cpp.git",
-        url = "file:///tmp/foo",
+        url = "git@github.com:cvra/goap-cpp.git",
         fetch = "master",
         push = "master",
     ),
