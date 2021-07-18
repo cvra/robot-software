@@ -1,5 +1,5 @@
 from functools import singledispatch
-from PyQt5.QtGui import QBoxLayout, QVBoxLayout, QHBoxLayout, QWidget
+from PyQt5.QtWidgets import QBoxLayout, QVBoxLayout, QHBoxLayout, QWidget
 
 
 def vstack(items):
