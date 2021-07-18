@@ -39,35 +39,39 @@ uint32_t mpr_read_data(mpr_driver_t* drv)
     return result;
 }
 
-int mpr_status_is_error(uint8_t status)
+bool mpr_status_is_error(uint8_t status)
 {
     /* Check if device is powered off */
     if ((status & (1 << 6)) == 0) {
-        return 1;
+        return true;
     }
 
     /* Check if device has a memory error */
     if ((status & (1 << 2))) {
-        return 1;
+        return true;
     }
 
     /* Check if device has a math error */
     if ((status & (1 << 0))) {
-        return 1;
+        return true;
     }
 
     /* Check if unused bits are set to 0 */
     if ((status & 0b10011000)) {
-        return 1;
+        return true;
     }
 
-    return 0;
+    return false;
 }
 
-/** Returns true if the given device status represents a busy device. */
-int mpr_status_is_busy(uint8_t status)
+bool mpr_status_is_busy(uint8_t status)
 {
-    return (status & (1 << 5));
+    return (status & (1 << 5)) != 0;
+}
+
+bool mpr_status_is_powered(uint8_t status)
+{
+    return (status & (1 << 6)) != 0;
 }
 
 float mpr_pressure_raw_to_pascal(uint32_t raw_pressure)
