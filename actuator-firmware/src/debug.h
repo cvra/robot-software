@@ -7,6 +7,7 @@ extern "C" {
 
 void debug_msg(const char* fmt, ...);
 void debug_init(void);
+void print_stack_info(void);
 
 #ifdef __cplusplus
 }

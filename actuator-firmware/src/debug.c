@@ -76,3 +76,38 @@ void panic_handler(void)
     while (1) {
     }
 }
+
+void print_stack_info(void)
+{
+#if (CH_DBG_FILL_THREADS != TRUE) || (CH_CFG_USE_REGISTRY != TRUE) || (CH_DBG_ENABLE_STACK_CHECK != TRUE)
+#error "Requires: CH_DBG_FILL_THREADS CH_CFG_USE_REGISTRY CH_DBG_ENABLE_STACK_CHECK"
+#endif
+
+    BaseSequentialStream* chp = OUTPUT_STREAM;
+
+    const uint32_t STACK_FILL = 0x55555555;
+    uint32_t p, sp, wabase;
+    const char* name;
+    thread_t* tp;
+
+    chprintf(chp, "stackptr  stacktop  stklimit  free   name\n");
+
+    tp = chRegFirstThread();
+    while (tp) {
+        sp = (uint32_t)tp->ctx.sp;
+        wabase = (uint32_t)tp->wabase;
+        name = tp->name == NULL ? "NULL" : tp->name;
+
+        uint32_t limit = wabase + sizeof(thread_t);
+
+        for (p = limit; p < sp; p += 4) {
+            if (STACK_FILL != *(uint32_t*)p) {
+                break;
+            }
+        }
+
+        chprintf(chp, "%08lx  %08lx  %08lx  %5lu  %s\n", sp, p, limit, p - limit, name);
+
+        tp = chRegNextThread(tp);
+    }
+}
