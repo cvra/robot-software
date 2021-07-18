@@ -119,7 +119,7 @@ static void uavcan_main(void* arg)
 
 void uavcan_start(unsigned int node_id, const char* node_name)
 {
-    static THD_WORKING_AREA(uavcan_wa, 4500);
+    static THD_WORKING_AREA(uavcan_wa, 2000);
     static struct uavcan_args args = {node_id, node_name};
     chThdCreateStatic(uavcan_wa, sizeof(uavcan_wa), HIGHPRIO, uavcan_main, &args);
 }
