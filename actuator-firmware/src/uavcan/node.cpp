@@ -48,7 +48,6 @@ static Node& getNode()
     return node;
 }
 
-
 void main(unsigned int id, const char* name)
 {
     chRegSetThreadName("uavcan");
