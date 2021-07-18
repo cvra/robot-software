@@ -48,19 +48,6 @@ static Node& getNode()
     return node;
 }
 
-static void pressure_sensor_spin(Node& node)
-{
-    uint8_t status = 0;
-    for (auto i = 0; i < 2; i++) {
-        int status = mpr_read_status(&pressure_sensors[i]);
-        if (mpr_status_is_error(status)) {
-            uavcan_set_node_is_ok(false);
-            status |= 1 << i;
-        }
-    }
-    node.getNodeStatusProvider().setVendorSpecificStatusCode(status);
-}
-
 void main(unsigned int id, const char* name)
 {
     chRegSetThreadName("uavcan");
@@ -100,7 +87,6 @@ void main(unsigned int id, const char* name)
             node.getNodeStatusProvider().setHealthError();
         }
         node.spin(uavcan::MonotonicDuration::fromMSec(1000 / UAVCAN_SPIN_FREQ));
-        pressure_sensor_spin(node);
         feedback_publish(node);
     }
 }

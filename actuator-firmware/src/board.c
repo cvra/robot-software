@@ -110,6 +110,11 @@ void board_set_led(int state)
 
 void board_reset_pressure_sensors(void)
 {
+    palSetPad(GPIOA, GPIOA_CS1);
+    palSetPad(GPIOA, GPIOA_CS2);
+
+    palSetPad(GPIOA, GPIOA_PRESSURE_RST);
+    chThdSleepMilliseconds(10);
     palClearPad(GPIOA, GPIOA_PRESSURE_RST);
     chThdSleepMilliseconds(10);
     palSetPad(GPIOA, GPIOA_PRESSURE_RST);
