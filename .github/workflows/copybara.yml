@@ -1,8 +1,6 @@
 name: Copy libraries to children repositories
-on:
-  push:
-    branches:
-      - master
+on: # Manually run this workflow
+  workflow_dispatch: 
 jobs:
   copy:
     name: Copybara file copier
