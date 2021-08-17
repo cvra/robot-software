@@ -6,17 +6,17 @@
 <title>How to handle a new UAVCAN message type? - CVRA Robot Software</title>
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-<meta name="generator" content="mkdocs-1.2.1, mkdocs-gitbook-1.0.7">
+<meta name="generator" content="mkdocs-1.2.2, mkdocs-gitbook-1.0.7">
 
-<link rel="shortcut icon" href="../images/favicon.ico" type="image/x-icon">
+<link rel="shortcut icon" href="../../images/favicon.ico" type="image/x-icon">
 <meta name="HandheldFriendly" content="true"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta rel="next" href="" />
-<link href="../css/style.min.css" rel="stylesheet">
-<link href="../ytvideo.css" rel="stylesheet">
-<link href="../styles.css" rel="stylesheet"> 
+<link href="../../css/style.min.css" rel="stylesheet">
+<link href="../../ytvideo.css" rel="stylesheet">
+<link href="../../styles.css" rel="stylesheet"> 
 </head>
 
 <body>
@@ -26,69 +26,69 @@
 <nav role="navigation">
 <ul class="summary">
 <li>
-<a href="../index.html" target="_blank" class="custom-link">CVRA Robot Software</a>
+<a href="../.." target="_blank" class="custom-link">CVRA Robot Software</a>
 </li>
 <li class="divider"></li>
-<li class="chapter" data-path="index.html">
-<a href="../index.html">Home</a>
+<li class="chapter" data-path="">
+<a href="../..">Home</a>
 <li class="header">Robot architecture</li>
 
 <li>
-<a href="../architecture/hardware2020.html" class="">2020 hardware architecture</a>
+<a href="../../architecture/hardware2020/" class="">2020 hardware architecture</a>
 </li>
 
 <li>
-<a href="../architecture/life-of-a-motion.html" class="">Life of a motion</a>
+<a href="../../architecture/life-of-a-motion/" class="">Life of a motion</a>
 </li>
 
 <li>
-<a href="../design/linux-master.html" class="">Master firmware on Linux</a>
+<a href="../../design/linux-master/" class="">Master firmware on Linux</a>
 </li>
 
 <li class="header">How to</li>
 
 <li>
-<a href="calibrate-odometry.html" class="">Calibrate the odometry</a>
+<a href="../calibrate-odometry/" class="">Calibrate the odometry</a>
 </li>
 
 <li>
-<a href="add_a_uavcan_message.html" class="active">How to handle a new UAVCAN message type?</a>
+<a href="./" class="active">How to handle a new UAVCAN message type?</a>
 </li>
 
 <li class="header">Systems</li>
 
 <li>
-<a href="../can/positioning.html" class="">Positioning system</a>
+<a href="../../can/positioning/" class="">Positioning system</a>
 </li>
 
 <li class="header">CAN</li>
 
 <li>
-<a href="../can/intro.html" class="">CAN Ecosystem</a>
+<a href="../../can/intro/" class="">CAN Ecosystem</a>
 </li>
 
 <li>
-<a href="../can/motor.html" class="">Motor board</a>
+<a href="../../can/motor/" class="">Motor board</a>
 </li>
 
 <li>
-<a href="../can/io.html" class="">IO board</a>
+<a href="../../can/io/" class="">IO board</a>
 </li>
 
 <li>
-<a href="../can/sensor.html" class="">Sensor board</a>
+<a href="../../can/sensor/" class="">Sensor board</a>
 </li>
 
 <li>
-<a href="../can/beacon.html" class="">Beacon board</a>
+<a href="../../can/beacon/" class="">Beacon board</a>
 </li>
 
 <li>
-<a href="../can/adapter.html" class="">CAN USB adapter</a>
+<a href="../../can/adapter/" class="">CAN USB adapter</a>
 </li>
 
 <li>
-<a href="../can/bootloader.html" class="">CAN bootloader</a>
+<a href="../../can/bootloader/" class="">CAN bootloader</a>
 </li>
 
 <li class="divider"></li>
@@ -140,16 +140,16 @@ Theme by GitBook
 However, we want this to happen through CAN, in order to learn how to implement new services.</p>
 <h2 id="disabling-the-automatic-led-blinking">Disabling the automatic LED blinking</h2>
 <p>Go to the <code>can-io-firmware</code>, and edit <code>main.c</code> to disable the blinker thread:</p>
-<div class="codehilite"><pre><span></span><code><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">halInit</span><span class="p">();</span>
-    <span class="n">chSysInit</span><span class="p">();</span>
+<div class="codehilite"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">halInit</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="n">chSysInit</span><span class="p">();</span><span class="w"></span>
 
-    <span class="n">debug_init</span><span class="p">();</span>
-    <span class="n">NOTICE</span><span class="p">(</span><span class="s">&quot;boot&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">debug_init</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="n">NOTICE</span><span class="p">(</span><span class="s">&quot;boot&quot;</span><span class="p">);</span><span class="w"></span>
 
-    <span class="c1">// comment the following line</span>
-    <span class="c1">// blinker_start();</span>
+<span class="w">    </span><span class="c1">// comment the following line</span>
+<span class="w">    </span><span class="c1">// blinker_start();</span>
 </code></pre></div>
 
 <p>Then, rebuild the new firmware for the CAN IO board, by running the following commands:</p>
@@ -227,47 +227,47 @@ int32 data
 This will generate the C++ code required to serialize and interpret our new message type.</p>
 <h2 id="handling-the-new-message-type-in-our-application">Handling the new message type in our application</h2>
 <p>Create a new C++ file <code>can-io-firmware/src/uavcan/LEDCommand_handler.cpp</code> with the following content</p>
-<div class="codehilite"><pre><span></span><code><span class="cm">/* For accessing the GPIO functions */</span>
-<span class="cp">#include</span> <span class="cpf">&lt;hal.h&gt;</span><span class="cp"></span>
+<div class="codehilite"><pre><span></span><code><span class="cm">/* For accessing the GPIO functions */</span><span class="w"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;hal.h&gt;</span><span class="cp"></span>
 
-<span class="cm">/* UAVCAN interface */</span>
-<span class="cp">#include</span> <span class="cpf">&lt;uavcan/uavcan.hpp&gt;</span><span class="cp"></span>
+<span class="cm">/* UAVCAN interface */</span><span class="w"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;uavcan/uavcan.hpp&gt;</span><span class="cp"></span>
 
-<span class="cm">/* Code generated from our .uavcan file */</span>
-<span class="cp">#include</span> <span class="cpf">&lt;cvra/io/LEDCommand.hpp&gt;</span><span class="cp"></span>
+<span class="cm">/* Code generated from our .uavcan file */</span><span class="w"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cvra/io/LEDCommand.hpp&gt;</span><span class="cp"></span>
 
 <span class="cm">/* This function is called every time we receive a request for our newly</span>
 <span class="cm"> * defined LedCommand service.</span>
-<span class="cm"> */</span>
-<span class="kt">void</span> <span class="nf">LEDCommand_handler</span><span class="p">(</span>
-    <span class="k">const</span> <span class="n">uavcan</span><span class="o">::</span><span class="n">ReceivedDataStructure</span><span class="o">&lt;</span><span class="n">cvra</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">LEDCommand</span><span class="o">::</span><span class="n">Request</span><span class="o">&gt;&amp;</span> <span class="n">req</span><span class="p">,</span>
-    <span class="n">cvra</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">LEDCommand</span><span class="o">::</span><span class="n">Response</span><span class="o">&amp;</span> <span class="n">rsp</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="cm">/*  req contains the incoming data, while rsp will be sent back as a reply</span>
-<span class="cm">     *  to this request. */</span>
+<span class="cm"> */</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">LEDCommand_handler</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">uavcan</span><span class="o">::</span><span class="n">ReceivedDataStructure</span><span class="o">&lt;</span><span class="n">cvra</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">LEDCommand</span><span class="o">::</span><span class="n">Request</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">req</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">cvra</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">LEDCommand</span><span class="o">::</span><span class="n">Response</span><span class="o">&amp;</span><span class="w"> </span><span class="n">rsp</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="cm">/*  req contains the incoming data, while rsp will be sent back as a reply</span>
+<span class="cm">     *  to this request. */</span><span class="w"></span>
 
-    <span class="cm">/* Set the LED status to the requested value */</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">req</span><span class="p">.</span><span class="n">led_status</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">palSetPad</span><span class="p">(</span><span class="n">GPIOA</span><span class="p">,</span> <span class="n">GPIOA_LED</span><span class="p">);</span>
-    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-        <span class="n">palClearPad</span><span class="p">(</span><span class="n">GPIOA</span><span class="p">,</span> <span class="n">GPIOA_LED</span><span class="p">);</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="cm">/* Set the LED status to the requested value */</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">req</span><span class="p">.</span><span class="n">led_status</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">palSetPad</span><span class="p">(</span><span class="n">GPIOA</span><span class="p">,</span><span class="w"> </span><span class="n">GPIOA_LED</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">palClearPad</span><span class="p">(</span><span class="n">GPIOA</span><span class="p">,</span><span class="w"> </span><span class="n">GPIOA_LED</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="cm">/* Reply with an example data. */</span>
-    <span class="n">rsp</span><span class="p">.</span><span class="n">data</span> <span class="o">=</span> <span class="mi">42</span><span class="p">;</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="cm">/* Reply with an example data. */</span><span class="w"></span>
+<span class="w">    </span><span class="n">rsp</span><span class="p">.</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </code></pre></div>
 
 <p>Also create the associated header, <code>can-io-firmware/src/uavcan/LEDCommand_handler.hpp</code>.
 In this file we will put the prototype of our handler:</p>
 <div class="codehilite"><pre><span></span><code><span class="cp">#pragma once</span>
 
-<span class="cp">#include</span> <span class="cpf">&lt;uavcan/uavcan.hpp&gt;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&lt;cvra/io/LEDCommand.hpp&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;uavcan/uavcan.hpp&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cvra/io/LEDCommand.hpp&gt;</span><span class="cp"></span>
 
-<span class="kt">void</span> <span class="nf">LEDCommand_handler</span><span class="p">(</span>
-    <span class="k">const</span> <span class="n">uavcan</span><span class="o">::</span><span class="n">ReceivedDataStructure</span><span class="o">&lt;</span><span class="n">cvra</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">LEDCommand</span><span class="o">::</span><span class="n">Request</span><span class="o">&gt;&amp;</span> <span class="n">req</span><span class="p">,</span>
-    <span class="n">cvra</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">LEDCommand</span><span class="o">::</span><span class="n">Response</span> <span class="o">&amp;</span><span class="n">rsp</span><span class="p">);</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">LEDCommand_handler</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">uavcan</span><span class="o">::</span><span class="n">ReceivedDataStructure</span><span class="o">&lt;</span><span class="n">cvra</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">LEDCommand</span><span class="o">::</span><span class="n">Request</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">req</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">cvra</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">LEDCommand</span><span class="o">::</span><span class="n">Response</span><span class="w"> </span><span class="o">&amp;</span><span class="n">rsp</span><span class="p">);</span><span class="w"></span>
 </code></pre></div>
 
 <p>We can then add this new file to the build system, in <code>can-io-firmware/package.yml</code>:</p>
@@ -343,8 +343,8 @@ You can find more UAVCAN tutorials on their <a href="https://legacy.uavcan.org/"
 </div> <!-- end of body-inner -->
 
 </div> <!-- end of book-body -->
-<script src="../js/main.js"></script>
-<script src="../js/gitbook.min.js"></script>
-<script src="../js/theme.min.js"></script>
+<script src="../../js/main.js"></script>
+<script src="../../js/gitbook.min.js"></script>
+<script src="../../js/theme.min.js"></script>
 </body>
 </html>
