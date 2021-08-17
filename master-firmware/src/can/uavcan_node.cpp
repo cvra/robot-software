@@ -15,6 +15,7 @@
 #include "actuator_handler.h"
 #include <can/uavcan_node.h>
 #include "control_panel.h"
+#include "time_sync_server.h"
 
 #include <error/error.h>
 
@@ -144,6 +145,10 @@ static void main(std::string can_iface, uint8_t id)
 
     if (actuator_handler_init(node, &bus_enumerator) < 0) {
         ERROR("actuator feedback init");
+    }
+
+    if (time_sync_server_start(node) < 0) {
+        ERROR("time_sync_server_start");
     }
 
     res = emergency_stop_init(node);

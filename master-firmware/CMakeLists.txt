@@ -188,18 +188,19 @@ target_link_libraries(gpioinput PUBLIC gpiod error absl::base)
 add_executable(master-firmware
     src/main.cpp
     src/debug/log.c
-    src/can/uavcan_node.cpp
+    src/can/actuator_driver_uavcan.cpp
+    src/can/actuator_handler.cpp
     src/can/beacon_signal_handler.cpp
-    src/can/motor_manager.c
+    src/can/can_io_driver.cpp
+    src/can/emergency_stop_handler.cpp
     src/can/motor_driver.c
     src/can/motor_driver_uavcan.cpp
-    src/can/wheel_encoders_handler.cpp
-    src/can/emergency_stop_handler.cpp
     src/can/motor_feedback_streams_handler.cpp
+    src/can/motor_manager.c
     src/can/sensor_handler.cpp
-    src/can/actuator_handler.cpp
-    src/can/can_io_driver.cpp
-    src/can/actuator_driver_uavcan.cpp
+    src/can/time_sync_server.cpp
+    src/can/uavcan_node.cpp
+    src/can/wheel_encoders_handler.cpp
     src/control_panel.cpp
     src/config.c
     src/base/base_controller.cpp
