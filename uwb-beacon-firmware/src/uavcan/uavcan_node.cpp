@@ -3,6 +3,7 @@
 #include <chprintf.h>
 
 #include <uavcan/uavcan.hpp>
+#include <uavcan/protocol/global_time_sync_slave.hpp>
 #include <uavcan_stm32/uavcan_stm32.hpp>
 
 #include <main.h>
@@ -16,6 +17,8 @@
 #define CAN_BITRATE 1000000
 
 uavcan_stm32::CanInitHelper<128> can;
+
+static uavcan::LazyConstructor<Node> node;
 
 struct uavcan_node_arg {
     const char* node_name;
@@ -41,35 +44,39 @@ static THD_FUNCTION(uavcan_node, arg)
     }
 
     /* Create the UAVCAN instance. */
-    static Node node(can.driver, uavcan_stm32::SystemClock::instance());
+    node.construct<uavcan::ICanDriver&, uavcan::ISystemClock&>(can.driver,
+                                                               uavcan_stm32::SystemClock::instance());
 
     /* Give it basic properties. */
-    node.setNodeID(node_arg->node_id);
-    node.setName(node_arg->node_name);
+    node->setNodeID(node_arg->node_id);
+    node->setName(node_arg->node_name);
 
-    node.start();
+    node->start();
+
+    static uavcan::GlobalTimeSyncSlave time_syncer(*node);
+    time_syncer.start();
 
     // Mark the node as correctly initialized
-    node.getNodeStatusProvider().setModeOperational();
-    node.getNodeStatusProvider().setHealthOk();
+    node->getNodeStatusProvider().setModeOperational();
+    node->getNodeStatusProvider().setHealthOk();
 
     /* TODO: set software and hardware version */
 
-    topics_publisher_start(node);
-    parameter_server_start(node);
-    restart_server_start(node);
-    position_handler_init(node);
-    data_packet_handler_init(node);
+    topics_publisher_start(*node);
+    parameter_server_start(*node);
+    restart_server_start(*node);
+    position_handler_init(*node);
+    data_packet_handler_init(*node);
 
     /* Spin forever */
     while (true) {
-        auto res = node.spin(uavcan::MonotonicDuration::fromMSec(1000 / UAVCAN_SPIN_FREQUENCY));
+        auto res = node->spin(uavcan::MonotonicDuration::fromMSec(1000 / UAVCAN_SPIN_FREQUENCY));
 
         if (res < 0) {
             uavcan_failure("UAVCAN spin");
         }
 
-        topics_publisher_spin(node);
+        topics_publisher_spin(*node);
     }
 }
 
@@ -79,4 +86,12 @@ extern "C" void uavcan_node_start(uint8_t id, const char* name)
     arg.node_name = name;
     arg.node_id = id;
     chThdCreateStatic(uavcan_node_wa, sizeof(uavcan_node_wa), NORMALPRIO, uavcan_node, &arg);
+}
+
+int64_t uavcan_get_utc_time_us(void)
+{
+    if (node.isConstructed()) {
+        return node->getUtcTime().toUSec();
+    }
+    return 0;
 }

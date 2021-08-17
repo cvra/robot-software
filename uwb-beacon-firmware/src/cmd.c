@@ -16,6 +16,7 @@
 #include "uwb_protocol.h"
 #include "state_estimation_thread.h"
 #include "anchor_position_cache.h"
+#include "uavcan/uavcan_node.h"
 
 #define TEST_WA_SIZE THD_WORKING_AREA_SIZE(256)
 #define SHELL_WA_SIZE THD_WORKING_AREA_SIZE(2048)
@@ -26,6 +27,14 @@ static void cmd_reboot(BaseSequentialStream* chp, int argc, char** argv)
     (void)argc;
     (void)argv;
     NVIC_SystemReset();
+}
+
+static void cmd_time(BaseSequentialStream* chp, int argc, char** argv)
+{
+    (void)argc;
+    (void)argv;
+    int utc_time = uavcan_get_utc_time_us() / 1000000;
+    chprintf(chp, "UTC time %d [s]\r\n", utc_time);
 }
 
 static void cmd_topics(BaseSequentialStream* chp, int argc, char* argv[])
@@ -503,6 +512,7 @@ static void cmd_data_rx(BaseSequentialStream* chp, int argc, char* argv[])
 static ShellConfig shell_cfg;
 const ShellCommand shell_commands[] = {
     {"reboot", cmd_reboot},
+    {"time", cmd_time},
     {"topics", cmd_topics},
     {"trace", cmd_trace},
     {"imu", cmd_imu},

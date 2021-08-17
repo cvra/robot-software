@@ -56,7 +56,7 @@ int main(void)
     anchor_position_cache_start();
     state_estimation_start();
 
-    //uavcan_node_start(42, "uwb-beacon");
+    uavcan_node_start(42, "uwb-beacon");
 
     shell_start((BaseSequentialStream*)&SDU1);
 
