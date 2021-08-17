@@ -259,13 +259,21 @@ add_executable(uavcan_nodetool
     ../lib/uavcan/libuavcan_drivers/linux/apps/uavcan_nodetool.cpp
 )
 target_link_libraries(uavcan_nodetool uavcan uavcan_linux rt Threads::Threads)
+
+add_executable(uavcan_time_client
+    # ../lib/uavcan/libuavcan_drivers/linux/apps/test_time_sync.cpp
+    ../tools/uavcan_time_client.cpp
+)
+target_link_libraries(uavcan_time_client uavcan uavcan_linux rt Threads::Threads absl::flags absl::flags_parse)
+
 add_custom_target(uavcan-tools.ipk
     COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/../tools/build_opkg_package.py
     --name uavcan-tools
     --output uavcan-tools.ipk
     uavcan_nodetool:/bin/uavcan_nodetool
+    uavcan_time_client:/bin/uavcan_time_client
     uavcan_monitor:/bin/uavcan_monitor
-    DEPENDS uavcan_nodetool uavcan_monitor
+    DEPENDS uavcan_nodetool uavcan_monitor uavcan_time_client
     COMMENT "Packaging uavcan-tools.ipk"
 )
 
