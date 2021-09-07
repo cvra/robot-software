@@ -53,6 +53,7 @@ static void mpr_unselect(void* arg)
 static void mpr_transmit(void* arg, const uint8_t* tx, uint8_t* rx, size_t n)
 {
     (void)arg;
+    // The servo PWM causes issues with the SPI driver. Using software SPI as workaround.
     softspi_send(&spi, tx, rx, n);
 }
 

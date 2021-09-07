@@ -5,6 +5,7 @@
 extern "C" {
 #endif
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <unistd.h>
 
@@ -39,10 +40,13 @@ uint8_t mpr_read_status(mpr_driver_t* drv);
 uint32_t mpr_read_data(mpr_driver_t* drv);
 
 /** Returns true if the given device status represents an error. */
-int mpr_status_is_error(uint8_t status);
+bool mpr_status_is_error(uint8_t status);
 
 /** Returns true if the given device status represents a busy device. */
-int mpr_status_is_busy(uint8_t status);
+bool mpr_status_is_busy(uint8_t status);
+
+/** Returns true if the given device status represents a powered device. */
+bool mpr_status_is_powered(uint8_t status);
 
 float mpr_pressure_raw_to_pascal(uint32_t raw_pressure);
 

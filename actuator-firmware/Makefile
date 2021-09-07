@@ -41,7 +41,7 @@ USE_SMART_BUILD = no
 
 # Stack size to be allocated to the Cortex-M process stack. This stack is
 # the stack used by the main() thread.
-USE_PROCESS_STACKSIZE = 5000
+USE_PROCESS_STACKSIZE = 800
 
 # Stack size to the allocated to the Cortex-M main/exceptions stack. This
 # stack is used for processing interrupts and exceptions.
@@ -98,7 +98,7 @@ CSRC = $(STARTUPSRC) \
        $(HALSRC) \
        $(PLATFORMSRC) \
        $(BOARDSRC) \
-	   src/version.c \
+       src/version.c \
        $(CHIBIOS)/os/hal/lib/streams/chprintf.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global

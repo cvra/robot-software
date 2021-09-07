@@ -48,19 +48,6 @@ static Node& getNode()
     return node;
 }
 
-static void pressure_sensor_spin(Node& node)
-{
-    uint8_t status = 0;
-    for (auto i = 0; i < 2; i++) {
-        int status = mpr_read_status(&pressure_sensors[i]);
-        if (mpr_status_is_error(status)) {
-            uavcan_set_node_is_ok(false);
-            status |= 1 << i;
-        }
-    }
-    node.getNodeStatusProvider().setVendorSpecificStatusCode(status);
-}
-
 void main(unsigned int id, const char* name)
 {
     chRegSetThreadName("uavcan");
@@ -93,22 +80,37 @@ void main(unsigned int id, const char* name)
 
     node.getNodeStatusProvider().setModeOperational();
 
+    bool sensor_ok = true;
     while (true) {
-        if (node_ok) {
+        if (node_ok && sensor_ok) {
             node.getNodeStatusProvider().setHealthOk();
         } else {
             node.getNodeStatusProvider().setHealthError();
         }
+
         node.spin(uavcan::MonotonicDuration::fromMSec(1000 / UAVCAN_SPIN_FREQ));
-        pressure_sensor_spin(node);
-        feedback_publish(node);
+
+        sensor_ok = feedback_publish(node);
     }
 }
 } // namespace uavcan_node
 
+struct uavcan_args {
+    unsigned int node_id;
+    const char* node_name;
+};
+
+static void uavcan_main(void* arg)
+{
+    struct uavcan_args* args = static_cast<struct uavcan_args*>(arg);
+    uavcan_node::main(args->node_id, args->node_name);
+}
+
 void uavcan_start(unsigned int node_id, const char* node_name)
 {
-    uavcan_node::main(node_id, node_name);
+    static THD_WORKING_AREA(uavcan_wa, 2000);
+    static struct uavcan_args args = {node_id, node_name};
+    chThdCreateStatic(uavcan_wa, sizeof(uavcan_wa), HIGHPRIO, uavcan_main, &args);
 }
 
 void uavcan_set_node_is_ok(int ok)

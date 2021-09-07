@@ -106,7 +106,7 @@
  * PA5  - GPIOA_POWER_ENABLE        (output high, enable power output for h bridge).
  * PA6  - GPIOA_PWM0                (alternate 1 (TIM16_CH1)).
  * PA7  - GPIOA_PWM1                (alternate 1 (TIM17_CH1)).
- * PA8  - GPIOA_CS1                 (output low, CS line of pressure sensor #1)
+ * PA8  - GPIOA_CS1                 (output high, CS line of pressure sensor #1)
  * PA9  - GPIOA_PWM2                (alternate 6 (TIM1_CH2)).
  * PA10 - GPIOA_PWM3                (alternate 6 (TIM1_CH3)).
  * PA11 - GPIOA_CAN_RX              (alternate 9).
@@ -151,7 +151,7 @@
                                      PIN_OSPEED_100M(GPIOA_GPIO_ANALOG1) | \
                                      PIN_OSPEED_2M(GPIOA_SOLENOID0) | \
                                      PIN_OSPEED_2M(GPIOA_SOLENOID1) | \
-                                     PIN_OSPEED_2M(GPIOA_PRESSURE_RST) | \
+                                     PIN_OSPEED_100M(GPIOA_PRESSURE_RST) | \
                                      PIN_OSPEED_100M(GPIOA_POWER_ENABLE) | \
                                      PIN_OSPEED_100M(GPIOA_PWM0) | \
                                      PIN_OSPEED_100M(GPIOA_PWM1) | \
