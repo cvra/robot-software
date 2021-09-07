@@ -80,14 +80,17 @@ void main(unsigned int id, const char* name)
 
     node.getNodeStatusProvider().setModeOperational();
 
+    bool sensor_ok = true;
     while (true) {
-        if (node_ok) {
+        if (node_ok && sensor_ok) {
             node.getNodeStatusProvider().setHealthOk();
         } else {
             node.getNodeStatusProvider().setHealthError();
         }
+
         node.spin(uavcan::MonotonicDuration::fromMSec(1000 / UAVCAN_SPIN_FREQ));
-        feedback_publish(node);
+
+        sensor_ok = feedback_publish(node);
     }
 }
 } // namespace uavcan_node

@@ -3,6 +3,6 @@
 
 #include <uavcan/uavcan.hpp>
 
-void feedback_publish(uavcan::INode& node);
+bool feedback_publish(uavcan::INode& node);
 
 #endif

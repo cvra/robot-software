@@ -85,7 +85,6 @@ void print_stack_info(void)
 
     BaseSequentialStream* chp = OUTPUT_STREAM;
 
-    const uint32_t STACK_FILL = 0x55555555;
     uint32_t p, sp, wabase;
     const char* name;
     thread_t* tp;
@@ -100,8 +99,8 @@ void print_stack_info(void)
 
         uint32_t limit = wabase + sizeof(thread_t);
 
-        for (p = limit; p < sp; p += 4) {
-            if (STACK_FILL != *(uint32_t*)p) {
+        for (p = limit; p < sp; p++) {
+            if (CH_DBG_STACK_FILL_VALUE != *(uint8_t*)p) {
                 break;
             }
         }

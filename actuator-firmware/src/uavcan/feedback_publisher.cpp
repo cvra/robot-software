@@ -24,7 +24,7 @@ static uint32_t read_pressure(int sensor)
     const uint8_t status = mpr_read_status(&pressure_sensors[sensor]);
     if (mpr_status_is_error(status) || mpr_status_is_busy(status)) {
         WARNING("Pressure sensor %d status error: 0x%x", sensor, status);
-        return 0.0;
+        return 0;
     }
 
     chThdSleepMilliseconds(1); // insert delay of min 2us between CS selection (Datasheet p.18)
@@ -32,7 +32,7 @@ static uint32_t read_pressure(int sensor)
     return (uint32_t)mpr_pressure_raw_to_pascal(pressure_raw);
 }
 
-void feedback_publish(uavcan::INode& node)
+bool feedback_publish(uavcan::INode& node)
 {
     static uavcan::Publisher<cvra::actuator::Feedback> pub(node);
 
@@ -49,4 +49,6 @@ void feedback_publish(uavcan::INode& node)
     msg.digital_input = board_digital_input_read();
 
     pub.broadcast(msg);
+
+    return msg.pressure[0] != 0 && msg.pressure[1] != 0;
 }
