@@ -57,8 +57,7 @@ int main(void)
 
     analog_start();
 
-    // TODO(mspieler): The servo PWM causes issues with the pressure sensors, disabling for now.
-    // servo_start();
+    servo_start();
     mpr_start();
     pump_init();
 

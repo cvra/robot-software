@@ -23,7 +23,7 @@ void mock_transmit(void* arg, const uint8_t* tx, uint8_t* rx, size_t n)
 
 TEST_GROUP (PressureSensorDriverTestGroup) {
     mpr_driver_t drv;
-    void setup()
+    void setup() override
     {
         drv.arg = (void*)0x1234;
         drv.select = mock_select;
@@ -126,6 +126,6 @@ TEST(ConversionTestGroup, ConvertMaxPressure)
 {
     uint32_t original = 0xe66666;
     float pa = mpr_pressure_raw_to_pascal(original);
-    float pmax_in_pascal = 103421;
+    float pmax_in_pascal = 103422;
     DOUBLES_EQUAL(pmax_in_pascal, pa, 0.001);
 }

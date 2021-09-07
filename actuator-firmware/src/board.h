@@ -218,9 +218,9 @@
  * PB0  - GPIOB_LED                 (output low).
  * PB1  - GPIOB_PIN1                (input pullup).
  * PB2  - GPIOB_PIN2                (input pullup).
- * PB3  - GPIOB_SPI_SCK             (alternate 6, SPI3).
- * PB4  - GPIOB_SPI_MISO            (alternate 6, SPI3).
- * PB5  - GPIOB_SPI_MOSI            (alternate 6, SPI3).
+ * PB3  - GPIOB_SPI_SCK             (output low).
+ * PB4  - GPIOB_SPI_MISO            (input floating).
+ * PB5  - GPIOB_SPI_MOSI            (output low).
  * PB6  - GPIOB_DEBUG_TX            (alternate 7 (UART1 TX)).
  * PB7  - GPIOB_DEBUG_RX            (input pullup).
  * PB8  - GPIOB_PIN8                (input floating).
@@ -235,9 +235,9 @@
 #define VAL_GPIOB_MODER             (PIN_MODE_OUTPUT(GPIOB_LED) | \
                                      PIN_MODE_INPUT(GPIOB_PIN1) | \
                                      PIN_MODE_INPUT(GPIOB_PIN2) | \
-                                     PIN_MODE_ALTERNATE(GPIOB_SPI_SCK) | \
-                                     PIN_MODE_ALTERNATE(GPIOB_SPI_MISO) | \
-                                     PIN_MODE_ALTERNATE(GPIOB_SPI_MOSI) | \
+                                     PIN_MODE_OUTPUT(GPIOB_SPI_SCK) | \
+                                     PIN_MODE_INPUT(GPIOB_SPI_MISO) | \
+                                     PIN_MODE_OUTPUT(GPIOB_SPI_MOSI) | \
                                      PIN_MODE_ALTERNATE(GPIOB_DEBUG_TX) | \
                                      PIN_MODE_INPUT(GPIOB_DEBUG_RX) | \
                                      PIN_MODE_INPUT(GPIOB_PIN8) | \
@@ -284,7 +284,7 @@
                                      PIN_PUPDR_PULLUP(GPIOB_PIN1) | \
                                      PIN_PUPDR_PULLUP(GPIOB_PIN2) | \
                                      PIN_PUPDR_PULLUP(GPIOB_SPI_SCK) | \
-                                     PIN_PUPDR_PULLUP(GPIOB_SPI_MISO) | \
+                                     PIN_PUPDR_FLOATING(GPIOB_SPI_MISO) | \
                                      PIN_PUPDR_PULLUP(GPIOB_SPI_MOSI) | \
                                      PIN_PUPDR_PULLUP(GPIOB_DEBUG_TX) | \
                                      PIN_PUPDR_PULLUP(GPIOB_DEBUG_RX) | \
@@ -315,9 +315,9 @@
 #define VAL_GPIOB_AFRL              (PIN_AFIO_AF(GPIOB_LED, 0) | \
                                      PIN_AFIO_AF(GPIOB_PIN1, 0) | \
                                      PIN_AFIO_AF(GPIOB_PIN2, 0) | \
-                                     PIN_AFIO_AF(GPIOB_SPI_SCK, 6) | \
-                                     PIN_AFIO_AF(GPIOB_SPI_MISO, 6) | \
-                                     PIN_AFIO_AF(GPIOB_SPI_MOSI, 6) | \
+                                     PIN_AFIO_AF(GPIOB_SPI_SCK, 0) | \
+                                     PIN_AFIO_AF(GPIOB_SPI_MISO, 0) | \
+                                     PIN_AFIO_AF(GPIOB_SPI_MOSI, 0) | \
                                      PIN_AFIO_AF(GPIOB_DEBUG_TX, 7) | \
                                      PIN_AFIO_AF(GPIOB_DEBUG_RX, 7))
 #define VAL_GPIOB_AFRH              (PIN_AFIO_AF(GPIOB_PIN8, 0) | \
