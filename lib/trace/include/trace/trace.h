@@ -10,6 +10,7 @@
 #endif
 
 enum {
+    TRACE_TYPE_VOID,
     TRACE_TYPE_STRING,
     TRACE_TYPE_ADDRESS,
     TRACE_TYPE_SCALAR,
@@ -17,8 +18,8 @@ enum {
 };
 
 struct trace_event {
-    uint32_t event_id : 8;
-    uint32_t type : 2;
+    uint32_t event_id : 7;
+    uint32_t type : 3;
     uint32_t timestamp : 22;
     union {
         void* address;

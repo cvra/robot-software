@@ -25,9 +25,8 @@ TEST(TraceTestGroup, CanTraceSimpleEvent)
 {
     trace(TRACE_POINT_1);
     CHECK_EQUAL(TRACE_POINT_1, trace_buffer.data[0].event_id);
-    CHECK_EQUAL(TRACE_TYPE_STRING, trace_buffer.data[0].type);
+    CHECK_EQUAL(TRACE_TYPE_VOID, trace_buffer.data[0].type);
     CHECK_EQUAL(1234, trace_buffer.data[0].timestamp);
-    STRCMP_EQUAL("", trace_buffer.data[0].data.string);
     CHECK_EQUAL(1, trace_buffer.nb_events);
     CHECK_EQUAL(1, trace_buffer.write_index);
 }
@@ -136,21 +135,21 @@ TEST(TracePrintTestGroup, CanPrintEventWithInteger)
 {
     trace_integer(TRACE_POINT_1, 42);
     trace_print(print_fn, &arg);
-    STRCMP_EQUAL("[1234] TRACE_POINT_1: 42\n", buffer);
+    STRCMP_EQUAL("[1.234] TRACE_POINT_1: 42\n", buffer);
 }
 
 TEST(TracePrintTestGroup, CanPrintEventWithMessage)
 {
     trace_string(TRACE_POINT_0, "hello world");
     trace_print(print_fn, &arg);
-    STRCMP_EQUAL("[1234] TRACE_POINT_0: \"hello world\"\n", buffer);
+    STRCMP_EQUAL("[1.234] TRACE_POINT_0: \"hello world\"\n", buffer);
 }
 
 TEST(TracePrintTestGroup, CanPrintEventWithScalar)
 {
     trace_scalar(TRACE_POINT_2, 1.5);
     trace_print(print_fn, &arg);
-    STRCMP_EQUAL("[1234] TRACE_POINT_2: 1.500000\n", buffer);
+    STRCMP_EQUAL("[1.234] TRACE_POINT_2: 1.500000\n", buffer);
 }
 
 TEST(TracePrintTestGroup, CanPrintEventWithAddr)
@@ -159,7 +158,7 @@ TEST(TracePrintTestGroup, CanPrintEventWithAddr)
     trace_address(TRACE_POINT_0, &foo);
     trace_print(print_fn, &arg);
     char buf[100];
-    snprintf(buf, sizeof(buf), "[1234] TRACE_POINT_0: %p\n", &foo);
+    snprintf(buf, sizeof(buf), "[1.234] TRACE_POINT_0: %p\n", &foo);
     STRCMP_EQUAL(buf, buffer);
 }
 
@@ -170,8 +169,8 @@ TEST(TracePrintTestGroup, CanPrintMultipleEventWithInteger)
     trace_scalar(TRACE_POINT_2, 1);
     trace_print(print_fn, &arg);
     STRCMP_EQUAL(
-        "[1234] TRACE_POINT_0: \"hello\"\n"
-        "[1234] TRACE_POINT_1: 42\n"
-        "[1234] TRACE_POINT_2: 1.000000\n",
+        "[1.234] TRACE_POINT_0: \"hello\"\n"
+        "[1.234] TRACE_POINT_1: 42\n"
+        "[1.234] TRACE_POINT_2: 1.000000\n",
         buffer);
 }

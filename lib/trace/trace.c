@@ -26,8 +26,7 @@ static void trace_push_event(uint8_t event_id, struct trace_event* event)
 void trace(uint8_t event_id)
 {
     struct trace_event e;
-    e.type = TRACE_TYPE_STRING;
-    e.data.string = "";
+    e.type = TRACE_TYPE_VOID;
     trace_push_event(event_id, &e);
 }
 
@@ -108,23 +107,29 @@ void trace_print(void (*print_fn)(void*, const char*, ...), void* arg)
     }
     for (i = 0; i < trace_buffer.nb_events; i++) {
         volatile struct trace_event* e = &trace_buffer.data[index];
-        print_fn(arg, "[%u] %s: ", e->timestamp, trace_point_names[e->event_id]);
+        print_fn(arg, "[%u.%u] %s",
+                 e->timestamp / 1000, e->timestamp % 1000,
+                 trace_point_names[e->event_id]);
         switch (e->type) {
+            case TRACE_TYPE_VOID:
+                /* No argument */
+                print_fn(arg, "\n", e->data.string);
+                break;
             case TRACE_TYPE_STRING:
-                print_fn(arg, "\"%s\"\n", e->data.string);
+                print_fn(arg, ": \"%s\"\n", e->data.string);
                 break;
             case TRACE_TYPE_ADDRESS:
 #ifdef _CHIBIOS_RT_ // workaround for chprintf
-                print_fn(arg, "%x\n", e->data.address);
+                print_fn(arg, ": %x\n", e->data.address);
 #else
-                print_fn(arg, "%p\n", e->data.address);
+                print_fn(arg, ": %p\n", e->data.address);
 #endif
                 break;
             case TRACE_TYPE_SCALAR:
-                print_fn(arg, "%f\n", e->data.scalar);
+                print_fn(arg, ": %f\n", e->data.scalar);
                 break;
             case TRACE_TYPE_INTEGER:
-                print_fn(arg, "%d\n", e->data.integer);
+                print_fn(arg, ": %d\n", e->data.integer);
                 break;
         };
         index = (index + 1) % TRACE_BUFFER_SIZE;
