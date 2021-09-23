@@ -175,12 +175,13 @@ static void ranging_thread(void* p)
 
         if (flags & EVENT_ADVERTISE_TIMER) {
             if (!handler.is_anchor && nb_anchor_macs > 0) {
-                trace(TRACE_POINT_UWB_SEND_ADVERTISEMENT);
+                uint16_t current_anchor = anchor_macs[current_anchor_mac_index];
+                trace_integer(TRACE_POINT_UWB_SEND_ADVERTISEMENT, current_anchor);
                 /* First disable transceiver */
                 dwt_forcetrxoff();
 
                 /* Initiate measurement sequence */
-                uwb_initiate_measurement(&handler, frame, anchor_macs[current_anchor_mac_index]);
+                uwb_initiate_measurement(&handler, frame, current_anchor);
 
                 current_anchor_mac_index++;
                 if (current_anchor_mac_index == nb_anchor_macs) {
@@ -204,11 +205,13 @@ static void ranging_thread(void* p)
             y = parameter_scalar_get(&uwb_params.anchor.position.y);
             z = parameter_scalar_get(&uwb_params.anchor.position.z);
 
+            trace(TRACE_POINT_UWB_SEND_ANCHOR_POS);
             uwb_send_anchor_position(&handler, x, y, z, frame);
         }
 
         if (flags & EVENT_DATA_PACKET_READY) {
             dwt_forcetrxoff();
+            trace(TRACE_POINT_UWB_SEND_DATA);
             uwb_send_data_packet(&handler, data_packet_dst_mac, data_packet, data_packet_size, frame);
 
             chBSemSignal(&data_packet_sent);
@@ -249,6 +252,8 @@ static void frame_rx_timeout_cb(const dwt_cb_data_t* data)
 {
     (void)data;
 
+    trace(TRACE_POINT_UWB_RX_TIMEOUT);
+
     board_led_toggle(BOARD_LED_DEBUG);
     dwt_rxenable(DWT_START_RX_IMMEDIATE);
 }
@@ -257,6 +262,7 @@ static void frame_rx_error_cb(const dwt_cb_data_t* data)
 {
     (void)data;
 
+    trace(TRACE_POINT_UWB_RX_ERROR);
     board_led_toggle(BOARD_LED_DEBUG);
     dwt_rxenable(DWT_START_RX_IMMEDIATE);
 }
@@ -497,6 +503,7 @@ void ranging_send_data_packet(const uint8_t* data, size_t data_size, uint16_t ds
 
     data_packet_dst_mac = dst_mac;
 
+    // TODO: Not sure this is correct
     /* Tell the ranging thread that we want to send a packet. */
     chEvtBroadcast(&data_packet_ready_event);
 

@@ -5,7 +5,11 @@
 #define TRACE_POINTS                      \
     C(TRACE_POINT_UWB_IRQ)                \
     C(TRACE_POINT_UWB_SEND_ADVERTISEMENT) \
+    C(TRACE_POINT_UWB_SEND_ANCHOR_POS)    \
+    C(TRACE_POINT_UWB_SEND_DATA)          \
     C(TRACE_POINT_UWB_TX_DONE)            \
+    C(TRACE_POINT_UWB_RX_TIMEOUT)         \
+    C(TRACE_POINT_UWB_RX_ERROR)           \
     C(TRACE_POINT_UWB_RX)                 \
     C(TRACE_POINT_UWB_PROCESS_FRAME)
 
