@@ -250,6 +250,16 @@ bool cmp_read_ext(cmp_ctx_t* ctx, int8_t* type, uint32_t* size, void* data);
 bool cmp_read_object(cmp_ctx_t* ctx, cmp_object_t* obj);
 
 /*
+ * This is similar to `cmp_skip_object`, except it will continually skip
+ * nested data structures.
+ *
+ * WARNING: This can cause your application to spend an unbounded amount of
+ *          time reading nested data structures.  Unless you completely trust
+ *          the data source, you should use `cmp_skip_object`.
+ */
+bool cmp_skip_object_no_limit(cmp_ctx_t* ctx);
+
+/*
  * ============================================================================
  * === Specific API
  * ============================================================================

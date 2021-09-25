@@ -211,6 +211,20 @@ static bool write_byte(cmp_ctx_t* ctx, uint8_t x)
     return (ctx->write(ctx, &x, sizeof(uint8_t)) == (sizeof(uint8_t)));
 }
 
+static bool skip_bytes(cmp_ctx_t* ctx, size_t count)
+{
+    uint8_t floor;
+    size_t i;
+
+    for (i = 0; i < count; i++) {
+        if (!ctx->read(ctx, &floor, sizeof(uint8_t))) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 static bool read_type_marker(cmp_ctx_t* ctx, uint8_t* marker)
 {
     if (read_byte(ctx, marker)) {
@@ -239,6 +253,302 @@ static bool write_fixed_value(cmp_ctx_t* ctx, uint8_t value)
 
     ctx->error = FIXED_VALUE_WRITING_ERROR;
     return false;
+}
+
+static bool type_marker_to_cmp_type(uint8_t type_marker, uint8_t* cmp_type)
+{
+    if (type_marker <= 0x7F) {
+        *cmp_type = CMP_TYPE_POSITIVE_FIXNUM;
+        return true;
+    }
+
+    if (type_marker <= 0x8F) {
+        *cmp_type = CMP_TYPE_FIXMAP;
+        return true;
+    }
+
+    if (type_marker <= 0x9F) {
+        *cmp_type = CMP_TYPE_FIXARRAY;
+        return true;
+    }
+
+    if (type_marker <= 0xBF) {
+        *cmp_type = CMP_TYPE_FIXSTR;
+        return true;
+    }
+
+    if (type_marker >= 0xE0) {
+        *cmp_type = CMP_TYPE_NEGATIVE_FIXNUM;
+        return true;
+    }
+
+    switch (type_marker) {
+        case NIL_MARKER:
+            *cmp_type = CMP_TYPE_NIL;
+            return true;
+        case FALSE_MARKER:
+            *cmp_type = CMP_TYPE_BOOLEAN;
+            return true;
+        case TRUE_MARKER:
+            *cmp_type = CMP_TYPE_BOOLEAN;
+            return true;
+        case BIN8_MARKER:
+            *cmp_type = CMP_TYPE_BIN8;
+            return true;
+        case BIN16_MARKER:
+            *cmp_type = CMP_TYPE_BIN16;
+            return true;
+        case BIN32_MARKER:
+            *cmp_type = CMP_TYPE_BIN32;
+            return true;
+        case EXT8_MARKER:
+            *cmp_type = CMP_TYPE_EXT8;
+            return true;
+        case EXT16_MARKER:
+            *cmp_type = CMP_TYPE_EXT16;
+            return true;
+        case EXT32_MARKER:
+            *cmp_type = CMP_TYPE_EXT32;
+            return true;
+        case FLOAT_MARKER:
+            *cmp_type = CMP_TYPE_FLOAT;
+            return true;
+        case DOUBLE_MARKER:
+            *cmp_type = CMP_TYPE_DOUBLE;
+            return true;
+        case U8_MARKER:
+            *cmp_type = CMP_TYPE_UINT8;
+            return true;
+        case U16_MARKER:
+            *cmp_type = CMP_TYPE_UINT16;
+            return true;
+        case U32_MARKER:
+            *cmp_type = CMP_TYPE_UINT32;
+            return true;
+        case U64_MARKER:
+            *cmp_type = CMP_TYPE_UINT64;
+            return true;
+        case S8_MARKER:
+            *cmp_type = CMP_TYPE_SINT8;
+            return true;
+        case S16_MARKER:
+            *cmp_type = CMP_TYPE_SINT16;
+            return true;
+        case S32_MARKER:
+            *cmp_type = CMP_TYPE_SINT32;
+            return true;
+        case S64_MARKER:
+            *cmp_type = CMP_TYPE_SINT64;
+            return true;
+        case FIXEXT1_MARKER:
+            *cmp_type = CMP_TYPE_FIXEXT1;
+            return true;
+        case FIXEXT2_MARKER:
+            *cmp_type = CMP_TYPE_FIXEXT2;
+            return true;
+        case FIXEXT4_MARKER:
+            *cmp_type = CMP_TYPE_FIXEXT4;
+            return true;
+        case FIXEXT8_MARKER:
+            *cmp_type = CMP_TYPE_FIXEXT8;
+            return true;
+        case FIXEXT16_MARKER:
+            *cmp_type = CMP_TYPE_FIXEXT16;
+            return true;
+        case STR8_MARKER:
+            *cmp_type = CMP_TYPE_STR8;
+            return true;
+        case STR16_MARKER:
+            *cmp_type = CMP_TYPE_STR16;
+            return true;
+        case STR32_MARKER:
+            *cmp_type = CMP_TYPE_STR32;
+            return true;
+        case ARRAY16_MARKER:
+            *cmp_type = CMP_TYPE_ARRAY16;
+            return true;
+        case ARRAY32_MARKER:
+            *cmp_type = CMP_TYPE_ARRAY32;
+            return true;
+        case MAP16_MARKER:
+            *cmp_type = CMP_TYPE_MAP16;
+            return true;
+        case MAP32_MARKER:
+            *cmp_type = CMP_TYPE_MAP32;
+            return true;
+        default:
+            return false;
+    }
+}
+
+static bool read_type_size(cmp_ctx_t* ctx, uint8_t type_marker, uint8_t cmp_type, uint32_t* size)
+{
+    uint8_t u8temp = 0;
+    uint16_t u16temp = 0;
+    uint32_t u32temp = 0;
+
+    switch (cmp_type) {
+        case CMP_TYPE_POSITIVE_FIXNUM:
+            *size = 0;
+            return true;
+        case CMP_TYPE_FIXMAP:
+            *size = (type_marker & FIXMAP_SIZE);
+            return true;
+        case CMP_TYPE_FIXARRAY:
+            *size = (type_marker & FIXARRAY_SIZE);
+            return true;
+        case CMP_TYPE_FIXSTR:
+            *size = (type_marker & FIXSTR_SIZE);
+            return true;
+        case CMP_TYPE_NIL:
+            *size = 0;
+            return true;
+        case CMP_TYPE_BOOLEAN:
+            *size = 0;
+            return true;
+        case CMP_TYPE_BIN8:
+            if (!ctx->read(ctx, &u8temp, sizeof(uint8_t))) {
+                ctx->error = LENGTH_READING_ERROR;
+                return false;
+            }
+            *size = u8temp;
+            return true;
+        case CMP_TYPE_BIN16:
+            if (!ctx->read(ctx, &u16temp, sizeof(uint16_t))) {
+                ctx->error = LENGTH_READING_ERROR;
+                return false;
+            }
+            *size = be16(u16temp);
+            return true;
+        case CMP_TYPE_BIN32:
+            if (!ctx->read(ctx, &u32temp, sizeof(uint32_t))) {
+                ctx->error = LENGTH_READING_ERROR;
+                return false;
+            }
+            *size = be32(u32temp);
+            return true;
+        case CMP_TYPE_EXT8:
+            if (!ctx->read(ctx, &u8temp, sizeof(uint8_t))) {
+                ctx->error = LENGTH_READING_ERROR;
+                return false;
+            }
+            *size = u8temp;
+            return true;
+        case CMP_TYPE_EXT16:
+            if (!ctx->read(ctx, &u16temp, sizeof(uint16_t))) {
+                ctx->error = LENGTH_READING_ERROR;
+                return false;
+            }
+            *size = be16(u16temp);
+            return true;
+        case CMP_TYPE_EXT32:
+            if (!ctx->read(ctx, &u32temp, sizeof(uint32_t))) {
+                ctx->error = LENGTH_READING_ERROR;
+                return false;
+            }
+            *size = be32(u32temp);
+            return true;
+        case CMP_TYPE_FLOAT:
+            *size = 4;
+            return true;
+        case CMP_TYPE_DOUBLE:
+            *size = 8;
+            return true;
+        case CMP_TYPE_UINT8:
+            *size = 1;
+            return true;
+        case CMP_TYPE_UINT16:
+            *size = 2;
+            return true;
+        case CMP_TYPE_UINT32:
+            *size = 4;
+            return true;
+        case CMP_TYPE_UINT64:
+            *size = 8;
+            return true;
+        case CMP_TYPE_SINT8:
+            *size = 1;
+            return true;
+        case CMP_TYPE_SINT16:
+            *size = 2;
+            return true;
+        case CMP_TYPE_SINT32:
+            *size = 4;
+            return true;
+        case CMP_TYPE_SINT64:
+            *size = 8;
+            return true;
+        case CMP_TYPE_FIXEXT1:
+            *size = 1;
+            return true;
+        case CMP_TYPE_FIXEXT2:
+            *size = 2;
+            return true;
+        case CMP_TYPE_FIXEXT4:
+            *size = 4;
+            return true;
+        case CMP_TYPE_FIXEXT8:
+            *size = 8;
+            return true;
+        case CMP_TYPE_FIXEXT16:
+            *size = 16;
+            return true;
+        case CMP_TYPE_STR8:
+            if (!ctx->read(ctx, &u8temp, sizeof(uint8_t))) {
+                ctx->error = DATA_READING_ERROR;
+                return false;
+            }
+            *size = u8temp;
+            return true;
+        case CMP_TYPE_STR16:
+            if (!ctx->read(ctx, &u16temp, sizeof(uint16_t))) {
+                ctx->error = DATA_READING_ERROR;
+                return false;
+            }
+            *size = be16(u16temp);
+            return true;
+        case CMP_TYPE_STR32:
+            if (!ctx->read(ctx, &u32temp, sizeof(uint32_t))) {
+                ctx->error = DATA_READING_ERROR;
+                return false;
+            }
+            *size = be32(u32temp);
+            return true;
+        case CMP_TYPE_ARRAY16:
+            if (!ctx->read(ctx, &u16temp, sizeof(uint16_t))) {
+                ctx->error = DATA_READING_ERROR;
+                return false;
+            }
+            *size = be16(u16temp);
+            return true;
+        case CMP_TYPE_ARRAY32:
+            if (!ctx->read(ctx, &u32temp, sizeof(uint32_t))) {
+                ctx->error = DATA_READING_ERROR;
+                return false;
+            }
+            *size = be32(u32temp);
+            return true;
+        case CMP_TYPE_MAP16:
+            if (!ctx->read(ctx, &u16temp, sizeof(uint16_t))) {
+                ctx->error = DATA_READING_ERROR;
+                return false;
+            }
+            *size = be16(u16temp);
+            return true;
+        case CMP_TYPE_MAP32:
+            if (!ctx->read(ctx, &u32temp, sizeof(uint32_t))) {
+                ctx->error = DATA_READING_ERROR;
+                return false;
+            }
+            *size = be32(u32temp);
+            return true;
+        case CMP_TYPE_NEGATIVE_FIXNUM:
+            *size = 0;
+            return true;
+        default:
+            ctx->error = INVALID_TYPE_ERROR;
+            return false;
+    }
 }
 
 void cmp_init(cmp_ctx_t* ctx, void* buf, cmp_reader read, cmp_writer write)
@@ -2482,6 +2792,83 @@ bool cmp_read_object(cmp_ctx_t* ctx, cmp_object_t* obj)
     } else {
         ctx->error = INVALID_TYPE_ERROR;
         return false;
+    }
+
+    return true;
+}
+
+bool cmp_skip_object_no_limit(cmp_ctx_t* ctx)
+{
+    size_t element_count = 1;
+
+    while (element_count) {
+        uint8_t type_marker = 0;
+        uint8_t cmp_type = 0;
+        uint32_t size = 0;
+
+        if (!read_type_marker(ctx, &type_marker)) {
+            return false;
+        }
+
+        if (!type_marker_to_cmp_type(type_marker, &cmp_type)) {
+            ctx->error = INVALID_TYPE_ERROR;
+            return false;
+        }
+
+        switch (cmp_type) {
+            case CMP_TYPE_FIXARRAY:
+            case CMP_TYPE_ARRAY16:
+            case CMP_TYPE_ARRAY32:
+            case CMP_TYPE_FIXMAP:
+            case CMP_TYPE_MAP16:
+            case CMP_TYPE_MAP32:
+                break;
+            default:
+                if (!read_type_size(ctx, type_marker, cmp_type, &size)) {
+                    return false;
+                }
+
+                if (size) {
+                    switch (cmp_type) {
+                        case CMP_TYPE_FIXEXT1:
+                        case CMP_TYPE_FIXEXT2:
+                        case CMP_TYPE_FIXEXT4:
+                        case CMP_TYPE_FIXEXT8:
+                        case CMP_TYPE_FIXEXT16:
+                        case CMP_TYPE_EXT8:
+                        case CMP_TYPE_EXT16:
+                        case CMP_TYPE_EXT32:
+                            size++;
+                        default:
+                            break;
+                    }
+
+                    skip_bytes(ctx, size);
+                }
+        }
+
+        element_count--;
+
+        switch (cmp_type) {
+            case CMP_TYPE_FIXARRAY:
+            case CMP_TYPE_ARRAY16:
+            case CMP_TYPE_ARRAY32:
+                if (!read_type_size(ctx, type_marker, cmp_type, &size)) {
+                    return false;
+                }
+                element_count += size;
+                break;
+            case CMP_TYPE_FIXMAP:
+            case CMP_TYPE_MAP16:
+            case CMP_TYPE_MAP32:
+                if (!read_type_size(ctx, type_marker, cmp_type, &size)) {
+                    return false;
+                }
+                element_count += ((size_t)size) * 2;
+                break;
+            default:
+                break;
+        }
     }
 
     return true;
