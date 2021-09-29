@@ -95,6 +95,9 @@ PROJECT = uwb-beacon
 # Imported source files and paths
 CHIBIOS = ../lib/ChibiOS
 
+CONFIG_YAML = board_config.yaml
+CONFIG_MSGPACK_C = $(addprefix src/, $(notdir $(CONFIG_YAML:.yaml=.c)))
+
 # Startup files.
 include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32f4xx.mk
 
@@ -126,6 +129,7 @@ CSRC = $(STARTUPSRC) \
 	   $(PLATFORMSRC) \
 	   $(SHELLSRC) \
        $(CHIBIOS)/os/hal/lib/streams/chprintf.c \
+	   $(CONFIG_MSGPACK_C) \
 	   $(APPCSRC)
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
@@ -242,6 +246,12 @@ GLOBAL_SRC_DEP = app_src.mk
 
 RULESPATH = $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/
 include $(RULESPATH)/rules.mk
+
+PRE_MAKE_ALL_RULE_HOOK: $(CONFIG_MSGPACK_C)
+
+$(CONFIG_MSGPACK_C): src/%.c : ../%.yaml
+	@$(COLOR_PRINTF) "Generating $@"
+	@../tools/config/config_to_msgpack.py $< $@ --name msgpack_board_config
 
 # run uavcan dsdl compiler
 .PHONY: dsdlc

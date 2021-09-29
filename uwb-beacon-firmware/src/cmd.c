@@ -509,6 +509,17 @@ static void cmd_data_rx(BaseSequentialStream* chp, int argc, char* argv[])
     chprintf(chp, "got %d bytes: %s\n", msg.data_size, msg.data);
 }
 
+static void cmd_uid(BaseSequentialStream* chp, int argc, char* argv[])
+{
+    uint8_t uid[12];
+    char* uid_device = (char*)UID_BASE;
+    memcpy(uid, uid_device, sizeof(uid));
+    for (int i = 0; i < 12; i++) {
+        chprintf(chp, "%02x", uid[i]);
+    }
+    chprintf(chp, "\n");
+}
+
 static ShellConfig shell_cfg;
 const ShellCommand shell_commands[] = {
     {"reboot", cmd_reboot},
@@ -530,6 +541,7 @@ const ShellCommand shell_commands[] = {
     {"set_pos", cmd_set_pos},
     {"data_tx", cmd_data_tx},
     {"data_rx", cmd_data_rx},
+    {"uid", cmd_uid},
     {NULL, NULL}};
 
 #if SHELL_USE_HISTORY == TRUE

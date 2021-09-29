@@ -1,4 +1,5 @@
 #include <ch.h>
+#include <cstring>
 #include <hal.h>
 #include <chprintf.h>
 
@@ -28,6 +29,23 @@ struct uavcan_node_arg {
 void uavcan_failure(const char* reason)
 {
     chSysHalt(reason);
+}
+
+uavcan::protocol::HardwareVersion get_hardware_version()
+{
+    uavcan::protocol::HardwareVersion hw_version;
+
+    hw_version.major = 2;
+
+    char uid[12];
+    char* uid_device = (char*)UID_BASE;
+    memcpy(uid, uid_device, 12);
+
+    for (auto i = 0u; i < sizeof uid; i++) {
+        hw_version.unique_id[i] = uid[i];
+    }
+
+    return hw_version;
 }
 
 static THD_WORKING_AREA(uavcan_node_wa, 8000);
@@ -61,6 +79,8 @@ static THD_FUNCTION(uavcan_node, arg)
     node->getNodeStatusProvider().setHealthOk();
 
     /* TODO: set software and hardware version */
+    auto hw_version = get_hardware_version();
+    node->setHardwareVersion(hw_version);
 
     topics_publisher_start(*node);
     parameter_server_start(*node);

@@ -1,9 +1,14 @@
 #include <ch.h>
 #include <hal.h>
 #include <chprintf.h>
-#include <parameter_flash_storage/parameter_flash_storage.h>
+#include <string.h>
+#include <stdio.h>
 #include <trace/trace.h>
 #include <error/error.h>
+#include <cmp/cmp.h>
+#include <cmp_mem_access/cmp_mem_access.h>
+#include <parameter_flash_storage/parameter_flash_storage.h>
+#include <parameter/parameter_msgpack.h>
 
 #include "main.h"
 #include "usbconf.h"
@@ -36,6 +41,58 @@ void __late_init(void)
     trace_enable();
 }
 
+static void _parameter_error(void* /*arg */, const char* /* id */, const char* /*err*/)
+{
+}
+
+void config_load(void)
+{
+    /* First, we start with the default config, then we load board-specific
+     * overlays (see board_config.yaml) */
+    extern unsigned char msgpack_board_config[];
+    extern const size_t msgpack_board_config_size;
+    cmp_ctx_t cmp;
+    cmp_mem_access_t mem;
+    cmp_mem_access_ro_init(&cmp, &mem, msgpack_board_config,
+                           msgpack_board_config_size);
+
+    uint8_t uid[12];
+    char* uid_device = (char*)UID_BASE;
+    memcpy(uid, uid_device, sizeof(uid));
+
+    char uid_as_str[25];
+    memset(uid_as_str, 0, sizeof(uid_as_str));
+    for (int i = 0; i < 12; i++) {
+        sprintf(&uid_as_str[2 * i], "%02x", uid[i]);
+    }
+
+    uint32_t map_size;
+    if (cmp_read_map(&cmp, &map_size)) {
+        char key[64];
+        for (uint32_t i = 0; i < map_size; i++) {
+            memset(key, 0, sizeof(key));
+            int res;
+            uint32_t size = sizeof(key);
+            res = cmp_read_str(&cmp, key, &size);
+            if (!res) {
+                // We encountered something not a string, skip the value
+                // and continue
+                cmp_skip_object_no_limit(&cmp);
+                continue;
+            }
+            if (strncmp(key, uid_as_str, size)) {
+                // Wrong key, skip the value
+                cmp_skip_object_no_limit(&cmp);
+                continue;
+            }
+            parameter_msgpack_read_cmp(&parameter_root, &cmp, _parameter_error, NULL);
+        }
+    }
+
+    /* Then, load the saved config on top on the default config. */
+    parameter_flash_storage_load(&parameter_root, &_config_start);
+}
+
 int main(void)
 {
     /* Starts USB, this takes about 1 second, as we have to disconnect and
@@ -62,7 +119,7 @@ int main(void)
 
     /* All services should be initialized by now, we can load the config. */
     chThdSleepMilliseconds(1000);
-    parameter_flash_storage_load(&parameter_root, &_config_start);
+    config_load();
 
     while (true) {
         chThdSleepMilliseconds(1000);

@@ -1,0 +1,18 @@
+# This file contains a per-board config overlay. The order in which
+# configurations are applied are:
+# 1. The default parameter values
+# 2. The board-specific overlay, if applicable
+# 3. The configuration saved on the device's flash memory
+#
+# The reason to have a per-board overlay is that when programming the device
+# over DFU, sometimes the config can get erased. Storing parameters in here
+# allows experiments to quickly be recreated.
+#
+# The format of this configuration file is a dict, with the key being the 96
+# bit processor ID, and the value being the parameters to apply. You can obtain
+# the processor ID by using the "uid" command in the board's serial port or by
+# looking in the hardware information in UAVCAN tool (only copy the first 12
+# bytes).
+"3e0028000c47373037323238":
+  uwb:
+    pan_id: 17
