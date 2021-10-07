@@ -4,11 +4,11 @@ freshness:
     reviewed: 2020-11-18
 ---
 
-# How to handle a new UAVCAN message type?
+# Handle new UAVCAN data types
 
 Things you will need for this tutorial:
 
-* A working arm-none-eabi compiler setup
+* A [working arm-none-eabi compiler setup](../howto/install_arm_gcc.md)
 * A can-io board
 * A CAN cable
 * A CVRA USB dongle

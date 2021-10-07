@@ -19,6 +19,7 @@ nav:
   - 'How to':
     - 'Calibrate the odometry': howto/calibrate-odometry.md
     - howto/add_a_uavcan_message.md
+    - howto/install_arm_gcc.md
   - Systems:
       - can/positioning.md
   - CAN:
