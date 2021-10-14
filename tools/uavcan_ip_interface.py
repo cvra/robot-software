@@ -10,6 +10,7 @@ import sys
 import fcntl
 import uavcan
 import subprocess
+import logging
 from queue import Queue, Empty
 import threading
 
@@ -31,6 +32,9 @@ def parse_args():
         help="IP address of this interface (default 10.0.0.1/24)",
     )
     parser.add_argument("--dsdl", help="Path to DSDL directory", default=DSDL_DIR)
+    parser.add_argument(
+        "--verbose", "-v", action="store_true", help="Enable debug output."
+    )
 
     return parser.parse_args()
 
@@ -81,7 +85,7 @@ def node_thread(tun_fd, node, can_to_tap, tap_to_can):
         try:
             node.spin(timeout=0)
         except uavcan.transport.TransferError:
-            print("uavcan exception, ignoring...")
+            logging.warning("uavcan exception, ignoring...")
             pass
 
         try:
@@ -108,8 +112,13 @@ def tx_thread(tun_fd, queue):
 
 def main():
     args = parse_args()
+    level = logging.INFO
+    if args.verbose:
+        level = logging.DEBUG
+    logging.basicConfig(level=level)
+
     if os.getuid() != 0:
-        print("must run as root.")
+        logging.error("must run as root.")
         sys.exit(1)
 
     uavcan.load_dsdl(args.dsdl)
@@ -120,7 +129,7 @@ def main():
     tap_to_can = Queue()
     can_to_tap = Queue()
 
-    print("waiting for packets, press 3x Ctrl-C to stop...")
+    logging.info("waiting for packets, press 3x Ctrl-C to stop...")
 
     rx_thd = threading.Thread(target=rx_thread, args=(tun_fd, tap_to_can))
     tx_thd = threading.Thread(target=tx_thread, args=(tun_fd, can_to_tap))
