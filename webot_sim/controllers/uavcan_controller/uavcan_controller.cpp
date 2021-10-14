@@ -72,8 +72,16 @@ absl::optional<ActuatorSimulationAdapter> create_actuator_adapter(Robot& robot, 
     return ActuatorSimulationAdapter(m, d, std::move(emulator));
 }
 
+void set_robot(std::string name)
+{
+    static char env[200];
+    sprintf(env, "WEBOTS_ROBOT_NAME=%s", name.c_str());
+    putenv(env);
+}
+
 int main(int /*argc*/, char** /*argv*/)
 {
+    set_robot("Robot2021");
     Robot robot;
 
     const int timeStep = (int)robot.getBasicTimeStep();

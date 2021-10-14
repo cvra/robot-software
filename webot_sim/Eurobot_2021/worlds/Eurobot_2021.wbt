@@ -155,3 +155,9 @@ Robot2021 {
   translation 2.799999997050477 -0.004529885820809168 1.0000000139177758
   rotation 0.24934294776561955 0.11925470365710812 0.9610444370866557 0.008856274520612053
 }
+Robot {
+  controller "<extern>"
+  name "supervisor"
+  supervisor TRUE
+  synchronization FALSE
+}
