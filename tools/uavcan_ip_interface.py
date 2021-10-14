@@ -10,6 +10,7 @@ import sys
 import fcntl
 import uavcan
 import subprocess
+import time
 import logging
 from queue import Queue, Empty
 import threading
@@ -30,6 +31,12 @@ def parse_args():
         "-a",
         default="10.0.0.1/24",
         help="IP address of this interface (default 10.0.0.1/24)",
+    )
+    parser.add_argument(
+        "--packets-per-second",
+        type=int,
+        default=1000,
+        help="Max number of packet per second to transmit (protects the CAN bus).",
     )
     parser.add_argument("--dsdl", help="Path to DSDL directory", default=DSDL_DIR)
     parser.add_argument(
@@ -66,10 +73,42 @@ def open_tun_interface(ip_addr):
         raise RuntimeError("supports mac and linux only")
 
 
-def rx_thread(tun_fd, queue):
+class RateLimiter:
+    """Simple rate limiter.
+
+    See https://stackoverflow.com/questions/667508/whats-a-good-rate-limiting-algorithm
+    """
+
+    def __init__(self, max_rate):
+        self.max_rate = max_rate
+        self.quota = max_rate
+        self.last_time = time.time()
+
+    def check(self) -> bool:
+        """Checks if we are allowed to proceed based on max rate."""
+        t = time.time()
+        dt, self.last_time = t - self.last_time, t
+        self.quota += self.max_rate * dt
+        self.quota = min(self.quota, self.max_rate)
+
+        # If we don't have quota left, forbid the transaction
+        if self.quota <= 1.0:
+            return False
+
+        # If we still have quota, take one from it and allow the transaction
+        self.quota -= 1.0
+        return True
+
+
+def rx_thread(tun_fd, queue, max_packet_per_second):
+    limiter = RateLimiter(max_packet_per_second)
+
     while True:
         packet = os.read(tun_fd, 1500)
-        queue.put(packet)
+        if limiter.check():
+            queue.put(packet)
+        else:
+            logging.debug("Dropped packet")
 
 
 def node_thread(tun_fd, node, can_to_tap, tap_to_can):
@@ -131,7 +170,9 @@ def main():
 
     logging.info("waiting for packets, press 3x Ctrl-C to stop...")
 
-    rx_thd = threading.Thread(target=rx_thread, args=(tun_fd, tap_to_can))
+    rx_thd = threading.Thread(
+        target=rx_thread, args=(tun_fd, tap_to_can, args.packets_per_second)
+    )
     tx_thd = threading.Thread(target=tx_thread, args=(tun_fd, can_to_tap))
     node_thd = threading.Thread(
         target=node_thread, args=(tun_fd, node, can_to_tap, tap_to_can)
