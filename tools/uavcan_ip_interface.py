@@ -45,11 +45,11 @@ def open_tun_interface(ip_addr):
         TUNSETIFF = 0x400454CA
 
         # See man netdevice for struct ifreq
-        val = struct.pack("16sh15x", "tap0".encode(), IFF_TAP | IFF_NO_PI)
+        val = struct.pack("16sh15x", "uavcan0".encode(), IFF_TAP | IFF_NO_PI)
         fcntl.ioctl(fd, TUNSETIFF, val)
 
-        subprocess.check_call("ip link set dev tap0 up".split())
-        subprocess.check_call("ip addr add dev tap0 {}".format(ip_addr).split())
+        subprocess.check_call("ip link set dev uavcan0 up".split())
+        subprocess.check_call("ip addr add dev uavcan0 {}".format(ip_addr).split())
 
         return fd
 
