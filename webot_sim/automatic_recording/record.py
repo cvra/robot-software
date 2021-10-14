@@ -32,7 +32,9 @@ def parse_args():
 
 
 def start_webot(worldfile):
-    pro = subprocess.Popen(shlex.split(f"webots {worldfile}"), preexec_fn=os.setsid)
+    pro = subprocess.Popen(
+        shlex.split(f"webots --batch {worldfile}"), preexec_fn=os.setsid
+    )
     return pro
 
 
