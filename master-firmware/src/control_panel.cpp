@@ -56,7 +56,7 @@ static void set_output(enum control_panel_output out, bool value)
     DEBUG("setting %s to %d", control_panel_output[out], value);
 
     if (led_info == led_infos.end()) {
-        WARNING("can not set output %s", control_panel_output[out]);
+        WARNING_EVERY_N(100, "can not set output %s", control_panel_output[out]);
         return;
     }
 
