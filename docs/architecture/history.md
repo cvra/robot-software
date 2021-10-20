@@ -2,7 +2,7 @@
 
 freshness: - owner: antoinealb
 
-## reviewed: 2020-12-26
+## reviewed: 2021-05-19
 
 # How we reached our current architecture
 
@@ -15,14 +15,15 @@ throw out everything and start again from scratch. To avoid this waste, the
 "obvious" solution is to design a system that we will never outgrow, but such a
 design is unlikely to succeed as technology and requirements always evolve.
 
-When I joined the club it was using a board with a single microcontroller, a
-fixed number of I/Os and channels for 3 motors with position feedback and PID
-control. The architecture was quite rigid, but the motherboard allowed a bit of
-customization of the input/output, and when we needed functionality that could
-not be implemented on this platform, we built dedicated boards with small
-microcontrollers on them, communicating via ad-hoc protocols, generally over
-UART or GPIOs. This approach served us well for several years, but started to
-show its age (the PID controllers were 20 year old when we moved away!).
+When I joined the club (2008) it was using a board with a single
+microcontroller, a fixed number of I/Os and channels for 3 motors with position
+feedback and PID control. The architecture was quite rigid, but the motherboard
+allowed a bit of customization of the input/output, and when we needed
+functionality that could not be implemented on this platform, we built dedicated
+boards with small microcontrollers on them, communicating via ad-hoc protocols,
+generally over UART or GPIOs. This approach served us well for several years,
+but started to show its age (the PID controllers were 20 year old when we moved
+away!).
 
 In 2010, we decided to switch to another system. In particular, we wanted to do
 polar control of the wheelbase (rather than per-wheel), which the existing
@@ -61,8 +62,8 @@ change for several reasons:
 -   The boards were quite big, which made it mechanically challenging to
     integrate.
 
-We started brainstorming for a new solution, and this document presents the
-current architecture, which is what we have running for now.
+We started brainstorming for a new solution in 2015, and this document presents
+the current architecture, which is what we have running for now.
 
 ## Objective
 
@@ -86,7 +87,7 @@ our robot typically had 2-3 microcontrollers, the new design has \~15!
 Linking each microcontroller to each other via a dedicated UART link like we
 used to do in the past would be infeasible just by the number of wires and UART
 interfaces required. Instead, this design uses a
-[[field bus]](https://en.wikipedia.org/wiki/Fieldbus) shared by all the nodes: a
+[field bus](https://en.wikipedia.org/wiki/Fieldbus) shared by all the nodes: a
 single physical interface is enough for each node to talk to every other node.
 
 Each microcontroller exposes a very high interface to the rest of the robot.
@@ -129,7 +130,7 @@ but triggers an error if a response was not received in a given time.
 To simplify development, UAVCAN can automatically generate code to switch
 between human-readable formats and representation on the CAN bus. Messages are
 described in a special language
-([[example]](https://github.com/cvra/robot-software/blob/master/uavcan_data_types/cvra/motor/feedback/20030.MotorPosition.uavcan)),
+([example](https://github.com/cvra/robot-software/blob/master/uavcan_data_types/cvra/motor/feedback/20030.MotorPosition.uavcan)),
 and C++ or Python code is generated from that.
 
 When working with a large number of devices, software update becomes a
@@ -140,55 +141,55 @@ decided to develop an in-band method of programming, which uses the same CAN
 network that we used in normal operation to download updates. When powering up
 the robot, boards wait for software update messages for 10 seconds before
 proceeding to normal operations. The detailed design can be found in
-[[cvra/can-bootloader]](https://github.com/cvra/can-bootloader).
+[cvra/can-bootloader](https://github.com/cvra/can-bootloader).
 
 ### Available modules
 
 The first type of board we designed, and still the most commonly used one is the
-[[motor control board]](https://github.com/cvra/motor-control-board). It allows
-the control of a single DC motor, with control loops for controlling in torque,
-speed or position. It has inputs for two different quadrature encoders for
-position sensing. Originally we wanted to be able to use it as an alternative
-means of controlling RC servos, but this turned out to be unnecessary. It was
-also re-used with a different firmware for our opponent detection beacon. The
-[[API]](https://github.com/cvra/robot-software/blob/master/uavcan_data_types/cvra/motor/control/20022.Position.uavcan)
+[motor control board](https://github.com/cvra/motor-control-board) (2015). It
+allows the control of a single DC motor, with control loops for controlling in
+torque, speed or position. It has inputs for two different quadrature encoders
+for position sensing. Originally we wanted to be able to use it as an
+alternative means of controlling RC servos, but this turned out to be
+unnecessary. It was also re-used with a different firmware for our opponent
+detection beacon. The
+[API](https://github.com/cvra/robot-software/blob/master/uavcan_data_types/cvra/motor/control/20022.Position.uavcan)
 of the board is simple: you send it a position (or speed, or torque), and it
 will go there.
 
-The
-[[sensor board]](https://github.com/cvra/sensor-board/blob/master/tof-sensor-board.pdf)
-contains three optical sensors: a laser range finder (10 cm range), a color
-sensor and an ambient light sensor. It can be used for object detection around
-the robot, for example to check that a game object was correctly handled. It
-simply publishes periodic readings on the CAN bus, for anyone interested.
+The [sensor board](https://github.com/cvra/sensor-board/) (2016) contains three
+optical sensors: a laser range finder (10 cm range), a color sensor and an
+ambient light sensor. It can be used for object detection around the robot, for
+example to check that a game object was correctly handled. It simply publishes
+periodic readings on the CAN bus, for anyone interested.
 
-The [[IO board]](https://github.com/cvra/can-io-board) has no definite purpose:
-by default it is simply 4 digital input / output + 4 PWMs. The original goal was
-to control a few industrial sensors or custom electronics. We used it for many
-different tasks over the years by reprogramming them to add features. Two
-generations of this board exist, with the only difference being the size of the
-module.
+The [IO board](https://github.com/cvra/can-io-board) (2016) has no definite
+purpose: by default it is simply 4 digital input / output + 4 PWMs. The original
+goal was to control a few industrial sensors or custom electronics. We used it
+for many different tasks over the years by reprogramming them to add features.
+Two generations of this board exist, with the only difference being the size of
+the module.
 
-The [[UWB beacon]](https://github.com/cvra/uwb-beacon-board) is still a work in
-progress. The long term goal is to provide a system to find the position of all
-robots on the playing field by measuring distances with radio (similar to how
-GPS receivers work). Antoine is working on them at the moment.
+The [UWB beacon](https://github.com/cvra/uwb-beacon-board) (2017) is still a
+work in progress. The long term goal is to provide a system to find the position
+of all robots on the playing field by measuring distances with radio (similar to
+how GPS receivers work). Antoine is working on them at the moment.
 
-The [[actuator board]](https://github.com/cvra/actuator-board) is the latest
-addition to the list (2020). Its goal is to be able to control a small actuator
-made with RC servos, vacuum pumps and valves. It has vacuum sensors to check if
-an object was picked, and has a digital input.
+The [actuator board](https://github.com/cvra/actuator-board) (2020) is the
+latest addition to the list (2020). Its goal is to be able to control a small
+actuator made with RC servos, vacuum pumps and valves. It has vacuum sensors to
+check if an object was picked, and has a digital input.
 
-Our [[Pi shield]](https://github.com/cvra/pi-shield) allows one to connect a
-Raspberry Pi to the bus and to send and receive UAVCAN messages from Linux. It
+Our [Pi shield](https://github.com/cvra/pi-shield) (2020) allows one to connect
+a Raspberry Pi to the bus and to send and receive UAVCAN messages from Linux. It
 also allows us to connect a touchscreen placed on the front of the robot.
 
-We have a custom [[USB to CAN adapter]](https://github.com/cvra/CAN-USB-dongle),
-which has the correct connectors for our robot. It can also optionally power on
-the bus (only for a few devices). It is automatically recognized, and can be set
-up to be used as a native CAN interface on Linux. Two generations exist:
-micro-USB and USB-C. If you are working on the club's projects, you should
-probably ask to have one.
+We have a custom [USB to CAN adapter](https://github.com/cvra/CAN-USB-dongle)
+(2015), which has the correct connectors for our robot. It can also optionally
+power on the bus (only for a few devices). It is automatically recognized, and
+can be set up to be used as a native CAN interface on Linux. Two generations
+exist: micro-USB and USB-C. If you are working on the club's projects, you
+should probably ask to have one.
 
 ## Alternatives considered
 
@@ -209,7 +210,7 @@ but we were spending a lot of time dealing with low level work, as well as
 optimizing to not use too much RAM. This led us to switching back the code to
 run on Linux again, but this time including the realtime part as well, with
 everything written in C++. You can read more about this switch
-[[there]](https://cvra.ch/robot-software/design/linux-master/).
+[there](https://cvra.ch/robot-software/design/linux-master/).
 
 We experimented with ROS for one year in 2016, using an architecture pretty
 similar to the one presented here. The biggest downside of this approach is that
@@ -218,7 +219,7 @@ compilation, which makes building software really slow. The ROS navigation stack
 was very CPU hungry, which did not help with our limited CPU resources. It could
 certainly be interesting to come back to it now that ROS2 is available. You can
 read more about this approach
-[[here]](https://cvra.ch/blog/2016/goldorak-post-mortem).
+[here](https://cvra.ch/blog/2016/goldorak-post-mortem).
 
 ## Future work
 

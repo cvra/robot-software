@@ -3,6 +3,7 @@ theme:
   name: gitbook
 plugins: []
 markdown_extensions:
+  - footnotes
   - codehilite:
       guess_lang: False
 
