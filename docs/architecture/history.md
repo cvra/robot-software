@@ -1,8 +1,9 @@
---------------------------------------------------------------------------------
+---
+freshness:
+  - owner: antoinealb
+    reviewed: 2021-10-20
+---
 
-freshness: - owner: antoinealb
-
-## reviewed: 2021-05-19
 
 # How we reached our current architecture
 
