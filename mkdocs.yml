@@ -13,6 +13,7 @@ extra_css:
 nav:
   - Home: index.md
   - Robot architecture:
+    - 'History & Design': architecture/history.md
     - '2020 hardware architecture': architecture/hardware2020.md
     - 'Life of a motion': architecture/life-of-a-motion.md
     - 'Master firmware on Linux': design/linux-master.md
