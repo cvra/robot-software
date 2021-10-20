@@ -137,7 +137,7 @@ Theme by GitBook
 
 <hr />
 <p>freshness: - owner: antoinealb</p>
-<h2 id="reviewed-2020-12-26">reviewed: 2020-12-26</h2>
+<h2 id="reviewed-2021-05-19">reviewed: 2021-05-19</h2>
 <h1 id="how-we-reached-our-current-architecture">How we reached our current architecture</h1>
 <h2 id="background-history">Background &amp; History</h2>
 <p>In order to understand the current design, I think one must understand where we
@@ -146,14 +146,15 @@ and every time outgrew those. Every time we switch to a new platform, we must
 throw out everything and start again from scratch. To avoid this waste, the
 "obvious" solution is to design a system that we will never outgrow, but such a
 design is unlikely to succeed as technology and requirements always evolve.</p>
-<p>When I joined the club it was using a board with a single microcontroller, a
-fixed number of I/Os and channels for 3 motors with position feedback and PID
-control. The architecture was quite rigid, but the motherboard allowed a bit of
-customization of the input/output, and when we needed functionality that could
-not be implemented on this platform, we built dedicated boards with small
-microcontrollers on them, communicating via ad-hoc protocols, generally over
-UART or GPIOs. This approach served us well for several years, but started to
-show its age (the PID controllers were 20 year old when we moved away!).</p>
+<p>When I joined the club (2008) it was using a board with a single
+microcontroller, a fixed number of I/Os and channels for 3 motors with position
+feedback and PID control. The architecture was quite rigid, but the motherboard
+allowed a bit of customization of the input/output, and when we needed
+functionality that could not be implemented on this platform, we built dedicated
+boards with small microcontrollers on them, communicating via ad-hoc protocols,
+generally over UART or GPIOs. This approach served us well for several years,
+but started to show its age (the PID controllers were 20 year old when we moved
+away!).</p>
 <p>In 2010, we decided to switch to another system. In particular, we wanted to do
 polar control of the wheelbase (rather than per-wheel), which the existing
 system could not do as it relied on dedicated hardware for PID control. We also
@@ -182,15 +183,15 @@ standard and had some bugs. We stuck with it for a few years, fixing bugs and in
 2014, this platform had us win the Swiss championships! However, we needed a
 change for several reasons:</p>
 <ul>
-<li>The FPGAs were too complicated to program[^1],</li>
+<li>The FPGAs were too complicated to program<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup>,</li>
 <li>The platform was pretty expensive, meaning we only had three setups (two in
     robots, and one redundant). Developing outside of the robots was impossible.</li>
 <li>The bugs of the platform made it challenging for reliability,</li>
 <li>The boards were quite big, which made it mechanically challenging to
     integrate.</li>
 </ul>
-<p>We started brainstorming for a new solution, and this document presents the
-current architecture, which is what we have running for now.</p>
+<p>We started brainstorming for a new solution in 2015, and this document presents
+the current architecture, which is what we have running for now.</p>
 <h2 id="objective">Objective</h2>
 <p>Provide a platform that can be extended indefinitely to match the requirements
 of the robot. Give developers flexibility in choosing the best platform for the
@@ -209,7 +210,7 @@ our robot typically had 2-3 microcontrollers, the new design has \~15!</p>
 <p>Linking each microcontroller to each other via a dedicated UART link like we
 used to do in the past would be infeasible just by the number of wires and UART
 interfaces required. Instead, this design uses a
-<a href="https://en.wikipedia.org/wiki/Fieldbus">[field bus]</a> shared by all the nodes: a
+<a href="https://en.wikipedia.org/wiki/Fieldbus">field bus</a> shared by all the nodes: a
 single physical interface is enough for each node to talk to every other node.</p>
 <p>Each microcontroller exposes a very high interface to the rest of the robot.
 This is very important to make the system easy to test and reason about: compare
@@ -227,7 +228,7 @@ the two signals named CANH and CANL.</p>
 bytes, which are tagged with a 29-bit identifier. Any node on the bus can send
 and all the nodes will receive all the messages. Therefore, it is common to add
 higher level protocols on top of CAN, which provide longer messages, addressing
-and message serialization[^2]. We chose UAVCAN for this, which is an emerging
+and message serialization<sup id="fnref:2"><a class="footnote-ref" href="#fn:2">2</a></sup>. We chose UAVCAN for this, which is an emerging
 standard aimed at small drones and robots, an application close to ours. It
 proposes a nice set of features, and has a good quality reference
 implementation. Note that UAVCAN has two versions: the one we use, v0, is
@@ -246,7 +247,7 @@ but triggers an error if a response was not received in a given time.</p>
 <p>To simplify development, UAVCAN can automatically generate code to switch
 between human-readable formats and representation on the CAN bus. Messages are
 described in a special language
-(<a href="https://github.com/cvra/robot-software/blob/master/uavcan_data_types/cvra/motor/feedback/20030.MotorPosition.uavcan">[example]</a>),
+(<a href="https://github.com/cvra/robot-software/blob/master/uavcan_data_types/cvra/motor/feedback/20030.MotorPosition.uavcan">example</a>),
 and C++ or Python code is generated from that.</p>
 <p>When working with a large number of devices, software update becomes a
 challenge. We used to do that by connecting a JTAG probe to the target
@@ -256,50 +257,50 @@ decided to develop an in-band method of programming, which uses the same CAN
 network that we used in normal operation to download updates. When powering up
 the robot, boards wait for software update messages for 10 seconds before
 proceeding to normal operations. The detailed design can be found in
-<a href="https://github.com/cvra/can-bootloader">[cvra/can-bootloader]</a>.</p>
+<a href="https://github.com/cvra/can-bootloader">cvra/can-bootloader</a>.</p>
 <h3 id="available-modules">Available modules</h3>
 <p>The first type of board we designed, and still the most commonly used one is the
-<a href="https://github.com/cvra/motor-control-board">[motor control board]</a>. It allows
-the control of a single DC motor, with control loops for controlling in torque,
-speed or position. It has inputs for two different quadrature encoders for
-position sensing. Originally we wanted to be able to use it as an alternative
-means of controlling RC servos, but this turned out to be unnecessary. It was
-also re-used with a different firmware for our opponent detection beacon. The
-<a href="https://github.com/cvra/robot-software/blob/master/uavcan_data_types/cvra/motor/control/20022.Position.uavcan">[API]</a>
+<a href="https://github.com/cvra/motor-control-board">motor control board</a> (2015). It
+allows the control of a single DC motor, with control loops for controlling in
+torque, speed or position. It has inputs for two different quadrature encoders
+for position sensing. Originally we wanted to be able to use it as an
+alternative means of controlling RC servos, but this turned out to be
+unnecessary. It was also re-used with a different firmware for our opponent
+detection beacon. The
+<a href="https://github.com/cvra/robot-software/blob/master/uavcan_data_types/cvra/motor/control/20022.Position.uavcan">API</a>
 of the board is simple: you send it a position (or speed, or torque), and it
 will go there.</p>
-<p>The
-<a href="https://github.com/cvra/sensor-board/blob/master/tof-sensor-board.pdf">[sensor board]</a>
-contains three optical sensors: a laser range finder (10 cm range), a color
-sensor and an ambient light sensor. It can be used for object detection around
-the robot, for example to check that a game object was correctly handled. It
-simply publishes periodic readings on the CAN bus, for anyone interested.</p>
-<p>The <a href="https://github.com/cvra/can-io-board">[IO board]</a> has no definite purpose:
-by default it is simply 4 digital input / output + 4 PWMs. The original goal was
-to control a few industrial sensors or custom electronics. We used it for many
-different tasks over the years by reprogramming them to add features. Two
-generations of this board exist, with the only difference being the size of the
-module.</p>
-<p>The <a href="https://github.com/cvra/uwb-beacon-board">[UWB beacon]</a> is still a work in
-progress. The long term goal is to provide a system to find the position of all
-robots on the playing field by measuring distances with radio (similar to how
-GPS receivers work). Antoine is working on them at the moment.</p>
-<p>The <a href="https://github.com/cvra/actuator-board">[actuator board]</a> is the latest
-addition to the list (2020). Its goal is to be able to control a small actuator
-made with RC servos, vacuum pumps and valves. It has vacuum sensors to check if
-an object was picked, and has a digital input.</p>
-<p>Our <a href="https://github.com/cvra/pi-shield">[Pi shield]</a> allows one to connect a
-Raspberry Pi to the bus and to send and receive UAVCAN messages from Linux. It
+<p>The <a href="https://github.com/cvra/sensor-board/">sensor board</a> (2016) contains three
+optical sensors: a laser range finder (10 cm range), a color sensor and an
+ambient light sensor. It can be used for object detection around the robot, for
+example to check that a game object was correctly handled. It simply publishes
+periodic readings on the CAN bus, for anyone interested.</p>
+<p>The <a href="https://github.com/cvra/can-io-board">IO board</a> (2016) has no definite
+purpose: by default it is simply 4 digital input / output + 4 PWMs. The original
+goal was to control a few industrial sensors or custom electronics. We used it
+for many different tasks over the years by reprogramming them to add features.
+Two generations of this board exist, with the only difference being the size of
+the module.</p>
+<p>The <a href="https://github.com/cvra/uwb-beacon-board">UWB beacon</a> (2017) is still a
+work in progress. The long term goal is to provide a system to find the position
+of all robots on the playing field by measuring distances with radio (similar to
+how GPS receivers work). Antoine is working on them at the moment.</p>
+<p>The <a href="https://github.com/cvra/actuator-board">actuator board</a> (2020) is the
+latest addition to the list (2020). Its goal is to be able to control a small
+actuator made with RC servos, vacuum pumps and valves. It has vacuum sensors to
+check if an object was picked, and has a digital input.</p>
+<p>Our <a href="https://github.com/cvra/pi-shield">Pi shield</a> (2020) allows one to connect
+a Raspberry Pi to the bus and to send and receive UAVCAN messages from Linux. It
 also allows us to connect a touchscreen placed on the front of the robot.</p>
-<p>We have a custom <a href="https://github.com/cvra/CAN-USB-dongle">[USB to CAN adapter]</a>,
-which has the correct connectors for our robot. It can also optionally power on
-the bus (only for a few devices). It is automatically recognized, and can be set
-up to be used as a native CAN interface on Linux. Two generations exist:
-micro-USB and USB-C. If you are working on the club's projects, you should
-probably ask to have one.</p>
+<p>We have a custom <a href="https://github.com/cvra/CAN-USB-dongle">USB to CAN adapter</a>
+(2015), which has the correct connectors for our robot. It can also optionally
+power on the bus (only for a few devices). It is automatically recognized, and
+can be set up to be used as a native CAN interface on Linux. Two generations
+exist: micro-USB and USB-C. If you are working on the club's projects, you
+should probably ask to have one.</p>
 <h2 id="alternatives-considered">Alternatives considered</h2>
 <p>When we started looking for what was used as a field bus, we identified big
-contenders based on the bandwidth and general availability: I2C[^3], CAN, and
+contenders based on the bandwidth and general availability: I2C<sup id="fnref:3"><a class="footnote-ref" href="#fn:3">3</a></sup>, CAN, and
 Ethernet-based platforms (IP, ModBus, Ethercat). We removed I2C as it operates
 in a master-slave configuration: we wanted the ability for any board to send
 messages on the bus. Ethernet-based solutions were the most advanced ones, but
@@ -314,7 +315,7 @@ but we were spending a lot of time dealing with low level work, as well as
 optimizing to not use too much RAM. This led us to switching back the code to
 run on Linux again, but this time including the realtime part as well, with
 everything written in C++. You can read more about this switch
-<a href="https://cvra.ch/robot-software/design/linux-master/">[there]</a>.</p>
+<a href="https://cvra.ch/robot-software/design/linux-master/">there</a>.</p>
 <p>We experimented with ROS for one year in 2016, using an architecture pretty
 similar to the one presented here. The biggest downside of this approach is that
 the build tools for ROS are not very nice to use and don't support cross
@@ -322,7 +323,7 @@ compilation, which makes building software really slow. The ROS navigation stack
 was very CPU hungry, which did not help with our limited CPU resources. It could
 certainly be interesting to come back to it now that ROS2 is available. You can
 read more about this approach
-<a href="https://cvra.ch/blog/2016/goldorak-post-mortem">[here]</a>.</p>
+<a href="https://cvra.ch/blog/2016/goldorak-post-mortem">here</a>.</p>
 <h2 id="future-work">Future work</h2>
 <h3 id="communication-between-robots">Communication between robots</h3>
 <p>The work presented in this article solves the issue of communicating inside the
@@ -339,14 +340,25 @@ however further study is needed.</p>
 order to have real time behavior, or TCP to have reliable transmission? Do we
 handle errors at the application layer? Do we have something in-between for
 reliable ordering of messages (à la Paxos)?</p>
-<p>[^1]: The software landscape for FPGA has since changed, and it might be easier
-    now thanks to projects like <a href="http://www.clifford.at/yosys/">Yosys</a> and
-    <a href="https://www.chisel-lang.org/">Chisel</a>.
-[^2]: Serialization is the process of taking a high level structure and
-    translating it to bits on the wire.
-[^3]: I2C is typically not considered a fieldbus and was never designed for
-    inter-board communication. However it is commonly used in Eurobot due to
-    its relative simplicity.</p>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:1">
+<p>The software landscape for FPGA has since changed, and it might be easier
+now thanks to projects like <a href="http://www.clifford.at/yosys/">Yosys</a> and
+<a href="https://www.chisel-lang.org/">Chisel</a>.&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:2">
+<p>Serialization is the process of taking a high level structure and
+translating it to bits on the wire.&#160;<a class="footnote-backref" href="#fnref:2" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+<li id="fn:3">
+<p>I2C is typically not considered a fieldbus and was never designed for
+inter-board communication. However it is commonly used in Eurobot due to
+its relative simplicity.&#160;<a class="footnote-backref" href="#fnref:3" title="Jump back to footnote 3 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
 
 
 </section>
