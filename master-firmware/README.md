@@ -31,7 +31,7 @@ Note that only this command is required after changing source file.
 docker run -it -v $(pwd):/src -w /src/build-docker antoinealb/cvra-sdk make master-firmware.ipk
 ```
 
-The resulting file is `build/master-firmware/master-firmware.ipk`.
+The resulting file is `build-docker/master-firmware/master-firmware.ipk`.
 
 ## Flashing the result to the Pi
 
