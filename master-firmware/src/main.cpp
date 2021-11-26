@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <sys/mman.h>
 
 #include <thread>
 #include <absl/flags/flag.h>
@@ -44,6 +45,7 @@ static MESSAGEBUS_POSIX_SYNC_DECL(bus_sync);
 ABSL_FLAG(std::string, can_iface, "vcan0", "SocketCAN interface to use. If empty, disable UAVCAN.");
 ABSL_FLAG(bool, verbose, false, "Enable verbose output");
 ABSL_FLAG(bool, enable_gui, true, "Enable on-robot GUI");
+ABSL_FLAG(bool, lock_memory, false, "Prevent the memory owned by the process from being paged out to disk. Required for realtime operations. Requires raising the MLOCK limit on Linux.");
 ABSL_FLAG(std::string, robot_config, "simulation", "Which config to load, can be order, chaos or simulation.");
 
 void config_load_err_cb(void* arg, const char* id, const char* err)
@@ -164,7 +166,13 @@ int main(int argc, char** argv)
     position_manager_start();
     trajectory_manager_start();
 
-    //strategy_play_game();
+    // Prevent memory from being paged out to disk.
+    // See https://linux.die.net/man/2/mlockall
+    if (absl::GetFlag(FLAGS_lock_memory)) {
+        mlockall(MCL_CURRENT | MCL_FUTURE);
+    }
+
+    // strategy_play_game();
 
     while (true) {
         std::this_thread::sleep_for(1s);

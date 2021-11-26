@@ -6,6 +6,7 @@ Type=simple
 User=root
 # TODO(antoinealb): What do we want to do with the onboard LED?
 ExecStart=/bin/xinit /bin/cvra-master --enable_gui --can_iface="can0" \
+    --lock_memory \
     --led_comm_path=/sys/class/leds/onboard \
     --led_ready_path=/sys/class/leds/ready \
     --led_debug_path=/sys/class/leds/debug \
@@ -14,6 +15,7 @@ ExecStart=/bin/xinit /bin/cvra-master --enable_gui --can_iface="can0" \
     --led_power_path=/sys/class/leds/power \
     --strat_autoposition --strat_wait_for_starter
 Restart=on-failure
+LimitMEMLOCK=infinity
 
 
 [Install]
