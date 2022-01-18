@@ -148,46 +148,50 @@ Theme by GitBook
 However, we want this to happen through CAN, in order to learn how to implement new services.</p>
 <h2 id="disabling-the-automatic-led-blinking">Disabling the automatic LED blinking</h2>
 <p>Go to the <code>can-io-firmware</code>, and edit <code>main.c</code> to disable the blinker thread:</p>
-<div class="codehilite"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">halInit</span><span class="p">();</span><span class="w"></span>
-<span class="w">    </span><span class="n">chSysInit</span><span class="p">();</span><span class="w"></span>
+<div class="codehilite"><pre><span></span><code>:::c++
+int main(void)
+{
+    halInit();
+    chSysInit();
 
-<span class="w">    </span><span class="n">debug_init</span><span class="p">();</span><span class="w"></span>
-<span class="w">    </span><span class="n">NOTICE</span><span class="p">(</span><span class="s">&quot;boot&quot;</span><span class="p">);</span><span class="w"></span>
+    debug_init();
+    NOTICE(&quot;boot&quot;);
 
-<span class="w">    </span><span class="c1">// comment the following line</span>
-<span class="w">    </span><span class="c1">// blinker_start();</span>
+    // comment the following line
+    // blinker_start();
 </code></pre></div>
 
 <p>Then, rebuild the new firmware for the CAN IO board, by running the following commands:</p>
-<div class="codehilite"><pre><span></span><code><span class="nb">cd</span> can-io-firmware/
+<div class="codehilite"><pre><span></span><code>:::bash
+cd can-io-firmware/
 packager
 make dsdlc
-make <span class="nv">USE_BOOTLOADER</span><span class="o">=</span>yes
+make USE_BOOTLOADER=yes
 </code></pre></div>
 
 <p>We can now power the bus through USB, and to flash the board:</p>
-<div class="codehilite"><pre><span></span><code><span class="c1"># Note that the path to the serial port (/dev/...) changes from computer</span>
-<span class="c1"># to computer.</span>
+<div class="codehilite"><pre><span></span><code>:::bash
+# Note that the path to the serial port (/dev/...) changes from computer
+# to computer.
 can_dongle_power /dev/tty.usbmodem3031 on
 
-<span class="c1"># Check that the board is detected</span>
+# Check that the board is detected
 bootloader_read_config --all /dev/tty.usbmodem3031
 </code></pre></div>
 
 <p>You should get the following output.
 If you get an error you can retry, as it can get stuck.</p>
-<div class="codehilite"><pre><span></span><code><span class="p">{</span>
-    <span class="nt">&quot;1&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="nt">&quot;ID&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="nt">&quot;application_crc&quot;</span><span class="p">:</span> <span class="mi">1298708532</span><span class="p">,</span>
-        <span class="nt">&quot;application_size&quot;</span><span class="p">:</span> <span class="mi">44808</span><span class="p">,</span>
-        <span class="nt">&quot;device_class&quot;</span><span class="p">:</span> <span class="s2">&quot;can-io-board&quot;</span><span class="p">,</span>
-        <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;foobar2000&quot;</span><span class="p">,</span>
-        <span class="nt">&quot;update_count&quot;</span><span class="p">:</span> <span class="mi">2</span>
-    <span class="p">}</span>
-<span class="p">}</span>
+<div class="codehilite"><pre><span></span><code>:::json
+{
+    &quot;1&quot;: {
+        &quot;ID&quot;: 1,
+        &quot;application_crc&quot;: 1298708532,
+        &quot;application_size&quot;: 44808,
+        &quot;device_class&quot;: &quot;can-io-board&quot;,
+        &quot;name&quot;: &quot;foobar2000&quot;,
+        &quot;update_count&quot;: 2
+    }
+}
 </code></pre></div>
 
 <p>This is the configuration of the bootloader for this board.
@@ -200,12 +204,13 @@ It is not erased when reflashing and can be read from the application.</p>
 <li>Finally, <strong>update_count</strong> is the number of times a new firmware was flashed by the bootloader, we use it to find if there are issues with old boards.</li>
 </ul>
 <p>Now that we know the ID of our board we can flash it with our fresh firmware:</p>
-<div class="codehilite"><pre><span></span><code>bootloader_flash --port /dev/tty.usbmodem3031 <span class="se">\</span>
-    --binary build/ch.bin <span class="se">\</span>
-    --base-address 0x08003800 <span class="se">\</span>
-    --device-class can-io-board <span class="se">\</span>
-    --run <span class="se">\</span>
-    <span class="m">1</span>
+<div class="codehilite"><pre><span></span><code>:::bash
+bootloader_flash --port /dev/tty.usbmodem3031 \
+    --binary build/ch.bin \
+    --base-address 0x08003800 \
+    --device-class can-io-board \
+    --run \
+    1
 </code></pre></div>
 
 <p>As you can see the bootloader requires a few flags to flash the board.
@@ -235,62 +240,66 @@ int32 data
 This will generate the C++ code required to serialize and interpret our new message type.</p>
 <h2 id="handling-the-new-message-type-in-our-application">Handling the new message type in our application</h2>
 <p>Create a new C++ file <code>can-io-firmware/src/uavcan/LEDCommand_handler.cpp</code> with the following content</p>
-<div class="codehilite"><pre><span></span><code><span class="cm">/* For accessing the GPIO functions */</span><span class="w"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;hal.h&gt;</span><span class="cp"></span>
+<div class="codehilite"><pre><span></span><code>:::c++
+/* For accessing the GPIO functions */
+#include &lt;hal.h&gt;
 
-<span class="cm">/* UAVCAN interface */</span><span class="w"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;uavcan/uavcan.hpp&gt;</span><span class="cp"></span>
+/* UAVCAN interface */
+#include &lt;uavcan/uavcan.hpp&gt;
 
-<span class="cm">/* Code generated from our .uavcan file */</span><span class="w"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cvra/io/LEDCommand.hpp&gt;</span><span class="cp"></span>
+/* Code generated from our .uavcan file */
+#include &lt;cvra/io/LEDCommand.hpp&gt;
 
-<span class="cm">/* This function is called every time we receive a request for our newly</span>
-<span class="cm"> * defined LedCommand service.</span>
-<span class="cm"> */</span><span class="w"></span>
-<span class="kt">void</span><span class="w"> </span><span class="nf">LEDCommand_handler</span><span class="p">(</span><span class="w"></span>
-<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">uavcan</span><span class="o">::</span><span class="n">ReceivedDataStructure</span><span class="o">&lt;</span><span class="n">cvra</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">LEDCommand</span><span class="o">::</span><span class="n">Request</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">req</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="n">cvra</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">LEDCommand</span><span class="o">::</span><span class="n">Response</span><span class="o">&amp;</span><span class="w"> </span><span class="n">rsp</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="cm">/*  req contains the incoming data, while rsp will be sent back as a reply</span>
-<span class="cm">     *  to this request. */</span><span class="w"></span>
+/* This function is called every time we receive a request for our newly
+ * defined LedCommand service.
+ */
+void LEDCommand_handler(
+    const uavcan::ReceivedDataStructure&lt;cvra::io::LEDCommand::Request&gt;&amp; req,
+    cvra::io::LEDCommand::Response&amp; rsp)
+{
+    /*  req contains the incoming data, while rsp will be sent back as a reply
+     *  to this request. */
 
-<span class="w">    </span><span class="cm">/* Set the LED status to the requested value */</span><span class="w"></span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">req</span><span class="p">.</span><span class="n">led_status</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">palSetPad</span><span class="p">(</span><span class="n">GPIOA</span><span class="p">,</span><span class="w"> </span><span class="n">GPIOA_LED</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">palClearPad</span><span class="p">(</span><span class="n">GPIOA</span><span class="p">,</span><span class="w"> </span><span class="n">GPIOA_LED</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+    /* Set the LED status to the requested value */
+    if (req.led_status) {
+        palSetPad(GPIOA, GPIOA_LED);
+    } else {
+        palClearPad(GPIOA, GPIOA_LED);
+    }
 
-<span class="w">    </span><span class="cm">/* Reply with an example data. */</span><span class="w"></span>
-<span class="w">    </span><span class="n">rsp</span><span class="p">.</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+    /* Reply with an example data. */
+    rsp.data = 42;
+}
 </code></pre></div>
 
 <p>Also create the associated header, <code>can-io-firmware/src/uavcan/LEDCommand_handler.hpp</code>.
 In this file we will put the prototype of our handler:</p>
-<div class="codehilite"><pre><span></span><code><span class="cp">#pragma once</span>
+<div class="codehilite"><pre><span></span><code>:::c++
+#pragma once
 
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;uavcan/uavcan.hpp&gt;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cvra/io/LEDCommand.hpp&gt;</span><span class="cp"></span>
+#include &lt;uavcan/uavcan.hpp&gt;
+#include &lt;cvra/io/LEDCommand.hpp&gt;
 
-<span class="kt">void</span><span class="w"> </span><span class="nf">LEDCommand_handler</span><span class="p">(</span><span class="w"></span>
-<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">uavcan</span><span class="o">::</span><span class="n">ReceivedDataStructure</span><span class="o">&lt;</span><span class="n">cvra</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">LEDCommand</span><span class="o">::</span><span class="n">Request</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">req</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="n">cvra</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">LEDCommand</span><span class="o">::</span><span class="n">Response</span><span class="w"> </span><span class="o">&amp;</span><span class="n">rsp</span><span class="p">);</span><span class="w"></span>
+void LEDCommand_handler(
+    const uavcan::ReceivedDataStructure&lt;cvra::io::LEDCommand::Request&gt;&amp; req,
+    cvra::io::LEDCommand::Response &amp;rsp);
 </code></pre></div>
 
 <p>We can then add this new file to the build system, in <code>can-io-firmware/package.yml</code>:</p>
-<div class="codehilite"><pre><span></span><code><span class="c1"># [...]</span>
-<span class="nt">target.arm</span><span class="p">:</span>
-<span class="c1"># [...]</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">src/uavcan/ServoPWM_handler.cpp</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">src/uavcan/DigitalInput_pub.cpp</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">src/uavcan/LEDCommand_handler.cpp</span> <span class="c1"># add this line</span>
-<span class="c1"># [...]</span>
+<div class="codehilite"><pre><span></span><code>:::yaml
+# [...]
+target.arm:
+# [...]
+  - src/uavcan/ServoPWM_handler.cpp
+  - src/uavcan/DigitalInput_pub.cpp
+  - src/uavcan/LEDCommand_handler.cpp # add this line
+# [...]
 </code></pre></div>
 
 <p>Now you can regenerate the Makefiles (<code>packager</code>) and rebuild the binary:</p>
-<div class="codehilite"><pre><span></span><code>packager
-make <span class="nv">USE_BOOTLOADER</span><span class="o">=</span>yes
+<div class="codehilite"><pre><span></span><code>:::bash
+packager
+make USE_BOOTLOADER=yes
 </code></pre></div>
 
 <p>Finally, reflash it.
@@ -299,41 +308,42 @@ You can use the same command as before, but you need to power cycle the board fi
 <p>Now it is time to drive our LED from our computer, using a simple Python script.
 Put the following in <code>can-io-firmware/blink.py</code>.
 You can run it by running <code>cd can-io-firmware &amp;&amp; python blink.py</code>.</p>
-<div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">uavcan</span>
+<div class="codehilite"><pre><span></span><code>:::python
+import uavcan
 
-<span class="c1"># Reads our new custom message definition</span>
-<span class="n">uavcan</span><span class="o">.</span><span class="n">load_dsdl</span><span class="p">(</span><span class="s2">&quot;../uavcan_data_types/cvra&quot;</span><span class="p">)</span>
+# Reads our new custom message definition
+uavcan.load_dsdl(&quot;../uavcan_data_types/cvra&quot;)
 
-<span class="c1"># Creates a UAVCAN device with address 123.</span>
-<span class="c1"># As before, you might have to change the serial port to which your CAN adapter</span>
-<span class="c1"># is connected.</span>
-<span class="n">node</span> <span class="o">=</span> <span class="n">uavcan</span><span class="o">.</span><span class="n">make_node</span><span class="p">(</span><span class="s2">&quot;/dev/tty.usbmodem3031&quot;</span><span class="p">,</span> <span class="n">node_id</span><span class="o">=</span><span class="mi">123</span><span class="p">)</span>
-<span class="n">BOARD_ID</span> <span class="o">=</span> <span class="mi">1</span>
+# Creates a UAVCAN device with address 123.
+# As before, you might have to change the serial port to which your CAN adapter
+# is connected.
+node = uavcan.make_node(&quot;/dev/tty.usbmodem3031&quot;, node_id=123)
+BOARD_ID = 1
 
-<span class="n">led_status</span> <span class="o">=</span> <span class="kc">True</span>
+led_status = True
 
-<span class="c1"># This function is called every time we receive a response from the board, it</span>
-<span class="c1"># simply prints the data we get back</span>
-<span class="k">def</span> <span class="nf">led_command_reply_received</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;reponse data&quot;</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+# This function is called every time we receive a response from the board, it
+# simply prints the data we get back
+def led_command_reply_received(event):
+    print(&quot;reponse data&quot;, event.response.data)
 
 
-<span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="c1"># Process UAVCAN messages for 1 second, then returns.</span>
-        <span class="n">node</span><span class="o">.</span><span class="n">spin</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+while True:
+    try:
+        # Process UAVCAN messages for 1 second, then returns.
+        node.spin(1)
 
-        <span class="c1"># Sends a request to set the LED status to our target board.</span>
-        <span class="n">node</span><span class="o">.</span><span class="n">request</span><span class="p">(</span>
-            <span class="n">uavcan</span><span class="o">.</span><span class="n">thirdparty</span><span class="o">.</span><span class="n">cvra</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">LEDCommand</span><span class="o">.</span><span class="n">Request</span><span class="p">(</span><span class="n">led_status</span><span class="o">=</span><span class="n">led_status</span><span class="p">),</span>
-            <span class="n">BOARD_ID</span><span class="p">,</span>
-            <span class="n">led_command_reply_received</span><span class="p">,</span>
-        <span class="p">)</span>
+        # Sends a request to set the LED status to our target board.
+        node.request(
+            uavcan.thirdparty.cvra.io.LEDCommand.Request(led_status=led_status),
+            BOARD_ID,
+            led_command_reply_received,
+        )
 
-        <span class="c1"># Finally, invert the LED state so that it changes once a second.</span>
-        <span class="n">led_status</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">led_status</span>
-    <span class="k">except</span> <span class="n">uavcan</span><span class="o">.</span><span class="n">UAVCANException</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Node error:&quot;</span><span class="p">,</span> <span class="n">ex</span><span class="p">)</span>
+        # Finally, invert the LED state so that it changes once a second.
+        led_status = not led_status
+    except uavcan.UAVCANException as ex:
+        print(&quot;Node error:&quot;, ex)
 </code></pre></div>
 
 <h2 id="conclusion">Conclusion</h2>

@@ -145,22 +145,25 @@ Follow the instructions for your platform, as well as the one in common for many
 <li>Install the <a href="https://brew.sh">Homebrew</a> package manager.</li>
 <li>Run the following commands, which will install the latest version of the toolchain.</li>
 </ol>
-<div class="codehilite"><pre><span></span><code>$ brew tap PX4/homebrew-px4
+<div class="codehilite"><pre><span></span><code>:::bash
+$ brew tap PX4/homebrew-px4
 $ brew update
 $ brew install gcc-arm-none-eabi
 </code></pre></div>
 
 <p>You can now check that the compiler is installed. Don't worry if your version does not exactly match the one in this example.</p>
-<div class="codehilite"><pre><span></span><code>$ arm-none-eabi-gcc --version
-arm-none-eabi-gcc <span class="o">(</span>GNU Tools <span class="k">for</span> ARM Embedded Processors<span class="o">)</span> <span class="m">4</span>.9.3 <span class="m">20150529</span> <span class="o">(</span>release<span class="o">)</span> <span class="o">[</span>ARM/embedded-4_9-branch revision <span class="m">224288</span><span class="o">]</span>
-Copyright <span class="o">(</span>C<span class="o">)</span> <span class="m">2014</span> Free Software Foundation, Inc.
-This is free software<span class="p">;</span> see the <span class="nb">source</span> <span class="k">for</span> copying conditions.  There is NO
-warranty<span class="p">;</span> not even <span class="k">for</span> MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+<div class="codehilite"><pre><span></span><code>:::bash
+$ arm-none-eabi-gcc --version
+arm-none-eabi-gcc (GNU Tools for ARM Embedded Processors) 4.9.3 20150529 (release) [ARM/embedded-4_9-branch revision 224288]
+Copyright (C) 2014 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 </code></pre></div>
 
 <h2 id="linux">Linux</h2>
 <p>The instructions here depend on the particular Linux distribution, the instructions here were tested on Ubuntu 20.04.</p>
-<div class="codehilite"><pre><span></span><code>$ apt update
+<div class="codehilite"><pre><span></span><code>:::bash
+$ apt update
 $ apt install gcc-arm-none-eabi build-essential
 </code></pre></div>
 
