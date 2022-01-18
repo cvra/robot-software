@@ -173,24 +173,24 @@ static bool trajectory_is_cartesian(struct trajectory* traj) EXCLUSIVE_LOCKS_REQ
     return false;
 }
 
-bool trajectory_crosses_obstacle(struct _robot* robot, poly_t* opponent, point_t* intersection)
+bool trajectory_crosses_obstacle(struct _robot* arobot, poly_t* opponent, point_t* intersection)
 {
     point_t current_position = {
-        position_get_x_float(&robot->pos),
-        position_get_y_float(&robot->pos)};
+        position_get_x_float(&arobot->pos),
+        position_get_y_float(&arobot->pos)};
     point_t target_position;
 
-    absl::MutexLock l(&robot->traj.lock_);
-    if (trajectory_is_cartesian(&robot->traj)) {
-        target_position.x = robot->traj.target.cart.x;
-        target_position.y = robot->traj.target.cart.y;
+    absl::MutexLock l(&arobot->traj.lock_);
+    if (trajectory_is_cartesian(&arobot->traj)) {
+        target_position.x = arobot->traj.target.cart.x;
+        target_position.y = arobot->traj.target.cart.y;
     } else {
         vect2_pol delta_pol;
-        delta_pol.r = robot->traj.target.pol.distance - (float)rs_get_distance(&robot->rs);
-        delta_pol.theta = robot->traj.target.pol.angle - (float)rs_get_angle(&robot->rs);
+        delta_pol.r = arobot->traj.target.pol.distance - (float)rs_get_distance(&arobot->rs);
+        delta_pol.theta = arobot->traj.target.pol.angle - (float)rs_get_angle(&arobot->rs);
 
         // Account for current heading
-        delta_pol.theta += position_get_a_deg_s16(&robot->pos);
+        delta_pol.theta += position_get_a_deg_s16(&arobot->pos);
 
         vect2_cart delta_xy;
         vect2_pol2cart(&delta_pol, &delta_xy);
@@ -201,7 +201,7 @@ bool trajectory_crosses_obstacle(struct _robot* robot, poly_t* opponent, point_t
 
     uint8_t path_crosses_obstacle = is_crossing_poly(current_position, target_position, intersection, opponent);
     bool current_pos_inside_obstacle =
-        math_point_is_in_square(opponent, position_get_x_s16(&robot->pos), position_get_y_s16(&robot->pos));
+        math_point_is_in_square(opponent, position_get_x_s16(&arobot->pos), position_get_y_s16(&arobot->pos));
 
     return path_crosses_obstacle == 1 || current_pos_inside_obstacle;
 }
