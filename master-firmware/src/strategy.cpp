@@ -15,7 +15,6 @@
 #include "robot_helpers/math_helpers.h"
 #include "robot_helpers/trajectory_helpers.h"
 #include "robot_helpers/autoposition.h"
-#include "robot_helpers/motor_helpers.h"
 #include "base/base_controller.h"
 
 #if USE_MAP
