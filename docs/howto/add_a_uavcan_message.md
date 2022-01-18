@@ -74,6 +74,11 @@ If you get an error you can retry, as it can get stuck.
 }
 ```
 
+If you get a message "Permission Denied", it means your user does not have permissions to access serial ports.
+You can confirm this by running the same command, but with `sudo` to become admin first (`sudo can_dongle_power /dev/tty.usbmodem3031 on`).
+You will be asked for your admin password; nothing will be shown on the screen, its normal for `sudo`.
+If it works, you can then give your user access to the serial ports by running `sudo usermod -a -G dialout $USER`, then rebooting (tested on Ubuntu).
+
 This is the configuration of the bootloader for this board.
 It is not erased when reflashing and can be read from the application.
 
