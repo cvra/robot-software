@@ -1,5 +1,5 @@
 #include <string.h>
-#include "softspi.h"
+#include "softspi/softspi.h"
 
 void softspi_send(softspi_t* dev, const uint8_t* txbuf, uint8_t* rxbuf, size_t size)
 {

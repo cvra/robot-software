@@ -2,7 +2,6 @@ dependency-dir: ../lib
 
 source:
   - src/pressure_sensor.c
-  - src/softspi.c
 
 depends:
   - chibios-syscalls
@@ -12,6 +11,7 @@ depends:
   - crc
   - version
   - quadramp
+  - softspi
 
 target.arm:
   - ../lib/can-bootloader/config.c
@@ -31,7 +31,6 @@ target.arm:
 
 tests:
   - tests/pressure_sensor_driver_test.cpp
-  - tests/softspi_test.cpp
 
 templates:
     app_src.mk.jinja: app_src.mk

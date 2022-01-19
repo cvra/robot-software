@@ -1,0 +1,10 @@
+depends:
+    - test-runner
+
+source:
+    - softspi.c
+
+tests:
+    - softspi_test.cpp
+
+include_directories: [include]

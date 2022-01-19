@@ -4,7 +4,7 @@
 #include <hal.h>
 
 #include "error/error.h"
-#include "softspi.h"
+#include "softspi/softspi.h"
 
 softspi_t spi;
 

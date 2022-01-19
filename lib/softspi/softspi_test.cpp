@@ -2,7 +2,7 @@
 #include <cstdint>
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
-#include "../src/softspi.h"
+#include "softspi/softspi.h"
 
 extern "C" void softspi_sck_set(softspi_t* dev, int status)
 {
