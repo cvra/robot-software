@@ -3,6 +3,6 @@
 
 #include <uavcan/uavcan.hpp>
 
-void wheel_encoder_publish(uavcan::INode& node);
+int wheel_encoder_init(uavcan::INode& node);
 
 #endif

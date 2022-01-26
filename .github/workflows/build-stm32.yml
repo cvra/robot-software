@@ -12,6 +12,7 @@ jobs:
           - proximity-beacon
           - sensor
           - uwb-beacon
+          - wheel-encoder
     steps:
     - uses: actions/checkout@v2
       with:

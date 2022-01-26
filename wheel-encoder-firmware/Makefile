@@ -253,7 +253,7 @@ PRE_MAKE_ALL_RULE_HOOK: src/version.c
 .PHONY: src/version.c
 
 src/version.c:
-	@../lib/version/version.sh src/version.c
+	@../lib/version/version.sh wheel-control-firmware src/version.c
 
 .PHONY: flash
 flash: all

@@ -21,6 +21,9 @@ depends:
     - crc
     - cmp
     - version
+    - parameter
+    - parameter_flash_storage
+
 
 tests: []
 

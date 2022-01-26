@@ -77,8 +77,7 @@ int main(void)
     sdStart(&SD3, NULL);
     ch_stdout = (BaseSequentialStream*)&SD3;
 
-    encoder_init_primary();
-    encoder_init_secondary();
+    encoder_init();
 
     chprintf(ch_stdout, "boot\n");
     chprintf(ch_stdout, "%s: %d\n", config.board_name, config.ID);
