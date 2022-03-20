@@ -176,7 +176,7 @@ make USE_BOOTLOADER=yes
 can_dongle_power /dev/tty.usbmodem3031 on
 
 # Check that the board is detected
-bootloader_read_config --all /dev/tty.usbmodem3031
+bootloader_read_config -p /dev/tty.usbmodem3031 --all
 </code></pre></div>
 
 <p>You should get the following output.
