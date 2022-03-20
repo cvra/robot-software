@@ -54,7 +54,7 @@ We can now power the bus through USB, and to flash the board:
 can_dongle_power /dev/tty.usbmodem3031 on
 
 # Check that the board is detected
-bootloader_read_config --all /dev/tty.usbmodem3031
+bootloader_read_config -p /dev/tty.usbmodem3031 --all
 ```
 
 You should get the following output.
