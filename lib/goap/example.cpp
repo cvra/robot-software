@@ -3,8 +3,8 @@
 #include <goap/goap.hpp>
 
 struct LumberjackState {
-    bool has_wood;
-    bool has_axe;
+    bool has_wood{false};
+    bool has_axe{false};
 };
 
 bool operator==(const LumberjackState& b, const LumberjackState& a)
