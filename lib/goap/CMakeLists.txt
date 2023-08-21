@@ -7,3 +7,9 @@ cvra_add_test(TARGET goap_test SOURCES
     DEPENDENCIES
     goap
 )
+
+add_executable(goap_example
+    example.cpp
+)
+
+target_link_libraries(goap_example goap)
