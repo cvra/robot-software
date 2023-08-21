@@ -181,7 +181,7 @@ TEST(SimpleScenario, WhatHappensIfThereIsNoPath)
     goap::Action<TestState>* path[max_path_len] = {nullptr};
 
     auto cost = planner.plan(state, goal, actions, action_count, path, max_path_len);
-    CHECK_EQUAL(-1, cost);
+    CHECK_EQUAL(goap::kErrorNoPathFound, cost);
 }
 
 struct FarAwayState {
@@ -236,7 +236,7 @@ TEST(TooLongPathTestGroup, DoNotFindFarAwayPlan)
 
     // Of course it will fail
     auto cost = planner.plan(state, goal, actions, 1);
-    CHECK_EQUAL(-2, cost);
+    CHECK_EQUAL(goap::kErrorNotEnoughMemory, cost);
 }
 
 TEST(TooLongPathTestGroup, RespectsMaxOutputLength)

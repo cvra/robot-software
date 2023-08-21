@@ -75,8 +75,13 @@ int main()
 
     auto len = planner.plan(state, goal, actions.data(), actions.size(), path, max_path_len);
 
-    if (len <= 0) {
+    if (len == goap::kErrorNoPathFound) {
         std::cout << "Could not find a plan!" << std::endl;
+        return 1;
+    }
+
+    if (len == goap::kErrorNotEnoughMemory) {
+        std::cout << "Not enough memory reserved to explore all options!" << std::endl;
         return 1;
     }
 

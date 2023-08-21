@@ -13,6 +13,9 @@
 
 namespace goap {
 
+const int kErrorNoPathFound = -1;
+const int kErrorNotEnoughMemory = -2;
+
 template <typename State>
 class Action {
 public:
@@ -105,7 +108,7 @@ public:
                         }
 
                         if (!gc) {
-                            return -2;
+                            return kErrorNotEnoughMemory;
                         }
 
                         if (gc_prev) {
@@ -152,8 +155,8 @@ public:
             }
         }
 
-        // No path was found
-        return -1;
+        // Reaching here means we did not find a path
+        return kErrorNoPathFound;
     }
 };
 
