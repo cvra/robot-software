@@ -15,10 +15,7 @@ bool operator==(const LumberjackState& b, const LumberjackState& a)
 struct ForestryGoal : goap::Goal<LumberjackState> {
     int distance_to(const LumberjackState& state) const override
     {
-        if (state.has_wood) {
-            return 0;
-        }
-        return 1;
+        return goap::Distance().shouldBeTrue(state.has_wood);
     }
 };
 
