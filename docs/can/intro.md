@@ -16,7 +16,7 @@
 <div class="album">
 <div class="row">
     <div class="large-6 columns container">
-        <a href="../motor.md">
+        <a href="../motor">
             <img src="../images/motor-board.jpg" class="image">
             <div class="overlay">
                 <div class="text">Motor board</div>
@@ -24,7 +24,7 @@
         </a>
     </div>
     <div class="large-6 columns container">
-        <a href="../io.md">
+        <a href="../io">
             <img src="../images/io-board.jpg" class="image">
             <div class="overlay">
                 <div class="text">IO board</div>
@@ -34,7 +34,7 @@
 </div>
 <div class="row">
     <div class="large-6 columns container">
-        <a href="../sensor.md">
+        <a href="../sensor">
             <img src="../images/sensor-board.jpg" class="image">
             <div class="overlay">
                 <div class="text">Sensor board</div>
@@ -42,7 +42,7 @@
         </a>
     </div>
     <div class="large-6 columns container">
-        <a href="../beacon.md">
+        <a href="../beacon">
             <img src="../images/beacon-board.jpg" class="image">
             <div class="overlay">
                 <div class="text">Beacon board</div>
@@ -52,7 +52,7 @@
 </div>
 <div class="row">
     <div class="large-6 columns container">
-        <a href="../adapter.md">
+        <a href="../adapter">
             <img src="../images/can-adapter.jpg" class="image">
             <div class="overlay">
                 <div class="text">CAN adapter</div>
@@ -60,7 +60,7 @@
         </a>
     </div>
     <div class="large-6 columns container">
-        <a href="../bootloader.md">
+        <a href="../bootloader">
             <img src="../images/bootloader.png" class="image">
             <div class="overlay">
                 <div class="text">CAN bootloader</div>
